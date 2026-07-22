@@ -18,10 +18,13 @@ Housing and collection progression are retained. Only the final maximum changes.
 
 1. Extract the release ZIP.
 2. Double-click `Launch Virtual Villagers Fun Patcher.bat`.
-3. Choose one original game EXE and an output folder.
-4. Use **Validate** or **Dry Run**, then **Create Modified EXE**.
+3. Choose **One Game** or **All 5 Games**.
+4. Select the original EXE or EXEs and an output folder.
+5. Validate, dry run, or create the modified EXE set.
 
-The patcher remembers both paths in `patcher_local_settings.json`. It never edits the original EXE. It creates exactly one of these names:
+In **All 5 Games**, you can choose each EXE separately or use **Find All 5 in Parent Folder...** when the five original EXEs are directly in the chosen folder or one folder below it. The patcher validates every source before writing any batch output.
+
+The patcher remembers the one-game path, all five bulk paths, and the output folder in `patcher_local_settings.json`. It never edits an original EXE. It creates:
 
 - `Virtual Villagers - A New Home - Modified Max Pop.exe`
 - `Virtual Villagers - The Lost Children - Modified Max Pop.exe`
@@ -29,20 +32,31 @@ The patcher remembers both paths in `patcher_local_settings.json`. It never edit
 - `Virtual Villagers - The Tree of Life - Modified Max Pop.exe`
 - `Virtual Villagers - New Believers - Modified Max Pop.exe`
 
-A `.patch-log.json` file records the source and output hashes and every applied byte guard.
+Each output receives a `.patch-log.json` file recording the source and output hashes and every applied byte guard.
 
 ## Supported builds and safety
 
-Support is bound to the exact SHA-256 and size of each supplied stock executable. Unknown, previously modified, or corrupt EXEs are refused. Every original byte is checked before editing, outputs are written atomically, file size is preserved, the PE checksum is recalculated, and the finished file is read back and hashed.
+Support is bound to the exact SHA-256 and size of each supplied stock executable. Unknown, previously modified, corrupt, duplicated, or incorrectly assigned EXEs are refused. Every original byte is checked before editing, file size is preserved, the PE checksum is recalculated, and each finished file is read back and hashed.
+
+Bulk mode performs exact-build validation, guarded patch rendering, and existing-output checks for all five games before it creates or replaces any final EXE. It stages and verifies all five generated files before committing them to the selected output folder.
 
 No game executable, save, extracted asset, or generated output is stored in this repository.
 
 ## Command line
 
+Single game:
+
 ```text
 python src/vv_fun_patcher.py identify "path\\game.exe"
 python src/vv_fun_patcher.py dry-run "path\\game.exe"
 python src/vv_fun_patcher.py apply "path\\game.exe" "output folder"
+```
+
+All five:
+
+```text
+python src/vv_fun_patcher.py dry-run-all --vv1 "path\\vv1.exe" --vv2 "path\\vv2.exe" --vv3 "path\\vv3.exe" --vv4 "path\\vv4.exe" --vv5 "path\\vv5.exe"
+python src/vv_fun_patcher.py apply-all "output folder" --vv1 "path\\vv1.exe" --vv2 "path\\vv2.exe" --vv3 "path\\vv3.exe" --vv4 "path\\vv4.exe" --vv5 "path\\vv5.exe"
 ```
 
 Technical evidence is in `docs/max-population-research.md`.

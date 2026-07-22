@@ -1,13 +1,30 @@
 VIRTUAL VILLAGERS FUN PATCHER
 
-1. Double-click “Launch Virtual Villagers Fun Patcher.bat”.
-2. Browse to the ORIGINAL EXE for any one of the five classic PC games.
-3. Choose an output folder.
-4. Click Validate or Dry Run if you want to check it first.
-5. Click Create Modified EXE.
+PATCH ALL FIVE AT ONCE
 
-The original game is never changed. The new file is named:
+1. Double-click "Launch Virtual Villagers Fun Patcher.bat".
+2. Open the "All 5 Games" tab.
+3. Choose each ORIGINAL game EXE.
+   - Or click "Find All 5 in Parent Folder..." if each EXE is directly in the
+     selected folder or in one game folder below it.
+4. Choose an output folder.
+5. Click "Validate All 5" or "Dry Run All 5" if you want to check first.
+6. Click "Patch All 5".
+
+The patcher validates every original EXE before writing any batch output. It then
+creates and verifies all five modified EXEs together.
+
+PATCH ONE GAME
+
+1. Open the "One Game" tab.
+2. Browse to one ORIGINAL game EXE.
+3. Choose an output folder.
+4. Click Validate, Dry Run, or Create Modified EXE.
+
+The original games are never changed. Each new file is named:
 (name of game) - Modified Max Pop.exe
 
-The patcher remembers your selected original EXE and output folder for next time.
-It supports only the five exact original builds it was researched against. An unknown or already-modified EXE is refused instead of guessed.
+The patcher remembers the single-game path, all five bulk paths, and the output
+folder for next time. It supports only the five exact original builds it was
+researched against. Unknown, already-modified, corrupt, duplicate, or incorrectly
+assigned EXEs are refused instead of guessed.

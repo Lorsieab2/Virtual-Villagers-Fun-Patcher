@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import hashlib
 import json
 import struct
 import sys
@@ -11,9 +10,22 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
-from vv_fun_patcher import PatcherError, apply_patch, dry_run, identify, load_builds, pe_checksum, render_patched_bytes, sha256
+from vv_fun_patcher import (
+    PatcherError,
+    apply_all,
+    apply_patch,
+    dry_run,
+    dry_run_all,
+    identify,
+    load_builds,
+    pe_checksum,
+    render_patched_bytes,
+    sha256,
+    validate_all_sources,
+)
 
 STOCK = ROOT / "research" / "stock-executables"
+
 
 class ManifestTests(unittest.TestCase):
     def test_names_and_targets(self) -> None:
@@ -33,9 +45,13 @@ class ManifestTests(unittest.TestCase):
             with self.assertRaises(PatcherError):
                 identify(path)
 
+
 @unittest.skipUnless(STOCK.is_dir(), "ignored stock executables are not present")
 class StockIntegrationTests(unittest.TestCase):
-    def test_all_five_stock_builds(self) -> None:
+    def sources(self) -> dict[str, Path]:
+        return {build.id: STOCK / build.input_name for build in load_builds()}
+
+    def test_all_five_stock_builds_individually(self) -> None:
         with tempfile.TemporaryDirectory() as folder:
             output_dir = Path(folder)
             for build in load_builds():
@@ -65,6 +81,58 @@ class StockIntegrationTests(unittest.TestCase):
                         offset = int(patch["offset"], 0)
                         after = bytes.fromhex(patch["after"])
                         self.assertEqual(output.read_bytes()[offset:offset + len(after)], after)
+
+    def test_all_five_bulk_dry_run_and_apply(self) -> None:
+        sources = self.sources()
+        validated = validate_all_sources(sources)
+        self.assertEqual([build.id for build, _ in validated], [build.id for build in load_builds()])
+        previews = dry_run_all(sources)
+        self.assertEqual(len(previews), 5)
+        self.assertEqual([item["game"] for item in previews], [build.title for build in load_builds()])
+        with tempfile.TemporaryDirectory() as folder:
+            results = apply_all(sources, Path(folder))
+            self.assertEqual(len(results), 5)
+            for (output, log), build in zip(results, load_builds(), strict=True):
+                self.assertEqual(output.name, build.output_name)
+                self.assertTrue(output.is_file())
+                self.assertTrue(log.is_file())
+                self.assertEqual(json.loads(log.read_text(encoding="utf-8"))["output_sha256"], sha256(output))
+
+    def test_bulk_invalid_input_writes_nothing(self) -> None:
+        sources = self.sources()
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            bad = root / "bad.exe"
+            bad.write_bytes(b"not a supported game")
+            sources["vv5"] = bad
+            output_dir = root / "new-output"
+            with self.assertRaises(PatcherError):
+                apply_all(sources, output_dir)
+            self.assertFalse(output_dir.exists())
+
+    def test_bulk_wrong_game_slot_writes_nothing(self) -> None:
+        sources = self.sources()
+        sources["vv5"] = sources["vv4"]
+        with tempfile.TemporaryDirectory() as folder:
+            output_dir = Path(folder) / "new-output"
+            with self.assertRaises(PatcherError):
+                apply_all(sources, output_dir)
+            self.assertFalse(output_dir.exists())
+
+    def test_bulk_existing_output_without_overwrite_writes_nothing(self) -> None:
+        sources = self.sources()
+        builds = load_builds()
+        with tempfile.TemporaryDirectory() as folder:
+            output_dir = Path(folder)
+            sentinel = output_dir / builds[0].output_name
+            sentinel.write_bytes(b"keep me")
+            with self.assertRaises(PatcherError):
+                apply_all(sources, output_dir)
+            self.assertEqual(sentinel.read_bytes(), b"keep me")
+            for build in builds[1:]:
+                self.assertFalse((output_dir / build.output_name).exists())
+                self.assertFalse((output_dir / Path(build.output_name).with_suffix(".patch-log.json")).exists())
+
 
 if __name__ == "__main__":
     unittest.main(verbosity=2)
