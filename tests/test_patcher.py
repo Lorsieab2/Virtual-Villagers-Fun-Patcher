@@ -256,6 +256,72 @@ class StockIntegrationTests(unittest.TestCase):
             self.assertEqual(log["fun_patch_names"], ["Easier Healing Mastery"])
             self.assertEqual(len(log["patches"]), 8)
 
+    def test_vv2_teaching_children_grants_skill_is_guarded_and_additive(self) -> None:
+        feature_id = "vv2_teaching_children_grants_skill"
+        feature = next(patch for patch in load_fun_patches() if patch.id == feature_id)
+        build = next(build for build in load_builds() if build.id == "vv2")
+        source = STOCK / build.input_name
+        rendered, applied = render_patched_bytes(
+            source, build, DEFAULT_PATCH_MODE, [feature_id]
+        )
+        self.assertEqual(
+            len(applied),
+            len(build.safety_patches)
+            + len(get_patch_variant(build, DEFAULT_PATCH_MODE)["patches"])
+            + len(feature.patches),
+        )
+        self.assertEqual(
+            bytes(rendered[0x4A7FA:0x4A7FF]),
+            bytes.fromhex("E9D1940200"),
+        )
+        self.assertEqual(
+            bytes(rendered[0x73CD0:0x73CFC]),
+            bytes.fromhex(
+                "606A64E8C8F4F8FF83C40499B905000000F7F98D8493DC070000"
+                "8338647D02FF00616896000000E9036BFDFF"
+            ),
+        )
+        preview = dry_run(source, DEFAULT_PATCH_MODE, [feature_id])
+        self.assertEqual(preview["fun_patches"], [feature_id])
+        self.assertEqual(
+            preview["output_name"],
+            "Virtual Villagers - The Lost Children - Modified Max Pop + Teaching Grants Skill.exe",
+        )
+
+    def test_vv2_fun_patches_combine_without_overlap(self) -> None:
+        feature_ids = [
+            "vv2_easier_healing_mastery",
+            "vv2_teaching_children_grants_skill",
+        ]
+        build = next(build for build in load_builds() if build.id == "vv2")
+        source = STOCK / build.input_name
+        rendered, applied = render_patched_bytes(
+            source, build, DEFAULT_PATCH_MODE, feature_ids
+        )
+        feature_patch_count = sum(
+            len(patch.patches)
+            for patch in load_fun_patches()
+            if patch.id in feature_ids
+        )
+        self.assertEqual(
+            len(applied),
+            len(build.safety_patches)
+            + len(get_patch_variant(build, DEFAULT_PATCH_MODE)["patches"])
+            + feature_patch_count,
+        )
+        self.assertEqual(bytes(rendered[0x73CA0:0x73CC4]), bytes.fromhex(
+            "8BC569C08CE40000C78430E0070000090000006A64558BCEE8D3C8FEFF5F5D5B5EC20800"
+        ))
+        self.assertEqual(bytes(rendered[0x73CD0:0x73CFC]), bytes.fromhex(
+            "606A64E8C8F4F8FF83C40499B905000000F7F98D8493DC0700008338647D02FF00616896000000E9036BFDFF"
+        ))
+        preview = dry_run(source, DEFAULT_PATCH_MODE, feature_ids)
+        self.assertEqual(preview["fun_patches"], feature_ids)
+        self.assertEqual(
+            preview["output_name"],
+            "Virtual Villagers - The Lost Children - Modified Max Pop + Easier Healing + Teaching Grants Skill.exe",
+        )
+
     def test_bulk_feature_applies_only_to_its_game(self) -> None:
         feature_id = "vv2_easier_healing_mastery"
         with tempfile.TemporaryDirectory() as temp:

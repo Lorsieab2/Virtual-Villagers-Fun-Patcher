@@ -8,7 +8,8 @@ VIRTUAL VILLAGERS FUN PATCHER
    - Immediate Fixed Max Pop:
      The absolute maximum is available immediately. Collections no longer
      affect it, and The Secret City's magic tech no longer affects it.
-3. Optional for The Lost Children: check "Easier Healing Mastery".
+3. Optional for The Lost Children: check "Easier Healing Mastery" and/or
+   "Teaching Children Grants Skill".
 4. Open "One Game" or "All 5 Games".
 
 PATCH ALL FIVE AT ONCE
@@ -35,6 +36,9 @@ Immediate Fixed creates:
 When Easier Healing Mastery is selected for VV2, its output name adds:
 + Easier Healing.exe
 
+When Teaching Children Grants Skill is selected for VV2, its name adds:
++ Teaching Grants Skill.exe
+
 Each output and verification log is placed beside its original game EXE. Both
 styles can coexist. Original EXEs are never changed, renamed, replaced, or
 deleted. The patcher remembers the selected style, single-game EXE path, and all
@@ -58,3 +62,10 @@ When a healer or a villager who prefers Healing has no sick villager to treat,
 the patch sends that villager into the game's existing plant-study work state.
 That persistent state is used during normal play and time catch-up. Normal
 healing, sickness, food, skill gains, and plant availability are unchanged.
+
+VV2 TEACHING CHILDREN GRANTS SKILL
+
+Whenever the stock Teaching Children activity enrolls a child as Attending
+Lessons, that child gains one point in one equally random skill: Farming,
+Building, Research, Healing, or Parenting. Skills remain capped at 100. The
+patch does not change who teaches, who attends, or how often lessons happen.

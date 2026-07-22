@@ -369,6 +369,27 @@
           "purpose": "set plant-study state 9 and reuse the stock live and catch-up work dispatcher"
         }
       ]
+    },
+    {
+      "id": "vv2_teaching_children_grants_skill",
+      "game_id": "vv2",
+      "name": "Teaching Children Grants Skill",
+      "description": "Each child attending a Teaching Children lesson gains one point in one equally random skill: Farming, Building, Research, Healing, or Parenting.",
+      "output_tag": "Teaching Grants Skill",
+      "patches": [
+        {
+          "offset": "0x4A7FA",
+          "before": "6896000000",
+          "after": "E9D1940200",
+          "purpose": "route each confirmed lesson attendee through the one-time random skill award"
+        },
+        {
+          "offset": "0x73CD0",
+          "before": "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "after": "606A64E8C8F4F8FF83C40499B905000000F7F98D8493DC0700008338647D02FF00616896000000E9036BFDFF",
+          "purpose": "award one capped point across the five contiguous skill fields with equal odds, then resume the stock lesson queue"
+        }
+      ]
     }
   ]
 }

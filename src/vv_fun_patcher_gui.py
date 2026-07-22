@@ -31,8 +31,8 @@ class App(tk.Tk):
     def __init__(self) -> None:
         super().__init__()
         self.title("Virtual Villagers Fun Patcher")
-        self.geometry("940x780")
-        self.minsize(820, 680)
+        self.geometry("940x850")
+        self.minsize(820, 720)
         self.builds = load_builds()
         self.patch_modes = load_patch_modes()
         self.fun_patches = load_fun_patches()

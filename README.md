@@ -21,6 +21,12 @@ Enable the optional **Easier Healing Mastery (VV2)** checkbox to change the Heal
 
 The patch does not change healing gains, illness, food, skill thresholds, plant availability, or manual plant study. If the option is combined with Collection Progression, the output is named `Virtual Villagers - The Lost Children - Modified Max Pop + Easier Healing.exe`; Immediate Fixed uses the matching `Fixed Max Pop + Easier Healing.exe` name. Max-pop-only names remain unchanged.
 
+## VV2: Teaching Children Grants Skill
+
+Enable **Teaching Children Grants Skill (VV2)** to make the stock Teaching Children activity reward every attending child once when the lesson begins. Each attendee gains exactly one point in Farming, Building, Research, Healing, or Parenting. All five choices have equal odds, and a skill already at 100 is left at 100.
+
+The patch does not create extra lessons, change who attends, alter the teacher requirement, or reward children who are not enrolled by the stock lesson routine. Its output name adds `+ Teaching Grants Skill.exe`; selecting both VV2 options adds both tags.
+
 | Game | Stock final maximum | Collection Progression maximum | Immediate Fixed maximum |
 |---|---:|---:|---:|
 | A New Home | 90 | 256 | 256 |
@@ -67,7 +73,7 @@ No game executable, save, extracted asset, or generated output is committed to t
 
 ## Command line
 
-Pass `--patch-mode collection_progression` or `--patch-mode immediate_fixed` to `dry-run`, `apply`, `dry-run-all`, or `apply-all`. Add `--fun-patch vv2_easier_healing_mastery` for the VV2 option.
+Pass `--patch-mode collection_progression` or `--patch-mode immediate_fixed` to `dry-run`, `apply`, `dry-run-all`, or `apply-all`. Add `--fun-patch vv2_easier_healing_mastery` and/or `--fun-patch vv2_teaching_children_grants_skill` for the VV2 options.
 
 ```text
 python src/vv_fun_patcher.py dry-run "path\game.exe" --patch-mode immediate_fixed
@@ -75,4 +81,4 @@ python src/vv_fun_patcher.py apply "path\game.exe" --patch-mode collection_progr
 python src/vv_fun_patcher.py apply-all --vv1 "path\vv1 folder" --vv2 "path\vv2 folder" --vv3 "path\vv3 folder" --vv4 "path\vv4 folder" --vv5 "path\vv5 folder" --patch-mode immediate_fixed
 ```
 
-Technical evidence is in `docs/max-population-research.md` and `docs/vv2-easier-healing-research.md`.
+Technical evidence is in `docs/max-population-research.md`, `docs/vv2-easier-healing-research.md`, and `docs/vv2-teaching-children-research.md`.
