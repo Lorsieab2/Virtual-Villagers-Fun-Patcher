@@ -347,5 +347,28 @@
       "name": "Immediate Fixed Max Pop",
       "description": "The absolute slot maximum is available immediately; collection bonuses no longer affect it."
     }
+  ],
+  "fun_patches": [
+    {
+      "id": "vv2_easier_healing_mastery",
+      "game_id": "vv2",
+      "name": "Easier Healing Mastery",
+      "description": "Healers and villagers who prefer Healing study plants when no sick villager needs treatment, including during catch-up.",
+      "output_tag": "Easier Healing",
+      "patches": [
+        {
+          "offset": "0x604AD",
+          "before": "5F5D5B32C05EC20800",
+          "after": "E9EE37010090909090",
+          "purpose": "route the no-sick-target healing result into the existing persistent plant-study state"
+        },
+        {
+          "offset": "0x73CA0",
+          "before": "000000000000000000000000000000000000000000000000000000000000000000000000",
+          "after": "8BC569C08CE40000C78430E0070000090000006A64558BCEE8D3C8FEFF5F5D5B5EC20800",
+          "purpose": "set plant-study state 9 and reuse the stock live and catch-up work dispatcher"
+        }
+      ]
+    }
   ]
 }

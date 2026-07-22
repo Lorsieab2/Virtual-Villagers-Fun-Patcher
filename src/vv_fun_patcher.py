@@ -33,6 +33,7 @@ class Record:
 
 Build = Record
 PatchMode = Record
+FunPatch = Record
 
 
 def _manifest() -> dict[str, Any]:
@@ -45,6 +46,44 @@ def load_builds() -> list[Build]:
 
 def load_patch_modes() -> list[PatchMode]:
     return [PatchMode(item) for item in _manifest()["patch_modes"]]
+
+
+def load_fun_patches() -> list[FunPatch]:
+    return [FunPatch(item) for item in _manifest().get("fun_patches", [])]
+
+
+def get_fun_patch(patch_id: str) -> FunPatch:
+    for patch in load_fun_patches():
+        if patch.id == patch_id:
+            return patch
+    raise PatcherError(f"Unknown fun patch: {patch_id}")
+
+
+def _selected_fun_patches(
+    build: Build, patch_ids: tuple[str, ...] | list[str]
+) -> list[FunPatch]:
+    selected: list[FunPatch] = []
+    seen: set[str] = set()
+    for patch_id in patch_ids:
+        if patch_id in seen:
+            continue
+        patch = get_fun_patch(patch_id)
+        if patch.game_id != build.id:
+            raise PatcherError(
+                f"{patch.name} is only available for {patch.game_id.upper()}."
+            )
+        seen.add(patch_id)
+        selected.append(patch)
+    return selected
+
+
+def _output_name(build: Build, patch_mode: str, fun_patches: list[FunPatch]) -> str:
+    base = get_patch_variant(build, patch_mode)["output_name"]
+    if not fun_patches:
+        return base
+    stem = base[:-4] if base.casefold().endswith(".exe") else base
+    tags = " + ".join(patch.output_tag for patch in fun_patches)
+    return f"{stem} + {tags}.exe"
 
 
 def get_patch_mode(patch_mode: str) -> PatchMode:
@@ -153,12 +192,21 @@ def pe_checksum(data: bytearray) -> int:
 
 
 def render_patched_bytes(
-    source: Path, build: Build, patch_mode: str = DEFAULT_PATCH_MODE
+    source: Path,
+    build: Build,
+    patch_mode: str = DEFAULT_PATCH_MODE,
+    fun_patch_ids: tuple[str, ...] | list[str] = (),
 ) -> tuple[bytearray, list[dict[str, str]]]:
     variant = get_patch_variant(build, patch_mode)
+    fun_patches = _selected_fun_patches(build, fun_patch_ids)
     data = bytearray(source.read_bytes())
     applied: list[dict[str, str]] = []
-    for patch in [*build.raw.get("safety_patches", []), *variant["patches"]]:
+    fun_bytes = [patch for feature in fun_patches for patch in feature.patches]
+    for patch in [
+        *build.raw.get("safety_patches", []),
+        *variant["patches"],
+        *fun_bytes,
+    ]:
         offset = int(patch["offset"], 0)
         before = bytes.fromhex(patch["before"])
         after = bytes.fromhex(patch["after"])
@@ -193,6 +241,7 @@ def _result(
     patch_mode: str,
     patched: bytearray,
     applied: list[dict[str, str]],
+    fun_patches: list[FunPatch],
 ) -> dict[str, Any]:
     mode = get_patch_mode(patch_mode)
     variant = get_patch_variant(build, patch_mode)
@@ -201,7 +250,9 @@ def _result(
         "source": str(source.resolve()),
         "patch_mode": mode.id,
         "patch_mode_name": mode.name,
-        "output_name": variant["output_name"],
+        "output_name": _output_name(build, patch_mode, fun_patches),
+        "fun_patches": [patch.id for patch in fun_patches],
+        "fun_patch_names": [patch.name for patch in fun_patches],
         "absolute_maximum": build.absolute_maximum,
         "villager_slots": build.villager_slots,
         "multiple_birth_saturation": "multiples are reduced only when required to fit the remaining villager slots",
@@ -212,21 +263,32 @@ def _result(
 
 
 def dry_run(
-    source: Path, patch_mode: str = DEFAULT_PATCH_MODE
+    source: Path,
+    patch_mode: str = DEFAULT_PATCH_MODE,
+    fun_patch_ids: tuple[str, ...] | list[str] = (),
 ) -> dict[str, Any]:
     build = identify(source)
-    patched, applied = render_patched_bytes(source, build, patch_mode)
-    return _result(build, source, patch_mode, patched, applied)
+    fun_patches = _selected_fun_patches(build, fun_patch_ids)
+    patched, applied = render_patched_bytes(source, build, patch_mode, fun_patch_ids)
+    return _result(build, source, patch_mode, patched, applied, fun_patches)
 
 
 def dry_run_all(
-    sources: dict[str, Path], patch_mode: str = DEFAULT_PATCH_MODE
+    sources: dict[str, Path],
+    patch_mode: str = DEFAULT_PATCH_MODE,
+    fun_patch_ids: tuple[str, ...] | list[str] = (),
 ) -> list[dict[str, Any]]:
     validated = validate_all_sources(sources)
     results = []
     for build, source in validated:
-        patched, applied = render_patched_bytes(source, build, patch_mode)
-        results.append(_result(build, source, patch_mode, patched, applied))
+        selected_ids = [
+            patch_id
+            for patch_id in fun_patch_ids
+            if get_fun_patch(patch_id).game_id == build.id
+        ]
+        fun_patches = _selected_fun_patches(build, selected_ids)
+        patched, applied = render_patched_bytes(source, build, patch_mode, selected_ids)
+        results.append(_result(build, source, patch_mode, patched, applied, fun_patches))
     return results
 
 
@@ -237,6 +299,7 @@ def _log_data(
     patch_mode: str,
     output_hash: str,
     applied: list[dict[str, str]],
+    fun_patches: list[FunPatch],
 ) -> dict[str, Any]:
     mode = get_patch_mode(patch_mode)
     variant = get_patch_variant(build, patch_mode)
@@ -244,6 +307,8 @@ def _log_data(
         "patcher": "Virtual Villagers Fun Patcher",
         "patch": mode.name,
         "patch_mode": mode.id,
+        "fun_patches": [patch.id for patch in fun_patches],
+        "fun_patch_names": [patch.name for patch in fun_patches],
         "created_utc": datetime.now(timezone.utc).isoformat(),
         "game": build.title,
         "absolute_maximum": build.absolute_maximum,
@@ -262,14 +327,15 @@ def apply_patch(
     source: Path,
     patch_mode: str = DEFAULT_PATCH_MODE,
     overwrite: bool = False,
+    fun_patch_ids: tuple[str, ...] | list[str] = (),
 ) -> tuple[Path, Path]:
     source = source.resolve()
     build = identify(source)
-    variant = get_patch_variant(build, patch_mode)
-    output = source.parent / variant["output_name"]
+    fun_patches = _selected_fun_patches(build, fun_patch_ids)
+    output = source.parent / _output_name(build, patch_mode, fun_patches)
     if output.exists() and not overwrite:
         raise PatcherError(f"Output already exists: {output}")
-    patched, applied = render_patched_bytes(source, build, patch_mode)
+    patched, applied = render_patched_bytes(source, build, patch_mode, fun_patch_ids)
     fd, temp_name = tempfile.mkstemp(prefix="vvfp-", suffix=".tmp", dir=source.parent)
     try:
         with os.fdopen(fd, "wb") as handle:
@@ -292,7 +358,7 @@ def apply_patch(
     log_path.write_text(
         json.dumps(
             _log_data(
-                build, source, output, patch_mode, output_hash, applied
+                build, source, output, patch_mode, output_hash, applied, fun_patches
             ),
             indent=2,
         )
@@ -306,16 +372,28 @@ def apply_all(
     sources: dict[str, Path],
     patch_mode: str = DEFAULT_PATCH_MODE,
     overwrite: bool = False,
+    fun_patch_ids: tuple[str, ...] | list[str] = (),
 ) -> list[tuple[Path, Path]]:
     validated = validate_all_sources(sources)
     plans: list[
         tuple[Build, Path, bytearray, list[dict[str, str]], Path]
     ] = []
+    selected_by_game: dict[str, list[FunPatch]] = {}
+    for patch_id in fun_patch_ids:
+        patch = get_fun_patch(patch_id)
+        selected_by_game.setdefault(patch.game_id, []).append(patch)
     for build, source in validated:
-        variant = get_patch_variant(build, patch_mode)
-        patched, applied = render_patched_bytes(source, build, patch_mode)
+        fun_patches = selected_by_game.get(build.id, [])
+        selected_ids = [patch.id for patch in fun_patches]
+        patched, applied = render_patched_bytes(source, build, patch_mode, selected_ids)
         plans.append(
-            (build, source, patched, applied, source.parent / variant["output_name"])
+            (
+                build,
+                source,
+                patched,
+                applied,
+                source.parent / _output_name(build, patch_mode, fun_patches),
+            )
         )
     existing = [output for _, _, _, _, output in plans if output.exists()]
     if existing and not overwrite:
@@ -365,7 +443,13 @@ def apply_all(
         log_path.write_text(
             json.dumps(
                 _log_data(
-                    build, source, output, patch_mode, output_hash, applied
+                    build,
+                    source,
+                    output,
+                    patch_mode,
+                    output_hash,
+                    applied,
+                    selected_by_game.get(build.id, []),
                 ),
                 indent=2,
             )
@@ -381,6 +465,16 @@ def _add_patch_mode_arg(parser: argparse.ArgumentParser) -> None:
         "--patch-mode",
         choices=[mode.id for mode in load_patch_modes()],
         default=DEFAULT_PATCH_MODE,
+    )
+
+
+def _add_fun_patch_args(parser: argparse.ArgumentParser) -> None:
+    parser.add_argument(
+        "--fun-patch",
+        action="append",
+        choices=[patch.id for patch in load_fun_patches()],
+        default=[],
+        help="optional game-specific patch; may be supplied more than once",
     )
 
 
@@ -408,17 +502,20 @@ def _parser() -> argparse.ArgumentParser:
     dry_cmd = sub.add_parser("dry-run", help="verify and preview without writing output")
     dry_cmd.add_argument("exe", type=Path)
     _add_patch_mode_arg(dry_cmd)
+    _add_fun_patch_args(dry_cmd)
 
     apply_cmd = sub.add_parser("apply", help="create one modified copy")
     apply_cmd.add_argument("exe", type=Path)
     apply_cmd.add_argument("--overwrite", action="store_true")
     _add_patch_mode_arg(apply_cmd)
+    _add_fun_patch_args(apply_cmd)
 
     dry_all_cmd = sub.add_parser(
         "dry-run-all", help="verify all five games without writing output"
     )
     _add_all_source_args(dry_all_cmd)
     _add_patch_mode_arg(dry_all_cmd)
+    _add_fun_patch_args(dry_all_cmd)
 
     apply_all_cmd = sub.add_parser(
         "apply-all", help="create all five modified copies together"
@@ -426,6 +523,7 @@ def _parser() -> argparse.ArgumentParser:
     apply_all_cmd.add_argument("--overwrite", action="store_true")
     _add_all_source_args(apply_all_cmd)
     _add_patch_mode_arg(apply_all_cmd)
+    _add_fun_patch_args(apply_all_cmd)
     return parser
 
 
@@ -435,23 +533,29 @@ def main() -> int:
         if args.command == "identify":
             print(json.dumps(identify(args.exe).raw, indent=2))
         elif args.command == "dry-run":
-            print(json.dumps(dry_run(args.exe, args.patch_mode), indent=2))
+            print(
+                json.dumps(
+                    dry_run(args.exe, args.patch_mode, args.fun_patch), indent=2
+                )
+            )
         elif args.command == "apply":
             output, log = apply_patch(
-                args.exe, args.patch_mode, args.overwrite
+                args.exe, args.patch_mode, args.overwrite, args.fun_patch
             )
             print(f"Created: {output}")
             print(f"Log: {log}")
         elif args.command == "dry-run-all":
             print(
                 json.dumps(
-                    dry_run_all(_all_sources_from_args(args), args.patch_mode),
+                    dry_run_all(
+                        _all_sources_from_args(args), args.patch_mode, args.fun_patch
+                    ),
                     indent=2,
                 )
             )
         else:
             results = apply_all(
-                _all_sources_from_args(args), args.patch_mode, args.overwrite
+                _all_sources_from_args(args), args.patch_mode, args.overwrite, args.fun_patch
             )
             for output, log in results:
                 print(f"Created: {output}")

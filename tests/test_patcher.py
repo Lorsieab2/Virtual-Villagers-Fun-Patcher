@@ -22,6 +22,7 @@ from vv_fun_patcher import (  # noqa: E402
     get_patch_variant,
     identify,
     load_builds,
+    load_fun_patches,
     load_patch_modes,
     render_patched_bytes,
     validate_all_sources,
@@ -203,6 +204,74 @@ class StockIntegrationTests(unittest.TestCase):
             self.assertEqual(output.name, get_patch_variant(build, "immediate_fixed")["output_name"])
             self.assertTrue(log.is_file())
             self.assertTrue(source.is_file())
+
+    def test_vv2_easier_healing_mastery_is_guarded_and_additive(self) -> None:
+        feature_id = "vv2_easier_healing_mastery"
+        feature = next(patch for patch in load_fun_patches() if patch.id == feature_id)
+        build = next(build for build in load_builds() if build.id == "vv2")
+        source = STOCK / build.input_name
+        rendered, applied = render_patched_bytes(
+            source, build, DEFAULT_PATCH_MODE, [feature_id]
+        )
+        self.assertEqual(
+            len(applied),
+            len(build.safety_patches)
+            + len(get_patch_variant(build, DEFAULT_PATCH_MODE)["patches"])
+            + len(feature.patches),
+        )
+        self.assertEqual(
+            bytes(rendered[0x604AD:0x604B6]),
+            bytes.fromhex("E9EE37010090909090"),
+        )
+        self.assertEqual(
+            bytes(rendered[0x73CA0:0x73CC4]),
+            bytes.fromhex(
+                "8BC569C08CE40000C78430E0070000090000006A64558BCE"
+                "E8D3C8FEFF5F5D5B5EC20800"
+            ),
+        )
+        preview = dry_run(source, DEFAULT_PATCH_MODE, [feature_id])
+        self.assertEqual(preview["fun_patches"], [feature_id])
+        self.assertEqual(
+            preview["output_name"],
+            "Virtual Villagers - The Lost Children - Modified Max Pop + Easier Healing.exe",
+        )
+
+    def test_vv2_easier_healing_output_and_log_preserve_original(self) -> None:
+        feature_id = "vv2_easier_healing_mastery"
+        build = next(build for build in load_builds() if build.id == "vv2")
+        with tempfile.TemporaryDirectory() as temp:
+            source = Path(temp) / build.input_name
+            shutil.copy2(STOCK / build.input_name, source)
+            original_hash = digest(source)
+            output, log_path = apply_patch(
+                source,
+                DEFAULT_PATCH_MODE,
+                fun_patch_ids=[feature_id],
+            )
+            self.assertEqual(digest(source), original_hash)
+            self.assertIn("Easier Healing", output.name)
+            log = json.loads(log_path.read_text())
+            self.assertEqual(log["fun_patches"], [feature_id])
+            self.assertEqual(log["fun_patch_names"], ["Easier Healing Mastery"])
+            self.assertEqual(len(log["patches"]), 8)
+
+    def test_bulk_feature_applies_only_to_its_game(self) -> None:
+        feature_id = "vv2_easier_healing_mastery"
+        with tempfile.TemporaryDirectory() as temp:
+            folders = self.copy_game_folders(Path(temp))
+            previews = dry_run_all(folders, DEFAULT_PATCH_MODE, [feature_id])
+            by_game = {result["game"]: result for result in previews}
+            for build in load_builds():
+                expected = [feature_id] if build.id == "vv2" else []
+                self.assertEqual(by_game[build.title]["fun_patches"], expected)
+            results = apply_all(
+                folders,
+                DEFAULT_PATCH_MODE,
+                fun_patch_ids=[feature_id],
+            )
+            self.assertEqual(len(results), 5)
+            self.assertTrue(any("Easier Healing" in output.name for output, _ in results))
 
 
 if __name__ == "__main__":

@@ -8,7 +8,8 @@ VIRTUAL VILLAGERS FUN PATCHER
    - Immediate Fixed Max Pop:
      The absolute maximum is available immediately. Collections no longer
      affect it, and The Secret City's magic tech no longer affects it.
-3. Open "One Game" or "All 5 Games".
+3. Optional for The Lost Children: check "Easier Healing Mastery".
+4. Open "One Game" or "All 5 Games".
 
 PATCH ALL FIVE AT ONCE
 
@@ -31,6 +32,9 @@ Collection Progression creates:
 Immediate Fixed creates:
 (name of game) - Fixed Max Pop.exe
 
+When Easier Healing Mastery is selected for VV2, its output name adds:
++ Easier Healing.exe
+
 Each output and verification log is placed beside its original game EXE. Both
 styles can coexist. Original EXEs are never changed, renamed, replaced, or
 deleted. The patcher remembers the selected style, single-game EXE path, and all
@@ -47,3 +51,10 @@ Both styles prevent overflow at the real slot ceiling:
 
 Only the five exact researched stock builds are supported. Unknown, modified,
 corrupt, duplicate, or incorrectly assigned EXEs are refused.
+
+VV2 EASIER HEALING MASTERY
+
+When a healer or a villager who prefers Healing has no sick villager to treat,
+the patch sends that villager into the game's existing plant-study work state.
+That persistent state is used during normal play and time catch-up. Normal
+healing, sickness, food, skill gains, and plant availability are unchanged.

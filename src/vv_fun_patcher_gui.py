@@ -16,9 +16,9 @@ from vv_fun_patcher import (
     dry_run,
     dry_run_all,
     get_patch_mode,
-    get_patch_variant,
     identify,
     load_builds,
+    load_fun_patches,
     load_patch_modes,
     validate_all_sources,
 )
@@ -35,6 +35,10 @@ class App(tk.Tk):
         self.minsize(820, 680)
         self.builds = load_builds()
         self.patch_modes = load_patch_modes()
+        self.fun_patches = load_fun_patches()
+        self.fun_patch_vars = {
+            patch.id: tk.BooleanVar(value=False) for patch in self.fun_patches
+        }
         self.exe_var = tk.StringVar()
         self.patch_mode_var = tk.StringVar(value=DEFAULT_PATCH_MODE)
         self.all_folder_vars = {build.id: tk.StringVar() for build in self.builds}
@@ -79,6 +83,19 @@ class App(tk.Tk):
             wraplength=850,
             foreground="#245a9a",
         ).grid(row=len(self.patch_modes), column=0, columnspan=2, sticky="w", pady=(7, 0))
+        fun_row = len(self.patch_modes) + 1
+        ttk.Separator(mode_box).grid(row=fun_row, column=0, columnspan=2, sticky="ew", pady=8)
+        ttk.Label(mode_box, text="Additional fun patches").grid(row=fun_row + 1, column=0, sticky="nw", pady=3)
+        for offset, patch in enumerate(self.fun_patches):
+            ttk.Checkbutton(
+                mode_box,
+                text=f"{patch.name} ({patch.game_id.upper()})",
+                variable=self.fun_patch_vars[patch.id],
+                command=self._fun_patch_changed,
+            ).grid(row=fun_row + 1 + offset * 2, column=1, sticky="w", pady=3)
+            ttk.Label(mode_box, text=patch.description, wraplength=620).grid(
+                row=fun_row + 2 + offset * 2, column=1, sticky="w", pady=(0, 3)
+            )
         mode_box.columnconfigure(1, weight=1)
 
         notebook = ttk.Notebook(outer)
@@ -192,6 +209,25 @@ class App(tk.Tk):
         if save:
             self._save_settings()
 
+    def _selected_fun_patch_ids(self, game_id: str | None = None) -> list[str]:
+        return [
+            patch.id
+            for patch in self.fun_patches
+            if self.fun_patch_vars[patch.id].get()
+            and (game_id is None or patch.game_id == game_id)
+        ]
+
+    def _fun_patch_changed(self) -> None:
+        selected = [
+            patch.name
+            for patch in self.fun_patches
+            if self.fun_patch_vars[patch.id].get()
+        ]
+        self.status_var.set(
+            "Additional patches: " + (", ".join(selected) if selected else "none")
+        )
+        self._save_settings()
+
     def _load_settings(self) -> None:
         try:
             data = json.loads(SETTINGS.read_text(encoding="utf-8-sig"))
@@ -200,6 +236,10 @@ class App(tk.Tk):
         saved_mode = data.get("patch_mode", DEFAULT_PATCH_MODE)
         if saved_mode in {mode.id for mode in self.patch_modes}:
             self.patch_mode_var.set(saved_mode)
+        selected_fun = data.get("fun_patches", [])
+        if isinstance(selected_fun, list):
+            for patch in self.fun_patches:
+                self.fun_patch_vars[patch.id].set(patch.id in selected_fun)
         self.exe_var.set(data.get("original_exe", ""))
         saved_all = data.get("all_game_folders", data.get("all_game_exes", {}))
         if isinstance(saved_all, dict):
@@ -215,6 +255,7 @@ class App(tk.Tk):
         data = {
             "patch_mode": self._mode(),
             "original_exe": self.exe_var.get().strip(),
+            "fun_patches": self._selected_fun_patch_ids(),
             "all_game_folders": {
                 build.id: self.all_folder_vars[build.id].get().strip()
                 for build in self.builds
@@ -304,8 +345,14 @@ class App(tk.Tk):
         mode = get_patch_mode(self._mode())
         prefix = f"{build.title}: " if build else ""
         if mode.id == "collection_progression":
-            return prefix + "collection bonuses remain active and are needed for the absolute maximum."
-        return prefix + "the absolute maximum is immediate; collection bonuses do not affect it."
+            text = "collection bonuses remain active and are needed for the absolute maximum."
+        else:
+            text = "the absolute maximum is immediate; collection bonuses do not affect it."
+        selected = self._selected_fun_patch_ids(build.id if build else None)
+        if selected:
+            names = [patch.name for patch in self.fun_patches if patch.id in selected]
+            text += " Additional: " + ", ".join(names) + "."
+        return prefix + text
 
     def _validate(self, show_popup: bool = True) -> None:
         try:
@@ -340,7 +387,11 @@ class App(tk.Tk):
 
     def _dry_run(self) -> None:
         try:
-            result = dry_run(self._source(), self._mode())
+            source = self._source()
+            build = identify(source)
+            result = dry_run(
+                source, self._mode(), self._selected_fun_patch_ids(build.id)
+            )
             self.status_var.set(
                 "Dry run passed. No files were written. Planned output:\n"
                 + result["output_name"]
@@ -357,7 +408,9 @@ class App(tk.Tk):
 
     def _dry_run_all(self) -> None:
         try:
-            results = dry_run_all(self._all_sources(), self._mode())
+            results = dry_run_all(
+                self._all_sources(), self._mode(), self._selected_fun_patch_ids()
+            )
             self.status_var.set(
                 "All-five dry run passed. No files were written. "
                 + self._selection_text()
@@ -374,8 +427,10 @@ class App(tk.Tk):
         try:
             source = self._source()
             build = identify(source)
-            variant = get_patch_variant(build, self._mode())
-            output = source.resolve().parent / variant["output_name"]
+            preview = dry_run(
+                source, self._mode(), self._selected_fun_patch_ids(build.id)
+            )
+            output = source.resolve().parent / preview["output_name"]
             overwrite = False
             if output.exists():
                 overwrite = messagebox.askyesno(
@@ -384,7 +439,10 @@ class App(tk.Tk):
                 )
                 if not overwrite:
                     return
-            output, log = apply_patch(source, self._mode(), overwrite=overwrite)
+            output, log = apply_patch(
+                source, self._mode(), overwrite=overwrite,
+                fun_patch_ids=self._selected_fun_patch_ids(build.id),
+            )
             self.last_output_dir = output.parent
             self.open_button.configure(text="Open Game Folder", state="normal")
             self.status_var.set(
@@ -401,9 +459,12 @@ class App(tk.Tk):
         try:
             sources = self._all_sources()
             validated = validate_all_sources(sources)
+            previews = dry_run_all(
+                sources, self._mode(), self._selected_fun_patch_ids()
+            )
             existing = []
-            for build, source in validated:
-                output = source.parent / get_patch_variant(build, self._mode())["output_name"]
+            for (build, source), preview in zip(validated, previews):
+                output = source.parent / preview["output_name"]
                 if output.exists():
                     existing.append(output)
             overwrite = False
@@ -416,7 +477,10 @@ class App(tk.Tk):
                 )
                 if not overwrite:
                     return
-            results = apply_all(sources, self._mode(), overwrite=overwrite)
+            results = apply_all(
+                sources, self._mode(), overwrite=overwrite,
+                fun_patch_ids=self._selected_fun_patch_ids(),
+            )
             self.last_output_dir = results[0][0].parent
             self.open_button.configure(text="Open First Game Folder", state="normal")
             self.status_var.set(
