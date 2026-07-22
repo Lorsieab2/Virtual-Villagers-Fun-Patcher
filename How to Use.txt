@@ -1,30 +1,49 @@
 VIRTUAL VILLAGERS FUN PATCHER
 
+1. Double-click "Launch Virtual Villagers Fun Patcher.bat".
+2. Choose one of the two patch styles:
+   - Collection Progression Max Pop:
+     Collections still raise the cap and are needed to reach the absolute
+     maximum. The Secret City also retains its level-3 magic bonus.
+   - Immediate Fixed Max Pop:
+     The absolute maximum is available immediately. Collections no longer
+     affect it, and The Secret City's magic tech no longer affects it.
+3. Open "One Game" or "All 5 Games".
+
 PATCH ALL FIVE AT ONCE
 
-1. Double-click "Launch Virtual Villagers Fun Patcher.bat".
-2. Open the "All 5 Games" tab.
-3. Use the five separate fields to choose one folder per game. Each selected
-   folder must contain that game's ORIGINAL EXE.
-   - Or click "Find All 5 in Parent Folder..." to fill all five folder fields
-     automatically when the EXEs are in that folder or one level below it.
-4. Click "Validate All 5" or "Dry Run All 5" if you want to check first.
-5. Click "Patch All 5".
-
-The patcher validates every original EXE before writing anything. It then creates
-each modified EXE and verification log inside that game's selected folder.
+1. Use the five separate fields to choose one folder per game. Each folder must
+   contain that game's ORIGINAL EXE.
+2. Or use "Find All 5 in Parent Folder..." when the EXEs are in the selected
+   folder or one folder below it.
+3. Click "Validate All 5", "Dry Run All 5", or "Patch All 5".
 
 PATCH ONE GAME
 
-1. Open the "One Game" tab.
-2. Browse to one ORIGINAL game EXE.
-3. Click Validate, Dry Run, or Create Modified EXE.
+1. Browse to one ORIGINAL game EXE.
+2. Click Validate, Dry Run, or Create Modified EXE.
 
-The original games are never changed, renamed, replaced, or deleted. Each modified
-EXE is added beside its original and is named:
+OUTPUTS
+
+Collection Progression creates:
 (name of game) - Modified Max Pop.exe
 
-The patcher remembers the single-game EXE path and all five game-folder paths for
-next time. It supports only the five exact original builds it was researched
-against. Unknown, already-modified, corrupt, duplicate, or incorrectly assigned
-EXEs are refused instead of guessed.
+Immediate Fixed creates:
+(name of game) - Fixed Max Pop.exe
+
+Each output and verification log is placed beside its original game EXE. Both
+styles can coexist. Original EXEs are never changed, renamed, replaced, or
+deleted. The patcher remembers the selected style, single-game EXE path, and all
+five folder paths.
+
+SAFE MULTIPLE BIRTHS
+
+All five games normally check the cap before deciding singleton/twins/triplets.
+Both styles prevent overflow at the real slot ceiling:
+- 3+ spaces: multiples work normally.
+- 2 spaces: a rolled triplet becomes twins.
+- 1 space: a rolled twin or triplet becomes a singleton.
+- 0 spaces: the normal cap check blocks the birth.
+
+Only the five exact researched stock builds are supported. Unknown, modified,
+corrupt, duplicate, or incorrectly assigned EXEs are refused.

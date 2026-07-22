@@ -1,36 +1,54 @@
 # Max-population research
 
-This document records the static evidence used by the exact-build manifest. Addresses are image virtual addresses for the five supplied 32-bit Windows executables. File offsets and guarded bytes are in `data/builds.json`.
+This records the static evidence behind the exact-build manifest. Addresses are image virtual addresses; guarded file offsets and bytes are in `data/builds.json`.
 
-## Slot pools
+## Slot pools and target maxima
 
-- **A New Home:** 256 records. Full-pool loops advance by record size `0x3D8` until byte span `0x3D800`, and the free-slot loop compares its index with `0x100`.
-- **The Lost Children:** 256 records. The free-slot routine at `0x44B400` advances by `0xE48C` and compares its index with `0x100`.
-- **The Secret City:** 150 records. Manager loops use record size `0x1F8C` and an exclusive `0x96` bound.
-- **The Tree of Life:** 150 records. `CVillagerManager` construction at `0x467CE0` constructs indices `0x95` through zero at stride `0x2E3C`; other loops use exclusive bound `0x96`.
-- **New Believers:** 150 records. `CVillagerManager` construction at `0x471DF0` constructs indices `0x95` through zero at stride `0x2F44`; other loops use exclusive bound `0x96`.
+| Game | Slots | Stock final cap | Collection Progression | Immediate Fixed |
+|---|---:|---:|---:|---:|
+| A New Home | 256 | 90 | 256 | 256 |
+| The Lost Children | 256 | 115 | base 231 plus 0-25 collections | 256 |
+| The Secret City | 150 | 125 | base 115 plus 0-25 collections and 0/10 magic | 150 |
+| The Tree of Life | 150 | 115 | base 125 plus 0-25 collections | 150 |
+| New Believers | 150 | 105 | base 135 plus 0-15 collections | 150 |
 
-## Enforcement predicates
+Slot evidence:
 
-### A New Home
+- A New Home uses 256 records at stride `0x3D8`; its free-slot loop has an exclusive `0x100` bound.
+- The Lost Children uses 256 records at stride `0xE48C`; `0x44B400` has an exclusive `0x100` bound.
+- The Secret City uses 150 records at stride `0x1F8C`; manager loops use exclusive bound `0x96`.
+- The Tree of Life constructs 150 records, indices `0x95` through zero, at `0x467CE0`.
+- New Believers constructs 150 records, indices `0x95` through zero, at `0x471DF0`.
 
-The population predicate starts at `0x43A1A0`. It calls the aggregate population counter at `0x41CF90`, rejects population `>= 90`, then retains staged housing checks at 50, 25, and 15. The patch changes only the first comparison to 256 by jumping into ten existing NOP bytes at `0x43A226`, then returns to the original conditional branch. File layout and size do not change.
+## Population predicates
 
-### The Lost Children
+- A New Home: `0x43A1A0`. The patch compares against 256 while retaining stock housing gates.
+- The Lost Children: `0x44B310`. Progression changes base 90 to 231 and preserves the 0-25 collection accumulator. Fixed overwrites the accumulator with 166 before the stock +90, producing 256 at every collection state.
+- The Secret City: `0x45FE30`. Progression changes base 90 to 115 and preserves 0-25 collections plus the level-3 magic bonus of 10. Fixed sets the accumulator to 60 before stock +90, producing 150 at every collection and magic state.
+- The Tree of Life: `0x468350`. Progression changes base 90 to 125 and preserves the 0-25 collection accumulator. Fixed sets it to 60 before stock +90.
+- New Believers: `0x472BD0`. Progression changes base 90 to 135 and preserves the 0-15 collection accumulator. Fixed sets it to 60 before stock +90.
 
-The predicate at `0x44B310` calls the aggregate population counter at `0x425860`. Four completed collections contribute five each; all four convert 20 to 25. The stock base is 90, producing a final 115. Three original housing gates remain at 50, 25, and 15. The patch uses base 231, so the original maximum 25 collection bonus produces 256. The expanded arithmetic and displaced comparison use existing NOP padding at `0x44B3F2`.
+Collection completion itself is never modified.
 
-### The Secret City
+## Twins and triplets at maximum minus one
 
-The predicate at `0x45FE30` calls population counter `0x45E8F0`. Four completed collections contribute a maximum 25, and level-3 magic adds another 10, for a maximum bonus of 35 above base 90; three housing gates remain at 35, 17, and 10. Base 90 becomes 115, producing 150 after all collections and level-3 magic.
+The birth routines in all five games call the population predicate once and decide the number of babies afterward:
 
-### The Tree of Life
+| Game | Cap call in birth routine | Baby-count/population behavior |
+|---|---:|---|
+| A New Home | `0x43BBC3` | Singleton increments the aggregate first; each accepted extra baby increments it again. |
+| The Lost Children | `0x44B983` | Same incremental behavior; count becomes 2 or 3 after the one cap check. |
+| The Secret City | `0x455AB8` | Count is set to 1, 2, or 3, then the whole count is added at `0x455BF3`. |
+| The Tree of Life | `0x45E7C1` | Count is set after the cap check, then added at `0x45E91C`. |
+| New Believers | `0x465E11` | Count is set after the cap check, then added at `0x465F3E`. |
 
-The predicate at `0x468350` calls population counter `0x467610`. It has the same maximum 25 collection bonus above base 90 and housing gates at 35, 17, and 10. Base 90 becomes 125, producing 150 after all collections.
+Therefore, stock logic evaluated at cap minus one yields cap for a singleton, cap plus one for twins, and cap plus two for triplets.
 
-### New Believers
+This is unsafe when a patch moves the cap to the physical pool ceiling. A New Home's child materializer at `0x43C840` and The Lost Children's at `0x44CEC0` scan for the next unused record without a terminal pool check; their weaning paths call the materializer again for the second and third babies. The later games also have only 150 physical records, so an aggregate of 151 or 152 cannot map to unique villagers.
 
-The predicate at `0x472BD0` calls population counter `0x4713F0`. Two completed collections contribute five each, and completion of both converts 10 to 15. Housing gates remain at 35, 17, and 10. Base 90 becomes 135, producing 150 after both collections.
+Both modes therefore share guarded birth-selection detours. They implement `delivered_babies = min(rolled_babies, slots - current_population)` while the original cap predicate guarantees at least one remaining slot. This preserves the original RNG and multiple-birth statistics whenever the rolled multiple fits. A triplet is reduced to twins only with two spaces, and any multiple is reduced to a singleton only with one space.
+
+The detours use verified zero-filled executable padding inside the existing `.text` section. Section layout and file size do not change.
 
 ## Build identities
 
@@ -42,4 +60,4 @@ The predicate at `0x472BD0` calls population counter `0x4713F0`. Two completed c
 | The Tree of Life | 929,792 | `6D27A429FFCA5F1F71FDD7ECA761ED1BB67E85F976494BA178B3D7BE01F1B220` |
 | New Believers | 991,232 | `92946781980220E9D1A2E6C573925519934608F5215F4A0F8CE3B90088C5C65D` |
 
-Static verification proves exact build identity, instruction/slot relationships, guarded edits, PE integrity, and output readback. It does not claim a played save was grown to every new limit.
+Static verification proves exact build identity, guarded instruction edits, slot bounds, fixed/progression arithmetic, PE integrity, and output readback. It does not claim a played save has been grown to every new maximum.

@@ -1,118 +1,351 @@
 {
-    "schema_version":  1,
-    "patch_name":  "Modified Max Pop",
-    "games":  [
-                  {
-                      "id":  "vv1",
-                      "title":  "Virtual Villagers - A New Home",
-                      "input_name":  "Virtual Villagers - A New Home.exe",
-                      "output_name":  "Virtual Villagers - A New Home - Modified Max Pop.exe",
-                      "size":  581632,
-                      "sha256":  "1EC790B927741081D5CE13A48FB76983A4FD4336EA08F89317872643760AF03D",
-                      "stock_final_cap":  90,
-                      "villager_slots":  256,
-                      "patches":  [
-                                      {
-                                          "offset":  "0x3A1AE",
-                                          "before":  "83F85A",
-                                          "after":  "EB7690",
-                                          "purpose":  "jump to 256-person comparison"
-                                      },
-                                      {
-                                          "offset":  "0x3A226",
-                                          "before":  "90909090909090909090",
-                                          "after":  "3D00010000EB84909090",
-                                          "purpose":  "compare population with 256, then return to original housing branch"
-                                      }
-                                  ],
-                      "modified_base_cap":  256,
-                      "maximum_bonus":  0
-                  },
-                  {
-                      "id":  "vv2",
-                      "title":  "Virtual Villagers - The Lost Children",
-                      "input_name":  "Virtual Villagers - The Lost Children.exe",
-                      "output_name":  "Virtual Villagers - The Lost Children - Modified Max Pop.exe",
-                      "size":  724992,
-                      "sha256":  "46C1503C209255C9CDEFA941DB2F449C8CF8E2CDD5C7D13CD975326E377ED677",
-                      "stock_final_cap":  115,
-                      "villager_slots":  256,
-                      "patches":  [
-                                      {
-                                          "offset":  "0x4B3AD",
-                                          "before":  "83C75A",
-                                          "after":  "EB4390",
-                                          "purpose":  "jump to expanded base-cap arithmetic"
-                                      },
-                                      {
-                                          "offset":  "0x4B3F2",
-                                          "before":  "9090909090909090909090909090",
-                                          "after":  "81C7E70000003BEFEBB690909090",
-                                          "purpose":  "use base 231 plus the original maximum 25 collection bonus"
-                                      }
-                                  ],
-                      "modified_base_cap":  231,
-                      "maximum_bonus":  25
-                  },
-                  {
-                      "id":  "vv3",
-                      "title":  "Virtual Villagers - The Secret City",
-                      "input_name":  "Virtual Villagers - The Secret City.exe",
-                      "output_name":  "Virtual Villagers - The Secret City - Modified Max Pop.exe",
-                      "size":  831488,
-                      "sha256":  "8BC5DB382D02BC5C21AD5F607580D60FF44A6519CC7EB133F03113BAACAE6503",
-                      "stock_final_cap":  125,
-                      "villager_slots":  150,
-                      "patches":  [
-                                      {
-                                          "offset":  "0x5FEE3",
-                                          "before":  "5A",
-                                          "after":  "73",
-                                          "purpose":  "use base 115 plus the original maximum 35 collection and magic-tech bonuses"
-                                      }
-                                  ],
-                      "modified_base_cap":  115,
-                      "maximum_bonus":  35
-                  },
-                  {
-                      "id":  "vv4",
-                      "title":  "Virtual Villagers - The Tree of Life",
-                      "input_name":  "Virtual Villagers - The Tree of Life.exe",
-                      "output_name":  "Virtual Villagers - The Tree of Life - Modified Max Pop.exe",
-                      "size":  929792,
-                      "sha256":  "6D27A429FFCA5F1F71FDD7ECA761ED1BB67E85F976494BA178B3D7BE01F1B220",
-                      "stock_final_cap":  115,
-                      "villager_slots":  150,
-                      "patches":  [
-                                      {
-                                          "offset":  "0x683F1",
-                                          "before":  "5A",
-                                          "after":  "7D",
-                                          "purpose":  "use base 125 plus the original maximum 25 collection bonus"
-                                      }
-                                  ],
-                      "modified_base_cap":  125,
-                      "maximum_bonus":  25
-                  },
-                  {
-                      "id":  "vv5",
-                      "title":  "Virtual Villagers - New Believers",
-                      "input_name":  "Virtual Villagers - New Believers.exe",
-                      "output_name":  "Virtual Villagers - New Believers - Modified Max Pop.exe",
-                      "size":  991232,
-                      "sha256":  "92946781980220E9D1A2E6C573925519934608F5215F4A0F8CE3B90088C5C65D",
-                      "stock_final_cap":  105,
-                      "villager_slots":  150,
-                      "patches":  [
-                                      {
-                                          "offset":  "0x72C4B",
-                                          "before":  "5A",
-                                          "after":  "87",
-                                          "purpose":  "use base 135 plus the original maximum 15 collection bonus"
-                                      }
-                                  ],
-                      "modified_base_cap":  135,
-                      "maximum_bonus":  15
-                  }
-              ]
+  "schema_version": 2,
+  "patch_name": "Max Population Modes",
+  "games": [
+    {
+      "id": "vv1",
+      "title": "Virtual Villagers - A New Home",
+      "input_name": "Virtual Villagers - A New Home.exe",
+      "size": 581632,
+      "sha256": "1EC790B927741081D5CE13A48FB76983A4FD4336EA08F89317872643760AF03D",
+      "stock_final_cap": 90,
+      "villager_slots": 256,
+      "stock_bonus_ceiling": 0,
+      "absolute_maximum": 256,
+      "variants": {
+        "collection_progression": {
+          "output_name": "Virtual Villagers - A New Home - Modified Max Pop.exe",
+          "bonuses_affect_maximum": false,
+          "patches": [
+            {
+              "offset": "0x3A1AE",
+              "before": "83F85A",
+              "after": "EB7690",
+              "purpose": "jump to 256-person comparison"
+            },
+            {
+              "offset": "0x3A226",
+              "before": "90909090909090909090",
+              "after": "3D00010000EB84909090",
+              "purpose": "compare population with 256, then return to original housing branch"
+            }
+          ]
+        },
+        "immediate_fixed": {
+          "output_name": "Virtual Villagers - A New Home - Fixed Max Pop.exe",
+          "bonuses_affect_maximum": false,
+          "patches": [
+            {
+              "offset": "0x3A1AE",
+              "before": "83F85A",
+              "after": "EB7690",
+              "purpose": "jump to 256-person comparison"
+            },
+            {
+              "offset": "0x3A226",
+              "before": "90909090909090909090",
+              "after": "3D00010000EB84909090",
+              "purpose": "compare population with 256, then return to original housing branch"
+            }
+          ]
+        }
+      },
+      "safety_patches": [
+        {
+          "offset": "0x3BC4E",
+          "before": "C7865C03000002000000",
+          "after": "E92DA901009090909090",
+          "purpose": "route twin selection through the 256-slot saturation guard"
+        },
+        {
+          "offset": "0x56580",
+          "before": "00000000000000000000000000000000000000000000000000000000000000000000000000",
+          "after": "8B8710E0030081B8249E0000000100000F8D3057FEFFC7865C03000002000000E9B356FEFF",
+          "purpose": "allow a second baby only when another villager slot remains"
+        },
+        {
+          "offset": "0x3BC8C",
+          "before": "C7865C03000003000000",
+          "after": "E91FA901009090909090",
+          "purpose": "route triplet selection through the 256-slot saturation guard"
+        },
+        {
+          "offset": "0x565B0",
+          "before": "00000000000000000000000000000000000000000000000000000000000000000000000000",
+          "after": "8B8710E0030081B8249E0000000100000F8DF456FEFFC7865C03000003000000E9C156FEFF",
+          "purpose": "allow a third baby only when another villager slot remains"
+        }
+      ]
+    },
+    {
+      "id": "vv2",
+      "title": "Virtual Villagers - The Lost Children",
+      "input_name": "Virtual Villagers - The Lost Children.exe",
+      "size": 724992,
+      "sha256": "46C1503C209255C9CDEFA941DB2F449C8CF8E2CDD5C7D13CD975326E377ED677",
+      "stock_final_cap": 115,
+      "villager_slots": 256,
+      "stock_bonus_ceiling": 25,
+      "absolute_maximum": 256,
+      "variants": {
+        "collection_progression": {
+          "output_name": "Virtual Villagers - The Lost Children - Modified Max Pop.exe",
+          "bonuses_affect_maximum": true,
+          "patches": [
+            {
+              "offset": "0x4B3AD",
+              "before": "83C75A",
+              "after": "EB4390",
+              "purpose": "jump to expanded base-cap arithmetic"
+            },
+            {
+              "offset": "0x4B3F2",
+              "before": "9090909090909090909090909090",
+              "after": "81C7E70000003BEFEBB690909090",
+              "purpose": "use base 231 plus the original maximum 25 collection bonus"
+            }
+          ]
+        },
+        "immediate_fixed": {
+          "output_name": "Virtual Villagers - The Lost Children - Fixed Max Pop.exe",
+          "bonuses_affect_maximum": false,
+          "patches": [
+            {
+              "offset": "0x4B378",
+              "before": "83FF147505BF19000000",
+              "after": "BFA60000009090909090",
+              "purpose": "replace every collection-bonus result with fixed arithmetic for a 256 maximum"
+            }
+          ]
+        }
+      },
+      "safety_patches": [
+        {
+          "offset": "0x4BA82",
+          "before": "C7864405000002000000",
+          "after": "E9B98102009090909090",
+          "purpose": "route twin selection through the 256-slot saturation guard"
+        },
+        {
+          "offset": "0x73C40",
+          "before": "00000000000000000000000000000000000000000000000000000000000000000000000000",
+          "after": "8B87D474E50081B800E50200000100000F8D827EFDFFC7864405000002000000E9277EFDFF",
+          "purpose": "allow a second baby only when another villager slot remains"
+        },
+        {
+          "offset": "0x4BAB6",
+          "before": "C7864405000003000000",
+          "after": "E9B58102009090909090",
+          "purpose": "route triplet selection through the 256-slot saturation guard"
+        },
+        {
+          "offset": "0x73C70",
+          "before": "00000000000000000000000000000000000000000000000000000000000000000000000000",
+          "after": "8B87D474E50081B800E50200000100000F8D527EFDFFC7864405000003000000E92B7EFDFF",
+          "purpose": "allow a third baby only when another villager slot remains"
+        }
+      ]
+    },
+    {
+      "id": "vv3",
+      "title": "Virtual Villagers - The Secret City",
+      "input_name": "Virtual Villagers - The Secret City.exe",
+      "size": 831488,
+      "sha256": "8BC5DB382D02BC5C21AD5F607580D60FF44A6519CC7EB133F03113BAACAE6503",
+      "stock_final_cap": 125,
+      "villager_slots": 150,
+      "stock_bonus_ceiling": 35,
+      "absolute_maximum": 150,
+      "variants": {
+        "collection_progression": {
+          "output_name": "Virtual Villagers - The Secret City - Modified Max Pop.exe",
+          "bonuses_affect_maximum": true,
+          "patches": [
+            {
+              "offset": "0x5FEE3",
+              "before": "5A",
+              "after": "73",
+              "purpose": "use base 115 plus the original maximum 35 collection and magic-tech bonuses"
+            }
+          ]
+        },
+        "immediate_fixed": {
+          "output_name": "Virtual Villagers - The Secret City - Fixed Max Pop.exe",
+          "bonuses_affect_maximum": false,
+          "patches": [
+            {
+              "offset": "0x5FEA2",
+              "before": "83F8037C0383C60A",
+              "after": "BE3C000000909090",
+              "purpose": "replace collection and magic-tech bonus result with fixed arithmetic for a 150 maximum"
+            }
+          ]
+        }
+      },
+      "safety_patches": [
+        {
+          "offset": "0x55BBF",
+          "before": "C786900E000003000000",
+          "after": "E99C5602009090909090",
+          "purpose": "route triplet selection through the 150-slot saturation guard"
+        },
+        {
+          "offset": "0x7B260",
+          "before": "00000000000000000000000000000000000000000000000000000000000000",
+          "after": "813DA8245800930000000F8F6DA9FDFFC786900E000003000000E94AA9FDFF",
+          "purpose": "keep triplets only when three villager slots remain"
+        },
+        {
+          "offset": "0x55BDD",
+          "before": "C786900E000002000000",
+          "after": "E99E5602009090909090",
+          "purpose": "route twin selection through the 150-slot saturation guard"
+        },
+        {
+          "offset": "0x7B280",
+          "before": "00000000000000000000000000000000000000000000000000000000000000",
+          "after": "813DA8245800940000000F8F5DA9FDFFC786900E000002000000E948A9FDFF",
+          "purpose": "keep twins only when two villager slots remain"
+        }
+      ]
+    },
+    {
+      "id": "vv4",
+      "title": "Virtual Villagers - The Tree of Life",
+      "input_name": "Virtual Villagers - The Tree of Life.exe",
+      "size": 929792,
+      "sha256": "6D27A429FFCA5F1F71FDD7ECA761ED1BB67E85F976494BA178B3D7BE01F1B220",
+      "stock_final_cap": 115,
+      "villager_slots": 150,
+      "stock_bonus_ceiling": 25,
+      "absolute_maximum": 150,
+      "variants": {
+        "collection_progression": {
+          "output_name": "Virtual Villagers - The Tree of Life - Modified Max Pop.exe",
+          "bonuses_affect_maximum": true,
+          "patches": [
+            {
+              "offset": "0x683F1",
+              "before": "5A",
+              "after": "7D",
+              "purpose": "use base 125 plus the original maximum 25 collection bonus"
+            }
+          ]
+        },
+        "immediate_fixed": {
+          "output_name": "Virtual Villagers - The Tree of Life - Fixed Max Pop.exe",
+          "bonuses_affect_maximum": false,
+          "patches": [
+            {
+              "offset": "0x683AA",
+              "before": "83FE147505BE19000000",
+              "after": "BE3C0000009090909090",
+              "purpose": "replace every collection-bonus result with fixed arithmetic for a 150 maximum"
+            }
+          ]
+        }
+      },
+      "safety_patches": [
+        {
+          "offset": "0x5E8C0",
+          "before": "C786501C000003000000",
+          "after": "E95BA702009090909090",
+          "purpose": "route triplet selection through the 150-slot saturation guard"
+        },
+        {
+          "offset": "0x89020",
+          "before": "00000000000000000000000000000000000000000000000000000000000000",
+          "after": "813DE86D4D00930000000F8FA358FDFFC786501C000003000000E98B58FDFF",
+          "purpose": "keep triplets only when three villager slots remain"
+        },
+        {
+          "offset": "0x5E8D3",
+          "before": "C786501C000002000000",
+          "after": "E968A702009090909090",
+          "purpose": "route twin selection through the 150-slot saturation guard"
+        },
+        {
+          "offset": "0x89040",
+          "before": "00000000000000000000000000000000000000000000000000000000000000",
+          "after": "813DE86D4D00940000000F8F9458FDFFC786501C000002000000E97E58FDFF",
+          "purpose": "keep twins only when two villager slots remain"
+        }
+      ]
+    },
+    {
+      "id": "vv5",
+      "title": "Virtual Villagers - New Believers",
+      "input_name": "Virtual Villagers - New Believers.exe",
+      "size": 991232,
+      "sha256": "92946781980220E9D1A2E6C573925519934608F5215F4A0F8CE3B90088C5C65D",
+      "stock_final_cap": 105,
+      "villager_slots": 150,
+      "stock_bonus_ceiling": 15,
+      "absolute_maximum": 150,
+      "variants": {
+        "collection_progression": {
+          "output_name": "Virtual Villagers - New Believers - Modified Max Pop.exe",
+          "bonuses_affect_maximum": true,
+          "patches": [
+            {
+              "offset": "0x72C4B",
+              "before": "5A",
+              "after": "87",
+              "purpose": "use base 135 plus the original maximum 15 collection bonus"
+            }
+          ]
+        },
+        "immediate_fixed": {
+          "output_name": "Virtual Villagers - New Believers - Fixed Max Pop.exe",
+          "bonuses_affect_maximum": false,
+          "patches": [
+            {
+              "offset": "0x72C04",
+              "before": "83FE0A7505BE0F000000",
+              "after": "BE3C0000009090909090",
+              "purpose": "replace every collection-bonus result with fixed arithmetic for a 150 maximum"
+            }
+          ]
+        }
+      },
+      "safety_patches": [
+        {
+          "offset": "0x65F10",
+          "before": "C786501C000003000000",
+          "after": "E92BE402009090909090",
+          "purpose": "route triplet selection through the 150-slot saturation guard"
+        },
+        {
+          "offset": "0x94340",
+          "before": "00000000000000000000000000000000000000000000000000000000000000",
+          "after": "813D60D35100930000000F8FD31BFDFFC786501C000003000000E9BB1BFDFF",
+          "purpose": "keep triplets only when three villager slots remain"
+        },
+        {
+          "offset": "0x65F23",
+          "before": "C786501C000002000000",
+          "after": "E938E402009090909090",
+          "purpose": "route twin selection through the 150-slot saturation guard"
+        },
+        {
+          "offset": "0x94360",
+          "before": "00000000000000000000000000000000000000000000000000000000000000",
+          "after": "813D60D35100940000000F8FC41BFDFFC786501C000002000000E9AE1BFDFF",
+          "purpose": "keep twins only when two villager slots remain"
+        }
+      ]
+    }
+  ],
+  "patch_modes": [
+    {
+      "id": "collection_progression",
+      "name": "Collection Progression Max Pop",
+      "description": "Collections keep raising the cap; all population bonuses are needed to reach the absolute slot maximum."
+    },
+    {
+      "id": "immediate_fixed",
+      "name": "Immediate Fixed Max Pop",
+      "description": "The absolute slot maximum is available immediately; collection bonuses no longer affect it."
+    }
+  ]
 }

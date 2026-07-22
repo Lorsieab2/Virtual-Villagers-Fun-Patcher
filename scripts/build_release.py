@@ -1,4 +1,4 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 import hashlib
 import json
@@ -8,7 +8,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 OUTPUTS = ROOT / "outputs"
-VERSION = "v1.3.0"
+VERSION = "v1.4.0"
 NAME = f"Virtual-Villagers-Fun-Patcher-{VERSION}.zip"
 FILES = [
     "README.md",

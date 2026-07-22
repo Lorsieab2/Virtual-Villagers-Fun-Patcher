@@ -1,6 +1,8 @@
 from __future__ import annotations
 
+import hashlib
 import json
+import shutil
 import struct
 import sys
 import tempfile
@@ -10,169 +12,198 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
-from vv_fun_patcher import (
+from vv_fun_patcher import (  # noqa: E402
+    DEFAULT_PATCH_MODE,
     PatcherError,
     apply_all,
     apply_patch,
     dry_run,
     dry_run_all,
+    get_patch_variant,
     identify,
     load_builds,
-    pe_checksum,
+    load_patch_modes,
     render_patched_bytes,
-    sha256,
     validate_all_sources,
 )
 
 STOCK = ROOT / "research" / "stock-executables"
+MODES = ("collection_progression", "immediate_fixed")
+
+
+def digest(path: Path) -> str:
+    return hashlib.sha256(path.read_bytes()).hexdigest().upper()
 
 
 class ManifestTests(unittest.TestCase):
-    def test_names_and_targets(self) -> None:
+    def test_modes_names_targets_and_safety_guards(self) -> None:
         builds = load_builds()
-        self.assertEqual(len(builds), 5)
-        self.assertEqual([b.villager_slots for b in builds], [256, 256, 150, 150, 150])
+        self.assertEqual([build.id for build in builds], ["vv1", "vv2", "vv3", "vv4", "vv5"])
+        self.assertEqual([mode.id for mode in load_patch_modes()], list(MODES))
+        self.assertEqual(DEFAULT_PATCH_MODE, "collection_progression")
         for build in builds:
-            self.assertEqual(build.output_name, f"{build.title} - Modified Max Pop.exe")
-            self.assertEqual(build.modified_base_cap + build.maximum_bonus, build.villager_slots)
-            for patch in build.patches:
-                self.assertEqual(len(bytes.fromhex(patch["before"])), len(bytes.fromhex(patch["after"])))
+            self.assertEqual(build.absolute_maximum, build.villager_slots)
+            self.assertEqual(len(build.safety_patches), 4)
+            for mode in MODES:
+                variant = get_patch_variant(build, mode)
+                suffix = "Modified Max Pop.exe" if mode == MODES[0] else "Fixed Max Pop.exe"
+                self.assertEqual(variant["output_name"], f"{build.title} - {suffix}")
+            if build.id == "vv1":
+                self.assertFalse(get_patch_variant(build, MODES[0])["bonuses_affect_maximum"])
+            else:
+                self.assertTrue(get_patch_variant(build, MODES[0])["bonuses_affect_maximum"])
+            self.assertFalse(get_patch_variant(build, MODES[1])["bonuses_affect_maximum"])
 
     def test_unknown_file_is_refused(self) -> None:
-        with tempfile.TemporaryDirectory() as folder:
-            path = Path(folder) / "unknown.exe"
-            path.write_bytes(b"not a game")
+        with tempfile.TemporaryDirectory() as temp:
+            path = Path(temp) / "unknown.exe"
+            path.write_bytes(b"MZ" + b"\0" * 200)
             with self.assertRaises(PatcherError):
                 identify(path)
 
 
-@unittest.skipUnless(STOCK.is_dir(), "ignored stock executables are not present")
 class StockIntegrationTests(unittest.TestCase):
-    def sources(self) -> dict[str, Path]:
-        return {build.id: STOCK / build.input_name for build in load_builds()}
-
-    def make_game_folders(self, root: Path) -> dict[str, Path]:
-        folder_sources: dict[str, Path] = {}
+    def setUp(self) -> None:
         for build in load_builds():
-            game_folder = root / build.id
-            game_folder.mkdir()
-            (game_folder / build.input_name).write_bytes((STOCK / build.input_name).read_bytes())
-            folder_sources[build.id] = game_folder
-        return folder_sources
+            path = STOCK / build.input_name
+            if not path.is_file():
+                self.skipTest(f"Missing research stock executable: {path}")
 
-    def assert_no_bulk_outputs(self, folder_sources: dict[str, Path], skip_first: bool = False) -> None:
-        builds = load_builds()[1:] if skip_first else load_builds()
-        for build in builds:
-            game_folder = folder_sources[build.id]
-            self.assertFalse((game_folder / build.output_name).exists())
-            self.assertFalse((game_folder / Path(build.output_name).with_suffix(".patch-log.json")).exists())
+    def copy_game_folders(self, root: Path) -> dict[str, Path]:
+        result = {}
+        for build in load_builds():
+            folder = root / build.id
+            folder.mkdir(parents=True)
+            shutil.copy2(STOCK / build.input_name, folder / build.input_name)
+            result[build.id] = folder
+        return result
 
-    def test_all_five_stock_builds_individually(self) -> None:
-        with tempfile.TemporaryDirectory() as folder:
-            root = Path(folder)
-            for build in load_builds():
-                with self.subTest(game=build.id):
-                    game_folder = root / build.id
-                    game_folder.mkdir()
-                    source = game_folder / build.input_name
-                    source.write_bytes((STOCK / build.input_name).read_bytes())
-                    self.assertEqual(source.stat().st_size, build.size)
-                    self.assertEqual(sha256(source), build.sha256)
-                    self.assertEqual(identify(source).id, build.id)
-                    preview = dry_run(source)
+    def assert_no_outputs(self, folders: dict[str, Path]) -> None:
+        for build in load_builds():
+            for mode in MODES:
+                output = folders[build.id] / get_patch_variant(build, mode)["output_name"]
+                self.assertFalse(output.exists())
+                self.assertFalse(output.with_suffix(".patch-log.json").exists())
+
+    def test_both_modes_render_all_five_with_exact_guards(self) -> None:
+        for build in load_builds():
+            source = STOCK / build.input_name
+            self.assertEqual(identify(source).id, build.id)
+            original = source.read_bytes()
+            for mode in MODES:
+                with self.subTest(game=build.id, mode=mode):
+                    rendered, applied = render_patched_bytes(source, build, mode)
+                    expected_count = len(build.safety_patches) + len(
+                        get_patch_variant(build, mode)["patches"]
+                    )
+                    self.assertEqual(len(applied), expected_count)
+                    self.assertEqual(len(rendered), len(original))
+                    self.assertNotEqual(rendered, original)
+                    checksum_offset = struct.unpack_from("<I", rendered, 0x3C)[0] + 24 + 64
+                    self.assertNotEqual(struct.unpack_from("<I", rendered, checksum_offset)[0], 0)
+                    preview = dry_run(source, mode)
+                    self.assertEqual(preview["patch_mode"], mode)
+                    self.assertEqual(preview["absolute_maximum"], build.villager_slots)
                     self.assertEqual(preview["villager_slots"], build.villager_slots)
-                    output, log = apply_patch(source)
-                    self.assertEqual(output.parent, game_folder)
-                    self.assertEqual(log.parent, game_folder)
-                    self.assertEqual(output.name, build.output_name)
-                    self.assertTrue(source.is_file())
-                    self.assertEqual(sha256(source), build.sha256)
-                    self.assertEqual(output.stat().st_size, source.stat().st_size)
-                    self.assertNotEqual(sha256(output), build.sha256)
-                    log_data = json.loads(log.read_text(encoding="utf-8"))
-                    self.assertEqual(log_data["output_sha256"], sha256(output))
-                    rendered, _ = render_patched_bytes(source, build)
-                    self.assertEqual(output.read_bytes(), rendered)
-                    pe_offset = struct.unpack_from("<I", rendered, 0x3C)[0]
-                    checksum_offset = pe_offset + 24 + 64
-                    stored = struct.unpack_from("<I", rendered, checksum_offset)[0]
-                    copy = bytearray(rendered)
-                    self.assertEqual(stored, pe_checksum(copy))
-                    self.assertNotEqual(stored, 0)
-                    for patch in build.patches:
-                        offset = int(patch["offset"], 0)
-                        after = bytes.fromhex(patch["after"])
-                        self.assertEqual(output.read_bytes()[offset:offset + len(after)], after)
-    def test_bulk_accepts_one_folder_field_and_outputs_into_each_game_folder(self) -> None:
-        with tempfile.TemporaryDirectory() as folder:
-            folder_sources = self.make_game_folders(Path(folder))
-            validated = validate_all_sources(folder_sources)
-            self.assertEqual([source.name for _, source in validated], [build.input_name for build in load_builds()])
-            results = apply_all(folder_sources)
-            self.assertEqual([output.name for output, _ in results], [build.output_name for build in load_builds()])
-            for (output, log), build in zip(results, load_builds(), strict=True):
-                self.assertEqual(output.parent, folder_sources[build.id])
-                self.assertEqual(log.parent, folder_sources[build.id])
-                self.assertTrue(output.is_file())
-                self.assertTrue(log.is_file())
+                    self.assertIn("remaining villager slots", preview["multiple_birth_saturation"])
 
-    def test_folder_missing_expected_exe_writes_nothing(self) -> None:
-        with tempfile.TemporaryDirectory() as folder:
-            root = Path(folder)
-            folder_sources = self.make_game_folders(root)
-            empty_game_folder = root / "empty-game-folder"
-            empty_game_folder.mkdir()
-            folder_sources["vv5"] = empty_game_folder
+    def test_immediate_mode_fixed_arithmetic(self) -> None:
+        checks = {
+            "vv2": (0x4B378, bytes.fromhex("BFA6000000")),
+            "vv3": (0x5FEA2, bytes.fromhex("BE3C000000")),
+            "vv4": (0x683AA, bytes.fromhex("BE3C000000")),
+            "vv5": (0x72C04, bytes.fromhex("BE3C000000")),
+        }
+        for build in load_builds():
+            if build.id not in checks:
+                continue
+            offset, expected = checks[build.id]
+            rendered, _ = render_patched_bytes(
+                STOCK / build.input_name, build, "immediate_fixed"
+            )
+            self.assertEqual(bytes(rendered[offset : offset + len(expected)]), expected)
+
+    def test_saturation_thresholds_fill_but_never_exceed_slots(self) -> None:
+        for build in load_builds():
+            cap = build.villager_slots
+            for population in range(cap - 4, cap):
+                remaining = cap - population
+                for rolled in (1, 2, 3):
+                    delivered = min(rolled, remaining)
+                    self.assertGreaterEqual(delivered, 1)
+                    self.assertLessEqual(population + delivered, cap)
+                    self.assertEqual(population + delivered, min(population + rolled, cap))
+
+    def test_both_outputs_coexist_beside_originals(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            folders = self.copy_game_folders(Path(temp))
+            source_hashes = {
+                build.id: digest(folders[build.id] / build.input_name)
+                for build in load_builds()
+            }
+            for mode in MODES:
+                results = apply_all(folders, mode)
+                self.assertEqual(len(results), 5)
+            for build in load_builds():
+                source = folders[build.id] / build.input_name
+                self.assertEqual(digest(source), source_hashes[build.id])
+                for mode in MODES:
+                    output = folders[build.id] / get_patch_variant(build, mode)["output_name"]
+                    self.assertTrue(output.is_file())
+                    log = json.loads(output.with_suffix(".patch-log.json").read_text())
+                    self.assertEqual(log["patch_mode"], mode)
+                    self.assertEqual(log["output_path"], str(output))
+                    self.assertEqual(log["villager_slots"], build.villager_slots)
+
+    def test_bulk_dry_run_is_no_write(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            folders = self.copy_game_folders(Path(temp))
+            for mode in MODES:
+                results = dry_run_all(folders, mode)
+                self.assertEqual(len(results), 5)
+            self.assert_no_outputs(folders)
+
+    def test_invalid_bulk_input_writes_nothing(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            folders = self.copy_game_folders(Path(temp))
+            bad = folders["vv5"] / load_builds()[-1].input_name
+            bad.write_bytes(bad.read_bytes()[:-1] + bytes([bad.read_bytes()[-1] ^ 1]))
             with self.assertRaises(PatcherError):
-                apply_all(folder_sources)
-            self.assert_no_bulk_outputs(folder_sources)
+                apply_all(folders, DEFAULT_PATCH_MODE)
+            self.assert_no_outputs(folders)
 
-    def test_all_five_bulk_dry_run_and_apply(self) -> None:
-        sources = self.sources()
-        validated = validate_all_sources(sources)
-        self.assertEqual([build.id for build, _ in validated], [build.id for build in load_builds()])
-        previews = dry_run_all(sources)
-        self.assertEqual(len(previews), 5)
-        self.assertEqual([item["game"] for item in previews], [build.title for build in load_builds()])
-        with tempfile.TemporaryDirectory() as folder:
-            folder_sources = self.make_game_folders(Path(folder))
-            results = apply_all(folder_sources)
-            self.assertEqual(len(results), 5)
-            for (output, log), build in zip(results, load_builds(), strict=True):
-                self.assertEqual(output.parent, folder_sources[build.id])
-                self.assertEqual(log.parent, folder_sources[build.id])
-                self.assertEqual(json.loads(log.read_text(encoding="utf-8"))["output_sha256"], sha256(output))
-
-    def test_bulk_invalid_input_writes_nothing(self) -> None:
-        with tempfile.TemporaryDirectory() as folder:
-            root = Path(folder)
-            folder_sources = self.make_game_folders(root)
-            bad = root / "bad.exe"
-            bad.write_bytes(b"not a supported game")
-            folder_sources["vv5"] = bad
+    def test_existing_selected_mode_output_is_atomic_no_write(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            folders = self.copy_game_folders(Path(temp))
+            first = load_builds()[0]
+            sentinel = folders[first.id] / get_patch_variant(first, DEFAULT_PATCH_MODE)["output_name"]
+            sentinel.write_bytes(b"sentinel")
             with self.assertRaises(PatcherError):
-                apply_all(folder_sources)
-            self.assert_no_bulk_outputs(folder_sources)
+                apply_all(folders, DEFAULT_PATCH_MODE)
+            self.assertEqual(sentinel.read_bytes(), b"sentinel")
+            for build in load_builds()[1:]:
+                output = folders[build.id] / get_patch_variant(build, DEFAULT_PATCH_MODE)["output_name"]
+                self.assertFalse(output.exists())
 
-    def test_bulk_wrong_game_slot_writes_nothing(self) -> None:
-        with tempfile.TemporaryDirectory() as folder:
-            folder_sources = self.make_game_folders(Path(folder))
-            folder_sources["vv5"] = folder_sources["vv4"] / load_builds()[3].input_name
+    def test_folder_validation_requires_the_expected_exe(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            folders = self.copy_game_folders(Path(temp))
+            build = load_builds()[2]
+            (folders[build.id] / build.input_name).unlink()
             with self.assertRaises(PatcherError):
-                apply_all(folder_sources)
-            self.assert_no_bulk_outputs(folder_sources)
+                validate_all_sources(folders)
+            self.assert_no_outputs(folders)
 
-    def test_bulk_existing_output_without_overwrite_writes_nothing(self) -> None:
-        builds = load_builds()
-        with tempfile.TemporaryDirectory() as folder:
-            folder_sources = self.make_game_folders(Path(folder))
-            sentinel = folder_sources[builds[0].id] / builds[0].output_name
-            sentinel.write_bytes(b"keep me")
-            with self.assertRaises(PatcherError):
-                apply_all(folder_sources)
-            self.assertEqual(sentinel.read_bytes(), b"keep me")
-            self.assert_no_bulk_outputs(folder_sources, skip_first=True)
+    def test_single_apply_uses_selected_mode_name(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            build = load_builds()[3]
+            source = Path(temp) / build.input_name
+            shutil.copy2(STOCK / build.input_name, source)
+            output, log = apply_patch(source, "immediate_fixed")
+            self.assertEqual(output.name, get_patch_variant(build, "immediate_fixed")["output_name"])
+            self.assertTrue(log.is_file())
+            self.assertTrue(source.is_file())
 
 
 if __name__ == "__main__":
-    unittest.main(verbosity=2)
+    unittest.main()

@@ -1,62 +1,72 @@
 # Virtual Villagers Fun Patcher
 
-A small, offline Windows patcher for miscellaneous fun patches in all five classic Virtual Villagers PC games.
+An offline Windows patcher for miscellaneous fun patches in all five classic Virtual Villagers PC games.
 
-The first patch, **Modified Max Pop**, raises each game's maximum possible population to the size of its built-in villager record pool:
+Its max-population patch uses every built-in villager slot: 256 slots in A New Home and The Lost Children, and 150 slots in The Secret City, The Tree of Life, and New Believers.
 
-| Game | Stock final maximum | Villager slots | Modified final maximum |
+## Two patch styles
+
+Choose the style in the patcher; the choice and all paths are remembered.
+
+| Style | Collection behavior | Output suffix |
+|---|---|---|
+| Collection Progression Max Pop | The original population bonuses remain active and are required to reach the slot maximum. The Secret City also retains its level-3 magic bonus. | `- Modified Max Pop.exe` |
+| Immediate Fixed Max Pop | The slot maximum is available immediately. Collections no longer change it; The Secret City's magic tech no longer changes it either. | `- Fixed Max Pop.exe` |
+
+A New Home has no collection population bonus, so both styles use the same 256 limit but still create separately named outputs.
+
+| Game | Stock final maximum | Collection Progression maximum | Immediate Fixed maximum |
 |---|---:|---:|---:|
 | A New Home | 90 | 256 | 256 |
-| The Lost Children | 115 with all four collections | 256 | 256 with all four collections |
-| The Secret City | 125 with all four collections and level-3 magic | 150 | 150 with all four collections and level-3 magic |
-| The Tree of Life | 115 with all four collections | 150 | 150 with all four collections |
-| New Believers | 105 with both collections | 150 | 150 with both collections |
+| The Lost Children | 115 | 231 to 256 | 256 |
+| The Secret City | 125 | 115 to 150 | 150 |
+| The Tree of Life | 115 | 125 to 150 | 150 |
+| New Believers | 105 | 135 to 150 | 150 |
 
-Housing and collection progression are retained. Only the final maximum changes.
+Housing gates remain in place.
+
+## Safe twins and triplets at the ceiling
+
+All five stock games test the population limit once before choosing a singleton, twins, or triplets. Without an additional guard, a multiple birth at maximum minus one can report maximum plus one or maximum plus two, even though no corresponding villager records remain.
+
+Both patch styles add a slot-saturation guard:
+
+- Three or more slots left: singleton, twin, and triplet rolls are unchanged.
+- Two slots left: a rolled triplet safely becomes twins.
+- One slot left: a rolled twin or triplet safely becomes a singleton.
+- No slots left: the normal population predicate blocks the birth.
+
+This lets reproduction fill the final slot without permitting the population to exceed the game's real villager array.
 
 ## Use
 
-1. Extract the release ZIP.
+1. Extract the latest release ZIP.
 2. Double-click `Launch Virtual Villagers Fun Patcher.bat`.
-3. Choose **One Game** or **All 5 Games**.
-4. For one game, select its original EXE. For all five, select one game folder in each of the five fields.
-5. Validate, dry run, or create the modified EXE set.
+3. Select a patch style.
+4. Choose **One Game** or **All 5 Games**.
+5. For one game, select its original EXE. For all five, select one folder per game.
+6. Validate, dry run, or create the modified EXE set.
 
-In **All 5 Games**, there are five separate folder fields, one for each game. Select the folder containing that game's original EXE. You can also use **Find All 5 in Parent Folder...** when the five original EXEs are directly in the chosen folder or one folder below it. The patcher finds the correctly named EXE inside each selected folder and validates every source before writing any batch output.
+**Find All 5 in Parent Folder...** can fill the five folder fields when the original EXEs are in the chosen folder or one folder below it.
 
-The patcher remembers the one-game EXE path and all five game-folder paths in `patcher_local_settings.json`. It never edits, renames, replaces, or deletes an original EXE. Each modified EXE and its verification log are created beside the original in that game's folder:
+The original EXEs are never edited, renamed, replaced, or deleted. Outputs and their `.patch-log.json` verification logs are placed beside the originals in their respective game folders. Both styles can coexist.
 
-- `Virtual Villagers - A New Home - Modified Max Pop.exe`
-- `Virtual Villagers - The Lost Children - Modified Max Pop.exe`
-- `Virtual Villagers - The Secret City - Modified Max Pop.exe`
-- `Virtual Villagers - The Tree of Life - Modified Max Pop.exe`
-- `Virtual Villagers - New Believers - Modified Max Pop.exe`
+## Exact-build safety
 
-Each output receives a `.patch-log.json` file recording the source and output hashes and every applied byte guard.
+Support is bound to the exact SHA-256 and size of each researched stock executable. Unknown, modified, corrupt, duplicate, or incorrectly assigned EXEs are refused. Every original byte to be changed is guarded, file size is preserved, the PE checksum is recalculated, and each result is read back and hashed.
 
-## Supported builds and safety
+Bulk mode validates and renders all five inputs before writing, then stages and verifies all five outputs before placing them into the game folders.
 
-Support is bound to the exact SHA-256 and size of each supplied stock executable. Unknown, previously modified, corrupt, duplicated, or incorrectly assigned EXEs are refused. Every original byte is checked before editing, file size is preserved, the PE checksum is recalculated, and each finished file is read back and hashed.
-
-Bulk mode performs exact-build validation, guarded patch rendering, and existing-output checks for all five games before it writes anything. It stages and verifies all five generated files before placing each one in its corresponding game folder.
-
-No game executable, save, extracted asset, or generated output is stored in this repository.
+No game executable, save, extracted asset, or generated output is committed to this repository.
 
 ## Command line
 
-Single game:
+Pass `--patch-mode collection_progression` or `--patch-mode immediate_fixed` to `dry-run`, `apply`, `dry-run-all`, or `apply-all`.
 
 ```text
-python src/vv_fun_patcher.py identify "path\\game.exe"
-python src/vv_fun_patcher.py dry-run "path\\game.exe"
-python src/vv_fun_patcher.py apply "path\\game.exe"
-```
-
-All five:
-
-```text
-python src/vv_fun_patcher.py dry-run-all --vv1 "path\\vv1 folder" --vv2 "path\\vv2 folder" --vv3 "path\\vv3 folder" --vv4 "path\\vv4 folder" --vv5 "path\\vv5 folder"
-python src/vv_fun_patcher.py apply-all --vv1 "path\\vv1 folder" --vv2 "path\\vv2 folder" --vv3 "path\\vv3 folder" --vv4 "path\\vv4 folder" --vv5 "path\\vv5 folder"
+python src/vv_fun_patcher.py dry-run "path\game.exe" --patch-mode immediate_fixed
+python src/vv_fun_patcher.py apply "path\game.exe" --patch-mode collection_progression
+python src/vv_fun_patcher.py apply-all --vv1 "path\vv1 folder" --vv2 "path\vv2 folder" --vv3 "path\vv3 folder" --vv4 "path\vv4 folder" --vv5 "path\vv5 folder" --patch-mode immediate_fixed
 ```
 
 Technical evidence is in `docs/max-population-research.md`.
