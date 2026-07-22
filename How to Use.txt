@@ -1,0 +1,13 @@
+VIRTUAL VILLAGERS FUN PATCHER
+
+1. Double-click “Launch Virtual Villagers Fun Patcher.bat”.
+2. Browse to the ORIGINAL EXE for any one of the five classic PC games.
+3. Choose an output folder.
+4. Click Validate or Dry Run if you want to check it first.
+5. Click Create Modified EXE.
+
+The original game is never changed. The new file is named:
+(name of game) - Modified Max Pop.exe
+
+The patcher remembers your selected original EXE and output folder for next time.
+It supports only the five exact original builds it was researched against. An unknown or already-modified EXE is refused instead of guessed.

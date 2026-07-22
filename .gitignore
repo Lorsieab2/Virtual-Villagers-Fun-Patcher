@@ -1,0 +1,7 @@
+outputs/
+research/
+.tools/
+__pycache__/
+*.pyc
+patcher_local_settings.json
+*.patch-log.json

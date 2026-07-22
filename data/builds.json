@@ -1,0 +1,118 @@
+{
+    "schema_version":  1,
+    "patch_name":  "Modified Max Pop",
+    "games":  [
+                  {
+                      "id":  "vv1",
+                      "title":  "Virtual Villagers - A New Home",
+                      "input_name":  "Virtual Villagers - A New Home.exe",
+                      "output_name":  "Virtual Villagers - A New Home - Modified Max Pop.exe",
+                      "size":  581632,
+                      "sha256":  "1EC790B927741081D5CE13A48FB76983A4FD4336EA08F89317872643760AF03D",
+                      "stock_final_cap":  90,
+                      "villager_slots":  256,
+                      "patches":  [
+                                      {
+                                          "offset":  "0x3A1AE",
+                                          "before":  "83F85A",
+                                          "after":  "EB7690",
+                                          "purpose":  "jump to 256-person comparison"
+                                      },
+                                      {
+                                          "offset":  "0x3A226",
+                                          "before":  "90909090909090909090",
+                                          "after":  "3D00010000EB84909090",
+                                          "purpose":  "compare population with 256, then return to original housing branch"
+                                      }
+                                  ],
+                      "modified_base_cap":  256,
+                      "maximum_bonus":  0
+                  },
+                  {
+                      "id":  "vv2",
+                      "title":  "Virtual Villagers - The Lost Children",
+                      "input_name":  "Virtual Villagers - The Lost Children.exe",
+                      "output_name":  "Virtual Villagers - The Lost Children - Modified Max Pop.exe",
+                      "size":  724992,
+                      "sha256":  "46C1503C209255C9CDEFA941DB2F449C8CF8E2CDD5C7D13CD975326E377ED677",
+                      "stock_final_cap":  115,
+                      "villager_slots":  256,
+                      "patches":  [
+                                      {
+                                          "offset":  "0x4B3AD",
+                                          "before":  "83C75A",
+                                          "after":  "EB4390",
+                                          "purpose":  "jump to expanded base-cap arithmetic"
+                                      },
+                                      {
+                                          "offset":  "0x4B3F2",
+                                          "before":  "9090909090909090909090909090",
+                                          "after":  "81C7E70000003BEFEBB690909090",
+                                          "purpose":  "use base 231 plus the original maximum 25 collection bonus"
+                                      }
+                                  ],
+                      "modified_base_cap":  231,
+                      "maximum_bonus":  25
+                  },
+                  {
+                      "id":  "vv3",
+                      "title":  "Virtual Villagers - The Secret City",
+                      "input_name":  "Virtual Villagers - The Secret City.exe",
+                      "output_name":  "Virtual Villagers - The Secret City - Modified Max Pop.exe",
+                      "size":  831488,
+                      "sha256":  "8BC5DB382D02BC5C21AD5F607580D60FF44A6519CC7EB133F03113BAACAE6503",
+                      "stock_final_cap":  125,
+                      "villager_slots":  150,
+                      "patches":  [
+                                      {
+                                          "offset":  "0x5FEE3",
+                                          "before":  "5A",
+                                          "after":  "73",
+                                          "purpose":  "use base 115 plus the original maximum 35 collection and magic-tech bonuses"
+                                      }
+                                  ],
+                      "modified_base_cap":  115,
+                      "maximum_bonus":  35
+                  },
+                  {
+                      "id":  "vv4",
+                      "title":  "Virtual Villagers - The Tree of Life",
+                      "input_name":  "Virtual Villagers - The Tree of Life.exe",
+                      "output_name":  "Virtual Villagers - The Tree of Life - Modified Max Pop.exe",
+                      "size":  929792,
+                      "sha256":  "6D27A429FFCA5F1F71FDD7ECA761ED1BB67E85F976494BA178B3D7BE01F1B220",
+                      "stock_final_cap":  115,
+                      "villager_slots":  150,
+                      "patches":  [
+                                      {
+                                          "offset":  "0x683F1",
+                                          "before":  "5A",
+                                          "after":  "7D",
+                                          "purpose":  "use base 125 plus the original maximum 25 collection bonus"
+                                      }
+                                  ],
+                      "modified_base_cap":  125,
+                      "maximum_bonus":  25
+                  },
+                  {
+                      "id":  "vv5",
+                      "title":  "Virtual Villagers - New Believers",
+                      "input_name":  "Virtual Villagers - New Believers.exe",
+                      "output_name":  "Virtual Villagers - New Believers - Modified Max Pop.exe",
+                      "size":  991232,
+                      "sha256":  "92946781980220E9D1A2E6C573925519934608F5215F4A0F8CE3B90088C5C65D",
+                      "stock_final_cap":  105,
+                      "villager_slots":  150,
+                      "patches":  [
+                                      {
+                                          "offset":  "0x72C4B",
+                                          "before":  "5A",
+                                          "after":  "87",
+                                          "purpose":  "use base 135 plus the original maximum 15 collection bonus"
+                                      }
+                                  ],
+                      "modified_base_cap":  135,
+                      "maximum_bonus":  15
+                  }
+              ]
+}
