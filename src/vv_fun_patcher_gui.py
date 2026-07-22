@@ -31,7 +31,6 @@ class App(tk.Tk):
         self.minsize(780, 600)
         self.builds = load_builds()
         self.exe_var = tk.StringVar()
-        self.output_var = tk.StringVar()
         self.all_folder_vars = {build.id: tk.StringVar() for build in self.builds}
         self.status_var = tk.StringVar(value="Choose one game, or select all five together.")
         self.game_var = tk.StringVar(value="No game identified yet")
@@ -60,18 +59,13 @@ class App(tk.Tk):
         self._build_single_tab(single_tab)
         self._build_all_tab(all_tab)
 
-        output_box = ttk.LabelFrame(outer, text="Output folder", padding=10)
-        output_box.pack(fill="x", pady=(12, 0))
-        ttk.Entry(output_box, textvariable=self.output_var).grid(row=0, column=0, sticky="ew", padx=(0, 8))
-        ttk.Button(output_box, text="Browse...", command=self._browse_output).grid(row=0, column=1)
-        output_box.columnconfigure(0, weight=1)
 
         status_box = ttk.LabelFrame(outer, text="Status", padding=10)
         status_box.pack(fill="x", pady=(10, 0))
         ttk.Label(status_box, textvariable=self.status_var, wraplength=830, justify="left").pack(anchor="w")
 
         self.open_button = ttk.Button(
-            status_box, text="Open Output Folder", command=self._open_output, state="disabled"
+            status_box, text="Open Game Folder", command=self._open_output, state="disabled"
         )
         self.open_button.pack(anchor="e", pady=(8, 0))
 
@@ -84,6 +78,7 @@ class App(tk.Tk):
         ttk.Label(input_box, textvariable=self.game_var, foreground="#245a9a").grid(
             row=1, column=0, columnspan=2, sticky="w", pady=(8, 0)
         )
+
 
         ttk.Label(
             tab,
@@ -100,7 +95,7 @@ class App(tk.Tk):
     def _build_all_tab(self, tab: ttk.Frame) -> None:
         ttk.Label(
             tab,
-            text="Choose one game folder per row. The patcher finds and validates the expected EXE inside each folder before writing.",
+            text="Choose one game folder per row. Each modified EXE and verification log will be saved in its selected game folder.",
             wraplength=800,
         ).pack(anchor="w", pady=(0, 8))
 
@@ -134,7 +129,6 @@ class App(tk.Tk):
         except (OSError, ValueError):
             data = {}
         self.exe_var.set(data.get("original_exe", ""))
-        self.output_var.set(data.get("output_dir", str(ROOT / "outputs")))
         saved_all = data.get("all_game_folders", data.get("all_game_exes", {}))
         if isinstance(saved_all, dict):
             for build in self.builds:
@@ -148,7 +142,6 @@ class App(tk.Tk):
     def _save_settings(self) -> None:
         data = {
             "original_exe": self.exe_var.get().strip(),
-            "output_dir": self.output_var.get().strip(),
             "all_game_folders": {
                 build.id: self.all_folder_vars[build.id].get().strip() for build in self.builds
             },
@@ -177,14 +170,6 @@ class App(tk.Tk):
         )
         if chosen:
             variable.set(chosen)
-            self._save_settings()
-
-    def _browse_output(self) -> None:
-        chosen = filedialog.askdirectory(
-            title="Choose output folder", initialdir=self.output_var.get() or ROOT
-        )
-        if chosen:
-            self.output_var.set(chosen)
             self._save_settings()
 
     def _find_all(self) -> None:
@@ -233,9 +218,6 @@ class App(tk.Tk):
         if missing:
             raise PatcherError("Choose all five original game folders. Missing: " + ", ".join(missing))
         return {game_id: Path(value) for game_id, value in values.items()}
-
-    def _output_dir(self) -> Path:
-        return Path(self.output_var.get().strip() or ROOT / "outputs")
 
     def _validate(self, show_popup: bool = True) -> None:
         try:
@@ -302,9 +284,8 @@ class App(tk.Tk):
     def _apply(self) -> None:
         try:
             source = self._source()
-            output_dir = self._output_dir()
             build = identify(source)
-            output = output_dir / build.output_name
+            output = source.resolve().parent / build.output_name
             overwrite = False
             if output.exists():
                 overwrite = messagebox.askyesno(
@@ -313,9 +294,9 @@ class App(tk.Tk):
                 )
                 if not overwrite:
                     return
-            output, log = apply_patch(source, output_dir, overwrite=overwrite)
+            output, log = apply_patch(source, overwrite=overwrite)
             self.last_output_dir = output.parent
-            self.open_button.configure(state="normal")
+            self.open_button.configure(text="Open Game Folder", state="normal")
             self.status_var.set(f"Success. Created and verified:\n{output}\n\nVerification log:\n{log}")
             self._save_settings()
             messagebox.showinfo("Modified EXE created", self.status_var.get())
@@ -326,12 +307,11 @@ class App(tk.Tk):
     def _apply_all(self) -> None:
         try:
             sources = self._all_sources()
-            output_dir = self._output_dir()
             validated = validate_all_sources(sources)
             existing = [
-                output_dir / build.output_name
-                for build, _ in validated
-                if (output_dir / build.output_name).exists()
+                source.parent / build.output_name
+                for build, source in validated
+                if (source.parent / build.output_name).exists()
             ]
             overwrite = False
             if existing:
@@ -343,9 +323,9 @@ class App(tk.Tk):
                 )
                 if not overwrite:
                     return
-            results = apply_all(sources, output_dir, overwrite=overwrite)
-            self.last_output_dir = output_dir.resolve()
-            self.open_button.configure(state="normal")
+            results = apply_all(sources, overwrite=overwrite)
+            self.last_output_dir = results[0][0].parent
+            self.open_button.configure(text="Open First Game Folder", state="normal")
             self.status_var.set(
                 "Success. All five modified EXEs were created and verified:\n"
                 + "\n".join(f"- {output}" for output, _ in results)
@@ -357,7 +337,9 @@ class App(tk.Tk):
             messagebox.showerror("Batch patch failed", str(exc))
 
     def _open_output(self) -> None:
-        folder = self.last_output_dir or self._output_dir()
+        if self.last_output_dir is None:
+            return
+        folder = self.last_output_dir
         if sys.platform == "win32":
             os.startfile(folder)  # type: ignore[attr-defined]
         else:

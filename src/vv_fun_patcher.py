@@ -142,15 +142,14 @@ def dry_run_all(sources: dict[str, Path]) -> list[dict[str, Any]]:
 def _log_data(build: Build, source: Path, output: Path, output_hash: str, applied: list[dict[str, str]]) -> dict[str, Any]:
     return {"patcher":"Virtual Villagers Fun Patcher","patch":"Modified Max Pop","created_utc":datetime.now(timezone.utc).isoformat(),"game":build.title,"villager_slots":build.villager_slots,"source_path":str(source.resolve()),"source_sha256":build.sha256,"output_path":str(output),"output_sha256":output_hash,"patches":applied}
 
-def apply_patch(source: Path, output_dir: Path, overwrite: bool = False) -> tuple[Path, Path]:
+def apply_patch(source: Path, overwrite: bool = False) -> tuple[Path, Path]:
+    source = source.resolve()
     build = identify(source)
-    output_dir = output_dir.resolve()
-    output_dir.mkdir(parents=True, exist_ok=True)
-    output = output_dir / build.output_name
+    output = source.parent / build.output_name
     if output.exists() and not overwrite:
         raise PatcherError(f"Output already exists: {output}")
     patched, applied = render_patched_bytes(source, build)
-    fd, temp_name = tempfile.mkstemp(prefix="vvfp-", suffix=".tmp", dir=output_dir)
+    fd, temp_name = tempfile.mkstemp(prefix="vvfp-", suffix=".tmp", dir=source.parent)
     try:
         with os.fdopen(fd, "wb") as handle:
             handle.write(patched)
@@ -171,23 +170,20 @@ def apply_patch(source: Path, output_dir: Path, overwrite: bool = False) -> tupl
     log_path = output.with_suffix(".patch-log.json")
     log_path.write_text(json.dumps(_log_data(build, source, output, output_hash, applied), indent=2) + "\n", encoding="utf-8")
     return output, log_path
-
-def apply_all(sources: dict[str, Path], output_dir: Path, overwrite: bool = False) -> list[tuple[Path, Path]]:
+def apply_all(sources: dict[str, Path], overwrite: bool = False) -> list[tuple[Path, Path]]:
     validated = validate_all_sources(sources)
     plans: list[tuple[Build, Path, bytearray, list[dict[str, str]], Path]] = []
-    output_dir = output_dir.resolve()
     for build, source in validated:
         patched, applied = render_patched_bytes(source, build)
-        plans.append((build, source, patched, applied, output_dir / build.output_name))
+        plans.append((build, source, patched, applied, source.parent / build.output_name))
     existing = [output for _, _, _, _, output in plans if output.exists()]
     if existing and not overwrite:
         raise PatcherError("Bulk output already exists; no files were written:\n" + "\n".join(str(path) for path in existing))
-    output_dir.mkdir(parents=True, exist_ok=True)
     staged: list[tuple[Path, tuple[Build, Path, bytearray, list[dict[str, str]], Path]]] = []
     try:
         for plan in plans:
             build, source, patched, applied, output = plan
-            fd, temp_name = tempfile.mkstemp(prefix=f"vvfp-{build.id}-", suffix=".tmp", dir=output_dir)
+            fd, temp_name = tempfile.mkstemp(prefix=f"vvfp-{build.id}-", suffix=".tmp", dir=output.parent)
             with os.fdopen(fd, "wb") as handle:
                 handle.write(patched)
                 handle.flush()
@@ -214,7 +210,6 @@ def apply_all(sources: dict[str, Path], output_dir: Path, overwrite: bool = Fals
         log_path.write_text(json.dumps(_log_data(build, source, output, output_hash, applied), indent=2) + "\n", encoding="utf-8")
         results.append((output, log_path))
     return results
-
 def _add_all_source_args(parser: argparse.ArgumentParser) -> None:
     for build in load_builds():
         parser.add_argument(f"--{build.id}", required=True, type=Path, help=f"folder containing {build.input_name}, or the EXE itself")
@@ -231,12 +226,10 @@ def _parser() -> argparse.ArgumentParser:
     dry_cmd.add_argument("exe", type=Path)
     apply_cmd = sub.add_parser("apply", help="create one modified copy")
     apply_cmd.add_argument("exe", type=Path)
-    apply_cmd.add_argument("output_dir", type=Path)
     apply_cmd.add_argument("--overwrite", action="store_true")
     dry_all_cmd = sub.add_parser("dry-run-all", help="verify all five games without writing output")
     _add_all_source_args(dry_all_cmd)
     apply_all_cmd = sub.add_parser("apply-all", help="create all five modified copies together")
-    apply_all_cmd.add_argument("output_dir", type=Path)
     apply_all_cmd.add_argument("--overwrite", action="store_true")
     _add_all_source_args(apply_all_cmd)
     return parser
@@ -249,13 +242,13 @@ def main() -> int:
         elif args.command == "dry-run":
             print(json.dumps(dry_run(args.exe), indent=2))
         elif args.command == "apply":
-            output, log = apply_patch(args.exe, args.output_dir, args.overwrite)
+            output, log = apply_patch(args.exe, args.overwrite)
             print(f"Created: {output}")
             print(f"Log: {log}")
         elif args.command == "dry-run-all":
             print(json.dumps(dry_run_all(_all_sources_from_args(args)), indent=2))
         else:
-            results = apply_all(_all_sources_from_args(args), args.output_dir, args.overwrite)
+            results = apply_all(_all_sources_from_args(args), args.overwrite)
             for output, log in results:
                 print(f"Created: {output}")
                 print(f"Log: {log}")

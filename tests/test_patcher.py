@@ -51,20 +51,42 @@ class StockIntegrationTests(unittest.TestCase):
     def sources(self) -> dict[str, Path]:
         return {build.id: STOCK / build.input_name for build in load_builds()}
 
+    def make_game_folders(self, root: Path) -> dict[str, Path]:
+        folder_sources: dict[str, Path] = {}
+        for build in load_builds():
+            game_folder = root / build.id
+            game_folder.mkdir()
+            (game_folder / build.input_name).write_bytes((STOCK / build.input_name).read_bytes())
+            folder_sources[build.id] = game_folder
+        return folder_sources
+
+    def assert_no_bulk_outputs(self, folder_sources: dict[str, Path], skip_first: bool = False) -> None:
+        builds = load_builds()[1:] if skip_first else load_builds()
+        for build in builds:
+            game_folder = folder_sources[build.id]
+            self.assertFalse((game_folder / build.output_name).exists())
+            self.assertFalse((game_folder / Path(build.output_name).with_suffix(".patch-log.json")).exists())
+
     def test_all_five_stock_builds_individually(self) -> None:
         with tempfile.TemporaryDirectory() as folder:
-            output_dir = Path(folder)
+            root = Path(folder)
             for build in load_builds():
                 with self.subTest(game=build.id):
-                    source = STOCK / build.input_name
-                    self.assertTrue(source.is_file())
+                    game_folder = root / build.id
+                    game_folder.mkdir()
+                    source = game_folder / build.input_name
+                    source.write_bytes((STOCK / build.input_name).read_bytes())
                     self.assertEqual(source.stat().st_size, build.size)
                     self.assertEqual(sha256(source), build.sha256)
                     self.assertEqual(identify(source).id, build.id)
                     preview = dry_run(source)
                     self.assertEqual(preview["villager_slots"], build.villager_slots)
-                    output, log = apply_patch(source, output_dir)
+                    output, log = apply_patch(source)
+                    self.assertEqual(output.parent, game_folder)
+                    self.assertEqual(log.parent, game_folder)
                     self.assertEqual(output.name, build.output_name)
+                    self.assertTrue(source.is_file())
+                    self.assertEqual(sha256(source), build.sha256)
                     self.assertEqual(output.stat().st_size, source.stat().st_size)
                     self.assertNotEqual(sha256(output), build.sha256)
                     log_data = json.loads(log.read_text(encoding="utf-8"))
@@ -81,32 +103,29 @@ class StockIntegrationTests(unittest.TestCase):
                         offset = int(patch["offset"], 0)
                         after = bytes.fromhex(patch["after"])
                         self.assertEqual(output.read_bytes()[offset:offset + len(after)], after)
-
-    def test_bulk_accepts_one_folder_field_per_game(self) -> None:
+    def test_bulk_accepts_one_folder_field_and_outputs_into_each_game_folder(self) -> None:
         with tempfile.TemporaryDirectory() as folder:
-            root = Path(folder)
-            folder_sources: dict[str, Path] = {}
-            for build in load_builds():
-                game_folder = root / build.id
-                game_folder.mkdir()
-                (game_folder / build.input_name).write_bytes((STOCK / build.input_name).read_bytes())
-                folder_sources[build.id] = game_folder
+            folder_sources = self.make_game_folders(Path(folder))
             validated = validate_all_sources(folder_sources)
             self.assertEqual([source.name for _, source in validated], [build.input_name for build in load_builds()])
-            results = apply_all(folder_sources, root / "output")
+            results = apply_all(folder_sources)
             self.assertEqual([output.name for output, _ in results], [build.output_name for build in load_builds()])
+            for (output, log), build in zip(results, load_builds(), strict=True):
+                self.assertEqual(output.parent, folder_sources[build.id])
+                self.assertEqual(log.parent, folder_sources[build.id])
+                self.assertTrue(output.is_file())
+                self.assertTrue(log.is_file())
 
     def test_folder_missing_expected_exe_writes_nothing(self) -> None:
-        folder_sources = {build.id: STOCK for build in load_builds()}
         with tempfile.TemporaryDirectory() as folder:
             root = Path(folder)
+            folder_sources = self.make_game_folders(root)
             empty_game_folder = root / "empty-game-folder"
             empty_game_folder.mkdir()
             folder_sources["vv5"] = empty_game_folder
-            output_dir = root / "new-output"
             with self.assertRaises(PatcherError):
-                apply_all(folder_sources, output_dir)
-            self.assertFalse(output_dir.exists())
+                apply_all(folder_sources)
+            self.assert_no_bulk_outputs(folder_sources)
 
     def test_all_five_bulk_dry_run_and_apply(self) -> None:
         sources = self.sources()
@@ -116,48 +135,43 @@ class StockIntegrationTests(unittest.TestCase):
         self.assertEqual(len(previews), 5)
         self.assertEqual([item["game"] for item in previews], [build.title for build in load_builds()])
         with tempfile.TemporaryDirectory() as folder:
-            results = apply_all(sources, Path(folder))
+            folder_sources = self.make_game_folders(Path(folder))
+            results = apply_all(folder_sources)
             self.assertEqual(len(results), 5)
             for (output, log), build in zip(results, load_builds(), strict=True):
-                self.assertEqual(output.name, build.output_name)
-                self.assertTrue(output.is_file())
-                self.assertTrue(log.is_file())
+                self.assertEqual(output.parent, folder_sources[build.id])
+                self.assertEqual(log.parent, folder_sources[build.id])
                 self.assertEqual(json.loads(log.read_text(encoding="utf-8"))["output_sha256"], sha256(output))
 
     def test_bulk_invalid_input_writes_nothing(self) -> None:
-        sources = self.sources()
         with tempfile.TemporaryDirectory() as folder:
             root = Path(folder)
+            folder_sources = self.make_game_folders(root)
             bad = root / "bad.exe"
             bad.write_bytes(b"not a supported game")
-            sources["vv5"] = bad
-            output_dir = root / "new-output"
+            folder_sources["vv5"] = bad
             with self.assertRaises(PatcherError):
-                apply_all(sources, output_dir)
-            self.assertFalse(output_dir.exists())
+                apply_all(folder_sources)
+            self.assert_no_bulk_outputs(folder_sources)
 
     def test_bulk_wrong_game_slot_writes_nothing(self) -> None:
-        sources = self.sources()
-        sources["vv5"] = sources["vv4"]
         with tempfile.TemporaryDirectory() as folder:
-            output_dir = Path(folder) / "new-output"
+            folder_sources = self.make_game_folders(Path(folder))
+            folder_sources["vv5"] = folder_sources["vv4"] / load_builds()[3].input_name
             with self.assertRaises(PatcherError):
-                apply_all(sources, output_dir)
-            self.assertFalse(output_dir.exists())
+                apply_all(folder_sources)
+            self.assert_no_bulk_outputs(folder_sources)
 
     def test_bulk_existing_output_without_overwrite_writes_nothing(self) -> None:
-        sources = self.sources()
         builds = load_builds()
         with tempfile.TemporaryDirectory() as folder:
-            output_dir = Path(folder)
-            sentinel = output_dir / builds[0].output_name
+            folder_sources = self.make_game_folders(Path(folder))
+            sentinel = folder_sources[builds[0].id] / builds[0].output_name
             sentinel.write_bytes(b"keep me")
             with self.assertRaises(PatcherError):
-                apply_all(sources, output_dir)
+                apply_all(folder_sources)
             self.assertEqual(sentinel.read_bytes(), b"keep me")
-            for build in builds[1:]:
-                self.assertFalse((output_dir / build.output_name).exists())
-                self.assertFalse((output_dir / Path(build.output_name).with_suffix(".patch-log.json")).exists())
+            self.assert_no_bulk_outputs(folder_sources, skip_first=True)
 
 
 if __name__ == "__main__":

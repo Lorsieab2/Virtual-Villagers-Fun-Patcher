@@ -8,24 +8,23 @@ PATCH ALL FIVE AT ONCE
    folder must contain that game's ORIGINAL EXE.
    - Or click "Find All 5 in Parent Folder..." to fill all five folder fields
      automatically when the EXEs are in that folder or one level below it.
-4. Choose an output folder.
-5. Click "Validate All 5" or "Dry Run All 5" if you want to check first.
-6. Click "Patch All 5".
+4. Click "Validate All 5" or "Dry Run All 5" if you want to check first.
+5. Click "Patch All 5".
 
-The patcher validates every original EXE before writing any batch output. It then
-creates and verifies all five modified EXEs together.
+The patcher validates every original EXE before writing anything. It then creates
+each modified EXE and verification log inside that game's selected folder.
 
 PATCH ONE GAME
 
 1. Open the "One Game" tab.
 2. Browse to one ORIGINAL game EXE.
-3. Choose an output folder.
-4. Click Validate, Dry Run, or Create Modified EXE.
+3. Click Validate, Dry Run, or Create Modified EXE.
 
-The original games are never changed. Each new file is named:
+The original games are never changed, renamed, replaced, or deleted. Each modified
+EXE is added beside its original and is named:
 (name of game) - Modified Max Pop.exe
 
-The patcher remembers the single-game EXE path, all five game-folder paths, and the output
-folder for next time. It supports only the five exact original builds it was
-researched against. Unknown, already-modified, corrupt, duplicate, or incorrectly
-assigned EXEs are refused instead of guessed.
+The patcher remembers the single-game EXE path and all five game-folder paths for
+next time. It supports only the five exact original builds it was researched
+against. Unknown, already-modified, corrupt, duplicate, or incorrectly assigned
+EXEs are refused instead of guessed.
