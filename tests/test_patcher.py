@@ -82,6 +82,32 @@ class StockIntegrationTests(unittest.TestCase):
                         after = bytes.fromhex(patch["after"])
                         self.assertEqual(output.read_bytes()[offset:offset + len(after)], after)
 
+    def test_bulk_accepts_one_folder_field_per_game(self) -> None:
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            folder_sources: dict[str, Path] = {}
+            for build in load_builds():
+                game_folder = root / build.id
+                game_folder.mkdir()
+                (game_folder / build.input_name).write_bytes((STOCK / build.input_name).read_bytes())
+                folder_sources[build.id] = game_folder
+            validated = validate_all_sources(folder_sources)
+            self.assertEqual([source.name for _, source in validated], [build.input_name for build in load_builds()])
+            results = apply_all(folder_sources, root / "output")
+            self.assertEqual([output.name for output, _ in results], [build.output_name for build in load_builds()])
+
+    def test_folder_missing_expected_exe_writes_nothing(self) -> None:
+        folder_sources = {build.id: STOCK for build in load_builds()}
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            empty_game_folder = root / "empty-game-folder"
+            empty_game_folder.mkdir()
+            folder_sources["vv5"] = empty_game_folder
+            output_dir = root / "new-output"
+            with self.assertRaises(PatcherError):
+                apply_all(folder_sources, output_dir)
+            self.assertFalse(output_dir.exists())
+
     def test_all_five_bulk_dry_run_and_apply(self) -> None:
         sources = self.sources()
         validated = validate_all_sources(sources)

@@ -32,7 +32,7 @@ class App(tk.Tk):
         self.builds = load_builds()
         self.exe_var = tk.StringVar()
         self.output_var = tk.StringVar()
-        self.all_exe_vars = {build.id: tk.StringVar() for build in self.builds}
+        self.all_folder_vars = {build.id: tk.StringVar() for build in self.builds}
         self.status_var = tk.StringVar(value="Choose one game, or select all five together.")
         self.game_var = tk.StringVar(value="No game identified yet")
         self.last_output_dir: Path | None = None
@@ -100,7 +100,7 @@ class App(tk.Tk):
     def _build_all_tab(self, tab: ttk.Frame) -> None:
         ttk.Label(
             tab,
-            text="Choose each original EXE. The patcher validates all five before it writes any output.",
+            text="Choose one game folder per row. The patcher finds and validates the expected EXE inside each folder before writing.",
             wraplength=800,
         ).pack(anchor="w", pady=(0, 8))
 
@@ -111,13 +111,13 @@ class App(tk.Tk):
             ttk.Label(grid, text=f"{row + 1}. {short_title} ({build.villager_slots} slots)").grid(
                 row=row, column=0, sticky="w", padx=(0, 8), pady=4
             )
-            ttk.Entry(grid, textvariable=self.all_exe_vars[build.id]).grid(
+            ttk.Entry(grid, textvariable=self.all_folder_vars[build.id]).grid(
                 row=row, column=1, sticky="ew", padx=(0, 8), pady=4
             )
             ttk.Button(
                 grid,
-                text="Browse...",
-                command=lambda game_id=build.id: self._browse_bulk_exe(game_id),
+                text="Choose Folder...",
+                command=lambda game_id=build.id: self._browse_bulk_folder(game_id),
             ).grid(row=row, column=2, pady=4)
         grid.columnconfigure(1, weight=1)
 
@@ -135,19 +135,22 @@ class App(tk.Tk):
             data = {}
         self.exe_var.set(data.get("original_exe", ""))
         self.output_var.set(data.get("output_dir", str(ROOT / "outputs")))
-        saved_all = data.get("all_game_exes", {})
+        saved_all = data.get("all_game_folders", data.get("all_game_exes", {}))
         if isinstance(saved_all, dict):
             for build in self.builds:
                 value = saved_all.get(build.id, "")
                 if isinstance(value, str):
-                    self.all_exe_vars[build.id].set(value)
+                    saved_path = Path(value)
+                    if saved_path.name.casefold() == build.input_name.casefold():
+                        value = str(saved_path.parent)
+                    self.all_folder_vars[build.id].set(value)
 
     def _save_settings(self) -> None:
         data = {
             "original_exe": self.exe_var.get().strip(),
             "output_dir": self.output_var.get().strip(),
-            "all_game_exes": {
-                build.id: self.all_exe_vars[build.id].get().strip() for build in self.builds
+            "all_game_folders": {
+                build.id: self.all_folder_vars[build.id].get().strip() for build in self.builds
             },
         }
         SETTINGS.write_text(json.dumps(data, indent=2) + "\n", encoding="utf-8")
@@ -164,14 +167,13 @@ class App(tk.Tk):
             self._save_settings()
             self._validate(show_popup=False)
 
-    def _browse_bulk_exe(self, game_id: str) -> None:
-        variable = self.all_exe_vars[game_id]
-        current = Path(variable.get()).parent if variable.get() else Path.home()
+    def _browse_bulk_folder(self, game_id: str) -> None:
+        variable = self.all_folder_vars[game_id]
+        current = Path(variable.get()) if variable.get() else Path.home()
         build = next(item for item in self.builds if item.id == game_id)
-        chosen = filedialog.askopenfilename(
-            title=f"Choose {build.title}",
+        chosen = filedialog.askdirectory(
+            title=f"Choose the folder containing {build.input_name}",
             initialdir=current,
-            filetypes=[("Windows executables", "*.exe"), ("All files", "*.*")],
         )
         if chosen:
             variable.set(chosen)
@@ -206,7 +208,7 @@ class App(tk.Tk):
             candidates.extend(child / build.input_name for child in children)
             matches = [path for path in candidates if path.is_file()]
             if len(matches) == 1:
-                self.all_exe_vars[build.id].set(str(matches[0]))
+                self.all_folder_vars[build.id].set(str(matches[0].parent))
                 found += 1
             elif not matches:
                 problems.append(f"Not found: {build.input_name}")
@@ -226,10 +228,10 @@ class App(tk.Tk):
         return Path(value)
 
     def _all_sources(self) -> dict[str, Path]:
-        values = {build.id: self.all_exe_vars[build.id].get().strip() for build in self.builds}
+        values = {build.id: self.all_folder_vars[build.id].get().strip() for build in self.builds}
         missing = [build.title for build in self.builds if not values[build.id]]
         if missing:
-            raise PatcherError("Choose all five original game EXEs. Missing: " + ", ".join(missing))
+            raise PatcherError("Choose all five original game folders. Missing: " + ", ".join(missing))
         return {game_id: Path(value) for game_id, value in values.items()}
 
     def _output_dir(self) -> Path:

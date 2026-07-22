@@ -19,12 +19,13 @@ Housing and collection progression are retained. Only the final maximum changes.
 1. Extract the release ZIP.
 2. Double-click `Launch Virtual Villagers Fun Patcher.bat`.
 3. Choose **One Game** or **All 5 Games**.
-4. Select the original EXE or EXEs and an output folder.
-5. Validate, dry run, or create the modified EXE set.
+4. For one game, select its original EXE. For all five, select one game folder in each of the five fields.
+5. Choose an output folder.
+6. Validate, dry run, or create the modified EXE set.
 
-In **All 5 Games**, you can choose each EXE separately or use **Find All 5 in Parent Folder...** when the five original EXEs are directly in the chosen folder or one folder below it. The patcher validates every source before writing any batch output.
+In **All 5 Games**, there are five separate folder fields, one for each game. Select the folder containing that game's original EXE. You can also use **Find All 5 in Parent Folder...** when the five original EXEs are directly in the chosen folder or one folder below it. The patcher finds the correctly named EXE inside each selected folder and validates every source before writing any batch output.
 
-The patcher remembers the one-game path, all five bulk paths, and the output folder in `patcher_local_settings.json`. It never edits an original EXE. It creates:
+The patcher remembers the one-game EXE path, all five game-folder paths, and the output folder in `patcher_local_settings.json`. It never edits an original EXE. It creates:
 
 - `Virtual Villagers - A New Home - Modified Max Pop.exe`
 - `Virtual Villagers - The Lost Children - Modified Max Pop.exe`
@@ -55,8 +56,8 @@ python src/vv_fun_patcher.py apply "path\\game.exe" "output folder"
 All five:
 
 ```text
-python src/vv_fun_patcher.py dry-run-all --vv1 "path\\vv1.exe" --vv2 "path\\vv2.exe" --vv3 "path\\vv3.exe" --vv4 "path\\vv4.exe" --vv5 "path\\vv5.exe"
-python src/vv_fun_patcher.py apply-all "output folder" --vv1 "path\\vv1.exe" --vv2 "path\\vv2.exe" --vv3 "path\\vv3.exe" --vv4 "path\\vv4.exe" --vv5 "path\\vv5.exe"
+python src/vv_fun_patcher.py dry-run-all --vv1 "path\\vv1 folder" --vv2 "path\\vv2 folder" --vv3 "path\\vv3 folder" --vv4 "path\\vv4 folder" --vv5 "path\\vv5 folder"
+python src/vv_fun_patcher.py apply-all "output folder" --vv1 "path\\vv1 folder" --vv2 "path\\vv2 folder" --vv3 "path\\vv3 folder" --vv4 "path\\vv4 folder" --vv5 "path\\vv5 folder"
 ```
 
 Technical evidence is in `docs/max-population-research.md`.

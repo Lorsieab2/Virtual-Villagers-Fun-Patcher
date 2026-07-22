@@ -4,9 +4,10 @@ PATCH ALL FIVE AT ONCE
 
 1. Double-click "Launch Virtual Villagers Fun Patcher.bat".
 2. Open the "All 5 Games" tab.
-3. Choose each ORIGINAL game EXE.
-   - Or click "Find All 5 in Parent Folder..." if each EXE is directly in the
-     selected folder or in one game folder below it.
+3. Use the five separate fields to choose one folder per game. Each selected
+   folder must contain that game's ORIGINAL EXE.
+   - Or click "Find All 5 in Parent Folder..." to fill all five folder fields
+     automatically when the EXEs are in that folder or one level below it.
 4. Choose an output folder.
 5. Click "Validate All 5" or "Dry Run All 5" if you want to check first.
 6. Click "Patch All 5".
@@ -24,7 +25,7 @@ PATCH ONE GAME
 The original games are never changed. Each new file is named:
 (name of game) - Modified Max Pop.exe
 
-The patcher remembers the single-game path, all five bulk paths, and the output
+The patcher remembers the single-game EXE path, all five game-folder paths, and the output
 folder for next time. It supports only the five exact original builds it was
 researched against. Unknown, already-modified, corrupt, duplicate, or incorrectly
 assigned EXEs are refused instead of guessed.

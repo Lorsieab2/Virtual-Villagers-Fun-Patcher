@@ -51,15 +51,27 @@ def identify(path: Path) -> Build:
             return build
     raise PatcherError("This executable is not one of the five exact supported stock builds. " + f"SHA-256: {digest}")
 
+def _resolve_expected_source(selected: Path, expected: Build) -> Path:
+    selected = Path(selected).resolve()
+    if selected.is_dir():
+        source = selected / expected.input_name
+        if not source.is_file():
+            raise PatcherError(
+                f"{expected.title} folder does not contain {expected.input_name}: {selected}"
+            )
+        return source.resolve()
+    return selected
+
+
 def validate_all_sources(sources: dict[str, Path]) -> list[tuple[Build, Path]]:
     builds = load_builds()
     missing = [build.title for build in builds if build.id not in sources or not str(sources[build.id]).strip()]
     if missing:
-        raise PatcherError("Choose all five original game EXEs. Missing: " + ", ".join(missing))
+        raise PatcherError("Choose all five original game folders. Missing: " + ", ".join(missing))
     resolved: list[tuple[Build, Path]] = []
     used_paths: set[Path] = set()
     for expected in builds:
-        source = Path(sources[expected.id]).resolve()
+        source = _resolve_expected_source(Path(sources[expected.id]), expected)
         actual = identify(source)
         if actual.id != expected.id:
             raise PatcherError(f"Wrong game selected for {expected.title}: identified {actual.title}")
@@ -205,7 +217,7 @@ def apply_all(sources: dict[str, Path], output_dir: Path, overwrite: bool = Fals
 
 def _add_all_source_args(parser: argparse.ArgumentParser) -> None:
     for build in load_builds():
-        parser.add_argument(f"--{build.id}", required=True, type=Path, help=build.input_name)
+        parser.add_argument(f"--{build.id}", required=True, type=Path, help=f"folder containing {build.input_name}, or the EXE itself")
 
 def _all_sources_from_args(args: argparse.Namespace) -> dict[str, Path]:
     return {build.id:getattr(args, build.id) for build in load_builds()}
