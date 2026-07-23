@@ -98,6 +98,11 @@ Both styles prevent overflow at the real slot ceiling:
 - 1 space: a rolled twin or triplet becomes a singleton.
 - 0 spaces: the normal cap check blocks the birth.
 
+Population-adding Island Events are protected in all five games too.
+Repeated arrivals stop at the physical ceiling. VV4 and VV5 Abandoned
+Infants is reduced below six when fewer than six physical slots remain.
+Events that remove villagers are unchanged.
+
 Only the five exact researched stock builds are supported. Unknown, modified,
 corrupt, duplicate, or incorrectly assigned EXEs are refused.
 

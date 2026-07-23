@@ -45,11 +45,11 @@ class ManifestTests(unittest.TestCase):
         for build in builds:
             self.assertEqual(build.absolute_maximum, build.villager_slots)
             expected_safety_counts = {
-                "vv1": 4,
-                "vv2": 4,
+                "vv1": 17,
+                "vv2": 13,
                 "vv3": 8,
-                "vv4": 8,
-                "vv5": 11,
+                "vv4": 10,
+                "vv5": 13,
             }
             self.assertEqual(len(build.safety_patches), expected_safety_counts[build.id])
             for mode in MODES:
@@ -248,6 +248,75 @@ class StockIntegrationTests(unittest.TestCase):
                     expected,
                     (build.id, hex(offset)),
                 )
+
+    def test_vv1_vv2_event_allocations_use_per_record_slot_guards(self) -> None:
+        checks = {
+            "vv1": (
+                0x56680,
+                "81B9249E0000000100007D05E9BF5CFEFFB8FFFFFFFFC21400",
+                [0x28263, 0x282C6, 0x282E3, 0x2833C, 0x28359, 0x28376,
+                 0x2C3EF, 0x2C410, 0x2C431, 0x2C4AF, 0x2C4D0, 0x2C54E],
+            ),
+            "vv2": (
+                0x73D00,
+                "81B900E50200000100007D05E96FB8FDFFB8FFFFFFFFC21400",
+                [0x34102, 0x341A2, 0x341C3, 0x34262, 0x34283, 0x342A4,
+                 0x34467, 0x344A3],
+            ),
+        }
+        for build in load_builds():
+            if build.id not in checks:
+                continue
+            wrapper_offset, wrapper_hex, calls = checks[build.id]
+            rendered, _ = render_patched_bytes(
+                STOCK / build.input_name, build, DEFAULT_PATCH_MODE
+            )
+            wrapper = bytes.fromhex(wrapper_hex)
+            self.assertEqual(
+                bytes(rendered[wrapper_offset : wrapper_offset + len(wrapper)]),
+                wrapper,
+            )
+            for call_offset in calls:
+                self.assertEqual(rendered[call_offset], 0xE8)
+                destination = (
+                    call_offset
+                    + 5
+                    + struct.unpack_from("<i", rendered, call_offset + 1)[0]
+                )
+                self.assertEqual(destination, wrapper_offset)
+
+    def test_vv4_vv5_abandoned_infants_are_clamped_to_remaining_slots(self) -> None:
+        checks = {
+            "vv4": (
+                0x14FC0,
+                "E9FB400700",
+                0x890C0,
+                "B8960000002B05E86D4D007E1F83F8067E05B806000000"
+                "6A006A006AFF6A01506AFFB968E55000E814EAFDFFC3",
+            ),
+            "vv5": (
+                0x155E0,
+                "E9FBEF0700",
+                0x945E0,
+                "E8DBFEFFFFF7D805960000007E1F83F8067E05B806000000"
+                "6A006A006AFF6A01506AFFB948415500E843D4FDFFC3",
+            ),
+        }
+        for build in load_builds():
+            if build.id not in checks:
+                continue
+            entry, entry_hex, cave, cave_hex = checks[build.id]
+            rendered, _ = render_patched_bytes(
+                STOCK / build.input_name, build, DEFAULT_PATCH_MODE
+            )
+            self.assertEqual(
+                bytes(rendered[entry : entry + 5]), bytes.fromhex(entry_hex)
+            )
+            expected = bytes.fromhex(cave_hex)
+            self.assertEqual(bytes(rendered[cave : cave + len(expected)]), expected)
+            for occupied in range(145, 152):
+                remaining = max(0, 150 - occupied)
+                self.assertEqual(min(6, remaining), max(0, min(6, 150 - occupied)))
 
     def test_both_outputs_coexist_beside_originals(self) -> None:
         with tempfile.TemporaryDirectory() as temp:
@@ -460,7 +529,15 @@ class StockIntegrationTests(unittest.TestCase):
             log = json.loads(log_path.read_text())
             self.assertEqual(log["fun_patches"], [feature_id])
             self.assertEqual(log["fun_patch_names"], ["Easier Healing Mastery"])
-            self.assertEqual(len(log["patches"]), 8)
+            feature = next(
+                patch for patch in load_fun_patches() if patch.id == feature_id
+            )
+            self.assertEqual(
+                len(log["patches"]),
+                len(build.safety_patches)
+                + len(get_patch_variant(build, DEFAULT_PATCH_MODE)["patches"])
+                + len(feature.patches),
+            )
 
     def test_vv2_teaching_children_grants_skill_is_guarded_and_additive(self) -> None:
         feature_id = "vv2_teaching_children_grants_skill"

@@ -74,6 +74,84 @@
           "before": "00000000000000000000000000000000000000000000000000000000000000000000000000",
           "after": "8B8710E0030081B8249E0000000100000F8DF456FEFFC7865C03000003000000E9C156FEFF",
           "purpose": "allow a third baby only when another villager slot remains"
+        },
+        {
+          "offset": "0x56680",
+          "before": "00000000000000000000000000000000000000000000000000",
+          "after": "81B9249E0000000100007D05E9BF5CFEFFB8FFFFFFFFC21400",
+          "purpose": "guard event-created villagers one allocation at a time against VV1's 256 physical slots"
+        },
+        {
+          "offset": "0x28263",
+          "before": "E8E8400100",
+          "after": "E818E40200",
+          "purpose": "guard the singleton Barrel O' Babies allocation"
+        },
+        {
+          "offset": "0x282C6",
+          "before": "E885400100",
+          "after": "E8B5E30200",
+          "purpose": "guard the first twin Barrel O' Babies allocation"
+        },
+        {
+          "offset": "0x282E3",
+          "before": "E868400100",
+          "after": "E898E30200",
+          "purpose": "guard the second twin Barrel O' Babies allocation"
+        },
+        {
+          "offset": "0x2833C",
+          "before": "E80F400100",
+          "after": "E83FE30200",
+          "purpose": "guard the first triplet Barrel O' Babies allocation"
+        },
+        {
+          "offset": "0x28359",
+          "before": "E8F23F0100",
+          "after": "E822E30200",
+          "purpose": "guard the second triplet Barrel O' Babies allocation"
+        },
+        {
+          "offset": "0x28376",
+          "before": "E8D53F0100",
+          "after": "E805E30200",
+          "purpose": "guard the third triplet Barrel O' Babies allocation"
+        },
+        {
+          "offset": "0x2C3EF",
+          "before": "E85CFF0000",
+          "after": "E88CA20200",
+          "purpose": "guard the first Mysterious Crate infant allocation"
+        },
+        {
+          "offset": "0x2C410",
+          "before": "E83BFF0000",
+          "after": "E86BA20200",
+          "purpose": "guard the second Mysterious Crate infant allocation"
+        },
+        {
+          "offset": "0x2C431",
+          "before": "E81AFF0000",
+          "after": "E84AA20200",
+          "purpose": "guard the third Mysterious Crate infant allocation"
+        },
+        {
+          "offset": "0x2C4AF",
+          "before": "E89CFE0000",
+          "after": "E8CCA10200",
+          "purpose": "guard the alternate first Mysterious Crate infant allocation"
+        },
+        {
+          "offset": "0x2C4D0",
+          "before": "E87BFE0000",
+          "after": "E8ABA10200",
+          "purpose": "guard the alternate second Mysterious Crate infant allocation"
+        },
+        {
+          "offset": "0x2C54E",
+          "before": "E8FDFD0000",
+          "after": "E82DA10200",
+          "purpose": "guard the alternate singleton Mysterious Crate infant allocation"
         }
       ]
     },
@@ -143,6 +221,60 @@
           "before": "00000000000000000000000000000000000000000000000000000000000000000000000000",
           "after": "8B87D474E50081B800E50200000100000F8D527EFDFFC7864405000003000000E92B7EFDFF",
           "purpose": "allow a third baby only when another villager slot remains"
+        },
+        {
+          "offset": "0x73D00",
+          "before": "00000000000000000000000000000000000000000000000000",
+          "after": "81B900E50200000100007D05E96FB8FDFFB8FFFFFFFFC21400",
+          "purpose": "guard event-created villagers one allocation at a time against VV2's 256 physical slots"
+        },
+        {
+          "offset": "0x34102",
+          "before": "E879B40100",
+          "after": "E8F9FB0300",
+          "purpose": "guard the singleton Barrel O' Babies allocation"
+        },
+        {
+          "offset": "0x341A2",
+          "before": "E8D9B30100",
+          "after": "E859FB0300",
+          "purpose": "guard the first twin Barrel O' Babies allocation"
+        },
+        {
+          "offset": "0x341C3",
+          "before": "E8B8B30100",
+          "after": "E838FB0300",
+          "purpose": "guard the second twin Barrel O' Babies allocation"
+        },
+        {
+          "offset": "0x34262",
+          "before": "E819B30100",
+          "after": "E899FA0300",
+          "purpose": "guard the first triplet Barrel O' Babies allocation"
+        },
+        {
+          "offset": "0x34283",
+          "before": "E8F8B20100",
+          "after": "E878FA0300",
+          "purpose": "guard the second triplet Barrel O' Babies allocation"
+        },
+        {
+          "offset": "0x342A4",
+          "before": "E8D7B20100",
+          "after": "E857FA0300",
+          "purpose": "guard the third triplet Barrel O' Babies allocation"
+        },
+        {
+          "offset": "0x34467",
+          "before": "E814B10100",
+          "after": "E894F80300",
+          "purpose": "guard the first two-newcomer event allocation"
+        },
+        {
+          "offset": "0x344A3",
+          "before": "E8D8B00100",
+          "after": "E858F80300",
+          "purpose": "guard the second two-newcomer event allocation"
         }
       ]
     },
@@ -317,6 +449,18 @@
           "before": "0000000000000000000000000000000000000000000000",
           "after": "813DE86D4D00960000007D0A68C8000000E9FFBCF8FFC3",
           "purpose": "skip the first barrel child at physical capacity while retaining the stock later-child cap checks"
+        },
+        {
+          "offset": "0x14FC0",
+          "before": "6A006A006A",
+          "after": "E9FB400700",
+          "purpose": "route Abandoned Infants through a remaining-slot clamp"
+        },
+        {
+          "offset": "0x890C0",
+          "before": "000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "after": "B8960000002B05E86D4D007E1F83F8067E05B8060000006A006A006AFF6A01506AFFB968E55000E814EAFDFFC3",
+          "purpose": "reserve no more than the lesser of six abandoned infants or VV4's remaining physical slots"
         }
       ]
     },
@@ -440,6 +584,18 @@
           "before": "0000000000000000000000000000000000000000000000",
           "after": "E81BFFFFFF3D960000007D0A68C8000000E95F0EF8FFC3",
           "purpose": "skip the first Chutes child at 150 physical slots and otherwise resume the stock event"
+        },
+        {
+          "offset": "0x155E0",
+          "before": "6A006A006A",
+          "after": "E9FBEF0700",
+          "purpose": "route Abandoned Infants through a remaining-slot clamp"
+        },
+        {
+          "offset": "0x945E0",
+          "before": "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "after": "E8DBFEFFFFF7D805960000007E1F83F8067E05B8060000006A006A006AFF6A01506AFFB948415500E843D4FDFFC3",
+          "purpose": "reserve no more than the lesser of six abandoned infants or VV5's remaining occupied-or-reserved physical slots"
         }
       ]
     }

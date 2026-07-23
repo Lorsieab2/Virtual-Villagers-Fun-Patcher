@@ -112,6 +112,10 @@ Both patch styles add a slot-saturation guard:
 
 This lets reproduction fill the final slot without permitting the population to exceed the game's real villager array. New Believers uses physical slot demand rather than only its displayed believer count, so still-active Heathens, corpses, and nursing babies cannot make the final multiple birth overbook the shared pool.
 
+### Island Event population safety
+
+All five games also contain Island Events that add villagers. The patcher guards every identified direct population-adding outcome: repeated VV1/VV2 allocations stop when their 256 slots fill, VV3–VV5 recheck their 150-slot boundary before the first arrival, and VV4/VV5 Abandoned Infants is reduced from six babies when fewer than six physical slots remain. Events that remove villagers are unchanged. VV5 conversions and The Defector are unchanged because they reclassify existing records instead of allocating new ones.
+
 ## Use
 
 1. Extract the latest release ZIP.
@@ -145,4 +149,4 @@ python src/vv_fun_patcher.py apply "path\game.exe" --patch-mode collection_progr
 python src/vv_fun_patcher.py apply-all --vv1 "path\vv1 folder" --vv2 "path\vv2 folder" --vv3 "path\vv3 folder" --vv4 "path\vv4 folder" --vv5 "path\vv5 folder" --patch-mode immediate_fixed
 ```
 
-Technical evidence is in `docs/max-population-research.md`, `docs/vv2-easier-healing-research.md`, `docs/vv2-teaching-children-research.md`, `docs/vv1-school-lessons-research.md`, `docs/vv1-max-tech-research.md`, `docs/vv1-f6-clothing-research.md`, `docs/vv3-nature-honey-research.md`, `docs/vv5-heathen-mommy-research.md`, `docs/vv5-easier-devotee-research.md`, and `docs/vv5-statue-training-research.md`.
+Technical evidence is in `docs/max-population-research.md`, `docs/island-event-population-research.md`, and the game-specific reports under `docs/`.

@@ -221,7 +221,7 @@ class App(tk.Tk):
         ).pack(side="left", padx=(18, 0))
         ttk.Label(
             tab,
-            text="Near the slot ceiling, multiples are safely reduced to the number of remaining slots: triplets may become twins or a singleton.",
+            text="Near the slot ceiling, multiple births and population-adding Island Events are safely reduced or blocked to fit the remaining physical slots.",
             wraplength=840,
         ).pack(anchor="w", pady=12)
         actions = ttk.Frame(tab)
@@ -494,7 +494,7 @@ class App(tk.Tk):
                 + result["output_path"]
                 + "\n"
                 + self._selection_text()
-                + "\nMultiple births safely fit the remaining slots.\nExpected SHA-256: "
+                + "\nMultiple births and Island Event arrivals safely fit the remaining physical slots.\nExpected SHA-256: "
                 + result["result_sha256"]
             )
             self._save_settings()
