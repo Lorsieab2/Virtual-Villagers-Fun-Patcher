@@ -138,12 +138,13 @@ display, fruit trees, or Nature technology progression.
 
 VV5 HEATHEN MOMMY PUZZLE RESTORATION
 
-The modern New Believers executable still contains and creates the original
-Heathen Mommy puzzle, retains its trigger and completion logic, and contains
-both locked and solved bonus-puzzle images. It omits the separate 17th-puzzle
-drawing branch after the standard 16-puzzle grid. This option restores that
-stock branch and uses the real puzzle 17 completion state. It does not change
-the original trigger requirements.
+The naturally enabled reference creates a 29th, tag-17 Heathen mother and gives
+her one nursing baby. The modern new-game initializer omits both, although it
+retains the puzzle class, trigger, completion logic, actions, text, and locked
+and solved images. This option restores the exact mother-and-baby sequence for
+newly created villages and restores the separate 17th-puzzle drawing branch.
+The pair uses two physical population slots. Existing saves are not
+retroactively given a new mother.
 
 VV5 EASIER DEVOTEE TRAINING
 

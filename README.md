@@ -49,9 +49,9 @@ The patch does not create extra lessons, change who attends, alter the teacher r
 
 ## VV5: Heathen Mommy Puzzle Restoration
 
-Enable **Heathen Mommy Puzzle Restoration (VV5)** to restore the hidden 17th Heathen Parent graphic to the Puzzles screen. The modern executable still contains and creates the original `CHeathenMommyPuzzle`, retains its stock trigger and completion logic, and includes both `puzzle_bonus_notsolved.png` and `puzzle_bonus_solved.PNG`. Its Puzzles-screen renderer is the removed piece.
+Enable **Heathen Mommy Puzzle Restoration (VV5)** to restore the natural-build Heathen Mommy to newly created villages and restore the hidden 17th Heathen Parent graphic to the Puzzles screen. The supplied natural build creates a 29th Heathen with tag 17, initializes her, and assigns one forced nursing baby. The supported modern initializer creates only 28 Heathens and omits that sequence.
 
-The patch restores that one stock rendering branch using puzzle 17's actual completion state and the modern executable's retained images. It does not invent a replacement puzzle or change the original trigger requirements. Its output name adds `+ Heathen Mommy.exe`.
+The patch reproduces the natural build's exact mother arguments and nursing-baby call, then restores the retained locked/solved puzzle graphic using puzzle 17's actual completion state. The mother and baby require two physical population slots. This new-game initialization does not retroactively add a mother to an existing save. Its output name adds `+ Heathen Mommy.exe`.
 
 ## VV4: Complete Fish Scales = Golden Fish in Nets
 

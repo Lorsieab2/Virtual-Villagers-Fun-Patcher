@@ -758,7 +758,7 @@
       "id": "vv5_heathen_mommy_puzzle",
       "game_id": "vv5",
       "name": "Heathen Mommy Puzzle Restoration",
-      "description": "Restores the hidden 17th Heathen Parent puzzle graphic to the Puzzles screen. The modern game already retains its original trigger, action, completion state, text, and locked/solved images.",
+      "description": "Restores the natural Heathen Mommy to newly created villages as a tag-17 Heathen mother with one nursing baby, using two physical slots, and restores the hidden 17th Heathen Parent graphic to the Puzzles screen. Existing saves are not retroactively given a new mother.",
       "output_tag": "Heathen Mommy",
       "patches": [
         {
@@ -772,6 +772,18 @@
           "before": "000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
           "after": "6A11B908E05100E8F46AFAFF84C07416E81BB8FBFF68C501000068710300006858010000EB14E805B8FBFF68C5010000687103000068570100008BC8E88FB8FBFF8B4F0850E8661AF7FFB9680F5200E9474BFBFF",
           "purpose": "draw the stock locked or solved bonus graphic from puzzle 17 state, then resume the original Puzzles screen"
+        },
+        {
+          "offset": "0x24F69",
+          "before": "B948415500",
+          "after": "E9B2F60600",
+          "purpose": "route the end of new-game Heathen creation through the natural-build Heathen Mommy and baby sequence"
+        },
+        {
+          "offset": "0x94620",
+          "before": "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "after": "6AE76A116A006A0068900100006AFF6A466A016A00B948415500E8E1B6FDFF50B948415500E806B3FDFF6A016A026A0268A06A4B006A326A016A018BC8E89E17FDFFB948415500E9F4C7FDFF",
+          "purpose": "create and initialize the exact tag-17 Heathen mother, assign her one forced nursing baby using the retained Unknown label, then resume final stock villager-manager initialization"
         }
       ]
     },
