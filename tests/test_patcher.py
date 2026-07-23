@@ -352,6 +352,40 @@ class StockIntegrationTests(unittest.TestCase):
             "Virtual Villagers - The Lost Children - Modified Max Pop + Easier Healing + Teaching Grants Skill.exe",
         )
 
+    def test_vv5_heathen_mommy_puzzle_is_guarded_and_additive(self) -> None:
+        feature_id = "vv5_heathen_mommy_puzzle"
+        feature = next(patch for patch in load_fun_patches() if patch.id == feature_id)
+        build = next(build for build in load_builds() if build.id == "vv5")
+        source = STOCK / build.input_name
+        rendered, applied = render_patched_bytes(
+            source, build, DEFAULT_PATCH_MODE, [feature_id]
+        )
+        self.assertEqual(
+            len(applied),
+            len(build.safety_patches)
+            + len(get_patch_variant(build, DEFAULT_PATCH_MODE)["patches"])
+            + len(feature.patches),
+        )
+        self.assertEqual(
+            bytes(rendered[0x48F16:0x48F1B]),
+            bytes.fromhex("E965B40400"),
+        )
+        self.assertEqual(
+            bytes(rendered[0x94380:0x943D4]),
+            bytes.fromhex(
+                "6A11B908E05100E8F46AFAFF84C07416E81BB8FBFF68C5010000"
+                "68710300006858010000EB14E805B8FBFF68C50100006871030000"
+                "68570100008BC8E88FB8FBFF8B4F0850E8661AF7FFB9680F5200"
+                "E9474BFBFF"
+            ),
+        )
+        preview = dry_run(source, DEFAULT_PATCH_MODE, [feature_id])
+        self.assertEqual(preview["fun_patches"], [feature_id])
+        self.assertEqual(
+            preview["output_name"],
+            "Virtual Villagers - New Believers - Modified Max Pop + Heathen Mommy.exe",
+        )
+
     def test_bulk_feature_applies_only_to_its_game(self) -> None:
         feature_id = "vv2_easier_healing_mastery"
         with tempfile.TemporaryDirectory() as temp:

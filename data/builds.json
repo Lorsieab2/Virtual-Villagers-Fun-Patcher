@@ -426,6 +426,27 @@
           "purpose": "keep the stock research action eligible when the six technology levels sum to the legitimate maximum of 18"
         }
       ]
+    },
+    {
+      "id": "vv5_heathen_mommy_puzzle",
+      "game_id": "vv5",
+      "name": "Heathen Mommy Puzzle Restoration",
+      "description": "Restores the hidden 17th Heathen Parent puzzle graphic to the Puzzles screen. The modern game already retains its original trigger, action, completion state, text, and locked/solved images.",
+      "output_tag": "Heathen Mommy",
+      "patches": [
+        {
+          "offset": "0x48F16",
+          "before": "B9680F5200",
+          "after": "E965B40400",
+          "purpose": "route the end of the standard 16-puzzle drawing loop through the retained bonus-puzzle renderer"
+        },
+        {
+          "offset": "0x94380",
+          "before": "000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "after": "6A11B908E05100E8F46AFAFF84C07416E81BB8FBFF68C501000068710300006858010000EB14E805B8FBFF68C5010000687103000068570100008BC8E88FB8FBFF8B4F0850E8661AF7FFB9680F5200E9474BFBFF",
+          "purpose": "draw the stock locked or solved bonus graphic from puzzle 17 state, then resume the original Puzzles screen"
+        }
+      ]
     }
   ]
 }

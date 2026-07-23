@@ -12,7 +12,8 @@ VIRTUAL VILLAGERS FUN PATCHER
    "Continue Research at Max Technologies".
 4. Optional for The Lost Children: check "Easier Healing Mastery" and/or
    "Teaching Children Grants Skill".
-5. Open "One Game" or "All 5 Games".
+5. Optional for New Believers: check "Heathen Mommy Puzzle Restoration".
+6. Open "One Game" or "All 5 Games".
 
 PATCH ALL FIVE AT ONCE
 
@@ -47,6 +48,9 @@ When Easier Healing Mastery is selected for VV2, its output name adds:
 When Teaching Children Grants Skill is selected for VV2, its name adds:
 + Teaching Grants Skill.exe
 
+When Heathen Mommy Puzzle Restoration is selected for VV5, its name adds:
++ Heathen Mommy.exe
+
 Each output and verification log is placed beside its original game EXE. Both
 styles can coexist. Original EXEs are never changed, renamed, replaced, or
 deleted. The patcher remembers the selected style, single-game EXE path, and all
@@ -77,3 +81,12 @@ Whenever the stock Teaching Children activity enrolls a child as Attending
 Lessons, that child gains one point in one equally random skill: Farming,
 Building, Research, Healing, or Parenting. Skills remain capped at 100. The
 patch does not change who teaches, who attends, or how often lessons happen.
+
+VV5 HEATHEN MOMMY PUZZLE RESTORATION
+
+The modern New Believers executable still contains and creates the original
+Heathen Mommy puzzle, retains its trigger and completion logic, and contains
+both locked and solved bonus-puzzle images. It omits the separate 17th-puzzle
+drawing branch after the standard 16-puzzle grid. This option restores that
+stock branch and uses the real puzzle 17 completion state. It does not change
+the original trigger requirements.
