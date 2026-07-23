@@ -44,7 +44,10 @@ class ManifestTests(unittest.TestCase):
         self.assertEqual(DEFAULT_PATCH_MODE, "collection_progression")
         for build in builds:
             self.assertEqual(build.absolute_maximum, build.villager_slots)
-            self.assertEqual(len(build.safety_patches), 4)
+            self.assertEqual(
+                len(build.safety_patches),
+                5 if build.id == "vv5" else 4,
+            )
             for mode in MODES:
                 variant = get_patch_variant(build, mode)
                 suffix = "Modified Max Pop.exe" if mode == MODES[0] else "Fixed Max Pop.exe"
@@ -148,16 +151,51 @@ class StockIntegrationTests(unittest.TestCase):
         )
         self.assertEqual(
             bytes(rendered[0x72C49:0x72C50]),
-            bytes.fromhex("E9321802009090"),
+            bytes.fromhex("E9B21802009090"),
         )
         self.assertEqual(
-            bytes(rendered[0x94480:0x94493]),
-            bytes.fromhex("81C6870000003BDE0F8CC8E7FDFFE9BDE7FDFF"),
+            bytes(rendered[0x94500:0x94518]),
+            bytes.fromhex(
+                "81C687000000E8B5FFFFFF3BC60F8D3DE7FDFFE93EE7FDFF"
+            ),
         )
         self.assertEqual(
             [135 + bonus for bonus in (0, 5, 10, 15)],
             [135, 140, 145, 150],
         )
+
+    def test_vv5_counts_shared_physical_slots_before_births(self) -> None:
+        build = next(build for build in load_builds() if build.id == "vv5")
+        helper = bytes.fromhex(
+            "515233C0B990415500BA9600000080B9D41C000000741040"
+            "83B94C1C00000074060381501C000081C1442F00004A75DE5A59C3"
+        )
+        for mode, base in (
+            ("collection_progression", "81C687000000"),
+            ("immediate_fixed", "81C65A000000"),
+        ):
+            rendered, _ = render_patched_bytes(
+                STOCK / build.input_name, build, mode
+            )
+            self.assertEqual(bytes(rendered[0x944C0:0x944F3]), helper)
+            self.assertEqual(bytes(rendered[0x94500:0x94506]), bytes.fromhex(base))
+            self.assertEqual(
+                bytes(rendered[0x94340:0x9434A]),
+                bytes.fromhex("E87B0100003D93000000"),
+            )
+            self.assertEqual(
+                bytes(rendered[0x94360:0x9436A]),
+                bytes.fromhex("E85B0100003D94000000"),
+            )
+
+        active_records = 142
+        nursing_babies = 7
+        demand_before_conversion = active_records + nursing_babies
+        demand_after_conversion = active_records + nursing_babies
+        self.assertEqual(demand_before_conversion, demand_after_conversion)
+        remaining = build.villager_slots - demand_before_conversion
+        self.assertEqual(remaining, 1)
+        self.assertEqual(min(3, remaining), 1)
 
     def test_saturation_thresholds_fill_but_never_exceed_slots(self) -> None:
         for build in load_builds():

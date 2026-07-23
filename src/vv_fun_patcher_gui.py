@@ -115,6 +115,16 @@ class App(tk.Tk):
             outer,
             text="Creates a verified complete copy of each game folder and adds the modified EXE there. Originals are never replaced.",
         ).pack(anchor="w", pady=(0, 10))
+        ttk.Label(
+            outer,
+            text=(
+                "VV5 population safety: unconverted Heathens already occupy villager slots. "
+                "Births reserve room for them; converting a Heathen reuses that same record "
+                "and can still occur when every physical slot is occupied."
+            ),
+            wraplength=880,
+            foreground="#8a4b08",
+        ).pack(anchor="w", pady=(0, 10))
 
         mode_box = ttk.LabelFrame(outer, text="Patch style", padding=10)
         mode_box.pack(fill="x", pady=(0, 10))

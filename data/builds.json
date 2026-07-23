@@ -290,14 +290,14 @@
             {
               "offset": "0x72C49",
               "before": "83C65A3BDE7C06",
-              "after": "E9321802009090",
-              "purpose": "route the signed 8-bit stock base addition through a true 135-base calculation"
+              "after": "E9B21802009090",
+              "purpose": "route the cap comparison through a true 135-base calculation that counts every occupied or reserved villager slot"
             },
             {
-              "offset": "0x94480",
-              "before": "00000000000000000000000000000000000000",
-              "after": "81C6870000003BDE0F8CC8E7FDFFE9BDE7FDFF",
-              "purpose": "add base 135 with a 32-bit immediate, preserve the 0-15 collection bonus, and resume the stock housing gates"
+              "offset": "0x94500",
+              "before": "000000000000000000000000000000000000000000000000",
+              "after": "81C687000000E8B5FFFFFF3BC60F8D3DE7FDFFE93EE7FDFF",
+              "purpose": "add base 135 with a 32-bit immediate, preserve the 0-15 collection bonus, compare total slot demand, and resume the stock housing gates"
             }
           ]
         },
@@ -310,6 +310,18 @@
               "before": "83FE0A7505BE0F000000",
               "after": "BE3C0000009090909090",
               "purpose": "replace every collection-bonus result with fixed arithmetic for a 150 maximum"
+            },
+            {
+              "offset": "0x72C49",
+              "before": "83C65A3BDE7C06",
+              "after": "E9B21802009090",
+              "purpose": "route the fixed cap comparison through the total occupied-or-reserved slot counter"
+            },
+            {
+              "offset": "0x94500",
+              "before": "000000000000000000000000000000000000000000000000",
+              "after": "81C65A000000E8B5FFFFFF3BC60F8D3DE7FDFFE93EE7FDFF",
+              "purpose": "complete the fixed 150 calculation, compare total slot demand, and resume the stock housing gates"
             }
           ]
         }
@@ -324,8 +336,8 @@
         {
           "offset": "0x94340",
           "before": "00000000000000000000000000000000000000000000000000000000000000",
-          "after": "813D60D35100930000000F8FD31BFDFFC786501C000003000000E9BB1BFDFF",
-          "purpose": "keep triplets only when three villager slots remain"
+          "after": "E87B0100003D930000000F8FD31BFDFFC786501C000003000000E9BB1BFDFF",
+          "purpose": "keep triplets only when three physical villager slots remain after active Heathens, corpses, and nursing babies are counted"
         },
         {
           "offset": "0x65F23",
@@ -336,8 +348,14 @@
         {
           "offset": "0x94360",
           "before": "00000000000000000000000000000000000000000000000000000000000000",
-          "after": "813D60D35100940000000F8FC41BFDFFC786501C000002000000E9AE1BFDFF",
-          "purpose": "keep twins only when two villager slots remain"
+          "after": "E85B0100003D940000000F8FC41BFDFFC786501C000002000000E9AE1BFDFF",
+          "purpose": "keep twins only when two physical villager slots remain after active Heathens, corpses, and nursing babies are counted"
+        },
+        {
+          "offset": "0x944C0",
+          "before": "000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "after": "515233C0B990415500BA9600000080B9D41C00000074104083B94C1C00000074060381501C000081C1442F00004A75DE5A59C3",
+          "purpose": "count all active VV5 villager records plus nursing babies that still require future records, independent of believer or Heathen faction"
         }
       ]
     }

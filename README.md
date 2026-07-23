@@ -81,6 +81,12 @@ This provides a manual Devotion-training route after the Heathens are gone. It d
 
 Housing gates remain in place.
 
+### New Believers: Heathens and physical slots
+
+Heathens already occupy records in New Believers' 150-record villager pool. Converting one changes that existing record from Heathen to believer; it does not create an additional villager record. The population patch therefore measures physical slot demand before allowing births: every active record counts, including unconverted Heathens and corpses that the game has not released yet, and nursing babies reserve the records they will need later.
+
+This means births can temporarily stop below 150 displayed believers while Heathens remain, but conversions are still safe and can continue at the physical ceiling. After every Heathen has been converted and old corpse records have cleared, the full 150 slots can be believers.
+
 ## Safe twins and triplets at the ceiling
 
 All five stock games test the population limit once before choosing a singleton, twins, or triplets. Without an additional guard, a multiple birth at maximum minus one can report maximum plus one or maximum plus two, even though no corresponding villager records remain.
@@ -92,7 +98,7 @@ Both patch styles add a slot-saturation guard:
 - One slot left: a rolled twin or triplet safely becomes a singleton.
 - No slots left: the normal population predicate blocks the birth.
 
-This lets reproduction fill the final slot without permitting the population to exceed the game's real villager array.
+This lets reproduction fill the final slot without permitting the population to exceed the game's real villager array. New Believers uses physical slot demand rather than only its displayed believer count, so still-active Heathens, corpses, and nursing babies cannot make the final multiple birth overbook the shared pool.
 
 ## Use
 

@@ -28,9 +28,17 @@ Slot evidence:
 - The Tree of Life: `0x468350`. Progression changes base 90 to 125 and preserves the 0-25 collection accumulator. Fixed sets it to 60 before stock +90.
 - New Believers: `0x472BD0`. Progression changes base 90 to 135 and preserves the 0-15 collection accumulator. Fixed sets it to 60 before stock +90.
 
-New Believers' stock `add esi, 0x5A` uses a sign-extended 8-bit immediate. A value above 127 cannot be substituted into that instruction: byte `0x87` means -121, not +135. Progression therefore detours the complete add/compare/branch sequence at file offset `0x72C49` to guarded padding at `0x94480`, performs `add esi, 0x00000087` with a 32-bit immediate, reproduces the comparison, and returns to the original housing-gate path. This yields 135, 140, 145, or 150 for collection bonuses 0, 5, 10, or 15.
+New Believers' stock `add esi, 0x5A` uses a sign-extended 8-bit immediate. A value above 127 cannot be substituted into that instruction: byte `0x87` means -121, not +135. Both modes therefore detour the complete add/compare/branch sequence at file offset `0x72C49` to guarded padding at `0x94500`. Progression performs `add esi, 0x00000087`, yielding 135, 140, 145, or 150 for collection bonuses 0, 5, 10, or 15. Fixed performs the stock `+90` after replacing the accumulator with 60, yielding 150.
 
 Collection completion itself is never modified.
+
+## New Believers faction conversion and shared slots
+
+New Believers constructs one shared pool of 150 records. `sub_46FB80` creates a Heathen by finding an inactive record in that pool and calling the faction setter `sub_466880(..., 1)`. The retained conversion routine `sub_4668B0` calls the same setter with zero on that existing record. Conversion therefore changes faction in place and does not allocate a second record.
+
+The displayed/cap population helper `sub_4713F0` deliberately counts only living, active non-Heathens, plus nursing babies stored on those records. A flat 150 comparison against that believer-only result would permit births to reserve more records than exist while unconverted Heathens or unreleased corpse records remain.
+
+The VV5 patch therefore installs a guarded physical-demand helper at file offset `0x944C0`. It scans all 150 records, counts every active record regardless of faction or corpse state, and adds each active mother's stored baby count while the babies still await separate records. Both cap modes compare this demand against their current collection-dependent or fixed ceiling. The twin and triplet guards call the same helper. Conversion remains possible at the ceiling because it reuses its current record and does not increase physical demand.
 
 ## Twins and triplets at maximum minus one
 
@@ -48,7 +56,7 @@ Therefore, stock logic evaluated at cap minus one yields cap for a singleton, ca
 
 This is unsafe when a patch moves the cap to the physical pool ceiling. A New Home's child materializer at `0x43C840` and The Lost Children's at `0x44CEC0` scan for the next unused record without a terminal pool check; their weaning paths call the materializer again for the second and third babies. The later games also have only 150 physical records, so an aggregate of 151 or 152 cannot map to unique villagers.
 
-Both modes therefore share guarded birth-selection detours. They implement `delivered_babies = min(rolled_babies, slots - current_population)` while the original cap predicate guarantees at least one remaining slot. This preserves the original RNG and multiple-birth statistics whenever the rolled multiple fits. A triplet is reduced to twins only with two spaces, and any multiple is reduced to a singleton only with one space.
+Both modes therefore share guarded birth-selection detours. They implement `delivered_babies = min(rolled_babies, slots - current_slot_demand)` while the original cap predicate guarantees at least one remaining slot. For VV1 through VV4, slot demand is the ordinary population aggregate. VV5 uses the physical-demand helper described above. This preserves the original RNG and multiple-birth statistics whenever the rolled multiple fits. A triplet is reduced to twins only with two spaces, and any multiple is reduced to a singleton only with one space.
 
 The detours use verified zero-filled executable padding inside the existing `.text` section. Section layout and file size do not change.
 
