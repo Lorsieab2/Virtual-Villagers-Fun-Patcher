@@ -15,9 +15,12 @@ VIRTUAL VILLAGERS FUN PATCHER
    "Teaching Children Grants Skill".
 5. Optional for The Secret City: check
    "Nature Level 1 Improves Honey Refill".
-6. Optional for New Believers: check "Heathen Mommy Puzzle Restoration" and/or
+6. Optional for The Tree of Life: check
+   "Complete Fish Scales = Golden Fish in Nets".
+7. Optional for New Believers: check "Heathen Mommy Puzzle Restoration" and/or
    "Easier Devotee Training" and/or
-   "Statue Drops: Polishing or Honoring".
+   "Statue Drops: Polishing or Honoring" and/or
+   "VV4 Nursery School Divisor Parity".
 7. Open "One Game" or "All 5 Games".
 
 PATCH ALL FIVE AT ONCE
@@ -63,6 +66,9 @@ When Teaching Children Grants Skill is selected for VV2, its name adds:
 When Nature Level 1 Improves Honey Refill is selected for VV3, its name adds:
 + Nature Honey Refill.exe
 
+When Complete Fish Scales = Golden Fish in Nets is selected for VV4, its name adds:
++ Complete Scales Golden Fish.exe
+
 When Heathen Mommy Puzzle Restoration is selected for VV5, its name adds:
 + Heathen Mommy.exe
 
@@ -71,6 +77,9 @@ When Easier Devotee Training is selected for VV5, its name adds:
 
 When Statue Drops: Polishing or Honoring is selected for VV5, its name adds:
 + Random Statue Training.exe
+
+When VV4 Nursery School Divisor Parity is selected for VV5, its name adds:
++ VV4 Nursery Divisor Parity.exe
 
 For each game, the patcher creates a complete sibling copy of the original game
 folder. The copied folder keeps every original file and subfolder, including the

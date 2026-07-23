@@ -500,6 +500,21 @@
       ]
     },
     {
+      "id": "vv4_complete_scales_golden_fish",
+      "game_id": "vv4",
+      "name": "Complete Fish Scales = Golden Fish in Nets",
+      "description": "Golden Fish become eligible in the fishing nets only after all 12 Fish Scales are collected. This changes the stock partial-collection threshold while preserving the completed collection's original 25% Golden Fish chance and every other fishing outcome.",
+      "output_tag": "Complete Scales Golden Fish",
+      "patches": [
+        {
+          "offset": "0x33386",
+          "before": "01",
+          "after": "0C",
+          "purpose": "require all 12 Fish Scales instead of only one before the stock Golden Fish branch can run"
+        }
+      ]
+    },
+    {
       "id": "vv5_heathen_mommy_puzzle",
       "game_id": "vv5",
       "name": "Heathen Mommy Puzzle Restoration",
@@ -589,6 +604,27 @@
           "before": "000000000000000000000000000000000000000000000000000000000000",
           "after": "5A526A02E8B7F1F6FF83C40485C0B89D0000007405B8A00000005A5052C3",
           "purpose": "choose stock behavior 0x9D Polishing or 0xA0 Honoring with equal odds while preserving the original call stack"
+        }
+      ]
+    },
+    {
+      "id": "vv5_vv4_nursery_divisor_parity",
+      "game_id": "vv5",
+      "name": "VV4 Nursery School Divisor Parity",
+      "description": "For parity with Virtual Villagers 4, changes VV5's six-skill spread lesson divisor from five to six. VV5 normally distributes one-fifth of a lesson to each of six skills, an arithmetic inconsistency that awards six-fifths in total; this patch distributes exactly one-sixth to each skill without claiming whether the original inconsistency was intentional.",
+      "output_tag": "VV4 Nursery Divisor Parity",
+      "patches": [
+        {
+          "offset": "0x25FE1",
+          "before": "10884900",
+          "after": "40454900",
+          "purpose": "redirect only the Nursery School spread division from the shared 5.0 constant to a private 6.0 constant"
+        },
+        {
+          "offset": "0x94540",
+          "before": "0000000000000000",
+          "after": "0000000000001840",
+          "purpose": "store the private IEEE-754 double constant 6.0 used only by the Nursery School parity patch"
         }
       ]
     }

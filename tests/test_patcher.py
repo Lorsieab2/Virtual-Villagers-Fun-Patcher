@@ -521,6 +521,28 @@ class StockIntegrationTests(unittest.TestCase):
             "Virtual Villagers - New Believers - Modified Max Pop + Heathen Mommy.exe",
         )
 
+    def test_vv4_golden_fish_requires_complete_scales_collection(self) -> None:
+        feature_id = "vv4_complete_scales_golden_fish"
+        build = next(build for build in load_builds() if build.id == "vv4")
+        source = STOCK / build.input_name
+        rendered, _ = render_patched_bytes(
+            source, build, DEFAULT_PATCH_MODE, [feature_id]
+        )
+        self.assertEqual(
+            bytes(source.read_bytes()[0x33384:0x33389]),
+            bytes.fromhex("83F8017C23"),
+        )
+        self.assertEqual(
+            bytes(rendered[0x33384:0x33389]),
+            bytes.fromhex("83F80C7C23"),
+        )
+        self.assertEqual(2 * 12 + 1, 25)
+        preview = dry_run(source, DEFAULT_PATCH_MODE, [feature_id])
+        self.assertEqual(
+            preview["output_name"],
+            "Virtual Villagers - The Tree of Life - Modified Max Pop + Complete Scales Golden Fish.exe",
+        )
+
     def test_vv3_nature_level_one_improves_honey_refill(self) -> None:
         feature_id = "vv3_nature_honey_refill"
         feature = next(patch for patch in load_fun_patches() if patch.id == feature_id)
@@ -600,6 +622,7 @@ class StockIntegrationTests(unittest.TestCase):
             "vv5_heathen_mommy_puzzle",
             "vv5_easier_devotee_training",
             "vv5_statue_polishing_or_honoring",
+            "vv5_vv4_nursery_divisor_parity",
         ]
         build = next(build for build in load_builds() if build.id == "vv5")
         source = STOCK / build.input_name
@@ -629,11 +652,51 @@ class StockIntegrationTests(unittest.TestCase):
         self.assertEqual(bytes(rendered[0x944A0:0x944BE]), bytes.fromhex(
             "5A526A02E8B7F1F6FF83C40485C0B89D0000007405B8A00000005A5052C3"
         ))
+        self.assertEqual(
+            bytes(rendered[0x25FE1:0x25FE5]), bytes.fromhex("40454900")
+        )
+        self.assertEqual(
+            bytes(rendered[0x94540:0x94548]), bytes.fromhex("0000000000001840")
+        )
         preview = dry_run(source, DEFAULT_PATCH_MODE, feature_ids)
         self.assertEqual(preview["fun_patches"], feature_ids)
         self.assertEqual(
             preview["output_name"],
-            "Virtual Villagers - New Believers - Modified Max Pop + Heathen Mommy + Easier Devotee + Random Statue Training.exe",
+            "Virtual Villagers - New Believers - Modified Max Pop + Heathen Mommy + Easier Devotee + Random Statue Training + VV4 Nursery Divisor Parity.exe",
+        )
+
+    def test_vv5_vv4_nursery_divisor_parity_is_local_and_guarded(self) -> None:
+        feature_id = "vv5_vv4_nursery_divisor_parity"
+        build = next(build for build in load_builds() if build.id == "vv5")
+        source = STOCK / build.input_name
+        original = source.read_bytes()
+        rendered, _ = render_patched_bytes(
+            source, build, DEFAULT_PATCH_MODE, [feature_id]
+        )
+        self.assertEqual(
+            bytes(original[0x25FDF:0x25FE5]),
+            bytes.fromhex("DC3510884900"),
+        )
+        self.assertEqual(
+            bytes(rendered[0x25FDF:0x25FE5]),
+            bytes.fromhex("DC3540454900"),
+        )
+        self.assertEqual(
+            bytes(original[0x98810:0x98818]),
+            bytes.fromhex("0000000000001440"),
+        )
+        self.assertEqual(
+            bytes(rendered[0x98810:0x98818]),
+            bytes.fromhex("0000000000001440"),
+        )
+        self.assertEqual(
+            bytes(rendered[0x94540:0x94548]),
+            bytes.fromhex("0000000000001840"),
+        )
+        preview = dry_run(source, DEFAULT_PATCH_MODE, [feature_id])
+        self.assertEqual(
+            preview["output_name"],
+            "Virtual Villagers - New Believers - Modified Max Pop + VV4 Nursery Divisor Parity.exe",
         )
 
     def test_vv5_statue_drops_choose_polishing_or_honoring(self) -> None:

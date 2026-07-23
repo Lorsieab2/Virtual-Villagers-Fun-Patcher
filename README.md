@@ -53,6 +53,12 @@ Enable **Heathen Mommy Puzzle Restoration (VV5)** to restore the hidden 17th Hea
 
 The patch restores that one stock rendering branch using puzzle 17's actual completion state and the modern executable's retained images. It does not invent a replacement puzzle or change the original trigger requirements. Its output name adds `+ Heathen Mommy.exe`.
 
+## VV4: Complete Fish Scales = Golden Fish in Nets
+
+Enable **Complete Fish Scales = Golden Fish in Nets (VV4)** to delay Golden Fish eligibility until all 12 Fish Scales have been collected. Stock VV4 allows Golden Fish after only one scale and uses the chance `2 × collected scales + 1%`.
+
+The patch changes only the eligibility threshold from 1 to 12. At full completion, the stock formula still gives a 25% Golden Fish chance. Normal fish, fishing animations, food awards, scale collection, and all other fishing outcomes remain unchanged. Its output name adds `+ Complete Scales Golden Fish.exe`.
+
 ## VV3: Nature Level 1 Improves Honey Refill
 
 Enable **Nature Level 1 Improves Honey Refill (VV3)** so Nature level 1 or higher improves honey regeneration by the same proportional amount used by the stock fruit-tree refill routine. Nature level 0 retains the original honey rate. The existing one-hour honey update threshold and 3,000-unit cap remain unchanged.
@@ -70,6 +76,12 @@ The normal idle scheduler and its existing timing chance remain unchanged. The p
 Enable **Statue Drops: Polishing or Honoring (VV5)** so dropping a villager on either the upgradeable statue or its completed form chooses with equal 50/50 odds between the game's original **Polishing the Statue** and **Honoring** behaviors. Both original action queues remain intact; the patch changes only which one is selected for the manual drop.
 
 This provides a manual Devotion-training route after the Heathens are gone. It does not change autonomous work, Devotion gains, statue upgrades, or Retired Chief activities. Its output name adds `+ Random Statue Training.exe`.
+
+## VV5: VV4 Nursery School Divisor Parity
+
+Enable **VV4 Nursery School Divisor Parity (VV5)** to change only the Nursery School's spread-lesson divisor from five to six. VV4 divides one lesson into five shares and writes those shares to five skills. VV5 writes shares to six skills, including Devotion, but retains VV4's divisor of five and therefore distributes six-fifths of a lesson when all six skills qualify.
+
+For parity with Virtual Villagers 4, this optional patch gives each of VV5's six skills one-sixth of the spread lesson. It does not change focused strongest-skill lessons, teacher qualification, teacher selection, teacher skill totals, the under-14 eligibility rule, the approximately-50 skill ceiling, or offline catch-up. The arithmetic inconsistency is code-confirmed; whether it was intentional cannot be determined from the executable alone. Its output name adds `+ VV4 Nursery Divisor Parity.exe`.
 
 | Game | Stock final maximum | Collection Progression maximum | Immediate Fixed maximum |
 |---|---:|---:|---:|
@@ -125,7 +137,7 @@ No game executable, save, extracted asset, or generated output is committed to t
 
 ## Command line
 
-Pass `--patch-mode collection_progression` or `--patch-mode immediate_fixed` to `dry-run`, `apply`, `dry-run-all`, or `apply-all`. Optional features use repeatable `--fun-patch` arguments: `vv1_school_lessons_grant_skill`, `vv1_continue_research_at_max_technologies`, `vv1_f6_clothing_change_cheat`, `vv2_easier_healing_mastery`, `vv2_teaching_children_grants_skill`, `vv3_nature_honey_refill`, `vv5_heathen_mommy_puzzle`, `vv5_easier_devotee_training`, and `vv5_statue_polishing_or_honoring`.
+Pass `--patch-mode collection_progression` or `--patch-mode immediate_fixed` to `dry-run`, `apply`, `dry-run-all`, or `apply-all`. Optional features use repeatable `--fun-patch` arguments: `vv1_school_lessons_grant_skill`, `vv1_continue_research_at_max_technologies`, `vv1_f6_clothing_change_cheat`, `vv2_easier_healing_mastery`, `vv2_teaching_children_grants_skill`, `vv3_nature_honey_refill`, `vv4_complete_scales_golden_fish`, `vv5_heathen_mommy_puzzle`, `vv5_easier_devotee_training`, `vv5_statue_polishing_or_honoring`, and `vv5_vv4_nursery_divisor_parity`.
 
 ```text
 python src/vv_fun_patcher.py dry-run "path\game.exe" --patch-mode immediate_fixed
