@@ -6,6 +6,8 @@ The app uses the supplied transparent `Island.png` artwork as its title-bar icon
 
 `[Island image] Created with Codex AI. Made with love by Lorsieab2 :) [Island image]`
 
+The complete interface has a vertical scrollbar and supports mouse-wheel scrolling, so every patch option, game-folder field, action, and status message remains reachable on shorter displays.
+
 Its max-population patch uses every built-in villager slot: 256 slots in A New Home and The Lost Children, and 150 slots in The Secret City, The Tree of Life, and New Believers.
 
 ## Two patch styles

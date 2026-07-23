@@ -31,8 +31,8 @@ class App(tk.Tk):
     def __init__(self) -> None:
         super().__init__()
         self.title("Virtual Villagers Fun Patcher")
-        self.geometry("940x900")
-        self.minsize(820, 720)
+        self.geometry("940x760")
+        self.minsize(820, 520)
         self.island_source = tk.PhotoImage(file=ROOT / "assets" / "Island.png")
         self.island_inline = self.island_source.subsample(
             max(1, round(self.island_source.width() / 22))
@@ -60,8 +60,34 @@ class App(tk.Tk):
         self.protocol("WM_DELETE_WINDOW", self._close)
 
     def _build_ui(self) -> None:
-        outer = ttk.Frame(self, padding=18)
-        outer.pack(fill="both", expand=True)
+        viewport = ttk.Frame(self)
+        viewport.pack(fill="both", expand=True)
+        style = ttk.Style(self)
+        self.content_canvas = tk.Canvas(
+            viewport,
+            background=style.lookup("TFrame", "background"),
+            borderwidth=0,
+            highlightthickness=0,
+        )
+        scrollbar = ttk.Scrollbar(
+            viewport,
+            orient="vertical",
+            command=self.content_canvas.yview,
+        )
+        self.content_canvas.configure(yscrollcommand=scrollbar.set)
+        scrollbar.pack(side="right", fill="y")
+        self.content_canvas.pack(side="left", fill="both", expand=True)
+
+        outer = ttk.Frame(self.content_canvas, padding=18)
+        self.content_window = self.content_canvas.create_window(
+            (0, 0),
+            window=outer,
+            anchor="nw",
+        )
+        outer.bind("<Configure>", self._content_resized)
+        self.content_canvas.bind("<Configure>", self._viewport_resized)
+        self.bind_all("<MouseWheel>", self._scroll_content)
+
         title_row = ttk.Frame(outer)
         title_row.pack(anchor="w")
         ttk.Label(
@@ -149,6 +175,20 @@ class App(tk.Tk):
             state="disabled",
         )
         self.open_button.pack(anchor="e", pady=(8, 0))
+
+    def _content_resized(self, _event: tk.Event) -> None:
+        self.content_canvas.configure(scrollregion=self.content_canvas.bbox("all"))
+
+    def _viewport_resized(self, event: tk.Event) -> None:
+        self.content_canvas.itemconfigure(self.content_window, width=event.width)
+
+    def _scroll_content(self, event: tk.Event) -> str | None:
+        bounds = self.content_canvas.bbox("all")
+        if not bounds or bounds[3] <= self.content_canvas.winfo_height():
+            return None
+        direction = -1 if event.delta > 0 else 1
+        self.content_canvas.yview_scroll(direction, "units")
+        return "break"
 
     def _build_single_tab(self, tab: ttk.Frame) -> None:
         box = ttk.LabelFrame(tab, text="Original game executable", padding=10)

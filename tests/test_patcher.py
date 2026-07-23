@@ -63,6 +63,15 @@ class ManifestTests(unittest.TestCase):
                 identify(path)
 
 
+class GuiSourceTests(unittest.TestCase):
+    def test_entire_interface_has_vertical_and_mouse_wheel_scrolling(self) -> None:
+        source = (ROOT / "src" / "vv_fun_patcher_gui.py").read_text(encoding="utf-8")
+        self.assertIn('orient="vertical"', source)
+        self.assertIn('self.bind_all("<MouseWheel>", self._scroll_content)', source)
+        self.assertIn("def _scroll_content", source)
+        self.assertIn("self.content_canvas.yview_scroll(direction, \"units\")", source)
+
+
 class StockIntegrationTests(unittest.TestCase):
     def setUp(self) -> None:
         for build in load_builds():
