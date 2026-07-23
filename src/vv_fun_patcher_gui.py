@@ -31,8 +31,16 @@ class App(tk.Tk):
     def __init__(self) -> None:
         super().__init__()
         self.title("Virtual Villagers Fun Patcher")
-        self.geometry("940x850")
+        self.geometry("940x900")
         self.minsize(820, 720)
+        self.island_source = tk.PhotoImage(file=ROOT / "assets" / "Island.png")
+        self.island_inline = self.island_source.subsample(
+            max(1, round(self.island_source.width() / 22))
+        )
+        self.island_titlebar = self.island_source.subsample(
+            max(1, round(self.island_source.width() / 32))
+        )
+        self.iconphoto(True, self.island_titlebar)
         self.builds = load_builds()
         self.patch_modes = load_patch_modes()
         self.fun_patches = load_fun_patches()
@@ -45,6 +53,7 @@ class App(tk.Tk):
         self.status_var = tk.StringVar(value="Choose a patch style and one game or all five.")
         self.game_var = tk.StringVar(value="No game identified yet")
         self.last_output_dir: Path | None = None
+        self.last_modified_paths: dict[str, Path] = {}
         self._load_settings()
         self._build_ui()
         self._mode_changed(save=False)
@@ -53,14 +62,32 @@ class App(tk.Tk):
     def _build_ui(self) -> None:
         outer = ttk.Frame(self, padding=18)
         outer.pack(fill="both", expand=True)
+        title_row = ttk.Frame(outer)
+        title_row.pack(anchor="w")
         ttk.Label(
-            outer,
+            title_row,
+            image=self.island_inline,
+        ).pack(side="left", padx=(0, 6))
+        ttk.Label(
+            title_row,
             text="Virtual Villagers Fun Patcher",
             font=("Segoe UI", 18, "bold"),
-        ).pack(anchor="w")
+        ).pack(side="left")
+        ttk.Label(
+            title_row,
+            image=self.island_inline,
+        ).pack(side="left", padx=(6, 0))
+        credit_row = ttk.Frame(outer)
+        credit_row.pack(anchor="w", pady=(2, 4))
+        ttk.Label(credit_row, image=self.island_inline).pack(side="left", padx=(0, 4))
+        ttk.Label(
+            credit_row,
+            text="Created with Codex AI. Made with love by Lorsieab2 :)",
+        ).pack(side="left")
+        ttk.Label(credit_row, image=self.island_inline).pack(side="left", padx=(4, 0))
         ttk.Label(
             outer,
-            text="Creates verified modified copies beside the original games. Originals are never replaced.",
+            text="Creates a verified complete copy of each game folder and adds the modified EXE there. Originals are never replaced.",
         ).pack(anchor="w", pady=(0, 10))
 
         mode_box = ttk.LabelFrame(outer, text="Patch style", padding=10)
@@ -134,6 +161,14 @@ class App(tk.Tk):
         ttk.Label(box, textvariable=self.game_var, foreground="#245a9a").grid(
             row=1, column=0, columnspan=2, sticky="w", pady=(8, 0)
         )
+        links = ttk.Frame(box)
+        links.grid(row=2, column=0, columnspan=2, sticky="w", pady=(8, 0))
+        self._folder_link(
+            links, "Open Vanilla EXE Folder", self._open_single_vanilla_folder
+        ).pack(side="left")
+        self._folder_link(
+            links, "Open Modified EXE Folder", self._open_single_modified_folder
+        ).pack(side="left", padx=(18, 0))
         ttk.Label(
             tab,
             text="Near the slot ceiling, multiples are safely reduced to the number of remaining slots: triplets may become twins or a singleton.",
@@ -148,7 +183,7 @@ class App(tk.Tk):
     def _build_all_tab(self, tab: ttk.Frame) -> None:
         ttk.Label(
             tab,
-            text="Choose one game folder per row. Each modified EXE is placed in its own game folder.",
+            text="Choose one game folder per row. Each result is a complete sibling copy containing all original files plus the modified EXE.",
             wraplength=840,
         ).pack(anchor="w", pady=(0, 8))
         grid = ttk.Frame(tab)
@@ -167,6 +202,16 @@ class App(tk.Tk):
                 text="Choose Folder...",
                 command=lambda game_id=build.id: self._browse_bulk_folder(game_id),
             ).grid(row=row, column=2, pady=4)
+            self._folder_link(
+                grid,
+                "Vanilla folder",
+                lambda game_id=build.id: self._open_bulk_folder(game_id, False),
+            ).grid(row=row, column=3, padx=(12, 0), pady=4)
+            self._folder_link(
+                grid,
+                "Modified folder",
+                lambda game_id=build.id: self._open_bulk_folder(game_id, True),
+            ).grid(row=row, column=4, padx=(12, 0), pady=4)
         grid.columnconfigure(1, weight=1)
         actions = ttk.Frame(tab)
         actions.pack(fill="x", pady=(10, 0))
@@ -393,8 +438,10 @@ class App(tk.Tk):
                 source, self._mode(), self._selected_fun_patch_ids(build.id)
             )
             self.status_var.set(
-                "Dry run passed. No files were written. Planned output:\n"
-                + result["output_name"]
+                "Dry run passed. No files were written. Planned copied game folder:\n"
+                + result["output_folder"]
+                + "\nModified EXE:\n"
+                + result["output_path"]
                 + "\n"
                 + self._selection_text()
                 + "\nMultiple births safely fit the remaining slots.\nExpected SHA-256: "
@@ -415,7 +462,7 @@ class App(tk.Tk):
                 "All-five dry run passed. No files were written. "
                 + self._selection_text()
                 + "\n"
-                + "\n".join(f"- {result['output_name']}" for result in results)
+                + "\n".join(f"- {result['output_folder']}" for result in results)
             )
             self._save_settings()
             messagebox.showinfo("All-five dry run passed", self.status_var.get())
@@ -430,12 +477,12 @@ class App(tk.Tk):
             preview = dry_run(
                 source, self._mode(), self._selected_fun_patch_ids(build.id)
             )
-            output = source.resolve().parent / preview["output_name"]
+            output_folder = Path(preview["output_folder"])
             overwrite = False
-            if output.exists():
+            if output_folder.exists():
                 overwrite = messagebox.askyesno(
-                    "Replace existing output?",
-                    f"This file already exists:\n\n{output}\n\nReplace it with a newly verified copy?",
+                    "Replace existing copied game folder?",
+                    f"This complete copied game folder already exists:\n\n{output_folder}\n\nReplace the whole copied folder with a newly verified copy of the selected original?",
                 )
                 if not overwrite:
                     return
@@ -444,9 +491,10 @@ class App(tk.Tk):
                 fun_patch_ids=self._selected_fun_patch_ids(build.id),
             )
             self.last_output_dir = output.parent
+            self.last_modified_paths[build.id] = output
             self.open_button.configure(text="Open Game Folder", state="normal")
             self.status_var.set(
-                f"Success. Created and verified:\n{output}\n\n{self._selection_text()}\n"
+                f"Success. Copied the complete game folder and created:\n{output}\n\n{self._selection_text()}\n"
                 f"Multiple births safely fit the remaining slots.\n\nVerification log:\n{log}"
             )
             self._save_settings()
@@ -464,16 +512,16 @@ class App(tk.Tk):
             )
             existing = []
             for (build, source), preview in zip(validated, previews):
-                output = source.parent / preview["output_name"]
-                if output.exists():
-                    existing.append(output)
+                output_folder = Path(preview["output_folder"])
+                if output_folder.exists():
+                    existing.append(output_folder)
             overwrite = False
             if existing:
                 overwrite = messagebox.askyesno(
-                    "Replace existing batch outputs?",
-                    "One or more selected-style outputs already exist:\n\n"
+                    "Replace existing copied game folders?",
+                    "One or more complete copied game folders already exist:\n\n"
                     + "\n".join(str(path) for path in existing)
-                    + "\n\nReplace them and create a newly verified set?",
+                    + "\n\nReplace those copied folders with newly verified complete copies?",
                 )
                 if not overwrite:
                     return
@@ -482,9 +530,13 @@ class App(tk.Tk):
                 fun_patch_ids=self._selected_fun_patch_ids(),
             )
             self.last_output_dir = results[0][0].parent
+            self.last_modified_paths = {
+                build.id: output
+                for (build, _), (output, _) in zip(validated, results)
+            }
             self.open_button.configure(text="Open First Game Folder", state="normal")
             self.status_var.set(
-                "Success. All five selected-style EXEs were created and verified. "
+                "Success. All five complete game folders were copied and their selected-style EXEs were created and verified. "
                 + self._selection_text()
                 + "\nMultiple births safely fit the remaining slots:\n"
                 + "\n".join(f"- {output}" for output, _ in results)
@@ -498,10 +550,85 @@ class App(tk.Tk):
     def _open_output(self) -> None:
         if self.last_output_dir is None:
             return
+        self._open_folder(self.last_output_dir)
+
+    def _folder_link(self, parent, text: str, command):
+        link = tk.Label(
+            parent,
+            text=text,
+            foreground="#0563C1",
+            cursor="hand2",
+            font=("Segoe UI", 9, "underline"),
+        )
+        link.bind("<Button-1>", lambda _event: command())
+        return link
+
+    def _open_folder(self, path: Path) -> None:
+        target = path.expanduser()
+        if target.is_file():
+            target = target.parent
+        if not target.is_dir():
+            self.status_var.set(f"Folder not found: {target}")
+            messagebox.showerror("Cannot open folder", self.status_var.get())
+            return
         if sys.platform == "win32":
-            os.startfile(self.last_output_dir)  # type: ignore[attr-defined]
+            os.startfile(target)  # type: ignore[attr-defined]
         else:
-            subprocess.Popen(["xdg-open", str(self.last_output_dir)])
+            subprocess.Popen(["xdg-open", str(target)])
+
+    def _open_single_vanilla_folder(self) -> None:
+        value = self.exe_var.get().strip()
+        if not value:
+            messagebox.showinfo("Choose a game", "Choose an original game EXE first.")
+            return
+        self._open_folder(Path(value))
+
+    def _open_single_modified_folder(self) -> None:
+        value = self.exe_var.get().strip()
+        if not value:
+            messagebox.showinfo("Choose a game", "Choose an original game EXE first.")
+            return
+        try:
+            build = identify(Path(value))
+            target = self.last_modified_paths.get(build.id)
+            if target is None:
+                preview = dry_run(
+                    Path(value),
+                    self._mode(),
+                    self._selected_fun_patch_ids(build.id),
+                )
+                target = Path(preview["output_folder"])
+        except (PatcherError, OSError) as exc:
+            self.status_var.set(str(exc))
+            messagebox.showerror("Cannot locate modified folder", str(exc))
+            return
+        self._open_folder(target)
+
+    def _open_bulk_folder(self, game_id: str, modified: bool) -> None:
+        value = self.all_folder_vars[game_id].get().strip()
+        if not value:
+            messagebox.showinfo("Choose a folder", "Choose this game's folder first.")
+            return
+        target = Path(value)
+        if modified:
+            target = self.last_modified_paths.get(game_id)
+            if target is None:
+                try:
+                    build = next(build for build in self.builds if build.id == game_id)
+                    source = Path(value)
+                    if source.is_dir():
+                        source = source / build.input_name
+                    preview = dry_run(
+                        source,
+                        self._mode(),
+                        self._selected_fun_patch_ids(game_id),
+                    )
+                    target = Path(preview["output_folder"])
+                except (PatcherError, OSError) as exc:
+                    self.status_var.set(str(exc))
+                    messagebox.showerror("Cannot locate modified folder", str(exc))
+                    return
+        self._open_folder(target)
 
     def _close(self) -> None:
         self._save_settings()

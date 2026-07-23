@@ -2,6 +2,10 @@
 
 An offline Windows patcher for miscellaneous fun patches in all five classic Virtual Villagers PC games.
 
+The app uses the supplied transparent `Island.png` artwork as its title-bar icon and as small image decorations around both its name and the credit:
+
+`[Island image] Created with Codex AI. Made with love by Lorsieab2 :) [Island image]`
+
 Its max-population patch uses every built-in villager slot: 256 slots in A New Home and The Lost Children, and 150 slots in The Secret City, The Tree of Life, and New Believers.
 
 ## Two patch styles
@@ -95,17 +99,19 @@ This lets reproduction fill the final slot without permitting the population to 
 3. Select a patch style.
 4. Choose **One Game** or **All 5 Games**.
 5. For one game, select its original EXE. For all five, select one folder per game.
-6. Validate, dry run, or create the modified EXE set.
+6. Validate, dry run, or create the copied-and-modified game folder set.
 
 **Find All 5 in Parent Folder...** can fill the five folder fields when the original EXEs are in the chosen folder or one folder below it.
 
-The original EXEs are never edited, renamed, replaced, or deleted. Outputs and their `.patch-log.json` verification logs are placed beside the originals in their respective game folders. Both styles can coexist.
+The One Game tab includes clickable **Open Vanilla EXE Folder** and **Open Modified EXE Folder** links. All 5 Games provides matching Vanilla folder and Modified folder links on every game row. The Vanilla link opens the selected original folder. The Modified link opens the separate copied game folder created beside it.
+
+For every selected game, the patcher creates a sibling folder named after the modified EXE. It copies every file and subfolder from the original game folder, verifies the copied files by SHA-256, keeps the stock EXE in the copy, and adds the separately named modified EXE plus its `.patch-log.json`. The original folder and original EXE are never edited, renamed, replaced, or deleted. Both patch styles can coexist in separate copied folders.
 
 ## Exact-build safety
 
 Support is bound to the exact SHA-256 and size of each researched stock executable. Unknown, modified, corrupt, duplicate, or incorrectly assigned EXEs are refused. Every original byte to be changed is guarded, file size is preserved, the PE checksum is recalculated, and each result is read back and hashed.
 
-Bulk mode validates and renders all five inputs before writing, then stages and verifies all five outputs before placing them into the game folders.
+Bulk mode validates and renders all five inputs before writing, then stages and verifies all five complete folder copies before committing them. If an existing copied folder is replaced, the patcher uses a temporary backup and restores it if the batch commit fails.
 
 No game executable, save, extracted asset, or generated output is committed to this repository.
 

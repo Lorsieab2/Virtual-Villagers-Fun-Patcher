@@ -76,15 +76,23 @@ class StockIntegrationTests(unittest.TestCase):
             folder = root / build.id
             folder.mkdir(parents=True)
             shutil.copy2(STOCK / build.input_name, folder / build.input_name)
+            (folder / "companion-data").mkdir()
+            (folder / "companion-data" / f"{build.id}.txt").write_text(
+                f"unchanged companion file for {build.id}\n", encoding="utf-8"
+            )
             result[build.id] = folder
         return result
+
+    def expected_output_folder(
+        self, folders: dict[str, Path], build, mode: str
+    ) -> Path:
+        output_name = get_patch_variant(build, mode)["output_name"]
+        return folders[build.id].parent / Path(output_name).stem
 
     def assert_no_outputs(self, folders: dict[str, Path]) -> None:
         for build in load_builds():
             for mode in MODES:
-                output = folders[build.id] / get_patch_variant(build, mode)["output_name"]
-                self.assertFalse(output.exists())
-                self.assertFalse(output.with_suffix(".patch-log.json").exists())
+                self.assertFalse(self.expected_output_folder(folders, build, mode).exists())
 
     def test_both_modes_render_all_five_with_exact_guards(self) -> None:
         for build in load_builds():
@@ -167,8 +175,16 @@ class StockIntegrationTests(unittest.TestCase):
                 source = folders[build.id] / build.input_name
                 self.assertEqual(digest(source), source_hashes[build.id])
                 for mode in MODES:
-                    output = folders[build.id] / get_patch_variant(build, mode)["output_name"]
+                    copied_folder = self.expected_output_folder(folders, build, mode)
+                    output = copied_folder / get_patch_variant(build, mode)["output_name"]
                     self.assertTrue(output.is_file())
+                    self.assertTrue((copied_folder / build.input_name).is_file())
+                    self.assertEqual(
+                        (copied_folder / "companion-data" / f"{build.id}.txt").read_text(
+                            encoding="utf-8"
+                        ),
+                        f"unchanged companion file for {build.id}\n",
+                    )
                     log = json.loads(output.with_suffix(".patch-log.json").read_text())
                     self.assertEqual(log["patch_mode"], mode)
                     self.assertEqual(log["output_path"], str(output))
@@ -195,14 +211,21 @@ class StockIntegrationTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temp:
             folders = self.copy_game_folders(Path(temp))
             first = load_builds()[0]
-            sentinel = folders[first.id] / get_patch_variant(first, DEFAULT_PATCH_MODE)["output_name"]
+            sentinel_folder = self.expected_output_folder(
+                folders, first, DEFAULT_PATCH_MODE
+            )
+            sentinel_folder.mkdir()
+            sentinel = sentinel_folder / "sentinel.txt"
             sentinel.write_bytes(b"sentinel")
             with self.assertRaises(PatcherError):
                 apply_all(folders, DEFAULT_PATCH_MODE)
             self.assertEqual(sentinel.read_bytes(), b"sentinel")
             for build in load_builds()[1:]:
-                output = folders[build.id] / get_patch_variant(build, DEFAULT_PATCH_MODE)["output_name"]
-                self.assertFalse(output.exists())
+                self.assertFalse(
+                    self.expected_output_folder(
+                        folders, build, DEFAULT_PATCH_MODE
+                    ).exists()
+                )
 
     def test_folder_validation_requires_the_expected_exe(self) -> None:
         with tempfile.TemporaryDirectory() as temp:
@@ -216,12 +239,18 @@ class StockIntegrationTests(unittest.TestCase):
     def test_single_apply_uses_selected_mode_name(self) -> None:
         with tempfile.TemporaryDirectory() as temp:
             build = load_builds()[3]
-            source = Path(temp) / build.input_name
+            game_folder = Path(temp) / "game"
+            game_folder.mkdir()
+            source = game_folder / build.input_name
             shutil.copy2(STOCK / build.input_name, source)
+            (game_folder / "keep.dat").write_bytes(b"keep")
             output, log = apply_patch(source, "immediate_fixed")
             self.assertEqual(output.name, get_patch_variant(build, "immediate_fixed")["output_name"])
             self.assertTrue(log.is_file())
             self.assertTrue(source.is_file())
+            self.assertEqual(output.parent.parent, game_folder.parent)
+            self.assertEqual((output.parent / "keep.dat").read_bytes(), b"keep")
+            self.assertTrue((output.parent / build.input_name).is_file())
 
     def test_vv1_school_lessons_grant_skill_is_guarded_and_additive(self) -> None:
         feature_id = "vv1_school_lessons_grant_skill"
@@ -328,7 +357,9 @@ class StockIntegrationTests(unittest.TestCase):
         feature_id = "vv2_easier_healing_mastery"
         build = next(build for build in load_builds() if build.id == "vv2")
         with tempfile.TemporaryDirectory() as temp:
-            source = Path(temp) / build.input_name
+            game_folder = Path(temp) / "game"
+            game_folder.mkdir()
+            source = game_folder / build.input_name
             shutil.copy2(STOCK / build.input_name, source)
             original_hash = digest(source)
             output, log_path = apply_patch(

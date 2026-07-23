@@ -4,6 +4,7 @@ import argparse
 import hashlib
 import json
 import os
+import shutil
 import struct
 import tempfile
 from dataclasses import dataclass
@@ -84,6 +85,19 @@ def _output_name(build: Build, patch_mode: str, fun_patches: list[FunPatch]) -> 
     stem = base[:-4] if base.casefold().endswith(".exe") else base
     tags = " + ".join(patch.output_tag for patch in fun_patches)
     return f"{stem} + {tags}.exe"
+
+
+def output_folder_for(
+    source: Path,
+    build: Build,
+    patch_mode: str,
+    fun_patches: list[FunPatch],
+) -> Path:
+    output_name = _output_name(build, patch_mode, fun_patches)
+    folder_name = (
+        output_name[:-4] if output_name.casefold().endswith(".exe") else output_name
+    )
+    return source.resolve().parent.parent / folder_name
 
 
 def get_patch_mode(patch_mode: str) -> PatchMode:
@@ -245,12 +259,16 @@ def _result(
 ) -> dict[str, Any]:
     mode = get_patch_mode(patch_mode)
     variant = get_patch_variant(build, patch_mode)
+    output_name = _output_name(build, patch_mode, fun_patches)
+    output_folder = output_folder_for(source, build, patch_mode, fun_patches)
     return {
         "game": build.title,
         "source": str(source.resolve()),
         "patch_mode": mode.id,
         "patch_mode_name": mode.name,
-        "output_name": _output_name(build, patch_mode, fun_patches),
+        "output_name": output_name,
+        "output_folder": str(output_folder),
+        "output_path": str(output_folder / output_name),
         "fun_patches": [patch.id for patch in fun_patches],
         "fun_patch_names": [patch.name for patch in fun_patches],
         "absolute_maximum": build.absolute_maximum,
@@ -323,6 +341,78 @@ def _log_data(
     }
 
 
+def _folder_hashes(folder: Path) -> dict[str, tuple[int, str]]:
+    return {
+        str(path.relative_to(folder)): (path.stat().st_size, sha256(path))
+        for path in folder.rglob("*")
+        if path.is_file()
+    }
+
+
+def _stage_game_folder(source_folder: Path, destination: Path, game_id: str) -> Path:
+    if destination.parent.resolve() != source_folder.resolve().parent:
+        raise PatcherError(
+            "Internal safety check failed: output is not beside the game folder"
+        )
+    if destination.resolve() == source_folder.resolve():
+        raise PatcherError(
+            "Internal safety check failed: output would replace the original folder"
+        )
+    stage = Path(
+        tempfile.mkdtemp(prefix=f".vvfp-{game_id}-", dir=destination.parent)
+    )
+    stage.rmdir()
+    try:
+        shutil.copytree(source_folder, stage, copy_function=shutil.copy2)
+        if _folder_hashes(stage) != _folder_hashes(source_folder):
+            raise PatcherError(
+                f"Verification failed while copying the complete game folder: {source_folder}"
+            )
+        return stage
+    except Exception:
+        if stage.exists():
+            shutil.rmtree(stage)
+        raise
+
+
+def _commit_staged_folders(
+    staged: list[tuple[Path, Path]], overwrite: bool
+) -> None:
+    existing = [destination for _, destination in staged if destination.exists()]
+    if existing and not overwrite:
+        raise PatcherError(
+            "Modified game folder already exists; no folders were replaced:\n"
+            + "\n".join(str(path) for path in existing)
+        )
+    backups: list[tuple[Path, Path]] = []
+    committed: list[Path] = []
+    try:
+        for stage, destination in staged:
+            if destination.exists():
+                backup = Path(
+                    tempfile.mkdtemp(
+                        prefix=".vvfp-backup-",
+                        dir=destination.parent,
+                    )
+                )
+                backup.rmdir()
+                os.replace(destination, backup)
+                backups.append((destination, backup))
+            os.replace(stage, destination)
+            committed.append(destination)
+    except Exception:
+        for destination in reversed(committed):
+            if destination.exists():
+                shutil.rmtree(destination)
+        for destination, backup in reversed(backups):
+            if backup.exists():
+                os.replace(backup, destination)
+        raise
+    for _, backup in backups:
+        if backup.exists():
+            shutil.rmtree(backup)
+
+
 def apply_patch(
     source: Path,
     patch_mode: str = DEFAULT_PATCH_MODE,
@@ -332,39 +422,46 @@ def apply_patch(
     source = source.resolve()
     build = identify(source)
     fun_patches = _selected_fun_patches(build, fun_patch_ids)
-    output = source.parent / _output_name(build, patch_mode, fun_patches)
-    if output.exists() and not overwrite:
-        raise PatcherError(f"Output already exists: {output}")
+    output_name = _output_name(build, patch_mode, fun_patches)
+    output_folder = output_folder_for(source, build, patch_mode, fun_patches)
+    output = output_folder / output_name
+    if output_folder.exists() and not overwrite:
+        raise PatcherError(f"Modified game folder already exists: {output_folder}")
     patched, applied = render_patched_bytes(source, build, patch_mode, fun_patch_ids)
-    fd, temp_name = tempfile.mkstemp(prefix="vvfp-", suffix=".tmp", dir=source.parent)
+    stage = _stage_game_folder(source.parent, output_folder, build.id)
+    staged_output = stage / output_name
+    staged_log = staged_output.with_suffix(".patch-log.json")
     try:
-        with os.fdopen(fd, "wb") as handle:
+        with staged_output.open("wb") as handle:
             handle.write(patched)
             handle.flush()
             os.fsync(handle.fileno())
-        temp_path = Path(temp_name)
-        if temp_path.stat().st_size != source.stat().st_size:
+        if staged_output.stat().st_size != source.stat().st_size:
             raise PatcherError("Verification failed: patched file size changed")
-        os.replace(temp_path, output)
+        output_hash = sha256(staged_output)
+        expected_hash = hashlib.sha256(patched).hexdigest().upper()
+        if output_hash != expected_hash:
+            raise PatcherError("Verification failed: staged output hash mismatch")
+        staged_log.write_text(
+            json.dumps(
+                _log_data(
+                    build, source, output, patch_mode, output_hash, applied, fun_patches
+                ),
+                indent=2,
+            )
+            + "\n",
+            encoding="utf-8",
+        )
+        _commit_staged_folders([(stage, output_folder)], overwrite)
     except Exception:
-        Path(temp_name).unlink(missing_ok=True)
+        if stage.exists():
+            shutil.rmtree(stage)
         raise
     output_hash = sha256(output)
     expected_hash = hashlib.sha256(patched).hexdigest().upper()
     if output_hash != expected_hash:
-        output.unlink(missing_ok=True)
         raise PatcherError("Verification failed: output hash does not match generated bytes")
     log_path = output.with_suffix(".patch-log.json")
-    log_path.write_text(
-        json.dumps(
-            _log_data(
-                build, source, output, patch_mode, output_hash, applied, fun_patches
-            ),
-            indent=2,
-        )
-        + "\n",
-        encoding="utf-8",
-    )
     return output, log_path
 
 
@@ -376,7 +473,7 @@ def apply_all(
 ) -> list[tuple[Path, Path]]:
     validated = validate_all_sources(sources)
     plans: list[
-        tuple[Build, Path, bytearray, list[dict[str, str]], Path]
+        tuple[Build, Path, bytearray, list[dict[str, str]], Path, Path]
     ] = []
     selected_by_game: dict[str, list[FunPatch]] = {}
     for patch_id in fun_patch_ids:
@@ -386,76 +483,72 @@ def apply_all(
         fun_patches = selected_by_game.get(build.id, [])
         selected_ids = [patch.id for patch in fun_patches]
         patched, applied = render_patched_bytes(source, build, patch_mode, selected_ids)
+        output_folder = output_folder_for(source, build, patch_mode, fun_patches)
         plans.append(
             (
                 build,
                 source,
                 patched,
                 applied,
-                source.parent / _output_name(build, patch_mode, fun_patches),
+                output_folder,
+                output_folder / _output_name(build, patch_mode, fun_patches),
             )
         )
-    existing = [output for _, _, _, _, output in plans if output.exists()]
+    existing = [folder for _, _, _, _, folder, _ in plans if folder.exists()]
     if existing and not overwrite:
         raise PatcherError(
-            "Bulk output already exists; no files were written:\n"
+            "Bulk modified game folder already exists; no files were written:\n"
             + "\n".join(str(path) for path in existing)
         )
-    staged: list[
-        tuple[
-            Path,
-            tuple[Build, Path, bytearray, list[dict[str, str]], Path],
-        ]
-    ] = []
+    staged: list[tuple[Path, Path]] = []
     try:
         for plan in plans:
-            build, source, patched, _, output = plan
-            fd, temp_name = tempfile.mkstemp(
-                prefix=f"vvfp-{build.id}-", suffix=".tmp", dir=output.parent
-            )
-            temp_path = Path(temp_name)
-            staged.append((temp_path, plan))
-            with os.fdopen(fd, "wb") as handle:
+            build, source, patched, applied, output_folder, output = plan
+            stage = _stage_game_folder(source.parent, output_folder, build.id)
+            staged.append((stage, output_folder))
+            staged_output = stage / output.name
+            with staged_output.open("wb") as handle:
                 handle.write(patched)
                 handle.flush()
                 os.fsync(handle.fileno())
-            if temp_path.stat().st_size != source.stat().st_size:
+            if staged_output.stat().st_size != source.stat().st_size:
                 raise PatcherError(
                     f"Verification failed before bulk commit: {build.title} size changed"
                 )
-            if sha256(temp_path) != hashlib.sha256(patched).hexdigest().upper():
+            output_hash = sha256(staged_output)
+            if output_hash != hashlib.sha256(patched).hexdigest().upper():
                 raise PatcherError(
                     f"Verification failed before bulk commit: {build.title} hash mismatch"
                 )
-        for temp_path, (_, _, _, _, output) in staged:
-            os.replace(temp_path, output)
+            staged_output.with_suffix(".patch-log.json").write_text(
+                json.dumps(
+                    _log_data(
+                        build,
+                        source,
+                        output,
+                        patch_mode,
+                        output_hash,
+                        applied,
+                        selected_by_game.get(build.id, []),
+                    ),
+                    indent=2,
+                )
+                + "\n",
+                encoding="utf-8",
+            )
+        _commit_staged_folders(staged, overwrite)
     except Exception:
-        for temp_path, _ in staged:
-            temp_path.unlink(missing_ok=True)
+        for stage, _ in staged:
+            if stage.exists():
+                shutil.rmtree(stage)
         raise
     results: list[tuple[Path, Path]] = []
-    for build, source, patched, applied, output in plans:
+    for build, source, patched, applied, output_folder, output in plans:
         output_hash = sha256(output)
         expected_hash = hashlib.sha256(patched).hexdigest().upper()
         if output_hash != expected_hash:
             raise PatcherError(f"Bulk verification failed after commit: {build.title}")
         log_path = output.with_suffix(".patch-log.json")
-        log_path.write_text(
-            json.dumps(
-                _log_data(
-                    build,
-                    source,
-                    output,
-                    patch_mode,
-                    output_hash,
-                    applied,
-                    selected_by_game.get(build.id, []),
-                ),
-                indent=2,
-            )
-            + "\n",
-            encoding="utf-8",
-        )
         results.append((output, log_path))
     return results
 

@@ -27,11 +27,15 @@ PATCH ALL FIVE AT ONCE
 2. Or use "Find All 5 in Parent Folder..." when the EXEs are in the selected
    folder or one folder below it.
 3. Click "Validate All 5", "Dry Run All 5", or "Patch All 5".
+4. Use the clickable "Vanilla folder" or "Modified folder" link on any row
+   to open the original folder or its separate copied-and-modified folder.
 
 PATCH ONE GAME
 
 1. Browse to one ORIGINAL game EXE.
 2. Click Validate, Dry Run, or Create Modified EXE.
+3. Use "Open Vanilla EXE Folder" or "Open Modified EXE Folder" to open the
+   selected game's folder in File Explorer.
 
 OUTPUTS
 
@@ -68,10 +72,13 @@ When Easier Devotee Training is selected for VV5, its name adds:
 When Statue Drops: Polishing or Honoring is selected for VV5, its name adds:
 + Random Statue Training.exe
 
-Each output and verification log is placed beside its original game EXE. Both
-styles can coexist. Original EXEs are never changed, renamed, replaced, or
-deleted. The patcher remembers the selected style, single-game EXE path, and all
-five folder paths.
+For each game, the patcher creates a complete sibling copy of the original game
+folder. The copied folder keeps every original file and subfolder, including the
+stock EXE, and adds the separately named modified EXE and verification log. The
+copy is verified before it is committed. Both styles can coexist in separate
+copied folders. Original folders and EXEs are never changed, renamed, replaced,
+or deleted. The patcher remembers the selected style, single-game EXE path, and
+all five folder paths. Vanilla and Modified links open their respective folders.
 
 SAFE MULTIPLE BIRTHS
 
