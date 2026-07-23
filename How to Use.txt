@@ -8,9 +8,10 @@ VIRTUAL VILLAGERS FUN PATCHER
    - Immediate Fixed Max Pop:
      The absolute maximum is available immediately. Collections no longer
      affect it, and The Secret City's magic tech no longer affects it.
-3. Optional for The Lost Children: check "Easier Healing Mastery" and/or
+3. Optional for A New Home: check "School Lessons Grant Skill".
+4. Optional for The Lost Children: check "Easier Healing Mastery" and/or
    "Teaching Children Grants Skill".
-4. Open "One Game" or "All 5 Games".
+5. Open "One Game" or "All 5 Games".
 
 PATCH ALL FIVE AT ONCE
 
@@ -32,6 +33,9 @@ Collection Progression creates:
 
 Immediate Fixed creates:
 (name of game) - Fixed Max Pop.exe
+
+When School Lessons Grant Skill is selected for VV1, its name adds:
++ School Grants Skill.exe
 
 When Easier Healing Mastery is selected for VV2, its output name adds:
 + Easier Healing.exe

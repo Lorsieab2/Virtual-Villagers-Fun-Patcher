@@ -390,6 +390,27 @@
           "purpose": "award one capped point across the five contiguous skill fields with equal odds, then resume the stock lesson queue"
         }
       ]
+    },
+    {
+      "id": "vv1_school_lessons_grant_skill",
+      "game_id": "vv1",
+      "name": "School Lessons Grant Skill",
+      "description": "Each villager entering the unlocked Going to school activity gains one point in one equally random skill: Farming, Building, Research, Healing, or Parenting.",
+      "output_tag": "School Grants Skill",
+      "patches": [
+        {
+          "offset": "0x44BF2",
+          "before": "6A646A006A00",
+          "after": "E9E919010090",
+          "purpose": "route the unlocked Going to school branch through the one-time random skill award"
+        },
+        {
+          "offset": "0x565E0",
+          "before": "000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "after": "606A64E828C9FAFF83C40499B905000000F7F98D8493B00000008338647D02FF00616A646A006A00E9EBE5FEFF",
+          "purpose": "award one capped point across the five VV1 skill fields, restore all displaced pushes, and resume the stock school queue"
+        }
+      ]
     }
   ]
 }

@@ -205,6 +205,18 @@ class StockIntegrationTests(unittest.TestCase):
             self.assertTrue(log.is_file())
             self.assertTrue(source.is_file())
 
+    def test_vv1_school_lessons_grant_skill_is_guarded_and_additive(self) -> None:
+        feature_id = "vv1_school_lessons_grant_skill"
+        feature = next(patch for patch in load_fun_patches() if patch.id == feature_id)
+        build = next(build for build in load_builds() if build.id == "vv1")
+        source = STOCK / build.input_name
+        rendered, applied = render_patched_bytes(source, build, DEFAULT_PATCH_MODE, [feature_id])
+        self.assertEqual(len(applied), len(build.safety_patches) + len(get_patch_variant(build, DEFAULT_PATCH_MODE)["patches"]) + len(feature.patches))
+        self.assertEqual(bytes(rendered[0x44BF2:0x44BF8]), bytes.fromhex("E9E919010090"))
+        self.assertEqual(bytes(rendered[0x565E0:0x5660D]), bytes.fromhex("606A64E828C9FAFF83C40499B905000000F7F98D8493B00000008338647D02FF00616A646A006A00E9EBE5FEFF"))
+        preview = dry_run(source, DEFAULT_PATCH_MODE, [feature_id])
+        self.assertEqual(preview["output_name"], "Virtual Villagers - A New Home - Modified Max Pop + School Grants Skill.exe")
+
     def test_vv2_easier_healing_mastery_is_guarded_and_additive(self) -> None:
         feature_id = "vv2_easier_healing_mastery"
         feature = next(patch for patch in load_fun_patches() if patch.id == feature_id)

@@ -8,7 +8,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 OUTPUTS = ROOT / "outputs"
-VERSION = "v1.6.0"
+VERSION = "v1.7.0"
 NAME = f"Virtual-Villagers-Fun-Patcher-{VERSION}.zip"
 FILES = [
     "README.md",
@@ -18,6 +18,7 @@ FILES = [
     "docs/max-population-research.md",
     "docs/vv2-easier-healing-research.md",
     "docs/vv2-teaching-children-research.md",
+    "docs/vv1-school-lessons-research.md",
     "src/vv_fun_patcher.py",
     "src/vv_fun_patcher_gui.py",
 ]
