@@ -12,7 +12,8 @@ VIRTUAL VILLAGERS FUN PATCHER
    "Continue Research at Max Technologies".
 4. Optional for The Lost Children: check "Easier Healing Mastery" and/or
    "Teaching Children Grants Skill".
-5. Optional for New Believers: check "Heathen Mommy Puzzle Restoration".
+5. Optional for New Believers: check "Heathen Mommy Puzzle Restoration" and/or
+   "Easier Devotee Training".
 6. Open "One Game" or "All 5 Games".
 
 PATCH ALL FIVE AT ONCE
@@ -50,6 +51,9 @@ When Teaching Children Grants Skill is selected for VV2, its name adds:
 
 When Heathen Mommy Puzzle Restoration is selected for VV5, its name adds:
 + Heathen Mommy.exe
+
+When Easier Devotee Training is selected for VV5, its name adds:
++ Easier Devotee.exe
 
 Each output and verification log is placed beside its original game EXE. Both
 styles can coexist. Original EXEs are never changed, renamed, replaced, or
@@ -90,3 +94,14 @@ both locked and solved bonus-puzzle images. It omits the separate 17th-puzzle
 drawing branch after the standard 16-puzzle grid. This option restores that
 stock branch and uses the real puzzle 17 completion state. It does not change
 the original trigger requirements.
+
+VV5 EASIER DEVOTEE TRAINING
+
+Any villager with positive Devotion skill can spontaneously choose the game's
+original Honoring action. Normally, the autonomous opportunity is confined to
+the Retired Chief job state, while other devotees have to be dropped on the
+upgradeable statue to begin Honoring. The patch checks actual Devotion skill
+instead and keeps the stock idle timing, action queue, and skill-gain behavior.
+It does not directly grant skill or change conversion, statue upgrades, manual
+assignment, or skill thresholds. Spreading the Word remains a Retired Chief
+activity and is not assigned to ordinary devotees.

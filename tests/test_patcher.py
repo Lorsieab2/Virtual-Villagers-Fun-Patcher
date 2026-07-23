@@ -124,6 +124,24 @@ class StockIntegrationTests(unittest.TestCase):
             )
             self.assertEqual(bytes(rendered[offset : offset + len(expected)]), expected)
 
+    def test_vv5_progression_uses_true_135_base_detour(self) -> None:
+        build = next(build for build in load_builds() if build.id == "vv5")
+        rendered, _ = render_patched_bytes(
+            STOCK / build.input_name, build, "collection_progression"
+        )
+        self.assertEqual(
+            bytes(rendered[0x72C49:0x72C50]),
+            bytes.fromhex("E9321802009090"),
+        )
+        self.assertEqual(
+            bytes(rendered[0x94480:0x94493]),
+            bytes.fromhex("81C6870000003BDE0F8CC8E7FDFFE9BDE7FDFF"),
+        )
+        self.assertEqual(
+            [135 + bonus for bonus in (0, 5, 10, 15)],
+            [135, 140, 145, 150],
+        )
+
     def test_saturation_thresholds_fill_but_never_exceed_slots(self) -> None:
         for build in load_builds():
             cap = build.villager_slots
@@ -384,6 +402,80 @@ class StockIntegrationTests(unittest.TestCase):
         self.assertEqual(
             preview["output_name"],
             "Virtual Villagers - New Believers - Modified Max Pop + Heathen Mommy.exe",
+        )
+
+    def test_vv5_easier_devotee_training_is_guarded_and_additive(self) -> None:
+        feature_id = "vv5_easier_devotee_training"
+        feature = next(patch for patch in load_fun_patches() if patch.id == feature_id)
+        build = next(build for build in load_builds() if build.id == "vv5")
+        source = STOCK / build.input_name
+        rendered, applied = render_patched_bytes(
+            source, build, DEFAULT_PATCH_MODE, [feature_id]
+        )
+        self.assertEqual(
+            len(applied),
+            len(build.safety_patches)
+            + len(get_patch_variant(build, DEFAULT_PATCH_MODE)["patches"])
+            + len(feature.patches),
+        )
+        self.assertEqual(
+            bytes(rendered[0x6F1DD:0x6F1E6]),
+            bytes.fromhex("E91E52020090909090"),
+        )
+        self.assertEqual(
+            bytes(rendered[0x6F1F5:0x6F1FC]),
+            bytes.fromhex("E9465202009090"),
+        )
+        self.assertEqual(
+            bytes(rendered[0x94400:0x9441B]),
+            bytes.fromhex(
+                "83B9FC1C00000D74083999701C00007E05E9D0ADFDFFE91FAEFDFF"
+            ),
+        )
+        self.assertEqual(
+            bytes(rendered[0x94440:0x94460]),
+            bytes.fromhex(
+                "8B8E881B000083B9FC1C00000D7405E9BAADFDFF6A64E805F2F6FFE99CADFDFF"
+            ),
+        )
+        preview = dry_run(source, DEFAULT_PATCH_MODE, [feature_id])
+        self.assertEqual(preview["fun_patches"], [feature_id])
+        self.assertEqual(
+            preview["output_name"],
+            "Virtual Villagers - New Believers - Modified Max Pop + Easier Devotee.exe",
+        )
+
+    def test_vv5_fun_patches_combine_without_overlap(self) -> None:
+        feature_ids = [
+            "vv5_heathen_mommy_puzzle",
+            "vv5_easier_devotee_training",
+        ]
+        build = next(build for build in load_builds() if build.id == "vv5")
+        source = STOCK / build.input_name
+        rendered, applied = render_patched_bytes(
+            source, build, DEFAULT_PATCH_MODE, feature_ids
+        )
+        feature_patch_count = sum(
+            len(patch.patches)
+            for patch in load_fun_patches()
+            if patch.id in feature_ids
+        )
+        self.assertEqual(
+            len(applied),
+            len(build.safety_patches)
+            + len(get_patch_variant(build, DEFAULT_PATCH_MODE)["patches"])
+            + feature_patch_count,
+        )
+        self.assertEqual(bytes(rendered[0x48F16:0x48F1B]), bytes.fromhex("E965B40400"))
+        self.assertEqual(bytes(rendered[0x6F1DD:0x6F1E6]), bytes.fromhex("E91E52020090909090"))
+        self.assertEqual(bytes(rendered[0x94440:0x94460]), bytes.fromhex(
+            "8B8E881B000083B9FC1C00000D7405E9BAADFDFF6A64E805F2F6FFE99CADFDFF"
+        ))
+        preview = dry_run(source, DEFAULT_PATCH_MODE, feature_ids)
+        self.assertEqual(preview["fun_patches"], feature_ids)
+        self.assertEqual(
+            preview["output_name"],
+            "Virtual Villagers - New Believers - Modified Max Pop + Heathen Mommy + Easier Devotee.exe",
         )
 
     def test_bulk_feature_applies_only_to_its_game(self) -> None:

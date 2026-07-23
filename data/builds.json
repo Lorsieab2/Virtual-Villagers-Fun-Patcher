@@ -288,10 +288,16 @@
           "bonuses_affect_maximum": true,
           "patches": [
             {
-              "offset": "0x72C4B",
-              "before": "5A",
-              "after": "87",
-              "purpose": "use base 135 plus the original maximum 15 collection bonus"
+              "offset": "0x72C49",
+              "before": "83C65A3BDE7C06",
+              "after": "E9321802009090",
+              "purpose": "route the signed 8-bit stock base addition through a true 135-base calculation"
+            },
+            {
+              "offset": "0x94480",
+              "before": "00000000000000000000000000000000000000",
+              "after": "81C6870000003BDE0F8CC8E7FDFFE9BDE7FDFF",
+              "purpose": "add base 135 with a 32-bit immediate, preserve the 0-15 collection bonus, and resume the stock housing gates"
             }
           ]
         },
@@ -445,6 +451,39 @@
           "before": "000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
           "after": "6A11B908E05100E8F46AFAFF84C07416E81BB8FBFF68C501000068710300006858010000EB14E805B8FBFF68C5010000687103000068570100008BC8E88FB8FBFF8B4F0850E8661AF7FFB9680F5200E9474BFBFF",
           "purpose": "draw the stock locked or solved bonus graphic from puzzle 17 state, then resume the original Puzzles screen"
+        }
+      ]
+    },
+    {
+      "id": "vv5_easier_devotee_training",
+      "game_id": "vv5",
+      "name": "Easier Devotee Training",
+      "description": "Villagers with Devotion skill can spontaneously use the stock Honoring action instead of that autonomous opportunity being confined to the Retired Chief.",
+      "output_tag": "Easier Devotee",
+      "patches": [
+        {
+          "offset": "0x6F1DD",
+          "before": "83B9FC1C00000D7554",
+          "after": "E91E52020090909090",
+          "purpose": "route autonomous eligibility through a guarded Retired Chief-or-positive-Devotion predicate"
+        },
+        {
+          "offset": "0x6F1F5",
+          "before": "6A64E86444F9FF",
+          "after": "E9465202009090",
+          "purpose": "route the stock Honoring-or-Spreading choice through a Retired Chief discriminator"
+        },
+        {
+          "offset": "0x94400",
+          "before": "000000000000000000000000000000000000000000000000000000",
+          "after": "83B9FC1C00000D74083999701C00007E05E9D0ADFDFFE91FAEFDFF",
+          "purpose": "preserve Retired Chief eligibility while also allowing villagers whose actual Devotion skill is positive"
+        },
+        {
+          "offset": "0x94440",
+          "before": "0000000000000000000000000000000000000000000000000000000000000000",
+          "after": "8B8E881B000083B9FC1C00000D7405E9BAADFDFF6A64E805F2F6FFE99CADFDFF",
+          "purpose": "preserve the Retired Chief's stock random Honoring-or-Spreading choice while sending all newly eligible devotees only to Honoring"
         }
       ]
     }

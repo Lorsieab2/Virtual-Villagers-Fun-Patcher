@@ -41,6 +41,12 @@ Enable **Heathen Mommy Puzzle Restoration (VV5)** to restore the hidden 17th Hea
 
 The patch restores that one stock rendering branch using puzzle 17's actual completion state and the modern executable's retained images. It does not invent a replacement puzzle or change the original trigger requirements. Its output name adds `+ Heathen Mommy.exe`.
 
+## VV5: Easier Devotee Training
+
+Enable **Easier Devotee Training (VV5)** so any villager with positive Devotion skill can spontaneously choose the game's original **Honoring** action. The stock autonomous opportunity is confined to the Retired Chief job state; other devotees normally have to be dropped on the upgradeable statue to begin Honoring. This patch checks actual Devotion skill instead.
+
+The normal idle scheduler and its existing timing chance remain unchanged. The patch reuses the stock Honoring action queue and skill-gain behavior, does not grant Devotion directly, and does not alter conversion, statue upgrades, manual statue assignment, or Devotion thresholds. **Spreading the Word remains a Retired Chief activity and is not assigned to ordinary devotees.** Its output name adds `+ Easier Devotee.exe`.
+
 | Game | Stock final maximum | Collection Progression maximum | Immediate Fixed maximum |
 |---|---:|---:|---:|
 | A New Home | 90 | 256 | 256 |
@@ -87,7 +93,7 @@ No game executable, save, extracted asset, or generated output is committed to t
 
 ## Command line
 
-Pass `--patch-mode collection_progression` or `--patch-mode immediate_fixed` to `dry-run`, `apply`, `dry-run-all`, or `apply-all`. Optional features use repeatable `--fun-patch` arguments: `vv1_school_lessons_grant_skill`, `vv1_continue_research_at_max_technologies`, `vv2_easier_healing_mastery`, `vv2_teaching_children_grants_skill`, and `vv5_heathen_mommy_puzzle`.
+Pass `--patch-mode collection_progression` or `--patch-mode immediate_fixed` to `dry-run`, `apply`, `dry-run-all`, or `apply-all`. Optional features use repeatable `--fun-patch` arguments: `vv1_school_lessons_grant_skill`, `vv1_continue_research_at_max_technologies`, `vv2_easier_healing_mastery`, `vv2_teaching_children_grants_skill`, `vv5_heathen_mommy_puzzle`, and `vv5_easier_devotee_training`.
 
 ```text
 python src/vv_fun_patcher.py dry-run "path\game.exe" --patch-mode immediate_fixed
@@ -95,4 +101,4 @@ python src/vv_fun_patcher.py apply "path\game.exe" --patch-mode collection_progr
 python src/vv_fun_patcher.py apply-all --vv1 "path\vv1 folder" --vv2 "path\vv2 folder" --vv3 "path\vv3 folder" --vv4 "path\vv4 folder" --vv5 "path\vv5 folder" --patch-mode immediate_fixed
 ```
 
-Technical evidence is in `docs/max-population-research.md`, `docs/vv2-easier-healing-research.md`, `docs/vv2-teaching-children-research.md`, `docs/vv1-school-lessons-research.md`, `docs/vv1-max-tech-research.md`, and `docs/vv5-heathen-mommy-research.md`.
+Technical evidence is in `docs/max-population-research.md`, `docs/vv2-easier-healing-research.md`, `docs/vv2-teaching-children-research.md`, `docs/vv1-school-lessons-research.md`, `docs/vv1-max-tech-research.md`, `docs/vv5-heathen-mommy-research.md`, and `docs/vv5-easier-devotee-research.md`.

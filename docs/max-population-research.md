@@ -28,6 +28,8 @@ Slot evidence:
 - The Tree of Life: `0x468350`. Progression changes base 90 to 125 and preserves the 0-25 collection accumulator. Fixed sets it to 60 before stock +90.
 - New Believers: `0x472BD0`. Progression changes base 90 to 135 and preserves the 0-15 collection accumulator. Fixed sets it to 60 before stock +90.
 
+New Believers' stock `add esi, 0x5A` uses a sign-extended 8-bit immediate. A value above 127 cannot be substituted into that instruction: byte `0x87` means -121, not +135. Progression therefore detours the complete add/compare/branch sequence at file offset `0x72C49` to guarded padding at `0x94480`, performs `add esi, 0x00000087` with a 32-bit immediate, reproduces the comparison, and returns to the original housing-gate path. This yields 135, 140, 145, or 150 for collection bonuses 0, 5, 10, or 15.
+
 Collection completion itself is never modified.
 
 ## Twins and triplets at maximum minus one
