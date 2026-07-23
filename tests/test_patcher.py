@@ -404,6 +404,39 @@ class StockIntegrationTests(unittest.TestCase):
             "Virtual Villagers - New Believers - Modified Max Pop + Heathen Mommy.exe",
         )
 
+    def test_vv3_nature_level_one_improves_honey_refill(self) -> None:
+        feature_id = "vv3_nature_honey_refill"
+        feature = next(patch for patch in load_fun_patches() if patch.id == feature_id)
+        build = next(build for build in load_builds() if build.id == "vv3")
+        source = STOCK / build.input_name
+        rendered, applied = render_patched_bytes(
+            source, build, DEFAULT_PATCH_MODE, [feature_id]
+        )
+        self.assertEqual(
+            len(applied),
+            len(build.safety_patches)
+            + len(get_patch_variant(build, DEFAULT_PATCH_MODE)["patches"])
+            + len(feature.patches),
+        )
+        self.assertEqual(
+            bytes(rendered[0x319F9:0x31A09]),
+            bytes.fromhex("E9A29804009090909090909090909090"),
+        )
+        self.assertEqual(
+            bytes(rendered[0x7B2A0:0x7B2E0]),
+            bytes.fromhex(
+                "8B560C2BC2506A05B918265800E80EBDFAFF83F801587C15"
+                "B954000000F7E1B950080200F7F18BD0E93C67FBFF8BD0D1"
+                "E2B8C5B3A291F7E2C1EA0BE92967FBFF"
+            ),
+        )
+        preview = dry_run(source, DEFAULT_PATCH_MODE, [feature_id])
+        self.assertEqual(preview["fun_patches"], [feature_id])
+        self.assertEqual(
+            preview["output_name"],
+            "Virtual Villagers - The Secret City - Modified Max Pop + Nature Honey Refill.exe",
+        )
+
     def test_vv5_easier_devotee_training_is_guarded_and_additive(self) -> None:
         feature_id = "vv5_easier_devotee_training"
         feature = next(patch for patch in load_fun_patches() if patch.id == feature_id)

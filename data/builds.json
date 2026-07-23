@@ -434,6 +434,27 @@
       ]
     },
     {
+      "id": "vv3_nature_honey_refill",
+      "game_id": "vv3",
+      "name": "Nature Level 1 Improves Honey Refill",
+      "description": "Nature level 1 or higher gives the honey resource the same proportional refill-rate improvement that it gives the fruit trees.",
+      "output_tag": "Nature Honey Refill",
+      "patches": [
+        {
+          "offset": "0x319F9",
+          "before": "8B4E0C8BD02BD1D1E2B8C5B3A291F7E2",
+          "after": "E9A29804009090909090909090909090",
+          "purpose": "route honey refill arithmetic through a guarded Nature-technology multiplier"
+        },
+        {
+          "offset": "0x7B2A0",
+          "before": "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "after": "8B560C2BC2506A05B918265800E80EBDFAFF83F801587C15B954000000F7E1B950080200F7F18BD0E93C67FBFF8BD0D1E2B8C5B3A291F7E2C1EA0BE92967FBFF",
+          "purpose": "preserve the stock honey rate at Nature 0 and apply the fruit trees' exact 42-to-37 proportional improvement at Nature level 1 or higher"
+        }
+      ]
+    },
+    {
       "id": "vv5_heathen_mommy_puzzle",
       "game_id": "vv5",
       "name": "Heathen Mommy Puzzle Restoration",

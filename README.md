@@ -41,6 +41,12 @@ Enable **Heathen Mommy Puzzle Restoration (VV5)** to restore the hidden 17th Hea
 
 The patch restores that one stock rendering branch using puzzle 17's actual completion state and the modern executable's retained images. It does not invent a replacement puzzle or change the original trigger requirements. Its output name adds `+ Heathen Mommy.exe`.
 
+## VV3: Nature Level 1 Improves Honey Refill
+
+Enable **Nature Level 1 Improves Honey Refill (VV3)** so Nature level 1 or higher improves honey regeneration by the same proportional amount used by the stock fruit-tree refill routine. Nature level 0 retains the original honey rate. The existing one-hour honey update threshold and 3,000-unit cap remain unchanged.
+
+The patch does not change honey harvesting, initial honey, the honey display, fruit-tree behavior, or Nature technology progression. Its output name adds `+ Nature Honey Refill.exe`.
+
 ## VV5: Easier Devotee Training
 
 Enable **Easier Devotee Training (VV5)** so any villager with positive Devotion skill can spontaneously choose the game's original **Honoring** action. The stock autonomous opportunity is confined to the Retired Chief job state; other devotees normally have to be dropped on the upgradeable statue to begin Honoring. This patch checks actual Devotion skill instead.
@@ -99,7 +105,7 @@ No game executable, save, extracted asset, or generated output is committed to t
 
 ## Command line
 
-Pass `--patch-mode collection_progression` or `--patch-mode immediate_fixed` to `dry-run`, `apply`, `dry-run-all`, or `apply-all`. Optional features use repeatable `--fun-patch` arguments: `vv1_school_lessons_grant_skill`, `vv1_continue_research_at_max_technologies`, `vv2_easier_healing_mastery`, `vv2_teaching_children_grants_skill`, `vv5_heathen_mommy_puzzle`, `vv5_easier_devotee_training`, and `vv5_statue_polishing_or_honoring`.
+Pass `--patch-mode collection_progression` or `--patch-mode immediate_fixed` to `dry-run`, `apply`, `dry-run-all`, or `apply-all`. Optional features use repeatable `--fun-patch` arguments: `vv1_school_lessons_grant_skill`, `vv1_continue_research_at_max_technologies`, `vv2_easier_healing_mastery`, `vv2_teaching_children_grants_skill`, `vv3_nature_honey_refill`, `vv5_heathen_mommy_puzzle`, `vv5_easier_devotee_training`, and `vv5_statue_polishing_or_honoring`.
 
 ```text
 python src/vv_fun_patcher.py dry-run "path\game.exe" --patch-mode immediate_fixed
@@ -107,4 +113,4 @@ python src/vv_fun_patcher.py apply "path\game.exe" --patch-mode collection_progr
 python src/vv_fun_patcher.py apply-all --vv1 "path\vv1 folder" --vv2 "path\vv2 folder" --vv3 "path\vv3 folder" --vv4 "path\vv4 folder" --vv5 "path\vv5 folder" --patch-mode immediate_fixed
 ```
 
-Technical evidence is in `docs/max-population-research.md`, `docs/vv2-easier-healing-research.md`, `docs/vv2-teaching-children-research.md`, `docs/vv1-school-lessons-research.md`, `docs/vv1-max-tech-research.md`, `docs/vv5-heathen-mommy-research.md`, `docs/vv5-easier-devotee-research.md`, and `docs/vv5-statue-training-research.md`.
+Technical evidence is in `docs/max-population-research.md`, `docs/vv2-easier-healing-research.md`, `docs/vv2-teaching-children-research.md`, `docs/vv1-school-lessons-research.md`, `docs/vv1-max-tech-research.md`, `docs/vv3-nature-honey-research.md`, `docs/vv5-heathen-mommy-research.md`, `docs/vv5-easier-devotee-research.md`, and `docs/vv5-statue-training-research.md`.

@@ -12,10 +12,12 @@ VIRTUAL VILLAGERS FUN PATCHER
    "Continue Research at Max Technologies".
 4. Optional for The Lost Children: check "Easier Healing Mastery" and/or
    "Teaching Children Grants Skill".
-5. Optional for New Believers: check "Heathen Mommy Puzzle Restoration" and/or
+5. Optional for The Secret City: check
+   "Nature Level 1 Improves Honey Refill".
+6. Optional for New Believers: check "Heathen Mommy Puzzle Restoration" and/or
    "Easier Devotee Training" and/or
    "Statue Drops: Polishing or Honoring".
-6. Open "One Game" or "All 5 Games".
+7. Open "One Game" or "All 5 Games".
 
 PATCH ALL FIVE AT ONCE
 
@@ -49,6 +51,9 @@ When Easier Healing Mastery is selected for VV2, its output name adds:
 
 When Teaching Children Grants Skill is selected for VV2, its name adds:
 + Teaching Grants Skill.exe
+
+When Nature Level 1 Improves Honey Refill is selected for VV3, its name adds:
++ Nature Honey Refill.exe
 
 When Heathen Mommy Puzzle Restoration is selected for VV5, its name adds:
 + Heathen Mommy.exe
@@ -89,6 +94,14 @@ Whenever the stock Teaching Children activity enrolls a child as Attending
 Lessons, that child gains one point in one equally random skill: Farming,
 Building, Research, Healing, or Parenting. Skills remain capped at 100. The
 patch does not change who teaches, who attends, or how often lessons happen.
+
+VV3 NATURE LEVEL 1 IMPROVES HONEY REFILL
+
+Nature level 1 or higher improves honey regeneration by the same proportional
+amount used by the game's fruit-tree refill routine. Nature level 0 keeps the
+stock honey rate. The one-hour honey update threshold and 3,000-unit cap remain
+unchanged. The patch does not change honey harvesting, initial honey, the honey
+display, fruit trees, or Nature technology progression.
 
 VV5 HEATHEN MOMMY PUZZLE RESTORATION
 
