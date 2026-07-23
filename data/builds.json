@@ -206,6 +206,30 @@
           "before": "00000000000000000000000000000000000000000000000000000000000000",
           "after": "813DA8245800940000000F8F5DA9FDFFC786900E000002000000E948A9FDFF",
           "purpose": "keep twins only when two villager slots remain"
+        },
+        {
+          "offset": "0x14D90",
+          "before": "566858020000",
+          "after": "E94B65060090",
+          "purpose": "recheck the 150-slot physical limit before an Island Event creates its first adult"
+        },
+        {
+          "offset": "0x7B2E0",
+          "before": "000000000000000000000000000000000000000000000000",
+          "after": "813DA8245800960000007D0B566858020000E99F9AF9FFC3",
+          "purpose": "skip the event newcomer at physical capacity or resume the complete stock outcome below capacity"
+        },
+        {
+          "offset": "0x15320",
+          "before": "68C8000000",
+          "after": "E9DB5F0600",
+          "purpose": "recheck the 150-slot physical limit before the barrel event creates its first child"
+        },
+        {
+          "offset": "0x7B300",
+          "before": "0000000000000000000000000000000000000000000000",
+          "after": "813DA8245800960000007D0A68C8000000E90FA0F9FFC3",
+          "purpose": "skip the first barrel child at physical capacity while retaining the stock later-child cap checks"
         }
       ]
     },
@@ -269,6 +293,30 @@
           "before": "00000000000000000000000000000000000000000000000000000000000000",
           "after": "813DE86D4D00940000000F8F9458FDFFC786501C000002000000E97E58FDFF",
           "purpose": "keep twins only when two villager slots remain"
+        },
+        {
+          "offset": "0x148B0",
+          "before": "566858020000",
+          "after": "E9AB47070090",
+          "purpose": "recheck the 150-slot physical limit before an Island Event creates its first adult"
+        },
+        {
+          "offset": "0x89060",
+          "before": "000000000000000000000000000000000000000000000000",
+          "after": "813DE86D4D00960000007D0B566858020000E93FB8F8FFC3",
+          "purpose": "skip the event newcomer at physical capacity or resume the complete stock outcome below capacity"
+        },
+        {
+          "offset": "0x14D90",
+          "before": "68C8000000",
+          "after": "E9EB420700",
+          "purpose": "recheck the 150-slot physical limit before the Daredevil Barrel creates its first child"
+        },
+        {
+          "offset": "0x89080",
+          "before": "0000000000000000000000000000000000000000000000",
+          "after": "813DE86D4D00960000007D0A68C8000000E9FFBCF8FFC3",
+          "purpose": "skip the first barrel child at physical capacity while retaining the stock later-child cap checks"
         }
       ]
     },
@@ -356,6 +404,42 @@
           "before": "000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
           "after": "515233C0B990415500BA9600000080B9D41C00000074104083B94C1C00000074060381501C000081C1442F00004A75DE5A59C3",
           "purpose": "count all active VV5 villager records plus nursing babies that still require future records, independent of believer or Heathen faction"
+        },
+        {
+          "offset": "0x151D0",
+          "before": "68C8000000",
+          "after": "E98BF30700",
+          "purpose": "recheck all occupied and reserved slots before Barrel O' Babies creates its first believer child"
+        },
+        {
+          "offset": "0x94560",
+          "before": "0000000000000000000000000000000000000000000000",
+          "after": "E85BFFFFFF3D960000007D0A68C8000000E95F0CF8FFC3",
+          "purpose": "skip the first believer child at 150 physical slots and otherwise resume the stock event"
+        },
+        {
+          "offset": "0x152B0",
+          "before": "6AC96A006A00",
+          "after": "E9CBF2070090",
+          "purpose": "recheck all occupied and reserved slots before Barrel O' Heathen Babies creates its first Heathen child"
+        },
+        {
+          "offset": "0x94580",
+          "before": "000000000000000000000000000000000000000000000000",
+          "after": "E83BFFFFFF3D960000007D0B6AC96A006A00E91F0DF8FFC3",
+          "purpose": "skip the first Heathen child at 150 physical slots and otherwise resume the stock event"
+        },
+        {
+          "offset": "0x15410",
+          "before": "68C8000000",
+          "after": "E98BF10700",
+          "purpose": "recheck all occupied and reserved slots before Chutes Without Ladders creates its first child"
+        },
+        {
+          "offset": "0x945A0",
+          "before": "0000000000000000000000000000000000000000000000",
+          "after": "E81BFFFFFF3D960000007D0A68C8000000E95F0EF8FFC3",
+          "purpose": "skip the first Chutes child at 150 physical slots and otherwise resume the stock event"
         }
       ]
     }

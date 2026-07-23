@@ -44,10 +44,14 @@ class ManifestTests(unittest.TestCase):
         self.assertEqual(DEFAULT_PATCH_MODE, "collection_progression")
         for build in builds:
             self.assertEqual(build.absolute_maximum, build.villager_slots)
-            self.assertEqual(
-                len(build.safety_patches),
-                5 if build.id == "vv5" else 4,
-            )
+            expected_safety_counts = {
+                "vv1": 4,
+                "vv2": 4,
+                "vv3": 8,
+                "vv4": 8,
+                "vv5": 11,
+            }
+            self.assertEqual(len(build.safety_patches), expected_safety_counts[build.id])
             for mode in MODES:
                 variant = get_patch_variant(build, mode)
                 suffix = "Modified Max Pop.exe" if mode == MODES[0] else "Fixed Max Pop.exe"
@@ -207,6 +211,43 @@ class StockIntegrationTests(unittest.TestCase):
                     self.assertGreaterEqual(delivered, 1)
                     self.assertLessEqual(population + delivered, cap)
                     self.assertEqual(population + delivered, min(population + rolled, cap))
+
+    def test_vv3_to_vv5_first_event_arrivals_recheck_physical_capacity(self) -> None:
+        checks = {
+            "vv3": {
+                0x14D90: "E94B65060090",
+                0x15320: "E9DB5F0600",
+                0x7B2E0: "813DA824580096000000",
+                0x7B300: "813DA824580096000000",
+            },
+            "vv4": {
+                0x148B0: "E9AB47070090",
+                0x14D90: "E9EB420700",
+                0x89060: "813DE86D4D0096000000",
+                0x89080: "813DE86D4D0096000000",
+            },
+            "vv5": {
+                0x151D0: "E98BF30700",
+                0x152B0: "E9CBF2070090",
+                0x15410: "E98BF10700",
+                0x94560: "E85BFFFFFF3D96000000",
+                0x94580: "E83BFFFFFF3D96000000",
+                0x945A0: "E81BFFFFFF3D96000000",
+            },
+        }
+        for build in load_builds():
+            if build.id not in checks:
+                continue
+            rendered, _ = render_patched_bytes(
+                STOCK / build.input_name, build, DEFAULT_PATCH_MODE
+            )
+            for offset, expected_hex in checks[build.id].items():
+                expected = bytes.fromhex(expected_hex)
+                self.assertEqual(
+                    bytes(rendered[offset : offset + len(expected)]),
+                    expected,
+                    (build.id, hex(offset)),
+                )
 
     def test_both_outputs_coexist_beside_originals(self) -> None:
         with tempfile.TemporaryDirectory() as temp:
