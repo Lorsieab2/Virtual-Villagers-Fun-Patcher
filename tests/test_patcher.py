@@ -245,13 +245,52 @@ class StockIntegrationTests(unittest.TestCase):
         self.assertEqual(preview["output_name"], "Virtual Villagers - A New Home - Modified Max Pop + Continue Max-Tech Research.exe")
 
     def test_vv1_fun_patches_combine_without_overlap(self) -> None:
-        feature_ids = ["vv1_school_lessons_grant_skill", "vv1_continue_research_at_max_technologies"]
+        feature_ids = [
+            "vv1_school_lessons_grant_skill",
+            "vv1_continue_research_at_max_technologies",
+            "vv1_f6_clothing_change_cheat",
+        ]
         build = next(build for build in load_builds() if build.id == "vv1")
         rendered, _ = render_patched_bytes(STOCK / build.input_name, build, DEFAULT_PATCH_MODE, feature_ids)
         self.assertEqual(bytes(rendered[0x44BF2:0x44BF8]), bytes.fromhex("E9E919010090"))
         self.assertEqual(rendered[0x47488], 0x13)
+        self.assertEqual(rendered[0x20057], 0)
+        self.assertEqual(bytes(rendered[0x1FF2E:0x1FF34]), bytes.fromhex("E9ED66030090"))
         preview = dry_run(STOCK / build.input_name, DEFAULT_PATCH_MODE, feature_ids)
-        self.assertEqual(preview["output_name"], "Virtual Villagers - A New Home - Modified Max Pop + School Grants Skill + Continue Max-Tech Research.exe")
+        self.assertEqual(preview["output_name"], "Virtual Villagers - A New Home - Modified Max Pop + School Grants Skill + Continue Max-Tech Research + F6 Clothing Cheat.exe")
+
+    def test_vv1_f6_clothing_cheat_is_guarded_and_wraps(self) -> None:
+        feature_id = "vv1_f6_clothing_change_cheat"
+        feature = next(patch for patch in load_fun_patches() if patch.id == feature_id)
+        build = next(build for build in load_builds() if build.id == "vv1")
+        source = STOCK / build.input_name
+        rendered, applied = render_patched_bytes(
+            source, build, DEFAULT_PATCH_MODE, [feature_id]
+        )
+        self.assertEqual(
+            len(applied),
+            len(build.safety_patches)
+            + len(get_patch_variant(build, DEFAULT_PATCH_MODE)["patches"])
+            + len(feature.patches),
+        )
+        self.assertEqual(rendered[0x20057], 0)
+        self.assertEqual(
+            bytes(rendered[0x1FF2E:0x1FF34]), bytes.fromhex("E9ED66030090")
+        )
+        self.assertEqual(
+            bytes(rendered[0x56620:0x5666D]),
+            bytes.fromhex(
+                "817C2420FF03000075388B46108B8034AD00003DFF0000007723"
+                "69C0D80300000346208078280074148B88640300004183F9147C02"
+                "33C9898864030000E94F99FCFF8B86F8020000E9C798FCFF"
+            ),
+        )
+        preview = dry_run(source, DEFAULT_PATCH_MODE, [feature_id])
+        self.assertEqual(preview["fun_patches"], [feature_id])
+        self.assertEqual(
+            preview["output_name"],
+            "Virtual Villagers - A New Home - Modified Max Pop + F6 Clothing Cheat.exe",
+        )
 
     def test_vv2_easier_healing_mastery_is_guarded_and_additive(self) -> None:
         feature_id = "vv2_easier_healing_mastery"

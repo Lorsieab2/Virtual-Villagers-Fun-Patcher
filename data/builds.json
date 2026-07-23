@@ -434,6 +434,33 @@
       ]
     },
     {
+      "id": "vv1_f6_clothing_change_cheat",
+      "game_id": "vv1",
+      "name": "Reenable F6 Clothing Change Cheat",
+      "description": "Pressing F6 cycles the selected active villager to the next stock outfit and wraps from outfit 19 back to outfit 0.",
+      "output_tag": "F6 Clothing Cheat",
+      "patches": [
+        {
+          "offset": "0x20057",
+          "before": "01",
+          "after": "00",
+          "purpose": "route the retained internal F6 event through a guarded gameplay-key branch"
+        },
+        {
+          "offset": "0x1FF2E",
+          "before": "8B86F8020000",
+          "after": "E9ED66030090",
+          "purpose": "detour the shared gameplay-key branch so F6 can be distinguished from its original key"
+        },
+        {
+          "offset": "0x56620",
+          "before": "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "after": "817C2420FF03000075388B46108B8034AD00003DFF000000772369C0D80300000346208078280074148B88640300004183F9147C0233C9898864030000E94F99FCFF8B86F8020000E9C798FCFF",
+          "purpose": "increment the selected active villager's stock clothing index, wrap 19 to 0, and preserve the original non-F6 key behavior"
+        }
+      ]
+    },
+    {
       "id": "vv3_nature_honey_refill",
       "game_id": "vv3",
       "name": "Nature Level 1 Improves Honey Refill",

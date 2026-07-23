@@ -29,6 +29,12 @@ Enable **School Lessons Grant Skill (VV1)** to reward a villager once whenever t
 
 Enable **Continue Research at Max Technologies (VV1)** so researchers remain eligible for the stock research action after all six technologies reach level 3. They continue using the original research queue, Research skill, Science-technology multiplier, and tech-point award routine. Its output name adds `+ Continue Max-Tech Research.exe`.
 
+## VV1: Reenable F6 Clothing Change Cheat
+
+Enable **Reenable F6 Clothing Change Cheat (VV1)** so pressing F6 advances the selected active villager to the next stock outfit. The cycle covers the game's ordinary clothing indices 0 through 19 and wraps from 19 back to 0. Pressing F6 without a valid active selection changes nothing.
+
+The patch does not alter heads, sex, age, skills, health, jobs, movement, actions, or clothing assets. F7, F8, and all non-F6 keys retain their original behavior. Its output name adds `+ F6 Clothing Cheat.exe`.
+
 ## VV2: Teaching Children Grants Skill
 
 Enable **Teaching Children Grants Skill (VV2)** to make the stock Teaching Children activity reward every attending child once when the lesson begins. Each attendee gains exactly one point in Farming, Building, Research, Healing, or Parenting. All five choices have equal odds, and a skill already at 100 is left at 100.
@@ -105,7 +111,7 @@ No game executable, save, extracted asset, or generated output is committed to t
 
 ## Command line
 
-Pass `--patch-mode collection_progression` or `--patch-mode immediate_fixed` to `dry-run`, `apply`, `dry-run-all`, or `apply-all`. Optional features use repeatable `--fun-patch` arguments: `vv1_school_lessons_grant_skill`, `vv1_continue_research_at_max_technologies`, `vv2_easier_healing_mastery`, `vv2_teaching_children_grants_skill`, `vv3_nature_honey_refill`, `vv5_heathen_mommy_puzzle`, `vv5_easier_devotee_training`, and `vv5_statue_polishing_or_honoring`.
+Pass `--patch-mode collection_progression` or `--patch-mode immediate_fixed` to `dry-run`, `apply`, `dry-run-all`, or `apply-all`. Optional features use repeatable `--fun-patch` arguments: `vv1_school_lessons_grant_skill`, `vv1_continue_research_at_max_technologies`, `vv1_f6_clothing_change_cheat`, `vv2_easier_healing_mastery`, `vv2_teaching_children_grants_skill`, `vv3_nature_honey_refill`, `vv5_heathen_mommy_puzzle`, `vv5_easier_devotee_training`, and `vv5_statue_polishing_or_honoring`.
 
 ```text
 python src/vv_fun_patcher.py dry-run "path\game.exe" --patch-mode immediate_fixed
@@ -113,4 +119,4 @@ python src/vv_fun_patcher.py apply "path\game.exe" --patch-mode collection_progr
 python src/vv_fun_patcher.py apply-all --vv1 "path\vv1 folder" --vv2 "path\vv2 folder" --vv3 "path\vv3 folder" --vv4 "path\vv4 folder" --vv5 "path\vv5 folder" --patch-mode immediate_fixed
 ```
 
-Technical evidence is in `docs/max-population-research.md`, `docs/vv2-easier-healing-research.md`, `docs/vv2-teaching-children-research.md`, `docs/vv1-school-lessons-research.md`, `docs/vv1-max-tech-research.md`, `docs/vv3-nature-honey-research.md`, `docs/vv5-heathen-mommy-research.md`, `docs/vv5-easier-devotee-research.md`, and `docs/vv5-statue-training-research.md`.
+Technical evidence is in `docs/max-population-research.md`, `docs/vv2-easier-healing-research.md`, `docs/vv2-teaching-children-research.md`, `docs/vv1-school-lessons-research.md`, `docs/vv1-max-tech-research.md`, `docs/vv1-f6-clothing-research.md`, `docs/vv3-nature-honey-research.md`, `docs/vv5-heathen-mommy-research.md`, `docs/vv5-easier-devotee-research.md`, and `docs/vv5-statue-training-research.md`.

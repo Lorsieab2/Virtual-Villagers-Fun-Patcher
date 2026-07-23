@@ -8,8 +8,9 @@ VIRTUAL VILLAGERS FUN PATCHER
    - Immediate Fixed Max Pop:
      The absolute maximum is available immediately. Collections no longer
      affect it, and The Secret City's magic tech no longer affects it.
-3. Optional for A New Home: check "School Lessons Grant Skill" and/or
-   "Continue Research at Max Technologies".
+3. Optional for A New Home: check "School Lessons Grant Skill",
+   "Continue Research at Max Technologies", and/or
+   "Reenable F6 Clothing Change Cheat".
 4. Optional for The Lost Children: check "Easier Healing Mastery" and/or
    "Teaching Children Grants Skill".
 5. Optional for The Secret City: check
@@ -45,6 +46,9 @@ When School Lessons Grant Skill is selected for VV1, its name adds:
 
 When Continue Research at Max Technologies is selected for VV1, its name adds:
 + Continue Max-Tech Research.exe
+
+When Reenable F6 Clothing Change Cheat is selected for VV1, its name adds:
++ F6 Clothing Cheat.exe
 
 When Easier Healing Mastery is selected for VV2, its output name adds:
 + Easier Healing.exe
@@ -87,6 +91,14 @@ When a healer or a villager who prefers Healing has no sick villager to treat,
 the patch sends that villager into the game's existing plant-study work state.
 That persistent state is used during normal play and time catch-up. Normal
 healing, sickness, food, skill gains, and plant availability are unchanged.
+
+VV1 REENABLE F6 CLOTHING CHANGE CHEAT
+
+Press F6 to advance the selected active villager to the next stock outfit. The
+cycle uses clothing indices 0 through 19 and wraps from 19 back to 0. Nothing
+changes if no active villager is selected. The patch does not change heads,
+sex, age, skills, health, jobs, actions, or clothing assets. All non-F6 keys
+retain their original behavior.
 
 VV2 TEACHING CHILDREN GRANTS SKILL
 
