@@ -486,6 +486,45 @@
           "purpose": "preserve the Retired Chief's stock random Honoring-or-Spreading choice while sending all newly eligible devotees only to Honoring"
         }
       ]
+    },
+    {
+      "id": "vv5_statue_polishing_or_honoring",
+      "game_id": "vv5",
+      "name": "Statue Drops: Polishing or Honoring",
+      "description": "Dropping a villager on the upgradeable or completed statue chooses with equal odds between the stock Polishing the Statue and Honoring activities.",
+      "output_tag": "Random Statue Training",
+      "patches": [
+        {
+          "offset": "0x6C45D",
+          "before": "68A0000000",
+          "after": "E83E800200",
+          "purpose": "route the first manual statue-drop Honoring dispatch through the shared 50/50 selector"
+        },
+        {
+          "offset": "0x6CDED",
+          "before": "68A0000000",
+          "after": "E8AE760200",
+          "purpose": "route the second upgradeable-statue Honoring dispatch through the shared 50/50 selector"
+        },
+        {
+          "offset": "0x6BF9A",
+          "before": "689D000000",
+          "after": "E801850200",
+          "purpose": "route the first completed-statue Polishing dispatch through the shared 50/50 selector"
+        },
+        {
+          "offset": "0x796EB",
+          "before": "689D000000",
+          "after": "E8B0AD0100",
+          "purpose": "route the second completed-statue Polishing dispatch through the shared 50/50 selector"
+        },
+        {
+          "offset": "0x944A0",
+          "before": "000000000000000000000000000000000000000000000000000000000000",
+          "after": "5A526A02E8B7F1F6FF83C40485C0B89D0000007405B8A00000005A5052C3",
+          "purpose": "choose stock behavior 0x9D Polishing or 0xA0 Honoring with equal odds while preserving the original call stack"
+        }
+      ]
     }
   ]
 }

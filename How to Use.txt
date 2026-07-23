@@ -13,7 +13,8 @@ VIRTUAL VILLAGERS FUN PATCHER
 4. Optional for The Lost Children: check "Easier Healing Mastery" and/or
    "Teaching Children Grants Skill".
 5. Optional for New Believers: check "Heathen Mommy Puzzle Restoration" and/or
-   "Easier Devotee Training".
+   "Easier Devotee Training" and/or
+   "Statue Drops: Polishing or Honoring".
 6. Open "One Game" or "All 5 Games".
 
 PATCH ALL FIVE AT ONCE
@@ -54,6 +55,9 @@ When Heathen Mommy Puzzle Restoration is selected for VV5, its name adds:
 
 When Easier Devotee Training is selected for VV5, its name adds:
 + Easier Devotee.exe
+
+When Statue Drops: Polishing or Honoring is selected for VV5, its name adds:
++ Random Statue Training.exe
 
 Each output and verification log is placed beside its original game EXE. Both
 styles can coexist. Original EXEs are never changed, renamed, replaced, or
@@ -105,3 +109,11 @@ instead and keeps the stock idle timing, action queue, and skill-gain behavior.
 It does not directly grant skill or change conversion, statue upgrades, manual
 assignment, or skill thresholds. Spreading the Word remains a Retired Chief
 activity and is not assigned to ordinary devotees.
+
+VV5 STATUE DROPS: POLISHING OR HONORING
+
+Dropping a villager on the upgradeable or completed statue chooses with equal
+odds between the original Polishing the Statue and Honoring activities. The
+patch changes only the manual drop selection and keeps both stock action queues.
+It does not change autonomous work, skill gain amounts, statue upgrades, or
+Retired Chief activities.

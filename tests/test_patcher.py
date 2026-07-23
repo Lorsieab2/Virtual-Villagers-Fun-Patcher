@@ -449,6 +449,7 @@ class StockIntegrationTests(unittest.TestCase):
         feature_ids = [
             "vv5_heathen_mommy_puzzle",
             "vv5_easier_devotee_training",
+            "vv5_statue_polishing_or_honoring",
         ]
         build = next(build for build in load_builds() if build.id == "vv5")
         source = STOCK / build.input_name
@@ -471,11 +472,46 @@ class StockIntegrationTests(unittest.TestCase):
         self.assertEqual(bytes(rendered[0x94440:0x94460]), bytes.fromhex(
             "8B8E881B000083B9FC1C00000D7405E9BAADFDFF6A64E805F2F6FFE99CADFDFF"
         ))
+        self.assertEqual(bytes(rendered[0x6C45D:0x6C462]), bytes.fromhex("E83E800200"))
+        self.assertEqual(bytes(rendered[0x6CDED:0x6CDF2]), bytes.fromhex("E8AE760200"))
+        self.assertEqual(bytes(rendered[0x6BF9A:0x6BF9F]), bytes.fromhex("E801850200"))
+        self.assertEqual(bytes(rendered[0x796EB:0x796F0]), bytes.fromhex("E8B0AD0100"))
+        self.assertEqual(bytes(rendered[0x944A0:0x944BE]), bytes.fromhex(
+            "5A526A02E8B7F1F6FF83C40485C0B89D0000007405B8A00000005A5052C3"
+        ))
         preview = dry_run(source, DEFAULT_PATCH_MODE, feature_ids)
         self.assertEqual(preview["fun_patches"], feature_ids)
         self.assertEqual(
             preview["output_name"],
-            "Virtual Villagers - New Believers - Modified Max Pop + Heathen Mommy + Easier Devotee.exe",
+            "Virtual Villagers - New Believers - Modified Max Pop + Heathen Mommy + Easier Devotee + Random Statue Training.exe",
+        )
+
+    def test_vv5_statue_drops_choose_polishing_or_honoring(self) -> None:
+        feature_id = "vv5_statue_polishing_or_honoring"
+        feature = next(patch for patch in load_fun_patches() if patch.id == feature_id)
+        build = next(build for build in load_builds() if build.id == "vv5")
+        source = STOCK / build.input_name
+        rendered, applied = render_patched_bytes(
+            source, build, DEFAULT_PATCH_MODE, [feature_id]
+        )
+        self.assertEqual(
+            len(applied),
+            len(build.safety_patches)
+            + len(get_patch_variant(build, DEFAULT_PATCH_MODE)["patches"])
+            + len(feature.patches),
+        )
+        self.assertEqual(bytes(rendered[0x6C45D:0x6C462]), bytes.fromhex("E83E800200"))
+        self.assertEqual(bytes(rendered[0x6CDED:0x6CDF2]), bytes.fromhex("E8AE760200"))
+        self.assertEqual(bytes(rendered[0x6BF9A:0x6BF9F]), bytes.fromhex("E801850200"))
+        self.assertEqual(bytes(rendered[0x796EB:0x796F0]), bytes.fromhex("E8B0AD0100"))
+        self.assertEqual(bytes(rendered[0x944A0:0x944BE]), bytes.fromhex(
+            "5A526A02E8B7F1F6FF83C40485C0B89D0000007405B8A00000005A5052C3"
+        ))
+        preview = dry_run(source, DEFAULT_PATCH_MODE, [feature_id])
+        self.assertEqual(preview["fun_patches"], [feature_id])
+        self.assertEqual(
+            preview["output_name"],
+            "Virtual Villagers - New Believers - Modified Max Pop + Random Statue Training.exe",
         )
 
     def test_bulk_feature_applies_only_to_its_game(self) -> None:
