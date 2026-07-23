@@ -411,6 +411,21 @@
           "purpose": "award one capped point across the five VV1 skill fields, restore all displaced pushes, and resume the stock school queue"
         }
       ]
+    },
+    {
+      "id": "vv1_continue_research_at_max_technologies",
+      "game_id": "vv1",
+      "name": "Continue Research at Max Technologies",
+      "description": "Researchers keep choosing the stock research action and earning tech points after all six technologies reach level 3.",
+      "output_tag": "Continue Max-Tech Research",
+      "patches": [
+        {
+          "offset": "0x47488",
+          "before": "12",
+          "after": "13",
+          "purpose": "keep the stock research action eligible when the six technology levels sum to the legitimate maximum of 18"
+        }
+      ]
     }
   ]
 }

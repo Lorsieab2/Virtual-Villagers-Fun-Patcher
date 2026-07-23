@@ -217,6 +217,24 @@ class StockIntegrationTests(unittest.TestCase):
         preview = dry_run(source, DEFAULT_PATCH_MODE, [feature_id])
         self.assertEqual(preview["output_name"], "Virtual Villagers - A New Home - Modified Max Pop + School Grants Skill.exe")
 
+    def test_vv1_continue_research_at_max_technologies_is_guarded(self) -> None:
+        feature_id = "vv1_continue_research_at_max_technologies"
+        build = next(build for build in load_builds() if build.id == "vv1")
+        source = STOCK / build.input_name
+        rendered, _ = render_patched_bytes(source, build, DEFAULT_PATCH_MODE, [feature_id])
+        self.assertEqual(rendered[0x47488], 0x13)
+        preview = dry_run(source, DEFAULT_PATCH_MODE, [feature_id])
+        self.assertEqual(preview["output_name"], "Virtual Villagers - A New Home - Modified Max Pop + Continue Max-Tech Research.exe")
+
+    def test_vv1_fun_patches_combine_without_overlap(self) -> None:
+        feature_ids = ["vv1_school_lessons_grant_skill", "vv1_continue_research_at_max_technologies"]
+        build = next(build for build in load_builds() if build.id == "vv1")
+        rendered, _ = render_patched_bytes(STOCK / build.input_name, build, DEFAULT_PATCH_MODE, feature_ids)
+        self.assertEqual(bytes(rendered[0x44BF2:0x44BF8]), bytes.fromhex("E9E919010090"))
+        self.assertEqual(rendered[0x47488], 0x13)
+        preview = dry_run(STOCK / build.input_name, DEFAULT_PATCH_MODE, feature_ids)
+        self.assertEqual(preview["output_name"], "Virtual Villagers - A New Home - Modified Max Pop + School Grants Skill + Continue Max-Tech Research.exe")
+
     def test_vv2_easier_healing_mastery_is_guarded_and_additive(self) -> None:
         feature_id = "vv2_easier_healing_mastery"
         feature = next(patch for patch in load_fun_patches() if patch.id == feature_id)

@@ -8,7 +8,8 @@ VIRTUAL VILLAGERS FUN PATCHER
    - Immediate Fixed Max Pop:
      The absolute maximum is available immediately. Collections no longer
      affect it, and The Secret City's magic tech no longer affects it.
-3. Optional for A New Home: check "School Lessons Grant Skill".
+3. Optional for A New Home: check "School Lessons Grant Skill" and/or
+   "Continue Research at Max Technologies".
 4. Optional for The Lost Children: check "Easier Healing Mastery" and/or
    "Teaching Children Grants Skill".
 5. Open "One Game" or "All 5 Games".
@@ -36,6 +37,9 @@ Immediate Fixed creates:
 
 When School Lessons Grant Skill is selected for VV1, its name adds:
 + School Grants Skill.exe
+
+When Continue Research at Max Technologies is selected for VV1, its name adds:
++ Continue Max-Tech Research.exe
 
 When Easier Healing Mastery is selected for VV2, its output name adds:
 + Easier Healing.exe

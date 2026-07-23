@@ -25,6 +25,10 @@ The patch does not change healing gains, illness, food, skill thresholds, plant 
 
 Enable **School Lessons Grant Skill (VV1)** to reward a villager once whenever the unlocked stock routine sends that villager to school. The attendee gains one point in Farming, Building, Research, Healing, or Parenting with equal odds; skills remain capped at 100. The patch does not unlock the school, change attendance selection, or alter the school action queue. Its output name adds `+ School Grants Skill.exe`.
 
+## VV1: Continue Research at Max Technologies
+
+Enable **Continue Research at Max Technologies (VV1)** so researchers remain eligible for the stock research action after all six technologies reach level 3. They continue using the original research queue, Research skill, Science-technology multiplier, and tech-point award routine. Its output name adds `+ Continue Max-Tech Research.exe`.
+
 ## VV2: Teaching Children Grants Skill
 
 Enable **Teaching Children Grants Skill (VV2)** to make the stock Teaching Children activity reward every attending child once when the lesson begins. Each attendee gains exactly one point in Farming, Building, Research, Healing, or Parenting. All five choices have equal odds, and a skill already at 100 is left at 100.
@@ -77,7 +81,7 @@ No game executable, save, extracted asset, or generated output is committed to t
 
 ## Command line
 
-Pass `--patch-mode collection_progression` or `--patch-mode immediate_fixed` to `dry-run`, `apply`, `dry-run-all`, or `apply-all`. Add `--fun-patch vv1_school_lessons_grant_skill`, `--fun-patch vv2_easier_healing_mastery` and/or `--fun-patch vv2_teaching_children_grants_skill` for the VV2 options.
+Pass `--patch-mode collection_progression` or `--patch-mode immediate_fixed` to `dry-run`, `apply`, `dry-run-all`, or `apply-all`. Add `--fun-patch vv1_school_lessons_grant_skill`, `--fun-patch vv1_continue_research_at_max_technologies`, `--fun-patch vv2_easier_healing_mastery` and/or `--fun-patch vv2_teaching_children_grants_skill` for the VV2 options.
 
 ```text
 python src/vv_fun_patcher.py dry-run "path\game.exe" --patch-mode immediate_fixed
@@ -85,4 +89,4 @@ python src/vv_fun_patcher.py apply "path\game.exe" --patch-mode collection_progr
 python src/vv_fun_patcher.py apply-all --vv1 "path\vv1 folder" --vv2 "path\vv2 folder" --vv3 "path\vv3 folder" --vv4 "path\vv4 folder" --vv5 "path\vv5 folder" --patch-mode immediate_fixed
 ```
 
-Technical evidence is in `docs/max-population-research.md`, `docs/vv2-easier-healing-research.md`, and `docs/vv2-teaching-children-research.md`, and `docs/vv1-school-lessons-research.md`.
+Technical evidence is in `docs/max-population-research.md`, `docs/vv2-easier-healing-research.md`, and `docs/vv2-teaching-children-research.md`, and `docs/vv1-school-lessons-research.md`, and `docs/vv1-max-tech-research.md`.
