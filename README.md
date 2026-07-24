@@ -133,6 +133,8 @@ All five games also contain Island Events that add villagers. The patcher guards
 
 The One Game tab includes clickable **Open Vanilla EXE Folder** and **Open Modified EXE Folder** links. All 5 Games provides matching Vanilla folder and Modified folder links on every game row. After patching, a compact confirmation window provides clear clickable links to both folders for every completed game.
 
+The **Additional fun patches** section includes **Select All Patches** and **Deselect All Patches** buttons. They change every optional fun-patch checkbox at once without changing the selected population patch style, and the selection is remembered normally.
+
 For every selected game, the patcher creates one short sibling folder named **`(Game name) - Modded`**. It copies every file and subfolder from the original game folder, verifies the copied files by SHA-256, keeps the stock EXE in the copy, and adds the separately named modified EXE plus its `.patch-log.json`. The original folder and original EXE are never edited, renamed, replaced, or deleted. Applying another patch style refreshes that game's same Modded folder after confirmation.
 
 ## Exact-build safety

@@ -116,6 +116,15 @@ class GuiSourceTests(unittest.TestCase):
         self.assertNotIn('messagebox.showinfo("Modified EXE created"', source)
         self.assertNotIn('messagebox.showinfo("All five modified EXEs created"', source)
 
+    def test_fun_patches_have_select_and_deselect_all_controls(self) -> None:
+        source = (ROOT / "src" / "vv_fun_patcher_gui.py").read_text(encoding="utf-8")
+        self.assertIn('text="Select All Patches"', source)
+        self.assertIn('text="Deselect All Patches"', source)
+        self.assertIn("def _select_all_fun_patches", source)
+        self.assertIn("def _deselect_all_fun_patches", source)
+        self.assertIn("variable.set(True)", source)
+        self.assertIn("variable.set(False)", source)
+
 
 class StockIntegrationTests(unittest.TestCase):
     def setUp(self) -> None:

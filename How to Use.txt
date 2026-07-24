@@ -58,6 +58,12 @@ PATCH ONE GAME
 3. Use "Open Vanilla EXE Folder" or "Open Modified EXE Folder" to open the
    selected game's folder in File Explorer.
 
+OPTIONAL PATCH SELECTION
+
+Use "Select All Patches" to turn on every optional fun patch at once. Use
+"Deselect All Patches" to turn them all off. These buttons do not change the
+selected population patch style.
+
 OUTPUTS
 
 Collection Progression creates:

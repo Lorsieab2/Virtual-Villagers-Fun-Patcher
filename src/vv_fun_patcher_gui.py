@@ -150,15 +150,27 @@ class App(tk.Tk):
         fun_row = len(self.patch_modes) + 1
         ttk.Separator(mode_box).grid(row=fun_row, column=0, columnspan=2, sticky="ew", pady=8)
         ttk.Label(mode_box, text="Additional fun patches").grid(row=fun_row + 1, column=0, sticky="nw", pady=3)
+        fun_actions = ttk.Frame(mode_box)
+        fun_actions.grid(row=fun_row + 1, column=1, sticky="w", pady=(0, 5))
+        ttk.Button(
+            fun_actions,
+            text="Select All Patches",
+            command=self._select_all_fun_patches,
+        ).pack(side="left")
+        ttk.Button(
+            fun_actions,
+            text="Deselect All Patches",
+            command=self._deselect_all_fun_patches,
+        ).pack(side="left", padx=(8, 0))
         for offset, patch in enumerate(self.fun_patches):
             ttk.Checkbutton(
                 mode_box,
                 text=f"{patch.name} ({patch.game_id.upper()})",
                 variable=self.fun_patch_vars[patch.id],
                 command=self._fun_patch_changed,
-            ).grid(row=fun_row + 1 + offset * 2, column=1, sticky="w", pady=3)
+            ).grid(row=fun_row + 2 + offset * 2, column=1, sticky="w", pady=3)
             ttk.Label(mode_box, text=patch.description, wraplength=620).grid(
-                row=fun_row + 2 + offset * 2, column=1, sticky="w", pady=(0, 3)
+                row=fun_row + 3 + offset * 2, column=1, sticky="w", pady=(0, 3)
             )
         mode_box.columnconfigure(1, weight=1)
 
@@ -335,6 +347,16 @@ class App(tk.Tk):
             "Additional patches: " + (", ".join(selected) if selected else "none")
         )
         self._save_settings()
+
+    def _select_all_fun_patches(self) -> None:
+        for variable in self.fun_patch_vars.values():
+            variable.set(True)
+        self._fun_patch_changed()
+
+    def _deselect_all_fun_patches(self) -> None:
+        for variable in self.fun_patch_vars.values():
+            variable.set(False)
+        self._fun_patch_changed()
 
     def _load_settings(self) -> None:
         try:
