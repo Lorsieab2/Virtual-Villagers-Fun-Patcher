@@ -697,7 +697,8 @@ class StockIntegrationTests(unittest.TestCase):
         rendered, applied = render_patched_bytes(source, build, DEFAULT_PATCH_MODE, [feature_id])
         self.assertEqual(len(applied), len(build.safety_patches) + len(get_patch_variant(build, DEFAULT_PATCH_MODE)["patches"]) + len(feature.patches))
         self.assertEqual(bytes(rendered[0x44BF2:0x44BF8]), bytes.fromhex("6A646A006A00"))
-        self.assertEqual(bytes(rendered[0x44C50:0x44C52]), bytes.fromhex("6A7F"))
+        self.assertEqual(bytes(rendered[0x44C50:0x44C52]), bytes.fromhex("6A00"))
+        self.assertEqual(bytes(rendered[0x44C52:0x44C54]), bytes.fromhex("6A7F"))
         self.assertEqual(bytes(rendered[0x44C5A:0x44C5C]), bytes.fromhex("6A0E"))
         self.assertEqual(bytes(rendered[0x44C64:0x44C6C]), bytes.fromhex("E9371A0100909090"))
         self.assertEqual(
@@ -736,7 +737,8 @@ class StockIntegrationTests(unittest.TestCase):
         ]
         build = next(build for build in load_builds() if build.id == "vv1")
         rendered, _ = render_patched_bytes(STOCK / build.input_name, build, DEFAULT_PATCH_MODE, feature_ids)
-        self.assertEqual(bytes(rendered[0x44C50:0x44C52]), bytes.fromhex("6A7F"))
+        self.assertEqual(bytes(rendered[0x44C50:0x44C52]), bytes.fromhex("6A00"))
+        self.assertEqual(bytes(rendered[0x44C52:0x44C54]), bytes.fromhex("6A7F"))
         self.assertEqual(bytes(rendered[0x44C5A:0x44C5C]), bytes.fromhex("6A0E"))
         self.assertEqual(bytes(rendered[0x44C64:0x44C6C]), bytes.fromhex("E9371A0100909090"))
         self.assertEqual(rendered[0x47488], 0x13)
@@ -845,6 +847,7 @@ class StockIntegrationTests(unittest.TestCase):
             len(applied),
             len(build.safety_patches)
             + len(get_patch_variant(build, DEFAULT_PATCH_MODE)["patches"])
+            + 2
             + len(feature.patches),
         )
         self.assertEqual(
@@ -864,11 +867,13 @@ class StockIntegrationTests(unittest.TestCase):
         )
         self.assertEqual(bytes(rendered[0x61B10:0x61B15]), bytes.fromhex("E96B220100"))
         self.assertEqual(
-            bytes(rendered[0x73D80:0x73DD0]),
+            bytes(rendered[0x73D80:0x73DF4]),
             bytes.fromhex(
                 "837C24087F753F608BF18B44242469C08CE400008D9C30E4070000"
                 "6A05E8FEF3F8FF83C4048D3C836A03E8F1F3F8FF83C40483C007"
-                "0107833F647E06C7076400000061C20800518B44240CE945DDFEFF"
+                "0107833F647E06C7076400000061C20800837C24087E740A518B44"
+                "240CE93EDDFEFF608B44242469C08CE400008D9C082C050000833B"
+                "647D02FF0361C20800"
             ),
         )
         preview = dry_run(source, DEFAULT_PATCH_MODE, [feature_id])
@@ -879,6 +884,7 @@ class StockIntegrationTests(unittest.TestCase):
         feature_ids = [
             "vv2_easier_healing_mastery",
             "vv2_teaching_children_grants_skill",
+            "vv2_hospital_recovery_heals",
             "vv2_gong_of_wonder_coconuts_fix",
         ]
         build = next(build for build in load_builds() if build.id == "vv2")
@@ -895,6 +901,7 @@ class StockIntegrationTests(unittest.TestCase):
             len(applied),
             len(build.safety_patches)
             + len(get_patch_variant(build, DEFAULT_PATCH_MODE)["patches"])
+            + 2
             + feature_patch_count,
         )
         self.assertEqual(bytes(rendered[0x73CA0:0x73CC4]), bytes.fromhex(
@@ -903,9 +910,54 @@ class StockIntegrationTests(unittest.TestCase):
         self.assertEqual(bytes(rendered[0x73CD0:0x73CF1]), bytes.fromhex(
             "6A7F6A006A006A006A006A11578BCEE88C5EFDFF578BCEE8C4BEFDFFE9626EFDFF"
         ))
+        self.assertEqual(
+            bytes(rendered[0x5C569:0x5C571]),
+            bytes.fromhex("E9B2780100909090"),
+        )
+        self.assertEqual(
+            bytes(rendered[0x73E20:0x73E41]),
+            bytes.fromhex(
+                "6A7E6A006A006A006A006A11578BCEE83C5DFDFF"
+                "578BCEE874BDFDFFE93087FEFF"
+            ),
+        )
         preview = dry_run(source, DEFAULT_PATCH_MODE, feature_ids)
         self.assertEqual(preview["fun_patches"], feature_ids)
         self.assertEqual(preview["output_name"], modded_exe_name(build))
+
+    def test_vv2_hospital_recovery_heals_exactly_once_on_completion(self) -> None:
+        feature_id = "vv2_hospital_recovery_heals"
+        build = next(build for build in load_builds() if build.id == "vv2")
+        source = STOCK / build.input_name
+        rendered, applied = render_patched_bytes(
+            source, build, DEFAULT_PATCH_MODE, [feature_id]
+        )
+        feature = get_fun_patch(feature_id)
+        self.assertEqual(
+            len(applied),
+            len(build.safety_patches)
+            + len(get_patch_variant(build, DEFAULT_PATCH_MODE)["patches"])
+            + 2
+            + len(feature.patches),
+        )
+        self.assertEqual(
+            bytes(rendered[0x5C569:0x5C571]),
+            bytes.fromhex("E9B2780100909090"),
+        )
+        self.assertEqual(
+            bytes(rendered[0x73DD7:0x73DF4]),
+            bytes.fromhex(
+                "608B44242469C08CE400008D9C082C050000"
+                "833B647D02FF0361C20800"
+            ),
+        )
+        self.assertEqual(
+            bytes(rendered[0x73E20:0x73E41]),
+            bytes.fromhex(
+                "6A7E6A006A006A006A006A11578BCEE83C5DFDFF"
+                "578BCEE874BDFDFFE93087FEFF"
+            ),
+        )
 
     def test_vv5_heathen_mommy_puzzle_is_guarded_and_additive(self) -> None:
         feature_id = "vv5_heathen_mommy_puzzle"
@@ -1155,8 +1207,8 @@ class StockIntegrationTests(unittest.TestCase):
         self.assertEqual(bytes(rendered[0x6CDED:0x6CDF2]), bytes.fromhex("E8AE760200"))
         self.assertEqual(bytes(rendered[0x6BF9A:0x6BF9F]), bytes.fromhex("E801850200"))
         self.assertEqual(bytes(rendered[0x796EB:0x796F0]), bytes.fromhex("E8B0AD0100"))
-        self.assertEqual(bytes(rendered[0x944A0:0x944BE]), bytes.fromhex(
-            "5A526A02E8B7F1F6FF83C40485C0B89D0000007405B8A00000005A5052C3"
+        self.assertEqual(bytes(rendered[0x944A0:0x944B9]), bytes.fromhex(
+            "5A52516A02E8B6F1F6FF83C404598D84409D0000005A5052C3"
         ))
         self.assertEqual(
             bytes(rendered[0x25FE1:0x25FE5]), bytes.fromhex("40454900")
@@ -1217,8 +1269,8 @@ class StockIntegrationTests(unittest.TestCase):
         self.assertEqual(bytes(rendered[0x6CDED:0x6CDF2]), bytes.fromhex("E8AE760200"))
         self.assertEqual(bytes(rendered[0x6BF9A:0x6BF9F]), bytes.fromhex("E801850200"))
         self.assertEqual(bytes(rendered[0x796EB:0x796F0]), bytes.fromhex("E8B0AD0100"))
-        self.assertEqual(bytes(rendered[0x944A0:0x944BE]), bytes.fromhex(
-            "5A526A02E8B7F1F6FF83C40485C0B89D0000007405B8A00000005A5052C3"
+        self.assertEqual(bytes(rendered[0x944A0:0x944B9]), bytes.fromhex(
+            "5A52516A02E8B6F1F6FF83C404598D84409D0000005A5052C3"
         ))
         preview = dry_run(source, DEFAULT_PATCH_MODE, [feature_id])
         self.assertEqual(preview["fun_patches"], [feature_id])

@@ -23,11 +23,21 @@ Each of those four guarded five-byte behavior pushes becomes a call to one share
 
 1. Preserves the caller's return address.
 2. Calls the stock random-number function with an exclusive bound of 2.
-3. Selects behavior `0x9D` for result 0 or `0xA0` for result 1.
-4. Restores the original stack shape, leaving the selected behavior where the displaced `push 0xA0` placed it.
-5. Returns to the untouched stock dispatch.
+3. Maps random result 0 to behavior `0x9D` and result 1 to behavior `0xA0`.
+4. Preserves and restores `ECX`, which holds the current villager for the
+   following stock behavior-setter call and is not preserved by the random
+   function.
+5. Restores the original stack shape, leaving the selected behavior where the
+   displaced `push 0xA0` placed it.
+6. Returns to the untouched stock dispatch.
 
 Both outcomes therefore have equal odds. The selector reuses the original Polishing and Honoring routines; it does not reproduce either action or write Devotion skill directly.
+
+The v1.28.0 selector preserved the stack but not `ECX`. When the random-number
+call overwrote that register, the following behavior setter could dereference
+an invalid current-villager pointer at virtual address `0x0046558A`. A copied
+player save reproduced that defect as Windows exception `0xC0000005`. The
+corrected selector explicitly saves and restores `ECX` around the random call.
 
 ## Preserved behavior
 

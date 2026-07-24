@@ -138,6 +138,13 @@ Tribal Chief lesson award. Skills remain capped at 100. An interrupted lesson
 that never reaches its completion callback gives no skill. The patch does not
 change who teaches, who attends, or how often lessons happen.
 
+VV2 HOSPITAL RECOVERY HEALS
+
+When a villager completes Recovering at the hospital, that villager gains
+exactly 1 health point, capped at 100. Stock VV2's hospital action does not
+change health. The point is awarded by the final completion callback, so an
+interrupted recovery gives no health.
+
 VV2 GONG OF WONDER COCONUTS FIX
 
 The Gong's coconut outcome adds 30 to the coconut trees instead of replacing

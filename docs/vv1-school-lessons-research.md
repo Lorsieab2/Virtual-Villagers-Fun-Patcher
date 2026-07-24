@@ -24,6 +24,14 @@ final queue entry after the callback and then calls the original queue
 finalizer. The dispatcher is detoured only for callback 127; every stock
 callback follows the displaced prologue and original switch.
 
+The queue constructor stores six of its seven arguments in the executable
+entry. The callback ID consumed by opcode 14 is its sixth argument, stored at
+entry offset `+0x14`. Release v1.28.0 incorrectly placed ID 127 in the ignored
+seventh argument at file offset `0x44C50`, leaving the executed callback ID at
+zero. Player testing consequently showed no skill award. The corrected patch
+leaves the ignored argument unchanged and writes ID 127 at file offset
+`0x44C52`, which maps to the stored callback field.
+
 Callback 127:
 
 1. uses stock RNG `0x402F10` with bound 5 to select one of the five contiguous skill fields;

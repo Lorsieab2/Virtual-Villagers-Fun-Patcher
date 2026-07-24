@@ -61,6 +61,19 @@ def load_fun_patches() -> list[FunPatch]:
     return [FunPatch(item) for item in _manifest().get("fun_patches", [])]
 
 
+def _fun_patch_support(
+    build: Build, fun_patches: list[FunPatch]
+) -> list[dict[str, str]]:
+    selected_ids = {patch.id for patch in fun_patches}
+    patches: list[dict[str, str]] = []
+    for support in _manifest().get("fun_patch_support", []):
+        if support["game_id"] != build.id:
+            continue
+        if selected_ids.intersection(support["when_any"]):
+            patches.extend(support["patches"])
+    return patches
+
+
 def _expanded_patches(build: Build, variant: dict[str, Any]) -> list[dict[str, str]]:
     if not variant.get("expanded_records", False):
         return []
@@ -261,6 +274,7 @@ def render_patched_bytes(
         *_expanded_patches(build, variant),
         *_safety_patches(build, patch_mode),
         *variant["patches"],
+        *_fun_patch_support(build, fun_patches),
         *fun_bytes,
     ]:
         offset = int(patch["offset"], 0)

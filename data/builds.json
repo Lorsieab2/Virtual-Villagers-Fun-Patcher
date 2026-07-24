@@ -816,6 +816,29 @@
       "description": "VV3-VV5 expand to 256 physical records while collections, and VV3 Magic Tech, retain their original bonuses and are required to reach 256. VV1-VV2 use their existing 256-record behavior."
     }
   ],
+  "fun_patch_support": [
+    {
+      "game_id": "vv2",
+      "when_any": [
+        "vv2_teaching_children_grants_skill",
+        "vv2_hospital_recovery_heals"
+      ],
+      "patches": [
+        {
+          "offset": "0x61B10",
+          "before": "518B44240C",
+          "after": "E96B220100",
+          "purpose": "route private lesson and hospital completion callbacks through their guarded shared dispatcher"
+        },
+        {
+          "offset": "0x73D80",
+          "before": "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "after": "837C24087F753F608BF18B44242469C08CE400008D9C30E40700006A05E8FEF3F8FF83C4048D3C836A03E8F1F3F8FF83C40483C0070107833F647E06C7076400000061C20800837C24087E740A518B44240CE93EDDFEFF608B44242469C08CE400008D9C082C050000833B647D02FF0361C20800",
+          "purpose": "award callback 127's capped random child skill or callback 126's capped one health point, while preserving every stock callback"
+        }
+      ]
+    }
+  ],
   "fun_patches": [
     {
       "id": "vv2_easier_healing_mastery",
@@ -856,18 +879,27 @@
           "before": "000000000000000000000000000000000000000000000000000000000000000000",
           "after": "6A7F6A006A006A006A006A11578BCEE88C5EFDFF578BCEE8C4BEFDFFE9626EFDFF",
           "purpose": "append callback 127, preserve the stock queue finalizer, and resume the attendee scan"
+        }
+      ]
+    },
+    {
+      "id": "vv2_hospital_recovery_heals",
+      "game_id": "vv2",
+      "name": "Hospital Recovery Heals",
+      "description": "A villager who completes Recovering at the hospital gains exactly 1 health point, capped at 100. Stock VV2's hospital recovery action does not change health.",
+      "output_tag": "Hospital Recovery Heals",
+      "patches": [
+        {
+          "offset": "0x5C569",
+          "before": "578BCEE83F36FFFF",
+          "after": "E9B2780100909090",
+          "purpose": "append private callback 126 after the complete stock hospital recovery queue"
         },
         {
-          "offset": "0x61B10",
-          "before": "518B44240C",
-          "after": "E96B220100",
-          "purpose": "route callback 127 through the lesson-completion skill award while preserving every stock callback"
-        },
-        {
-          "offset": "0x73D80",
-          "before": "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
-          "after": "837C24087F753F608BF18B44242469C08CE400008D9C30E40700006A05E8FEF3F8FF83C4048D3C836A03E8F1F3F8FF83C40483C0070107833F647E06C7076400000061C20800518B44240CE945DDFEFF",
-          "purpose": "award 7 to 9 capped points to one uniformly selected child skill only when callback 127 executes"
+          "offset": "0x73E20",
+          "before": "000000000000000000000000000000000000000000000000000000000000000000",
+          "after": "6A7E6A006A006A006A006A11578BCEE83C5DFDFF578BCEE874BDFDFFE93087FEFF",
+          "purpose": "append callback 126, preserve the stock queue finalizer, and return after the completed recovery action"
         }
       ]
     },
@@ -879,16 +911,16 @@
       "output_tag": "School Grants Skill",
       "patches": [
         {
-          "offset": "0x44C50",
-          "before": "6A00",
-          "after": "6A7F",
-          "purpose": "mark the new end-of-lesson callback with private callback ID 127"
-        },
-        {
           "offset": "0x44C5A",
           "before": "6A13",
           "after": "6A0E",
           "purpose": "turn the former final queue entry into callback 127"
+        },
+        {
+          "offset": "0x44C52",
+          "before": "6A00",
+          "after": "6A7F",
+          "purpose": "store private callback ID 127 in the queue entry's executed callback field"
         },
         {
           "offset": "0x44C64",
@@ -1204,9 +1236,9 @@
         },
         {
           "offset": "0x944A0",
-          "before": "000000000000000000000000000000000000000000000000000000000000",
-          "after": "5A526A02E8B7F1F6FF83C40485C0B89D0000007405B8A00000005A5052C3",
-          "purpose": "choose stock behavior 0x9D Polishing or 0xA0 Honoring with equal odds while preserving the original call stack"
+          "before": "00000000000000000000000000000000000000000000000000",
+          "after": "5A52516A02E8B6F1F6FF83C404598D84409D0000005A5052C3",
+          "purpose": "choose stock behavior 0x9D Polishing or 0xA0 Honoring with equal odds while preserving the original call stack and current-villager register"
         }
       ]
     },
