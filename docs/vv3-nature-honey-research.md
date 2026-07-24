@@ -1,4 +1,4 @@
-# VV3 Nature Level 1 Honey Refill Research
+# VV3 Nature Level 1 Actually Replenishes Food Sources Faster
 
 ## Supported executable
 
@@ -16,21 +16,29 @@ The honey resource object begins at `0x005945D0`; its current amount is the fiel
 
 ## Patch
 
-The patch replaces the 16-byte stock honey refill calculation at file offset `0x319F9` with a guarded detour into unused mapped `.text` padding at file offset `0x7B2A0`.
+The patch gives Nature level 1 or higher a 75%-time eligibility threshold for both renewable food sources:
+
+- fruit trees: 10,800 seconds becomes 8,100 seconds, or 2 hours 15 minutes;
+- honey: 3,600 seconds becomes 2,700 seconds, or 45 minutes.
+
+Nature level 0 follows the original thresholds and calculation. At Nature level 1 or higher, the tree calculation uses effective factor 56 over the new 8,100-second interval. This produces the same amount as factor 42 over the stock 10,800-second interval: `8100 × 56 = 10800 × 42`. The shorter timer therefore does not turn the refill into a smaller partial award.
+
+The patch also retains the guarded honey-amount detour at file offset `0x319F9` into unused mapped `.text` padding at file offset `0x7B2A0`.
 
 The detour:
 
 1. Calculates the elapsed seconds exactly as the stock routine does.
 2. Reads Nature technology level through the stock technology getter.
 3. At Nature level 0, executes the original multiply-and-shift arithmetic.
-4. At Nature level 1 or higher, calculates `floor(elapsed_seconds * 84 / 133200)`, which is the stock honey rate multiplied by the fruit trees' exact `42 / 37` improvement.
+4. At Nature level 1 or higher, calculates `floor(elapsed_seconds * 84 / 99900)`. The denominator is `37 × 2700`, so the honey quantity retains the fruit trees' exact `42 / 37` improvement while being normalized to the new 45-minute interval.
 5. Returns to the untouched stock amount addition, timestamp update, and 3,000-unit cap.
 
-The one-hour honey update threshold is unchanged. No honey is granted immediately when the patch is applied; the improvement is evaluated by the game's existing refill update.
+No fruit or honey is granted immediately when the patch is applied. The shorter thresholds and improved honey amount are evaluated by the game's existing refill updates.
 
 ## Boundaries
 
-- Nature level 0 retains the stock honey refill rate.
-- Nature levels 1, 2, and 3 share the same improved rate, matching the fruit-tree threshold behavior.
-- The patch does not change honey harvesting, initial honey, the honey display, fruit-tree behavior, technology costs, or Nature technology progression.
+- Nature level 0 retains stock fruit-tree and honey timing and amounts.
+- Nature levels 1, 2, and 3 share the same faster thresholds and improved rates.
+- The stock Nature fruit-tree amount per normal refill is preserved at the shorter interval.
+- The patch does not change honey harvesting, initial honey, the honey display, resource caps, technology costs, or Nature technology progression.
 - The original executable is never modified; the patcher writes a separately named copy with a recalculated PE checksum.

@@ -163,9 +163,14 @@ class App(tk.Tk):
             command=self._deselect_all_fun_patches,
         ).pack(side="left", padx=(8, 0))
         for offset, patch in enumerate(self.fun_patches):
+            game_name = next(
+                build.title.removeprefix("Virtual Villagers - ")
+                for build in self.builds
+                if build.id == patch.game_id
+            )
             ttk.Checkbutton(
                 mode_box,
-                text=f"{patch.name} ({patch.game_id.upper()})",
+                text=f"{patch.name} ({game_name})",
                 variable=self.fun_patch_vars[patch.id],
                 command=self._fun_patch_changed,
             ).grid(row=fun_row + 2 + offset * 2, column=1, sticky="w", pady=3)

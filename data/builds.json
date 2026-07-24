@@ -961,10 +961,16 @@
     {
       "id": "vv3_nature_honey_refill",
       "game_id": "vv3",
-      "name": "Nature Level 1 Improves Honey Refill",
-      "description": "Nature level 1 or higher gives the honey resource the same proportional refill-rate improvement that it gives the fruit trees.",
-      "output_tag": "Nature Honey Refill",
+      "name": "Nature Level 1 Actually Replenishes Food Sources Faster",
+      "description": "Nature level 1 or higher reduces fruit-tree refills from 3 hours to 2 hours 15 minutes and honey refills from 1 hour to 45 minutes. Fruit trees retain their stock Nature quantity bonus, while honey gains the same proportional quantity bonus.",
+      "output_tag": "Nature Faster Food Refill",
       "patches": [
+        {
+          "offset": "0x319E2",
+          "before": "8B4E0C81C1100E00003BC17232",
+          "after": "E9599904009090909090909090",
+          "purpose": "route the honey eligibility timer through a guarded Nature-level threshold"
+        },
         {
           "offset": "0x319F9",
           "before": "8B4E0C8BD02BD1D1E2B8C5B3A291F7E2",
@@ -974,8 +980,32 @@
         {
           "offset": "0x7B2A0",
           "before": "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
-          "after": "8B560C2BC2506A05B918265800E80EBDFAFF83F801587C15B954000000F7E1B950080200F7F18BD0E93C67FBFF8BD0D1E2B8C5B3A291F7E2C1EA0BE92967FBFF",
-          "purpose": "preserve the stock honey rate at Nature 0 and apply the fruit trees' exact 42-to-37 proportional improvement at Nature level 1 or higher"
+          "after": "8B560C2BC2506A05B918265800E80EBDFAFF83F801587C15B954000000F7E1B93C860100F7F18BD0E93C67FBFF8BD0D1E2B8C5B3A291F7E2C1EA0BE92967FBFF",
+          "purpose": "preserve the stock honey rate at Nature 0 and apply the 42-to-37 quantity improvement against the new 45-minute Nature interval"
+        },
+        {
+          "offset": "0x7B340",
+          "before": "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "after": "506A05B918265800E873BCFAFF83F801588B4E0C7C0881C18C0A0000EB0681C1100E00003BC10F82B566FBFFE97E66FBFF",
+          "purpose": "use the stock 1-hour honey threshold at Nature 0 and a 45-minute threshold at Nature level 1 or higher"
+        },
+        {
+          "offset": "0x347AA",
+          "before": "8B4FF881C1302A00003BC1724A",
+          "after": "E9D16B04009090909090909090",
+          "purpose": "route each fruit tree's eligibility timer through a guarded Nature-level threshold"
+        },
+        {
+          "offset": "0x347CD",
+          "before": "BD2A000000",
+          "after": "BD38000000",
+          "purpose": "preserve the stock Nature fruit quantity at the shorter 75-percent refill interval"
+        },
+        {
+          "offset": "0x7B380",
+          "before": "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "after": "506A05B918265800E833BCFAFF83F801588B4FF87C0881C1A41F0000EB0681C1302A00003BC10F825594FBFFE90694FBFF",
+          "purpose": "use the stock 3-hour fruit-tree threshold at Nature 0 and a 2-hour-15-minute threshold at Nature level 1 or higher"
         }
       ]
     },

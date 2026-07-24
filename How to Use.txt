@@ -30,7 +30,7 @@ records and expands saved-villager tables in VV3-VV5.
 4. Optional for The Lost Children: check "Easier Healing Mastery" and/or
    "Teaching Children Grants Skill".
 5. Optional for The Secret City: check
-   "Nature Level 1 Improves Honey Refill".
+   "Nature Level 1 Actually Replenishes Food Sources Faster".
 6. Optional for The Tree of Life: check
    "Complete Fish Scales = Golden Fish in Nets".
 7. Optional for New Believers: check "Heathen Mommy Puzzle Restoration" and/or
@@ -132,13 +132,15 @@ Tribal Chief lesson award. Skills remain capped at 100. An interrupted lesson
 that never reaches its completion callback gives no skill. The patch does not
 change who teaches, who attends, or how often lessons happen.
 
-VV3 NATURE LEVEL 1 IMPROVES HONEY REFILL
+VV3 NATURE LEVEL 1 ACTUALLY REPLENISHES FOOD SOURCES FASTER
 
-Nature level 1 or higher improves honey regeneration by the same proportional
-amount used by the game's fruit-tree refill routine. Nature level 0 keeps the
-stock honey rate. The one-hour honey update threshold and 3,000-unit cap remain
-unchanged. The patch does not change honey harvesting, initial honey, the honey
-display, fruit trees, or Nature technology progression.
+At Nature level 1 or higher, fruit trees become refill-eligible after 2 hours
+15 minutes instead of 3 hours, and honey becomes refill-eligible after 45
+minutes instead of 1 hour. Fruit trees retain their stock Nature quantity
+bonus: approximately 126 instead of 111 fruit for the same stock refill group,
+now delivered after the shorter interval. Honey receives the same 42/37
+proportional quantity bonus, normalized to its new 45-minute interval. Nature
+level 0 keeps stock timing and amounts. The 3,000-unit honey cap is unchanged.
 
 VV5 HEATHEN MOMMY PUZZLE RESTORATION
 

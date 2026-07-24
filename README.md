@@ -27,65 +27,65 @@ VV3-VV5 experimental builds keep the stock save filenames. Their short `(Game na
 
 ## VV2: Easier Healing Mastery
 
-Enable the optional **Easier Healing Mastery (VV2)** checkbox to change the Healing job fallback in The Lost Children. When a healer or a villager who prefers Healing has no sick villager to treat, the stock job scheduler now enters its existing persistent plant-study state instead of returning "no work." The same stock state is processed during ordinary play and time catch-up.
+Enable the optional **Easier Healing Mastery (The Lost Children)** checkbox to change the Healing job fallback in The Lost Children. When a healer or a villager who prefers Healing has no sick villager to treat, the stock job scheduler now enters its existing persistent plant-study state instead of returning "no work." The same stock state is processed during ordinary play and time catch-up.
 
 The patch does not change healing gains, illness, food, skill thresholds, plant availability, or manual plant study. Its selection is recorded in the verification log without lengthening the short Modded EXE name.
 
 ## VV1: School Lessons Grant Skill
 
-Enable **School Lessons Grant Skill (VV1)** to reward a child only after the unlocked stock Going to school action reaches its end. The child gains 7, 8, or 9 points in one equally random skill: Farming, Building, Research, Healing, or Parenting. Skills remain capped at 100.
+Enable **School Lessons Grant Skill (A New Home)** to reward a child only after the unlocked stock Going to school action reaches its end. The child gains 7, 8, or 9 points in one equally random skill: Farming, Building, Research, Healing, or Parenting. Skills remain capped at 100.
 
 That award matches VV3's code-confirmed Tribal Chief lesson: one random skill and `RNG(3)+7` points per child at the completion callback. The patch does not unlock the school, change attendance selection, or reward an interrupted lesson that never reaches the callback.
 
 ## VV1: Continue Research at Max Technologies
 
-Enable **Continue Research at Max Technologies (VV1)** so researchers remain eligible for the stock research action after all six technologies reach level 3. They continue using the original research queue, Research skill, Science-technology multiplier, and tech-point award routine.
+Enable **Continue Research at Max Technologies (A New Home)** so researchers remain eligible for the stock research action after all six technologies reach level 3. They continue using the original research queue, Research skill, Science-technology multiplier, and tech-point award routine.
 
 ## VV1: Reenable F6 Clothing Change Cheat
 
-Enable **Reenable F6 Clothing Change Cheat (VV1)** so pressing F6 advances the selected active villager to the next stock outfit. The cycle covers the game's ordinary clothing indices 0 through 19 and wraps from 19 back to 0. Pressing F6 without a valid active selection changes nothing.
+Enable **Reenable F6 Clothing Change Cheat (A New Home)** so pressing F6 advances the selected active villager to the next stock outfit. The cycle covers the game's ordinary clothing indices 0 through 19 and wraps from 19 back to 0. Pressing F6 without a valid active selection changes nothing.
 
 The patch does not alter heads, sex, age, skills, health, jobs, movement, actions, or clothing assets. F7, F8, and all non-F6 keys retain their original behavior.
 
 ## VV2: Teaching Children Grants Skill
 
-Enable **Teaching Children Grants Skill (VV2)** to reward every attending child once after that child's full stock lesson queue finishes. Each attendee gains 7, 8, or 9 points in Farming, Building, Research, Healing, or Parenting. All five choices have equal odds, and skills remain capped at 100.
+Enable **Teaching Children Grants Skill (The Lost Children)** to reward every attending child once after that child's full stock lesson queue finishes. Each attendee gains 7, 8, or 9 points in Farming, Building, Research, Healing, or Parenting. All five choices have equal odds, and skills remain capped at 100.
 
 That award matches VV3's code-confirmed Tribal Chief lesson. The patch does not create extra lessons, change who attends, alter the teacher requirement, reward children who are not enrolled by the stock lesson routine, or reward an interrupted lesson that never reaches the callback.
 
 ## VV5: Heathen Mommy Puzzle Restoration
 
-Enable **Heathen Mommy Puzzle Restoration (VV5)** to restore the natural-build Heathen Mommy to newly created villages and restore the hidden 17th Heathen Parent graphic to the Puzzles screen. The supplied natural build creates a 29th Heathen with tag 17, initializes her, and assigns one forced nursing baby. The supported modern initializer creates only 28 Heathens and omits that sequence.
+Enable **Heathen Mommy Puzzle Restoration (New Believers)** to restore the natural-build Heathen Mommy to newly created villages and restore the hidden 17th Heathen Parent graphic to the Puzzles screen. The supplied natural build creates a 29th Heathen with tag 17, initializes her, and assigns one forced nursing baby. The supported modern initializer creates only 28 Heathens and omits that sequence.
 
 The patch reproduces the natural build's exact mother arguments and nursing-baby call, then restores the retained locked/solved puzzle graphic using puzzle 17's actual completion state. The mother and baby require two physical population slots. This new-game initialization does not retroactively add a mother to an existing save.
 
 ## VV4: Complete Fish Scales = Golden Fish in Nets
 
-Enable **Complete Fish Scales = Golden Fish in Nets (VV4)** to delay Golden Fish eligibility until all 12 Fish Scales have been collected. Stock VV4 allows Golden Fish after only one scale and uses the chance `2 × collected scales + 1%`.
+Enable **Complete Fish Scales = Golden Fish in Nets (The Tree of Life)** to delay Golden Fish eligibility until all 12 Fish Scales have been collected. Stock VV4 allows Golden Fish after only one scale and uses the chance `2 × collected scales + 1%`.
 
 The patch changes only the eligibility threshold from 1 to 12. At full completion, the stock formula still gives a 25% Golden Fish chance. Normal fish, fishing animations, food awards, scale collection, and all other fishing outcomes remain unchanged.
 
-## VV3: Nature Level 1 Improves Honey Refill
+## VV3: Nature Level 1 Actually Replenishes Food Sources Faster
 
-Enable **Nature Level 1 Improves Honey Refill (VV3)** so Nature level 1 or higher improves honey regeneration by the same proportional amount used by the stock fruit-tree refill routine. Nature level 0 retains the original honey rate. The existing one-hour honey update threshold and 3,000-unit cap remain unchanged.
+Enable **Nature Level 1 Actually Replenishes Food Sources Faster (The Secret City)** to make the technology description literal. At Nature level 1 or higher, fruit trees become refill-eligible after 2 hours 15 minutes instead of 3 hours, and honey becomes refill-eligible after 45 minutes instead of 1 hour.
 
-The patch does not change honey harvesting, initial honey, the honey display, fruit-tree behavior, or Nature technology progression.
+The stock Nature fruit quantity is preserved at the shorter interval: approximately 126 fruit instead of 111 for the same stock refill group. Honey also receives the exact `42/37` proportional quantity bonus, normalized to its new 45-minute interval. Nature level 0 retains stock timing and amounts. The 3,000-unit honey cap remains unchanged.
 
 ## VV5: Easier Devotee Training
 
-Enable **Easier Devotee Training (VV5)** so any villager with positive Devotion skill can spontaneously choose the game's original **Honoring** action. The stock autonomous opportunity is confined to the Retired Chief job state; other devotees normally have to be dropped on the upgradeable statue to begin Honoring. This patch checks actual Devotion skill instead.
+Enable **Easier Devotee Training (New Believers)** so any villager with positive Devotion skill can spontaneously choose the game's original **Honoring** action. The stock autonomous opportunity is confined to the Retired Chief job state; other devotees normally have to be dropped on the upgradeable statue to begin Honoring. This patch checks actual Devotion skill instead.
 
 The normal idle scheduler and its existing timing chance remain unchanged. The patch reuses the stock Honoring action queue and skill-gain behavior, does not grant Devotion directly, and does not alter conversion, statue upgrades, manual statue assignment, or Devotion thresholds. **Spreading the Word remains a Retired Chief activity and is not assigned to ordinary devotees.**
 
 ## VV5: Statue Drops — Polishing or Honoring
 
-Enable **Statue Drops: Polishing or Honoring (VV5)** so dropping a villager on either the upgradeable statue or its completed form chooses with equal 50/50 odds between the game's original **Polishing the Statue** and **Honoring** behaviors. Both original action queues remain intact; the patch changes only which one is selected for the manual drop.
+Enable **Statue Drops: Polishing or Honoring (New Believers)** so dropping a villager on either the upgradeable statue or its completed form chooses with equal 50/50 odds between the game's original **Polishing the Statue** and **Honoring** behaviors. Both original action queues remain intact; the patch changes only which one is selected for the manual drop.
 
 This provides a manual Devotion-training route after the Heathens are gone. It does not change autonomous work, Devotion gains, statue upgrades, or Retired Chief activities.
 
 ## VV5: VV4 Nursery School Divisor Parity
 
-Enable **VV4 Nursery School Divisor Parity (VV5)** to change only the Nursery School's spread-lesson divisor from five to six. VV4 divides one lesson into five shares and writes those shares to five skills. VV5 writes shares to six skills, including Devotion, but retains VV4's divisor of five and therefore distributes six-fifths of a lesson when all six skills qualify.
+Enable **VV4 Nursery School Divisor Parity (New Believers)** to change only the Nursery School's spread-lesson divisor from five to six. VV4 divides one lesson into five shares and writes those shares to five skills. VV5 writes shares to six skills, including Devotion, but retains VV4's divisor of five and therefore distributes six-fifths of a lesson when all six skills qualify.
 
 For parity with Virtual Villagers 4, this optional patch gives each of VV5's six skills one-sixth of the spread lesson. It does not change focused strongest-skill lessons, teacher qualification, teacher selection, teacher skill totals, the under-14 eligibility rule, the approximately-50 skill ceiling, or offline catch-up. The arithmetic inconsistency is code-confirmed; whether it was intentional cannot be determined from the executable alone.
 

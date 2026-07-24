@@ -123,6 +123,12 @@ class GuiSourceTests(unittest.TestCase):
         self.assertIn("variable.set(True)", source)
         self.assertIn("variable.set(False)", source)
 
+    def test_fun_patch_labels_use_game_subtitles(self) -> None:
+        source = (ROOT / "src" / "vv_fun_patcher_gui.py").read_text(encoding="utf-8")
+        self.assertIn('text=f"{patch.name} ({game_name})"', source)
+        self.assertIn('removeprefix("Virtual Villagers - ")', source)
+        self.assertNotIn('text=f"{patch.name} ({patch.game_id.upper()})"', source)
+
 
 class StockIntegrationTests(unittest.TestCase):
     def setUp(self) -> None:
@@ -811,32 +817,71 @@ class StockIntegrationTests(unittest.TestCase):
         preview = dry_run(source, DEFAULT_PATCH_MODE, [feature_id])
         self.assertEqual(preview["output_name"], modded_exe_name(build))
 
-    def test_vv3_nature_level_one_improves_honey_refill(self) -> None:
+    def test_vv3_nature_level_one_actually_replenishes_food_faster(self) -> None:
         feature_id = "vv3_nature_honey_refill"
         feature = next(patch for patch in load_fun_patches() if patch.id == feature_id)
         build = next(build for build in load_builds() if build.id == "vv3")
         source = STOCK / build.input_name
-        rendered, applied = render_patched_bytes(
-            source, build, DEFAULT_PATCH_MODE, [feature_id]
-        )
-        self.assertEqual(
-            len(applied),
-            len(build.safety_patches)
-            + len(get_patch_variant(build, DEFAULT_PATCH_MODE)["patches"])
-            + len(feature.patches),
-        )
-        self.assertEqual(
-            bytes(rendered[0x319F9:0x31A09]),
-            bytes.fromhex("E9A29804009090909090909090909090"),
-        )
-        self.assertEqual(
-            bytes(rendered[0x7B2A0:0x7B2E0]),
-            bytes.fromhex(
-                "8B560C2BC2506A05B918265800E80EBDFAFF83F801587C15"
-                "B954000000F7E1B950080200F7F18BD0E93C67FBFF8BD0D1"
-                "E2B8C5B3A291F7E2C1EA0BE92967FBFF"
-            ),
-        )
+        for mode in MODES:
+            with self.subTest(mode=mode):
+                rendered, applied = render_patched_bytes(
+                    source, build, mode, [feature_id]
+                )
+                expansion_count = (
+                    len(EXPANDED["games"]["vv3"]["patches"])
+                    if get_patch_variant(build, mode).get("expanded_records", False)
+                    else 0
+                )
+                self.assertEqual(
+                    len(applied),
+                    len(build.safety_patches)
+                    + len(get_patch_variant(build, mode)["patches"])
+                    + len(feature.patches)
+                    + expansion_count,
+                )
+                self.assertEqual(
+                    bytes(rendered[0x319E2:0x319EF]),
+                    bytes.fromhex("E9599904009090909090909090"),
+                )
+                self.assertEqual(
+                    bytes(rendered[0x319F9:0x31A09]),
+                    bytes.fromhex("E9A29804009090909090909090909090"),
+                )
+                self.assertEqual(
+                    bytes(rendered[0x347AA:0x347B7]),
+                    bytes.fromhex("E9D16B04009090909090909090"),
+                )
+                self.assertEqual(
+                    bytes(rendered[0x7B2A0:0x7B2E0]),
+                    bytes.fromhex(
+                        "8B560C2BC2506A05B918265800E80EBDFAFF83F801587C15"
+                        "B954000000F7E1B93C860100F7F18BD0E93C67FBFF8BD0D1"
+                        "E2B8C5B3A291F7E2C1EA0BE92967FBFF"
+                    ),
+                )
+                self.assertEqual(
+                    bytes(rendered[0x347CD:0x347D2]),
+                    bytes.fromhex("BD38000000"),
+                )
+                self.assertEqual(
+                    bytes(rendered[0x7B340:0x7B371]),
+                    bytes.fromhex(
+                        "506A05B918265800E873BCFAFF83F801588B4E0C7C0881C1"
+                        "8C0A0000EB0681C1100E00003BC10F82B566FBFFE97E66FBFF"
+                    ),
+                )
+                self.assertEqual(
+                    bytes(rendered[0x7B380:0x7B3B1]),
+                    bytes.fromhex(
+                        "506A05B918265800E833BCFAFF83F801588B4FF87C0881C1"
+                        "A41F0000EB0681C1302A00003BC10F825594FBFFE90694FBFF"
+                    ),
+                )
+        self.assertEqual(2700, 3600 * 3 // 4)
+        self.assertEqual(8100, 10800 * 3 // 4)
+        self.assertEqual(126, 111 * 42 // 37)
+        self.assertEqual(8100 * 56, 10800 * 42)
+        self.assertEqual((2700 * 84) // 99900, 2)
         preview = dry_run(source, DEFAULT_PATCH_MODE, [feature_id])
         self.assertEqual(preview["fun_patches"], [feature_id])
         self.assertEqual(preview["output_name"], modded_exe_name(build))
