@@ -14,7 +14,7 @@
       "absolute_maximum": 256,
       "variants": {
         "collection_progression": {
-          "output_name": "Virtual Villagers - A New Home - Modified Max Pop.exe",
+          "output_name": "Virtual Villagers - A New Home - Modded.exe",
           "bonuses_affect_maximum": false,
           "patches": [
             {
@@ -32,7 +32,7 @@
           ]
         },
         "immediate_fixed": {
-          "output_name": "Virtual Villagers - A New Home - Fixed Max Pop.exe",
+          "output_name": "Virtual Villagers - A New Home - Modded.exe",
           "bonuses_affect_maximum": false,
           "patches": [
             {
@@ -50,7 +50,7 @@
           ]
         },
         "experimental_expanded_256": {
-          "output_name": "Virtual Villagers - A New Home - Experimental 256 Villagers.exe",
+          "output_name": "Virtual Villagers - A New Home - Modded.exe",
           "bonuses_affect_maximum": false,
           "villager_slots": 256,
           "absolute_maximum": 256,
@@ -70,7 +70,7 @@
           ]
         },
         "experimental_expanded_256_progression": {
-          "output_name": "Virtual Villagers - A New Home - Experimental 256 Progression.exe",
+          "output_name": "Virtual Villagers - A New Home - Modded.exe",
           "bonuses_affect_maximum": false,
           "villager_slots": 256,
           "absolute_maximum": 256,
@@ -207,7 +207,7 @@
       "absolute_maximum": 256,
       "variants": {
         "collection_progression": {
-          "output_name": "Virtual Villagers - The Lost Children - Modified Max Pop.exe",
+          "output_name": "Virtual Villagers - The Lost Children - Modded.exe",
           "bonuses_affect_maximum": true,
           "patches": [
             {
@@ -225,7 +225,7 @@
           ]
         },
         "immediate_fixed": {
-          "output_name": "Virtual Villagers - The Lost Children - Fixed Max Pop.exe",
+          "output_name": "Virtual Villagers - The Lost Children - Modded.exe",
           "bonuses_affect_maximum": false,
           "patches": [
             {
@@ -237,7 +237,7 @@
           ]
         },
         "experimental_expanded_256": {
-          "output_name": "Virtual Villagers - The Lost Children - Experimental 256 Villagers.exe",
+          "output_name": "Virtual Villagers - The Lost Children - Modded.exe",
           "bonuses_affect_maximum": false,
           "villager_slots": 256,
           "absolute_maximum": 256,
@@ -251,7 +251,7 @@
           ]
         },
         "experimental_expanded_256_progression": {
-          "output_name": "Virtual Villagers - The Lost Children - Experimental 256 Progression.exe",
+          "output_name": "Virtual Villagers - The Lost Children - Modded.exe",
           "bonuses_affect_maximum": true,
           "villager_slots": 256,
           "absolute_maximum": 256,
@@ -364,7 +364,7 @@
       "absolute_maximum": 150,
       "variants": {
         "collection_progression": {
-          "output_name": "Virtual Villagers - The Secret City - Modified Max Pop.exe",
+          "output_name": "Virtual Villagers - The Secret City - Modded.exe",
           "bonuses_affect_maximum": true,
           "patches": [
             {
@@ -376,7 +376,7 @@
           ]
         },
         "immediate_fixed": {
-          "output_name": "Virtual Villagers - The Secret City - Fixed Max Pop.exe",
+          "output_name": "Virtual Villagers - The Secret City - Modded.exe",
           "bonuses_affect_maximum": false,
           "patches": [
             {
@@ -388,7 +388,7 @@
           ]
         },
         "experimental_expanded_256": {
-          "output_name": "Virtual Villagers - The Secret City - Experimental 256 Villagers.exe",
+          "output_name": "Virtual Villagers - The Secret City - Modded.exe",
           "bonuses_affect_maximum": false,
           "villager_slots": 256,
           "absolute_maximum": 256,
@@ -403,7 +403,7 @@
           ]
         },
         "experimental_expanded_256_progression": {
-          "output_name": "Virtual Villagers - The Secret City - Experimental 256 Progression.exe",
+          "output_name": "Virtual Villagers - The Secret City - Modded.exe",
           "bonuses_affect_maximum": true,
           "villager_slots": 256,
           "absolute_maximum": 256,
@@ -487,7 +487,7 @@
       "absolute_maximum": 150,
       "variants": {
         "collection_progression": {
-          "output_name": "Virtual Villagers - The Tree of Life - Modified Max Pop.exe",
+          "output_name": "Virtual Villagers - The Tree of Life - Modded.exe",
           "bonuses_affect_maximum": true,
           "patches": [
             {
@@ -499,7 +499,7 @@
           ]
         },
         "immediate_fixed": {
-          "output_name": "Virtual Villagers - The Tree of Life - Fixed Max Pop.exe",
+          "output_name": "Virtual Villagers - The Tree of Life - Modded.exe",
           "bonuses_affect_maximum": false,
           "patches": [
             {
@@ -511,7 +511,7 @@
           ]
         },
         "experimental_expanded_256": {
-          "output_name": "Virtual Villagers - The Tree of Life - Experimental 256 Villagers.exe",
+          "output_name": "Virtual Villagers - The Tree of Life - Modded.exe",
           "bonuses_affect_maximum": false,
           "villager_slots": 256,
           "absolute_maximum": 256,
@@ -526,7 +526,7 @@
           ]
         },
         "experimental_expanded_256_progression": {
-          "output_name": "Virtual Villagers - The Tree of Life - Experimental 256 Progression.exe",
+          "output_name": "Virtual Villagers - The Tree of Life - Modded.exe",
           "bonuses_affect_maximum": true,
           "villager_slots": 256,
           "absolute_maximum": 256,
@@ -622,7 +622,7 @@
       "absolute_maximum": 150,
       "variants": {
         "collection_progression": {
-          "output_name": "Virtual Villagers - New Believers - Modified Max Pop.exe",
+          "output_name": "Virtual Villagers - New Believers - Modded.exe",
           "bonuses_affect_maximum": true,
           "patches": [
             {
@@ -640,7 +640,7 @@
           ]
         },
         "immediate_fixed": {
-          "output_name": "Virtual Villagers - New Believers - Fixed Max Pop.exe",
+          "output_name": "Virtual Villagers - New Believers - Modded.exe",
           "bonuses_affect_maximum": false,
           "patches": [
             {
@@ -664,7 +664,7 @@
           ]
         },
         "experimental_expanded_256": {
-          "output_name": "Virtual Villagers - New Believers - Experimental 256 Villagers.exe",
+          "output_name": "Virtual Villagers - New Believers - Modded.exe",
           "bonuses_affect_maximum": false,
           "villager_slots": 256,
           "absolute_maximum": 256,
@@ -691,7 +691,7 @@
           ]
         },
         "experimental_expanded_256_progression": {
-          "output_name": "Virtual Villagers - New Believers - Experimental 256 Progression.exe",
+          "output_name": "Virtual Villagers - New Believers - Modded.exe",
           "bonuses_affect_maximum": true,
           "villager_slots": 256,
           "absolute_maximum": 256,

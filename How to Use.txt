@@ -66,55 +66,18 @@ selected population patch style.
 
 OUTPUTS
 
-Collection Progression creates:
-(name of game) - Modified Max Pop.exe
+Every mode and optional-patch combination creates the same short names:
 
-Immediate Fixed creates:
-(name of game) - Fixed Max Pop.exe
+(name of game) - Modded\
+(name of game) - Modded.exe
 
-Experimental Expanded 256 creates:
-(name of game) - Experimental 256 Villagers.exe
-
-Experimental Expanded 256 - Collection Progression creates:
-(name of game) - Experimental 256 Progression.exe
-
-When School Lessons Grant Skill is selected for VV1, its name adds:
-+ School Grants Skill.exe
-
-When Continue Research at Max Technologies is selected for VV1, its name adds:
-+ Continue Max-Tech Research.exe
-
-When Reenable F6 Clothing Change Cheat is selected for VV1, its name adds:
-+ F6 Clothing Cheat.exe
-
-When Easier Healing Mastery is selected for VV2, its output name adds:
-+ Easier Healing.exe
-
-When Teaching Children Grants Skill is selected for VV2, its name adds:
-+ Teaching Grants Skill.exe
-
-When Nature Level 1 Improves Honey Refill is selected for VV3, its name adds:
-+ Nature Honey Refill.exe
-
-When Complete Fish Scales = Golden Fish in Nets is selected for VV4, its name adds:
-+ Complete Scales Golden Fish.exe
-
-When Heathen Mommy Puzzle Restoration is selected for VV5, its name adds:
-+ Heathen Mommy.exe
-
-When Easier Devotee Training is selected for VV5, its name adds:
-+ Easier Devotee.exe
-
-When Statue Drops: Polishing or Honoring is selected for VV5, its name adds:
-+ Random Statue Training.exe
-
-When VV4 Nursery School Divisor Parity is selected for VV5, its name adds:
-+ VV4 Nursery Divisor Parity.exe
+Mode and optional-patch details are recorded in the modified EXE's adjacent
+.patch-log.json file instead of being added to the EXE or save-folder name.
 
 For each game, the patcher creates one complete sibling copy named
 "(Game name) - Modded". The copied folder keeps every original file and
-subfolder, including the stock EXE, and adds the separately named modified EXE
-and verification log. The copy is verified before it is committed. Applying
+subfolder, including the stock EXE, and adds "(Game name) - Modded.exe" and its
+verification log. The copy is verified before it is committed. Applying
 another style refreshes the same short Modded folder after confirmation.
 Original folders and EXEs are never changed, renamed, replaced, or deleted. The
 patcher remembers the selected style, single-game EXE path, and all five folder

@@ -14,78 +14,78 @@ Its standard max-population modes use every built-in villager slot: 256 slots in
 
 Choose the style in the patcher; the choice and all paths are remembered.
 
-| Style | Collection behavior | Output suffix |
+| Style | Collection behavior | Output EXE |
 |---|---|---|
-| Collection Progression Max Pop | The original population bonuses remain active and are required to reach the slot maximum. The Secret City also retains its level-3 magic bonus. | `- Modified Max Pop.exe` |
-| Immediate Fixed Max Pop | The slot maximum is available immediately. Collections no longer change it; The Secret City's magic tech no longer changes it either. | `- Fixed Max Pop.exe` |
-| Experimental Expanded 256 Villagers | VV3-VV5 expand their physical record pool and saved-villager table from 150 to 256. VV1-VV2 use their existing 256 slots. The cap is immediate and bonuses no longer change it. | `- Experimental 256 Villagers.exe` |
-| Experimental Expanded 256 - Collection Progression | Uses the same expanded records, but collections retain their original bonuses and are required to reach 256. The Secret City's level-3 Magic bonus also remains active. | `- Experimental 256 Progression.exe` |
+| Collection Progression Max Pop | The original population bonuses remain active and are required to reach the slot maximum. The Secret City also retains its level-3 magic bonus. | `(Game name) - Modded.exe` |
+| Immediate Fixed Max Pop | The slot maximum is available immediately. Collections no longer change it; The Secret City's magic tech no longer changes it either. | `(Game name) - Modded.exe` |
+| Experimental Expanded 256 Villagers | VV3-VV5 expand their physical record pool and saved-villager table from 150 to 256. VV1-VV2 use their existing 256 slots. The cap is immediate and bonuses no longer change it. | `(Game name) - Modded.exe` |
+| Experimental Expanded 256 - Collection Progression | Uses the same expanded records, but collections retain their original bonuses and are required to reach 256. The Secret City's level-3 Magic bonus also remains active. | `(Game name) - Modded.exe` |
 
-A New Home has no collection population bonus, so all four styles use the same 256 limit but still create separately named outputs.
+Every mode and optional-patch combination uses the same stable short EXE name. The selected mode, optional patches, hashes, and applied edits remain identified in the adjacent `.patch-log.json`.
 
-VV3-VV5 experimental builds keep the stock save filenames. Their uniquely named modified EXEs use separate executable-named save folders, so the extra E-filename convention is unnecessary. The patcher copies the complete game folder—including `fmod.dll`, SDL2, image libraries, and all data files—then places the separately named experimental EXE inside it. Startup is verified for all three expanded games; reaching, saving, and reloading a live 256-villager village remains long-play testing, so the mode is explicitly experimental.
+VV3-VV5 experimental builds keep the stock save filenames. Their short `(Game name) - Modded.exe` executables use separate, short executable-named save folders, so the extra E-filename convention is unnecessary. The patcher copies the complete game folder—including `fmod.dll`, SDL2, image libraries, and all data files—then places the modified EXE inside it. Startup is verified for all three expanded games; reaching, saving, and reloading a live 256-villager village remains long-play testing, so the mode is explicitly experimental.
 
 ## VV2: Easier Healing Mastery
 
 Enable the optional **Easier Healing Mastery (VV2)** checkbox to change the Healing job fallback in The Lost Children. When a healer or a villager who prefers Healing has no sick villager to treat, the stock job scheduler now enters its existing persistent plant-study state instead of returning "no work." The same stock state is processed during ordinary play and time catch-up.
 
-The patch does not change healing gains, illness, food, skill thresholds, plant availability, or manual plant study. If the option is combined with Collection Progression, the output is named `Virtual Villagers - The Lost Children - Modified Max Pop + Easier Healing.exe`; Immediate Fixed uses the matching `Fixed Max Pop + Easier Healing.exe` name. Max-pop-only names remain unchanged.
+The patch does not change healing gains, illness, food, skill thresholds, plant availability, or manual plant study. Its selection is recorded in the verification log without lengthening the short Modded EXE name.
 
 ## VV1: School Lessons Grant Skill
 
-Enable **School Lessons Grant Skill (VV1)** to reward a villager once whenever the unlocked stock routine sends that villager to school. The attendee gains one point in Farming, Building, Research, Healing, or Parenting with equal odds; skills remain capped at 100. The patch does not unlock the school, change attendance selection, or alter the school action queue. Its output name adds `+ School Grants Skill.exe`.
+Enable **School Lessons Grant Skill (VV1)** to reward a villager once whenever the unlocked stock routine sends that villager to school. The attendee gains one point in Farming, Building, Research, Healing, or Parenting with equal odds; skills remain capped at 100. The patch does not unlock the school, change attendance selection, or alter the school action queue.
 
 ## VV1: Continue Research at Max Technologies
 
-Enable **Continue Research at Max Technologies (VV1)** so researchers remain eligible for the stock research action after all six technologies reach level 3. They continue using the original research queue, Research skill, Science-technology multiplier, and tech-point award routine. Its output name adds `+ Continue Max-Tech Research.exe`.
+Enable **Continue Research at Max Technologies (VV1)** so researchers remain eligible for the stock research action after all six technologies reach level 3. They continue using the original research queue, Research skill, Science-technology multiplier, and tech-point award routine.
 
 ## VV1: Reenable F6 Clothing Change Cheat
 
 Enable **Reenable F6 Clothing Change Cheat (VV1)** so pressing F6 advances the selected active villager to the next stock outfit. The cycle covers the game's ordinary clothing indices 0 through 19 and wraps from 19 back to 0. Pressing F6 without a valid active selection changes nothing.
 
-The patch does not alter heads, sex, age, skills, health, jobs, movement, actions, or clothing assets. F7, F8, and all non-F6 keys retain their original behavior. Its output name adds `+ F6 Clothing Cheat.exe`.
+The patch does not alter heads, sex, age, skills, health, jobs, movement, actions, or clothing assets. F7, F8, and all non-F6 keys retain their original behavior.
 
 ## VV2: Teaching Children Grants Skill
 
 Enable **Teaching Children Grants Skill (VV2)** to make the stock Teaching Children activity reward every attending child once when the lesson begins. Each attendee gains exactly one point in Farming, Building, Research, Healing, or Parenting. All five choices have equal odds, and a skill already at 100 is left at 100.
 
-The patch does not create extra lessons, change who attends, alter the teacher requirement, or reward children who are not enrolled by the stock lesson routine. Its output name adds `+ Teaching Grants Skill.exe`; selecting both VV2 options adds both tags.
+The patch does not create extra lessons, change who attends, alter the teacher requirement, or reward children who are not enrolled by the stock lesson routine.
 
 ## VV5: Heathen Mommy Puzzle Restoration
 
 Enable **Heathen Mommy Puzzle Restoration (VV5)** to restore the natural-build Heathen Mommy to newly created villages and restore the hidden 17th Heathen Parent graphic to the Puzzles screen. The supplied natural build creates a 29th Heathen with tag 17, initializes her, and assigns one forced nursing baby. The supported modern initializer creates only 28 Heathens and omits that sequence.
 
-The patch reproduces the natural build's exact mother arguments and nursing-baby call, then restores the retained locked/solved puzzle graphic using puzzle 17's actual completion state. The mother and baby require two physical population slots. This new-game initialization does not retroactively add a mother to an existing save. Its output name adds `+ Heathen Mommy.exe`.
+The patch reproduces the natural build's exact mother arguments and nursing-baby call, then restores the retained locked/solved puzzle graphic using puzzle 17's actual completion state. The mother and baby require two physical population slots. This new-game initialization does not retroactively add a mother to an existing save.
 
 ## VV4: Complete Fish Scales = Golden Fish in Nets
 
 Enable **Complete Fish Scales = Golden Fish in Nets (VV4)** to delay Golden Fish eligibility until all 12 Fish Scales have been collected. Stock VV4 allows Golden Fish after only one scale and uses the chance `2 × collected scales + 1%`.
 
-The patch changes only the eligibility threshold from 1 to 12. At full completion, the stock formula still gives a 25% Golden Fish chance. Normal fish, fishing animations, food awards, scale collection, and all other fishing outcomes remain unchanged. Its output name adds `+ Complete Scales Golden Fish.exe`.
+The patch changes only the eligibility threshold from 1 to 12. At full completion, the stock formula still gives a 25% Golden Fish chance. Normal fish, fishing animations, food awards, scale collection, and all other fishing outcomes remain unchanged.
 
 ## VV3: Nature Level 1 Improves Honey Refill
 
 Enable **Nature Level 1 Improves Honey Refill (VV3)** so Nature level 1 or higher improves honey regeneration by the same proportional amount used by the stock fruit-tree refill routine. Nature level 0 retains the original honey rate. The existing one-hour honey update threshold and 3,000-unit cap remain unchanged.
 
-The patch does not change honey harvesting, initial honey, the honey display, fruit-tree behavior, or Nature technology progression. Its output name adds `+ Nature Honey Refill.exe`.
+The patch does not change honey harvesting, initial honey, the honey display, fruit-tree behavior, or Nature technology progression.
 
 ## VV5: Easier Devotee Training
 
 Enable **Easier Devotee Training (VV5)** so any villager with positive Devotion skill can spontaneously choose the game's original **Honoring** action. The stock autonomous opportunity is confined to the Retired Chief job state; other devotees normally have to be dropped on the upgradeable statue to begin Honoring. This patch checks actual Devotion skill instead.
 
-The normal idle scheduler and its existing timing chance remain unchanged. The patch reuses the stock Honoring action queue and skill-gain behavior, does not grant Devotion directly, and does not alter conversion, statue upgrades, manual statue assignment, or Devotion thresholds. **Spreading the Word remains a Retired Chief activity and is not assigned to ordinary devotees.** Its output name adds `+ Easier Devotee.exe`.
+The normal idle scheduler and its existing timing chance remain unchanged. The patch reuses the stock Honoring action queue and skill-gain behavior, does not grant Devotion directly, and does not alter conversion, statue upgrades, manual statue assignment, or Devotion thresholds. **Spreading the Word remains a Retired Chief activity and is not assigned to ordinary devotees.**
 
 ## VV5: Statue Drops — Polishing or Honoring
 
 Enable **Statue Drops: Polishing or Honoring (VV5)** so dropping a villager on either the upgradeable statue or its completed form chooses with equal 50/50 odds between the game's original **Polishing the Statue** and **Honoring** behaviors. Both original action queues remain intact; the patch changes only which one is selected for the manual drop.
 
-This provides a manual Devotion-training route after the Heathens are gone. It does not change autonomous work, Devotion gains, statue upgrades, or Retired Chief activities. Its output name adds `+ Random Statue Training.exe`.
+This provides a manual Devotion-training route after the Heathens are gone. It does not change autonomous work, Devotion gains, statue upgrades, or Retired Chief activities.
 
 ## VV5: VV4 Nursery School Divisor Parity
 
 Enable **VV4 Nursery School Divisor Parity (VV5)** to change only the Nursery School's spread-lesson divisor from five to six. VV4 divides one lesson into five shares and writes those shares to five skills. VV5 writes shares to six skills, including Devotion, but retains VV4's divisor of five and therefore distributes six-fifths of a lesson when all six skills qualify.
 
-For parity with Virtual Villagers 4, this optional patch gives each of VV5's six skills one-sixth of the spread lesson. It does not change focused strongest-skill lessons, teacher qualification, teacher selection, teacher skill totals, the under-14 eligibility rule, the approximately-50 skill ceiling, or offline catch-up. The arithmetic inconsistency is code-confirmed; whether it was intentional cannot be determined from the executable alone. Its output name adds `+ VV4 Nursery Divisor Parity.exe`.
+For parity with Virtual Villagers 4, this optional patch gives each of VV5's six skills one-sixth of the spread lesson. It does not change focused strongest-skill lessons, teacher qualification, teacher selection, teacher skill totals, the under-14 eligibility rule, the approximately-50 skill ceiling, or offline catch-up. The arithmetic inconsistency is code-confirmed; whether it was intentional cannot be determined from the executable alone.
 
 | Game | Stock final maximum | Collection Progression maximum | Immediate Fixed maximum | Experimental immediate | Experimental progression |
 |---|---:|---:|---:|---:|---:|
@@ -135,7 +135,7 @@ The One Game tab includes clickable **Open Vanilla EXE Folder** and **Open Modif
 
 The **Additional fun patches** section includes **Select All Patches** and **Deselect All Patches** buttons. They change every optional fun-patch checkbox at once without changing the selected population patch style, and the selection is remembered normally.
 
-For every selected game, the patcher creates one short sibling folder named **`(Game name) - Modded`**. It copies every file and subfolder from the original game folder, verifies the copied files by SHA-256, keeps the stock EXE in the copy, and adds the separately named modified EXE plus its `.patch-log.json`. The original folder and original EXE are never edited, renamed, replaced, or deleted. Applying another patch style refreshes that game's same Modded folder after confirmation.
+For every selected game, the patcher creates one short sibling folder named **`(Game name) - Modded`** containing **`(Game name) - Modded.exe`**. It copies every file and subfolder from the original game folder, verifies the copied files by SHA-256, keeps the stock EXE in the copy, and adds the modified EXE plus its `.patch-log.json`. The original folder and original EXE are never edited, renamed, replaced, or deleted. Applying another patch style refreshes that game's same Modded folder after confirmation.
 
 ## Exact-build safety
 

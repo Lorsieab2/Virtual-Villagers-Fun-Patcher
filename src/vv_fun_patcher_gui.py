@@ -315,14 +315,14 @@ class App(tk.Tk):
         elif mode.id == "experimental_expanded_256":
             detail = (
                 "Experimental: VV3-VV5 expand their physical records and save layout from 150 to 256. "
-                "Their differently named EXEs use separate executable-named save folders. "
+                "Their short Modded EXEs use separate executable-named save folders. "
                 "VV1-VV2 use their existing 256 slots. Collections no longer change the cap."
             )
         else:
             detail = (
                 "Experimental progression: VV3-VV5 expand to 256 records. Collections, "
                 "and The Secret City's level-3 Magic bonus, retain their original effects "
-                "and are needed to reach 256. Modified EXEs use separate save folders."
+                "and are needed to reach 256. Short Modded EXEs use separate save folders."
             )
         self.mode_detail_var.set(detail)
         self.status_var.set(f"Selected: {mode.name}. {detail}")

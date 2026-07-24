@@ -116,12 +116,7 @@ def _selected_fun_patches(
 
 
 def _output_name(build: Build, patch_mode: str, fun_patches: list[FunPatch]) -> str:
-    base = get_patch_variant(build, patch_mode)["output_name"]
-    if not fun_patches:
-        return base
-    stem = base[:-4] if base.casefold().endswith(".exe") else base
-    tags = " + ".join(patch.output_tag for patch in fun_patches)
-    return f"{stem} + {tags}.exe"
+    return get_patch_variant(build, patch_mode)["output_name"]
 
 
 def output_folder_for(

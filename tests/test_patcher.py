@@ -42,6 +42,10 @@ def digest(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest().upper()
 
 
+def modded_exe_name(build) -> str:
+    return f"{build.title} - Modded.exe"
+
+
 class ManifestTests(unittest.TestCase):
     def test_stock_and_expanded_record_capacities_are_explicit(self) -> None:
         builds = {build.id: build for build in load_builds()}
@@ -74,13 +78,7 @@ class ManifestTests(unittest.TestCase):
             self.assertEqual(len(build.safety_patches), expected_safety_counts[build.id])
             for mode in MODES:
                 variant = get_patch_variant(build, mode)
-                suffix = {
-                    "collection_progression": "Modified Max Pop.exe",
-                    "immediate_fixed": "Fixed Max Pop.exe",
-                    "experimental_expanded_256": "Experimental 256 Villagers.exe",
-                    "experimental_expanded_256_progression": "Experimental 256 Progression.exe",
-                }[mode]
-                self.assertEqual(variant["output_name"], f"{build.title} - {suffix}")
+                self.assertEqual(variant["output_name"], modded_exe_name(build))
             if build.id == "vv1":
                 self.assertFalse(get_patch_variant(build, MODES[0])["bonuses_affect_maximum"])
             else:
@@ -518,7 +516,7 @@ class StockIntegrationTests(unittest.TestCase):
                 validate_all_sources(folders)
             self.assert_no_outputs(folders)
 
-    def test_single_apply_uses_selected_mode_name(self) -> None:
+    def test_single_apply_uses_short_stable_modded_name(self) -> None:
         with tempfile.TemporaryDirectory() as temp:
             build = load_builds()[3]
             game_folder = Path(temp) / "game"
@@ -527,7 +525,7 @@ class StockIntegrationTests(unittest.TestCase):
             shutil.copy2(STOCK / build.input_name, source)
             (game_folder / "keep.dat").write_bytes(b"keep")
             output, log = apply_patch(source, "immediate_fixed")
-            self.assertEqual(output.name, get_patch_variant(build, "immediate_fixed")["output_name"])
+            self.assertEqual(output.name, modded_exe_name(build))
             self.assertTrue(log.is_file())
             self.assertTrue(source.is_file())
             self.assertEqual(output.parent.parent, game_folder.parent)
@@ -544,7 +542,7 @@ class StockIntegrationTests(unittest.TestCase):
         self.assertEqual(bytes(rendered[0x44BF2:0x44BF8]), bytes.fromhex("E9E919010090"))
         self.assertEqual(bytes(rendered[0x565E0:0x5660D]), bytes.fromhex("606A64E828C9FAFF83C40499B905000000F7F98D8493B00000008338647D02FF00616A646A006A00E9EBE5FEFF"))
         preview = dry_run(source, DEFAULT_PATCH_MODE, [feature_id])
-        self.assertEqual(preview["output_name"], "Virtual Villagers - A New Home - Modified Max Pop + School Grants Skill.exe")
+        self.assertEqual(preview["output_name"], modded_exe_name(build))
 
     def test_vv1_continue_research_at_max_technologies_is_guarded(self) -> None:
         feature_id = "vv1_continue_research_at_max_technologies"
@@ -553,7 +551,7 @@ class StockIntegrationTests(unittest.TestCase):
         rendered, _ = render_patched_bytes(source, build, DEFAULT_PATCH_MODE, [feature_id])
         self.assertEqual(rendered[0x47488], 0x13)
         preview = dry_run(source, DEFAULT_PATCH_MODE, [feature_id])
-        self.assertEqual(preview["output_name"], "Virtual Villagers - A New Home - Modified Max Pop + Continue Max-Tech Research.exe")
+        self.assertEqual(preview["output_name"], modded_exe_name(build))
 
     def test_vv1_fun_patches_combine_without_overlap(self) -> None:
         feature_ids = [
@@ -568,7 +566,7 @@ class StockIntegrationTests(unittest.TestCase):
         self.assertEqual(rendered[0x20057], 0)
         self.assertEqual(bytes(rendered[0x1FF2E:0x1FF34]), bytes.fromhex("E9ED66030090"))
         preview = dry_run(STOCK / build.input_name, DEFAULT_PATCH_MODE, feature_ids)
-        self.assertEqual(preview["output_name"], "Virtual Villagers - A New Home - Modified Max Pop + School Grants Skill + Continue Max-Tech Research + F6 Clothing Cheat.exe")
+        self.assertEqual(preview["output_name"], modded_exe_name(build))
 
     def test_vv1_f6_clothing_cheat_is_guarded_and_wraps(self) -> None:
         feature_id = "vv1_f6_clothing_change_cheat"
@@ -598,10 +596,7 @@ class StockIntegrationTests(unittest.TestCase):
         )
         preview = dry_run(source, DEFAULT_PATCH_MODE, [feature_id])
         self.assertEqual(preview["fun_patches"], [feature_id])
-        self.assertEqual(
-            preview["output_name"],
-            "Virtual Villagers - A New Home - Modified Max Pop + F6 Clothing Cheat.exe",
-        )
+        self.assertEqual(preview["output_name"], modded_exe_name(build))
 
     def test_vv2_easier_healing_mastery_is_guarded_and_additive(self) -> None:
         feature_id = "vv2_easier_healing_mastery"
@@ -630,10 +625,7 @@ class StockIntegrationTests(unittest.TestCase):
         )
         preview = dry_run(source, DEFAULT_PATCH_MODE, [feature_id])
         self.assertEqual(preview["fun_patches"], [feature_id])
-        self.assertEqual(
-            preview["output_name"],
-            "Virtual Villagers - The Lost Children - Modified Max Pop + Easier Healing.exe",
-        )
+        self.assertEqual(preview["output_name"], modded_exe_name(build))
 
     def test_vv2_easier_healing_output_and_log_preserve_original(self) -> None:
         feature_id = "vv2_easier_healing_mastery"
@@ -650,7 +642,7 @@ class StockIntegrationTests(unittest.TestCase):
                 fun_patch_ids=[feature_id],
             )
             self.assertEqual(digest(source), original_hash)
-            self.assertIn("Easier Healing", output.name)
+            self.assertEqual(output.name, modded_exe_name(build))
             log = json.loads(log_path.read_text())
             self.assertEqual(log["fun_patches"], [feature_id])
             self.assertEqual(log["fun_patch_names"], ["Easier Healing Mastery"])
@@ -691,10 +683,7 @@ class StockIntegrationTests(unittest.TestCase):
         )
         preview = dry_run(source, DEFAULT_PATCH_MODE, [feature_id])
         self.assertEqual(preview["fun_patches"], [feature_id])
-        self.assertEqual(
-            preview["output_name"],
-            "Virtual Villagers - The Lost Children - Modified Max Pop + Teaching Grants Skill.exe",
-        )
+        self.assertEqual(preview["output_name"], modded_exe_name(build))
 
     def test_vv2_fun_patches_combine_without_overlap(self) -> None:
         feature_ids = [
@@ -725,10 +714,7 @@ class StockIntegrationTests(unittest.TestCase):
         ))
         preview = dry_run(source, DEFAULT_PATCH_MODE, feature_ids)
         self.assertEqual(preview["fun_patches"], feature_ids)
-        self.assertEqual(
-            preview["output_name"],
-            "Virtual Villagers - The Lost Children - Modified Max Pop + Easier Healing + Teaching Grants Skill.exe",
-        )
+        self.assertEqual(preview["output_name"], modded_exe_name(build))
 
     def test_vv5_heathen_mommy_puzzle_is_guarded_and_additive(self) -> None:
         feature_id = "vv5_heathen_mommy_puzzle"
@@ -771,10 +757,7 @@ class StockIntegrationTests(unittest.TestCase):
         )
         preview = dry_run(source, DEFAULT_PATCH_MODE, [feature_id])
         self.assertEqual(preview["fun_patches"], [feature_id])
-        self.assertEqual(
-            preview["output_name"],
-            "Virtual Villagers - New Believers - Modified Max Pop + Heathen Mommy.exe",
-        )
+        self.assertEqual(preview["output_name"], modded_exe_name(build))
 
     def test_vv4_golden_fish_requires_complete_scales_collection(self) -> None:
         feature_id = "vv4_complete_scales_golden_fish"
@@ -793,10 +776,7 @@ class StockIntegrationTests(unittest.TestCase):
         )
         self.assertEqual(2 * 12 + 1, 25)
         preview = dry_run(source, DEFAULT_PATCH_MODE, [feature_id])
-        self.assertEqual(
-            preview["output_name"],
-            "Virtual Villagers - The Tree of Life - Modified Max Pop + Complete Scales Golden Fish.exe",
-        )
+        self.assertEqual(preview["output_name"], modded_exe_name(build))
 
     def test_vv3_nature_level_one_improves_honey_refill(self) -> None:
         feature_id = "vv3_nature_honey_refill"
@@ -826,10 +806,7 @@ class StockIntegrationTests(unittest.TestCase):
         )
         preview = dry_run(source, DEFAULT_PATCH_MODE, [feature_id])
         self.assertEqual(preview["fun_patches"], [feature_id])
-        self.assertEqual(
-            preview["output_name"],
-            "Virtual Villagers - The Secret City - Modified Max Pop + Nature Honey Refill.exe",
-        )
+        self.assertEqual(preview["output_name"], modded_exe_name(build))
 
     def test_vv5_easier_devotee_training_is_guarded_and_additive(self) -> None:
         feature_id = "vv5_easier_devotee_training"
@@ -867,10 +844,7 @@ class StockIntegrationTests(unittest.TestCase):
         )
         preview = dry_run(source, DEFAULT_PATCH_MODE, [feature_id])
         self.assertEqual(preview["fun_patches"], [feature_id])
-        self.assertEqual(
-            preview["output_name"],
-            "Virtual Villagers - New Believers - Modified Max Pop + Easier Devotee.exe",
-        )
+        self.assertEqual(preview["output_name"], modded_exe_name(build))
 
     def test_vv5_fun_patches_combine_without_overlap(self) -> None:
         feature_ids = [
@@ -917,10 +891,7 @@ class StockIntegrationTests(unittest.TestCase):
         )
         preview = dry_run(source, DEFAULT_PATCH_MODE, feature_ids)
         self.assertEqual(preview["fun_patches"], feature_ids)
-        self.assertEqual(
-            preview["output_name"],
-            "Virtual Villagers - New Believers - Modified Max Pop + Heathen Mommy + Easier Devotee + Random Statue Training + VV4 Nursery Divisor Parity.exe",
-        )
+        self.assertEqual(preview["output_name"], modded_exe_name(build))
 
     def test_vv5_vv4_nursery_divisor_parity_is_local_and_guarded(self) -> None:
         feature_id = "vv5_vv4_nursery_divisor_parity"
@@ -951,10 +922,7 @@ class StockIntegrationTests(unittest.TestCase):
             bytes.fromhex("0000000000001840"),
         )
         preview = dry_run(source, DEFAULT_PATCH_MODE, [feature_id])
-        self.assertEqual(
-            preview["output_name"],
-            "Virtual Villagers - New Believers - Modified Max Pop + VV4 Nursery Divisor Parity.exe",
-        )
+        self.assertEqual(preview["output_name"], modded_exe_name(build))
 
     def test_vv5_statue_drops_choose_polishing_or_honoring(self) -> None:
         feature_id = "vv5_statue_polishing_or_honoring"
@@ -979,10 +947,7 @@ class StockIntegrationTests(unittest.TestCase):
         ))
         preview = dry_run(source, DEFAULT_PATCH_MODE, [feature_id])
         self.assertEqual(preview["fun_patches"], [feature_id])
-        self.assertEqual(
-            preview["output_name"],
-            "Virtual Villagers - New Believers - Modified Max Pop + Random Statue Training.exe",
-        )
+        self.assertEqual(preview["output_name"], modded_exe_name(build))
 
     def test_bulk_feature_applies_only_to_its_game(self) -> None:
         feature_id = "vv2_easier_healing_mastery"
@@ -999,7 +964,11 @@ class StockIntegrationTests(unittest.TestCase):
                 fun_patch_ids=[feature_id],
             )
             self.assertEqual(len(results), 5)
-            self.assertTrue(any("Easier Healing" in output.name for output, _ in results))
+            for build, (output, log_path) in zip(load_builds(), results):
+                self.assertEqual(output.name, modded_exe_name(build))
+                log = json.loads(log_path.read_text())
+                expected = [feature_id] if build.id == "vv2" else []
+                self.assertEqual(log["fun_patches"], expected)
 
 
 if __name__ == "__main__":
