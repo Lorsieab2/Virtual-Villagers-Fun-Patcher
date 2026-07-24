@@ -461,21 +461,24 @@ class StockIntegrationTests(unittest.TestCase):
                 "call": (0x28949, "E8632A0500"),
                 "cave": (0x7B3B1, 102),
                 "stock_size": "681C2F0100",
-                "tail": "81C7D41E0100",
+                "tail": "81C7CC1E0100",
+                "tail_length": "B950100000",
                 "zero_count": "B9661D0000",
             },
             "vv4": {
                 "call": (0x1FC19, "E8EF940600"),
                 "cave": (0x8910D, 102),
                 "stock_size": "680C710100",
-                "tail": "81C7C0600100",
+                "tail": "81C7B8600100",
+                "tail_length": "B954100000",
                 "zero_count": "B9EA1A0000",
             },
             "vv5": {
                 "call": (0x25709, "E85EEF0600"),
                 "cave": (0x9466C, 102),
                 "stock_size": "68787D0100",
-                "tail": "81C71C6D0100",
+                "tail": "81C7146D0100",
+                "tail_length": "B964100000",
                 "zero_count": "B9FC1C0000",
             },
         }
@@ -498,6 +501,7 @@ class StockIntegrationTests(unittest.TestCase):
                 cave = bytes(rendered[cave_offset : cave_offset + cave_length])
                 self.assertIn(bytes.fromhex(expected["stock_size"]), cave)
                 self.assertIn(bytes.fromhex(expected["tail"]), cave)
+                self.assertIn(bytes.fromhex(expected["tail_length"]), cave)
                 self.assertIn(bytes.fromhex(expected["zero_count"]), cave)
                 self.assertTrue(cave.endswith(bytes.fromhex("C20C00")))
                 if build.id == "vv3":
@@ -646,7 +650,7 @@ class StockIntegrationTests(unittest.TestCase):
         self.assertEqual(
             bytes(rendered[0x566E0:0x56730]),
             bytes.fromhex(
-                "837C24087F753F608BF18B44242469C0D80300008D9C30C4030000"
+                "837C24087F753F608BF18B44242469C0D80300008D9C30BC030000"
                 "6A05E80EC8FAFF83C4048D3C836A03E801C8FAFF83C40483C007"
                 "0107833F647E06C7076400000061C208008B44240848E9053BFEFF"
             ),
@@ -814,6 +818,7 @@ class StockIntegrationTests(unittest.TestCase):
         feature_ids = [
             "vv2_easier_healing_mastery",
             "vv2_teaching_children_grants_skill",
+            "vv2_gong_of_wonder_coconuts_fix",
         ]
         build = next(build for build in load_builds() if build.id == "vv2")
         source = STOCK / build.input_name
@@ -855,6 +860,7 @@ class StockIntegrationTests(unittest.TestCase):
             + len(get_patch_variant(build, DEFAULT_PATCH_MODE)["patches"])
             + len(feature.patches),
         )
+
         self.assertEqual(
             bytes(rendered[0x48F16:0x48F1B]),
             bytes.fromhex("E965B40400"),
@@ -883,6 +889,23 @@ class StockIntegrationTests(unittest.TestCase):
         preview = dry_run(source, DEFAULT_PATCH_MODE, [feature_id])
         self.assertEqual(preview["fun_patches"], [feature_id])
         self.assertEqual(preview["output_name"], modded_exe_name(build))
+
+    def test_vv2_gong_coconuts_adds_in_both_outcome_paths(self) -> None:
+        feature_id = "vv2_gong_of_wonder_coconuts_fix"
+        feature = next(patch for patch in load_fun_patches() if patch.id == feature_id)
+        build = next(build for build in load_builds() if build.id == "vv2")
+        rendered, applied = render_patched_bytes(
+            STOCK / build.input_name, build, DEFAULT_PATCH_MODE, [feature_id]
+        )
+        self.assertEqual(
+            len(applied),
+            len(build.safety_patches)
+            + len(get_patch_variant(build, DEFAULT_PATCH_MODE)["patches"])
+            + len(feature.patches),
+        )
+        expected = bytes.fromhex("8380CCEA02001E909090")
+        self.assertEqual(bytes(rendered[0x4E9A9:0x4E9B3]), expected)
+        self.assertEqual(bytes(rendered[0x4F18C:0x4F196]), expected)
 
     def test_vv4_golden_fish_requires_complete_scales_collection(self) -> None:
         feature_id = "vv4_complete_scales_golden_fish"

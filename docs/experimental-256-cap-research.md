@@ -50,11 +50,20 @@ changing the filenames inside those folders is unnecessary.
 
 VV3-VV5 now use a guarded two-format loader. It first requests the expanded
 payload size. If that exact size check fails, it retries with that game's exact
-stock payload size. A successful stock-layout load moves the approximately
-four-kilobyte saved-state tail upward and zeroes the inserted 106-entry compact
-villager gap before normal validation and live-record conversion continue. A
-subsequent ordinary save writes the expanded layout. Neither failed size check
-nor fallback loading rewrites the source file.
+stock payload size. A successful stock-layout load moves the saved-state tail
+upward and zeroes the inserted 106-entry compact villager gap before normal
+validation and live-record conversion continue. Payload offsets are eight
+bytes lower than their corresponding in-memory object offsets because the
+object stores the loaded payload at `this+8`; the compatibility mover accounts
+for that header. A subsequent ordinary save writes the expanded layout.
+Neither failed size check nor fallback loading rewrites the source file.
+
+An earlier compatibility revision incorrectly used the in-memory offsets
+directly. It moved a tail eight bytes too short and zeroed eight bytes of valid
+saved state, causing the normal validator to reject otherwise valid vanilla
+saves. The corrected loaders were launched in isolated executable-named save
+folders and verified to load the supplied stock-layout VV3, VV4, and VV5 slot
+files into process memory.
 
 VV3 required one additional correction: its expanded stack buffer and loader
 size had been increased, but its following `rep movsd` still copied only the

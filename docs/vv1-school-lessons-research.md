@@ -7,7 +7,7 @@ Supported executable: `Virtual Villagers - A New Home.exe`
 
 VV1 villager records have stride `0x3D8`. The multilingual action table maps `0xC5` to **Going to school**. Routine `0x444B40` assigns that action, then checks the stock school-unlocked flag at global-state offset `+0xA058`; when the flag is clear, the routine replaces the action with its stock alternative. The school-only branch begins at `0x444BF2`.
 
-The five contiguous skill fields are `+0x3C4`, `+0x3C8`, `+0x3CC`, `+0x3D0`, and `+0x3D4`.
+The five contiguous skill fields are `+0x3BC`, `+0x3C0`, `+0x3C4`, `+0x3C8`, and `+0x3CC`. This was rechecked against the stock skill-total routine at `0x43B5A0`. An earlier patch revision incorrectly began at `+0x3C4`; that revision could reach only three real skill fields and is retired.
 
 ## VV3 parity target
 

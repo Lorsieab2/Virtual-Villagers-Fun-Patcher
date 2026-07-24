@@ -911,7 +911,7 @@
         {
           "offset": "0x566E0",
           "before": "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
-          "after": "837C24087F753F608BF18B44242469C0D80300008D9C30C40300006A05E80EC8FAFF83C4048D3C836A03E801C8FAFF83C40483C0070107833F647E06C7076400000061C208008B44240848E9053BFEFF",
+          "after": "837C24087F753F608BF18B44242469C0D80300008D9C30BC0300006A05E80EC8FAFF83C4048D3C836A03E801C8FAFF83C40483C0070107833F647E06C7076400000061C208008B44240848E9053BFEFF",
           "purpose": "award 7 to 9 capped points to one uniformly selected child skill only when callback 127 executes"
         }
       ]
@@ -1147,6 +1147,27 @@
           "before": "0000000000000000",
           "after": "0000000000001840",
           "purpose": "store the private IEEE-754 double constant 6.0 used only by the Nursery School parity patch"
+        }
+      ]
+    },
+    {
+      "id": "vv2_gong_of_wonder_coconuts_fix",
+      "game_id": "vv2",
+      "name": "Gong of Wonder Coconuts Fix",
+      "description": "When the Gong of Wonder grants coconuts, adds 30 to the coconut trees instead of replacing their current amount with 30. Both normal and alternate outcome paths are corrected.",
+      "output_tag": "Gong Coconuts Fix",
+      "patches": [
+        {
+          "offset": "0x4E9A9",
+          "before": "C780CCEA02001E000000",
+          "after": "8380CCEA02001E909090",
+          "purpose": "add 30 coconuts in the first Gong outcome path instead of assigning 30"
+        },
+        {
+          "offset": "0x4F18C",
+          "before": "C780CCEA02001E000000",
+          "after": "8380CCEA02001E909090",
+          "purpose": "add 30 coconuts in the alternate Gong outcome path instead of assigning 30"
         }
       ]
     }
