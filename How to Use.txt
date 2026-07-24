@@ -26,7 +26,8 @@ records and expands saved-villager tables in VV3-VV5.
      City's level-3 Magic bonus also remains active.
 3. Optional for A New Home: check "School Lessons Grant Skill",
    "Continue Research at Max Technologies", and/or
-   "Reenable F6 Clothing Change Cheat".
+   "Reenable F6 Clothing Change Cheat", and/or
+   "Magic Fruit of Life Alters Mortality".
 4. Optional for The Lost Children: check "Easier Healing Mastery" and/or
    "Teaching Children Grants Skill".
 5. Optional for The Secret City: check
@@ -122,6 +123,20 @@ or 9 points in one equally random skill: Farming, Building, Research, Healing,
 or Parenting. This matches the VV3 Tribal Chief lesson award. Skills remain
 capped at 100. An interrupted school action that never reaches its completion
 callback gives no skill.
+
+VV1 MAGIC FRUIT OF LIFE ALTERS MORTALITY
+
+The first time a villager completes Enjoying magic fruit, that villager gains
+one saved random extension of 3 through 9 displayed years. The extension shifts
+the villager's complete birthday-mortality curve in both ordinary play and
+offline time catch-up. It does not reverse displayed age or change health.
+
+The effect never stacks. A later attempt shows "This villager has already
+extended their lifespan." through the same temporary notification system used
+for skill-improvement messages. It does not replace the villager's displayed
+current action and awards nothing. An interrupted first attempt that never
+reaches the marked final fruit-animation cleanup also awards nothing. The
+Golden Child retains its separate stock age exemption.
 
 VV2 TEACHING CHILDREN GRANTS SKILL
 

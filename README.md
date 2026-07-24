@@ -47,6 +47,14 @@ Enable **Reenable F6 Clothing Change Cheat (A New Home)** so pressing F6 advance
 
 The patch does not alter heads, sex, age, skills, health, jobs, movement, actions, or clothing assets. F7, F8, and all non-F6 keys retain their original behavior.
 
+## VV1: Magic Fruit of Life Alters Mortality
+
+Enable **Magic Fruit of Life Alters Mortality (A New Home)** to give each villager one real longevity benefit from the completed Magic Plant of Life. When that villager's first **Enjoying magic fruit** action reaches its second and final fruit-animation cleanup, the game saves `RNG(7)+3`, or 3 through 9 displayed years, as that villager's personal mortality extension.
+
+The saved extension shifts the entire birthday-mortality curve for that villager, including its first risky birthday and guaranteed-death birthday. The ordinary Medicine thresholds of 55, 63, and 71 therefore become 58–64, 66–72, and 74–80 depending on the random award. The same birthday routine runs during ordinary play and offline time catch-up.
+
+The benefit never stacks. Dropping a previously rewarded villager on the completed plant shows **“This villager has already extended their lifespan.”** through the same temporary notification system used for messages such as “This villager improved at foraging”; it does not change the villager's displayed current action or queue another fruit reward. Interrupted first-time fruit actions that never reach the marked final cleanup award nothing. The patch does not reverse displayed age, alter health, change Medicine Technology, or affect the Golden Child's separate age exemption.
+
 ## VV2: Teaching Children Grants Skill
 
 Enable **Teaching Children Grants Skill (The Lost Children)** to reward every attending child once after that child's full stock lesson queue finishes. Each attendee gains 7, 8, or 9 points in Farming, Building, Research, Healing, or Parenting. All five choices have equal odds, and skills remain capped at 100.

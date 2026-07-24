@@ -959,6 +959,87 @@
       ]
     },
     {
+      "id": "vv1_magic_fruit_alters_mortality",
+      "game_id": "vv1",
+      "name": "Magic Fruit of Life Alters Mortality",
+      "description": "The first completed Enjoying magic fruit action gives that villager one saved, random 3-to-9-year extension to the birthday-mortality threshold. It applies during live play and time catch-up and never stacks.",
+      "output_tag": "Magic Fruit Longevity",
+      "patches": [
+        {
+          "offset": "0x43161",
+          "before": "8D9C3014030000",
+          "after": "E9DA3501009090",
+          "purpose": "route Magic Fruit assignment through the once-only longevity check"
+        },
+        {
+          "offset": "0x4322F",
+          "before": "6A00",
+          "after": "6A7E",
+          "purpose": "mark the second completed fruit animation as the longevity-award step"
+        },
+        {
+          "offset": "0x4892D",
+          "before": "8B8F20E0030053E827F3FCFF",
+          "after": "E9CEDE000090909090909090",
+          "purpose": "intercept only the marked effect-cleanup step and award the saved 3-to-9-year extension"
+        },
+        {
+          "offset": "0x2EEAA",
+          "before": "8DA94C0400003BDD",
+          "after": "E9D1790200909090",
+          "purpose": "add the villager's saved Magic Fruit years to the birthday-mortality threshold"
+        },
+        {
+          "offset": "0x3C696",
+          "before": "8D86700300005150C60000",
+          "after": "E925A20100909090909090",
+          "purpose": "initialize the hidden longevity byte to zero whenever a villager record is created or reused"
+        },
+        {
+          "offset": "0x209ED",
+          "before": "8B8E94020000",
+          "after": "E9EE5E030090",
+          "purpose": "route the Magic Fruit repeat result through the same temporary message widget used by skill-improvement notices"
+        },
+        {
+          "offset": "0x56740",
+          "before": "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "after": "8D9C301403000080BC30A703000003720A80BC30A7030000097605E908CAFEFFB87E0000005F5E5BC20400",
+          "purpose": "resume the original first-use action or return the private repeat-result code without changing the villager's current action"
+        },
+        {
+          "offset": "0x56800",
+          "before": "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "after": "83BE14FDFFFF7E752D8B8F20E0030053E84B14FCFF807E63037206807E630976106A07E8E8C6FAFF83C40483C003884663E90321FFFF8B8F20E0030053E81E14FCFFE9F220FFFF",
+          "purpose": "award RNG(7)+3 years only after the marked fruit action reaches its second and final fruit animation cleanup"
+        },
+        {
+          "offset": "0x56880",
+          "before": "0000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "after": "8DA94C0400008B46040FB68407A703000083F803720583F809760233C06BC01403E83BDDE90986FDFF",
+          "purpose": "validate the saved 3-to-9-year value, convert it to internal age units, and shift both mortality threshold and probability curve"
+        },
+        {
+          "offset": "0x568C0",
+          "before": "0000000000000000000000000000000000000000000000",
+          "after": "8D86700300005150C60000C686A703000000E9CA5DFEFF",
+          "purpose": "clear the hidden longevity byte while preserving stock name initialization"
+        },
+        {
+          "offset": "0x568E0",
+          "before": "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "after": "83F87E752468206945008B8E50030000E83B52FBFF8B4E10E873C6FAFF40898684020000E9AEB1FCFF8B8E94020000E9DFA0FCFF",
+          "purpose": "show the exact repeat sentence in the stock temporary message widget, set its normal visibility timer, and preserve every ordinary action result"
+        },
+        {
+          "offset": "0x56920",
+          "before": "000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "after": "546869732076696C6C616765722068617320616C726561647920657874656E646564207468656972206C6966657370616E2E00",
+          "purpose": "store the exact non-stacking sentence used by the stock transient notification system"
+        }
+      ]
+    },
+    {
       "id": "vv3_nature_honey_refill",
       "game_id": "vv3",
       "name": "Nature Level 1 Actually Replenishes Food Sources Faster",
