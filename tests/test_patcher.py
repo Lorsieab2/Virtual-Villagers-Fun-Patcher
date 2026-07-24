@@ -539,8 +539,26 @@ class StockIntegrationTests(unittest.TestCase):
         source = STOCK / build.input_name
         rendered, applied = render_patched_bytes(source, build, DEFAULT_PATCH_MODE, [feature_id])
         self.assertEqual(len(applied), len(build.safety_patches) + len(get_patch_variant(build, DEFAULT_PATCH_MODE)["patches"]) + len(feature.patches))
-        self.assertEqual(bytes(rendered[0x44BF2:0x44BF8]), bytes.fromhex("E9E919010090"))
-        self.assertEqual(bytes(rendered[0x565E0:0x5660D]), bytes.fromhex("606A64E828C9FAFF83C40499B905000000F7F98D8493B00000008338647D02FF00616A646A006A00E9EBE5FEFF"))
+        self.assertEqual(bytes(rendered[0x44BF2:0x44BF8]), bytes.fromhex("6A646A006A00"))
+        self.assertEqual(bytes(rendered[0x44C50:0x44C52]), bytes.fromhex("6A7F"))
+        self.assertEqual(bytes(rendered[0x44C5A:0x44C5C]), bytes.fromhex("6A11"))
+        self.assertEqual(bytes(rendered[0x44C64:0x44C6C]), bytes.fromhex("E9371A0100909090"))
+        self.assertEqual(
+            bytes(rendered[0x566A0:0x566C1]),
+            bytes.fromhex(
+                "6A006A006A006A006A006A13578BCEE83C33FEFF"
+                "578BCEE83478FEFFE9ABE5FEFF"
+            ),
+        )
+        self.assertEqual(bytes(rendered[0x3A230:0x3A235]), bytes.fromhex("E9ABC40100"))
+        self.assertEqual(
+            bytes(rendered[0x566E0:0x56730]),
+            bytes.fromhex(
+                "837C24087F753F608BF18B44242469C0D80300008D9C30C4030000"
+                "6A05E80EC8FAFF83C4048D3C836A03E801C8FAFF83C40483C007"
+                "0107833F647E06C7076400000061C208008B44240848E9053BFEFF"
+            ),
+        )
         preview = dry_run(source, DEFAULT_PATCH_MODE, [feature_id])
         self.assertEqual(preview["output_name"], modded_exe_name(build))
 
@@ -561,7 +579,9 @@ class StockIntegrationTests(unittest.TestCase):
         ]
         build = next(build for build in load_builds() if build.id == "vv1")
         rendered, _ = render_patched_bytes(STOCK / build.input_name, build, DEFAULT_PATCH_MODE, feature_ids)
-        self.assertEqual(bytes(rendered[0x44BF2:0x44BF8]), bytes.fromhex("E9E919010090"))
+        self.assertEqual(bytes(rendered[0x44C50:0x44C52]), bytes.fromhex("6A7F"))
+        self.assertEqual(bytes(rendered[0x44C5A:0x44C5C]), bytes.fromhex("6A11"))
+        self.assertEqual(bytes(rendered[0x44C64:0x44C6C]), bytes.fromhex("E9371A0100909090"))
         self.assertEqual(rendered[0x47488], 0x13)
         self.assertEqual(rendered[0x20057], 0)
         self.assertEqual(bytes(rendered[0x1FF2E:0x1FF34]), bytes.fromhex("E9ED66030090"))
@@ -672,13 +692,26 @@ class StockIntegrationTests(unittest.TestCase):
         )
         self.assertEqual(
             bytes(rendered[0x4A7FA:0x4A7FF]),
-            bytes.fromhex("E9D1940200"),
+            bytes.fromhex("6896000000"),
         )
         self.assertEqual(
-            bytes(rendered[0x73CD0:0x73CFC]),
+            bytes(rendered[0x4AB4B:0x4AB53]),
+            bytes.fromhex("E980910200909090"),
+        )
+        self.assertEqual(
+            bytes(rendered[0x73CD0:0x73CF1]),
             bytes.fromhex(
-                "606A64E8C8F4F8FF83C40499B905000000F7F98D8493DC070000"
-                "8338647D02FF00616896000000E9036BFDFF"
+                "6A7F6A006A006A006A006A11578BCEE88C5EFDFF"
+                "578BCEE8C4BEFDFFE9626EFDFF"
+            ),
+        )
+        self.assertEqual(bytes(rendered[0x61B10:0x61B15]), bytes.fromhex("E96B220100"))
+        self.assertEqual(
+            bytes(rendered[0x73D80:0x73DD0]),
+            bytes.fromhex(
+                "837C24087F753F608BF18B44242469C08CE400008D9C30E4070000"
+                "6A05E8FEF3F8FF83C4048D3C836A03E8F1F3F8FF83C40483C007"
+                "0107833F647E06C7076400000061C20800518B44240CE945DDFEFF"
             ),
         )
         preview = dry_run(source, DEFAULT_PATCH_MODE, [feature_id])
@@ -709,8 +742,8 @@ class StockIntegrationTests(unittest.TestCase):
         self.assertEqual(bytes(rendered[0x73CA0:0x73CC4]), bytes.fromhex(
             "8BC569C08CE40000C78430E0070000090000006A64558BCEE8D3C8FEFF5F5D5B5EC20800"
         ))
-        self.assertEqual(bytes(rendered[0x73CD0:0x73CFC]), bytes.fromhex(
-            "606A64E8C8F4F8FF83C40499B905000000F7F98D8493DC0700008338647D02FF00616896000000E9036BFDFF"
+        self.assertEqual(bytes(rendered[0x73CD0:0x73CF1]), bytes.fromhex(
+            "6A7F6A006A006A006A006A11578BCEE88C5EFDFF578BCEE8C4BEFDFFE9626EFDFF"
         ))
         preview = dry_run(source, DEFAULT_PATCH_MODE, feature_ids)
         self.assertEqual(preview["fun_patches"], feature_ids)

@@ -33,7 +33,9 @@ The patch does not change healing gains, illness, food, skill thresholds, plant 
 
 ## VV1: School Lessons Grant Skill
 
-Enable **School Lessons Grant Skill (VV1)** to reward a villager once whenever the unlocked stock routine sends that villager to school. The attendee gains one point in Farming, Building, Research, Healing, or Parenting with equal odds; skills remain capped at 100. The patch does not unlock the school, change attendance selection, or alter the school action queue.
+Enable **School Lessons Grant Skill (VV1)** to reward a child only after the unlocked stock Going to school action reaches its end. The child gains 7, 8, or 9 points in one equally random skill: Farming, Building, Research, Healing, or Parenting. Skills remain capped at 100.
+
+That award matches VV3's code-confirmed Tribal Chief lesson: one random skill and `RNG(3)+7` points per child at the completion callback. The patch does not unlock the school, change attendance selection, or reward an interrupted lesson that never reaches the callback.
 
 ## VV1: Continue Research at Max Technologies
 
@@ -47,9 +49,9 @@ The patch does not alter heads, sex, age, skills, health, jobs, movement, action
 
 ## VV2: Teaching Children Grants Skill
 
-Enable **Teaching Children Grants Skill (VV2)** to make the stock Teaching Children activity reward every attending child once when the lesson begins. Each attendee gains exactly one point in Farming, Building, Research, Healing, or Parenting. All five choices have equal odds, and a skill already at 100 is left at 100.
+Enable **Teaching Children Grants Skill (VV2)** to reward every attending child once after that child's full stock lesson queue finishes. Each attendee gains 7, 8, or 9 points in Farming, Building, Research, Healing, or Parenting. All five choices have equal odds, and skills remain capped at 100.
 
-The patch does not create extra lessons, change who attends, alter the teacher requirement, or reward children who are not enrolled by the stock lesson routine.
+That award matches VV3's code-confirmed Tribal Chief lesson. The patch does not create extra lessons, change who attends, alter the teacher requirement, reward children who are not enrolled by the stock lesson routine, or reward an interrupted lesson that never reaches the callback.
 
 ## VV5: Heathen Mommy Puzzle Restoration
 

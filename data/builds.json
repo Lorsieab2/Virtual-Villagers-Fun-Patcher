@@ -842,20 +842,32 @@
       "id": "vv2_teaching_children_grants_skill",
       "game_id": "vv2",
       "name": "Teaching Children Grants Skill",
-      "description": "Each child attending a Teaching Children lesson gains one point in one equally random skill: Farming, Building, Research, Healing, or Parenting.",
+      "description": "Each child who finishes a Teaching Children lesson gains 7 to 9 points in one equally random skill, matching the VV3 Tribal Chief lesson award.",
       "output_tag": "Teaching Grants Skill",
       "patches": [
         {
-          "offset": "0x4A7FA",
-          "before": "6896000000",
-          "after": "E9D1940200",
-          "purpose": "route each confirmed lesson attendee through the one-time random skill award"
+          "offset": "0x4AB4B",
+          "before": "578BCEE85D500000",
+          "after": "E980910200909090",
+          "purpose": "append a completion callback after each attendee's full stock lesson queue"
         },
         {
           "offset": "0x73CD0",
-          "before": "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
-          "after": "606A64E8C8F4F8FF83C40499B905000000F7F98D8493DC0700008338647D02FF00616896000000E9036BFDFF",
-          "purpose": "award one capped point across the five contiguous skill fields with equal odds, then resume the stock lesson queue"
+          "before": "000000000000000000000000000000000000000000000000000000000000000000",
+          "after": "6A7F6A006A006A006A006A11578BCEE88C5EFDFF578BCEE8C4BEFDFFE9626EFDFF",
+          "purpose": "append callback 127, preserve the stock queue finalizer, and resume the attendee scan"
+        },
+        {
+          "offset": "0x61B10",
+          "before": "518B44240C",
+          "after": "E96B220100",
+          "purpose": "route callback 127 through the lesson-completion skill award while preserving every stock callback"
+        },
+        {
+          "offset": "0x73D80",
+          "before": "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "after": "837C24087F753F608BF18B44242469C08CE400008D9C30E40700006A05E8FEF3F8FF83C4048D3C836A03E8F1F3F8FF83C40483C0070107833F647E06C7076400000061C20800518B44240CE945DDFEFF",
+          "purpose": "award 7 to 9 capped points to one uniformly selected child skill only when callback 127 executes"
         }
       ]
     },
@@ -863,20 +875,44 @@
       "id": "vv1_school_lessons_grant_skill",
       "game_id": "vv1",
       "name": "School Lessons Grant Skill",
-      "description": "Each villager entering the unlocked Going to school activity gains one point in one equally random skill: Farming, Building, Research, Healing, or Parenting.",
+      "description": "Each child who finishes the unlocked Going to school activity gains 7 to 9 points in one equally random skill, matching the VV3 Tribal Chief lesson award.",
       "output_tag": "School Grants Skill",
       "patches": [
         {
-          "offset": "0x44BF2",
-          "before": "6A646A006A00",
-          "after": "E9E919010090",
-          "purpose": "route the unlocked Going to school branch through the one-time random skill award"
+          "offset": "0x44C50",
+          "before": "6A00",
+          "after": "6A7F",
+          "purpose": "mark the new end-of-lesson callback with private callback ID 127"
         },
         {
-          "offset": "0x565E0",
-          "before": "000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
-          "after": "606A64E828C9FAFF83C40499B905000000F7F98D8493B00000008338647D02FF00616A646A006A00E9EBE5FEFF",
-          "purpose": "award one capped point across the five VV1 skill fields, restore all displaced pushes, and resume the stock school queue"
+          "offset": "0x44C5A",
+          "before": "6A13",
+          "after": "6A11",
+          "purpose": "turn the former final queue entry into callback 127"
+        },
+        {
+          "offset": "0x44C64",
+          "before": "578BCEE88492FFFF",
+          "after": "E9371A0100909090",
+          "purpose": "append the displaced stock final queue entry after the completion callback"
+        },
+        {
+          "offset": "0x566A0",
+          "before": "000000000000000000000000000000000000000000000000000000000000000000",
+          "after": "6A006A006A006A006A006A13578BCEE83C33FEFF578BCEE83478FEFFE9ABE5FEFF",
+          "purpose": "restore the stock final queue entry and stock queue finalizer after callback 127"
+        },
+        {
+          "offset": "0x3A230",
+          "before": "8B44240848",
+          "after": "E9ABC40100",
+          "purpose": "route callback 127 through the school-completion skill award while preserving every stock callback"
+        },
+        {
+          "offset": "0x566E0",
+          "before": "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "after": "837C24087F753F608BF18B44242469C0D80300008D9C30C40300006A05E80EC8FAFF83C4048D3C836A03E801C8FAFF83C40483C0070107833F647E06C7076400000061C208008B44240848E9053BFEFF",
+          "purpose": "award 7 to 9 capped points to one uniformly selected child skill only when callback 127 executes"
         }
       ]
     },

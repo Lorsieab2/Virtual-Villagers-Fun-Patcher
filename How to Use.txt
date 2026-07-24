@@ -115,12 +115,22 @@ changes if no active villager is selected. The patch does not change heads,
 sex, age, skills, health, jobs, actions, or clothing assets. All non-F6 keys
 retain their original behavior.
 
+VV1 SCHOOL LESSONS GRANT SKILL
+
+When an unlocked Going to school action reaches its end, the child gains 7, 8,
+or 9 points in one equally random skill: Farming, Building, Research, Healing,
+or Parenting. This matches the VV3 Tribal Chief lesson award. Skills remain
+capped at 100. An interrupted school action that never reaches its completion
+callback gives no skill.
+
 VV2 TEACHING CHILDREN GRANTS SKILL
 
-Whenever the stock Teaching Children activity enrolls a child as Attending
-Lessons, that child gains one point in one equally random skill: Farming,
-Building, Research, Healing, or Parenting. Skills remain capped at 100. The
-patch does not change who teaches, who attends, or how often lessons happen.
+When an attending child's full stock Teaching Children lesson queue reaches
+its end, that child gains 7, 8, or 9 points in one equally random skill:
+Farming, Building, Research, Healing, or Parenting. This matches the VV3
+Tribal Chief lesson award. Skills remain capped at 100. An interrupted lesson
+that never reaches its completion callback gives no skill. The patch does not
+change who teaches, who attends, or how often lessons happen.
 
 VV3 NATURE LEVEL 1 IMPROVES HONEY REFILL
 
