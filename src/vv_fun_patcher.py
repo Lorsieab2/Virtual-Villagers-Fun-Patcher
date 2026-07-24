@@ -396,7 +396,9 @@ def _folder_hashes(folder: Path) -> dict[str, tuple[int, str]]:
     }
 
 
-def _stage_game_folder(source_folder: Path, destination: Path, game_id: str) -> Path:
+def _stage_game_folder(
+    source_folder: Path, destination: Path, game_title: str
+) -> Path:
     if destination.parent.resolve() != source_folder.resolve().parent:
         raise PatcherError(
             "Internal safety check failed: output is not beside the game folder"
@@ -406,7 +408,13 @@ def _stage_game_folder(source_folder: Path, destination: Path, game_id: str) -> 
             "Internal safety check failed: output would replace the original folder"
         )
     stage = Path(
-        tempfile.mkdtemp(prefix=f".vvfp-{game_id}-", dir=destination.parent)
+        tempfile.mkdtemp(
+            prefix=(
+                "Virtual Villagers Fun Patcher - Temporary Copy - "
+                f"{game_title} - "
+            ),
+            dir=destination.parent,
+        )
     )
     stage.rmdir()
     try:
@@ -438,7 +446,10 @@ def _commit_staged_folders(
             if destination.exists():
                 backup = Path(
                     tempfile.mkdtemp(
-                        prefix=".vvfp-backup-",
+                        prefix=(
+                            "Virtual Villagers Fun Patcher - Replacement Backup - "
+                            f"{destination.name} - "
+                        ),
                         dir=destination.parent,
                     )
                 )
@@ -475,7 +486,7 @@ def apply_patch(
     if output_folder.exists() and not overwrite:
         raise PatcherError(f"Modified game folder already exists: {output_folder}")
     patched, applied = render_patched_bytes(source, build, patch_mode, fun_patch_ids)
-    stage = _stage_game_folder(source.parent, output_folder, build.id)
+    stage = _stage_game_folder(source.parent, output_folder, build.title)
     staged_output = stage / output_name
     staged_log = staged_output.with_suffix(".patch-log.json")
     try:
@@ -551,7 +562,7 @@ def apply_all(
     try:
         for plan in plans:
             build, source, patched, applied, output_folder, output = plan
-            stage = _stage_game_folder(source.parent, output_folder, build.id)
+            stage = _stage_game_folder(source.parent, output_folder, build.title)
             staged.append((stage, output_folder))
             staged_output = stage / output.name
             with staged_output.open("wb") as handle:

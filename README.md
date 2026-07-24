@@ -147,6 +147,12 @@ Support is bound to the exact SHA-256 and size of each researched stock executab
 
 Bulk mode validates and renders all five inputs before writing, then stages and verifies all five complete folder copies before committing them. If an existing copied folder is replaced, the patcher uses a temporary backup and restores it if the batch commit fails.
 
+Transient folders use readable names beginning with **Virtual Villagers Fun
+Patcher - Temporary Copy** or **Virtual Villagers Fun Patcher - Replacement
+Backup**. They are normally removed automatically when the atomic replacement
+finishes. If Windows, OneDrive, or the patcher is interrupted, the readable name
+makes any abandoned copy easy to identify.
+
 No game executable, save, extracted asset, or generated output is committed to this repository.
 
 ## Command line

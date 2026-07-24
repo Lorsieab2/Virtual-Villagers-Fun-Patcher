@@ -129,6 +129,19 @@ class GuiSourceTests(unittest.TestCase):
         self.assertIn('removeprefix("Virtual Villagers - ")', source)
         self.assertNotIn('text=f"{patch.name} ({patch.game_id.upper()})"', source)
 
+    def test_temporary_folder_names_are_human_readable(self) -> None:
+        source = (ROOT / "src" / "vv_fun_patcher.py").read_text(encoding="utf-8")
+        self.assertIn(
+            "Virtual Villagers Fun Patcher - Temporary Copy - ",
+            source,
+        )
+        self.assertIn(
+            "Virtual Villagers Fun Patcher - Replacement Backup - ",
+            source,
+        )
+        self.assertNotIn('prefix=f".vvfp-', source)
+        self.assertNotIn('prefix=".vvfp-backup-', source)
+
 
 class StockIntegrationTests(unittest.TestCase):
     def setUp(self) -> None:
