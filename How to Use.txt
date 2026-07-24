@@ -22,7 +22,8 @@ found that their executables crash or hang during startup.
 4. Optional for The Lost Children: check "Easier Healing Mastery",
    "Teaching Children Grants Skill", and/or "Gong of Wonder Coconuts Fix".
 5. Optional for The Secret City: check
-   "Nature Level 1 Actually Replenishes Food Sources Faster".
+   "Nature Level 1 Actually Replenishes Food Sources Faster" and/or
+   "Nature Level 3 Actually Alters Mortality".
 6. Optional for The Tree of Life: check
    "Complete Fish Scales = Golden Fish in Nets".
 7. Optional for New Believers: check "Heathen Mommy Puzzle Restoration" and/or
@@ -119,7 +120,7 @@ callback gives no skill.
 VV1 MAGIC FRUIT OF LIFE ALTERS MORTALITY
 
 Once the Magic Fruit puzzle is completed, its saved puzzle flag shifts every
-ordinary villager's mortality curve six displayed years later. The same stock
+ordinary villager's mortality curve seven displayed years later. The same stock
 mortality routine runs during normal play and time catch-up. Medicine still
 adds its original benefit, and the Golden Child keeps the stock exemption.
 
@@ -152,6 +153,14 @@ bonus: approximately 126 instead of 111 fruit for the same stock refill group,
 now delivered after the shorter interval. Honey receives the same 42/37
 proportional quantity bonus, normalized to its new 45-minute interval. Nature
 level 0 keeps stock timing and amounts. The 3,000-unit honey cap is unchanged.
+
+VV3 NATURE LEVEL 3 ACTUALLY ALTERS MORTALITY
+
+At Nature level 3, every ordinary villager's complete mortality curve shifts
+seven displayed years later. Medicine's stock longevity threshold is
+calculated first, so the two benefits stack. Nature levels 0 through 2 are
+unchanged. VV3's shared aging loop applies the shift during normal play and
+elapsed-time catch-up.
 
 VV5 HEATHEN MOMMY PUZZLE RESTORATION
 

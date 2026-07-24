@@ -5,9 +5,9 @@
 The restored **Magic Fruit of Life Alters Mortality** patch does not need
 per-villager persistence. It reads the game's existing saved Magic Fruit puzzle
 completion byte at global-state offset `+0xA098`. When that byte is nonzero,
-the stock mortality routine adds 120 internal age units to its already
+the stock mortality routine adds 140 internal age units to its already
 calculated threshold. VV1 uses 20 internal units per displayed year, so this is
-a fixed six-year shift. Medicine technology is evaluated by the stock formula
+a fixed seven-year shift. Medicine technology is evaluated by the stock formula
 before the shift. The same mortality routine is used in ordinary play and
 offline time catch-up.
 

@@ -50,7 +50,7 @@ The patch does not alter heads, sex, age, skills, health, jobs, movement, action
 
 ## VV1: Magic Fruit of Life Alters Mortality
 
-Enable **Magic Fruit of Life Alters Mortality (A New Home)** to give the completed Magic Fruit puzzle a tribe-wide longevity effect. Once the puzzle's saved completion flag is set, the stock mortality routine moves every ordinary villager's complete mortality curve six displayed years later. The same routine handles ordinary play and offline time catch-up. Medicine technology still contributes its original threshold first, and the Golden Child retains the stock exemption.
+Enable **Magic Fruit of Life Alters Mortality (A New Home)** to give the completed Magic Fruit puzzle a tribe-wide longevity effect. Once the puzzle's saved completion flag is set, the stock mortality routine moves every ordinary villager's complete mortality curve seven displayed years later. The same routine handles ordinary play and offline time catch-up. Medicine technology still contributes its original threshold first, and the Golden Child retains the stock exemption.
 
 Finishing **Enjoying magic fruit** also clears that villager's sickness and restores health to 100. The cure occurs only when the final fruit-action cleanup runs, so an interrupted action awards nothing. It is reusable, does not stack another mortality bonus, and stores no state in villager names, likes, dislikes, or other record fields.
 
@@ -81,6 +81,18 @@ The patch changes only the eligibility threshold from 1 to 12. At full completio
 Enable **Nature Level 1 Actually Replenishes Food Sources Faster (The Secret City)** to make the technology description literal. At Nature level 1 or higher, fruit trees become refill-eligible after 2 hours 15 minutes instead of 3 hours, and honey becomes refill-eligible after 45 minutes instead of 1 hour.
 
 The stock Nature fruit quantity is preserved at the shorter interval: approximately 126 fruit instead of 111 for the same stock refill group. Honey also receives the exact `42/37` proportional quantity bonus, normalized to its new 45-minute interval. Nature level 0 retains stock timing and amounts. The 3,000-unit honey cap remains unchanged.
+
+## VV3: Nature Level 3 Actually Alters Mortality
+
+Enable **Nature Level 3 Actually Alters Mortality (The Secret City)** to make
+the otherwise-unused Nature read in VV3's aging loop affect longevity. At
+Nature level 3, every ordinary villager's complete mortality curve moves seven
+displayed years later. Medicine's stock threshold is calculated first, so the
+benefits stack. Nature levels 0 through 2 are unchanged.
+
+The same aging loop processes ordinary play and elapsed-time catch-up, so the
+seven-year shift applies in both. The patch does not change displayed age,
+health, sickness, resurrection, or the existing Medicine progression.
 
 ## VV5: Easier Devotee Training
 
@@ -165,7 +177,7 @@ No game executable, save, extracted asset, or generated output is committed to t
 
 ## Command line
 
-Pass `--patch-mode collection_progression` or `--patch-mode immediate_fixed` to `dry-run`, `apply`, `dry-run-all`, or `apply-all`. Optional features use repeatable `--fun-patch` arguments: `vv1_school_lessons_grant_skill`, `vv1_continue_research_at_max_technologies`, `vv1_f6_clothing_change_cheat`, `vv1_magic_fruit_alters_mortality`, `vv2_easier_healing_mastery`, `vv2_teaching_children_grants_skill`, `vv2_gong_of_wonder_coconuts_fix`, `vv3_nature_honey_refill`, `vv4_complete_scales_golden_fish`, `vv5_heathen_mommy_puzzle`, `vv5_easier_devotee_training`, `vv5_statue_polishing_or_honoring`, and `vv5_vv4_nursery_divisor_parity`.
+Pass `--patch-mode collection_progression` or `--patch-mode immediate_fixed` to `dry-run`, `apply`, `dry-run-all`, or `apply-all`. Optional features use repeatable `--fun-patch` arguments: `vv1_school_lessons_grant_skill`, `vv1_continue_research_at_max_technologies`, `vv1_f6_clothing_change_cheat`, `vv1_magic_fruit_alters_mortality`, `vv2_easier_healing_mastery`, `vv2_teaching_children_grants_skill`, `vv2_gong_of_wonder_coconuts_fix`, `vv3_nature_honey_refill`, `vv3_nature_level_three_alters_mortality`, `vv4_complete_scales_golden_fish`, `vv5_heathen_mommy_puzzle`, `vv5_easier_devotee_training`, `vv5_statue_polishing_or_honoring`, and `vv5_vv4_nursery_divisor_parity`.
 
 ```text
 python src/vv_fun_patcher.py dry-run "path\game.exe" --patch-mode immediate_fixed

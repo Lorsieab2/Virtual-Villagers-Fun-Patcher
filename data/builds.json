@@ -962,7 +962,7 @@
       "id": "vv1_magic_fruit_alters_mortality",
       "game_id": "vv1",
       "name": "Magic Fruit of Life Alters Mortality",
-      "description": "Completing the Magic Fruit of Life puzzle globally shifts every ordinary villager's mortality curve six displayed years later, including during time catch-up. Finishing Enjoying magic fruit also clears that villager's sickness and restores health to 100. Eating the fruit remains reusable and stores nothing in villager likes or dislikes.",
+      "description": "Completing the Magic Fruit of Life puzzle globally shifts every ordinary villager's mortality curve seven displayed years later, including during time catch-up. Finishing Enjoying magic fruit also clears that villager's sickness and restores health to 100. Eating the fruit remains reusable and stores nothing in villager likes or dislikes.",
       "output_tag": "Magic Fruit Life and Health",
       "patches": [
         {
@@ -991,9 +991,9 @@
         },
         {
           "offset": "0x56880",
-          "before": "000000000000000000000000000000000000000000000000000000",
-          "after": "8DA94C0400008B0E80B998A0000000740383C5783BDDE91786FDFF",
-          "purpose": "preserve the Medicine-based stock threshold and add 120 internal age units, six displayed years, after puzzle completion"
+          "before": "000000000000000000000000000000000000000000000000000000000000",
+          "after": "8DA94C0400008B0E80B998A0000000740683C56483C5283BDDE91486FDFF",
+          "purpose": "preserve the Medicine-based stock threshold and add 140 internal age units, seven displayed years, after puzzle completion"
         }
       ]
     },
@@ -1045,6 +1045,27 @@
           "before": "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
           "after": "506A05B918265800E833BCFAFF83F801588B4FF87C0881C1A41F0000EB0681C1302A00003BC10F825594FBFFE90694FBFF",
           "purpose": "use the stock 3-hour fruit-tree threshold at Nature 0 and a 2-hour-15-minute threshold at Nature level 1 or higher"
+        }
+      ]
+    },
+    {
+      "id": "vv3_nature_level_three_alters_mortality",
+      "game_id": "vv3",
+      "name": "Nature Level 3 Actually Alters Mortality",
+      "description": "Nature level 3 shifts every ordinary villager's complete mortality curve seven displayed years later. The stock Medicine threshold is calculated first, so the benefits stack, and the shared aging loop applies the change during ordinary play and time catch-up.",
+      "output_tag": "Nature 3 Mortality",
+      "patches": [
+        {
+          "offset": "0x602ED",
+          "before": "8D994C0400003BFB",
+          "after": "E90EB10100909090",
+          "purpose": "route the stock Medicine-based mortality threshold through a Nature-level discriminator"
+        },
+        {
+          "offset": "0x7B400",
+          "before": "000000000000000000000000000000000000000000000000000000000000000000000000",
+          "after": "8D994C0400006A05B918265800E8AEBBFAFF83F8037C0683C36483C3283BFBE9D14EFEFF",
+          "purpose": "preserve the stock threshold and add 140 internal age units, seven displayed years, only at Nature level 3"
         }
       ]
     },

@@ -508,7 +508,7 @@ class StockIntegrationTests(unittest.TestCase):
     def test_vv1_magic_fruit_uses_global_puzzle_state_and_safe_fields(self) -> None:
         patch = get_fun_patch("vv1_magic_fruit_alters_mortality")
         self.assertIn("globally", patch.description)
-        self.assertIn("six displayed years", patch.description)
+        self.assertIn("seven displayed years", patch.description)
         self.assertIn("restores health to 100", patch.description)
         self.assertIn("stores nothing in villager likes or dislikes", patch.description)
         build = next(build for build in load_builds() if build.id == "vv1")
@@ -526,9 +526,9 @@ class StockIntegrationTests(unittest.TestCase):
         healing_cave = bytes(rendered[0x56800:0x56838])
         self.assertIn(bytes.fromhex("C70664000000"), healing_cave)
         self.assertIn(bytes.fromhex("C7461000000000"), healing_cave)
-        mortality_cave = bytes(rendered[0x56880:0x5689B])
+        mortality_cave = bytes(rendered[0x56880:0x5689E])
         self.assertIn(bytes.fromhex("80B998A0000000"), mortality_cave)
-        self.assertIn(bytes.fromhex("83C578"), mortality_cave)
+        self.assertIn(bytes.fromhex("83C56483C528"), mortality_cave)
 
     def test_vv1_magic_fruit_combines_with_every_vv1_patch(self) -> None:
         build = next(build for build in load_builds() if build.id == "vv1")
@@ -1029,6 +1029,33 @@ class StockIntegrationTests(unittest.TestCase):
         preview = dry_run(source, DEFAULT_PATCH_MODE, [feature_id])
         self.assertEqual(preview["fun_patches"], [feature_id])
         self.assertEqual(preview["output_name"], modded_exe_name(build))
+
+    def test_vv3_nature_level_three_alters_mortality_by_seven_years(self) -> None:
+        feature_id = "vv3_nature_level_three_alters_mortality"
+        feature = get_fun_patch(feature_id)
+        self.assertIn("seven displayed years", feature.description)
+        self.assertIn("ordinary play and time catch-up", feature.description)
+        build = next(build for build in load_builds() if build.id == "vv3")
+        source = STOCK / build.input_name
+        selected = ["vv3_nature_honey_refill", feature_id]
+        for mode in MODES:
+            with self.subTest(mode=mode):
+                rendered, _ = render_patched_bytes(
+                    source, build, mode, selected
+                )
+                self.assertEqual(
+                    bytes(rendered[0x602ED:0x602F5]),
+                    bytes.fromhex("E90EB10100909090"),
+                )
+                self.assertEqual(
+                    bytes(rendered[0x7B400:0x7B424]),
+                    bytes.fromhex(
+                        "8D994C0400006A05B918265800E8AEBBFAFF83F8037C06"
+                        "83C36483C3283BFBE9D14EFEFF"
+                    ),
+                )
+        preview = dry_run(source, DEFAULT_PATCH_MODE, selected)
+        self.assertEqual(preview["fun_patches"], selected)
 
     def test_vv5_easier_devotee_training_is_guarded_and_additive(self) -> None:
         feature_id = "vv5_easier_devotee_training"
