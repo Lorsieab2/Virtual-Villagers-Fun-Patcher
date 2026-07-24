@@ -571,11 +571,13 @@ class App(tk.Tk):
             self.last_modified_paths[build.id] = output
             self.open_button.configure(text="Open Game Folder", state="normal")
             self.status_var.set(
-                f"Success. Copied the complete game folder and created:\n{output}\n\n{self._selection_text()}\n"
-                f"Multiple births safely fit the remaining slots.\n\nVerification log:\n{log}"
+                f"Success. Created {output.name} in {output.parent.name}."
             )
             self._save_settings()
-            messagebox.showinfo("Modified EXE created", self.status_var.get())
+            self._show_folder_confirmation(
+                "Modified game created",
+                [(build.title, source.parent, output.parent)],
+            )
         except (PatcherError, OSError) as exc:
             self.status_var.set(str(exc))
             messagebox.showerror("Patch failed", str(exc))
@@ -614,14 +616,15 @@ class App(tk.Tk):
                 for (build, _), (output, _) in zip(validated, results)
             }
             self.open_button.configure(text="Open First Game Folder", state="normal")
-            self.status_var.set(
-                "Success. All five complete game folders were copied and their selected-style EXEs were created and verified. "
-                + self._selection_text()
-                + "\nMultiple births safely fit the remaining slots:\n"
-                + "\n".join(f"- {output}" for output, _ in results)
-            )
+            self.status_var.set("Success. Created all five modified game folders.")
             self._save_settings()
-            messagebox.showinfo("All five modified EXEs created", self.status_var.get())
+            self._show_folder_confirmation(
+                "All five modified games created",
+                [
+                    (build.title, source.parent, output.parent)
+                    for (build, source), (output, _) in zip(validated, results)
+                ],
+            )
         except (PatcherError, OSError) as exc:
             self.status_var.set(str(exc))
             messagebox.showerror("Batch patch failed", str(exc))
@@ -634,12 +637,52 @@ class App(tk.Tk):
             return True
         return messagebox.askyesno(
             "Use experimental expanded saves?",
-            "VV3, VV4, and VV5 will use a new 256-record save layout. Each differently "
-            "named modified EXE uses its own executable-named save folder.\n\n"
-            "The patcher will copy each complete game folder and keep its original EXE. "
-            "This mode has passed startup testing, but reaching and persisting all 256 "
-            "villagers still requires long-play testing.\n\nContinue?",
+            "Experimental mode gives VV3, VV4, and VV5 an expanded 256-record save "
+            "layout. Full 256-villager long-play testing is not complete.\n\nContinue?",
         )
+
+    def _show_folder_confirmation(
+        self,
+        title: str,
+        rows: list[tuple[str, Path, Path]],
+    ) -> None:
+        dialog = tk.Toplevel(self)
+        dialog.title(title)
+        dialog.transient(self)
+        dialog.resizable(False, False)
+
+        frame = ttk.Frame(dialog, padding=16)
+        frame.grid(sticky="nsew")
+        ttk.Label(
+            frame,
+            text="Finished! Open either folder:",
+            font=("Segoe UI", 10, "bold"),
+        ).grid(row=0, column=0, columnspan=2, sticky="w", pady=(0, 10))
+
+        row_number = 1
+        for game_name, vanilla_folder, modded_folder in rows:
+            ttk.Label(frame, text=game_name).grid(
+                row=row_number, column=0, columnspan=2, sticky="w", pady=(6, 1)
+            )
+            self._folder_link(
+                frame,
+                f"Open Vanilla Folder: {vanilla_folder.name}",
+                lambda path=vanilla_folder: self._open_folder(path),
+            ).grid(row=row_number + 1, column=0, sticky="w", padx=(14, 22))
+            self._folder_link(
+                frame,
+                f"Open Modded Folder: {modded_folder.name}",
+                lambda path=modded_folder: self._open_folder(path),
+            ).grid(row=row_number + 1, column=1, sticky="w")
+            row_number += 2
+
+        ttk.Button(frame, text="Close", command=dialog.destroy).grid(
+            row=row_number, column=0, columnspan=2, pady=(16, 0)
+        )
+        dialog.protocol("WM_DELETE_WINDOW", dialog.destroy)
+        dialog.update_idletasks()
+        dialog.grab_set()
+        dialog.focus_set()
 
     def _open_output(self) -> None:
         if self.last_output_dir is None:

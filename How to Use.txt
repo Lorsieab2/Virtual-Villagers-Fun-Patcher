@@ -48,6 +48,8 @@ PATCH ALL FIVE AT ONCE
 3. Click "Validate All 5", "Dry Run All 5", or "Patch All 5".
 4. Use the clickable "Vanilla folder" or "Modified folder" link on any row
    to open the original folder or its separate copied-and-modified folder.
+5. After patching, the confirmation window provides clear clickable Vanilla
+   Folder and Modded Folder links for all five games.
 
 PATCH ONE GAME
 
@@ -103,13 +105,14 @@ When Statue Drops: Polishing or Honoring is selected for VV5, its name adds:
 When VV4 Nursery School Divisor Parity is selected for VV5, its name adds:
 + VV4 Nursery Divisor Parity.exe
 
-For each game, the patcher creates a complete sibling copy of the original game
-folder. The copied folder keeps every original file and subfolder, including the
-stock EXE, and adds the separately named modified EXE and verification log. The
-copy is verified before it is committed. All four styles can coexist in separate
-copied folders. Original folders and EXEs are never changed, renamed, replaced,
-or deleted. The patcher remembers the selected style, single-game EXE path, and
-all five folder paths. Vanilla and Modified links open their respective folders.
+For each game, the patcher creates one complete sibling copy named
+"(Game name) - Modded". The copied folder keeps every original file and
+subfolder, including the stock EXE, and adds the separately named modified EXE
+and verification log. The copy is verified before it is committed. Applying
+another style refreshes the same short Modded folder after confirmation.
+Original folders and EXEs are never changed, renamed, replaced, or deleted. The
+patcher remembers the selected style, single-game EXE path, and all five folder
+paths. Vanilla and Modded links open their respective folders.
 
 SAFE MULTIPLE BIRTHS
 

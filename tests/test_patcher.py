@@ -108,6 +108,14 @@ class GuiSourceTests(unittest.TestCase):
         self.assertIn("def _scroll_content", source)
         self.assertIn("self.content_canvas.yview_scroll(direction, \"units\")", source)
 
+    def test_success_confirmation_uses_clear_folder_links(self) -> None:
+        source = (ROOT / "src" / "vv_fun_patcher_gui.py").read_text(encoding="utf-8")
+        self.assertIn("def _show_folder_confirmation", source)
+        self.assertIn("Open Vanilla Folder:", source)
+        self.assertIn("Open Modded Folder:", source)
+        self.assertNotIn('messagebox.showinfo("Modified EXE created"', source)
+        self.assertNotIn('messagebox.showinfo("All five modified EXEs created"', source)
+
 
 class StockIntegrationTests(unittest.TestCase):
     def setUp(self) -> None:
@@ -132,8 +140,7 @@ class StockIntegrationTests(unittest.TestCase):
     def expected_output_folder(
         self, folders: dict[str, Path], build, mode: str
     ) -> Path:
-        output_name = get_patch_variant(build, mode)["output_name"]
-        return folders[build.id].parent / Path(output_name).stem
+        return folders[build.id].parent / f"{build.title} - Modded"
 
     def assert_no_outputs(self, folders: dict[str, Path]) -> None:
         for build in load_builds():
@@ -352,22 +359,20 @@ class StockIntegrationTests(unittest.TestCase):
                 remaining = max(0, 150 - occupied)
                 self.assertEqual(min(6, remaining), max(0, min(6, 150 - occupied)))
 
-    def test_all_outputs_coexist_beside_originals(self) -> None:
+    def test_all_modes_reuse_short_modded_folders_beside_originals(self) -> None:
         with tempfile.TemporaryDirectory() as temp:
             folders = self.copy_game_folders(Path(temp))
             source_hashes = {
                 build.id: digest(folders[build.id] / build.input_name)
                 for build in load_builds()
             }
-            for mode in MODES:
-                results = apply_all(folders, mode)
+            for mode_index, mode in enumerate(MODES):
+                results = apply_all(folders, mode, overwrite=mode_index > 0)
                 self.assertEqual(len(results), 5)
-            for build in load_builds():
-                source = folders[build.id] / build.input_name
-                self.assertEqual(digest(source), source_hashes[build.id])
-                for mode in MODES:
+                for build, (output, log_path) in zip(load_builds(), results):
                     copied_folder = self.expected_output_folder(folders, build, mode)
-                    output = copied_folder / get_patch_variant(build, mode)["output_name"]
+                    self.assertEqual(copied_folder.name, f"{build.title} - Modded")
+                    self.assertEqual(output.parent, copied_folder)
                     self.assertTrue(output.is_file())
                     self.assertTrue((copied_folder / build.input_name).is_file())
                     self.assertEqual(
@@ -376,7 +381,7 @@ class StockIntegrationTests(unittest.TestCase):
                         ),
                         f"unchanged companion file for {build.id}\n",
                     )
-                    log = json.loads(output.with_suffix(".patch-log.json").read_text())
+                    log = json.loads(log_path.read_text())
                     self.assertEqual(log["patch_mode"], mode)
                     self.assertEqual(log["output_path"], str(output))
                     variant = get_patch_variant(build, mode)
@@ -384,6 +389,14 @@ class StockIntegrationTests(unittest.TestCase):
                         log["villager_slots"],
                         variant.get("villager_slots", build.villager_slots),
                     )
+            for build in load_builds():
+                source = folders[build.id] / build.input_name
+                self.assertEqual(digest(source), source_hashes[build.id])
+                copied_folder = self.expected_output_folder(folders, build, MODES[-1])
+                latest_output = (
+                    copied_folder / get_patch_variant(build, MODES[-1])["output_name"]
+                )
+                self.assertTrue(latest_output.is_file())
 
     def test_expanded_later_games_keep_stock_save_names_and_use_larger_images(self) -> None:
         save_offsets = {"vv3": 0x7C5C0, "vv4": 0x8A77C, "vv5": 0x95794}

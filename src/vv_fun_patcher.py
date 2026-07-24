@@ -130,11 +130,7 @@ def output_folder_for(
     patch_mode: str,
     fun_patches: list[FunPatch],
 ) -> Path:
-    output_name = _output_name(build, patch_mode, fun_patches)
-    folder_name = (
-        output_name[:-4] if output_name.casefold().endswith(".exe") else output_name
-    )
-    return source.resolve().parent.parent / folder_name
+    return source.resolve().parent.parent / f"{build.title} - Modded"
 
 
 def get_patch_mode(patch_mode: str) -> PatchMode:
