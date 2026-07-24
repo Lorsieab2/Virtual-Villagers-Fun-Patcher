@@ -26,7 +26,8 @@ records and expands saved-villager tables in VV3-VV5.
      City's level-3 Magic bonus also remains active.
 3. Optional for A New Home: check "School Lessons Grant Skill",
    "Continue Research at Max Technologies", and/or
-   "Reenable F6 Clothing Change Cheat".
+   "Reenable F6 Clothing Change Cheat", and/or
+   "Magic Fruit of Life Alters Mortality".
 4. Optional for The Lost Children: check "Easier Healing Mastery",
    "Teaching Children Grants Skill", and/or "Gong of Wonder Coconuts Fix".
 5. Optional for The Secret City: check
@@ -77,8 +78,9 @@ Mode and optional-patch details are recorded in the modified EXE's adjacent
 For each game, the patcher creates one complete sibling copy named
 "(Game name) - Modded". The copied folder keeps every original file and
 subfolder, including the stock EXE, and adds "(Game name) - Modded.exe" and its
-verification log. The copy is verified before it is committed. Applying
-another style refreshes the same short Modded folder after confirmation.
+verification log. Applying another style refreshes the same short Modded
+folder in place after confirmation. The patcher does not create temporary
+game copies or replacement-backup folders.
 Original folders and EXEs are never changed, renamed, replaced, or deleted. The
 patcher remembers the selected style, single-game EXE path, and all five folder
 paths. Vanilla and Modded links open their respective folders.
@@ -125,17 +127,15 @@ callback gives no skill.
 
 VV1 MAGIC FRUIT OF LIFE ALTERS MORTALITY
 
-The first time a villager completes Enjoying magic fruit, that villager gains
-one saved random extension of 3 through 9 displayed years. The extension shifts
-the villager's complete birthday-mortality curve in both ordinary play and
-offline time catch-up. It does not reverse displayed age or change health.
+Once the Magic Fruit puzzle is completed, its saved puzzle flag shifts every
+ordinary villager's mortality curve six displayed years later. The same stock
+mortality routine runs during normal play and time catch-up. Medicine still
+adds its original benefit, and the Golden Child keeps the stock exemption.
 
-The effect never stacks. A later attempt shows "This villager has already
-extended their lifespan." through the same temporary notification system used
-for skill-improvement messages. It does not replace the villager's displayed
-current action and awards nothing. An interrupted first attempt that never
-reaches the marked final fruit-animation cleanup also awards nothing. The
-Golden Child retains its separate stock age exemption.
+Whenever a villager finishes Enjoying magic fruit, the final action cleanup
+clears sickness and restores health to 100. The fruit remains reusable. An
+interrupted action does not cure the villager. The patch stores nothing in
+villager names, likes, dislikes, or other record fields.
 
 VV2 TEACHING CHILDREN GRANTS SKILL
 

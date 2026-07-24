@@ -1,20 +1,34 @@
-# Retired VV1 Magic Fruit mortality experiment
+# VV1 Magic Fruit mortality and healing patch
 
-The **Magic Fruit of Life Alters Mortality** patch shipped in v1.24.0 and was
-removed in the next corrective release.
+## Safe design
 
-Its persistent-storage premise was unsafe. Byte `+935` of the 984-byte VV1
-villager record was described as an unused final name-buffer byte. The actual
-Detail-screen routine at `0x43BA60` treats record offsets `+920`, `+924`,
-`+928`, and `+932` as four pointers used to render likes and dislikes.
-Therefore `+935` is the high byte of the fourth pointer, not free storage.
+The restored **Magic Fruit of Life Alters Mortality** patch does not need
+per-villager persistence. It reads the game's existing saved Magic Fruit puzzle
+completion byte at global-state offset `+0xA098`. When that byte is nonzero,
+the stock mortality routine adds 120 internal age units to its already
+calculated threshold. VV1 uses 20 internal units per displayed year, so this is
+a fixed six-year shift. Medicine technology is evaluated by the stock formula
+before the shift. The same mortality routine is used in ordinary play and
+offline time catch-up.
 
-The player-observed crash was recorded by Windows as access violation
-`0xC0000005` at executable offset `0x3BA86`, inside the stock Detail-screen
-pointer-reading loop. Writing or clearing `+935` can corrupt that pointer and
-cause precisely that failure.
+The final cleanup entry in **Enjoying magic fruit** is marked with private
+value `126`. The shared cleanup executor preserves its stock call, then sets
+the acting villager's confirmed health field at `+836` to `100` and sickness
+field at `+852` to `0`. Other cleanup entries follow the displaced stock path
+unchanged. Because the marker is on the final queue entry, an interrupted fruit
+action does not cure the villager.
 
-The optional patch is no longer offered or applied. The school lesson,
-continue-research, and F6 clothing patches do not write this field. A future
-Magic Fruit mortality patch must identify and independently verify genuinely
-safe per-villager persistent storage before it can be restored.
+Eating the fruit is reusable. It does not add another mortality shift because
+longevity depends only on the puzzle's single saved completion flag.
+
+## Retired unsafe experiment
+
+The v1.24.0 experiment tried to save a once-per-villager marker at record byte
+`+935`. That premise was wrong: the Detail-screen routine at `0x43BA60` treats
+offsets `+920`, `+924`, `+928`, and `+932` as four likes/dislikes pointers, so
+`+935` is part of the fourth pointer. The player-observed Detail-screen access
+violation at executable offset `0x3BA86` was consistent with that corruption.
+
+The current patch never reads or writes those pointer fields—or any other
+villager field for persistence. Its only villager writes are the confirmed
+health and sickness values at fruit-action completion.

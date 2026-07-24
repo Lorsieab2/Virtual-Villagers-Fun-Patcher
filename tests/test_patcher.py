@@ -19,6 +19,7 @@ from vv_fun_patcher import (  # noqa: E402
     apply_patch,
     dry_run,
     dry_run_all,
+    get_fun_patch,
     get_patch_variant,
     identify,
     load_builds,
@@ -129,18 +130,12 @@ class GuiSourceTests(unittest.TestCase):
         self.assertIn('removeprefix("Virtual Villagers - ")', source)
         self.assertNotIn('text=f"{patch.name} ({patch.game_id.upper()})"', source)
 
-    def test_temporary_folder_names_are_human_readable(self) -> None:
+    def test_no_temporary_or_backup_game_folders_are_created(self) -> None:
         source = (ROOT / "src" / "vv_fun_patcher.py").read_text(encoding="utf-8")
-        self.assertIn(
-            "Virtual Villagers Fun Patcher - Temporary Copy - ",
-            source,
-        )
-        self.assertIn(
-            "Virtual Villagers Fun Patcher - Replacement Backup - ",
-            source,
-        )
-        self.assertNotIn('prefix=f".vvfp-', source)
-        self.assertNotIn('prefix=".vvfp-backup-', source)
+        self.assertNotIn("Temporary Copy", source)
+        self.assertNotIn("Replacement Backup", source)
+        self.assertNotIn("tempfile.mkdtemp", source)
+        self.assertIn("dirs_exist_ok=overwrite", source)
 
 
 class StockIntegrationTests(unittest.TestCase):
@@ -510,27 +505,44 @@ class StockIntegrationTests(unittest.TestCase):
                         bytes.fromhex("B92D690000"),
                     )
 
-    def test_unsafe_vv1_magic_fruit_storage_patch_is_retired(self) -> None:
-        self.assertNotIn(
-            "vv1_magic_fruit_alters_mortality",
-            {patch.id for patch in load_fun_patches()},
+    def test_vv1_magic_fruit_uses_global_puzzle_state_and_safe_fields(self) -> None:
+        patch = get_fun_patch("vv1_magic_fruit_alters_mortality")
+        self.assertIn("globally", patch.description)
+        self.assertIn("six displayed years", patch.description)
+        self.assertIn("restores health to 100", patch.description)
+        self.assertIn("stores nothing in villager likes or dislikes", patch.description)
+        build = next(build for build in load_builds() if build.id == "vv1")
+        rendered, _ = render_patched_bytes(
+            STOCK / build.input_name,
+            build,
+            DEFAULT_PATCH_MODE,
+            [patch.id],
         )
+        self.assertEqual(bytes(rendered[0x4322F:0x43231]), bytes.fromhex("6A7E"))
+        self.assertEqual(
+            bytes(rendered[0x4892D:0x48939]),
+            bytes.fromhex("E9CEDE000090909090909090"),
+        )
+        healing_cave = bytes(rendered[0x56800:0x56838])
+        self.assertIn(bytes.fromhex("C70664000000"), healing_cave)
+        self.assertIn(bytes.fromhex("C7461000000000"), healing_cave)
+        mortality_cave = bytes(rendered[0x56880:0x5689B])
+        self.assertIn(bytes.fromhex("80B998A0000000"), mortality_cave)
+        self.assertIn(bytes.fromhex("83C578"), mortality_cave)
+
+    def test_vv1_magic_fruit_combines_with_every_vv1_patch(self) -> None:
         build = next(build for build in load_builds() if build.id == "vv1")
         selected = [
             patch.id for patch in load_fun_patches() if patch.game_id == "vv1"
         ]
-        rendered, _ = render_patched_bytes(
+        rendered, applied = render_patched_bytes(
             STOCK / build.input_name,
             build,
             DEFAULT_PATCH_MODE,
             selected,
         )
-        stock = (STOCK / build.input_name).read_bytes()
-        for offset, length in ((0x3C696, 11), (0x56740, 43), (0x568C0, 23)):
-            self.assertEqual(
-                bytes(rendered[offset : offset + length]),
-                stock[offset : offset + length],
-            )
+        self.assertTrue(rendered)
+        self.assertGreater(len(applied), 5)
 
     def test_expanded_collection_progression_reaches_256(self) -> None:
         progression_bases = {"vv2": 231, "vv3": 221, "vv4": 231, "vv5": 241}
@@ -627,6 +639,28 @@ class StockIntegrationTests(unittest.TestCase):
             self.assertEqual(output.parent.parent, game_folder.parent)
             self.assertEqual((output.parent / "keep.dat").read_bytes(), b"keep")
             self.assertTrue((output.parent / build.input_name).is_file())
+
+    def test_overwrite_updates_same_folder_without_sibling_copies(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            build = load_builds()[0]
+            game_folder = Path(temp) / build.title
+            game_folder.mkdir()
+            source = game_folder / build.input_name
+            shutil.copy2(STOCK / build.input_name, source)
+            first_output, _ = apply_patch(source, "immediate_fixed")
+            (first_output.parent / "preserved-user-file.txt").write_text("keep")
+            output, log = apply_patch(source, "immediate_fixed", overwrite=True)
+
+            self.assertEqual(output, first_output)
+            self.assertTrue(output.is_file())
+            self.assertTrue(log.is_file())
+            self.assertTrue(
+                (output.parent / "preserved-user-file.txt").is_file()
+            )
+            self.assertEqual(
+                {path.name for path in game_folder.parent.iterdir()},
+                {game_folder.name, output.parent.name},
+            )
 
     def test_vv1_school_lessons_grant_skill_is_guarded_and_additive(self) -> None:
         feature_id = "vv1_school_lessons_grant_skill"

@@ -6,7 +6,6 @@ import json
 import os
 import shutil
 import struct
-import tempfile
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
@@ -388,17 +387,9 @@ def _log_data(
     }
 
 
-def _folder_hashes(folder: Path) -> dict[str, tuple[int, str]]:
-    return {
-        str(path.relative_to(folder)): (path.stat().st_size, sha256(path))
-        for path in folder.rglob("*")
-        if path.is_file()
-    }
-
-
-def _stage_game_folder(
-    source_folder: Path, destination: Path, game_title: str
-) -> Path:
+def _copy_game_folder_direct(
+    source_folder: Path, destination: Path, overwrite: bool
+) -> None:
     if destination.parent.resolve() != source_folder.resolve().parent:
         raise PatcherError(
             "Internal safety check failed: output is not beside the game folder"
@@ -407,68 +398,33 @@ def _stage_game_folder(
         raise PatcherError(
             "Internal safety check failed: output would replace the original folder"
         )
-    stage = Path(
-        tempfile.mkdtemp(
-            prefix=(
-                "Virtual Villagers Fun Patcher - Temporary Copy - "
-                f"{game_title} - "
-            ),
-            dir=destination.parent,
-        )
-    )
-    stage.rmdir()
+    existed = destination.exists()
+    if existed and not overwrite:
+        raise PatcherError(f"Modified game folder already exists: {destination}")
     try:
-        shutil.copytree(source_folder, stage, copy_function=shutil.copy2)
-        if _folder_hashes(stage) != _folder_hashes(source_folder):
-            raise PatcherError(
-                f"Verification failed while copying the complete game folder: {source_folder}"
-            )
-        return stage
-    except Exception:
-        if stage.exists():
-            shutil.rmtree(stage)
-        raise
-
-
-def _commit_staged_folders(
-    staged: list[tuple[Path, Path]], overwrite: bool
-) -> None:
-    existing = [destination for _, destination in staged if destination.exists()]
-    if existing and not overwrite:
-        raise PatcherError(
-            "Modified game folder already exists; no folders were replaced:\n"
-            + "\n".join(str(path) for path in existing)
+        shutil.copytree(
+            source_folder,
+            destination,
+            copy_function=shutil.copy2,
+            dirs_exist_ok=overwrite,
         )
-    backups: list[tuple[Path, Path]] = []
-    committed: list[Path] = []
-    try:
-        for stage, destination in staged:
-            if destination.exists():
-                backup = Path(
-                    tempfile.mkdtemp(
-                        prefix=(
-                            "Virtual Villagers Fun Patcher - Replacement Backup - "
-                            f"{destination.name} - "
-                        ),
-                        dir=destination.parent,
-                    )
+        for source_path in source_folder.rglob("*"):
+            if not source_path.is_file():
+                continue
+            copied_path = destination / source_path.relative_to(source_folder)
+            if (
+                not copied_path.is_file()
+                or copied_path.stat().st_size != source_path.stat().st_size
+                or sha256(copied_path) != sha256(source_path)
+            ):
+                raise PatcherError(
+                    "Verification failed while copying the complete game folder: "
+                    f"{source_folder}"
                 )
-                backup.rmdir()
-                os.replace(destination, backup)
-                backups.append((destination, backup))
-            os.replace(stage, destination)
-            committed.append(destination)
     except Exception:
-        for destination in reversed(committed):
-            if destination.exists():
-                shutil.rmtree(destination)
-        for destination, backup in reversed(backups):
-            if backup.exists():
-                os.replace(backup, destination)
+        if not existed and destination.exists():
+            shutil.rmtree(destination, ignore_errors=True)
         raise
-    for _, backup in backups:
-        if backup.exists():
-            shutil.rmtree(backup)
 
 
 def apply_patch(
@@ -486,21 +442,20 @@ def apply_patch(
     if output_folder.exists() and not overwrite:
         raise PatcherError(f"Modified game folder already exists: {output_folder}")
     patched, applied = render_patched_bytes(source, build, patch_mode, fun_patch_ids)
-    stage = _stage_game_folder(source.parent, output_folder, build.title)
-    staged_output = stage / output_name
-    staged_log = staged_output.with_suffix(".patch-log.json")
+    _copy_game_folder_direct(source.parent, output_folder, overwrite)
+    log_path = output.with_suffix(".patch-log.json")
     try:
-        with staged_output.open("wb") as handle:
+        with output.open("wb") as handle:
             handle.write(patched)
             handle.flush()
             os.fsync(handle.fileno())
-        if staged_output.stat().st_size != source.stat().st_size:
+        if output.stat().st_size != source.stat().st_size:
             raise PatcherError("Verification failed: patched file size changed")
-        output_hash = sha256(staged_output)
+        output_hash = sha256(output)
         expected_hash = hashlib.sha256(patched).hexdigest().upper()
         if output_hash != expected_hash:
-            raise PatcherError("Verification failed: staged output hash mismatch")
-        staged_log.write_text(
+            raise PatcherError("Verification failed: output hash mismatch")
+        log_path.write_text(
             json.dumps(
                 _log_data(
                     build, source, output, patch_mode, output_hash, applied, fun_patches
@@ -510,16 +465,8 @@ def apply_patch(
             + "\n",
             encoding="utf-8",
         )
-        _commit_staged_folders([(stage, output_folder)], overwrite)
     except Exception:
-        if stage.exists():
-            shutil.rmtree(stage)
         raise
-    output_hash = sha256(output)
-    expected_hash = hashlib.sha256(patched).hexdigest().upper()
-    if output_hash != expected_hash:
-        raise PatcherError("Verification failed: output hash does not match generated bytes")
-    log_path = output.with_suffix(".patch-log.json")
     return output, log_path
 
 
@@ -558,55 +505,36 @@ def apply_all(
             "Bulk modified game folder already exists; no files were written:\n"
             + "\n".join(str(path) for path in existing)
         )
-    staged: list[tuple[Path, Path]] = []
-    try:
-        for plan in plans:
-            build, source, patched, applied, output_folder, output = plan
-            stage = _stage_game_folder(source.parent, output_folder, build.title)
-            staged.append((stage, output_folder))
-            staged_output = stage / output.name
-            with staged_output.open("wb") as handle:
-                handle.write(patched)
-                handle.flush()
-                os.fsync(handle.fileno())
-            if staged_output.stat().st_size != source.stat().st_size:
-                raise PatcherError(
-                    f"Verification failed before bulk commit: {build.title} size changed"
-                )
-            output_hash = sha256(staged_output)
-            if output_hash != hashlib.sha256(patched).hexdigest().upper():
-                raise PatcherError(
-                    f"Verification failed before bulk commit: {build.title} hash mismatch"
-                )
-            staged_output.with_suffix(".patch-log.json").write_text(
-                json.dumps(
-                    _log_data(
-                        build,
-                        source,
-                        output,
-                        patch_mode,
-                        output_hash,
-                        applied,
-                        selected_by_game.get(build.id, []),
-                    ),
-                    indent=2,
-                )
-                + "\n",
-                encoding="utf-8",
-            )
-        _commit_staged_folders(staged, overwrite)
-    except Exception:
-        for stage, _ in staged:
-            if stage.exists():
-                shutil.rmtree(stage)
-        raise
     results: list[tuple[Path, Path]] = []
     for build, source, patched, applied, output_folder, output in plans:
+        _copy_game_folder_direct(source.parent, output_folder, overwrite)
+        with output.open("wb") as handle:
+            handle.write(patched)
+            handle.flush()
+            os.fsync(handle.fileno())
+        if output.stat().st_size != source.stat().st_size:
+            raise PatcherError(f"Bulk verification failed: {build.title} size changed")
         output_hash = sha256(output)
         expected_hash = hashlib.sha256(patched).hexdigest().upper()
         if output_hash != expected_hash:
-            raise PatcherError(f"Bulk verification failed after commit: {build.title}")
+            raise PatcherError(f"Bulk verification failed: {build.title} hash mismatch")
         log_path = output.with_suffix(".patch-log.json")
+        log_path.write_text(
+            json.dumps(
+                _log_data(
+                    build,
+                    source,
+                    output,
+                    patch_mode,
+                    output_hash,
+                    applied,
+                    selected_by_game.get(build.id, []),
+                ),
+                indent=2,
+            )
+            + "\n",
+            encoding="utf-8",
+        )
         results.append((output, log_path))
     return results
 

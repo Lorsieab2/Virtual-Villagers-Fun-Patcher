@@ -49,6 +49,12 @@ Enable **Reenable F6 Clothing Change Cheat (A New Home)** so pressing F6 advance
 
 The patch does not alter heads, sex, age, skills, health, jobs, movement, actions, or clothing assets. F7, F8, and all non-F6 keys retain their original behavior.
 
+## VV1: Magic Fruit of Life Alters Mortality
+
+Enable **Magic Fruit of Life Alters Mortality (A New Home)** to give the completed Magic Fruit puzzle a tribe-wide longevity effect. Once the puzzle's saved completion flag is set, the stock mortality routine moves every ordinary villager's complete mortality curve six displayed years later. The same routine handles ordinary play and offline time catch-up. Medicine technology still contributes its original threshold first, and the Golden Child retains the stock exemption.
+
+Finishing **Enjoying magic fruit** also clears that villager's sickness and restores health to 100. The cure occurs only when the final fruit-action cleanup runs, so an interrupted action awards nothing. It is reusable, does not stack another mortality bonus, and stores no state in villager names, likes, dislikes, or other record fields.
+
 ## VV2: Teaching Children Grants Skill
 
 Enable **Teaching Children Grants Skill (The Lost Children)** to reward every attending child once after that child's full stock lesson queue finishes. Each attendee gains 7, 8, or 9 points in Farming, Building, Research, Healing, or Parenting. All five choices have equal odds, and skills remain capped at 100.
@@ -149,19 +155,18 @@ For every selected game, the patcher creates one short sibling folder named **`(
 
 Support is bound to the exact SHA-256 and size of each researched stock executable. Unknown, modified, corrupt, duplicate, or incorrectly assigned EXEs are refused. Every original byte to be changed is guarded, file size is preserved, the PE checksum is recalculated, and each result is read back and hashed.
 
-Bulk mode validates and renders all five inputs before writing, then stages and verifies all five complete folder copies before committing them. If an existing copied folder is replaced, the patcher uses a temporary backup and restores it if the batch commit fails.
-
-Transient folders use readable names beginning with **Virtual Villagers Fun
-Patcher - Temporary Copy** or **Virtual Villagers Fun Patcher - Replacement
-Backup**. They are normally removed automatically when the atomic replacement
-finishes. If Windows, OneDrive, or the patcher is interrupted, the readable name
-makes any abandoned copy easy to identify.
+Bulk mode validates and renders all five inputs before writing. Each supplied
+game folder is then copied directly into its short **`- Modded`** sibling and
+verified before the modified EXE is written. Re-running with overwrite updates
+that same Modded folder in place. The patcher does not create temporary game
+copies or replacement-backup folders; the supplied original folders remain
+unchanged.
 
 No game executable, save, extracted asset, or generated output is committed to this repository.
 
 ## Command line
 
-Pass `--patch-mode collection_progression`, `--patch-mode immediate_fixed`, `--patch-mode experimental_expanded_256`, or `--patch-mode experimental_expanded_256_progression` to `dry-run`, `apply`, `dry-run-all`, or `apply-all`. Optional features use repeatable `--fun-patch` arguments: `vv1_school_lessons_grant_skill`, `vv1_continue_research_at_max_technologies`, `vv1_f6_clothing_change_cheat`, `vv2_easier_healing_mastery`, `vv2_teaching_children_grants_skill`, `vv2_gong_of_wonder_coconuts_fix`, `vv3_nature_honey_refill`, `vv4_complete_scales_golden_fish`, `vv5_heathen_mommy_puzzle`, `vv5_easier_devotee_training`, `vv5_statue_polishing_or_honoring`, and `vv5_vv4_nursery_divisor_parity`.
+Pass `--patch-mode collection_progression`, `--patch-mode immediate_fixed`, `--patch-mode experimental_expanded_256`, or `--patch-mode experimental_expanded_256_progression` to `dry-run`, `apply`, `dry-run-all`, or `apply-all`. Optional features use repeatable `--fun-patch` arguments: `vv1_school_lessons_grant_skill`, `vv1_continue_research_at_max_technologies`, `vv1_f6_clothing_change_cheat`, `vv1_magic_fruit_alters_mortality`, `vv2_easier_healing_mastery`, `vv2_teaching_children_grants_skill`, `vv2_gong_of_wonder_coconuts_fix`, `vv3_nature_honey_refill`, `vv4_complete_scales_golden_fish`, `vv5_heathen_mommy_puzzle`, `vv5_easier_devotee_training`, `vv5_statue_polishing_or_honoring`, and `vv5_vv4_nursery_divisor_parity`.
 
 ```text
 python src/vv_fun_patcher.py dry-run "path\game.exe" --patch-mode immediate_fixed
