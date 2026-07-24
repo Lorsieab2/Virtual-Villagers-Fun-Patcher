@@ -18,8 +18,8 @@ records and expands saved-villager tables in VV3-VV5.
    - Experimental Expanded 256 Villagers:
      VV3-VV5 expand from 150 to 256 physical records; VV1-VV2 use their
      existing 256. The cap is immediate and collections do not change it.
-     VV3-VV5 use separate E-numbered experimental saves. Stock saves are not
-     loaded or overwritten. Long-play to a full 256 remains experimental.
+     The differently named modified EXEs use separate executable-named save
+     folders. Long-play to a full 256 remains experimental.
 3. Optional for A New Home: check "School Lessons Grant Skill",
    "Continue Research at Max Technologies", and/or
    "Reenable F6 Clothing Change Cheat".

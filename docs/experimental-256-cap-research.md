@@ -41,11 +41,10 @@ The compact saved-villager tables are expanded by 106 entries:
 Tail fields, allocation sizes, stack buffers, writers, loaders, initializers,
 and live/compact conversion loops are shifted or expanded together.
 
-Stock 150-record saves are deliberately not loaded by this mode. The patched
-games use the separate format `%sE%d.ldw` instead of stock `%s%d.ldw`.
-Therefore the experimental builds neither load nor overwrite the stock-numbered
-save files. VV1 and VV2 keep the stock save format because their record layout
-was already 256 entries.
+The patched games keep the stock `%s%d.ldw` filename format. Their separately
+named modified EXEs create and use separate executable-named save folders, so
+changing the filenames inside those folders is unnecessary. VV1 and VV2 also
+keep the stock save format because their record layout was already 256 entries.
 
 ## Temporary arrays and record walkers
 
@@ -91,4 +90,4 @@ Startup and static structure are verified. A village has not yet been played
 all the way to 256 villagers through births, deaths, Island Events, offline
 catch-up, save, and reload. The mode is labeled experimental for that reason.
 Use the patcher's complete copied game folder, keep the stock EXE, and retain
-backups even though the E-numbered experimental saves are separate.
+backups while the expanded save layout remains experimental.

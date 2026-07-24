@@ -22,7 +22,7 @@ Choose the style in the patcher; the choice and all paths are remembered.
 
 A New Home has no collection population bonus, so all three styles use the same 256 limit but still create separately named outputs.
 
-VV3-VV5 experimental builds use separate E-numbered save files (`%sE%d.ldw`), so they do not load or overwrite stock-numbered saves. The patcher copies the complete game folder—including `fmod.dll`, SDL2, image libraries, and all data files—then places the separately named experimental EXE inside it. Startup is verified for all three expanded games; reaching, saving, and reloading a live 256-villager village remains long-play testing, so the mode is explicitly experimental.
+VV3-VV5 experimental builds keep the stock save filenames. Their uniquely named modified EXEs use separate executable-named save folders, so the extra E-filename convention is unnecessary. The patcher copies the complete game folder—including `fmod.dll`, SDL2, image libraries, and all data files—then places the separately named experimental EXE inside it. Startup is verified for all three expanded games; reaching, saving, and reloading a live 256-villager village remains long-play testing, so the mode is explicitly experimental.
 
 ## VV2: Easier Healing Mastery
 

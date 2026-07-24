@@ -308,7 +308,7 @@ def _result(
         "villager_slots": villager_slots,
         "experimental_expanded_records": variant.get("expanded_records", False),
         "save_compatibility": (
-            "separate E-numbered experimental save files; stock saves are not loaded or overwritten"
+            "expanded experimental save layout in the modified executable's separate save folder"
             if variant.get("expanded_records", False)
             else "stock save layout"
         ),
@@ -375,7 +375,7 @@ def _log_data(
         "villager_slots": villager_slots,
         "experimental_expanded_records": variant.get("expanded_records", False),
         "save_compatibility": (
-            "separate E-numbered experimental save files; stock saves are not loaded or overwritten"
+            "expanded experimental save layout in the modified executable's separate save folder"
             if variant.get("expanded_records", False)
             else "stock save layout"
         ),

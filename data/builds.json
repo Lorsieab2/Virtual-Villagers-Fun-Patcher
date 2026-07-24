@@ -359,12 +359,6 @@
               "before": "83F8037C0383C60A",
               "after": "BEA6000000909090",
               "purpose": "replace collection and magic-tech bonus result with fixed arithmetic for a 256 maximum"
-            },
-            {
-              "offset": "0x7C5C0",
-              "before": "257325642E6C64770000",
-              "after": "25734525642E6C647700",
-              "purpose": "use separate E-numbered experimental save files so stock 150-record saves are not loaded or overwritten"
             }
           ]
         }
@@ -467,12 +461,6 @@
               "before": "83FE147505BE19000000",
               "after": "BEA60000009090909090",
               "purpose": "replace every collection-bonus result with fixed arithmetic for a 256 maximum"
-            },
-            {
-              "offset": "0x8A77C",
-              "before": "257325642E6C64770000",
-              "after": "25734525642E6C647700",
-              "purpose": "use separate E-numbered experimental save files so stock 150-record saves are not loaded or overwritten"
             }
           ]
         }
@@ -617,12 +605,6 @@
               "before": "000000000000000000000000000000000000000000000000",
               "after": "81C65A000000E8B5FFFFFF3BC60F8D3DE7FDFFE93EE7FDFF",
               "purpose": "add the stock 90 housing component to fixed 166, compare 256 total occupied-or-reserved slots, and resume the stock housing gates"
-            },
-            {
-              "offset": "0x95794",
-              "before": "257325642E6C64770000",
-              "after": "25734525642E6C647700",
-              "purpose": "use separate E-numbered experimental save files so stock 150-record saves are not loaded or overwritten"
             }
           ]
         }

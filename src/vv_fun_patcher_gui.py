@@ -303,7 +303,7 @@ class App(tk.Tk):
         else:
             detail = (
                 "Experimental: VV3-VV5 expand their physical records and save layout from 150 to 256. "
-                "They use separate E-numbered save files, so stock saves are not loaded or overwritten. "
+                "Their differently named EXEs use separate executable-named save folders. "
                 "VV1-VV2 use their existing 256 slots. Collections no longer change the cap."
             )
         self.mode_detail_var.set(detail)
@@ -453,7 +453,7 @@ class App(tk.Tk):
         else:
             text = (
                 "experimental 256 mode is immediate. VV3-VV5 use expanded records and "
-                "separate E-numbered saves; stock saves are not loaded or overwritten."
+                "the modified EXEs use their own executable-named save folders."
             )
         selected = self._selected_fun_patch_ids(build.id if build else None)
         if selected:
@@ -620,8 +620,8 @@ class App(tk.Tk):
             return True
         return messagebox.askyesno(
             "Use experimental expanded saves?",
-            "VV3, VV4, and VV5 will use a new 256-record save layout and separate "
-            "E-numbered save files. Their stock saves will not be loaded or overwritten.\n\n"
+            "VV3, VV4, and VV5 will use a new 256-record save layout. Each differently "
+            "named modified EXE uses its own executable-named save folder.\n\n"
             "The patcher will copy each complete game folder and keep its original EXE. "
             "This mode has passed startup testing, but reaching and persisting all 256 "
             "villagers still requires long-play testing.\n\nContinue?",

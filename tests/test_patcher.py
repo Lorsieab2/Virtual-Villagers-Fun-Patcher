@@ -379,7 +379,7 @@ class StockIntegrationTests(unittest.TestCase):
                         variant.get("villager_slots", build.villager_slots),
                     )
 
-    def test_expanded_later_games_use_separate_saves_and_larger_images(self) -> None:
+    def test_expanded_later_games_keep_stock_save_names_and_use_larger_images(self) -> None:
         save_offsets = {"vv3": 0x7C5C0, "vv4": 0x8A77C, "vv5": 0x95794}
         for build in load_builds():
             if build.id not in save_offsets:
@@ -390,8 +390,8 @@ class StockIntegrationTests(unittest.TestCase):
                 source, build, "experimental_expanded_256"
             )
             self.assertEqual(
-                bytes(rendered[save_offsets[build.id] : save_offsets[build.id] + 10]),
-                b"%sE%d.ldw\0",
+                bytes(rendered[save_offsets[build.id] : save_offsets[build.id] + 9]),
+                b"%s%d.ldw\0",
             )
             pe = struct.unpack_from("<I", original, 0x3C)[0]
             optional = pe + 24
