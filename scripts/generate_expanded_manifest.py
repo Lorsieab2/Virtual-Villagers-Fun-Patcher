@@ -10,6 +10,71 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 GAMES = ("vv3", "vv4", "vv5")
+STOCK_SAVE_COMPATIBILITY = {
+    "vv3": [
+        {
+            "offset": "0x28949",
+            "before": "E852AAFDFF",
+            "after": "E8632A0500",
+            "purpose": "route expanded save loading through a stock-layout compatibility fallback",
+        },
+        {
+            "offset": "0x28961",
+            "before": "B9C74B0000",
+            "after": "B92D690000",
+            "purpose": "copy the complete expanded VV3 saved state after either load format succeeds",
+        },
+        {
+            "offset": "0x7B3B1",
+            "before": "00" * 102,
+            "after": (
+                "5589E551FF7510FF750CFF75088B4DFCE8DA7FF8FF84C07547"
+                "FF7510681C2F0100FF75088B4DFCE8C37FF8FF84C0743056578B"
+                "750881C61B2F01008DBE98750000B948100000FDF3A4FC8B7D08"
+                "81C7D41E010031C0B9661D0000F3AB5F5EB00189EC5DC20C00"
+            ),
+            "purpose": "accept an exact stock VV3 save, move its saved-state tail, and zero the 106 inserted villager records",
+        },
+    ],
+    "vv4": [
+        {
+            "offset": "0x1FC19",
+            "before": "E8C23BFEFF",
+            "after": "E8EF940600",
+            "purpose": "route expanded save loading through a stock-layout compatibility fallback",
+        },
+        {
+            "offset": "0x8910D",
+            "before": "00" * 102,
+            "after": (
+                "5589E551FF7510FF750CFF75088B4DFCE8BEA6F7FF84C07547"
+                "FF7510680C710100FF75088B4DFCE8A7A6F7FF84C0743056578B"
+                "750881C60B7101008DBEA86B0000B94C100000FDF3A4FC8B7D08"
+                "81C7C060010031C0B9EA1A0000F3AB5F5EB00189EC5DC20C00"
+            ),
+            "purpose": "accept an exact stock VV4 save, move its saved-state tail, and zero the 106 inserted villager records",
+        },
+    ],
+    "vv5": [
+        {
+            "offset": "0x25709",
+            "before": "E862E0FDFF",
+            "after": "E85EEF0600",
+            "purpose": "route expanded save loading through a stock-layout compatibility fallback",
+        },
+        {
+            "offset": "0x9466C",
+            "before": "00" * 102,
+            "after": (
+                "5589E551FF7510FF750CFF75088B4DFCE8EFF0F6FF84C07547"
+                "FF751068787D0100FF75088B4DFCE8D8F0F6FF84C0743056578B"
+                "750881C6777D01008DBEF0730000B95C100000FDF3A4FC8B7D08"
+                "81C71C6D010031C0B9FC1C0000F3AB5F5EB00189EC5DC20C00"
+            ),
+            "purpose": "accept an exact stock VV5 save, move its saved-state tail, and zero the 106 inserted villager records",
+        },
+    ],
+}
 
 
 def sha256(path: Path) -> str:
@@ -41,6 +106,7 @@ def main() -> int:
                     "purpose": edit["label"],
                 }
             )
+        patches.extend(STOCK_SAVE_COMPATIBILITY[game_id])
         payload["games"][game_id] = {
             "source_sha256": sha256(source),
             "prototype_sha256": sha256(prototype),

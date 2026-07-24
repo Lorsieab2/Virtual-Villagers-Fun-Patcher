@@ -442,6 +442,79 @@ class StockIntegrationTests(unittest.TestCase):
                 ),
             )
 
+    def test_expanded_later_games_accept_exact_stock_save_layouts(self) -> None:
+        compatibility = {
+            "vv3": {
+                "call": (0x28949, "E8632A0500"),
+                "cave": (0x7B3B1, 102),
+                "stock_size": "681C2F0100",
+                "tail": "81C7D41E0100",
+                "zero_count": "B9661D0000",
+            },
+            "vv4": {
+                "call": (0x1FC19, "E8EF940600"),
+                "cave": (0x8910D, 102),
+                "stock_size": "680C710100",
+                "tail": "81C7C0600100",
+                "zero_count": "B9EA1A0000",
+            },
+            "vv5": {
+                "call": (0x25709, "E85EEF0600"),
+                "cave": (0x9466C, 102),
+                "stock_size": "68787D0100",
+                "tail": "81C71C6D0100",
+                "zero_count": "B9FC1C0000",
+            },
+        }
+        for build in load_builds():
+            if build.id not in compatibility:
+                continue
+            with self.subTest(game=build.id):
+                rendered, _ = render_patched_bytes(
+                    STOCK / build.input_name,
+                    build,
+                    "experimental_expanded_256",
+                )
+                expected = compatibility[build.id]
+                call_offset, call_hex = expected["call"]
+                self.assertEqual(
+                    bytes(rendered[call_offset : call_offset + 5]),
+                    bytes.fromhex(call_hex),
+                )
+                cave_offset, cave_length = expected["cave"]
+                cave = bytes(rendered[cave_offset : cave_offset + cave_length])
+                self.assertIn(bytes.fromhex(expected["stock_size"]), cave)
+                self.assertIn(bytes.fromhex(expected["tail"]), cave)
+                self.assertIn(bytes.fromhex(expected["zero_count"]), cave)
+                self.assertTrue(cave.endswith(bytes.fromhex("C20C00")))
+                if build.id == "vv3":
+                    self.assertEqual(
+                        bytes(rendered[0x28961:0x28966]),
+                        bytes.fromhex("B92D690000"),
+                    )
+
+    def test_unsafe_vv1_magic_fruit_storage_patch_is_retired(self) -> None:
+        self.assertNotIn(
+            "vv1_magic_fruit_alters_mortality",
+            {patch.id for patch in load_fun_patches()},
+        )
+        build = next(build for build in load_builds() if build.id == "vv1")
+        selected = [
+            patch.id for patch in load_fun_patches() if patch.game_id == "vv1"
+        ]
+        rendered, _ = render_patched_bytes(
+            STOCK / build.input_name,
+            build,
+            DEFAULT_PATCH_MODE,
+            selected,
+        )
+        stock = (STOCK / build.input_name).read_bytes()
+        for offset, length in ((0x3C696, 11), (0x56740, 43), (0x568C0, 23)):
+            self.assertEqual(
+                bytes(rendered[offset : offset + length]),
+                stock[offset : offset + length],
+            )
+
     def test_expanded_collection_progression_reaches_256(self) -> None:
         progression_bases = {"vv2": 231, "vv3": 221, "vv4": 231, "vv5": 241}
         for build in load_builds():
@@ -582,7 +655,6 @@ class StockIntegrationTests(unittest.TestCase):
             "vv1_school_lessons_grant_skill",
             "vv1_continue_research_at_max_technologies",
             "vv1_f6_clothing_change_cheat",
-            "vv1_magic_fruit_alters_mortality",
         ]
         build = next(build for build in load_builds() if build.id == "vv1")
         rendered, _ = render_patched_bytes(STOCK / build.input_name, build, DEFAULT_PATCH_MODE, feature_ids)
@@ -592,8 +664,6 @@ class StockIntegrationTests(unittest.TestCase):
         self.assertEqual(rendered[0x47488], 0x13)
         self.assertEqual(rendered[0x20057], 0)
         self.assertEqual(bytes(rendered[0x1FF2E:0x1FF34]), bytes.fromhex("E9ED66030090"))
-        self.assertEqual(bytes(rendered[0x4322F:0x43231]), bytes.fromhex("6A7E"))
-        self.assertEqual(bytes(rendered[0x2EEAA:0x2EEB2]), bytes.fromhex("E9D1790200909090"))
         preview = dry_run(STOCK / build.input_name, DEFAULT_PATCH_MODE, feature_ids)
         self.assertEqual(preview["output_name"], modded_exe_name(build))
 
@@ -623,98 +693,6 @@ class StockIntegrationTests(unittest.TestCase):
                 "33C9898864030000E94F99FCFF8B86F8020000E9C798FCFF"
             ),
         )
-        preview = dry_run(source, DEFAULT_PATCH_MODE, [feature_id])
-        self.assertEqual(preview["fun_patches"], [feature_id])
-        self.assertEqual(preview["output_name"], modded_exe_name(build))
-
-    def test_vv1_magic_fruit_alters_mortality_once_and_during_catchup(self) -> None:
-        feature_id = "vv1_magic_fruit_alters_mortality"
-        feature = next(patch for patch in load_fun_patches() if patch.id == feature_id)
-        build = next(build for build in load_builds() if build.id == "vv1")
-        source = STOCK / build.input_name
-        for mode in MODES:
-            with self.subTest(mode=mode):
-                rendered, applied = render_patched_bytes(
-                    source, build, mode, [feature_id]
-                )
-                self.assertEqual(
-                    len(applied),
-                    len(build.safety_patches)
-                    + len(get_patch_variant(build, mode)["patches"])
-                    + len(feature.patches),
-                )
-                self.assertEqual(
-                    bytes(rendered[0x43161:0x43168]),
-                    bytes.fromhex("E9DA3501009090"),
-                )
-                self.assertEqual(
-                    bytes(rendered[0x4322F:0x43231]),
-                    bytes.fromhex("6A7E"),
-                )
-                self.assertEqual(
-                    bytes(rendered[0x4892D:0x48939]),
-                    bytes.fromhex("E9CEDE000090909090909090"),
-                )
-                self.assertEqual(
-                    bytes(rendered[0x2EEAA:0x2EEB2]),
-                    bytes.fromhex("E9D1790200909090"),
-                )
-                self.assertEqual(
-                    bytes(rendered[0x3C696:0x3C6A1]),
-                    bytes.fromhex("E925A20100909090909090"),
-                )
-                self.assertEqual(
-                    bytes(rendered[0x209ED:0x209F3]),
-                    bytes.fromhex("E9EE5E030090"),
-                )
-                self.assertEqual(
-                    bytes(rendered[0x56740:0x5676B]),
-                    bytes.fromhex(
-                        "8D9C301403000080BC30A703000003720A80BC30A70300000976"
-                        "05E908CAFEFFB87E0000005F5E5BC20400"
-                    ),
-                )
-                self.assertEqual(
-                    bytes(rendered[0x56800:0x56847]),
-                    bytes.fromhex(
-                        "83BE14FDFFFF7E752D8B8F20E0030053E84B14FCFF807E630372"
-                        "06807E630976106A07E8E8C6FAFF83C40483C003884663E90321"
-                        "FFFF8B8F20E0030053E81E14FCFFE9F220FFFF"
-                    ),
-                )
-                self.assertEqual(
-                    bytes(rendered[0x56880:0x568A9]),
-                    bytes.fromhex(
-                        "8DA94C0400008B46040FB68407A703000083F803720583F80976"
-                        "0233C06BC01403E83BDDE90986FDFF"
-                    ),
-                )
-                self.assertEqual(
-                    bytes(rendered[0x568C0:0x568D7]),
-                    bytes.fromhex(
-                        "8D86700300005150C60000C686A703000000E9CA5DFEFF"
-                    ),
-                )
-                self.assertEqual(
-                    bytes(rendered[0x568E0:0x56914]),
-                    bytes.fromhex(
-                        "83F87E752468206945008B8E50030000E83B52FBFF8B4E10E873"
-                        "C6FAFF40898684020000E9AEB1FCFF8B8E94020000E9DFA0FCFF"
-                    ),
-                )
-                message = bytes(rendered[0x56920:0x56953]).split(b"\0", 1)[0]
-                self.assertEqual(
-                    message,
-                    b"This villager has already extended their lifespan.",
-                )
-        awards = [value + 3 for value in range(7)]
-        self.assertEqual(awards, [3, 4, 5, 6, 7, 8, 9])
-        for medicine, stock_threshold in ((1, 55), (2, 63), (3, 71)):
-            self.assertEqual(
-                [stock_threshold + years for years in awards],
-                list(range(stock_threshold + 3, stock_threshold + 10)),
-                msg=f"Medicine {medicine}",
-            )
         preview = dry_run(source, DEFAULT_PATCH_MODE, [feature_id])
         self.assertEqual(preview["fun_patches"], [feature_id])
         self.assertEqual(preview["output_name"], modded_exe_name(build))

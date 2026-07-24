@@ -23,7 +23,9 @@ Choose the style in the patcher; the choice and all paths are remembered.
 
 Every mode and optional-patch combination uses the same stable short EXE name. The selected mode, optional patches, hashes, and applied edits remain identified in the adjacent `.patch-log.json`.
 
-VV3-VV5 experimental builds keep the stock save filenames. Their short `(Game name) - Modded.exe` executables use separate, short executable-named save folders, so the extra E-filename convention is unnecessary. The patcher copies the complete game folder—including `fmod.dll`, SDL2, image libraries, and all data files—then places the modified EXE inside it. Startup is verified for all three expanded games; reaching, saving, and reloading a live 256-villager village remains long-play testing, so the mode is explicitly experimental.
+VV3-VV5 experimental builds keep the stock save filenames. Their short `(Game name) - Modded.exe` executables use separate, short executable-named save folders, so the extra E-filename convention is unnecessary. An experimental executable first loads its expanded save format; when that exact size check fails, it also accepts the corresponding stock save layout, moves the saved-state tail, and zero-initializes the 106 newly inserted villager records in memory. The next ordinary save writes the expanded format. The stock save file itself is not rewritten during loading.
+
+The patcher copies the complete game folder—including `fmod.dll`, SDL2, image libraries, and all data files—then places the modified EXE inside it. Startup is verified for all three expanded games; reaching, saving, and reloading a live 256-villager village remains long-play testing, so the mode is explicitly experimental.
 
 ## VV2: Easier Healing Mastery
 
@@ -46,14 +48,6 @@ Enable **Continue Research at Max Technologies (A New Home)** so researchers rem
 Enable **Reenable F6 Clothing Change Cheat (A New Home)** so pressing F6 advances the selected active villager to the next stock outfit. The cycle covers the game's ordinary clothing indices 0 through 19 and wraps from 19 back to 0. Pressing F6 without a valid active selection changes nothing.
 
 The patch does not alter heads, sex, age, skills, health, jobs, movement, actions, or clothing assets. F7, F8, and all non-F6 keys retain their original behavior.
-
-## VV1: Magic Fruit of Life Alters Mortality
-
-Enable **Magic Fruit of Life Alters Mortality (A New Home)** to give each villager one real longevity benefit from the completed Magic Plant of Life. When that villager's first **Enjoying magic fruit** action reaches its second and final fruit-animation cleanup, the game saves `RNG(7)+3`, or 3 through 9 displayed years, as that villager's personal mortality extension.
-
-The saved extension shifts the entire birthday-mortality curve for that villager, including its first risky birthday and guaranteed-death birthday. The ordinary Medicine thresholds of 55, 63, and 71 therefore become 58–64, 66–72, and 74–80 depending on the random award. The same birthday routine runs during ordinary play and offline time catch-up.
-
-The benefit never stacks. Dropping a previously rewarded villager on the completed plant shows **“This villager has already extended their lifespan.”** through the same temporary notification system used for messages such as “This villager improved at foraging”; it does not change the villager's displayed current action or queue another fruit reward. Interrupted first-time fruit actions that never reach the marked final cleanup award nothing. The patch does not reverse displayed age, alter health, change Medicine Technology, or affect the Golden Child's separate age exemption.
 
 ## VV2: Teaching Children Grants Skill
 

@@ -46,8 +46,24 @@ and live/compact conversion loops are shifted or expanded together.
 
 The patched games keep the stock `%s%d.ldw` filename format. Their separately
 named modified EXEs create and use separate executable-named save folders, so
-changing the filenames inside those folders is unnecessary. VV1 and VV2 also
-keep the stock save format because their record layout was already 256 entries.
+changing the filenames inside those folders is unnecessary.
+
+VV3-VV5 now use a guarded two-format loader. It first requests the expanded
+payload size. If that exact size check fails, it retries with that game's exact
+stock payload size. A successful stock-layout load moves the approximately
+four-kilobyte saved-state tail upward and zeroes the inserted 106-entry compact
+villager gap before normal validation and live-record conversion continue. A
+subsequent ordinary save writes the expanded layout. Neither failed size check
+nor fallback loading rewrites the source file.
+
+VV3 required one additional correction: its expanded stack buffer and loader
+size had been increased, but its following `rep movsd` still copied only the
+77,596-byte stock payload. The copy count is now 26,925 dwords, covering the
+complete 107,700-byte expanded payload. VV4 and VV5 already copied their full
+expanded payloads.
+
+VV1 and VV2 keep the stock save format because their record layout was already
+256 entries.
 
 ## Temporary arrays and record walkers
 
