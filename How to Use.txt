@@ -8,7 +8,7 @@ Experimental Expanded 256 Villagers structurally adds room for another 106
 records and expands saved-villager tables in VV3-VV5.
 
 1. Double-click "Launch Virtual Villagers Fun Patcher.bat".
-2. Choose one of the three patch styles:
+2. Choose one of the four patch styles:
    - Collection Progression Max Pop:
      Collections still raise the cap and are needed to reach the absolute
      maximum. The Secret City also retains its level-3 magic bonus.
@@ -20,6 +20,10 @@ records and expands saved-villager tables in VV3-VV5.
      existing 256. The cap is immediate and collections do not change it.
      The differently named modified EXEs use separate executable-named save
      folders. Long-play to a full 256 remains experimental.
+   - Experimental Expanded 256 - Collection Progression:
+     Uses the same expanded 256-record layout, but collections keep their
+     original population bonuses and are required to reach 256. The Secret
+     City's level-3 Magic bonus also remains active.
 3. Optional for A New Home: check "School Lessons Grant Skill",
    "Continue Research at Max Technologies", and/or
    "Reenable F6 Clothing Change Cheat".
@@ -63,6 +67,9 @@ Immediate Fixed creates:
 Experimental Expanded 256 creates:
 (name of game) - Experimental 256 Villagers.exe
 
+Experimental Expanded 256 - Collection Progression creates:
+(name of game) - Experimental 256 Progression.exe
+
 When School Lessons Grant Skill is selected for VV1, its name adds:
 + School Grants Skill.exe
 
@@ -99,7 +106,7 @@ When VV4 Nursery School Divisor Parity is selected for VV5, its name adds:
 For each game, the patcher creates a complete sibling copy of the original game
 folder. The copied folder keeps every original file and subfolder, including the
 stock EXE, and adds the separately named modified EXE and verification log. The
-copy is verified before it is committed. All three styles can coexist in separate
+copy is verified before it is committed. All four styles can coexist in separate
 copied folders. Original folders and EXEs are never changed, renamed, replaced,
 or deleted. The patcher remembers the selected style, single-game EXE path, and
 all five folder paths. Vanilla and Modified links open their respective folders.
@@ -107,7 +114,7 @@ all five folder paths. Vanilla and Modified links open their respective folders.
 SAFE MULTIPLE BIRTHS
 
 All five games normally check the cap before deciding singleton/twins/triplets.
-All three styles prevent overflow at the selected mode's slot ceiling:
+All four styles prevent overflow at the selected mode's slot ceiling:
 - 3+ spaces: multiples work normally.
 - 2 spaces: a rolled triplet becomes twins.
 - 1 space: a rolled twin or triplet becomes a singleton.

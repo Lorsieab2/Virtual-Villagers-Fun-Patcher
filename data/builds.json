@@ -68,6 +68,26 @@
               "purpose": "compare population with 256, then return to original housing branch"
             }
           ]
+        },
+        "experimental_expanded_256_progression": {
+          "output_name": "Virtual Villagers - A New Home - Experimental 256 Progression.exe",
+          "bonuses_affect_maximum": false,
+          "villager_slots": 256,
+          "absolute_maximum": 256,
+          "patches": [
+            {
+              "offset": "0x3A1AE",
+              "before": "83F85A",
+              "after": "EB7690",
+              "purpose": "jump to 256-person comparison"
+            },
+            {
+              "offset": "0x3A226",
+              "before": "90909090909090909090",
+              "after": "3D00010000EB84909090",
+              "purpose": "compare population with 256, then return to original housing branch"
+            }
+          ]
         }
       },
       "safety_patches": [
@@ -229,6 +249,26 @@
               "purpose": "replace every collection-bonus result with fixed arithmetic for a 256 maximum"
             }
           ]
+        },
+        "experimental_expanded_256_progression": {
+          "output_name": "Virtual Villagers - The Lost Children - Experimental 256 Progression.exe",
+          "bonuses_affect_maximum": true,
+          "villager_slots": 256,
+          "absolute_maximum": 256,
+          "patches": [
+            {
+              "offset": "0x4B3AD",
+              "before": "83C75A",
+              "after": "EB4390",
+              "purpose": "jump to expanded base-cap arithmetic"
+            },
+            {
+              "offset": "0x4B3F2",
+              "before": "9090909090909090909090909090",
+              "after": "81C7E70000003BEFEBB690909090",
+              "purpose": "use base 231 plus the original maximum 25 collection bonus"
+            }
+          ]
         }
       },
       "safety_patches": [
@@ -361,6 +401,27 @@
               "purpose": "replace collection and magic-tech bonus result with fixed arithmetic for a 256 maximum"
             }
           ]
+        },
+        "experimental_expanded_256_progression": {
+          "output_name": "Virtual Villagers - The Secret City - Experimental 256 Progression.exe",
+          "bonuses_affect_maximum": true,
+          "villager_slots": 256,
+          "absolute_maximum": 256,
+          "expanded_records": true,
+          "patches": [
+            {
+              "offset": "0x5FEE1",
+              "before": "83C65A3BDE",
+              "after": "E93AB40100",
+              "purpose": "route the cap comparison through 221-base expanded progression arithmetic"
+            },
+            {
+              "offset": "0x7B320",
+              "before": "00000000000000000000000000",
+              "after": "81C6DD0000003BDEE9B94BFEFF",
+              "purpose": "add base 221 to the original 0-25 collection and 0-or-10 Magic Tech bonuses, then resume the stock housing gates"
+            }
+          ]
         }
       },
       "safety_patches": [
@@ -461,6 +522,27 @@
               "before": "83FE147505BE19000000",
               "after": "BEA60000009090909090",
               "purpose": "replace every collection-bonus result with fixed arithmetic for a 256 maximum"
+            }
+          ]
+        },
+        "experimental_expanded_256_progression": {
+          "output_name": "Virtual Villagers - The Tree of Life - Experimental 256 Progression.exe",
+          "bonuses_affect_maximum": true,
+          "villager_slots": 256,
+          "absolute_maximum": 256,
+          "expanded_records": true,
+          "patches": [
+            {
+              "offset": "0x683EF",
+              "before": "83C65A3BDE",
+              "after": "E90C0D0200",
+              "purpose": "route the cap comparison through 231-base expanded progression arithmetic"
+            },
+            {
+              "offset": "0x89100",
+              "before": "00000000000000000000000000",
+              "after": "81C6E70000003BDEE9E7F2FDFF",
+              "purpose": "add base 231 to the original 0-25 collection bonus, then resume the stock housing gates"
             }
           ]
         }
@@ -607,6 +689,27 @@
               "purpose": "add the stock 90 housing component to fixed 166, compare 256 total occupied-or-reserved slots, and resume the stock housing gates"
             }
           ]
+        },
+        "experimental_expanded_256_progression": {
+          "output_name": "Virtual Villagers - New Believers - Experimental 256 Progression.exe",
+          "bonuses_affect_maximum": true,
+          "villager_slots": 256,
+          "absolute_maximum": 256,
+          "expanded_records": true,
+          "patches": [
+            {
+              "offset": "0x72C49",
+              "before": "83C65A3BDE7C06",
+              "after": "E9B21802009090",
+              "purpose": "route the cap comparison through a true 241-base calculation that counts every occupied or reserved villager slot"
+            },
+            {
+              "offset": "0x94500",
+              "before": "000000000000000000000000000000000000000000000000",
+              "after": "81C6F1000000E8B5FFFFFF3BC60F8D3DE7FDFFE93EE7FDFF",
+              "purpose": "add base 241 with a 32-bit immediate, preserve the 0-15 collection bonus, compare total slot demand, and resume the stock housing gates"
+            }
+          ]
         }
       },
       "safety_patches": [
@@ -706,6 +809,11 @@
       "id": "experimental_expanded_256",
       "name": "Experimental Expanded 256 Villagers",
       "description": "VV3-VV5 expand their physical villager record and save capacity from 150 to 256; VV1-VV2 use their existing 256 slots. The 256 maximum is immediate and collections no longer alter it."
+    },
+    {
+      "id": "experimental_expanded_256_progression",
+      "name": "Experimental Expanded 256 - Collection Progression",
+      "description": "VV3-VV5 expand to 256 physical records while collections, and VV3 Magic Tech, retain their original bonuses and are required to reach 256. VV1-VV2 use their existing 256-record behavior."
     }
   ],
   "fun_patches": [

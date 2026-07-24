@@ -2,8 +2,11 @@
 
 ## Result
 
-Version 1.20.0 adds **Experimental Expanded 256 Villagers** as a third patch
-mode. This is a structural executable expansion, not a cap-only edit.
+Version 1.21.0 provides two expanded modes: **Experimental Expanded 256
+Villagers** makes 256 available immediately, while **Experimental Expanded 256
+- Collection Progression** retains the original population bonuses and requires
+them to reach 256. Both are structural executable expansions, not cap-only
+edits.
 
 VV3, VV4, and VV5 originally reserve exactly 150 full villager records. The
 patch expands their zero-filled `.data` storage for 106 additional records,
@@ -61,11 +64,22 @@ discarded. The committed manifest contains only guarded, reviewed offsets.
 
 ## Population behavior
 
-The experimental maximum is immediately 256. Collection bonuses, and VV3's
-level-3 Magic bonus, no longer change it. Multiple-birth and direct
-population-adding Island Event guards use the expanded 256-record boundary.
-VV5 continues counting occupied or reserved physical records, including
-Heathens, unreleased corpses, and nursing-baby reservations.
+The immediate experimental mode makes 256 available at once. Collection
+bonuses, and VV3's level-3 Magic bonus, no longer change that mode.
+
+The experimental progression mode preserves each original bonus ceiling:
+
+| Game | Expanded base | Retained bonuses | Completed maximum |
+|---|---:|---:|---:|
+| The Lost Children | 231 | 0-25 collections | 256 |
+| The Secret City | 221 | 0-25 collections plus 0/10 Magic | 256 |
+| The Tree of Life | 231 | 0-25 collections | 256 |
+| New Believers | 241 | 0-15 collections | 256 |
+
+Multiple-birth and direct population-adding Island Event guards use the
+expanded 256-record boundary in both modes. VV5 continues counting occupied or
+reserved physical records, including Heathens, unreleased corpses, and
+nursing-baby reservations.
 
 ## Verification completed
 

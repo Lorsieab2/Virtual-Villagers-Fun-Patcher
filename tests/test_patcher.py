@@ -33,6 +33,7 @@ MODES = (
     "collection_progression",
     "immediate_fixed",
     "experimental_expanded_256",
+    "experimental_expanded_256_progression",
 )
 EXPANDED = json.loads((ROOT / "data" / "expanded_256.json").read_text())
 
@@ -77,6 +78,7 @@ class ManifestTests(unittest.TestCase):
                     "collection_progression": "Modified Max Pop.exe",
                     "immediate_fixed": "Fixed Max Pop.exe",
                     "experimental_expanded_256": "Experimental 256 Villagers.exe",
+                    "experimental_expanded_256_progression": "Experimental 256 Progression.exe",
                 }[mode]
                 self.assertEqual(variant["output_name"], f"{build.title} - {suffix}")
             if build.id == "vv1":
@@ -85,6 +87,10 @@ class ManifestTests(unittest.TestCase):
                 self.assertTrue(get_patch_variant(build, MODES[0])["bonuses_affect_maximum"])
             self.assertFalse(get_patch_variant(build, MODES[1])["bonuses_affect_maximum"])
             self.assertFalse(get_patch_variant(build, MODES[2])["bonuses_affect_maximum"])
+            self.assertEqual(
+                get_patch_variant(build, MODES[3])["bonuses_affect_maximum"],
+                build.id != "vv1",
+            )
 
     def test_unknown_file_is_refused(self) -> None:
         with tempfile.TemporaryDirectory() as temp:
@@ -409,6 +415,40 @@ class StockIntegrationTests(unittest.TestCase):
                     if "slot" in patch["purpose"]
                 ),
             )
+
+    def test_expanded_collection_progression_reaches_256(self) -> None:
+        progression_bases = {"vv2": 231, "vv3": 221, "vv4": 231, "vv5": 241}
+        for build in load_builds():
+            source = STOCK / build.input_name
+            rendered, _ = render_patched_bytes(
+                source, build, "experimental_expanded_256_progression"
+            )
+            preview = dry_run(source, "experimental_expanded_256_progression")
+            self.assertEqual(preview["villager_slots"], 256)
+            self.assertEqual(preview["absolute_maximum"], 256)
+            if build.id in progression_bases:
+                self.assertEqual(
+                    progression_bases[build.id] + build.stock_bonus_ceiling,
+                    256,
+                )
+                self.assertTrue(preview["bonuses_affect_maximum"])
+            if build.id == "vv3":
+                self.assertEqual(
+                    bytes(rendered[0x7B320:0x7B32D]),
+                    bytes.fromhex("81C6DD0000003BDEE9B94BFEFF"),
+                )
+            elif build.id == "vv4":
+                self.assertEqual(
+                    bytes(rendered[0x89100:0x8910D]),
+                    bytes.fromhex("81C6E70000003BDEE9E7F2FDFF"),
+                )
+            elif build.id == "vv5":
+                self.assertEqual(
+                    bytes(rendered[0x94500:0x94518]),
+                    bytes.fromhex(
+                        "81C6F1000000E8B5FFFFFF3BC60F8D3DE7FDFFE93EE7FDFF"
+                    ),
+                )
 
     def test_bulk_dry_run_is_no_write(self) -> None:
         with tempfile.TemporaryDirectory() as temp:

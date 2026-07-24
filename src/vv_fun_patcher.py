@@ -72,7 +72,14 @@ def _expanded_patches(build: Build, variant: dict[str, Any]) -> list[dict[str, s
 
 
 def _safety_patches(build: Build, patch_mode: str) -> list[dict[str, str]]:
-    if patch_mode != "experimental_expanded_256" or build.id in {"vv1", "vv2"}:
+    if (
+        patch_mode
+        not in {
+            "experimental_expanded_256",
+            "experimental_expanded_256_progression",
+        }
+        or build.id in {"vv1", "vv2"}
+    ):
         return build.safety_patches
     patches = []
     for source in build.safety_patches:

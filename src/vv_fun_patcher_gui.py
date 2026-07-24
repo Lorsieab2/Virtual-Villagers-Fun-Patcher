@@ -300,11 +300,17 @@ class App(tk.Tk):
                 "The absolute maximum is available immediately. Collections no longer change it; "
                 "in The Secret City, magic tech no longer changes it either."
             )
-        else:
+        elif mode.id == "experimental_expanded_256":
             detail = (
                 "Experimental: VV3-VV5 expand their physical records and save layout from 150 to 256. "
                 "Their differently named EXEs use separate executable-named save folders. "
                 "VV1-VV2 use their existing 256 slots. Collections no longer change the cap."
+            )
+        else:
+            detail = (
+                "Experimental progression: VV3-VV5 expand to 256 records. Collections, "
+                "and The Secret City's level-3 Magic bonus, retain their original effects "
+                "and are needed to reach 256. Modified EXEs use separate save folders."
             )
         self.mode_detail_var.set(detail)
         self.status_var.set(f"Selected: {mode.name}. {detail}")
@@ -450,10 +456,15 @@ class App(tk.Tk):
             text = "collection bonuses remain active and are needed for the absolute maximum."
         elif mode.id == "immediate_fixed":
             text = "the absolute maximum is immediate; collection bonuses do not affect it."
-        else:
+        elif mode.id == "experimental_expanded_256":
             text = (
                 "experimental 256 mode is immediate. VV3-VV5 use expanded records and "
                 "the modified EXEs use their own executable-named save folders."
+            )
+        else:
+            text = (
+                "experimental 256 collection progression is active. Collections, and "
+                "VV3 Magic Tech, retain their original bonuses and are needed to reach 256."
             )
         selected = self._selected_fun_patch_ids(build.id if build else None)
         if selected:
@@ -616,7 +627,10 @@ class App(tk.Tk):
             messagebox.showerror("Batch patch failed", str(exc))
 
     def _confirm_experimental(self) -> bool:
-        if self._mode() != "experimental_expanded_256":
+        if self._mode() not in {
+            "experimental_expanded_256",
+            "experimental_expanded_256_progression",
+        }:
             return True
         return messagebox.askyesno(
             "Use experimental expanded saves?",
