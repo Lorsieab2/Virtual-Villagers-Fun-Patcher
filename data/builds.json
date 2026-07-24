@@ -998,6 +998,27 @@
       ]
     },
     {
+      "id": "vv1_builder_action_fixes",
+      "game_id": "vv1",
+      "name": "Builder Action Fixes",
+      "description": "Villagers whose selected job is Building try the stock construction dispatcher at every food level, making them autonomously build and repair more reliably during ordinary play and time catch-up.",
+      "output_tag": "Builder Action Fixes",
+      "patches": [
+        {
+          "offset": "0x48336",
+          "before": "81BDECA20000900100007D2D",
+          "after": "E965E5000090909090909090",
+          "purpose": "route the stock food gate through a Building-job discriminator"
+        },
+        {
+          "offset": "0x568A0",
+          "before": "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "after": "81BDECA20000900100000F8C921AFFFF89F869C0D803000083BC30D0030000010F847C1AFFFFE9A41AFFFF",
+          "purpose": "preserve the stock low-food path, let Building-job villagers try construction first at high food, and preserve every other job's high-food behavior"
+        }
+      ]
+    },
+    {
       "id": "vv3_nature_honey_refill",
       "game_id": "vv3",
       "name": "Nature Level 1 Actually Replenishes Food Sources Faster",

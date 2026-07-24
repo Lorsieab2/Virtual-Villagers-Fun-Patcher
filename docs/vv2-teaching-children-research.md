@@ -37,3 +37,9 @@ The callback dispatcher at `0x461B10` is detoured only for callback 127. Callbac
 All stock callback IDs execute the displaced dispatcher prologue and original switch. Because callback 127 is the last attendee queue entry, the reward runs once only when that child's full stock lesson queue reaches its end. An interrupted lesson that never reaches the callback earns nothing.
 
 The patch does not change teacher selection, attendance eligibility, lesson frequency, action coordinates, or any earlier queue entry.
+
+## Player verification
+
+On 2026-07-24, the player confirmed that completed Teaching Children lessons
+appear to award skill. Distribution across all five eligible skills has not yet
+been fully player-verified.

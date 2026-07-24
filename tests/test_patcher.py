@@ -544,6 +544,32 @@ class StockIntegrationTests(unittest.TestCase):
         self.assertTrue(rendered)
         self.assertGreater(len(applied), 5)
 
+    def test_vv1_builder_action_fixes_preserve_other_scheduler_paths(self) -> None:
+        patch = get_fun_patch("vv1_builder_action_fixes")
+        self.assertIn("selected job is Building", patch.description)
+        self.assertIn("ordinary play and time catch-up", patch.description)
+        build = next(build for build in load_builds() if build.id == "vv1")
+        rendered, _ = render_patched_bytes(
+            STOCK / build.input_name,
+            build,
+            DEFAULT_PATCH_MODE,
+            [patch.id],
+        )
+        self.assertEqual(
+            bytes(rendered[0x48336:0x48342]),
+            bytes.fromhex("E965E5000090909090909090"),
+        )
+        cave = bytes(rendered[0x568A0:0x568CB])
+        self.assertEqual(
+            cave,
+            bytes.fromhex(
+                "81BDECA20000900100000F8C921AFFFF"
+                "89F869C0D803000083BC30D003000001"
+                "0F847C1AFFFFE9A41AFFFF"
+            ),
+        )
+        self.assertIn(bytes.fromhex("83BC30D003000001"), cave)
+
     @unittest.skip("Expanded 256 modes are disabled after startup failures")
     def test_expanded_collection_progression_reaches_256(self) -> None:
         progression_bases = {"vv2": 231, "vv3": 221, "vv4": 231, "vv5": 241}

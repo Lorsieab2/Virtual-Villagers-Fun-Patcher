@@ -54,6 +54,22 @@ Enable **Magic Fruit of Life Alters Mortality (A New Home)** to give the complet
 
 Finishing **Enjoying magic fruit** also clears that villager's sickness and restores health to 100. The cure occurs only when the final fruit-action cleanup runs, so an interrupted action awards nothing. It is reusable, does not stack another mortality bonus, and stores no state in villager names, likes, dislikes, or other record fields.
 
+## VV1: Builder Action Fixes
+
+Enable **Builder Action Fixes (A New Home)** so a villager whose selected job
+is Building tries the game's normal construction dispatcher before general idle
+activities regardless of the village's food amount. Stock VV1 skips the
+preferred-job attempt when food is at least 400, which makes assigned Builders
+much less likely to work on a visible scaffold or repair an eligible structure
+while the village is well fed.
+
+The patch removes that food-dependent suppression only for the Building job.
+The original construction dispatcher still chooses the eligible hut, repair,
+or other building task and retains all project requirements, progress awards,
+Building skill gains, and completion behavior. Villagers assigned to other
+jobs retain their stock high-food scheduling. The shared scheduler covers both
+ordinary play and elapsed-time catch-up.
+
 ## VV2: Teaching Children Grants Skill
 
 Enable **Teaching Children Grants Skill (The Lost Children)** to reward every attending child once after that child's full stock lesson queue finishes. Each attendee gains 7, 8, or 9 points in Farming, Building, Research, Healing, or Parenting. All five choices have equal odds, and skills remain capped at 100.
@@ -177,7 +193,7 @@ No game executable, save, extracted asset, or generated output is committed to t
 
 ## Command line
 
-Pass `--patch-mode collection_progression` or `--patch-mode immediate_fixed` to `dry-run`, `apply`, `dry-run-all`, or `apply-all`. Optional features use repeatable `--fun-patch` arguments: `vv1_school_lessons_grant_skill`, `vv1_continue_research_at_max_technologies`, `vv1_f6_clothing_change_cheat`, `vv1_magic_fruit_alters_mortality`, `vv2_easier_healing_mastery`, `vv2_teaching_children_grants_skill`, `vv2_gong_of_wonder_coconuts_fix`, `vv3_nature_honey_refill`, `vv3_nature_level_three_alters_mortality`, `vv4_complete_scales_golden_fish`, `vv5_heathen_mommy_puzzle`, `vv5_easier_devotee_training`, `vv5_statue_polishing_or_honoring`, and `vv5_vv4_nursery_divisor_parity`.
+Pass `--patch-mode collection_progression` or `--patch-mode immediate_fixed` to `dry-run`, `apply`, `dry-run-all`, or `apply-all`. Optional features use repeatable `--fun-patch` arguments: `vv1_school_lessons_grant_skill`, `vv1_continue_research_at_max_technologies`, `vv1_f6_clothing_change_cheat`, `vv1_magic_fruit_alters_mortality`, `vv1_builder_action_fixes`, `vv2_easier_healing_mastery`, `vv2_teaching_children_grants_skill`, `vv2_gong_of_wonder_coconuts_fix`, `vv3_nature_honey_refill`, `vv3_nature_level_three_alters_mortality`, `vv4_complete_scales_golden_fish`, `vv5_heathen_mommy_puzzle`, `vv5_easier_devotee_training`, `vv5_statue_polishing_or_honoring`, and `vv5_vv4_nursery_divisor_parity`.
 
 ```text
 python src/vv_fun_patcher.py dry-run "path\game.exe" --patch-mode immediate_fixed

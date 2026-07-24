@@ -15,3 +15,8 @@ Supported stock executable SHA-256: `46C1503C209255C9CDEFA941DB2F449C8CF8E2CDD5C
 The guarded detour at file offset `0x604AD` replaces the nine-byte no-target return with a jump to unused mapped `.text` padding at file offset `0x73CA0`. The cave sets the selected villager's work state to 9, calls the stock persistent-work dispatcher with its normal 100-unit argument, and returns its success result through the original stack convention.
 
 No plant action, skill-award formula, illness predicate, food value, availability flag, villager count, or record layout is replaced. The executable size is unchanged and the PE checksum is recomputed.
+
+## Player verification
+
+On 2026-07-24, the player confirmed that the released Easier Healing Mastery
+patch works during play.
