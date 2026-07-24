@@ -14,6 +14,7 @@ from typing import Any
 
 ROOT = Path(__file__).resolve().parents[1]
 MANIFEST_PATH = ROOT / "data" / "builds.json"
+EXPANDED_MANIFEST_PATH = ROOT / "data" / "expanded_256.json"
 DEFAULT_PATCH_MODE = "collection_progression"
 
 
@@ -51,6 +52,35 @@ def load_patch_modes() -> list[PatchMode]:
 
 def load_fun_patches() -> list[FunPatch]:
     return [FunPatch(item) for item in _manifest().get("fun_patches", [])]
+
+
+def _expanded_patches(build: Build, variant: dict[str, Any]) -> list[dict[str, str]]:
+    if not variant.get("expanded_records", False):
+        return []
+    payload = json.loads(EXPANDED_MANIFEST_PATH.read_text(encoding="utf-8"))
+    try:
+        game = payload["games"][build.id]
+    except KeyError as exc:
+        raise PatcherError(
+            f"Experimental 256 data is missing for {build.title}."
+        ) from exc
+    if game["source_sha256"] != build.sha256:
+        raise PatcherError(
+            f"Experimental 256 data does not match {build.title}'s supported build."
+        )
+    return game["patches"]
+
+
+def _safety_patches(build: Build, patch_mode: str) -> list[dict[str, str]]:
+    if patch_mode != "experimental_expanded_256" or build.id in {"vv1", "vv2"}:
+        return build.safety_patches
+    patches = []
+    for source in build.safety_patches:
+        patch = dict(source)
+        patch["after"] = patch["after"].replace("96000000", "00010000")
+        patch["purpose"] = patch["purpose"].replace("150-slot", "256-slot")
+        patches.append(patch)
+    return patches
 
 
 def get_fun_patch(patch_id: str) -> FunPatch:
@@ -217,7 +247,8 @@ def render_patched_bytes(
     applied: list[dict[str, str]] = []
     fun_bytes = [patch for feature in fun_patches for patch in feature.patches]
     for patch in [
-        *build.raw.get("safety_patches", []),
+        *_expanded_patches(build, variant),
+        *_safety_patches(build, patch_mode),
         *variant["patches"],
         *fun_bytes,
     ]:
@@ -259,6 +290,8 @@ def _result(
 ) -> dict[str, Any]:
     mode = get_patch_mode(patch_mode)
     variant = get_patch_variant(build, patch_mode)
+    villager_slots = variant.get("villager_slots", build.villager_slots)
+    absolute_maximum = variant.get("absolute_maximum", build.absolute_maximum)
     output_name = _output_name(build, patch_mode, fun_patches)
     output_folder = output_folder_for(source, build, patch_mode, fun_patches)
     return {
@@ -271,8 +304,14 @@ def _result(
         "output_path": str(output_folder / output_name),
         "fun_patches": [patch.id for patch in fun_patches],
         "fun_patch_names": [patch.name for patch in fun_patches],
-        "absolute_maximum": build.absolute_maximum,
-        "villager_slots": build.villager_slots,
+        "absolute_maximum": absolute_maximum,
+        "villager_slots": villager_slots,
+        "experimental_expanded_records": variant.get("expanded_records", False),
+        "save_compatibility": (
+            "separate E-numbered experimental save files; stock saves are not loaded or overwritten"
+            if variant.get("expanded_records", False)
+            else "stock save layout"
+        ),
         "multiple_birth_saturation": "multiples are reduced only when required to fit the remaining villager slots",
         "island_event_capacity": "population-adding Island Events are blocked or reduced only as required to fit the remaining physical villager slots",
         "bonuses_affect_maximum": variant["bonuses_affect_maximum"],
@@ -322,6 +361,8 @@ def _log_data(
 ) -> dict[str, Any]:
     mode = get_patch_mode(patch_mode)
     variant = get_patch_variant(build, patch_mode)
+    villager_slots = variant.get("villager_slots", build.villager_slots)
+    absolute_maximum = variant.get("absolute_maximum", build.absolute_maximum)
     return {
         "patcher": "Virtual Villagers Fun Patcher",
         "patch": mode.name,
@@ -330,8 +371,14 @@ def _log_data(
         "fun_patch_names": [patch.name for patch in fun_patches],
         "created_utc": datetime.now(timezone.utc).isoformat(),
         "game": build.title,
-        "absolute_maximum": build.absolute_maximum,
-        "villager_slots": build.villager_slots,
+        "absolute_maximum": absolute_maximum,
+        "villager_slots": villager_slots,
+        "experimental_expanded_records": variant.get("expanded_records", False),
+        "save_compatibility": (
+            "separate E-numbered experimental save files; stock saves are not loaded or overwritten"
+            if variant.get("expanded_records", False)
+            else "stock save layout"
+        ),
         "multiple_birth_saturation": "multiples are reduced only when required to fit the remaining villager slots",
         "island_event_capacity": "population-adding Island Events are blocked or reduced only as required to fit the remaining physical villager slots",
         "bonuses_affect_maximum": variant["bonuses_affect_maximum"],

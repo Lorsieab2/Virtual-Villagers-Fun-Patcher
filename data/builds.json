@@ -48,6 +48,26 @@
               "purpose": "compare population with 256, then return to original housing branch"
             }
           ]
+        },
+        "experimental_expanded_256": {
+          "output_name": "Virtual Villagers - A New Home - Experimental 256 Villagers.exe",
+          "bonuses_affect_maximum": false,
+          "villager_slots": 256,
+          "absolute_maximum": 256,
+          "patches": [
+            {
+              "offset": "0x3A1AE",
+              "before": "83F85A",
+              "after": "EB7690",
+              "purpose": "jump to 256-person comparison"
+            },
+            {
+              "offset": "0x3A226",
+              "before": "90909090909090909090",
+              "after": "3D00010000EB84909090",
+              "purpose": "compare population with 256, then return to original housing branch"
+            }
+          ]
         }
       },
       "safety_patches": [
@@ -195,6 +215,20 @@
               "purpose": "replace every collection-bonus result with fixed arithmetic for a 256 maximum"
             }
           ]
+        },
+        "experimental_expanded_256": {
+          "output_name": "Virtual Villagers - The Lost Children - Experimental 256 Villagers.exe",
+          "bonuses_affect_maximum": false,
+          "villager_slots": 256,
+          "absolute_maximum": 256,
+          "patches": [
+            {
+              "offset": "0x4B378",
+              "before": "83FF147505BF19000000",
+              "after": "BFA60000009090909090",
+              "purpose": "replace every collection-bonus result with fixed arithmetic for a 256 maximum"
+            }
+          ]
         }
       },
       "safety_patches": [
@@ -312,6 +346,27 @@
               "purpose": "replace collection and magic-tech bonus result with fixed arithmetic for a 150 maximum"
             }
           ]
+        },
+        "experimental_expanded_256": {
+          "output_name": "Virtual Villagers - The Secret City - Experimental 256 Villagers.exe",
+          "bonuses_affect_maximum": false,
+          "villager_slots": 256,
+          "absolute_maximum": 256,
+          "expanded_records": true,
+          "patches": [
+            {
+              "offset": "0x5FEA2",
+              "before": "83F8037C0383C60A",
+              "after": "BEA6000000909090",
+              "purpose": "replace collection and magic-tech bonus result with fixed arithmetic for a 256 maximum"
+            },
+            {
+              "offset": "0x7C5C0",
+              "before": "257325642E6C64770000",
+              "after": "25734525642E6C647700",
+              "purpose": "use separate E-numbered experimental save files so stock 150-record saves are not loaded or overwritten"
+            }
+          ]
         }
       },
       "safety_patches": [
@@ -397,6 +452,27 @@
               "before": "83FE147505BE19000000",
               "after": "BE3C0000009090909090",
               "purpose": "replace every collection-bonus result with fixed arithmetic for a 150 maximum"
+            }
+          ]
+        },
+        "experimental_expanded_256": {
+          "output_name": "Virtual Villagers - The Tree of Life - Experimental 256 Villagers.exe",
+          "bonuses_affect_maximum": false,
+          "villager_slots": 256,
+          "absolute_maximum": 256,
+          "expanded_records": true,
+          "patches": [
+            {
+              "offset": "0x683AA",
+              "before": "83FE147505BE19000000",
+              "after": "BEA60000009090909090",
+              "purpose": "replace every collection-bonus result with fixed arithmetic for a 256 maximum"
+            },
+            {
+              "offset": "0x8A77C",
+              "before": "257325642E6C64770000",
+              "after": "25734525642E6C647700",
+              "purpose": "use separate E-numbered experimental save files so stock 150-record saves are not loaded or overwritten"
             }
           ]
         }
@@ -516,6 +592,39 @@
               "purpose": "complete the fixed 150 calculation, compare total slot demand, and resume the stock housing gates"
             }
           ]
+        },
+        "experimental_expanded_256": {
+          "output_name": "Virtual Villagers - New Believers - Experimental 256 Villagers.exe",
+          "bonuses_affect_maximum": false,
+          "villager_slots": 256,
+          "absolute_maximum": 256,
+          "expanded_records": true,
+          "patches": [
+            {
+              "offset": "0x72C04",
+              "before": "83FE0A7505BE0F000000",
+              "after": "BEA60000009090909090",
+              "purpose": "replace every collection-bonus result with fixed arithmetic for a 256 maximum"
+            },
+            {
+              "offset": "0x72C49",
+              "before": "83C65A3BDE7C06",
+              "after": "E9B21802009090",
+              "purpose": "route the fixed cap comparison through the total occupied-or-reserved slot counter"
+            },
+            {
+              "offset": "0x94500",
+              "before": "000000000000000000000000000000000000000000000000",
+              "after": "81C65A000000E8B5FFFFFF3BC60F8D3DE7FDFFE93EE7FDFF",
+              "purpose": "add the stock 90 housing component to fixed 166, compare 256 total occupied-or-reserved slots, and resume the stock housing gates"
+            },
+            {
+              "offset": "0x95794",
+              "before": "257325642E6C64770000",
+              "after": "25734525642E6C647700",
+              "purpose": "use separate E-numbered experimental save files so stock 150-record saves are not loaded or overwritten"
+            }
+          ]
         }
       },
       "safety_patches": [
@@ -610,6 +719,11 @@
       "id": "immediate_fixed",
       "name": "Immediate Fixed Max Pop",
       "description": "The absolute slot maximum is available immediately; collection bonuses no longer affect it."
+    },
+    {
+      "id": "experimental_expanded_256",
+      "name": "Experimental Expanded 256 Villagers",
+      "description": "VV3-VV5 expand their physical villager record and save capacity from 150 to 256; VV1-VV2 use their existing 256 slots. The 256 maximum is immediate and collections no longer alter it."
     }
   ],
   "fun_patches": [

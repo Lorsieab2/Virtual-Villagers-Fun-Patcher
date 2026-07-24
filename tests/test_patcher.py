@@ -29,7 +29,12 @@ from vv_fun_patcher import (  # noqa: E402
 )
 
 STOCK = ROOT / "research" / "stock-executables"
-MODES = ("collection_progression", "immediate_fixed")
+MODES = (
+    "collection_progression",
+    "immediate_fixed",
+    "experimental_expanded_256",
+)
+EXPANDED = json.loads((ROOT / "data" / "expanded_256.json").read_text())
 
 
 def digest(path: Path) -> str:
@@ -37,6 +42,20 @@ def digest(path: Path) -> str:
 
 
 class ManifestTests(unittest.TestCase):
+    def test_stock_and_expanded_record_capacities_are_explicit(self) -> None:
+        builds = {build.id: build for build in load_builds()}
+        self.assertEqual(builds["vv1"].villager_slots, 256)
+        self.assertEqual(builds["vv2"].villager_slots, 256)
+        for game_id in ("vv3", "vv4", "vv5"):
+            self.assertEqual(builds[game_id].villager_slots, 150)
+            self.assertEqual(builds[game_id].absolute_maximum, 150)
+            variant = get_patch_variant(
+                builds[game_id], "experimental_expanded_256"
+            )
+            self.assertEqual(variant["villager_slots"], 256)
+            self.assertEqual(variant["absolute_maximum"], 256)
+            self.assertTrue(variant["expanded_records"])
+
     def test_modes_names_targets_and_safety_guards(self) -> None:
         builds = load_builds()
         self.assertEqual([build.id for build in builds], ["vv1", "vv2", "vv3", "vv4", "vv5"])
@@ -54,13 +73,18 @@ class ManifestTests(unittest.TestCase):
             self.assertEqual(len(build.safety_patches), expected_safety_counts[build.id])
             for mode in MODES:
                 variant = get_patch_variant(build, mode)
-                suffix = "Modified Max Pop.exe" if mode == MODES[0] else "Fixed Max Pop.exe"
+                suffix = {
+                    "collection_progression": "Modified Max Pop.exe",
+                    "immediate_fixed": "Fixed Max Pop.exe",
+                    "experimental_expanded_256": "Experimental 256 Villagers.exe",
+                }[mode]
                 self.assertEqual(variant["output_name"], f"{build.title} - {suffix}")
             if build.id == "vv1":
                 self.assertFalse(get_patch_variant(build, MODES[0])["bonuses_affect_maximum"])
             else:
                 self.assertTrue(get_patch_variant(build, MODES[0])["bonuses_affect_maximum"])
             self.assertFalse(get_patch_variant(build, MODES[1])["bonuses_affect_maximum"])
+            self.assertFalse(get_patch_variant(build, MODES[2])["bonuses_affect_maximum"])
 
     def test_unknown_file_is_refused(self) -> None:
         with tempfile.TemporaryDirectory() as temp:
@@ -110,7 +134,7 @@ class StockIntegrationTests(unittest.TestCase):
             for mode in MODES:
                 self.assertFalse(self.expected_output_folder(folders, build, mode).exists())
 
-    def test_both_modes_render_all_five_with_exact_guards(self) -> None:
+    def test_all_modes_render_all_five_with_exact_guards(self) -> None:
         for build in load_builds():
             source = STOCK / build.input_name
             self.assertEqual(identify(source).id, build.id)
@@ -118,9 +142,10 @@ class StockIntegrationTests(unittest.TestCase):
             for mode in MODES:
                 with self.subTest(game=build.id, mode=mode):
                     rendered, applied = render_patched_bytes(source, build, mode)
-                    expected_count = len(build.safety_patches) + len(
-                        get_patch_variant(build, mode)["patches"]
-                    )
+                    variant = get_patch_variant(build, mode)
+                    expected_count = len(build.safety_patches) + len(variant["patches"])
+                    if variant.get("expanded_records", False):
+                        expected_count += EXPANDED["games"][build.id]["patch_count"]
                     self.assertEqual(len(applied), expected_count)
                     self.assertEqual(len(rendered), len(original))
                     self.assertNotEqual(rendered, original)
@@ -128,8 +153,11 @@ class StockIntegrationTests(unittest.TestCase):
                     self.assertNotEqual(struct.unpack_from("<I", rendered, checksum_offset)[0], 0)
                     preview = dry_run(source, mode)
                     self.assertEqual(preview["patch_mode"], mode)
-                    self.assertEqual(preview["absolute_maximum"], build.villager_slots)
-                    self.assertEqual(preview["villager_slots"], build.villager_slots)
+                    expected_slots = variant.get(
+                        "villager_slots", build.villager_slots
+                    )
+                    self.assertEqual(preview["absolute_maximum"], expected_slots)
+                    self.assertEqual(preview["villager_slots"], expected_slots)
                     self.assertIn("remaining villager slots", preview["multiple_birth_saturation"])
 
     def test_immediate_mode_fixed_arithmetic(self) -> None:
@@ -318,7 +346,7 @@ class StockIntegrationTests(unittest.TestCase):
                 remaining = max(0, 150 - occupied)
                 self.assertEqual(min(6, remaining), max(0, min(6, 150 - occupied)))
 
-    def test_both_outputs_coexist_beside_originals(self) -> None:
+    def test_all_outputs_coexist_beside_originals(self) -> None:
         with tempfile.TemporaryDirectory() as temp:
             folders = self.copy_game_folders(Path(temp))
             source_hashes = {
@@ -345,7 +373,42 @@ class StockIntegrationTests(unittest.TestCase):
                     log = json.loads(output.with_suffix(".patch-log.json").read_text())
                     self.assertEqual(log["patch_mode"], mode)
                     self.assertEqual(log["output_path"], str(output))
-                    self.assertEqual(log["villager_slots"], build.villager_slots)
+                    variant = get_patch_variant(build, mode)
+                    self.assertEqual(
+                        log["villager_slots"],
+                        variant.get("villager_slots", build.villager_slots),
+                    )
+
+    def test_expanded_later_games_use_separate_saves_and_larger_images(self) -> None:
+        save_offsets = {"vv3": 0x7C5C0, "vv4": 0x8A77C, "vv5": 0x95794}
+        for build in load_builds():
+            if build.id not in save_offsets:
+                continue
+            source = STOCK / build.input_name
+            original = source.read_bytes()
+            rendered, _ = render_patched_bytes(
+                source, build, "experimental_expanded_256"
+            )
+            self.assertEqual(
+                bytes(rendered[save_offsets[build.id] : save_offsets[build.id] + 10]),
+                b"%sE%d.ldw\0",
+            )
+            pe = struct.unpack_from("<I", original, 0x3C)[0]
+            optional = pe + 24
+            self.assertGreater(
+                struct.unpack_from("<I", rendered, optional + 56)[0],
+                struct.unpack_from("<I", original, optional + 56)[0],
+            )
+            self.assertNotIn(
+                bytes.fromhex("96000000"),
+                b"".join(
+                    bytes.fromhex(patch["after"])
+                    for patch in dry_run(
+                        source, "experimental_expanded_256"
+                    )["patches"]
+                    if "slot" in patch["purpose"]
+                ),
+            )
 
     def test_bulk_dry_run_is_no_write(self) -> None:
         with tempfile.TemporaryDirectory() as temp:

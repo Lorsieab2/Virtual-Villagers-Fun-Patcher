@@ -16,6 +16,7 @@ from vv_fun_patcher import (
     dry_run,
     dry_run_all,
     get_patch_mode,
+    get_patch_variant,
     identify,
     load_builds,
     load_fun_patches,
@@ -242,7 +243,7 @@ class App(tk.Tk):
             short = build.title.removeprefix("Virtual Villagers - ")
             ttk.Label(
                 grid,
-                text=f"{row + 1}. {short} ({build.villager_slots} slots)",
+                text=f"{row + 1}. {short} ({build.villager_slots} stock slots)",
             ).grid(row=row, column=0, sticky="w", padx=(0, 8), pady=4)
             ttk.Entry(grid, textvariable=self.all_folder_vars[build.id]).grid(
                 row=row, column=1, sticky="ew", padx=(0, 8), pady=4
@@ -294,10 +295,16 @@ class App(tk.Tk):
                 "Collections still raise the cap and are needed to reach the absolute maximum. "
                 "In The Secret City, level-3 magic also remains part of the bonus."
             )
-        else:
+        elif mode.id == "immediate_fixed":
             detail = (
                 "The absolute maximum is available immediately. Collections no longer change it; "
                 "in The Secret City, magic tech no longer changes it either."
+            )
+        else:
+            detail = (
+                "Experimental: VV3-VV5 expand their physical records and save layout from 150 to 256. "
+                "They use separate E-numbered save files, so stock saves are not loaded or overwritten. "
+                "VV1-VV2 use their existing 256 slots. Collections no longer change the cap."
             )
         self.mode_detail_var.set(detail)
         self.status_var.set(f"Selected: {mode.name}. {detail}")
@@ -441,8 +448,13 @@ class App(tk.Tk):
         prefix = f"{build.title}: " if build else ""
         if mode.id == "collection_progression":
             text = "collection bonuses remain active and are needed for the absolute maximum."
-        else:
+        elif mode.id == "immediate_fixed":
             text = "the absolute maximum is immediate; collection bonuses do not affect it."
+        else:
+            text = (
+                "experimental 256 mode is immediate. VV3-VV5 use expanded records and "
+                "separate E-numbered saves; stock saves are not loaded or overwritten."
+            )
         selected = self._selected_fun_patch_ids(build.id if build else None)
         if selected:
             names = [patch.name for patch in self.fun_patches if patch.id in selected]
@@ -452,8 +464,10 @@ class App(tk.Tk):
     def _validate(self, show_popup: bool = True) -> None:
         try:
             build = identify(self._source())
+            variant = get_patch_variant(build, self._mode())
+            maximum = variant.get("absolute_maximum", build.absolute_maximum)
             self.game_var.set(
-                f"Supported build: {build.title} - {build.absolute_maximum} slots maximum"
+                f"Supported build: {build.title} - selected mode maximum {maximum}"
             )
             self.status_var.set(f"Validated. {self._selection_text(build)}")
             self._save_settings()
@@ -527,6 +541,8 @@ class App(tk.Tk):
             preview = dry_run(
                 source, self._mode(), self._selected_fun_patch_ids(build.id)
             )
+            if not self._confirm_experimental():
+                return
             output_folder = Path(preview["output_folder"])
             overwrite = False
             if output_folder.exists():
@@ -560,6 +576,8 @@ class App(tk.Tk):
             previews = dry_run_all(
                 sources, self._mode(), self._selected_fun_patch_ids()
             )
+            if not self._confirm_experimental():
+                return
             existing = []
             for (build, source), preview in zip(validated, previews):
                 output_folder = Path(preview["output_folder"])
@@ -596,6 +614,18 @@ class App(tk.Tk):
         except (PatcherError, OSError) as exc:
             self.status_var.set(str(exc))
             messagebox.showerror("Batch patch failed", str(exc))
+
+    def _confirm_experimental(self) -> bool:
+        if self._mode() != "experimental_expanded_256":
+            return True
+        return messagebox.askyesno(
+            "Use experimental expanded saves?",
+            "VV3, VV4, and VV5 will use a new 256-record save layout and separate "
+            "E-numbered save files. Their stock saves will not be loaded or overwritten.\n\n"
+            "The patcher will copy each complete game folder and keep its original EXE. "
+            "This mode has passed startup testing, but reaching and persisting all 256 "
+            "villagers still requires long-play testing.\n\nContinue?",
+        )
 
     def _open_output(self) -> None:
         if self.last_output_dir is None:
