@@ -33,8 +33,6 @@ STOCK = ROOT / "research" / "stock-executables"
 MODES = (
     "collection_progression",
     "immediate_fixed",
-    "experimental_expanded_256",
-    "experimental_expanded_256_progression",
 )
 EXPANDED = json.loads((ROOT / "data" / "expanded_256.json").read_text())
 
@@ -48,19 +46,24 @@ def modded_exe_name(build) -> str:
 
 
 class ManifestTests(unittest.TestCase):
-    def test_stock_and_expanded_record_capacities_are_explicit(self) -> None:
+    def test_stock_record_capacities_are_explicit(self) -> None:
         builds = {build.id: build for build in load_builds()}
         self.assertEqual(builds["vv1"].villager_slots, 256)
         self.assertEqual(builds["vv2"].villager_slots, 256)
         for game_id in ("vv3", "vv4", "vv5"):
             self.assertEqual(builds[game_id].villager_slots, 150)
             self.assertEqual(builds[game_id].absolute_maximum, 150)
-            variant = get_patch_variant(
-                builds[game_id], "experimental_expanded_256"
-            )
-            self.assertEqual(variant["villager_slots"], 256)
-            self.assertEqual(variant["absolute_maximum"], 256)
-            self.assertTrue(variant["expanded_records"])
+
+    def test_expanded_256_modes_are_disabled(self) -> None:
+        source = STOCK / load_builds()[2].input_name
+        for mode in (
+            "experimental_expanded_256",
+            "experimental_expanded_256_progression",
+        ):
+            with self.subTest(mode=mode), self.assertRaisesRegex(
+                PatcherError, "startup crashes or hangs"
+            ):
+                dry_run(source, mode)
 
     def test_modes_names_targets_and_safety_guards(self) -> None:
         builds = load_builds()
@@ -85,11 +88,6 @@ class ManifestTests(unittest.TestCase):
             else:
                 self.assertTrue(get_patch_variant(build, MODES[0])["bonuses_affect_maximum"])
             self.assertFalse(get_patch_variant(build, MODES[1])["bonuses_affect_maximum"])
-            self.assertFalse(get_patch_variant(build, MODES[2])["bonuses_affect_maximum"])
-            self.assertEqual(
-                get_patch_variant(build, MODES[3])["bonuses_affect_maximum"],
-                build.id != "vv1",
-            )
 
     def test_unknown_file_is_refused(self) -> None:
         with tempfile.TemporaryDirectory() as temp:
@@ -419,6 +417,7 @@ class StockIntegrationTests(unittest.TestCase):
                 )
                 self.assertTrue(latest_output.is_file())
 
+    @unittest.skip("Expanded 256 modes are disabled after startup failures")
     def test_expanded_later_games_keep_stock_save_names_and_use_larger_images(self) -> None:
         save_offsets = {"vv3": 0x7C5C0, "vv4": 0x8A77C, "vv5": 0x95794}
         for build in load_builds():
@@ -450,6 +449,7 @@ class StockIntegrationTests(unittest.TestCase):
                 ),
             )
 
+    @unittest.skip("Expanded 256 modes are disabled after startup failures")
     def test_expanded_later_games_accept_exact_stock_save_layouts(self) -> None:
         compatibility = {
             "vv3": {
@@ -544,6 +544,7 @@ class StockIntegrationTests(unittest.TestCase):
         self.assertTrue(rendered)
         self.assertGreater(len(applied), 5)
 
+    @unittest.skip("Expanded 256 modes are disabled after startup failures")
     def test_expanded_collection_progression_reaches_256(self) -> None:
         progression_bases = {"vv2": 231, "vv3": 221, "vv4": 231, "vv5": 241}
         for build in load_builds():
@@ -671,7 +672,7 @@ class StockIntegrationTests(unittest.TestCase):
         self.assertEqual(len(applied), len(build.safety_patches) + len(get_patch_variant(build, DEFAULT_PATCH_MODE)["patches"]) + len(feature.patches))
         self.assertEqual(bytes(rendered[0x44BF2:0x44BF8]), bytes.fromhex("6A646A006A00"))
         self.assertEqual(bytes(rendered[0x44C50:0x44C52]), bytes.fromhex("6A7F"))
-        self.assertEqual(bytes(rendered[0x44C5A:0x44C5C]), bytes.fromhex("6A11"))
+        self.assertEqual(bytes(rendered[0x44C5A:0x44C5C]), bytes.fromhex("6A0E"))
         self.assertEqual(bytes(rendered[0x44C64:0x44C6C]), bytes.fromhex("E9371A0100909090"))
         self.assertEqual(
             bytes(rendered[0x566A0:0x566C1]),
@@ -710,7 +711,7 @@ class StockIntegrationTests(unittest.TestCase):
         build = next(build for build in load_builds() if build.id == "vv1")
         rendered, _ = render_patched_bytes(STOCK / build.input_name, build, DEFAULT_PATCH_MODE, feature_ids)
         self.assertEqual(bytes(rendered[0x44C50:0x44C52]), bytes.fromhex("6A7F"))
-        self.assertEqual(bytes(rendered[0x44C5A:0x44C5C]), bytes.fromhex("6A11"))
+        self.assertEqual(bytes(rendered[0x44C5A:0x44C5C]), bytes.fromhex("6A0E"))
         self.assertEqual(bytes(rendered[0x44C64:0x44C6C]), bytes.fromhex("E9371A0100909090"))
         self.assertEqual(rendered[0x47488], 0x13)
         self.assertEqual(rendered[0x20057], 0)

@@ -4,26 +4,17 @@ PHYSICAL POPULATION LIMITS
 
 A New Home and The Lost Children have 256 stock villager records.
 The Secret City, The Tree of Life, and New Believers have 150 stock records.
-Experimental Expanded 256 Villagers structurally adds room for another 106
-records and expands saved-villager tables in VV3-VV5.
+The former VV3-VV5 expanded-256 modes are disabled because player testing
+found that their executables crash or hang during startup.
 
 1. Double-click "Launch Virtual Villagers Fun Patcher.bat".
-2. Choose one of the four patch styles:
+2. Choose one of the two patch styles:
    - Collection Progression Max Pop:
      Collections still raise the cap and are needed to reach the absolute
      maximum. The Secret City also retains its level-3 magic bonus.
    - Immediate Fixed Max Pop:
      The absolute maximum is available immediately. Collections no longer
      affect it, and The Secret City's magic tech no longer affects it.
-   - Experimental Expanded 256 Villagers:
-     VV3-VV5 expand from 150 to 256 physical records; VV1-VV2 use their
-     existing 256. The cap is immediate and collections do not change it.
-     The differently named modified EXEs use separate executable-named save
-     folders. Long-play to a full 256 remains experimental.
-   - Experimental Expanded 256 - Collection Progression:
-     Uses the same expanded 256-record layout, but collections keep their
-     original population bonuses and are required to reach 256. The Secret
-     City's level-3 Magic bonus also remains active.
 3. Optional for A New Home: check "School Lessons Grant Skill",
    "Continue Research at Max Technologies", and/or
    "Reenable F6 Clothing Change Cheat", and/or
@@ -88,7 +79,7 @@ paths. Vanilla and Modded links open their respective folders.
 SAFE MULTIPLE BIRTHS
 
 All five games normally check the cap before deciding singleton/twins/triplets.
-All four styles prevent overflow at the selected mode's slot ceiling:
+Both styles prevent overflow at the selected mode's slot ceiling:
 - 3+ spaces: multiples work normally.
 - 2 spaces: a rolled triplet becomes twins.
 - 1 space: a rolled twin or triplet becomes a singleton.

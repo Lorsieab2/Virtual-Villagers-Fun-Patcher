@@ -15,7 +15,14 @@ VV3's Leadership-level-2 Tribal Chief education route assigns action 55 to the c
 
 ## Completion-only patch behavior
 
-The original final queue entry at `0x444C50` is converted to opcode 17, callback ID 127. A detour at `0x444C64` appends the displaced stock final queue entry after that callback and then calls the original queue finalizer. The callback dispatcher at `0x43A230` is detoured only for callback 127; every stock callback follows the displaced prologue and original switch.
+The original final queue entry at `0x444C50` is converted to opcode 14,
+callback ID 127. VV1's action runner at `0x448600` sends opcode 14 to the
+callback dispatcher at `0x43A230`. A corrective audit found that an earlier
+revision incorrectly used opcode 17, which never reached the dispatcher and
+therefore awarded no skill. A detour at `0x444C64` appends the displaced stock
+final queue entry after the callback and then calls the original queue
+finalizer. The dispatcher is detoured only for callback 127; every stock
+callback follows the displaced prologue and original switch.
 
 Callback 127:
 

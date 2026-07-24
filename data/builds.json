@@ -887,7 +887,7 @@
         {
           "offset": "0x44C5A",
           "before": "6A13",
-          "after": "6A11",
+          "after": "6A0E",
           "purpose": "turn the former final queue entry into callback 127"
         },
         {

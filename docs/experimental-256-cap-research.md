@@ -1,8 +1,13 @@
 # Experimental 256-villager expansion for VV3-VV5
 
+> **Disabled:** player testing found that all three expanded executables crash
+> or hang during startup. This document preserves incomplete historical
+> reverse-engineering work; the GUI and command line no longer offer either
+> expanded mode.
+
 ## Result
 
-Version 1.21.0 provides two expanded modes: **Experimental Expanded 256
+Version 1.21.0 attempted two expanded modes: **Experimental Expanded 256
 Villagers** makes 256 available immediately, while **Experimental Expanded 256
 - Collection Progression** retains the original population bonuses and requires
 them to reach 256. Both are structural executable expansions, not cap-only

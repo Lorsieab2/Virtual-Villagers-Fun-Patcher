@@ -8,9 +8,9 @@ The app uses the supplied transparent `Island.png` artwork as its title-bar icon
 
 The complete interface has a vertical scrollbar and supports mouse-wheel scrolling, so every patch option, game-folder field, action, and status message remains reachable on shorter displays.
 
-Its standard max-population modes use every built-in villager slot: 256 slots in A New Home and The Lost Children, and 150 slots in The Secret City, The Tree of Life, and New Believers. Two experimental modes structurally expand VV3-VV5 to 256 full records.
+Its max-population modes use every verified built-in villager slot: 256 slots in A New Home and The Lost Children, and 150 slots in The Secret City, The Tree of Life, and New Believers.
 
-## Four patch styles
+## Two patch styles
 
 Choose the style in the patcher; the choice and all paths are remembered.
 
@@ -18,14 +18,13 @@ Choose the style in the patcher; the choice and all paths are remembered.
 |---|---|---|
 | Collection Progression Max Pop | The original population bonuses remain active and are required to reach the slot maximum. The Secret City also retains its level-3 magic bonus. | `(Game name) - Modded.exe` |
 | Immediate Fixed Max Pop | The slot maximum is available immediately. Collections no longer change it; The Secret City's magic tech no longer changes it either. | `(Game name) - Modded.exe` |
-| Experimental Expanded 256 Villagers | VV3-VV5 expand their physical record pool and saved-villager table from 150 to 256. VV1-VV2 use their existing 256 slots. The cap is immediate and bonuses no longer change it. | `(Game name) - Modded.exe` |
-| Experimental Expanded 256 - Collection Progression | Uses the same expanded records, but collections retain their original bonuses and are required to reach 256. The Secret City's level-3 Magic bonus also remains active. | `(Game name) - Modded.exe` |
 
 Every mode and optional-patch combination uses the same stable short EXE name. The selected mode, optional patches, hashes, and applied edits remain identified in the adjacent `.patch-log.json`.
 
-VV3-VV5 experimental builds keep the stock save filenames. Their short `(Game name) - Modded.exe` executables use separate, short executable-named save folders, so the extra E-filename convention is unnecessary. An experimental executable first loads its expanded save format; when that exact size check fails, it also accepts the corresponding stock save layout, moves the saved-state tail, and zero-initializes the 106 newly inserted villager records in memory. The next ordinary save writes the expanded format. The stock save file itself is not rewritten during loading.
-
-The patcher copies the complete game folder—including `fmod.dll`, SDL2, image libraries, and all data files—then places the modified EXE inside it. Startup is verified for all three expanded games; reaching, saving, and reloading a live 256-villager village remains long-play testing, so the mode is explicitly experimental.
+The former VV3-VV5 expanded-256 modes are disabled. Player testing found that
+their modified executables crash or hang during startup. The structural
+research is retained in the repository, but the GUI and command line refuse
+those modes until all three games pass real startup and save/load testing.
 
 ## VV2: Easier Healing Mastery
 
@@ -121,7 +120,7 @@ This means births can temporarily stop below 150 displayed believers while Heath
 
 All five stock games test the population limit once before choosing a singleton, twins, or triplets. Without an additional guard, a multiple birth at maximum minus one can report maximum plus one or maximum plus two, even though no corresponding villager records remain.
 
-All four patch styles add a slot-saturation guard at the selected mode's physical boundary:
+Both patch styles add a slot-saturation guard at the selected mode's physical boundary:
 
 - Three or more slots left: singleton, twin, and triplet rolls are unchanged.
 - Two slots left: a rolled triplet safely becomes twins.
@@ -132,7 +131,7 @@ This lets reproduction fill the final slot without permitting the population to 
 
 ### Island Event population safety
 
-All five games also contain Island Events that add villagers. The patcher guards every identified direct population-adding outcome: repeated allocations stop when the selected physical pool fills, and VV4/VV5 Abandoned Infants is reduced from six babies when fewer than six physical slots remain. Standard VV3-VV5 modes use 150; the experimental mode uses 256. Events that remove villagers are unchanged. VV5 conversions and The Defector are unchanged because they reclassify existing records instead of allocating new ones.
+All five games also contain Island Events that add villagers. The patcher guards every identified direct population-adding outcome: repeated allocations stop when the selected physical pool fills, and VV4/VV5 Abandoned Infants is reduced from six babies when fewer than six physical slots remain. VV3-VV5 use their verified 150-record boundary. Events that remove villagers are unchanged. VV5 conversions and The Defector are unchanged because they reclassify existing records instead of allocating new ones.
 
 ## Use
 
@@ -166,14 +165,12 @@ No game executable, save, extracted asset, or generated output is committed to t
 
 ## Command line
 
-Pass `--patch-mode collection_progression`, `--patch-mode immediate_fixed`, `--patch-mode experimental_expanded_256`, or `--patch-mode experimental_expanded_256_progression` to `dry-run`, `apply`, `dry-run-all`, or `apply-all`. Optional features use repeatable `--fun-patch` arguments: `vv1_school_lessons_grant_skill`, `vv1_continue_research_at_max_technologies`, `vv1_f6_clothing_change_cheat`, `vv1_magic_fruit_alters_mortality`, `vv2_easier_healing_mastery`, `vv2_teaching_children_grants_skill`, `vv2_gong_of_wonder_coconuts_fix`, `vv3_nature_honey_refill`, `vv4_complete_scales_golden_fish`, `vv5_heathen_mommy_puzzle`, `vv5_easier_devotee_training`, `vv5_statue_polishing_or_honoring`, and `vv5_vv4_nursery_divisor_parity`.
+Pass `--patch-mode collection_progression` or `--patch-mode immediate_fixed` to `dry-run`, `apply`, `dry-run-all`, or `apply-all`. Optional features use repeatable `--fun-patch` arguments: `vv1_school_lessons_grant_skill`, `vv1_continue_research_at_max_technologies`, `vv1_f6_clothing_change_cheat`, `vv1_magic_fruit_alters_mortality`, `vv2_easier_healing_mastery`, `vv2_teaching_children_grants_skill`, `vv2_gong_of_wonder_coconuts_fix`, `vv3_nature_honey_refill`, `vv4_complete_scales_golden_fish`, `vv5_heathen_mommy_puzzle`, `vv5_easier_devotee_training`, `vv5_statue_polishing_or_honoring`, and `vv5_vv4_nursery_divisor_parity`.
 
 ```text
 python src/vv_fun_patcher.py dry-run "path\game.exe" --patch-mode immediate_fixed
 python src/vv_fun_patcher.py apply "path\game.exe" --patch-mode collection_progression
 python src/vv_fun_patcher.py apply-all --vv1 "path\vv1 folder" --vv2 "path\vv2 folder" --vv3 "path\vv3 folder" --vv4 "path\vv4 folder" --vv5 "path\vv5 folder" --patch-mode immediate_fixed
-python src/vv_fun_patcher.py apply-all --vv1 "path\vv1 folder" --vv2 "path\vv2 folder" --vv3 "path\vv3 folder" --vv4 "path\vv4 folder" --vv5 "path\vv5 folder" --patch-mode experimental_expanded_256
-python src/vv_fun_patcher.py apply-all --vv1 "path\vv1 folder" --vv2 "path\vv2 folder" --vv3 "path\vv3 folder" --vv4 "path\vv4 folder" --vv5 "path\vv5 folder" --patch-mode experimental_expanded_256_progression
 ```
 
 Technical evidence is in `docs/max-population-research.md`,
