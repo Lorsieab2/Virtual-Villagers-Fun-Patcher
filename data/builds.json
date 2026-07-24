@@ -911,28 +911,16 @@
       "output_tag": "School Grants Skill",
       "patches": [
         {
-          "offset": "0x44C5A",
-          "before": "6A13",
-          "after": "6A0E",
-          "purpose": "turn the former final queue entry into callback 127"
-        },
-        {
-          "offset": "0x44C52",
-          "before": "6A00",
-          "after": "6A7F",
-          "purpose": "store private callback ID 127 in the queue entry's executed callback field"
-        },
-        {
-          "offset": "0x44C64",
-          "before": "578BCEE88492FFFF",
-          "after": "E9371A0100909090",
-          "purpose": "append the displaced stock final queue entry after the completion callback"
+          "offset": "0x44B28",
+          "before": "578BCEE8C093FFFF",
+          "after": "E9731B0100909090",
+          "purpose": "append callback 127 after the drum's actual Going to school wait entry, then preserve the stock queue finalizer"
         },
         {
           "offset": "0x566A0",
           "before": "000000000000000000000000000000000000000000000000000000000000000000",
-          "after": "6A006A006A006A006A006A13578BCEE83C33FEFF578BCEE83478FEFFE9ABE5FEFF",
-          "purpose": "restore the stock final queue entry and stock queue finalizer after callback 127"
+          "after": "6A7F6A006A006A006A006A0E578BCEE83C33FEFF578BCEE83478FEFFE96FE4FEFF",
+          "purpose": "queue callback 127 only for the real drum lesson, execute the stock finalizer, and resume the stock epilogue"
         },
         {
           "offset": "0x3A230",
@@ -1153,7 +1141,7 @@
         {
           "offset": "0x94380",
           "before": "000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
-          "after": "6A11B908E05100E8F46AFAFF84C07416E81BB8FBFF68C501000068710300006858010000EB14E805B8FBFF68C5010000687103000068570100008BC8E88FB8FBFF8B4F0850E8661AF7FFB9680F5200E9474BFBFF",
+          "after": "6A11B908E05100E8F46AFAFF84C07416E81BB8FBFF68C501000068710300006858010000EB14E805B8FBFF68C5010000687103000068570100008BC8E88FB8FBFF8B4F0850E8C657F7FFB9680F5200E9474BFBFF",
           "purpose": "draw the stock locked or solved bonus graphic from puzzle 17 state, then resume the original Puzzles screen"
         },
         {

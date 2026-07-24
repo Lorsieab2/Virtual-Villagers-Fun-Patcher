@@ -696,16 +696,27 @@ class StockIntegrationTests(unittest.TestCase):
         source = STOCK / build.input_name
         rendered, applied = render_patched_bytes(source, build, DEFAULT_PATCH_MODE, [feature_id])
         self.assertEqual(len(applied), len(build.safety_patches) + len(get_patch_variant(build, DEFAULT_PATCH_MODE)["patches"]) + len(feature.patches))
-        self.assertEqual(bytes(rendered[0x44BF2:0x44BF8]), bytes.fromhex("6A646A006A00"))
+        self.assertEqual(
+            bytes(rendered[0x25505:0x2550A]),
+            bytes.fromhex("E896F50100"),
+        )
+        self.assertEqual(
+            bytes(rendered[0x44B08:0x44B28]),
+            bytes.fromhex(
+                "6A056A006A06E8FDE3FBFF83C40483C00C"
+                "506A006A006A02578BCEE8C84EFFFF"
+            ),
+        )
+        self.assertEqual(bytes(rendered[0x44B28:0x44B30]), bytes.fromhex("E9731B0100909090"))
+        self.assertEqual(bytes(rendered[0x44BEC:0x44BF2]), bytes.fromhex("5F5E5BC20400"))
         self.assertEqual(bytes(rendered[0x44C50:0x44C52]), bytes.fromhex("6A00"))
-        self.assertEqual(bytes(rendered[0x44C52:0x44C54]), bytes.fromhex("6A7F"))
-        self.assertEqual(bytes(rendered[0x44C5A:0x44C5C]), bytes.fromhex("6A0E"))
-        self.assertEqual(bytes(rendered[0x44C64:0x44C6C]), bytes.fromhex("E9371A0100909090"))
+        self.assertEqual(bytes(rendered[0x44C5A:0x44C5C]), bytes.fromhex("6A13"))
+        self.assertEqual(bytes(rendered[0x44C64:0x44C6C]), bytes.fromhex("578BCEE88492FFFF"))
         self.assertEqual(
             bytes(rendered[0x566A0:0x566C1]),
             bytes.fromhex(
-                "6A006A006A006A006A006A13578BCEE83C33FEFF"
-                "578BCEE83478FEFFE9ABE5FEFF"
+                "6A7F6A006A006A006A006A0E578BCEE83C33FEFF"
+                "578BCEE83478FEFFE96FE4FEFF"
             ),
         )
         self.assertEqual(bytes(rendered[0x3A230:0x3A235]), bytes.fromhex("E9ABC40100"))
@@ -737,10 +748,11 @@ class StockIntegrationTests(unittest.TestCase):
         ]
         build = next(build for build in load_builds() if build.id == "vv1")
         rendered, _ = render_patched_bytes(STOCK / build.input_name, build, DEFAULT_PATCH_MODE, feature_ids)
+        self.assertEqual(bytes(rendered[0x44B28:0x44B30]), bytes.fromhex("E9731B0100909090"))
+        self.assertEqual(bytes(rendered[0x44BEC:0x44BF2]), bytes.fromhex("5F5E5BC20400"))
         self.assertEqual(bytes(rendered[0x44C50:0x44C52]), bytes.fromhex("6A00"))
-        self.assertEqual(bytes(rendered[0x44C52:0x44C54]), bytes.fromhex("6A7F"))
-        self.assertEqual(bytes(rendered[0x44C5A:0x44C5C]), bytes.fromhex("6A0E"))
-        self.assertEqual(bytes(rendered[0x44C64:0x44C6C]), bytes.fromhex("E9371A0100909090"))
+        self.assertEqual(bytes(rendered[0x44C5A:0x44C5C]), bytes.fromhex("6A13"))
+        self.assertEqual(bytes(rendered[0x44C64:0x44C6C]), bytes.fromhex("578BCEE88492FFFF"))
         self.assertEqual(rendered[0x47488], 0x13)
         self.assertEqual(rendered[0x20057], 0)
         self.assertEqual(bytes(rendered[0x1FF2E:0x1FF34]), bytes.fromhex("E9ED66030090"))
@@ -983,9 +995,24 @@ class StockIntegrationTests(unittest.TestCase):
             bytes.fromhex(
                 "6A11B908E05100E8F46AFAFF84C07416E81BB8FBFF68C5010000"
                 "68710300006858010000EB14E805B8FBFF68C50100006871030000"
-                "68570100008BC8E88FB8FBFF8B4F0850E8661AF7FFB9680F5200"
+                "68570100008BC8E88FB8FBFF8B4F0850E8C657F7FFB9680F5200"
                 "E9474BFBFF"
             ),
+        )
+        self.assertEqual(
+            bytes(rendered[0x493F0:0x4942B]),
+            bytes(source.read_bytes()[0x493F0:0x4942B]),
+        )
+        self.assertEqual(
+            bytes(rendered[0x493F0:0x49421]),
+            bytes.fromhex(
+                "55578D8E38010000E89383FBFF84C00F84780300006A11"
+                "B908E05100E86F1AFFFF84C0740CBFF40200006A11E948FCFFFF"
+            ),
+        )
+        self.assertEqual(
+            bytes(rendered[0x49421:0x4942B]),
+            bytes.fromhex("68A7000000E815790000"),
         )
         self.assertEqual(
             bytes(rendered[0x24F69:0x24F6E]),

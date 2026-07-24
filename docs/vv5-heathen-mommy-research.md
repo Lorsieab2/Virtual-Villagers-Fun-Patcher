@@ -49,6 +49,16 @@ The modern executable retains:
 
 The modern Puzzles screen omits the enabled reference's post-grid puzzle-17 render branch.
 
+The modern executable does retain the complete puzzle-17 rollover branch at
+`0x004493F0`. It hit-tests the seventeenth rectangle at screen-object offset
+`+0x138`, checks puzzle ID `0x11`, routes an incomplete puzzle to retained
+message ID `0xA7` (**This milestone has not been completed!**), and routes a
+completed puzzle to retained completion-tip ID `0x2F4` (**The Heathen
+Parent**). This is the direct modern homolog of the enabled reference branch
+at `0x00441BCE`, which uses its build's corresponding IDs `0xA8` and `0x2F3`.
+No rollover-code transplant is required; the renderer patch makes the retained
+seventeenth hit target visible again.
+
 ## Patch
 
 New-game restoration:
@@ -60,5 +70,16 @@ Puzzles-screen restoration:
 
 - file `0x48F16`: jump to cave `0x94380`;
 - file `0x94380`: inspect puzzle 17's actual state, select retained image `0x157` or `0x158`, draw it at the reference coordinates, and resume the stock screen.
+
+The naturally enabled reference uses its ordinary three-argument image drawer
+at `0x00405E30` for both the background and the bonus image. The matching
+function in the supported modern executable is `0x00409B90`; its normal
+16-puzzle tile drawer similarly moved from reference `0x00405E80` to modern
+`0x00409C20`.
+
+Release v1.29.0 incorrectly called modern address `0x00405E30`, which is in
+the middle of a different rendering function in that build. Opening the
+Puzzles screen consequently produced exception `0xC0000005`. The corrected
+cave calls the verified modern homolog at `0x00409B90`.
 
 The patch affects newly created villages. It does not inject a mother into an existing save because the natural implementation is part of new-game initialization. Existing saves still receive the Puzzles-screen renderer.
