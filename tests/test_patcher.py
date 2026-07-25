@@ -1261,35 +1261,37 @@ class StockIntegrationTests(unittest.TestCase):
         self.assertEqual(bytes(rendered[0x94440:0x94460]), bytes.fromhex(
             "8B8E881B000083B9FC1C00000D7405E9BAADFDFF6A64E805F2F6FFE99CADFDFF"
         ))
-        self.assertEqual(bytes(rendered[0x6C45D:0x6C462]), bytes.fromhex("E83E800200"))
-        self.assertEqual(bytes(rendered[0x6CDED:0x6CDF2]), bytes.fromhex("E8AE760200"))
-        self.assertEqual(bytes(rendered[0x6BF9A:0x6BF9F]), bytes.fromhex("E801850200"))
-        self.assertEqual(bytes(rendered[0x796EB:0x796F0]), bytes.fromhex("E8B0AD0100"))
+        self.assertEqual(bytes(rendered[0x6C45D:0x6C462]), bytes.fromhex("E845800200"))
+        self.assertEqual(bytes(rendered[0x6CDED:0x6CDF2]), bytes.fromhex("E8B5760200"))
+        self.assertEqual(bytes(rendered[0x6BF9A:0x6BF9F]), bytes.fromhex("E808850200"))
+        self.assertEqual(bytes(rendered[0x796EB:0x796F0]), bytes.fromhex("E8B7AD0100"))
         self.assertEqual(
             bytes(rendered[0x6BF55:0x6BF6F]),
             bytes.fromhex(
-                "8B8E881B00008D442416506895000000C644241E00E81196FFFF"
+                "8B8E881B00008D44241650E8FB840200C644241E00E81196FFFF"
             ),
         )
         self.assertEqual(
             bytes(rendered[0x6CC30:0x6CC43]),
-            bytes.fromhex("8D54241952885C241D6895000000E9D5FEFFFF"),
+            bytes.fromhex("8D54241952885C241DE822780200E9D5FEFFFF"),
         )
         self.assertEqual(
             bytes(rendered[0x796AA:0x796CC]),
             bytes.fromhex(
-                "8B4C24108D54240C526895000000C781541C000017000000"
+                "8B4C24108D54240C52E8A8AD0100C781541C000017000000"
                 "C644241400E8B4BEFEFF"
             ),
         )
         self.assertEqual(
             bytes(rendered[0x7971D:0x79735]),
             bytes.fromhex(
-                "8D4C2404518B4C24146A1FC744240C66000000E84BBEFEFF"
+                "8D4C2404518B4C2414E855AD01009090909090E84BBEFEFF"
             ),
         )
-        self.assertEqual(bytes(rendered[0x944A0:0x944B9]), bytes.fromhex(
-            "5A52516A02E8B6F1F6FF83C404598D84409D0000005A5052C3"
+        self.assertEqual(bytes(rendered[0x94460:0x944C0]), bytes.fromhex(
+            "5A52516A02E8F6F1F6FF83C404596BC00B05950000005A5052C3000000000000"
+            "5A52516A02E8D6F1F6FF83C4045969C081000000051F000000C744240C66000000"
+            "5A5052C300005A52516A02E8AFF1F6FF83C404598D84409D0000005A5052C3"
         ))
         self.assertEqual(
             bytes(rendered[0x25FE1:0x25FE5]), bytes.fromhex("40454900")
@@ -1346,12 +1348,21 @@ class StockIntegrationTests(unittest.TestCase):
             + len(get_patch_variant(build, DEFAULT_PATCH_MODE)["patches"])
             + len(feature.patches),
         )
-        self.assertEqual(bytes(rendered[0x6C45D:0x6C462]), bytes.fromhex("E83E800200"))
-        self.assertEqual(bytes(rendered[0x6CDED:0x6CDF2]), bytes.fromhex("E8AE760200"))
-        self.assertEqual(bytes(rendered[0x6BF9A:0x6BF9F]), bytes.fromhex("E801850200"))
-        self.assertEqual(bytes(rendered[0x796EB:0x796F0]), bytes.fromhex("E8B0AD0100"))
-        self.assertEqual(bytes(rendered[0x944A0:0x944B9]), bytes.fromhex(
-            "5A52516A02E8B6F1F6FF83C404598D84409D0000005A5052C3"
+        self.assertEqual(bytes(rendered[0x6C45D:0x6C462]), bytes.fromhex("E845800200"))
+        self.assertEqual(bytes(rendered[0x6CDED:0x6CDF2]), bytes.fromhex("E8B5760200"))
+        self.assertEqual(bytes(rendered[0x6BF9A:0x6BF9F]), bytes.fromhex("E808850200"))
+        self.assertEqual(bytes(rendered[0x796EB:0x796F0]), bytes.fromhex("E8B7AD0100"))
+        self.assertEqual(bytes(rendered[0x6BF60:0x6BF65]), bytes.fromhex("E8FB840200"))
+        self.assertEqual(bytes(rendered[0x6CC39:0x6CC3E]), bytes.fromhex("E822780200"))
+        self.assertEqual(bytes(rendered[0x796B3:0x796B8]), bytes.fromhex("E8A8AD0100"))
+        self.assertEqual(
+            bytes(rendered[0x79726:0x79730]),
+            bytes.fromhex("E855AD01009090909090"),
+        )
+        self.assertEqual(bytes(rendered[0x94460:0x944C0]), bytes.fromhex(
+            "5A52516A02E8F6F1F6FF83C404596BC00B05950000005A5052C3000000000000"
+            "5A52516A02E8D6F1F6FF83C4045969C081000000051F000000C744240C66000000"
+            "5A5052C300005A52516A02E8AFF1F6FF83C404598D84409D0000005A5052C3"
         ))
         preview = dry_run(source, DEFAULT_PATCH_MODE, [feature_id])
         self.assertEqual(preview["fun_patches"], [feature_id])

@@ -1236,39 +1236,63 @@
     {
       "id": "vv5_statue_polishing_or_honoring",
       "game_id": "vv5",
-      "name": "Statue Drops: Polishing or Honoring",
-      "description": "Statue drops keep the stock Building a statue action while construction is underway and the stock Confused response when an upgrade lacks the required technology. Eligible upgradeable or completed statues choose with equal odds between Polishing the Statue and Honoring.",
+      "name": "Statue Drops: Normal Action or Honoring",
+      "description": "Every statue-drop state chooses with equal 50/50 odds between Honoring and its normal action: Building a statue while construction is underway, Confused when an upgrade lacks the required technology, or Polishing the Statue for eligible upgradeable and completed statues.",
       "output_tag": "Random Statue Training",
       "patches": [
         {
           "offset": "0x6C45D",
           "before": "68A0000000",
-          "after": "E83E800200",
-          "purpose": "route the first manual statue-drop Honoring dispatch through the shared 50/50 selector"
+          "after": "E845800200",
+          "purpose": "route the first eligible-statue dispatch through the 50/50 Polishing or Honoring selector"
         },
         {
           "offset": "0x6CDED",
           "before": "68A0000000",
-          "after": "E8AE760200",
-          "purpose": "route the second upgradeable-statue Honoring dispatch through the shared 50/50 selector"
+          "after": "E8B5760200",
+          "purpose": "route the second eligible-statue dispatch through the 50/50 Polishing or Honoring selector"
         },
         {
           "offset": "0x6BF9A",
           "before": "689D000000",
-          "after": "E801850200",
-          "purpose": "route the first completed-statue Polishing dispatch through the shared 50/50 selector"
+          "after": "E808850200",
+          "purpose": "route the first completed-statue dispatch through the 50/50 Polishing or Honoring selector"
         },
         {
           "offset": "0x796EB",
           "before": "689D000000",
-          "after": "E8B0AD0100",
-          "purpose": "route the second completed-statue Polishing dispatch through the shared 50/50 selector"
+          "after": "E8B7AD0100",
+          "purpose": "route the second completed-statue dispatch through the 50/50 Polishing or Honoring selector"
         },
         {
-          "offset": "0x944A0",
-          "before": "00000000000000000000000000000000000000000000000000",
-          "after": "5A52516A02E8B6F1F6FF83C404598D84409D0000005A5052C3",
-          "purpose": "choose stock behavior 0x9D Polishing or 0xA0 Honoring with equal odds while preserving the original call stack and current-villager register"
+          "offset": "0x6BF60",
+          "before": "6895000000",
+          "after": "E8FB840200",
+          "purpose": "route the first construction-state dispatch through the 50/50 Building a statue or Honoring selector"
+        },
+        {
+          "offset": "0x6CC39",
+          "before": "6895000000",
+          "after": "E822780200",
+          "purpose": "route the second construction-state dispatch through the 50/50 Building a statue or Honoring selector"
+        },
+        {
+          "offset": "0x796B3",
+          "before": "6895000000",
+          "after": "E8A8AD0100",
+          "purpose": "route the world-drop construction-state dispatch through the 50/50 Building a statue or Honoring selector"
+        },
+        {
+          "offset": "0x79726",
+          "before": "6A1FC744240C66000000",
+          "after": "E855AD01009090909090",
+          "purpose": "route the missing-technology response through the 50/50 Confused or Honoring selector while replacing the following stack write"
+        },
+        {
+          "offset": "0x94460",
+          "before": "000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "after": "5A52516A02E8F6F1F6FF83C404596BC00B05950000005A5052C30000000000005A52516A02E8D6F1F6FF83C4045969C081000000051F000000C744240C660000005A5052C300005A52516A02E8AFF1F6FF83C404598D84409D0000005A5052C3",
+          "purpose": "install stack-safe 50/50 selectors for Building a statue or Honoring, Confused or Honoring, and Polishing or Honoring"
         }
       ]
     },

@@ -28,7 +28,7 @@ found that their executables crash or hang during startup.
    "Complete Fish Scales = Golden Fish in Nets".
 7. Optional for New Believers: check "Heathen Mommy Puzzle Restoration" and/or
    "Easier Devotee Training" and/or
-   "Statue Drops: Polishing or Honoring" and/or
+   "Statue Drops: Normal Action or Honoring" and/or
    "VV4 Nursery School Divisor Parity".
 7. Open "One Game" or "All 5 Games".
 
@@ -192,12 +192,11 @@ It does not directly grant skill or change conversion, statue upgrades, manual
 assignment, or skill thresholds. Spreading the Word remains a Retired Chief
 activity and is not assigned to ordinary devotees.
 
-VV5 STATUE DROPS: POLISHING OR HONORING
+VV5 STATUE DROPS: NORMAL ACTION OR HONORING
 
-While the statue is under construction, drops keep Building a statue. An
-upgrade attempted without its necessary technology keeps Confused. Eligible
-upgradeable or completed statues choose with equal odds between the original
-Polishing the Statue and Honoring activities. The patch keeps all four stock
-action and response paths.
+Every applicable statue drop makes a 50/50 choice between Honoring and the
+normal action for the statue's current state: Building a statue during
+construction, Confused when an upgrade lacks the necessary technology, or
+Polishing the Statue for eligible upgradeable and completed statues.
 It does not change autonomous work, skill gain amounts, statue upgrades, or
 Retired Chief activities.

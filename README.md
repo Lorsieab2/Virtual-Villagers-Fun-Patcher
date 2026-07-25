@@ -124,11 +124,11 @@ Enable **Easier Devotee Training (New Believers)** so any villager with positive
 
 The normal idle scheduler and its existing timing chance remain unchanged. The patch reuses the stock Honoring action queue and skill-gain behavior, does not grant Devotion directly, and does not alter conversion, statue upgrades, manual statue assignment, or Devotion thresholds. **Spreading the Word remains a Retired Chief activity and is not assigned to ordinary devotees.**
 
-## VV5: Statue Drops — Polishing or Honoring
+## VV5: Statue Drops — Normal Action or Honoring
 
-Enable **Statue Drops: Polishing or Honoring (New Believers)** for state-aware statue drops. A statue still under construction keeps **Building a statue**. Attempting an upgrade without the necessary technology keeps **Confused**. Once the statue is eligible for training, dropping a villager on its upgradeable or completed form chooses with equal 50/50 odds between the game's original **Polishing the Statue** and **Honoring** behaviors. All four original action/response paths remain intact.
+Enable **Statue Drops: Normal Action or Honoring (New Believers)** for state-aware statue drops. Every applicable drop chooses with equal 50/50 odds between **Honoring** and the normal action for that state: **Building a statue** during construction, **Confused** when an upgrade lacks the necessary technology, or **Polishing the Statue** for eligible upgradeable and completed statues.
 
-This provides a manual Devotion-training route after the Heathens are gone. It does not change autonomous work, Devotion gains, statue upgrades, or Retired Chief activities.
+This provides a manual Devotion-training route in every statue state while preserving all three original alternatives. It does not change autonomous work, Devotion gains, statue upgrades, or Retired Chief activities.
 
 ## VV5: VV4 Nursery School Divisor Parity
 

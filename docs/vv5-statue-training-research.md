@@ -1,4 +1,4 @@
-# VV5 Statue Polishing or Honoring Research
+# VV5 Statue Normal Action or Honoring Research
 
 ## Supported executable
 
@@ -27,19 +27,34 @@ occur before the eligible Polishing/Honoring choices.
 
 ## Patch
 
-Each of those four guarded five-byte behavior pushes becomes a call to one shared selector in zero-filled executable padding at file offset `0x944A0`. The selector:
+The patch routes all eight identified statue behavior dispatches into three
+selectors packed into zero-filled executable padding from file offset `0x94460`
+through `0x944BF`:
+
+- Construction routes choose behavior `0x95` **Building a statue** or `0xA0`
+  **Honoring**.
+- The missing-technology route chooses behavior `0x1F` **Confused** or `0xA0`
+  **Honoring**.
+- Eligible upgradeable and completed routes choose behavior `0x9D`
+  **Polishing the Statue** or `0xA0` **Honoring**.
+
+Each selector:
 
 1. Preserves the caller's return address.
 2. Calls the stock random-number function with an exclusive bound of 2.
-3. Maps random result 0 to behavior `0x9D` and result 1 to behavior `0xA0`.
+3. Maps random result 0 to that state's normal behavior and result 1 to
+   behavior `0xA0`.
 4. Preserves and restores `ECX`, which holds the current villager for the
    following stock behavior-setter call and is not preserved by the random
    function.
 5. Restores the original stack shape, leaving the selected behavior where the
-   displaced `push 0xA0` placed it.
+   displaced behavior push placed it. The Confused selector also reproduces
+   the displaced `mov [esp+0x0C],0x66` at the matching stack depth.
 6. Returns to the untouched stock dispatch.
 
-Both outcomes therefore have equal odds. The selector reuses the original Polishing and Honoring routines; it does not reproduce either action or write Devotion skill directly.
+Both outcomes in every state therefore have equal odds. The selectors reuse the
+original Building, Confused, Polishing, and Honoring routines; they do not
+reproduce any action or write Devotion skill directly.
 
 The v1.28.0 selector preserved the stack but not `ECX`. When the random-number
 call overwrote that register, the following behavior setter could dereference
@@ -50,10 +65,9 @@ corrected selector explicitly saves and restores `ECX` around the random call.
 ## Preserved behavior
 
 - Statue-state eligibility remains controlled by the original drop handlers.
-- A statue under construction still selects **Building a statue**.
-- An upgrade attempted without its required technology still selects
-  **Confused**.
-- Polishing and Honoring retain their complete stock action queues.
+- Building a statue, Confused, and Polishing each remain available as the
+  non-Honoring half of their respective 50/50 choices.
+- All four behaviors retain their complete stock action queues.
 - Devotion gain amounts and thresholds are unchanged.
 - Autonomous work and Retired Chief activities are untouched.
 - The original executable is never modified; the patcher writes a separately named copy with a recalculated PE checksum.
