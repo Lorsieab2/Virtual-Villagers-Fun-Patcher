@@ -1145,6 +1145,18 @@
           "purpose": "extend puzzle 17's retained rollover rectangle upward to the exact top edge of the restored graphic"
         },
         {
+          "offset": "0x48A95",
+          "before": "ED030000",
+          "after": "FF030000",
+          "purpose": "extend puzzle 17's retained rollover rectangle rightward to the exact final visible pixel of the restored graphic"
+        },
+        {
+          "offset": "0x48A9F",
+          "before": "67020000",
+          "after": "7E020000",
+          "purpose": "extend puzzle 17's retained rollover rectangle downward to the exact final visible pixel of the restored graphic"
+        },
+        {
           "offset": "0x48F16",
           "before": "B9680F5200",
           "after": "E965B40400",

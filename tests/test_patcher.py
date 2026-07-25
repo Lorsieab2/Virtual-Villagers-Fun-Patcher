@@ -1000,8 +1000,8 @@ class StockIntegrationTests(unittest.TestCase):
             bytes.fromhex(
                 "C7863801000071030000"
                 "C7863C010000C5010000"
-                "C78640010000ED030000"
-                "C7864401000067020000"
+                "C78640010000FF030000"
+                "C786440100007E020000"
             ),
         )
         self.assertEqual(

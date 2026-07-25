@@ -57,13 +57,12 @@ completed puzzle to retained completion-tip ID `0x2F4` (**The Heathen
 Parent**). This is the direct modern homolog of the enabled reference branch
 at `0x00441BCE`, which uses its build's corresponding IDs `0xA8` and `0x2F3`.
 No rollover-code transplant is required; the renderer patch makes the retained
-seventeenth hit target visible again. Player testing subsequently showed that
-the original retained rectangle covered only the inset center of the restored
-graphic, so rolling over its visible upper or left portions produced no text.
-The patch now expands the rectangle's top-left corner from `(922, 501)` to the
-graphic's exact draw origin `(881, 453)` while retaining its original
-bottom-right corner `(1005, 615)`. The whole visible tile therefore reaches
-the stock locked message or **The Heathen Parent** completion label.
+seventeenth hit target visible again. The retained rectangle `(922, 501)` to
+`(1005, 615)` covers only an inset portion of the restored 143-by-186-pixel
+graphic. The graphic is drawn at `(881, 453)`, so its inclusive visible bounds
+are `(881, 453)` to `(1023, 638)`. The patch expands all four rectangle edges
+to those exact bounds. Rolling over any visible part of the tile therefore
+reaches the stock locked message or **The Heathen Parent** completion label.
 
 ## Patch
 
