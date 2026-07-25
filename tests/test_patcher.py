@@ -1004,6 +1004,19 @@ class StockIntegrationTests(unittest.TestCase):
                 "C786440100007E020000"
             ),
         )
+        self.assertEqual(bytes(rendered[0x4974C:0x4974E]), bytes.fromhex("745B"))
+        self.assertEqual(
+            bytes(rendered[0x497A9:0x497AE]),
+            bytes.fromhex("E952AF0400"),
+        )
+        self.assertEqual(
+            bytes(rendered[0x94700:0x94730]),
+            bytes.fromhex(
+                "53578D8E38010000E883D0F6FF84C0741A"
+                "6A11B908E05100E86367FAFFF6D81BC0254D020000"
+                "E93850FBFFE93C50FBFF"
+            ),
+        )
         self.assertEqual(
             bytes(rendered[0x48F16:0x48F1B]),
             bytes.fromhex("E965B40400"),

@@ -1157,6 +1157,24 @@
           "purpose": "extend puzzle 17's retained rollover rectangle downward to the exact final visible pixel of the restored graphic"
         },
         {
+          "offset": "0x4974C",
+          "before": "741E",
+          "after": "745B",
+          "purpose": "route the actual rollover dispatcher's Puzzle 16 miss into the restored Puzzle 17 rollover block"
+        },
+        {
+          "offset": "0x497A9",
+          "before": "CCCCCCCCCC",
+          "after": "E952AF0400",
+          "purpose": "trampoline from nearby executable padding to the restored Puzzle 17 rollover block"
+        },
+        {
+          "offset": "0x94700",
+          "before": "000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "after": "53578D8E38010000E883D0F6FF84C0741A6A11B908E05100E86367FAFFF6D81BC0254D020000E93850FBFFE93C50FBFF",
+          "purpose": "append Puzzle 17 to the actual Puzzle 1-16 rollover chain and select the stock incomplete or Heathen Parent completion message"
+        },
+        {
           "offset": "0x48F16",
           "before": "B9680F5200",
           "after": "E965B40400",
