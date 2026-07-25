@@ -475,6 +475,46 @@ def _copy_game_folder_direct(
         raise
 
 
+def _copy_companion_files(
+    output_folder: Path, fun_patches: list[FunPatch]
+) -> list[dict[str, str]]:
+    copied: list[dict[str, str]] = []
+    root = ROOT.resolve()
+    for feature in fun_patches:
+        for item in feature.raw.get("companion_files", []):
+            source = (ROOT / item["source"]).resolve()
+            try:
+                source.relative_to(root)
+            except ValueError as exc:
+                raise PatcherError(
+                    f"Companion file escapes the patcher folder: {source}"
+                ) from exc
+            destination_name = Path(item["destination"])
+            if destination_name.name != str(destination_name):
+                raise PatcherError(
+                    f"Companion destination must be a filename: {destination_name}"
+                )
+            if not source.is_file():
+                raise PatcherError(f"Required companion file is missing: {source}")
+            expected_hash = item["sha256"].upper()
+            if sha256(source) != expected_hash:
+                raise PatcherError(f"Companion file hash mismatch: {source.name}")
+            destination = output_folder / destination_name
+            shutil.copy2(source, destination)
+            if sha256(destination) != expected_hash:
+                raise PatcherError(
+                    f"Companion file copy verification failed: {destination}"
+                )
+            copied.append(
+                {
+                    "feature": feature.id,
+                    "path": str(destination),
+                    "sha256": expected_hash,
+                }
+            )
+    return copied
+
+
 def apply_patch(
     source: Path,
     patch_mode: str = DEFAULT_PATCH_MODE,
@@ -491,6 +531,7 @@ def apply_patch(
         raise PatcherError(f"Modified game folder already exists: {output_folder}")
     patched, applied = render_patched_bytes(source, build, patch_mode, fun_patch_ids)
     _copy_game_folder_direct(source.parent, output_folder, overwrite)
+    companions = _copy_companion_files(output_folder, fun_patches)
     log_path = output.with_suffix(".patch-log.json")
     try:
         with output.open("wb") as handle:
@@ -503,15 +544,12 @@ def apply_patch(
         expected_hash = hashlib.sha256(patched).hexdigest().upper()
         if output_hash != expected_hash:
             raise PatcherError("Verification failed: output hash mismatch")
+        log_data = _log_data(
+            build, source, output, patch_mode, output_hash, applied, fun_patches
+        )
+        log_data["companion_files"] = companions
         log_path.write_text(
-            json.dumps(
-                _log_data(
-                    build, source, output, patch_mode, output_hash, applied, fun_patches
-                ),
-                indent=2,
-            )
-            + "\n",
-            encoding="utf-8",
+            json.dumps(log_data, indent=2) + "\n", encoding="utf-8"
         )
     except Exception:
         raise
@@ -556,6 +594,9 @@ def apply_all(
     results: list[tuple[Path, Path]] = []
     for build, source, patched, applied, output_folder, output in plans:
         _copy_game_folder_direct(source.parent, output_folder, overwrite)
+        companions = _copy_companion_files(
+            output_folder, selected_by_game.get(build.id, [])
+        )
         with output.open("wb") as handle:
             handle.write(patched)
             handle.flush()
@@ -567,21 +608,18 @@ def apply_all(
         if output_hash != expected_hash:
             raise PatcherError(f"Bulk verification failed: {build.title} hash mismatch")
         log_path = output.with_suffix(".patch-log.json")
+        log_data = _log_data(
+            build,
+            source,
+            output,
+            patch_mode,
+            output_hash,
+            applied,
+            selected_by_game.get(build.id, []),
+        )
+        log_data["companion_files"] = companions
         log_path.write_text(
-            json.dumps(
-                _log_data(
-                    build,
-                    source,
-                    output,
-                    patch_mode,
-                    output_hash,
-                    applied,
-                    selected_by_game.get(build.id, []),
-                ),
-                indent=2,
-            )
-            + "\n",
-            encoding="utf-8",
+            json.dumps(log_data, indent=2) + "\n", encoding="utf-8"
         )
         results.append((output, log_path))
     return results

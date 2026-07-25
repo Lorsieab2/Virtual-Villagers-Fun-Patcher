@@ -764,7 +764,7 @@ class StockIntegrationTests(unittest.TestCase):
         self.assertEqual(bytes(rendered[0x44C64:0x44C6C]), bytes.fromhex("578BCEE88492FFFF"))
         self.assertEqual(rendered[0x47488], 0x13)
         self.assertEqual(rendered[0x20057], 0)
-        self.assertEqual(bytes(rendered[0x1FF2E:0x1FF34]), bytes.fromhex("E9ED66030090"))
+        self.assertEqual(bytes(rendered[0x1FF2E:0x1FF34]), bytes.fromhex("E9CD66030090"))
         preview = dry_run(STOCK / build.input_name, DEFAULT_PATCH_MODE, feature_ids)
         self.assertEqual(preview["output_name"], modded_exe_name(build))
 
@@ -784,14 +784,15 @@ class StockIntegrationTests(unittest.TestCase):
         )
         self.assertEqual(rendered[0x20057], 0)
         self.assertEqual(
-            bytes(rendered[0x1FF2E:0x1FF34]), bytes.fromhex("E9ED66030090")
+            bytes(rendered[0x1FF2E:0x1FF34]), bytes.fromhex("E9CD66030090")
         )
         self.assertEqual(
-            bytes(rendered[0x56620:0x5666D]),
+            bytes(rendered[0x56600:0x56664]),
             bytes.fromhex(
-                "817C2420FF03000075388B46108B8034AD00003DFF0000007723"
-                "69C0D80300000346208078280074148B88640300004183F9147C02"
-                "33C9898864030000E94F99FCFF8B86F8020000E9C798FCFF"
+                "817C2420FF030000754F8B461081B8FCA2000088130000723B"
+                "8B9034AD000081FAFF000000772D69D2D8030000035620807A2800"
+                "741E81A8FCA20000881300008B8A640300004183F9147C0231C9"
+                "898A64030000E95899FCFF8B86F8020000E9D098FCFF"
             ),
         )
         preview = dry_run(source, DEFAULT_PATCH_MODE, [feature_id])
@@ -1213,19 +1214,25 @@ class StockIntegrationTests(unittest.TestCase):
         )
         self.assertEqual(
             bytes(rendered[0x6F1F5:0x6F1FC]),
-            bytes.fromhex("E9465202009090"),
+            bytes.fromhex("6A64E86444F9FF"),
         )
         self.assertEqual(
-            bytes(rendered[0x94400:0x9441B]),
+            bytes(rendered[0x94400:0x9442A]),
             bytes.fromhex(
-                "83B9FC1C00000D74083999701C00007E05E9D0ADFDFFE91FAEFDFF"
+                "83B9FC1C00000D741783B9741C000005751383B9701C0000007E0A"
+                "E960020000E9C1ADFDFFE910AEFDFF"
+            ),
+        )
+        self.assertEqual(
+            bytes(rendered[0x94680:0x946B2]),
+            bytes.fromhex(
+                "6A64E8D9EFF6FF83C40483F8327D1E8B8E881B0000885C240F"
+                "8D54240F5268A0000000E8D80EFDFFE970ABFDFFE988ABFDFF"
             ),
         )
         self.assertEqual(
             bytes(rendered[0x94440:0x94460]),
-            bytes.fromhex(
-                "8B8E881B000083B9FC1C00000D7405E9BAADFDFF6A64E805F2F6FFE99CADFDFF"
-            ),
+            bytes(0x20),
         )
         preview = dry_run(source, DEFAULT_PATCH_MODE, [feature_id])
         self.assertEqual(preview["fun_patches"], [feature_id])
@@ -1258,8 +1265,12 @@ class StockIntegrationTests(unittest.TestCase):
         self.assertEqual(bytes(rendered[0x24F69:0x24F6E]), bytes.fromhex("E9B2F60600"))
         self.assertEqual(bytes(rendered[0x94620:0x94622]), bytes.fromhex("6AE7"))
         self.assertEqual(bytes(rendered[0x6F1DD:0x6F1E6]), bytes.fromhex("E91E52020090909090"))
-        self.assertEqual(bytes(rendered[0x94440:0x94460]), bytes.fromhex(
-            "8B8E881B000083B9FC1C00000D7405E9BAADFDFF6A64E805F2F6FFE99CADFDFF"
+        self.assertEqual(bytes(rendered[0x6F1F5:0x6F1FC]), bytes.fromhex(
+            "6A64E86444F9FF"
+        ))
+        self.assertEqual(bytes(rendered[0x94680:0x946B2]), bytes.fromhex(
+            "6A64E8D9EFF6FF83C40483F8327D1E8B8E881B0000885C240F"
+            "8D54240F5268A0000000E8D80EFDFFE970ABFDFFE988ABFDFF"
         ))
         self.assertEqual(bytes(rendered[0x6C45D:0x6C462]), bytes.fromhex("E845800200"))
         self.assertEqual(bytes(rendered[0x6CDED:0x6CDF2]), bytes.fromhex("E8B5760200"))
@@ -1375,7 +1386,9 @@ class StockIntegrationTests(unittest.TestCase):
         self.assertIn("Tech Point Doubler", feature.description)
         self.assertIn("Food Point Doubler", feature.description)
         self.assertIn("500,000-tech-point", feature.description)
-        self.assertIn("does not replace likes or dislikes", feature.description)
+        self.assertIn("Set Age to 18", feature.description)
+        self.assertIn("chooses Farming when none is checked", feature.description)
+        self.assertIn("adds the running like", feature.description)
 
         build = next(build for build in load_builds() if build.id == "vv1")
         source = STOCK / build.input_name
@@ -1390,15 +1403,24 @@ class StockIntegrationTests(unittest.TestCase):
         )
         self.assertEqual(bytes(rendered[0x35AB0:0x35AB5]), bytes.fromhex("E94B0E0200"))
         self.assertEqual(bytes(rendered[0x358DC:0x358E1]), bytes.fromhex("E94F100200"))
-        self.assertEqual(bytes(rendered[0x1D120:0x1D125]), bytes.fromhex("E90B9C0300"))
-        self.assertEqual(bytes(rendered[0x1D140:0x1D145]), bytes.fromhex("E93B9C0300"))
+        self.assertEqual(bytes(rendered[0x1D120:0x1D125]), bytes.fromhex("E98B9B0300"))
+        self.assertEqual(bytes(rendered[0x1D140:0x1D145]), bytes.fromhex("E9BB9B0300"))
         self.assertEqual(
             bytes(rendered[0x3CD12:0x3CD19]),
-            bytes.fromhex("E9B9A001009090"),
+            bytes.fromhex("E939A001009090"),
         )
+        self.assertEqual(bytes(rendered[0x4A700:0x4A705]), bytes.fromhex("E97BC60000"))
+        self.assertEqual(bytes(rendered[0x4A5FA:0x4A5FF]), bytes.fromhex("E9B1C70000"))
+        self.assertEqual(
+            bytes(rendered[0x56907:0x5690E]),
+            bytes.fromhex("8B44240883F802"),
+        )
+        self.assertNotEqual(bytes(rendered[0x5690F:0x56913]), bytes.fromhex("83780402"))
         payload = bytes(rendered[0x85D30:0x86000])
         self.assertIn(b"Tech Point Doubler\0", payload)
         self.assertIn(b"Food Point Doubler\0", payload)
+        self.assertIn(b"Villager Upgrades\0", payload)
+        self.assertNotIn(b"Bump Max Population\0", payload)
         self.assertIn(b"Gained 3 children.\0", payload)
         self.assertIn(
             b"The village population is already at maximum capacity.\0",
@@ -1408,7 +1430,7 @@ class StockIntegrationTests(unittest.TestCase):
         self.assertNotIn(b"Gained 3,000 tech points.\0", payload)
         self.assertIn(b"Origins Exclusive Features.ini\0", payload)
         self.assertIn((500000).to_bytes(4, "little"), payload)
-        code = bytes(rendered[0x56900:0x56DEF])
+        code = bytes(rendered[0x56900:0x57000])
         self.assertIn(bytes.fromhex("83F80C76"), code)
         self.assertIn(bytes.fromhex("80BFE89F000001"), code)
         self.assertIn(bytes.fromhex("83F81676"), code)
@@ -1417,9 +1439,31 @@ class StockIntegrationTests(unittest.TestCase):
         self.assertIn(bytes.fromhex("80BFF89F000001"), code)
         self.assertIn(bytes.fromhex("3DFD0000000F87"), code)
         self.assertIn(bytes.fromhex("84C05874"), code)
+        self.assertIn(
+            bytes.fromhex("83BA D0030000 00 750A C782 D0030000 01000000".replace(" ", "")),
+            code,
+        )
         checksum_offset, = struct.unpack_from("<I", rendered, 0x3C)
         checksum_offset += 24 + 64
         self.assertNotEqual(struct.unpack_from("<I", rendered, checksum_offset)[0], 0)
+        with tempfile.TemporaryDirectory() as temp:
+            game_folder = Path(temp) / build.title
+            game_folder.mkdir()
+            copied_source = game_folder / build.input_name
+            shutil.copy2(source, copied_source)
+            output, log_path = apply_patch(
+                copied_source,
+                DEFAULT_PATCH_MODE,
+                fun_patch_ids=[feature_id],
+            )
+            companion = output.parent / "VVFP Origins Icons.dll"
+            self.assertTrue(companion.is_file())
+            log = json.loads(log_path.read_text(encoding="utf-8"))
+            self.assertEqual(len(log["companion_files"]), 1)
+            self.assertEqual(
+                digest(companion),
+                feature.raw["companion_files"][0]["sha256"],
+            )
 
     def test_bulk_feature_applies_only_to_its_game(self) -> None:
         feature_id = "vv2_easier_healing_mastery"

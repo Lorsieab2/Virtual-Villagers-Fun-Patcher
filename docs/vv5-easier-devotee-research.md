@@ -31,14 +31,23 @@ become:
 
 `E9 1E 52 02 00 90 90 90 90`
 
-This detours to guarded padding at file offset `0x94400`. The detour first preserves the original `[villager+0x1CFC] == 0x0D` Retired Chief predicate. If that predicate is false, it uses the scheduler's invariant `EBX = 0` to compare the nonnegative IEEE-754 Devotion field against zero. A Retired Chief or a villager with positive Devotion continues to the original timing chance; every other villager skips the branch.
+This detours to guarded padding at file offset `0x94400`. The detour first
+preserves the original `[villager+0x1CFC] == 0x0D` Retired Chief predicate. If
+that predicate is false, it checks both of the stock villager fields used by the
+details screen:
 
-At file offset `0x6F1F5`, the seven guarded bytes that begin the stock second random choice detour to a second guarded block at file offset `0x94440`. That block checks the Retired Chief state again:
+- `[villager+0x1C74] == 5`, meaning Devotion is the selected preferred job.
+- `[villager+0x1C70] > 0`, meaning the villager has positive Devotion skill.
 
-- A Retired Chief returns to the original random choice and can still select either Honoring or Spreading the Word.
-- A newly eligible ordinary devotee goes directly to stock behavior `0xA0` Honoring.
+A Retired Chief jumps directly back to the original timing and
+Honoring-or-Spreading code at `0x46F1E6`. The patch does not replace or
+intercept the stock random choice at `0x46F1F5`.
 
-The displaced random-number call is reproduced only on the Retired Chief route and returns to the exact original continuation at virtual address `0x46F1FC`.
+An ordinary villager satisfying both checks enters a separate block at file
+offset `0x94680`. That block reproduces the stock 50-percent timing chance and,
+on success, queues stock behavior `0xA0` Honoring. A failed chance returns to
+the ordinary scheduler at `0x46F23A`. Every villager failing either eligibility
+check also returns there without Honoring.
 
 ## Preserved behavior
 
@@ -46,6 +55,9 @@ The displaced random-number call is reproduced only on the Retired Chief route a
 - The original Honoring action queue and its stock Devotion gain remain responsible for training.
 - The original autonomous scheduler timing remains intact.
 - Conversion behavior, statue upgrades, manual statue assignment, and skill thresholds are untouched.
+- Manual statue Honoring can still train a beginner with no Devotion skill.
+- A villager who prefers Farming, Building, Research, Healing, or Parenting is not diverted into autonomous Honoring merely because a prior statue action granted a tiny amount of Devotion.
 - Spreading the Word is not assigned to ordinary devotees by this patch.
-- The Retired Chief retains the stock random Honoring-or-Spreading behavior.
+- The Retired Chief uses the original stock eligibility, timing, and random
+  Honoring-or-Spreading code. No custom Retired Chief discriminator remains.
 - The original executable is never modified; the patcher writes a separately named copy with a recalculated PE checksum.

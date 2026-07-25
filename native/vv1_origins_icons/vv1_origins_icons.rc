@@ -1,0 +1,75 @@
+101 ICON "../../assets/origins/101-time-warp.ico"
+102 ICON "../../assets/origins/102-island-event.ico"
+103 ICON "../../assets/origins/103-barrel-of-babies.ico"
+104 ICON "../../assets/origins/104-tech-point-doubler.ico"
+105 ICON "../../assets/origins/105-food-point-doubler.ico"
+106 ICON "../../assets/origins/106-grant-youth.ico"
+107 ICON "../../assets/origins/107-grant-full-mastery.ico"
+108 ICON "../../assets/origins/108-grant-running.ico"
+
+#define DS_MODALFRAME 0x0080L
+#define DS_SETFONT 0x0040L
+#define WS_POPUP 0x80000000L
+#define WS_CAPTION 0x00C00000L
+#define WS_SYSMENU 0x00080000L
+
+201 DIALOGEX 0, 0, 310, 190
+STYLE DS_MODALFRAME | DS_SETFONT | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Origins Upgrades"
+FONT 9, "Segoe UI"
+BEGIN
+    ICON        101, -1, 8,   8,  24, 24
+    LTEXT       "Time Warp", -1, 40, 10, 150, 10
+    LTEXT       "50,000 tech points", -1, 40, 22, 150, 9
+    PUSHBUTTON  "Buy", 1000, 240, 11, 55, 18
+
+    ICON        102, -1, 8,  40,  24, 24
+    LTEXT       "Island Event", -1, 40, 42, 150, 10
+    LTEXT       "30,000 tech points", -1, 40, 54, 150, 9
+    PUSHBUTTON  "Buy", 1001, 240, 43, 55, 18
+
+    ICON        103, -1, 8,  72,  24, 24
+    LTEXT       "Barrel of Babies", -1, 40, 74, 150, 10
+    LTEXT       "75,000 tech points", -1, 40, 86, 150, 9
+    PUSHBUTTON  "Buy", 1002, 240, 75, 55, 18
+
+    ICON        104, -1, 8, 104,  24, 24
+    LTEXT       "Tech Point Doubler", -1, 40, 106, 150, 10
+    LTEXT       "500,000 tech points", -1, 40, 118, 150, 9
+    PUSHBUTTON  "Buy", 1003, 240, 107, 55, 18
+
+    ICON        105, -1, 8, 136,  24, 24
+    LTEXT       "Food Point Doubler", -1, 40, 138, 150, 10
+    LTEXT       "500,000 tech points", -1, 40, 150, 150, 9
+    PUSHBUTTON  "Buy", 1004, 240, 139, 55, 18
+
+    DEFPUSHBUTTON "Cancel", 2, 120, 169, 70, 14
+END
+
+202 DIALOGEX 0, 0, 310, 158
+STYLE DS_MODALFRAME | DS_SETFONT | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Villager Upgrades"
+FONT 9, "Segoe UI"
+BEGIN
+    ICON        106, -1, 8,  8,  24, 24
+    LTEXT       "Grant Youth", -1, 40, 10, 150, 10
+    LTEXT       "50,000 tech points", -1, 40, 22, 150, 9
+    PUSHBUTTON  "Buy", 1000, 240, 11, 55, 18
+
+    ICON        107, -1, 8, 40,  24, 24
+    LTEXT       "Grant Full Mastery", -1, 40, 42, 150, 10
+    LTEXT       "100,000 tech points", -1, 40, 54, 150, 9
+    PUSHBUTTON  "Buy", 1001, 240, 43, 55, 18
+
+    ICON        108, -1, 8, 72,  24, 24
+    LTEXT       "Grant Running", -1, 40, 74, 150, 10
+    LTEXT       "40,000 tech points", -1, 40, 86, 150, 9
+    PUSHBUTTON  "Buy", 1002, 240, 75, 55, 18
+
+    ICON        106, -1, 8, 104,  24, 24
+    LTEXT       "Set Age to 18", -1, 40, 106, 150, 10
+    LTEXT       "50,000 tech points", -1, 40, 118, 150, 9
+    PUSHBUTTON  "Buy", 1003, 240, 107, 55, 18
+
+    DEFPUSHBUTTON "Cancel", 2, 120, 137, 70, 14
+END

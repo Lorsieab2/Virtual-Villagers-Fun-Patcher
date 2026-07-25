@@ -20,7 +20,7 @@ VV1 contains 256 villager records with stride `0x3D8`. The occupied flag is byte
 
 ## Patch
 
-The patch changes the F6 map byte at file offset `0x20057` from the unhandled branch to a shared handled-key branch, then detours that branch at file offset `0x1FF2E` into unused mapped `.text` padding at file offset `0x56620`.
+The patch changes the F6 map byte at file offset `0x20057` from the unhandled branch to a shared handled-key branch, then detours that branch at file offset `0x1FF2E` into unused mapped `.text` padding at file offset `0x56600`.
 
 The detour:
 
@@ -28,8 +28,11 @@ The detour:
 2. For every event except F6, reproduces the displaced instruction and resumes the untouched original behavior.
 3. For F6, validates that the selected index is within `0..255`.
 4. Resolves the selected record and verifies its occupied flag.
-5. Increments clothing by one; a result of 20 or greater wraps to 0.
-6. Returns through the original gameplay-key epilogue.
+5. Checks the saved village tech-point balance at state offset `+0xA2FC`.
+6. If the balance is below 5,000, returns without changing clothing or points.
+7. Otherwise deducts exactly 5,000 and increments clothing by one; a result of
+   20 or greater wraps to 0.
+8. Returns through the original gameplay-key epilogue.
 
 Because the stock renderer reads the clothing field from the villager record, no sprite or asset replacement is required.
 
@@ -37,6 +40,9 @@ Because the stock renderer reads the clothing field from the villager record, no
 
 - The patch changes only the selected active villager.
 - Pressing F6 with no valid active selection changes nothing.
+- Pressing F6 with fewer than 5,000 tech points changes nothing and charges
+  nothing.
+- A successful clothing change deducts exactly 5,000 tech points.
 - The cycle is `0, 1, ... 19, 0`.
 - Head, sex, age, skills, health, occupation, position, action queue, and other villager fields are untouched.
 - F7, F8, and every non-F6 key retain their original mappings.

@@ -955,7 +955,7 @@
       "id": "vv1_f6_clothing_change_cheat",
       "game_id": "vv1",
       "name": "Reenable F6 Clothing Change Cheat",
-      "description": "Pressing F6 cycles the selected active villager to the next stock outfit and wraps from outfit 19 back to outfit 0.",
+      "description": "Pressing F6 spends 5,000 tech points to cycle the selected active villager to the next stock outfit, wrapping from outfit 19 back to outfit 0. With fewer than 5,000 tech points, F6 does nothing and charges nothing.",
       "output_tag": "F6 Clothing Cheat",
       "patches": [
         {
@@ -967,14 +967,14 @@
         {
           "offset": "0x1FF2E",
           "before": "8B86F8020000",
-          "after": "E9ED66030090",
+          "after": "E9CD66030090",
           "purpose": "detour the shared gameplay-key branch so F6 can be distinguished from its original key"
         },
         {
-          "offset": "0x56620",
-          "before": "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
-          "after": "817C2420FF03000075388B46108B8034AD00003DFF000000772369C0D80300000346208078280074148B88640300004183F9147C0233C9898864030000E94F99FCFF8B86F8020000E9C798FCFF",
-          "purpose": "increment the selected active villager's stock clothing index, wrap 19 to 0, and preserve the original non-F6 key behavior"
+          "offset": "0x56600",
+          "before": "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "after": "817C2420FF030000754F8B461081B8FCA2000088130000723B8B9034AD000081FAFF000000772D69D2D8030000035620807A2800741E81A8FCA20000881300008B8A640300004183F9147C0231C9898A64030000E95899FCFF8B86F8020000E9D098FCFF",
+          "purpose": "require and deduct 5,000 tech points only after validating the selected active villager, then increment that villager's stock clothing index, wrap 19 to 0, and preserve the original non-F6 key behavior"
         }
       ]
     },
@@ -1204,7 +1204,7 @@
       "id": "vv5_easier_devotee_training",
       "game_id": "vv5",
       "name": "Easier Devotee Training",
-      "description": "Villagers with Devotion skill can spontaneously use the stock Honoring action instead of that autonomous opportunity being confined to the Retired Chief.",
+      "description": "Villagers with positive Devotion skill can spontaneously use the stock Honoring action when Devotion is their selected preferred job. Statue-drop Honoring remains available for training beginners, while villagers who prefer another job keep focusing on that job.",
       "output_tag": "Easier Devotee",
       "patches": [
         {
@@ -1214,22 +1214,16 @@
           "purpose": "route autonomous eligibility through a guarded Retired Chief-or-positive-Devotion predicate"
         },
         {
-          "offset": "0x6F1F5",
-          "before": "6A64E86444F9FF",
-          "after": "E9465202009090",
-          "purpose": "route the stock Honoring-or-Spreading choice through a Retired Chief discriminator"
-        },
-        {
           "offset": "0x94400",
-          "before": "000000000000000000000000000000000000000000000000000000",
-          "after": "83B9FC1C00000D74083999701C00007E05E9D0ADFDFFE91FAEFDFF",
-          "purpose": "preserve Retired Chief eligibility while also allowing villagers whose actual Devotion skill is positive"
+          "before": "000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "after": "83B9FC1C00000D741783B9741C000005751383B9701C0000007E0AE960020000E9C1ADFDFFE910AEFDFF",
+          "purpose": "leave Retired Chiefs on the original stock branch while requiring both positive Devotion skill and Devotion as the selected preferred job before routing an ordinary villager to the added Honoring branch"
         },
         {
-          "offset": "0x94440",
-          "before": "0000000000000000000000000000000000000000000000000000000000000000",
-          "after": "8B8E881B000083B9FC1C00000D7405E9BAADFDFF6A64E805F2F6FFE99CADFDFF",
-          "purpose": "preserve the Retired Chief's stock random Honoring-or-Spreading choice while sending all newly eligible devotees only to Honoring"
+          "offset": "0x94680",
+          "before": "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "after": "6A64E8D9EFF6FF83C40483F8327D1E8B8E881B0000885C240F8D54240F5268A0000000E8D80EFDFFE970ABFDFFE988ABFDFF",
+          "purpose": "apply the stock 50-percent timing chance and assign only Honoring to an eligible ordinary devotee without intercepting any Retired Chief behavior"
         }
       ]
     },

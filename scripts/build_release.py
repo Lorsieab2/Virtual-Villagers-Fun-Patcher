@@ -8,13 +8,14 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 OUTPUTS = ROOT / "outputs"
-VERSION = "v1.34.1"
+VERSION = "v1.34.2"
 NAME = f"Virtual-Villagers-Fun-Patcher-{VERSION}.zip"
 FILES = [
     "README.md",
     "How to Use.txt",
     "Launch Virtual Villagers Fun Patcher.bat",
     "assets/Island.png",
+    "assets/origins/VVFP Origins Icons.dll",
     "data/builds.json",
     "data/expanded_256.json",
     "data/vv1_origins_feature.json",

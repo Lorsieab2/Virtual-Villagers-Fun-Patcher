@@ -44,9 +44,29 @@ tech points, but the Barrel purchase's bound of 1 makes them unreachable.
 
 ## Desktop port
 
-The port adds a stock-styled **Origins Upgrades** control to the desktop Tech
-screen's unused button ID 2. A guarded handler displays the nine purchases in
-a compact Yes/No/Cancel sequence.
+The port adds a stock-styled **Upgrades** control to the desktop Tech screen's
+unused button ID 2. It opens one **Origins Upgrades** window containing Time
+Warp, Island Event, Barrel of Babies, Tech Point Doubler, and Food Point
+Doubler at the same time. Each row contains the recovered mobile icon, name,
+cost, and its own Buy button, with one Cancel button for the window. An owned
+doubler's button changes to Remove and removing it does not charge tech points.
+The stock message supplies that numeric control ID directly; the handler
+compares it with 2 and does not dereference it as a pointer. The constructor
+reuses the game's existing
+`main_wide_button2.png` string at virtual address `0x459340` rather than
+supplying a duplicate filename from the injected data block, keeping image
+lookup on the same stock path as the game's other wide buttons.
+
+A separate stock-styled **Upgrades** control is added to the Villager Detail
+screen. It opens one **Villager Upgrades** window containing Grant Youth, Grant
+Full Mastery, Grant Running, and Set Age to 18 at the same time. It applies a
+purchase only to the villager currently shown on that Detail screen.
+
+Grant Full Mastery preserves an existing checked job preference. When the
+villager has no checked preference, the upgrade selects Farming, the first of
+the five newly tied mastered skills. This prevents VV1's stock summary-title
+chooser from displaying the otherwise incomplete title **Master** after all
+five skills are made exactly equal.
 
 The desktop game's central tech and food award routines implement the
 doublers. Consequently, all positive awards routed through those routines are
@@ -54,15 +74,21 @@ doubled, while deductions remain unchanged. Ownership is stored in
 `Origins Exclusive Features.ini` beside the
 modified executable, so it persists independently of save-slot selection.
 
-Grant Running uses the desktop villager record's otherwise-unused saved dword
-at offset `+0x3D4` as its sentinel and reapplies the stock running speed during
-normal speed initialization. The game's three like and three dislike slots
-remain untouched.
+Grant Running uses that one desktop villager record's otherwise-unused saved
+dword at offset `+0x3D4` as its sentinel and reapplies the stock running speed
+during normal speed initialization. It removes trait 38 from that villager's
+three dislike slots and adds trait 38 to the three like slots. When every like
+slot is occupied, the third like becomes running. Unlike the mobile bug,
+villagers without this per-record sentinel retain their normal movement speed.
 
-The desktop population modes already make all 256 physical VV1 records
-available. Repeating the APK's extra +10 cap purchase would therefore have no
-safe effect. The menu retains **Bump Max Population** for feature visibility,
-reports the existing 256 maximum, and does not charge tech points.
+Set Age to 18 costs 50,000 tech points, matching Grant Youth. It writes 360
+internal age units to the displayed and current-age fields. If the selected
+villager has an active pregnancy or nursing-relative timestamp, the associated
+field is adjusted with the same age change instead of leaving it inconsistent.
+
+The desktop port deliberately omits **Bump Max Population** from its menu. The
+patcher's population modes already target VV1's physical 256-record capacity,
+so the mobile upgrade is neither displayed nor offered for purchase.
 
 Before charging for Barrel of Babies, the desktop port computes the current
 population and applies the stock housing thresholds of 15, 25, and 50 before
@@ -70,17 +96,20 @@ the patched 256 maximum. The purchase proceeds only when three spaces remain.
 Otherwise it charges nothing and reports **The village population is already
 at maximum capacity.**
 
-The APK contains exclusive PVR atlas entries for these upgrades. They are not
-inserted into the desktop renderer: the port deliberately uses the game's
-stock desktop button and dialog assets, avoiding a new texture decoder or
-external runtime dependency.
+The APK contains exclusive PVR atlas entries for these upgrades. The eight
+required entries were decoded losslessly into local PNG/ICO assets and embedded
+as native resources in the bundled 32-bit `VVFP Origins Icons.dll`. The patcher
+copies that hash-verified companion into the user's new modded game folder; it
+does not depend on the original APK or any files outside the patcher.
 
 ## Validation boundary
 
 Automated integration tests verify the exact source executable guards, feature
 name, two 500,000-point prices, short-output compatibility, PE checksum path,
-and combination with every other VV1 patch. The generated payload is
-reproducible from `scripts/build_vv1_origins_feature.py`.
+the direct control-ID handler, the mastery tie repair, the companion DLL hash
+and copied location, and combination with every other VV1 patch. The generated
+payload is reproducible from
+`scripts/build_vv1_origins_feature.py`.
 
 This is a native executable modification. Static validation cannot substitute
 for player testing of every purchase in a full desktop game folder. Runtime

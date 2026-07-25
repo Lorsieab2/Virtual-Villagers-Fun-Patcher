@@ -1,0 +1,3 @@
+LIBRARY "VVFP Origins Icons"
+EXPORTS
+    ShowOriginsUpgradeMenu=_ShowOriginsUpgradeMenu@8
