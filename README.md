@@ -73,7 +73,7 @@ ordinary play and elapsed-time catch-up.
 ## VV1: Enable Origins-Exclusive Features
 
 Enable **Enable Origins-Exclusive Features (A New Home)** to add an
-**Origins Upgrades** button to VV1's Tech screen. It ports the supplied
+**Upgrades** button to VV1's Tech screen. It ports the supplied
 Virtual Villagers: Origins APK's exclusive purchases to the supported desktop
 build:
 
@@ -84,26 +84,29 @@ build:
   and adds exactly three young children. If the current housing-dependent
   population limit has fewer than three spaces available, it charges nothing
   and reports **The village population is already at maximum capacity.**
-- **Bump Max Population** — displayed for completeness, but charges nothing
-  because this patcher's VV1 population modes already use the physical
-  256-record maximum.
 - **Grant Youth** — 50,000 tech points; makes the selected living villager 35
   displayed years younger, with a minimum displayed age of 5.
 - **Grant Full Mastery** — 100,000 tech points; sets all five skills of the
-  selected living villager to the APK's mastery value of 90.
+  selected living villager to the APK's mastery value of 90. It preserves the
+  selected job, or chooses Farming when none is selected, so VV1 does not show
+  the incomplete title **Master**.
 - **Grant Running** — 40,000 tech points; permanently gives the selected
-  living villager the Origins running speed. It uses VV1's otherwise-unused
-  saved record field and does not replace a like or dislike.
+  living villager the Running like and removes Running as a dislike. VV1's
+  stock per-villager Running behavior supplies the speed; the patch does not
+  alter movement speed globally.
+- **Set Age to 18** — 50,000 tech points; sets the selected living villager's
+  age to 18.
 - **Tech Point Doubler** — 500,000 tech points; permanently doubles positive
   tech-point awards, but not costs or losses.
 - **Food Point Doubler** — 500,000 tech points; permanently doubles positive
   food awards, but not spending or losses.
 
-The two doublers are stored beside the modified executable in
+The Tech screen presents its five village upgrades together, and the Villager
+Detail screen presents its four villager upgrades together, each with icons
+and individual Buy buttons. The two doublers are stored beside the modified executable in
 `Origins Exclusive Features.ini` and apply to all save slots opened by that
-modded installation. The port uses a stock-styled desktop button and dialogs;
-the APK's mobile texture atlas is preserved as research evidence but is not
-required by the desktop game.
+modded installation. **Bump Max Population** is deliberately omitted because
+the patcher's population modes handle population limits separately.
 
 ## VV2: Teaching Children Grants Skill
 

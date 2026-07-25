@@ -139,10 +139,10 @@ def main() -> None:
     write_setting = CODE_VA + 0x360
     tech_increment = CODE_VA + 0x3B0
     food_increment = CODE_VA + 0x400
-    running_hook = CODE_VA + 0x450
-    detail_handler_hook = CODE_VA + 0x480
-    detail_constructor_hook = CODE_VA + 0x4B0
-    detail_menu = CODE_VA + 0x511
+    mastery_migration_hook = CODE_VA + 0x450
+    detail_handler_hook = CODE_VA + 0x490
+    detail_constructor_hook = CODE_VA + 0x4C0
+    detail_menu = CODE_VA + 0x521
 
     code = bytearray(b"\x00" * 0x700)
 
@@ -164,7 +164,9 @@ def main() -> None:
             cmp dword ptr [esp + 4], 8
             jne original_handler
             mov eax, dword ptr [esp + 8]
-            cmp eax, 2
+            test eax, eax
+            je original_handler
+            cmp dword ptr [eax + 4], 2
             jne original_handler
             call 0x{menu:X}
             xor eax, eax
@@ -519,12 +521,20 @@ def main() -> None:
     )
 
     put(
-        running_hook,
+        mastery_migration_hook,
         """
-            cmp dword ptr [esi + 0x3D4], 10101010
-            jne no_running_upgrade
-            mov dword ptr [esi + 0x58], 300
-        no_running_upgrade:
+            cmp dword ptr [esi + 0x3D0], 0
+            jne mastery_migration_done
+            lea eax, [esi + 0x3BC]
+            mov ecx, 5
+        mastery_migration_check:
+            cmp dword ptr [eax], 90
+            jne mastery_migration_done
+            add eax, 4
+            dec ecx
+            jne mastery_migration_check
+            mov dword ptr [esi + 0x3D0], 1
+        mastery_migration_done:
             mov dword ptr [esi + 0x20], 1
             jmp 0x43CD19
         """,
@@ -535,7 +545,10 @@ def main() -> None:
         f"""
             cmp dword ptr [esp + 4], 8
             jne original_detail_handler
-            cmp dword ptr [esp + 8], 6
+            mov eax, dword ptr [esp + 8]
+            test eax, eax
+            je original_detail_handler
+            cmp dword ptr [eax + 4], 6
             jne original_detail_handler
             call 0x{detail_menu:X}
             xor eax, eax
@@ -625,8 +638,6 @@ def main() -> None:
             je detail_mastery
             cmp ebx, 2
             jne detail_age_18
-            mov dword ptr [edx + 0x3D4], 10101010
-            mov dword ptr [edx + 0x58], 300
             lea ecx, [edx + 0x3A8]
             mov eax, 3
         running_remove_dislike:
@@ -773,8 +784,8 @@ def main() -> None:
     patch(
         0x3CD12,
         bytes.fromhex("C7462001000000"),
-        rel32_jump(0x43CD12, running_hook) + b"\x90\x90",
-        "honor the saved Grant Running flag without consuming a villager like/dislike slot",
+        rel32_jump(0x43CD12, mastery_migration_hook) + b"\x90\x90",
+        "repair the exact all-five-skills-at-90 and no-preference state created by older builds",
     )
     patch(
         CODE_FILE_OFFSET,
@@ -807,9 +818,10 @@ def main() -> None:
             "an icon-based Villager Upgrades screen containing Grant Youth, Grant Full "
             "Mastery, Grant Running, and Set Age to 18 for the displayed villager. Grant "
             "Full Mastery preserves a checked job preference and chooses Farming when "
-            "none is checked so VV1 does not show the incomplete title Master. Grant "
-            "Running adds the running like, removes a running dislike, uses a dedicated "
-            "per-villager saved field, and does not make unupgraded villagers run."
+            "none is checked so VV1 does not show the incomplete title Master; it also "
+            "repairs that exact state from older builds. Grant Running removes a running "
+            "dislike and adds the running like, relying only on VV1's stock per-villager "
+            "running behavior so unupgraded villagers retain their normal movement speed."
         ),
         "output_tag": "Origins Exclusive Features",
         "companion_files": [

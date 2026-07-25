@@ -13,9 +13,13 @@ import idautils
 RANGES = (
     (0x0041A800, 0x0041B100),
     (0x00421000, 0x00423600),
+    (0x00435000, 0x00435D00),
+    (0x00437200, 0x00438000),
     (0x00439000, 0x0043A200),
     (0x0043B900, 0x0043BC00),
+    (0x0043CB00, 0x0043CF00),
     (0x00449000, 0x00449A00),
+    (0x0044A400, 0x0044A800),
 )
 OUTPUT = Path(
     r"C:\Users\Owner\Documents\Codex\Misc LDW Game Projects"

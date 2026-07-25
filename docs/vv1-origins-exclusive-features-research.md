@@ -50,8 +50,8 @@ Warp, Island Event, Barrel of Babies, Tech Point Doubler, and Food Point
 Doubler at the same time. Each row contains the recovered mobile icon, name,
 cost, and its own Buy button, with one Cancel button for the window. An owned
 doubler's button changes to Remove and removing it does not charge tech points.
-The stock message supplies that numeric control ID directly; the handler
-compares it with 2 and does not dereference it as a pointer. The constructor
+The stock message supplies a pointer to the button object. The handler reads
+the numeric control ID at object offset `+4` and compares it with 2. The constructor
 reuses the game's existing
 `main_wide_button2.png` string at virtual address `0x459340` rather than
 supplying a duplicate filename from the injected data block, keeping image
@@ -68,18 +68,22 @@ the five newly tied mastered skills. This prevents VV1's stock summary-title
 chooser from displaying the otherwise incomplete title **Master** after all
 five skills are made exactly equal.
 
+Corrected builds also perform a deliberately narrow compatibility repair while
+VV1 initializes its villager records: a villager whose five skills are all
+exactly 90 and whose preference is still zero is assigned Farming. No other
+skill combination or existing preference is changed.
+
 The desktop game's central tech and food award routines implement the
 doublers. Consequently, all positive awards routed through those routines are
 doubled, while deductions remain unchanged. Ownership is stored in
 `Origins Exclusive Features.ini` beside the
 modified executable, so it persists independently of save-slot selection.
 
-Grant Running uses that one desktop villager record's otherwise-unused saved
-dword at offset `+0x3D4` as its sentinel and reapplies the stock running speed
-during normal speed initialization. It removes trait 38 from that villager's
-three dislike slots and adds trait 38 to the three like slots. When every like
-slot is occupied, the third like becomes running. Unlike the mobile bug,
-villagers without this per-record sentinel retain their normal movement speed.
+Grant Running removes trait 38 from that villager's three dislike slots and
+adds trait 38 to the three like slots. When every like slot is occupied, the
+third like becomes running. The patch does not write movement speed and does
+not use a custom sentinel: VV1's stock trait-38 logic alone makes that villager
+run, so villagers without the Running like retain their normal movement speed.
 
 Set Age to 18 costs 50,000 tech points, matching Grant Youth. It writes 360
 internal age units to the displayed and current-age fields. If the selected
