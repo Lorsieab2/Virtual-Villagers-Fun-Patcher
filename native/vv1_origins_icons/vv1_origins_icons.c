@@ -75,6 +75,7 @@ __declspec(dllexport) int __stdcall ShowOriginsUpgradeMenu(
         unsigned char *villager = (unsigned char *)(UINT_PTR)(unsigned int)state;
         int row;
         int running_like = 0;
+        int running_dislike = 0;
         int available_like = 0;
         if (villager != NULL) {
             if (*(int *)(villager + 0x348) <= 100) {
@@ -94,10 +95,13 @@ __declspec(dllexport) int __stdcall ShowOriginsUpgradeMenu(
                 } else if (like == -1) {
                     available_like = 1;
                 }
+                if (*(int *)(villager + 0x3A8 + row * 4) == 38) {
+                    running_dislike = 1;
+                }
             }
-            if (running_like) {
+            if (running_like && !running_dislike) {
                 dialog_state |= 1 << 2;
-            } else if (!available_like) {
+            } else if (!running_like && !available_like) {
                 dialog_state |= 1 << (8 + 2);
             }
             if (*(int *)(villager + 0x348) == 360) {

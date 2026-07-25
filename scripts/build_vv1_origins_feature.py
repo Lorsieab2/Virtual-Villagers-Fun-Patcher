@@ -639,7 +639,7 @@ def main() -> None:
             mov ecx, 3
         running_preflight:
             cmp dword ptr [eax], 38
-            je detail_running_unavailable
+            je detail_charge
             cmp dword ptr [eax], -1
             je detail_charge
             add eax, 4
@@ -659,23 +659,28 @@ def main() -> None:
             jne detail_age_18
             lea ecx, [edx + 0x398]
             mov eax, 3
-        running_find_existing_like:
+        running_find_like_slot:
             cmp dword ptr [ecx], 38
-            je detail_success
-            add ecx, 4
-            dec eax
-            jne running_find_existing_like
-            lea ecx, [edx + 0x398]
-            mov eax, 3
-        running_find_empty_like:
+            je running_remove_dislikes
             cmp dword ptr [ecx], -1
             je running_store_like
             add ecx, 4
             dec eax
-            jne running_find_empty_like
+            jne running_find_like_slot
             jmp detail_running_unavailable
         running_store_like:
             mov dword ptr [ecx], 38
+        running_remove_dislikes:
+            lea ecx, [edx + 0x3A8]
+            mov eax, 3
+        running_dislike_loop:
+            cmp dword ptr [ecx], 38
+            jne running_next_dislike
+            mov dword ptr [ecx], -1
+        running_next_dislike:
+            add ecx, 4
+            dec eax
+            jne running_dislike_loop
             jmp detail_success
 
         detail_age_18:
@@ -830,10 +835,11 @@ def main() -> None:
             "Mastery, Grant Running, and Set Age to 18 for the displayed villager. Grant "
             "Full Mastery preserves a checked job preference and chooses Farming when "
             "none is checked so VV1 does not show the incomplete title Master; it also "
-            "repairs that exact state from older builds. Grant Running only adds running "
-            "to an available Likes slot on the displayed villager and refuses without "
-            "charging when it cannot; it does not inspect or alter dislikes, movement "
-            "speed, movement initialization, or any custom running flag."
+            "repairs that exact state from older builds. Grant Running adds running to an "
+            "available Likes slot on the displayed villager, removes running from that "
+            "villager's Dislikes slots, and refuses without charging when no Like slot is "
+            "available; it does not alter movement speed, movement initialization, or any "
+            "custom running flag."
         ),
         "output_tag": "Origins Exclusive Features",
         "companion_files": [

@@ -1388,8 +1388,8 @@ class StockIntegrationTests(unittest.TestCase):
         self.assertIn("500,000-tech-point", feature.description)
         self.assertIn("Set Age to 18", feature.description)
         self.assertIn("chooses Farming when none is checked", feature.description)
-        self.assertIn("only adds running", feature.description)
-        self.assertIn("does not inspect or alter dislikes", feature.description)
+        self.assertIn("adds running", feature.description)
+        self.assertIn("removes running", feature.description)
 
         build = next(build for build in load_builds() if build.id == "vv1")
         source = STOCK / build.input_name
@@ -1439,7 +1439,8 @@ class StockIntegrationTests(unittest.TestCase):
         self.assertIn(bytes.fromhex("FF1510704500"), code)
         self.assertNotIn((10101010).to_bytes(4, "little"), code)
         self.assertNotIn(bytes.fromhex("C742582C010000"), code)
-        self.assertNotIn(bytes.fromhex("8D8AA8030000"), code)
+        self.assertIn(bytes.fromhex("8D8AA8030000"), code)
+        self.assertIn(bytes.fromhex("8339267506C701FFFFFFFF"), code)
         self.assertIn(bytes.fromhex("8D8A98030000"), code)
         self.assertNotIn(bytes.fromhex("C782A003000026000000"), code)
         self.assertIn(bytes.fromhex("2DBC02000083F8647D05B864000000"), code)

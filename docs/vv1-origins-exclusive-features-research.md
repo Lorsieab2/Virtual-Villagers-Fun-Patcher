@@ -92,12 +92,13 @@ doubled, while deductions remain unchanged. Ownership is stored in
 `Origins Exclusive Features.ini` beside the
 modified executable, so it persists independently of save-slot selection.
 
-Grant Running only adds trait 38 to an available Like slot on the displayed
-villager. If Running is already a Like or all three Like slots are occupied,
-the purchase refuses without charging or overwriting anything. It neither
-reads nor writes dislikes and does not touch movement speed, movement
-initialization, or a custom sentinel. Any movement caused by the resulting
-Like is entirely VV1's unmodified base-game behavior.
+Grant Running adds trait 38 to an available Like slot on the displayed
+villager and removes trait 38 from any of that villager's Dislike slots. If
+Running is already a Like, the upgrade can still remove a conflicting Running
+Dislike. If all three Like slots are occupied and none is Running, the purchase
+refuses without charging or overwriting anything. It does not touch movement
+speed, movement initialization, or a custom sentinel. Any movement caused by
+the resulting Like is entirely VV1's unmodified base-game behavior.
 
 Set Age to 18 costs 50,000 tech points, matching Grant Youth. It writes 360
 internal age units to the displayed and current-age fields. If the selected
