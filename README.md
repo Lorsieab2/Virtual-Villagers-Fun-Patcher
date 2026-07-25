@@ -222,7 +222,10 @@ All five games also contain Island Events that add villagers. The patcher guards
 3. Select a patch style.
 4. Choose **One Game** or **All 5 Games**.
 5. For one game, select its original EXE. For all five, select one folder per game.
-6. Validate, dry run, or create the copied-and-modified game folder set.
+6. Optionally choose a **Modded output location**. This is the parent folder that
+   will receive each generated `(Game name) - Modded` folder. Leave it blank to
+   keep the original sibling-folder behavior.
+7. Validate, dry run, or create the copied-and-modified game folder set.
 
 **Find All 5 in Parent Folder...** can fill the five folder fields when the original EXEs are in the chosen folder or one folder below it.
 
@@ -234,17 +237,17 @@ game's patches sorted by patch name. It includes **Select All Patches** and
 at once without changing the selected population patch style, and the
 selection is remembered normally.
 
-For every selected game, the patcher creates one short sibling folder named **`(Game name) - Modded`** containing **`(Game name) - Modded.exe`**. It copies every file and subfolder from the original game folder, verifies the copied files by SHA-256, keeps the stock EXE in the copy, and adds the modified EXE plus its `.patch-log.json`. The original folder and original EXE are never edited, renamed, replaced, or deleted. Applying another patch style refreshes that game's same Modded folder after confirmation.
+For every selected game, the patcher creates one short folder named **`(Game name) - Modded`** containing **`(Game name) - Modded.exe`**. By default this folder is beside the supplied original; the GUI's **Modded output location** chooser can place all selected games under another parent folder. It copies every file and subfolder from the original game folder, verifies the copied files by SHA-256, keeps the stock EXE in the copy, and adds the modified EXE plus its `.patch-log.json`. The original folder and original EXE are never edited, renamed, replaced, or deleted. Applying another patch style refreshes that game's same Modded folder after confirmation.
 
 ## Exact-build safety
 
 Support is bound to the exact SHA-256 and size of each researched stock executable. Unknown, modified, corrupt, duplicate, or incorrectly assigned EXEs are refused. Every original byte to be changed is guarded, file size is preserved, the PE checksum is recalculated, and each result is read back and hashed.
 
 Bulk mode validates and renders all five inputs before writing. Each supplied
-game folder is then copied directly into its short **`- Modded`** sibling and
-verified before the modified EXE is written. Re-running with overwrite updates
-that same Modded folder in place. The patcher does not create temporary game
-copies or replacement-backup folders; the supplied original folders remain
+game folder is then copied directly into its short **`- Modded`** output folder
+and verified before the modified EXE is written. Re-running with overwrite
+updates that same Modded folder in place. The patcher does not create temporary
+game copies or replacement-backup folders; the supplied original folders remain
 unchanged.
 
 No game executable, save, extracted asset, or generated output is committed to this repository.
@@ -254,9 +257,9 @@ No game executable, save, extracted asset, or generated output is committed to t
 Pass `--patch-mode collection_progression`, `--patch-mode immediate_fixed`, `--patch-mode experimental_expanded_256`, or `--patch-mode experimental_expanded_256_progression` to `dry-run`, `apply`, `dry-run-all`, or `apply-all`. Optional features use repeatable `--fun-patch` arguments: `vv1_school_lessons_grant_skill`, `vv1_continue_research_at_max_technologies`, `vv1_f6_clothing_change_cheat`, `vv1_magic_fruit_alters_mortality`, `vv1_builder_action_fixes`, `vv1_enable_origins_exclusive_features`, `vv2_easier_healing_mastery`, `vv2_teaching_children_grants_skill`, `vv2_hospital_recovery_heals`, `vv2_gong_of_wonder_coconuts_fix`, `vv3_nature_honey_refill`, `vv3_nature_level_three_alters_mortality`, `vv4_complete_scales_golden_fish`, `vv5_heathen_mommy_puzzle`, `vv5_easier_devotee_training`, `vv5_statue_polishing_or_honoring`, and `vv5_vv4_nursery_divisor_parity`.
 
 ```text
-python src/vv_fun_patcher.py dry-run "path\game.exe" --patch-mode immediate_fixed
-python src/vv_fun_patcher.py apply "path\game.exe" --patch-mode collection_progression
-python src/vv_fun_patcher.py apply-all --vv1 "path\vv1 folder" --vv2 "path\vv2 folder" --vv3 "path\vv3 folder" --vv4 "path\vv4 folder" --vv5 "path\vv5 folder" --patch-mode immediate_fixed
+python src/vv_fun_patcher.py dry-run "path\game.exe" --patch-mode immediate_fixed --output-root "path\chosen output parent"
+python src/vv_fun_patcher.py apply "path\game.exe" --patch-mode collection_progression --output-root "path\chosen output parent"
+python src/vv_fun_patcher.py apply-all --vv1 "path\vv1 folder" --vv2 "path\vv2 folder" --vv3 "path\vv3 folder" --vv4 "path\vv4 folder" --vv5 "path\vv5 folder" --patch-mode immediate_fixed --output-root "path\chosen output parent"
 ```
 
 Technical evidence is in `docs/max-population-research.md`,

@@ -110,6 +110,13 @@ class GuiSourceTests(unittest.TestCase):
         self.assertIn("def _scroll_content", source)
         self.assertIn("self.content_canvas.yview_scroll(direction, \"units\")", source)
 
+    def test_interface_remembers_a_custom_modded_output_parent(self) -> None:
+        source = (ROOT / "src" / "vv_fun_patcher_gui.py").read_text(encoding="utf-8")
+        self.assertIn('self.output_root_var = tk.StringVar()', source)
+        self.assertIn('text="Modded output location"', source)
+        self.assertIn("def _browse_output_root", source)
+        self.assertIn('"output_root": self.output_root_var.get().strip()', source)
+
     def test_success_confirmation_uses_clear_folder_links(self) -> None:
         source = (ROOT / "src" / "vv_fun_patcher_gui.py").read_text(encoding="utf-8")
         self.assertIn("def _show_folder_confirmation", source)
@@ -430,6 +437,51 @@ class StockIntegrationTests(unittest.TestCase):
                     copied_folder / get_patch_variant(build, MODES[-1])["output_name"]
                 )
                 self.assertTrue(latest_output.is_file())
+
+    def test_custom_output_parent_is_used_for_single_and_bulk_copies(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            folders = self.copy_game_folders(root / "originals")
+            chosen = root / "chosen-output"
+            source = folders["vv1"] / load_builds()[0].input_name
+
+            preview = dry_run(source, DEFAULT_PATCH_MODE, output_root=chosen)
+            self.assertEqual(
+                Path(preview["output_folder"]),
+                chosen / f"{load_builds()[0].title} - Modded",
+            )
+            output, _ = apply_patch(
+                source,
+                DEFAULT_PATCH_MODE,
+                output_root=chosen,
+            )
+            self.assertEqual(output.parent.parent, chosen)
+            self.assertTrue(output.is_file())
+            self.assertTrue(source.is_file())
+
+            bulk_root = root / "bulk-output"
+            results = apply_all(
+                folders,
+                "immediate_fixed",
+                output_root=bulk_root,
+            )
+            self.assertEqual(len(results), 5)
+            for build, (bulk_output, _log) in zip(load_builds(), results):
+                self.assertEqual(bulk_output.parent.parent, bulk_root)
+                self.assertEqual(bulk_output.parent.name, f"{build.title} - Modded")
+                self.assertTrue(bulk_output.is_file())
+
+    def test_custom_output_parent_cannot_be_inside_original_game_folder(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            build = load_builds()[0]
+            game_folder = Path(temp) / "game"
+            game_folder.mkdir()
+            source = game_folder / build.input_name
+            shutil.copy2(STOCK / build.input_name, source)
+            nested_output_root = game_folder / "modded-output"
+            with self.assertRaisesRegex(PatcherError, "inside the original"):
+                apply_patch(source, output_root=nested_output_root)
+            self.assertFalse(nested_output_root.exists())
 
     def test_expanded_later_games_keep_stock_save_names_and_use_larger_images(self) -> None:
         save_offsets = {"vv3": 0x7C5C0, "vv4": 0x8A77C, "vv5": 0x95794}

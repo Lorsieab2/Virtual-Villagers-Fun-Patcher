@@ -57,6 +57,7 @@ class App(tk.Tk):
         }
         self.exe_var = tk.StringVar()
         self.patch_mode_var = tk.StringVar(value=DEFAULT_PATCH_MODE)
+        self.output_root_var = tk.StringVar()
         self.all_folder_vars = {build.id: tk.StringVar() for build in self.builds}
         self.status_var = tk.StringVar(value="Choose a patch style and one game or all five.")
         self.game_var = tk.StringVar(value="No game identified yet")
@@ -186,6 +187,27 @@ class App(tk.Tk):
             )
         mode_box.columnconfigure(1, weight=1)
 
+        output_box = ttk.LabelFrame(outer, text="Modded output location", padding=10)
+        output_box.pack(fill="x", pady=(0, 10))
+        ttk.Entry(output_box, textvariable=self.output_root_var).grid(
+            row=0, column=0, sticky="ew", padx=(0, 8)
+        )
+        ttk.Button(
+            output_box,
+            text="Choose Folder...",
+            command=self._browse_output_root,
+        ).grid(row=0, column=1)
+        ttk.Label(
+            output_box,
+            text=(
+                "Choose the parent folder for the generated copies. Each result is written "
+                "inside it as '(Game name) - Modded'. Leave blank to place each copy beside "
+                "its supplied original folder."
+            ),
+            wraplength=850,
+        ).grid(row=1, column=0, columnspan=2, sticky="w", pady=(7, 0))
+        output_box.columnconfigure(0, weight=1)
+
         notebook = ttk.Notebook(outer)
         notebook.pack(fill="both", expand=True)
         single_tab = ttk.Frame(notebook, padding=14)
@@ -258,7 +280,7 @@ class App(tk.Tk):
     def _build_all_tab(self, tab: ttk.Frame) -> None:
         ttk.Label(
             tab,
-            text="Choose one game folder per row. Each result is a complete sibling copy containing all original files plus the modified EXE.",
+            text="Choose one game folder per row. Each result is a complete copy containing all original files plus the modified EXE. Use the output location above to choose where the copies go.",
             wraplength=840,
         ).pack(anchor="w", pady=(0, 8))
         grid = ttk.Frame(tab)
@@ -383,6 +405,9 @@ class App(tk.Tk):
             for patch in self.fun_patches:
                 self.fun_patch_vars[patch.id].set(patch.id in selected_fun)
         self.exe_var.set(data.get("original_exe", ""))
+        saved_output_root = data.get("output_root", "")
+        if isinstance(saved_output_root, str):
+            self.output_root_var.set(saved_output_root)
         saved_all = data.get("all_game_folders", data.get("all_game_exes", {}))
         if isinstance(saved_all, dict):
             for build in self.builds:
@@ -397,6 +422,7 @@ class App(tk.Tk):
         data = {
             "patch_mode": self._mode(),
             "original_exe": self.exe_var.get().strip(),
+            "output_root": self.output_root_var.get().strip(),
             "fun_patches": self._selected_fun_patch_ids(),
             "all_game_folders": {
                 build.id: self.all_folder_vars[build.id].get().strip()
@@ -416,6 +442,21 @@ class App(tk.Tk):
             self.exe_var.set(chosen)
             self._save_settings()
             self._validate(show_popup=False)
+
+    def _browse_output_root(self) -> None:
+        current = Path(self.output_root_var.get()) if self.output_root_var.get() else Path.home()
+        if not current.is_dir():
+            current = Path.home()
+        chosen = filedialog.askdirectory(
+            title="Choose the parent folder for modded game folders",
+            initialdir=current,
+        )
+        if chosen:
+            self.output_root_var.set(chosen)
+            self._save_settings()
+            self.status_var.set(
+                f"Modded copies will be placed under: {Path(chosen).resolve()}"
+            )
 
     def _browse_bulk_folder(self, game_id: str) -> None:
         variable = self.all_folder_vars[game_id]
@@ -470,6 +511,10 @@ class App(tk.Tk):
         if not value:
             raise PatcherError("Choose an original game executable first.")
         return Path(value)
+
+    def _output_root(self) -> Path | None:
+        value = self.output_root_var.get().strip()
+        return Path(value).expanduser() if value else None
 
     def _all_sources(self) -> dict[str, Path]:
         values = {
@@ -544,7 +589,10 @@ class App(tk.Tk):
             source = self._source()
             build = identify(source)
             result = dry_run(
-                source, self._mode(), self._selected_fun_patch_ids(build.id)
+                source,
+                self._mode(),
+                self._selected_fun_patch_ids(build.id),
+                output_root=self._output_root(),
             )
             self.status_var.set(
                 "Dry run passed. No files were written. Planned copied game folder:\n"
@@ -565,7 +613,10 @@ class App(tk.Tk):
     def _dry_run_all(self) -> None:
         try:
             results = dry_run_all(
-                self._all_sources(), self._mode(), self._selected_fun_patch_ids()
+                self._all_sources(),
+                self._mode(),
+                self._selected_fun_patch_ids(),
+                output_root=self._output_root(),
             )
             self.status_var.set(
                 "All-five dry run passed. No files were written. "
@@ -584,7 +635,10 @@ class App(tk.Tk):
             source = self._source()
             build = identify(source)
             preview = dry_run(
-                source, self._mode(), self._selected_fun_patch_ids(build.id)
+                source,
+                self._mode(),
+                self._selected_fun_patch_ids(build.id),
+                output_root=self._output_root(),
             )
             if not self._confirm_experimental():
                 return
@@ -598,8 +652,11 @@ class App(tk.Tk):
                 if not overwrite:
                     return
             output, log = apply_patch(
-                source, self._mode(), overwrite=overwrite,
+                source,
+                self._mode(),
+                overwrite=overwrite,
                 fun_patch_ids=self._selected_fun_patch_ids(build.id),
+                output_root=self._output_root(),
             )
             self.last_output_dir = output.parent
             self.last_modified_paths[build.id] = output
@@ -621,7 +678,10 @@ class App(tk.Tk):
             sources = self._all_sources()
             validated = validate_all_sources(sources)
             previews = dry_run_all(
-                sources, self._mode(), self._selected_fun_patch_ids()
+                sources,
+                self._mode(),
+                self._selected_fun_patch_ids(),
+                output_root=self._output_root(),
             )
             if not self._confirm_experimental():
                 return
@@ -641,8 +701,11 @@ class App(tk.Tk):
                 if not overwrite:
                     return
             results = apply_all(
-                sources, self._mode(), overwrite=overwrite,
+                sources,
+                self._mode(),
+                overwrite=overwrite,
                 fun_patch_ids=self._selected_fun_patch_ids(),
+                output_root=self._output_root(),
             )
             self.last_output_dir = results[0][0].parent
             self.last_modified_paths = {
@@ -767,6 +830,7 @@ class App(tk.Tk):
                     Path(value),
                     self._mode(),
                     self._selected_fun_patch_ids(build.id),
+                    output_root=self._output_root(),
                 )
                 target = Path(preview["output_folder"])
         except (PatcherError, OSError) as exc:
@@ -793,6 +857,7 @@ class App(tk.Tk):
                         source,
                         self._mode(),
                         self._selected_fun_patch_ids(game_id),
+                        output_root=self._output_root(),
                     )
                     target = Path(preview["output_folder"])
                 except (PatcherError, OSError) as exc:

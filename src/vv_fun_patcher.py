@@ -154,8 +154,14 @@ def output_folder_for(
     build: Build,
     patch_mode: str,
     fun_patches: list[FunPatch],
+    output_root: Path | None = None,
 ) -> Path:
-    return source.resolve().parent.parent / f"{build.title} - Modded"
+    parent = (
+        Path(output_root).expanduser().resolve()
+        if output_root is not None
+        else source.resolve().parent.parent
+    )
+    return parent / f"{build.title} - Modded"
 
 
 def get_patch_mode(patch_mode: str) -> PatchMode:
@@ -316,13 +322,16 @@ def _result(
     patched: bytearray,
     applied: list[dict[str, str]],
     fun_patches: list[FunPatch],
+    output_root: Path | None = None,
 ) -> dict[str, Any]:
     mode = get_patch_mode(patch_mode)
     variant = get_patch_variant(build, patch_mode)
     villager_slots = variant.get("villager_slots", build.villager_slots)
     absolute_maximum = variant.get("absolute_maximum", build.absolute_maximum)
     output_name = _output_name(build, patch_mode, fun_patches)
-    output_folder = output_folder_for(source, build, patch_mode, fun_patches)
+    output_folder = output_folder_for(
+        source, build, patch_mode, fun_patches, output_root
+    )
     return {
         "game": build.title,
         "source": str(source.resolve()),
@@ -353,17 +362,21 @@ def dry_run(
     source: Path,
     patch_mode: str = DEFAULT_PATCH_MODE,
     fun_patch_ids: tuple[str, ...] | list[str] = (),
+    output_root: Path | None = None,
 ) -> dict[str, Any]:
     build = identify(source)
     fun_patches = _selected_fun_patches(build, fun_patch_ids)
     patched, applied = render_patched_bytes(source, build, patch_mode, fun_patch_ids)
-    return _result(build, source, patch_mode, patched, applied, fun_patches)
+    return _result(
+        build, source, patch_mode, patched, applied, fun_patches, output_root
+    )
 
 
 def dry_run_all(
     sources: dict[str, Path],
     patch_mode: str = DEFAULT_PATCH_MODE,
     fun_patch_ids: tuple[str, ...] | list[str] = (),
+    output_root: Path | None = None,
 ) -> list[dict[str, Any]]:
     validated = validate_all_sources(sources)
     results = []
@@ -375,7 +388,17 @@ def dry_run_all(
         ]
         fun_patches = _selected_fun_patches(build, selected_ids)
         patched, applied = render_patched_bytes(source, build, patch_mode, selected_ids)
-        results.append(_result(build, source, patch_mode, patched, applied, fun_patches))
+        results.append(
+            _result(
+                build,
+                source,
+                patch_mode,
+                patched,
+                applied,
+                fun_patches,
+                output_root,
+            )
+        )
     return results
 
 
@@ -420,20 +443,39 @@ def _log_data(
 
 
 def _copy_game_folder_direct(
-    source_folder: Path, destination: Path, overwrite: bool
+    source_folder: Path,
+    destination: Path,
+    overwrite: bool,
+    output_root: Path | None = None,
 ) -> None:
-    if destination.parent.resolve() != source_folder.resolve().parent:
+    source_resolved = source_folder.resolve()
+    destination_resolved = destination.resolve()
+    expected_parent = (
+        Path(output_root).expanduser().resolve()
+        if output_root is not None
+        else source_resolved.parent
+    )
+    if destination_resolved.parent != expected_parent:
         raise PatcherError(
-            "Internal safety check failed: output is not beside the game folder"
+            "Internal safety check failed: output is outside the selected output folder"
         )
-    if destination.resolve() == source_folder.resolve():
+    if destination_resolved == source_resolved:
         raise PatcherError(
             "Internal safety check failed: output would replace the original folder"
+        )
+    try:
+        expected_parent.relative_to(source_resolved)
+    except ValueError:
+        pass
+    else:
+        raise PatcherError(
+            "Internal safety check failed: output folder cannot be inside the original game folder"
         )
     existed = destination.exists()
     if existed and not overwrite:
         raise PatcherError(f"Modified game folder already exists: {destination}")
     try:
+        expected_parent.mkdir(parents=True, exist_ok=True)
         shutil.copytree(
             source_folder,
             destination,
@@ -504,17 +546,20 @@ def apply_patch(
     patch_mode: str = DEFAULT_PATCH_MODE,
     overwrite: bool = False,
     fun_patch_ids: tuple[str, ...] | list[str] = (),
+    output_root: Path | None = None,
 ) -> tuple[Path, Path]:
     source = source.resolve()
     build = identify(source)
     fun_patches = _selected_fun_patches(build, fun_patch_ids)
     output_name = _output_name(build, patch_mode, fun_patches)
-    output_folder = output_folder_for(source, build, patch_mode, fun_patches)
+    output_folder = output_folder_for(
+        source, build, patch_mode, fun_patches, output_root
+    )
     output = output_folder / output_name
     if output_folder.exists() and not overwrite:
         raise PatcherError(f"Modified game folder already exists: {output_folder}")
     patched, applied = render_patched_bytes(source, build, patch_mode, fun_patch_ids)
-    _copy_game_folder_direct(source.parent, output_folder, overwrite)
+    _copy_game_folder_direct(source.parent, output_folder, overwrite, output_root)
     companions = _copy_companion_files(output_folder, fun_patches)
     log_path = output.with_suffix(".patch-log.json")
     try:
@@ -545,6 +590,7 @@ def apply_all(
     patch_mode: str = DEFAULT_PATCH_MODE,
     overwrite: bool = False,
     fun_patch_ids: tuple[str, ...] | list[str] = (),
+    output_root: Path | None = None,
 ) -> list[tuple[Path, Path]]:
     validated = validate_all_sources(sources)
     plans: list[
@@ -558,7 +604,9 @@ def apply_all(
         fun_patches = selected_by_game.get(build.id, [])
         selected_ids = [patch.id for patch in fun_patches]
         patched, applied = render_patched_bytes(source, build, patch_mode, selected_ids)
-        output_folder = output_folder_for(source, build, patch_mode, fun_patches)
+        output_folder = output_folder_for(
+            source, build, patch_mode, fun_patches, output_root
+        )
         plans.append(
             (
                 build,
@@ -577,7 +625,7 @@ def apply_all(
         )
     results: list[tuple[Path, Path]] = []
     for build, source, patched, applied, output_folder, output in plans:
-        _copy_game_folder_direct(source.parent, output_folder, overwrite)
+        _copy_game_folder_direct(source.parent, output_folder, overwrite, output_root)
         companions = _copy_companion_files(
             output_folder, selected_by_game.get(build.id, [])
         )
@@ -627,6 +675,18 @@ def _add_fun_patch_args(parser: argparse.ArgumentParser) -> None:
     )
 
 
+def _add_output_root_arg(parser: argparse.ArgumentParser) -> None:
+    parser.add_argument(
+        "--output-root",
+        type=Path,
+        default=None,
+        help=(
+            "parent folder for '(Game name) - Modded' outputs; "
+            "defaults to the original game's parent folder"
+        ),
+    )
+
+
 def _add_all_source_args(parser: argparse.ArgumentParser) -> None:
     for build in load_builds():
         parser.add_argument(
@@ -652,12 +712,14 @@ def _parser() -> argparse.ArgumentParser:
     dry_cmd.add_argument("exe", type=Path)
     _add_patch_mode_arg(dry_cmd)
     _add_fun_patch_args(dry_cmd)
+    _add_output_root_arg(dry_cmd)
 
     apply_cmd = sub.add_parser("apply", help="create one modified copy")
     apply_cmd.add_argument("exe", type=Path)
     apply_cmd.add_argument("--overwrite", action="store_true")
     _add_patch_mode_arg(apply_cmd)
     _add_fun_patch_args(apply_cmd)
+    _add_output_root_arg(apply_cmd)
 
     dry_all_cmd = sub.add_parser(
         "dry-run-all", help="verify all five games without writing output"
@@ -665,6 +727,7 @@ def _parser() -> argparse.ArgumentParser:
     _add_all_source_args(dry_all_cmd)
     _add_patch_mode_arg(dry_all_cmd)
     _add_fun_patch_args(dry_all_cmd)
+    _add_output_root_arg(dry_all_cmd)
 
     apply_all_cmd = sub.add_parser(
         "apply-all", help="create all five modified copies together"
@@ -673,6 +736,7 @@ def _parser() -> argparse.ArgumentParser:
     _add_all_source_args(apply_all_cmd)
     _add_patch_mode_arg(apply_all_cmd)
     _add_fun_patch_args(apply_all_cmd)
+    _add_output_root_arg(apply_all_cmd)
     return parser
 
 
@@ -684,12 +748,22 @@ def main() -> int:
         elif args.command == "dry-run":
             print(
                 json.dumps(
-                    dry_run(args.exe, args.patch_mode, args.fun_patch), indent=2
+                    dry_run(
+                        args.exe,
+                        args.patch_mode,
+                        args.fun_patch,
+                        output_root=args.output_root,
+                    ),
+                    indent=2,
                 )
             )
         elif args.command == "apply":
             output, log = apply_patch(
-                args.exe, args.patch_mode, args.overwrite, args.fun_patch
+                args.exe,
+                args.patch_mode,
+                args.overwrite,
+                args.fun_patch,
+                output_root=args.output_root,
             )
             print(f"Created: {output}")
             print(f"Log: {log}")
@@ -697,14 +771,21 @@ def main() -> int:
             print(
                 json.dumps(
                     dry_run_all(
-                        _all_sources_from_args(args), args.patch_mode, args.fun_patch
+                        _all_sources_from_args(args),
+                        args.patch_mode,
+                        args.fun_patch,
+                        output_root=args.output_root,
                     ),
                     indent=2,
                 )
             )
         else:
             results = apply_all(
-                _all_sources_from_args(args), args.patch_mode, args.overwrite, args.fun_patch
+                _all_sources_from_args(args),
+                args.patch_mode,
+                args.overwrite,
+                args.fun_patch,
+                output_root=args.output_root,
             )
             for output, log in results:
                 print(f"Created: {output}")

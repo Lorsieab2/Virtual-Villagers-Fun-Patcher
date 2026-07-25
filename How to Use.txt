@@ -46,17 +46,23 @@ PATCH ALL FIVE AT ONCE
    contain that game's ORIGINAL EXE.
 2. Or use "Find All 5 in Parent Folder..." when the EXEs are in the selected
    folder or one folder below it.
-3. Click "Validate All 5", "Dry Run All 5", or "Patch All 5".
-4. Use the clickable "Vanilla folder" or "Modified folder" link on any row
+3. Optional: use "Modded output location" to choose the parent folder where all
+   generated "(Game name) - Modded" folders will be placed. Leave it blank to
+   place each generated folder beside its supplied original.
+4. Click "Validate All 5", "Dry Run All 5", or "Patch All 5".
+5. Use the clickable "Vanilla folder" or "Modified folder" link on any row
    to open the original folder or its separate copied-and-modified folder.
-5. After patching, the confirmation window provides clear clickable Vanilla
+6. After patching, the confirmation window provides clear clickable Vanilla
    Folder and Modded Folder links for all five games.
 
 PATCH ONE GAME
 
 1. Browse to one ORIGINAL game EXE.
-2. Click Validate, Dry Run, or Create Modified EXE.
-3. Use "Open Vanilla EXE Folder" or "Open Modified EXE Folder" to open the
+2. Optional: use "Modded output location" to choose the parent folder where the
+   generated "(Game name) - Modded" folder will be placed. Leave it blank to
+   place it beside the supplied original.
+3. Click Validate, Dry Run, or Create Modified EXE.
+4. Use "Open Vanilla EXE Folder" or "Open Modified EXE Folder" to open the
    selected game's folder in File Explorer.
 
 OPTIONAL PATCH SELECTION
@@ -75,15 +81,17 @@ Every mode and optional-patch combination creates the same short names:
 Mode and optional-patch details are recorded in the modified EXE's adjacent
 .patch-log.json file instead of being added to the EXE or save-folder name.
 
-For each game, the patcher creates one complete sibling copy named
+For each game, the patcher creates one complete copy named
 "(Game name) - Modded". The copied folder keeps every original file and
 subfolder, including the stock EXE, and adds "(Game name) - Modded.exe" and its
 verification log. Applying another style refreshes the same short Modded
-folder in place after confirmation. The patcher does not create temporary
+folder in place after confirmation. If a Modded output location was selected,
+these folders are created beneath that chosen parent instead of beside the
+original. The patcher does not create temporary
 game copies or replacement-backup folders.
 Original folders and EXEs are never changed, renamed, replaced, or deleted. The
-patcher remembers the selected style, single-game EXE path, and all five folder
-paths. Vanilla and Modded links open their respective folders.
+patcher remembers the selected style, output parent, single-game EXE path, and
+all five folder paths. Vanilla and Modded links open their respective folders.
 
 SAFE MULTIPLE BIRTHS
 
