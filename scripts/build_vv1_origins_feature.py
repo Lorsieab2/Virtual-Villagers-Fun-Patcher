@@ -165,9 +165,7 @@ def main() -> None:
             cmp dword ptr [esp + 4], 8
             jne original_handler
             mov eax, dword ptr [esp + 8]
-            test eax, eax
-            je original_handler
-            cmp dword ptr [eax + 4], 2
+            cmp eax, 2
             jne original_handler
             call 0x{menu:X}
             xor eax, eax
@@ -551,9 +549,7 @@ def main() -> None:
             cmp dword ptr [esp + 4], 8
             jne original_detail_handler
             mov eax, dword ptr [esp + 8]
-            test eax, eax
-            je original_detail_handler
-            cmp dword ptr [eax + 4], 6
+            cmp eax, 6
             jne original_detail_handler
             call 0x{detail_menu:X}
             xor eax, eax

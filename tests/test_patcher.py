@@ -1413,12 +1413,12 @@ class StockIntegrationTests(unittest.TestCase):
         self.assertEqual(bytes(rendered[0x4A700:0x4A705]), bytes.fromhex("E98BC60000"))
         self.assertEqual(bytes(rendered[0x4A5FA:0x4A5FF]), bytes.fromhex("E9C1C70000"))
         self.assertEqual(
-            bytes(rendered[0x56907:0x56913]),
-            bytes.fromhex("8B44240885C0741083780402"),
+            bytes(rendered[0x56907:0x5690E]),
+            bytes.fromhex("8B44240883F802"),
         )
         self.assertEqual(
-            bytes(rendered[0x56D97:0x56DA3]),
-            bytes.fromhex("8B44240885C0741083780406"),
+            bytes(rendered[0x56D97:0x56D9E]),
+            bytes.fromhex("8B44240883F806"),
         )
         payload = bytes(rendered[0x85D30:0x86000])
         self.assertIn(b"Tech Point Doubler\0", payload)
@@ -1436,6 +1436,8 @@ class StockIntegrationTests(unittest.TestCase):
         self.assertIn(b"Origins Exclusive Features.ini\0", payload)
         self.assertIn((500000).to_bytes(4, "little"), payload)
         code = bytes(rendered[0x56900:0x57000])
+        self.assertNotIn(bytes.fromhex("83780402"), code)
+        self.assertNotIn(bytes.fromhex("83780406"), code)
         self.assertIn(bytes.fromhex("FF1510704500"), code)
         self.assertNotIn((10101010).to_bytes(4, "little"), code)
         self.assertNotIn(bytes.fromhex("C742582C010000"), code)
