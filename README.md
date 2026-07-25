@@ -80,9 +80,10 @@ build:
 - **Time Warp** — 50,000 tech points; advances 3, 6, or 12 hours according to
   the selected game speed.
 - **Island Event** — 30,000 tech points; queues the stock desktop Island Event.
-- **Barrel of Babies** — 75,000 tech points; matches the APK's forced positive
-  event and randomly awards three young children, 1,000 food, or 3,000 tech
-  points.
+- **Barrel of Babies** — 75,000 tech points; matches the APK's forced event
+  and adds exactly three young children. If the current housing-dependent
+  population limit has fewer than three spaces available, it charges nothing
+  and reports **The village population is already at maximum capacity.**
 - **Bump Max Population** — displayed for completeness, but charges nothing
   because this patcher's VV1 population modes already use the physical
   256-record maximum.

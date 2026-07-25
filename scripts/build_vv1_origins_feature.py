@@ -83,8 +83,12 @@ def main() -> None:
         "Island Event queued.",
     )
     add_c_string(strings, s, "barrel_villagers", "Gained 3 children.")
-    add_c_string(strings, s, "barrel_food", "Gained 1,000 food.")
-    add_c_string(strings, s, "barrel_tech", "Gained 3,000 tech points.")
+    add_c_string(
+        strings,
+        s,
+        "population_capacity",
+        "The village population is already at maximum capacity.",
+    )
     add_c_string(strings, s, "already_owned", "This doubler is already owned.")
     add_c_string(strings, s, "save_failed", "Could not save the doubler.")
     add_c_string(strings, s, "ini_section", "OriginsExclusiveFeatures")
@@ -249,6 +253,24 @@ def main() -> None:
             jmp charge
 
         pre_resource_item:
+            cmp ebx, 2
+            jne charge
+            mov ecx, edi
+            call 0x41CF90
+            cmp eax, 12
+            jbe charge
+            cmp byte ptr [edi + 0x9FE8], 1
+            jne population_capacity
+            cmp eax, 22
+            jbe charge
+            cmp byte ptr [edi + 0x9FF0], 1
+            jne population_capacity
+            cmp eax, 47
+            jbe charge
+            cmp byte ptr [edi + 0x9FF8], 1
+            jne population_capacity
+            cmp eax, 253
+            ja population_capacity
             jmp charge
 
         check_owned:
@@ -309,13 +331,6 @@ def main() -> None:
             jmp show_and_done
 
         do_barrel:
-            push 3
-            call 0x402F10
-            add esp, 4
-            cmp eax, 1
-            je barrel_food
-            cmp eax, 2
-            je barrel_tech
             xor eax, eax
         barrel_loop:
             cmp eax, 3
@@ -325,7 +340,7 @@ def main() -> None:
             call 0x43A1A0
             test al, al
             pop eax
-            jne barrel_done
+            je barrel_done
             push eax
             push 20
             call 0x402F10
@@ -343,18 +358,6 @@ def main() -> None:
             jmp barrel_loop
         barrel_done:
             mov eax, 0x{s['barrel_villagers']:X}
-            jmp show_and_done
-        barrel_food:
-            push 1000
-            mov ecx, edi
-            call 0x41D140
-            mov eax, 0x{s['barrel_food']:X}
-            jmp show_and_done
-        barrel_tech:
-            push 3000
-            mov ecx, edi
-            call 0x41D120
-            mov eax, 0x{s['barrel_tech']:X}
             jmp show_and_done
 
         do_youth:
@@ -417,6 +420,9 @@ def main() -> None:
             jmp show_and_done
         hard_cap:
             mov eax, 0x{s['hard_cap']:X}
+            jmp show_and_done
+        population_capacity:
+            mov eax, 0x{s['population_capacity']:X}
         show_and_done:
             push 0
             push 0x{s['title']:X}

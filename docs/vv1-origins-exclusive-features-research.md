@@ -22,7 +22,7 @@ The APK's Tech screen exposes these purchases:
 |---|---:|---|
 | Time Warp | 50,000 | Advances 3, 6, or 12 hours according to game speed. |
 | Island Event | 30,000 | Opens the non-catastrophic Island Event route. |
-| Barrel of Babies | 75,000 | Forces the positive-event category with magnitude 10. |
+| Barrel of Babies | 75,000 | Forces event 12 with magnitude 10, spawning exactly three young children. |
 | Bump Max Population | 250,000 | Adds 10 to the mobile cap, repeatable to a 30-point bonus. |
 | Grant Youth | 50,000 | Subtracts 700 internal age units, equal to 35 displayed years, with a displayed-age floor of 5. |
 | Grant Full Mastery | 100,000 | Writes 90 to each of the five skills. |
@@ -33,13 +33,14 @@ The APK's Tech screen exposes these purchases:
 The two doubler hooks run only when their increment is positive. Negative
 values retain their original magnitude.
 
-`theNCEventDialog::ProcessNCEventRequest` forces Barrel of Babies into event
-cases 12 through 14. `ComposeResult` proves the three possible results:
+`theNCEventDialog::ProcessNCEventRequest` forces Barrel of Babies to event 12.
+The ARM instructions set the random bound to 1 and the event base to 12, so
+`GetRandom(1) + 12` can only produce 12. `ComposeResult` then spawns three
+villagers at internal ages 70 through 89, which are young children under VV1's
+20-units-per-displayed-year age scale.
 
-- case 12 spawns three villagers at internal ages 70 through 89, which are
-  young children under VV1's 20-units-per-displayed-year age scale;
-- case 13 adds `100 * 10 = 1,000` food;
-- case 14 adds `300 * 10 = 3,000` tech points.
+Cases 13 and 14 are neighboring positive Island Event results for food and
+tech points, but the Barrel purchase's bound of 1 makes them unreachable.
 
 ## Desktop port
 
@@ -49,8 +50,8 @@ a compact Yes/No/Cancel sequence.
 
 The desktop game's central tech and food award routines implement the
 doublers. Consequently, all positive awards routed through those routines are
-doubled, including the matching Barrel result, while deductions remain
-unchanged. Ownership is stored in `Origins Exclusive Features.ini` beside the
+doubled, while deductions remain unchanged. Ownership is stored in
+`Origins Exclusive Features.ini` beside the
 modified executable, so it persists independently of save-slot selection.
 
 Grant Running uses the desktop villager record's otherwise-unused saved dword
@@ -62,6 +63,12 @@ The desktop population modes already make all 256 physical VV1 records
 available. Repeating the APK's extra +10 cap purchase would therefore have no
 safe effect. The menu retains **Bump Max Population** for feature visibility,
 reports the existing 256 maximum, and does not charge tech points.
+
+Before charging for Barrel of Babies, the desktop port computes the current
+population and applies the stock housing thresholds of 15, 25, and 50 before
+the patched 256 maximum. The purchase proceeds only when three spaces remain.
+Otherwise it charges nothing and reports **The village population is already
+at maximum capacity.**
 
 The APK contains exclusive PVR atlas entries for these upgrades. They are not
 inserted into the desktop renderer: the port deliberately uses the game's

@@ -1400,13 +1400,23 @@ class StockIntegrationTests(unittest.TestCase):
         self.assertIn(b"Tech Point Doubler\0", payload)
         self.assertIn(b"Food Point Doubler\0", payload)
         self.assertIn(b"Gained 3 children.\0", payload)
-        self.assertIn(b"Gained 1,000 food.\0", payload)
-        self.assertIn(b"Gained 3,000 tech points.\0", payload)
+        self.assertIn(
+            b"The village population is already at maximum capacity.\0",
+            payload,
+        )
+        self.assertNotIn(b"Gained 1,000 food.\0", payload)
+        self.assertNotIn(b"Gained 3,000 tech points.\0", payload)
         self.assertIn(b"Origins Exclusive Features.ini\0", payload)
         self.assertIn((500000).to_bytes(4, "little"), payload)
         code = bytes(rendered[0x56900:0x56DEF])
-        self.assertIn(b"\x68\xE8\x03\x00\x00", code)
-        self.assertIn(b"\x68\xB8\x0B\x00\x00", code)
+        self.assertIn(bytes.fromhex("83F80C76"), code)
+        self.assertIn(bytes.fromhex("80BFE89F000001"), code)
+        self.assertIn(bytes.fromhex("83F81676"), code)
+        self.assertIn(bytes.fromhex("80BFF09F000001"), code)
+        self.assertIn(bytes.fromhex("83F82F76"), code)
+        self.assertIn(bytes.fromhex("80BFF89F000001"), code)
+        self.assertIn(bytes.fromhex("3DFD0000000F87"), code)
+        self.assertIn(bytes.fromhex("84C05874"), code)
         checksum_offset, = struct.unpack_from("<I", rendered, 0x3C)
         checksum_offset += 24 + 64
         self.assertNotEqual(struct.unpack_from("<I", rendered, checksum_offset)[0], 0)
