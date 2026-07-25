@@ -17,6 +17,14 @@ The behavior registration table identifies:
 
 The upgradeable statue's two manual dispatch paths at file offsets `0x6C45D` and `0x6CDED` push behavior `0xA0` Honoring directly. The fully completed statue's corresponding direct dispatches at file offsets `0x6BF9A` and `0x796EB` push behavior `0x9D` Polishing directly.
 
+The surrounding stock state tree also dispatches behavior `0x95`, **Building
+a statue**, while construction is underway. The direct world-drop handler
+uses that behavior at file `0x796B3`; the two companion statue handlers retain
+their corresponding `0x6BF60` and `0x6CC39` dispatches. If a requested statue
+upgrade lacks the necessary technology, the world-drop handler takes its
+retained behavior-`0x1F` **Confused** route at file `0x79726`. These branches
+occur before the eligible Polishing/Honoring choices.
+
 ## Patch
 
 Each of those four guarded five-byte behavior pushes becomes a call to one shared selector in zero-filled executable padding at file offset `0x944A0`. The selector:
@@ -42,6 +50,9 @@ corrected selector explicitly saves and restores `ECX` around the random call.
 ## Preserved behavior
 
 - Statue-state eligibility remains controlled by the original drop handlers.
+- A statue under construction still selects **Building a statue**.
+- An upgrade attempted without its required technology still selects
+  **Confused**.
 - Polishing and Honoring retain their complete stock action queues.
 - Devotion gain amounts and thresholds are unchanged.
 - Autonomous work and Retired Chief activities are untouched.

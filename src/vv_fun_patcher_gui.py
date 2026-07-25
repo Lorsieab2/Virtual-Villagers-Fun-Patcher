@@ -44,7 +44,14 @@ class App(tk.Tk):
         self.iconphoto(True, self.island_titlebar)
         self.builds = load_builds()
         self.patch_modes = load_patch_modes()
-        self.fun_patches = load_fun_patches()
+        game_order = {build.id: index for index, build in enumerate(self.builds)}
+        self.fun_patches = sorted(
+            load_fun_patches(),
+            key=lambda patch: (
+                game_order[patch.game_id],
+                patch.name.casefold(),
+            ),
+        )
         self.fun_patch_vars = {
             patch.id: tk.BooleanVar(value=False) for patch in self.fun_patches
         }

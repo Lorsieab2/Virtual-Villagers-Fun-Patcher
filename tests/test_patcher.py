@@ -128,6 +128,15 @@ class GuiSourceTests(unittest.TestCase):
         self.assertIn('removeprefix("Virtual Villagers - ")', source)
         self.assertNotIn('text=f"{patch.name} ({patch.game_id.upper()})"', source)
 
+    def test_fun_patches_are_grouped_by_game_and_sorted_by_name(self) -> None:
+        source = (ROOT / "src" / "vv_fun_patcher_gui.py").read_text(encoding="utf-8")
+        self.assertIn(
+            "game_order = {build.id: index for index, build in enumerate(self.builds)}",
+            source,
+        )
+        self.assertIn("game_order[patch.game_id]", source)
+        self.assertIn("patch.name.casefold()", source)
+
     def test_no_temporary_or_backup_game_folders_are_created(self) -> None:
         source = (ROOT / "src" / "vv_fun_patcher.py").read_text(encoding="utf-8")
         self.assertNotIn("Temporary Copy", source)
@@ -987,6 +996,15 @@ class StockIntegrationTests(unittest.TestCase):
         )
 
         self.assertEqual(
+            bytes(rendered[0x48A7B:0x48AA3]),
+            bytes.fromhex(
+                "C7863801000071030000"
+                "C7863C010000C5010000"
+                "C78640010000ED030000"
+                "C7864401000067020000"
+            ),
+        )
+        self.assertEqual(
             bytes(rendered[0x48F16:0x48F1B]),
             bytes.fromhex("E965B40400"),
         )
@@ -1234,6 +1252,29 @@ class StockIntegrationTests(unittest.TestCase):
         self.assertEqual(bytes(rendered[0x6CDED:0x6CDF2]), bytes.fromhex("E8AE760200"))
         self.assertEqual(bytes(rendered[0x6BF9A:0x6BF9F]), bytes.fromhex("E801850200"))
         self.assertEqual(bytes(rendered[0x796EB:0x796F0]), bytes.fromhex("E8B0AD0100"))
+        self.assertEqual(
+            bytes(rendered[0x6BF55:0x6BF6F]),
+            bytes.fromhex(
+                "8B8E881B00008D442416506895000000C644241E00E81196FFFF"
+            ),
+        )
+        self.assertEqual(
+            bytes(rendered[0x6CC30:0x6CC43]),
+            bytes.fromhex("8D54241952885C241D6895000000E9D5FEFFFF"),
+        )
+        self.assertEqual(
+            bytes(rendered[0x796AA:0x796CC]),
+            bytes.fromhex(
+                "8B4C24108D54240C526895000000C781541C000017000000"
+                "C644241400E8B4BEFEFF"
+            ),
+        )
+        self.assertEqual(
+            bytes(rendered[0x7971D:0x79735]),
+            bytes.fromhex(
+                "8D4C2404518B4C24146A1FC744240C66000000E84BBEFEFF"
+            ),
+        )
         self.assertEqual(bytes(rendered[0x944A0:0x944B9]), bytes.fromhex(
             "5A52516A02E8B6F1F6FF83C404598D84409D0000005A5052C3"
         ))

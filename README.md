@@ -90,7 +90,7 @@ Enable **Gong of Wonder Coconuts Fix (The Lost Children)** so the coconut outcom
 
 ## VV5: Heathen Mommy Puzzle Restoration
 
-Enable **Heathen Mommy Puzzle Restoration (New Believers)** to restore the natural-build Heathen Mommy to newly created villages and restore the hidden 17th Heathen Parent graphic to the Puzzles screen. The supplied natural build creates a 29th Heathen with tag 17, initializes her, and assigns one forced nursing baby. The supported modern initializer creates only 28 Heathens and omits that sequence.
+Enable **Heathen Mommy Puzzle Restoration (New Believers)** to restore the natural-build Heathen Mommy to newly created villages and restore the hidden 17th Heathen Parent graphic to the Puzzles screen. Its full visible tile rolls over to **This milestone has not been completed!** while locked and **The Heathen Parent** when completed. The supplied natural build creates a 29th Heathen with tag 17, initializes her, and assigns one forced nursing baby. The supported modern initializer creates only 28 Heathens and omits that sequence.
 
 The patch reproduces the natural build's exact mother arguments and nursing-baby call, then restores the retained locked/solved puzzle graphic using puzzle 17's actual completion state. The mother and baby require two physical population slots. This new-game initialization does not retroactively add a mother to an existing save.
 
@@ -126,7 +126,7 @@ The normal idle scheduler and its existing timing chance remain unchanged. The p
 
 ## VV5: Statue Drops — Polishing or Honoring
 
-Enable **Statue Drops: Polishing or Honoring (New Believers)** so dropping a villager on either the upgradeable statue or its completed form chooses with equal 50/50 odds between the game's original **Polishing the Statue** and **Honoring** behaviors. Both original action queues remain intact; the patch changes only which one is selected for the manual drop.
+Enable **Statue Drops: Polishing or Honoring (New Believers)** for state-aware statue drops. A statue still under construction keeps **Building a statue**. Attempting an upgrade without the necessary technology keeps **Confused**. Once the statue is eligible for training, dropping a villager on its upgradeable or completed form chooses with equal 50/50 odds between the game's original **Polishing the Statue** and **Honoring** behaviors. All four original action/response paths remain intact.
 
 This provides a manual Devotion-training route after the Heathens are gone. It does not change autonomous work, Devotion gains, statue upgrades, or Retired Chief activities.
 
@@ -182,7 +182,11 @@ All five games also contain Island Events that add villagers. The patcher guards
 
 The One Game tab includes clickable **Open Vanilla EXE Folder** and **Open Modified EXE Folder** links. All 5 Games provides matching Vanilla folder and Modified folder links on every game row. After patching, a compact confirmation window provides clear clickable links to both folders for every completed game.
 
-The **Additional fun patches** section includes **Select All Patches** and **Deselect All Patches** buttons. They change every optional fun-patch checkbox at once without changing the selected population patch style, and the selection is remembered normally.
+The **Additional fun patches** section is grouped in game order, with each
+game's patches sorted by patch name. It includes **Select All Patches** and
+**Deselect All Patches** buttons. They change every optional fun-patch checkbox
+at once without changing the selected population patch style, and the
+selection is remembered normally.
 
 For every selected game, the patcher creates one short sibling folder named **`(Game name) - Modded`** containing **`(Game name) - Modded.exe`**. It copies every file and subfolder from the original game folder, verifies the copied files by SHA-256, keeps the stock EXE in the copy, and adds the modified EXE plus its `.patch-log.json`. The original folder and original EXE are never edited, renamed, replaced, or deleted. Applying another patch style refreshes that game's same Modded folder after confirmation.
 

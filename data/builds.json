@@ -1129,9 +1129,21 @@
       "id": "vv5_heathen_mommy_puzzle",
       "game_id": "vv5",
       "name": "Heathen Mommy Puzzle Restoration",
-      "description": "Restores the natural Heathen Mommy to newly created villages as a tag-17 Heathen mother with one nursing baby, using two physical slots, and restores the hidden 17th Heathen Parent graphic to the Puzzles screen. Existing saves are not retroactively given a new mother.",
+      "description": "Restores the natural Heathen Mommy to newly created villages as a tag-17 Heathen mother with one nursing baby, using two physical slots, and restores the hidden 17th Heathen Parent graphic and full-tile rollover messages to the Puzzles screen. Existing saves are not retroactively given a new mother.",
       "output_tag": "Heathen Mommy",
       "patches": [
+        {
+          "offset": "0x48A81",
+          "before": "9A030000",
+          "after": "71030000",
+          "purpose": "extend puzzle 17's retained rollover rectangle leftward to the exact left edge of the restored graphic"
+        },
+        {
+          "offset": "0x48A8B",
+          "before": "F5010000",
+          "after": "C5010000",
+          "purpose": "extend puzzle 17's retained rollover rectangle upward to the exact top edge of the restored graphic"
+        },
         {
           "offset": "0x48F16",
           "before": "B9680F5200",
@@ -1195,7 +1207,7 @@
       "id": "vv5_statue_polishing_or_honoring",
       "game_id": "vv5",
       "name": "Statue Drops: Polishing or Honoring",
-      "description": "Dropping a villager on the upgradeable or completed statue chooses with equal odds between the stock Polishing the Statue and Honoring activities.",
+      "description": "Statue drops keep the stock Building a statue action while construction is underway and the stock Confused response when an upgrade lacks the required technology. Eligible upgradeable or completed statues choose with equal odds between Polishing the Statue and Honoring.",
       "output_tag": "Random Statue Training",
       "patches": [
         {

@@ -176,6 +176,8 @@ her one nursing baby. The modern new-game initializer omits both, although it
 retains the puzzle class, trigger, completion logic, actions, text, and locked
 and solved images. This option restores the exact mother-and-baby sequence for
 newly created villages and restores the separate 17th-puzzle drawing branch.
+The full visible tile shows "This milestone has not been completed!" while
+locked and "The Heathen Parent" when completed.
 The pair uses two physical population slots. Existing saves are not
 retroactively given a new mother.
 
@@ -192,8 +194,10 @@ activity and is not assigned to ordinary devotees.
 
 VV5 STATUE DROPS: POLISHING OR HONORING
 
-Dropping a villager on the upgradeable or completed statue chooses with equal
-odds between the original Polishing the Statue and Honoring activities. The
-patch changes only the manual drop selection and keeps both stock action queues.
+While the statue is under construction, drops keep Building a statue. An
+upgrade attempted without its necessary technology keeps Confused. Eligible
+upgradeable or completed statues choose with equal odds between the original
+Polishing the Statue and Honoring activities. The patch keeps all four stock
+action and response paths.
 It does not change autonomous work, skill gain amounts, statue upgrades, or
 Retired Chief activities.
