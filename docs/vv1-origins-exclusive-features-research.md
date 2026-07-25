@@ -71,7 +71,10 @@ five skills are made exactly equal.
 Corrected builds also perform a deliberately narrow compatibility repair while
 VV1 initializes its villager records: a villager whose five skills are all
 exactly 90 and whose preference is still zero is assigned Farming. No other
-skill combination or existing preference is changed.
+skill combination or existing preference is changed. The injected check
+preserves the stock `EAX` and `ECX` values before returning to the initializer;
+v1.34.3 failed to preserve `ECX` and was withdrawn after a player-confirmed
+startup crash.
 
 The desktop game's central tech and food award routines implement the
 doublers. Consequently, all positive awards routed through those routines are

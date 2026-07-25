@@ -523,6 +523,8 @@ def main() -> None:
     put(
         mastery_migration_hook,
         """
+            push eax
+            push ecx
             cmp dword ptr [esi + 0x3D0], 0
             jne mastery_migration_done
             lea eax, [esi + 0x3BC]
@@ -535,6 +537,8 @@ def main() -> None:
             jne mastery_migration_check
             mov dword ptr [esi + 0x3D0], 1
         mastery_migration_done:
+            pop ecx
+            pop eax
             mov dword ptr [esi + 0x20], 1
             jmp 0x43CD19
         """,

@@ -1439,8 +1439,8 @@ class StockIntegrationTests(unittest.TestCase):
         self.assertNotIn(bytes.fromhex("C742582C010000"), code)
         self.assertIn(
             bytes.fromhex(
-                "83BED00300000075208D86BC030000B90500000083385A7510"
-                "83C0044975F5C786D003000001000000"
+                "505183BED00300000075208D86BC030000B90500000083385A"
+                "751083C0044975F5C786D0030000010000005958"
             ),
             code,
         )
