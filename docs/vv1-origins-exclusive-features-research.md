@@ -50,12 +50,22 @@ Warp, Island Event, Barrel of Babies, Tech Point Doubler, and Food Point
 Doubler at the same time. Each row contains the recovered mobile icon, name,
 cost, and its own Buy button, with one Cancel button for the window. An owned
 doubler's button changes to Remove and removing it does not charge tech points.
+The popup overlays the APK's exact green `tech_checkmark.png` art on completed
+villager upgrades and owned doublers. A completed villager-upgrade button reads
+**Done**; an unavailable Running upgrade with three occupied non-Running Like
+slots reads **Unavailable** without showing a completion checkmark.
 The stock message supplies a pointer to the button object. The handler reads
 the numeric control ID at object offset `+4` and compares it with 2. The constructor
 reuses the game's existing
 `main_wide_button2.png` string at virtual address `0x459340` rather than
 supplying a duplicate filename from the injected data block, keeping image
 lookup on the same stock path as the game's other wide buttons.
+
+The icon popup is loaded through VV1's actual `LoadLibraryA` import at
+`0x457010`. The earlier icon implementation incorrectly called
+`GetModuleHandleA` at `0x4570D0` as though it were the loader; that shared
+invocation path was corrected while addressing the player's report that both
+Upgrades buttons crashed in v1.34.4. Player retesting remains the runtime gate.
 
 A separate stock-styled **Upgrades** control is added to the Villager Detail
 screen. It opens one **Villager Upgrades** window containing Grant Youth, Grant
@@ -82,11 +92,12 @@ doubled, while deductions remain unchanged. Ownership is stored in
 `Origins Exclusive Features.ini` beside the
 modified executable, so it persists independently of save-slot selection.
 
-Grant Running removes trait 38 from that villager's three dislike slots and
-adds trait 38 to the three like slots. When every like slot is occupied, the
-third like becomes running. The patch does not write movement speed and does
-not use a custom sentinel: VV1's stock trait-38 logic alone makes that villager
-run, so villagers without the Running like retain their normal movement speed.
+Grant Running only adds trait 38 to an available Like slot on the displayed
+villager. If Running is already a Like or all three Like slots are occupied,
+the purchase refuses without charging or overwriting anything. It neither
+reads nor writes dislikes and does not touch movement speed, movement
+initialization, or a custom sentinel. Any movement caused by the resulting
+Like is entirely VV1's unmodified base-game behavior.
 
 Set Age to 18 costs 50,000 tech points, matching Grant Youth. It writes 360
 internal age units to the displayed and current-age fields. If the selected

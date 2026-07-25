@@ -1,4 +1,4 @@
-"""Extract only the eight VV1 Origins icons used by the desktop feature.
+"""Extract only the VV1 Origins icons used by the desktop feature.
 
 The source atlases come from the user-supplied Origins APK under the ignored
 research tree. The small derived PNG/ICO files are the runtime assets.
@@ -25,6 +25,7 @@ WANTED = {
     "vv1_grantyouth.png": ("grant-youth", 106),
     "vv1_masteryicon.png": ("grant-full-mastery", 107),
     "vv1_grantrunningicon.png": ("grant-running", 108),
+    "tech_checkmark.png": ("upgrade-checkmark", 109),
 }
 
 

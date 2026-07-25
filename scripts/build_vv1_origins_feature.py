@@ -88,6 +88,7 @@ def main() -> None:
     )
     add_c_string(strings, s, "already_owned", "This doubler is already owned.")
     add_c_string(strings, s, "save_failed", "Could not save the doubler.")
+    add_c_string(strings, s, "running_unavailable", "Running cannot be added.")
     add_c_string(strings, s, "ini_section", "OriginsExclusiveFeatures")
     add_c_string(strings, s, "ini_tech", "TechPointDoubler")
     add_c_string(strings, s, "ini_food", "FoodPointDoubler")
@@ -416,7 +417,7 @@ def main() -> None:
             push ebx
             push esi
             push 0x{s['icons_dll']:X}
-            call dword ptr [0x4570D0]
+            call dword ptr [0x457010]
             test eax, eax
             je icon_dialog_fallback
             push 0x{s['show_icon_dialog']:X}
@@ -620,7 +621,7 @@ def main() -> None:
             add edx, ecx
             cmp byte ptr [edx + 0x28], 0
             je detail_done
-            push 0
+            push edx
             push 1
             call 0x{show_dialog:X}
             cmp eax, -1
@@ -632,6 +633,20 @@ def main() -> None:
             imul ecx, ecx, 0x3D8
             mov edx, dword ptr [esi + 0x10]
             add edx, ecx
+            cmp ebx, 2
+            jne detail_charge
+            lea eax, [edx + 0x398]
+            mov ecx, 3
+        running_preflight:
+            cmp dword ptr [eax], 38
+            je detail_running_unavailable
+            cmp dword ptr [eax], -1
+            je detail_charge
+            add eax, 4
+            dec ecx
+            jne running_preflight
+            jmp detail_running_unavailable
+        detail_charge:
             mov eax, dword ptr [0x{s['detail_cost_table']:X} + ebx*4]
             cmp dword ptr [edi + 0xA2FC], eax
             jb detail_insufficient
@@ -642,16 +657,6 @@ def main() -> None:
             je detail_mastery
             cmp ebx, 2
             jne detail_age_18
-            lea ecx, [edx + 0x3A8]
-            mov eax, 3
-        running_remove_dislike:
-            cmp dword ptr [ecx], 38
-            jne running_next_dislike
-            mov dword ptr [ecx], -1
-        running_next_dislike:
-            add ecx, 4
-            dec eax
-            jne running_remove_dislike
             lea ecx, [edx + 0x398]
             mov eax, 3
         running_find_existing_like:
@@ -668,8 +673,7 @@ def main() -> None:
             add ecx, 4
             dec eax
             jne running_find_empty_like
-            mov dword ptr [edx + 0x3A0], 38
-            jmp detail_success
+            jmp detail_running_unavailable
         running_store_like:
             mov dword ptr [ecx], 38
             jmp detail_success
@@ -715,6 +719,9 @@ def main() -> None:
             jmp detail_show
         detail_insufficient:
             mov eax, 0x{s['not_enough']:X}
+            jmp detail_show
+        detail_running_unavailable:
+            mov eax, 0x{s['running_unavailable']:X}
         detail_show:
             push 0
             push 0x{s['detail_title']:X}
@@ -823,9 +830,10 @@ def main() -> None:
             "Mastery, Grant Running, and Set Age to 18 for the displayed villager. Grant "
             "Full Mastery preserves a checked job preference and chooses Farming when "
             "none is checked so VV1 does not show the incomplete title Master; it also "
-            "repairs that exact state from older builds. Grant Running removes a running "
-            "dislike and adds the running like, relying only on VV1's stock per-villager "
-            "running behavior so unupgraded villagers retain their normal movement speed."
+            "repairs that exact state from older builds. Grant Running only adds running "
+            "to an available Likes slot on the displayed villager and refuses without "
+            "charging when it cannot; it does not inspect or alter dislikes, movement "
+            "speed, movement initialization, or any custom running flag."
         ),
         "output_tag": "Origins Exclusive Features",
         "companion_files": [

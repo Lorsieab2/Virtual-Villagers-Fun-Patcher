@@ -1388,8 +1388,8 @@ class StockIntegrationTests(unittest.TestCase):
         self.assertIn("500,000-tech-point", feature.description)
         self.assertIn("Set Age to 18", feature.description)
         self.assertIn("chooses Farming when none is checked", feature.description)
-        self.assertIn("adds the running like", feature.description)
-        self.assertIn("stock per-villager running behavior", feature.description)
+        self.assertIn("only adds running", feature.description)
+        self.assertIn("does not inspect or alter dislikes", feature.description)
 
         build = next(build for build in load_builds() if build.id == "vv1")
         source = STOCK / build.input_name
@@ -1430,13 +1430,19 @@ class StockIntegrationTests(unittest.TestCase):
             b"The village population is already at maximum capacity.\0",
             payload,
         )
+        self.assertIn(b"Running cannot be added.\0", payload)
         self.assertNotIn(b"Gained 1,000 food.\0", payload)
         self.assertNotIn(b"Gained 3,000 tech points.\0", payload)
         self.assertIn(b"Origins Exclusive Features.ini\0", payload)
         self.assertIn((500000).to_bytes(4, "little"), payload)
         code = bytes(rendered[0x56900:0x57000])
+        self.assertIn(bytes.fromhex("FF1510704500"), code)
         self.assertNotIn((10101010).to_bytes(4, "little"), code)
         self.assertNotIn(bytes.fromhex("C742582C010000"), code)
+        self.assertNotIn(bytes.fromhex("8D8AA8030000"), code)
+        self.assertIn(bytes.fromhex("8D8A98030000"), code)
+        self.assertNotIn(bytes.fromhex("C782A003000026000000"), code)
+        self.assertIn(bytes.fromhex("2DBC02000083F8647D05B864000000"), code)
         self.assertIn(
             bytes.fromhex(
                 "505183BED00300000075208D86BC030000B90500000083385A"

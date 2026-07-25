@@ -91,9 +91,11 @@ build:
   selected job, or chooses Farming when none is selected, so VV1 does not show
   the incomplete title **Master**.
 - **Grant Running** — 40,000 tech points; permanently gives the selected
-  living villager the Running like and removes Running as a dislike. VV1's
-  stock per-villager Running behavior supplies the speed; the patch does not
-  alter movement speed globally.
+  living villager the Running like when a Like slot is available. It refuses
+  without charging when all three slots are occupied or Running is already a
+  like. This upgrade does not inspect or change dislikes, movement speed,
+  movement initialization, or a custom Running flag. Any resulting movement
+  is entirely VV1's unmodified base-game behavior.
 - **Set Age to 18** — 50,000 tech points; sets the selected living villager's
   age to 18.
 - **Tech Point Doubler** — 500,000 tech points; permanently doubles positive
