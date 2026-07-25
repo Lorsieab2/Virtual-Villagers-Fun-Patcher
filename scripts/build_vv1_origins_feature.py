@@ -89,14 +89,6 @@ def main() -> None:
     add_c_string(strings, s, "already_owned", "This doubler is already owned.")
     add_c_string(strings, s, "save_failed", "Could not save the doubler.")
     add_c_string(strings, s, "running_unavailable", "Running cannot be added.")
-    add_c_string(strings, s, "ini_section", "OriginsExclusiveFeatures")
-    add_c_string(strings, s, "ini_tech", "TechPointDoubler")
-    add_c_string(strings, s, "ini_food", "FoodPointDoubler")
-    add_c_string(strings, s, "ini_one", "1")
-    add_c_string(strings, s, "ini_zero", "0")
-    add_c_string(strings, s, "ini_file", "Origins Exclusive Features.ini")
-    add_c_string(strings, s, "kernel32", "kernel32.dll")
-    add_c_string(strings, s, "write_profile", "WritePrivateProfileStringA")
     add_c_string(strings, s, "icons_dll", "VVFP Origins Icons.dll")
     add_c_string(strings, s, "show_icon_dialog", "ShowOriginsUpgradeMenu")
 
@@ -137,9 +129,9 @@ def main() -> None:
     constructor_hook = CODE_VA + 0x30
     menu = CODE_VA + 0xC0
     show_dialog = CODE_VA + 0x2E0
-    write_setting = CODE_VA + 0x360
-    tech_increment = CODE_VA + 0x3B0
-    food_increment = CODE_VA + 0x400
+    tech_increment = CODE_VA + 0x360
+    food_increment = CODE_VA + 0x3B0
+    sparkle_hook = CODE_VA + 0x3F0
     event_dispatch_hook = CODE_VA + 0x450
     detail_handler_hook = CODE_VA + 0x490
     detail_constructor_hook = CODE_VA + 0x4C0
@@ -225,21 +217,13 @@ def main() -> None:
             mov esi, ecx
         menu_loop:
             xor edi, edi
-            push 0x{s['ini_file']:X}
-            push 0
-            push 0x{s['ini_tech']:X}
-            push 0x{s['ini_section']:X}
-            call dword ptr [0x457118]
-            test eax, eax
+            mov eax, dword ptr [esi + 0x0C]
+            cmp dword ptr [eax + 0xAD48], 0
             je tech_not_owned_for_menu
             or edi, 1
         tech_not_owned_for_menu:
-            push 0x{s['ini_file']:X}
-            push 0
-            push 0x{s['ini_food']:X}
-            push 0x{s['ini_section']:X}
-            call dword ptr [0x457118]
-            test eax, eax
+            mov eax, dword ptr [esi + 0x0C]
+            cmp dword ptr [eax + 0xAD4C], 0
             je food_not_owned_for_menu
             or edi, 2
         food_not_owned_for_menu:
@@ -276,17 +260,14 @@ def main() -> None:
         check_owned:
             cmp ebx, 3
             jb charge
-            mov eax, 0x{s['ini_food']:X}
+            mov eax, dword ptr [esi + 0x0C]
             cmp ebx, 4
-            je read_owned
-            mov eax, 0x{s['ini_tech']:X}
-        read_owned:
-            push 0x{s['ini_file']:X}
-            push 0
-            push eax
-            push 0x{s['ini_section']:X}
-            call dword ptr [0x457118]
-            test eax, eax
+            je check_food_owned
+            cmp dword ptr [eax + 0xAD48], 0
+            jne remove_doubler
+            jmp charge
+        check_food_owned:
+            cmp dword ptr [eax + 0xAD4C], 0
             jne remove_doubler
 
         charge:
@@ -348,34 +329,21 @@ def main() -> None:
             jmp show_and_done
 
         do_tech_doubler:
-            mov eax, 0x{s['ini_tech']:X}
-            jmp save_doubler
+            mov dword ptr [edi + 0xAD48], 1
+            jmp success
         do_food_doubler:
-            mov eax, 0x{s['ini_food']:X}
-        save_doubler:
-            mov edx, 0x{s['ini_one']:X}
-            call 0x{write_setting:X}
-            test eax, eax
-            jne success
-            mov eax, dword ptr [0x{s['tech_cost_table']:X} + ebx*4]
-            add dword ptr [edi + 0xA2FC], eax
-            mov eax, 0x{s['save_failed']:X}
-            jmp show_and_done
+            mov dword ptr [edi + 0xAD4C], 1
+            jmp success
 
         remove_doubler:
-            mov eax, 0x{s['ini_food']:X}
             cmp ebx, 4
-            je remove_doubler_write
-            mov eax, 0x{s['ini_tech']:X}
-        remove_doubler_write:
-            mov edx, 0x{s['ini_zero']:X}
-            call 0x{write_setting:X}
-            test eax, eax
-            je remove_failed
+            je remove_food_doubler
+            mov dword ptr [edi + 0xAD48], 0
+            jmp removed_success
+        remove_food_doubler:
+            mov dword ptr [edi + 0xAD4C], 0
+        removed_success:
             mov eax, 0x{s['removed']:X}
-            jmp show_and_done
-        remove_failed:
-            mov eax, 0x{s['save_failed']:X}
             jmp show_and_done
 
         success:
@@ -431,38 +399,6 @@ def main() -> None:
     )
 
     put(
-        write_setting,
-        f"""
-            push ebx
-            push esi
-            mov ebx, eax
-            mov esi, edx
-            push 0x{s['kernel32']:X}
-            call dword ptr [0x4570D0]
-            test eax, eax
-            je write_failed
-            push 0x{s['write_profile']:X}
-            push eax
-            call dword ptr [0x4570D4]
-            test eax, eax
-            je write_failed
-            push 0x{s['ini_file']:X}
-            push esi
-            push ebx
-            push 0x{s['ini_section']:X}
-            call eax
-            pop esi
-            pop ebx
-            ret
-        write_failed:
-            xor eax, eax
-            pop esi
-            pop ebx
-            ret
-        """,
-    )
-
-    put(
         tech_increment,
         f"""
             push ebx
@@ -472,12 +408,7 @@ def main() -> None:
             jle tech_apply
             cmp dword ptr [esp + 4], 0x428194
             je tech_apply
-            push 0x{s['ini_file']:X}
-            push 0
-            push 0x{s['ini_tech']:X}
-            push 0x{s['ini_section']:X}
-            call dword ptr [0x457118]
-            test eax, eax
+            cmp dword ptr [ebx + 0xAD48], 0
             jz tech_apply
             shl dword ptr [esp + 8], 1
         tech_apply:
@@ -499,12 +430,7 @@ def main() -> None:
             jle food_apply
             cmp dword ptr [esp + 4], 0x4281DA
             je food_apply
-            push 0x{s['ini_file']:X}
-            push 0
-            push 0x{s['ini_food']:X}
-            push 0x{s['ini_section']:X}
-            call dword ptr [0x457118]
-            test eax, eax
+            cmp dword ptr [ebx + 0xAD4C], 0
             jz food_apply
             shl dword ptr [esp + 8], 1
         food_apply:
@@ -529,6 +455,44 @@ def main() -> None:
             mov eax, dword ptr [esp + 4]
             cmp eax, 1
             jmp 0x428477
+        """,
+    )
+
+    put(
+        sparkle_hook,
+        """
+            call 0x41AFA0
+            pushad
+            push 50
+            call 0x402F10
+            add esp, 4
+            cmp eax, 2
+            jae sparkle_done
+            mov ebp, dword ptr [esi + 0x10]
+            cmp dword ptr [ebp + 0xAD48], 0
+            je sparkle_food
+            mov ecx, dword ptr [esi + 8]
+            test ecx, ecx
+            je sparkle_food
+            push 1
+            push 0x53E
+            push 0x443
+            push 4
+            call 0x41AFA0
+        sparkle_food:
+            cmp dword ptr [ebp + 0xAD4C], 0
+            je sparkle_done
+            mov ecx, dword ptr [esi + 8]
+            test ecx, ecx
+            je sparkle_done
+            push 1
+            push 0x462
+            push 0x47A
+            push 4
+            call 0x41AFA0
+        sparkle_done:
+            popad
+            ret
         """,
     )
 
@@ -774,13 +738,19 @@ def main() -> None:
         0x1D120,
         original[0x1D120 : 0x1D125],
         rel32_jump(0x41D120, tech_increment),
-        "double positive non-Island-Event tech-point awards after the persistent Tech Point Doubler is owned",
+        "double positive non-Island-Event tech-point awards after the current save owns the Tech Point Doubler; the research table also sparkles while it is active",
     )
     patch(
         0x1D140,
         original[0x1D140 : 0x1D145],
         rel32_jump(0x41D140, food_increment),
-        "double positive non-Island-Event food awards after the persistent Food Point Doubler is owned",
+        "double positive non-Island-Event food awards after the current save owns the Food Point Doubler; the food bin also sparkles while it is active",
+    )
+    patch(
+        0x23D85,
+        bytes.fromhex("E81672FFFF"),
+        rel32_jump(0x423D85, sparkle_hook),
+        "retain the stock world sparkle call and add occasional save-scoped sparkles at the tech chest and food bin while their doublers are active",
     )
     patch(
         0x3CD22,
@@ -804,7 +774,7 @@ def main() -> None:
         STRINGS_FILE_OFFSET,
         b"\x00" * len(strings),
         bytes(strings),
-        "install Origins upgrade labels, descriptions, costs, and persistent doubler keys",
+        "install Origins upgrade labels, descriptions, costs, and save-scoped doubler state",
     )
 
     rendered = bytearray(original)
@@ -822,7 +792,7 @@ def main() -> None:
             "Adds an icon-based Upgrades screen containing Time Warp, Island Event, the "
             "native Barrel of Babies event with a three-space capacity guard, "
             "and removable 500,000-tech-point Tech Point Doubler and Food Point Doubler. "
-            "The doublers do not multiply Island Event tech or food awards. Adds "
+            "The doublers do not multiply Island Event tech or food awards. They double other positive awards; each description also notes that its matching storage object sparkles while active, and the effect is stored in the current save rather than a global INI. Adds "
             "an icon-based Villager Upgrades screen containing Grant Youth, Grant Full "
             "Mastery, Grant Running, and Set Age to 18 for the displayed villager. Grant "
             "Full Mastery preserves a checked job preference and chooses Farming when "

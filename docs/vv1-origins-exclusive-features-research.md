@@ -94,9 +94,16 @@ doublers. Positive awards routed through those routines are doubled, while
 deductions remain unchanged. The Island Event result composer has one central
 tech award call (return address `0x428194`) and one central food award call
 (return address `0x4281DA`); the detours recognize those exact return addresses
-and leave those awards at their stock amounts. Ownership is stored in
-`Origins Exclusive Features.ini` beside the
-modified executable, so it persists independently of save-slot selection.
+and leave those awards at their stock amounts. Ownership is stored in two
+otherwise-unused fields of the active saved game state (`+0xAD48` and
+`+0xAD4C`), so one save can own a doubler without changing another save in the
+same game folder. No global INI or executable-side ownership file is created.
+
+While either saved flag is active, the world update occasionally submits the
+stock sparkle effect at the matching resource object: the tech chest/research
+table uses `(1091, 1342)` and the food bin uses `(1146, 1122)`. The existing
+random world sparkle call remains intact; the added effect is deliberately
+intermittent like the mobile visual cue rather than a permanent overlay.
 
 Static caller and field-reference verification found seven callers of the
 stock positive-tech routine at `0x41D120` and six callers of the stock

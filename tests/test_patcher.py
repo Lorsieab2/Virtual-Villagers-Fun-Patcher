@@ -1407,8 +1407,8 @@ class StockIntegrationTests(unittest.TestCase):
         )
         self.assertEqual(bytes(rendered[0x35AB0:0x35AB5]), bytes.fromhex("E94B0E0200"))
         self.assertEqual(bytes(rendered[0x358DC:0x358E1]), bytes.fromhex("E94F100200"))
-        self.assertEqual(bytes(rendered[0x1D120:0x1D125]), bytes.fromhex("E98B9B0300"))
-        self.assertEqual(bytes(rendered[0x1D140:0x1D145]), bytes.fromhex("E9BB9B0300"))
+        self.assertEqual(bytes(rendered[0x1D120:0x1D125]), bytes.fromhex("E93B9B0300"))
+        self.assertEqual(bytes(rendered[0x1D140:0x1D145]), bytes.fromhex("E96B9B0300"))
         self.assertEqual(bytes(rendered[0x4A700:0x4A705]), bytes.fromhex("E98BC60000"))
         self.assertEqual(bytes(rendered[0x4A5FA:0x4A5FF]), bytes.fromhex("E9C1C70000"))
         self.assertEqual(
@@ -1427,6 +1427,10 @@ class StockIntegrationTests(unittest.TestCase):
             bytes(rendered[0x28470:0x28477]),
             bytes.fromhex("E9DBE802009090"),
         )
+        self.assertEqual(
+            bytes(rendered[0x23D85:0x23D8A]),
+            bytes.fromhex("E9662F0300"),
+        )
         payload = bytes(rendered[0x85D30:0x86000])
         self.assertIn(b"Tech Point Doubler\0", payload)
         self.assertIn(b"Food Point Doubler\0", payload)
@@ -1440,7 +1444,7 @@ class StockIntegrationTests(unittest.TestCase):
         self.assertIn(b"Running cannot be added.\0", payload)
         self.assertNotIn(b"Gained 1,000 food.\0", payload)
         self.assertNotIn(b"Gained 3,000 tech points.\0", payload)
-        self.assertIn(b"Origins Exclusive Features.ini\0", payload)
+        self.assertNotIn(b"Origins Exclusive Features.ini\0", payload)
         self.assertIn((500000).to_bytes(4, "little"), payload)
         code = bytes(rendered[0x56900:0x57000])
         self.assertIn(bytes.fromhex("817C240494814200"), code)
@@ -1449,6 +1453,12 @@ class StockIntegrationTests(unittest.TestCase):
         self.assertNotIn(bytes.fromhex("83780406"), code)
         self.assertIn(bytes.fromhex("FF1510704500"), code)
         self.assertNotIn((10101010).to_bytes(4, "little"), code)
+        self.assertIn(bytes.fromhex("83B848AD000000"), code)
+        self.assertIn(bytes.fromhex("83B84CAD000000"), code)
+        self.assertIn(bytes.fromhex("C78748AD000001000000"), code)
+        self.assertIn(bytes.fromhex("C7874CAD000001000000"), code)
+        self.assertIn(bytes.fromhex("683E0500006843040000"), code)
+        self.assertIn(bytes.fromhex("6862040000687A040000"), code)
         self.assertNotIn(bytes.fromhex("C742582C010000"), code)
         self.assertIn(bytes.fromhex("8D8AA8030000"), code)
         self.assertIn(bytes.fromhex("8339267506C701FFFFFFFF"), code)
