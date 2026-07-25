@@ -43,11 +43,12 @@ A Retired Chief jumps directly back to the original timing and
 Honoring-or-Spreading code at `0x46F1E6`. The patch does not replace or
 intercept the stock random choice at `0x46F1F5`.
 
-An ordinary villager satisfying both checks enters a separate block at file
-offset `0x94680`. That block reproduces the stock 50-percent timing chance and,
-on success, queues stock behavior `0xA0` Honoring. A failed chance returns to
-the ordinary scheduler at `0x46F23A`. Every villager failing either eligibility
-check also returns there without Honoring.
+An ordinary villager with positive Devotion skill enters a separate block at
+file offset `0x94680`. The selected-job check is deliberately not required:
+Devotion skill alone makes the villager eligible, while a zero-skill villager
+returns to the ordinary scheduler. The block reproduces the stock 50-percent
+timing chance and, on success, queues stock behavior `0xA0` Honoring. A failed
+chance returns to the ordinary scheduler at `0x46F23A`.
 
 ## Preserved behavior
 
@@ -56,7 +57,7 @@ check also returns there without Honoring.
 - The original autonomous scheduler timing remains intact.
 - Conversion behavior, statue upgrades, manual statue assignment, and skill thresholds are untouched.
 - Manual statue Honoring can still train a beginner with no Devotion skill.
-- A villager who prefers Farming, Building, Research, Healing, or Parenting is not diverted into autonomous Honoring merely because a prior statue action granted a tiny amount of Devotion.
+- A villager with no Devotion skill is not diverted into autonomous Honoring.
 - Spreading the Word is not assigned to ordinary devotees by this patch.
 - The Retired Chief uses the original stock eligibility, timing, and random
   Honoring-or-Spreading code. No custom Retired Chief discriminator remains.

@@ -140,7 +140,7 @@ def main() -> None:
     write_setting = CODE_VA + 0x360
     tech_increment = CODE_VA + 0x3B0
     food_increment = CODE_VA + 0x400
-    mastery_migration_hook = CODE_VA + 0x450
+    event_dispatch_hook = CODE_VA + 0x450
     detail_handler_hook = CODE_VA + 0x490
     detail_constructor_hook = CODE_VA + 0x4C0
     detail_menu = CODE_VA + 0x521
@@ -325,33 +325,26 @@ def main() -> None:
             jmp show_and_done
 
         do_barrel:
-            xor eax, eax
-        barrel_loop:
-            cmp eax, 3
-            jae barrel_done
-            push eax
-            mov ecx, dword ptr [edi + 0xADE8]
-            call 0x43A1A0
-            test al, al
-            pop eax
-            je barrel_done
-            push eax
-            push 20
-            call 0x402F10
+            push 0x50F0
+            call 0x44AF03
             add esp, 4
-            add eax, 70
-            push eax
+            test eax, eax
+            je barrel_allocation_failed
+            mov ebx, eax
+            push 0x7F4B1A2C
+            push 1
+            mov ecx, ebx
+            call 0x4286B0
             push 0
-            push 0
-            push 0
-            push -1
-            mov ecx, dword ptr [edi + 0xADE8]
-            call 0x43C350
-            pop eax
-            inc eax
-            jmp barrel_loop
-        barrel_done:
-            mov eax, 0x{s['barrel_villagers']:X}
+            push esi
+            mov ecx, ebx
+            call 0x401AB0
+            mov ecx, ebx
+            call 0x42A6A0
+            mov eax, 0x{s['purchase_complete']:X}
+            jmp show_and_done
+        barrel_allocation_failed:
+            mov eax, 0x{s['save_failed']:X}
             jmp show_and_done
 
         do_tech_doubler:
@@ -520,26 +513,18 @@ def main() -> None:
     )
 
     put(
-        mastery_migration_hook,
+        event_dispatch_hook,
         """
-            push eax
-            push ecx
-            cmp dword ptr [esi + 0x3D0], 0
-            jne mastery_migration_done
-            lea eax, [esi + 0x3BC]
-            mov ecx, 5
-        mastery_migration_check:
-            cmp dword ptr [eax], 90
-            jne mastery_migration_done
-            add eax, 4
-            dec ecx
-            jne mastery_migration_check
-            mov dword ptr [esi + 0x3D0], 1
-        mastery_migration_done:
-            pop ecx
-            pop eax
-            mov dword ptr [esi + 0x20], 1
-            jmp 0x43CD19
+            cmp dword ptr [esp + 8], 0x7F4B1A2C
+            jne original_event_dispatch
+            push 10
+            push 12
+            call 0x427CA0
+            ret 8
+        original_event_dispatch:
+            mov eax, dword ptr [esp + 4]
+            cmp eax, 1
+            jmp 0x428477
         """,
     )
 
@@ -572,7 +557,7 @@ def main() -> None:
             push 0
             push esi
             push 563
-            push 100
+            push 120
             push 0x459340
             push 6
             mov ecx, eax
@@ -794,10 +779,16 @@ def main() -> None:
         "double only positive food awards after the persistent Food Point Doubler is owned",
     )
     patch(
-        0x3CD12,
-        bytes.fromhex("C7462001000000"),
-        rel32_jump(0x43CD12, mastery_migration_hook) + b"\x90\x90",
-        "repair the exact all-five-skills-at-90 and no-preference state created by older builds",
+        0x3CD22,
+        bytes.fromhex("6A2653E8B6A5FFFF84C0740E"),
+        b"\xEB\x0A" + b"\x90" * 10,
+        "require the stock Running Like trait instead of treating no Running Dislike as Running",
+    )
+    patch(
+        0x28470,
+        bytes.fromhex("8B44240483F801"),
+        rel32_jump(0x428470, event_dispatch_hook) + b"\x90\x90",
+        "route the marked Barrel of Babies request through the native event result path",
     )
     patch(
         CODE_FILE_OFFSET,
@@ -825,13 +816,12 @@ def main() -> None:
         "name": "Enable Origins-Exclusive Features",
         "description": (
             "Adds an icon-based Upgrades screen containing Time Warp, Island Event, the "
-            "guaranteed three-child Barrel of Babies with a three-space capacity guard, "
+            "native Barrel of Babies event with a three-space capacity guard, "
             "and removable 500,000-tech-point Tech Point Doubler and Food Point Doubler. Adds "
             "an icon-based Villager Upgrades screen containing Grant Youth, Grant Full "
             "Mastery, Grant Running, and Set Age to 18 for the displayed villager. Grant "
             "Full Mastery preserves a checked job preference and chooses Farming when "
-            "none is checked so VV1 does not show the incomplete title Master; it also "
-            "repairs that exact state from older builds. Grant Running adds running to an "
+            "none is checked so VV1 does not show the incomplete title Master. Grant Running adds running to an "
             "available Likes slot on the displayed villager, removes running from that "
             "villager's Dislikes slots, and refuses without charging when no Like slot is "
             "available; it does not alter movement speed, movement initialization, or any "

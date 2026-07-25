@@ -22,7 +22,7 @@ The APK's Tech screen exposes these purchases:
 |---|---:|---|
 | Time Warp | 50,000 | Advances 3, 6, or 12 hours according to game speed. |
 | Island Event | 30,000 | Opens the non-catastrophic Island Event route. |
-| Barrel of Babies | 75,000 | Forces event 12 with magnitude 10, spawning exactly three young children. |
+| Barrel of Babies | 75,000 | Opens the native event-12 Barrel of Babies result with magnitude 10, spawning exactly three young children through the stock event path. |
 | Bump Max Population | 250,000 | Adds 10 to the mobile cap, repeatable to a 30-point bonus. |
 | Grant Youth | 50,000 | Subtracts 700 internal age units, equal to 35 displayed years, with a displayed-age floor of 5. |
 | Grant Full Mastery | 100,000 | Writes 90 to each of the five skills. |
@@ -33,11 +33,11 @@ The APK's Tech screen exposes these purchases:
 The two doubler hooks run only when their increment is positive. Negative
 values retain their original magnitude.
 
-`theNCEventDialog::ProcessNCEventRequest` forces Barrel of Babies to event 12.
-The ARM instructions set the random bound to 1 and the event base to 12, so
-`GetRandom(1) + 12` can only produce 12. `ComposeResult` then spawns three
-villagers at internal ages 70 through 89, which are young children under VV1's
-20-units-per-displayed-year age scale.
+The desktop implementation now constructs the stock event dialog and marks the
+request with a private sentinel. The guarded event selector consumes that
+sentinel by calling the game's native event-result routine with event 12 and
+magnitude 10. The game's own result handler then displays the Barrel of Babies
+event and creates its three young children through the normal event code.
 
 Cases 13 and 14 are neighboring positive Island Event results for food and
 tech points, but the Barrel purchase's bound of 1 makes them unreachable.
@@ -82,13 +82,10 @@ the five newly tied mastered skills. This prevents VV1's stock summary-title
 chooser from displaying the otherwise incomplete title **Master** after all
 five skills are made exactly equal.
 
-Corrected builds also perform a deliberately narrow compatibility repair while
-VV1 initializes its villager records: a villager whose five skills are all
-exactly 90 and whose preference is still zero is assigned Farming. No other
-skill combination or existing preference is changed. The injected check
-preserves the stock `EAX` and `ECX` values before returning to the initializer;
-v1.34.3 failed to preserve `ECX` and was withdrawn after a player-confirmed
-startup crash.
+Grant Full Mastery itself preserves an existing checked job preference and
+chooses Farming when none is checked. The patch does not modify existing save
+records during startup; replace saves made by older experimental builds if
+they contain persisted movement-speed changes.
 
 The desktop game's central tech and food award routines implement the
 doublers. Consequently, all positive awards routed through those routines are
@@ -96,13 +93,26 @@ doubled, while deductions remain unchanged. Ownership is stored in
 `Origins Exclusive Features.ini` beside the
 modified executable, so it persists independently of save-slot selection.
 
+Static caller and field-reference verification found seven callers of the
+stock positive-tech routine at `0x41D120` and six callers of the stock
+positive-food routine at `0x41D140`. Those routines are the positive resource
+writers: research, action rewards, event rewards, and food-source awards all
+arrive through them, regardless of villager skill or mastery level. The other
+positive-looking food writes at `0x41C472` and `0x41C485` initialize a new
+village's starting food and are not gameplay gains; costs and negative event
+adjustments remain direct deductions. The doubler detours preserve that split:
+every positive award is doubled, while starting values, spending, and losses are
+unchanged.
+
 Grant Running adds trait 38 to an available Like slot on the displayed
 villager and removes trait 38 from any of that villager's Dislike slots. If
 Running is already a Like, the upgrade can still remove a conflicting Running
 Dislike. If all three Like slots are occupied and none is Running, the purchase
-refuses without charging or overwriting anything. It does not touch movement
-speed, movement initialization, or a custom sentinel. Any movement caused by
-the resulting Like is entirely VV1's unmodified base-game behavior.
+refuses without charging or overwriting anything. It does not write movement
+speed, movement initialization, or a custom sentinel. The Origins build also
+changes the stock movement predicate so the fast branch requires trait 38 in a
+Like slot; a villager without the Running Like therefore remains at normal
+movement speed.
 It also performs no migration or repair of speed values written into a save by
 an older experimental build; replacing that affected save is the player's
 chosen recovery route.

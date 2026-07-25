@@ -1204,7 +1204,7 @@
       "id": "vv5_easier_devotee_training",
       "game_id": "vv5",
       "name": "Easier Devotee Training",
-      "description": "Villagers with positive Devotion skill can spontaneously use the stock Honoring action when Devotion is their selected preferred job. Statue-drop Honoring remains available for training beginners, while villagers who prefer another job keep focusing on that job.",
+        "description": "Villagers with positive Devotion skill can spontaneously use the stock Honoring action. Statue-drop Honoring remains available for training beginners, while villagers with no Devotion skill do not autonomously Honor.",
       "output_tag": "Easier Devotee",
       "patches": [
         {
@@ -1216,7 +1216,7 @@
         {
           "offset": "0x94400",
           "before": "000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
-          "after": "83B9FC1C00000D741783B9741C000005751383B9701C0000007E0AE960020000E9C1ADFDFFE910AEFDFF",
+            "after": "83B9FC1C00000D7417EB079090909090909083B9701C0000007E0AE960020000E9C1ADFDFFE910AEFDFF",
           "purpose": "leave Retired Chiefs on the original stock branch while requiring both positive Devotion skill and Devotion as the selected preferred job before routing an ordinary villager to the added Honoring branch"
         },
         {

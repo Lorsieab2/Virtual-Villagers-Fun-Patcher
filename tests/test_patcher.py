@@ -1219,7 +1219,7 @@ class StockIntegrationTests(unittest.TestCase):
         self.assertEqual(
             bytes(rendered[0x94400:0x9442A]),
             bytes.fromhex(
-                "83B9FC1C00000D741783B9741C000005751383B9701C0000007E0A"
+                "83B9FC1C00000D7417EB079090909090909083B9701C0000007E0A"
                 "E960020000E9C1ADFDFFE910AEFDFF"
             ),
         )
@@ -1406,10 +1406,6 @@ class StockIntegrationTests(unittest.TestCase):
         self.assertEqual(bytes(rendered[0x358DC:0x358E1]), bytes.fromhex("E94F100200"))
         self.assertEqual(bytes(rendered[0x1D120:0x1D125]), bytes.fromhex("E98B9B0300"))
         self.assertEqual(bytes(rendered[0x1D140:0x1D145]), bytes.fromhex("E9BB9B0300"))
-        self.assertEqual(
-            bytes(rendered[0x3CD12:0x3CD19]),
-            bytes.fromhex("E939A001009090"),
-        )
         self.assertEqual(bytes(rendered[0x4A700:0x4A705]), bytes.fromhex("E98BC60000"))
         self.assertEqual(bytes(rendered[0x4A5FA:0x4A5FF]), bytes.fromhex("E9C1C70000"))
         self.assertEqual(
@@ -1419,6 +1415,14 @@ class StockIntegrationTests(unittest.TestCase):
         self.assertEqual(
             bytes(rendered[0x56D97:0x56D9E]),
             bytes.fromhex("8B44240883F806"),
+        )
+        self.assertEqual(
+            bytes(rendered[0x3CD22:0x3CD2E]),
+            bytes.fromhex("EB0A90909090909090909090"),
+        )
+        self.assertEqual(
+            bytes(rendered[0x28470:0x28477]),
+            bytes.fromhex("E9DBE802009090"),
         )
         payload = bytes(rendered[0x85D30:0x86000])
         self.assertIn(b"Tech Point Doubler\0", payload)
@@ -1446,13 +1450,7 @@ class StockIntegrationTests(unittest.TestCase):
         self.assertIn(bytes.fromhex("8D8A98030000"), code)
         self.assertNotIn(bytes.fromhex("C782A003000026000000"), code)
         self.assertIn(bytes.fromhex("2DBC02000083F8647D05B864000000"), code)
-        self.assertIn(
-            bytes.fromhex(
-                "505183BED00300000075208D86BC030000B90500000083385A"
-                "751083C0044975F5C786D0030000010000005958"
-            ),
-            code,
-        )
+        self.assertIn(bytes.fromhex("817C24082C1A4B7F750C6A0A6A0CE83D0FFDFF"), code)
         self.assertIn(bytes.fromhex("83F80C76"), code)
         self.assertIn(bytes.fromhex("80BFE89F000001"), code)
         self.assertIn(bytes.fromhex("83F81676"), code)
@@ -1460,7 +1458,6 @@ class StockIntegrationTests(unittest.TestCase):
         self.assertIn(bytes.fromhex("83F82F76"), code)
         self.assertIn(bytes.fromhex("80BFF89F000001"), code)
         self.assertIn(bytes.fromhex("3DFD0000000F87"), code)
-        self.assertIn(bytes.fromhex("84C05874"), code)
         self.assertIn(
             bytes.fromhex("83BA D0030000 00 750A C782 D0030000 01000000".replace(" ", "")),
             code,

@@ -94,9 +94,10 @@ build:
   living villager the Running like when a Like slot is available and removes
   Running from that villager's Dislikes. It refuses without charging when all
   three Like slots are occupied and Running is not already a Like. This
-  upgrade does not change movement speed, movement initialization, or a custom
-  Running flag. Any resulting movement is entirely VV1's unmodified base-game
-  behavior.
+  upgrade does not write movement speed, movement initialization, or a custom
+  Running flag. The Origins build also corrects VV1's stock predicate so the
+  fast movement branch requires the actual Running Like trait; villagers
+  without that Like keep normal movement.
 - **Set Age to 18** — 50,000 tech points; sets the selected living villager's
   age to 18.
 - **Tech Point Doubler** — 500,000 tech points; permanently doubles positive
