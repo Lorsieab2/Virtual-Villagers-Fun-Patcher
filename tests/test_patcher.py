@@ -1368,6 +1368,49 @@ class StockIntegrationTests(unittest.TestCase):
         self.assertEqual(preview["fun_patches"], [feature_id])
         self.assertEqual(preview["output_name"], modded_exe_name(build))
 
+    def test_vv1_origins_exclusive_features_are_guarded_and_named_exactly(self) -> None:
+        feature_id = "vv1_enable_origins_exclusive_features"
+        feature = get_fun_patch(feature_id)
+        self.assertEqual(feature.name, "Enable Origins-Exclusive Features")
+        self.assertIn("Tech Point Doubler", feature.description)
+        self.assertIn("Food Point Doubler", feature.description)
+        self.assertIn("500,000-tech-point", feature.description)
+        self.assertIn("does not replace likes or dislikes", feature.description)
+
+        build = next(build for build in load_builds() if build.id == "vv1")
+        source = STOCK / build.input_name
+        rendered, applied = render_patched_bytes(
+            source, build, DEFAULT_PATCH_MODE, [feature_id]
+        )
+        self.assertEqual(
+            len(applied),
+            len(build.safety_patches)
+            + len(get_patch_variant(build, DEFAULT_PATCH_MODE)["patches"])
+            + len(feature.patches),
+        )
+        self.assertEqual(bytes(rendered[0x35AB0:0x35AB5]), bytes.fromhex("E94B0E0200"))
+        self.assertEqual(bytes(rendered[0x358DC:0x358E1]), bytes.fromhex("E94F100200"))
+        self.assertEqual(bytes(rendered[0x1D120:0x1D125]), bytes.fromhex("E90B9C0300"))
+        self.assertEqual(bytes(rendered[0x1D140:0x1D145]), bytes.fromhex("E93B9C0300"))
+        self.assertEqual(
+            bytes(rendered[0x3CD12:0x3CD19]),
+            bytes.fromhex("E9B9A001009090"),
+        )
+        payload = bytes(rendered[0x85D30:0x86000])
+        self.assertIn(b"Tech Point Doubler\0", payload)
+        self.assertIn(b"Food Point Doubler\0", payload)
+        self.assertIn(b"Gained 3 children.\0", payload)
+        self.assertIn(b"Gained 1,000 food.\0", payload)
+        self.assertIn(b"Gained 3,000 tech points.\0", payload)
+        self.assertIn(b"Origins Exclusive Features.ini\0", payload)
+        self.assertIn((500000).to_bytes(4, "little"), payload)
+        code = bytes(rendered[0x56900:0x56DEF])
+        self.assertIn(b"\x68\xE8\x03\x00\x00", code)
+        self.assertIn(b"\x68\xB8\x0B\x00\x00", code)
+        checksum_offset, = struct.unpack_from("<I", rendered, 0x3C)
+        checksum_offset += 24 + 64
+        self.assertNotEqual(struct.unpack_from("<I", rendered, checksum_offset)[0], 0)
+
     def test_bulk_feature_applies_only_to_its_game(self) -> None:
         feature_id = "vv2_easier_healing_mastery"
         with tempfile.TemporaryDirectory() as temp:

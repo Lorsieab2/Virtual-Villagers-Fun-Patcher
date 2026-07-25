@@ -70,6 +70,40 @@ Building skill gains, and completion behavior. Villagers assigned to other
 jobs retain their stock high-food scheduling. The shared scheduler covers both
 ordinary play and elapsed-time catch-up.
 
+## VV1: Enable Origins-Exclusive Features
+
+Enable **Enable Origins-Exclusive Features (A New Home)** to add an
+**Origins Upgrades** button to VV1's Tech screen. It ports the supplied
+Virtual Villagers: Origins APK's exclusive purchases to the supported desktop
+build:
+
+- **Time Warp** — 50,000 tech points; advances 3, 6, or 12 hours according to
+  the selected game speed.
+- **Island Event** — 30,000 tech points; queues the stock desktop Island Event.
+- **Barrel of Babies** — 75,000 tech points; matches the APK's forced positive
+  event and randomly awards three young children, 1,000 food, or 3,000 tech
+  points.
+- **Bump Max Population** — displayed for completeness, but charges nothing
+  because this patcher's VV1 population modes already use the physical
+  256-record maximum.
+- **Grant Youth** — 50,000 tech points; makes the selected living villager 35
+  displayed years younger, with a minimum displayed age of 5.
+- **Grant Full Mastery** — 100,000 tech points; sets all five skills of the
+  selected living villager to the APK's mastery value of 90.
+- **Grant Running** — 40,000 tech points; permanently gives the selected
+  living villager the Origins running speed. It uses VV1's otherwise-unused
+  saved record field and does not replace a like or dislike.
+- **Tech Point Doubler** — 500,000 tech points; permanently doubles positive
+  tech-point awards, but not costs or losses.
+- **Food Point Doubler** — 500,000 tech points; permanently doubles positive
+  food awards, but not spending or losses.
+
+The two doublers are stored beside the modified executable in
+`Origins Exclusive Features.ini` and apply to all save slots opened by that
+modded installation. The port uses a stock-styled desktop button and dialogs;
+the APK's mobile texture atlas is preserved as research evidence but is not
+required by the desktop game.
+
 ## VV2: Teaching Children Grants Skill
 
 Enable **Teaching Children Grants Skill (The Lost Children)** to reward every attending child once after that child's full stock lesson queue finishes. Each attendee gains 7, 8, or 9 points in Farming, Building, Research, Healing, or Parenting. All five choices have equal odds, and skills remain capped at 100.
@@ -205,7 +239,7 @@ No game executable, save, extracted asset, or generated output is committed to t
 
 ## Command line
 
-Pass `--patch-mode collection_progression` or `--patch-mode immediate_fixed` to `dry-run`, `apply`, `dry-run-all`, or `apply-all`. Optional features use repeatable `--fun-patch` arguments: `vv1_school_lessons_grant_skill`, `vv1_continue_research_at_max_technologies`, `vv1_f6_clothing_change_cheat`, `vv1_magic_fruit_alters_mortality`, `vv1_builder_action_fixes`, `vv2_easier_healing_mastery`, `vv2_teaching_children_grants_skill`, `vv2_hospital_recovery_heals`, `vv2_gong_of_wonder_coconuts_fix`, `vv3_nature_honey_refill`, `vv3_nature_level_three_alters_mortality`, `vv4_complete_scales_golden_fish`, `vv5_heathen_mommy_puzzle`, `vv5_easier_devotee_training`, `vv5_statue_polishing_or_honoring`, and `vv5_vv4_nursery_divisor_parity`.
+Pass `--patch-mode collection_progression` or `--patch-mode immediate_fixed` to `dry-run`, `apply`, `dry-run-all`, or `apply-all`. Optional features use repeatable `--fun-patch` arguments: `vv1_school_lessons_grant_skill`, `vv1_continue_research_at_max_technologies`, `vv1_f6_clothing_change_cheat`, `vv1_magic_fruit_alters_mortality`, `vv1_builder_action_fixes`, `vv1_enable_origins_exclusive_features`, `vv2_easier_healing_mastery`, `vv2_teaching_children_grants_skill`, `vv2_hospital_recovery_heals`, `vv2_gong_of_wonder_coconuts_fix`, `vv3_nature_honey_refill`, `vv3_nature_level_three_alters_mortality`, `vv4_complete_scales_golden_fish`, `vv5_heathen_mommy_puzzle`, `vv5_easier_devotee_training`, `vv5_statue_polishing_or_honoring`, and `vv5_vv4_nursery_divisor_parity`.
 
 ```text
 python src/vv_fun_patcher.py dry-run "path\game.exe" --patch-mode immediate_fixed

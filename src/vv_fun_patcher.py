@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import base64
 import hashlib
 import json
 import os
@@ -14,6 +15,7 @@ from typing import Any
 ROOT = Path(__file__).resolve().parents[1]
 MANIFEST_PATH = ROOT / "data" / "builds.json"
 EXPANDED_MANIFEST_PATH = ROOT / "data" / "expanded_256.json"
+ORIGINS_FEATURE_PATH = ROOT / "data" / "vv1_origins_feature.json"
 DEFAULT_PATCH_MODE = "collection_progression"
 DISABLED_PATCH_MODES = {
     "experimental_expanded_256",
@@ -58,7 +60,25 @@ def load_patch_modes() -> list[PatchMode]:
 
 
 def load_fun_patches() -> list[FunPatch]:
-    return [FunPatch(item) for item in _manifest().get("fun_patches", [])]
+    items = list(_manifest().get("fun_patches", []))
+    if ORIGINS_FEATURE_PATH.is_file():
+        items.append(json.loads(ORIGINS_FEATURE_PATH.read_text(encoding="utf-8")))
+    return [FunPatch(item) for item in items]
+
+
+def _patch_bytes(patch: dict[str, Any], field: str) -> bytes:
+    if field in patch:
+        return bytes.fromhex(patch[field])
+    if field == "before" and "before_fill" in patch:
+        fill = bytes.fromhex(patch["before_fill"])
+        length = int(patch["length"])
+        if len(fill) != 1:
+            raise PatcherError("Internal manifest error: before_fill must be one byte")
+        return fill * length
+    encoded_field = f"{field}_base64"
+    if encoded_field in patch:
+        return base64.b64decode(patch[encoded_field], validate=True)
+    raise PatcherError(f"Internal manifest error: patch is missing {field}")
 
 
 def _fun_patch_support(
@@ -278,8 +298,8 @@ def render_patched_bytes(
         *fun_bytes,
     ]:
         offset = int(patch["offset"], 0)
-        before = bytes.fromhex(patch["before"])
-        after = bytes.fromhex(patch["after"])
+        before = _patch_bytes(patch, "before")
+        after = _patch_bytes(patch, "after")
         if len(before) != len(after):
             raise PatcherError(
                 f"Internal manifest error at {patch['offset']}: length changed"

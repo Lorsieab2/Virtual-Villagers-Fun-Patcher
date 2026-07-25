@@ -7,7 +7,7 @@ import json
 import ida_auto
 import ida_funcs
 import ida_hexrays
-import ida_kernwin
+import ida_pro
 import idautils
 import idc
 
@@ -44,7 +44,7 @@ def main() -> None:
             )
     with open(destination, "w", encoding="utf-8") as handle:
         json.dump({"matches": matches, "decompile_failures": failures}, handle, indent=2)
-    ida_kernwin.qexit(0)
+    ida_pro.qexit(0)
 
 
 main()

@@ -1,0 +1,53 @@
+{
+    "id":  "vv1_enable_origins_exclusive_features",
+    "game_id":  "vv1",
+    "name":  "Enable Origins-Exclusive Features",
+    "description":  "Adds an Origins Upgrades button to the Tech screen. Includes Time Warp, Island Event, the APK-accurate three-result Barrel of Babies, Grant Youth, Grant Full Mastery, Grant Running, the 500,000-tech-point Tech Point Doubler, and the 500,000-tech-point Food Point Doubler. Bump Max Population is shown for completeness but reports that this patcher already enables VV1\u0027s physical 256-villager maximum. Grant Running uses a dedicated saved field and does not replace likes or dislikes.",
+    "output_tag":  "Origins Exclusive Features",
+    "patches":  [
+                    {
+                        "offset":  "0x35AB0",
+                        "before":  "837C240408",
+                        "after":  "E94B0E0200",
+                        "purpose":  "route Tech-screen messages through the guarded Origins Upgrades button handler"
+                    },
+                    {
+                        "offset":  "0x358DC",
+                        "before":  "8B4C24205F",
+                        "after":  "E94F100200",
+                        "purpose":  "append the stock-styled Origins Upgrades button before the Tech-screen constructor epilogue"
+                    },
+                    {
+                        "offset":  "0x1D120",
+                        "before":  "8B44240401",
+                        "after":  "E90B9C0300",
+                        "purpose":  "double only positive tech-point awards after the persistent Tech Point Doubler is owned"
+                    },
+                    {
+                        "offset":  "0x1D140",
+                        "before":  "8B44240401",
+                        "after":  "E93B9C0300",
+                        "purpose":  "double only positive food awards after the persistent Food Point Doubler is owned"
+                    },
+                    {
+                        "offset":  "0x3CD12",
+                        "before":  "C7462001000000",
+                        "after":  "E9B9A001009090",
+                        "purpose":  "honor the saved Grant Running flag without consuming a villager like/dislike slot"
+                    },
+                    {
+                        "offset":  "0x56900",
+                        "before_fill":  "00",
+                        "length":  1263,
+                        "after_base64":  "g3wkBAh1GItEJAiFwHQQg3gEAnUK6KYAAAAxwMIIAIN8JAQI6Yzx/f8AAAAAAAAAahTozEX//4PEBIXAdEJqAFZoMwIAAGiKAAAAaDBdSABqAonB6Few+v+Jx2oAaFVVVf9oVVVV/2gAAAD/aEZdSACJ+eg4rPr/V4nx6ABC+/+LTCQgX4nwXl1bZIkNAAAAAIPEHMMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAU1ZXgewAAQAAic4x24sEncxfSACLFJ2oX0gAjTwkUFJoaF1IAFf/FQByRQCDxBBqA2hXXUgAV+i6w///g8QMg/gHD4R3AgAAg/gGD4V/AgAAg/sDD4ROAgAAi34Mg/sEcjKD+wZ2Austi4c0rQAAPQABAAAPgyACAABpwNgDAACLl+itAAABwoB6KAAPhAgCAADrMesvg/sHciq4TV9IAIP7CHQFuDxfSABoYF9IAGoAUGgjX0gA/xUYcUUAhcAPhdwBAACLBJ3MX0gAOYf8ogAAD4K7AQAAKYf8ogAAg/sAdDOD+wF0WIP7AnRng/sED4TmAAAAg/sFD4QdAQAAg/sGD4RIAQAAg/sHD4RSAQAA6VQBAAC4YFQAAIuPGKMAAIP5A3UFuDAqAACD+Qx1BbjAqAAAKQXwYEgA6UwBAADHhwCjAAAAAAAAuJNeSADpWQEAAGoD6PXD+v+DxASD+AF0TYP4AnReMcCD+ANzN1CLj+itAADoZTb+/4TAWHUmUGoU6MjD+v+DxASDwEZQagBqAGoAav+Lj+itAADo7lf+/1hA68S4qF5IAOn9AAAAaOgDAACJ+ejEZfz/uLteSADp5wAAAGi4CwAAifnojmX8/7jOXkgA6dEAAACLgkgDAAAtvAIAAIP4ZH0FuGQAAACJgkgDAACDulgDAAAAdBSNSP+JikwDAACD6CqJglgDAADreImCTAMAAOtwx4K8AwAAWgAAAMeCwAMAAFoAAADHgsQDAABaAAAAx4LIAwAAWgAAAMeCzAMAAFoAAADrPMeC1AMAABIhmgDHQlgsAQAA6ym4PF9IAOsFuE1fSADonAAAAIXAdRSLBJ3MX0gAAYf8ogAAuAdfSADrIbglXkgA6xq4MF5IAOsTuEheSADrDLjoXkgA6wW4aF5IAGoAaFddSABQ6DzB//+DxAzrEUOD+wkPgkT9//8x2+k9/f//gcQAAQAAX15bwwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFOJw2h/X0gA/xXQcEUAhcB0JGiMX0gAUP8V1HBFAIXAdBRoYF9IAGheX0gAU2gjX0gA/9BbwzHAW8MAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFOJy4tEJAiFwH4faGBfSABqAGg8X0gAaCNfSAD/FRhxRQCFwHQE0WQkCItEJAgBg/yiAAABgyCeAABbwgQAAAAAAAAAAAAAAAAAAAAAAAAAU4nLi0QkCIXAfh9oYF9IAGoAaE1fSABoI19IAP8VGHFFAIXAdATRZCQIi0QkCAGD7KIAAAGDKJ4AAFvCBAAAAAAAAAAAAAAAAAAAAAAAAACBvtQDAAASIZoAdQfHRlgsAQAAx0YgAQAAAOkqX/7/",
+                        "purpose":  "install the guarded Origins-exclusive Tech-screen menu and upgrade implementations"
+                    },
+                    {
+                        "offset":  "0x85D30",
+                        "before_fill":  "00",
+                        "length":  704,
+                        "after_base64":  "bWFpbl93aWRlX2J1dHRvbjIucG5nAE9yaWdpbnMgVXBncmFkZXMAT3JpZ2lucyBVcGdyYWRlcwAlcwolaSB0ZWNoCgpZZXM6IEJ1eSAgTm86IE5leHQgIENhbmNlbDogQ2xvc2UAVGltZSBXYXJwAElzbGFuZCBFdmVudABCYXJyZWwgb2YgQmFiaWVzAEJ1bXAgTWF4IFBvcHVsYXRpb24AR3JhbnQgWW91dGgAR3JhbnQgRnVsbCBNYXN0ZXJ5AEdyYW50IFJ1bm5pbmcAVGVjaCBQb2ludCBEb3VibGVyAEZvb2QgUG9pbnQgRG91YmxlcgBQdXJjaGFzZWQuAE5vdCBlbm91Z2ggdGVjaCBwb2ludHMuAFNlbGVjdCBhIGxpdmluZyB2aWxsYWdlciBmaXJzdC4AVlYxIGFscmVhZHkgdXNlcyB0aGUgMjU2LXZpbGxhZ2VyIG1heGltdW0uAElzbGFuZCBFdmVudCBxdWV1ZWQuAEdhaW5lZCAzIGNoaWxkcmVuLgBHYWluZWQgMSwwMDAgZm9vZC4AR2FpbmVkIDMsMDAwIHRlY2ggcG9pbnRzLgBUaGlzIGRvdWJsZXIgaXMgYWxyZWFkeSBvd25lZC4AQ291bGQgbm90IHNhdmUgdGhlIGRvdWJsZXIuAE9yaWdpbnNFeGNsdXNpdmVGZWF0dXJlcwBUZWNoUG9pbnREb3VibGVyAEZvb2RQb2ludERvdWJsZXIAMQBPcmlnaW5zIEV4Y2x1c2l2ZSBGZWF0dXJlcy5pbmkAa2VybmVsMzIuZGxsAFdyaXRlUHJpdmF0ZVByb2ZpbGVTdHJpbmdBAACWXUgAoF1IAK1dSAC+XUgA0l1IAN5dSADxXUgA/11IABJeSABQwwAAMHUAAPgkAQCQ0AMAUMMAAKCGAQBAnAAAIKEHACChBwA=",
+                        "purpose":  "install Origins upgrade labels, descriptions, costs, and persistent doubler keys"
+                    }
+                ]
+}
