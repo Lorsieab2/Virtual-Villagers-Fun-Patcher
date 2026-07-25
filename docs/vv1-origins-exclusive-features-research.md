@@ -31,7 +31,9 @@ The APK's Tech screen exposes these purchases:
 | Food Point Doubler | 500,000 | Doubles positive food increments. |
 
 The two doubler hooks run only when their increment is positive. Negative
-values retain their original magnitude.
+values retain their original magnitude. The two Island Event result calls that
+award tech or food are explicitly excluded, so an Island Event never receives
+the doubler bonus.
 
 The desktop implementation now constructs the stock event dialog and marks the
 request with a private sentinel. The guarded event selector consumes that
@@ -88,8 +90,11 @@ records during startup; replace saves made by older experimental builds if
 they contain persisted movement-speed changes.
 
 The desktop game's central tech and food award routines implement the
-doublers. Consequently, all positive awards routed through those routines are
-doubled, while deductions remain unchanged. Ownership is stored in
+doublers. Positive awards routed through those routines are doubled, while
+deductions remain unchanged. The Island Event result composer has one central
+tech award call (return address `0x428194`) and one central food award call
+(return address `0x4281DA`); the detours recognize those exact return addresses
+and leave those awards at their stock amounts. Ownership is stored in
 `Origins Exclusive Features.ini` beside the
 modified executable, so it persists independently of save-slot selection.
 
@@ -102,7 +107,7 @@ positive-looking food writes at `0x41C472` and `0x41C485` initialize a new
 village's starting food and are not gameplay gains; costs and negative event
 adjustments remain direct deductions. The doubler detours preserve that split:
 every positive award is doubled, while starting values, spending, and losses are
-unchanged.
+unchanged. Island Event awards are also excluded from the doubler.
 
 Grant Running adds trait 38 to an available Like slot on the displayed
 villager and removes trait 38 from any of that villager's Dislike slots. If

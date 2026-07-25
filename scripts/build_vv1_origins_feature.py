@@ -470,6 +470,8 @@ def main() -> None:
             mov eax, dword ptr [esp + 8]
             test eax, eax
             jle tech_apply
+            cmp dword ptr [esp + 4], 0x428194
+            je tech_apply
             push 0x{s['ini_file']:X}
             push 0
             push 0x{s['ini_tech']:X}
@@ -495,6 +497,8 @@ def main() -> None:
             mov eax, dword ptr [esp + 8]
             test eax, eax
             jle food_apply
+            cmp dword ptr [esp + 4], 0x4281DA
+            je food_apply
             push 0x{s['ini_file']:X}
             push 0
             push 0x{s['ini_food']:X}
@@ -770,13 +774,13 @@ def main() -> None:
         0x1D120,
         original[0x1D120 : 0x1D125],
         rel32_jump(0x41D120, tech_increment),
-        "double only positive tech-point awards after the persistent Tech Point Doubler is owned",
+        "double positive non-Island-Event tech-point awards after the persistent Tech Point Doubler is owned",
     )
     patch(
         0x1D140,
         original[0x1D140 : 0x1D145],
         rel32_jump(0x41D140, food_increment),
-        "double only positive food awards after the persistent Food Point Doubler is owned",
+        "double positive non-Island-Event food awards after the persistent Food Point Doubler is owned",
     )
     patch(
         0x3CD22,
@@ -817,7 +821,8 @@ def main() -> None:
         "description": (
             "Adds an icon-based Upgrades screen containing Time Warp, Island Event, the "
             "native Barrel of Babies event with a three-space capacity guard, "
-            "and removable 500,000-tech-point Tech Point Doubler and Food Point Doubler. Adds "
+            "and removable 500,000-tech-point Tech Point Doubler and Food Point Doubler. "
+            "The doublers do not multiply Island Event tech or food awards. Adds "
             "an icon-based Villager Upgrades screen containing Grant Youth, Grant Full "
             "Mastery, Grant Running, and Set Age to 18 for the displayed villager. Grant "
             "Full Mastery preserves a checked job preference and chooses Farming when "
