@@ -1,9 +1,9 @@
 # Experimental 256-villager expansion for VV3-VV5
 
-> **Disabled:** player testing found that all three expanded executables crash
-> or hang during startup. This document preserves incomplete historical
-> reverse-engineering work; the GUI and command line no longer offer either
-> expanded mode.
+> **Experimental:** the three current self-contained expanded game folders pass
+> a bounded startup smoke test. A complete 256-villager playthrough, save, and
+> reload has not been completed, so both expanded modes remain clearly marked
+> experimental.
 
 ## Result
 
@@ -121,8 +121,9 @@ nursing-baby reservations.
 - PE section, resource-directory, checksum, output-size, and readback checks.
 - Complete copied game folders containing `fmod.dll`, SDL2, image libraries,
   assets, and every original companion file.
-- Ten-second Windows startup test: VV3, VV4, and VV5 each remained running and
-  responsive and displayed its correctly titled game window.
+- Ten-second Windows startup smoke test: VV3, VV4, and VV5 each remained
+  running and responsive in a complete copied game folder and displayed its
+  correctly titled game window.
 
 The bare-EXE test that displayed a missing-`fmod.dll` dialog is not counted as a
 game startup. A later raw-sweep prototype that crashed is also superseded and
@@ -132,6 +133,6 @@ is not the committed manifest.
 
 Startup and static structure are verified. A village has not yet been played
 all the way to 256 villagers through births, deaths, Island Events, offline
-catch-up, save, and reload. The mode is labeled experimental for that reason.
-Use the patcher's complete copied game folder, keep the stock EXE, and retain
-backups while the expanded save layout remains experimental.
+catch-up, save, and reload. The mode remains labeled experimental for that
+reason. Use the patcher's complete copied game folder, keep the stock EXE, and
+retain backups while the expanded save layout remains experimental.

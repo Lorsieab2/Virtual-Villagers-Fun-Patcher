@@ -34,6 +34,10 @@ MODES = (
     "collection_progression",
     "immediate_fixed",
 )
+EXPANDED_MODES = (
+    "experimental_expanded_256",
+    "experimental_expanded_256_progression",
+)
 EXPANDED = json.loads((ROOT / "data" / "expanded_256.json").read_text())
 
 
@@ -54,21 +58,22 @@ class ManifestTests(unittest.TestCase):
             self.assertEqual(builds[game_id].villager_slots, 150)
             self.assertEqual(builds[game_id].absolute_maximum, 150)
 
-    def test_expanded_256_modes_are_disabled(self) -> None:
+    def test_expanded_256_modes_are_available_with_experimental_warning(self) -> None:
+        self.assertEqual(
+            [mode.id for mode in load_patch_modes()], list(MODES + EXPANDED_MODES)
+        )
         source = STOCK / load_builds()[2].input_name
-        for mode in (
-            "experimental_expanded_256",
-            "experimental_expanded_256_progression",
-        ):
-            with self.subTest(mode=mode), self.assertRaisesRegex(
-                PatcherError, "startup crashes or hangs"
-            ):
-                dry_run(source, mode)
+        for mode in EXPANDED_MODES:
+            with self.subTest(mode=mode):
+                preview = dry_run(source, mode)
+                self.assertTrue(preview["experimental_expanded_records"])
 
     def test_modes_names_targets_and_safety_guards(self) -> None:
         builds = load_builds()
         self.assertEqual([build.id for build in builds], ["vv1", "vv2", "vv3", "vv4", "vv5"])
-        self.assertEqual([mode.id for mode in load_patch_modes()], list(MODES))
+        self.assertEqual(
+            [mode.id for mode in load_patch_modes()], list(MODES + EXPANDED_MODES)
+        )
         self.assertEqual(DEFAULT_PATCH_MODE, "collection_progression")
         for build in builds:
             self.assertEqual(build.absolute_maximum, build.villager_slots)
@@ -426,7 +431,6 @@ class StockIntegrationTests(unittest.TestCase):
                 )
                 self.assertTrue(latest_output.is_file())
 
-    @unittest.skip("Expanded 256 modes are disabled after startup failures")
     def test_expanded_later_games_keep_stock_save_names_and_use_larger_images(self) -> None:
         save_offsets = {"vv3": 0x7C5C0, "vv4": 0x8A77C, "vv5": 0x95794}
         for build in load_builds():
@@ -458,7 +462,6 @@ class StockIntegrationTests(unittest.TestCase):
                 ),
             )
 
-    @unittest.skip("Expanded 256 modes are disabled after startup failures")
     def test_expanded_later_games_accept_exact_stock_save_layouts(self) -> None:
         compatibility = {
             "vv3": {
@@ -579,7 +582,6 @@ class StockIntegrationTests(unittest.TestCase):
         )
         self.assertIn(bytes.fromhex("83BC30D003000001"), cave)
 
-    @unittest.skip("Expanded 256 modes are disabled after startup failures")
     def test_expanded_collection_progression_reaches_256(self) -> None:
         progression_bases = {"vv2": 231, "vv3": 221, "vv4": 231, "vv5": 241}
         for build in load_builds():

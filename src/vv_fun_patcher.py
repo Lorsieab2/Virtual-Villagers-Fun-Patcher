@@ -17,12 +17,6 @@ MANIFEST_PATH = ROOT / "data" / "builds.json"
 EXPANDED_MANIFEST_PATH = ROOT / "data" / "expanded_256.json"
 ORIGINS_FEATURE_PATH = ROOT / "data" / "vv1_origins_feature.json"
 DEFAULT_PATCH_MODE = "collection_progression"
-DISABLED_PATCH_MODES = {
-    "experimental_expanded_256",
-    "experimental_expanded_256_progression",
-}
-
-
 class PatcherError(RuntimeError):
     pass
 
@@ -52,11 +46,7 @@ def load_builds() -> list[Build]:
 
 
 def load_patch_modes() -> list[PatchMode]:
-    return [
-        PatchMode(item)
-        for item in _manifest()["patch_modes"]
-        if item["id"] not in DISABLED_PATCH_MODES
-    ]
+    return [PatchMode(item) for item in _manifest()["patch_modes"]]
 
 
 def load_fun_patches() -> list[FunPatch]:
@@ -169,12 +159,6 @@ def output_folder_for(
 
 
 def get_patch_mode(patch_mode: str) -> PatchMode:
-    if patch_mode in DISABLED_PATCH_MODES:
-        raise PatcherError(
-            "The VV3-VV5 expanded 256 modes are disabled because player testing "
-            "found startup crashes or hangs. Use Collection Progression Max Pop "
-            "or Immediate Fixed Max Pop."
-        )
     for mode in load_patch_modes():
         if mode.id == patch_mode:
             return mode

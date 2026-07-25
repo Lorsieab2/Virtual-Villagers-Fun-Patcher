@@ -4,8 +4,10 @@ PHYSICAL POPULATION LIMITS
 
 A New Home and The Lost Children have 256 stock villager records.
 The Secret City, The Tree of Life, and New Believers have 150 stock records.
-The former VV3-VV5 expanded-256 modes are disabled because player testing
-found that their executables crash or hang during startup.
+The Experimental Expanded 256 modes expand VV3-VV5's physical records and
+save layout from 150 to 256. They are self-contained and pass startup smoke
+testing, but a complete 256-villager playthrough and save/reload cycle remains
+experimental.
 
 1. Double-click "Launch Virtual Villagers Fun Patcher.bat".
 2. Choose one of the two patch styles:
@@ -15,6 +17,12 @@ found that their executables crash or hang during startup.
    - Immediate Fixed Max Pop:
      The absolute maximum is available immediately. Collections no longer
      affect it, and The Secret City's magic tech no longer affects it.
+   - Experimental Expanded 256 Villagers:
+     VV3-VV5 expand their physical records and save layout to 256 immediately.
+   - Experimental Expanded 256 - Collection Progression:
+     VV3-VV5 expand to 256 while their original collection and Magic Tech
+     bonuses remain required to reach 256. Both expanded modes are experimental
+     and require the complete copied game folder.
 3. Optional for A New Home: check "School Lessons Grant Skill",
    "Continue Research at Max Technologies", and/or
    "Reenable F6 Clothing Change Cheat", and/or
