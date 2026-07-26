@@ -18,17 +18,19 @@ Choose the style in the patcher; the choice and all paths are remembered.
 |---|---|---|
 | Collection Progression Max Pop | The original population bonuses remain active and are required to reach the slot maximum. The Secret City also retains its level-3 magic bonus. | `(Game name) - Modded.exe` |
 | Immediate Fixed Max Pop | The slot maximum is available immediately. Collections no longer change it; The Secret City's magic tech no longer changes it either. | `(Game name) - Modded.exe` |
-| Experimental Expanded 256 Villagers | VV3–VV5 expand their physical records and save layout to 256 immediately; collections no longer affect that expanded ceiling. | `(Game name) - Modded.exe` |
-| Experimental Expanded 256 - Collection Progression | VV3–VV5 expand to 256 while their original collection and Magic Tech bonuses remain required to reach 256. | `(Game name) - Modded.exe` |
+| Experimental Expanded 256 Villagers | VV3–VV5 expand their physical records and save layout to 256 immediately; collections no longer affect that expanded ceiling. | `(Game name) - Modded 256.exe` |
+| Experimental Expanded 256 - Collection Progression | VV3–VV5 expand to 256 while their original collection and Magic Tech bonuses remain required to reach 256. | `(Game name) - Modded 256.exe` |
 
-Every mode and optional-patch combination uses the same stable short EXE name. The selected mode, optional patches, hashes, and applied edits remain identified in the adjacent `.patch-log.json`.
+Ordinary modes and optional-patch combinations use the stable short `- Modded`
+name. Experimental 256 modes use the separate short `- Modded 256` name. The
+selected mode, optional patches, hashes, and applied edits remain identified in
+the adjacent `.patch-log.json`.
 
 The **Experimental Expanded 256 Villagers** and **Experimental Expanded 256 -
 Collection Progression** modes are available for VV3–VV5. They expand the
-physical record and save layout from 150 to 256 and include guarded loading of
-the original stock save layout. The three current self-contained folders pass
-the bounded startup smoke test, but a complete playthrough to 256, save, and
-reload remains experimental; keep the original folder and saves untouched.
+logical record and save layout from 150 to 256 and include guarded loading of
+the original stock save layout. They remain experimental and are awaiting
+player startup, save-recognition, and complete playthrough validation.
 
 ## VV2: Easier Healing Mastery
 
@@ -237,7 +239,26 @@ game's patches sorted by patch name. It includes **Select All Patches** and
 at once without changing the selected population patch style, and the
 selection is remembered normally.
 
-For every selected game, the patcher creates one short folder named **`(Game name) - Modded`** containing **`(Game name) - Modded.exe`**. By default this folder is beside the supplied original; the GUI's **Modded output location** chooser can place all selected games under another parent folder. It copies every file and subfolder from the original game folder, verifies the copied files by SHA-256, keeps the stock EXE in the copy, and adds the modified EXE plus its `.patch-log.json`. The original folder and original EXE are never edited, renamed, replaced, or deleted. Applying another patch style refreshes that game's same Modded folder after confirmation.
+For every selected game, ordinary modes create **`(Game name) - Modded`**
+containing **`(Game name) - Modded.exe`**. Experimental 256 modes instead create
+**`(Game name) - Modded 256`** containing
+**`(Game name) - Modded 256.exe`**. By default the selected folder is beside the
+supplied original; the GUI's **Modded output location** chooser can place all
+selected games under another parent folder. It copies every file and subfolder
+from the original game folder, verifies the copied files by SHA-256, keeps the
+stock EXE in the copy, and adds the modified EXE plus its `.patch-log.json`. The
+original folder and original EXE are never edited, renamed, replaced, or
+deleted. Applying another patch style refreshes that mode's same short folder
+after confirmation.
+
+For an experimental 256 mode, the GUI also checks the matching vanilla save
+folder. The required slot-zero control file and every numbered `.ldw` save are
+copied together into the separate `(Game name) - Modded 256` save folder. If
+that destination already contains saves, the patcher asks before replacing
+them; declining preserves the existing Modded 256 saves. The vanilla saves are
+never edited. Command-line users can request the same behavior with
+`--copy-vanilla-saves`; replacing an existing Modded 256 save set additionally
+requires the explicit `--replace-modded-saves` flag.
 
 ## Exact-build safety
 
@@ -258,7 +279,7 @@ Pass `--patch-mode collection_progression`, `--patch-mode immediate_fixed`, `--p
 
 ```text
 python src/vv_fun_patcher.py dry-run "path\game.exe" --patch-mode immediate_fixed --output-root "path\chosen output parent"
-python src/vv_fun_patcher.py apply "path\game.exe" --patch-mode collection_progression --output-root "path\chosen output parent"
+python src/vv_fun_patcher.py apply "path\game.exe" --patch-mode experimental_expanded_256_progression --copy-vanilla-saves --output-root "path\chosen output parent"
 python src/vv_fun_patcher.py apply-all --vv1 "path\vv1 folder" --vv2 "path\vv2 folder" --vv3 "path\vv3 folder" --vv4 "path\vv4 folder" --vv5 "path\vv5 folder" --patch-mode immediate_fixed --output-root "path\chosen output parent"
 ```
 

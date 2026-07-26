@@ -17,6 +17,7 @@ from vv_fun_patcher import (  # noqa: E402
     PatcherError,
     apply_all,
     apply_patch,
+    copy_vanilla_saves,
     dry_run,
     dry_run_all,
     get_fun_patch,
@@ -25,8 +26,10 @@ from vv_fun_patcher import (  # noqa: E402
     load_builds,
     load_fun_patches,
     load_patch_modes,
+    modded_save_folder_for,
     render_patched_bytes,
     validate_all_sources,
+    vanilla_save_folder_for,
 )
 
 STOCK = ROOT / "research" / "stock-executables"
@@ -49,6 +52,10 @@ def modded_exe_name(build) -> str:
     return f"{build.title} - Modded.exe"
 
 
+def expanded_exe_name(build) -> str:
+    return f"{build.title} - Modded 256.exe"
+
+
 class ManifestTests(unittest.TestCase):
     def test_stock_record_capacities_are_explicit(self) -> None:
         builds = {build.id: build for build in load_builds()}
@@ -67,6 +74,11 @@ class ManifestTests(unittest.TestCase):
             with self.subTest(mode=mode):
                 preview = dry_run(source, mode)
                 self.assertTrue(preview["experimental_expanded_records"])
+                self.assertEqual(preview["output_name"], expanded_exe_name(load_builds()[2]))
+                self.assertEqual(
+                    Path(preview["output_folder"]).name,
+                    f"{load_builds()[2].title} - Modded 256",
+                )
 
     def test_modes_names_targets_and_safety_guards(self) -> None:
         builds = load_builds()
@@ -537,7 +549,8 @@ class StockIntegrationTests(unittest.TestCase):
                 "cave": (0x7B3B1, 102),
                 "stock_size": "681C2F0100",
                 "tail": "81C7CC1E0100",
-                "tail_length": "B950100000",
+                "tail_end": "81C6182F0100",
+                "tail_length": "B914040000",
                 "zero_count": "B9661D0000",
             },
             "vv4": {
@@ -545,7 +558,8 @@ class StockIntegrationTests(unittest.TestCase):
                 "cave": (0x8910D, 102),
                 "stock_size": "680C710100",
                 "tail": "81C7B8600100",
-                "tail_length": "B954100000",
+                "tail_end": "81C608710100",
+                "tail_length": "B915040000",
                 "zero_count": "B9EA1A0000",
             },
             "vv5": {
@@ -553,7 +567,8 @@ class StockIntegrationTests(unittest.TestCase):
                 "cave": (0x9466C, 102),
                 "stock_size": "68787D0100",
                 "tail": "81C7146D0100",
-                "tail_length": "B964100000",
+                "tail_end": "81C6747D0100",
+                "tail_length": "B919040000",
                 "zero_count": "B9FC1C0000",
             },
         }
@@ -576,6 +591,7 @@ class StockIntegrationTests(unittest.TestCase):
                 cave = bytes(rendered[cave_offset : cave_offset + cave_length])
                 self.assertIn(bytes.fromhex(expected["stock_size"]), cave)
                 self.assertIn(bytes.fromhex(expected["tail"]), cave)
+                self.assertIn(bytes.fromhex(expected["tail_end"]), cave)
                 self.assertIn(bytes.fromhex(expected["tail_length"]), cave)
                 self.assertIn(bytes.fromhex(expected["zero_count"]), cave)
                 self.assertTrue(cave.endswith(bytes.fromhex("C20C00")))
@@ -583,6 +599,122 @@ class StockIntegrationTests(unittest.TestCase):
                     self.assertEqual(
                         bytes(rendered[0x28961:0x28966]),
                         bytes.fromhex("B92D690000"),
+                    )
+
+    def test_expanded_modes_leave_required_slot_zero_loaders_stock(self) -> None:
+        slot_zero_calls = {
+            "vv3": (0x288A9, "E8F2AAFDFF"),
+            "vv4": (0x1FB86, "E8553CFEFF"),
+            "vv5": (0x25676, "E8F5E0FDFF"),
+        }
+        for build in load_builds():
+            if build.id not in slot_zero_calls:
+                continue
+            for mode in EXPANDED_MODES:
+                with self.subTest(game=build.id, mode=mode):
+                    rendered, _ = render_patched_bytes(
+                        STOCK / build.input_name,
+                        build,
+                        mode,
+                    )
+                    offset, expected = slot_zero_calls[build.id]
+                self.assertEqual(
+                    bytes(rendered[offset : offset + 5]),
+                    bytes.fromhex(expected),
+                )
+
+    def test_vv5_expanded_mode_loads_all_256_compact_villager_records(self) -> None:
+        build = next(build for build in load_builds() if build.id == "vv5")
+        rendered, _ = render_patched_bytes(
+            STOCK / build.input_name,
+            build,
+            "experimental_expanded_256",
+        )
+        self.assertEqual(
+            bytes(rendered[0x6FA75:0x6FA79]),
+            struct.pack("<I", 256 * 280),
+        )
+
+    def test_vv3_reserves_four_padding_records_for_grouped_selectors(self) -> None:
+        build = next(build for build in load_builds() if build.id == "vv3")
+        source = STOCK / build.input_name
+        original = source.read_bytes()
+        rendered, _ = render_patched_bytes(
+            source,
+            build,
+            "experimental_expanded_256",
+        )
+        pe = struct.unpack_from("<I", original, 0x3C)[0]
+        optional_size = struct.unpack_from("<H", original, pe + 20)[0]
+        section_count = struct.unpack_from("<H", original, pe + 6)[0]
+        section_table = pe + 24 + optional_size
+        data_header = next(
+            section_table + index * 40
+            for index in range(section_count)
+            if original[
+                section_table + index * 40 : section_table + index * 40 + 8
+            ].rstrip(b"\0")
+            == b".data"
+        )
+        old_virtual_size = struct.unpack_from("<I", original, data_header + 8)[0]
+        new_virtual_size = struct.unpack_from("<I", rendered, data_header + 8)[0]
+        self.assertEqual(
+            new_virtual_size - old_virtual_size,
+            (260 - 150) * 8076,
+        )
+
+    def test_stock_save_migration_preserves_every_original_payload_byte(self) -> None:
+        layouts = {
+            "vv3": (0x12F1C, 0x11ECC, 0x7598, 0x414),
+            "vv4": (0x1710C, 0x160B8, 0x6BA8, 0x415),
+            "vv5": (0x17D78, 0x16D14, 0x73F0, 0x419),
+        }
+        for game_id, (stock_size, gap_start, gap_size, dword_count) in layouts.items():
+            with self.subTest(game=game_id):
+                original = bytes((index * 131 + 17) & 0xFF for index in range(stock_size))
+                expanded = bytearray(stock_size + gap_size)
+                expanded[:gap_start] = original[:gap_start]
+                tail = original[gap_start:]
+                self.assertEqual(len(tail), dword_count * 4)
+                expanded[gap_start + gap_size :] = tail
+                self.assertEqual(bytes(expanded[:gap_start]), original[:gap_start])
+                self.assertEqual(
+                    bytes(expanded[gap_start : gap_start + gap_size]),
+                    b"\0" * gap_size,
+                )
+                self.assertEqual(bytes(expanded[gap_start + gap_size :]), tail)
+
+    def test_expanded_later_games_extend_index_validators_and_selection(self) -> None:
+        expected = {
+            "vv3": {
+                0x35A5A: "00010000",
+                0x5EE69: "00010000",
+                0x60D46: "FF000000",
+            },
+            "vv4": {
+                0x66045: "FF000000",
+                0x66C9C: "FF000000",
+                0x6683F: "FF000000",
+                0x66A0F: "FF000000",
+            },
+            "vv5": {
+                0x6F955: "FF000000",
+                0x708FC: "FF000000",
+                0x71D77: "FF000000",
+            },
+        }
+        for build in load_builds():
+            if build.id not in expected:
+                continue
+            with self.subTest(game=build.id):
+                rendered, _ = render_patched_bytes(
+                    STOCK / build.input_name,
+                    build,
+                    "experimental_expanded_256",
+                )
+                for offset, value in expected[build.id].items():
+                    self.assertEqual(
+                        bytes(rendered[offset : offset + 4]), bytes.fromhex(value)
                     )
 
     def test_vv1_magic_fruit_uses_global_puzzle_state_and_safe_fields(self) -> None:
@@ -745,6 +877,86 @@ class StockIntegrationTests(unittest.TestCase):
             self.assertEqual(output.parent.parent, game_folder.parent)
             self.assertEqual((output.parent / "keep.dat").read_bytes(), b"keep")
             self.assertTrue((output.parent / build.input_name).is_file())
+
+    def test_expanded_apply_uses_separate_short_256_names(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            build = load_builds()[2]
+            game_folder = Path(temp) / "game"
+            game_folder.mkdir()
+            source = game_folder / build.input_name
+            shutil.copy2(STOCK / build.input_name, source)
+            output, log = apply_patch(source, "experimental_expanded_256")
+            self.assertEqual(output.name, expanded_exe_name(build))
+            self.assertEqual(output.parent.name, f"{build.title} - Modded 256")
+            self.assertEqual(log.name, f"{build.title} - Modded 256.patch-log.json")
+            self.assertTrue((output.parent / build.input_name).is_file())
+
+    def test_expanded_save_copy_keeps_slot_zero_with_numbered_saves(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp) / "LDW"
+            for build in load_builds():
+                vanilla = root / build.title
+                vanilla.mkdir(parents=True)
+                files = {
+                    f"{build.title}0.ldw": b"slot-zero-" + build.id.encode(),
+                    f"{build.title}1.ldw": b"village-one-" + build.id.encode(),
+                    f"{build.title}21.ldw": b"village-backup-" + build.id.encode(),
+                }
+                for name, payload in files.items():
+                    (vanilla / name).write_bytes(payload)
+                self.assertEqual(
+                    vanilla_save_folder_for(build, root),
+                    vanilla.resolve(),
+                )
+                result = copy_vanilla_saves(
+                    build,
+                    "experimental_expanded_256",
+                    save_root=root,
+                )
+                destination = root / f"{build.title} - Modded 256"
+                self.assertEqual(
+                    modded_save_folder_for(
+                        build, "experimental_expanded_256", root
+                    ),
+                    destination,
+                )
+                self.assertEqual(result["status"], "vanilla_saves_copied")
+                self.assertEqual(result["copied_files"], 3)
+                for name, payload in files.items():
+                    self.assertEqual((destination / name).read_bytes(), payload)
+
+    def test_existing_modded_256_saves_require_explicit_replacement(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp) / "LDW"
+            build = load_builds()[2]
+            vanilla = root / build.title
+            destination = root / f"{build.title} - Modded 256"
+            vanilla.mkdir(parents=True)
+            destination.mkdir(parents=True)
+            slot_zero = f"{build.title}0.ldw"
+            slot_one = f"{build.title}1.ldw"
+            (vanilla / slot_zero).write_bytes(b"vanilla-zero")
+            (vanilla / slot_one).write_bytes(b"vanilla-one")
+            (destination / slot_zero).write_bytes(b"existing-zero")
+            (destination / slot_one).write_bytes(b"existing-one")
+            preserved = copy_vanilla_saves(
+                build,
+                "experimental_expanded_256",
+                save_root=root,
+            )
+            self.assertEqual(
+                preserved["status"], "existing_modded_saves_preserved"
+            )
+            self.assertEqual((destination / slot_zero).read_bytes(), b"existing-zero")
+            replaced = copy_vanilla_saves(
+                build,
+                "experimental_expanded_256",
+                replace_existing=True,
+                save_root=root,
+            )
+            self.assertEqual(replaced["status"], "vanilla_saves_copied")
+            self.assertEqual((destination / slot_zero).read_bytes(), b"vanilla-zero")
+            self.assertEqual((destination / slot_one).read_bytes(), b"vanilla-one")
 
     def test_overwrite_updates_same_folder_without_sibling_copies(self) -> None:
         with tempfile.TemporaryDirectory() as temp:
@@ -1495,7 +1707,7 @@ class StockIntegrationTests(unittest.TestCase):
         )
         self.assertEqual(
             bytes(rendered[0x23D85:0x23D8A]),
-            bytes.fromhex("E9662F0300"),
+            bytes.fromhex("E81672FFFF"),
         )
         payload = bytes(rendered[0x85D30:0x86000])
         self.assertIn(b"Tech Point Doubler\0", payload)

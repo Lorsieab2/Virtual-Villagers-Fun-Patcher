@@ -18,7 +18,12 @@ CONFIG = {
         "manager": 0x59E110,
         "end150": 0x6C5D2C,
         "data_end": 0x6C7518,
-        "extra": 106 * 0x1F8C,
+        # Several stock VV3 selectors are unrolled five records at a time.
+        # Their final logical 256-record pass reads indices 255..259 before
+        # rejecting inactive entries, so reserve four zeroed padding records
+        # after logical slot 255. Only slots 0..255 are constructed, saved,
+        # selected, and exposed to population logic.
+        "extra": 110 * 0x1F8C,
         "save_extra": 106 * 284,
         "manager_range": (0x45C730, 0x460600),
         "record_tokens": (

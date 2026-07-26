@@ -5,9 +5,8 @@ PHYSICAL POPULATION LIMITS
 A New Home and The Lost Children have 256 stock villager records.
 The Secret City, The Tree of Life, and New Believers have 150 stock records.
 The Experimental Expanded 256 modes expand VV3-VV5's physical records and
-save layout from 150 to 256. They are self-contained and pass startup smoke
-testing, but a complete 256-villager playthrough and save/reload cycle remains
-experimental.
+save layout from 150 to 256. They remain experimental and await player startup,
+save-recognition, and complete 256-villager save/reload testing.
 
 1. Double-click "Launch Virtual Villagers Fun Patcher.bat".
 2. Choose one of the two patch styles:
@@ -73,10 +72,15 @@ selected population patch style.
 
 OUTPUTS
 
-Every mode and optional-patch combination creates the same short names:
+Ordinary modes and optional-patch combinations use:
 
 (name of game) - Modded\
 (name of game) - Modded.exe
+
+Experimental 256 modes use their own separate short names:
+
+(name of game) - Modded 256\
+(name of game) - Modded 256.exe
 
 Mode and optional-patch details are recorded in the modified EXE's adjacent
 .patch-log.json file instead of being added to the EXE or save-folder name.
@@ -92,6 +96,15 @@ game copies or replacement-backup folders.
 Original folders and EXEs are never changed, renamed, replaced, or deleted. The
 patcher remembers the selected style, output parent, single-game EXE path, and
 all five folder paths. Vanilla and Modded links open their respective folders.
+
+EXPERIMENTAL 256 SAVES
+
+VV3, VV4, and VV5 need their slot-zero control file together with their
+numbered saves. When an Experimental 256 mode is applied, the patcher checks
+the exact vanilla save folder and copies slot 0 plus every numbered .ldw file
+as one set into the separate "(Game name) - Modded 256" save folder. If that
+folder already has saves, the patcher asks before replacing them. Choosing No
+keeps the existing Modded 256 saves. Vanilla saves are never edited.
 
 SAFE MULTIPLE BIRTHS
 

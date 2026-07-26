@@ -99,11 +99,10 @@ otherwise-unused fields of the active saved game state (`+0xAD48` and
 `+0xAD4C`), so one save can own a doubler without changing another save in the
 same game folder. No global INI or executable-side ownership file is created.
 
-While either saved flag is active, the world update occasionally submits the
-stock sparkle effect at the matching resource object: the tech chest/research
-table uses `(1091, 1342)` and the food bin uses `(1146, 1122)`. The existing
-random world sparkle call remains intact; the added effect is deliberately
-intermittent like the mobile visual cue rather than a permanent overlay.
+The experimental desktop sparkle injection was removed after crash records
+implicated its renderer path. The stock world sparkle call remains completely
+unchanged. Doubler ownership and resource multiplication do not depend on that
+cosmetic effect.
 
 Static caller and field-reference verification found seven callers of the
 stock positive-tech routine at `0x41D120` and six callers of the stock

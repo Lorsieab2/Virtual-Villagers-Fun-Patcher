@@ -21,7 +21,9 @@ from vv_fun_patcher import (
     load_builds,
     load_fun_patches,
     load_patch_modes,
+    modded_save_folder_for,
     validate_all_sources,
+    vanilla_save_folder_for,
 )
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -349,7 +351,7 @@ class App(tk.Tk):
         elif mode.id == "experimental_expanded_256":
             detail = (
                 "Experimental: VV3-VV5 expand their physical records and save layout from 150 to 256. "
-                "Their short Modded EXEs use separate executable-named save folders. "
+                "Their short Modded 256 EXEs use separate executable-named save folders. "
                 "VV1-VV2 use their existing 256 slots. Collections no longer change the cap."
             )
         else:
@@ -642,6 +644,7 @@ class App(tk.Tk):
             )
             if not self._confirm_experimental():
                 return
+            copy_saves, replace_modded_saves = self._confirm_save_copy([build])
             output_folder = Path(preview["output_folder"])
             overwrite = False
             if output_folder.exists():
@@ -657,6 +660,8 @@ class App(tk.Tk):
                 overwrite=overwrite,
                 fun_patch_ids=self._selected_fun_patch_ids(build.id),
                 output_root=self._output_root(),
+                copy_saves=copy_saves,
+                replace_modded_saves=replace_modded_saves,
             )
             self.last_output_dir = output.parent
             self.last_modified_paths[build.id] = output
@@ -685,6 +690,9 @@ class App(tk.Tk):
             )
             if not self._confirm_experimental():
                 return
+            copy_saves, replace_modded_saves = self._confirm_save_copy(
+                [build for build, _source in validated]
+            )
             existing = []
             for (build, source), preview in zip(validated, previews):
                 output_folder = Path(preview["output_folder"])
@@ -706,6 +714,8 @@ class App(tk.Tk):
                 overwrite=overwrite,
                 fun_patch_ids=self._selected_fun_patch_ids(),
                 output_root=self._output_root(),
+                copy_saves=copy_saves,
+                replace_modded_saves=replace_modded_saves,
             )
             self.last_output_dir = results[0][0].parent
             self.last_modified_paths = {
@@ -737,6 +747,36 @@ class App(tk.Tk):
             "Experimental mode gives VV3, VV4, and VV5 an expanded 256-record save "
             "layout. Full 256-villager long-play testing is not complete.\n\nContinue?",
         )
+
+    def _confirm_save_copy(self, builds) -> tuple[bool, bool]:
+        if self._mode() not in {
+            "experimental_expanded_256",
+            "experimental_expanded_256_progression",
+        }:
+            return False, False
+        available = [
+            build for build in builds if vanilla_save_folder_for(build) is not None
+        ]
+        if not available:
+            return False, False
+        existing = []
+        for build in available:
+            destination = modded_save_folder_for(build, self._mode())
+            if destination is not None and any(
+                destination.glob(f"{build.title}*.ldw")
+            ):
+                existing.append(destination)
+        if not existing:
+            return True, False
+        replace = messagebox.askyesno(
+            "Replace existing Modded 256 saves?",
+            "The required slot-zero file and numbered village files must come "
+            "from the same save folder.\n\nReplace the existing Modded 256 "
+            "save files below with verified copies of the vanilla files?\n\n"
+            + "\n".join(str(path) for path in existing)
+            + "\n\nThe vanilla save folders are not changed.",
+        )
+        return True, replace
 
     def _show_folder_confirmation(
         self,

@@ -3,8 +3,8 @@
   "games": {
     "vv3": {
       "source_sha256": "8BC5DB382D02BC5C21AD5F607580D60FF44A6519CC7EB133F03113BAACAE6503",
-      "prototype_sha256": "D77A77472708491E7775F1E694BD4B020021711FE41AAE7244D6738752D4FAAC",
-      "patch_count": 1257,
+      "prototype_sha256": "6EE3361A7AC35F441763647C1E2FC9EC49569DE5EF372BDB41D243D03002D601",
+      "patch_count": 1260,
       "patches": [
         {
           "offset": "0x5C9D2",
@@ -1911,97 +1911,97 @@
         {
           "offset": "0x3C45E",
           "before": "14616C00",
-          "after": "0C717900",
+          "after": "3CEF7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x3CE07",
           "before": "14616C00",
-          "after": "0C717900",
+          "after": "3CEF7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x3EC76",
           "before": "14616C00",
-          "after": "0C717900",
+          "after": "3CEF7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x3F516",
           "before": "50616C00",
-          "after": "48717900",
+          "after": "78EF7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x3F51B",
           "before": "10616C00",
-          "after": "08717900",
+          "after": "38EF7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x3F564",
           "before": "50616C00",
-          "after": "48717900",
+          "after": "78EF7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x3F67B",
           "before": "50616C00",
-          "after": "48717900",
+          "after": "78EF7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x3F6B3",
           "before": "14616C00",
-          "after": "0C717900",
+          "after": "3CEF7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x3F9C4",
           "before": "50616C00",
-          "after": "48717900",
+          "after": "78EF7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x3F9C9",
           "before": "10616C00",
-          "after": "08717900",
+          "after": "38EF7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x40105",
           "before": "54616C00",
-          "after": "4C717900",
+          "after": "7CEF7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x40139",
           "before": "14616C00",
-          "after": "0C717900",
+          "after": "3CEF7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x40168",
           "before": "14616C00",
-          "after": "0C717900",
+          "after": "3CEF7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x401CC",
           "before": "14616C00",
-          "after": "0C717900",
+          "after": "3CEF7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x401F9",
           "before": "14616C00",
-          "after": "0C717900",
+          "after": "3CEF7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x40254",
           "before": "54616C00",
-          "after": "4C717900",
+          "after": "7CEF7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
@@ -2091,187 +2091,187 @@
         {
           "offset": "0x56936",
           "before": "345D6C00",
-          "after": "2C6D7900",
+          "after": "5CEB7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x5698B",
           "before": "445D6C00",
-          "after": "3C6D7900",
+          "after": "6CEB7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x569AD",
           "before": "305D6C00",
-          "after": "286D7900",
+          "after": "58EB7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x56A02",
           "before": "405D6C00",
-          "after": "386D7900",
+          "after": "68EB7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x56A30",
           "before": "345D6C00",
-          "after": "2C6D7900",
+          "after": "5CEB7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x56A4A",
           "before": "4C5D6C00",
-          "after": "446D7900",
+          "after": "74EB7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x56A5A",
           "before": "305D6C00",
-          "after": "286D7900",
+          "after": "58EB7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x56A7F",
           "before": "485D6C00",
-          "after": "406D7900",
+          "after": "70EB7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x56AA5",
           "before": "345D6C00",
-          "after": "2C6D7900",
+          "after": "5CEB7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x56ACA",
           "before": "445D6C00",
-          "after": "3C6D7900",
+          "after": "6CEB7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x56AE9",
           "before": "305D6C00",
-          "after": "286D7900",
+          "after": "58EB7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x56B03",
           "before": "405D6C00",
-          "after": "386D7900",
+          "after": "68EB7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x56B3B",
           "before": "545D6C00",
-          "after": "4C6D7900",
+          "after": "7CEB7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x56B65",
           "before": "545D6C00",
-          "after": "4C6D7900",
+          "after": "7CEB7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x56B90",
           "before": "545D6C00",
-          "after": "4C6D7900",
+          "after": "7CEB7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x56BE7",
           "before": "345D6C00",
-          "after": "2C6D7900",
+          "after": "5CEB7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x56C12",
           "before": "445D6C00",
-          "after": "3C6D7900",
+          "after": "6CEB7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x56C3D",
           "before": "305D6C00",
-          "after": "286D7900",
+          "after": "58EB7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x56C6A",
           "before": "405D6C00",
-          "after": "386D7900",
+          "after": "68EB7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x56CC7",
           "before": "2C5D6C00",
-          "after": "246D7900",
+          "after": "54EB7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x56D17",
           "before": "345D6C00",
-          "after": "2C6D7900",
+          "after": "5CEB7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x56D59",
           "before": "445D6C00",
-          "after": "3C6D7900",
+          "after": "6CEB7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x56D8D",
           "before": "305D6C00",
-          "after": "286D7900",
+          "after": "58EB7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x56DED",
           "before": "345D6C00",
-          "after": "2C6D7900",
+          "after": "5CEB7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x56DF9",
           "before": "4C5D6C00",
-          "after": "446D7900",
+          "after": "74EB7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x56E08",
           "before": "305D6C00",
-          "after": "286D7900",
+          "after": "58EB7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x56E14",
           "before": "485D6C00",
-          "after": "406D7900",
+          "after": "70EB7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x56E36",
           "before": "345D6C00",
-          "after": "2C6D7900",
+          "after": "5CEB7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x56E42",
           "before": "445D6C00",
-          "after": "3C6D7900",
+          "after": "6CEB7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x56E51",
           "before": "305D6C00",
-          "after": "286D7900",
+          "after": "58EB7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x56E64",
           "before": "405D6C00",
-          "after": "386D7900",
+          "after": "68EB7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
@@ -2379,85 +2379,85 @@
         {
           "offset": "0x5C750",
           "before": "307C1200",
-          "after": "288C1F00",
+          "after": "580A2000",
           "purpose": "relocate manager-relative tail reference"
         },
         {
           "offset": "0x5C762",
           "before": "387C1200",
-          "after": "308C1F00",
+          "after": "600A2000",
           "purpose": "relocate manager-relative tail reference"
         },
         {
           "offset": "0x5C774",
           "before": "207C1200",
-          "after": "188C1F00",
+          "after": "480A2000",
           "purpose": "relocate manager-relative tail reference"
         },
         {
           "offset": "0x5C786",
           "before": "287C1200",
-          "after": "208C1F00",
+          "after": "500A2000",
           "purpose": "relocate manager-relative tail reference"
         },
         {
           "offset": "0x5C798",
           "before": "347C1200",
-          "after": "2C8C1F00",
+          "after": "5C0A2000",
           "purpose": "relocate manager-relative tail reference"
         },
         {
           "offset": "0x5C7AA",
           "before": "3C7C1200",
-          "after": "348C1F00",
+          "after": "640A2000",
           "purpose": "relocate manager-relative tail reference"
         },
         {
           "offset": "0x5C7BC",
           "before": "247C1200",
-          "after": "1C8C1F00",
+          "after": "4C0A2000",
           "purpose": "relocate manager-relative tail reference"
         },
         {
           "offset": "0x5C7CE",
           "before": "2C7C1200",
-          "after": "248C1F00",
+          "after": "540A2000",
           "purpose": "relocate manager-relative tail reference"
         },
         {
           "offset": "0x5C7DD",
           "before": "1C7C1200",
-          "after": "148C1F00",
+          "after": "440A2000",
           "purpose": "relocate manager-relative tail reference"
         },
         {
           "offset": "0x5C7EC",
           "before": "407C1200",
-          "after": "388C1F00",
+          "after": "680A2000",
           "purpose": "relocate manager-relative tail reference"
         },
         {
           "offset": "0x5C7FB",
           "before": "447C1200",
-          "after": "3C8C1F00",
+          "after": "6C0A2000",
           "purpose": "relocate manager-relative tail reference"
         },
         {
           "offset": "0x5C80D",
           "before": "487C1200",
-          "after": "408C1F00",
+          "after": "700A2000",
           "purpose": "relocate manager-relative tail reference"
         },
         {
           "offset": "0x5C81F",
           "before": "4C7C1200",
-          "after": "448C1F00",
+          "after": "740A2000",
           "purpose": "relocate manager-relative tail reference"
         },
         {
           "offset": "0x5C82B",
           "before": "507C1200",
-          "after": "488C1F00",
+          "after": "780A2000",
           "purpose": "relocate manager-relative tail reference"
         },
         {
@@ -2505,25 +2505,25 @@
         {
           "offset": "0x5F80D",
           "before": "487C1200",
-          "after": "408C1F00",
+          "after": "700A2000",
           "purpose": "relocate manager-relative tail reference"
         },
         {
           "offset": "0x5F81C",
           "before": "447C1200",
-          "after": "3C8C1F00",
+          "after": "6C0A2000",
           "purpose": "relocate manager-relative tail reference"
         },
         {
           "offset": "0x5F83D",
           "before": "447C1200",
-          "after": "3C8C1F00",
+          "after": "6C0A2000",
           "purpose": "relocate manager-relative tail reference"
         },
         {
           "offset": "0x5F869",
           "before": "447C1200",
-          "after": "3C8C1F00",
+          "after": "6C0A2000",
           "purpose": "relocate manager-relative tail reference"
         },
         {
@@ -2595,187 +2595,187 @@
         {
           "offset": "0x6080E",
           "before": "4C7C1200",
-          "after": "448C1F00",
+          "after": "740A2000",
           "purpose": "relocate manager-relative tail reference"
         },
         {
           "offset": "0x6087A",
           "before": "3C7C1200",
-          "after": "348C1F00",
+          "after": "640A2000",
           "purpose": "relocate manager-relative tail reference"
         },
         {
           "offset": "0x60880",
           "before": "247C1200",
-          "after": "1C8C1F00",
+          "after": "4C0A2000",
           "purpose": "relocate manager-relative tail reference"
         },
         {
           "offset": "0x60886",
           "before": "2C7C1200",
-          "after": "248C1F00",
+          "after": "540A2000",
           "purpose": "relocate manager-relative tail reference"
         },
         {
           "offset": "0x60896",
           "before": "347C1200",
-          "after": "2C8C1F00",
+          "after": "5C0A2000",
           "purpose": "relocate manager-relative tail reference"
         },
         {
           "offset": "0x608A2",
           "before": "247C1200",
-          "after": "1C8C1F00",
+          "after": "4C0A2000",
           "purpose": "relocate manager-relative tail reference"
         },
         {
           "offset": "0x608A8",
           "before": "2C7C1200",
-          "after": "248C1F00",
+          "after": "540A2000",
           "purpose": "relocate manager-relative tail reference"
         },
         {
           "offset": "0x608BB",
           "before": "387C1200",
-          "after": "308C1F00",
+          "after": "600A2000",
           "purpose": "relocate manager-relative tail reference"
         },
         {
           "offset": "0x608CB",
           "before": "307C1200",
-          "after": "288C1F00",
+          "after": "580A2000",
           "purpose": "relocate manager-relative tail reference"
         },
         {
           "offset": "0x608D7",
           "before": "207C1200",
-          "after": "188C1F00",
+          "after": "480A2000",
           "purpose": "relocate manager-relative tail reference"
         },
         {
           "offset": "0x608DD",
           "before": "287C1200",
-          "after": "208C1F00",
+          "after": "500A2000",
           "purpose": "relocate manager-relative tail reference"
         },
         {
           "offset": "0x60A56",
           "before": "1C7C1200",
-          "after": "148C1F00",
+          "after": "440A2000",
           "purpose": "relocate manager-relative tail reference"
         },
         {
           "offset": "0x60A7F",
           "before": "407C1200",
-          "after": "388C1F00",
+          "after": "680A2000",
           "purpose": "relocate manager-relative tail reference"
         },
         {
           "offset": "0x60BD5",
           "before": "507C1200",
-          "after": "488C1F00",
+          "after": "780A2000",
           "purpose": "relocate manager-relative tail reference"
         },
         {
           "offset": "0x627A2",
           "before": "745D6C00",
-          "after": "6C6D7900",
+          "after": "9CEB7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x627B2",
           "before": "745D6C00",
-          "after": "6C6D7900",
+          "after": "9CEB7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x62D12",
           "before": "785D6C00",
-          "after": "706D7900",
+          "after": "A0EB7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x62D89",
           "before": "785D6C00",
-          "after": "706D7900",
+          "after": "A0EB7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x62E71",
           "before": "785D6C00",
-          "after": "706D7900",
+          "after": "A0EB7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x62EE5",
           "before": "785D6C00",
-          "after": "706D7900",
+          "after": "A0EB7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x62F6C",
           "before": "785D6C00",
-          "after": "706D7900",
+          "after": "A0EB7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x62FE0",
           "before": "785D6C00",
-          "after": "706D7900",
+          "after": "A0EB7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x63060",
           "before": "785D6C00",
-          "after": "706D7900",
+          "after": "A0EB7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x630D4",
           "before": "785D6C00",
-          "after": "706D7900",
+          "after": "A0EB7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x6315B",
           "before": "785D6C00",
-          "after": "706D7900",
+          "after": "A0EB7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x631CF",
           "before": "785D6C00",
-          "after": "706D7900",
+          "after": "A0EB7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x6324F",
           "before": "785D6C00",
-          "after": "706D7900",
+          "after": "A0EB7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x632C3",
           "before": "785D6C00",
-          "after": "706D7900",
+          "after": "A0EB7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x63347",
           "before": "745D6C00",
-          "after": "6C6D7900",
+          "after": "9CEB7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x63371",
           "before": "745D6C00",
-          "after": "6C6D7900",
+          "after": "9CEB7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x63387",
           "before": "745D6C00",
-          "after": "6C6D7900",
+          "after": "9CEB7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
@@ -2787,73 +2787,73 @@
         {
           "offset": "0x634F2",
           "before": "7C5D6C00",
-          "after": "746D7900",
+          "after": "A4EB7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x63502",
           "before": "7C5D6C00",
-          "after": "746D7900",
+          "after": "A4EB7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x63680",
           "before": "845D6C00",
-          "after": "7C6D7900",
+          "after": "ACEB7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x63689",
           "before": "845D6C00",
-          "after": "7C6D7900",
+          "after": "ACEB7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x63714",
           "before": "805D6C00",
-          "after": "786D7900",
+          "after": "A8EB7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x63724",
           "before": "805D6C00",
-          "after": "786D7900",
+          "after": "A8EB7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x7A391",
           "before": "845D6C00",
-          "after": "7C6D7900",
+          "after": "ACEB7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x7A399",
           "before": "845D6C00",
-          "after": "7C6D7900",
+          "after": "ACEB7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x63A6F",
           "before": "805D6C00",
-          "after": "786D7900",
+          "after": "A8EB7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x64097",
           "before": "7C5D6C00",
-          "after": "746D7900",
+          "after": "A4EB7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x640C4",
           "before": "7C5D6C00",
-          "after": "746D7900",
+          "after": "A4EB7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x640DA",
           "before": "7C5D6C00",
-          "after": "746D7900",
+          "after": "A4EB7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
@@ -2865,37 +2865,37 @@
         {
           "offset": "0x64312",
           "before": "885D6C00",
-          "after": "806D7900",
+          "after": "B0EB7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x64322",
           "before": "885D6C00",
-          "after": "806D7900",
+          "after": "B0EB7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x645B3",
           "before": "8C5D6C00",
-          "after": "846D7900",
+          "after": "B4EB7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x64627",
           "before": "885D6C00",
-          "after": "806D7900",
+          "after": "B0EB7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x64651",
           "before": "885D6C00",
-          "after": "806D7900",
+          "after": "B0EB7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x64667",
           "before": "885D6C00",
-          "after": "806D7900",
+          "after": "B0EB7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
@@ -2907,67 +2907,67 @@
         {
           "offset": "0x64902",
           "before": "905D6C00",
-          "after": "886D7900",
+          "after": "B8EB7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x64912",
           "before": "905D6C00",
-          "after": "886D7900",
+          "after": "B8EB7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x64FC5",
           "before": "945D6C00",
-          "after": "8C6D7900",
+          "after": "BCEB7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x65047",
           "before": "945D6C00",
-          "after": "8C6D7900",
+          "after": "BCEB7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x65135",
           "before": "945D6C00",
-          "after": "8C6D7900",
+          "after": "BCEB7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x651A4",
           "before": "945D6C00",
-          "after": "8C6D7900",
+          "after": "BCEB7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x65213",
           "before": "945D6C00",
-          "after": "8C6D7900",
+          "after": "BCEB7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x65282",
           "before": "945D6C00",
-          "after": "8C6D7900",
+          "after": "BCEB7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x654D7",
           "before": "905D6C00",
-          "after": "886D7900",
+          "after": "B8EB7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x65504",
           "before": "905D6C00",
-          "after": "886D7900",
+          "after": "B8EB7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x6551A",
           "before": "905D6C00",
-          "after": "886D7900",
+          "after": "B8EB7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
@@ -2979,7 +2979,7 @@
         {
           "offset": "0x65A94",
           "before": "985D6C00",
-          "after": "906D7900",
+          "after": "C0EB7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
@@ -2997,13 +2997,13 @@
         {
           "offset": "0x65EEF",
           "before": "9C5D6C00",
-          "after": "946D7900",
+          "after": "C4EB7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x65F7C",
           "before": "9C5D6C00",
-          "after": "946D7900",
+          "after": "C4EB7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
@@ -3021,13 +3021,13 @@
         {
           "offset": "0x661B2",
           "before": "A05D6C00",
-          "after": "986D7900",
+          "after": "C8EB7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x661C2",
           "before": "A05D6C00",
-          "after": "986D7900",
+          "after": "C8EB7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
@@ -3093,97 +3093,97 @@
         {
           "offset": "0x67DE2",
           "before": "A45D6C00",
-          "after": "9C6D7900",
+          "after": "CCEB7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x67E61",
           "before": "A45D6C00",
-          "after": "9C6D7900",
+          "after": "CCEB7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x67EE4",
           "before": "A45D6C00",
-          "after": "9C6D7900",
+          "after": "CCEB7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x67F63",
           "before": "A45D6C00",
-          "after": "9C6D7900",
+          "after": "CCEB7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x67FE6",
           "before": "A45D6C00",
-          "after": "9C6D7900",
+          "after": "CCEB7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x68065",
           "before": "A45D6C00",
-          "after": "9C6D7900",
+          "after": "CCEB7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x680EB",
           "before": "A45D6C00",
-          "after": "9C6D7900",
+          "after": "CCEB7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x68169",
           "before": "A45D6C00",
-          "after": "9C6D7900",
+          "after": "CCEB7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x681EF",
           "before": "A45D6C00",
-          "after": "9C6D7900",
+          "after": "CCEB7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x6826D",
           "before": "A45D6C00",
-          "after": "9C6D7900",
+          "after": "CCEB7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x682F3",
           "before": "A45D6C00",
-          "after": "9C6D7900",
+          "after": "CCEB7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x68371",
           "before": "A45D6C00",
-          "after": "9C6D7900",
+          "after": "CCEB7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x683F1",
           "before": "A45D6C00",
-          "after": "9C6D7900",
+          "after": "CCEB7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x68477",
           "before": "A05D6C00",
-          "after": "986D7900",
+          "after": "C8EB7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x684A4",
           "before": "A05D6C00",
-          "after": "986D7900",
+          "after": "C8EB7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x684BA",
           "before": "A05D6C00",
-          "after": "986D7900",
+          "after": "C8EB7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
@@ -3621,25 +3621,25 @@
         {
           "offset": "0x6B3DE",
           "before": "A85D6C00",
-          "after": "A06D7900",
+          "after": "D0EB7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x6B452",
           "before": "A85D6C00",
-          "after": "A06D7900",
+          "after": "D0EB7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x6B4CC",
           "before": "A85D6C00",
-          "after": "A06D7900",
+          "after": "D0EB7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x6B560",
           "before": "A85D6C00",
-          "after": "A06D7900",
+          "after": "D0EB7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
@@ -3669,43 +3669,43 @@
         {
           "offset": "0x6BC1C",
           "before": "AC5D6C00",
-          "after": "A46D7900",
+          "after": "D4EB7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x6BDA2",
           "before": "AC5D6C00",
-          "after": "A46D7900",
+          "after": "D4EB7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x6BE0A",
           "before": "AC5D6C00",
-          "after": "A46D7900",
+          "after": "D4EB7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x6BE7F",
           "before": "AC5D6C00",
-          "after": "A46D7900",
+          "after": "D4EB7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x6BEE7",
           "before": "AC5D6C00",
-          "after": "A46D7900",
+          "after": "D4EB7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x6BF63",
           "before": "AC5D6C00",
-          "after": "A46D7900",
+          "after": "D4EB7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x6BFCB",
           "before": "AC5D6C00",
-          "after": "A46D7900",
+          "after": "D4EB7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
@@ -3801,157 +3801,157 @@
         {
           "offset": "0x6CD1C",
           "before": "B45D6C00",
-          "after": "AC6D7900",
+          "after": "DCEB7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x6CD94",
           "before": "B45D6C00",
-          "after": "AC6D7900",
+          "after": "DCEB7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x6CF4A",
           "before": "B45D6C00",
-          "after": "AC6D7900",
+          "after": "DCEB7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x6CFC1",
           "before": "B45D6C00",
-          "after": "AC6D7900",
+          "after": "DCEB7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x6D038",
           "before": "B45D6C00",
-          "after": "AC6D7900",
+          "after": "DCEB7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x6D0B6",
           "before": "B45D6C00",
-          "after": "AC6D7900",
+          "after": "DCEB7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x6D128",
           "before": "B45D6C00",
-          "after": "AC6D7900",
+          "after": "DCEB7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x6D1A0",
           "before": "B45D6C00",
-          "after": "AC6D7900",
+          "after": "DCEB7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x6D218",
           "before": "B45D6C00",
-          "after": "AC6D7900",
+          "after": "DCEB7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x6D290",
           "before": "B45D6C00",
-          "after": "AC6D7900",
+          "after": "DCEB7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x6D308",
           "before": "B45D6C00",
-          "after": "AC6D7900",
+          "after": "DCEB7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x6D380",
           "before": "B45D6C00",
-          "after": "AC6D7900",
+          "after": "DCEB7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x6D3F8",
           "before": "B45D6C00",
-          "after": "AC6D7900",
+          "after": "DCEB7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x6D46A",
           "before": "B45D6C00",
-          "after": "AC6D7900",
+          "after": "DCEB7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x6D4FC",
           "before": "B45D6C00",
-          "after": "AC6D7900",
+          "after": "DCEB7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x6D56E",
           "before": "B45D6C00",
-          "after": "AC6D7900",
+          "after": "DCEB7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x6D5E6",
           "before": "B45D6C00",
-          "after": "AC6D7900",
+          "after": "DCEB7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x6D658",
           "before": "B45D6C00",
-          "after": "AC6D7900",
+          "after": "DCEB7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x6D6D0",
           "before": "B45D6C00",
-          "after": "AC6D7900",
+          "after": "DCEB7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x6D742",
           "before": "B45D6C00",
-          "after": "AC6D7900",
+          "after": "DCEB7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x6D7BA",
           "before": "B45D6C00",
-          "after": "AC6D7900",
+          "after": "DCEB7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x6D82C",
           "before": "B45D6C00",
-          "after": "AC6D7900",
+          "after": "DCEB7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x6D8A4",
           "before": "B45D6C00",
-          "after": "AC6D7900",
+          "after": "DCEB7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x6D916",
           "before": "B45D6C00",
-          "after": "AC6D7900",
+          "after": "DCEB7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x6D995",
           "before": "B45D6C00",
-          "after": "AC6D7900",
+          "after": "DCEB7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x6DA07",
           "before": "B45D6C00",
-          "after": "AC6D7900",
+          "after": "DCEB7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
@@ -4047,1861 +4047,1861 @@
         {
           "offset": "0x6E9EE",
           "before": "B85D6C00",
-          "after": "B06D7900",
+          "after": "E0EB7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x6E9F6",
           "before": "B85D6C00",
-          "after": "B06D7900",
+          "after": "E0EB7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x6E9FC",
           "before": "B85D6C00",
-          "after": "B06D7900",
+          "after": "E0EB7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x6EA1B",
           "before": "B85D6C00",
-          "after": "B06D7900",
+          "after": "E0EB7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x6EA27",
           "before": "B85D6C00",
-          "after": "B06D7900",
+          "after": "E0EB7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x6EB17",
           "before": "745E6C00",
-          "after": "6C6E7900",
+          "after": "9CEC7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x6EC87",
           "before": "C05D6C00",
-          "after": "B86D7900",
+          "after": "E8EB7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x6ED39",
           "before": "D85D6C00",
-          "after": "D06D7900",
+          "after": "00EC7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x6ED58",
           "before": "E05D6C00",
-          "after": "D86D7900",
+          "after": "08EC7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x6ED79",
           "before": "D45D6C00",
-          "after": "CC6D7900",
+          "after": "FCEB7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x6ED83",
           "before": "D05D6C00",
-          "after": "C86D7900",
+          "after": "F8EB7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x6ED9E",
           "before": "DC5D6C00",
-          "after": "D46D7900",
+          "after": "04EC7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x6EDA8",
           "before": "CC5D6C00",
-          "after": "C46D7900",
+          "after": "F4EB7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x6EDBA",
           "before": "C85D6C00",
-          "after": "C06D7900",
+          "after": "F0EB7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x6EDC5",
           "before": "E45D6C00",
-          "after": "DC6D7900",
+          "after": "0CEC7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x6EDCC",
           "before": "C45D6C00",
-          "after": "BC6D7900",
+          "after": "ECEB7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x6EDD1",
           "before": "C45D6C00",
-          "after": "BC6D7900",
+          "after": "ECEB7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x6F203",
           "before": "345E6C00",
-          "after": "2C6E7900",
+          "after": "5CEC7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x6F223",
           "before": "305E6C00",
-          "after": "286E7900",
+          "after": "58EC7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x6F228",
           "before": "2C5E6C00",
-          "after": "246E7900",
+          "after": "54EC7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x6F230",
           "before": "10756C00",
-          "after": "08857900",
+          "after": "38037A00",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x6F239",
           "before": "0C756C00",
-          "after": "04857900",
+          "after": "34037A00",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x6F24D",
           "before": "0C756C00",
-          "after": "04857900",
+          "after": "34037A00",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x6F256",
           "before": "10756C00",
-          "after": "08857900",
+          "after": "38037A00",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x6F25B",
           "before": "0C756C00",
-          "after": "04857900",
+          "after": "34037A00",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x6F2AC",
           "before": "345E6C00",
-          "after": "2C6E7900",
+          "after": "5CEC7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x6F45C",
           "before": "E85D6C00",
-          "after": "E06D7900",
+          "after": "10EC7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x6F51F",
           "before": "E85D6C00",
-          "after": "E06D7900",
+          "after": "10EC7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x6F8AB",
           "before": "545F6C00",
-          "after": "4C6F7900",
+          "after": "7CED7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x6F92C",
           "before": "645F6C00",
-          "after": "5C6F7900",
+          "after": "8CED7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x6F93E",
           "before": "545F6C00",
-          "after": "4C6F7900",
+          "after": "7CED7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x6F9E8",
           "before": "385E6C00",
-          "after": "306E7900",
+          "after": "60EC7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x6FA03",
           "before": "3C5E6C00",
-          "after": "346E7900",
+          "after": "64EC7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x6FAB8",
           "before": "385E6C00",
-          "after": "306E7900",
+          "after": "60EC7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x6FB63",
           "before": "00756C00",
-          "after": "F8847900",
+          "after": "28037A00",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x6FB6A",
           "before": "E0646C00",
-          "after": "D8747900",
+          "after": "08F37900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x6FBB0",
           "before": "00756C00",
-          "after": "F8847900",
+          "after": "28037A00",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x6FC5C",
           "before": "A8626C00",
-          "after": "A0727900",
+          "after": "D0F07900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x6FCC3",
           "before": "C1626C00",
-          "after": "B9727900",
+          "after": "E9F07900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x6FCFD",
           "before": "A0626C00",
-          "after": "98727900",
+          "after": "C8F07900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x6FD0C",
           "before": "8C626C00",
-          "after": "84727900",
+          "after": "B4F07900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x6FD24",
           "before": "9C626C00",
-          "after": "94727900",
+          "after": "C4F07900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x6FD36",
           "before": "805F6C00",
-          "after": "786F7900",
+          "after": "A8ED7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x6FD67",
           "before": "A0626C00",
-          "after": "98727900",
+          "after": "C8F07900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x6FD88",
           "before": "9C626C00",
-          "after": "94727900",
+          "after": "C4F07900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x6FD96",
           "before": "A0626C00",
-          "after": "98727900",
+          "after": "C8F07900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x6FDA4",
           "before": "8C626C00",
-          "after": "84727900",
+          "after": "B4F07900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x6FDBC",
           "before": "A0626C00",
-          "after": "98727900",
+          "after": "C8F07900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x6FDCE",
           "before": "9C626C00",
-          "after": "94727900",
+          "after": "C4F07900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x6FE08",
           "before": "805F6C00",
-          "after": "786F7900",
+          "after": "A8ED7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x6FE1B",
           "before": "10756C00",
-          "after": "08857900",
+          "after": "38037A00",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x6FE27",
           "before": "0C756C00",
-          "after": "04857900",
+          "after": "34037A00",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x6FE2E",
           "before": "10756C00",
-          "after": "08857900",
+          "after": "38037A00",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x6FE5D",
           "before": "10756C00",
-          "after": "08857900",
+          "after": "38037A00",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x6FE70",
           "before": "0C756C00",
-          "after": "04857900",
+          "after": "34037A00",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x6FE76",
           "before": "10756C00",
-          "after": "08857900",
+          "after": "38037A00",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x6FE7B",
           "before": "10756C00",
-          "after": "08857900",
+          "after": "38037A00",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x6FE87",
           "before": "0C756C00",
-          "after": "04857900",
+          "after": "34037A00",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x6FE93",
           "before": "0C756C00",
-          "after": "04857900",
+          "after": "34037A00",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x700AE",
           "before": "80616C00",
-          "after": "78717900",
+          "after": "A8EF7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x700E5",
           "before": "E85D6C00",
-          "after": "E06D7900",
+          "after": "10EC7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x70120",
           "before": "80616C00",
-          "after": "78717900",
+          "after": "A8EF7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x70453",
           "before": "A0626C00",
-          "after": "98727900",
+          "after": "C8F07900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x7047C",
           "before": "8C626C00",
-          "after": "84727900",
+          "after": "B4F07900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x704DA",
           "before": "9C626C00",
-          "after": "94727900",
+          "after": "C4F07900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x7051B",
           "before": "9C626C00",
-          "after": "94727900",
+          "after": "C4F07900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x7052D",
           "before": "805F6C00",
-          "after": "786F7900",
+          "after": "A8ED7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x7055B",
           "before": "9C626C00",
-          "after": "94727900",
+          "after": "C4F07900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x7056B",
           "before": "805F6C00",
-          "after": "786F7900",
+          "after": "A8ED7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x705F5",
           "before": "645E6C00",
-          "after": "5C6E7900",
+          "after": "8CEC7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x70643",
           "before": "F45D6C00",
-          "after": "EC6D7900",
+          "after": "1CEC7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x7064B",
           "before": "005E6C00",
-          "after": "F86D7900",
+          "after": "28EC7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x70654",
           "before": "045E6C00",
-          "after": "FC6D7900",
+          "after": "2CEC7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x70663",
           "before": "F85D6C00",
-          "after": "F06D7900",
+          "after": "20EC7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x70674",
           "before": "F85D6C00",
-          "after": "F06D7900",
+          "after": "20EC7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x7067E",
           "before": "FC5D6C00",
-          "after": "F46D7900",
+          "after": "24EC7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x706EC",
           "before": "645E6C00",
-          "after": "5C6E7900",
+          "after": "8CEC7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x7072B",
           "before": "04756C00",
-          "after": "FC847900",
+          "after": "2C037A00",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x70735",
           "before": "5C5E6C00",
-          "after": "546E7900",
+          "after": "84EC7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x7084F",
           "before": "705E6C00",
-          "after": "686E7900",
+          "after": "98EC7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x70870",
           "before": "705E6C00",
-          "after": "686E7900",
+          "after": "98EC7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x70908",
           "before": "705E6C00",
-          "after": "686E7900",
+          "after": "98EC7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x70911",
           "before": "705E6C00",
-          "after": "686E7900",
+          "after": "98EC7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x709AB",
           "before": "685E6C00",
-          "after": "606E7900",
+          "after": "90EC7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x709B3",
           "before": "6C5E6C00",
-          "after": "646E7900",
+          "after": "94EC7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x709BC",
           "before": "685E6C00",
-          "after": "606E7900",
+          "after": "90EC7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x709C4",
           "before": "6C5E6C00",
-          "after": "646E7900",
+          "after": "94EC7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x70AC3",
           "before": "685E6C00",
-          "after": "606E7900",
+          "after": "90EC7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x70ACB",
           "before": "6C5E6C00",
-          "after": "646E7900",
+          "after": "94EC7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x70D07",
           "before": "745E6C00",
-          "after": "6C6E7900",
+          "after": "9CEC7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x70E01",
           "before": "685E6C00",
-          "after": "606E7900",
+          "after": "90EC7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x70E10",
           "before": "6C5E6C00",
-          "after": "646E7900",
+          "after": "94EC7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x71039",
           "before": "785E6C00",
-          "after": "706E7900",
+          "after": "A0EC7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x711F9",
           "before": "805E6C00",
-          "after": "786E7900",
+          "after": "A8EC7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x71207",
           "before": "7C5E6C00",
-          "after": "746E7900",
+          "after": "A4EC7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x71285",
           "before": "805E6C00",
-          "after": "786E7900",
+          "after": "A8EC7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x712E9",
           "before": "805E6C00",
-          "after": "786E7900",
+          "after": "A8EC7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x712F9",
           "before": "845E6C00",
-          "after": "7C6E7900",
+          "after": "ACEC7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x71303",
           "before": "7C5E6C00",
-          "after": "746E7900",
+          "after": "A4EC7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x71395",
           "before": "805E6C00",
-          "after": "786E7900",
+          "after": "A8EC7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x713E0",
           "before": "845E6C00",
-          "after": "7C6E7900",
+          "after": "ACEC7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x713EF",
           "before": "7C5E6C00",
-          "after": "746E7900",
+          "after": "A4EC7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x713FF",
           "before": "7C5E6C00",
-          "after": "746E7900",
+          "after": "A4EC7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x7140C",
           "before": "845E6C00",
-          "after": "7C6E7900",
+          "after": "ACEC7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x71411",
           "before": "845E6C00",
-          "after": "7C6E7900",
+          "after": "ACEC7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x7141D",
           "before": "885E6C00",
-          "after": "806E7900",
+          "after": "B0EC7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x7143B",
           "before": "805E6C00",
-          "after": "786E7900",
+          "after": "A8EC7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x71450",
           "before": "805E6C00",
-          "after": "786E7900",
+          "after": "A8EC7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x71464",
           "before": "805E6C00",
-          "after": "786E7900",
+          "after": "A8EC7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x715C0",
           "before": "645F6C00",
-          "after": "5C6F7900",
+          "after": "8CED7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x715D0",
           "before": "3C5F6C00",
-          "after": "346F7900",
+          "after": "64ED7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x715ED",
           "before": "405F6C00",
-          "after": "386F7900",
+          "after": "68ED7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x71607",
           "before": "405F6C00",
-          "after": "386F7900",
+          "after": "68ED7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x71628",
           "before": "405F6C00",
-          "after": "386F7900",
+          "after": "68ED7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x71702",
           "before": "405F6C00",
-          "after": "386F7900",
+          "after": "68ED7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x71713",
           "before": "405F6C00",
-          "after": "386F7900",
+          "after": "68ED7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x71718",
           "before": "905E6C00",
-          "after": "886E7900",
+          "after": "B8EC7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x7172C",
           "before": "905E6C00",
-          "after": "886E7900",
+          "after": "B8EC7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x71732",
           "before": "E45E6C00",
-          "after": "DC6E7900",
+          "after": "0CED7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x7173F",
           "before": "D65E6C00",
-          "after": "CE6E7900",
+          "after": "FEEC7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x71745",
           "before": "3C5F6C00",
-          "after": "346F7900",
+          "after": "64ED7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x7175F",
           "before": "2A5F6C00",
-          "after": "226F7900",
+          "after": "52ED7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x71766",
           "before": "385F6C00",
-          "after": "306F7900",
+          "after": "60ED7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x717A2",
           "before": "945E6C00",
-          "after": "8C6E7900",
+          "after": "BCEC7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x717D4",
           "before": "E85E6C00",
-          "after": "E06E7900",
+          "after": "10ED7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x719E4",
           "before": "3C5F6C00",
-          "after": "346F7900",
+          "after": "64ED7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x719F1",
           "before": "285F6C00",
-          "after": "206F7900",
+          "after": "50ED7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x719F8",
           "before": "365F6C00",
-          "after": "2E6F7900",
+          "after": "5EED7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x719FF",
           "before": "305F6C00",
-          "after": "286F7900",
+          "after": "58ED7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x71A07",
           "before": "345F6C00",
-          "after": "2C6F7900",
+          "after": "5CED7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x71A0F",
           "before": "325F6C00",
-          "after": "2A6F7900",
+          "after": "5AED7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x71A19",
           "before": "2C5F6C00",
-          "after": "246F7900",
+          "after": "54ED7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x71A22",
           "before": "2E5F6C00",
-          "after": "266F7900",
+          "after": "56ED7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x71A2E",
           "before": "2E5F6C00",
-          "after": "266F7900",
+          "after": "56ED7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x71A3A",
           "before": "2A5F6C00",
-          "after": "226F7900",
+          "after": "52ED7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x71A47",
           "before": "E25E6C00",
-          "after": "DA6E7900",
+          "after": "0AED7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x71A4E",
           "before": "DC5E6C00",
-          "after": "D46E7900",
+          "after": "04ED7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x71A58",
           "before": "D45E6C00",
-          "after": "CC6E7900",
+          "after": "FCEC7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x71A60",
           "before": "E05E6C00",
-          "after": "D86E7900",
+          "after": "08ED7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x71A68",
           "before": "DE5E6C00",
-          "after": "D66E7900",
+          "after": "06ED7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x71A72",
           "before": "D85E6C00",
-          "after": "D06E7900",
+          "after": "00ED7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x71A7B",
           "before": "DA5E6C00",
-          "after": "D26E7900",
+          "after": "02ED7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x71A87",
           "before": "D65E6C00",
-          "after": "CE6E7900",
+          "after": "FEEC7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x71A99",
           "before": "DA5E6C00",
-          "after": "D26E7900",
+          "after": "02ED7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x71B46",
           "before": "445F6C00",
-          "after": "3C6F7900",
+          "after": "6CED7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x71B54",
           "before": "445F6C00",
-          "after": "3C6F7900",
+          "after": "6CED7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x71C08",
           "before": "80616C00",
-          "after": "78717900",
+          "after": "A8EF7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x72524",
           "before": "7C616C00",
-          "after": "74717900",
+          "after": "A4EF7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x7253B",
           "before": "80616C00",
-          "after": "78717900",
+          "after": "A8EF7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x725B6",
           "before": "EC5D6C00",
-          "after": "E46D7900",
+          "after": "14EC7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x725BD",
           "before": "E85D6C00",
-          "after": "E06D7900",
+          "after": "10EC7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x72601",
           "before": "C8606C00",
-          "after": "C0707900",
+          "after": "F0EE7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x72746",
           "before": "745F6C00",
-          "after": "6C6F7900",
+          "after": "9CED7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x72765",
           "before": "00756C00",
-          "after": "F8847900",
+          "after": "28037A00",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x72775",
           "before": "E0646C00",
-          "after": "D8747900",
+          "after": "08F37900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x727A1",
           "before": "E0646C00",
-          "after": "D8747900",
+          "after": "08F37900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x727A9",
           "before": "E0646C00",
-          "after": "D8747900",
+          "after": "08F37900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x727D8",
           "before": "7C616C00",
-          "after": "74717900",
+          "after": "A4EF7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x727EE",
           "before": "80616C00",
-          "after": "78717900",
+          "after": "A8EF7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x72848",
           "before": "EC5D6C00",
-          "after": "E46D7900",
+          "after": "14EC7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x7284F",
           "before": "E85D6C00",
-          "after": "E06D7900",
+          "after": "10EC7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x728D5",
           "before": "80616C00",
-          "after": "78717900",
+          "after": "A8EF7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x72949",
           "before": "7C616C00",
-          "after": "74717900",
+          "after": "A4EF7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x7295C",
           "before": "80616C00",
-          "after": "78717900",
+          "after": "A8EF7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x729D4",
           "before": "EC5D6C00",
-          "after": "E46D7900",
+          "after": "14EC7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x72B07",
           "before": "EC5D6C00",
-          "after": "E46D7900",
+          "after": "14EC7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x72B0E",
           "before": "E85D6C00",
-          "after": "E06D7900",
+          "after": "10EC7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x72E62",
           "before": "EC5D6C00",
-          "after": "E46D7900",
+          "after": "14EC7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x72E83",
           "before": "E85D6C00",
-          "after": "E06D7900",
+          "after": "10EC7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x72E94",
           "before": "E85D6C00",
-          "after": "E06D7900",
+          "after": "10EC7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x72EA7",
           "before": "E85D6C00",
-          "after": "E06D7900",
+          "after": "10EC7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x72EB3",
           "before": "E85D6C00",
-          "after": "E06D7900",
+          "after": "10EC7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x72ED2",
           "before": "7C616C00",
-          "after": "74717900",
+          "after": "A4EF7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x72EEA",
           "before": "80616C00",
-          "after": "78717900",
+          "after": "A8EF7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x72FE2",
           "before": "EC5D6C00",
-          "after": "E46D7900",
+          "after": "14EC7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x73037",
           "before": "E85D6C00",
-          "after": "E06D7900",
+          "after": "10EC7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x73041",
           "before": "EC5D6C00",
-          "after": "E46D7900",
+          "after": "14EC7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x7304E",
           "before": "EC5D6C00",
-          "after": "E46D7900",
+          "after": "14EC7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x73055",
           "before": "E85D6C00",
-          "after": "E06D7900",
+          "after": "10EC7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x73080",
           "before": "485F6C00",
-          "after": "406F7900",
+          "after": "70ED7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x730A3",
           "before": "485F6C00",
-          "after": "406F7900",
+          "after": "70ED7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x730B6",
           "before": "485F6C00",
-          "after": "406F7900",
+          "after": "70ED7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x730DF",
           "before": "485F6C00",
-          "after": "406F7900",
+          "after": "70ED7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x7310E",
           "before": "645F6C00",
-          "after": "5C6F7900",
+          "after": "8CED7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x732D6",
           "before": "545F6C00",
-          "after": "4C6F7900",
+          "after": "7CED7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x732E3",
           "before": "645F6C00",
-          "after": "5C6F7900",
+          "after": "8CED7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x7347E",
           "before": "545F6C00",
-          "after": "4C6F7900",
+          "after": "7CED7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x73487",
           "before": "645F6C00",
-          "after": "5C6F7900",
+          "after": "8CED7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x73666",
           "before": "745F6C00",
-          "after": "6C6F7900",
+          "after": "9CED7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x73677",
           "before": "6C5F6C00",
-          "after": "646F7900",
+          "after": "94ED7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x73705",
           "before": "7C616C00",
-          "after": "74717900",
+          "after": "A4EF7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x73713",
           "before": "80616C00",
-          "after": "78717900",
+          "after": "A8EF7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x73744",
           "before": "EC5D6C00",
-          "after": "E46D7900",
+          "after": "14EC7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x7374A",
           "before": "E85D6C00",
-          "after": "E06D7900",
+          "after": "10EC7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x73833",
           "before": "A8626C00",
-          "after": "A0727900",
+          "after": "D0F07900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x73849",
           "before": "A4626C00",
-          "after": "9C727900",
+          "after": "CCF07900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x73852",
           "before": "C4636C00",
-          "after": "BC737900",
+          "after": "ECF17900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x7390A",
           "before": "C0626C00",
-          "after": "B8727900",
+          "after": "E8F07900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x73914",
           "before": "C4636C00",
-          "after": "BC737900",
+          "after": "ECF17900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x73919",
           "before": "A8626C00",
-          "after": "A0727900",
+          "after": "D0F07900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x7391E",
           "before": "A4626C00",
-          "after": "9C727900",
+          "after": "CCF07900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x73923",
           "before": "D0636C00",
-          "after": "C8737900",
+          "after": "F8F17900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x73947",
           "before": "C4636C00",
-          "after": "BC737900",
+          "after": "ECF17900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x739B5",
           "before": "A4626C00",
-          "after": "9C727900",
+          "after": "CCF07900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x739C1",
           "before": "C4636C00",
-          "after": "BC737900",
+          "after": "ECF17900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x739D9",
           "before": "C4636C00",
-          "after": "BC737900",
+          "after": "ECF17900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x739F0",
           "before": "A4626C00",
-          "after": "9C727900",
+          "after": "CCF07900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x739FD",
           "before": "C4636C00",
-          "after": "BC737900",
+          "after": "ECF17900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x73A18",
           "before": "A4626C00",
-          "after": "9C727900",
+          "after": "CCF07900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x73A35",
           "before": "C1626C00",
-          "after": "B9727900",
+          "after": "E9F07900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x73A43",
           "before": "E0636C00",
-          "after": "D8737900",
+          "after": "08F27900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x73A50",
           "before": "C1626C00",
-          "after": "B9727900",
+          "after": "E9F07900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x73A60",
           "before": "E0636C00",
-          "after": "D8737900",
+          "after": "08F27900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x73A7A",
           "before": "C1626C00",
-          "after": "B9727900",
+          "after": "E9F07900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x73A86",
           "before": "E0636C00",
-          "after": "D8737900",
+          "after": "08F27900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x73A98",
           "before": "C1626C00",
-          "after": "B9727900",
+          "after": "E9F07900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x73AA6",
           "before": "E0636C00",
-          "after": "D8737900",
+          "after": "08F27900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x73ADC",
           "before": "785F6C00",
-          "after": "706F7900",
+          "after": "A0ED7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x73AE4",
           "before": "785F6C00",
-          "after": "706F7900",
+          "after": "A0ED7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x73AFB",
           "before": "785F6C00",
-          "after": "706F7900",
+          "after": "A0ED7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x73B11",
           "before": "645F6C00",
-          "after": "5C6F7900",
+          "after": "8CED7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x73B17",
           "before": "785F6C00",
-          "after": "706F7900",
+          "after": "A0ED7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x73B26",
           "before": "C4636C00",
-          "after": "BC737900",
+          "after": "ECF17900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x73B69",
           "before": "C0626C00",
-          "after": "B8727900",
+          "after": "E8F07900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x73B78",
           "before": "C4636C00",
-          "after": "BC737900",
+          "after": "ECF17900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x73B7E",
           "before": "A4626C00",
-          "after": "9C727900",
+          "after": "CCF07900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x73BB1",
           "before": "C0626C00",
-          "after": "B8727900",
+          "after": "E8F07900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x73BE9",
           "before": "C1626C00",
-          "after": "B9727900",
+          "after": "E9F07900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x73C0A",
           "before": "C4636C00",
-          "after": "BC737900",
+          "after": "ECF17900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x73C10",
           "before": "A8626C00",
-          "after": "A0727900",
+          "after": "D0F07900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x73C24",
           "before": "D0636C00",
-          "after": "C8737900",
+          "after": "F8F17900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x73C2B",
           "before": "A4626C00",
-          "after": "9C727900",
+          "after": "CCF07900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x73C34",
           "before": "C1626C00",
-          "after": "B9727900",
+          "after": "E9F07900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x73C4E",
           "before": "C1626C00",
-          "after": "B9727900",
+          "after": "E9F07900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x73C63",
           "before": "A4626C00",
-          "after": "9C727900",
+          "after": "CCF07900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x73C69",
           "before": "A8626C00",
-          "after": "A0727900",
+          "after": "D0F07900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x73C71",
           "before": "A8626C00",
-          "after": "A0727900",
+          "after": "D0F07900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x73C78",
           "before": "D0636C00",
-          "after": "C8737900",
+          "after": "F8F17900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x73C83",
           "before": "785F6C00",
-          "after": "706F7900",
+          "after": "A0ED7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x73CAC",
           "before": "14756C00",
-          "after": "0C857900",
+          "after": "3C037A00",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x73CBD",
           "before": "14756C00",
-          "after": "0C857900",
+          "after": "3C037A00",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x73D31",
           "before": "7C5F6C00",
-          "after": "746F7900",
+          "after": "A4ED7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x73D4D",
           "before": "F45D6C00",
-          "after": "EC6D7900",
+          "after": "1CEC7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x73D56",
           "before": "005E6C00",
-          "after": "F86D7900",
+          "after": "28EC7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x73D7F",
           "before": "9C626C00",
-          "after": "94727900",
+          "after": "C4F07900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x73D8E",
           "before": "A0626C00",
-          "after": "98727900",
+          "after": "C8F07900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x73DA5",
           "before": "9C626C00",
-          "after": "94727900",
+          "after": "C4F07900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x73DBF",
           "before": "9C626C00",
-          "after": "94727900",
+          "after": "C4F07900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x73DCC",
           "before": "88626C00",
-          "after": "80727900",
+          "after": "B0F07900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x73DD9",
           "before": "80626C00",
-          "after": "78727900",
+          "after": "A8F07900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x73DE0",
           "before": "84626C00",
-          "after": "7C727900",
+          "after": "ACF07900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x73DE6",
           "before": "90626C00",
-          "after": "88727900",
+          "after": "B8F07900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x73DEE",
           "before": "8C626C00",
-          "after": "84727900",
+          "after": "B4F07900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x73DF4",
           "before": "94626C00",
-          "after": "8C727900",
+          "after": "BCF07900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x73DFF",
           "before": "84626C00",
-          "after": "7C727900",
+          "after": "ACF07900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x73E07",
           "before": "88626C00",
-          "after": "80727900",
+          "after": "B0F07900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x74046",
           "before": "80626C00",
-          "after": "78727900",
+          "after": "A8F07900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x74054",
           "before": "98626C00",
-          "after": "90727900",
+          "after": "C0F07900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x74074",
           "before": "98626C00",
-          "after": "90727900",
+          "after": "C0F07900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x74079",
           "before": "80626C00",
-          "after": "78727900",
+          "after": "A8F07900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x74088",
           "before": "80626C00",
-          "after": "78727900",
+          "after": "A8F07900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x74091",
           "before": "98626C00",
-          "after": "90727900",
+          "after": "C0F07900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x7409E",
           "before": "80626C00",
-          "after": "78727900",
+          "after": "A8F07900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x740A9",
           "before": "80626C00",
-          "after": "78727900",
+          "after": "A8F07900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x740BB",
           "before": "80626C00",
-          "after": "78727900",
+          "after": "A8F07900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x740CE",
           "before": "80626C00",
-          "after": "78727900",
+          "after": "A8F07900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x740D9",
           "before": "9C626C00",
-          "after": "94727900",
+          "after": "C4F07900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x740E4",
           "before": "84626C00",
-          "after": "7C727900",
+          "after": "ACF07900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x740EA",
           "before": "88626C00",
-          "after": "80727900",
+          "after": "B0F07900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x740F7",
           "before": "80626C00",
-          "after": "78727900",
+          "after": "A8F07900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x74114",
           "before": "84626C00",
-          "after": "7C727900",
+          "after": "ACF07900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x7411A",
           "before": "80626C00",
-          "after": "78727900",
+          "after": "A8F07900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x74125",
           "before": "88626C00",
-          "after": "80727900",
+          "after": "B0F07900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x7412A",
           "before": "90626C00",
-          "after": "88727900",
+          "after": "B8F07900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x74132",
           "before": "80626C00",
-          "after": "78727900",
+          "after": "A8F07900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x74138",
           "before": "98626C00",
-          "after": "90727900",
+          "after": "C0F07900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x74142",
           "before": "84626C00",
-          "after": "7C727900",
+          "after": "ACF07900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x74148",
           "before": "94626C00",
-          "after": "8C727900",
+          "after": "BCF07900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x7415D",
           "before": "88626C00",
-          "after": "80727900",
+          "after": "B0F07900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x74164",
           "before": "9C626C00",
-          "after": "94727900",
+          "after": "C4F07900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x74178",
           "before": "94626C00",
-          "after": "8C727900",
+          "after": "BCF07900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x7417E",
           "before": "88626C00",
-          "after": "80727900",
+          "after": "B0F07900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x74183",
           "before": "84626C00",
-          "after": "7C727900",
+          "after": "ACF07900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x74189",
           "before": "88626C00",
-          "after": "80727900",
+          "after": "B0F07900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x74197",
           "before": "9C626C00",
-          "after": "94727900",
+          "after": "C4F07900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x741D2",
           "before": "9C626C00",
-          "after": "94727900",
+          "after": "C4F07900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x741E9",
           "before": "84626C00",
-          "after": "7C727900",
+          "after": "ACF07900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x745E7",
           "before": "84626C00",
-          "after": "7C727900",
+          "after": "ACF07900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x745ED",
           "before": "88626C00",
-          "after": "80727900",
+          "after": "B0F07900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x74628",
           "before": "90626C00",
-          "after": "88727900",
+          "after": "B8F07900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x74679",
           "before": "90626C00",
-          "after": "88727900",
+          "after": "B8F07900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x748B4",
           "before": "80626C00",
-          "after": "78727900",
+          "after": "A8F07900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x748BF",
           "before": "98626C00",
-          "after": "90727900",
+          "after": "C0F07900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x748C7",
           "before": "80626C00",
-          "after": "78727900",
+          "after": "A8F07900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x748DB",
           "before": "A0626C00",
-          "after": "98727900",
+          "after": "C8F07900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x74905",
           "before": "9C626C00",
-          "after": "94727900",
+          "after": "C4F07900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x7496B",
           "before": "80616C00",
-          "after": "78717900",
+          "after": "A8EF7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x74971",
           "before": "7C616C00",
-          "after": "74717900",
+          "after": "A4EF7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x7498E",
           "before": "80616C00",
-          "after": "78717900",
+          "after": "A8EF7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x749DB",
           "before": "7C616C00",
-          "after": "74717900",
+          "after": "A4EF7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x749E2",
           "before": "84616C00",
-          "after": "7C717900",
+          "after": "ACEF7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x749F7",
           "before": "7C616C00",
-          "after": "74717900",
+          "after": "A4EF7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x74A25",
           "before": "7C616C00",
-          "after": "74717900",
+          "after": "A4EF7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x74A2F",
           "before": "7C616C00",
-          "after": "74717900",
+          "after": "A4EF7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x74A60",
           "before": "80616C00",
-          "after": "78717900",
+          "after": "A8EF7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x74A83",
           "before": "80616C00",
-          "after": "78717900",
+          "after": "A8EF7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x74AE8",
           "before": "7C616C00",
-          "after": "74717900",
+          "after": "A4EF7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x74BAC",
           "before": "845F6C00",
-          "after": "7C6F7900",
+          "after": "ACED7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x74BC2",
           "before": "845F6C00",
-          "after": "7C6F7900",
+          "after": "ACED7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x754D2",
           "before": "645E6C00",
-          "after": "5C6E7900",
+          "after": "8CEC7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
@@ -5913,571 +5913,571 @@
         {
           "offset": "0x7560B",
           "before": "645E6C00",
-          "after": "5C6E7900",
+          "after": "8CEC7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x7562C",
           "before": "885F6C00",
-          "after": "806F7900",
+          "after": "B0ED7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x756AC",
           "before": "8C5F6C00",
-          "after": "846F7900",
+          "after": "B4ED7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x756B7",
           "before": "8C5F6C00",
-          "after": "846F7900",
+          "after": "B4ED7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x7579E",
           "before": "8C5F6C00",
-          "after": "846F7900",
+          "after": "B4ED7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x757B6",
           "before": "14756C00",
-          "after": "0C857900",
+          "after": "3C037A00",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x757C5",
           "before": "04756C00",
-          "after": "FC847900",
+          "after": "2C037A00",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x75822",
           "before": "14756C00",
-          "after": "0C857900",
+          "after": "3C037A00",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x75831",
           "before": "5C5E6C00",
-          "after": "546E7900",
+          "after": "84EC7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x75867",
           "before": "145E6C00",
-          "after": "0C6E7900",
+          "after": "3CEC7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x75874",
           "before": "5C5E6C00",
-          "after": "546E7900",
+          "after": "84EC7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x758AB",
           "before": "5C5E6C00",
-          "after": "546E7900",
+          "after": "84EC7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x758B6",
           "before": "5C5E6C00",
-          "after": "546E7900",
+          "after": "84EC7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x758BE",
           "before": "08756C00",
-          "after": "00857900",
+          "after": "30037A00",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x758D0",
           "before": "145E6C00",
-          "after": "0C6E7900",
+          "after": "3CEC7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x758DB",
           "before": "145E6C00",
-          "after": "0C6E7900",
+          "after": "3CEC7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x7592D",
           "before": "C1626C00",
-          "after": "B9727900",
+          "after": "E9F07900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x75A03",
           "before": "C1626C00",
-          "after": "B9727900",
+          "after": "E9F07900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x75A1C",
           "before": "C1626C00",
-          "after": "B9727900",
+          "after": "E9F07900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x75A5C",
           "before": "14756C00",
-          "after": "0C857900",
+          "after": "3C037A00",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x75A69",
           "before": "94606C00",
-          "after": "8C707900",
+          "after": "BCEE7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x75A74",
           "before": "905F6C00",
-          "after": "886F7900",
+          "after": "B8ED7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x75A81",
           "before": "04756C00",
-          "after": "FC847900",
+          "after": "2C037A00",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x75A89",
           "before": "245E6C00",
-          "after": "1C6E7900",
+          "after": "4CEC7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x75AE0",
           "before": "085E6C00",
-          "after": "006E7900",
+          "after": "30EC7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x75AE7",
           "before": "0C5E6C00",
-          "after": "046E7900",
+          "after": "34EC7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x75AF5",
           "before": "98606C00",
-          "after": "90707900",
+          "after": "C0EE7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x75B18",
           "before": "98606C00",
-          "after": "90707900",
+          "after": "C0EE7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x75B30",
           "before": "98606C00",
-          "after": "90707900",
+          "after": "C0EE7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x75B37",
           "before": "98606C00",
-          "after": "90707900",
+          "after": "C0EE7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x764C3",
           "before": "9C606C00",
-          "after": "94707900",
+          "after": "C4EE7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x764E3",
           "before": "C0606C00",
-          "after": "B8707900",
+          "after": "E8EE7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x764EA",
           "before": "9E606C00",
-          "after": "96707900",
+          "after": "C6EE7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x764EF",
           "before": "B8606C00",
-          "after": "B0707900",
+          "after": "E0EE7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x764F6",
           "before": "9C606C00",
-          "after": "94707900",
+          "after": "C4EE7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x764FB",
           "before": "BC606C00",
-          "after": "B4707900",
+          "after": "E4EE7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x76504",
           "before": "C4606C00",
-          "after": "BC707900",
+          "after": "ECEE7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x76508",
           "before": "A0606C00",
-          "after": "98707900",
+          "after": "C8EE7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x7650D",
           "before": "B8606C00",
-          "after": "B0707900",
+          "after": "E0EE7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x7668D",
           "before": "08756C00",
-          "after": "00857900",
+          "after": "30037A00",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x76695",
           "before": "145E6C00",
-          "after": "0C6E7900",
+          "after": "3CEC7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x766A7",
           "before": "1C5E6C00",
-          "after": "146E7900",
+          "after": "44EC7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x766B8",
           "before": "145E6C00",
-          "after": "0C6E7900",
+          "after": "3CEC7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x7670E",
           "before": "745F6C00",
-          "after": "6C6F7900",
+          "after": "9CED7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x76756",
           "before": "7C616C00",
-          "after": "74717900",
+          "after": "A4EF7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x76767",
           "before": "80616C00",
-          "after": "78717900",
+          "after": "A8EF7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x7678A",
           "before": "545F6C00",
-          "after": "4C6F7900",
+          "after": "7CED7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x767BA",
           "before": "645F6C00",
-          "after": "5C6F7900",
+          "after": "8CED7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x767CF",
           "before": "E85D6C00",
-          "after": "E06D7900",
+          "after": "10EC7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x76881",
           "before": "80616C00",
-          "after": "78717900",
+          "after": "A8EF7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x768C5",
           "before": "80626C00",
-          "after": "78727900",
+          "after": "A8F07900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x768DA",
           "before": "7C616C00",
-          "after": "74717900",
+          "after": "A4EF7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x768E2",
           "before": "80616C00",
-          "after": "78717900",
+          "after": "A8EF7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x76918",
           "before": "7C616C00",
-          "after": "74717900",
+          "after": "A4EF7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x7692D",
           "before": "80616C00",
-          "after": "78717900",
+          "after": "A8EF7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x76974",
           "before": "EC5D6C00",
-          "after": "E46D7900",
+          "after": "14EC7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x7697B",
           "before": "E85D6C00",
-          "after": "E06D7900",
+          "after": "10EC7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x7698F",
           "before": "7C616C00",
-          "after": "74717900",
+          "after": "A4EF7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x769A1",
           "before": "80616C00",
-          "after": "78717900",
+          "after": "A8EF7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x769EE",
           "before": "EC5D6C00",
-          "after": "E46D7900",
+          "after": "14EC7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x769F5",
           "before": "E85D6C00",
-          "after": "E06D7900",
+          "after": "10EC7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x76A09",
           "before": "7C616C00",
-          "after": "74717900",
+          "after": "A4EF7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x76A17",
           "before": "80616C00",
-          "after": "78717900",
+          "after": "A8EF7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x76A2C",
           "before": "EC5D6C00",
-          "after": "E46D7900",
+          "after": "14EC7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x76A33",
           "before": "E85D6C00",
-          "after": "E06D7900",
+          "after": "10EC7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x76A7E",
           "before": "FC606C00",
-          "after": "F4707900",
+          "after": "24EF7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x76ACB",
           "before": "E85D6C00",
-          "after": "E06D7900",
+          "after": "10EC7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x76AD5",
           "before": "EC5D6C00",
-          "after": "E46D7900",
+          "after": "14EC7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x76B56",
           "before": "E85D6C00",
-          "after": "E06D7900",
+          "after": "10EC7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x76B60",
           "before": "EC5D6C00",
-          "after": "E46D7900",
+          "after": "14EC7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x76B8A",
           "before": "F05D6C00",
-          "after": "E86D7900",
+          "after": "18EC7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x76BAA",
           "before": "F45D6C00",
-          "after": "EC6D7900",
+          "after": "1CEC7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x76BE2",
           "before": "EC5D6C00",
-          "after": "E46D7900",
+          "after": "14EC7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x76BE9",
           "before": "E85D6C00",
-          "after": "E06D7900",
+          "after": "10EC7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x76C67",
           "before": "80616C00",
-          "after": "78717900",
+          "after": "A8EF7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x76C9E",
           "before": "EC5D6C00",
-          "after": "E46D7900",
+          "after": "14EC7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x76D19",
           "before": "7C616C00",
-          "after": "74717900",
+          "after": "A4EF7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x76D2E",
           "before": "80616C00",
-          "after": "78717900",
+          "after": "A8EF7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x76D95",
           "before": "EC5D6C00",
-          "after": "E46D7900",
+          "after": "14EC7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x76D9C",
           "before": "E85D6C00",
-          "after": "E06D7900",
+          "after": "10EC7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x77007",
           "before": "F45D6C00",
-          "after": "EC6D7900",
+          "after": "1CEC7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x7706D",
           "before": "F45D6C00",
-          "after": "EC6D7900",
+          "after": "1CEC7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x770A7",
           "before": "CC606C00",
-          "after": "C4707900",
+          "after": "F4EE7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x770C7",
           "before": "CC606C00",
-          "after": "C4707900",
+          "after": "F4EE7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x770DA",
           "before": "CC606C00",
-          "after": "C4707900",
+          "after": "F4EE7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x770E3",
           "before": "CC606C00",
-          "after": "C4707900",
+          "after": "F4EE7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x7710D",
           "before": "645F6C00",
-          "after": "5C6F7900",
+          "after": "8CED7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x771E3",
           "before": "545F6C00",
-          "after": "4C6F7900",
+          "after": "7CED7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x771F0",
           "before": "645F6C00",
-          "after": "5C6F7900",
+          "after": "8CED7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x7725A",
           "before": "00756C00",
-          "after": "F8847900",
+          "after": "28037A00",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x77261",
           "before": "E0646C00",
-          "after": "D8747900",
+          "after": "08F37900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x77285",
           "before": "E0646C00",
-          "after": "D8747900",
+          "after": "08F37900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x77292",
           "before": "E0646C00",
-          "after": "D8747900",
+          "after": "08F37900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x7729E",
           "before": "00756C00",
-          "after": "F8847900",
+          "after": "28037A00",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x7731A",
           "before": "D0606C00",
-          "after": "C8707900",
+          "after": "F8EE7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
@@ -6489,601 +6489,601 @@
         {
           "offset": "0x77507",
           "before": "80616C00",
-          "after": "78717900",
+          "after": "A8EF7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x77535",
           "before": "E85D6C00",
-          "after": "E06D7900",
+          "after": "10EC7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x775D9",
           "before": "545F6C00",
-          "after": "4C6F7900",
+          "after": "7CED7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x77623",
           "before": "645F6C00",
-          "after": "5C6F7900",
+          "after": "8CED7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x77642",
           "before": "E85D6C00",
-          "after": "E06D7900",
+          "after": "10EC7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x77662",
           "before": "645F6C00",
-          "after": "5C6F7900",
+          "after": "8CED7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x77681",
           "before": "D4606C00",
-          "after": "CC707900",
+          "after": "FCEE7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x776AF",
           "before": "D4606C00",
-          "after": "CC707900",
+          "after": "FCEE7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x776C4",
           "before": "D8606C00",
-          "after": "D0707900",
+          "after": "00EF7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x776CC",
           "before": "F45D6C00",
-          "after": "EC6D7900",
+          "after": "1CEC7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x776D2",
           "before": "DC606C00",
-          "after": "D4707900",
+          "after": "04EF7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x776E3",
           "before": "E4606C00",
-          "after": "DC707900",
+          "after": "0CEF7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x776F2",
           "before": "E0606C00",
-          "after": "D8707900",
+          "after": "08EF7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x776F7",
           "before": "E0606C00",
-          "after": "D8707900",
+          "after": "08EF7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x77714",
           "before": "E4606C00",
-          "after": "DC707900",
+          "after": "0CEF7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x77724",
           "before": "005E6C00",
-          "after": "F86D7900",
+          "after": "28EC7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x7773C",
           "before": "D8606C00",
-          "after": "D0707900",
+          "after": "00EF7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x7774D",
           "before": "DC606C00",
-          "after": "D4707900",
+          "after": "04EF7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x77766",
           "before": "D4606C00",
-          "after": "CC707900",
+          "after": "FCEE7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x7777A",
           "before": "C1626C00",
-          "after": "B9727900",
+          "after": "E9F07900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x7781D",
           "before": "F0606C00",
-          "after": "E8707900",
+          "after": "18EF7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x77822",
           "before": "F0606C00",
-          "after": "E8707900",
+          "after": "18EF7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x7782A",
           "before": "EC606C00",
-          "after": "E4707900",
+          "after": "14EF7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x7782F",
           "before": "EC606C00",
-          "after": "E4707900",
+          "after": "14EF7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x77837",
           "before": "F4606C00",
-          "after": "EC707900",
+          "after": "1CEF7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x7783C",
           "before": "F4606C00",
-          "after": "EC707900",
+          "after": "1CEF7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x77852",
           "before": "E8606C00",
-          "after": "E0707900",
+          "after": "10EF7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x77857",
           "before": "E8606C00",
-          "after": "E0707900",
+          "after": "10EF7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x77883",
           "before": "8C5F6C00",
-          "after": "846F7900",
+          "after": "B4ED7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x77889",
           "before": "8C5F6C00",
-          "after": "846F7900",
+          "after": "B4ED7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x778FE",
           "before": "8C5F6C00",
-          "after": "846F7900",
+          "after": "B4ED7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x78201",
           "before": "C4636C00",
-          "after": "BC737900",
+          "after": "ECF17900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x78215",
           "before": "A4626C00",
-          "after": "9C727900",
+          "after": "CCF07900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x78237",
           "before": "1C5E6C00",
-          "after": "146E7900",
+          "after": "44EC7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x782BA",
           "before": "7C616C00",
-          "after": "74717900",
+          "after": "A4EF7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x782CF",
           "before": "80616C00",
-          "after": "78717900",
+          "after": "A8EF7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x78368",
           "before": "EC5D6C00",
-          "after": "E46D7900",
+          "after": "14EC7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x78371",
           "before": "E85D6C00",
-          "after": "E06D7900",
+          "after": "10EC7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x783B6",
           "before": "E85D6C00",
-          "after": "E06D7900",
+          "after": "10EC7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x783C5",
           "before": "EC5D6C00",
-          "after": "E46D7900",
+          "after": "14EC7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x783DE",
           "before": "E85D6C00",
-          "after": "E06D7900",
+          "after": "10EC7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x784AE",
           "before": "80616C00",
-          "after": "78717900",
+          "after": "A8EF7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x7881B",
           "before": "00616C00",
-          "after": "F8707900",
+          "after": "28EF7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x78838",
           "before": "00616C00",
-          "after": "F8707900",
+          "after": "28EF7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x7884B",
           "before": "00616C00",
-          "after": "F8707900",
+          "after": "28EF7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x7887D",
           "before": "00616C00",
-          "after": "F8707900",
+          "after": "28EF7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x788AC",
           "before": "645F6C00",
-          "after": "5C6F7900",
+          "after": "8CED7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x78ACE",
           "before": "545F6C00",
-          "after": "4C6F7900",
+          "after": "7CED7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x78ADE",
           "before": "645F6C00",
-          "after": "5C6F7900",
+          "after": "8CED7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x78B8A",
           "before": "145E6C00",
-          "after": "0C6E7900",
+          "after": "3CEC7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x78BBC",
           "before": "145E6C00",
-          "after": "0C6E7900",
+          "after": "3CEC7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x78BCB",
           "before": "145E6C00",
-          "after": "0C6E7900",
+          "after": "3CEC7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x78C6E",
           "before": "145E6C00",
-          "after": "0C6E7900",
+          "after": "3CEC7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x78C74",
           "before": "185E6C00",
-          "after": "106E7900",
+          "after": "40EC7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x78C82",
           "before": "145E6C00",
-          "after": "0C6E7900",
+          "after": "3CEC7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x78C91",
           "before": "1C5E6C00",
-          "after": "146E7900",
+          "after": "44EC7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x78CBC",
           "before": "145E6C00",
-          "after": "0C6E7900",
+          "after": "3CEC7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x78CC6",
           "before": "1C5E6C00",
-          "after": "146E7900",
+          "after": "44EC7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x78CD7",
           "before": "1C5E6C00",
-          "after": "146E7900",
+          "after": "44EC7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x78CE1",
           "before": "145E6C00",
-          "after": "0C6E7900",
+          "after": "3CEC7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x78D6A",
           "before": "145E6C00",
-          "after": "0C6E7900",
+          "after": "3CEC7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x78DF0",
           "before": "7C616C00",
-          "after": "74717900",
+          "after": "A4EF7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x78DFF",
           "before": "80616C00",
-          "after": "78717900",
+          "after": "A8EF7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x78E48",
           "before": "E85D6C00",
-          "after": "E06D7900",
+          "after": "10EC7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x78E54",
           "before": "E85D6C00",
-          "after": "E06D7900",
+          "after": "10EC7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x78E66",
           "before": "A8626C00",
-          "after": "A0727900",
+          "after": "D0F07900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x78E7D",
           "before": "C1626C00",
-          "after": "B9727900",
+          "after": "E9F07900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x78ED1",
           "before": "04616C00",
-          "after": "FC707900",
+          "after": "2CEF7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x78EF1",
           "before": "08616C00",
-          "after": "00717900",
+          "after": "30EF7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x78F12",
           "before": "04616C00",
-          "after": "FC707900",
+          "after": "2CEF7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x78F43",
           "before": "08616C00",
-          "after": "00717900",
+          "after": "30EF7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x78F4A",
           "before": "0C616C00",
-          "after": "04717900",
+          "after": "34EF7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x78F50",
           "before": "08616C00",
-          "after": "00717900",
+          "after": "30EF7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x78F58",
           "before": "0C616C00",
-          "after": "04717900",
+          "after": "34EF7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x78FA8",
           "before": "04616C00",
-          "after": "FC707900",
+          "after": "2CEF7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x78FBA",
           "before": "04616C00",
-          "after": "FC707900",
+          "after": "2CEF7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x78FCC",
           "before": "04616C00",
-          "after": "FC707900",
+          "after": "2CEF7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x78FEF",
           "before": "0C616C00",
-          "after": "04717900",
+          "after": "34EF7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x79017",
           "before": "04616C00",
-          "after": "FC707900",
+          "after": "2CEF7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x7901D",
           "before": "0C616C00",
-          "after": "04717900",
+          "after": "34EF7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x79042",
           "before": "04616C00",
-          "after": "FC707900",
+          "after": "2CEF7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x79048",
           "before": "08616C00",
-          "after": "00717900",
+          "after": "30EF7900",
           "purpose": "relocate absolute .data tail reference"
         },
         {
           "offset": "0x6FEBA",
           "before": "10756C00",
-          "after": "08857900",
+          "after": "38037A00",
           "purpose": "relocate decoded absolute .data tail reference"
         },
         {
           "offset": "0x6FEC8",
           "before": "10756C00",
-          "after": "08857900",
+          "after": "38037A00",
           "purpose": "relocate decoded absolute .data tail reference"
         },
         {
           "offset": "0x6FECD",
           "before": "0C756C00",
-          "after": "04857900",
+          "after": "34037A00",
           "purpose": "relocate decoded absolute .data tail reference"
         },
         {
           "offset": "0x73757",
           "before": "00756C00",
-          "after": "F8847900",
+          "after": "28037A00",
           "purpose": "relocate decoded absolute .data tail reference"
         },
         {
           "offset": "0x73771",
           "before": "00756C00",
-          "after": "F8847900",
+          "after": "28037A00",
           "purpose": "relocate decoded absolute .data tail reference"
         },
         {
           "offset": "0x73782",
           "before": "E0646C00",
-          "after": "D8747900",
+          "after": "08F37900",
           "purpose": "relocate decoded absolute .data tail reference"
         },
         {
           "offset": "0x7378D",
           "before": "00756C00",
-          "after": "F8847900",
+          "after": "28037A00",
           "purpose": "relocate decoded absolute .data tail reference"
         },
         {
           "offset": "0x7379B",
           "before": "E0646C00",
-          "after": "D8747900",
+          "after": "08F37900",
           "purpose": "relocate decoded absolute .data tail reference"
         },
         {
           "offset": "0x737B0",
           "before": "E0646C00",
-          "after": "D8747900",
+          "after": "08F37900",
           "purpose": "relocate decoded absolute .data tail reference"
         },
         {
           "offset": "0x737D4",
           "before": "80616C00",
-          "after": "78717900",
+          "after": "A8EF7900",
           "purpose": "relocate decoded absolute .data tail reference"
         },
         {
           "offset": "0x73803",
           "before": "2C5E6C00",
-          "after": "246E7900",
+          "after": "54EC7900",
           "purpose": "relocate decoded absolute .data tail reference"
         },
         {
           "offset": "0x74BDA",
           "before": "845F6C00",
-          "after": "7C6F7900",
+          "after": "ACED7900",
           "purpose": "relocate decoded absolute .data tail reference"
         },
         {
           "offset": "0x74BE3",
           "before": "845F6C00",
-          "after": "7C6F7900",
+          "after": "ACED7900",
           "purpose": "relocate decoded absolute .data tail reference"
         },
         {
           "offset": "0x79211",
           "before": "14616C00",
-          "after": "0C717900",
+          "after": "3CEF7900",
           "purpose": "relocate decoded absolute .data tail reference"
         },
         {
           "offset": "0x7B141",
           "before": "10616C00",
-          "after": "08717900",
+          "after": "38EF7900",
           "purpose": "relocate decoded absolute .data tail reference"
         },
         {
           "offset": "0x7B157",
           "before": "50616C00",
-          "after": "48717900",
+          "after": "78EF7900",
           "purpose": "relocate decoded absolute .data tail reference"
         },
         {
           "offset": "0x7B241",
           "before": "10616C00",
-          "after": "08717900",
+          "after": "38EF7900",
           "purpose": "relocate decoded absolute .data tail reference"
         },
         {
           "offset": "0x7B24B",
           "before": "50616C00",
-          "after": "48717900",
+          "after": "78EF7900",
           "purpose": "relocate decoded absolute .data tail reference"
         },
         {
@@ -7431,103 +7431,103 @@
         {
           "offset": "0x26322",
           "before": "00806C00",
-          "after": "00907900",
+          "after": "00107A00",
           "purpose": "move absolute .shr reference"
         },
         {
           "offset": "0x26336",
           "before": "00806C00",
-          "after": "00907900",
+          "after": "00107A00",
           "purpose": "move absolute .shr reference"
         },
         {
           "offset": "0x26347",
           "before": "00806C00",
-          "after": "00907900",
+          "after": "00107A00",
           "purpose": "move absolute .shr reference"
         },
         {
           "offset": "0x40583",
           "before": "00806C00",
-          "after": "00907900",
+          "after": "00107A00",
           "purpose": "move absolute .shr reference"
         },
         {
           "offset": "0x258",
           "before": "18352200",
-          "after": "10452F00",
+          "after": "40C32F00",
           "purpose": "expand .data virtual size"
         },
         {
           "offset": "0x284",
           "before": "00802C00",
-          "after": "00903900",
+          "after": "00103A00",
           "purpose": "move .shr RVA"
         },
         {
           "offset": "0x2AC",
           "before": "00902C00",
-          "after": "00A03900",
+          "after": "00203A00",
           "purpose": "move .rsrc RVA"
         },
         {
           "offset": "0x158",
           "before": "00F02D00",
-          "after": "00003B00",
+          "after": "00803B00",
           "purpose": "expand SizeOfImage"
         },
         {
           "offset": "0x190",
           "before": "00902C00",
-          "after": "00A03900",
+          "after": "00203A00",
           "purpose": "move resource directory RVA"
         },
         {
           "offset": "0xB5140",
           "before": "C0912C00",
-          "after": "C0A13900",
+          "after": "C0213A00",
           "purpose": "move resource data RVA"
         },
         {
           "offset": "0xB5150",
           "before": "A8942C00",
-          "after": "A8A43900",
+          "after": "A8243A00",
           "purpose": "move resource data RVA"
         },
         {
           "offset": "0xB5160",
           "before": "D0952C00",
-          "after": "D0A53900",
+          "after": "D0253A00",
           "purpose": "move resource data RVA"
         },
         {
           "offset": "0xB5170",
           "before": "389B2C00",
-          "after": "38AB3900",
+          "after": "382B3A00",
           "purpose": "move resource data RVA"
         },
         {
           "offset": "0xB5180",
           "before": "E0A32C00",
-          "after": "E0B33900",
+          "after": "E0333A00",
           "purpose": "move resource data RVA"
         },
         {
           "offset": "0xB5190",
           "before": "08BA2C00",
-          "after": "08CA3900",
+          "after": "084A3A00",
           "purpose": "move resource data RVA"
         },
         {
           "offset": "0xB51A0",
           "before": "B0C82C00",
-          "after": "B0D83900",
+          "after": "B0583A00",
           "purpose": "move resource data RVA"
         },
         {
           "offset": "0xB51B0",
           "before": "D8EC2D00",
-          "after": "D8FC3A00",
+          "after": "D87C3B00",
           "purpose": "move resource data RVA"
         },
         {
@@ -7545,15 +7545,33 @@
         {
           "offset": "0x7B3B1",
           "before": "000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
-          "after": "5589E551FF7510FF750CFF75088B4DFCE8DA7FF8FF84C07547FF7510681C2F0100FF75088B4DFCE8C37FF8FF84C0743056578B750881C61B2F01008DBE98750000B950100000FDF3A4FC8B7D0881C7CC1E010031C0B9661D0000F3AB5F5EB00189EC5DC20C00",
+          "after": "5589E551FF7510FF750CFF75088B4DFCE8DA7FF8FF84C07547FF7510681C2F0100FF75088B4DFCE8C37FF8FF84C0743056578B750881C6182F01008DBE98750000B914040000FDF3A4FC8B7D0881C7CC1E010031C0B9661D0000F3AB5F5EB00189EC5DC20C00",
           "purpose": "accept an exact stock VV3 save, move its saved-state tail, and zero the 106 inserted villager records"
+        },
+        {
+          "offset": "0x35A5A",
+          "before": "96000000",
+          "after": "00010000",
+          "purpose": "expand the serialized villager-index validator from 150 to 256 records"
+        },
+        {
+          "offset": "0x5EE69",
+          "before": "96000000",
+          "after": "00010000",
+          "purpose": "expand the active-record lookup validator from 150 to 256 records"
+        },
+        {
+          "offset": "0x60D46",
+          "before": "95000000",
+          "after": "FF000000",
+          "purpose": "start reverse spatial villager selection at expanded record 255"
         }
       ]
     },
     "vv4": {
       "source_sha256": "6D27A429FFCA5F1F71FDD7ECA761ED1BB67E85F976494BA178B3D7BE01F1B220",
       "prototype_sha256": "3697317341C23B107F8C06F6D4164BC4602BF5CB90DFB56A6B68EB7EA3C43EE1",
-      "patch_count": 1764,
+      "patch_count": 1768,
       "patches": [
         {
           "offset": "0x66DA2",
@@ -18136,15 +18154,39 @@
         {
           "offset": "0x8910D",
           "before": "000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
-          "after": "5589E551FF7510FF750CFF75088B4DFCE8BEA6F7FF84C07547FF7510680C710100FF75088B4DFCE8A7A6F7FF84C0743056578B750881C60B7101008DBEA86B0000B954100000FDF3A4FC8B7D0881C7B860010031C0B9EA1A0000F3AB5F5EB00189EC5DC20C00",
+          "after": "5589E551FF7510FF750CFF75088B4DFCE8BEA6F7FF84C07547FF7510680C710100FF75088B4DFCE8A7A6F7FF84C0743056578B750881C6087101008DBEA86B0000B915040000FDF3A4FC8B7D0881C7B860010031C0B9EA1A0000F3AB5F5EB00189EC5DC20C00",
           "purpose": "accept an exact stock VV4 save, move its saved-state tail, and zero the 106 inserted villager records"
+        },
+        {
+          "offset": "0x66045",
+          "before": "95000000",
+          "after": "FF000000",
+          "purpose": "expand the first reverse villager-selection scan through record 255"
+        },
+        {
+          "offset": "0x66C9C",
+          "before": "95000000",
+          "after": "FF000000",
+          "purpose": "expand the second reverse villager-selection scan through record 255"
+        },
+        {
+          "offset": "0x6683F",
+          "before": "95000000",
+          "after": "FF000000",
+          "purpose": "expand the third reverse villager-selection scan through record 255"
+        },
+        {
+          "offset": "0x66A0F",
+          "before": "95000000",
+          "after": "FF000000",
+          "purpose": "expand the fourth reverse villager-selection scan through record 255"
         }
       ]
     },
     "vv5": {
       "source_sha256": "92946781980220E9D1A2E6C573925519934608F5215F4A0F8CE3B90088C5C65D",
       "prototype_sha256": "1C825CB6AC3C7E1368D3EFD9C81E844A336AB31C7EBA0971674601F25E3E8F0B",
-      "patch_count": 1944,
+      "patch_count": 1948,
       "patches": [
         {
           "offset": "0x70A12",
@@ -29807,8 +29849,32 @@
         {
           "offset": "0x9466C",
           "before": "000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
-          "after": "5589E551FF7510FF750CFF75088B4DFCE8EFF0F6FF84C07547FF751068787D0100FF75088B4DFCE8D8F0F6FF84C0743056578B750881C6777D01008DBEF0730000B964100000FDF3A4FC8B7D0881C7146D010031C0B9FC1C0000F3AB5F5EB00189EC5DC20C00",
+          "after": "5589E551FF7510FF750CFF75088B4DFCE8EFF0F6FF84C07547FF751068787D0100FF75088B4DFCE8D8F0F6FF84C0743056578B750881C6747D01008DBEF0730000B919040000FDF3A4FC8B7D0881C7146D010031C0B9FC1C0000F3AB5F5EB00189EC5DC20C00",
           "purpose": "accept an exact stock VV5 save, move its saved-state tail, and zero the 106 inserted villager records"
+        },
+        {
+          "offset": "0x6FA75",
+          "before": "10A40000",
+          "after": "00180100",
+          "purpose": "expand the compact-save loader span from 150 to 256 villager records"
+        },
+        {
+          "offset": "0x6F955",
+          "before": "95000000",
+          "after": "FF000000",
+          "purpose": "expand the first reverse villager-selection scan through record 255"
+        },
+        {
+          "offset": "0x708FC",
+          "before": "95000000",
+          "after": "FF000000",
+          "purpose": "expand the second reverse villager-selection scan through record 255"
+        },
+        {
+          "offset": "0x71D77",
+          "before": "95000000",
+          "after": "FF000000",
+          "purpose": "expand the third reverse villager-selection scan through record 255"
         }
       ]
     }

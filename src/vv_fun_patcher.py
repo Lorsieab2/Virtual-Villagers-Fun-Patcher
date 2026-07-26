@@ -17,6 +17,12 @@ MANIFEST_PATH = ROOT / "data" / "builds.json"
 EXPANDED_MANIFEST_PATH = ROOT / "data" / "expanded_256.json"
 ORIGINS_FEATURE_PATH = ROOT / "data" / "vv1_origins_feature.json"
 DEFAULT_PATCH_MODE = "collection_progression"
+EXPANDED_PATCH_MODES = {
+    "experimental_expanded_256",
+    "experimental_expanded_256_progression",
+}
+
+
 class PatcherError(RuntimeError):
     pass
 
@@ -146,7 +152,9 @@ def _selected_fun_patches(
 
 
 def _output_name(build: Build, patch_mode: str, fun_patches: list[FunPatch]) -> str:
-    return get_patch_variant(build, patch_mode)["output_name"]
+    get_patch_variant(build, patch_mode)
+    suffix = "Modded 256" if patch_mode in EXPANDED_PATCH_MODES else "Modded"
+    return f"{build.title} - {suffix}.exe"
 
 
 def output_folder_for(
@@ -161,7 +169,126 @@ def output_folder_for(
         if output_root is not None
         else source.resolve().parent.parent
     )
-    return parent / f"{build.title} - Modded"
+    suffix = "Modded 256" if patch_mode in EXPANDED_PATCH_MODES else "Modded"
+    return parent / f"{build.title} - {suffix}"
+
+
+def _ldw_save_roots(save_root: Path | None = None) -> list[Path]:
+    candidates: list[Path] = []
+    if save_root is not None:
+        candidates.append(Path(save_root).expanduser())
+    override = os.environ.get("VVFP_LDW_SAVE_ROOT")
+    if override:
+        candidates.append(Path(override).expanduser())
+    for variable in ("OneDrive", "OneDriveConsumer"):
+        value = os.environ.get(variable)
+        if value:
+            candidates.append(Path(value) / "Documents" / "LDW")
+    candidates.extend(
+        (
+            Path.home() / "OneDrive" / "Documents" / "LDW",
+            Path.home() / "Documents" / "LDW",
+        )
+    )
+    unique: list[Path] = []
+    seen: set[str] = set()
+    for candidate in candidates:
+        key = os.path.normcase(str(candidate.resolve()))
+        if key not in seen:
+            seen.add(key)
+            unique.append(candidate.resolve())
+    return unique
+
+
+def vanilla_save_folder_for(
+    build: Build, save_root: Path | None = None
+) -> Path | None:
+    slot_zero = f"{build.title}0.ldw"
+    for root in _ldw_save_roots(save_root):
+        folder = root / build.title
+        if (folder / slot_zero).is_file():
+            return folder
+    return None
+
+
+def modded_save_folder_for(
+    build: Build, patch_mode: str, save_root: Path | None = None
+) -> Path | None:
+    source = vanilla_save_folder_for(build, save_root)
+    if source is None:
+        return None
+    suffix = "Modded 256" if patch_mode in EXPANDED_PATCH_MODES else "Modded"
+    return source.parent / f"{build.title} - {suffix}"
+
+
+def copy_vanilla_saves(
+    build: Build,
+    patch_mode: str,
+    *,
+    replace_existing: bool = False,
+    save_root: Path | None = None,
+) -> dict[str, Any]:
+    if patch_mode not in EXPANDED_PATCH_MODES:
+        return {"status": "not_requested", "copied_files": 0}
+    source = vanilla_save_folder_for(build, save_root)
+    if source is None:
+        return {"status": "vanilla_save_folder_not_found", "copied_files": 0}
+    destination = source.parent / f"{build.title} - Modded 256"
+    source_files = sorted(
+        path
+        for path in source.glob(f"{build.title}*.ldw")
+        if path.is_file()
+    )
+    slot_zero_name = f"{build.title}0.ldw"
+    if not any(path.name == slot_zero_name for path in source_files):
+        raise PatcherError(
+            f"Required vanilla slot-zero file is missing: {source / slot_zero_name}"
+        )
+    existing = (
+        sorted(
+            path
+            for path in destination.glob(f"{build.title}*.ldw")
+            if path.is_file()
+        )
+        if destination.is_dir()
+        else []
+    )
+    if existing and not replace_existing:
+        return {
+            "status": "existing_modded_saves_preserved",
+            "source_folder": str(source),
+            "destination_folder": str(destination),
+            "copied_files": 0,
+            "slot_zero": slot_zero_name,
+        }
+    destination.mkdir(parents=True, exist_ok=True)
+    if replace_existing:
+        for path in existing:
+            path.unlink()
+    copied: list[dict[str, Any]] = []
+    for source_path in source_files:
+        destination_path = destination / source_path.name
+        shutil.copy2(source_path, destination_path)
+        source_hash = sha256(source_path)
+        if sha256(destination_path) != source_hash:
+            raise PatcherError(
+                f"Save copy verification failed: {destination_path}"
+            )
+        copied.append(
+            {
+                "name": source_path.name,
+                "size": source_path.stat().st_size,
+                "sha256": source_hash,
+            }
+        )
+    return {
+        "status": "vanilla_saves_copied",
+        "source_folder": str(source),
+        "destination_folder": str(destination),
+        "copied_files": len(copied),
+        "slot_zero": slot_zero_name,
+        "files": copied,
+    }
 
 
 def get_patch_mode(patch_mode: str) -> PatchMode:
@@ -547,6 +674,9 @@ def apply_patch(
     overwrite: bool = False,
     fun_patch_ids: tuple[str, ...] | list[str] = (),
     output_root: Path | None = None,
+    copy_saves: bool = False,
+    replace_modded_saves: bool = False,
+    save_root: Path | None = None,
 ) -> tuple[Path, Path]:
     source = source.resolve()
     build = identify(source)
@@ -577,6 +707,13 @@ def apply_patch(
             build, source, output, patch_mode, output_hash, applied, fun_patches
         )
         log_data["companion_files"] = companions
+        if copy_saves:
+            log_data["save_copy"] = copy_vanilla_saves(
+                build,
+                patch_mode,
+                replace_existing=replace_modded_saves,
+                save_root=save_root,
+            )
         log_path.write_text(
             json.dumps(log_data, indent=2) + "\n", encoding="utf-8"
         )
@@ -591,6 +728,9 @@ def apply_all(
     overwrite: bool = False,
     fun_patch_ids: tuple[str, ...] | list[str] = (),
     output_root: Path | None = None,
+    copy_saves: bool = False,
+    replace_modded_saves: bool = False,
+    save_root: Path | None = None,
 ) -> list[tuple[Path, Path]]:
     validated = validate_all_sources(sources)
     plans: list[
@@ -650,6 +790,13 @@ def apply_all(
             selected_by_game.get(build.id, []),
         )
         log_data["companion_files"] = companions
+        if copy_saves:
+            log_data["save_copy"] = copy_vanilla_saves(
+                build,
+                patch_mode,
+                replace_existing=replace_modded_saves,
+                save_root=save_root,
+            )
         log_path.write_text(
             json.dumps(log_data, indent=2) + "\n", encoding="utf-8"
         )
@@ -681,8 +828,28 @@ def _add_output_root_arg(parser: argparse.ArgumentParser) -> None:
         type=Path,
         default=None,
         help=(
-            "parent folder for '(Game name) - Modded' outputs; "
+            "parent folder for short '(Game name) - Modded' or "
+            "'(Game name) - Modded 256' outputs; "
             "defaults to the original game's parent folder"
+        ),
+    )
+
+
+def _add_save_copy_args(parser: argparse.ArgumentParser) -> None:
+    parser.add_argument(
+        "--copy-vanilla-saves",
+        action="store_true",
+        help=(
+            "copy the exact vanilla numbered saves and required slot-zero file "
+            "into the separate Modded 256 save folder"
+        ),
+    )
+    parser.add_argument(
+        "--replace-modded-saves",
+        action="store_true",
+        help=(
+            "replace existing Modded 256 .ldw files with verified vanilla "
+            "copies; requires --copy-vanilla-saves"
         ),
     )
 
@@ -720,6 +887,7 @@ def _parser() -> argparse.ArgumentParser:
     _add_patch_mode_arg(apply_cmd)
     _add_fun_patch_args(apply_cmd)
     _add_output_root_arg(apply_cmd)
+    _add_save_copy_args(apply_cmd)
 
     dry_all_cmd = sub.add_parser(
         "dry-run-all", help="verify all five games without writing output"
@@ -737,12 +905,20 @@ def _parser() -> argparse.ArgumentParser:
     _add_patch_mode_arg(apply_all_cmd)
     _add_fun_patch_args(apply_all_cmd)
     _add_output_root_arg(apply_all_cmd)
+    _add_save_copy_args(apply_all_cmd)
     return parser
 
 
 def main() -> int:
     args = _parser().parse_args()
     try:
+        if (
+            getattr(args, "replace_modded_saves", False)
+            and not getattr(args, "copy_vanilla_saves", False)
+        ):
+            raise PatcherError(
+                "--replace-modded-saves requires --copy-vanilla-saves"
+            )
         if args.command == "identify":
             print(json.dumps(identify(args.exe).raw, indent=2))
         elif args.command == "dry-run":
@@ -764,6 +940,8 @@ def main() -> int:
                 args.overwrite,
                 args.fun_patch,
                 output_root=args.output_root,
+                copy_saves=args.copy_vanilla_saves,
+                replace_modded_saves=args.replace_modded_saves,
             )
             print(f"Created: {output}")
             print(f"Log: {log}")
@@ -786,6 +964,8 @@ def main() -> int:
                 args.overwrite,
                 args.fun_patch,
                 output_root=args.output_root,
+                copy_saves=args.copy_vanilla_saves,
+                replace_modded_saves=args.replace_modded_saves,
             )
             for output, log in results:
                 print(f"Created: {output}")

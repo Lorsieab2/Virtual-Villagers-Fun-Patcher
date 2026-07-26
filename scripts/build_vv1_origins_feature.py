@@ -131,7 +131,6 @@ def main() -> None:
     show_dialog = CODE_VA + 0x2E0
     tech_increment = CODE_VA + 0x360
     food_increment = CODE_VA + 0x3B0
-    sparkle_hook = CODE_VA + 0x3F0
     event_dispatch_hook = CODE_VA + 0x450
     detail_handler_hook = CODE_VA + 0x490
     detail_constructor_hook = CODE_VA + 0x4C0
@@ -459,44 +458,6 @@ def main() -> None:
     )
 
     put(
-        sparkle_hook,
-        """
-            call 0x41AFA0
-            pushad
-            push 50
-            call 0x402F10
-            add esp, 4
-            cmp eax, 2
-            jae sparkle_done
-            mov ebp, dword ptr [esi + 0x10]
-            cmp dword ptr [ebp + 0xAD48], 0
-            je sparkle_food
-            mov ecx, dword ptr [esi + 8]
-            test ecx, ecx
-            je sparkle_food
-            push 1
-            push 0x53E
-            push 0x443
-            push 4
-            call 0x41AFA0
-        sparkle_food:
-            cmp dword ptr [ebp + 0xAD4C], 0
-            je sparkle_done
-            mov ecx, dword ptr [esi + 8]
-            test ecx, ecx
-            je sparkle_done
-            push 1
-            push 0x462
-            push 0x47A
-            push 4
-            call 0x41AFA0
-        sparkle_done:
-            popad
-            ret
-        """,
-    )
-
-    put(
         detail_handler_hook,
         f"""
             cmp dword ptr [esp + 4], 8
@@ -738,19 +699,13 @@ def main() -> None:
         0x1D120,
         original[0x1D120 : 0x1D125],
         rel32_jump(0x41D120, tech_increment),
-        "double positive non-Island-Event tech-point awards after the current save owns the Tech Point Doubler; the research table also sparkles while it is active",
+        "double positive non-Island-Event tech-point awards after the current save owns the Tech Point Doubler",
     )
     patch(
         0x1D140,
         original[0x1D140 : 0x1D145],
         rel32_jump(0x41D140, food_increment),
-        "double positive non-Island-Event food awards after the current save owns the Food Point Doubler; the food bin also sparkles while it is active",
-    )
-    patch(
-        0x23D85,
-        bytes.fromhex("E81672FFFF"),
-        rel32_jump(0x423D85, sparkle_hook),
-        "retain the stock world sparkle call and add occasional save-scoped sparkles at the tech chest and food bin while their doublers are active",
+        "double positive non-Island-Event food awards after the current save owns the Food Point Doubler",
     )
     patch(
         0x3CD22,
@@ -792,7 +747,7 @@ def main() -> None:
             "Adds an icon-based Upgrades screen containing Time Warp, Island Event, the "
             "native Barrel of Babies event with a three-space capacity guard, "
             "and removable 500,000-tech-point Tech Point Doubler and Food Point Doubler. "
-            "The doublers do not multiply Island Event tech or food awards. They double other positive awards; each description also notes that its matching storage object sparkles while active, and the effect is stored in the current save rather than a global INI. Adds "
+            "The doublers do not multiply Island Event tech or food awards. They double other positive awards and the effect is stored in the current save rather than a global INI. Adds "
             "an icon-based Villager Upgrades screen containing Grant Youth, Grant Full "
             "Mastery, Grant Running, and Set Age to 18 for the displayed villager. Grant "
             "Full Mastery preserves a checked job preference and chooses Farming when "
