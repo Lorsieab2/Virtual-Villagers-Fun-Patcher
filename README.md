@@ -142,6 +142,25 @@ doublers do not affect deductions or Island Event awards. A paused village
 cannot purchase Time Warp because VV2's paused catch-up logic discards elapsed
 age. **Bump Max Population** remains omitted.
 
+## All games: Write Village Statistics to Text File
+
+Enable **Write Village Statistics to Text File** for any game to refresh
+`Village Statistics - Save N.txt` in that modified game folder after a
+successful save of slot 1 through 5. Each slot receives its own text file.
+Failure to write the text file never changes a successful game-save result.
+
+VV1 and VV2 export their reachable stock lifetime counters. VV3, VV4, and VV5
+also retain the inherited per-save lifetime block even though their local
+Statistics screen is absent or unreachable. The later-game patch reads those
+uncapped saved counters directly and restores the stock bookkeeping omissions:
+VV3's Villagers Buried total, and VV4/VV5's Food Gathered and Villagers Buried
+totals. The restored routes cover normal play and time catch-up where the stock
+lifecycle does.
+
+Existing later-game saves preserve every total stock already recorded; fields
+that stock never updated begin at zero when this patch is first used. Fresh
+saves track all exported totals from their normal initialization.
+
 ## VV2: Teaching Children Grants Skill
 
 Enable **Teaching Children Grants Skill (The Lost Children)** to reward every attending child once after that child's full stock lesson queue finishes. Each attendee gains 7, 8, or 9 points in Farming, Building, Research, Healing, or Parenting. All five choices have equal odds, and skills remain capped at 100.

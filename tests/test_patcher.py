@@ -117,15 +117,15 @@ class ManifestTests(unittest.TestCase):
         self.assertIn("ShowOriginsUpgradeMenuState", source)
         self.assertIn("return show_upgrade_menu(villager_menu, dialog_state);", source)
 
-    def test_statistics_features_are_exactly_scoped_to_proven_local_counters(self) -> None:
+    def test_statistics_features_cover_all_proven_per_save_counter_blocks(self) -> None:
         features = {
             patch.game_id: patch
             for patch in load_fun_patches()
             if patch.name == "Write Village Statistics to Text File"
         }
-        self.assertEqual(set(features), {"vv1", "vv2"})
+        self.assertEqual(set(features), {"vv1", "vv2", "vv3", "vv4", "vv5"})
         for feature in features.values():
-            self.assertIn("stock local lifetime statistics", feature.description)
+            self.assertIn("local lifetime statistics", feature.description)
             self.assertEqual(len(feature.raw["companion_files"]), 1)
 
     def test_unknown_file_is_refused(self) -> None:
@@ -1583,6 +1583,59 @@ class StockIntegrationTests(unittest.TestCase):
                         feature.raw["companion_files"][0]["sha256"],
                     )
                     self.assertEqual(len(log["companion_files"]), 1)
+
+    def test_vv3_to_vv5_statistics_export_uses_inherited_per_save_blocks(self) -> None:
+        expected = {
+            "vv3": {
+                "hook": 0x27D6C,
+                "cave": 0x7B464,
+                "cave_size": 0x200,
+                "counter_hooks": {
+                    0x5F45B: "881EE9B8010000",
+                },
+            },
+            "vv4": {
+                "hook": 0x1F13A,
+                "cave": 0x89173,
+                "cave_size": 0x200,
+                "counter_hooks": {
+                    0x1D987: "01378B07790B",
+                    0x664DC: "885EFD385EFD",
+                },
+            },
+            "vv5": {
+                "hook": 0x245FA,
+                "cave": 0x94932,
+                "cave_size": 0x200,
+                "counter_hooks": {
+                    0x1EBA7: "01378B07790B",
+                    0x6FF12: "889ED41C0000",
+                },
+            },
+        }
+        for game_id, details in expected.items():
+            feature_id = f"{game_id}_write_village_statistics"
+            build = next(build for build in load_builds() if build.id == game_id)
+            source = STOCK / build.input_name
+            for mode in MODES + EXPANDED_MODES:
+                with self.subTest(game_id=game_id, mode=mode):
+                    rendered, _ = render_patched_bytes(
+                        source, build, mode, [feature_id]
+                    )
+                    cave = bytes(
+                        rendered[
+                            details["cave"] :
+                            details["cave"] + details["cave_size"]
+                        ]
+                    )
+                    self.assertIn(b"VVFP Statistics Export.dll\0", cave)
+                    self.assertIn(b"WriteVillageStatistics\0", cave)
+                    for offset, stock_hex in details["counter_hooks"].items():
+                        stock_bytes = bytes.fromhex(stock_hex)
+                        self.assertNotEqual(
+                            bytes(rendered[offset : offset + len(stock_bytes)]),
+                            stock_bytes,
+                        )
 
     def test_vv5_easier_devotee_training_is_guarded_and_additive(self) -> None:
         feature_id = "vv5_easier_devotee_training"

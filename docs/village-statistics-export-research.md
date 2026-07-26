@@ -51,24 +51,75 @@ calculated from the sixteen persisted completion bytes at `+0x2E768`,
 `+0x2E7A0`, `+0x2E7A8`, `+0x2E7B0`, `+0x2E7B8`, `+0x2E7C0`, `+0x2E7C8`,
 `+0x2E7D8`, `+0x2E7E0`, and `+0x2E7E8`.
 
-## Later games do not retain equivalent local lifetime blocks
+## The later games retain the inherited lifetime block
 
-VV3 retains a Statistics UI shell at `sub_4639C0`, but its rows are
-refresh/network controls rather than reads from a local lifetime-counter
-block. VV4 and VV5 retain the older English localization labels but no
-reachable local renderer or corresponding saved counter block.
+The initial UI-led inspection was incomplete. VV3 through VV5 do not expose the
+old local Statistics screen, but all three still initialize, serialize, and
+restore its inherited `0x98`-byte per-save block:
 
-VV4 and VV5's achievement trackers are not valid substitutes. Their counters
-stop advancing when the achievement threshold is reached and therefore cannot
-represent uncapped lifetime totals.
+| Game | Runtime block | Saved manager copy |
+|---|---:|---:|
+| The Secret City | `0x5824A0` | `+0x4EC` |
+| The Tree of Life | `0x4D6DE0` | `+0x850` |
+| New Believers | `0x51D358` | `+0x7B4` |
 
-For VV3 through VV5 there are two honest implementations:
+The common layout is:
 
-1. Export a clearly labeled snapshot containing only values derivable from the
-   current saved village.
-2. Add new sidecar-persisted lifetime counters at the relevant gameplay and
-   catch-up mutation sites. Existing saves begin non-derivable counters at zero
-   when the patch is first enabled.
+| Offset | Statistic |
+|---:|---|
+| `+0x00` | save/session creation-time anchor |
+| `+0x04` | Points Earned |
+| `+0x08` | Babies Made |
+| `+0x0C` | Food Gathered |
+| `+0x10` | People Cured |
+| `+0x14` | Mushrooms Found in VV3/VV5; Collectibles Found in VV4 |
+| `+0x18` | Highest Population |
+| `+0x1C` | Villagers Buried |
+| `+0x20` | Oldest Villager |
+| `+0x24` | Island Events Seen |
+| `+0x28` | Twins Birthed |
+| `+0x2C` | Triplets Birthed |
+
+Stock VV3 maintains every counter except Villagers Buried. Stock VV4 and VV5
+maintain every counter except Food Gathered and Villagers Buried. Those fields
+are not guesses: they are the unchanged inherited slots between otherwise
+matching VV1-style fields. The patch restores the omitted mutation sites while
+leaving the existing counters intact, so existing saves retain all history
+that stock already recorded.
+
+The block range `+0x30..+0x97` has no direct stock code references in any of the
+three games. It is still zeroed, serialized, and restored, but the current
+implementation does not need to consume that reserve.
+
+VV4 and VV5's threshold-limited achievement trackers are not used as
+substitutes for these uncapped lifetime totals.
+
+### Restored omitted writers
+
+| Game | Statistic | Exact stock route patched |
+|---|---|---|
+| VV3 | Villagers Buried | delayed corpse-record retirement at `0x45F45B`; guard `88 1E E9 B8 01 00 00`; resumes the stock loop tail at `0x45F61A` |
+| VV4 | Food Gathered | final central food delta at `0x41D987`; guard `01 37 8B 07 79 0B` |
+| VV4 | Villagers Buried | delayed corpse-record release at `0x4664DC`; guard `88 5E FD 38 5E FD` |
+| VV5 | Food Gathered | final central food delta at `0x41EBA7`; guard `01 37 8B 07 79 0B` |
+| VV5 | Villagers Buried | delayed corpse-record release at `0x46FF12`; guard `88 9E D4 1C 00 00` |
+
+The food detours count only positive final deltas and reproduce the stock
+negative-underflow branch. The burial detours run at the one-time occupied
+record release after 240 simulated minutes. VV3 does not create a tombstone at
+that instruction, so its route is described precisely as record retirement.
+
+### Later-game puzzle counts
+
+- VV3 stores the sixteen story-puzzle progress values at
+  `manager+0x11ED8+8*id`, IDs 0 through 15. The thresholds at RVA `0x9D230`
+  are `1, 1, 5, 700, 1, 1, 1800, 1400, 2, 1, 1, 6, 1, 1, 1, 1`.
+- VV4 calls predicate RVA `0x38960` with puzzle manager RVA `0xD8BF8`, IDs
+  0 through 15.
+- VV5 stores progress at `manager+0x16D20+8*id`, with thresholds at RVA
+  `0x11DF30`. Stock counts IDs 1 through 16. When the Heathen Parent patch
+  marker at RVA `0x8F16` is active, the exporter counts ID 17 and reports a
+  denominator of 17.
 
 ## Safe update points
 

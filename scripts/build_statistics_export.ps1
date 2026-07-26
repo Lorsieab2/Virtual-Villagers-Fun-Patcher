@@ -25,6 +25,7 @@ New-Item -ItemType Directory -Path $outputRoot -Force | Out-Null
     ("/LIBPATH:" + (Join-Path $sdkRoot "Lib\$sdkVersion\um\x86")) `
     ("/LIBPATH:" + (Join-Path $sdkRoot "Lib\$sdkVersion\ucrt\x86")) `
     ("/OUT:" + (Join-Path $outputRoot "VVFP Statistics Export.dll")) `
+    /RELEASE `
     kernel32.lib
 if ($LASTEXITCODE -ne 0) {
     throw "Native statistics DLL compilation failed."
