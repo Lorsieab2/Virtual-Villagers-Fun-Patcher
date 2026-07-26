@@ -110,12 +110,19 @@ other identified record loops use 256 as their exclusive bound.
 
 The expanded build also widens the small index-validation and reverse-selection
 helpers that are not written as obvious `for (i = 149)` loops. VV3's state and
-record validators now accept indices through 255, as does its reverse spatial
-selection. VV4's record lookup, selected-villager validation, and reverse
-selection use the same 255 endpoint. VV5's lookup, selected-villager
-validation, pending-record removal, and reverse-selection paths are widened as
-well. Leaving these helpers at the stock 149 endpoint causes late-record
-lookups to fail or reuse the wrong record even when the larger arrays exist.
+record validators now accept indices through 255; its primary general spatial
+picker remains at the stock reviewed routine until a complete reanalysis proves
+a safe expanded relocation. VV3's mating and nearby-villager helpers are a
+separate reviewed case: their reverse-scan endpoints now point to record 255.
+VV4's record lookup, selected-villager validation, and reverse selection use the
+same 255 endpoint. VV5's lookup, selected-villager validation, pending-record
+removal, and reverse-selection paths are widened as well. In VV5, the three
+reverse-selection helpers also require their end pointer to move from the stock
+record-149 address to the corresponding record-255 address; widening only the
+loop bound makes the picker walk backwards out of the record table and can
+select arbitrary records. Leaving any reviewed helper at the stock 149 endpoint
+causes late-record lookups to fail or reuse the wrong record even when the
+larger arrays exist.
 
 IDA Pro 9.4 was used to export decoded operands. This matters because the
 Microsoft runtime contains valid code outside some named function boundaries.

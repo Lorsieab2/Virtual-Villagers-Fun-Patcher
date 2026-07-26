@@ -116,6 +116,10 @@ class ManifestTests(unittest.TestCase):
         self.assertIn("ShowOriginsUpgradeMenuState", exports)
         self.assertIn("ShowOriginsUpgradeMenuState", source)
         self.assertIn("return show_upgrade_menu(villager_menu, dialog_state);", source)
+        resource = (
+            ROOT / "native/vv1_origins_icons/vv1_origins_icons.rc"
+        ).read_text(encoding="utf-8")
+        self.assertIn("Time Warp - 3 villager years", resource)
 
     def test_statistics_features_cover_all_proven_per_save_counter_blocks(self) -> None:
         features = {
@@ -623,6 +627,36 @@ class StockIntegrationTests(unittest.TestCase):
                         bytes.fromhex("B92D690000"),
                     )
 
+    def test_expanded_selection_end_pointers_use_reviewed_endpoints(self) -> None:
+        expected = {
+            # VV3's primary picker remains untouched pending a complete
+            # reanalysis; the other two games have reviewed endpoints.
+            "vv3": [
+                (0x60D4C, "706B1200"),
+                (0x5F975, "6C7B1F00"),
+                (0x5FA46, "807B1F00"),
+            ],
+            "vv4": [(0x66845, "F7051B00")],
+            "vv5": [
+                (0x70280, "04152F00"),
+                (0x705E5, "04152F00"),
+                (0x70706, "04152F00"),
+            ],
+        }
+        for build in load_builds():
+            if build.id not in expected:
+                continue
+            for offset, value in expected[build.id]:
+                with self.subTest(game=build.id, offset=hex(offset)):
+                    rendered, _ = render_patched_bytes(
+                        STOCK / build.input_name,
+                        build,
+                        "experimental_expanded_256",
+                    )
+                    self.assertEqual(
+                        bytes(rendered[offset : offset + 4]), bytes.fromhex(value)
+                    )
+
     def test_expanded_modes_leave_required_slot_zero_loaders_stock(self) -> None:
         slot_zero_calls = {
             "vv3": (0x288A9, "E8F2AAFDFF"),
@@ -711,7 +745,6 @@ class StockIntegrationTests(unittest.TestCase):
             "vv3": {
                 0x35A5A: "00010000",
                 0x5EE69: "00010000",
-                0x60D46: "FF000000",
             },
             "vv4": {
                 0x66045: "FF000000",
@@ -1860,7 +1893,7 @@ class StockIntegrationTests(unittest.TestCase):
         )
         self.assertEqual(
             bytes(rendered[0x3CD22:0x3CD2E]),
-            bytes.fromhex("EB0A90909090909090909090"),
+            bytes.fromhex("6A2653E8B6A5FFFF84C0740E"),
         )
         self.assertEqual(
             bytes(rendered[0x28470:0x28477]),
@@ -1896,13 +1929,12 @@ class StockIntegrationTests(unittest.TestCase):
         self.assertIn(bytes.fromhex("83B84CAD000000"), code)
         self.assertIn(bytes.fromhex("C78748AD000001000000"), code)
         self.assertIn(bytes.fromhex("C7874CAD000001000000"), code)
-        self.assertIn(bytes.fromhex("683E0500006843040000"), code)
-        self.assertIn(bytes.fromhex("6862040000687A040000"), code)
         self.assertNotIn(bytes.fromhex("C742582C010000"), code)
         self.assertIn(bytes.fromhex("8D8AA8030000"), code)
         self.assertIn(bytes.fromhex("8339267506C701FFFFFFFF"), code)
         self.assertIn(bytes.fromhex("8D8A98030000"), code)
         self.assertNotIn(bytes.fromhex("C782A003000026000000"), code)
+        self.assertNotIn(bytes.fromhex("EB0A90909090909090909090"), rendered)
         self.assertIn(bytes.fromhex("2DBC02000083F8647D05B864000000"), code)
         self.assertIn(bytes.fromhex("817C24082C1A4B7F750C6A0A6A0CE83D0FFDFF"), code)
         self.assertIn(bytes.fromhex("83F80C76"), code)

@@ -30,7 +30,7 @@ STOCK_SAVE_COMPATIBILITY = {
             "after": (
                 "5589E551FF7510FF750CFF75088B4DFCE8DA7FF8FF84C07547"
                 "FF7510681C2F0100FF75088B4DFCE8C37FF8FF84C0743056578B"
-                "750881C6182F01008DBE98750000B914040000FDF3A4FC8B7D08"
+                "750881C6182F01008DBE98750000B914040000FDF3A5FC8B7D08"
                 "81C7CC1E010031C0B9661D0000F3AB5F5EB00189EC5DC20C00"
             ),
             "purpose": "accept an exact stock VV3 save, move its saved-state tail, and zero the 106 inserted villager records",
@@ -49,7 +49,7 @@ STOCK_SAVE_COMPATIBILITY = {
             "after": (
                 "5589E551FF7510FF750CFF75088B4DFCE8BEA6F7FF84C07547"
                 "FF7510680C710100FF75088B4DFCE8A7A6F7FF84C0743056578B"
-                "750881C6087101008DBEA86B0000B915040000FDF3A4FC8B7D08"
+                "750881C6087101008DBEA86B0000B915040000FDF3A5FC8B7D08"
                 "81C7B860010031C0B9EA1A0000F3AB5F5EB00189EC5DC20C00"
             ),
             "purpose": "accept an exact stock VV4 save, move its saved-state tail, and zero the 106 inserted villager records",
@@ -68,7 +68,7 @@ STOCK_SAVE_COMPATIBILITY = {
             "after": (
                 "5589E551FF7510FF750CFF75088B4DFCE8EFF0F6FF84C07547"
                 "FF751068787D0100FF75088B4DFCE8D8F0F6FF84C0743056578B"
-                "750881C6747D01008DBEF0730000B919040000FDF3A4FC8B7D08"
+                "750881C6747D01008DBEF0730000B919040000FDF3A5FC8B7D08"
                 "81C7146D010031C0B9FC1C0000F3AB5F5EB00189EC5DC20C00"
             ),
             "purpose": "accept an exact stock VV5 save, move its saved-state tail, and zero the 106 inserted villager records",
@@ -77,6 +77,18 @@ STOCK_SAVE_COMPATIBILITY = {
 }
 REVIEWED_RECORD_BOUNDS = {
     "vv3": [
+        {
+            "offset": "0x5F975",
+            "before": "746B1200",
+            "after": "6C7B1F00",
+            "purpose": "move the VV3 mating spatial scan endpoint from record 149 to record 255",
+        },
+        {
+            "offset": "0x5FA46",
+            "before": "905C1200",
+            "after": "807B1F00",
+            "purpose": "move the VV3 nearby-villager helper endpoint from record 149 to record 255",
+        },
         {
             "offset": "0x35A5A",
             "before": "96000000",
@@ -88,12 +100,6 @@ REVIEWED_RECORD_BOUNDS = {
             "before": "96000000",
             "after": "00010000",
             "purpose": "expand the active-record lookup validator from 150 to 256 records",
-        },
-        {
-            "offset": "0x60D46",
-            "before": "95000000",
-            "after": "FF000000",
-            "purpose": "start reverse spatial villager selection at expanded record 255",
         },
     ],
     "vv4": [
@@ -146,6 +152,24 @@ REVIEWED_RECORD_BOUNDS = {
             "before": "95000000",
             "after": "FF000000",
             "purpose": "expand the third reverse villager-selection scan through record 255",
+        },
+        {
+            "offset": "0x70280",
+            "before": "DC821B00",
+            "after": "04152F00",
+            "purpose": "move the VV5 spatial-picker reverse scan endpoint from record 149 to record 255",
+        },
+        {
+            "offset": "0x705E5",
+            "before": "DC821B00",
+            "after": "04152F00",
+            "purpose": "move the first VV5 reverse-selection helper endpoint from record 149 to record 255",
+        },
+        {
+            "offset": "0x70706",
+            "before": "DC821B00",
+            "after": "04152F00",
+            "purpose": "move the second VV5 reverse-selection helper endpoint from record 149 to record 255",
         },
     ],
 }
