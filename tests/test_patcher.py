@@ -1290,7 +1290,7 @@ class StockIntegrationTests(unittest.TestCase):
             bytes(rendered[0x94400:0x9442A]),
             bytes.fromhex(
                 "83B9FC1C00000D7417EB079090909090909083B9701C0000007E0A"
-                "E960020000E9C1ADFDFFE910AEFDFF"
+                "E9E0040000E9C1ADFDFFE910AEFDFF"
             ),
         )
         self.assertEqual(

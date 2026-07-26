@@ -1216,7 +1216,7 @@
         {
           "offset": "0x94400",
           "before": "000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
-            "after": "83B9FC1C00000D7417EB079090909090909083B9701C0000007E0AE960020000E9C1ADFDFFE910AEFDFF",
+            "after": "83B9FC1C00000D7417EB079090909090909083B9701C0000007E0AE9E0040000E9C1ADFDFFE910AEFDFF",
           "purpose": "leave Retired Chiefs on the original stock branch while requiring both positive Devotion skill and Devotion as the selected preferred job before routing an ordinary villager to the added Honoring branch"
         },
         {
