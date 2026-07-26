@@ -1231,7 +1231,7 @@
       "id": "vv5_statue_polishing_or_honoring",
       "game_id": "vv5",
       "name": "Statue Drops: Normal Action or Honoring",
-      "description": "Every statue-drop state chooses with equal 50/50 odds between Honoring and its normal action: Building a statue while construction is underway, Confused when an upgrade lacks the required technology, or Polishing the Statue for eligible upgradeable and completed statues.",
+      "description": "Statue drops use skill-aware choices: Honoring is available only to villagers with positive Devotion, while Building a statue and Polishing the Statue require positive Building skill. When both outcomes are eligible, the choice is 50/50; otherwise the eligible normal action is kept.",
       "output_tag": "Random Statue Training",
       "patches": [
         {
@@ -1285,8 +1285,27 @@
         {
           "offset": "0x94460",
           "before": "000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
-          "after": "5A52516A02E8F6F1F6FF83C404596BC00B05950000005A5052C30000000000005A52516A02E8D6F1F6FF83C4045969C081000000051F000000C744240C660000005A5052C300005A52516A02E8AFF1F6FF83C404598D84409D0000005A5052C3",
-          "purpose": "install stack-safe 50/50 selectors for Building a statue or Honoring, Confused or Honoring, and Polishing or Honoring"
+          "after": "E9DB02000090909090909090909090909090909090909090909090909090909090909090909090909090909090909090909090909090909090909090909090909090909090909090909090909090909090909090909090909090909090909090",
+          "purpose": "trampoline to skill-aware statue selectors in executable padding"
+        },
+
+        {
+          "offset": "0x94740",
+          "before": "000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "after": "5A525183B9701C0000007E223083B9541C0000007E22306A02E802EFF6FF83C404596BC00B05950000005A5052C359B8950000005A5052C359B8A00000005A5052C3",
+          "purpose": "select Building a statue or Honoring only when Devotion and Building skills permit both outcomes"
+        },
+        {
+          "offset": "0x947B0",
+          "before": "000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "after": "5A525183B9701C0000007E2A3083B9541C0000007E32306A02E892EEF6FF83C404596BC081051F000000C744240C660000005A5052C359B81F000000C744240C660000005A5052C359B8A0000000C744240C660000005A5052C3",
+          "purpose": "select Confused or Honoring only when Devotion is present, preserving the original stack write"
+        },
+        {
+          "offset": "0x94840",
+          "before": "000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "after": "5A525183B9701C0000007E223083B9541C0000007E22306A02E802EEF6FF83C404596BC00B059D0000005A5052C359B89D0000005A5052C359B8A00000005A5052C3",
+          "purpose": "select Polishing the Statue or Honoring only when Devotion and Building skills permit both outcomes"
         }
       ]
     },
