@@ -213,6 +213,22 @@ class StockIntegrationTests(unittest.TestCase):
                     self.assertEqual(preview["villager_slots"], expected_slots)
                     self.assertIn("remaining villager slots", preview["multiple_birth_saturation"])
 
+    def test_expanded_modes_render_with_all_game_patches_selected(self) -> None:
+        patches_by_game = {
+            build.id: [patch.id for patch in load_fun_patches() if patch.game_id == build.id]
+            for build in load_builds()
+        }
+        for build in load_builds():
+            with self.subTest(game=build.id):
+                rendered, applied = render_patched_bytes(
+                    STOCK / build.input_name,
+                    build,
+                    "experimental_expanded_256",
+                    patches_by_game[build.id],
+                )
+                self.assertEqual(len(rendered), build.size)
+                self.assertGreater(len(applied), 0)
+
     def test_immediate_mode_fixed_arithmetic(self) -> None:
         checks = {
             "vv2": (0x4B378, bytes.fromhex("BFA6000000")),
@@ -1236,13 +1252,13 @@ class StockIntegrationTests(unittest.TestCase):
                 )
                 self.assertEqual(
                     bytes(rendered[0x602ED:0x602F5]),
-                    bytes.fromhex("E90EB10100909090"),
+                    bytes.fromhex("E94EB10100909090"),
                 )
                 self.assertEqual(
-                    bytes(rendered[0x7B400:0x7B424]),
+                    bytes(rendered[0x7B440:0x7B464]),
                     bytes.fromhex(
-                        "8D994C0400006A05B918265800E8AEBBFAFF83F8037C06"
-                        "83C36483C3283BFBE9D14EFEFF"
+                        "8D994C0400006A05B918265800E86EBBFAFF83F8037C06"
+                        "83C36483C3283BFBE9914EFEFF"
                     ),
                 )
         preview = dry_run(source, DEFAULT_PATCH_MODE, selected)
@@ -1278,10 +1294,10 @@ class StockIntegrationTests(unittest.TestCase):
             ),
         )
         self.assertEqual(
-            bytes(rendered[0x94680:0x946B2]),
+            bytes(rendered[0x94900:0x94932]),
             bytes.fromhex(
-                "6A64E8D9EFF6FF83C40483F8327D1E8B8E881B0000885C240F"
-                "8D54240F5268A0000000E8D80EFDFFE970ABFDFFE988ABFDFF"
+                "6A64E859EDF6FF83C40483F8327D1E8B8E881B0000885C240F"
+                "8D54240F5268A0000000E8580CFDFFE9F0A8FDFFE908A9FDFF"
             ),
         )
         self.assertEqual(
@@ -1322,9 +1338,9 @@ class StockIntegrationTests(unittest.TestCase):
         self.assertEqual(bytes(rendered[0x6F1F5:0x6F1FC]), bytes.fromhex(
             "6A64E86444F9FF"
         ))
-        self.assertEqual(bytes(rendered[0x94680:0x946B2]), bytes.fromhex(
-            "6A64E8D9EFF6FF83C40483F8327D1E8B8E881B0000885C240F"
-            "8D54240F5268A0000000E8D80EFDFFE970ABFDFFE988ABFDFF"
+        self.assertEqual(bytes(rendered[0x94900:0x94932]), bytes.fromhex(
+            "6A64E859EDF6FF83C40483F8327D1E8B8E881B0000885C240F"
+            "8D54240F5268A0000000E8580CFDFFE9F0A8FDFFE908A9FDFF"
         ))
         self.assertEqual(bytes(rendered[0x6C45D:0x6C462]), bytes.fromhex("E845800200"))
         self.assertEqual(bytes(rendered[0x6CDED:0x6CDF2]), bytes.fromhex("E8B5760200"))

@@ -31,7 +31,9 @@ No stock Nature level changes that threshold.
 ## Patch behavior
 
 The patch detours the final Medicine-based threshold construction at file
-offset `0x602ED` into unused mapped `.text` padding at file offset `0x7B400`.
+offset `0x602ED` into unused mapped `.text` padding at file offset `0x7B440`.
+The relocated cave stays clear of the expanded VV3 save-loader cave used by
+the experimental 256-record layout.
 The cave:
 
 1. reconstructs the exact stock Medicine threshold;

@@ -44,7 +44,8 @@ Honoring-or-Spreading code at `0x46F1E6`. The patch does not replace or
 intercept the stock random choice at `0x46F1F5`.
 
 An ordinary villager with positive Devotion skill enters a separate block at
-file offset `0x94680`. The selected-job check is deliberately not required:
+file offset `0x94900`. The selected-job check is deliberately not required;
+the relocation keeps the block clear of the expanded VV5 save-loader cave:
 Devotion skill alone makes the villager eligible, while a zero-skill villager
 returns to the ordinary scheduler. The block reproduces the stock 50-percent
 timing chance and, on success, queues stock behavior `0xA0` Honoring. A failed

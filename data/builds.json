@@ -1099,14 +1099,14 @@
         {
           "offset": "0x602ED",
           "before": "8D994C0400003BFB",
-          "after": "E90EB10100909090",
-          "purpose": "route the stock Medicine-based mortality threshold through a Nature-level discriminator"
+          "after": "E94EB10100909090",
+          "purpose": "route the stock Medicine-based mortality threshold through the relocated Nature-level discriminator"
         },
         {
-          "offset": "0x7B400",
+          "offset": "0x7B440",
           "before": "000000000000000000000000000000000000000000000000000000000000000000000000",
-          "after": "8D994C0400006A05B918265800E8AEBBFAFF83F8037C0683C36483C3283BFBE9D14EFEFF",
-          "purpose": "preserve the stock threshold and add 140 internal age units, seven displayed years, only at Nature level 3"
+          "after": "8D994C0400006A05B918265800E86EBBFAFF83F8037C0683C36483C3283BFBE9914EFEFF",
+          "purpose": "preserve the stock threshold and add 140 internal age units, seven displayed years, only at Nature level 3; relocated outside the expanded VV3 save-loader cave"
         }
       ]
     },
@@ -1220,10 +1220,10 @@
           "purpose": "leave Retired Chiefs on the original stock branch while requiring both positive Devotion skill and Devotion as the selected preferred job before routing an ordinary villager to the added Honoring branch"
         },
         {
-          "offset": "0x94680",
+          "offset": "0x94900",
           "before": "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
-          "after": "6A64E8D9EFF6FF83C40483F8327D1E8B8E881B0000885C240F8D54240F5268A0000000E8D80EFDFFE970ABFDFFE988ABFDFF",
-          "purpose": "apply the stock 50-percent timing chance and assign only Honoring to an eligible ordinary devotee without intercepting any Retired Chief behavior"
+          "after": "6A64E859EDF6FF83C40483F8327D1E8B8E881B0000885C240F8D54240F5268A0000000E8580CFDFFE9F0A8FDFFE908A9FDFF",
+          "purpose": "apply the stock 50-percent timing chance and assign only Honoring to an eligible ordinary devotee without intercepting any Retired Chief behavior; relocated outside the expanded VV5 save-loader cave"
         }
       ]
     },
