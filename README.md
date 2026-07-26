@@ -166,6 +166,21 @@ The same aging loop processes ordinary play and elapsed-time catch-up, so the
 seven-year shift applies in both. The patch does not change displayed age,
 health, sickness, resurrection, or the existing Medicine progression.
 
+## VV3: Pointing Out a Rare Collectible Always Works
+
+Enable **Pointing Out a Rare Collectible Always Works (The Secret City)** so
+the Tribal Chief's completed action rerolls an ineligible rare collectible
+choice instead of silently spending the full cooldown without placing
+anything. Stock VV3 chooses the rare item only after the action and cooldown
+have already committed, then rejects the choice when another villager is
+targeting that exact item or when a particular rare category has already been
+collected.
+
+The patch retries only those stock rejection paths. It preserves the original
+four rare categories, item IDs, random selection, collection restrictions,
+spawn regions, Chief requirement, Leadership requirement, action duration, and
+cooldown.
+
 ## VV5: Easier Devotee Training
 
 Enable **Easier Devotee Training (New Believers)** so any villager with positive Devotion skill can spontaneously choose the game's original **Honoring** action. The stock autonomous opportunity is confined to the Retired Chief job state; other devotees normally have to be dropped on the upgradeable statue to begin Honoring. This patch checks actual Devotion skill instead.

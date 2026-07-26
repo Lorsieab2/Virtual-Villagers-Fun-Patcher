@@ -1476,6 +1476,38 @@ class StockIntegrationTests(unittest.TestCase):
         preview = dry_run(source, DEFAULT_PATCH_MODE, selected)
         self.assertEqual(preview["fun_patches"], selected)
 
+    def test_vv3_rare_collectible_retries_rejected_random_choices(self) -> None:
+        feature_id = "vv3_rare_collectible_retry"
+        feature = get_fun_patch(feature_id)
+        self.assertIn("full stock cooldown", feature.description)
+        self.assertIn("eligible rare collectible", feature.description)
+        build = next(build for build in load_builds() if build.id == "vv3")
+        source = STOCK / build.input_name
+        stock = source.read_bytes()
+        self.assertEqual(bytes(stock[0x2DC4F:0x2DC51]), bytes.fromhex("752C"))
+        self.assertEqual(bytes(stock[0x2DC5E:0x2DC60]), bytes.fromhex("751D"))
+        self.assertEqual(
+            bytes(stock[0x2DC85:0x2DC8A]), bytes.fromhex("9090909090")
+        )
+        for mode in MODES:
+            with self.subTest(mode=mode):
+                rendered, _ = render_patched_bytes(
+                    source, build, mode, [feature_id]
+                )
+                self.assertEqual(
+                    bytes(rendered[0x2DC4F:0x2DC51]), bytes.fromhex("7534")
+                )
+                self.assertEqual(
+                    bytes(rendered[0x2DC5E:0x2DC60]), bytes.fromhex("7525")
+                )
+                self.assertEqual(
+                    bytes(rendered[0x2DC85:0x2DC8A]),
+                    bytes.fromhex("E9E6FEFFFF"),
+                )
+        preview = dry_run(source, DEFAULT_PATCH_MODE, [feature_id])
+        self.assertEqual(preview["fun_patches"], [feature_id])
+        self.assertEqual(preview["output_name"], modded_exe_name(build))
+
     def test_vv5_easier_devotee_training_is_guarded_and_additive(self) -> None:
         feature_id = "vv5_easier_devotee_training"
         feature = next(patch for patch in load_fun_patches() if patch.id == feature_id)

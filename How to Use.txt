@@ -30,7 +30,8 @@ save-recognition, and complete 256-villager save/reload testing.
    "Teaching Children Grants Skill", and/or "Gong of Wonder Coconuts Fix".
 5. Optional for The Secret City: check
    "Nature Level 1 Actually Replenishes Food Sources Faster" and/or
-   "Nature Level 3 Actually Alters Mortality".
+   "Nature Level 3 Actually Alters Mortality" and/or
+   "Pointing Out a Rare Collectible Always Works".
 6. Optional for The Tree of Life: check
    "Complete Fish Scales = Golden Fish in Nets".
 7. Optional for New Believers: check "Heathen Mommy Puzzle Restoration" and/or

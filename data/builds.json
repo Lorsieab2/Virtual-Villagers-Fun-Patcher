@@ -1111,6 +1111,33 @@
       ]
     },
     {
+      "id": "vv3_rare_collectible_retry",
+      "game_id": "vv3",
+      "name": "Pointing Out a Rare Collectible Always Works",
+      "description": "When the Tribal Chief completes Pointing out a rare collectible, rejected random choices are rerolled until the stock game finds an eligible rare collectible. This prevents the full stock cooldown from being spent without a collectible appearing while preserving the original rare categories, collectible IDs, collection rules, and placement logic.",
+      "output_tag": "Reliable Rare Collectible",
+      "patches": [
+        {
+          "offset": "0x2DC4F",
+          "before": "752C",
+          "after": "7534",
+          "purpose": "route a rare collectible already targeted by a villager to the guarded reroll stub"
+        },
+        {
+          "offset": "0x2DC5E",
+          "before": "751D",
+          "after": "7525",
+          "purpose": "route the stock already-collected rejection for the special rare category to the guarded reroll stub"
+        },
+        {
+          "offset": "0x2DC85",
+          "before": "9090909090",
+          "after": "E9E6FEFFFF",
+          "purpose": "rerun the stock rare category and collectible selection after an ineligible random choice"
+        }
+      ]
+    },
+    {
       "id": "vv4_complete_scales_golden_fish",
       "game_id": "vv4",
       "name": "Complete Fish Scales = Golden Fish in Nets",
