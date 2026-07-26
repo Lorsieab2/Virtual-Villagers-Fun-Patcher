@@ -1,0 +1,3 @@
+LIBRARY "VVFP Statistics Export"
+EXPORTS
+    WriteVillageStatistics=_WriteVillageStatistics@12

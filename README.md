@@ -113,10 +113,34 @@ build:
 
 The Tech screen presents its five village upgrades together, and the Villager
 Detail screen presents its four villager upgrades together, each with icons
-and individual Buy buttons. The two doublers are stored beside the modified executable in
-`Origins Exclusive Features.ini` and apply to all save slots opened by that
-modded installation. **Bump Max Population** is deliberately omitted because
+and individual Buy buttons. The two doublers are stored in otherwise-unused
+fields of the current saved village, so purchasing or removing one affects
+only that save slot. **Bump Max Population** is deliberately omitted because
 the patcher's population modes handle population limits separately.
+
+## VV2: Enable Origins-Exclusive Features
+
+Enable **Enable Origins-Exclusive Features (The Lost Children)** to add the
+same icon-based village and selected-villager upgrade menus to VV2. The
+supported desktop build receives:
+
+- **Time Warp**, **Island Event**, and the literal stock **Barrel of Babies**
+  event;
+- removable **Tech Point Doubler** and **Food Point Doubler** purchases stored
+  only in the current saved village;
+- **Grant Youth**, **Grant Full Mastery**, **Grant Running**, and **Set Age to
+  18** for the selected villager.
+
+The prices and refusal rules match the A New Home port. Barrel of Babies calls
+VV2's native three-child event path and checks the game's comprehensive
+occupied-plus-reserved population count before charging. Grant Running uses
+only the three normal Like slots, removes Running from the selected villager's
+normal Dislike slots, and never edits movement speed.
+
+Positive food and tech awards use VV2's central stock award routines. The
+doublers do not affect deductions or Island Event awards. A paused village
+cannot purchase Time Warp because VV2's paused catch-up logic discards elapsed
+age. **Bump Max Population** remains omitted.
 
 ## VV2: Teaching Children Grants Skill
 

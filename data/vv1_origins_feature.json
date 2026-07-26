@@ -8,7 +8,7 @@
     {
       "source": "assets/origins/VVFP Origins Icons.dll",
       "destination": "VVFP Origins Icons.dll",
-      "sha256": "B86DDE43048D40B3FC5D3A40F1DD8822D46E3D7F0FF5254DE1D09E98A2B11D07"
+      "sha256": "1E410879D634609A1DDF9E7E93459FC71ED7035E5C13BA0DC13CD649B4192901"
     }
   ],
   "patches": [

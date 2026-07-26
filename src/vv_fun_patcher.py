@@ -16,6 +16,8 @@ ROOT = Path(__file__).resolve().parents[1]
 MANIFEST_PATH = ROOT / "data" / "builds.json"
 EXPANDED_MANIFEST_PATH = ROOT / "data" / "expanded_256.json"
 ORIGINS_FEATURE_PATH = ROOT / "data" / "vv1_origins_feature.json"
+VV2_ORIGINS_FEATURE_PATH = ROOT / "data" / "vv2_origins_feature.json"
+STATISTICS_FEATURES_PATH = ROOT / "data" / "statistics_features.json"
 DEFAULT_PATCH_MODE = "collection_progression"
 EXPANDED_PATCH_MODES = {
     "experimental_expanded_256",
@@ -59,6 +61,15 @@ def load_fun_patches() -> list[FunPatch]:
     items = list(_manifest().get("fun_patches", []))
     if ORIGINS_FEATURE_PATH.is_file():
         items.append(json.loads(ORIGINS_FEATURE_PATH.read_text(encoding="utf-8")))
+    if VV2_ORIGINS_FEATURE_PATH.is_file():
+        items.append(
+            json.loads(VV2_ORIGINS_FEATURE_PATH.read_text(encoding="utf-8"))
+        )
+    if STATISTICS_FEATURES_PATH.is_file():
+        statistics = json.loads(
+            STATISTICS_FEATURES_PATH.read_text(encoding="utf-8")
+        )
+        items.extend(statistics.get("features", []))
     return [FunPatch(item) for item in items]
 
 

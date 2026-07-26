@@ -106,6 +106,28 @@ class ManifestTests(unittest.TestCase):
                 self.assertTrue(get_patch_variant(build, MODES[0])["bonuses_affect_maximum"])
             self.assertFalse(get_patch_variant(build, MODES[1])["bonuses_affect_maximum"])
 
+    def test_origins_dialog_supports_game_supplied_state(self) -> None:
+        exports = (ROOT / "native/vv1_origins_icons/vv1_origins_icons.def").read_text(
+            encoding="utf-8"
+        )
+        source = (
+            ROOT / "native/vv1_origins_icons/vv1_origins_icons.c"
+        ).read_text(encoding="utf-8")
+        self.assertIn("ShowOriginsUpgradeMenuState", exports)
+        self.assertIn("ShowOriginsUpgradeMenuState", source)
+        self.assertIn("return show_upgrade_menu(villager_menu, dialog_state);", source)
+
+    def test_statistics_features_are_exactly_scoped_to_proven_local_counters(self) -> None:
+        features = {
+            patch.game_id: patch
+            for patch in load_fun_patches()
+            if patch.name == "Write Village Statistics to Text File"
+        }
+        self.assertEqual(set(features), {"vv1", "vv2"})
+        for feature in features.values():
+            self.assertIn("stock local lifetime statistics", feature.description)
+            self.assertEqual(len(feature.raw["companion_files"]), 1)
+
     def test_unknown_file_is_refused(self) -> None:
         with tempfile.TemporaryDirectory() as temp:
             path = Path(temp) / "unknown.exe"
@@ -1508,6 +1530,60 @@ class StockIntegrationTests(unittest.TestCase):
         self.assertEqual(preview["fun_patches"], [feature_id])
         self.assertEqual(preview["output_name"], modded_exe_name(build))
 
+    def test_vv1_vv2_statistics_export_wraps_successful_primary_saves(self) -> None:
+        expected = {
+            "vv1": {
+                "hook": 0x1BF63,
+                "hook_bytes": "E8C8A70300",
+                "cave": 0x56730,
+                "game_push": "6A01",
+            },
+            "vv2": {
+                "hook": 0x24BF3,
+                "hook_bytes": "E858F20400",
+                "cave": 0x73E50,
+                "game_push": "6A02",
+            },
+        }
+        for game_id, details in expected.items():
+            with self.subTest(game_id=game_id):
+                feature_id = f"{game_id}_write_village_statistics"
+                feature = get_fun_patch(feature_id)
+                build = next(build for build in load_builds() if build.id == game_id)
+                source = STOCK / build.input_name
+                rendered, _ = render_patched_bytes(
+                    source, build, DEFAULT_PATCH_MODE, [feature_id]
+                )
+                hook = details["hook"]
+                self.assertEqual(
+                    bytes(rendered[hook : hook + 5]),
+                    bytes.fromhex(details["hook_bytes"]),
+                )
+                cave = bytes(rendered[details["cave"] : details["cave"] + 0xD0])
+                self.assertIn(b"VVFP Statistics Export.dll\0", cave)
+                self.assertIn(b"WriteVillageStatistics\0", cave)
+                self.assertIn(bytes.fromhex(details["game_push"]), cave)
+                self.assertIn(bytes.fromhex("83FF017C"), cave)
+                self.assertIn(bytes.fromhex("83FF057F"), cave)
+                with tempfile.TemporaryDirectory() as temp:
+                    folder = Path(temp) / build.title
+                    folder.mkdir()
+                    copied = folder / build.input_name
+                    shutil.copy2(source, copied)
+                    output, log_path = apply_patch(
+                        copied,
+                        DEFAULT_PATCH_MODE,
+                        fun_patch_ids=[feature_id],
+                    )
+                    companion = output.parent / "VVFP Statistics Export.dll"
+                    self.assertTrue(companion.is_file())
+                    log = json.loads(log_path.read_text(encoding="utf-8"))
+                    self.assertEqual(
+                        digest(companion),
+                        feature.raw["companion_files"][0]["sha256"],
+                    )
+                    self.assertEqual(len(log["companion_files"]), 1)
+
     def test_vv5_easier_devotee_training_is_guarded_and_additive(self) -> None:
         feature_id = "vv5_easier_devotee_training"
         feature = next(patch for patch in load_fun_patches() if patch.id == feature_id)
@@ -1808,6 +1884,70 @@ class StockIntegrationTests(unittest.TestCase):
                 digest(companion),
                 feature.raw["companion_files"][0]["sha256"],
             )
+
+    def test_vv2_origins_exclusive_features_are_guarded_and_composable(self) -> None:
+        feature_id = "vv2_enable_origins_exclusive_features"
+        feature = get_fun_patch(feature_id)
+        self.assertEqual(feature.name, "Enable Origins-Exclusive Features")
+        self.assertIn("current save", feature.description)
+        self.assertIn("Island Event awards are not multiplied", feature.description)
+        build = next(build for build in load_builds() if build.id == "vv2")
+        source = STOCK / build.input_name
+        all_vv2_features = [
+            patch.id
+            for patch in load_fun_patches()
+            if patch.game_id == "vv2"
+        ]
+        for mode in MODES + EXPANDED_MODES:
+            with self.subTest(mode=mode):
+                rendered, _ = render_patched_bytes(
+                    source,
+                    build,
+                    mode,
+                    all_vv2_features,
+                )
+                self.assertEqual(
+                    bytes(rendered[0x234:0x238]), bytes.fromhex("40000060")
+                )
+                self.assertEqual(
+                    bytes(rendered[0x26290:0x26295]),
+                    bytes.fromhex("E913E90600"),
+                )
+                self.assertEqual(
+                    bytes(rendered[0x262B0:0x262B5]),
+                    bytes.fromhex("E943E90600"),
+                )
+                self.assertEqual(
+                    bytes(rendered[0x34570:0x34575]),
+                    bytes.fromhex("E9D3060600"),
+                )
+                payload = bytes(rendered[0x943A8:0x94FFF])
+                self.assertIn(b"ShowOriginsUpgradeMenuState\0", payload)
+                self.assertIn(b"The village population is already at maximum capacity.\0", payload)
+                self.assertIn((500000).to_bytes(4, "little"), payload)
+                self.assertIn(bytes.fromhex("F787E8EA020001000000"), payload)
+                self.assertIn(bytes.fromhex("F787E8EA020002000000"), payload)
+                self.assertIn(bytes.fromhex("6A0A6A15"), payload)
+                self.assertIn((0x434351).to_bytes(4, "little"), payload)
+                self.assertIn((0x433FC6).to_bytes(4, "little"), payload)
+        with tempfile.TemporaryDirectory() as temp:
+            folder = Path(temp) / build.title
+            folder.mkdir()
+            copied = folder / build.input_name
+            shutil.copy2(source, copied)
+            output, log_path = apply_patch(
+                copied,
+                DEFAULT_PATCH_MODE,
+                fun_patch_ids=[feature_id],
+            )
+            companion = output.parent / "VVFP Origins Icons.dll"
+            self.assertTrue(companion.is_file())
+            log = json.loads(log_path.read_text(encoding="utf-8"))
+            self.assertEqual(
+                digest(companion),
+                feature.raw["companion_files"][0]["sha256"],
+            )
+            self.assertEqual(len(log["companion_files"]), 1)
 
     def test_bulk_feature_applies_only_to_its_game(self) -> None:
         feature_id = "vv2_easier_healing_mastery"

@@ -65,12 +65,32 @@ static INT_PTR CALLBACK upgrade_dialog(
     return FALSE;
 }
 
+static int show_upgrade_menu(int villager_menu, int dialog_state) {
+    int resource = villager_menu ? IDD_ORIGINS_VILLAGER : IDD_ORIGINS_TECH;
+    if (villager_menu) {
+        dialog_state |= STATE_VILLAGER;
+    }
+    return (int)DialogBoxParamA(
+        module_instance,
+        MAKEINTRESOURCEA(resource),
+        GetForegroundWindow(),
+        upgrade_dialog,
+        dialog_state
+    );
+}
+
+__declspec(dllexport) int __stdcall ShowOriginsUpgradeMenuState(
+    int villager_menu,
+    int dialog_state
+) {
+    return show_upgrade_menu(villager_menu, dialog_state);
+}
+
 __declspec(dllexport) int __stdcall ShowOriginsUpgradeMenu(
     int villager_menu,
     int state
 ) {
     int dialog_state = 0;
-    int resource = villager_menu ? IDD_ORIGINS_VILLAGER : IDD_ORIGINS_TECH;
     if (villager_menu) {
         unsigned char *villager = (unsigned char *)(UINT_PTR)(unsigned int)state;
         int row;
@@ -108,7 +128,6 @@ __declspec(dllexport) int __stdcall ShowOriginsUpgradeMenu(
                 dialog_state |= 1 << 3;
             }
         }
-        dialog_state |= STATE_VILLAGER;
     } else {
         if ((state & 1) != 0) {
             dialog_state |= 1 << 3;
@@ -117,11 +136,5 @@ __declspec(dllexport) int __stdcall ShowOriginsUpgradeMenu(
             dialog_state |= 1 << 4;
         }
     }
-    return (int)DialogBoxParamA(
-        module_instance,
-        MAKEINTRESOURCEA(resource),
-        GetForegroundWindow(),
-        upgrade_dialog,
-        dialog_state
-    );
+    return show_upgrade_menu(villager_menu, dialog_state);
 }

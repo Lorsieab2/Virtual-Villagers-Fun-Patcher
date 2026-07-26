@@ -25,9 +25,11 @@ save-recognition, and complete 256-villager save/reload testing.
 3. Optional for A New Home: check "School Lessons Grant Skill",
    "Continue Research at Max Technologies", and/or
    "Reenable F6 Clothing Change Cheat", and/or
-   "Magic Fruit of Life Alters Mortality".
+   "Magic Fruit of Life Alters Mortality", "Builder Action Fixes", and/or
+   "Enable Origins-Exclusive Features".
 4. Optional for The Lost Children: check "Easier Healing Mastery",
-   "Teaching Children Grants Skill", and/or "Gong of Wonder Coconuts Fix".
+   "Teaching Children Grants Skill", "Gong of Wonder Coconuts Fix", and/or
+   "Enable Origins-Exclusive Features".
 5. Optional for The Secret City: check
    "Nature Level 1 Actually Replenishes Food Sources Faster" and/or
    "Nature Level 3 Actually Alters Mortality" and/or

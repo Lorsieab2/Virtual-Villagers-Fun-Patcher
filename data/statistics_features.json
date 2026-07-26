@@ -1,0 +1,64 @@
+{
+  "schema_version": 1,
+  "companion_sha256": "04025E38AF7477C1B6B24CC289BB0C531B79D1A85F5DC3D8ED659B601AAECA8C",
+  "features": [
+    {
+      "id": "vv1_write_village_statistics",
+      "game_id": "vv1",
+      "name": "Write Village Statistics to Text File",
+      "description": "After each successful save of slots 1 through 5, writes the stock local lifetime statistics to 'Village Statistics - Save N.txt' in the modified game folder. The original save result is preserved, and a text-export failure does not turn a successful game save into a failure.",
+      "output_tag": "Village Statistics Text Export",
+      "companion_files": [
+        {
+          "source": "assets/statistics/VVFP Statistics Export.dll",
+          "destination": "VVFP Statistics Export.dll",
+          "sha256": "04025E38AF7477C1B6B24CC289BB0C531B79D1A85F5DC3D8ED659B601AAECA8C"
+        }
+      ],
+      "patches": [
+        {
+          "offset": "0x1BF63",
+          "before": "E8F871FEFF",
+          "after": "E8C8A70300",
+          "purpose": "route the stock full-save call through a wrapper that exports statistics only after a successful primary-slot save"
+        },
+        {
+          "offset": "0x56730",
+          "before_fill": "00",
+          "length": 208,
+          "after_base64": "U4nL/3QkEP90JBD/dCQQidnoGsr6/1CEwHQ+g/8BfDmD/wV/NGiwZ0UA/xXQcEUAhcB1D2iwZ0UA/xUQcEUAhcB0FmjMZ0UAUP8V1HBFAIXAdAZXU2oB/9BYW8IMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABWVkZQIFN0YXRpc3RpY3MgRXhwb3J0LmRsbAAAV3JpdGVWaWxsYWdlU3RhdGlzdGljcwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+          "purpose": "call the stock writer unchanged, preserve its Boolean result, and invoke the hash-verified statistics companion for slots 1-5"
+        }
+      ]
+    },
+    {
+      "id": "vv2_write_village_statistics",
+      "game_id": "vv2",
+      "name": "Write Village Statistics to Text File",
+      "description": "After each successful save of slots 1 through 5, writes the stock local lifetime statistics to 'Village Statistics - Save N.txt' in the modified game folder. The original save result is preserved, and a text-export failure does not turn a successful game save into a failure.",
+      "output_tag": "Village Statistics Text Export",
+      "companion_files": [
+        {
+          "source": "assets/statistics/VVFP Statistics Export.dll",
+          "destination": "VVFP Statistics Export.dll",
+          "sha256": "04025E38AF7477C1B6B24CC289BB0C531B79D1A85F5DC3D8ED659B601AAECA8C"
+        }
+      ],
+      "patches": [
+        {
+          "offset": "0x24BF3",
+          "before": "E8F8E7FDFF",
+          "after": "E858F20400",
+          "purpose": "route the stock full-save call through a wrapper that exports statistics only after a successful primary-slot save"
+        },
+        {
+          "offset": "0x73E50",
+          "before_fill": "00",
+          "length": 208,
+          "after_base64": "U4nL/3QkEP90JBD/dCQQidnoivX4/1CEwHQ+g/8BfDmD/wV/NGjQPkcA/xXQQEcAhcB1D2jQPkcA/xUQQEcAhcB0FmjsPkcAUP8V1EBHAIXAdAZXU2oC/9BYW8IMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABWVkZQIFN0YXRpc3RpY3MgRXhwb3J0LmRsbAAAV3JpdGVWaWxsYWdlU3RhdGlzdGljcwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+          "purpose": "call the stock writer unchanged, preserve its Boolean result, and invoke the hash-verified statistics companion for slots 1-5"
+        }
+      ]
+    }
+  ]
+}
