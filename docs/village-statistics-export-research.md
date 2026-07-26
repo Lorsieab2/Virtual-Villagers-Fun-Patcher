@@ -89,7 +89,20 @@ that stock already recorded.
 
 The block range `+0x30..+0x97` has no direct stock code references in any of the
 three games. It is still zeroed, serialized, and restored, but the current
-implementation does not need to consume that reserve.
+implementation uses one proven field in that reserve for VV5:
+
+- `runtime 0x51D38C`, statistics `+0x34`, saved manager `+0x7E8` stores the
+  patch-added **Heathens Converted** lifetime total.
+- The exact successful-conversion entry is `sub_4668B0`. Its original first
+  six bytes are `83 EC 10 56 8B F1`.
+- At function entry, the original Heathen tag is still present at villager
+  record `+0x1CFC`. Tag `17` is the Heathen Mommy, so that conversion adds two;
+  every other successful conversion adds one. Stock subsequently clears most
+  tags, so the test must happen before the original conversion body resumes.
+- The first reserve dword at runtime `0x51D388` remains exclusively owned by
+  the Origins feature's saved bit flags. The conversion total uses the next
+  dword and does not overlap it.
+- Existing saves begin this new total at zero. The counter is not retroactive.
 
 VV4 and VV5's threshold-limited achievement trackers are not used as
 substitutes for these uncapped lifetime totals.
@@ -103,6 +116,7 @@ substitutes for these uncapped lifetime totals.
 | VV4 | Villagers Buried | delayed corpse-record release at `0x4664DC`; guard `88 5E FD 38 5E FD` |
 | VV5 | Food Gathered | final central food delta at `0x41EBA7`; guard `01 37 8B 07 79 0B` |
 | VV5 | Villagers Buried | delayed corpse-record release at `0x46FF12`; guard `88 9E D4 1C 00 00` |
+| VV5 | Heathens Converted | successful conversion entry at `0x4668B0`; guard `83 EC 10 56 8B F1`; tag 17 adds two and all other tags add one |
 
 The food detours count only positive final deltas and reproduce the stock
 negative-underflow branch. The burial detours run at the one-time occupied
@@ -138,3 +152,21 @@ For VV4 and VV5, a detour must replace the five-byte full-save call itself and
 return to the existing post-call instruction. The wrapper must preserve the
 writer's Boolean result and export only after success. Slot-zero uses a
 separate path and must not trigger a village-statistics export.
+
+## Fields still blocked on exact evidence
+
+The following requested totals were not added in this pass because no exact,
+uncapped lifetime storage field and mutation route have yet been proven:
+
+- Village Elders where the inherited statistics block does not already expose
+  it.
+- Villagers Died at the moment of death. The currently restored later-game
+  counter is precisely **Villagers Buried** and increments only when a corpse
+  record is retired after its delay; it must not be relabeled as immediate
+  deaths.
+- Total Stews Made in VV2 through VV4.
+- Tribal Chiefs Robed in VV3.
+- Debris Cleared in VV4.
+
+Threshold-limited achievement counters are not accepted as substitutes for
+these uncapped lifetime totals.

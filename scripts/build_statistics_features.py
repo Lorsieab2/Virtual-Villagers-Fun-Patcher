@@ -104,6 +104,8 @@ GAMES = {
         "burial_stat_va": 0x51D374,
         "burial_guard": "889ED41C0000",
         "burial_restore": "mov byte ptr [esi + 0x1CD4], bl",
+        "conversion_hook_va": 0x4668B0,
+        "conversion_stat_va": 0x51D38C,
     },
 }
 
@@ -262,6 +264,56 @@ def build_game(game_id: str, config: dict[str, object], companion_hash: str) -> 
                 "purpose": (
                     "restore the inherited Villagers Buried counter at the "
                     "one-time delayed corpse-record retirement, including catch-up"
+                ),
+            }
+        )
+
+    conversion_hook_va = config.get("conversion_hook_va")
+    if conversion_hook_va:
+        conversion_wrapper_va = cave_va + 0x130
+        conversion_wrapper = assemble(
+            f"""
+                cmp dword ptr [ecx + 0x1CFC], 17
+                jne ordinary_conversion
+                add dword ptr [0x{int(config['conversion_stat_va']):X}], 2
+                jmp conversion_counted
+            ordinary_conversion:
+                inc dword ptr [0x{int(config['conversion_stat_va']):X}]
+            conversion_counted:
+                sub esp, 0x10
+                push esi
+                mov esi, ecx
+                jmp 0x{int(conversion_hook_va) + 6:X}
+            """,
+            conversion_wrapper_va,
+        )
+        if 0x130 + len(conversion_wrapper) > cave_size:
+            raise RuntimeError(f"{game_id} conversion wrapper exceeds cave allowance")
+        payload[0x130 : 0x130 + len(conversion_wrapper)] = conversion_wrapper
+        conversion_hook_file = int(conversion_hook_va) - 0x400000
+        conversion_guard = bytes.fromhex("83EC10568BF1")
+        if (
+            source[
+                conversion_hook_file :
+                conversion_hook_file + len(conversion_guard)
+            ]
+            != conversion_guard
+        ):
+            raise RuntimeError(f"{game_id} conversion hook guard does not match")
+        extra_patches.append(
+            {
+                "offset": f"0x{conversion_hook_file:X}",
+                "before": conversion_guard.hex().upper(),
+                "after": (
+                    b"\xE9"
+                    + int(
+                        conversion_wrapper_va - int(conversion_hook_va) - 5
+                    ).to_bytes(4, "little", signed=True)
+                    + b"\x90"
+                ).hex().upper(),
+                "purpose": (
+                    "count every completed Heathen conversion once in the "
+                    "per-save reserve, counting the tag-17 Heathen Mommy as two"
                 ),
             }
         )

@@ -15,8 +15,10 @@ from typing import Any
 ROOT = Path(__file__).resolve().parents[1]
 MANIFEST_PATH = ROOT / "data" / "builds.json"
 EXPANDED_MANIFEST_PATH = ROOT / "data" / "expanded_256.json"
-ORIGINS_FEATURE_PATH = ROOT / "data" / "vv1_origins_feature.json"
-VV2_ORIGINS_FEATURE_PATH = ROOT / "data" / "vv2_origins_feature.json"
+ORIGINS_FEATURE_PATHS = tuple(
+    ROOT / "data" / f"vv{game_number}_origins_feature.json"
+    for game_number in range(1, 6)
+)
 STATISTICS_FEATURES_PATH = ROOT / "data" / "statistics_features.json"
 DEFAULT_PATCH_MODE = "collection_progression"
 EXPANDED_PATCH_MODES = {
@@ -59,12 +61,9 @@ def load_patch_modes() -> list[PatchMode]:
 
 def load_fun_patches() -> list[FunPatch]:
     items = list(_manifest().get("fun_patches", []))
-    if ORIGINS_FEATURE_PATH.is_file():
-        items.append(json.loads(ORIGINS_FEATURE_PATH.read_text(encoding="utf-8")))
-    if VV2_ORIGINS_FEATURE_PATH.is_file():
-        items.append(
-            json.loads(VV2_ORIGINS_FEATURE_PATH.read_text(encoding="utf-8"))
-        )
+    for feature_path in ORIGINS_FEATURE_PATHS:
+        if feature_path.is_file():
+            items.append(json.loads(feature_path.read_text(encoding="utf-8")))
     if STATISTICS_FEATURES_PATH.is_file():
         statistics = json.loads(
             STATISTICS_FEATURES_PATH.read_text(encoding="utf-8")
@@ -230,6 +229,26 @@ def modded_save_folder_for(
         return None
     suffix = "Modded 256" if patch_mode in EXPANDED_PATCH_MODES else "Modded"
     return source.parent / f"{build.title} - {suffix}"
+
+
+def suggested_modded_save_folder(
+    build: Build, patch_mode: str, save_root: Path | None = None
+) -> Path | None:
+    """Return the save-folder path the expanded executable will use.
+
+    Unlike ``modded_save_folder_for``, this also returns a useful path when no
+    vanilla slot-zero file exists yet, so the GUI can tell the player where to
+    copy saves after the first launch.
+    """
+    if patch_mode not in EXPANDED_PATCH_MODES:
+        return None
+    existing = modded_save_folder_for(build, patch_mode, save_root)
+    if existing is not None:
+        return existing
+    roots = _ldw_save_roots(save_root)
+    if not roots:
+        return None
+    return roots[0] / f"{build.title} - Modded 256"
 
 
 def copy_vanilla_saves(

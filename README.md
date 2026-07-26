@@ -83,8 +83,9 @@ Enable **Enable Origins-Exclusive Features (A New Home)** to add an
 Virtual Villagers: Origins APK's exclusive purchases to the supported desktop
 build:
 
-- **Time Warp** — 50,000 tech points; advances 3, 6, or 12 hours according to
-  the selected game speed.
+- **Time Warp** — 50,000 tech points; advances the village by exactly 3
+  displayed villager years. The elapsed-clock shift scales with game speed;
+  at Normal speed, six real-time hours equal those three villager years.
 - **Island Event** — 30,000 tech points; queues the stock desktop Island Event.
 - **Barrel of Babies** — 75,000 tech points; matches the APK's forced event
   and adds exactly three young children. If the current housing-dependent
@@ -101,9 +102,8 @@ build:
   Running from that villager's Dislikes. It refuses without charging when all
   three Like slots are occupied and Running is not already a Like. This
   upgrade does not write movement speed, movement initialization, or a custom
-  Running flag. The Origins build also corrects VV1's stock predicate so the
-  fast movement branch requires the actual Running Like trait; villagers
-  without that Like keep normal movement.
+  Running flag, and it does not alter any stock movement predicate. All
+  per-villager speed values and vanilla speed decisions remain untouched.
 - **Set Age to 18** — 50,000 tech points; sets the selected living villager's
   age to 18.
 - **Tech Point Doubler** — 500,000 tech points; permanently doubles positive

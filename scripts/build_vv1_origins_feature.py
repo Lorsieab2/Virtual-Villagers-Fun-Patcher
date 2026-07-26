@@ -708,12 +708,6 @@ def main() -> None:
         "double positive non-Island-Event food awards after the current save owns the Food Point Doubler",
     )
     patch(
-        0x3CD22,
-        bytes.fromhex("6A2653E8B6A5FFFF84C0740E"),
-        b"\xEB\x0A" + b"\x90" * 10,
-        "require the stock Running Like trait instead of treating no Running Dislike as Running",
-    )
-    patch(
         0x28470,
         bytes.fromhex("8B44240483F801"),
         rel32_jump(0x428470, event_dispatch_hook) + b"\x90\x90",
@@ -744,7 +738,8 @@ def main() -> None:
         "game_id": "vv1",
         "name": "Enable Origins-Exclusive Features",
         "description": (
-            "Adds an icon-based Upgrades screen containing Time Warp, Island Event, the "
+            "Adds an icon-based Upgrades screen containing a Time Warp that advances "
+            "exactly three displayed villager years, Island Event, the "
             "native Barrel of Babies event with a three-space capacity guard, "
             "and removable 500,000-tech-point Tech Point Doubler and Food Point Doubler. "
             "The doublers do not multiply Island Event tech or food awards. They double other positive awards and the effect is stored in the current save rather than a global INI. Adds "

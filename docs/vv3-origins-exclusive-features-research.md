@@ -1,9 +1,10 @@
 # VV3 Origins-Exclusive Features Research
 
-This document records the verified implementation map for porting **Enable
-Origins-Exclusive Features** to the supported desktop build of *Virtual
-Villagers - The Secret City*. It deliberately does not claim that the VV3
-feature is implemented.
+This document records the verified implementation map for **Enable
+Origins-Exclusive Features** in the supported desktop build of *Virtual
+Villagers - The Secret City*. The feature is implemented by
+`scripts/build_vv3_origins_feature.py`; its generated, fingerprint-bound patch
+manifest is `data/vv3_origins_feature.json`.
 
 ## Supported executable
 
@@ -180,22 +181,21 @@ reward.
 
 ### Required capacity preflight
 
-The purchase must reserve space for all three children before deducting tech
-points. This preflight is unresolved because the same Origins feature must
-compose with:
+The purchase reserves room for all three children before deducting tech
+points. The current-population helper is `sub_45E8F0(byte_59E110)`. It counts
+each active villager record once and, when that record's baby-reservation flag
+is active, adds its stored reserved-baby count. Pregnancies and multiple-birth
+reservations therefore already consume capacity in this result.
 
-- stock VV3's physical 150-record pool, and
-- the experimental 256-record expansion.
+The stock villager pool begins at `0x59E110` with stride `0x1F8C`. The physical
+allocator is `sub_45F0B0`, which scans 150 records in the stock executable and
+returns `-1` when none is available. The experimental expansion changes the
+same pool bounds to 256.
 
-Hardcoding `population <= 147` would be correct only for the stock physical
-pool. Hardcoding `population <= 253` would be correct only for the expanded
-pool. A builder must first prove a reliable runtime capacity discriminator or
-a shared capacity helper used by both executable modes.
-
-The current population helper is `sub_45E8F0(byte_59E110)`. The stock villager
-pool begins at `0x59E110` with stride `0x1F8C`. The physical allocator is
-`sub_45F0B0`, which scans 150 records in the stock executable and returns `-1`
-when none is available.
+The runtime discriminator is the dword immediate at `0x42883A`. It is the
+immediate operand of `mov edi, 0x96` at `0x428839` in stock VV3; both expanded
+modes replace it with `0x100`. The preflight permits the purchase only when
+`sub_45E8F0(...) <= 147` in stock mode or `<= 253` in expanded mode.
 
 ## Island Event and Time Warp routes
 
@@ -207,10 +207,18 @@ The save manager's pause/speed field is at manager `+0x12F20` (decimal
 `77600`). Stock code treats values at least `999` as paused and contains normal
 branches for speeds `3`, `10`, and the remaining standard case.
 
-The exact Time Warp write and its duration conversion still require a final
-call-site proof before implementation. The address above is sufficient to
-identify pause/speed state but is not, by itself, proof of the correct
-time-warp mutation.
+Time Warp subtracts `speed * 3600` seconds from the baseline at `0x4A4210`.
+The catch-up path divides elapsed seconds by 60 and then by the current speed
+before passing the result to the age updater. The age updater adds that value
+to the internal age field, and displayed age uses 20 internal units per year.
+The result is therefore exactly 60 internal age units, or 3 displayed villager
+years, at every active speed:
+
+- half speed (`3`): 3 real hours
+- normal speed (`6`): 6 real hours
+- double speed (`10`): 10 real hours
+
+Paused values (`>= 999`) are refused without charging.
 
 ## UI construction map
 
@@ -248,27 +256,25 @@ The Tech constructor's existing button sequence near
 `0x465083..0x4650E4` and the Detail constructor's sequence near `0x46CDD9`
 are the stock patterns to reproduce.
 
-## Explicit unresolved implementation gates
+## Implemented hook and composition map
 
-No VV3 builder or manifest should be produced until all of these gates are
-closed:
+- Payload cave: file `0xA3180`, VA `0x4A3180`; generated payload uses less than
+  the verified `0xE80` zero-filled mapped region.
+- Food hook: `0x4263F0`
+- Tech hook: `0x427130`
+- Tech constructor epilogue: `0x46547D`
+- Tech message-handler entry: `0x465640`
+- Detail constructor epilogue: `0x46DA2C`
+- Detail message-handler entry: `0x46E530`
+- The read/write flag is added only to the existing `.rdata` section; section
+  layout is unchanged.
+- Every hook has an exact stock-byte guard.
+- Rendering recomputes a nonzero PE checksum.
+- Automated composition covers every current VV3 fun patch in all four
+  population modes, including both experimental 256 modes.
 
-1. Identify exact constructor-epilogue overwrite windows for both the Tech and
-   Villager Detail screens, including the complete displaced instructions and
-   correct continuation state.
-2. Prove a collision-free mapped payload cave large enough for the complete
-   feature (the VV2 implementation uses approximately `0xC58` bytes).
-3. Cross-check that cave against every currently composable VV3 patch,
-   including statistics, mortality, food replenishment, rare collectible, and
-   both experimental population modes.
-4. Prove the runtime stock-versus-expanded physical-capacity discriminator
-   used by the Barrel three-space preflight.
-5. Prove the exact Time Warp mutation rather than inferring it from the
-   pause/speed field.
-6. Preserve the exact five-byte guards at every hook and recompute the PE
-   checksum after rendering.
-7. Validate the resulting executable with all selectable VV3 patches applied,
-   using both stock and experimental saves, before exposing it in the patcher.
-
-Until those gates are complete, the verified constants above are a research
-handoff rather than a playable feature.
+The native Barrel presentation mirrors the stock scheduler exactly: it
+initializes the registry with `sub_419AC0`, allocates the stock `0x868`-byte
+dialog object, constructs it with `sub_4192F0`, checks byte `+76`, presents it
+with `sub_401AF0(owner, 0)`, marks event index 57 seen, destroys it with
+`sub_418460`, and restores the complete stack allocation.

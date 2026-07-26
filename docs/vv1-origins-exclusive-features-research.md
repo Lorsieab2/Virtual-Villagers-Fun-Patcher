@@ -20,7 +20,7 @@ The APK's Tech screen exposes these purchases:
 
 | Purchase | Cost | Recovered effect |
 |---|---:|---|
-| Time Warp | 50,000 | Advances 3, 6, or 12 hours according to game speed. |
+| Time Warp | 50,000 | Advances the village by exactly 3 displayed villager years; its elapsed-clock adjustment scales with game speed. |
 | Island Event | 30,000 | Opens the non-catastrophic Island Event route. |
 | Barrel of Babies | 75,000 | Opens the native event-12 Barrel of Babies result with magnitude 10, spawning exactly three young children through the stock event path. |
 | Bump Max Population | 250,000 | Adds 10 to the mobile cap, repeatable to a 30-point bonus. |
@@ -121,9 +121,9 @@ Running is already a Like, the upgrade can still remove a conflicting Running
 Dislike. If all three Like slots are occupied and none is Running, the purchase
 refuses without charging or overwriting anything. It does not write movement
 speed, movement initialization, or a custom sentinel. The Origins build also
-changes the stock movement predicate so the fast branch requires trait 38 in a
-Like slot; a villager without the Running Like therefore remains at normal
-movement speed.
+leaves every stock movement predicate and every per-villager speed value
+untouched. Grant Running therefore has no effect beyond the selected
+villager's normal Like and Dislike trait slots.
 It also performs no migration or repair of speed values written into a save by
 an older experimental build; replacing that affected save is the player's
 chosen recovery route.

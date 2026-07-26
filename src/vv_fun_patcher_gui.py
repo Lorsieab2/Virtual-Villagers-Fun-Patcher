@@ -22,6 +22,7 @@ from vv_fun_patcher import (
     load_fun_patches,
     load_patch_modes,
     modded_save_folder_for,
+    suggested_modded_save_folder,
     validate_all_sources,
     vanilla_save_folder_for,
 )
@@ -642,7 +643,7 @@ class App(tk.Tk):
                 self._selected_fun_patch_ids(build.id),
                 output_root=self._output_root(),
             )
-            if not self._confirm_experimental():
+            if not self._confirm_experimental([build]):
                 return
             copy_saves, replace_modded_saves = self._confirm_save_copy([build])
             output_folder = Path(preview["output_folder"])
@@ -688,7 +689,7 @@ class App(tk.Tk):
                 self._selected_fun_patch_ids(),
                 output_root=self._output_root(),
             )
-            if not self._confirm_experimental():
+            if not self._confirm_experimental([build for build, _source in validated]):
                 return
             copy_saves, replace_modded_saves = self._confirm_save_copy(
                 [build for build, _source in validated]
@@ -736,16 +737,36 @@ class App(tk.Tk):
             self.status_var.set(str(exc))
             messagebox.showerror("Batch patch failed", str(exc))
 
-    def _confirm_experimental(self) -> bool:
+    def _confirm_experimental(self, builds=None) -> bool:
         if self._mode() not in {
             "experimental_expanded_256",
             "experimental_expanded_256_progression",
         }:
             return True
+        build_rows = list(builds or self.builds)
+        save_rows = []
+        for build in build_rows:
+            if build.id in {"vv3", "vv4", "vv5"}:
+                path = suggested_modded_save_folder(build, self._mode())
+                if path is not None:
+                    save_rows.append(f"{build.title}: {path}")
+        save_text = ""
+        if save_rows:
+            save_text = (
+                "\n\nPlease launch each modded game once to create its game save folder, "
+                "then copy your vanilla or modded saves into the matching folder:\n"
+                + "\n".join(save_rows)
+            )
+        save_text += (
+            "\n\nIf there is no valid vanilla or modded save to copy, the patcher will not "
+            "copy any save files; launch the modded game once and create a save first."
+        )
         return messagebox.askyesno(
             "Use experimental expanded saves?",
             "Experimental mode gives VV3, VV4, and VV5 an expanded 256-record save "
-            "layout. Full 256-villager long-play testing is not complete.\n\nContinue?",
+            "layout. Full 256-villager long-play testing is not complete."
+            + save_text
+            + "\n\nContinue?",
         )
 
     def _confirm_save_copy(self, builds) -> tuple[bool, bool]:
@@ -811,7 +832,39 @@ class App(tk.Tk):
                 f"Open Modded Folder: {modded_folder.name}",
                 lambda path=modded_folder: self._open_folder(path),
             ).grid(row=row_number + 1, column=1, sticky="w")
-            row_number += 2
+            build = next((item for item in self.builds if item.title == game_name), None)
+            if build is not None:
+                output_name = get_patch_variant(build, self._mode()).output_name
+                output_exe = modded_folder / output_name
+                artifact_lines = [
+                    f"Patch audit: {output_exe.with_suffix('.patch-log.json')} — exact build hash, selected patches, and applied edits."
+                ]
+                selected = set(self._selected_fun_patch_ids(build.id))
+                if f"{build.id}_write_village_statistics" in selected:
+                    artifact_lines.append(
+                        f"Village Statistics - Save N.txt: {modded_folder} — refreshed after each successful save; contains that save's lifetime statistics."
+                    )
+                if f"{build.id}_write_parentage_log" in selected:
+                    artifact_lines.append(
+                        f"{modded_folder / (build.title + ' Parentage Log.html')} — one birth card per child after the child becomes an independent villager."
+                    )
+                ttk.Label(
+                    frame,
+                    text="\n".join(artifact_lines),
+                    wraplength=830,
+                    justify="left",
+                    foreground="#5a4a36",
+                ).grid(
+                    row=row_number + 2,
+                    column=0,
+                    columnspan=2,
+                    sticky="w",
+                    padx=(14, 0),
+                    pady=(2, 8),
+                )
+                row_number += 3
+            else:
+                row_number += 2
 
         ttk.Button(frame, text="Close", command=dialog.destroy).grid(
             row=row_number, column=0, columnspan=2, pady=(16, 0)

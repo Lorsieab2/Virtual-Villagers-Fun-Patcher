@@ -284,6 +284,49 @@ static int write_later_game(
     ) >= 0;
 }
 
+static int write_vv5(
+    FILE *file,
+    const unsigned char *manager,
+    int puzzles_solved,
+    int puzzle_total
+) {
+    const unsigned char *statistics = manager + 0x7B4u;
+    return fprintf(
+        file,
+        "Virtual Villagers - New Believers\n"
+        "Village Statistics\n\n"
+        "Real Hours Played: %d\n"
+        "Points Earned: %d\n"
+        "Babies Made: %d\n"
+        "Food Gathered: %d\n"
+        "People Cured: %d\n"
+        "Mushrooms Found: %d\n"
+        "Highest Population: %d\n"
+        "Villagers Buried: %d\n"
+        "Oldest Villager: %d\n"
+        "Island Events Seen: %d\n"
+        "Twins Birthed: %d\n"
+        "Triplets Birthed: %d\n"
+        "Heathens Converted: %d\n"
+        "Puzzles Solved: %d of %d\n",
+        later_game_hours(manager, 0x36E0u, 0x7B4u),
+        read_int(statistics, 0x04),
+        read_int(statistics, 0x08),
+        read_int(statistics, 0x0C),
+        read_int(statistics, 0x10),
+        read_int(statistics, 0x14),
+        read_int(statistics, 0x18),
+        read_int(statistics, 0x1C),
+        read_int(statistics, 0x20),
+        read_int(statistics, 0x24),
+        read_int(statistics, 0x28),
+        read_int(statistics, 0x2C),
+        read_int(statistics, 0x34),
+        puzzles_solved,
+        puzzle_total
+    ) >= 0;
+}
+
 __declspec(dllexport) int __stdcall WriteVillageStatistics(
     int game_id,
     const void *manager_pointer,
@@ -347,13 +390,9 @@ __declspec(dllexport) int __stdcall WriteVillageStatistics(
     } else {
         module = (unsigned char *)GetModuleHandleW(NULL);
         vv5_total = module != NULL && module[0x8F16u] == 0xE9 ? 17 : 16;
-        written = write_later_game(
+        written = write_vv5(
             file,
             manager,
-            "Virtual Villagers - New Believers",
-            "Mushrooms Found",
-            0x7B4u,
-            0x36E0u,
             count_saved_puzzles(
                 manager,
                 0x16D20u,

@@ -2,13 +2,13 @@
   "id": "vv2_enable_origins_exclusive_features",
   "game_id": "vv2",
   "name": "Enable Origins-Exclusive Features",
-  "description": "Adds the icon-based Origins Upgrades screen with Time Warp, Island Event, the native Barrel of Babies event with a three-space reserved-population guard, and removable 500,000-tech-point Tech Point and Food Point Doublers. Doubler ownership is confined to the current save, and Island Event awards are not multiplied. Adds Villager Upgrades for Grant Youth, Grant Full Mastery, Grant Running, and Set Age to 18. Grant Running uses an available normal Likes slot, removes Running from the displayed villager's Dislikes, refuses without charging when all normal Like slots are occupied, and does not alter movement speed.",
+  "description": "Adds the icon-based Origins Upgrades screen with a Time Warp that advances exactly three displayed villager years, Island Event, the native Barrel of Babies event with a three-space reserved-population guard, and removable 500,000-tech-point Tech Point and Food Point Doublers. Doubler ownership is confined to the current save, and Island Event awards are not multiplied. Adds Villager Upgrades for Grant Youth, Grant Full Mastery, Grant Running, and Set Age to 18. Grant Running uses an available normal Likes slot, removes Running from the displayed villager's Dislikes, refuses without charging when all normal Like slots are occupied, and changes no movement-speed value, predicate, or other vanilla speed logic.",
   "output_tag": "Origins Exclusive Features",
   "companion_files": [
     {
       "source": "assets/origins/VVFP Origins Icons.dll",
       "destination": "VVFP Origins Icons.dll",
-      "sha256": "1E410879D634609A1DDF9E7E93459FC71ED7035E5C13BA0DC13CD649B4192901"
+      "sha256": "6BDFE416189513E752B8C48E4065945BA5CB27379EF1C50CEDCFFB84430C3795"
     }
   ],
   "patches": [

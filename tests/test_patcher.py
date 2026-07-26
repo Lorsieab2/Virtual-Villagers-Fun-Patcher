@@ -160,6 +160,9 @@ class GuiSourceTests(unittest.TestCase):
         self.assertIn("def _show_folder_confirmation", source)
         self.assertIn("Open Vanilla Folder:", source)
         self.assertIn("Open Modded Folder:", source)
+        self.assertIn("Patch audit:", source)
+        self.assertIn("Village Statistics - Save N.txt:", source)
+        self.assertIn("Parentage Log.html", source)
         self.assertNotIn('messagebox.showinfo("Modified EXE created"', source)
         self.assertNotIn('messagebox.showinfo("All five modified EXEs created"', source)
 

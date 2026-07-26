@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "companion_sha256": "39F3170A75C727E781F283036D90D0542164DA873E6488E13640E68667C010BD",
+  "companion_sha256": "6A03B1F3181B4AEFD601619BB303F68EAD3E1273D067AFF55139F818C05A8624",
   "features": [
     {
       "id": "vv1_write_village_statistics",
@@ -12,7 +12,7 @@
         {
           "source": "assets/statistics/VVFP Statistics Export.dll",
           "destination": "VVFP Statistics Export.dll",
-          "sha256": "39F3170A75C727E781F283036D90D0542164DA873E6488E13640E68667C010BD"
+          "sha256": "6A03B1F3181B4AEFD601619BB303F68EAD3E1273D067AFF55139F818C05A8624"
         }
       ],
       "patches": [
@@ -41,7 +41,7 @@
         {
           "source": "assets/statistics/VVFP Statistics Export.dll",
           "destination": "VVFP Statistics Export.dll",
-          "sha256": "39F3170A75C727E781F283036D90D0542164DA873E6488E13640E68667C010BD"
+          "sha256": "6A03B1F3181B4AEFD601619BB303F68EAD3E1273D067AFF55139F818C05A8624"
         }
       ],
       "patches": [
@@ -70,7 +70,7 @@
         {
           "source": "assets/statistics/VVFP Statistics Export.dll",
           "destination": "VVFP Statistics Export.dll",
-          "sha256": "39F3170A75C727E781F283036D90D0542164DA873E6488E13640E68667C010BD"
+          "sha256": "6A03B1F3181B4AEFD601619BB303F68EAD3E1273D067AFF55139F818C05A8624"
         }
       ],
       "patches": [
@@ -105,7 +105,7 @@
         {
           "source": "assets/statistics/VVFP Statistics Export.dll",
           "destination": "VVFP Statistics Export.dll",
-          "sha256": "39F3170A75C727E781F283036D90D0542164DA873E6488E13640E68667C010BD"
+          "sha256": "6A03B1F3181B4AEFD601619BB303F68EAD3E1273D067AFF55139F818C05A8624"
         }
       ],
       "patches": [
@@ -146,7 +146,7 @@
         {
           "source": "assets/statistics/VVFP Statistics Export.dll",
           "destination": "VVFP Statistics Export.dll",
-          "sha256": "39F3170A75C727E781F283036D90D0542164DA873E6488E13640E68667C010BD"
+          "sha256": "6A03B1F3181B4AEFD601619BB303F68EAD3E1273D067AFF55139F818C05A8624"
         }
       ],
       "patches": [
@@ -160,7 +160,7 @@
           "offset": "0x94932",
           "before_fill": "00",
           "length": 512,
-          "after_base64": "U4nL/3QkEP90JBD/dCQQidno+O/2/1CEwHQ+g/8BfDmD/wV/NGiySUkA/xXYUUkAhcB1D2iySUkA/xXgUUkAhcB0FmjOSUkAUP8V3FFJAIXAdAZXU2oF/9BYW8IMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABWVkZQIFN0YXRpc3RpY3MgRXhwb3J0LmRsbAAAV3JpdGVWaWxsYWdlU3RhdGlzdGljcwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIX2fgYBNWTTUQABN4sHeQXplqH4/+mcofj/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD/BXTTUQCIntQcAADpxbT9/wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
+          "after_base64": "U4nL/3QkEP90JBD/dCQQidno+O/2/1CEwHQ+g/8BfDmD/wV/NGiySUkA/xXYUUkAhcB1D2iySUkA/xXgUUkAhcB0FmjOSUkAUP8V3FFJAIXAdAZXU2oF/9BYW8IMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABWVkZQIFN0YXRpc3RpY3MgRXhwb3J0LmRsbAAAV3JpdGVWaWxsYWdlU3RhdGlzdGljcwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIX2fgYBNWTTUQABN4sHeQXplqH4/+mcofj/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD/BXTTUQCIntQcAADpxbT9/wAAAAAAAAAAAAAAAAAAAIO5/BwAABF1CYMFjNNRAALrBv8FjNNRAIPsEFaJzukxHv3/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
           "purpose": "call the stock writer unchanged, preserve its Boolean result, and invoke the hash-verified statistics companion for slots 1-5"
         },
         {
@@ -174,6 +174,12 @@
           "before": "889ED41C0000",
           "after": "E92B4B020090",
           "purpose": "restore the inherited Villagers Buried counter at the one-time delayed corpse-record retirement, including catch-up"
+        },
+        {
+          "offset": "0x668B0",
+          "before": "83EC10568BF1",
+          "after": "E9ADE1020090",
+          "purpose": "count every completed Heathen conversion once in the per-save reserve, counting the tag-17 Heathen Mommy as two"
         }
       ]
     }

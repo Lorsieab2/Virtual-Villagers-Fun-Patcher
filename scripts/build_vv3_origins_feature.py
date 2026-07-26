@@ -1,4 +1,4 @@
-"""Assemble the exact-build VV2 Origins-exclusive feature patch."""
+"""Assemble the exact-build VV3 Origins-exclusive feature patch."""
 
 from __future__ import annotations
 
@@ -13,23 +13,26 @@ STOCK = (
     ROOT
     / "research"
     / "stock-executables"
-    / "Virtual Villagers - The Lost Children.exe"
+    / "Virtual Villagers - The Secret City.exe"
 )
-OUT_DIR = ROOT / "research" / "vv2-origins"
-OUT_EXE = OUT_DIR / "Virtual Villagers - The Lost Children - Origins Research.exe"
-OUT_JSON = OUT_DIR / "vv2-origins-feature-patches.json"
-MANIFEST_JSON = ROOT / "data" / "vv2_origins_feature.json"
+OUT_DIR = ROOT / "research" / "vv3-origins"
+OUT_EXE = OUT_DIR / "Virtual Villagers - The Secret City - Origins Research.exe"
+OUT_JSON = OUT_DIR / "vv3-origins-feature-patches.json"
+MANIFEST_JSON = ROOT / "data" / "vv3_origins_feature.json"
+COMPANION = ROOT / "assets" / "origins" / "VVFP Origins Icons.dll"
 
 sys.path.insert(0, str(ROOT / ".tools" / "keystone"))
 from keystone import KS_ARCH_X86, KS_MODE_32, Ks  # noqa: E402
 
 
 IMAGE_BASE = 0x400000
-PAYLOAD_FILE_OFFSET = 0x943A8
+PAYLOAD_FILE_OFFSET = 0xA3180
 PAYLOAD_VA = IMAGE_BASE + PAYLOAD_FILE_OFFSET
-PAYLOAD_SIZE = 0xC58
-STRINGS_OFFSET = 0xA00
+PAYLOAD_SIZE = 0xE80
+STRINGS_OFFSET = 0xC00
 STRINGS_VA = PAYLOAD_VA + STRINGS_OFFSET
+DETAIL_BUTTON_PTR = PAYLOAD_VA + 0xBF0
+DETAIL_BUTTON_ID = 6
 
 
 def assemble(source: str, address: int) -> bytes:
@@ -37,10 +40,13 @@ def assemble(source: str, address: int) -> bytes:
     return bytes(encoding)
 
 
-def rel32_jump(source_va: int, target_va: int) -> bytes:
-    return b"\xE9" + int(target_va - source_va - 5).to_bytes(
+def rel32_jump(source_va: int, target_va: int, size: int = 5) -> bytes:
+    payload = b"\xE9" + int(target_va - source_va - 5).to_bytes(
         4, "little", signed=True
     )
+    if size < 5:
+        raise ValueError("relative jump requires at least five bytes")
+    return payload + b"\x90" * (size - 5)
 
 
 def add_c_string(blob: bytearray, labels: dict[str, int], name: str, value: str) -> None:
@@ -51,13 +57,15 @@ def add_c_string(blob: bytearray, labels: dict[str, int], name: str, value: str)
 def main() -> None:
     original = STOCK.read_bytes()
     expected_sha256 = (
-        "46C1503C209255C9CDEFA941DB2F449C8CF8E2CDD5C7D13CD975326E377ED677"
+        "8BC5DB382D02BC5C21AD5F607580D60FF44A6519CC7EB133F03113BAACAE6503"
     )
     actual_sha256 = hashlib.sha256(original).hexdigest().upper()
     if actual_sha256 != expected_sha256:
         raise RuntimeError(
             f"stock SHA-256 mismatch: expected {expected_sha256}, got {actual_sha256}"
         )
+    if not COMPANION.is_file():
+        raise RuntimeError(f"missing companion DLL: {COMPANION}")
     OUT_DIR.mkdir(parents=True, exist_ok=True)
 
     strings = bytearray()
@@ -70,6 +78,10 @@ def main() -> None:
         ("removed", "Removed."),
         ("not_enough", "Not enough tech points."),
         ("paused", "Time Warp is unavailable while the game is paused."),
+        (
+            "time_warp_done",
+            "Time Warp advanced every villager by 3 displayed years.",
+        ),
         (
             "population_capacity",
             "The village population is already at maximum capacity.",
@@ -97,16 +109,16 @@ def main() -> None:
         )
 
     tech_handler = PAYLOAD_VA + 0x000
-    tech_constructor = PAYLOAD_VA + 0x030
-    detail_handler = PAYLOAD_VA + 0x0C0
-    detail_constructor = PAYLOAD_VA + 0x0F0
-    show_dialog = PAYLOAD_VA + 0x180
-    show_message = PAYLOAD_VA + 0x1D0
-    tech_menu = PAYLOAD_VA + 0x240
-    detail_menu = PAYLOAD_VA + 0x500
-    tech_increment = PAYLOAD_VA + 0x800
-    food_increment = PAYLOAD_VA + 0x850
-    event_dispatch = PAYLOAD_VA + 0x8A0
+    tech_constructor = PAYLOAD_VA + 0x040
+    detail_handler = PAYLOAD_VA + 0x100
+    detail_constructor = PAYLOAD_VA + 0x140
+    show_dialog = PAYLOAD_VA + 0x220
+    show_message = PAYLOAD_VA + 0x280
+    get_detail_record = PAYLOAD_VA + 0x2E0
+    tech_menu = PAYLOAD_VA + 0x340
+    detail_menu = PAYLOAD_VA + 0x650
+    tech_increment = PAYLOAD_VA + 0xA20
+    food_increment = PAYLOAD_VA + 0xAA0
 
     code = bytearray(b"\0" * STRINGS_OFFSET)
     occupied = bytearray(b"\0" * STRINGS_OFFSET)
@@ -129,14 +141,15 @@ def main() -> None:
         f"""
             cmp dword ptr [esp + 4], 8
             jne original_handler
-            cmp dword ptr [esp + 8], 2
+            cmp dword ptr [esp + 8], 15
             jne original_handler
             call 0x{tech_menu:X}
             xor eax, eax
             ret 8
         original_handler:
-            cmp dword ptr [esp + 4], 8
-            jmp 0x4437C5
+            push -1
+            mov eax, dword ptr fs:[0]
+            jmp 0x465648
         """,
     )
 
@@ -144,18 +157,23 @@ def main() -> None:
         tech_constructor,
         f"""
             push 0x14
-            call 0x467F83
+            call 0x46EC93
             add esp, 4
             test eax, eax
             je constructor_done
+            mov edi, eax
+            call 0x42E9D0
+            mov ecx, eax
+            push 3
+            call 0x42E8A0
             push 0
             push esi
             push 563
             push 138
-            push 0x4763E8
-            push 2
-            mov ecx, eax
-            call 0x4019D0
+            push eax
+            push 15
+            mov ecx, edi
+            call 0x4019F0
             mov edi, eax
             push 0
             push 0xFF555555
@@ -163,13 +181,81 @@ def main() -> None:
             push 0xFF000000
             push 0x{s['button_label']:X}
             mov ecx, edi
-            call 0x4015D0
+            call 0x401620
             push edi
             mov ecx, esi
-            call 0x40B560
+            call 0x40C1F0
+        constructor_done:
+            mov ecx, dword ptr [esp + 0x3C]
+            pop edi
+            mov eax, esi
+            pop esi
+            pop ebp
+            pop ebx
+            mov dword ptr fs:[0], ecx
+            add esp, 0x38
+            ret
+        """,
+    )
+
+    put(
+        detail_handler,
+        f"""
+            cmp dword ptr [esp + 4], 8
+            jne original_handler
+            cmp dword ptr [esp + 8], {DETAIL_BUTTON_ID}
+            jne original_handler
+            call 0x{detail_menu:X}
+            xor eax, eax
+            ret 8
+        original_handler:
+            mov eax, dword ptr [esp + 4]
+            sub esp, 0x14
+            jmp 0x46E537
+        """,
+    )
+
+    put(
+        detail_constructor,
+        f"""
+            push 0x14
+            call 0x46EC93
+            add esp, 4
+            test eax, eax
+            je no_button
+            mov edi, eax
+            call 0x42E9D0
+            mov ecx, eax
+            push 3
+            call 0x42E8A0
+            push 0
+            push esi
+            push 563
+            push 138
+            push eax
+            push {DETAIL_BUTTON_ID}
+            mov ecx, edi
+            call 0x4019F0
+            mov edi, eax
+            mov dword ptr [0x{DETAIL_BUTTON_PTR:X}], edi
+            push 0
+            push 0xFF555555
+            push 0xFF555555
+            push 0xFF000000
+            push 0x{s['button_label']:X}
+            mov ecx, edi
+            call 0x401620
+            push edi
+            mov ecx, esi
+            call 0x40C1F0
+            jmp constructor_done
+        no_button:
+            mov dword ptr [0x{DETAIL_BUTTON_PTR:X}], 0
         constructor_done:
             mov ecx, dword ptr [esp + 0x20]
             pop edi
+            mov dword ptr [esi + 0x264], ebx
+            mov dword ptr [esi + 0x268], ebx
             mov eax, esi
             pop esi
             pop ebp
@@ -181,75 +267,17 @@ def main() -> None:
     )
 
     put(
-        detail_handler,
-        f"""
-            cmp dword ptr [esp + 4], 8
-            jne original_handler
-            cmp dword ptr [esp + 8], 6
-            jne original_handler
-            call 0x{detail_menu:X}
-            xor eax, eax
-            ret 8
-        original_handler:
-            cmp dword ptr [esp + 4], 8
-            jmp 0x467725
-        """,
-    )
-
-    put(
-        detail_constructor,
-        f"""
-            push 0x14
-            call 0x467F83
-            add esp, 4
-            test eax, eax
-            je constructor_done
-            push 0
-            push esi
-            push 563
-            push 120
-            push 0x4763E8
-            push 6
-            mov ecx, eax
-            call 0x4019D0
-            mov edi, eax
-            push 0
-            push 0xFF555555
-            push 0xFF555555
-            push 0xFF000000
-            push 0x{s['button_label']:X}
-            mov ecx, edi
-            call 0x4015D0
-            push edi
-            mov ecx, esi
-            call 0x40B560
-        constructor_done:
-            mov ecx, dword ptr [esp + 0x20]
-            mov byte ptr [esi + 0x26], bl
-            mov byte ptr [esi + 0x27], bl
-            pop edi
-            mov byte ptr [esi + 0x25], 1
-            mov eax, esi
-            pop esi
-            pop ebx
-            mov dword ptr fs:[0], ecx
-            add esp, 0x20
-            ret
-        """,
-    )
-
-    put(
         show_dialog,
         f"""
             push ebx
             push esi
             push 0x{s['icons_dll']:X}
-            call dword ptr [0x474010]
+            call dword ptr [0x47C124]
             test eax, eax
             je unavailable
             push 0x{s['show_dialog_export']:X}
             push eax
-            call dword ptr [0x4740D4]
+            call dword ptr [0x47C128]
             test eax, eax
             je unavailable
             push dword ptr [esp + 0x10]
@@ -274,12 +302,12 @@ def main() -> None:
             mov ebx, dword ptr [esp + 0x0C]
             mov esi, dword ptr [esp + 0x10]
             push 0x{s['user32_dll']:X}
-            call dword ptr [0x474010]
+            call dword ptr [0x47C124]
             test eax, eax
             je message_done
             push 0x{s['message_box_export']:X}
             push eax
-            call dword ptr [0x4740D4]
+            call dword ptr [0x47C128]
             test eax, eax
             je message_done
             push 0
@@ -295,6 +323,34 @@ def main() -> None:
     )
 
     put(
+        get_detail_record,
+        """
+            push ebx
+            call 0x428B60
+            xor ecx, ecx
+            cmp dword ptr [0x42883A], 0x100
+            jne selected_offset_ready
+            mov ecx, 0x7598
+        selected_offset_ready:
+            mov ebx, dword ptr [eax + ecx + 0x12FC0]
+            push ebx
+            mov ecx, 0x59E110
+            call 0x45EE60
+            test al, al
+            je invalid
+            push ebx
+            mov ecx, 0x59E110
+            call 0x45C840
+            pop ebx
+            ret
+        invalid:
+            xor eax, eax
+            pop ebx
+            ret
+        """,
+    )
+
+    put(
         tech_menu,
         f"""
             push ebx
@@ -303,13 +359,12 @@ def main() -> None:
             push ebp
             mov esi, ecx
         menu_loop:
-            mov edi, dword ptr [esi + 0x0C]
             xor eax, eax
-            test dword ptr [edi + 0x2EAE8], 1
+            test dword ptr [0x5824D0], 1
             jz tech_not_owned
             or eax, 8
         tech_not_owned:
-            test dword ptr [edi + 0x2EAE8], 2
+            test dword ptr [0x5824D0], 2
             jz food_not_owned
             or eax, 16
         food_not_owned:
@@ -324,40 +379,52 @@ def main() -> None:
             jb preflight
             cmp ebx, 4
             je maybe_remove_food
-            test dword ptr [edi + 0x2EAE8], 1
+            test dword ptr [0x5824D0], 1
             jz preflight
-            and dword ptr [edi + 0x2EAE8], 0xFFFFFFFE
+            and dword ptr [0x5824D0], 0xFFFFFFFE
             mov eax, 0x{s['removed']:X}
             jmp show_status
         maybe_remove_food:
-            test dword ptr [edi + 0x2EAE8], 2
+            test dword ptr [0x5824D0], 2
             jz preflight
-            and dword ptr [edi + 0x2EAE8], 0xFFFFFFFD
+            and dword ptr [0x5824D0], 0xFFFFFFFD
             mov eax, 0x{s['removed']:X}
             jmp show_status
 
         preflight:
+            call 0x428B60
+            mov edi, eax
+            xor ebp, ebp
+            cmp dword ptr [0x42883A], 0x100
+            jne manager_offset_ready
+            mov ebp, 0x7598
+        manager_offset_ready:
             cmp ebx, 0
             jne maybe_barrel
-            cmp dword ptr [edi + 0x2EB08], 999
+            cmp dword ptr [edi + ebp + 0x12F20], 999
             jne charge
             mov eax, 0x{s['paused']:X}
             jmp show_status
         maybe_barrel:
             cmp ebx, 2
             jne charge
-            mov ecx, edi
-            call 0x425860
-            cmp eax, 253
+            mov ecx, 0x59E110
+            call 0x45E8F0
+            mov ecx, 147
+            cmp dword ptr [0x42883A], 0x100
+            jne barrel_limit_ready
+            mov ecx, 253
+        barrel_limit_ready:
+            cmp eax, ecx
             jbe charge
             mov eax, 0x{s['population_capacity']:X}
             jmp show_status
 
         charge:
             mov eax, dword ptr [0x{s['tech_costs']:X} + ebx*4]
-            cmp dword ptr [edi + 0x2EADC], eax
+            cmp dword ptr [0x582644], eax
             jb insufficient
-            sub dword ptr [edi + 0x2EADC], eax
+            sub dword ptr [0x582644], eax
             cmp ebx, 0
             je do_time_warp
             cmp ebx, 1
@@ -366,11 +433,11 @@ def main() -> None:
             je do_barrel
             cmp ebx, 3
             je do_tech_doubler
-            or dword ptr [edi + 0x2EAE8], 2
+            or dword ptr [0x5824D0], 2
             jmp success
 
         do_time_warp:
-            mov eax, dword ptr [edi + 0x2EB08]
+            mov eax, dword ptr [edi + ebp + 0x12F20]
             cmp eax, 3
             je time_apply
             cmp eax, 10
@@ -378,31 +445,38 @@ def main() -> None:
             mov eax, 6
         time_apply:
             imul eax, eax, 3600
-            sub dword ptr [0x4950F0], eax
-            jmp success
+            sub dword ptr [0x4A4210], eax
+            mov eax, 0x{s['time_warp_done']:X}
+            jmp show_status
 
         do_island_event:
-            mov dword ptr [edi + 0x2EAE0], 0
+            mov dword ptr [edi + ebp + 0x12EF4], 0
             jmp success
 
         do_barrel:
-            sub esp, 0x50D8
-            mov ebp, esp
-            push 0x7F4B1A2C
-            push 2
-            mov ecx, ebp
-            call 0x4348E0
+            call 0x419AC0
+            mov eax, dword ptr [0x4B3D5C]
+            test eax, eax
+            je success
+            sub esp, 0x868
+            lea ebp, [esp + 0xF0]
+            push eax
+            lea ecx, [ebp + 4]
+            call 0x4192F0
+            cmp byte ptr [ebp + 0x4C], 0
+            je barrel_cleanup
             push 0
             push esi
+            call 0x401AF0
+            mov byte ptr [0x4B3C75], 1
+        barrel_cleanup:
             mov ecx, ebp
-            call 0x401AD0
-            mov ecx, ebp
-            call 0x433190
-            add esp, 0x50D8
+            call 0x418460
+            add esp, 0x868
             jmp success
 
         do_tech_doubler:
-            or dword ptr [edi + 0x2EAE8], 1
+            or dword ptr [0x5824D0], 1
         success:
             mov eax, 0x{s['purchased']:X}
             jmp show_status
@@ -431,34 +505,29 @@ def main() -> None:
             push ebp
             mov esi, ecx
         detail_loop:
-            mov eax, dword ptr [esi + 0x0C]
-            mov ecx, dword ptr [eax + 0x304F0]
-            cmp ecx, 0x100
-            jae detail_done
-            imul ecx, ecx, 0xE48C
-            mov edx, dword ptr [esi + 0x10]
-            add edx, ecx
-            cmp byte ptr [edx + 0x30], 0
+            call 0x{get_detail_record:X}
+            test eax, eax
             je detail_done
+            mov edx, eax
             xor edi, edi
-            cmp dword ptr [edx + 0x530], 100
+            cmp dword ptr [edx + 0xDC4], 100
             ja youth_not_done
             or edi, 1
         youth_not_done:
-            cmp dword ptr [edx + 0x7E4], 90
+            cmp dword ptr [edx + 0xEAC], 90
             jl mastery_not_done
-            cmp dword ptr [edx + 0x7E8], 90
+            cmp dword ptr [edx + 0xEB0], 90
             jl mastery_not_done
-            cmp dword ptr [edx + 0x7EC], 90
+            cmp dword ptr [edx + 0xEB4], 90
             jl mastery_not_done
-            cmp dword ptr [edx + 0x7F0], 90
+            cmp dword ptr [edx + 0xEB8], 90
             jl mastery_not_done
-            cmp dword ptr [edx + 0x7F4], 90
+            cmp dword ptr [edx + 0xEBC], 90
             jl mastery_not_done
             or edi, 2
         mastery_not_done:
             xor ebp, ebp
-            lea eax, [edx + 0x5F0]
+            lea eax, [edx + 0xFB4]
             mov ecx, 3
         running_like_scan:
             cmp dword ptr [eax], 38
@@ -477,7 +546,7 @@ def main() -> None:
         running_like_found:
             or ebp, 2
         running_state_done:
-            lea eax, [edx + 0x6E8]
+            lea eax, [edx + 0xFC0]
             mov ecx, 3
         running_dislike_scan:
             cmp dword ptr [eax], 38
@@ -498,7 +567,7 @@ def main() -> None:
             jnz running_check_done
             or edi, 0x400
         running_check_done:
-            cmp dword ptr [edx + 0x530], 360
+            cmp dword ptr [edx + 0xDC4], 360
             jne age_not_done
             or edi, 8
         age_not_done:
@@ -509,16 +578,13 @@ def main() -> None:
             je detail_done
             mov ebx, eax
 
-            mov edi, dword ptr [esi + 0x0C]
-            mov ecx, dword ptr [edi + 0x304F0]
-            cmp ecx, 0x100
-            jae detail_done
-            imul ecx, ecx, 0xE48C
-            mov edx, dword ptr [esi + 0x10]
-            add edx, ecx
+            call 0x{get_detail_record:X}
+            test eax, eax
+            je detail_done
+            mov edx, eax
             cmp ebx, 2
             jne detail_charge
-            lea eax, [edx + 0x5F0]
+            lea eax, [edx + 0xFB4]
             mov ecx, 3
         running_preflight:
             cmp dword ptr [eax], 38
@@ -533,51 +599,44 @@ def main() -> None:
 
         detail_charge:
             mov eax, dword ptr [0x{s['detail_costs']:X} + ebx*4]
-            cmp dword ptr [edi + 0x2EADC], eax
+            cmp dword ptr [0x582644], eax
             jb detail_insufficient
-            sub dword ptr [edi + 0x2EADC], eax
+            sub dword ptr [0x582644], eax
             cmp ebx, 0
             je detail_youth
             cmp ebx, 1
             je detail_mastery
             cmp ebx, 2
             je detail_running
-            mov dword ptr [edx + 0x530], 360
-            mov dword ptr [edx + 0x534], 360
-            cmp dword ptr [edx + 0x540], 0
-            je detail_success
-            mov dword ptr [edx + 0x540], 318
-            jmp detail_success
+            mov eax, 360
+            jmp detail_set_age
 
         detail_youth:
-            mov eax, dword ptr [edx + 0x530]
+            mov eax, dword ptr [edx + 0xDC4]
             sub eax, 700
             cmp eax, 100
-            jge youth_ready
+            jge detail_set_age
             mov eax, 100
-        youth_ready:
-            mov dword ptr [edx + 0x530], eax
-            cmp dword ptr [edx + 0x540], 0
-            je youth_not_pregnant
-            lea ecx, [eax - 1]
-            mov dword ptr [edx + 0x534], ecx
-            sub eax, 42
-            mov dword ptr [edx + 0x540], eax
-            jmp detail_success
-        youth_not_pregnant:
-            mov dword ptr [edx + 0x534], eax
+        detail_set_age:
+            mov ecx, eax
+            sub ecx, dword ptr [edx + 0xDC4]
+            mov dword ptr [edx + 0xDC4], eax
+            add dword ptr [edx + 0xE74], ecx
+            cmp dword ptr [edx + 0xE8C], 0
+            je detail_success
+            add dword ptr [edx + 0xE8C], ecx
             jmp detail_success
 
         detail_mastery:
-            mov dword ptr [edx + 0x7E4], 90
-            mov dword ptr [edx + 0x7E8], 90
-            mov dword ptr [edx + 0x7EC], 90
-            mov dword ptr [edx + 0x7F0], 90
-            mov dword ptr [edx + 0x7F4], 90
+            mov dword ptr [edx + 0xEAC], 90
+            mov dword ptr [edx + 0xEB0], 90
+            mov dword ptr [edx + 0xEB4], 90
+            mov dword ptr [edx + 0xEB8], 90
+            mov dword ptr [edx + 0xEBC], 90
             jmp detail_success
 
         detail_running:
-            lea ecx, [edx + 0x5F0]
+            lea ecx, [edx + 0xFB4]
             mov eax, 3
         running_find_like:
             cmp dword ptr [ecx], 38
@@ -592,7 +651,7 @@ def main() -> None:
         running_store_like:
             mov dword ptr [ecx], 38
         running_remove_dislikes:
-            lea ecx, [edx + 0x6E8]
+            lea ecx, [edx + 0xFC0]
             mov eax, 3
         running_dislike_loop:
             cmp dword ptr [ecx], 38
@@ -624,64 +683,49 @@ def main() -> None:
     put(
         tech_increment,
         """
-            push ebx
-            mov ebx, ecx
-            mov eax, dword ptr [esp + 8]
+            mov eax, dword ptr [esp + 4]
             test eax, eax
             jle apply
-            cmp dword ptr [esp + 4], 0x434351
-            je apply
-            test dword ptr [ebx + 0x2EAE8], 1
+            cmp dword ptr [esp], 0x458DB0
+            jb check_owned
+            cmp dword ptr [esp], 0x45943F
+            jb apply
+        check_owned:
+            test dword ptr [0x5824D0], 1
             jz apply
-            shl dword ptr [esp + 8], 1
+            shl dword ptr [esp + 4], 1
         apply:
-            mov eax, dword ptr [esp + 8]
-            add dword ptr [ebx + 0x2EADC], eax
-            add dword ptr [ebx + 0x2E4FC], eax
-            pop ebx
-            ret 4
+            mov eax, dword ptr [esp + 4]
+            mov edx, dword ptr [ecx]
+            jmp 0x427136
         """,
     )
 
     put(
         food_increment,
         """
-            push ebx
-            mov ebx, ecx
-            mov eax, dword ptr [esp + 8]
+            mov eax, dword ptr [esp + 4]
             test eax, eax
             jle apply
-            cmp dword ptr [esp + 4], 0x433FC6
-            je apply
-            test dword ptr [ebx + 0x2EAE8], 2
+            cmp dword ptr [esp], 0x458DB0
+            jb check_owned
+            cmp dword ptr [esp], 0x45943F
+            jb apply
+        check_owned:
+            test dword ptr [0x5824D0], 2
             jz apply
-            shl dword ptr [esp + 8], 1
+            shl dword ptr [esp + 4], 1
         apply:
-            mov eax, dword ptr [esp + 8]
-            add dword ptr [ebx + 0x2EAA4], eax
-            add dword ptr [ebx + 0x2E504], eax
-            pop ebx
-            ret 4
-        """,
-    )
-
-    put(
-        event_dispatch,
-        """
-            cmp dword ptr [esp + 8], 0x7F4B1A2C
-            jne original
-            push 10
-            push 21
-            call 0x433600
-            ret 8
-        original:
-            sub esp, 8
-            mov eax, dword ptr [esp + 0x0C]
-            jmp 0x434577
+            mov eax, dword ptr [esp + 4]
+            push esi
+            jmp 0x4263F5
         """,
     )
 
     payload = code + strings
+    if len(payload) > PAYLOAD_SIZE:
+        raise RuntimeError(f"payload too large: {len(payload):#x}/{PAYLOAD_SIZE:#x}")
+
     patches: list[dict[str, str]] = []
 
     def patch(offset: int, before: bytes, after: bytes, purpose: str) -> None:
@@ -703,58 +747,52 @@ def main() -> None:
         )
 
     patch(
-        0x234,
+        0x24C,
         bytes.fromhex("40000040"),
-        bytes.fromhex("40000060"),
-        "make the mapped read-only padding executable for the Origins payload",
+        bytes.fromhex("400000E0"),
+        "make the mapped padding executable and writable for the Origins payload state",
     )
     patch(
-        0x26290,
-        bytes.fromhex("8B44240401"),
-        rel32_jump(0x426290, tech_increment),
-        "double positive non-Island-Event tech awards when the current save owns the doubler",
+        0x263F0,
+        bytes.fromhex("8B44240456"),
+        rel32_jump(0x4263F0, food_increment),
+        "double positive non-Island-Event food awards when this save owns the doubler",
     )
     patch(
-        0x262B0,
-        bytes.fromhex("8B44240401"),
-        rel32_jump(0x4262B0, food_increment),
-        "double positive non-Island-Event food awards when the current save owns the doubler",
+        0x27130,
+        bytes.fromhex("8B4424048B11"),
+        rel32_jump(0x427130, tech_increment, 6),
+        "double positive non-Island-Event tech awards when this save owns the doubler",
     )
     patch(
-        0x34570,
-        bytes.fromhex("83EC088B44"),
-        rel32_jump(0x434570, event_dispatch),
-        "route the marked request to the native three-child Barrel of Babies result",
-    )
-    patch(
-        0x435EF,
-        bytes.fromhex("8B4C24205F"),
-        rel32_jump(0x4435EF, tech_constructor),
+        0x6547D,
+        bytes.fromhex("8B4C243C5F"),
+        rel32_jump(0x46547D, tech_constructor),
         "append the stock-styled Origins Upgrades button to the Tech screen",
     )
     patch(
-        0x437C0,
-        bytes.fromhex("837C240408"),
-        rel32_jump(0x4437C0, tech_handler),
-        "route Tech-screen messages through the guarded Origins Upgrades handler",
+        0x65640,
+        bytes.fromhex("6AFF64A100000000"),
+        rel32_jump(0x465640, tech_handler, 8),
+        "route Tech-screen command 15 through the guarded Origins handler",
     )
     patch(
-        0x67624,
-        bytes.fromhex("8B4C242088"),
-        rel32_jump(0x467624, detail_constructor),
+        0x6DA2C,
+        bytes.fromhex("8B4C24205F"),
+        rel32_jump(0x46DA2C, detail_constructor),
         "append the stock-styled Upgrades button to Villager Detail",
     )
     patch(
-        0x67720,
-        bytes.fromhex("837C240408"),
-        rel32_jump(0x467720, detail_handler),
-        "route Detail-screen messages through the guarded villager-upgrade handler",
+        0x6E530,
+        bytes.fromhex("8B44240483EC14"),
+        rel32_jump(0x46E530, detail_handler, 7),
+        "route the exact added Detail button through the guarded villager-upgrade handler",
     )
     patch(
         PAYLOAD_FILE_OFFSET,
         b"\0" * len(payload),
         bytes(payload),
-        "install the VV2 Origins Tech and Villager upgrade menus and mechanics",
+        "install the VV3 Origins Tech and Villager upgrade menus and mechanics",
     )
 
     rendered = bytearray(original)
@@ -765,31 +803,32 @@ def main() -> None:
     OUT_EXE.write_bytes(rendered)
     OUT_JSON.write_text(json.dumps(patches, indent=2) + "\n", encoding="utf-8")
 
+    companion_hash = hashlib.sha256(COMPANION.read_bytes()).hexdigest().upper()
     manifest = {
-        "id": "vv2_enable_origins_exclusive_features",
-        "game_id": "vv2",
+        "id": "vv3_enable_origins_exclusive_features",
+        "game_id": "vv3",
         "name": "Enable Origins-Exclusive Features",
         "description": (
-            "Adds the icon-based Origins Upgrades screen with a Time Warp that "
-            "advances exactly three displayed villager years, Island "
-            "Event, the native Barrel of Babies event with a three-space reserved-"
-            "population guard, and removable 500,000-tech-point Tech Point and Food "
-            "Point Doublers. Doubler ownership is confined to the current save, and "
-            "Island Event awards are not multiplied. Adds Villager Upgrades for "
-            "Grant Youth, Grant Full Mastery, Grant Running, and Set Age to 18. "
-            "Grant Running uses an available normal Likes slot, removes Running from "
-            "the displayed villager's Dislikes, refuses without charging when all "
-            "normal Like slots are occupied, and changes no movement-speed value, "
-            "predicate, or other vanilla speed logic."
+            "Adds the icon-based Origins Upgrades screen with Time Warp, Island "
+            "Event, the native Another One of Those Barrels event with a dynamic "
+            "three-space 150/256-record guard, and removable 500,000-tech-point "
+            "Tech Point and Food Point Doublers. Time Warp advances every villager "
+            "by exactly 3 displayed years at every active game speed; the required "
+            "wall-clock shift is 3 hours at half speed, 6 hours at normal speed, "
+            "and 10 hours at double speed. Doubler ownership is confined to the "
+            "current save, and Island Event awards are not multiplied. Adds "
+            "Villager Upgrades for Grant Youth, Grant Full Mastery, Grant Running, "
+            "and Set Age to 18. Grant Running only uses an available normal Likes "
+            "slot on the displayed villager and removes Running from that villager's "
+            "Dislikes; it refuses without charging when all normal Like slots are "
+            "occupied and does not alter any movement behavior or speed value."
         ),
         "output_tag": "Origins Exclusive Features",
         "companion_files": [
             {
                 "source": "assets/origins/VVFP Origins Icons.dll",
                 "destination": "VVFP Origins Icons.dll",
-                "sha256": hashlib.sha256(
-                    (ROOT / "assets" / "origins" / "VVFP Origins Icons.dll").read_bytes()
-                ).hexdigest().upper(),
+                "sha256": companion_hash,
             }
         ],
         "patches": patches,
@@ -800,6 +839,7 @@ def main() -> None:
     used = max(index for index, value in enumerate(code) if value) + 1
     print(f"code bytes used: {used:#x}/{STRINGS_OFFSET:#x}")
     print(f"string bytes used: {len(strings):#x}/{PAYLOAD_SIZE - STRINGS_OFFSET:#x}")
+    print(f"companion SHA-256: {companion_hash}")
     print(OUT_JSON)
     print(MANIFEST_JSON)
     print(OUT_EXE)
