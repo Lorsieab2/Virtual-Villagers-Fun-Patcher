@@ -14,7 +14,7 @@ The desktop chooser presents game-scoped optional patches under the five manifes
 
 ## Origins doubler evidence boundary
 
-The per-game positive food/tech writer, collection-adjustment callsites, and every Island Event producer must be proved independently before an Origins doubler is considered complete. A doubler is applied only to a positive delta after that game's native collection calculation; Island Event food and tech outcomes (positive, zero, or negative) are never multiplied. The current exact-build candidate exclusions and pending/STOP statuses are recorded in `docs/doubler-composition-audit.md`; return-address checks alone are not treated as exhaustive provenance proof.
+The per-game positive food/tech writer, collection-adjustment callsites, and every Island Event producer must be proved independently before an Origins doubler is considered complete. The requested final composition is: stack with that game's native collectible tech-point gains and Food Mastery technology adjustment; do not multiply Golden Child behavior, Island Event outcomes, or Gong of Wonder outcomes. A doubler is applied only to an eligible positive delta after that game's native collection/Food Mastery calculation; excluded outcomes (positive, zero, or negative) remain native. The current exact-build candidate exclusions and pending/STOP statuses are recorded in `docs/doubler-composition-audit.md`; return-address checks alone are not treated as exhaustive provenance proof.
 
 ## Virtual Villagers - A New Home
 
