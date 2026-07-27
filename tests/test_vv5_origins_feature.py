@@ -129,12 +129,105 @@ class VV5OriginsFeatureTests(unittest.TestCase):
         self.assertEqual(contract["exclusions"], ["Island Event outcomes"])
         self.assertEqual(
             manifest["doubler_purchase_status"]["new_purchase"],
-            "available in stock layout at 500,000 tech points after the exact positive-whitelist wrapper; unavailable in expanded-256",
+            "Tech and Food available in stock layout at 500,000 tech points after their exact positive-whitelist wrappers; both unavailable in expanded-256",
         )
         self.assertEqual(
             manifest["doubler_purchase_status"]["repurchase"],
-            "full-price repurchase after zero-cost/no-refund removal in stock layout; expanded-256 remains unavailable for new purchase",
+            "full-price repurchase after zero-cost/no-refund removal in stock layout for both doublers; expanded-256 remains unavailable for new purchases",
         )
+
+    def test_tech_wrapper_exact_stock_bytes_and_six_return_whitelist(self) -> None:
+        evidence = self.feature["doubler_evidence"]["tech_writer_hook"]
+        self.assertEqual(evidence["virtual_address"], "0x4237B0")
+        self.assertEqual(evidence["file_offset"], "0x237B0")
+        self.assertEqual(evidence["before"], "568B742408")
+        self.assertEqual(evidence["after"], "E94BF23800")
+        self.assertEqual(evidence["wrapper_virtual_address"], "0x7B2A00")
+        self.assertEqual(evidence["wrapper_file_offset"], "0xDBA00")
+        expected = (
+            "8B44240485C07E46F70588D3510001000000743A"
+            "813C24BE474100742D813C24DD4741007424813C24F9474100741B"
+            "813C244DDE46007412813C247CDE46007409813C24A5DE46007504"
+            "D1642404568B7424080131E95D0DC7FF"
+        )
+        wrapper = bytes.fromhex(evidence["wrapper_bytes"])
+        self.assertEqual(wrapper.hex().upper(), expected)
+        self.assertEqual(len(wrapper), 90)
+        self.assertEqual(evidence["ownership_mask"], "0x1")
+        self.assertEqual(
+            evidence["eligible_returns"],
+            ["0x4147BE", "0x4147DD", "0x4147F9", "0x46DE4D", "0x46DE7C", "0x46DEA5"],
+        )
+        self.assertEqual(evidence["excluded_refund_return"], "0x419EA3")
+        self.assertEqual(evidence["branch_destinations"], ["0x7B2A4A", "0x7B2A4E", "0x4237B7"])
+        self.assertEqual(
+            self.feature["doubler_evidence"]["tech_exclusions"],
+            [
+                "all 16 Island Event outcomes",
+                "all eight writer tail paths",
+                "technology purchase/spending/deduction paths",
+                "zero and negative deltas",
+                "unknown caller returns",
+            ],
+        )
+        payload_offset = 0xDB000 + (0x7B2A00 - 0x7B2000)
+        self.assertEqual(self.payload[payload_offset - 0xDB000 : payload_offset - 0xDB000 + 90], wrapper)
+
+    def test_tech_mode_marker_and_purchase_matrix(self) -> None:
+        self.assertIn("tech_owned_remove", self.source)
+        self.assertIn("cmp dword ptr [0x41F1E6], 0x96", self.source)
+        self.assertIn("or dword ptr [0x51D388], 1", self.source)
+        overrides = self.feature["patch_mode_overrides"]
+        for mode in ("experimental_expanded_256", "experimental_expanded_256_progression"):
+            entries = overrides[mode]
+            tech = next(item for item in entries if item["offset"] == "0x237B0")
+            self.assertEqual(tech["before"], "E94BF23800")
+            self.assertEqual(tech["after"], "568B742408")
+            self.assertIn("no expanded Tech Doubler detour", tech["purpose"])
+
+        def tech_action(owned: bool, marker: int) -> str:
+            if owned:
+                return "remove"
+            return "purchase" if marker == 0x96 else "unavailable"
+
+        for expanded, marker in ((False, 0x96), (True, 0x100)):
+            with self.subTest(expanded=expanded):
+                self.assertEqual(tech_action(False, marker), "purchase" if not expanded else "unavailable")
+                self.assertEqual(tech_action(True, marker), "remove")
+        build = next(item for item in load_builds() if item.id == "vv5")
+        for mode, expected_hook, expected_marker in (
+            ("collection_progression", "E94BF23800", "96000000"),
+            ("immediate_fixed", "E94BF23800", "96000000"),
+            ("experimental_expanded_256", "568B742408", "00010000"),
+            ("experimental_expanded_256_progression", "568B742408", "00010000"),
+        ):
+            with self.subTest(mode=mode):
+                rendered, _ = render_patched_bytes(
+                    STOCK, build, mode, [FEATURE_ID]
+                )
+                self.assertEqual(bytes(rendered[0x237B0 : 0x237B5]).hex().upper(), expected_hook)
+                self.assertEqual(bytes(rendered[0x1F1E6 : 0x1F1EA]).hex().upper(), expected_marker)
+
+    def test_tech_positive_whitelist_reference_matrix(self) -> None:
+        eligible = {0x4147BE, 0x4147DD, 0x4147F9, 0x46DE4D, 0x46DE7C, 0x46DEA5}
+        excluded = {0x419EA3, 0x420000, 0x46CED1}
+
+        def adjusted(owner: bool, return_va: int, delta: int) -> int:
+            if not owner or delta <= 0 or return_va not in eligible:
+                return delta
+            return delta * 2
+
+        for return_va in eligible:
+            with self.subTest(return_va=hex(return_va)):
+                self.assertEqual(adjusted(True, return_va, 5), 10)
+                self.assertEqual(adjusted(False, return_va, 5), 5)
+        for return_va in excluded:
+            with self.subTest(return_va=hex(return_va)):
+                self.assertEqual(adjusted(True, return_va, 5), 5)
+        for delta in (0, -1, -500000):
+            self.assertEqual(adjusted(True, 0x4147BE, delta), delta)
+        # The wrapper receives the final positive delta and doubles only once.
+        self.assertEqual(adjusted(True, 0x4147BE, 5), 10)
 
     def test_food_wrapper_exact_stock_bytes_and_whitelist(self) -> None:
         evidence = self.feature["doubler_evidence"]["stock_hook"]
@@ -167,11 +260,11 @@ class VV5OriginsFeatureTests(unittest.TestCase):
         overrides = self.feature["patch_mode_overrides"]
         self.assertEqual(set(overrides), {"experimental_expanded_256", "experimental_expanded_256_progression"})
         for mode, entries in overrides.items():
-            self.assertEqual(len(entries), 1)
-            self.assertEqual(entries[0]["offset"], "0x1EB6F")
-            self.assertEqual(entries[0]["before"], "E98C3F3900")
-            self.assertEqual(entries[0]["after"], "85F67E3456")
-            self.assertIn("no expanded Food Doubler detour", entries[0]["purpose"])
+            self.assertEqual(len(entries), 2)
+            food = next(item for item in entries if item["offset"] == "0x1EB6F")
+            self.assertEqual(food["before"], "E98C3F3900")
+            self.assertEqual(food["after"], "85F67E3456")
+            self.assertIn("no expanded Food Doubler detour", food["purpose"])
 
         def food_action(owned: bool, marker: int) -> str:
             if owned:
@@ -259,7 +352,7 @@ class VV5OriginsFeatureTests(unittest.TestCase):
         ).hexdigest().upper()
         self.assertEqual(
             digest,
-            "8321D4BBE5C019E1A943E8FD7F0C3FBF86BB5743B8403D5F333D24D468CA919F",
+            "A3F42454A894176ECE7DFF0033CF15CB67E31B7EF120FE565C7CB7784CB58036",
         )
 
     def test_six_float_skills_and_age_companions_are_written(self) -> None:

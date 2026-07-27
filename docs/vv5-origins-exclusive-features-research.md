@@ -26,15 +26,18 @@ executable.
 
 ## Current shipping gate
 
-The stock-layout Food Point Doubler correction is implemented and statically
-validated: its exact positive whitelist runs after Food Mastery. The Tech Point
-Doubler remains unavailable for new purchase pending its separate proof. Food
-purchase and full-price repurchase are available in stock layout; removal is
-zero cost with zero refund and clears only Food ownership. Expanded-256 restores
-the exact five stock food-writer bytes, keeps both new doubler purchases
-unavailable by the `0x41F1E6` marker, and preserves owned Remove. Island Event,
-startup, consumption, and unknown callers remain native; an unknown caller
-cannot match ordinary collection return `0x414970`.
+The stock-layout Tech and Food Point Doubler corrections are implemented and
+statically validated. Tech doubles only the six positive returns
+`0x4147BE`, `0x4147DD`, `0x4147F9`, `0x46DE4D`, `0x46DE7C`, and `0x46DEA5`;
+the `0x419EA3` clothing-dialog refund, action-90 deduction, Island Events,
+tail paths, purchases, zero/negative values, and unknown callers remain native.
+Food's exact positive whitelist runs after Food Mastery. Both purchases and
+full-price repurchases are available in stock layout; removal is zero cost with
+zero refund and clears only the selected ownership bit. Expanded-256 restores
+both exact five-byte native writer hooks, keeps both new purchases unavailable
+by the `0x41F1E6` marker, and preserves owned Remove. Unknown food callers
+remain native; an unknown caller cannot match ordinary collection return
+`0x414970`.
 
 ## Food Mastery and positive-whitelist composition
 
@@ -48,6 +51,22 @@ or 12/70. The Food Point Doubler runs after mastery and doubles the final
 positive eligible delta once. The stock hook is `0x41EB6F` -> `.shr` wrapper
 `0x7B2B00` with eligible return `0x414970`; expanded-256 restores the native
 five-byte hook and does not claim expanded Food Doubler runtime support.
+
+## Tech Point positive-whitelist composition
+
+The central Tech writer is `0x4237B0` (file `0x237B0`). Its stock hook bytes
+`568B742408` are replaced only in stock layout by `E94BF23800`, targeting the
+90-byte wrapper at `.shr` `0x7B2A00` (file `0xDBA00`). The wrapper doubles the
+positive stack delta exactly once only when ownership bit `0x1` is set and the
+immediate caller return is one of:
+
+- `0x4147BE`, `0x4147DD`, `0x4147F9` — ordinary collection awards;
+- `0x46DE4D`, `0x46DE7C`, `0x46DEA5` — the three action-19 research channels.
+
+Return `0x419EA3` is the +5,000 clothing-dialog refund paired with the
+action-90 deduction and is deliberately native. Expanded-256 restores the
+exact five native bytes and leaves new Tech purchase unavailable; owned Remove
+remains available in every mode.
 
 ## Reusable menu behavior
 

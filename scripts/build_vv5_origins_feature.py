@@ -358,10 +358,14 @@ def main() -> None:
         menu:
             xor eax, eax
             test dword ptr [0x51D388], 1
-            jz tech_clear
+            jnz tech_owned
+            cmp dword ptr [0x41F1E6], 0x96
+            je tech_clear
+            or eax, 0x0800
+            jmp tech_clear
+        tech_owned:
             or eax, 8
         tech_clear:
-            or eax, 0x0800
             test dword ptr [0x51D388], 2
             jnz food_owned
             cmp dword ptr [0x41F1E6], 0x96
@@ -384,7 +388,11 @@ def main() -> None:
             cmp ebx, 4
             je remove_food
             test dword ptr [0x51D388], 1
-            jz doubler_unavailable
+            jnz tech_owned_remove
+            cmp dword ptr [0x41F1E6], 0x96
+            jne doubler_unavailable
+            jmp preflight
+        tech_owned_remove:
             and dword ptr [0x51D388], 0xFFFFFFFE
             mov eax, 0x{s['removed']:X}
             jmp status
@@ -705,27 +713,46 @@ def main() -> None:
             ret
         """,
     )
-    tech_exclusions = (0x414D0D, 0x416569, 0x416657, 0x418757, 0x41876C)
-    tech_checks = "\n".join(
-        f"cmp dword ptr [esp], 0x{x:X}\nje apply" for x in tech_exclusions
+    tech_wrapper_expected = bytes.fromhex(
+        "8B44240485C07E46F70588D3510001000000743A"
+        "813C24BE474100742D813C24DD4741007424813C24F9474100741B"
+        "813C244DDE46007412813C247CDE46007409813C24A5DE46007504"
+        "D1642404568B7424080131E95D0DC7FF"
     )
     put(
         "tech_increment",
         f"""
             mov eax, dword ptr [esp + 4]
             test eax, eax
-            jle apply
+            jle native
             test dword ptr [0x51D388], 1
-            jz apply
-            {tech_checks}
+            jz native
+            cmp dword ptr [esp], 0x4147BE
+            je matched
+            cmp dword ptr [esp], 0x4147DD
+            je matched
+            cmp dword ptr [esp], 0x4147F9
+            je matched
+            cmp dword ptr [esp], 0x46DE4D
+            je matched
+            cmp dword ptr [esp], 0x46DE7C
+            je matched
+            cmp dword ptr [esp], 0x46DEA5
+            jne native
+        matched:
             shl dword ptr [esp + 4], 1
-        apply:
+        native:
             push esi
             mov esi, dword ptr [esp + 8]
             add dword ptr [ecx], esi
             jmp 0x4237B7
         """,
     )
+    tech_wrapper = bytes(code[entry["tech_increment"] - PAYLOAD_VA : entry["tech_increment"] - PAYLOAD_VA + len(tech_wrapper_expected)])
+    if tech_wrapper != tech_wrapper_expected:
+        raise RuntimeError(
+            "VV5 Tech Doubler wrapper bytes drifted from the exact stock whitelist"
+        )
     put(
         "food_increment",
         f"""
@@ -963,12 +990,14 @@ def main() -> None:
           "consume the one-shot purchase marker and force native event index 30")
     stock_food_hook = bytes.fromhex("85F67E3456")
     detoured_food_hook = rel32_jump(0x41EB6F, entry["food_increment"])
+    stock_tech_hook = bytes.fromhex("568B742408")
+    detoured_tech_hook = rel32_jump(0x4237B0, entry["tech_increment"])
     patch(0x1EB6F, stock_food_hook,
           detoured_food_hook,
           "double positive non-Island-Event food after stock mastery adjustments")
-    patch(0x237B0, bytes.fromhex("568B742408"),
-          rel32_jump(0x4237B0, entry["tech_increment"]),
-          "double positive non-Island-Event tech awards for the current save")
+    patch(0x237B0, stock_tech_hook,
+          detoured_tech_hook,
+          "double six exact positive-whitelist tech awards for the current save")
     patch(0x40A24, bytes.fromhex("8BC68B4C244C"),
           rel32_jump(0x440A24, entry["tech_ctor"], 6),
           "append the stock-styled Upgrades control to the Tech screen")
@@ -987,6 +1016,12 @@ def main() -> None:
     patch_mode_overrides = {
         "experimental_expanded_256": [
             {
+                "offset": "0x237B0",
+                "before": detoured_tech_hook.hex().upper(),
+                "after": stock_tech_hook.hex().upper(),
+                "purpose": "restore the exact stock VV5 tech-writer bytes in expanded mode; no expanded Tech Doubler detour is emitted",
+            },
+            {
                 "offset": "0x1EB6F",
                 "before": detoured_food_hook.hex().upper(),
                 "after": stock_food_hook.hex().upper(),
@@ -994,6 +1029,12 @@ def main() -> None:
             }
         ],
         "experimental_expanded_256_progression": [
+            {
+                "offset": "0x237B0",
+                "before": detoured_tech_hook.hex().upper(),
+                "after": stock_tech_hook.hex().upper(),
+                "purpose": "restore the exact stock VV5 tech-writer bytes in expanded mode; no expanded Tech Doubler detour is emitted",
+            },
             {
                 "offset": "0x1EB6F",
                 "before": detoured_food_hook.hex().upper(),
@@ -1022,12 +1063,12 @@ def main() -> None:
             "Origins Upgrades. The native Time Warp (the stock route advances exactly 3 "
             "displayed villager years), Island Event, and Barrel of Babies "
             "rows are retained but disabled until their Heathen-safe target paths are "
-            "proved; selecting one reports that it is unavailable. The stock-layout Food "
-            "Point Doubler is available for the configured 500,000-tech-point purchase; "
-            "the Tech Point Doubler remains unavailable pending its separate proof. Existing "
-            "owned doublers remain removable at zero cost with zero refund, and a removed "
-            "Food Point Doubler can be repurchased at the full configured price in stock layout. "
-            "Expanded-256 keeps both new purchases unavailable while preserving owned Remove. Plus "
+            "proved; selecting one reports that it is unavailable. The stock-layout Tech "
+            "Point and Food Point Doublers are available for their configured 500,000-tech-point "
+            "purchases; each existing owned doubler remains removable at zero cost with zero "
+            "refund, and each removed doubler can be repurchased at the full configured price "
+            "in stock layout. Expanded-256 keeps both new purchases unavailable while preserving "
+            "owned Remove. Plus "
             "Cure all Villagers for 30,000 tech points. Cure all Villagers clears sickness "
             "from eligible active living believer records without changing health and increments People Cured "
             "once per sickness cleared, then displays the exact result `Cured X villagers`; Heathens are excluded. "
@@ -1035,7 +1076,7 @@ def main() -> None:
             "Mastery, Set Age to 18, and Grant Running. Grant Running only adds "
             "the build-specific Running preference ID (proven at table offset "
             "0xAEF60) to a free normal Like slot and removes that same ID from "
-            "Dislikes; it never changes movement or speed logic. VV5 Food Mastery is technology ID 4: the upgrade from level 1 to 2 costs 3,000 tech points and the upgrade from level 2 to 3 costs 40,000 tech points; central food writer 0x41EB40 applies positive A as A, A+floor(A/2), or 2A before food storage, statistics, and other downstream channels; zero and negative inputs bypass mastery. Ordinary collection return 0x414970 is eligible: base 6/35 becomes 6/35, 9/52, or 12/70 by mastery level. The Food Point Doubler runs after mastery and doubles the final positive eligible delta once. Island Event, startup, consumption, and unknown callers remain native. The stock wrapper is the exact positive whitelist at 0x41EB6F to .shr 0x7B2B00; expanded-256 restores the five stock bytes and keeps new doubler purchases unavailable pending complete rel32 relocation proof."
+            "Dislikes; it never changes movement or speed logic. VV5 Food Mastery is technology ID 4: the upgrade from level 1 to 2 costs 3,000 tech points and the upgrade from level 2 to 3 costs 40,000 tech points; central food writer 0x41EB40 applies positive A as A, A+floor(A/2), or 2A before food storage, statistics, and other downstream channels; zero and negative inputs bypass mastery. Ordinary collection return 0x414970 is eligible: base 6/35 becomes 6/35, 9/52, or 12/70 by mastery level. The Food Point Doubler runs after mastery and doubles the final positive eligible delta once. Island Event, startup, consumption, and unknown callers remain native. The stock Tech wrapper at 0x4237B0 is the exact six-return positive whitelist to .shr 0x7B2A00; 0x419EA3 clothing refunds remain native. The stock Food wrapper is the exact positive whitelist at 0x41EB6F to .shr 0x7B2B00. Expanded-256 restores both native five-byte hooks and keeps new doubler purchases unavailable pending complete rel32 relocation proof."
         ),
         "output_tag": "Origins Exclusive Features",
         "companion_files": [
@@ -1052,6 +1093,15 @@ def main() -> None:
                 "sha256": "92946781980220E9D1A2E6C573925519934608F5215F4A0F8CE3B90088C5C65D",
             },
             "positive_tech_writer": "0x4237B0",
+            "tech_positive_returns": ["0x4147BE", "0x4147DD", "0x4147F9", "0x46DE4D", "0x46DE7C", "0x46DEA5"],
+            "tech_excluded_refund_return": "0x419EA3",
+            "tech_exclusions": [
+                "all 16 Island Event outcomes",
+                "all eight writer tail paths",
+                "technology purchase/spending/deduction paths",
+                "zero and negative deltas",
+                "unknown caller returns",
+            ],
             "positive_food_writer": "0x41EB40 before storage/statistics channels",
             "food_mastery": {
                 "technology_id": 4,
@@ -1063,6 +1113,20 @@ def main() -> None:
             },
             "collection_adjustment": "Ordinary collection return 0x414970 supplies base 6/35; native Food Mastery produces 6/35, 9/52, or 12/70 after the level 1 to 2 (3,000 tech points) and level 2 to 3 (40,000 tech points) upgrades. The Food Point Doubler must follow this transform and double the final positive eligible delta once.",
             "island_event_producers": ["Island Event, startup, consumption, and unknown callers remain native; unknown callers cannot match return 0x414970"],
+            "tech_writer_hook": {
+                "virtual_address": "0x4237B0",
+                "file_offset": "0x237B0",
+                "before": "568B742408",
+                "after": "E94BF23800",
+                "wrapper_virtual_address": "0x7B2A00",
+                "wrapper_file_offset": "0xDBA00",
+                "wrapper_bytes": "8B44240485C07E46F70588D3510001000000743A813C24BE474100742D813C24DD4741007424813C24F9474100741B813C244DDE46007412813C247CDE46007409813C24A5DE46007504D1642404568B7424080131E95D0DC7FF",
+                "ownership_address": "0x51D388",
+                "ownership_mask": "0x1",
+                "eligible_returns": ["0x4147BE", "0x4147DD", "0x4147F9", "0x46DE4D", "0x46DE7C", "0x46DEA5"],
+                "excluded_refund_return": "0x419EA3",
+                "branch_destinations": ["0x7B2A4A", "0x7B2A4E", "0x4237B7"]
+            },
             "stock_hook": {
                 "virtual_address": "0x41EB6F",
                 "file_offset": "0x1EB6F",
@@ -1076,7 +1140,7 @@ def main() -> None:
                 "eligible_return": "0x414970",
                 "branch_destinations": ["0x41EB74", "0x41EBA7"]
             },
-            "hook_status": "stock-layout implemented: exact positive-whitelist wrapper at 0x41EB6F; expanded-256 restores the exact stock hook bytes and remains native for Food Doubler runtime.",
+            "hook_status": "stock-layout implemented: exact Tech six-return and Food positive-whitelist wrappers; expanded-256 restores both exact stock hooks and remains native for doubler runtime.",
         },
         "doubler_composition_contract": {
             "stacking": [
@@ -1085,13 +1149,13 @@ def main() -> None:
             ],
             "exclusions": ["Island Event outcomes"],
             "food_mastery_status": "confirmed in exact-build disassembly; technology ID 4 and separate level 1 to 2 / level 2 to 3 native transforms documented",
-            "status": "stock-layout implemented: Food Doubler runs after Food Mastery; expanded-256 keeps the native food writer and disables only new Food Doubler purchase.",
+            "status": "stock-layout implemented: Tech and Food Doublers run after their native adjustments; expanded-256 keeps both native writers and disables only new doubler purchases.",
         },
         "doubler_purchase_status": {
-            "status": "stock-layout Food Doubler purchase/remove/repurchase implemented; expanded-256 new Food purchase is marker-gated unavailable",
-            "new_purchase": "available in stock layout at 500,000 tech points after the exact positive-whitelist wrapper; unavailable in expanded-256",
+            "status": "stock-layout Tech and Food Doubler purchase/remove/repurchase implemented; expanded-256 new purchases are marker-gated unavailable",
+            "new_purchase": "Tech and Food available in stock layout at 500,000 tech points after their exact positive-whitelist wrappers; both unavailable in expanded-256",
             "existing_owned": "removable at zero cost with zero refund",
-            "repurchase": "full-price repurchase after zero-cost/no-refund removal in stock layout; expanded-256 remains unavailable for new purchase",
+            "repurchase": "full-price repurchase after zero-cost/no-refund removal in stock layout for both doublers; expanded-256 remains unavailable for new purchases",
         },
         "native_event_safety": {
             "disabled_rows": ["Time Warp", "Island Event", "Barrel of Babies"],
