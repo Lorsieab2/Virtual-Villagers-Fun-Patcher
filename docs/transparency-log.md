@@ -8,6 +8,17 @@ Every output applies the selected population mode and the game's guarded populat
 
 Available population modes: Collection Progression Max Pop, Immediate Fixed Max Pop, Experimental Expanded 256 Villagers, Experimental Expanded 256 - Collection Progression.
 
+## Optional-patch chooser catalog
+
+The desktop chooser presents game-scoped optional patches under the five
+manifest titles in this fixed order: A New Home, The Lost Children, The Secret
+City, The Tree of Life, and New Believers. Within each title, entries sort by
+case-folded display name and then patch ID. Unknown or all-games entries appear
+under a final `Shared / All Games` header. Checkbox variables remain keyed by
+patch ID; Select All, Deselect All, dependency closure, and persisted selections
+operate on those same variables. This is presentation-only: it changes no
+executable bytes, save fields, companion DLLs, or game behavior.
+
 ## Origins doubler evidence boundary
 
 The per-game positive food/tech writer, collection-adjustment callsites, and every Island Event producer must be proved independently before an Origins doubler is considered complete. A doubler is applied only to a positive delta after that game's native collection calculation; Island Event food and tech outcomes (positive, zero, or negative) are never multiplied. The current exact-build candidate exclusions and pending/STOP statuses are recorded in `docs/doubler-composition-audit.md`; return-address checks alone are not treated as exhaustive provenance proof.

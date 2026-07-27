@@ -8,6 +8,7 @@ import struct
 import sys
 import tempfile
 import unittest
+from types import SimpleNamespace
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -33,6 +34,7 @@ from vv_fun_patcher import (  # noqa: E402
     validate_all_sources,
     vanilla_save_folder_for,
 )
+from vv_fun_patcher_gui import group_fun_patches  # noqa: E402
 
 STOCK = ROOT / "research" / "stock-executables"
 MODES = (
@@ -432,11 +434,47 @@ class GuiSourceTests(unittest.TestCase):
     def test_fun_patches_are_grouped_by_game_and_sorted_by_name(self) -> None:
         source = (ROOT / "src" / "vv_fun_patcher_gui.py").read_text(encoding="utf-8")
         self.assertIn(
-            "game_order = {build.id: index for index, build in enumerate(self.builds)}",
+            "game_order = {build.id: index for index, build in enumerate(builds)}",
             source,
         )
-        self.assertIn("game_order[patch.game_id]", source)
+        self.assertIn("game_order.get(patch.game_id, len(game_order))", source)
         self.assertIn("patch.name.casefold()", source)
+
+    def test_fun_patch_headers_follow_manifest_order_and_shared_is_last(self) -> None:
+        headers = group_fun_patches(load_builds(), load_fun_patches())
+        expected = [
+            "Virtual Villagers - A New Home",
+            "Virtual Villagers - The Lost Children",
+            "Virtual Villagers - The Secret City",
+            "Virtual Villagers - The Tree of Life",
+            "Virtual Villagers - New Believers",
+        ]
+        self.assertEqual([title for title, _ in headers[:5]], expected)
+        if any(patch.game_id not in {build.id for build in load_builds()} for patch in load_fun_patches()):
+            self.assertEqual(headers[-1][0], "Shared / All Games")
+
+    def test_fun_patch_catalog_uses_casefold_then_id_tie_break(self) -> None:
+        builds = [SimpleNamespace(id="vv1", title="Virtual Villagers - A New Home")]
+        patches = [
+            SimpleNamespace(game_id="vv1", name="same", id="z", description=""),
+            SimpleNamespace(game_id="vv1", name="SAME", id="a", description=""),
+            SimpleNamespace(game_id="other", name="shared", id="b", description=""),
+        ]
+        headers = group_fun_patches(builds, patches)
+        self.assertEqual([patch.id for patch in headers[0][1]], ["a", "z"])
+        self.assertEqual(headers[-1][0], "Shared / All Games")
+
+    def test_fun_patch_selection_controls_and_dependency_closure_remain_in_ui(self) -> None:
+        source = (ROOT / "src" / "vv_fun_patcher_gui.py").read_text(encoding="utf-8")
+        for snippet in (
+            'text="Select All Patches"',
+            'text="Deselect All Patches"',
+            "self.fun_patch_vars",
+            "self._apply_gui_dependency_selection()",
+            "self._last_fun_selection",
+            'removeprefix("Virtual Villagers - ")',
+        ):
+            self.assertIn(snippet, source)
 
     def test_no_temporary_or_backup_game_folders_are_created(self) -> None:
         source = (ROOT / "src" / "vv_fun_patcher.py").read_text(encoding="utf-8")

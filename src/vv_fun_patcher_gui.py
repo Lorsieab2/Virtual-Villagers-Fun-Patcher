@@ -33,6 +33,44 @@ ROOT = Path(__file__).resolve().parents[1]
 SETTINGS = ROOT / "patcher_local_settings.json"
 
 
+def group_fun_patches(builds, patches):
+    """Return deterministic game headers and patch catalogs for the chooser.
+
+    Build order is the manifest order, not alphabetical.  Unknown or shared
+    entries are kept under one final header so the presentation cannot drift
+    when a new optional feature is added.
+    """
+    game_order = {build.id: index for index, build in enumerate(builds)}
+    ordered = sorted(
+        patches,
+        key=lambda patch: (
+            game_order.get(patch.game_id, len(game_order)),
+            patch.name.casefold(),
+            patch.id,
+        ),
+    )
+    grouped = {build.id: [] for build in builds}
+    shared = []
+    for patch in ordered:
+        if patch.game_id in grouped:
+            grouped[patch.game_id].append(patch)
+        else:
+            shared.append(patch)
+    headers = [
+        (build.title, sorted(grouped[build.id], key=lambda item: (item.name.casefold(), item.id)))
+        for build in builds
+        if grouped[build.id]
+    ]
+    if shared:
+        headers.append(
+            (
+                "Shared / All Games",
+                sorted(shared, key=lambda item: (item.name.casefold(), item.id)),
+            )
+        )
+    return headers
+
+
 class App(tk.Tk):
     def __init__(self) -> None:
         super().__init__()
@@ -49,17 +87,7 @@ class App(tk.Tk):
         self.iconphoto(True, self.island_titlebar)
         self.builds = load_builds()
         self.patch_modes = load_patch_modes()
-        game_order = {build.id: index for index, build in enumerate(self.builds)}
-        self.fun_patches = sorted(
-            load_fun_patches(),
-            key=lambda patch: (
-                game_order[patch.game_id]
-                if patch.game_id in game_order
-                else len(game_order),
-                patch.name.casefold(),
-                patch.id,
-            ),
-        )
+        self.fun_patches = load_fun_patches()
         self.fun_patch_vars = {
             patch.id: tk.BooleanVar(value=False) for patch in self.fun_patches
         }
@@ -179,51 +207,39 @@ class App(tk.Tk):
             text="Deselect All Patches",
             command=self._deselect_all_fun_patches,
         ).pack(side="left", padx=(8, 0))
-        grouped: dict[str, list] = {build.id: [] for build in self.builds}
-        shared: list = []
-        for patch in self.fun_patches:
-            if patch.game_id in grouped:
-                grouped[patch.game_id].append(patch)
-            else:
-                shared.append(patch)
         row = fun_row + 2
-        for build in self.builds:
-            patches = sorted(
-                grouped[build.id], key=lambda item: (item.name.casefold(), item.id)
-            )
-            if not patches:
+        for header, patches in group_fun_patches(self.builds, self.fun_patches):
+            if header == "Shared / All Games":
+                ttk.Label(
+                    mode_box,
+                    text=header,
+                    font=("Segoe UI", 10, "bold"),
+                ).grid(row=row, column=1, sticky="w", pady=(8, 2))
+                row += 1
+                for patch in patches:
+                    ttk.Checkbutton(
+                        mode_box,
+                        text=patch.name,
+                        variable=self.fun_patch_vars[patch.id],
+                        command=self._fun_patch_changed,
+                    ).grid(row=row, column=1, sticky="w", pady=3)
+                    row += 1
+                    ttk.Label(mode_box, text=patch.description, wraplength=620).grid(
+                        row=row, column=1, sticky="w", pady=(0, 3)
+                    )
+                    row += 1
                 continue
             ttk.Label(
                 mode_box,
-                text=build.title,
+                text=header,
                 font=("Segoe UI", 10, "bold"),
             ).grid(row=row, column=1, sticky="w", pady=(8, 2))
             row += 1
             for patch in patches:
-                game_name = build.title.removeprefix("Virtual Villagers - ")
+                game_name = header.removeprefix("Virtual Villagers - ")
                 ttk.Checkbutton(
                     mode_box,
                     text=f"{patch.name} ({game_name})",
-                    variable=self.fun_patch_vars[patch.id],
-                    command=self._fun_patch_changed,
-                ).grid(row=row, column=1, sticky="w", pady=3)
-                row += 1
-                ttk.Label(mode_box, text=patch.description, wraplength=620).grid(
-                    row=row, column=1, sticky="w", pady=(0, 3)
-                )
-                row += 1
-        if shared:
-            shared.sort(key=lambda item: (item.name.casefold(), item.id))
-            ttk.Label(
-                mode_box,
-                text="Shared / All Games",
-                font=("Segoe UI", 10, "bold"),
-            ).grid(row=row, column=1, sticky="w", pady=(8, 2))
-            row += 1
-            for patch in shared:
-                ttk.Checkbutton(
-                    mode_box,
-                    text=patch.name,
                     variable=self.fun_patch_vars[patch.id],
                     command=self._fun_patch_changed,
                 ).grid(row=row, column=1, sticky="w", pady=3)
