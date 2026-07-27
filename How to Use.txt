@@ -35,13 +35,17 @@ save-recognition, and complete 256-villager save/reload testing.
    "Nature Level 3 Actually Alters Mortality" and/or
    "Pointing Out a Rare Collectible Always Works".
 6. Optional for The Tree of Life: check
-   "Complete Fish Scales = Golden Fish in Nets" and/or
-   "Enable Origins-Exclusive Features".
+   "Complete Fish Scales = Golden Fish in Nets", "Enable Origins-Exclusive
+   Features", and/or "Birth Control". Birth Control blocks manual conception
+   when either participant reaches displayed age 50 while preserving the
+   separately identified stock time-catch-up route. Autonomous Embracing still
+   requires positive Breeding skill and a checked Children preference on the
+   initiating villager.
 7. Optional for New Believers: check "Heathen Mommy Puzzle Restoration" and/or
    "Easier Devotee Training" and/or
    "Statue Drops: Normal Action or Honoring" and/or
    "VV4 Nursery School Divisor Parity".
-7. Open "One Game" or "All 5 Games".
+8. Open "One Game" or "All 5 Games".
 
 PATCH ALL FIVE AT ONCE
 
@@ -183,6 +187,14 @@ VV2 GONG OF WONDER COCONUTS FIX
 The Gong's coconut outcome adds 30 to the coconut trees instead of replacing
 their current amount with 30. Both stock outcome paths are corrected. Other
 Gong outcomes, coconut consumption, and tree capacity are unchanged.
+
+ALL GAMES WRITE VILLAGE STATISTICS
+
+Enable "Write Village Statistics to Text File" for a game to refresh
+"Village Statistics - Save N.txt" after every successful save of slots 1
+through 5. The export is per save and written beside that modified game's
+executable. It does not depend on a Statistics screen and never changes the
+save result if the text export itself fails.
 
 VV3 NATURE LEVEL 1 ACTUALLY REPLENISHES FOOD SOURCES FASTER
 
