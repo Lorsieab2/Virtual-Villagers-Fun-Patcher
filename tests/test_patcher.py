@@ -101,7 +101,7 @@ class ManifestTests(unittest.TestCase):
                 [f"vv{game}_enable_origins_exclusive_features"],
             )
             self.assertIn("All Villagers Like Running", feature.description)
-            self.assertIn("All Villagers are Jack-Of-All-Trades", feature.description)
+            self.assertIn("Grant Full Mastery to All Villagers", feature.description)
             self.assertIn("All Villagers are 18", feature.description)
             self.assertIn("1,000,000", feature.description)
             self.assertIn("inspired", feature.description.casefold())
@@ -132,7 +132,7 @@ class ManifestTests(unittest.TestCase):
                 self.assertIn("ECX=first physical record pointer", feature.raw["extension_abi"]["calling_convention"])
                 commands = feature.raw["extension_abi"]["commands"]
                 self.assertEqual(commands["6"], "All Villagers Like Running")
-                self.assertEqual(commands["7"], "All Villagers are Jack-Of-All-Trades")
+                self.assertEqual(commands["7"], "Grant Full Mastery to All Villagers")
                 self.assertEqual(commands["8"], "All Villagers are 18")
 
     def test_origins_village_wide_metadata_preserves_explicit_exclusions(self) -> None:
@@ -377,7 +377,7 @@ class ManifestTests(unittest.TestCase):
         self.assertIn("ID_BUY_LAST = 1008", source)
         for label in (
             "All Villagers Like Running",
-            "All Villagers are Jack-Of-All-Trades",
+            "Grant Full Mastery to All Villagers",
             "All Villagers are 18",
         ):
             self.assertIn(label, resource)
@@ -385,6 +385,25 @@ class ManifestTests(unittest.TestCase):
         self.assertIn('PUSHBUTTON  "Buy", 1006', resource)
         self.assertIn('PUSHBUTTON  "Buy", 1007', resource)
         self.assertIn('PUSHBUTTON  "Buy", 1008', resource)
+
+    def test_village_wide_mastery_label_is_consistent_and_legacy_label_is_absent(self) -> None:
+        user_facing = [
+            ROOT / "native/vv1_origins_icons/vv1_origins_icons.rc",
+            ROOT / "README.md",
+            ROOT / "How to Use.txt",
+            ROOT / "docs/origins-village-wide-upgrades.md",
+            ROOT / "docs/origins-player-runtime-checklist.md",
+            ROOT / "docs/transparency-log.md",
+        ]
+        user_facing.extend(ROOT / "data" / f"vv{game}_origins_village_wide_upgrades.json" for game in range(1, 6))
+        legacy = ("Jack" + "-" + "Of-All-Trades", "Jack" + " of all trades")
+        for path in user_facing:
+            text = path.read_text(encoding="utf-8")
+            normalized = " ".join(text.split())
+            with self.subTest(path=path):
+                self.assertIn("Grant Full Mastery to All Villagers", normalized)
+                for old_label in legacy:
+                    self.assertNotIn(old_label.casefold(), normalized.casefold())
 
     def test_statistics_features_cover_all_proven_per_save_counter_blocks(self) -> None:
         features = {

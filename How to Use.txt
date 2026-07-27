@@ -265,8 +265,8 @@ Enable Origins Village-Wide Upgrades is the optional feature name shown by the
 patcher. These optional features depend on Enable Origins-Exclusive Features and add
 three Tech-screen Upgrades rows inspired by the selected exclusive upgrades
 from the Virtual Villagers 1 mobile port. Each purchase costs 1,000,000 tech
-points and affects only the current save: All Villagers Like Running, All
-Villagers are Jack-Of-All-Trades, and All Villagers are 18. Running never
+points and affects only the current save: All Villagers Like Running, Grant
+Full Mastery to All Villagers, and All Villagers are 18. Running never
 replaces an unrelated Like and reports `Skipped over X villagers. Reason:
 Already 3 likes.` for eligible villagers whose three Like slots are full.
 Mastery writes only the native skill fields. Age changes only displayed age

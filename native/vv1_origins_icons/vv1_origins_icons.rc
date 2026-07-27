@@ -64,7 +64,7 @@ BEGIN
 
     ICON        107, -1, 8, 232,  24, 24
     ICON        109, 1107, 22, 244, 12, 12
-    LTEXT       "All Villagers are Jack-Of-All-Trades", -1, 40, 234, 190, 10
+    LTEXT       "Grant Full Mastery to All Villagers", -1, 40, 234, 190, 10
     LTEXT       "1,000,000 tech points", -1, 40, 246, 170, 9
     PUSHBUTTON  "Buy", 1007, 240, 235, 55, 18
 

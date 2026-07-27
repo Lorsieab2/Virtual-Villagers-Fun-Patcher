@@ -438,8 +438,8 @@ The optional Origins village-wide feature IDs are
 `vv3_origins_village_wide_upgrades`, `vv4_origins_village_wide_upgrades`, and
 `vv5_origins_village_wide_upgrades`. Each depends on that game's
 `enable_origins_exclusive_features` prerequisite and adds the three
-1,000,000-tech-point rows: All Villagers Like Running, All Villagers are
-Jack-Of-All-Trades, and All Villagers are 18. The feature is inspired by the
+1,000,000-tech-point rows: All Villagers Like Running, Grant Full Mastery to All
+Villagers, and All Villagers are 18. The feature is inspired by the
 selected exclusive upgrades in the Virtual Villagers 1 mobile port. VV5
 excludes Heathens; all games leave movement speed, nursing/pregnancy timers,
 and unrelated Like slots untouched.

@@ -8,7 +8,7 @@
     "entry_name": "running"
   },
   "name": "Enable Origins Village-Wide Upgrades",
-  "description": "Adds three optional, current-save-only Origins upgrades to the Tech-screen Upgrades window, inspired by the Virtual Villagers 1 mobile port's selected exclusive upgrades: All Villagers Like Running, All Villagers are Jack-Of-All-Trades, and All Villagers are 18. Each costs exactly 1,000,000 tech points. Running uses the build-specific preference ID proven from the stock preference table, preserves unrelated Likes, removes Running Dislikes, and reports `Skipped over X villagers. Reason: Already 3 likes.`, `skipped over Y villagers. Reason: already likes running`, plus `Removed running dislike from X villagers` only when applicable. Mastery writes only the native skill fields. Age changes only the displayed age to 18 and does not change nursing or pregnancy timers.",
+  "description": "Adds three optional, current-save-only Origins upgrades to the Tech-screen Upgrades window, inspired by the Virtual Villagers 1 mobile port's selected exclusive upgrades: All Villagers Like Running, Grant Full Mastery to All Villagers, and All Villagers are 18. Each costs exactly 1,000,000 tech points. Running uses the build-specific preference ID proven from the stock preference table, preserves unrelated Likes, removes Running Dislikes, and reports `Skipped over X villagers. Reason: Already 3 likes.`, `skipped over Y villagers. Reason: already likes running`, plus `Removed running dislike from X villagers` only when applicable. Mastery writes only the native skill fields. Age changes only the displayed age to 18 and does not change nursing or pregnancy timers.",
   "output_tag": "Origins Village-Wide Upgrades",
   "dependencies": [
     "vv3_enable_origins_exclusive_features"
@@ -21,7 +21,7 @@
     "calling_convention": "near call with EAX=command 6/7/8, ECX=first physical record pointer, EDX=physical record bound; command 6 returns full-Like skips in EAX, already-Running (already-running) skips in EDX, and villagers with a removed Running dislike in ECX; commands 7/8 return zero counts; invalid commands return EAX=-1 and EDX/ECX=0; preserves EBX/ESI/EDI/EBP/ESP",
     "commands": {
       "6": "All Villagers Like Running",
-      "7": "All Villagers are Jack-Of-All-Trades",
+      "7": "Grant Full Mastery to All Villagers",
       "8": "All Villagers are 18"
     }
   },
@@ -47,7 +47,7 @@
     "Adds rows 6-8 to the Origins Tech-screen Upgrades dialog only when this optional feature is installed.",
     "Charges exactly 1,000,000 tech points once per selected village-wide purchase in the current save.",
     "Running scans exactly three normal Like and Dislike slots, reports full-Like and already-Running counts, and reports villagers whose Running dislike was removed; duplicate Running Dislikes are all cleared but count once per villager.",
-    "Jack-Of-All-Trades writes the native five- or six-skill mastery fields for eligible living villagers.",
+    "Grant Full Mastery to All Villagers writes the native five- or six-skill mastery fields for eligible living villagers.",
     "All Villagers are 18 writes only the verified displayed-age field to 360 age units."
   ],
   "explicit_non_changes": [

@@ -25,7 +25,7 @@ and `ESP`.
 | Row | Label | Cost |
 | --- | --- | --- |
 | 6 | All Villagers Like Running | 1,000,000 tech points |
-| 7 | All Villagers are Jack-Of-All-Trades | 1,000,000 tech points |
+| 7 | Grant Full Mastery to All Villagers | 1,000,000 tech points |
 | 8 | All Villagers are 18 | 1,000,000 tech points |
 
 These selected upgrades are inspired by the exclusive upgrades in the Virtual
@@ -42,7 +42,7 @@ village-wide purchase, not per villager. The build-specific Running preference
 ID is 38; each manifest records its exact Likes/Dislikes offsets and physical
 record stride.
 
-Jack-Of-All-Trades writes only the native five skill fields in VV1–VV4 or six
+Grant Full Mastery to All Villagers writes only the native five skill fields in VV1–VV4 or six
 skill fields in VV5 for eligible active, living villagers. All Villagers are
 18 writes only the displayed-age field (360 internal age units). It does not
 write nursing timers, pregnancy timers, pregnancy state, movement speed,

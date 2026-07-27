@@ -3,9 +3,12 @@
 This is a player-test checklist for the collection-progression Origins-core
 outputs. It is explicitly **runtime/player confirmation pending**; static patch
 verification is not a claim that any item below has been confirmed in-game.
-The checklist applies to the VV1, VV3, VV4, and VV5 outputs. VV2 remains
-pending a self-contained local vanilla game folder and is not represented as a
-playable output here.
+The authoritative kit is the complete all-five output at
+`outputs/origins-core-village-wide-playtest-all-five-collection-progression-2026-07-27`.
+It supersedes the earlier four-game corrected kit. The original pre-449483f
+four-game output remains explicitly **INVALID - DO NOT RUN**; the corrected
+four-game output is valid but superseded. VV2 is included in the authoritative
+kit and has a self-contained vanilla source folder.
 
 ## Supported build fingerprints
 
@@ -20,6 +23,23 @@ confirmation remains pending for every output.
 | VV4 | 929,792 bytes | 6D27A429FFCA5F1F71FDD7ECA761ED1BB67E85F976494BA178B3D7BE01F1B220 |
 | VV5 | 991,232 bytes | 92946781980220E9D1A2E6C573925519934608F5215F4A0F8CE3B90088C5C65D |
 
+## Authoritative all-five output kit
+
+All five outputs use `collection_progression`, stock save layout, no save-copy
+operation, and exactly these dependency-ordered features:
+`vvN_enable_origins_exclusive_features`, then
+`vvN_origins_village_wide_upgrades`. No appearance, mask, statistics, or other
+optional feature is selected. The following hashes are the modified EXEs in the
+all-five kit; runtime/player confirmation is still pending.
+
+| Game | Modified executable | SHA-256 |
+| --- | --- | --- |
+| VV1 | `Virtual Villagers - A New Home - Modded/Virtual Villagers - A New Home - Modded.exe` | `1118F1879CEF029F8D46EEBC762D4D47E3A122CBF5A3B59934DF06A5A83DB4FB` |
+| VV2 | `Virtual Villagers - The Lost Children - Modded/Virtual Villagers - The Lost Children - Modded.exe` | `F7427D9E634431949841CAC0B19B964E0CAD2446538552ADF67651A79ECB1B19` |
+| VV3 | `Virtual Villagers - The Secret City - Modded/Virtual Villagers - The Secret City - Modded.exe` | `B18FDB825738A1329DCD3F526C4A4677D0B4E0E643EB9B5137590578BB4EDBFF` |
+| VV4 | `Virtual Villagers - The Tree of Life - Modded/Virtual Villagers - The Tree of Life - Modded.exe` | `636D7C8583DD7DC75319B0C1D4C59DD5FEADD2E7948A63CEF8A845F9DF0C674E` |
+| VV5 | `Virtual Villagers - New Believers - Modded/Virtual Villagers - New Believers - Modded.exe` | `15A8AC5639D8B10F422C036EF5D2D0C73A5F82B9D03D503E8C1FCD3988603F1B` |
+
 ## Before each test
 
 Use a backed-up vanilla save. Record the game/build SHA-256, output EXE SHA-256,
@@ -33,17 +53,34 @@ bug from one un-reproduced observation.
 
 | Row | Cost / expected runtime check |
 | --- | --- |
-| Time Warp | 50,000 tech points; VV1/VV3/VV4 should advance exactly 3 displayed villager years; paused refusal shows no charge. |
+| Time Warp | 50,000 tech points; VV1/VV2/VV3/VV4 should advance exactly 3 displayed villager years; paused refusal shows no charge. |
 | Island Event | 30,000 tech points; VV1/VV3/VV4 should call the native event. |
 | Barrel of Babies | 75,000 tech points; VV1/VV3/VV4 should require three physical slots and produce the native three-child result; capacity refusal must not charge. |
 | Tech Point Doubler | 500,000 tech points; all four outputs currently show Unavailable when unowned. Existing owned Remove costs 0, refunds 0, is current-save-only, and remains unavailable for repurchase. |
 | Food Point Doubler | 500,000 tech points; same unavailable/remove/no-refund/current-save rules. |
 | Cure all Villagers | 30,000 tech points; test the sickness-only matrix below. |
-| Village-wide rows | All Villagers Like Running, Jack-Of-All-Trades, and All Villagers are 18 cost exactly 1,000,000 tech points each. |
+| Village-wide rows | All Villagers Like Running, Grant Full Mastery to All Villagers, and All Villagers are 18 cost exactly 1,000,000 tech points each. |
 
 For VV5, Time Warp, Island Event, and Barrel of Babies remain Unavailable:
 selecting them must make no charge, native call, clock change, or save/state
 change.
+
+## VV2-specific runtime cases
+
+VV2's paused Time Warp must refuse with no charge and no clock/state change.
+Unlike VV1, VV3, VV4, and VV5, VV2's certified Tech Point Doubler and Food
+Point Doubler paths are purchasable, removable, and repurchasable: purchase
+costs 500,000 tech points, removal costs 0 and refunds 0, and repurchase costs
+the full 500,000 again in the current save. VV1/VV3/VV4/VV5 unowned or
+manually removed doublers remain unavailable for new purchase pending their
+exact-build provenance gates.
+
+VV2 Grant Full Mastery to All Villagers covers its five native skills. Food Mastery presence/absence
+remains unresolved for this exact VV2 build and must not be
+claimed by this checklist. The Tech Point and Food Point Doublers stack only
+after certified native eligible gain calculations; Island Event and Gong of
+Wonder outcomes—including positive, zero, negative, cap, reset, statistic,
+message, and side-effect paths—remain native and are never multiplied.
 
 ## Cure all Villagers matrix
 
@@ -78,10 +115,10 @@ Running Dislike on an eligible villager is cleared even when the villager is
 full/already-running, and movement speed or movement initialization never
 changes. VV5 current Heathens are untouched and excluded from every count.
 
-### Jack-Of-All-Trades and All Villagers are 18
+### Grant Full Mastery to All Villagers and All Villagers are 18
 
 Each row charges exactly 1,000,000 once. Mastery must write only the native
-skill fields: five skills in VV1/VV3/VV4 and six in VV5. Age must set displayed
+skill fields: five skills in VV1–VV4 and six in VV5. Age must set displayed
 age exactly to 18 only. Nursing/pregnancy timers and state remain unchanged;
 dead/inactive records and VV5 current Heathens remain byte-identical.
 
