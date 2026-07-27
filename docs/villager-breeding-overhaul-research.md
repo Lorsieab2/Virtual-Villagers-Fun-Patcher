@@ -90,14 +90,22 @@ autonomous interpretation; they do not supply a numeric Breeding threshold.
 
 ## Other games and patch boundary
 
-The planned overhaul will add exact-build-guarded entries for VV1, VV2, VV3,
-VV4, and VV5 only after each manual and autonomous call site has a verified
-byte fingerprint. The common behavioral contract is:
+VV4 now has an exact-build guarded Birth Control entry. Its manual conception
+tail replaces the stock female-only age rejection with an age-1000 rejection
+for either participant. Its autonomous Children return path denies the
+skill-selected fallback when the initiating villager's Children preference is
+not checked. The patch does not touch `sub_466DA0`, so the catch-up route can
+still select a younger candidate for an older actor as in the stock game.
+
+The remaining overhaul entries will add exact-build guards for VV1, VV2, VV3,
+and VV5 only after each manual and autonomous call site has a verified byte
+fingerprint. The common behavioral contract is:
 
 - manual/player conception is denied when a participating villager is age
   `>=1000`, except for a separately verified catch-up route;
-- autonomous Embracing is allowed only when both participants have a positive
-  Breeding/Parenting skill and the Children/Parenting preference is checked;
+- autonomous Embracing is allowed only when the initiating villager has a
+  positive Breeding/Parenting skill and the Children/Parenting preference is
+  checked; the candidate keeps the stock eligibility rules;
 - Island Events, Gong of Wonder effects, Barrel-of-Babies-style event writers,
   and other event-created or event-nursing routes remain stock;
 - no unused save fields, likes/dislikes, or record strides are repurposed.
@@ -114,6 +122,7 @@ written. No VV5 old-age exception is inferred from VV4 evidence.
 
 ## Implementation status
 
-This is a research boundary only. The executable feature entries remain
-disabled until their exact before-bytes, non-overlapping caves, return paths,
-and tests are verified for each supported SHA-256 build.
+VV1, VV2, VV3, and VV5 remain research-only until their exact before-bytes,
+non-overlapping caves, return paths, and tests are verified for each supported
+SHA-256 build. VV4 is statically verified but still awaits player runtime
+validation.

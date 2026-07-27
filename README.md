@@ -202,6 +202,17 @@ Dislikes, and never changes movement speed. The feature is exact-build
 guarded, but its native dialog and upgrade UI still need player runtime
 validation.
 
+## VV4: Birth Control
+
+Enable **Birth Control (The Tree of Life)** to block manual conception when
+either participant reaches internal age 1000 (displayed age 50). The stock
+conception roll and the separate time-catch-up route remain intact, including
+VV4's older-mother catch-up behavior. Autonomous Embracing is denied unless
+the initiating villager has positive Breeding skill and the Children
+preference is checked. Island Events, Gong effects, and event-created nursing
+babies are untouched. This exact-build patch is statically guarded; runtime
+player validation remains pending.
+
 ## VV3: Nature Level 1 Actually Replenishes Food Sources Faster
 
 Enable **Nature Level 1 Actually Replenishes Food Sources Faster (The Secret City)** to make the technology description literal. At Nature level 1 or higher, fruit trees become refill-eligible after 2 hours 15 minutes instead of 3 hours, and honey becomes refill-eligible after 45 minutes instead of 1 hour.
