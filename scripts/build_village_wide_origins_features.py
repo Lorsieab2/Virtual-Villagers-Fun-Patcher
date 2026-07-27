@@ -325,8 +325,8 @@ def build_payload(config: dict) -> tuple[bytes, dict[str, int]]:
             xor eax, eax
             xor edx, edx
             xor ecx, ecx
-            pop esi
             pop edi
+            pop esi
             pop ebx
             pop ebp
             ret

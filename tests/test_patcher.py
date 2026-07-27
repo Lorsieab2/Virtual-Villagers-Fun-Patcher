@@ -164,6 +164,34 @@ class ManifestTests(unittest.TestCase):
                 self.assertIn(bytes.fromhex("89CE"), payload)  # mov esi, ecx
                 self.assertIn(bytes.fromhex("89D3"), payload)  # mov ebx, edx
 
+    def test_origins_village_wide_helpers_preserve_nonvolatile_registers(self) -> None:
+        """Decode each committed helper's actual prologue/epilogue bytes.
+
+        Commands 6, 7, and 8 each push EBP/EBX/ESI/EDI in that order.  Every
+        helper must therefore restore EDI/ESI/EBX/EBP in the reverse order;
+        this catches the historical command-7 ESI/EDI swap without relying on
+        the generator source text.
+        """
+        prologue = bytes.fromhex("55535657")
+        epilogue = bytes.fromhex("5F5E5B5DC3")
+        bad_mastery_tail = bytes.fromhex("31C031D231C95E5F5B5DC3")
+        mastery_tail = bytes.fromhex("31C031D231C95F5E5B5DC3")
+        for game_id in ("vv1", "vv2", "vv3", "vv4", "vv5"):
+            with self.subTest(game=game_id):
+                feature = get_fun_patch(f"{game_id}_origins_village_wide_upgrades")
+                payload = bytes.fromhex(feature.raw["patches"][0]["after"])
+                self.assertNotIn(bad_mastery_tail, payload)
+                self.assertEqual(payload.count(mastery_tail), 2)
+                starts = [
+                    index
+                    for index in range(len(payload) - len(prologue) + 1)
+                    if payload[index : index + len(prologue)] == prologue
+                ]
+                self.assertEqual(len(starts), 3)
+                for start in starts:
+                    ret = payload.index(b"\xC3", start)
+                    self.assertEqual(payload[ret - len(epilogue) + 1 : ret + 1], epilogue)
+
     def test_origins_village_wide_exact_header_and_safe_field_targets(self) -> None:
         expected_headers = {
             "vv1": 0x48D180,

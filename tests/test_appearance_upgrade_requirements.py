@@ -179,6 +179,19 @@ class AppearanceUpgradeRequirementsTests(unittest.TestCase):
                 "running_preference_id",
                 "running_preference_evidence",
             )
+            if relative.endswith("_origins_village_wide_upgrades.json"):
+                # The five village-wide payloads are intentionally corrected
+                # in the current slice. Their guards and ownership metadata
+                # remain unchanged; only their generated payload bytes differ.
+                current_patch = current_manifest["patches"][0]
+                before_patch = before_manifest["patches"][0]
+                for patch_key in ("offset", "before", "purpose"):
+                    self.assertEqual(
+                        current_patch.get(patch_key),
+                        before_patch.get(patch_key),
+                        f"{relative}:patches[0].{patch_key}",
+                    )
+                continue
             for key in executable_keys:
                 self.assertEqual(current_manifest.get(key), before_manifest.get(key), f"{relative}:{key}")
 
