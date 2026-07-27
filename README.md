@@ -318,6 +318,12 @@ never edited. Command-line users can request the same behavior with
 `--copy-vanilla-saves`; replacing an existing Modded 256 save set additionally
 requires the explicit `--replace-modded-saves` flag.
 
+The expanded-mode confirmation now reports the actual state for VV3–VV5:
+whether a vanilla slot-zero save was found, whether an existing Modded 256
+slot-zero save is already ready, or whether no valid slot-zero save was found.
+If no valid save exists, launch the matching Modded 256 executable once and
+create a save before copying numbered files into the path shown by the prompt.
+
 ## Exact-build safety
 
 Support is bound to the exact SHA-256 and size of each researched stock executable. Unknown, modified, corrupt, duplicate, or incorrectly assigned EXEs are refused. Every original byte to be changed is guarded, file size is preserved, the PE checksum is recalculated, and each result is read back and hashed.

@@ -188,9 +188,12 @@ def output_folder_for(
 
 
 def _ldw_save_roots(save_root: Path | None = None) -> list[Path]:
-    candidates: list[Path] = []
     if save_root is not None:
-        candidates.append(Path(save_root).expanduser())
+        # An explicit root is authoritative.  Falling through to a user's
+        # real Documents/OneDrive roots would make diagnostics and copy tests
+        # inspect an unrelated save set.
+        return [Path(save_root).expanduser().resolve()]
+    candidates: list[Path] = []
     override = os.environ.get("VVFP_LDW_SAVE_ROOT")
     if override:
         candidates.append(Path(override).expanduser())
@@ -225,14 +228,67 @@ def vanilla_save_folder_for(
     return None
 
 
+def _save_folder_has_slot_zero(folder: Path, build: Build) -> bool:
+    return (folder / f"{build.title}0.ldw").is_file()
+
+
+def _existing_modded_save_folder_for(
+    build: Build, save_root: Path | None = None
+) -> Path | None:
+    """Find an already-created expanded save folder when stock saves are absent."""
+    for root in _ldw_save_roots(save_root):
+        folder = root / f"{build.title} - Modded 256"
+        if _save_folder_has_slot_zero(folder, build):
+            return folder
+    return None
+
+
 def modded_save_folder_for(
     build: Build, patch_mode: str, save_root: Path | None = None
 ) -> Path | None:
-    source = vanilla_save_folder_for(build, save_root)
-    if source is None:
+    if patch_mode not in EXPANDED_PATCH_MODES:
         return None
-    suffix = "Modded 256" if patch_mode in EXPANDED_PATCH_MODES else "Modded"
-    return source.parent / f"{build.title} - {suffix}"
+    source = vanilla_save_folder_for(build, save_root)
+    if source is not None:
+        return source.parent / f"{build.title} - Modded 256"
+    return _existing_modded_save_folder_for(build, save_root)
+
+
+def expanded_save_status(
+    build: Build, patch_mode: str, save_root: Path | None = None
+) -> dict[str, Any]:
+    """Describe which save source is available for an expanded build.
+
+    A slot-zero file is the minimum loader requirement.  This is deliberately
+    read-only: it never creates, moves, or rewrites a save folder.
+    """
+    if patch_mode not in EXPANDED_PATCH_MODES:
+        return {"status": "not_requested"}
+    vanilla = vanilla_save_folder_for(build, save_root)
+    if vanilla is not None:
+        return {
+            "status": "vanilla_ready",
+            "folder": str(vanilla),
+            "slot_zero": f"{build.title}0.ldw",
+        }
+    modded = _existing_modded_save_folder_for(build, save_root)
+    if modded is not None:
+        return {
+            "status": "modded_ready",
+            "folder": str(modded),
+            "slot_zero": f"{build.title}0.ldw",
+        }
+    roots = _ldw_save_roots(save_root)
+    expected = (
+        str(roots[0] / f"{build.title} - Modded 256")
+        if roots
+        else None
+    )
+    return {
+        "status": "no_valid_save",
+        "expected_modded_folder": expected,
+        "slot_zero": f"{build.title}0.ldw",
+    }
 
 
 def suggested_modded_save_folder(

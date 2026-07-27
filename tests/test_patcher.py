@@ -20,6 +20,7 @@ from vv_fun_patcher import (  # noqa: E402
     copy_vanilla_saves,
     dry_run,
     dry_run_all,
+    expanded_save_status,
     get_fun_patch,
     get_patch_variant,
     identify,
@@ -1072,6 +1073,44 @@ class StockIntegrationTests(unittest.TestCase):
                 self.assertEqual(result["copied_files"], 3)
                 for name, payload in files.items():
                     self.assertEqual((destination / name).read_bytes(), payload)
+
+    def test_expanded_save_status_finds_existing_modded_folder_without_vanilla(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp) / "LDW"
+            build = load_builds()[2]
+            destination = root / f"{build.title} - Modded 256"
+            destination.mkdir(parents=True)
+            slot_zero = destination / f"{build.title}0.ldw"
+            slot_zero.write_bytes(b"expanded-slot-zero")
+
+            self.assertIsNone(vanilla_save_folder_for(build, root))
+            self.assertEqual(
+                modded_save_folder_for(build, "experimental_expanded_256", root),
+                destination.resolve(),
+            )
+            self.assertEqual(
+                expanded_save_status(build, "experimental_expanded_256", root),
+                {
+                    "status": "modded_ready",
+                    "folder": str(destination.resolve()),
+                    "slot_zero": f"{build.title}0.ldw",
+                },
+            )
+
+    def test_expanded_save_status_reports_missing_slot_zero(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp) / "LDW"
+            build = load_builds()[3]
+            destination = root / f"{build.title} - Modded 256"
+            destination.mkdir(parents=True)
+            (destination / f"{build.title}1.ldw").write_bytes(b"numbered-only")
+
+            status = expanded_save_status(build, "experimental_expanded_256", root)
+            self.assertEqual(status["status"], "no_valid_save")
+            self.assertEqual(
+                status["expected_modded_folder"], str(destination.resolve())
+            )
+            self.assertEqual(status["slot_zero"], f"{build.title}0.ldw")
 
     def test_existing_modded_256_saves_require_explicit_replacement(self) -> None:
         with tempfile.TemporaryDirectory() as temp:

@@ -15,6 +15,7 @@ from vv_fun_patcher import (
     apply_patch,
     dry_run,
     dry_run_all,
+    expanded_save_status,
     get_patch_mode,
     get_patch_variant,
     identify,
@@ -749,7 +750,23 @@ class App(tk.Tk):
             if build.id in {"vv3", "vv4", "vv5"}:
                 path = suggested_modded_save_folder(build, self._mode())
                 if path is not None:
-                    save_rows.append(f"{build.title}: {path}")
+                    status = expanded_save_status(build, self._mode())
+                    if status["status"] == "vanilla_ready":
+                        detail = (
+                            f"vanilla slot-zero save detected at "
+                            f"{status['folder']}"
+                        )
+                    elif status["status"] == "modded_ready":
+                        detail = (
+                            f"existing Modded 256 slot-zero save detected at "
+                            f"{status['folder']}"
+                        )
+                    else:
+                        detail = (
+                            "no valid vanilla or Modded 256 slot-zero save "
+                            f"detected; expected folder: {path}"
+                        )
+                    save_rows.append(f"{build.title}: {detail}")
         save_text = ""
         if save_rows:
             save_text = (
