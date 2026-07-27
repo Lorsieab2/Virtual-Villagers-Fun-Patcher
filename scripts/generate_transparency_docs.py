@@ -82,6 +82,11 @@ def build_document() -> str:
                 )
             if "doubler_evidence" in raw:
                 lines.append("- Doubler evidence matrix: " + str(raw["doubler_evidence"]))
+            if "doubler_composition_contract" in raw:
+                lines.append(
+                    "- Doubler composition contract: "
+                    + str(raw["doubler_composition_contract"])
+                )
             if "doubler_purchase_status" in raw:
                 lines.append("- Doubler purchase status: " + str(raw["doubler_purchase_status"]))
             if "native_event_safety" in raw:

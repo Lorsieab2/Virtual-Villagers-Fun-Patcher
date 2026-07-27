@@ -1005,6 +1005,14 @@ def main() -> None:
             "island_event_producers": ["0x428194 tech", "0x4281DA food"],
             "hook_status": "pending exact all-path provenance audit",
         },
+        "doubler_composition_contract": {
+            "stacking": [
+                "every exact-build collectible/collection effect that increases tech-point gain",
+                "native Food Mastery technology adjustment",
+            ],
+            "exclusions": ["Golden Child behavior", "Island Event outcomes", "Gong of Wonder outcomes"],
+            "status": "pending exact-build producer/call-path proof",
+        },
         "doubler_purchase_status": {
             "new_purchase": "temporarily unavailable pending exact-build provenance verification",
             "existing_owned": "removable at zero cost with zero refund",

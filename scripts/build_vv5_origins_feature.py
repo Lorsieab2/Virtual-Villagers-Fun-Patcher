@@ -1018,6 +1018,14 @@ def main() -> None:
             "island_event_producers": ["event methods 0x414A30-0x416CD0; tail-jump coverage unresolved"],
             "hook_status": "STOP until every direct and tail-jump Island Event path is proven",
         },
+        "doubler_composition_contract": {
+            "stacking": [
+                "every exact-build collectible/collection effect that increases tech-point gain",
+                "native Food Mastery technology adjustment",
+            ],
+            "exclusions": ["Golden Child behavior", "Island Event outcomes", "Gong of Wonder outcomes"],
+            "status": "STOP until every direct and tail-jump producer/call path is proven",
+        },
         "doubler_purchase_status": {
             "new_purchase": "temporarily unavailable pending exact-build provenance verification",
             "existing_owned": "removable at zero cost with zero refund",

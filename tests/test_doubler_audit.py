@@ -12,6 +12,7 @@ GENERATOR = ROOT / "scripts" / "generate_transparency_docs.py"
 RELEASE = ROOT / "scripts" / "build_release.py"
 VV2_EXE = ROOT / "research" / "stock-executables" / "Virtual Villagers - The Lost Children.exe"
 VV2_MANIFEST = ROOT / "data" / "vv2_origins_feature.json"
+ORIGINS_MANIFESTS = tuple(ROOT / "data" / f"vv{game}_origins_feature.json" for game in range(1, 6))
 
 VV2_TECH_CALLS = (
     (0x4205A7, 0x4205AC), (0x43434C, 0x434351), (0x4385E1, 0x4385E6),
@@ -65,6 +66,34 @@ class DoublerAuditDocumentationTests(unittest.TestCase):
         self.assertIn("positive, zero", text)
         self.assertIn("or negative", text)
         self.assertIn("collection plus doubler", text)
+
+    def test_all_origins_manifests_declare_composition_contract(self) -> None:
+        for path in ORIGINS_MANIFESTS:
+            with self.subTest(manifest=path.name):
+                contract = json.loads(path.read_text(encoding="utf-8"))["doubler_composition_contract"]
+                self.assertTrue(any("collectible" in item for item in contract["stacking"]))
+                self.assertTrue(any("Food Mastery" in item for item in contract["stacking"]))
+                self.assertEqual(
+                    tuple(contract["exclusions"]),
+                    ("Golden Child behavior", "Island Event outcomes", "Gong of Wonder outcomes"),
+                )
+                status = contract["status"].lower()
+                self.assertTrue("pending" in status or "go:" in status or "stop" in status)
+
+    def test_vv4_provenance_inventory_is_explicit_but_not_marked_go(self) -> None:
+        manifest = json.loads((ROOT / "data" / "vv4_origins_feature.json").read_text(encoding="utf-8"))
+        evidence = manifest["doubler_evidence"]
+        self.assertEqual(evidence["build"]["size"], 929792)
+        self.assertEqual(
+            evidence["build"]["sha256"],
+            "6D27A429FFCA5F1F71FDD7ECA761ED1BB67E85F976494BA178B3D7BE01F1B220",
+        )
+        self.assertEqual(evidence["external_xref_inventory"], {"tech": 21, "food": 23})
+        self.assertIn("0x4156F8", evidence["tail_jump_sites"])
+        self.assertIn("0x41520E", evidence["tail_jump_sites"])
+        self.assertIn("0x414660", evidence["ordinary_positive_sites"]["food"])
+        self.assertIn("STOP", evidence["hook_status"])
+        self.assertIn("Food Mastery", evidence["collection_adjustment"])
 
     def test_vv2_exact_build_inventory_and_provenance_are_go(self) -> None:
         manifest = json.loads(VV2_MANIFEST.read_text(encoding="utf-8"))

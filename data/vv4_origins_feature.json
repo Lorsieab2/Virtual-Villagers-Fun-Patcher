@@ -18,21 +18,79 @@
     }
   ],
   "doubler_evidence": {
+    "build": {
+      "filename": "Virtual Villagers - The Tree of Life.exe",
+      "size": 929792,
+      "sha256": "6D27A429FFCA5F1F71FDD7ECA761ED1BB67E85F976494BA178B3D7BE01F1B220"
+    },
     "positive_tech_writer": "0x41E300",
-    "positive_food_writer": "0x41D94F post-mastery",
-    "collection_adjustment": "post-mastery food placement recorded; exact collection callsite pending",
-    "island_event_producers": [
-      "0x414A2D",
-      "0x4156FD",
-      "0x415874",
-      "0x415A86",
-      "0x415B4B",
-      "0x415D91",
-      "0x41673A",
-      "0x41494E",
-      "0x415213"
+    "positive_food_writer": "0x41D920",
+    "collection_adjustment": "Food Mastery is applied inside sub_41D920: level 0/1=A, level 2=A+floor(A/2), level 3=2A. Collection call 0x414660 passes pre-mastery 6/35, so any eligible doubler must follow the native transform.",
+    "external_xref_inventory": {
+      "tech": 21,
+      "food": 23
+    },
+    "tail_jump_sites": [
+      "0x4156F8",
+      "0x415862",
+      "0x41586F",
+      "0x415A81",
+      "0x415B46",
+      "0x415D8C",
+      "0x416722",
+      "0x416735",
+      "0x41520E"
     ],
-    "hook_status": "pending exact all-path provenance audit"
+    "ordinary_positive_sites": {
+      "tech": [
+        "0x414477",
+        "0x414493",
+        "0x4144AF",
+        "0x431A9B"
+      ],
+      "food": [
+        "0x414660",
+        "0x436F15"
+      ]
+    },
+    "island_event_positive_sites": {
+      "tech": [
+        "0x414A28",
+        "0x4156F8",
+        "0x415862",
+        "0x415A81",
+        "0x415B46",
+        "0x415D8C",
+        "0x416722",
+        "0x464E58",
+        "0x464E82",
+        "0x464EAB"
+      ],
+      "food": [
+        "0x414949",
+        "0x41520E",
+        "0x4643E6",
+        "0x464433",
+        "0x464492",
+        "0x46450B",
+        "0x464573",
+        "0x4645B0",
+        "0x4645FB"
+      ]
+    },
+    "hook_status": "STOP: inventory is complete, but no safe post-Food-Mastery doubler hook has been implemented; return-address-only exclusion is invalid for the listed E9 tails"
+  },
+  "doubler_composition_contract": {
+    "stacking": [
+      "every exact-build collectible/collection effect that increases tech-point gain",
+      "native Food Mastery technology adjustment"
+    ],
+    "exclusions": [
+      "Golden Child behavior",
+      "Island Event outcomes",
+      "Gong of Wonder outcomes"
+    ],
+    "status": "pending exact-build producer/call-path proof"
   },
   "doubler_purchase_status": {
     "new_purchase": "temporarily unavailable pending exact-build provenance verification",

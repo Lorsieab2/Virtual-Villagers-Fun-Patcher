@@ -8,7 +8,7 @@
     "entry_name": "running"
   },
   "name": "Enable Origins-Exclusive Features",
-  "description": "Inspired by the Virtual Villagers 1 mobile port where these exclusive Origins upgrades originated, this selected-upgrades port adds the icon-based Origins Upgrades screen with a Time Warp that advances exactly three displayed villager years, Island Event, the native Barrel of Babies event with a three-space reserved-population guard, and removable 500,000-tech-point Tech Point and Food Point Doublers, plus Cure all Villagers for 30,000 tech points. Cure all Villagers clears sickness from eligible active living records without changing health and increments People Cured once per sickness cleared, then displays the exact result `Cured X villagers`. Doubler ownership is confined to the current save. The exact-build static provenance audit excludes every positive Island Event and Gong of Wonder food/tech writer return, while direct deductions, caps, resets, zero outcomes, and other bypass paths remain native; runtime/player confirmation remains pending. Adds Villager Upgrades for Grant Youth, Grant Full Mastery, Grant Running, and Set Age to 18. Grant Running uses an available normal Likes slot, removes Running from the displayed villager's Dislikes, refuses without charging when all normal Like slots are occupied, and changes no movement-speed value, predicate, or other vanilla speed logic.",
+  "description": "Inspired by the Virtual Villagers 1 mobile port where these exclusive Origins upgrades originated, this selected-upgrades port adds the icon-based Origins Upgrades screen with a Time Warp that advances exactly three displayed villager years, Island Event, the native Barrel of Babies event with a three-space reserved-population guard, and removable 500,000-tech-point Tech Point and Food Point Doublers, plus Cure all Villagers for 30,000 tech points. Cure all Villagers clears sickness from eligible active living records without changing health and increments People Cured once per sickness cleared, then displays the exact result `Cured X villagers`. Doubler ownership is confined to the current save, and Island Event awards are not multiplied; Gong of Wonder awards are also not multiplied. The exact-build static provenance audit covers every positive Island Event and Gong food/tech writer callsite, including direct resource writes that bypass the wrappers. Runtime/player confirmation remains pending. Adds Villager Upgrades for Grant Youth, Grant Full Mastery, Grant Running, and Set Age to 18. Grant Running uses an available normal Likes slot, removes Running from the displayed villager's Dislikes, refuses without charging when all normal Like slots are occupied, and changes no movement-speed value, predicate, or other vanilla speed logic.",
   "output_tag": "Origins Exclusive Features",
   "companion_files": [
     {
@@ -29,46 +29,111 @@
     "island_event_handlers": {
       "two_choice_handler": {
         "function": "0x4204B0",
-        "tech_returns": ["0x4205AC"],
-        "food_returns": ["0x420AE9"],
-        "direct_resource_paths": ["direct +3000 tech result and deductions/caps bypass the positive writers"]
+        "tech_returns": [
+          "0x4205AC"
+        ],
+        "food_returns": [
+          "0x420AE9"
+        ],
+        "direct_resource_paths": [
+          "direct +3000 tech result and deductions/caps bypass the positive writers"
+        ]
       },
       "single_result_dispatcher": {
         "function": "0x433600",
-        "tech_returns": ["0x434351"],
-        "food_returns": ["0x433FC6"],
-        "direct_resource_paths": ["losses, caps, halves, resets, and unrelated resources bypass positive writers"]
+        "tech_returns": [
+          "0x434351"
+        ],
+        "food_returns": [
+          "0x433FC6"
+        ],
+        "direct_resource_paths": [
+          "losses, caps, halves, resets, and unrelated resources bypass positive writers"
+        ]
       }
     },
     "gong_of_wonder": {
       "function": "0x44E8A0",
       "registered_action": 164,
       "invoked_by": "0x461B10",
-      "tech_returns": ["0x44EA32", "0x44ED52", "0x44F202"],
-      "food_returns": ["0x44E9C3", "0x44EDB9", "0x44F0D9"],
-      "direct_resource_paths": ["negative tech and reset/zero outcomes bypass positive writers"]
+      "tech_returns": [
+        "0x44EA32",
+        "0x44ED52",
+        "0x44F202"
+      ],
+      "food_returns": [
+        "0x44E9C3",
+        "0x44EDB9",
+        "0x44F0D9"
+      ],
+      "direct_resource_paths": [
+        "negative tech and reset/zero outcomes bypass positive writers"
+      ]
     },
-    "tech_blacklist_returns": ["0x4205AC", "0x434351", "0x44EA32", "0x44ED52", "0x44F202"],
-    "food_blacklist_returns": ["0x420AE9", "0x433FC6", "0x44E9C3", "0x44EDB9", "0x44F0D9"],
+    "tech_blacklist_returns": [
+      "0x4205AC",
+      "0x434351",
+      "0x44EA32",
+      "0x44ED52",
+      "0x44F202"
+    ],
+    "food_blacklist_returns": [
+      "0x420AE9",
+      "0x433FC6",
+      "0x44E9C3",
+      "0x44EDB9",
+      "0x44F0D9"
+    ],
     "direct_call_inventory": {
       "tech": [
-        "0x4205A7/0x4205AC", "0x43434C/0x434351", "0x4385E1/0x4385E6",
-        "0x438741/0x438746", "0x4388A1/0x4388A6", "0x438A9B/0x438AA0",
-        "0x438C7B/0x438C80", "0x438E5B/0x438E60", "0x44EA2D/0x44EA32",
-        "0x44ED4D/0x44ED52", "0x44F1FD/0x44F202", "0x46345C/0x463461",
-        "0x463468/0x46346D", "0x463474/0x463479", "0x463737/0x46373C",
-        "0x4637C0/0x4637C5", "0x463809/0x46380E"
+        "0x4205A7/0x4205AC",
+        "0x43434C/0x434351",
+        "0x4385E1/0x4385E6",
+        "0x438741/0x438746",
+        "0x4388A1/0x4388A6",
+        "0x438A9B/0x438AA0",
+        "0x438C7B/0x438C80",
+        "0x438E5B/0x438E60",
+        "0x44EA2D/0x44EA32",
+        "0x44ED4D/0x44ED52",
+        "0x44F1FD/0x44F202",
+        "0x46345C/0x463461",
+        "0x463468/0x46346D",
+        "0x463474/0x463479",
+        "0x463737/0x46373C",
+        "0x4637C0/0x4637C5",
+        "0x463809/0x46380E"
       ],
       "food": [
-        "0x420AE4/0x420AE9", "0x433FC1/0x433FC6", "0x438293/0x438298",
-        "0x438371/0x438376", "0x438445/0x43844A", "0x44E9BE/0x44E9C3",
-        "0x44EDB4/0x44EDB9", "0x44F0D4/0x44F0D9", "0x463198/0x46319D",
-        "0x463259/0x46325E", "0x463312/0x463317", "0x463364/0x463369",
+        "0x420AE4/0x420AE9",
+        "0x433FC1/0x433FC6",
+        "0x438293/0x438298",
+        "0x438371/0x438376",
+        "0x438445/0x43844A",
+        "0x44E9BE/0x44E9C3",
+        "0x44EDB4/0x44EDB9",
+        "0x44F0D4/0x44F0D9",
+        "0x463198/0x46319D",
+        "0x463259/0x46325E",
+        "0x463312/0x463317",
+        "0x463364/0x463369",
         "0x4633CD/0x4633D2"
       ],
       "e9_tail_jumps_to_writers": 0
     },
     "hook_status": "GO: exact-build static provenance proof complete for all positive Island Event and Gong writer callsites; runtime/player confirmation pending"
+  },
+  "doubler_composition_contract": {
+    "stacking": [
+      "every exact-build collectible/collection effect that increases tech-point gain",
+      "native Food Mastery technology adjustment"
+    ],
+    "exclusions": [
+      "Golden Child behavior",
+      "Island Event outcomes",
+      "Gong of Wonder outcomes"
+    ],
+    "status": "GO: exact-build static provenance covers the certified positive writer paths; runtime/player confirmation pending"
   },
   "patches": [
     {

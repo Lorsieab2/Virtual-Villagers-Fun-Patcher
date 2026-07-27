@@ -1099,6 +1099,14 @@ def main() -> None:
             },
             "hook_status": "GO: exact-build static provenance proof complete for all positive Island Event and Gong writer callsites; runtime/player confirmation pending",
         },
+        "doubler_composition_contract": {
+            "stacking": [
+                "every exact-build collectible/collection effect that increases tech-point gain",
+                "native Food Mastery technology adjustment",
+            ],
+            "exclusions": ["Golden Child behavior", "Island Event outcomes", "Gong of Wonder outcomes"],
+            "status": "GO: exact-build static provenance covers the certified positive writer paths; runtime/player confirmation pending",
+        },
         "patches": patches,
     }
     MANIFEST_JSON.write_text(
