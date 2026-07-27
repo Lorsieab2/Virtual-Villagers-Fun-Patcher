@@ -60,6 +60,8 @@ class VV3OriginsFeatureTests(unittest.TestCase):
             offsets,
             {
                 0x24C,
+                0x7B664,
+                0x7B7A0,
                 0x263F0,
                 0x27130,
                 0x6547D,

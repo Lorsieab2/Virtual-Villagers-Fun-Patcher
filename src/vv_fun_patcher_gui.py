@@ -23,6 +23,7 @@ from vv_fun_patcher import (
     load_fun_patches,
     load_patch_modes,
     modded_save_folder_for,
+    resolve_fun_patch_ids,
     suggested_modded_save_folder,
     validate_all_sources,
     vanilla_save_folder_for,
@@ -52,13 +53,17 @@ class App(tk.Tk):
         self.fun_patches = sorted(
             load_fun_patches(),
             key=lambda patch: (
-                game_order[patch.game_id],
+                game_order[patch.game_id]
+                if patch.game_id in game_order
+                else len(game_order),
                 patch.name.casefold(),
+                patch.id,
             ),
         )
         self.fun_patch_vars = {
             patch.id: tk.BooleanVar(value=False) for patch in self.fun_patches
         }
+        self._last_fun_selection: set[str] = set()
         self.exe_var = tk.StringVar()
         self.patch_mode_var = tk.StringVar(value=DEFAULT_PATCH_MODE)
         self.output_root_var = tk.StringVar()
@@ -174,21 +179,59 @@ class App(tk.Tk):
             text="Deselect All Patches",
             command=self._deselect_all_fun_patches,
         ).pack(side="left", padx=(8, 0))
-        for offset, patch in enumerate(self.fun_patches):
-            game_name = next(
-                build.title.removeprefix("Virtual Villagers - ")
-                for build in self.builds
-                if build.id == patch.game_id
+        grouped: dict[str, list] = {build.id: [] for build in self.builds}
+        shared: list = []
+        for patch in self.fun_patches:
+            if patch.game_id in grouped:
+                grouped[patch.game_id].append(patch)
+            else:
+                shared.append(patch)
+        row = fun_row + 2
+        for build in self.builds:
+            patches = sorted(
+                grouped[build.id], key=lambda item: (item.name.casefold(), item.id)
             )
-            ttk.Checkbutton(
+            if not patches:
+                continue
+            ttk.Label(
                 mode_box,
-                text=f"{patch.name} ({game_name})",
-                variable=self.fun_patch_vars[patch.id],
-                command=self._fun_patch_changed,
-            ).grid(row=fun_row + 2 + offset * 2, column=1, sticky="w", pady=3)
-            ttk.Label(mode_box, text=patch.description, wraplength=620).grid(
-                row=fun_row + 3 + offset * 2, column=1, sticky="w", pady=(0, 3)
-            )
+                text=build.title,
+                font=("Segoe UI", 10, "bold"),
+            ).grid(row=row, column=1, sticky="w", pady=(8, 2))
+            row += 1
+            for patch in patches:
+                game_name = build.title.removeprefix("Virtual Villagers - ")
+                ttk.Checkbutton(
+                    mode_box,
+                    text=f"{patch.name} ({game_name})",
+                    variable=self.fun_patch_vars[patch.id],
+                    command=self._fun_patch_changed,
+                ).grid(row=row, column=1, sticky="w", pady=3)
+                row += 1
+                ttk.Label(mode_box, text=patch.description, wraplength=620).grid(
+                    row=row, column=1, sticky="w", pady=(0, 3)
+                )
+                row += 1
+        if shared:
+            shared.sort(key=lambda item: (item.name.casefold(), item.id))
+            ttk.Label(
+                mode_box,
+                text="Shared / All Games",
+                font=("Segoe UI", 10, "bold"),
+            ).grid(row=row, column=1, sticky="w", pady=(8, 2))
+            row += 1
+            for patch in shared:
+                ttk.Checkbutton(
+                    mode_box,
+                    text=patch.name,
+                    variable=self.fun_patch_vars[patch.id],
+                    command=self._fun_patch_changed,
+                ).grid(row=row, column=1, sticky="w", pady=3)
+                row += 1
+                ttk.Label(mode_box, text=patch.description, wraplength=620).grid(
+                    row=row, column=1, sticky="w", pady=(0, 3)
+                )
+                row += 1
         mode_box.columnconfigure(1, weight=1)
 
         output_box = ttk.LabelFrame(outer, text="Modded output location", padding=10)
@@ -368,14 +411,62 @@ class App(tk.Tk):
             self._save_settings()
 
     def _selected_fun_patch_ids(self, game_id: str | None = None) -> list[str]:
-        return [
+        selected = [
             patch.id
             for patch in self.fun_patches
             if self.fun_patch_vars[patch.id].get()
             and (game_id is None or patch.game_id == game_id)
         ]
+        return resolve_fun_patch_ids(selected, game_id=game_id)
+
+    def _patch_dependency_map(self) -> dict[str, tuple[str, ...]]:
+        dependencies: dict[str, tuple[str, ...]] = {}
+        for patch in self.fun_patches:
+            raw = patch.raw.get("dependencies", ())
+            if isinstance(raw, str):
+                raw = (raw,)
+            dependencies[patch.id] = tuple(raw or ())
+        return dependencies
+
+    def _apply_gui_dependency_selection(self) -> None:
+        """Keep checkbox state closed over prerequisites and dependent removals."""
+        current = {
+            patch.id
+            for patch in self.fun_patches
+            if self.fun_patch_vars[patch.id].get()
+        }
+        previous = set(self._last_fun_selection)
+        dependencies = self._patch_dependency_map()
+        by_id = {patch.id: patch for patch in self.fun_patches}
+
+        # Checking a dependent automatically checks every prerequisite.
+        added = current - previous
+        pending = list(added)
+        while pending:
+            patch_id = pending.pop()
+            for dependency_id in dependencies.get(patch_id, ()):
+                if dependency_id not in by_id:
+                    continue
+                if dependency_id not in current:
+                    current.add(dependency_id)
+                    pending.append(dependency_id)
+
+        # Unchecking a prerequisite clears every selected dependent below it.
+        removed = previous - current
+        pending = list(removed)
+        while pending:
+            prerequisite_id = pending.pop()
+            for patch_id, required in dependencies.items():
+                if prerequisite_id in required and patch_id in current:
+                    current.remove(patch_id)
+                    pending.append(patch_id)
+
+        for patch in self.fun_patches:
+            self.fun_patch_vars[patch.id].set(patch.id in current)
+        self._last_fun_selection = current
 
     def _fun_patch_changed(self) -> None:
+        self._apply_gui_dependency_selection()
         selected = [
             patch.name
             for patch in self.fun_patches
@@ -389,11 +480,13 @@ class App(tk.Tk):
     def _select_all_fun_patches(self) -> None:
         for variable in self.fun_patch_vars.values():
             variable.set(True)
+        self._last_fun_selection = set()
         self._fun_patch_changed()
 
     def _deselect_all_fun_patches(self) -> None:
         for variable in self.fun_patch_vars.values():
             variable.set(False)
+        self._last_fun_selection = set()
         self._fun_patch_changed()
 
     def _load_settings(self) -> None:
@@ -408,6 +501,8 @@ class App(tk.Tk):
         if isinstance(selected_fun, list):
             for patch in self.fun_patches:
                 self.fun_patch_vars[patch.id].set(patch.id in selected_fun)
+            self._last_fun_selection = set()
+            self._apply_gui_dependency_selection()
         self.exe_var.set(data.get("original_exe", ""))
         saved_output_root = data.get("output_root", "")
         if isinstance(saved_output_root, str):
@@ -856,6 +951,9 @@ class App(tk.Tk):
                 artifact_lines = [
                     f"Patch audit: {output_exe.with_suffix('.patch-log.json')} — exact build hash, selected patches, and applied edits."
                 ]
+                artifact_lines.append(
+                    f"Transparency Log: {modded_folder / 'VVFP Transparency Log.txt'}"
+                )
                 selected = set(self._selected_fun_patch_ids(build.id))
                 if f"{build.id}_write_village_statistics" in selected:
                     artifact_lines.append(

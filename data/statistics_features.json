@@ -1,18 +1,18 @@
 {
   "schema_version": 1,
-  "companion_sha256": "6A03B1F3181B4AEFD601619BB303F68EAD3E1273D067AFF55139F818C05A8624",
+  "companion_sha256": "E6E0A62E2916AA4419392DF12C19A835C26AE3C9B492E159DD94EC8EE2EBB9FC",
   "features": [
     {
       "id": "vv1_write_village_statistics",
       "game_id": "vv1",
       "name": "Write Village Statistics to Text File",
-      "description": "After each successful save of slots 1 through 5, writes the save's local lifetime statistics to 'Village Statistics - Save N.txt' in the modified game folder. Later games retain the inherited per-save statistics block even where no Statistics screen is reachable; omitted stock bookkeeping is restored by exact gameplay hooks. The original save result is preserved, and text-export failure does not turn a successful game save into a failure.",
+      "description": "After each successful save of slots 1 through 5, writes the save's local lifetime statistics to 'Village Statistics - Save N.txt' in the modified game folder. Later games retain the inherited per-save statistics block even where no Statistics screen is reachable; omitted stock bookkeeping is restored by exact gameplay hooks. Puzzle totals are read from the current save state during export so existing saves are reported accurately. The original save result is preserved, and text-export failure does not turn a successful game save into a failure.",
       "output_tag": "Village Statistics Text Export",
       "companion_files": [
         {
           "source": "assets/statistics/VVFP Statistics Export.dll",
           "destination": "VVFP Statistics Export.dll",
-          "sha256": "6A03B1F3181B4AEFD601619BB303F68EAD3E1273D067AFF55139F818C05A8624"
+          "sha256": "E6E0A62E2916AA4419392DF12C19A835C26AE3C9B492E159DD94EC8EE2EBB9FC"
         }
       ],
       "patches": [
@@ -35,13 +35,13 @@
       "id": "vv2_write_village_statistics",
       "game_id": "vv2",
       "name": "Write Village Statistics to Text File",
-      "description": "After each successful save of slots 1 through 5, writes the save's local lifetime statistics to 'Village Statistics - Save N.txt' in the modified game folder. Later games retain the inherited per-save statistics block even where no Statistics screen is reachable; omitted stock bookkeeping is restored by exact gameplay hooks. The original save result is preserved, and text-export failure does not turn a successful game save into a failure.",
+      "description": "After each successful save of slots 1 through 5, writes the save's local lifetime statistics to 'Village Statistics - Save N.txt' in the modified game folder. Later games retain the inherited per-save statistics block even where no Statistics screen is reachable; omitted stock bookkeeping is restored by exact gameplay hooks. Puzzle totals are read from the current save state during export so existing saves are reported accurately. The original save result is preserved, and text-export failure does not turn a successful game save into a failure.",
       "output_tag": "Village Statistics Text Export",
       "companion_files": [
         {
           "source": "assets/statistics/VVFP Statistics Export.dll",
           "destination": "VVFP Statistics Export.dll",
-          "sha256": "6A03B1F3181B4AEFD601619BB303F68EAD3E1273D067AFF55139F818C05A8624"
+          "sha256": "E6E0A62E2916AA4419392DF12C19A835C26AE3C9B492E159DD94EC8EE2EBB9FC"
         }
       ],
       "patches": [
@@ -64,13 +64,13 @@
       "id": "vv3_write_village_statistics",
       "game_id": "vv3",
       "name": "Write Village Statistics to Text File",
-      "description": "After each successful save of slots 1 through 5, writes the save's local lifetime statistics to 'Village Statistics - Save N.txt' in the modified game folder. Later games retain the inherited per-save statistics block even where no Statistics screen is reachable; omitted stock bookkeeping is restored by exact gameplay hooks. The original save result is preserved, and text-export failure does not turn a successful game save into a failure.",
+      "description": "After each successful save of slots 1 through 5, writes the save's local lifetime statistics to 'Village Statistics - Save N.txt' in the modified game folder. Later games retain the inherited per-save statistics block even where no Statistics screen is reachable; omitted stock bookkeeping is restored by exact gameplay hooks. Puzzle totals are read from the current save state during export so existing saves are reported accurately. The original save result is preserved, and text-export failure does not turn a successful game save into a failure.",
       "output_tag": "Village Statistics Text Export",
       "companion_files": [
         {
           "source": "assets/statistics/VVFP Statistics Export.dll",
           "destination": "VVFP Statistics Export.dll",
-          "sha256": "6A03B1F3181B4AEFD601619BB303F68EAD3E1273D067AFF55139F818C05A8624"
+          "sha256": "E6E0A62E2916AA4419392DF12C19A835C26AE3C9B492E159DD94EC8EE2EBB9FC"
         }
       ],
       "patches": [
@@ -99,13 +99,13 @@
       "id": "vv4_write_village_statistics",
       "game_id": "vv4",
       "name": "Write Village Statistics to Text File",
-      "description": "After each successful save of slots 1 through 5, writes the save's local lifetime statistics to 'Village Statistics - Save N.txt' in the modified game folder. Later games retain the inherited per-save statistics block even where no Statistics screen is reachable; omitted stock bookkeeping is restored by exact gameplay hooks. The original save result is preserved, and text-export failure does not turn a successful game save into a failure.",
+      "description": "After each successful save of slots 1 through 5, writes the save's local lifetime statistics to 'Village Statistics - Save N.txt' in the modified game folder. Later games retain the inherited per-save statistics block even where no Statistics screen is reachable; omitted stock bookkeeping is restored by exact gameplay hooks. Puzzle totals are read from the current save state during export so existing saves are reported accurately. The original save result is preserved, and text-export failure does not turn a successful game save into a failure.",
       "output_tag": "Village Statistics Text Export",
       "companion_files": [
         {
           "source": "assets/statistics/VVFP Statistics Export.dll",
           "destination": "VVFP Statistics Export.dll",
-          "sha256": "6A03B1F3181B4AEFD601619BB303F68EAD3E1273D067AFF55139F818C05A8624"
+          "sha256": "E6E0A62E2916AA4419392DF12C19A835C26AE3C9B492E159DD94EC8EE2EBB9FC"
         }
       ],
       "patches": [
@@ -140,13 +140,13 @@
       "id": "vv5_write_village_statistics",
       "game_id": "vv5",
       "name": "Write Village Statistics to Text File",
-      "description": "After each successful save of slots 1 through 5, writes the save's local lifetime statistics to 'Village Statistics - Save N.txt' in the modified game folder. Later games retain the inherited per-save statistics block even where no Statistics screen is reachable; omitted stock bookkeeping is restored by exact gameplay hooks. The original save result is preserved, and text-export failure does not turn a successful game save into a failure.",
+      "description": "After each successful save of slots 1 through 5, writes the save's local lifetime statistics to 'Village Statistics - Save N.txt' in the modified game folder. Later games retain the inherited per-save statistics block even where no Statistics screen is reachable; omitted stock bookkeeping is restored by exact gameplay hooks. Puzzle totals are read from the current save state during export, including an already-completed VV5 Puzzle 17 save. The original save result is preserved, and text-export failure does not turn a successful game save into a failure.",
       "output_tag": "Village Statistics Text Export",
       "companion_files": [
         {
           "source": "assets/statistics/VVFP Statistics Export.dll",
           "destination": "VVFP Statistics Export.dll",
-          "sha256": "6A03B1F3181B4AEFD601619BB303F68EAD3E1273D067AFF55139F818C05A8624"
+          "sha256": "E6E0A62E2916AA4419392DF12C19A835C26AE3C9B492E159DD94EC8EE2EBB9FC"
         }
       ],
       "patches": [

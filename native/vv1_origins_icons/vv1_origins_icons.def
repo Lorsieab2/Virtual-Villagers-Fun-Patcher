@@ -2,3 +2,4 @@ LIBRARY "VVFP Origins Icons"
 EXPORTS
     ShowOriginsUpgradeMenu=_ShowOriginsUpgradeMenu@8
     ShowOriginsUpgradeMenuState=_ShowOriginsUpgradeMenuState@8
+    ShowOriginsVillageWideResult=_ShowOriginsVillageWideResult@16

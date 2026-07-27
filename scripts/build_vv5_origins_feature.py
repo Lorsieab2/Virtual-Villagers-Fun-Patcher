@@ -16,6 +16,7 @@ MANIFEST_JSON = ROOT / "data/vv5_origins_feature.json"
 COMPANION = ROOT / "assets/origins/VVFP Origins Icons.dll"
 
 sys.path.insert(0, str(ROOT / ".tools/keystone"))
+sys.path.insert(0, str(ROOT / ".tools/keystone-runtime"))
 from keystone import KS_ARCH_X86, KS_MODE_32, Ks  # noqa: E402
 
 IMAGE_BASE = 0x400000
@@ -25,6 +26,15 @@ EXPANDED_PAYLOAD_VA = 0x8EB000
 PAYLOAD_SIZE = 0x1000
 STRINGS_OFFSET = 0xD00
 STRINGS_VA = PAYLOAD_VA + STRINGS_OFFSET
+HEAL_CAVE_FILE_OFFSET = 0x94B32
+CURE_ENTRY_FILE_OFFSET = 0x94EA0
+CURE_ENTRY_VA = IMAGE_BASE + CURE_ENTRY_FILE_OFFSET
+HEAL_CAVE_VA = CURE_ENTRY_VA
+VILLAGE_WIDE_SIGNATURE_VA = IMAGE_BASE + 0x94C20
+VILLAGE_WIDE_ENTRY_VA = IMAGE_BASE + 0x94C40
+VILLAGE_PREFLIGHT_FILE_OFFSET = 0x94B37
+VILLAGE_PREFLIGHT_VA = IMAGE_BASE + VILLAGE_PREFLIGHT_FILE_OFFSET
+RUNNING_PREFERENCE_ID = 38  # exact-build preference-table evidence: 0xAEF60
 
 
 def assemble(source: str, address: int) -> bytes:
@@ -70,17 +80,20 @@ def main() -> None:
         ("paused", "Time Warp is unavailable while the game is paused."),
         ("time_done", "Time Warp advanced every villager by 3 displayed years."),
         ("capacity", "The village population is already at maximum capacity."),
+        ("vv5_unsafe_native", "Unavailable: this VV5 native path is not verified safe for Heathens."),
         ("running_unavailable", "Running cannot be added because all Like slots are full."),
         ("icons_dll", "VVFP Origins Icons.dll"),
         ("dialog_export", "ShowOriginsUpgradeMenuState"),
+        ("show_result_export", "ShowOriginsVillageWideResult"),
         ("user32", "USER32.dll"),
         ("message_box", "MessageBoxA"),
+        ("cure_all", "Cure all Villagers"),
     ):
         add_c_string(strings, s, name, value)
     while len(strings) % 4:
         strings.append(0)
     s["tech_costs"] = STRINGS_VA + len(strings)
-    for value in (50000, 30000, 75000, 500000, 500000):
+    for value in (50000, 30000, 75000, 500000, 500000, 30000):
         strings.extend(value.to_bytes(4, "little"))
     s["detail_costs"] = STRINGS_VA + len(strings)
     for value in (50000, 100000, 40000, 50000):
@@ -264,6 +277,10 @@ def main() -> None:
             call dword ptr [0x4951DC]
             test eax, eax
             je unavailable
+            cmp dword ptr [0x{VILLAGE_WIDE_SIGNATURE_VA:X}], 0x50465656
+            jne no_village_wide
+            or dword ptr [esp + 0x10], 0x20000
+        no_village_wide:
             push dword ptr [esp + 0x10]
             push dword ptr [esp + 0x10]
             call eax
@@ -352,6 +369,8 @@ def main() -> None:
             mov ebx, eax
             cmp ebx, 3
             jb preflight
+            cmp ebx, 5
+            jae preflight
             cmp ebx, 4
             je remove_food
             test dword ptr [0x51D388], 1
@@ -368,6 +387,11 @@ def main() -> None:
         preflight:
             call 0x425950
             mov edi, eax
+            cmp ebx, 2
+            ja native_safe_row
+            mov eax, 0x{s['vv5_unsafe_native']:X}
+            jmp status
+        native_safe_row:
             cmp ebx, 0
             jne barrel_check
             cmp dword ptr [edi + 0x17D7C], 999
@@ -385,6 +409,21 @@ def main() -> None:
             mov eax, 0x{s['capacity']:X}
             jmp status
         charge:
+            cmp ebx, 6
+            jb legacy_charge
+            cmp ebx, 8
+            ja menu
+            call 0x{VILLAGE_PREFLIGHT_VA:X}
+            test eax, eax
+            jz menu
+            cmp dword ptr [0x51D5F8], 1000000
+            jb insufficient
+            mov eax, -1000000
+            push eax
+            mov ecx, 0x51D5F8
+            call 0x4237B0
+            jmp do_village_wide
+        legacy_charge:
             mov eax, dword ptr [0x{s['tech_costs']:X} + ebx*4]
             cmp dword ptr [0x51D5F8], eax
             jb insufficient
@@ -400,7 +439,18 @@ def main() -> None:
             je barrel
             cmp ebx, 3
             je tech_doubler
-            or dword ptr [0x51D388], 2
+            cmp ebx, 5
+            je cure
+            call 0x{HEAL_CAVE_VA:X}
+            nop
+            jmp success
+
+
+        cure:
+            call 0x{HEAL_CAVE_VA:X}
+            jmp menu
+        do_village_wide:
+            call 0x{HEAL_CAVE_VA:X}
             jmp success
         time_warp:
             mov ecx, dword ptr [edi + 0x17D7C]
@@ -451,6 +501,14 @@ def main() -> None:
             test eax, eax
             je done
             mov edx, eax
+            cmp byte ptr [edx + 0x1CD4], 0
+            je done
+            cmp byte ptr [edx + 0x1CE1], 0
+            jne done
+            cmp dword ptr [edx + 0x1C40], 0
+            jle done
+            cmp byte ptr [edx + 0x1CEC], 0
+            jne done
             xor edi, edi
             cmp dword ptr [edx + 7052], 100
             ja youth_open
@@ -474,7 +532,7 @@ def main() -> None:
             lea eax, [edx + 8028]
             mov ecx, 3
         like_scan:
-            cmp dword ptr [eax], 38
+            cmp dword ptr [eax], {RUNNING_PREFERENCE_ID}
             je like_found
             cmp dword ptr [eax], -1
             jne like_next
@@ -493,7 +551,7 @@ def main() -> None:
             lea eax, [edx + 8040]
             mov ecx, 3
         dislike_scan:
-            cmp dword ptr [eax], 38
+            cmp dword ptr [eax], {RUNNING_PREFERENCE_ID}
             jne dislike_next
             or ebp, 4
         dislike_next:
@@ -520,12 +578,20 @@ def main() -> None:
             test eax, eax
             je done
             mov edx, eax
+            cmp byte ptr [edx + 0x1CD4], 0
+            je done
+            cmp byte ptr [edx + 0x1CE1], 0
+            jne done
+            cmp dword ptr [edx + 0x1C40], 0
+            jle done
+            cmp byte ptr [edx + 0x1CEC], 0
+            jne done
             cmp ebx, 2
             jne detail_charge
             lea eax, [edx + 8028]
             mov ecx, 3
         running_preflight:
-            cmp dword ptr [eax], 38
+            cmp dword ptr [eax], {RUNNING_PREFERENCE_ID}
             je detail_charge
             cmp dword ptr [eax], -1
             je detail_charge
@@ -577,7 +643,7 @@ def main() -> None:
             lea ecx, [edx + 8028]
             mov eax, 3
         find_like:
-            cmp dword ptr [ecx], 38
+            cmp dword ptr [ecx], {RUNNING_PREFERENCE_ID}
             je remove_dislikes
             cmp dword ptr [ecx], -1
             je store_like
@@ -587,12 +653,12 @@ def main() -> None:
             mov eax, 0x{s['running_unavailable']:X}
             jmp detail_status
         store_like:
-            mov dword ptr [ecx], 38
+            mov dword ptr [ecx], {RUNNING_PREFERENCE_ID}
         remove_dislikes:
             lea ecx, [edx + 8040]
             mov eax, 3
         remove_loop:
-            cmp dword ptr [ecx], 38
+            cmp dword ptr [ecx], {RUNNING_PREFERENCE_ID}
             jne remove_next
             mov dword ptr [ecx], -1
         remove_next:
@@ -693,6 +759,184 @@ def main() -> None:
             }
         )
 
+    cure_code = assemble(
+        f"""
+            cmp ebx, 5
+            je cure_all
+            cmp ebx, 6
+            jae village_wide
+            or dword ptr [0x51D388], 2
+            ret
+        village_wide:
+            push ebx
+            push ebp
+            push ecx
+            push edx
+            push esi
+            push edi
+            mov eax, ebx
+            mov ecx, 0x554190
+            mov edx, dword ptr [0x41F1E6]
+            call 0x{VILLAGE_WIDE_ENTRY_VA:X}
+            mov ebp, eax
+            mov edi, edx
+            mov esi, ecx
+            push 0x{s['show_result_export']:X}
+            push 0x{s['icons_dll']:X}
+            call dword ptr [0x4951E0]
+            test eax, eax
+            je village_result_done
+            push 0x{s['show_result_export']:X}
+            push eax
+            call dword ptr [0x4951DC]
+            test eax, eax
+            je village_result_done
+            push esi
+            push edi
+            push ebp
+            push ebx
+            call eax
+        village_result_done:
+            pop edi
+            pop esi
+            pop edx
+            pop ecx
+            pop ebp
+            pop ebx
+            ret
+        cure_all:
+            push ebx
+            push ebp
+            push ecx
+            push edx
+            push esi
+            push edi
+            xor eax, eax
+            mov edx, 0x554190
+            mov ecx, dword ptr [0x41F1E6]
+        cure_loop:
+            cmp byte ptr [edx + 0x1CD4], 0
+            je cure_next
+            cmp byte ptr [edx + 0x1CE1], 0
+            jne cure_next
+            cmp dword ptr [edx + 0x1C40], 0
+            jle cure_next
+            cmp byte ptr [edx + 0x1CEC], 0
+            jne cure_next
+            cmp byte ptr [edx + 0x1C48], 0
+            je cure_next
+            mov byte ptr [edx + 0x1C48], 0
+            inc dword ptr [0x55490C]
+            inc eax
+        cure_next:
+            add edx, 0x2F44
+            dec ecx
+            jne cure_loop
+            mov ebp, eax
+            sub esp, 40
+            mov dword ptr [esp], 0x65727543
+            mov word ptr [esp + 4], 0x2064
+            lea edi, [esp + 6]
+            test ebp, ebp
+            jnz cure_digits
+            mov byte ptr [edi], 0x30
+            inc edi
+            jmp cure_suffix
+        cure_digits:
+            lea esi, [esp + 30]
+            mov eax, ebp
+            mov ebx, 10
+            xor ecx, ecx
+        cure_digit_loop:
+            xor edx, edx
+            div ebx
+            add dl, 0x30
+            dec esi
+            mov byte ptr [esi], dl
+            inc ecx
+            test eax, eax
+            jne cure_digit_loop
+        cure_copy_loop:
+            mov dl, byte ptr [esi]
+            mov byte ptr [edi], dl
+            inc esi
+            inc edi
+            dec ecx
+            jne cure_copy_loop
+        cure_suffix:
+            mov byte ptr [edi], 0x20
+            mov dword ptr [edi + 1], 0x6C6C6976
+            mov dword ptr [edi + 5], 0x72656761
+            mov word ptr [edi + 9], 0x0073
+            lea eax, [esp]
+            push eax
+            push 0x{s['tech_title']:X}
+            call 0x{entry['show_message']:X}
+            add esp, 8
+            add esp, 40
+            pop edi
+            pop esi
+            pop edx
+            pop ecx
+            pop ebp
+            pop ebx
+            ret
+        """,
+        HEAL_CAVE_VA,
+    )
+    preflight_code = assemble(
+        f"""
+            cmp dword ptr [0x{VILLAGE_WIDE_SIGNATURE_VA:X}], 0x50465656
+            jne preflight_invalid
+            cmp dword ptr [0x{VILLAGE_WIDE_SIGNATURE_VA + 4:X}], 0x0055574F
+            jne preflight_invalid
+            cmp dword ptr [0x{VILLAGE_WIDE_SIGNATURE_VA + 8:X}], 0x00200001
+            jne preflight_invalid
+            cmp dword ptr [0x{VILLAGE_WIDE_SIGNATURE_VA + 0x10:X}], 3
+            jne preflight_invalid
+            cmp dword ptr [0x{VILLAGE_WIDE_SIGNATURE_VA + 0x14:X}], 0
+            jne preflight_invalid
+            cmp dword ptr [0x{VILLAGE_WIDE_SIGNATURE_VA + 0x18:X}], 0
+            jne preflight_invalid
+            cmp dword ptr [0x{VILLAGE_WIDE_SIGNATURE_VA + 0x1C:X}], 0
+            jne preflight_invalid
+            push 0x{s['show_result_export']:X}
+            push 0x{s['icons_dll']:X}
+            call dword ptr [0x4951E0]
+            test eax, eax
+            je preflight_invalid
+            push 0x{s['show_result_export']:X}
+            push eax
+            call dword ptr [0x4951DC]
+            test eax, eax
+            je preflight_invalid
+            mov eax, 1
+            ret
+        preflight_invalid:
+            xor eax, eax
+            ret
+        """,
+        VILLAGE_PREFLIGHT_VA,
+    )
+    patch(
+        HEAL_CAVE_FILE_OFFSET,
+        b"\0" * 5,
+        rel32_jump(IMAGE_BASE + HEAL_CAVE_FILE_OFFSET, CURE_ENTRY_VA),
+        "redirect the shared VV5 Cure/village-wide dispatch stub to its certified helper after the optional Origins reserve",
+    )
+    patch(
+        CURE_ENTRY_FILE_OFFSET,
+        b"\0" * len(cure_code),
+        cure_code,
+        "cure active VV5 villagers without changing health and increment People Cured",
+    )
+    patch(
+        VILLAGE_PREFLIGHT_FILE_OFFSET,
+        b"\0" * len(preflight_code),
+        preflight_code,
+        "validate the complete optional Origins header and result-export dependency before any village-wide charge",
+    )
+
     patch(0x28C, bytes.fromhex("400000D0"), bytes.fromhex("400000F0"),
           "make the stock shared payload section executable")
     patch(0x1890F, bytes.fromhex("8B7484146A64E8"),
@@ -729,17 +973,24 @@ def main() -> None:
     manifest = {
         "id": "vv5_enable_origins_exclusive_features",
         "game_id": "vv5",
+        "running_preference_id": RUNNING_PREFERENCE_ID,
+        "running_preference_evidence": {"source": "exact stock executable embedded preference table", "table_file_offset": "0xAEF60", "entry_name": "running"},
         "name": "Enable Origins-Exclusive Features",
         "description": (
-            "Adds icon-based Origins Upgrades. Time Warp advances exactly 3 "
-            "displayed villager years at half, normal, or double speed. Island "
-            "Event uses the stock scheduler. Barrel of Babies forces the literal "
-            "native event and requires three free occupied-or-reserved physical "
-            "slots in both 150- and 256-record games. Adds removable, save-scoped "
-            "Tech Point and Food Point Doublers that exclude Island Event awards. "
+            "Inspired by the Virtual Villagers 1 mobile port where these exclusive "
+            "Origins upgrades originated, this selected-upgrades port adds icon-based "
+            "Origins Upgrades. The native Time Warp (the stock route advances exactly 3 "
+            "displayed villager years), Island Event, and Barrel of Babies "
+            "rows are retained but disabled until their Heathen-safe target paths are "
+            "proved; selecting one reports that it is unavailable. Adds removable, save-scoped "
+            "Tech Point and Food Point Doublers that exclude Island Event awards, plus "
+            "Cure all Villagers for 30,000 tech points. Cure all Villagers clears sickness "
+            "from eligible active living believer records without changing health and increments People Cured "
+            "once per sickness cleared, then displays the exact result `Cured X villagers`; Heathens are excluded. "
             "Villager Upgrades include Grant Youth (floor age 5), six-skill Full "
             "Mastery, Set Age to 18, and Grant Running. Grant Running only adds "
-            "trait 38 to a free normal Like slot and removes trait 38 from "
+            "the build-specific Running preference ID (proven at table offset "
+            "0xAEF60) to a free normal Like slot and removes that same ID from "
             "Dislikes; it never changes movement or speed logic."
         ),
         "output_tag": "Origins Exclusive Features",
@@ -750,6 +1001,18 @@ def main() -> None:
                 "sha256": hashlib.sha256(COMPANION.read_bytes()).hexdigest().upper(),
             }
         ],
+        "doubler_evidence": {
+            "positive_tech_writer": "0x4237B0",
+            "positive_food_writer": "0x41EB6F before stock statistics hook",
+            "collection_adjustment": "not independently recorded; no exact callsite claim",
+            "island_event_producers": ["event methods 0x414A30-0x416CD0; tail-jump coverage unresolved"],
+            "hook_status": "STOP until every direct and tail-jump Island Event path is proven",
+        },
+        "native_event_safety": {
+            "disabled_rows": ["Time Warp", "Island Event", "Barrel of Babies"],
+            "reason": "VV5 native time/event paths are not yet proven to avoid current Heathen record targeting.",
+            "evidence_status": "STOP; no charge or native call is made for these rows",
+        },
         "patches": patches,
         "expanded_shr_relocations": {
             "stock_virtual_address": f"0x{PAYLOAD_VA:X}",

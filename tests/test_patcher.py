@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import re
 import shutil
 import struct
 import sys
@@ -58,6 +59,162 @@ def expanded_exe_name(build) -> str:
 
 
 class ManifestTests(unittest.TestCase):
+    def test_running_preference_id_matches_each_stock_table(self) -> None:
+        evidence = {
+            "vv1": ("Virtual Villagers - A New Home.exe", 0x7B260),
+            "vv2": ("Virtual Villagers - The Lost Children.exe", 0x8B808),
+            "vv3": ("Virtual Villagers - The Secret City.exe", 0x97488),
+            "vv4": ("Virtual Villagers - The Tree of Life.exe", 0xA0CD8),
+            "vv5": ("Virtual Villagers - New Believers.exe", 0xAEF60),
+        }
+        for game_id, (name, offset) in evidence.items():
+            with self.subTest(game=game_id):
+                feature = get_fun_patch(f"{game_id}_enable_origins_exclusive_features")
+                self.assertEqual(feature.raw["running_preference_id"], 38)
+                self.assertEqual(
+                    feature.raw["running_preference_evidence"]["table_file_offset"],
+                    f"0x{offset:X}",
+                )
+                stock = (STOCK / name).read_bytes()[offset : offset + 1000]
+                match = re.match(rb"[ -~]+", stock)
+                self.assertIsNotNone(match)
+                entries = [item.strip() for item in match.group().decode("ascii").split(",")]
+                self.assertIn("running", entries)
+                self.assertEqual(entries.index("running"), feature.raw["running_preference_id"])
+    def test_origins_village_wide_features_are_game_scoped_and_dependency_bound(self) -> None:
+        expected = {
+            f"vv{game}_origins_village_wide_upgrades"
+            for game in range(1, 6)
+        }
+        features = {
+            patch.id: patch
+            for patch in load_fun_patches()
+            if "origins_village_wide_upgrades" in patch.id
+        }
+        self.assertEqual(set(features), expected)
+        for game in range(1, 6):
+            feature = features[f"vv{game}_origins_village_wide_upgrades"]
+            self.assertEqual(
+                feature.raw["dependencies"],
+                [f"vv{game}_enable_origins_exclusive_features"],
+            )
+            self.assertIn("All Villagers Like Running", feature.description)
+            self.assertIn("All Villagers are Jack-Of-All-Trades", feature.description)
+            self.assertIn("All Villagers are 18", feature.description)
+            self.assertIn("1,000,000", feature.description)
+            self.assertIn("inspired", feature.description.casefold())
+            self.assertEqual(feature.raw.get("running_preference_id"), 38)
+            self.assertIn("removed Running dislike", feature.raw["extension_abi"]["calling_convention"])
+            self.assertIn("already-running", feature.raw["extension_abi"]["calling_convention"])
+            self.assertEqual(len(feature.raw["patches"]), 1)
+            patch = feature.raw["patches"][0]
+            self.assertEqual(len(bytes.fromhex(patch["before"])), len(bytes.fromhex(patch["after"])))
+            self.assertEqual(patch["purpose"].startswith("install the optional"), True)
+
+    def test_origins_village_wide_payloads_use_zero_owned_reserves(self) -> None:
+        stock_by_game = {build.id: STOCK / build.input_name for build in load_builds()}
+        features = {
+            patch.game_id: patch
+            for patch in load_fun_patches()
+            if "origins_village_wide_upgrades" in patch.id
+        }
+        for game_id, feature in features.items():
+            with self.subTest(game=game_id):
+                patch = feature.raw["patches"][0]
+                offset = int(patch["offset"], 0)
+                before = bytes.fromhex(patch["before"])
+                source = stock_by_game[game_id].read_bytes()
+                self.assertEqual(source[offset : offset + len(before)], before)
+                self.assertEqual(before, b"\0" * len(before))
+                self.assertEqual(feature.raw["extension_abi"]["signature"], "VVFPOWU")
+                self.assertIn("ECX=first physical record pointer", feature.raw["extension_abi"]["calling_convention"])
+                commands = feature.raw["extension_abi"]["commands"]
+                self.assertEqual(commands["6"], "All Villagers Like Running")
+                self.assertEqual(commands["7"], "All Villagers are Jack-Of-All-Trades")
+                self.assertEqual(commands["8"], "All Villagers are 18")
+
+    def test_origins_village_wide_metadata_preserves_explicit_exclusions(self) -> None:
+        for patch in load_fun_patches():
+            if "origins_village_wide_upgrades" not in patch.id:
+                continue
+            exclusions = patch.raw["explicit_non_changes"]
+            self.assertTrue(any("nursing" in item for item in exclusions))
+            self.assertTrue(any("unrelated Like" in item for item in exclusions))
+            if patch.game_id == "vv5":
+                self.assertTrue(any("Heathens" in item for item in exclusions))
+
+    def test_origins_village_wide_abi_uses_command_eax_and_bound_edx(self) -> None:
+        for game_id in ("vv1", "vv2", "vv3", "vv4", "vv5"):
+            with self.subTest(game=game_id):
+                feature = get_fun_patch(f"{game_id}_origins_village_wide_upgrades")
+                convention = feature.raw["extension_abi"]["calling_convention"]
+                self.assertIn("EAX=command", convention)
+                self.assertIn("ECX=first physical record pointer", convention)
+                self.assertIn("EDX=physical record bound", convention)
+                payload = bytes.fromhex(feature.raw["patches"][0]["after"])
+                entry_offset = int(feature.raw["extension_abi"]["entry_offset"], 0)
+                payload_base = int(feature.raw["patches"][0]["offset"], 0)
+                entry = payload[entry_offset - payload_base :]
+                self.assertIn(bytes.fromhex("83F806"), entry)
+                self.assertIn(bytes.fromhex("83F807"), entry)
+                self.assertIn(bytes.fromhex("83F808"), entry)
+                self.assertIn(bytes.fromhex("B8FFFFFFFF"), entry)
+                self.assertIn(bytes.fromhex("89CE"), payload)  # mov esi, ecx
+                self.assertIn(bytes.fromhex("89D3"), payload)  # mov ebx, edx
+
+    def test_origins_village_wide_exact_header_and_safe_field_targets(self) -> None:
+        expected_headers = {
+            "vv1": 0x48D180,
+            "vv2": 0x49C180,
+            "vv3": 0x47B820,
+            "vv4": 0x728220,
+            "vv5": 0x494C20,
+        }
+        for game_id, header_va in expected_headers.items():
+            with self.subTest(game=game_id):
+                feature = get_fun_patch(f"{game_id}_origins_village_wide_upgrades")
+                patch = feature.raw["patches"][0]
+                payload = bytes.fromhex(patch["after"])
+                self.assertEqual(
+                    payload[:0x20],
+                    bytes.fromhex("565646504F575500010000002000000003000000000000000000000000000000"),
+                )
+                self.assertEqual(
+                    int(feature.raw["extension_abi"]["entry_virtual_address"], 0),
+                    header_va + 0x20,
+                )
+                if game_id == "vv4":
+                    self.assertIn("expanded_shr_relocations", feature.raw)
+                if game_id == "vv5":
+                    self.assertNotIn((0x1B8C + 0xAD0).to_bytes(4, "little"), payload)
+
+    def test_village_wide_running_result_dialog_uses_exact_three_lines(self) -> None:
+        source = (ROOT / "native" / "vv1_origins_icons" / "vv1_origins_icons.c").read_text(encoding="utf-8")
+        self.assertIn("Skipped over %d villagers. Reason: Already 3 likes.", source)
+        self.assertIn("skipped over %d villagers. Reason: already likes running", source)
+        self.assertIn("Removed running dislike from %d villagers", source)
+        self.assertIn("removed_running_dislike", source)
+
+    def test_village_wide_running_clears_dislikes_even_for_full_like_records(self) -> None:
+        source = (ROOT / "scripts" / "build_village_wide_origins_features.py").read_text(encoding="utf-8")
+        full_like = source.split("running_not_running:", 1)[1].split("running_store_like:", 1)[0]
+        self.assertIn("jmp running_remove_dislikes", full_like)
+
+    def test_vv5_village_wide_payload_uses_authoritative_believer_predicate(self) -> None:
+        feature = get_fun_patch("vv5_origins_village_wide_upgrades")
+        payload = bytes.fromhex(feature.raw["patches"][0]["after"])
+        # Active, non-heathen occupancy, health, and current faction are all
+        # explicit in the generated helper; health alone is not a substitute.
+        for immediate in (
+            bytes.fromhex("80BED41C000000"),
+            bytes.fromhex("80BEE11C000000"),
+            bytes.fromhex("83BE401C000000"),
+            bytes.fromhex("80BEEC1C000000"),
+        ):
+            self.assertIn(immediate, payload)
+        self.assertIn("Heathens", " ".join(feature.raw["explicit_non_changes"]))
+        self.assertIn("believer", feature.description.casefold())
+
     def test_vv4_birth_control_is_exactly_guarded_and_composable(self) -> None:
         feature = get_fun_patch("vv4_birth_control")
         self.assertEqual(feature.game_id, "vv4")
@@ -178,6 +335,27 @@ class ManifestTests(unittest.TestCase):
         ).read_text(encoding="utf-8")
         self.assertIn("Time Warp - 3 villager years", resource)
 
+    def test_origins_dialog_has_optional_village_wide_rows(self) -> None:
+        source = (ROOT / "native/vv1_origins_icons/vv1_origins_icons.c").read_text(
+            encoding="utf-8"
+        )
+        resource = (ROOT / "native/vv1_origins_icons/vv1_origins_icons.rc").read_text(
+            encoding="utf-8"
+        )
+        self.assertIn("STATE_VILLAGE_WIDE = 0x20000", source)
+        self.assertIn("((lparam & STATE_VILLAGE_WIDE) != 0 ? 9 : 6)", source)
+        self.assertIn("ID_BUY_LAST = 1008", source)
+        for label in (
+            "All Villagers Like Running",
+            "All Villagers are Jack-Of-All-Trades",
+            "All Villagers are 18",
+        ):
+            self.assertIn(label, resource)
+        self.assertEqual(resource.count("1,000,000 tech points"), 3)
+        self.assertIn('PUSHBUTTON  "Buy", 1006', resource)
+        self.assertIn('PUSHBUTTON  "Buy", 1007', resource)
+        self.assertIn('PUSHBUTTON  "Buy", 1008', resource)
+
     def test_statistics_features_cover_all_proven_per_save_counter_blocks(self) -> None:
         features = {
             patch.game_id: patch
@@ -188,6 +366,19 @@ class ManifestTests(unittest.TestCase):
         for feature in features.values():
             self.assertIn("local lifetime statistics", feature.description)
             self.assertEqual(len(feature.raw["companion_files"]), 1)
+
+    def test_statistics_exporter_recovers_completed_vv5_bonus_puzzle_from_save(self) -> None:
+        source = (
+            ROOT / "native" / "statistics_export" / "statistics_export.c"
+        ).read_text(encoding="utf-8")
+        self.assertIn("count_vv5_puzzles", source)
+        self.assertIn("0x16D20u + 17u * 8u", source)
+        self.assertIn("bonus_progress >= 3", source)
+        self.assertIn("Puzzle totals are read from the current save state", " ".join(
+            patch.description
+            for patch in load_fun_patches()
+            if patch.name == "Write Village Statistics to Text File"
+        ))
 
     def test_unknown_file_is_refused(self) -> None:
         with tempfile.TemporaryDirectory() as temp:
@@ -1345,7 +1536,10 @@ class StockIntegrationTests(unittest.TestCase):
                 len(log["patches"]),
                 len(build.safety_patches)
                 + len(get_patch_variant(build, DEFAULT_PATCH_MODE)["patches"])
-                + len(feature.patches),
+                + len(feature.patches)
+                + 1,
+                # The patcher records its verified PE checksum rewrite as one
+                # additional automatic edit.
             )
 
     def test_vv2_teaching_children_grants_skill_is_guarded_and_additive(self) -> None:
@@ -1435,7 +1629,10 @@ class StockIntegrationTests(unittest.TestCase):
             ),
         )
         preview = dry_run(source, DEFAULT_PATCH_MODE, feature_ids)
-        self.assertEqual(preview["fun_patches"], feature_ids)
+        self.assertEqual(
+            preview["fun_patches"],
+            sorted(feature_ids, key=lambda item: (get_fun_patch(item).name.casefold(), item)),
+        )
         self.assertEqual(preview["output_name"], modded_exe_name(build))
 
     def test_vv2_hospital_recovery_heals_exactly_once_on_completion(self) -> None:
@@ -1940,7 +2137,10 @@ class StockIntegrationTests(unittest.TestCase):
             bytes(rendered[0x94540:0x94548]), bytes.fromhex("0000000000001840")
         )
         preview = dry_run(source, DEFAULT_PATCH_MODE, feature_ids)
-        self.assertEqual(preview["fun_patches"], feature_ids)
+        self.assertEqual(
+            preview["fun_patches"],
+            sorted(feature_ids, key=lambda item: (get_fun_patch(item).name.casefold(), item)),
+        )
         self.assertEqual(preview["output_name"], modded_exe_name(build))
 
     def test_vv5_vv4_nursery_divisor_parity_is_local_and_guarded(self) -> None:
@@ -2082,7 +2282,7 @@ class StockIntegrationTests(unittest.TestCase):
         self.assertIn(bytes.fromhex("83B848AD000000"), code)
         self.assertIn(bytes.fromhex("83B84CAD000000"), code)
         self.assertIn(bytes.fromhex("C78748AD000001000000"), code)
-        self.assertIn(bytes.fromhex("C7874CAD000001000000"), code)
+        self.assertNotIn(bytes.fromhex("C7874CAD000001000000"), code)
         self.assertNotIn(bytes.fromhex("C742582C010000"), code)
         self.assertIn(bytes.fromhex("8D8AA8030000"), code)
         self.assertIn(bytes.fromhex("8339267506C701FFFFFFFF"), code)

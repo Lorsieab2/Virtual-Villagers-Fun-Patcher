@@ -30,6 +30,11 @@ class ReleaseManifestTests(unittest.TestCase):
         release = load_release_module()
         self.assertIn("docs/villager-breeding-overhaul-research.md", release.FILES)
 
+    def test_release_manifest_contains_transparency_system(self) -> None:
+        release = load_release_module()
+        self.assertIn("docs/transparency-log.md", release.FILES)
+        self.assertIn("src/transparency.py", release.FILES)
+
     def test_release_manifest_paths_exist(self) -> None:
         release = load_release_module()
         missing = [relative for relative in release.FILES if not (ROOT / relative).is_file()]

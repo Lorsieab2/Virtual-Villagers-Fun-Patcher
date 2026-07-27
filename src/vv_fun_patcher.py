@@ -12,11 +12,17 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
+from transparency import write_transparency_artifacts
+
 ROOT = Path(__file__).resolve().parents[1]
 MANIFEST_PATH = ROOT / "data" / "builds.json"
 EXPANDED_MANIFEST_PATH = ROOT / "data" / "expanded_256.json"
 ORIGINS_FEATURE_PATHS = tuple(
     ROOT / "data" / f"vv{game_number}_origins_feature.json"
+    for game_number in range(1, 6)
+)
+ORIGINS_VILLAGE_WIDE_FEATURE_PATHS = tuple(
+    ROOT / "data" / f"vv{game_number}_origins_village_wide_upgrades.json"
     for game_number in range(1, 6)
 )
 STATISTICS_FEATURES_PATH = ROOT / "data" / "statistics_features.json"
@@ -59,7 +65,7 @@ def load_patch_modes() -> list[PatchMode]:
     return [PatchMode(item) for item in _manifest()["patch_modes"]]
 
 
-def load_fun_patches() -> list[FunPatch]:
+def _load_fun_patch_records() -> list[FunPatch]:
     items = [
         item
         for item in _manifest().get("fun_patches", [])
@@ -68,12 +74,169 @@ def load_fun_patches() -> list[FunPatch]:
     for feature_path in ORIGINS_FEATURE_PATHS:
         if feature_path.is_file():
             items.append(json.loads(feature_path.read_text(encoding="utf-8")))
+    for feature_path in ORIGINS_VILLAGE_WIDE_FEATURE_PATHS:
+        if feature_path.is_file():
+            items.append(json.loads(feature_path.read_text(encoding="utf-8")))
     if STATISTICS_FEATURES_PATH.is_file():
         statistics = json.loads(
             STATISTICS_FEATURES_PATH.read_text(encoding="utf-8")
         )
         items.extend(statistics.get("features", []))
-    return [FunPatch(item) for item in items]
+    enriched: list[FunPatch] = []
+    for item in items:
+        # Keep machine-readable transparency coverage available to the
+        # renderer even for older manifests that only supplied a description.
+        record = dict(item)
+        record.setdefault("behavior_changes", [record.get("description", "")])
+        record.setdefault(
+            "explicit_non_changes",
+            record.get("exclusions", []),
+        )
+        record.setdefault(
+            "evidence_status",
+            "static source/manifest verification performed; runtime/player confirmation pending",
+        )
+        enriched.append(FunPatch(record))
+    return enriched
+
+
+def load_fun_patches() -> list[FunPatch]:
+    patches = _load_fun_patch_records()
+    validate_fun_patch_catalog(patches)
+    from transparency import validate_feature_transparency_metadata
+
+    validate_feature_transparency_metadata(patches)
+    return patches
+
+
+def _dependency_ids(patch: FunPatch) -> tuple[str, ...]:
+    """Return a normalized, deterministic dependency list for a feature."""
+    raw = patch.raw.get("dependencies", ())
+    if isinstance(raw, str):
+        raw = (raw,)
+    if not isinstance(raw, (list, tuple)):
+        raise PatcherError(
+            f"Invalid dependencies for {patch.id}: expected a list of feature IDs."
+        )
+    result: list[str] = []
+    seen: set[str] = set()
+    for dependency in raw:
+        if not isinstance(dependency, str) or not dependency.strip():
+            raise PatcherError(
+                f"Invalid dependency on {patch.id}: feature IDs must be non-empty strings."
+            )
+        dependency = dependency.strip()
+        if dependency not in seen:
+            seen.add(dependency)
+            result.append(dependency)
+    return tuple(result)
+
+
+def validate_fun_patch_catalog(
+    patches: list[FunPatch] | tuple[FunPatch, ...] | None = None,
+) -> None:
+    """Validate feature IDs and dependency declarations before any output is written."""
+    catalog = _load_fun_patch_records() if patches is None else list(patches)
+    by_id: dict[str, FunPatch] = {}
+    for patch in catalog:
+        if not isinstance(patch.id, str) or not patch.id.strip():
+            raise PatcherError("Every optional patch must have a non-empty ID.")
+        if patch.id in by_id:
+            raise PatcherError(f"Duplicate optional patch ID: {patch.id}")
+        by_id[patch.id] = patch
+    for patch in catalog:
+        for dependency_id in _dependency_ids(patch):
+            dependency = by_id.get(dependency_id)
+            if dependency is None:
+                raise PatcherError(
+                    f"{patch.name} ({patch.id}) requires missing prerequisite {dependency_id}."
+                )
+            if dependency.game_id != patch.game_id:
+                raise PatcherError(
+                    f"{patch.name} ({patch.id}) cannot depend on {dependency_id}: "
+                    "prerequisites must target the same game."
+                )
+    # A complete DFS catches cycles while retaining a useful feature path.
+    visiting: set[str] = set()
+    visited: set[str] = set()
+
+    def visit(feature_id: str, path: tuple[str, ...] = ()) -> None:
+        if feature_id in visiting:
+            cycle = " -> ".join((*path, feature_id))
+            raise PatcherError(f"Optional patch dependency cycle: {cycle}")
+        if feature_id in visited:
+            return
+        visiting.add(feature_id)
+        patch = by_id[feature_id]
+        for dependency_id in _dependency_ids(patch):
+            visit(dependency_id, (*path, feature_id))
+        visiting.remove(feature_id)
+        visited.add(feature_id)
+
+    for patch in sorted(catalog, key=lambda item: (item.name.casefold(), item.id)):
+        visit(patch.id)
+
+
+def resolve_fun_patch_ids(
+    patch_ids: tuple[str, ...] | list[str],
+    *,
+    game_id: str | None = None,
+    patches: list[FunPatch] | tuple[FunPatch, ...] | None = None,
+) -> list[str]:
+    """Return explicit selections in dependency-first order.
+
+    The API is intentionally strict: callers must include every prerequisite in
+    ``patch_ids``.  The GUI supplies the prerequisites automatically; rejecting
+    an incomplete API/CLI selection prevents a partial output from being made.
+    """
+    catalog = list(load_fun_patches()) if patches is None else list(patches)
+    validate_fun_patch_catalog(catalog)
+    by_id = {patch.id: patch for patch in catalog}
+    requested: list[str] = []
+    seen: set[str] = set()
+    for patch_id in patch_ids:
+        if patch_id in seen:
+            continue
+        patch = by_id.get(patch_id)
+        if patch is None:
+            raise PatcherError(f"Unknown optional patch: {patch_id}")
+        if game_id is not None and patch.game_id != game_id:
+            raise PatcherError(
+                f"{patch.name} is only available for {patch.game_id.upper()}."
+            )
+        seen.add(patch_id)
+        requested.append(patch_id)
+    requested_set = set(requested)
+    for patch_id in requested:
+        missing = [
+            dependency_id
+            for dependency_id in _dependency_ids(by_id[patch_id])
+            if dependency_id not in requested_set
+        ]
+        if missing:
+            raise PatcherError(
+                f"{by_id[patch_id].name} requires prerequisite(s): "
+                + ", ".join(missing)
+                + ". Select the prerequisite before creating output."
+            )
+    ordered: list[str] = []
+    emitted: set[str] = set()
+
+    def emit(feature_id: str) -> None:
+        if feature_id in emitted:
+            return
+        patch = by_id[feature_id]
+        for dependency_id in _dependency_ids(patch):
+            emit(dependency_id)
+        emitted.add(feature_id)
+        ordered.append(feature_id)
+
+    for feature_id in sorted(
+        requested,
+        key=lambda item: (by_id[item].name.casefold(), item),
+    ):
+        emit(feature_id)
+    return ordered
 
 
 def _patch_bytes(patch: dict[str, Any], field: str) -> bytes:
@@ -100,7 +263,10 @@ def _fun_patch_support(
         if support["game_id"] != build.id:
             continue
         if selected_ids.intersection(support["when_any"]):
-            patches.extend(support["patches"])
+            for patch in support["patches"]:
+                tagged = dict(patch)
+                tagged["_owner"] = "automatic:compatibility"
+                patches.append(tagged)
     return patches
 
 
@@ -125,9 +291,9 @@ def _relocate_expanded_shr_fun_patches(
         relocation = feature.raw.get("expanded_shr_relocations")
         if not relocation:
             continue
-        if build.id != "vv5":
+        if build.id not in {"vv4", "vv5"}:
             raise PatcherError(
-                f"{feature.name} declares an expanded .shr relocation but is not a VV5 feature."
+                f"{feature.name} declares an expanded .shr relocation but is not a VV4/VV5 feature."
             )
         stock_va = int(relocation["stock_virtual_address"], 0)
         expanded_va = int(relocation["expanded_virtual_address"], 0)
@@ -147,12 +313,38 @@ def _relocate_expanded_shr_fun_patches(
                     f"Expanded .shr relocation guard failed at {patch['offset']}: "
                     f"expected {before.hex().upper()}, found {actual.hex().upper()}"
                 )
-            value = int.from_bytes(before, "little")
-            if not stock_va <= value < stock_va + 0x1000:
+            kind = patch.get("kind", "absolute")
+            if kind == "absolute":
+                value = int.from_bytes(before, "little")
+                if not stock_va <= value < stock_va + 0x1000:
+                    raise PatcherError(
+                        f"Expanded .shr relocation at {patch['offset']} points outside stock .shr."
+                    )
+                after = (value + delta).to_bytes(4, "little")
+            elif kind == "rel32":
+                try:
+                    source_va = int(patch["source_virtual_address"], 0)
+                    target_stock_va = int(patch["target_stock_virtual_address"], 0)
+                except (KeyError, TypeError, ValueError) as exc:
+                    raise PatcherError(
+                        f"Internal expanded .shr rel32 relocation at {patch['offset']} is missing source/target metadata."
+                    ) from exc
+                if not stock_va <= target_stock_va < stock_va + 0x1000:
+                    raise PatcherError(
+                        f"Expanded .shr rel32 relocation at {patch['offset']} points outside stock .shr."
+                    )
+                target_expanded_va = target_stock_va + delta
+                rel32 = target_expanded_va - (source_va + 5)
+                try:
+                    after = rel32.to_bytes(4, "little", signed=True)
+                except OverflowError as exc:
+                    raise PatcherError(
+                        f"Expanded .shr rel32 relocation at {patch['offset']} is out of range."
+                    ) from exc
+            else:
                 raise PatcherError(
-                    f"Expanded .shr relocation at {patch['offset']} points outside stock .shr."
+                    f"Internal expanded .shr relocation at {patch['offset']} has unknown kind {kind!r}."
                 )
-            after = (value + delta).to_bytes(4, "little")
             data[offset : offset + 4] = after
             applied.append(
                 {
@@ -163,6 +355,8 @@ def _relocate_expanded_shr_fun_patches(
                         "purpose",
                         "relocate fun-patch .shr pointer for expanded 256 mode",
                     ),
+                    "owner": f"feature:{feature.id}",
+                    "virtual_address": _virtual_address_for_offset(bytes(data), offset),
                 }
             )
     return applied
@@ -214,19 +408,9 @@ def get_fun_patch(patch_id: str) -> FunPatch:
 def _selected_fun_patches(
     build: Build, patch_ids: tuple[str, ...] | list[str]
 ) -> list[FunPatch]:
-    selected: list[FunPatch] = []
-    seen: set[str] = set()
-    for patch_id in patch_ids:
-        if patch_id in seen:
-            continue
-        patch = get_fun_patch(patch_id)
-        if patch.game_id != build.id:
-            raise PatcherError(
-                f"{patch.name} is only available for {patch.game_id.upper()}."
-            )
-        seen.add(patch_id)
-        selected.append(patch)
-    return selected
+    ordered_ids = resolve_fun_patch_ids(patch_ids, game_id=build.id)
+    by_id = {patch.id: patch for patch in load_fun_patches()}
+    return [by_id[patch_id] for patch_id in ordered_ids]
 
 
 def _output_name(build: Build, patch_mode: str, fun_patches: list[FunPatch]) -> str:
@@ -550,6 +734,35 @@ def pe_checksum(data: bytearray) -> int:
     return ((total & 0xFFFF) + length) & 0xFFFFFFFF
 
 
+def _virtual_address_for_offset(data: bytes, file_offset: int) -> str | None:
+    """Map a raw file offset to a PE VA when the offset is in a section."""
+    try:
+        pe_offset = struct.unpack_from("<I", data, 0x3C)[0]
+        if data[pe_offset : pe_offset + 4] != b"PE\0\0":
+            return None
+        coff = pe_offset + 4
+        section_count = struct.unpack_from("<H", data, coff + 2)[0]
+        optional_size = struct.unpack_from("<H", data, coff + 16)[0]
+        optional = coff + 20
+        magic = struct.unpack_from("<H", data, optional)[0]
+        image_base = (
+            struct.unpack_from("<I", data, optional + 28)[0]
+            if magic == 0x10B
+            else struct.unpack_from("<Q", data, optional + 24)[0]
+        )
+        section_base = optional + optional_size
+        for index in range(section_count):
+            section = section_base + index * 40
+            virtual_address, raw_size, raw_pointer = struct.unpack_from(
+                "<III", data, section + 12
+            )
+            if raw_pointer <= file_offset < raw_pointer + raw_size:
+                return f"0x{image_base + virtual_address + file_offset - raw_pointer:X}"
+    except (IndexError, struct.error, ValueError):
+        return None
+    return None
+
+
 def render_patched_bytes(
     source: Path,
     build: Build,
@@ -559,15 +772,18 @@ def render_patched_bytes(
     variant = get_patch_variant(build, patch_mode)
     fun_patches = _selected_fun_patches(build, fun_patch_ids)
     data = bytearray(source.read_bytes())
+    original_data = bytes(data)
     applied: list[dict[str, str]] = []
-    fun_bytes = [patch for feature in fun_patches for patch in feature.patches]
-    for patch in [
-        *_expanded_patches(build, variant),
-        *_safety_patches(build, patch_mode),
-        *variant["patches"],
-        *_fun_patch_support(build, fun_patches),
-        *fun_bytes,
-    ]:
+    expanded = [dict(patch, _owner="automatic:population") for patch in _expanded_patches(build, variant)]
+    safety = [dict(patch, _owner="automatic:safety") for patch in _safety_patches(build, patch_mode)]
+    population = [dict(patch, _owner="automatic:population") for patch in variant["patches"]]
+    support = _fun_patch_support(build, fun_patches)
+    fun_bytes = [
+        dict(patch, _owner=f"feature:{feature.id}")
+        for feature in fun_patches
+        for patch in feature.patches
+    ]
+    for patch in [*expanded, *safety, *population, *support, *fun_bytes]:
         offset = int(patch["offset"], 0)
         before = _patch_bytes(patch, "before")
         after = _patch_bytes(patch, "after")
@@ -588,6 +804,8 @@ def render_patched_bytes(
                 "before": before.hex().upper(),
                 "after": after.hex().upper(),
                 "purpose": patch["purpose"],
+                "owner": patch.get("_owner", "automatic"),
+                "virtual_address": _virtual_address_for_offset(original_data, offset),
             }
         )
     applied.extend(
@@ -705,6 +923,7 @@ def _log_data(
         "patcher": "Virtual Villagers Fun Patcher",
         "patch": mode.name,
         "patch_mode": mode.id,
+        "patch_mode_name": mode.name,
         "fun_patches": [patch.id for patch in fun_patches],
         "fun_patch_names": [patch.name for patch in fun_patches],
         "created_utc": datetime.now(timezone.utc).isoformat(),
@@ -848,6 +1067,7 @@ def apply_patch(
     if output_folder.exists() and not overwrite:
         raise PatcherError(f"Modified game folder already exists: {output_folder}")
     patched, applied = render_patched_bytes(source, build, patch_mode, fun_patch_ids)
+    output_folder_existed = output_folder.exists()
     _copy_game_folder_direct(source.parent, output_folder, overwrite, output_root)
     companions = _copy_companion_files(output_folder, fun_patches)
     log_path = output.with_suffix(".patch-log.json")
@@ -866,17 +1086,37 @@ def apply_patch(
             build, source, output, patch_mode, output_hash, applied, fun_patches
         )
         log_data["companion_files"] = companions
+        save_copy: dict[str, Any] | None = None
         if copy_saves:
-            log_data["save_copy"] = copy_vanilla_saves(
+            save_copy = copy_vanilla_saves(
                 build,
                 patch_mode,
                 replace_existing=replace_modded_saves,
                 save_root=save_root,
             )
-        log_path.write_text(
-            json.dumps(log_data, indent=2) + "\n", encoding="utf-8"
+        write_transparency_artifacts(
+            base_log=log_data,
+            source=source,
+            output=output,
+            source_folder=source.parent,
+            output_folder=output_folder,
+            fun_patches=fun_patches,
+            companions=companions,
+            applied=applied,
+            save_copy=save_copy,
+            root=ROOT,
+            json_path=log_path,
         )
     except Exception:
+        # Do not leave an executable or a report that looks successful when
+        # transparency generation fails.  A pre-existing overwrite target is
+        # left in place because it cannot be safely reconstructed here.
+        if not output_folder_existed:
+            shutil.rmtree(output_folder, ignore_errors=True)
+        else:
+            output.unlink(missing_ok=True)
+            log_path.unlink(missing_ok=True)
+            (output.parent / "VVFP Transparency Log.txt").unlink(missing_ok=True)
         raise
     return output, log_path
 
@@ -896,9 +1136,17 @@ def apply_all(
         tuple[Build, Path, bytearray, list[dict[str, str]], Path, Path]
     ] = []
     selected_by_game: dict[str, list[FunPatch]] = {}
+    requested_by_game: dict[str, list[str]] = {}
     for patch_id in fun_patch_ids:
         patch = get_fun_patch(patch_id)
-        selected_by_game.setdefault(patch.game_id, []).append(patch)
+        requested_by_game.setdefault(patch.game_id, []).append(patch_id)
+    for build in load_builds():
+        requested = requested_by_game.get(build.id, [])
+        if not requested:
+            continue
+        resolved_ids = resolve_fun_patch_ids(requested, game_id=build.id)
+        by_id = {patch.id: patch for patch in load_fun_patches()}
+        selected_by_game[build.id] = [by_id[item] for item in resolved_ids]
     for build, source in validated:
         fun_patches = selected_by_game.get(build.id, [])
         selected_ids = [patch.id for patch in fun_patches]
@@ -923,7 +1171,9 @@ def apply_all(
             + "\n".join(str(path) for path in existing)
         )
     results: list[tuple[Path, Path]] = []
+    completed_outputs: list[tuple[Path, bool, Path, Path]] = []
     for build, source, patched, applied, output_folder, output in plans:
+        output_folder_existed = output_folder.exists()
         _copy_game_folder_direct(source.parent, output_folder, overwrite, output_root)
         companions = _copy_companion_files(
             output_folder, selected_by_game.get(build.id, [])
@@ -949,16 +1199,44 @@ def apply_all(
             selected_by_game.get(build.id, []),
         )
         log_data["companion_files"] = companions
+        save_copy: dict[str, Any] | None = None
         if copy_saves:
-            log_data["save_copy"] = copy_vanilla_saves(
+            save_copy = copy_vanilla_saves(
                 build,
                 patch_mode,
                 replace_existing=replace_modded_saves,
                 save_root=save_root,
             )
-        log_path.write_text(
-            json.dumps(log_data, indent=2) + "\n", encoding="utf-8"
-        )
+        try:
+            write_transparency_artifacts(
+                base_log=log_data,
+                source=source,
+                output=output,
+                source_folder=source.parent,
+                output_folder=output_folder,
+                fun_patches=selected_by_game.get(build.id, []),
+                companions=companions,
+                applied=applied,
+                save_copy=save_copy,
+                root=ROOT,
+                json_path=log_path,
+            )
+        except Exception:
+            if not output_folder_existed:
+                shutil.rmtree(output_folder, ignore_errors=True)
+            else:
+                output.unlink(missing_ok=True)
+                log_path.unlink(missing_ok=True)
+                (output.parent / "VVFP Transparency Log.txt").unlink(missing_ok=True)
+            for completed_folder, completed_existed, completed_output, completed_log in completed_outputs:
+                if not completed_existed:
+                    shutil.rmtree(completed_folder, ignore_errors=True)
+                else:
+                    completed_output.unlink(missing_ok=True)
+                    completed_log.unlink(missing_ok=True)
+                    (completed_folder / "VVFP Transparency Log.txt").unlink(missing_ok=True)
+            raise
+        completed_outputs.append((output_folder, output_folder_existed, output, log_path))
         results.append((output, log_path))
     return results
 

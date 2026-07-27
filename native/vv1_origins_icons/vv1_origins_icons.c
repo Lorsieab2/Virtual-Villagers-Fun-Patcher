@@ -7,9 +7,10 @@ enum {
     IDD_ORIGINS_TECH = 201,
     IDD_ORIGINS_VILLAGER = 202,
     ID_BUY_FIRST = 1000,
-    ID_BUY_LAST = 1004,
+    ID_BUY_LAST = 1008,
     ID_CHECK_FIRST = 1100,
-    STATE_VILLAGER = 0x10000
+    STATE_VILLAGER = 0x10000,
+    STATE_VILLAGE_WIDE = 0x20000
 };
 
 BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved) {
@@ -28,9 +29,11 @@ static INT_PTR CALLBACK upgrade_dialog(
 ) {
     if (message == WM_INITDIALOG) {
         int villager_menu = (lparam & STATE_VILLAGER) != 0;
-        int row_count = villager_menu ? 4 : 5;
+        int row_count = villager_menu
+            ? 4
+            : ((lparam & STATE_VILLAGE_WIDE) != 0 ? 9 : 6);
         int row;
-        for (row = 0; row < 5; ++row) {
+        for (row = 0; row < 9; ++row) {
             ShowWindow(GetDlgItem(window, ID_CHECK_FIRST + row), SW_HIDE);
         }
         for (row = 0; row < row_count; ++row) {
@@ -137,4 +140,37 @@ __declspec(dllexport) int __stdcall ShowOriginsUpgradeMenu(
         }
     }
     return show_upgrade_menu(villager_menu, dialog_state);
+}
+
+__declspec(dllexport) int __stdcall ShowOriginsVillageWideResult(
+    int command,
+    int full_like_skipped,
+    int already_running_skipped,
+    int removed_running_dislike
+) {
+    char message[128];
+    if (command == 6) {
+        wsprintfA(
+            message,
+            "Skipped over %d villagers. Reason: Already 3 likes.\r\nskipped over %d villagers. Reason: already likes running",
+            full_like_skipped,
+            already_running_skipped
+        );
+        if (removed_running_dislike > 0) {
+            char removal[64];
+            wsprintfA(
+                removal,
+                "\r\nRemoved running dislike from %d villagers",
+                removed_running_dislike
+            );
+            lstrcatA(message, removal);
+        }
+        MessageBoxA(
+            GetForegroundWindow(),
+            message,
+            "Origins Upgrades",
+            MB_OK | MB_ICONINFORMATION
+        );
+    }
+    return 0;
 }

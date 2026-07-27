@@ -237,6 +237,39 @@ static int count_saved_puzzles(
     return solved;
 }
 
+static int count_vv5_puzzles(
+    const unsigned char *manager,
+    const unsigned char *module,
+    int *puzzle_total
+) {
+    int solved = count_saved_puzzles(
+        manager,
+        0x16D20u,
+        0x11DF30u,
+        1,
+        16
+    );
+    int bonus_progress = read_int(manager, 0x16D20u + 17u * 8u);
+    int bonus_enabled = module != NULL && module[0x8F16u] == 0xE9;
+
+    /*
+     * Puzzle 17 is a current-save state, not a lifetime counter.  The
+     * restoration patch keeps the same progress slot and completes it at 3.
+     * Recognize that slot even when the exporter is attached to an already
+     * completed save, so existing saves are reported accurately on the first
+     * export rather than being forced to 16/16.
+     */
+    if (bonus_enabled || bonus_progress >= 3) {
+        *puzzle_total = 17;
+        if (bonus_progress >= 3) {
+            ++solved;
+        }
+    } else {
+        *puzzle_total = 16;
+    }
+    return solved;
+}
+
 static int write_later_game(
     FILE *file,
     const unsigned char *manager,
@@ -339,6 +372,7 @@ __declspec(dllexport) int __stdcall WriteVillageStatistics(
     int written;
     int closed;
     int vv5_total;
+    int vv5_solved;
     unsigned char *module;
 
     if (manager == NULL || save_id < 1 || save_id > 5) {
@@ -389,17 +423,11 @@ __declspec(dllexport) int __stdcall WriteVillageStatistics(
         );
     } else {
         module = (unsigned char *)GetModuleHandleW(NULL);
-        vv5_total = module != NULL && module[0x8F16u] == 0xE9 ? 17 : 16;
+        vv5_solved = count_vv5_puzzles(manager, module, &vv5_total);
         written = write_vv5(
             file,
             manager,
-            count_saved_puzzles(
-                manager,
-                0x16D20u,
-                0x11DF30u,
-                1,
-                vv5_total
-            ),
+            vv5_solved,
             vv5_total
         );
     }

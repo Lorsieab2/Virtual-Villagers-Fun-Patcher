@@ -81,7 +81,13 @@ OPTIONAL PATCH SELECTION
 
 Use "Select All Patches" to turn on every optional fun patch at once. Use
 "Deselect All Patches" to turn them all off. These buttons do not change the
-selected population patch style.
+selected population patch style. Optional patches are grouped under the five
+game-title headers, in order: Virtual Villagers - A New Home, The Lost
+Children, The Secret City, The Tree of Life, and New Believers. Shared/all-games
+patches appear afterward only when present. A dependent checkbox automatically
+selects its prerequisite; clearing a prerequisite clears its dependents. The
+patcher saves and logs the resolved dependency-first selection. Direct API/CLI
+requests that omit a prerequisite are refused before output is written.
 
 OUTPUTS
 
@@ -250,3 +256,17 @@ construction, Confused when an upgrade lacks the necessary technology, or
 Polishing the Statue for eligible upgradeable and completed statues.
 It does not change autonomous work, skill gain amounts, statue upgrades, or
 Retired Chief activities.
+
+ORIGINS VILLAGE-WIDE UPGRADES (ALL FIVE GAMES)
+
+Enable Origins Village-Wide Upgrades is the optional feature name shown by the
+patcher. These optional features depend on Enable Origins-Exclusive Features and add
+three Tech-screen Upgrades rows inspired by the selected exclusive upgrades
+from the Virtual Villagers 1 mobile port. Each purchase costs 1,000,000 tech
+points and affects only the current save: All Villagers Like Running, All
+Villagers are Jack-Of-All-Trades, and All Villagers are 18. Running never
+replaces an unrelated Like and reports `Skipped over X villagers. Reason:
+Already 3 likes.` for eligible villagers whose three Like slots are full.
+Mastery writes only the native skill fields. Age changes only displayed age
+and does not change nursing or pregnancy timers. New Believers excludes
+Heathens from all three operations.

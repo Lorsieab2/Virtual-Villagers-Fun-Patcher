@@ -8,6 +8,15 @@ The app uses the supplied transparent `Island.png` artwork as its title-bar icon
 
 The complete interface has a vertical scrollbar and supports mouse-wheel scrolling, so every patch option, game-folder field, action, and status message remains reachable on shorter displays.
 
+Optional patches are shown under deterministic game-title headers in this order:
+Virtual Villagers - A New Home; The Lost Children; The Secret City; The Tree of
+Life; New Believers. Shared/all-games patches appear afterward only when they
+exist, and each header is sorted by patch name and ID. Selecting a patch with a
+prerequisite selects that prerequisite automatically; clearing a prerequisite
+clears its dependents. The saved settings and patch logs record the resolved,
+dependency-first selection. API and command-line requests that omit a required
+prerequisite are rejected before any copied game folder or EXE is written.
+
 Its max-population modes use every verified built-in villager slot: 256 slots in A New Home and The Lost Children, and 150 slots in The Secret City, The Tree of Life, and New Believers.
 
 ## Two patch styles
@@ -184,6 +193,19 @@ Enable **Gong of Wonder Coconuts Fix (The Lost Children)** so the coconut outcom
 Enable **Heathen Mommy Puzzle Restoration (New Believers)** to restore the natural-build Heathen Mommy to newly created villages and restore the hidden 17th Heathen Parent graphic to the Puzzles screen. Its full visible tile rolls over to **This milestone has not been completed!** while locked and **The Heathen Parent** when completed. The supplied natural build creates a 29th Heathen with tag 17, initializes her, and assigns one forced nursing baby. The supported modern initializer creates only 28 Heathens and omits that sequence.
 
 The patch reproduces the natural build's exact mother arguments and nursing-baby call, then restores the retained locked/solved puzzle graphic using puzzle 17's actual completion state. The mother and baby require two physical population slots. This new-game initialization does not retroactively add a mother to an existing save.
+
+## VV5: Enable Origins-Exclusive Features
+
+Enable **Enable Origins-Exclusive Features (New Believers)** to add the
+icon-based Origins **Upgrades** menus to VV5. Cure all Villagers clears
+sickness only from eligible active, living believers and reports the exact
+number cured; current Heathens remain byte-identical. Tech Point and Food Point
+Doublers are save-scoped and do not multiply Island Event awards. The native
+Time Warp, Island Event, and Barrel of Babies rows are retained but disabled:
+they do not charge or call a native path until every direct and indirect path
+that could target a Heathen has been independently proven safe. Grant Running,
+Grant Youth, Full Mastery, and Set Age to 18 use the current believer predicate
+and never modify Heathen records or movement-speed logic.
 
 ## VV4: Complete Fish Scales = Golden Fish in Nets
 
@@ -373,3 +395,14 @@ Technical evidence is in `docs/max-population-research.md`,
 `docs/island-event-population-research.md`,
 `docs/experimental-256-cap-research.md`, and the game-specific reports under
 `docs/`.
+
+The optional Origins village-wide feature IDs are
+`vv1_origins_village_wide_upgrades`, `vv2_origins_village_wide_upgrades`,
+`vv3_origins_village_wide_upgrades`, `vv4_origins_village_wide_upgrades`, and
+`vv5_origins_village_wide_upgrades`. Each depends on that game's
+`enable_origins_exclusive_features` prerequisite and adds the three
+1,000,000-tech-point rows: All Villagers Like Running, All Villagers are
+Jack-Of-All-Trades, and All Villagers are 18. The feature is inspired by the
+selected exclusive upgrades in the Virtual Villagers 1 mobile port. VV5
+excludes Heathens; all games leave movement speed, nursing/pregnancy timers,
+and unrelated Like slots untouched.

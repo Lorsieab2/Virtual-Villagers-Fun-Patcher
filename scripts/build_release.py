@@ -24,6 +24,11 @@ FILES = [
     "data/vv3_origins_feature.json",
     "data/vv4_origins_feature.json",
     "data/vv5_origins_feature.json",
+    "data/vv1_origins_village_wide_upgrades.json",
+    "data/vv2_origins_village_wide_upgrades.json",
+    "data/vv3_origins_village_wide_upgrades.json",
+    "data/vv4_origins_village_wide_upgrades.json",
+    "data/vv5_origins_village_wide_upgrades.json",
     "data/statistics_features.json",
     "docs/max-population-research.md",
     "docs/island-event-population-research.md",
@@ -51,8 +56,13 @@ FILES = [
     "docs/vv5-easier-devotee-research.md",
     "docs/vv5-statue-training-research.md",
     "docs/vv5-nursery-divisor-research.md",
+    "docs/doubler-composition-audit.md",
+    "docs/origins-village-wide-upgrades.md",
+    "docs/transparency-log.md",
     "src/vv_fun_patcher.py",
     "src/vv_fun_patcher_gui.py",
+    "src/transparency.py",
+    "scripts/generate_transparency_docs.py",
 ]
 
 def main() -> int:

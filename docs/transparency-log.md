@@ -1,0 +1,405 @@
+# Virtual Villagers Fun Patcher — Transparency Coverage
+
+This document is generated from the patch manifests. It is the project-level description of the differences the patcher can request; the per-output `VVFP Transparency Log.txt` is the authoritative record of the exact bytes and files used for one output.
+
+## Automatic changes (every output)
+
+Every output applies the selected population mode and the game's guarded population-safety edits. The collection-progression mode preserves the supported game's collection/bonus behavior while changing its declared maximum according to the manifest. The immediate-fixed mode keeps the fixed maximum. Experimental expanded-256 modes additionally apply the documented stock-save import/conversion route and physical-record expansion for VV3–VV5; VV1/VV2 already have 256 physical slots. Multiples and population-adding Island Events are saturated at the physical slot bound. No game is launched by the patcher, so runtime/player confirmation remains pending.
+
+Available population modes: Collection Progression Max Pop, Immediate Fixed Max Pop, Experimental Expanded 256 Villagers, Experimental Expanded 256 - Collection Progression.
+
+## Origins doubler evidence boundary
+
+The per-game positive food/tech writer, collection-adjustment callsites, and every Island Event producer must be proved independently before an Origins doubler is considered complete. A doubler is applied only to a positive delta after that game's native collection calculation; Island Event food and tech outcomes (positive, zero, or negative) are never multiplied. The current exact-build candidate exclusions and pending/STOP statuses are recorded in `docs/doubler-composition-audit.md`; return-address checks alone are not treated as exhaustive provenance proof.
+
+## Virtual Villagers - A New Home
+
+### Automatic population and safety changes
+
+Supported stock identity is the exact `Virtual Villagers - A New Home.exe` build recorded in `data/builds.json`. The automatic edits are the selected population mode plus 17 guarded safety edits. The modified output retains the untouched stock executable beside the modified executable. Stock modes preserve vanilla save format; expanded modes use the documented guarded compatibility/conversion path.
+
+### Optional features
+
+#### Builder Action Fixes (`vv1_builder_action_fixes`)
+
+Villagers whose selected job is Building try the stock construction dispatcher at every food level, making them autonomously build and repair more reliably during ordinary play and time catch-up.
+
+- Behavior changes: Villagers whose selected job is Building try the stock construction dispatcher at every food level, making them autonomously build and repair more reliably during ordinary play and time catch-up.
+- Explicit non-changes/exclusions: none declared
+- Dependencies: none
+- Evidence status: static source/manifest verification performed; runtime/player confirmation pending
+- Guarded executable edits: 2; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Continue Research at Max Technologies (`vv1_continue_research_at_max_technologies`)
+
+Researchers keep choosing the stock research action and earning tech points after all six technologies reach level 3.
+
+- Behavior changes: Researchers keep choosing the stock research action and earning tech points after all six technologies reach level 3.
+- Explicit non-changes/exclusions: none declared
+- Dependencies: none
+- Evidence status: static source/manifest verification performed; runtime/player confirmation pending
+- Guarded executable edits: 1; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Enable Origins Village-Wide Upgrades (`vv1_origins_village_wide_upgrades`)
+
+Adds three optional, current-save-only Origins upgrades to the Tech-screen Upgrades window, inspired by the Virtual Villagers 1 mobile port's selected exclusive upgrades: All Villagers Like Running, All Villagers are Jack-Of-All-Trades, and All Villagers are 18. Each costs exactly 1,000,000 tech points. Running uses the build-specific preference ID proven from the stock preference table, preserves unrelated Likes, removes Running Dislikes, and reports `Skipped over X villagers. Reason: Already 3 likes.`, `skipped over Y villagers. Reason: already likes running`, plus `Removed running dislike from X villagers` only when applicable. Mastery writes only the native skill fields. Age changes only the displayed age to 18 and does not change nursing or pregnancy timers.
+
+- Behavior changes: Adds rows 6-8 to the Origins Tech-screen Upgrades dialog only when this optional feature is installed. Charges exactly 1,000,000 tech points once per selected village-wide purchase in the current save. Running scans exactly three normal Like and Dislike slots, reports full-Like and already-Running counts, and reports villagers whose Running dislike was removed; duplicate Running Dislikes are all cleared but count once per villager. Jack-Of-All-Trades writes the native five- or six-skill mastery fields for eligible living villagers. All Villagers are 18 writes only the verified displayed-age field to 360 age units.
+- Explicit non-changes/exclusions: No unrelated Like is replaced or removed. No movement speed, movement initialization, nursing timer, pregnancy timer, or pregnancy state is written. The upgrades are save-scoped and do not set a global ownership bit. VV5 Heathens are excluded from all three village-wide operations.
+- Dependencies: vv1_enable_origins_exclusive_features
+- Build-specific Running preference ID: 38; evidence source: exact stock executable embedded preference table at table offset 0x7B260.
+- Evidence status: static exact-build payload and field-map verification performed; runtime/player confirmation pending
+- Guarded executable edits: 1; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Enable Origins-Exclusive Features (`vv1_enable_origins_exclusive_features`)
+
+Inspired by the Virtual Villagers 1 mobile port where these exclusive Origins upgrades originated, this selected-upgrades port adds an icon-based Upgrades screen containing a Time Warp that advances exactly three displayed villager years, Island Event, the native Barrel of Babies event with a three-space capacity guard, and removable 500,000-tech-point Tech Point Doubler and Food Point Doubler, plus Cure all Villagers for 30,000 tech points. Cure all Villagers clears sickness from eligible active living records without changing health and increments People Cured once per sickness cleared, then displays the exact result `Cured X villagers`. The doublers do not multiply Island Event tech or food awards. They double other positive awards and the effect is stored in the current save rather than a global INI. Adds an icon-based Villager Upgrades screen containing Grant Youth, Grant Full Mastery, Grant Running, and Set Age to 18 for the displayed villager. Grant Full Mastery preserves a checked job preference and chooses Farming when none is checked so VV1 does not show the incomplete title Master. Grant Running adds running to an available Likes slot on the displayed villager, removes running from that villager's Dislikes slots, and refuses without charging when no Like slot is available; it does not alter movement speed, movement initialization, or any custom running flag. Inspired by the Virtual Villagers 1 mobile port, where selected Origins-exclusive upgrades originated; this wording does not claim unsupported mobile parity.
+
+- Behavior changes: Inspired by the Virtual Villagers 1 mobile port where these exclusive Origins upgrades originated, this selected-upgrades port adds an icon-based Upgrades screen containing a Time Warp that advances exactly three displayed villager years, Island Event, the native Barrel of Babies event with a three-space capacity guard, and removable 500,000-tech-point Tech Point Doubler and Food Point Doubler, plus Cure all Villagers for 30,000 tech points. Cure all Villagers clears sickness from eligible active living records without changing health and increments People Cured once per sickness cleared, then displays the exact result `Cured X villagers`. The doublers do not multiply Island Event tech or food awards. They double other positive awards and the effect is stored in the current save rather than a global INI. Adds an icon-based Villager Upgrades screen containing Grant Youth, Grant Full Mastery, Grant Running, and Set Age to 18 for the displayed villager. Grant Full Mastery preserves a checked job preference and chooses Farming when none is checked so VV1 does not show the incomplete title Master. Grant Running adds running to an available Likes slot on the displayed villager, removes running from that villager's Dislikes slots, and refuses without charging when no Like slot is available; it does not alter movement speed, movement initialization, or any custom running flag.
+- Explicit non-changes/exclusions: none declared
+- Dependencies: none
+- Build-specific Running preference ID: 38; evidence source: exact stock executable embedded preference table at table offset 0x7B260.
+- Doubler evidence matrix: {'positive_tech_writer': '0x41D120', 'positive_food_writer': '0x41D140', 'collection_adjustment': 'not independently recorded; no exact callsite claim', 'island_event_producers': ['0x428194 tech', '0x4281DA food'], 'hook_status': 'pending exact all-path provenance audit'}
+- Evidence status: static source/manifest verification performed; runtime/player confirmation pending
+- Guarded executable edits: 12; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Magic Fruit of Life Alters Mortality (`vv1_magic_fruit_alters_mortality`)
+
+Completing the Magic Fruit of Life puzzle globally shifts every ordinary villager's mortality curve seven displayed years later, including during time catch-up. Finishing Enjoying magic fruit also clears that villager's sickness and restores health to 100. Eating the fruit remains reusable and stores nothing in villager likes or dislikes.
+
+- Behavior changes: Completing the Magic Fruit of Life puzzle globally shifts every ordinary villager's mortality curve seven displayed years later, including during time catch-up. Finishing Enjoying magic fruit also clears that villager's sickness and restores health to 100. Eating the fruit remains reusable and stores nothing in villager likes or dislikes.
+- Explicit non-changes/exclusions: none declared
+- Dependencies: none
+- Evidence status: static source/manifest verification performed; runtime/player confirmation pending
+- Guarded executable edits: 5; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Reenable F6 Clothing Change Cheat (`vv1_f6_clothing_change_cheat`)
+
+Pressing F6 spends 5,000 tech points to cycle the selected active villager to the next stock outfit, wrapping from outfit 19 back to outfit 0. With fewer than 5,000 tech points, F6 does nothing and charges nothing.
+
+- Behavior changes: Pressing F6 spends 5,000 tech points to cycle the selected active villager to the next stock outfit, wrapping from outfit 19 back to outfit 0. With fewer than 5,000 tech points, F6 does nothing and charges nothing.
+- Explicit non-changes/exclusions: none declared
+- Dependencies: none
+- Evidence status: static source/manifest verification performed; runtime/player confirmation pending
+- Guarded executable edits: 3; every edit has an exact purpose and before/after guard in the manifest.
+
+#### School Lessons Grant Skill (`vv1_school_lessons_grant_skill`)
+
+Each child who finishes the unlocked Going to school activity gains 7 to 9 points in one equally random skill, matching the VV3 Tribal Chief lesson award.
+
+- Behavior changes: Each child who finishes the unlocked Going to school activity gains 7 to 9 points in one equally random skill, matching the VV3 Tribal Chief lesson award.
+- Explicit non-changes/exclusions: none declared
+- Dependencies: none
+- Evidence status: static source/manifest verification performed; runtime/player confirmation pending
+- Guarded executable edits: 4; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Write Village Statistics to Text File (`vv1_write_village_statistics`)
+
+After each successful save of slots 1 through 5, writes the save's local lifetime statistics to 'Village Statistics - Save N.txt' in the modified game folder. Later games retain the inherited per-save statistics block even where no Statistics screen is reachable; omitted stock bookkeeping is restored by exact gameplay hooks. Puzzle totals are read from the current save state during export so existing saves are reported accurately. The original save result is preserved, and text-export failure does not turn a successful game save into a failure.
+
+- Behavior changes: After each successful save of slots 1 through 5, writes the save's local lifetime statistics to 'Village Statistics - Save N.txt' in the modified game folder. Later games retain the inherited per-save statistics block even where no Statistics screen is reachable; omitted stock bookkeeping is restored by exact gameplay hooks. Puzzle totals are read from the current save state during export so existing saves are reported accurately. The original save result is preserved, and text-export failure does not turn a successful game save into a failure.
+- Explicit non-changes/exclusions: none declared
+- Dependencies: none
+- Evidence status: static source/manifest verification performed; runtime/player confirmation pending
+- Guarded executable edits: 2; every edit has an exact purpose and before/after guard in the manifest.
+
+## Virtual Villagers - The Lost Children
+
+### Automatic population and safety changes
+
+Supported stock identity is the exact `Virtual Villagers - The Lost Children.exe` build recorded in `data/builds.json`. The automatic edits are the selected population mode plus 13 guarded safety edits. The modified output retains the untouched stock executable beside the modified executable. Stock modes preserve vanilla save format; expanded modes use the documented guarded compatibility/conversion path.
+
+### Optional features
+
+#### Easier Healing Mastery (`vv2_easier_healing_mastery`)
+
+Healers and villagers who prefer Healing study plants when no sick villager needs treatment, including during catch-up.
+
+- Behavior changes: Healers and villagers who prefer Healing study plants when no sick villager needs treatment, including during catch-up.
+- Explicit non-changes/exclusions: none declared
+- Dependencies: none
+- Evidence status: static source/manifest verification performed; runtime/player confirmation pending
+- Guarded executable edits: 2; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Enable Origins Village-Wide Upgrades (`vv2_origins_village_wide_upgrades`)
+
+Adds three optional, current-save-only Origins upgrades to the Tech-screen Upgrades window, inspired by the Virtual Villagers 1 mobile port's selected exclusive upgrades: All Villagers Like Running, All Villagers are Jack-Of-All-Trades, and All Villagers are 18. Each costs exactly 1,000,000 tech points. Running uses the build-specific preference ID proven from the stock preference table, preserves unrelated Likes, removes Running Dislikes, and reports `Skipped over X villagers. Reason: Already 3 likes.`, `skipped over Y villagers. Reason: already likes running`, plus `Removed running dislike from X villagers` only when applicable. Mastery writes only the native skill fields. Age changes only the displayed age to 18 and does not change nursing or pregnancy timers.
+
+- Behavior changes: Adds rows 6-8 to the Origins Tech-screen Upgrades dialog only when this optional feature is installed. Charges exactly 1,000,000 tech points once per selected village-wide purchase in the current save. Running scans exactly three normal Like and Dislike slots, reports full-Like and already-Running counts, and reports villagers whose Running dislike was removed; duplicate Running Dislikes are all cleared but count once per villager. Jack-Of-All-Trades writes the native five- or six-skill mastery fields for eligible living villagers. All Villagers are 18 writes only the verified displayed-age field to 360 age units.
+- Explicit non-changes/exclusions: No unrelated Like is replaced or removed. No movement speed, movement initialization, nursing timer, pregnancy timer, or pregnancy state is written. The upgrades are save-scoped and do not set a global ownership bit. VV5 Heathens are excluded from all three village-wide operations.
+- Dependencies: vv2_enable_origins_exclusive_features
+- Build-specific Running preference ID: 38; evidence source: exact stock executable embedded preference table at table offset 0x8B808.
+- Evidence status: static exact-build payload and field-map verification performed; runtime/player confirmation pending
+- Guarded executable edits: 1; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Enable Origins-Exclusive Features (`vv2_enable_origins_exclusive_features`)
+
+Inspired by the Virtual Villagers 1 mobile port where these exclusive Origins upgrades originated, this selected-upgrades port adds the icon-based Origins Upgrades screen with a Time Warp that advances exactly three displayed villager years, Island Event, the native Barrel of Babies event with a three-space reserved-population guard, and removable 500,000-tech-point Tech Point and Food Point Doublers, plus Cure all Villagers for 30,000 tech points. Cure all Villagers clears sickness from eligible active living records without changing health and increments People Cured once per sickness cleared, then displays the exact result `Cured X villagers`. Doubler ownership is confined to the current save, and Island Event awards are not multiplied; Gong of Wonder awards are also not multiplied, and the complete Gong provenance exclusion remains a static STOP until every outcome path is proven. Adds Villager Upgrades for Grant Youth, Grant Full Mastery, Grant Running, and Set Age to 18. Grant Running uses an available normal Likes slot, removes Running from the displayed villager's Dislikes, refuses without charging when all normal Like slots are occupied, and changes no movement-speed value, predicate, or other vanilla speed logic. Inspired by the Virtual Villagers 1 mobile port, where selected Origins-exclusive upgrades originated; this wording does not claim unsupported mobile parity.
+
+- Behavior changes: Inspired by the Virtual Villagers 1 mobile port where these exclusive Origins upgrades originated, this selected-upgrades port adds the icon-based Origins Upgrades screen with a Time Warp that advances exactly three displayed villager years, Island Event, the native Barrel of Babies event with a three-space reserved-population guard, and removable 500,000-tech-point Tech Point and Food Point Doublers, plus Cure all Villagers for 30,000 tech points. Cure all Villagers clears sickness from eligible active living records without changing health and increments People Cured once per sickness cleared, then displays the exact result `Cured X villagers`. Doubler ownership is confined to the current save, and Island Event awards are not multiplied; Gong of Wonder awards are also not multiplied, and the complete Gong provenance exclusion remains a static STOP until every outcome path is proven. Adds Villager Upgrades for Grant Youth, Grant Full Mastery, Grant Running, and Set Age to 18. Grant Running uses an available normal Likes slot, removes Running from the displayed villager's Dislikes, refuses without charging when all normal Like slots are occupied, and changes no movement-speed value, predicate, or other vanilla speed logic.
+- Explicit non-changes/exclusions: none declared
+- Dependencies: none
+- Build-specific Running preference ID: 38; evidence source: exact stock executable embedded preference table at table offset 0x8B808.
+- Doubler evidence matrix: {'positive_tech_writer': '0x426290', 'positive_food_writer': '0x4262B0', 'collection_adjustment': 'not independently recorded; no exact callsite claim', 'island_event_producers': ['one candidate tech return', 'one candidate food return'], 'gong_of_wonder': 'STOP: every food/tech outcome branch and delayed helper path must be proven before release', 'hook_status': 'STOP pending exact Island Event and Gong all-path provenance audit'}
+- Evidence status: static source/manifest verification performed; runtime/player confirmation pending
+- Guarded executable edits: 12; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Gong of Wonder Coconuts Fix (`vv2_gong_of_wonder_coconuts_fix`)
+
+When the Gong of Wonder grants coconuts, adds 30 to the coconut trees instead of replacing their current amount with 30. Both normal and alternate outcome paths are corrected.
+
+- Behavior changes: When the Gong of Wonder grants coconuts, adds 30 to the coconut trees instead of replacing their current amount with 30. Both normal and alternate outcome paths are corrected.
+- Explicit non-changes/exclusions: none declared
+- Dependencies: none
+- Evidence status: static source/manifest verification performed; runtime/player confirmation pending
+- Guarded executable edits: 2; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Hospital Recovery Heals (`vv2_hospital_recovery_heals`)
+
+A villager who completes Recovering at the hospital gains exactly 1 health point, capped at 100. Stock VV2's hospital recovery action does not change health.
+
+- Behavior changes: A villager who completes Recovering at the hospital gains exactly 1 health point, capped at 100. Stock VV2's hospital recovery action does not change health.
+- Explicit non-changes/exclusions: none declared
+- Dependencies: none
+- Evidence status: static source/manifest verification performed; runtime/player confirmation pending
+- Guarded executable edits: 2; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Teaching Children Grants Skill (`vv2_teaching_children_grants_skill`)
+
+Each child who finishes a Teaching Children lesson gains 7 to 9 points in one equally random skill, matching the VV3 Tribal Chief lesson award.
+
+- Behavior changes: Each child who finishes a Teaching Children lesson gains 7 to 9 points in one equally random skill, matching the VV3 Tribal Chief lesson award.
+- Explicit non-changes/exclusions: none declared
+- Dependencies: none
+- Evidence status: static source/manifest verification performed; runtime/player confirmation pending
+- Guarded executable edits: 2; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Write Village Statistics to Text File (`vv2_write_village_statistics`)
+
+After each successful save of slots 1 through 5, writes the save's local lifetime statistics to 'Village Statistics - Save N.txt' in the modified game folder. Later games retain the inherited per-save statistics block even where no Statistics screen is reachable; omitted stock bookkeeping is restored by exact gameplay hooks. Puzzle totals are read from the current save state during export so existing saves are reported accurately. The original save result is preserved, and text-export failure does not turn a successful game save into a failure.
+
+- Behavior changes: After each successful save of slots 1 through 5, writes the save's local lifetime statistics to 'Village Statistics - Save N.txt' in the modified game folder. Later games retain the inherited per-save statistics block even where no Statistics screen is reachable; omitted stock bookkeeping is restored by exact gameplay hooks. Puzzle totals are read from the current save state during export so existing saves are reported accurately. The original save result is preserved, and text-export failure does not turn a successful game save into a failure.
+- Explicit non-changes/exclusions: none declared
+- Dependencies: none
+- Evidence status: static source/manifest verification performed; runtime/player confirmation pending
+- Guarded executable edits: 2; every edit has an exact purpose and before/after guard in the manifest.
+
+## Virtual Villagers - The Secret City
+
+### Automatic population and safety changes
+
+Supported stock identity is the exact `Virtual Villagers - The Secret City.exe` build recorded in `data/builds.json`. The automatic edits are the selected population mode plus 8 guarded safety edits. The modified output retains the untouched stock executable beside the modified executable. Stock modes preserve vanilla save format; expanded modes use the documented guarded compatibility/conversion path.
+
+### Optional features
+
+#### Enable Origins Village-Wide Upgrades (`vv3_origins_village_wide_upgrades`)
+
+Adds three optional, current-save-only Origins upgrades to the Tech-screen Upgrades window, inspired by the Virtual Villagers 1 mobile port's selected exclusive upgrades: All Villagers Like Running, All Villagers are Jack-Of-All-Trades, and All Villagers are 18. Each costs exactly 1,000,000 tech points. Running uses the build-specific preference ID proven from the stock preference table, preserves unrelated Likes, removes Running Dislikes, and reports `Skipped over X villagers. Reason: Already 3 likes.`, `skipped over Y villagers. Reason: already likes running`, plus `Removed running dislike from X villagers` only when applicable. Mastery writes only the native skill fields. Age changes only the displayed age to 18 and does not change nursing or pregnancy timers.
+
+- Behavior changes: Adds rows 6-8 to the Origins Tech-screen Upgrades dialog only when this optional feature is installed. Charges exactly 1,000,000 tech points once per selected village-wide purchase in the current save. Running scans exactly three normal Like and Dislike slots, reports full-Like and already-Running counts, and reports villagers whose Running dislike was removed; duplicate Running Dislikes are all cleared but count once per villager. Jack-Of-All-Trades writes the native five- or six-skill mastery fields for eligible living villagers. All Villagers are 18 writes only the verified displayed-age field to 360 age units.
+- Explicit non-changes/exclusions: No unrelated Like is replaced or removed. No movement speed, movement initialization, nursing timer, pregnancy timer, or pregnancy state is written. The upgrades are save-scoped and do not set a global ownership bit. VV5 Heathens are excluded from all three village-wide operations.
+- Dependencies: vv3_enable_origins_exclusive_features
+- Build-specific Running preference ID: 38; evidence source: exact stock executable embedded preference table at table offset 0x97488.
+- Evidence status: static exact-build payload and field-map verification performed; runtime/player confirmation pending
+- Guarded executable edits: 1; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Enable Origins-Exclusive Features (`vv3_enable_origins_exclusive_features`)
+
+Inspired by the Virtual Villagers 1 mobile port where these exclusive Origins upgrades originated, this selected-upgrades port adds the icon-based Origins Upgrades screen with Time Warp, Island Event, the native Another One of Those Barrels event with a dynamic three-space 150/256-record guard, and removable 500,000-tech-point Tech Point and Food Point Doublers, plus Cure all Villagers for 30,000 tech points. Cure all Villagers clears sickness from eligible active living records without changing health and increments People Cured once per sickness cleared, then displays the exact result `Cured X villagers`. Time Warp advances every villager by exactly 3 displayed years at every active game speed; the required wall-clock shift is 3 hours at half speed, 6 hours at normal speed, and 10 hours at double speed. Doubler ownership is confined to the current save, and Island Event awards are not multiplied. Adds Villager Upgrades for Grant Youth, Grant Full Mastery, Grant Running, and Set Age to 18. Grant Running only uses an available normal Likes slot on the displayed villager and removes Running from that villager's Dislikes; it refuses without charging when all normal Like slots are occupied and does not alter any movement behavior or speed value. Inspired by the Virtual Villagers 1 mobile port, where selected Origins-exclusive upgrades originated; this wording does not claim unsupported mobile parity.
+
+- Behavior changes: Inspired by the Virtual Villagers 1 mobile port where these exclusive Origins upgrades originated, this selected-upgrades port adds the icon-based Origins Upgrades screen with Time Warp, Island Event, the native Another One of Those Barrels event with a dynamic three-space 150/256-record guard, and removable 500,000-tech-point Tech Point and Food Point Doublers, plus Cure all Villagers for 30,000 tech points. Cure all Villagers clears sickness from eligible active living records without changing health and increments People Cured once per sickness cleared, then displays the exact result `Cured X villagers`. Time Warp advances every villager by exactly 3 displayed years at every active game speed; the required wall-clock shift is 3 hours at half speed, 6 hours at normal speed, and 10 hours at double speed. Doubler ownership is confined to the current save, and Island Event awards are not multiplied. Adds Villager Upgrades for Grant Youth, Grant Full Mastery, Grant Running, and Set Age to 18. Grant Running only uses an available normal Likes slot on the displayed villager and removes Running from that villager's Dislikes; it refuses without charging when all normal Like slots are occupied and does not alter any movement behavior or speed value.
+- Explicit non-changes/exclusions: none declared
+- Dependencies: none
+- Build-specific Running preference ID: 38; evidence source: exact stock executable embedded preference table at table offset 0x97488.
+- Doubler evidence matrix: {'positive_tech_writer': '0x427130', 'positive_food_writer': '0x4263F0', 'collection_adjustment': 'not independently recorded; no exact callsite claim', 'island_event_producers': ['dispatcher 0x458DB0-0x45943F'], 'hook_status': 'pending exact all-path provenance audit'}
+- Evidence status: static source/manifest verification performed; runtime/player confirmation pending
+- Guarded executable edits: 10; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Nature Level 1 Actually Replenishes Food Sources Faster (`vv3_nature_honey_refill`)
+
+Nature level 1 or higher reduces fruit-tree refills from 3 hours to 2 hours 15 minutes and honey refills from 1 hour to 45 minutes. Fruit trees retain their stock Nature quantity bonus, while honey gains the same proportional quantity bonus.
+
+- Behavior changes: Nature level 1 or higher reduces fruit-tree refills from 3 hours to 2 hours 15 minutes and honey refills from 1 hour to 45 minutes. Fruit trees retain their stock Nature quantity bonus, while honey gains the same proportional quantity bonus.
+- Explicit non-changes/exclusions: none declared
+- Dependencies: none
+- Evidence status: static source/manifest verification performed; runtime/player confirmation pending
+- Guarded executable edits: 7; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Nature Level 3 Actually Alters Mortality (`vv3_nature_level_three_alters_mortality`)
+
+Nature level 3 shifts every ordinary villager's complete mortality curve seven displayed years later. The stock Medicine threshold is calculated first, so the benefits stack, and the shared aging loop applies the change during ordinary play and time catch-up.
+
+- Behavior changes: Nature level 3 shifts every ordinary villager's complete mortality curve seven displayed years later. The stock Medicine threshold is calculated first, so the benefits stack, and the shared aging loop applies the change during ordinary play and time catch-up.
+- Explicit non-changes/exclusions: none declared
+- Dependencies: none
+- Evidence status: static source/manifest verification performed; runtime/player confirmation pending
+- Guarded executable edits: 2; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Pointing Out a Rare Collectible Always Works (`vv3_rare_collectible_retry`)
+
+When the Tribal Chief completes Pointing out a rare collectible, rejected random choices are rerolled until the stock game finds an eligible rare collectible. This prevents the full stock cooldown from being spent without a collectible appearing while preserving the original rare categories, collectible IDs, collection rules, and placement logic.
+
+- Behavior changes: When the Tribal Chief completes Pointing out a rare collectible, rejected random choices are rerolled until the stock game finds an eligible rare collectible. This prevents the full stock cooldown from being spent without a collectible appearing while preserving the original rare categories, collectible IDs, collection rules, and placement logic.
+- Explicit non-changes/exclusions: none declared
+- Dependencies: none
+- Evidence status: static source/manifest verification performed; runtime/player confirmation pending
+- Guarded executable edits: 3; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Write Village Statistics to Text File (`vv3_write_village_statistics`)
+
+After each successful save of slots 1 through 5, writes the save's local lifetime statistics to 'Village Statistics - Save N.txt' in the modified game folder. Later games retain the inherited per-save statistics block even where no Statistics screen is reachable; omitted stock bookkeeping is restored by exact gameplay hooks. Puzzle totals are read from the current save state during export so existing saves are reported accurately. The original save result is preserved, and text-export failure does not turn a successful game save into a failure.
+
+- Behavior changes: After each successful save of slots 1 through 5, writes the save's local lifetime statistics to 'Village Statistics - Save N.txt' in the modified game folder. Later games retain the inherited per-save statistics block even where no Statistics screen is reachable; omitted stock bookkeeping is restored by exact gameplay hooks. Puzzle totals are read from the current save state during export so existing saves are reported accurately. The original save result is preserved, and text-export failure does not turn a successful game save into a failure.
+- Explicit non-changes/exclusions: none declared
+- Dependencies: none
+- Evidence status: static source/manifest verification performed; runtime/player confirmation pending
+- Guarded executable edits: 3; every edit has an exact purpose and before/after guard in the manifest.
+
+## Virtual Villagers - The Tree of Life
+
+### Automatic population and safety changes
+
+Supported stock identity is the exact `Virtual Villagers - The Tree of Life.exe` build recorded in `data/builds.json`. The automatic edits are the selected population mode plus 10 guarded safety edits. The modified output retains the untouched stock executable beside the modified executable. Stock modes preserve vanilla save format; expanded modes use the documented guarded compatibility/conversion path.
+
+### Optional features
+
+#### Birth Control (`vv4_birth_control`)
+
+For The Tree of Life, blocks manual conception when either participant has reached internal age 1000 (displayed age 50), while leaving the separately identified time-catch-up route able to use the stock older-mother behavior. Autonomous Embracing still requires the initiating villager's positive Breeding skill and checked Children preference; the candidate keeps the stock eligibility rules. Island Events, Gong effects, and event-created nursing babies are untouched.
+
+- Behavior changes: For The Tree of Life, blocks manual conception when either participant has reached internal age 1000 (displayed age 50), while leaving the separately identified time-catch-up route able to use the stock older-mother behavior. Autonomous Embracing still requires the initiating villager's positive Breeding skill and checked Children preference; the candidate keeps the stock eligibility rules. Island Events, Gong effects, and event-created nursing babies are untouched.
+- Explicit non-changes/exclusions: none declared
+- Dependencies: none
+- Evidence status: static source/manifest verification performed; runtime/player confirmation pending
+- Guarded executable edits: 2; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Complete Fish Scales = Golden Fish in Nets (`vv4_complete_scales_golden_fish`)
+
+Golden Fish become eligible in the fishing nets only after all 12 Fish Scales are collected. This changes the stock partial-collection threshold while preserving the completed collection's original 25% Golden Fish chance and every other fishing outcome.
+
+- Behavior changes: Golden Fish become eligible in the fishing nets only after all 12 Fish Scales are collected. This changes the stock partial-collection threshold while preserving the completed collection's original 25% Golden Fish chance and every other fishing outcome.
+- Explicit non-changes/exclusions: none declared
+- Dependencies: none
+- Evidence status: static source/manifest verification performed; runtime/player confirmation pending
+- Guarded executable edits: 1; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Enable Origins Village-Wide Upgrades (`vv4_origins_village_wide_upgrades`)
+
+Adds three optional, current-save-only Origins upgrades to the Tech-screen Upgrades window, inspired by the Virtual Villagers 1 mobile port's selected exclusive upgrades: All Villagers Like Running, All Villagers are Jack-Of-All-Trades, and All Villagers are 18. Each costs exactly 1,000,000 tech points. Running uses the build-specific preference ID proven from the stock preference table, preserves unrelated Likes, removes Running Dislikes, and reports `Skipped over X villagers. Reason: Already 3 likes.`, `skipped over Y villagers. Reason: already likes running`, plus `Removed running dislike from X villagers` only when applicable. Mastery writes only the native skill fields. Age changes only the displayed age to 18 and does not change nursing or pregnancy timers.
+
+- Behavior changes: Adds rows 6-8 to the Origins Tech-screen Upgrades dialog only when this optional feature is installed. Charges exactly 1,000,000 tech points once per selected village-wide purchase in the current save. Running scans exactly three normal Like and Dislike slots, reports full-Like and already-Running counts, and reports villagers whose Running dislike was removed; duplicate Running Dislikes are all cleared but count once per villager. Jack-Of-All-Trades writes the native five- or six-skill mastery fields for eligible living villagers. All Villagers are 18 writes only the verified displayed-age field to 360 age units.
+- Explicit non-changes/exclusions: No unrelated Like is replaced or removed. No movement speed, movement initialization, nursing timer, pregnancy timer, or pregnancy state is written. The upgrades are save-scoped and do not set a global ownership bit. VV5 Heathens are excluded from all three village-wide operations.
+- Dependencies: vv4_enable_origins_exclusive_features
+- Build-specific Running preference ID: 38; evidence source: exact stock executable embedded preference table at table offset 0xA0CD8.
+- Evidence status: static exact-build payload and field-map verification performed; runtime/player confirmation pending
+- Guarded executable edits: 1; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Enable Origins-Exclusive Features (`vv4_enable_origins_exclusive_features`)
+
+Inspired by the Virtual Villagers 1 mobile port where these exclusive Origins upgrades originated, this selected-upgrades port adds the icon-based Origins Upgrades screen. Time Warp advances exactly 3 displayed villager years at half, normal, and double speed; Island Event uses the stock scheduler; Barrel of Babies opens the native event and requires three free physical villager records in either the 150- or 256-record game. Adds removable, current-save-only 500,000-tech-point Tech Point and Food Point Doublers, plus Cure all Villagers for 30,000 tech points. Cure all Villagers clears sickness from eligible active living records without changing health and increments People Cured once per sickness cleared, then displays the exact result `Cured X villagers`; Island Event awards are not doubled. Adds Villager Upgrades for Grant Youth, Grant Full Mastery, Grant Running, and Set Age to 18. Grant Running only adds Running to a free normal Like slot and removes it from Dislikes; it refuses without charging when Likes are full and never changes any movement or speed logic or value. Inspired by the Virtual Villagers 1 mobile port, where selected Origins-exclusive upgrades originated; this wording does not claim unsupported mobile parity.
+
+- Behavior changes: Inspired by the Virtual Villagers 1 mobile port where these exclusive Origins upgrades originated, this selected-upgrades port adds the icon-based Origins Upgrades screen. Time Warp advances exactly 3 displayed villager years at half, normal, and double speed; Island Event uses the stock scheduler; Barrel of Babies opens the native event and requires three free physical villager records in either the 150- or 256-record game. Adds removable, current-save-only 500,000-tech-point Tech Point and Food Point Doublers, plus Cure all Villagers for 30,000 tech points. Cure all Villagers clears sickness from eligible active living records without changing health and increments People Cured once per sickness cleared, then displays the exact result `Cured X villagers`; Island Event awards are not doubled. Adds Villager Upgrades for Grant Youth, Grant Full Mastery, Grant Running, and Set Age to 18. Grant Running only adds Running to a free normal Like slot and removes it from Dislikes; it refuses without charging when Likes are full and never changes any movement or speed logic or value.
+- Explicit non-changes/exclusions: none declared
+- Dependencies: none
+- Build-specific Running preference ID: 38; evidence source: exact stock executable embedded preference table at table offset 0xA0CD8.
+- Doubler evidence matrix: {'positive_tech_writer': '0x41E300', 'positive_food_writer': '0x41D94F post-mastery', 'collection_adjustment': 'post-mastery food placement recorded; exact collection callsite pending', 'island_event_producers': ['0x414A2D', '0x4156FD', '0x415874', '0x415A86', '0x415B4B', '0x415D91', '0x41673A', '0x41494E', '0x415213'], 'hook_status': 'pending exact all-path provenance audit'}
+- Evidence status: static source/manifest verification performed; runtime/player confirmation pending
+- Guarded executable edits: 11; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Write Village Statistics to Text File (`vv4_write_village_statistics`)
+
+After each successful save of slots 1 through 5, writes the save's local lifetime statistics to 'Village Statistics - Save N.txt' in the modified game folder. Later games retain the inherited per-save statistics block even where no Statistics screen is reachable; omitted stock bookkeeping is restored by exact gameplay hooks. Puzzle totals are read from the current save state during export so existing saves are reported accurately. The original save result is preserved, and text-export failure does not turn a successful game save into a failure.
+
+- Behavior changes: After each successful save of slots 1 through 5, writes the save's local lifetime statistics to 'Village Statistics - Save N.txt' in the modified game folder. Later games retain the inherited per-save statistics block even where no Statistics screen is reachable; omitted stock bookkeeping is restored by exact gameplay hooks. Puzzle totals are read from the current save state during export so existing saves are reported accurately. The original save result is preserved, and text-export failure does not turn a successful game save into a failure.
+- Explicit non-changes/exclusions: none declared
+- Dependencies: none
+- Evidence status: static source/manifest verification performed; runtime/player confirmation pending
+- Guarded executable edits: 4; every edit has an exact purpose and before/after guard in the manifest.
+
+## Virtual Villagers - New Believers
+
+### Automatic population and safety changes
+
+Supported stock identity is the exact `Virtual Villagers - New Believers.exe` build recorded in `data/builds.json`. The automatic edits are the selected population mode plus 13 guarded safety edits. The modified output retains the untouched stock executable beside the modified executable. Stock modes preserve vanilla save format; expanded modes use the documented guarded compatibility/conversion path.
+
+### Optional features
+
+#### Easier Devotee Training (`vv5_easier_devotee_training`)
+
+Villagers with positive Devotion skill can spontaneously use the stock Honoring action. Statue-drop Honoring remains available for training beginners, while villagers with no Devotion skill do not autonomously Honor.
+
+- Behavior changes: Villagers with positive Devotion skill can spontaneously use the stock Honoring action. Statue-drop Honoring remains available for training beginners, while villagers with no Devotion skill do not autonomously Honor.
+- Explicit non-changes/exclusions: none declared
+- Dependencies: none
+- Evidence status: static source/manifest verification performed; runtime/player confirmation pending
+- Guarded executable edits: 3; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Enable Origins Village-Wide Upgrades (`vv5_origins_village_wide_upgrades`)
+
+Adds three optional, current-save-only Origins upgrades to the Tech-screen Upgrades window, inspired by the Virtual Villagers 1 mobile port's selected exclusive upgrades: All Villagers Like Running, All Villagers are Jack-Of-All-Trades, and All Villagers are 18. Each costs exactly 1,000,000 tech points. Running uses the build-specific preference ID proven from the stock preference table, preserves unrelated Likes, removes Running Dislikes, and reports `Skipped over X villagers. Reason: Already 3 likes.`, `skipped over Y villagers. Reason: already likes running`, plus `Removed running dislike from X villagers` only when applicable. Mastery writes only the native skill fields. Age changes only the displayed age to 18 and does not change nursing or pregnancy timers. Only eligible living believers are processed; Heathens are excluded and remain untouched.
+
+- Behavior changes: Adds rows 6-8 to the Origins Tech-screen Upgrades dialog only when this optional feature is installed. Charges exactly 1,000,000 tech points once per selected village-wide purchase in the current save. Running scans exactly three normal Like and Dislike slots, reports full-Like and already-Running counts, and reports villagers whose Running dislike was removed; duplicate Running Dislikes are all cleared but count once per villager. Jack-Of-All-Trades writes the native five- or six-skill mastery fields for eligible living villagers. All Villagers are 18 writes only the verified displayed-age field to 360 age units.
+- Explicit non-changes/exclusions: No unrelated Like is replaced or removed. No movement speed, movement initialization, nursing timer, pregnancy timer, or pregnancy state is written. The upgrades are save-scoped and do not set a global ownership bit. VV5 Heathens are excluded from all three village-wide operations.
+- Dependencies: vv5_enable_origins_exclusive_features
+- Build-specific Running preference ID: 38; evidence source: exact stock executable embedded preference table at table offset 0xAEF60.
+- Evidence status: static exact-build payload and field-map verification performed; runtime/player confirmation pending
+- Guarded executable edits: 1; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Enable Origins-Exclusive Features (`vv5_enable_origins_exclusive_features`)
+
+Inspired by the Virtual Villagers 1 mobile port where these exclusive Origins upgrades originated, this selected-upgrades port adds icon-based Origins Upgrades. The native Time Warp (the stock route advances exactly 3 displayed villager years), Island Event, and Barrel of Babies rows are retained but disabled until their Heathen-safe target paths are proved; selecting one reports that it is unavailable. Adds removable, save-scoped Tech Point and Food Point Doublers that exclude Island Event awards, plus Cure all Villagers for 30,000 tech points. Cure all Villagers clears sickness from eligible active living believer records without changing health and increments People Cured once per sickness cleared, then displays the exact result `Cured X villagers`; Heathens are excluded. Villager Upgrades include Grant Youth (floor age 5), six-skill Full Mastery, Set Age to 18, and Grant Running. Grant Running only adds the build-specific Running preference ID (proven at table offset 0xAEF60) to a free normal Like slot and removes that same ID from Dislikes; it never changes movement or speed logic. Inspired by the Virtual Villagers 1 mobile port, where selected Origins-exclusive upgrades originated; this wording does not claim unsupported mobile parity.
+
+- Behavior changes: Inspired by the Virtual Villagers 1 mobile port where these exclusive Origins upgrades originated, this selected-upgrades port adds icon-based Origins Upgrades. The native Time Warp (the stock route advances exactly 3 displayed villager years), Island Event, and Barrel of Babies rows are retained but disabled until their Heathen-safe target paths are proved; selecting one reports that it is unavailable. Adds removable, save-scoped Tech Point and Food Point Doublers that exclude Island Event awards, plus Cure all Villagers for 30,000 tech points. Cure all Villagers clears sickness from eligible active living believer records without changing health and increments People Cured once per sickness cleared, then displays the exact result `Cured X villagers`; Heathens are excluded. Villager Upgrades include Grant Youth (floor age 5), six-skill Full Mastery, Set Age to 18, and Grant Running. Grant Running only adds the build-specific Running preference ID (proven at table offset 0xAEF60) to a free normal Like slot and removes that same ID from Dislikes; it never changes movement or speed logic.
+- Explicit non-changes/exclusions: none declared
+- Dependencies: none
+- Build-specific Running preference ID: 38; evidence source: exact stock executable embedded preference table at table offset 0xAEF60.
+- Doubler evidence matrix: {'positive_tech_writer': '0x4237B0', 'positive_food_writer': '0x41EB6F before stock statistics hook', 'collection_adjustment': 'not independently recorded; no exact callsite claim', 'island_event_producers': ['event methods 0x414A30-0x416CD0; tail-jump coverage unresolved'], 'hook_status': 'STOP until every direct and tail-jump Island Event path is proven'}
+- Native event safety: {'disabled_rows': ['Time Warp', 'Island Event', 'Barrel of Babies'], 'reason': 'VV5 native time/event paths are not yet proven to avoid current Heathen record targeting.', 'evidence_status': 'STOP; no charge or native call is made for these rows'}
+- Evidence status: static source/manifest verification performed; runtime/player confirmation pending
+- Guarded executable edits: 12; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Heathen Mommy Puzzle Restoration (`vv5_heathen_mommy_puzzle`)
+
+Restores the natural Heathen Mommy to newly created villages as a tag-17 Heathen mother with one nursing baby, using two physical slots, and restores the hidden 17th Heathen Parent graphic and full-tile rollover messages to the Puzzles screen. Existing saves are not retroactively given a new mother.
+
+- Behavior changes: Restores the natural Heathen Mommy to newly created villages as a tag-17 Heathen mother with one nursing baby, using two physical slots, and restores the hidden 17th Heathen Parent graphic and full-tile rollover messages to the Puzzles screen. Existing saves are not retroactively given a new mother.
+- Explicit non-changes/exclusions: none declared
+- Dependencies: none
+- Evidence status: static source/manifest verification performed; runtime/player confirmation pending
+- Guarded executable edits: 11; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Statue Drops: Normal Action or Honoring (`vv5_statue_polishing_or_honoring`)
+
+Statue drops use skill-aware choices: Honoring is available only to villagers with positive Devotion, while Building a statue and Polishing the Statue require positive Building skill. When both outcomes are eligible, the choice is 50/50; otherwise the eligible normal action is kept.
+
+- Behavior changes: Statue drops use skill-aware choices: Honoring is available only to villagers with positive Devotion, while Building a statue and Polishing the Statue require positive Building skill. When both outcomes are eligible, the choice is 50/50; otherwise the eligible normal action is kept.
+- Explicit non-changes/exclusions: none declared
+- Dependencies: none
+- Evidence status: static source/manifest verification performed; runtime/player confirmation pending
+- Guarded executable edits: 12; every edit has an exact purpose and before/after guard in the manifest.
+
+#### VV4 Nursery School Divisor Parity (`vv5_vv4_nursery_divisor_parity`)
+
+For parity with Virtual Villagers 4, changes VV5's six-skill spread lesson divisor from five to six. VV5 normally distributes one-fifth of a lesson to each of six skills, an arithmetic inconsistency that awards six-fifths in total; this patch distributes exactly one-sixth to each skill without claiming whether the original inconsistency was intentional.
+
+- Behavior changes: For parity with Virtual Villagers 4, changes VV5's six-skill spread lesson divisor from five to six. VV5 normally distributes one-fifth of a lesson to each of six skills, an arithmetic inconsistency that awards six-fifths in total; this patch distributes exactly one-sixth to each skill without claiming whether the original inconsistency was intentional.
+- Explicit non-changes/exclusions: none declared
+- Dependencies: none
+- Evidence status: static source/manifest verification performed; runtime/player confirmation pending
+- Guarded executable edits: 2; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Write Village Statistics to Text File (`vv5_write_village_statistics`)
+
+After each successful save of slots 1 through 5, writes the save's local lifetime statistics to 'Village Statistics - Save N.txt' in the modified game folder. Later games retain the inherited per-save statistics block even where no Statistics screen is reachable; omitted stock bookkeeping is restored by exact gameplay hooks. Puzzle totals are read from the current save state during export, including an already-completed VV5 Puzzle 17 save. The original save result is preserved, and text-export failure does not turn a successful game save into a failure.
+
+- Behavior changes: After each successful save of slots 1 through 5, writes the save's local lifetime statistics to 'Village Statistics - Save N.txt' in the modified game folder. Later games retain the inherited per-save statistics block even where no Statistics screen is reachable; omitted stock bookkeeping is restored by exact gameplay hooks. Puzzle totals are read from the current save state during export, including an already-completed VV5 Puzzle 17 save. The original save result is preserved, and text-export failure does not turn a successful game save into a failure.
+- Explicit non-changes/exclusions: none declared
+- Dependencies: none
+- Evidence status: static source/manifest verification performed; runtime/player confirmation pending
+- Guarded executable edits: 5; every edit has an exact purpose and before/after guard in the manifest.
+
+## Transparency and validation boundaries
+
+Each successful output writes `VVFP Transparency Log.txt` beside the modified executable and a machine-readable `.patch-log.json`. The text report is written through a temporary file only after the executable, companions, and source/output tree have been verified; its SHA-256 is recorded in JSON without self-hashing the JSON. The report lists the stock and modified hashes, every applied edit grouped by owner, PE layout/checksum differences, file additions/modifications/removals, save handling, selected feature predicates/costs/exclusions, static checks, and the explicit runtime/player-confirmation-pending status.
+
+Historical counters that are not persisted in a save cannot be reconstructed from a current save. The statistics exporter therefore reports persisted per-save counters and derives current puzzle completion (including VV5 Puzzle 17 when the save records it) at export time.

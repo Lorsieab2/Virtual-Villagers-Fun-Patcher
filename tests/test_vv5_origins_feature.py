@@ -45,7 +45,7 @@ class VV5OriginsFeatureTests(unittest.TestCase):
         )
         self.assertEqual(
             self.feature["companion_files"][0]["sha256"],
-            "9A8F84A48B0C5DF40BB878FB05172D4C11BC6DB336694103C114BFCF2B1334C9",
+            hashlib.sha256(companion.read_bytes()).hexdigest().upper(),
         )
 
     def test_grant_youth_label_explains_age_floor(self) -> None:
@@ -58,7 +58,7 @@ class VV5OriginsFeatureTests(unittest.TestCase):
             before = bytes.fromhex(item["before"])
             self.assertEqual(self.stock[offset : offset + len(before)], before)
             self.assertEqual(len(before), len(bytes.fromhex(item["after"])))
-        self.assertEqual(len(self.payload), 0xEA4)
+        self.assertEqual(len(self.payload), 0xF1C)
         self.assertEqual(
             self.stock[0xDB000 : 0xDB000 + len(self.payload)],
             b"\0" * len(self.payload),
@@ -88,6 +88,13 @@ class VV5OriginsFeatureTests(unittest.TestCase):
         self.assertIn("sub dword ptr [0x4C6250], eax", self.source)
         self.assertIn("sbb dword ptr [0x4C6254], 0", self.source)
         self.assertIn("3 displayed villager years", self.feature["description"])
+
+    def test_unsafe_native_time_and_event_rows_are_disabled_for_heathen_safety(self) -> None:
+        self.assertEqual(
+            self.feature["native_event_safety"]["disabled_rows"],
+            ["Time Warp", "Island Event", "Barrel of Babies"],
+        )
+        self.assertIn("not verified safe for Heathens", self.source)
         self.assertIn(b"3 displayed years", self.payload)
 
     def test_barrel_uses_native_index_and_dynamic_150_256_guard(self) -> None:
@@ -137,7 +144,8 @@ class VV5OriginsFeatureTests(unittest.TestCase):
     def test_running_changes_only_selected_record_preferences(self) -> None:
         self.assertIn("lea ecx, [edx + 8028]", self.source)
         self.assertIn("lea ecx, [edx + 8040]", self.source)
-        self.assertIn("mov dword ptr [ecx], 38", self.source)
+        self.assertIn("RUNNING_PREFERENCE_ID = 38", self.source)
+        self.assertIn("mov dword ptr [ecx], {RUNNING_PREFERENCE_ID}", self.source)
         self.assertIn("mov dword ptr [ecx], -1", self.source)
         self.assertIn("all Like slots are full", self.source)
         running_block = self.source.split("running:", 1)[1].split(
@@ -145,6 +153,17 @@ class VV5OriginsFeatureTests(unittest.TestCase):
         )[0]
         for forbidden in ("0x17D7C", "movement", "speed"):
             self.assertNotIn(forbidden, running_block)
+
+    def test_all_individual_origins_actions_preflight_current_believer(self) -> None:
+        detail = self.source.split('"detail_menu",', 1)[1].split('"tech_increment",', 1)[0]
+        for check in (
+            "cmp byte ptr [edx + 0x1CD4], 0",
+            "cmp byte ptr [edx + 0x1CE1], 0",
+            "cmp dword ptr [edx + 0x1C40], 0",
+            "cmp byte ptr [edx + 0x1CEC], 0",
+        ):
+            self.assertGreaterEqual(detail.count(check), 2)
+        self.assertNotIn("mov byte ptr [edx + 0x1CEC]", detail)
 
     def test_composes_with_every_vv5_feature_in_all_four_modes(self) -> None:
         build = next(item for item in load_builds() if item.id == "vv5")
