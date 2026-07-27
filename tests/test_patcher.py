@@ -2320,7 +2320,10 @@ class StockIntegrationTests(unittest.TestCase):
         self.assertEqual(feature.name, "Enable Origins-Exclusive Features")
         self.assertIn("Tech Point Doubler", feature.description)
         self.assertIn("Food Point Doubler", feature.description)
-        self.assertIn("do not multiply Island Event tech or food awards", feature.description)
+        self.assertIn(
+            "Golden Child, Island Event, and Gong of Wonder outcomes remain native",
+            feature.description,
+        )
         self.assertIn("500,000-tech-point", feature.description)
         self.assertIn("Set Age to 18", feature.description)
         self.assertIn("chooses Farming when none is checked", feature.description)

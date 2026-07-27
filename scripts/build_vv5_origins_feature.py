@@ -1001,7 +1001,7 @@ def main() -> None:
             "Mastery, Set Age to 18, and Grant Running. Grant Running only adds "
             "the build-specific Running preference ID (proven at table offset "
             "0xAEF60) to a free normal Like slot and removes that same ID from "
-            "Dislikes; it never changes movement or speed logic."
+            "Dislikes; it never changes movement or speed logic. The pending doubler contract stacks after exact-build collectible and Food Mastery adjustments, while Golden Child, Island Event, and Gong of Wonder outcomes remain native; purchase is unavailable until those paths are proven."
         ),
         "output_tag": "Origins Exclusive Features",
         "companion_files": [
