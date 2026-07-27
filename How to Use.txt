@@ -151,9 +151,11 @@ healing, sickness, food, skill gains, and plant availability are unchanged.
 
 VV1 REENABLE F6 CLOTHING CHANGE CHEAT
 
-Press F6 to advance the selected active villager to the next stock outfit. The
-cycle uses clothing indices 0 through 19 and wraps from 19 back to 0. Nothing
-changes if no active villager is selected. The patch does not change heads,
+Press F6 to advance the selected active villager to the next stock outfit. Each
+successful outfit change costs exactly 5,000 tech points. With fewer than
+5,000 tech points, F6 does nothing and charges nothing. The cycle uses clothing
+indices 0 through 19 and wraps from 19 back to 0. Nothing changes if no active
+villager is selected. The patch does not change heads,
 sex, age, skills, health, jobs, actions, or clothing assets. All non-F6 keys
 retain their original behavior.
 

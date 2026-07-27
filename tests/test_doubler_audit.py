@@ -15,6 +15,8 @@ from vv_fun_patcher import load_builds, load_fun_patches  # noqa: E402
 AUDIT = ROOT / "docs" / "doubler-composition-audit.md"
 GENERATOR = ROOT / "scripts" / "generate_transparency_docs.py"
 TRANSPARENCY = ROOT / "docs" / "transparency-log.md"
+README = ROOT / "README.md"
+HOW_TO_USE = ROOT / "How to Use.txt"
 RELEASE = ROOT / "scripts" / "build_release.py"
 VV2_EXE = ROOT / "research" / "stock-executables" / "Virtual Villagers - The Lost Children.exe"
 VV2_MANIFEST = ROOT / "data" / "vv2_origins_feature.json"
@@ -88,6 +90,9 @@ class DoublerAuditDocumentationTests(unittest.TestCase):
         self.assertIn("**STOP**", text)
         self.assertIn("tail-jump", text)
         self.assertIn("collection-adjusted positive delta", text)
+        self.assertIn("Food Mastery status by exact build", text)
+        self.assertIn("VV1, VV2, VV3, and VV5 remain unverified", text)
+        self.assertIn("code-confirmed for VV4 only", text)
 
     def test_audit_states_both_composition_rules(self) -> None:
         text = AUDIT.read_text(encoding="utf-8")
@@ -115,13 +120,41 @@ class DoublerAuditDocumentationTests(unittest.TestCase):
                     "5": ("Island Event outcomes",),
                 }[game]
                 self.assertEqual(tuple(contract["exclusions"]), expected_exclusions)
-                expected_food_pending = game in {"1", "2", "3", "5"}
+                expected_food_pending = game in {"2", "3", "5"}
                 if expected_food_pending:
                     self.assertIn("pending", contract["food_mastery_status"].lower())
                 else:
                     self.assertNotIn("pending", contract.get("food_mastery_status", "").lower())
+                    if game == "1":
+                        self.assertIn("confirmed absent", contract["food_mastery_status"].lower())
                 status = contract["status"].lower()
                 self.assertTrue("pending" in status or "go:" in status or "stop" in status)
+
+    def test_origins_status_tiers_match_evidence_and_purchase_gate(self) -> None:
+        expected = {"1": "stop", "2": "go", "3": "pending", "4": "stop", "5": "stop"}
+        for path in ORIGINS_MANIFESTS:
+            game = path.stem[2]
+            manifest = json.loads(path.read_text(encoding="utf-8"))
+            evidence = manifest["doubler_evidence"]["hook_status"].lower()
+            contract = manifest["doubler_composition_contract"]["status"].lower()
+            tier = expected[game]
+            self.assertIn(tier, evidence)
+            self.assertIn(tier, contract)
+            if tier in {"pending", "stop"}:
+                purchase = manifest["doubler_purchase_status"]
+                self.assertIn("unavailable", purchase["new_purchase"])
+                self.assertIn("disabled", purchase["repurchase"])
+
+    def test_vv1_f6_documentation_matches_exact_manifest_behavior(self) -> None:
+        patch = next(
+            patch for patch in load_fun_patches()
+            if patch.id == "vv1_f6_clothing_change_cheat"
+        )
+        description = patch.description.lower()
+        self.assertIn("5,000", patch.description)
+        self.assertIn("fewer than 5,000", description)
+        self.assertIn("5,000 tech points", README.read_text(encoding="utf-8"))
+        self.assertIn("5,000 tech points", HOW_TO_USE.read_text(encoding="utf-8"))
 
     def test_vv4_provenance_inventory_is_explicit_but_not_marked_go(self) -> None:
         manifest = json.loads((ROOT / "data" / "vv4_origins_feature.json").read_text(encoding="utf-8"))

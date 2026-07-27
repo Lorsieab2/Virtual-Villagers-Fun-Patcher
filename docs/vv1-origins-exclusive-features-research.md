@@ -14,6 +14,16 @@ in `data/builds.json`. Every desktop hook has an original-byte guard, uses
 existing executable or read-only padding, preserves file size, and receives a
 new PE checksum through the normal patch pipeline.
 
+## Current shipping gate
+
+The doubler audit is **STOP** for this exact build. New purchase and
+repurchase are unavailable; existing owned doublers remain removable for zero
+cost and zero refund, and ownership is never cleared automatically. Candidate
+return sites and ranges below are historical implementation evidence, not
+exhaustive provenance proof. The exact fingerprint has no Food Mastery-like
+food transform and no collection tech multiplier; ordinary Science still
+modifies research amounts before any future eligible doubler hook.
+
 ## APK behavior recovered
 
 The APK's Tech screen exposes these purchases:
@@ -30,10 +40,10 @@ The APK's Tech screen exposes these purchases:
 | Tech Point Doubler | 500,000 | Doubles positive tech increments. |
 | Food Point Doubler | 500,000 | Doubles positive food increments. |
 
-The two doubler hooks run only when their increment is positive. Negative
-values retain their original magnitude. The two Island Event result calls that
-award tech or food are explicitly excluded, so an Island Event never receives
-the doubler bonus.
+The historical candidate doubler hooks run only when their increment is
+positive, but the current exact-build audit is STOP. Negative values retain
+their original magnitude in the candidate model; Island Event coverage is not
+claimed exhaustive and no new doubler purchase is currently allowed.
 
 The desktop implementation now constructs the stock event dialog and marks the
 request with a private sentinel. The guarded event selector consumes that
@@ -89,12 +99,13 @@ chooses Farming when none is checked. The patch does not modify existing save
 records during startup; replace saves made by older experimental builds if
 they contain persisted movement-speed changes.
 
-The desktop game's central tech and food award routines implement the
-doublers. Positive awards routed through those routines are doubled, while
-deductions remain unchanged. The Island Event result composer has one central
-tech award call (return address `0x428194`) and one central food award call
-(return address `0x4281DA`); the detours recognize those exact return addresses
-and leave those awards at their stock amounts. Ownership is stored in two
+The desktop game's central tech and food award routines are historical
+doubler candidates. Positive awards routed through those routines were intended
+to be doubled, while deductions remain unchanged, but the current exact-build
+audit is STOP and does not claim every producer is covered. The Island Event
+result composer has one central tech award call (return address `0x428194`) and
+one central food award call (return address `0x4281DA`); those addresses are
+candidate exclusions, not exhaustive proof. Ownership is stored in two
 otherwise-unused fields of the active saved game state (`+0xAD48` and
 `+0xAD4C`), so one save can own a doubler without changing another save in the
 same game folder. No global INI or executable-side ownership file is created.
@@ -112,8 +123,9 @@ arrive through them, regardless of villager skill or mastery level. The other
 positive-looking food writes at `0x41C472` and `0x41C485` initialize a new
 village's starting food and are not gameplay gains; costs and negative event
 adjustments remain direct deductions. The doubler detours preserve that split:
-every positive award is doubled, while starting values, spending, and losses are
-unchanged. Island Event awards are also excluded from the doubler.
+the candidate model doubles positive awards, while starting values, spending,
+and losses remain unchanged. Island Event awards are not certified as
+exhaustively excluded in the current STOP audit.
 
 Grant Running adds trait 38 to an available Like slot on the displayed
 villager and removes trait 38 from any of that villager's Dislike slots. If

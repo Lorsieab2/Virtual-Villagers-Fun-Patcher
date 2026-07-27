@@ -33,6 +33,7 @@ class ReleaseManifestTests(unittest.TestCase):
     def test_release_manifest_contains_transparency_system(self) -> None:
         release = load_release_module()
         self.assertIn("docs/transparency-log.md", release.FILES)
+        self.assertIn("docs/origins-playtest-readiness.md", release.FILES)
         self.assertIn("src/transparency.py", release.FILES)
 
     def test_release_manifest_paths_exist(self) -> None:

@@ -113,7 +113,7 @@ class VV5OriginsFeatureTests(unittest.TestCase):
         self.assertEqual(bound["before"], "96000000")
         self.assertEqual(bound["after"], "00010000")
 
-    def test_doublers_are_save_scoped_and_exclude_event_results(self) -> None:
+    def test_doublers_are_save_scoped_and_encode_candidate_guards(self) -> None:
         self.assertIn("test dword ptr [0x51D388], 1", self.source)
         self.assertIn("test dword ptr [0x51D388], 2", self.source)
         for address in (
@@ -129,6 +129,20 @@ class VV5OriginsFeatureTests(unittest.TestCase):
             self.assertIn(address, self.source)
         self.assertIn("test esi, esi", self.source)
         self.assertIn("test eax, eax", self.source)
+        manifest = json.loads((ROOT / "data" / "vv5_origins_feature.json").read_text(encoding="utf-8"))
+        evidence = manifest["doubler_evidence"]
+        contract = manifest["doubler_composition_contract"]
+        self.assertIn("STOP", evidence["hook_status"])
+        self.assertIn("STOP", contract["status"])
+        self.assertEqual(contract["exclusions"], ["Island Event outcomes"])
+        self.assertEqual(
+            manifest["doubler_purchase_status"]["new_purchase"],
+            "temporarily unavailable pending exact-build provenance verification",
+        )
+        self.assertEqual(
+            manifest["doubler_purchase_status"]["repurchase"],
+            "temporarily disabled pending exact-build provenance verification",
+        )
 
     def test_six_float_skills_and_age_companions_are_written(self) -> None:
         for offset in (7260, 7264, 7268, 7272, 7276, 7280):

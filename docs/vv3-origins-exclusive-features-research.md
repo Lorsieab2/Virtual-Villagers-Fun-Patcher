@@ -16,6 +16,14 @@ manifest is `data/vv3_origins_feature.json`.
 
 All addresses below apply only to this exact executable identity.
 
+## Current shipping gate
+
+The doubler audit is **Pending** for this exact build. New purchase and
+repurchase are unavailable; existing owned doublers remain removable for zero
+cost and zero refund, and ownership is never cleared automatically. Candidate
+return sites and ranges below are historical implementation evidence, not
+exhaustive provenance proof.
+
 ## Intended VV2-parity behavior
 
 The current VV2 Origins feature is the behavior baseline:
@@ -87,12 +95,12 @@ The save manager is returned by `sub_428B60`; its singleton pointer is
 A correct doubler hook must double only a positive incoming delta before the
 stock function updates both current resources and lifetime statistics.
 
-### Island Event exclusion
+### Island Event candidate exclusion
 
-The exact Island Event outcome dispatcher occupies
+The historical candidate Island Event outcome dispatcher occupies
 `0x458DB0..0x45943E`. Its food and tech awards use the same central resource
-functions. The doubler wrappers must compare their caller return address
-against this range and leave those awards unchanged.
+functions, but direct and tail-jump producer inventory remains Pending. This
+range must not be treated as proof that every Island Event award is excluded.
 
 ## Villager Detail selection and record fields
 

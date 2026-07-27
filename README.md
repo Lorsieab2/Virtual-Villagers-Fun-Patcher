@@ -59,7 +59,7 @@ Enable **Continue Research at Max Technologies (A New Home)** so researchers rem
 
 ## VV1: Reenable F6 Clothing Change Cheat
 
-Enable **Reenable F6 Clothing Change Cheat (A New Home)** so pressing F6 advances the selected active villager to the next stock outfit. The cycle covers the game's ordinary clothing indices 0 through 19 and wraps from 19 back to 0. Pressing F6 without a valid active selection changes nothing.
+Enable **Reenable F6 Clothing Change Cheat (A New Home)** so pressing F6 advances the selected active villager to the next stock outfit. Each successful outfit change costs exactly 5,000 tech points. With fewer than 5,000 tech points, F6 does nothing and charges nothing. The cycle covers the game's ordinary clothing indices 0 through 19 and wraps from 19 back to 0. Pressing F6 without a valid active selection changes nothing.
 
 The patch does not alter heads, sex, age, skills, health, jobs, movement, actions, or clothing assets. F7, F8, and all non-F6 keys retain their original behavior.
 
@@ -126,8 +126,10 @@ build:
 The Tech screen presents its five village upgrades together, and the Villager
 Detail screen presents its four villager upgrades together, each with icons
 and individual Buy buttons. The final doubler contract applies after native
-collectible adjustments; Food Mastery presence is still being verified for
-VV1. Golden Child and Island Event outcomes remain native. The two doublers are stored in
+collectible adjustments; no Food Mastery-like food transform or collection tech
+multiplier was found in this fingerprint. Ordinary Science still modifies
+research amounts before any future eligible hook. Golden Child and Island Event
+outcomes remain native. The two doublers are stored in
 otherwise-unused fields of the current saved village, so removing one affects
 only that save slot. **Bump Max Population** is deliberately omitted because
 the patcher's population modes handle population limits separately.

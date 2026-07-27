@@ -978,7 +978,7 @@ def main() -> None:
             "sickness from eligible active living records without changing health and "
             "increments People Cured once per sickness cleared, then displays the exact "
             "result `Cured X villagers`. "
-            "The pending doubler contract stacks after exact-build collectible adjustments; Food Mastery presence is still being verified for this build. Golden Child and Island Event outcomes remain native; purchase is unavailable until those paths are proven. The effect is stored in the current save rather than a global INI. Adds "
+            "The doubler contract stacks after exact-build collectible adjustments; no Food Mastery-like food transform or collection tech multiplier was found in this fingerprint. Ordinary Science still modifies research amounts before any future eligible doubler hook. Golden Child and Island Event outcomes remain native; purchase is unavailable until safe hook and all-producer provenance are proven. The effect is stored in the current save rather than a global INI. Adds "
             "an icon-based Villager Upgrades screen containing Grant Youth, Grant Full "
             "Mastery, Grant Running, and Set Age to 18 for the displayed villager. Grant "
             "Full Mastery preserves a checked job preference and chooses Farming when "
@@ -1003,16 +1003,15 @@ def main() -> None:
             "positive_food_writer": "0x41D140",
             "collection_adjustment": "not independently recorded; no exact callsite claim",
             "island_event_producers": ["0x428194 tech", "0x4281DA food"],
-            "hook_status": "pending exact all-path provenance audit",
+            "hook_status": "STOP: no safe executable cave/section and arbitrary computed or indirect producer provenance is not proven",
         },
         "doubler_composition_contract": {
             "stacking": [
                 "every exact-build collectible/collection effect that increases tech-point gain",
-                "native Food Mastery technology adjustment",
             ],
             "exclusions": ["Golden Child behavior", "Island Event outcomes"],
-            "food_mastery_status": "pending exact-build verification; no cross-game assumption",
-            "status": "pending exact-build producer/call-path proof",
+            "food_mastery_status": "confirmed absent for this fingerprint; no Food Mastery-like food transform",
+            "status": "STOP: no safe executable cave/section and arbitrary computed or indirect producer provenance is not proven",
         },
         "doubler_purchase_status": {
             "new_purchase": "temporarily unavailable pending exact-build provenance verification",

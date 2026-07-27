@@ -58,6 +58,7 @@ FILES = [
     "docs/vv5-nursery-divisor-research.md",
     "docs/doubler-composition-audit.md",
     "docs/origins-village-wide-upgrades.md",
+    "docs/origins-playtest-readiness.md",
     "docs/transparency-log.md",
     "src/vv_fun_patcher.py",
     "src/vv_fun_patcher_gui.py",

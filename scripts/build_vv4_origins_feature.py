@@ -1042,7 +1042,8 @@ def main() -> None:
                 "native Food Mastery technology adjustment",
             ],
             "exclusions": ["Island Event outcomes"],
-            "status": "pending exact-build producer/call-path proof",
+            "food_mastery_status": "confirmed in exact-build disassembly; native transform documented in doubler evidence",
+            "status": "STOP: no safe post-Food-Mastery hook/section and incomplete dynamic/computed Island Event provenance",
         },
         "doubler_purchase_status": {
             "new_purchase": "temporarily unavailable pending exact-build provenance verification",

@@ -24,6 +24,15 @@ behavior still require player validation.
 All addresses in this document are virtual addresses for that exact
 executable.
 
+## Current shipping gate
+
+The doubler audit is **STOP** for this exact build. New purchase and repurchase
+are unavailable; existing owned doublers remain removable for zero cost and
+zero refund, and ownership is never cleared automatically. Candidate return
+guards below are historical implementation evidence only; exact Island Event
+provenance remains unresolved because the event family contains direct and
+tail-jump producers.
+
 ## Reusable menu behavior
 
 The proven VV2 implementation uses the companion
@@ -120,8 +129,9 @@ at `+7244`. Grant Youth subtracts 700 internal units and floors at 100
 - Central food award: `sub_41EB40`
 - Central tech-point award: `sub_4237B0`
 
-Only positive ordinary gameplay awards should be doubled. Purchases,
-consumption, penalties, and Island Event awards must not be doubled.
+Only positive ordinary gameplay awards were candidates for doubling. Purchases,
+consumption, penalties, and Island Event awards must not be doubled, but the
+current exact-build audit remains STOP and does not claim exhaustive coverage.
 
 There is an existing statistics hook inside the food function at
 `0x41EBA7`, whose stock guard is:
@@ -133,8 +143,8 @@ site. It must not independently overwrite the same bytes.
 
 The event-result methods in the `0x414A30..0x416CD0` family directly call or
 tail-jump to the two central award functions. Tail jumps mean a simple
-return-address blacklist is incomplete. An exact exclusion mechanism for all
-Island Event results remains unresolved.
+return-address blacklist is incomplete. The encoded candidate guards do not
+prove exhaustive Island Event exclusion; exact provenance remains unresolved.
 
 ## Time Warp
 
@@ -231,10 +241,11 @@ No current normal patch or expanded-256 relocation overlaps
 `0xDB000..0xDC000`. Static composition succeeds with every currently
 registered VV5 fun patch in all four population modes.
 
-The food doubler detours at `0x41EB6F`, before the separate statistics hook at
+The historical food doubler candidate detour at `0x41EB6F`, before the separate statistics hook at
 `0x41EBA7`, so both features compose. The tech and food wrappers exclude the
 three direct positive event-return sites each and the two native event-dialog
-tail-return sites `0x418757` and `0x41876C`.
+tail-return sites `0x418757` and `0x41876C`; these candidate guards are not
+exhaustive provenance proof and the feature remains STOP.
 
 Time Warp advances exactly three displayed villager years. With the confirmed
 VV5 relation of two real hours per displayed year at normal speed, its clock

@@ -7,6 +7,15 @@ The exact-build assembler and manifest are now present. This report still
 marks the feature as runtime-validation pending; no claim is made that every
 native dialog and upgrade interaction has been player-tested.
 
+## Current shipping gate
+
+The doubler audit is **STOP** for this exact build. New purchase and repurchase
+are unavailable; existing owned doublers remain removable for zero cost and
+zero refund, and ownership is never cleared automatically. The listed return
+addresses are historical candidates and are invalid for classifying E9 tail
+jumps; incomplete dynamic/computed Island Event provenance and the lack of a
+safe post-Food-Mastery hook/section prevent shipping.
+
 ## Proven save and resource routes
 
 - Save-scoped doubler bits can use the otherwise-unused first dword of the
@@ -15,10 +24,10 @@ native dialog and upgrade interaction has been player-tested.
 - Central tech adjustment: `sub_41E300`.
 - Central food adjustment: `sub_41D920`; the final post-Food-Mastery delta is
   in `ESI` at `0x41D94F`.
-- Positive Island Event tech caller returns to exclude from doubling:
+- Historical candidate positive Island Event tech caller returns:
   `0x414A2D`, `0x4156FD`, `0x415874`, `0x415A86`, `0x415B4B`,
   `0x415D91`, and `0x41673A`.
-- Positive Island Event food caller returns to exclude:
+- Historical candidate positive Island Event food caller returns:
   `0x41494E` and `0x415213`.
 - Duplicate-collectible awards in `sub_414410` are not Island Event awards and
   should remain eligible for doubling.
@@ -53,9 +62,9 @@ behavior still require player validation.
   - three Likes dwords at `+7776`;
   - three Dislikes dwords at `+7788`.
 
-The exact Running item ID, Tech constructor epilogue, Detail button insertion
-and click handler, and any secondary age/pregnancy state required by Grant
-Youth or Age to 18 remain unresolved.
+The exact Running item ID, Tech constructor epilogue, Detail button insertion,
+click handler, and age-state fields are resolved in the current manifest and
+static tests. Runtime/player validation remains pending.
 
 ## Payload and composability
 
@@ -66,5 +75,7 @@ fits within its validated `0xC8D`-byte cave without overlapping the expanded
 VV4 patches.
 
 The manifest is emitted only after the exact supported stock guards and payload
-fit pass. UI, native Barrel presentation, Running behavior, age-state behavior,
-and all-mode runtime checks remain explicit player-validation items.
+fit pass. The doubler remains STOP pending safe hook placement and complete
+Island Event provenance. UI, native Barrel presentation, Running behavior,
+age-state behavior, and all-mode runtime checks remain explicit
+player-validation items.
