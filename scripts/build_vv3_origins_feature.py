@@ -85,6 +85,10 @@ def main() -> None:
         ("purchased", "Purchased."),
         ("removed", "Removed."),
         ("not_enough", "Not enough tech points."),
+        (
+            "doubler_unavailable",
+            "Unavailable: exact-build doubler behavior is not yet fully verified.",
+        ),
         ("paused", "Time Warp is unavailable while the game is paused."),
         (
             "time_warp_done",
@@ -382,6 +386,7 @@ def main() -> None:
             jz food_not_owned
             or eax, 16
         food_not_owned:
+            or eax, 0x1800
             push eax
             push 0
             call 0x{show_dialog:X}
@@ -396,13 +401,13 @@ def main() -> None:
             cmp ebx, 4
             je maybe_remove_food
             test dword ptr [0x5824D0], 1
-            jz preflight
+            jz doubler_unavailable
             and dword ptr [0x5824D0], 0xFFFFFFFE
             mov eax, 0x{s['removed']:X}
             jmp show_status
         maybe_remove_food:
             test dword ptr [0x5824D0], 2
-            jz preflight
+            jz doubler_unavailable
             and dword ptr [0x5824D0], 0xFFFFFFFD
             mov eax, 0x{s['removed']:X}
             jmp show_status
@@ -521,6 +526,9 @@ def main() -> None:
             jmp show_status
         insufficient:
             mov eax, 0x{s['not_enough']:X}
+            jmp show_status
+        doubler_unavailable:
+            mov eax, 0x{s['doubler_unavailable']:X}
         show_status:
             push eax
             push 0x{s['tech_title']:X}
@@ -1022,8 +1030,11 @@ def main() -> None:
             "Origins upgrades originated, this selected-upgrades port adds the icon-based "
             "Origins Upgrades screen with Time Warp, Island "
             "Event, the native Another One of Those Barrels event with a dynamic "
-            "three-space 150/256-record guard, and removable 500,000-tech-point "
-            "Tech Point and Food Point Doublers, plus Cure all Villagers for 30,000 "
+            "three-space 150/256-record guard, and displayed-but-currently-unavailable "
+            "500,000-tech-point Tech Point and Food Point Doublers. Existing owned "
+            "doublers remain removable at zero cost with zero refund; repurchase is "
+            "temporarily disabled pending exact-build verification. Plus Cure all Villagers "
+            "for 30,000 "
             "tech points. Cure all Villagers clears sickness from eligible active living "
             "records without changing health and increments People Cured once per sickness "
             "cleared, then displays the exact result `Cured X villagers`. Time Warp advances every villager "
@@ -1051,6 +1062,11 @@ def main() -> None:
             "collection_adjustment": "not independently recorded; no exact callsite claim",
             "island_event_producers": ["dispatcher 0x458DB0-0x45943F"],
             "hook_status": "pending exact all-path provenance audit",
+        },
+        "doubler_purchase_status": {
+            "new_purchase": "temporarily unavailable pending exact-build provenance verification",
+            "existing_owned": "removable at zero cost with zero refund",
+            "repurchase": "temporarily disabled pending exact-build provenance verification",
         },
         "patches": patches,
     }

@@ -58,7 +58,7 @@ class VV5OriginsFeatureTests(unittest.TestCase):
             before = bytes.fromhex(item["before"])
             self.assertEqual(self.stock[offset : offset + len(before)], before)
             self.assertEqual(len(before), len(bytes.fromhex(item["after"])))
-        self.assertEqual(len(self.payload), 0xF1C)
+        self.assertEqual(len(self.payload), 0xF60)
         self.assertEqual(
             self.stock[0xDB000 : 0xDB000 + len(self.payload)],
             b"\0" * len(self.payload),

@@ -77,6 +77,10 @@ def main() -> None:
         ("purchased", "Purchased."),
         ("removed", "Removed."),
         ("not_enough", "Not enough tech points."),
+        (
+            "doubler_unavailable",
+            "Unavailable: exact-build doubler behavior is not yet fully verified.",
+        ),
         ("paused", "Time Warp is unavailable while the game is paused."),
         ("time_done", "Time Warp advanced every villager by 3 displayed years."),
         ("capacity", "The village population is already at maximum capacity."),
@@ -357,6 +361,7 @@ def main() -> None:
             jz tech_clear
             or eax, 8
         tech_clear:
+            or eax, 0x1800
             test dword ptr [0x51D388], 2
             jz food_clear
             or eax, 16
@@ -374,13 +379,13 @@ def main() -> None:
             cmp ebx, 4
             je remove_food
             test dword ptr [0x51D388], 1
-            jz preflight
+            jz doubler_unavailable
             and dword ptr [0x51D388], 0xFFFFFFFE
             mov eax, 0x{s['removed']:X}
             jmp status
         remove_food:
             test dword ptr [0x51D388], 2
-            jz preflight
+            jz doubler_unavailable
             and dword ptr [0x51D388], 0xFFFFFFFD
             mov eax, 0x{s['removed']:X}
             jmp status
@@ -475,6 +480,9 @@ def main() -> None:
             jmp status
         insufficient:
             mov eax, 0x{s['not_enough']:X}
+            jmp status
+        doubler_unavailable:
+            mov eax, 0x{s['doubler_unavailable']:X}
         status:
             push eax
             push 0x{s['tech_title']:X}
@@ -982,8 +990,10 @@ def main() -> None:
             "Origins Upgrades. The native Time Warp (the stock route advances exactly 3 "
             "displayed villager years), Island Event, and Barrel of Babies "
             "rows are retained but disabled until their Heathen-safe target paths are "
-            "proved; selecting one reports that it is unavailable. Adds removable, save-scoped "
-            "Tech Point and Food Point Doublers that exclude Island Event awards, plus "
+            "proved; selecting one reports that it is unavailable. Adds displayed-but-currently-"
+            "unavailable, save-scoped Tech Point and Food Point Doublers. Existing owned "
+            "doublers remain removable at zero cost with zero refund; repurchase is temporarily "
+            "disabled pending exact-build verification. Plus "
             "Cure all Villagers for 30,000 tech points. Cure all Villagers clears sickness "
             "from eligible active living believer records without changing health and increments People Cured "
             "once per sickness cleared, then displays the exact result `Cured X villagers`; Heathens are excluded. "
@@ -1007,6 +1017,11 @@ def main() -> None:
             "collection_adjustment": "not independently recorded; no exact callsite claim",
             "island_event_producers": ["event methods 0x414A30-0x416CD0; tail-jump coverage unresolved"],
             "hook_status": "STOP until every direct and tail-jump Island Event path is proven",
+        },
+        "doubler_purchase_status": {
+            "new_purchase": "temporarily unavailable pending exact-build provenance verification",
+            "existing_owned": "removable at zero cost with zero refund",
+            "repurchase": "temporarily disabled pending exact-build provenance verification",
         },
         "native_event_safety": {
             "disabled_rows": ["Time Warp", "Island Event", "Barrel of Babies"],

@@ -77,6 +77,10 @@ def main() -> None:
         ("purchased", "Purchased."),
         ("removed", "Removed."),
         ("not_enough", "Not enough tech points."),
+        (
+            "doubler_unavailable",
+            "Unavailable: exact-build doubler behavior is not yet fully verified.",
+        ),
         ("paused", "Time Warp is unavailable while the game is paused."),
         ("capacity", "The village population is already at maximum capacity."),
         ("running_unavailable", "Running cannot be added."),
@@ -299,6 +303,7 @@ def main() -> None:
             jz food_not_owned
             or eax, 16
         food_not_owned:
+            or eax, 0x1800
             push eax
             push 0
             call 0x{show_dialog:X}
@@ -312,13 +317,13 @@ def main() -> None:
             cmp ebx, 4
             je maybe_remove_food
             test dword ptr [0x4D6E10], 1
-            jz preflight
+            jz doubler_unavailable
             and dword ptr [0x4D6E10], 0xFFFFFFFE
             mov eax, 0x{s['removed']:X}
             jmp status
         maybe_remove_food:
             test dword ptr [0x4D6E10], 2
-            jz preflight
+            jz doubler_unavailable
             and dword ptr [0x4D6E10], 0xFFFFFFFD
             mov eax, 0x{s['removed']:X}
             jmp status
@@ -425,6 +430,9 @@ def main() -> None:
             jmp status
         insufficient:
             mov eax, 0x{s['not_enough']:X}
+            jmp status
+        doubler_unavailable:
+            mov eax, 0x{s['doubler_unavailable']:X}
         status:
             push eax
             push 0x{s['tech_title']:X}
@@ -985,8 +993,10 @@ def main() -> None:
             "3 displayed villager years at half, normal, and double speed; Island "
             "Event uses the stock scheduler; Barrel of Babies opens the native event "
             "and requires three free physical villager records in either the 150- or "
-            "256-record game. Adds removable, current-save-only 500,000-tech-point "
-            "Tech Point and Food Point Doublers, plus Cure all Villagers for 30,000 tech "
+            "256-record game. Adds displayed-but-currently-unavailable, current-save-only "
+            "500,000-tech-point Tech Point and Food Point Doublers. Existing owned doublers "
+            "remain removable at zero cost with zero refund; repurchase is temporarily "
+            "disabled pending exact-build verification. Plus Cure all Villagers for 30,000 tech "
             "points. Cure all Villagers clears sickness from eligible active living records "
             "without changing health and increments People Cured once per sickness cleared, "
             "then displays the exact result `Cured X villagers`; Island Event awards are not doubled. "
@@ -1011,6 +1021,11 @@ def main() -> None:
             "collection_adjustment": "post-mastery food placement recorded; exact collection callsite pending",
             "island_event_producers": ["0x414A2D", "0x4156FD", "0x415874", "0x415A86", "0x415B4B", "0x415D91", "0x41673A", "0x41494E", "0x415213"],
             "hook_status": "pending exact all-path provenance audit",
+        },
+        "doubler_purchase_status": {
+            "new_purchase": "temporarily unavailable pending exact-build provenance verification",
+            "existing_owned": "removable at zero cost with zero refund",
+            "repurchase": "temporarily disabled pending exact-build provenance verification",
         },
         "patches": patches,
         "expanded_shr_relocations": {

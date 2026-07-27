@@ -484,6 +484,75 @@ class GuiSourceTests(unittest.TestCase):
         self.assertIn("dirs_exist_ok=overwrite", source)
 
 
+class DoublerPurchaseSafetyTests(unittest.TestCase):
+    BLOCKED_GAMES = ("vv1", "vv3", "vv4", "vv5")
+
+    def test_unproven_doublers_are_unavailable_but_owned_rows_remain_removable(self) -> None:
+        for game_id in self.BLOCKED_GAMES:
+            with self.subTest(game=game_id):
+                feature = get_fun_patch(f"{game_id}_enable_origins_exclusive_features")
+                status = feature.raw["doubler_purchase_status"]
+                self.assertIn("temporarily unavailable", status["new_purchase"])
+                self.assertIn("zero cost", status["existing_owned"])
+                self.assertIn("zero refund", status["existing_owned"])
+                self.assertIn("temporarily disabled", status["repurchase"])
+                self.assertIn("displayed-but-currently-unavailable", feature.description)
+                self.assertIn("repurchase is temporarily disabled", feature.description)
+
+                payload = b"".join(
+                    bytes.fromhex(patch["after"]) for patch in feature.raw["patches"]
+                )
+                self.assertIn(b"Unavailable: exact-build doubler behavior", payload)
+                self.assertTrue(
+                    b"\x81\xc8\x00\x18\x00\x00" in payload
+                    or b"\x81\xcf\x00\x18\x00\x00" in payload
+                    or b"\x0d\x00\x18\x00\x00" in payload
+                )
+
+                builder = (ROOT / "scripts" / f"build_{game_id}_origins_feature.py").read_text(
+                    encoding="utf-8"
+                )
+                self.assertIn("doubler_unavailable", builder)
+                self.assertTrue(
+                    "jz doubler_unavailable" in builder
+                    or "jmp doubler_unavailable" in builder
+                )
+                self.assertTrue(
+                    "or edi, 0x1800" in builder
+                    or "or eax, 0x1800" in builder
+                )
+
+    def test_doubler_command_state_model_preserves_zero_cost_no_refund_removal(self) -> None:
+        def choose(owned: int, command: int) -> tuple[str, int, int]:
+            bit = 1 if command == 3 else 2
+            if command not in (3, 4):
+                return "other", owned, 0
+            if owned & bit:
+                return "remove", owned & ~bit, 0
+            return "unavailable", owned, 0
+
+        for owned in (0, 1, 2, 3):
+            for command in (3, 4):
+                with self.subTest(owned=owned, command=command):
+                    action, after, charge = choose(owned, command)
+                    if owned & (1 if command == 3 else 2):
+                        self.assertEqual(action, "remove")
+                        self.assertEqual(charge, 0)
+                        self.assertNotEqual(after, owned)
+                    else:
+                        self.assertEqual(action, "unavailable")
+                        self.assertEqual(after, owned)
+                        self.assertEqual(charge, 0)
+
+    def test_vv2_doubler_purchase_status_and_payload_remain_certified(self) -> None:
+        feature = get_fun_patch("vv2_enable_origins_exclusive_features")
+        self.assertNotIn("doubler_purchase_status", feature.raw)
+        self.assertNotIn("temporarily unavailable", feature.description)
+        self.assertNotIn(b"Unavailable: exact-build doubler behavior", b"".join(
+            bytes.fromhex(patch["after"]) for patch in feature.raw["patches"]
+        ))
+
+
 class StockIntegrationTests(unittest.TestCase):
     def setUp(self) -> None:
         for build in load_builds():

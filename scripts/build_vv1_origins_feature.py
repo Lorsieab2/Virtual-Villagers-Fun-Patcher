@@ -87,6 +87,12 @@ def main() -> None:
     add_c_string(
         strings,
         s,
+        "doubler_unavailable",
+        "Unavailable: exact-build doubler behavior is not yet fully verified.",
+    )
+    add_c_string(
+        strings,
+        s,
         "event_queued",
         "Island Event queued.",
     )
@@ -141,7 +147,7 @@ def main() -> None:
     handler_hook = CODE_VA
     constructor_hook = CODE_VA + 0x30
     menu = CODE_VA + 0xC0
-    show_dialog = CODE_VA + 0x300
+    show_dialog = CODE_VA + 0x304
     tech_increment = CODE_VA + 0x360
     food_increment = CODE_VA + 0x3B0
     event_dispatch_hook = CODE_VA + 0x450
@@ -239,6 +245,7 @@ def main() -> None:
             je food_not_owned_for_menu
             or edi, 2
         food_not_owned_for_menu:
+            or edi, 0x1800
             push edi
             push 0
             call 0x{show_dialog:X}
@@ -277,10 +284,13 @@ def main() -> None:
             je check_food_owned
             cmp dword ptr [eax + 0xAD48], 0
             jne remove_doubler
-            jmp charge
+            jmp doubler_unavailable
         check_food_owned:
             cmp dword ptr [eax + 0xAD4C], 0
             jne remove_doubler
+        doubler_unavailable:
+            mov eax, 0x{s['doubler_unavailable']:X}
+            jmp show_and_done
 
         charge:
             cmp ebx, 6
@@ -961,8 +971,10 @@ def main() -> None:
             "Upgrades screen containing a Time Warp that advances "
             "exactly three displayed villager years, Island Event, the "
             "native Barrel of Babies event with a three-space capacity guard, "
-            "and removable 500,000-tech-point Tech Point Doubler and Food Point Doubler, "
-            "plus Cure all Villagers for 30,000 tech points. Cure all Villagers clears "
+            "and the displayed-but-currently-unavailable 500,000-tech-point Tech Point "
+            "Doubler and Food Point Doubler. Existing owned doublers remain removable at "
+            "zero cost with no refund; repurchase is temporarily disabled pending exact-build "
+            "verification, plus Cure all Villagers for 30,000 tech points. Cure all Villagers clears "
             "sickness from eligible active living records without changing health and "
             "increments People Cured once per sickness cleared, then displays the exact "
             "result `Cured X villagers`. "
@@ -992,6 +1004,11 @@ def main() -> None:
             "collection_adjustment": "not independently recorded; no exact callsite claim",
             "island_event_producers": ["0x428194 tech", "0x4281DA food"],
             "hook_status": "pending exact all-path provenance audit",
+        },
+        "doubler_purchase_status": {
+            "new_purchase": "temporarily unavailable pending exact-build provenance verification",
+            "existing_owned": "removable at zero cost with zero refund",
+            "repurchase": "temporarily disabled pending exact-build provenance verification",
         },
         "patches": patches,
     }
