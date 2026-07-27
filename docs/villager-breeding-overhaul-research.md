@@ -126,3 +126,18 @@ VV1, VV2, VV3, and VV5 remain research-only until their exact before-bytes,
 non-overlapping caves, return paths, and tests are verified for each supported
 SHA-256 build. VV4 is statically verified but still awaits player runtime
 validation.
+
+### VV2 exact-path audit (2026-07-26)
+
+The Lost Children stock executable's autonomous candidate path is
+`sub_44F610` (EA `0x44F610`-`0x44FBA2`). It selects a candidate through
+`sub_449160`, checks opposite sex, minimum ages, health, and availability, and
+then reaches the stock pregnancy writer. Its age field is record `+0x530`, and
+the two internal-age-1000 comparisons are at EAs `0x44F7D7` and `0x44F7EF`.
+Those comparisons are inside the autonomous/catch-up path, not a proven
+player/manual conception predicate. The main saved-clock loop reaches the
+gestation dispatcher through `sub_44F5C0` at EA `0x43BE8E`; twins/triplets are
+handled by the adjacent `sub_44CEC0` route. No exact manual conception callsite
+or autonomous preference chooser was identified, so the VV2 Birth Control
+patch remains disabled. Patching either age comparison alone would incorrectly
+change stock catch-up behavior.
