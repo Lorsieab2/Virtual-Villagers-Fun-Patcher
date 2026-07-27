@@ -145,6 +145,32 @@ def validate_fun_patch_catalog(
             raise PatcherError(f"Duplicate optional patch ID: {patch.id}")
         by_id[patch.id] = patch
     for patch in catalog:
+        overrides = patch.raw.get("patch_mode_overrides", {})
+        if not isinstance(overrides, dict):
+            raise PatcherError(
+                f"{patch.name} ({patch.id}) patch_mode_overrides must be an object."
+            )
+        for mode_id, mode_patches in overrides.items():
+            if not isinstance(mode_id, str) or not isinstance(mode_patches, list):
+                raise PatcherError(
+                    f"{patch.name} ({patch.id}) has malformed patch_mode_overrides."
+                )
+            for mode_patch in mode_patches:
+                if not isinstance(mode_patch, dict):
+                    raise PatcherError(
+                        f"{patch.name} ({patch.id}) has a non-object mode override."
+                    )
+                try:
+                    before = _patch_bytes(mode_patch, "before")
+                    after = _patch_bytes(mode_patch, "after")
+                except (KeyError, ValueError, TypeError) as exc:
+                    raise PatcherError(
+                        f"{patch.name} ({patch.id}) has a malformed {mode_id} override."
+                    ) from exc
+                if len(before) != len(after) or not mode_patch.get("purpose"):
+                    raise PatcherError(
+                        f"{patch.name} ({patch.id}) has an invalid {mode_id} override length/purpose."
+                    )
         for dependency_id in _dependency_ids(patch):
             dependency = by_id.get(dependency_id)
             if dependency is None:
@@ -774,15 +800,21 @@ def render_patched_bytes(
     data = bytearray(source.read_bytes())
     original_data = bytes(data)
     applied: list[dict[str, str]] = []
+    applied_ranges: list[tuple[int, int, str]] = []
     expanded = [dict(patch, _owner="automatic:population") for patch in _expanded_patches(build, variant)]
     safety = [dict(patch, _owner="automatic:safety") for patch in _safety_patches(build, patch_mode)]
     population = [dict(patch, _owner="automatic:population") for patch in variant["patches"]]
     support = _fun_patch_support(build, fun_patches)
-    fun_bytes = [
-        dict(patch, _owner=f"feature:{feature.id}")
-        for feature in fun_patches
-        for patch in feature.patches
-    ]
+    fun_bytes: list[dict[str, Any]] = []
+    for feature in fun_patches:
+        fun_bytes.extend(
+            dict(patch, _owner=f"feature:{feature.id}")
+            for patch in feature.patches
+        )
+        overrides = feature.raw.get("patch_mode_overrides", {})
+        if overrides:
+            for patch in overrides.get(patch_mode, []):
+                fun_bytes.append(dict(patch, _owner=f"feature:{feature.id}"))
     for patch in [*expanded, *safety, *population, *support, *fun_bytes]:
         offset = int(patch["offset"], 0)
         before = _patch_bytes(patch, "before")
@@ -792,12 +824,20 @@ def render_patched_bytes(
                 f"Internal manifest error at {patch['offset']}: length changed"
             )
         actual = bytes(data[offset : offset + len(before)])
+        owner = patch.get("_owner", "automatic")
+        end = offset + len(before)
+        for prior_start, prior_end, prior_owner in applied_ranges:
+            if offset < prior_end and prior_start < end and prior_owner != owner:
+                raise PatcherError(
+                    f"Patch overlap between {prior_owner} and {owner} at 0x{offset:X}."
+                )
         if actual != before:
             raise PatcherError(
                 f"Byte guard failed at {patch['offset']}: "
                 f"expected {before.hex().upper()}, found {actual.hex().upper()}"
             )
         data[offset : offset + len(after)] = after
+        applied_ranges.append((offset, end, owner))
         applied.append(
             {
                 "offset": patch["offset"],

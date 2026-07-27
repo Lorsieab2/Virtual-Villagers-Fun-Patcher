@@ -9,6 +9,7 @@ import sys
 import tempfile
 import unittest
 from types import SimpleNamespace
+from unittest.mock import patch as mock_patch
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -31,6 +32,7 @@ from vv_fun_patcher import (  # noqa: E402
     load_patch_modes,
     modded_save_folder_for,
     render_patched_bytes,
+    Record,
     validate_all_sources,
     vanilla_save_folder_for,
 )
@@ -516,7 +518,45 @@ class GuiSourceTests(unittest.TestCase):
 
 
 class DoublerPurchaseSafetyTests(unittest.TestCase):
-    BLOCKED_GAMES = ("vv1", "vv3", "vv4", "vv5")
+    BLOCKED_GAMES = ("vv1", "vv3", "vv4")
+
+    def test_mode_override_overlap_is_rejected_across_feature_owners(self) -> None:
+        build = next(item for item in load_builds() if item.id == "vv5")
+        source = STOCK / build.input_name
+        patch = {
+            "offset": "0x1EB6F",
+            "before": "85F67E3456",
+            "after": "85F67E3456",
+            "purpose": "test same-size mode override",
+        }
+        fake_catalog = [
+            Record(
+                {
+                    "id": "vv5_override_a",
+                    "name": "VV5 override A",
+                    "game_id": "vv5",
+                    "patches": [patch],
+                    "patch_mode_overrides": {},
+                }
+            ),
+            Record(
+                {
+                    "id": "vv5_override_b",
+                    "name": "VV5 override B",
+                    "game_id": "vv5",
+                    "patches": [patch],
+                    "patch_mode_overrides": {},
+                }
+            ),
+        ]
+        with mock_patch("vv_fun_patcher.load_fun_patches", return_value=fake_catalog):
+            with self.assertRaisesRegex(PatcherError, "Patch overlap"):
+                render_patched_bytes(
+                    source,
+                    build,
+                    "collection_progression",
+                    ["vv5_override_a", "vv5_override_b"],
+                )
 
     def test_unproven_doublers_are_unavailable_but_owned_rows_remain_removable(self) -> None:
         for game_id in self.BLOCKED_GAMES:

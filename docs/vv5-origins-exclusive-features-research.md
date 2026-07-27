@@ -26,12 +26,13 @@ executable.
 
 ## Current shipping gate
 
-The stock-mapped runtime correction has a complete static GO specification but
-is not yet implemented in this docs-only turn; expanded-256 remains ON HOLD
-pending rel32 relocation coverage. New purchase and repurchase are unavailable
-until the proven stock positive-whitelist runtime wrapper is implemented and
-statically validated. Existing owned doublers remain removable for zero cost
-and zero refund, and ownership is never cleared automatically. Island Event,
+The stock-layout Food Point Doubler correction is implemented and statically
+validated: its exact positive whitelist runs after Food Mastery. The Tech Point
+Doubler remains unavailable for new purchase pending its separate proof. Food
+purchase and full-price repurchase are available in stock layout; removal is
+zero cost with zero refund and clears only Food ownership. Expanded-256 restores
+the exact five stock food-writer bytes, keeps both new doubler purchases
+unavailable by the `0x41F1E6` marker, and preserves owned Remove. Island Event,
 startup, consumption, and unknown callers remain native; an unknown caller
 cannot match ordinary collection return `0x414970`.
 
@@ -43,9 +44,10 @@ the upgrade from level 1 to 2 costs 3,000 tech points and the upgrade from level
 delta A as A, A+floor(A/2), or 2A before food storage, statistics, and other
 downstream channels; zero and negative inputs bypass mastery. Ordinary
 collection return `0x414970` is eligible, with base 6/35 becoming 6/35, 9/52,
-or 12/70. The Food Point Doubler must run after mastery and double the final
-positive eligible delta once. The runtime wrapper correction is separately
-queued; no executable payload changes are made here.
+or 12/70. The Food Point Doubler runs after mastery and doubles the final
+positive eligible delta once. The stock hook is `0x41EB6F` -> `.shr` wrapper
+`0x7B2B00` with eligible return `0x414970`; expanded-256 restores the native
+five-byte hook and does not claim expanded Food Doubler runtime support.
 
 ## Reusable menu behavior
 

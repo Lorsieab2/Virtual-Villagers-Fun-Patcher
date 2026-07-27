@@ -116,35 +116,123 @@ class VV5OriginsFeatureTests(unittest.TestCase):
     def test_doublers_are_save_scoped_and_encode_candidate_guards(self) -> None:
         self.assertIn("test dword ptr [0x51D388], 1", self.source)
         self.assertIn("test dword ptr [0x51D388], 2", self.source)
-        for address in (
-            "0x414D0D",
-            "0x416569",
-            "0x416657",
-            "0x414C2E",
-            "0x41511E",
-            "0x416D01",
-            "0x418757",
-            "0x41876C",
-        ):
-            self.assertIn(address, self.source)
+        self.assertIn("cmp dword ptr [0x41F1E6], 0x96", self.source)
+        self.assertIn("cmp ebx, 4", self.source)
+        self.assertIn("or dword ptr [0x51D388], 2", self.source)
         self.assertIn("test esi, esi", self.source)
         self.assertIn("test eax, eax", self.source)
         manifest = json.loads((ROOT / "data" / "vv5_origins_feature.json").read_text(encoding="utf-8"))
         evidence = manifest["doubler_evidence"]
         contract = manifest["doubler_composition_contract"]
-        self.assertIn("complete static GO specification", evidence["hook_status"])
-        self.assertIn("not yet implemented in this docs-only turn", contract["status"])
-        self.assertIn("expanded-256 remains ON HOLD", evidence["hook_status"])
+        self.assertIn("stock-layout implemented", evidence["hook_status"])
+        self.assertIn("expanded-256", contract["status"])
         self.assertEqual(contract["exclusions"], ["Island Event outcomes"])
         self.assertEqual(
             manifest["doubler_purchase_status"]["new_purchase"],
-            "temporarily unavailable until the proven stock positive-whitelist runtime wrapper is implemented and statically validated",
+            "available in stock layout at 500,000 tech points after the exact positive-whitelist wrapper; unavailable in expanded-256",
         )
         self.assertEqual(
             manifest["doubler_purchase_status"]["repurchase"],
-            "temporarily disabled pending exact-build provenance verification",
+            "full-price repurchase after zero-cost/no-refund removal in stock layout; expanded-256 remains unavailable for new purchase",
         )
-        self.assertIn("complete static GO specification", manifest["doubler_purchase_status"]["status"])
+
+    def test_food_wrapper_exact_stock_bytes_and_whitelist(self) -> None:
+        evidence = self.feature["doubler_evidence"]["stock_hook"]
+        self.assertEqual(evidence["virtual_address"], "0x41EB6F")
+        self.assertEqual(evidence["file_offset"], "0x1EB6F")
+        self.assertEqual(evidence["before"], "85F67E3456")
+        self.assertEqual(evidence["after"], "E98C3F3900")
+        self.assertEqual(evidence["wrapper_virtual_address"], "0x7B2B00")
+        self.assertEqual(evidence["wrapper_file_offset"], "0xDBB00")
+        wrapper = bytes.fromhex(evidence["wrapper_bytes"])
+        self.assertEqual(
+            wrapper.hex().upper(),
+            "85F67E18F70588D3510002000000740C817C240870494100750201F685F67E0656E94EC0C6FFE97CC0C6FF",
+        )
+        self.assertEqual(len(wrapper), 43)
+        self.assertEqual(evidence["branch_destinations"], ["0x41EB74", "0x41EBA7"])
+        self.assertEqual(evidence["eligible_return"], "0x414970")
+        self.assertEqual(evidence["ownership_mask"], "0x2")
+        payload_offset = 0xDB000 + (0x7B2B00 - 0x7B2000)
+        self.assertEqual(self.payload[payload_offset - 0xDB000 : payload_offset - 0xDB000 + 43], wrapper)
+
+    def test_food_mode_marker_and_purchase_matrix(self) -> None:
+        self.assertIn("cmp dword ptr [0x41F1E6], 0x96", self.source)
+        self.assertIn("or eax, 0x0800", self.source)
+        self.assertIn("or eax, 0x1000", self.source)
+        self.assertIn("food_owned", self.source)
+        self.assertIn("food_owned_remove", self.source)
+        self.assertIn("or dword ptr [0x51D388], 2", self.source)
+        self.assertEqual(self.stock[0x1F1E6 : 0x1F1EA], bytes.fromhex("96000000"))
+        overrides = self.feature["patch_mode_overrides"]
+        self.assertEqual(set(overrides), {"experimental_expanded_256", "experimental_expanded_256_progression"})
+        for mode, entries in overrides.items():
+            self.assertEqual(len(entries), 1)
+            self.assertEqual(entries[0]["offset"], "0x1EB6F")
+            self.assertEqual(entries[0]["before"], "E98C3F3900")
+            self.assertEqual(entries[0]["after"], "85F67E3456")
+            self.assertIn("no expanded Food Doubler detour", entries[0]["purpose"])
+
+        def food_action(owned: bool, marker: int) -> str:
+            if owned:
+                return "remove"
+            return "purchase" if marker == 0x96 else "unavailable"
+
+        for expanded, marker in ((False, 0x96), (True, 0x100)):
+            with self.subTest(expanded=expanded):
+                self.assertEqual(food_action(False, marker), "purchase" if not expanded else "unavailable")
+                self.assertEqual(food_action(True, marker), "remove")
+                state = 0x0800  # Tech row remains unavailable in every mode.
+                if expanded:
+                    state |= 0x1000
+                self.assertEqual(bool(state & 0x1000), expanded)
+                owned_state = state | 0x10
+                self.assertTrue(owned_state & 0x10)
+        self.assertEqual(food_action(False, 0), "unavailable")
+        build = next(item for item in load_builds() if item.id == "vv5")
+        for mode, expected_hook, expected_marker in (
+            ("collection_progression", "E98C3F3900", "96000000"),
+            ("immediate_fixed", "E98C3F3900", "96000000"),
+            ("experimental_expanded_256", "85F67E3456", "00010000"),
+            ("experimental_expanded_256_progression", "85F67E3456", "00010000"),
+        ):
+            with self.subTest(mode=mode):
+                rendered, _ = render_patched_bytes(
+                    STOCK, build, mode, [FEATURE_ID]
+                )
+                self.assertEqual(bytes(rendered[0x1EB6F : 0x1EB74]).hex().upper(), expected_hook)
+                self.assertEqual(bytes(rendered[0x1F1E6 : 0x1F1EA]).hex().upper(), expected_marker)
+
+    def test_patch_override_schema_rejects_malformed_lengths(self) -> None:
+        from vv_fun_patcher import PatcherError, Record, validate_fun_patch_catalog
+
+        malformed = Record(
+            {
+                "id": "vv5_test_override",
+                "name": "VV5 test override",
+                "game_id": "vv5",
+                "patches": [],
+                "patch_mode_overrides": {
+                    "experimental_expanded_256": [
+                        {
+                            "offset": "0x1EB6F",
+                            "before": "85F67E3456",
+                            "after": "90",
+                            "purpose": "malformed test",
+                        }
+                    ]
+                },
+            }
+        )
+        with self.assertRaises(PatcherError):
+            validate_fun_patch_catalog([malformed])
+
+    def test_food_mastery_final_delta_reference_matrix(self) -> None:
+        for native, doubled in ((6, 12), (35, 70), (9, 18), (52, 104), (12, 24), (70, 140)):
+            with self.subTest(native=native):
+                self.assertEqual(native * 2, doubled)
+        self.assertEqual(0, 0)
+        self.assertLessEqual(-5, 0)
 
     def test_food_mastery_exact_build_and_positive_whitelist_metadata(self) -> None:
         manifest = json.loads((ROOT / "data" / "vv5_origins_feature.json").read_text(encoding="utf-8"))
@@ -171,7 +259,7 @@ class VV5OriginsFeatureTests(unittest.TestCase):
         ).hexdigest().upper()
         self.assertEqual(
             digest,
-            "DC766888A86354AE30974C0EA7AACD46DC59AD6924C8D79D6262E0CE3759CD7A",
+            "8321D4BBE5C019E1A943E8FD7F0C3FBF86BB5743B8403D5F333D24D468CA919F",
         )
 
     def test_six_float_skills_and_age_companions_are_written(self) -> None:

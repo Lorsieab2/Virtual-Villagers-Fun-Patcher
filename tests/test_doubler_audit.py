@@ -133,6 +133,7 @@ class DoublerAuditDocumentationTests(unittest.TestCase):
                     "pending" in status
                     or "go:" in status
                     or "go specification" in status
+                    or "implemented" in status
                     or "stop" in status
                 )
 
@@ -142,7 +143,7 @@ class DoublerAuditDocumentationTests(unittest.TestCase):
             "2": "go",
             "3": "stop",
             "4": "stop",
-            "5": "complete static go specification",
+            "5": "stock-layout implemented",
         }
         for path in ORIGINS_MANIFESTS:
             game = path.stem[2]

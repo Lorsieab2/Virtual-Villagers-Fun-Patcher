@@ -221,6 +221,15 @@ class AppearanceUpgradeRequirementsTests(unittest.TestCase):
                         f"{relative}:patches[0].{patch_key}",
                     )
                 continue
+            if relative == "data/vv5_origins_feature.json":
+                # VV5's stock Food Doubler wrapper/menu is the intentional
+                # runtime change in this slice.  Keep all other manifest
+                # identity/runtime fields frozen against the clean parent.
+                executable_keys = (
+                    "output_tag",
+                    "running_preference_id",
+                    "running_preference_evidence",
+                )
             for key in executable_keys:
                 self.assertEqual(current_manifest.get(key), before_manifest.get(key), f"{relative}:{key}")
             self.assertEqual(

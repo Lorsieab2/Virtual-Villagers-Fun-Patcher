@@ -361,9 +361,14 @@ def main() -> None:
             jz tech_clear
             or eax, 8
         tech_clear:
-            or eax, 0x1800
+            or eax, 0x0800
             test dword ptr [0x51D388], 2
-            jz food_clear
+            jnz food_owned
+            cmp dword ptr [0x41F1E6], 0x96
+            je food_clear
+            or eax, 0x1000
+            jmp food_clear
+        food_owned:
             or eax, 16
         food_clear:
             push eax
@@ -385,7 +390,11 @@ def main() -> None:
             jmp status
         remove_food:
             test dword ptr [0x51D388], 2
-            jz doubler_unavailable
+            jnz food_owned_remove
+            cmp dword ptr [0x41F1E6], 0x96
+            jne doubler_unavailable
+            jmp preflight
+        food_owned_remove:
             and dword ptr [0x51D388], 0xFFFFFFFD
             mov eax, 0x{s['removed']:X}
             jmp status
@@ -444,6 +453,8 @@ def main() -> None:
             je barrel
             cmp ebx, 3
             je tech_doubler
+            cmp ebx, 4
+            je food_doubler
             cmp ebx, 5
             je cure
             call 0x{HEAL_CAVE_VA:X}
@@ -475,6 +486,9 @@ def main() -> None:
             jmp success
         tech_doubler:
             or dword ptr [0x51D388], 1
+            jmp success
+        food_doubler:
+            or dword ptr [0x51D388], 2
         success:
             mov eax, 0x{s['purchased']:X}
             jmp status
@@ -712,20 +726,17 @@ def main() -> None:
             jmp 0x4237B7
         """,
     )
-    food_exclusions = (0x414C2E, 0x41511E, 0x416D01, 0x418757, 0x41876C)
-    food_checks = "\n".join(
-        f"cmp dword ptr [esp + 8], 0x{x:X}\nje apply" for x in food_exclusions
-    )
     put(
         "food_increment",
         f"""
             test esi, esi
-            jle apply
+            jle native
             test dword ptr [0x51D388], 2
-            jz apply
-            {food_checks}
+            jz native
+            cmp dword ptr [esp + 8], 0x414970
+            jne native
             add esi, esi
-        apply:
+        native:
             test esi, esi
             jle nonpositive
             push esi
@@ -950,8 +961,10 @@ def main() -> None:
     patch(0x1890F, bytes.fromhex("8B7484146A64E8"),
           rel32_jump(0x41890F, entry["barrel_selector"], 7),
           "consume the one-shot purchase marker and force native event index 30")
-    patch(0x1EB6F, bytes.fromhex("85F67E3456"),
-          rel32_jump(0x41EB6F, entry["food_increment"]),
+    stock_food_hook = bytes.fromhex("85F67E3456")
+    detoured_food_hook = rel32_jump(0x41EB6F, entry["food_increment"])
+    patch(0x1EB6F, stock_food_hook,
+          detoured_food_hook,
           "double positive non-Island-Event food after stock mastery adjustments")
     patch(0x237B0, bytes.fromhex("568B742408"),
           rel32_jump(0x4237B0, entry["tech_increment"]),
@@ -970,6 +983,25 @@ def main() -> None:
           "route the added Detail control through the villager-upgrade menu")
     patch(PAYLOAD_FILE_OFFSET, b"\0" * len(payload), bytes(payload),
           "install the VV5 Origins menus and mechanics in the unused .shr section")
+
+    patch_mode_overrides = {
+        "experimental_expanded_256": [
+            {
+                "offset": "0x1EB6F",
+                "before": detoured_food_hook.hex().upper(),
+                "after": stock_food_hook.hex().upper(),
+                "purpose": "restore the exact stock VV5 food-writer bytes in expanded mode; no expanded Food Doubler detour is emitted",
+            }
+        ],
+        "experimental_expanded_256_progression": [
+            {
+                "offset": "0x1EB6F",
+                "before": detoured_food_hook.hex().upper(),
+                "after": stock_food_hook.hex().upper(),
+                "purpose": "restore the exact stock VV5 food-writer bytes in expanded mode; no expanded Food Doubler detour is emitted",
+            }
+        ],
+    }
 
     rendered = bytearray(original)
     for item in patches:
@@ -990,10 +1022,12 @@ def main() -> None:
             "Origins Upgrades. The native Time Warp (the stock route advances exactly 3 "
             "displayed villager years), Island Event, and Barrel of Babies "
             "rows are retained but disabled until their Heathen-safe target paths are "
-            "proved; selecting one reports that it is unavailable. Adds displayed-but-currently-"
-            "unavailable, save-scoped Tech Point and Food Point Doublers. Existing owned "
-            "doublers remain removable at zero cost with zero refund; repurchase is temporarily "
-            "disabled pending exact-build verification. Plus "
+            "proved; selecting one reports that it is unavailable. The stock-layout Food "
+            "Point Doubler is available for the configured 500,000-tech-point purchase; "
+            "the Tech Point Doubler remains unavailable pending its separate proof. Existing "
+            "owned doublers remain removable at zero cost with zero refund, and a removed "
+            "Food Point Doubler can be repurchased at the full configured price in stock layout. "
+            "Expanded-256 keeps both new purchases unavailable while preserving owned Remove. Plus "
             "Cure all Villagers for 30,000 tech points. Cure all Villagers clears sickness "
             "from eligible active living believer records without changing health and increments People Cured "
             "once per sickness cleared, then displays the exact result `Cured X villagers`; Heathens are excluded. "
@@ -1001,7 +1035,7 @@ def main() -> None:
             "Mastery, Set Age to 18, and Grant Running. Grant Running only adds "
             "the build-specific Running preference ID (proven at table offset "
             "0xAEF60) to a free normal Like slot and removes that same ID from "
-            "Dislikes; it never changes movement or speed logic. VV5 Food Mastery is technology ID 4: the upgrade from level 1 to 2 costs 3,000 tech points and the upgrade from level 2 to 3 costs 40,000 tech points; central food writer 0x41EB40 applies positive A as A, A+floor(A/2), or 2A before food storage, statistics, and other downstream channels; zero and negative inputs bypass mastery. Ordinary collection return 0x414970 is eligible: base 6/35 becomes 6/35, 9/52, or 12/70 by mastery level. The Food Point Doubler must run after mastery and double the final positive eligible delta once. Island Event, startup, consumption, and unknown callers remain native. The runtime wrapper correction is separately queued; expanded-256 remains ON HOLD pending complete rel32 relocation."
+            "Dislikes; it never changes movement or speed logic. VV5 Food Mastery is technology ID 4: the upgrade from level 1 to 2 costs 3,000 tech points and the upgrade from level 2 to 3 costs 40,000 tech points; central food writer 0x41EB40 applies positive A as A, A+floor(A/2), or 2A before food storage, statistics, and other downstream channels; zero and negative inputs bypass mastery. Ordinary collection return 0x414970 is eligible: base 6/35 becomes 6/35, 9/52, or 12/70 by mastery level. The Food Point Doubler runs after mastery and doubles the final positive eligible delta once. Island Event, startup, consumption, and unknown callers remain native. The stock wrapper is the exact positive whitelist at 0x41EB6F to .shr 0x7B2B00; expanded-256 restores the five stock bytes and keeps new doubler purchases unavailable pending complete rel32 relocation proof."
         ),
         "output_tag": "Origins Exclusive Features",
         "companion_files": [
@@ -1029,7 +1063,20 @@ def main() -> None:
             },
             "collection_adjustment": "Ordinary collection return 0x414970 supplies base 6/35; native Food Mastery produces 6/35, 9/52, or 12/70 after the level 1 to 2 (3,000 tech points) and level 2 to 3 (40,000 tech points) upgrades. The Food Point Doubler must follow this transform and double the final positive eligible delta once.",
             "island_event_producers": ["Island Event, startup, consumption, and unknown callers remain native; unknown callers cannot match return 0x414970"],
-            "hook_status": "stock-mapped runtime correction has a complete static GO specification but is not yet implemented in this docs-only turn; expanded-256 remains ON HOLD pending rel32 relocation coverage.",
+            "stock_hook": {
+                "virtual_address": "0x41EB6F",
+                "file_offset": "0x1EB6F",
+                "before": "85F67E3456",
+                "after": "E98C3F3900",
+                "wrapper_virtual_address": "0x7B2B00",
+                "wrapper_file_offset": "0xDBB00",
+                "wrapper_bytes": "85F67E18F70588D3510002000000740C817C240870494100750201F685F67E0656E94EC0C6FFE97CC0C6FF",
+                "ownership_address": "0x51D388",
+                "ownership_mask": "0x2",
+                "eligible_return": "0x414970",
+                "branch_destinations": ["0x41EB74", "0x41EBA7"]
+            },
+            "hook_status": "stock-layout implemented: exact positive-whitelist wrapper at 0x41EB6F; expanded-256 restores the exact stock hook bytes and remains native for Food Doubler runtime.",
         },
         "doubler_composition_contract": {
             "stacking": [
@@ -1038,13 +1085,13 @@ def main() -> None:
             ],
             "exclusions": ["Island Event outcomes"],
             "food_mastery_status": "confirmed in exact-build disassembly; technology ID 4 and separate level 1 to 2 / level 2 to 3 native transforms documented",
-            "status": "stock-mapped runtime correction has a complete static GO specification but is not yet implemented in this docs-only turn; expanded-256 remains ON HOLD pending rel32 relocation coverage.",
+            "status": "stock-layout implemented: Food Doubler runs after Food Mastery; expanded-256 keeps the native food writer and disables only new Food Doubler purchase.",
         },
         "doubler_purchase_status": {
-            "status": "stock-mapped runtime correction has a complete static GO specification but is not yet implemented in this docs-only turn; expanded-256 remains ON HOLD pending rel32 relocation coverage.",
-            "new_purchase": "temporarily unavailable until the proven stock positive-whitelist runtime wrapper is implemented and statically validated",
+            "status": "stock-layout Food Doubler purchase/remove/repurchase implemented; expanded-256 new Food purchase is marker-gated unavailable",
+            "new_purchase": "available in stock layout at 500,000 tech points after the exact positive-whitelist wrapper; unavailable in expanded-256",
             "existing_owned": "removable at zero cost with zero refund",
-            "repurchase": "temporarily disabled pending exact-build provenance verification",
+            "repurchase": "full-price repurchase after zero-cost/no-refund removal in stock layout; expanded-256 remains unavailable for new purchase",
         },
         "native_event_safety": {
             "disabled_rows": ["Time Warp", "Island Event", "Barrel of Babies"],
@@ -1052,6 +1099,7 @@ def main() -> None:
             "evidence_status": "STOP; no charge or native call is made for these rows",
         },
         "patches": patches,
+        "patch_mode_overrides": patch_mode_overrides,
         "expanded_shr_relocations": {
             "stock_virtual_address": f"0x{PAYLOAD_VA:X}",
             "expanded_virtual_address": f"0x{EXPANDED_PAYLOAD_VA:X}",

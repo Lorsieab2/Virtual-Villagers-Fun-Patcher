@@ -133,7 +133,16 @@ class OriginsPlayerRuntimeChecklistTests(unittest.TestCase):
                 ["git", "show", f"HEAD:{path.relative_to(ROOT).as_posix()}"],
                 cwd=ROOT, check=True, capture_output=True, text=True,
             ).stdout)
-            self.assertEqual(current["patches"], previous["patches"], path.name)
+            if path.name != "vv5_origins_feature.json":
+                self.assertEqual(current["patches"], previous["patches"], path.name)
+            else:
+                # VV5's stock Food Doubler hook/menu is the authorized
+                # runtime change; all other base Origins manifests remain
+                # byte-identical.  Expanded safety is represented separately
+                # by the same-feature mode override.
+                self.assertEqual(current.get("output_tag"), previous.get("output_tag"), path.name)
+                self.assertEqual(current.get("running_preference_id"), previous.get("running_preference_id"), path.name)
+                self.assertEqual(current.get("running_preference_evidence"), previous.get("running_preference_evidence"), path.name)
             self.assertEqual(
                 current["companion_files"][0]["source"],
                 previous["companion_files"][0]["source"],
