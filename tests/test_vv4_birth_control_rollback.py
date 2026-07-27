@@ -21,6 +21,31 @@ class VV4BirthControlRollbackTests(unittest.TestCase):
         self.assertIn("untouched vanilla breeding reference", entry["status"])
         self.assertEqual(entry["patches"], [])
 
+    def test_vv4_and_vv5_are_native_no_patch_references(self) -> None:
+        builds = {item.id: item for item in load_builds()}
+        self.assertEqual(builds["vv4"].size, 929792)
+        self.assertEqual(
+            builds["vv4"].sha256,
+            "6D27A429FFCA5F1F71FDD7ECA761ED1BB67E85F976494BA178B3D7BE01F1B220",
+        )
+        self.assertEqual(
+            builds["vv5"].sha256,
+            "92946781980220E9D1A2E6C573925519934608F5215F4A0F8CE3B90088C5C65D",
+        )
+        self.assertEqual(builds["vv5"].size, 991232)
+        ids = {p.id for p in load_fun_patches()}
+        self.assertNotIn("vv4_birth_control", ids)
+        self.assertNotIn("vv5_birth_control", ids)
+        text = (ROOT / "docs" / "villager-breeding-overhaul-research.md").read_text(encoding="utf-8")
+        for marker in ("0x460C10", "0x4689A0", "0x46A3C0", "0x470A10", "0x467D20", "0x465E00"):
+            self.assertIn(marker, text)
+        self.assertIn("VV5 is also a native no-patch reference", text)
+        self.assertIn("No VV5 Birth Control bytes are implemented or", text)
+        self.assertIn("reserved.", text)
+        transparency = (ROOT / "docs" / "transparency-log.md").read_text(encoding="utf-8")
+        self.assertIn("## Birth Control scope", transparency)
+        self.assertIn("Birth Control implementation remains on hold only for VV1, VV2, and VV3", transparency)
+
     def test_vv4_birth_control_is_absent_from_catalog_and_cli_help(self) -> None:
         self.assertNotIn("vv4_birth_control", {patch.id for patch in load_fun_patches()})
         result = subprocess.run(

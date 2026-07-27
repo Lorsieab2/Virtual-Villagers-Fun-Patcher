@@ -10,7 +10,8 @@ another.
 ## VV4: what the old-mother evidence does and does not prove
 
 The preserved VV4 IDA analysis covers `Virtual Villagers - The Tree of Life.exe`
-(SHA-256 `6D27A429FFCA5F1F71FDD7ECA761ED1BB67E85F976494BA178B3D7BE01F1B220`).
+(929,792 bytes; SHA-256
+`6D27A429FFCA5F1F71FDD7ECA761ED1BB67E85F976494BA178B3D7BE01F1B220`).
 The relevant routines are:
 
 - `sub_460C10`: player/manual “Embracing” route;
@@ -96,9 +97,11 @@ and autonomous selection mechanics, older-mother behavior, and lack of a male
 upper-age gate must remain unchanged. No VV4 executable edits are shipped or
 selectable.
 
-The remaining overhaul entries will add exact-build guards for VV1, VV2, VV3,
-and VV5 only after each manual and autonomous call site has a verified byte
-fingerprint. The common behavioral contract is:
+The remaining overhaul entries will add exact-build guards for VV1, VV2, and
+VV3 only after each manual and autonomous call site has a verified byte
+fingerprint. VV5 is also a native no-patch reference: its exact-build audit
+matches VV4's requested Birth Control/Breeding behavior. The common behavioral
+contract for the three target games is:
 
 - manual/player conception is denied when a participating villager is age
   `>=1000`, except for a separately verified catch-up route;
@@ -115,16 +118,31 @@ upper-age comparison, so its age guard must be added without intercepting the
 catch-up reproduction helpers. The autonomous preference/skill gate must be
 added at the chooser/action boundary, not at the event or newborn writers.
 
-For VV2, VV3, and VV5, the documented stock age comparisons and call chains
-must be rechecked against the current manifest before any replacement is
-written. No VV5 old-age exception is inferred from VV4 evidence.
+For VV2 and VV3, the documented stock age comparisons and call chains must be
+rechecked against the current manifest before any replacement is written.
+
+### VV5 exact-build audit: native no-patch reference
+
+The New Believers build (`92946781980220E9D1A2E6C573925519934608F5215F4A0F8CE3B90088C5C65D`,
+991,232 bytes) is a native no-patch reference. Its manual pair handler
+`0x4689A0`, autonomous chooser `0x46A3C0`, candidate selector `0x470A10`,
+pregnancy wrapper `0x467D20`, and pregnancy writer `0x465E00` match the VV4
+paths at `0x460C10`, `0x461CC0`, `0x466DA0`, `0x460990`, and `0x45E7B0`,
+respectively, after accounting for VV5's sixth Devotion skill shifting the
+preference storage from `+0x1C70` to `+0x1C74`. Both manual handlers retain a
+female-only internal-age-1000 rejection and no male upper-age gate; candidate
+selectors reject only the scanned candidate, not the initiator. Offline
+delivery uses the native pending-plus-40 comparison and clears the pending
+marker/count. Direct event and puzzle births bypass these manual/autonomous
+gates and remain native. No VV5 Birth Control bytes are implemented or
+reserved.
 
 ## Implementation status
 
-VV1, VV2, VV3, and VV5 remain research-only until their exact before-bytes,
+VV1, VV2, and VV3 remain research-only until their exact before-bytes,
 non-overlapping caves, return paths, and tests are verified for each supported
-SHA-256 build. VV4 remains the untouched vanilla reference; the prior optional
-entry is rejected/superseded rather than a runtime patch.
+SHA-256 build. VV4 and VV5 are native no-patch references; no Birth Control
+runtime patch is offered, applied, or reserved for either game.
 
 ### VV2 exact-path audit (2026-07-26)
 

@@ -1383,8 +1383,8 @@
       "game_id": "vv4",
       "name": "Birth Control",
       "enabled": false,
-      "status": "research-only; rejected/superseded because VV4 is the untouched vanilla breeding reference",
-      "description": "Historical research only. The prior optional Birth Control candidate is rejected/superseded: VV4 must retain its untouched vanilla Breeding and Embracing mechanics, including its older-mother behavior and no male upper-age gate.",
+      "status": "research-only; rejected/superseded; VV4 remains the untouched vanilla breeding reference and VV5 is a native no-patch reference",
+      "description": "Historical research only. The prior optional Birth Control candidate is rejected/superseded: VV4 and VV5 already provide the requested VV4-style Breeding and Embracing mechanics, so both remain untouched native no-patch references. No male upper-age gate is added.",
       "output_tag": "Birth Control",
       "patches": []
     },

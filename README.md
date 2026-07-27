@@ -267,6 +267,11 @@ VV4 remains the untouched vanilla Breeding and Embracing reference, including
 its older-mother behavior and no male upper-age gate. The historical Birth
 Control candidate is rejected/superseded and is not offered or applied.
 
+The exact-build VV4/VV5 audit confirms that both games already provide the
+requested VV4-style Birth Control/Breeding behavior natively. They are therefore
+no-patch references; Birth Control implementation remains an on-hold,
+per-game task only for VV1, VV2, and VV3.
+
 ## VV3: Nature Level 1 Actually Replenishes Food Sources Faster
 
 Enable **Nature Level 1 Actually Replenishes Food Sources Faster (The Secret City)** to make the technology description literal. At Nature level 1 or higher, fruit trees become refill-eligible after 2 hours 15 minutes instead of 3 hours, and honey becomes refill-eligible after 45 minutes instead of 1 hour.
