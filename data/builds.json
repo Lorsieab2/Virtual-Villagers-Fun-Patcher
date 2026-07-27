@@ -1382,6 +1382,8 @@
       "id": "vv1_birth_control",
       "game_id": "vv1",
       "name": "Birth Control",
+      "enabled": false,
+      "status": "research-only; exact guarded offsets are not verified",
       "description": "Stops player/manual conception when either participant has reached internal age 1000 (displayed age 50), while leaving the separately identified time-catch-up reproduction route untouched. Autonomous Embracing remains possible only for an initiating villager with positive Parenting skill and Parenting selected as the preference; the candidate villager keeps the stock eligibility rules.",
       "output_tag": "Birth Control",
       "patches": [

@@ -60,7 +60,11 @@ def load_patch_modes() -> list[PatchMode]:
 
 
 def load_fun_patches() -> list[FunPatch]:
-    items = list(_manifest().get("fun_patches", []))
+    items = [
+        item
+        for item in _manifest().get("fun_patches", [])
+        if item.get("enabled", True)
+    ]
     for feature_path in ORIGINS_FEATURE_PATHS:
         if feature_path.is_file():
             items.append(json.loads(feature_path.read_text(encoding="utf-8")))

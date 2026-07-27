@@ -57,6 +57,12 @@ def expanded_exe_name(build) -> str:
 
 
 class ManifestTests(unittest.TestCase):
+    def test_unverified_birth_control_is_not_exposed_as_a_patch(self) -> None:
+        self.assertNotIn(
+            "vv1_birth_control",
+            [patch.id for patch in load_fun_patches()],
+        )
+
     def test_grant_running_checks_exactly_three_normal_like_slots(self) -> None:
         for game_id in ("vv1", "vv2", "vv3", "vv4", "vv5"):
             with self.subTest(game=game_id):
