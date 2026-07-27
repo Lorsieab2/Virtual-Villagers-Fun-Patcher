@@ -57,6 +57,10 @@ class DoublerAuditDocumentationTests(unittest.TestCase):
     def test_audit_states_both_composition_rules(self) -> None:
         text = AUDIT.read_text(encoding="utf-8")
         self.assertIn("Island Event results are never doubled", text)
+        self.assertIn("collectible tech-point gains", text)
+        self.assertIn("Food Mastery technology adjustment", text)
+        self.assertIn("Golden Child behavior", text)
+        self.assertIn("Gong of Wonder outcomes", text)
         self.assertIn("twice the exact native", text)
         self.assertIn("positive, zero", text)
         self.assertIn("or negative", text)

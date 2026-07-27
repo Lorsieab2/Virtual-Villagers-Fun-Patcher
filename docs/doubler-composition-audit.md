@@ -16,10 +16,10 @@ native collection calculation has completed. Deductions and initialization
 writes retain their native values.
 
 The requested final composition contract is to stack with each game's native
-collectible tech-point gains and Food Mastery technology adjustment. Golden
-Child behavior, Island Event outcomes, and Gong of Wonder outcomes must remain
-unmultiplied. This is a requirement for each exact-build GO audit, not a claim
-that the pending/STOP games are already verified.
+collectible tech-point gains and Food Mastery technology adjustment. Golden Child behavior,
+Island Event outcomes, and Gong of Wonder outcomes must remain unmultiplied.
+This is a requirement for each exact-build GO audit, not a claim that the
+pending/STOP games are already verified.
 
 The current source contains static guards. VV2 is marked **GO** below because
 the exact-build inventory and provenance exclusions are complete; this is a
