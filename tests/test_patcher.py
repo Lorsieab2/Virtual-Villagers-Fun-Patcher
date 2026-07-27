@@ -85,6 +85,11 @@ class ManifestTests(unittest.TestCase):
                 entries = [item.strip() for item in match.group().decode("ascii").split(",")]
                 self.assertIn("running", entries)
                 self.assertEqual(entries.index("running"), feature.raw["running_preference_id"])
+        doc = (ROOT / "docs" / "origins-village-wide-upgrades.md").read_text(encoding="utf-8")
+        self.assertIn("implementation is tailored to each\nsupported executable", doc)
+        self.assertIn("not a blanket cross-game assumption", doc)
+        for offset in ("0x7B260", "0x8B808", "0x97488", "0xA0CD8", "0xAEF60"):
+            self.assertIn(offset, doc)
     def test_origins_village_wide_features_are_game_scoped_and_dependency_bound(self) -> None:
         expected = {
             f"vv{game}_origins_village_wide_upgrades"

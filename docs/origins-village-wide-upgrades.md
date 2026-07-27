@@ -38,9 +38,13 @@ likes.` then `skipped over Y villagers. Reason: already likes running`; when
 any Running dislike was removed it adds `Removed running dislike from Z
 villagers` without a period. A villager who already Likes Running is not counted
 as a full-Like skip. The charge is one million tech points for the
-village-wide purchase, not per villager. The build-specific Running preference
-ID is 38; each manifest records its exact Likes/Dislikes offsets and physical
-record stride.
+village-wide purchase, not per villager. The implementation is tailored to each
+supported executable: it independently reads the numeric Running ID certified
+in that game's exact stock preference table. All five current tables happen to
+resolve Running to ID 38, but that is not a blanket cross-game assumption. The
+certified preference-table evidence offsets are VV1 `0x7B260`, VV2 `0x8B808`,
+VV3 `0x97488`, VV4 `0xA0CD8`, and VV5 `0xAEF60`; each manifest also records its
+exact Likes/Dislikes offsets and physical record stride.
 
 Grant Full Mastery to All Villagers writes only the native five skill fields in VV1–VV4 or six
 skill fields in VV5 for eligible active, living villagers. All Villagers are
