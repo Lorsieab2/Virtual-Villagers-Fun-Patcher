@@ -29,11 +29,12 @@ save-recognition, and complete 256-villager save/reload testing.
    "Enable Origins-Exclusive Features".
 4. Optional for The Lost Children: check "Easier Healing Mastery",
    "Teaching Children Grants Skill", "Gong of Wonder Coconuts Fix", and/or
-   "Enable Origins-Exclusive Features".
+   "Hospital Recovery Heals", and/or "Enable Origins-Exclusive Features".
 5. Optional for The Secret City: check
    "Nature Level 1 Actually Replenishes Food Sources Faster" and/or
    "Nature Level 3 Actually Alters Mortality" and/or
-   "Pointing Out a Rare Collectible Always Works".
+   "Pointing Out a Rare Collectible Always Works" and/or
+   "Enable Origins-Exclusive Features".
 6. Optional for The Tree of Life: check
    "Complete Fish Scales = Golden Fish in Nets", "Enable Origins-Exclusive
    Features", and/or "Birth Control". Birth Control blocks manual conception
@@ -44,8 +45,12 @@ save-recognition, and complete 256-villager save/reload testing.
 7. Optional for New Believers: check "Heathen Mommy Puzzle Restoration" and/or
    "Easier Devotee Training" and/or
    "Statue Drops: Normal Action or Honoring" and/or
-   "VV4 Nursery School Divisor Parity".
-8. Open "One Game" or "All 5 Games".
+   "VV4 Nursery School Divisor Parity" and/or
+   "Enable Origins-Exclusive Features".
+8. Optional for any game: check that game's "Write Village Statistics to Text
+   File" feature. It refreshes a separate "Village Statistics - Save N.txt"
+   file after each successful save of slots 1 through 5.
+9. Open "One Game" or "All 5 Games".
 
 PATCH ALL FIVE AT ONCE
 
