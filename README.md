@@ -288,6 +288,14 @@ requested VV4-style Birth Control/Breeding behavior natively. They are therefore
 no-patch references; Birth Control implementation remains an on-hold,
 per-game task only for VV1, VV2, and VV3.
 
+VV1 remains ON HOLD under exact-build audit `c8d268d`. Its rejected historical
+proposal mistook the `0x3DBBE` food gate for an age predicate, treated live code
+at `0x458D0`/`0x45930` as caves, relied on uncertified `0x56740` placement, and
+applied the wrong both-sex ceiling. No VV1 Birth Control bytes are offered.
+Complete carrier-only/no-male-ceiling coverage still requires the planner and
+action-9 commit paths to be proved together; catch-up, direct event births, and
+pending delivery remain native.
+
 ## VV3: Nature Level 1 Actually Replenishes Food Sources Faster
 
 Enable **Nature Level 1 Actually Replenishes Food Sources Faster (The Secret City)** to make the technology description literal. At Nature level 1 or higher, fruit trees become refill-eligible after 2 hours 15 minutes instead of 3 hours, and honey becomes refill-eligible after 45 minutes instead of 1 hour.

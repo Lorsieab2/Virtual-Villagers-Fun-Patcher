@@ -1393,35 +1393,10 @@
       "game_id": "vv1",
       "name": "Birth Control",
       "enabled": false,
-      "status": "research-only; exact guarded offsets are not verified",
-      "description": "Stops player/manual conception when either participant has reached internal age 1000 (displayed age 50), while leaving the separately identified time-catch-up reproduction route untouched. Autonomous Embracing remains possible only for an initiating villager with positive Parenting skill and Parenting selected as the preference; the candidate villager keeps the stock eligibility rules.",
+      "status": "research-only; rejected exact-build proposal; implementation ON HOLD (disassembly c8d268d)",
+      "description": "Historical research only. Exact-build audit c8d268d rejects the prior byte proposal: 0x3DBBE is the stock food>=400 gate, 0x458D0 and 0x45930 are live instruction interiors, and 0x56740 is not a certified cave. Stock VV1 manual pairing has no age ceiling, and the old proposal incorrectly rejected both sexes. The requested VV4 reference would be sex/category-2 carrier-only at internal age>=1000 with no male ceiling. Complete coverage still requires the planner scan at 0x4477AF plus action-9 writer-reaching commit scans at 0x446E70 and 0x447070. Catch-up reuses the chooser/action-9 path; direct event births and pending delivery remain native. No exact safe hook or placement is certified, so VV1 remains ON HOLD.",
       "output_tag": "Birth Control",
-      "patches": [
-        {
-          "offset": "0x3DBBE",
-          "before": "81B8ECA2000090010000",
-          "after": "E90D7DC0FF9090909090",
-          "purpose": "detour the VV1 manual conception predicate through the age-1000 guard without intercepting the offline catch-up scheduler"
-        },
-        {
-          "offset": "0x458D0",
-          "before": "000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
-          "after": "83BF48030000E80300007D2181BD48030000E80300007D1581B8ECA20000900100000F8DF5823F00E9CD823F00E99C843F000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
-          "purpose": "reject either manual participant at internal age 1000 or above, then replay the stock manager check and return paths"
-        },
-        {
-          "offset": "0x447840",
-          "before": "578BCEE82BC1FCFF",
-          "after": "E9EBE0BFFF909090",
-          "purpose": "detour only the autonomous Embracing commit after stock mate selection, preserving the candidate's normal eligibility checks"
-        },
-        {
-          "offset": "0x45930",
-          "before": "000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
-          "after": "89D869C0D803000083BC06BC030000007E1783BC06D003000002750D5789F1E81C3B3F00E9EF1E4000E9DA1E400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
-          "purpose": "allow autonomous Embracing to reach the stock writer only when the initiating villager has positive Parenting skill and Parenting preference value 2"
-        }
-      ]
+      "patches": []
     }
   ]
 }

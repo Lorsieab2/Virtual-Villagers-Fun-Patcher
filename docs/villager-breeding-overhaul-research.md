@@ -97,26 +97,28 @@ and autonomous selection mechanics, older-mother behavior, and lack of a male
 upper-age gate must remain unchanged. No VV4 executable edits are shipped or
 selectable.
 
-The remaining overhaul entries will add exact-build guards for VV1, VV2, and
-VV3 only after each manual and autonomous call site has a verified byte
-fingerprint. VV5 is also a native no-patch reference: its exact-build audit
-matches VV4's requested Birth Control/Breeding behavior. The common behavioral
-contract for the three target games is:
+The remaining overhaul entries for VV1, VV2, and VV3 are independent ON HOLD
+tasks. They require exact-build coverage rather than a shared copied predicate.
+VV5 is also a native no-patch reference: its exact-build audit matches VV4's
+requested Birth Control/Breeding behavior.
 
-- manual/player conception is denied when a participating villager is age
-  `>=1000`, except for a separately verified catch-up route;
-- autonomous Embracing is allowed only when the initiating villager has a
-  positive Breeding/Parenting skill and the Children/Parenting preference is
-  checked; the candidate keeps the stock eligibility rules;
-- Island Events, Gong of Wonder effects, Barrel-of-Babies-style event writers,
-  and other event-created or event-nursing routes remain stock;
-- no unused save fields, likes/dislikes, or record strides are repurposed.
+### VV1 exact-build rejected proposal (`c8d268d`)
 
-For VV1 specifically, the existing offline loop (`sub_42E900`) is the
-separately identified catch-up route. The manual `sub_43DAD0` path has no stock
-upper-age comparison, so its age guard must be added without intercepting the
-catch-up reproduction helpers. The autonomous preference/skill gate must be
-added at the chooser/action boundary, not at the event or newborn writers.
+The 581,632-byte VV1 build has no manual-pairing age ceiling. Exact-build audit
+commit `c8d268d` rejects the prior patch proposal:
+
+- file offset `0x3DBBE` is the stock `food >= 400` gate, not an age predicate;
+- `0x458D0` and `0x45930` are live instruction interiors, not code caves;
+- `0x56740` is not a certified cave or placement;
+- the prior proposal incorrectly rejected both sexes, while the requested VV4
+  reference is sex/category-2 carrier-only at internal age `>=1000` and has no
+  male upper-age ceiling.
+
+Complete VV1 coverage requires the planner scan at `0x4477AF` plus the
+action-9 writer-reaching commit scans at `0x446E70` and `0x447070`. Catch-up
+reuses the chooser/action-9 path. Direct event-created births and pending
+delivery remain native. VV1 therefore remains ON HOLD until a complete exact
+safe hook and placement are proved; no replacement bytes are proposed here.
 
 For VV2 and VV3, the documented stock age comparisons and call chains must be
 rechecked against the current manifest before any replacement is written.
@@ -140,9 +142,11 @@ reserved.
 ## Implementation status
 
 VV1, VV2, and VV3 remain research-only until their exact before-bytes,
-non-overlapping caves, return paths, and tests are verified for each supported
-SHA-256 build. VV4 and VV5 are native no-patch references; no Birth Control
-runtime patch is offered, applied, or reserved for either game.
+non-overlapping placement, return paths, and tests are verified for each
+supported SHA-256 build. VV1's rejected historical patch list is empty; no
+invalid food-gate or live-code edit is offered. VV4 and VV5 are native no-patch
+references; no Birth Control runtime patch is offered, applied, or reserved for
+either game.
 
 ### VV2 exact-path audit (2026-07-26)
 

@@ -9,10 +9,97 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
-from vv_fun_patcher import load_builds, load_fun_patches, render_patched_bytes  # noqa: E402
+from vv_fun_patcher import (  # noqa: E402
+    load_builds,
+    load_fun_patches,
+    load_patch_modes,
+    render_patched_bytes,
+    resolve_fun_patch_ids,
+)
 
 
 class VV4BirthControlRollbackTests(unittest.TestCase):
+    def test_vv1_entry_is_disabled_on_hold_and_has_no_executable_edits(self) -> None:
+        manifest = json.loads((ROOT / "data" / "builds.json").read_text(encoding="utf-8"))
+        entry = next(item for item in manifest["fun_patches"] if item["id"] == "vv1_birth_control")
+        self.assertFalse(entry["enabled"])
+        self.assertEqual(entry["patches"], [])
+        self.assertIn("ON HOLD", entry["status"])
+        self.assertIn("c8d268d", entry["status"])
+        description = entry["description"]
+        for text in (
+            "food>=400 gate",
+            "live instruction interiors",
+            "0x56740 is not a certified cave",
+            "incorrectly rejected both sexes",
+            "sex/category-2 carrier-only",
+            "no male ceiling",
+            "0x4477AF",
+            "0x446E70",
+            "0x447070",
+            "direct event births and pending delivery remain native",
+        ):
+            self.assertIn(text, description)
+
+    def test_rejected_vv1_offsets_are_absent_from_active_and_rendered_patches(self) -> None:
+        rejected = {0x3DBBE, 0x458D0, 0x447840, 0x45930}
+        catalog = load_fun_patches()
+        self.assertNotIn("vv1_birth_control", {patch.id for patch in catalog})
+        for feature in catalog:
+            edits = list(feature.raw.get("patches", []))
+            for mode_edits in feature.raw.get("patch_mode_overrides", {}).values():
+                edits.extend(mode_edits)
+            for edit in edits:
+                self.assertNotIn(int(edit["offset"], 0), rejected, feature.id)
+
+        build = next(item for item in load_builds() if item.id == "vv1")
+        source = ROOT / "research" / "stock-executables" / build.input_name
+        game_patches = [patch for patch in catalog if patch.game_id == "vv1"]
+        selected = resolve_fun_patch_ids(
+            [patch.id for patch in game_patches],
+            game_id="vv1",
+            patches=game_patches,
+        )
+        for mode in load_patch_modes():
+            with self.subTest(mode=mode.id):
+                _, applied = render_patched_bytes(source, build, mode.id, selected)
+                self.assertTrue(
+                    rejected.isdisjoint(int(edit["offset"], 0) for edit in applied)
+                )
+
+    def test_vv1_birth_control_is_absent_from_cli_help(self) -> None:
+        result = subprocess.run(
+            [sys.executable, "src/vv_fun_patcher.py", "dry-run-all", "--help"],
+            cwd=ROOT,
+            check=True,
+            capture_output=True,
+            text=True,
+        )
+        self.assertNotIn("vv1_birth_control", result.stdout)
+
+    def test_vv1_research_and_transparency_record_exact_rejection(self) -> None:
+        research = (ROOT / "docs" / "villager-breeding-overhaul-research.md").read_text(
+            encoding="utf-8"
+        )
+        transparency = (ROOT / "docs" / "transparency-log.md").read_text(encoding="utf-8")
+        for text in (
+            "c8d268d",
+            "0x3DBBE",
+            "food >= 400",
+            "0x458D0",
+            "0x45930",
+            "live instruction interiors",
+            "0x56740",
+            "sex/category-2 carrier-only",
+            "0x4477AF",
+            "0x446E70",
+            "0x447070",
+            "Direct event-created births and pending",
+        ):
+            self.assertIn(text, research)
+        self.assertIn("disabled historical `vv1_birth_control` entry has no executable patches", transparency)
+        self.assertIn("remains ON HOLD", transparency)
+
     def test_vv4_entry_is_disabled_rejected_and_has_no_executable_edits(self) -> None:
         manifest = json.loads((ROOT / "data" / "builds.json").read_text(encoding="utf-8"))
         entry = next(item for item in manifest["fun_patches"] if item["id"] == "vv4_birth_control")

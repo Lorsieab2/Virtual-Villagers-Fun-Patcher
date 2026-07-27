@@ -40,6 +40,9 @@ save-recognition, and complete 256-villager save/reload testing.
    Features". VV4 remains the untouched vanilla Breeding and Embracing
    reference; the historical Birth Control candidate is rejected/superseded
    and is not offered or applied.
+   VV1 Birth Control also remains disabled and unselectable: exact-build audit
+   c8d268d rejected its former food-gate/live-code byte proposal, and no
+   replacement hook is certified.
 7. Optional for New Believers: check "Heathen Mommy Puzzle Restoration" and/or
    "Easier Devotee Training" and/or
    "Statue Drops: Normal Action or Honoring" and/or
