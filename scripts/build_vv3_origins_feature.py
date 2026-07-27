@@ -1041,7 +1041,7 @@ def main() -> None:
             "by exactly 3 displayed years at every active game speed; the required "
             "wall-clock shift is 3 hours at half speed, 6 hours at normal speed, "
             "and 10 hours at double speed. Doubler ownership is confined to the "
-            "current save. The pending doubler contract stacks after exact-build collectible adjustments; Food Mastery presence is still being verified for this build. Island Event outcomes remain native; purchase is unavailable until those paths are proven. Adds "
+            "current save. The doubler contract would stack after the exact collectible/collection adjustment, but this build's collection dispatcher has unresolved computed/indirect reachability and no safe final-delta hook. Food Mastery-like award transforms are confirmed absent in the writer, strings, and bounded caller corpus. Island Event outcomes remain native; new purchase and repurchase are unavailable under the exact-build STOP gate. Adds "
             "Villager Upgrades for Grant Youth, Grant Full Mastery, Grant Running, "
             "and Set Age to 18. Grant Running only uses an available normal Likes "
             "slot on the displayed villager and removes Running from that villager's "
@@ -1059,9 +1059,25 @@ def main() -> None:
         "doubler_evidence": {
             "positive_tech_writer": "0x427130",
             "positive_food_writer": "0x4263F0",
-            "collection_adjustment": "not independently recorded; no exact callsite claim",
-            "island_event_producers": ["dispatcher 0x458DB0-0x45943F"],
-            "hook_status": "pending exact all-path provenance audit",
+            "collection_adjustment": {
+                "dispatcher": "sub_42DEB0",
+                "tech_writer": "0x42DF79",
+                "food_writer": "0x42E079",
+                "tech_awards": {
+                    "100": "IDs 52-55, 64-67, 76-79, 88-91",
+                    "250": "IDs 56-59, 68-71, 80-83, 92-95",
+                    "1500": "IDs 60-63, 72-75, 84-87, 96-99",
+                },
+                "caller_status": "IDA has no resolved caller to sub_42DEB0; computed/indirect reachability remains unresolved",
+            },
+            "island_event_producers": {
+                "dispatcher": "0x458DB0-0x45943F",
+                "inventory": "complete positive/zero/negative/bypass inventory including tail calls; mixed-source writers have no source tag",
+                "final_delta": "sub_458DB0 emits base and bonus components through separate tech-writer calls; no single final-delta boundary is proved",
+            },
+            "writer_inventory": {"food": {"rows": 33, "calls": 29, "e9_tails": 4}, "tech": {"rows": 16, "calls": 13, "e9_tails": 3}},
+            "tail_sites": {"food": ["0x415EF1", "0x416983", "0x416BAB", "0x417A3A"], "tech": ["0x415D44", "0x41673E", "0x418452"]},
+            "hook_status": "STOP: no safe final-delta/source-aware hook, transient marker, or certified new section/cave; computed/indirect collection reachability remains unresolved",
         },
         "doubler_composition_contract": {
             "stacking": [
@@ -1069,8 +1085,8 @@ def main() -> None:
                 "native Food Mastery technology adjustment",
             ],
             "exclusions": ["Island Event outcomes"],
-            "food_mastery_status": "pending exact-build verification; no cross-game assumption",
-            "status": "pending exact-build producer/call-path proof",
+            "food_mastery_status": "confirmed absent in the exact-build writer, strings, and bounded caller corpus",
+            "status": "STOP: no safe final-delta/source-aware hook, transient marker, or certified new section/cave; Island Event mixed-source provenance and collection dispatcher caller remain unresolved",
         },
         "doubler_purchase_status": {
             "new_purchase": "temporarily unavailable pending exact-build provenance verification",

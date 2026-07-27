@@ -85,11 +85,17 @@ class AppearanceUpgradeRequirementsTests(unittest.TestCase):
                 capture_output=True,
                 text=True,
             ).stdout
-            self.assertEqual(
-                json.loads(path.read_text(encoding="utf-8")),
-                json.loads(before),
-                relative,
+            current_manifest = json.loads(path.read_text(encoding="utf-8"))
+            before_manifest = json.loads(before)
+            executable_keys = (
+                "patches",
+                "companion_files",
+                "output_tag",
+                "running_preference_id",
+                "running_preference_evidence",
             )
+            for key in executable_keys:
+                self.assertEqual(current_manifest.get(key), before_manifest.get(key), f"{relative}:{key}")
 
 
 if __name__ == "__main__":

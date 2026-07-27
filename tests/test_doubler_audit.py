@@ -86,12 +86,12 @@ class DoublerAuditDocumentationTests(unittest.TestCase):
             "VV5 New Believers",
         ):
             self.assertIn(title, text)
-        self.assertIn("**Pending**", text)
         self.assertIn("**STOP**", text)
         self.assertIn("tail-jump", text)
         self.assertIn("collection-adjusted positive delta", text)
         self.assertIn("Food Mastery status by exact build", text)
-        self.assertIn("VV1, VV2, VV3, and VV5 remain unverified", text)
+        self.assertIn("VV2 and\nVV5 remain unverified", text)
+        self.assertIn("VV1 and VV3 are code-confirmed absent", text)
         self.assertIn("code-confirmed for VV4 only", text)
 
     def test_audit_states_both_composition_rules(self) -> None:
@@ -120,7 +120,7 @@ class DoublerAuditDocumentationTests(unittest.TestCase):
                     "5": ("Island Event outcomes",),
                 }[game]
                 self.assertEqual(tuple(contract["exclusions"]), expected_exclusions)
-                expected_food_pending = game in {"2", "3", "5"}
+                expected_food_pending = game in {"2", "5"}
                 if expected_food_pending:
                     self.assertIn("pending", contract["food_mastery_status"].lower())
                 else:
@@ -131,7 +131,7 @@ class DoublerAuditDocumentationTests(unittest.TestCase):
                 self.assertTrue("pending" in status or "go:" in status or "stop" in status)
 
     def test_origins_status_tiers_match_evidence_and_purchase_gate(self) -> None:
-        expected = {"1": "stop", "2": "go", "3": "pending", "4": "stop", "5": "stop"}
+        expected = {"1": "stop", "2": "go", "3": "stop", "4": "stop", "5": "stop"}
         for path in ORIGINS_MANIFESTS:
             game = path.stem[2]
             manifest = json.loads(path.read_text(encoding="utf-8"))
@@ -155,6 +155,25 @@ class DoublerAuditDocumentationTests(unittest.TestCase):
         self.assertIn("fewer than 5,000", description)
         self.assertIn("5,000 tech points", README.read_text(encoding="utf-8"))
         self.assertIn("5,000 tech points", HOW_TO_USE.read_text(encoding="utf-8"))
+
+    def test_vv3_exact_build_doubler_stop_inventory(self) -> None:
+        manifest = json.loads((ROOT / "data" / "vv3_origins_feature.json").read_text(encoding="utf-8"))
+        evidence = manifest["doubler_evidence"]
+        self.assertEqual(evidence["positive_tech_writer"], "0x427130")
+        self.assertEqual(evidence["positive_food_writer"], "0x4263F0")
+        self.assertEqual(evidence["writer_inventory"], {"food": {"rows": 33, "calls": 29, "e9_tails": 4}, "tech": {"rows": 16, "calls": 13, "e9_tails": 3}})
+        self.assertEqual(evidence["tail_sites"]["food"], ["0x415EF1", "0x416983", "0x416BAB", "0x417A3A"])
+        self.assertEqual(evidence["tail_sites"]["tech"], ["0x415D44", "0x41673E", "0x418452"])
+        self.assertIn("sub_42DEB0", evidence["collection_adjustment"]["dispatcher"])
+        self.assertEqual(evidence["collection_adjustment"]["tech_writer"], "0x42DF79")
+        self.assertEqual(evidence["collection_adjustment"]["food_writer"], "0x42E079")
+        self.assertIn("no resolved caller", evidence["collection_adjustment"]["caller_status"])
+        self.assertIn("STOP", evidence["hook_status"])
+        contract = manifest["doubler_composition_contract"]
+        self.assertIn("confirmed absent", contract["food_mastery_status"])
+        self.assertIn("STOP", contract["status"])
+        self.assertIn("unavailable", manifest["doubler_purchase_status"]["new_purchase"])
+        self.assertIn("disabled", manifest["doubler_purchase_status"]["repurchase"])
 
     def test_vv4_provenance_inventory_is_explicit_but_not_marked_go(self) -> None:
         manifest = json.loads((ROOT / "data" / "vv4_origins_feature.json").read_text(encoding="utf-8"))

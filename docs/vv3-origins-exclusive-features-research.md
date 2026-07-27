@@ -18,11 +18,32 @@ All addresses below apply only to this exact executable identity.
 
 ## Current shipping gate
 
-The doubler audit is **Pending** for this exact build. New purchase and
-repurchase are unavailable; existing owned doublers remain removable for zero
-cost and zero refund, and ownership is never cleared automatically. Candidate
-return sites and ranges below are historical implementation evidence, not
-exhaustive provenance proof.
+The doubler audit is **STOP** for this exact build. New purchase and repurchase
+are unavailable; existing owned doublers remain removable for zero cost and
+zero refund, and ownership is never cleared automatically. Candidate return
+sites and ranges below are historical implementation evidence, not exhaustive
+provenance proof.
+
+The exact writer inventory is 33 food rows (29 calls and 4 E9 tails) and 16
+tech rows (13 calls and 3 E9 tails). The tail sites are food
+`0x415EF1`, `0x416983`, `0x416BAB`, and `0x417A3A`, and tech `0x415D44`,
+`0x41673E`, and `0x418452`. No Food Mastery-like award transform was found in
+the writer, strings, or bounded caller corpus; Food Mastery is therefore
+confirmed absent for this exact build.
+
+The collection dispatcher `sub_42DEB0` resolves tech awards through
+`0x42DF79` and food awards through `0x42E079`: tech awards are 100 for IDs
+52–55, 64–67, 76–79, and 88–91; 250 for 56–59, 68–71, 80–83, and 92–95;
+and 1,500 for 60–63, 72–75, 84–87, and 96–99. IDA has no resolved caller to
+`sub_42DEB0`, so computed/indirect reachability remains unresolved.
+
+Island Event positive, zero, negative, and bypass paths—including tail calls—
+are inventoried, but mixed-source writers carry no source tag. `sub_458DB0`
+emits base and bonus components through separate tech-writer calls, so no
+single final-delta boundary is proved. There is no safe final-delta/source-aware
+hook, transient marker, or certified new section/cave. The requested 500,000
+purchase, zero-cost/no-refund removal, and full-price repurchase behavior is a
+user contract, not stock-code evidence.
 
 ## Intended VV2-parity behavior
 
@@ -99,8 +120,11 @@ stock function updates both current resources and lifetime statistics.
 
 The historical candidate Island Event outcome dispatcher occupies
 `0x458DB0..0x45943E`. Its food and tech awards use the same central resource
-functions, but direct and tail-jump producer inventory remains Pending. This
-range must not be treated as proof that every Island Event award is excluded.
+functions. The positive, zero, negative, bypass, and tail-call paths are
+inventoried, but mixed-source writers have no source tag and the dispatcher
+emits base and bonus components through separate tech-writer calls. This range
+is not a final-delta/source-aware exclusion proof and must not be treated as
+proof that every Island Event award is excluded.
 
 ## Villager Detail selection and record fields
 

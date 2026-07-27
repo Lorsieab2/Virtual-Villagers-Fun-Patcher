@@ -168,13 +168,17 @@ age. **Bump Max Population** remains omitted.
 
 Enable **Enable Origins-Exclusive Features (The Secret City)** to add the
 Origins **Upgrades** menus to VV3. The Tech Point and Food Point Doublers are
-displayed but temporarily unavailable for new purchase pending exact-build
-provenance verification; existing ownership can be removed for zero cost with
-no refund. Their final contract stacks after native collectible adjustments;
-Food Mastery presence is still being verified for VV3. Island Event outcomes
-remain native. The remaining Origins and selected-villager rows retain their
-current-save scope and exact-build guards; runtime/player confirmation remains
-pending.
+displayed but temporarily unavailable for new purchase and repurchase under the
+exact-build **STOP** gate; existing ownership can be removed for zero cost with
+no refund. The audit records 33 food writer rows (29 calls, 4 E9 tails) and 16
+tech rows (13 calls, 3 E9 tails), with tail sites documented in the technical
+research. Food Mastery-like award transforms are confirmed absent in this
+build. Collection dispatcher awards are recorded, but IDA has no resolved
+caller to `sub_42DEB0`, and Island Event mixed-source writers have no source
+tag or proved final-delta boundary. No safe doubler hook, transient marker, or
+certified cave/new section is available. The remaining Origins and
+selected-villager rows retain their current-save scope and exact-build guards;
+runtime/player confirmation remains pending.
 
 ## All games: Write Village Statistics to Text File
 
