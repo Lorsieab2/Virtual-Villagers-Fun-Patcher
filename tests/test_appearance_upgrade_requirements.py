@@ -152,6 +152,42 @@ class AppearanceUpgradeRequirementsTests(unittest.TestCase):
             "VV4 Change Outfit exact-build audit",
             "VV5 Change Outfit exact-build audit",
             "no custom Change Outfit implementation is authorized",
+            "0x46CEC7`/`0x46CED1",
+            "button `+0x50`",
+            "`0x419E8E`",
+            "`0x419E94`/`0x419E9E`",
+        ):
+            self.assertIn(marker, text)
+
+    def test_all_five_change_head_audits_are_separate_on_hold_and_heathen_safe(self) -> None:
+        text = DOC.read_text(encoding="utf-8")
+        citations = (
+            "ccb5d973909faf222745968cca15109654f767f4",
+            "bfd2ad7f07efa730d962787149c1348f2a6c336b",
+            "cdf50e399360c1eba04449d359b0d477573b7361",
+            "9dd368fe6248c55f53be9a620025e2a655854ddd",
+            "388bf9a4e3ee400ba7168317526e9511c77a1048",
+        )
+        for citation in citations:
+            self.assertIn(citation, text)
+        for marker in (
+            "Change Head exact-build evidence (all five ON HOLD)",
+            "### VV1",
+            "### VV2",
+            "### VV3",
+            "### VV4",
+            "### VV5",
+            "record+0x360",
+            "record+0x548",
+            "record+0xDF0",
+            "record+0x1BB8",
+            "current faction `+0x1CEC`",
+            "no current Heathen may open",
+            "converted former Heathen",
+            "sub_419D80",
+            "No native Change Head chooser",
+            "head-specific 5,000 transaction",
+            "no UI row, manifest feature, helper, runtime bytes, or output",
         ):
             self.assertIn(marker, text)
 
@@ -199,6 +235,10 @@ class AppearanceUpgradeRequirementsTests(unittest.TestCase):
         for patch in load_fun_patches():
             self.assertNotIn(patch.id.casefold(), forbidden)
             self.assertNotIn(patch.name.casefold(), forbidden)
+            self.assertNotIn("change outfit", patch.description.casefold())
+            self.assertNotIn("change head", patch.description.casefold())
+            self.assertNotIn("give heathen mask", patch.description.casefold())
+            self.assertNotIn("play as the heathens!", patch.description.casefold())
 
     def test_release_manifest_includes_contract(self) -> None:
         text = (ROOT / "scripts" / "build_release.py").read_text(encoding="utf-8")

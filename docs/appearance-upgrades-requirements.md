@@ -128,11 +128,13 @@ The VV5 native chooser facts are documented, but the requested believer-only
 atomic/custom expanded-layout contract remains **ON HOLD**. This applies to the
 991,232-byte build with SHA-256
 `92946781980220E9D1A2E6C573925519934608F5215F4A0F8CE3B90088C5C65D`.
-The native action-90 path charges exactly 5,000 and opens `sub_419EC0`;
+The native action-90 path rechecks and precharges exactly 5,000 at
+`0x46CEC7`/`0x46CED1`, then opens `sub_419EC0`;
 `sub_419CE0` cycles and immediately writes the DWORD body/outfit field at
 `record+0x1BBC` (native stride `0x2F44`) over exactly `0..28`. Accept keeps
-the immediate write. Cancel restores the original field and refunds exactly
-5,000 through the native writer, for a net-zero cancel outcome.
+the immediate write through button `+0x50`. Cancel button `+0x5C` restores the
+original field at `0x419E8E` and refunds exactly 5,000 through
+`0x419E94`/`0x419E9E`, for a net-zero cancel outcome.
 
 The native path persists the field through the `+0x1B8C` save/load span and
 copies it through clone/summary paths; world, detail, and chooser preview
@@ -168,6 +170,96 @@ genetic-head field. The picker must warn explicitly: **“Warning: This will cha
 the villager's head genetics.”** VV2–VV5 must expose every exact-build-proved
 young and old/gray head choice. If the native representation cannot persistently
 select those variants, the feature remains STOP rather than guessing.
+
+## Change Head exact-build evidence (all five ON HOLD)
+
+The five independent exact-build audits below record native head storage and
+rendering facts only. The requested custom Change Head picker remains ON HOLD
+for every game; no UI row, manifest feature, helper, runtime bytes, or output
+is authorized from these partial facts.
+
+### VV1 (`ccb5d973909faf222745968cca15109654f767f4`)
+
+For the 581,632-byte VV1 build, the runtime stride is `0x3D8` and the head
+sprite index is DWORD `record+0x360`. `sub_43C350` and `sub_41C000` construct
+the field with sex-dependent `RNG(19)`/`RNG(20)` domains; status 199 forces
+head and body to 19. `sub_43C840` copies the head at `0x43C9D9 -> 0x43C9DF`.
+World rendering is `sub_437790`; Detail uses `sub_449140 -> sub_437340` and
+selected index `+0xAD34`. The resource constructors prove the male/female
+head atlases and numeric creation bounds, not a complete semantic young/old,
+gray, sex, special, or invalid catalog.
+
+No complete active/living/status guard, stable identity revalidation,
+genetics-warning path, head-specific 5,000 transaction, private preview,
+atomic OK commit, Cancel rollback, serializer mapping, vanilla-save contract,
+or safe stock/expanded placement was proved. VV1 Change Head remains ON HOLD.
+
+### VV2 (`bfd2ad7f07efa730d962787149c1348f2a6c336b`)
+
+For the 724,992-byte VV2 build, the runtime stride is `0xE48C`; the head-family
+DWORD is `record+0x548`, with active `+0x30`, signed health/living `+0x52C`,
+and sex `+0x538`. Constructor `sub_44C600` writes inherited or `RNG(30)`
+values clamped to `0..29`; additional copy writers include
+`0x44D015 -> 0x44D01B` and `0x44D365 -> 0x44D36B`. Separate young/old male
+and female resources each declare 30 rows, and world/Detail paths consume the
+field.
+
+No native Change Head chooser, head-specific 5,000 transaction, warning,
+private preview, OK commit, Cancel rollback/refund, complete writer ledger,
+stable identity or open/OK eligibility revalidation, field-specific
+save/load/vanilla-save proof, or stock/expanded placement was established.
+VV2 Change Head remains ON HOLD.
+
+### VV3 (`cdf50e399360c1eba04449d359b0d477573b7361`)
+
+For the 831,488-byte VV3 build, the runtime stride is `0x1F8C` and the head /
+genetics DWORD is `record+0xDF0`; age is `+0xDC4`, sex `+0xDC8`, slot/ID
+`+0xEDC`, and active `+0xF10`. `sub_45C540` initializes `RNG(30)` values
+`0..29`; `sub_456120` handles inheritance/clamping and the special
+sex-branch lists, while `sub_417610` is the bounded event writer. Four atlas
+resources provide 30-row young/old male/female selection; world and Detail
+renderers consume the raw head row. Clone and compact save/load of the head
+field are code-confirmed.
+
+The exact build has no head-specific purchase, insufficient-funds recheck,
+warning, chooser, private preview, OK commit, Cancel rollback/refund, stable
+identity/eligibility transaction, or collision-free stock/expanded placement.
+VV3 Change Head remains ON HOLD.
+
+### VV4 (`9dd368fe6248c55f53be9a620025e2a655854ddd`)
+
+For the 929,792-byte VV4 build, head is DWORD `record+0x1BB8` and body is
+`+0x1BBC`. `sub_45EF10` is the bounded constructor writer; clone/save/load
+copy the `+0x1B8C..+0x1C33` block (head maps to compact `+0x30`). The `bigheads`,
+`male_heads`, and `female_heads` resources are used; age `>=1100` selects the
+proven old-frame offset rather than a separate old-head resource. World and
+Detail renderers consume the head field, and inheritance/pregnancy paths pass
+it onward.
+
+The only native 5,000 purchase is clothing action 71, not head editing. No
+head chooser, warning, private preview, atomic OK/Cancel transaction, stable
+identity, complete semantic catalog, signed-health/special-status revalidation,
+or collision-free stock/expanded placement was proved. VV4 Change Head remains
+ON HOLD.
+
+### VV5 (`388bf9a4e3ee400ba7168317526e9511c77a1048`)
+
+For the 991,232-byte VV5 build, the runtime stride is `0x2F44` and head is
+DWORD `record+0x1BB8`; active is `+0x1CD4`, transient eligibility `+0x1CE1`,
+signed health `+0x1C40`, current faction `+0x1CEC` (`0` believer, nonzero
+Heathen), and type/status `+0x1CFC`. Constructor, inheritance, pregnancy/
+delivery, clone, save/load, conversion continuity, and world/Detail rendering
+of the head field are code-confirmed; age `>=1100` uses the native `+8` row
+selection.
+
+The hard eligibility boundary is current faction: no current Heathen may open,
+preview, be charged, or be modified by Change Head. A converted former Heathen
+is eligible only after native conversion makes `+0x1CEC == 0` and all other
+active/living checks pass. The native preview `sub_419D80` reads the live
+record and has no private head override. No head-specific transaction,
+genetics warning, stable identity, atomic preview/OK/Cancel route, complete
+young/old/special catalog, full current-faction revalidation, or
+stock/expanded placement was proved. VV5 Change Head remains ON HOLD.
 
 ## VV5 Give Heathen Mask
 
