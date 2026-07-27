@@ -1001,7 +1001,7 @@ def main() -> None:
             "Mastery, Set Age to 18, and Grant Running. Grant Running only adds "
             "the build-specific Running preference ID (proven at table offset "
             "0xAEF60) to a free normal Like slot and removes that same ID from "
-            "Dislikes; it never changes movement or speed logic. The pending doubler contract stacks after exact-build collectible adjustments; Food Mastery presence is still being verified for this build. Island Event outcomes remain native; purchase is unavailable until those paths are proven."
+            "Dislikes; it never changes movement or speed logic. VV5 Food Mastery is technology ID 4: the upgrade from level 1 to 2 costs 3,000 tech points and the upgrade from level 2 to 3 costs 40,000 tech points; central food writer 0x41EB40 applies positive A as A, A+floor(A/2), or 2A before food storage, statistics, and other downstream channels; zero and negative inputs bypass mastery. Ordinary collection return 0x414970 is eligible: base 6/35 becomes 6/35, 9/52, or 12/70 by mastery level. The Food Point Doubler must run after mastery and double the final positive eligible delta once. Island Event, startup, consumption, and unknown callers remain native. The runtime wrapper correction is separately queued; expanded-256 remains ON HOLD pending complete rel32 relocation."
         ),
         "output_tag": "Origins Exclusive Features",
         "companion_files": [
@@ -1012,11 +1012,24 @@ def main() -> None:
             }
         ],
         "doubler_evidence": {
+            "build": {
+                "filename": STOCK.name,
+                "size": 991232,
+                "sha256": "92946781980220E9D1A2E6C573925519934608F5215F4A0F8CE3B90088C5C65D",
+            },
             "positive_tech_writer": "0x4237B0",
-            "positive_food_writer": "0x41EB6F before stock statistics hook",
-            "collection_adjustment": "not independently recorded; no exact callsite claim",
-            "island_event_producers": ["event methods 0x414A30-0x416CD0; tail-jump coverage unresolved"],
-            "hook_status": "STOP until every direct and tail-jump Island Event path is proven",
+            "positive_food_writer": "0x41EB40 before storage/statistics channels",
+            "food_mastery": {
+                "technology_id": 4,
+                "levels": {"1": "A", "2": "A+floor(A/2)", "3": "2A"},
+                "costs": {"level_1_to_2": 3000, "level_2_to_3": 40000},
+                "zero_negative_inputs": "bypass mastery",
+                "collection_return": "0x414970",
+                "collection_base_to_native": {"6": [6, 9, 12], "35": [35, 52, 70]},
+            },
+            "collection_adjustment": "Ordinary collection return 0x414970 supplies base 6/35; native Food Mastery produces 6/35, 9/52, or 12/70 after the level 1 to 2 (3,000 tech points) and level 2 to 3 (40,000 tech points) upgrades. The Food Point Doubler must follow this transform and double the final positive eligible delta once.",
+            "island_event_producers": ["Island Event, startup, consumption, and unknown callers remain native; unknown callers cannot match return 0x414970"],
+            "hook_status": "stock-mapped runtime correction has a complete static GO specification but is not yet implemented in this docs-only turn; expanded-256 remains ON HOLD pending rel32 relocation coverage.",
         },
         "doubler_composition_contract": {
             "stacking": [
@@ -1024,11 +1037,12 @@ def main() -> None:
                 "native Food Mastery technology adjustment",
             ],
             "exclusions": ["Island Event outcomes"],
-            "food_mastery_status": "pending exact-build verification; no cross-game assumption",
-            "status": "STOP until every direct and tail-jump producer/call path is proven",
+            "food_mastery_status": "confirmed in exact-build disassembly; technology ID 4 and separate level 1 to 2 / level 2 to 3 native transforms documented",
+            "status": "stock-mapped runtime correction has a complete static GO specification but is not yet implemented in this docs-only turn; expanded-256 remains ON HOLD pending rel32 relocation coverage.",
         },
         "doubler_purchase_status": {
-            "new_purchase": "temporarily unavailable pending exact-build provenance verification",
+            "status": "stock-mapped runtime correction has a complete static GO specification but is not yet implemented in this docs-only turn; expanded-256 remains ON HOLD pending rel32 relocation coverage.",
+            "new_purchase": "temporarily unavailable until the proven stock positive-whitelist runtime wrapper is implemented and statically validated",
             "existing_owned": "removable at zero cost with zero refund",
             "repurchase": "temporarily disabled pending exact-build provenance verification",
         },

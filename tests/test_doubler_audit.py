@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import hashlib
 import struct
 import unittest
 from pathlib import Path
@@ -90,9 +91,8 @@ class DoublerAuditDocumentationTests(unittest.TestCase):
         self.assertIn("tail-jump", text)
         self.assertIn("collection-adjusted positive delta", text)
         self.assertIn("Food Mastery status by exact build", text)
-        self.assertIn("VV2 and\nVV5 remain unverified", text)
-        self.assertIn("VV1 and VV3 are code-confirmed absent", text)
-        self.assertIn("code-confirmed for VV4 only", text)
+        self.assertIn("VV1, VV2, and VV3 are code-confirmed absent", text)
+        self.assertIn("code-confirmed for VV4 and VV5", text)
 
     def test_audit_states_both_composition_rules(self) -> None:
         text = AUDIT.read_text(encoding="utf-8")
@@ -120,18 +120,30 @@ class DoublerAuditDocumentationTests(unittest.TestCase):
                     "5": ("Island Event outcomes",),
                 }[game]
                 self.assertEqual(tuple(contract["exclusions"]), expected_exclusions)
-                expected_food_pending = game in {"2", "5"}
-                if expected_food_pending:
-                    self.assertIn("pending", contract["food_mastery_status"].lower())
-                else:
-                    self.assertNotIn("pending", contract.get("food_mastery_status", "").lower())
-                    if game == "1":
-                        self.assertIn("confirmed absent", contract["food_mastery_status"].lower())
+                expected_food_status = {
+                    "1": "confirmed absent",
+                    "2": "confirmed absent",
+                    "3": "confirmed absent",
+                    "4": "confirmed",
+                    "5": "confirmed",
+                }[game]
+                self.assertIn(expected_food_status, contract["food_mastery_status"].lower())
                 status = contract["status"].lower()
-                self.assertTrue("pending" in status or "go:" in status or "stop" in status)
+                self.assertTrue(
+                    "pending" in status
+                    or "go:" in status
+                    or "go specification" in status
+                    or "stop" in status
+                )
 
     def test_origins_status_tiers_match_evidence_and_purchase_gate(self) -> None:
-        expected = {"1": "stop", "2": "go", "3": "stop", "4": "stop", "5": "stop"}
+        expected = {
+            "1": "stop",
+            "2": "go",
+            "3": "stop",
+            "4": "stop",
+            "5": "complete static go specification",
+        }
         for path in ORIGINS_MANIFESTS:
             game = path.stem[2]
             manifest = json.loads(path.read_text(encoding="utf-8"))
@@ -140,7 +152,7 @@ class DoublerAuditDocumentationTests(unittest.TestCase):
             tier = expected[game]
             self.assertIn(tier, evidence)
             self.assertIn(tier, contract)
-            if tier in {"pending", "stop"}:
+            if game in {"1", "3", "4"}:
                 purchase = manifest["doubler_purchase_status"]
                 self.assertIn("unavailable", purchase["new_purchase"])
                 self.assertIn("disabled", purchase["repurchase"])
@@ -218,6 +230,17 @@ class DoublerAuditDocumentationTests(unittest.TestCase):
         self.assertEqual(
             tuple(inventory["food"]),
             tuple(f"0x{call:X}/0x{ret:X}" for call, ret in VV2_FOOD_CALLS),
+        )
+        contract = manifest["doubler_composition_contract"]
+        self.assertIn("confirmed absent", contract["food_mastery_status"])
+        self.assertIn("Farming", contract["food_mastery_status"])
+        self.assertIn("Herb Mastery", contract["food_mastery_status"])
+        runtime = {key: manifest[key] for key in ("patches", "companion_files")}
+        self.assertEqual(
+            hashlib.sha256(
+                json.dumps(runtime, sort_keys=True, separators=(",", ":")).encode()
+            ).hexdigest().upper(),
+            "54F1300D19F0A5F8021555F759BFCC3CD530F91C71AA7C633833BB0BC7843EF5",
         )
         self.assertEqual(inventory["e9_tail_jumps_to_writers"], 0)
 

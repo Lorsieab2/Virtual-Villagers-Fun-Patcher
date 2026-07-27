@@ -155,7 +155,10 @@ normal Dislike slots, and never edits movement speed.
 
 Positive food and tech awards use VV2's central stock award routines. Native
 collectible adjustments are completed before the certified doubler calculation;
-Food Mastery presence is still being verified for VV2. The exact-build static provenance audit excludes every positive Island Event and
+Food Mastery is code-confirmed absent within the completely enumerated technology
+definitions, resource strings, direct writer calls, and food-source call chains.
+Farming gates and unlocks sources but does not multiply awards; Herb Mastery is
+unrelated. The exact-build static provenance audit excludes every positive Island Event and
 Gong of Wonder food/tech writer return (17 tech and 13 food direct calls;
 zero tail-jumps), while direct deductions, caps, resets, zero outcomes, and
 other bypass paths remain native. Thus the doublers do not affect deductions,
@@ -230,10 +233,17 @@ icon-based Origins **Upgrades** menus to VV5. Cure all Villagers clears
 sickness only from eligible active, living believers and reports the exact
 number cured; current Heathens remain byte-identical. Tech Point and Food Point
 Doublers are save-scoped but temporarily unavailable for new purchase pending
-exact-build provenance verification; existing ownership can be removed for
-zero cost with no refund. Their final contract stacks after native collectible
-adjustments; Food Mastery presence is still being verified for VV5. Island
-Event outcomes remain native. The native
+the runtime correction; existing ownership can be removed for zero cost with
+no refund. VV5 Food Mastery is technology ID 4: the upgrade from level 1 to 2
+costs 3,000 tech points and the upgrade from level 2 to 3 costs 40,000 tech
+points, and central food writer `0x41EB40` transforms positive `A`
+as `A`, `A+floor(A/2)`, or `2A` before storage/statistics. Ordinary collection
+return `0x414970` maps 6/35 to 6/35, 9/52, or 12/70; the Food Point Doubler
+follows mastery and doubles the final positive eligible delta once. Island
+Event, startup, consumption, and unknown callers remain native; an unknown
+caller cannot match return `0x414970`. The stock-mapped runtime correction has
+a complete static GO specification but is not implemented in this docs-only
+turn; expanded-256 remains ON HOLD pending rel32 relocation coverage. The native
 Time Warp, Island Event, and Barrel of Babies rows are retained but disabled:
 they do not charge or call a native path until every direct and indirect path
 that could target a Heathen has been independently proven safe. Grant Running,

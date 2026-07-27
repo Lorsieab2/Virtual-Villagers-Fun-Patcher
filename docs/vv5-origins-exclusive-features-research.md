@@ -26,12 +26,26 @@ executable.
 
 ## Current shipping gate
 
-The doubler audit is **STOP** for this exact build. New purchase and repurchase
-are unavailable; existing owned doublers remain removable for zero cost and
-zero refund, and ownership is never cleared automatically. Candidate return
-guards below are historical implementation evidence only; exact Island Event
-provenance remains unresolved because the event family contains direct and
-tail-jump producers.
+The stock-mapped runtime correction has a complete static GO specification but
+is not yet implemented in this docs-only turn; expanded-256 remains ON HOLD
+pending rel32 relocation coverage. New purchase and repurchase are unavailable
+until the proven stock positive-whitelist runtime wrapper is implemented and
+statically validated. Existing owned doublers remain removable for zero cost
+and zero refund, and ownership is never cleared automatically. Island Event,
+startup, consumption, and unknown callers remain native; an unknown caller
+cannot match ordinary collection return `0x414970`.
+
+## Food Mastery and positive-whitelist composition
+
+For this exact build, Food Mastery is technology ID 4. Levels 1, 2, and 3 cost
+the upgrade from level 1 to 2 costs 3,000 tech points and the upgrade from level
+2 to 3 costs 40,000 tech points. Central food writer `0x41EB40` applies a positive
+delta A as A, A+floor(A/2), or 2A before food storage, statistics, and other
+downstream channels; zero and negative inputs bypass mastery. Ordinary
+collection return `0x414970` is eligible, with base 6/35 becoming 6/35, 9/52,
+or 12/70. The Food Point Doubler must run after mastery and double the final
+positive eligible delta once. The runtime wrapper correction is separately
+queued; no executable payload changes are made here.
 
 ## Reusable menu behavior
 
@@ -241,11 +255,14 @@ No current normal patch or expanded-256 relocation overlaps
 `0xDB000..0xDC000`. Static composition succeeds with every currently
 registered VV5 fun patch in all four population modes.
 
-The historical food doubler candidate detour at `0x41EB6F`, before the separate statistics hook at
-`0x41EBA7`, so both features compose. The tech and food wrappers exclude the
-three direct positive event-return sites each and the two native event-dialog
-tail-return sites `0x418757` and `0x41876C`; these candidate guards are not
-exhaustive provenance proof and the feature remains STOP.
+The historical food doubler candidate detour at `0x41EB6F`, before the separate
+statistics hook at `0x41EBA7`, is retained as implementation history only. The
+approved stock-mapped correction uses the final positive whitelist: ordinary
+collection return `0x414970` is eligible, while Island Event, startup,
+consumption, and unknown callers remain native because unknown callers cannot
+match that return. The correction has a complete static GO specification but
+is not implemented in this docs-only turn; expanded-256 remains ON HOLD
+pending rel32 relocation coverage.
 
 Time Warp advances exactly three displayed villager years. With the confirmed
 VV5 relation of two real hours per displayed year at normal speed, its clock

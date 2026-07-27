@@ -132,16 +132,46 @@ class VV5OriginsFeatureTests(unittest.TestCase):
         manifest = json.loads((ROOT / "data" / "vv5_origins_feature.json").read_text(encoding="utf-8"))
         evidence = manifest["doubler_evidence"]
         contract = manifest["doubler_composition_contract"]
-        self.assertIn("STOP", evidence["hook_status"])
-        self.assertIn("STOP", contract["status"])
+        self.assertIn("complete static GO specification", evidence["hook_status"])
+        self.assertIn("not yet implemented in this docs-only turn", contract["status"])
+        self.assertIn("expanded-256 remains ON HOLD", evidence["hook_status"])
         self.assertEqual(contract["exclusions"], ["Island Event outcomes"])
         self.assertEqual(
             manifest["doubler_purchase_status"]["new_purchase"],
-            "temporarily unavailable pending exact-build provenance verification",
+            "temporarily unavailable until the proven stock positive-whitelist runtime wrapper is implemented and statically validated",
         )
         self.assertEqual(
             manifest["doubler_purchase_status"]["repurchase"],
             "temporarily disabled pending exact-build provenance verification",
+        )
+        self.assertIn("complete static GO specification", manifest["doubler_purchase_status"]["status"])
+
+    def test_food_mastery_exact_build_and_positive_whitelist_metadata(self) -> None:
+        manifest = json.loads((ROOT / "data" / "vv5_origins_feature.json").read_text(encoding="utf-8"))
+        evidence = manifest["doubler_evidence"]
+        self.assertEqual(evidence["build"], {
+            "filename": "Virtual Villagers - New Believers.exe",
+            "size": 991232,
+            "sha256": "92946781980220E9D1A2E6C573925519934608F5215F4A0F8CE3B90088C5C65D",
+        })
+        mastery = evidence["food_mastery"]
+        self.assertEqual(mastery["technology_id"], 4)
+        self.assertEqual(mastery["costs"], {"level_1_to_2": 3000, "level_2_to_3": 40000})
+        self.assertEqual(mastery["collection_return"], "0x414970")
+        self.assertEqual(mastery["collection_base_to_native"], {"6": [6, 9, 12], "35": [35, 52, 70]})
+        self.assertIn("unknown callers remain native", evidence["island_event_producers"][0])
+
+    def test_food_mastery_metadata_change_does_not_change_runtime_payload_fields(self) -> None:
+        runtime = {
+            key: self.feature[key]
+            for key in ("patches", "expanded_shr_relocations", "companion_files")
+        }
+        digest = hashlib.sha256(
+            json.dumps(runtime, sort_keys=True, separators=(",", ":")).encode()
+        ).hexdigest().upper()
+        self.assertEqual(
+            digest,
+            "DC766888A86354AE30974C0EA7AACD46DC59AD6924C8D79D6262E0CE3759CD7A",
         )
 
     def test_six_float_skills_and_age_companions_are_written(self) -> None:
