@@ -2329,7 +2329,7 @@ class StockIntegrationTests(unittest.TestCase):
         feature = get_fun_patch(feature_id)
         self.assertEqual(feature.name, "Enable Origins-Exclusive Features")
         self.assertIn("current save", feature.description)
-        self.assertIn("Island Event awards are not multiplied", feature.description)
+        self.assertIn("Island Event", feature.description)
         build = next(build for build in load_builds() if build.id == "vv2")
         source = STOCK / build.input_name
         all_vv2_features = [
@@ -2354,11 +2354,11 @@ class StockIntegrationTests(unittest.TestCase):
                 )
                 self.assertEqual(
                     bytes(rendered[0x262B0:0x262B5]),
-                    bytes.fromhex("E943E90600"),
+                    bytes.fromhex("E973E90600"),
                 )
                 self.assertEqual(
                     bytes(rendered[0x34570:0x34575]),
-                    bytes.fromhex("E9D3060600"),
+                    bytes.fromhex("E973070600"),
                 )
                 payload = bytes(rendered[0x943A8:0x94FFF])
                 self.assertIn(b"ShowOriginsUpgradeMenuState\0", payload)

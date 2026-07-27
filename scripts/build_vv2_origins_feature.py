@@ -41,6 +41,32 @@ VILLAGE_PREFLIGHT_FILE_OFFSET = 0x9A009
 VILLAGE_PREFLIGHT_VA = IMAGE_BASE + VILLAGE_PREFLIGHT_FILE_OFFSET
 RUNNING_PREFERENCE_ID = 38  # exact-build preference-table evidence: 0x8B808
 
+# Exact caller-return addresses proven by the VV2 stock executable audit.  The
+# wrappers compare the immediate caller return address so Island Event and Gong
+# outcomes remain byte-for-byte native while ordinary positive awards can still
+# use the save-scoped doubler.
+TECH_DOUBLER_EXCLUDED_RETURNS = (
+    0x4205AC,
+    0x434351,
+    0x44EA32,
+    0x44ED52,
+    0x44F202,
+)
+FOOD_DOUBLER_EXCLUDED_RETURNS = (
+    0x420AE9,
+    0x433FC6,
+    0x44E9C3,
+    0x44EDB9,
+    0x44F0D9,
+)
+
+
+def caller_blacklist_asm(addresses: tuple[int, ...]) -> str:
+    return "\n".join(
+        f"cmp dword ptr [esp + 4], 0x{address:X}\n            je apply"
+        for address in addresses
+    )
+
 
 def assemble(source: str, address: int) -> bytes:
     encoding, _ = Ks(KS_ARCH_X86, KS_MODE_32).asm(source, address)
@@ -117,8 +143,8 @@ def main() -> None:
     tech_menu = PAYLOAD_VA + 0x240
     detail_menu = PAYLOAD_VA + 0x500
     tech_increment = PAYLOAD_VA + 0x800
-    food_increment = PAYLOAD_VA + 0x850
-    event_dispatch = PAYLOAD_VA + 0x8A0
+    food_increment = PAYLOAD_VA + 0x880
+    event_dispatch = PAYLOAD_VA + 0x940
 
     code = bytearray(b"\0" * STRINGS_OFFSET)
     occupied = bytearray(b"\0" * STRINGS_OFFSET)
@@ -664,14 +690,13 @@ def main() -> None:
 
     put(
         tech_increment,
-        """
+        f"""
             push ebx
             mov ebx, ecx
             mov eax, dword ptr [esp + 8]
             test eax, eax
             jle apply
-            cmp dword ptr [esp + 4], 0x434351
-            je apply
+            {caller_blacklist_asm(TECH_DOUBLER_EXCLUDED_RETURNS)}
             test dword ptr [ebx + 0x2EAE8], 1
             jz apply
             shl dword ptr [esp + 8], 1
@@ -686,14 +711,13 @@ def main() -> None:
 
     put(
         food_increment,
-        """
+        f"""
             push ebx
             mov ebx, ecx
             mov eax, dword ptr [esp + 8]
             test eax, eax
             jle apply
-            cmp dword ptr [esp + 4], 0x433FC6
-            je apply
+            {caller_blacklist_asm(FOOD_DOUBLER_EXCLUDED_RETURNS)}
             test dword ptr [ebx + 0x2EAE8], 2
             jz apply
             shl dword ptr [esp + 8], 1
@@ -998,9 +1022,10 @@ def main() -> None:
             "health and increments People Cured once per sickness cleared, then displays the "
             "exact result `Cured X villagers`. Doubler ownership is confined to the current save, and "
             "Island Event awards are not multiplied; Gong of Wonder awards are also "
-            "not multiplied, and the complete "
-            "Gong provenance exclusion remains a static STOP until every outcome path "
-            "is proven. Adds Villager Upgrades for "
+            "not multiplied. The exact-build static provenance audit covers every "
+            "positive Island Event and Gong food/tech writer callsite, including "
+            "direct resource writes that bypass the wrappers. Runtime/player "
+            "confirmation remains pending. Adds Villager Upgrades for "
             "Grant Youth, Grant Full Mastery, Grant Running, and Set Age to 18. "
             "Grant Running uses an available normal Likes slot, removes Running from "
             "the displayed villager's Dislikes, refuses without charging when all "
@@ -1018,12 +1043,61 @@ def main() -> None:
             }
         ],
         "doubler_evidence": {
+            "build": {
+                "filename": "Virtual Villagers - The Lost Children.exe",
+                "size": 724992,
+                "sha256": "46C1503C209255C9CDEFA941DB2F449C8CF8E2CDD5C7D13CD975326E377ED677",
+            },
             "positive_tech_writer": "0x426290",
             "positive_food_writer": "0x4262B0",
-            "collection_adjustment": "not independently recorded; no exact callsite claim",
-            "island_event_producers": ["one candidate tech return", "one candidate food return"],
-            "gong_of_wonder": "STOP: every food/tech outcome branch and delayed helper path must be proven before release",
-            "hook_status": "STOP pending exact Island Event and Gong all-path provenance audit",
+            "collection_adjustment": "No separate global collection multiplier exists in either final writer; every eligible caller passes the final native signed delta, so the wrapper doubles that positive delta after all caller-side collection arithmetic.",
+            "island_event_handlers": {
+                "two_choice_handler": {
+                    "function": "0x4204B0",
+                    "tech_returns": ["0x4205AC"],
+                    "food_returns": ["0x420AE9"],
+                    "direct_resource_paths": ["direct +3000 tech result and deductions/caps bypass the positive writers"],
+                },
+                "single_result_dispatcher": {
+                    "function": "0x433600",
+                    "tech_returns": ["0x434351"],
+                    "food_returns": ["0x433FC6"],
+                    "direct_resource_paths": ["losses, caps, halves, resets, and unrelated resources bypass positive writers"],
+                },
+            },
+            "gong_of_wonder": {
+                "function": "0x44E8A0",
+                "registered_action": 164,
+                "invoked_by": "0x461B10",
+                "tech_returns": ["0x44EA32", "0x44ED52", "0x44F202"],
+                "food_returns": ["0x44E9C3", "0x44EDB9", "0x44F0D9"],
+                "direct_resource_paths": ["negative tech and reset/zero outcomes bypass positive writers"],
+            },
+            "tech_blacklist_returns": [
+                "0x4205AC", "0x434351", "0x44EA32", "0x44ED52", "0x44F202"
+            ],
+            "food_blacklist_returns": [
+                "0x420AE9", "0x433FC6", "0x44E9C3", "0x44EDB9", "0x44F0D9"
+            ],
+            "direct_call_inventory": {
+                "tech": [
+                    "0x4205A7/0x4205AC", "0x43434C/0x434351", "0x4385E1/0x4385E6",
+                    "0x438741/0x438746", "0x4388A1/0x4388A6", "0x438A9B/0x438AA0",
+                    "0x438C7B/0x438C80", "0x438E5B/0x438E60", "0x44EA2D/0x44EA32",
+                    "0x44ED4D/0x44ED52", "0x44F1FD/0x44F202", "0x46345C/0x463461",
+                    "0x463468/0x46346D", "0x463474/0x463479", "0x463737/0x46373C",
+                    "0x4637C0/0x4637C5", "0x463809/0x46380E"
+                ],
+                "food": [
+                    "0x420AE4/0x420AE9", "0x433FC1/0x433FC6", "0x438293/0x438298",
+                    "0x438371/0x438376", "0x438445/0x43844A", "0x44E9BE/0x44E9C3",
+                    "0x44EDB4/0x44EDB9", "0x44F0D4/0x44F0D9", "0x463198/0x46319D",
+                    "0x463259/0x46325E", "0x463312/0x463317", "0x463364/0x463369",
+                    "0x4633CD/0x4633D2"
+                ],
+                "e9_tail_jumps_to_writers": 0,
+            },
+            "hook_status": "GO: exact-build static provenance proof complete for all positive Island Event and Gong writer callsites; runtime/player confirmation pending",
         },
         "patches": patches,
     }

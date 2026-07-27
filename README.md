@@ -147,7 +147,12 @@ only the three normal Like slots, removes Running from the selected villager's
 normal Dislike slots, and never edits movement speed.
 
 Positive food and tech awards use VV2's central stock award routines. The
-doublers do not affect deductions or Island Event awards. A paused village
+exact-build static provenance audit excludes every positive Island Event and
+Gong of Wonder food/tech writer return (17 tech and 13 food direct calls;
+zero tail-jumps), while direct deductions, caps, resets, zero outcomes, and
+other bypass paths remain native. Thus the doublers do not affect deductions,
+Island Event awards, or Gong of Wonder awards. Runtime/player confirmation of
+this static proof remains pending. A paused village
 cannot purchase Time Warp because VV2's paused catch-up logic discards elapsed
 age. **Bump Max Population** remains omitted.
 
