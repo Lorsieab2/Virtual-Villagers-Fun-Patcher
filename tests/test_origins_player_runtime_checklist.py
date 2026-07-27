@@ -1,0 +1,107 @@
+from __future__ import annotations
+
+import hashlib
+import json
+import subprocess
+import sys
+import unittest
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[1]
+DOC = ROOT / "docs" / "origins-player-runtime-checklist.md"
+OUTPUT_ROOT = ROOT / "outputs" / "origins-core-village-wide-playtest-collection-progression-2026-07-27"
+
+
+class OriginsPlayerRuntimeChecklistTests(unittest.TestCase):
+    def test_checklist_is_explicitly_pending_and_contains_exact_runtime_rules(self) -> None:
+        text = DOC.read_text(encoding="utf-8")
+        folded = " ".join(text.casefold().split())
+        required = [
+            "runtime/player confirmation pending",
+            "backed-up vanilla save",
+            "save and reload",
+            "another slot remains unchanged",
+            "Time Warp | 50,000 tech points",
+            "Island Event | 30,000 tech points",
+            "Barrel of Babies | 75,000 tech points",
+            "Tech Point Doubler | 500,000 tech points",
+            "Food Point Doubler | 500,000 tech points",
+            "Cure all Villagers | 30,000 tech points",
+            "1,000,000 tech points",
+            "Grant Youth costs 50,000",
+            "Grant Full Mastery costs 100,000",
+            "Grant Running costs 40,000",
+            "Set Age to 18 costs 50,000",
+            "VV5, Time Warp, Island Event, and Barrel of Babies remain Unavailable",
+            "Cured X villagers",
+            "People Cured rises by exactly one",
+            "Skipped over X villagers. Reason: Already 3 likes.",
+            "skipped over Y villagers. Reason: already likes running",
+            "Removed running dislike from Z villagers",
+            "Not enough tech points.",
+            "No current VV5 Heathen may be targeted or charged",
+            "No game is launched",
+        ]
+        for phrase in required:
+            with self.subTest(phrase=phrase):
+                self.assertIn(" ".join(phrase.casefold().split()), folded)
+
+    def test_checklist_has_all_exact_build_fingerprints_and_vv2_pending_warning(self) -> None:
+        builds = json.loads((ROOT / "data" / "builds.json").read_text(encoding="utf-8"))["games"]
+        text = DOC.read_text(encoding="utf-8")
+        for build in builds:
+            with self.subTest(game=build["id"]):
+                self.assertIn(f"{build['size']:,} bytes", text)
+                self.assertIn(build["sha256"], text)
+        self.assertIn("VV2 remains\npending", text)
+        self.assertIn("self-contained local vanilla game folder", text)
+
+    def test_machine_readable_origins_descriptions_match_checklist_costs(self) -> None:
+        text = DOC.read_text(encoding="utf-8")
+        for game in (1, 2, 3, 4, 5):
+            origins = json.loads((ROOT / "data" / f"vv{game}_origins_feature.json").read_text(encoding="utf-8"))
+            wide = json.loads((ROOT / "data" / f"vv{game}_origins_village_wide_upgrades.json").read_text(encoding="utf-8"))
+            self.assertIn("Tech Point", origins["description"])
+            self.assertIn("Food Point", origins["description"])
+            self.assertIn("30,000", origins["description"])
+            self.assertIn("1,000,000", wide["description"])
+        self.assertIn("Each row charges exactly 1,000,000 once", text)
+
+    def test_no_loaded_patch_advertises_unimplemented_appearance_options(self) -> None:
+        sys.path.insert(0, str(ROOT / "src"))
+        from vv_fun_patcher import load_fun_patches  # noqa: PLC0415
+
+        forbidden = {"change outfit", "change head", "give heathen mask", "play as the heathens!"}
+        for patch in load_fun_patches():
+            self.assertNotIn(patch.id.casefold(), forbidden)
+            self.assertNotIn(patch.name.casefold(), forbidden)
+
+    def test_release_manifest_includes_checklist(self) -> None:
+        release = (ROOT / "scripts" / "build_release.py").read_text(encoding="utf-8")
+        self.assertIn('"docs/origins-player-runtime-checklist.md"', release)
+
+    def test_manifest_patch_arrays_and_existing_output_hashes_are_unchanged(self) -> None:
+        for path in sorted((ROOT / "data").glob("vv*_origins_feature.json")):
+            current = json.loads(path.read_text(encoding="utf-8"))
+            previous = json.loads(subprocess.run(
+                ["git", "show", f"HEAD:{path.relative_to(ROOT).as_posix()}"],
+                cwd=ROOT, check=True, capture_output=True, text=True,
+            ).stdout)
+            self.assertEqual(current["patches"], previous["patches"], path.name)
+            self.assertEqual(current.get("companion_files"), previous.get("companion_files"), path.name)
+        expected = {
+            "Virtual Villagers - A New Home - Modded": "E7D868646531F0EAC7FFE13558E967885772934B7939CD535B7D56877A0EDCB2",
+            "Virtual Villagers - The Secret City - Modded": "DA2637BA92A45A22DF384DB20370A832EB6FA0D2552C2394B165DC98BBD89ED0",
+            "Virtual Villagers - The Tree of Life - Modded": "F45A8479434CD5A47FEB29DBA2B12457A222DA91FBEDAD0C99B838932B741BB1",
+            "Virtual Villagers - New Believers - Modded": "56F5EB15F2382468C379E32490E79EE01858499C077C8892A4A002BC2A8C0120",
+        }
+        if OUTPUT_ROOT.is_dir():
+            for folder, expected_hash in expected.items():
+                exe = OUTPUT_ROOT / folder / f"{folder}.exe"
+                log = OUTPUT_ROOT / folder / f"{folder}.patch-log.json"
+                self.assertEqual(hashlib.sha256(exe.read_bytes()).hexdigest().upper(), expected_hash)
+                self.assertEqual(json.loads(log.read_text(encoding="utf-8"))["output_sha256"], expected_hash)
+
+
+if __name__ == "__main__":
+    unittest.main()

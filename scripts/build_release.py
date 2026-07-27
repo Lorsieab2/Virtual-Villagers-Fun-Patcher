@@ -60,6 +60,7 @@ FILES = [
     "docs/origins-village-wide-upgrades.md",
     "docs/origins-playtest-readiness.md",
     "docs/appearance-upgrades-requirements.md",
+    "docs/origins-player-runtime-checklist.md",
     "docs/transparency-log.md",
     "src/vv_fun_patcher.py",
     "src/vv_fun_patcher_gui.py",
