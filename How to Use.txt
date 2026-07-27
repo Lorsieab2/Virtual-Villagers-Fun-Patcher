@@ -28,8 +28,9 @@ save-recognition, and complete 256-villager save/reload testing.
    "Magic Fruit of Life Alters Mortality", "Builder Action Fixes", and/or
    "Enable Origins-Exclusive Features".
 4. Optional for The Lost Children: check "Easier Healing Mastery",
-   "Teaching Children Grants Skill", "Gong of Wonder Coconuts Fix", and/or
-   "Hospital Recovery Heals", and/or "Enable Origins-Exclusive Features".
+   "Teaching Children Grants Skill", "Birth Control",
+   "Gong of Wonder Coconuts Fix", and/or "Hospital Recovery Heals", and/or
+   "Enable Origins-Exclusive Features".
 5. Optional for The Secret City: check
    "Nature Level 1 Actually Replenishes Food Sources Faster" and/or
    "Nature Level 3 Actually Alters Mortality" and/or
@@ -195,6 +196,16 @@ When a villager completes Recovering at the hospital, that villager gains
 exactly 1 health point, capped at 100. Stock VV2's hospital action does not
 change health. The point is awarded by the final completion callback, so an
 interrupted recovery gives no health.
+
+VV2 BIRTH CONTROL
+
+The two writer-reaching opcode-12 candidate scans used by ordinary
+autonomous/catch-up pairing and stew recipe 15 reject a candidate whose
+internal age is 1000 or greater. The two exact guarded blocks are one optional
+feature and are never applied separately. The stock manual carrier/female-only
+gate remains unchanged, and no male upper-age gate is added. Direct/event
+births, pending delivery, saves, RNG, food, fertility, capacity, messages,
+statistics, Love Note, Gong grant, and Silver Mirror clone remain native.
 
 VV2 GONG OF WONDER COCONUTS FIX
 

@@ -131,7 +131,8 @@ class VV4BirthControlRollbackTests(unittest.TestCase):
         self.assertIn("reserved.", text)
         transparency = (ROOT / "docs" / "transparency-log.md").read_text(encoding="utf-8")
         self.assertIn("## Birth Control scope", transparency)
-        self.assertIn("Birth Control implementation remains on hold only for VV1, VV2, and VV3", transparency)
+        self.assertIn("VV1 and VV3 remain ON HOLD", transparency)
+        self.assertIn("VV2 exact-build feature `vv2_birth_control`", transparency)
 
     def test_vv4_birth_control_is_absent_from_catalog_and_cli_help(self) -> None:
         self.assertNotIn("vv4_birth_control", {patch.id for patch in load_fun_patches()})

@@ -141,24 +141,32 @@ reserved.
 
 ## Implementation status
 
-VV1, VV2, and VV3 remain research-only until their exact before-bytes,
+VV1 and VV3 remain research-only until their exact before-bytes,
 non-overlapping placement, return paths, and tests are verified for each
 supported SHA-256 build. VV1's rejected historical patch list is empty; no
-invalid food-gate or live-code edit is offered. VV4 and VV5 are native no-patch
-references; no Birth Control runtime patch is offered, applied, or reserved for
-either game.
+invalid food-gate or live-code edit is offered. VV2 implements only the two
+certified writer-reaching opcode-12 candidate scans described below. VV4 and
+VV5 are native no-patch references; no Birth Control runtime patch is offered,
+applied, or reserved for either game.
 
-### VV2 exact-path audit (2026-07-26)
+### VV2 exact-build implementation (`74778bd6a7d3a17dd990636cf6d4e769466800c6`)
 
-The Lost Children stock executable's autonomous candidate path is
-`sub_44F610` (EA `0x44F610`-`0x44FBA2`). It selects a candidate through
-`sub_449160`, checks opposite sex, minimum ages, health, and availability, and
-then reaches the stock pregnancy writer. Its age field is record `+0x530`, and
-the two internal-age-1000 comparisons are at EAs `0x44F7D7` and `0x44F7EF`.
-Those comparisons are inside the autonomous/catch-up path, not a proven
-player/manual conception predicate. The main saved-clock loop reaches the
-gestation dispatcher through `sub_44F5C0` at EA `0x43BE8E`; twins/triplets are
-handled by the adjacent `sub_44CEC0` route. No exact manual conception callsite
-or autonomous preference chooser was identified, so the VV2 Birth Control
-patch remains disabled. Patching either age comparison alone would incorrectly
-change stock catch-up behavior.
+The Lost Children build is exactly 724,992 bytes with SHA-256
+`46C1503C209255C9CDEFA941DB2F449C8CF8E2CDD5C7D13CD975326E377ED677`.
+Its Birth Control feature is one atomic optional patch containing two complete
+40-byte guarded replacements:
+
+- file `0x6488D` / VA `0x46488D`; the new `JGE` targets `0x464A3D`;
+- file `0x64A8F` / VA `0x464A8F`; the new `JGE` targets `0x464C52`.
+
+Each replacement preserves candidate sex in `EDX`, compares the already-loaded
+candidate age in `EAX` with 1000, and rejects only at the corresponding
+writer-reaching opcode-12 candidate commit. Together the two scans cover
+ordinary autonomous/catch-up pairing and stew recipe 15. The patch does not
+claim broader breeding parity.
+
+The stock manual carrier/female-only age-less-than-1000 gate remains unchanged;
+there is no male upper-age gate. Chooser scoring, token 43 exact string `work`,
+willingness token 39 `learning`, planner logic, pregnancy writer, delivery,
+save format, RNG, food, fertility, capacity, messages, statistics, Love Note,
+Gong grant, Silver Mirror clone, and direct/event births remain native.

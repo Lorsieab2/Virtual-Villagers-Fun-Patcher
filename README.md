@@ -216,6 +216,22 @@ finishes **Recovering at the hospital** gains exactly 1 health point, capped at
 change health. The award runs only from a new final completion callback, so an
 interrupted recovery gives no health.
 
+## VV2: Birth Control
+
+Enable **Birth Control (The Lost Children)** to add an internal-age-1000 ceiling
+only to the two writer-reaching opcode-12 candidate scans used by ordinary
+autonomous/catch-up pairing and stew recipe 15. Both exact 40-byte guarded
+blocks are applied together. Candidate sex remains preserved in `EDX`, and the
+already-loaded candidate age in `EAX` is compared directly with 1000.
+
+The stock manual carrier/female-only age gate is unchanged, and no male
+upper-age gate is added. Chooser scoring, the exact `work` and `learning`
+tokens, planner, pregnancy and delivery, saves, RNG, food, fertility, capacity,
+messages, statistics, Love Note, Gong grant, Silver Mirror clone, and all
+direct/event births remain native. This exact-build implementation is based on
+disassembly commit `74778bd6a7d3a17dd990636cf6d4e769466800c6` and does not
+claim broader breeding parity.
+
 ## VV2: Gong of Wonder Coconuts Fix
 
 Enable **Gong of Wonder Coconuts Fix (The Lost Children)** so the coconut outcome adds 30 to the trees' existing amount. Stock VV2 assigns the coconut resource to 30, which can erase a larger existing supply. The patch corrects both stock outcome paths and changes no other Gong result.
@@ -285,8 +301,9 @@ Control candidate is rejected/superseded and is not offered or applied.
 
 The exact-build VV4/VV5 audit confirms that both games already provide the
 requested VV4-style Birth Control/Breeding behavior natively. They are therefore
-no-patch references; Birth Control implementation remains an on-hold,
-per-game task only for VV1, VV2, and VV3.
+no-patch references. VV1 and VV3 remain ON HOLD as separate per-game tasks.
+VV2's certified optional patch is limited to its two writer-reaching opcode-12
+candidate scans and does not claim broader breeding parity.
 
 VV1 remains ON HOLD under exact-build audit `c8d268d`. Its rejected historical
 proposal mistook the `0x3DBBE` food gate for an age predicate, treated live code
@@ -444,7 +461,7 @@ No game executable, save, extracted asset, or generated output is committed to t
 
 ## Command line
 
-Pass `--patch-mode collection_progression`, `--patch-mode immediate_fixed`, `--patch-mode experimental_expanded_256`, or `--patch-mode experimental_expanded_256_progression` to `dry-run`, `apply`, `dry-run-all`, or `apply-all`. Optional features use repeatable `--fun-patch` arguments. The available IDs are `vv1_school_lessons_grant_skill`, `vv1_continue_research_at_max_technologies`, `vv1_f6_clothing_change_cheat`, `vv1_magic_fruit_alters_mortality`, `vv1_builder_action_fixes`, `vv1_enable_origins_exclusive_features`, `vv2_easier_healing_mastery`, `vv2_teaching_children_grants_skill`, `vv2_hospital_recovery_heals`, `vv2_gong_of_wonder_coconuts_fix`, `vv2_enable_origins_exclusive_features`, `vv3_nature_honey_refill`, `vv3_nature_level_three_alters_mortality`, `vv3_rare_collectible_retry`, `vv3_enable_origins_exclusive_features`, `vv4_complete_scales_golden_fish`, `vv4_enable_origins_exclusive_features`, `vv5_heathen_mommy_puzzle`, `vv5_easier_devotee_training`, `vv5_statue_polishing_or_honoring`, `vv5_vv4_nursery_divisor_parity`, and `vv5_enable_origins_exclusive_features`. The per-game Village Statistics IDs are `vv1_write_village_statistics`, `vv2_write_village_statistics`, `vv3_write_village_statistics`, `vv4_write_village_statistics`, and `vv5_write_village_statistics`.
+Pass `--patch-mode collection_progression`, `--patch-mode immediate_fixed`, `--patch-mode experimental_expanded_256`, or `--patch-mode experimental_expanded_256_progression` to `dry-run`, `apply`, `dry-run-all`, or `apply-all`. Optional features use repeatable `--fun-patch` arguments. The available IDs are `vv1_school_lessons_grant_skill`, `vv1_continue_research_at_max_technologies`, `vv1_f6_clothing_change_cheat`, `vv1_magic_fruit_alters_mortality`, `vv1_builder_action_fixes`, `vv1_enable_origins_exclusive_features`, `vv2_easier_healing_mastery`, `vv2_teaching_children_grants_skill`, `vv2_hospital_recovery_heals`, `vv2_birth_control`, `vv2_gong_of_wonder_coconuts_fix`, `vv2_enable_origins_exclusive_features`, `vv3_nature_honey_refill`, `vv3_nature_level_three_alters_mortality`, `vv3_rare_collectible_retry`, `vv3_enable_origins_exclusive_features`, `vv4_complete_scales_golden_fish`, `vv4_enable_origins_exclusive_features`, `vv5_heathen_mommy_puzzle`, `vv5_easier_devotee_training`, `vv5_statue_polishing_or_honoring`, `vv5_vv4_nursery_divisor_parity`, and `vv5_enable_origins_exclusive_features`. The per-game Village Statistics IDs are `vv1_write_village_statistics`, `vv2_write_village_statistics`, `vv3_write_village_statistics`, `vv4_write_village_statistics`, and `vv5_write_village_statistics`.
 
 ```text
 python src/vv_fun_patcher.py dry-run "path\game.exe" --patch-mode immediate_fixed --output-root "path\chosen output parent"

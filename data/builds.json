@@ -904,6 +904,37 @@
       ]
     },
     {
+      "id": "vv2_birth_control",
+      "game_id": "vv2",
+      "name": "Birth Control",
+      "description": "Limits only the two writer-reaching opcode-12 candidate scans used by ordinary autonomous/catch-up pairing and stew recipe 15: a candidate whose already-loaded internal age in EAX is 1000 or greater is rejected while candidate sex remains preserved in EDX. The stock manual carrier/female-only age gate remains unchanged and no male upper-age gate is added.",
+      "output_tag": "Birth Control",
+      "behavior_changes": [
+        "The writer-reaching opcode-12 candidate scans at file offsets 0x6488D and 0x64A8F reject candidates whose already-loaded internal age in EAX is at least 1000.",
+        "Both complete 40-byte guarded blocks are one atomic VV2-only optional feature."
+      ],
+      "explicit_non_changes": [
+        "The stock manual carrier/female-only age<1000 gate is unchanged, and no male upper-age gate is added.",
+        "Chooser scoring, token 43 exact string work, willingness token 39 learning, planner logic, pregnancy writer, delivery, save format, RNG, food, fertility, capacity, messages, and statistics are unchanged.",
+        "Love Note event, Gong grant, Silver Mirror clone, direct/event births, and every path outside the two writer-reaching opcode-12 candidate scans remain native."
+      ],
+      "evidence_status": "implemented from exact-build disassembly commit 74778bd6a7d3a17dd990636cf6d4e769466800c6; static verification complete, runtime/player confirmation pending",
+      "patches": [
+        {
+          "offset": "0x6488D",
+          "before": "8B530883FA0275073DE80300007C1983BF38050000020F859401000081F9E80300000F8D88010000",
+          "after": "8B53083DE80300000F8DA20100009090909090909090909090909090909090909090909090909090",
+          "purpose": "preserve candidate sex in EDX and reject age>=1000 before the first writer-reaching opcode-12 candidate commit"
+        },
+        {
+          "offset": "0x64A8F",
+          "before": "8B530883FA0275073DE80300007C1983BF38050000020F85A701000081F9E80300000F8D9B010000",
+          "after": "8B53083DE80300000F8DB50100009090909090909090909090909090909090909090909090909090",
+          "purpose": "preserve candidate sex in EDX and reject age>=1000 before the second writer-reaching opcode-12 candidate commit"
+        }
+      ]
+    },
+    {
       "id": "vv1_school_lessons_grant_skill",
       "game_id": "vv1",
       "name": "School Lessons Grant Skill",
