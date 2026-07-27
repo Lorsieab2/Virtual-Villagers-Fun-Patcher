@@ -73,10 +73,14 @@ def _load_fun_patch_records() -> list[FunPatch]:
     ]
     for feature_path in ORIGINS_FEATURE_PATHS:
         if feature_path.is_file():
-            items.append(json.loads(feature_path.read_text(encoding="utf-8")))
+            record = json.loads(feature_path.read_text(encoding="utf-8"))
+            if record.get("enabled", True):
+                items.append(record)
     for feature_path in ORIGINS_VILLAGE_WIDE_FEATURE_PATHS:
         if feature_path.is_file():
-            items.append(json.loads(feature_path.read_text(encoding="utf-8")))
+            record = json.loads(feature_path.read_text(encoding="utf-8"))
+            if record.get("enabled", True):
+                items.append(record)
     if STATISTICS_FEATURES_PATH.is_file():
         statistics = json.loads(
             STATISTICS_FEATURES_PATH.read_text(encoding="utf-8")

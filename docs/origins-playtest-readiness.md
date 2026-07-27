@@ -12,6 +12,21 @@ This is static composition/readiness only. It does not prove player-visible
 runtime behavior, and runtime/player confirmation remains pending. The test
 never launches a game and does not authorize packaging by itself.
 
+## VV2 Origins containment
+
+VV2 Origins is currently unavailable and must not be selected. A player
+reported that both Time Warp and Food Point Doubler crash immediately after
+their purchased/success dialog is displayed. This records the observed trigger
+only; it does not infer whether the charge or action persisted. Both
+`vv2_enable_origins_exclusive_features` and dependent
+`vv2_origins_village_wide_upgrades` are disabled pending root-cause repair.
+Unrelated VV2 optional features remain independently selectable.
+
+The crash audit also found that the VV2 Origins builder confused `.shr` raw
+offsets with virtual addresses, displacing several helper/header references by
+`0x2000`. This is a hard re-enable blocker, but it is not certified as the
+complete explanation for both crashes; no repair is attempted here.
+
 VV1, VV3, and VV4 doubler new purchases and repurchases remain unavailable
 until their exact-build provenance gates are cleared. VV5 stock-layout Tech and
 Food Doublers support purchase, zero-cost/no-refund Remove, and full-price

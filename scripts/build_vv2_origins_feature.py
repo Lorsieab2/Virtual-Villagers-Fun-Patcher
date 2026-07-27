@@ -1006,6 +1006,7 @@ def main() -> None:
 
     manifest = {
         "id": "vv2_enable_origins_exclusive_features",
+        "enabled": False,
         "game_id": "vv2",
         "running_preference_id": RUNNING_PREFERENCE_ID,
         "running_preference_evidence": {"source": "exact stock executable embedded preference table", "table_file_offset": "0x8B808", "entry_name": "running"},

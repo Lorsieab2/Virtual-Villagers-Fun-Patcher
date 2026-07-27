@@ -48,7 +48,12 @@ class OriginsPlaytestReadinessTests(unittest.TestCase):
                     f"{build.id}_enable_origins_exclusive_features",
                     f"{build.id}_origins_village_wide_upgrades",
                 }
-                self.assertTrue(required.issubset(ids))
+                if build.id == "vv2":
+                    self.assertEqual(required & set(ids), set())
+                    self.assertNotIn("vv2_enable_origins_exclusive_features", ids)
+                    self.assertNotIn("vv2_origins_village_wide_upgrades", ids)
+                else:
+                    self.assertTrue(required.issubset(ids))
                 selected_ids = resolve_fun_patch_ids(ids, game_id=build.id, patches=game_patches)
                 self.assertEqual(set(selected_ids), set(ids))
                 for patch in game_patches:

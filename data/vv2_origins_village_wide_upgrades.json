@@ -1,5 +1,6 @@
 {
   "id": "vv2_origins_village_wide_upgrades",
+  "enabled": false,
   "game_id": "vv2",
   "running_preference_id": 38,
   "running_preference_evidence": {

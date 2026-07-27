@@ -73,6 +73,8 @@ class ManifestTests(unittest.TestCase):
         }
         for game_id, (name, offset) in evidence.items():
             with self.subTest(game=game_id):
+                if game_id == "vv2":
+                    continue
                 feature = get_fun_patch(f"{game_id}_enable_origins_exclusive_features")
                 self.assertEqual(feature.raw["running_preference_id"], 38)
                 self.assertEqual(
@@ -94,6 +96,7 @@ class ManifestTests(unittest.TestCase):
         expected = {
             f"vv{game}_origins_village_wide_upgrades"
             for game in range(1, 6)
+            if game != 2
         }
         features = {
             patch.id: patch
@@ -101,7 +104,7 @@ class ManifestTests(unittest.TestCase):
             if "origins_village_wide_upgrades" in patch.id
         }
         self.assertEqual(set(features), expected)
-        for game in range(1, 6):
+        for game in (1, 3, 4, 5):
             feature = features[f"vv{game}_origins_village_wide_upgrades"]
             self.assertEqual(
                 feature.raw["dependencies"],
@@ -153,7 +156,7 @@ class ManifestTests(unittest.TestCase):
                 self.assertTrue(any("Heathens" in item for item in exclusions))
 
     def test_origins_village_wide_abi_uses_command_eax_and_bound_edx(self) -> None:
-        for game_id in ("vv1", "vv2", "vv3", "vv4", "vv5"):
+        for game_id in ("vv1", "vv3", "vv4", "vv5"):
             with self.subTest(game=game_id):
                 feature = get_fun_patch(f"{game_id}_origins_village_wide_upgrades")
                 convention = feature.raw["extension_abi"]["calling_convention"]
@@ -183,7 +186,7 @@ class ManifestTests(unittest.TestCase):
         epilogue = bytes.fromhex("5F5E5B5DC3")
         bad_mastery_tail = bytes.fromhex("31C031D231C95E5F5B5DC3")
         mastery_tail = bytes.fromhex("31C031D231C95F5E5B5DC3")
-        for game_id in ("vv1", "vv2", "vv3", "vv4", "vv5"):
+        for game_id in ("vv1", "vv3", "vv4", "vv5"):
             with self.subTest(game=game_id):
                 feature = get_fun_patch(f"{game_id}_origins_village_wide_upgrades")
                 payload = bytes.fromhex(feature.raw["patches"][0]["after"])
@@ -209,6 +212,8 @@ class ManifestTests(unittest.TestCase):
         }
         for game_id, header_va in expected_headers.items():
             with self.subTest(game=game_id):
+                if game_id == "vv2":
+                    continue
                 feature = get_fun_patch(f"{game_id}_origins_village_wide_upgrades")
                 patch = feature.raw["patches"][0]
                 payload = bytes.fromhex(patch["after"])
@@ -620,13 +625,14 @@ class DoublerPurchaseSafetyTests(unittest.TestCase):
                         self.assertEqual(after, owned)
                         self.assertEqual(charge, 0)
 
-    def test_vv2_doubler_purchase_status_and_payload_remain_certified(self) -> None:
-        feature = get_fun_patch("vv2_enable_origins_exclusive_features")
-        self.assertNotIn("doubler_purchase_status", feature.raw)
-        self.assertNotIn("temporarily unavailable", feature.description)
-        self.assertNotIn(b"Unavailable: exact-build doubler behavior", b"".join(
-            bytes.fromhex(patch["after"]) for patch in feature.raw["patches"]
-        ))
+    def test_vv2_origins_containment_is_explicit(self) -> None:
+        for feature_id in (
+            "vv2_enable_origins_exclusive_features",
+            "vv2_origins_village_wide_upgrades",
+        ):
+            with self.subTest(feature=feature_id):
+                with self.assertRaisesRegex(PatcherError, "Unknown fun patch"):
+                    get_fun_patch(feature_id)
 
 
 class StockIntegrationTests(unittest.TestCase):
@@ -2510,12 +2516,7 @@ class StockIntegrationTests(unittest.TestCase):
                 feature.raw["companion_files"][0]["sha256"],
             )
 
-    def test_vv2_origins_exclusive_features_are_guarded_and_composable(self) -> None:
-        feature_id = "vv2_enable_origins_exclusive_features"
-        feature = get_fun_patch(feature_id)
-        self.assertEqual(feature.name, "Enable Origins-Exclusive Features")
-        self.assertIn("current save", feature.description)
-        self.assertIn("Island Event", feature.description)
+    def test_vv2_origins_containment_leaves_unrelated_features_renderable(self) -> None:
         build = next(build for build in load_builds() if build.id == "vv2")
         source = STOCK / build.input_name
         all_vv2_features = [
@@ -2523,38 +2524,29 @@ class StockIntegrationTests(unittest.TestCase):
             for patch in load_fun_patches()
             if patch.game_id == "vv2"
         ]
+        self.assertEqual(
+            set(all_vv2_features),
+            {
+                "vv2_birth_control",
+                "vv2_easier_healing_mastery",
+                "vv2_teaching_children_grants_skill",
+                "vv2_hospital_recovery_heals",
+                "vv2_gong_of_wonder_coconuts_fix",
+                "vv2_write_village_statistics",
+            },
+        )
         for mode in MODES + EXPANDED_MODES:
             with self.subTest(mode=mode):
-                rendered, _ = render_patched_bytes(
+                rendered, applied = render_patched_bytes(
                     source,
                     build,
                     mode,
                     all_vv2_features,
                 )
-                self.assertEqual(
-                    bytes(rendered[0x234:0x238]), bytes.fromhex("40000060")
-                )
-                self.assertEqual(
-                    bytes(rendered[0x26290:0x26295]),
-                    bytes.fromhex("E913E90600"),
-                )
-                self.assertEqual(
-                    bytes(rendered[0x262B0:0x262B5]),
-                    bytes.fromhex("E973E90600"),
-                )
-                self.assertEqual(
-                    bytes(rendered[0x34570:0x34575]),
-                    bytes.fromhex("E973070600"),
-                )
-                payload = bytes(rendered[0x943A8:0x94FFF])
-                self.assertIn(b"ShowOriginsUpgradeMenuState\0", payload)
-                self.assertIn(b"The village population is already at maximum capacity.\0", payload)
-                self.assertIn((500000).to_bytes(4, "little"), payload)
-                self.assertIn(bytes.fromhex("F787E8EA020001000000"), payload)
-                self.assertIn(bytes.fromhex("F787E8EA020002000000"), payload)
-                self.assertIn(bytes.fromhex("6A0A6A15"), payload)
-                self.assertIn((0x434351).to_bytes(4, "little"), payload)
-                self.assertIn((0x433FC6).to_bytes(4, "little"), payload)
+                self.assertEqual(bytes(rendered[0x234:0x238]), source.read_bytes()[0x234:0x238])
+                owners = {item["owner"] for item in applied}
+                self.assertNotIn("feature:vv2_enable_origins_exclusive_features", owners)
+                self.assertNotIn("feature:vv2_origins_village_wide_upgrades", owners)
         with tempfile.TemporaryDirectory() as temp:
             folder = Path(temp) / build.title
             folder.mkdir()
@@ -2563,16 +2555,13 @@ class StockIntegrationTests(unittest.TestCase):
             output, log_path = apply_patch(
                 copied,
                 DEFAULT_PATCH_MODE,
-                fun_patch_ids=[feature_id],
+                fun_patch_ids=all_vv2_features,
             )
             companion = output.parent / "VVFP Origins Icons.dll"
-            self.assertTrue(companion.is_file())
+            self.assertFalse(companion.exists())
             log = json.loads(log_path.read_text(encoding="utf-8"))
-            self.assertEqual(
-                digest(companion),
-                feature.raw["companion_files"][0]["sha256"],
-            )
-            self.assertEqual(len(log["companion_files"]), 1)
+            self.assertNotIn("vv2_enable_origins_exclusive_features", log["fun_patches"])
+            self.assertNotIn("vv2_origins_village_wide_upgrades", log["fun_patches"])
 
     def test_bulk_feature_applies_only_to_its_game(self) -> None:
         feature_id = "vv2_easier_healing_mastery"

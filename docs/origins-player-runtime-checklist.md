@@ -17,6 +17,18 @@ future clean rebuild.
 These are the exact stock builds covered by the static checklist. Runtime
 confirmation remains pending for every output.
 
+## VV2 Origins withdrawal
+
+Do not test or package the VV2 Origins pair. A player reported that both Time
+Warp and Food Point Doubler crash immediately after the purchased/success
+dialog is displayed. This records the observed trigger only; it does not infer
+whether the charge or action persisted. The feature and its dependent
+village-wide upgrade are fully contained pending root-cause repair; unrelated
+VV2 features remain available.
+The crash audit also found `.shr` raw-offset versus virtual-address confusion
+in the VV2 builder, displacing helper/header references by `0x2000`; this is a
+hard re-enable blocker but not yet a complete crash explanation.
+
 | Game | Stock executable size | Stock SHA-256 |
 | --- | ---: | --- |
 | VV1 | 581,632 bytes | 1EC790B927741081D5CE13A48FB76983A4FD4336EA08F89317872643760AF03D |

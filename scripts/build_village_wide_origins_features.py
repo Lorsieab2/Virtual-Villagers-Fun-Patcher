@@ -493,6 +493,8 @@ def main() -> None:
                 }
             ],
         }
+        if game_id == "vv2":
+            feature["enabled"] = False
         if game_id == "vv5":
             feature["record_fields"].update(
                 {

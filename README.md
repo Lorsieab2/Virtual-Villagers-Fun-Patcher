@@ -136,6 +136,14 @@ the patcher's population modes handle population limits separately.
 
 ## VV2: Enable Origins-Exclusive Features
 
+**Containment notice:** VV2 Origins is currently disabled after a player
+reported that both Time Warp and Food Point Doubler crash immediately after
+their purchased/success dialog is displayed. This records the trigger only;
+it does not infer whether the charge or action persisted. Both
+`vv2_enable_origins_exclusive_features` and its dependent village-wide upgrade
+are contained pending root-cause repair. Unrelated VV2 patches remain
+available.
+
 Enable **Enable Origins-Exclusive Features (The Lost Children)** to add the
 same icon-based village and selected-villager upgrade menus to VV2. The
 supported desktop build receives:
@@ -461,7 +469,7 @@ No game executable, save, extracted asset, or generated output is committed to t
 
 ## Command line
 
-Pass `--patch-mode collection_progression`, `--patch-mode immediate_fixed`, `--patch-mode experimental_expanded_256`, or `--patch-mode experimental_expanded_256_progression` to `dry-run`, `apply`, `dry-run-all`, or `apply-all`. Optional features use repeatable `--fun-patch` arguments. The available IDs are `vv1_school_lessons_grant_skill`, `vv1_continue_research_at_max_technologies`, `vv1_f6_clothing_change_cheat`, `vv1_magic_fruit_alters_mortality`, `vv1_builder_action_fixes`, `vv1_enable_origins_exclusive_features`, `vv2_easier_healing_mastery`, `vv2_teaching_children_grants_skill`, `vv2_hospital_recovery_heals`, `vv2_birth_control`, `vv2_gong_of_wonder_coconuts_fix`, `vv2_enable_origins_exclusive_features`, `vv3_nature_honey_refill`, `vv3_nature_level_three_alters_mortality`, `vv3_rare_collectible_retry`, `vv3_enable_origins_exclusive_features`, `vv4_complete_scales_golden_fish`, `vv4_enable_origins_exclusive_features`, `vv5_heathen_mommy_puzzle`, `vv5_easier_devotee_training`, `vv5_statue_polishing_or_honoring`, `vv5_vv4_nursery_divisor_parity`, and `vv5_enable_origins_exclusive_features`. The per-game Village Statistics IDs are `vv1_write_village_statistics`, `vv2_write_village_statistics`, `vv3_write_village_statistics`, `vv4_write_village_statistics`, and `vv5_write_village_statistics`.
+Pass `--patch-mode collection_progression`, `--patch-mode immediate_fixed`, `--patch-mode experimental_expanded_256`, or `--patch-mode experimental_expanded_256_progression` to `dry-run`, `apply`, `dry-run-all`, or `apply-all`. Optional features use repeatable `--fun-patch` arguments. The available IDs are `vv1_school_lessons_grant_skill`, `vv1_continue_research_at_max_technologies`, `vv1_f6_clothing_change_cheat`, `vv1_magic_fruit_alters_mortality`, `vv1_builder_action_fixes`, `vv1_enable_origins_exclusive_features`, `vv2_easier_healing_mastery`, `vv2_teaching_children_grants_skill`, `vv2_hospital_recovery_heals`, `vv2_birth_control`, `vv2_gong_of_wonder_coconuts_fix`, `vv3_nature_honey_refill`, `vv3_nature_level_three_alters_mortality`, `vv3_rare_collectible_retry`, `vv3_enable_origins_exclusive_features`, `vv4_complete_scales_golden_fish`, `vv4_enable_origins_exclusive_features`, `vv5_heathen_mommy_puzzle`, `vv5_easier_devotee_training`, `vv5_statue_polishing_or_honoring`, `vv5_vv4_nursery_divisor_parity`, and `vv5_enable_origins_exclusive_features`. The per-game Village Statistics IDs are `vv1_write_village_statistics`, `vv2_write_village_statistics`, `vv3_write_village_statistics`, `vv4_write_village_statistics`, and `vv5_write_village_statistics`. The VV2 Origins IDs are intentionally omitted while contained.
 
 ```text
 python src/vv_fun_patcher.py dry-run "path\game.exe" --patch-mode immediate_fixed --output-root "path\chosen output parent"
@@ -475,8 +483,8 @@ Technical evidence is in `docs/max-population-research.md`,
 `docs/`.
 
 The optional Origins village-wide feature IDs are
-`vv1_origins_village_wide_upgrades`, `vv2_origins_village_wide_upgrades`,
-`vv3_origins_village_wide_upgrades`, `vv4_origins_village_wide_upgrades`, and
+`vv1_origins_village_wide_upgrades`, `vv3_origins_village_wide_upgrades`,
+`vv4_origins_village_wide_upgrades`, and
 `vv5_origins_village_wide_upgrades`. Each depends on that game's
 `enable_origins_exclusive_features` prerequisite and adds the three
 1,000,000-tech-point rows: All Villagers Like Running, Grant Full Mastery to All

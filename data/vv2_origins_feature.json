@@ -1,5 +1,6 @@
 {
   "id": "vv2_enable_origins_exclusive_features",
+  "enabled": false,
   "game_id": "vv2",
   "running_preference_id": 38,
   "running_preference_evidence": {

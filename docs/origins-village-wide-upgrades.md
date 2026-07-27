@@ -14,6 +14,12 @@ shared companion DLL. The optional manifest owns only its exact-build,
 zero-filled extension reserve and its signed ABI header/payload; it does not
 rewrite base Origins payload bytes or copy another companion DLL.
 
+The VV2 village-wide manifest is currently disabled and not selectable because
+the complete VV2 Origins pair is contained after player-reported crashes in
+Time Warp and Food Point Doubler. Its historical payload remains in the data
+file for diagnosis, but it is not applied or copied; unrelated VV2 features
+remain available.
+
 The optional ABI exposes three commands to the dormant base-payload extension
 hook. The base passes `EAX=6/7/8`, `ECX=first physical record pointer`, and
 `EDX=physical record bound`. Running returns full-Like skips in `EAX`,

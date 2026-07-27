@@ -29,8 +29,11 @@ save-recognition, and complete 256-villager save/reload testing.
    "Enable Origins-Exclusive Features".
 4. Optional for The Lost Children: check "Easier Healing Mastery",
    "Teaching Children Grants Skill", "Birth Control",
-   "Gong of Wonder Coconuts Fix", and/or "Hospital Recovery Heals", and/or
-   "Enable Origins-Exclusive Features".
+   "Gong of Wonder Coconuts Fix", and/or "Hospital Recovery Heals".
+   VV2 Origins is temporarily unavailable: Time Warp and Food Point Doubler
+   were reported to crash after the purchased/success dialog; this does not
+   infer whether the charge or action persisted. Unrelated VV2 features remain
+   available.
 5. Optional for The Secret City: check
    "Nature Level 1 Actually Replenishes Food Sources Faster" and/or
    "Nature Level 3 Actually Alters Mortality" and/or
