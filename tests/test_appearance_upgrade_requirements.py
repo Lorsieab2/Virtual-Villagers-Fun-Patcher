@@ -96,6 +96,38 @@ class AppearanceUpgradeRequirementsTests(unittest.TestCase):
             with self.subTest(phrase=phrase):
                 self.assertIn(phrase, text)
 
+    def test_vv3_change_outfit_audit_is_exact_build_stop(self) -> None:
+        text = DOC.read_text(encoding="utf-8")
+        required = [
+            "VV3 Change Outfit exact-build audit",
+            "831,488-byte build",
+            "8BC5DB382D02BC5C21AD5F607580D60FF44A6519CC7EB133F03113BAACAE6503",
+            "independent **STOP**",
+            "The Clothing Hut",
+            "Choose\nan outfit for your villager!",
+            "Do you want to spend 5000 tech points to change\nthis villager's clothes?",
+            "Getting new clothes!",
+            "Not enough tech points\nto make new clothes!",
+            "Male/female body resources",
+            "young/old head assets",
+            "sub_4227F0",
+            "sub_4228F0",
+            "literal `0x1388` (5,000)",
+            "0x004228A2`/`0x228A2",
+            "[eax+0x12FB0]",
+            "does **not** prove a clothing purchase",
+            "selected-villager identity",
+            "outfit-field write",
+            "Change Outfit remains STOP",
+            "sex/age/special/invalid catalog classification",
+            "world, Detail, and chooser",
+            "stock and expanded-256 layouts",
+            "this audit is Outfit-only",
+        ]
+        for phrase in required:
+            with self.subTest(phrase=phrase):
+                self.assertIn(phrase, text)
+
     def test_no_loaded_fun_patch_advertises_unimplemented_appearance_options(self) -> None:
         import sys
 

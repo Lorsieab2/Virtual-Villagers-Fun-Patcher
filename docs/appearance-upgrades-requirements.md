@@ -62,6 +62,30 @@ prove the requested editable transaction semantics or vanilla-save compatibility
 for a new sidecar. Change Outfit and Change Head therefore remain
 STOP for VV2; no implementation is authorized from these fields or bounds.
 
+## VV3 Change Outfit exact-build audit
+
+The VV3 Change Outfit audit is an independent **STOP**. It applies to the
+831,488-byte build with SHA-256
+`8BC5DB382D02BC5C21AD5F607580D60FF44A6519CC7EB133F03113BAACAE6503`.
+
+The exact build contains the Clothing Hut strings `The Clothing Hut`, `Choose
+an outfit for your villager!`, `Do you want to spend 5000 tech points to change
+this villager's clothes?`, `Getting new clothes!`, and `Not enough tech points
+to make new clothes!`. Male/female body resources and young/old head assets are
+present, and `sub_4227F0` and `sub_4228F0` are bounded in the disassembly export.
+
+The literal `0x1388` (5,000) at VA/file `0x004228A2`/`0x228A2` writes manager
+state `[eax+0x12FB0]`. This does **not** prove a clothing purchase, cost
+deduction, selected-villager identity, or outfit-field write.
+
+Change Outfit remains STOP. Missing proofs are selected-record validation; the
+exact outfit field and every writer/copy/clone/save/load path; complete
+sex/age/special/invalid catalog classification; world, Detail, and chooser
+preview render/refresh behavior; the cost ABI tied to the UI strings; and
+collision-free safe placement in both stock and expanded-256 layouts. Do not
+infer Change Head status or implementation from these asset strings/resources;
+this audit is Outfit-only.
+
 ## Change Outfit
 
 Change Outfit belongs in the existing Villager Upgrades window. It must target
