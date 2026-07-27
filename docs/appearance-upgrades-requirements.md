@@ -14,6 +14,29 @@ patch advertises or implements these options.
 | Virtual Villagers - The Tree of Life | 929,792 bytes | `6D27A429FFCA5F1F71FDD7ECA761ED1BB67E85F976494BA178B3D7BE01F1B220` |
 | Virtual Villagers - New Believers | 991,232 bytes | `92946781980220E9D1A2E6C573925519934608F5215F4A0F8CE3B90088C5C65D` |
 
+## VV1 exact-build appearance audit
+
+The VV1 audit (disassembly commit `8888682`) is an independent **STOP** for
+both Change Outfit and Change Head. It applies to the 581,632-byte build with
+SHA-256 `1EC790B927741081D5CE13A48FB76983A4FD4336EA08F89317872643760AF03D`.
+
+The body/outfit candidate is the DWORD at record `+0x364`; the genetic-head
+candidate is the DWORD at record `+0x360`. Native random construction uses
+RNG(19), values `0..18`, for one sex and RNG(20), values `0..19`, for the other.
+Status/action 199 forces both fields to 19, and the clone path copies both
+fields. The world renderer is `sub_437790`; the selected portrait path is
+`sub_449140 -> sub_437340`; selected-index state is `+0xAD34`. Strange Berries
+contains non-UI writes to `+0x360`.
+
+The audit does not prove complete usable catalogs or special-row meaning,
+exact save/load serializer mapping, custom chooser/preview and OK-time
+revalidation ABI, native 5,000-tech deduction/persistence integration,
+refresh/invalidation, or safe composable cave/new-section placement. The
+absence of a stock chooser is not a claim that custom UI is impossible. Do not
+infer young/old catalogs from constructor RNG bounds or expose row 19 merely
+because status 199 uses it. Change Outfit and Change Head therefore remain
+STOP for VV1 and all other games remain subject to their own exact-build gates.
+
 ## Change Outfit
 
 Change Outfit belongs in the existing Villager Upgrades window. It must target

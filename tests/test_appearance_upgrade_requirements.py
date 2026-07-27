@@ -43,6 +43,32 @@ class AppearanceUpgradeRequirementsTests(unittest.TestCase):
                 self.assertIn(f"{build['size']:,} bytes", text)
                 self.assertIn(build["sha256"], text)
 
+    def test_vv1_appearance_audit_is_exact_build_stop(self) -> None:
+        text = DOC.read_text(encoding="utf-8")
+        required = [
+            "disassembly commit `8888682`",
+            "record `+0x364`",
+            "record `+0x360`",
+            "RNG(19)",
+            "RNG(20)",
+            "Status/action 199",
+            "clone path copies both",
+            "sub_437790",
+            "sub_449140 -> sub_437340",
+            "`+0xAD34`",
+            "Strange Berries",
+            "Change Outfit and Change Head therefore remain",
+            "exact save/load serializer mapping",
+            "custom chooser/preview",
+            "safe composable cave/new-section placement",
+            "Do not\ninfer young/old catalogs",
+        ]
+        for phrase in required:
+            with self.subTest(phrase=phrase):
+                self.assertIn(phrase, text)
+        self.assertIn("independent **STOP**", text)
+        self.assertIn("1EC790B927741081D5CE13A48FB76983A4FD4336EA08F89317872643760AF03D", text)
+
     def test_no_loaded_fun_patch_advertises_unimplemented_appearance_options(self) -> None:
         import sys
 
