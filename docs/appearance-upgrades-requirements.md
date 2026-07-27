@@ -132,6 +132,28 @@ choice overrides the blue default. The patch must not mutate faction, AI,
 puzzles, conversion, body tint, identity, spawn state, or any save/gameplay
 field.
 
+## VV5 mask-system exact-build audit (STOP)
+
+The VV5 mask-system audit (disassembly commit `870d236`) applies to the exact
+991,232-byte build with SHA-256
+`92946781980220E9D1A2E6C573925519934608F5215F4A0F8CE3B90088C5C65D`.
+The current faction byte is record `+0x1CEC`; generic selector bytes are
+`+0x1CED` and `+0x1CEE`; `+0x1CEF` is a persisted but currently unconsumed
+sidecar candidate; and the type dword is `+0x1CFC`. The world mask atlas rows
+are blue `0`, orange `1`, red `2`, purple `3`, and Chief `4`. The mask overlay
+is gated by current faction. Reset, spawn, conversion, clone, and save/load
+behavior are mapped, while the stock Detail portrait has no mask overlay.
+
+`Give Heathen Mask` remains **STOP**: the native chooser/cost and
+selected-active-living-current-believer/no-charge-Heathen transaction, safe
+manual encoding, Detail overlay/refresh, and collision-free stock+expanded-256
+placement are not proved. `Play as the Heathens!` remains **STOP**: complete
+all-spawn Play interception, Detail overlay/refresh, and collision-free
+stock+expanded-256 placement are not proved. Neither feature is registered or
+advertised. This STOP records evidence only; it changes no manifests,
+generators, companion DLL, outputs, prices, save behavior, or executable
+payloads.
+
 ## Evidence boundary and STOP conditions
 
 Vanilla base-game save recognition is mandatory. Executable growth is allowed,

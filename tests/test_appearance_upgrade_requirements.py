@@ -129,6 +129,35 @@ class AppearanceUpgradeRequirementsTests(unittest.TestCase):
             with self.subTest(phrase=phrase):
                 self.assertIn(phrase, text)
 
+    def test_vv5_mask_system_is_exact_build_stop(self) -> None:
+        text = DOC.read_text(encoding="utf-8")
+        required = [
+            "VV5 mask-system exact-build audit (STOP)",
+            "disassembly commit `870d236`",
+            "991,232-byte build",
+            "92946781980220E9D1A2E6C573925519934608F5215F4A0F8CE3B90088C5C65D",
+            "current faction byte is record `+0x1CEC`",
+            "generic selector bytes are\n`+0x1CED` and `+0x1CEE`",
+            "`+0x1CEF` is a persisted but currently unconsumed\nsidecar",
+            "type dword is `+0x1CFC`",
+            "blue `0`, orange `1`, red `2`, purple `3`, and Chief `4`",
+            "mask overlay\nis gated by current faction",
+            "Reset, spawn, conversion, clone, and save/load\nbehavior are mapped",
+            "stock Detail portrait has no mask overlay",
+            "`Give Heathen Mask` remains **STOP**",
+            "native chooser/cost and\nselected-active-living-current-believer/no-charge-Heathen transaction",
+            "safe\nmanual encoding",
+            "Detail overlay/refresh",
+            "collision-free stock+expanded-256\nplacement",
+            "`Play as the Heathens!` remains **STOP**",
+            "complete\nall-spawn Play interception",
+            "Neither feature is registered or\nadvertised",
+            "changes no manifests,\ngenerators, companion DLL, outputs, prices, save behavior, or executable\npayloads",
+        ]
+        for phrase in required:
+            with self.subTest(phrase=phrase):
+                self.assertIn(phrase, text)
+
     def test_no_loaded_fun_patch_advertises_unimplemented_appearance_options(self) -> None:
         import sys
 
