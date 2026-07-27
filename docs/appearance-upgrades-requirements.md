@@ -34,10 +34,11 @@ revalidation ABI, native 5,000-tech deduction/persistence integration,
 refresh/invalidation, or safe composable cave/new-section placement. The
 absence of a stock chooser is not a claim that custom UI is impossible. Do not
 infer young/old catalogs from constructor RNG bounds or expose row 19 merely
-because status 199 uses it. Change Outfit and Change Head therefore remain
-STOP for VV1 and all other games remain subject to their own exact-build gates.
+because status 199 uses it. The exact-build audit is STOP, and the requested
+Change Outfit and Change Head implementations remain ON HOLD for VV1; all
+other games remain subject to their own exact-build gates.
 
-## VV2 exact-build appearance audit
+## VV2 exact-build appearance audit (`ed4cedb5a0d41b28319bf62b8d25596baa3e7a2e`)
 
 The VV2 audit is an independent **STOP** for both Change Outfit and Change
 Head. It applies to the 724,992-byte build with SHA-256
@@ -59,10 +60,11 @@ revalidation, preview/refresh and persistence ABI, and safe placement remain
 unproved. The `head feels strange` string has no direct caller xref and is not
 an implementation hook. Whole-state save/load evidence does not independently
 prove the requested editable transaction semantics or vanilla-save compatibility
-for a new sidecar. Change Outfit and Change Head therefore remain
-STOP for VV2; no implementation is authorized from these fields or bounds.
+for a new sidecar. The requested Change Outfit and Change Head implementations
+remain ON HOLD for VV2; no implementation is authorized from these fields or
+bounds.
 
-## VV3 Change Outfit exact-build audit
+## VV3 Change Outfit exact-build audit (`a9d3b1ff0e223c0aa5fd8504194845afa4456df1`)
 
 The VV3 Change Outfit audit is an independent **STOP**. It applies to the
 831,488-byte build with SHA-256
@@ -78,13 +80,70 @@ The literal `0x1388` (5,000) at VA/file `0x004228A2`/`0x228A2` writes manager
 state `[eax+0x12FB0]`. This does **not** prove a clothing purchase, cost
 deduction, selected-villager identity, or outfit-field write.
 
-Change Outfit remains STOP. Missing proofs are selected-record validation; the
+Change Outfit remains ON HOLD. Missing proofs are selected-record validation; the
 exact outfit field and every writer/copy/clone/save/load path; complete
 sex/age/special/invalid catalog classification; world, Detail, and chooser
 preview render/refresh behavior; the cost ABI tied to the UI strings; and
 collision-free safe placement in both stock and expanded-256 layouts. Do not
 infer Change Head status or implementation from these asset strings/resources;
 this audit is Outfit-only.
+
+The native transaction is nevertheless bounded: the built-hut entry is
+`sub_4227F0`, the completion charge is exactly 5,000 in `sub_458DB0` case 41,
+and the chooser is `sub_41C010` with cycle/write routine `sub_41BF00`.
+The editable body/outfit DWORD is `record+0xDF4` with stride `0x1F8C`, and
+the chooser accepts exactly `0..28`, wrapping in both directions. The special
+constructor value `29` is outside the chooser's `0..28` cycle and is not a user
+catalog entry. The chooser writes the live record immediately on
+initialization/arrows; close is the only exit, with no Accept/OK commit, Cancel
+control, rollback, or refund; there is no rollback snapshot. The paid path captures
+only a mutable slot index and its later open path does not fully revalidate
+occupancy, health, status, or identity. Save/load and clone provenance for
+`+0xDF4`, a semantic catalog, stable identity, atomic preview/OK/Cancel
+behavior, and collision-free stock/expanded placement remain open.
+
+## VV4 Change Outfit exact-build audit (`23fee766bfbcccc634c565c6bc88f3318e30f244`)
+
+The VV4 audit is **ON HOLD** for the requested atomic custom picker. It applies
+to the 929,792-byte build with SHA-256
+`6D27A429FFCA5F1F71FDD7ECA761ED1BB67E85F976494BA178B3D7BE01F1B220`.
+The native Clothing Hut transaction uses action 71, charges exactly 5,000,
+and opens `sub_419710`; `sub_419590` cycles and immediately writes the DWORD
+body/outfit field at `record+0x1BBC` (stride `0x2E3C`) through the `0..28`
+domain. The native close path keeps the immediate write; there is no separate
+Accept/OK commit, Cancel rollback, or refund. Its pending candidate uses an
+index with a `0..149` resolver and the `+0x1CC4/+0x1CC7` predicate, but no
+stable identity token is captured and the later chooser path does not provide
+the requested atomic revalidation.
+
+World/detail/preview consumers, clone copying, and the `+0x1B8C` save/load span
+containing `+0x1BBC` are code-confirmed. The complete semantic catalog and
+human-readable row meanings, preview-only working state, OK-time commit,
+Cancel rollback, identity guard, and collision-free stock/expanded placement
+remain unproved. No custom Change Outfit implementation is authorized.
+
+## VV5 Change Outfit exact-build audit (`313651623d2687d3f53ce5cc30c9f5ad07051a8d`)
+
+The VV5 native chooser facts are documented, but the requested believer-only
+atomic/custom expanded-layout contract remains **ON HOLD**. This applies to the
+991,232-byte build with SHA-256
+`92946781980220E9D1A2E6C573925519934608F5215F4A0F8CE3B90088C5C65D`.
+The native action-90 path charges exactly 5,000 and opens `sub_419EC0`;
+`sub_419CE0` cycles and immediately writes the DWORD body/outfit field at
+`record+0x1BBC` (native stride `0x2F44`) over exactly `0..28`. Accept keeps
+the immediate write. Cancel restores the original field and refunds exactly
+5,000 through the native writer, for a net-zero cancel outcome.
+
+The native path persists the field through the `+0x1B8C` save/load span and
+copies it through clone/summary paths; world, detail, and chooser preview
+renderers consume it. The dialog path stores only a mutable slot index. It
+does not test current faction `+0x1CEC`, so a code-confirmed believer-only
+contract and no-charge current-Heathen refusal are not present in this path.
+The numeric `0..28` selector is exact, but complete named/semantic catalog
+meaning remains open. Stable identity, preview-only working state, atomic
+OK-time commit, Cancel semantics for the requested custom route, complete
+eligibility guards, and collision-free stock/expanded placement remain
+unproved; no custom Change Outfit implementation is authorized.
 
 ## Change Outfit
 

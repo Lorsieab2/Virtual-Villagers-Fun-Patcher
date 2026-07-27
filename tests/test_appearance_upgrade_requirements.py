@@ -58,7 +58,7 @@ class AppearanceUpgradeRequirementsTests(unittest.TestCase):
             "sub_449140 -> sub_437340",
             "`+0xAD34`",
             "Strange Berries",
-            "Change Outfit and Change Head therefore remain",
+            "Change Outfit and Change Head implementations remain ON HOLD",
             "exact save/load serializer mapping",
             "custom chooser/preview",
             "safe composable cave/new-section placement",
@@ -91,7 +91,7 @@ class AppearanceUpgradeRequirementsTests(unittest.TestCase):
             "head feels strange",
             "no direct caller xref",
             "vanilla-save compatibility",
-            "Change Outfit and Change Head therefore remain\nSTOP for VV2",
+            "requested Change Outfit and Change Head implementations\nremain ON HOLD for VV2",
         ]
         for phrase in required:
             with self.subTest(phrase=phrase):
@@ -101,6 +101,7 @@ class AppearanceUpgradeRequirementsTests(unittest.TestCase):
         text = DOC.read_text(encoding="utf-8")
         required = [
             "VV3 Change Outfit exact-build audit",
+            "a9d3b1ff0e223c0aa5fd8504194845afa4456df1",
             "831,488-byte build",
             "8BC5DB382D02BC5C21AD5F607580D60FF44A6519CC7EB133F03113BAACAE6503",
             "independent **STOP**",
@@ -119,15 +120,40 @@ class AppearanceUpgradeRequirementsTests(unittest.TestCase):
             "does **not** prove a clothing purchase",
             "selected-villager identity",
             "outfit-field write",
-            "Change Outfit remains STOP",
+            "Change Outfit remains ON HOLD",
             "sex/age/special/invalid catalog classification",
             "world, Detail, and chooser",
             "stock and expanded-256 layouts",
             "this audit is Outfit-only",
+            "special\nconstructor value `29` is outside",
+            "chooser accepts exactly `0..28`",
+            "there is no rollback snapshot",
         ]
         for phrase in required:
             with self.subTest(phrase=phrase):
                 self.assertIn(phrase, text)
+
+    def test_all_five_change_outfit_audits_are_separate_and_on_hold(self) -> None:
+        text = DOC.read_text(encoding="utf-8")
+        citations = (
+            "8888682",
+            "ed4cedb5a0d41b28319bf62b8d25596baa3e7a2e",
+            "a9d3b1ff0e223c0aa5fd8504194845afa4456df1",
+            "23fee766bfbcccc634c565c6bc88f3318e30f244",
+            "313651623d2687d3f53ce5cc30c9f5ad07051a8d",
+        )
+        for citation in citations:
+            self.assertIn(citation, text)
+        for game in ("VV1", "VV2", "VV3", "VV4", "VV5"):
+            self.assertIn(game, text)
+        for marker in (
+            "Change Outfit remains ON HOLD",
+            "requested Change Outfit and Change Head implementations\nremain ON HOLD for VV2",
+            "VV4 Change Outfit exact-build audit",
+            "VV5 Change Outfit exact-build audit",
+            "no custom Change Outfit implementation is authorized",
+        ):
+            self.assertIn(marker, text)
 
     def test_vv5_mask_system_is_exact_build_stop(self) -> None:
         text = DOC.read_text(encoding="utf-8")
