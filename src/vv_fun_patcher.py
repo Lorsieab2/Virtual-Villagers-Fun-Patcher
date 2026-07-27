@@ -104,6 +104,70 @@ def _fun_patch_support(
     return patches
 
 
+def _relocate_expanded_shr_fun_patches(
+    build: Build,
+    patch_mode: str,
+    fun_patches: list[FunPatch],
+    data: bytearray,
+) -> list[dict[str, str]]:
+    """Relocate absolute pointers embedded in fun payloads after .shr moves.
+
+    The experimental VV3-VV5 layout moves the stock ``.shr`` section.  Fun
+    patches are applied after the expanded manifest, so payloads installed by
+    a fun feature need their own exact-build relocation pass.  This is driven
+    by explicit manifest guards; no broad byte-pattern search is performed.
+    """
+    if patch_mode not in EXPANDED_PATCH_MODES:
+        return []
+
+    applied: list[dict[str, str]] = []
+    for feature in fun_patches:
+        relocation = feature.raw.get("expanded_shr_relocations")
+        if not relocation:
+            continue
+        if build.id != "vv5":
+            raise PatcherError(
+                f"{feature.name} declares an expanded .shr relocation but is not a VV5 feature."
+            )
+        stock_va = int(relocation["stock_virtual_address"], 0)
+        expanded_va = int(relocation["expanded_virtual_address"], 0)
+        delta = expanded_va - stock_va
+        if delta <= 0:
+            raise PatcherError("Internal expanded .shr relocation has a non-positive delta.")
+        for patch in relocation.get("patches", []):
+            offset = int(patch["offset"], 0)
+            before = bytes.fromhex(patch["before"])
+            if len(before) != 4:
+                raise PatcherError(
+                    f"Internal expanded .shr relocation at {patch['offset']} is not a DWORD."
+                )
+            actual = bytes(data[offset : offset + 4])
+            if actual != before:
+                raise PatcherError(
+                    f"Expanded .shr relocation guard failed at {patch['offset']}: "
+                    f"expected {before.hex().upper()}, found {actual.hex().upper()}"
+                )
+            value = int.from_bytes(before, "little")
+            if not stock_va <= value < stock_va + 0x1000:
+                raise PatcherError(
+                    f"Expanded .shr relocation at {patch['offset']} points outside stock .shr."
+                )
+            after = (value + delta).to_bytes(4, "little")
+            data[offset : offset + 4] = after
+            applied.append(
+                {
+                    "offset": patch["offset"],
+                    "before": before.hex().upper(),
+                    "after": after.hex().upper(),
+                    "purpose": patch.get(
+                        "purpose",
+                        "relocate fun-patch .shr pointer for expanded 256 mode",
+                    ),
+                }
+            )
+    return applied
+
+
 def _expanded_patches(build: Build, variant: dict[str, Any]) -> list[dict[str, str]]:
     if not variant.get("expanded_records", False):
         return []
@@ -526,6 +590,11 @@ def render_patched_bytes(
                 "purpose": patch["purpose"],
             }
         )
+    applied.extend(
+        _relocate_expanded_shr_fun_patches(
+            build, patch_mode, fun_patches, data
+        )
+    )
     checksum_offset, _ = _pe_checksum_layout(data)
     checksum = pe_checksum(data)
     struct.pack_into("<I", data, checksum_offset, checksum)

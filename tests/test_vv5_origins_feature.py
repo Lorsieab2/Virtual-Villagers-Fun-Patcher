@@ -165,10 +165,73 @@ class VV5OriginsFeatureTests(unittest.TestCase):
                     STOCK, build, mode, all_vv5
                 )
                 self.assertGreater(len(applied), len(self.feature["patches"]))
+                expected_payload = bytearray(self.payload)
+                relocation = self.feature.get("expanded_shr_relocations")
+                if mode.startswith("experimental_expanded_256") and relocation:
+                    delta = int(relocation["expanded_virtual_address"], 0) - int(
+                        relocation["stock_virtual_address"], 0
+                    )
+                    for item in relocation["patches"]:
+                        payload_offset = int(item["offset"], 0) - 0xDB000
+                        value = int.from_bytes(
+                            expected_payload[payload_offset : payload_offset + 4],
+                            "little",
+                        )
+                        expected_payload[payload_offset : payload_offset + 4] = (
+                            value + delta
+                        ).to_bytes(4, "little")
                 self.assertEqual(
                     bytes(rendered[0xDB000 : 0xDB000 + len(self.payload)]),
-                    self.payload,
+                    bytes(expected_payload),
                 )
+
+    def test_expanded_mode_relocates_all_origins_shr_pointers(self) -> None:
+        build = next(item for item in load_builds() if item.id == "vv5")
+        rendered, applied = render_patched_bytes(
+            STOCK,
+            build,
+            "experimental_expanded_256",
+            [FEATURE_ID],
+        )
+        relocation = self.feature["expanded_shr_relocations"]
+        delta = int(relocation["expanded_virtual_address"], 0) - int(
+            relocation["stock_virtual_address"], 0
+        )
+        relocation_offsets = {item["offset"] for item in relocation["patches"]}
+        applied_offsets = {
+            item["offset"] for item in applied if item["offset"] in relocation_offsets
+        }
+        self.assertEqual(applied_offsets, relocation_offsets)
+        for item in relocation["patches"]:
+            offset = int(item["offset"], 0)
+            before = int.from_bytes(bytes.fromhex(item["before"]), "little")
+            actual = struct.unpack_from("<I", rendered, offset)[0]
+            self.assertEqual(actual, before + delta)
+        payload_end = 0xDB000 + len(self.payload)
+        for offset in range(0xDB000, payload_end - 3):
+            value = struct.unpack_from("<I", rendered, offset)[0]
+            self.assertFalse(
+                int(relocation["stock_virtual_address"], 0)
+                <= value
+                < int(relocation["stock_virtual_address"], 0) + 0x1000,
+                f"stale stock .shr pointer at {offset:#x}",
+            )
+
+    def test_stock_mode_keeps_origins_shr_pointers_unchanged(self) -> None:
+        build = next(item for item in load_builds() if item.id == "vv5")
+        rendered, applied = render_patched_bytes(
+            STOCK, build, "collection_progression", [FEATURE_ID]
+        )
+        relocation = self.feature["expanded_shr_relocations"]
+        relocation_offsets = {int(item["offset"], 0) for item in relocation["patches"]}
+        self.assertFalse(
+            any(int(item["offset"], 0) in relocation_offsets for item in applied)
+        )
+        for item in relocation["patches"]:
+            offset = int(item["offset"], 0)
+            self.assertEqual(
+                rendered[offset : offset + 4], bytes.fromhex(item["before"])
+            )
 
     def test_expanded_output_keeps_vanilla_name_and_stock_save_fallback(self) -> None:
         build = next(item for item in load_builds() if item.id == "vv5")

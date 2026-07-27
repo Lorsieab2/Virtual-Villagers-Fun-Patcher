@@ -21,6 +21,7 @@ from keystone import KS_ARCH_X86, KS_MODE_32, Ks  # noqa: E402
 IMAGE_BASE = 0x400000
 PAYLOAD_FILE_OFFSET = 0xDB000
 PAYLOAD_VA = 0x7B2000
+EXPANDED_PAYLOAD_VA = 0x8EB000
 PAYLOAD_SIZE = 0x1000
 STRINGS_OFFSET = 0xD00
 STRINGS_VA = PAYLOAD_VA + STRINGS_OFFSET
@@ -661,6 +662,17 @@ def main() -> None:
     )
 
     payload = code + strings
+    expanded_shr_relocations: list[dict[str, str]] = []
+    for payload_offset in range(len(payload) - 3):
+        value = int.from_bytes(payload[payload_offset : payload_offset + 4], "little")
+        if PAYLOAD_VA <= value < PAYLOAD_VA + PAYLOAD_SIZE:
+            expanded_shr_relocations.append(
+                {
+                    "offset": f"0x{PAYLOAD_FILE_OFFSET + payload_offset:X}",
+                    "before": payload[payload_offset : payload_offset + 4].hex().upper(),
+                    "purpose": "relocate VV5 Origins .shr absolute pointer for expanded 256 mode",
+                }
+            )
     patches: list[dict[str, str | int]] = []
 
     def patch(offset: int, before: bytes, after: bytes, purpose: str) -> None:
@@ -739,6 +751,11 @@ def main() -> None:
             }
         ],
         "patches": patches,
+        "expanded_shr_relocations": {
+            "stock_virtual_address": f"0x{PAYLOAD_VA:X}",
+            "expanded_virtual_address": f"0x{EXPANDED_PAYLOAD_VA:X}",
+            "patches": expanded_shr_relocations,
+        },
     }
     MANIFEST_JSON.write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
     used = max(i for i, value in enumerate(code) if value) + 1
