@@ -16,6 +16,7 @@ STOCK = ROOT / "research/stock-executables/Virtual Villagers - New Believers.exe
 MANIFEST = ROOT / "data/vv5_origins_feature.json"
 BUILDER = ROOT / "scripts/build_vv5_origins_feature.py"
 EXPANDED = ROOT / "data/expanded_256.json"
+COMPANION = ROOT / "assets/origins/VVFP Origins Icons.dll"
 FEATURE_ID = "vv5_enable_origins_exclusive_features"
 
 
@@ -44,8 +45,12 @@ class VV5OriginsFeatureTests(unittest.TestCase):
         )
         self.assertEqual(
             self.feature["companion_files"][0]["sha256"],
-            "6BDFE416189513E752B8C48E4065945BA5CB27379EF1C50CEDCFFB84430C3795",
+            "9A8F84A48B0C5DF40BB878FB05172D4C11BC6DB336694103C114BFCF2B1334C9",
         )
+
+    def test_grant_youth_label_explains_age_floor(self) -> None:
+        label = "Grant Youth (-35 years, min age 5)"
+        self.assertIn(label.encode("utf-16le"), COMPANION.read_bytes())
 
     def test_all_guards_match_stock_and_payload_is_isolated(self) -> None:
         for item in self.feature["patches"]:

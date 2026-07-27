@@ -110,19 +110,32 @@ other identified record loops use 256 as their exclusive bound.
 
 The expanded build also widens the small index-validation and reverse-selection
 helpers that are not written as obvious `for (i = 149)` loops. VV3's state and
-record validators now accept indices through 255; its primary general spatial
-picker remains at the stock reviewed routine until a complete reanalysis proves
-a safe expanded relocation. VV3's mating and nearby-villager helpers are a
-separate reviewed case: their reverse-scan endpoints now point to record 255.
-VV4's record lookup, selected-villager validation, and reverse selection use the
-same 255 endpoint. VV5's lookup, selected-villager validation, pending-record
-removal, and reverse-selection paths are widened as well. In VV5, the three
-reverse-selection helpers also require their end pointer to move from the stock
-record-149 address to the corresponding record-255 address; widening only the
-loop bound makes the picker walk backwards out of the record table and can
-select arbitrary records. Leaving any reviewed helper at the stock 149 endpoint
-causes late-record lookups to fail or reuse the wrong record even when the
-larger arrays exist.
+record validators now accept indices through 255, and its main-world spatial
+picker, mating picker, and nearby-villager picker all scan through record 255.
+VV4's record lookup, selected-villager validation, world-coordinate picker,
+player-to-player picker, and nearby-sick-villager picker use record-255 end
+points. VV5's lookup, selected-villager validation, pending-record removal, and
+reverse-selection paths are widened as well. In all three games, every reviewed
+reverse-selection helper has both its loop bound and its initial pointer moved
+from the stock record-149 address to the corresponding record-255 address;
+widening only the loop bound makes a picker walk backwards out of the record
+table and can select arbitrary records. Leaving any reviewed helper at the stock
+149 endpoint causes late-record lookups to fail or reuse the wrong record even
+when the larger arrays exist.
+
+## Interaction audit
+
+The expanded patches do not replace villager interaction rules. They only widen
+the candidate records available to the stock selectors and preserve the stock
+action dispatch after a target is selected. Manual drop/click selection and
+autonomous selection therefore retain their original predicates, preferences,
+skill checks, gender/age checks, sickness checks, and action outcomes. In
+particular, the player-healing path still selects a sick villager through the
+stock target picker and then calls the stock healing action; it is not redirected
+to a new healer implementation. Static rendered-byte tests cover the reviewed
+manual and autonomous picker bounds and endpoints for VV3, VV4, and VV5. This is
+an executable-structure audit only; a complete live playthrough and save/reload
+validation remains separate player QA.
 
 IDA Pro 9.4 was used to export decoded operands. This matters because the
 Microsoft runtime contains valid code outside some named function boundaries.

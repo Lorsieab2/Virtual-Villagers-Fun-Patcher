@@ -59,7 +59,7 @@ FONT 9, "Segoe UI"
 BEGIN
     ICON        106, -1, 8,  8,  24, 24
     ICON        109, 1100, 22, 20, 12, 12
-    LTEXT       "Grant Youth", -1, 40, 10, 150, 10
+    LTEXT       "Grant Youth (-35 years, min age 5)", -1, 40, 10, 195, 10
     LTEXT       "50,000 tech points", -1, 40, 22, 150, 9
     PUSHBUTTON  "Buy", 1000, 240, 11, 55, 18
 

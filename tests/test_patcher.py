@@ -57,6 +57,34 @@ def expanded_exe_name(build) -> str:
 
 
 class ManifestTests(unittest.TestCase):
+    def test_grant_running_checks_exactly_three_normal_like_slots(self) -> None:
+        for game_id in ("vv1", "vv2", "vv3", "vv4", "vv5"):
+            with self.subTest(game=game_id):
+                source = next(
+                    (ROOT / "scripts").glob(f"build_{game_id}_origins_feature.py")
+                ).read_text(encoding="utf-8")
+                starts = [
+                    source.find("running_find_like_slot:"),
+                    source.find("running_find_like:"),
+                    source.find("find_like:"),
+                    source.find("running:"),
+                ]
+                start = min(value for value in starts if value >= 0)
+                ends = [
+                    value
+                    for value in (
+                        source.find("detail_success:", start),
+                        source.find("detail_status:", start),
+                        source.find("done:", start),
+                    )
+                    if value >= 0
+                ]
+                section = source[start : min(ends) if ends else len(source)]
+                self.assertIn("mov eax, 3", section)
+                self.assertIn("cmp dword ptr [ecx], -1", section)
+                self.assertIn("dec eax", section)
+                self.assertIn("jne", section)
+
     def test_stock_record_capacities_are_explicit(self) -> None:
         builds = {build.id: build for build in load_builds()}
         self.assertEqual(builds["vv1"].villager_slots, 256)
@@ -632,14 +660,16 @@ class StockIntegrationTests(unittest.TestCase):
 
     def test_expanded_selection_end_pointers_use_reviewed_endpoints(self) -> None:
         expected = {
-            # VV3's primary picker remains untouched pending a complete
-            # reanalysis; the other two games have reviewed endpoints.
             "vv3": [
-                (0x60D4C, "706B1200"),
+                (0x60D4C, "687B1F00"),
                 (0x5F975, "6C7B1F00"),
                 (0x5FA46, "807B1F00"),
             ],
-            "vv4": [(0x66845, "F7051B00")],
+            "vv4": [
+                (0x66845, "CF2A2E00"),
+                (0x66A15, "9C2A2E00"),
+                (0x66AE6, "080E2E00"),
+            ],
             "vv5": [
                 (0x70280, "04152F00"),
                 (0x705E5, "04152F00"),
@@ -659,6 +689,60 @@ class StockIntegrationTests(unittest.TestCase):
                     self.assertEqual(
                         bytes(rendered[offset : offset + 4]), bytes.fromhex(value)
                     )
+
+    def test_expanded_interaction_paths_use_256_record_bounds(self) -> None:
+        expected = {
+            "vv3": {
+                0x60D46: "FF000000",  # main-world hit-test bound
+                0x60D4C: "687B1F00",  # main-world hit-test endpoint
+                0x5F975: "6C7B1F00",  # player-to-player endpoint
+                0x5FA46: "807B1F00",  # nearby-villager endpoint
+                0x5EE69: "00010000",  # active-record validator
+                0x35A5A: "00010000",  # serialized index validator
+            },
+            "vv4": {
+                0x66045: "FF000000",  # record lookup
+                0x6683F: "FF000000",  # world-coordinate reverse picker
+                0x66845: "CF2A2E00",  # world-coordinate endpoint
+                0x66A0F: "FF000000",  # player-to-player reverse picker
+                0x66A15: "9C2A2E00",  # player-to-player endpoint
+                0x66AE0: "FF000000",  # nearby sick-villager picker bound
+                0x66AE6: "080E2E00",  # nearby sick-villager endpoint
+                0x669CC: "00010000",  # general target hit-test bound
+                0x66E6F: "00010000",  # autonomous embrace picker bound
+                0x66F11: "00010000",  # autonomous healer picker bound
+                0x66C9C: "FF000000",  # selected-index setter
+            },
+            "vv5": {
+                0x6F955: "FF000000",  # record lookup
+                0x70280: "04152F00",  # main world endpoint
+                0x70291: "FF000000",  # main world reverse bound
+                0x70381: "FF000000",  # main world fallback bound
+                0x704F6: "00010000",  # general target hit-test bound
+                0x7058C: "00010000",  # fallback target hit-test bound
+                0x705DF: "FF000000",  # player-to-player reverse bound
+                0x70700: "FF000000",  # nearby-villager reverse bound
+                0x708FC: "FF000000",  # selected-index setter
+                0x70AFC: "00010000",  # autonomous embrace picker bound
+                0x70BB6: "00010000",  # autonomous healer picker bound
+                0x71D77: "FF000000",  # pending-record removal bound
+            },
+        }
+        for build in load_builds():
+            if build.id not in expected:
+                continue
+            with self.subTest(game=build.id):
+                rendered, _ = render_patched_bytes(
+                    STOCK / build.input_name,
+                    build,
+                    "experimental_expanded_256",
+                )
+                for offset, value in expected[build.id].items():
+                    with self.subTest(offset=hex(offset)):
+                        self.assertEqual(
+                            bytes(rendered[offset : offset + 4]),
+                            bytes.fromhex(value),
+                        )
 
     def test_expanded_modes_leave_required_slot_zero_loaders_stock(self) -> None:
         slot_zero_calls = {

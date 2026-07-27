@@ -1377,6 +1377,39 @@
           "purpose": "add 30 coconuts in the alternate Gong outcome path instead of assigning 30"
         }
       ]
+    },
+    {
+      "id": "vv1_birth_control",
+      "game_id": "vv1",
+      "name": "Birth Control",
+      "description": "Stops player/manual conception when either participant has reached internal age 1000 (displayed age 50), while leaving the separately identified time-catch-up reproduction route untouched. Autonomous Embracing remains possible only for an initiating villager with positive Parenting skill and Parenting selected as the preference; the candidate villager keeps the stock eligibility rules.",
+      "output_tag": "Birth Control",
+      "patches": [
+        {
+          "offset": "0x3DBBE",
+          "before": "81B8ECA2000090010000",
+          "after": "E90D7DC0FF9090909090",
+          "purpose": "detour the VV1 manual conception predicate through the age-1000 guard without intercepting the offline catch-up scheduler"
+        },
+        {
+          "offset": "0x458D0",
+          "before": "000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "after": "83BF48030000E80300007D2181BD48030000E80300007D1581B8ECA20000900100000F8DF5823F00E9CD823F00E99C843F000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "purpose": "reject either manual participant at internal age 1000 or above, then replay the stock manager check and return paths"
+        },
+        {
+          "offset": "0x447840",
+          "before": "578BCEE82BC1FCFF",
+          "after": "E9EBE0BFFF909090",
+          "purpose": "detour only the autonomous Embracing commit after stock mate selection, preserving the candidate's normal eligibility checks"
+        },
+        {
+          "offset": "0x45930",
+          "before": "000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "after": "89D869C0D803000083BC06BC030000007E1783BC06D003000002750D5789F1E81C3B3F00E9EF1E4000E9DA1E400000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "purpose": "allow autonomous Embracing to reach the stock writer only when the initiating villager has positive Parenting skill and Parenting preference value 2"
+        }
+      ]
     }
   ]
 }

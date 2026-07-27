@@ -78,6 +78,18 @@ STOCK_SAVE_COMPATIBILITY = {
 REVIEWED_RECORD_BOUNDS = {
     "vv3": [
         {
+            "offset": "0x60D46",
+            "before": "95000000",
+            "after": "FF000000",
+            "purpose": "expand the VV3 main-world villager hit-test reverse scan through record 255",
+        },
+        {
+            "offset": "0x60D4C",
+            "before": "706B1200",
+            "after": "687B1F00",
+            "purpose": "move the VV3 main-world villager hit-test endpoint from record 149 to record 255",
+        },
+        {
             "offset": "0x5F975",
             "before": "746B1200",
             "after": "6C7B1F00",
@@ -103,6 +115,24 @@ REVIEWED_RECORD_BOUNDS = {
         },
     ],
     "vv4": [
+        {
+            "offset": "0x66845",
+            "before": "F7051B00",
+            "after": "CF2A2E00",
+            "purpose": "move the VV4 world-coordinate villager picker endpoint from record 149 to record 255",
+        },
+        {
+            "offset": "0x66A15",
+            "before": "C4051B00",
+            "after": "9C2A2E00",
+            "purpose": "move the VV4 player-to-player villager picker endpoint from record 149 to record 255",
+        },
+        {
+            "offset": "0x66AE6",
+            "before": "30E91A00",
+            "after": "080E2E00",
+            "purpose": "move the VV4 nearby sick-villager picker endpoint from record 149 to record 255",
+        },
         {
             "offset": "0x66045",
             "before": "95000000",

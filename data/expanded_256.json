@@ -4,7 +4,7 @@
     "vv3": {
       "source_sha256": "8BC5DB382D02BC5C21AD5F607580D60FF44A6519CC7EB133F03113BAACAE6503",
       "prototype_sha256": "6EE3361A7AC35F441763647C1E2FC9EC49569DE5EF372BDB41D243D03002D601",
-      "patch_count": 1261,
+      "patch_count": 1263,
       "patches": [
         {
           "offset": "0x5C9D2",
@@ -7549,6 +7549,18 @@
           "purpose": "accept an exact stock VV3 save, move its saved-state tail, and zero the 106 inserted villager records"
         },
         {
+          "offset": "0x60D46",
+          "before": "95000000",
+          "after": "FF000000",
+          "purpose": "expand the VV3 main-world villager hit-test reverse scan through record 255"
+        },
+        {
+          "offset": "0x60D4C",
+          "before": "706B1200",
+          "after": "687B1F00",
+          "purpose": "move the VV3 main-world villager hit-test endpoint from record 149 to record 255"
+        },
+        {
           "offset": "0x5F975",
           "before": "746B1200",
           "after": "6C7B1F00",
@@ -7577,7 +7589,7 @@
     "vv4": {
       "source_sha256": "6D27A429FFCA5F1F71FDD7ECA761ED1BB67E85F976494BA178B3D7BE01F1B220",
       "prototype_sha256": "3697317341C23B107F8C06F6D4164BC4602BF5CB90DFB56A6B68EB7EA3C43EE1",
-      "patch_count": 1768,
+      "patch_count": 1771,
       "patches": [
         {
           "offset": "0x66DA2",
@@ -18162,6 +18174,24 @@
           "before": "000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
           "after": "5589E551FF7510FF750CFF75088B4DFCE8BEA6F7FF84C07547FF7510680C710100FF75088B4DFCE8A7A6F7FF84C0743056578B750881C6087101008DBEA86B0000B915040000FDF3A5FC8B7D0881C7B860010031C0B9EA1A0000F3AB5F5EB00189EC5DC20C00",
           "purpose": "accept an exact stock VV4 save, move its saved-state tail, and zero the 106 inserted villager records"
+        },
+        {
+          "offset": "0x66845",
+          "before": "F7051B00",
+          "after": "CF2A2E00",
+          "purpose": "move the VV4 world-coordinate villager picker endpoint from record 149 to record 255"
+        },
+        {
+          "offset": "0x66A15",
+          "before": "C4051B00",
+          "after": "9C2A2E00",
+          "purpose": "move the VV4 player-to-player villager picker endpoint from record 149 to record 255"
+        },
+        {
+          "offset": "0x66AE6",
+          "before": "30E91A00",
+          "after": "080E2E00",
+          "purpose": "move the VV4 nearby sick-villager picker endpoint from record 149 to record 255"
         },
         {
           "offset": "0x66045",
