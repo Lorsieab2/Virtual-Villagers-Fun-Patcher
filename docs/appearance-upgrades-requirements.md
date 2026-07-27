@@ -37,6 +37,31 @@ infer young/old catalogs from constructor RNG bounds or expose row 19 merely
 because status 199 uses it. Change Outfit and Change Head therefore remain
 STOP for VV1 and all other games remain subject to their own exact-build gates.
 
+## VV2 exact-build appearance audit
+
+The VV2 audit is an independent **STOP** for both Change Outfit and Change
+Head. It applies to the 724,992-byte build with SHA-256
+`46C1503C209255C9CDEFA941DB2F449C8CF8E2CDD5C7D13CD975326E377ED677`.
+
+For Change Outfit, the traced record stride is `0xE48C`; the body/outfit DWORD
+candidate is record `+0x54C`. Native action 69 costs exactly **5,000 tech points**.
+The native chooser is `sub_4229D0`, and its cycle writer is
+`sub_422890` with a native range of `0..29`. World and Detail render paths,
+clone writers, and the whole-state save/load size of **197,488 bytes** were
+traced. The `0..29` cycle bound is not a final user catalog: complete per-sex,
+age, and special-row classification is missing.
+
+For Change Head, the head/genetics DWORD candidate is record `+0x548`. Sex/age
+atlas rendering, creation/clone/event writers, and both old/young resources
+were confirmed. A native/custom head chooser, 5,000-tech purchase callback,
+genetics-warning callback, complete selectable young/old catalog, OK-time
+revalidation, preview/refresh and persistence ABI, and safe placement remain
+unproved. The `head feels strange` string has no direct caller xref and is not
+an implementation hook. Whole-state save/load evidence does not independently
+prove the requested editable transaction semantics or vanilla-save compatibility
+for a new sidecar. Change Outfit and Change Head therefore remain
+STOP for VV2; no implementation is authorized from these fields or bounds.
+
 ## Change Outfit
 
 Change Outfit belongs in the existing Villager Upgrades window. It must target

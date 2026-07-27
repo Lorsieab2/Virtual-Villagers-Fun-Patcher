@@ -69,6 +69,33 @@ class AppearanceUpgradeRequirementsTests(unittest.TestCase):
         self.assertIn("independent **STOP**", text)
         self.assertIn("1EC790B927741081D5CE13A48FB76983A4FD4336EA08F89317872643760AF03D", text)
 
+    def test_vv2_appearance_audit_is_independent_exact_build_stop(self) -> None:
+        text = DOC.read_text(encoding="utf-8")
+        required = [
+            "VV2 exact-build appearance audit",
+            "724,992-byte build",
+            "46C1503C209255C9CDEFA941DB2F449C8CF8E2CDD5C7D13CD975326E377ED677",
+            "independent **STOP**",
+            "record stride is `0xE48C`",
+            "record `+0x54C`",
+            "Native action 69 costs exactly **5,000 tech points**",
+            "sub_4229D0",
+            "sub_422890",
+            "native range of `0..29`",
+            "197,488 bytes",
+            "not a final user catalog",
+            "head/genetics DWORD candidate is record `+0x548`",
+            "old/young resources",
+            "genetics-warning callback",
+            "head feels strange",
+            "no direct caller xref",
+            "vanilla-save compatibility",
+            "Change Outfit and Change Head therefore remain\nSTOP for VV2",
+        ]
+        for phrase in required:
+            with self.subTest(phrase=phrase):
+                self.assertIn(phrase, text)
+
     def test_no_loaded_fun_patch_advertises_unimplemented_appearance_options(self) -> None:
         import sys
 
