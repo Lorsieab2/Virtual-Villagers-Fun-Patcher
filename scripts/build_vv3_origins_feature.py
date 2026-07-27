@@ -1041,7 +1041,7 @@ def main() -> None:
             "by exactly 3 displayed years at every active game speed; the required "
             "wall-clock shift is 3 hours at half speed, 6 hours at normal speed, "
             "and 10 hours at double speed. Doubler ownership is confined to the "
-            "current save. The pending doubler contract stacks after exact-build collectible and Food Mastery adjustments, while Golden Child, Island Event, and Gong of Wonder outcomes remain native; purchase is unavailable until those paths are proven. Adds "
+            "current save. The pending doubler contract stacks after exact-build collectible adjustments; Food Mastery presence is still being verified for this build. Island Event outcomes remain native; purchase is unavailable until those paths are proven. Adds "
             "Villager Upgrades for Grant Youth, Grant Full Mastery, Grant Running, "
             "and Set Age to 18. Grant Running only uses an available normal Likes "
             "slot on the displayed villager and removes Running from that villager's "
@@ -1068,7 +1068,8 @@ def main() -> None:
                 "every exact-build collectible/collection effect that increases tech-point gain",
                 "native Food Mastery technology adjustment",
             ],
-            "exclusions": ["Golden Child behavior", "Island Event outcomes", "Gong of Wonder outcomes"],
+            "exclusions": ["Island Event outcomes"],
+            "food_mastery_status": "pending exact-build verification; no cross-game assumption",
             "status": "pending exact-build producer/call-path proof",
         },
         "doubler_purchase_status": {

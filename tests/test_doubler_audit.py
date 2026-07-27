@@ -5,10 +5,16 @@ import struct
 import unittest
 from pathlib import Path
 
+import sys
+
 
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / "src"))
+sys.path.insert(0, str(ROOT))
+from vv_fun_patcher import load_builds, load_fun_patches  # noqa: E402
 AUDIT = ROOT / "docs" / "doubler-composition-audit.md"
 GENERATOR = ROOT / "scripts" / "generate_transparency_docs.py"
+TRANSPARENCY = ROOT / "docs" / "transparency-log.md"
 RELEASE = ROOT / "scripts" / "build_release.py"
 VV2_EXE = ROOT / "research" / "stock-executables" / "Virtual Villagers - The Lost Children.exe"
 VV2_MANIFEST = ROOT / "data" / "vv2_origins_feature.json"
@@ -40,6 +46,34 @@ def _call_target(image: bytes, va: int) -> int:
 
 
 class DoublerAuditDocumentationTests(unittest.TestCase):
+    def test_transparency_document_matches_generator_and_is_deterministic(self) -> None:
+        from scripts import generate_transparency_docs
+
+        first = generate_transparency_docs.build_document()
+        second = generate_transparency_docs.build_document()
+        self.assertEqual(first, second)
+        self.assertEqual(first, TRANSPARENCY.read_text(encoding="utf-8"))
+
+    def test_transparency_catalog_has_unique_ordered_patch_headings(self) -> None:
+        from scripts import generate_transparency_docs
+
+        text = generate_transparency_docs.build_document()
+        headings = [line for line in text.splitlines() if line.startswith("#### ")]
+        expected = []
+        for build in load_builds():
+            patches = sorted(
+                (patch for patch in load_fun_patches() if patch.game_id == build.id),
+                key=lambda patch: (patch.name.casefold(), patch.id),
+            )
+            expected.extend(f"#### {patch.name} (`{patch.id}`)" for patch in patches)
+        self.assertEqual(headings, expected)
+        self.assertEqual(len(headings), len(set(headings)))
+        self.assertEqual(text.count("## Virtual Villagers - A New Home"), 1)
+        self.assertEqual(text.count("## Virtual Villagers - The Lost Children"), 1)
+        self.assertEqual(text.count("## Virtual Villagers - The Secret City"), 1)
+        self.assertEqual(text.count("## Virtual Villagers - The Tree of Life"), 1)
+        self.assertEqual(text.count("## Virtual Villagers - New Believers"), 1)
+
     def test_matrix_covers_all_games_and_unresolved_statuses_are_explicit(self) -> None:
         text = AUDIT.read_text(encoding="utf-8")
         for title in (
@@ -58,10 +92,10 @@ class DoublerAuditDocumentationTests(unittest.TestCase):
     def test_audit_states_both_composition_rules(self) -> None:
         text = AUDIT.read_text(encoding="utf-8")
         self.assertIn("Island Event results are never doubled", text)
-        self.assertIn("collectible tech-point gains", text)
-        self.assertIn("Food Mastery technology adjustment", text)
-        self.assertIn("Golden Child behavior", text)
-        self.assertIn("Gong of Wonder outcomes", text)
+        self.assertIn("every proven collection effect that increases tech gain", text)
+        self.assertIn("Food Mastery only where that exact build proves the", text)
+        self.assertIn("Golden Child is a VV1-only exclusion", text)
+        self.assertIn("Gong of Wonder is a VV2-only", text)
         self.assertIn("twice the exact native", text)
         self.assertIn("positive, zero", text)
         self.assertIn("or negative", text)
@@ -72,11 +106,20 @@ class DoublerAuditDocumentationTests(unittest.TestCase):
             with self.subTest(manifest=path.name):
                 contract = json.loads(path.read_text(encoding="utf-8"))["doubler_composition_contract"]
                 self.assertTrue(any("collectible" in item for item in contract["stacking"]))
-                self.assertTrue(any("Food Mastery" in item for item in contract["stacking"]))
-                self.assertEqual(
-                    tuple(contract["exclusions"]),
-                    ("Golden Child behavior", "Island Event outcomes", "Gong of Wonder outcomes"),
-                )
+                game = path.stem[2]
+                expected_exclusions = {
+                    "1": ("Golden Child behavior", "Island Event outcomes"),
+                    "2": ("Island Event outcomes", "Gong of Wonder outcomes"),
+                    "3": ("Island Event outcomes",),
+                    "4": ("Island Event outcomes",),
+                    "5": ("Island Event outcomes",),
+                }[game]
+                self.assertEqual(tuple(contract["exclusions"]), expected_exclusions)
+                expected_food_pending = game in {"1", "2", "3", "5"}
+                if expected_food_pending:
+                    self.assertIn("pending", contract["food_mastery_status"].lower())
+                else:
+                    self.assertNotIn("pending", contract.get("food_mastery_status", "").lower())
                 status = contract["status"].lower()
                 self.assertTrue("pending" in status or "go:" in status or "stop" in status)
 

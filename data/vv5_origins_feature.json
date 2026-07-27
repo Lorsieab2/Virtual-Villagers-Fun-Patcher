@@ -8,7 +8,7 @@
     "entry_name": "running"
   },
   "name": "Enable Origins-Exclusive Features",
-  "description": "Inspired by the Virtual Villagers 1 mobile port where these exclusive Origins upgrades originated, this selected-upgrades port adds icon-based Origins Upgrades. The native Time Warp (the stock route advances exactly 3 displayed villager years), Island Event, and Barrel of Babies rows are retained but disabled until their Heathen-safe target paths are proved; selecting one reports that it is unavailable. Adds displayed-but-currently-unavailable, save-scoped Tech Point and Food Point Doublers. Existing owned doublers remain removable at zero cost with zero refund; repurchase is temporarily disabled pending exact-build verification. Plus Cure all Villagers for 30,000 tech points. Cure all Villagers clears sickness from eligible active living believer records without changing health and increments People Cured once per sickness cleared, then displays the exact result `Cured X villagers`; Heathens are excluded. Villager Upgrades include Grant Youth (floor age 5), six-skill Full Mastery, Set Age to 18, and Grant Running. Grant Running only adds the build-specific Running preference ID (proven at table offset 0xAEF60) to a free normal Like slot and removes that same ID from Dislikes; it never changes movement or speed logic. The pending doubler contract stacks after exact-build collectible and Food Mastery adjustments, while Golden Child, Island Event, and Gong of Wonder outcomes remain native; purchase is unavailable until those paths are proven.",
+  "description": "Inspired by the Virtual Villagers 1 mobile port where these exclusive Origins upgrades originated, this selected-upgrades port adds icon-based Origins Upgrades. The native Time Warp (the stock route advances exactly 3 displayed villager years), Island Event, and Barrel of Babies rows are retained but disabled until their Heathen-safe target paths are proved; selecting one reports that it is unavailable. Adds displayed-but-currently-unavailable, save-scoped Tech Point and Food Point Doublers. Existing owned doublers remain removable at zero cost with zero refund; repurchase is temporarily disabled pending exact-build verification. Plus Cure all Villagers for 30,000 tech points. Cure all Villagers clears sickness from eligible active living believer records without changing health and increments People Cured once per sickness cleared, then displays the exact result `Cured X villagers`; Heathens are excluded. Villager Upgrades include Grant Youth (floor age 5), six-skill Full Mastery, Set Age to 18, and Grant Running. Grant Running only adds the build-specific Running preference ID (proven at table offset 0xAEF60) to a free normal Like slot and removes that same ID from Dislikes; it never changes movement or speed logic. The pending doubler contract stacks after exact-build collectible adjustments; Food Mastery presence is still being verified for this build. Island Event outcomes remain native; purchase is unavailable until those paths are proven.",
   "output_tag": "Origins Exclusive Features",
   "companion_files": [
     {
@@ -32,10 +32,9 @@
       "native Food Mastery technology adjustment"
     ],
     "exclusions": [
-      "Golden Child behavior",
-      "Island Event outcomes",
-      "Gong of Wonder outcomes"
+      "Island Event outcomes"
     ],
+    "food_mastery_status": "pending exact-build verification; no cross-game assumption",
     "status": "STOP until every direct and tail-jump producer/call path is proven"
   },
   "doubler_purchase_status": {

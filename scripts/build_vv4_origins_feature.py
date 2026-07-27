@@ -999,7 +999,7 @@ def main() -> None:
             "disabled pending exact-build verification. Plus Cure all Villagers for 30,000 tech "
             "points. Cure all Villagers clears sickness from eligible active living records "
             "without changing health and increments People Cured once per sickness cleared, "
-            "then displays the exact result `Cured X villagers`; the pending doubler contract stacks after exact-build collectible and Food Mastery adjustments, while Golden Child, Island Event, and Gong of Wonder outcomes remain native; purchase is unavailable until those paths are proven. "
+            "then displays the exact result `Cured X villagers`; the pending doubler contract stacks after exact-build collectible and Food Mastery adjustments, while Island Event outcomes remain native; purchase is unavailable until those paths are proven. "
             "Adds Villager Upgrades for Grant Youth, Grant Full Mastery, Grant Running, "
             "and Set Age to 18. Grant Running only adds Running to a free normal Like "
             "slot and removes it from Dislikes; it refuses without charging when Likes "
@@ -1041,7 +1041,7 @@ def main() -> None:
                 "every exact-build collectible/collection effect that increases tech-point gain",
                 "native Food Mastery technology adjustment",
             ],
-            "exclusions": ["Golden Child behavior", "Island Event outcomes", "Gong of Wonder outcomes"],
+            "exclusions": ["Island Event outcomes"],
             "status": "pending exact-build producer/call-path proof",
         },
         "doubler_purchase_status": {

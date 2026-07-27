@@ -8,7 +8,7 @@
     "entry_name": "running"
   },
   "name": "Enable Origins-Exclusive Features",
-  "description": "Inspired by the Virtual Villagers 1 mobile port where these exclusive Origins upgrades originated, this selected-upgrades port adds an icon-based Upgrades screen containing a Time Warp that advances exactly three displayed villager years, Island Event, the native Barrel of Babies event with a three-space capacity guard, and the displayed-but-currently-unavailable 500,000-tech-point Tech Point Doubler and Food Point Doubler. Existing owned doublers remain removable at zero cost with no refund; repurchase is temporarily disabled pending exact-build verification, plus Cure all Villagers for 30,000 tech points. Cure all Villagers clears sickness from eligible active living records without changing health and increments People Cured once per sickness cleared, then displays the exact result `Cured X villagers`. The pending doubler contract stacks after exact-build collectible and Food Mastery adjustments, while Golden Child, Island Event, and Gong of Wonder outcomes remain native; purchase is unavailable until those paths are proven. The effect is stored in the current save rather than a global INI. Adds an icon-based Villager Upgrades screen containing Grant Youth, Grant Full Mastery, Grant Running, and Set Age to 18 for the displayed villager. Grant Full Mastery preserves a checked job preference and chooses Farming when none is checked so VV1 does not show the incomplete title Master. Grant Running adds running to an available Likes slot on the displayed villager, removes running from that villager's Dislikes slots, and refuses without charging when no Like slot is available; it does not alter movement speed, movement initialization, or any custom running flag.",
+  "description": "Inspired by the Virtual Villagers 1 mobile port where these exclusive Origins upgrades originated, this selected-upgrades port adds an icon-based Upgrades screen containing a Time Warp that advances exactly three displayed villager years, Island Event, the native Barrel of Babies event with a three-space capacity guard, and the displayed-but-currently-unavailable 500,000-tech-point Tech Point Doubler and Food Point Doubler. Existing owned doublers remain removable at zero cost with no refund; repurchase is temporarily disabled pending exact-build verification, plus Cure all Villagers for 30,000 tech points. Cure all Villagers clears sickness from eligible active living records without changing health and increments People Cured once per sickness cleared, then displays the exact result `Cured X villagers`. The pending doubler contract stacks after exact-build collectible adjustments; Food Mastery presence is still being verified for this build. Golden Child and Island Event outcomes remain native; purchase is unavailable until those paths are proven. The effect is stored in the current save rather than a global INI. Adds an icon-based Villager Upgrades screen containing Grant Youth, Grant Full Mastery, Grant Running, and Set Age to 18 for the displayed villager. Grant Full Mastery preserves a checked job preference and chooses Farming when none is checked so VV1 does not show the incomplete title Master. Grant Running adds running to an available Likes slot on the displayed villager, removes running from that villager's Dislikes slots, and refuses without charging when no Like slot is available; it does not alter movement speed, movement initialization, or any custom running flag.",
   "output_tag": "Origins Exclusive Features",
   "companion_files": [
     {
@@ -34,9 +34,9 @@
     ],
     "exclusions": [
       "Golden Child behavior",
-      "Island Event outcomes",
-      "Gong of Wonder outcomes"
+      "Island Event outcomes"
     ],
+    "food_mastery_status": "pending exact-build verification; no cross-game assumption",
     "status": "pending exact-build producer/call-path proof"
   },
   "doubler_purchase_status": {

@@ -2321,7 +2321,7 @@ class StockIntegrationTests(unittest.TestCase):
         self.assertIn("Tech Point Doubler", feature.description)
         self.assertIn("Food Point Doubler", feature.description)
         self.assertIn(
-            "Golden Child, Island Event, and Gong of Wonder outcomes remain native",
+            "Golden Child and Island Event outcomes remain native",
             feature.description,
         )
         self.assertIn("500,000-tech-point", feature.description)

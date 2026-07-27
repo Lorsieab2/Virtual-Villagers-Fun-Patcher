@@ -126,8 +126,8 @@ build:
 The Tech screen presents its five village upgrades together, and the Villager
 Detail screen presents its four villager upgrades together, each with icons
 and individual Buy buttons. The final doubler contract applies after native
-collectible and Food Mastery adjustments, while Golden Child, Island Event,
-and Gong of Wonder outcomes remain native. The two doublers are stored in
+collectible adjustments; Food Mastery presence is still being verified for
+VV1. Golden Child and Island Event outcomes remain native. The two doublers are stored in
 otherwise-unused fields of the current saved village, so removing one affects
 only that save slot. **Bump Max Population** is deliberately omitted because
 the patcher's population modes handle population limits separately.
@@ -152,12 +152,12 @@ only the three normal Like slots, removes Running from the selected villager's
 normal Dislike slots, and never edits movement speed.
 
 Positive food and tech awards use VV2's central stock award routines. Native
-collectible and Food Mastery adjustments are completed before the certified
-doubler calculation. The exact-build static provenance audit excludes every positive Island Event and
+collectible adjustments are completed before the certified doubler calculation;
+Food Mastery presence is still being verified for VV2. The exact-build static provenance audit excludes every positive Island Event and
 Gong of Wonder food/tech writer return (17 tech and 13 food direct calls;
 zero tail-jumps), while direct deductions, caps, resets, zero outcomes, and
 other bypass paths remain native. Thus the doublers do not affect deductions,
-Golden Child behavior, Island Event awards, or Gong of Wonder awards. Runtime/player confirmation of
+Island Event awards, or Gong of Wonder awards. Runtime/player confirmation of
 this static proof remains pending. A paused village
 cannot purchase Time Warp because VV2's paused catch-up logic discards elapsed
 age. **Bump Max Population** remains omitted.
@@ -168,9 +168,9 @@ Enable **Enable Origins-Exclusive Features (The Secret City)** to add the
 Origins **Upgrades** menus to VV3. The Tech Point and Food Point Doublers are
 displayed but temporarily unavailable for new purchase pending exact-build
 provenance verification; existing ownership can be removed for zero cost with
-no refund. Their final contract stacks after native collectible and Food
-Mastery adjustments and excludes Golden Child, Island Event, and Gong of
-Wonder outcomes. The remaining Origins and selected-villager rows retain their
+no refund. Their final contract stacks after native collectible adjustments;
+Food Mastery presence is still being verified for VV3. Island Event outcomes
+remain native. The remaining Origins and selected-villager rows retain their
 current-save scope and exact-build guards; runtime/player confirmation remains
 pending.
 
@@ -226,8 +226,8 @@ number cured; current Heathens remain byte-identical. Tech Point and Food Point
 Doublers are save-scoped but temporarily unavailable for new purchase pending
 exact-build provenance verification; existing ownership can be removed for
 zero cost with no refund. Their final contract stacks after native collectible
-and Food Mastery adjustments and excludes Golden Child, Island Event, and Gong
-of Wonder outcomes. The native
+adjustments; Food Mastery presence is still being verified for VV5. Island
+Event outcomes remain native. The native
 Time Warp, Island Event, and Barrel of Babies rows are retained but disabled:
 they do not charge or call a native path until every direct and indirect path
 that could target a Heathen has been independently proven safe. Grant Running,
@@ -249,8 +249,8 @@ Warp, Island Event, native Barrel of Babies purchase, and selected-villager
 upgrades used by the other Origins ports. Existing doubler ownership can be
 removed for zero cost with no refund; repurchase remains disabled pending the
 exact post-Food-Mastery provenance gate. The final contract stacks after native
-collectible and Food Mastery adjustments and excludes Golden Child, Island
-Event, and Gong of Wonder outcomes. Grant Running only uses a free normal Like
+collectible and Food Mastery adjustments and excludes Island Event outcomes.
+Grant Running only uses a free normal Like
 slot, removes Running from Dislikes, and never changes movement speed. The
 feature is exact-build guarded, but its native dialog and upgrade UI still need
 player runtime validation.

@@ -1021,8 +1021,8 @@ def main() -> None:
             "Villagers clears sickness from eligible active living records without changing "
             "health and increments People Cured once per sickness cleared, then displays the "
             "exact result `Cured X villagers`. Doubler ownership is confined to the current save. "
-            "The certified composition applies after native collectible and Food Mastery adjustments; "
-            "Golden Child, Island Event, and Gong of Wonder outcomes remain native, including "
+            "The certified composition applies after native collectible adjustments; Food Mastery "
+            "presence is still being verified for this build. Island Event and Gong of Wonder outcomes remain native, including "
             "zero/negative and side-effect paths. The exact-build static provenance audit covers every "
             "positive Island Event and Gong food/tech writer callsite, including "
             "direct resource writes that bypass the wrappers. Runtime/player "
@@ -1105,7 +1105,8 @@ def main() -> None:
                 "every exact-build collectible/collection effect that increases tech-point gain",
                 "native Food Mastery technology adjustment",
             ],
-            "exclusions": ["Golden Child behavior", "Island Event outcomes", "Gong of Wonder outcomes"],
+            "exclusions": ["Island Event outcomes", "Gong of Wonder outcomes"],
+            "food_mastery_status": "pending exact-build verification; no cross-game assumption",
             "status": "GO: exact-build static provenance covers the certified positive writer paths; runtime/player confirmation pending",
         },
         "patches": patches,
