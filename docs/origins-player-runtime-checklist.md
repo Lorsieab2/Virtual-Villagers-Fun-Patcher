@@ -3,12 +3,14 @@
 This is a player-test checklist for the collection-progression Origins-core
 outputs. It is explicitly **runtime/player confirmation pending**; static patch
 verification is not a claim that any item below has been confirmed in-game.
-The authoritative kit is the complete all-five output at
-`outputs/origins-core-village-wide-playtest-all-five-collection-progression-2026-07-27`.
-It supersedes the earlier four-game corrected kit. The original pre-449483f
-four-game output remains explicitly **INVALID - DO NOT RUN**; the corrected
-four-game output is valid but superseded. VV2 is included in the authoritative
-kit and has a self-contained vanilla source folder.
+The former complete all-five output at
+`outputs/origins-core-village-wide-playtest-all-five-collection-progression-2026-07-27`
+is historical and superseded by the current VV5 stock-layout Tech/Food Doubler
+implementation. Its hashes below are retained only as provenance and are not
+current VV5 runtime-validation artifacts. The original pre-449483f four-game
+output remains explicitly **INVALID - DO NOT RUN**; the corrected four-game
+output is also superseded. VV2 has a self-contained vanilla source folder for a
+future clean rebuild.
 
 ## Supported build fingerprints
 
@@ -23,14 +25,14 @@ confirmation remains pending for every output.
 | VV4 | 929,792 bytes | 6D27A429FFCA5F1F71FDD7ECA761ED1BB67E85F976494BA178B3D7BE01F1B220 |
 | VV5 | 991,232 bytes | 92946781980220E9D1A2E6C573925519934608F5215F4A0F8CE3B90088C5C65D |
 
-## Authoritative all-five output kit
+## Historical/superseded all-five output kit
 
 All five outputs use `collection_progression`, stock save layout, no save-copy
 operation, and exactly these dependency-ordered features:
 `vvN_enable_origins_exclusive_features`, then
 `vvN_origins_village_wide_upgrades`. No appearance, mask, statistics, or other
-optional feature is selected. The following hashes are the modified EXEs in the
-all-five kit; runtime/player confirmation is still pending.
+optional feature was selected. The following historical hashes identify that
+superseded kit; they must not be treated as current VV5 runtime confirmation.
 
 | Game | Modified executable | SHA-256 |
 | --- | --- | --- |
@@ -56,8 +58,8 @@ bug from one un-reproduced observation.
 | Time Warp | 50,000 tech points; VV1/VV2/VV3/VV4 should advance exactly 3 displayed villager years; paused refusal shows no charge. |
 | Island Event | 30,000 tech points; VV1/VV3/VV4 should call the native event. |
 | Barrel of Babies | 75,000 tech points; VV1/VV3/VV4 should require three physical slots and produce the native three-child result; capacity refusal must not charge. |
-| Tech Point Doubler | 500,000 tech points; all four outputs currently show Unavailable when unowned. Existing owned Remove costs 0, refunds 0, is current-save-only, and remains unavailable for repurchase. |
-| Food Point Doubler | 500,000 tech points; same unavailable/remove/no-refund/current-save rules. |
+| Tech Point Doubler | 500,000 tech points; VV1/VV3/VV4 unowned purchase and repurchase remain unavailable. VV5 stock supports purchase, zero-cost/no-refund Remove, and full-price repurchase; VV5 expanded-256 keeps new purchase unavailable and owned Remove available. |
+| Food Point Doubler | 500,000 tech points; VV1/VV3/VV4 unowned purchase and repurchase remain unavailable. VV5 stock supports purchase, zero-cost/no-refund Remove, and full-price repurchase; VV5 expanded-256 keeps new purchase unavailable and owned Remove available. |
 | Cure all Villagers | 30,000 tech points; test the sickness-only matrix below. |
 | Village-wide rows | All Villagers Like Running, Grant Full Mastery to All Villagers, and All Villagers are 18 cost exactly 1,000,000 tech points each. |
 
@@ -75,9 +77,11 @@ the full 500,000 again in the current save. VV1/VV3/VV4/VV5 unowned or
 manually removed doublers remain unavailable for new purchase pending their
 exact-build provenance gates.
 
-VV2 Grant Full Mastery to All Villagers covers its five native skills. Food Mastery presence/absence
-remains unresolved for this exact VV2 build and must not be
-claimed by this checklist. The Tech Point and Food Point Doublers stack only
+VV2 Grant Full Mastery to All Villagers covers its five native skills. Food
+Mastery is code-confirmed absent within the enumerated VV2 technology
+definitions, strings, direct writer calls, and food-source call chains; Farming
+only gates or unlocks sources, and Herb Mastery is unrelated. The Tech Point
+and Food Point Doublers stack only
 after certified native eligible gain calculations; Island Event and Gong of
 Wonder outcomes—including positive, zero, negative, cap, reset, statistic,
 message, and side-effect paths—remain native and are never multiplied.

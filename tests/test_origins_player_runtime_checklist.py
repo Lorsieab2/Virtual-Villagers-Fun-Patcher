@@ -46,25 +46,36 @@ class OriginsPlayerRuntimeChecklistTests(unittest.TestCase):
             "VV2's certified Tech Point Doubler and Food Point Doubler paths are purchasable, removable, and repurchasable",
             "VV2 Grant Full Mastery to All Villagers covers its five native skills",
             "five skills in VV1–VV4 and six in VV5",
-            "Food Mastery presence/absence remains unresolved",
+            "Food Mastery is code-confirmed absent",
+            "Farming only gates or unlocks sources",
+            "Herb Mastery is unrelated",
+            "VV5 stock supports purchase, zero-cost/no-refund Remove, and full-price repurchase",
+            "VV5 expanded-256 keeps new purchase unavailable and owned Remove available",
             "Island Event and Gong of Wonder outcomes",
         ]
         for phrase in required:
             with self.subTest(phrase=phrase):
                 self.assertIn(" ".join(phrase.casefold().split()), folded)
 
-    def test_checklist_has_all_exact_build_fingerprints_and_authoritative_all_five_kit(self) -> None:
+    def test_checklist_has_all_exact_build_fingerprints_and_marks_old_kit_superseded(self) -> None:
         builds = json.loads((ROOT / "data" / "builds.json").read_text(encoding="utf-8"))["games"]
         text = DOC.read_text(encoding="utf-8")
         for build in builds:
             with self.subTest(game=build["id"]):
                 self.assertIn(f"{build['size']:,} bytes", text)
                 self.assertIn(build["sha256"], text)
-        self.assertIn("authoritative all-five output kit", text.casefold())
+        self.assertIn("historical/superseded all-five output kit", text.casefold())
+        self.assertIn("hashes below are retained only as provenance", text)
+        self.assertIn(
+            "not current vv5 runtime-validation artifacts",
+            " ".join(text.casefold().split()),
+        )
         self.assertIn("self-contained vanilla source folder", text)
         self.assertNotIn("VV2 remains\npending", text)
         self.assertNotIn("VV2 remains pending a self-contained", text)
-        self.assertIn("food mastery presence/absence remains unresolved", " ".join(text.casefold().split()))
+        folded = " ".join(text.casefold().split())
+        self.assertIn("food mastery is code-confirmed absent", folded)
+        self.assertNotIn("food mastery presence/absence remains unresolved", folded)
         self.assertIn("island event and gong of wonder outcomes", " ".join(text.casefold().split()))
 
     def test_machine_readable_origins_descriptions_match_checklist_costs(self) -> None:

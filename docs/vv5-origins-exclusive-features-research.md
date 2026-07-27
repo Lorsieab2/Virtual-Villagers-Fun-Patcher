@@ -281,9 +281,13 @@ statistics hook at `0x41EBA7`, is retained as implementation history only. The
 approved stock-mapped correction uses the final positive whitelist: ordinary
 collection return `0x414970` is eligible, while Island Event, startup,
 consumption, and unknown callers remain native because unknown callers cannot
-match that return. The correction has a complete static GO specification but
-is not implemented in this docs-only turn; expanded-256 remains ON HOLD
-pending rel32 relocation coverage.
+match that return. The stock-layout correction is implemented and statically
+validated. Expanded-256 restores the native writer hooks and keeps new
+purchases unavailable; it does not claim expanded doubler runtime support. The
+expanded relocation audit is placement PASS but composition ON HOLD: its
+75-row ledger covers 32 rows and leaves 43 references (36 cross-section rel32
+and 7 external absolute `.shr` pointers) outside the certified set. See
+disassembly commit `8dfccbd1b31e55f5168bb1c5ff23890bb98d9fdb`.
 
 Time Warp advances exactly three displayed villager years. With the confirmed
 VV5 relation of two real hours per displayed year at normal speed, its clock

@@ -93,6 +93,12 @@ class DoublerAuditDocumentationTests(unittest.TestCase):
         self.assertIn("Food Mastery status by exact build", text)
         self.assertIn("VV1, VV2, and VV3 are code-confirmed absent", text)
         self.assertIn("code-confirmed for VV4 and VV5", text)
+        self.assertIn("VV5 stock-layout Tech and Food corrections are implemented", text)
+        self.assertIn("VV5 expanded-256 composition remains ON HOLD", text)
+        self.assertIn("**STOCK GO; EXPANDED ON HOLD**", text)
+        self.assertIn("8dfccbd1b31e55f5168bb1c5ff23890bb98d9fdb", text)
+        self.assertIn("covers 32 of 75 references", text)
+        self.assertIn("36 cross-section rel32 and 7 external absolute", text)
 
     def test_audit_states_both_composition_rules(self) -> None:
         text = AUDIT.read_text(encoding="utf-8")

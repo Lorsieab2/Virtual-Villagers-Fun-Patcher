@@ -78,11 +78,17 @@ class OriginsPlaytestReadinessTests(unittest.TestCase):
 
     def test_readiness_document_states_static_only_boundary(self) -> None:
         text = READINESS_DOC.read_text(encoding="utf-8")
+        folded = " ".join(text.split())
         self.assertIn("static composition/readiness only", text)
         self.assertIn("does not prove player-visible\nruntime behavior", text)
         self.assertIn("never launches a game", text)
-        self.assertIn("VV1/VV3/VV4/VV5 doubler new purchases and repurchases remain unavailable", text)
-        self.assertIn("VV5 native Time Warp,\nIsland Event, and Barrel rows remain unavailable", text)
+        self.assertIn("VV1, VV3, and VV4 doubler new purchases and repurchases remain unavailable", text)
+        self.assertIn("VV5 stock-layout Tech and\nFood Doublers support purchase", text)
+        self.assertIn("expanded-256 modes, both writer hooks are restored to native", text)
+        self.assertIn("75-row relocation ledger covers\n32 rows and leaves 43 references", text)
+        self.assertIn("36 cross-section rel32 and 7 external", text)
+        self.assertIn("8dfccbd1b31e55f5168bb1c5ff23890bb98d9fdb", text)
+        self.assertIn("VV5 native Time Warp, Island Event, and Barrel rows remain unavailable", folded)
 
 
 if __name__ == "__main__":
