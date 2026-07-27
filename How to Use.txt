@@ -35,7 +35,8 @@ save-recognition, and complete 256-villager save/reload testing.
    "Nature Level 3 Actually Alters Mortality" and/or
    "Pointing Out a Rare Collectible Always Works".
 6. Optional for The Tree of Life: check
-   "Complete Fish Scales = Golden Fish in Nets".
+   "Complete Fish Scales = Golden Fish in Nets" and/or
+   "Enable Origins-Exclusive Features".
 7. Optional for New Believers: check "Heathen Mommy Puzzle Restoration" and/or
    "Easier Devotee Training" and/or
    "Statue Drops: Normal Action or Honoring" and/or

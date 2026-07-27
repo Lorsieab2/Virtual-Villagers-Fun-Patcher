@@ -648,7 +648,7 @@ def main() -> None:
             }
         )
 
-    patch(0x234, bytes.fromhex("40000040"), bytes.fromhex("40000060"),
+    patch(0x244, bytes.fromhex("40000040"), bytes.fromhex("40000060"),
           "make the mapped .text cave executable for the Origins payload")
     patch(0x14D50, bytes.fromhex("B968E55000"), rel32_jump(0x414D50, barrel_eligibility),
           "temporarily admit the explicitly purchased native Barrel of Babies event")
@@ -662,8 +662,8 @@ def main() -> None:
     patch(0x3E9F0, bytes.fromhex("578BF9E828F00000"),
           rel32_jump(0x43E9F0, tech_handler) + b"\x90\x90\x90",
           "route Tech-screen control 13 through the Origins menu")
-    patch(0x47A25, bytes.fromhex("C7055C904D0000000000"),
-          rel32_jump(0x447A25, detail_constructor) + b"\x90" * 5,
+    patch(0x47A25, bytes.fromhex("891D5C904D00891D58904D00"),
+          rel32_jump(0x447A25, detail_constructor) + b"\x90" * 7,
           "append the stock-styled Upgrades control to Villager Detail")
     patch(0x48610, bytes.fromhex("83EC18A1BC9F4C00"),
           rel32_jump(0x448610, detail_handler) + b"\x90\x90\x90",

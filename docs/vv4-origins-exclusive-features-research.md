@@ -3,7 +3,9 @@
 This is an implementation handoff for the exact supported
 `Virtual Villagers - The Tree of Life.exe`, SHA-256
 `6D27A429FFCA5F1F71FDD7ECA761ED1BB67E85F976494BA178B3D7BE01F1B220`.
-It does not claim that the VV4 Origins feature is implemented.
+The exact-build assembler and manifest are now present. This report still
+marks the feature as runtime-validation pending; no claim is made that every
+native dialog and upgrade interaction has been player-tested.
 
 ## Proven save and resource routes
 
@@ -32,8 +34,9 @@ It does not claim that the VV4 Origins feature is implemented.
 - Native barrel result: `sub_414D90`. It uses `sub_467D10` for child creation
   and checks `sub_468350` before the second and third child.
 
-The final event-registry index and clean native dialog invocation route still
-need an exact mapping before the upgrade can be implemented.
+The assembler uses the verified native event path and shared Origins icon
+dialog route. The final event-registry presentation and clean native dialog
+behavior still require player validation.
 
 ## UI and selected villager
 
@@ -58,10 +61,10 @@ Youth or Age to 18 remain unresolved.
 
 The `.text` zero run begins at file/VA `0x89173` / `0x489173`, immediately
 after the Experimental-256 stock-save loader. The shared statistics feature
-uses `0x89173..0x89372`; a candidate Origins range begins at file `0x89373`.
-Its available size must be checked against the final assembled payload and
-every current VV4 feature before use.
+uses `0x89173..0x89372`; the Origins payload begins at file `0x89373` and
+fits within its validated `0xC8D`-byte cave without overlapping the expanded
+VV4 patches.
 
-No VV4 Origins manifest should be emitted until the unresolved UI, native
-Barrel presentation, Running ID, age-state, payload-fit, and all-mode runtime
-checks are complete.
+The manifest is emitted only after the exact supported stock guards and payload
+fit pass. UI, native Barrel presentation, Running behavior, age-state behavior,
+and all-mode runtime checks remain explicit player-validation items.

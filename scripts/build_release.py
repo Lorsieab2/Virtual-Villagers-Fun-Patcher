@@ -21,6 +21,7 @@ FILES = [
     "data/expanded_256.json",
     "data/vv1_origins_feature.json",
     "data/vv2_origins_feature.json",
+    "data/vv4_origins_feature.json",
     "data/statistics_features.json",
     "docs/max-population-research.md",
     "docs/island-event-population-research.md",

@@ -191,6 +191,17 @@ Enable **Complete Fish Scales = Golden Fish in Nets (The Tree of Life)** to dela
 
 The patch changes only the eligibility threshold from 1 to 12. At full completion, the stock formula still gives a 25% Golden Fish chance. Normal fish, fishing animations, food awards, scale collection, and all other fishing outcomes remain unchanged.
 
+## VV4: Enable Origins-Exclusive Features
+
+Enable **Enable Origins-Exclusive Features (The Tree of Life)** to add the
+icon-based Origins **Upgrades** menus to VV4. It includes the current-save
+Tech Point and Food Point Doublers, Time Warp, Island Event, native Barrel of
+Babies purchase, and selected-villager upgrades used by the other Origins
+ports. Grant Running only uses a free normal Like slot, removes Running from
+Dislikes, and never changes movement speed. The feature is exact-build
+guarded, but its native dialog and upgrade UI still need player runtime
+validation.
+
 ## VV3: Nature Level 1 Actually Replenishes Food Sources Faster
 
 Enable **Nature Level 1 Actually Replenishes Food Sources Faster (The Secret City)** to make the technology description literal. At Nature level 1 or higher, fruit trees become refill-eligible after 2 hours 15 minutes instead of 3 hours, and honey becomes refill-eligible after 45 minutes instead of 1 hour.
