@@ -90,12 +90,11 @@ autonomous interpretation; they do not supply a numeric Breeding threshold.
 
 ## Other games and patch boundary
 
-VV4 now has an exact-build guarded Birth Control entry. Its manual conception
-tail replaces the stock female-only age rejection with an age-1000 rejection
-for either participant. Its autonomous Children return path denies the
-skill-selected fallback when the initiating villager's Children preference is
-not checked. The patch does not touch `sub_466DA0`, so the catch-up route can
-still select a younger candidate for an older actor as in the stock game.
+The historical VV4 Birth Control candidate is rejected/superseded. VV4 is the
+untouched vanilla Breeding and Embracing reference: its stock manual conception
+and autonomous selection mechanics, older-mother behavior, and lack of a male
+upper-age gate must remain unchanged. No VV4 executable edits are shipped or
+selectable.
 
 The remaining overhaul entries will add exact-build guards for VV1, VV2, VV3,
 and VV5 only after each manual and autonomous call site has a verified byte
@@ -124,8 +123,8 @@ written. No VV5 old-age exception is inferred from VV4 evidence.
 
 VV1, VV2, VV3, and VV5 remain research-only until their exact before-bytes,
 non-overlapping caves, return paths, and tests are verified for each supported
-SHA-256 build. VV4 is statically verified but still awaits player runtime
-validation.
+SHA-256 build. VV4 remains the untouched vanilla reference; the prior optional
+entry is rejected/superseded rather than a runtime patch.
 
 ### VV2 exact-path audit (2026-07-26)
 

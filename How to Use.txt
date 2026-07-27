@@ -36,12 +36,10 @@ save-recognition, and complete 256-villager save/reload testing.
    "Pointing Out a Rare Collectible Always Works" and/or
    "Enable Origins-Exclusive Features".
 6. Optional for The Tree of Life: check
-   "Complete Fish Scales = Golden Fish in Nets", "Enable Origins-Exclusive
-   Features", and/or "Birth Control". Birth Control blocks manual conception
-   when either participant reaches displayed age 50 while preserving the
-   separately identified stock time-catch-up route. Autonomous Embracing still
-   requires positive Breeding skill and a checked Children preference on the
-   initiating villager.
+   "Complete Fish Scales = Golden Fish in Nets" and/or "Enable Origins-Exclusive
+   Features". VV4 remains the untouched vanilla Breeding and Embracing
+   reference; the historical Birth Control candidate is rejected/superseded
+   and is not offered or applied.
 7. Optional for New Believers: check "Heathen Mommy Puzzle Restoration" and/or
    "Easier Devotee Training" and/or
    "Statue Drops: Normal Action or Honoring" and/or

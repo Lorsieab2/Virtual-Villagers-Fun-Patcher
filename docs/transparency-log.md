@@ -272,16 +272,6 @@ Supported stock identity is the exact `Virtual Villagers - The Tree of Life.exe`
 
 ### Optional features
 
-#### Birth Control (`vv4_birth_control`)
-
-For The Tree of Life, blocks manual conception when either participant has reached internal age 1000 (displayed age 50), while leaving the separately identified time-catch-up route able to use the stock older-mother behavior. Autonomous Embracing still requires the initiating villager's positive Breeding skill and checked Children preference; the candidate keeps the stock eligibility rules. Island Events, Gong effects, and event-created nursing babies are untouched.
-
-- Behavior changes: For The Tree of Life, blocks manual conception when either participant has reached internal age 1000 (displayed age 50), while leaving the separately identified time-catch-up route able to use the stock older-mother behavior. Autonomous Embracing still requires the initiating villager's positive Breeding skill and checked Children preference; the candidate keeps the stock eligibility rules. Island Events, Gong effects, and event-created nursing babies are untouched.
-- Explicit non-changes/exclusions: none declared
-- Dependencies: none
-- Evidence status: static source/manifest verification performed; runtime/player confirmation pending
-- Guarded executable edits: 2; every edit has an exact purpose and before/after guard in the manifest.
-
 #### Complete Fish Scales = Golden Fish in Nets (`vv4_complete_scales_golden_fish`)
 
 Golden Fish become eligible in the fishing nets only after all 12 Fish Scales are collected. This changes the stock partial-collection threshold while preserving the completed collection's original 25% Golden Fish chance and every other fishing outcome.

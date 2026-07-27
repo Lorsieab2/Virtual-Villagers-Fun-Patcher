@@ -245,27 +245,11 @@ class ManifestTests(unittest.TestCase):
         self.assertIn("Heathens", " ".join(feature.raw["explicit_non_changes"]))
         self.assertIn("believer", feature.description.casefold())
 
-    def test_vv4_birth_control_is_exactly_guarded_and_composable(self) -> None:
-        feature = get_fun_patch("vv4_birth_control")
-        self.assertEqual(feature.game_id, "vv4")
-        build = next(item for item in load_builds() if item.id == "vv4")
-        source = ROOT / "research" / "stock-executables" / build.input_name
-        stock = source.read_bytes()
-        for item in feature.raw["patches"]:
-            offset = int(item["offset"], 0)
-            before = bytes.fromhex(item["before"])
-            after = bytes.fromhex(item["after"])
-            self.assertEqual(stock[offset : offset + len(before)], before)
-            self.assertEqual(len(before), len(after))
-        self.assertIn("time-catch-up", feature.description)
-        self.assertIn("checked Children preference", feature.description)
-        for mode in MODES + EXPANDED_MODES:
-            with self.subTest(mode=mode):
-                rendered, applied = render_patched_bytes(
-                    source, build, mode, [feature.id]
-                )
-                self.assertTrue(applied)
-                self.assertNotEqual(bytes(rendered), stock)
+    def test_rejected_vv4_birth_control_is_not_selectable(self) -> None:
+        self.assertNotIn(
+            "vv4_birth_control",
+            [patch.id for patch in load_fun_patches()],
+        )
 
     def test_unverified_birth_control_is_not_exposed_as_a_patch(self) -> None:
         self.assertNotIn(

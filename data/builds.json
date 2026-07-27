@@ -1382,22 +1382,11 @@
       "id": "vv4_birth_control",
       "game_id": "vv4",
       "name": "Birth Control",
-      "description": "For The Tree of Life, blocks manual conception when either participant has reached internal age 1000 (displayed age 50), while leaving the separately identified time-catch-up route able to use the stock older-mother behavior. Autonomous Embracing still requires the initiating villager's positive Breeding skill and checked Children preference; the candidate keeps the stock eligibility rules. Island Events, Gong effects, and event-created nursing babies are untouched.",
+      "enabled": false,
+      "status": "research-only; rejected/superseded because VV4 is the untouched vanilla breeding reference",
+      "description": "Historical research only. The prior optional Birth Control candidate is rejected/superseded: VV4 must retain its untouched vanilla Breeding and Embracing mechanics, including its older-mother behavior and no male upper-age gate.",
       "output_tag": "Birth Control",
-      "patches": [
-        {
-          "offset": "0x60E67",
-          "before": "B8E803000039868C1B00007C0983BE901B000001742E39878C1B00007C0983BF901B000001741D",
-          "after": "B8E803000039868C1B00007D3739878C1B00007D2F909090909090909090909090909090909090",
-          "purpose": "reject either manual participant at internal age 1000 or above without changing the stock conception roll or catch-up route"
-        },
-        {
-          "offset": "0x61E90",
-          "before": "741C6A64E83718FAFF83C40433C983F84B0F9DC1",
-          "after": "741CEB2090909090909090909090909090909090",
-          "purpose": "deny autonomous Children selection when the initiating villager does not have the checked Children preference, while preserving the stock preferred route"
-        }
-      ]
+      "patches": []
     },
     {
       "id": "vv1_birth_control",

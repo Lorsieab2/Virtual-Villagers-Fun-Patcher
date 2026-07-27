@@ -261,16 +261,11 @@ slot, removes Running from Dislikes, and never changes movement speed. The
 feature is exact-build guarded, but its native dialog and upgrade UI still need
 player runtime validation.
 
-## VV4: Birth Control
+## VV4 breeding reference
 
-Enable **Birth Control (The Tree of Life)** to block manual conception when
-either participant reaches internal age 1000 (displayed age 50). The stock
-conception roll and the separate time-catch-up route remain intact, including
-VV4's older-mother catch-up behavior. Autonomous Embracing is denied unless
-the initiating villager has positive Breeding skill and the Children
-preference is checked. Island Events, Gong effects, and event-created nursing
-babies are untouched. This exact-build patch is statically guarded; runtime
-player validation remains pending.
+VV4 remains the untouched vanilla Breeding and Embracing reference, including
+its older-mother behavior and no male upper-age gate. The historical Birth
+Control candidate is rejected/superseded and is not offered or applied.
 
 ## VV3: Nature Level 1 Actually Replenishes Food Sources Faster
 
@@ -420,7 +415,7 @@ No game executable, save, extracted asset, or generated output is committed to t
 
 ## Command line
 
-Pass `--patch-mode collection_progression`, `--patch-mode immediate_fixed`, `--patch-mode experimental_expanded_256`, or `--patch-mode experimental_expanded_256_progression` to `dry-run`, `apply`, `dry-run-all`, or `apply-all`. Optional features use repeatable `--fun-patch` arguments. The available IDs are `vv1_school_lessons_grant_skill`, `vv1_continue_research_at_max_technologies`, `vv1_f6_clothing_change_cheat`, `vv1_magic_fruit_alters_mortality`, `vv1_builder_action_fixes`, `vv1_enable_origins_exclusive_features`, `vv2_easier_healing_mastery`, `vv2_teaching_children_grants_skill`, `vv2_hospital_recovery_heals`, `vv2_gong_of_wonder_coconuts_fix`, `vv2_enable_origins_exclusive_features`, `vv3_nature_honey_refill`, `vv3_nature_level_three_alters_mortality`, `vv3_rare_collectible_retry`, `vv3_enable_origins_exclusive_features`, `vv4_complete_scales_golden_fish`, `vv4_enable_origins_exclusive_features`, `vv4_birth_control`, `vv5_heathen_mommy_puzzle`, `vv5_easier_devotee_training`, `vv5_statue_polishing_or_honoring`, `vv5_vv4_nursery_divisor_parity`, and `vv5_enable_origins_exclusive_features`. The per-game Village Statistics IDs are `vv1_write_village_statistics`, `vv2_write_village_statistics`, `vv3_write_village_statistics`, `vv4_write_village_statistics`, and `vv5_write_village_statistics`.
+Pass `--patch-mode collection_progression`, `--patch-mode immediate_fixed`, `--patch-mode experimental_expanded_256`, or `--patch-mode experimental_expanded_256_progression` to `dry-run`, `apply`, `dry-run-all`, or `apply-all`. Optional features use repeatable `--fun-patch` arguments. The available IDs are `vv1_school_lessons_grant_skill`, `vv1_continue_research_at_max_technologies`, `vv1_f6_clothing_change_cheat`, `vv1_magic_fruit_alters_mortality`, `vv1_builder_action_fixes`, `vv1_enable_origins_exclusive_features`, `vv2_easier_healing_mastery`, `vv2_teaching_children_grants_skill`, `vv2_hospital_recovery_heals`, `vv2_gong_of_wonder_coconuts_fix`, `vv2_enable_origins_exclusive_features`, `vv3_nature_honey_refill`, `vv3_nature_level_three_alters_mortality`, `vv3_rare_collectible_retry`, `vv3_enable_origins_exclusive_features`, `vv4_complete_scales_golden_fish`, `vv4_enable_origins_exclusive_features`, `vv5_heathen_mommy_puzzle`, `vv5_easier_devotee_training`, `vv5_statue_polishing_or_honoring`, `vv5_vv4_nursery_divisor_parity`, and `vv5_enable_origins_exclusive_features`. The per-game Village Statistics IDs are `vv1_write_village_statistics`, `vv2_write_village_statistics`, `vv3_write_village_statistics`, `vv4_write_village_statistics`, and `vv5_write_village_statistics`.
 
 ```text
 python src/vv_fun_patcher.py dry-run "path\game.exe" --patch-mode immediate_fixed --output-root "path\chosen output parent"
