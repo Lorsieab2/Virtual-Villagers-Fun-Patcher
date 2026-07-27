@@ -281,7 +281,7 @@
         {
           "offset": "0x73C40",
           "before": "00000000000000000000000000000000000000000000000000000000000000000000000000",
-          "after": "8B87D474E50081B800E50200000100000F8D827EFDFFC7864405000002000000E9277EFDFF",
+          "after": "8B87D474E50091E8141CFBFF663D00010F83837EBDFFC7864405000002000000E9287EBDFF",
           "purpose": "allow a second baby only when another villager slot remains"
         },
         {
@@ -293,13 +293,13 @@
         {
           "offset": "0x73C70",
           "before": "00000000000000000000000000000000000000000000000000000000000000000000000000",
-          "after": "8B87D474E50081B800E50200000100000F8D527EFDFFC7864405000003000000E92B7EFDFF",
+          "after": "8B87D474E50091E8E41BFBFF663D00010F83537EBDFFC7864405000003000000E92C7EBDFF",
           "purpose": "allow a third baby only when another villager slot remains"
         },
         {
           "offset": "0x73D00",
-          "before": "00000000000000000000000000000000000000000000000000",
-          "after": "81B900E50200000100007D05E96FB8FDFFB8FFFFFFFFC21400",
+          "before": "000000000000000000000000000000000000000000000000000000",
+          "after": "51E85A1BFBFF3D00010000597D05E96DB8FDFFB8FFFFFFFFC21400",
           "purpose": "guard event-created villagers one allocation at a time against VV2's 256 physical slots"
         },
         {

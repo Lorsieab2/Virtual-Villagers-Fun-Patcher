@@ -454,7 +454,7 @@ class StockIntegrationTests(unittest.TestCase):
             ),
             "vv2": (
                 0x73D00,
-                "81B900E50200000100007D05E96FB8FDFFB8FFFFFFFFC21400",
+                "51E85A1BFBFF3D00010000597D05E96DB8FDFFB8FFFFFFFFC21400",
                 [0x34102, 0x341A2, 0x341C3, 0x34262, 0x34283, 0x342A4,
                  0x34467, 0x344A3],
             ),
