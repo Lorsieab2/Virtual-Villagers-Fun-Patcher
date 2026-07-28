@@ -12,6 +12,13 @@ untouched, with no forced clear and no refund. The historical procedures below
 are retained as the future player-validation contract, not as currently
 available rows.
 
+VV3 Full Mastery is specifically ON HOLD under exact-build audit
+`089957227c0db6a4c3128045519ffa27b201a00e`. Its five signed DWORD skills are
+`+0xEAC..+0xEBC`; mastery begins at 88, the native maximum is 100, and native
+all-five evaluation uses award ID 4. The disabled candidate's direct 90 stores
+are not full mastery and bypass that post-write evaluation. Zero-change/no-
+charge behavior, creation/inheritance, and safe placement remain unresolved.
+
 This is a player-test checklist for the collection-progression Origins-core
 outputs. It is explicitly **runtime/player confirmation pending**; static patch
 verification is not a claim that any item below has been confirmed in-game.

@@ -21,7 +21,7 @@ from vv_fun_patcher import (  # noqa: E402
 from vv_fun_patcher_gui import group_fun_patches  # noqa: E402
 
 STOCK = ROOT / "research" / "stock-executables"
-BASELINE = "b75e72cf9aefbdd1112870d19e01b36d11856603"
+BASELINE = "84fabe05ae59131a70496ef4bbc51b39aa2af861"
 DISABLED = {f"vv{game}_origins_village_wide_upgrades" for game in range(1, 6)}
 
 
@@ -56,6 +56,26 @@ class VillageWideContainmentTests(unittest.TestCase):
                 current_without_gate.pop("enabled", None)
                 prior_without_gate.pop("enabled", None)
                 self.assertEqual(current_without_gate, prior_without_gate)
+                base_path = f"data/{game_id}_origins_feature.json"
+                self.assertEqual(
+                    json.loads((ROOT / base_path).read_text(encoding="utf-8")),
+                    json.loads(
+                        subprocess.check_output(
+                            ["git", "show", f"{BASELINE}:{base_path}"], text=True
+                        )
+                    ),
+                )
+
+        for companion_path in (
+            "assets/origins/VVFP Origins Icons.dll",
+            "assets/statistics/VVFP Statistics Export.dll",
+        ):
+            self.assertEqual(
+                (ROOT / companion_path).read_bytes(),
+                subprocess.check_output(
+                    ["git", "show", f"{BASELINE}:{companion_path}"]
+                ),
+            )
 
         generator = (ROOT / "scripts" / "build_village_wide_origins_features.py").read_text(
             encoding="utf-8"
@@ -150,6 +170,14 @@ class VillageWideContainmentTests(unittest.TestCase):
             "atomic payload",
             "628e0d9217b92b9cd695655842b09d74689a0238",
             "02581c8f518e27ebd5fc7d2972db5597ab08ed35",
+            "089957227c0db6a4c3128045519ffa27b201a00e",
+            "+0xEAC..+0xEBC",
+            "mastery begins at 88",
+            "native maximum is 100",
+            "award ID 4",
+            "direct 90 stores",
+            "zero-change/no-charge",
+            "creation/inheritance",
             "refund",
         ):
             self.assertIn(phrase, docs)

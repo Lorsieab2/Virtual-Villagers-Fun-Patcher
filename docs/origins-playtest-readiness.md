@@ -22,7 +22,12 @@ game's complete payload receives a GO gate. VV4 audit
 stores bypass eight native mutations. VV5 audit
 `02581c8f518e27ebd5fc7d2972db5597ab08ed35` records unresolved counter,
 eligibility, no-change, inheritance, and expanded-layout requirements. VV3 is
-still under audit and VV1 is not certified.
+ON HOLD under audit `089957227c0db6a4c3128045519ffa27b201a00e`:
+its five signed DWORD skills are `+0xEAC..+0xEBC`, mastery begins at 88, the
+native maximum is 100, and native all-five evaluation uses award ID 4. The
+candidate direct 90 stores are not full mastery and bypass that evaluation;
+zero-change/no-charge behavior, creation/inheritance, and placement remain
+unresolved. VV1 is not certified.
 
 The disabled diagnostic payload bytes are retained in their manifests but are
 not rendered into stock or expanded outputs. This catalog containment does not

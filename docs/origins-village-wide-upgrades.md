@@ -10,7 +10,8 @@ game receives a full-payload GO gate. The VV4 audit
 `90.0` mastery stores bypass eight native mutations. The VV5 audit
 `02581c8f518e27ebd5fc7d2972db5597ab08ed35` records unresolved native-counter,
 eligibility, no-change, inheritance, and expanded-layout requirements. VV3 is
-still under audit and VV1 is not certified.
+ON HOLD under exact-build audit
+`089957227c0db6a4c3128045519ffa27b201a00e`; VV1 is not certified.
 
 The manifests below remain as disabled diagnostic evidence; their payload
 bytes are not applied. Containment does not clear or rewrite existing save
@@ -69,11 +70,27 @@ certified preference-table evidence offsets are VV1 `0x7B260`, VV2 `0x8B808`,
 VV3 `0x97488`, VV4 `0xA0CD8`, and VV5 `0xAEF60`; each manifest also records its
 exact Likes/Dislikes offsets and physical record stride.
 
-Grant Full Mastery to All Villagers writes only the native five skill fields in VV1–VV4 or six
-skill fields in VV5 for eligible active, living villagers. All Villagers are
-18 writes only the displayed-age field (360 internal age units). It does not
-write nursing timers, pregnancy timers, pregnancy state, movement speed,
-movement initialization, unrelated preferences, or other record fields.
+The disabled Full Mastery candidate contains direct stores to the native five
+skill fields in VV1–VV4 or six skill fields in VV5. Those stores are retained
+as diagnostic evidence, not approved behavior. All Villagers are 18 writes only
+the displayed-age field (360 internal age units). It does not write nursing
+timers, pregnancy timers, pregnancy state, movement speed, movement
+initialization, unrelated preferences, or other record fields.
+
+### VV3 Full Mastery exact-build boundary
+
+Disassembly commit `089957227c0db6a4c3128045519ffa27b201a00e`
+confirms five signed DWORD skill fields at record offsets `+0xEAC`,
+`+0xEB0`, `+0xEB4`, `+0xEB8`, and `+0xEBC`. Native mastery begins at 88,
+the native maximum is 100, and stock code performs an all-five evaluation
+whose award identifier is 4. The contained command-7 candidate writes 90
+directly. That is neither full 100 mastery nor native-equivalent: its direct
+stores bypass the post-write all-five evaluation.
+
+VV3 remains ON HOLD. A future implementation must resolve the exact target
+value and native evaluation/counter policy, define a zero-change/no-charge
+result, prove creation and inheritance behavior, and provide safe composable
+placement. None of those open items is inferred from the disabled payload.
 
 New Believers uses the authoritative active predicate, health check, and
 believer faction byte. Heathens are excluded from all three operations and are
