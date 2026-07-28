@@ -78,6 +78,27 @@ nursing-state non-change rule. Neither route is safe. Eligibility, no-op
 transaction/results, future Event/birth/clone exclusions, and stock/expanded
 placement remain incomplete.
 
+VV2 All Villagers are 18 audit
+`bd6ce555a9a197450aab7133c0a87b36fbfc6899` covers exact 724,992-byte build
+SHA-256 `46C1503C209255C9CDEFA941DB2F449C8CF8E2CDD5C7D13CD975326E377ED677`.
+It confirms target/display age `+0x530`, processed age `+0x534`, 20 units/year,
+and age 18 value 360. Native `sub_43B690` advances target at `0x43B8FD`,
+updates oldest statistics, runs life catch-up, then increments processed age at
+`0x43C09A`. Command 8 writes only target age and desynchronizes the pair.
+Pregnancy writer `sub_44B980` stores processed age in `+0x540`; delivery uses
+`marker + 40 < processed age`. The selected-age candidate rewrites both ages
+and nonzero marker to 318, violating nursing-state preservation. Scan
+eligibility omits `+0x558`; transaction precharges and returns zero without
+no-op refusal/recheck/rollback. Love Note `0x422006`, Gong `0x44EB3E`, and
+Silver Mirror `0x4217F9` remain separate native paths. The withdrawn
+non-executable `.shr` transport remains independently blocked by its `0x2000`
+VA error.
+
+The future Full Mastery contract is true native maximum 100 for every skill:
+five in VV1–VV4 and six in VV5. Master thresholds or candidate value 90 are
+not sufficient. This is a planning/readiness requirement only and authorizes
+no contained command.
+
 The disabled diagnostic payload bytes are retained in their manifests but are
 not rendered into stock or expanded outputs. This catalog containment does not
 touch existing save ownership or fields, force-clear anything, or issue a

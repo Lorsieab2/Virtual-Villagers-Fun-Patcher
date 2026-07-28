@@ -240,6 +240,44 @@ recheck or rollback. VV3 age 18 remains ON HOLD pending dual-age policy,
 native transitions/statistics, ordinary eligibility, future Event/birth/clone
 exclusions, and complete guarded stock-plus-expanded placement/composition.
 
+### VV2 All Villagers are 18 exact-build boundary
+
+Disassembly commit `bd6ce555a9a197450aab7133c0a87b36fbfc6899`
+applies to the exact 724,992-byte executable with SHA-256
+`46C1503C209255C9CDEFA941DB2F449C8CF8E2CDD5C7D13CD975326E377ED677`.
+It confirms signed target/display age `+0x530`, processed simulation age
+`+0x534`, 20 units per year, and age 18 value 360. Native life updater
+`sub_43B690` advances target age at `0x43B8FD`, updates the oldest statistic,
+runs full life catch-up, and increments `+0x534` at `0x43C09A`.
+
+The disabled command-8 candidate scans stride `0xE48C` over 256 supplied slots,
+tests active `+0x30` and positive signed health `+0x52C`, but omits native
+special/esteemed exclusion `+0x558`. It writes only `+0x530 = 360`, leaving
+the dual ages desynchronized.
+
+Pregnancy writer `sub_44B980` stores processed age into marker `+0x540`, and
+delivery requires `marker + 40 < processed age`. The selected-age candidate
+instead writes `+0x530 = 360`, `+0x534 = 360`, and nonzero `+0x540 = 318`.
+That violates the mandatory requirement that nursing timer/state remain
+byte-for-byte unchanged. Neither candidate route is semantically safe.
+
+The transaction at `state+0x2EADC` precharges 1,000,000, returns zero counts,
+and has no no-op refusal, affordability recheck, or rollback. Love Note
+`0x422006`, Gong pregnancy `0x44EB3E`, and Silver Mirror clone `0x4217F9`
+remain separate native paths, without claiming complete origin classification.
+VV2 remains ON HOLD, independently blocked by the withdrawn `.shr` transport:
+its encoded VAs are `0x2000` below the actual mapping and the section is not
+executable.
+
+### Future Full Mastery value contract
+
+Any future certified Full Mastery implementation must set every native skill
+to the true native maximum 100: five skills in VV1–VV4 and six in VV5. A
+Master-rank threshold such as 88, 90, or a candidate value of 90 is not Full
+Mastery. This requirement does not authorize any contained command or raw
+store; native side effects, eligibility, transaction, and placement still need
+independent per-game GO proof.
+
 New Believers uses the authoritative active predicate, health check, and
 believer faction byte. Heathens are excluded from all three operations and are
 left byte-for-byte unchanged. Converted records are eligible only when their

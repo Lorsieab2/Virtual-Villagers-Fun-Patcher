@@ -21,7 +21,7 @@ from vv_fun_patcher import (  # noqa: E402
 from vv_fun_patcher_gui import group_fun_patches  # noqa: E402
 
 STOCK = ROOT / "research" / "stock-executables"
-BASELINE = "b8818c3aa1e6d14a52aa6a492dc64ed4e27134fa"
+BASELINE = "3559dc29a29b5227a420b04eb9ab3f8d218d731a"
 DISABLED = {f"vv{game}_origins_village_wide_upgrades" for game in range(1, 6)}
 
 
@@ -243,6 +243,25 @@ class VillageWideContainmentTests(unittest.TestCase):
             "+0xE8C",
             "Neither route is safe",
             "Event/birth/clone",
+            "bd6ce555a9a197450aab7133c0a87b36fbfc6899",
+            "724,992-byte",
+            "46C1503C209255C9CDEFA941DB2F449C8CF8E2CDD5C7D13CD975326E377ED677",
+            "+0x530",
+            "+0x534",
+            "sub_43B690",
+            "0x43B8FD",
+            "0x43C09A",
+            "sub_44B980",
+            "+0x540",
+            "marker + 40 < processed age",
+            "0xE48C",
+            "+0x558",
+            "state+0x2EADC",
+            "0x422006",
+            "0x44EB3E",
+            "0x4217F9",
+            "true native maximum 100",
+            "five skills in VV1–VV4 and six in VV5",
             "refund",
         ):
             self.assertIn(phrase, docs)

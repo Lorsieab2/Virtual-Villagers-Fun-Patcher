@@ -81,6 +81,27 @@ nursing timer/state non-change rule. Neither route is approved. Ordinary/
 status eligibility, no-op charging and zero results/no rollback, future
 Event/birth/clone exclusions, and stock/expanded placement remain unresolved.
 
+VV2 All Villagers are 18 is ON HOLD under audit
+`bd6ce555a9a197450aab7133c0a87b36fbfc6899`. Exact build
+`46C1503C209255C9CDEFA941DB2F449C8CF8E2CDD5C7D13CD975326E377ED677`
+uses target/display age `+0x530`, processed age `+0x534`, 20 units/year, and
+360 for age 18. Native `sub_43B690` advances target at `0x43B8FD`, updates the
+oldest statistic, runs life simulation, and increments processed age at
+`0x43C09A`. Command 8 changes only target age. Pregnancy writer `sub_44B980`
+stores processed age in `+0x540`, with delivery at `marker + 40 < processed
+age`; the selected-age candidate rewrites both ages and a nonzero marker to
+318, so it violates mandatory nursing-state preservation. The 256-slot
+stride-`0xE48C` scan tests active `+0x30`/health `+0x52C` but omits `+0x558`.
+Its precharged `state+0x2EADC` transaction returns zero without no-op refusal,
+recheck, or rollback. Love Note `0x422006`, Gong `0x44EB3E`, and Silver Mirror
+`0x4217F9` remain separate native paths; full origin classification is not
+claimed. The withdrawn non-executable `.shr` transport retains its `0x2000`
+mapping error.
+
+For any future Full Mastery validation, the required value is native maximum
+100 in every skill—five skills in VV1–VV4 and six in VV5—not merely a Master
+threshold. This requirement does not make any contained row available.
+
 This is a player-test checklist for the collection-progression Origins-core
 outputs. It is explicitly **runtime/player confirmation pending**; static patch
 verification is not a claim that any item below has been confirmed in-game.
@@ -231,8 +252,9 @@ changes. VV5 current Heathens are untouched and excluded from every count.
 ### Grant Full Mastery to All Villagers and All Villagers are 18
 
 These rows are unavailable; this section is a future validation contract only.
-If later certified, each row would charge exactly 1,000,000 once. Mastery must write only the native
-skill fields: five skills in VV1–VV4 and six in VV5. Age must set displayed
+If later certified, each row would charge exactly 1,000,000 once. Full Mastery
+must set the native maximum 100 in all five skills in VV1–VV4 and all six in
+VV5, while preserving every required native side effect. Age must set displayed
 age exactly to 18 only. Nursing/pregnancy timers and state remain unchanged;
 dead/inactive records and VV5 current Heathens remain byte-identical.
 
