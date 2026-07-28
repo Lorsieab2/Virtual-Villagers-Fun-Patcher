@@ -37,15 +37,27 @@ candidate direct 90 stores are not full mastery and bypass that evaluation;
 zero-change/no-charge behavior, creation/inheritance, and placement remain
 unresolved. VV1 is not certified.
 
+Preference-matrix audit
+`f1555e295e828af2165ab0b7ea9f051ac9736418` fixes the exact logical
+capacities at VV1 four Likes plus four Dislikes, VV2 62 plus 62, and
+VV3/VV4/VV5 three plus three. Every slot is a signed DWORD and `-1` means
+empty, but readers continue through the complete fixed bound rather than
+treating `-1` as a terminator. Running is ID 38 in all five exact builds.
+The PC VV2 Fastest Runner option can naturally create a duplicate Running
+Like at `0x420D22`, `0x420D2B`, and `0x420D37`.
+
 Command 6 remains ON HOLD for VV1, VV2, VV4, and VV5 under audit
 `0311443fbd078e3adcabaf7e693199989ddb9db8` and evidence clarification
 `a67e05247dc822306e1d5a514524cba388ab4d69`. Running ID 38 was verified
 separately in each executable. VV1 persists four Like and four Dislike DWORD
 slots, VV2 persists 62 of each, and VV3-VV5 persist three of each; all use
 signed `-1` as empty. The disabled helpers are non-atomic, and VV1/VV2 scan
-too few slots. A future helper must skip an already-running villager entirely,
-preflight an empty Like before removing dislikes, and make no mutation when
-Likes are full. It must preserve unrelated slots and ordering. VV5 must reject
+too few slots. A future helper must scan every fixed Like slot; if any contains
+Running, it must make zero preference writes and preserve duplicate Running
+Likes and every Dislike. Otherwise it must preflight the first physical `-1`
+Like before removing dislikes and make no mutation when Likes are full. With a
+destination, it inserts Running exactly once and clears every Running Dislike,
+preserving unrelated slots and ordering. VV5 must reject
 current faction `+0x1CEC != 0` before any preference access or count;
 `+0x1CE1` is not a proved substitute. Four-counter bounded results,
 no-op/no-charge recheck and rollback, ordinary/status eligibility, and

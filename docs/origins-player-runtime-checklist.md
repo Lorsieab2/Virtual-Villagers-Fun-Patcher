@@ -22,12 +22,18 @@ and 8 remain absent.
 All Villagers Like Running remains ON HOLD for VV1, VV2, VV4, and VV5 under audit
 `0311443fbd078e3adcabaf7e693199989ddb9db8` and evidence clarification
 `a67e05247dc822306e1d5a514524cba388ab4d69`. Running ID 38 is independently
-code-confirmed in each exact build. The persisted models are four Like/four
-Dislike DWORD slots in VV1, 62/62 in VV2, and three/three in VV3-VV5, with
-signed `-1` as empty. Future validation requires strict atomic behavior:
-already-like skips the entire villager; otherwise preflight a free Like before
-removing any Running Dislike; full Likes causes no mutation; unrelated slots
-and ordering remain unchanged. VV5 current faction `+0x1CEC != 0` must be
+code-confirmed in each exact build. Final preference-matrix audit
+`f1555e295e828af2165ab0b7ea9f051ac9736418` proves fixed four Like/four
+Dislike DWORD slots in VV1, 62/62 in VV2, and three/three in VV3-VV5. Signed
+`-1` means empty but never terminates the scan; every fixed slot is examined.
+PC VV2 Fastest Runner can naturally create duplicate Running Likes through
+`0x420D22`, `0x420D2B`, and `0x420D37`. Future validation requires strict
+atomic behavior: any Running Like skips the entire villager with zero
+preference writes, preserving every duplicate Like and every Dislike.
+Otherwise preflight the first physical `-1` before removing any Running
+Dislike; full Likes causes no mutation; with a destination, insert Running
+once and clear every Running Dislike while preserving unrelated slots and
+ordering. VV5 current faction `+0x1CEC != 0` must be
 rejected before any preference access or count, and `+0x1CE1` is not an
 approved eligibility gate. The disabled legacy helpers do not meet this
 contract. VV3 alone uses the separately certified implementation below.
@@ -302,10 +308,12 @@ order, these exact required lines:
 `Removed running dislike from X villagers`
 
 The proposed full-slot result line remains future-only pending capacity proof.
-No unrelated Like is replaced, no duplicate Running Like is added, and no
-Running Dislike is removed from a villager who already Likes Running or has no
-empty Like slot. Movement speed and movement initialization never change. VV5
-current Heathens are untouched and excluded from every count.
+No unrelated Like is replaced and no new duplicate Running Like is added.
+Pre-existing duplicate Running Likes and every Dislike remain unchanged on an
+already-like skip. No Running Dislike is removed from a villager who already
+Likes Running or has no empty Like slot. Movement speed and movement
+initialization never change. VV5 current Heathens are untouched and excluded
+from every count.
 
 ### Grant Full Mastery to All Villagers and All Villagers are 18
 

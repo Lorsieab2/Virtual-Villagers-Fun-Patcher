@@ -87,10 +87,14 @@ ON HOLD for VV1, VV2, VV4, and VV5. VV3 is separately certified below:
 | VV4 | 929,792 bytes; `6D27A429FFCA5F1F71FDD7ECA761ED1BB67E85F976494BA178B3D7BE01F1B220` | 3 Likes + 3 Dislikes, signed DWORDs |
 | VV5 | 991,232 bytes; `92946781980220E9D1A2E6C573925519934608F5215F4A0F8CE3B90088C5C65D` | 3 Likes + 3 Dislikes, signed DWORDs |
 
-Every empty slot uses signed DWORD sentinel `-1`; construction, membership,
-copy, and persistence paths were traced for each complete array. Running ID
-38 was code-confirmed independently in every exact executable, rather than
-assumed across games.
+Final matrix audit `f1555e295e828af2165ab0b7ea9f051ac9736418`
+confirms these are fixed logical bounds. Every empty slot uses signed DWORD
+sentinel `-1`, but readers skip empties and continue through the entire bound;
+`-1` is not an early terminator. Construction, membership, copy, and
+persistence paths were traced for each complete array. Running ID 38 was
+code-confirmed independently in every exact executable, rather than assumed
+across games. PC VV2 Fastest Runner option 2 can naturally create duplicate
+Running Likes through `0x420D22`, `0x420D2B`, and `0x420D37`.
 
 VV3 Stage C certification `79b122bf0850f18a101db9fb86b40407dd2db573`
 approves the exact command-6-only artifact generated at patcher commit
@@ -101,13 +105,15 @@ slot, hashes, ownership, and uninstall guards unchanged. Commands 7 and 8 are
 absent. Crash audit `36f14702b938a6235230a3fd3e0c34328d3ac745`
 withdraws the current runtime artifact pending a fresh fault/no-change gate.
 
-The future operation must be atomic per villager. An already-Running Like
-skips the entire villager. Otherwise, the helper must scan the complete Like
-array and prove an empty slot exists before removing any Running Dislike. Full
-Likes means no mutation. Only after successful preflight may it add Running
-and clear all matching Running Dislikes, without reordering or replacing any
-unrelated slot. The dormant helpers violate this ordering, and the VV1/VV2
-helpers additionally inspect too few slots.
+The future operation must be atomic per villager. The helper scans the complete
+fixed Like bound. Any already-Running Like skips the entire villager with zero
+preference writes, preserving every duplicate Running Like and every Dislike.
+Otherwise it selects the first physical slot equal to `-1`; no empty slot
+means no mutation, including no Dislike clearing. Only after successful
+preflight may it add Running once and clear every matching Running Dislike,
+without reordering or replacing any unrelated slot. The dormant helpers
+violate this ordering, and the VV1/VV2 helpers additionally inspect too few
+slots.
 
 VV5 must reject current faction `+0x1CEC != 0` before any preference read,
 write, or result count. The additional `+0x1CE1` candidate gate is unsafe and

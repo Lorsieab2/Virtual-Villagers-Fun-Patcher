@@ -91,6 +91,11 @@ class OriginsPlayerRuntimeChecklistTests(unittest.TestCase):
         self.assertIn("36f14702b938a6235230a3fd3e0c34328d3ac745", text)
         self.assertIn("package or continue runtime testing", text)
         self.assertNotIn("permits runtime playtesting", text)
+        self.assertIn("f1555e295e828af2165ab0b7ea9f051ac9736418", text)
+        self.assertIn("`-1` means empty but never terminates the scan", text)
+        self.assertIn("every duplicate Like and every Dislike", text)
+        self.assertIn("first physical `-1`", text)
+        self.assertIn("0x420D22", text)
         self.assertNotIn("Only VV3 All Villagers Like Running is currently available", text)
         self.assertIn("each row would charge exactly 1,000,000 once", text)
 
