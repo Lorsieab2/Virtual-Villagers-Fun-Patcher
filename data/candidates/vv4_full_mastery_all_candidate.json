@@ -2,8 +2,8 @@
   "id": "vv4_full_mastery_all_stage_a_candidate",
   "game_id": "vv4",
   "name": "DISABLED Candidate: Grant Full Mastery to All Villagers",
-  "enabled": false,
-  "certification_status": "disabled Stage-A emitted candidate awaiting Sol byte certification",
+  "enabled": true,
+  "certification_status": "certified under Sol commit 91a01eba0dc561b1244184301837b7199868c490",
   "dependencies": [
     "vv4_enable_origins_exclusive_features_full_mastery_candidate"
   ],

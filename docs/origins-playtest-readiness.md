@@ -259,3 +259,11 @@ skill fields to 100, calls native `sub_44D4C0` once per changed villager, and
 reports native Elder/totem outcomes including the 50-totem cap. Commands 6 and
 8 remain absent, both withdrawn VV2 Origins manifests remain disabled, and
 runtime/player confirmation is still pending.
+
+The isolated VV4 command-7-only implementation is emitted-byte certified under
+`91a01eba0dc561b1244184301837b7199868c490` and catalog-enabled. It validates
+five ordered Float32 skills, raises only values below 100 through native
+`sub_46AD80`, and deducts the unsigned one-million-point cost once through
+native `sub_41E300` after the complete no-op/warning/final-recheck sequence.
+Commands 6/8 and the legacy atomic village-wide record remain unavailable;
+runtime/player confirmation is pending.

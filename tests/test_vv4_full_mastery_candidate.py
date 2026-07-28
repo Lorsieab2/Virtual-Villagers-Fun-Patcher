@@ -104,12 +104,16 @@ class VV4FullMasteryCandidateTests(unittest.TestCase):
         cls.feature = FunPatch(cls.feature_raw)
         cls.build = next(item for item in load_builds() if item.id == "vv4")
 
-    def test_both_records_disabled_hidden_and_command_seven_only(self):
-        self.assertFalse(self.base_raw["enabled"])
-        self.assertFalse(self.feature_raw["enabled"])
-        active = {item.id for item in load_fun_patches()}
-        self.assertNotIn(self.base_raw["id"], active)
-        self.assertNotIn(self.feature_raw["id"], active)
+    def test_both_records_enabled_and_command_seven_only(self):
+        self.assertTrue(self.base_raw["enabled"])
+        self.assertTrue(self.feature_raw["enabled"])
+        active = {item.id: item for item in load_fun_patches()}
+        self.assertIn("vv4_enable_origins_exclusive_features", active)
+        self.assertIn(self.feature_raw["id"], active)
+        self.assertEqual(
+            active[self.feature_raw["id"]].dependencies,
+            ["vv4_enable_origins_exclusive_features"],
+        )
         self.assertEqual(self.feature_raw["dependencies"], [self.base_raw["id"]])
         contract = self.feature_raw["transaction_contract"]
         self.assertEqual((contract["command"], contract["price"]), (7, 1_000_000))
@@ -198,7 +202,11 @@ class VV4FullMasteryCandidateTests(unittest.TestCase):
         compatible = [
             item for item in load_fun_patches()
             if item.game_id == "vv4"
-            and item.id != "vv4_enable_origins_exclusive_features"
+            and item.id
+            not in {
+                "vv4_enable_origins_exclusive_features",
+                "vv4_full_mastery_all_stage_a_candidate",
+            }
         ]
         for mode in MODES:
             with self.subTest(mode=mode):

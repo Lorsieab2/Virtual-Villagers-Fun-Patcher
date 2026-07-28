@@ -1,4 +1,4 @@
-"""Generate the disabled VV4 command-7 Full Mastery Stage-A candidate."""
+"""Generate the certified VV4 command-7 Full Mastery feature."""
 
 from __future__ import annotations
 
@@ -498,7 +498,7 @@ def append_layout(layout: dict[str, int], page: bytes) -> dict[str, object]:
         "append_length": PAGE_SIZE,
         "append_bytes": page.hex().upper(),
         "virtual_address": f"0x{layout['page_va']:X}",
-        "purpose": "append the base-owned disabled VV4 command-7 extension page",
+        "purpose": "append the certified base-owned VV4 command-7 extension page",
         "header_patches": [
             {
                 "offset": "0x106",
@@ -606,7 +606,7 @@ def main() -> None:
     if len(stock) != 929_792 or sha(stock) != expected_sha:
         raise RuntimeError("VV4 stock fixture fingerprint mismatch")
     if not COMPANION.is_file():
-        raise RuntimeError("build the disabled candidate companion DLL first")
+        raise RuntimeError("build the certified companion DLL first")
 
     active = json.loads(ACTIVE_BASE.read_text(encoding="utf-8"))
     payload_patch = next(
@@ -639,9 +639,9 @@ def main() -> None:
     base = deepcopy(active)
     base["id"] = "vv4_enable_origins_exclusive_features_full_mastery_candidate"
     base["name"] = "DISABLED Candidate: VV4 Origins Full Mastery Extension Base"
-    base["enabled"] = False
+    base["enabled"] = True
     base["certification_status"] = (
-        "disabled Stage-A command-7 extension base awaiting Sol emitted-byte certification"
+        "certified command-7 extension base under Sol commit 91a01eba0dc561b1244184301837b7199868c490"
     )
     base["dependencies"] = []
     base["expanded_shr_relocations"]["patches"] = []
@@ -723,8 +723,8 @@ def main() -> None:
         "id": "vv4_full_mastery_all_stage_a_candidate",
         "game_id": "vv4",
         "name": "DISABLED Candidate: Grant Full Mastery to All Villagers",
-        "enabled": False,
-        "certification_status": "disabled Stage-A emitted candidate awaiting Sol byte certification",
+        "enabled": True,
+        "certification_status": "certified under Sol commit 91a01eba0dc561b1244184301837b7199868c490",
         "dependencies": [base["id"]],
         "description": (
             "Command-7-only repeatable Buy candidate using native Float32 skill "
@@ -785,6 +785,7 @@ def main() -> None:
         and item.id
         not in {
             "vv4_enable_origins_exclusive_features",
+            "vv4_full_mastery_all_stage_a_candidate",
         }
     ]
     renders: dict[str, object] = {}
@@ -885,17 +886,17 @@ def main() -> None:
     }
     MAP_OUT.write_text(json.dumps(artifact, indent=2) + "\n", encoding="utf-8")
     DOC_OUT.write_text(
-        "# VV4 Full Mastery disabled Stage-A candidate\n\n"
+        "# VV4 Full Mastery certified command-7 feature\n\n"
         "Generated from acceptance contract "
         "`cd15e3b581df1e3020cfa022814119a97ba18af3`. Both the base-extension "
-        "and dependent command-7 records remain `enabled:false` and catalog-hidden "
-        "pending independent Sol emitted-byte certification.\n\n"
+        "and dependent command-7 records are enabled after independent emitted-byte "
+        "certification at `91a01eba0dc561b1244184301837b7199868c490`.\n\n"
         f"- Companion SHA-256: `{artifact['companion']['sha256']}`\n"
         f"- Stock installed slot SHA-256: `{artifact['layouts']['collection_progression']['installed_slot_sha256']}`\n"
         f"- Expanded installed slot SHA-256: `{artifact['layouts']['experimental_expanded_256']['installed_slot_sha256']}`\n"
         f"- Stock base+mastery render SHA-256: `{renders['collection_progression']['base_plus_mastery_sha256']}`\n"
         f"- Expanded base+mastery render SHA-256: `{renders['experimental_expanded_256']['base_plus_mastery_sha256']}`\n\n"
-        "The candidate exposes command 7 only inside its disabled base dependency. "
+        "The feature exposes command 7 only inside its certified base dependency. "
         "Commands 6/8, village-wide Running/Age bytes, direct "
         "skill stores, ownership, Remove, and save-format changes are absent.\n",
         encoding="utf-8",
