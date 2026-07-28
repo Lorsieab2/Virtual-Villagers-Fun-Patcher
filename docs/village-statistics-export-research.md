@@ -1,5 +1,29 @@
 # Village Statistics text-export research
 
+## Cross-game Villagers Buried and Oldest Villager boundary
+
+Exact-build audit `7fe0a047706693d69c9b504f7a7b0b014280dee3`
+supersedes the earlier burial-hook interpretation below.
+
+In all five games, stock **Oldest Villager** exports the persisted lifetime
+maximum. It does not rescan living villagers, dead or skeleton records,
+graves, mausoleums, the VV3 Roster of the Dead, or another current memorial
+collection. Stock-layout export is proved; expanded-256 walker coverage
+remains ON HOLD.
+
+The future **Villagers Buried** counter must increment exactly once at the
+earliest successful skeleton pickup, regardless of later graveyard or
+mausoleum capacity, completion, occupancy, or burial success. Known delayed
+grave/removal/record-retirement sites are downstream and insufficient.
+
+A retroactive retained-memorial count may initialize a one-time lower-bound
+baseline only with a dedicated, atomic, save-scoped initialized marker.
+Initialization stores the baseline and marker together; later successful
+pickups increment the saved counter. Export must never repeatedly add current
+memorial counts. VV2 `state+0x2E514` is **Village Elders** and is forbidden
+for buried migration, ownership, or initialization state. Exact pickup hooks
+and safe migration storage remain ON HOLD.
+
 ## Confirmed local lifetime statistics
 
 ### A New Home
@@ -83,9 +107,10 @@ The common layout is:
 Stock VV3 maintains every counter except Villagers Buried. Stock VV4 and VV5
 maintain every counter except Food Gathered and Villagers Buried. Those fields
 are not guesses: they are the unchanged inherited slots between otherwise
-matching VV1-style fields. The patch restores the omitted mutation sites while
-leaving the existing counters intact, so existing saves retain all history
-that stock already recorded.
+matching VV1-style fields. Historical manifests proposed omitted mutation
+sites, but their Villagers Buried hooks are downstream of the required
+successful-pickup event and are not certified. Existing saves retain stock
+history; retroactive initialization requires the atomic migration above.
 
 The block range `+0x30..+0x97` has no direct stock code references in any of the
 three games. It is still zeroed, serialized, and restored, but the current
@@ -107,21 +132,21 @@ implementation uses one proven field in that reserve for VV5:
 VV4 and VV5's threshold-limited achievement trackers are not used as
 substitutes for these uncapped lifetime totals.
 
-### Restored omitted writers
+### Historical proposed writers and current status
 
 | Game | Statistic | Exact stock route patched |
 |---|---|---|
-| VV3 | Villagers Buried | delayed corpse-record retirement at `0x45F45B`; guard `88 1E E9 B8 01 00 00`; resumes the stock loop tail at `0x45F61A` |
+| VV3 | Villagers Buried | **insufficient downstream site**: delayed corpse-record retirement at `0x45F45B`, not the required successful-pickup hook |
 | VV4 | Food Gathered | final central food delta at `0x41D987`; guard `01 37 8B 07 79 0B` |
-| VV4 | Villagers Buried | delayed corpse-record release at `0x4664DC`; guard `88 5E FD 38 5E FD` |
+| VV4 | Villagers Buried | **insufficient downstream site**: delayed corpse-record release at `0x4664DC`, not the required successful-pickup hook |
 | VV5 | Food Gathered | final central food delta at `0x41EBA7`; guard `01 37 8B 07 79 0B` |
-| VV5 | Villagers Buried | delayed corpse-record release at `0x46FF12`; guard `88 9E D4 1C 00 00` |
+| VV5 | Villagers Buried | **insufficient downstream site**: delayed corpse-record release at `0x46FF12`, not the required successful-pickup hook |
 | VV5 | Heathens Converted | successful conversion entry at `0x4668B0`; guard `83 EC 10 56 8B F1`; tag 17 adds two and all other tags add one |
 
 The food detours count only positive final deltas and reproduce the stock
-negative-underflow branch. The burial detours run at the one-time occupied
-record release after 240 simulated minutes. VV3 does not create a tombstone at
-that instruction, so its route is described precisely as record retirement.
+negative-underflow branch. Historical burial detours run at delayed
+record-release/retirement sites and cannot satisfy the required
+earliest-successful-skeleton-pickup contract.
 
 ### Later-game puzzle counts
 

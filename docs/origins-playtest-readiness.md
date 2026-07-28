@@ -1,5 +1,13 @@
 # Origins static playtest-readiness gate
 
+Village Statistics audit
+`7fe0a047706693d69c9b504f7a7b0b014280dee3` confirms that
+Oldest Villager is a persisted lifetime maximum in all five games, not a
+current-villager or memorial scan. Villagers Buried requires an earliest
+successful skeleton pickup increment; known later record-release sites are
+insufficient. Retroactive memorial initialization and expanded-256 walker
+coverage remain ON HOLD.
+
 This document records the patcher's five-game composition matrix for the
 current Origins catalog. For each supported game, the test selects every
 enabled game-scoped optional patch, resolves prerequisites in dependency-first
