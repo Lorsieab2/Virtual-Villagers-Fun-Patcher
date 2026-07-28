@@ -45,6 +45,24 @@ hook, transient marker, or certified new section/cave. The requested 500,000
 purchase, zero-cost/no-refund removal, and full-price repurchase behavior is a
 user contract, not stock-code evidence.
 
+Exact-build audit `4c588ffd36765d750533fe9694f8fda5c8e82736`
+enumerates all nine Magic-index reads and finds only one research consumer:
+`sub_458DB0` case 26 getter call `0x4593DC`. Magic level 1 or higher adds one
+deterministic tech point through a separate writer call. It does not alter
+research action/tick frequency, duration, the base award, RNG probability or
+amount, or Research-skill gain. Ordinary and special/catch-up routes converge
+before Magic. Native calls occur in this order:
+
+`B + (Q ? floor(B/4) : 0) + M + T + G`
+
+Here `M` is the flat Magic `+1`; `G` is the independent `RNG(100) < 10`
+addition. Collection duplicates and Island Events are separate producers. A
+future Tech Doubler must double the complete eligible positive native research
+sum once after all additions, while excluding Island Events. Because case 26
+emits those components separately and the shared writer mixes other producers,
+the Tech Doubler remains unavailable pending a provenance-safe post-sum hook or
+source tag.
+
 ## Intended VV2-parity behavior
 
 The current VV2 Origins feature is the behavior baseline:

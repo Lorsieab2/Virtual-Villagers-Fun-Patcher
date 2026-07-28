@@ -194,6 +194,34 @@ class DoublerAuditDocumentationTests(unittest.TestCase):
         self.assertIn("unavailable", manifest["doubler_purchase_status"]["new_purchase"])
         self.assertIn("disabled", manifest["doubler_purchase_status"]["repurchase"])
 
+    def test_vv3_magic_level_one_composition_is_exact_and_still_on_hold(self) -> None:
+        audit = AUDIT.read_text(encoding="utf-8")
+        research = (ROOT / "docs" / "vv3-origins-exclusive-features-research.md").read_text(
+            encoding="utf-8"
+        )
+        readme = README.read_text(encoding="utf-8")
+        transparency = TRANSPARENCY.read_text(encoding="utf-8")
+        combined = "\n".join((audit, research, readme, transparency))
+
+        for required in (
+            "4c588ffd36765d750533fe9694f8fda5c8e82736",
+            "0x4593DC",
+            "B + (Q ? floor(B/4) : 0) + M + T + G",
+            "deterministic flat `+1`",
+            "Collection duplicates and Island Events are separate producers",
+            "provenance-safe post-sum hook or source tag",
+        ):
+            self.assertIn(required, combined)
+
+        folded = " ".join(combined.casefold().split())
+        self.assertIn("no research speed", folded)
+        self.assertIn("rng probability", folded)
+        self.assertIn("research-skill gain", folded)
+        self.assertIn("double the complete eligible positive native", folded)
+        self.assertIn("vv3 tech doubler remains unavailable", folded)
+        self.assertNotIn("magic increases research speed", folded)
+        self.assertNotIn("magic increases research skill", folded)
+
     def test_vv4_provenance_inventory_is_explicit_but_not_marked_go(self) -> None:
         manifest = json.loads((ROOT / "data" / "vv4_origins_feature.json").read_text(encoding="utf-8"))
         evidence = manifest["doubler_evidence"]

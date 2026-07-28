@@ -104,6 +104,11 @@ class OriginsPlaytestReadinessTests(unittest.TestCase):
         self.assertIn("rather than\ntreating `-1` as a terminator", text)
         self.assertIn("preserve duplicate Running\nLikes and every Dislike", text)
         self.assertIn("0x420D22", text)
+        self.assertIn("4c588ffd36765d750533fe9694f8fda5c8e82736", text)
+        self.assertIn("deterministic flat `+1`", text)
+        self.assertIn("changes no research speed", text)
+        self.assertIn("Collection duplicates and Island Events are separate producers", text)
+        self.assertIn("provenance-safe post-sum hook or source tag", text)
 
 
 if __name__ == "__main__":

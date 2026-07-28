@@ -184,7 +184,15 @@ exact-build **STOP** gate; existing ownership can be removed for zero cost with
 no refund. The audit records 33 food writer rows (29 calls, 4 E9 tails) and 16
 tech rows (13 calls, 3 E9 tails), with tail sites documented in the technical
 research. Food Mastery-like award transforms are confirmed absent in this
-build. Collection dispatcher awards are recorded, but IDA has no resolved
+build. Exact-build audit `4c588ffd36765d750533fe9694f8fda5c8e82736`
+also confirms that Magic level 1 or higher adds a deterministic flat `+1`
+tech point to each completed research callback. It does not change research
+speed, duration, base award, RNG, or Research-skill gain. Native research adds
+the base award, optional quarter-base bonus, Magic `+1`, timed `+1`, and
+independent RNG `+1` in that order. Any future Tech Doubler must double the
+complete positive native research sum once, after those additions, while
+leaving collection duplicates and Island Events native. Collection dispatcher
+awards are recorded, but IDA has no resolved
 caller to `sub_42DEB0`, and Island Event mixed-source writers have no source
 tag or proved final-delta boundary. No safe doubler hook, transient marker, or
 certified cave/new section is available. The remaining Origins and

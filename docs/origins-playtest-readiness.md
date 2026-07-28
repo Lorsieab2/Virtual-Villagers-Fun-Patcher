@@ -216,6 +216,18 @@ absolute `.shr` pointers) outside the certified set, per disassembly commit
 and Barrel rows remain unavailable because their Heathen-safe target paths are
 not yet proven.
 
+VV3 Magic Level-1 audit `4c588ffd36765d750533fe9694f8fda5c8e82736`
+confirms that Magic level 1 or higher contributes a deterministic flat `+1`
+tech point to each completed research callback. It changes no research speed,
+duration, base award, RNG probability/amount, or Research-skill gain. The
+native order is base, optional quarter-base, Magic `+1`, timed `+1`, then an
+independent RNG `+1`; ordinary and special/catch-up paths converge before
+Magic. Collection duplicates and Island Events are separate producers. A
+future Tech Doubler must double the complete eligible positive native sum once
+after those additions and exclude Island Events. VV3 Tech Doubler purchase
+remains unavailable because case 26 emits separate writer calls and no
+provenance-safe post-sum hook or source tag is certified.
+
 The matrix is intentionally catalog-driven rather than a hard-coded feature
 list, so newly enabled game-scoped patches cannot silently escape the
 composition checks. It does not modify manifests, executable payloads, saves,
