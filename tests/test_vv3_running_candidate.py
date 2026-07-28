@@ -3,9 +3,11 @@ from __future__ import annotations
 import hashlib
 import itertools
 import json
+import shutil
 import struct
 import subprocess
 import sys
+import tempfile
 import unittest
 from pathlib import Path
 
@@ -16,6 +18,7 @@ sys.path.insert(0, str(ROOT / "src"))
 from vv_fun_patcher import (  # noqa: E402
     FunPatch,
     PatcherError,
+    apply_patch,
     _pe_checksum_layout,
     _remove_feature_bytes,
     _remove_feature_with_dependency_guard,
@@ -118,6 +121,31 @@ class VV3RunningCandidateTests(unittest.TestCase):
             ["vv3_enable_origins_exclusive_features"],
         )
         validate_fun_patch_catalog([self.base, self.running])
+
+    def test_apply_accepts_the_certified_owned_page_append(self) -> None:
+        feature_ids = [
+            "vv3_enable_origins_exclusive_features",
+            "vv3_all_villagers_like_running",
+        ]
+        rendered, _ = render_patched_bytes(
+            STOCK,
+            self.build,
+            "collection_progression",
+            feature_ids,
+        )
+        with tempfile.TemporaryDirectory() as temp:
+            game_folder = Path(temp) / self.build.title
+            game_folder.mkdir()
+            source = game_folder / self.build.input_name
+            shutil.copy2(STOCK, source)
+            output, _ = apply_patch(
+                source,
+                "collection_progression",
+                fun_patch_ids=feature_ids,
+            )
+            self.assertEqual(output.read_bytes(), rendered)
+            self.assertEqual(output.stat().st_size, len(rendered))
+            self.assertGreater(output.stat().st_size, source.stat().st_size)
 
     def test_current_handler_constructor_and_other_runtime_projections_are_frozen(self) -> None:
         stock_payload = bytes.fromhex(

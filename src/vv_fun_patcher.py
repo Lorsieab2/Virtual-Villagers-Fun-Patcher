@@ -1415,8 +1415,8 @@ def apply_patch(
             handle.write(patched)
             handle.flush()
             os.fsync(handle.fileno())
-        if output.stat().st_size != source.stat().st_size:
-            raise PatcherError("Verification failed: patched file size changed")
+        if output.stat().st_size != len(patched):
+            raise PatcherError("Verification failed: patched file size mismatch")
         output_hash = sha256(output)
         expected_hash = hashlib.sha256(patched).hexdigest().upper()
         if output_hash != expected_hash:
