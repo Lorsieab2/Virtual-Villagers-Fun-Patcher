@@ -1,0 +1,7 @@
+LIBRARY "VVFP Origins Icons"
+EXPORTS
+    ShowOriginsUpgradeMenu=_ShowOriginsUpgradeMenu@8
+    ShowOriginsUpgradeMenuState=_ShowOriginsUpgradeMenuState@8
+    ShowOriginsVillageWideResult=_ShowOriginsVillageWideResult@16
+    ShowOriginsVillageWideResult@20=_ShowOriginsVillageWideResult20@20
+    ShowVV4FullMasteryResult=_ShowVV4FullMasteryResult@8
