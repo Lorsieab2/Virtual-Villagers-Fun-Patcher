@@ -211,6 +211,10 @@ def build_slot(installed: bool) -> tuple[bytes, dict[str, int | str]]:
             mov eax, 1
             jmp done
         purchase:
+            mov dword ptr [esp], 0
+            mov dword ptr [esp + 4], 0
+            mov dword ptr [esp + 8], 0
+            mov dword ptr [esp + 12], 0
             lea edi, [esp]
             mov ecx, dword ptr [esp + 0x10]
             mov edx, dword ptr [esp + 0x14]
@@ -220,19 +224,8 @@ def build_slot(installed: bool) -> tuple[bytes, dict[str, int | str]]:
             je no_change
             cmp dword ptr [0x582644], 1000000
             jb insufficient
+            sub dword ptr [0x582644], 1000000
             mov edi, dword ptr [esp + 0x18]
-            mov dword ptr [edi], 0
-            mov dword ptr [edi + 4], 0
-            mov dword ptr [edi + 8], 0
-            mov dword ptr [edi + 12], 0
-            mov ecx, dword ptr [esp + 0x10]
-            mov edx, dword ptr [esp + 0x14]
-            xor eax, eax
-            call 0x{walk_offset:X}
-            cmp dword ptr [edi], 0
-            je no_change
-            cmp dword ptr [0x582644], 1000000
-            jb insufficient
             mov dword ptr [edi], 0
             mov dword ptr [edi + 4], 0
             mov dword ptr [edi + 8], 0
@@ -241,9 +234,6 @@ def build_slot(installed: bool) -> tuple[bytes, dict[str, int | str]]:
             mov edx, dword ptr [esp + 0x14]
             mov eax, 1
             call 0x{walk_offset:X}
-            cmp dword ptr [edi], 0
-            je no_change
-            sub dword ptr [0x582644], 1000000
             or dword ptr [0x5824D0], 4
             xor eax, eax
             jmp done
@@ -363,12 +353,22 @@ def build_slot(installed: bool) -> tuple[bytes, dict[str, int | str]]:
 def build_dispatcher(page_va: int, result_export_va: int) -> bytes:
     return asm(
         f"""
+            push ebp
+            push ebx
+            push esi
+            push edi
             cmp dword ptr [0x{page_va + SLOT_OFFSET:X}], 0x4E525656
             jne dispatch_done
             cmp dword ptr [0x{page_va + SLOT_OFFSET + 12:X}], 1
             jne dispatch_done
             sub esp, 16
-            mov edi, esp
+            mov esi, esp
+            xor eax, eax
+            mov dword ptr [esi], eax
+            mov dword ptr [esi + 4], eax
+            mov dword ptr [esi + 8], eax
+            mov dword ptr [esi + 12], eax
+            mov edi, esi
             mov ecx, 0x59E124
             mov edx, dword ptr [0x42883A]
             mov eax, 6
@@ -393,10 +393,10 @@ def build_dispatcher(page_va: int, result_export_va: int) -> bytes:
             call dword ptr [0x47C128]
             test eax, eax
             je cleanup
-            push dword ptr [esp + 12]
-            push dword ptr [esp + 8]
-            push dword ptr [esp + 4]
-            push dword ptr [esp]
+            push dword ptr [esi + 12]
+            push dword ptr [esi + 8]
+            push dword ptr [esi + 4]
+            push dword ptr [esi]
             push 6
             call eax
             jmp cleanup
@@ -412,6 +412,10 @@ def build_dispatcher(page_va: int, result_export_va: int) -> bytes:
         cleanup:
             add esp, 16
         dispatch_done:
+            pop edi
+            pop esi
+            pop ebx
+            pop ebp
             ret
         """,
         page_va + 0x40,
@@ -569,7 +573,9 @@ def main() -> None:
     candidate["id"] = "vv3_enable_origins_exclusive_features_running_candidate"
     candidate["name"] = "DISABLED Candidate: VV3 Origins Running Extension Base"
     candidate["enabled"] = False
-    candidate["certification_status"] = "Stage A generated; not catalog-visible; awaiting Sol byte certification"
+    candidate["certification_status"] = (
+        "Stage C corrected; not catalog-visible; awaiting Sol byte recertification"
+    )
     candidate["dependencies"] = []
     candidate["patches"] = [
         item for item in candidate["patches"] if int(item["offset"], 0) != 0x7B7A0
@@ -635,14 +641,14 @@ def main() -> None:
         "name": "DISABLED Candidate: All Villagers Like Running",
         "enabled": False,
         "dependencies": [candidate["id"]],
-        "description": "Stage A command-6-only candidate; not selectable pending Sol byte certification.",
+        "description": "Stage C corrected command-6-only candidate; not selectable pending Sol byte recertification.",
         "behavior_changes": ["Candidate-only guarded replacement of the base-owned no-op slot."],
         "explicit_non_changes": [
             "Commands 7 and 8 are absent.",
             "Removal restores the no-op slot and does not reverse preference edits.",
             "Vanilla save layout is unchanged.",
         ],
-        "evidence_status": "generated Stage A candidate; static certification pending",
+        "evidence_status": "generated Stage C corrected candidate; Sol byte recertification pending",
         "companion_files": [],
         "patches": [
             {
@@ -657,6 +663,7 @@ def main() -> None:
         "disassembly_handoffs": [
             "d78db872efe04f98bd19b45c9e098bb5a25d53b8",
             "b9c7a22eb1d7cceae25160ce4d360621e7485625",
+            "f73625582adae714473068c272b90af91a57d945",
         ],
         "active_base_payload_sha256": sha(bytes.fromhex(payload_patch["before"]))
         if bytes.fromhex(payload_patch["before"]).strip(b"\0")
@@ -693,6 +700,20 @@ def main() -> None:
             "stock_sha256": sha(dispatchers["collection_progression"]),
             "expanded_sha256": sha(dispatchers["experimental_expanded_256"]),
             "role": "base-owned command-6-only bridge; resolves @20 and reports four counters",
+        },
+        "stage_c_corrections": {
+            "status": "disabled pending Sol byte recertification",
+            "result_arguments": "stable ESI counter base pushes removed_dislike, full_like, already_like, granted, then command 6",
+            "dispatcher_nonvolatile_registers": ["EBP", "EBX", "ESI", "EDI"],
+            "transaction_passes": ["dry", "commit"],
+            "charge_order": "dry granted check, unsigned balance recheck, one deduction, one commit, ownership set",
+            "forbidden": [
+                "stack-relative counter aliasing after ESP movement",
+                "unbalanced dispatcher EBX or EDI clobber",
+                "a second dry pass",
+                "record mutation before charge",
+                "post-commit no-change branch",
+            ],
         },
         "companion": {
             "size": COMPANION.stat().st_size,
@@ -766,9 +787,9 @@ def main() -> None:
     stock_render = render_map["collection_progression"]
     expanded_render = render_map["experimental_expanded_256"]
     DOC_OUT.write_text(
-        f"""# VV3 Running Stage A disabled certification candidate
+        f"""# VV3 Running Stage C corrected disabled certification candidate
 
-This is a generated, **disabled** artifact bundle. Neither
+This is a generated, **disabled** recertification bundle. Neither
 `vv3_enable_origins_exclusive_features_running_candidate` nor
 `vv3_all_villagers_like_running_candidate` is loaded by the catalog, CLI,
 GUI, Select All, or ordinary output rendering. Sol byte certification is
@@ -776,7 +797,13 @@ required before any enablement.
 
 Evidence inputs are disassembly commits
 `d78db872efe04f98bd19b45c9e098bb5a25d53b8` and
-`b9c7a22eb1d7cceae25160ce4d360621e7485625`. Player-confirmed Like 38 /
+`b9c7a22eb1d7cceae25160ce4d360621e7485625`. Stage C corrects the three
+defects certified by Sol at
+`f73625582adae714473068c272b90af91a57d945`: the @20 counter arguments now
+use a stable base, the dispatcher preserves every nonvolatile register it
+uses, and the purchase path is exactly one dry pass followed by the final
+unsigned funds recheck, one deduction, and one commit pass. The candidate
+remains disabled pending byte recertification. Player-confirmed Like 38 /
 Dislike -1 save-and-reload persistence is supporting runtime evidence, not PE
 integration proof.
 
@@ -823,9 +850,12 @@ Running dislike is removed; full Likes cause no mutation. All Running
 dislikes are cleared, unrelated slots and order are preserved, and 38 is
 written to the first empty Like.
 
-Purchase uses an unsigned 1,000,000-point two-pass dry-run, final balance
-recheck, one deduction, commit, and save ownership bit `0x4`. A zero-grant
-result does not charge. Removal costs and refunds zero, clears only bit
+Purchase uses exactly two walker passes: one nonmutating dry pass, then—only
+after a nonzero grant count and final unsigned 1,000,000-point balance
+recheck—one deduction followed by one mutating commit pass and save ownership
+bit `0x4`. There is no second dry pass, mutation before charge, or post-commit
+no-change branch. A zero-grant or insufficient-race result does not charge.
+Removal costs and refunds zero, clears only bit
 `0x4`, does not reverse preference edits, and permits full-price repurchase.
 Commands 7 and 8 are absent.
 

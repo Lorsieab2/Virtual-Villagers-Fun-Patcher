@@ -218,7 +218,7 @@ The Running walker therefore removes `+0xE94` and uses only active byte
 memorial marker and VV5's Heathen totems are separate game-specific mechanics,
 not substitutes for this VV3 field.
 
-Stage A has now generated a disabled command-6-only certification bundle under
+Stage C has now generated a corrected disabled command-6-only recertification bundle under
 `data/candidates/`, with the exact base-owned `.vvrun` page, guarded no-op
 slot, dependent Running replacement, stock and both-expanded layouts,
 append/truncate guards, four-counter `char[256]` ABI, and rebuilt

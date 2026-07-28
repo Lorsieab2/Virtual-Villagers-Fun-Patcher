@@ -1,13 +1,14 @@
 {
   "disassembly_handoffs": [
     "d78db872efe04f98bd19b45c9e098bb5a25d53b8",
-    "b9c7a22eb1d7cceae25160ce4d360621e7485625"
+    "b9c7a22eb1d7cceae25160ce4d360621e7485625",
+    "f73625582adae714473068c272b90af91a57d945"
   ],
   "active_base_payload_sha256": "91EE43DC2CCD93B9AB807DC9E2C15EEF88B9BFFA8F7A528C6785B29518D96CC6",
   "candidate_stock_payload_sha256": "289D4C7A72A46713CAD2217753E696F891C273EB749CF1E68011CD740F14AAE0",
   "candidate_expanded_payload_sha256": "0593E81A897BAAC47243EBACD70B01EC7ECA929627D8C3E4B0805FF826D914EF",
   "noop_slot_sha256": "42FC601B51E8AAC069B70355502C32B6985A2471E26B683A61A68EA3B91BE4E3",
-  "running_slot_sha256": "156C6C200D73BEC18B719D54F82E74A5ED6B2B1BF3CE18117A32F33FF38BBA98",
+  "running_slot_sha256": "C1FB2D8C7FE4494AA85BAEB686558B190F10B671710BF72AB1A83E7D88A2318F",
   "noop": {
     "entry_offset": 32,
     "entry_length": 10,
@@ -15,8 +16,8 @@
   },
   "running": {
     "entry_offset": 32,
-    "entry_length": 262,
-    "entry_sha256": "949EE3CEE3B14C98FD74B375B9E96E1AA070D9C4084AD234960AAAC99E89A274",
+    "entry_length": 221,
+    "entry_sha256": "F7CA66EF4A7B67C7026468ACE0924BB3091391DF07154CD8C36D87C971172265",
     "walker_offset": 576,
     "walker_length": 195,
     "walker_sha256": "4BFC9FF8DBCA7E4BBB5B5607500546398129DE3181313D4BABFD12933EB46FD7"
@@ -27,36 +28,36 @@
       "page_va": 7204864,
       "old_size_of_image": 3010560,
       "new_size_of_image": 3014656,
-      "page_sha256": "926F647847204879AB5753A180BF47A185F0FCCC04941E713E8C1A988D6BF7EF",
-      "running_page_sha256": "FABB25B2084C79306D06438EB4820DC367106AB5A74E6E7E87CDD3B9305014FB",
-      "dispatcher_sha256": "489F714C74C88EA5183BE01BDD82649F4B31F690BCE4679AA5C29FFD10F64880"
+      "page_sha256": "02E154F0CDF9C7F1469B1A2A169A9A8ECC2C26B82D885816ACF69AB12E8ACFD1",
+      "running_page_sha256": "53092FA46B569C70CEF6388B9DB15DF3818D7D0B1380A97189B70E55B1E39F8F",
+      "dispatcher_sha256": "6A6CF8281113AE8A0ED9EE03A7811D7D0D76F2B7E791B78218DE76D87C371ABF"
     },
     "immediate_fixed": {
       "page_rva": 3010560,
       "page_va": 7204864,
       "old_size_of_image": 3010560,
       "new_size_of_image": 3014656,
-      "page_sha256": "926F647847204879AB5753A180BF47A185F0FCCC04941E713E8C1A988D6BF7EF",
-      "running_page_sha256": "FABB25B2084C79306D06438EB4820DC367106AB5A74E6E7E87CDD3B9305014FB",
-      "dispatcher_sha256": "489F714C74C88EA5183BE01BDD82649F4B31F690BCE4679AA5C29FFD10F64880"
+      "page_sha256": "02E154F0CDF9C7F1469B1A2A169A9A8ECC2C26B82D885816ACF69AB12E8ACFD1",
+      "running_page_sha256": "53092FA46B569C70CEF6388B9DB15DF3818D7D0B1380A97189B70E55B1E39F8F",
+      "dispatcher_sha256": "6A6CF8281113AE8A0ED9EE03A7811D7D0D76F2B7E791B78218DE76D87C371ABF"
     },
     "experimental_expanded_256": {
       "page_rva": 3899392,
       "page_va": 8093696,
       "old_size_of_image": 3899392,
       "new_size_of_image": 3903488,
-      "page_sha256": "20D25C16D0881E95011522290C78A8B25CE63EF914F800F7BEFC9E5FCF8C50C5",
-      "running_page_sha256": "4860A13EC2F881C7151A81A9DB3069A4F856378D8C75AD634E4DCDC7E14C6EC3",
-      "dispatcher_sha256": "C042D4E32F0975DF11CE3498DE10E9DCADCC84635A418E057698E329DD7D4B7E"
+      "page_sha256": "34B66359933CC2E0096C34E699B8C15782AFEF1B95854575519CA264E2EE8A51",
+      "running_page_sha256": "984F825FD82B6BF6E3341EF22869BCA6215F801D27FE2EE6BDC6707994530998",
+      "dispatcher_sha256": "97CF6BD9652D10372726ED40E1878CCEECA6624A09872901FA1196A5AF63E2C2"
     },
     "experimental_expanded_256_progression": {
       "page_rva": 3899392,
       "page_va": 8093696,
       "old_size_of_image": 3899392,
       "new_size_of_image": 3903488,
-      "page_sha256": "20D25C16D0881E95011522290C78A8B25CE63EF914F800F7BEFC9E5FCF8C50C5",
-      "running_page_sha256": "4860A13EC2F881C7151A81A9DB3069A4F856378D8C75AD634E4DCDC7E14C6EC3",
-      "dispatcher_sha256": "C042D4E32F0975DF11CE3498DE10E9DCADCC84635A418E057698E329DD7D4B7E"
+      "page_sha256": "34B66359933CC2E0096C34E699B8C15782AFEF1B95854575519CA264E2EE8A51",
+      "running_page_sha256": "984F825FD82B6BF6E3341EF22869BCA6215F801D27FE2EE6BDC6707994530998",
+      "dispatcher_sha256": "97CF6BD9652D10372726ED40E1878CCEECA6624A09872901FA1196A5AF63E2C2"
     }
   },
   "slot_abi": {
@@ -84,10 +85,32 @@
   },
   "dispatcher": {
     "offset": 64,
-    "length": 167,
-    "stock_sha256": "489F714C74C88EA5183BE01BDD82649F4B31F690BCE4679AA5C29FFD10F64880",
-    "expanded_sha256": "C042D4E32F0975DF11CE3498DE10E9DCADCC84635A418E057698E329DD7D4B7E",
+    "length": 186,
+    "stock_sha256": "6A6CF8281113AE8A0ED9EE03A7811D7D0D76F2B7E791B78218DE76D87C371ABF",
+    "expanded_sha256": "97CF6BD9652D10372726ED40E1878CCEECA6624A09872901FA1196A5AF63E2C2",
     "role": "base-owned command-6-only bridge; resolves @20 and reports four counters"
+  },
+  "stage_c_corrections": {
+    "status": "disabled pending Sol byte recertification",
+    "result_arguments": "stable ESI counter base pushes removed_dislike, full_like, already_like, granted, then command 6",
+    "dispatcher_nonvolatile_registers": [
+      "EBP",
+      "EBX",
+      "ESI",
+      "EDI"
+    ],
+    "transaction_passes": [
+      "dry",
+      "commit"
+    ],
+    "charge_order": "dry granted check, unsigned balance recheck, one deduction, one commit, ownership set",
+    "forbidden": [
+      "stack-relative counter aliasing after ESP movement",
+      "unbalanced dispatcher EBX or EDI clobber",
+      "a second dry pass",
+      "record mutation before charge",
+      "post-commit no-change branch"
+    ]
   },
   "companion": {
     "size": 295936,
@@ -241,31 +264,31 @@
   },
   "rendered_candidates": {
     "collection_progression": {
-      "base_only_sha256": "90400DC880D19034402AEF8D80CC3DF971AD2B7343817A57C79DA5185960FCDE",
-      "base_plus_running_sha256": "9E343BD485773D4CAF9C2F49BD894E5CB6D4F59B2831D1A7ECCFE2D365E10521",
+      "base_only_sha256": "4C8C3AB3BFB02F3B6EFCCF44D617E70D7DE4CE348258E32C52F94E7600CA4564",
+      "base_plus_running_sha256": "494D2BE5C7464CC5A59580BFE4C805656FE4F8675A44F7BFED29AFFA45978DDE",
       "base_plus_running_size": 835584,
-      "pe_checksum": "0x000D2AEB",
+      "pe_checksum": "0x000D8264",
       "owned_edit_count": 23
     },
     "immediate_fixed": {
-      "base_only_sha256": "2508CD5E8D26EE4284FF014168B672B69B533A8AF3B2BC31FCE3DCC913B84BC6",
-      "base_plus_running_sha256": "9BE70FAF1AC1ED898EB5626C44BEBF853DF742F9A7A4F13281042EC69FCE5B7C",
+      "base_only_sha256": "DB4984B2E1CBC25E08049EF1A5F71200F01106F896A08DDFFA8D59F70BC95937",
+      "base_plus_running_sha256": "547C884EBC55F0BF3FA8055F2A1FBE9F1A1E0A56A7360C39603D5B2E86E92900",
       "base_plus_running_size": 835584,
-      "pe_checksum": "0x000D6CE9",
+      "pe_checksum": "0x000CC463",
       "owned_edit_count": 23
     },
     "experimental_expanded_256": {
-      "base_only_sha256": "646B71AFC2321308C4ADCC2C2B12D24AA5003BB708108EACF3913A4D6D0991C4",
-      "base_plus_running_sha256": "48FF88457CD52300A187C7F2B7712CFD86C53AC4A656C152AFFE0287178E5CCA",
+      "base_only_sha256": "8DF6E4677D520633C209D64A5AE614BFA2FE3FDE79606B9BD1BF023466865494",
+      "base_plus_running_sha256": "B58119F639B03DEE1743445A8A3025691B0B3083FA5C5E1D159AA38E94D50532",
       "base_plus_running_size": 835584,
-      "pe_checksum": "0x000D5361",
+      "pe_checksum": "0x000DAADA",
       "owned_edit_count": 1287
     },
     "experimental_expanded_256_progression": {
-      "base_only_sha256": "5ECC13CDABA5DE9079259B5BB4F136A11BA228C25D3ECB50FF770671FDC7E9AE",
-      "base_plus_running_sha256": "523EA31173BEDB6B53C5BE1327CFC7BBABB0760CAC064639A4B16A1EDA47F611",
+      "base_only_sha256": "4A39A380EB7CCA657926DAEB6B589E49543480FDA3D04150336335A53663B95D",
+      "base_plus_running_sha256": "13EC0ACC426BD97DD52E73E2991BB0CE498A5B5BB240123DBC7EF894C3929689",
       "base_plus_running_size": 835584,
-      "pe_checksum": "0x000CCE6C",
+      "pe_checksum": "0x000D25E5",
       "owned_edit_count": 1288
     }
   }

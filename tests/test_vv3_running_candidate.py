@@ -72,6 +72,15 @@ def canonical_sha(value: object) -> str:
     ).hexdigest().upper()
 
 
+def relative_call_targets(code: bytes, base: int) -> list[tuple[int, int]]:
+    targets = []
+    for offset, opcode in enumerate(code):
+        if opcode == 0xE8 and offset + 5 <= len(code):
+            displacement = struct.unpack_from("<i", code, offset + 1)[0]
+            targets.append((base + offset, base + offset + 5 + displacement))
+    return targets
+
+
 class VV3RunningCandidateTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
@@ -195,6 +204,122 @@ class VV3RunningCandidateTests(unittest.TestCase):
             "Removed running dislike from %u villagers",
         ):
             self.assertIn(exact, source)
+
+    def test_stage_c_dispatcher_delivers_distinct_counters_and_preserves_abi(self) -> None:
+        layout = self.base_raw["pe_append_transaction"]["layouts"][
+            "collection_progression"
+        ]
+        page = bytes.fromhex(layout["append_bytes"])
+        dispatcher_length = self.artifact_map["dispatcher"]["length"]
+        dispatcher = page[0x40 : 0x40 + dispatcher_length]
+
+        # One shared return path restores the exact reverse of the entry saves.
+        self.assertEqual(dispatcher[:4], bytes.fromhex("55535657"))
+        self.assertEqual(dispatcher[-5:], bytes.fromhex("5F5E5B5DC3"))
+
+        # ESI is the stable counter base. The stdcall pushes are reverse order:
+        # removed, full, already, granted, command, yielding the declared order
+        # at the callee even as ESP moves.
+        push_sequence = bytes.fromhex(
+            "FF760CFF7608FF7604FF366A06FFD0"
+        )
+        self.assertIn(push_sequence, dispatcher)
+        sentinels = (0x11111111, 0x22222222, 0x33333333, 0x44444444)
+        pushed = (sentinels[3], sentinels[2], sentinels[1], sentinels[0], 6)
+        callee_arguments = tuple(reversed(pushed))
+        self.assertEqual(callee_arguments, (6, *sentinels))
+
+        # Both pre-slot rejection branches target the single balanced epilogue.
+        epilogue = len(dispatcher) - 5
+        branch_offsets = [
+            index
+            for index in range(len(dispatcher) - 5)
+            if dispatcher[index : index + 2] == b"\x0F\x85"
+        ][:2]
+        self.assertEqual(len(branch_offsets), 2)
+        for offset in branch_offsets:
+            displacement = struct.unpack_from("<i", dispatcher, offset + 2)[0]
+            self.assertEqual(offset + 6 + displacement, epilogue)
+
+        # Status routing does not change the caller's nonvolatile canaries
+        # because every status shares that sole save/restore return.
+        for status in (-1, 0, 1, 2, 3):
+            registers = {
+                "ebp": 0x11112222,
+                "ebx": 0x33334444,
+                "esi": 0x55556666,
+                "edi": 0x77778888,
+            }
+            expected = registers.copy()
+            stack = [
+                registers["ebp"],
+                registers["ebx"],
+                registers["esi"],
+                registers["edi"],
+            ]
+            registers.update({"ebx": status, "esi": 0xDEADBEEF, "edi": 0xBAADF00D})
+            registers["edi"] = stack.pop()
+            registers["esi"] = stack.pop()
+            registers["ebx"] = stack.pop()
+            registers["ebp"] = stack.pop()
+            self.assertEqual(registers, expected)
+            self.assertEqual(stack, [])
+
+    def test_stage_c_transaction_is_one_dry_then_charge_then_one_commit(self) -> None:
+        slot = bytes.fromhex(self.running_raw["patches"][0]["after"])
+        entry_offset = self.artifact_map["running"]["entry_offset"]
+        entry_length = self.artifact_map["running"]["entry_length"]
+        entry = slot[entry_offset : entry_offset + entry_length]
+        calls = relative_call_targets(entry, entry_offset)
+        self.assertEqual(calls, [(0x85, 0x240), (0xD2, 0x240)])
+
+        granted_check = entry.find(bytes.fromhex("833C2400"))
+        balance_check = entry.find(bytes.fromhex("813D4426580040420F00"))
+        charge = entry.find(bytes.fromhex("812D4426580040420F00"))
+        owner_set = entry.find(bytes.fromhex("830DD024580004"))
+        self.assertEqual(
+            [value + entry_offset for value in (
+                granted_check, balance_check, charge, owner_set
+            )],
+            [0x8A, 0x90, 0x9C, 0xD7],
+        )
+        granted_check += entry_offset
+        balance_check += entry_offset
+        charge += entry_offset
+        owner_set += entry_offset
+        self.assertLess(calls[0][0], granted_check)
+        self.assertLess(granted_check, balance_check)
+        self.assertLess(balance_check, charge)
+        self.assertLess(charge, calls[1][0])
+        self.assertLess(calls[1][0], owner_set)
+        self.assertEqual(
+            entry[charge - entry_offset + 10 : calls[1][0] - entry_offset].count(b"\xE8"),
+            0,
+        )
+        self.assertNotIn(bytes.fromhex("833F00"), entry[calls[1][0] - entry_offset + 5 :])
+
+        def instrument(granted: int, initial: int, final: int) -> tuple[list[str], int]:
+            events = ["dry"]
+            if granted == 0:
+                return events, initial
+            events.append("balance_recheck")
+            if final < 1_000_000:
+                return events, final
+            events.extend(("charge", "commit", "owner_set"))
+            return events, final - 1_000_000
+
+        self.assertEqual(instrument(0, 2_000_000, 2_000_000), (["dry"], 2_000_000))
+        self.assertEqual(
+            instrument(1, 2_000_000, 999_999),
+            (["dry", "balance_recheck"], 999_999),
+        )
+        self.assertEqual(
+            instrument(1, 2_000_000, 1_500_000),
+            (
+                ["dry", "balance_recheck", "charge", "commit", "owner_set"],
+                500_000,
+            ),
+        )
 
     def test_exhaustive_three_by_three_atomic_vectors(self) -> None:
         values = (-1, 7, 38)
