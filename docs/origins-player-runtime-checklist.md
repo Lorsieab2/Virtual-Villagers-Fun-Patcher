@@ -53,6 +53,21 @@ zero results. Nursing timer and nursing/pregnancy state must never change, and
 the current helper is not proved to meet that requirement. The 43-reference
 expanded relocation gap remains open.
 
+VV4 All Villagers are 18 is ON HOLD under audit
+`ab404b0c5e80cab4d327de9a51069e6e3529df27`. For exact build
+`6D27A429FFCA5F1F71FDD7ECA761ED1BB67E85F976494BA178B3D7BE01F1B220`,
+displayed age is signed DWORD `+0x1B8C`, 20 units per year, with 360 meaning
+age 18. Native detail refresh, increment, offline aging/oldest-stat update, and
+save persistence are mapped. The candidate iterates stride `0x2E3C` over a
+supplied 150/256 bound using active `+0x1CC4`, status `+0x1CC7 == 0`, and
+positive signed health `+0x1C40`. Its raw store and generic unsigned
+one-million-point transaction bypass native transition handling, charge no-op
+cases, return zero results, and provide no rollback. Processed age `+0x1C3C`,
+nursing/pregnancy companion `+0x1C4C`, pending baby count, and unrelated fields
+must never change; the candidate is not proved to satisfy the complete
+semantic contract. Future births, clones, Events, and stock/expanded placement
+remain unresolved.
+
 This is a player-test checklist for the collection-progression Origins-core
 outputs. It is explicitly **runtime/player confirmation pending**; static patch
 verification is not a claim that any item below has been confirmed in-game.

@@ -180,6 +180,36 @@ uncertified relocated references: 36 cross-section `rel32` operands and seven
 external absolute `.shr` pointers. No helper availability or safety is claimed
 from this diagnostic loop.
 
+### VV4 All Villagers are 18 exact-build boundary
+
+Disassembly commit `ab404b0c5e80cab4d327de9a51069e6e3529df27`
+applies to the exact 929,792-byte executable with SHA-256
+`6D27A429FFCA5F1F71FDD7ECA761ED1BB67E85F976494BA178B3D7BE01F1B220`.
+It confirms signed displayed-age DWORD `+0x1B8C`, 20 internal units per year,
+and age 18 value 360. Detail refresh is `sub_43BA80`; native increment is
+`sub_465F10`. Offline updater `sub_466450` calls it at `0x46663B`, then updates
+oldest-villager statistic `dword_4D6E00`. Save/restore routines
+`sub_45DB30`/`sub_45DBE0` persist the `0xA8` age object.
+
+The disabled helper scans stride `0x2E3C` using a supplied 150/256 bound and
+requires active `+0x1CC4 != 0`, status `+0x1CC7 == 0`, and positive signed
+health `+0x1C40`. It performs only raw store `+0x1B8C = 360`, bypassing the
+native oldest-stat/transition route. The selected-age candidate also uses a
+raw store, which is not native proof. Status `+0x1CC7` lifecycle semantics
+remain incomplete.
+
+The transaction compares unsigned Technology Points at `0x4D6F88` with
+1,000,000, deducts through `sub_41E300`, dispatches command 8, and reports
+`Purchased.`. It charges when no record changes or all eligible villagers are
+already 18, returns zero result counts, and has no rollback.
+
+VV4 age 18 remains ON HOLD. Processed age `+0x1C3C`, nursing/pregnancy
+companion `+0x1C4C`, pending baby count `+0x1C50`, and all unrelated fields
+must never change. Although the candidate instruction stream does not directly
+write them, that is not proof of complete semantics. Future births, clones,
+and Event-created villagers must remain native, and complete guarded
+stock-plus-expanded placement/composition is not certified.
+
 New Believers uses the authoritative active predicate, health check, and
 believer faction byte. Heathens are excluded from all three operations and are
 left byte-for-byte unchanged. Converted records are eligible only when their

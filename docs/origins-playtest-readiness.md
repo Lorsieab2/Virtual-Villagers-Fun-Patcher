@@ -52,6 +52,18 @@ cases and returns zero results. Nursing timer and nursing/pregnancy state must
 never change, but the raw helper is not proved to satisfy that semantic rule.
 Expanded composition remains blocked by 43 missing relocations.
 
+VV4 All Villagers are 18 audit
+`ab404b0c5e80cab4d327de9a51069e6e3529df27` covers the exact 929,792-byte
+build, SHA-256
+`6D27A429FFCA5F1F71FDD7ECA761ED1BB67E85F976494BA178B3D7BE01F1B220`.
+It confirms age `+0x1B8C`, 20 units per year, age 18 value 360, detail refresh
+`sub_43BA80`, native increment `sub_465F10`, offline call `0x46663B`, oldest
+statistic `dword_4D6E00`, and persistence through
+`sub_45DB30`/`sub_45DBE0`. The candidate raw store bypasses native
+stat/transition handling; the selected-age raw store is not native proof.
+Status `+0x1CC7`, no-op charging/zero result/rollback, future birth/clone/Event
+exclusions, and stock-plus-expanded placement remain unresolved.
+
 The disabled diagnostic payload bytes are retained in their manifests but are
 not rendered into stock or expanded outputs. This catalog containment does not
 touch existing save ownership or fields, force-clear anything, or issue a
