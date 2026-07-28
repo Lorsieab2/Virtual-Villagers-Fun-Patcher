@@ -43,6 +43,18 @@ current faction `+0x1CEC != 0` before any preference access or count;
 no-op/no-charge recheck and rollback, ordinary/status eligibility, and
 stock-plus-expanded composition remain open.
 
+VV3 resolution commits `531b0aca8d5bf051f87773e67d48b61c0ba02833`
+and `1d9a39da078806aa940e4774a9068956e88347bc` close ID 38, its three
+Like/three Dislike DWORD arrays at `+0xFB4..+0xFC8`, sentinel `-1`, stride
+`0x1F8C`, 150/256 bounds, persistence, atomic ordering, four result counters,
+and dry-run/no-charge/final unsigned recheck requirements. They do not lift
+ON HOLD: `+0xE94` status semantics remain unresolved; commands 6/7/8 share the
+944-byte `0x7B820` payload and `0x7B840/0x47B840` entry; `0x582644`
+precharges while `0x7B7A0` is only a header check; the current three-counter
+128-byte ABI lacks `granted`; hooks `0x6547D`/`0x65640` and payload `0xA3180`
+mix unrelated Origins code; command-6-only UI guards and a complete appended
+section relocation/uninstall/all-patch ledger do not exist.
+
 VV1 audit `e0bed87ce17dca5331afed1abc2d753ec3d8f0aa` now
 classifies that command as ON HOLD. It confirms five signed DWORD skills
 `+0x3BC..+0x3CC`, preference `+0x3D0`, Master threshold 90, native cap 100,

@@ -21,7 +21,7 @@ from vv_fun_patcher import (  # noqa: E402
 from vv_fun_patcher_gui import group_fun_patches  # noqa: E402
 
 STOCK = ROOT / "research" / "stock-executables"
-BASELINE = "e76a22ffc0a46433d6f3f0bd3828799e87d2fa8d"
+BASELINE = "b7ea54b45e81ad33d562b901af6ba4dc272ddc9c"
 DISABLED = {f"vv{game}_origins_village_wide_upgrades" for game in range(1, 6)}
 
 
@@ -287,8 +287,34 @@ class VillageWideContainmentTests(unittest.TestCase):
             "Official LDW Cheat Tables  (Backup!!)",
             "recovery/version comparison",
             "Official LDW Cheat Tables - Copy",
-            "requires fingerprint matching",
+            "strong player-confirmed runtime evidence",
+            "renamed/copied base-game executables",
+            "fingerprinting the underlying executable",
+            "process/module-name-dependent Cheat Engine script",
             "controls every claim",
+            "531b0aca8d5bf051f87773e67d48b61c0ba02833",
+            "1d9a39da078806aa940e4774a9068956e88347bc",
+            "+0xFB4..+0xFC8",
+            "stride `0x1F8C`",
+            "150/256 physical bound",
+            "Added Running Like to %u villagers",
+            "Skipped over %u villagers. Reason: already likes running",
+            "Removed running dislike from %u villagers",
+            "Skipped over %u villagers. Reason: all like slots are occupied",
+            "granted == 0",
+            "final unsigned funds recheck",
+            "+0xE94",
+            "944-byte atomic payload",
+            "0x7B820",
+            "0x7B840/0x47B840",
+            "0x582644",
+            "0x7B7A0",
+            "three-counter 128-byte",
+            "0x6547D",
+            "0x65640",
+            "0xA3180",
+            "command-6-only UI guards",
+            "relocation, uninstall",
             "refund",
         ):
             self.assertIn(phrase, docs)

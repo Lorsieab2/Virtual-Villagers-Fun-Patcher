@@ -115,9 +115,50 @@ Cheat Engine evidence is subordinate to the executable evidence. The main
 `Official LDW Cheat Tables` folder is the current authoritative vanilla-table
 set. `Official LDW Cheat Tables  (Backup!!)` is a backup snapshot of that same
 vanilla set and is used for recovery/version comparison.
-`Official LDW Cheat Tables - Copy` is intended for copied or modified base
-executables and requires fingerprint matching. Exact-build executable evidence
-controls every claim.
+`Official LDW Cheat Tables - Copy` is strong player-confirmed runtime evidence
+used repeatedly with renamed/copied base-game executables whose filenames
+contain `- Copy` or a variation. Translating its addresses still requires
+fingerprinting the underlying executable and accounting for any
+process/module-name-dependent Cheat Engine script. Exact-build executable
+evidence controls every claim.
+
+#### VV3 resolution-pass boundary
+
+VV3 resolution commits `531b0aca8d5bf051f87773e67d48b61c0ba02833`
+and `1d9a39da078806aa940e4774a9068956e88347bc` close the preference
+operation, but not the executable architecture. The exact
+831,488-byte/SHA-256
+`8BC5DB382D02BC5C21AD5F607580D60FF44A6519CC7EB133F03113BAACAE6503`
+build has Running ID 38, three Like DWORDs `+0xFB4..+0xFBC`, three Dislike
+DWORDs `+0xFC0..+0xFC8`, sentinel `-1`, stride `0x1F8C`, and a supplied
+150/256 physical bound. Persistence of all six slots is traced. The complete
+atomic algorithm may write only `+0xFB4..+0xFC8`: scan all Likes, skip the
+whole record if Running is present, require an empty Like, then add Running,
+clear matching Dislikes, and count `granted`, `already`, `removed`, and
+`full`.
+
+The four future result lines are:
+
+```text
+Added Running Like to %u villagers
+Skipped over %u villagers. Reason: already likes running
+Removed running dislike from %u villagers
+Skipped over %u villagers. Reason: all like slots are occupied
+```
+
+The transaction must dry-run, refuse and charge nothing when `granted == 0`,
+perform a final unsigned funds recheck immediately before commit, apply only
+the proved deterministic stores, and deduct exactly once.
+
+VV3 remains ON HOLD because the complete `+0xE94` status domain is unresolved.
+Commands 6/7/8 share one 944-byte atomic payload at file `0x7B820` and entry
+file/VA `0x7B840/0x47B840`. The existing path precharges at `0x582644`;
+header check `0x7B7A0` proves only signature/result-export presence. Its
+three-counter 128-byte result ABI cannot return `granted`. Base hooks
+`0x6547D`/`0x65640` and payload `0xA3180` mix unrelated Origins mechanics;
+there are no command-6-only UI guards. No complete appended-section
+relocation, uninstall, absolute-reference, or all-patch stock/expanded ledger
+is certified.
 
 The disabled Full Mastery candidate contains direct stores to the native five
 skill fields in VV1–VV4 or six skill fields in VV5. Those stores are retained

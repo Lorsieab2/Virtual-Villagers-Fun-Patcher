@@ -25,6 +25,16 @@ rejected before any preference access or count, and `+0x1CE1` is not an
 approved eligibility gate. The current disabled helpers do not meet this
 contract, so the historical runtime procedure below must not be run.
 
+For VV3 specifically, resolution commits
+`531b0aca8d5bf051f87773e67d48b61c0ba02833` and
+`1d9a39da078806aa940e4774a9068956e88347bc` close the three-plus-three
+slot operation, persistence, atomic ordering, four counters, and
+dry-run/no-charge/final unsigned recheck contract. Runtime validation remains
+forbidden because `+0xE94` status eligibility, independent command-6 UI,
+four-counter bounded result ABI, and complete stock/expanded placement and
+uninstall composition are unresolved. The shared 944-byte commands 6/7/8
+payload and unrelated base Origins hooks cannot be enabled selectively.
+
 VV3 Full Mastery is specifically ON HOLD under exact-build audit
 `089957227c0db6a4c3128045519ffa27b201a00e`. Its five signed DWORD skills are
 `+0xEAC..+0xEBC`; mastery begins at 88, the native maximum is 100, and native
