@@ -1,0 +1,227 @@
+{
+  "section_sha256": "5616C9D5F49F58B2F5DE51AC9CEFCBA316BDC8C82999C0A66B2631AF9C069AED",
+  "entry_sha256": "88FBDDB6132EF90BA12C9618729411263DDA239D7617BF7A720849F36969A586",
+  "walker_sha256": "4B119F481B3FBB924D4E18C2B2DCAA03F6F28FADE99BCCF31657A2A7076C3092",
+  "confirmation_sha256": "5537BC90184685A3D4125A7C37B87501D10DAA3E16EEB4D975D91FC524633273",
+  "menu_resolver_sha256": "66A089D58C80B15DD4BB47DAC3B3ABC1DD5CF8969B9863D90BD084B462496C98",
+  "result_resolver_sha256": "11548DBB229C0CBCE3DAA50C44466102E205250EF23CA81043565A8A6DD26EF4",
+  "offsets": {
+    "handler": "0x0",
+    "constructor": "0x40",
+    "entry": "0x100",
+    "walker": "0x380",
+    "confirmation": "0x580",
+    "menu_resolver": "0x640",
+    "result_resolver": "0x6C0",
+    "strings": "0x900"
+  },
+  "strings": {
+    "button": "0x490900",
+    "candidate_dll": "0x490911",
+    "menu_export": "0x490935",
+    "result_export": "0x49094C",
+    "user32": "0x490965",
+    "message_box": "0x490970",
+    "warning": "0x49097C",
+    "caption": "0x4909F8"
+  },
+  "absolute_references": [
+    "0x457010 LoadLibraryA IAT",
+    "0x4570D4 GetProcAddress IAT",
+    "0x437230 native skill writer",
+    "0x44AF03 stock allocation helper",
+    "0x4019B0 stock button constructor",
+    "0x4015B0 stock button styling",
+    "0x40AB80 stock child attachment"
+  ],
+  "rel32_references": [
+    "handler -> entry",
+    "handler -> stock continuation 0x435AB5",
+    "constructor -> 0x44AF03/0x4019B0/0x4015B0/0x40AB80",
+    "entry -> menu/walker/confirmation/result",
+    "walker -> native skill writer 0x437230"
+  ],
+  "iat_references": [
+    "0x457010 LoadLibraryA",
+    "0x4570D4 GetProcAddress"
+  ],
+  "base_relocations": [],
+  "acceptance_commit": "1b3e4565d4168457c00404a12ed30cfb777c86e9",
+  "semantic_commit": "b328c1b1c76f68ade762ec139ee6c2e08ce54a96",
+  "source": {
+    "size": 581632,
+    "sha256": "1EC790B927741081D5CE13A48FB76983A4FD4336EA08F89317872643760AF03D"
+  },
+  "companion": {
+    "path": "data/candidates/VVFP VV1 Full Mastery Candidate.dll",
+    "size": 108544,
+    "sha256": "A8071DD12E536F6535F9D713A992B538729430AF7625BD994360599977495B81",
+    "exports": {
+      "ShowVV1FullMasteryMenu": {
+        "ordinal": 1,
+        "rva": 4128
+      },
+      "ShowVV1FullMasteryResult": {
+        "ordinal": 2,
+        "rva": 4160
+      },
+      "_ShowVV1FullMasteryMenu@0": {
+        "ordinal": 3,
+        "rva": 4128
+      },
+      "_ShowVV1FullMasteryResult@8": {
+        "ordinal": 4,
+        "rva": 4160
+      }
+    }
+  },
+  "section": {
+    "name": ".vv1fm",
+    "raw_offset": "0x8E000",
+    "rva": "0x90000",
+    "va": "0x490000",
+    "virtual_size": "0x2000",
+    "raw_size": "0x2000",
+    "characteristics": "0x60000020 executable/readable/non-writable",
+    "old_size_of_image": "0x90000",
+    "new_size_of_image": "0x92000",
+    "old_file_length": "0x8E000",
+    "new_file_length": "0x90000"
+  },
+  "hooks": {
+    "constructor": {
+      "offset": "0x358DC",
+      "before": "8B4C24205F",
+      "after": "E95FA70500"
+    },
+    "handler": {
+      "offset": "0x35AB0",
+      "before": "837C240408",
+      "after": "E94BA50500"
+    }
+  },
+  "confirmation": {
+    "abi": "no arguments; preserves EBP/EBX/ESI/EDI; EAX=1 only explicit IDOK",
+    "load_library_iat": "0x457010",
+    "get_proc_address_iat": "0x4570D4",
+    "return_matrix": {
+      "0": 0,
+      "1": 1,
+      "2": 0,
+      "arbitrary_non_1": 0
+    }
+  },
+  "command_abi": {
+    "entry": "stock thiscall Tech-screen receiver arrives in ECX; entry saves old ESI, transports ECX to ESI, and restores old ESI on exit",
+    "walker": "cdecl(base,bound,mode); EAX changed, EDX invalid; preserves EBX/ESI/EDI/EBP",
+    "result": "stdcall(status,changed); ret 8"
+  },
+  "modes": [
+    "collection_progression",
+    "immediate_fixed",
+    "experimental_expanded_256",
+    "experimental_expanded_256_progression"
+  ],
+  "rendered_candidates": {
+    "collection_progression": {
+      "baseline_sha256": "0F54C22C531FCE276EFBF5F0B4418C48B66CE314AA21872A9B2C5D459232EC7A",
+      "candidate_sha256": "0EB94B0DD0B2D96343DBAB014008DFC8536F73000F3E48CED623C5A325D887B6",
+      "size": 589824,
+      "pe_checksum": "0x0009F740",
+      "owners": [
+        "automatic:population",
+        "automatic:safety",
+        "feature:vv1_full_mastery_all_stage_a_candidate"
+      ],
+      "all_current_vv1_sha256": "A9A2E7A687D6332433794DD27A328BC24876C6529EFD91F16C148ECADEC2CDFD",
+      "all_current_vv1_owners": [
+        "automatic:population",
+        "automatic:safety",
+        "feature:vv1_builder_action_fixes",
+        "feature:vv1_continue_research_at_max_technologies",
+        "feature:vv1_f6_clothing_change_cheat",
+        "feature:vv1_full_mastery_all_stage_a_candidate",
+        "feature:vv1_magic_fruit_alters_mortality",
+        "feature:vv1_school_lessons_grant_skill",
+        "feature:vv1_write_village_statistics"
+      ],
+      "collision_status": "PASS",
+      "uninstall_target_sha256": "0F54C22C531FCE276EFBF5F0B4418C48B66CE314AA21872A9B2C5D459232EC7A"
+    },
+    "immediate_fixed": {
+      "baseline_sha256": "0F54C22C531FCE276EFBF5F0B4418C48B66CE314AA21872A9B2C5D459232EC7A",
+      "candidate_sha256": "0EB94B0DD0B2D96343DBAB014008DFC8536F73000F3E48CED623C5A325D887B6",
+      "size": 589824,
+      "pe_checksum": "0x0009F740",
+      "owners": [
+        "automatic:population",
+        "automatic:safety",
+        "feature:vv1_full_mastery_all_stage_a_candidate"
+      ],
+      "all_current_vv1_sha256": "A9A2E7A687D6332433794DD27A328BC24876C6529EFD91F16C148ECADEC2CDFD",
+      "all_current_vv1_owners": [
+        "automatic:population",
+        "automatic:safety",
+        "feature:vv1_builder_action_fixes",
+        "feature:vv1_continue_research_at_max_technologies",
+        "feature:vv1_f6_clothing_change_cheat",
+        "feature:vv1_full_mastery_all_stage_a_candidate",
+        "feature:vv1_magic_fruit_alters_mortality",
+        "feature:vv1_school_lessons_grant_skill",
+        "feature:vv1_write_village_statistics"
+      ],
+      "collision_status": "PASS",
+      "uninstall_target_sha256": "0F54C22C531FCE276EFBF5F0B4418C48B66CE314AA21872A9B2C5D459232EC7A"
+    },
+    "experimental_expanded_256": {
+      "baseline_sha256": "0F54C22C531FCE276EFBF5F0B4418C48B66CE314AA21872A9B2C5D459232EC7A",
+      "candidate_sha256": "0EB94B0DD0B2D96343DBAB014008DFC8536F73000F3E48CED623C5A325D887B6",
+      "size": 589824,
+      "pe_checksum": "0x0009F740",
+      "owners": [
+        "automatic:population",
+        "automatic:safety",
+        "feature:vv1_full_mastery_all_stage_a_candidate"
+      ],
+      "all_current_vv1_sha256": "A9A2E7A687D6332433794DD27A328BC24876C6529EFD91F16C148ECADEC2CDFD",
+      "all_current_vv1_owners": [
+        "automatic:population",
+        "automatic:safety",
+        "feature:vv1_builder_action_fixes",
+        "feature:vv1_continue_research_at_max_technologies",
+        "feature:vv1_f6_clothing_change_cheat",
+        "feature:vv1_full_mastery_all_stage_a_candidate",
+        "feature:vv1_magic_fruit_alters_mortality",
+        "feature:vv1_school_lessons_grant_skill",
+        "feature:vv1_write_village_statistics"
+      ],
+      "collision_status": "PASS",
+      "uninstall_target_sha256": "0F54C22C531FCE276EFBF5F0B4418C48B66CE314AA21872A9B2C5D459232EC7A"
+    },
+    "experimental_expanded_256_progression": {
+      "baseline_sha256": "0F54C22C531FCE276EFBF5F0B4418C48B66CE314AA21872A9B2C5D459232EC7A",
+      "candidate_sha256": "0EB94B0DD0B2D96343DBAB014008DFC8536F73000F3E48CED623C5A325D887B6",
+      "size": 589824,
+      "pe_checksum": "0x0009F740",
+      "owners": [
+        "automatic:population",
+        "automatic:safety",
+        "feature:vv1_full_mastery_all_stage_a_candidate"
+      ],
+      "all_current_vv1_sha256": "A9A2E7A687D6332433794DD27A328BC24876C6529EFD91F16C148ECADEC2CDFD",
+      "all_current_vv1_owners": [
+        "automatic:population",
+        "automatic:safety",
+        "feature:vv1_builder_action_fixes",
+        "feature:vv1_continue_research_at_max_technologies",
+        "feature:vv1_f6_clothing_change_cheat",
+        "feature:vv1_full_mastery_all_stage_a_candidate",
+        "feature:vv1_magic_fruit_alters_mortality",
+        "feature:vv1_school_lessons_grant_skill",
+        "feature:vv1_write_village_statistics"
+      ],
+      "collision_status": "PASS",
+      "uninstall_target_sha256": "0F54C22C531FCE276EFBF5F0B4418C48B66CE314AA21872A9B2C5D459232EC7A"
+    }
+  }
+}
