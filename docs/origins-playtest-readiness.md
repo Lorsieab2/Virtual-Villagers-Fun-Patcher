@@ -33,6 +33,18 @@ crashed on the status-2 no-change route. Static ABI and pointer checks pass,
 the save snapshot and rotations show no saved preference overwrite, and the
 fault instruction remains unknown. Do not package or test this feature until
 a fresh crash/no-change gate is certified. It does not expose commands 7/8.
+The exact withdrawn pair is EXE
+`D81FB967C9DDE2448C40744356AE08BBADFA78930ABA004CEE5BE4025C65FBD0`
+and DLL
+`2ED1100E7F2EA5B8E522C2DE11F6B00CA8A02B968319C251365E9EFD634BCAF9`.
+Static repair is not authorized without a runtime fault capture. Required
+stock breakpoints are dispatcher `0x6DF040`, entry `0x6DF120`, status-2
+`0x6DF206`, status test `0x6DF091`, pre-helper `0x6DF0D7`, helper
+`0x4A3400`, and Like store `0x6DF3D7`; expanded equivalents are
+`0x7B8040`, `0x7B8120`, `0x7B8206`, `0x7B8091`, `0x7B80D7`, and Like store
+`0x7B83D7`. Capture the exception code/fault RVA, every general-purpose
+register, ESP/return stack, all four counters, and `[EBX]` immediately before
+the Like store; `[EBX]` must be `FFFFFFFF`.
 VV4 audit
 `628e0d9217b92b9cd695655842b09d74689a0238` proves the direct Full Mastery
 stores bypass eight native mutations. VV5 audit

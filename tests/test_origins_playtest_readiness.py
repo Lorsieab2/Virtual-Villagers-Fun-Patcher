@@ -97,6 +97,18 @@ class OriginsPlaytestReadinessTests(unittest.TestCase):
         self.assertIn("crashed on the status-2 no-change route", text)
         self.assertIn("fault instruction remains unknown", text)
         self.assertIn("Do not package or test this feature", text)
+        self.assertIn("D81FB967C9DDE2448C40744356AE08BBADFA78930ABA004CEE5BE4025C65FBD0", text)
+        self.assertIn("2ED1100E7F2EA5B8E522C2DE11F6B00CA8A02B968319C251365E9EFD634BCAF9", text)
+        for address in (
+            "0x6DF040", "0x6DF120", "0x6DF206", "0x6DF091",
+            "0x6DF0D7", "0x4A3400", "0x6DF3D7", "0x7B8040",
+            "0x7B8120", "0x7B8206", "0x7B8091", "0x7B80D7",
+            "0x7B83D7",
+        ):
+            self.assertIn(address, text)
+        self.assertIn("exception code/fault RVA", text)
+        self.assertIn("all four counters", text)
+        self.assertIn("`[EBX]` must be `FFFFFFFF`", text)
         self.assertIn("f1555e295e828af2165ab0b7ea9f051ac9736418", text)
         self.assertIn("VV1 four Likes plus four Dislikes", text)
         self.assertIn("VV2 62 plus 62", text)
