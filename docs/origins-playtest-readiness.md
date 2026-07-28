@@ -232,3 +232,10 @@ The matrix is intentionally catalog-driven rather than a hard-coded feature
 list, so newly enabled game-scoped patches cannot silently escape the
 composition checks. It does not modify manifests, executable payloads, saves,
 prices, ownership behavior, or companion DLLs.
+The isolated VV2 command-7-only implementation is now emitted-byte certified
+under `913be6982bc17d606470f31d3df3d3430942cb6a` and catalog-enabled for a
+stock-layout runtime playtest. It sets only below-100 values in the five native
+skill fields to 100, calls native `sub_44D4C0` once per changed villager, and
+reports native Elder/totem outcomes including the 50-totem cap. Commands 6 and
+8 remain absent, both withdrawn VV2 Origins manifests remain disabled, and
+runtime/player confirmation is still pending.

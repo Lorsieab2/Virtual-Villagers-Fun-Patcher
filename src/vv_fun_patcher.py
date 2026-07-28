@@ -35,6 +35,19 @@ VV3_RUNNING_CERTIFIED_SHA256 = {
     "running": "512FDBE807314B3371DCF10D7417EE42C8A104A1F87FB4165E04FCFBE6D9F49E",
     "map": "F7ECE7A55747EDC17EFC257206AF4F63408AF516FA08DFD14BA5E5003431636A",
 }
+VV2_FULL_MASTERY_CANDIDATE_PATHS = {
+    "manifest": ROOT / "data" / "candidates" / "vv2_full_mastery_all_candidate.json",
+    "map": ROOT / "data" / "candidates" / "vv2_full_mastery_all_candidate_map.json",
+    "dll": ROOT / "data" / "candidates" / "VVFP VV2 Full Mastery Candidate.dll",
+}
+VV2_FULL_MASTERY_CERTIFIED_SHA256 = {
+    "section": "0D0DD6DBEA7236807D15ED7047F08E7B8CC8B9AB098051C29A49C1AFDC31C61A",
+    "entry": "68EB76203CA0AC65F3A608AEA8466B881BEFF536E8E88C64BAD7C8148C2A3D99",
+    "walker": "7B01459A15542151B07D8A716731646A165C190C064B7BCB6CEB67EB1E1FAC94",
+    "telemetry": "8036B4818E39533B3F5BEBF1EC38A94A71B05EE8BE72FB1EFA0B9AD72789B907",
+    "confirmation": "07011CB557B6FCF7560AACB750D41851895C6856D851A567A4B952128E6B6258",
+    "dll": "BDEAC1B39925834A7CD8DF7CD2C13BA7D7CBDF6E27760DAED6525092FF092699",
+}
 STATISTICS_FEATURES_PATH = ROOT / "data" / "statistics_features.json"
 DEFAULT_PATCH_MODE = "collection_progression"
 EXPANDED_PATCH_MODES = {
@@ -133,6 +146,34 @@ def _certified_vv3_running_records(
     return base, running
 
 
+def _certified_vv2_full_mastery_record() -> dict[str, Any] | None:
+    manifest = json.loads(
+        VV2_FULL_MASTERY_CANDIDATE_PATHS["manifest"].read_text(encoding="utf-8")
+    )
+    if not manifest.get("enabled", True):
+        return None
+    artifact_map = json.loads(
+        VV2_FULL_MASTERY_CANDIDATE_PATHS["map"].read_text(encoding="utf-8")
+    )
+    for label in ("section", "entry", "walker", "telemetry", "confirmation"):
+        actual = artifact_map[f"{label}_sha256"]
+        expected = VV2_FULL_MASTERY_CERTIFIED_SHA256[label]
+        if actual != expected:
+            raise PatcherError(
+                f"Certified VV2 Full Mastery {label} artifact hash mismatch: "
+                f"expected {expected}, got {actual}."
+            )
+    dll_digest = hashlib.sha256(
+        VV2_FULL_MASTERY_CANDIDATE_PATHS["dll"].read_bytes()
+    ).hexdigest().upper()
+    if dll_digest != VV2_FULL_MASTERY_CERTIFIED_SHA256["dll"]:
+        raise PatcherError(
+            "Certified VV2 Full Mastery DLL hash mismatch: "
+            f"expected {VV2_FULL_MASTERY_CERTIFIED_SHA256['dll']}, got {dll_digest}."
+        )
+    return manifest
+
+
 def _load_fun_patch_records() -> list[FunPatch]:
     items = [
         item
@@ -155,6 +196,9 @@ def _load_fun_patch_records() -> list[FunPatch]:
             record = json.loads(feature_path.read_text(encoding="utf-8"))
             if record.get("enabled", True):
                 items.append(record)
+    vv2_full_mastery = _certified_vv2_full_mastery_record()
+    if vv2_full_mastery is not None:
+        items.append(vv2_full_mastery)
     if STATISTICS_FEATURES_PATH.is_file():
         statistics = json.loads(
             STATISTICS_FEATURES_PATH.read_text(encoding="utf-8")

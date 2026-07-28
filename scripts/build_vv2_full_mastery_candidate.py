@@ -659,11 +659,11 @@ def build() -> tuple[dict[str, object], dict[str, object]]:
     manifest: dict[str, object] = {
         "id": "vv2_full_mastery_all_stage_a_candidate",
         "game_id": "vv2",
-        "name": "DISABLED Candidate: Grant Full Mastery to All Villagers",
-        "enabled": False,
-        "certification_status": "disabled Stage-A emitted artifact pending Sol byte recertification",
+        "name": "Grant Full Mastery to All Villagers",
+        "enabled": True,
+        "certification_status": "emitted bytes certified by disassembly commit 913be6982bc17d606470f31d3df3d3430942cb6a; runtime/player confirmation pending",
         "description": (
-            "Command-7-only repeatable Buy candidate. Commands 6/8, ownership, "
+            "Certified command-7-only repeatable Buy. Commands 6/8, ownership, "
             "Remove, old .shr transport, Gong, and Island Event paths are absent."
         ),
         "dependencies": [],
@@ -796,7 +796,11 @@ def main() -> None:
 
     build_record = next(item for item in load_builds() if item.id == "vv2")
     candidate = FunPatch(manifest)
-    others = [item for item in load_fun_patches() if item.game_id == "vv2"]
+    others = [
+        item
+        for item in load_fun_patches()
+        if item.game_id == "vv2" and item.id != manifest["id"]
+    ]
     rendered: dict[str, object] = {}
     for mode in MODES:
         baseline, _ = render_patched_bytes(STOCK, build_record, mode)
@@ -829,11 +833,12 @@ def main() -> None:
     MANIFEST_OUT.write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
     MAP_OUT.write_text(json.dumps(artifact, indent=2) + "\n", encoding="utf-8")
     DOC_OUT.write_text(
-        "# VV2 Full Mastery disabled Stage-A candidate\n\n"
+        "# VV2 Full Mastery certified playtest feature\n\n"
         "This artifact is generated from disassembly acceptance contract "
         "`93d69a7826d3c7260ea18e1467597e7580ddbae9` and confirmation ABI "
         "`b5183ca0564de3dca84590254cf275f6ce4db255`. It remains "
-        "**disabled and catalog-hidden pending Sol emitted-byte certification**.\n\n"
+        "**enabled for runtime/player playtesting after Sol emitted-byte certification "
+        "`913be6982bc17d606470f31d3df3d3430942cb6a`**.\n\n"
         f"- Section SHA-256: `{artifact['section_sha256']}`\n"
         f"- Companion SHA-256: `{artifact['companion']['sha256']}`\n"
         f"- Entry SHA-256: `{artifact['entry_sha256']}`\n"

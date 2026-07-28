@@ -714,6 +714,12 @@ class StockIntegrationTests(unittest.TestCase):
                 expected_size = build.size + (
                     0x1000 if build.id == "vv3" and running_enabled else 0
                 )
+                if (
+                    build.id == "vv2"
+                    and "vv2_full_mastery_all_stage_a_candidate"
+                    in patches_by_game[build.id]
+                ):
+                    expected_size += 0x2000
                 self.assertEqual(len(rendered), expected_size)
                 self.assertGreater(len(applied), 0)
 
@@ -2542,6 +2548,7 @@ class StockIntegrationTests(unittest.TestCase):
                 "vv2_teaching_children_grants_skill",
                 "vv2_hospital_recovery_heals",
                 "vv2_gong_of_wonder_coconuts_fix",
+                "vv2_full_mastery_all_stage_a_candidate",
                 "vv2_write_village_statistics",
             },
         )

@@ -1,10 +1,10 @@
 {
   "id": "vv2_full_mastery_all_stage_a_candidate",
   "game_id": "vv2",
-  "name": "DISABLED Candidate: Grant Full Mastery to All Villagers",
-  "enabled": false,
-  "certification_status": "disabled Stage-A emitted artifact pending Sol byte recertification",
-  "description": "Command-7-only repeatable Buy candidate. Commands 6/8, ownership, Remove, old .shr transport, Gong, and Island Event paths are absent.",
+  "name": "Grant Full Mastery to All Villagers",
+  "enabled": true,
+  "certification_status": "emitted bytes certified by disassembly commit 913be6982bc17d606470f31d3df3d3430942cb6a; runtime/player confirmation pending",
+  "description": "Certified command-7-only repeatable Buy. Commands 6/8, ownership, Remove, old .shr transport, Gong, and Island Event paths are absent.",
   "dependencies": [],
   "companion_files": [
     {

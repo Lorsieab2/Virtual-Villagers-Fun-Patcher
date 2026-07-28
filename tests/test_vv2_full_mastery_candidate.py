@@ -97,10 +97,10 @@ class VV2FullMasteryCandidateTests(unittest.TestCase):
         cls.candidate = FunPatch(cls.raw)
         cls.build = next(item for item in load_builds() if item.id == "vv2")
 
-    def test_candidate_is_disabled_hidden_and_command_seven_only(self) -> None:
-        self.assertFalse(self.raw["enabled"])
+    def test_candidate_is_certified_visible_and_command_seven_only(self) -> None:
+        self.assertTrue(self.raw["enabled"])
         self.assertEqual(self.raw["id"], "vv2_full_mastery_all_stage_a_candidate")
-        self.assertNotIn(self.raw["id"], {item.id for item in load_fun_patches()})
+        self.assertIn(self.raw["id"], {item.id for item in load_fun_patches()})
         contract = self.raw["transaction_contract"]
         self.assertEqual(contract["command"], 7)
         self.assertEqual(contract["price"], 1_000_000)
@@ -294,7 +294,11 @@ class VV2FullMasteryCandidateTests(unittest.TestCase):
         self.assertEqual(len(baseline), 0xB1000)
 
     def test_composes_with_every_current_vv2_patch_without_origins(self) -> None:
-        others = [item for item in load_fun_patches() if item.game_id == "vv2"]
+        others = [
+            item
+            for item in load_fun_patches()
+            if item.game_id == "vv2" and item.id != self.candidate.id
+        ]
         self.assertNotIn("vv2_enable_origins_exclusive_features", {item.id for item in others})
         for mode in MODES:
             with self.subTest(mode=mode):

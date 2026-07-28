@@ -32,7 +32,7 @@ VV2 exact-build feature `vv2_birth_control` is limited to the two complete 40-by
 
 The VV2 Origins pair is disabled pending root-cause repair. A player reported that both Time Warp and Food Point Doubler crash immediately after their purchased/success dialog is displayed. This records the trigger only and does not infer whether the charge or action persisted. The crash audit also found `.shr` raw-offset versus virtual-address confusion in the VV2 builder, displacing helper/header references by `0x2000`; this is a hard re-enable blocker but not certified as the complete explanation. Both disabled VV2 Origins records are contained; unrelated VV2 optional features remain available and retain their prior projections.
 
-VV2 Full Mastery audit `60f649bf90b55dea3a6856d949e123bd79808782` confirms five contiguous signed DWORD skills at +0x7E4..+0x7F4, job preference at +0x7F8, Master threshold 88, native maximum 100, and persistence across 256 physical records at stride 0xE48C. The disabled candidate iterates active +0x30 and positive signed health +0x52C, writes 90, returns no changed count, and uses a generic 1,000,000-point transaction without zero-change/no-charge handling, result detail, or rollback. Candidate 90 is not full native 100; no complete native all-five side-effect route, creation/inheritance/Silver Mirror closure, or safe withdrawn `.shr` transport/placement is proved. Gong and every Island Event route remain entirely native, including selection, RNG, messages, statistics, and writes.
+VV2 Grant Full Mastery to All Villagers is independently emitted-byte certified under disassembly commit `913be6982bc17d606470f31d3df3d3430942cb6a`. The isolated command-7-only feature scans active +0x30, positive signed health +0x52C, non-totem +0x558 records; writes only below-100 native skill DWORDs +0x7E4..+0x7F4 to 100; then calls native sub_44D4C0 exactly once per changed villager. It is a repeatable 1,000,000-point Buy action with complete dry-run, exact no-change/no-charge result, universal OK/Cancel confirmation, final unsigned funds and eligibility recheck, one deduction, and one commit. Telemetry reports changed villagers, newly native-marked Elders, and changed villagers left unmarked at the native 50-totem cap. Commands 6/8, ownership, Remove, withdrawn `.shr`, Gong, Island Events, and unrelated record fields are absent. Static certification is complete; runtime/player confirmation remains pending.
 
 VV1 Full Mastery audit `e0bed87ce17dca5331afed1abc2d753ec3d8f0aa` confirms five contiguous signed DWORD skills at +0x3BC..+0x3CC, job preference +0x3D0, Master threshold 90, native cap 100, and persistent 32-record save packing at stride 0x3D8. The disabled candidate iterates occupied +0x28 and positive signed health +0x344, writes 90 while leaving preference unchanged, returns no changed count, and uses state+0xA2FC for a one-million-point transaction without preflight, commit recheck, no-charge no-op result, or rollback. Target 90-versus-100 semantics, preference/title policy, distributed native side effects and the lack of a complete all-five route, creation/clone policy, strict Golden Child and Island Event bypass, and placement/composition remain unresolved.
 
@@ -60,7 +60,7 @@ VV3 Running's source remains catalog-visible, but VV3Run2 is hard-withdrawn from
 
 ## Origins village-wide atomic-payload containment
 
-All five legacy `vvN_origins_village_wide_upgrades` records are disabled and absent from the catalog, GUI, CLI, Select All, dependency resolution, and rendered outputs. Commands 6, 7, and 8 in those manifests share one atomic payload. VV3's independently certified command-6-only All Villagers Like Running feature is the sole enabled village-wide row; gameplay validation remains pending. `Grant Full Mastery to All Villagers` and command 8 remain contained. VV4 audit `628e0d9217b92b9cd695655842b09d74689a0238` proves that direct 90.0 mastery stores bypass eight native mutations. VV5 audit `02581c8f518e27ebd5fc7d2972db5597ab08ed35` records unresolved counter, eligibility, no-change, inheritance, and expanded-layout requirements. VV3 audit `089957227c0db6a4c3128045519ffa27b201a00e` confirms five signed DWORD skills at +0xEAC..+0xEBC, mastery 88, native maximum 100, and native all-five evaluation/award ID 4; command 7 remains unavailable. Disabled manifests retain diagnostic payload bytes but apply none of them; containment does not touch save fields, force-clear ownership, or issue refunds. Base Origins remains independently available except for the separately contained VV2 pair.
+All five legacy `vvN_origins_village_wide_upgrades` records remain disabled and absent from the catalog, GUI, CLI, Select All, dependency resolution, and rendered outputs because commands 6, 7, and 8 share one unsafe atomic payload. VV2's independently generated and certified command-7-only Grant Full Mastery to All Villagers feature is now available without enabling either withdrawn VV2 Origins record; commands 6/8 remain absent. VV3 Running remains withdrawn from runtime playtesting pending its crash gate. VV4 audit `628e0d9217b92b9cd695655842b09d74689a0238` and VV5 audit `02581c8f518e27ebd5fc7d2972db5597ab08ed35` keep their mastery commands contained. Disabled legacy manifests retain diagnostic payload bytes but apply none; containment never alters save ownership or issues refunds.
 
 ## Virtual Villagers - A New Home
 
@@ -177,6 +177,16 @@ Healers and villagers who prefer Healing study plants when no sick villager need
 When the Gong of Wonder grants coconuts, adds 30 to the coconut trees instead of replacing their current amount with 30. Both normal and alternate outcome paths are corrected.
 
 - Behavior changes: When the Gong of Wonder grants coconuts, adds 30 to the coconut trees instead of replacing their current amount with 30. Both normal and alternate outcome paths are corrected.
+- Explicit non-changes/exclusions: none declared
+- Dependencies: none
+- Evidence status: static source/manifest verification performed; runtime/player confirmation pending
+- Guarded executable edits: 2; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Grant Full Mastery to All Villagers (`vv2_full_mastery_all_stage_a_candidate`)
+
+Certified command-7-only repeatable Buy. Commands 6/8, ownership, Remove, old .shr transport, Gong, and Island Event paths are absent.
+
+- Behavior changes: Certified command-7-only repeatable Buy. Commands 6/8, ownership, Remove, old .shr transport, Gong, and Island Event paths are absent.
 - Explicit non-changes/exclusions: none declared
 - Dependencies: none
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending

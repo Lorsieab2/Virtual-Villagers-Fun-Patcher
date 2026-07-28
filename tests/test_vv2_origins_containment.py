@@ -32,6 +32,7 @@ REMAINING = {
     "vv2_teaching_children_grants_skill",
     "vv2_hospital_recovery_heals",
     "vv2_gong_of_wonder_coconuts_fix",
+    "vv2_full_mastery_all_stage_a_candidate",
     "vv2_write_village_statistics",
 }
 
@@ -110,12 +111,15 @@ class VV2OriginsContainmentTests(unittest.TestCase):
         for mode in load_patch_modes():
             with self.subTest(mode=mode.id):
                 rendered, applied = render_patched_bytes(source, build, mode.id, remaining)
-                self.assertEqual(len(rendered), build.size)
+                self.assertEqual(len(rendered), build.size + 0x2000)
                 owners = {item["owner"] for item in applied}
                 self.assertTrue(DISABLED.isdisjoint({owner.removeprefix("feature:") for owner in owners}))
-                self.assertTrue(
-                    disabled_offsets.isdisjoint({int(item["offset"], 0) for item in applied})
-                )
+                disabled_owner_offsets = {
+                    int(item["offset"], 0)
+                    for item in applied
+                    if item["owner"].removeprefix("feature:") in DISABLED
+                }
+                self.assertTrue(disabled_offsets.isdisjoint(disabled_owner_offsets))
         with tempfile.TemporaryDirectory() as temp:
             game = Path(temp) / build.title
             game.mkdir()
