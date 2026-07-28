@@ -161,13 +161,12 @@ For any future Full Mastery validation, the required value is native maximum
 100 in every skill—five skills in VV1–VV4 and six in VV5—not merely a Master
 threshold. This requirement does not make any contained row available.
 
-The independently certified VV5 Full Mastery playtest feature targets six
-native Float32 skills for active, living current believers only. It checks
-faction `+0x1CEC` before reading skills, raises only below-100 values through
-native `sub_475730`, charges 1,000,000 tech points once after confirmation and
-final recheck, and leaves Heathens and future/event-created records untouched.
-Static certification is complete under disassembly commit `8193629`;
-runtime/player confirmation remains pending.
+Do not run or purchase VV5 Full Mastery from package commit `5e52be5`. That
+package is HARD WITHDRAWN after an immediate startup auto-close with WER
+`c0000005` at VA `0x44FA20`. Certification `8193629` is revoked. A disabled
+corrective candidate now supplies the missing thiscall receiver in both
+base-owned constructors, but it remains unavailable pending independent
+emitted-byte recertification. No save testing or automatic repair is authorized.
 
 This is a player-test checklist for the collection-progression Origins-core
 outputs. It is explicitly **runtime/player confirmation pending**; static patch

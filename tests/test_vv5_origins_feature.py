@@ -48,6 +48,13 @@ class VV5OriginsFeatureTests(unittest.TestCase):
             hashlib.sha256(companion.read_bytes()).hexdigest().upper(),
         )
 
+    def test_constructor_transports_thiscall_receiver_before_stock_ctor(self) -> None:
+        self.assertEqual(
+            self.source.count("mov edi, eax\n            mov ecx, edi\n            push 72"),
+            2,
+        )
+        self.assertEqual(self.payload.count(bytes.fromhex("89F96A48")), 2)
+
     def test_grant_youth_label_explains_age_floor(self) -> None:
         label = "Grant Youth (-35 years, min age 5)"
         self.assertIn(label.encode("utf-16le"), COMPANION.read_bytes())
@@ -352,7 +359,7 @@ class VV5OriginsFeatureTests(unittest.TestCase):
         ).hexdigest().upper()
         self.assertEqual(
             digest,
-            "5DA48FB6561187F2C073902DEA54DF26A2AC6A5D25C0EF7C0740E47D06C8F604",
+            "4AB542B3C143B5AEBC2A1A7E90A33AD789906BE03B8B7C6721F4A973470E6ADE",
         )
         self.assertEqual(
             self.feature["companion_files"][0]["sha256"],
@@ -408,7 +415,7 @@ class VV5OriginsFeatureTests(unittest.TestCase):
         ]
         active_ids = {item.id for item in load_fun_patches() if item.game_id == "vv5"}
         self.assertIn(FEATURE_ID, active_ids)
-        self.assertIn("vv5_full_mastery_all_stage_a_candidate", active_ids)
+        self.assertNotIn("vv5_full_mastery_all_stage_a_candidate", active_ids)
         for mode in (
             "collection_progression",
             "immediate_fixed",

@@ -715,13 +715,17 @@ def main() -> None:
         "name": (
             "Grant Full Mastery to All Villagers"
             if feature_enabled
-            else "DISABLED Candidate: Grant Full Mastery to All Villagers"
+            else "HARD WITHDRAWN Candidate: Grant Full Mastery to All Villagers"
         ),
         "enabled": feature_enabled,
         "certification_status": (
             existing_feature.get("certification_status")
             if feature_enabled
-            else "disabled Stage-A candidate awaiting independent Sol emitted-byte certification"
+            else (
+                "HARD WITHDRAWN after startup APPCRASH c0000005 at VA 0x44FA20; "
+                "certification 8193629 revoked pending emitted-byte recertification "
+                "of the corrected base dependency constructors"
+            )
         ),
         "dependencies": [base["id"]],
         "description": (
@@ -895,7 +899,7 @@ def main() -> None:
         (
             "# VV5 Full Mastery certified playtest feature\n\n"
             if feature_enabled
-            else "# VV5 Full Mastery disabled Stage-A candidate\n\n"
+            else "# VV5 Full Mastery hard-withdrawn corrective candidate\n\n"
         )
         + "Generated from acceptance contract "
         "`48dd3266f8dd934be0434e07f6b24751d0e417c3`. "
@@ -904,8 +908,10 @@ def main() -> None:
             "`8193629`; the dependent command-7 record is available for runtime "
             "playtesting, with player confirmation still pending.\n\n"
             if feature_enabled
-            else "The dependent command-7 record remains disabled and catalog-hidden "
-            "pending independent emitted-byte certification.\n\n"
+            else "The dependent command-7 record is disabled and catalog-hidden after "
+            "the prior package auto-closed at startup. Certification `8193629` is "
+            "revoked; the corrected base constructors require independent emitted-byte "
+            "recertification.\n\n"
         )
         + f"- Companion SHA-256: `{artifact['companion']['sha256']}`\n"
         f"- Stock installed slot SHA-256: `{artifact['layouts']['collection_progression']['installed_slot_sha256']}`\n"

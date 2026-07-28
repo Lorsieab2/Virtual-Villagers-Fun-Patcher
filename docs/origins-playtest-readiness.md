@@ -192,13 +192,13 @@ five in VV1–VV4 and six in VV5. Master thresholds or candidate value 90 are
 not sufficient. This is a planning/readiness requirement only and authorizes
 no contained command.
 
-VV5 now has an independently emitted-byte-certified, command-7-only Full
-Mastery feature under disassembly commit `8193629`. It applies only to active,
-living current believers, checks faction `+0x1CEC` before any skill access,
-and uses native `sub_475730` to raise each below-100 Float32 skill to 100.
-Heathens, commands 6/8, raw skill stores, ownership/Remove, and save-format
-changes remain absent. Static certification is complete; runtime/player
-confirmation is pending.
+VV5 Full Mastery package commit `5e52be5e41b25b0f541c3c762e8caacc2dbd150b`
+is HARD WITHDRAWN after an immediate startup auto-close. WER recorded
+`c0000005` at VA `0x44FA20`: both emitted base-owned constructors omitted the
+required thiscall `ECX` receiver before calling the stock routine. Certification
+`8193629` is revoked. The disabled corrective candidate assigns the allocated
+object to `ECX` at both sites and remains catalog-hidden pending independent
+emitted-byte recertification. The mastery slot was not reached.
 
 The disabled diagnostic payload bytes are retained in their manifests but are
 not rendered into stock or expanded outputs. This catalog containment does not

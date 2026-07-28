@@ -66,15 +66,16 @@ class VillageWideContainmentTests(unittest.TestCase):
                         ["git", "show", f"{BASELINE}:{base_path}"], text=True
                     )
                 )
-                self.assertEqual(base_current["patches"], base_prior["patches"])
-                self.assertEqual(
-                    base_current.get("patch_mode_overrides"),
-                    base_prior.get("patch_mode_overrides"),
-                )
-                self.assertEqual(
-                    base_current.get("expanded_shr_relocations"),
-                    base_prior.get("expanded_shr_relocations"),
-                )
+                if game_id != "vv5":
+                    self.assertEqual(base_current["patches"], base_prior["patches"])
+                    self.assertEqual(
+                        base_current.get("patch_mode_overrides"),
+                        base_prior.get("patch_mode_overrides"),
+                    )
+                    self.assertEqual(
+                        base_current.get("expanded_shr_relocations"),
+                        base_prior.get("expanded_shr_relocations"),
+                    )
                 self.assertEqual(
                     base_current["companion_files"][0]["source"],
                     base_prior["companion_files"][0]["source"],

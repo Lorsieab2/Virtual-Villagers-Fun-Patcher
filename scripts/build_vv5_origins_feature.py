@@ -160,6 +160,7 @@ def main() -> None:
             test eax, eax
             je done
             mov edi, eax
+            mov ecx, edi
             push 72
             call 0x44FA20
             push 0
@@ -219,6 +220,7 @@ def main() -> None:
             test eax, eax
             je no_button
             mov edi, eax
+            mov ecx, edi
             push 72
             call 0x44FA20
             push 0
