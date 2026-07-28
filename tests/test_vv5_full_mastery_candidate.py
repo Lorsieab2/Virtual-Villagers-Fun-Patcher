@@ -217,6 +217,8 @@ class VV5FullMasteryCandidateTests(unittest.TestCase):
             self.assertIn(text, source)
         resources = (ROOT / "native" / "vv5_full_mastery_candidate" / "vv5_full_mastery_candidate.rc").read_text(encoding="utf-8")
         isolated = resources.split("203 DIALOGEX", 1)[1]
+        self.assertIn("Time Warp - Advances 3 Villager Years", isolated)
+        self.assertNotIn("Time Warp - 3 villager years", resources)
         self.assertIn('PUSHBUTTON  "Buy", 1007', isolated)
         self.assertNotIn('1006,', isolated)
         self.assertNotIn('1008,', isolated)
