@@ -274,16 +274,11 @@ Polishing the Statue for eligible upgradeable and completed statues.
 It does not change autonomous work, skill gain amounts, statue upgrades, or
 Retired Chief activities.
 
-ORIGINS VILLAGE-WIDE UPGRADES (ALL FIVE GAMES)
+ORIGINS VILLAGE-WIDE UPGRADES (CURRENTLY CONTAINED)
 
-Enable Origins Village-Wide Upgrades is the optional feature name shown by the
-patcher. These optional features depend on Enable Origins-Exclusive Features and add
-three Tech-screen Upgrades rows inspired by the selected exclusive upgrades
-from the Virtual Villagers 1 mobile port. Each purchase costs 1,000,000 tech
-points and affects only the current save: All Villagers Like Running, Grant
-Full Mastery to All Villagers, and All Villagers are 18. Running never
-replaces an unrelated Like and reports `Skipped over X villagers. Reason:
-Already 3 likes.` for eligible villagers whose three Like slots are full.
-Mastery writes only the native skill fields. Age changes only displayed age
-and does not change nursing or pregnancy timers. New Believers excludes
-Heathens from all three operations.
+All five village-wide Origins records are currently unavailable. Commands
+6/7/8 share one atomic payload, so Running, Full Mastery, and Age 18 remain
+fail-closed together until each game receives a complete payload safety GO.
+The contained row labels include Grant Full Mastery to All Villagers.
+The disabled manifests remain as diagnostic evidence, but their bytes are not
+applied. Existing save fields are not cleared, changed, or refunded.

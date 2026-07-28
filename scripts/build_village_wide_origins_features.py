@@ -493,8 +493,9 @@ def main() -> None:
                 }
             ],
         }
-        if game_id == "vv2":
-            feature["enabled"] = False
+        # Commands 6/7/8 are one atomic payload. Keep every game fail-closed
+        # until that game's complete village-wide payload receives a GO gate.
+        feature["enabled"] = False
         if game_id == "vv5":
             feature["record_fields"].update(
                 {

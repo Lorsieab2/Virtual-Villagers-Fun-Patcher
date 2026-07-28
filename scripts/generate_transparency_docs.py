@@ -53,6 +53,10 @@ def build_document() -> str:
         "",
         "The VV2 Origins pair is disabled pending root-cause repair. A player reported that both Time Warp and Food Point Doubler crash immediately after their purchased/success dialog is displayed. This records the trigger only and does not infer whether the charge or action persisted. The crash audit also found `.shr` raw-offset versus virtual-address confusion in the VV2 builder, displacing helper/header references by `0x2000`; this is a hard re-enable blocker but not certified as the complete explanation. Both disabled VV2 Origins records are contained; unrelated VV2 optional features remain available and retain their prior projections.",
         "",
+        "## Origins village-wide atomic-payload containment",
+        "",
+        "All five `vvN_origins_village_wide_upgrades` records are disabled and absent from the catalog, GUI, CLI, Select All, dependency resolution, and rendered outputs. Commands 6, 7, and 8 share one atomic payload, so All Villagers Like Running, Grant Full Mastery to All Villagers, and All Villagers are 18 remain unavailable together until each game receives a full-payload GO gate. VV4 audit `628e0d9217b92b9cd695655842b09d74689a0238` proves that direct 90.0 mastery stores bypass eight native mutations. VV5 audit `02581c8f518e27ebd5fc7d2972db5597ab08ed35` records unresolved counter, eligibility, no-change, inheritance, and expanded-layout requirements. VV3 is still under audit and VV1 is not certified. Disabled manifests retain diagnostic payload bytes but apply none of them; containment does not touch save fields, force-clear ownership, or issue refunds. Base Origins remains independently available except for the separately contained VV2 pair.",
+        "",
     ]
     for build in load_builds():
         lines.extend(

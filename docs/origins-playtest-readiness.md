@@ -12,6 +12,24 @@ This is static composition/readiness only. It does not prove player-visible
 runtime behavior, and runtime/player confirmation remains pending. The test
 never launches a game and does not authorize packaging by itself.
 
+## Village-wide Origins containment
+
+All five `vvN_origins_village_wide_upgrades` records are disabled and absent
+from the catalog. Their commands 6/7/8 are bundled in one atomic payload, so
+Running, Full Mastery, and Age 18 remain unavailable together until each
+game's complete payload receives a GO gate. VV4 audit
+`628e0d9217b92b9cd695655842b09d74689a0238` proves the direct Full Mastery
+stores bypass eight native mutations. VV5 audit
+`02581c8f518e27ebd5fc7d2972db5597ab08ed35` records unresolved counter,
+eligibility, no-change, inheritance, and expanded-layout requirements. VV3 is
+still under audit and VV1 is not certified.
+
+The disabled diagnostic payload bytes are retained in their manifests but are
+not rendered into stock or expanded outputs. This catalog containment does not
+touch existing save ownership or fields, force-clear anything, or issue a
+refund. Base Origins remains independently composable for VV1, VV3, VV4, and
+VV5; VV2 base Origins remains separately contained.
+
 ## VV2 Origins containment
 
 VV2 Origins is currently unavailable and must not be selected. A player

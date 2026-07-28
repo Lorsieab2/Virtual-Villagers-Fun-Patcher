@@ -1,6 +1,24 @@
 # Origins village-wide upgrades
 
-The five optional features are separate, game-scoped manifests:
+## Current atomic-payload safety containment
+
+All five `vvN_origins_village_wide_upgrades` records are fail-closed and are
+not offered by the catalog, GUI, CLI, or Select All. Commands 6, 7, and 8 share
+one atomic payload, so the complete feature remains unavailable until each
+game receives a full-payload GO gate. The VV4 audit
+`628e0d9217b92b9cd695655842b09d74689a0238` proves that command 7's direct
+`90.0` mastery stores bypass eight native mutations. The VV5 audit
+`02581c8f518e27ebd5fc7d2972db5597ab08ed35` records unresolved native-counter,
+eligibility, no-change, inheritance, and expanded-layout requirements. VV3 is
+still under audit and VV1 is not certified.
+
+The manifests below remain as disabled diagnostic evidence; their payload
+bytes are not applied. Containment does not clear or rewrite existing save
+fields, issue a refund, or copy a companion DLL. Base Origins remains
+independently selectable for VV1, VV3, VV4, and VV5; VV2's complete Origins
+pair remains separately contained after its reported crashes.
+
+The five historical features are separate, game-scoped manifests:
 
 * `vv1_origins_village_wide_upgrades`
 * `vv2_origins_village_wide_upgrades`
@@ -14,11 +32,10 @@ shared companion DLL. The optional manifest owns only its exact-build,
 zero-filled extension reserve and its signed ABI header/payload; it does not
 rewrite base Origins payload bytes or copy another companion DLL.
 
-The VV2 village-wide manifest is currently disabled and not selectable because
-the complete VV2 Origins pair is contained after player-reported crashes in
-Time Warp and Food Point Doubler. Its historical payload remains in the data
-file for diagnosis, but it is not applied or copied; unrelated VV2 features
-remain available.
+The VV2 record is additionally covered by the complete VV2 Origins
+containment after player-reported crashes in Time Warp and Food Point Doubler.
+Its historical payload remains in the data file for diagnosis, but it is not
+applied or copied; unrelated VV2 features remain available.
 
 The optional ABI exposes three commands to the dormant base-payload extension
 hook. The base passes `EAX=6/7/8`, `ECX=first physical record pointer`, and

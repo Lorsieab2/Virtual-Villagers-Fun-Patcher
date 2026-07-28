@@ -1,5 +1,17 @@
 # Origins Player Runtime Checklist
 
+## Current village-wide safety containment
+
+Do not test or purchase All Villagers Like Running, Grant Full Mastery to All
+Villagers, or All Villagers are 18 in the current build. All five
+`vvN_origins_village_wide_upgrades` records are disabled because commands
+6/7/8 share one atomic payload and Full Mastery lacks a complete per-game GO
+gate. The diagnostic manifests remain available to static tests only; no
+village-wide bytes are applied. Existing save fields and ownership are left
+untouched, with no forced clear and no refund. The historical procedures below
+are retained as the future player-validation contract, not as currently
+available rows.
+
 This is a player-test checklist for the collection-progression Origins-core
 outputs. It is explicitly **runtime/player confirmation pending**; static patch
 verification is not a claim that any item below has been confirmed in-game.

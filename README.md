@@ -482,10 +482,12 @@ Technical evidence is in `docs/max-population-research.md`,
 `docs/experimental-256-cap-research.md`, and the game-specific reports under
 `docs/`.
 
-The optional Origins village-wide feature IDs are
-`vv1_origins_village_wide_upgrades`, `vv3_origins_village_wide_upgrades`,
-`vv4_origins_village_wide_upgrades`, and
-`vv5_origins_village_wide_upgrades`. Each depends on that game's
+The five Origins village-wide feature records are currently fail-closed and
+absent from the catalog because commands 6/7/8 share one atomic payload whose
+Full Mastery path has not received a complete per-game GO gate. The disabled
+diagnostic IDs are `vv1_origins_village_wide_upgrades` through
+`vv5_origins_village_wide_upgrades`. Their payload bytes are retained for
+evidence but are not applied. Each historically depends on that game's
 `enable_origins_exclusive_features` prerequisite and adds the three
 1,000,000-tech-point rows: All Villagers Like Running, Grant Full Mastery to All
 Villagers, and All Villagers are 18. The feature is inspired by the

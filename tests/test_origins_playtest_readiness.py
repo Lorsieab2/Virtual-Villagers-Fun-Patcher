@@ -44,16 +44,13 @@ class OriginsPlaytestReadinessTests(unittest.TestCase):
                 before = source.read_bytes()
                 game_patches = [patch for patch in catalog if patch.game_id == build.id]
                 ids = [patch.id for patch in game_patches]
-                required = {
-                    f"{build.id}_enable_origins_exclusive_features",
-                    f"{build.id}_origins_village_wide_upgrades",
-                }
+                base_id = f"{build.id}_enable_origins_exclusive_features"
+                wide_id = f"{build.id}_origins_village_wide_upgrades"
+                self.assertNotIn(wide_id, ids)
                 if build.id == "vv2":
-                    self.assertEqual(required & set(ids), set())
-                    self.assertNotIn("vv2_enable_origins_exclusive_features", ids)
-                    self.assertNotIn("vv2_origins_village_wide_upgrades", ids)
+                    self.assertNotIn(base_id, ids)
                 else:
-                    self.assertTrue(required.issubset(ids))
+                    self.assertIn(base_id, ids)
                 selected_ids = resolve_fun_patch_ids(ids, game_id=build.id, patches=game_patches)
                 self.assertEqual(set(selected_ids), set(ids))
                 for patch in game_patches:
@@ -73,6 +70,7 @@ class OriginsPlaytestReadinessTests(unittest.TestCase):
                         )
                         self.assertEqual(source.read_bytes(), before)
                         owners = {item["owner"] for item in applied}
+                        self.assertNotIn(f"feature:{wide_id}", owners)
                         for patch_id in selected_ids:
                             self.assertIn(f"feature:{patch_id}", owners)
                         checksum_offset, _ = _pe_checksum_layout(rendered)

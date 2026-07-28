@@ -62,6 +62,20 @@ def expanded_exe_name(build) -> str:
     return f"{build.title} - Modded 256.exe"
 
 
+def village_wide_record(game_id: str) -> SimpleNamespace:
+    raw = json.loads(
+        (ROOT / "data" / f"{game_id}_origins_village_wide_upgrades.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    return SimpleNamespace(
+        id=raw["id"],
+        game_id=raw["game_id"],
+        description=raw["description"],
+        raw=raw,
+    )
+
+
 class ManifestTests(unittest.TestCase):
     def test_running_preference_id_matches_each_stock_table(self) -> None:
         evidence = {
@@ -93,19 +107,15 @@ class ManifestTests(unittest.TestCase):
         for offset in ("0x7B260", "0x8B808", "0x97488", "0xA0CD8", "0xAEF60"):
             self.assertIn(offset, doc)
     def test_origins_village_wide_features_are_game_scoped_and_dependency_bound(self) -> None:
-        expected = {
-            f"vv{game}_origins_village_wide_upgrades"
-            for game in range(1, 6)
-            if game != 2
-        }
         features = {
             patch.id: patch
             for patch in load_fun_patches()
             if "origins_village_wide_upgrades" in patch.id
         }
-        self.assertEqual(set(features), expected)
-        for game in (1, 3, 4, 5):
-            feature = features[f"vv{game}_origins_village_wide_upgrades"]
+        self.assertEqual(features, {})
+        for game in range(1, 6):
+            feature = village_wide_record(f"vv{game}")
+            self.assertIs(feature.raw["enabled"], False)
             self.assertEqual(
                 feature.raw["dependencies"],
                 [f"vv{game}_enable_origins_exclusive_features"],
@@ -125,12 +135,8 @@ class ManifestTests(unittest.TestCase):
 
     def test_origins_village_wide_payloads_use_zero_owned_reserves(self) -> None:
         stock_by_game = {build.id: STOCK / build.input_name for build in load_builds()}
-        features = {
-            patch.game_id: patch
-            for patch in load_fun_patches()
-            if "origins_village_wide_upgrades" in patch.id
-        }
-        for game_id, feature in features.items():
+        for game_id in ("vv1", "vv2", "vv3", "vv4", "vv5"):
+            feature = village_wide_record(game_id)
             with self.subTest(game=game_id):
                 patch = feature.raw["patches"][0]
                 offset = int(patch["offset"], 0)
@@ -146,9 +152,8 @@ class ManifestTests(unittest.TestCase):
                 self.assertEqual(commands["8"], "All Villagers are 18")
 
     def test_origins_village_wide_metadata_preserves_explicit_exclusions(self) -> None:
-        for patch in load_fun_patches():
-            if "origins_village_wide_upgrades" not in patch.id:
-                continue
+        for game_id in ("vv1", "vv2", "vv3", "vv4", "vv5"):
+            patch = village_wide_record(game_id)
             exclusions = patch.raw["explicit_non_changes"]
             self.assertTrue(any("nursing" in item for item in exclusions))
             self.assertTrue(any("unrelated Like" in item for item in exclusions))
@@ -156,9 +161,9 @@ class ManifestTests(unittest.TestCase):
                 self.assertTrue(any("Heathens" in item for item in exclusions))
 
     def test_origins_village_wide_abi_uses_command_eax_and_bound_edx(self) -> None:
-        for game_id in ("vv1", "vv3", "vv4", "vv5"):
+        for game_id in ("vv1", "vv2", "vv3", "vv4", "vv5"):
             with self.subTest(game=game_id):
-                feature = get_fun_patch(f"{game_id}_origins_village_wide_upgrades")
+                feature = village_wide_record(game_id)
                 convention = feature.raw["extension_abi"]["calling_convention"]
                 self.assertIn("EAX=command", convention)
                 self.assertIn("ECX=first physical record pointer", convention)
@@ -186,9 +191,9 @@ class ManifestTests(unittest.TestCase):
         epilogue = bytes.fromhex("5F5E5B5DC3")
         bad_mastery_tail = bytes.fromhex("31C031D231C95E5F5B5DC3")
         mastery_tail = bytes.fromhex("31C031D231C95F5E5B5DC3")
-        for game_id in ("vv1", "vv3", "vv4", "vv5"):
+        for game_id in ("vv1", "vv2", "vv3", "vv4", "vv5"):
             with self.subTest(game=game_id):
-                feature = get_fun_patch(f"{game_id}_origins_village_wide_upgrades")
+                feature = village_wide_record(game_id)
                 payload = bytes.fromhex(feature.raw["patches"][0]["after"])
                 self.assertNotIn(bad_mastery_tail, payload)
                 self.assertEqual(payload.count(mastery_tail), 2)
@@ -212,9 +217,7 @@ class ManifestTests(unittest.TestCase):
         }
         for game_id, header_va in expected_headers.items():
             with self.subTest(game=game_id):
-                if game_id == "vv2":
-                    continue
-                feature = get_fun_patch(f"{game_id}_origins_village_wide_upgrades")
+                feature = village_wide_record(game_id)
                 patch = feature.raw["patches"][0]
                 payload = bytes.fromhex(patch["after"])
                 self.assertEqual(
@@ -243,7 +246,7 @@ class ManifestTests(unittest.TestCase):
         self.assertIn("jmp running_remove_dislikes", full_like)
 
     def test_vv5_village_wide_payload_uses_authoritative_believer_predicate(self) -> None:
-        feature = get_fun_patch("vv5_origins_village_wide_upgrades")
+        feature = village_wide_record("vv5")
         payload = bytes.fromhex(feature.raw["patches"][0]["after"])
         # Active, non-heathen occupancy, health, and current faction are all
         # explicit in the generated helper; health alone is not a substitute.
