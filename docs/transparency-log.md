@@ -326,16 +326,6 @@ Inspired by the Virtual Villagers 1 mobile port where these exclusive Origins up
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending
 - Guarded executable edits: 11; every edit has an exact purpose and before/after guard in the manifest.
 
-#### Grant Full Mastery to All Villagers (`vv4_full_mastery_all_stage_a_candidate`)
-
-Command-7-only repeatable Buy candidate using native Float32 skill writer sub_46AD80; commands 6/8 are absent.
-
-- Behavior changes: Command-7-only repeatable Buy candidate using native Float32 skill writer sub_46AD80; commands 6/8 are absent.
-- Explicit non-changes/exclusions: none declared
-- Dependencies: vv4_enable_origins_exclusive_features
-- Evidence status: static source/manifest verification performed; runtime/player confirmation pending
-- Guarded executable edits: 1; every edit has an exact purpose and before/after guard in the manifest.
-
 #### Write Village Statistics to Text File (`vv4_write_village_statistics`)
 
 After each successful save of slots 1 through 5, writes the save's local lifetime statistics to 'Village Statistics - Save N.txt' in the modified game folder. Later games retain the inherited per-save statistics block even where no Statistics screen is reachable; omitted stock bookkeeping is restored by exact gameplay hooks. Puzzle totals are read from the current save state during export so existing saves are reported accurately. The original save result is preserved, and text-export failure does not turn a successful game save into a failure.

@@ -612,7 +612,15 @@ def main() -> None:
     payload_patch = next(
         item for item in active["patches"] if int(item["offset"], 0) == PAYLOAD_OFFSET
     )
-    active_payload = bytes.fromhex(payload_patch["after"]).ljust(PAYLOAD_SIZE, b"\0")
+    active_payload = bytearray(
+        bytes.fromhex(payload_patch["after"]).ljust(PAYLOAD_SIZE, b"\0")
+    )
+    old_geometry = bytes.fromhex("683C0200006830020000")
+    new_geometry = bytes.fromhex("682C02000068C0020000")
+    if active_payload[0x5C : 0x5C + len(old_geometry)] != old_geometry:
+        raise RuntimeError("VV4 Tech-screen Upgrades geometry guard mismatch")
+    active_payload[0x5C : 0x5C + len(old_geometry)] = new_geometry
+    active_payload = bytes(active_payload)
     noop_slots: dict[str, bytes] = {}
     installed_slots: dict[str, bytes] = {}
     slot_maps: dict[str, object] = {}
@@ -641,7 +649,7 @@ def main() -> None:
     base["name"] = "DISABLED Candidate: VV4 Origins Full Mastery Extension Base"
     base["enabled"] = True
     base["certification_status"] = (
-        "certified command-7 extension base under Sol commit 91a01eba0dc561b1244184301837b7199868c490"
+        "disabled corrected UI-geometry candidate awaiting independent recertification"
     )
     base["dependencies"] = []
     base["expanded_shr_relocations"]["patches"] = []
@@ -723,8 +731,10 @@ def main() -> None:
         "id": "vv4_full_mastery_all_stage_a_candidate",
         "game_id": "vv4",
         "name": "DISABLED Candidate: Grant Full Mastery to All Villagers",
-        "enabled": True,
-        "certification_status": "certified under Sol commit 91a01eba0dc561b1244184301837b7199868c490",
+        "enabled": False,
+        "certification_status": (
+            "disabled corrected UI-geometry candidate awaiting independent Sol recertification"
+        ),
         "dependencies": [base["id"]],
         "description": (
             "Command-7-only repeatable Buy candidate using native Float32 skill "
@@ -817,6 +827,22 @@ def main() -> None:
 
     artifact = {
         "acceptance_commit": "cd15e3b581df1e3020cfa022814119a97ba18af3",
+        "ui_geometry_gate": {
+            "constructor": "sub_43E165 / sub_40D8A0",
+            "x": 704,
+            "y": 556,
+            "parent_x_transform": -560,
+            "client_x": 144,
+            "native_done_right_edge": 137,
+            "horizontal_gap": 7,
+            "display": "800x600 at 96 DPI",
+            "fully_on_screen": True,
+            "non_overlapping": True,
+            "control_id": 13,
+            "distinct_hit_id": True,
+            "add_child": "sub_40C190",
+            "status": "disabled pending independent emitted-byte recertification",
+        },
         "source": {"size": len(stock), "sha256": expected_sha},
         "base_manifest_sha256": sha(BASE_OUT.read_bytes()),
         "feature_manifest_sha256": sha(FEATURE_OUT.read_bytes()),
@@ -886,11 +912,11 @@ def main() -> None:
     }
     MAP_OUT.write_text(json.dumps(artifact, indent=2) + "\n", encoding="utf-8")
     DOC_OUT.write_text(
-        "# VV4 Full Mastery certified command-7 feature\n\n"
+        "# VV4 Full Mastery disabled corrected UI-geometry candidate\n\n"
         "Generated from acceptance contract "
-        "`cd15e3b581df1e3020cfa022814119a97ba18af3`. Both the base-extension "
-        "and dependent command-7 records are enabled after independent emitted-byte "
-        "certification at `91a01eba0dc561b1244184301837b7199868c490`.\n\n"
+        "`cd15e3b581df1e3020cfa022814119a97ba18af3` plus the Sol live-geometry "
+        "gate. The command-7 record remains disabled pending independent "
+        "recertification of the constructor-coordinate-only correction.\n\n"
         f"- Companion SHA-256: `{artifact['companion']['sha256']}`\n"
         f"- Stock installed slot SHA-256: `{artifact['layouts']['collection_progression']['installed_slot_sha256']}`\n"
         f"- Expanded installed slot SHA-256: `{artifact['layouts']['experimental_expanded_256']['installed_slot_sha256']}`\n"
@@ -898,7 +924,10 @@ def main() -> None:
         f"- Expanded base+mastery render SHA-256: `{renders['experimental_expanded_256']['base_plus_mastery_sha256']}`\n\n"
         "The feature exposes command 7 only inside its certified base dependency. "
         "Commands 6/8, village-wide Running/Age bytes, direct "
-        "skill stores, ownership, Remove, and save-format changes are absent.\n",
+        "skill stores, ownership, Remove, and save-format changes are absent. "
+        "The corrected Tech-screen button uses local x=704 and y=556, producing "
+        "client x=144 after the proven -560 parent transform: 7 pixels to the "
+        "right of the native Done edge at x=137.\n",
         encoding="utf-8",
     )
 

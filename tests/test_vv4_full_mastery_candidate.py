@@ -45,6 +45,17 @@ def sha(data: bytes) -> str:
     return hashlib.sha256(data).hexdigest().upper()
 
 
+def rel32_targets(code: bytes, base: int) -> list[int]:
+    targets = []
+    for offset in range(len(code) - 4):
+        if code[offset] == 0xE8:
+            displacement = int.from_bytes(
+                code[offset + 1 : offset + 5], "little", signed=True
+            )
+            targets.append(base + offset + 5 + displacement)
+    return targets
+
+
 def walk(records: list[dict[str, object]], commit: bool):
     changed = 0
     writer_calls: list[tuple[int, int, int]] = []
@@ -104,16 +115,13 @@ class VV4FullMasteryCandidateTests(unittest.TestCase):
         cls.feature = FunPatch(cls.feature_raw)
         cls.build = next(item for item in load_builds() if item.id == "vv4")
 
-    def test_both_records_enabled_and_command_seven_only(self):
+    def test_corrected_candidate_disabled_and_command_seven_only(self):
         self.assertTrue(self.base_raw["enabled"])
-        self.assertTrue(self.feature_raw["enabled"])
+        self.assertFalse(self.feature_raw["enabled"])
         active = {item.id: item for item in load_fun_patches()}
         self.assertIn("vv4_enable_origins_exclusive_features", active)
-        self.assertIn(self.feature_raw["id"], active)
-        self.assertEqual(
-            active[self.feature_raw["id"]].dependencies,
-            ["vv4_enable_origins_exclusive_features"],
-        )
+        self.assertNotIn(self.base_raw["id"], active)
+        self.assertNotIn(self.feature_raw["id"], active)
         self.assertEqual(self.feature_raw["dependencies"], [self.base_raw["id"]])
         contract = self.feature_raw["transaction_contract"]
         self.assertEqual((contract["command"], contract["price"]), (7, 1_000_000))
@@ -122,6 +130,43 @@ class VV4FullMasteryCandidateTests(unittest.TestCase):
         self.assertNotIn("command 6", folded)
         self.assertNotIn("command 8", folded)
         self.assertNotIn("remove state", folded)
+
+    def test_exact_live_geometry_constructor_and_nonoverlap_contract(self):
+        payload = next(
+            item
+            for item in self.base_raw["patches"]
+            if int(item["offset"], 0) == 0x89373
+        )
+        code = bytes.fromhex(payload["after"])
+        ctor = code[0x40:0xC0]
+        self.assertEqual(
+            ctor[0x1C:0x26],
+            bytes.fromhex("682C02000068C0020000"),
+        )
+        self.assertIn(bytes.fromhex("6A0D"), ctor)
+        targets = rel32_targets(ctor, 0x4893B3)
+        self.assertIn(0x40D8A0, targets)
+        self.assertIn(0x40C190, targets)
+
+        geometry = self.map["ui_geometry_gate"]
+        self.assertEqual(
+            (
+                geometry["x"],
+                geometry["y"],
+                geometry["parent_x_transform"],
+                geometry["client_x"],
+                geometry["native_done_right_edge"],
+                geometry["horizontal_gap"],
+            ),
+            (704, 556, -560, 144, 137, 7),
+        )
+        self.assertTrue(geometry["fully_on_screen"])
+        self.assertTrue(geometry["non_overlapping"])
+        self.assertEqual(geometry["control_id"], 13)
+        self.assertTrue(geometry["distinct_hit_id"])
+        self.assertGreater(geometry["client_x"], geometry["native_done_right_edge"])
+        self.assertLess(geometry["client_x"], 800)
+        self.assertLess(geometry["y"], 600)
 
     def test_exact_fingerprint_layout_bounds_and_fixed_base(self):
         source = STOCK.read_bytes()
