@@ -63,6 +63,21 @@ Save and reload after each meaningful test. Confirm another slot remains
 unchanged and that the original vanilla save is still recognized. Do not infer a
 bug from one un-reproduced observation.
 
+## Birth Control and special-outcome isolation
+
+Birth Control, pregnancy, and Embracing tests apply only to the exact ordinary
+manual, autonomous, or catch-up paths named by that game's evidence. Island
+Event pregnancy, birth, and child outcomes must remain entirely native:
+unchanged age, sex, preference, eligibility, conception, pregnancy, delivery,
+capacity, RNG, messages, statistics, and state writes. VV2 Gong of Wonder
+outcomes have the same complete exclusion.
+
+For `vv2_birth_control`, test ordinary autonomous/catch-up pairing and stew
+recipe 15 separately. Then verify that Love Note direct pregnancy, Gong life
+grants, Silver Mirror cloning, already-pending delivery, and other direct
+event/Gong outcomes behave exactly as stock. Do not interpret a special
+outcome bypassing Birth Control as a defect; that bypass is required.
+
 ## Tech-screen rows
 
 | Row | Cost / expected runtime check |

@@ -7,6 +7,27 @@ Breeding Overhaul patches are allowed to change. The supplied Windows builds are
 treated independently; an observation from one game is not silently applied to
 another.
 
+## Hard special-outcome exclusion contract
+
+Every current or future Birth Control, pregnancy, or Embracing patch is limited
+to the exact ordinary manual, autonomous, or catch-up route named by its
+game-specific GO evidence. It must not intercept or reinterpret a special
+outcome merely because that outcome eventually reaches a shared pregnancy,
+birth, clone, child, or population writer.
+
+All Island Event pregnancy, birth, and child outcomes remain completely native.
+The patch must not add, remove, or replace any Island Event age, sex,
+preference, eligibility, conception, pregnancy, delivery, capacity, RNG,
+message, statistic, or state-write behavior. In VV2, every Gong of Wonder
+outcome has the same complete exclusion. These are control-flow/provenance
+exclusions, not amount- or result-based exceptions.
+
+Future VV1 and VV3 implementation GO reports must enumerate every applicable
+ordinary route and prove that every Island Event or other special direct route
+bypasses the proposed patch. Partial field mappings, shared-writer xrefs, or
+candidate predicates are insufficient. VV4 and VV5 remain untouched native
+references.
+
 ## VV4: what the old-mother evidence does and does not prove
 
 The preserved VV4 IDA analysis covers `Virtual Villagers - The Tree of Life.exe`
@@ -119,9 +140,20 @@ action-9 writer-reaching commit scans at `0x446E70` and `0x447070`. Catch-up
 reuses the chooser/action-9 path. Direct event-created births and pending
 delivery remain native. VV1 therefore remains ON HOLD until a complete exact
 safe hook and placement are proved; no replacement bytes are proposed here.
+Its future GO must also enumerate all Island Event pregnancy/birth/child
+producers and prove that none can observe the ordinary-route changes described
+above.
 
 For VV2 and VV3, the documented stock age comparisons and call chains must be
 rechecked against the current manifest before any replacement is written.
+
+### VV3 future-GO special-outcome boundary
+
+VV3 remains ON HOLD. Any future provenance mechanism for its shared live
+autonomous path must be confined to that proved ordinary route, clear on every
+exit, and remain invisible to Island Event pregnancy/birth/child outcomes,
+direct constructors, clone paths, saved pending delivery, and every other
+special producer. No VV3 implementation is claimed by this requirement.
 
 ### VV5 exact-build audit: native no-patch reference
 
@@ -170,3 +202,23 @@ there is no male upper-age gate. Chooser scoring, token 43 exact string `work`,
 willingness token 39 `learning`, planner logic, pregnancy writer, delivery,
 save format, RNG, food, fertility, capacity, messages, statistics, Love Note,
 Gong grant, Silver Mirror clone, and direct/event births remain native.
+
+The static exclusion boundary is exact:
+
+- Love Note Island Event call file `0x22006` goes directly to the stock
+  pregnancy writer and does not enter either patched scan;
+- Gong "grants life" call file `0x4EB3E` likewise reaches the stock pregnancy
+  writer directly, and every other Gong path remains outside the two patches;
+- Silver Mirror call file `0x217F9` enters the stock clone constructor rather
+  than the pregnancy writer;
+- the stock pregnancy writer begins at file `0x4B980`;
+- pending delivery calls its native helper at file `0x3BE8E`, then retains the
+  stock marker/count clears at `0x3BF70` and `0x3BF85`;
+- the manual carrier gates at `0x4F7C8..0x4F7FE` remain byte-identical;
+- the six stock calls into the pregnancy writer remain at `0x22006`,
+  `0x4EB3E`, `0x4F8F0`, `0x4F930`, `0x64A38`, and `0x64C4D`.
+
+Only the predicates immediately upstream of the final two ordinary
+writer-reaching calls are changed. Consequently no Island Event or Gong
+outcome gains a patched age, sex, preference, eligibility, conception,
+pregnancy, delivery, capacity, RNG, message, statistic, or state-write rule.

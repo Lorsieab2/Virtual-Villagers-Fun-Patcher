@@ -60,6 +60,35 @@ BLOCKS = (
     ),
 )
 
+EXCLUDED_STOCK_WINDOWS = (
+    # Direct special outcomes.
+    (0x22006, bytes.fromhex("E875990200")),  # Love Note -> pregnancy writer
+    (0x4EB3E, bytes.fromhex("E83DCEFFFF")),  # Gong grants life -> writer
+    (0x217F9, bytes.fromhex("E8C2B60200")),  # Silver Mirror -> clone constructor
+    # Shared pregnancy writer and pending-delivery operations.
+    (0x4B980, bytes.fromhex("578BF9E888F9FFFF84C00F8449010000")),
+    (0x3BE8E, bytes.fromhex("E82D370100")),
+    (0x3BF70, bytes.fromhex("898439400500")),
+    (0x3BF85, bytes.fromhex("898439440500")),
+    # Manual carrier checks remain completely stock.
+    (
+        0x4F7C8,
+        bytes.fromhex(
+            "8B8F38050000B8020000003BC8750C81BF30050000E80300007C1C"
+            "3983380500000F856D03000081BB30050000E80300000F8D5D030000"
+        ),
+    ),
+)
+
+PREGNANCY_WRITER_CALLS = (
+    (0x22006, bytes.fromhex("E875990200")),
+    (0x4EB3E, bytes.fromhex("E83DCEFFFF")),
+    (0x4F8F0, bytes.fromhex("E88BC0FFFF")),
+    (0x4F930, bytes.fromhex("E84BC0FFFF")),
+    (0x64A38, bytes.fromhex("E8436FFEFF")),
+    (0x64C4D, bytes.fromhex("E82E6DFEFF")),
+)
+
 
 class VV2BirthControlTests(unittest.TestCase):
     @classmethod
@@ -164,6 +193,35 @@ class VV2BirthControlTests(unittest.TestCase):
                 self.assertTrue(differences)
                 self.assertTrue(differences.issubset(allowed_with_checksum))
 
+    def test_special_outcomes_writer_and_delivery_paths_remain_exactly_stock(self) -> None:
+        stock = STOCK.read_bytes()
+        patched_intervals = [
+            range(offset, offset + len(after))
+            for offset, _, _, after, _ in BLOCKS
+        ]
+        for offset, expected in EXCLUDED_STOCK_WINDOWS + PREGNANCY_WRITER_CALLS:
+            with self.subTest(stock_offset=hex(offset)):
+                self.assertEqual(stock[offset : offset + len(expected)], expected)
+                self.assertFalse(
+                    any(
+                        index in interval
+                        for interval in patched_intervals
+                        for index in range(offset, offset + len(expected))
+                    )
+                )
+
+        for mode in load_patch_modes():
+            with self.subTest(mode=mode.id):
+                rendered, _ = render_patched_bytes(
+                    STOCK, self.build, mode.id, [FEATURE_ID]
+                )
+                for offset, expected in EXCLUDED_STOCK_WINDOWS + PREGNANCY_WRITER_CALLS:
+                    self.assertEqual(
+                        rendered[offset : offset + len(expected)],
+                        expected,
+                        f"{mode.id} changed excluded stock path at {offset:#x}",
+                    )
+
     def test_composes_with_complete_vv2_catalog_in_every_mode_without_overlap(self) -> None:
         catalog = [patch for patch in load_fun_patches() if patch.game_id == "vv2"]
         ids = [patch.id for patch in catalog]
@@ -216,6 +274,44 @@ class VV2BirthControlTests(unittest.TestCase):
             "no male upper-age gate",
         ):
             self.assertIn(marker, research)
+
+    def test_special_outcome_exclusion_is_a_mandatory_cross_game_contract(self) -> None:
+        research = (
+            ROOT / "docs" / "villager-breeding-overhaul-research.md"
+        ).read_text(encoding="utf-8")
+        checklist = (
+            ROOT / "docs" / "origins-player-runtime-checklist.md"
+        ).read_text(encoding="utf-8")
+        transparency = (
+            ROOT / "docs" / "transparency-log.md"
+        ).read_text(encoding="utf-8")
+        combined = "\n".join((research, checklist, transparency))
+        for marker in (
+            "Hard special-outcome exclusion contract",
+            "ordinary manual, autonomous, or catch-up",
+            "Island Event pregnancy, birth, and child outcomes",
+            "age, sex, preference, eligibility, conception, pregnancy, delivery",
+            "capacity, RNG",
+            "messages",
+            "statistics",
+            "state writes",
+            "VV2 Gong of Wonder",
+            "Love Note",
+            "Silver Mirror",
+            "pending delivery",
+            "0x22006",
+            "0x4EB3E",
+            "0x217F9",
+            "0x4B980",
+        ):
+            self.assertIn(marker, combined)
+        self.assertIn("VV1 and VV3", research)
+        self.assertIn("future GO", research)
+        self.assertIn("VV3 remains ON HOLD", research)
+        self.assertIn(
+            "Do not interpret a special outcome bypassing Birth Control as a defect",
+            " ".join(checklist.split()),
+        )
 
     def test_machine_readable_non_changes_preserve_exact_scope(self) -> None:
         text = " ".join(self.feature.raw["explicit_non_changes"])
