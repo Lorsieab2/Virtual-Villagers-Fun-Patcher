@@ -48,7 +48,7 @@ and `1d9a39da078806aa940e4774a9068956e88347bc` close ID 38, its three
 Like/three Dislike DWORD arrays at `+0xFB4..+0xFC8`, sentinel `-1`, stride
 `0x1F8C`, 150/256 bounds, persistence, atomic ordering, four result counters,
 and dry-run/no-charge/final unsigned recheck requirements. They do not lift
-ON HOLD: `+0xE94` status semantics remain unresolved; commands 6/7/8 share the
+ON HOLD: commands 6/7/8 share the
 944-byte `0x7B820` payload and `0x7B840/0x47B840` entry; `0x582644`
 precharges while `0x7B7A0` is only a header check; the current three-counter
 128-byte ABI lacks `granted`; hooks `0x6547D`/`0x65640` and payload `0xA3180`
@@ -60,11 +60,20 @@ specifies the VV3 seven-row/ID-1006 exact-command UI, 16-byte four-counter
 structure, four-line `char[256]` result (201-byte maximum at bound 256),
 unsigned one-million dry-run/no-charge/recheck/deduct/commit transaction, and
 zero-cost/no-refund non-reversing removal with repurchase. It also records
-stock and expanded PE placement facts. Injection bytes remain withheld because
-`+0xE94` is still the first semantic gate: eight direct readers exist, the
-sole direct writer only clears it during retirement/reset, save/load/copy
-preserve it, no direct nonzero writer is known, and the player-confirmed CE
-tables do not label it.
+stock and expanded PE placement facts.
+
+Semantic closure `b9c7a22eb1d7cceae25160ce4d360621e7485625` proves
+`+0xE94` is a dormant retained totem-render selector, not live eligibility:
+nonzero selects ID 573 **`'s totem`**, while zero plus signed health `<= 0`
+selects ID 574 **`'s remains`**. Eight readers and one zero-only writer are
+exhaustive; construction, new/clone/Event/puzzle/template paths have no
+nonzero producer. All 64 active records in the corrected readable save corpus
+and 125 active records in a 150-slot live scan were zero; CE tables do not
+label the byte. Running eligibility is therefore only active `+0xF10 != 0`
+and signed health `+0xE78 > 0`. VV2 `+0x558` memorials and VV5 Heathen
+totems are distinct. The sole remaining ON HOLD boundary is deterministic
+command-6-only transaction/extension bytes and collision-certified
+stock/expanded PE manifests. The old 944-byte payload remains forbidden.
 
 VV1 audit `e0bed87ce17dca5331afed1abc2d753ec3d8f0aa` now
 classifies that command as ON HOLD. It confirms five signed DWORD skills

@@ -150,8 +150,8 @@ The transaction must dry-run, refuse and charge nothing when `granted == 0`,
 perform a final unsigned funds recheck immediately before commit, apply only
 the proved deterministic stores, and deduct exactly once.
 
-VV3 remains ON HOLD because the complete `+0xE94` status domain is unresolved.
-Commands 6/7/8 share one 944-byte atomic payload at file `0x7B820` and entry
+VV3 remains ON HOLD, but `+0xE94` is no longer an unresolved eligibility
+field. Commands 6/7/8 share one 944-byte atomic payload at file `0x7B820` and entry
 file/VA `0x7B840/0x47B840`. The existing path precharges at `0x582644`;
 header check `0x7B7A0` proves only signature/result-export presence. Its
 three-counter 128-byte result ABI cannot return `granted`. Base hooks
@@ -198,8 +198,33 @@ slot remains. Expanded mode moves `.shr` to RVA `0x3A1000`, `.rsrc` to
 `0x3A2000`, sets SizeOfImage `0x3B8000`, and applies 1,263 guarded patches.
 A stock appended section begins no earlier than RVA `0x2DF000`; expanded no
 earlier than `0x3B8000`. Deterministic injection bytes and dual-layout section
-manifests remain deliberately withheld until `+0xE94` is semantically
-identified.
+manifests remain deliberately withheld pending a collision-certified
+command-6-only implementation.
+
+Semantic-closure audit `b9c7a22eb1d7cceae25160ce4d360621e7485625`
+identifies `+0xE94` as a dormant retained per-villager totem-render selector,
+not a live eligibility discriminator. At reader `0x468D4C/0x68D4C`, nonzero
+selects localization ID 573, exact suffix **`'s totem`**; zero with signed
+health `<= 0` selects ID 574, **`'s remains`**. The same eight readers and
+sole direct zero writer remain exhaustive. Save/load/copy preserves the byte,
+but constructors, new villagers, clones, Events, puzzles, and templates expose
+no nonzero producer. A corrected readable save corpus contained 64 active
+records, all zero; a read-only live scan found 125 active of 150 physical
+records, also all zero. Strong player-confirmed Cheat Engine tables corroborate
+the surrounding fields but contain no `+0xE94` label.
+
+The Running walker therefore removes `+0xE94` and uses only active byte
+`+0xF10 != 0` plus signed health DWORD `+0xE78 > 0`. VV2's `+0x558`
+memorial marker and VV5's Heathen totems are separate game-specific mechanics,
+not substitutes for this VV3 field.
+
+The only remaining ON HOLD boundary is implementation: deterministic
+command-6-only base-Origins extension and transaction bytes plus
+collision-certified stock and expanded PE manifests. The existing 944-byte
+commands 6/7/8 payload remains forbidden because it precharges, exposes
+commands 7/8, lacks the granted count, and uses the wrong callback ABI.
+Deterministic injection bytes remain withheld pending that implementation
+gate, not pending further `+0xE94` semantics.
 
 The disabled Full Mastery candidate contains direct stores to the native five
 skill fields in VV1–VV4 or six skill fields in VV5. Those stores are retained

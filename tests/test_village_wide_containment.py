@@ -21,7 +21,7 @@ from vv_fun_patcher import (  # noqa: E402
 from vv_fun_patcher_gui import group_fun_patches  # noqa: E402
 
 STOCK = ROOT / "research" / "stock-executables"
-BASELINE = "6fa6d84c2b8961165b0716d12168bcf0cbf76ebc"
+BASELINE = "0fcd23d0a2159a5b4725619f24222a7ea2c31d63"
 DISABLED = {f"vv{game}_origins_village_wide_upgrades" for game in range(1, 6)}
 
 
@@ -341,7 +341,21 @@ class VillageWideContainmentTests(unittest.TestCase):
             "SectionAlignment/FileAlignment",
             "`0x2DF000`",
             "1,263 guarded patches",
-            "withheld until `+0xE94`",
+            "b9c7a22eb1d7cceae25160ce4d360621e7485625",
+            "dormant retained per-villager totem-render selector",
+            "'s totem",
+            "'s remains",
+            "64 active",
+            "125 active",
+            "`+0xF10 != 0`",
+            "signed health DWORD `+0xE78 > 0`",
+            "VV2's `+0x558`",
+            "VV5's Heathen totems",
+            "only remaining ON HOLD boundary",
+            "collision-certified stock and expanded PE manifests",
+            "precharges, exposes",
+            "wrong callback ABI",
+            "not pending further `+0xE94` semantics",
             "refund",
         ):
             self.assertIn(phrase, docs)

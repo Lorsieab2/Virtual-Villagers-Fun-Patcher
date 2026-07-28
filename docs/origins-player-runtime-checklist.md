@@ -30,16 +30,26 @@ For VV3 specifically, resolution commits
 `1d9a39da078806aa940e4774a9068956e88347bc` close the three-plus-three
 slot operation, persistence, atomic ordering, four counters, and
 dry-run/no-charge/final unsigned recheck contract. Runtime validation remains
-forbidden because `+0xE94` status eligibility, independent command-6 UI,
-four-counter bounded result ABI, and complete stock/expanded placement and
-uninstall composition are unresolved. The shared 944-byte commands 6/7/8
+forbidden because independent command-6 UI/transaction bytes and complete
+stock/expanded placement and uninstall composition are not implemented. The
+shared 944-byte commands 6/7/8
 payload and unrelated base Origins hooks cannot be enabled selectively.
 Second resolution `d1cdeb67362487c1d577e3abae03c9424fd04fb9` specifies the
 Running-only seven-row/ID-1006 UI, four-counter `char[256]` result, atomic
 one-million-point transaction, zero-cost/no-refund non-reversing removal and
-repurchase, plus dual-layout PE boundaries. Deterministic injection remains
-withheld solely at the first semantic gate: the naturally nonzero meaning of
-persisted `+0xE94` is not identified.
+repurchase, plus dual-layout PE boundaries.
+
+Semantic closure `b9c7a22eb1d7cceae25160ce4d360621e7485625` identifies
+`+0xE94` as a dormant totem-render selector, not eligibility. Nonzero selects
+ID 573 **`'s totem`**; zero with signed health `<= 0` selects ID 574
+**`'s remains`**. The exhaustive eight-reader/zero-only-writer scan found no
+constructor, new/clone, Event, puzzle, or template nonzero producer. All 64
+active corrected save records and 125 active records in the 150-slot live
+scan were zero, and CE tables contain no label. The future Running predicate
+is active `+0xF10 != 0` plus signed health `+0xE78 > 0`, without `+0xE94`.
+VV2 `+0x558` memorials and VV5 Heathen totems remain separate mechanics.
+Injection stays withheld only for the command-6-only implementation and
+collision-certified stock/expanded manifests.
 
 VV3 Full Mastery is specifically ON HOLD under exact-build audit
 `089957227c0db6a4c3128045519ffa27b201a00e`. Its five signed DWORD skills are
