@@ -660,11 +660,13 @@ def build() -> tuple[dict[str, object], dict[str, object]]:
         "id": "vv2_full_mastery_all_stage_a_candidate",
         "game_id": "vv2",
         "name": "Grant Full Mastery to All Villagers",
-        "enabled": True,
-        "certification_status": "emitted bytes certified by disassembly commit 913be6982bc17d606470f31d3df3d3430942cb6a; runtime/player confirmation pending",
+        "enabled": False,
+        "certification_status": "HARD WITHDRAWN after live Buy crash at walker+0x1E from invalid ESI; disabled pending exact repair and recertification",
         "description": (
-            "Certified command-7-only repeatable Buy. Commands 6/8, ownership, "
-            "Remove, old .shr transport, Gong, and Island Event paths are absent."
+            "Withdrawn command-7-only candidate. Live Buy crashed at walker+0x1E "
+            "because ESI was invalid before the permanent-change warning. Commands "
+            "6/8, ownership, Remove, old .shr transport, Gong, and Island Event "
+            "paths remain absent."
         ),
         "dependencies": [],
         "companion_files": [
@@ -833,12 +835,12 @@ def main() -> None:
     MANIFEST_OUT.write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
     MAP_OUT.write_text(json.dumps(artifact, indent=2) + "\n", encoding="utf-8")
     DOC_OUT.write_text(
-        "# VV2 Full Mastery certified playtest feature\n\n"
+        "# VV2 Full Mastery withdrawn candidate\n\n"
         "This artifact is generated from disassembly acceptance contract "
         "`93d69a7826d3c7260ea18e1467597e7580ddbae9` and confirmation ABI "
         "`b5183ca0564de3dca84590254cf275f6ce4db255`. It remains "
-        "**enabled for runtime/player playtesting after Sol emitted-byte certification "
-        "`913be6982bc17d606470f31d3df3d3430942cb6a`**.\n\n"
+        "**HARD WITHDRAWN and catalog-hidden** after live Buy crashed at "
+        "walker+0x1E with invalid ESI before the warning.\n\n"
         f"- Section SHA-256: `{artifact['section_sha256']}`\n"
         f"- Companion SHA-256: `{artifact['companion']['sha256']}`\n"
         f"- Entry SHA-256: `{artifact['entry_sha256']}`\n"

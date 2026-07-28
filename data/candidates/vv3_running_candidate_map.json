@@ -92,7 +92,7 @@
     "role": "base-owned command-6-only bridge; resolves @20 and reports four counters"
   },
   "stage_c_corrections": {
-    "status": "enabled for runtime playtesting after certification c62fba9214de7c6092365e99c72bd81a59d3888c",
+    "status": "HARD WITHDRAWN after intermittent Run2 status-2 crash; runtime fault capture required",
     "result_arguments": "stable ESI counter base pushes removed_dislike, full_like, already_like, granted, then command 6",
     "dispatcher_nonvolatile_registers": [
       "EBP",
@@ -174,7 +174,7 @@
     "vv2_origins_feature.json": "471135AA5E69DA49EF31F61FB0D8ADC31470F8BC9D08F47F990B03D37D69C717",
     "vv3_origins_feature.json": "198465EC2B41D62F3B10BBB6853C132105FD8A4F869D14DB5EC5B5FF1AA24AE6",
     "vv4_origins_feature.json": "96D39BCBD87D0A8D79829B3F69FD26BE191545943748ED4DD045F746E85B3D4F",
-    "vv5_origins_feature.json": "92E43824761EE288BB859F329C9E7D1AFECBB254BA5FF5910B02594217DF868F"
+    "vv5_origins_feature.json": "1C6B9F4B24A34A78FDA0193BBF690D08C5C263EA0DBF6E5EB2E050E441DAFE26"
   },
   "payload_delta_ranges": {
     "stock": [

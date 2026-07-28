@@ -58,11 +58,11 @@ VV3 second resolution `d1cdeb67362487c1d577e3abae03c9424fd04fb9` specified every
 
 VV3 semantic closure `b9c7a22eb1d7cceae25160ce4d360621e7485625` identifies +0xE94 as a dormant retained per-villager totem-render selector, not a live eligibility discriminator. At 0x468D4C, nonzero selects localization 573, exact suffix `'s totem`; zero with signed health <= 0 selects 574, `'s remains`. The eight readers and sole zero writer are exhaustive; constructors, new/clone, Event, puzzle, and template paths have no nonzero producer. The corrected readable save corpus had 64 active records all zero, and a live 150-slot scan had 125 active records all zero; strong player-confirmed CE tables contain no E94 label. Running therefore uses only active +0xF10 != 0 and signed health +0xE78 > 0. VV2 +0x558 memorials and VV5 Heathen totems are separate. The only remaining ON HOLD boundary is deterministic command-6-only extension/transaction bytes and collision-certified stock/expanded PE manifests. The old 944-byte commands 6/7/8 payload remains forbidden because it precharges, exposes commands 7/8, lacks granted, and uses the wrong callback ABI; injection bytes remain withheld for implementation, not E94 semantics.
 
-VV3 Running's source remains catalog-visible, but VV3Run2 is hard-withdrawn from playtesting under crash audit `36f14702b938a6235230a3fd3e0c34328d3ac745`. The exact tested EXE/DLL pair crashed on the status-2 no-change route. Static ABI and pointer checks pass, save snapshot/rotation evidence shows no saved preference overwrite, and the fault instruction remains unknown. Do not package or test it until a fresh crash/no-change gate is certified. Corrective contract `0095e605b3b488129c0623efd642e9352d8586c0` defines a repeatable Buy action with no ownership-bit access. Base Origins owns the `.vvrun` page and guarded no-op slot; commands 7/8 remain absent. The corrected no-op slot SHA-256 is 42FC601B51E8AAC069B70355502C32B6985A2471E26B683A61A68EA3B91BE4E3, the Running slot SHA-256 is 3F8F3BD7FD6C1BA8D8517539581D96F8D7B14D3BF959C74157FF970E432E5B13, and the unchanged companion exposes `ShowOriginsVillageWideResult@20` while retaining its existing exports. Replacement runtime testing is pending. Persistent fields are serialized/restored but remain legitimately mutable by later native aging, work, events, catch-up, and other game mechanics; the patch gate is immediate write preservation, save roundtrip, and noninterception of native future writers.
+VV3 Running is catalog-hidden and VV3Run2 is hard-withdrawn from playtesting under crash audit `36f14702b938a6235230a3fd3e0c34328d3ac745`. The exact tested EXE/DLL pair crashed on the status-2 no-change route. Static ABI and pointer checks pass, save snapshot/rotation evidence shows no saved preference overwrite, and the fault instruction remains unknown. Do not package or test it until a fresh crash/no-change gate is certified. Corrective contract `0095e605b3b488129c0623efd642e9352d8586c0` defines a repeatable Buy action with no ownership-bit access. Base Origins owns the `.vvrun` page and guarded no-op slot; commands 7/8 remain absent. The corrected no-op slot SHA-256 is 42FC601B51E8AAC069B70355502C32B6985A2471E26B683A61A68EA3B91BE4E3, the Running slot SHA-256 is 3F8F3BD7FD6C1BA8D8517539581D96F8D7B14D3BF959C74157FF970E432E5B13, and the unchanged companion exposes `ShowOriginsVillageWideResult@20` while retaining its existing exports. Replacement runtime testing is pending. Persistent fields are serialized/restored but remain legitimately mutable by later native aging, work, events, catch-up, and other game mechanics; the patch gate is immediate write preservation, save roundtrip, and noninterception of native future writers.
 
 ## Origins village-wide atomic-payload containment
 
-All five legacy `vvN_origins_village_wide_upgrades` records remain disabled and absent from the catalog, GUI, CLI, Select All, dependency resolution, and rendered outputs because commands 6, 7, and 8 share one unsafe atomic payload. VV2's independently generated and certified command-7-only Grant Full Mastery to All Villagers feature is now available without enabling either withdrawn VV2 Origins record; commands 6/8 remain absent. VV3 Running remains withdrawn from runtime playtesting pending its crash gate. VV4 audit `628e0d9217b92b9cd695655842b09d74689a0238` and VV5 audit `02581c8f518e27ebd5fc7d2972db5597ab08ed35` keep their mastery commands contained. Disabled legacy manifests retain diagnostic payload bytes but apply none; containment never alters save ownership or issues refunds.
+All five legacy `vvN_origins_village_wide_upgrades` records remain disabled and absent from the catalog, GUI, CLI, Select All, dependency resolution, and rendered outputs because commands 6, 7, and 8 share one unsafe atomic payload. VV2's isolated Full Mastery candidate is HARD WITHDRAWN and catalog-hidden after live Buy crashed at walker+0x1E with invalid ESI before the warning; commands 6/8 remain absent. VV3 Running remains withdrawn and catalog-hidden pending runtime fault capture. VV4 audit `628e0d9217b92b9cd695655842b09d74689a0238` and VV5 audit `02581c8f518e27ebd5fc7d2972db5597ab08ed35` keep their mastery commands contained. Disabled legacy manifests retain diagnostic payload bytes but apply none; containment never alters save ownership or issues refunds.
 
 ## Virtual Villagers - A New Home
 
@@ -184,16 +184,6 @@ When the Gong of Wonder grants coconuts, adds 30 to the coconut trees instead of
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending
 - Guarded executable edits: 2; every edit has an exact purpose and before/after guard in the manifest.
 
-#### Grant Full Mastery to All Villagers (`vv2_full_mastery_all_stage_a_candidate`)
-
-Certified command-7-only repeatable Buy. Commands 6/8, ownership, Remove, old .shr transport, Gong, and Island Event paths are absent.
-
-- Behavior changes: Certified command-7-only repeatable Buy. Commands 6/8, ownership, Remove, old .shr transport, Gong, and Island Event paths are absent.
-- Explicit non-changes/exclusions: none declared
-- Dependencies: none
-- Evidence status: static source/manifest verification performed; runtime/player confirmation pending
-- Guarded executable edits: 2; every edit has an exact purpose and before/after guard in the manifest.
-
 #### Hospital Recovery Heals (`vv2_hospital_recovery_heals`)
 
 A villager who completes Recovering at the hospital gains exactly 1 health point, capped at 100. Stock VV2's hospital recovery action does not change health.
@@ -232,16 +222,6 @@ Supported stock identity is the exact `Virtual Villagers - The Secret City.exe` 
 
 ### Optional features
 
-#### All Villagers Like Running (`vv3_all_villagers_like_running`)
-
-Give Running preference ID 38 to every eligible active living VV3 villager with an empty Like slot for 1,000,000 tech points. Already-like and full-Like records remain unchanged; Running dislikes are removed only in the same atomic eligible mutation. This is a repeatable Buy action, never Remove; commands 7 and 8 remain unavailable.
-
-- Behavior changes: Candidate-only guarded replacement of the base-owned no-op slot.
-- Explicit non-changes/exclusions: Commands 7 and 8 are absent. Uninstall restores the no-op slot and does not reverse preference edits. Running is a repeatable Buy action and never reads, sets, or clears save ownership bit 0x4. Vanilla save layout is unchanged.
-- Dependencies: vv3_enable_origins_exclusive_features
-- Evidence status: corrective byte contract 0095e605b3b488129c0623efd642e9352d8586c0 implemented as a disabled candidate; final emitted-artifact recertification and runtime/player confirmation pending
-- Guarded executable edits: 1; every edit has an exact purpose and before/after guard in the manifest.
-
 #### Enable Origins-Exclusive Features (`vv3_enable_origins_exclusive_features`)
 
 Inspired by the Virtual Villagers 1 mobile port where these exclusive Origins upgrades originated, this selected-upgrades port adds the icon-based Origins Upgrades screen with Time Warp, Island Event, the native Another One of Those Barrels event with a dynamic three-space 150/256-record guard, and displayed-but-currently-unavailable 500,000-tech-point Tech Point and Food Point Doublers. Existing owned doublers remain removable at zero cost with zero refund; repurchase is temporarily disabled pending exact-build verification. Plus Cure all Villagers for 30,000 tech points. Cure all Villagers clears sickness from eligible active living records without changing health and increments People Cured once per sickness cleared, then displays the exact result `Cured X villagers`. Time Warp advances every villager by exactly 3 displayed years at every active game speed; the required wall-clock shift is 3 hours at half speed, 6 hours at normal speed, and 10 hours at double speed. Doubler ownership is confined to the current save. The doubler contract would stack after the exact collectible/collection adjustment, but this build's collection dispatcher has unresolved computed/indirect reachability and no safe final-delta hook. Food Mastery-like award transforms are confirmed absent in the writer, strings, and bounded caller corpus. Island Event outcomes remain native; new purchase and repurchase are unavailable under the exact-build STOP gate. Adds Villager Upgrades for Grant Youth, Grant Full Mastery, Grant Running, and Set Age to 18. Grant Running only uses an available normal Likes slot on the displayed villager and removes Running from that villager's Dislikes; it refuses without charging when all normal Like slots are occupied and does not alter any movement behavior or speed value. Inspired by the Virtual Villagers 1 mobile port, where selected Origins-exclusive upgrades originated; this wording does not claim unsupported mobile parity.
@@ -254,7 +234,7 @@ Inspired by the Virtual Villagers 1 mobile port where these exclusive Origins up
 - Doubler composition contract: {'stacking': ['every exact-build collectible/collection effect that increases tech-point gain', 'native Food Mastery technology adjustment'], 'exclusions': ['Island Event outcomes'], 'food_mastery_status': 'confirmed absent in the exact-build writer, strings, and bounded caller corpus', 'status': 'STOP: no safe final-delta/source-aware hook, transient marker, or certified new section/cave; Island Event mixed-source provenance and collection dispatcher caller remain unresolved'}
 - Doubler purchase status: {'new_purchase': 'temporarily unavailable pending exact-build provenance verification', 'existing_owned': 'removable at zero cost with zero refund', 'repurchase': 'temporarily disabled pending exact-build provenance verification'}
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending
-- Guarded executable edits: 9; every edit has an exact purpose and before/after guard in the manifest.
+- Guarded executable edits: 10; every edit has an exact purpose and before/after guard in the manifest.
 
 #### Nature Level 1 Actually Replenishes Food Sources Faster (`vv3_nature_honey_refill`)
 

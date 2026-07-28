@@ -44,7 +44,7 @@ class OriginsPlayerRuntimeChecklistTests(unittest.TestCase):
             "No game is launched",
             "VV2's paused Time Warp must refuse",
             "VV2's certified Tech Point Doubler and Food Point Doubler paths are purchasable, removable, and repurchasable",
-            "The certified VV2 Full Mastery playtest feature targets its five native skill fields",
+            "The withdrawn VV2 Full Mastery candidate targets its five native skill fields",
             "913be6982bc17d606470f31d3df3d3430942cb6a",
             "sub_44D4C0",
             "five skills in VV1–VV4 and six in VV5",

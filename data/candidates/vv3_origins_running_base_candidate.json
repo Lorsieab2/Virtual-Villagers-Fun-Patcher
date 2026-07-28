@@ -135,7 +135,7 @@
       "purpose": "install the certified VV3 Origins base with a command-6-only extension dispatcher"
     }
   ],
-  "enabled": true,
+  "enabled": false,
   "certification_status": "Stage C corrected; not catalog-visible; awaiting Sol byte recertification",
   "dependencies": [],
   "patch_mode_overrides": {

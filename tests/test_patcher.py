@@ -125,6 +125,7 @@ class ManifestTests(unittest.TestCase):
             self.assertIn("All Villagers are 18", feature.description)
             self.assertIn("1,000,000", feature.description)
             self.assertIn("inspired", feature.description.casefold())
+
             self.assertEqual(feature.raw.get("running_preference_id"), 38)
             self.assertIn("removed Running dislike", feature.raw["extension_abi"]["calling_convention"])
             self.assertIn("already-running", feature.raw["extension_abi"]["calling_convention"])
@@ -132,6 +133,17 @@ class ManifestTests(unittest.TestCase):
             patch = feature.raw["patches"][0]
             self.assertEqual(len(bytes.fromhex(patch["before"])), len(bytes.fromhex(patch["after"])))
             self.assertEqual(patch["purpose"].startswith("install the optional"), True)
+
+    def test_withdrawn_candidates_are_absent_and_catalog_loads(self) -> None:
+        active_ids = {feature.id for feature in load_fun_patches()}
+        self.assertTrue(active_ids)
+        self.assertTrue(
+            {
+                "vv1_full_mastery_all_stage_a_candidate",
+                "vv3_all_villagers_like_running",
+                "vv5_full_mastery_all_stage_a_candidate",
+            }.isdisjoint(active_ids)
+        )
 
     def test_origins_village_wide_payloads_use_zero_owned_reserves(self) -> None:
         stock_by_game = {build.id: STOCK / build.input_name for build in load_builds()}
@@ -2560,7 +2572,6 @@ class StockIntegrationTests(unittest.TestCase):
                 "vv2_teaching_children_grants_skill",
                 "vv2_hospital_recovery_heals",
                 "vv2_gong_of_wonder_coconuts_fix",
-                "vv2_full_mastery_all_stage_a_candidate",
                 "vv2_write_village_statistics",
             },
         )

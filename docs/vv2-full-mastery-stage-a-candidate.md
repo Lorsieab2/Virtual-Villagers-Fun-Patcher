@@ -1,6 +1,6 @@
-# VV2 Full Mastery certified playtest feature
+# VV2 Full Mastery withdrawn candidate
 
-This artifact is generated from disassembly acceptance contract `93d69a7826d3c7260ea18e1467597e7580ddbae9` and confirmation ABI `b5183ca0564de3dca84590254cf275f6ce4db255`. It remains **enabled for runtime/player playtesting after Sol emitted-byte certification `913be6982bc17d606470f31d3df3d3430942cb6a`**.
+This artifact is generated from disassembly acceptance contract `93d69a7826d3c7260ea18e1467597e7580ddbae9` and confirmation ABI `b5183ca0564de3dca84590254cf275f6ce4db255`. It remains **HARD WITHDRAWN and catalog-hidden** after live Buy crashed at walker+0x1E with invalid ESI before the warning.
 
 - Section SHA-256: `0D0DD6DBEA7236807D15ED7047F08E7B8CC8B9AB098051C29A49C1AFDC31C61A`
 - Companion SHA-256: `BDEAC1B39925834A7CD8DF7CD2C13BA7D7CBDF6E27760DAED6525092FF092699`

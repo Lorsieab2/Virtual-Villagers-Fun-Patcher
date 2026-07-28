@@ -513,7 +513,7 @@ def main() -> None:
     candidate = deepcopy(active)
     candidate["id"] = "vv3_enable_origins_exclusive_features_running_candidate"
     candidate["name"] = "DISABLED Candidate: VV3 Origins Running Extension Base"
-    candidate["enabled"] = True
+    candidate["enabled"] = False
     candidate["certification_status"] = (
         "Stage C corrected; not catalog-visible; awaiting Sol byte recertification"
     )
@@ -580,7 +580,7 @@ def main() -> None:
         "id": "vv3_all_villagers_like_running_candidate",
         "game_id": "vv3",
         "name": "DISABLED Candidate: All Villagers Like Running",
-        "enabled": True,
+        "enabled": False,
         "dependencies": [candidate["id"]],
         "description": "Stage C corrected command-6-only candidate; not selectable pending Sol byte recertification.",
         "behavior_changes": ["Candidate-only guarded replacement of the base-owned no-op slot."],
@@ -651,7 +651,7 @@ def main() -> None:
             "role": "base-owned command-6-only bridge; resolves @20 and reports four counters",
         },
         "stage_c_corrections": {
-            "status": "enabled for runtime playtesting after certification c62fba9214de7c6092365e99c72bd81a59d3888c",
+            "status": "HARD WITHDRAWN after intermittent Run2 status-2 crash; runtime fault capture required",
             "result_arguments": "stable ESI counter base pushes removed_dislike, full_like, already_like, granted, then command 6",
             "dispatcher_nonvolatile_registers": ["EBP", "EBX", "ESI", "EDI"],
             "transaction_passes": [
@@ -759,9 +759,8 @@ def main() -> None:
     DOC_OUT.write_text(
         f"""# VV3 Running corrected certified artifact
 
-This generated artifact is enabled for replacement runtime playtesting after
-final certification `c62fba9214de7c6092365e99c72bd81a59d3888c`.
-`vv3_all_villagers_like_running` is loaded with its base Origins dependency;
+This generated artifact is HARD WITHDRAWN and catalog-hidden after the
+intermittent Run2 status-2 crash. Runtime fault capture remains required;
 commands 7 and 8 remain absent.
 
 Evidence inputs are disassembly commits

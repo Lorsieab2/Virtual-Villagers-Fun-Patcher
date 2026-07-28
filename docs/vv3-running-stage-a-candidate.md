@@ -1,8 +1,7 @@
 # VV3 Running corrected certified artifact
 
-This generated artifact is enabled for replacement runtime playtesting after
-final certification `c62fba9214de7c6092365e99c72bd81a59d3888c`.
-`vv3_all_villagers_like_running` is loaded with its base Origins dependency;
+This generated artifact is HARD WITHDRAWN and catalog-hidden after the
+intermittent Run2 status-2 crash. Runtime fault capture remains required;
 commands 7 and 8 remain absent.
 
 Evidence inputs are disassembly commits

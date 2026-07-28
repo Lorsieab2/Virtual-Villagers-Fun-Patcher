@@ -232,7 +232,7 @@ class VV2BirthControlTests(unittest.TestCase):
                 rendered, applied = render_patched_bytes(
                     STOCK, self.build, mode.id, selected
                 )
-                self.assertEqual(len(rendered), self.build.size + 0x2000)
+                self.assertEqual(len(rendered), self.build.size)
                 owners = {edit["owner"] for edit in applied}
                 self.assertTrue(
                     {f"feature:{patch_id}" for patch_id in selected}.issubset(owners)

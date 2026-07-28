@@ -26,7 +26,7 @@ All five legacy `vvN_origins_village_wide_upgrades` records are disabled and abs
 from the catalog. Their commands 6/7/8 are bundled in one atomic payload, so
 Running, Full Mastery, and Age 18 remain unavailable together until each
 game's complete payload receives a GO gate. VV3's separately generated
-command-6-only All Villagers Like Running source remains catalog-visible, but
+command-6-only All Villagers Like Running source remains preserved but catalog-hidden, and
 VV3Run2 is hard-withdrawn from playtesting under crash audit
 `36f14702b938a6235230a3fd3e0c34328d3ac745`. The exact tested EXE/DLL pair
 crashed on the status-2 no-change route. Static ABI and pointer checks pass,
@@ -261,8 +261,9 @@ list, so newly enabled game-scoped patches cannot silently escape the
 composition checks. It does not modify manifests, executable payloads, saves,
 prices, ownership behavior, or companion DLLs.
 The isolated VV2 command-7-only implementation is now emitted-byte certified
-under `913be6982bc17d606470f31d3df3d3430942cb6a` and catalog-enabled for a
-stock-layout runtime playtest. It sets only below-100 values in the five native
+under `913be6982bc17d606470f31d3df3d3430942cb6a`, but it is now HARD WITHDRAWN
+and catalog-hidden after live Buy crashed at walker+0x1E with invalid ESI
+before the warning. It sets only below-100 values in the five native
 skill fields to 100, calls native `sub_44D4C0` once per changed villager, and
 reports native Elder/totem outcomes including the 50-totem cap. Commands 6 and
 8 remain absent, both withdrawn VV2 Origins manifests remain disabled, and

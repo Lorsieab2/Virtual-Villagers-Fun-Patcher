@@ -32,7 +32,6 @@ REMAINING = {
     "vv2_teaching_children_grants_skill",
     "vv2_hospital_recovery_heals",
     "vv2_gong_of_wonder_coconuts_fix",
-    "vv2_full_mastery_all_stage_a_candidate",
     "vv2_write_village_statistics",
 }
 
@@ -111,7 +110,7 @@ class VV2OriginsContainmentTests(unittest.TestCase):
         for mode in load_patch_modes():
             with self.subTest(mode=mode.id):
                 rendered, applied = render_patched_bytes(source, build, mode.id, remaining)
-                self.assertEqual(len(rendered), build.size + 0x2000)
+                self.assertEqual(len(rendered), build.size)
                 owners = {item["owner"] for item in applied}
                 self.assertTrue(DISABLED.isdisjoint({owner.removeprefix("feature:") for owner in owners}))
                 disabled_owner_offsets = {

@@ -225,13 +225,23 @@ class VV3FullMasteryCandidateTests(unittest.TestCase):
 
     def test_old_origins_and_withdrawn_running_collide_fail_closed(self):
         active = {item.id: item for item in load_fun_patches()}
-        for feature_id in ("vv3_enable_origins_exclusive_features", "vv3_all_villagers_like_running"):
+        withdrawn_running = FunPatch(
+            json.loads(
+                (ROOT / "data" / "candidates" / "vv3_all_villagers_like_running_candidate.json")
+                .read_text(encoding="utf-8")
+            )
+        )
+        conflicting = {
+            "vv3_enable_origins_exclusive_features": active["vv3_enable_origins_exclusive_features"],
+            "vv3_all_villagers_like_running": withdrawn_running,
+        }
+        for feature_id, feature in conflicting.items():
             with self.assertRaises(PatcherError):
                 render_patched_bytes(
                     STOCK,
                     self.build,
                     "collection_progression",
-                    _fun_patches_override=[self.base, active[feature_id]],
+                    _fun_patches_override=[self.base, feature],
                 )
 
     def test_corruption_and_deterministic_generation(self):

@@ -97,10 +97,12 @@ class VV2FullMasteryCandidateTests(unittest.TestCase):
         cls.candidate = FunPatch(cls.raw)
         cls.build = next(item for item in load_builds() if item.id == "vv2")
 
-    def test_candidate_is_certified_visible_and_command_seven_only(self) -> None:
-        self.assertTrue(self.raw["enabled"])
+    def test_candidate_is_withdrawn_hidden_and_command_seven_only(self) -> None:
+        self.assertFalse(self.raw["enabled"])
         self.assertEqual(self.raw["id"], "vv2_full_mastery_all_stage_a_candidate")
-        self.assertIn(self.raw["id"], {item.id for item in load_fun_patches()})
+        self.assertNotIn(self.raw["id"], {item.id for item in load_fun_patches()})
+        self.assertIn("walker+0x1E", self.raw["certification_status"])
+        self.assertIn("invalid ESI", self.raw["certification_status"])
         contract = self.raw["transaction_contract"]
         self.assertEqual(contract["command"], 7)
         self.assertEqual(contract["price"], 1_000_000)
