@@ -240,9 +240,20 @@ def build_section() -> tuple[bytes, dict[str, object]]:
             push esi
             mov esi, ecx
             push edi
+            sub esp, 4
             call 0x{show_menu_va:X}
             cmp eax, 7
             jne done
+            push 0x{strings['candidate_dll']:X}
+            call dword ptr [0x457010]
+            test eax, eax
+            jz done
+            push 0x{strings['result_export']:X}
+            push eax
+            call dword ptr [0x4570D4]
+            test eax, eax
+            jz done
+            mov dword ptr [ebp - 16], eax
             mov edi, dword ptr [esi + 0x0C]
             lea edx, [edi + 0xA2FC]
             cmp dword ptr [edx], {PRICE}
@@ -280,25 +291,30 @@ def build_section() -> tuple[bytes, dict[str, object]]:
             push dword ptr [esi + 0x10]
             call 0x{walker_va:X}
             add esp, 12
+            push dword ptr [ebp - 16]
             push eax
             push 1
             call 0x{show_result_va:X}
             jmp done
         no_change:
+            push dword ptr [ebp - 16]
             push 0
             push 0
             call 0x{show_result_va:X}
             jmp done
         insufficient:
+            push dword ptr [ebp - 16]
             push 0
             push 2
             call 0x{show_result_va:X}
             jmp done
         invalid:
+            push dword ptr [ebp - 16]
             push 0
             push 3
             call 0x{show_result_va:X}
         done:
+            add esp, 4
             pop edi
             pop esi
             pop ebx
@@ -497,27 +513,18 @@ def build_section() -> tuple[bytes, dict[str, object]]:
     )
     _put(section, SHOW_MENU_OFFSET, show_menu, "menu resolver")
 
-    # stdcall show_result(status, changed), ret 8.
+    # stdcall show_result(status, changed, retained_export), ret 12. The
+    # export pointer is resolved and validated before any charge or write.
     show_result = asm(
         f"""
-            push ebx
-            push esi
-            push 0x{strings['candidate_dll']:X}
-            call dword ptr [0x457010]
+            mov eax, dword ptr [esp + 12]
             test eax, eax
             jz result_done
-            push 0x{strings['result_export']:X}
-            push eax
-            call dword ptr [0x4570D4]
-            test eax, eax
-            jz result_done
-            push dword ptr [esp + 0x10]
-            push dword ptr [esp + 0x10]
+            push dword ptr [esp + 8]
+            push dword ptr [esp + 8]
             call eax
         result_done:
-            pop esi
-            pop ebx
-            ret 8
+            ret 12
         """,
         show_result_va,
     )
@@ -693,6 +700,7 @@ def build() -> tuple[dict[str, object], dict[str, object]]:
         {
             "acceptance_commit": "1b3e4565d4168457c00404a12ed30cfb777c86e9",
             "semantic_commit": "b328c1b1c76f68ade762ec139ee6c2e08ce54a96",
+            "correction_audit_commit": "284b8cad9e876e53eefdd5ec909d25dfd336b398",
             "source": {"size": len(original), "sha256": expected_sha},
             "companion": {
                 "path": "data/candidates/VVFP VV1 Full Mastery Candidate.dll",
@@ -734,7 +742,7 @@ def build() -> tuple[dict[str, object], dict[str, object]]:
             "command_abi": {
                 "entry": "stock thiscall Tech-screen receiver arrives in ECX; entry saves old ESI, transports ECX to ESI, and restores old ESI on exit",
                 "walker": "cdecl(base,bound,mode); EAX changed, EDX invalid; preserves EBX/ESI/EDI/EBP",
-                "result": "stdcall(status,changed); ret 8",
+                "result": "stdcall(status,changed,retained_export); ret 12; retained export itself is stdcall(status,changed), ret 8",
             },
             "modes": list(MODES),
         }
@@ -788,7 +796,9 @@ def main() -> None:
     DOC_OUT.write_text(
         "# VV1 Full Mastery disabled Stage-A candidate\n\n"
         "This catalog-hidden artifact is generated from disassembly acceptance "
-        "contract `1b3e4565d4168457c00404a12ed30cfb777c86e9`. It remains "
+        "contract `1b3e4565d4168457c00404a12ed30cfb777c86e9` and applies the "
+        "pre-resolved-result correction from certification report "
+        "`284b8cad9e876e53eefdd5ec909d25dfd336b398`. It remains "
         "**disabled pending independent Sol emitted-byte certification**.\n\n"
         f"- Section SHA-256: `{artifact['section_sha256']}`\n"
         f"- Companion SHA-256: `{artifact['companion']['sha256']}`\n"
@@ -798,7 +808,9 @@ def main() -> None:
         "The candidate appends `.vv1fm`; it does not reuse the overlapping old "
         "Origins payload. It "
         "adds command 7 only, with commands 6/8, ownership, Remove, Gong, and "
-        "Island Event interception absent. The raw manifest and complete map "
+        "Island Event interception absent. The result export is resolved and "
+        "validated before any charge or native writer call, then retained through "
+        "commit. The raw manifest and complete map "
         "are under `data/candidates/`.\n",
         encoding="utf-8",
     )

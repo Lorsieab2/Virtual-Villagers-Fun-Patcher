@@ -78,8 +78,11 @@ def transaction(
     records: list[dict[str, object]],
     balance: int,
     confirm: int,
+    result_export_available: bool = True,
     mutate_before_final=None,
 ) -> tuple[str, int, list[tuple[int, int, int]]]:
+    if not result_export_available:
+        return "unavailable", balance, []
     if balance < 1_000_000:
         return "insufficient", balance, []
     changed, invalid, _ = semantic_walk(records, False)
@@ -155,7 +158,23 @@ class VV1FullMasteryCandidateTests(unittest.TestCase):
         exports = self.map["companion"]["exports"]
         self.assertIn("ShowVV1FullMasteryMenu", exports)
         self.assertIn("ShowVV1FullMasteryResult", exports)
-        self.assertEqual(self.map["command_abi"]["result"], "stdcall(status,changed); ret 8")
+        self.assertEqual(
+            self.map["command_abi"]["result"],
+            "stdcall(status,changed,retained_export); ret 12; retained export itself is stdcall(status,changed), ret 8",
+        )
+        entry = page[entry_offset:int(self.map["offsets"]["walker"], 0)]
+        load = bytes.fromhex("FF1510704500")
+        lookup = bytes.fromhex("FF15D4704500")
+        deduct = bytes.fromhex("812A40420F00")
+        self.assertGreaterEqual(entry.find(load), 0)
+        self.assertGreaterEqual(entry.find(lookup), 0)
+        self.assertGreater(entry.find(deduct), entry.find(lookup))
+        self.assertNotIn(load, entry[entry.find(deduct):])
+        self.assertNotIn(lookup, entry[entry.find(deduct):])
+        result_offset = int(self.map["offsets"]["result_resolver"], 0)
+        result_helper = page[result_offset:result_offset + 0x40]
+        self.assertNotIn(load, result_helper)
+        self.assertNotIn(lookup, result_helper)
 
     def test_walker_domain_exclusions_bound_and_writer_order(self) -> None:
         excluded = [
@@ -188,6 +207,10 @@ class VV1FullMasteryCandidateTests(unittest.TestCase):
     def test_transaction_matrix_is_atomic_and_unsigned(self) -> None:
         base = [{"occupied": True, "health": 100, "special": 0, "skills": {name: (99 if name == "farming" else 100) for name in SKILLS}}]
         self.assertEqual(transaction(deepcopy(base), 999_999, 1), ("insufficient", 999_999, []))
+        self.assertEqual(
+            transaction(deepcopy(base), 1_000_000, 1, False),
+            ("unavailable", 1_000_000, []),
+        )
         for answer in (0, 2, 77):
             self.assertEqual(transaction(deepcopy(base), 1_000_000, answer), ("cancel", 1_000_000, []))
         mastered = deepcopy(base)
@@ -197,7 +220,10 @@ class VV1FullMasteryCandidateTests(unittest.TestCase):
         def finish(records):
             records[0]["skills"] = {name: 100 for name in SKILLS}
 
-        self.assertEqual(transaction(deepcopy(base), 1_000_000, 1, finish), ("no_change", 1_000_000, []))
+        self.assertEqual(
+            transaction(deepcopy(base), 1_000_000, 1, mutate_before_final=finish),
+            ("no_change", 1_000_000, []),
+        )
         status, balance, calls = transaction(deepcopy(base), 0xFFFFFFFF, 1)
         self.assertEqual((status, balance), ("committed", 0xFFFFFFFF - 1_000_000))
         self.assertEqual(calls, [(0, 1, 1)])
