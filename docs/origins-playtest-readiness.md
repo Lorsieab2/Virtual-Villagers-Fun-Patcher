@@ -39,6 +39,19 @@ changed-record preflight, no-charge result, recheck, or rollback. Preference/
 title policy, distributed native side effects, creation/clone policy, strict
 Golden Child/Event bypass, and placement/composition remain unresolved.
 
+VV5 All Villagers are 18 audit
+`aaddf71797c28f37b0cc1f5728e567c0601a05aa` confirms age DWORD `+0x1B8C`,
+20 units per year, and age 18 value 360. Native ordinary/offline aging uses
+increment writer `0x46F7F0`, refreshes consumers, and can update the
+oldest-villager statistic; save/restore persists the `0xA8` age object. The
+candidate raw store bypasses that route and differs from the selected-age
+candidate's related `+0x1C3C`/nonzero `+0x1C4C` adjustments. It tests active,
+positive health, current believer `+0x1CEC == 0`, and an unproved extra
+`+0x1CE1 == 0` exclusion. Its generic transaction charges no-op/already-18
+cases and returns zero results. Nursing timer and nursing/pregnancy state must
+never change, but the raw helper is not proved to satisfy that semantic rule.
+Expanded composition remains blocked by 43 missing relocations.
+
 The disabled diagnostic payload bytes are retained in their manifests but are
 not rendered into stock or expanded outputs. This catalog containment does not
 touch existing save ownership or fields, force-clear anything, or issue a

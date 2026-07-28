@@ -41,6 +41,18 @@ commit recheck, no-charge result, and rollback. Target 90/100 semantics,
 preference/title policy, distributed side effects, creation/clone policy,
 strict Golden Child/Event bypass, and placement/composition remain unresolved.
 
+VV5 All Villagers are 18 is ON HOLD under audit
+`aaddf71797c28f37b0cc1f5728e567c0601a05aa`. Displayed age is signed DWORD
+`+0x1B8C`, with 20 units per year and 360 for age 18. Native refresh,
+ordinary/offline increment, oldest-villager statistic, and save persistence
+are mapped. The candidate raw store bypasses that native route and differs from
+the selected-age path's `+0x1C3C` and nonzero `+0x1C4C` writes. Its active,
+health, and current-believer tests include an unproved `+0x1CE1` exclusion;
+its one-million-point transaction charges no-op/already-18 cases and returns
+zero results. Nursing timer and nursing/pregnancy state must never change, and
+the current helper is not proved to meet that requirement. The 43-reference
+expanded relocation gap remains open.
+
 This is a player-test checklist for the collection-progression Origins-core
 outputs. It is explicitly **runtime/player confirmation pending**; static patch
 verification is not a claim that any item below has been confirmed in-game.

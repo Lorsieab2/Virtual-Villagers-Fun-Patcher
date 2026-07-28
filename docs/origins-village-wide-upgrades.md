@@ -145,6 +145,41 @@ eligibility, RNG, selection, messages, statistics, births, skills, and record
 writes—must remain entirely native. Exact guarded placement and all-patch
 composition are also unproved.
 
+### VV5 All Villagers are 18 exact-build boundary
+
+Disassembly commit `aaddf71797c28f37b0cc1f5728e567c0601a05aa`
+confirms the signed displayed-age DWORD at `+0x1B8C`. VV5 uses 20 internal
+units per displayed year, so age 18 is 360 (`0x168`). Detail refresh divides
+that field by 20; native adult, child, and older-head consumers compare it with
+360, 280, and 1100. Constructor/copy operate on its `0xA8`-byte age/identity
+object, and save/restore persist that object.
+
+Native ordinary/offline aging reaches primitive increment writer `0x46F7F0`
+through loop `0x46FE90` and then updates the oldest-villager lifetime statistic
+when applicable. The disabled command-8 candidate instead performs only
+`record+0x1B8C = 360`; it bypasses that native increment/statistic/transition
+route. Its instruction stream does not write catch-up companion `+0x1C3C`,
+nursing/pregnancy companion `+0x1C4C`, or pending-baby count `+0x1C50`.
+However, the selected-villager age candidate adjusts `+0x1C3C` and nonzero
+`+0x1C4C` by the age delta, so the village-wide asymmetry is unresolved.
+The mandatory contract remains that nursing timer and nursing/pregnancy state
+must never change; the raw store is not proof that the helper satisfies that
+semantic requirement.
+
+The candidate iterates stride `0x2F44` and tests active `+0x1CD4`, positive
+signed health `+0x1C40`, extra byte `+0x1CE1 == 0`, and proven current-believer
+faction `+0x1CEC == 0`. The faction test correctly excludes current Heathens
+and includes converted believers, but the extra `+0x1CE1` exclusion is not
+proved. Its transaction checks `0x51D5F8`, submits `-1000000` to native tech
+writer `0x4237B0`, dispatches command 8, and reports `Purchased.`. It performs
+no changed-record preflight, charges zero-change/already-18 cases, returns zero
+result counts, and has no tied recheck or rollback.
+
+VV5 age 18 remains ON HOLD. The shared expanded transport also retains 43
+uncertified relocated references: 36 cross-section `rel32` operands and seven
+external absolute `.shr` pointers. No helper availability or safety is claimed
+from this diagnostic loop.
+
 New Believers uses the authoritative active predicate, health check, and
 believer faction byte. Heathens are excluded from all three operations and are
 left byte-for-byte unchanged. Converted records are eligible only when their
