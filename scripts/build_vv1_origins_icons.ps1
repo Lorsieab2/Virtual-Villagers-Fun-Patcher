@@ -27,6 +27,7 @@ if ($LASTEXITCODE -ne 0) {
     (Join-Path $nativeRoot "vv1_origins_icons.c") `
     (Join-Path $outputRoot "vv1_origins_icons.res") `
     /link `
+    /Brepro `
     ("/DEF:" + (Join-Path $nativeRoot "vv1_origins_icons.def")) `
     ("/LIBPATH:" + (Join-Path $vsTools "lib\x86")) `
     ("/LIBPATH:" + (Join-Path $sdkRoot "Lib\$sdkVersion\um\x86")) `

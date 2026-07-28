@@ -149,6 +149,48 @@ def validate_fun_patch_catalog(
             raise PatcherError(f"Duplicate optional patch ID: {patch.id}")
         by_id[patch.id] = patch
     for patch in catalog:
+        transaction = patch.raw.get("pe_append_transaction")
+        if transaction is not None:
+            if not isinstance(transaction, dict) or not isinstance(
+                transaction.get("layouts"), dict
+            ):
+                raise PatcherError(
+                    f"{patch.name} ({patch.id}) has a malformed pe_append_transaction."
+                )
+            for mode_id, layout in transaction["layouts"].items():
+                if not isinstance(mode_id, str) or not isinstance(layout, dict):
+                    raise PatcherError(
+                        f"{patch.name} ({patch.id}) has a malformed append layout."
+                    )
+                try:
+                    original_size = int(layout["original_file_size"], 0)
+                    append_offset = int(layout["append_offset"], 0)
+                    append_bytes = bytes.fromhex(layout["append_bytes"])
+                    header_patches = layout["header_patches"]
+                except (KeyError, TypeError, ValueError) as exc:
+                    raise PatcherError(
+                        f"{patch.name} ({patch.id}) has an invalid {mode_id} append layout."
+                    ) from exc
+                if (
+                    original_size != append_offset
+                    or not append_bytes
+                    or len(append_bytes) % 0x1000
+                    or not isinstance(header_patches, list)
+                ):
+                    raise PatcherError(
+                        f"{patch.name} ({patch.id}) has unsafe {mode_id} append geometry."
+                    )
+                for item in header_patches:
+                    if not isinstance(item, dict):
+                        raise PatcherError(
+                            f"{patch.name} ({patch.id}) has a non-object append header patch."
+                        )
+                    before = _patch_bytes(item, "before")
+                    after = _patch_bytes(item, "after")
+                    if len(before) != len(after) or not item.get("purpose"):
+                        raise PatcherError(
+                            f"{patch.name} ({patch.id}) has an invalid append header guard."
+                        )
         overrides = patch.raw.get("patch_mode_overrides", {})
         if not isinstance(overrides, dict):
             raise PatcherError(
@@ -282,6 +324,182 @@ def _patch_bytes(patch: dict[str, Any], field: str) -> bytes:
     if encoded_field in patch:
         return base64.b64decode(patch[encoded_field], validate=True)
     raise PatcherError(f"Internal manifest error: patch is missing {field}")
+
+
+def _append_layout(feature: FunPatch, patch_mode: str) -> dict[str, Any] | None:
+    transaction = feature.raw.get("pe_append_transaction")
+    if transaction is None:
+        return None
+    if not isinstance(transaction, dict):
+        raise PatcherError(
+            f"{feature.name} ({feature.id}) pe_append_transaction must be an object."
+        )
+    layouts = transaction.get("layouts")
+    if not isinstance(layouts, dict):
+        raise PatcherError(
+            f"{feature.name} ({feature.id}) append transaction is missing layouts."
+        )
+    layout = layouts.get(patch_mode)
+    if not isinstance(layout, dict):
+        raise PatcherError(
+            f"{feature.name} ({feature.id}) has no append layout for {patch_mode}."
+        )
+    return layout
+
+
+def _apply_pe_append_transactions(
+    data: bytearray,
+    fun_patches: list[FunPatch],
+    patch_mode: str,
+) -> list[dict[str, str]]:
+    """Apply exact guarded PE appends before ordinary feature byte patches."""
+    applied: list[dict[str, str]] = []
+    for feature in fun_patches:
+        layout = _append_layout(feature, patch_mode)
+        if layout is None:
+            continue
+        try:
+            original_size = int(layout["original_file_size"], 0)
+            append_offset = int(layout["append_offset"], 0)
+            append_bytes = bytes.fromhex(layout["append_bytes"])
+            header_patches = layout["header_patches"]
+        except (KeyError, TypeError, ValueError) as exc:
+            raise PatcherError(
+                f"{feature.name} ({feature.id}) has a malformed append layout."
+            ) from exc
+        if original_size != append_offset or len(data) != original_size:
+            raise PatcherError(
+                f"{feature.name} append guard failed: expected file size "
+                f"0x{original_size:X}, found 0x{len(data):X}."
+            )
+        if not append_bytes or len(append_bytes) % 0x1000:
+            raise PatcherError(
+                f"{feature.name} append payload must occupy complete 0x1000-byte pages."
+            )
+        for item in header_patches:
+            offset = int(item["offset"], 0)
+            before = _patch_bytes(item, "before")
+            after = _patch_bytes(item, "after")
+            if len(before) != len(after):
+                raise PatcherError(
+                    f"{feature.name} append header changes length at {item['offset']}."
+                )
+            actual = bytes(data[offset : offset + len(before)])
+            if actual != before:
+                raise PatcherError(
+                    f"{feature.name} append header guard failed at {item['offset']}: "
+                    f"expected {before.hex().upper()}, found {actual.hex().upper()}"
+                )
+            data[offset : offset + len(after)] = after
+            applied.append(
+                {
+                    "offset": item["offset"],
+                    "before": before.hex().upper(),
+                    "after": after.hex().upper(),
+                    "purpose": item["purpose"],
+                    "owner": f"feature:{feature.id}",
+                    "virtual_address": None,
+                }
+            )
+        data.extend(append_bytes)
+        applied.append(
+            {
+                "offset": f"0x{append_offset:X}",
+                "before": "",
+                "after": append_bytes.hex().upper(),
+                "purpose": layout["purpose"],
+                "owner": f"feature:{feature.id}",
+                "virtual_address": layout.get("virtual_address"),
+            }
+        )
+    return applied
+
+
+def _remove_feature_bytes(
+    data: bytearray,
+    feature: FunPatch,
+    patch_mode: str,
+) -> list[dict[str, str]]:
+    """Guardedly undo one feature, including its owned append transaction."""
+    removed: list[dict[str, str]] = []
+    patches = list(feature.patches)
+    patches.extend(feature.raw.get("patch_mode_overrides", {}).get(patch_mode, []))
+    for patch in reversed(patches):
+        offset = int(patch["offset"], 0)
+        before = _patch_bytes(patch, "before")
+        after = _patch_bytes(patch, "after")
+        actual = bytes(data[offset : offset + len(after)])
+        if actual != after:
+            raise PatcherError(
+                f"Removal guard failed for {feature.id} at {patch['offset']}: "
+                f"expected {after.hex().upper()}, found {actual.hex().upper()}"
+            )
+        data[offset : offset + len(before)] = before
+        removed.append(
+            {
+                "offset": patch["offset"],
+                "before": after.hex().upper(),
+                "after": before.hex().upper(),
+                "purpose": f"remove {feature.id}: {patch['purpose']}",
+                "owner": f"feature:{feature.id}",
+            }
+        )
+    layout = _append_layout(feature, patch_mode)
+    if layout is not None:
+        append_offset = int(layout["append_offset"], 0)
+        append_bytes = bytes.fromhex(layout["append_bytes"])
+        if len(data) != append_offset + len(append_bytes):
+            raise PatcherError(
+                f"{feature.name} cannot be removed: appended file length is not owned."
+            )
+        actual = bytes(data[append_offset:])
+        if actual != append_bytes:
+            raise PatcherError(
+                f"{feature.name} cannot be removed: appended page guard differs."
+            )
+        del data[append_offset:]
+        for item in reversed(layout["header_patches"]):
+            offset = int(item["offset"], 0)
+            before = _patch_bytes(item, "before")
+            after = _patch_bytes(item, "after")
+            actual = bytes(data[offset : offset + len(after)])
+            if actual != after:
+                raise PatcherError(
+                    f"{feature.name} removal header guard failed at {item['offset']}."
+                )
+            data[offset : offset + len(before)] = before
+        removed.append(
+            {
+                "offset": layout["append_offset"],
+                "before": append_bytes.hex().upper(),
+                "after": "",
+                "purpose": f"truncate owned append for {feature.id}",
+                "owner": f"feature:{feature.id}",
+            }
+        )
+    checksum_offset, _ = _pe_checksum_layout(data)
+    struct.pack_into("<I", data, checksum_offset, 0)
+    struct.pack_into("<I", data, checksum_offset, pe_checksum(data))
+    return removed
+
+
+def _remove_feature_with_dependency_guard(
+    data: bytearray,
+    feature: FunPatch,
+    installed_features: list[FunPatch],
+    patch_mode: str,
+) -> list[dict[str, str]]:
+    dependents = [
+        item.id
+        for item in installed_features
+        if item.id != feature.id and feature.id in _dependency_ids(item)
+    ]
+    if dependents:
+        raise PatcherError(
+            f"Cannot remove {feature.id} while dependent optional patch(es) remain: "
+            + ", ".join(sorted(dependents))
+        )
+    return _remove_feature_bytes(data, feature, patch_mode)
 
 
 def _fun_patch_support(
@@ -798,9 +1016,15 @@ def render_patched_bytes(
     build: Build,
     patch_mode: str = DEFAULT_PATCH_MODE,
     fun_patch_ids: tuple[str, ...] | list[str] = (),
+    *,
+    _fun_patches_override: list[FunPatch] | None = None,
 ) -> tuple[bytearray, list[dict[str, str]]]:
     variant = get_patch_variant(build, patch_mode)
-    fun_patches = _selected_fun_patches(build, fun_patch_ids)
+    fun_patches = (
+        _selected_fun_patches(build, fun_patch_ids)
+        if _fun_patches_override is None
+        else list(_fun_patches_override)
+    )
     data = bytearray(source.read_bytes())
     original_data = bytes(data)
     applied: list[dict[str, str]] = []
@@ -819,39 +1043,46 @@ def render_patched_bytes(
         if overrides:
             for patch in overrides.get(patch_mode, []):
                 fun_bytes.append(dict(patch, _owner=f"feature:{feature.id}"))
-    for patch in [*expanded, *safety, *population, *support, *fun_bytes]:
-        offset = int(patch["offset"], 0)
-        before = _patch_bytes(patch, "before")
-        after = _patch_bytes(patch, "after")
-        if len(before) != len(after):
-            raise PatcherError(
-                f"Internal manifest error at {patch['offset']}: length changed"
+    for phase_index, phase in enumerate(
+        ([*expanded, *safety, *population, *support], fun_bytes)
+    ):
+        if phase_index == 1:
+            applied.extend(
+                _apply_pe_append_transactions(data, fun_patches, patch_mode)
             )
-        actual = bytes(data[offset : offset + len(before)])
-        owner = patch.get("_owner", "automatic")
-        end = offset + len(before)
-        for prior_start, prior_end, prior_owner in applied_ranges:
-            if offset < prior_end and prior_start < end and prior_owner != owner:
+        for patch in phase:
+            offset = int(patch["offset"], 0)
+            before = _patch_bytes(patch, "before")
+            after = _patch_bytes(patch, "after")
+            if len(before) != len(after):
                 raise PatcherError(
-                    f"Patch overlap between {prior_owner} and {owner} at 0x{offset:X}."
+                    f"Internal manifest error at {patch['offset']}: length changed"
                 )
-        if actual != before:
-            raise PatcherError(
-                f"Byte guard failed at {patch['offset']}: "
-                f"expected {before.hex().upper()}, found {actual.hex().upper()}"
+            actual = bytes(data[offset : offset + len(before)])
+            owner = patch.get("_owner", "automatic")
+            end = offset + len(before)
+            for prior_start, prior_end, prior_owner in applied_ranges:
+                if offset < prior_end and prior_start < end and prior_owner != owner:
+                    raise PatcherError(
+                        f"Patch overlap between {prior_owner} and {owner} at 0x{offset:X}."
+                    )
+            if actual != before:
+                raise PatcherError(
+                    f"Byte guard failed at {patch['offset']}: "
+                    f"expected {before.hex().upper()}, found {actual.hex().upper()}"
+                )
+            data[offset : offset + len(after)] = after
+            applied_ranges.append((offset, end, owner))
+            applied.append(
+                {
+                    "offset": patch["offset"],
+                    "before": before.hex().upper(),
+                    "after": after.hex().upper(),
+                    "purpose": patch["purpose"],
+                    "owner": patch.get("_owner", "automatic"),
+                    "virtual_address": _virtual_address_for_offset(original_data, offset),
+                }
             )
-        data[offset : offset + len(after)] = after
-        applied_ranges.append((offset, end, owner))
-        applied.append(
-            {
-                "offset": patch["offset"],
-                "before": before.hex().upper(),
-                "after": after.hex().upper(),
-                "purpose": patch["purpose"],
-                "owner": patch.get("_owner", "automatic"),
-                "virtual_address": _virtual_address_for_offset(original_data, offset),
-            }
-        )
     applied.extend(
         _relocate_expanded_shr_fun_patches(
             build, patch_mode, fun_patches, data

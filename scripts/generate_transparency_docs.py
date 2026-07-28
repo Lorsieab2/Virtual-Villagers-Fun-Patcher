@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import sys
 from pathlib import Path
 
@@ -17,6 +18,12 @@ def _items(values) -> list[str]:
 
 def build_document() -> str:
     patches = load_fun_patches()
+    candidate_map_path = ROOT / "data" / "candidates" / "vv3_running_candidate_map.json"
+    candidate = (
+        json.loads(candidate_map_path.read_text(encoding="utf-8"))
+        if candidate_map_path.is_file()
+        else None
+    )
     by_game = {build.id: [p for p in patches if p.game_id == build.id] for build in load_builds()}
     lines = [
         "# Virtual Villagers Fun Patcher — Transparency Coverage",
@@ -76,6 +83,14 @@ def build_document() -> str:
         "VV3 second resolution `d1cdeb67362487c1d577e3abae03c9424fd04fb9` specified every architecture item while leaving naturally nonzero +0xE94 as its then-open semantic gate. Exactly eight direct readers exist at 0x455993, 0x4568A3, 0x45C9AA, 0x468D4C, 0x469081, 0x46915C, 0x4692C8, and 0x4697EF; sole direct writer 0x45F2B1 writes zero during retirement/reset. Save/load/copy preserve it, no direct nonzero writer is found, and strong player-confirmed CE tables do not label it. The specified hooks 0x6547D/0x65640 use a Running-only seven-row state, maximum ID 1006, exact command==6 dispatch, 16-byte four-counter structure, and exact lines `Granted Running to %u villagers`, `Skipped over %u villagers. Reason: already likes running`, `Skipped over %u villagers. Reason: all like slots are occupied`, and `Removed running dislike from %u villagers`; at bound 256 they require at most 201 bytes including CRLF/NUL, fitting char[256]. Purchase unsigned-checks 1,000,000, dry-runs, refuses/no-charges at granted==0, rechecks, deducts once, commits, then owns. Removal costs/refunds zero, never reverses preferences, and allows repurchase. Stock PE is ImageBase 0x400000, alignments 0x1000/0x1000, five sections, SizeOfHeaders 0x1000, SizeOfImage 0x2DF000, checksum zero, file end 0xCB000, with one section-header slot; expanded moves .shr/.rsrc to 0x3A1000/0x3A2000 and SizeOfImage to 0x3B8000 across 1,263 guards.",
         "",
         "VV3 semantic closure `b9c7a22eb1d7cceae25160ce4d360621e7485625` identifies +0xE94 as a dormant retained per-villager totem-render selector, not a live eligibility discriminator. At 0x468D4C, nonzero selects localization 573, exact suffix `'s totem`; zero with signed health <= 0 selects 574, `'s remains`. The eight readers and sole zero writer are exhaustive; constructors, new/clone, Event, puzzle, and template paths have no nonzero producer. The corrected readable save corpus had 64 active records all zero, and a live 150-slot scan had 125 active records all zero; strong player-confirmed CE tables contain no E94 label. Running therefore uses only active +0xF10 != 0 and signed health +0xE78 > 0. VV2 +0x558 memorials and VV5 Heathen totems are separate. The only remaining ON HOLD boundary is deterministic command-6-only extension/transaction bytes and collision-certified stock/expanded PE manifests. The old 944-byte commands 6/7/8 payload remains forbidden because it precharges, exposes commands 7/8, lacks granted, and uses the wrong callback ABI; injection bytes remain withheld for implementation, not E94 semantics.",
+        "",
+        (
+            "VV3 Running Stage A now contains a disabled generated certification bundle under `data/candidates/`; it is not loaded by the catalog and changes no selectable patch. Base Origins owns the proposed `.vvrun` page and guarded no-op slot, while the dependent Running candidate replaces only that slot. Commands 7/8 are absent. The no-op slot SHA-256 is "
+            + (candidate["noop_slot_sha256"] if candidate else "not generated")
+            + ", the Running slot SHA-256 is "
+            + (candidate["running_slot_sha256"] if candidate else "not generated")
+            + ", and the rebuilt companion exposes `ShowOriginsVillageWideResult@20` while retaining its existing exports. Sol byte certification is still required before enablement. Persistent fields are serialized/restored but remain legitimately mutable by later native aging, work, events, catch-up, and other game mechanics; the patch gate is immediate write preservation, save roundtrip, and noninterception of native future writers."
+        ),
         "",
         "## Origins village-wide atomic-payload containment",
         "",

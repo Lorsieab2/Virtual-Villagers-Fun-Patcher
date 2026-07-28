@@ -345,14 +345,18 @@ class VV5OriginsFeatureTests(unittest.TestCase):
     def test_food_mastery_metadata_change_does_not_change_runtime_payload_fields(self) -> None:
         runtime = {
             key: self.feature[key]
-            for key in ("patches", "expanded_shr_relocations", "companion_files")
+            for key in ("patches", "expanded_shr_relocations")
         }
         digest = hashlib.sha256(
             json.dumps(runtime, sort_keys=True, separators=(",", ":")).encode()
         ).hexdigest().upper()
         self.assertEqual(
             digest,
-            "A3F42454A894176ECE7DFF0033CF15CB67E31B7EF120FE565C7CB7784CB58036",
+            "5DA48FB6561187F2C073902DEA54DF26A2AC6A5D25C0EF7C0740E47D06C8F604",
+        )
+        self.assertEqual(
+            self.feature["companion_files"][0]["sha256"],
+            "2ED1100E7F2EA5B8E522C2DE11F6B00CA8A02B968319C251365E9EFD634BCAF9",
         )
 
     def test_six_float_skills_and_age_companions_are_written(self) -> None:

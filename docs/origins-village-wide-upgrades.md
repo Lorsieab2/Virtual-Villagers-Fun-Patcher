@@ -218,13 +218,21 @@ The Running walker therefore removes `+0xE94` and uses only active byte
 memorial marker and VV5's Heathen totems are separate game-specific mechanics,
 not substitutes for this VV3 field.
 
-The only remaining ON HOLD boundary is implementation: deterministic
-command-6-only base-Origins extension and transaction bytes plus
-collision-certified stock and expanded PE manifests. The existing 944-byte
-commands 6/7/8 payload remains forbidden because it precharges, exposes
-commands 7/8, lacks the granted count, and uses the wrong callback ABI.
-Deterministic injection bytes remain withheld pending that implementation
-gate, not pending further `+0xE94` semantics.
+Stage A has now generated a disabled command-6-only certification bundle under
+`data/candidates/`, with the exact base-owned `.vvrun` page, guarded no-op
+slot, dependent Running replacement, stock and both-expanded layouts,
+append/truncate guards, four-counter `char[256]` ABI, and rebuilt
+`ShowOriginsVillageWideResult@20` companion export. It remains absent from the
+catalog and ordinary outputs until Sol certifies those emitted bytes. The
+existing 944-byte commands 6/7/8 payload remains forbidden because it
+precharges, exposes commands 7/8, lacks the granted count, and uses the wrong
+callback ABI.
+
+Persistence here means serialization and restoration, not immutability.
+Certification requires preservation of unrelated fields at the Running
+transaction, correct save roundtrip, and no interception of later native
+writers. Native Events and other ordinary game mechanics may legitimately
+change persisted Likes, Dislikes, health, age, or other fields afterward.
 
 The disabled Full Mastery candidate contains direct stores to the native five
 skill fields in VV1–VV4 or six skill fields in VV5. Those stores are retained

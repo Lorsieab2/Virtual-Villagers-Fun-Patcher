@@ -48,8 +48,10 @@ active corrected save records and 125 active records in the 150-slot live
 scan were zero, and CE tables contain no label. The future Running predicate
 is active `+0xF10 != 0` plus signed health `+0xE78 > 0`, without `+0xE94`.
 VV2 `+0x558` memorials and VV5 Heathen totems remain separate mechanics.
-Injection stays withheld only for the command-6-only implementation and
-collision-certified stock/expanded manifests.
+A disabled Stage A candidate now provides generated command-6-only bytes,
+stock/both-expanded manifests, guarded removal, and the five-argument result
+ABI for static certification. It is not catalog-visible and is not ready for
+player runtime testing.
 
 VV3 Full Mastery is specifically ON HOLD under exact-build audit
 `089957227c0db6a4c3128045519ffa27b201a00e`. Its five signed DWORD skills are

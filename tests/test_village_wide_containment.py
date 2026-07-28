@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import json
 import subprocess
 import sys
@@ -57,25 +58,42 @@ class VillageWideContainmentTests(unittest.TestCase):
                 prior_without_gate.pop("enabled", None)
                 self.assertEqual(current_without_gate, prior_without_gate)
                 base_path = f"data/{game_id}_origins_feature.json"
+                base_current = json.loads(
+                    (ROOT / base_path).read_text(encoding="utf-8")
+                )
+                base_prior = json.loads(
+                    subprocess.check_output(
+                        ["git", "show", f"{BASELINE}:{base_path}"], text=True
+                    )
+                )
+                self.assertEqual(base_current["patches"], base_prior["patches"])
                 self.assertEqual(
-                    json.loads((ROOT / base_path).read_text(encoding="utf-8")),
-                    json.loads(
-                        subprocess.check_output(
-                            ["git", "show", f"{BASELINE}:{base_path}"], text=True
-                        )
-                    ),
+                    base_current.get("patch_mode_overrides"),
+                    base_prior.get("patch_mode_overrides"),
+                )
+                self.assertEqual(
+                    base_current.get("expanded_shr_relocations"),
+                    base_prior.get("expanded_shr_relocations"),
+                )
+                self.assertEqual(
+                    base_current["companion_files"][0]["source"],
+                    base_prior["companion_files"][0]["source"],
+                )
+                self.assertEqual(
+                    base_current["companion_files"][0]["destination"],
+                    base_prior["companion_files"][0]["destination"],
                 )
 
-        for companion_path in (
-            "assets/origins/VVFP Origins Icons.dll",
-            "assets/statistics/VVFP Statistics Export.dll",
-        ):
-            self.assertEqual(
-                (ROOT / companion_path).read_bytes(),
-                subprocess.check_output(
-                    ["git", "show", f"{BASELINE}:{companion_path}"]
-                ),
-            )
+        origins = ROOT / "assets/origins/VVFP Origins Icons.dll"
+        self.assertEqual(
+            base_current["companion_files"][0]["sha256"],
+            hashlib.sha256(origins.read_bytes()).hexdigest().upper(),
+        )
+        statistics_path = "assets/statistics/VVFP Statistics Export.dll"
+        self.assertEqual(
+            (ROOT / statistics_path).read_bytes(),
+            subprocess.check_output(["git", "show", f"{BASELINE}:{statistics_path}"]),
+        )
 
         generator = (ROOT / "scripts" / "build_village_wide_origins_features.py").read_text(
             encoding="utf-8"
@@ -358,11 +376,11 @@ class VillageWideContainmentTests(unittest.TestCase):
             "signed health DWORD `+0xE78 > 0`",
             "VV2's `+0x558`",
             "VV5's Heathen totems",
-            "only remaining ON HOLD boundary",
-            "collision-certified stock and expanded PE manifests",
+            "disabled command-6-only",
+            "Sol certifies those emitted bytes",
             "precharges, exposes",
-            "wrong callback ABI",
-            "not pending further `+0xE94` semantics",
+            "callback ABI",
+            "Persistence here means serialization and restoration",
             "refund",
         ):
             self.assertIn(phrase, docs)

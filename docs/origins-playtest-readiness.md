@@ -71,9 +71,11 @@ nonzero producer. All 64 active records in the corrected readable save corpus
 and 125 active records in a 150-slot live scan were zero; CE tables do not
 label the byte. Running eligibility is therefore only active `+0xF10 != 0`
 and signed health `+0xE78 > 0`. VV2 `+0x558` memorials and VV5 Heathen
-totems are distinct. The sole remaining ON HOLD boundary is deterministic
-command-6-only transaction/extension bytes and collision-certified
-stock/expanded PE manifests. The old 944-byte payload remains forbidden.
+totems are distinct. Stage A now supplies a disabled generated command-6-only
+base extension, guarded slot, transaction body, rebuilt `@20` companion, and
+stock/both-expanded render and uninstall fixtures under `data/candidates/`.
+Those bytes remain unavailable pending Sol certification. The old 944-byte
+payload remains forbidden.
 
 VV1 audit `e0bed87ce17dca5331afed1abc2d753ec3d8f0aa` now
 classifies that command as ON HOLD. It confirms five signed DWORD skills

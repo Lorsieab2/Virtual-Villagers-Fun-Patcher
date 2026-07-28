@@ -10,7 +10,8 @@ enum {
     ID_BUY_LAST = 1008,
     ID_CHECK_FIRST = 1100,
     STATE_VILLAGER = 0x10000,
-    STATE_VILLAGE_WIDE = 0x20000
+    STATE_VILLAGE_WIDE = 0x20000,
+    STATE_RUNNING_ONLY = 0x40000
 };
 
 BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved) {
@@ -31,7 +32,9 @@ static INT_PTR CALLBACK upgrade_dialog(
         int villager_menu = (lparam & STATE_VILLAGER) != 0;
         int row_count = villager_menu
             ? 4
-            : ((lparam & STATE_VILLAGE_WIDE) != 0 ? 9 : 6);
+            : ((lparam & STATE_RUNNING_ONLY) != 0
+                ? 7
+                : ((lparam & STATE_VILLAGE_WIDE) != 0 ? 9 : 6));
         int row;
         for (row = 0; row < 9; ++row) {
             ShowWindow(GetDlgItem(window, ID_CHECK_FIRST + row), SW_HIDE);
@@ -172,5 +175,45 @@ __declspec(dllexport) int __stdcall ShowOriginsVillageWideResult(
             MB_OK | MB_ICONINFORMATION
         );
     }
+    return 0;
+}
+
+__declspec(dllexport) int __stdcall ShowOriginsVillageWideResult20(
+    int command,
+    unsigned int granted,
+    unsigned int already_like,
+    unsigned int full_like,
+    unsigned int removed_dislike
+) {
+    char message[256];
+    char line[96];
+    if (command != 6) {
+        return 0;
+    }
+    wsprintfA(message, "Granted Running to %u villagers", granted);
+    wsprintfA(
+        line,
+        "\r\nSkipped over %u villagers. Reason: already likes running",
+        already_like
+    );
+    lstrcatA(message, line);
+    wsprintfA(
+        line,
+        "\r\nSkipped over %u villagers. Reason: all like slots are occupied",
+        full_like
+    );
+    lstrcatA(message, line);
+    wsprintfA(
+        line,
+        "\r\nRemoved running dislike from %u villagers",
+        removed_dislike
+    );
+    lstrcatA(message, line);
+    MessageBoxA(
+        GetForegroundWindow(),
+        message,
+        "Origins Upgrades",
+        MB_OK | MB_ICONINFORMATION
+    );
     return 0;
 }

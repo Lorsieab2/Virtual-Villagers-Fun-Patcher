@@ -242,12 +242,16 @@ class DoublerAuditDocumentationTests(unittest.TestCase):
         self.assertIn("confirmed absent", contract["food_mastery_status"])
         self.assertIn("Farming", contract["food_mastery_status"])
         self.assertIn("Herb Mastery", contract["food_mastery_status"])
-        runtime = {key: manifest[key] for key in ("patches", "companion_files")}
+        runtime = {"patches": manifest["patches"]}
         self.assertEqual(
             hashlib.sha256(
                 json.dumps(runtime, sort_keys=True, separators=(",", ":")).encode()
             ).hexdigest().upper(),
-            "54F1300D19F0A5F8021555F759BFCC3CD530F91C71AA7C633833BB0BC7843EF5",
+            "966C1B25B30BC5D20E892B3BA0940BC8170FE2171179355279AB65CA1656D3DC",
+        )
+        self.assertEqual(
+            manifest["companion_files"][0]["sha256"],
+            "2ED1100E7F2EA5B8E522C2DE11F6B00CA8A02B968319C251365E9EFD634BCAF9",
         )
         self.assertEqual(inventory["e9_tail_jumps_to_writers"], 0)
 
