@@ -55,6 +55,17 @@ precharges while `0x7B7A0` is only a header check; the current three-counter
 mix unrelated Origins code; command-6-only UI guards and a complete appended
 section relocation/uninstall/all-patch ledger do not exist.
 
+Second resolution commit `d1cdeb67362487c1d577e3abae03c9424fd04fb9`
+specifies the VV3 seven-row/ID-1006 exact-command UI, 16-byte four-counter
+structure, four-line `char[256]` result (201-byte maximum at bound 256),
+unsigned one-million dry-run/no-charge/recheck/deduct/commit transaction, and
+zero-cost/no-refund non-reversing removal with repurchase. It also records
+stock and expanded PE placement facts. Injection bytes remain withheld because
+`+0xE94` is still the first semantic gate: eight direct readers exist, the
+sole direct writer only clears it during retirement/reset, save/load/copy
+preserve it, no direct nonzero writer is known, and the player-confirmed CE
+tables do not label it.
+
 VV1 audit `e0bed87ce17dca5331afed1abc2d753ec3d8f0aa` now
 classifies that command as ON HOLD. It confirms five signed DWORD skills
 `+0x3BC..+0x3CC`, preference `+0x3D0`, Master threshold 90, native cap 100,

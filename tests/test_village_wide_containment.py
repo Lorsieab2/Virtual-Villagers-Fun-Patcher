@@ -21,7 +21,7 @@ from vv_fun_patcher import (  # noqa: E402
 from vv_fun_patcher_gui import group_fun_patches  # noqa: E402
 
 STOCK = ROOT / "research" / "stock-executables"
-BASELINE = "b7ea54b45e81ad33d562b901af6ba4dc272ddc9c"
+BASELINE = "6fa6d84c2b8961165b0716d12168bcf0cbf76ebc"
 DISABLED = {f"vv{game}_origins_village_wide_upgrades" for game in range(1, 6)}
 
 
@@ -297,7 +297,7 @@ class VillageWideContainmentTests(unittest.TestCase):
             "+0xFB4..+0xFC8",
             "stride `0x1F8C`",
             "150/256 physical bound",
-            "Added Running Like to %u villagers",
+            "Granted Running to %u villagers",
             "Skipped over %u villagers. Reason: already likes running",
             "Removed running dislike from %u villagers",
             "Skipped over %u villagers. Reason: all like slots are occupied",
@@ -315,6 +315,33 @@ class VillageWideContainmentTests(unittest.TestCase):
             "0xA3180",
             "command-6-only UI guards",
             "relocation, uninstall",
+            "d1cdeb67362487c1d577e3abae03c9424fd04fb9",
+            "0x455993/0x55993",
+            "0x4568A3/0x568A3",
+            "0x45C9AA/0x5C9AA",
+            "0x468D4C/0x68D4C",
+            "0x469081/0x69081",
+            "0x46915C/0x6915C",
+            "0x4692C8/0x692C8",
+            "0x4697EF/0x697EF",
+            "0x45F2B1/0x5F2B1",
+            "no direct nonzero writer",
+            "do not label `+0xE94`",
+            "Running-only seven-row",
+            "ID 1006",
+            "command == 6",
+            "{granted, already_like, full_like, removed_dislike}",
+            "Granted Running to %u villagers",
+            "at most 201 bytes",
+            "char[256]",
+            "Removal costs 0, refunds 0",
+            "does not reverse preferences",
+            "permits repurchase",
+            "ImageBase `0x400000`",
+            "SectionAlignment/FileAlignment",
+            "`0x2DF000`",
+            "1,263 guarded patches",
+            "withheld until `+0xE94`",
             "refund",
         ):
             self.assertIn(phrase, docs)

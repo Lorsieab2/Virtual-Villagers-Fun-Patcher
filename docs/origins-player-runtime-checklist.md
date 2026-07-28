@@ -34,6 +34,12 @@ forbidden because `+0xE94` status eligibility, independent command-6 UI,
 four-counter bounded result ABI, and complete stock/expanded placement and
 uninstall composition are unresolved. The shared 944-byte commands 6/7/8
 payload and unrelated base Origins hooks cannot be enabled selectively.
+Second resolution `d1cdeb67362487c1d577e3abae03c9424fd04fb9` specifies the
+Running-only seven-row/ID-1006 UI, four-counter `char[256]` result, atomic
+one-million-point transaction, zero-cost/no-refund non-reversing removal and
+repurchase, plus dual-layout PE boundaries. Deterministic injection remains
+withheld solely at the first semantic gate: the naturally nonzero meaning of
+persisted `+0xE94` is not identified.
 
 VV3 Full Mastery is specifically ON HOLD under exact-build audit
 `089957227c0db6a4c3128045519ffa27b201a00e`. Its five signed DWORD skills are

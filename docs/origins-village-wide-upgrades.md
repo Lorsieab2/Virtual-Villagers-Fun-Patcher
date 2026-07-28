@@ -137,13 +137,13 @@ whole record if Running is present, require an empty Like, then add Running,
 clear matching Dislikes, and count `granted`, `already`, `removed`, and
 `full`.
 
-The four future result lines are:
+The finalized VV3 future result lines are:
 
 ```text
-Added Running Like to %u villagers
+Granted Running to %u villagers
 Skipped over %u villagers. Reason: already likes running
-Removed running dislike from %u villagers
 Skipped over %u villagers. Reason: all like slots are occupied
+Removed running dislike from %u villagers
 ```
 
 The transaction must dry-run, refuse and charge nothing when `granted == 0`,
@@ -159,6 +159,47 @@ three-counter 128-byte result ABI cannot return `granted`. Base hooks
 there are no command-6-only UI guards. No complete appended-section
 relocation, uninstall, absolute-reference, or all-patch stock/expanded ledger
 is certified.
+
+Second resolution commit `d1cdeb67362487c1d577e3abae03c9424fd04fb9`
+specifies every remaining architecture item except the first semantic gate,
+the naturally nonzero meaning of `record+0xE94`. Its exhaustive direct scan
+found exactly eight readers:
+
+`0x455993/0x55993`, `0x4568A3/0x568A3`, `0x45C9AA/0x5C9AA`,
+`0x468D4C/0x68D4C`, `0x469081/0x69081`, `0x46915C/0x6915C`,
+`0x4692C8/0x692C8`, and `0x4697EF/0x697EF`.
+
+The sole direct writer is retirement/reset
+`0x45F2B1/0x5F2B1`, which writes zero. Constructor clearing, save/load/copy,
+and wholesale copies preserve the byte; no direct nonzero writer was found.
+Main, Backup, and Copy Cheat Engine tables strongly corroborate the preference
+and Chief fields but do not label `+0xE94`; the separately exposed Chief DWORD
+proves it is not that field.
+
+The specified command-6-only design retains hooks `0x6547D` and `0x65640` but
+uses a distinct Running-only seven-row state, defensive maximum ID 1006, and
+exact `command == 6` dispatch; any `command >= 6` range is forbidden. It
+returns a 16-byte four-counter structure
+`{granted, already_like, full_like, removed_dislike}`. At bound 256, the four
+lines plus three CRLF sequences and NUL require at most 201 bytes, so the
+bounded result buffer is `char[256]`.
+
+An unowned purchase unsigned-checks 1,000,000, dry-runs, refuses without
+charge when `granted == 0`, performs a final unsigned recheck, deducts exactly
+once, commits the identical deterministic plan, and sets ownership only after
+a nonzero commit. Removal costs 0, refunds 0, clears only ownership/UI state,
+does not reverse preferences, and permits repurchase.
+
+Stock PE facts are ImageBase `0x400000`, SectionAlignment/FileAlignment
+`0x1000/0x1000`, five sections, SizeOfHeaders `0x1000`, SizeOfImage
+`0x2DF000`, checksum zero, and a final `.rsrc` at RVA `0x2C9000`, raw
+`0xB5000`, size `0x16000`, ending at raw `0xCB000`; one 40-byte section-header
+slot remains. Expanded mode moves `.shr` to RVA `0x3A1000`, `.rsrc` to
+`0x3A2000`, sets SizeOfImage `0x3B8000`, and applies 1,263 guarded patches.
+A stock appended section begins no earlier than RVA `0x2DF000`; expanded no
+earlier than `0x3B8000`. Deterministic injection bytes and dual-layout section
+manifests remain deliberately withheld until `+0xE94` is semantically
+identified.
 
 The disabled Full Mastery candidate contains direct stores to the native five
 skill fields in VV1–VV4 or six skill fields in VV5. Those stores are retained
