@@ -11,12 +11,13 @@ village-wide bytes are applied. Existing save fields and ownership are left
 untouched, with no forced clear and no refund. The historical procedures below
 are retained as the future player-validation contract, not as currently
 available rows. VV3's independently rebuilt command-6-only **All Villagers
-Like Running** command-6-only feature is enabled for replacement runtime
-playtesting after final certification
-`c62fba9214de7c6092365e99c72bd81a59d3888c`. Gameplay validation remains
-pending. It is a repeatable Buy action costing exactly
-1,000,000 tech points;
-commands 7 and 8 remain absent.
+Like Running** source remains catalog-visible, but VV3Run2 is hard-withdrawn
+from playtesting under crash audit
+`36f14702b938a6235230a3fd3e0c34328d3ac745`. The exact tested EXE/DLL pair
+crashed on the status-2 no-change route; static ABI/pointers pass, no saved
+overwrite was found, and the fault instruction remains unknown. Do not
+package or continue runtime testing until a fresh certified gate. Commands 7
+and 8 remain absent.
 
 All Villagers Like Running remains ON HOLD for VV1, VV2, VV4, and VV5 under audit
 `0311443fbd078e3adcabaf7e693199989ddb9db8` and evidence clarification
@@ -57,9 +58,10 @@ Stage C certification
 command-6-only artifact, but its owned-state behavior is revoked. Corrective
 contract `0095e605b3b488129c0623efd642e9352d8586c0` specifies a repeatable Buy,
 an exact nonblank no-change result with no deduction, and confirmation before
-a positive transaction. Final certification
-`c62fba9214de7c6092365e99c72bd81a59d3888c` permits runtime playtesting;
-commands 7 and 8 remain unavailable.
+a positive transaction. Final static certification
+`c62fba9214de7c6092365e99c72bd81a59d3888c` was superseded for runtime
+readiness by crash audit `36f14702b938a6235230a3fd3e0c34328d3ac745`.
+VV3Run2 is withdrawn; commands 7 and 8 remain unavailable.
 
 VV3 Full Mastery is specifically ON HOLD under exact-build audit
 `089957227c0db6a4c3128045519ffa27b201a00e`. Its five signed DWORD skills are
@@ -240,7 +242,7 @@ outcome bypassing Birth Control as a defect; that bypass is required.
 | Tech Point Doubler | 500,000 tech points; VV1/VV3/VV4 unowned purchase and repurchase remain unavailable. VV5 stock supports purchase, zero-cost/no-refund Remove, and full-price repurchase; VV5 expanded-256 keeps new purchase unavailable and owned Remove available. |
 | Food Point Doubler | 500,000 tech points; VV1/VV3/VV4 unowned purchase and repurchase remain unavailable. VV5 stock supports purchase, zero-cost/no-refund Remove, and full-price repurchase; VV5 expanded-256 keeps new purchase unavailable and owned Remove available. |
 | Cure all Villagers | 30,000 tech points; test the sickness-only matrix below. |
-| Village-wide rows | VV3 All Villagers Like Running is enabled for runtime playtesting as the sole certified command-6-only row. Every legacy bundled row, Grant Full Mastery to All Villagers, and All Villagers are 18 remain unavailable. |
+| Village-wide rows | Future validated transactions cost 1,000,000 tech points. VV3 All Villagers Like Running remains catalog-visible, but VV3Run2 is hard-withdrawn pending a fresh crash/no-change gate. Every legacy bundled row, Grant Full Mastery to All Villagers, and All Villagers are 18 remain unavailable. |
 
 For VV5, Time Warp, Island Event, and Barrel of Babies remain Unavailable:
 selecting them must make no charge, native call, clock change, or save/state
@@ -307,9 +309,9 @@ current Heathens are untouched and excluded from every count.
 
 ### Grant Full Mastery to All Villagers and All Villagers are 18
 
-VV3 All Villagers Like Running is enabled for replacement runtime testing
-after final certification `c62fba9214de7c6092365e99c72bd81a59d3888c`;
-gameplay validation remains pending. The other games and commands remain a
+VV3 All Villagers Like Running is hard-withdrawn from replacement runtime
+testing under crash audit `36f14702b938a6235230a3fd3e0c34328d3ac745`.
+The other games and commands remain a
 future validation contract only.
 If later certified, each row would charge exactly 1,000,000 once. Full Mastery
 must set the native maximum 100 in all five skills in VV1–VV4 and all six in

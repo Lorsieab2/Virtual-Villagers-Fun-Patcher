@@ -87,7 +87,10 @@ class OriginsPlayerRuntimeChecklistTests(unittest.TestCase):
             self.assertIn("Food Point", origins["description"])
             self.assertIn("30,000", origins["description"])
             self.assertIn("1,000,000", wide["description"])
-        self.assertIn("enabled for replacement runtime testing", text)
+        self.assertIn("VV3Run2 is hard-withdrawn", text)
+        self.assertIn("36f14702b938a6235230a3fd3e0c34328d3ac745", text)
+        self.assertIn("package or continue runtime testing", text)
+        self.assertNotIn("permits runtime playtesting", text)
         self.assertNotIn("Only VV3 All Villagers Like Running is currently available", text)
         self.assertIn("each row would charge exactly 1,000,000 once", text)
 

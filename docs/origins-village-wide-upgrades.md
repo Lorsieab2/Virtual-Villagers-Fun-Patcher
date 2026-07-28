@@ -5,8 +5,10 @@
 All five legacy `vvN_origins_village_wide_upgrades` records are fail-closed and are
 not offered by the catalog, GUI, CLI, or Select All. Commands 6, 7, and 8 share
 one atomic payload, so the complete feature remains unavailable until each
-game receives a full-payload GO gate. VV3's independent certified command-6
-feature is now available without commands 7/8. The VV4 audit
+game receives a full-payload GO gate. VV3's independent command-6 source does
+not expose commands 7/8, but its VV3Run2 playtest is hard-withdrawn under
+crash audit `36f14702b938a6235230a3fd3e0c34328d3ac745`; it must not be
+packaged or treated as runtime-ready. The VV4 audit
 `628e0d9217b92b9cd695655842b09d74689a0238` proves that command 7's direct
 `90.0` mastery stores bypass eight native mutations. The VV5 audit
 `02581c8f518e27ebd5fc7d2972db5597ab08ed35` records unresolved native-counter,
@@ -59,9 +61,9 @@ Running from Dislikes and writes Running only to a free normal Like slot. The
 historical helper/result wording is retained only as rejected diagnostic
 evidence; the exact future atomic contract is specified below. The charge
 contract is one million tech points for the village-wide purchase, not per
-villager. VV3 command 6 is enabled for runtime playtesting after final
-certification `c62fba9214de7c6092365e99c72bd81a59d3888c`; gameplay
-validation remains pending and every other village-wide command remains
+villager. VV3Run2 is withdrawn after an intermittent status-2 no-change
+crash; static ABI/pointer checks pass, no saved overwrite was found, and the
+fault instruction remains unknown. Every other village-wide command remains
 unavailable. The implementation is tailored to each
 supported executable: it independently reads the numeric Running ID certified
 in that game's exact stock preference table. All five current tables happen to
@@ -96,7 +98,8 @@ approves the exact command-6-only artifact generated at patcher commit
 `vv3_all_villagers_like_running`, depends on
 `vv3_enable_origins_exclusive_features`, and retains the certified page,
 slot, hashes, ownership, and uninstall guards unchanged. Commands 7 and 8 are
-absent. Player runtime confirmation remains pending.
+absent. Crash audit `36f14702b938a6235230a3fd3e0c34328d3ac745`
+withdraws the current runtime artifact pending a fresh fault/no-change gate.
 
 The future operation must be atomic per villager. An already-Running Like
 skips the entire villager. Otherwise, the helper must scan the complete Like

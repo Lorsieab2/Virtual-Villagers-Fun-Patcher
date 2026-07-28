@@ -18,10 +18,13 @@ All five legacy `vvN_origins_village_wide_upgrades` records are disabled and abs
 from the catalog. Their commands 6/7/8 are bundled in one atomic payload, so
 Running, Full Mastery, and Age 18 remain unavailable together until each
 game's complete payload receives a GO gate. VV3's separately generated
-command-6-only All Villagers Like Running correction is enabled for runtime
-playtesting after final certification
-`c62fba9214de7c6092365e99c72bd81a59d3888c`; gameplay validation remains
-pending, and it does not expose commands 7/8.
+command-6-only All Villagers Like Running source remains catalog-visible, but
+VV3Run2 is hard-withdrawn from playtesting under crash audit
+`36f14702b938a6235230a3fd3e0c34328d3ac745`. The exact tested EXE/DLL pair
+crashed on the status-2 no-change route. Static ABI and pointer checks pass,
+the save snapshot and rotations show no saved preference overwrite, and the
+fault instruction remains unknown. Do not package or test this feature until
+a fresh crash/no-change gate is certified. It does not expose commands 7/8.
 VV4 audit
 `628e0d9217b92b9cd695655842b09d74689a0238` proves the direct Full Mastery
 stores bypass eight native mutations. VV5 audit
@@ -81,10 +84,10 @@ base extension, guarded slot, transaction body, rebuilt `@20` companion, and
 stock/both-expanded render and uninstall fixtures under `data/candidates/`.
 Those bytes address Sol finding `f73625582adae714473068c272b90af91a57d945`.
 Stage C certification `79b122bf0850f18a101db9fb86b40407dd2db573`
-approves the exact frozen artifact, which is now catalog-visible with its base
-Origins dependency in stock, immediate, expanded, and expanded-progression
-modes. Runtime/player confirmation remains pending. The old 944-byte payload
-remains forbidden and commands 7/8 remain absent.
+approved the exact frozen artifact and its catalog dependency, but later
+runtime audit `36f14702b938a6235230a3fd3e0c34328d3ac745` withdraws the
+VV3Run2 playtest after an intermittent status-2 no-change crash. The old
+944-byte payload remains forbidden and commands 7/8 remain absent.
 
 VV1 audit `e0bed87ce17dca5331afed1abc2d753ec3d8f0aa` now
 classifies that command as ON HOLD. It confirms five signed DWORD skills

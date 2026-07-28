@@ -92,6 +92,11 @@ class OriginsPlaytestReadinessTests(unittest.TestCase):
         self.assertIn("36 cross-section rel32 and 7 external", text)
         self.assertIn("8dfccbd1b31e55f5168bb1c5ff23890bb98d9fdb", text)
         self.assertIn("VV5 native Time Warp, Island Event, and Barrel rows remain unavailable", folded)
+        self.assertIn("36f14702b938a6235230a3fd3e0c34328d3ac745", text)
+        self.assertIn("VV3Run2 is hard-withdrawn", text)
+        self.assertIn("crashed on the status-2 no-change route", text)
+        self.assertIn("fault instruction remains unknown", text)
+        self.assertIn("Do not package or test this feature", text)
 
 
 if __name__ == "__main__":
