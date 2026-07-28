@@ -18,8 +18,10 @@ All five legacy `vvN_origins_village_wide_upgrades` records are disabled and abs
 from the catalog. Their commands 6/7/8 are bundled in one atomic payload, so
 Running, Full Mastery, and Age 18 remain unavailable together until each
 game's complete payload receives a GO gate. VV3's separately generated
-command-6-only All Villagers Like Running feature is the sole exception and
-does not expose commands 7/8. VV4 audit
+command-6-only All Villagers Like Running correction remains disabled pending
+final byte recertification under
+`0095e605b3b488129c0623efd642e9352d8586c0`; it does not expose commands 7/8.
+VV4 audit
 `628e0d9217b92b9cd695655842b09d74689a0238` proves the direct Full Mastery
 stores bypass eight native mutations. VV5 audit
 `02581c8f518e27ebd5fc7d2972db5597ab08ed35` records unresolved counter,

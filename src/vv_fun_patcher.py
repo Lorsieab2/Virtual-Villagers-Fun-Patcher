@@ -31,9 +31,9 @@ VV3_RUNNING_CANDIDATE_PATHS = {
     "map": ROOT / "data" / "candidates" / "vv3_running_candidate_map.json",
 }
 VV3_RUNNING_CERTIFIED_SHA256 = {
-    "base": "FC9256E3278C33786ED7BCE1B6CBDCBFA96AC6281CDCA90702C68ED852C1D893",
-    "running": "630E39DF3CED42C4D63CBEE6C797D27AF72595DF66120363378B6D858B68FCE2",
-    "map": "B7FEB533462B1751411235EA385CBA6759CE32B2DB3865F116BDFE1A9D3D6637",
+    "base": "B7AF3846122A70507C2304828EBF5BC7CED672AC3F1FAE9F23411215ABFD46D4",
+    "running": "A5451126E371A8483771E1E241EBC719943281B860930E45BD5D2D8C7F0BCCFC",
+    "map": "AEBD974A4F69C2EDF222046197B078985893105914AB90226E4BAF61BC9BABEA",
 }
 STATISTICS_FEATURES_PATH = ROOT / "data" / "statistics_features.json"
 DEFAULT_PATCH_MODE = "collection_progression"
@@ -77,7 +77,13 @@ def load_patch_modes() -> list[PatchMode]:
 
 def _certified_vv3_running_records(
     active_base: dict[str, Any],
-) -> tuple[dict[str, Any], dict[str, Any]]:
+) -> tuple[dict[str, Any], dict[str, Any] | None]:
+    running_candidate = json.loads(
+        VV3_RUNNING_CANDIDATE_PATHS["running"].read_text(encoding="utf-8")
+    )
+    if not running_candidate.get("enabled", True):
+        return active_base, None
+
     records: dict[str, dict[str, Any]] = {}
     for label, path in VV3_RUNNING_CANDIDATE_PATHS.items():
         payload = path.read_bytes()
@@ -96,8 +102,9 @@ def _certified_vv3_running_records(
             "name": active_base["name"],
             "enabled": True,
             "certification_status": (
-                "Stage C bytes certified by disassembly commit "
-                "79b122bf0850f18a101db9fb86b40407dd2db573"
+                "Corrected repeatable-action bytes specified by disassembly commit "
+                "0095e605b3b488129c0623efd642e9352d8586c0; final emitted-artifact "
+                "recertification required before enablement"
             ),
         }
     )
@@ -113,12 +120,13 @@ def _certified_vv3_running_records(
                 "VV3 villager with an empty Like slot for 1,000,000 tech points. "
                 "Already-like and full-Like records remain unchanged; Running "
                 "dislikes are removed only in the same atomic eligible mutation. "
-                "Commands 7 and 8 remain unavailable."
+                "This is a repeatable Buy action, never Remove; commands 7 and 8 "
+                "remain unavailable."
             ),
             "evidence_status": (
-                "exact Stage C bytes statically certified by disassembly commit "
-                "79b122bf0850f18a101db9fb86b40407dd2db573; "
-                "runtime/player confirmation pending"
+                "corrective byte contract 0095e605b3b488129c0623efd642e9352d8586c0 "
+                "implemented as a disabled candidate; final emitted-artifact "
+                "recertification and runtime/player confirmation pending"
             ),
         }
     )
@@ -137,7 +145,9 @@ def _load_fun_patch_records() -> list[FunPatch]:
             if record.get("enabled", True):
                 if record.get("id") == "vv3_enable_origins_exclusive_features":
                     certified_base, running = _certified_vv3_running_records(record)
-                    items.extend((certified_base, running))
+                    items.append(certified_base)
+                    if running is not None:
+                        items.append(running)
                 else:
                     items.append(record)
     for feature_path in ORIGINS_VILLAGE_WIDE_FEATURE_PATHS:

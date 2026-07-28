@@ -45,6 +45,17 @@ SLOT_OFFSET = 0x100
 SLOT_SIZE = 0x700
 SLOT_ENTRY_OFFSET = 0x20
 RUNNING_ID = 38
+CONFIRMATION_OFFSET = 0x800
+NO_CHANGE_OFFSET = 0x880
+CONFIRMATION_HELPER_OFFSET = 0x900
+CONFIRMATION_TEXT = (
+    b"This upgrade makes permanent changes to your village. Are you sure you "
+    b"want to purchase it? Press OK to confirm, or Cancel.\0"
+)
+NO_CHANGE_TEXT = (
+    b"Everyone already likes running.\r\n"
+    b"No tech points have been deducted.\0"
+)
 
 LAYOUTS = {
     "collection_progression": {
@@ -193,67 +204,18 @@ def build_slot(installed: bool) -> tuple[bytes, dict[str, int | str]]:
         }
 
     walk_offset = 0x240
-    body = asm(
-        f"""
-            push ebp
-            push ebx
-            push esi
-            push edi
-            sub esp, 0x20
-            mov dword ptr [esp + 0x10], ecx
-            mov dword ptr [esp + 0x14], edx
-            mov dword ptr [esp + 0x18], edi
-            cmp eax, 6
-            jne invalid
-            test dword ptr [0x5824D0], 4
-            jz purchase
-            and dword ptr [0x5824D0], 0xFFFFFFFB
-            mov eax, 1
-            jmp done
-        purchase:
-            mov dword ptr [esp], 0
-            mov dword ptr [esp + 4], 0
-            mov dword ptr [esp + 8], 0
-            mov dword ptr [esp + 12], 0
-            lea edi, [esp]
-            mov ecx, dword ptr [esp + 0x10]
-            mov edx, dword ptr [esp + 0x14]
-            xor eax, eax
-            call 0x{walk_offset:X}
-            cmp dword ptr [esp], 0
-            je no_change
-            cmp dword ptr [0x582644], 1000000
-            jb insufficient
-            sub dword ptr [0x582644], 1000000
-            mov edi, dword ptr [esp + 0x18]
-            mov dword ptr [edi], 0
-            mov dword ptr [edi + 4], 0
-            mov dword ptr [edi + 8], 0
-            mov dword ptr [edi + 12], 0
-            mov ecx, dword ptr [esp + 0x10]
-            mov edx, dword ptr [esp + 0x14]
-            mov eax, 1
-            call 0x{walk_offset:X}
-            or dword ptr [0x5824D0], 4
-            xor eax, eax
-            jmp done
-        no_change:
-            mov eax, 2
-            jmp done
-        insufficient:
-            mov eax, 3
-            jmp done
-        invalid:
-            mov eax, -1
-        done:
-            add esp, 0x20
-            pop edi
-            pop esi
-            pop ebx
-            pop ebp
-            ret
-        """,
-        SLOT_ENTRY_OFFSET,
+    body = bytes.fromhex(
+        "5553565783EC20894C241089542414897C241883F8060F85DF000000"
+        "C7042400000000C744240400000000C744240800000000C744240C00000000"
+        "8D3C248B4C24108B54241431C0E8D3010000833C24000F848F000000"
+        "E88407000085C00F8490000000"
+        "C7042400000000C744240400000000C744240800000000C744240C00000000"
+        "8D3C248B4C24108B54241431C0E88B010000833C2400744B"
+        "813D4426580040420F007246812D4426580040420F00"
+        "8B7C2418C70700000000C7470400000000C7470800000000C7470C00000000"
+        "8B4C24108B542414B801000000E83E01000031C0EB1A"
+        "B802000000EB13B803000000EB0CB8FFFFFFFFEB05B8FFFFFFFF"
+        "83C4205F5E5B5DC3"
     )
     walker = asm(
         f"""
@@ -351,75 +313,47 @@ def build_slot(installed: bool) -> tuple[bytes, dict[str, int | str]]:
 
 
 def build_dispatcher(page_va: int, result_export_va: int) -> bytes:
-    return asm(
-        f"""
-            push ebp
-            push ebx
-            push esi
-            push edi
-            cmp dword ptr [0x{page_va + SLOT_OFFSET:X}], 0x4E525656
-            jne dispatch_done
-            cmp dword ptr [0x{page_va + SLOT_OFFSET + 12:X}], 1
-            jne dispatch_done
-            sub esp, 16
-            mov esi, esp
-            xor eax, eax
-            mov dword ptr [esi], eax
-            mov dword ptr [esi + 4], eax
-            mov dword ptr [esi + 8], eax
-            mov dword ptr [esi + 12], eax
-            mov edi, esi
-            mov ecx, 0x59E124
-            mov edx, dword ptr [0x42883A]
-            mov eax, 6
-            call 0x{page_va + SLOT_OFFSET + SLOT_ENTRY_OFFSET:X}
-            mov ebx, eax
-            cmp ebx, 0
-            je show_result
-            cmp ebx, 2
-            je show_result
-            cmp ebx, 1
-            je show_removed
-            cmp ebx, 3
-            je show_insufficient
-            jmp cleanup
-        show_result:
-            push 0x4A3ED8
-            call dword ptr [0x47C124]
-            test eax, eax
-            je cleanup
-            push 0x{result_export_va:X}
-            push eax
-            call dword ptr [0x47C128]
-            test eax, eax
-            je cleanup
-            push dword ptr [esi + 12]
-            push dword ptr [esi + 8]
-            push dword ptr [esi + 4]
-            push dword ptr [esi]
-            push 6
-            call eax
-            jmp cleanup
-        show_removed:
-            push 0x4A3C37
-            push 0x4A3C09
-            call 0x4A3400
-            jmp cleanup
-        show_insufficient:
-            push 0x4A3C40
-            push 0x4A3C09
-            call 0x4A3400
-        cleanup:
-            add esp, 16
-        dispatch_done:
-            pop edi
-            pop esi
-            pop ebx
-            pop ebp
-            ret
-        """,
-        page_va + 0x40,
-    )
+    if result_export_va != 0x4A3F80:
+        raise RuntimeError("unexpected @20 export-name VA")
+    if page_va == 0x6DF000:
+        payload = (
+            "55535657813D00F16D005656524E0F859C000000833D0CF16D00010F858F000000"
+            "83EC1089E631C0890689460489460889460C89F7B924E159008B153A884200B806000000"
+            "E89600000089C383FB00740C83FB02743783FB037443EB50"
+            "68D83E4A00FF1524C1470085C0744168803F4A0050FF1528C1470085C07431"
+            "FF760CFF7608FF7604FF366A06FFD0EB20"
+            "6880F86D0068893D4A00E82443DCFFEB0F"
+            "68C03D4A0068893D4A00E81343DCFF83C4105F5E5B5DC3"
+        )
+    elif page_va == 0x7B8000:
+        payload = (
+            "55535657813D00817B005656524E0F859C000000833D0C817B00010F858F000000"
+            "83EC1089E631C0890689460489460889460C89F7B924E159008B153A884200B806000000"
+            "E89600000089C383FB00740C83FB02743783FB037443EB50"
+            "68D83E4A00FF1524C1470085C0744168803F4A0050FF1528C1470085C07431"
+            "FF760CFF7608FF7604FF366A06FFD0EB20"
+            "6880887B0068893D4A00E824B3CEFFEB0F"
+            "68C03D4A0068893D4A00E813B3CEFF83C4105F5E5B5DC3"
+        )
+    else:
+        raise RuntimeError(f"unsupported VV3 Running page VA 0x{page_va:X}")
+    return bytes.fromhex(payload)
+
+
+def build_confirmation_helper(page_va: int) -> bytes:
+    if page_va == 0x6DF000:
+        payload = (
+            "535668283F4A00FF1524C1470085C0742B68333F4A0050FF1528C1470085C0741B"
+            "6A3168893D4A006800F86D006A00FFD083F8010F94C00FB6C0EB0231C05E5BC3"
+        )
+    elif page_va == 0x7B8000:
+        payload = (
+            "535668283F4A00FF1524C1470085C0742B68333F4A0050FF1528C1470085C0741B"
+            "6A3168893D4A006800887B006A00FFD083F8010F94C00FB6C0EB0231C05E5BC3"
+        )
+    else:
+        raise RuntimeError(f"unsupported VV3 Running page VA 0x{page_va:X}")
+    return bytes.fromhex(payload)
 
 
 def build_page(page_va: int, slot: bytes, dispatcher: bytes) -> bytes:
@@ -435,6 +369,14 @@ def build_page(page_va: int, slot: bytes, dispatcher: bytes) -> bytes:
         raise RuntimeError("base dispatcher overlaps extension slot")
     page[0x40 : 0x40 + len(dispatcher)] = dispatcher
     page[SLOT_OFFSET : SLOT_OFFSET + SLOT_SIZE] = slot
+    page[
+        CONFIRMATION_OFFSET : CONFIRMATION_OFFSET + len(CONFIRMATION_TEXT)
+    ] = CONFIRMATION_TEXT
+    page[NO_CHANGE_OFFSET : NO_CHANGE_OFFSET + len(NO_CHANGE_TEXT)] = NO_CHANGE_TEXT
+    helper = build_confirmation_helper(page_va)
+    page[
+        CONFIRMATION_HELPER_OFFSET : CONFIRMATION_HELPER_OFFSET + len(helper)
+    ] = helper
     return bytes(page)
 
 
@@ -645,7 +587,8 @@ def main() -> None:
         "behavior_changes": ["Candidate-only guarded replacement of the base-owned no-op slot."],
         "explicit_non_changes": [
             "Commands 7 and 8 are absent.",
-            "Removal restores the no-op slot and does not reverse preference edits.",
+            "Uninstall restores the no-op slot and does not reverse preference edits.",
+            "Running is a repeatable Buy action and never reads, sets, or clears save ownership bit 0x4.",
             "Vanilla save layout is unchanged.",
         ],
         "evidence_status": "generated Stage C corrected candidate; Sol byte recertification pending",
@@ -664,6 +607,7 @@ def main() -> None:
             "d78db872efe04f98bd19b45c9e098bb5a25d53b8",
             "b9c7a22eb1d7cceae25160ce4d360621e7485625",
             "f73625582adae714473068c272b90af91a57d945",
+            "0095e605b3b488129c0623efd642e9352d8586c0",
         ],
         "active_base_payload_sha256": sha(bytes.fromhex(payload_patch["before"]))
         if bytes.fromhex(payload_patch["before"]).strip(b"\0")
@@ -691,7 +635,13 @@ def main() -> None:
         "slot_abi": {
             "input": "EAX=6, ECX=first record, EDX=physical bound, EDI=pointer to four DWORD counters",
             "counter_order": ["granted", "already_like", "full_like", "removed_dislike"],
-            "return_status": {"0": "purchased", "1": "removed", "2": "no change", "3": "insufficient", "-1": "invalid"},
+            "return_status": {
+                "0": "committed",
+                "1": "forbidden and never produced",
+                "2": "no change",
+                "3": "insufficient",
+                "-1": "invalid or confirmation declined/unavailable",
+            },
             "preserved": ["EBX", "ESI", "EDI", "EBP", "ESP"],
         },
         "dispatcher": {
@@ -705,14 +655,35 @@ def main() -> None:
             "status": "disabled pending Sol byte recertification",
             "result_arguments": "stable ESI counter base pushes removed_dislike, full_like, already_like, granted, then command 6",
             "dispatcher_nonvolatile_registers": ["EBP", "EBX", "ESI", "EDI"],
-            "transaction_passes": ["dry", "commit"],
-            "charge_order": "dry granted check, unsigned balance recheck, one deduction, one commit, ownership set",
+            "transaction_passes": [
+                "read-only dry run",
+                "confirmation",
+                "read-only final dry recheck",
+                "single commit",
+            ],
+            "charge_order": (
+                "first dry granted check; exact warning; final dry granted "
+                "recheck; unsigned balance recheck; one deduction; one commit"
+            ),
+            "confirmation": {
+                "text": CONFIRMATION_TEXT[:-1].decode("ascii"),
+                "offset": CONFIRMATION_OFFSET,
+                "sha256": sha(CONFIRMATION_TEXT),
+                "helper_offset": CONFIRMATION_HELPER_OFFSET,
+            },
+            "no_change": {
+                "text": NO_CHANGE_TEXT[:-1].decode("ascii"),
+                "offset": NO_CHANGE_OFFSET,
+                "sha256": sha(NO_CHANGE_TEXT),
+            },
             "forbidden": [
                 "stack-relative counter aliasing after ESP movement",
                 "unbalanced dispatcher EBX or EDI clobber",
-                "a second dry pass",
                 "record mutation before charge",
                 "post-commit no-change branch",
+                "status 1",
+                "any read, set, or clear of 0x5824D0 bit 0x4",
+                "a Running Remove UI or preference reversal",
             ],
         },
         "companion": {
@@ -801,9 +772,10 @@ Evidence inputs are disassembly commits
 defects certified by Sol at
 `f73625582adae714473068c272b90af91a57d945`: the @20 counter arguments now
 use a stable base, the dispatcher preserves every nonvolatile register it
-uses, and the purchase path is exactly one dry pass followed by the final
-unsigned funds recheck, one deduction, and one commit pass. The candidate
-remains disabled pending byte recertification. Player-confirmed Like 38 /
+uses, and exact repair contract
+`0095e605b3b488129c0623efd642e9352d8586c0` replaces the revoked owned-state
+transaction. The candidate remains disabled pending byte recertification.
+Player-confirmed Like 38 /
 Dislike -1 save-and-reload persistence is supporting runtime evidence, not PE
 integration proof.
 
@@ -850,14 +822,15 @@ Running dislike is removed; full Likes cause no mutation. All Running
 dislikes are cleared, unrelated slots and order are preserved, and 38 is
 written to the first empty Like.
 
-Purchase uses exactly two walker passes: one nonmutating dry pass, then—only
-after a nonzero grant count and final unsigned 1,000,000-point balance
-recheck—one deduction followed by one mutating commit pass and save ownership
-bit `0x4`. There is no second dry pass, mutation before charge, or post-commit
-no-change branch. A zero-grant or insufficient-race result does not charge.
-Removal costs and refunds zero, clears only bit
-`0x4`, does not reverse preference edits, and permits full-price repurchase.
-Commands 7 and 8 are absent.
+Running is a repeatable Buy action and has no ownership or Remove state. A
+read-only dry run happens first. Zero grants show exactly
+`Everyone already likes running.\\r\\nNo tech points have been deducted.`
+without warning, charge, or writes. Positive grants show the exact universal
+permanent-change OK/Cancel warning. Cancel, close, or import failure is inert.
+OK repeats the identical read-only dry run, then performs the final unsigned
+1,000,000-point balance recheck, one deduction, and one mutating commit.
+Command 6 never reads, sets, or clears `0x5824D0 & 0x4`; stale bit 4 is
+ignored. Commands 7 and 8 are absent.
 
 The four exact result lines are:
 
@@ -871,11 +844,11 @@ preserve unrelated fields at its transaction and save roundtrip and must not
 intercept native future writers. Native events and other game mechanics may
 legitimately change persisted fields later.
 
-## Ownership and removal
+## Ownership and uninstall
 
 Base Origins remains the sole owner of hooks `0x6547D` and `0x65640`, the
 section header, appended page, and checksum. Running replaces only the exact
-guarded slot. Running removal restores the no-op slot without truncating or
+guarded slot. Running patch uninstall restores the no-op slot without truncating or
 reversing preferences. Base removal is dependency-blocked while Running is
 installed; afterward it guards its bytes, restores the stock headers and
 hooks, truncates exactly `0x1000`, and recomputes the checksum.

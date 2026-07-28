@@ -12,9 +12,10 @@ Evidence inputs are disassembly commits
 defects certified by Sol at
 `f73625582adae714473068c272b90af91a57d945`: the @20 counter arguments now
 use a stable base, the dispatcher preserves every nonvolatile register it
-uses, and the purchase path is exactly one dry pass followed by the final
-unsigned funds recheck, one deduction, and one commit pass. The candidate
-remains disabled pending byte recertification. Player-confirmed Like 38 /
+uses, and exact repair contract
+`0095e605b3b488129c0623efd642e9352d8586c0` replaces the revoked owned-state
+transaction. The candidate remains disabled pending byte recertification.
+Player-confirmed Like 38 /
 Dislike -1 save-and-reload persistence is supporting runtime evidence, not PE
 integration proof.
 
@@ -24,12 +25,12 @@ integration proof.
 - Stock RVA/VA: `0x2DF000` / `0x6DF000`; expanded RVA/VA:
   `0x3B8000` / `0x7B8000`.
 - Base dispatcher: page `+0x40`, stock SHA-256
-  `6A6CF8281113AE8A0ED9EE03A7811D7D0D76F2B7E791B78218DE76D87C371ABF`, expanded SHA-256
-  `97CF6BD9652D10372726ED40E1878CCEECA6624A09872901FA1196A5AF63E2C2`.
+  `ADBC6F0AEBB33729EFDCC85E86B396A43E2C9AD97F5D8E95EC7676F74FA9F756`, expanded SHA-256
+  `371B7280C60F798C85FD3E0CDE5D01C80E2388F2B595C31815AA8340BCE77284`.
 - Guarded extension slot: page `+0x100`, file `0xCB100`, length `0x700`;
   entry `+0x20`, walker `+0x240`.
 - No-op slot SHA-256: `42FC601B51E8AAC069B70355502C32B6985A2471E26B683A61A68EA3B91BE4E3`.
-- Running slot SHA-256: `C1FB2D8C7FE4494AA85BAEB686558B190F10B671710BF72AB1A83E7D88A2318F`.
+- Running slot SHA-256: `3F8F3BD7FD6C1BA8D8517539581D96F8D7B14D3BF959C74157FF970E432E5B13`.
 - Stock base payload SHA-256:
   `289D4C7A72A46713CAD2217753E696F891C273EB749CF1E68011CD740F14AAE0`.
 - Expanded base payload SHA-256:
@@ -41,10 +42,10 @@ integration proof.
   stdcall five arguments with a 256-byte result buffer.
 
 Stock base+Running render SHA-256 is
-`494D2BE5C7464CC5A59580BFE4C805656FE4F8675A44F7BFED29AFFA45978DDE` with PE checksum
-`0x000D8264`. Expanded base+Running render SHA-256 is
-`B58119F639B03DEE1743445A8A3025691B0B3083FA5C5E1D159AA38E94D50532` with PE checksum
-`0x000DAADA`.
+`D8DD412185559F2B95E1B0544877928D88FC1B6BAF0F539E94DAB6DAB6606A2B` with PE checksum
+`0x000D641E`. Expanded base+Running render SHA-256 is
+`657D321B2F1E9E6D6C223DB1FF0BBA38C2D761A97A6E7F21B98CE1826531A848` with PE checksum
+`0x000D2A32`.
 
 The machine-readable complete map, payload deltas, page hashes, per-mode
 checksums, ABI, and export map are in
@@ -61,14 +62,15 @@ Running dislike is removed; full Likes cause no mutation. All Running
 dislikes are cleared, unrelated slots and order are preserved, and 38 is
 written to the first empty Like.
 
-Purchase uses exactly two walker passes: one nonmutating dry pass, then—only
-after a nonzero grant count and final unsigned 1,000,000-point balance
-recheck—one deduction followed by one mutating commit pass and save ownership
-bit `0x4`. There is no second dry pass, mutation before charge, or post-commit
-no-change branch. A zero-grant or insufficient-race result does not charge.
-Removal costs and refunds zero, clears only bit
-`0x4`, does not reverse preference edits, and permits full-price repurchase.
-Commands 7 and 8 are absent.
+Running is a repeatable Buy action and has no ownership or Remove state. A
+read-only dry run happens first. Zero grants show exactly
+`Everyone already likes running.\r\nNo tech points have been deducted.`
+without warning, charge, or writes. Positive grants show the exact universal
+permanent-change OK/Cancel warning. Cancel, close, or import failure is inert.
+OK repeats the identical read-only dry run, then performs the final unsigned
+1,000,000-point balance recheck, one deduction, and one mutating commit.
+Command 6 never reads, sets, or clears `0x5824D0 & 0x4`; stale bit 4 is
+ignored. Commands 7 and 8 are absent.
 
 The four exact result lines are:
 
@@ -82,11 +84,11 @@ preserve unrelated fields at its transaction and save roundtrip and must not
 intercept native future writers. Native events and other game mechanics may
 legitimately change persisted fields later.
 
-## Ownership and removal
+## Ownership and uninstall
 
 Base Origins remains the sole owner of hooks `0x6547D` and `0x65640`, the
 section header, appended page, and checksum. Running replaces only the exact
-guarded slot. Running removal restores the no-op slot without truncating or
+guarded slot. Running patch uninstall restores the no-op slot without truncating or
 reversing preferences. Base removal is dependency-blocked while Running is
 installed; afterward it guards its bytes, restores the stock headers and
 hooks, truncates exactly `0x1000`, and recomputes the checksum.

@@ -490,9 +490,10 @@ diagnostic IDs are `vv1_origins_village_wide_upgrades` through
 evidence but are not applied. Each historically depends on that game's
 `enable_origins_exclusive_features` prerequisite and adds the three
 1,000,000-tech-point rows: All Villagers Like Running, Grant Full Mastery to All
-Villagers, and All Villagers are 18. VV3's separately certified
-`vv3_all_villagers_like_running` exposes only All Villagers Like Running and
-depends on `vv3_enable_origins_exclusive_features`; commands 7/8 remain absent.
+Villagers, and All Villagers are 18. VV3's corrected command-6-only
+`vv3_all_villagers_like_running` candidate remains disabled pending final byte
+recertification under `0095e605b3b488129c0623efd642e9352d8586c0`;
+commands 7/8 remain absent.
 The feature is inspired by the
 selected exclusive upgrades in the Virtual Villagers 1 mobile port. VV5
 excludes Heathens; all games leave movement speed, nursing/pregnancy timers,

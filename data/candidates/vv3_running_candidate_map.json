@@ -2,13 +2,14 @@
   "disassembly_handoffs": [
     "d78db872efe04f98bd19b45c9e098bb5a25d53b8",
     "b9c7a22eb1d7cceae25160ce4d360621e7485625",
-    "f73625582adae714473068c272b90af91a57d945"
+    "f73625582adae714473068c272b90af91a57d945",
+    "0095e605b3b488129c0623efd642e9352d8586c0"
   ],
   "active_base_payload_sha256": "91EE43DC2CCD93B9AB807DC9E2C15EEF88B9BFFA8F7A528C6785B29518D96CC6",
   "candidate_stock_payload_sha256": "289D4C7A72A46713CAD2217753E696F891C273EB749CF1E68011CD740F14AAE0",
   "candidate_expanded_payload_sha256": "0593E81A897BAAC47243EBACD70B01EC7ECA929627D8C3E4B0805FF826D914EF",
   "noop_slot_sha256": "42FC601B51E8AAC069B70355502C32B6985A2471E26B683A61A68EA3B91BE4E3",
-  "running_slot_sha256": "C1FB2D8C7FE4494AA85BAEB686558B190F10B671710BF72AB1A83E7D88A2318F",
+  "running_slot_sha256": "3F8F3BD7FD6C1BA8D8517539581D96F8D7B14D3BF959C74157FF970E432E5B13",
   "noop": {
     "entry_offset": 32,
     "entry_length": 10,
@@ -16,8 +17,8 @@
   },
   "running": {
     "entry_offset": 32,
-    "entry_length": 221,
-    "entry_sha256": "F7CA66EF4A7B67C7026468ACE0924BB3091391DF07154CD8C36D87C971172265",
+    "entry_length": 264,
+    "entry_sha256": "C681B32867CA3D19F85AC69F97DA72181B45BCFFDB004AB777D45F19CAD55C78",
     "walker_offset": 576,
     "walker_length": 195,
     "walker_sha256": "4BFC9FF8DBCA7E4BBB5B5607500546398129DE3181313D4BABFD12933EB46FD7"
@@ -28,36 +29,36 @@
       "page_va": 7204864,
       "old_size_of_image": 3010560,
       "new_size_of_image": 3014656,
-      "page_sha256": "02E154F0CDF9C7F1469B1A2A169A9A8ECC2C26B82D885816ACF69AB12E8ACFD1",
-      "running_page_sha256": "53092FA46B569C70CEF6388B9DB15DF3818D7D0B1380A97189B70E55B1E39F8F",
-      "dispatcher_sha256": "6A6CF8281113AE8A0ED9EE03A7811D7D0D76F2B7E791B78218DE76D87C371ABF"
+      "page_sha256": "40C2334475E78A2F40197CD22FE5FFF77034C227160801AADE5EB2D4823D4D52",
+      "running_page_sha256": "45C43434BA5D4F98A63417D0F19AB412A7635DF95B961809C3555AF1CC63F3D9",
+      "dispatcher_sha256": "ADBC6F0AEBB33729EFDCC85E86B396A43E2C9AD97F5D8E95EC7676F74FA9F756"
     },
     "immediate_fixed": {
       "page_rva": 3010560,
       "page_va": 7204864,
       "old_size_of_image": 3010560,
       "new_size_of_image": 3014656,
-      "page_sha256": "02E154F0CDF9C7F1469B1A2A169A9A8ECC2C26B82D885816ACF69AB12E8ACFD1",
-      "running_page_sha256": "53092FA46B569C70CEF6388B9DB15DF3818D7D0B1380A97189B70E55B1E39F8F",
-      "dispatcher_sha256": "6A6CF8281113AE8A0ED9EE03A7811D7D0D76F2B7E791B78218DE76D87C371ABF"
+      "page_sha256": "40C2334475E78A2F40197CD22FE5FFF77034C227160801AADE5EB2D4823D4D52",
+      "running_page_sha256": "45C43434BA5D4F98A63417D0F19AB412A7635DF95B961809C3555AF1CC63F3D9",
+      "dispatcher_sha256": "ADBC6F0AEBB33729EFDCC85E86B396A43E2C9AD97F5D8E95EC7676F74FA9F756"
     },
     "experimental_expanded_256": {
       "page_rva": 3899392,
       "page_va": 8093696,
       "old_size_of_image": 3899392,
       "new_size_of_image": 3903488,
-      "page_sha256": "34B66359933CC2E0096C34E699B8C15782AFEF1B95854575519CA264E2EE8A51",
-      "running_page_sha256": "984F825FD82B6BF6E3341EF22869BCA6215F801D27FE2EE6BDC6707994530998",
-      "dispatcher_sha256": "97CF6BD9652D10372726ED40E1878CCEECA6624A09872901FA1196A5AF63E2C2"
+      "page_sha256": "B2BB40567582D6431C8AE493F681BCD5534D80E83269FFFBB0738DD8E39601E3",
+      "running_page_sha256": "F4D7FEDF946045AB30CB8744EEF506EAD6532E6115112FB375765963C7586126",
+      "dispatcher_sha256": "371B7280C60F798C85FD3E0CDE5D01C80E2388F2B595C31815AA8340BCE77284"
     },
     "experimental_expanded_256_progression": {
       "page_rva": 3899392,
       "page_va": 8093696,
       "old_size_of_image": 3899392,
       "new_size_of_image": 3903488,
-      "page_sha256": "34B66359933CC2E0096C34E699B8C15782AFEF1B95854575519CA264E2EE8A51",
-      "running_page_sha256": "984F825FD82B6BF6E3341EF22869BCA6215F801D27FE2EE6BDC6707994530998",
-      "dispatcher_sha256": "97CF6BD9652D10372726ED40E1878CCEECA6624A09872901FA1196A5AF63E2C2"
+      "page_sha256": "B2BB40567582D6431C8AE493F681BCD5534D80E83269FFFBB0738DD8E39601E3",
+      "running_page_sha256": "F4D7FEDF946045AB30CB8744EEF506EAD6532E6115112FB375765963C7586126",
+      "dispatcher_sha256": "371B7280C60F798C85FD3E0CDE5D01C80E2388F2B595C31815AA8340BCE77284"
     }
   },
   "slot_abi": {
@@ -69,11 +70,11 @@
       "removed_dislike"
     ],
     "return_status": {
-      "0": "purchased",
-      "1": "removed",
+      "0": "committed",
+      "1": "forbidden and never produced",
       "2": "no change",
       "3": "insufficient",
-      "-1": "invalid"
+      "-1": "invalid or confirmation declined/unavailable"
     },
     "preserved": [
       "EBX",
@@ -85,9 +86,9 @@
   },
   "dispatcher": {
     "offset": 64,
-    "length": 186,
-    "stock_sha256": "6A6CF8281113AE8A0ED9EE03A7811D7D0D76F2B7E791B78218DE76D87C371ABF",
-    "expanded_sha256": "97CF6BD9652D10372726ED40E1878CCEECA6624A09872901FA1196A5AF63E2C2",
+    "length": 181,
+    "stock_sha256": "ADBC6F0AEBB33729EFDCC85E86B396A43E2C9AD97F5D8E95EC7676F74FA9F756",
+    "expanded_sha256": "371B7280C60F798C85FD3E0CDE5D01C80E2388F2B595C31815AA8340BCE77284",
     "role": "base-owned command-6-only bridge; resolves @20 and reports four counters"
   },
   "stage_c_corrections": {
@@ -100,16 +101,31 @@
       "EDI"
     ],
     "transaction_passes": [
-      "dry",
-      "commit"
+      "read-only dry run",
+      "confirmation",
+      "read-only final dry recheck",
+      "single commit"
     ],
-    "charge_order": "dry granted check, unsigned balance recheck, one deduction, one commit, ownership set",
+    "charge_order": "first dry granted check; exact warning; final dry granted recheck; unsigned balance recheck; one deduction; one commit",
+    "confirmation": {
+      "text": "This upgrade makes permanent changes to your village. Are you sure you want to purchase it? Press OK to confirm, or Cancel.",
+      "offset": 2048,
+      "sha256": "748FECC03CD0046F6F5B03D45D37DD9588C734C19FD57DF9717970A6F6C4FCDA",
+      "helper_offset": 2304
+    },
+    "no_change": {
+      "text": "Everyone already likes running.\r\nNo tech points have been deducted.",
+      "offset": 2176,
+      "sha256": "E17788EA094CAF7DD0BE7681D7CFBD8A1FD826C67D231DFF42F06BE6D5565077"
+    },
     "forbidden": [
       "stack-relative counter aliasing after ESP movement",
       "unbalanced dispatcher EBX or EDI clobber",
-      "a second dry pass",
       "record mutation before charge",
-      "post-commit no-change branch"
+      "post-commit no-change branch",
+      "status 1",
+      "any read, set, or clear of 0x5824D0 bit 0x4",
+      "a Running Remove UI or preference reversal"
     ]
   },
   "companion": {
@@ -264,31 +280,31 @@
   },
   "rendered_candidates": {
     "collection_progression": {
-      "base_only_sha256": "4C8C3AB3BFB02F3B6EFCCF44D617E70D7DE4CE348258E32C52F94E7600CA4564",
-      "base_plus_running_sha256": "494D2BE5C7464CC5A59580BFE4C805656FE4F8675A44F7BFED29AFFA45978DDE",
+      "base_only_sha256": "4EC9328DB475697DE6C1F1E1E528E55AF4201710CA17599DB5E53A567C9737D7",
+      "base_plus_running_sha256": "D8DD412185559F2B95E1B0544877928D88FC1B6BAF0F539E94DAB6DAB6606A2B",
       "base_plus_running_size": 835584,
-      "pe_checksum": "0x000D8264",
+      "pe_checksum": "0x000D641E",
       "owned_edit_count": 23
     },
     "immediate_fixed": {
-      "base_only_sha256": "DB4984B2E1CBC25E08049EF1A5F71200F01106F896A08DDFFA8D59F70BC95937",
-      "base_plus_running_sha256": "547C884EBC55F0BF3FA8055F2A1FBE9F1A1E0A56A7360C39603D5B2E86E92900",
+      "base_only_sha256": "E584ECAF0108A2F3B7DBA20D1E1D467B0009CED10D563D95F2DE98C53A23DA03",
+      "base_plus_running_sha256": "93F18909811496F22ADB611C5FEA031EF4870F8047EE1C2B7E9219A1BC802CEE",
       "base_plus_running_size": 835584,
-      "pe_checksum": "0x000CC463",
+      "pe_checksum": "0x000DA61C",
       "owned_edit_count": 23
     },
     "experimental_expanded_256": {
-      "base_only_sha256": "8DF6E4677D520633C209D64A5AE614BFA2FE3FDE79606B9BD1BF023466865494",
-      "base_plus_running_sha256": "B58119F639B03DEE1743445A8A3025691B0B3083FA5C5E1D159AA38E94D50532",
+      "base_only_sha256": "0E008F9CA648A9700AB63B39E1F5686642619E4EC177ACA521954BA776C42422",
+      "base_plus_running_sha256": "657D321B2F1E9E6D6C223DB1FF0BBA38C2D761A97A6E7F21B98CE1826531A848",
       "base_plus_running_size": 835584,
-      "pe_checksum": "0x000DAADA",
+      "pe_checksum": "0x000D2A32",
       "owned_edit_count": 1287
     },
     "experimental_expanded_256_progression": {
-      "base_only_sha256": "4A39A380EB7CCA657926DAEB6B589E49543480FDA3D04150336335A53663B95D",
-      "base_plus_running_sha256": "13EC0ACC426BD97DD52E73E2991BB0CE498A5B5BB240123DBC7EF894C3929689",
+      "base_only_sha256": "41424AB08027DBB3B817E89A907F3616DB2654F962B709F5F939990485A25021",
+      "base_plus_running_sha256": "3A35745C00102A0964DF6E81B77707539C5BDC03501011F43FF1D2809015B211",
       "base_plus_running_size": 835584,
-      "pe_checksum": "0x000D25E5",
+      "pe_checksum": "0x000DA53C",
       "owned_edit_count": 1288
     }
   }

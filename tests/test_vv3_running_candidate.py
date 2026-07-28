@@ -98,9 +98,9 @@ class VV3RunningCandidateTests(unittest.TestCase):
         self.assertFalse(self.base_raw["enabled"])
         self.assertFalse(self.running_raw["enabled"])
         expected_files = {
-            BASE_PATH: "FC9256E3278C33786ED7BCE1B6CBDCBFA96AC6281CDCA90702C68ED852C1D893",
-            RUNNING_PATH: "630E39DF3CED42C4D63CBEE6C797D27AF72595DF66120363378B6D858B68FCE2",
-            MAP_PATH: "B7FEB533462B1751411235EA385CBA6759CE32B2DB3865F116BDFE1A9D3D6637",
+            BASE_PATH: "B7AF3846122A70507C2304828EBF5BC7CED672AC3F1FAE9F23411215ABFD46D4",
+            RUNNING_PATH: "A5451126E371A8483771E1E241EBC719943281B860930E45BD5D2D8C7F0BCCFC",
+            MAP_PATH: "AEBD974A4F69C2EDF222046197B078985893105914AB90226E4BAF61BC9BABEA",
         }
         for path, expected in expected_files.items():
             self.assertEqual(hashlib.sha256(path.read_bytes()).hexdigest().upper(), expected)
@@ -109,43 +109,22 @@ class VV3RunningCandidateTests(unittest.TestCase):
         self.assertNotIn(self.base.id, active)
         self.assertNotIn(self.running.id, active)
         self.assertIn("vv3_enable_origins_exclusive_features", active)
-        self.assertIn("vv3_all_villagers_like_running", active)
+        self.assertNotIn("vv3_all_villagers_like_running", active)
         self.assertNotIn("vv3_origins_village_wide_upgrades", active)
-        active_base = active["vv3_enable_origins_exclusive_features"]
-        active_running = active["vv3_all_villagers_like_running"]
-        for key in ("patches", "patch_mode_overrides", "pe_append_transaction"):
-            self.assertEqual(active_base.raw[key], self.base_raw[key])
-        self.assertEqual(active_running.raw["patches"], self.running_raw["patches"])
-        self.assertEqual(
-            active_running.raw["dependencies"],
-            ["vv3_enable_origins_exclusive_features"],
-        )
         validate_fun_patch_catalog([self.base, self.running])
 
-    def test_apply_accepts_the_certified_owned_page_append(self) -> None:
-        feature_ids = [
-            "vv3_enable_origins_exclusive_features",
-            "vv3_all_villagers_like_running",
-        ]
-        rendered, _ = render_patched_bytes(
-            STOCK,
-            self.build,
-            "collection_progression",
-            feature_ids,
-        )
+    def test_apply_keeps_uncertified_running_out_of_the_catalog(self) -> None:
         with tempfile.TemporaryDirectory() as temp:
             game_folder = Path(temp) / self.build.title
             game_folder.mkdir()
             source = game_folder / self.build.input_name
             shutil.copy2(STOCK, source)
-            output, _ = apply_patch(
-                source,
-                "collection_progression",
-                fun_patch_ids=feature_ids,
-            )
-            self.assertEqual(output.read_bytes(), rendered)
-            self.assertEqual(output.stat().st_size, len(rendered))
-            self.assertGreater(output.stat().st_size, source.stat().st_size)
+            with self.assertRaisesRegex(PatcherError, "Unknown optional patch"):
+                apply_patch(
+                    source,
+                    "collection_progression",
+                    fun_patch_ids=["vv3_all_villagers_like_running"],
+                )
 
     def test_current_handler_constructor_and_other_runtime_projections_are_frozen(self) -> None:
         stock_payload = bytes.fromhex(
@@ -312,60 +291,146 @@ class VV3RunningCandidateTests(unittest.TestCase):
             self.assertEqual(registers, expected)
             self.assertEqual(stack, [])
 
-    def test_stage_c_transaction_is_one_dry_then_charge_then_one_commit(self) -> None:
+    def test_corrected_page_hashes_strings_helpers_and_export_pointer(self) -> None:
+        expected_dispatchers = {
+            "collection_progression": "ADBC6F0AEBB33729EFDCC85E86B396A43E2C9AD97F5D8E95EC7676F74FA9F756",
+            "immediate_fixed": "ADBC6F0AEBB33729EFDCC85E86B396A43E2C9AD97F5D8E95EC7676F74FA9F756",
+            "experimental_expanded_256": "371B7280C60F798C85FD3E0CDE5D01C80E2388F2B595C31815AA8340BCE77284",
+            "experimental_expanded_256_progression": "371B7280C60F798C85FD3E0CDE5D01C80E2388F2B595C31815AA8340BCE77284",
+        }
+        expected_pages = {
+            "collection_progression": "45C43434BA5D4F98A63417D0F19AB412A7635DF95B961809C3555AF1CC63F3D9",
+            "immediate_fixed": "45C43434BA5D4F98A63417D0F19AB412A7635DF95B961809C3555AF1CC63F3D9",
+            "experimental_expanded_256": "F4D7FEDF946045AB30CB8744EEF506EAD6532E6115112FB375765963C7586126",
+            "experimental_expanded_256_progression": "F4D7FEDF946045AB30CB8744EEF506EAD6532E6115112FB375765963C7586126",
+        }
+        warning = (
+            b"This upgrade makes permanent changes to your village. Are you sure you "
+            b"want to purchase it? Press OK to confirm, or Cancel.\0"
+        )
+        no_change = (
+            b"Everyone already likes running.\r\n"
+            b"No tech points have been deducted.\0"
+        )
+        self.assertEqual(len(warning), 124)
+        self.assertEqual(len(no_change), 68)
+        self.assertEqual(
+            hashlib.sha256(warning).hexdigest().upper(),
+            "748FECC03CD0046F6F5B03D45D37DD9588C734C19FD57DF9717970A6F6C4FCDA",
+        )
+        self.assertEqual(
+            hashlib.sha256(no_change).hexdigest().upper(),
+            "E17788EA094CAF7DD0BE7681D7CFBD8A1FD826C67D231DFF42F06BE6D5565077",
+        )
+        for mode in MODES:
+            layout = self.base_raw["pe_append_transaction"]["layouts"][mode]
+            page = bytes.fromhex(layout["append_bytes"])
+            dispatcher = page[0x40 : 0x40 + 181]
+            self.assertEqual(
+                hashlib.sha256(dispatcher).hexdigest().upper(),
+                expected_dispatchers[mode],
+            )
+            running_page = bytearray(page)
+            running_page[0x100:0x800] = bytes.fromhex(
+                self.running_raw["patches"][0]["after"]
+            )
+            self.assertEqual(
+                hashlib.sha256(running_page).hexdigest().upper(),
+                expected_pages[mode],
+            )
+            self.assertEqual(page[0x800 : 0x800 + len(warning)], warning)
+            self.assertEqual(page[0x880 : 0x880 + len(no_change)], no_change)
+            self.assertIn(bytes.fromhex("68803F4A00"), dispatcher)
+            self.assertNotIn(bytes.fromhex("68B0130010"), dispatcher)
+
+        payload = bytes.fromhex(
+            next(
+                item["after"]
+                for item in self.base_raw["patches"]
+                if int(item["offset"], 0) == 0xA3180
+            )
+        )
+        export_name = b"ShowOriginsVillageWideResult@20\0"
+        self.assertEqual(payload[0xE00 : 0xE00 + len(export_name)], export_name)
+        self.assertEqual(
+            hashlib.sha256(export_name).hexdigest().upper(),
+            "C3B966D86CA783C915E6B4CA0822B87C18C84328C2295560DC8D61A53381769E",
+        )
+
+    def test_repeatable_transaction_is_dry_confirm_recheck_charge_commit(self) -> None:
         slot = bytes.fromhex(self.running_raw["patches"][0]["after"])
         entry_offset = self.artifact_map["running"]["entry_offset"]
         entry_length = self.artifact_map["running"]["entry_length"]
         entry = slot[entry_offset : entry_offset + entry_length]
         calls = relative_call_targets(entry, entry_offset)
-        self.assertEqual(calls, [(0x85, 0x240), (0xD2, 0x240)])
+        self.assertEqual(
+            calls,
+            [(0x68, 0x240), (0x77, 0x800), (0xB0, 0x240), (0xFD, 0x240)],
+        )
 
-        granted_check = entry.find(bytes.fromhex("833C2400"))
+        granted_checks = [
+            index
+            for index in range(len(entry) - 4)
+            if entry[index : index + 4] == bytes.fromhex("833C2400")
+        ]
         balance_check = entry.find(bytes.fromhex("813D4426580040420F00"))
         charge = entry.find(bytes.fromhex("812D4426580040420F00"))
-        owner_set = entry.find(bytes.fromhex("830DD024580004"))
-        self.assertEqual(
-            [value + entry_offset for value in (
-                granted_check, balance_check, charge, owner_set
-            )],
-            [0x8A, 0x90, 0x9C, 0xD7],
-        )
-        granted_check += entry_offset
-        balance_check += entry_offset
-        charge += entry_offset
-        owner_set += entry_offset
-        self.assertLess(calls[0][0], granted_check)
-        self.assertLess(granted_check, balance_check)
-        self.assertLess(balance_check, charge)
-        self.assertLess(charge, calls[1][0])
-        self.assertLess(calls[1][0], owner_set)
-        self.assertEqual(
-            entry[charge - entry_offset + 10 : calls[1][0] - entry_offset].count(b"\xE8"),
-            0,
-        )
-        self.assertNotIn(bytes.fromhex("833F00"), entry[calls[1][0] - entry_offset + 5 :])
+        self.assertEqual([value + entry_offset for value in granted_checks], [0x6D, 0xB5])
+        self.assertEqual(balance_check + entry_offset, 0xBB)
+        self.assertEqual(charge + entry_offset, 0xC7)
+        self.assertNotIn((0x5824D0).to_bytes(4, "little"), entry)
 
-        def instrument(granted: int, initial: int, final: int) -> tuple[list[str], int]:
+        def instrument(
+            first_granted: int,
+            confirmed: bool,
+            final_granted: int,
+            balance: int,
+            *,
+            imports_available: bool = True,
+        ) -> tuple[list[str], int]:
             events = ["dry"]
-            if granted == 0:
-                return events, initial
+            if first_granted == 0:
+                return events + ["no_change"], balance
+            events.append("warning")
+            if not imports_available or not confirmed:
+                return events + ["cancel"], balance
+            events.append("final_dry")
+            if final_granted == 0:
+                return events + ["no_change"], balance
             events.append("balance_recheck")
-            if final < 1_000_000:
-                return events, final
-            events.extend(("charge", "commit", "owner_set"))
-            return events, final - 1_000_000
+            if balance < 1_000_000:
+                return events + ["insufficient"], balance
+            return events + ["charge", "commit"], balance - 1_000_000
 
-        self.assertEqual(instrument(0, 2_000_000, 2_000_000), (["dry"], 2_000_000))
         self.assertEqual(
-            instrument(1, 2_000_000, 999_999),
-            (["dry", "balance_recheck"], 999_999),
+            instrument(0, False, 0, 2_000_000),
+            (["dry", "no_change"], 2_000_000),
         )
         self.assertEqual(
-            instrument(1, 2_000_000, 1_500_000),
+            instrument(1, False, 1, 2_000_000),
+            (["dry", "warning", "cancel"], 2_000_000),
+        )
+        self.assertEqual(
+            instrument(1, True, 0, 2_000_000),
+            (["dry", "warning", "final_dry", "no_change"], 2_000_000),
+        )
+        self.assertEqual(
+            instrument(1, True, 1, 999_999),
             (
-                ["dry", "balance_recheck", "charge", "commit", "owner_set"],
+                ["dry", "warning", "final_dry", "balance_recheck", "insufficient"],
+                999_999,
+            ),
+        )
+        self.assertEqual(
+            instrument(1, True, 1, 1_500_000),
+            (
+                ["dry", "warning", "final_dry", "balance_recheck", "charge", "commit"],
                 500_000,
             ),
+        )
+        self.assertEqual(
+            instrument(1, True, 1, 2_000_000, imports_available=False),
+            (["dry", "warning", "cancel"], 2_000_000),
         )
 
     def test_exhaustive_three_by_three_atomic_vectors(self) -> None:
@@ -395,21 +460,22 @@ class VV3RunningCandidateTests(unittest.TestCase):
                             if value != 38:
                                 self.assertEqual(committed_dislikes[index], value)
 
-    def test_purchase_remove_repurchase_model(self) -> None:
-        def transact(owner: bool, balance: int, granted: int) -> tuple[bool, int, str]:
-            if owner:
-                return False, balance, "removed"
+    def test_repeatable_buy_ignores_stale_ownership_bit(self) -> None:
+        def transact(
+            stale_owner: bool, balance: int, granted: int
+        ) -> tuple[bool, int, str]:
+            del stale_owner
             if granted == 0:
                 return False, balance, "no_change"
             if balance < 1_000_000:
                 return False, balance, "insufficient"
-            return True, balance - 1_000_000, "purchased"
+            return False, balance - 1_000_000, "committed"
 
         self.assertEqual(transact(False, 999_999, 1), (False, 999_999, "insufficient"))
         self.assertEqual(transact(False, 2_000_000, 0), (False, 2_000_000, "no_change"))
-        self.assertEqual(transact(False, 2_000_000, 1), (True, 1_000_000, "purchased"))
-        self.assertEqual(transact(True, 1_000_000, 0), (False, 1_000_000, "removed"))
-        self.assertEqual(transact(False, 1_000_000, 1), (True, 0, "purchased"))
+        self.assertEqual(transact(False, 2_000_000, 1), (False, 1_000_000, "committed"))
+        self.assertEqual(transact(True, 1_000_000, 0), (False, 1_000_000, "no_change"))
+        self.assertEqual(transact(True, 1_000_000, 1), (False, 0, "committed"))
 
     def test_candidate_renders_stock_and_both_expanded_layouts(self) -> None:
         for mode in MODES:
@@ -438,17 +504,14 @@ class VV3RunningCandidateTests(unittest.TestCase):
                 self.assertIn(f"feature:{self.base.id}", owners)
                 self.assertIn(f"feature:{self.running.id}", owners)
 
-    def test_active_catalog_renders_certified_hashes_and_uninstalls(self) -> None:
+    def test_disabled_candidate_renders_certified_hashes_and_uninstalls(self) -> None:
         for mode in MODES:
             with self.subTest(mode=mode):
                 rendered, applied = render_patched_bytes(
                     STOCK,
                     self.build,
                     mode,
-                    [
-                        "vv3_enable_origins_exclusive_features",
-                        "vv3_all_villagers_like_running",
-                    ],
+                    _fun_patches_override=[self.base, self.running],
                 )
                 expected = self.artifact_map["rendered_candidates"][mode]
                 self.assertEqual(
@@ -456,36 +519,33 @@ class VV3RunningCandidateTests(unittest.TestCase):
                     expected["base_plus_running_sha256"],
                 )
                 owners = {item["owner"] for item in applied}
-                self.assertIn(
-                    "feature:vv3_enable_origins_exclusive_features", owners
-                )
-                self.assertIn("feature:vv3_all_villagers_like_running", owners)
-
-                catalog = {item.id: item for item in load_fun_patches()}
+                self.assertIn(f"feature:{self.base.id}", owners)
+                self.assertIn(f"feature:{self.running.id}", owners)
                 work = bytearray(rendered)
                 with self.assertRaisesRegex(PatcherError, "dependent optional patch"):
                     _remove_feature_with_dependency_guard(
                         work,
-                        catalog["vv3_enable_origins_exclusive_features"],
-                        [
-                            catalog["vv3_enable_origins_exclusive_features"],
-                            catalog["vv3_all_villagers_like_running"],
-                        ],
+                        self.base,
+                        [self.base, self.running],
                         mode,
                     )
-                _remove_feature_bytes(
-                    work, catalog["vv3_all_villagers_like_running"], mode
-                )
+                _remove_feature_bytes(work, self.running, mode)
                 _remove_feature_with_dependency_guard(
                     work,
-                    catalog["vv3_enable_origins_exclusive_features"],
-                    [catalog["vv3_enable_origins_exclusive_features"]],
+                    self.base,
+                    [self.base],
                     mode,
                 )
                 baseline, _ = render_patched_bytes(STOCK, self.build, mode)
                 self.assertEqual(work, baseline)
 
     def test_candidate_composes_with_every_other_current_vv3_patch(self) -> None:
+        expected_hashes = {
+            "collection_progression": "D81FB967C9DDE2448C40744356AE08BBADFA78930ABA004CEE5BE4025C65FBD0",
+            "immediate_fixed": "1EBC276113221B90836BA4C3E13CEF683C41B08A716D80394D805ED645845B4C",
+            "experimental_expanded_256": "F1FA63CD9B87160F651D54756CC296EAD37435D233F51F3E17EF13012F3C7734",
+            "experimental_expanded_256_progression": "B9F6C541405C4578E7B7DECE1BE3762AC2CA81B4A2B8712886CA59B851510971",
+        }
         others = [
             item
             for item in load_fun_patches()
@@ -505,6 +565,10 @@ class VV3RunningCandidateTests(unittest.TestCase):
                     _fun_patches_override=[self.base, self.running, *others],
                 )
                 self.assertEqual(len(rendered), 0xCC000)
+                self.assertEqual(
+                    hashlib.sha256(rendered).hexdigest().upper(),
+                    expected_hashes[mode],
+                )
 
     def test_remove_slot_then_base_exact_roundtrip_and_dependency_block(self) -> None:
         for mode in MODES:

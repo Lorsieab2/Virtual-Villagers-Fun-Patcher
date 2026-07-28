@@ -283,7 +283,7 @@ The contained row labels include Grant Full Mastery to All Villagers.
 The disabled manifests remain as diagnostic evidence, but their bytes are not
 applied. Existing save fields are not cleared, changed, or refunded.
 
-VV3 alone now offers the separately certified All Villagers Like Running
-feature for 1,000,000 tech points. It requires VV3 Enable Origins-Exclusive
-Features, contains command 6 only, and does not expose Full Mastery or Age 18.
-Runtime/player confirmation remains pending.
+VV3 All Villagers Like Running is temporarily unavailable after its owned-state
+playtest defect. Its corrected repeatable-Buy candidate contains command 6 only
+and remains disabled pending final byte recertification. It does not expose
+Full Mastery or Age 18.

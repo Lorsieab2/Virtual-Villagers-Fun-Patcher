@@ -11,9 +11,11 @@ village-wide bytes are applied. Existing save fields and ownership are left
 untouched, with no forced clear and no refund. The historical procedures below
 are retained as the future player-validation contract, not as currently
 available rows. VV3's independently rebuilt command-6-only **All Villagers
-Like Running** row is the sole exception: it is catalog-visible for exactly
-1,000,000 tech points, while commands 7 and 8 remain absent. Static
-certification is complete; player runtime confirmation remains pending.
+Like Running** candidate is also temporarily absent from the catalog while
+corrective contract `0095e605b3b488129c0623efd642e9352d8586c0` awaits final
+byte recertification. It remains a repeatable Buy action costing exactly
+1,000,000 tech points;
+commands 7 and 8 remain absent.
 
 All Villagers Like Running remains ON HOLD for VV1, VV2, VV4, and VV5 under audit
 `0311443fbd078e3adcabaf7e693199989ddb9db8` and evidence clarification
@@ -36,8 +38,9 @@ dry-run/no-charge/final unsigned recheck contract. The shared 944-byte
 commands 6/7/8 payload remains forbidden.
 Second resolution `d1cdeb67362487c1d577e3abae03c9424fd04fb9` specifies the
 Running-only seven-row/ID-1006 UI, four-counter `char[256]` result, atomic
-one-million-point transaction, zero-cost/no-refund non-reversing removal and
-repurchase, plus dual-layout PE boundaries.
+one-million-point transaction, and dual-layout PE boundaries. Its former
+owned/removable model is revoked: Running is a repeatable Buy action and never
+reads, sets, or clears an ownership bit.
 
 Semantic closure `b9c7a22eb1d7cceae25160ce4d360621e7485625` identifies
 `+0xE94` as a dormant totem-render selector, not eligibility. Nonzero selects
@@ -49,10 +52,12 @@ scan were zero, and CE tables contain no label. The future Running predicate
 is active `+0xF10 != 0` plus signed health `+0xE78 > 0`, without `+0xE94`.
 VV2 `+0x558` memorials and VV5 Heathen totems remain separate mechanics.
 Stage C certification
-`79b122bf0850f18a101db9fb86b40407dd2db573` approves the exact frozen
-command-6-only bytes, stock/both-expanded manifests, guarded removal, and
-five-argument result ABI. The row is now catalog-visible; runtime/player
-confirmation remains pending. Commands 7 and 8 remain unavailable.
+`79b122bf0850f18a101db9fb86b40407dd2db573` covered the former frozen
+command-6-only artifact, but its owned-state behavior is revoked. Corrective
+contract `0095e605b3b488129c0623efd642e9352d8586c0` specifies a repeatable Buy,
+an exact nonblank no-change result with no deduction, and confirmation before
+a positive transaction. The corrected candidate remains catalog-disabled
+pending final byte recertification. Commands 7 and 8 remain unavailable.
 
 VV3 Full Mastery is specifically ON HOLD under exact-build audit
 `089957227c0db6a4c3128045519ffa27b201a00e`. Its five signed DWORD skills are
@@ -233,7 +238,7 @@ outcome bypassing Birth Control as a defect; that bypass is required.
 | Tech Point Doubler | 500,000 tech points; VV1/VV3/VV4 unowned purchase and repurchase remain unavailable. VV5 stock supports purchase, zero-cost/no-refund Remove, and full-price repurchase; VV5 expanded-256 keeps new purchase unavailable and owned Remove available. |
 | Food Point Doubler | 500,000 tech points; VV1/VV3/VV4 unowned purchase and repurchase remain unavailable. VV5 stock supports purchase, zero-cost/no-refund Remove, and full-price repurchase; VV5 expanded-256 keeps new purchase unavailable and owned Remove available. |
 | Cure all Villagers | 30,000 tech points; test the sickness-only matrix below. |
-| Village-wide rows | VV3 All Villagers Like Running is available for exactly 1,000,000 tech points. Every legacy bundled row, Grant Full Mastery to All Villagers, and All Villagers are 18 remain unavailable. |
+| Village-wide rows | All rows are temporarily unavailable. VV3 All Villagers Like Running has a corrected repeatable-Buy candidate pending final byte recertification; every legacy bundled row, Grant Full Mastery to All Villagers, and All Villagers are 18 remain unavailable. |
 
 For VV5, Time Warp, Island Event, and Barrel of Babies remain Unavailable:
 selecting them must make no charge, native call, clock change, or save/state
@@ -273,6 +278,15 @@ believer predicate.
 
 ### All Villagers Like Running
 
+The corrected VV3 design is a repeatable `Buy` action and never exposes
+`Remove` or reads, sets, or clears ownership bit `0x4`. An all-already-Running
+dry run must show exactly
+`Everyone already likes running.\r\nNo tech points have been deducted.`
+without warning, charge, or writes. A positive dry run must show the universal
+permanent-change OK/Cancel warning; Cancel is inert, while OK performs the
+identical final dry recheck before the unsigned funds check, one deduction, and
+one commit.
+
 Use one 1,000,000-tech-point purchase for the whole village. Test a free Like
 with a Running Dislike, an existing Running Like, every Like slot full with non-Running Likes
 with a Running Dislike, a free Like without a Dislike, dead/inactive records,
@@ -291,7 +305,9 @@ current Heathens are untouched and excluded from every count.
 
 ### Grant Full Mastery to All Villagers and All Villagers are 18
 
-Only VV3 All Villagers Like Running is currently available; its section is a
+VV3 All Villagers Like Running is temporarily unavailable pending final
+recertification of corrective contract
+`0095e605b3b488129c0623efd642e9352d8586c0`; its section remains a future
 runtime/player-confirmation checklist. The other games and commands remain a
 future validation contract only.
 If later certified, each row would charge exactly 1,000,000 once. Full Mastery
