@@ -68,6 +68,19 @@ must never change; the candidate is not proved to satisfy the complete
 semantic contract. Future births, clones, Events, and stock/expanded placement
 remain unresolved.
 
+VV3 All Villagers are 18 is ON HOLD under audit
+`cee9a195faed187c847672bf36d46935a9f67ad3`. For exact build
+`8BC5DB382D02BC5C21AD5F607580D60FF44A6519CC7EB133F03113BAACAE6503`,
+target/display age is signed DWORD `+0xDC4`, 20 units/year, and 360 means age
+18. Native elapsed updater `sub_45F3E0` calls `sub_45C640` at `0x45F5C6`,
+then updates the oldest statistic; catch-up `sub_45FFE0` advances distinct
+processed age `+0xE74` one unit at a time through native life simulation. The
+command-8 raw store leaves those dual ages unsynchronized. The selected-age
+candidate changes `+0xE74` and nonzero `+0xE8C`, which violates the mandatory
+nursing timer/state non-change rule. Neither route is approved. Ordinary/
+status eligibility, no-op charging and zero results/no rollback, future
+Event/birth/clone exclusions, and stock/expanded placement remain unresolved.
+
 This is a player-test checklist for the collection-progression Origins-core
 outputs. It is explicitly **runtime/player confirmation pending**; static patch
 verification is not a claim that any item below has been confirmed in-game.

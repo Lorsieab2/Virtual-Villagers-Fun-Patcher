@@ -210,6 +210,36 @@ write them, that is not proof of complete semantics. Future births, clones,
 and Event-created villagers must remain native, and complete guarded
 stock-plus-expanded placement/composition is not certified.
 
+### VV3 All Villagers are 18 exact-build boundary
+
+Disassembly commit `cee9a195faed187c847672bf36d46935a9f67ad3`
+applies to the exact 831,488-byte executable with SHA-256
+`8BC5DB382D02BC5C21AD5F607580D60FF44A6519CC7EB133F03113BAACAE6503`.
+It confirms signed target/display age `+0xDC4`, 20 units per year, and age 18
+value 360. Native elapsed updater `sub_45F3E0` calls increment routine
+`sub_45C640` at `0x45F5C6`, then updates the oldest-villager statistic.
+Life catch-up `sub_45FFE0` separately advances processed simulation cursor
+`+0xE74` one unit at a time while running native life simulation.
+
+The disabled command-8 helper scans stride `0x1F8C` over a supplied 150/256
+bound, accepts active `+0xF10 != 0` with positive signed health `+0xE78`, and
+performs only `+0xDC4 = 360`. It does not synchronize `+0xE74`, so moving a
+younger target forward or an older target backward leaves the dual ages
+inconsistent. Its active/health checks are not a complete ordinary/status
+predicate.
+
+The selected-age candidate is not a safe precedent: it changes `+0xE74` and
+also changes nonzero nursing/pregnancy marker `+0xE8C`. That conflicts with
+the mandatory requirement that nursing timer and state never change. Neither
+raw policy is semantically approved.
+
+The transaction compares unsigned Technology Points at `0x582644`, directly
+subtracts 1,000,000, dispatches command 8, and reports `Purchased.`. It charges
+no-qualifier and all-already-18 cases, returns zero result counts, and has no
+recheck or rollback. VV3 age 18 remains ON HOLD pending dual-age policy,
+native transitions/statistics, ordinary eligibility, future Event/birth/clone
+exclusions, and complete guarded stock-plus-expanded placement/composition.
+
 New Believers uses the authoritative active predicate, health check, and
 believer faction byte. Heathens are excluded from all three operations and are
 left byte-for-byte unchanged. Converted records are eligible only when their

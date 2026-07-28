@@ -21,7 +21,7 @@ from vv_fun_patcher import (  # noqa: E402
 from vv_fun_patcher_gui import group_fun_patches  # noqa: E402
 
 STOCK = ROOT / "research" / "stock-executables"
-BASELINE = "6df57ea5aa56dc8d4253172d9610eecf8dd34a75"
+BASELINE = "b8818c3aa1e6d14a52aa6a492dc64ed4e27134fa"
 DISABLED = {f"vv{game}_origins_village_wide_upgrades" for game in range(1, 6)}
 
 
@@ -230,6 +230,19 @@ class VillageWideContainmentTests(unittest.TestCase):
             "sub_41E300",
             "pending baby count",
             "stock-plus-expanded",
+            "cee9a195faed187c847672bf36d46935a9f67ad3",
+            "831,488-byte",
+            "8BC5DB382D02BC5C21AD5F607580D60FF44A6519CC7EB133F03113BAACAE6503",
+            "+0xDC4",
+            "sub_45F3E0",
+            "sub_45C640",
+            "0x45F5C6",
+            "sub_45FFE0",
+            "+0xE74",
+            "dual ages unsynchronized",
+            "+0xE8C",
+            "Neither route is safe",
+            "Event/birth/clone",
             "refund",
         ):
             self.assertIn(phrase, docs)
