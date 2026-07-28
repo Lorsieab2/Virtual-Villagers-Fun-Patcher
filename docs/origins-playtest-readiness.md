@@ -110,19 +110,20 @@ stat/transition handling; the selected-age raw store is not native proof.
 Status `+0x1CC7`, no-op charging/zero result/rollback, future birth/clone/Event
 exclusions, and stock-plus-expanded placement remain unresolved.
 
-VV3 All Villagers are 18 audit
-`cee9a195faed187c847672bf36d46935a9f67ad3` covers the exact 831,488-byte
+Corrective VV3 All Villagers are 18 audit
+`295b5d1e228c501d0e14b1f869f11b0caa3a07bd` covers the exact 831,488-byte
 build, SHA-256
 `8BC5DB382D02BC5C21AD5F607580D60FF44A6519CC7EB133F03113BAACAE6503`.
-It confirms target/display age `+0xDC4`, 20 units/year, age 18 value 360,
-native elapsed updater `sub_45F3E0` calling `sub_45C640` at `0x45F5C6`,
-oldest-stat update, and catch-up `sub_45FFE0` advancing separate processed age
-`+0xE74` through native life simulation. Command 8 writes only `+0xDC4` and
-leaves dual ages unsynchronized. The selected-age candidate instead changes
-`+0xE74` and nonzero nursing marker `+0xE8C`, violating the mandatory
-nursing-state non-change rule. Neither route is safe. Eligibility, no-op
-transaction/results, future Event/birth/clone exclusions, and stock/expanded
-placement remain incomplete.
+Live evidence changed `+0xDC4` 372->360, immediately displayed age 18,
+survived save/reload, and natively advanced to 361; `+0xE74` remained 372 and
+`+0xE8C` remained zero. `sub_45F3E0` passes `+0xDC4` to `sub_45C640`.
+`+0xE74` is the nursing/conception-age/lifecycle timestamp and must remain
+unchanged. `sub_45FFE0` runs hidden food/health/mortality/reproduction steps
+only while `+0xE74 < +0xDC4`; lowering target age below the timestamp pauses
+those steps until target age advances beyond it. Target-only writing is not
+inherently invalid, but final GO is absent: exact command-8 transaction/result
+bytes and collision-certified stock plus both-expanded PE manifests remain
+unbuilt.
 
 VV2 All Villagers are 18 audit
 `bd6ce555a9a197450aab7133c0a87b36fbfc6899` covers exact 724,992-byte build

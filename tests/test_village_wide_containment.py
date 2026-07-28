@@ -21,7 +21,7 @@ from vv_fun_patcher import (  # noqa: E402
 from vv_fun_patcher_gui import group_fun_patches  # noqa: E402
 
 STOCK = ROOT / "research" / "stock-executables"
-BASELINE = "0fcd23d0a2159a5b4725619f24222a7ea2c31d63"
+BASELINE = "2b1fafdeddd98148911f8891077172e303e98a7c"
 DISABLED = {f"vv{game}_origins_village_wide_upgrades" for game in range(1, 6)}
 
 
@@ -230,7 +230,7 @@ class VillageWideContainmentTests(unittest.TestCase):
             "sub_41E300",
             "pending baby count",
             "stock-plus-expanded",
-            "cee9a195faed187c847672bf36d46935a9f67ad3",
+            "295b5d1e228c501d0e14b1f869f11b0caa3a07bd",
             "831,488-byte",
             "8BC5DB382D02BC5C21AD5F607580D60FF44A6519CC7EB133F03113BAACAE6503",
             "+0xDC4",
@@ -239,10 +239,17 @@ class VillageWideContainmentTests(unittest.TestCase):
             "0x45F5C6",
             "sub_45FFE0",
             "+0xE74",
-            "dual ages unsynchronized",
+            "372 to 360",
+            "survived save/reload",
+            "advanced natively to 361",
+            "nursing/conception-age/lifecycle timestamp",
+            "food, health, mortality, and reproduction",
+            "pauses those steps",
+            "not a final GO",
+            "transaction/result bytes",
+            "both-expanded PE manifests",
             "+0xE8C",
-            "Neither route is safe",
-            "Event/birth/clone",
+            "inherently invalid",
             "bd6ce555a9a197450aab7133c0a87b36fbfc6899",
             "724,992-byte",
             "46C1503C209255C9CDEFA941DB2F449C8CF8E2CDD5C7D13CD975326E377ED677",
