@@ -1,6 +1,6 @@
-# VV4 Full Mastery disabled corrected UI-geometry candidate
+# VV4 Full Mastery certified corrected-geometry playtest feature
 
-Generated from acceptance contract `cd15e3b581df1e3020cfa022814119a97ba18af3` plus the Sol live-geometry gate. The command-7 record remains disabled pending independent recertification of the constructor-coordinate-only correction.
+Generated from acceptance contract `cd15e3b581df1e3020cfa022814119a97ba18af3` plus the Sol live-geometry gate. The exact corrected artifact received FINAL CERTIFIED GO under `2a952a3`; command 7 is available for isolated runtime playtesting.
 
 - Companion SHA-256: `9AC4E365BE55D32AB889E7B7472A1EDA8749B1EB259EA02BA35AB97BE666AF22`
 - Stock installed slot SHA-256: `023CF384A52CB6A6A49511B8B069B952718DC70E771FEE15CAC8A0777FB5F6DE`

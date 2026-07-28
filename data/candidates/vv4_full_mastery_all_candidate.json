@@ -1,9 +1,9 @@
 {
   "id": "vv4_full_mastery_all_stage_a_candidate",
   "game_id": "vv4",
-  "name": "DISABLED Candidate: Grant Full Mastery to All Villagers",
-  "enabled": false,
-  "certification_status": "disabled corrected UI-geometry candidate awaiting independent Sol recertification",
+  "name": "Grant Full Mastery to All Villagers",
+  "enabled": true,
+  "certification_status": "corrected UI geometry certified by Sol commit 2a952a3; runtime playtest pending",
   "dependencies": [
     "vv4_enable_origins_exclusive_features_full_mastery_candidate"
   ],

@@ -727,13 +727,25 @@ def main() -> None:
 
     stock_noop = noop_slots["collection_progression"]
     stock_installed = installed_slots["collection_progression"]
+    existing_feature = (
+        json.loads(FEATURE_OUT.read_text(encoding="utf-8"))
+        if FEATURE_OUT.is_file()
+        else {}
+    )
+    feature_enabled = bool(existing_feature.get("enabled", False))
     feature = {
         "id": "vv4_full_mastery_all_stage_a_candidate",
         "game_id": "vv4",
-        "name": "DISABLED Candidate: Grant Full Mastery to All Villagers",
-        "enabled": False,
+        "name": (
+            "Grant Full Mastery to All Villagers"
+            if feature_enabled
+            else "DISABLED Candidate: Grant Full Mastery to All Villagers"
+        ),
+        "enabled": feature_enabled,
         "certification_status": (
-            "disabled corrected UI-geometry candidate awaiting independent Sol recertification"
+            "corrected UI geometry certified by Sol commit 2a952a3; runtime playtest pending"
+            if feature_enabled
+            else "disabled corrected UI-geometry candidate awaiting independent Sol recertification"
         ),
         "dependencies": [base["id"]],
         "description": (
@@ -912,12 +924,22 @@ def main() -> None:
     }
     MAP_OUT.write_text(json.dumps(artifact, indent=2) + "\n", encoding="utf-8")
     DOC_OUT.write_text(
-        "# VV4 Full Mastery disabled corrected UI-geometry candidate\n\n"
-        "Generated from acceptance contract "
+        (
+            "# VV4 Full Mastery certified corrected-geometry playtest feature\n\n"
+            if feature_enabled
+            else "# VV4 Full Mastery disabled corrected UI-geometry candidate\n\n"
+        )
+        + "Generated from acceptance contract "
         "`cd15e3b581df1e3020cfa022814119a97ba18af3` plus the Sol live-geometry "
-        "gate. The command-7 record remains disabled pending independent "
-        "recertification of the constructor-coordinate-only correction.\n\n"
-        f"- Companion SHA-256: `{artifact['companion']['sha256']}`\n"
+        "gate. "
+        + (
+            "The exact corrected artifact received FINAL CERTIFIED GO under "
+            "`2a952a3`; command 7 is available for isolated runtime playtesting.\n\n"
+            if feature_enabled
+            else "The command-7 record remains disabled pending independent "
+            "recertification of the constructor-coordinate-only correction.\n\n"
+        )
+        + f"- Companion SHA-256: `{artifact['companion']['sha256']}`\n"
         f"- Stock installed slot SHA-256: `{artifact['layouts']['collection_progression']['installed_slot_sha256']}`\n"
         f"- Expanded installed slot SHA-256: `{artifact['layouts']['experimental_expanded_256']['installed_slot_sha256']}`\n"
         f"- Stock base+mastery render SHA-256: `{renders['collection_progression']['base_plus_mastery_sha256']}`\n"
