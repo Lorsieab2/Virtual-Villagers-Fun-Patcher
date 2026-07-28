@@ -91,13 +91,32 @@ class VV3RunningCandidateTests(unittest.TestCase):
         cls.running = FunPatch(cls.running_raw)
         cls.build = next(item for item in load_builds() if item.id == "vv3")
 
-    def test_candidate_is_disabled_and_absent_from_active_catalog(self) -> None:
+    def test_certified_source_bundle_is_frozen_and_active_alias_is_exposed(self) -> None:
         self.assertFalse(self.base_raw["enabled"])
         self.assertFalse(self.running_raw["enabled"])
-        active = {item.id for item in load_fun_patches()}
+        expected_files = {
+            BASE_PATH: "FC9256E3278C33786ED7BCE1B6CBDCBFA96AC6281CDCA90702C68ED852C1D893",
+            RUNNING_PATH: "630E39DF3CED42C4D63CBEE6C797D27AF72595DF66120363378B6D858B68FCE2",
+            MAP_PATH: "B7FEB533462B1751411235EA385CBA6759CE32B2DB3865F116BDFE1A9D3D6637",
+        }
+        for path, expected in expected_files.items():
+            self.assertEqual(hashlib.sha256(path.read_bytes()).hexdigest().upper(), expected)
+
+        active = {item.id: item for item in load_fun_patches()}
         self.assertNotIn(self.base.id, active)
         self.assertNotIn(self.running.id, active)
+        self.assertIn("vv3_enable_origins_exclusive_features", active)
+        self.assertIn("vv3_all_villagers_like_running", active)
         self.assertNotIn("vv3_origins_village_wide_upgrades", active)
+        active_base = active["vv3_enable_origins_exclusive_features"]
+        active_running = active["vv3_all_villagers_like_running"]
+        for key in ("patches", "patch_mode_overrides", "pe_append_transaction"):
+            self.assertEqual(active_base.raw[key], self.base_raw[key])
+        self.assertEqual(active_running.raw["patches"], self.running_raw["patches"])
+        self.assertEqual(
+            active_running.raw["dependencies"],
+            ["vv3_enable_origins_exclusive_features"],
+        )
         validate_fun_patch_catalog([self.base, self.running])
 
     def test_current_handler_constructor_and_other_runtime_projections_are_frozen(self) -> None:
@@ -391,12 +410,63 @@ class VV3RunningCandidateTests(unittest.TestCase):
                 self.assertIn(f"feature:{self.base.id}", owners)
                 self.assertIn(f"feature:{self.running.id}", owners)
 
+    def test_active_catalog_renders_certified_hashes_and_uninstalls(self) -> None:
+        for mode in MODES:
+            with self.subTest(mode=mode):
+                rendered, applied = render_patched_bytes(
+                    STOCK,
+                    self.build,
+                    mode,
+                    [
+                        "vv3_enable_origins_exclusive_features",
+                        "vv3_all_villagers_like_running",
+                    ],
+                )
+                expected = self.artifact_map["rendered_candidates"][mode]
+                self.assertEqual(
+                    hashlib.sha256(rendered).hexdigest().upper(),
+                    expected["base_plus_running_sha256"],
+                )
+                owners = {item["owner"] for item in applied}
+                self.assertIn(
+                    "feature:vv3_enable_origins_exclusive_features", owners
+                )
+                self.assertIn("feature:vv3_all_villagers_like_running", owners)
+
+                catalog = {item.id: item for item in load_fun_patches()}
+                work = bytearray(rendered)
+                with self.assertRaisesRegex(PatcherError, "dependent optional patch"):
+                    _remove_feature_with_dependency_guard(
+                        work,
+                        catalog["vv3_enable_origins_exclusive_features"],
+                        [
+                            catalog["vv3_enable_origins_exclusive_features"],
+                            catalog["vv3_all_villagers_like_running"],
+                        ],
+                        mode,
+                    )
+                _remove_feature_bytes(
+                    work, catalog["vv3_all_villagers_like_running"], mode
+                )
+                _remove_feature_with_dependency_guard(
+                    work,
+                    catalog["vv3_enable_origins_exclusive_features"],
+                    [catalog["vv3_enable_origins_exclusive_features"]],
+                    mode,
+                )
+                baseline, _ = render_patched_bytes(STOCK, self.build, mode)
+                self.assertEqual(work, baseline)
+
     def test_candidate_composes_with_every_other_current_vv3_patch(self) -> None:
         others = [
             item
             for item in load_fun_patches()
             if item.game_id == "vv3"
-            and item.id != "vv3_enable_origins_exclusive_features"
+            and item.id
+            not in {
+                "vv3_enable_origins_exclusive_features",
+                "vv3_all_villagers_like_running",
+            }
         ]
         for mode in MODES:
             with self.subTest(mode=mode):

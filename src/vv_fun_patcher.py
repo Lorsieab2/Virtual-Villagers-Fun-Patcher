@@ -25,6 +25,16 @@ ORIGINS_VILLAGE_WIDE_FEATURE_PATHS = tuple(
     ROOT / "data" / f"vv{game_number}_origins_village_wide_upgrades.json"
     for game_number in range(1, 6)
 )
+VV3_RUNNING_CANDIDATE_PATHS = {
+    "base": ROOT / "data" / "candidates" / "vv3_origins_running_base_candidate.json",
+    "running": ROOT / "data" / "candidates" / "vv3_all_villagers_like_running_candidate.json",
+    "map": ROOT / "data" / "candidates" / "vv3_running_candidate_map.json",
+}
+VV3_RUNNING_CERTIFIED_SHA256 = {
+    "base": "FC9256E3278C33786ED7BCE1B6CBDCBFA96AC6281CDCA90702C68ED852C1D893",
+    "running": "630E39DF3CED42C4D63CBEE6C797D27AF72595DF66120363378B6D858B68FCE2",
+    "map": "B7FEB533462B1751411235EA385CBA6759CE32B2DB3865F116BDFE1A9D3D6637",
+}
 STATISTICS_FEATURES_PATH = ROOT / "data" / "statistics_features.json"
 DEFAULT_PATCH_MODE = "collection_progression"
 EXPANDED_PATCH_MODES = {
@@ -65,6 +75,56 @@ def load_patch_modes() -> list[PatchMode]:
     return [PatchMode(item) for item in _manifest()["patch_modes"]]
 
 
+def _certified_vv3_running_records(
+    active_base: dict[str, Any],
+) -> tuple[dict[str, Any], dict[str, Any]]:
+    records: dict[str, dict[str, Any]] = {}
+    for label, path in VV3_RUNNING_CANDIDATE_PATHS.items():
+        payload = path.read_bytes()
+        digest = hashlib.sha256(payload).hexdigest().upper()
+        if digest != VV3_RUNNING_CERTIFIED_SHA256[label]:
+            raise PatcherError(
+                f"Certified VV3 Running {label} artifact hash mismatch: "
+                f"expected {VV3_RUNNING_CERTIFIED_SHA256[label]}, got {digest}."
+            )
+        records[label] = json.loads(payload.decode("utf-8"))
+
+    base = dict(records["base"])
+    base.update(
+        {
+            "id": active_base["id"],
+            "name": active_base["name"],
+            "enabled": True,
+            "certification_status": (
+                "Stage C bytes certified by disassembly commit "
+                "79b122bf0850f18a101db9fb86b40407dd2db573"
+            ),
+        }
+    )
+    running = dict(records["running"])
+    running.update(
+        {
+            "id": "vv3_all_villagers_like_running",
+            "name": "All Villagers Like Running",
+            "enabled": True,
+            "dependencies": [active_base["id"]],
+            "description": (
+                "Give Running preference ID 38 to every eligible active living "
+                "VV3 villager with an empty Like slot for 1,000,000 tech points. "
+                "Already-like and full-Like records remain unchanged; Running "
+                "dislikes are removed only in the same atomic eligible mutation. "
+                "Commands 7 and 8 remain unavailable."
+            ),
+            "evidence_status": (
+                "exact Stage C bytes statically certified by disassembly commit "
+                "79b122bf0850f18a101db9fb86b40407dd2db573; "
+                "runtime/player confirmation pending"
+            ),
+        }
+    )
+    return base, running
+
+
 def _load_fun_patch_records() -> list[FunPatch]:
     items = [
         item
@@ -75,7 +135,11 @@ def _load_fun_patch_records() -> list[FunPatch]:
         if feature_path.is_file():
             record = json.loads(feature_path.read_text(encoding="utf-8"))
             if record.get("enabled", True):
-                items.append(record)
+                if record.get("id") == "vv3_enable_origins_exclusive_features":
+                    certified_base, running = _certified_vv3_running_records(record)
+                    items.extend((certified_base, running))
+                else:
+                    items.append(record)
     for feature_path in ORIGINS_VILLAGE_WIDE_FEATURE_PATHS:
         if feature_path.is_file():
             record = json.loads(feature_path.read_text(encoding="utf-8"))

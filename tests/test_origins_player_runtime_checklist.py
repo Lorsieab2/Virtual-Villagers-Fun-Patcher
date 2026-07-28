@@ -87,7 +87,7 @@ class OriginsPlayerRuntimeChecklistTests(unittest.TestCase):
             self.assertIn("Food Point", origins["description"])
             self.assertIn("30,000", origins["description"])
             self.assertIn("1,000,000", wide["description"])
-        self.assertIn("These rows are unavailable", text)
+        self.assertIn("Only VV3 All Villagers Like Running is currently available", text)
         self.assertIn("each row would charge exactly 1,000,000 once", text)
 
     def test_committed_mastery_helpers_write_exact_native_skill_counts(self) -> None:

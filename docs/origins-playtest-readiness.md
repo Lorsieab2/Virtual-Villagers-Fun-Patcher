@@ -14,10 +14,12 @@ never launches a game and does not authorize packaging by itself.
 
 ## Village-wide Origins containment
 
-All five `vvN_origins_village_wide_upgrades` records are disabled and absent
+All five legacy `vvN_origins_village_wide_upgrades` records are disabled and absent
 from the catalog. Their commands 6/7/8 are bundled in one atomic payload, so
 Running, Full Mastery, and Age 18 remain unavailable together until each
-game's complete payload receives a GO gate. VV4 audit
+game's complete payload receives a GO gate. VV3's separately generated
+command-6-only All Villagers Like Running feature is the sole exception and
+does not expose commands 7/8. VV4 audit
 `628e0d9217b92b9cd695655842b09d74689a0238` proves the direct Full Mastery
 stores bypass eight native mutations. VV5 audit
 `02581c8f518e27ebd5fc7d2972db5597ab08ed35` records unresolved counter,
@@ -29,7 +31,7 @@ candidate direct 90 stores are not full mastery and bypass that evaluation;
 zero-change/no-charge behavior, creation/inheritance, and placement remain
 unresolved. VV1 is not certified.
 
-Command 6 is independently ON HOLD for all five builds under audit
+Command 6 remains ON HOLD for VV1, VV2, VV4, and VV5 under audit
 `0311443fbd078e3adcabaf7e693199989ddb9db8` and evidence clarification
 `a67e05247dc822306e1d5a514524cba388ab4d69`. Running ID 38 was verified
 separately in each executable. VV1 persists four Like and four Dislike DWORD
@@ -74,9 +76,12 @@ and signed health `+0xE78 > 0`. VV2 `+0x558` memorials and VV5 Heathen
 totems are distinct. Stage C now supplies a corrected disabled command-6-only
 base extension, guarded slot, transaction body, rebuilt `@20` companion, and
 stock/both-expanded render and uninstall fixtures under `data/candidates/`.
-Those bytes address Sol finding `f73625582adae714473068c272b90af91a57d945`
-but remain unavailable pending byte recertification. The old 944-byte
-payload remains forbidden.
+Those bytes address Sol finding `f73625582adae714473068c272b90af91a57d945`.
+Stage C certification `79b122bf0850f18a101db9fb86b40407dd2db573`
+approves the exact frozen artifact, which is now catalog-visible with its base
+Origins dependency in stock, immediate, expanded, and expanded-progression
+modes. Runtime/player confirmation remains pending. The old 944-byte payload
+remains forbidden and commands 7/8 remain absent.
 
 VV1 audit `e0bed87ce17dca5331afed1abc2d753ec3d8f0aa` now
 classifies that command as ON HOLD. It confirms five signed DWORD skills

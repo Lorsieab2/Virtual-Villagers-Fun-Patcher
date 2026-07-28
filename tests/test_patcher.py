@@ -707,7 +707,8 @@ class StockIntegrationTests(unittest.TestCase):
                     "experimental_expanded_256",
                     patches_by_game[build.id],
                 )
-                self.assertEqual(len(rendered), build.size)
+                expected_size = build.size + (0x1000 if build.id == "vv3" else 0)
+                self.assertEqual(len(rendered), expected_size)
                 self.assertGreater(len(applied), 0)
 
     def test_immediate_mode_fixed_arithmetic(self) -> None:

@@ -2,10 +2,11 @@
 
 ## Current atomic-payload safety containment
 
-All five `vvN_origins_village_wide_upgrades` records are fail-closed and are
+All five legacy `vvN_origins_village_wide_upgrades` records are fail-closed and are
 not offered by the catalog, GUI, CLI, or Select All. Commands 6, 7, and 8 share
 one atomic payload, so the complete feature remains unavailable until each
-game receives a full-payload GO gate. The VV4 audit
+game receives a full-payload GO gate. VV3's independent certified command-6
+feature is now available without commands 7/8. The VV4 audit
 `628e0d9217b92b9cd695655842b09d74689a0238` proves that command 7's direct
 `90.0` mastery stores bypass eight native mutations. The VV5 audit
 `02581c8f518e27ebd5fc7d2972db5597ab08ed35` records unresolved native-counter,
@@ -13,13 +14,13 @@ eligibility, no-change, inheritance, and expanded-layout requirements. VV3 is
 ON HOLD under exact-build audit
 `089957227c0db6a4c3128045519ffa27b201a00e`; VV1 is not certified.
 
-The manifests below remain as disabled diagnostic evidence; their payload
+The legacy manifests below remain as disabled diagnostic evidence; their payload
 bytes are not applied. Containment does not clear or rewrite existing save
 fields, issue a refund, or copy a companion DLL. Base Origins remains
 independently selectable for VV1, VV3, VV4, and VV5; VV2's complete Origins
 pair remains separately contained after its reported crashes.
 
-The five historical features are separate, game-scoped manifests:
+The five historical bundled features are separate, game-scoped manifests:
 
 * `vv1_origins_village_wide_upgrades`
 * `vv2_origins_village_wide_upgrades`
@@ -58,7 +59,8 @@ Running from Dislikes and writes Running only to a free normal Like slot. The
 historical helper/result wording is retained only as rejected diagnostic
 evidence; the exact future atomic contract is specified below. The charge
 contract is one million tech points for the village-wide purchase, not per
-villager, but no current command is available. The implementation is tailored to each
+villager. VV3 command 6 is currently available; every other command remains
+unavailable. The implementation is tailored to each
 supported executable: it independently reads the numeric Running ID certified
 in that game's exact stock preference table. All five current tables happen to
 resolve Running to ID 38, but that is not a blanket cross-game assumption. The
@@ -71,7 +73,7 @@ exact Likes/Dislikes offsets and physical record stride.
 Cross-game audit `0311443fbd078e3adcabaf7e693199989ddb9db8`, with
 evidence-hierarchy clarification
 `a67e05247dc822306e1d5a514524cba388ab4d69`, places command 6 independently
-ON HOLD for every exact build:
+ON HOLD for VV1, VV2, VV4, and VV5. VV3 is separately certified below:
 
 | Game | Exact supported fingerprint | Persisted Like/Dislike model |
 | --- | --- | --- |
@@ -85,6 +87,14 @@ Every empty slot uses signed DWORD sentinel `-1`; construction, membership,
 copy, and persistence paths were traced for each complete array. Running ID
 38 was code-confirmed independently in every exact executable, rather than
 assumed across games.
+
+VV3 Stage C certification `79b122bf0850f18a101db9fb86b40407dd2db573`
+approves the exact command-6-only artifact generated at patcher commit
+`4876f30609e2b9c5ea04188000b16be65e1175b1`. It is exposed as
+`vv3_all_villagers_like_running`, depends on
+`vv3_enable_origins_exclusive_features`, and retains the certified page,
+slot, hashes, ownership, and uninstall guards unchanged. Commands 7 and 8 are
+absent. Player runtime confirmation remains pending.
 
 The future operation must be atomic per villager. An already-Running Like
 skips the entire villager. Otherwise, the helper must scan the complete Like

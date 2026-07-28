@@ -274,11 +274,16 @@ Polishing the Statue for eligible upgradeable and completed statues.
 It does not change autonomous work, skill gain amounts, statue upgrades, or
 Retired Chief activities.
 
-ORIGINS VILLAGE-WIDE UPGRADES (CURRENTLY CONTAINED)
+ORIGINS VILLAGE-WIDE UPGRADES
 
-All five village-wide Origins records are currently unavailable. Commands
+All five legacy village-wide Origins records remain unavailable. Commands
 6/7/8 share one atomic payload, so Running, Full Mastery, and Age 18 remain
 fail-closed together until each game receives a complete payload safety GO.
 The contained row labels include Grant Full Mastery to All Villagers.
 The disabled manifests remain as diagnostic evidence, but their bytes are not
 applied. Existing save fields are not cleared, changed, or refunded.
+
+VV3 alone now offers the separately certified All Villagers Like Running
+feature for 1,000,000 tech points. It requires VV3 Enable Origins-Exclusive
+Features, contains command 6 only, and does not expose Full Mastery or Age 18.
+Runtime/player confirmation remains pending.

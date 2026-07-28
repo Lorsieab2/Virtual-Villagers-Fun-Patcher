@@ -2,17 +2,20 @@
 
 ## Current village-wide safety containment
 
-Do not test or purchase All Villagers Like Running, Grant Full Mastery to All
-Villagers, or All Villagers are 18 in the current build. All five
+Do not test or purchase Grant Full Mastery to All Villagers or All Villagers
+are 18 in the current build. All five legacy
 `vvN_origins_village_wide_upgrades` records are disabled because commands
 6/7/8 share one atomic payload and Full Mastery lacks a complete per-game GO
 gate. The diagnostic manifests remain available to static tests only; no
 village-wide bytes are applied. Existing save fields and ownership are left
 untouched, with no forced clear and no refund. The historical procedures below
 are retained as the future player-validation contract, not as currently
-available rows.
+available rows. VV3's independently rebuilt command-6-only **All Villagers
+Like Running** row is the sole exception: it is catalog-visible for exactly
+1,000,000 tech points, while commands 7 and 8 remain absent. Static
+certification is complete; player runtime confirmation remains pending.
 
-All Villagers Like Running is independently ON HOLD for VV1-VV5 under audit
+All Villagers Like Running remains ON HOLD for VV1, VV2, VV4, and VV5 under audit
 `0311443fbd078e3adcabaf7e693199989ddb9db8` and evidence clarification
 `a67e05247dc822306e1d5a514524cba388ab4d69`. Running ID 38 is independently
 code-confirmed in each exact build. The persisted models are four Like/four
@@ -22,18 +25,15 @@ already-like skips the entire villager; otherwise preflight a free Like before
 removing any Running Dislike; full Likes causes no mutation; unrelated slots
 and ordering remain unchanged. VV5 current faction `+0x1CEC != 0` must be
 rejected before any preference access or count, and `+0x1CE1` is not an
-approved eligibility gate. The current disabled helpers do not meet this
-contract, so the historical runtime procedure below must not be run.
+approved eligibility gate. The disabled legacy helpers do not meet this
+contract. VV3 alone uses the separately certified implementation below.
 
 For VV3 specifically, resolution commits
 `531b0aca8d5bf051f87773e67d48b61c0ba02833` and
 `1d9a39da078806aa940e4774a9068956e88347bc` close the three-plus-three
 slot operation, persistence, atomic ordering, four counters, and
-dry-run/no-charge/final unsigned recheck contract. Runtime validation remains
-forbidden because independent command-6 UI/transaction bytes and complete
-stock/expanded placement and uninstall composition are not implemented. The
-shared 944-byte commands 6/7/8
-payload and unrelated base Origins hooks cannot be enabled selectively.
+dry-run/no-charge/final unsigned recheck contract. The shared 944-byte
+commands 6/7/8 payload remains forbidden.
 Second resolution `d1cdeb67362487c1d577e3abae03c9424fd04fb9` specifies the
 Running-only seven-row/ID-1006 UI, four-counter `char[256]` result, atomic
 one-million-point transaction, zero-cost/no-refund non-reversing removal and
@@ -48,10 +48,11 @@ active corrected save records and 125 active records in the 150-slot live
 scan were zero, and CE tables contain no label. The future Running predicate
 is active `+0xF10 != 0` plus signed health `+0xE78 > 0`, without `+0xE94`.
 VV2 `+0x558` memorials and VV5 Heathen totems remain separate mechanics.
-A disabled Stage C candidate now provides corrected command-6-only bytes,
-stock/both-expanded manifests, guarded removal, and the five-argument result
-ABI for static certification. It is not catalog-visible and is not ready for
-player runtime testing.
+Stage C certification
+`79b122bf0850f18a101db9fb86b40407dd2db573` approves the exact frozen
+command-6-only bytes, stock/both-expanded manifests, guarded removal, and
+five-argument result ABI. The row is now catalog-visible; runtime/player
+confirmation remains pending. Commands 7 and 8 remain unavailable.
 
 VV3 Full Mastery is specifically ON HOLD under exact-build audit
 `089957227c0db6a4c3128045519ffa27b201a00e`. Its five signed DWORD skills are
@@ -232,7 +233,7 @@ outcome bypassing Birth Control as a defect; that bypass is required.
 | Tech Point Doubler | 500,000 tech points; VV1/VV3/VV4 unowned purchase and repurchase remain unavailable. VV5 stock supports purchase, zero-cost/no-refund Remove, and full-price repurchase; VV5 expanded-256 keeps new purchase unavailable and owned Remove available. |
 | Food Point Doubler | 500,000 tech points; VV1/VV3/VV4 unowned purchase and repurchase remain unavailable. VV5 stock supports purchase, zero-cost/no-refund Remove, and full-price repurchase; VV5 expanded-256 keeps new purchase unavailable and owned Remove available. |
 | Cure all Villagers | 30,000 tech points; test the sickness-only matrix below. |
-| Village-wide rows | Unavailable in the current catalog. The historical contract priced All Villagers Like Running, Grant Full Mastery to All Villagers, and All Villagers are 18 at exactly 1,000,000 tech points each. |
+| Village-wide rows | VV3 All Villagers Like Running is available for exactly 1,000,000 tech points. Every legacy bundled row, Grant Full Mastery to All Villagers, and All Villagers are 18 remain unavailable. |
 
 For VV5, Time Warp, Island Event, and Barrel of Babies remain Unavailable:
 selecting them must make no charge, native call, clock change, or save/state
@@ -290,7 +291,9 @@ current Heathens are untouched and excluded from every count.
 
 ### Grant Full Mastery to All Villagers and All Villagers are 18
 
-These rows are unavailable; this section is a future validation contract only.
+Only VV3 All Villagers Like Running is currently available; its section is a
+runtime/player-confirmation checklist. The other games and commands remain a
+future validation contract only.
 If later certified, each row would charge exactly 1,000,000 once. Full Mastery
 must set the native maximum 100 in all five skills in VV1–VV4 and all six in
 VV5, while preserving every required native side effect. Age must set displayed
