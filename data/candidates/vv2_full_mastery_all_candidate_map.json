@@ -1,6 +1,6 @@
 {
-  "section_sha256": "0669DAEDFD07C822B1435CE10BA7A11C2CDC944B1C0A37432FBC95D16B9A56AD",
-  "entry_sha256": "F93F19A7E939F5FD3C1D419EB65B1C097E6BB23591E46147FD3D7A067A33A380",
+  "section_sha256": "0D0DD6DBEA7236807D15ED7047F08E7B8CC8B9AB098051C29A49C1AFDC31C61A",
+  "entry_sha256": "68EB76203CA0AC65F3A608AEA8466B881BEFF536E8E88C64BAD7C8148C2A3D99",
   "walker_sha256": "7B01459A15542151B07D8A716731646A165C190C064B7BCB6CEB67EB1E1FAC94",
   "telemetry_sha256": "8036B4818E39533B3F5BEBF1EC38A94A71B05EE8BE72FB1EFA0B9AD72789B907",
   "confirmation_sha256": "07011CB557B6FCF7560AACB750D41851895C6856D851A567A4B952128E6B6258",
@@ -113,7 +113,7 @@
     }
   },
   "command_abi": {
-    "entry": "implicit Tech-screen ESI; menu result command is kept in EBX; bound is an independent stack argument",
+    "entry": "stock thiscall Tech-screen receiver arrives in ECX; entry saves old ESI, transports ECX to ESI, and restores old ESI on exit; menu result command is kept in EBX; bound is an independent stack argument",
     "walker": "cdecl(base,bound,mode,snapshot); EAX changed; preserves EBX/ESI/EDI/EBP",
     "telemetry": "cdecl(base,bound,snapshot); ECX new markers; EDX changed-but-unmarked",
     "result": "stdcall(status,changed,new_markers,changed_but_unmarked); ret 16"
@@ -127,15 +127,15 @@
   "rendered_candidates": {
     "collection_progression": {
       "baseline_sha256": "AD7D6F85A363510732B1D647516389326878E5FA8756A42F4526AACDFAF0C523",
-      "candidate_sha256": "B089089B7E9B634B20D379E07EED86E672E8EC409DC73BB90C36CD882047166E",
+      "candidate_sha256": "C23E2D20B00A05E38A6A25737A579FA622F28F24CAD204C66A48FB11AA985931",
       "size": 733184,
-      "pe_checksum": "0x000B7D02",
+      "pe_checksum": "0x000BF8CA",
       "owners": [
         "automatic:population",
         "automatic:safety",
         "feature:vv2_full_mastery_all_stage_a_candidate"
       ],
-      "all_current_vv2_sha256": "043B0CDC67A6102F1DF9E82265D36307899E6C0C1E7353AA53B526E6C8B3396C",
+      "all_current_vv2_sha256": "BFFB45FA52E59188E29C0C18070F462E115054EFE6BB9B1C8C07C5517710EBC7",
       "all_current_vv2_owners": [
         "automatic:compatibility",
         "automatic:population",
@@ -153,15 +153,15 @@
     },
     "immediate_fixed": {
       "baseline_sha256": "9EA03791F24CA5F9005AB33C09E5C8930E30BEB55E05FD2B8463894F48C50C00",
-      "candidate_sha256": "D66D6C4A6E6CAC869C5D1272DFDD33256186142A264A18DEBD3F525DB72DE8D6",
+      "candidate_sha256": "707B8DAC282F98F995CB33E45973DDAB015C3EAF6D6B65BD4C055BBD8FC4891A",
       "size": 733184,
-      "pe_checksum": "0x000B67F2",
+      "pe_checksum": "0x000BE3BA",
       "owners": [
         "automatic:population",
         "automatic:safety",
         "feature:vv2_full_mastery_all_stage_a_candidate"
       ],
-      "all_current_vv2_sha256": "1AF393A565702612F24816ACE5DB5C21D0D2B4337DD154D318AC7DE771E15E8E",
+      "all_current_vv2_sha256": "B3F3D4278AE81BD5AB6A504C87743B9825F62736782552715CA391A210221BA2",
       "all_current_vv2_owners": [
         "automatic:compatibility",
         "automatic:population",
@@ -179,15 +179,15 @@
     },
     "experimental_expanded_256": {
       "baseline_sha256": "9EA03791F24CA5F9005AB33C09E5C8930E30BEB55E05FD2B8463894F48C50C00",
-      "candidate_sha256": "D66D6C4A6E6CAC869C5D1272DFDD33256186142A264A18DEBD3F525DB72DE8D6",
+      "candidate_sha256": "707B8DAC282F98F995CB33E45973DDAB015C3EAF6D6B65BD4C055BBD8FC4891A",
       "size": 733184,
-      "pe_checksum": "0x000B67F2",
+      "pe_checksum": "0x000BE3BA",
       "owners": [
         "automatic:population",
         "automatic:safety",
         "feature:vv2_full_mastery_all_stage_a_candidate"
       ],
-      "all_current_vv2_sha256": "1AF393A565702612F24816ACE5DB5C21D0D2B4337DD154D318AC7DE771E15E8E",
+      "all_current_vv2_sha256": "B3F3D4278AE81BD5AB6A504C87743B9825F62736782552715CA391A210221BA2",
       "all_current_vv2_owners": [
         "automatic:compatibility",
         "automatic:population",
@@ -205,15 +205,15 @@
     },
     "experimental_expanded_256_progression": {
       "baseline_sha256": "AD7D6F85A363510732B1D647516389326878E5FA8756A42F4526AACDFAF0C523",
-      "candidate_sha256": "B089089B7E9B634B20D379E07EED86E672E8EC409DC73BB90C36CD882047166E",
+      "candidate_sha256": "C23E2D20B00A05E38A6A25737A579FA622F28F24CAD204C66A48FB11AA985931",
       "size": 733184,
-      "pe_checksum": "0x000B7D02",
+      "pe_checksum": "0x000BF8CA",
       "owners": [
         "automatic:population",
         "automatic:safety",
         "feature:vv2_full_mastery_all_stage_a_candidate"
       ],
-      "all_current_vv2_sha256": "043B0CDC67A6102F1DF9E82265D36307899E6C0C1E7353AA53B526E6C8B3396C",
+      "all_current_vv2_sha256": "BFFB45FA52E59188E29C0C18070F462E115054EFE6BB9B1C8C07C5517710EBC7",
       "all_current_vv2_owners": [
         "automatic:compatibility",
         "automatic:population",

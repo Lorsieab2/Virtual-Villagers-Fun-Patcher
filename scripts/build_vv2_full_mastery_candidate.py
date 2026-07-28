@@ -240,6 +240,7 @@ def build_section() -> tuple[bytes, dict[str, object]]:
             mov ebp, esp
             push ebx
             push esi
+            mov esi, ecx
             push edi
             sub esp, 0x124
             call 0x{show_menu_va:X}
@@ -778,7 +779,7 @@ def build() -> tuple[dict[str, object], dict[str, object]]:
                 "return_matrix": {"0": 0, "1": 1, "2": 0, "arbitrary_non_1": 0},
             },
             "command_abi": {
-                "entry": "implicit Tech-screen ESI; menu result command is kept in EBX; bound is an independent stack argument",
+                "entry": "stock thiscall Tech-screen receiver arrives in ECX; entry saves old ESI, transports ECX to ESI, and restores old ESI on exit; menu result command is kept in EBX; bound is an independent stack argument",
                 "walker": "cdecl(base,bound,mode,snapshot); EAX changed; preserves EBX/ESI/EDI/EBP",
                 "telemetry": "cdecl(base,bound,snapshot); ECX new markers; EDX changed-but-unmarked",
                 "result": "stdcall(status,changed,new_markers,changed_but_unmarked); ret 16",

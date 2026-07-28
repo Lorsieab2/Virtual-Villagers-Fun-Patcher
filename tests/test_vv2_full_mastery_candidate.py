@@ -161,6 +161,16 @@ class VV2FullMasteryCandidateTests(unittest.TestCase):
         self.assertIn(bytes.fromhex("FF15D4404700"), confirm)
         self.assertIn(bytes.fromhex("83F8010F94C00FB6C0"), confirm)
 
+    def test_handler_transports_thiscall_receiver_without_clobbering_saved_esi(self) -> None:
+        page = bytes.fromhex(
+            self.raw["pe_append_transaction"]["layouts"]["collection_progression"]["append_bytes"]
+        )
+        entry_offset = int(self.map["offsets"]["entry"], 0)
+        entry = page[entry_offset:entry_offset + 16]
+        # push ebp; mov ebp,esp; push ebx; push esi; mov esi,ecx; push edi.
+        # The saved ESI is restored by the existing epilogue.
+        self.assertTrue(entry.startswith(bytes.fromhex("5589E5535689CE57")))
+
     def test_semantic_walker_excludes_before_skill_access_and_writes_only_below_100(self) -> None:
         records = [
             {"active": False, "health": 100, "is_totem": False, "elder": 0, "skills": {name: object() for name in SKILLS}},
