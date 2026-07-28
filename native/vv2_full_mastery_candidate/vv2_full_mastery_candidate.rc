@@ -1,0 +1,19 @@
+107 ICON "../../assets/origins/107-grant-full-mastery.ico"
+
+#define DS_MODALFRAME 0x0080L
+#define DS_SETFONT 0x0040L
+#define WS_POPUP 0x80000000L
+#define WS_CAPTION 0x00C00000L
+#define WS_SYSMENU 0x00080000L
+
+301 DIALOGEX 0, 0, 310, 74
+STYLE DS_MODALFRAME | DS_SETFONT | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Origins Upgrades"
+FONT 9, "Segoe UI"
+BEGIN
+    ICON        107, -1, 8, 8, 24, 24
+    LTEXT       "Grant Full Mastery to All Villagers", -1, 40, 10, 190, 10
+    LTEXT       "1,000,000 tech points", -1, 40, 22, 170, 9
+    PUSHBUTTON  "Buy", 1007, 240, 11, 55, 18
+    DEFPUSHBUTTON "Cancel", 2, 120, 51, 70, 14
+END

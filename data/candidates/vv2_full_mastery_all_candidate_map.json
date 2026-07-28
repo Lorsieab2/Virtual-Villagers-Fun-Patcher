@@ -1,0 +1,233 @@
+{
+  "section_sha256": "0669DAEDFD07C822B1435CE10BA7A11C2CDC944B1C0A37432FBC95D16B9A56AD",
+  "entry_sha256": "F93F19A7E939F5FD3C1D419EB65B1C097E6BB23591E46147FD3D7A067A33A380",
+  "walker_sha256": "7B01459A15542151B07D8A716731646A165C190C064B7BCB6CEB67EB1E1FAC94",
+  "telemetry_sha256": "8036B4818E39533B3F5BEBF1EC38A94A71B05EE8BE72FB1EFA0B9AD72789B907",
+  "confirmation_sha256": "07011CB557B6FCF7560AACB750D41851895C6856D851A567A4B952128E6B6258",
+  "menu_resolver_sha256": "36BC57CB226CC61375D67F7673011A50A293B51F3AB651466B5162EE11CB832B",
+  "result_resolver_sha256": "1F557F2DBA3FB2A988DC0547D28DFFA7046A76B5CEA37AFA56B8740AF6C7E348",
+  "offsets": {
+    "handler": "0x0",
+    "constructor": "0x40",
+    "entry": "0x100",
+    "walker": "0x380",
+    "telemetry": "0x520",
+    "confirmation": "0x680",
+    "menu_resolver": "0x740",
+    "result_resolver": "0x7C0",
+    "strings": "0x900"
+  },
+  "strings": {
+    "button": "0x4B3900",
+    "candidate_dll": "0x4B3911",
+    "menu_export": "0x4B3935",
+    "result_export": "0x4B394C",
+    "user32": "0x4B3965",
+    "message_box": "0x4B3970",
+    "warning": "0x4B397C",
+    "caption": "0x4B39F8"
+  },
+  "absolute_references": [
+    "0x474010 LoadLibraryA IAT",
+    "0x4740D4 GetProcAddress IAT",
+    "0x44D4C0 native Elder evaluator",
+    "0x467F83 stock allocation helper",
+    "0x4019D0 stock button constructor",
+    "0x4015D0 stock button styling",
+    "0x40B560 stock child attachment"
+  ],
+  "rel32_references": [
+    "handler -> entry",
+    "handler -> stock continuation 0x4437C5",
+    "constructor -> 0x467F83/0x4019D0/0x4015D0/0x40B560",
+    "entry -> menu/walker/confirmation/0x44D4C0/telemetry/result"
+  ],
+  "iat_references": [
+    "0x474010 LoadLibraryA",
+    "0x4740D4 GetProcAddress"
+  ],
+  "base_relocations": [],
+  "acceptance_commit": "93d69a7826d3c7260ea18e1467597e7580ddbae9",
+  "audit_commit": "b5183ca0564de3dca84590254cf275f6ce4db255",
+  "source": {
+    "size": 724992,
+    "sha256": "46C1503C209255C9CDEFA941DB2F449C8CF8E2CDD5C7D13CD975326E377ED677"
+  },
+  "companion": {
+    "path": "data/candidates/VVFP VV2 Full Mastery Candidate.dll",
+    "size": 108544,
+    "sha256": "BDEAC1B39925834A7CD8DF7CD2C13BA7D7CBDF6E27760DAED6525092FF092699",
+    "exports": {
+      "ShowVV2FullMasteryMenu": {
+        "ordinal": 1,
+        "rva": 4128
+      },
+      "ShowVV2FullMasteryResult": {
+        "ordinal": 2,
+        "rva": 4160
+      },
+      "_ShowVV2FullMasteryMenu@0": {
+        "ordinal": 3,
+        "rva": 4128
+      },
+      "_ShowVV2FullMasteryResult@16": {
+        "ordinal": 4,
+        "rva": 4160
+      }
+    }
+  },
+  "section": {
+    "name": ".vv2fm",
+    "raw_offset": "0xB1000",
+    "rva": "0xB3000",
+    "va": "0x4B3000",
+    "virtual_size": "0x2000",
+    "raw_size": "0x2000",
+    "characteristics": "0x60000020 executable/readable/non-writable",
+    "old_size_of_image": "0xB3000",
+    "new_size_of_image": "0xB5000",
+    "old_file_length": "0xB1000",
+    "new_file_length": "0xB3000"
+  },
+  "hooks": {
+    "constructor": {
+      "offset": "0x435EF",
+      "before": "8B4C24205F",
+      "after": "E94CFA0600"
+    },
+    "handler": {
+      "offset": "0x437C0",
+      "before": "837C240408",
+      "after": "E93BF80600"
+    }
+  },
+  "confirmation": {
+    "abi": "no arguments; preserves EBP/EBX/ESI/EDI; EAX=1 only explicit IDOK",
+    "load_library_iat": "0x474010",
+    "get_proc_address_iat": "0x4740D4",
+    "return_matrix": {
+      "0": 0,
+      "1": 1,
+      "2": 0,
+      "arbitrary_non_1": 0
+    }
+  },
+  "command_abi": {
+    "entry": "implicit Tech-screen ESI; menu result command is kept in EBX; bound is an independent stack argument",
+    "walker": "cdecl(base,bound,mode,snapshot); EAX changed; preserves EBX/ESI/EDI/EBP",
+    "telemetry": "cdecl(base,bound,snapshot); ECX new markers; EDX changed-but-unmarked",
+    "result": "stdcall(status,changed,new_markers,changed_but_unmarked); ret 16"
+  },
+  "modes": [
+    "collection_progression",
+    "immediate_fixed",
+    "experimental_expanded_256",
+    "experimental_expanded_256_progression"
+  ],
+  "rendered_candidates": {
+    "collection_progression": {
+      "baseline_sha256": "AD7D6F85A363510732B1D647516389326878E5FA8756A42F4526AACDFAF0C523",
+      "candidate_sha256": "B089089B7E9B634B20D379E07EED86E672E8EC409DC73BB90C36CD882047166E",
+      "size": 733184,
+      "pe_checksum": "0x000B7D02",
+      "owners": [
+        "automatic:population",
+        "automatic:safety",
+        "feature:vv2_full_mastery_all_stage_a_candidate"
+      ],
+      "all_current_vv2_sha256": "043B0CDC67A6102F1DF9E82265D36307899E6C0C1E7353AA53B526E6C8B3396C",
+      "all_current_vv2_owners": [
+        "automatic:compatibility",
+        "automatic:population",
+        "automatic:safety",
+        "feature:vv2_birth_control",
+        "feature:vv2_easier_healing_mastery",
+        "feature:vv2_full_mastery_all_stage_a_candidate",
+        "feature:vv2_gong_of_wonder_coconuts_fix",
+        "feature:vv2_hospital_recovery_heals",
+        "feature:vv2_teaching_children_grants_skill",
+        "feature:vv2_write_village_statistics"
+      ],
+      "collision_status": "PASS",
+      "uninstall_target_sha256": "AD7D6F85A363510732B1D647516389326878E5FA8756A42F4526AACDFAF0C523"
+    },
+    "immediate_fixed": {
+      "baseline_sha256": "9EA03791F24CA5F9005AB33C09E5C8930E30BEB55E05FD2B8463894F48C50C00",
+      "candidate_sha256": "D66D6C4A6E6CAC869C5D1272DFDD33256186142A264A18DEBD3F525DB72DE8D6",
+      "size": 733184,
+      "pe_checksum": "0x000B67F2",
+      "owners": [
+        "automatic:population",
+        "automatic:safety",
+        "feature:vv2_full_mastery_all_stage_a_candidate"
+      ],
+      "all_current_vv2_sha256": "1AF393A565702612F24816ACE5DB5C21D0D2B4337DD154D318AC7DE771E15E8E",
+      "all_current_vv2_owners": [
+        "automatic:compatibility",
+        "automatic:population",
+        "automatic:safety",
+        "feature:vv2_birth_control",
+        "feature:vv2_easier_healing_mastery",
+        "feature:vv2_full_mastery_all_stage_a_candidate",
+        "feature:vv2_gong_of_wonder_coconuts_fix",
+        "feature:vv2_hospital_recovery_heals",
+        "feature:vv2_teaching_children_grants_skill",
+        "feature:vv2_write_village_statistics"
+      ],
+      "collision_status": "PASS",
+      "uninstall_target_sha256": "9EA03791F24CA5F9005AB33C09E5C8930E30BEB55E05FD2B8463894F48C50C00"
+    },
+    "experimental_expanded_256": {
+      "baseline_sha256": "9EA03791F24CA5F9005AB33C09E5C8930E30BEB55E05FD2B8463894F48C50C00",
+      "candidate_sha256": "D66D6C4A6E6CAC869C5D1272DFDD33256186142A264A18DEBD3F525DB72DE8D6",
+      "size": 733184,
+      "pe_checksum": "0x000B67F2",
+      "owners": [
+        "automatic:population",
+        "automatic:safety",
+        "feature:vv2_full_mastery_all_stage_a_candidate"
+      ],
+      "all_current_vv2_sha256": "1AF393A565702612F24816ACE5DB5C21D0D2B4337DD154D318AC7DE771E15E8E",
+      "all_current_vv2_owners": [
+        "automatic:compatibility",
+        "automatic:population",
+        "automatic:safety",
+        "feature:vv2_birth_control",
+        "feature:vv2_easier_healing_mastery",
+        "feature:vv2_full_mastery_all_stage_a_candidate",
+        "feature:vv2_gong_of_wonder_coconuts_fix",
+        "feature:vv2_hospital_recovery_heals",
+        "feature:vv2_teaching_children_grants_skill",
+        "feature:vv2_write_village_statistics"
+      ],
+      "collision_status": "PASS",
+      "uninstall_target_sha256": "9EA03791F24CA5F9005AB33C09E5C8930E30BEB55E05FD2B8463894F48C50C00"
+    },
+    "experimental_expanded_256_progression": {
+      "baseline_sha256": "AD7D6F85A363510732B1D647516389326878E5FA8756A42F4526AACDFAF0C523",
+      "candidate_sha256": "B089089B7E9B634B20D379E07EED86E672E8EC409DC73BB90C36CD882047166E",
+      "size": 733184,
+      "pe_checksum": "0x000B7D02",
+      "owners": [
+        "automatic:population",
+        "automatic:safety",
+        "feature:vv2_full_mastery_all_stage_a_candidate"
+      ],
+      "all_current_vv2_sha256": "043B0CDC67A6102F1DF9E82265D36307899E6C0C1E7353AA53B526E6C8B3396C",
+      "all_current_vv2_owners": [
+        "automatic:compatibility",
+        "automatic:population",
+        "automatic:safety",
+        "feature:vv2_birth_control",
+        "feature:vv2_easier_healing_mastery",
+        "feature:vv2_full_mastery_all_stage_a_candidate",
+        "feature:vv2_gong_of_wonder_coconuts_fix",
+        "feature:vv2_hospital_recovery_heals",
+        "feature:vv2_teaching_children_grants_skill",
+        "feature:vv2_write_village_statistics"
+      ],
+      "collision_status": "PASS",
+      "uninstall_target_sha256": "AD7D6F85A363510732B1D647516389326878E5FA8756A42F4526AACDFAF0C523"
+    }
+  }
+}
