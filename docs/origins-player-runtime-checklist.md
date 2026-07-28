@@ -30,6 +30,17 @@ Creation/inheritance/Silver Mirror closure, native all-five side effects, and
 safe `.shr` transport/placement remain unresolved. Gong and every Island Event
 route remain native and outside this command.
 
+VV1 Full Mastery is ON HOLD under audit
+`e0bed87ce17dca5331afed1abc2d753ec3d8f0aa`. Its five signed DWORD skills are
+`+0x3BC..+0x3CC`, followed by preference `+0x3D0`; Master begins at 90 and
+native awards cap at 100. Save packing persists them across 32 records at
+stride `0x3D8`. The candidate checks occupied `+0x28` and positive signed
+health `+0x344`, writes 90 while leaving preference unchanged, and returns no
+changed count. Its `state+0xA2FC` transaction lacks a changed-record preflight,
+commit recheck, no-charge result, and rollback. Target 90/100 semantics,
+preference/title policy, distributed side effects, creation/clone policy,
+strict Golden Child/Event bypass, and placement/composition remain unresolved.
+
 This is a player-test checklist for the collection-progression Origins-core
 outputs. It is explicitly **runtime/player confirmation pending**; static patch
 verification is not a claim that any item below has been confirmed in-game.

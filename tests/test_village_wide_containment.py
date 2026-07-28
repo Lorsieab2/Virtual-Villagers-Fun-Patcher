@@ -21,7 +21,7 @@ from vv_fun_patcher import (  # noqa: E402
 from vv_fun_patcher_gui import group_fun_patches  # noqa: E402
 
 STOCK = ROOT / "research" / "stock-executables"
-BASELINE = "8abf4812804420533419d3bc9ec249a9737505c7"
+BASELINE = "8adcec794efa98e28cc23e2f08c845603d8812fd"
 DISABLED = {f"vv{game}_origins_village_wide_upgrades" for game in range(1, 6)}
 
 
@@ -188,6 +188,18 @@ class VillageWideContainmentTests(unittest.TestCase):
             "signed health",
             "Silver Mirror",
             "Gong and every Island Event",
+            "e0bed87ce17dca5331afed1abc2d753ec3d8f0aa",
+            "+0x3BC..+0x3CC",
+            "+0x3D0",
+            "Master threshold 90",
+            "native cap 100",
+            "32 records",
+            "stride `0x3D8`",
+            "+0x28",
+            "+0x344",
+            "state+0xA2FC",
+            "preference/title",
+            "Golden Child/Event bypass",
             "refund",
         ):
             self.assertIn(phrase, docs)

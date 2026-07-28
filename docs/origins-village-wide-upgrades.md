@@ -118,6 +118,33 @@ raw-offset/virtual-address defect. Gong and every Island Event path—including
 their selection, RNG, messages, statistics, and skill writes—must remain
 entirely native and cannot be intercepted by this command.
 
+### VV1 Full Mastery exact-build boundary
+
+Disassembly commit `e0bed87ce17dca5331afed1abc2d753ec3d8f0aa`
+confirms five contiguous signed DWORD skills: Farming `+0x3BC`, Building
+`+0x3C0`, Research `+0x3C4`, Healing `+0x3C8`, and Parenting `+0x3CC`.
+The following DWORD `+0x3D0` is job preference. Master rank begins at 90,
+while ordinary native award paths cap at 100. Save pack scans 32 physical
+records at stride `0x3D8` and persists the skills and preference.
+
+The disabled candidate iterates its supplied physical bound and requires
+occupied byte `+0x28 != 0` and signed health DWORD `+0x344 > 0`. It writes 90
+to all five skills, leaves preference unchanged, preserves nonvolatile
+registers, and returns zero counts. Its dispatcher checks Technology Points at
+`state+0xA2FC`, subtracts 1,000,000 once, and has no commit recheck,
+changed-record preflight, no-charge no-op result, or rollback.
+
+VV1 remains ON HOLD. Full Mastery still requires a decision between Master
+threshold 90 and native maximum 100, and the mass candidate's unchanged
+preference conflicts with the separate selected-villager candidate that sets
+an empty preference to Farming. Native skill side effects are distributed; no
+complete all-five route is proved. Creation initializes skills/preference
+independently while copy/clone copies the five skills, leaving future-record
+policy unresolved. Golden Child and every Island Event route—including
+eligibility, RNG, selection, messages, statistics, births, skills, and record
+writes—must remain entirely native. Exact guarded placement and all-patch
+composition are also unproved.
+
 New Believers uses the authoritative active predicate, health check, and
 believer faction byte. Heathens are excluded from all three operations and are
 left byte-for-byte unchanged. Converted records are eligible only when their

@@ -29,6 +29,16 @@ candidate direct 90 stores are not full mastery and bypass that evaluation;
 zero-change/no-charge behavior, creation/inheritance, and placement remain
 unresolved. VV1 is not certified.
 
+VV1 audit `e0bed87ce17dca5331afed1abc2d753ec3d8f0aa` now
+classifies that command as ON HOLD. It confirms five signed DWORD skills
+`+0x3BC..+0x3CC`, preference `+0x3D0`, Master threshold 90, native cap 100,
+and persistent 32-record save packing at stride `0x3D8`. The candidate uses
+occupied `+0x28` and signed health `+0x344`, writes 90 without changing
+preference, returns no counts, and charges through `state+0xA2FC` without a
+changed-record preflight, no-charge result, recheck, or rollback. Preference/
+title policy, distributed native side effects, creation/clone policy, strict
+Golden Child/Event bypass, and placement/composition remain unresolved.
+
 The disabled diagnostic payload bytes are retained in their manifests but are
 not rendered into stock or expanded outputs. This catalog containment does not
 touch existing save ownership or fields, force-clear anything, or issue a
