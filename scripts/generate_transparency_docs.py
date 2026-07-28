@@ -76,7 +76,7 @@ def build_document() -> str:
         "",
         "The future Full Mastery contract requires true native maximum 100 for every skill: five skills in VV1-VV4 and six in VV5. Master thresholds and candidate value 90 are not Full Mastery. This planning/readiness requirement does not authorize any contained runtime command.",
         "",
-        "VV5 Full Mastery package commit `5e52be5e41b25b0f541c3c762e8caacc2dbd150b` is HARD WITHDRAWN after an immediate startup auto-close. WER reports APPCRASH `c0000005` at VA `0x44FA20`, whose stock first instruction `8B09` dereferences the thiscall receiver in ECX. The emitted base Origins Tech and Detail constructors called this routine after allocation without assigning the new object to ECX. Certification `8193629` is revoked. The disabled corrective candidate assigns `ECX=EDI` before both calls and remains catalog-hidden pending independent emitted-byte recertification; its command-7 mastery slot was not reached.",
+        "The former VV5 Full Mastery package commit `5e52be5e41b25b0f541c3c762e8caacc2dbd150b` was HARD WITHDRAWN after an immediate startup auto-close. WER reports APPCRASH `c0000005` at VA `0x44FA20`, whose stock first instruction `8B09` dereferences the thiscall receiver in ECX. The emitted base Origins Tech and Detail constructors called this routine after allocation without assigning the new object to ECX. Certification `8193629` is revoked. The corrected bundle assigns `ECX=EDI` before both calls and is independently certified under `7970cd9`; it is exposed only for startup-first testing. Remain on the initial village UI and do not open Tech or Details or click Buy until stable startup is confirmed.",
         "",
         "## All Villagers Like Running evidence boundary",
         "",

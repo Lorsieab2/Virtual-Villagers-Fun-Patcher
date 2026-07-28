@@ -415,7 +415,7 @@ class VV5OriginsFeatureTests(unittest.TestCase):
         ]
         active_ids = {item.id for item in load_fun_patches() if item.game_id == "vv5"}
         self.assertIn(FEATURE_ID, active_ids)
-        self.assertNotIn("vv5_full_mastery_all_stage_a_candidate", active_ids)
+        self.assertIn("vv5_full_mastery_all_stage_a_candidate", active_ids)
         for mode in (
             "collection_progression",
             "immediate_fixed",

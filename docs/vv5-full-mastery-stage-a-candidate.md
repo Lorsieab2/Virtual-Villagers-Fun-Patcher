@@ -1,6 +1,6 @@
-# VV5 Full Mastery hard-withdrawn corrective candidate
+# VV5 Full Mastery certified playtest feature
 
-Generated from acceptance contract `48dd3266f8dd934be0434e07f6b24751d0e417c3`. The dependent command-7 record is disabled and catalog-hidden after the prior package auto-closed at startup. Certification `8193629` is revoked; the corrected base constructors require independent emitted-byte recertification.
+Generated from acceptance contract `48dd3266f8dd934be0434e07f6b24751d0e417c3`. The exact corrected startup-receiver bundle received FINAL CERTIFIED GO under `7970cd9`; the dependent command-7 record is available only for startup-first runtime testing, with Tech/Details/Buy forbidden until stable startup is confirmed.
 
 - Companion SHA-256: `BD80B1B0692FE3C0F2293A73CFF707C18198AECA8922355DB2E9EB169E112608`
 - Stock installed slot SHA-256: `38F8F66530BB52767D7053E5764E5033EA2AC2AD7D0BCDEA20754ED94E27DC82`

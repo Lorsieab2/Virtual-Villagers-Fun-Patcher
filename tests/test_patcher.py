@@ -141,9 +141,9 @@ class ManifestTests(unittest.TestCase):
             {
                 "vv1_full_mastery_all_stage_a_candidate",
                 "vv3_all_villagers_like_running",
-                "vv5_full_mastery_all_stage_a_candidate",
             }.isdisjoint(active_ids)
         )
+        self.assertIn("vv5_full_mastery_all_stage_a_candidate", active_ids)
 
     def test_origins_village_wide_payloads_use_zero_owned_reserves(self) -> None:
         stock_by_game = {build.id: STOCK / build.input_name for build in load_builds()}

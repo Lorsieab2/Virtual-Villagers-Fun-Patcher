@@ -1,9 +1,9 @@
 {
   "id": "vv5_full_mastery_all_stage_a_candidate",
   "game_id": "vv5",
-  "name": "HARD WITHDRAWN Candidate: Grant Full Mastery to All Villagers",
-  "enabled": false,
-  "certification_status": "HARD WITHDRAWN after startup APPCRASH c0000005 at VA 0x44FA20; certification 8193629 revoked pending emitted-byte recertification of the corrected base dependency constructors",
+  "name": "Grant Full Mastery to All Villagers",
+  "enabled": true,
+  "certification_status": "corrected startup receiver bundle certified by disassembly commit 7970cd9; startup-first runtime confirmation pending",
   "dependencies": [
     "vv5_enable_origins_exclusive_features_full_mastery_candidate"
   ],
