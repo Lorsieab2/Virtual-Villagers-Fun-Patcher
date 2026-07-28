@@ -2,7 +2,7 @@
   "id": "vv3_all_villagers_like_running_candidate",
   "game_id": "vv3",
   "name": "DISABLED Candidate: All Villagers Like Running",
-  "enabled": false,
+  "enabled": true,
   "dependencies": [
     "vv3_enable_origins_exclusive_features_running_candidate"
   ],

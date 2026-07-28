@@ -1,10 +1,9 @@
-# VV3 Running Stage C corrected disabled certification candidate
+# VV3 Running corrected certified artifact
 
-This is a generated, **disabled** recertification bundle. Neither
-`vv3_enable_origins_exclusive_features_running_candidate` nor
-`vv3_all_villagers_like_running_candidate` is loaded by the catalog, CLI,
-GUI, Select All, or ordinary output rendering. Sol byte certification is
-required before any enablement.
+This generated artifact is enabled for replacement runtime playtesting after
+final certification `c62fba9214de7c6092365e99c72bd81a59d3888c`.
+`vv3_all_villagers_like_running` is loaded with its base Origins dependency;
+commands 7 and 8 remain absent.
 
 Evidence inputs are disassembly commits
 `d78db872efe04f98bd19b45c9e098bb5a25d53b8` and
@@ -14,7 +13,7 @@ defects certified by Sol at
 use a stable base, the dispatcher preserves every nonvolatile register it
 uses, and exact repair contract
 `0095e605b3b488129c0623efd642e9352d8586c0` replaces the revoked owned-state
-transaction. The candidate remains disabled pending byte recertification.
+transaction. Gameplay validation remains pending.
 Player-confirmed Like 38 /
 Dislike -1 save-and-reload persistence is supporting runtime evidence, not PE
 integration proof.

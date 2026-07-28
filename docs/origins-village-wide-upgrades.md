@@ -59,9 +59,9 @@ Running from Dislikes and writes Running only to a free normal Like slot. The
 historical helper/result wording is retained only as rejected diagnostic
 evidence; the exact future atomic contract is specified below. The charge
 contract is one million tech points for the village-wide purchase, not per
-villager. VV3 command 6 is temporarily unavailable pending final
-recertification of corrective contract
-`0095e605b3b488129c0623efd642e9352d8586c0`; every other command remains
+villager. VV3 command 6 is enabled for runtime playtesting after final
+certification `c62fba9214de7c6092365e99c72bd81a59d3888c`; gameplay
+validation remains pending and every other village-wide command remains
 unavailable. The implementation is tailored to each
 supported executable: it independently reads the numeric Running ID certified
 in that game's exact stock preference table. All five current tables happen to

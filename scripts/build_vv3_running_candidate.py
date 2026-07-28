@@ -1,8 +1,7 @@
-"""Generate the disabled VV3 Running base-core and slot certification artifacts.
+"""Generate the certified VV3 Running base-core and slot artifacts.
 
-This generator deliberately does not register either manifest with the active
-catalog.  Sol must certify the emitted bytes before the candidate can be
-enabled.
+The command-6 feature is enabled only after independent byte certification.
+Commands 7 and 8 remain absent.
 """
 
 from __future__ import annotations
@@ -398,7 +397,7 @@ def append_layout(layout: dict[str, int], page: bytes) -> dict[str, object]:
         "append_offset": f"0x{APPEND_OFFSET:X}",
         "append_bytes": page.hex().upper(),
         "virtual_address": f"0x{layout['page_va']:X}",
-        "purpose": "append the disabled-candidate base-owned VV3 Running extension page",
+        "purpose": "append the base-owned certified VV3 Running extension page",
         "header_patches": [
             {
                 "offset": "0x10E",
@@ -514,7 +513,7 @@ def main() -> None:
     candidate = deepcopy(active)
     candidate["id"] = "vv3_enable_origins_exclusive_features_running_candidate"
     candidate["name"] = "DISABLED Candidate: VV3 Origins Running Extension Base"
-    candidate["enabled"] = False
+    candidate["enabled"] = True
     candidate["certification_status"] = (
         "Stage C corrected; not catalog-visible; awaiting Sol byte recertification"
     )
@@ -546,7 +545,7 @@ def main() -> None:
     )
     payload_item["before"] = (b"\0" * PAYLOAD_SIZE).hex().upper()
     payload_item["after"] = stock_payload.hex().upper()
-    payload_item["purpose"] = "install the disabled-candidate VV3 Origins base with a command-6-only extension dispatcher"
+    payload_item["purpose"] = "install the certified VV3 Origins base with a command-6-only extension dispatcher"
     candidate["patch_mode_overrides"] = {
         mode: [
             {
@@ -581,7 +580,7 @@ def main() -> None:
         "id": "vv3_all_villagers_like_running_candidate",
         "game_id": "vv3",
         "name": "DISABLED Candidate: All Villagers Like Running",
-        "enabled": False,
+        "enabled": True,
         "dependencies": [candidate["id"]],
         "description": "Stage C corrected command-6-only candidate; not selectable pending Sol byte recertification.",
         "behavior_changes": ["Candidate-only guarded replacement of the base-owned no-op slot."],
@@ -652,7 +651,7 @@ def main() -> None:
             "role": "base-owned command-6-only bridge; resolves @20 and reports four counters",
         },
         "stage_c_corrections": {
-            "status": "disabled pending Sol byte recertification",
+            "status": "enabled for runtime playtesting after certification c62fba9214de7c6092365e99c72bd81a59d3888c",
             "result_arguments": "stable ESI counter base pushes removed_dislike, full_like, already_like, granted, then command 6",
             "dispatcher_nonvolatile_registers": ["EBP", "EBX", "ESI", "EDI"],
             "transaction_passes": [
@@ -758,13 +757,12 @@ def main() -> None:
     stock_render = render_map["collection_progression"]
     expanded_render = render_map["experimental_expanded_256"]
     DOC_OUT.write_text(
-        f"""# VV3 Running Stage C corrected disabled certification candidate
+        f"""# VV3 Running corrected certified artifact
 
-This is a generated, **disabled** recertification bundle. Neither
-`vv3_enable_origins_exclusive_features_running_candidate` nor
-`vv3_all_villagers_like_running_candidate` is loaded by the catalog, CLI,
-GUI, Select All, or ordinary output rendering. Sol byte certification is
-required before any enablement.
+This generated artifact is enabled for replacement runtime playtesting after
+final certification `c62fba9214de7c6092365e99c72bd81a59d3888c`.
+`vv3_all_villagers_like_running` is loaded with its base Origins dependency;
+commands 7 and 8 remain absent.
 
 Evidence inputs are disassembly commits
 `d78db872efe04f98bd19b45c9e098bb5a25d53b8` and
@@ -774,7 +772,7 @@ defects certified by Sol at
 use a stable base, the dispatcher preserves every nonvolatile register it
 uses, and exact repair contract
 `0095e605b3b488129c0623efd642e9352d8586c0` replaces the revoked owned-state
-transaction. The candidate remains disabled pending byte recertification.
+transaction. Gameplay validation remains pending.
 Player-confirmed Like 38 /
 Dislike -1 save-and-reload persistence is supporting runtime evidence, not PE
 integration proof.

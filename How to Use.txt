@@ -283,7 +283,7 @@ The contained row labels include Grant Full Mastery to All Villagers.
 The disabled manifests remain as diagnostic evidence, but their bytes are not
 applied. Existing save fields are not cleared, changed, or refunded.
 
-VV3 All Villagers Like Running is temporarily unavailable after its owned-state
-playtest defect. Its corrected repeatable-Buy candidate contains command 6 only
-and remains disabled pending final byte recertification. It does not expose
-Full Mastery or Age 18.
+VV3 All Villagers Like Running is enabled for replacement runtime playtesting
+after final static certification c62fba9214de7c6092365e99c72bd81a59d3888c.
+Its corrected repeatable-Buy implementation contains command 6 only and does
+not expose Full Mastery or Age 18. Gameplay validation remains pending.

@@ -95,36 +95,45 @@ class VV3RunningCandidateTests(unittest.TestCase):
         cls.build = next(item for item in load_builds() if item.id == "vv3")
 
     def test_certified_source_bundle_is_frozen_and_active_alias_is_exposed(self) -> None:
-        self.assertFalse(self.base_raw["enabled"])
-        self.assertFalse(self.running_raw["enabled"])
+        self.assertTrue(self.base_raw["enabled"])
+        self.assertTrue(self.running_raw["enabled"])
         expected_files = {
-            BASE_PATH: "B7AF3846122A70507C2304828EBF5BC7CED672AC3F1FAE9F23411215ABFD46D4",
-            RUNNING_PATH: "A5451126E371A8483771E1E241EBC719943281B860930E45BD5D2D8C7F0BCCFC",
-            MAP_PATH: "AEBD974A4F69C2EDF222046197B078985893105914AB90226E4BAF61BC9BABEA",
+            BASE_PATH: "10D1516956AD7FF71A569869B4D03255C4FEB9A168A2B4084D3D091BE723D270",
+            RUNNING_PATH: "512FDBE807314B3371DCF10D7417EE42C8A104A1F87FB4165E04FCFBE6D9F49E",
+            MAP_PATH: "F7ECE7A55747EDC17EFC257206AF4F63408AF516FA08DFD14BA5E5003431636A",
         }
         for path, expected in expected_files.items():
             self.assertEqual(hashlib.sha256(path.read_bytes()).hexdigest().upper(), expected)
 
         active = {item.id: item for item in load_fun_patches()}
         self.assertNotIn(self.base.id, active)
-        self.assertNotIn(self.running.id, active)
+        self.assertIn("vv3_all_villagers_like_running", active)
         self.assertIn("vv3_enable_origins_exclusive_features", active)
-        self.assertNotIn("vv3_all_villagers_like_running", active)
         self.assertNotIn("vv3_origins_village_wide_upgrades", active)
         validate_fun_patch_catalog([self.base, self.running])
 
-    def test_apply_keeps_uncertified_running_out_of_the_catalog(self) -> None:
+    def test_apply_accepts_certified_running_from_the_catalog(self) -> None:
         with tempfile.TemporaryDirectory() as temp:
             game_folder = Path(temp) / self.build.title
             game_folder.mkdir()
             source = game_folder / self.build.input_name
             shutil.copy2(STOCK, source)
-            with self.assertRaisesRegex(PatcherError, "Unknown optional patch"):
-                apply_patch(
-                    source,
-                    "collection_progression",
-                    fun_patch_ids=["vv3_all_villagers_like_running"],
-                )
+            _output, log_path = apply_patch(
+                source,
+                "collection_progression",
+                fun_patch_ids=[
+                    "vv3_enable_origins_exclusive_features",
+                    "vv3_all_villagers_like_running",
+                ],
+            )
+            result = json.loads(log_path.read_text(encoding="utf-8"))
+            self.assertEqual(
+                result["fun_patches"],
+                [
+                    "vv3_enable_origins_exclusive_features",
+                    "vv3_all_villagers_like_running",
+                ],
+            )
 
     def test_current_handler_constructor_and_other_runtime_projections_are_frozen(self) -> None:
         stock_payload = bytes.fromhex(

@@ -11,9 +11,10 @@ village-wide bytes are applied. Existing save fields and ownership are left
 untouched, with no forced clear and no refund. The historical procedures below
 are retained as the future player-validation contract, not as currently
 available rows. VV3's independently rebuilt command-6-only **All Villagers
-Like Running** candidate is also temporarily absent from the catalog while
-corrective contract `0095e605b3b488129c0623efd642e9352d8586c0` awaits final
-byte recertification. It remains a repeatable Buy action costing exactly
+Like Running** command-6-only feature is enabled for replacement runtime
+playtesting after final certification
+`c62fba9214de7c6092365e99c72bd81a59d3888c`. Gameplay validation remains
+pending. It is a repeatable Buy action costing exactly
 1,000,000 tech points;
 commands 7 and 8 remain absent.
 
@@ -56,8 +57,9 @@ Stage C certification
 command-6-only artifact, but its owned-state behavior is revoked. Corrective
 contract `0095e605b3b488129c0623efd642e9352d8586c0` specifies a repeatable Buy,
 an exact nonblank no-change result with no deduction, and confirmation before
-a positive transaction. The corrected candidate remains catalog-disabled
-pending final byte recertification. Commands 7 and 8 remain unavailable.
+a positive transaction. Final certification
+`c62fba9214de7c6092365e99c72bd81a59d3888c` permits runtime playtesting;
+commands 7 and 8 remain unavailable.
 
 VV3 Full Mastery is specifically ON HOLD under exact-build audit
 `089957227c0db6a4c3128045519ffa27b201a00e`. Its five signed DWORD skills are
@@ -238,7 +240,7 @@ outcome bypassing Birth Control as a defect; that bypass is required.
 | Tech Point Doubler | 500,000 tech points; VV1/VV3/VV4 unowned purchase and repurchase remain unavailable. VV5 stock supports purchase, zero-cost/no-refund Remove, and full-price repurchase; VV5 expanded-256 keeps new purchase unavailable and owned Remove available. |
 | Food Point Doubler | 500,000 tech points; VV1/VV3/VV4 unowned purchase and repurchase remain unavailable. VV5 stock supports purchase, zero-cost/no-refund Remove, and full-price repurchase; VV5 expanded-256 keeps new purchase unavailable and owned Remove available. |
 | Cure all Villagers | 30,000 tech points; test the sickness-only matrix below. |
-| Village-wide rows | All rows are temporarily unavailable. VV3 All Villagers Like Running has a corrected repeatable-Buy candidate pending final byte recertification; every legacy bundled row, Grant Full Mastery to All Villagers, and All Villagers are 18 remain unavailable. |
+| Village-wide rows | VV3 All Villagers Like Running is enabled for runtime playtesting as the sole certified command-6-only row. Every legacy bundled row, Grant Full Mastery to All Villagers, and All Villagers are 18 remain unavailable. |
 
 For VV5, Time Warp, Island Event, and Barrel of Babies remain Unavailable:
 selecting them must make no charge, native call, clock change, or save/state
@@ -305,10 +307,9 @@ current Heathens are untouched and excluded from every count.
 
 ### Grant Full Mastery to All Villagers and All Villagers are 18
 
-VV3 All Villagers Like Running is temporarily unavailable pending final
-recertification of corrective contract
-`0095e605b3b488129c0623efd642e9352d8586c0`; its section remains a future
-runtime/player-confirmation checklist. The other games and commands remain a
+VV3 All Villagers Like Running is enabled for replacement runtime testing
+after final certification `c62fba9214de7c6092365e99c72bd81a59d3888c`;
+gameplay validation remains pending. The other games and commands remain a
 future validation contract only.
 If later certified, each row would charge exactly 1,000,000 once. Full Mastery
 must set the native maximum 100 in all five skills in VV1–VV4 and all six in

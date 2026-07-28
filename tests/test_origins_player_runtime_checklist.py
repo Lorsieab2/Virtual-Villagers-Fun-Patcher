@@ -87,7 +87,7 @@ class OriginsPlayerRuntimeChecklistTests(unittest.TestCase):
             self.assertIn("Food Point", origins["description"])
             self.assertIn("30,000", origins["description"])
             self.assertIn("1,000,000", wide["description"])
-        self.assertIn("corrected candidate remains catalog-disabled", text)
+        self.assertIn("enabled for replacement runtime testing", text)
         self.assertNotIn("Only VV3 All Villagers Like Running is currently available", text)
         self.assertIn("each row would charge exactly 1,000,000 once", text)
 

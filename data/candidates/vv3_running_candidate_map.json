@@ -92,7 +92,7 @@
     "role": "base-owned command-6-only bridge; resolves @20 and reports four counters"
   },
   "stage_c_corrections": {
-    "status": "disabled pending Sol byte recertification",
+    "status": "enabled for runtime playtesting after certification c62fba9214de7c6092365e99c72bd81a59d3888c",
     "result_arguments": "stable ESI counter base pushes removed_dislike, full_like, already_like, granted, then command 6",
     "dispatcher_nonvolatile_registers": [
       "EBP",
