@@ -44,7 +44,7 @@ class OriginsPlayerRuntimeChecklistTests(unittest.TestCase):
             "No game is launched",
             "VV2's paused Time Warp must refuse",
             "VV2's certified Tech Point Doubler and Food Point Doubler paths are purchasable, removable, and repurchasable",
-            "VV2 Grant Full Mastery to All Villagers covers its five native skills",
+            "The disabled VV2 Full Mastery candidate targets its five native skill fields",
             "five skills in VV1–VV4 and six in VV5",
             "Food Mastery is code-confirmed absent",
             "Farming only gates or unlocks sources",
@@ -87,7 +87,8 @@ class OriginsPlayerRuntimeChecklistTests(unittest.TestCase):
             self.assertIn("Food Point", origins["description"])
             self.assertIn("30,000", origins["description"])
             self.assertIn("1,000,000", wide["description"])
-        self.assertIn("Each row charges exactly 1,000,000 once", text)
+        self.assertIn("These rows are unavailable", text)
+        self.assertIn("each row would charge exactly 1,000,000 once", text)
 
     def test_committed_mastery_helpers_write_exact_native_skill_counts(self) -> None:
         expected = {

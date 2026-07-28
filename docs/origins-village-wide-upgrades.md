@@ -92,6 +92,32 @@ value and native evaluation/counter policy, define a zero-change/no-charge
 result, prove creation and inheritance behavior, and provide safe composable
 placement. None of those open items is inferred from the disabled payload.
 
+### VV2 Full Mastery exact-build boundary
+
+Disassembly commit `60f649bf90b55dea3a6856d949e123bd79808782`
+confirms five contiguous signed DWORD skills: Farming `+0x7E4`, Building
+`+0x7E8`, Research `+0x7EC`, Healing `+0x7F0`, and Parenting `+0x7F4`.
+The following DWORD `+0x7F8` is job preference, not a sixth skill. Native
+consumers use thresholds 20, 50, and 88; Detail displays Master at 88 or
+higher, while native award paths cap skills at 100. Save/load persists the
+five skills and preference across 256 physical records at stride `0xE48C`.
+
+The disabled candidate iterates the supplied physical bound, including sparse
+records, and requires active byte `+0x30 != 0` and signed health DWORD
+`+0x52C > 0`. It writes 90 to all five fields, returns zero counts, and cannot
+distinguish changed records or already-mastered villagers. Its transaction
+checks `state+0x2EADC`, subtracts 1,000,000 once, then uses `Purchased.`; it has
+no zero-change/no-charge result, recheck, or rollback.
+
+VV2 remains ON HOLD. Candidate 90 is Master-ranked but is not full native 100;
+no complete native all-five side-effect route is proved. Creation starts from
+zero with an optional one-skill seed, copying/cloning copies all five, and
+pregnancy, event-child, inheritance, Silver Mirror, and Gong closure remains
+incomplete. The withdrawn VV2 Origins transport also retains its `.shr`
+raw-offset/virtual-address defect. Gong and every Island Event path—including
+their selection, RNG, messages, statistics, and skill writes—must remain
+entirely native and cannot be intercepted by this command.
+
 New Believers uses the authoritative active predicate, health check, and
 believer faction byte. Heathens are excluded from all three operations and are
 left byte-for-byte unchanged. Converted records are eligible only when their

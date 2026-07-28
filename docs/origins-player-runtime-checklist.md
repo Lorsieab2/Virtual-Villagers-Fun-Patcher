@@ -19,6 +19,17 @@ all-five evaluation uses award ID 4. The disabled candidate's direct 90 stores
 are not full mastery and bypass that post-write evaluation. Zero-change/no-
 charge behavior, creation/inheritance, and safe placement remain unresolved.
 
+VV2 Full Mastery is also ON HOLD under exact-build audit
+`60f649bf90b55dea3a6856d949e123bd79808782`. The five signed DWORD skills are
+`+0x7E4..+0x7F4`, followed by job preference `+0x7F8`; Master begins at 88 and
+native award paths cap at 100. Save/load persists the fields across 256 records
+at stride `0xE48C`. The disabled candidate iterates active `+0x30`, positive
+signed health `+0x52C`, writes 90, returns no changed count, and can charge the
+generic 1,000,000-point transaction without a no-change result or rollback.
+Creation/inheritance/Silver Mirror closure, native all-five side effects, and
+safe `.shr` transport/placement remain unresolved. Gong and every Island Event
+route remain native and outside this command.
+
 This is a player-test checklist for the collection-progression Origins-core
 outputs. It is explicitly **runtime/player confirmation pending**; static patch
 verification is not a claim that any item below has been confirmed in-game.
@@ -107,7 +118,7 @@ outcome bypassing Birth Control as a defect; that bypass is required.
 | Tech Point Doubler | 500,000 tech points; VV1/VV3/VV4 unowned purchase and repurchase remain unavailable. VV5 stock supports purchase, zero-cost/no-refund Remove, and full-price repurchase; VV5 expanded-256 keeps new purchase unavailable and owned Remove available. |
 | Food Point Doubler | 500,000 tech points; VV1/VV3/VV4 unowned purchase and repurchase remain unavailable. VV5 stock supports purchase, zero-cost/no-refund Remove, and full-price repurchase; VV5 expanded-256 keeps new purchase unavailable and owned Remove available. |
 | Cure all Villagers | 30,000 tech points; test the sickness-only matrix below. |
-| Village-wide rows | All Villagers Like Running, Grant Full Mastery to All Villagers, and All Villagers are 18 cost exactly 1,000,000 tech points each. |
+| Village-wide rows | Unavailable in the current catalog. The historical contract priced All Villagers Like Running, Grant Full Mastery to All Villagers, and All Villagers are 18 at exactly 1,000,000 tech points each. |
 
 For VV5, Time Warp, Island Event, and Barrel of Babies remain Unavailable:
 selecting them must make no charge, native call, clock change, or save/state
@@ -123,7 +134,8 @@ the full 500,000 again in the current save. VV1/VV3/VV4/VV5 unowned or
 manually removed doublers remain unavailable for new purchase pending their
 exact-build provenance gates.
 
-VV2 Grant Full Mastery to All Villagers covers its five native skills. Food
+The disabled VV2 Full Mastery candidate targets its five native skill fields;
+it is not available or approved as safe. Food
 Mastery is code-confirmed absent within the enumerated VV2 technology
 definitions, strings, direct writer calls, and food-source call chains; Farming
 only gates or unlocks sources, and Herb Mastery is unrelated. The Tech Point
@@ -167,7 +179,8 @@ changes. VV5 current Heathens are untouched and excluded from every count.
 
 ### Grant Full Mastery to All Villagers and All Villagers are 18
 
-Each row charges exactly 1,000,000 once. Mastery must write only the native
+These rows are unavailable; this section is a future validation contract only.
+If later certified, each row would charge exactly 1,000,000 once. Mastery must write only the native
 skill fields: five skills in VV1–VV4 and six in VV5. Age must set displayed
 age exactly to 18 only. Nursing/pregnancy timers and state remain unchanged;
 dead/inactive records and VV5 current Heathens remain byte-identical.

@@ -21,7 +21,7 @@ from vv_fun_patcher import (  # noqa: E402
 from vv_fun_patcher_gui import group_fun_patches  # noqa: E402
 
 STOCK = ROOT / "research" / "stock-executables"
-BASELINE = "84fabe05ae59131a70496ef4bbc51b39aa2af861"
+BASELINE = "8abf4812804420533419d3bc9ec249a9737505c7"
 DISABLED = {f"vv{game}_origins_village_wide_upgrades" for game in range(1, 6)}
 
 
@@ -178,6 +178,16 @@ class VillageWideContainmentTests(unittest.TestCase):
             "direct 90 stores",
             "zero-change/no-charge",
             "creation/inheritance",
+            "60f649bf90b55dea3a6856d949e123bd79808782",
+            "+0x7E4..+0x7F4",
+            "job preference",
+            "+0x7F8",
+            "Master threshold 88",
+            "native award paths cap at 100",
+            "stride `0xE48C`",
+            "signed health",
+            "Silver Mirror",
+            "Gong and every Island Event",
             "refund",
         ):
             self.assertIn(phrase, docs)

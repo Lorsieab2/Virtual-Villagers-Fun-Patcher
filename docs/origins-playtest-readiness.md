@@ -50,6 +50,17 @@ offsets with virtual addresses, displacing several helper/header references by
 `0x2000`. This is a hard re-enable blocker, but it is not certified as the
 complete explanation for both crashes; no repair is attempted here.
 
+VV2 Full Mastery audit `60f649bf90b55dea3a6856d949e123bd79808782`
+also keeps command 7 ON HOLD. It confirms five signed DWORD skills
+`+0x7E4..+0x7F4`, job preference at `+0x7F8`, Master threshold 88, native
+maximum 100, persistent 256-record save/load at stride `0xE48C`, and the
+candidate's active `+0x30`/health `+0x52C` iteration. The candidate writes 90
+and charges through a generic transaction without changed-record counting,
+zero-change/no-charge handling, result detail, or rollback. No complete native
+all-five side-effect route, creation/inheritance/Silver Mirror closure, or safe
+transport/placement is proved. Gong and every Island Event route remain
+entirely native.
+
 VV1, VV3, and VV4 doubler new purchases and repurchases remain unavailable
 until their exact-build provenance gates are cleared. VV5 stock-layout Tech and
 Food Doublers support purchase, zero-cost/no-refund Remove, and full-price
