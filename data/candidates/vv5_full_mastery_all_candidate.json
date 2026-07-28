@@ -1,9 +1,9 @@
 {
   "id": "vv5_full_mastery_all_stage_a_candidate",
   "game_id": "vv5",
-  "name": "Grant Full Mastery to All Villagers",
-  "enabled": true,
-  "certification_status": "corrected startup receiver bundle certified by disassembly commit 7970cd9; startup-first runtime confirmation pending",
+  "name": "DISABLED Candidate: Grant Full Mastery to All Villagers",
+  "enabled": false,
+  "certification_status": "disabled geometry-only candidate awaiting independent recertification of the VV5 Tech-screen Upgrades resource and rectangle",
   "dependencies": [
     "vv5_enable_origins_exclusive_features_full_mastery_candidate"
   ],

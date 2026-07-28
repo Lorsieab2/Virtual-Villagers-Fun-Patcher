@@ -118,15 +118,14 @@ class VV5FullMasteryCandidateTests(unittest.TestCase):
         cls.feature = FunPatch(cls.feature_raw)
         cls.build = next(item for item in load_builds() if item.id == "vv5")
 
-    def test_corrected_candidate_is_startup_first_visible_and_command_seven_only(self):
+    def test_geometry_candidate_is_hidden_and_command_seven_only(self):
         self.assertTrue(self.base_raw["enabled"])
-        self.assertTrue(self.feature_raw["enabled"])
+        self.assertFalse(self.feature_raw["enabled"])
         active = {item.id: item for item in load_fun_patches()}
         self.assertIn("vv5_enable_origins_exclusive_features", active)
         self.assertNotIn(self.base_raw["id"], active)
-        self.assertIn(self.feature_raw["id"], active)
-        self.assertIn("7970cd9", self.feature_raw["certification_status"])
-        self.assertIn("startup-first", self.feature_raw["certification_status"])
+        self.assertNotIn(self.feature_raw["id"], active)
+        self.assertIn("geometry-only", self.feature_raw["certification_status"])
         self.assertEqual(self.feature_raw["dependencies"], [self.base_raw["id"]])
         contract = self.feature_raw["transaction_contract"]
         self.assertEqual((contract["command"], contract["price"]), (7, 1_000_000))
@@ -261,6 +260,17 @@ class VV5FullMasteryCandidateTests(unittest.TestCase):
         self.assertEqual(cure[:2], bytes.fromhex("EB5F"))
         self.assertEqual(cure[2:97], b"\x90" * 95)
         self.assertEqual(cure[97:105], bytes.fromhex("53555152565731C0"))
+
+    def test_tech_upgrades_uses_certified_wide_resource_and_rectangle(self):
+        patches = {int(item["offset"], 0): item for item in self.base_raw["patches"]}
+        payload = bytes.fromhex(patches[0xDB000]["after"])
+        tech_ctor = payload[0x40:0xC0]
+        self.assertIn(bytes.fromhex("6A64"), tech_ctor)
+        self.assertIn(bytes.fromhex("68B2020000"), tech_ctor)
+        self.assertIn(bytes.fromhex("6891000000"), tech_ctor)
+        self.assertNotIn(bytes.fromhex("6A48"), tech_ctor)
+        self.assertNotIn(bytes.fromhex("68D2020000"), tech_ctor)
+        self.assertNotIn(bytes.fromhex("68B4000000"), tech_ctor)
 
     def test_all_modes_render_checksum_composition_and_uninstall(self):
         compatible = [

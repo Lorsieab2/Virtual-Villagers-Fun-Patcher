@@ -197,9 +197,12 @@ was HARD WITHDRAWN after an immediate startup auto-close. WER recorded
 `c0000005` at VA `0x44FA20`: both emitted base-owned constructors omitted the
 required thiscall `ECX` receiver before calling the stock routine. Certification
 `8193629` is revoked. The corrected bundle assigns the allocated object to
-`ECX` at both sites and is independently certified under `7970cd9`. It is
-available only for a startup-first test: remain on the initial village UI and
-do not open Tech or Details or click Buy until stable startup is confirmed.
+`ECX` at both sites and was independently certified under `7970cd9`. M2 passed
+startup and Full Mastery live testing, but the Tech-screen `Upgrades` text
+overran its narrow native Done graphic. The feature is catalog-hidden while a
+geometry-only candidate switches that Tech control to native wide resource 100
+at nominal x=145, y=690 pending independent byte recertification. The Villager
+Detail control is unchanged pending its separate exact gate.
 
 The disabled diagnostic payload bytes are retained in their manifests but are
 not rendered into stock or expanded outputs. This catalog containment does not

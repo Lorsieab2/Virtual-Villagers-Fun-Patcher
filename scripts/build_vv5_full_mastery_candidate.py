@@ -524,6 +524,19 @@ def append_layout(layout: dict[str, int], page: bytes) -> dict[str, object]:
 
 def build_base_payload(active_payload: bytes, page_va: int) -> bytes:
     payload = bytearray(active_payload)
+    tech_ctor = bytearray(payload[0x40:0xC0])
+    geometry_replacements = (
+        (bytes.fromhex("6A48"), bytes.fromhex("6A64")),
+        (bytes.fromhex("68D2020000"), bytes.fromhex("68B2020000")),
+        (bytes.fromhex("68B4000000"), bytes.fromhex("6891000000")),
+    )
+    for before, after in geometry_replacements:
+        if tech_ctor.count(before) != 1:
+            raise RuntimeError(
+                f"VV5 Tech Upgrades geometry guard mismatch: {before.hex().upper()}"
+            )
+        tech_ctor = tech_ctor.replace(before, after)
+    payload[0x40:0xC0] = tech_ctor
     dll_offset = payload.find(b"VVFP Origins Icons.dll\0")
     menu_offset = payload.find(b"ShowOriginsUpgradeMenuState\0")
     if dll_offset < 0 or menu_offset < 0:
@@ -708,11 +721,6 @@ def main() -> None:
         if FEATURE_OUT.is_file()
         else {}
     )
-    existing_map = (
-        json.loads(MAP_OUT.read_text(encoding="utf-8"))
-        if MAP_OUT.is_file()
-        else {}
-    )
     feature_enabled = bool(existing_feature.get("enabled", False))
     feature = {
         "id": "vv5_full_mastery_all_stage_a_candidate",
@@ -720,16 +728,15 @@ def main() -> None:
         "name": (
             "Grant Full Mastery to All Villagers"
             if feature_enabled
-            else "HARD WITHDRAWN Candidate: Grant Full Mastery to All Villagers"
+            else "DISABLED Candidate: Grant Full Mastery to All Villagers"
         ),
         "enabled": feature_enabled,
         "certification_status": (
             existing_feature.get("certification_status")
             if feature_enabled
             else (
-                "HARD WITHDRAWN after startup APPCRASH c0000005 at VA 0x44FA20; "
-                "certification 8193629 revoked pending emitted-byte recertification "
-                "of the corrected base dependency constructors"
+                "disabled geometry-only candidate awaiting independent recertification "
+                "of the VV5 Tech-screen Upgrades resource and rectangle"
             )
         ),
         "dependencies": [base["id"]],
@@ -833,11 +840,7 @@ def main() -> None:
         "acceptance_commit": "48dd3266f8dd934be0434e07f6b24751d0e417c3",
         "source": {"size": len(stock), "sha256": expected_sha},
         "base_manifest_sha256": sha(BASE_OUT.read_bytes()),
-        # Certification 7970cd9 freezes the emitted artifact map. Catalog
-        # enablement changes metadata only, so retain its certified projection.
-        "feature_manifest_sha256": existing_map.get(
-            "feature_manifest_sha256", sha(FEATURE_OUT.read_bytes())
-        ),
+        "feature_manifest_sha256": sha(FEATURE_OUT.read_bytes()),
         "base_stock_payload_sha256": sha(stock_payload),
         "base_expanded_payload_sha256": sha(expanded_payload),
         "companion": {
@@ -908,7 +911,7 @@ def main() -> None:
         (
             "# VV5 Full Mastery certified playtest feature\n\n"
             if feature_enabled
-            else "# VV5 Full Mastery hard-withdrawn corrective candidate\n\n"
+            else "# VV5 Full Mastery geometry-only corrective candidate\n\n"
         )
         + "Generated from acceptance contract "
         "`48dd3266f8dd934be0434e07f6b24751d0e417c3`. "
@@ -918,10 +921,12 @@ def main() -> None:
             "for startup-first runtime testing, with Tech/Details/Buy forbidden "
             "until stable startup is confirmed.\n\n"
             if feature_enabled
-            else "The dependent command-7 record is disabled and catalog-hidden after "
-            "the prior package auto-closed at startup. Certification `8193629` is "
-            "revoked; the corrected base constructors require independent emitted-byte "
-            "recertification.\n\n"
+            else "The corrected constructor and Full Mastery paths passed the M2 live "
+            "test, but the Tech-screen `Upgrades` label spilled beyond its narrow native "
+            "Done graphic. This disabled geometry-only candidate changes that control to "
+            "native wide resource 100 at nominal x=145, y=690. It remains catalog-hidden "
+            "pending independent emitted-byte recertification. The Villager Detail "
+            "control is unchanged and requires a separate exact gate.\n\n"
         )
         + f"- Companion SHA-256: `{artifact['companion']['sha256']}`\n"
         f"- Stock installed slot SHA-256: `{artifact['layouts']['collection_progression']['installed_slot_sha256']}`\n"
