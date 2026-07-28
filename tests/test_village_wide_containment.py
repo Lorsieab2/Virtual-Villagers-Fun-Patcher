@@ -21,7 +21,7 @@ from vv_fun_patcher import (  # noqa: E402
 from vv_fun_patcher_gui import group_fun_patches  # noqa: E402
 
 STOCK = ROOT / "research" / "stock-executables"
-BASELINE = "3559dc29a29b5227a420b04eb9ab3f8d218d731a"
+BASELINE = "e76a22ffc0a46433d6f3f0bd3828799e87d2fa8d"
 DISABLED = {f"vv{game}_origins_village_wide_upgrades" for game in range(1, 6)}
 
 
@@ -262,6 +262,33 @@ class VillageWideContainmentTests(unittest.TestCase):
             "0x4217F9",
             "true native maximum 100",
             "five skills in VV1–VV4 and six in VV5",
+            "0311443fbd078e3adcabaf7e693199989ddb9db8",
+            "a67e05247dc822306e1d5a514524cba388ab4d69",
+            "581,632 bytes",
+            "1EC790B927741081D5CE13A48FB76983A4FD4336EA08F89317872643760AF03D",
+            "4 Likes + 4 Dislikes",
+            "62 Likes + 62 Dislikes",
+            "3 Likes + 3 Dislikes",
+            "signed DWORD sentinel `-1`",
+            "code-confirmed independently",
+            "already-Running Like",
+            "prove an empty slot exists before removing any Running Dislike",
+            "full Likes causes no mutation",
+            "unrelated slots",
+            "inspect too few slots",
+            "bounded four-counter",
+            "stock plus expanded",
+            "+0x1CEC != 0",
+            "Skipped over X villagers. Reason: already likes running",
+            "Removed running dislike from X villagers",
+            "future-only",
+            "Official LDW Cheat Tables",
+            "current authoritative vanilla-table",
+            "Official LDW Cheat Tables  (Backup!!)",
+            "recovery/version comparison",
+            "Official LDW Cheat Tables - Copy",
+            "requires fingerprint matching",
+            "controls every claim",
             "refund",
         ):
             self.assertIn(phrase, docs)

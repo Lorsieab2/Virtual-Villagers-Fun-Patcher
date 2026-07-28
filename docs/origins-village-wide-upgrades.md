@@ -54,21 +54,70 @@ and `ESP`.
 
 These selected upgrades are inspired by the exclusive upgrades in the Virtual
 Villagers 1 mobile port. They are current-save-only purchases. Running removes
-Running from Dislikes and writes Running only to a free normal Like slot. A
-villager with all three normal Like slots occupied is skipped without changing
-an unrelated Like. After processing, the result dialog uses these exact CRLF
-lines (with actual counts): `Skipped over X villagers. Reason: Already 3
-likes.` then `skipped over Y villagers. Reason: already likes running`; when
-any Running dislike was removed it adds `Removed running dislike from Z
-villagers` without a period. A villager who already Likes Running is not counted
-as a full-Like skip. The charge is one million tech points for the
-village-wide purchase, not per villager. The implementation is tailored to each
+Running from Dislikes and writes Running only to a free normal Like slot. The
+historical helper/result wording is retained only as rejected diagnostic
+evidence; the exact future atomic contract is specified below. The charge
+contract is one million tech points for the village-wide purchase, not per
+villager, but no current command is available. The implementation is tailored to each
 supported executable: it independently reads the numeric Running ID certified
 in that game's exact stock preference table. All five current tables happen to
 resolve Running to ID 38, but that is not a blanket cross-game assumption. The
 certified preference-table evidence offsets are VV1 `0x7B260`, VV2 `0x8B808`,
 VV3 `0x97488`, VV4 `0xA0CD8`, and VV5 `0xAEF60`; each manifest also records its
 exact Likes/Dislikes offsets and physical record stride.
+
+### All Villagers Like Running exact-build boundary
+
+Cross-game audit `0311443fbd078e3adcabaf7e693199989ddb9db8`, with
+evidence-hierarchy clarification
+`a67e05247dc822306e1d5a514524cba388ab4d69`, places command 6 independently
+ON HOLD for every exact build:
+
+| Game | Exact supported fingerprint | Persisted Like/Dislike model |
+| --- | --- | --- |
+| VV1 | 581,632 bytes; `1EC790B927741081D5CE13A48FB76983A4FD4336EA08F89317872643760AF03D` | 4 Likes + 4 Dislikes, signed DWORDs |
+| VV2 | 724,992 bytes; `46C1503C209255C9CDEFA941DB2F449C8CF8E2CDD5C7D13CD975326E377ED677` | 62 Likes + 62 Dislikes, signed DWORDs |
+| VV3 | 831,488 bytes; `8BC5DB382D02BC5C21AD5F607580D60FF44A6519CC7EB133F03113BAACAE6503` | 3 Likes + 3 Dislikes, signed DWORDs |
+| VV4 | 929,792 bytes; `6D27A429FFCA5F1F71FDD7ECA761ED1BB67E85F976494BA178B3D7BE01F1B220` | 3 Likes + 3 Dislikes, signed DWORDs |
+| VV5 | 991,232 bytes; `92946781980220E9D1A2E6C573925519934608F5215F4A0F8CE3B90088C5C65D` | 3 Likes + 3 Dislikes, signed DWORDs |
+
+Every empty slot uses signed DWORD sentinel `-1`; construction, membership,
+copy, and persistence paths were traced for each complete array. Running ID
+38 was code-confirmed independently in every exact executable, rather than
+assumed across games.
+
+The future operation must be atomic per villager. An already-Running Like
+skips the entire villager. Otherwise, the helper must scan the complete Like
+array and prove an empty slot exists before removing any Running Dislike. Full
+Likes means no mutation. Only after successful preflight may it add Running
+and clear all matching Running Dislikes, without reordering or replacing any
+unrelated slot. The dormant helpers violate this ordering, and the VV1/VV2
+helpers additionally inspect too few slots.
+
+VV5 must reject current faction `+0x1CEC != 0` before any preference read,
+write, or result count. The additional `+0x1CE1` candidate gate is unsafe and
+unproved. Shared blockers are a bounded four-counter dialog/result ABI, a
+final unsigned no-op/no-charge transaction with funds recheck and rollback,
+complete ordinary/status eligibility, and collision-free stock plus expanded
+composition.
+
+Two required future result lines are exactly:
+
+```text
+Skipped over X villagers. Reason: already likes running
+Removed running dislike from X villagers
+```
+
+The proposed full-slot line remains future-only until complete capacity and
+result-ABI proof; it does not describe current available behavior.
+
+Cheat Engine evidence is subordinate to the executable evidence. The main
+`Official LDW Cheat Tables` folder is the current authoritative vanilla-table
+set. `Official LDW Cheat Tables  (Backup!!)` is a backup snapshot of that same
+vanilla set and is used for recovery/version comparison.
+`Official LDW Cheat Tables - Copy` is intended for copied or modified base
+executables and requires fingerprint matching. Exact-build executable evidence
+controls every claim.
 
 The disabled Full Mastery candidate contains direct stores to the native five
 skill fields in VV1–VV4 or six skill fields in VV5. Those stores are retained
