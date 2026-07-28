@@ -10,7 +10,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
-from vv_fun_patcher import load_builds, render_patched_bytes
+from vv_fun_patcher import FunPatch, load_builds, load_fun_patches, render_patched_bytes
 
 STOCK = ROOT / "research/stock-executables/Virtual Villagers - New Believers.exe"
 MANIFEST = ROOT / "data/vv5_origins_feature.json"
@@ -397,11 +397,18 @@ class VV5OriginsFeatureTests(unittest.TestCase):
     def test_composes_with_every_vv5_feature_in_all_four_modes(self) -> None:
         build = next(item for item in load_builds() if item.id == "vv5")
         all_vv5 = [
-            item.id
-            for item in __import__("vv_fun_patcher").load_fun_patches()
+            item
+            for item in load_fun_patches()
             if item.game_id == "vv5"
+            and item.id
+            not in {
+                FEATURE_ID,
+                "vv5_full_mastery_all_stage_a_candidate",
+            }
         ]
-        self.assertIn(FEATURE_ID, all_vv5)
+        active_ids = {item.id for item in load_fun_patches() if item.game_id == "vv5"}
+        self.assertIn(FEATURE_ID, active_ids)
+        self.assertIn("vv5_full_mastery_all_stage_a_candidate", active_ids)
         for mode in (
             "collection_progression",
             "immediate_fixed",
@@ -410,7 +417,10 @@ class VV5OriginsFeatureTests(unittest.TestCase):
         ):
             with self.subTest(mode=mode):
                 rendered, applied = render_patched_bytes(
-                    STOCK, build, mode, all_vv5
+                    STOCK,
+                    build,
+                    mode,
+                    _fun_patches_override=[FunPatch(self.feature), *all_vv5],
                 )
                 self.assertGreater(len(applied), len(self.feature["patches"]))
                 expected_payload = bytearray(self.payload)
@@ -439,7 +449,7 @@ class VV5OriginsFeatureTests(unittest.TestCase):
             STOCK,
             build,
             "experimental_expanded_256",
-            [FEATURE_ID],
+            _fun_patches_override=[FunPatch(self.feature)],
         )
         relocation = self.feature["expanded_shr_relocations"]
         delta = int(relocation["expanded_virtual_address"], 0) - int(
@@ -468,7 +478,10 @@ class VV5OriginsFeatureTests(unittest.TestCase):
     def test_stock_mode_keeps_origins_shr_pointers_unchanged(self) -> None:
         build = next(item for item in load_builds() if item.id == "vv5")
         rendered, applied = render_patched_bytes(
-            STOCK, build, "collection_progression", [FEATURE_ID]
+            STOCK,
+            build,
+            "collection_progression",
+            _fun_patches_override=[FunPatch(self.feature)],
         )
         relocation = self.feature["expanded_shr_relocations"]
         relocation_offsets = {int(item["offset"], 0) for item in relocation["patches"]}

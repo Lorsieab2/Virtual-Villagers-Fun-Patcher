@@ -161,6 +161,14 @@ For any future Full Mastery validation, the required value is native maximum
 100 in every skill—five skills in VV1–VV4 and six in VV5—not merely a Master
 threshold. This requirement does not make any contained row available.
 
+The independently certified VV5 Full Mastery playtest feature targets six
+native Float32 skills for active, living current believers only. It checks
+faction `+0x1CEC` before reading skills, raises only below-100 values through
+native `sub_475730`, charges 1,000,000 tech points once after confirmation and
+final recheck, and leaves Heathens and future/event-created records untouched.
+Static certification is complete under disassembly commit `8193629`;
+runtime/player confirmation remains pending.
+
 This is a player-test checklist for the collection-progression Origins-core
 outputs. It is explicitly **runtime/player confirmation pending**; static patch
 verification is not a claim that any item below has been confirmed in-game.

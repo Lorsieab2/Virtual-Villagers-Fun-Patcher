@@ -118,13 +118,17 @@ class VV5FullMasteryCandidateTests(unittest.TestCase):
         cls.feature = FunPatch(cls.feature_raw)
         cls.build = next(item for item in load_builds() if item.id == "vv5")
 
-    def test_disabled_catalog_hidden_and_command_seven_only(self):
+    def test_certified_catalog_exposure_and_command_seven_only(self):
         self.assertTrue(self.base_raw["enabled"])
-        self.assertFalse(self.feature_raw["enabled"])
+        self.assertTrue(self.feature_raw["enabled"])
         active = {item.id: item for item in load_fun_patches()}
         self.assertIn("vv5_enable_origins_exclusive_features", active)
         self.assertNotIn(self.base_raw["id"], active)
-        self.assertNotIn(self.feature_raw["id"], active)
+        self.assertIn(self.feature_raw["id"], active)
+        self.assertEqual(
+            active[self.feature_raw["id"]].dependencies,
+            ["vv5_enable_origins_exclusive_features"],
+        )
         self.assertEqual(self.feature_raw["dependencies"], [self.base_raw["id"]])
         contract = self.feature_raw["transaction_contract"]
         self.assertEqual((contract["command"], contract["price"]), (7, 1_000_000))

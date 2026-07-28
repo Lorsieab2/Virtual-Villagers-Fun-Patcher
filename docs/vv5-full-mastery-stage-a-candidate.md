@@ -1,6 +1,6 @@
-# VV5 Full Mastery disabled Stage-A candidate
+# VV5 Full Mastery certified playtest feature
 
-Generated from acceptance contract `48dd3266f8dd934be0434e07f6b24751d0e417c3`. The dependent command-7 record remains disabled and catalog-hidden pending independent emitted-byte certification.
+Generated from acceptance contract `48dd3266f8dd934be0434e07f6b24751d0e417c3`. The exact emitted artifact received FINAL CERTIFIED GO under `8193629`; the dependent command-7 record is available for runtime playtesting, with player confirmation still pending.
 
 - Companion SHA-256: `BD80B1B0692FE3C0F2293A73CFF707C18198AECA8922355DB2E9EB169E112608`
 - Stock installed slot SHA-256: `38F8F66530BB52767D7053E5764E5033EA2AC2AD7D0BCDEA20754ED94E27DC82`

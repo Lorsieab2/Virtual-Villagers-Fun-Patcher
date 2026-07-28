@@ -367,7 +367,17 @@ Inspired by the Virtual Villagers 1 mobile port where these exclusive Origins up
 - Doubler purchase status: {'status': 'stock-layout Tech and Food Doubler purchase/remove/repurchase implemented; expanded-256 new purchases are marker-gated unavailable', 'new_purchase': 'Tech and Food available in stock layout at 500,000 tech points after their exact positive-whitelist wrappers; both unavailable in expanded-256', 'existing_owned': 'removable at zero cost with zero refund', 'repurchase': 'full-price repurchase after zero-cost/no-refund removal in stock layout for both doublers; expanded-256 remains unavailable for new purchases'}
 - Native event safety: {'disabled_rows': ['Time Warp', 'Island Event', 'Barrel of Babies'], 'reason': 'VV5 native time/event paths are not yet proven to avoid current Heathen record targeting.', 'evidence_status': 'STOP; no charge or native call is made for these rows'}
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending
-- Guarded executable edits: 12; every edit has an exact purpose and before/after guard in the manifest.
+- Guarded executable edits: 11; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Grant Full Mastery to All Villagers (`vv5_full_mastery_all_stage_a_candidate`)
+
+Command-7-only repeatable Buy candidate using native six-skill Float32 writer sub_475730; commands 6/8 are absent and current Heathens are excluded.
+
+- Behavior changes: Command-7-only repeatable Buy candidate using native six-skill Float32 writer sub_475730; commands 6/8 are absent and current Heathens are excluded.
+- Explicit non-changes/exclusions: none declared
+- Dependencies: vv5_enable_origins_exclusive_features
+- Evidence status: static source/manifest verification performed; runtime/player confirmation pending
+- Guarded executable edits: 1; every edit has an exact purpose and before/after guard in the manifest.
 
 #### Heathen Mommy Puzzle Restoration (`vv5_heathen_mommy_puzzle`)
 

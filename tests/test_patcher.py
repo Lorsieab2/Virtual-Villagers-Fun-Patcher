@@ -726,6 +726,12 @@ class StockIntegrationTests(unittest.TestCase):
                     in patches_by_game[build.id]
                 ):
                     expected_size += 0x2000
+                if (
+                    build.id == "vv5"
+                    and "vv5_full_mastery_all_stage_a_candidate"
+                    in patches_by_game[build.id]
+                ):
+                    expected_size += 0x2000
                 self.assertEqual(len(rendered), expected_size)
                 self.assertGreater(len(applied), 0)
 

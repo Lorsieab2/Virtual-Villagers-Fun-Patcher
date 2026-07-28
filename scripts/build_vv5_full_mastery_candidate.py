@@ -703,13 +703,25 @@ def main() -> None:
 
     stock_noop = noop_slots["collection_progression"]
     stock_installed = installed_slots["collection_progression"]
+    existing_feature = (
+        json.loads(FEATURE_OUT.read_text(encoding="utf-8"))
+        if FEATURE_OUT.is_file()
+        else {}
+    )
+    feature_enabled = bool(existing_feature.get("enabled", False))
     feature = {
         "id": "vv5_full_mastery_all_stage_a_candidate",
         "game_id": "vv5",
-        "name": "DISABLED Candidate: Grant Full Mastery to All Villagers",
-        "enabled": False,
+        "name": (
+            "Grant Full Mastery to All Villagers"
+            if feature_enabled
+            else "DISABLED Candidate: Grant Full Mastery to All Villagers"
+        ),
+        "enabled": feature_enabled,
         "certification_status": (
-            "disabled Stage-A candidate awaiting independent Sol emitted-byte certification"
+            existing_feature.get("certification_status")
+            if feature_enabled
+            else "disabled Stage-A candidate awaiting independent Sol emitted-byte certification"
         ),
         "dependencies": [base["id"]],
         "description": (
@@ -880,12 +892,22 @@ def main() -> None:
     }
     MAP_OUT.write_text(json.dumps(artifact, indent=2) + "\n", encoding="utf-8")
     DOC_OUT.write_text(
-        "# VV5 Full Mastery disabled Stage-A candidate\n\n"
-        "Generated from acceptance contract "
-        "`48dd3266f8dd934be0434e07f6b24751d0e417c3`. The dependent command-7 "
-        "record remains disabled and catalog-hidden pending independent emitted-byte "
-        "certification.\n\n"
-        f"- Companion SHA-256: `{artifact['companion']['sha256']}`\n"
+        (
+            "# VV5 Full Mastery certified playtest feature\n\n"
+            if feature_enabled
+            else "# VV5 Full Mastery disabled Stage-A candidate\n\n"
+        )
+        + "Generated from acceptance contract "
+        "`48dd3266f8dd934be0434e07f6b24751d0e417c3`. "
+        + (
+            "The exact emitted artifact received FINAL CERTIFIED GO under "
+            "`8193629`; the dependent command-7 record is available for runtime "
+            "playtesting, with player confirmation still pending.\n\n"
+            if feature_enabled
+            else "The dependent command-7 record remains disabled and catalog-hidden "
+            "pending independent emitted-byte certification.\n\n"
+        )
+        + f"- Companion SHA-256: `{artifact['companion']['sha256']}`\n"
         f"- Stock installed slot SHA-256: `{artifact['layouts']['collection_progression']['installed_slot_sha256']}`\n"
         f"- Expanded installed slot SHA-256: `{artifact['layouts']['experimental_expanded_256']['installed_slot_sha256']}`\n"
         f"- Stock base+mastery render SHA-256: `{renders['collection_progression']['base_plus_mastery_sha256']}`\n"

@@ -477,7 +477,7 @@ No game executable, save, extracted asset, or generated output is committed to t
 
 ## Command line
 
-Pass `--patch-mode collection_progression`, `--patch-mode immediate_fixed`, `--patch-mode experimental_expanded_256`, or `--patch-mode experimental_expanded_256_progression` to `dry-run`, `apply`, `dry-run-all`, or `apply-all`. Optional features use repeatable `--fun-patch` arguments. The available IDs are `vv1_school_lessons_grant_skill`, `vv1_continue_research_at_max_technologies`, `vv1_f6_clothing_change_cheat`, `vv1_magic_fruit_alters_mortality`, `vv1_builder_action_fixes`, `vv1_enable_origins_exclusive_features`, `vv2_easier_healing_mastery`, `vv2_teaching_children_grants_skill`, `vv2_hospital_recovery_heals`, `vv2_birth_control`, `vv2_gong_of_wonder_coconuts_fix`, `vv3_nature_honey_refill`, `vv3_nature_level_three_alters_mortality`, `vv3_rare_collectible_retry`, `vv3_enable_origins_exclusive_features`, `vv3_all_villagers_like_running`, `vv4_complete_scales_golden_fish`, `vv4_enable_origins_exclusive_features`, `vv5_heathen_mommy_puzzle`, `vv5_easier_devotee_training`, `vv5_statue_polishing_or_honoring`, `vv5_vv4_nursery_divisor_parity`, and `vv5_enable_origins_exclusive_features`. The per-game Village Statistics IDs are `vv1_write_village_statistics`, `vv2_write_village_statistics`, `vv3_write_village_statistics`, `vv4_write_village_statistics`, and `vv5_write_village_statistics`. The VV2 Origins IDs are intentionally omitted while contained.
+Pass `--patch-mode collection_progression`, `--patch-mode immediate_fixed`, `--patch-mode experimental_expanded_256`, or `--patch-mode experimental_expanded_256_progression` to `dry-run`, `apply`, `dry-run-all`, or `apply-all`. Optional features use repeatable `--fun-patch` arguments. The available IDs are `vv1_school_lessons_grant_skill`, `vv1_continue_research_at_max_technologies`, `vv1_f6_clothing_change_cheat`, `vv1_magic_fruit_alters_mortality`, `vv1_builder_action_fixes`, `vv1_enable_origins_exclusive_features`, `vv2_easier_healing_mastery`, `vv2_teaching_children_grants_skill`, `vv2_hospital_recovery_heals`, `vv2_birth_control`, `vv2_gong_of_wonder_coconuts_fix`, `vv3_nature_honey_refill`, `vv3_nature_level_three_alters_mortality`, `vv3_rare_collectible_retry`, `vv3_enable_origins_exclusive_features`, `vv3_all_villagers_like_running`, `vv4_complete_scales_golden_fish`, `vv4_enable_origins_exclusive_features`, `vv5_heathen_mommy_puzzle`, `vv5_easier_devotee_training`, `vv5_statue_polishing_or_honoring`, `vv5_vv4_nursery_divisor_parity`, `vv5_enable_origins_exclusive_features`, and `vv5_full_mastery_all_stage_a_candidate`. The per-game Village Statistics IDs are `vv1_write_village_statistics`, `vv2_write_village_statistics`, `vv3_write_village_statistics`, `vv4_write_village_statistics`, and `vv5_write_village_statistics`. The VV2 Origins IDs are intentionally omitted while contained.
 
 The independently certified VV2 command-7-only Full Mastery feature remains
 present as `vv2_full_mastery_all_stage_a_candidate`. The corrected VV4
@@ -511,6 +511,10 @@ gameplay validation remains pending and commands 7/8 remain absent. VV4's
 independent command-7-only Full Mastery implementation is emitted-byte
 certified under `91a01eba0dc561b1244184301837b7199868c490` and enabled without
 exposing commands 6/8 or the legacy atomic village-wide record.
+VV5's independent command-7-only Full Mastery implementation is certified
+under disassembly commit `8193629` and available for runtime playtesting. It
+uses the native six-skill writer for active living current believers only;
+Heathens and commands 6/8 remain excluded.
 The feature is inspired by the
 selected exclusive upgrades in the Virtual Villagers 1 mobile port. VV5
 excludes Heathens; all games leave movement speed, nursing/pregnancy timers,

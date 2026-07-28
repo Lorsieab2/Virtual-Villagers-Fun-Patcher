@@ -192,6 +192,14 @@ five in VV1–VV4 and six in VV5. Master thresholds or candidate value 90 are
 not sufficient. This is a planning/readiness requirement only and authorizes
 no contained command.
 
+VV5 now has an independently emitted-byte-certified, command-7-only Full
+Mastery feature under disassembly commit `8193629`. It applies only to active,
+living current believers, checks faction `+0x1CEC` before any skill access,
+and uses native `sub_475730` to raise each below-100 Float32 skill to 100.
+Heathens, commands 6/8, raw skill stores, ownership/Remove, and save-format
+changes remain absent. Static certification is complete; runtime/player
+confirmation is pending.
+
 The disabled diagnostic payload bytes are retained in their manifests but are
 not rendered into stock or expanded outputs. This catalog containment does not
 touch existing save ownership or fields, force-clear anything, or issue a

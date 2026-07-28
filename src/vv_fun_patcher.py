@@ -62,6 +62,23 @@ VV4_FULL_MASTERY_CERTIFIED_SHA256 = {
     "expanded_page": "468A995FE91E2C6FE4E7812A65D77F68B22C6DBC9C3C9F696A4233C8EEDBC480",
     "dll": "9AC4E365BE55D32AB889E7B7472A1EDA8749B1EB259EA02BA35AB97BE666AF22",
 }
+VV5_FULL_MASTERY_CANDIDATE_PATHS = {
+    "base": ROOT / "data" / "candidates" / "vv5_origins_full_mastery_base_candidate.json",
+    "feature": ROOT / "data" / "candidates" / "vv5_full_mastery_all_candidate.json",
+    "map": ROOT / "data" / "candidates" / "vv5_full_mastery_all_candidate_map.json",
+    "dll": ROOT / "data" / "candidates" / "VVFP VV5 Full Mastery Candidate.dll",
+}
+VV5_FULL_MASTERY_CERTIFIED_SHA256 = {
+    "stock_entry": "5BCB2527C5C7350779F98C9ECAC7CA9C2B2E2247DDA7D553085DA6FFD5CC8DEA",
+    "stock_walker": "7466674FBC225EE898E10086B355509BF6AAB2E2D9024C8E3FCE4D0833CADAB8",
+    "stock_confirmation": "E4B72DE00646AF4779C533165ECE95F727725E36925F841797F1B0F21A3CCEE5",
+    "expanded_entry": "B7AAF750DC64DBED77D6D64BB83C50F631AAC5F109C9635F92FB88478D35FE5F",
+    "expanded_walker": "35DFE0E67EF7B356ED6D3CB7E558FBFAF6F3364000818F4FC2D84599B902419F",
+    "expanded_confirmation": "BFD577602BBF2E3AC581B92B8E1C99A221EB84504B2CB574A27ADA147ECB27BD",
+    "stock_page": "DD473180CDCFE752706347739EF81008BA5072C2D5C802D41752D2964DF84FEE",
+    "expanded_page": "877BB11B9906B4D259557C2A313E46C3FCA80A2A667DD9CE1BBE49BA59D7BDD4",
+    "dll": "BD80B1B0692FE3C0F2293A73CFF707C18198AECA8922355DB2E9EB169E112608",
+}
 STATISTICS_FEATURES_PATH = ROOT / "data" / "statistics_features.json"
 DEFAULT_PATCH_MODE = "collection_progression"
 EXPANDED_PATCH_MODES = {
@@ -234,6 +251,55 @@ def _certified_vv4_full_mastery_records(
     return base, feature
 
 
+def _certified_vv5_full_mastery_records(
+    active_base: dict[str, Any],
+) -> tuple[dict[str, Any], dict[str, Any]] | None:
+    base = json.loads(VV5_FULL_MASTERY_CANDIDATE_PATHS["base"].read_text(encoding="utf-8"))
+    feature = json.loads(
+        VV5_FULL_MASTERY_CANDIDATE_PATHS["feature"].read_text(encoding="utf-8")
+    )
+    if not base.get("enabled", True) or not feature.get("enabled", True):
+        return None
+    artifact = json.loads(
+        VV5_FULL_MASTERY_CANDIDATE_PATHS["map"].read_text(encoding="utf-8")
+    )
+    stock = artifact["layouts"]["collection_progression"]
+    expanded = artifact["layouts"]["experimental_expanded_256"]
+    actual = {
+        "stock_entry": stock["slot_map"]["installed"]["entry_sha256"],
+        "stock_walker": stock["slot_map"]["installed"]["walker_sha256"],
+        "stock_confirmation": stock["slot_map"]["installed"]["confirmation_sha256"],
+        "expanded_entry": expanded["slot_map"]["installed"]["entry_sha256"],
+        "expanded_walker": expanded["slot_map"]["installed"]["walker_sha256"],
+        "expanded_confirmation": expanded["slot_map"]["installed"]["confirmation_sha256"],
+        "stock_page": stock["installed_page_sha256"],
+        "expanded_page": expanded["installed_page_sha256"],
+        "dll": hashlib.sha256(
+            VV5_FULL_MASTERY_CANDIDATE_PATHS["dll"].read_bytes()
+        ).hexdigest().upper(),
+    }
+    for label, expected in VV5_FULL_MASTERY_CERTIFIED_SHA256.items():
+        if actual[label] != expected:
+            raise PatcherError(
+                f"Certified VV5 Full Mastery {label} artifact hash mismatch: "
+                f"expected {expected}, got {actual[label]}."
+            )
+    base = dict(base)
+    base.update(
+        {"id": active_base["id"], "name": active_base["name"], "enabled": True}
+    )
+    feature = dict(feature)
+    feature.update(
+        {
+            "id": "vv5_full_mastery_all_stage_a_candidate",
+            "name": "Grant Full Mastery to All Villagers",
+            "enabled": True,
+            "dependencies": [active_base["id"]],
+        }
+    )
+    return base, feature
+
+
 def _load_fun_patch_records() -> list[FunPatch]:
     items = [
         item
@@ -251,6 +317,12 @@ def _load_fun_patch_records() -> list[FunPatch]:
                         items.append(running)
                 elif record.get("id") == "vv4_enable_origins_exclusive_features":
                     mastery = _certified_vv4_full_mastery_records(record)
+                    if mastery is None:
+                        items.append(record)
+                    else:
+                        items.extend(mastery)
+                elif record.get("id") == "vv5_enable_origins_exclusive_features":
+                    mastery = _certified_vv5_full_mastery_records(record)
                     if mastery is None:
                         items.append(record)
                     else:
