@@ -107,12 +107,22 @@ class VV3FullMasteryCandidateTests(unittest.TestCase):
         cls.feature = FunPatch(cls.feature_raw)
         cls.build = next(item for item in load_builds() if item.id == "vv3")
 
-    def test_both_records_disabled_hidden_and_command_seven_only(self):
+    def test_frozen_records_stay_disabled_while_certified_runtime_alias_is_active(self):
         self.assertFalse(self.base_raw["enabled"])
         self.assertFalse(self.feature_raw["enabled"])
-        active = {item.id for item in load_fun_patches()}
+        active = {item.id: item for item in load_fun_patches()}
         self.assertNotIn(self.base_raw["id"], active)
-        self.assertNotIn(self.feature_raw["id"], active)
+        self.assertIn("vv3_enable_origins_exclusive_features", active)
+        self.assertIn(self.feature_raw["id"], active)
+        runtime = active[self.feature_raw["id"]]
+        self.assertTrue(runtime.raw["enabled"])
+        self.assertEqual(
+            runtime.raw["dependencies"], ["vv3_enable_origins_exclusive_features"]
+        )
+        self.assertIn(
+            "1e6ad7fd610d2fe9d80416fb218366ccd7d0656b",
+            runtime.raw["certification_status"],
+        )
         self.assertEqual(self.feature_raw["dependencies"], [self.base_raw["id"]])
         contract = self.feature_raw["transaction_contract"]
         self.assertEqual((contract["command"], contract["price"]), (7, 1_000_000))
@@ -127,6 +137,14 @@ class VV3FullMasteryCandidateTests(unittest.TestCase):
         self.assertEqual(
             self.base_raw["unsupported_patch_modes"], list(EXPANDED_MODES)
         )
+        frozen = {
+            BASE: "657D2D4F01550A121127053878E2777AB719CF00300A2AD69016296A4758B989",
+            FEATURE: "844A3CB7996793F51D741409C9EFAF675E07ED92122BCD2F91750766D7357783",
+            MAP: "A8075640C3FC7230965E9645285254C5AF0C6E14C7E0437CBDDA9DF6B1E1B818",
+            DLL: "35FB96199E745C7D8054FF6A12851B9E09225E3E41D0CE04012604E74968C0D5",
+        }
+        for path, expected in frozen.items():
+            self.assertEqual(sha(path.read_bytes()), expected)
 
     def test_exact_fingerprint_stock_layout_bound_and_fixed_base(self):
         source = STOCK.read_bytes()
@@ -298,7 +316,12 @@ class VV3FullMasteryCandidateTests(unittest.TestCase):
         compatible = [
             item for item in load_fun_patches()
             if item.game_id == "vv3"
-            and item.id not in {"vv3_enable_origins_exclusive_features", "vv3_all_villagers_like_running"}
+            and item.id
+            not in {
+                "vv3_enable_origins_exclusive_features",
+                "vv3_all_villagers_like_running",
+                "vv3_full_mastery_all_stage_a_candidate",
+            }
         ]
         for mode in STOCK_MODES:
             with self.subTest(mode=mode):
@@ -326,6 +349,9 @@ class VV3FullMasteryCandidateTests(unittest.TestCase):
                 self.assertEqual(work, baseline)
 
     def test_expanded_modes_reject_without_mastery_bytes(self):
+        active = {item.id: item for item in load_fun_patches()}
+        runtime_base = active["vv3_enable_origins_exclusive_features"]
+        runtime_feature = active[self.feature_raw["id"]]
         forbidden = (
             b"VVFMSLT\0",
             b"VVFP VV3 Full Mastery Candidate.dll\0",
@@ -339,7 +365,7 @@ class VV3FullMasteryCandidateTests(unittest.TestCase):
                         STOCK,
                         self.build,
                         mode,
-                        _fun_patches_override=[self.base, self.feature],
+                        _fun_patches_override=[runtime_base, runtime_feature],
                     )
                 baseline, _ = render_patched_bytes(STOCK, self.build, mode)
                 for marker in forbidden:

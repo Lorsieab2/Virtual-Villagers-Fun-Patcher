@@ -12,6 +12,7 @@ sys.path.insert(0, str(ROOT / "src"))
 
 from vv_fun_patcher import (  # noqa: E402
     _pe_checksum_layout,
+    PatcherError,
     load_builds,
     load_fun_patches,
     load_patch_modes,
@@ -65,6 +66,17 @@ class OriginsPlaytestReadinessTests(unittest.TestCase):
                         )
                 for mode in modes:
                     with self.subTest(mode=mode.id):
+                        if build.id == "vv3" and mode.id.startswith(
+                            "experimental_expanded_256"
+                        ):
+                            with self.assertRaisesRegex(
+                                PatcherError, "has no append layout"
+                            ):
+                                render_patched_bytes(
+                                    source, build, mode.id, selected_ids
+                                )
+                            self.assertEqual(source.read_bytes(), before)
+                            continue
                         rendered, applied = render_patched_bytes(
                             source, build, mode.id, selected_ids
                         )

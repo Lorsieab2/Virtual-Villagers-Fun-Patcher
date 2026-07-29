@@ -35,6 +35,22 @@ VV3_RUNNING_CERTIFIED_SHA256 = {
     "running": "512FDBE807314B3371DCF10D7417EE42C8A104A1F87FB4165E04FCFBE6D9F49E",
     "map": "F7ECE7A55747EDC17EFC257206AF4F63408AF516FA08DFD14BA5E5003431636A",
 }
+VV3_FULL_MASTERY_CANDIDATE_PATHS = {
+    "base": ROOT / "data" / "candidates" / "vv3_origins_full_mastery_base_candidate.json",
+    "feature": ROOT / "data" / "candidates" / "vv3_full_mastery_all_candidate.json",
+    "map": ROOT / "data" / "candidates" / "vv3_full_mastery_all_candidate_map.json",
+    "dll": ROOT / "data" / "candidates" / "VVFP VV3 Full Mastery Candidate.dll",
+}
+VV3_FULL_MASTERY_CERTIFIED_SHA256 = {
+    "base": "657D2D4F01550A121127053878E2777AB719CF00300A2AD69016296A4758B989",
+    "feature": "844A3CB7996793F51D741409C9EFAF675E07ED92122BCD2F91750766D7357783",
+    "map": "A8075640C3FC7230965E9645285254C5AF0C6E14C7E0437CBDDA9DF6B1E1B818",
+    "dll": "35FB96199E745C7D8054FF6A12851B9E09225E3E41D0CE04012604E74968C0D5",
+    "entry": "9685954F75E1DD26103507213FBEADBD9DED2705E62CB37D14080F6EBEC6EB23",
+    "slot": "B1499EB3B10B7E4728746711E9F63B88211E4B80CA378742ADC5DC06782DAADA",
+    "page": "2DAE85AE4077C23C2C7C39F64B5BA944740F765AC8E24FBB097B0BF28A720DF6",
+}
+VV3_FULL_MASTERY_ENABLED = True
 VV2_FULL_MASTERY_CANDIDATE_PATHS = {
     "manifest": ROOT / "data" / "candidates" / "vv2_full_mastery_all_candidate.json",
     "map": ROOT / "data" / "candidates" / "vv2_full_mastery_all_candidate_map.json",
@@ -177,6 +193,72 @@ def _certified_vv3_running_records(
     return base, running
 
 
+def _certified_vv3_full_mastery_records(
+    active_base: dict[str, Any],
+) -> tuple[dict[str, Any], dict[str, Any]] | None:
+    if not VV3_FULL_MASTERY_ENABLED:
+        return None
+
+    records: dict[str, dict[str, Any]] = {}
+    for label, path in VV3_FULL_MASTERY_CANDIDATE_PATHS.items():
+        payload = path.read_bytes()
+        digest = hashlib.sha256(payload).hexdigest().upper()
+        expected = VV3_FULL_MASTERY_CERTIFIED_SHA256[label]
+        if digest != expected:
+            raise PatcherError(
+                f"Certified VV3 Full Mastery {label} artifact hash mismatch: "
+                f"expected {expected}, got {digest}."
+            )
+        if label != "dll":
+            records[label] = json.loads(payload.decode("utf-8"))
+
+    artifact = records["map"]
+    stock = artifact["layouts"]["collection_progression"]
+    actual = {
+        "entry": stock["slot_map"]["installed"]["entry_sha256"],
+        "slot": stock["installed_slot_sha256"],
+        "page": stock["installed_page_sha256"],
+    }
+    for label, actual_digest in actual.items():
+        expected = VV3_FULL_MASTERY_CERTIFIED_SHA256[label]
+        if actual_digest != expected:
+            raise PatcherError(
+                f"Certified VV3 Full Mastery {label} artifact hash mismatch: "
+                f"expected {expected}, got {actual_digest}."
+            )
+    if set(artifact["layouts"]) != {"collection_progression", "immediate_fixed"}:
+        raise PatcherError(
+            "Certified VV3 Full Mastery map unexpectedly contains non-stock layouts."
+        )
+
+    base = dict(records["base"])
+    base.update(
+        {
+            "id": active_base["id"],
+            "name": active_base["name"],
+            "enabled": True,
+            "certification_status": (
+                "FINAL CERTIFIED GO under disassembly commit "
+                "1e6ad7fd610d2fe9d80416fb218366ccd7d0656b"
+            ),
+        }
+    )
+    feature = dict(records["feature"])
+    feature.update(
+        {
+            "id": "vv3_full_mastery_all_stage_a_candidate",
+            "name": "Grant Full Mastery to All Villagers",
+            "enabled": True,
+            "dependencies": [active_base["id"]],
+            "certification_status": (
+                "FINAL CERTIFIED GO under disassembly commit "
+                "1e6ad7fd610d2fe9d80416fb218366ccd7d0656b; stock modes only"
+            ),
+        }
+    )
+    return base, feature
+
+
 def _certified_vv2_full_mastery_record() -> dict[str, Any] | None:
     manifest = json.loads(
         VV2_FULL_MASTERY_CANDIDATE_PATHS["manifest"].read_text(encoding="utf-8")
@@ -312,8 +394,17 @@ def _load_fun_patch_records() -> list[FunPatch]:
             if record.get("enabled", True):
                 if record.get("id") == "vv3_enable_origins_exclusive_features":
                     certified_base, running = _certified_vv3_running_records(record)
-                    items.append(certified_base)
-                    if running is not None:
+                    mastery = _certified_vv3_full_mastery_records(certified_base)
+                    if mastery is None:
+                        items.append(certified_base)
+                    elif running is not None:
+                        raise PatcherError(
+                            "VV3 Running and Full Mastery cannot own the same "
+                            "base Origins extension simultaneously."
+                        )
+                    else:
+                        items.extend(mastery)
+                    if running is not None and mastery is None:
                         items.append(running)
                 elif record.get("id") == "vv4_enable_origins_exclusive_features":
                     mastery = _certified_vv4_full_mastery_records(record)

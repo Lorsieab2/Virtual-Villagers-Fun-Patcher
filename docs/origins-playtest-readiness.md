@@ -280,3 +280,14 @@ five ordered Float32 skills, raises only values below 100 through native
 native `sub_41E300` after the complete no-op/warning/final-recheck sequence.
 Commands 6/8 and the legacy atomic village-wide record remain unavailable;
 runtime/player confirmation is pending.
+
+The isolated VV3 command-7-only Full Mastery implementation is independently
+recertified for the exact stock executable under disassembly commit
+`1e6ad7fd610d2fe9d80416fb218366ccd7d0656b`. It resolves record zero through
+native `sub_45C840` against fixed current-save manager `0x0059E110` before the
+initial dry run and again after OK, uses literal physical bound 150 for both
+dry runs and commit, raises only below-100 skills through native `sub_455740`,
+and calls native `sub_462500` once per changed villager. It is catalog-enabled
+for `collection_progression` and `immediate_fixed` playtesting only. Both
+expanded-256 modes reject it and remain ON HOLD; commands 6/8, raw skill
+stores, ownership/Remove, and save-format changes remain absent.

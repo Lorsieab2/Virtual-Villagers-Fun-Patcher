@@ -144,6 +144,7 @@ class ManifestTests(unittest.TestCase):
             }.isdisjoint(active_ids)
         )
         self.assertNotIn("vv5_full_mastery_all_stage_a_candidate", active_ids)
+        self.assertIn("vv3_full_mastery_all_stage_a_candidate", active_ids)
 
     def test_origins_village_wide_payloads_use_zero_owned_reserves(self) -> None:
         stock_by_game = {build.id: STOCK / build.input_name for build in load_builds()}
@@ -713,6 +714,19 @@ class StockIntegrationTests(unittest.TestCase):
         }
         for build in load_builds():
             with self.subTest(game=build.id):
+                if build.id == "vv3":
+                    self.assertIn(
+                        "vv3_full_mastery_all_stage_a_candidate",
+                        patches_by_game[build.id],
+                    )
+                    with self.assertRaisesRegex(PatcherError, "has no append layout"):
+                        render_patched_bytes(
+                            STOCK / build.input_name,
+                            build,
+                            "experimental_expanded_256",
+                            patches_by_game[build.id],
+                        )
+                    continue
                 rendered, applied = render_patched_bytes(
                     STOCK / build.input_name,
                     build,

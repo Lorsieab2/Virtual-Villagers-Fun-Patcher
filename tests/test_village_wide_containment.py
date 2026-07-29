@@ -140,6 +140,16 @@ class VillageWideContainmentTests(unittest.TestCase):
                 forbidden.append((start, start + len(bytes.fromhex(item["after"]))))
             for mode in load_patch_modes():
                 with self.subTest(game=build.id, mode=mode.id):
+                    if build.id == "vv3" and mode.id.startswith(
+                        "experimental_expanded_256"
+                    ):
+                        with self.assertRaisesRegex(
+                            PatcherError, "has no append layout"
+                        ):
+                            render_patched_bytes(
+                                source, build, mode.id, game_ids
+                            )
+                        continue
                     rendered, applied = render_patched_bytes(
                         source, build, mode.id, game_ids
                     )
@@ -165,6 +175,14 @@ class VillageWideContainmentTests(unittest.TestCase):
                 continue
             self.assertIn(base_id, catalog_ids)
             for mode in load_patch_modes():
+                if build.id == "vv3" and mode.id.startswith(
+                    "experimental_expanded_256"
+                ):
+                    with self.assertRaisesRegex(PatcherError, "has no append layout"):
+                        render_patched_bytes(
+                            STOCK / build.input_name, build, mode.id, [base_id]
+                        )
+                    continue
                 _, applied = render_patched_bytes(
                     STOCK / build.input_name, build, mode.id, [base_id]
                 )

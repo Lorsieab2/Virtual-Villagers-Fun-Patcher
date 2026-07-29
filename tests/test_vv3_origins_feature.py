@@ -13,6 +13,7 @@ sys.path.insert(0, str(ROOT / "src"))
 
 from vv_fun_patcher import (  # noqa: E402
     _pe_checksum_layout,
+    PatcherError,
     load_builds,
     load_fun_patches,
     render_patched_bytes,
@@ -106,6 +107,10 @@ class VV3OriginsFeatureTests(unittest.TestCase):
         self.assertIn("vv3_enable_origins_exclusive_features", patch_ids)
         for mode in MODES:
             with self.subTest(mode=mode):
+                if mode.startswith("experimental_expanded_256"):
+                    with self.assertRaisesRegex(PatcherError, "has no append layout"):
+                        render_patched_bytes(STOCK, self.build, mode, patch_ids)
+                    continue
                 rendered, applied = render_patched_bytes(
                     STOCK, self.build, mode, patch_ids
                 )

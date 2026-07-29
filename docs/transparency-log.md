@@ -235,7 +235,17 @@ Inspired by the Virtual Villagers 1 mobile port where these exclusive Origins up
 - Doubler composition contract: {'stacking': ['every exact-build collectible/collection effect that increases tech-point gain', 'native Food Mastery technology adjustment'], 'exclusions': ['Island Event outcomes'], 'food_mastery_status': 'confirmed absent in the exact-build writer, strings, and bounded caller corpus', 'status': 'STOP: no safe final-delta/source-aware hook, transient marker, or certified new section/cave; Island Event mixed-source provenance and collection dispatcher caller remain unresolved'}
 - Doubler purchase status: {'new_purchase': 'temporarily unavailable pending exact-build provenance verification', 'existing_owned': 'removable at zero cost with zero refund', 'repurchase': 'temporarily disabled pending exact-build provenance verification'}
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending
-- Guarded executable edits: 10; every edit has an exact purpose and before/after guard in the manifest.
+- Guarded executable edits: 9; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Grant Full Mastery to All Villagers (`vv3_full_mastery_all_stage_a_candidate`)
+
+Stock-only command-7 repeatable Buy candidate using fixed manager 0x0059E110, native resolver sub_45C840, native skill writer sub_455740, and Award evaluator sub_462500; commands 6/8 are absent.
+
+- Behavior changes: Stock-only command-7 repeatable Buy candidate using fixed manager 0x0059E110, native resolver sub_45C840, native skill writer sub_455740, and Award evaluator sub_462500; commands 6/8 are absent.
+- Explicit non-changes/exclusions: none declared
+- Dependencies: vv3_enable_origins_exclusive_features
+- Evidence status: static source/manifest verification performed; runtime/player confirmation pending
+- Guarded executable edits: 1; every edit has an exact purpose and before/after guard in the manifest.
 
 #### Nature Level 1 Actually Replenishes Food Sources Faster (`vv3_nature_honey_refill`)
 
