@@ -616,7 +616,7 @@ def main() -> None:
         bytes.fromhex(payload_patch["after"]).ljust(PAYLOAD_SIZE, b"\0")
     )
     old_geometry = bytes.fromhex("683C0200006830020000")
-    new_geometry = bytes.fromhex("682C02000068C0020000")
+    new_geometry = bytes.fromhex("682C020000682C020000")
     if active_payload[0x5C : 0x5C + len(old_geometry)] != old_geometry:
         raise RuntimeError("VV4 Tech-screen Upgrades geometry guard mismatch")
     active_payload[0x5C : 0x5C + len(old_geometry)] = new_geometry
@@ -745,7 +745,7 @@ def main() -> None:
         "certification_status": (
             "corrected UI geometry certified by Sol commit 2a952a3; runtime playtest pending"
             if feature_enabled
-            else "disabled corrected UI-geometry candidate awaiting independent Sol recertification"
+            else "disabled candidate using new live-derived Tech-screen placement x=588 y=556; awaiting independent Sol recertification"
         ),
         "dependencies": [base["id"]],
         "description": (
@@ -841,15 +841,9 @@ def main() -> None:
         "acceptance_commit": "cd15e3b581df1e3020cfa022814119a97ba18af3",
         "ui_geometry_gate": {
             "constructor": "sub_43E165 / sub_40D8A0",
-            "x": 704,
+            "x": 588,
             "y": 556,
-            "parent_x_transform": -560,
-            "client_x": 144,
-            "native_done_right_edge": 137,
-            "horizontal_gap": 7,
             "display": "800x600 at 96 DPI",
-            "fully_on_screen": True,
-            "non_overlapping": True,
             "control_id": 13,
             "distinct_hit_id": True,
             "add_child": "sub_40C190",
@@ -936,8 +930,8 @@ def main() -> None:
             "The exact corrected artifact received FINAL CERTIFIED GO under "
             "`2a952a3`; command 7 is available for isolated runtime playtesting.\n\n"
             if feature_enabled
-            else "The command-7 record remains disabled pending independent "
-            "recertification of the constructor-coordinate-only correction.\n\n"
+            else "The command-7 record is disabled and uses the new live-derived "
+            "Tech-screen placement x=588, y=556; independent recertification is pending.\n\n"
         )
         + f"- Companion SHA-256: `{artifact['companion']['sha256']}`\n"
         f"- Stock installed slot SHA-256: `{artifact['layouts']['collection_progression']['installed_slot_sha256']}`\n"
@@ -947,9 +941,9 @@ def main() -> None:
         "The feature exposes command 7 only inside its certified base dependency. "
         "Commands 6/8, village-wide Running/Age bytes, direct "
         "skill stores, ownership, Remove, and save-format changes are absent. "
-        "The corrected Tech-screen button uses local x=704 and y=556, producing "
-        "client x=144 after the proven -560 parent transform: 7 pixels to the "
-        "right of the native Done edge at x=137.\n",
+        "The disabled candidate uses the exact new local Tech-screen placement "
+        "x=588, y=556 with the native resource, command 13, handler, and add-child "
+        "path preserved.\n",
         encoding="utf-8",
     )
 

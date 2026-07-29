@@ -115,14 +115,14 @@ class VV4FullMasteryCandidateTests(unittest.TestCase):
         cls.feature = FunPatch(cls.feature_raw)
         cls.build = next(item for item in load_builds() if item.id == "vv4")
 
-    def test_corrected_candidate_enabled_and_command_seven_only(self):
+    def test_new_placement_candidate_disabled_and_command_seven_only(self):
         self.assertTrue(self.base_raw["enabled"])
-        self.assertTrue(self.feature_raw["enabled"])
+        self.assertFalse(self.feature_raw["enabled"])
         active = {item.id: item for item in load_fun_patches()}
         self.assertIn("vv4_enable_origins_exclusive_features", active)
         self.assertNotIn(self.base_raw["id"], active)
-        self.assertIn(self.feature_raw["id"], active)
-        self.assertIn("2a952a3", self.feature_raw["certification_status"])
+        self.assertNotIn(self.feature_raw["id"], active)
+        self.assertIn("x=588 y=556", self.feature_raw["certification_status"])
         self.assertEqual(self.feature_raw["dependencies"], [self.base_raw["id"]])
         contract = self.feature_raw["transaction_contract"]
         self.assertEqual((contract["command"], contract["price"]), (7, 1_000_000))
@@ -142,7 +142,7 @@ class VV4FullMasteryCandidateTests(unittest.TestCase):
         ctor = code[0x40:0xC0]
         self.assertEqual(
             ctor[0x1C:0x26],
-            bytes.fromhex("682C02000068C0020000"),
+            bytes.fromhex("682C020000682C020000"),
         )
         self.assertIn(bytes.fromhex("6A0D"), ctor)
         targets = rel32_targets(ctor, 0x4893B3)
@@ -150,24 +150,12 @@ class VV4FullMasteryCandidateTests(unittest.TestCase):
         self.assertIn(0x40C190, targets)
 
         geometry = self.map["ui_geometry_gate"]
-        self.assertEqual(
-            (
-                geometry["x"],
-                geometry["y"],
-                geometry["parent_x_transform"],
-                geometry["client_x"],
-                geometry["native_done_right_edge"],
-                geometry["horizontal_gap"],
-            ),
-            (704, 556, -560, 144, 137, 7),
-        )
-        self.assertTrue(geometry["fully_on_screen"])
-        self.assertTrue(geometry["non_overlapping"])
+        self.assertEqual((geometry["x"], geometry["y"]), (588, 556))
         self.assertEqual(geometry["control_id"], 13)
         self.assertTrue(geometry["distinct_hit_id"])
-        self.assertGreater(geometry["client_x"], geometry["native_done_right_edge"])
-        self.assertLess(geometry["client_x"], 800)
-        self.assertLess(geometry["y"], 600)
+        self.assertEqual(geometry["display"], "800x600 at 96 DPI")
+        self.assertEqual(geometry["add_child"], "sub_40C190")
+        self.assertEqual(geometry["status"], "disabled pending independent emitted-byte recertification")
 
     def test_exact_fingerprint_layout_bounds_and_fixed_base(self):
         source = STOCK.read_bytes()

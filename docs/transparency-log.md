@@ -45,7 +45,7 @@ Corrective VV3 All Villagers are 18 audit `295b5d1e228c501d0e14b1f869f11b0caa3a0
 VV2 All Villagers are 18 audit `bd6ce555a9a197450aab7133c0a87b36fbfc6899` covers exact 724,992-byte build SHA-256 46C1503C209255C9CDEFA941DB2F449C8CF8E2CDD5C7D13CD975326E377ED677 and confirms signed target/display age +0x530, processed age +0x534, 20 units/year, and age 18 value 360. Native sub_43B690 advances target at 0x43B8FD, updates the oldest statistic, runs full life catch-up, then increments processed age at 0x43C09A. Command 8 writes only target age and desynchronizes the pair. Pregnancy writer sub_44B980 stores processed age in +0x540 and delivery requires marker+40<processed; the selected-age candidate writes both ages to 360 and nonzero +0x540 to 318, violating nursing-state preservation. Its stride-0xE48C 256-slot scan checks active +0x30/health +0x52C but omits +0x558, while state+0x2EADC precharges with zero results and no no-op/recheck/rollback. Love Note 0x422006, Gong 0x44EB3E, and Silver Mirror 0x4217F9 remain separate native paths without claiming complete origin classification. The withdrawn non-executable `.shr` transport retains VAs 0x2000 below the actual mapping.
 
 The future Full Mastery contract requires true native maximum 100 for every skill: five skills in VV1-VV4 and six in VV5. Master thresholds and candidate value 90 are not Full Mastery. This planning/readiness requirement does not authorize any contained runtime command.
-VV4's isolated command-7 Full Mastery artifact uses the native Float32 writer to reach 100 and received FINAL CERTIFIED GO under `2a952a3` after its Tech-screen button was corrected to local x=704, y=556. It is available for isolated stock-layout runtime playtesting; commands 6/8 and the legacy atomic village-wide payload remain contained.
+VV4's isolated command-7 Full Mastery candidate uses the native Float32 writer to reach 100. The prior placement certification is revoked by live testing; the disabled replacement uses local x=588, y=556 with independent recertification pending. Commands 6/8 and the legacy atomic village-wide payload remain contained.
 
 The former VV5 Full Mastery package commit `5e52be5e41b25b0f541c3c762e8caacc2dbd150b` was HARD WITHDRAWN after an immediate startup auto-close. WER reports APPCRASH `c0000005` at VA `0x44FA20`, whose stock first instruction `8B09` dereferences the thiscall receiver in ECX. The emitted base Origins Tech and Detail constructors called this routine after allocation without assigning the new object to ECX. Certification `8193629` is revoked. The corrected bundle assigns `ECX=EDI` before both calls and was independently certified under `7970cd9`; M2 passed startup and Full Mastery live testing. Its Tech-screen `Upgrades` text overran the narrow native Done graphic, so the feature is catalog-hidden while a geometry-only candidate uses native wide resource 100 at nominal x=145, y=690 pending recertification. The Villager Detail control is unchanged pending a separate exact gate.
 
@@ -308,16 +308,6 @@ Inspired by the Virtual Villagers 1 mobile port where these exclusive Origins up
 - Doubler purchase status: {'new_purchase': 'temporarily unavailable pending exact-build provenance verification', 'existing_owned': 'removable at zero cost with zero refund', 'repurchase': 'temporarily disabled pending exact-build provenance verification'}
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending
 - Guarded executable edits: 11; every edit has an exact purpose and before/after guard in the manifest.
-
-#### Grant Full Mastery to All Villagers (`vv4_full_mastery_all_stage_a_candidate`)
-
-Command-7-only repeatable Buy candidate using native Float32 skill writer sub_46AD80; commands 6/8 are absent.
-
-- Behavior changes: Command-7-only repeatable Buy candidate using native Float32 skill writer sub_46AD80; commands 6/8 are absent.
-- Explicit non-changes/exclusions: none declared
-- Dependencies: vv4_enable_origins_exclusive_features
-- Evidence status: static source/manifest verification performed; runtime/player confirmation pending
-- Guarded executable edits: 1; every edit has an exact purpose and before/after guard in the manifest.
 
 #### Write Village Statistics to Text File (`vv4_write_village_statistics`)
 
