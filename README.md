@@ -30,6 +30,12 @@ Choose the style in the patcher; the choice and all paths are remembered.
 | Experimental Expanded 256 Villagers | VV3–VV5 expand their physical records and save layout to 256 immediately; collections no longer affect that expanded ceiling. | `(Game name) - Modded 256.exe` |
 | Experimental Expanded 256 - Collection Progression | VV3–VV5 expand to 256 while their original collection and Magic Tech bonuses remain required to reach 256. | `(Game name) - Modded 256.exe` |
 
+> **Expanded-256 release status:** both experimental 256 modes are ON HOLD for
+> VV3-VV5. Exact-build reanalysis found unresolved runtime/save failures and
+> incomplete optional-feature relocation coverage. Renderer success is not a
+> release certification. See
+> [the exact implementation gates](docs/vv3-vv5-expanded-256-implementation-gates.md).
+
 Ordinary modes and optional-patch combinations use the stable short `- Modded`
 name. Experimental 256 modes use the separate short `- Modded 256` name. The
 selected mode, optional patches, hashes, and applied edits remain identified in

@@ -1,9 +1,11 @@
 # Experimental 256-villager expansion for VV3-VV5
 
-> **Experimental:** the three current self-contained expanded game folders pass
-> a bounded startup smoke test. A complete 256-villager playthrough, save, and
-> reload has not been completed, so both expanded modes remain clearly marked
-> experimental.
+> **ON HOLD — do not package or release:** current exact-build reanalysis found
+> unresolved save/runtime failures in VV3 and VV4, four stale all-feature
+> `.shr` pointers in VV4, and 36 stale cross-section branches plus seven stale
+> external `.shr` pointers in VV5. Passing renderer and PE-readback checks does
+> not establish relocation completeness or runtime safety. See the exact
+> [VV3-VV5 implementation-gate report](vv3-vv5-expanded-256-implementation-gates.md).
 
 ## Result
 
@@ -161,7 +163,7 @@ expanded 256-record boundary in both modes. VV5 continues counting occupied or
 reserved physical records, including Heathens, unreleased corpses, and
 nursing-baby reservations.
 
-## Verification completed
+## Verification completed and current blockers
 
 - Exact stock SHA-256 identification and byte guards.
 - Reanalysis of expanded executables in IDA Pro.
@@ -173,13 +175,14 @@ nursing-baby reservations.
   unrelated 150 constants such as coordinate distances and UI/runtime
   thresholds remain unchanged.
 - PE section, resource-directory, checksum, output-size, and readback checks.
-- Complete copied game folders containing `fmod.dll`, SDL2, image libraries,
-  assets, and every original companion file.
 - The earlier ten-second process-alive smoke test was insufficient. Current
   player-observed validation found VV3 spinning non-responsive during load and
-  VV4 failing to accept a stock-sized village slot. These are open blockers;
-  the expanded modes must not be described or released as stable until the
-  player validates corrected QA builds.
+  VV4 failing to accept a stock-sized village slot.
+- Exact current-feature relocation analysis found four stale absolute `.shr`
+  operands in VV4 and 43 moved references in VV5. These are implementation
+  blockers, not merely pending player validation.
+- Historical prototype hashes predate nine later guarded corrections per game
+  and are not current certification artifacts.
 
 The bare-EXE test that displayed a missing-`fmod.dll` dialog is not counted as a
 game startup. A later raw-sweep prototype that crashed is also superseded and
@@ -187,8 +190,9 @@ is not the committed manifest.
 
 ## Experimental boundary
 
-Static structure is partially verified, but current save-loading behavior is
-not. A village has not yet been played all the way to 256 villagers through
-births, deaths, Island Events, offline catch-up, save, and reload. The mode
-remains blocked from release until the current startup/load regressions are
-corrected and player-tested.
+Static structure is partially verified, but current relocation and
+save-loading behavior are not complete. A village has not yet been played all
+the way to 256 villagers through births, deaths, Island Events, offline
+catch-up, save, and reload. The mode remains blocked from release until the
+per-game implementation gates are closed and corrected builds are independently
+certified and player-tested.
