@@ -77,9 +77,9 @@ body and hook are:
 E9 6C 28 4D 00 90 90
 ```
 
-Only the two rel32 fields differ between layouts: the hook-to-body jump and the
-call/jump inside the relocated body. The absolute marker address and native
-callee stay at `0x51D388` and `0x403660`.
+Three rel32 fields differ between layouts: the hook-to-body jump, the native
+call inside the relocated body, and the continuation jump. The absolute marker
+address and native callee stay at `0x51D388` and `0x403660`.
 
 The selector slot is 40 bytes. For a fresh stock/immediate page its complete
 preimage must be 40 zero bytes. For repair of the withdrawn M2 stock/immediate
