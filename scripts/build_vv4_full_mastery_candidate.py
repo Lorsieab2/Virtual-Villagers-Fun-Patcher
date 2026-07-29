@@ -206,8 +206,7 @@ def build_ui_payload(active_payload: bytes) -> tuple[bytes, dict[str, object]]:
             call 0x470C5C
             add esp, 4
             test eax, eax
-            je done
-            mov dword ptr [esi + 0x74], eax
+            je clear_slot
             push 13
             push 1
             push 3
@@ -217,11 +216,33 @@ def build_ui_payload(active_payload: bytes) -> tuple[bytes, dict[str, object]]:
             mov ecx, eax
             call 0x401C20
             test eax, eax
-            je done
+            je clear_slot
+            push eax
+            mov ecx, [esp]
+            mov edx, [ecx]
+            call dword ptr [edx + 0x0C]
+            cmp eax, 99
+            jne reject_wrapper
+            mov ecx, [esp]
+            mov edx, [ecx]
+            call dword ptr [edx + 0x10]
+            cmp eax, 35
+            jne reject_wrapper
+            pop eax
+            mov dword ptr [esi + 0x74], eax
             push eax
             mov ecx, esi
             call 0x40C190
-        done:
+            jmp continue
+        reject_wrapper:
+            pop ecx
+            mov eax, [ecx]
+            mov edx, [eax]
+            push 1
+            call edx
+        clear_slot:
+            mov dword ptr [esi + 0x74], 0
+        continue:
             mov eax, esi
             mov ecx, dword ptr [esp + 0x4C]
             jmp 0x43E16B
@@ -234,7 +255,7 @@ def build_ui_payload(active_payload: bytes) -> tuple[bytes, dict[str, object]]:
             call 0x470C5C
             add esp, 4
             test eax, eax
-            je done
+            je cleanup
             push 2
             push 1
             push 3
@@ -244,11 +265,30 @@ def build_ui_payload(active_payload: bytes) -> tuple[bytes, dict[str, object]]:
             mov ecx, eax
             call 0x401C20
             test eax, eax
-            je done
+            je cleanup
+            push eax
+            mov ecx, [esp]
+            mov edx, [ecx]
+            call dword ptr [edx + 0x0C]
+            cmp eax, 99
+            jne reject_wrapper
+            mov ecx, [esp]
+            mov edx, [ecx]
+            call dword ptr [edx + 0x10]
+            cmp eax, 35
+            jne reject_wrapper
+            pop eax
             push eax
             mov ecx, esi
             call 0x40C190
-        done:
+            jmp cleanup
+        reject_wrapper:
+            pop ecx
+            mov eax, [ecx]
+            mov edx, [eax]
+            push 1
+            call edx
+        cleanup:
             mov dword ptr [0x4D905C], 0
             mov dword ptr [0x4D9058], 0
             mov eax, esi
@@ -266,12 +306,31 @@ def build_ui_payload(active_payload: bytes) -> tuple[bytes, dict[str, object]]:
             push 1
             call edx
             mov dword ptr [ebx + 0x74], 0
+            mov ecx, ebx
         no_wrapper:
             call 0x40C340
             jmp 0x43E23D
         """,
         helper_va,
     )
+    # Keystone may choose the equivalent 89 D9 encoding for mov ecx, ebx;
+    # the certified helper contract requires the exact 8B CB bytes.
+    helper_marker = bytes.fromhex("C743740000000089D9")
+    if helper_marker not in helper:
+        raise RuntimeError("Tech destructor ECX restore assembly marker missing")
+    helper = helper.replace(
+        helper_marker,
+        bytes.fromhex("C74374000000008BCB"),
+        1,
+    )
+    helper_call = helper.index(b"\xE8")
+    helper_jump = helper.index(b"\xE9")
+    helper_jz = helper.index(bytes.fromhex("7411"))
+    helper_call_target = helper_va + helper_call + 5 + struct.unpack_from("<i", helper, helper_call + 1)[0]
+    helper_jump_target = helper_va + helper_jump + 5 + struct.unpack_from("<i", helper, helper_jump + 1)[0]
+    helper_jz_target = helper_va + helper_jz + 2 + struct.unpack_from("<b", helper, helper_jz + 1)[0]
+    if helper_call_target != 0x40C340 or helper_jump_target != 0x43E23D or helper_jz_target != helper_va + 0x18:
+        raise RuntimeError("Tech destructor helper call/continuation target guard mismatch")
     relocated_handler = asm(
         f"""
             cmp dword ptr [esp + 4], 8
@@ -300,7 +359,19 @@ def build_ui_payload(active_payload: bytes) -> tuple[bytes, dict[str, object]]:
     return bytes(payload), {
         "tech_constructor": {"offset": f"0x{TECH_CONSTRUCTOR_OFFSET:X}", "length": len(tech_ctor), "sha256": sha(tech_ctor)},
         "detail_constructor": {"offset": f"0x{DETAIL_CONSTRUCTOR_OFFSET:X}", "length": len(detail_ctor), "sha256": sha(detail_ctor)},
-        "destructor_helper": {"offset": f"0x{TECH_DESTRUCTOR_HELPER_OFFSET:X}", "length": len(helper), "sha256": sha(helper), "va": f"0x{helper_va:X}", "scalar_destructor_flag": 1},
+        "destructor_helper": {"offset": f"0x{TECH_DESTRUCTOR_HELPER_OFFSET:X}", "length": len(helper), "sha256": sha(helper), "va": f"0x{helper_va:X}", "scalar_destructor_flag": 1, "ecx_restore": "mov ecx, ebx", "continuation_va": "0x43E23D", "sub_40C340_call": "0x40C340", "no_wrapper_branch_va": f"0x{helper_jz_target:X}"},
+        "runtime_dimension_guard": {
+            "accessors": {
+                "width": {"wrapper_vtable_offset": "0x0C", "va": "0x401470"},
+                "height": {"wrapper_vtable_offset": "0x10", "va": "0x4014B0"},
+            },
+            "required_frame_dimensions": [99, 35],
+            "static_strip_dimensions": [297, 35],
+            "static_grid": [3, 1],
+            "reject": {"scalar_destructor_flag": 1, "attach": False, "tech_slot": None},
+            "tech_constructor_guarded": True,
+            "detail_constructor_guarded": True,
+        },
         "detail_handler_relocated": {"offset": f"0x{DETAIL_HANDLER_RELOC_OFFSET:X}", "length": len(relocated_handler), "sha256": sha(relocated_handler), "va": f"0x{relocated_handler_va:X}"},
         "direct_factory": "sub_401C20",
         "parent_insertion": "sub_40C190",
@@ -1090,10 +1161,14 @@ def main() -> None:
                 "slot": "this+0x74",
                 "destructor_patch_offset": "0x3E238",
                 "helper_va": ui_map["destructor_helper"]["va"],
+                "helper_length": ui_map["destructor_helper"]["length"],
+                "helper_sha256": ui_map["destructor_helper"]["sha256"],
                 "scalar_destructor_flag": 1,
                 "clear_slot_before_original": True,
+                "ecx_restore": ui_map["destructor_helper"]["ecx_restore"],
                 "original_cleanup": "sub_40C340",
             },
+            "runtime_dimension_guard": ui_map["runtime_dimension_guard"],
             "detail_cleanup": ui_map["detail_cleanup"],
             "forbidden_helpers": ui_map["forbidden_helpers"],
             "route": {
@@ -1197,6 +1272,8 @@ def main() -> None:
         f"- Candidate button path: `{BUTTON_DESTINATION}`; frames: normal, hover, pressed (99x35 each)\n"
         "- Button construction: `sub_401C20`, grid 3x1, local 72,4; Tech event 13 and Detail event 2; parent `sub_40C190`.\n"
         "- Runtime text/style/font helpers and `sub_40D8A0` are absent; the Tech wrapper uses `this+0x74` and paired scalar-destructor cleanup, while Detail uses list-owned `sub_40C300`.\n"
+        "- Runtime fail-closed guard calls wrapper vtable slots `+0x0C`/`+0x10` (native `0x401470`/`0x4014B0`) and requires a 99x35 frame before either `sub_40C190` attach; rejected wrappers receive scalar-destructor flag 1, and Tech leaves `this+0x74` null.\n"
+        "- The Tech helper emits exact `8B CB` (`mov ecx, ebx`) after clearing `this+0x74` and before `sub_40C340`; its continuation remains `0x43E23D`.\n"
         + f"- Companion SHA-256: `{artifact['companion']['sha256']}`\n"
         f"- Stock installed slot SHA-256: `{artifact['layouts']['collection_progression']['installed_slot_sha256']}`\n"
         f"- Expanded installed slot SHA-256: `{artifact['layouts']['experimental_expanded_256']['installed_slot_sha256']}`\n"

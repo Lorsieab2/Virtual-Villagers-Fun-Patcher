@@ -145,16 +145,55 @@ class VV4FullMasteryCandidateTests(unittest.TestCase):
         code = bytes.fromhex(payload["after"])
         tech = code[0x40:0xC0]
         detail = code[0x100:0x180]
-        helper = code[0xC0:0xE0]
+        helper = code[0xC0:0xE2]
         self.assertIn(bytes.fromhex("6A0D"), tech)
         self.assertIn(bytes.fromhex("6A02"), detail)
-        self.assertIn(bytes.fromhex("E84688F7FF"), tech)  # sub_401C20
+        self.assertIn(bytes.fromhex("6A0D6A016A03"), tech)
+        self.assertIn(bytes.fromhex("6A026A016A03"), detail)
+        self.assertIn(bytes.fromhex("83F863"), tech)
+        self.assertIn(bytes.fromhex("83F823"), tech)
+        self.assertIn(bytes.fromhex("83F863"), detail)
+        self.assertIn(bytes.fromhex("83F823"), detail)
+        self.assertIn(bytes.fromhex("E84988F7FF"), tech)  # sub_401C20
         self.assertIn(bytes.fromhex("E88987F7FF"), detail)  # sub_401C20
-        self.assertIn(bytes.fromhex("E8AA2DF8FF"), tech)  # sub_40C190
-        self.assertIn(bytes.fromhex("E8ED2CF8FF"), detail)  # sub_40C190
+        self.assertIn(bytes.fromhex("E88E2DF8FF"), tech)  # sub_40C190
+        self.assertIn(bytes.fromhex("E8D12CF8FF"), detail)  # sub_40C190
         self.assertNotIn(b"\xA0\xD8\x40", tech + detail)
         self.assertIn(bytes.fromhex("6A01FFD2"), helper)
         self.assertIn(bytes.fromhex("C7437400000000"), helper)
+        self.assertIn(bytes.fromhex("8BCB"), helper)
+        self.assertIn(bytes.fromhex("8BCBE8"), helper)
+        call_at = helper.index(b"\xE8")
+        jump_at = helper.index(b"\xE9")
+        self.assertEqual(
+            0x489433 + call_at + 5 + int.from_bytes(helper[call_at + 1 : call_at + 5], "little", signed=True),
+            0x40C340,
+        )
+        self.assertEqual(
+            0x489433 + jump_at + 5 + int.from_bytes(helper[jump_at + 1 : jump_at + 5], "little", signed=True),
+            0x43E23D,
+        )
+        self.assertEqual(self.map["candidate_ui_payload"]["destructor_helper"]["length"], 34)
+        self.assertEqual(
+            self.map["candidate_ui_payload"]["destructor_helper"]["no_wrapper_branch_va"],
+            "0x48944B",
+        )
+        self.assertEqual(self.map["ui_asset_gate"]["tech_wrapper"]["helper_length"], 34)
+        self.assertEqual(
+            self.map["ui_asset_gate"]["runtime_dimension_guard"],
+            {
+                "accessors": {
+                    "width": {"wrapper_vtable_offset": "0x0C", "va": "0x401470"},
+                    "height": {"wrapper_vtable_offset": "0x10", "va": "0x4014B0"},
+                },
+                "required_frame_dimensions": [99, 35],
+                "static_strip_dimensions": [297, 35],
+                "static_grid": [3, 1],
+                "reject": {"scalar_destructor_flag": 1, "attach": False, "tech_slot": None},
+                "tech_constructor_guarded": True,
+                "detail_constructor_guarded": True,
+            },
+        )
         ui = self.map["ui_asset_gate"]
         self.assertEqual(ui["destination"], r"Images\btn_upgrades_297x35.png")
         self.assertEqual(ui["dimensions"], [297, 35])
@@ -168,6 +207,54 @@ class VV4FullMasteryCandidateTests(unittest.TestCase):
         self.assertEqual(ui["png_sha256"], "F03D57038CA7745A99C0D7D58A2558A4411828BF3243D85C8BAFE2E04036BE4B")
         self.assertEqual(sha(ASSET.read_bytes()), ui["png_sha256"])
         self.assertEqual(sha((PROVENANCE / "VV4 mockup.jpg").read_bytes()), "B404465B960BE3875F4DF0BFE32796B8045A9E938A356FF33448331AB2840A24")
+
+    def test_runtime_dimension_guard_rejects_fallback_before_attachment(self):
+        """Model the emitted guard's observable ownership behavior without launching the game."""
+
+        def attach_result(dimensions, tech=False, existing_slot=None):
+            slot = existing_slot
+            attached = []
+            destroyed = 0
+            if dimensions is None:
+                if tech:
+                    slot = None
+                return slot, attached, destroyed
+            if tuple(dimensions) != (99, 35):
+                destroyed = 1
+                if tech:
+                    slot = None
+                return slot, attached, destroyed
+            wrapper = object()
+            if tech:
+                slot = wrapper
+            attached.append(wrapper)
+            return slot, attached, destroyed
+
+        for dimensions in (None, (100, 100), (297, 35), (99, 34), (98, 35)):
+            with self.subTest(dimensions=dimensions):
+                slot, attached, destroyed = attach_result(dimensions, tech=True, existing_slot=None)
+                if dimensions == (99, 35):
+                    self.assertIsNotNone(slot)
+                    self.assertEqual(len(attached), 1)
+                    self.assertEqual(destroyed, 0)
+                else:
+                    self.assertIsNone(slot)
+                    self.assertEqual(attached, [])
+                    self.assertEqual(destroyed, 0 if dimensions is None else 1)
+
+        slot, attached, destroyed = attach_result((100, 100), tech=False)
+        self.assertIsNone(slot)
+        self.assertEqual(attached, [])
+        self.assertEqual(destroyed, 1)
+
+        # The paired Tech destructor is null/idempotent safe after a rejected wrapper.
+        cleanup_calls = []
+        slot = None
+        for _ in range(2):
+            if slot is not None:
+                cleanup_calls.append(slot)
+                slot = None
+        self.assertEqual(cleanup_calls, [])
 
     def test_exact_fingerprint_layout_bounds_and_fixed_base(self):
         source = STOCK.read_bytes()

@@ -9,10 +9,12 @@ Generated from acceptance contract `cd15e3b581df1e3020cfa022814119a97ba18af3` pl
 - Candidate button path: `Images\btn_upgrades_297x35.png`; frames: normal, hover, pressed (99x35 each)
 - Button construction: `sub_401C20`, grid 3x1, local 72,4; Tech event 13 and Detail event 2; parent `sub_40C190`.
 - Runtime text/style/font helpers and `sub_40D8A0` are absent; the Tech wrapper uses `this+0x74` and paired scalar-destructor cleanup, while Detail uses list-owned `sub_40C300`.
+- Runtime fail-closed guard calls wrapper vtable slots `+0x0C`/`+0x10` (native `0x401470`/`0x4014B0`) and requires a 99x35 frame before either `sub_40C190` attach; rejected wrappers receive scalar-destructor flag 1, and Tech leaves `this+0x74` null.
+- The Tech helper emits exact `8B CB` (`mov ecx, ebx`) after clearing `this+0x74` and before `sub_40C340`; its continuation remains `0x43E23D`.
 - Companion SHA-256: `9AC4E365BE55D32AB889E7B7472A1EDA8749B1EB259EA02BA35AB97BE666AF22`
 - Stock installed slot SHA-256: `023CF384A52CB6A6A49511B8B069B952718DC70E771FEE15CAC8A0777FB5F6DE`
 - Expanded installed slot SHA-256: `264A2D79A5184F2CFBEDCB447DBA260EC48101D19ACD9DA188363D9C659F41E6`
-- Stock base+mastery render SHA-256: `D3E0704AE103E2D9526383DA1F659ECF2328F6C743E2DEE1F0996EFE9A6E786B`
-- Expanded base+mastery render SHA-256: `5066EE84E9CEFA29405B1F00CC3A56D002BE7A3FECBEF93D19ED2E1615E0AF40`
+- Stock base+mastery render SHA-256: `517D90F5792B2BB08104468392D3B6AE8E7033C78E3A683AA026E7D96AA088AB`
+- Expanded base+mastery render SHA-256: `BE472B4C4A3E8B8D228F80E74BA7D885A614C292FB4523BCEA70343ED52B6461`
 
 The feature exposes command 7 only inside its certified base dependency. Commands 6/8, village-wide Running/Age bytes, direct skill stores, ownership, Remove, and save-format changes are absent. The disabled candidate is fail-closed on missing or mismatched companion files, preserves stock executables, Cure bytes, certified VV3 stock-mode hashes, and the expanded-256 hold. Independent disassembler recertification is required before any enablement or player playtest.

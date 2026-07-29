@@ -317,6 +317,35 @@ def _certified_vv4_full_mastery_records(
         raise PatcherError("VV4 Full Mastery UI asset geometry gate is invalid.")
     if gate.get("events") != {"tech": 13, "detail": 2}:
         raise PatcherError("VV4 Full Mastery UI asset event gate is invalid.")
+    runtime_guard = gate.get("runtime_dimension_guard")
+    if not isinstance(runtime_guard, dict):
+        raise PatcherError(
+            "VV4 Full Mastery runtime dimension guard is missing; refusing enablement."
+        )
+    if runtime_guard.get("required_frame_dimensions") != [99, 35]:
+        raise PatcherError(
+            "VV4 Full Mastery runtime frame dimension guard is not 99x35."
+        )
+    if runtime_guard.get("static_strip_dimensions") != [297, 35]:
+        raise PatcherError(
+            "VV4 Full Mastery static strip dimension guard is invalid."
+        )
+    if runtime_guard.get("static_grid") != [3, 1]:
+        raise PatcherError("VV4 Full Mastery static grid guard is invalid.")
+    accessors = runtime_guard.get("accessors")
+    if accessors != {
+        "width": {"wrapper_vtable_offset": "0x0C", "va": "0x401470"},
+        "height": {"wrapper_vtable_offset": "0x10", "va": "0x4014B0"},
+    }:
+        raise PatcherError("VV4 Full Mastery native dimension accessor guard is invalid.")
+    reject = runtime_guard.get("reject")
+    if reject != {"scalar_destructor_flag": 1, "attach": False, "tech_slot": None}:
+        raise PatcherError("VV4 Full Mastery runtime reject guard is invalid.")
+    tech_wrapper = gate.get("tech_wrapper")
+    if not isinstance(tech_wrapper, dict) or tech_wrapper.get("helper_length") != 34:
+        raise PatcherError("VV4 Full Mastery Tech destructor helper length guard is invalid.")
+    if tech_wrapper.get("ecx_restore") != "mov ecx, ebx":
+        raise PatcherError("VV4 Full Mastery Tech destructor ECX restore guard is invalid.")
     forbidden = set(gate.get("forbidden_helpers", []))
     if {"sub_40D8A0", "sub_401140", "sub_401600"} - forbidden:
         raise PatcherError("VV4 Full Mastery UI asset helper exclusion gate is incomplete.")
