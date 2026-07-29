@@ -45,7 +45,7 @@ STRINGS_OFFSET = 0x800
 PRICE = 1_000_000
 STRIDE = 0x1F8C
 
-LAYOUTS = {
+STOCK_LAYOUTS = {
     "collection_progression": {
         "page_rva": 0x2DF000,
         "page_va": 0x6DF000,
@@ -60,21 +60,41 @@ LAYOUTS = {
         "old_size_of_image": 0x2DF000,
         "new_size_of_image": 0x2E0000,
     },
-    "experimental_expanded_256": {
-        "page_rva": 0x3B8000,
-        "page_va": 0x7B8000,
-        "bound": 256,
-        "old_size_of_image": 0x3B8000,
-        "new_size_of_image": 0x3B9000,
-    },
-    "experimental_expanded_256_progression": {
-        "page_rva": 0x3B8000,
-        "page_va": 0x7B8000,
-        "bound": 256,
-        "old_size_of_image": 0x3B8000,
-        "new_size_of_image": 0x3B9000,
-    },
 }
+EXPANDED_MODES = (
+    "experimental_expanded_256",
+    "experimental_expanded_256_progression",
+)
+ACCEPTANCE_COMMIT = "46211180c877cc635e494e37a66d1b8c49f7c65c"
+CORRECTED_ENTRY_SHA256 = (
+    "9685954F75E1DD26103507213FBEADBD9DED2705E62CB37D14080F6EBEC6EB23"
+)
+CORRECTED_SLOT_SHA256 = (
+    "B1499EB3B10B7E4728746711E9F63B88211E4B80CA378742ADC5DC06782DAADA"
+)
+CORRECTED_PAGE_SHA256 = (
+    "2DAE85AE4077C23C2C7C39F64B5BA944740F765AC8E24FBB097B0BF28A720DF6"
+)
+CORRECTED_ENTRY_HEX = (
+    "5589E55356576800F86D00FF1524C1470085C00F84C30000006824F86D0050"
+    "FF1528C1470085C00F84AF00000089C76A00B910E15900E8E5D6D7FF89C66A"
+    "00689600000056E89602000083C40C83FA010F848000000085C0746C813D4426"
+    "580040420F007268E87505000083F801756C6A00B910E15900E8A4D6D7FF89C6"
+    "6A00689600000056E85502000083C40C83FA01744385C0742F813D4426580040"
+    "420F00722B812D4426580040420F006A01689600000056E82602000083C40C89"
+    "C3536A01FFD7EB166A006A00FFD7EB0E6A006A02FFD7EB066A006A03FFD75F5E"
+    "5B89EC5DC3"
+)
+STOPPED_ENTRY_HEX = (
+    "5589E5535689CE5783EC108975F88955F46800F86D00FF1524C1470085C00F84"
+    "B80000006824F86D0050FF1528C1470085C00F84A40000008945F0813D442658"
+    "0040420F000F82810000006A00FF75F48B45F8FF7010E88502000083C40C83FA"
+    "01747285C0745CE87405000083F801756B813D4426580040420F00724F6A00FF"
+    "75F48B45F8FF7010E85302000083C40C83FA01744085C0742A812D4426580040"
+    "420F006A01FF75F48B4DF8FF7110E82D02000083C40C8945ECFF75EC6A01FF55"
+    "F0EB196A006A00FF55F0EB106A006A02FF55F0EB076A006A03FF55F083C4105F"
+    "5E5B89EC5DC3"
+)
 
 
 def asm(source: str, address: int) -> bytes:
@@ -196,11 +216,7 @@ def build_slot(page_va: int, installed: bool) -> tuple[bytes, dict[str, object]]
             mov ebp, esp
             push ebx
             push esi
-            mov esi, ecx
             push edi
-            sub esp, 0x10
-            mov dword ptr [ebp - 8], esi
-            mov dword ptr [ebp - 12], edx
             push 0x{strings['dll']:X}
             call dword ptr [0x47C124]
             test eax, eax
@@ -210,62 +226,66 @@ def build_slot(page_va: int, installed: bool) -> tuple[bytes, dict[str, object]]
             call dword ptr [0x47C128]
             test eax, eax
             jz done
-            mov dword ptr [ebp - 16], eax
-            cmp dword ptr [0x582644], {PRICE}
-            jb insufficient
+            mov edi, eax
             push 0
-            push dword ptr [ebp - 12]
-            mov eax, dword ptr [ebp - 8]
-            push dword ptr [eax + 0x10]
+            mov ecx, 0x59E110
+            call 0x45C840
+            mov esi, eax
+            push 0
+            push 150
+            push esi
             call 0x{walker_va:X}
             add esp, 12
             cmp edx, 1
             je invalid
             test eax, eax
             jz no_change
+            cmp dword ptr [0x582644], {PRICE}
+            jb insufficient
             call 0x{confirm_va:X}
             cmp eax, 1
             jne done
-            cmp dword ptr [0x582644], {PRICE}
-            jb insufficient
             push 0
-            push dword ptr [ebp - 12]
-            mov eax, dword ptr [ebp - 8]
-            push dword ptr [eax + 0x10]
+            mov ecx, 0x59E110
+            call 0x45C840
+            mov esi, eax
+            push 0
+            push 150
+            push esi
             call 0x{walker_va:X}
             add esp, 12
             cmp edx, 1
             je invalid
             test eax, eax
             jz no_change
+            cmp dword ptr [0x582644], {PRICE}
+            jb insufficient
             sub dword ptr [0x582644], {PRICE}
             push 1
-            push dword ptr [ebp - 12]
-            mov ecx, dword ptr [ebp - 8]
-            push dword ptr [ecx + 0x10]
+            push 150
+            push esi
             call 0x{walker_va:X}
             add esp, 12
-            mov dword ptr [ebp - 20], eax
-            push dword ptr [ebp - 20]
+            mov ebx, eax
+            push ebx
             push 1
-            call dword ptr [ebp - 16]
+            call edi
             jmp done
         no_change:
             push 0
             push 0
-            call dword ptr [ebp - 16]
+            call edi
             jmp done
         insufficient:
             push 0
             push 2
-            call dword ptr [ebp - 16]
+            call edi
             jmp done
         invalid:
             push 0
             push 3
-            call dword ptr [ebp - 16]
+            call edi
         done:
-            add esp, 0x10
             pop edi
             pop esi
             pop ebx
@@ -275,6 +295,16 @@ def build_slot(page_va: int, installed: bool) -> tuple[bytes, dict[str, object]]
         """,
         entry_va,
     )
+    expected_entry = bytes.fromhex(CORRECTED_ENTRY_HEX)
+    if entry != expected_entry:
+        raise RuntimeError(
+            "corrected stock entry does not match acceptance gate "
+            f"{ACCEPTANCE_COMMIT}: {sha(entry)}"
+        )
+    if len(entry) != 227 or sha(entry) != CORRECTED_ENTRY_SHA256:
+        raise RuntimeError("corrected stock entry length/hash mismatch")
+    if len(bytes.fromhex(STOPPED_ENTRY_HEX)) != 230:
+        raise RuntimeError("stopped entry guard length mismatch")
 
     walker = asm(
         f"""
@@ -620,7 +650,7 @@ def main() -> None:
     dispatchers: dict[str, bytes] = {}
     pages: dict[str, bytes] = {}
     installed_pages: dict[str, bytes] = {}
-    for mode, layout in LAYOUTS.items():
+    for mode, layout in STOCK_LAYOUTS.items():
         noop, noop_map = build_slot(layout["page_va"], False)
         installed, installed_map = build_slot(layout["page_va"], True)
         dispatcher = build_dispatcher(layout["page_va"], layout["bound"])
@@ -632,10 +662,7 @@ def main() -> None:
         slot_maps[mode] = {"noop": noop_map, "installed": installed_map}
 
     stock_payload = build_base_payload(
-        active_payload, LAYOUTS["collection_progression"]["page_va"]
-    )
-    expanded_payload = build_base_payload(
-        active_payload, LAYOUTS["experimental_expanded_256"]["page_va"]
+        active_payload, STOCK_LAYOUTS["collection_progression"]["page_va"]
     )
     base = deepcopy(active)
     base["id"] = "vv3_enable_origins_exclusive_features_full_mastery_candidate"
@@ -670,20 +697,8 @@ def main() -> None:
     payload_item["purpose"] = (
         "install the base Origins core with a guarded command-7 no-op extension slot"
     )
-    base["patch_mode_overrides"] = {
-        mode: [
-            {
-                "offset": f"0x{PAYLOAD_OFFSET:X}",
-                "before": stock_payload.hex().upper(),
-                "after": expanded_payload.hex().upper(),
-                "purpose": "retarget only base-owned command-7 page references",
-            }
-        ]
-        for mode in (
-            "experimental_expanded_256",
-            "experimental_expanded_256_progression",
-        )
-    }
+    base.pop("patch_mode_overrides", None)
+    base["unsupported_patch_modes"] = list(EXPANDED_MODES)
     base["pe_append_transaction"] = {
         "owner": base["id"],
         "section_name": ".vv3fm",
@@ -695,22 +710,29 @@ def main() -> None:
         ),
         "layouts": {
             mode: append_layout(layout, pages[mode])
-            for mode, layout in LAYOUTS.items()
+            for mode, layout in STOCK_LAYOUTS.items()
         },
     }
 
     stock_noop = noop_slots["collection_progression"]
     stock_installed = installed_slots["collection_progression"]
+    if sha(stock_installed) != CORRECTED_SLOT_SHA256:
+        raise RuntimeError("corrected installed stock slot hash mismatch")
+    if sha(installed_pages["collection_progression"]) != CORRECTED_PAGE_SHA256:
+        raise RuntimeError("corrected installed stock page hash mismatch")
     feature = {
         "id": "vv3_full_mastery_all_stage_a_candidate",
         "game_id": "vv3",
         "name": "DISABLED Candidate: Grant Full Mastery to All Villagers",
         "enabled": False,
-        "certification_status": "disabled Stage-A emitted candidate awaiting Sol byte certification",
+        "certification_status": (
+            "disabled stock-only replacement awaiting Sol emitted-byte certification"
+        ),
         "dependencies": [base["id"]],
         "description": (
-            "Command-7-only repeatable Buy candidate using native skill writer "
-            "sub_455740 and Award evaluator sub_462500; commands 6/8 are absent."
+            "Stock-only command-7 repeatable Buy candidate using fixed manager "
+            "0x0059E110, native resolver sub_45C840, native skill writer "
+            "sub_455740, and Award evaluator sub_462500; commands 6/8 are absent."
         ),
         "companion_files": [],
         "patches": [
@@ -721,25 +743,17 @@ def main() -> None:
                 "purpose": "replace only the guarded base-owned no-op slot with command 7",
             }
         ],
-        "patch_mode_overrides": {
-            mode: [
-                {
-                    "offset": f"0x{APPEND_OFFSET + SLOT_OFFSET:X}",
-                    "before": stock_installed.hex().upper(),
-                    "after": installed_slots[mode].hex().upper(),
-                    "purpose": "relocate only the dependent command-7 slot for expanded layout",
-                }
-            ]
-            for mode in (
-                "experimental_expanded_256",
-                "experimental_expanded_256_progression",
-            )
-        },
+        "unsupported_patch_modes": list(EXPANDED_MODES),
         "transaction_contract": {
             "command": 7,
             "price": PRICE,
             "ownership": None,
-            "record_bounds": {"stock": 150, "expanded": 256},
+            "record_bounds": {"stock": 150},
+            "current_record_context": (
+                "call sub_45C840(index 0) with ECX=0x0059E110 before dry1 "
+                "and again after OK; literal bound 150 for dry1/dry2/commit"
+            ),
+            "expanded_256": "unsupported and rejected pending separate certification",
             "eligibility": ["byte +0xF10 != 0", "signed dword +0xE78 > 0"],
             "skills": ["+0xEAC", "+0xEB0", "+0xEB4", "+0xEB8", "+0xEBC"],
             "target": 100,
@@ -753,7 +767,14 @@ def main() -> None:
     FEATURE_OUT.write_text(json.dumps(feature, indent=2) + "\n", encoding="utf-8")
 
     sys.path.insert(0, str(ROOT / "src"))
-    from vv_fun_patcher import FunPatch, _pe_checksum_layout, load_builds, load_fun_patches, render_patched_bytes  # noqa: PLC0415
+    from vv_fun_patcher import (  # noqa: PLC0415
+        FunPatch,
+        PatcherError,
+        _pe_checksum_layout,
+        load_builds,
+        load_fun_patches,
+        render_patched_bytes,
+    )
 
     build = next(item for item in load_builds() if item.id == "vv3")
     compatible = [
@@ -767,7 +788,7 @@ def main() -> None:
         }
     ]
     renders: dict[str, object] = {}
-    for mode in LAYOUTS:
+    for mode in STOCK_LAYOUTS:
         baseline, _ = render_patched_bytes(STOCK, build, mode)
         base_render, _ = render_patched_bytes(
             STOCK, build, mode, _fun_patches_override=[FunPatch(base)]
@@ -792,14 +813,26 @@ def main() -> None:
             "owners": sorted({item["owner"] for item in applied}),
             "all_current_owners": sorted({item["owner"] for item in all_applied}),
         }
+    rejected_modes: dict[str, str] = {}
+    for mode in EXPANDED_MODES:
+        try:
+            render_patched_bytes(
+                STOCK,
+                build,
+                mode,
+                _fun_patches_override=[FunPatch(base), FunPatch(feature)],
+            )
+        except PatcherError as exc:
+            rejected_modes[mode] = str(exc)
+        else:
+            raise RuntimeError(f"{mode} unexpectedly accepted stock-only Full Mastery")
 
     artifact = {
-        "acceptance_commit": "373312970b3817ebf65d937876dcd0324ea3680b",
+        "acceptance_commit": ACCEPTANCE_COMMIT,
         "source": {"size": len(stock), "sha256": expected_sha},
         "base_manifest_sha256": sha(BASE_OUT.read_bytes()),
         "feature_manifest_sha256": sha(FEATURE_OUT.read_bytes()),
         "base_stock_payload_sha256": sha(stock_payload),
-        "base_expanded_payload_sha256": sha(expanded_payload),
         "companion": {
             "path": "data/candidates/VVFP VV3 Full Mastery Candidate.dll",
             "size": COMPANION.stat().st_size,
@@ -824,19 +857,44 @@ def main() -> None:
                 "installed_page_sha256": sha(installed_pages[mode]),
                 "slot_map": slot_maps[mode],
             }
-            for mode, layout in LAYOUTS.items()
+            for mode, layout in STOCK_LAYOUTS.items()
+        },
+        "rejected_patch_modes": rejected_modes,
+        "entry_replacement": {
+            "raw_offset": "0xCB120",
+            "rva": "0x2DF120",
+            "virtual_address": "0x6DF120",
+            "guard_length": 230,
+            "stopped_before": STOPPED_ENTRY_HEX,
+            "stopped_before_sha256": sha(bytes.fromhex(STOPPED_ENTRY_HEX)),
+            "corrected_body_length": 227,
+            "corrected_body_sha256": CORRECTED_ENTRY_SHA256,
+            "corrected_after": CORRECTED_ENTRY_HEX + "000000",
+            "corrected_guard_sha256": sha(
+                bytes.fromhex(CORRECTED_ENTRY_HEX) + b"\0" * 3
+            ),
+            "call_targets": {
+                "0x6DF156": "0x45C840",
+                "0x6DF165": "0x6DF400",
+                "0x6DF186": "0x6DF700",
+                "0x6DF197": "0x45C840",
+                "0x6DF1A6": "0x6DF400",
+                "0x6DF1D5": "0x6DF400",
+            },
         },
         "references": {
             "absolute": [
                 "0x582644 unsigned Technology Points",
                 "0x47C124 LoadLibraryA IAT",
                 "0x47C128 GetProcAddress IAT",
+                "0x59E110 fixed current-save manager",
                 "0x455740 native skill writer",
                 "0x462500 native Award evaluator",
             ],
             "rel32": [
                 "base Tech menu -> mode-specific page dispatcher",
                 "dispatcher -> mode-specific slot entry",
+                "entry -> 0x45C840 current record resolver",
                 "entry -> walker/confirmation",
                 "walker -> 0x455740 and 0x462500",
             ],
@@ -865,18 +923,19 @@ def main() -> None:
     MAP_OUT.write_text(json.dumps(artifact, indent=2) + "\n", encoding="utf-8")
     DOC_OUT.write_text(
         "# VV3 Full Mastery disabled Stage-A candidate\n\n"
-        "Generated from acceptance contract "
-        "`373312970b3817ebf65d937876dcd0324ea3680b`. Both the base-extension "
-        "and dependent command-7 records remain `enabled:false` and catalog-hidden "
-        "pending independent Sol emitted-byte certification.\n\n"
+        "Generated from stock reacquisition acceptance contract "
+        f"`{ACCEPTANCE_COMMIT}`. Both the base-extension and dependent command-7 "
+        "records remain `enabled:false` and catalog-hidden pending independent "
+        "Sol emitted-byte certification.\n\n"
         f"- Companion SHA-256: `{artifact['companion']['sha256']}`\n"
         f"- Stock installed slot SHA-256: `{artifact['layouts']['collection_progression']['installed_slot_sha256']}`\n"
-        f"- Expanded installed slot SHA-256: `{artifact['layouts']['experimental_expanded_256']['installed_slot_sha256']}`\n"
         f"- Stock base+mastery render SHA-256: `{renders['collection_progression']['base_plus_mastery_sha256']}`\n"
-        f"- Expanded base+mastery render SHA-256: `{renders['experimental_expanded_256']['base_plus_mastery_sha256']}`\n\n"
+        f"- Corrected entry SHA-256: `{CORRECTED_ENTRY_SHA256}`\n\n"
         "The candidate exposes command 7 only inside its disabled base dependency. "
         "Commands 6/8, withdrawn Running bytes, the old 944-byte payload, direct "
-        "skill stores, ownership, Remove, and save-format changes are absent.\n",
+        "skill stores, ownership, Remove, and save-format changes are absent. "
+        "Both expanded-256 modes reject this stock-only candidate and emit no "
+        "Full Mastery page, slot, UI, or walker bytes.\n",
         encoding="utf-8",
     )
 
