@@ -3,7 +3,7 @@
   "game_id": "vv4",
   "name": "DISABLED Candidate: Grant Full Mastery to All Villagers",
   "enabled": false,
-  "certification_status": "disabled candidate using new live-derived Tech-screen placement x=588 y=556; awaiting independent Sol recertification",
+  "certification_status": "disabled candidate with baked canonical mockup asset; independent emitted-byte recertification required",
   "dependencies": [
     "vv4_enable_origins_exclusive_features_full_mastery_candidate"
   ],

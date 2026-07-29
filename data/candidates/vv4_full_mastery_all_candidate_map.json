@@ -1,23 +1,80 @@
 {
   "acceptance_commit": "cd15e3b581df1e3020cfa022814119a97ba18af3",
-  "ui_geometry_gate": {
-    "constructor": "sub_43E165 / sub_40D8A0",
-    "x": 588,
-    "y": 556,
+  "ui_asset_gate": {
+    "path": "assets\\candidates\\vv4_full_mastery\\Images\\btn_upgrades_297x35.png",
+    "destination": "Images\\btn_upgrades_297x35.png",
+    "dimensions": [
+      297,
+      35
+    ],
+    "format": "PNG RGBA8, lossless, zlib compress_level=9, optimize=false",
+    "frame_width": 99,
+    "frame_order": [
+      "normal",
+      "hover",
+      "pressed"
+    ],
+    "frame_count": 3,
+    "source": {
+      "mockup": "assets\\candidates\\vv4_full_mastery\\provenance\\VV4 mockup.jpg",
+      "mockup_sha256": "B404465B960BE3875F4DF0BFE32796B8045A9E938A356FF33448331AB2840A24",
+      "crop_xywh": [
+        72,
+        4,
+        99,
+        35
+      ],
+      "crop_rgba_sha256": "B8E9C4DB93F05450689528C5A04A532486771E53DDC23FCF63B0155C7949418B",
+      "secondary_mockup_sha256": "AD1B6A8A61F13BBBA2C902E04AB8AD205167FC48034F4D0A7C078A76C756FA30",
+      "stock_btn_trophies_sha256": "1D70B74ADA23EAC375858B7B6535BF3D7A97B663E48AC0664B79DC54C435E822"
+    },
+    "rgba_sha256": "02B42DEAD3673BA5048160C2D337D284215336E39BCEAC52592432839ECB3AD4",
+    "png_sha256": "F03D57038CA7745A99C0D7D58A2558A4411828BF3243D85C8BAFE2E04036BE4B",
     "display": "800x600 at 96 DPI",
-    "control_id": 13,
-    "distinct_hit_id": true,
+    "factory": "sub_401C20",
+    "grid": [
+      3,
+      1
+    ],
+    "local": [
+      72,
+      4
+    ],
+    "events": {
+      "tech": 13,
+      "detail": 2
+    },
     "add_child": "sub_40C190",
+    "tech_wrapper": {
+      "slot": "this+0x74",
+      "destructor_patch_offset": "0x3E238",
+      "helper_va": "0x489433",
+      "scalar_destructor_flag": 1,
+      "clear_slot_before_original": true,
+      "original_cleanup": "sub_40C340"
+    },
+    "detail_cleanup": "list-owned sub_40C300",
+    "forbidden_helpers": [
+      "sub_40D8A0",
+      "sub_401140",
+      "sub_401600"
+    ],
+    "route": {
+      "tech_event": 13,
+      "detail_event": 2,
+      "detail_handler_relocated_va": "0x4895A8",
+      "detail_route_patch_offset": "0x48610"
+    },
     "status": "disabled pending independent emitted-byte recertification"
   },
   "source": {
     "size": 929792,
     "sha256": "6D27A429FFCA5F1F71FDD7ECA761ED1BB67E85F976494BA178B3D7BE01F1B220"
   },
-  "base_manifest_sha256": "41961A9C301B72BED1F4D7A3E9DA4E828AAC0A714AAFFC5EB6EF65C55D758A7C",
-  "feature_manifest_sha256": "7A73EEF111F933CC1177E76A989634C99BB66DF3BB3FF3F134B5F0CC5EDC0DA1",
-  "base_stock_payload_sha256": "4746BEA82F0CEF2EB420150027DF04C5BFC5CFA83FE73FB27D38F5916CBEEE28",
-  "base_expanded_payload_sha256": "D096162335F2DC0BEB0E3184E9469F250A3DD79F4941A40510E60F11317469FA",
+  "base_manifest_sha256": "3B96B7B3EF2EC24C3142DB545BDF2CAFA05265216158C9A22C5062354B61B173",
+  "feature_manifest_sha256": "2763B5781666F214833D3338E27B7739D3C4733D39B397D9CB30F35651352301",
+  "base_stock_payload_sha256": "EE293273CE1258ED8600D8BCE041F9B29BB6E4487941EC08587AF9F0CBD6B384",
+  "base_expanded_payload_sha256": "19E2123DCCF765FED852C6328F16A82B3D6FD18F07D15852682039660E5B00E7",
   "companion": {
     "path": "data/candidates/VVFP VV4 Full Mastery Candidate.dll",
     "size": 298496,
@@ -65,6 +122,52 @@
       }
     },
     "required_result": "ShowVV4FullMasteryResult stdcall(status,changed), ret 8"
+  },
+  "candidate_ui_payload": {
+    "tech_constructor": {
+      "offset": "0x40",
+      "length": 62,
+      "sha256": "577F2C54E5AA17FC95EF8A7A6F6DA66917FD5C3EB7F5DDA51C5A5CA0E8033CB8"
+    },
+    "detail_constructor": {
+      "offset": "0x100",
+      "length": 75,
+      "sha256": "A6A4922BABC7BC8C6F945EB660B4AC780D3A3DA97D49AFDFA305087707C8ED28"
+    },
+    "destructor_helper": {
+      "offset": "0xC0",
+      "length": 32,
+      "sha256": "FF974550F60B35C3DDE7609CDB97555646E27AD2B5BA9DD500568F610A575604",
+      "va": "0x489433",
+      "scalar_destructor_flag": 1
+    },
+    "detail_handler_relocated": {
+      "offset": "0x235",
+      "length": 37,
+      "sha256": "7B3D6A60863D3630C94EFCDE5EDEB55C36C6BBE525148496A1F74B09DE1D352F",
+      "va": "0x4895A8"
+    },
+    "direct_factory": "sub_401C20",
+    "parent_insertion": "sub_40C190",
+    "detail_cleanup": "list-owned sub_40C300",
+    "forbidden_helpers": [
+      "sub_40D8A0",
+      "sub_401140",
+      "sub_401600"
+    ],
+    "path_va": "0x489F37",
+    "events": {
+      "tech": 13,
+      "detail": 2
+    },
+    "grid": [
+      3,
+      1
+    ],
+    "local": [
+      72,
+      4
+    ]
   },
   "slot_layout": {
     "offset": "0x100",
@@ -253,11 +356,11 @@
   "rendered_candidates": {
     "collection_progression": {
       "baseline_sha256": "132516F4A5F7D2E9B539B14300207AEA5872FDCC0D34F13768435D9F4B6F76D4",
-      "base_only_sha256": "CCE8FFFFE0594E22AFA4FABA92008670081736324F06DD9F54C6A0F91E4D4C65",
-      "base_plus_mastery_sha256": "1AF8495BB3BE56C4386F31FAFA9AA5D38BDD860A026E999327F4306CC3778742",
-      "all_current_compatible_sha256": "63BA03523FFDCC7FB0E10852D54BD864DD39F3EE013885BDE8D0194B0BD71435",
+      "base_only_sha256": "6D50AF5AC1F3E9F7F3C3FD72929C17318B188E3C5CBC505690F3B91B6BF0B1BF",
+      "base_plus_mastery_sha256": "D3E0704AE103E2D9526383DA1F659ECF2328F6C743E2DEE1F0996EFE9A6E786B",
+      "all_current_compatible_sha256": "0FC37DB38B78BDC236F6D02B32E7CCEEE79FEC6E071960EA731008A7D2E24424",
       "size": 937984,
-      "pe_checksum": "0x000EB101",
+      "pe_checksum": "0x000E6B85",
       "owners": [
         "automatic:population",
         "automatic:safety",
@@ -275,11 +378,11 @@
     },
     "immediate_fixed": {
       "baseline_sha256": "EB0CDD4F7F5E41F7A03734D51F9417A126C3BE9D214B484A848DB688545CF5FB",
-      "base_only_sha256": "0D5D576821E09F5748A969808274BA3A80515707200C3E66870C465EB730CCAA",
-      "base_plus_mastery_sha256": "BBCD0B74414BD7153F8DA70140D9A68A538370BB2402BA8C60F80D94183B3D38",
-      "all_current_compatible_sha256": "34A955EDA3FDA09EA501451302B59950F02A01F68CD27229AC2BEA3AFE699862",
+      "base_only_sha256": "8EAC54715CE16C0208483B8E54F357CE0C8877386D27603E8D0694BA684BC2BA",
+      "base_plus_mastery_sha256": "29810E94F245B6A6780319C02BB97059047E4D2DA0BE8778C9C7DBCDC355C81E",
+      "all_current_compatible_sha256": "1B7A897D4F48429C8133788E87A229B56D06C8E6381CA20B0F3FFA4DEAE5E8D2",
       "size": 937984,
-      "pe_checksum": "0x000F4A29",
+      "pe_checksum": "0x000F04AD",
       "owners": [
         "automatic:population",
         "automatic:safety",
@@ -297,11 +400,11 @@
     },
     "experimental_expanded_256": {
       "baseline_sha256": "428A8A8DE3B753CA813AB29960C49D15D4B3EDBE97BB49D8625C81743FEA3782",
-      "base_only_sha256": "E27F5C189EF95017B1FCDB6D7FCF33F0950794E8B2BDC9AE8C6F2FED07EC7890",
-      "base_plus_mastery_sha256": "DBDF6FEC8C7EC3B13157D2C29459284D23481460DB5D04AA75D5DF40000C18D0",
-      "all_current_compatible_sha256": "07DA833F743C8668209DFB3C5CD07AA20D73FDDCED9C38D15E7172D326F4ACD4",
+      "base_only_sha256": "51623037D1DE7F3195EA35D37E96B54652372C5B9B1B2562A2B5D196AD9F405B",
+      "base_plus_mastery_sha256": "5066EE84E9CEFA29405B1F00CC3A56D002BE7A3FECBEF93D19ED2E1615E0AF40",
+      "all_current_compatible_sha256": "E5DF3F36E6577430272E817FD9D6B59F0591E49781BA4B808A100A14407F1A93",
       "size": 937984,
-      "pe_checksum": "0x000E5B5B",
+      "pe_checksum": "0x000F15DE",
       "owners": [
         "automatic:population",
         "automatic:safety",
@@ -319,11 +422,11 @@
     },
     "experimental_expanded_256_progression": {
       "baseline_sha256": "737F475764EBB9F35BC6C68337698D46F6D03BA0560B9BE4E352F80AF48FE791",
-      "base_only_sha256": "4638E72EA31F43E156A6077C9749C579BA1DC615514CE2DCEF309D003B88004C",
-      "base_plus_mastery_sha256": "7FAB82CD983722AFE55BBEFBC9AB7C198F89F0DF3173B27300DF253E0F2F42CD",
-      "all_current_compatible_sha256": "76BDD1778FBED2A0E17DEFA829B7C975F394B52FF332FDA81BF33CAD667975B6",
+      "base_only_sha256": "5AAD29DC9BF7917F1014E2D48F5A6C2A90CD8494535A672CC9D197C4BF5852F2",
+      "base_plus_mastery_sha256": "6F98115AB53D64AD35D833A8A14E4951FD6D67B4B0B0AA9AE97D01205027C337",
+      "all_current_compatible_sha256": "72D79E0DE650AEDFB2A756379E3754DF2B8586F856DE7F03A4F6E9F96A0C155A",
       "size": 937984,
-      "pe_checksum": "0x000EFBBE",
+      "pe_checksum": "0x000EB642",
       "owners": [
         "automatic:population",
         "automatic:safety",

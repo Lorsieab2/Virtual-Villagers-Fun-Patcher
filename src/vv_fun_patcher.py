@@ -299,6 +299,30 @@ def _certified_vv4_full_mastery_records(
     artifact = json.loads(
         VV4_FULL_MASTERY_CANDIDATE_PATHS["map"].read_text(encoding="utf-8")
     )
+    gate = artifact.get("ui_asset_gate")
+    if not isinstance(gate, dict):
+        raise PatcherError("VV4 Full Mastery UI asset gate is missing; refusing enablement.")
+    if gate.get("status") != "independent recertification GO":
+        raise PatcherError(
+            "VV4 Full Mastery UI asset gate is not independently recertified; "
+            "refusing enablement."
+        )
+    if gate.get("destination") != r"Images\btn_upgrades_297x35.png":
+        raise PatcherError("VV4 Full Mastery UI asset destination is not the approved direct path.")
+    if gate.get("dimensions") != [297, 35] or gate.get("frame_width") != 99:
+        raise PatcherError("VV4 Full Mastery UI asset dimensions are not the approved 297x35 strip.")
+    if gate.get("factory") != "sub_401C20" or gate.get("add_child") != "sub_40C190":
+        raise PatcherError("VV4 Full Mastery UI asset factory/ownership gate is invalid.")
+    if gate.get("grid") != [3, 1] or gate.get("local") != [72, 4]:
+        raise PatcherError("VV4 Full Mastery UI asset geometry gate is invalid.")
+    if gate.get("events") != {"tech": 13, "detail": 2}:
+        raise PatcherError("VV4 Full Mastery UI asset event gate is invalid.")
+    forbidden = set(gate.get("forbidden_helpers", []))
+    if {"sub_40D8A0", "sub_401140", "sub_401600"} - forbidden:
+        raise PatcherError("VV4 Full Mastery UI asset helper exclusion gate is incomplete.")
+    png_hash = gate.get("png_sha256")
+    if not isinstance(png_hash, str) or len(png_hash) != 64:
+        raise PatcherError("VV4 Full Mastery UI asset hash gate is missing.")
     stock = artifact["layouts"]["collection_progression"]
     expanded = artifact["layouts"]["experimental_expanded_256"]
     actual = {
@@ -766,8 +790,10 @@ def _remove_feature_bytes(
     data: bytearray,
     feature: FunPatch,
     patch_mode: str,
+    output_folder: Path | None = None,
 ) -> list[dict[str, str]]:
     """Guardedly undo one feature, including its owned append transaction."""
+    original_data = bytes(data)
     removed: list[dict[str, str]] = []
     patches = list(feature.patches)
     patches.extend(feature.raw.get("patch_mode_overrides", {}).get(patch_mode, []))
@@ -827,6 +853,12 @@ def _remove_feature_bytes(
     checksum_offset, _ = _pe_checksum_layout(data)
     struct.pack_into("<I", data, checksum_offset, 0)
     struct.pack_into("<I", data, checksum_offset, pe_checksum(data))
+    if output_folder is not None:
+        try:
+            _remove_companion_files(output_folder, [feature])
+        except Exception:
+            data[:] = original_data
+            raise
     return removed
 
 
@@ -1372,6 +1404,7 @@ def render_patched_bytes(
         if _fun_patches_override is None
         else list(_fun_patches_override)
     )
+    _validate_companion_sources(fun_patches)
     data = bytearray(source.read_bytes())
     original_data = bytes(data)
     applied: list[dict[str, str]] = []
@@ -1642,17 +1675,14 @@ def _copy_companion_files(
                 raise PatcherError(
                     f"Companion file escapes the patcher folder: {source}"
                 ) from exc
-            destination_name = Path(item["destination"])
-            if destination_name.name != str(destination_name):
-                raise PatcherError(
-                    f"Companion destination must be a filename: {destination_name}"
-                )
+            destination_name = _safe_companion_destination(item["destination"])
             if not source.is_file():
                 raise PatcherError(f"Required companion file is missing: {source}")
             expected_hash = item["sha256"].upper()
             if sha256(source) != expected_hash:
                 raise PatcherError(f"Companion file hash mismatch: {source.name}")
             destination = output_folder / destination_name
+            destination.parent.mkdir(parents=True, exist_ok=True)
             shutil.copy2(source, destination)
             if sha256(destination) != expected_hash:
                 raise PatcherError(
@@ -1666,6 +1696,82 @@ def _copy_companion_files(
                 }
             )
     return copied
+
+
+def _safe_companion_destination(destination: str) -> Path:
+    """Allow owned subpaths while rejecting absolute/traversal destinations."""
+    if not isinstance(destination, str) or not destination.strip():
+        raise PatcherError("Companion destination must be a non-empty relative path")
+    normalized = destination.replace("\\", "/")
+    candidate = Path(normalized)
+    if candidate.is_absolute() or any(part in {"", ".", ".."} for part in candidate.parts):
+        raise PatcherError(f"Companion destination is unsafe: {destination}")
+    return Path(*candidate.parts)
+
+
+def _validate_companion_sources(fun_patches: list[FunPatch]) -> None:
+    """Fail before any executable bytes are changed if a companion is absent/corrupt."""
+    root = ROOT.resolve()
+    for feature in fun_patches:
+        for item in feature.raw.get("companion_files", []):
+            source = (ROOT / item["source"]).resolve()
+            try:
+                source.relative_to(root)
+            except ValueError as exc:
+                raise PatcherError(
+                    f"Companion file escapes the patcher folder: {source}"
+                ) from exc
+            if not source.is_file():
+                raise PatcherError(f"Required companion file is missing: {source}")
+            expected_hash = str(item["sha256"]).upper()
+            actual_hash = sha256(source)
+            if actual_hash != expected_hash:
+                raise PatcherError(
+                    f"Companion file hash mismatch: {source.name}; "
+                    f"expected {expected_hash}, got {actual_hash}"
+                )
+            _safe_companion_destination(item["destination"])
+
+
+def _remove_companion_files(
+    output_folder: Path, fun_patches: list[FunPatch]
+) -> list[dict[str, str]]:
+    """Remove only exact companion bytes, refusing corruption or path escape."""
+    removed: list[dict[str, str]] = []
+    root = output_folder.resolve()
+    pending: list[tuple[FunPatch, Path, str]] = []
+    for feature in reversed(fun_patches):
+        for item in reversed(feature.raw.get("companion_files", [])):
+            destination_name = _safe_companion_destination(item["destination"])
+            destination = (root / destination_name).resolve()
+            try:
+                destination.relative_to(root)
+            except ValueError as exc:
+                raise PatcherError(f"Companion destination escapes output folder: {destination}") from exc
+            if not destination.is_file():
+                raise PatcherError(f"Companion removal guard failed; missing: {destination}")
+            expected_hash = str(item["sha256"]).upper()
+            actual_hash = sha256(destination)
+            if actual_hash != expected_hash:
+                raise PatcherError(
+                    f"Companion removal guard failed for {destination}: "
+                    f"expected {expected_hash}, got {actual_hash}"
+                )
+            pending.append((feature, destination, expected_hash))
+    for feature, destination, expected_hash in pending:
+        destination.unlink()
+        parent = destination.parent
+        while parent != root and parent.is_dir() and not any(parent.iterdir()):
+            parent.rmdir()
+            parent = parent.parent
+        removed.append(
+            {
+                "feature": feature.id,
+                "path": str(destination),
+                "sha256": expected_hash,
+            }
+        )
+    return removed
 
 
 def apply_patch(
@@ -1691,7 +1797,12 @@ def apply_patch(
     patched, applied = render_patched_bytes(source, build, patch_mode, fun_patch_ids)
     output_folder_existed = output_folder.exists()
     _copy_game_folder_direct(source.parent, output_folder, overwrite, output_root)
-    companions = _copy_companion_files(output_folder, fun_patches)
+    try:
+        companions = _copy_companion_files(output_folder, fun_patches)
+    except Exception:
+        if not output_folder_existed:
+            shutil.rmtree(output_folder, ignore_errors=True)
+        raise
     log_path = output.with_suffix(".patch-log.json")
     try:
         with output.open("wb") as handle:

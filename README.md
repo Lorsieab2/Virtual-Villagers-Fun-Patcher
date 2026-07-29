@@ -479,7 +479,9 @@ updates that same Modded folder in place. The patcher does not create temporary
 game copies or replacement-backup folders; the supplied original folders remain
 unchanged.
 
-No game executable, save, extracted asset, or generated output is committed to this repository.
+Stock game executables, saves, and generated playtest outputs are never committed.
+The disabled VV4 candidate carries only its exact mockup provenance and baked PNG
+source asset under `assets/candidates/vv4_full_mastery/`.
 
 ## Command line
 
@@ -487,10 +489,12 @@ Pass `--patch-mode collection_progression`, `--patch-mode immediate_fixed`, `--p
 
 The independently certified VV2 command-7-only Full Mastery feature remains
 contained after its withdrawn runtime test. The corrected VV4
-`vv4_full_mastery_all_stage_a_candidate` is catalog-hidden while the new
-live-derived Tech-screen placement candidate uses local x=588, y=556;
-independent recertification is pending. Commands 6 and 8 remain absent and the
-legacy atomic village-wide records remain contained.
+`vv4_full_mastery_all_stage_a_candidate` is catalog-hidden while its disabled
+candidate-only UI uses the canonical mockup crop baked into a deterministic
+`Images\\btn_upgrades_297x35.png` strip (three 99x35 RGBA frames). It is loaded
+through `sub_401C20` at local 72,4 with Tech event 13 and Detail event 2;
+independent emitted-byte recertification is pending. Commands 6 and 8 remain
+absent and the legacy atomic village-wide records remain contained.
 
 VV3's independent stock-only command-7 Full Mastery implementation is
 emitted-byte certified under disassembly commit

@@ -5,6 +5,7 @@ import json
 import struct
 import subprocess
 import sys
+import tempfile
 import unittest
 from copy import deepcopy
 from pathlib import Path
@@ -18,6 +19,7 @@ from vv_fun_patcher import (  # noqa: E402
     PatcherError,
     _pe_checksum_layout,
     _remove_feature_bytes,
+    _remove_companion_files,
     load_builds,
     load_fun_patches,
     pe_checksum,
@@ -32,6 +34,8 @@ FEATURE = ROOT / "data" / "candidates" / "vv4_full_mastery_all_candidate.json"
 MAP = ROOT / "data" / "candidates" / "vv4_full_mastery_all_candidate_map.json"
 DOC = ROOT / "docs" / "vv4-full-mastery-stage-a-candidate.md"
 DLL = ROOT / "data" / "candidates" / "VVFP VV4 Full Mastery Candidate.dll"
+ASSET = ROOT / "assets" / "candidates" / "vv4_full_mastery" / "Images" / "btn_upgrades_297x35.png"
+PROVENANCE = ROOT / "assets" / "candidates" / "vv4_full_mastery" / "provenance"
 MODES = (
     "collection_progression",
     "immediate_fixed",
@@ -122,7 +126,7 @@ class VV4FullMasteryCandidateTests(unittest.TestCase):
         self.assertIn("vv4_enable_origins_exclusive_features", active)
         self.assertNotIn(self.base_raw["id"], active)
         self.assertNotIn(self.feature_raw["id"], active)
-        self.assertIn("x=588 y=556", self.feature_raw["certification_status"])
+        self.assertIn("baked canonical mockup asset", self.feature_raw["certification_status"])
         self.assertEqual(self.feature_raw["dependencies"], [self.base_raw["id"]])
         contract = self.feature_raw["transaction_contract"]
         self.assertEqual((contract["command"], contract["price"]), (7, 1_000_000))
@@ -139,23 +143,31 @@ class VV4FullMasteryCandidateTests(unittest.TestCase):
             if int(item["offset"], 0) == 0x89373
         )
         code = bytes.fromhex(payload["after"])
-        ctor = code[0x40:0xC0]
-        self.assertEqual(
-            ctor[0x1C:0x26],
-            bytes.fromhex("682C020000682C020000"),
-        )
-        self.assertIn(bytes.fromhex("6A0D"), ctor)
-        targets = rel32_targets(ctor, 0x4893B3)
-        self.assertIn(0x40D8A0, targets)
-        self.assertIn(0x40C190, targets)
-
-        geometry = self.map["ui_geometry_gate"]
-        self.assertEqual((geometry["x"], geometry["y"]), (588, 556))
-        self.assertEqual(geometry["control_id"], 13)
-        self.assertTrue(geometry["distinct_hit_id"])
-        self.assertEqual(geometry["display"], "800x600 at 96 DPI")
-        self.assertEqual(geometry["add_child"], "sub_40C190")
-        self.assertEqual(geometry["status"], "disabled pending independent emitted-byte recertification")
+        tech = code[0x40:0xC0]
+        detail = code[0x100:0x180]
+        helper = code[0xC0:0xE0]
+        self.assertIn(bytes.fromhex("6A0D"), tech)
+        self.assertIn(bytes.fromhex("6A02"), detail)
+        self.assertIn(bytes.fromhex("E84688F7FF"), tech)  # sub_401C20
+        self.assertIn(bytes.fromhex("E88987F7FF"), detail)  # sub_401C20
+        self.assertIn(bytes.fromhex("E8AA2DF8FF"), tech)  # sub_40C190
+        self.assertIn(bytes.fromhex("E8ED2CF8FF"), detail)  # sub_40C190
+        self.assertNotIn(b"\xA0\xD8\x40", tech + detail)
+        self.assertIn(bytes.fromhex("6A01FFD2"), helper)
+        self.assertIn(bytes.fromhex("C7437400000000"), helper)
+        ui = self.map["ui_asset_gate"]
+        self.assertEqual(ui["destination"], r"Images\btn_upgrades_297x35.png")
+        self.assertEqual(ui["dimensions"], [297, 35])
+        self.assertEqual(ui["frame_order"], ["normal", "hover", "pressed"])
+        self.assertEqual(ui["factory"], "sub_401C20")
+        self.assertEqual(ui["grid"], [3, 1])
+        self.assertEqual(ui["local"], [72, 4])
+        self.assertEqual(ui["events"], {"tech": 13, "detail": 2})
+        self.assertEqual(ui["add_child"], "sub_40C190")
+        self.assertEqual(ui["status"], "disabled pending independent emitted-byte recertification")
+        self.assertEqual(ui["png_sha256"], "F03D57038CA7745A99C0D7D58A2558A4411828BF3243D85C8BAFE2E04036BE4B")
+        self.assertEqual(sha(ASSET.read_bytes()), ui["png_sha256"])
+        self.assertEqual(sha((PROVENANCE / "VV4 mockup.jpg").read_bytes()), "B404465B960BE3875F4DF0BFE32796B8045A9E938A356FF33448331AB2840A24")
 
     def test_exact_fingerprint_layout_bounds_and_fixed_base(self):
         source = STOCK.read_bytes()
@@ -293,10 +305,46 @@ class VV4FullMasteryCandidateTests(unittest.TestCase):
                 _remove_feature_bytes(work, self.feature, "collection_progression")
                 with self.assertRaises(PatcherError):
                     _remove_feature_bytes(work, self.base, "collection_progression")
-        before = {path: sha(path.read_bytes()) for path in (BASE, FEATURE, MAP, DOC, DLL)}
+        before = {
+            path: sha(path.read_bytes())
+            for path in (BASE, FEATURE, MAP, DOC, DLL, ASSET)
+        }
         subprocess.run([sys.executable, str(GENERATOR)], cwd=ROOT, check=True)
-        after = {path: sha(path.read_bytes()) for path in (BASE, FEATURE, MAP, DOC, DLL)}
+        after = {
+            path: sha(path.read_bytes())
+            for path in (BASE, FEATURE, MAP, DOC, DLL, ASSET)
+        }
         self.assertEqual(before, after)
+
+    def test_companion_preflight_and_exact_removal_guards(self):
+        bad = deepcopy(self.base_raw)
+        bad["companion_files"][1]["sha256"] = "0" * 64
+        with self.assertRaises(PatcherError):
+            render_patched_bytes(
+                STOCK,
+                self.build,
+                "collection_progression",
+                _fun_patches_override=[FunPatch(bad), self.feature],
+            )
+        with tempfile.TemporaryDirectory() as folder:
+            output = Path(folder)
+            for item in self.base_raw["companion_files"]:
+                destination = output / Path(item["destination"].replace("\\", "/"))
+                destination.parent.mkdir(parents=True, exist_ok=True)
+                source = ROOT / item["source"]
+                destination.write_bytes(source.read_bytes())
+            removed = _remove_companion_files(output, [self.base])
+            self.assertEqual(len(removed), 2)
+            self.assertFalse((output / "Images" / "btn_upgrades_297x35.png").exists())
+            self.assertFalse((output / "VVFP Origins Icons.dll").exists())
+        with tempfile.TemporaryDirectory() as folder:
+            output = Path(folder)
+            item = self.base_raw["companion_files"][1]
+            destination = output / Path(item["destination"].replace("\\", "/"))
+            destination.parent.mkdir(parents=True, exist_ok=True)
+            destination.write_bytes(b"corrupt")
+            with self.assertRaises(PatcherError):
+                _remove_companion_files(output, [self.base])
 
 
 if __name__ == "__main__":
