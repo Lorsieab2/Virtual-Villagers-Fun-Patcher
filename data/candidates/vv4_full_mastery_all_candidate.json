@@ -1,9 +1,18 @@
 {
   "id": "vv4_full_mastery_all_stage_a_candidate",
   "game_id": "vv4",
-  "name": "DISABLED Candidate: Grant Full Mastery to All Villagers",
-  "enabled": false,
-  "certification_status": "disabled candidate with baked canonical mockup asset; independent emitted-byte recertification required",
+  "name": "Grant Full Mastery to All Villagers",
+  "enabled": true,
+  "certification_status": "independent recertification GO under R3 commit 36af0c9a620b6b323715c3f6d6fe93e1d6f75532; stock-mode only; Expanded-256 remains ON HOLD/fail-closed",
+  "evidence_status": "independent R3 emitted-byte recertification GO under 36af0c9a620b6b323715c3f6d6fe93e1d6f75532; stock-mode only; Expanded-256 ON HOLD/fail-closed",
+  "explicit_non_changes": [
+    "stock executable bytes outside the certified candidate payload",
+    "shared Origins DLL bytes",
+    "VV3 certified stock-mode bytes",
+    "commands 6 and 8",
+    "Expanded-256 behavior (ON HOLD/fail-closed)",
+    "save files and save format"
+  ],
   "dependencies": [
     "vv4_enable_origins_exclusive_features_full_mastery_candidate"
   ],

@@ -727,6 +727,19 @@ class StockIntegrationTests(unittest.TestCase):
                             patches_by_game[build.id],
                         )
                     continue
+                if build.id == "vv4":
+                    self.assertIn(
+                        "vv4_full_mastery_all_stage_a_candidate",
+                        patches_by_game[build.id],
+                    )
+                    with self.assertRaisesRegex(PatcherError, "stock modes only"):
+                        render_patched_bytes(
+                            STOCK / build.input_name,
+                            build,
+                            "experimental_expanded_256",
+                            patches_by_game[build.id],
+                        )
+                    continue
                 rendered, applied = render_patched_bytes(
                     STOCK / build.input_name,
                     build,

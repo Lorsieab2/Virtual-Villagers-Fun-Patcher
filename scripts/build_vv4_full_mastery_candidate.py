@@ -33,6 +33,13 @@ STOCK_TROPHIES_SHA256 = "1D70B74ADA23EAC375858B7B6535BF3D7A97B663E48AC0664B79DC5
 CANONICAL_CROP_RGBA_SHA256 = "B8E9C4DB93F05450689528C5A04A532486771E53DDC23FCF63B0155C7949418B"
 BUTTON_RGBA_SHA256 = "02B42DEAD3673BA5048160C2D337D284215336E39BCEAC52592432839ECB3AD4"
 BUTTON_PNG_SHA256 = "F03D57038CA7745A99C0D7D58A2558A4411828BF3243D85C8BAFE2E04036BE4B"
+R3_COMMIT = "36af0c9a620b6b323715c3f6d6fe93e1d6f75532"
+R3_HELPER_SHA256 = "C7379FB1AFDDD44F06CF48FAEED14C1701D796F5FC2568E10745337DADE13DB1"
+R3_TECH_CONSTRUCTOR_SHA256 = "5A374941D4A6E2F0C36B5F1464738112C353AD0BC727FDDF9610E24A9B2EEE88"
+R3_DETAIL_CONSTRUCTOR_SHA256 = "0D38AAE3CF8F1EEFF81B95AE3AC334E488053FD60D136FC733A24E74A4AB31EC"
+R3_COMMAND7_SLOT_SHA256 = "023CF384A52CB6A6A49511B8B069B952718DC70E771FEE15CAC8A0777FB5F6DE"
+R3_CURE_SHA256 = "2BB7A32344293DCACB4D0359818C6839AC1FBBAEE8F9E3D00DB59C274238D726"
+R3_DLL_SHA256 = "9AC4E365BE55D32AB889E7B7472A1EDA8749B1EB259EA02BA35AB97BE666AF22"
 
 sys.path.insert(0, str(ROOT / ".tools" / "keystone"))
 sys.path.insert(0, str(ROOT / ".tools" / "keystone-runtime"))
@@ -911,6 +918,15 @@ def main() -> None:
     )
     button_png, asset_map = build_button_asset()
     ui_payload, ui_map = build_ui_payload(bytes(active_payload))
+    if sha(COMPANION.read_bytes()) != R3_DLL_SHA256:
+        raise RuntimeError("R3 companion DLL hash mismatch")
+    for label, expected in (
+        ("tech_constructor", R3_TECH_CONSTRUCTOR_SHA256),
+        ("detail_constructor", R3_DETAIL_CONSTRUCTOR_SHA256),
+        ("destructor_helper", R3_HELPER_SHA256),
+    ):
+        if ui_map[label]["sha256"] != expected:
+            raise RuntimeError(f"R3 {label} hash mismatch")
     noop_slots: dict[str, bytes] = {}
     installed_slots: dict[str, bytes] = {}
     slot_maps: dict[str, object] = {}
@@ -936,10 +952,15 @@ def main() -> None:
     )
     base = deepcopy(active)
     base["id"] = "vv4_enable_origins_exclusive_features_full_mastery_candidate"
-    base["name"] = "DISABLED Candidate: VV4 Origins Full Mastery Extension Base"
+    base["name"] = "VV4 Origins Full Mastery Extension Base"
     base["enabled"] = True
     base["certification_status"] = (
-        "disabled corrected UI-geometry candidate awaiting independent recertification"
+        f"independent recertification GO under R3 commit {R3_COMMIT}; stock-mode only; "
+        "Expanded-256 remains ON HOLD/fail-closed"
+    )
+    base["evidence_status"] = (
+        f"independent R3 emitted-byte recertification GO under {R3_COMMIT}; "
+        "stock-mode only; Expanded-256 ON HOLD/fail-closed"
     )
     base["dependencies"] = []
     base["expanded_shr_relocations"]["patches"] = []
@@ -980,6 +1001,8 @@ def main() -> None:
         raise RuntimeError("base Cure-only signature missing")
     cure_item["after"] = (b"\0" * cure_start + cure_bytes[cure_start:]).hex().upper()
     cure_item["purpose"] = "preserve Cure all Villagers without commands 6/7/8 router"
+    if sha(bytes.fromhex(cure_item["after"])) != R3_CURE_SHA256:
+        raise RuntimeError("R3 Cure payload hash mismatch")
     payload_item = next(
         item for item in base["patches"] if int(item["offset"], 0) == PAYLOAD_OFFSET
     )
@@ -1037,6 +1060,8 @@ def main() -> None:
 
     stock_noop = noop_slots["collection_progression"]
     stock_installed = installed_slots["collection_progression"]
+    if sha(stock_installed) != R3_COMMAND7_SLOT_SHA256:
+        raise RuntimeError("R3 command-7 slot hash mismatch")
     existing_feature = (
         json.loads(FEATURE_OUT.read_text(encoding="utf-8"))
         if FEATURE_OUT.is_file()
@@ -1053,10 +1078,25 @@ def main() -> None:
         ),
         "enabled": feature_enabled,
         "certification_status": (
-            "corrected UI geometry certified by Sol commit 2a952a3; runtime playtest pending"
+            f"independent recertification GO under R3 commit {R3_COMMIT}; stock-mode only; "
+            "Expanded-256 remains ON HOLD/fail-closed"
             if feature_enabled
             else "disabled candidate with baked canonical mockup asset; independent emitted-byte recertification required"
         ),
+        "evidence_status": (
+            f"independent R3 emitted-byte recertification GO under {R3_COMMIT}; "
+            "stock-mode only; Expanded-256 ON HOLD/fail-closed"
+            if feature_enabled
+            else "static source/manifest verification performed; independent emitted-byte recertification pending"
+        ),
+        "explicit_non_changes": [
+            "stock executable bytes outside the certified candidate payload",
+            "shared Origins DLL bytes",
+            "VV3 certified stock-mode bytes",
+            "commands 6 and 8",
+            "Expanded-256 behavior (ON HOLD/fail-closed)",
+            "save files and save format",
+        ],
         "dependencies": [base["id"]],
         "description": (
             "Command-7-only repeatable Buy candidate using native Float32 skill "
@@ -1148,7 +1188,22 @@ def main() -> None:
         }
 
     artifact = {
-        "acceptance_commit": "cd15e3b581df1e3020cfa022814119a97ba18af3",
+        "acceptance_commit": R3_COMMIT,
+        "independent_recertification": {
+            "review": "R3",
+            "status": "independent recertification GO",
+            "commit": R3_COMMIT,
+            "scope": "VV4 Full Mastery stock-mode candidate only; Expanded-256 ON HOLD/fail-closed",
+            "hashes": {
+                "helper": R3_HELPER_SHA256,
+                "tech_constructor": R3_TECH_CONSTRUCTOR_SHA256,
+                "detail_constructor": R3_DETAIL_CONSTRUCTOR_SHA256,
+                "command7_slot": R3_COMMAND7_SLOT_SHA256,
+                "cure": R3_CURE_SHA256,
+                "png": BUTTON_PNG_SHA256,
+                "dll": R3_DLL_SHA256,
+            },
+        },
         "ui_asset_gate": {
             **asset_map,
             "display": "800x600 at 96 DPI",
@@ -1177,7 +1232,9 @@ def main() -> None:
                 "detail_handler_relocated_va": ui_map["detail_handler_relocated"]["va"],
                 "detail_route_patch_offset": "0x48610",
             },
-            "status": "disabled pending independent emitted-byte recertification",
+            "status": "independent recertification GO",
+            "recertification_commit": R3_COMMIT,
+            "scope": "stock-mode only; Expanded-256 remains ON HOLD/fail-closed",
         },
         "source": {"size": len(stock), "sha256": expected_sha},
         "base_manifest_sha256": sha(BASE_OUT.read_bytes()),
@@ -1255,11 +1312,11 @@ def main() -> None:
             else "# VV4 Full Mastery disabled baked-asset UI candidate\n\n"
         )
         + "Generated from acceptance contract "
-        "`cd15e3b581df1e3020cfa022814119a97ba18af3` plus the repository-owned "
+        f"`{R3_COMMIT}` plus the repository-owned "
         "canonical mockup and direct-resource ABI gate. "
         + (
-            "The exact corrected artifact received FINAL CERTIFIED GO under "
-            "`2a952a3`; command 7 is available for isolated runtime playtesting.\n\n"
+            f"The exact corrected artifact received independent recertification GO under "
+            f"R3 commit `{R3_COMMIT}`; command 7 is available for stock-mode runtime playtesting.\n\n"
             if feature_enabled
             else "The command-7 record is disabled. Its candidate-only Tech and Detail "
             "buttons use the repository-owned canonical mockup crop as a deterministic "
@@ -1282,10 +1339,13 @@ def main() -> None:
         "The feature exposes command 7 only inside its certified base dependency. "
         "Commands 6/8, village-wide Running/Age bytes, direct "
         "skill stores, ownership, Remove, and save-format changes are absent. "
-        "The disabled candidate is fail-closed on missing or mismatched companion files, "
+        "The candidate is fail-closed on missing or mismatched companion files, "
         "preserves stock executables, Cure bytes, certified VV3 stock-mode hashes, and "
-        "the expanded-256 hold. Independent disassembler recertification is required "
-        "before any enablement or player playtest.\n",
+        "the expanded-256 hold. R3 independently recertified the stock-mode emitted "
+        "candidate; Expanded-256 remains ON HOLD/fail-closed.\n"
+        f"- R3 helper SHA-256: `{R3_HELPER_SHA256}`; Tech constructor: `{R3_TECH_CONSTRUCTOR_SHA256}`; "
+        f"Detail constructor: `{R3_DETAIL_CONSTRUCTOR_SHA256}`; command-7 slot: `{R3_COMMAND7_SLOT_SHA256}`; "
+        f"Cure: `{R3_CURE_SHA256}`.\n",
         encoding="utf-8",
     )
     output_dir = ROOT / "outputs" / "vv4_full_mastery_candidate"
@@ -1293,7 +1353,7 @@ def main() -> None:
     for source_path in (BASE_OUT, FEATURE_OUT, MAP_OUT, DOC_OUT, COMPANION, BUTTON_ASSET):
         shutil.copy2(source_path, output_dir / source_path.name)
     checksum_records: dict[str, object] = {
-        "status": "disabled candidate; outputs are for independent recertification only",
+        "status": "R3 independently recertified stock-mode candidate; Expanded-256 ON HOLD/fail-closed",
         "asset": asset_map,
         "source": {"path": str(STOCK.relative_to(ROOT)), "sha256": expected_sha},
         "artifacts": {},

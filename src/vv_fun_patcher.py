@@ -78,6 +78,16 @@ VV4_FULL_MASTERY_CERTIFIED_SHA256 = {
     "expanded_page": "468A995FE91E2C6FE4E7812A65D77F68B22C6DBC9C3C9F696A4233C8EEDBC480",
     "dll": "9AC4E365BE55D32AB889E7B7472A1EDA8749B1EB259EA02BA35AB97BE666AF22",
 }
+VV4_FULL_MASTERY_R3_COMMIT = "36af0c9a620b6b323715c3f6d6fe93e1d6f75532"
+VV4_FULL_MASTERY_R3_HASHES = {
+    "helper": "C7379FB1AFDDD44F06CF48FAEED14C1701D796F5FC2568E10745337DADE13DB1",
+    "tech_constructor": "5A374941D4A6E2F0C36B5F1464738112C353AD0BC727FDDF9610E24A9B2EEE88",
+    "detail_constructor": "0D38AAE3CF8F1EEFF81B95AE3AC334E488053FD60D136FC733A24E74A4AB31EC",
+    "png": "F03D57038CA7745A99C0D7D58A2558A4411828BF3243D85C8BAFE2E04036BE4B",
+    "command7_slot": "023CF384A52CB6A6A49511B8B069B952718DC70E771FEE15CAC8A0777FB5F6DE",
+    "cure": "2BB7A32344293DCACB4D0359818C6839AC1FBBAEE8F9E3D00DB59C274238D726",
+    "dll": "9AC4E365BE55D32AB889E7B7472A1EDA8749B1EB259EA02BA35AB97BE666AF22",
+}
 VV5_FULL_MASTERY_CANDIDATE_PATHS = {
     "base": ROOT / "data" / "candidates" / "vv5_origins_full_mastery_base_candidate.json",
     "feature": ROOT / "data" / "candidates" / "vv5_full_mastery_all_candidate.json",
@@ -350,8 +360,65 @@ def _certified_vv4_full_mastery_records(
     if {"sub_40D8A0", "sub_401140", "sub_401600"} - forbidden:
         raise PatcherError("VV4 Full Mastery UI asset helper exclusion gate is incomplete.")
     png_hash = gate.get("png_sha256")
-    if not isinstance(png_hash, str) or len(png_hash) != 64:
+    if png_hash != VV4_FULL_MASTERY_R3_HASHES["png"]:
         raise PatcherError("VV4 Full Mastery UI asset hash gate is missing.")
+    png_relative = gate.get("path")
+    if not isinstance(png_relative, str) or not png_relative.strip():
+        raise PatcherError("VV4 Full Mastery UI asset path is invalid; refusing enablement.")
+    png_path = ROOT / png_relative.replace("\\", "/")
+    if not png_path.is_file() or hashlib.sha256(png_path.read_bytes()).hexdigest().upper() != png_hash:
+        raise PatcherError("VV4 Full Mastery UI asset hash mismatch; refusing enablement.")
+    recertification = artifact.get("independent_recertification")
+    if not isinstance(recertification, dict):
+        raise PatcherError("VV4 Full Mastery R3 recertification evidence is missing.")
+    if (
+        recertification.get("review") != "R3"
+        or recertification.get("status") != "independent recertification GO"
+        or recertification.get("commit") != VV4_FULL_MASTERY_R3_COMMIT
+        or recertification.get("scope") != "VV4 Full Mastery stock-mode candidate only; Expanded-256 ON HOLD/fail-closed"
+    ):
+        raise PatcherError("VV4 Full Mastery R3 recertification scope/status is invalid.")
+    if recertification.get("hashes") != VV4_FULL_MASTERY_R3_HASHES:
+        raise PatcherError("VV4 Full Mastery R3 recertification hashes are invalid.")
+    ui_payload = artifact.get("candidate_ui_payload")
+    if not isinstance(ui_payload, dict):
+        raise PatcherError("VV4 Full Mastery candidate UI payload evidence is missing.")
+    ui_hashes: dict[str, Any] = {}
+    for label, section_name in (
+        ("helper", "destructor_helper"),
+        ("tech_constructor", "tech_constructor"),
+        ("detail_constructor", "detail_constructor"),
+    ):
+        section = ui_payload.get(section_name)
+        if not isinstance(section, dict) or not isinstance(section.get("sha256"), str):
+            raise PatcherError("VV4 Full Mastery UI constructor/helper hashes are missing.")
+        ui_hashes[label] = section["sha256"]
+    if ui_hashes != {
+        "helper": VV4_FULL_MASTERY_R3_HASHES["helper"],
+        "tech_constructor": VV4_FULL_MASTERY_R3_HASHES["tech_constructor"],
+        "detail_constructor": VV4_FULL_MASTERY_R3_HASHES["detail_constructor"],
+    }:
+        raise PatcherError("VV4 Full Mastery UI constructor/helper hashes are invalid.")
+    if artifact.get("acceptance_commit") != VV4_FULL_MASTERY_R3_COMMIT:
+        raise PatcherError("VV4 Full Mastery acceptance commit is not the R3-certified commit.")
+    cure_patch = None
+    for item in base.get("patches", []):
+        if not isinstance(item, dict):
+            continue
+        try:
+            if int(item.get("offset", "-1"), 0) == 0xCC004:
+                cure_patch = item
+                break
+        except (TypeError, ValueError):
+            continue
+    try:
+        cure_hash = hashlib.sha256(bytes.fromhex(cure_patch["after"])).hexdigest().upper() if isinstance(cure_patch, dict) else ""
+    except (KeyError, TypeError, ValueError):
+        cure_hash = ""
+    if cure_hash != VV4_FULL_MASTERY_R3_HASHES["cure"]:
+        raise PatcherError("VV4 Full Mastery Cure payload hash is not the certified R3 value.")
+    if artifact.get("ui_asset_gate", {}).get("scope") != "stock-mode only; Expanded-256 remains ON HOLD/fail-closed":
+        raise PatcherError("VV4 Full Mastery UI asset scope is not stock-only fail-closed.")
     stock = artifact["layouts"]["collection_progression"]
     expanded = artifact["layouts"]["experimental_expanded_256"]
     actual = {
@@ -370,6 +437,8 @@ def _certified_vv4_full_mastery_records(
                 f"Certified VV4 Full Mastery {label} artifact hash mismatch: "
                 f"expected {expected}, got {actual[label]}."
             )
+    if stock["installed_slot_sha256"] != VV4_FULL_MASTERY_R3_HASHES["command7_slot"]:
+        raise PatcherError("Certified VV4 Full Mastery command-7 slot hash mismatch.")
     base = dict(base)
     base.update(
         {"id": active_base["id"], "name": active_base["name"], "enabled": True}
@@ -1433,6 +1502,23 @@ def render_patched_bytes(
         if _fun_patches_override is None
         else list(_fun_patches_override)
     )
+    if (
+        _fun_patches_override is None
+        and build.id == "vv4"
+        and patch_mode in EXPANDED_PATCH_MODES
+        and any(
+            patch.id
+            in {
+                "vv4_enable_origins_exclusive_features",
+                "vv4_full_mastery_all_stage_a_candidate",
+            }
+            for patch in fun_patches
+        )
+    ):
+        raise PatcherError(
+            "VV4 Full Mastery is certified for stock modes only; "
+            "Expanded-256 remains ON HOLD/fail-closed."
+        )
     _validate_companion_sources(fun_patches)
     data = bytearray(source.read_bytes())
     original_data = bytes(data)

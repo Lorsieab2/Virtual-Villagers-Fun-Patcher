@@ -7,7 +7,7 @@
     "table_file_offset": "0xA0CD8",
     "entry_name": "running"
   },
-  "name": "DISABLED Candidate: VV4 Origins Full Mastery Extension Base",
+  "name": "VV4 Origins Full Mastery Extension Base",
   "description": "Inspired by the Virtual Villagers 1 mobile port where these exclusive Origins upgrades originated, this selected-upgrades port adds the icon-based Origins Upgrades screen. Time Warp advances exactly 3 displayed villager years at half, normal, and double speed; Island Event uses the stock scheduler; Barrel of Babies opens the native event and requires three free physical villager records in either the 150- or 256-record game. Adds displayed-but-currently-unavailable, current-save-only 500,000-tech-point Tech Point and Food Point Doublers. Existing owned doublers remain removable at zero cost with zero refund; repurchase is temporarily disabled pending exact-build verification. Plus Cure all Villagers for 30,000 tech points. Cure all Villagers clears sickness from eligible active living records without changing health and increments People Cured once per sickness cleared, then displays the exact result `Cured X villagers`; the pending doubler contract stacks after exact-build collectible and Food Mastery adjustments, while Island Event outcomes remain native; purchase is unavailable until those paths are proven. Adds Villager Upgrades for Grant Youth, Grant Full Mastery, Grant Running, and Set Age to 18. Grant Running only adds Running to a free normal Like slot and removes it from Dislikes; it refuses without charging when Likes are full and never changes any movement or speed logic or value.",
   "output_tag": "Origins Exclusive Features",
   "companion_files": [
@@ -181,7 +181,8 @@
     "patches": []
   },
   "enabled": true,
-  "certification_status": "disabled corrected UI-geometry candidate awaiting independent recertification",
+  "certification_status": "independent recertification GO under R3 commit 36af0c9a620b6b323715c3f6d6fe93e1d6f75532; stock-mode only; Expanded-256 remains ON HOLD/fail-closed",
+  "evidence_status": "independent R3 emitted-byte recertification GO under 36af0c9a620b6b323715c3f6d6fe93e1d6f75532; stock-mode only; Expanded-256 ON HOLD/fail-closed",
   "dependencies": [],
   "patch_mode_overrides": {
     "experimental_expanded_256": [

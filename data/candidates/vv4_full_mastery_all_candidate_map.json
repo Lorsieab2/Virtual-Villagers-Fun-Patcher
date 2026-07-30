@@ -1,5 +1,20 @@
 {
-  "acceptance_commit": "cd15e3b581df1e3020cfa022814119a97ba18af3",
+  "acceptance_commit": "36af0c9a620b6b323715c3f6d6fe93e1d6f75532",
+  "independent_recertification": {
+    "review": "R3",
+    "status": "independent recertification GO",
+    "commit": "36af0c9a620b6b323715c3f6d6fe93e1d6f75532",
+    "scope": "VV4 Full Mastery stock-mode candidate only; Expanded-256 ON HOLD/fail-closed",
+    "hashes": {
+      "helper": "C7379FB1AFDDD44F06CF48FAEED14C1701D796F5FC2568E10745337DADE13DB1",
+      "tech_constructor": "5A374941D4A6E2F0C36B5F1464738112C353AD0BC727FDDF9610E24A9B2EEE88",
+      "detail_constructor": "0D38AAE3CF8F1EEFF81B95AE3AC334E488053FD60D136FC733A24E74A4AB31EC",
+      "command7_slot": "023CF384A52CB6A6A49511B8B069B952718DC70E771FEE15CAC8A0777FB5F6DE",
+      "cure": "2BB7A32344293DCACB4D0359818C6839AC1FBBAEE8F9E3D00DB59C274238D726",
+      "png": "F03D57038CA7745A99C0D7D58A2558A4411828BF3243D85C8BAFE2E04036BE4B",
+      "dll": "9AC4E365BE55D32AB889E7B7472A1EDA8749B1EB259EA02BA35AB97BE666AF22"
+    }
+  },
   "ui_asset_gate": {
     "path": "assets\\candidates\\vv4_full_mastery\\Images\\btn_upgrades_297x35.png",
     "destination": "Images\\btn_upgrades_297x35.png",
@@ -99,14 +114,16 @@
       "detail_handler_relocated_va": "0x4895A8",
       "detail_route_patch_offset": "0x48610"
     },
-    "status": "disabled pending independent emitted-byte recertification"
+    "status": "independent recertification GO",
+    "recertification_commit": "36af0c9a620b6b323715c3f6d6fe93e1d6f75532",
+    "scope": "stock-mode only; Expanded-256 remains ON HOLD/fail-closed"
   },
   "source": {
     "size": 929792,
     "sha256": "6D27A429FFCA5F1F71FDD7ECA761ED1BB67E85F976494BA178B3D7BE01F1B220"
   },
-  "base_manifest_sha256": "97BA39AAE4C5B24738053140C6BD63A59AB534529F6A3AE50F66382F01E8819C",
-  "feature_manifest_sha256": "2763B5781666F214833D3338E27B7739D3C4733D39B397D9CB30F35651352301",
+  "base_manifest_sha256": "32A59B4B5846D445E1FD0BBBCEB45884BB76464F71D86F9D7BD38C6FD3D16F93",
+  "feature_manifest_sha256": "65BB9F0BEBC2AD113FA082F30413FD27C46FF012D6D6DDC18FDA23DCB8DA8F51",
   "base_stock_payload_sha256": "66EABDDEEEAC29EC0582E992EBB519A2AA7F4A033D3ACECC1251D7897A84ACE6",
   "base_expanded_payload_sha256": "BA4ACDA822E6729A5E8BF48F1CB561BAF53203E0E498DB1D618618D9FBD92222",
   "companion": {

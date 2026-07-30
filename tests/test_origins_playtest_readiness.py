@@ -77,6 +77,17 @@ class OriginsPlaytestReadinessTests(unittest.TestCase):
                                 )
                             self.assertEqual(source.read_bytes(), before)
                             continue
+                        if build.id == "vv4" and mode.id.startswith(
+                            "experimental_expanded_256"
+                        ):
+                            with self.assertRaisesRegex(
+                                PatcherError, "stock modes only"
+                            ):
+                                render_patched_bytes(
+                                    source, build, mode.id, selected_ids
+                                )
+                            self.assertEqual(source.read_bytes(), before)
+                            continue
                         rendered, applied = render_patched_bytes(
                             source, build, mode.id, selected_ids
                         )

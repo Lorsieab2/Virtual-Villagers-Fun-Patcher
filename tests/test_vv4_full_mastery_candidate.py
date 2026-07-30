@@ -119,14 +119,15 @@ class VV4FullMasteryCandidateTests(unittest.TestCase):
         cls.feature = FunPatch(cls.feature_raw)
         cls.build = next(item for item in load_builds() if item.id == "vv4")
 
-    def test_new_placement_candidate_disabled_and_command_seven_only(self):
+    def test_new_placement_candidate_enabled_and_command_seven_only(self):
         self.assertTrue(self.base_raw["enabled"])
-        self.assertFalse(self.feature_raw["enabled"])
+        self.assertTrue(self.feature_raw["enabled"])
         active = {item.id: item for item in load_fun_patches()}
         self.assertIn("vv4_enable_origins_exclusive_features", active)
         self.assertNotIn(self.base_raw["id"], active)
-        self.assertNotIn(self.feature_raw["id"], active)
-        self.assertIn("baked canonical mockup asset", self.feature_raw["certification_status"])
+        self.assertIn(self.feature_raw["id"], active)
+        self.assertIn("independent recertification GO", self.feature_raw["certification_status"])
+        self.assertIn("36af0c9a620b6b323715c3f6d6fe93e1d6f75532", self.feature_raw["certification_status"])
         self.assertEqual(self.feature_raw["dependencies"], [self.base_raw["id"]])
         contract = self.feature_raw["transaction_contract"]
         self.assertEqual((contract["command"], contract["price"]), (7, 1_000_000))
@@ -135,6 +136,23 @@ class VV4FullMasteryCandidateTests(unittest.TestCase):
         self.assertNotIn("command 6", folded)
         self.assertNotIn("command 8", folded)
         self.assertNotIn("remove state", folded)
+
+    def test_catalog_and_expanded_mode_fail_closed(self):
+        vv4_mastery = {
+            item.id
+            for item in load_fun_patches()
+            if item.game_id == "vv4" and "full_mastery" in item.id
+        }
+        self.assertEqual(vv4_mastery, {"vv4_full_mastery_all_stage_a_candidate"})
+        for mode in ("experimental_expanded_256", "experimental_expanded_256_progression"):
+            with self.subTest(mode=mode):
+                with self.assertRaisesRegex(PatcherError, "stock modes only"):
+                    render_patched_bytes(
+                        STOCK,
+                        self.build,
+                        mode,
+                        ["vv4_enable_origins_exclusive_features", "vv4_full_mastery_all_stage_a_candidate"],
+                    )
 
     def test_exact_live_geometry_constructor_and_nonoverlap_contract(self):
         payload = next(
@@ -203,7 +221,23 @@ class VV4FullMasteryCandidateTests(unittest.TestCase):
         self.assertEqual(ui["local"], [72, 4])
         self.assertEqual(ui["events"], {"tech": 13, "detail": 2})
         self.assertEqual(ui["add_child"], "sub_40C190")
-        self.assertEqual(ui["status"], "disabled pending independent emitted-byte recertification")
+        self.assertEqual(ui["status"], "independent recertification GO")
+        self.assertEqual(self.map["acceptance_commit"], "36af0c9a620b6b323715c3f6d6fe93e1d6f75532")
+        self.assertEqual(self.map["independent_recertification"]["review"], "R3")
+        self.assertEqual(self.map["independent_recertification"]["status"], "independent recertification GO")
+        self.assertEqual(self.map["independent_recertification"]["scope"], "VV4 Full Mastery stock-mode candidate only; Expanded-256 ON HOLD/fail-closed")
+        self.assertEqual(
+            self.map["independent_recertification"]["hashes"],
+            {
+                "helper": "C7379FB1AFDDD44F06CF48FAEED14C1701D796F5FC2568E10745337DADE13DB1",
+                "tech_constructor": "5A374941D4A6E2F0C36B5F1464738112C353AD0BC727FDDF9610E24A9B2EEE88",
+                "detail_constructor": "0D38AAE3CF8F1EEFF81B95AE3AC334E488053FD60D136FC733A24E74A4AB31EC",
+                "command7_slot": "023CF384A52CB6A6A49511B8B069B952718DC70E771FEE15CAC8A0777FB5F6DE",
+                "cure": "2BB7A32344293DCACB4D0359818C6839AC1FBBAEE8F9E3D00DB59C274238D726",
+                "png": "F03D57038CA7745A99C0D7D58A2558A4411828BF3243D85C8BAFE2E04036BE4B",
+                "dll": "9AC4E365BE55D32AB889E7B7472A1EDA8749B1EB259EA02BA35AB97BE666AF22",
+            },
+        )
         self.assertEqual(ui["png_sha256"], "F03D57038CA7745A99C0D7D58A2558A4411828BF3243D85C8BAFE2E04036BE4B")
         self.assertEqual(sha(ASSET.read_bytes()), ui["png_sha256"])
         self.assertEqual(sha((PROVENANCE / "VV4 mockup.jpg").read_bytes()), "B404465B960BE3875F4DF0BFE32796B8045A9E938A356FF33448331AB2840A24")

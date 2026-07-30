@@ -480,21 +480,24 @@ game copies or replacement-backup folders; the supplied original folders remain
 unchanged.
 
 Stock game executables, saves, and generated playtest outputs are never committed.
-The disabled VV4 candidate carries only its exact mockup provenance and baked PNG
-source asset under `assets/candidates/vv4_full_mastery/`.
+The R3-certified VV4 Full Mastery candidate carries its exact mockup provenance
+and baked PNG source asset under `assets/candidates/vv4_full_mastery/`; its
+Expanded-256 variants remain ON HOLD/fail-closed.
 
 ## Command line
 
-Pass `--patch-mode collection_progression`, `--patch-mode immediate_fixed`, `--patch-mode experimental_expanded_256`, or `--patch-mode experimental_expanded_256_progression` to `dry-run`, `apply`, `dry-run-all`, or `apply-all`. Optional features use repeatable `--fun-patch` arguments. The available IDs are `vv1_school_lessons_grant_skill`, `vv1_continue_research_at_max_technologies`, `vv1_f6_clothing_change_cheat`, `vv1_magic_fruit_alters_mortality`, `vv1_builder_action_fixes`, `vv1_enable_origins_exclusive_features`, `vv2_easier_healing_mastery`, `vv2_teaching_children_grants_skill`, `vv2_hospital_recovery_heals`, `vv2_birth_control`, `vv2_gong_of_wonder_coconuts_fix`, `vv3_nature_honey_refill`, `vv3_nature_level_three_alters_mortality`, `vv3_rare_collectible_retry`, `vv3_enable_origins_exclusive_features`, `vv3_full_mastery_all_stage_a_candidate`, `vv4_complete_scales_golden_fish`, `vv4_enable_origins_exclusive_features`, `vv5_heathen_mommy_puzzle`, `vv5_easier_devotee_training`, `vv5_statue_polishing_or_honoring`, `vv5_vv4_nursery_divisor_parity`, and `vv5_enable_origins_exclusive_features`. The per-game Village Statistics IDs are `vv1_write_village_statistics`, `vv2_write_village_statistics`, `vv3_write_village_statistics`, `vv4_write_village_statistics`, and `vv5_write_village_statistics`. The VV2 Origins IDs are intentionally omitted while contained; the disabled VV4 Full Mastery candidate is likewise not selectable.
+Pass `--patch-mode collection_progression`, `--patch-mode immediate_fixed`, `--patch-mode experimental_expanded_256`, or `--patch-mode experimental_expanded_256_progression` to `dry-run`, `apply`, `dry-run-all`, or `apply-all`. Optional features use repeatable `--fun-patch` arguments. The available IDs are `vv1_school_lessons_grant_skill`, `vv1_continue_research_at_max_technologies`, `vv1_f6_clothing_change_cheat`, `vv1_magic_fruit_alters_mortality`, `vv1_builder_action_fixes`, `vv1_enable_origins_exclusive_features`, `vv2_easier_healing_mastery`, `vv2_teaching_children_grants_skill`, `vv2_hospital_recovery_heals`, `vv2_birth_control`, `vv2_gong_of_wonder_coconuts_fix`, `vv3_nature_honey_refill`, `vv3_nature_level_three_alters_mortality`, `vv3_rare_collectible_retry`, `vv3_enable_origins_exclusive_features`, `vv3_full_mastery_all_stage_a_candidate`, `vv4_complete_scales_golden_fish`, `vv4_enable_origins_exclusive_features`, `vv5_heathen_mommy_puzzle`, `vv5_easier_devotee_training`, `vv5_statue_polishing_or_honoring`, `vv5_vv4_nursery_divisor_parity`, and `vv5_enable_origins_exclusive_features`. The per-game Village Statistics IDs are `vv1_write_village_statistics`, `vv2_write_village_statistics`, `vv3_write_village_statistics`, `vv4_write_village_statistics`, and `vv5_write_village_statistics`. The VV2 Origins IDs remain intentionally omitted while contained; the R3-certified VV4 Full Mastery ID is now selectable for stock-mode only.
 
 The independently certified VV2 command-7-only Full Mastery feature remains
 contained after its withdrawn runtime test. The corrected VV4
-`vv4_full_mastery_all_stage_a_candidate` is catalog-hidden while its disabled
-candidate-only UI uses the canonical mockup crop baked into a deterministic
+`vv4_full_mastery_all_stage_a_candidate` is enabled for stock-mode playtesting
+under independent R3 recertification. Its candidate-only UI uses the canonical
+mockup crop baked into a deterministic
 `Images\\btn_upgrades_297x35.png` strip (three 99x35 RGBA frames). It is loaded
 through `sub_401C20` at local 72,4 with Tech event 13 and Detail event 2;
-independent emitted-byte recertification is pending. Commands 6 and 8 remain
-absent and the legacy atomic village-wide records remain contained.
+the certified helper/constructor/command-7/Cure/PNG/DLL bytes are recorded in
+the candidate map. Commands 6 and 8 remain absent, the legacy atomic
+village-wide records remain contained, and Expanded-256 remains ON HOLD/fail-closed.
 
 VV3's independent stock-only command-7 Full Mastery implementation is
 emitted-byte certified under disassembly commit
