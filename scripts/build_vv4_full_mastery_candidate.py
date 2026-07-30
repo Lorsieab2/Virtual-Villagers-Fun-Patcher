@@ -306,8 +306,8 @@ def build_ui_payload(active_payload: bytes) -> tuple[bytes, dict[str, object]]:
             push 1
             call edx
             mov dword ptr [ebx + 0x74], 0
-            mov ecx, ebx
         no_wrapper:
+            mov ecx, ebx
             call 0x40C340
             jmp 0x43E23D
         """,
@@ -325,11 +325,11 @@ def build_ui_payload(active_payload: bytes) -> tuple[bytes, dict[str, object]]:
     )
     helper_call = helper.index(b"\xE8")
     helper_jump = helper.index(b"\xE9")
-    helper_jz = helper.index(bytes.fromhex("7411"))
+    helper_jz = helper.index(bytes.fromhex("740F"))
     helper_call_target = helper_va + helper_call + 5 + struct.unpack_from("<i", helper, helper_call + 1)[0]
     helper_jump_target = helper_va + helper_jump + 5 + struct.unpack_from("<i", helper, helper_jump + 1)[0]
     helper_jz_target = helper_va + helper_jz + 2 + struct.unpack_from("<b", helper, helper_jz + 1)[0]
-    if helper_call_target != 0x40C340 or helper_jump_target != 0x43E23D or helper_jz_target != helper_va + 0x18:
+    if helper_call_target != 0x40C340 or helper_jump_target != 0x43E23D or helper_jz_target != helper_va + 0x16:
         raise RuntimeError("Tech destructor helper call/continuation target guard mismatch")
     relocated_handler = asm(
         f"""

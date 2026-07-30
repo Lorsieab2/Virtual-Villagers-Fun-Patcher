@@ -176,7 +176,7 @@ class VV4FullMasteryCandidateTests(unittest.TestCase):
         self.assertEqual(self.map["candidate_ui_payload"]["destructor_helper"]["length"], 34)
         self.assertEqual(
             self.map["candidate_ui_payload"]["destructor_helper"]["no_wrapper_branch_va"],
-            "0x48944B",
+            "0x489449",
         )
         self.assertEqual(self.map["ui_asset_gate"]["tech_wrapper"]["helper_length"], 34)
         self.assertEqual(
@@ -247,14 +247,30 @@ class VV4FullMasteryCandidateTests(unittest.TestCase):
         self.assertEqual(attached, [])
         self.assertEqual(destroyed, 1)
 
-        # The paired Tech destructor is null/idempotent safe after a rejected wrapper.
-        cleanup_calls = []
-        slot = None
-        for _ in range(2):
+        # The paired Tech destructor is null/repeated safe and restores ECX for
+        # stock cleanup on both the null and non-null paths.
+        parent = object()
+
+        def helper_cleanup(slot):
+            destroyed = []
             if slot is not None:
-                cleanup_calls.append(slot)
+                destroyed.append(slot)
                 slot = None
-        self.assertEqual(cleanup_calls, [])
+            return parent, slot, destroyed
+
+        ecx, slot, destroyed = helper_cleanup(None)
+        self.assertIs(ecx, parent)
+        self.assertIsNone(slot)
+        self.assertEqual(destroyed, [])
+        ecx, slot, destroyed = helper_cleanup(None)
+        self.assertIs(ecx, parent)
+        self.assertIsNone(slot)
+        self.assertEqual(destroyed, [])
+        wrapper = object()
+        ecx, slot, destroyed = helper_cleanup(wrapper)
+        self.assertIs(ecx, parent)
+        self.assertIsNone(slot)
+        self.assertEqual(destroyed, [wrapper])
 
     def test_exact_fingerprint_layout_bounds_and_fixed_base(self):
         source = STOCK.read_bytes()

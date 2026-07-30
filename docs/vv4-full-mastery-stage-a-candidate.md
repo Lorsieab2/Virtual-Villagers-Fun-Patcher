@@ -14,7 +14,7 @@ Generated from acceptance contract `cd15e3b581df1e3020cfa022814119a97ba18af3` pl
 - Companion SHA-256: `9AC4E365BE55D32AB889E7B7472A1EDA8749B1EB259EA02BA35AB97BE666AF22`
 - Stock installed slot SHA-256: `023CF384A52CB6A6A49511B8B069B952718DC70E771FEE15CAC8A0777FB5F6DE`
 - Expanded installed slot SHA-256: `264A2D79A5184F2CFBEDCB447DBA260EC48101D19ACD9DA188363D9C659F41E6`
-- Stock base+mastery render SHA-256: `517D90F5792B2BB08104468392D3B6AE8E7033C78E3A683AA026E7D96AA088AB`
-- Expanded base+mastery render SHA-256: `BE472B4C4A3E8B8D228F80E74BA7D885A614C292FB4523BCEA70343ED52B6461`
+- Stock base+mastery render SHA-256: `98C685C3AAF2027B99CB1DCB5E8C2EDACC883703AC8BBA5346A42D37FEB57CAB`
+- Expanded base+mastery render SHA-256: `B2256BDCB8F978C8E504FC5BC10A4D2611EBD6F373738BB7A9359C17A34D55CF`
 
 The feature exposes command 7 only inside its certified base dependency. Commands 6/8, village-wide Running/Age bytes, direct skill stores, ownership, Remove, and save-format changes are absent. The disabled candidate is fail-closed on missing or mismatched companion files, preserves stock executables, Cure bytes, certified VV3 stock-mode hashes, and the expanded-256 hold. Independent disassembler recertification is required before any enablement or player playtest.
