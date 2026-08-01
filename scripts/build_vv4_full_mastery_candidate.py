@@ -128,6 +128,10 @@ def rel32_jump(source_va: int, target_va: int) -> bytes:
     return b"\xE9" + struct.pack("<i", displacement)
 
 
+def rel32_call(source_va: int, target_va: int) -> bytes:
+    return b"\xE8" + struct.pack("<i", target_va - (source_va + 5))
+
+
 def sha(data: bytes) -> str:
     return hashlib.sha256(data).hexdigest().upper()
 
@@ -177,6 +181,15 @@ def build_ui_payload(active_payload: bytes) -> tuple[bytes, dict[str, object]]:
         raise RuntimeError("Detail constructor payload guard mismatch")
     if any(payload[DETAIL_HANDLER_RELOC_OFFSET : DETAIL_HANDLER_RELOC_OFFSET + 0x2B]):
         raise RuntimeError("Detail handler relocation cave is not zero")
+    result_call_repairs = []
+    for call_va in (0x4897CA, 0x489ABB):
+        offset = call_va - PAYLOAD_VA
+        before = rel32_call(call_va, 0x489573)
+        after = rel32_call(call_va, 0x489583)
+        if payload[offset : offset + 5] != before:
+            raise RuntimeError(f"result helper call guard mismatch at 0x{call_va:X}")
+        payload[offset : offset + 5] = after
+        result_call_repairs.append({"call_va": f"0x{call_va:X}", "before_target": "0x489573", "after_target": "0x489583", "before": before.hex().upper(), "after": after.hex().upper()})
     factory_va = PAYLOAD_VA + UI_FACTORY_OFFSET
     text_va = PAYLOAD_VA + UPGRADES_TEXT_OFFSET
     if any(payload[UI_FACTORY_OFFSET : PAYLOAD_SIZE]):
@@ -375,6 +388,7 @@ def build_ui_payload(active_payload: bytes) -> tuple[bytes, dict[str, object]]:
         "text_overlay": {"text": "Upgrades", "setter": "sub_401600", "style": "sub_401630", "tech_colors": ["0x4BEEE0", "0x4BEEE4", "0x4BEEE8"], "detail_colors": ["0x4BF538", "0x4BF53C", "0x4BF540"]},
         "events": {"tech": 13, "detail": 2},
         "local": [72, 4],
+        "result_call_repairs": result_call_repairs,
     }
 
 
@@ -985,14 +999,13 @@ def main() -> None:
     base = deepcopy(active)
     base["id"] = "vv4_enable_origins_exclusive_features_full_mastery_candidate"
     base["name"] = "VV4 Origins Full Mastery Extension Base"
-    base["enabled"] = True
+    base["enabled"] = False
     base["certification_status"] = (
-        "D19 payload and D21 metadata independently recertified; stock catalog enabled; "
+        "HARD WITHDRAWN after Playtest 3 Full Mastery crash; result-helper repair candidate disabled; "
         "Expanded-256 remains ON HOLD/fail-closed"
     )
     base["evidence_status"] = (
-        f"D19 native payload at {D19_COMMIT} and D21 metadata at {D21_COMMIT} independently recertified; "
-        "Playtest 2 withdrawal retained as historical evidence"
+        "Playtest 3 fault 0xC0000005 at VA 0x489E0C; calls 0x4897CA/0x489ABB targeted epilogue 0x489573; no selectable candidate"
     )
     base["playtest_withdrawal"] = {
         "playtest": "VV4 Full Mastery UI Playtest 2",
@@ -1003,6 +1016,7 @@ def main() -> None:
             "detail": {"event": 4, "asset": "0x48", "x": "0x489F37", "y": 3, "parent": 1, "flags": 2},
         },
     }
+    base["playtest3_withdrawal"] = {"playtest": "VV4 Full Mastery UI Playtest 3", "status": "HARD WITHDRAWN", "exception": "0xC0000005", "fault_rva": "0x89E0C", "fault_va": "0x489E0C", "bad_calls": ["0x4897CA", "0x489ABB"], "bad_target": "0x489573", "correct_result_helper": "0x489583"}
     base["cure_containment"] = {
         "status": "withdrawn and fail-closed pending Full Heal/Cure All repair",
         "public_row": {
@@ -1125,7 +1139,7 @@ def main() -> None:
     stock_installed = installed_slots["collection_progression"]
     if sha(stock_installed) != R3_COMMAND7_SLOT_SHA256:
         raise RuntimeError("R3 command-7 slot hash mismatch")
-    feature_enabled = True
+    feature_enabled = False
     feature = {
         "id": "vv4_full_mastery_all_stage_a_candidate",
         "game_id": "vv4",
@@ -1135,9 +1149,9 @@ def main() -> None:
             else "DISABLED Candidate: Grant Full Mastery to All Villagers"
         ),
         "enabled": feature_enabled,
-        "certification_status": "D19 payload and D21 metadata independently recertified; stock catalog enabled; Expanded-256 ON HOLD/fail-closed",
+        "certification_status": "HARD WITHDRAWN after Playtest 3 crash; command 7 withheld pending D25; Expanded-256 ON HOLD/fail-closed",
         "evidence_status": (
-            f"D19 payload at {D19_COMMIT} and D21 metadata at {D21_COMMIT} independently recertified; prior crash evidence retained"
+            "Playtest 3 individual Full Mastery crashed through bad result-helper call; command 7 withheld pending regression recertification"
         ),
         "explicit_non_changes": [
             "stock executable bytes outside the certified candidate payload",
@@ -1240,7 +1254,7 @@ def main() -> None:
 
     artifact = {
         "acceptance_commit": D19_COMMIT,
-        "candidate_status": "D21 metadata recertification GO; stock catalog enabled",
+        "candidate_status": "HARD WITHDRAWN after Playtest 3 crash; catalog-hidden",
         "independent_recertification": {
             "review": "D19",
             "status": "independent payload recertification GO",
@@ -1258,7 +1272,7 @@ def main() -> None:
         },
         "metadata_recertification": {
             "review": "D21",
-            "status": "independent metadata recertification GO",
+            "status": "revoked by Playtest 3 crash; repair candidate pending recertification",
             "commit": D21_COMMIT,
             "scope": "VV4 Full Mastery metadata/validator enablement for stock mode only; Expanded-256 ON HOLD/fail-closed",
         },
@@ -1289,12 +1303,13 @@ def main() -> None:
                 "detail_handler_relocated_va": ui_map["detail_handler_relocated"]["va"],
                 "detail_route_patch_offset": "0x48610",
             },
-            "status": "independent metadata recertification GO",
+            "status": "HARD WITHDRAWN after Playtest 3 crash; repair candidate pending recertification",
             "recertification_commit": D21_COMMIT,
             "scope": "stock-mode only; Expanded-256 remains ON HOLD/fail-closed",
         },
         "cure_containment": base["cure_containment"],
         "playtest_withdrawal": base["playtest_withdrawal"],
+        "playtest3_withdrawal": base["playtest3_withdrawal"],
         "source": {"size": len(stock), "sha256": expected_sha},
         "base_manifest_sha256": sha(BASE_OUT.read_bytes()),
         "feature_manifest_sha256": sha(FEATURE_OUT.read_bytes()),
@@ -1377,10 +1392,11 @@ def main() -> None:
             f"The native payload received D19 recertification at `{D19_COMMIT}` and its "
             f"metadata/validator received D21 recertification at `{D21_COMMIT}`; command 7 is catalog-visible in stock mode.\n\n"
             if feature_enabled
-            else "The command-7 record is HARD WITHDRAWN and catalog-hidden after Playtest 2 "
-            "repeated the startup access violation at RVA 0x21570. Static review missed malformed "
-            "sub_401C20 arguments. C12 replaces that UI construction with the proved native ordinal, "
-            "text, and cleanup ABIs and received D19 independent payload recertification; it remains disabled pending D20 metadata audit. "
+            else "The base and command-7 records are HARD WITHDRAWN and catalog-hidden after Playtest 3 "
+            "crashed at RVA 0x89E0C / VA 0x489E0C. Individual-menu calls at 0x4897CA and 0x489ABB "
+            "targeted the show-menu epilogue at 0x489573 instead of the result helper at 0x489583. "
+            "This disabled candidate repairs only those guarded calls; individual Full Mastery remains "
+            "STOP because it writes raw Float32 90 and precharges, and command 7 awaits D25 recertification. "
             "The legacy Cure row is rendered unavailable, command 5 is rejected before "
             "charge/dispatch, and the unchanged Cure payload remains withdrawn.\n\n"
         )
@@ -1397,12 +1413,12 @@ def main() -> None:
         f"- Expanded installed slot SHA-256: `{artifact['layouts']['experimental_expanded_256']['installed_slot_sha256']}`\n"
         f"- Stock base+mastery render SHA-256: `{renders['collection_progression']['base_plus_mastery_sha256']}`\n"
         f"- Expanded base+mastery render SHA-256: `{renders['experimental_expanded_256']['base_plus_mastery_sha256']}`\n\n"
-        "The feature exposes command 7 only with its enabled, hash-guarded base dependency. "
+        "The disabled feature would expose command 7 only with its hash-guarded base dependency; neither record is selectable. "
         "Commands 6/8, village-wide Running/Age bytes, direct "
         "skill stores, ownership, Remove, and save-format changes are absent. "
         "The candidate is fail-closed on missing or mismatched companion files, "
         "preserves stock executables, Cure bytes, certified VV3 stock-mode hashes, and "
-        "the expanded-256 hold. D19 independently recertified the native-ordinal payload and D21 independently recertified metadata enablement. "
+        "the expanded-256 hold. Earlier D19/D21 approvals are superseded by the Playtest 3 crash evidence. "
         "Expanded-256 remains ON HOLD/fail-closed.\n"
         f"- D19 factory SHA-256: `{D19_FACTORY_SHA256}`; helper: `{R3_HELPER_SHA256}`; Tech constructor: `{D19_TECH_SHA256}`; "
         f"Detail constructor: `{D19_DETAIL_SHA256}`; command-7 slot: `{R3_COMMAND7_SLOT_SHA256}`; "
@@ -1414,7 +1430,7 @@ def main() -> None:
     for source_path in (BASE_OUT, FEATURE_OUT, MAP_OUT, DOC_OUT, COMPANION):
         shutil.copy2(source_path, output_dir / source_path.name)
     checksum_records: dict[str, object] = {
-        "status": "D21 metadata-certified stock-mode candidate; Expanded-256 ON HOLD/fail-closed",
+        "status": "HARD WITHDRAWN after Playtest 3 crash; Expanded-256 ON HOLD/fail-closed",
         "asset": asset_map,
         "source": {"path": str(STOCK.relative_to(ROOT)), "sha256": expected_sha},
         "artifacts": {},

@@ -1,6 +1,6 @@
 {
   "acceptance_commit": "8182c235548bc92f304e5571ed61ada3c5abfa4b",
-  "candidate_status": "D21 metadata recertification GO; stock catalog enabled",
+  "candidate_status": "HARD WITHDRAWN after Playtest 3 crash; catalog-hidden",
   "independent_recertification": {
     "review": "D19",
     "status": "independent payload recertification GO",
@@ -18,7 +18,7 @@
   },
   "metadata_recertification": {
     "review": "D21",
-    "status": "independent metadata recertification GO",
+    "status": "revoked by Playtest 3 crash; repair candidate pending recertification",
     "commit": "3ba125b2107da4f86f9b70ab5b94206bef7803f5",
     "scope": "VV4 Full Mastery metadata/validator enablement for stock mode only; Expanded-256 ON HOLD/fail-closed"
   },
@@ -119,7 +119,7 @@
       "detail_handler_relocated_va": "0x4895A8",
       "detail_route_patch_offset": "0x48610"
     },
-    "status": "independent metadata recertification GO",
+    "status": "HARD WITHDRAWN after Playtest 3 crash; repair candidate pending recertification",
     "recertification_commit": "3ba125b2107da4f86f9b70ab5b94206bef7803f5",
     "scope": "stock-mode only; Expanded-256 remains ON HOLD/fail-closed"
   },
@@ -180,14 +180,27 @@
       }
     }
   },
+  "playtest3_withdrawal": {
+    "playtest": "VV4 Full Mastery UI Playtest 3",
+    "status": "HARD WITHDRAWN",
+    "exception": "0xC0000005",
+    "fault_rva": "0x89E0C",
+    "fault_va": "0x489E0C",
+    "bad_calls": [
+      "0x4897CA",
+      "0x489ABB"
+    ],
+    "bad_target": "0x489573",
+    "correct_result_helper": "0x489583"
+  },
   "source": {
     "size": 929792,
     "sha256": "6D27A429FFCA5F1F71FDD7ECA761ED1BB67E85F976494BA178B3D7BE01F1B220"
   },
-  "base_manifest_sha256": "DB8431C71FF1065D26D18F47F61E507F7938025370D970CFF75572E2AE7F96BF",
-  "feature_manifest_sha256": "C16569855485B751856695EEFB3F9676618CBB5C70623DFEC789383E9590F89B",
-  "base_stock_payload_sha256": "B7E5B73E0CBB51B84E9BDFD71E56CB5466C2027091FB68F7FCB711D65B484A74",
-  "base_expanded_payload_sha256": "3C87586A24D51FEDEFDC6DC007F2434E68C677FC8A0E19862F01355D8FAF9516",
+  "base_manifest_sha256": "A6244A8E6F87C46C5AF16E440F36641DB55336DD51AD33736326BDA944BAFE2F",
+  "feature_manifest_sha256": "CD19C8893C45BD916A8AEE67A63A6FD47E15CE61200A510466BF0B1C4DED954C",
+  "base_stock_payload_sha256": "BA8A07F9C18DCAAA7677F937187468A0F796B3BBA2CA1B315BE8B5FA8AFF259E",
+  "base_expanded_payload_sha256": "CAA7F10C17F0F222D40FF3268C1A39277361F072E60DECD28063A3E175B5EBF0",
   "companion": {
     "path": "data/candidates/VVFP VV4 Full Mastery Candidate.dll",
     "size": 282624,
@@ -341,6 +354,22 @@
     "local": [
       72,
       4
+    ],
+    "result_call_repairs": [
+      {
+        "call_va": "0x4897CA",
+        "before_target": "0x489573",
+        "after_target": "0x489583",
+        "before": "E8A4FDFFFF",
+        "after": "E8B4FDFFFF"
+      },
+      {
+        "call_va": "0x489ABB",
+        "before_target": "0x489573",
+        "after_target": "0x489583",
+        "before": "E8B3FAFFFF",
+        "after": "E8C3FAFFFF"
+      }
     ]
   },
   "slot_layout": {
@@ -530,11 +559,11 @@
   "rendered_candidates": {
     "collection_progression": {
       "baseline_sha256": "132516F4A5F7D2E9B539B14300207AEA5872FDCC0D34F13768435D9F4B6F76D4",
-      "base_only_sha256": "70D36F4234928A0C182FE08DE638460B6902554EEFDA5999056DDC0A952A96E3",
-      "base_plus_mastery_sha256": "0B1F6EBB3D511F38B19A7BD06E888A2B21E8E41FB96E6E0C026ADB53D903DD38",
-      "all_current_compatible_sha256": "CF0156F4A640216B68161459552F74C16D85D6748C8EBE907BF41787954912C1",
+      "base_only_sha256": "38985B6AF7DE74F48DE3378E2F1B44425EECC06BC75C5603F57B7E7180D0F79A",
+      "base_plus_mastery_sha256": "B93ACE7E0EE6FF0EEA1477D7178288599E170EC49D4F6EEF500FF4B92B6960B1",
+      "all_current_compatible_sha256": "447D184C3FA8E1FBC68ADB8F7491B075F40182A01683A557AF9A75F65CF5E918",
       "size": 937984,
-      "pe_checksum": "0x000E95D2",
+      "pe_checksum": "0x000EA5E2",
       "owners": [
         "automatic:population",
         "automatic:safety",
@@ -552,11 +581,11 @@
     },
     "immediate_fixed": {
       "baseline_sha256": "EB0CDD4F7F5E41F7A03734D51F9417A126C3BE9D214B484A848DB688545CF5FB",
-      "base_only_sha256": "8C134B154D9B6785661D0C42D852B12A00137213DE58529414732F9774199CA0",
-      "base_plus_mastery_sha256": "B9698F9E783A526B4BABEDC47F34FD9189D63693356D6559B4F7FF56E12CFC9C",
-      "all_current_compatible_sha256": "31C216EBFF01BB74E29A33910BB02C08359819AF9D48BBAA898261A8EFF5A51A",
+      "base_only_sha256": "1665B5F574CB7BD080F7FA08BA52F034D5903405D64BBF32D47F1C8B5B6CEF73",
+      "base_plus_mastery_sha256": "2C4277DA24A0907D0CB956E6031FFD4B50949A7B3040E3EE33A1AA5996A0E21C",
+      "all_current_compatible_sha256": "7ABAA87A0286E0199D946086FDC35E064B63DBD496855516E542FF495D5B6E60",
       "size": 937984,
-      "pe_checksum": "0x000F2EFA",
+      "pe_checksum": "0x000F3F0A",
       "owners": [
         "automatic:population",
         "automatic:safety",
@@ -574,11 +603,11 @@
     },
     "experimental_expanded_256": {
       "baseline_sha256": "428A8A8DE3B753CA813AB29960C49D15D4B3EDBE97BB49D8625C81743FEA3782",
-      "base_only_sha256": "2315F9AAA4C6B6F834272EB131BD4B005C3F847920FC886B017084FDA8F1D707",
-      "base_plus_mastery_sha256": "FC063E571BB749805B3AA5E1D29C1478DE94C7119DA43CAB022C609432BBB3EC",
-      "all_current_compatible_sha256": "6FAF4DF5437A41ABE1A022B4C1F7D82E437FF7035C1B21A58F89FC94ED91D7A0",
+      "base_only_sha256": "E57F41C6B0CC111A78DD4C44241A9D02E6ABC2561730B01D53D93E1CA0AD396B",
+      "base_plus_mastery_sha256": "F97498F7D94A2493044FC4D4290DA62EF47242F258AF0E27B2B6AEFDAFF27D10",
+      "all_current_compatible_sha256": "2EAEB1062EE0C1DC9024B3289C69E9006526AC0CED29BE1676728731FD04CAD9",
       "size": 937984,
-      "pe_checksum": "0x000F3338",
+      "pe_checksum": "0x000F4348",
       "owners": [
         "automatic:population",
         "automatic:safety",
@@ -596,11 +625,11 @@
     },
     "experimental_expanded_256_progression": {
       "baseline_sha256": "737F475764EBB9F35BC6C68337698D46F6D03BA0560B9BE4E352F80AF48FE791",
-      "base_only_sha256": "8BC884545CBAC426F77290E924B3F49304A214147741C4C731ADEA84D43481A8",
-      "base_plus_mastery_sha256": "D6718CC3F9AF0F1F282A834C9A99AD75EA7159709C2798F734DD44AF6C7080BD",
-      "all_current_compatible_sha256": "797750F8501FFF05D4CF528BE4FE41C2C5BC7E4907131EF6C6C593CB53FDD53B",
+      "base_only_sha256": "0AFE46DA1FA41FC04AF4E385358D0B677D1BF140497291ECA72613F9F14810CF",
+      "base_plus_mastery_sha256": "902A23BF29251940EE7AA1B1F485FCB9866CABF7E4C00B513F402CAA6CCAEB96",
+      "all_current_compatible_sha256": "A9F4CB1A8A8B7F4C0398137158519D113AEA870EE62FA8F7189B55E7D1B5804C",
       "size": 937984,
-      "pe_checksum": "0x000ED39C",
+      "pe_checksum": "0x000EE3AC",
       "owners": [
         "automatic:population",
         "automatic:safety",

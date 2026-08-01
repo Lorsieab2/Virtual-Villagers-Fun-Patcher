@@ -48,7 +48,7 @@ class OriginsPlaytestReadinessTests(unittest.TestCase):
                 base_id = f"{build.id}_enable_origins_exclusive_features"
                 wide_id = f"{build.id}_origins_village_wide_upgrades"
                 self.assertNotIn(wide_id, ids)
-                if build.id == "vv2":
+                if build.id in {"vv2", "vv4"}:
                     self.assertNotIn(base_id, ids)
                 else:
                     self.assertIn(base_id, ids)
@@ -75,11 +75,6 @@ class OriginsPlaytestReadinessTests(unittest.TestCase):
                                 render_patched_bytes(
                                     source, build, mode.id, selected_ids
                                 )
-                            self.assertEqual(source.read_bytes(), before)
-                            continue
-                        if build.id == "vv4" and mode.id.startswith("experimental_expanded_256"):
-                            with self.assertRaisesRegex(PatcherError, "ON HOLD"):
-                                render_patched_bytes(source, build, mode.id, selected_ids)
                             self.assertEqual(source.read_bytes(), before)
                             continue
                         rendered, applied = render_patched_bytes(

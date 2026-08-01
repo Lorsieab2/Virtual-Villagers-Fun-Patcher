@@ -1,10 +1,10 @@
 {
   "id": "vv4_full_mastery_all_stage_a_candidate",
   "game_id": "vv4",
-  "name": "Grant Full Mastery to All Villagers",
-  "enabled": true,
-  "certification_status": "D19 payload and D21 metadata independently recertified; stock catalog enabled; Expanded-256 ON HOLD/fail-closed",
-  "evidence_status": "D19 payload at 8182c235548bc92f304e5571ed61ada3c5abfa4b and D21 metadata at 3ba125b2107da4f86f9b70ab5b94206bef7803f5 independently recertified; prior crash evidence retained",
+  "name": "DISABLED Candidate: Grant Full Mastery to All Villagers",
+  "enabled": false,
+  "certification_status": "HARD WITHDRAWN after Playtest 3 crash; command 7 withheld pending D25; Expanded-256 ON HOLD/fail-closed",
+  "evidence_status": "Playtest 3 individual Full Mastery crashed through bad result-helper call; command 7 withheld pending regression recertification",
   "explicit_non_changes": [
     "stock executable bytes outside the certified candidate payload",
     "shared Origins DLL bytes",
