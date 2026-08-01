@@ -507,22 +507,43 @@ class VV4FullMasteryCandidateTests(unittest.TestCase):
 
     def test_individual_detail_route_has_exact_guard_and_preserves_other_commands(self):
         route = self.map["individual_detail_route"]["collection_progression"]
-        self.assertEqual(route["va"], "0x489A31")
-        self.assertEqual(route["length"], 0x32)
-        self.assertEqual(route["before"], "C7825C1C00000000B442C782601C00000000B442C782641C00000000B442C782681C00000000B442C7826C1C00000000B442")
-        after = bytes.fromhex(route["after"])
-        self.assertEqual(len(after), 0x32)
-        self.assertEqual(route["after_sha256"], sha(after))
-        self.assertEqual(route["payload_file_offset"], "0x89A31")
-        self.assertEqual(route["section"], ".vv4fm")
-        self.assertIn(b"\x81\x3D\x00\xF0\x73\x00\x56\x46\x4D\x34", after)
-        self.assertIn(b"\x83\x3D\x0C\xF1\x73\x00\x01", after)
-        self.assertIn(0x73FB00, rel32_targets(after, int(route["va"], 16)))
-        self.assertEqual(route["continuation_va"], "0x489A63")
-        self.assertTrue(after.endswith(b"\x90" * 16))
+        self.assertEqual(route["hook_va"], "0x4899D6")
+        self.assertEqual(route["hook_file_offset"], "0x899D6")
+        self.assertEqual(route["hook_before"], "8B049D279F4800")
+        self.assertEqual(route["hook_after"], "E9560000009090")
+        self.assertEqual(route["cave_va"], "0x489A31")
+        self.assertEqual(route["cave_file_offset"], "0x89A31")
+        self.assertEqual(route["cave_length"], 0x32)
+        cave = bytes.fromhex(route["cave_after"])
+        self.assertEqual(len(cave), 0x32)
+        self.assertEqual(route["cave_after_sha256"], sha(cave))
+        self.assertEqual(route["cave_after_sha256"], "79600D55513838D55E9FAD6D9680A516A2CF6BBC5107B721B7B8E28D59B3168F")
+        self.assertEqual(route["section"], ".text")
+        self.assertEqual(route["continuation_va"], "0x4899DD")
+        self.assertEqual(route["epilogue_va"], "0x489AC5")
+        self.assertEqual(route["epilogue_bytes"], "5D5F5E5BC3")
+        self.assertIn(b"\x81\x3D\x00\xF0\x73\x00\x56\x46\x4D\x34", cave)
+        self.assertIn(b"\x83\x3D\x0C\xF1\x73\x00\x01", cave)
+        self.assertIn(0x73FB00, rel32_targets(cave, int(route["cave_va"], 16)))
+        self.assertEqual(cave[0x2B:0x30], bytes.fromhex("E97CFFFFFF"))
         payload = next(item for item in self.base_raw["patches"] if int(item["offset"], 0) == 0x89373)
-        rendered = bytes.fromhex(payload["after"])
-        self.assertEqual(rendered[0x6BE + 0x32 : 0x6BE + 0x34], bytes.fromhex("EB44"))
+        rendered_payload = bytes.fromhex(payload["after"])
+        self.assertEqual(rendered_payload[0x663:0x66A], bytes.fromhex("E9560000009090"))
+        self.assertEqual(rendered_payload[0x6BE:0x6BE + 0x32], cave)
+        self.assertEqual(rendered_payload[0x752:0x757], bytes.fromhex("5D5F5E5BC3"))
+        rendered, _ = render_patched_bytes(
+            STOCK, self.build, "collection_progression", _fun_patches_override=[self.base, self.feature]
+        )
+        self.assertEqual(rendered[0x899D6:0x899DD], bytes.fromhex("E9560000009090"))
+        self.assertEqual(rendered[0x89A31:0x89A31 + 0x32], cave)
+        self.assertEqual(rendered[0xE4C00:0xE4C00 + 73], bytes.fromhex(
+            self.map["layouts"]["collection_progression"]["slot_map"]["installed"]["individual_confirmation_bytes"]
+        ))
+        self.assertEqual(rendered[0xE4C00 + 73:0xE4C00 + 0x100], b"\0" * 183)
+        self.assertEqual(route["atomic_components"], [
+            "detail_hook", "detail_cave", "balanced_epilogue", "installed_slot",
+            "confirmation_cave", "page_header", "manifests",
+        ])
 
     def test_whole_render_has_no_reachable_cure_target(self):
         rendered, _ = render_patched_bytes(
@@ -623,10 +644,14 @@ class VV4FullMasteryCandidateTests(unittest.TestCase):
         slot_work[0xE3100] ^= 1
         with self.assertRaises(PatcherError):
             _remove_feature_bytes(slot_work, self.feature, "collection_progression")
-        for offset in (0x3E165, 0x2C0, 0x89373 + 0x6BE, len(rendered) - 1):
+        for offset in (0x3E165, 0x2C0, 0x899D6, 0x89A31, 0xE4C00, len(rendered) - 1):
             with self.subTest(offset=hex(offset)):
                 work = bytearray(rendered)
                 work[offset] ^= 1
+                if offset == 0xE4C00:
+                    with self.assertRaises(PatcherError):
+                        _remove_feature_bytes(work, self.feature, "collection_progression")
+                    continue
                 _remove_feature_bytes(work, self.feature, "collection_progression")
                 with self.assertRaises(PatcherError):
                     _remove_feature_bytes(work, self.base, "collection_progression")

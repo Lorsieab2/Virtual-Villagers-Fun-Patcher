@@ -81,13 +81,19 @@ INDIVIDUAL_PRICE = 100_000
 INDIVIDUAL_OFFSET = 0xA00
 INDIVIDUAL_CONFIRM_PAGE_OFFSET = 0x1C00
 INDIVIDUAL_CONFIRM_CAVE_SIZE = 0x100
-DETAIL_INDIVIDUAL_ROUTE_OFFSET = 0x6BE
-DETAIL_INDIVIDUAL_ROUTE_SIZE = 0x32
-DETAIL_INDIVIDUAL_ROUTE_BEFORE = bytes.fromhex(
+DETAIL_INDIVIDUAL_ROUTE_OFFSET = 0x663
+DETAIL_INDIVIDUAL_ROUTE_SIZE = 7
+DETAIL_INDIVIDUAL_ROUTE_BEFORE = bytes.fromhex("8B049D279F4800")
+DETAIL_INDIVIDUAL_CAVE_OFFSET = 0x6BE
+DETAIL_INDIVIDUAL_CAVE_SIZE = 0x32
+DETAIL_INDIVIDUAL_CAVE_BEFORE = bytes.fromhex(
     "C7825C1C00000000B442C782601C00000000B442"
     "C782641C00000000B442C782681C00000000B442"
     "C7826C1C00000000B442"
 )
+DETAIL_INDIVIDUAL_EPILOGUE_OFFSET = 0x752
+DETAIL_INDIVIDUAL_EPILOGUE = bytes.fromhex("5D5F5E5BC3")
+DETAIL_INDIVIDUAL_CAVE_SHA256 = "79600D55513838D55E9FAD6D9680A516A2CF6BBC5107B721B7B8E28D59B3168F"
 INDIVIDUAL_SUCCESS_MESSAGE = b"Full Mastery has been granted to the selected villager.\0"
 INDIVIDUAL_SUCCESS_MESSAGE_SHA256 = "52B86920C62B96D61E05DC7E8038B8B64EAB15EC269FBD51F300C3E305223D3F"
 STRIDE = 0x2E3C
@@ -968,11 +974,15 @@ def build_slot(page_va: int, installed: bool) -> tuple[bytes, dict[str, object]]
         "individual_bytes": individual.hex().upper(),
         "individual_va": f"0x{individual_va:X}",
         "individual_confirmation_offset": f"0x{INDIVIDUAL_CONFIRM_PAGE_OFFSET:X}",
+        "individual_confirmation_file_offset": f"0x{APPEND_OFFSET + INDIVIDUAL_CONFIRM_PAGE_OFFSET:X}",
         "individual_confirmation_va": f"0x{individual_confirm_va:X}",
+        "individual_confirmation_section": ".vv4fm",
         "individual_confirmation_length": len(individual_confirm),
         "individual_confirmation_sha256": sha(individual_confirm),
         "individual_confirmation_bytes": individual_confirm.hex().upper(),
         "individual_confirmation_guard_length": INDIVIDUAL_CONFIRM_CAVE_SIZE,
+        "individual_confirmation_reserve_length": INDIVIDUAL_CONFIRM_CAVE_SIZE,
+        "individual_confirmation_remaining_zero_length": INDIVIDUAL_CONFIRM_CAVE_SIZE - len(individual_confirm),
         "individual_success_string": {
             "va": f"0x{strings['individual_success']:X}",
             "length": len(INDIVIDUAL_SUCCESS_MESSAGE),
@@ -1128,37 +1138,71 @@ def append_layout(layout: dict[str, int], page: bytes) -> dict[str, object]:
     }
 
 
-def build_individual_detail_route(page_va: int) -> tuple[bytes, dict[str, object]]:
-    route_va = PAYLOAD_VA + DETAIL_INDIVIDUAL_ROUTE_OFFSET
-    continuation_va = route_va + DETAIL_INDIVIDUAL_ROUTE_SIZE
+def build_individual_detail_route(page_va: int) -> tuple[bytes, bytes, dict[str, object]]:
+    """Build D32's pre-price command-1 gate and its exact cave.
+
+    The seven-byte hook is at the stock price-load instruction.  The 50-byte
+    cave preserves the original lookup for every command except command 1,
+    and sends all guarded helper outcomes through the existing balanced
+    epilogue at 0x489AC5.
+    """
+    hook_va = PAYLOAD_VA + DETAIL_INDIVIDUAL_ROUTE_OFFSET
+    cave_va = PAYLOAD_VA + DETAIL_INDIVIDUAL_CAVE_OFFSET
+    continuation_va = hook_va + DETAIL_INDIVIDUAL_ROUTE_SIZE
+    epilogue_va = PAYLOAD_VA + DETAIL_INDIVIDUAL_EPILOGUE_OFFSET
     helper_va = page_va + SLOT_OFFSET + INDIVIDUAL_OFFSET
-    route = asm(
-        f"""
-            cmp dword ptr [0x{page_va:X}], 0x344D4656
-            jne detail_command1_continue
-            cmp dword ptr [0x{page_va + SLOT_OFFSET + 12:X}], 1
-            jne detail_command1_continue
-            call 0x{helper_va:X}
-        detail_command1_continue:
-            jmp 0x{continuation_va:X}
-        """,
-        route_va,
-    )
-    if len(route) > DETAIL_INDIVIDUAL_ROUTE_SIZE:
-        raise RuntimeError("Detail command-1 route exceeds guarded original window")
-    route_after = route + b"\x90" * (DETAIL_INDIVIDUAL_ROUTE_SIZE - len(route))
-    return route_after, {
-        "va": f"0x{route_va:X}",
-        "length": DETAIL_INDIVIDUAL_ROUTE_SIZE,
-        "before": DETAIL_INDIVIDUAL_ROUTE_BEFORE.hex().upper(),
-        "after": route_after.hex().upper(),
-        "after_sha256": sha(route_after),
-        "payload_file_offset": f"0x{PAYLOAD_OFFSET + DETAIL_INDIVIDUAL_ROUTE_OFFSET:X}",
-        "section": ".vv4fm",
-        "uninstall_guard": "after bytes and .vv4fm page/slot/confirmation guards must match exactly before removal",
+    hook_after = rel32_jump(hook_va, cave_va) + b"\x90\x90"
+    if hook_after != bytes.fromhex("E9560000009090"):
+        raise RuntimeError("D32 Detail hook did not assemble to the certified jump")
+    # Assemble each instruction at its final address, forcing the two
+    # unconditional transfers to their certified five-byte rel32 form.  A
+    # single Keystone block chooses short jumps and shrinks this cave to 44
+    # bytes, changing all subsequent branch displacements.
+    cave_parts = [
+        asm("cmp ebx, 1", cave_va),
+        asm(f"jne 0x{cave_va + 0x24:X}", cave_va + 3),
+        asm(f"cmp dword ptr [0x{page_va:X}], 0x344D4656", cave_va + 5),
+        asm(f"jne 0x{cave_va + 0x1F:X}", cave_va + 15),
+        asm(f"cmp dword ptr [0x{page_va + SLOT_OFFSET + 12:X}], 1", cave_va + 17),
+        asm(f"jne 0x{cave_va + 0x1F:X}", cave_va + 24),
+        asm(f"call 0x{helper_va:X}", cave_va + 26),
+        rel32_jump(cave_va + 31, epilogue_va),
+        asm("mov eax, dword ptr [ebx*4 + 0x489F27]", cave_va + 36),
+        rel32_jump(cave_va + 43, continuation_va),
+        b"\x90\x90",
+    ]
+    cave_after = b"".join(cave_parts)
+    if len(cave_after) != DETAIL_INDIVIDUAL_CAVE_SIZE:
+        raise RuntimeError(f"D32 Detail cave must be 50 bytes, got {len(cave_after)}")
+    if page_va == LAYOUTS["collection_progression"]["page_va"]:
+        if cave_after != bytes.fromhex(
+            "83FB01751F813D00F0730056464D34750E833D0CF17300017505"
+            "E8B0602B00E9700000008B049D279F4800E97CFFFFFF9090"
+        ):
+            raise RuntimeError("D32 stock Detail cave bytes mismatch")
+        if sha(cave_after) != DETAIL_INDIVIDUAL_CAVE_SHA256:
+            raise RuntimeError("D32 stock Detail cave hash mismatch")
+    return hook_after, cave_after, {
+        "hook_va": f"0x{hook_va:X}",
+        "hook_file_offset": f"0x{PAYLOAD_OFFSET + DETAIL_INDIVIDUAL_ROUTE_OFFSET:X}",
+        "hook_length": DETAIL_INDIVIDUAL_ROUTE_SIZE,
+        "hook_before": DETAIL_INDIVIDUAL_ROUTE_BEFORE.hex().upper(),
+        "hook_after": hook_after.hex().upper(),
+        "hook_after_sha256": sha(hook_after),
+        "cave_va": f"0x{cave_va:X}",
+        "cave_file_offset": f"0x{PAYLOAD_OFFSET + DETAIL_INDIVIDUAL_CAVE_OFFSET:X}",
+        "cave_length": DETAIL_INDIVIDUAL_CAVE_SIZE,
+        "cave_before": DETAIL_INDIVIDUAL_CAVE_BEFORE.hex().upper(),
+        "cave_after": cave_after.hex().upper(),
+        "cave_after_sha256": sha(cave_after),
+        "section": ".text",
+        "epilogue_va": f"0x{epilogue_va:X}",
+        "epilogue_bytes": DETAIL_INDIVIDUAL_EPILOGUE.hex().upper(),
         "continuation_va": f"0x{continuation_va:X}",
         "helper_va": f"0x{helper_va:X}",
-        "guard": "exact raw five-skill-store block at Detail command-1 target; page marker and installed flag required",
+        "guard": "D31 exact hook/cave original bytes, page marker, and installed command-1 flag",
+        "uninstall_guard": "hook, cave, epilogue, .vv4fm page/slot/confirmation, and manifest hashes must match exactly before removal",
+        "atomic_components": ["detail_hook", "detail_cave", "balanced_epilogue", "installed_slot", "confirmation_cave", "page_header", "manifests"],
         "event": 2,
         "message": 8,
         "command": 1,
@@ -1167,11 +1211,17 @@ def build_individual_detail_route(page_va: int) -> tuple[bytes, dict[str, object
 
 def build_base_payload(active_payload: bytes, page_va: int) -> tuple[bytes, dict[str, object]]:
     payload = bytearray(active_payload)
-    route_offset = DETAIL_INDIVIDUAL_ROUTE_OFFSET
-    if payload[route_offset : route_offset + DETAIL_INDIVIDUAL_ROUTE_SIZE] != DETAIL_INDIVIDUAL_ROUTE_BEFORE:
-        raise RuntimeError("Detail command-1 route original-byte guard mismatch")
-    individual_route, route_map = build_individual_detail_route(page_va)
-    payload[route_offset : route_offset + DETAIL_INDIVIDUAL_ROUTE_SIZE] = individual_route
+    hook_offset = DETAIL_INDIVIDUAL_ROUTE_OFFSET
+    cave_offset = DETAIL_INDIVIDUAL_CAVE_OFFSET
+    if payload[hook_offset : hook_offset + DETAIL_INDIVIDUAL_ROUTE_SIZE] != DETAIL_INDIVIDUAL_ROUTE_BEFORE:
+        raise RuntimeError("D32 Detail hook original-byte guard mismatch")
+    if payload[cave_offset : cave_offset + DETAIL_INDIVIDUAL_CAVE_SIZE] != DETAIL_INDIVIDUAL_CAVE_BEFORE:
+        raise RuntimeError("D32 Detail cave original-byte guard mismatch")
+    if payload[DETAIL_INDIVIDUAL_EPILOGUE_OFFSET : DETAIL_INDIVIDUAL_EPILOGUE_OFFSET + len(DETAIL_INDIVIDUAL_EPILOGUE)] != DETAIL_INDIVIDUAL_EPILOGUE:
+        raise RuntimeError("D32 balanced Detail epilogue guard mismatch")
+    individual_hook, individual_cave, route_map = build_individual_detail_route(page_va)
+    payload[hook_offset : hook_offset + DETAIL_INDIVIDUAL_ROUTE_SIZE] = individual_hook
+    payload[cave_offset : cave_offset + DETAIL_INDIVIDUAL_CAVE_SIZE] = individual_cave
     dll_offset = payload.find(b"VVFP Origins Icons.dll\0")
     menu_offset = payload.find(b"ShowOriginsUpgradeMenuState\0")
     if dll_offset < 0 or menu_offset < 0:
@@ -1509,6 +1559,13 @@ def main() -> None:
 
     stock_noop = noop_slots["collection_progression"]
     stock_installed = installed_slots["collection_progression"]
+    stock_confirmation = bytes.fromhex(
+        slot_maps["collection_progression"]["installed"]["individual_confirmation_bytes"]
+    )
+    confirmation_guard = b"\0" * INDIVIDUAL_CONFIRM_CAVE_SIZE
+    confirmation_after = stock_confirmation + b"\0" * (
+        INDIVIDUAL_CONFIRM_CAVE_SIZE - len(stock_confirmation)
+    )
     if sha(stock_installed[SLOT_ENTRY_OFFSET : SLOT_ENTRY_OFFSET + 229]) != R3_COMMAND7_ENTRY_SHA256:
         raise RuntimeError("R3 command-7 entry bytes changed")
     if sha(stock_installed[WALKER_OFFSET : WALKER_OFFSET + 236]) != R3_COMMAND7_WALKER_SHA256:
@@ -1550,7 +1607,13 @@ def main() -> None:
                 "before": stock_noop.hex().upper(),
                 "after": stock_installed.hex().upper(),
                 "purpose": "replace only the guarded base-owned no-op slot with command 7",
-            }
+            },
+            {
+                "offset": f"0x{APPEND_OFFSET + INDIVIDUAL_CONFIRM_PAGE_OFFSET:X}",
+                "before": confirmation_guard.hex().upper(),
+                "after": confirmation_after.hex().upper(),
+                "purpose": "install the exact 73-byte individual confirmation routine in the guarded .vv4fm cave",
+            },
         ],
         "patch_mode_overrides": {
             mode: [
@@ -1559,7 +1622,21 @@ def main() -> None:
                     "before": stock_installed.hex().upper(),
                     "after": installed_slots[mode].hex().upper(),
                     "purpose": "relocate only the dependent command-7 slot for expanded layout",
-                }
+                },
+                {
+                    "offset": f"0x{APPEND_OFFSET + INDIVIDUAL_CONFIRM_PAGE_OFFSET:X}",
+                    "before": confirmation_after.hex().upper(),
+                    "after": (
+                        bytes.fromhex(
+                            slot_maps[mode]["installed"]["individual_confirmation_bytes"]
+                        )
+                        + b"\0" * (
+                            INDIVIDUAL_CONFIRM_CAVE_SIZE
+                            - slot_maps[mode]["installed"]["individual_confirmation_length"]
+                        )
+                    ).hex().upper(),
+                    "purpose": "relocate the mode-specific individual confirmation routine into the guarded .vv4fm cave",
+                },
             ]
             for mode in (
                 "experimental_expanded_256",
@@ -1792,7 +1869,7 @@ def main() -> None:
         "- Wrapper-null returns without attach. Loader-null raw-frees the unconstructed wrapper through cdecl `sub_470B7B`; it never virtual-destructs raw memory. Inner-null after `sub_401C20` uses the proven scalar destructor with flag 1.\n"
         "- The Tech helper emits exact `8B CB` (`mov ecx, ebx`) after clearing `this+0x74` and before `sub_40C340`; its continuation remains `0x43E23D`.\n"
         "- Individual command 1 is source-modeled in `src/vv4_individual_mastery.py` but remains disabled/catalog-hidden: it captures the displayed physical index, validates all five finite Float32 skills for a living villager, reports the exact no-charge message for zero changes, requires the per-villager 100,000-point confirmation and same-index reacquisition, then calls `sub_46AD80` once per delta, re-reads every originally changed skill for exact Float32 100.0, and deducts 100,000 once through `0x41E300`. A failed post-write verification reports `No tech points have been deducted.`; partial native changes may remain because rollback is unsafe/unproved. No direct skill stores or precharge are present; D27 executable ABI proof is required before emission.\n"
-        "- The only emitted Detail route is message 8/event 2 command 1: it requires the `.vv4fm` page marker and installed flag before calling the individual helper; commands 0, 2-4, 7, cancel, and fallthrough retain their original route bytes. The dedicated confirmation cave says `Grant Full Mastery to this villager for 100,000 tech points?`, and success uses `Full Mastery has been granted to the selected villager.` rather than the command-7 result export.\n"
+        "- The only emitted Detail route is message 8/event 2 command 1: hook `0x4899D6` (`E9560000009090`) enters the exact 50-byte `.text` cave at `0x489A31` (SHA-256 `79600D55513838D55E9FAD6D9680A516A2CF6BBC5107B721B7B8E28D59B3168F`), reconstructs the original price lookup for other commands, and returns through `0x489AC5`; it requires the `.vv4fm` page marker and installed flag before calling the individual helper. Commands 0, 2-4, 7, cancel, and fallthrough retain their original route bytes. The dedicated 73-byte confirmation routine is atomically installed at raw `0xE4C00` / VA `0x740C00` with a 256-byte zero guard (183 trailing zeros), and success uses `Full Mastery has been granted to the selected villager.` rather than the command-7 result export.\n"
         + f"- Companion SHA-256: `{artifact['companion']['sha256']}`\n"
         f"- Stock installed slot SHA-256: `{artifact['layouts']['collection_progression']['installed_slot_sha256']}`\n"
         f"- Expanded installed slot SHA-256: `{artifact['layouts']['experimental_expanded_256']['installed_slot_sha256']}`\n"
