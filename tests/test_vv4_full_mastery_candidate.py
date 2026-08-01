@@ -30,6 +30,12 @@ from vv_fun_patcher import (  # noqa: E402
     VV4_FULL_MASTERY_LEGACY_ASSET_KEYS,
     VV4_FULL_MASTERY_LEGACY_STATIC_ASSET_KEYS,
 )
+from vv4_individual_mastery import (  # noqa: E402
+    NOOP_MESSAGE,
+    PRICE,
+    apply_plan,
+    plan_transaction,
+)
 
 
 STOCK = ROOT / "research" / "stock-executables" / "Virtual Villagers - The Tree of Life.exe"
@@ -430,9 +436,50 @@ class VV4FullMasteryCandidateTests(unittest.TestCase):
         contract = self.map["individual_full_mastery"]
         self.assertTrue(contract["status"].startswith("STOP"))
         self.assertFalse(self.feature_raw["enabled"])
+        self.assertEqual(contract["emitted"], "installed-page helper only; unreachable while disabled")
+        self.assertEqual(contract["implementation_source"], "src/vv4_individual_mastery.py")
+        self.assertEqual(contract["required_contract"]["command"], 1)
         self.assertTrue(contract["required_contract"]["five_float_complete_dry_run"])
-        self.assertTrue(contract["required_contract"]["same_physical_index_reacquisition"])
+        self.assertIn("same_physical_index_reacquisition", contract["required_contract"])
         self.assertFalse(contract["required_contract"]["direct_skill_stores"])
+
+    def test_individual_native_transaction_model_is_two_pass_and_no_store(self):
+        record = {"active": True, "health": 1, "skills": [99.0, 90.0, 100.0, 88.0, 0.0]}
+        records = [record]
+        calls = []
+        deductions = []
+        plan = plan_transaction(records, 0, PRICE, True, lambda: (0, records, PRICE))
+        self.assertEqual(plan.status, "commit")
+        self.assertEqual([(c.skill_index, c.delta) for c in plan.calls], [(0, 1.0), (1, 10.0), (3, 12.0), (4, 100.0)])
+        self.assertEqual(plan.deduction, PRICE)
+        apply_plan(plan, lambda index, skill, delta: calls.append((index, skill, delta)), deductions.append)
+        self.assertEqual(calls, [(0, 0, 1.0), (0, 1, 10.0), (0, 3, 12.0), (0, 4, 100.0)])
+        self.assertEqual(deductions, [PRICE])
+        self.assertEqual(record["skills"], [99.0, 90.0, 100.0, 88.0, 0.0])
+
+        all_done = [{"active": True, "health": 1, "skills": [100.0] * 5}]
+        noop = plan_transaction(all_done, 0, 0, True, lambda: (0, all_done, 0))
+        self.assertEqual((noop.status, noop.message, noop.calls, noop.deduction), ("no_change", NOOP_MESSAGE, (), 0))
+        self.assertEqual(plan_transaction(records, 0, PRICE, False, lambda: (0, records, PRICE)).status, "cancel")
+        self.assertEqual(plan_transaction(records, 0, PRICE, True, lambda: (1, records, PRICE)).status, "race")
+        invalid = [{"active": True, "health": 1, "skills": [float("nan")] + [100.0] * 4}]
+        self.assertEqual(plan_transaction(invalid, 0, PRICE, True, lambda: (0, invalid, PRICE)).status, "invalid")
+
+    def test_individual_emitted_helper_is_guarded_and_native_only(self):
+        installed = self.map["layouts"]["collection_progression"]["slot_map"]["installed"]
+        helper = bytes.fromhex(installed["individual_bytes"])
+        base = int(installed["individual_va"], 16)
+        targets = rel32_targets(helper, base)
+        self.assertEqual(targets.count(0x41FE70), 2)
+        self.assertEqual(targets.count(0x466040), 2)
+        self.assertEqual(targets.count(0x46AD80), 5)
+        self.assertEqual(targets.count(0x41E300), 1)
+        self.assertEqual(targets.count(0x489ACA), 4)
+        self.assertIn(b"\x68\x60\x79\xFE\xFF", helper)  # push -100000
+        for raw_store in (b"\xC7\x83\x5C\x1C", b"\xC7\x83\x60\x1C", b"\xC7\x83\x64\x1C", b"\xC7\x83\x68\x1C", b"\xC7\x83\x6C\x1C"):
+            self.assertNotIn(raw_store, helper)
+        self.assertEqual(installed["individual_status"], "emitted in installed page only; route disabled/catalog-hidden pending D27")
+        self.assertEqual(self.map["individual_full_mastery"]["emitted"], "installed-page helper only; unreachable while disabled")
 
     def test_whole_render_has_no_reachable_cure_target(self):
         rendered, _ = render_patched_bytes(

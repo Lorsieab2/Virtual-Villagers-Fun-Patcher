@@ -34,6 +34,9 @@ R3_HELPER_SHA256 = "C7379FB1AFDDD44F06CF48FAEED14C1701D796F5FC2568E10745337DADE1
 R3_TECH_CONSTRUCTOR_SHA256 = "4BAD0B344BA63130A1A1144CDE740CEBB61E82826FCDBD0171B182A3D8B62FA4"
 R3_DETAIL_CONSTRUCTOR_SHA256 = "BEC747E7EFC08BBA8BB7B65181B85E0E24AA30E1BBC2C1879206376C4468584E"
 R3_COMMAND7_SLOT_SHA256 = "023CF384A52CB6A6A49511B8B069B952718DC70E771FEE15CAC8A0777FB5F6DE"
+R3_COMMAND7_ENTRY_SHA256 = "CFCDE13267A62C824756748A7B639937AD4F125E733F615C555861338C2702A5"
+R3_COMMAND7_WALKER_SHA256 = "F8268B904E73B79EE686BE6A4E8FCFA8A54C59E08E8D5CE329900D78DED05155"
+R3_COMMAND7_CONFIRM_SHA256 = "DCB30F80D0442F289F030CCD2E712A05605469819E4777E3739918A718B55B97"
 R3_CURE_SHA256 = "2BB7A32344293DCACB4D0359818C6839AC1FBBAEE8F9E3D00DB59C274238D726"
 R3_DLL_SHA256 = "4E1A83683A875EFE6F67116CDD862927BE1ABCB17DB7AE18143E58E98EAD01E7"
 D19_COMMIT = "8182c235548bc92f304e5571ed61ada3c5abfa4b"
@@ -74,6 +77,8 @@ WALKER_OFFSET = 0x400
 CONFIRM_OFFSET = 0x800
 STRINGS_OFFSET = 0x1200
 PRICE = 1_000_000
+INDIVIDUAL_PRICE = 100_000
+INDIVIDUAL_OFFSET = 0xA00
 STRIDE = 0x2E3C
 
 # Candidate-only UI locations in the existing active payload.  These values are
@@ -497,6 +502,9 @@ def build_slot(page_va: int, installed: bool) -> tuple[bytes, dict[str, object]]
             b"you want to purchase it? Press OK to confirm, or Cancel.",
         ),
         ("caption", b"Origins Upgrades"),
+        ("individual_noop", b"Everyone is already fully mastered.\r\nNo tech points have been deducted."),
+        ("individual_invalid", b"Full Mastery cannot be applied because the selected villager has an out-of-range skill.\r\nNo tech points have been deducted."),
+        ("individual_insufficient", b"Not enough tech points.\r\nNo tech points have been deducted."),
     ):
         if not value.endswith(b"\0"):
             value += b"\0"
@@ -716,9 +724,161 @@ def build_slot(page_va: int, installed: bool) -> tuple[bytes, dict[str, object]]
         """,
         confirm_va,
     )
+    individual_va = page_va + SLOT_OFFSET + INDIVIDUAL_OFFSET
+    first_scan: list[str] = []
+    second_scan: list[str] = []
+    native_calls: list[str] = []
+    for i in range(5):
+        off = 0x1C5C + i * 4
+        bit = 1 << i
+        first_scan.append(
+            f"""
+            mov eax, dword ptr [ebx + 0x{off:X}]
+            mov ecx, eax
+            and ecx, 0x7FFFFFFF
+            jz indiv_first_valid_{i}
+            test eax, 0x80000000
+            jne indiv_invalid
+            cmp ecx, 0x42C80000
+            ja indiv_invalid
+        indiv_first_valid_{i}:
+            cmp eax, 0x42C80000
+            jae indiv_first_next_{i}
+            or dword ptr [ebp - 0x0C], {bit}
+        indiv_first_next_{i}:
+            """
+        )
+        second_scan.append(
+            f"""
+            mov eax, dword ptr [ebx + 0x{off:X}]
+            mov ecx, eax
+            and ecx, 0x7FFFFFFF
+            jz indiv_second_valid_{i}
+            test eax, 0x80000000
+            jne indiv_invalid
+            cmp ecx, 0x42C80000
+            ja indiv_invalid
+        indiv_second_valid_{i}:
+            cmp eax, 0x42C80000
+            jae indiv_second_next_{i}
+            or dword ptr [ebp - 0x0C], {bit}
+        indiv_second_next_{i}:
+            """
+        )
+        native_calls.append(
+            f"""
+            test dword ptr [ebp - 0x0C], {bit}
+            jz indiv_call_next_{i}
+            push 0x42C80000
+            fld dword ptr [esp]
+            fsub dword ptr [ebx + 0x{off:X}]
+            fstp dword ptr [esp]
+            push {i}
+            lea ecx, [ebx + 0x1C5C]
+            call 0x46AD80
+        indiv_call_next_{i}:
+            """
+        )
+    individual = asm(
+        f"""
+            push ebp
+            mov ebp, esp
+            push ebx
+            push esi
+            push edi
+            sub esp, 0x10
+            call 0x41FE70
+            test eax, eax
+            jz indiv_invalid
+            mov edi, dword ptr [eax + 0x171B0]
+            mov dword ptr [ebp - 0x04], edi
+            cmp edi, 150
+            jae indiv_invalid
+            mov ecx, 0x50E568
+            push edi
+            call 0x466040
+            add esp, 4
+            mov ebx, eax
+            test ebx, ebx
+            jz indiv_invalid
+            cmp byte ptr [ebx + 0x1CC4], 0
+            je indiv_invalid
+            cmp byte ptr [ebx + 0x1CC7], 0
+            jne indiv_invalid
+            cmp dword ptr [ebx + 0x1C40], 0
+            jle indiv_invalid
+            mov dword ptr [ebp - 0x0C], 0
+            {''.join(first_scan)}
+            cmp dword ptr [ebp - 0x0C], 0
+            je indiv_noop
+            call 0x{confirm_va:X}
+            test eax, eax
+            jz indiv_done
+            call 0x41FE70
+            test eax, eax
+            jz indiv_invalid
+            mov edi, dword ptr [eax + 0x171B0]
+            cmp edi, dword ptr [ebp - 0x04]
+            jne indiv_invalid
+            cmp edi, 150
+            jae indiv_invalid
+            mov ecx, 0x50E568
+            push edi
+            call 0x466040
+            add esp, 4
+            mov ebx, eax
+            test ebx, ebx
+            jz indiv_invalid
+            cmp byte ptr [ebx + 0x1CC4], 0
+            je indiv_invalid
+            cmp byte ptr [ebx + 0x1CC7], 0
+            jne indiv_invalid
+            cmp dword ptr [ebx + 0x1C40], 0
+            jle indiv_invalid
+            mov dword ptr [ebp - 0x0C], 0
+            {''.join(second_scan)}
+            cmp dword ptr [ebp - 0x0C], 0
+            je indiv_noop
+            cmp dword ptr [0x4D6F88], {INDIVIDUAL_PRICE}
+            jb indiv_insufficient
+            {''.join(native_calls)}
+            mov ecx, 0x4D6F88
+            push -{INDIVIDUAL_PRICE}
+            call 0x41E300
+            push 0x{strings['caption']:X}
+            push 0x{strings['result']:X}
+            call 0x{D25_RESULT_HELPER_VA:X}
+            jmp indiv_done
+        indiv_noop:
+            push 0x{strings['caption']:X}
+            push 0x{strings['individual_noop']:X}
+            call 0x{D25_RESULT_HELPER_VA:X}
+            jmp indiv_done
+        indiv_insufficient:
+            push 0x{strings['caption']:X}
+            push 0x{strings['individual_insufficient']:X}
+            call 0x{D25_RESULT_HELPER_VA:X}
+            jmp indiv_done
+        indiv_invalid:
+            push 0x{strings['caption']:X}
+            push 0x{strings['individual_invalid']:X}
+            call 0x{D25_RESULT_HELPER_VA:X}
+        indiv_done:
+            mov esp, ebp
+            pop edi
+            pop esi
+            pop ebx
+            pop ebp
+            ret
+        """,
+        individual_va,
+    )
+    if len(individual) > 0x600:
+        raise RuntimeError(f"individual mastery helper exceeds reserved cave: {len(individual):#x}")
     _put(slot, SLOT_ENTRY_OFFSET, WALKER_OFFSET - SLOT_ENTRY_OFFSET, entry, "entry")
     _put(slot, WALKER_OFFSET, CONFIRM_OFFSET - WALKER_OFFSET, walker, "walker")
-    _put(slot, CONFIRM_OFFSET, SLOT_SIZE - CONFIRM_OFFSET, confirm, "confirmation")
+    _put(slot, CONFIRM_OFFSET, INDIVIDUAL_OFFSET - CONFIRM_OFFSET, confirm, "confirmation")
+    _put(slot, INDIVIDUAL_OFFSET, 0x600, individual, "individual mastery transaction")
     return bytes(slot), {
         "entry_offset": SLOT_ENTRY_OFFSET,
         "entry_length": len(entry),
@@ -729,6 +889,27 @@ def build_slot(page_va: int, installed: bool) -> tuple[bytes, dict[str, object]]
         "confirmation_offset": CONFIRM_OFFSET,
         "confirmation_length": len(confirm),
         "confirmation_sha256": sha(confirm),
+        "individual_offset": f"0x{INDIVIDUAL_OFFSET:X}",
+        "individual_length": len(individual),
+        "individual_sha256": sha(individual),
+        "individual_bytes": individual.hex().upper(),
+        "individual_va": f"0x{individual_va:X}",
+        "individual_status": "emitted in installed page only; route disabled/catalog-hidden pending D27",
+        "individual_contract": {
+            "command": 1,
+            "entry_abi": "ECX/EDX preserved as caller inputs; helper reacquires manager and captures [manager+0x171B0]",
+            "manager": "0x41FE70",
+            "displayed_index": "[manager+0x171B0]",
+            "bound": 150,
+            "resolver": "ECX=0x50E568; push index; call 0x466040",
+            "eligibility": ["byte +0x1CC4 != 0", "byte +0x1CC7 == 0", "signed dword +0x1C40 > 0"],
+            "skills": ["+0x1C5C", "+0x1C60", "+0x1C64", "+0x1C68", "+0x1C6C"],
+            "target": "Float32 100.0",
+            "writer": "push delta; push index; ECX=record+0x1C5C; call 0x46AD80; callee ret8",
+            "deduction": "push -100000; ECX=0x4D6F88; call 0x41E300 once after final recheck",
+            "direct_skill_stores": False,
+            "precharge": False,
+        },
         "strings": {key: f"0x{value:X}" for key, value in strings.items()},
     }
 
@@ -790,6 +971,9 @@ def build_page(page_va: int, slot: bytes, dispatcher: bytes) -> bytes:
         b"This upgrade makes permanent changes to your village. Are you sure "
         b"you want to purchase it? Press OK to confirm, or Cancel.\0",
         b"Origins Upgrades\0",
+        b"Everyone is already fully mastered.\r\nNo tech points have been deducted.\0",
+        b"Full Mastery cannot be applied because the selected villager has an out-of-range skill.\r\nNo tech points have been deducted.\0",
+        b"Not enough tech points.\r\nNo tech points have been deducted.\0",
     ):
         page[cursor : cursor + len(value)] = value
         cursor += len(value)
@@ -1033,18 +1217,23 @@ def main() -> None:
     }
     base["playtest3_withdrawal"] = {"playtest": "VV4 Full Mastery UI Playtest 3", "status": "HARD WITHDRAWN", "exception": "0xC0000005", "fault_rva": "0x89E0C", "fault_va": "0x489E0C", "bad_calls": ["0x4897CA", "0x489ABB"], "bad_target": "0x489573", "correct_result_helper": "0x489ACA", "correct_result_helper_file_offset": "0x89ACA", "correct_result_helper_sha256": D25_RESULT_HELPER_SHA256}
     base["individual_full_mastery"] = {
-        "status": "STOP; disabled and catalog-hidden",
-        "reason": "the legacy individual path precharged and wrote raw Float32 90; no candidate bytes are emitted until the complete native exact-100 transaction is proven",
+        "status": "STOP; disabled and catalog-hidden pending D27 executable recertification",
+        "reason": "the exact-100 transaction helper is emitted only in the installed .vv4fm page, but the stock executable's individual-menu entry ABI is not yet independently proven; no command-1 route is wired or selectable",
+        "implementation_source": "src/vv4_individual_mastery.py",
+        "emitted": "installed-page helper only; unreachable while disabled",
         "required_contract": {
+            "command": 1,
+            "physical_index_capture": "displayed physical index before confirmation",
             "current_living_selected_villager": True,
             "five_float_complete_dry_run": True,
-            "no_op_no_charge_message": True,
+            "no_op_no_charge_message": "Everyone is already fully mastered.\\r\\nNo tech points have been deducted.",
             "explicit_confirmation": True,
-            "same_physical_index_reacquisition": True,
+            "same_physical_index_reacquisition": "required; mismatch aborts before any native call",
             "final_revalidation_and_funds_check": True,
-            "native_writer": "sub_46AD80 once per changed skill",
-            "deduction": 100000,
+            "native_writer": "sub_46AD80 once per changed skill, delta=100-current Float32",
+            "deduction": "100000 once through 0x41E300 after final recheck",
             "direct_skill_stores": False,
+            "precharge": False,
         },
     }
     base["cure_containment"] = {
@@ -1167,8 +1356,12 @@ def main() -> None:
 
     stock_noop = noop_slots["collection_progression"]
     stock_installed = installed_slots["collection_progression"]
-    if sha(stock_installed) != R3_COMMAND7_SLOT_SHA256:
-        raise RuntimeError("R3 command-7 slot hash mismatch")
+    if sha(stock_installed[SLOT_ENTRY_OFFSET : SLOT_ENTRY_OFFSET + 229]) != R3_COMMAND7_ENTRY_SHA256:
+        raise RuntimeError("R3 command-7 entry bytes changed")
+    if sha(stock_installed[WALKER_OFFSET : WALKER_OFFSET + 236]) != R3_COMMAND7_WALKER_SHA256:
+        raise RuntimeError("R3 command-7 walker bytes changed")
+    if sha(stock_installed[CONFIRM_OFFSET : CONFIRM_OFFSET + 73]) != R3_COMMAND7_CONFIRM_SHA256:
+        raise RuntimeError("R3 command-7 confirmation bytes changed")
     feature_enabled = False
     feature = {
         "id": "vv4_full_mastery_all_stage_a_candidate",
@@ -1426,8 +1619,10 @@ def main() -> None:
             else "The base and command-7 records are HARD WITHDRAWN and catalog-hidden after Playtest 3 "
             "crashed at RVA 0x89E0C / VA 0x489E0C. Individual-menu calls at 0x4897CA and 0x489ABB "
             "targeted the show-menu epilogue at 0x489573 instead of the result helper at 0x489ACA. "
-            "This disabled candidate repairs only those guarded calls; individual Full Mastery remains "
-            "STOP because it writes raw Float32 90 and precharges, and command 7 awaits D25 recertification. "
+            "This disabled candidate repairs only those guarded calls. The source-level individual transaction "
+            "model now performs the required command-1 two-pass native exact-100 plan, but its executable route "
+            "remains STOP until D27 independently proves physical-index capture/reacquisition and the native menu ABI; "
+            "no raw Float32 stores or precharge are emitted. Command 7 awaits D25 recertification. "
             "The legacy Cure row is rendered unavailable, command 5 is rejected before "
             "charge/dispatch, and the unchanged Cure payload remains withdrawn.\n\n"
         )
@@ -1439,6 +1634,7 @@ def main() -> None:
         "- `Upgrades` is copied through proven native `sub_401600` text overlay and `sub_401630` style ABIs; `sub_40D8A0` is absent. Tech uses `this+0x74` and paired cleanup; Detail uses list-owned `sub_40C300`.\n"
         "- Wrapper-null returns without attach. Loader-null raw-frees the unconstructed wrapper through cdecl `sub_470B7B`; it never virtual-destructs raw memory. Inner-null after `sub_401C20` uses the proven scalar destructor with flag 1.\n"
         "- The Tech helper emits exact `8B CB` (`mov ecx, ebx`) after clearing `this+0x74` and before `sub_40C340`; its continuation remains `0x43E23D`.\n"
+        "- Individual command 1 is source-modeled in `src/vv4_individual_mastery.py` but remains disabled/catalog-hidden: it captures the displayed physical index, validates all five finite Float32 skills for a living villager, reports the exact no-charge message for zero changes, requires confirmation and same-index reacquisition, then calls `sub_46AD80` once per delta and deducts 100,000 once through `0x41E300`. No direct skill stores or precharge are present; D27 executable ABI proof is required before emission.\n"
         + f"- Companion SHA-256: `{artifact['companion']['sha256']}`\n"
         f"- Stock installed slot SHA-256: `{artifact['layouts']['collection_progression']['installed_slot_sha256']}`\n"
         f"- Expanded installed slot SHA-256: `{artifact['layouts']['experimental_expanded_256']['installed_slot_sha256']}`\n"
