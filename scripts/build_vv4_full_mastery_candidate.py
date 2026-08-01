@@ -36,6 +36,10 @@ R3_DETAIL_CONSTRUCTOR_SHA256 = "BEC747E7EFC08BBA8BB7B65181B85E0E24AA30E1BBC2C187
 R3_COMMAND7_SLOT_SHA256 = "023CF384A52CB6A6A49511B8B069B952718DC70E771FEE15CAC8A0777FB5F6DE"
 R3_CURE_SHA256 = "2BB7A32344293DCACB4D0359818C6839AC1FBBAEE8F9E3D00DB59C274238D726"
 R3_DLL_SHA256 = "4E1A83683A875EFE6F67116CDD862927BE1ABCB17DB7AE18143E58E98EAD01E7"
+D19_COMMIT = "8182c235548bc92f304e5571ed61ada3c5abfa4b"
+D19_FACTORY_SHA256 = "58E21A9597EB6ABF6949A1E607C3B607FABAF1AE5D280D899A062F5D021ACE21"
+D19_TECH_SHA256 = "1D710074D6F5717A420646B2DCEE2BCC351754B4DC0CCFB5A32F586E2E258BDC"
+D19_DETAIL_SHA256 = "AC2A88CBD0B7805941EA34261D765F4A727187B35B5443BFB7CDEA8DF43A7E8C"
 C7_DLL_SHA256 = "4E1A83683A875EFE6F67116CDD862927BE1ABCB17DB7AE18143E58E98EAD01E7"
 C6_BASELINE_COMMIT = "577072f5b5205c3a0a857c0645d855bb98ec19d2"
 
@@ -952,6 +956,8 @@ def main() -> None:
         raise RuntimeError("C7 companion DLL hash mismatch")
     if ui_map["destructor_helper"]["sha256"] != R3_HELPER_SHA256:
         raise RuntimeError("R3 destructor helper hash mismatch")
+    if (ui_map["native_factory"]["sha256"], ui_map["tech_constructor"]["sha256"], ui_map["detail_constructor"]["sha256"]) != (D19_FACTORY_SHA256, D19_TECH_SHA256, D19_DETAIL_SHA256):
+        raise RuntimeError("D19 native UI payload hash mismatch")
     noop_slots: dict[str, bytes] = {}
     installed_slots: dict[str, bytes] = {}
     slot_maps: dict[str, object] = {}
@@ -1232,30 +1238,18 @@ def main() -> None:
         }
 
     artifact = {
-        "acceptance_commit": R3_COMMIT,
+        "acceptance_commit": D19_COMMIT,
         "candidate_status": "HARD WITHDRAWN after Playtest 2 startup crash; catalog-hidden",
         "independent_recertification": {
-            "review": "D13",
-            "status": "revoked by Playtest 2 startup crash",
-            "commit": R3_COMMIT,
+            "review": "D19",
+            "status": "independent payload recertification GO",
+            "commit": D19_COMMIT,
             "scope": "VV4 Full Mastery stock-mode candidate only; Expanded-256 ON HOLD/fail-closed",
             "hashes": {
+                "native_factory": D19_FACTORY_SHA256,
                 "helper": R3_HELPER_SHA256,
-                "tech_constructor": R3_TECH_CONSTRUCTOR_SHA256,
-                "detail_constructor": R3_DETAIL_CONSTRUCTOR_SHA256,
-                "command7_slot": R3_COMMAND7_SLOT_SHA256,
-                "cure": R3_CURE_SHA256,
-                "dll": R3_DLL_SHA256,
-            },
-        },
-        "pending_independent_recertification": {
-            "status": "C12 native-ordinal candidate assembled disabled; fresh independent recertification required",
-            "scope": "native asset loader, exact button arguments, text overlay, failure cleanup, ownership, geometry, routing, and uninstall",
-            "hashes": {
-                "native_factory": ui_map["native_factory"]["sha256"],
-                "tech_constructor": ui_map["tech_constructor"]["sha256"],
-                "detail_constructor": ui_map["detail_constructor"]["sha256"],
-                "destructor_helper": ui_map["destructor_helper"]["sha256"],
+                "tech_constructor": D19_TECH_SHA256,
+                "detail_constructor": D19_DETAIL_SHA256,
                 "command7_slot": R3_COMMAND7_SLOT_SHA256,
                 "cure": R3_CURE_SHA256,
                 "dll": R3_DLL_SHA256,
@@ -1288,8 +1282,8 @@ def main() -> None:
                 "detail_handler_relocated_va": ui_map["detail_handler_relocated"]["va"],
                 "detail_route_patch_offset": "0x48610",
             },
-            "status": "HARD WITHDRAWN after Playtest 2 startup crash",
-            "recertification_commit": R3_COMMIT,
+            "status": "D19 payload GO; D20 metadata audit pending",
+            "recertification_commit": D19_COMMIT,
             "scope": "stock-mode only; Expanded-256 remains ON HOLD/fail-closed",
         },
         "cure_containment": base["cure_containment"],
@@ -1379,7 +1373,7 @@ def main() -> None:
             else "The command-7 record is HARD WITHDRAWN and catalog-hidden after Playtest 2 "
             "repeated the startup access violation at RVA 0x21570. Static review missed malformed "
             "sub_401C20 arguments. C12 replaces that UI construction with the proved native ordinal, "
-            "text, and cleanup ABIs but remains disabled pending fresh independent recertification. "
+            "text, and cleanup ABIs and received D19 independent payload recertification; it remains disabled pending D20 metadata audit. "
             "The legacy Cure row is rendered unavailable, command 5 is rejected before "
             "charge/dispatch, and the unchanged Cure payload remains withdrawn.\n\n"
         )
@@ -1401,10 +1395,10 @@ def main() -> None:
         "skill stores, ownership, Remove, and save-format changes are absent. "
         "The candidate is fail-closed on missing or mismatched companion files, "
         "preserves stock executables, Cure bytes, certified VV3 stock-mode hashes, and "
-        "the expanded-256 hold. Historical D13 static approval is revoked by Playtest 2 runtime evidence. "
+        "the expanded-256 hold. D19 independently recertified the disabled native-ordinal payload; D20 metadata audit remains pending. "
         "Expanded-256 remains ON HOLD/fail-closed.\n"
-        f"- D13 helper SHA-256: `{R3_HELPER_SHA256}`; Tech constructor: `{R3_TECH_CONSTRUCTOR_SHA256}`; "
-        f"Detail constructor: `{R3_DETAIL_CONSTRUCTOR_SHA256}`; command-7 slot: `{R3_COMMAND7_SLOT_SHA256}`; "
+        f"- D19 factory SHA-256: `{D19_FACTORY_SHA256}`; helper: `{R3_HELPER_SHA256}`; Tech constructor: `{D19_TECH_SHA256}`; "
+        f"Detail constructor: `{D19_DETAIL_SHA256}`; command-7 slot: `{R3_COMMAND7_SLOT_SHA256}`; "
         f"Cure: `{R3_CURE_SHA256}`.\n",
         encoding="utf-8",
     )

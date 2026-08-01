@@ -228,17 +228,19 @@ class VV4FullMasteryCandidateTests(unittest.TestCase):
         self.assertEqual(ui["local"], [72, 4])
         self.assertEqual(ui["events"], {"tech": 13, "detail": 2})
         self.assertEqual(ui["add_child"], "sub_40C190")
-        self.assertEqual(ui["status"], "HARD WITHDRAWN after Playtest 2 startup crash")
-        self.assertEqual(self.map["acceptance_commit"], "e9afe69e0461ff986adddb55d743cf091eea598b")
-        self.assertEqual(self.map["independent_recertification"]["review"], "D13")
-        self.assertEqual(self.map["independent_recertification"]["status"], "revoked by Playtest 2 startup crash")
+        self.assertEqual(ui["status"], "D19 payload GO; D20 metadata audit pending")
+        self.assertEqual(self.map["acceptance_commit"], "8182c235548bc92f304e5571ed61ada3c5abfa4b")
+        self.assertEqual(self.map["independent_recertification"]["review"], "D19")
+        self.assertEqual(self.map["independent_recertification"]["status"], "independent payload recertification GO")
+        self.assertEqual(self.map["independent_recertification"]["commit"], "8182c235548bc92f304e5571ed61ada3c5abfa4b")
         self.assertEqual(self.map["independent_recertification"]["scope"], "VV4 Full Mastery stock-mode candidate only; Expanded-256 ON HOLD/fail-closed")
         self.assertEqual(
             self.map["independent_recertification"]["hashes"],
             {
+                "native_factory": "58E21A9597EB6ABF6949A1E607C3B607FABAF1AE5D280D899A062F5D021ACE21",
                 "helper": "C7379FB1AFDDD44F06CF48FAEED14C1701D796F5FC2568E10745337DADE13DB1",
-                "tech_constructor": "4BAD0B344BA63130A1A1144CDE740CEBB61E82826FCDBD0171B182A3D8B62FA4",
-                "detail_constructor": "BEC747E7EFC08BBA8BB7B65181B85E0E24AA30E1BBC2C1879206376C4468584E",
+                "tech_constructor": "1D710074D6F5717A420646B2DCEE2BCC351754B4DC0CCFB5A32F586E2E258BDC",
+                "detail_constructor": "AC2A88CBD0B7805941EA34261D765F4A727187B35B5443BFB7CDEA8DF43A7E8C",
                 "command7_slot": "023CF384A52CB6A6A49511B8B069B952718DC70E771FEE15CAC8A0777FB5F6DE",
                 "cure": "2BB7A32344293DCACB4D0359818C6839AC1FBBAEE8F9E3D00DB59C274238D726",
                 "dll": "4E1A83683A875EFE6F67116CDD862927BE1ABCB17DB7AE18143E58E98EAD01E7",

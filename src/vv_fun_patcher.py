@@ -78,12 +78,12 @@ VV4_FULL_MASTERY_CERTIFIED_SHA256 = {
     "expanded_page": "468A995FE91E2C6FE4E7812A65D77F68B22C6DBC9C3C9F696A4233C8EEDBC480",
     "dll": "4E1A83683A875EFE6F67116CDD862927BE1ABCB17DB7AE18143E58E98EAD01E7",
 }
-VV4_FULL_MASTERY_R3_COMMIT = "e9afe69e0461ff986adddb55d743cf091eea598b"
-VV4_FULL_MASTERY_R3_HASHES = {
+VV4_FULL_MASTERY_D19_COMMIT = "8182c235548bc92f304e5571ed61ada3c5abfa4b"
+VV4_FULL_MASTERY_D19_HASHES = {
+    "native_factory": "58E21A9597EB6ABF6949A1E607C3B607FABAF1AE5D280D899A062F5D021ACE21",
     "helper": "C7379FB1AFDDD44F06CF48FAEED14C1701D796F5FC2568E10745337DADE13DB1",
-    "tech_constructor": "4BAD0B344BA63130A1A1144CDE740CEBB61E82826FCDBD0171B182A3D8B62FA4",
-    "detail_constructor": "BEC747E7EFC08BBA8BB7B65181B85E0E24AA30E1BBC2C1879206376C4468584E",
-    "png": "F03D57038CA7745A99C0D7D58A2558A4411828BF3243D85C8BAFE2E04036BE4B",
+    "tech_constructor": "1D710074D6F5717A420646B2DCEE2BCC351754B4DC0CCFB5A32F586E2E258BDC",
+    "detail_constructor": "AC2A88CBD0B7805941EA34261D765F4A727187B35B5443BFB7CDEA8DF43A7E8C",
     "command7_slot": "023CF384A52CB6A6A49511B8B069B952718DC70E771FEE15CAC8A0777FB5F6DE",
     "cure": "2BB7A32344293DCACB4D0359818C6839AC1FBBAEE8F9E3D00DB59C274238D726",
     "dll": "4E1A83683A875EFE6F67116CDD862927BE1ABCB17DB7AE18143E58E98EAD01E7",
@@ -312,18 +312,20 @@ def _certified_vv4_full_mastery_records(
     gate = artifact.get("ui_asset_gate")
     if not isinstance(gate, dict):
         raise PatcherError("VV4 Full Mastery UI asset gate is missing; refusing enablement.")
-    if gate.get("status") != "independent recertification GO":
+    if gate.get("status") != "independent metadata recertification GO":
         raise PatcherError(
             "VV4 Full Mastery UI asset gate is not independently recertified; "
             "refusing enablement."
         )
-    if gate.get("destination") != r"Images\btn_upgrades_297x35.png":
-        raise PatcherError("VV4 Full Mastery UI asset destination is not the approved direct path.")
-    if gate.get("dimensions") != [297, 35] or gate.get("frame_width") != 99:
-        raise PatcherError("VV4 Full Mastery UI asset dimensions are not the approved 297x35 strip.")
+    if gate.get("runtime_source") != r"native cached VV4 Images\btn_trophies.png" or gate.get("ordinal") != "0x8C":
+        raise PatcherError("VV4 Full Mastery native ordinal asset identity is invalid.")
+    if gate.get("custom_runtime_companion") is not None:
+        raise PatcherError("VV4 Full Mastery custom runtime asset must be absent.")
+    if gate.get("dimensions") != [100, 39] or gate.get("bounds_half_open") != [72, 4, 172, 43]:
+        raise PatcherError("VV4 Full Mastery native asset dimensions/bounds are invalid.")
     if gate.get("factory") != "sub_401C20" or gate.get("add_child") != "sub_40C190":
         raise PatcherError("VV4 Full Mastery UI asset factory/ownership gate is invalid.")
-    if gate.get("grid") != [3, 1] or gate.get("local") != [72, 4]:
+    if gate.get("local") != [72, 4]:
         raise PatcherError("VV4 Full Mastery UI asset geometry gate is invalid.")
     if gate.get("events") != {"tech": 13, "detail": 2}:
         raise PatcherError("VV4 Full Mastery UI asset event gate is invalid.")
@@ -347,35 +349,26 @@ def _certified_vv4_full_mastery_records(
     ):
         raise PatcherError("VV4 Full Mastery runtime dimension accessor calls are forbidden.")
     static_asset = runtime_guard.get("static_asset_contract")
-    if not isinstance(static_asset, dict) or static_asset.get("dimensions") != [297, 35]:
-        raise PatcherError("VV4 Full Mastery static 297x35 asset contract is invalid.")
-    if static_asset.get("grid") != [3, 1] or static_asset.get("frame_width") != 99:
-        raise PatcherError("VV4 Full Mastery static three-frame contract is invalid.")
-    if not static_asset.get("identical_frames"):
-        raise PatcherError("VV4 Full Mastery identical-frame contract is missing.")
+    if static_asset != {"ordinal": "0x8C", "asset": "btn_trophies.png", "dimensions": [100, 39], "bounds_half_open": [72, 4, 172, 43], "ownership": "borrowed native cache"}:
+        raise PatcherError("VV4 Full Mastery native cached asset contract is invalid.")
     tech_wrapper = gate.get("tech_wrapper")
     if not isinstance(tech_wrapper, dict) or tech_wrapper.get("helper_length") != 34:
         raise PatcherError("VV4 Full Mastery Tech destructor helper length guard is invalid.")
     if tech_wrapper.get("ecx_restore") != "mov ecx, ebx":
         raise PatcherError("VV4 Full Mastery Tech destructor ECX restore guard is invalid.")
     forbidden = set(gate.get("forbidden_helpers", []))
-    if {"sub_40D8A0", "sub_401140", "sub_401600"} - forbidden:
+    if forbidden != {"sub_40D8A0"}:
         raise PatcherError("VV4 Full Mastery UI asset helper exclusion gate is incomplete.")
-    png_hash = gate.get("png_sha256")
-    if png_hash != VV4_FULL_MASTERY_R3_HASHES["png"]:
-        raise PatcherError("VV4 Full Mastery UI asset hash gate is missing.")
-    png_relative = gate.get("path")
-    if not isinstance(png_relative, str) or not png_relative.strip():
-        raise PatcherError("VV4 Full Mastery UI asset path is invalid; refusing enablement.")
-    png_path = ROOT / png_relative.replace("\\", "/")
-    if not png_path.is_file() or hashlib.sha256(png_path.read_bytes()).hexdigest().upper() != png_hash:
-        raise PatcherError("VV4 Full Mastery UI asset hash mismatch; refusing enablement.")
+    overlay = artifact.get("candidate_ui_payload", {}).get("text_overlay")
+    if overlay != {"text": "Upgrades", "setter": "sub_401600", "style": "sub_401630", "tech_colors": ["0x4BEEE0", "0x4BEEE4", "0x4BEEE8"], "detail_colors": ["0x4BF538", "0x4BF53C", "0x4BF540"]}:
+        raise PatcherError("VV4 Full Mastery native text overlay contract is invalid.")
     recertification = artifact.get("independent_recertification")
     if not isinstance(recertification, dict):
-        raise PatcherError("VV4 Full Mastery R3 recertification evidence is missing.")
+        raise PatcherError("VV4 Full Mastery D19 recertification evidence is missing.")
     if (
-        recertification.get("status") != "independent recertification GO"
-        or not isinstance(recertification.get("commit"), str)
+        recertification.get("status") != "independent payload recertification GO"
+        or recertification.get("review") != "D19"
+        or recertification.get("commit") != VV4_FULL_MASTERY_D19_COMMIT
         or recertification.get("scope") != "VV4 Full Mastery stock-mode candidate only; Expanded-256 ON HOLD/fail-closed"
     ):
         raise PatcherError("VV4 Full Mastery independent recertification scope/status is invalid.")
@@ -384,6 +377,7 @@ def _certified_vv4_full_mastery_records(
         raise PatcherError("VV4 Full Mastery candidate UI payload evidence is missing.")
     ui_hashes: dict[str, Any] = {}
     for label, section_name in (
+        ("native_factory", "native_factory"),
         ("helper", "destructor_helper"),
         ("tech_constructor", "tech_constructor"),
         ("detail_constructor", "detail_constructor"),
@@ -392,8 +386,8 @@ def _certified_vv4_full_mastery_records(
         if not isinstance(section, dict) or not isinstance(section.get("sha256"), str):
             raise PatcherError("VV4 Full Mastery UI constructor/helper hashes are missing.")
         ui_hashes[label] = section["sha256"]
-    if ui_hashes["helper"] != VV4_FULL_MASTERY_R3_HASHES["helper"]:
-        raise PatcherError("VV4 Full Mastery Tech destructor helper hash is invalid.")
+    if any(ui_hashes[label] != VV4_FULL_MASTERY_D19_HASHES[label] for label in ui_hashes):
+        raise PatcherError("VV4 Full Mastery D19 UI byte hash is invalid.")
     recert_hashes = recertification.get("hashes")
     if not isinstance(recert_hashes, dict) or any(
         recert_hashes.get(label) != value
@@ -416,8 +410,8 @@ def _certified_vv4_full_mastery_records(
         cure_hash = hashlib.sha256(bytes.fromhex(cure_patch["after"])).hexdigest().upper() if isinstance(cure_patch, dict) else ""
     except (KeyError, TypeError, ValueError):
         cure_hash = ""
-    if cure_hash != VV4_FULL_MASTERY_R3_HASHES["cure"]:
-        raise PatcherError("VV4 Full Mastery Cure payload hash is not the certified R3 value.")
+    if cure_hash != VV4_FULL_MASTERY_D19_HASHES["cure"]:
+        raise PatcherError("VV4 Full Mastery Cure payload hash is not the frozen value.")
     if artifact.get("ui_asset_gate", {}).get("scope") != "stock-mode only; Expanded-256 remains ON HOLD/fail-closed":
         raise PatcherError("VV4 Full Mastery UI asset scope is not stock-only fail-closed.")
     containment = artifact.get("cure_containment")
@@ -431,7 +425,7 @@ def _certified_vv4_full_mastery_records(
         raise PatcherError("VV4 Full Mastery Cure forbidden target is not fail-closed.")
     if containment.get("public_row", {}).get("selectable") is not False:
         raise PatcherError("VV4 Full Mastery Cure public row is still selectable.")
-    if containment.get("payload_sha256") != VV4_FULL_MASTERY_R3_HASHES["cure"]:
+    if containment.get("payload_sha256") != VV4_FULL_MASTERY_D19_HASHES["cure"]:
         raise PatcherError("VV4 Full Mastery Cure payload was changed.")
     stock = artifact["layouts"]["collection_progression"]
     expanded = artifact["layouts"]["experimental_expanded_256"]
@@ -451,7 +445,7 @@ def _certified_vv4_full_mastery_records(
                 f"Certified VV4 Full Mastery {label} artifact hash mismatch: "
                 f"expected {expected}, got {actual[label]}."
             )
-    if stock["installed_slot_sha256"] != VV4_FULL_MASTERY_R3_HASHES["command7_slot"]:
+    if stock["installed_slot_sha256"] != VV4_FULL_MASTERY_D19_HASHES["command7_slot"]:
         raise PatcherError("Certified VV4 Full Mastery command-7 slot hash mismatch.")
     base = dict(base)
     base.update(
@@ -569,7 +563,7 @@ def _load_fun_patch_records() -> list[FunPatch]:
                         if (
                             not candidate_base.get("enabled", True)
                             or not candidate_feature.get("enabled", True)
-                            or gate_status != "independent recertification GO"
+                            or gate_status != "independent metadata recertification GO"
                         ):
                             continue
                         items.append(record)
