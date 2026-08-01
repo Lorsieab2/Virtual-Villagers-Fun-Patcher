@@ -1,6 +1,6 @@
-# VV4 Full Mastery certified corrected-geometry playtest feature
+# VV4 Full Mastery disabled baked-asset UI candidate
 
-Generated from clean C6 baseline `577072f5b5205c3a0a857c0645d855bb98ec19d2` plus the repository-owned canonical mockup and direct-resource ABI gate. The exact corrected artifact received independent D13 recertification GO at commit `e9afe69e0461ff986adddb55d743cf091eea598b`; command 7 is available for stock-mode runtime playtesting.
+Generated from clean C6 baseline `577072f5b5205c3a0a857c0645d855bb98ec19d2` plus the repository-owned canonical mockup and direct-resource ABI gate. The command-7 record is HARD WITHDRAWN and catalog-hidden after Playtest 2 repeated the startup access violation at RVA 0x21570. Static review missed malformed sub_401C20 arguments; the preserved candidate bytes are evidence only. The legacy Cure row is rendered unavailable, command 5 is rejected before charge/dispatch, and the unchanged Cure payload remains withdrawn.
 
 - Canonical mockup SHA-256: `B404465B960BE3875F4DF0BFE32796B8045A9E938A356FF33448331AB2840A24`
 - Secondary mockup SHA-256: `AD1B6A8A61F13BBBA2C902E04AB8AD205167FC48034F4D0A7C078A76C756FA30`
@@ -17,5 +17,5 @@ Generated from clean C6 baseline `577072f5b5205c3a0a857c0645d855bb98ec19d2` plus
 - Stock base+mastery render SHA-256: `A01EF593321B12685FFA96BF888FA9ED556C3C2A506DEA7FDE2471FF2E83DA33`
 - Expanded base+mastery render SHA-256: `98CD9D3287D9790D0669FAEA155A1832D883AA99EF45BE582C8B2FF6F023C9F9`
 
-The feature exposes command 7 only with its enabled, hash-guarded base dependency. Commands 6/8, village-wide Running/Age bytes, direct skill stores, ownership, Remove, and save-format changes are absent. The candidate is fail-closed on missing or mismatched companion files, preserves stock executables, Cure bytes, certified VV3 stock-mode hashes, and the expanded-256 hold. Independent D13 recertification is complete; runtime player validation remains pending. Expanded-256 remains ON HOLD/fail-closed.
+The feature exposes command 7 only with its enabled, hash-guarded base dependency. Commands 6/8, village-wide Running/Age bytes, direct skill stores, ownership, Remove, and save-format changes are absent. The candidate is fail-closed on missing or mismatched companion files, preserves stock executables, Cure bytes, certified VV3 stock-mode hashes, and the expanded-256 hold. Historical D13 static approval is revoked by Playtest 2 runtime evidence. Expanded-256 remains ON HOLD/fail-closed.
 - D13 helper SHA-256: `C7379FB1AFDDD44F06CF48FAEED14C1701D796F5FC2568E10745337DADE13DB1`; Tech constructor: `4BAD0B344BA63130A1A1144CDE740CEBB61E82826FCDBD0171B182A3D8B62FA4`; Detail constructor: `BEC747E7EFC08BBA8BB7B65181B85E0E24AA30E1BBC2C1879206376C4468584E`; command-7 slot: `023CF384A52CB6A6A49511B8B069B952718DC70E771FEE15CAC8A0777FB5F6DE`; Cure: `2BB7A32344293DCACB4D0359818C6839AC1FBBAEE8F9E3D00DB59C274238D726`.

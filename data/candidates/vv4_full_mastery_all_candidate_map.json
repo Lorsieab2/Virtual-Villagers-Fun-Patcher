@@ -1,9 +1,9 @@
 {
   "acceptance_commit": "e9afe69e0461ff986adddb55d743cf091eea598b",
-  "candidate_status": "independent D13 recertification GO; stock-mode playtest enabled",
+  "candidate_status": "HARD WITHDRAWN after Playtest 2 startup crash; catalog-hidden",
   "independent_recertification": {
     "review": "D13",
-    "status": "independent recertification GO",
+    "status": "revoked by Playtest 2 startup crash",
     "commit": "e9afe69e0461ff986adddb55d743cf091eea598b",
     "scope": "VV4 Full Mastery stock-mode candidate only; Expanded-256 ON HOLD/fail-closed",
     "hashes": {
@@ -114,7 +114,7 @@
       "detail_handler_relocated_va": "0x4895A8",
       "detail_route_patch_offset": "0x48610"
     },
-    "status": "independent recertification GO",
+    "status": "HARD WITHDRAWN after Playtest 2 startup crash",
     "recertification_commit": "e9afe69e0461ff986adddb55d743cf091eea598b",
     "scope": "stock-mode only; Expanded-256 remains ON HOLD/fail-closed"
   },
@@ -146,12 +146,41 @@
     "payload_sha256": "2BB7A32344293DCACB4D0359818C6839AC1FBBAEE8F9E3D00DB59C274238D726",
     "payload_bytes_unchanged": true
   },
+  "playtest_withdrawal": {
+    "playtest": "VV4 Full Mastery UI Playtest 2",
+    "status": "HARD WITHDRAWN",
+    "crash": {
+      "exception": "0xC0000005",
+      "fault_rva": "0x21570",
+      "fault_va": "0x421570",
+      "instruction": "8B4108",
+      "observed_count": 2
+    },
+    "malformed_sub_401C20_args": {
+      "tech": {
+        "event": 4,
+        "asset": "0x48",
+        "x": "0x489F37",
+        "y": 3,
+        "parent": 1,
+        "flags": 13
+      },
+      "detail": {
+        "event": 4,
+        "asset": "0x48",
+        "x": "0x489F37",
+        "y": 3,
+        "parent": 1,
+        "flags": 2
+      }
+    }
+  },
   "source": {
     "size": 929792,
     "sha256": "6D27A429FFCA5F1F71FDD7ECA761ED1BB67E85F976494BA178B3D7BE01F1B220"
   },
-  "base_manifest_sha256": "3F3850E88635F9E853B08DCD1514F4B3407187C26FCF9687313D17B0DC7A5EA3",
-  "feature_manifest_sha256": "BCEE83DEE386E13FA6E15FAFAEA85DF2BEA634B2B98D1BCF010137550A92F986",
+  "base_manifest_sha256": "990B486110DCB93BA1BE29AA70E65A1E8ECDEED0971D3FC09D2616DED6994630",
+  "feature_manifest_sha256": "A805E6FC77063CF20C0C9485F386FF99416D25F72B93F9AA3B602C0177DE62C3",
   "base_stock_payload_sha256": "AAACA715AD7AE133EE495F33DE2BB994892B8EA335B71E67F705C983F2EA3B7A",
   "base_expanded_payload_sha256": "1205E3FC30EB26E8C07CA7A5FDAD024324ADCCF63ADBEFF4B0BF7719CFCC78E5",
   "companion": {

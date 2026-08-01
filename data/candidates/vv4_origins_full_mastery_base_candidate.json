@@ -180,9 +180,38 @@
     "expanded_virtual_address": "0x85A004",
     "patches": []
   },
-  "enabled": true,
-  "certification_status": "independent D13 recertification GO at e9afe69e0461ff986adddb55d743cf091eea598b; stock-mode playtest enabled; Expanded-256 remains ON HOLD/fail-closed",
-  "evidence_status": "D13 independently recertified exact emitted bytes from e9afe69e0461ff986adddb55d743cf091eea598b; stock-mode playtest enabled; Expanded-256 ON HOLD/fail-closed",
+  "enabled": false,
+  "certification_status": "HARD WITHDRAWN after Playtest 2 repeated the startup access violation at RVA 0x21570; catalog-hidden; Expanded-256 remains ON HOLD/fail-closed",
+  "evidence_status": "historical D13 static review at e9afe69e0461ff986adddb55d743cf091eea598b revoked by Playtest 2 runtime evidence; malformed sub_401C20 arguments; no selectable candidate",
+  "playtest_withdrawal": {
+    "playtest": "VV4 Full Mastery UI Playtest 2",
+    "status": "HARD WITHDRAWN",
+    "crash": {
+      "exception": "0xC0000005",
+      "fault_rva": "0x21570",
+      "fault_va": "0x421570",
+      "instruction": "8B4108",
+      "observed_count": 2
+    },
+    "malformed_sub_401C20_args": {
+      "tech": {
+        "event": 4,
+        "asset": "0x48",
+        "x": "0x489F37",
+        "y": 3,
+        "parent": 1,
+        "flags": 13
+      },
+      "detail": {
+        "event": 4,
+        "asset": "0x48",
+        "x": "0x489F37",
+        "y": 3,
+        "parent": 1,
+        "flags": 2
+      }
+    }
+  },
   "cure_containment": {
     "status": "withdrawn and fail-closed pending Full Heal/Cure All repair",
     "public_row": {

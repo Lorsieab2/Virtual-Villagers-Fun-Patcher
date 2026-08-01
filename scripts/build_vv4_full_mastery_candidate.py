@@ -984,15 +984,24 @@ def main() -> None:
     base = deepcopy(active)
     base["id"] = "vv4_enable_origins_exclusive_features_full_mastery_candidate"
     base["name"] = "VV4 Origins Full Mastery Extension Base"
-    base["enabled"] = True
+    base["enabled"] = False
     base["certification_status"] = (
-        f"independent D13 recertification GO at {R3_COMMIT}; stock-mode playtest enabled; "
-        "Expanded-256 remains ON HOLD/fail-closed"
+        "HARD WITHDRAWN after Playtest 2 repeated the startup access violation at "
+        "RVA 0x21570; catalog-hidden; Expanded-256 remains ON HOLD/fail-closed"
     )
     base["evidence_status"] = (
-        f"D13 independently recertified exact emitted bytes from {R3_COMMIT}; "
-        "stock-mode playtest enabled; Expanded-256 ON HOLD/fail-closed"
+        f"historical D13 static review at {R3_COMMIT} revoked by Playtest 2 runtime evidence; "
+        "malformed sub_401C20 arguments; no selectable candidate"
     )
+    base["playtest_withdrawal"] = {
+        "playtest": "VV4 Full Mastery UI Playtest 2",
+        "status": "HARD WITHDRAWN",
+        "crash": {"exception": "0xC0000005", "fault_rva": "0x21570", "fault_va": "0x421570", "instruction": "8B4108", "observed_count": 2},
+        "malformed_sub_401C20_args": {
+            "tech": {"event": 4, "asset": "0x48", "x": "0x489F37", "y": 3, "parent": 1, "flags": 13},
+            "detail": {"event": 4, "asset": "0x48", "x": "0x489F37", "y": 3, "parent": 1, "flags": 2},
+        },
+    }
     base["cure_containment"] = {
         "status": "withdrawn and fail-closed pending Full Heal/Cure All repair",
         "public_row": {
@@ -1121,7 +1130,7 @@ def main() -> None:
     stock_installed = installed_slots["collection_progression"]
     if sha(stock_installed) != R3_COMMAND7_SLOT_SHA256:
         raise RuntimeError("R3 command-7 slot hash mismatch")
-    feature_enabled = True
+    feature_enabled = False
     feature = {
         "id": "vv4_full_mastery_all_stage_a_candidate",
         "game_id": "vv4",
@@ -1131,9 +1140,9 @@ def main() -> None:
             else "DISABLED Candidate: Grant Full Mastery to All Villagers"
         ),
         "enabled": feature_enabled,
-        "certification_status": "independent D13 recertification GO; stock-mode playtest enabled; Expanded-256 ON HOLD/fail-closed",
+        "certification_status": "HARD WITHDRAWN after Playtest 2 startup crash; catalog-hidden; Expanded-256 ON HOLD/fail-closed",
         "evidence_status": (
-            f"D13 independently recertified exact emitted bytes from {R3_COMMIT}; stock-mode playtest enabled; Expanded-256 ON HOLD/fail-closed"
+            f"historical D13 static review at {R3_COMMIT} revoked by Playtest 2 runtime evidence; malformed sub_401C20 arguments"
         ),
         "explicit_non_changes": [
             "stock executable bytes outside the certified candidate payload",
@@ -1236,10 +1245,10 @@ def main() -> None:
 
     artifact = {
         "acceptance_commit": R3_COMMIT,
-        "candidate_status": "independent D13 recertification GO; stock-mode playtest enabled",
+        "candidate_status": "HARD WITHDRAWN after Playtest 2 startup crash; catalog-hidden",
         "independent_recertification": {
             "review": "D13",
-            "status": "independent recertification GO",
+            "status": "revoked by Playtest 2 startup crash",
             "commit": R3_COMMIT,
             "scope": "VV4 Full Mastery stock-mode candidate only; Expanded-256 ON HOLD/fail-closed",
             "hashes": {
@@ -1280,11 +1289,12 @@ def main() -> None:
                 "detail_handler_relocated_va": ui_map["detail_handler_relocated"]["va"],
                 "detail_route_patch_offset": "0x48610",
             },
-            "status": "independent recertification GO",
+            "status": "HARD WITHDRAWN after Playtest 2 startup crash",
             "recertification_commit": R3_COMMIT,
             "scope": "stock-mode only; Expanded-256 remains ON HOLD/fail-closed",
         },
         "cure_containment": base["cure_containment"],
+        "playtest_withdrawal": base["playtest_withdrawal"],
         "source": {"size": len(stock), "sha256": expected_sha},
         "base_manifest_sha256": sha(BASE_OUT.read_bytes()),
         "feature_manifest_sha256": sha(FEATURE_OUT.read_bytes()),
@@ -1367,9 +1377,9 @@ def main() -> None:
             f"The exact corrected artifact received independent D13 recertification GO at "
             f"commit `{R3_COMMIT}`; command 7 is available for stock-mode runtime playtesting.\n\n"
             if feature_enabled
-            else "The command-7 record is disabled. Its candidate-only Tech and Detail "
-            "buttons use the repository-owned canonical mockup crop as a deterministic "
-            "297x35 RGBA strip; independent emitted-byte recertification is pending. "
+            else "The command-7 record is HARD WITHDRAWN and catalog-hidden after Playtest 2 "
+            "repeated the startup access violation at RVA 0x21570. Static review missed malformed "
+            "sub_401C20 arguments; the preserved candidate bytes are evidence only. "
             "The legacy Cure row is rendered unavailable, command 5 is rejected before "
             "charge/dispatch, and the unchanged Cure payload remains withdrawn.\n\n"
         )
@@ -1392,7 +1402,7 @@ def main() -> None:
         "skill stores, ownership, Remove, and save-format changes are absent. "
         "The candidate is fail-closed on missing or mismatched companion files, "
         "preserves stock executables, Cure bytes, certified VV3 stock-mode hashes, and "
-        "the expanded-256 hold. Independent D13 recertification is complete; runtime player validation remains pending. "
+        "the expanded-256 hold. Historical D13 static approval is revoked by Playtest 2 runtime evidence. "
         "Expanded-256 remains ON HOLD/fail-closed.\n"
         f"- D13 helper SHA-256: `{R3_HELPER_SHA256}`; Tech constructor: `{R3_TECH_CONSTRUCTOR_SHA256}`; "
         f"Detail constructor: `{R3_DETAIL_CONSTRUCTOR_SHA256}`; command-7 slot: `{R3_COMMAND7_SLOT_SHA256}`; "
@@ -1404,7 +1414,7 @@ def main() -> None:
     for source_path in (BASE_OUT, FEATURE_OUT, MAP_OUT, DOC_OUT, COMPANION, BUTTON_ASSET):
         shutil.copy2(source_path, output_dir / source_path.name)
     checksum_records: dict[str, object] = {
-        "status": "D13-certified stock-mode playtest candidate; Expanded-256 ON HOLD/fail-closed",
+        "status": "HARD WITHDRAWN after Playtest 2 startup crash; Expanded-256 ON HOLD/fail-closed",
         "asset": asset_map,
         "source": {"path": str(STOCK.relative_to(ROOT)), "sha256": expected_sha},
         "artifacts": {},
