@@ -34,7 +34,6 @@ FEATURE = ROOT / "data" / "candidates" / "vv4_full_mastery_all_candidate.json"
 MAP = ROOT / "data" / "candidates" / "vv4_full_mastery_all_candidate_map.json"
 DOC = ROOT / "docs" / "vv4-full-mastery-stage-a-candidate.md"
 DLL = ROOT / "data" / "candidates" / "VVFP VV4 Full Mastery Candidate.dll"
-ASSET = ROOT / "assets" / "candidates" / "vv4_full_mastery" / "Images" / "btn_upgrades_297x35.png"
 PROVENANCE = ROOT / "assets" / "candidates" / "vv4_full_mastery" / "provenance"
 MODES = (
     "collection_progression",
@@ -166,22 +165,25 @@ class VV4FullMasteryCandidateTests(unittest.TestCase):
         tech = code[0x40:0xC0]
         detail = code[0x100:0x180]
         helper = code[0xC0:0xE2]
-        self.assertIn(bytes.fromhex("6A0D"), tech)
-        self.assertIn(bytes.fromhex("6A02"), detail)
-        self.assertIn(bytes.fromhex("6A0D6A016A03"), tech)
-        self.assertIn(bytes.fromhex("6A026A016A03"), detail)
+        self.assertIn(bytes.fromhex("68E0EE4B006A0D"), tech)
+        self.assertIn(bytes.fromhex("6838F54B006A02"), detail)
         self.assertNotIn(bytes.fromhex("83F863"), tech)
         self.assertNotIn(bytes.fromhex("83F823"), tech)
         self.assertNotIn(bytes.fromhex("83F863"), detail)
         self.assertNotIn(bytes.fromhex("83F823"), detail)
         self.assertNotIn("0x401470", json.dumps(self.map))
         self.assertNotIn("0x4014B0", json.dumps(self.map))
-        self.assertIn(bytes.fromhex("E84988F7FF"), tech)  # sub_401C20
-        self.assertIn(bytes.fromhex("E88987F7FF"), detail)  # sub_401C20
-        self.assertIn(bytes.fromhex("83781000"), tech)
-        self.assertIn(bytes.fromhex("83781000"), detail)
-        self.assertIn(bytes.fromhex("89C18B118B126A01FFD2"), tech)
-        self.assertIn(bytes.fromhex("89C18B118B126A01FFD2"), detail)
+        factory_info = self.map["candidate_ui_payload"]["native_factory"]
+        factory = code[0xBC4 : 0xBC4 + factory_info["length"]]
+        self.assertEqual(factory_info["length"], 145)
+        self.assertEqual(code[0xC84:0xC8D], b"Upgrades\0")
+        for target in (0x470C5C, 0x44CCF0, 0x44CB60, 0x401C20, 0x401600, 0x401630, 0x470B7B):
+            self.assertIn(target, rel32_targets(factory, 0x489F37))
+        self.assertLess(factory.index(bytes.fromhex("6A14")), factory.index(bytes.fromhex("688C000000")))
+        self.assertIn(bytes.fromhex("688C00000089D9E8"), factory)
+        self.assertIn(bytes.fromhex("6A00566A046A4850"), factory)
+        self.assertIn(bytes.fromhex("FF74241489F9E8"), factory)
+        self.assertNotIn(b"Images\\btn_upgrades", code)
         self.assertIn(0x40C190, rel32_targets(tech, 0x4893B3))  # sub_40C190
         self.assertIn(0x40C190, rel32_targets(detail, 0x489473))  # sub_40C190
         self.assertNotIn(b"\xA0\xD8\x40", tech + detail)
@@ -211,23 +213,18 @@ class VV4FullMasteryCandidateTests(unittest.TestCase):
                 "nonnull_outer_and_inner": {"attach": True, "tech_slot": "this+0x74"},
                 "null_outer": {"attach": False, "tech_slot": None},
                 "null_inner": {"attach": False, "scalar_destroy_flag": 1, "tech_slot": None},
-                "static_asset_contract": {
-                    "dimensions": [297, 35],
-                    "grid": [3, 1],
-                    "frame_width": 99,
-                    "identical_frames": True,
-                    "png_sha256": "F03D57038CA7745A99C0D7D58A2558A4411828BF3243D85C8BAFE2E04036BE4B",
-                    "rgba_sha256": "02B42DEAD3673BA5048160C2D337D284215336E39BCEAC52592432839ECB3AD4",
-                },
+                "loader_null": {"raw_deallocator": "sub_470B7B", "abi": "cdecl push pointer; caller add esp,4", "virtual_destructor": False},
+                "static_asset_contract": {"ordinal": "0x8C", "asset": "btn_trophies.png", "dimensions": [100, 39], "bounds_half_open": [72, 4, 172, 43], "ownership": "borrowed native cache"},
                 "runtime_dimension_accessors": "none; wrapper vtable +0x0C/+0x10 are not image dimensions",
             },
         )
         ui = self.map["ui_asset_gate"]
-        self.assertEqual(ui["destination"], r"Images\btn_upgrades_297x35.png")
-        self.assertEqual(ui["dimensions"], [297, 35])
-        self.assertEqual(ui["frame_order"], ["normal", "hover", "pressed"])
+        self.assertEqual(ui["runtime_source"], r"native cached VV4 Images\btn_trophies.png")
+        self.assertEqual(ui["ordinal"], "0x8C")
+        self.assertEqual(ui["dimensions"], [100, 39])
+        self.assertEqual(ui["bounds_half_open"], [72, 4, 172, 43])
+        self.assertIsNone(ui["custom_runtime_companion"])
         self.assertEqual(ui["factory"], "sub_401C20")
-        self.assertEqual(ui["grid"], [3, 1])
         self.assertEqual(ui["local"], [72, 4])
         self.assertEqual(ui["events"], {"tech": 13, "detail": 2})
         self.assertEqual(ui["add_child"], "sub_40C190")
@@ -244,12 +241,9 @@ class VV4FullMasteryCandidateTests(unittest.TestCase):
                 "detail_constructor": "BEC747E7EFC08BBA8BB7B65181B85E0E24AA30E1BBC2C1879206376C4468584E",
                 "command7_slot": "023CF384A52CB6A6A49511B8B069B952718DC70E771FEE15CAC8A0777FB5F6DE",
                 "cure": "2BB7A32344293DCACB4D0359818C6839AC1FBBAEE8F9E3D00DB59C274238D726",
-                "png": "F03D57038CA7745A99C0D7D58A2558A4411828BF3243D85C8BAFE2E04036BE4B",
                 "dll": "4E1A83683A875EFE6F67116CDD862927BE1ABCB17DB7AE18143E58E98EAD01E7",
             },
         )
-        self.assertEqual(ui["png_sha256"], "F03D57038CA7745A99C0D7D58A2558A4411828BF3243D85C8BAFE2E04036BE4B")
-        self.assertEqual(sha(ASSET.read_bytes()), ui["png_sha256"])
         self.assertEqual(sha((PROVENANCE / "VV4 mockup.jpg").read_bytes()), "B404465B960BE3875F4DF0BFE32796B8045A9E938A356FF33448331AB2840A24")
         withdrawal = self.map["playtest_withdrawal"]
         self.assertEqual(withdrawal["status"], "HARD WITHDRAWN")
@@ -476,18 +470,19 @@ class VV4FullMasteryCandidateTests(unittest.TestCase):
                     _remove_feature_bytes(work, self.base, "collection_progression")
         before = {
             path: sha(path.read_bytes())
-            for path in (BASE, FEATURE, MAP, DOC, DLL, ASSET)
+            for path in (BASE, FEATURE, MAP, DOC, DLL)
         }
         subprocess.run([sys.executable, str(GENERATOR)], cwd=ROOT, check=True)
         after = {
             path: sha(path.read_bytes())
-            for path in (BASE, FEATURE, MAP, DOC, DLL, ASSET)
+            for path in (BASE, FEATURE, MAP, DOC, DLL)
         }
         self.assertEqual(before, after)
 
     def test_companion_preflight_and_exact_removal_guards(self):
         bad = deepcopy(self.base_raw)
-        bad["companion_files"][1]["sha256"] = "0" * 64
+        self.assertEqual(len(bad["companion_files"]), 1)
+        bad["companion_files"][0]["sha256"] = "0" * 64
         stock_before = STOCK.read_bytes()
         with self.assertRaises(PatcherError):
             render_patched_bytes(
@@ -498,9 +493,7 @@ class VV4FullMasteryCandidateTests(unittest.TestCase):
             )
         self.assertEqual(STOCK.read_bytes(), stock_before)
         missing = deepcopy(self.base_raw)
-        missing["companion_files"][1]["source"] = (
-            "assets/candidates/vv4_full_mastery/Images/btn_upgrades_missing.png"
-        )
+        missing["companion_files"][0]["source"] = "data/candidates/missing.dll"
         with self.assertRaisesRegex(PatcherError, "missing"):
             render_patched_bytes(
                 STOCK,
@@ -517,12 +510,11 @@ class VV4FullMasteryCandidateTests(unittest.TestCase):
                 source = ROOT / item["source"]
                 destination.write_bytes(source.read_bytes())
             removed = _remove_companion_files(output, [self.base])
-            self.assertEqual(len(removed), 2)
-            self.assertFalse((output / "Images" / "btn_upgrades_297x35.png").exists())
+            self.assertEqual(len(removed), 1)
             self.assertFalse((output / "VVFP Origins Icons.dll").exists())
         with tempfile.TemporaryDirectory() as folder:
             output = Path(folder)
-            item = self.base_raw["companion_files"][1]
+            item = self.base_raw["companion_files"][0]
             destination = output / Path(item["destination"].replace("\\", "/"))
             destination.parent.mkdir(parents=True, exist_ok=True)
             destination.write_bytes(b"corrupt")

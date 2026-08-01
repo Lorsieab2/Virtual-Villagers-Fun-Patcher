@@ -25,14 +25,10 @@ PROVENANCE_DIR = CANDIDATE_ROOT / "provenance"
 CANONICAL_MOCKUP = PROVENANCE_DIR / "VV4 mockup.jpg"
 SECONDARY_MOCKUP = PROVENANCE_DIR / "VV4 mockup2.jpg"
 STOCK_TROPHIES = PROVENANCE_DIR / "btn_trophies.png"
-BUTTON_ASSET = CANDIDATE_ROOT / "Images" / "btn_upgrades_297x35.png"
-BUTTON_DESTINATION = r"Images\btn_upgrades_297x35.png"
 CANONICAL_MOCKUP_SHA256 = "B404465B960BE3875F4DF0BFE32796B8045A9E938A356FF33448331AB2840A24"
 SECONDARY_MOCKUP_SHA256 = "AD1B6A8A61F13BBBA2C902E04AB8AD205167FC48034F4D0A7C078A76C756FA30"
 STOCK_TROPHIES_SHA256 = "1D70B74ADA23EAC375858B7B6535BF3D7A97B663E48AC0664B79DC54C435E822"
 CANONICAL_CROP_RGBA_SHA256 = "B8E9C4DB93F05450689528C5A04A532486771E53DDC23FCF63B0155C7949418B"
-BUTTON_RGBA_SHA256 = "02B42DEAD3673BA5048160C2D337D284215336E39BCEAC52592432839ECB3AD4"
-BUTTON_PNG_SHA256 = "F03D57038CA7745A99C0D7D58A2558A4411828BF3243D85C8BAFE2E04036BE4B"
 R3_COMMIT = "e9afe69e0461ff986adddb55d743cf091eea598b"
 R3_HELPER_SHA256 = "C7379FB1AFDDD44F06CF48FAEED14C1701D796F5FC2568E10745337DADE13DB1"
 R3_TECH_CONSTRUCTOR_SHA256 = "4BAD0B344BA63130A1A1144CDE740CEBB61E82826FCDBD0171B182A3D8B62FA4"
@@ -78,7 +74,8 @@ EARLY_COMMAND5_HELPER_OFFSET = 0xE2
 EARLY_COMMAND5_HELPER_SIZE = 0x1E
 DETAIL_HANDLER_RELOC_OFFSET = 0x235
 DETAIL_MENU_OFFSET = 0x500
-BUTTON_PATH_OFFSET = 0xBC4
+UI_FACTORY_OFFSET = 0xBC4
+UPGRADES_TEXT_OFFSET = UI_FACTORY_OFFSET + 0xC0
 TECH_DESTRUCTOR_CALL_OFFSET = 0x3E238
 DETAIL_ROUTE_OFFSET = 0x48610
 
@@ -134,12 +131,8 @@ def canonical_sha(value: object) -> str:
     return sha(json.dumps(value, sort_keys=True, separators=(",", ":")).encode("ascii"))
 
 
-def build_button_asset() -> tuple[bytes, dict[str, object]]:
-    """Rebuild the candidate strip from the repository-owned canonical mockup."""
-    try:
-        from PIL import Image
-    except ImportError as exc:  # pragma: no cover - environment gate
-        raise RuntimeError("Pillow is required for deterministic candidate asset generation") from exc
+def validate_native_asset_provenance() -> dict[str, object]:
+    """Retain historical art provenance while using only VV4's native cached asset."""
     for path, expected in (
         (CANONICAL_MOCKUP, CANONICAL_MOCKUP_SHA256),
         (SECONDARY_MOCKUP, SECONDARY_MOCKUP_SHA256),
@@ -147,35 +140,15 @@ def build_button_asset() -> tuple[bytes, dict[str, object]]:
     ):
         if not path.is_file() or sha(path.read_bytes()) != expected:
             raise RuntimeError(f"candidate provenance hash mismatch: {path}")
-    with Image.open(CANONICAL_MOCKUP) as image:
-        crop = image.convert("RGBA").crop((72, 4, 171, 39))
-    crop_bytes = bytes(crop.tobytes())
-    if crop.size != (99, 35) or sha(crop_bytes) != CANONICAL_CROP_RGBA_SHA256:
-        raise RuntimeError("canonical VV4 mockup crop guard mismatch")
-    strip = Image.new("RGBA", (297, 35))
-    for index in range(3):
-        strip.paste(crop, (index * 99, 0))
-    rgba = bytes(strip.tobytes())
-    if sha(rgba) != BUTTON_RGBA_SHA256:
-        raise RuntimeError("candidate strip RGBA hash mismatch")
-    import io
-
-    encoded = io.BytesIO()
-    strip.save(encoded, format="PNG", compress_level=9, optimize=False)
-    png = encoded.getvalue()
-    if sha(png) != BUTTON_PNG_SHA256:
-        raise RuntimeError("candidate strip PNG hash mismatch")
-    BUTTON_ASSET.parent.mkdir(parents=True, exist_ok=True)
-    BUTTON_ASSET.write_bytes(png)
-    return png, {
-        "path": str(BUTTON_ASSET.relative_to(ROOT)).replace("/", "\\"),
-        "destination": BUTTON_DESTINATION,
-        "dimensions": [297, 35],
-        "format": "PNG RGBA8, lossless, zlib compress_level=9, optimize=false",
-        "frame_width": 99,
-        "frame_order": ["normal", "hover", "pressed"],
-        "frame_count": 3,
-        "source": {
+    return {
+        "runtime_source": "native cached VV4 Images\\btn_trophies.png",
+        "ordinal": "0x8C",
+        "loader": "after wrapper allocation, sub_44CCF0 manager then ECX=manager; push 0x8C; sub_44CB60",
+        "dimensions": [100, 39],
+        "bounds_half_open": [72, 4, 172, 43],
+        "asset_ownership": "borrowed native cache object",
+        "custom_runtime_companion": None,
+        "historical_provenance": {
             "mockup": str(CANONICAL_MOCKUP.relative_to(ROOT)).replace("/", "\\"),
             "mockup_sha256": CANONICAL_MOCKUP_SHA256,
             "crop_xywh": [72, 4, 99, 35],
@@ -183,8 +156,6 @@ def build_button_asset() -> tuple[bytes, dict[str, object]]:
             "secondary_mockup_sha256": SECONDARY_MOCKUP_SHA256,
             "stock_btn_trophies_sha256": STOCK_TROPHIES_SHA256,
         },
-        "rgba_sha256": BUTTON_RGBA_SHA256,
-        "png_sha256": BUTTON_PNG_SHA256,
     }
 
 
@@ -201,11 +172,10 @@ def build_ui_payload(active_payload: bytes) -> tuple[bytes, dict[str, object]]:
         raise RuntimeError("Detail constructor payload guard mismatch")
     if any(payload[DETAIL_HANDLER_RELOC_OFFSET : DETAIL_HANDLER_RELOC_OFFSET + 0x2B]):
         raise RuntimeError("Detail handler relocation cave is not zero")
-    path = b"Images\\btn_upgrades_297x35.png\0"
-    if any(payload[BUTTON_PATH_OFFSET : BUTTON_PATH_OFFSET + len(path)]):
-        raise RuntimeError("candidate asset path cave is not zero")
-    payload[BUTTON_PATH_OFFSET : BUTTON_PATH_OFFSET + len(path)] = path
-    path_va = PAYLOAD_VA + BUTTON_PATH_OFFSET
+    factory_va = PAYLOAD_VA + UI_FACTORY_OFFSET
+    text_va = PAYLOAD_VA + UPGRADES_TEXT_OFFSET
+    if any(payload[UI_FACTORY_OFFSET : PAYLOAD_SIZE]):
+        raise RuntimeError("native UI factory cave is not zero")
     tech_ctor_va = PAYLOAD_VA + TECH_CONSTRUCTOR_OFFSET
     detail_ctor_va = PAYLOAD_VA + DETAIL_CONSTRUCTOR_OFFSET
     helper_va = PAYLOAD_VA + TECH_DESTRUCTOR_HELPER_OFFSET
@@ -213,37 +183,16 @@ def build_ui_payload(active_payload: bytes) -> tuple[bytes, dict[str, object]]:
     detail_menu_va = PAYLOAD_VA + DETAIL_MENU_OFFSET
     tech_ctor = asm(
         f"""
-            push 0x14
-            call 0x470C5C
-            add esp, 4
-            test eax, eax
-            je clear_slot
+            mov dword ptr [esi + 0x74], 0
+            push 0x4BEEE0
             push 13
-            push 1
-            push 3
-            push 0x{path_va:X}
-            push 72
-            push 4
-            mov ecx, eax
-            call 0x401C20
+            call 0x{factory_va:X}
             test eax, eax
-            je clear_slot
-            cmp dword ptr [eax + 0x10], 0
-            jne attach
-            mov ecx, eax
-            mov edx, dword ptr [ecx]
-            mov edx, dword ptr [edx]
-            push 1
-            call edx
-            jmp clear_slot
-        attach:
+            je continue
             mov dword ptr [esi + 0x74], eax
             push eax
             mov ecx, esi
             call 0x40C190
-            jmp continue
-        clear_slot:
-            mov dword ptr [esi + 0x74], 0
         continue:
             mov eax, esi
             mov ecx, dword ptr [esp + 0x4C]
@@ -253,30 +202,11 @@ def build_ui_payload(active_payload: bytes) -> tuple[bytes, dict[str, object]]:
     )
     detail_ctor = asm(
         f"""
-            push 0x14
-            call 0x470C5C
-            add esp, 4
-            test eax, eax
-            je cleanup
+            push 0x4BF538
             push 2
-            push 1
-            push 3
-            push 0x{path_va:X}
-            push 72
-            push 4
-            mov ecx, eax
-            call 0x401C20
+            call 0x{factory_va:X}
             test eax, eax
             je cleanup
-            cmp dword ptr [eax + 0x10], 0
-            jne attach
-            mov ecx, eax
-            mov edx, dword ptr [ecx]
-            mov edx, dword ptr [edx]
-            push 1
-            call edx
-            jmp cleanup
-        attach:
             push eax
             mov ecx, esi
             call 0x40C190
@@ -289,6 +219,75 @@ def build_ui_payload(active_payload: bytes) -> tuple[bytes, dict[str, object]]:
         """,
         detail_ctor_va,
     )
+    factory = asm(
+        f"""
+            push ebx
+            push edi
+            push ebp
+            mov ebp, dword ptr [esp + 0x14]
+            push dword ptr [esp + 0x10]
+            push 0x14
+            call 0x470C5C
+            add esp, 4
+            test eax, eax
+            je fail
+            mov edi, eax
+            call 0x44CCF0
+            mov ebx, eax
+            push 0x8C
+            mov ecx, ebx
+            call 0x44CB60
+            test eax, eax
+            je raw_free
+            push 0
+            push esi
+            push 4
+            push 72
+            push eax
+            push dword ptr [esp + 0x14]
+            mov ecx, edi
+            call 0x401C20
+            cmp dword ptr [edi + 0x10], 0
+            je scalar_free
+            push 0
+            push dword ptr [ebp + 8]
+            push dword ptr [ebp + 4]
+            push dword ptr [ebp]
+            push 0x{text_va:X}
+            mov ecx, edi
+            call 0x401600
+            push 3
+            push 0
+            mov ecx, edi
+            call 0x401630
+            mov eax, edi
+            jmp done
+        raw_free:
+            push edi
+            call 0x470B7B
+            add esp, 4
+            jmp fail
+        scalar_free:
+            mov ecx, edi
+            mov eax, dword ptr [ecx]
+            mov eax, dword ptr [eax]
+            push 1
+            call eax
+        fail:
+            xor eax, eax
+        done:
+            add esp, 4
+            pop ebp
+            pop edi
+            pop ebx
+            ret 8
+        """,
+        factory_va,
+    )
+    if len(factory) > 0xC0:
+        raise RuntimeError("native UI factory overlaps Upgrades literal")
+    payload[UI_FACTORY_OFFSET : UI_FACTORY_OFFSET + 0xC0] = factory.ljust(0xC0, b"\0")
+    payload[UPGRADES_TEXT_OFFSET : UPGRADES_TEXT_OFFSET + 9] = b"Upgrades\0"
     helper = asm(
         """
             mov ecx, dword ptr [ebx + 0x74]
@@ -357,24 +356,19 @@ def build_ui_payload(active_payload: bytes) -> tuple[bytes, dict[str, object]]:
             "nonnull_outer_and_inner": {"attach": True, "tech_slot": "this+0x74"},
             "null_outer": {"attach": False, "tech_slot": None},
             "null_inner": {"attach": False, "scalar_destroy_flag": 1, "tech_slot": None},
-            "static_asset_contract": {
-                "dimensions": [297, 35],
-                "grid": [3, 1],
-                "frame_width": 99,
-                "identical_frames": True,
-                "png_sha256": BUTTON_PNG_SHA256,
-                "rgba_sha256": BUTTON_RGBA_SHA256,
-            },
+            "loader_null": {"raw_deallocator": "sub_470B7B", "abi": "cdecl push pointer; caller add esp,4", "virtual_destructor": False},
+            "static_asset_contract": {"ordinal": "0x8C", "asset": "btn_trophies.png", "dimensions": [100, 39], "bounds_half_open": [72, 4, 172, 43], "ownership": "borrowed native cache"},
             "runtime_dimension_accessors": "none; wrapper vtable +0x0C/+0x10 are not image dimensions",
         },
         "detail_handler_relocated": {"offset": f"0x{DETAIL_HANDLER_RELOC_OFFSET:X}", "length": len(relocated_handler), "sha256": sha(relocated_handler), "va": f"0x{relocated_handler_va:X}"},
         "direct_factory": "sub_401C20",
         "parent_insertion": "sub_40C190",
         "detail_cleanup": "list-owned sub_40C300",
-        "forbidden_helpers": ["sub_40D8A0", "sub_401140", "sub_401600"],
-        "path_va": f"0x{path_va:X}",
+        "native_factory": {"offset": f"0x{UI_FACTORY_OFFSET:X}", "va": f"0x{factory_va:X}", "length": len(factory), "sha256": sha(factory), "literal_va": f"0x{text_va:X}"},
+        "forbidden_helpers": ["sub_40D8A0"],
+        "asset_loader": {"manager": "sub_44CCF0", "ordinal": "0x8C", "loader": "sub_44CB60", "raw_deallocator": "sub_470B7B"},
+        "text_overlay": {"text": "Upgrades", "setter": "sub_401600", "style": "sub_401630", "tech_colors": ["0x4BEEE0", "0x4BEEE4", "0x4BEEE8"], "detail_colors": ["0x4BF538", "0x4BF53C", "0x4BF540"]},
         "events": {"tech": 13, "detail": 2},
-        "grid": [3, 1],
         "local": [72, 4],
     }
 
@@ -952,7 +946,7 @@ def main() -> None:
     active_payload = bytearray(
         bytes.fromhex(payload_patch["after"]).ljust(PAYLOAD_SIZE, b"\0")
     )
-    button_png, asset_map = build_button_asset()
+    asset_map = validate_native_asset_provenance()
     ui_payload, ui_map = build_ui_payload(bytes(active_payload))
     if sha(COMPANION.read_bytes()) != C7_DLL_SHA256:
         raise RuntimeError("C7 companion DLL hash mismatch")
@@ -1037,12 +1031,6 @@ def main() -> None:
             "source": "data/candidates/VVFP VV4 Full Mastery Candidate.dll",
             "destination": "VVFP Origins Icons.dll",
             "sha256": sha(COMPANION.read_bytes()),
-        }
-        ,
-        {
-            "source": str(BUTTON_ASSET.relative_to(ROOT)).replace("/", "/"),
-            "destination": BUTTON_DESTINATION,
-            "sha256": sha(button_png),
         },
     ]
     base["patches"].append(
@@ -1058,7 +1046,7 @@ def main() -> None:
     route_item["after"] = (
         rel32_jump(0x448610, PAYLOAD_VA + DETAIL_HANDLER_RELOC_OFFSET) + b"\x90" * 3
     ).hex().upper()
-    route_item["purpose"] = "route Detail event 2 through the candidate direct-resource handler"
+    route_item["purpose"] = "route Detail event 2 through the candidate native-ordinal handler"
     base["patches"] = [
         item for item in base["patches"] if int(item["offset"], 0) != 0x7B7A0
     ]
@@ -1077,7 +1065,7 @@ def main() -> None:
     payload_item["before"] = (b"\0" * PAYLOAD_SIZE).hex().upper()
     payload_item["after"] = stock_payload.hex().upper()
     payload_item["purpose"] = (
-        "install the base Origins core plus candidate-only direct-resource Tech/Detail UI hooks and guarded command-7 slot"
+        "install the base Origins core plus candidate-only native-ordinal Tech/Detail UI hooks and guarded command-7 slot"
     )
     base["patch_mode_overrides"] = {
         mode: [
@@ -1257,7 +1245,19 @@ def main() -> None:
                 "detail_constructor": R3_DETAIL_CONSTRUCTOR_SHA256,
                 "command7_slot": R3_COMMAND7_SLOT_SHA256,
                 "cure": R3_CURE_SHA256,
-                "png": BUTTON_PNG_SHA256,
+                "dll": R3_DLL_SHA256,
+            },
+        },
+        "pending_independent_recertification": {
+            "status": "C12 native-ordinal candidate assembled disabled; fresh independent recertification required",
+            "scope": "native asset loader, exact button arguments, text overlay, failure cleanup, ownership, geometry, routing, and uninstall",
+            "hashes": {
+                "native_factory": ui_map["native_factory"]["sha256"],
+                "tech_constructor": ui_map["tech_constructor"]["sha256"],
+                "detail_constructor": ui_map["detail_constructor"]["sha256"],
+                "destructor_helper": ui_map["destructor_helper"]["sha256"],
+                "command7_slot": R3_COMMAND7_SLOT_SHA256,
+                "cure": R3_CURE_SHA256,
                 "dll": R3_DLL_SHA256,
             },
         },
@@ -1265,7 +1265,6 @@ def main() -> None:
             **asset_map,
             "display": "800x600 at 96 DPI",
             "factory": ui_map["direct_factory"],
-            "grid": ui_map["grid"],
             "local": ui_map["local"],
             "events": ui_map["events"],
             "add_child": ui_map["parent_insertion"],
@@ -1372,25 +1371,25 @@ def main() -> None:
         )
         + "Generated from clean C6 baseline "
         f"`{C6_BASELINE_COMMIT}` plus the repository-owned "
-        "canonical mockup and direct-resource ABI gate. "
+        "canonical mockup provenance and native ordinal ABI gate. "
         + (
             f"The exact corrected artifact received independent D13 recertification GO at "
             f"commit `{R3_COMMIT}`; command 7 is available for stock-mode runtime playtesting.\n\n"
             if feature_enabled
             else "The command-7 record is HARD WITHDRAWN and catalog-hidden after Playtest 2 "
             "repeated the startup access violation at RVA 0x21570. Static review missed malformed "
-            "sub_401C20 arguments; the preserved candidate bytes are evidence only. "
+            "sub_401C20 arguments. C12 replaces that UI construction with the proved native ordinal, "
+            "text, and cleanup ABIs but remains disabled pending fresh independent recertification. "
             "The legacy Cure row is rendered unavailable, command 5 is rejected before "
             "charge/dispatch, and the unchanged Cure payload remains withdrawn.\n\n"
         )
         + f"- Canonical mockup SHA-256: `{CANONICAL_MOCKUP_SHA256}`\n"
         f"- Secondary mockup SHA-256: `{SECONDARY_MOCKUP_SHA256}`\n"
         f"- Canonical crop RGBA SHA-256: `{CANONICAL_CROP_RGBA_SHA256}`\n"
-        f"- Candidate button PNG SHA-256: `{BUTTON_PNG_SHA256}` (decoded RGBA `{BUTTON_RGBA_SHA256}`)\n"
-        f"- Candidate button path: `{BUTTON_DESTINATION}`; frames: normal, hover, pressed (99x35 each)\n"
-        "- Button construction: `sub_401C20`, grid 3x1, local 72,4; Tech event 13 and Detail event 2; parent `sub_40C190`.\n"
-        "- Runtime text/style/font helpers and `sub_40D8A0` are absent; the Tech wrapper uses `this+0x74` and paired scalar-destructor cleanup, while Detail uses list-owned `sub_40C300`.\n"
-        "- Runtime wrapper handling validates both the outer wrapper and its inner object at `wrapper+0x10`: only complete wrappers are attached/stored, while an incomplete wrapper is scalar-destroyed with flag 1 and Tech `this+0x74` remains empty. No wrapper vtable `+0x0C`/`+0x10` calls or runtime dimension comparisons are emitted; 297x35/3x1 validation is static and occurs before output mutation.\n"
+        "- Native asset: cached ordinal `0x8C` (`btn_trophies.png`), natural frame 100x39 at local 72,4, half-open bounds [72,4,172,43); no custom runtime PNG, path, grid, crop, or resize.\n"
+        "- Button construction: manager `sub_44CCF0`, ordinal loader `sub_44CB60`, `sub_401C20`; Tech event 13 and Detail event 2; parent `sub_40C190`.\n"
+        "- `Upgrades` is copied through proven native `sub_401600` text overlay and `sub_401630` style ABIs; `sub_40D8A0` is absent. Tech uses `this+0x74` and paired cleanup; Detail uses list-owned `sub_40C300`.\n"
+        "- Wrapper-null returns without attach. Loader-null raw-frees the unconstructed wrapper through cdecl `sub_470B7B`; it never virtual-destructs raw memory. Inner-null after `sub_401C20` uses the proven scalar destructor with flag 1.\n"
         "- The Tech helper emits exact `8B CB` (`mov ecx, ebx`) after clearing `this+0x74` and before `sub_40C340`; its continuation remains `0x43E23D`.\n"
         + f"- Companion SHA-256: `{artifact['companion']['sha256']}`\n"
         f"- Stock installed slot SHA-256: `{artifact['layouts']['collection_progression']['installed_slot_sha256']}`\n"
@@ -1411,7 +1410,7 @@ def main() -> None:
     )
     output_dir = ROOT / "outputs" / "vv4_full_mastery_candidate"
     output_dir.mkdir(parents=True, exist_ok=True)
-    for source_path in (BASE_OUT, FEATURE_OUT, MAP_OUT, DOC_OUT, COMPANION, BUTTON_ASSET):
+    for source_path in (BASE_OUT, FEATURE_OUT, MAP_OUT, DOC_OUT, COMPANION):
         shutil.copy2(source_path, output_dir / source_path.name)
     checksum_records: dict[str, object] = {
         "status": "HARD WITHDRAWN after Playtest 2 startup crash; Expanded-256 ON HOLD/fail-closed",
@@ -1428,7 +1427,6 @@ def main() -> None:
         exe_path.write_bytes(feature_render)
         checksum_records["artifacts"][mode] = {
             "exe": {"path": str(exe_path.relative_to(ROOT)), "sha256": sha(bytes(feature_render))},
-            "png": {"path": str((output_dir / BUTTON_ASSET.name).relative_to(ROOT)), "sha256": BUTTON_PNG_SHA256},
         }
     (output_dir / "checksums.json").write_text(
         json.dumps(checksum_records, indent=2) + "\n", encoding="utf-8"
