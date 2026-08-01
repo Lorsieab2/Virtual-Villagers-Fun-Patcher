@@ -74,6 +74,8 @@ TECH_CONSTRUCTOR_OFFSET = 0x40
 DETAIL_HANDLER_OFFSET = 0xC0
 DETAIL_CONSTRUCTOR_OFFSET = 0x100
 TECH_DESTRUCTOR_HELPER_OFFSET = 0xC0
+EARLY_COMMAND5_HELPER_OFFSET = 0xE2
+EARLY_COMMAND5_HELPER_SIZE = 0x1E
 DETAIL_HANDLER_RELOC_OFFSET = 0x235
 DETAIL_MENU_OFFSET = 0x500
 BUTTON_PATH_OFFSET = 0xBC4
@@ -854,6 +856,33 @@ def build_base_payload(active_payload: bytes, page_va: int) -> bytes:
         PAYLOAD_VA + SHOW_DIALOG_OFFSET,
     )
     tech_menu = bytearray(payload[TECH_MENU_OFFSET : TECH_MENU_OFFSET + TECH_MENU_SIZE])
+    menu_loop_va = PAYLOAD_VA + TECH_MENU_OFFSET + 6
+    early_site = tech_menu.find(bytes.fromhex("89C383FB03"))
+    if early_site != 0x3C:
+        raise RuntimeError("VV4 early command router guard mismatch")
+    early_helper_va = PAYLOAD_VA + EARLY_COMMAND5_HELPER_OFFSET
+    early_resume_va = PAYLOAD_VA + TECH_MENU_OFFSET + early_site + 5
+    if any(payload[EARLY_COMMAND5_HELPER_OFFSET : EARLY_COMMAND5_HELPER_OFFSET + EARLY_COMMAND5_HELPER_SIZE]):
+        raise RuntimeError("VV4 early command-5 helper cave is not zero")
+    early_helper = asm(
+        f"""
+            mov ebx, eax
+            cmp ebx, 5
+            je 0x{menu_loop_va:X}
+            cmp ebx, 3
+            jmp 0x{early_resume_va:X}
+        """,
+        early_helper_va,
+    )
+    if len(early_helper) > EARLY_COMMAND5_HELPER_SIZE:
+        raise RuntimeError("VV4 early command-5 helper exceeds reserved cave")
+    tech_menu[early_site : early_site + 5] = rel32_jump(
+        PAYLOAD_VA + TECH_MENU_OFFSET + early_site,
+        early_helper_va,
+    )
+    payload[EARLY_COMMAND5_HELPER_OFFSET : EARLY_COMMAND5_HELPER_OFFSET + EARLY_COMMAND5_HELPER_SIZE] = (
+        early_helper + b"\0" * (EARLY_COMMAND5_HELPER_SIZE - len(early_helper))
+    )
     village_start = tech_menu.find(bytes.fromhex("83FB0672"))
     legacy_start = tech_menu.find(bytes.fromhex("8B049D"))
     if village_start != 0xEA or legacy_start != 0x127:
@@ -877,7 +906,6 @@ def build_base_payload(active_payload: bytes, page_va: int) -> bytes:
         if tech_menu[menu_index : menu_index + 5] != bytes.fromhex(guard):
             raise RuntimeError(f"VV4 legacy Cure call guard mismatch at 0x{call_offset:X}")
         tech_menu[menu_index : menu_index + 5] = b"\x90" * 5
-    menu_loop_va = PAYLOAD_VA + TECH_MENU_OFFSET + 6
     legacy_va = PAYLOAD_VA + TECH_MENU_OFFSET + legacy_start
     replacement = asm(
         f"""
@@ -958,11 +986,11 @@ def main() -> None:
     base["name"] = "VV4 Origins Full Mastery Extension Base"
     base["enabled"] = False
     base["certification_status"] = (
-        f"disabled pending fresh independent recertification after C7 ownership and Cure-containment correction; "
+        f"disabled pending fresh independent recertification after C8 early Cure-dominance correction; "
         f"R3 commit {R3_COMMIT} is superseded; stock-mode only; Expanded-256 remains ON HOLD/fail-closed"
     )
     base["evidence_status"] = (
-        f"C7 ownership and Cure-containment correction emitted from clean baseline {C6_BASELINE_COMMIT}; "
+        f"C8 early Cure-dominance correction emitted from clean baseline {C6_BASELINE_COMMIT}; "
         "fresh independent emitted-byte recertification required before enablement; "
         "stock-mode only; Expanded-256 ON HOLD/fail-closed"
     )
@@ -975,11 +1003,16 @@ def main() -> None:
         },
         "dispatch": {
             "command": 5,
+            "early_capture_va": "0x48960F",
+            "early_capture_before": "89C383FB03",
+            "early_capture_after": "E941FEFFFF",
+            "early_helper_va": "0x489455",
+            "early_helper_contract": "mov ebx,eax; reject exactly command 5 to menu loop before the first command-3 comparison; recreate cmp ebx,3 and resume at 0x489614",
             "guard_va": "0x489619",
             "guard_payload_offset": "0x2A6",
             "before_opcode": "73",
             "after_opcode": "77",
-            "condition": "JA; command 5 falls through the existing unavailable path; commands >=6 retain the guarded router",
+            "condition": "early JE rejects command 5 before any command-specific warning, write, charge, or dispatch; later JA retains commands >=6 routing",
             "charge_before_guard": False,
             "forbidden_target": "0x728004",
             "forbidden_target_reachable": False,
@@ -1099,9 +1132,9 @@ def main() -> None:
             else "DISABLED Candidate: Grant Full Mastery to All Villagers"
         ),
         "enabled": feature_enabled,
-        "certification_status": "disabled pending fresh independent recertification after C7 ownership and Cure-containment correction; R3 emitted bytes superseded",
+        "certification_status": "disabled pending fresh independent recertification after C8 early Cure-dominance correction; R3 emitted bytes superseded",
         "evidence_status": (
-            f"C7 ownership and Cure-containment correction emitted from clean baseline {C6_BASELINE_COMMIT}; fresh independent emitted-byte recertification pending; stock-mode only; Expanded-256 ON HOLD/fail-closed"
+            f"C8 early Cure-dominance correction emitted from clean baseline {C6_BASELINE_COMMIT}; fresh independent emitted-byte recertification pending; stock-mode only; Expanded-256 ON HOLD/fail-closed"
         ),
         "explicit_non_changes": [
             "stock executable bytes outside the certified candidate payload",
@@ -1204,10 +1237,10 @@ def main() -> None:
 
     artifact = {
         "acceptance_commit": C6_BASELINE_COMMIT,
-        "candidate_status": "disabled pending fresh independent recertification after C7 ownership and Cure-containment correction",
+        "candidate_status": "disabled pending fresh independent recertification after C8 early Cure-dominance correction",
         "independent_recertification": {
             "review": "R3",
-            "status": "superseded by C7 ownership and Cure-containment correction; fresh independent recertification required",
+            "status": "superseded by C8 early Cure-dominance correction; fresh independent recertification required",
             "commit": R3_COMMIT,
             "scope": "VV4 Full Mastery stock-mode candidate only; Expanded-256 ON HOLD/fail-closed",
             "hashes": {
@@ -1248,7 +1281,7 @@ def main() -> None:
                 "detail_handler_relocated_va": ui_map["detail_handler_relocated"]["va"],
                 "detail_route_patch_offset": "0x48610",
             },
-            "status": "pending fresh independent recertification after C7 ownership and Cure-containment correction",
+            "status": "pending fresh independent recertification after C8 early Cure-dominance correction",
             "recertification_commit": None,
             "scope": "stock-mode only; Expanded-256 remains ON HOLD/fail-closed",
         },
@@ -1372,7 +1405,7 @@ def main() -> None:
     for source_path in (BASE_OUT, FEATURE_OUT, MAP_OUT, DOC_OUT, COMPANION, BUTTON_ASSET):
         shutil.copy2(source_path, output_dir / source_path.name)
     checksum_records: dict[str, object] = {
-        "status": "C7 disabled candidate pending fresh independent recertification; Expanded-256 ON HOLD/fail-closed",
+        "status": "C8 disabled candidate pending fresh independent recertification; Expanded-256 ON HOLD/fail-closed",
         "asset": asset_map,
         "source": {"path": str(STOCK.relative_to(ROOT)), "sha256": expected_sha},
         "artifacts": {},

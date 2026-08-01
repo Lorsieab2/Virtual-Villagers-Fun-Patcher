@@ -1,9 +1,9 @@
 {
   "acceptance_commit": "577072f5b5205c3a0a857c0645d855bb98ec19d2",
-  "candidate_status": "disabled pending fresh independent recertification after C7 ownership and Cure-containment correction",
+  "candidate_status": "disabled pending fresh independent recertification after C8 early Cure-dominance correction",
   "independent_recertification": {
     "review": "R3",
-    "status": "superseded by C7 ownership and Cure-containment correction; fresh independent recertification required",
+    "status": "superseded by C8 early Cure-dominance correction; fresh independent recertification required",
     "commit": "36af0c9a620b6b323715c3f6d6fe93e1d6f75532",
     "scope": "VV4 Full Mastery stock-mode candidate only; Expanded-256 ON HOLD/fail-closed",
     "hashes": {
@@ -114,7 +114,7 @@
       "detail_handler_relocated_va": "0x4895A8",
       "detail_route_patch_offset": "0x48610"
     },
-    "status": "pending fresh independent recertification after C7 ownership and Cure-containment correction",
+    "status": "pending fresh independent recertification after C8 early Cure-dominance correction",
     "recertification_commit": null,
     "scope": "stock-mode only; Expanded-256 remains ON HOLD/fail-closed"
   },
@@ -127,11 +127,16 @@
     },
     "dispatch": {
       "command": 5,
+      "early_capture_va": "0x48960F",
+      "early_capture_before": "89C383FB03",
+      "early_capture_after": "E941FEFFFF",
+      "early_helper_va": "0x489455",
+      "early_helper_contract": "mov ebx,eax; reject exactly command 5 to menu loop before the first command-3 comparison; recreate cmp ebx,3 and resume at 0x489614",
       "guard_va": "0x489619",
       "guard_payload_offset": "0x2A6",
       "before_opcode": "73",
       "after_opcode": "77",
-      "condition": "JA; command 5 falls through the existing unavailable path; commands >=6 retain the guarded router",
+      "condition": "early JE rejects command 5 before any command-specific warning, write, charge, or dispatch; later JA retains commands >=6 routing",
       "charge_before_guard": false,
       "forbidden_target": "0x728004",
       "forbidden_target_reachable": false,
@@ -145,10 +150,10 @@
     "size": 929792,
     "sha256": "6D27A429FFCA5F1F71FDD7ECA761ED1BB67E85F976494BA178B3D7BE01F1B220"
   },
-  "base_manifest_sha256": "6A086EE0DA87646F8EFE373D5DF487088964494BD9A05129126731E4D1632578",
-  "feature_manifest_sha256": "53479DE08AC6CB1546D84659748CF1E2C5224AE202E4817F3913057E86BA5A9E",
-  "base_stock_payload_sha256": "AB2CE30F62BD6B12E775B737E56D3F7EFCA59DBA9BD95204A444AB4E9E833684",
-  "base_expanded_payload_sha256": "726632C7C1364D39B02301F7620CDAEB7257EAC503C55B73FB707618CAEC6761",
+  "base_manifest_sha256": "369A6D947AFE8E5799A5B95D55274B42F7907AAC0F3EB82B1A09CD0F0916A54A",
+  "feature_manifest_sha256": "5C3D5092BD212FA93FAA0262C38D480BE46D1D10452290CF8270EEF446B93625",
+  "base_stock_payload_sha256": "AAACA715AD7AE133EE495F33DE2BB994892B8EA335B71E67F705C983F2EA3B7A",
+  "base_expanded_payload_sha256": "1205E3FC30EB26E8C07CA7A5FDAD024324ADCCF63ADBEFF4B0BF7719CFCC78E5",
   "companion": {
     "path": "data/candidates/VVFP VV4 Full Mastery Candidate.dll",
     "size": 282624,
@@ -464,11 +469,11 @@
   "rendered_candidates": {
     "collection_progression": {
       "baseline_sha256": "132516F4A5F7D2E9B539B14300207AEA5872FDCC0D34F13768435D9F4B6F76D4",
-      "base_only_sha256": "61FF848CFAB1247518D5773B93FC9E428D44800A8932DF92CA02E0272B84D1E1",
-      "base_plus_mastery_sha256": "C48F800AEE86819E1C9B1A26D599A7E566C271C2876C741955F380A4D15E9B14",
-      "all_current_compatible_sha256": "F7B41FA117F1A87148BA7C60034714FAF652B0CC236DD502FA2CA6D3F11CC715",
+      "base_only_sha256": "9B78336D58853F98CE5162EF0E83D6E024623C71A00B923C477EF21B2A9F95F0",
+      "base_plus_mastery_sha256": "A01EF593321B12685FFA96BF888FA9ED556C3C2A506DEA7FDE2471FF2E83DA33",
+      "all_current_compatible_sha256": "4F447AF0D5E0C1D293CE16CC9281C1FE0D21B82E4A327B37DC668E51ECF84A6A",
       "size": 937984,
-      "pe_checksum": "0x000EBDDF",
+      "pe_checksum": "0x000F12DE",
       "owners": [
         "automatic:population",
         "automatic:safety",
@@ -486,11 +491,11 @@
     },
     "immediate_fixed": {
       "baseline_sha256": "EB0CDD4F7F5E41F7A03734D51F9417A126C3BE9D214B484A848DB688545CF5FB",
-      "base_only_sha256": "0E11DA5A9B4DCC35F75F16CEC99C40B287AE36F2E2E774FB8D9775FD18CABA5B",
-      "base_plus_mastery_sha256": "5C9DF5EC33918661F1175ADA2632C1C7F5C91D20CAC0466AB23DB852DEB6F956",
-      "all_current_compatible_sha256": "B24DFC7A2A6B143236102288F8C9CB86C1AE7198393DA7020557870009062B25",
+      "base_only_sha256": "CAC8337014DB1A77070D6310F91AA70AA12F6794C57FD2EE7E017117D8902732",
+      "base_plus_mastery_sha256": "C604CB296F3914DC706F8BC587906D463CD666F56BFF0198833BDB9AF76DC593",
+      "all_current_compatible_sha256": "81FC079F7DCBE1F04690CC0B3E401DA1AD537DF02B93235C84D933E4FC60C001",
       "size": 937984,
-      "pe_checksum": "0x000E5708",
+      "pe_checksum": "0x000EAC07",
       "owners": [
         "automatic:population",
         "automatic:safety",
@@ -508,11 +513,11 @@
     },
     "experimental_expanded_256": {
       "baseline_sha256": "428A8A8DE3B753CA813AB29960C49D15D4B3EDBE97BB49D8625C81743FEA3782",
-      "base_only_sha256": "0B71A847BB11C8F3F6EDF391DF8C7D65806E22507806B5C22E70D9042BA76B2A",
-      "base_plus_mastery_sha256": "850FE65488B777D0AF05EE23A2B474FC8D0529E3829C63C4849FA76CBD7433F0",
-      "all_current_compatible_sha256": "312162C11BE0E763B2D285D970419073B2AD799F1A4DFF0C4FF9C77561EB384D",
+      "base_only_sha256": "064F7B2077D2D30EAD99A91921DAAC82B3BF85E5BA0022CDA245D7F41832BDBD",
+      "base_plus_mastery_sha256": "98CD9D3287D9790D0669FAEA155A1832D883AA99EF45BE582C8B2FF6F023C9F9",
+      "all_current_compatible_sha256": "F07988112008FEFE4AE2CCA1D34D3BF72EB7D44F391635CD436103C4DDCDF5CD",
       "size": 937984,
-      "pe_checksum": "0x000E5B46",
+      "pe_checksum": "0x000EB045",
       "owners": [
         "automatic:population",
         "automatic:safety",
@@ -530,11 +535,11 @@
     },
     "experimental_expanded_256_progression": {
       "baseline_sha256": "737F475764EBB9F35BC6C68337698D46F6D03BA0560B9BE4E352F80AF48FE791",
-      "base_only_sha256": "94542568CE47F9563C025074A067FDCF1C2634CA56169EEE4EE36AA048C96210",
-      "base_plus_mastery_sha256": "70663267C65BFE513B320E39A5FCD82CEC393DBAE11D00242DC39EF0E2CFC209",
-      "all_current_compatible_sha256": "C8F1BAA2E9FD79EC31207AD492FA34CE5C372E6C796821A60147C27E3E1BE89C",
+      "base_only_sha256": "10BD9F494BAE597CAAAD3EB710DAAF3C6C1ECFBD5388528B8135F29838931C65",
+      "base_plus_mastery_sha256": "567DC6C8D8F29F8E38FADDFFE962B27025B899DB7B23A4050362F6AE52321726",
+      "all_current_compatible_sha256": "BF3FD147BA6ABFC65A4293D238BE78D2651D00981FA2F81CC60E5F28E849E7B1",
       "size": 937984,
-      "pe_checksum": "0x000EFBA9",
+      "pe_checksum": "0x000E50A9",
       "owners": [
         "automatic:population",
         "automatic:safety",

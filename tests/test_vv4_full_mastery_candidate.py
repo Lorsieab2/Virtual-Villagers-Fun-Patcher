@@ -227,7 +227,7 @@ class VV4FullMasteryCandidateTests(unittest.TestCase):
         self.assertIn("pending fresh independent recertification", ui["status"])
         self.assertEqual(self.map["acceptance_commit"], "577072f5b5205c3a0a857c0645d855bb98ec19d2")
         self.assertEqual(self.map["independent_recertification"]["review"], "R3")
-        self.assertIn("superseded by C7", self.map["independent_recertification"]["status"])
+        self.assertIn("superseded by C8", self.map["independent_recertification"]["status"])
         self.assertEqual(self.map["independent_recertification"]["scope"], "VV4 Full Mastery stock-mode candidate only; Expanded-256 ON HOLD/fail-closed")
         self.assertEqual(
             self.map["independent_recertification"]["hashes"],
@@ -415,6 +415,17 @@ class VV4FullMasteryCandidateTests(unittest.TestCase):
     def test_cure_row_and_command5_dispatch_are_fail_closed(self):
         payload = next(item for item in self.base_raw["patches"] if int(item["offset"], 0) == 0x89373)
         code = bytes.fromhex(payload["after"])
+        self.assertEqual(code[0x29C:0x2A1], bytes.fromhex("E941FEFFFF"))
+        self.assertEqual(
+            code[0xE2:0xF5],
+            bytes.fromhex("89C383FB050F847901000083FB03E9AC010000"),
+        )
+        early_jump = int.from_bytes(code[0x29D:0x2A1], "little", signed=True)
+        self.assertEqual(0x48960F + 5 + early_jump, 0x489455)
+        early_reject = int.from_bytes(code[0xE9:0xED], "little", signed=True)
+        self.assertEqual(0x489455 + 0xB + early_reject, 0x4895D9)
+        early_resume = int.from_bytes(code[0xF1:0xF5], "little", signed=True)
+        self.assertEqual(0x489455 + 0x13 + early_resume, 0x489614)
         self.assertEqual(code[0x2A6], 0x77)
         self.assertNotEqual(code[0x2A6], 0x73)
         self.assertEqual(code[0x3C8:0x3CD], b"\x90" * 5)
@@ -426,6 +437,8 @@ class VV4FullMasteryCandidateTests(unittest.TestCase):
         self.assertIn(bytes.fromhex("83FB0574"), code[0x340:0x3C0])
         self.assertIn(bytes.fromhex("814C241000200000"), code[0x1B0:0x210])
         containment = self.map["cure_containment"]
+        self.assertEqual(containment["dispatch"]["early_capture_va"], "0x48960F")
+        self.assertEqual(containment["dispatch"]["early_helper_va"], "0x489455")
         self.assertFalse(containment["public_row"]["selectable"])
         self.assertFalse(containment["dispatch"]["charge_before_guard"])
         self.assertFalse(containment["dispatch"]["forbidden_target_reachable"])
