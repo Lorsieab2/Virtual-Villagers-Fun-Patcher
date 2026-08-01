@@ -119,14 +119,13 @@ class VV4FullMasteryCandidateTests(unittest.TestCase):
         cls.feature = FunPatch(cls.feature_raw)
         cls.build = next(item for item in load_builds() if item.id == "vv4")
 
-    def test_new_placement_candidate_disabled_until_c6_recertification(self):
-        self.assertFalse(self.base_raw["enabled"])
-        self.assertFalse(self.feature_raw["enabled"])
+    def test_d13_certified_stock_mode_candidate_is_catalog_visible(self):
+        self.assertTrue(self.base_raw["enabled"])
+        self.assertTrue(self.feature_raw["enabled"])
         active = {item.id: item for item in load_fun_patches()}
-        self.assertNotIn("vv4_enable_origins_exclusive_features", active)
-        self.assertNotIn(self.base_raw["id"], active)
-        self.assertNotIn(self.feature_raw["id"], active)
-        self.assertIn("disabled pending fresh independent recertification", self.feature_raw["certification_status"])
+        self.assertIn("vv4_enable_origins_exclusive_features", active)
+        self.assertIn(self.feature_raw["id"], active)
+        self.assertIn("D13 recertification GO", self.feature_raw["certification_status"])
         self.assertEqual(self.feature_raw["dependencies"], [self.base_raw["id"]])
         contract = self.feature_raw["transaction_contract"]
         self.assertEqual((contract["command"], contract["price"]), (7, 1_000_000))
@@ -136,18 +135,26 @@ class VV4FullMasteryCandidateTests(unittest.TestCase):
         self.assertNotIn("command 8", folded)
         self.assertNotIn("remove state", folded)
 
-    def test_catalog_and_expanded_mode_fail_closed(self):
+    def test_catalog_visible_and_expanded_mode_fail_closed(self):
         vv4_records = {
             item.id
             for item in load_fun_patches()
             if item.game_id == "vv4"
         }
-        self.assertNotIn("vv4_enable_origins_exclusive_features", vv4_records)
-        self.assertNotIn("vv4_full_mastery_all_stage_a_candidate", vv4_records)
+        self.assertIn("vv4_enable_origins_exclusive_features", vv4_records)
+        self.assertIn("vv4_full_mastery_all_stage_a_candidate", vv4_records)
         for mode in ("experimental_expanded_256", "experimental_expanded_256_progression"):
             with self.subTest(mode=mode):
-                rendered, applied = render_patched_bytes(STOCK, self.build, mode)
-                self.assertFalse(any("vv4_full_mastery" in item["owner"] for item in applied))
+                with self.assertRaisesRegex(PatcherError, "ON HOLD"):
+                    render_patched_bytes(
+                        STOCK,
+                        self.build,
+                        mode,
+                        fun_patch_ids=(
+                            "vv4_enable_origins_exclusive_features",
+                            "vv4_full_mastery_all_stage_a_candidate",
+                        ),
+                    )
 
     def test_exact_live_geometry_constructor_and_nonoverlap_contract(self):
         payload = next(
@@ -224,21 +231,21 @@ class VV4FullMasteryCandidateTests(unittest.TestCase):
         self.assertEqual(ui["local"], [72, 4])
         self.assertEqual(ui["events"], {"tech": 13, "detail": 2})
         self.assertEqual(ui["add_child"], "sub_40C190")
-        self.assertIn("pending fresh independent recertification", ui["status"])
-        self.assertEqual(self.map["acceptance_commit"], "577072f5b5205c3a0a857c0645d855bb98ec19d2")
-        self.assertEqual(self.map["independent_recertification"]["review"], "R3")
-        self.assertIn("superseded by C8", self.map["independent_recertification"]["status"])
+        self.assertEqual(ui["status"], "independent recertification GO")
+        self.assertEqual(self.map["acceptance_commit"], "e9afe69e0461ff986adddb55d743cf091eea598b")
+        self.assertEqual(self.map["independent_recertification"]["review"], "D13")
+        self.assertEqual(self.map["independent_recertification"]["status"], "independent recertification GO")
         self.assertEqual(self.map["independent_recertification"]["scope"], "VV4 Full Mastery stock-mode candidate only; Expanded-256 ON HOLD/fail-closed")
         self.assertEqual(
             self.map["independent_recertification"]["hashes"],
             {
                 "helper": "C7379FB1AFDDD44F06CF48FAEED14C1701D796F5FC2568E10745337DADE13DB1",
-                "tech_constructor": "5A374941D4A6E2F0C36B5F1464738112C353AD0BC727FDDF9610E24A9B2EEE88",
-                "detail_constructor": "0D38AAE3CF8F1EEFF81B95AE3AC334E488053FD60D136FC733A24E74A4AB31EC",
+                "tech_constructor": "4BAD0B344BA63130A1A1144CDE740CEBB61E82826FCDBD0171B182A3D8B62FA4",
+                "detail_constructor": "BEC747E7EFC08BBA8BB7B65181B85E0E24AA30E1BBC2C1879206376C4468584E",
                 "command7_slot": "023CF384A52CB6A6A49511B8B069B952718DC70E771FEE15CAC8A0777FB5F6DE",
                 "cure": "2BB7A32344293DCACB4D0359818C6839AC1FBBAEE8F9E3D00DB59C274238D726",
                 "png": "F03D57038CA7745A99C0D7D58A2558A4411828BF3243D85C8BAFE2E04036BE4B",
-                "dll": "9AC4E365BE55D32AB889E7B7472A1EDA8749B1EB259EA02BA35AB97BE666AF22",
+                "dll": "4E1A83683A875EFE6F67116CDD862927BE1ABCB17DB7AE18143E58E98EAD01E7",
             },
         )
         self.assertEqual(ui["png_sha256"], "F03D57038CA7745A99C0D7D58A2558A4411828BF3243D85C8BAFE2E04036BE4B")
@@ -410,7 +417,7 @@ class VV4FullMasteryCandidateTests(unittest.TestCase):
 
     def test_old_origins_and_withdrawn_running_collide_fail_closed(self):
         active = {item.id: item for item in load_fun_patches()}
-        self.assertNotIn("vv4_enable_origins_exclusive_features", active)
+        self.assertIn("vv4_enable_origins_exclusive_features", active)
 
     def test_cure_row_and_command5_dispatch_are_fail_closed(self):
         payload = next(item for item in self.base_raw["patches"] if int(item["offset"], 0) == 0x89373)

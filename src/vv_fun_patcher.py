@@ -76,17 +76,17 @@ VV4_FULL_MASTERY_CERTIFIED_SHA256 = {
     "confirmation": "DCB30F80D0442F289F030CCD2E712A05605469819E4777E3739918A718B55B97",
     "stock_page": "19BD89A04B1476F0CC996112906A02DD25A9ECD149B696A4C1EDA4A4CE713124",
     "expanded_page": "468A995FE91E2C6FE4E7812A65D77F68B22C6DBC9C3C9F696A4233C8EEDBC480",
-    "dll": "9AC4E365BE55D32AB889E7B7472A1EDA8749B1EB259EA02BA35AB97BE666AF22",
+    "dll": "4E1A83683A875EFE6F67116CDD862927BE1ABCB17DB7AE18143E58E98EAD01E7",
 }
-VV4_FULL_MASTERY_R3_COMMIT = "36af0c9a620b6b323715c3f6d6fe93e1d6f75532"
+VV4_FULL_MASTERY_R3_COMMIT = "e9afe69e0461ff986adddb55d743cf091eea598b"
 VV4_FULL_MASTERY_R3_HASHES = {
     "helper": "C7379FB1AFDDD44F06CF48FAEED14C1701D796F5FC2568E10745337DADE13DB1",
-    "tech_constructor": "5A374941D4A6E2F0C36B5F1464738112C353AD0BC727FDDF9610E24A9B2EEE88",
-    "detail_constructor": "0D38AAE3CF8F1EEFF81B95AE3AC334E488053FD60D136FC733A24E74A4AB31EC",
+    "tech_constructor": "4BAD0B344BA63130A1A1144CDE740CEBB61E82826FCDBD0171B182A3D8B62FA4",
+    "detail_constructor": "BEC747E7EFC08BBA8BB7B65181B85E0E24AA30E1BBC2C1879206376C4468584E",
     "png": "F03D57038CA7745A99C0D7D58A2558A4411828BF3243D85C8BAFE2E04036BE4B",
     "command7_slot": "023CF384A52CB6A6A49511B8B069B952718DC70E771FEE15CAC8A0777FB5F6DE",
     "cure": "2BB7A32344293DCACB4D0359818C6839AC1FBBAEE8F9E3D00DB59C274238D726",
-    "dll": "9AC4E365BE55D32AB889E7B7472A1EDA8749B1EB259EA02BA35AB97BE666AF22",
+    "dll": "4E1A83683A875EFE6F67116CDD862927BE1ABCB17DB7AE18143E58E98EAD01E7",
 }
 VV5_FULL_MASTERY_CANDIDATE_PATHS = {
     "base": ROOT / "data" / "candidates" / "vv5_origins_full_mastery_base_candidate.json",
@@ -332,10 +332,16 @@ def _certified_vv4_full_mastery_records(
         raise PatcherError(
             "VV4 Full Mastery runtime wrapper contract is missing; refusing enablement."
         )
-    if runtime_guard.get("nonnull") != {"attach": True, "tech_slot": "this+0x74"}:
+    if runtime_guard.get("nonnull_outer_and_inner") != {"attach": True, "tech_slot": "this+0x74"}:
         raise PatcherError("VV4 Full Mastery nonnull ownership contract is invalid.")
-    if runtime_guard.get("null_result") != {"attach": False, "tech_slot": None}:
+    if runtime_guard.get("null_outer") != {"attach": False, "tech_slot": None}:
         raise PatcherError("VV4 Full Mastery null-wrapper contract is invalid.")
+    if runtime_guard.get("null_inner") != {
+        "attach": False,
+        "scalar_destroy_flag": 1,
+        "tech_slot": None,
+    }:
+        raise PatcherError("VV4 Full Mastery incomplete-wrapper cleanup contract is invalid.")
     if runtime_guard.get("runtime_dimension_accessors") != (
         "none; wrapper vtable +0x0C/+0x10 are not image dimensions"
     ):

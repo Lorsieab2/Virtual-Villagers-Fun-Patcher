@@ -1,19 +1,19 @@
 {
-  "acceptance_commit": "577072f5b5205c3a0a857c0645d855bb98ec19d2",
-  "candidate_status": "disabled pending fresh independent recertification after C8 early Cure-dominance correction",
+  "acceptance_commit": "e9afe69e0461ff986adddb55d743cf091eea598b",
+  "candidate_status": "independent D13 recertification GO; stock-mode playtest enabled",
   "independent_recertification": {
-    "review": "R3",
-    "status": "superseded by C8 early Cure-dominance correction; fresh independent recertification required",
-    "commit": "36af0c9a620b6b323715c3f6d6fe93e1d6f75532",
+    "review": "D13",
+    "status": "independent recertification GO",
+    "commit": "e9afe69e0461ff986adddb55d743cf091eea598b",
     "scope": "VV4 Full Mastery stock-mode candidate only; Expanded-256 ON HOLD/fail-closed",
     "hashes": {
       "helper": "C7379FB1AFDDD44F06CF48FAEED14C1701D796F5FC2568E10745337DADE13DB1",
-      "tech_constructor": "5A374941D4A6E2F0C36B5F1464738112C353AD0BC727FDDF9610E24A9B2EEE88",
-      "detail_constructor": "0D38AAE3CF8F1EEFF81B95AE3AC334E488053FD60D136FC733A24E74A4AB31EC",
+      "tech_constructor": "4BAD0B344BA63130A1A1144CDE740CEBB61E82826FCDBD0171B182A3D8B62FA4",
+      "detail_constructor": "BEC747E7EFC08BBA8BB7B65181B85E0E24AA30E1BBC2C1879206376C4468584E",
       "command7_slot": "023CF384A52CB6A6A49511B8B069B952718DC70E771FEE15CAC8A0777FB5F6DE",
       "cure": "2BB7A32344293DCACB4D0359818C6839AC1FBBAEE8F9E3D00DB59C274238D726",
       "png": "F03D57038CA7745A99C0D7D58A2558A4411828BF3243D85C8BAFE2E04036BE4B",
-      "dll": "9AC4E365BE55D32AB889E7B7472A1EDA8749B1EB259EA02BA35AB97BE666AF22"
+      "dll": "4E1A83683A875EFE6F67116CDD862927BE1ABCB17DB7AE18143E58E98EAD01E7"
     }
   },
   "ui_asset_gate": {
@@ -114,8 +114,8 @@
       "detail_handler_relocated_va": "0x4895A8",
       "detail_route_patch_offset": "0x48610"
     },
-    "status": "pending fresh independent recertification after C8 early Cure-dominance correction",
-    "recertification_commit": null,
+    "status": "independent recertification GO",
+    "recertification_commit": "e9afe69e0461ff986adddb55d743cf091eea598b",
     "scope": "stock-mode only; Expanded-256 remains ON HOLD/fail-closed"
   },
   "cure_containment": {
@@ -150,8 +150,8 @@
     "size": 929792,
     "sha256": "6D27A429FFCA5F1F71FDD7ECA761ED1BB67E85F976494BA178B3D7BE01F1B220"
   },
-  "base_manifest_sha256": "369A6D947AFE8E5799A5B95D55274B42F7907AAC0F3EB82B1A09CD0F0916A54A",
-  "feature_manifest_sha256": "5C3D5092BD212FA93FAA0262C38D480BE46D1D10452290CF8270EEF446B93625",
+  "base_manifest_sha256": "3F3850E88635F9E853B08DCD1514F4B3407187C26FCF9687313D17B0DC7A5EA3",
+  "feature_manifest_sha256": "BCEE83DEE386E13FA6E15FAFAEA85DF2BEA634B2B98D1BCF010137550A92F986",
   "base_stock_payload_sha256": "AAACA715AD7AE133EE495F33DE2BB994892B8EA335B71E67F705C983F2EA3B7A",
   "base_expanded_payload_sha256": "1205E3FC30EB26E8C07CA7A5FDAD024324ADCCF63ADBEFF4B0BF7719CFCC78E5",
   "companion": {

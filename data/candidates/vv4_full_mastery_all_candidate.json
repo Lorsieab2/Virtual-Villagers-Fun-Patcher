@@ -1,10 +1,10 @@
 {
   "id": "vv4_full_mastery_all_stage_a_candidate",
   "game_id": "vv4",
-  "name": "DISABLED Candidate: Grant Full Mastery to All Villagers",
-  "enabled": false,
-  "certification_status": "disabled pending fresh independent recertification after C8 early Cure-dominance correction; R3 emitted bytes superseded",
-  "evidence_status": "C8 early Cure-dominance correction emitted from clean baseline 577072f5b5205c3a0a857c0645d855bb98ec19d2; fresh independent emitted-byte recertification pending; stock-mode only; Expanded-256 ON HOLD/fail-closed",
+  "name": "Grant Full Mastery to All Villagers",
+  "enabled": true,
+  "certification_status": "independent D13 recertification GO; stock-mode playtest enabled; Expanded-256 ON HOLD/fail-closed",
+  "evidence_status": "D13 independently recertified exact emitted bytes from e9afe69e0461ff986adddb55d743cf091eea598b; stock-mode playtest enabled; Expanded-256 ON HOLD/fail-closed",
   "explicit_non_changes": [
     "stock executable bytes outside the certified candidate payload",
     "shared Origins DLL bytes",

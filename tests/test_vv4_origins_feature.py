@@ -85,15 +85,19 @@ class VV4OriginsFeatureTests(unittest.TestCase):
 
     def test_composes_with_current_vv4_features_in_all_modes(self) -> None:
         patch_ids = [patch.id for patch in load_fun_patches() if patch.game_id == "vv4"]
-        self.assertNotIn(FEATURE_ID, patch_ids)
-        self.assertNotIn("vv4_enable_origins_exclusive_features", patch_ids)
+        self.assertIn(FEATURE_ID, patch_ids)
+        self.assertIn("vv4_full_mastery_all_stage_a_candidate", patch_ids)
         for mode in MODES:
             with self.subTest(mode=mode):
+                if mode.startswith("experimental_expanded_256"):
+                    with self.assertRaisesRegex(PatcherError, "ON HOLD"):
+                        render_patched_bytes(STOCK, self.build, mode, patch_ids)
+                    continue
                 rendered, applied = render_patched_bytes(STOCK, self.build, mode, patch_ids)
                 self.assertTrue(applied)
                 checksum_offset, _ = _pe_checksum_layout(rendered)
                 self.assertNotEqual(struct.unpack_from("<I", rendered, checksum_offset)[0], 0)
-                self.assertEqual(bytes(rendered[0x89373 : 0x89373 + 4]), b"\0\0\0\0")
+                self.assertNotEqual(bytes(rendered[0x89373 : 0x89373 + 4]), b"\0\0\0\0")
 
 
 if __name__ == "__main__":

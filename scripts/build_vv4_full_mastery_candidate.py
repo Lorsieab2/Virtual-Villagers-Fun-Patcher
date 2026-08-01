@@ -33,13 +33,13 @@ STOCK_TROPHIES_SHA256 = "1D70B74ADA23EAC375858B7B6535BF3D7A97B663E48AC0664B79DC5
 CANONICAL_CROP_RGBA_SHA256 = "B8E9C4DB93F05450689528C5A04A532486771E53DDC23FCF63B0155C7949418B"
 BUTTON_RGBA_SHA256 = "02B42DEAD3673BA5048160C2D337D284215336E39BCEAC52592432839ECB3AD4"
 BUTTON_PNG_SHA256 = "F03D57038CA7745A99C0D7D58A2558A4411828BF3243D85C8BAFE2E04036BE4B"
-R3_COMMIT = "36af0c9a620b6b323715c3f6d6fe93e1d6f75532"
+R3_COMMIT = "e9afe69e0461ff986adddb55d743cf091eea598b"
 R3_HELPER_SHA256 = "C7379FB1AFDDD44F06CF48FAEED14C1701D796F5FC2568E10745337DADE13DB1"
-R3_TECH_CONSTRUCTOR_SHA256 = "5A374941D4A6E2F0C36B5F1464738112C353AD0BC727FDDF9610E24A9B2EEE88"
-R3_DETAIL_CONSTRUCTOR_SHA256 = "0D38AAE3CF8F1EEFF81B95AE3AC334E488053FD60D136FC733A24E74A4AB31EC"
+R3_TECH_CONSTRUCTOR_SHA256 = "4BAD0B344BA63130A1A1144CDE740CEBB61E82826FCDBD0171B182A3D8B62FA4"
+R3_DETAIL_CONSTRUCTOR_SHA256 = "BEC747E7EFC08BBA8BB7B65181B85E0E24AA30E1BBC2C1879206376C4468584E"
 R3_COMMAND7_SLOT_SHA256 = "023CF384A52CB6A6A49511B8B069B952718DC70E771FEE15CAC8A0777FB5F6DE"
 R3_CURE_SHA256 = "2BB7A32344293DCACB4D0359818C6839AC1FBBAEE8F9E3D00DB59C274238D726"
-R3_DLL_SHA256 = "9AC4E365BE55D32AB889E7B7472A1EDA8749B1EB259EA02BA35AB97BE666AF22"
+R3_DLL_SHA256 = "4E1A83683A875EFE6F67116CDD862927BE1ABCB17DB7AE18143E58E98EAD01E7"
 C7_DLL_SHA256 = "4E1A83683A875EFE6F67116CDD862927BE1ABCB17DB7AE18143E58E98EAD01E7"
 C6_BASELINE_COMMIT = "577072f5b5205c3a0a857c0645d855bb98ec19d2"
 
@@ -984,15 +984,14 @@ def main() -> None:
     base = deepcopy(active)
     base["id"] = "vv4_enable_origins_exclusive_features_full_mastery_candidate"
     base["name"] = "VV4 Origins Full Mastery Extension Base"
-    base["enabled"] = False
+    base["enabled"] = True
     base["certification_status"] = (
-        f"disabled pending fresh independent recertification after C8 early Cure-dominance correction; "
-        f"R3 commit {R3_COMMIT} is superseded; stock-mode only; Expanded-256 remains ON HOLD/fail-closed"
+        f"independent D13 recertification GO at {R3_COMMIT}; stock-mode playtest enabled; "
+        "Expanded-256 remains ON HOLD/fail-closed"
     )
     base["evidence_status"] = (
-        f"C8 early Cure-dominance correction emitted from clean baseline {C6_BASELINE_COMMIT}; "
-        "fresh independent emitted-byte recertification required before enablement; "
-        "stock-mode only; Expanded-256 ON HOLD/fail-closed"
+        f"D13 independently recertified exact emitted bytes from {R3_COMMIT}; "
+        "stock-mode playtest enabled; Expanded-256 ON HOLD/fail-closed"
     )
     base["cure_containment"] = {
         "status": "withdrawn and fail-closed pending Full Heal/Cure All repair",
@@ -1122,7 +1121,7 @@ def main() -> None:
     stock_installed = installed_slots["collection_progression"]
     if sha(stock_installed) != R3_COMMAND7_SLOT_SHA256:
         raise RuntimeError("R3 command-7 slot hash mismatch")
-    feature_enabled = False
+    feature_enabled = True
     feature = {
         "id": "vv4_full_mastery_all_stage_a_candidate",
         "game_id": "vv4",
@@ -1132,9 +1131,9 @@ def main() -> None:
             else "DISABLED Candidate: Grant Full Mastery to All Villagers"
         ),
         "enabled": feature_enabled,
-        "certification_status": "disabled pending fresh independent recertification after C8 early Cure-dominance correction; R3 emitted bytes superseded",
+        "certification_status": "independent D13 recertification GO; stock-mode playtest enabled; Expanded-256 ON HOLD/fail-closed",
         "evidence_status": (
-            f"C8 early Cure-dominance correction emitted from clean baseline {C6_BASELINE_COMMIT}; fresh independent emitted-byte recertification pending; stock-mode only; Expanded-256 ON HOLD/fail-closed"
+            f"D13 independently recertified exact emitted bytes from {R3_COMMIT}; stock-mode playtest enabled; Expanded-256 ON HOLD/fail-closed"
         ),
         "explicit_non_changes": [
             "stock executable bytes outside the certified candidate payload",
@@ -1236,11 +1235,11 @@ def main() -> None:
         }
 
     artifact = {
-        "acceptance_commit": C6_BASELINE_COMMIT,
-        "candidate_status": "disabled pending fresh independent recertification after C8 early Cure-dominance correction",
+        "acceptance_commit": R3_COMMIT,
+        "candidate_status": "independent D13 recertification GO; stock-mode playtest enabled",
         "independent_recertification": {
-            "review": "R3",
-            "status": "superseded by C8 early Cure-dominance correction; fresh independent recertification required",
+            "review": "D13",
+            "status": "independent recertification GO",
             "commit": R3_COMMIT,
             "scope": "VV4 Full Mastery stock-mode candidate only; Expanded-256 ON HOLD/fail-closed",
             "hashes": {
@@ -1281,8 +1280,8 @@ def main() -> None:
                 "detail_handler_relocated_va": ui_map["detail_handler_relocated"]["va"],
                 "detail_route_patch_offset": "0x48610",
             },
-            "status": "pending fresh independent recertification after C8 early Cure-dominance correction",
-            "recertification_commit": None,
+            "status": "independent recertification GO",
+            "recertification_commit": R3_COMMIT,
             "scope": "stock-mode only; Expanded-256 remains ON HOLD/fail-closed",
         },
         "cure_containment": base["cure_containment"],
@@ -1365,8 +1364,8 @@ def main() -> None:
         f"`{C6_BASELINE_COMMIT}` plus the repository-owned "
         "canonical mockup and direct-resource ABI gate. "
         + (
-            f"The exact corrected artifact received independent recertification GO under "
-            f"R3 commit `{R3_COMMIT}`; command 7 is available for stock-mode runtime playtesting.\n\n"
+            f"The exact corrected artifact received independent D13 recertification GO at "
+            f"commit `{R3_COMMIT}`; command 7 is available for stock-mode runtime playtesting.\n\n"
             if feature_enabled
             else "The command-7 record is disabled. Its candidate-only Tech and Detail "
             "buttons use the repository-owned canonical mockup crop as a deterministic "
@@ -1388,14 +1387,14 @@ def main() -> None:
         f"- Expanded installed slot SHA-256: `{artifact['layouts']['experimental_expanded_256']['installed_slot_sha256']}`\n"
         f"- Stock base+mastery render SHA-256: `{renders['collection_progression']['base_plus_mastery_sha256']}`\n"
         f"- Expanded base+mastery render SHA-256: `{renders['experimental_expanded_256']['base_plus_mastery_sha256']}`\n\n"
-        "The feature exposes command 7 only inside its disabled base dependency. "
+        "The feature exposes command 7 only with its enabled, hash-guarded base dependency. "
         "Commands 6/8, village-wide Running/Age bytes, direct "
         "skill stores, ownership, Remove, and save-format changes are absent. "
         "The candidate is fail-closed on missing or mismatched companion files, "
         "preserves stock executables, Cure bytes, certified VV3 stock-mode hashes, and "
-        "the expanded-256 hold. Fresh independent recertification is required before enablement; "
+        "the expanded-256 hold. Independent D13 recertification is complete; runtime player validation remains pending. "
         "Expanded-256 remains ON HOLD/fail-closed.\n"
-        f"- R3 helper SHA-256 (unchanged): `{R3_HELPER_SHA256}`; previous Tech constructor: `{R3_TECH_CONSTRUCTOR_SHA256}`; "
+        f"- D13 helper SHA-256: `{R3_HELPER_SHA256}`; Tech constructor: `{R3_TECH_CONSTRUCTOR_SHA256}`; "
         f"Detail constructor: `{R3_DETAIL_CONSTRUCTOR_SHA256}`; command-7 slot: `{R3_COMMAND7_SLOT_SHA256}`; "
         f"Cure: `{R3_CURE_SHA256}`.\n",
         encoding="utf-8",
@@ -1405,7 +1404,7 @@ def main() -> None:
     for source_path in (BASE_OUT, FEATURE_OUT, MAP_OUT, DOC_OUT, COMPANION, BUTTON_ASSET):
         shutil.copy2(source_path, output_dir / source_path.name)
     checksum_records: dict[str, object] = {
-        "status": "C8 disabled candidate pending fresh independent recertification; Expanded-256 ON HOLD/fail-closed",
+        "status": "D13-certified stock-mode playtest candidate; Expanded-256 ON HOLD/fail-closed",
         "asset": asset_map,
         "source": {"path": str(STOCK.relative_to(ROOT)), "sha256": expected_sha},
         "artifacts": {},
