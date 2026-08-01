@@ -264,7 +264,14 @@ class VV4FullMasteryCandidateTests(unittest.TestCase):
         self.assertIn("HARD WITHDRAWN", ui["status"])
         self.assertIn("revoked by Playtest 3", self.map["metadata_recertification"]["status"])
         self.assertEqual(self.map["playtest3_withdrawal"]["fault_va"], "0x489E0C")
-        self.assertEqual(self.map["candidate_ui_payload"]["result_call_repairs"], [{"call_va": "0x4897CA", "before_target": "0x489573", "after_target": "0x489583", "before": "E8A4FDFFFF", "after": "E8B4FDFFFF"}, {"call_va": "0x489ABB", "before_target": "0x489573", "after_target": "0x489583", "before": "E8B3FAFFFF", "after": "E8C3FAFFFF"}])
+        self.assertEqual(self.map["candidate_ui_payload"]["result_call_repairs"], [{"call_va": "0x4897CA", "before_target": "0x489573", "after_target": "0x489ACA", "before": "E8A4FDFFFF", "after": "E8FB020000"}, {"call_va": "0x489ABB", "before_target": "0x489573", "after_target": "0x489ACA", "before": "E8B3FAFFFF", "after": "E80A000000"}])
+        helper = self.map["candidate_ui_payload"]["result_helper"]
+        self.assertEqual(helper["va"], "0x489ACA")
+        self.assertEqual(helper["file_offset"], "0x89ACA")
+        self.assertEqual(helper["length"], 54)
+        self.assertEqual(helper["guard_length"], 64)
+        self.assertEqual(helper["bytes"], "53568B5C240C8B74241068E39E4800FF15E0A1480085C0741868EE9E480050FF15DCA1480085C074086A0053566A00FFD05E5BC20800")
+        self.assertNotIn("0x489583", json.dumps(self.map))
         self.assertEqual(self.map["acceptance_commit"], "8182c235548bc92f304e5571ed61ada3c5abfa4b")
         self.assertEqual(self.map["independent_recertification"]["review"], "D19")
         self.assertEqual(self.map["independent_recertification"]["status"], "independent payload recertification GO")
@@ -410,12 +417,38 @@ class VV4FullMasteryCandidateTests(unittest.TestCase):
         ):
             self.assertIn(text, source)
         resources = (ROOT / "native" / "vv4_full_mastery_candidate" / "vv4_full_mastery_candidate.rc").read_text(encoding="utf-8")
+        tech_resource = resources.split("201 DIALOGEX", 1)[1].split("202 DIALOGEX", 1)[0]
         isolated = resources.split("203 DIALOGEX", 1)[1]
+        self.assertNotIn('1005,', tech_resource)
         self.assertIn('PUSHBUTTON  "Buy", 1007', isolated)
+        self.assertNotIn('1005,', isolated)
         self.assertNotIn('1006,', isolated)
         self.assertNotIn('1008,', isolated)
-        self.assertNotIn('1005,', resources)
-        self.assertIn('command == ID_BUY_FIRST + 5', source)
+        self.assertIn("ID_BUY_FIRST + 5", source)
+
+    def test_individual_mastery_remains_disabled_until_native_exact_100_transaction(self):
+        contract = self.map["individual_full_mastery"]
+        self.assertTrue(contract["status"].startswith("STOP"))
+        self.assertFalse(self.feature_raw["enabled"])
+        self.assertTrue(contract["required_contract"]["five_float_complete_dry_run"])
+        self.assertTrue(contract["required_contract"]["same_physical_index_reacquisition"])
+        self.assertFalse(contract["required_contract"]["direct_skill_stores"])
+
+    def test_whole_render_has_no_reachable_cure_target(self):
+        rendered, _ = render_patched_bytes(
+            STOCK,
+            self.build,
+            "collection_progression",
+            _fun_patches_override=[self.base],
+        )
+        refs = []
+        for i in range(len(rendered) - 4):
+            if rendered[i] not in (0xE8, 0xE9):
+                continue
+            target = 0x400000 + i + 5 + int.from_bytes(rendered[i + 1 : i + 5], "little", signed=True)
+            if target == 0x728004:
+                refs.append(i)
+        self.assertEqual(refs, [])
 
     def test_all_modes_render_checksum_composition_and_uninstall(self):
         compatible = [

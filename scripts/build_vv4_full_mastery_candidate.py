@@ -43,6 +43,13 @@ D19_DETAIL_SHA256 = "AC2A88CBD0B7805941EA34261D765F4A727187B35B5443BFB7CDEA8DF43
 D21_COMMIT = "3ba125b2107da4f86f9b70ab5b94206bef7803f5"
 C7_DLL_SHA256 = "4E1A83683A875EFE6F67116CDD862927BE1ABCB17DB7AE18143E58E98EAD01E7"
 C6_BASELINE_COMMIT = "577072f5b5205c3a0a857c0645d855bb98ec19d2"
+D25_RESULT_HELPER_VA = 0x489ACA
+D25_RESULT_HELPER_OFFSET = 0x757
+D25_RESULT_HELPER_BYTES = bytes.fromhex(
+    "53568B5C240C8B74241068E39E4800FF15E0A1480085C0741868EE9E480050"
+    "FF15DCA1480085C074086A0053566A00FFD05E5BC20800"
+)
+D25_RESULT_HELPER_SHA256 = "BC7E2FBD0DA5BDDDA870F1AF0107C116E688706CA7799D4933AF4AE2A522442A"
 
 sys.path.insert(0, str(ROOT / ".tools" / "keystone"))
 sys.path.insert(0, str(ROOT / ".tools" / "keystone-runtime"))
@@ -182,14 +189,21 @@ def build_ui_payload(active_payload: bytes) -> tuple[bytes, dict[str, object]]:
     if any(payload[DETAIL_HANDLER_RELOC_OFFSET : DETAIL_HANDLER_RELOC_OFFSET + 0x2B]):
         raise RuntimeError("Detail handler relocation cave is not zero")
     result_call_repairs = []
+    if len(D25_RESULT_HELPER_BYTES) != 54:
+        raise RuntimeError("D25 result helper length mismatch")
+    if sha(D25_RESULT_HELPER_BYTES) != D25_RESULT_HELPER_SHA256:
+        raise RuntimeError("D25 result helper hash mismatch")
+    if any(payload[D25_RESULT_HELPER_OFFSET : D25_RESULT_HELPER_OFFSET + 64]):
+        raise RuntimeError("D25 result helper cave is not zero")
+    payload[D25_RESULT_HELPER_OFFSET : D25_RESULT_HELPER_OFFSET + len(D25_RESULT_HELPER_BYTES)] = D25_RESULT_HELPER_BYTES
     for call_va in (0x4897CA, 0x489ABB):
         offset = call_va - PAYLOAD_VA
         before = rel32_call(call_va, 0x489573)
-        after = rel32_call(call_va, 0x489583)
+        after = rel32_call(call_va, D25_RESULT_HELPER_VA)
         if payload[offset : offset + 5] != before:
             raise RuntimeError(f"result helper call guard mismatch at 0x{call_va:X}")
         payload[offset : offset + 5] = after
-        result_call_repairs.append({"call_va": f"0x{call_va:X}", "before_target": "0x489573", "after_target": "0x489583", "before": before.hex().upper(), "after": after.hex().upper()})
+        result_call_repairs.append({"call_va": f"0x{call_va:X}", "before_target": "0x489573", "after_target": f"0x{D25_RESULT_HELPER_VA:X}", "before": before.hex().upper(), "after": after.hex().upper()})
     factory_va = PAYLOAD_VA + UI_FACTORY_OFFSET
     text_va = PAYLOAD_VA + UPGRADES_TEXT_OFFSET
     if any(payload[UI_FACTORY_OFFSET : PAYLOAD_SIZE]):
@@ -389,6 +403,7 @@ def build_ui_payload(active_payload: bytes) -> tuple[bytes, dict[str, object]]:
         "events": {"tech": 13, "detail": 2},
         "local": [72, 4],
         "result_call_repairs": result_call_repairs,
+        "result_helper": {"va": f"0x{D25_RESULT_HELPER_VA:X}", "file_offset": "0x89ACA", "length": len(D25_RESULT_HELPER_BYTES), "sha256": sha(D25_RESULT_HELPER_BYTES), "bytes": D25_RESULT_HELPER_BYTES.hex().upper(), "guard_length": 64},
     }
 
 
@@ -1005,7 +1020,7 @@ def main() -> None:
         "Expanded-256 remains ON HOLD/fail-closed"
     )
     base["evidence_status"] = (
-        "Playtest 3 fault 0xC0000005 at VA 0x489E0C; calls 0x4897CA/0x489ABB targeted epilogue 0x489573; no selectable candidate"
+        "Playtest 3 fault 0xC0000005 at VA 0x489E0C; calls 0x4897CA/0x489ABB targeted epilogue 0x489573; D25 repairs both to helper 0x489ACA; no selectable candidate"
     )
     base["playtest_withdrawal"] = {
         "playtest": "VV4 Full Mastery UI Playtest 2",
@@ -1016,7 +1031,22 @@ def main() -> None:
             "detail": {"event": 4, "asset": "0x48", "x": "0x489F37", "y": 3, "parent": 1, "flags": 2},
         },
     }
-    base["playtest3_withdrawal"] = {"playtest": "VV4 Full Mastery UI Playtest 3", "status": "HARD WITHDRAWN", "exception": "0xC0000005", "fault_rva": "0x89E0C", "fault_va": "0x489E0C", "bad_calls": ["0x4897CA", "0x489ABB"], "bad_target": "0x489573", "correct_result_helper": "0x489583"}
+    base["playtest3_withdrawal"] = {"playtest": "VV4 Full Mastery UI Playtest 3", "status": "HARD WITHDRAWN", "exception": "0xC0000005", "fault_rva": "0x89E0C", "fault_va": "0x489E0C", "bad_calls": ["0x4897CA", "0x489ABB"], "bad_target": "0x489573", "correct_result_helper": "0x489ACA", "correct_result_helper_file_offset": "0x89ACA", "correct_result_helper_sha256": D25_RESULT_HELPER_SHA256}
+    base["individual_full_mastery"] = {
+        "status": "STOP; disabled and catalog-hidden",
+        "reason": "the legacy individual path precharged and wrote raw Float32 90; no candidate bytes are emitted until the complete native exact-100 transaction is proven",
+        "required_contract": {
+            "current_living_selected_villager": True,
+            "five_float_complete_dry_run": True,
+            "no_op_no_charge_message": True,
+            "explicit_confirmation": True,
+            "same_physical_index_reacquisition": True,
+            "final_revalidation_and_funds_check": True,
+            "native_writer": "sub_46AD80 once per changed skill",
+            "deduction": 100000,
+            "direct_skill_stores": False,
+        },
+    }
     base["cure_containment"] = {
         "status": "withdrawn and fail-closed pending Full Heal/Cure All repair",
         "public_row": {
@@ -1308,6 +1338,7 @@ def main() -> None:
             "scope": "stock-mode only; Expanded-256 remains ON HOLD/fail-closed",
         },
         "cure_containment": base["cure_containment"],
+        "individual_full_mastery": base["individual_full_mastery"],
         "playtest_withdrawal": base["playtest_withdrawal"],
         "playtest3_withdrawal": base["playtest3_withdrawal"],
         "source": {"size": len(stock), "sha256": expected_sha},
@@ -1394,7 +1425,7 @@ def main() -> None:
             if feature_enabled
             else "The base and command-7 records are HARD WITHDRAWN and catalog-hidden after Playtest 3 "
             "crashed at RVA 0x89E0C / VA 0x489E0C. Individual-menu calls at 0x4897CA and 0x489ABB "
-            "targeted the show-menu epilogue at 0x489573 instead of the result helper at 0x489583. "
+            "targeted the show-menu epilogue at 0x489573 instead of the result helper at 0x489ACA. "
             "This disabled candidate repairs only those guarded calls; individual Full Mastery remains "
             "STOP because it writes raw Float32 90 and precharges, and command 7 awaits D25 recertification. "
             "The legacy Cure row is rendered unavailable, command 5 is rejected before "

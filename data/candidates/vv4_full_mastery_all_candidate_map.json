@@ -151,6 +151,21 @@
     "payload_sha256": "2BB7A32344293DCACB4D0359818C6839AC1FBBAEE8F9E3D00DB59C274238D726",
     "payload_bytes_unchanged": true
   },
+  "individual_full_mastery": {
+    "status": "STOP; disabled and catalog-hidden",
+    "reason": "the legacy individual path precharged and wrote raw Float32 90; no candidate bytes are emitted until the complete native exact-100 transaction is proven",
+    "required_contract": {
+      "current_living_selected_villager": true,
+      "five_float_complete_dry_run": true,
+      "no_op_no_charge_message": true,
+      "explicit_confirmation": true,
+      "same_physical_index_reacquisition": true,
+      "final_revalidation_and_funds_check": true,
+      "native_writer": "sub_46AD80 once per changed skill",
+      "deduction": 100000,
+      "direct_skill_stores": false
+    }
+  },
   "playtest_withdrawal": {
     "playtest": "VV4 Full Mastery UI Playtest 2",
     "status": "HARD WITHDRAWN",
@@ -191,16 +206,18 @@
       "0x489ABB"
     ],
     "bad_target": "0x489573",
-    "correct_result_helper": "0x489583"
+    "correct_result_helper": "0x489ACA",
+    "correct_result_helper_file_offset": "0x89ACA",
+    "correct_result_helper_sha256": "BC7E2FBD0DA5BDDDA870F1AF0107C116E688706CA7799D4933AF4AE2A522442A"
   },
   "source": {
     "size": 929792,
     "sha256": "6D27A429FFCA5F1F71FDD7ECA761ED1BB67E85F976494BA178B3D7BE01F1B220"
   },
-  "base_manifest_sha256": "A6244A8E6F87C46C5AF16E440F36641DB55336DD51AD33736326BDA944BAFE2F",
+  "base_manifest_sha256": "864838B68EEE78112F5445FC99D3EAA2F0D6072C695005F58AF343B69E729AC4",
   "feature_manifest_sha256": "CD19C8893C45BD916A8AEE67A63A6FD47E15CE61200A510466BF0B1C4DED954C",
-  "base_stock_payload_sha256": "BA8A07F9C18DCAAA7677F937187468A0F796B3BBA2CA1B315BE8B5FA8AFF259E",
-  "base_expanded_payload_sha256": "CAA7F10C17F0F222D40FF3268C1A39277361F072E60DECD28063A3E175B5EBF0",
+  "base_stock_payload_sha256": "F6CC88D68B4DFB60BA323CE8BAC20905EEC29317DBD8A7B3CDE6A2AB51666E73",
+  "base_expanded_payload_sha256": "13EAA6D11F6FF23FD9D3E208D163CBC87169131AEE27A01F0E53C16653E13AC4",
   "companion": {
     "path": "data/candidates/VVFP VV4 Full Mastery Candidate.dll",
     "size": 282624,
@@ -359,18 +376,26 @@
       {
         "call_va": "0x4897CA",
         "before_target": "0x489573",
-        "after_target": "0x489583",
+        "after_target": "0x489ACA",
         "before": "E8A4FDFFFF",
-        "after": "E8B4FDFFFF"
+        "after": "E8FB020000"
       },
       {
         "call_va": "0x489ABB",
         "before_target": "0x489573",
-        "after_target": "0x489583",
+        "after_target": "0x489ACA",
         "before": "E8B3FAFFFF",
-        "after": "E8C3FAFFFF"
+        "after": "E80A000000"
       }
-    ]
+    ],
+    "result_helper": {
+      "va": "0x489ACA",
+      "file_offset": "0x89ACA",
+      "length": 54,
+      "sha256": "BC7E2FBD0DA5BDDDA870F1AF0107C116E688706CA7799D4933AF4AE2A522442A",
+      "bytes": "53568B5C240C8B74241068E39E4800FF15E0A1480085C0741868EE9E480050FF15DCA1480085C074086A0053566A00FFD05E5BC20800",
+      "guard_length": 64
+    }
   },
   "slot_layout": {
     "offset": "0x100",
@@ -559,11 +584,11 @@
   "rendered_candidates": {
     "collection_progression": {
       "baseline_sha256": "132516F4A5F7D2E9B539B14300207AEA5872FDCC0D34F13768435D9F4B6F76D4",
-      "base_only_sha256": "38985B6AF7DE74F48DE3378E2F1B44425EECC06BC75C5603F57B7E7180D0F79A",
-      "base_plus_mastery_sha256": "B93ACE7E0EE6FF0EEA1477D7178288599E170EC49D4F6EEF500FF4B92B6960B1",
-      "all_current_compatible_sha256": "447D184C3FA8E1FBC68ADB8F7491B075F40182A01683A557AF9A75F65CF5E918",
+      "base_only_sha256": "B7E7261167CAB81057C6AF82EB61853D039705D1A46CD908D67D9D2B9D2F18AE",
+      "base_plus_mastery_sha256": "A64D080A747597E779ED67E5613B7DF59BA71C8F60C2F545D13E14A77944A15A",
+      "all_current_compatible_sha256": "3DB496C3612922C7C1AF16914B8BC6E5CB5BF26A8B4151211386908C5B5F1FC9",
       "size": 937984,
-      "pe_checksum": "0x000EA5E2",
+      "pe_checksum": "0x000EEF0C",
       "owners": [
         "automatic:population",
         "automatic:safety",
@@ -581,11 +606,11 @@
     },
     "immediate_fixed": {
       "baseline_sha256": "EB0CDD4F7F5E41F7A03734D51F9417A126C3BE9D214B484A848DB688545CF5FB",
-      "base_only_sha256": "1665B5F574CB7BD080F7FA08BA52F034D5903405D64BBF32D47F1C8B5B6CEF73",
-      "base_plus_mastery_sha256": "2C4277DA24A0907D0CB956E6031FFD4B50949A7B3040E3EE33A1AA5996A0E21C",
-      "all_current_compatible_sha256": "7ABAA87A0286E0199D946086FDC35E064B63DBD496855516E542FF495D5B6E60",
+      "base_only_sha256": "903B304B1F8143D3C4D902C01C187087C67BF6BF73937903B0DE7B5E11DF43CA",
+      "base_plus_mastery_sha256": "CB36C39B945AAFF29E87749009A7E876992C30945350E0602CA1488894E4D7E2",
+      "all_current_compatible_sha256": "4E3033C84CE57F555FF480D0EDB56F147B086FCB16D01EE66AB9DA5A60FC7E11",
       "size": 937984,
-      "pe_checksum": "0x000F3F0A",
+      "pe_checksum": "0x000E8835",
       "owners": [
         "automatic:population",
         "automatic:safety",
@@ -603,11 +628,11 @@
     },
     "experimental_expanded_256": {
       "baseline_sha256": "428A8A8DE3B753CA813AB29960C49D15D4B3EDBE97BB49D8625C81743FEA3782",
-      "base_only_sha256": "E57F41C6B0CC111A78DD4C44241A9D02E6ABC2561730B01D53D93E1CA0AD396B",
-      "base_plus_mastery_sha256": "F97498F7D94A2493044FC4D4290DA62EF47242F258AF0E27B2B6AEFDAFF27D10",
-      "all_current_compatible_sha256": "2EAEB1062EE0C1DC9024B3289C69E9006526AC0CED29BE1676728731FD04CAD9",
+      "base_only_sha256": "C89B7431685F740B198DD961E08E62F75333C910BB0817F78B23A3B942C0D914",
+      "base_plus_mastery_sha256": "35B235BCEF8EF4BEA18E203CB48BC259473D209D0CEBE3B909EFEB65284B689F",
+      "all_current_compatible_sha256": "DC8DEAD124CE782E5BCB71227FC26AE1573FFFB3ABFE7E05E4B1B70DB781B6C6",
       "size": 937984,
-      "pe_checksum": "0x000F4348",
+      "pe_checksum": "0x000E8C73",
       "owners": [
         "automatic:population",
         "automatic:safety",
@@ -625,11 +650,11 @@
     },
     "experimental_expanded_256_progression": {
       "baseline_sha256": "737F475764EBB9F35BC6C68337698D46F6D03BA0560B9BE4E352F80AF48FE791",
-      "base_only_sha256": "0AFE46DA1FA41FC04AF4E385358D0B677D1BF140497291ECA72613F9F14810CF",
-      "base_plus_mastery_sha256": "902A23BF29251940EE7AA1B1F485FCB9866CABF7E4C00B513F402CAA6CCAEB96",
-      "all_current_compatible_sha256": "A9F4CB1A8A8B7F4C0398137158519D113AEA870EE62FA8F7189B55E7D1B5804C",
+      "base_only_sha256": "0B4C357E94974221E6FE0AB9A31F327E42B6A525B124D229B4BA40A8E314851C",
+      "base_plus_mastery_sha256": "A2A96CB77A1159D6A4579611B73BA24CB23D7B6917DC6FE732AA5EF84506C382",
+      "all_current_compatible_sha256": "1673846C9675C9CD0EC8EBD6273E6C4020E19EC1C1C6672E866FF8832FB77407",
       "size": 937984,
-      "pe_checksum": "0x000EE3AC",
+      "pe_checksum": "0x000F2CD6",
       "owners": [
         "automatic:population",
         "automatic:safety",
