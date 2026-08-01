@@ -505,6 +505,8 @@ def build_slot(page_va: int, installed: bool) -> tuple[bytes, dict[str, object]]
         ("individual_noop", b"Everyone is already fully mastered.\r\nNo tech points have been deducted."),
         ("individual_invalid", b"Full Mastery cannot be applied because the selected villager has an out-of-range skill.\r\nNo tech points have been deducted."),
         ("individual_insufficient", b"Not enough tech points.\r\nNo tech points have been deducted."),
+        ("individual_warning", b"Grant Full Mastery to this villager for 100,000 tech points?\r\nPress OK to confirm, or Cancel."),
+        ("individual_failure", b"Full Mastery could not be completed because a skill did not reach 100.\r\nNo tech points have been deducted."),
     ):
         if not value.endswith(b"\0"):
             value += b"\0"
@@ -728,6 +730,7 @@ def build_slot(page_va: int, installed: bool) -> tuple[bytes, dict[str, object]]
     first_scan: list[str] = []
     second_scan: list[str] = []
     native_calls: list[str] = []
+    post_verify: list[str] = []
     for i in range(5):
         off = 0x1C5C + i * 4
         bit = 1 << i
@@ -744,7 +747,7 @@ def build_slot(page_va: int, installed: bool) -> tuple[bytes, dict[str, object]]
         indiv_first_valid_{i}:
             cmp eax, 0x42C80000
             jae indiv_first_next_{i}
-            or dword ptr [ebp - 0x0C], {bit}
+            or dword ptr [ebp - 0x14], {bit}
         indiv_first_next_{i}:
             """
         )
@@ -761,13 +764,13 @@ def build_slot(page_va: int, installed: bool) -> tuple[bytes, dict[str, object]]
         indiv_second_valid_{i}:
             cmp eax, 0x42C80000
             jae indiv_second_next_{i}
-            or dword ptr [ebp - 0x0C], {bit}
+            or dword ptr [ebp - 0x14], {bit}
         indiv_second_next_{i}:
             """
         )
         native_calls.append(
             f"""
-            test dword ptr [ebp - 0x0C], {bit}
+            test dword ptr [ebp - 0x14], {bit}
             jz indiv_call_next_{i}
             push 0x42C80000
             fld dword ptr [esp]
@@ -777,6 +780,15 @@ def build_slot(page_va: int, installed: bool) -> tuple[bytes, dict[str, object]]
             lea ecx, [ebx + 0x1C5C]
             call 0x46AD80
         indiv_call_next_{i}:
+            """
+        )
+        post_verify.append(
+            f"""
+            test dword ptr [ebp - 0x14], {bit}
+            jz indiv_verify_next_{i}
+            cmp dword ptr [ebx + 0x{off:X}], 0x42C80000
+            jne indiv_partial
+        indiv_verify_next_{i}:
             """
         )
     individual = asm(
@@ -791,13 +803,12 @@ def build_slot(page_va: int, installed: bool) -> tuple[bytes, dict[str, object]]
             test eax, eax
             jz indiv_invalid
             mov edi, dword ptr [eax + 0x171B0]
-            mov dword ptr [ebp - 0x04], edi
+            mov dword ptr [ebp - 0x10], edi
             cmp edi, 150
             jae indiv_invalid
             mov ecx, 0x50E568
             push edi
             call 0x466040
-            add esp, 4
             mov ebx, eax
             test ebx, ebx
             jz indiv_invalid
@@ -807,25 +818,37 @@ def build_slot(page_va: int, installed: bool) -> tuple[bytes, dict[str, object]]
             jne indiv_invalid
             cmp dword ptr [ebx + 0x1C40], 0
             jle indiv_invalid
-            mov dword ptr [ebp - 0x0C], 0
+            mov dword ptr [ebp - 0x14], 0
             {''.join(first_scan)}
-            cmp dword ptr [ebp - 0x0C], 0
+            cmp dword ptr [ebp - 0x14], 0
             je indiv_noop
-            call 0x{confirm_va:X}
+            push 0x{strings['user32']:X}
+            call dword ptr [0x48A1E0]
             test eax, eax
             jz indiv_done
+            push 0x{strings['message_box']:X}
+            push eax
+            call dword ptr [0x48A1DC]
+            test eax, eax
+            jz indiv_done
+            push 1
+            push 0x{strings['caption']:X}
+            push 0x{strings['individual_warning']:X}
+            push 0
+            call eax
+            cmp eax, 1
+            jne indiv_done
             call 0x41FE70
             test eax, eax
             jz indiv_invalid
             mov edi, dword ptr [eax + 0x171B0]
-            cmp edi, dword ptr [ebp - 0x04]
+            cmp edi, dword ptr [ebp - 0x10]
             jne indiv_invalid
             cmp edi, 150
             jae indiv_invalid
             mov ecx, 0x50E568
             push edi
             call 0x466040
-            add esp, 4
             mov ebx, eax
             test ebx, ebx
             jz indiv_invalid
@@ -835,36 +858,42 @@ def build_slot(page_va: int, installed: bool) -> tuple[bytes, dict[str, object]]
             jne indiv_invalid
             cmp dword ptr [ebx + 0x1C40], 0
             jle indiv_invalid
-            mov dword ptr [ebp - 0x0C], 0
+            mov dword ptr [ebp - 0x14], 0
             {''.join(second_scan)}
-            cmp dword ptr [ebp - 0x0C], 0
+            cmp dword ptr [ebp - 0x14], 0
             je indiv_noop
             cmp dword ptr [0x4D6F88], {INDIVIDUAL_PRICE}
             jb indiv_insufficient
             {''.join(native_calls)}
+            {''.join(post_verify)}
             mov ecx, 0x4D6F88
             push -{INDIVIDUAL_PRICE}
             call 0x41E300
-            push 0x{strings['caption']:X}
             push 0x{strings['result']:X}
+            push 0x{strings['caption']:X}
+            call 0x{D25_RESULT_HELPER_VA:X}
+            jmp indiv_done
+        indiv_partial:
+            push 0x{strings['individual_failure']:X}
+            push 0x{strings['caption']:X}
             call 0x{D25_RESULT_HELPER_VA:X}
             jmp indiv_done
         indiv_noop:
-            push 0x{strings['caption']:X}
             push 0x{strings['individual_noop']:X}
+            push 0x{strings['caption']:X}
             call 0x{D25_RESULT_HELPER_VA:X}
             jmp indiv_done
         indiv_insufficient:
-            push 0x{strings['caption']:X}
             push 0x{strings['individual_insufficient']:X}
+            push 0x{strings['caption']:X}
             call 0x{D25_RESULT_HELPER_VA:X}
             jmp indiv_done
         indiv_invalid:
-            push 0x{strings['caption']:X}
             push 0x{strings['individual_invalid']:X}
+            push 0x{strings['caption']:X}
             call 0x{D25_RESULT_HELPER_VA:X}
         indiv_done:
-            mov esp, ebp
+            lea esp, [ebp - 0x0C]
             pop edi
             pop esi
             pop ebx
@@ -905,6 +934,9 @@ def build_slot(page_va: int, installed: bool) -> tuple[bytes, dict[str, object]]
             "eligibility": ["byte +0x1CC4 != 0", "byte +0x1CC7 == 0", "signed dword +0x1C40 > 0"],
             "skills": ["+0x1C5C", "+0x1C60", "+0x1C64", "+0x1C68", "+0x1C6C"],
             "target": "Float32 100.0",
+            "confirmation": "Grant Full Mastery to this villager for 100,000 tech points?\r\nPress OK to confirm, or Cancel.",
+            "post_write_verification": "re-read every originally changed skill; require exact Float32 100.0 before deduction",
+            "partial_commit_policy": "failure reports No tech points have been deducted.; native partial changes may remain because rollback is unsafe/unproved",
             "writer": "push delta; push index; ECX=record+0x1C5C; call 0x46AD80; callee ret8",
             "deduction": "push -100000; ECX=0x4D6F88; call 0x41E300 once after final recheck",
             "direct_skill_stores": False,
@@ -974,6 +1006,8 @@ def build_page(page_va: int, slot: bytes, dispatcher: bytes) -> bytes:
         b"Everyone is already fully mastered.\r\nNo tech points have been deducted.\0",
         b"Full Mastery cannot be applied because the selected villager has an out-of-range skill.\r\nNo tech points have been deducted.\0",
         b"Not enough tech points.\r\nNo tech points have been deducted.\0",
+        b"Grant Full Mastery to this villager for 100,000 tech points?\r\nPress OK to confirm, or Cancel.\0",
+        b"Full Mastery could not be completed because a skill did not reach 100.\r\nNo tech points have been deducted.\0",
     ):
         page[cursor : cursor + len(value)] = value
         cursor += len(value)
@@ -1634,7 +1668,7 @@ def main() -> None:
         "- `Upgrades` is copied through proven native `sub_401600` text overlay and `sub_401630` style ABIs; `sub_40D8A0` is absent. Tech uses `this+0x74` and paired cleanup; Detail uses list-owned `sub_40C300`.\n"
         "- Wrapper-null returns without attach. Loader-null raw-frees the unconstructed wrapper through cdecl `sub_470B7B`; it never virtual-destructs raw memory. Inner-null after `sub_401C20` uses the proven scalar destructor with flag 1.\n"
         "- The Tech helper emits exact `8B CB` (`mov ecx, ebx`) after clearing `this+0x74` and before `sub_40C340`; its continuation remains `0x43E23D`.\n"
-        "- Individual command 1 is source-modeled in `src/vv4_individual_mastery.py` but remains disabled/catalog-hidden: it captures the displayed physical index, validates all five finite Float32 skills for a living villager, reports the exact no-charge message for zero changes, requires confirmation and same-index reacquisition, then calls `sub_46AD80` once per delta and deducts 100,000 once through `0x41E300`. No direct skill stores or precharge are present; D27 executable ABI proof is required before emission.\n"
+        "- Individual command 1 is source-modeled in `src/vv4_individual_mastery.py` but remains disabled/catalog-hidden: it captures the displayed physical index, validates all five finite Float32 skills for a living villager, reports the exact no-charge message for zero changes, requires the per-villager 100,000-point confirmation and same-index reacquisition, then calls `sub_46AD80` once per delta, re-reads every originally changed skill for exact Float32 100.0, and deducts 100,000 once through `0x41E300`. A failed post-write verification reports `No tech points have been deducted.`; partial native changes may remain because rollback is unsafe/unproved. No direct skill stores or precharge are present; D27 executable ABI proof is required before emission.\n"
         + f"- Companion SHA-256: `{artifact['companion']['sha256']}`\n"
         f"- Stock installed slot SHA-256: `{artifact['layouts']['collection_progression']['installed_slot_sha256']}`\n"
         f"- Expanded installed slot SHA-256: `{artifact['layouts']['experimental_expanded_256']['installed_slot_sha256']}`\n"

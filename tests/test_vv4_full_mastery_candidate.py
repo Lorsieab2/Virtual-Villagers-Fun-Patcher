@@ -474,12 +474,27 @@ class VV4FullMasteryCandidateTests(unittest.TestCase):
         self.assertEqual(targets.count(0x466040), 2)
         self.assertEqual(targets.count(0x46AD80), 5)
         self.assertEqual(targets.count(0x41E300), 1)
-        self.assertEqual(targets.count(0x489ACA), 4)
+        self.assertEqual(targets.count(0x489ACA), 5)
+        self.assertNotIn(0x73F900, targets)  # dedicated confirmation; never command-7 generic helper
+        self.assertIn(b"\x89\x7D\xF0", helper)  # saved physical index at [ebp-0x10]
+        self.assertIn(b"\xC7\x45\xEC", helper)  # changed-mask local at [ebp-0x14]
+        self.assertNotIn(b"\x89\x7D\xFC", helper)  # never clobber saved EBX
+        self.assertNotIn(b"\x83\xC4\x04", helper)  # sub_466040 is callee-clean
+        self.assertTrue(helper.endswith(b"\x8D\x65\xF4\x5F\x5E\x5B\x5D\xC3"))
         self.assertIn(b"\x68\x60\x79\xFE\xFF", helper)  # push -100000
         for raw_store in (b"\xC7\x83\x5C\x1C", b"\xC7\x83\x60\x1C", b"\xC7\x83\x64\x1C", b"\xC7\x83\x68\x1C", b"\xC7\x83\x6C\x1C"):
             self.assertNotIn(raw_store, helper)
         self.assertEqual(installed["individual_status"], "emitted in installed page only; route disabled/catalog-hidden pending D27")
         self.assertEqual(self.map["individual_full_mastery"]["emitted"], "installed-page helper only; unreachable while disabled")
+        contract = installed["individual_contract"]
+        self.assertEqual(contract["confirmation"], "Grant Full Mastery to this villager for 100,000 tech points?\r\nPress OK to confirm, or Cancel.")
+        self.assertIn("exact Float32 100.0", contract["post_write_verification"])
+        self.assertIn("partial changes may remain", contract["partial_commit_policy"])
+        caption = int(installed["strings"]["caption"], 16).to_bytes(4, "little")
+        message_keys = ("result", "individual_noop", "individual_insufficient", "individual_invalid", "individual_failure")
+        for key in message_keys:
+            message = int(installed["strings"][key], 16).to_bytes(4, "little")
+            self.assertEqual(helper.count(b"\x68" + message + b"\x68" + caption), 1)
 
     def test_whole_render_has_no_reachable_cure_target(self):
         rendered, _ = render_patched_bytes(
