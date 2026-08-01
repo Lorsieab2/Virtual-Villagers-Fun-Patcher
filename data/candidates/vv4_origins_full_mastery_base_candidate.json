@@ -175,9 +175,9 @@
     "expanded_virtual_address": "0x85A004",
     "patches": []
   },
-  "enabled": false,
-  "certification_status": "HARD WITHDRAWN after Playtest 2 repeated the startup access violation at RVA 0x21570; catalog-hidden; Expanded-256 remains ON HOLD/fail-closed",
-  "evidence_status": "historical D13 static review at e9afe69e0461ff986adddb55d743cf091eea598b revoked by Playtest 2 runtime evidence; malformed sub_401C20 arguments; no selectable candidate",
+  "enabled": true,
+  "certification_status": "D19 payload and D21 metadata independently recertified; stock catalog enabled; Expanded-256 remains ON HOLD/fail-closed",
+  "evidence_status": "D19 native payload at 8182c235548bc92f304e5571ed61ada3c5abfa4b and D21 metadata at 3ba125b2107da4f86f9b70ab5b94206bef7803f5 independently recertified; Playtest 2 withdrawal retained as historical evidence",
   "playtest_withdrawal": {
     "playtest": "VV4 Full Mastery UI Playtest 2",
     "status": "HARD WITHDRAWN",

@@ -40,6 +40,7 @@ D19_COMMIT = "8182c235548bc92f304e5571ed61ada3c5abfa4b"
 D19_FACTORY_SHA256 = "58E21A9597EB6ABF6949A1E607C3B607FABAF1AE5D280D899A062F5D021ACE21"
 D19_TECH_SHA256 = "1D710074D6F5717A420646B2DCEE2BCC351754B4DC0CCFB5A32F586E2E258BDC"
 D19_DETAIL_SHA256 = "AC2A88CBD0B7805941EA34261D765F4A727187B35B5443BFB7CDEA8DF43A7E8C"
+D21_COMMIT = "3ba125b2107da4f86f9b70ab5b94206bef7803f5"
 C7_DLL_SHA256 = "4E1A83683A875EFE6F67116CDD862927BE1ABCB17DB7AE18143E58E98EAD01E7"
 C6_BASELINE_COMMIT = "577072f5b5205c3a0a857c0645d855bb98ec19d2"
 
@@ -984,14 +985,14 @@ def main() -> None:
     base = deepcopy(active)
     base["id"] = "vv4_enable_origins_exclusive_features_full_mastery_candidate"
     base["name"] = "VV4 Origins Full Mastery Extension Base"
-    base["enabled"] = False
+    base["enabled"] = True
     base["certification_status"] = (
-        "HARD WITHDRAWN after Playtest 2 repeated the startup access violation at "
-        "RVA 0x21570; catalog-hidden; Expanded-256 remains ON HOLD/fail-closed"
+        "D19 payload and D21 metadata independently recertified; stock catalog enabled; "
+        "Expanded-256 remains ON HOLD/fail-closed"
     )
     base["evidence_status"] = (
-        f"historical D13 static review at {R3_COMMIT} revoked by Playtest 2 runtime evidence; "
-        "malformed sub_401C20 arguments; no selectable candidate"
+        f"D19 native payload at {D19_COMMIT} and D21 metadata at {D21_COMMIT} independently recertified; "
+        "Playtest 2 withdrawal retained as historical evidence"
     )
     base["playtest_withdrawal"] = {
         "playtest": "VV4 Full Mastery UI Playtest 2",
@@ -1124,7 +1125,7 @@ def main() -> None:
     stock_installed = installed_slots["collection_progression"]
     if sha(stock_installed) != R3_COMMAND7_SLOT_SHA256:
         raise RuntimeError("R3 command-7 slot hash mismatch")
-    feature_enabled = False
+    feature_enabled = True
     feature = {
         "id": "vv4_full_mastery_all_stage_a_candidate",
         "game_id": "vv4",
@@ -1134,9 +1135,9 @@ def main() -> None:
             else "DISABLED Candidate: Grant Full Mastery to All Villagers"
         ),
         "enabled": feature_enabled,
-        "certification_status": "HARD WITHDRAWN after Playtest 2 startup crash; catalog-hidden; Expanded-256 ON HOLD/fail-closed",
+        "certification_status": "D19 payload and D21 metadata independently recertified; stock catalog enabled; Expanded-256 ON HOLD/fail-closed",
         "evidence_status": (
-            f"historical D13 static review at {R3_COMMIT} revoked by Playtest 2 runtime evidence; malformed sub_401C20 arguments"
+            f"D19 payload at {D19_COMMIT} and D21 metadata at {D21_COMMIT} independently recertified; prior crash evidence retained"
         ),
         "explicit_non_changes": [
             "stock executable bytes outside the certified candidate payload",
@@ -1239,7 +1240,7 @@ def main() -> None:
 
     artifact = {
         "acceptance_commit": D19_COMMIT,
-        "candidate_status": "HARD WITHDRAWN after Playtest 2 startup crash; catalog-hidden",
+        "candidate_status": "D21 metadata recertification GO; stock catalog enabled",
         "independent_recertification": {
             "review": "D19",
             "status": "independent payload recertification GO",
@@ -1254,6 +1255,12 @@ def main() -> None:
                 "cure": R3_CURE_SHA256,
                 "dll": R3_DLL_SHA256,
             },
+        },
+        "metadata_recertification": {
+            "review": "D21",
+            "status": "independent metadata recertification GO",
+            "commit": D21_COMMIT,
+            "scope": "VV4 Full Mastery metadata/validator enablement for stock mode only; Expanded-256 ON HOLD/fail-closed",
         },
         "ui_asset_gate": {
             **asset_map,
@@ -1282,8 +1289,8 @@ def main() -> None:
                 "detail_handler_relocated_va": ui_map["detail_handler_relocated"]["va"],
                 "detail_route_patch_offset": "0x48610",
             },
-            "status": "D19 payload GO; D20 metadata audit pending",
-            "recertification_commit": D19_COMMIT,
+            "status": "independent metadata recertification GO",
+            "recertification_commit": D21_COMMIT,
             "scope": "stock-mode only; Expanded-256 remains ON HOLD/fail-closed",
         },
         "cure_containment": base["cure_containment"],
@@ -1367,8 +1374,8 @@ def main() -> None:
         f"`{C6_BASELINE_COMMIT}` plus the repository-owned "
         "canonical mockup provenance and native ordinal ABI gate. "
         + (
-            f"The exact corrected artifact received independent D13 recertification GO at "
-            f"commit `{R3_COMMIT}`; command 7 is available for stock-mode runtime playtesting.\n\n"
+            f"The native payload received D19 recertification at `{D19_COMMIT}` and its "
+            f"metadata/validator received D21 recertification at `{D21_COMMIT}`; command 7 is catalog-visible in stock mode.\n\n"
             if feature_enabled
             else "The command-7 record is HARD WITHDRAWN and catalog-hidden after Playtest 2 "
             "repeated the startup access violation at RVA 0x21570. Static review missed malformed "
@@ -1395,7 +1402,7 @@ def main() -> None:
         "skill stores, ownership, Remove, and save-format changes are absent. "
         "The candidate is fail-closed on missing or mismatched companion files, "
         "preserves stock executables, Cure bytes, certified VV3 stock-mode hashes, and "
-        "the expanded-256 hold. D19 independently recertified the disabled native-ordinal payload; D20 metadata audit remains pending. "
+        "the expanded-256 hold. D19 independently recertified the native-ordinal payload and D21 independently recertified metadata enablement. "
         "Expanded-256 remains ON HOLD/fail-closed.\n"
         f"- D19 factory SHA-256: `{D19_FACTORY_SHA256}`; helper: `{R3_HELPER_SHA256}`; Tech constructor: `{D19_TECH_SHA256}`; "
         f"Detail constructor: `{D19_DETAIL_SHA256}`; command-7 slot: `{R3_COMMAND7_SLOT_SHA256}`; "
@@ -1407,7 +1414,7 @@ def main() -> None:
     for source_path in (BASE_OUT, FEATURE_OUT, MAP_OUT, DOC_OUT, COMPANION):
         shutil.copy2(source_path, output_dir / source_path.name)
     checksum_records: dict[str, object] = {
-        "status": "HARD WITHDRAWN after Playtest 2 startup crash; Expanded-256 ON HOLD/fail-closed",
+        "status": "D21 metadata-certified stock-mode candidate; Expanded-256 ON HOLD/fail-closed",
         "asset": asset_map,
         "source": {"path": str(STOCK.relative_to(ROOT)), "sha256": expected_sha},
         "artifacts": {},

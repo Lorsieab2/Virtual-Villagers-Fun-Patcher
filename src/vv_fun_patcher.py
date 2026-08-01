@@ -79,6 +79,7 @@ VV4_FULL_MASTERY_CERTIFIED_SHA256 = {
     "dll": "4E1A83683A875EFE6F67116CDD862927BE1ABCB17DB7AE18143E58E98EAD01E7",
 }
 VV4_FULL_MASTERY_D19_COMMIT = "8182c235548bc92f304e5571ed61ada3c5abfa4b"
+VV4_FULL_MASTERY_D21_COMMIT = "3ba125b2107da4f86f9b70ab5b94206bef7803f5"
 VV4_FULL_MASTERY_D19_HASHES = {
     "native_factory": "58E21A9597EB6ABF6949A1E607C3B607FABAF1AE5D280D899A062F5D021ACE21",
     "helper": "C7379FB1AFDDD44F06CF48FAEED14C1701D796F5FC2568E10745337DADE13DB1",
@@ -397,6 +398,14 @@ def _certified_vv4_full_mastery_records(
         or recertification.get("scope") != "VV4 Full Mastery stock-mode candidate only; Expanded-256 ON HOLD/fail-closed"
     ):
         raise PatcherError("VV4 Full Mastery independent recertification scope/status is invalid.")
+    metadata_recertification = artifact.get("metadata_recertification")
+    if metadata_recertification != {
+        "review": "D21",
+        "status": "independent metadata recertification GO",
+        "commit": VV4_FULL_MASTERY_D21_COMMIT,
+        "scope": "VV4 Full Mastery metadata/validator enablement for stock mode only; Expanded-256 ON HOLD/fail-closed",
+    }:
+        raise PatcherError("VV4 Full Mastery D21 metadata recertification is invalid.")
     ui_payload = artifact.get("candidate_ui_payload")
     if not isinstance(ui_payload, dict):
         raise PatcherError("VV4 Full Mastery candidate UI payload evidence is missing.")

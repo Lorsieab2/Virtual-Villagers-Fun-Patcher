@@ -1,6 +1,6 @@
 {
   "acceptance_commit": "8182c235548bc92f304e5571ed61ada3c5abfa4b",
-  "candidate_status": "HARD WITHDRAWN after Playtest 2 startup crash; catalog-hidden",
+  "candidate_status": "D21 metadata recertification GO; stock catalog enabled",
   "independent_recertification": {
     "review": "D19",
     "status": "independent payload recertification GO",
@@ -15,6 +15,12 @@
       "cure": "2BB7A32344293DCACB4D0359818C6839AC1FBBAEE8F9E3D00DB59C274238D726",
       "dll": "4E1A83683A875EFE6F67116CDD862927BE1ABCB17DB7AE18143E58E98EAD01E7"
     }
+  },
+  "metadata_recertification": {
+    "review": "D21",
+    "status": "independent metadata recertification GO",
+    "commit": "3ba125b2107da4f86f9b70ab5b94206bef7803f5",
+    "scope": "VV4 Full Mastery metadata/validator enablement for stock mode only; Expanded-256 ON HOLD/fail-closed"
   },
   "ui_asset_gate": {
     "runtime_source": "native cached VV4 Images\\btn_trophies.png",
@@ -113,8 +119,8 @@
       "detail_handler_relocated_va": "0x4895A8",
       "detail_route_patch_offset": "0x48610"
     },
-    "status": "D19 payload GO; D20 metadata audit pending",
-    "recertification_commit": "8182c235548bc92f304e5571ed61ada3c5abfa4b",
+    "status": "independent metadata recertification GO",
+    "recertification_commit": "3ba125b2107da4f86f9b70ab5b94206bef7803f5",
     "scope": "stock-mode only; Expanded-256 remains ON HOLD/fail-closed"
   },
   "cure_containment": {
@@ -178,8 +184,8 @@
     "size": 929792,
     "sha256": "6D27A429FFCA5F1F71FDD7ECA761ED1BB67E85F976494BA178B3D7BE01F1B220"
   },
-  "base_manifest_sha256": "51E660B48F17D31748B6F6A20E44A25C8681BD1B88FBCA0DC3B45DFB1453B985",
-  "feature_manifest_sha256": "A805E6FC77063CF20C0C9485F386FF99416D25F72B93F9AA3B602C0177DE62C3",
+  "base_manifest_sha256": "DB8431C71FF1065D26D18F47F61E507F7938025370D970CFF75572E2AE7F96BF",
+  "feature_manifest_sha256": "C16569855485B751856695EEFB3F9676618CBB5C70623DFEC789383E9590F89B",
   "base_stock_payload_sha256": "B7E5B73E0CBB51B84E9BDFD71E56CB5466C2027091FB68F7FCB711D65B484A74",
   "base_expanded_payload_sha256": "3C87586A24D51FEDEFDC6DC007F2434E68C677FC8A0E19862F01355D8FAF9516",
   "companion": {

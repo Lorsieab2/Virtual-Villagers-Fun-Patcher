@@ -150,6 +150,10 @@ class VillageWideContainmentTests(unittest.TestCase):
                                 source, build, mode.id, game_ids
                             )
                         continue
+                    if build.id == "vv4" and mode.id.startswith("experimental_expanded_256"):
+                        with self.assertRaisesRegex(PatcherError, "ON HOLD"):
+                            render_patched_bytes(source, build, mode.id, game_ids)
+                        continue
                     rendered, applied = render_patched_bytes(
                         source, build, mode.id, game_ids
                     )
@@ -170,7 +174,7 @@ class VillageWideContainmentTests(unittest.TestCase):
         catalog_ids = {patch.id for patch in load_fun_patches()}
         for build in load_builds():
             base_id = f"{build.id}_enable_origins_exclusive_features"
-            if build.id in {"vv2", "vv4"}:
+            if build.id == "vv2":
                 self.assertNotIn(base_id, catalog_ids)
                 continue
             self.assertIn(base_id, catalog_ids)
