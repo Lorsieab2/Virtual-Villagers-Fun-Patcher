@@ -475,7 +475,7 @@ class VV4FullMasteryCandidateTests(unittest.TestCase):
         self.assertEqual(targets.count(0x46AD80), 5)
         self.assertEqual(targets.count(0x41E300), 1)
         self.assertEqual(targets.count(0x489ACA), 5)
-        self.assertNotIn(0x73F900, targets)  # dedicated confirmation; never command-7 generic helper
+        self.assertEqual(targets.count(0x740C00), 1)  # dedicated confirmation; never command-7 generic helper
         self.assertIn(b"\x89\x7D\xF0", helper)  # saved physical index at [ebp-0x10]
         self.assertIn(b"\xC7\x45\xEC", helper)  # changed-mask local at [ebp-0x14]
         self.assertNotIn(b"\x89\x7D\xFC", helper)  # never clobber saved EBX
@@ -491,10 +491,38 @@ class VV4FullMasteryCandidateTests(unittest.TestCase):
         self.assertIn("exact Float32 100.0", contract["post_write_verification"])
         self.assertIn("partial changes may remain", contract["partial_commit_policy"])
         caption = int(installed["strings"]["caption"], 16).to_bytes(4, "little")
-        message_keys = ("result", "individual_noop", "individual_insufficient", "individual_invalid", "individual_failure")
+        message_keys = ("individual_success", "individual_noop", "individual_insufficient", "individual_invalid", "individual_failure")
         for key in message_keys:
             message = int(installed["strings"][key], 16).to_bytes(4, "little")
             self.assertEqual(helper.count(b"\x68" + message + b"\x68" + caption), 1)
+        confirmation = bytes.fromhex(installed["individual_confirmation_bytes"])
+        self.assertEqual(installed["individual_confirmation_offset"], "0x1C00")
+        self.assertEqual(len(confirmation), installed["individual_confirmation_length"])
+        self.assertEqual(sha(confirmation), installed["individual_confirmation_sha256"])
+        self.assertLess(len(confirmation), installed["individual_confirmation_guard_length"])
+        self.assertIn(b"\x6A\x01", confirmation)  # MB_OKCANCEL
+        self.assertEqual(self.map["individual_detail_route"]["collection_progression"]["message"], 8)
+        self.assertEqual(self.map["individual_detail_route"]["collection_progression"]["event"], 2)
+        self.assertEqual(self.map["individual_detail_route"]["collection_progression"]["command"], 1)
+
+    def test_individual_detail_route_has_exact_guard_and_preserves_other_commands(self):
+        route = self.map["individual_detail_route"]["collection_progression"]
+        self.assertEqual(route["va"], "0x489A31")
+        self.assertEqual(route["length"], 0x32)
+        self.assertEqual(route["before"], "C7825C1C00000000B442C782601C00000000B442C782641C00000000B442C782681C00000000B442C7826C1C00000000B442")
+        after = bytes.fromhex(route["after"])
+        self.assertEqual(len(after), 0x32)
+        self.assertEqual(route["after_sha256"], sha(after))
+        self.assertEqual(route["payload_file_offset"], "0x89A31")
+        self.assertEqual(route["section"], ".vv4fm")
+        self.assertIn(b"\x81\x3D\x00\xF0\x73\x00\x56\x46\x4D\x34", after)
+        self.assertIn(b"\x83\x3D\x0C\xF1\x73\x00\x01", after)
+        self.assertIn(0x73FB00, rel32_targets(after, int(route["va"], 16)))
+        self.assertEqual(route["continuation_va"], "0x489A63")
+        self.assertTrue(after.endswith(b"\x90" * 16))
+        payload = next(item for item in self.base_raw["patches"] if int(item["offset"], 0) == 0x89373)
+        rendered = bytes.fromhex(payload["after"])
+        self.assertEqual(rendered[0x6BE + 0x32 : 0x6BE + 0x34], bytes.fromhex("EB44"))
 
     def test_whole_render_has_no_reachable_cure_target(self):
         rendered, _ = render_patched_bytes(
@@ -595,7 +623,7 @@ class VV4FullMasteryCandidateTests(unittest.TestCase):
         slot_work[0xE3100] ^= 1
         with self.assertRaises(PatcherError):
             _remove_feature_bytes(slot_work, self.feature, "collection_progression")
-        for offset in (0x3E165, 0x2C0, len(rendered) - 1):
+        for offset in (0x3E165, 0x2C0, 0x89373 + 0x6BE, len(rendered) - 1):
             with self.subTest(offset=hex(offset)):
                 work = bytearray(rendered)
                 work[offset] ^= 1

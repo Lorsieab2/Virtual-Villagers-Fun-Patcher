@@ -79,6 +79,17 @@ STRINGS_OFFSET = 0x1200
 PRICE = 1_000_000
 INDIVIDUAL_PRICE = 100_000
 INDIVIDUAL_OFFSET = 0xA00
+INDIVIDUAL_CONFIRM_PAGE_OFFSET = 0x1C00
+INDIVIDUAL_CONFIRM_CAVE_SIZE = 0x100
+DETAIL_INDIVIDUAL_ROUTE_OFFSET = 0x6BE
+DETAIL_INDIVIDUAL_ROUTE_SIZE = 0x32
+DETAIL_INDIVIDUAL_ROUTE_BEFORE = bytes.fromhex(
+    "C7825C1C00000000B442C782601C00000000B442"
+    "C782641C00000000B442C782681C00000000B442"
+    "C7826C1C00000000B442"
+)
+INDIVIDUAL_SUCCESS_MESSAGE = b"Full Mastery has been granted to the selected villager.\0"
+INDIVIDUAL_SUCCESS_MESSAGE_SHA256 = "52B86920C62B96D61E05DC7E8038B8B64EAB15EC269FBD51F300C3E305223D3F"
 STRIDE = 0x2E3C
 
 # Candidate-only UI locations in the existing active payload.  These values are
@@ -489,6 +500,11 @@ def build_slot(page_va: int, installed: bool) -> tuple[bytes, dict[str, object]]
             "entry_sha256": sha(body),
         }
 
+    if sha(INDIVIDUAL_SUCCESS_MESSAGE) != INDIVIDUAL_SUCCESS_MESSAGE_SHA256:
+        raise RuntimeError("individual success string hash mismatch")
+    if INDIVIDUAL_CONFIRM_PAGE_OFFSET <= SLOT_OFFSET + SLOT_SIZE:
+        raise RuntimeError("individual confirmation cave overlaps command slot")
+
     cursor = STRINGS_OFFSET
     strings: dict[str, int] = {}
     for key, value in (
@@ -507,6 +523,7 @@ def build_slot(page_va: int, installed: bool) -> tuple[bytes, dict[str, object]]
         ("individual_insufficient", b"Not enough tech points.\r\nNo tech points have been deducted."),
         ("individual_warning", b"Grant Full Mastery to this villager for 100,000 tech points?\r\nPress OK to confirm, or Cancel."),
         ("individual_failure", b"Full Mastery could not be completed because a skill did not reach 100.\r\nNo tech points have been deducted."),
+        ("individual_success", INDIVIDUAL_SUCCESS_MESSAGE),
     ):
         if not value.endswith(b"\0"):
             value += b"\0"
@@ -791,6 +808,46 @@ def build_slot(page_va: int, installed: bool) -> tuple[bytes, dict[str, object]]
         indiv_verify_next_{i}:
             """
         )
+    individual_confirm_va = page_va + INDIVIDUAL_CONFIRM_PAGE_OFFSET
+    individual_confirm = asm(
+        f"""
+            push ebp
+            mov ebp, esp
+            push ebx
+            push esi
+            push edi
+            push 0x{strings['user32']:X}
+            call dword ptr [0x48A1E0]
+            test eax, eax
+            jz individual_confirm_cancel
+            push 0x{strings['message_box']:X}
+            push eax
+            call dword ptr [0x48A1DC]
+            test eax, eax
+            jz individual_confirm_cancel
+            push 1
+            push 0x{strings['caption']:X}
+            push 0x{strings['individual_warning']:X}
+            push 0
+            call eax
+            cmp eax, 1
+            sete al
+            movzx eax, al
+            jmp individual_confirm_done
+        individual_confirm_cancel:
+            xor eax, eax
+        individual_confirm_done:
+            pop edi
+            pop esi
+            pop ebx
+            mov esp, ebp
+            pop ebp
+            ret
+        """,
+        individual_confirm_va,
+    )
+    if len(individual_confirm) > INDIVIDUAL_CONFIRM_CAVE_SIZE:
+        raise RuntimeError("individual confirmation exceeds reserved .vv4fm cave")
     individual = asm(
         f"""
             push ebp
@@ -822,20 +879,7 @@ def build_slot(page_va: int, installed: bool) -> tuple[bytes, dict[str, object]]
             {''.join(first_scan)}
             cmp dword ptr [ebp - 0x14], 0
             je indiv_noop
-            push 0x{strings['user32']:X}
-            call dword ptr [0x48A1E0]
-            test eax, eax
-            jz indiv_done
-            push 0x{strings['message_box']:X}
-            push eax
-            call dword ptr [0x48A1DC]
-            test eax, eax
-            jz indiv_done
-            push 1
-            push 0x{strings['caption']:X}
-            push 0x{strings['individual_warning']:X}
-            push 0
-            call eax
+            call 0x{individual_confirm_va:X}
             cmp eax, 1
             jne indiv_done
             call 0x41FE70
@@ -869,7 +913,7 @@ def build_slot(page_va: int, installed: bool) -> tuple[bytes, dict[str, object]]
             mov ecx, 0x4D6F88
             push -{INDIVIDUAL_PRICE}
             call 0x41E300
-            push 0x{strings['result']:X}
+            push 0x{strings['individual_success']:X}
             push 0x{strings['caption']:X}
             call 0x{D25_RESULT_HELPER_VA:X}
             jmp indiv_done
@@ -923,6 +967,18 @@ def build_slot(page_va: int, installed: bool) -> tuple[bytes, dict[str, object]]
         "individual_sha256": sha(individual),
         "individual_bytes": individual.hex().upper(),
         "individual_va": f"0x{individual_va:X}",
+        "individual_confirmation_offset": f"0x{INDIVIDUAL_CONFIRM_PAGE_OFFSET:X}",
+        "individual_confirmation_va": f"0x{individual_confirm_va:X}",
+        "individual_confirmation_length": len(individual_confirm),
+        "individual_confirmation_sha256": sha(individual_confirm),
+        "individual_confirmation_bytes": individual_confirm.hex().upper(),
+        "individual_confirmation_guard_length": INDIVIDUAL_CONFIRM_CAVE_SIZE,
+        "individual_success_string": {
+            "va": f"0x{strings['individual_success']:X}",
+            "length": len(INDIVIDUAL_SUCCESS_MESSAGE),
+            "sha256": INDIVIDUAL_SUCCESS_MESSAGE_SHA256,
+            "bytes": INDIVIDUAL_SUCCESS_MESSAGE.hex().upper(),
+        },
         "individual_status": "emitted in installed page only; route disabled/catalog-hidden pending D27",
         "individual_contract": {
             "command": 1,
@@ -981,7 +1037,12 @@ def build_dispatcher(page_va: int, bound: int) -> bytes:
     )
 
 
-def build_page(page_va: int, slot: bytes, dispatcher: bytes) -> bytes:
+def build_page(
+    page_va: int,
+    slot: bytes,
+    dispatcher: bytes,
+    individual_confirmation: bytes | None = None,
+) -> bytes:
     page = bytearray(PAGE_SIZE)
     page[0:8] = b"VFM4PG\0\0"
     page[8:12] = (1).to_bytes(4, "little")
@@ -994,6 +1055,15 @@ def build_page(page_va: int, slot: bytes, dispatcher: bytes) -> bytes:
         raise RuntimeError("base dispatcher overlaps command-7 slot")
     page[0x40 : 0x40 + len(dispatcher)] = dispatcher
     page[SLOT_OFFSET : SLOT_OFFSET + SLOT_SIZE] = slot
+    if individual_confirmation is not None:
+        if len(individual_confirmation) > INDIVIDUAL_CONFIRM_CAVE_SIZE:
+            raise RuntimeError("individual confirmation exceeds page cave")
+        if any(page[INDIVIDUAL_CONFIRM_PAGE_OFFSET : INDIVIDUAL_CONFIRM_PAGE_OFFSET + INDIVIDUAL_CONFIRM_CAVE_SIZE]):
+            raise RuntimeError("individual confirmation cave is not zero")
+        page[INDIVIDUAL_CONFIRM_PAGE_OFFSET : INDIVIDUAL_CONFIRM_PAGE_OFFSET + INDIVIDUAL_CONFIRM_CAVE_SIZE] = (
+            individual_confirmation
+            + b"\0" * (INDIVIDUAL_CONFIRM_CAVE_SIZE - len(individual_confirmation))
+        )
     cursor = STRINGS_OFFSET
     for value in (
         b"VVFP Origins Icons.dll\0",
@@ -1008,6 +1078,7 @@ def build_page(page_va: int, slot: bytes, dispatcher: bytes) -> bytes:
         b"Not enough tech points.\r\nNo tech points have been deducted.\0",
         b"Grant Full Mastery to this villager for 100,000 tech points?\r\nPress OK to confirm, or Cancel.\0",
         b"Full Mastery could not be completed because a skill did not reach 100.\r\nNo tech points have been deducted.\0",
+        b"Full Mastery has been granted to the selected villager.\0",
     ):
         page[cursor : cursor + len(value)] = value
         cursor += len(value)
@@ -1057,8 +1128,50 @@ def append_layout(layout: dict[str, int], page: bytes) -> dict[str, object]:
     }
 
 
-def build_base_payload(active_payload: bytes, page_va: int) -> bytes:
+def build_individual_detail_route(page_va: int) -> tuple[bytes, dict[str, object]]:
+    route_va = PAYLOAD_VA + DETAIL_INDIVIDUAL_ROUTE_OFFSET
+    continuation_va = route_va + DETAIL_INDIVIDUAL_ROUTE_SIZE
+    helper_va = page_va + SLOT_OFFSET + INDIVIDUAL_OFFSET
+    route = asm(
+        f"""
+            cmp dword ptr [0x{page_va:X}], 0x344D4656
+            jne detail_command1_continue
+            cmp dword ptr [0x{page_va + SLOT_OFFSET + 12:X}], 1
+            jne detail_command1_continue
+            call 0x{helper_va:X}
+        detail_command1_continue:
+            jmp 0x{continuation_va:X}
+        """,
+        route_va,
+    )
+    if len(route) > DETAIL_INDIVIDUAL_ROUTE_SIZE:
+        raise RuntimeError("Detail command-1 route exceeds guarded original window")
+    route_after = route + b"\x90" * (DETAIL_INDIVIDUAL_ROUTE_SIZE - len(route))
+    return route_after, {
+        "va": f"0x{route_va:X}",
+        "length": DETAIL_INDIVIDUAL_ROUTE_SIZE,
+        "before": DETAIL_INDIVIDUAL_ROUTE_BEFORE.hex().upper(),
+        "after": route_after.hex().upper(),
+        "after_sha256": sha(route_after),
+        "payload_file_offset": f"0x{PAYLOAD_OFFSET + DETAIL_INDIVIDUAL_ROUTE_OFFSET:X}",
+        "section": ".vv4fm",
+        "uninstall_guard": "after bytes and .vv4fm page/slot/confirmation guards must match exactly before removal",
+        "continuation_va": f"0x{continuation_va:X}",
+        "helper_va": f"0x{helper_va:X}",
+        "guard": "exact raw five-skill-store block at Detail command-1 target; page marker and installed flag required",
+        "event": 2,
+        "message": 8,
+        "command": 1,
+    }
+
+
+def build_base_payload(active_payload: bytes, page_va: int) -> tuple[bytes, dict[str, object]]:
     payload = bytearray(active_payload)
+    route_offset = DETAIL_INDIVIDUAL_ROUTE_OFFSET
+    if payload[route_offset : route_offset + DETAIL_INDIVIDUAL_ROUTE_SIZE] != DETAIL_INDIVIDUAL_ROUTE_BEFORE:
+        raise RuntimeError("Detail command-1 route original-byte guard mismatch")
+    individual_route, route_map = build_individual_detail_route(page_va)
+    payload[route_offset : route_offset + DETAIL_INDIVIDUAL_ROUTE_SIZE] = individual_route
     dll_offset = payload.find(b"VVFP Origins Icons.dll\0")
     menu_offset = payload.find(b"ShowOriginsUpgradeMenuState\0")
     if dll_offset < 0 or menu_offset < 0:
@@ -1180,7 +1293,7 @@ def build_base_payload(active_payload: bytes, page_va: int) -> bytes:
         show_dialog + b"\0" * (SHOW_DIALOG_SIZE - len(show_dialog))
     )
     payload[TECH_MENU_OFFSET : TECH_MENU_OFFSET + TECH_MENU_SIZE] = tech_menu
-    return bytes(payload)
+    return bytes(payload), route_map
 
 
 def main() -> None:
@@ -1220,13 +1333,18 @@ def main() -> None:
         installed_slots[mode] = installed
         dispatchers[mode] = dispatcher
         pages[mode] = build_page(layout["page_va"], noop, dispatcher)
-        installed_pages[mode] = build_page(layout["page_va"], installed, dispatcher)
+        installed_pages[mode] = build_page(
+            layout["page_va"],
+            installed,
+            dispatcher,
+            bytes.fromhex(installed_map["individual_confirmation_bytes"]),
+        )
         slot_maps[mode] = {"noop": noop_map, "installed": installed_map}
 
-    stock_payload = build_base_payload(
+    stock_payload, stock_individual_route = build_base_payload(
         ui_payload, LAYOUTS["collection_progression"]["page_va"]
     )
-    expanded_payload = build_base_payload(
+    expanded_payload, expanded_individual_route = build_base_payload(
         ui_payload, LAYOUTS["experimental_expanded_256"]["page_va"]
     )
     base = deepcopy(active)
@@ -1339,8 +1457,9 @@ def main() -> None:
     payload_item["before"] = (b"\0" * PAYLOAD_SIZE).hex().upper()
     payload_item["after"] = stock_payload.hex().upper()
     payload_item["purpose"] = (
-        "install the base Origins core plus candidate-only native-ordinal Tech/Detail UI hooks and guarded command-7 slot"
+        "install the base Origins core plus candidate-only native-ordinal Tech/Detail UI hooks, guarded Detail message-8/event-2 command-1 route, and guarded command-7 slot"
     )
+    base["individual_detail_route"] = stock_individual_route
     base["patch_mode_overrides"] = {
         mode: [
             {
@@ -1573,6 +1692,10 @@ def main() -> None:
         "feature_manifest_sha256": sha(FEATURE_OUT.read_bytes()),
         "base_stock_payload_sha256": sha(stock_payload),
         "base_expanded_payload_sha256": sha(expanded_payload),
+        "individual_detail_route": {
+            "collection_progression": stock_individual_route,
+            "expanded": expanded_individual_route,
+        },
         "companion": {
             "path": "data/candidates/VVFP VV4 Full Mastery Candidate.dll",
             "size": COMPANION.stat().st_size,
@@ -1669,6 +1792,7 @@ def main() -> None:
         "- Wrapper-null returns without attach. Loader-null raw-frees the unconstructed wrapper through cdecl `sub_470B7B`; it never virtual-destructs raw memory. Inner-null after `sub_401C20` uses the proven scalar destructor with flag 1.\n"
         "- The Tech helper emits exact `8B CB` (`mov ecx, ebx`) after clearing `this+0x74` and before `sub_40C340`; its continuation remains `0x43E23D`.\n"
         "- Individual command 1 is source-modeled in `src/vv4_individual_mastery.py` but remains disabled/catalog-hidden: it captures the displayed physical index, validates all five finite Float32 skills for a living villager, reports the exact no-charge message for zero changes, requires the per-villager 100,000-point confirmation and same-index reacquisition, then calls `sub_46AD80` once per delta, re-reads every originally changed skill for exact Float32 100.0, and deducts 100,000 once through `0x41E300`. A failed post-write verification reports `No tech points have been deducted.`; partial native changes may remain because rollback is unsafe/unproved. No direct skill stores or precharge are present; D27 executable ABI proof is required before emission.\n"
+        "- The only emitted Detail route is message 8/event 2 command 1: it requires the `.vv4fm` page marker and installed flag before calling the individual helper; commands 0, 2-4, 7, cancel, and fallthrough retain their original route bytes. The dedicated confirmation cave says `Grant Full Mastery to this villager for 100,000 tech points?`, and success uses `Full Mastery has been granted to the selected villager.` rather than the command-7 result export.\n"
         + f"- Companion SHA-256: `{artifact['companion']['sha256']}`\n"
         f"- Stock installed slot SHA-256: `{artifact['layouts']['collection_progression']['installed_slot_sha256']}`\n"
         f"- Expanded installed slot SHA-256: `{artifact['layouts']['experimental_expanded_256']['installed_slot_sha256']}`\n"
