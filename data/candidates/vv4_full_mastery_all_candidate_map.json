@@ -1,8 +1,9 @@
 {
-  "acceptance_commit": "36af0c9a620b6b323715c3f6d6fe93e1d6f75532",
+  "acceptance_commit": "577072f5b5205c3a0a857c0645d855bb98ec19d2",
+  "candidate_status": "disabled pending fresh independent recertification after C6 startup-crash correction",
   "independent_recertification": {
     "review": "R3",
-    "status": "independent recertification GO",
+    "status": "superseded by C6 startup-crash correction; fresh independent recertification required",
     "commit": "36af0c9a620b6b323715c3f6d6fe93e1d6f75532",
     "scope": "VV4 Full Mastery stock-mode candidate only; Expanded-256 ON HOLD/fail-closed",
     "hashes": {
@@ -71,36 +72,30 @@
       "ecx_restore": "mov ecx, ebx",
       "original_cleanup": "sub_40C340"
     },
-    "runtime_dimension_guard": {
-      "accessors": {
-        "width": {
-          "wrapper_vtable_offset": "0x0C",
-          "va": "0x401470"
-        },
-        "height": {
-          "wrapper_vtable_offset": "0x10",
-          "va": "0x4014B0"
-        }
+    "runtime_wrapper_contract": {
+      "nonnull": {
+        "attach": true,
+        "tech_slot": "this+0x74"
       },
-      "required_frame_dimensions": [
-        99,
-        35
-      ],
-      "static_strip_dimensions": [
-        297,
-        35
-      ],
-      "static_grid": [
-        3,
-        1
-      ],
-      "reject": {
-        "scalar_destructor_flag": 1,
+      "null_result": {
         "attach": false,
         "tech_slot": null
       },
-      "tech_constructor_guarded": true,
-      "detail_constructor_guarded": true
+      "static_asset_contract": {
+        "dimensions": [
+          297,
+          35
+        ],
+        "grid": [
+          3,
+          1
+        ],
+        "frame_width": 99,
+        "identical_frames": true,
+        "png_sha256": "F03D57038CA7745A99C0D7D58A2558A4411828BF3243D85C8BAFE2E04036BE4B",
+        "rgba_sha256": "02B42DEAD3673BA5048160C2D337D284215336E39BCEAC52592432839ECB3AD4"
+      },
+      "runtime_dimension_accessors": "none; wrapper vtable +0x0C/+0x10 are not image dimensions"
     },
     "detail_cleanup": "list-owned sub_40C300",
     "forbidden_helpers": [
@@ -114,18 +109,41 @@
       "detail_handler_relocated_va": "0x4895A8",
       "detail_route_patch_offset": "0x48610"
     },
-    "status": "independent recertification GO",
-    "recertification_commit": "36af0c9a620b6b323715c3f6d6fe93e1d6f75532",
+    "status": "pending fresh independent recertification after C6 startup-crash correction",
+    "recertification_commit": null,
     "scope": "stock-mode only; Expanded-256 remains ON HOLD/fail-closed"
+  },
+  "cure_containment": {
+    "status": "withdrawn and fail-closed pending Full Heal/Cure All repair",
+    "public_row": {
+      "state_mask_bit": "0x2000",
+      "effect": "row 5 Buy control is rendered Unavailable and disabled",
+      "selectable": false
+    },
+    "dispatch": {
+      "command": 5,
+      "guard_va": "0x489619",
+      "guard_payload_offset": "0x2A6",
+      "before_opcode": "73",
+      "after_opcode": "77",
+      "condition": "JA; command 5 falls through the existing unavailable path; commands >=6 retain the guarded router",
+      "charge_before_guard": false,
+      "forbidden_target": "0x728004",
+      "forbidden_target_reachable": false,
+      "dead_legacy_call_site": "0x48973B",
+      "dead_legacy_call_after": "9090909090"
+    },
+    "payload_sha256": "2BB7A32344293DCACB4D0359818C6839AC1FBBAEE8F9E3D00DB59C274238D726",
+    "payload_bytes_unchanged": true
   },
   "source": {
     "size": 929792,
     "sha256": "6D27A429FFCA5F1F71FDD7ECA761ED1BB67E85F976494BA178B3D7BE01F1B220"
   },
-  "base_manifest_sha256": "32A59B4B5846D445E1FD0BBBCEB45884BB76464F71D86F9D7BD38C6FD3D16F93",
-  "feature_manifest_sha256": "65BB9F0BEBC2AD113FA082F30413FD27C46FF012D6D6DDC18FDA23DCB8DA8F51",
-  "base_stock_payload_sha256": "66EABDDEEEAC29EC0582E992EBB519A2AA7F4A033D3ACECC1251D7897A84ACE6",
-  "base_expanded_payload_sha256": "BA4ACDA822E6729A5E8BF48F1CB561BAF53203E0E498DB1D618618D9FBD92222",
+  "base_manifest_sha256": "B88CBBB60D1084851ABC753928CE70BB7E393ECAFC632310BE22A1FCA5E19A82",
+  "feature_manifest_sha256": "B83E52A4BDBFD6A84D559BA35E40D262DDD3DC9980D2DFA74BEF39114B950602",
+  "base_stock_payload_sha256": "CEC6FDF62494C299025653814F138182290BA78E98550EB4733E1DCA1DE22148",
+  "base_expanded_payload_sha256": "A7B54F18A33D7E084A52E12759EA42BAF10FE9BA7868AC42D912BEE4EDD3BCF5",
   "companion": {
     "path": "data/candidates/VVFP VV4 Full Mastery Candidate.dll",
     "size": 298496,
@@ -177,13 +195,13 @@
   "candidate_ui_payload": {
     "tech_constructor": {
       "offset": "0x40",
-      "length": 108,
-      "sha256": "5A374941D4A6E2F0C36B5F1464738112C353AD0BC727FDDF9610E24A9B2EEE88"
+      "length": 71,
+      "sha256": "1779F2127EDFE5A92388933432E7DF9C4B0E7DB2EA46B65A20A7472A6EE7BD2A"
     },
     "detail_constructor": {
       "offset": "0x100",
-      "length": 114,
-      "sha256": "0D38AAE3CF8F1EEFF81B95AE3AC334E488053FD60D136FC733A24E74A4AB31EC"
+      "length": 77,
+      "sha256": "722533DB500217AC641A531C2EF1A525FF54D4626FBD837CCB0CE0DD89B90D35"
     },
     "destructor_helper": {
       "offset": "0xC0",
@@ -196,36 +214,30 @@
       "sub_40C340_call": "0x40C340",
       "no_wrapper_branch_va": "0x489449"
     },
-    "runtime_dimension_guard": {
-      "accessors": {
-        "width": {
-          "wrapper_vtable_offset": "0x0C",
-          "va": "0x401470"
-        },
-        "height": {
-          "wrapper_vtable_offset": "0x10",
-          "va": "0x4014B0"
-        }
+    "runtime_wrapper_contract": {
+      "nonnull": {
+        "attach": true,
+        "tech_slot": "this+0x74"
       },
-      "required_frame_dimensions": [
-        99,
-        35
-      ],
-      "static_strip_dimensions": [
-        297,
-        35
-      ],
-      "static_grid": [
-        3,
-        1
-      ],
-      "reject": {
-        "scalar_destructor_flag": 1,
+      "null_result": {
         "attach": false,
         "tech_slot": null
       },
-      "tech_constructor_guarded": true,
-      "detail_constructor_guarded": true
+      "static_asset_contract": {
+        "dimensions": [
+          297,
+          35
+        ],
+        "grid": [
+          3,
+          1
+        ],
+        "frame_width": 99,
+        "identical_frames": true,
+        "png_sha256": "F03D57038CA7745A99C0D7D58A2558A4411828BF3243D85C8BAFE2E04036BE4B",
+        "rgba_sha256": "02B42DEAD3673BA5048160C2D337D284215336E39BCEAC52592432839ECB3AD4"
+      },
+      "runtime_dimension_accessors": "none; wrapper vtable +0x0C/+0x10 are not image dimensions"
     },
     "detail_handler_relocated": {
       "offset": "0x235",
@@ -442,11 +454,11 @@
   "rendered_candidates": {
     "collection_progression": {
       "baseline_sha256": "132516F4A5F7D2E9B539B14300207AEA5872FDCC0D34F13768435D9F4B6F76D4",
-      "base_only_sha256": "E752AA996938E6F99EB3CF408BDAE0DAEFB655911CAE2FD2C6F1B4987B6F77EC",
-      "base_plus_mastery_sha256": "98C685C3AAF2027B99CB1DCB5E8C2EDACC883703AC8BBA5346A42D37FEB57CAB",
-      "all_current_compatible_sha256": "371BC8F344113E4A78E19118F636A07C60CDA9BCFDC26D9681BB50091E1FACFF",
+      "base_only_sha256": "B164DCE0647E38E83007083592D23E8DE14627A66824ECBDC23A0F7557C66F40",
+      "base_plus_mastery_sha256": "E858508C7710CFBC95E6AD9FE9FE52D8F34B14A834BD2FEC23656D23859368B1",
+      "all_current_compatible_sha256": "56B33217F214FF047953CA73FF038BAB069A0D3387C0B8ED9B8DE81C96C2BE9F",
       "size": 937984,
-      "pe_checksum": "0x000E8F12",
+      "pe_checksum": "0x000E9F52",
       "owners": [
         "automatic:population",
         "automatic:safety",
@@ -464,11 +476,11 @@
     },
     "immediate_fixed": {
       "baseline_sha256": "EB0CDD4F7F5E41F7A03734D51F9417A126C3BE9D214B484A848DB688545CF5FB",
-      "base_only_sha256": "49359295804A162C86DED81BE447C95A27A8C178FCF21F9176C4355C5174EE55",
-      "base_plus_mastery_sha256": "55CD6F74FC875BF7409EF0D216476FCA06322670856DED25720782C5FDAAF45A",
-      "all_current_compatible_sha256": "BA45AF8D6FCA58F0FE43C9DE83DA540CE700DB50F8CB005724046DA6E2EB8A02",
+      "base_only_sha256": "199523441B02D36DC3F93A14E5B57C02AFA241A0A75C0AAD0EB3A93753DD964C",
+      "base_plus_mastery_sha256": "2967C4FD41CD5AB1B5823BF64A090A9311651CB9E2C23FFBC3A93A0319B63D1C",
+      "all_current_compatible_sha256": "7C4880975025CE08E5014A1D79F45BB2F3AFB51BEB5D534B78A8613264B9A70B",
       "size": 937984,
-      "pe_checksum": "0x000F283A",
+      "pe_checksum": "0x000F387A",
       "owners": [
         "automatic:population",
         "automatic:safety",
@@ -486,11 +498,11 @@
     },
     "experimental_expanded_256": {
       "baseline_sha256": "428A8A8DE3B753CA813AB29960C49D15D4B3EDBE97BB49D8625C81743FEA3782",
-      "base_only_sha256": "585D9FA34E5D8DFFB338A81ED13B61CB7FA8BD618377567E3F036A74EAC05499",
-      "base_plus_mastery_sha256": "B2256BDCB8F978C8E504FC5BC10A4D2611EBD6F373738BB7A9359C17A34D55CF",
-      "all_current_compatible_sha256": "398D9326A2F928C62E7FB5E4E5E3B82C4DE707583A53B02F98D6E835584C1CE2",
+      "base_only_sha256": "5C5A1DB10FEF36B358737B54002B2E8CA19E020126544F55010DEF1018A85992",
+      "base_plus_mastery_sha256": "3BB164E4288442856BF1DB52543E99D96B852C4130EDFF0A218630684416CD28",
+      "all_current_compatible_sha256": "8A712A82F03ACB267DEFFAAF5586E0226859FA2EF8826CA1E6EF5266544D8877",
       "size": 937984,
-      "pe_checksum": "0x000F396B",
+      "pe_checksum": "0x000F49AB",
       "owners": [
         "automatic:population",
         "automatic:safety",
@@ -508,11 +520,11 @@
     },
     "experimental_expanded_256_progression": {
       "baseline_sha256": "737F475764EBB9F35BC6C68337698D46F6D03BA0560B9BE4E352F80AF48FE791",
-      "base_only_sha256": "CBE2B6A0469EBB86E59F3FFF68F4B7C869259102702A1BD878A58C0F4DDB1451",
-      "base_plus_mastery_sha256": "9A22F6E05A72EC11C0317B881195D09132F5AF979E6145C91612331BC3537EEC",
-      "all_current_compatible_sha256": "BFEEE0D5DAB65A5839F0BFA9323199388A20BB3C307D4239BFA24178783F98FA",
+      "base_only_sha256": "6FBA3BF8866A25B18E3B70AD962158EB53A8AEDA2C4908B92FA1C83F10A6BDDD",
+      "base_plus_mastery_sha256": "F08B7B67480F88C6245993724E42A652C3D47831C9023E0079DD1387CFE375DD",
+      "all_current_compatible_sha256": "05F50C6FF5C5DC7E050F5B0E0371674D9FBE74243E4F7D52208C1BB6C649E817",
       "size": 937984,
-      "pe_checksum": "0x000ED9CF",
+      "pe_checksum": "0x000EEA0F",
       "owners": [
         "automatic:population",
         "automatic:safety",

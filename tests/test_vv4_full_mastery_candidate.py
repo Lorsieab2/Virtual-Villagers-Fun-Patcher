@@ -119,15 +119,14 @@ class VV4FullMasteryCandidateTests(unittest.TestCase):
         cls.feature = FunPatch(cls.feature_raw)
         cls.build = next(item for item in load_builds() if item.id == "vv4")
 
-    def test_new_placement_candidate_enabled_and_command_seven_only(self):
-        self.assertTrue(self.base_raw["enabled"])
-        self.assertTrue(self.feature_raw["enabled"])
+    def test_new_placement_candidate_disabled_until_c6_recertification(self):
+        self.assertFalse(self.base_raw["enabled"])
+        self.assertFalse(self.feature_raw["enabled"])
         active = {item.id: item for item in load_fun_patches()}
-        self.assertIn("vv4_enable_origins_exclusive_features", active)
+        self.assertNotIn("vv4_enable_origins_exclusive_features", active)
         self.assertNotIn(self.base_raw["id"], active)
-        self.assertIn(self.feature_raw["id"], active)
-        self.assertIn("independent recertification GO", self.feature_raw["certification_status"])
-        self.assertIn("36af0c9a620b6b323715c3f6d6fe93e1d6f75532", self.feature_raw["certification_status"])
+        self.assertNotIn(self.feature_raw["id"], active)
+        self.assertIn("disabled pending fresh independent recertification", self.feature_raw["certification_status"])
         self.assertEqual(self.feature_raw["dependencies"], [self.base_raw["id"]])
         contract = self.feature_raw["transaction_contract"]
         self.assertEqual((contract["command"], contract["price"]), (7, 1_000_000))
@@ -138,21 +137,17 @@ class VV4FullMasteryCandidateTests(unittest.TestCase):
         self.assertNotIn("remove state", folded)
 
     def test_catalog_and_expanded_mode_fail_closed(self):
-        vv4_mastery = {
+        vv4_records = {
             item.id
             for item in load_fun_patches()
-            if item.game_id == "vv4" and "full_mastery" in item.id
+            if item.game_id == "vv4"
         }
-        self.assertEqual(vv4_mastery, {"vv4_full_mastery_all_stage_a_candidate"})
+        self.assertNotIn("vv4_enable_origins_exclusive_features", vv4_records)
+        self.assertNotIn("vv4_full_mastery_all_stage_a_candidate", vv4_records)
         for mode in ("experimental_expanded_256", "experimental_expanded_256_progression"):
             with self.subTest(mode=mode):
-                with self.assertRaisesRegex(PatcherError, "stock modes only"):
-                    render_patched_bytes(
-                        STOCK,
-                        self.build,
-                        mode,
-                        ["vv4_enable_origins_exclusive_features", "vv4_full_mastery_all_stage_a_candidate"],
-                    )
+                rendered, applied = render_patched_bytes(STOCK, self.build, mode)
+                self.assertFalse(any("vv4_full_mastery" in item["owner"] for item in applied))
 
     def test_exact_live_geometry_constructor_and_nonoverlap_contract(self):
         payload = next(
@@ -168,14 +163,16 @@ class VV4FullMasteryCandidateTests(unittest.TestCase):
         self.assertIn(bytes.fromhex("6A02"), detail)
         self.assertIn(bytes.fromhex("6A0D6A016A03"), tech)
         self.assertIn(bytes.fromhex("6A026A016A03"), detail)
-        self.assertIn(bytes.fromhex("83F863"), tech)
-        self.assertIn(bytes.fromhex("83F823"), tech)
-        self.assertIn(bytes.fromhex("83F863"), detail)
-        self.assertIn(bytes.fromhex("83F823"), detail)
+        self.assertNotIn(bytes.fromhex("83F863"), tech)
+        self.assertNotIn(bytes.fromhex("83F823"), tech)
+        self.assertNotIn(bytes.fromhex("83F863"), detail)
+        self.assertNotIn(bytes.fromhex("83F823"), detail)
+        self.assertNotIn("0x401470", json.dumps(self.map))
+        self.assertNotIn("0x4014B0", json.dumps(self.map))
         self.assertIn(bytes.fromhex("E84988F7FF"), tech)  # sub_401C20
         self.assertIn(bytes.fromhex("E88987F7FF"), detail)  # sub_401C20
-        self.assertIn(bytes.fromhex("E88E2DF8FF"), tech)  # sub_40C190
-        self.assertIn(bytes.fromhex("E8D12CF8FF"), detail)  # sub_40C190
+        self.assertIn(0x40C190, rel32_targets(tech, 0x4893B3))  # sub_40C190
+        self.assertIn(0x40C190, rel32_targets(detail, 0x489473))  # sub_40C190
         self.assertNotIn(b"\xA0\xD8\x40", tech + detail)
         self.assertIn(bytes.fromhex("6A01FFD2"), helper)
         self.assertIn(bytes.fromhex("C7437400000000"), helper)
@@ -198,18 +195,19 @@ class VV4FullMasteryCandidateTests(unittest.TestCase):
         )
         self.assertEqual(self.map["ui_asset_gate"]["tech_wrapper"]["helper_length"], 34)
         self.assertEqual(
-            self.map["ui_asset_gate"]["runtime_dimension_guard"],
+            self.map["ui_asset_gate"]["runtime_wrapper_contract"],
             {
-                "accessors": {
-                    "width": {"wrapper_vtable_offset": "0x0C", "va": "0x401470"},
-                    "height": {"wrapper_vtable_offset": "0x10", "va": "0x4014B0"},
+                "nonnull": {"attach": True, "tech_slot": "this+0x74"},
+                "null_result": {"attach": False, "tech_slot": None},
+                "static_asset_contract": {
+                    "dimensions": [297, 35],
+                    "grid": [3, 1],
+                    "frame_width": 99,
+                    "identical_frames": True,
+                    "png_sha256": "F03D57038CA7745A99C0D7D58A2558A4411828BF3243D85C8BAFE2E04036BE4B",
+                    "rgba_sha256": "02B42DEAD3673BA5048160C2D337D284215336E39BCEAC52592432839ECB3AD4",
                 },
-                "required_frame_dimensions": [99, 35],
-                "static_strip_dimensions": [297, 35],
-                "static_grid": [3, 1],
-                "reject": {"scalar_destructor_flag": 1, "attach": False, "tech_slot": None},
-                "tech_constructor_guarded": True,
-                "detail_constructor_guarded": True,
+                "runtime_dimension_accessors": "none; wrapper vtable +0x0C/+0x10 are not image dimensions",
             },
         )
         ui = self.map["ui_asset_gate"]
@@ -221,10 +219,10 @@ class VV4FullMasteryCandidateTests(unittest.TestCase):
         self.assertEqual(ui["local"], [72, 4])
         self.assertEqual(ui["events"], {"tech": 13, "detail": 2})
         self.assertEqual(ui["add_child"], "sub_40C190")
-        self.assertEqual(ui["status"], "independent recertification GO")
-        self.assertEqual(self.map["acceptance_commit"], "36af0c9a620b6b323715c3f6d6fe93e1d6f75532")
+        self.assertIn("pending fresh independent recertification", ui["status"])
+        self.assertEqual(self.map["acceptance_commit"], "577072f5b5205c3a0a857c0645d855bb98ec19d2")
         self.assertEqual(self.map["independent_recertification"]["review"], "R3")
-        self.assertEqual(self.map["independent_recertification"]["status"], "independent recertification GO")
+        self.assertIn("superseded by C6", self.map["independent_recertification"]["status"])
         self.assertEqual(self.map["independent_recertification"]["scope"], "VV4 Full Mastery stock-mode candidate only; Expanded-256 ON HOLD/fail-closed")
         self.assertEqual(
             self.map["independent_recertification"]["hashes"],
@@ -242,44 +240,31 @@ class VV4FullMasteryCandidateTests(unittest.TestCase):
         self.assertEqual(sha(ASSET.read_bytes()), ui["png_sha256"])
         self.assertEqual(sha((PROVENANCE / "VV4 mockup.jpg").read_bytes()), "B404465B960BE3875F4DF0BFE32796B8045A9E938A356FF33448331AB2840A24")
 
-    def test_runtime_dimension_guard_rejects_fallback_before_attachment(self):
-        """Model the emitted guard's observable ownership behavior without launching the game."""
+    def test_runtime_null_success_attach_and_cleanup(self):
+        """Model the emitted null/nonnull ownership behavior without launching the game."""
 
-        def attach_result(dimensions, tech=False, existing_slot=None):
+        def attach_result(wrapper, tech=False, existing_slot=None):
             slot = existing_slot
             attached = []
-            destroyed = 0
-            if dimensions is None:
+            if wrapper is None:
                 if tech:
                     slot = None
-                return slot, attached, destroyed
-            if tuple(dimensions) != (99, 35):
-                destroyed = 1
-                if tech:
-                    slot = None
-                return slot, attached, destroyed
-            wrapper = object()
+                return slot, attached
             if tech:
                 slot = wrapper
             attached.append(wrapper)
-            return slot, attached, destroyed
+            return slot, attached
 
-        for dimensions in (None, (100, 100), (297, 35), (99, 34), (98, 35)):
-            with self.subTest(dimensions=dimensions):
-                slot, attached, destroyed = attach_result(dimensions, tech=True, existing_slot=None)
-                if dimensions == (99, 35):
-                    self.assertIsNotNone(slot)
-                    self.assertEqual(len(attached), 1)
-                    self.assertEqual(destroyed, 0)
-                else:
-                    self.assertIsNone(slot)
-                    self.assertEqual(attached, [])
-                    self.assertEqual(destroyed, 0 if dimensions is None else 1)
-
-        slot, attached, destroyed = attach_result((100, 100), tech=False)
+        slot, attached = attach_result(None, tech=True, existing_slot=None)
         self.assertIsNone(slot)
         self.assertEqual(attached, [])
-        self.assertEqual(destroyed, 1)
+        wrapper = object()
+        slot, attached = attach_result(wrapper, tech=True, existing_slot=None)
+        self.assertIs(slot, wrapper)
+        self.assertEqual(attached, [wrapper])
+        slot, attached = attach_result(wrapper, tech=False)
+        self.assertIsNone(slot)
+        self.assertEqual(attached, [wrapper])
 
         # The paired Tech destructor is null/repeated safe and restores ECX for
         # stock cleanup on both the null and non-null paths.
@@ -418,14 +403,21 @@ class VV4FullMasteryCandidateTests(unittest.TestCase):
 
     def test_old_origins_and_withdrawn_running_collide_fail_closed(self):
         active = {item.id: item for item in load_fun_patches()}
-        for feature_id in ("vv4_enable_origins_exclusive_features",):
-            with self.assertRaises(PatcherError):
-                render_patched_bytes(
-                    STOCK,
-                    self.build,
-                    "collection_progression",
-                    _fun_patches_override=[self.base, active[feature_id]],
-                )
+        self.assertNotIn("vv4_enable_origins_exclusive_features", active)
+
+    def test_cure_row_and_command5_dispatch_are_fail_closed(self):
+        payload = next(item for item in self.base_raw["patches"] if int(item["offset"], 0) == 0x89373)
+        code = bytes.fromhex(payload["after"])
+        self.assertEqual(code[0x2A6], 0x77)
+        self.assertNotEqual(code[0x2A6], 0x73)
+        self.assertEqual(code[0x3C8:0x3CD], b"\x90" * 5)
+        self.assertIn(bytes.fromhex("814C241000200000"), code[0x1B0:0x210])
+        containment = self.map["cure_containment"]
+        self.assertFalse(containment["public_row"]["selectable"])
+        self.assertFalse(containment["dispatch"]["charge_before_guard"])
+        self.assertFalse(containment["dispatch"]["forbidden_target_reachable"])
+        cure = next(item for item in self.base_raw["patches"] if int(item["offset"], 0) == 0xCC004)
+        self.assertEqual(sha(bytes.fromhex(cure["after"])), "2BB7A32344293DCACB4D0359818C6839AC1FBBAEE8F9E3D00DB59C274238D726")
 
     def test_corruption_and_deterministic_generation(self):
         rendered, _ = render_patched_bytes(
@@ -456,6 +448,7 @@ class VV4FullMasteryCandidateTests(unittest.TestCase):
     def test_companion_preflight_and_exact_removal_guards(self):
         bad = deepcopy(self.base_raw)
         bad["companion_files"][1]["sha256"] = "0" * 64
+        stock_before = STOCK.read_bytes()
         with self.assertRaises(PatcherError):
             render_patched_bytes(
                 STOCK,
@@ -463,6 +456,19 @@ class VV4FullMasteryCandidateTests(unittest.TestCase):
                 "collection_progression",
                 _fun_patches_override=[FunPatch(bad), self.feature],
             )
+        self.assertEqual(STOCK.read_bytes(), stock_before)
+        missing = deepcopy(self.base_raw)
+        missing["companion_files"][1]["source"] = (
+            "assets/candidates/vv4_full_mastery/Images/btn_upgrades_missing.png"
+        )
+        with self.assertRaisesRegex(PatcherError, "missing"):
+            render_patched_bytes(
+                STOCK,
+                self.build,
+                "collection_progression",
+                _fun_patches_override=[FunPatch(missing), self.feature],
+            )
+        self.assertEqual(STOCK.read_bytes(), stock_before)
         with tempfile.TemporaryDirectory() as folder:
             output = Path(folder)
             for item in self.base_raw["companion_files"]:

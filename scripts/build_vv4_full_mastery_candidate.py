@@ -40,6 +40,7 @@ R3_DETAIL_CONSTRUCTOR_SHA256 = "0D38AAE3CF8F1EEFF81B95AE3AC334E488053FD60D136FC7
 R3_COMMAND7_SLOT_SHA256 = "023CF384A52CB6A6A49511B8B069B952718DC70E771FEE15CAC8A0777FB5F6DE"
 R3_CURE_SHA256 = "2BB7A32344293DCACB4D0359818C6839AC1FBBAEE8F9E3D00DB59C274238D726"
 R3_DLL_SHA256 = "9AC4E365BE55D32AB889E7B7472A1EDA8749B1EB259EA02BA35AB97BE666AF22"
+C6_BASELINE_COMMIT = "577072f5b5205c3a0a857c0645d855bb98ec19d2"
 
 sys.path.insert(0, str(ROOT / ".tools" / "keystone"))
 sys.path.insert(0, str(ROOT / ".tools" / "keystone-runtime"))
@@ -224,29 +225,11 @@ def build_ui_payload(active_payload: bytes) -> tuple[bytes, dict[str, object]]:
             call 0x401C20
             test eax, eax
             je clear_slot
-            push eax
-            mov ecx, [esp]
-            mov edx, [ecx]
-            call dword ptr [edx + 0x0C]
-            cmp eax, 99
-            jne reject_wrapper
-            mov ecx, [esp]
-            mov edx, [ecx]
-            call dword ptr [edx + 0x10]
-            cmp eax, 35
-            jne reject_wrapper
-            pop eax
             mov dword ptr [esi + 0x74], eax
             push eax
             mov ecx, esi
             call 0x40C190
             jmp continue
-        reject_wrapper:
-            pop ecx
-            mov eax, [ecx]
-            mov edx, [eax]
-            push 1
-            call edx
         clear_slot:
             mov dword ptr [esi + 0x74], 0
         continue:
@@ -274,27 +257,9 @@ def build_ui_payload(active_payload: bytes) -> tuple[bytes, dict[str, object]]:
             test eax, eax
             je cleanup
             push eax
-            mov ecx, [esp]
-            mov edx, [ecx]
-            call dword ptr [edx + 0x0C]
-            cmp eax, 99
-            jne reject_wrapper
-            mov ecx, [esp]
-            mov edx, [ecx]
-            call dword ptr [edx + 0x10]
-            cmp eax, 35
-            jne reject_wrapper
-            pop eax
-            push eax
             mov ecx, esi
             call 0x40C190
             jmp cleanup
-        reject_wrapper:
-            pop ecx
-            mov eax, [ecx]
-            mov edx, [eax]
-            push 1
-            call edx
         cleanup:
             mov dword ptr [0x4D905C], 0
             mov dword ptr [0x4D9058], 0
@@ -367,17 +332,18 @@ def build_ui_payload(active_payload: bytes) -> tuple[bytes, dict[str, object]]:
         "tech_constructor": {"offset": f"0x{TECH_CONSTRUCTOR_OFFSET:X}", "length": len(tech_ctor), "sha256": sha(tech_ctor)},
         "detail_constructor": {"offset": f"0x{DETAIL_CONSTRUCTOR_OFFSET:X}", "length": len(detail_ctor), "sha256": sha(detail_ctor)},
         "destructor_helper": {"offset": f"0x{TECH_DESTRUCTOR_HELPER_OFFSET:X}", "length": len(helper), "sha256": sha(helper), "va": f"0x{helper_va:X}", "scalar_destructor_flag": 1, "ecx_restore": "mov ecx, ebx", "continuation_va": "0x43E23D", "sub_40C340_call": "0x40C340", "no_wrapper_branch_va": f"0x{helper_jz_target:X}"},
-        "runtime_dimension_guard": {
-            "accessors": {
-                "width": {"wrapper_vtable_offset": "0x0C", "va": "0x401470"},
-                "height": {"wrapper_vtable_offset": "0x10", "va": "0x4014B0"},
+        "runtime_wrapper_contract": {
+            "nonnull": {"attach": True, "tech_slot": "this+0x74"},
+            "null_result": {"attach": False, "tech_slot": None},
+            "static_asset_contract": {
+                "dimensions": [297, 35],
+                "grid": [3, 1],
+                "frame_width": 99,
+                "identical_frames": True,
+                "png_sha256": BUTTON_PNG_SHA256,
+                "rgba_sha256": BUTTON_RGBA_SHA256,
             },
-            "required_frame_dimensions": [99, 35],
-            "static_strip_dimensions": [297, 35],
-            "static_grid": [3, 1],
-            "reject": {"scalar_destructor_flag": 1, "attach": False, "tech_slot": None},
-            "tech_constructor_guarded": True,
-            "detail_constructor_guarded": True,
+            "runtime_dimension_accessors": "none; wrapper vtable +0x0C/+0x10 are not image dimensions",
         },
         "detail_handler_relocated": {"offset": f"0x{DETAIL_HANDLER_RELOC_OFFSET:X}", "length": len(relocated_handler), "sha256": sha(relocated_handler), "va": f"0x{relocated_handler_va:X}"},
         "direct_factory": "sub_401C20",
@@ -852,6 +818,7 @@ def build_base_payload(active_payload: bytes, page_va: int) -> bytes:
             jne no_mastery
             or dword ptr [esp + 0x10], 0x80000
         no_mastery:
+            or dword ptr [esp + 0x10], 0x2000
             push dword ptr [esp + 0x10]
             push dword ptr [esp + 0x10]
             call eax
@@ -871,6 +838,22 @@ def build_base_payload(active_payload: bytes, page_va: int) -> bytes:
     legacy_start = tech_menu.find(bytes.fromhex("8B049D"))
     if village_start != 0xEA or legacy_start != 0x127:
         raise RuntimeError("base command block does not match certified layout")
+    # The stock command-5 branch used JAE here and entered the legacy charge /
+    # 0x728004 path.  JA leaves command 5 on the existing unavailable path while
+    # preserving the >=6 dispatch.  This is the one-byte VV4 Cure containment
+    # guard; the Cure payload at 0xCC004 remains byte-for-byte unchanged.
+    command5_guard_index = 0x46
+    if tech_menu[command5_guard_index] != 0x73:
+        raise RuntimeError("VV4 command-5 dispatch guard opcode mismatch")
+    tech_menu[command5_guard_index] = 0x77
+    # The legacy command-5 landing pad still contains a dead call encoding.
+    # Replace that five-byte call with the existing no-op jump so static
+    # inspection cannot mistake it for a reachable Cure dispatch.
+    command5_call_index = 0x3C8
+    command5_call_menu_index = command5_call_index - TECH_MENU_OFFSET
+    if tech_menu[command5_call_menu_index : command5_call_menu_index + 5] != bytes.fromhex("E8C4E82900"):
+        raise RuntimeError("VV4 command-5 legacy call guard mismatch")
+    tech_menu[command5_call_menu_index : command5_call_menu_index + 5] = b"\x90" * 5
     menu_loop_va = PAYLOAD_VA + TECH_MENU_OFFSET + 6
     legacy_va = PAYLOAD_VA + TECH_MENU_OFFSET + legacy_start
     replacement = asm(
@@ -920,13 +903,8 @@ def main() -> None:
     ui_payload, ui_map = build_ui_payload(bytes(active_payload))
     if sha(COMPANION.read_bytes()) != R3_DLL_SHA256:
         raise RuntimeError("R3 companion DLL hash mismatch")
-    for label, expected in (
-        ("tech_constructor", R3_TECH_CONSTRUCTOR_SHA256),
-        ("detail_constructor", R3_DETAIL_CONSTRUCTOR_SHA256),
-        ("destructor_helper", R3_HELPER_SHA256),
-    ):
-        if ui_map[label]["sha256"] != expected:
-            raise RuntimeError(f"R3 {label} hash mismatch")
+    if ui_map["destructor_helper"]["sha256"] != R3_HELPER_SHA256:
+        raise RuntimeError("R3 destructor helper hash mismatch")
     noop_slots: dict[str, bytes] = {}
     installed_slots: dict[str, bytes] = {}
     slot_maps: dict[str, object] = {}
@@ -953,15 +931,39 @@ def main() -> None:
     base = deepcopy(active)
     base["id"] = "vv4_enable_origins_exclusive_features_full_mastery_candidate"
     base["name"] = "VV4 Origins Full Mastery Extension Base"
-    base["enabled"] = True
+    base["enabled"] = False
     base["certification_status"] = (
-        f"independent recertification GO under R3 commit {R3_COMMIT}; stock-mode only; "
-        "Expanded-256 remains ON HOLD/fail-closed"
+        f"disabled pending fresh independent recertification after C6 startup-crash fix; "
+        f"R3 commit {R3_COMMIT} is superseded; stock-mode only; Expanded-256 remains ON HOLD/fail-closed"
     )
     base["evidence_status"] = (
-        f"independent R3 emitted-byte recertification GO under {R3_COMMIT}; "
+        f"C6 source correction emitted from clean baseline {C6_BASELINE_COMMIT}; "
+        "fresh independent emitted-byte recertification required before enablement; "
         "stock-mode only; Expanded-256 ON HOLD/fail-closed"
     )
+    base["cure_containment"] = {
+        "status": "withdrawn and fail-closed pending Full Heal/Cure All repair",
+        "public_row": {
+            "state_mask_bit": "0x2000",
+            "effect": "row 5 Buy control is rendered Unavailable and disabled",
+            "selectable": False,
+        },
+        "dispatch": {
+            "command": 5,
+            "guard_va": "0x489619",
+            "guard_payload_offset": "0x2A6",
+            "before_opcode": "73",
+            "after_opcode": "77",
+            "condition": "JA; command 5 falls through the existing unavailable path; commands >=6 retain the guarded router",
+            "charge_before_guard": False,
+            "forbidden_target": "0x728004",
+            "forbidden_target_reachable": False,
+            "dead_legacy_call_site": "0x48973B",
+            "dead_legacy_call_after": "9090909090",
+        },
+        "payload_sha256": R3_CURE_SHA256,
+        "payload_bytes_unchanged": True,
+    }
     base["dependencies"] = []
     base["expanded_shr_relocations"]["patches"] = []
     base["companion_files"] = [
@@ -1000,7 +1002,7 @@ def main() -> None:
     if cure_start < 0:
         raise RuntimeError("base Cure-only signature missing")
     cure_item["after"] = (b"\0" * cure_start + cure_bytes[cure_start:]).hex().upper()
-    cure_item["purpose"] = "preserve Cure all Villagers without commands 6/7/8 router"
+    cure_item["purpose"] = "preserve withdrawn Cure bytes unchanged; public row and command 5 are fail-closed"
     if sha(bytes.fromhex(cure_item["after"])) != R3_CURE_SHA256:
         raise RuntimeError("R3 Cure payload hash mismatch")
     payload_item = next(
@@ -1062,12 +1064,7 @@ def main() -> None:
     stock_installed = installed_slots["collection_progression"]
     if sha(stock_installed) != R3_COMMAND7_SLOT_SHA256:
         raise RuntimeError("R3 command-7 slot hash mismatch")
-    existing_feature = (
-        json.loads(FEATURE_OUT.read_text(encoding="utf-8"))
-        if FEATURE_OUT.is_file()
-        else {}
-    )
-    feature_enabled = bool(existing_feature.get("enabled", False))
+    feature_enabled = False
     feature = {
         "id": "vv4_full_mastery_all_stage_a_candidate",
         "game_id": "vv4",
@@ -1077,17 +1074,9 @@ def main() -> None:
             else "DISABLED Candidate: Grant Full Mastery to All Villagers"
         ),
         "enabled": feature_enabled,
-        "certification_status": (
-            f"independent recertification GO under R3 commit {R3_COMMIT}; stock-mode only; "
-            "Expanded-256 remains ON HOLD/fail-closed"
-            if feature_enabled
-            else "disabled candidate with baked canonical mockup asset; independent emitted-byte recertification required"
-        ),
+        "certification_status": "disabled pending fresh independent recertification after C6 startup-crash fix; R3 emitted bytes superseded",
         "evidence_status": (
-            f"independent R3 emitted-byte recertification GO under {R3_COMMIT}; "
-            "stock-mode only; Expanded-256 ON HOLD/fail-closed"
-            if feature_enabled
-            else "static source/manifest verification performed; independent emitted-byte recertification pending"
+            f"C6 source correction emitted from clean baseline {C6_BASELINE_COMMIT}; fresh independent emitted-byte recertification pending; stock-mode only; Expanded-256 ON HOLD/fail-closed"
         ),
         "explicit_non_changes": [
             "stock executable bytes outside the certified candidate payload",
@@ -1100,7 +1089,8 @@ def main() -> None:
         "dependencies": [base["id"]],
         "description": (
             "Command-7-only repeatable Buy candidate using native Float32 skill "
-            "writer sub_46AD80; commands 6/8 are absent."
+            "writer sub_46AD80; commands 6/8 are absent. The legacy Cure row and "
+            "command 5 are withdrawn and unreachable in this candidate."
         ),
         "companion_files": [],
         "patches": [
@@ -1188,10 +1178,11 @@ def main() -> None:
         }
 
     artifact = {
-        "acceptance_commit": R3_COMMIT,
+        "acceptance_commit": C6_BASELINE_COMMIT,
+        "candidate_status": "disabled pending fresh independent recertification after C6 startup-crash correction",
         "independent_recertification": {
             "review": "R3",
-            "status": "independent recertification GO",
+            "status": "superseded by C6 startup-crash correction; fresh independent recertification required",
             "commit": R3_COMMIT,
             "scope": "VV4 Full Mastery stock-mode candidate only; Expanded-256 ON HOLD/fail-closed",
             "hashes": {
@@ -1223,7 +1214,7 @@ def main() -> None:
                 "ecx_restore": ui_map["destructor_helper"]["ecx_restore"],
                 "original_cleanup": "sub_40C340",
             },
-            "runtime_dimension_guard": ui_map["runtime_dimension_guard"],
+            "runtime_wrapper_contract": ui_map["runtime_wrapper_contract"],
             "detail_cleanup": ui_map["detail_cleanup"],
             "forbidden_helpers": ui_map["forbidden_helpers"],
             "route": {
@@ -1232,10 +1223,11 @@ def main() -> None:
                 "detail_handler_relocated_va": ui_map["detail_handler_relocated"]["va"],
                 "detail_route_patch_offset": "0x48610",
             },
-            "status": "independent recertification GO",
-            "recertification_commit": R3_COMMIT,
+            "status": "pending fresh independent recertification after C6 startup-crash correction",
+            "recertification_commit": None,
             "scope": "stock-mode only; Expanded-256 remains ON HOLD/fail-closed",
         },
+        "cure_containment": base["cure_containment"],
         "source": {"size": len(stock), "sha256": expected_sha},
         "base_manifest_sha256": sha(BASE_OUT.read_bytes()),
         "feature_manifest_sha256": sha(FEATURE_OUT.read_bytes()),
@@ -1311,8 +1303,8 @@ def main() -> None:
             if feature_enabled
             else "# VV4 Full Mastery disabled baked-asset UI candidate\n\n"
         )
-        + "Generated from acceptance contract "
-        f"`{R3_COMMIT}` plus the repository-owned "
+        + "Generated from clean C6 baseline "
+        f"`{C6_BASELINE_COMMIT}` plus the repository-owned "
         "canonical mockup and direct-resource ABI gate. "
         + (
             f"The exact corrected artifact received independent recertification GO under "
@@ -1320,7 +1312,9 @@ def main() -> None:
             if feature_enabled
             else "The command-7 record is disabled. Its candidate-only Tech and Detail "
             "buttons use the repository-owned canonical mockup crop as a deterministic "
-            "297x35 RGBA strip; independent emitted-byte recertification is pending.\n\n"
+            "297x35 RGBA strip; independent emitted-byte recertification is pending. "
+            "The legacy Cure row is rendered unavailable, command 5 is rejected before "
+            "charge/dispatch, and the unchanged Cure payload remains withdrawn.\n\n"
         )
         + f"- Canonical mockup SHA-256: `{CANONICAL_MOCKUP_SHA256}`\n"
         f"- Secondary mockup SHA-256: `{SECONDARY_MOCKUP_SHA256}`\n"
@@ -1329,21 +1323,21 @@ def main() -> None:
         f"- Candidate button path: `{BUTTON_DESTINATION}`; frames: normal, hover, pressed (99x35 each)\n"
         "- Button construction: `sub_401C20`, grid 3x1, local 72,4; Tech event 13 and Detail event 2; parent `sub_40C190`.\n"
         "- Runtime text/style/font helpers and `sub_40D8A0` are absent; the Tech wrapper uses `this+0x74` and paired scalar-destructor cleanup, while Detail uses list-owned `sub_40C300`.\n"
-        "- Runtime fail-closed guard calls wrapper vtable slots `+0x0C`/`+0x10` (native `0x401470`/`0x4014B0`) and requires a 99x35 frame before either `sub_40C190` attach; rejected wrappers receive scalar-destructor flag 1, and Tech leaves `this+0x74` null.\n"
+        "- Runtime wrapper handling performs only the proven null check: nonnull wrappers are attached/stored through the certified ownership paths and null results leave Tech `this+0x74` empty. No wrapper vtable `+0x0C`/`+0x10` calls or runtime dimension comparisons are emitted; 297x35/3x1 validation is static and occurs before output mutation.\n"
         "- The Tech helper emits exact `8B CB` (`mov ecx, ebx`) after clearing `this+0x74` and before `sub_40C340`; its continuation remains `0x43E23D`.\n"
         + f"- Companion SHA-256: `{artifact['companion']['sha256']}`\n"
         f"- Stock installed slot SHA-256: `{artifact['layouts']['collection_progression']['installed_slot_sha256']}`\n"
         f"- Expanded installed slot SHA-256: `{artifact['layouts']['experimental_expanded_256']['installed_slot_sha256']}`\n"
         f"- Stock base+mastery render SHA-256: `{renders['collection_progression']['base_plus_mastery_sha256']}`\n"
         f"- Expanded base+mastery render SHA-256: `{renders['experimental_expanded_256']['base_plus_mastery_sha256']}`\n\n"
-        "The feature exposes command 7 only inside its certified base dependency. "
+        "The feature exposes command 7 only inside its disabled base dependency. "
         "Commands 6/8, village-wide Running/Age bytes, direct "
         "skill stores, ownership, Remove, and save-format changes are absent. "
         "The candidate is fail-closed on missing or mismatched companion files, "
         "preserves stock executables, Cure bytes, certified VV3 stock-mode hashes, and "
-        "the expanded-256 hold. R3 independently recertified the stock-mode emitted "
-        "candidate; Expanded-256 remains ON HOLD/fail-closed.\n"
-        f"- R3 helper SHA-256: `{R3_HELPER_SHA256}`; Tech constructor: `{R3_TECH_CONSTRUCTOR_SHA256}`; "
+        "the expanded-256 hold. Fresh independent recertification is required before enablement; "
+        "Expanded-256 remains ON HOLD/fail-closed.\n"
+        f"- R3 helper SHA-256 (unchanged): `{R3_HELPER_SHA256}`; previous Tech constructor: `{R3_TECH_CONSTRUCTOR_SHA256}`; "
         f"Detail constructor: `{R3_DETAIL_CONSTRUCTOR_SHA256}`; command-7 slot: `{R3_COMMAND7_SLOT_SHA256}`; "
         f"Cure: `{R3_CURE_SHA256}`.\n",
         encoding="utf-8",
@@ -1353,7 +1347,7 @@ def main() -> None:
     for source_path in (BASE_OUT, FEATURE_OUT, MAP_OUT, DOC_OUT, COMPANION, BUTTON_ASSET):
         shutil.copy2(source_path, output_dir / source_path.name)
     checksum_records: dict[str, object] = {
-        "status": "R3 independently recertified stock-mode candidate; Expanded-256 ON HOLD/fail-closed",
+        "status": "C6 disabled candidate pending fresh independent recertification; Expanded-256 ON HOLD/fail-closed",
         "asset": asset_map,
         "source": {"path": str(STOCK.relative_to(ROOT)), "sha256": expected_sha},
         "artifacts": {},
