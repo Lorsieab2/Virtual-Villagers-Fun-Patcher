@@ -74,8 +74,8 @@ VV4_FULL_MASTERY_CERTIFIED_SHA256 = {
     "entry": "CFCDE13267A62C824756748A7B639937AD4F125E733F615C555861338C2702A5",
     "walker": "F8268B904E73B79EE686BE6A4E8FCFA8A54C59E08E8D5CE329900D78DED05155",
     "confirmation": "DCB30F80D0442F289F030CCD2E712A05605469819E4777E3739918A718B55B97",
-    "stock_page": "19BD89A04B1476F0CC996112906A02DD25A9ECD149B696A4C1EDA4A4CE713124",
-    "expanded_page": "468A995FE91E2C6FE4E7812A65D77F68B22C6DBC9C3C9F696A4233C8EEDBC480",
+    "stock_page": "FD72C661B533117BF38D69E7EB855250A93927C831C265226930794C1EFDDB62",
+    "expanded_page": "37E43800F7EB3188F367EC6F8DCFA93674F6CA97A8682F6B35038BF0DA7A9BE8",
     "dll": "4E1A83683A875EFE6F67116CDD862927BE1ABCB17DB7AE18143E58E98EAD01E7",
 }
 VV4_FULL_MASTERY_D19_COMMIT = "8182c235548bc92f304e5571ed61ada3c5abfa4b"
@@ -479,8 +479,8 @@ def _certified_vv4_full_mastery_records(
                 f"Certified VV4 Full Mastery {label} artifact hash mismatch: "
                 f"expected {expected}, got {actual[label]}."
             )
-    if stock["installed_slot_sha256"] != VV4_FULL_MASTERY_D19_HASHES["command7_slot"]:
-        raise PatcherError("Certified VV4 Full Mastery command-7 slot hash mismatch.")
+    if stock.get("legacy_command7_slot_sha256") != VV4_FULL_MASTERY_D19_HASHES["command7_slot"]:
+        raise PatcherError("Certified VV4 legacy command-7 slot hash mismatch.")
     base = dict(base)
     base.update(
         {"id": active_base["id"], "name": active_base["name"], "enabled": True}

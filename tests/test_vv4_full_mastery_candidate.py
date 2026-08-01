@@ -129,13 +129,13 @@ class VV4FullMasteryCandidateTests(unittest.TestCase):
         cls.feature = FunPatch(cls.feature_raw)
         cls.build = next(item for item in load_builds() if item.id == "vv4")
 
-    def test_playtest3_withdrawal_is_catalog_hidden(self):
-        self.assertFalse(self.base_raw["enabled"])
-        self.assertFalse(self.feature_raw["enabled"])
+    def test_d33_c28_stock_candidate_is_catalog_visible(self):
+        self.assertTrue(self.base_raw["enabled"])
+        self.assertTrue(self.feature_raw["enabled"])
         active = {item.id: item for item in load_fun_patches()}
-        self.assertNotIn("vv4_enable_origins_exclusive_features", active)
-        self.assertNotIn(self.feature_raw["id"], active)
-        self.assertIn("HARD WITHDRAWN", self.feature_raw["certification_status"])
+        self.assertIn("vv4_enable_origins_exclusive_features", active)
+        self.assertIn(self.feature_raw["id"], active)
+        self.assertIn("D33/C28", self.feature_raw["certification_status"])
         self.assertEqual(self.feature_raw["dependencies"], [self.base_raw["id"]])
         contract = self.feature_raw["transaction_contract"]
         self.assertEqual((contract["command"], contract["price"]), (7, 1_000_000))
@@ -173,17 +173,17 @@ class VV4FullMasteryCandidateTests(unittest.TestCase):
                 mutated["ui_asset_gate"]["runtime_wrapper_contract"]["static_asset_contract"][key] = None
                 assert_rejected(mutated)
 
-    def test_catalog_hidden_and_expanded_mode_fail_closed(self):
+    def test_catalog_visible_and_expanded_mode_fail_closed(self):
         vv4_records = {
             item.id
             for item in load_fun_patches()
             if item.game_id == "vv4"
         }
-        self.assertNotIn("vv4_enable_origins_exclusive_features", vv4_records)
-        self.assertNotIn("vv4_full_mastery_all_stage_a_candidate", vv4_records)
+        self.assertIn("vv4_enable_origins_exclusive_features", vv4_records)
+        self.assertIn("vv4_full_mastery_all_stage_a_candidate", vv4_records)
         for mode in ("experimental_expanded_256", "experimental_expanded_256_progression"):
             with self.subTest(mode=mode):
-                with self.assertRaisesRegex(PatcherError, "Unknown optional patch"):
+                with self.assertRaisesRegex(PatcherError, "ON HOLD"):
                     render_patched_bytes(
                         STOCK,
                         self.build,
@@ -267,8 +267,9 @@ class VV4FullMasteryCandidateTests(unittest.TestCase):
         self.assertEqual(ui["local"], [72, 4])
         self.assertEqual(ui["events"], {"tech": 13, "detail": 2})
         self.assertEqual(ui["add_child"], "sub_40C190")
-        self.assertIn("HARD WITHDRAWN", ui["status"])
-        self.assertIn("revoked by Playtest 3", self.map["metadata_recertification"]["status"])
+        self.assertEqual(ui["status"], "independent metadata recertification GO")
+        self.assertEqual(self.map["metadata_recertification"]["status"], "independent metadata recertification GO")
+        self.assertEqual(self.map["metadata_enablement_audit"]["status"], "GO")
         self.assertEqual(self.map["playtest3_withdrawal"]["fault_va"], "0x489E0C")
         self.assertEqual(self.map["candidate_ui_payload"]["result_call_repairs"], [{"call_va": "0x4897CA", "before_target": "0x489573", "after_target": "0x489ACA", "before": "E8A4FDFFFF", "after": "E8FB020000"}, {"call_va": "0x489ABB", "before_target": "0x489573", "after_target": "0x489ACA", "before": "E8B3FAFFFF", "after": "E80A000000"}])
         helper = self.map["candidate_ui_payload"]["result_helper"]
@@ -432,11 +433,11 @@ class VV4FullMasteryCandidateTests(unittest.TestCase):
         self.assertNotIn('1008,', isolated)
         self.assertIn("ID_BUY_FIRST + 5", source)
 
-    def test_individual_mastery_remains_disabled_until_native_exact_100_transaction(self):
+    def test_individual_mastery_is_enabled_only_for_certified_stock_mode(self):
         contract = self.map["individual_full_mastery"]
-        self.assertTrue(contract["status"].startswith("STOP"))
-        self.assertFalse(self.feature_raw["enabled"])
-        self.assertEqual(contract["emitted"], "installed-page helper only; unreachable while disabled")
+        self.assertTrue(contract["status"].startswith("GO"))
+        self.assertTrue(self.feature_raw["enabled"])
+        self.assertIn("stock-mode Detail route", contract["emitted"])
         self.assertEqual(contract["implementation_source"], "src/vv4_individual_mastery.py")
         self.assertEqual(contract["required_contract"]["command"], 1)
         self.assertTrue(contract["required_contract"]["five_float_complete_dry_run"])
@@ -484,8 +485,8 @@ class VV4FullMasteryCandidateTests(unittest.TestCase):
         self.assertIn(b"\x68\x60\x79\xFE\xFF", helper)  # push -100000
         for raw_store in (b"\xC7\x83\x5C\x1C", b"\xC7\x83\x60\x1C", b"\xC7\x83\x64\x1C", b"\xC7\x83\x68\x1C", b"\xC7\x83\x6C\x1C"):
             self.assertNotIn(raw_store, helper)
-        self.assertEqual(installed["individual_status"], "emitted in installed page only; route disabled/catalog-hidden pending D27")
-        self.assertEqual(self.map["individual_full_mastery"]["emitted"], "installed-page helper only; unreachable while disabled")
+        self.assertEqual(installed["individual_status"], "emitted in installed page; stock-mode route catalog-visible after D33/C28 GO")
+        self.assertIn("stock-mode Detail route", self.map["individual_full_mastery"]["emitted"])
         contract = installed["individual_contract"]
         self.assertEqual(contract["confirmation"], "Grant Full Mastery to this villager for 100,000 tech points?\r\nPress OK to confirm, or Cancel.")
         self.assertIn("exact Float32 100.0", contract["post_write_verification"])
@@ -596,10 +597,10 @@ class VV4FullMasteryCandidateTests(unittest.TestCase):
                 _remove_feature_bytes(work, self.base, mode)
                 self.assertEqual(work, baseline)
 
-    def test_withdrawn_vv4_candidate_and_withdrawn_vv3_running_catalog_state(self):
+    def test_enabled_vv4_candidate_and_withdrawn_vv3_running_catalog_state(self):
         active = {item.id: item for item in load_fun_patches()}
-        self.assertNotIn("vv4_enable_origins_exclusive_features", active)
-        self.assertNotIn(self.feature_raw["id"], active)
+        self.assertIn("vv4_enable_origins_exclusive_features", active)
+        self.assertIn(self.feature_raw["id"], active)
         self.assertNotIn("vv3_enable_origins_exclusive_features_running_candidate", active)
         self.assertNotIn("vv3_all_villagers_like_running_candidate", active)
 

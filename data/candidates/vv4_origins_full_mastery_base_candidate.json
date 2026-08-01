@@ -175,9 +175,9 @@
     "expanded_virtual_address": "0x85A004",
     "patches": []
   },
-  "enabled": false,
-  "certification_status": "HARD WITHDRAWN after Playtest 3 Full Mastery crash; result-helper repair candidate disabled; Expanded-256 remains ON HOLD/fail-closed",
-  "evidence_status": "Playtest 3 fault 0xC0000005 at VA 0x489E0C; calls 0x4897CA/0x489ABB targeted epilogue 0x489573; D25 repairs both to helper 0x489ACA; no selectable candidate",
+  "enabled": true,
+  "certification_status": "D33/C28 independently recertified; stock-mode catalog enabled; Expanded-256 remains ON HOLD/fail-closed",
+  "evidence_status": "D33/C28 GO on exact repaired payload commit 1f5b84535cd8c3c6566b18e9e1ed3a767cedc956; D19 payload and D21 metadata evidence retained; Playtest 3 withdrawal remains historical evidence",
   "playtest_withdrawal": {
     "playtest": "VV4 Full Mastery UI Playtest 2",
     "status": "HARD WITHDRAWN",
@@ -223,10 +223,10 @@
     "correct_result_helper_sha256": "BC7E2FBD0DA5BDDDA870F1AF0107C116E688706CA7799D4933AF4AE2A522442A"
   },
   "individual_full_mastery": {
-    "status": "STOP; disabled and catalog-hidden pending D27 executable recertification",
-    "reason": "the exact-100 transaction helper is emitted only in the installed .vv4fm page, but the stock executable's individual-menu entry ABI is not yet independently proven; no command-1 route is wired or selectable",
+    "status": "GO; stock-mode command-1 route enabled after D33/C28 independent recertification",
+    "reason": "the exact-100 transaction helper and Detail message-8/event-2 route are emitted in the installed .vv4fm page and covered by D33/C28; Expanded-256 remains fail-closed",
     "implementation_source": "src/vv4_individual_mastery.py",
-    "emitted": "installed-page helper only; unreachable while disabled",
+    "emitted": "installed-page helper and guarded stock-mode Detail route; Expanded-256 remains fail-closed",
     "required_contract": {
       "command": 1,
       "physical_index_capture": "displayed physical index before confirmation",

@@ -591,10 +591,6 @@ class DoublerPurchaseSafetyTests(unittest.TestCase):
     def test_unproven_doublers_are_unavailable_but_owned_rows_remain_removable(self) -> None:
         for game_id in self.BLOCKED_GAMES:
             with self.subTest(game=game_id):
-                if game_id == "vv4":
-                    with self.assertRaisesRegex(PatcherError, "Unknown fun patch"):
-                        get_fun_patch("vv4_enable_origins_exclusive_features")
-                    continue
                 feature = get_fun_patch(f"{game_id}_enable_origins_exclusive_features")
                 status = feature.raw["doubler_purchase_status"]
                 self.assertIn("temporarily unavailable", status["new_purchase"])
@@ -736,14 +732,17 @@ class StockIntegrationTests(unittest.TestCase):
                         )
                     continue
                 if build.id == "vv4":
-                    self.assertNotIn(
+                    self.assertIn(
                         "vv4_full_mastery_all_stage_a_candidate",
                         patches_by_game[build.id],
                     )
-                    self.assertNotIn(
+                    self.assertIn(
                         "vv4_enable_origins_exclusive_features",
                         patches_by_game[build.id],
                     )
+                    with self.assertRaisesRegex(PatcherError, "ON HOLD"):
+                        render_patched_bytes(STOCK / build.input_name, build, "experimental_expanded_256", patches_by_game[build.id])
+                    continue
                 rendered, applied = render_patched_bytes(
                     STOCK / build.input_name,
                     build,

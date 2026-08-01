@@ -1,10 +1,10 @@
 {
   "id": "vv4_full_mastery_all_stage_a_candidate",
   "game_id": "vv4",
-  "name": "DISABLED Candidate: Grant Full Mastery to All Villagers",
-  "enabled": false,
-  "certification_status": "HARD WITHDRAWN after Playtest 3 crash; command 7 withheld pending D25; Expanded-256 ON HOLD/fail-closed",
-  "evidence_status": "Playtest 3 individual Full Mastery crashed through bad result-helper call; command 7 withheld pending regression recertification",
+  "name": "Grant Full Mastery to All Villagers",
+  "enabled": true,
+  "certification_status": "D33/C28 independently recertified; stock-mode catalog enabled; command 7 and individual command 1 available; Expanded-256 ON HOLD/fail-closed",
+  "evidence_status": "D33/C28 GO on exact repaired payload commit 1f5b84535cd8c3c6566b18e9e1ed3a767cedc956; D19 payload and D21 metadata evidence retained; prior Playtest 3 crash evidence retained",
   "explicit_non_changes": [
     "stock executable bytes outside the certified candidate payload",
     "shared Origins DLL bytes",
@@ -16,7 +16,7 @@
   "dependencies": [
     "vv4_enable_origins_exclusive_features_full_mastery_candidate"
   ],
-  "description": "Command-7-only repeatable Buy candidate using native Float32 skill writer sub_46AD80; commands 6/8 are absent. The legacy Cure row and command 5 are withdrawn and unreachable in this candidate.",
+  "description": "Stock-mode command-7 repeatable Buy plus command-1 individual candidate using native Float32 skill writer sub_46AD80; commands 6/8 are absent. The legacy Cure row and command 5 are withdrawn and unreachable in this candidate.",
   "companion_files": [],
   "patches": [
     {

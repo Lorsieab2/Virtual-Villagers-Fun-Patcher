@@ -44,6 +44,8 @@ D19_FACTORY_SHA256 = "58E21A9597EB6ABF6949A1E607C3B607FABAF1AE5D280D899A062F5D02
 D19_TECH_SHA256 = "1D710074D6F5717A420646B2DCEE2BCC351754B4DC0CCFB5A32F586E2E258BDC"
 D19_DETAIL_SHA256 = "AC2A88CBD0B7805941EA34261D765F4A727187B35B5443BFB7CDEA8DF43A7E8C"
 D21_COMMIT = "3ba125b2107da4f86f9b70ab5b94206bef7803f5"
+C28_C29_COMMIT = "1f5b84535cd8c3c6566b18e9e1ed3a767cedc956"
+CANDIDATE_METADATA_ENABLED = True
 C7_DLL_SHA256 = "4E1A83683A875EFE6F67116CDD862927BE1ABCB17DB7AE18143E58E98EAD01E7"
 C6_BASELINE_COMMIT = "577072f5b5205c3a0a857c0645d855bb98ec19d2"
 D25_RESULT_HELPER_VA = 0x489ACA
@@ -989,7 +991,11 @@ def build_slot(page_va: int, installed: bool) -> tuple[bytes, dict[str, object]]
             "sha256": INDIVIDUAL_SUCCESS_MESSAGE_SHA256,
             "bytes": INDIVIDUAL_SUCCESS_MESSAGE.hex().upper(),
         },
-        "individual_status": "emitted in installed page only; route disabled/catalog-hidden pending D27",
+        "individual_status": (
+            "emitted in installed page; stock-mode route catalog-visible after D33/C28 GO"
+            if CANDIDATE_METADATA_ENABLED
+            else "emitted in installed page only; route disabled/catalog-hidden pending D27"
+        ),
         "individual_contract": {
             "command": 1,
             "entry_abi": "ECX/EDX preserved as caller inputs; helper reacquires manager and captures [manager+0x171B0]",
@@ -1400,13 +1406,19 @@ def main() -> None:
     base = deepcopy(active)
     base["id"] = "vv4_enable_origins_exclusive_features_full_mastery_candidate"
     base["name"] = "VV4 Origins Full Mastery Extension Base"
-    base["enabled"] = False
+    base["enabled"] = CANDIDATE_METADATA_ENABLED
     base["certification_status"] = (
-        "HARD WITHDRAWN after Playtest 3 Full Mastery crash; result-helper repair candidate disabled; "
+        "D33/C28 independently recertified; stock-mode catalog enabled; "
+        "Expanded-256 remains ON HOLD/fail-closed"
+        if CANDIDATE_METADATA_ENABLED
+        else "HARD WITHDRAWN after Playtest 3 Full Mastery crash; result-helper repair candidate disabled; "
         "Expanded-256 remains ON HOLD/fail-closed"
     )
     base["evidence_status"] = (
-        "Playtest 3 fault 0xC0000005 at VA 0x489E0C; calls 0x4897CA/0x489ABB targeted epilogue 0x489573; D25 repairs both to helper 0x489ACA; no selectable candidate"
+        f"D33/C28 GO on exact repaired payload commit {C28_C29_COMMIT}; D19 payload and D21 metadata evidence retained; "
+        "Playtest 3 withdrawal remains historical evidence"
+        if CANDIDATE_METADATA_ENABLED
+        else "Playtest 3 fault 0xC0000005 at VA 0x489E0C; calls 0x4897CA/0x489ABB targeted epilogue 0x489573; D25 repairs both to helper 0x489ACA; no selectable candidate"
     )
     base["playtest_withdrawal"] = {
         "playtest": "VV4 Full Mastery UI Playtest 2",
@@ -1419,10 +1431,22 @@ def main() -> None:
     }
     base["playtest3_withdrawal"] = {"playtest": "VV4 Full Mastery UI Playtest 3", "status": "HARD WITHDRAWN", "exception": "0xC0000005", "fault_rva": "0x89E0C", "fault_va": "0x489E0C", "bad_calls": ["0x4897CA", "0x489ABB"], "bad_target": "0x489573", "correct_result_helper": "0x489ACA", "correct_result_helper_file_offset": "0x89ACA", "correct_result_helper_sha256": D25_RESULT_HELPER_SHA256}
     base["individual_full_mastery"] = {
-        "status": "STOP; disabled and catalog-hidden pending D27 executable recertification",
-        "reason": "the exact-100 transaction helper is emitted only in the installed .vv4fm page, but the stock executable's individual-menu entry ABI is not yet independently proven; no command-1 route is wired or selectable",
+        "status": (
+            "GO; stock-mode command-1 route enabled after D33/C28 independent recertification"
+            if CANDIDATE_METADATA_ENABLED
+            else "STOP; disabled and catalog-hidden pending D27 executable recertification"
+        ),
+        "reason": (
+            "the exact-100 transaction helper and Detail message-8/event-2 route are emitted in the installed .vv4fm page and covered by D33/C28; Expanded-256 remains fail-closed"
+            if CANDIDATE_METADATA_ENABLED
+            else "the exact-100 transaction helper is emitted only in the installed .vv4fm page, but the stock executable's individual-menu entry ABI is not yet independently proven; no command-1 route is wired or selectable"
+        ),
         "implementation_source": "src/vv4_individual_mastery.py",
-        "emitted": "installed-page helper only; unreachable while disabled",
+        "emitted": (
+            "installed-page helper and guarded stock-mode Detail route; Expanded-256 remains fail-closed"
+            if CANDIDATE_METADATA_ENABLED
+            else "installed-page helper only; unreachable while disabled"
+        ),
         "required_contract": {
             "command": 1,
             "physical_index_capture": "displayed physical index before confirmation",
@@ -1572,7 +1596,11 @@ def main() -> None:
         raise RuntimeError("R3 command-7 walker bytes changed")
     if sha(stock_installed[CONFIRM_OFFSET : CONFIRM_OFFSET + 73]) != R3_COMMAND7_CONFIRM_SHA256:
         raise RuntimeError("R3 command-7 confirmation bytes changed")
-    feature_enabled = False
+    legacy_command7_slot = bytearray(stock_installed)
+    legacy_command7_slot[INDIVIDUAL_OFFSET:] = b"\0" * (SLOT_SIZE - INDIVIDUAL_OFFSET)
+    if sha(legacy_command7_slot) != R3_COMMAND7_SLOT_SHA256:
+        raise RuntimeError("R3 command-7 slot bytes changed outside the newly certified individual page")
+    feature_enabled = CANDIDATE_METADATA_ENABLED
     feature = {
         "id": "vv4_full_mastery_all_stage_a_candidate",
         "game_id": "vv4",
@@ -1582,9 +1610,15 @@ def main() -> None:
             else "DISABLED Candidate: Grant Full Mastery to All Villagers"
         ),
         "enabled": feature_enabled,
-        "certification_status": "HARD WITHDRAWN after Playtest 3 crash; command 7 withheld pending D25; Expanded-256 ON HOLD/fail-closed",
+        "certification_status": (
+            "D33/C28 independently recertified; stock-mode catalog enabled; command 7 and individual command 1 available; Expanded-256 ON HOLD/fail-closed"
+            if feature_enabled
+            else "HARD WITHDRAWN after Playtest 3 crash; command 7 withheld pending D25; Expanded-256 ON HOLD/fail-closed"
+        ),
         "evidence_status": (
-            "Playtest 3 individual Full Mastery crashed through bad result-helper call; command 7 withheld pending regression recertification"
+            f"D33/C28 GO on exact repaired payload commit {C28_C29_COMMIT}; D19 payload and D21 metadata evidence retained; prior Playtest 3 crash evidence retained"
+            if feature_enabled
+            else "Playtest 3 individual Full Mastery crashed through bad result-helper call; command 7 withheld pending regression recertification"
         ),
         "explicit_non_changes": [
             "stock executable bytes outside the certified candidate payload",
@@ -1596,7 +1630,7 @@ def main() -> None:
         ],
         "dependencies": [base["id"]],
         "description": (
-            "Command-7-only repeatable Buy candidate using native Float32 skill "
+            "Stock-mode command-7 repeatable Buy plus command-1 individual candidate using native Float32 skill "
             "writer sub_46AD80; commands 6/8 are absent. The legacy Cure row and "
             "command 5 are withdrawn and unreachable in this candidate."
         ),
@@ -1707,7 +1741,11 @@ def main() -> None:
 
     artifact = {
         "acceptance_commit": D19_COMMIT,
-        "candidate_status": "HARD WITHDRAWN after Playtest 3 crash; catalog-hidden",
+        "candidate_status": (
+            f"D33/C28 GO on {C28_C29_COMMIT}; stock-mode catalog enabled; Expanded-256 ON HOLD/fail-closed"
+            if feature_enabled
+            else "HARD WITHDRAWN after Playtest 3 crash; catalog-hidden"
+        ),
         "independent_recertification": {
             "review": "D19",
             "status": "independent payload recertification GO",
@@ -1725,9 +1763,15 @@ def main() -> None:
         },
         "metadata_recertification": {
             "review": "D21",
-            "status": "revoked by Playtest 3 crash; repair candidate pending recertification",
+            "status": "independent metadata recertification GO",
             "commit": D21_COMMIT,
             "scope": "VV4 Full Mastery metadata/validator enablement for stock mode only; Expanded-256 ON HOLD/fail-closed",
+        },
+        "metadata_enablement_audit": {
+            "reviews": ["D33", "C28"],
+            "status": "GO",
+            "commit": C28_C29_COMMIT,
+            "scope": "VV4 stock-mode Full Mastery UI and individual transaction metadata only; Expanded-256 ON HOLD/fail-closed",
         },
         "ui_asset_gate": {
             **asset_map,
@@ -1756,7 +1800,7 @@ def main() -> None:
                 "detail_handler_relocated_va": ui_map["detail_handler_relocated"]["va"],
                 "detail_route_patch_offset": "0x48610",
             },
-            "status": "HARD WITHDRAWN after Playtest 3 crash; repair candidate pending recertification",
+            "status": "independent metadata recertification GO",
             "recertification_commit": D21_COMMIT,
             "scope": "stock-mode only; Expanded-256 remains ON HOLD/fail-closed",
         },
@@ -1793,6 +1837,11 @@ def main() -> None:
                 **layout,
                 "noop_slot_sha256": sha(noop_slots[mode]),
                 "installed_slot_sha256": sha(installed_slots[mode]),
+                "legacy_command7_slot_sha256": (
+                    R3_COMMAND7_SLOT_SHA256
+                    if mode == "collection_progression"
+                    else sha(bytearray(installed_slots[mode][:INDIVIDUAL_OFFSET] + b"\0" * (SLOT_SIZE - INDIVIDUAL_OFFSET)))
+                ),
                 "dispatcher_sha256": sha(dispatchers[mode]),
                 "base_page_sha256": sha(pages[mode]),
                 "installed_page_sha256": sha(installed_pages[mode]),
@@ -1868,19 +1917,27 @@ def main() -> None:
         "- `Upgrades` is copied through proven native `sub_401600` text overlay and `sub_401630` style ABIs; `sub_40D8A0` is absent. Tech uses `this+0x74` and paired cleanup; Detail uses list-owned `sub_40C300`.\n"
         "- Wrapper-null returns without attach. Loader-null raw-frees the unconstructed wrapper through cdecl `sub_470B7B`; it never virtual-destructs raw memory. Inner-null after `sub_401C20` uses the proven scalar destructor with flag 1.\n"
         "- The Tech helper emits exact `8B CB` (`mov ecx, ebx`) after clearing `this+0x74` and before `sub_40C340`; its continuation remains `0x43E23D`.\n"
-        "- Individual command 1 is source-modeled in `src/vv4_individual_mastery.py` but remains disabled/catalog-hidden: it captures the displayed physical index, validates all five finite Float32 skills for a living villager, reports the exact no-charge message for zero changes, requires the per-villager 100,000-point confirmation and same-index reacquisition, then calls `sub_46AD80` once per delta, re-reads every originally changed skill for exact Float32 100.0, and deducts 100,000 once through `0x41E300`. A failed post-write verification reports `No tech points have been deducted.`; partial native changes may remain because rollback is unsafe/unproved. No direct skill stores or precharge are present; D27 executable ABI proof is required before emission.\n"
-        "- The only emitted Detail route is message 8/event 2 command 1: hook `0x4899D6` (`E9560000009090`) enters the exact 50-byte `.text` cave at `0x489A31` (SHA-256 `79600D55513838D55E9FAD6D9680A516A2CF6BBC5107B721B7B8E28D59B3168F`), reconstructs the original price lookup for other commands, and returns through `0x489AC5`; it requires the `.vv4fm` page marker and installed flag before calling the individual helper. Commands 0, 2-4, 7, cancel, and fallthrough retain their original route bytes. The dedicated 73-byte confirmation routine is atomically installed at raw `0xE4C00` / VA `0x740C00` with a 256-byte zero guard (183 trailing zeros), and success uses `Full Mastery has been granted to the selected villager.` rather than the command-7 result export.\n"
+        + (
+            "- Individual command 1 is enabled only in stock mode through the guarded Detail message-8/event-2 route: it captures the displayed physical index, validates all five finite Float32 skills for a living villager, reports the exact no-charge message for zero changes, requires the per-villager 100,000-point confirmation and same-index reacquisition, then calls `sub_46AD80` once per delta, re-reads every originally changed skill for exact Float32 100.0, and deducts 100,000 once through `0x41E300`. A failed post-write verification reports `No tech points have been deducted.`; partial native changes may remain because rollback is unsafe/unproved. No direct skill stores or precharge are present.\n"
+            if feature_enabled
+            else "- Individual command 1 is source-modeled in `src/vv4_individual_mastery.py` but remains disabled/catalog-hidden: it captures the displayed physical index, validates all five finite Float32 skills for a living villager, reports the exact no-charge message for zero changes, requires the per-villager 100,000-point confirmation and same-index reacquisition, then calls `sub_46AD80` once per delta, re-reads every originally changed skill for exact Float32 100.0, and deducts 100,000 once through `0x41E300`. A failed post-write verification reports `No tech points have been deducted.`; partial native changes may remain because rollback is unsafe/unproved. No direct skill stores or precharge are present; D27 executable ABI proof is required before emission.\n"
+        )
+        + "- The only emitted Detail route is message 8/event 2 command 1: hook `0x4899D6` (`E9560000009090`) enters the exact 50-byte `.text` cave at `0x489A31` (SHA-256 `79600D55513838D55E9FAD6D9680A516A2CF6BBC5107B721B7B8E28D59B3168F`), reconstructs the original price lookup for other commands, and returns through `0x489AC5`; it requires the `.vv4fm` page marker and installed flag before calling the individual helper. Commands 0, 2-4, 7, cancel, and fallthrough retain their original route bytes. The dedicated 73-byte confirmation routine is atomically installed at raw `0xE4C00` / VA `0x740C00` with a 256-byte zero guard (183 trailing zeros), and success uses `Full Mastery has been granted to the selected villager.` rather than the command-7 result export.\n"
         + f"- Companion SHA-256: `{artifact['companion']['sha256']}`\n"
         f"- Stock installed slot SHA-256: `{artifact['layouts']['collection_progression']['installed_slot_sha256']}`\n"
         f"- Expanded installed slot SHA-256: `{artifact['layouts']['experimental_expanded_256']['installed_slot_sha256']}`\n"
         f"- Stock base+mastery render SHA-256: `{renders['collection_progression']['base_plus_mastery_sha256']}`\n"
         f"- Expanded base+mastery render SHA-256: `{renders['experimental_expanded_256']['base_plus_mastery_sha256']}`\n\n"
-        "The disabled feature would expose command 7 only with its hash-guarded base dependency; neither record is selectable. "
-        "Commands 6/8, village-wide Running/Age bytes, direct "
+        + (
+            "The enabled stock-mode feature exposes command 7 plus the guarded individual command 1 with its hash-guarded base dependency; Expanded-256 remains rejected. "
+            if feature_enabled
+            else "The disabled feature would expose command 7 only with its hash-guarded base dependency; neither record is selectable. "
+        )
+        + "Commands 6/8, village-wide Running/Age bytes, direct "
         "skill stores, ownership, Remove, and save-format changes are absent. "
         "The candidate is fail-closed on missing or mismatched companion files, "
         "preserves stock executables, Cure bytes, certified VV3 stock-mode hashes, and "
-        "the expanded-256 hold. Earlier D19/D21 approvals are superseded by the Playtest 3 crash evidence. "
+        "the expanded-256 hold. D19 payload, D21 metadata, and D33/C28 enablement evidence are retained; "
         "Expanded-256 remains ON HOLD/fail-closed.\n"
         f"- D19 factory SHA-256: `{D19_FACTORY_SHA256}`; helper: `{R3_HELPER_SHA256}`; Tech constructor: `{D19_TECH_SHA256}`; "
         f"Detail constructor: `{D19_DETAIL_SHA256}`; command-7 slot: `{R3_COMMAND7_SLOT_SHA256}`; "
@@ -1892,7 +1949,11 @@ def main() -> None:
     for source_path in (BASE_OUT, FEATURE_OUT, MAP_OUT, DOC_OUT, COMPANION):
         shutil.copy2(source_path, output_dir / source_path.name)
     checksum_records: dict[str, object] = {
-        "status": "HARD WITHDRAWN after Playtest 3 crash; Expanded-256 ON HOLD/fail-closed",
+        "status": (
+            "D33/C28 metadata-enabled stock-mode candidate; Expanded-256 ON HOLD/fail-closed"
+            if feature_enabled
+            else "HARD WITHDRAWN after Playtest 3 crash; Expanded-256 ON HOLD/fail-closed"
+        ),
         "asset": asset_map,
         "source": {"path": str(STOCK.relative_to(ROOT)), "sha256": expected_sha},
         "artifacts": {},

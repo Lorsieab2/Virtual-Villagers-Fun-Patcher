@@ -1,6 +1,6 @@
 {
   "acceptance_commit": "8182c235548bc92f304e5571ed61ada3c5abfa4b",
-  "candidate_status": "HARD WITHDRAWN after Playtest 3 crash; catalog-hidden",
+  "candidate_status": "D33/C28 GO on 1f5b84535cd8c3c6566b18e9e1ed3a767cedc956; stock-mode catalog enabled; Expanded-256 ON HOLD/fail-closed",
   "independent_recertification": {
     "review": "D19",
     "status": "independent payload recertification GO",
@@ -18,9 +18,18 @@
   },
   "metadata_recertification": {
     "review": "D21",
-    "status": "revoked by Playtest 3 crash; repair candidate pending recertification",
+    "status": "independent metadata recertification GO",
     "commit": "3ba125b2107da4f86f9b70ab5b94206bef7803f5",
     "scope": "VV4 Full Mastery metadata/validator enablement for stock mode only; Expanded-256 ON HOLD/fail-closed"
+  },
+  "metadata_enablement_audit": {
+    "reviews": [
+      "D33",
+      "C28"
+    ],
+    "status": "GO",
+    "commit": "1f5b84535cd8c3c6566b18e9e1ed3a767cedc956",
+    "scope": "VV4 stock-mode Full Mastery UI and individual transaction metadata only; Expanded-256 ON HOLD/fail-closed"
   },
   "ui_asset_gate": {
     "runtime_source": "native cached VV4 Images\\btn_trophies.png",
@@ -119,7 +128,7 @@
       "detail_handler_relocated_va": "0x4895A8",
       "detail_route_patch_offset": "0x48610"
     },
-    "status": "HARD WITHDRAWN after Playtest 3 crash; repair candidate pending recertification",
+    "status": "independent metadata recertification GO",
     "recertification_commit": "3ba125b2107da4f86f9b70ab5b94206bef7803f5",
     "scope": "stock-mode only; Expanded-256 remains ON HOLD/fail-closed"
   },
@@ -152,10 +161,10 @@
     "payload_bytes_unchanged": true
   },
   "individual_full_mastery": {
-    "status": "STOP; disabled and catalog-hidden pending D27 executable recertification",
-    "reason": "the exact-100 transaction helper is emitted only in the installed .vv4fm page, but the stock executable's individual-menu entry ABI is not yet independently proven; no command-1 route is wired or selectable",
+    "status": "GO; stock-mode command-1 route enabled after D33/C28 independent recertification",
+    "reason": "the exact-100 transaction helper and Detail message-8/event-2 route are emitted in the installed .vv4fm page and covered by D33/C28; Expanded-256 remains fail-closed",
     "implementation_source": "src/vv4_individual_mastery.py",
-    "emitted": "installed-page helper only; unreachable while disabled",
+    "emitted": "installed-page helper and guarded stock-mode Detail route; Expanded-256 remains fail-closed",
     "required_contract": {
       "command": 1,
       "physical_index_capture": "displayed physical index before confirmation",
@@ -219,8 +228,8 @@
     "size": 929792,
     "sha256": "6D27A429FFCA5F1F71FDD7ECA761ED1BB67E85F976494BA178B3D7BE01F1B220"
   },
-  "base_manifest_sha256": "6ABAC5DF1FCF4D6084EB59BBEE6CD774D8A644521EB8AF49CA4D955A6B3BE0B0",
-  "feature_manifest_sha256": "7471FC015344B8AF4C6FAD09B8C0F6BDF33BC270781DED7DFF34630F67C19E3B",
+  "base_manifest_sha256": "A6711336B54073E61434F3C3C2E91408BD93E0E7CAA5C57C95066CAC2B0C31CB",
+  "feature_manifest_sha256": "DD41DDC2836D1CB35AA063E835CAF114D1EE64A42D9C56531EAD0E6823AA40C3",
   "base_stock_payload_sha256": "DB803A81280A38F156BF24EB51135935D71CBE0E6C2BE81D0A08BD5190B7C33D",
   "base_expanded_payload_sha256": "6F1606E15001B7DD11FE48CBA0B879D8F8F7C29B85A9478501E33E5F04495B14",
   "individual_detail_route": {
@@ -486,6 +495,7 @@
       "new_size_of_image": 3411968,
       "noop_slot_sha256": "47864C7187C97F5DD46F37F365F1F6DDE3042A465D5904EA25204DB5C6EF2597",
       "installed_slot_sha256": "416B34A4BAD8A94959E753ED4122B9BD68E5787EF4FF6B84CC7FA48EAA0617F0",
+      "legacy_command7_slot_sha256": "023CF384A52CB6A6A49511B8B069B952718DC70E771FEE15CAC8A0777FB5F6DE",
       "dispatcher_sha256": "3A836EEA0EDF00790262906DD85F0E79A041E3EF086EBF815834F152157EB08B",
       "base_page_sha256": "2A2F3544DFC2649B871EA7B8C209A0D58B31FCDE4022D2B962F03D6159BD4A09",
       "installed_page_sha256": "FD72C661B533117BF38D69E7EB855250A93927C831C265226930794C1EFDDB62",
@@ -526,7 +536,7 @@
             "sha256": "52B86920C62B96D61E05DC7E8038B8B64EAB15EC269FBD51F300C3E305223D3F",
             "bytes": "46756C6C204D61737465727920686173206265656E206772616E74656420746F207468652073656C65637465642076696C6C616765722E00"
           },
-          "individual_status": "emitted in installed page only; route disabled/catalog-hidden pending D27",
+          "individual_status": "emitted in installed page; stock-mode route catalog-visible after D33/C28 GO",
           "individual_contract": {
             "command": 1,
             "entry_abi": "ECX/EDX preserved as caller inputs; helper reacquires manager and captures [manager+0x171B0]",
@@ -580,6 +590,7 @@
       "new_size_of_image": 3411968,
       "noop_slot_sha256": "47864C7187C97F5DD46F37F365F1F6DDE3042A465D5904EA25204DB5C6EF2597",
       "installed_slot_sha256": "416B34A4BAD8A94959E753ED4122B9BD68E5787EF4FF6B84CC7FA48EAA0617F0",
+      "legacy_command7_slot_sha256": "023CF384A52CB6A6A49511B8B069B952718DC70E771FEE15CAC8A0777FB5F6DE",
       "dispatcher_sha256": "3A836EEA0EDF00790262906DD85F0E79A041E3EF086EBF815834F152157EB08B",
       "base_page_sha256": "2A2F3544DFC2649B871EA7B8C209A0D58B31FCDE4022D2B962F03D6159BD4A09",
       "installed_page_sha256": "FD72C661B533117BF38D69E7EB855250A93927C831C265226930794C1EFDDB62",
@@ -620,7 +631,7 @@
             "sha256": "52B86920C62B96D61E05DC7E8038B8B64EAB15EC269FBD51F300C3E305223D3F",
             "bytes": "46756C6C204D61737465727920686173206265656E206772616E74656420746F207468652073656C65637465642076696C6C616765722E00"
           },
-          "individual_status": "emitted in installed page only; route disabled/catalog-hidden pending D27",
+          "individual_status": "emitted in installed page; stock-mode route catalog-visible after D33/C28 GO",
           "individual_contract": {
             "command": 1,
             "entry_abi": "ECX/EDX preserved as caller inputs; helper reacquires manager and captures [manager+0x171B0]",
@@ -674,6 +685,7 @@
       "new_size_of_image": 4665344,
       "noop_slot_sha256": "47864C7187C97F5DD46F37F365F1F6DDE3042A465D5904EA25204DB5C6EF2597",
       "installed_slot_sha256": "7AB7014B24A8A4AAD2C2A0054098F72EFF2591BA7F7797DF565DDD07DB262520",
+      "legacy_command7_slot_sha256": "264A2D79A5184F2CFBEDCB447DBA260EC48101D19ACD9DA188363D9C659F41E6",
       "dispatcher_sha256": "730DB889FCA581B0D5D054845EFF742D73728D4590AB3DCAE2A9D3E35420B162",
       "base_page_sha256": "3035CCAA075BE8DBDF410CCB8DC1C3E750636988507A424349AD7AEAB5BA70F6",
       "installed_page_sha256": "37E43800F7EB3188F367EC6F8DCFA93674F6CA97A8682F6B35038BF0DA7A9BE8",
@@ -714,7 +726,7 @@
             "sha256": "52B86920C62B96D61E05DC7E8038B8B64EAB15EC269FBD51F300C3E305223D3F",
             "bytes": "46756C6C204D61737465727920686173206265656E206772616E74656420746F207468652073656C65637465642076696C6C616765722E00"
           },
-          "individual_status": "emitted in installed page only; route disabled/catalog-hidden pending D27",
+          "individual_status": "emitted in installed page; stock-mode route catalog-visible after D33/C28 GO",
           "individual_contract": {
             "command": 1,
             "entry_abi": "ECX/EDX preserved as caller inputs; helper reacquires manager and captures [manager+0x171B0]",
@@ -768,6 +780,7 @@
       "new_size_of_image": 4665344,
       "noop_slot_sha256": "47864C7187C97F5DD46F37F365F1F6DDE3042A465D5904EA25204DB5C6EF2597",
       "installed_slot_sha256": "7AB7014B24A8A4AAD2C2A0054098F72EFF2591BA7F7797DF565DDD07DB262520",
+      "legacy_command7_slot_sha256": "264A2D79A5184F2CFBEDCB447DBA260EC48101D19ACD9DA188363D9C659F41E6",
       "dispatcher_sha256": "730DB889FCA581B0D5D054845EFF742D73728D4590AB3DCAE2A9D3E35420B162",
       "base_page_sha256": "3035CCAA075BE8DBDF410CCB8DC1C3E750636988507A424349AD7AEAB5BA70F6",
       "installed_page_sha256": "37E43800F7EB3188F367EC6F8DCFA93674F6CA97A8682F6B35038BF0DA7A9BE8",
@@ -808,7 +821,7 @@
             "sha256": "52B86920C62B96D61E05DC7E8038B8B64EAB15EC269FBD51F300C3E305223D3F",
             "bytes": "46756C6C204D61737465727920686173206265656E206772616E74656420746F207468652073656C65637465642076696C6C616765722E00"
           },
-          "individual_status": "emitted in installed page only; route disabled/catalog-hidden pending D27",
+          "individual_status": "emitted in installed page; stock-mode route catalog-visible after D33/C28 GO",
           "individual_contract": {
             "command": 1,
             "entry_abi": "ECX/EDX preserved as caller inputs; helper reacquires manager and captures [manager+0x171B0]",
