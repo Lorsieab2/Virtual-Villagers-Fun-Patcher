@@ -1,9 +1,9 @@
 {
   "acceptance_commit": "577072f5b5205c3a0a857c0645d855bb98ec19d2",
-  "candidate_status": "disabled pending fresh independent recertification after C6 startup-crash correction",
+  "candidate_status": "disabled pending fresh independent recertification after C7 ownership and Cure-containment correction",
   "independent_recertification": {
     "review": "R3",
-    "status": "superseded by C6 startup-crash correction; fresh independent recertification required",
+    "status": "superseded by C7 ownership and Cure-containment correction; fresh independent recertification required",
     "commit": "36af0c9a620b6b323715c3f6d6fe93e1d6f75532",
     "scope": "VV4 Full Mastery stock-mode candidate only; Expanded-256 ON HOLD/fail-closed",
     "hashes": {
@@ -73,12 +73,17 @@
       "original_cleanup": "sub_40C340"
     },
     "runtime_wrapper_contract": {
-      "nonnull": {
+      "nonnull_outer_and_inner": {
         "attach": true,
         "tech_slot": "this+0x74"
       },
-      "null_result": {
+      "null_outer": {
         "attach": false,
+        "tech_slot": null
+      },
+      "null_inner": {
+        "attach": false,
+        "scalar_destroy_flag": 1,
         "tech_slot": null
       },
       "static_asset_contract": {
@@ -109,7 +114,7 @@
       "detail_handler_relocated_va": "0x4895A8",
       "detail_route_patch_offset": "0x48610"
     },
-    "status": "pending fresh independent recertification after C6 startup-crash correction",
+    "status": "pending fresh independent recertification after C7 ownership and Cure-containment correction",
     "recertification_commit": null,
     "scope": "stock-mode only; Expanded-256 remains ON HOLD/fail-closed"
   },
@@ -140,14 +145,14 @@
     "size": 929792,
     "sha256": "6D27A429FFCA5F1F71FDD7ECA761ED1BB67E85F976494BA178B3D7BE01F1B220"
   },
-  "base_manifest_sha256": "B88CBBB60D1084851ABC753928CE70BB7E393ECAFC632310BE22A1FCA5E19A82",
-  "feature_manifest_sha256": "B83E52A4BDBFD6A84D559BA35E40D262DDD3DC9980D2DFA74BEF39114B950602",
-  "base_stock_payload_sha256": "CEC6FDF62494C299025653814F138182290BA78E98550EB4733E1DCA1DE22148",
-  "base_expanded_payload_sha256": "A7B54F18A33D7E084A52E12759EA42BAF10FE9BA7868AC42D912BEE4EDD3BCF5",
+  "base_manifest_sha256": "6A086EE0DA87646F8EFE373D5DF487088964494BD9A05129126731E4D1632578",
+  "feature_manifest_sha256": "53479DE08AC6CB1546D84659748CF1E2C5224AE202E4817F3913057E86BA5A9E",
+  "base_stock_payload_sha256": "AB2CE30F62BD6B12E775B737E56D3F7EFCA59DBA9BD95204A444AB4E9E833684",
+  "base_expanded_payload_sha256": "726632C7C1364D39B02301F7620CDAEB7257EAC503C55B73FB707618CAEC6761",
   "companion": {
     "path": "data/candidates/VVFP VV4 Full Mastery Candidate.dll",
-    "size": 298496,
-    "sha256": "9AC4E365BE55D32AB889E7B7472A1EDA8749B1EB259EA02BA35AB97BE666AF22",
+    "size": 282624,
+    "sha256": "4E1A83683A875EFE6F67116CDD862927BE1ABCB17DB7AE18143E58E98EAD01E7",
     "exports": {
       "ShowOriginsUpgradeMenu": {
         "ordinal": 1,
@@ -195,13 +200,13 @@
   "candidate_ui_payload": {
     "tech_constructor": {
       "offset": "0x40",
-      "length": 71,
-      "sha256": "1779F2127EDFE5A92388933432E7DF9C4B0E7DB2EA46B65A20A7472A6EE7BD2A"
+      "length": 89,
+      "sha256": "4BAD0B344BA63130A1A1144CDE740CEBB61E82826FCDBD0171B182A3D8B62FA4"
     },
     "detail_constructor": {
       "offset": "0x100",
-      "length": 77,
-      "sha256": "722533DB500217AC641A531C2EF1A525FF54D4626FBD837CCB0CE0DD89B90D35"
+      "length": 95,
+      "sha256": "BEC747E7EFC08BBA8BB7B65181B85E0E24AA30E1BBC2C1879206376C4468584E"
     },
     "destructor_helper": {
       "offset": "0xC0",
@@ -215,12 +220,17 @@
       "no_wrapper_branch_va": "0x489449"
     },
     "runtime_wrapper_contract": {
-      "nonnull": {
+      "nonnull_outer_and_inner": {
         "attach": true,
         "tech_slot": "this+0x74"
       },
-      "null_result": {
+      "null_outer": {
         "attach": false,
+        "tech_slot": null
+      },
+      "null_inner": {
+        "attach": false,
+        "scalar_destroy_flag": 1,
         "tech_slot": null
       },
       "static_asset_contract": {
@@ -454,11 +464,11 @@
   "rendered_candidates": {
     "collection_progression": {
       "baseline_sha256": "132516F4A5F7D2E9B539B14300207AEA5872FDCC0D34F13768435D9F4B6F76D4",
-      "base_only_sha256": "B164DCE0647E38E83007083592D23E8DE14627A66824ECBDC23A0F7557C66F40",
-      "base_plus_mastery_sha256": "E858508C7710CFBC95E6AD9FE9FE52D8F34B14A834BD2FEC23656D23859368B1",
-      "all_current_compatible_sha256": "56B33217F214FF047953CA73FF038BAB069A0D3387C0B8ED9B8DE81C96C2BE9F",
+      "base_only_sha256": "61FF848CFAB1247518D5773B93FC9E428D44800A8932DF92CA02E0272B84D1E1",
+      "base_plus_mastery_sha256": "C48F800AEE86819E1C9B1A26D599A7E566C271C2876C741955F380A4D15E9B14",
+      "all_current_compatible_sha256": "F7B41FA117F1A87148BA7C60034714FAF652B0CC236DD502FA2CA6D3F11CC715",
       "size": 937984,
-      "pe_checksum": "0x000E9F52",
+      "pe_checksum": "0x000EBDDF",
       "owners": [
         "automatic:population",
         "automatic:safety",
@@ -476,11 +486,11 @@
     },
     "immediate_fixed": {
       "baseline_sha256": "EB0CDD4F7F5E41F7A03734D51F9417A126C3BE9D214B484A848DB688545CF5FB",
-      "base_only_sha256": "199523441B02D36DC3F93A14E5B57C02AFA241A0A75C0AAD0EB3A93753DD964C",
-      "base_plus_mastery_sha256": "2967C4FD41CD5AB1B5823BF64A090A9311651CB9E2C23FFBC3A93A0319B63D1C",
-      "all_current_compatible_sha256": "7C4880975025CE08E5014A1D79F45BB2F3AFB51BEB5D534B78A8613264B9A70B",
+      "base_only_sha256": "0E11DA5A9B4DCC35F75F16CEC99C40B287AE36F2E2E774FB8D9775FD18CABA5B",
+      "base_plus_mastery_sha256": "5C9DF5EC33918661F1175ADA2632C1C7F5C91D20CAC0466AB23DB852DEB6F956",
+      "all_current_compatible_sha256": "B24DFC7A2A6B143236102288F8C9CB86C1AE7198393DA7020557870009062B25",
       "size": 937984,
-      "pe_checksum": "0x000F387A",
+      "pe_checksum": "0x000E5708",
       "owners": [
         "automatic:population",
         "automatic:safety",
@@ -498,11 +508,11 @@
     },
     "experimental_expanded_256": {
       "baseline_sha256": "428A8A8DE3B753CA813AB29960C49D15D4B3EDBE97BB49D8625C81743FEA3782",
-      "base_only_sha256": "5C5A1DB10FEF36B358737B54002B2E8CA19E020126544F55010DEF1018A85992",
-      "base_plus_mastery_sha256": "3BB164E4288442856BF1DB52543E99D96B852C4130EDFF0A218630684416CD28",
-      "all_current_compatible_sha256": "8A712A82F03ACB267DEFFAAF5586E0226859FA2EF8826CA1E6EF5266544D8877",
+      "base_only_sha256": "0B71A847BB11C8F3F6EDF391DF8C7D65806E22507806B5C22E70D9042BA76B2A",
+      "base_plus_mastery_sha256": "850FE65488B777D0AF05EE23A2B474FC8D0529E3829C63C4849FA76CBD7433F0",
+      "all_current_compatible_sha256": "312162C11BE0E763B2D285D970419073B2AD799F1A4DFF0C4FF9C77561EB384D",
       "size": 937984,
-      "pe_checksum": "0x000F49AB",
+      "pe_checksum": "0x000E5B46",
       "owners": [
         "automatic:population",
         "automatic:safety",
@@ -520,11 +530,11 @@
     },
     "experimental_expanded_256_progression": {
       "baseline_sha256": "737F475764EBB9F35BC6C68337698D46F6D03BA0560B9BE4E352F80AF48FE791",
-      "base_only_sha256": "6FBA3BF8866A25B18E3B70AD962158EB53A8AEDA2C4908B92FA1C83F10A6BDDD",
-      "base_plus_mastery_sha256": "F08B7B67480F88C6245993724E42A652C3D47831C9023E0079DD1387CFE375DD",
-      "all_current_compatible_sha256": "05F50C6FF5C5DC7E050F5B0E0371674D9FBE74243E4F7D52208C1BB6C649E817",
+      "base_only_sha256": "94542568CE47F9563C025074A067FDCF1C2634CA56169EEE4EE36AA048C96210",
+      "base_plus_mastery_sha256": "70663267C65BFE513B320E39A5FCD82CEC393DBAE11D00242DC39EF0E2CFC209",
+      "all_current_compatible_sha256": "C8F1BAA2E9FD79EC31207AD492FA34CE5C372E6C796821A60147C27E3E1BE89C",
       "size": 937984,
-      "pe_checksum": "0x000EEA0F",
+      "pe_checksum": "0x000EFBA9",
       "owners": [
         "automatic:population",
         "automatic:safety",

@@ -60,6 +60,10 @@ static INT_PTR CALLBACK upgrade_dialog(
         return TRUE;
     } else if (message == WM_COMMAND) {
         unsigned int command = LOWORD(wparam);
+        /* Cure All is withdrawn: consume ID 1005 before the generic range. */
+        if (command == ID_BUY_FIRST + 5) {
+            return TRUE;
+        }
         if (command >= ID_BUY_FIRST && command <= ID_BUY_LAST) {
             EndDialog(window, (INT_PTR)(command - ID_BUY_FIRST));
             return TRUE;

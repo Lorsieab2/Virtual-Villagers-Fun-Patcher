@@ -3,8 +3,8 @@
   "game_id": "vv4",
   "name": "DISABLED Candidate: Grant Full Mastery to All Villagers",
   "enabled": false,
-  "certification_status": "disabled pending fresh independent recertification after C6 startup-crash fix; R3 emitted bytes superseded",
-  "evidence_status": "C6 source correction emitted from clean baseline 577072f5b5205c3a0a857c0645d855bb98ec19d2; fresh independent emitted-byte recertification pending; stock-mode only; Expanded-256 ON HOLD/fail-closed",
+  "certification_status": "disabled pending fresh independent recertification after C7 ownership and Cure-containment correction; R3 emitted bytes superseded",
+  "evidence_status": "C7 ownership and Cure-containment correction emitted from clean baseline 577072f5b5205c3a0a857c0645d855bb98ec19d2; fresh independent emitted-byte recertification pending; stock-mode only; Expanded-256 ON HOLD/fail-closed",
   "explicit_non_changes": [
     "stock executable bytes outside the certified candidate payload",
     "shared Origins DLL bytes",

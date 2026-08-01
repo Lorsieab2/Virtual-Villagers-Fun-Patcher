@@ -171,6 +171,10 @@ class VV4FullMasteryCandidateTests(unittest.TestCase):
         self.assertNotIn("0x4014B0", json.dumps(self.map))
         self.assertIn(bytes.fromhex("E84988F7FF"), tech)  # sub_401C20
         self.assertIn(bytes.fromhex("E88987F7FF"), detail)  # sub_401C20
+        self.assertIn(bytes.fromhex("83781000"), tech)
+        self.assertIn(bytes.fromhex("83781000"), detail)
+        self.assertIn(bytes.fromhex("89C18B118B126A01FFD2"), tech)
+        self.assertIn(bytes.fromhex("89C18B118B126A01FFD2"), detail)
         self.assertIn(0x40C190, rel32_targets(tech, 0x4893B3))  # sub_40C190
         self.assertIn(0x40C190, rel32_targets(detail, 0x489473))  # sub_40C190
         self.assertNotIn(b"\xA0\xD8\x40", tech + detail)
@@ -197,8 +201,9 @@ class VV4FullMasteryCandidateTests(unittest.TestCase):
         self.assertEqual(
             self.map["ui_asset_gate"]["runtime_wrapper_contract"],
             {
-                "nonnull": {"attach": True, "tech_slot": "this+0x74"},
-                "null_result": {"attach": False, "tech_slot": None},
+                "nonnull_outer_and_inner": {"attach": True, "tech_slot": "this+0x74"},
+                "null_outer": {"attach": False, "tech_slot": None},
+                "null_inner": {"attach": False, "scalar_destroy_flag": 1, "tech_slot": None},
                 "static_asset_contract": {
                     "dimensions": [297, 35],
                     "grid": [3, 1],
@@ -222,7 +227,7 @@ class VV4FullMasteryCandidateTests(unittest.TestCase):
         self.assertIn("pending fresh independent recertification", ui["status"])
         self.assertEqual(self.map["acceptance_commit"], "577072f5b5205c3a0a857c0645d855bb98ec19d2")
         self.assertEqual(self.map["independent_recertification"]["review"], "R3")
-        self.assertIn("superseded by C6", self.map["independent_recertification"]["status"])
+        self.assertIn("superseded by C7", self.map["independent_recertification"]["status"])
         self.assertEqual(self.map["independent_recertification"]["scope"], "VV4 Full Mastery stock-mode candidate only; Expanded-256 ON HOLD/fail-closed")
         self.assertEqual(
             self.map["independent_recertification"]["hashes"],
@@ -365,6 +370,8 @@ class VV4FullMasteryCandidateTests(unittest.TestCase):
         self.assertIn('PUSHBUTTON  "Buy", 1007', isolated)
         self.assertNotIn('1006,', isolated)
         self.assertNotIn('1008,', isolated)
+        self.assertNotIn('1005,', resources)
+        self.assertIn('command == ID_BUY_FIRST + 5', source)
 
     def test_all_modes_render_checksum_composition_and_uninstall(self):
         compatible = [
@@ -411,6 +418,12 @@ class VV4FullMasteryCandidateTests(unittest.TestCase):
         self.assertEqual(code[0x2A6], 0x77)
         self.assertNotEqual(code[0x2A6], 0x73)
         self.assertEqual(code[0x3C8:0x3CD], b"\x90" * 5)
+        self.assertEqual(code[0x3C0:0x3C5], b"\x90" * 5)
+        self.assertEqual(code[0x3D2:0x3D7], b"\x90" * 5)
+        self.assertNotIn(bytes.fromhex("E8CCE82900"), code)
+        self.assertNotIn(bytes.fromhex("E8C4E82900"), code)
+        self.assertNotIn(bytes.fromhex("E8BAE82900"), code)
+        self.assertIn(bytes.fromhex("83FB0574"), code[0x340:0x3C0])
         self.assertIn(bytes.fromhex("814C241000200000"), code[0x1B0:0x210])
         containment = self.map["cure_containment"]
         self.assertFalse(containment["public_row"]["selectable"])

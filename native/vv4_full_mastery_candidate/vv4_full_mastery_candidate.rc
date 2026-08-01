@@ -7,7 +7,6 @@
 107 ICON "../../assets/origins/107-grant-full-mastery.ico"
 108 ICON "../../assets/origins/108-grant-running.ico"
 109 ICON "../../assets/origins/109-upgrade-checkmark.ico"
-110 ICON "../../assets/origins/110-cure-all.ico"
 
 #define DS_MODALFRAME 0x0080L
 #define DS_SETFONT 0x0040L
@@ -49,12 +48,6 @@ BEGIN
     LTEXT       "Food Point Doubler", -1, 40, 138, 150, 10
     LTEXT       "500,000 tech points", -1, 40, 150, 150, 9
     PUSHBUTTON  "Buy", 1004, 240, 139, 55, 18
-
-    ICON        110, -1, 8, 168,  24, 24
-    ICON        109, 1105, 22, 180, 12, 12
-    LTEXT       "Cure all Villagers", -1, 40, 170, 170, 10
-    LTEXT       "30,000 tech points", -1, 40, 182, 150, 9
-    PUSHBUTTON  "Buy", 1005, 240, 171, 55, 18
 
     ICON        108, -1, 8, 200,  24, 24
     ICON        109, 1106, 22, 212, 12, 12
@@ -143,12 +136,6 @@ BEGIN
     LTEXT       "Food Point Doubler", -1, 40, 138, 150, 10
     LTEXT       "500,000 tech points", -1, 40, 150, 150, 9
     PUSHBUTTON  "Buy", 1004, 240, 139, 55, 18
-
-    ICON        110, -1, 8, 168,  24, 24
-    ICON        109, 1105, 22, 180, 12, 12
-    LTEXT       "Cure all Villagers", -1, 40, 170, 170, 10
-    LTEXT       "30,000 tech points", -1, 40, 182, 150, 9
-    PUSHBUTTON  "Buy", 1005, 240, 171, 55, 18
 
     ICON        107, -1, 8, 200,  24, 24
     ICON        109, 1107, 22, 212, 12, 12

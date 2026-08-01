@@ -40,6 +40,7 @@ R3_DETAIL_CONSTRUCTOR_SHA256 = "0D38AAE3CF8F1EEFF81B95AE3AC334E488053FD60D136FC7
 R3_COMMAND7_SLOT_SHA256 = "023CF384A52CB6A6A49511B8B069B952718DC70E771FEE15CAC8A0777FB5F6DE"
 R3_CURE_SHA256 = "2BB7A32344293DCACB4D0359818C6839AC1FBBAEE8F9E3D00DB59C274238D726"
 R3_DLL_SHA256 = "9AC4E365BE55D32AB889E7B7472A1EDA8749B1EB259EA02BA35AB97BE666AF22"
+C7_DLL_SHA256 = "4E1A83683A875EFE6F67116CDD862927BE1ABCB17DB7AE18143E58E98EAD01E7"
 C6_BASELINE_COMMIT = "577072f5b5205c3a0a857c0645d855bb98ec19d2"
 
 sys.path.insert(0, str(ROOT / ".tools" / "keystone"))
@@ -225,6 +226,15 @@ def build_ui_payload(active_payload: bytes) -> tuple[bytes, dict[str, object]]:
             call 0x401C20
             test eax, eax
             je clear_slot
+            cmp dword ptr [eax + 0x10], 0
+            jne attach
+            mov ecx, eax
+            mov edx, dword ptr [ecx]
+            mov edx, dword ptr [edx]
+            push 1
+            call edx
+            jmp clear_slot
+        attach:
             mov dword ptr [esi + 0x74], eax
             push eax
             mov ecx, esi
@@ -256,6 +266,15 @@ def build_ui_payload(active_payload: bytes) -> tuple[bytes, dict[str, object]]:
             call 0x401C20
             test eax, eax
             je cleanup
+            cmp dword ptr [eax + 0x10], 0
+            jne attach
+            mov ecx, eax
+            mov edx, dword ptr [ecx]
+            mov edx, dword ptr [edx]
+            push 1
+            call edx
+            jmp cleanup
+        attach:
             push eax
             mov ecx, esi
             call 0x40C190
@@ -333,8 +352,9 @@ def build_ui_payload(active_payload: bytes) -> tuple[bytes, dict[str, object]]:
         "detail_constructor": {"offset": f"0x{DETAIL_CONSTRUCTOR_OFFSET:X}", "length": len(detail_ctor), "sha256": sha(detail_ctor)},
         "destructor_helper": {"offset": f"0x{TECH_DESTRUCTOR_HELPER_OFFSET:X}", "length": len(helper), "sha256": sha(helper), "va": f"0x{helper_va:X}", "scalar_destructor_flag": 1, "ecx_restore": "mov ecx, ebx", "continuation_va": "0x43E23D", "sub_40C340_call": "0x40C340", "no_wrapper_branch_va": f"0x{helper_jz_target:X}"},
         "runtime_wrapper_contract": {
-            "nonnull": {"attach": True, "tech_slot": "this+0x74"},
-            "null_result": {"attach": False, "tech_slot": None},
+            "nonnull_outer_and_inner": {"attach": True, "tech_slot": "this+0x74"},
+            "null_outer": {"attach": False, "tech_slot": None},
+            "null_inner": {"attach": False, "scalar_destroy_flag": 1, "tech_slot": None},
             "static_asset_contract": {
                 "dimensions": [297, 35],
                 "grid": [3, 1],
@@ -846,18 +866,23 @@ def build_base_payload(active_payload: bytes, page_va: int) -> bytes:
     if tech_menu[command5_guard_index] != 0x73:
         raise RuntimeError("VV4 command-5 dispatch guard opcode mismatch")
     tech_menu[command5_guard_index] = 0x77
-    # The legacy command-5 landing pad still contains a dead call encoding.
-    # Replace that five-byte call with the existing no-op jump so static
-    # inspection cannot mistake it for a reachable Cure dispatch.
-    command5_call_index = 0x3C8
-    command5_call_menu_index = command5_call_index - TECH_MENU_OFFSET
-    if tech_menu[command5_call_menu_index : command5_call_menu_index + 5] != bytes.fromhex("E8C4E82900"):
-        raise RuntimeError("VV4 command-5 legacy call guard mismatch")
-    tech_menu[command5_call_menu_index : command5_call_menu_index + 5] = b"\x90" * 5
+    # Remove every legacy call encoding to the non-executable Cure cave.  The
+    # payload itself remains frozen for later Full Heal/Cure All repair.
+    for call_offset, guard in (
+        (0x3C0, "E8CCE82900"),
+        (0x3C8, "E8C4E82900"),
+        (0x3D2, "E8BAE82900"),
+    ):
+        menu_index = call_offset - TECH_MENU_OFFSET
+        if tech_menu[menu_index : menu_index + 5] != bytes.fromhex(guard):
+            raise RuntimeError(f"VV4 legacy Cure call guard mismatch at 0x{call_offset:X}")
+        tech_menu[menu_index : menu_index + 5] = b"\x90" * 5
     menu_loop_va = PAYLOAD_VA + TECH_MENU_OFFSET + 6
     legacy_va = PAYLOAD_VA + TECH_MENU_OFFSET + legacy_start
     replacement = asm(
         f"""
+            cmp ebx, 5
+            je 0x{menu_loop_va:X}
             cmp ebx, 6
             jb 0x{legacy_va:X}
             cmp ebx, 7
@@ -901,8 +926,8 @@ def main() -> None:
     )
     button_png, asset_map = build_button_asset()
     ui_payload, ui_map = build_ui_payload(bytes(active_payload))
-    if sha(COMPANION.read_bytes()) != R3_DLL_SHA256:
-        raise RuntimeError("R3 companion DLL hash mismatch")
+    if sha(COMPANION.read_bytes()) != C7_DLL_SHA256:
+        raise RuntimeError("C7 companion DLL hash mismatch")
     if ui_map["destructor_helper"]["sha256"] != R3_HELPER_SHA256:
         raise RuntimeError("R3 destructor helper hash mismatch")
     noop_slots: dict[str, bytes] = {}
@@ -933,11 +958,11 @@ def main() -> None:
     base["name"] = "VV4 Origins Full Mastery Extension Base"
     base["enabled"] = False
     base["certification_status"] = (
-        f"disabled pending fresh independent recertification after C6 startup-crash fix; "
+        f"disabled pending fresh independent recertification after C7 ownership and Cure-containment correction; "
         f"R3 commit {R3_COMMIT} is superseded; stock-mode only; Expanded-256 remains ON HOLD/fail-closed"
     )
     base["evidence_status"] = (
-        f"C6 source correction emitted from clean baseline {C6_BASELINE_COMMIT}; "
+        f"C7 ownership and Cure-containment correction emitted from clean baseline {C6_BASELINE_COMMIT}; "
         "fresh independent emitted-byte recertification required before enablement; "
         "stock-mode only; Expanded-256 ON HOLD/fail-closed"
     )
@@ -1074,9 +1099,9 @@ def main() -> None:
             else "DISABLED Candidate: Grant Full Mastery to All Villagers"
         ),
         "enabled": feature_enabled,
-        "certification_status": "disabled pending fresh independent recertification after C6 startup-crash fix; R3 emitted bytes superseded",
+        "certification_status": "disabled pending fresh independent recertification after C7 ownership and Cure-containment correction; R3 emitted bytes superseded",
         "evidence_status": (
-            f"C6 source correction emitted from clean baseline {C6_BASELINE_COMMIT}; fresh independent emitted-byte recertification pending; stock-mode only; Expanded-256 ON HOLD/fail-closed"
+            f"C7 ownership and Cure-containment correction emitted from clean baseline {C6_BASELINE_COMMIT}; fresh independent emitted-byte recertification pending; stock-mode only; Expanded-256 ON HOLD/fail-closed"
         ),
         "explicit_non_changes": [
             "stock executable bytes outside the certified candidate payload",
@@ -1179,10 +1204,10 @@ def main() -> None:
 
     artifact = {
         "acceptance_commit": C6_BASELINE_COMMIT,
-        "candidate_status": "disabled pending fresh independent recertification after C6 startup-crash correction",
+        "candidate_status": "disabled pending fresh independent recertification after C7 ownership and Cure-containment correction",
         "independent_recertification": {
             "review": "R3",
-            "status": "superseded by C6 startup-crash correction; fresh independent recertification required",
+            "status": "superseded by C7 ownership and Cure-containment correction; fresh independent recertification required",
             "commit": R3_COMMIT,
             "scope": "VV4 Full Mastery stock-mode candidate only; Expanded-256 ON HOLD/fail-closed",
             "hashes": {
@@ -1223,7 +1248,7 @@ def main() -> None:
                 "detail_handler_relocated_va": ui_map["detail_handler_relocated"]["va"],
                 "detail_route_patch_offset": "0x48610",
             },
-            "status": "pending fresh independent recertification after C6 startup-crash correction",
+            "status": "pending fresh independent recertification after C7 ownership and Cure-containment correction",
             "recertification_commit": None,
             "scope": "stock-mode only; Expanded-256 remains ON HOLD/fail-closed",
         },
@@ -1323,7 +1348,7 @@ def main() -> None:
         f"- Candidate button path: `{BUTTON_DESTINATION}`; frames: normal, hover, pressed (99x35 each)\n"
         "- Button construction: `sub_401C20`, grid 3x1, local 72,4; Tech event 13 and Detail event 2; parent `sub_40C190`.\n"
         "- Runtime text/style/font helpers and `sub_40D8A0` are absent; the Tech wrapper uses `this+0x74` and paired scalar-destructor cleanup, while Detail uses list-owned `sub_40C300`.\n"
-        "- Runtime wrapper handling performs only the proven null check: nonnull wrappers are attached/stored through the certified ownership paths and null results leave Tech `this+0x74` empty. No wrapper vtable `+0x0C`/`+0x10` calls or runtime dimension comparisons are emitted; 297x35/3x1 validation is static and occurs before output mutation.\n"
+        "- Runtime wrapper handling validates both the outer wrapper and its inner object at `wrapper+0x10`: only complete wrappers are attached/stored, while an incomplete wrapper is scalar-destroyed with flag 1 and Tech `this+0x74` remains empty. No wrapper vtable `+0x0C`/`+0x10` calls or runtime dimension comparisons are emitted; 297x35/3x1 validation is static and occurs before output mutation.\n"
         "- The Tech helper emits exact `8B CB` (`mov ecx, ebx`) after clearing `this+0x74` and before `sub_40C340`; its continuation remains `0x43E23D`.\n"
         + f"- Companion SHA-256: `{artifact['companion']['sha256']}`\n"
         f"- Stock installed slot SHA-256: `{artifact['layouts']['collection_progression']['installed_slot_sha256']}`\n"
@@ -1347,7 +1372,7 @@ def main() -> None:
     for source_path in (BASE_OUT, FEATURE_OUT, MAP_OUT, DOC_OUT, COMPANION, BUTTON_ASSET):
         shutil.copy2(source_path, output_dir / source_path.name)
     checksum_records: dict[str, object] = {
-        "status": "C6 disabled candidate pending fresh independent recertification; Expanded-256 ON HOLD/fail-closed",
+        "status": "C7 disabled candidate pending fresh independent recertification; Expanded-256 ON HOLD/fail-closed",
         "asset": asset_map,
         "source": {"path": str(STOCK.relative_to(ROOT)), "sha256": expected_sha},
         "artifacts": {},
