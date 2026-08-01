@@ -88,6 +88,16 @@ VV4_FULL_MASTERY_D19_HASHES = {
     "cure": "2BB7A32344293DCACB4D0359818C6839AC1FBBAEE8F9E3D00DB59C274238D726",
     "dll": "4E1A83683A875EFE6F67116CDD862927BE1ABCB17DB7AE18143E58E98EAD01E7",
 }
+VV4_FULL_MASTERY_LEGACY_ASSET_KEYS = frozenset({
+    "destination", "path", "png_sha256", "rgba_sha256", "grid",
+    "frame_width", "frame_count", "frame_order", "identical_frames",
+    "format", "source", "crop_xywh", "crop_rgba_sha256",
+})
+VV4_FULL_MASTERY_LEGACY_STATIC_ASSET_KEYS = frozenset({
+    "destination", "path", "png_sha256", "rgba_sha256", "grid",
+    "frame_width", "frame_count", "frame_order", "identical_frames",
+    "format", "source", "crop_xywh", "crop_rgba_sha256",
+})
 VV5_FULL_MASTERY_CANDIDATE_PATHS = {
     "base": ROOT / "data" / "candidates" / "vv5_origins_full_mastery_base_candidate.json",
     "feature": ROOT / "data" / "candidates" / "vv5_full_mastery_all_candidate.json",
@@ -312,6 +322,12 @@ def _certified_vv4_full_mastery_records(
     gate = artifact.get("ui_asset_gate")
     if not isinstance(gate, dict):
         raise PatcherError("VV4 Full Mastery UI asset gate is missing; refusing enablement.")
+    legacy_gate_keys = sorted(VV4_FULL_MASTERY_LEGACY_ASSET_KEYS.intersection(gate))
+    if legacy_gate_keys:
+        raise PatcherError(
+            "VV4 Full Mastery legacy custom-asset metadata is forbidden: "
+            + ", ".join(legacy_gate_keys)
+        )
     if gate.get("status") != "independent metadata recertification GO":
         raise PatcherError(
             "VV4 Full Mastery UI asset gate is not independently recertified; "
@@ -349,6 +365,15 @@ def _certified_vv4_full_mastery_records(
     ):
         raise PatcherError("VV4 Full Mastery runtime dimension accessor calls are forbidden.")
     static_asset = runtime_guard.get("static_asset_contract")
+    if isinstance(static_asset, dict):
+        legacy_static_keys = sorted(
+            VV4_FULL_MASTERY_LEGACY_STATIC_ASSET_KEYS.intersection(static_asset)
+        )
+        if legacy_static_keys:
+            raise PatcherError(
+                "VV4 Full Mastery legacy static custom-asset metadata is forbidden: "
+                + ", ".join(legacy_static_keys)
+            )
     if static_asset != {"ordinal": "0x8C", "asset": "btn_trophies.png", "dimensions": [100, 39], "bounds_half_open": [72, 4, 172, 43], "ownership": "borrowed native cache"}:
         raise PatcherError("VV4 Full Mastery native cached asset contract is invalid.")
     tech_wrapper = gate.get("tech_wrapper")

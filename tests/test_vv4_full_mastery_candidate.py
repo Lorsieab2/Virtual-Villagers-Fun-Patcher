@@ -9,6 +9,7 @@ import tempfile
 import unittest
 from copy import deepcopy
 from pathlib import Path
+from unittest import mock
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -18,12 +19,16 @@ from vv_fun_patcher import (  # noqa: E402
     FunPatch,
     PatcherError,
     _pe_checksum_layout,
+    _certified_vv4_full_mastery_records,
     _remove_feature_bytes,
     _remove_companion_files,
     load_builds,
     load_fun_patches,
     pe_checksum,
     render_patched_bytes,
+    VV4_FULL_MASTERY_CANDIDATE_PATHS,
+    VV4_FULL_MASTERY_LEGACY_ASSET_KEYS,
+    VV4_FULL_MASTERY_LEGACY_STATIC_ASSET_KEYS,
 )
 
 
@@ -133,6 +138,34 @@ class VV4FullMasteryCandidateTests(unittest.TestCase):
         self.assertNotIn("command 6", folded)
         self.assertNotIn("command 8", folded)
         self.assertNotIn("remove state", folded)
+
+    def test_every_legacy_custom_asset_key_fails_closed(self):
+        def assert_rejected(mutated_map):
+            mutated_map["ui_asset_gate"]["status"] = "independent metadata recertification GO"
+            with tempfile.TemporaryDirectory() as folder:
+                root = Path(folder)
+                base = deepcopy(self.base_raw)
+                feature = deepcopy(self.feature_raw)
+                base["enabled"] = True
+                feature["enabled"] = True
+                paths = {"base": root / "base.json", "feature": root / "feature.json", "map": root / "map.json"}
+                paths["base"].write_text(json.dumps(base), encoding="utf-8")
+                paths["feature"].write_text(json.dumps(feature), encoding="utf-8")
+                paths["map"].write_text(json.dumps(mutated_map), encoding="utf-8")
+                with mock.patch.dict(VV4_FULL_MASTERY_CANDIDATE_PATHS, paths, clear=False):
+                    with self.assertRaisesRegex(PatcherError, "legacy .*custom-asset metadata is forbidden"):
+                        _certified_vv4_full_mastery_records({})
+
+        for key in sorted(VV4_FULL_MASTERY_LEGACY_ASSET_KEYS):
+            with self.subTest(level="ui_asset_gate", key=key):
+                mutated = deepcopy(self.map)
+                mutated["ui_asset_gate"][key] = None
+                assert_rejected(mutated)
+        for key in sorted(VV4_FULL_MASTERY_LEGACY_STATIC_ASSET_KEYS):
+            with self.subTest(level="static_asset_contract", key=key):
+                mutated = deepcopy(self.map)
+                mutated["ui_asset_gate"]["runtime_wrapper_contract"]["static_asset_contract"][key] = None
+                assert_rejected(mutated)
 
     def test_catalog_hidden_and_expanded_mode_fail_closed(self):
         vv4_records = {
