@@ -398,6 +398,40 @@ class VV5FullMasteryCandidateTests(unittest.TestCase):
         after = {path: sha(path.read_bytes()) for path in (BASE, FEATURE, MAP, DOC, DLL)}
         self.assertEqual(before, after)
 
+    def test_c37_audit_provenance_names_binary_and_documentation_commits(self):
+        audit = ROOT / "outputs" / "vv5-c37-d40-audit"
+        manifest_path = audit / "artifact-manifest.json"
+        determinism_path = audit / "determinism.json"
+        patch_log_path = audit / "patch-log.json"
+        if not all(path.is_file() for path in (manifest_path, determinism_path, patch_log_path)):
+            self.skipTest("ignored C37 audit bundle is not present")
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+        patch_log = json.loads(patch_log_path.read_text(encoding="utf-8"))
+        determinism = json.loads(determinism_path.read_text(encoding="utf-8"))
+        for record in (manifest, patch_log, determinism):
+            self.assertEqual(
+                record["binary_source_commit"],
+                "2366397a9d01696d0726afddf829c508db3957d4",
+            )
+            self.assertEqual(
+                record["documentation_commit"],
+                "ba6da5e5bb25a4648f52aa8ccffe7d7a9ae801f9",
+            )
+            self.assertNotIn("source_commit", record)
+        self.assertTrue(determinism["two_pass_identical"])
+        self.assertEqual(
+            manifest["companion"]["sha256"],
+            "29927CECB448B64944E18E2BA11893DC84C91B39241FBB2549FC2A464E0BE2ED",
+        )
+        self.assertEqual(
+            manifest["modes"]["collection_progression"]["exe_sha256"],
+            "9180BC6BF371ED797BF1B519BF33AFAF94832642BEB531C10F0AB25E5217BD7F",
+        )
+        self.assertEqual(
+            manifest["modes"]["immediate_fixed"]["exe_sha256"],
+            "86D312E1ED4AB64E1CE559F1AC5D61FD5E35E823D4B86271369F50AF7234172C",
+        )
+
 
 if __name__ == "__main__":
     unittest.main()
