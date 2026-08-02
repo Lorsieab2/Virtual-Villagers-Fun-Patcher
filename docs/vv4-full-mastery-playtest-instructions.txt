@@ -1,0 +1,16 @@
+VV4 Full Mastery UI Playtest 4
+
+Run only the modified `Virtual Villagers - The Tree of Life - Modded.exe` in
+Collection Progression mode. The adjacent stock executable is retained for
+comparison and must not be overwritten.
+
+`Images\btn_upgrades_297x35.png` is candidate/provenance material only; it is
+not a runtime dependency and must not be substituted into the game. Runtime
+uses the native cached ordinal `0x8C` (`btn_trophies.png`).
+
+The legacy Cure row and command 5 are withdrawn, unavailable, unreachable, and
+not part of this playtest. Full Heal/Cure All repair remains pending. Do not
+use Expanded-256, and do not copy, read, or write any saves.
+
+Keep the adjacent patch log, transparency log, and certified hash sheet with
+the playtest folder for inspection.

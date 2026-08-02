@@ -44,6 +44,7 @@ BASE = ROOT / "data" / "candidates" / "vv4_origins_full_mastery_base_candidate.j
 FEATURE = ROOT / "data" / "candidates" / "vv4_full_mastery_all_candidate.json"
 MAP = ROOT / "data" / "candidates" / "vv4_full_mastery_all_candidate_map.json"
 DOC = ROOT / "docs" / "vv4-full-mastery-stage-a-candidate.md"
+PLAYTEST_INSTRUCTIONS = ROOT / "docs" / "vv4-full-mastery-playtest-instructions.txt"
 DLL = ROOT / "data" / "candidates" / "VVFP VV4 Full Mastery Candidate.dll"
 PROVENANCE = ROOT / "assets" / "candidates" / "vv4_full_mastery" / "provenance"
 MODES = (
@@ -128,6 +129,34 @@ class VV4FullMasteryCandidateTests(unittest.TestCase):
         cls.base = FunPatch(cls.base_raw)
         cls.feature = FunPatch(cls.feature_raw)
         cls.build = next(item for item in load_builds() if item.id == "vv4")
+
+    def test_vv4_cure_truth_is_withdrawn_in_manifest_and_transparency(self):
+        active_text = json.dumps(self.base_raw, ensure_ascii=False).casefold()
+        self.assertNotIn("plus cure all villagers for 30,000 tech points", active_text)
+        self.assertNotIn("cure all villagers clears sickness", active_text)
+        for phrase in ("withdrawn", "unavailable", "unreachable", "not part of this playtest"):
+            self.assertIn(phrase, active_text)
+
+        transparency = (ROOT / "docs" / "transparency-log.md").read_text(encoding="utf-8")
+        marker = "#### Enable Origins-Exclusive Features (`vv4_enable_origins_exclusive_features`)"
+        self.assertIn(marker, transparency)
+        vv4_section = transparency.split(marker, 1)[1].split("\n#### ", 1)[0]
+        self.assertNotIn("Plus Cure all Villagers for 30,000 tech points", vv4_section)
+        self.assertNotIn("Cure all Villagers clears sickness", vv4_section)
+        folded = vv4_section.casefold()
+        for phrase in ("withdrawn", "unavailable", "unreachable", "not part of this playtest"):
+            self.assertIn(phrase, folded)
+
+    def test_playtest_instructions_mark_png_as_provenance_only(self):
+        instructions = PLAYTEST_INSTRUCTIONS.read_text(encoding="utf-8")
+        folded = instructions.casefold()
+        self.assertIn(r"images\btn_upgrades_297x35.png", folded)
+        self.assertIn("provenance", folded)
+        self.assertIn("not a runtime dependency", folded)
+        self.assertIn("native cached ordinal `0x8c`", folded)
+        self.assertIn("btn_trophies.png", folded)
+        self.assertIn("withdrawn, unavailable, unreachable", folded)
+        self.assertNotIn("runtime dependency: images\\btn_upgrades_297x35.png", folded)
 
     def test_d33_c28_stock_candidate_is_catalog_visible(self):
         self.assertTrue(self.base_raw["enabled"])
