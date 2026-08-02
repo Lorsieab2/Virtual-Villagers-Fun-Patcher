@@ -87,11 +87,15 @@ class OriginsPlayerRuntimeChecklistTests(unittest.TestCase):
             wide = json.loads((ROOT / "data" / f"vv{game}_origins_village_wide_upgrades.json").read_text(encoding="utf-8"))
             self.assertIn("Tech Point", origins["description"])
             self.assertIn("Food Point", origins["description"])
-            if game == 4:
+            if game in (4, 5):
                 self.assertNotIn("30,000", origins["description"])
                 folded_origins = origins["description"].casefold()
-                for phrase in ("withdrawn", "unavailable", "unreachable", "not part of this playtest"):
+                for phrase in ("withdrawn", "unavailable", "unreachable"):
                     self.assertIn(phrase, folded_origins)
+                self.assertTrue(
+                    "not part of this playtest" in folded_origins
+                    or "not part of this candidate" in folded_origins
+                )
             else:
                 self.assertIn("30,000", origins["description"])
             self.assertIn("1,000,000", wide["description"])

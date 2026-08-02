@@ -675,7 +675,10 @@ def main() -> None:
     cure_item["after"] = (
         cure_jump + b"\x90" * (cure_start - len(cure_jump)) + cure_bytes[cure_start:]
     ).hex().upper()
-    cure_item["purpose"] = "preserve Cure all Villagers without commands 6/7/8 router"
+    cure_item["purpose"] = (
+        "retain the byte-identical withdrawn Cure payload behind the EB5F containment "
+        "gate; command 5 is unavailable and unreachable"
+    )
     payload_item = next(
         item for item in base["patches"] if int(item["offset"], 0) == PAYLOAD_OFFSET
     )

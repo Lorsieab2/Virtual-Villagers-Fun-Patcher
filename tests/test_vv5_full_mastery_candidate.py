@@ -279,7 +279,7 @@ class VV5FullMasteryCandidateTests(unittest.TestCase):
         )
         self.assertEqual(
             frozen["vv5_origins_feature.json"],
-            "ECD75AB44426805F85CCC8FEE6AEA10496671333DF267C44D3BA14DEA6B76436",
+            "9A6635544D8506033D28CA594491C40299242F6D9A24D8B529763C8160FC8566",
         )
 
     def test_exact_current_context_native_calls_and_nonvolatile_frame(self):

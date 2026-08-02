@@ -1008,7 +1008,7 @@ def main() -> None:
         CURE_ENTRY_FILE_OFFSET,
         b"\0" * len(cure_code),
         cure_code,
-        "cure active VV5 villagers without changing health and increment People Cured",
+        "retain the byte-identical withdrawn Cure payload behind the EB5F containment gate; command 5 is unavailable and unreachable, and no Cure behavior is available",
     )
     patch(
         VILLAGE_PREFLIGHT_FILE_OFFSET,
@@ -1107,10 +1107,9 @@ def main() -> None:
             "purchases; each existing owned doubler remains removable at zero cost with zero "
             "refund, and each removed doubler can be repurchased at the full configured price "
             "in stock layout. Expanded-256 keeps both new purchases unavailable while preserving "
-            "owned Remove. Plus "
-            "Cure all Villagers for 30,000 tech points. Cure all Villagers clears sickness "
-            "from eligible active living believer records without changing health and increments People Cured "
-            "once per sickness cleared, then displays the exact result `Cured X villagers`; Heathens are excluded. "
+            "owned Remove. The legacy Cure row and command 5 are withdrawn, unavailable, "
+            "bypassed by the EB5F containment gate, unreachable, and not part of this candidate; "
+            "Full Heal/Cure All repair remains pending. "
             "Villager Upgrades include Grant Youth (floor age 5), six-skill Full "
             "Mastery, Set Age to 18, and Grant Running. Grant Running only adds "
             "the build-specific Running preference ID (proven at table offset "

@@ -116,6 +116,34 @@ class VV5OriginsFeatureTests(unittest.TestCase):
         self.assertIn("not verified safe for Heathens", self.source)
         self.assertIn(b"3 displayed years", self.payload)
 
+    def test_cure_row_truth_is_withdrawn_and_eb5f_contained(self) -> None:
+        description = self.feature["description"].casefold()
+        self.assertIn("legacy cure row and command 5 are withdrawn", description)
+        self.assertIn("bypassed by the eb5f containment gate", description)
+        self.assertIn("unreachable", description)
+        self.assertIn("not part of this candidate", description)
+        self.assertNotIn("cure all villagers for 30,000 tech points", description)
+        self.assertNotIn("cure all villagers clears sickness", description)
+        cure = next(
+            item for item in self.feature["patches"] if int(item["offset"], 0) == 0x94EA0
+        )
+        purpose = cure["purpose"].casefold()
+        self.assertIn("eb5f", purpose)
+        self.assertIn("unavailable", purpose)
+        self.assertIn("unreachable", purpose)
+        self.assertNotIn("preserve cure", purpose)
+
+    def test_generated_vv5_transparency_section_matches_cure_truth(self) -> None:
+        transparency = (ROOT / "docs" / "transparency-log.md").read_text(encoding="utf-8")
+        marker = "#### Enable Origins-Exclusive Features (`vv5_enable_origins_exclusive_features`)"
+        section = transparency.split(marker, 1)[1].split("\n#### ", 1)[0].casefold()
+        self.assertIn("legacy cure row and command 5 are withdrawn", section)
+        self.assertIn("bypassed by the eb5f containment gate", section)
+        self.assertIn("unreachable", section)
+        self.assertNotIn("cure all villagers for 30,000 tech points", section)
+        self.assertNotIn("cure all villagers clears sickness", section)
+        self.assertNotIn("preserve cure", section)
+
     def test_barrel_uses_native_index_and_dynamic_150_256_guard(self) -> None:
         self.assertIn("call 0x4944C0", self.source)
         self.assertIn("mov ecx, dword ptr [0x41F1E6]", self.source)
@@ -420,7 +448,7 @@ class VV5OriginsFeatureTests(unittest.TestCase):
         ).hexdigest().upper()
         self.assertEqual(
             digest,
-            "3D8DC668142C93097FEF2A51653A47F17B79FE847FA212298B51928B5B62C82C",
+            "9D7A1A5F3F87959F0C0DF2E884B09576A633E948CF084845E47120AB3623E117",
         )
         self.assertEqual(
             self.feature["companion_files"][0]["sha256"],
