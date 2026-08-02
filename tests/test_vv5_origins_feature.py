@@ -48,6 +48,18 @@ class VV5OriginsFeatureTests(unittest.TestCase):
             hashlib.sha256(companion.read_bytes()).hexdigest().upper(),
         )
 
+    def test_d37_mockup_provenance_is_self_contained_and_exact(self) -> None:
+        provenance = ROOT / "assets/candidates/vv5_full_mastery/provenance"
+        expected = {
+            "VV5Mockup.jpg": "4EF2DFC0DAE6C733C452CCB4BEA4023C0E2601EEF2396A1A38D75A4DCD57B00F",
+            "VV5Mockup2.jpg": "104B1BE5873B1660EE4BC2E02A886C6EBB99B06CB6F0D723D20638C2B0949144",
+        }
+        for name, digest in expected.items():
+            path = provenance / name
+            self.assertTrue(path.is_file())
+            self.assertEqual(hashlib.sha256(path.read_bytes()).hexdigest().upper(), digest)
+        self.assertEqual(self.feature["provenance"]["vv5_mockups"], expected)
+
     def test_constructor_transports_thiscall_receiver_before_stock_ctor(self) -> None:
         self.assertEqual(
             self.source.count("mov edi, eax\n            mov ecx, edi\n            push 72"),
@@ -119,6 +131,55 @@ class VV5OriginsFeatureTests(unittest.TestCase):
         )
         self.assertEqual(bound["before"], "96000000")
         self.assertEqual(bound["after"], "00010000")
+
+    def test_d37_selector_repair_exact_body_hook_and_guards(self) -> None:
+        selector = self.feature["selector_repair"]
+        self.assertEqual(selector["stock_fingerprint"]["sha256"], "92946781980220E9D1A2E6C573925519934608F5215F4A0F8CE3B90088C5C65D")
+        hook = selector["hook"]
+        self.assertEqual(hook["file_offset"], "0x1890F")
+        self.assertEqual(hook["before"], "8B7484146A64E8")
+        self.assertEqual(hook["after"], "E96C9839009090")
+        self.assertEqual(hook["uninstall_after"], hook["before"])
+        body = selector["body"]
+        expected_body = bytes.fromhex(
+            "8B748414F70588D3510004000000740C832588D35100FBBE1E000000"
+            "6A64E8BD14C5FFE97267C6FF"
+        )
+        self.assertEqual(body["file_offset"], "0xDB180")
+        self.assertEqual(body["virtual_address"], "0x7B2180")
+        self.assertEqual(bytes.fromhex(body["after"]), expected_body)
+        self.assertEqual(bytes.fromhex(body["before"]), b"\0" * 40)
+        self.assertEqual(body["uninstall_after"], body["before"])
+        self.assertEqual(body["sha256"], hashlib.sha256(expected_body).hexdigest().upper())
+        self.assertEqual(self.payload[0x180:0x1A8], expected_body)
+        self.assertEqual(self.payload[0x180:0x1A8].hex().upper(), body["after"])
+        self.assertEqual(selector["native_call_virtual_address"], "0x403660")
+        self.assertEqual(selector["continuation_virtual_address"], "0x41891A")
+        self.assertEqual(selector["forbidden_branch_targets"], ["0x418916", "0x418917", "0x418918", "0x418919"])
+        self.assertEqual(selector["shr_guard"]["header_patch"], {"file_offset": "0x28C", "before": "400000D0", "after": "400000F0"})
+        self.assertTrue(selector["atomic_install_uninstall"])
+        self.assertIn("jmp 0x41891A", self.source)
+        self.assertNotIn("jmp 0x418916", self.source)
+
+        rendered, _ = render_patched_bytes(
+            STOCK,
+            next(item for item in load_builds() if item.id == "vv5"),
+            "collection_progression",
+            [FEATURE_ID],
+        )
+        self.assertEqual(bytes(rendered[0x1890F:0x18916]).hex().upper(), "E96C9839009090")
+        rendered_body = bytes(rendered[0xDB180:0xDB1A8])
+        self.assertEqual(rendered_body, expected_body)
+        call_at = 0xDB180 + expected_body.index(bytes.fromhex("E8BD14C5FF"))
+        call_va = 0x7B2180 + expected_body.index(bytes.fromhex("E8BD14C5FF"))
+        call_target = call_va + 5 + struct.unpack_from("<i", rendered, call_at + 1)[0]
+        self.assertEqual(call_target, 0x403660)
+        jump_at = 0xDB180 + len(expected_body) - 5
+        jump_va = 0x7B2180 + len(expected_body) - 5
+        continuation = jump_va + 5 + struct.unpack_from("<i", rendered, jump_at + 1)[0]
+        self.assertEqual(continuation, 0x41891A)
+        self.assertNotIn(continuation, {0x418916, 0x418917, 0x418918, 0x418919})
+        self.assertNotIn(bytes.fromhex("E96E67C6FF"), rendered_body)
 
     def test_doublers_are_save_scoped_and_encode_candidate_guards(self) -> None:
         self.assertIn("test dword ptr [0x51D388], 1", self.source)
@@ -359,7 +420,7 @@ class VV5OriginsFeatureTests(unittest.TestCase):
         ).hexdigest().upper()
         self.assertEqual(
             digest,
-            "4AB542B3C143B5AEBC2A1A7E90A33AD789906BE03B8B7C6721F4A973470E6ADE",
+            "3D8DC668142C93097FEF2A51653A47F17B79FE847FA212298B51928B5B62C82C",
         )
         self.assertEqual(
             self.feature["companion_files"][0]["sha256"],

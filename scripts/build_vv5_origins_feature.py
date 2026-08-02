@@ -14,6 +14,11 @@ OUT_EXE = OUT_DIR / "Virtual Villagers - New Believers - Origins Research.exe"
 OUT_JSON = OUT_DIR / "vv5-origins-feature-patches.json"
 MANIFEST_JSON = ROOT / "data/vv5_origins_feature.json"
 COMPANION = ROOT / "assets/origins/VVFP Origins Icons.dll"
+VV5_PROVENANCE_DIR = ROOT / "assets/candidates/vv5_full_mastery/provenance"
+VV5_PROVENANCE = {
+    "VV5Mockup.jpg": "4EF2DFC0DAE6C733C452CCB4BEA4023C0E2601EEF2396A1A38D75A4DCD57B00F",
+    "VV5Mockup2.jpg": "104B1BE5873B1660EE4BC2E02A886C6EBB99B06CB6F0D723D20638C2B0949144",
+}
 
 sys.path.insert(0, str(ROOT / ".tools/keystone"))
 sys.path.insert(0, str(ROOT / ".tools/keystone-runtime"))
@@ -35,6 +40,22 @@ VILLAGE_WIDE_ENTRY_VA = IMAGE_BASE + 0x94C40
 VILLAGE_PREFLIGHT_FILE_OFFSET = 0x94B37
 VILLAGE_PREFLIGHT_VA = IMAGE_BASE + VILLAGE_PREFLIGHT_FILE_OFFSET
 RUNNING_PREFERENCE_ID = 38  # exact-build preference-table evidence: 0xAEF60
+
+# D37 VV5 selector repair.  The hook remains the existing seven-byte detour;
+# only the owned body is corrected so both marker branches call the native
+# selector and return after the complete stock call instruction.
+BARREL_SELECTOR_HOOK_FILE_OFFSET = 0x1890F
+BARREL_SELECTOR_HOOK_VA = IMAGE_BASE + BARREL_SELECTOR_HOOK_FILE_OFFSET
+BARREL_SELECTOR_BODY_FILE_OFFSET = PAYLOAD_FILE_OFFSET + 0x180
+BARREL_SELECTOR_BODY_VA = PAYLOAD_VA + 0x180
+BARREL_SELECTOR_HOOK_STOCK = bytes.fromhex("8B7484146A64E8")
+BARREL_SELECTOR_HOOK_REPAIRED = bytes.fromhex("E96C9839009090")
+BARREL_SELECTOR_BODY_STOCK = b"\0" * 0x28
+BARREL_SELECTOR_BODY_REPAIRED = bytes.fromhex(
+    "8B748414F70588D3510004000000740C832588D35100FBBE1E000000"
+    "6A64E8BD14C5FFE97267C6FF"
+)
+BARREL_SELECTOR_BODY_SHA256 = hashlib.sha256(BARREL_SELECTOR_BODY_REPAIRED).hexdigest().upper()
 
 
 def assemble(source: str, address: int) -> bytes:
@@ -64,6 +85,15 @@ def main() -> None:
         raise RuntimeError(f"stock SHA-256 mismatch: expected {expected}, got {actual}")
     if not COMPANION.is_file():
         raise RuntimeError(f"missing companion DLL: {COMPANION}")
+    for name, expected_hash in VV5_PROVENANCE.items():
+        provenance_path = VV5_PROVENANCE_DIR / name
+        if not provenance_path.is_file():
+            raise RuntimeError(f"missing VV5 provenance reference: {provenance_path}")
+        actual_hash = hashlib.sha256(provenance_path.read_bytes()).hexdigest().upper()
+        if actual_hash != expected_hash:
+            raise RuntimeError(
+                f"VV5 provenance hash mismatch for {name}: expected {expected_hash}, got {actual_hash}"
+            )
     if any(original[PAYLOAD_FILE_OFFSET : PAYLOAD_FILE_OFFSET + PAYLOAD_SIZE]):
         raise RuntimeError("VV5 Origins .shr payload region is not stock zero padding")
     OUT_DIR.mkdir(parents=True, exist_ok=True)
@@ -260,13 +290,15 @@ def main() -> None:
     put(
         "barrel_selector",
         """
-            mov esi, dword ptr [esp + eax*4 + 0x96C]
+            mov esi, dword ptr [esp + eax*4 + 0x14]
             test dword ptr [0x51D388], 4
             jz done
             and dword ptr [0x51D388], 0xFFFFFFFB
             mov esi, 30
         done:
-            jmp 0x418916
+            push 100
+            call 0x403660
+            jmp 0x41891A
         """,
     )
     put(
@@ -987,8 +1019,8 @@ def main() -> None:
 
     patch(0x28C, bytes.fromhex("400000D0"), bytes.fromhex("400000F0"),
           "make the stock shared payload section executable")
-    patch(0x1890F, bytes.fromhex("8B7484146A64E8"),
-          rel32_jump(0x41890F, entry["barrel_selector"], 7),
+    patch(BARREL_SELECTOR_HOOK_FILE_OFFSET, BARREL_SELECTOR_HOOK_STOCK,
+          BARREL_SELECTOR_HOOK_REPAIRED,
           "consume the one-shot purchase marker and force native event index 30")
     stock_food_hook = bytes.fromhex("85F67E3456")
     detoured_food_hook = rel32_jump(0x41EB6F, entry["food_increment"])
@@ -1012,6 +1044,11 @@ def main() -> None:
     patch(0x4BC20, bytes.fromhex("83EC18A1A8974D00"),
           rel32_jump(0x44BC20, entry["detail_handler"], 8),
           "route the added Detail control through the villager-upgrade menu")
+    if bytes(payload[0x180:0x1A8]) != BARREL_SELECTOR_BODY_REPAIRED:
+        raise RuntimeError(
+            "D37 VV5 selector body assembly drifted from the exact repaired bytes: "
+            + bytes(payload[0x180:0x1A8]).hex().upper()
+        )
     patch(PAYLOAD_FILE_OFFSET, b"\0" * len(payload), bytes(payload),
           "install the VV5 Origins menus and mechanics in the unused .shr section")
 
@@ -1164,7 +1201,46 @@ def main() -> None:
             "reason": "VV5 native time/event paths are not yet proven to avoid current Heathen record targeting.",
             "evidence_status": "STOP; no charge or native call is made for these rows",
         },
+        "provenance": {"vv5_mockups": VV5_PROVENANCE},
         "patches": patches,
+        "selector_repair": {
+            "status": "candidate-only; base and individual Full Mastery records remain disabled",
+            "stock_fingerprint": {
+                "filename": "Virtual Villagers - New Believers.exe",
+                "size": len(original),
+                "sha256": expected,
+            },
+            "hook": {
+                "file_offset": f"0x{BARREL_SELECTOR_HOOK_FILE_OFFSET:X}",
+                "virtual_address": f"0x{BARREL_SELECTOR_HOOK_VA:X}",
+                "before": BARREL_SELECTOR_HOOK_STOCK.hex().upper(),
+                "after": BARREL_SELECTOR_HOOK_REPAIRED.hex().upper(),
+                "uninstall_after": BARREL_SELECTOR_HOOK_STOCK.hex().upper(),
+                "length": len(BARREL_SELECTOR_HOOK_STOCK),
+            },
+            "body": {
+                "file_offset": f"0x{BARREL_SELECTOR_BODY_FILE_OFFSET:X}",
+                "virtual_address": f"0x{BARREL_SELECTOR_BODY_VA:X}",
+                "before": BARREL_SELECTOR_BODY_STOCK.hex().upper(),
+                "after": BARREL_SELECTOR_BODY_REPAIRED.hex().upper(),
+                "uninstall_after": BARREL_SELECTOR_BODY_STOCK.hex().upper(),
+                "length": len(BARREL_SELECTOR_BODY_REPAIRED),
+                "sha256": BARREL_SELECTOR_BODY_SHA256,
+            },
+            "native_call_virtual_address": "0x403660",
+            "continuation_virtual_address": "0x41891A",
+            "forbidden_branch_targets": ["0x418916", "0x418917", "0x418918", "0x418919"],
+            "shr_guard": {
+                "name": ".shr",
+                "raw_range": "0xDB000..0xDBFFF",
+                "virtual_address": "0x7B2000",
+                "stock_characteristics": "0xD0000040",
+                "candidate_characteristics": "0xF0000040",
+                "header_patch": {"file_offset": "0x28C", "before": "400000D0", "after": "400000F0"},
+                "payload_zero_preimage_required": True,
+            },
+            "atomic_install_uninstall": True,
+        },
         "patch_mode_overrides": patch_mode_overrides,
         "expanded_shr_relocations": {
             "stock_virtual_address": f"0x{PAYLOAD_VA:X}",
