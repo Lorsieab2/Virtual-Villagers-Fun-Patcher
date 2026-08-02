@@ -5,6 +5,7 @@ import json
 import struct
 import subprocess
 import sys
+import tempfile
 import unittest
 from copy import deepcopy
 from pathlib import Path
@@ -12,10 +13,13 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
+sys.path.insert(0, str(ROOT / "scripts"))
 
 from vv_fun_patcher import (  # noqa: E402
     FunPatch,
     PatcherError,
+    VV5_FULL_MASTERY_CERTIFIED_SHA256,
+    _validate_companion_sources,
     _pe_checksum_layout,
     _remove_feature_bytes,
     load_builds,
@@ -23,6 +27,7 @@ from vv_fun_patcher import (  # noqa: E402
     pe_checksum,
     render_patched_bytes,
 )
+from runtime_freeze import isolated_runtime_freeze  # noqa: E402
 
 
 STOCK = ROOT / "research" / "stock-executables" / "Virtual Villagers - New Believers.exe"
@@ -223,6 +228,59 @@ class VV5FullMasteryCandidateTests(unittest.TestCase):
         self.assertNotIn('1006,', isolated)
         self.assertNotIn('1008,', isolated)
         self.assertIn("Time Warp - Advances 3 Villager Years", resources)
+
+    def test_corrected_time_warp_resource_identity_is_exact(self):
+        label = "Time Warp - Advances 3 Villager Years"
+        old_label = "Time Warp - 3 villager years"
+        dll_bytes = DLL.read_bytes()
+        self.assertEqual(dll_bytes.count(label.encode("utf-16le")), 2)
+        self.assertNotIn(old_label.encode("utf-16le"), dll_bytes)
+        resources = (ROOT / "native" / "vv5_full_mastery_candidate" / "vv5_full_mastery_candidate.rc").read_text(encoding="utf-8")
+        self.assertEqual(resources.count(f'LTEXT       "{label}"'), 2)
+        self.assertNotIn(old_label, resources)
+
+    def test_unknown_or_corrupt_companion_fails_closed(self):
+        from copy import deepcopy
+
+        feature = deepcopy(self.base_raw)
+        with tempfile.TemporaryDirectory(dir=ROOT) as temp_dir:
+            temp_path = Path(temp_dir) / "VV5-corrupt.dll"
+            temp_path.write_bytes(b"not the certified VV5 companion")
+            relative = temp_path.relative_to(ROOT).as_posix()
+            feature["companion_files"][0]["source"] = relative
+            feature["companion_files"][0]["sha256"] = VV5_FULL_MASTERY_CERTIFIED_SHA256["dll"]
+            with self.assertRaisesRegex(PatcherError, "Companion file hash mismatch"):
+                _validate_companion_sources([FunPatch(feature)])
+
+        missing = deepcopy(self.base_raw)
+        missing["companion_files"][0]["source"] = "data/candidates/does-not-exist-vv5.dll"
+        with self.assertRaisesRegex(PatcherError, "Required companion file is missing"):
+            _validate_companion_sources([FunPatch(missing)])
+
+    def test_vv5_companion_validator_uses_authoritative_identity(self):
+        self.assertEqual(
+            VV5_FULL_MASTERY_CERTIFIED_SHA256["dll"],
+            "29927CECB448B64944E18E2BA11893DC84C91B39241FBB2549FC2A464E0BE2ED",
+        )
+        self.assertNotEqual(
+            VV5_FULL_MASTERY_CERTIFIED_SHA256["dll"],
+            "BD80B1B0692FE3C0F2293A73CFF707C18198AECA8922355DB2E9EB169E112608",
+        )
+
+    def test_vv5_runtime_freeze_does_not_rewrite_vv3_certified_record(self):
+        frozen = isolated_runtime_freeze(
+            game_id="vv5",
+            map_path=MAP,
+            data_root=ROOT / "data",
+        )
+        self.assertEqual(
+            frozen["vv3_origins_feature.json"],
+            self.map["runtime_freeze"]["vv3_origins_feature.json"],
+        )
+        self.assertEqual(
+            frozen["vv5_origins_feature.json"],
+            "ECD75AB44426805F85CCC8FEE6AEA10496671333DF267C44D3BA14DEA6B76436",
+        )
 
     def test_exact_current_context_native_calls_and_nonvolatile_frame(self):
         slot = bytes.fromhex(self.feature_raw["patches"][0]["after"])

@@ -13,6 +13,7 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / "scripts"))
 sys.path.insert(0, str(ROOT / "src"))
 
 from vv_fun_patcher import (  # noqa: E402
@@ -29,6 +30,7 @@ from vv_fun_patcher import (  # noqa: E402
     render_patched_bytes,
     resolve_fun_patch_ids,
 )
+from runtime_freeze import isolated_runtime_freeze  # noqa: E402
 
 
 PYTHON = Path(sys.executable)
@@ -133,27 +135,15 @@ class VV3RunningCandidateTests(unittest.TestCase):
             hashlib.sha256(stock_payload[0x40:0x40 + 113]).hexdigest().upper(),
             "869AF96EAE3EC16294D5ABE566F74907E589C99B7FB571BA822610B71B99E636",
         )
-        for game in range(1, 6):
-            manifest = json.loads(
-                (ROOT / "data" / f"vv{game}_origins_feature.json").read_text(
-                    encoding="utf-8"
-                )
-            )
-            projection = {
-                key: manifest.get(key)
-                for key in (
-                    "patches",
-                    "patch_mode_overrides",
-                    "expanded_shr_relocations",
-                    "dependencies",
-                )
-            }
-            self.assertEqual(
-                canonical_sha(projection),
-                self.artifact_map["active_runtime_projection"][
-                    f"vv{game}_origins_feature.json"
-                ],
-            )
+        self.assertEqual(
+            isolated_runtime_freeze(
+                game_id="vv3",
+                map_path=MAP_PATH,
+                data_root=ROOT / "data",
+                section="active_runtime_projection",
+            ),
+            self.artifact_map["active_runtime_projection"],
+        )
 
     def test_generator_is_deterministic(self) -> None:
         before = {

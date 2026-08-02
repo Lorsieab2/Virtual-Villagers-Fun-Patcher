@@ -23,6 +23,7 @@ COMPANION = OUT_DIR / "VVFP VV3 Full Mastery Candidate.dll"
 sys.path.insert(0, str(ROOT / ".tools" / "keystone"))
 sys.path.insert(0, str(ROOT / ".tools" / "keystone-runtime"))
 from keystone import KS_ARCH_X86, KS_MODE_32, Ks  # noqa: E402
+from runtime_freeze import isolated_runtime_freeze  # noqa: E402
 
 
 IMAGE_BASE = 0x400000
@@ -901,24 +902,9 @@ def main() -> None:
             ],
             "base_relocations": [],
         },
-        "runtime_freeze": {
-            f"vv{game}_origins_feature.json": canonical_sha(
-                {
-                    key: json.loads(
-                        (ROOT / "data" / f"vv{game}_origins_feature.json").read_text(
-                            encoding="utf-8"
-                        )
-                    ).get(key)
-                    for key in (
-                        "patches",
-                        "patch_mode_overrides",
-                        "expanded_shr_relocations",
-                        "dependencies",
-                    )
-                }
-            )
-            for game in range(1, 6)
-        },
+        "runtime_freeze": isolated_runtime_freeze(
+            game_id="vv3", map_path=MAP_OUT, data_root=ROOT / "data"
+        ),
         "rendered_candidates": renders,
     }
     MAP_OUT.write_text(json.dumps(artifact, indent=2) + "\n", encoding="utf-8")

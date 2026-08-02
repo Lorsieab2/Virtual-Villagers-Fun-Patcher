@@ -23,6 +23,7 @@ COMPANION = OUT_DIR / "VVFP VV5 Full Mastery Candidate.dll"
 sys.path.insert(0, str(ROOT / ".tools" / "keystone"))
 sys.path.insert(0, str(ROOT / ".tools" / "keystone-runtime"))
 from keystone import KS_ARCH_X86, KS_MODE_32, Ks  # noqa: E402
+from runtime_freeze import isolated_runtime_freeze  # noqa: E402
 
 
 IMAGE_BASE = 0x400000
@@ -796,19 +797,43 @@ def main() -> None:
     FEATURE_OUT.write_text(json.dumps(feature, indent=2) + "\n", encoding="utf-8")
 
     sys.path.insert(0, str(ROOT / "src"))
-    from vv_fun_patcher import FunPatch, _pe_checksum_layout, load_builds, load_fun_patches, render_patched_bytes  # noqa: PLC0415
+    from vv_fun_patcher import FunPatch, _pe_checksum_layout, load_builds, render_patched_bytes  # noqa: PLC0415
 
-    build = next(item for item in load_builds() if item.id == "vv5")
-    compatible = [
+    # Build the VV5 compatibility set from VV5-owned manifests only.  The
+    # general catalog loader validates every game's certified map and would
+    # couple an isolated VV5 regeneration to unrelated VV3 drift.
+    build_manifest = json.loads((ROOT / "data" / "builds.json").read_text(encoding="utf-8"))
+    isolated_records = [
         item
-        for item in load_fun_patches()
-        if item.game_id == "vv5"
-        and item.id
+        for item in build_manifest.get("fun_patches", [])
+        if item.get("game_id") == "vv5" and item.get("enabled", True)
+    ]
+    for path in (
+        ROOT / "data" / "vv5_origins_feature.json",
+        ROOT / "data" / "vv5_origins_village_wide_upgrades.json",
+    ):
+        if path.is_file():
+            record = json.loads(path.read_text(encoding="utf-8"))
+            if record.get("enabled", True):
+                isolated_records.append(record)
+    statistics = ROOT / "data" / "statistics_features.json"
+    if statistics.is_file():
+        isolated_records.extend(
+            item
+            for item in json.loads(statistics.read_text(encoding="utf-8")).get("features", [])
+            if item.get("game_id") == "vv5" and item.get("enabled", True)
+        )
+    compatible = [
+        FunPatch(item)
+        for item in isolated_records
+        if item.get("id")
         not in {
             "vv5_enable_origins_exclusive_features",
             "vv5_full_mastery_all_stage_a_candidate",
         }
     ]
+
+    build = next(item for item in load_builds() if item.id == "vv5")
     renders: dict[str, object] = {}
     for mode in LAYOUTS:
         baseline, _ = render_patched_bytes(STOCK, build, mode)
@@ -886,24 +911,9 @@ def main() -> None:
             ],
             "base_relocations": [],
         },
-        "runtime_freeze": {
-            f"vv{game}_origins_feature.json": canonical_sha(
-                {
-                    key: json.loads(
-                        (ROOT / "data" / f"vv{game}_origins_feature.json").read_text(
-                            encoding="utf-8"
-                        )
-                    ).get(key)
-                    for key in (
-                        "patches",
-                        "patch_mode_overrides",
-                        "expanded_shr_relocations",
-                        "dependencies",
-                    )
-                }
-            )
-            for game in range(1, 6)
-        },
+        "runtime_freeze": isolated_runtime_freeze(
+            game_id="vv5", map_path=MAP_OUT, data_root=ROOT / "data"
+        ),
         "rendered_candidates": renders,
     }
     MAP_OUT.write_text(json.dumps(artifact, indent=2) + "\n", encoding="utf-8")
