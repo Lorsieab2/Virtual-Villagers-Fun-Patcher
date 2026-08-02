@@ -1,7 +1,7 @@
 {
-  "section_sha256": "61309068E7EDDE7B8D232F73A564594B3E2C6BA1B640E9F57D5DFB99753A4F7A",
-  "entry_sha256": "88ECD0A49594A1992660A05DD54D1A644BFA4C55D660DC5E9A4823452227678A",
-  "walker_sha256": "F6BDB318C806E3F3175A089AB2CD3649769EF42E49641D48CABA24717CD0F168",
+  "section_sha256": "F22FAC733228D1572640531C9D25A61BE0FBFF0F7C999702CB4067D5CF6BA16E",
+  "entry_sha256": "DB742B8C696A5D197D4985E49DE636C4E3E584BBC1B7E65132611E2FC4B42A31",
+  "walker_sha256": "EFE892B7B8735781792F11406930B7D795FBB7838FF4057EF92C2349F87841CE",
   "confirmation_sha256": "39FBB3CA5B2C32C5566EA918C249D77718F2872AF871511EA23147C48AE6E779",
   "menu_resolver_sha256": "66A089D58C80B15DD4BB47DAC3B3ABC1DD5CF8969B9863D90BD084B462496C98",
   "result_resolver_sha256": "2945F92280B7A6E59E6F0B91F25A1FBD3C1D49789460D4C4CC094DCE873FA8E8",
@@ -123,27 +123,33 @@
   },
   "command_abi": {
     "entry": "stock thiscall Tech-screen receiver arrives in ECX; entry saves old ESI, transports ECX to ESI, and restores old ESI on exit",
-    "walker": "cdecl(pool,bound,mode); mode0 dry-run, mode1 native commit, mode2 exact-100 verify; EAX changed, EDX 1=invalid/2=verify-failed; preserves EBX/ESI/EDI/EBP",
+    "walker": "cdecl(pool,bound,mode); mode0 dry-run, mode1 native commit plus exact-100 verify; EAX changed, EDX 1=invalid/2=verify-failed; no fourth entry walk; preserves EBX/ESI/EDI/EBP",
     "result": "stdcall(status,changed,retained_export); ret 12; retained export itself is stdcall(status,changed), ret 8"
   },
   "modes": [
     "collection_progression",
-    "immediate_fixed",
+    "immediate_fixed"
+  ],
+  "allowed_modes": [
+    "collection_progression",
+    "immediate_fixed"
+  ],
+  "rejected_modes": [
     "experimental_expanded_256",
     "experimental_expanded_256_progression"
   ],
   "rendered_candidates": {
     "collection_progression": {
       "baseline_sha256": "0F54C22C531FCE276EFBF5F0B4418C48B66CE314AA21872A9B2C5D459232EC7A",
-      "candidate_sha256": "E11E79DF4E6FC0B6C979F0D6AD0BA9ADC971FDBCEF015BEE70AD9586B0D14280",
+      "candidate_sha256": "A660B39DC3155F584DF7F8857243163606F6079AC4E8A61B5D0C5940129961A8",
       "size": 589824,
-      "pe_checksum": "0x00090B5B",
+      "pe_checksum": "0x00094698",
       "owners": [
         "automatic:population",
         "automatic:safety",
         "feature:vv1_full_mastery_all_stage_a_candidate"
       ],
-      "all_current_vv1_sha256": "2BB91399C55DEFF6104B8F2E6E7A0539266678D3903174637550B0B0D670F197",
+      "all_current_vv1_sha256": "EE2B6AD78FCA1FD3D24981F80A834C35AEFC0DCC430BFB482D87232AA2D36C73",
       "all_current_vv1_owners": [
         "automatic:population",
         "automatic:safety",
@@ -160,65 +166,15 @@
     },
     "immediate_fixed": {
       "baseline_sha256": "0F54C22C531FCE276EFBF5F0B4418C48B66CE314AA21872A9B2C5D459232EC7A",
-      "candidate_sha256": "E11E79DF4E6FC0B6C979F0D6AD0BA9ADC971FDBCEF015BEE70AD9586B0D14280",
+      "candidate_sha256": "A660B39DC3155F584DF7F8857243163606F6079AC4E8A61B5D0C5940129961A8",
       "size": 589824,
-      "pe_checksum": "0x00090B5B",
+      "pe_checksum": "0x00094698",
       "owners": [
         "automatic:population",
         "automatic:safety",
         "feature:vv1_full_mastery_all_stage_a_candidate"
       ],
-      "all_current_vv1_sha256": "2BB91399C55DEFF6104B8F2E6E7A0539266678D3903174637550B0B0D670F197",
-      "all_current_vv1_owners": [
-        "automatic:population",
-        "automatic:safety",
-        "feature:vv1_builder_action_fixes",
-        "feature:vv1_continue_research_at_max_technologies",
-        "feature:vv1_f6_clothing_change_cheat",
-        "feature:vv1_full_mastery_all_stage_a_candidate",
-        "feature:vv1_magic_fruit_alters_mortality",
-        "feature:vv1_school_lessons_grant_skill",
-        "feature:vv1_write_village_statistics"
-      ],
-      "collision_status": "PASS",
-      "uninstall_target_sha256": "0F54C22C531FCE276EFBF5F0B4418C48B66CE314AA21872A9B2C5D459232EC7A"
-    },
-    "experimental_expanded_256": {
-      "baseline_sha256": "0F54C22C531FCE276EFBF5F0B4418C48B66CE314AA21872A9B2C5D459232EC7A",
-      "candidate_sha256": "E11E79DF4E6FC0B6C979F0D6AD0BA9ADC971FDBCEF015BEE70AD9586B0D14280",
-      "size": 589824,
-      "pe_checksum": "0x00090B5B",
-      "owners": [
-        "automatic:population",
-        "automatic:safety",
-        "feature:vv1_full_mastery_all_stage_a_candidate"
-      ],
-      "all_current_vv1_sha256": "2BB91399C55DEFF6104B8F2E6E7A0539266678D3903174637550B0B0D670F197",
-      "all_current_vv1_owners": [
-        "automatic:population",
-        "automatic:safety",
-        "feature:vv1_builder_action_fixes",
-        "feature:vv1_continue_research_at_max_technologies",
-        "feature:vv1_f6_clothing_change_cheat",
-        "feature:vv1_full_mastery_all_stage_a_candidate",
-        "feature:vv1_magic_fruit_alters_mortality",
-        "feature:vv1_school_lessons_grant_skill",
-        "feature:vv1_write_village_statistics"
-      ],
-      "collision_status": "PASS",
-      "uninstall_target_sha256": "0F54C22C531FCE276EFBF5F0B4418C48B66CE314AA21872A9B2C5D459232EC7A"
-    },
-    "experimental_expanded_256_progression": {
-      "baseline_sha256": "0F54C22C531FCE276EFBF5F0B4418C48B66CE314AA21872A9B2C5D459232EC7A",
-      "candidate_sha256": "E11E79DF4E6FC0B6C979F0D6AD0BA9ADC971FDBCEF015BEE70AD9586B0D14280",
-      "size": 589824,
-      "pe_checksum": "0x00090B5B",
-      "owners": [
-        "automatic:population",
-        "automatic:safety",
-        "feature:vv1_full_mastery_all_stage_a_candidate"
-      ],
-      "all_current_vv1_sha256": "2BB91399C55DEFF6104B8F2E6E7A0539266678D3903174637550B0B0D670F197",
+      "all_current_vv1_sha256": "EE2B6AD78FCA1FD3D24981F80A834C35AEFC0DCC430BFB482D87232AA2D36C73",
       "all_current_vv1_owners": [
         "automatic:population",
         "automatic:safety",

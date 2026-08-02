@@ -34,6 +34,8 @@ DLL = ROOT / "data" / "candidates" / "VVFP VV1 Full Mastery Candidate.dll"
 MODES = (
     "collection_progression",
     "immediate_fixed",
+)
+REJECTED_MODES = (
     "experimental_expanded_256",
     "experimental_expanded_256_progression",
 )
@@ -75,7 +77,7 @@ def semantic_walk(
 
 
 def semantic_verify(records: list[dict[str, object]]) -> bool:
-    """Model the emitted mode-2 exact-100 post-write verification."""
+    """Model mode-1's internal exact-100 post-write verification."""
     for record in records:
         if (
             not record["occupied"]
@@ -103,13 +105,13 @@ def transaction(
 ) -> tuple[str, int, list[tuple[int, int, int]]]:
     if not result_export_available:
         return "unavailable", balance, []
-    if balance < 1_000_000:
-        return "insufficient", balance, []
     changed, invalid, _ = semantic_walk(records, False)
     if invalid:
         return "invalid", balance, []
     if changed == 0:
         return "no_change", balance, []
+    if balance < 1_000_000:
+        return "insufficient", balance, []
     if confirm != 1:
         return "cancel", balance, []
     if mutate_before_final:
@@ -219,15 +221,44 @@ class VV1FullMasteryCandidateTests(unittest.TestCase):
             },
         )
         self.assertIn("post_verify", self.raw["transaction_contract"])
-        self.assertIn("mode2", self.map["command_abi"]["walker"])
+        self.assertNotIn("mode2", self.map["command_abi"]["walker"])
+        self.assertEqual(self.map["modes"], list(MODES))
+        self.assertEqual(self.map["rejected_modes"], list(REJECTED_MODES))
         page = bytes.fromhex(
             self.raw["pe_append_transaction"]["layouts"]["collection_progression"]["append_bytes"]
         )
         entry_offset = int(self.map["offsets"]["entry"], 0)
         walker_offset = int(self.map["offsets"]["walker"], 0)
         entry = page[entry_offset:walker_offset]
-        self.assertIn(bytes.fromhex("6A02"), entry)
         self.assertIn(bytes.fromhex("6A04"), entry)
+        walker_va = 0x490000 + walker_offset
+        calls = []
+        for index, value in enumerate(entry[:-4]):
+            if value != 0xE8:
+                continue
+            displacement = struct.unpack_from("<i", entry, index + 1)[0]
+            target = 0x490000 + entry_offset + index + 5 + displacement
+            if target == walker_va:
+                calls.append(index)
+        self.assertEqual(len(calls), 3)
+
+    def test_expanded_modes_reject_before_output(self) -> None:
+        self.assertEqual(
+            set(self.raw["pe_append_transaction"]["layouts"]), set(MODES)
+        )
+        before = {path: sha(path.read_bytes()) for path in (MANIFEST, MAP, DOC, DLL)}
+        for mode in REJECTED_MODES:
+            with self.subTest(mode=mode):
+                result = subprocess.run(
+                    [sys.executable, str(GENERATOR), mode],
+                    cwd=ROOT,
+                    capture_output=True,
+                    text=True,
+                )
+                self.assertNotEqual(result.returncode, 0)
+                self.assertIn("rejects Expanded-256 mode", result.stderr)
+        after = {path: sha(path.read_bytes()) for path in (MANIFEST, MAP, DOC, DLL)}
+        self.assertEqual(before, after)
 
     def test_walker_domain_exclusions_bound_and_writer_order(self) -> None:
         excluded = [
@@ -268,6 +299,7 @@ class VV1FullMasteryCandidateTests(unittest.TestCase):
             self.assertEqual(transaction(deepcopy(base), 1_000_000, answer), ("cancel", 1_000_000, []))
         mastered = deepcopy(base)
         mastered[0]["skills"] = {name: 100 for name in SKILLS}
+        self.assertEqual(transaction(mastered, 0, 1), ("no_change", 0, []))
         self.assertEqual(transaction(mastered, 1_000_000, 1), ("no_change", 1_000_000, []))
 
         def finish(records):

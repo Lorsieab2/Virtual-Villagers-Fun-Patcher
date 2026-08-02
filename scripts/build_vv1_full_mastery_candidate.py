@@ -45,9 +45,20 @@ STRIDE = 0x3D8
 MODES = (
     "collection_progression",
     "immediate_fixed",
+)
+REJECTED_MODES = (
     "experimental_expanded_256",
     "experimental_expanded_256_progression",
 )
+
+
+def require_supported_mode(mode: str) -> None:
+    if mode in REJECTED_MODES:
+        raise RuntimeError(
+            f"VV1 Full Mastery candidate rejects Expanded-256 mode before output: {mode}"
+        )
+    if mode not in MODES:
+        raise RuntimeError(f"unsupported VV1 Full Mastery candidate mode: {mode}")
 
 
 def asm(source: str, address: int) -> bytes:
@@ -265,13 +276,6 @@ def build_section() -> tuple[bytes, dict[str, object]]:
             mov edx, dword ptr [edi + 0xADE8]
             test edx, edx
             jz invalid
-            mov edi, dword ptr [esi + 0x0C]
-            lea edx, [edi + 0xA2FC]
-            cmp dword ptr [edx], {PRICE}
-            jb insufficient
-            mov edx, dword ptr [edi + 0xADE8]
-            test edx, edx
-            jz invalid
             push 0
             push {BOUND}
             push edx
@@ -281,6 +285,12 @@ def build_section() -> tuple[bytes, dict[str, object]]:
             je invalid
             test eax, eax
             jz no_change
+            mov edi, dword ptr [esi + 0x0C]
+            test edi, edi
+            jz invalid
+            lea edx, [edi + 0xA2FC]
+            cmp dword ptr [edx], {PRICE}
+            jb insufficient
             call 0x{confirm_va:X}
             cmp eax, 1
             jne done
@@ -317,21 +327,6 @@ def build_section() -> tuple[bytes, dict[str, object]]:
             call 0x{walker_va:X}
             add esp, 12
             mov ebx, eax
-            cmp edx, 1
-            je invalid
-            cmp edx, 2
-            je post_verify_failure
-            mov edi, dword ptr [esi + 0x0C]
-            test edi, edi
-            jz post_verify_failure
-            mov edx, dword ptr [edi + 0xADE8]
-            test edx, edx
-            jz post_verify_failure
-            push 2
-            push {BOUND}
-            push edx
-            call 0x{walker_va:X}
-            add esp, 12
             cmp edx, 1
             je invalid
             cmp edx, 2
@@ -384,10 +379,10 @@ def build_section() -> tuple[bytes, dict[str, object]]:
     )
     _put(section, ENTRY_OFFSET, entry, "transaction entry")
 
-    # cdecl walker(base, bound, mode); EAX=changed count, EDX=1 on invalid
-    # eligible data, EDX=2 when post-write exact-100 verification fails.
-    # mode 0 is read-only; mode 1 calls the native writer; mode 2 verifies
-    # every eligible skill is exactly 100 without writing.
+    # cdecl walker(pool, bound, mode); EAX=changed count, EDX=1 on invalid
+    # eligible data, EDX=2 when mode-1 post-write exact-100 verification fails.
+    # mode 0 is read-only; mode 1 calls the native writer and verifies each
+    # changed record before returning. There is no mode 2 entry path.
     walker = asm(
         f"""
             push ebp
@@ -433,8 +428,6 @@ def build_section() -> tuple[bytes, dict[str, object]]:
             inc dword ptr [esp]
             cmp dword ptr [esp + 4], 0
             jz advance
-            cmp dword ptr [esp + 4], 2
-            jz verify_failed
             cmp dword ptr [esi + 0x3BC], 100
             je s2
             mov edi, 100
@@ -476,7 +469,7 @@ def build_section() -> tuple[bytes, dict[str, object]]:
             call 0x437230
         s5:
             cmp dword ptr [esi + 0x3CC], 100
-            je advance
+            je verify_record
             mov edi, 100
             sub edi, dword ptr [esi + 0x3CC]
             push edi
@@ -484,6 +477,18 @@ def build_section() -> tuple[bytes, dict[str, object]]:
             push ebx
             mov ecx, dword ptr [ebp + 8]
             call 0x437230
+        verify_record:
+            cmp dword ptr [esi + 0x3BC], 100
+            jne verify_failed
+            cmp dword ptr [esi + 0x3C0], 100
+            jne verify_failed
+            cmp dword ptr [esi + 0x3C4], 100
+            jne verify_failed
+            cmp dword ptr [esi + 0x3C8], 100
+            jne verify_failed
+            cmp dword ptr [esi + 0x3CC], 100
+            jne verify_failed
+            jmp advance
         advance:
             add esi, {STRIDE}
             inc ebx
@@ -742,7 +747,7 @@ def build() -> tuple[dict[str, object], dict[str, object]]:
             "target": 100,
             "native_writer": "sub_437230 once for each valid below-100 skill",
             "pool_transport": "state=[Tech+0x0C], pool=[state+0xADE8]; null is fail-closed",
-            "post_verify": "mode 2 requires every eligible skill exactly Float32 100 before deduction",
+            "post_verify": "mode 1 verifies every changed record's five skills exactly Float32 100 before deduction",
             "rollback_limit": "partial native writes may remain after interruption or failed post-verification; no charge is made",
         },
     }
@@ -822,16 +827,21 @@ def build() -> tuple[dict[str, object], dict[str, object]]:
             },
             "command_abi": {
                 "entry": "stock thiscall Tech-screen receiver arrives in ECX; entry saves old ESI, transports ECX to ESI, and restores old ESI on exit",
-                "walker": "cdecl(pool,bound,mode); mode0 dry-run, mode1 native commit, mode2 exact-100 verify; EAX changed, EDX 1=invalid/2=verify-failed; preserves EBX/ESI/EDI/EBP",
+                "walker": "cdecl(pool,bound,mode); mode0 dry-run, mode1 native commit plus exact-100 verify; EAX changed, EDX 1=invalid/2=verify-failed; no fourth entry walk; preserves EBX/ESI/EDI/EBP",
                 "result": "stdcall(status,changed,retained_export); ret 12; retained export itself is stdcall(status,changed), ret 8",
             },
             "modes": list(MODES),
+            "allowed_modes": list(MODES),
+            "rejected_modes": list(REJECTED_MODES),
         }
     )
     return manifest, artifact
 
 
 def main() -> None:
+    requested_modes = tuple(sys.argv[1:]) or MODES
+    for mode in requested_modes:
+        require_supported_mode(mode)
     manifest, artifact = build()
     from vv_fun_patcher import FunPatch, load_builds, load_fun_patches, render_patched_bytes
 
@@ -844,7 +854,7 @@ def main() -> None:
         and item.id not in {manifest["id"], "vv1_enable_origins_exclusive_features"}
     ]
     rendered: dict[str, object] = {}
-    for mode in MODES:
+    for mode in requested_modes:
         baseline, _ = render_patched_bytes(STOCK, build_record, mode)
         image, applied = render_patched_bytes(
             STOCK,
@@ -893,10 +903,14 @@ def main() -> None:
         "validated before any charge or native writer call, then retained through "
         "commit. The physical pool is reacquired from `state=[Tech+0x0C]` and "
         "`pool=[state+0xADE8]` with null fail-closed guards, preserving 256 "
-        "records at stride `0x3D8`. Native writes are followed by an exact-100 "
-        "verification pass before the single 1,000,000-point deduction; a "
+        "records at stride `0x3D8`. A complete mode-0 dry run and no-change test "
+        "precede the unsigned funds check and explicit 1,000,000-point confirmation. "
+        "Mode 1 performs native writes and an internal exact-100 verification pass "
+        "before the single deduction; there is no mode-2 entry walk. A "
         "process interruption or failed verification cannot safely roll back "
-        "partial native writes, so no charge is made. The raw manifest and "
+        "partial native writes, so no charge is made. Collection Progression and "
+        "Immediate Fixed are the only allowed modes; Expanded-256 is rejected "
+        "before output creation. The raw manifest and "
         "complete map are under `data/candidates/`.\n",
         encoding="utf-8",
     )
