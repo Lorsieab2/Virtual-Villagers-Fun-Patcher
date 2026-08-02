@@ -1,7 +1,7 @@
 {
-  "section_sha256": "F22FAC733228D1572640531C9D25A61BE0FBFF0F7C999702CB4067D5CF6BA16E",
+  "section_sha256": "85DE335D905D0AF99FBDD0388A004D69C393AA7C0771DFB36B15A4A94062BA92",
   "entry_sha256": "DB742B8C696A5D197D4985E49DE636C4E3E584BBC1B7E65132611E2FC4B42A31",
-  "walker_sha256": "EFE892B7B8735781792F11406930B7D795FBB7838FF4057EF92C2349F87841CE",
+  "walker_sha256": "948C1B9E968FB5A8F957E33F6C344A1FF0DC25805BB97DB2D959129A4E2B8C9E",
   "confirmation_sha256": "39FBB3CA5B2C32C5566EA918C249D77718F2872AF871511EA23147C48AE6E779",
   "menu_resolver_sha256": "66A089D58C80B15DD4BB47DAC3B3ABC1DD5CF8969B9863D90BD084B462496C98",
   "result_resolver_sha256": "2945F92280B7A6E59E6F0B91F25A1FBD3C1D49789460D4C4CC094DCE873FA8E8",
@@ -53,7 +53,30 @@
     "bound": 256,
     "stride": "0x3D8"
   },
+  "post_verify_pass": {
+    "mode": 1,
+    "scope": "complete second read-only pass over all 256 records after the entire native-write pass",
+    "reacquire": "reload [EBP+8] and reset physical index to zero",
+    "eligibility": "same occupied/health/special guards as the first pass",
+    "value_validation": "same five-skill range checks, then every eligible skill must equal exact Float32 100",
+    "failure": "EDX=2 on any invalid or non-100 eligible record; EDX=0 only after the full pass"
+  },
   "rollback_limit": "Native skill writes are not rolled back if the process is interrupted or post-write verification fails; no deduction is made on failure.",
+  "composition_audit": {
+    "base_identity": "active Origins/Cure feature vv1_enable_origins_exclusive_features",
+    "combined_identity": "active Origins/Cure bytes plus the candidate .vv1fm append and guarded Full Mastery hook bytes",
+    "uninstall_identity": "remove only the candidate .vv1fm append/header/hooks and restore the active Origins/Cure bytes",
+    "proof": "combined uninstall must equal the active Origins/Cure base byte-for-byte",
+    "shared_hook_policy": "ordinary catalog composition remains collision-fail-closed; the recertification bundle uses an explicit guarded audit composition only",
+    "bundle_output": "outputs/vv1-full-mastery-c71-recert",
+    "identity_files": [
+      "active-origins-cure-base/Virtual Villagers - A New Home - Active Origins.exe",
+      "combined-origins-cure-full-mastery/Virtual Villagers - A New Home - Full Mastery.exe",
+      "uninstalled-full-mastery/Virtual Villagers - A New Home - Active Origins.exe",
+      "composition-proof.json"
+    ],
+    "candidate_enabled": false
+  },
   "base_relocations": [],
   "acceptance_commit": "1b3e4565d4168457c00404a12ed30cfb777c86e9",
   "semantic_commit": "b328c1b1c76f68ade762ec139ee6c2e08ce54a96",
@@ -123,7 +146,7 @@
   },
   "command_abi": {
     "entry": "stock thiscall Tech-screen receiver arrives in ECX; entry saves old ESI, transports ECX to ESI, and restores old ESI on exit",
-    "walker": "cdecl(pool,bound,mode); mode0 dry-run, mode1 native commit plus exact-100 verify; EAX changed, EDX 1=invalid/2=verify-failed; no fourth entry walk; preserves EBX/ESI/EDI/EBP",
+    "walker": "cdecl(pool,bound,mode); mode0 dry-run, mode1 native commit followed by a complete second 256-record read-only exact-100 pass; EAX changed, EDX 1=first-pass invalid/2=second-pass mismatch; no fourth entry walk; preserves EBX/ESI/EDI/EBP",
     "result": "stdcall(status,changed,retained_export); ret 12; retained export itself is stdcall(status,changed), ret 8"
   },
   "modes": [
@@ -141,15 +164,15 @@
   "rendered_candidates": {
     "collection_progression": {
       "baseline_sha256": "0F54C22C531FCE276EFBF5F0B4418C48B66CE314AA21872A9B2C5D459232EC7A",
-      "candidate_sha256": "A660B39DC3155F584DF7F8857243163606F6079AC4E8A61B5D0C5940129961A8",
+      "candidate_sha256": "3DB0D70ED5512D6A38765AA71B90DE4D9C3BD5BE30CD528C17A351413B28D06F",
       "size": 589824,
-      "pe_checksum": "0x00094698",
+      "pe_checksum": "0x0009D3FD",
       "owners": [
         "automatic:population",
         "automatic:safety",
         "feature:vv1_full_mastery_all_stage_a_candidate"
       ],
-      "all_current_vv1_sha256": "EE2B6AD78FCA1FD3D24981F80A834C35AEFC0DCC430BFB482D87232AA2D36C73",
+      "all_current_vv1_sha256": "473F7234B84A7A8560F757962F2DB17CA45E25813F0E6314F2F3E646233D1706",
       "all_current_vv1_owners": [
         "automatic:population",
         "automatic:safety",
@@ -166,15 +189,15 @@
     },
     "immediate_fixed": {
       "baseline_sha256": "0F54C22C531FCE276EFBF5F0B4418C48B66CE314AA21872A9B2C5D459232EC7A",
-      "candidate_sha256": "A660B39DC3155F584DF7F8857243163606F6079AC4E8A61B5D0C5940129961A8",
+      "candidate_sha256": "3DB0D70ED5512D6A38765AA71B90DE4D9C3BD5BE30CD528C17A351413B28D06F",
       "size": 589824,
-      "pe_checksum": "0x00094698",
+      "pe_checksum": "0x0009D3FD",
       "owners": [
         "automatic:population",
         "automatic:safety",
         "feature:vv1_full_mastery_all_stage_a_candidate"
       ],
-      "all_current_vv1_sha256": "EE2B6AD78FCA1FD3D24981F80A834C35AEFC0DCC430BFB482D87232AA2D36C73",
+      "all_current_vv1_sha256": "473F7234B84A7A8560F757962F2DB17CA45E25813F0E6314F2F3E646233D1706",
       "all_current_vv1_owners": [
         "automatic:population",
         "automatic:safety",

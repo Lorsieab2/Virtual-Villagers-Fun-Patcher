@@ -380,9 +380,10 @@ def build_section() -> tuple[bytes, dict[str, object]]:
     _put(section, ENTRY_OFFSET, entry, "transaction entry")
 
     # cdecl walker(pool, bound, mode); EAX=changed count, EDX=1 on invalid
-    # eligible data, EDX=2 when mode-1 post-write exact-100 verification fails.
-    # mode 0 is read-only; mode 1 calls the native writer and verifies each
-    # changed record before returning. There is no mode 2 entry path.
+    # eligible data, EDX=2 when mode-1's complete second read-only pass finds
+    # any eligible record that is not exactly 100 in all five skills. Mode 0
+    # is read-only; mode 1 writes during the first pass and then reacquires
+    # the pool for a complete second pass. There is no mode 2 entry path.
     walker = asm(
         f"""
             push ebp
@@ -399,11 +400,11 @@ def build_section() -> tuple[bytes, dict[str, object]]:
             cmp ebx, dword ptr [ebp + 12]
             jae walk_done
             cmp byte ptr [esi + 0x28], 0
-            je advance
+            je first_advance
             cmp dword ptr [esi + 0x344], 0
-            jle advance
+            jle first_advance
             cmp dword ptr [esi + 0x36C], 199
-            je advance
+            je first_advance
             mov edi, 5
             lea edx, [esi + 0x3BC]
         validate:
@@ -423,11 +424,11 @@ def build_section() -> tuple[bytes, dict[str, object]]:
             cmp dword ptr [esi + 0x3C8], 100
             jl changed
             cmp dword ptr [esi + 0x3CC], 100
-            jge advance
+            jge first_advance
         changed:
             inc dword ptr [esp]
             cmp dword ptr [esp + 4], 0
-            jz advance
+            jz first_advance
             cmp dword ptr [esi + 0x3BC], 100
             je s2
             mov edi, 100
@@ -469,7 +470,7 @@ def build_section() -> tuple[bytes, dict[str, object]]:
             call 0x437230
         s5:
             cmp dword ptr [esi + 0x3CC], 100
-            je verify_record
+            je first_advance
             mov edi, 100
             sub edi, dword ptr [esi + 0x3CC]
             push edi
@@ -477,19 +478,7 @@ def build_section() -> tuple[bytes, dict[str, object]]:
             push ebx
             mov ecx, dword ptr [ebp + 8]
             call 0x437230
-        verify_record:
-            cmp dword ptr [esi + 0x3BC], 100
-            jne verify_failed
-            cmp dword ptr [esi + 0x3C0], 100
-            jne verify_failed
-            cmp dword ptr [esi + 0x3C4], 100
-            jne verify_failed
-            cmp dword ptr [esi + 0x3C8], 100
-            jne verify_failed
-            cmp dword ptr [esi + 0x3CC], 100
-            jne verify_failed
-            jmp advance
-        advance:
+        first_advance:
             add esi, {STRIDE}
             inc ebx
             jmp next
@@ -504,6 +493,44 @@ def build_section() -> tuple[bytes, dict[str, object]]:
             mov edx, 2
             jmp walker_exit
         walk_done:
+            cmp dword ptr [esp + 4], 0
+            je walk_success
+            mov esi, dword ptr [ebp + 8]
+            xor ebx, ebx
+        verify_next:
+            cmp ebx, dword ptr [ebp + 12]
+            jae walk_success
+            cmp byte ptr [esi + 0x28], 0
+            je verify_advance
+            cmp dword ptr [esi + 0x344], 0
+            jle verify_advance
+            cmp dword ptr [esi + 0x36C], 199
+            je verify_advance
+            mov edi, 5
+            lea edx, [esi + 0x3BC]
+        verify_values:
+            cmp dword ptr [edx], 0
+            jl verify_failed
+            cmp dword ptr [edx], 100
+            jg verify_failed
+            add edx, 4
+            dec edi
+            jne verify_values
+            cmp dword ptr [esi + 0x3BC], 100
+            jne verify_failed
+            cmp dword ptr [esi + 0x3C0], 100
+            jne verify_failed
+            cmp dword ptr [esi + 0x3C4], 100
+            jne verify_failed
+            cmp dword ptr [esi + 0x3C8], 100
+            jne verify_failed
+            cmp dword ptr [esi + 0x3CC], 100
+            jne verify_failed
+        verify_advance:
+            add esi, {STRIDE}
+            inc ebx
+            jmp verify_next
+        walk_success:
             mov eax, dword ptr [esp]
             add esp, 8
             xor edx, edx
@@ -644,10 +671,33 @@ def build_section() -> tuple[bytes, dict[str, object]]:
             "bound": BOUND,
             "stride": f"0x{STRIDE:X}",
         },
+        "post_verify_pass": {
+            "mode": 1,
+            "scope": "complete second read-only pass over all 256 records after the entire native-write pass",
+            "reacquire": "reload [EBP+8] and reset physical index to zero",
+            "eligibility": "same occupied/health/special guards as the first pass",
+            "value_validation": "same five-skill range checks, then every eligible skill must equal exact Float32 100",
+            "failure": "EDX=2 on any invalid or non-100 eligible record; EDX=0 only after the full pass",
+        },
         "rollback_limit": (
             "Native skill writes are not rolled back if the process is interrupted "
             "or post-write verification fails; no deduction is made on failure."
         ),
+        "composition_audit": {
+            "base_identity": "active Origins/Cure feature vv1_enable_origins_exclusive_features",
+            "combined_identity": "active Origins/Cure bytes plus the candidate .vv1fm append and guarded Full Mastery hook bytes",
+            "uninstall_identity": "remove only the candidate .vv1fm append/header/hooks and restore the active Origins/Cure bytes",
+            "proof": "combined uninstall must equal the active Origins/Cure base byte-for-byte",
+            "shared_hook_policy": "ordinary catalog composition remains collision-fail-closed; the recertification bundle uses an explicit guarded audit composition only",
+            "bundle_output": "outputs/vv1-full-mastery-c71-recert",
+            "identity_files": [
+                "active-origins-cure-base/Virtual Villagers - A New Home - Active Origins.exe",
+                "combined-origins-cure-full-mastery/Virtual Villagers - A New Home - Full Mastery.exe",
+                "uninstalled-full-mastery/Virtual Villagers - A New Home - Active Origins.exe",
+                "composition-proof.json",
+            ],
+            "candidate_enabled": False,
+        },
         "base_relocations": [],
     }
     return bytes(section), metadata
@@ -747,8 +797,23 @@ def build() -> tuple[dict[str, object], dict[str, object]]:
             "target": 100,
             "native_writer": "sub_437230 once for each valid below-100 skill",
             "pool_transport": "state=[Tech+0x0C], pool=[state+0xADE8]; null is fail-closed",
-            "post_verify": "mode 1 verifies every changed record's five skills exactly Float32 100 before deduction",
+            "post_verify": "mode 1 reacquires [EBP+8] and performs a complete second read-only pass over all 256 records after native writes; identical eligibility/range validation and exact Float32 100 for every eligible skill are required before deduction",
             "rollback_limit": "partial native writes may remain after interruption or failed post-verification; no charge is made",
+        },
+        "composition_audit": {
+            "base_identity": "active Origins/Cure feature vv1_enable_origins_exclusive_features",
+            "combined_identity": "active Origins/Cure bytes plus the candidate .vv1fm append and guarded Full Mastery hook bytes",
+            "uninstall_identity": "remove only the candidate .vv1fm append/header/hooks and restore the active Origins/Cure bytes",
+            "proof": "combined uninstall must equal the active Origins/Cure base byte-for-byte",
+            "shared_hook_policy": "ordinary catalog composition remains collision-fail-closed; the recertification bundle uses an explicit guarded audit composition only",
+            "bundle_output": "outputs/vv1-full-mastery-c71-recert",
+            "identity_files": [
+                "active-origins-cure-base/Virtual Villagers - A New Home - Active Origins.exe",
+                "combined-origins-cure-full-mastery/Virtual Villagers - A New Home - Full Mastery.exe",
+                "uninstalled-full-mastery/Virtual Villagers - A New Home - Active Origins.exe",
+                "composition-proof.json",
+            ],
+            "candidate_enabled": False,
         },
     }
     layouts = manifest["pe_append_transaction"]["layouts"]  # type: ignore[index]
@@ -827,7 +892,7 @@ def build() -> tuple[dict[str, object], dict[str, object]]:
             },
             "command_abi": {
                 "entry": "stock thiscall Tech-screen receiver arrives in ECX; entry saves old ESI, transports ECX to ESI, and restores old ESI on exit",
-                "walker": "cdecl(pool,bound,mode); mode0 dry-run, mode1 native commit plus exact-100 verify; EAX changed, EDX 1=invalid/2=verify-failed; no fourth entry walk; preserves EBX/ESI/EDI/EBP",
+                "walker": "cdecl(pool,bound,mode); mode0 dry-run, mode1 native commit followed by a complete second 256-record read-only exact-100 pass; EAX changed, EDX 1=first-pass invalid/2=second-pass mismatch; no fourth entry walk; preserves EBX/ESI/EDI/EBP",
                 "result": "stdcall(status,changed,retained_export); ret 12; retained export itself is stdcall(status,changed), ret 8",
             },
             "modes": list(MODES),
@@ -905,12 +970,17 @@ def main() -> None:
         "`pool=[state+0xADE8]` with null fail-closed guards, preserving 256 "
         "records at stride `0x3D8`. A complete mode-0 dry run and no-change test "
         "precede the unsigned funds check and explicit 1,000,000-point confirmation. "
-        "Mode 1 performs native writes and an internal exact-100 verification pass "
-        "before the single deduction; there is no mode-2 entry walk. A "
+        "Mode 1 performs the complete native write pass, then reacquires the pool "
+        "and performs a second read-only pass over all 256 records with identical "
+        "eligibility/range checks and exact-100 requirements before the single "
+        "deduction; there is no mode-2 entry walk. A "
         "process interruption or failed verification cannot safely roll back "
         "partial native writes, so no charge is made. Collection Progression and "
         "Immediate Fixed are the only allowed modes; Expanded-256 is rejected "
-        "before output creation. The raw manifest and "
+        "before output creation. The ignored C71 recertification bundle emits the "
+        "active Origins/Cure base, combined Origins/Cure plus Full Mastery audit "
+        "identity, Full Mastery uninstall identity, and a proof manifest whose "
+        "uninstall hash equals the active base hash. The raw manifest and "
         "complete map are under `data/candidates/`.\n",
         encoding="utf-8",
     )

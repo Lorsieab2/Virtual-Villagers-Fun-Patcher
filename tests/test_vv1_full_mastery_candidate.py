@@ -221,6 +221,19 @@ class VV1FullMasteryCandidateTests(unittest.TestCase):
             },
         )
         self.assertIn("post_verify", self.raw["transaction_contract"])
+        post_verify = self.map["post_verify_pass"]
+        self.assertEqual(post_verify["mode"], 1)
+        self.assertIn("complete second read-only pass", post_verify["scope"])
+        self.assertIn("reload [EBP+8]", post_verify["reacquire"])
+        self.assertIn("exact Float32 100", post_verify["value_validation"])
+        self.assertIn("EDX=2", post_verify["failure"])
+        composition = self.map["composition_audit"]
+        self.assertEqual(composition["candidate_enabled"], False)
+        self.assertIn("active Origins/Cure", composition["base_identity"])
+        self.assertIn("byte-for-byte", composition["proof"])
+        self.assertIn("collision-fail-closed", composition["shared_hook_policy"])
+        self.assertIn("complete second read-only pass", source)
+        self.assertNotIn("verify_record:", source)
         self.assertNotIn("mode2", self.map["command_abi"]["walker"])
         self.assertEqual(self.map["modes"], list(MODES))
         self.assertEqual(self.map["rejected_modes"], list(REJECTED_MODES))
@@ -232,6 +245,10 @@ class VV1FullMasteryCandidateTests(unittest.TestCase):
         entry = page[entry_offset:walker_offset]
         self.assertIn(bytes.fromhex("6A04"), entry)
         walker_va = 0x490000 + walker_offset
+        walker = page[walker_offset:int(self.map["offsets"]["confirmation"], 0)]
+        self.assertGreaterEqual(walker.count(bytes.fromhex("8B7508")), 2)
+        self.assertGreaterEqual(walker.count(bytes.fromhex("31DB")), 2)
+        self.assertIn(bytes.fromhex("837C240400"), walker)
         calls = []
         for index, value in enumerate(entry[:-4]):
             if value != 0xE8:
@@ -320,6 +337,19 @@ class VV1FullMasteryCandidateTests(unittest.TestCase):
         )
         self.assertEqual((status, balance), ("post_verify_failed", 1_000_000))
         self.assertEqual(calls, [(0, 1, 1)])
+        two_records = [deepcopy(base[0]), deepcopy(base[0])]
+
+        def damage_second_after_native(records):
+            records[1]["skills"]["farming"] = 99
+
+        status, balance, calls = transaction(
+            two_records,
+            1_000_000,
+            1,
+            mutate_after_native=damage_second_after_native,
+        )
+        self.assertEqual((status, balance), ("post_verify_failed", 1_000_000))
+        self.assertEqual(calls, [(0, 1, 1), (1, 1, 1)])
         status, balance, calls = transaction(deepcopy(base), 0xFFFFFFFF, 1)
         self.assertEqual((status, balance), ("committed", 0xFFFFFFFF - 1_000_000))
         self.assertEqual(calls, [(0, 1, 1)])
@@ -371,6 +401,65 @@ class VV1FullMasteryCandidateTests(unittest.TestCase):
                 self.assertEqual(work, baseline)
                 with self.assertRaises(PatcherError):
                     render_patched_bytes(STOCK, self.build, mode, _fun_patches_override=[self.candidate, old_origins])
+
+    def test_active_origins_four_identity_uninstall_proof(self) -> None:
+        origins = next(
+            item for item in load_fun_patches()
+            if item.id == "vv1_enable_origins_exclusive_features"
+        )
+        base, _ = render_patched_bytes(
+            STOCK, self.build, "collection_progression", _fun_patches_override=[origins]
+        )
+        combined = bytearray(base)
+        layout = self.raw["pe_append_transaction"]["layouts"]["collection_progression"]
+        for item in layout["header_patches"]:
+            offset = int(item["offset"], 0)
+            before = bytes.fromhex(item["before"])
+            after = bytes.fromhex(item["after"])
+            self.assertEqual(bytes(combined[offset:offset + len(before)]), before)
+            combined[offset:offset + len(after)] = after
+        append_bytes = bytes.fromhex(layout["append_bytes"])
+        combined.extend(append_bytes)
+        origins_by_offset = {item["offset"]: item for item in origins.patches}
+        for patch in self.raw["patches"]:
+            offset = int(patch["offset"], 0)
+            origin_after = bytes.fromhex(origins_by_offset[patch["offset"]]["after"])
+            candidate_after = bytes.fromhex(patch["after"])
+            self.assertEqual(bytes(combined[offset:offset + len(origin_after)]), origin_after)
+            combined[offset:offset + len(candidate_after)] = candidate_after
+        checksum_offset, _ = _pe_checksum_layout(combined)
+        struct.pack_into("<I", combined, checksum_offset, 0)
+        struct.pack_into("<I", combined, checksum_offset, pe_checksum(combined))
+        self.assertNotEqual(bytes(combined), bytes(base))
+
+        uninstalled = bytearray(combined)
+        for patch in reversed(self.raw["patches"]):
+            offset = int(patch["offset"], 0)
+            candidate_after = bytes.fromhex(patch["after"])
+            origin_after = bytes.fromhex(origins_by_offset[patch["offset"]]["after"])
+            self.assertEqual(bytes(uninstalled[offset:offset + len(candidate_after)]), candidate_after)
+            uninstalled[offset:offset + len(origin_after)] = origin_after
+        append_offset = int(layout["append_offset"], 0)
+        self.assertEqual(bytes(uninstalled[append_offset:]), append_bytes)
+        del uninstalled[append_offset:]
+        for item in reversed(layout["header_patches"]):
+            offset = int(item["offset"], 0)
+            before = bytes.fromhex(item["before"])
+            after = bytes.fromhex(item["after"])
+            self.assertEqual(bytes(uninstalled[offset:offset + len(after)]), after)
+            uninstalled[offset:offset + len(before)] = before
+        checksum_offset, _ = _pe_checksum_layout(uninstalled)
+        struct.pack_into("<I", uninstalled, checksum_offset, 0)
+        struct.pack_into("<I", uninstalled, checksum_offset, pe_checksum(uninstalled))
+        self.assertEqual(bytes(uninstalled), bytes(base))
+        self.assertEqual(
+            sha(bytes(base)[0x8B004:0x8B009]),
+            "180BF2CC9D8AE9E13414D2100A5F82B15F3798F9444971FABA64BB2C0585F857",
+        )
+        self.assertEqual(
+            sha(bytes(base)[0x8B530:0x8B530 + 280]),
+            "00D00D36D9753421AE75EF3956BE40EA509AE4457D73AC72D9F24E65DC1966B1",
+        )
 
     def test_corruption_fails_closed_and_generation_is_deterministic(self) -> None:
         rendered, _ = render_patched_bytes(
