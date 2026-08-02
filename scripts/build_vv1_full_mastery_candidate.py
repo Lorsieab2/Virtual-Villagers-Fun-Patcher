@@ -157,10 +157,15 @@ def build_section() -> tuple[bytes, dict[str, object]]:
         ("message_box", b"MessageBoxA"),
         (
             "warning",
-            b"This upgrade makes permanent changes to your village. Are you sure "
-            b"you want to purchase it? Press OK to confirm, or Cancel.",
+            b"Grant Full Mastery to all villagers for 1,000,000 tech points?\r\n"
+            b"Press OK to confirm, or Cancel.",
         ),
         ("caption", b"Origins Upgrades"),
+        (
+            "post_verify_failure",
+            b"Full Mastery could not be verified after native writes.\r\n"
+            b"No tech points have been deducted.",
+        ),
     ):
         strings[key], cursor = _add_string(section, cursor, value)
 
@@ -255,12 +260,21 @@ def build_section() -> tuple[bytes, dict[str, object]]:
             jz done
             mov dword ptr [ebp - 16], eax
             mov edi, dword ptr [esi + 0x0C]
+            test edi, edi
+            jz invalid
+            mov edx, dword ptr [edi + 0xADE8]
+            test edx, edx
+            jz invalid
+            mov edi, dword ptr [esi + 0x0C]
             lea edx, [edi + 0xA2FC]
             cmp dword ptr [edx], {PRICE}
             jb insufficient
+            mov edx, dword ptr [edi + 0xADE8]
+            test edx, edx
+            jz invalid
             push 0
             push {BOUND}
-            push dword ptr [esi + 0x10]
+            push edx
             call 0x{walker_va:X}
             add esp, 12
             cmp edx, 1
@@ -271,12 +285,20 @@ def build_section() -> tuple[bytes, dict[str, object]]:
             cmp eax, 1
             jne done
             mov edi, dword ptr [esi + 0x0C]
+            test edi, edi
+            jz invalid
+            mov edx, dword ptr [edi + 0xADE8]
+            test edx, edx
+            jz invalid
             lea edx, [edi + 0xA2FC]
             cmp dword ptr [edx], {PRICE}
             jb insufficient
+            mov edx, dword ptr [edi + 0xADE8]
+            test edx, edx
+            jz invalid
             push 0
             push {BOUND}
-            push dword ptr [esi + 0x10]
+            push edx
             call 0x{walker_va:X}
             add esp, 12
             cmp edx, 1
@@ -284,15 +306,45 @@ def build_section() -> tuple[bytes, dict[str, object]]:
             test eax, eax
             jz no_change
             mov edi, dword ptr [esi + 0x0C]
-            lea edx, [edi + 0xA2FC]
-            sub dword ptr [edx], {PRICE}
+            test edi, edi
+            jz invalid
+            mov edx, dword ptr [edi + 0xADE8]
+            test edx, edx
+            jz invalid
             push 1
             push {BOUND}
-            push dword ptr [esi + 0x10]
+            push edx
             call 0x{walker_va:X}
             add esp, 12
+            mov ebx, eax
+            cmp edx, 1
+            je invalid
+            cmp edx, 2
+            je post_verify_failure
+            mov edi, dword ptr [esi + 0x0C]
+            test edi, edi
+            jz post_verify_failure
+            mov edx, dword ptr [edi + 0xADE8]
+            test edx, edx
+            jz post_verify_failure
+            push 2
+            push {BOUND}
+            push edx
+            call 0x{walker_va:X}
+            add esp, 12
+            cmp edx, 1
+            je invalid
+            cmp edx, 2
+            je post_verify_failure
+            mov edi, dword ptr [esi + 0x0C]
+            test edi, edi
+            jz post_verify_failure
+            lea edx, [edi + 0xA2FC]
+            cmp dword ptr [edx], {PRICE}
+            jb insufficient
+            sub dword ptr [edx], {PRICE}
             push dword ptr [ebp - 16]
-            push eax
+            push ebx
             push 1
             call 0x{show_result_va:X}
             jmp done
@@ -313,6 +365,12 @@ def build_section() -> tuple[bytes, dict[str, object]]:
             push 0
             push 3
             call 0x{show_result_va:X}
+            jmp done
+        post_verify_failure:
+            push dword ptr [ebp - 16]
+            push 0
+            push 4
+            call 0x{show_result_va:X}
         done:
             add esp, 4
             pop edi
@@ -327,7 +385,9 @@ def build_section() -> tuple[bytes, dict[str, object]]:
     _put(section, ENTRY_OFFSET, entry, "transaction entry")
 
     # cdecl walker(base, bound, mode); EAX=changed count, EDX=1 on invalid
-    # eligible data. mode 0 is read-only; mode 1 calls the native writer.
+    # eligible data, EDX=2 when post-write exact-100 verification fails.
+    # mode 0 is read-only; mode 1 calls the native writer; mode 2 verifies
+    # every eligible skill is exactly 100 without writing.
     walker = asm(
         f"""
             push ebp
@@ -373,6 +433,8 @@ def build_section() -> tuple[bytes, dict[str, object]]:
             inc dword ptr [esp]
             cmp dword ptr [esp + 4], 0
             jz advance
+            cmp dword ptr [esp + 4], 2
+            jz verify_failed
             cmp dword ptr [esi + 0x3BC], 100
             je s2
             mov edi, 100
@@ -430,6 +492,11 @@ def build_section() -> tuple[bytes, dict[str, object]]:
             add esp, 8
             xor eax, eax
             mov edx, 1
+            jmp walker_exit
+        verify_failed:
+            add esp, 8
+            xor eax, eax
+            mov edx, 2
             jmp walker_exit
         walk_done:
             mov eax, dword ptr [esp]
@@ -565,6 +632,17 @@ def build_section() -> tuple[bytes, dict[str, object]]:
             "walker -> native skill writer 0x437230",
         ],
         "iat_references": ["0x457010 LoadLibraryA", "0x4570D4 GetProcAddress"],
+        "pool_transport": {
+            "state": "[Tech+0x0C]",
+            "pool": "[state+0xADE8]",
+            "null_guard": "state and pool are rejected before every walk",
+            "bound": BOUND,
+            "stride": f"0x{STRIDE:X}",
+        },
+        "rollback_limit": (
+            "Native skill writes are not rolled back if the process is interrupted "
+            "or post-write verification fails; no deduction is made on failure."
+        ),
         "base_relocations": [],
     }
     return bytes(section), metadata
@@ -663,6 +741,9 @@ def build() -> tuple[dict[str, object], dict[str, object]]:
             "skills": ["+0x3BC Parenting/code2", "+0x3C0 Building/code4", "+0x3C4 Farming/code1", "+0x3C8 Healing/code5", "+0x3CC Research/code3"],
             "target": 100,
             "native_writer": "sub_437230 once for each valid below-100 skill",
+            "pool_transport": "state=[Tech+0x0C], pool=[state+0xADE8]; null is fail-closed",
+            "post_verify": "mode 2 requires every eligible skill exactly Float32 100 before deduction",
+            "rollback_limit": "partial native writes may remain after interruption or failed post-verification; no charge is made",
         },
     }
     layouts = manifest["pe_append_transaction"]["layouts"]  # type: ignore[index]
@@ -741,7 +822,7 @@ def build() -> tuple[dict[str, object], dict[str, object]]:
             },
             "command_abi": {
                 "entry": "stock thiscall Tech-screen receiver arrives in ECX; entry saves old ESI, transports ECX to ESI, and restores old ESI on exit",
-                "walker": "cdecl(base,bound,mode); EAX changed, EDX invalid; preserves EBX/ESI/EDI/EBP",
+                "walker": "cdecl(pool,bound,mode); mode0 dry-run, mode1 native commit, mode2 exact-100 verify; EAX changed, EDX 1=invalid/2=verify-failed; preserves EBX/ESI/EDI/EBP",
                 "result": "stdcall(status,changed,retained_export); ret 12; retained export itself is stdcall(status,changed), ret 8",
             },
             "modes": list(MODES),
@@ -810,8 +891,13 @@ def main() -> None:
         "adds command 7 only, with commands 6/8, ownership, Remove, Gong, and "
         "Island Event interception absent. The result export is resolved and "
         "validated before any charge or native writer call, then retained through "
-        "commit. The raw manifest and complete map "
-        "are under `data/candidates/`.\n",
+        "commit. The physical pool is reacquired from `state=[Tech+0x0C]` and "
+        "`pool=[state+0xADE8]` with null fail-closed guards, preserving 256 "
+        "records at stride `0x3D8`. Native writes are followed by an exact-100 "
+        "verification pass before the single 1,000,000-point deduction; a "
+        "process interruption or failed verification cannot safely roll back "
+        "partial native writes, so no charge is made. The raw manifest and "
+        "complete map are under `data/candidates/`.\n",
         encoding="utf-8",
     )
 

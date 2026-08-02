@@ -74,6 +74,12 @@ __declspec(dllexport) int __stdcall ShowVV1FullMasteryResult(
             "an out-of-range skill.\r\n"
             "No tech points have been deducted."
         );
+    } else if (status == 4) {
+        lstrcpyA(
+            message,
+            "Full Mastery could not be verified after native writes.\r\n"
+            "No tech points have been deducted."
+        );
     } else {
         wsprintfA(
             message,

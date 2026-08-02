@@ -74,12 +74,32 @@ def semantic_walk(
     return changed, False, calls
 
 
+def semantic_verify(records: list[dict[str, object]]) -> bool:
+    """Model the emitted mode-2 exact-100 post-write verification."""
+    for record in records:
+        if (
+            not record["occupied"]
+            or int(record["health"]) <= 0
+            or int(record["special"]) == 199
+        ):
+            continue
+        skills = record["skills"]
+        assert isinstance(skills, dict)
+        values = [int(skills[name]) for name in SKILLS]
+        if any(value < 0 or value > 100 for value in values):
+            return False
+        if any(value != 100 for value in values):
+            return False
+    return True
+
+
 def transaction(
     records: list[dict[str, object]],
     balance: int,
     confirm: int,
     result_export_available: bool = True,
     mutate_before_final=None,
+    mutate_after_native=None,
 ) -> tuple[str, int, list[tuple[int, int, int]]]:
     if not result_export_available:
         return "unavailable", balance, []
@@ -101,9 +121,15 @@ def transaction(
         return "no_change", balance, []
     if balance < 1_000_000:
         return "insufficient", balance, []
-    balance -= 1_000_000
     committed, invalid, calls = semantic_walk(records, True)
     assert not invalid and committed == changed
+    if mutate_after_native:
+        mutate_after_native(records)
+    if not semantic_verify(records):
+        return "post_verify_failed", balance, calls
+    if balance < 1_000_000:
+        return "insufficient", balance, []
+    balance -= 1_000_000
     return "committed", balance, calls
 
 
@@ -176,6 +202,33 @@ class VV1FullMasteryCandidateTests(unittest.TestCase):
         self.assertNotIn(load, result_helper)
         self.assertNotIn(lookup, result_helper)
 
+    def test_state_pool_transport_and_post_verify_contract(self) -> None:
+        source = GENERATOR.read_text(encoding="utf-8")
+        self.assertIn("[edi + 0xADE8]", source)
+        self.assertNotIn("[esi + 0x10]", source)
+        self.assertIn("test edi, edi", source)
+        self.assertIn("test edx, edx", source)
+        self.assertEqual(
+            self.map["pool_transport"],
+            {
+                "state": "[Tech+0x0C]",
+                "pool": "[state+0xADE8]",
+                "null_guard": "state and pool are rejected before every walk",
+                "bound": 256,
+                "stride": "0x3D8",
+            },
+        )
+        self.assertIn("post_verify", self.raw["transaction_contract"])
+        self.assertIn("mode2", self.map["command_abi"]["walker"])
+        page = bytes.fromhex(
+            self.raw["pe_append_transaction"]["layouts"]["collection_progression"]["append_bytes"]
+        )
+        entry_offset = int(self.map["offsets"]["entry"], 0)
+        walker_offset = int(self.map["offsets"]["walker"], 0)
+        entry = page[entry_offset:walker_offset]
+        self.assertIn(bytes.fromhex("6A02"), entry)
+        self.assertIn(bytes.fromhex("6A04"), entry)
+
     def test_walker_domain_exclusions_bound_and_writer_order(self) -> None:
         excluded = [
             {"occupied": False, "health": 100, "special": 0, "skills": {name: object() for name in SKILLS}},
@@ -224,6 +277,17 @@ class VV1FullMasteryCandidateTests(unittest.TestCase):
             transaction(deepcopy(base), 1_000_000, 1, mutate_before_final=finish),
             ("no_change", 1_000_000, []),
         )
+        def damage_after_native(records):
+            records[0]["skills"]["farming"] = 99
+
+        status, balance, calls = transaction(
+            deepcopy(base),
+            1_000_000,
+            1,
+            mutate_after_native=damage_after_native,
+        )
+        self.assertEqual((status, balance), ("post_verify_failed", 1_000_000))
+        self.assertEqual(calls, [(0, 1, 1)])
         status, balance, calls = transaction(deepcopy(base), 0xFFFFFFFF, 1)
         self.assertEqual((status, balance), ("committed", 0xFFFFFFFF - 1_000_000))
         self.assertEqual(calls, [(0, 1, 1)])
@@ -234,10 +298,15 @@ class VV1FullMasteryCandidateTests(unittest.TestCase):
             "Everyone is already fully mastered.",
             "Not enough tech points.",
             "Full Mastery cannot be applied because an eligible villager has ",
+            "Full Mastery could not be verified after native writes.",
             "No tech points have been deducted.",
             "Fully mastered %u villagers.",
         ):
             self.assertIn(text, source)
+        self.assertIn(
+            "Grant Full Mastery to all villagers for 1,000,000 tech points?",
+            GENERATOR.read_text(encoding="utf-8"),
+        )
         longest = (
             "Full Mastery cannot be applied because an eligible villager has an "
             "out-of-range skill.\r\nNo tech points have been deducted."
