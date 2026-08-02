@@ -1,0 +1,3 @@
+# VV1 Origins + Full Mastery composition (disabled)
+
+This stock-only composition remains disabled and catalog-hidden pending independent recertification. It requires the exact active Origins base and Origins DLL hashes recorded in the map, reuses Tech row ID1007/command 7, and detours only file `0x56A88` / VA `0x456A88`. Command 7 sets `ECX=ESI`, calls a direct transaction entry without opening another menu, then returns to the Origins menu loop at `0x4569C5`. Commands 0-5 and 6/8 reconstruct the original branches at `0x456AC2` and `0x456A8D`. Removal is guarded and must reproduce the active Origins base byte-for-byte. Expanded-256 is rejected before output.

@@ -122,6 +122,9 @@ EXPANDED_PATCH_MODES = {
     "experimental_expanded_256",
     "experimental_expanded_256_progression",
 }
+VV1_ORIGINS_COMPOSITION_ID = "vv1_full_mastery_origins_composition"
+VV1_ORIGINS_COMPOSITION_BASE_SHA256 = "5434C71C342B830A5896AFFB610A76C670578760BD33C6145882FA280F6406A3"
+VV1_ORIGINS_COMPOSITION_DLL_SHA256 = "2ED1100E7F2EA5B8E522C2DE11F6B00CA8A02B968319C251365E9EFD634BCAF9"
 
 
 class PatcherError(RuntimeError):
@@ -1588,6 +1591,54 @@ def render_patched_bytes(
             "VV4 Full Mastery is certified for stock modes only; "
             "Expanded-256 remains ON HOLD/fail-closed."
         )
+    composition = next(
+        (patch for patch in fun_patches if patch.id == VV1_ORIGINS_COMPOSITION_ID),
+        None,
+    )
+    if composition is not None:
+        if build.id != "vv1" or patch_mode in EXPANDED_PATCH_MODES:
+            raise PatcherError(
+                "VV1 Origins + Full Mastery composition is stock-only; "
+                "Expanded-256 remains ON HOLD/fail-closed."
+            )
+        origins = next(
+            (patch for patch in fun_patches if patch.id == "vv1_enable_origins_exclusive_features"),
+            None,
+        )
+        if origins is None:
+            raise PatcherError(
+                "VV1 Origins + Full Mastery composition requires the active Origins prerequisite."
+            )
+        if any(
+            patch.id == "vv1_full_mastery_all_stage_a_candidate"
+            for patch in fun_patches
+        ):
+            raise PatcherError(
+                "VV1 isolated Full Mastery and Origins composition cannot be selected together."
+            )
+        required_base = str(
+            composition.raw.get("required_base_sha256", "")
+        ).upper()
+        required_dll = str(
+            composition.raw.get("required_origins_dll_sha256", "")
+        ).upper()
+        if required_base != VV1_ORIGINS_COMPOSITION_BASE_SHA256:
+            raise PatcherError("VV1 composition base identity metadata is not the certified value.")
+        if required_dll != VV1_ORIGINS_COMPOSITION_DLL_SHA256:
+            raise PatcherError("VV1 composition Origins DLL identity metadata is not the certified value.")
+        origins_dll = ROOT / "assets" / "origins" / "VVFP Origins Icons.dll"
+        if not origins_dll.is_file() or sha256(origins_dll) != VV1_ORIGINS_COMPOSITION_DLL_SHA256:
+            raise PatcherError("VV1 composition Origins DLL is missing or hash-mismatched.")
+        if sha256(source) != build.sha256:
+            raise PatcherError("VV1 composition requires the exact certified stock executable fingerprint.")
+        base, _ = render_patched_bytes(
+            source,
+            build,
+            patch_mode,
+            _fun_patches_override=[origins],
+        )
+        if hashlib.sha256(base).hexdigest().upper() != VV1_ORIGINS_COMPOSITION_BASE_SHA256:
+            raise PatcherError("VV1 composition active Origins base fingerprint mismatch.")
     _validate_companion_sources(fun_patches)
     data = bytearray(source.read_bytes())
     original_data = bytes(data)
@@ -1627,6 +1678,19 @@ def render_patched_bytes(
             end = offset + len(before)
             for prior_start, prior_end, prior_owner in applied_ranges:
                 if offset < prior_end and prior_start < end and prior_owner != owner:
+                    # The VV1 Origins composition intentionally overlays one
+                    # exact post-Origins branch inside the guarded Origins
+                    # payload.  It never replaces the shared constructor or
+                    # handler hooks; all other cross-owner overlap remains a
+                    # hard failure.
+                    allowed_vv1_composition_overlay = (
+                        owner == f"feature:{VV1_ORIGINS_COMPOSITION_ID}"
+                        and prior_owner == "feature:vv1_enable_origins_exclusive_features"
+                        and offset == 0x56A88
+                        and before == bytes.fromhex("83FB067235")
+                    )
+                    if allowed_vv1_composition_overlay:
+                        continue
                     raise PatcherError(
                         f"Patch overlap between {prior_owner} and {owner} at 0x{offset:X}."
                     )
