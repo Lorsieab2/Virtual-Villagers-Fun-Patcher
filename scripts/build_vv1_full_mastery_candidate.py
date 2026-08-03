@@ -678,7 +678,7 @@ def build_section() -> tuple[bytes, dict[str, object]]:
         },
         "preference_contract": {
             "field": "+0x3D0",
-            "behavior": "read-only; never written or normalized; any checked preference remains authoritative",
+            "behavior": "read-only; +0x3D0 is never written or normalized; no naming or preference code is changed; any checked preference remains authoritative",
             "absent_preference": "stock sub_43B520 remains authoritative: it compares +0x3BC Parenting/code2, +0x3C0 Building/code4, +0x3C8 Healing/code5, +0x3C4 Farming/code1, then +0x3CC Research/code3 with strict-greater comparisons; all-equal skills retain code2 and native mapping renders Master Parent",
         },
         "post_verify_pass": {
