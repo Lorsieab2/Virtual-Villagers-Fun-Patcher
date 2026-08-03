@@ -199,7 +199,7 @@ class VV2FullMasteryCandidateTests(unittest.TestCase):
         self.assertEqual(self.raw["transaction_contract"]["native_evaluator"], "sub_44D4C0 thiscall ECX=manager exactly once globally")
         self.assertEqual(self.raw["transaction_contract"]["native_tech_writer"], "sub_426290 thiscall ECX=state; push signed -1000000; callee ret 4 exactly once after evaluator")
         targets = call_targets(page)
-        self.assertEqual(targets.count(0x44F4E0), 3)
+        self.assertEqual(targets.count(0x44F4E0), 5)
         self.assertEqual(targets.count(0x44D4C0), 1)
         self.assertEqual(targets.count(0x426290), 1)
         self.assertEqual(targets.count(0x445430), 5)
@@ -217,8 +217,18 @@ class VV2FullMasteryCandidateTests(unittest.TestCase):
         self.assertEqual(self.raw["transaction_contract"]["walker_locals"]["bound"], "[ebp-0x14]")
         self.assertIn("both menu and result exports", self.raw["transaction_contract"]["result_preflight"])
         self.assertEqual(
+            self.raw["transaction_contract"]["result_pointer_local"],
+            "[ebp-0x2C], outside the 256-byte snapshot; every post-preflight result uses the saved stdcall pointer",
+        )
+        self.assertEqual(len(self.raw["transaction_contract"]["fresh_manager_boundaries"]), 5)
+        entry_offset = int(self.map["offsets"]["entry"], 0)
+        entry = page[entry_offset:0x380]
+        self.assertNotIn(0x4B3C00, call_targets(entry, 0x4B3000 + entry_offset))
+        self.assertEqual(entry.count(bytes.fromhex("FF55D4")), 7)
+        self.assertEqual(entry.count(bytes.fromhex("81BADC EA020040420F00".replace(" ", ""))), 3)
+        self.assertEqual(
             self.raw["transaction_contract"]["result_statuses"]["4"],
-            "cancelled; No tech points have been deducted.",
+            "Full Mastery was canceled; No tech points have been deducted.",
         )
         for field in (0x7E4, 0x7E8, 0x7EC, 0x7F0, 0x7F4):
             self.assertNotIn(b"\xC7\x86" + struct.pack("<I", field), page)
@@ -304,7 +314,11 @@ class VV2FullMasteryCandidateTests(unittest.TestCase):
         )
         self.assertIn("Everyone is already fully mastered.\\r\\n", source)
         self.assertIn("No tech points have been deducted.", source)
-        self.assertIn("The upgrade was cancelled.", source)
+        self.assertIn("Full Mastery was canceled.\\r\\n", source)
+        self.assertEqual(
+            self.raw["transaction_contract"]["result_statuses"]["4"],
+            "Full Mastery was canceled; No tech points have been deducted.",
+        )
         longest = (
             "Fully mastered 4294967295 villagers.\r\n"
             "4294967295 villagers became Esteemed Elders.\r\n"

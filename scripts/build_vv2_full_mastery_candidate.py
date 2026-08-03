@@ -257,7 +257,8 @@ def build_section() -> tuple[bytes, dict[str, object]]:
             jne done
             call 0x{result_preflight_va:X}
             test eax, eax
-            jz unavailable
+            jz no_result
+            mov dword ptr [ebp - 0x2C], eax
             call 0x44F4E0
             test eax, eax
             jz unavailable
@@ -336,11 +337,24 @@ def build_section() -> tuple[bytes, dict[str, object]]:
             test eax, eax
             jz recheck_failed
             mov ecx, dword ptr [ebp - 0x1C]
-            call 0x44D4C0
-            mov edx, dword ptr [ebp - 0x1C]
-            mov edx, dword ptr [edx + 0xE574D4]
+            call 0x44F4E0
+            test eax, eax
+            jz recheck_failed
+            mov dword ptr [ebp - 0x1C], eax
+            mov edx, dword ptr [eax + 0xE574D4]
             test edx, edx
             jz recheck_failed
+            mov dword ptr [ebp - 0x20], edx
+            mov ecx, dword ptr [ebp - 0x1C]
+            call 0x44D4C0
+            call 0x44F4E0
+            test eax, eax
+            jz recheck_failed
+            mov dword ptr [ebp - 0x1C], eax
+            mov edx, dword ptr [eax + 0xE574D4]
+            test edx, edx
+            jz recheck_failed
+            mov dword ptr [ebp - 0x20], edx
             lea eax, [ebp - 0x124]
             push eax
             push {BOUND}
@@ -351,11 +365,9 @@ def build_section() -> tuple[bytes, dict[str, object]]:
             add esp, 12
             mov dword ptr [ebp - 0x24], ecx
             mov dword ptr [ebp - 0x28], edx
-            mov edx, dword ptr [ebp - 0x1C]
-            mov edx, dword ptr [edx + 0xE574D4]
-            test edx, edx
-            jz recheck_failed
-            mov dword ptr [ebp - 0x20], edx
+            mov edx, dword ptr [ebp - 0x20]
+            cmp dword ptr [edx + 0x2EADC], {PRICE}
+            jb insufficient
             mov ecx, edx
             push -{PRICE}
             call 0x426290
@@ -363,49 +375,52 @@ def build_section() -> tuple[bytes, dict[str, object]]:
             push dword ptr [ebp - 0x24]
             push dword ptr [ebp - 0x18]
             push 1
-            call 0x{show_result_va:X}
+            call dword ptr [ebp - 0x2C]
             jmp done
         recheck_failed:
             push 0
             push 0
             push 0
             push 3
-            call 0x{show_result_va:X}
+            call dword ptr [ebp - 0x2C]
             jmp done
         no_change:
             push 0
             push 0
             push 0
             push 0
-            call 0x{show_result_va:X}
+            call dword ptr [ebp - 0x2C]
             jmp done
         insufficient:
             push 0
             push 0
             push 0
             push 2
-            call 0x{show_result_va:X}
+            call dword ptr [ebp - 0x2C]
             jmp done
         canceled:
             push 0
             push 0
             push 0
             push 4
-            call 0x{show_result_va:X}
+            call dword ptr [ebp - 0x2C]
             jmp done
         unavailable:
             push 0
             push 0
             push 0
             push 3
-            call 0x{show_result_va:X}
+            call dword ptr [ebp - 0x2C]
             jmp done
         invalid:
             push 0
             push 0
             push 0
             push 3
-            call 0x{show_result_va:X}
+            call dword ptr [ebp - 0x2C]
+            jmp done
+        no_result:
+            jmp done
         done:
             add esp, 0x124
             pop edi
@@ -934,7 +949,7 @@ def build() -> tuple[dict[str, object], dict[str, object]]:
                 "parenting": "+0x7F4 -> native skill 4",
             },
             "target": 100,
-            "native_manager_getter": "sub_44F4E0 no arguments; EAX manager; fresh call after confirmation",
+            "native_manager_getter": "sub_44F4E0 no arguments; EAX manager; fresh calls at initial, post-confirmation, post-write, pre-evaluator, and post-evaluator boundaries",
             "native_skill_writer": "sub_445430 thiscall ECX=manager+0x52C; push delta, skill id, physical index; callee ret 0xC",
             "native_evaluator": "sub_44D4C0 thiscall ECX=manager exactly once globally",
             "native_tech_writer": "sub_426290 thiscall ECX=state; push signed -1000000; callee ret 4 exactly once after evaluator",
@@ -947,8 +962,11 @@ def build() -> tuple[dict[str, object], dict[str, object]]:
                 "fresh manager and complete read-only recheck",
                 "changed-only sub_445430 writes",
                 "complete exact-100 postverify",
+                "fresh manager/state acquisition before evaluator",
                 "sub_44D4C0 exactly once",
+                "fresh manager/state acquisition after evaluator",
                 "fresh telemetry after evaluator",
+                "fresh unsigned funds >= 1000000 recheck",
                 "sub_426290 exactly once",
             ],
             "walker_locals": {
@@ -958,11 +976,20 @@ def build() -> tuple[dict[str, object], dict[str, object]]:
                 "snapshot": "entry [ebp-0x124..-0x24], zeroed 256 bytes before mutation",
             },
             "result_preflight": "both menu and result exports are resolved before confirmation/mutation",
+            "result_pointer_local": "[ebp-0x2C], outside the 256-byte snapshot; every post-preflight result uses the saved stdcall pointer",
+            "fresh_manager_boundaries": [
+                "initial dry-run",
+                "post-confirmation recheck",
+                "post-write pre-postverify",
+                "postverify pre-evaluator",
+                "post-evaluator telemetry/funds/deduction",
+            ],
+            "final_funds_recheck": "fresh post-evaluator state [state+0x2EADC] >= 1000000 dominates sub_426290",
             "result_statuses": {
                 "0": "no eligible changes; no charge",
                 "2": "insufficient funds; no charge",
                 "3": "validation or pointer failure; no charge",
-                "4": "cancelled; No tech points have been deducted.",
+                "4": "Full Mastery was canceled; No tech points have been deducted.",
             },
         },
     }
@@ -1119,11 +1146,15 @@ def main() -> None:
         "256-record bound stable across every native call. A zeroed snapshot "
         "records 0 unchanged, 1 newly changed from unmarked, and 2 newly changed "
         "from marked. Both menu and result exports are preflighted before any "
-        "confirmation or mutation. The transaction performs a complete 256-record "
-        "dry run before funds/confirmation, reacquires manager/state at every "
-        "pointer-sensitive phase, post-verifies exact 100, calls sub_44D4C0 once, "
-        "refreshes telemetry, then calls sub_426290 once for the single deduction. "
-        "Cancel and every failure report `No tech points have been deducted.` "
+        "confirmation or mutation. The result pointer is saved in a non-snapshot "
+        "local and every post-preflight result uses that pointer without another "
+        "resolver. The transaction performs a complete 256-record dry run before "
+        "funds/confirmation, reacquires manager/state at five pointer-sensitive "
+        "boundaries, post-verifies exact 100, calls sub_44D4C0 once, reacquires "
+        "again, refreshes telemetry, performs a fresh unsigned funds check, then "
+        "calls sub_426290 once for the single deduction. Cancel reports `Full "
+        "Mastery was canceled.` followed by `No tech points have been deducted.` "
+        "and every other failure is no-charge. "
         "Expanded-256 modes are rejected before output. The raw manifest and "
         "complete map are under `data/candidates/`. If a native writer succeeds "
         "and a later postverify fails, the candidate reports no-charge failure "

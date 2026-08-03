@@ -78,7 +78,7 @@ __declspec(dllexport) int __stdcall ShowVV2FullMasteryResult(
     } else if (status == 4) {
         lstrcpyA(
             message,
-            "The upgrade was cancelled.\r\n"
+            "Full Mastery was canceled.\r\n"
             "No tech points have been deducted."
         );
     } else {

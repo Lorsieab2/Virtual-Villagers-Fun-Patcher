@@ -1,6 +1,6 @@
 {
-  "section_sha256": "C1DA8ED6D809FFE240A85E14D2D541CC89F3ED5DB11DDAFD303FC88A9EF86297",
-  "entry_sha256": "EC14EEE56222B0345A5610C4ADCB347BA8E9E3442B9804C0941A9E8F984A170C",
+  "section_sha256": "D98A11A00041A08F123766D63D35AC2F41BCF0226B01DEF857094EF5C85D0B43",
+  "entry_sha256": "AB477E86BD0BFE525BE25C523D83F0E601B7347B44EB1B8FCE05F0A195D76C70",
   "walker_sha256": "E67F5F34AEB66A953B5B2A77FD6A5EA00B907D26B61A25A0C132F62C713C98DD",
   "telemetry_sha256": "8036B4818E39533B3F5BEBF1EC38A94A71B05EE8BE72FB1EFA0B9AD72789B907",
   "confirmation_sha256": "8868C87F2B66AD9D69F1DC7A08A469E5C5C478727955A5E1E4F6DA4EEB306B2C",
@@ -69,7 +69,7 @@
   "companion": {
     "path": "data/candidates/VVFP VV2 Full Mastery Candidate.dll",
     "size": 109056,
-    "sha256": "05798EA051F7D9FE0EB65C3C40719E7A37683E2F3C446CF53BF0489C28A0876F",
+    "sha256": "1324EDFB83ABA755AFF6410D71DD668F4860127CD67A952722FDE5DD2FDC92C2",
     "exports": {
       "ShowVV2FullMasteryMenu": {
         "ordinal": 1,
@@ -150,15 +150,15 @@
   "rendered_candidates": {
     "collection_progression": {
       "baseline_sha256": "AD7D6F85A363510732B1D647516389326878E5FA8756A42F4526AACDFAF0C523",
-      "candidate_sha256": "AA7FDD23D1453F72C5578F041DA05BA5A0471BBAB463823A8DDFF400C5122169",
+      "candidate_sha256": "5199119B1DE53B77A8DA3FB6E34E88DEDA3DD2F4AD2537F439A40A3A57FE4B32",
       "size": 733184,
-      "pe_checksum": "0x000B41E5",
+      "pe_checksum": "0x000B88B2",
       "owners": [
         "automatic:population",
         "automatic:safety",
         "feature:vv2_full_mastery_all_stage_a_candidate"
       ],
-      "all_current_vv2_sha256": "9B6FB8F592D533E0B4D2B015A06A6DD13B08A271BF4D4FD91B3111BFDAAED6D3",
+      "all_current_vv2_sha256": "CBE251523FF0C1E0110DB2794BE80362BD85D68C5C73A83E26F0A00617C85094",
       "all_current_vv2_owners": [
         "automatic:compatibility",
         "automatic:population",
@@ -176,15 +176,15 @@
     },
     "immediate_fixed": {
       "baseline_sha256": "9EA03791F24CA5F9005AB33C09E5C8930E30BEB55E05FD2B8463894F48C50C00",
-      "candidate_sha256": "265D6480A63B0C623B2E627182D108C7F35AA199503248BDA9DD7C5761506E1C",
+      "candidate_sha256": "F4E89DE206D256C8641F9DB99D83ED32281EE25F146A46E9FA4A1FFC13EB718E",
       "size": 733184,
-      "pe_checksum": "0x000C2CD4",
+      "pe_checksum": "0x000B73A2",
       "owners": [
         "automatic:population",
         "automatic:safety",
         "feature:vv2_full_mastery_all_stage_a_candidate"
       ],
-      "all_current_vv2_sha256": "535E66636A5EB151E486734041364D7E9909874146F02BCD77232AB618727796",
+      "all_current_vv2_sha256": "6E27AA17F4789E7E83CF7E16F58A44978B61DE806191CE6BF3FC9879952A4FA5",
       "all_current_vv2_owners": [
         "automatic:compatibility",
         "automatic:population",
