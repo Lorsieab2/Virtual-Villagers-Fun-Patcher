@@ -1,0 +1,102 @@
+{
+  "candidate_id": "vv3_full_heal_cure_all_candidate",
+  "candidate_enabled": false,
+  "catalog_hidden": true,
+  "catalog_enabled": false,
+  "source_commit": "64c1266503c49ba1456f6294683a1f6773eba5d6",
+  "implementation_status": "candidate implementation; D182 static predicate evidence incorporated; independent lifecycle recertification pending",
+  "allowed_modes": [
+    "collection_progression",
+    "immediate_fixed"
+  ],
+  "expanded_fail_closed": true,
+  "hook": {
+    "raw_offset": "0xA35EF",
+    "before": "8B049D543F4A00",
+    "after": "E92D81FDFF9090",
+    "sha256": "EB06653053996B594BD939CF1FCAE081A424B246200E0A6E024047F847C3CEB1"
+  },
+  "cave": {
+    "raw_offset": "0x7B721",
+    "virtual_address": "0x47B721",
+    "length": 1536,
+    "before_sha256": "80422BC3D307B4A25BDAFCC84AC7FB01CB55A09810E8B0F37BB12E0EDB5C48CA",
+    "after_sha256": "6066A6840820B57EEFBC5348334D03010C2C534AA12B4DB69B68175CBA5E5774",
+    "layout": {
+      "helper_length": 731,
+      "helper_sha256": "3676187A833DC0A929ECECC01B601FE06DA38B7FA84763174F6E66632AA09D26",
+      "strings_offset": "0x300",
+      "strings_length": 721,
+      "strings_sha256": "605B3E6C37FB4D9380763111CDB5156D3948CD5463C8603B7C1308BDA396ECF7",
+      "region_sha256": "6066A6840820B57EEFBC5348334D03010C2C534AA12B4DB69B68175CBA5E5774",
+      "used_length": 1489,
+      "tail_zero_length": 47
+    }
+  },
+  "composition": {
+    "stock_sha256": "8BC5DB382D02BC5C21AD5F607580D60FF44A6519CC7EB133F03113BAACAE6503",
+    "collection_pre_cure_sha256": "3644A56FE17F843DB67662E4309C3C2B41AE7ADD5FDD60EF2B6789DE2BA15FDC",
+    "immediate_pre_cure_sha256": "059230146E8CC36E06E5473AE187D081E337DB90638B227FBA799B9C82B58C1C",
+    "full_mastery_page_sha256": "2DAE85AE4077C23C2C7C39F64B5BA944740F765AC8E24FBB097B0BF28A720DF6",
+    "running_region_sha256": "76339C8FFBE0FF92F3F1EB2CC27A4E0600E33DCC936716DA94BBB0BD5D1AB050",
+    "full_mastery_running_dependency": "vv3_individual_grant_running_candidate",
+    "composition": "Origins + Full Mastery + individual Grant Running"
+  },
+  "companion_files": [
+    {
+      "source": "data/candidates/VVFP VV3 Full Mastery Candidate.dll",
+      "destination": "VVFP VV3 Full Mastery Candidate.dll",
+      "size": 298496,
+      "sha256": "35FB96199E745C7D8054FF6A12851B9E09225E3E41D0CE04012604E74968C0D5"
+    }
+  ],
+  "transaction": {
+    "command": 5,
+    "price": 30000,
+    "action": "Buy",
+    "repeatable": true,
+    "ownership": null,
+    "remove": false
+  },
+  "result_helper": {
+    "va": "0x4A3400",
+    "ret": 8,
+    "caller_stack_cleanup": false
+  },
+  "health_setter": {
+    "function": "0x462670",
+    "ecx": "full_record+0xE6C",
+    "push_reason": -1,
+    "push_desired": 100,
+    "forbidden": "full_record+0xA0"
+  },
+  "sickness": {
+    "offset": "0xE89",
+    "clear_value": 0,
+    "people_cured_offset": "0x4FC",
+    "increment_once_per_transaction": true
+  },
+  "messages": {
+    "no_charge_suffix": "No tech points have been deducted.",
+    "success": "Full Heal was granted to all eligible villagers.",
+    "confirm_price": "30,000"
+  },
+  "forbidden_routes": {
+    "legacy_cure_entry": "0x47B664",
+    "legacy_text_helper": "0x40D8A0",
+    "e94_status_filter": false
+  },
+  "legacy_preserved_range": {
+    "raw_start": "0x7B664",
+    "raw_end": "0x7B721",
+    "sha256": "06EA118EDADD836A02B202C05BC7E47356B57E28C01EDF1DAD6CC4CF90C662E2"
+  },
+  "rendered": {
+    "collection_progression": {
+      "pending": "candidate disabled; render only after independent lifecycle recertification"
+    },
+    "immediate_fixed": {
+      "pending": "candidate disabled; render only after independent lifecycle recertification"
+    }
+  }
+}
