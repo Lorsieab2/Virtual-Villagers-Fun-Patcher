@@ -232,6 +232,94 @@ class VV3IndividualGrantRunningCandidateTests(unittest.TestCase):
                     )
         self.assertEqual(sha(self.stock.read_bytes()), stock_before)
 
+    def test_authoritative_metadata_mutations_fail_before_normal_render(self) -> None:
+        """Every D170-controlled field is checked before any output mutation."""
+
+        mutations = [
+            (
+                "candidate_checksum",
+                lambda raw: raw["mutation_accounting"]["checksum_range"]["per_mode"]
+                ["collection_progression"].__setitem__("candidate", "00000000"),
+            ),
+            (
+                "success",
+                lambda raw: raw["result_messages"].__setitem__("success", "WRONG"),
+            ),
+            (
+                "alias",
+                lambda raw: raw["result_messages"]["aliases"].__setitem__(
+                    "inactive_or_dead", "selection_changed"
+                ),
+            ),
+            (
+                "no_charge_suffix",
+                lambda raw: raw["result_messages"].__setitem__(
+                    "no_charge_suffix", "WRONG"
+                ),
+            ),
+            (
+                "invalid_selection_text",
+                lambda raw: raw["result_messages"].__setitem__(
+                    "invalid_selection_text", "WRONG"
+                ),
+            ),
+            (
+                "distinct_results",
+                lambda raw: raw["result_messages"]["distinct"].append("inactive_or_dead"),
+            ),
+            (
+                "feature_range_count",
+                lambda raw: raw["mutation_accounting"].__setitem__(
+                    "feature_owned_range_count", 3
+                ),
+            ),
+            (
+                "feature_range_ownership",
+                lambda raw: raw["mutation_accounting"]["feature_owned_ranges"][0].__setitem__(
+                    "purpose", "foreign"
+                ),
+            ),
+            (
+                "physical_range_count",
+                lambda raw: raw["mutation_accounting"].__setitem__(
+                    "physical_diff_range_count", 2
+                ),
+            ),
+            (
+                "checksum_range",
+                lambda raw: raw["mutation_accounting"]["checksum_range"].__setitem__(
+                    "raw_offset", "0x161"
+                ),
+            ),
+            (
+                "checksum_mode_pin",
+                lambda raw: raw["mutation_accounting"]["checksum_range"]["per_mode"]
+                ["immediate_fixed"].__setitem__("pre", "00000000"),
+            ),
+            (
+                "accounting_rule",
+                lambda raw: raw["mutation_accounting"].__setitem__("rule", "WRONG"),
+            ),
+        ]
+        for name, mutate in mutations:
+            for mode in ("collection_progression", "immediate_fixed"):
+                with self.subTest(mutation=name, mode=mode):
+                    raw = copy.deepcopy(self.raw)
+                    mutate(raw)
+                    stock_before = sha(self.stock.read_bytes())
+                    with self.assertRaises(PatcherError):
+                        render_patched_bytes(
+                            self.stock,
+                            self.build,
+                            mode,
+                            _fun_patches_override=[
+                                self.full_base,
+                                self.full_feature,
+                                FunPatch(raw),
+                            ],
+                        )
+                    self.assertEqual(sha(self.stock.read_bytes()), stock_before)
+
 
 if __name__ == "__main__":
     unittest.main()

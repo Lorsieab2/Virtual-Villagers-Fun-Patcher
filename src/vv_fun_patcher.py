@@ -83,6 +83,52 @@ VV3_INDIVIDUAL_RUNNING_BLOB_LAYOUT = {
     "tail_offset": "0x6E7",
     "tail_length": "0x19",
 }
+VV3_INDIVIDUAL_RUNNING_FEATURE_OWNED_RANGES = [
+    {
+        "raw_offset": "0xA38C3",
+        "length": 5,
+        "purpose": "candidate command-2 detour",
+    },
+    {
+        "raw_offset": "0xCB900",
+        "length": 1792,
+        "purpose": "candidate-owned .vv3fm helper/string region",
+    },
+]
+VV3_INDIVIDUAL_RUNNING_CHECKSUM_PINS = {
+    "collection_progression": {
+        "pre": "E9AC0D00",
+        "candidate": "93790D00",
+    },
+    "immediate_fixed": {
+        "pre": "E8EE0C00",
+        "candidate": "91BB0D00",
+    },
+}
+VV3_INDIVIDUAL_RUNNING_MUTATION_ACCOUNTING_RULE = (
+    "The two candidate-owned feature ranges plus raw 0x160..0x163 PE checksum "
+    "are the three physical accounting ranges; every other byte is identical "
+    "to the certified pre-Running image."
+)
+VV3_INDIVIDUAL_RUNNING_RESULT_MESSAGES = {
+    "no_charge_suffix": "No tech points have been deducted.",
+    "distinct": [
+        "already_running",
+        "no_empty_like",
+        "invalid_selection",
+        "selection_changed",
+        "likes_changed",
+        "insufficient_funds",
+        "canceled",
+        "write_verification_failure",
+    ],
+    "aliases": {"inactive_or_dead": "invalid_selection"},
+    "invalid_selection_text": (
+        "No valid living villager is selected.\r\n"
+        "No tech points have been deducted."
+    ),
+    "success": "Running was granted.",
+}
 VV2_FULL_MASTERY_CANDIDATE_PATHS = {
     "manifest": ROOT / "data" / "candidates" / "vv2_full_mastery_all_candidate.json",
     "map": ROOT / "data" / "candidates" / "vv2_full_mastery_all_candidate_map.json",
@@ -1314,6 +1360,29 @@ def _validate_vv3_individual_running_candidate(
         raise PatcherError("VV3 individual Grant Running transaction stack-frame metadata is not canonical.")
     if transaction.get("canonical_blob_layout") != VV3_INDIVIDUAL_RUNNING_BLOB_LAYOUT:
         raise PatcherError("VV3 individual Grant Running transaction blob layout is not canonical.")
+    expected_accounting = {
+        "feature_owned_range_count": len(VV3_INDIVIDUAL_RUNNING_FEATURE_OWNED_RANGES),
+        "feature_owned_ranges": [dict(item) for item in VV3_INDIVIDUAL_RUNNING_FEATURE_OWNED_RANGES],
+        "physical_diff_range_count": 3,
+        "checksum_range": {
+            "raw_offset": "0x160",
+            "length": 4,
+            "purpose": "deterministic PE checksum recomputation",
+            "per_mode": {
+                mode: dict(pins)
+                for mode, pins in VV3_INDIVIDUAL_RUNNING_CHECKSUM_PINS.items()
+            },
+        },
+        "rule": VV3_INDIVIDUAL_RUNNING_MUTATION_ACCOUNTING_RULE,
+    }
+    if raw.get("mutation_accounting") != expected_accounting:
+        raise PatcherError(
+            "VV3 individual Grant Running mutation accounting is not immutable."
+        )
+    if raw.get("result_messages") != VV3_INDIVIDUAL_RUNNING_RESULT_MESSAGES:
+        raise PatcherError(
+            "VV3 individual Grant Running result-message metadata is not immutable."
+        )
     if b"\xFC\x0F" in owned_after or b"\x94\x0E" in owned_after:
         raise PatcherError("VV3 individual Grant Running may not access Dislikes or +0xE94.")
 
