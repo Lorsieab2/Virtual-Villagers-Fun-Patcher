@@ -101,7 +101,12 @@ class VV2OriginsContainmentTests(unittest.TestCase):
         build = next(item for item in load_builds() if item.id == "vv2")
         source = ROOT / "research" / "stock-executables" / build.input_name
         catalog = load_fun_patches()
-        remaining = [patch.id for patch in catalog if patch.game_id == "vv2"]
+        remaining = [
+            patch.id
+            for patch in catalog
+            if patch.game_id == "vv2"
+            and patch.id != "vv2_full_mastery_all_stage_a_candidate"
+        ]
         self.assertEqual(set(remaining), REMAINING)
         disabled_offsets = set()
         for filename in ("vv2_origins_feature.json", "vv2_origins_village_wide_upgrades.json"):

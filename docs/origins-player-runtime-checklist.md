@@ -76,8 +76,10 @@ all-five evaluation uses award ID 4. The disabled candidate's direct 90 stores
 are not full mastery and bypass that post-write evaluation. Zero-change/no-
 charge behavior, creation/inheritance, and safe placement remain unresolved.
 
-VV2 Full Mastery is independently emitted-byte certified under
-`913be6982bc17d606470f31d3df3d3430942cb6a`. The isolated command-7-only
+VV2 Full Mastery is statically emitted-byte certified and catalog-visible only for
+stock Collection Progression and Immediate Fixed under independent GO evidence
+`13f4341201fa7757d23f77c5c17602bbe7bbf21d`, with runtime/player confirmation
+pending. The isolated command-7-only
 feature scans active `+0x30`, positive signed health `+0x52C`, non-totem
 `+0x558` records and changes only native skill DWORDs `+0x7E4..+0x7F4` that
 are below 100. It then calls native `sub_44D4C0` exactly once per changed
@@ -256,7 +258,7 @@ outcome bypassing Birth Control as a defect; that bypass is required.
 | Tech Point Doubler | 500,000 tech points; VV1/VV3/VV4 unowned purchase and repurchase remain unavailable. VV5 stock supports purchase, zero-cost/no-refund Remove, and full-price repurchase; VV5 expanded-256 keeps new purchase unavailable and owned Remove available. |
 | Food Point Doubler | 500,000 tech points; VV1/VV3/VV4 unowned purchase and repurchase remain unavailable. VV5 stock supports purchase, zero-cost/no-refund Remove, and full-price repurchase; VV5 expanded-256 keeps new purchase unavailable and owned Remove available. |
 | Cure all Villagers | 30,000 tech points; test the sickness-only matrix below. |
-| Village-wide rows | VV2's isolated 1,000,000 tech points Full Mastery candidate now has a native manager/pool transaction repair, but remains disabled and catalog-hidden pending independent recertification. VV3Run2 remains hard-withdrawn pending runtime fault capture. Every legacy bundled row and every command 8 row remain unavailable. |
+| Village-wide rows | VV2's isolated 1,000,000 tech points Full Mastery candidate is enabled and catalog-visible only in stock Collection Progression and Immediate Fixed; Expanded-256 remains rejected and runtime/player confirmation is pending. VV3Run2 remains hard-withdrawn pending runtime fault capture. Every legacy bundled row and every command 8 row remain unavailable. |
 
 For VV5, Time Warp, Island Event, and Barrel of Babies remain Unavailable:
 selecting them must make no charge, native call, clock change, or save/state
@@ -272,7 +274,7 @@ the full 500,000 again in the current save. VV1/VV3/VV4/VV5 unowned or
 manually removed doublers remain unavailable for new purchase pending their
 exact-build provenance gates.
 
-The withdrawn VV2 Full Mastery candidate targets its five native skill
+The enabled static VV2 Full Mastery candidate targets its five native skill
 fields and excludes commands 6/8 and withdrawn VV2 Origins. Food
 Mastery is code-confirmed absent within the enumerated VV2 technology
 definitions, strings, direct writer calls, and food-source call chains; Farming

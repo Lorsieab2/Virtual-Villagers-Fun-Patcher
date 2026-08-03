@@ -2,15 +2,57 @@
   "id": "vv2_full_mastery_all_stage_a_candidate",
   "game_id": "vv2",
   "name": "Grant Full Mastery to All Villagers",
-  "enabled": false,
-  "catalog_hidden": true,
-  "certification_status": "PENDING INDEPENDENT RECERTIFICATION after native manager/pool transport repair; disabled and catalog-hidden",
+  "enabled": true,
+  "catalog_hidden": false,
+  "certification_status": "STATIC EMITTED-BYTE GO; catalog-visible for stock modes; runtime/player confirmation pending",
   "source_commit": "895340333d55273e599f2dce5ab0db42cbc6d0ab",
   "implementation_commit": "895340333d55273e599f2dce5ab0db42cbc6d0ab",
   "acceptance_commit": null,
   "audit_commit": null,
-  "audit_status": "pending independent recertification",
-  "description": "Disabled command-7-only stock candidate. The repaired transaction uses the native manager getter, changed-only native skill writer, native Elder evaluator, and native tech-point writer; no raw skill stores, precharge, .shr transport, Gong, or Island Event paths are emitted. It remains hidden pending independent recertification.",
+  "audit_status": "static emitted-byte GO; runtime/player confirmation pending",
+  "static_acceptance": {
+    "status": "GO",
+    "evidence_commit": "13f4341201fa7757d23f77c5c17602bbe7bbf21d",
+    "implementation_commit": "895340333d55273e599f2dce5ab0db42cbc6d0ab",
+    "runtime_player_status": "pending",
+    "source_sha256": "46C1503C209255C9CDEFA941DB2F449C8CF8E2CDD5C7D13CD975326E377ED677",
+    "section_sha256": "D84DA1DF60C9AC160312C5AC0943663CA16DA909935A96FA3E1B9D723462B9A1",
+    "entry_sha256": "505DCF6A0891E640FA73B41A0CBC6868B35FF1C9D5F2A598A6C067004F78A58F",
+    "walker_sha256": "E67F5F34AEB66A953B5B2A77FD6A5EA00B907D26B61A25A0C132F62C713C98DD",
+    "telemetry_sha256": "8036B4818E39533B3F5BEBF1EC38A94A71B05EE8BE72FB1EFA0B9AD72789B907",
+    "confirmation_sha256": "8868C87F2B66AD9D69F1DC7A08A469E5C5C478727955A5E1E4F6DA4EEB306B2C",
+    "menu_resolver_sha256": "38B1AECEABF47C01B945AB438954C2489C83DDC3E5C573E81321F94C2E360B4F",
+    "result_preflight_sha256": "C994315AD623EE3E3001193735C435FBC9A721EDB5A0A521E6069421C63D60E5",
+    "result_resolver_sha256": "B7002D2C62F475914719A8A99B65BEC7580B7026E7FB3A991046CBCC77FB8D0B",
+    "dll_sha256": "1324EDFB83ABA755AFF6410D71DD668F4860127CD67A952722FDE5DD2FDC92C2",
+    "dll_size": 109056,
+    "stock_size": 724992,
+    "collection_composition_sha256": "C7C0BEC312B6537B5F1DD692D2C90ED0D0963D6CE3A7F5271AF4A6C680B8ACBC",
+    "immediate_composition_sha256": "6AEE09C69C3E7C1AD12284EA5B5A188AF05DA3D87AD6149545CEE65D896E6774",
+    "allowed_modes": [
+      "collection_progression",
+      "immediate_fixed"
+    ],
+    "rejected_modes": [
+      "experimental_expanded_256",
+      "experimental_expanded_256_progression"
+    ],
+    "rendered_candidates": {
+      "collection_progression": {
+        "candidate_sha256": "EC9AA5F8A1A8D7AC7CAE5B9C8B41027C7E2FF98A240D06725E7C406028EBFBDB",
+        "baseline_sha256": "AD7D6F85A363510732B1D647516389326878E5FA8756A42F4526AACDFAF0C523",
+        "uninstall_target_sha256": "AD7D6F85A363510732B1D647516389326878E5FA8756A42F4526AACDFAF0C523",
+        "size": 733184
+      },
+      "immediate_fixed": {
+        "candidate_sha256": "61CF93212009F9719F1A0D104AAC14EC5B80F7B25C1BC2D2951189844515516C",
+        "baseline_sha256": "9EA03791F24CA5F9005AB33C09E5C8930E30BEB55E05FD2B8463894F48C50C00",
+        "uninstall_target_sha256": "9EA03791F24CA5F9005AB33C09E5C8930E30BEB55E05FD2B8463894F48C50C00",
+        "size": 733184
+      }
+    }
+  },
+  "description": "Enabled command-7-only stock candidate for stock Collection Progression and Immediate Fixed modes. Runtime/player confirmation remains pending. The repaired transaction uses the native manager getter, changed-only native skill writer, native Elder evaluator, and native tech-point writer; no raw skill stores, precharge, .shr transport, Gong, or Island Event paths are emitted. Expanded-256 modes are rejected before output.",
   "dependencies": [],
   "supported_modes": [
     "collection_progression",

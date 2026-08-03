@@ -137,8 +137,8 @@ class VillageWideContainmentTests(unittest.TestCase):
                 for patch in catalog
                 if patch.game_id == build.id
                 and not (
-                    build.id == "vv1"
-                    and patch.id == "vv1_full_mastery_all_stage_a_candidate"
+                    (build.id == "vv1" and patch.id == "vv1_full_mastery_all_stage_a_candidate")
+                    or (build.id == "vv2" and patch.id == "vv2_full_mastery_all_stage_a_candidate")
                 )
             ]
             raw = raw_record(build.id)

@@ -11,6 +11,7 @@ import sys
 import tempfile
 import unittest
 from copy import deepcopy
+from unittest.mock import patch as mock_patch
 from pathlib import Path
 
 
@@ -27,6 +28,7 @@ from vv_fun_patcher import (  # noqa: E402
     pe_checksum,
     render_patched_bytes,
 )
+import vv_fun_patcher as patcher  # noqa: E402
 
 
 STOCK = ROOT / "research" / "stock-executables" / "Virtual Villagers - The Lost Children.exe"
@@ -134,12 +136,15 @@ class VV2FullMasteryCandidateTests(unittest.TestCase):
         cls.candidate = FunPatch(cls.raw)
         cls.build = next(item for item in load_builds() if item.id == "vv2")
 
-    def test_candidate_is_withdrawn_hidden_and_command_seven_only(self) -> None:
-        self.assertFalse(self.raw["enabled"])
+    def test_candidate_is_enabled_for_stock_modes_and_command_seven_only(self) -> None:
+        self.assertTrue(self.raw["enabled"])
         self.assertEqual(self.raw["id"], "vv2_full_mastery_all_stage_a_candidate")
-        self.assertNotIn(self.raw["id"], {item.id for item in load_fun_patches()})
-        self.assertIn("PENDING", self.raw["certification_status"])
-        self.assertTrue(self.raw["catalog_hidden"])
+        loaded = [item for item in load_fun_patches() if item.id == self.raw["id"]]
+        self.assertEqual(len(loaded), 1)
+        self.assertFalse(self.raw["catalog_hidden"])
+        self.assertEqual(self.raw["supported_modes"], list(MODES))
+        self.assertEqual(self.raw["rejected_modes"], list(REJECTED_MODES))
+        self.assertIn("runtime/player confirmation remains pending", self.raw["description"].casefold())
         contract = self.raw["transaction_contract"]
         self.assertEqual(contract["command"], 7)
         self.assertEqual(contract["price"], 1_000_000)
@@ -155,13 +160,20 @@ class VV2FullMasteryCandidateTests(unittest.TestCase):
             {0x435EF, 0x437C0},
         )
 
-    def test_provenance_binds_full_implementation_and_null_pending_acceptance(self) -> None:
+    def test_provenance_binds_full_implementation_and_independent_static_acceptance(self) -> None:
         for record in (self.raw, self.map):
             self.assertEqual(record["source_commit"], IMPLEMENTATION_COMMIT)
             self.assertEqual(record["implementation_commit"], IMPLEMENTATION_COMMIT)
             self.assertIsNone(record["acceptance_commit"])
             self.assertIsNone(record["audit_commit"])
-            self.assertEqual(record["audit_status"], "pending independent recertification")
+            self.assertEqual(record["audit_status"], "static emitted-byte GO; runtime/player confirmation pending")
+            static = record["static_acceptance"]
+            self.assertEqual(static["status"], "GO")
+            self.assertEqual(static["evidence_commit"], "13f4341201fa7757d23f77c5c17602bbe7bbf21d")
+            self.assertEqual(static["implementation_commit"], IMPLEMENTATION_COMMIT)
+            self.assertEqual(static["runtime_player_status"], "pending")
+            self.assertEqual(static["allowed_modes"], list(MODES))
+            self.assertEqual(static["rejected_modes"], list(REJECTED_MODES))
         self.assertEqual(len(self.raw["implementation_commit"]), 40)
         self.assertEqual(len(self.map["implementation_commit"]), 40)
 
@@ -206,7 +218,8 @@ class VV2FullMasteryCandidateTests(unittest.TestCase):
                 self.assertEqual(record["implementation_commit"], IMPLEMENTATION_COMMIT)
                 self.assertIsNone(record["acceptance_commit"])
                 self.assertIsNone(record["audit_commit"])
-                self.assertEqual(record["audit_status"], "pending independent recertification")
+                self.assertEqual(record["audit_status"], "static emitted-byte GO; runtime/player confirmation pending")
+                self.assertEqual(record["static_acceptance"]["evidence_commit"], "13f4341201fa7757d23f77c5c17602bbe7bbf21d")
             self.assertEqual(
                 sha((output_root / "audit" / "collection_progression.exe").read_bytes()),
                 sha((AUDIT / "collection_progression.exe").read_bytes()),
@@ -217,6 +230,50 @@ class VV2FullMasteryCandidateTests(unittest.TestCase):
             )
             self.assertEqual(before, {path: sha(path.read_bytes()) for path in (*tracked, DLL)})
         self.assertEqual(before, {path: sha(path.read_bytes()) for path in (*tracked, DLL)})
+
+    def test_loader_pins_manifest_map_bytes_and_composition_identities(self) -> None:
+        self.assertEqual(sha(MANIFEST.read_bytes()), patcher.VV2_FULL_MASTERY_MANIFEST_SHA256)
+        self.assertEqual(sha(MAP.read_bytes()), patcher.VV2_FULL_MASTERY_MAP_SHA256)
+        self.assertEqual(
+            self.map["static_acceptance"]["collection_composition_sha256"],
+            "C7C0BEC312B6537B5F1DD692D2C90ED0D0963D6CE3A7F5271AF4A6C680B8ACBC",
+        )
+        self.assertEqual(
+            self.map["static_acceptance"]["immediate_composition_sha256"],
+            "6AEE09C69C3E7C1AD12284EA5B5A188AF05DA3D87AD6149545CEE65D896E6774",
+        )
+        self.assertEqual(self.map["static_acceptance"]["dll_size"], 109056)
+        self.assertEqual(self.map["static_acceptance"]["stock_size"], 724992)
+
+    def test_manifest_or_map_byte_mutation_fails_before_catalog_trust(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            manifest_copy = root / MANIFEST.name
+            map_copy = root / MAP.name
+            dll_copy = root / DLL.name
+            manifest_bytes = bytearray(MANIFEST.read_bytes())
+            manifest_bytes[-2] ^= 1
+            manifest_copy.write_bytes(manifest_bytes)
+            map_copy.write_bytes(MAP.read_bytes())
+            dll_copy.write_bytes(DLL.read_bytes())
+            with mock_patch.object(
+                patcher,
+                "VV2_FULL_MASTERY_CANDIDATE_PATHS",
+                {"manifest": manifest_copy, "map": map_copy, "dll": dll_copy},
+            ):
+                with self.assertRaises(PatcherError):
+                    patcher._certified_vv2_full_mastery_record()
+            manifest_copy.write_bytes(MANIFEST.read_bytes())
+            map_bytes = bytearray(MAP.read_bytes())
+            map_bytes[-2] ^= 1
+            map_copy.write_bytes(map_bytes)
+            with mock_patch.object(
+                patcher,
+                "VV2_FULL_MASTERY_CANDIDATE_PATHS",
+                {"manifest": manifest_copy, "map": map_copy, "dll": dll_copy},
+            ):
+                with self.assertRaises(PatcherError):
+                    patcher._certified_vv2_full_mastery_record()
 
     def test_generator_output_root_containment_fails_before_write(self) -> None:
         for invalid in (ROOT, ROOT / "data", ROOT / "docs"):

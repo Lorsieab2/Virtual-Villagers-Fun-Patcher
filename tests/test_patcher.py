@@ -147,6 +147,11 @@ class ManifestTests(unittest.TestCase):
         self.assertNotIn("vv3_all_villagers_like_running", active_ids)
         self.assertIn("vv5_full_mastery_all_stage_a_candidate", active_ids)
         self.assertIn("vv3_full_mastery_all_stage_a_candidate", active_ids)
+        self.assertIn("vv2_full_mastery_all_stage_a_candidate", active_ids)
+        self.assertEqual(
+            sum(item.id == "vv2_full_mastery_all_stage_a_candidate" for item in load_fun_patches()),
+            1,
+        )
 
     def test_origins_village_wide_payloads_use_zero_owned_reserves(self) -> None:
         stock_by_game = {build.id: STOCK / build.input_name for build in load_builds()}
@@ -756,6 +761,15 @@ class StockIntegrationTests(unittest.TestCase):
                     continue
                 if build.id == "vv1" and "vv1_full_mastery_all_stage_a_candidate" in patches_by_game[build.id]:
                     with self.assertRaisesRegex(PatcherError, "ON HOLD"):
+                        render_patched_bytes(
+                            STOCK / build.input_name,
+                            build,
+                            "experimental_expanded_256",
+                            patches_by_game[build.id],
+                        )
+                    continue
+                if build.id == "vv2" and "vv2_full_mastery_all_stage_a_candidate" in patches_by_game[build.id]:
+                    with self.assertRaisesRegex(PatcherError, "has no append layout"):
                         render_patched_bytes(
                             STOCK / build.input_name,
                             build,
@@ -2633,10 +2647,15 @@ class StockIntegrationTests(unittest.TestCase):
                 "vv2_hospital_recovery_heals",
                 "vv2_gong_of_wonder_coconuts_fix",
                 "vv2_write_village_statistics",
+                "vv2_full_mastery_all_stage_a_candidate",
             },
         )
         for mode in MODES + EXPANDED_MODES:
             with self.subTest(mode=mode):
+                if mode in EXPANDED_MODES:
+                    with self.assertRaisesRegex(PatcherError, "has no append layout"):
+                        render_patched_bytes(source, build, mode, all_vv2_features)
+                    continue
                 rendered, applied = render_patched_bytes(
                     source,
                     build,

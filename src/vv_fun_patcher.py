@@ -56,13 +56,58 @@ VV2_FULL_MASTERY_CANDIDATE_PATHS = {
     "map": ROOT / "data" / "candidates" / "vv2_full_mastery_all_candidate_map.json",
     "dll": ROOT / "data" / "candidates" / "VVFP VV2 Full Mastery Candidate.dll",
 }
+VV2_FULL_MASTERY_MANIFEST_SHA256 = "A31AADDD348AB5D9427076DE3EED476E15E8BDC1CD09CC76EB55E403413E0A72"
+VV2_FULL_MASTERY_MAP_SHA256 = "0A6FFCBC08BF303019DC5E0B3D9CCC7C47FB9AFF43C9F21BE39BDA886C519232"
 VV2_FULL_MASTERY_CERTIFIED_SHA256 = {
-    "section": "0D0DD6DBEA7236807D15ED7047F08E7B8CC8B9AB098051C29A49C1AFDC31C61A",
-    "entry": "68EB76203CA0AC65F3A608AEA8466B881BEFF536E8E88C64BAD7C8148C2A3D99",
-    "walker": "7B01459A15542151B07D8A716731646A165C190C064B7BCB6CEB67EB1E1FAC94",
+    "source": "46C1503C209255C9CDEFA941DB2F449C8CF8E2CDD5C7D13CD975326E377ED677",
+    "section": "D84DA1DF60C9AC160312C5AC0943663CA16DA909935A96FA3E1B9D723462B9A1",
+    "entry": "505DCF6A0891E640FA73B41A0CBC6868B35FF1C9D5F2A598A6C067004F78A58F",
+    "walker": "E67F5F34AEB66A953B5B2A77FD6A5EA00B907D26B61A25A0C132F62C713C98DD",
     "telemetry": "8036B4818E39533B3F5BEBF1EC38A94A71B05EE8BE72FB1EFA0B9AD72789B907",
-    "confirmation": "07011CB557B6FCF7560AACB750D41851895C6856D851A567A4B952128E6B6258",
-    "dll": "BDEAC1B39925834A7CD8DF7CD2C13BA7D7CBDF6E27760DAED6525092FF092699",
+    "confirmation": "8868C87F2B66AD9D69F1DC7A08A469E5C5C478727955A5E1E4F6DA4EEB306B2C",
+    "menu_resolver": "38B1AECEABF47C01B945AB438954C2489C83DDC3E5C573E81321F94C2E360B4F",
+    "result_preflight": "C994315AD623EE3E3001193735C435FBC9A721EDB5A0A521E6069421C63D60E5",
+    "result_resolver": "B7002D2C62F475914719A8A99B65BEC7580B7026E7FB3A991046CBCC77FB8D0B",
+    "dll": "1324EDFB83ABA755AFF6410D71DD668F4860127CD67A952722FDE5DD2FDC92C2",
+}
+VV2_FULL_MASTERY_STATIC_ACCEPTANCE = {
+    "status": "GO",
+    "evidence_commit": "13f4341201fa7757d23f77c5c17602bbe7bbf21d",
+    "implementation_commit": "895340333d55273e599f2dce5ab0db42cbc6d0ab",
+    "runtime_player_status": "pending",
+    "allowed_modes": ["collection_progression", "immediate_fixed"],
+    "rejected_modes": [
+        "experimental_expanded_256",
+        "experimental_expanded_256_progression",
+    ],
+    "source_sha256": VV2_FULL_MASTERY_CERTIFIED_SHA256["source"],
+    "section_sha256": VV2_FULL_MASTERY_CERTIFIED_SHA256["section"],
+    "entry_sha256": VV2_FULL_MASTERY_CERTIFIED_SHA256["entry"],
+    "walker_sha256": VV2_FULL_MASTERY_CERTIFIED_SHA256["walker"],
+    "telemetry_sha256": VV2_FULL_MASTERY_CERTIFIED_SHA256["telemetry"],
+    "confirmation_sha256": VV2_FULL_MASTERY_CERTIFIED_SHA256["confirmation"],
+    "menu_resolver_sha256": VV2_FULL_MASTERY_CERTIFIED_SHA256["menu_resolver"],
+    "result_preflight_sha256": VV2_FULL_MASTERY_CERTIFIED_SHA256["result_preflight"],
+    "result_resolver_sha256": VV2_FULL_MASTERY_CERTIFIED_SHA256["result_resolver"],
+    "dll_sha256": VV2_FULL_MASTERY_CERTIFIED_SHA256["dll"],
+    "dll_size": 109056,
+    "stock_size": 724992,
+    "collection_composition_sha256": "C7C0BEC312B6537B5F1DD692D2C90ED0D0963D6CE3A7F5271AF4A6C680B8ACBC",
+    "immediate_composition_sha256": "6AEE09C69C3E7C1AD12284EA5B5A188AF05DA3D87AD6149545CEE65D896E6774",
+    "rendered_candidates": {
+        "collection_progression": {
+            "candidate_sha256": "EC9AA5F8A1A8D7AC7CAE5B9C8B41027C7E2FF98A240D06725E7C406028EBFBDB",
+            "baseline_sha256": "AD7D6F85A363510732B1D647516389326878E5FA8756A42F4526AACDFAF0C523",
+            "uninstall_target_sha256": "AD7D6F85A363510732B1D647516389326878E5FA8756A42F4526AACDFAF0C523",
+            "size": 733184,
+        },
+        "immediate_fixed": {
+            "candidate_sha256": "61CF93212009F9719F1A0D104AAC14EC5B80F7B25C1BC2D2951189844515516C",
+            "baseline_sha256": "9EA03791F24CA5F9005AB33C09E5C8930E30BEB55E05FD2B8463894F48C50C00",
+            "uninstall_target_sha256": "9EA03791F24CA5F9005AB33C09E5C8930E30BEB55E05FD2B8463894F48C50C00",
+            "size": 733184,
+        },
+    },
 }
 VV1_FULL_MASTERY_CANDIDATE_PATHS = {
     "manifest": ROOT / "data" / "candidates" / "vv1_full_mastery_all_candidate.json",
@@ -311,15 +356,52 @@ def _certified_vv3_full_mastery_records(
 
 
 def _certified_vv2_full_mastery_record() -> dict[str, Any] | None:
-    manifest = json.loads(
-        VV2_FULL_MASTERY_CANDIDATE_PATHS["manifest"].read_text(encoding="utf-8")
-    )
+    manifest_bytes = VV2_FULL_MASTERY_CANDIDATE_PATHS["manifest"].read_bytes()
+    manifest_digest = hashlib.sha256(manifest_bytes).hexdigest().upper()
+    if manifest_digest != VV2_FULL_MASTERY_MANIFEST_SHA256:
+        raise PatcherError("VV2 Full Mastery manifest bytes are not the certified record.")
+    manifest = json.loads(manifest_bytes.decode("utf-8"))
     if not manifest.get("enabled", True):
         return None
-    artifact_map = json.loads(
-        VV2_FULL_MASTERY_CANDIDATE_PATHS["map"].read_text(encoding="utf-8")
-    )
-    for label in ("section", "entry", "walker", "telemetry", "confirmation"):
+    if (
+        manifest.get("id") != "vv2_full_mastery_all_stage_a_candidate"
+        or manifest.get("catalog_hidden") is not False
+        or manifest.get("supported_modes") != VV2_FULL_MASTERY_STATIC_ACCEPTANCE["allowed_modes"]
+        or manifest.get("rejected_modes") != VV2_FULL_MASTERY_STATIC_ACCEPTANCE["rejected_modes"]
+    ):
+        raise PatcherError("VV2 Full Mastery catalog or mode metadata is not certified.")
+    if manifest.get("source_commit") != VV2_FULL_MASTERY_STATIC_ACCEPTANCE["implementation_commit"]:
+        raise PatcherError("VV2 Full Mastery source commit is not the certified implementation.")
+    if manifest.get("implementation_commit") != VV2_FULL_MASTERY_STATIC_ACCEPTANCE["implementation_commit"]:
+        raise PatcherError("VV2 Full Mastery implementation commit is not certified.")
+    if manifest.get("audit_commit") is not None or manifest.get("acceptance_commit") is not None:
+        raise PatcherError("VV2 Full Mastery uses circular legacy provenance fields.")
+    static_acceptance = manifest.get("static_acceptance")
+    if static_acceptance != VV2_FULL_MASTERY_STATIC_ACCEPTANCE:
+        raise PatcherError("VV2 Full Mastery static acceptance evidence is not certified.")
+    map_bytes = VV2_FULL_MASTERY_CANDIDATE_PATHS["map"].read_bytes()
+    map_digest = hashlib.sha256(map_bytes).hexdigest().upper()
+    if map_digest != VV2_FULL_MASTERY_MAP_SHA256:
+        raise PatcherError("VV2 Full Mastery map bytes are not the certified record.")
+    artifact_map = json.loads(map_bytes.decode("utf-8"))
+    if artifact_map.get("catalog_enabled") is not True:
+        raise PatcherError("VV2 Full Mastery map catalog gate is not enabled.")
+    if artifact_map.get("source_commit") != VV2_FULL_MASTERY_STATIC_ACCEPTANCE["implementation_commit"]:
+        raise PatcherError("VV2 Full Mastery map source commit is not certified.")
+    if artifact_map.get("implementation_commit") != VV2_FULL_MASTERY_STATIC_ACCEPTANCE["implementation_commit"]:
+        raise PatcherError("VV2 Full Mastery map implementation commit is not certified.")
+    if artifact_map.get("static_acceptance") != VV2_FULL_MASTERY_STATIC_ACCEPTANCE:
+        raise PatcherError("VV2 Full Mastery map static acceptance evidence is not certified.")
+    for label in (
+        "section",
+        "entry",
+        "walker",
+        "telemetry",
+        "confirmation",
+        "menu_resolver",
+        "result_preflight",
+        "result_resolver",
+    ):
         actual = artifact_map[f"{label}_sha256"]
         expected = VV2_FULL_MASTERY_CERTIFIED_SHA256[label]
         if actual != expected:
@@ -327,6 +409,17 @@ def _certified_vv2_full_mastery_record() -> dict[str, Any] | None:
                 f"Certified VV2 Full Mastery {label} artifact hash mismatch: "
                 f"expected {expected}, got {actual}."
             )
+    source = artifact_map.get("source", {})
+    if source.get("sha256") != VV2_FULL_MASTERY_CERTIFIED_SHA256["source"] or source.get("size") != 724992:
+        raise PatcherError("VV2 Full Mastery stock source fingerprint mismatch.")
+    companion = artifact_map.get("companion", {})
+    if companion.get("size") != 109056 or companion.get("sha256") != VV2_FULL_MASTERY_CERTIFIED_SHA256["dll"]:
+        raise PatcherError("VV2 Full Mastery companion size/hash mismatch.")
+    rendered = artifact_map.get("rendered_candidates", {})
+    for mode, expected in VV2_FULL_MASTERY_STATIC_ACCEPTANCE["rendered_candidates"].items():
+        actual = rendered.get(mode, {})
+        if any(actual.get(key) != value for key, value in expected.items()):
+            raise PatcherError(f"VV2 Full Mastery {mode} composition identity mismatch.")
     dll_digest = hashlib.sha256(
         VV2_FULL_MASTERY_CANDIDATE_PATHS["dll"].read_bytes()
     ).hexdigest().upper()
@@ -335,6 +428,11 @@ def _certified_vv2_full_mastery_record() -> dict[str, Any] | None:
             "Certified VV2 Full Mastery DLL hash mismatch: "
             f"expected {VV2_FULL_MASTERY_CERTIFIED_SHA256['dll']}, got {dll_digest}."
         )
+    contract = manifest.get("transaction_contract", {})
+    if contract.get("command") != 7 or contract.get("price") != 1_000_000:
+        raise PatcherError("VV2 Full Mastery Buy contract is not certified.")
+    if contract.get("ownership") is not None or "remove" in contract:
+        raise PatcherError("VV2 Full Mastery must remain Buy-only with no Remove.")
     return manifest
 
 

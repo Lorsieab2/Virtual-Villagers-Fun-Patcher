@@ -1,4 +1,4 @@
-"""Generate the disabled VV2 command-7 Full Mastery Stage-A candidate."""
+"""Generate the statically enabled, stock-only VV2 command-7 Full Mastery candidate."""
 
 from __future__ import annotations
 
@@ -24,7 +24,8 @@ AUDIT_OUT = ROOT / "outputs" / "vv2-c138-native-audit"
 COMPANION_SIZE = 109056
 COMPANION_SHA256 = "1324EDFB83ABA755AFF6410D71DD668F4860127CD67A952722FDE5DD2FDC92C2"
 IMPLEMENTATION_COMMIT = "895340333d55273e599f2dce5ab0db42cbc6d0ab"
-AUDIT_STATUS = "pending independent recertification"
+STATIC_ACCEPTANCE_COMMIT = "13f4341201fa7757d23f77c5c17602bbe7bbf21d"
+AUDIT_STATUS = "static emitted-byte GO; runtime/player confirmation pending"
 
 sys.path.insert(0, str(ROOT / ".tools" / "keystone"))
 sys.path.insert(0, str(ROOT / ".tools" / "keystone-runtime"))
@@ -94,6 +95,28 @@ REJECTED_MODES = (
     "experimental_expanded_256",
     "experimental_expanded_256_progression",
 )
+STATIC_ACCEPTANCE = {
+    "status": "GO",
+    "evidence_commit": STATIC_ACCEPTANCE_COMMIT,
+    "implementation_commit": IMPLEMENTATION_COMMIT,
+    "runtime_player_status": "pending",
+    "source_sha256": "46C1503C209255C9CDEFA941DB2F449C8CF8E2CDD5C7D13CD975326E377ED677",
+    "section_sha256": "D84DA1DF60C9AC160312C5AC0943663CA16DA909935A96FA3E1B9D723462B9A1",
+    "entry_sha256": "505DCF6A0891E640FA73B41A0CBC6868B35FF1C9D5F2A598A6C067004F78A58F",
+    "walker_sha256": "E67F5F34AEB66A953B5B2A77FD6A5EA00B907D26B61A25A0C132F62C713C98DD",
+    "telemetry_sha256": "8036B4818E39533B3F5BEBF1EC38A94A71B05EE8BE72FB1EFA0B9AD72789B907",
+    "confirmation_sha256": "8868C87F2B66AD9D69F1DC7A08A469E5C5C478727955A5E1E4F6DA4EEB306B2C",
+    "menu_resolver_sha256": "38B1AECEABF47C01B945AB438954C2489C83DDC3E5C573E81321F94C2E360B4F",
+    "result_preflight_sha256": "C994315AD623EE3E3001193735C435FBC9A721EDB5A0A521E6069421C63D60E5",
+    "result_resolver_sha256": "B7002D2C62F475914719A8A99B65BEC7580B7026E7FB3A991046CBCC77FB8D0B",
+    "dll_sha256": COMPANION_SHA256,
+    "dll_size": COMPANION_SIZE,
+    "stock_size": 724992,
+    "collection_composition_sha256": "C7C0BEC312B6537B5F1DD692D2C90ED0D0963D6CE3A7F5271AF4A6C680B8ACBC",
+    "immediate_composition_sha256": "6AEE09C69C3E7C1AD12284EA5B5A188AF05DA3D87AD6149545CEE65D896E6774",
+    "allowed_modes": list(MODES),
+    "rejected_modes": list(REJECTED_MODES),
+}
 
 
 def resolve_output_paths(output_root: Path | None) -> dict[str, object]:
@@ -1017,20 +1040,23 @@ def build() -> tuple[dict[str, object], dict[str, object]]:
         "id": "vv2_full_mastery_all_stage_a_candidate",
         "game_id": "vv2",
         "name": "Grant Full Mastery to All Villagers",
-        "enabled": False,
-        "catalog_hidden": True,
-        "certification_status": "PENDING INDEPENDENT RECERTIFICATION after native manager/pool transport repair; disabled and catalog-hidden",
+        "enabled": True,
+        "catalog_hidden": False,
+        "certification_status": "STATIC EMITTED-BYTE GO; catalog-visible for stock modes; runtime/player confirmation pending",
         "source_commit": IMPLEMENTATION_COMMIT,
         "implementation_commit": IMPLEMENTATION_COMMIT,
         "acceptance_commit": None,
         "audit_commit": None,
         "audit_status": AUDIT_STATUS,
+        "static_acceptance": dict(STATIC_ACCEPTANCE),
         "description": (
-            "Disabled command-7-only stock candidate. The repaired transaction uses "
+            "Enabled command-7-only stock candidate for stock Collection Progression "
+            "and Immediate Fixed modes. Runtime/player confirmation remains pending. "
+            "The repaired transaction uses "
             "the native manager getter, changed-only native skill writer, native "
             "Elder evaluator, and native tech-point writer; no raw skill stores, "
             "precharge, .shr transport, Gong, or Island Event paths are emitted. "
-            "It remains hidden pending independent recertification."
+            "Expanded-256 modes are rejected before output."
         ),
         "dependencies": [],
         "supported_modes": list(MODES),
@@ -1172,8 +1198,9 @@ def build() -> tuple[dict[str, object], dict[str, object]]:
             "acceptance_commit": None,
             "audit_commit": None,
             "audit_status": AUDIT_STATUS,
-            "catalog_enabled": False,
-            "certification_status": "PENDING INDEPENDENT RECERTIFICATION; disabled/catalog-hidden",
+            "static_acceptance": dict(STATIC_ACCEPTANCE),
+            "catalog_enabled": True,
+            "certification_status": "STATIC EMITTED-BYTE GO; catalog-visible for stock modes; runtime/player confirmation pending",
             "source": {"size": len(original), "sha256": expected_sha},
             "companion": {
                 "path": "data/candidates/VVFP VV2 Full Mastery Candidate.dll",
@@ -1266,9 +1293,22 @@ def _validate_generated_bundle(
         if record.get("implementation_commit") != IMPLEMENTATION_COMMIT:
             raise ValueError("generated provenance implementation commit mismatch")
         if record.get("audit_commit") is not None or record.get("acceptance_commit") is not None:
-            raise ValueError("generated provenance must not claim audit or acceptance")
-    if parsed_manifest.get("enabled") or not parsed_manifest.get("catalog_hidden"):
-        raise ValueError("candidate must remain disabled and catalog-hidden")
+            raise ValueError("generated provenance must not use circular legacy audit/acceptance fields")
+        static = record.get("static_acceptance")
+        if not isinstance(static, dict) or static.get("status") != "GO":
+            raise ValueError("static acceptance evidence is missing")
+        if static.get("evidence_commit") != STATIC_ACCEPTANCE_COMMIT:
+            raise ValueError("static acceptance evidence commit mismatch")
+        if static.get("implementation_commit") != IMPLEMENTATION_COMMIT:
+            raise ValueError("static acceptance implementation binding mismatch")
+        if static.get("runtime_player_status") != "pending":
+            raise ValueError("runtime/player status must remain pending")
+        if static.get("allowed_modes") != list(MODES) or static.get("rejected_modes") != list(REJECTED_MODES):
+            raise ValueError("static acceptance mode contract mismatch")
+    if not parsed_manifest.get("enabled") or parsed_manifest.get("catalog_hidden"):
+        raise ValueError("candidate must remain enabled and catalog-visible")
+    if not parsed_map.get("catalog_enabled"):
+        raise ValueError("candidate map catalog gate is not enabled")
     if parsed_manifest.get("supported_modes") != list(MODES):
         raise ValueError("supported mode contract mismatch")
     if not bundle["docs/vv2-full-mastery-stage-a-candidate.md"].decode("utf-8").strip():
@@ -1562,6 +1602,17 @@ def main(argv: list[str] | None = None) -> None:
         rendered[mode]["collision_status"] = "PASS"
         rendered[mode]["uninstall_target_sha256"] = sha(baseline)
     artifact["rendered_candidates"] = rendered
+    static_rendered = {
+        mode: {
+            "candidate_sha256": details["candidate_sha256"],
+            "baseline_sha256": details["baseline_sha256"],
+            "uninstall_target_sha256": details["uninstall_target_sha256"],
+            "size": details["size"],
+        }
+        for mode, details in rendered.items()
+    }
+    manifest["static_acceptance"]["rendered_candidates"] = static_rendered
+    artifact["static_acceptance"] = json.loads(json.dumps(manifest["static_acceptance"]))
     audit_manifest = {
         "candidate_id": manifest["id"],
         "source_commit": artifact["source_commit"],
@@ -1569,6 +1620,7 @@ def main(argv: list[str] | None = None) -> None:
         "acceptance_commit": artifact["acceptance_commit"],
         "audit_commit": artifact["audit_commit"],
         "audit_status": artifact["audit_status"],
+        "static_acceptance": json.loads(json.dumps(manifest["static_acceptance"])),
         "implementation_status": "committed",
         "enabled": manifest["enabled"],
         "catalog_hidden": manifest["catalog_hidden"],
@@ -1588,17 +1640,18 @@ def main(argv: list[str] | None = None) -> None:
         "companion": manifest["companion_files"],
     }
     doc = (
-        "# VV2 Full Mastery repaired candidate (pending recertification)\n\n"
-        "This disabled, catalog-hidden stock-only candidate is generated from the "
-        "C138 D133/D134 local-layout repair. It remains unavailable pending independent "
-        "recertification; no player package is produced by this task.\n\n"
+        "# VV2 Full Mastery repaired candidate (static certification GO)\n\n"
+        "This enabled, catalog-visible stock-only candidate is generated from the "
+        "C138 D133/D134 local-layout repair and is available only in Collection "
+        "Progression and Immediate Fixed modes. Runtime/player confirmation remains "
+        "pending; no player package is produced by this task.\n\n"
         f"- Section SHA-256: `{artifact['section_sha256']}`\n"
         f"- Companion SHA-256: `{artifact['companion']['sha256']}`\n"
         f"- Entry SHA-256: `{artifact['entry_sha256']}`\n"
         f"- Walker SHA-256: `{artifact['walker_sha256']}`\n"
         f"- Confirmation SHA-256: `{artifact['confirmation_sha256']}`\n\n"
-        f"Provenance is bound to implementation commit `{IMPLEMENTATION_COMMIT}` (source and implementation). "
-        "Acceptance and audit commits are explicitly null; independent recertification remains pending and no audit identity is claimed.\n\n"
+        f"Binary provenance is bound to implementation commit `{IMPLEMENTATION_COMMIT}` (source and implementation). "
+        f"Static acceptance is an independent GO recorded by `{STATIC_ACCEPTANCE_COMMIT}`; runtime/player confirmation remains pending.\n\n"
         "The candidate appends `.vv2fm`; it never uses or changes `.shr`. It "
         "adds command 7 only, with commands 6/8, ownership, Remove, Gong, and "
         "Island Event interception absent. The five native skill IDs are "

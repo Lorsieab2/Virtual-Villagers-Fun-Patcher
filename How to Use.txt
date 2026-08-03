@@ -34,6 +34,9 @@ save-recognition, and complete 256-villager save/reload testing.
    were reported to crash after the purchased/success dialog; this does not
    infer whether the charge or action persisted. Unrelated VV2 features remain
    available.
+   "Grant Full Mastery to All Villagers" is available as the separate static
+   command-7 candidate for stock Collection Progression and Immediate Fixed;
+   runtime/player confirmation remains pending and both Expanded modes reject.
 5. Optional for The Secret City: check
    "Nature Level 1 Actually Replenishes Food Sources Faster" and/or
    "Nature Level 3 Actually Alters Mortality" and/or

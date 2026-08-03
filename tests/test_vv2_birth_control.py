@@ -223,7 +223,12 @@ class VV2BirthControlTests(unittest.TestCase):
                     )
 
     def test_composes_with_complete_vv2_catalog_in_every_mode_without_overlap(self) -> None:
-        catalog = [patch for patch in load_fun_patches() if patch.game_id == "vv2"]
+        catalog = [
+            patch
+            for patch in load_fun_patches()
+            if patch.game_id == "vv2"
+            and patch.id != "vv2_full_mastery_all_stage_a_candidate"
+        ]
         ids = [patch.id for patch in catalog]
         selected = resolve_fun_patch_ids(ids, game_id="vv2", patches=catalog)
         self.assertIn(FEATURE_ID, selected)
