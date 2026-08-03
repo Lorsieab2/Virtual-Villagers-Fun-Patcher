@@ -16,6 +16,8 @@ MANIFEST_OUT = OUT_DIR / "vv2_full_mastery_all_candidate.json"
 MAP_OUT = OUT_DIR / "vv2_full_mastery_all_candidate_map.json"
 DOC_OUT = ROOT / "docs" / "vv2-full-mastery-stage-a-candidate.md"
 COMPANION = OUT_DIR / "VVFP VV2 Full Mastery Candidate.dll"
+IMPLEMENTATION_COMMIT = "895340333d55273e599f2dce5ab0db42cbc6d0ab"
+AUDIT_STATUS = "pending independent recertification"
 
 sys.path.insert(0, str(ROOT / ".tools" / "keystone"))
 sys.path.insert(0, str(ROOT / ".tools" / "keystone-runtime"))
@@ -932,6 +934,11 @@ def build() -> tuple[dict[str, object], dict[str, object]]:
         "enabled": False,
         "catalog_hidden": True,
         "certification_status": "PENDING INDEPENDENT RECERTIFICATION after native manager/pool transport repair; disabled and catalog-hidden",
+        "source_commit": IMPLEMENTATION_COMMIT,
+        "implementation_commit": IMPLEMENTATION_COMMIT,
+        "acceptance_commit": None,
+        "audit_commit": None,
+        "audit_status": AUDIT_STATUS,
         "description": (
             "Disabled command-7-only stock candidate. The repaired transaction uses "
             "the native manager getter, changed-only native skill writer, native "
@@ -1074,9 +1081,11 @@ def build() -> tuple[dict[str, object], dict[str, object]]:
 
     artifact.update(
         {
-            "acceptance_commit": "PENDING_INDEPENDENT_RECERTIFICATION",
-            "implementation_commit": "PENDING_C138_IMPLEMENTATION_COMMIT",
-            "audit_status": "pending independent recertification; no audit commit claimed",
+            "source_commit": IMPLEMENTATION_COMMIT,
+            "implementation_commit": IMPLEMENTATION_COMMIT,
+            "acceptance_commit": None,
+            "audit_commit": None,
+            "audit_status": AUDIT_STATUS,
             "catalog_enabled": False,
             "certification_status": "PENDING INDEPENDENT RECERTIFICATION; disabled/catalog-hidden",
             "source": {"size": len(original), "sha256": expected_sha},
@@ -1187,6 +1196,8 @@ def main() -> None:
         f"- Entry SHA-256: `{artifact['entry_sha256']}`\n"
         f"- Walker SHA-256: `{artifact['walker_sha256']}`\n"
         f"- Confirmation SHA-256: `{artifact['confirmation_sha256']}`\n\n"
+        f"Provenance is bound to implementation commit `{IMPLEMENTATION_COMMIT}` (source and implementation). "
+        "Acceptance and audit commits are explicitly null; independent recertification remains pending and no audit identity is claimed.\n\n"
         "The candidate appends `.vv2fm`; it never uses or changes `.shr`. It "
         "adds command 7 only, with commands 6/8, ownership, Remove, Gong, and "
         "Island Event interception absent. The five native skill IDs are "

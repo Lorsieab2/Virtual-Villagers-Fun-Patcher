@@ -5,6 +5,7 @@ import json
 import struct
 import subprocess
 import sys
+import tempfile
 import unittest
 from copy import deepcopy
 from pathlib import Path
@@ -159,6 +160,40 @@ class VV2FullMasteryCandidateTests(unittest.TestCase):
             self.assertEqual(record["audit_status"], "pending independent recertification")
         self.assertEqual(len(self.raw["implementation_commit"]), 40)
         self.assertEqual(len(self.map["implementation_commit"]), 40)
+
+    def test_generator_provenance_parity_in_ignored_output(self) -> None:
+        protected = {path: path.read_bytes() for path in (MANIFEST, MAP, DOC)}
+        try:
+            subprocess.run([sys.executable, str(GENERATOR)], cwd=ROOT, check=True)
+            generated_manifest = json.loads(MANIFEST.read_text(encoding="utf-8"))
+            generated_map = json.loads(MAP.read_text(encoding="utf-8"))
+            with tempfile.TemporaryDirectory(dir=ROOT / "outputs") as temp:
+                temp_dir = Path(temp)
+                artifact_manifest = {
+                    key: generated_manifest[key]
+                    for key in ("source_commit", "implementation_commit", "acceptance_commit", "audit_commit", "audit_status")
+                }
+                (temp_dir / "artifact-manifest.json").write_text(
+                    json.dumps(artifact_manifest, indent=2) + "\n", encoding="utf-8"
+                )
+                (temp_dir / "source-map.json").write_text(
+                    json.dumps(generated_map, indent=2) + "\n", encoding="utf-8"
+                )
+                generated_records = (
+                    generated_manifest,
+                    generated_map,
+                    json.loads((temp_dir / "artifact-manifest.json").read_text(encoding="utf-8")),
+                    json.loads((temp_dir / "source-map.json").read_text(encoding="utf-8")),
+                )
+                for record in generated_records:
+                    self.assertEqual(record["source_commit"], IMPLEMENTATION_COMMIT)
+                    self.assertEqual(record["implementation_commit"], IMPLEMENTATION_COMMIT)
+                    self.assertIsNone(record["acceptance_commit"])
+                    self.assertIsNone(record["audit_commit"])
+                    self.assertEqual(record["audit_status"], "pending independent recertification")
+        finally:
+            for path, payload in protected.items():
+                path.write_bytes(payload)
 
     def test_source_fingerprint_section_geometry_and_iat_guards(self) -> None:
         source = STOCK.read_bytes()
