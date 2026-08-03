@@ -33,6 +33,7 @@ MAP = ROOT / "data" / "candidates" / "vv2_full_mastery_all_candidate_map.json"
 DOC = ROOT / "docs" / "vv2-full-mastery-stage-a-candidate.md"
 DLL = ROOT / "data" / "candidates" / "VVFP VV2 Full Mastery Candidate.dll"
 IMPLEMENTATION_COMMIT = "895340333d55273e599f2dce5ab0db42cbc6d0ab"
+AUDIT = ROOT / "outputs" / "vv2-c138-native-audit"
 MODES = (
     "collection_progression",
     "immediate_fixed",
@@ -161,39 +162,78 @@ class VV2FullMasteryCandidateTests(unittest.TestCase):
         self.assertEqual(len(self.raw["implementation_commit"]), 40)
         self.assertEqual(len(self.map["implementation_commit"]), 40)
 
-    def test_generator_provenance_parity_in_ignored_output(self) -> None:
-        protected = {path: path.read_bytes() for path in (MANIFEST, MAP, DOC)}
-        try:
-            subprocess.run([sys.executable, str(GENERATOR)], cwd=ROOT, check=True)
-            generated_manifest = json.loads(MANIFEST.read_text(encoding="utf-8"))
-            generated_map = json.loads(MAP.read_text(encoding="utf-8"))
-            with tempfile.TemporaryDirectory(dir=ROOT / "outputs") as temp:
-                temp_dir = Path(temp)
-                artifact_manifest = {
-                    key: generated_manifest[key]
-                    for key in ("source_commit", "implementation_commit", "acceptance_commit", "audit_commit", "audit_status")
-                }
-                (temp_dir / "artifact-manifest.json").write_text(
-                    json.dumps(artifact_manifest, indent=2) + "\n", encoding="utf-8"
-                )
-                (temp_dir / "source-map.json").write_text(
-                    json.dumps(generated_map, indent=2) + "\n", encoding="utf-8"
-                )
-                generated_records = (
-                    generated_manifest,
-                    generated_map,
-                    json.loads((temp_dir / "artifact-manifest.json").read_text(encoding="utf-8")),
-                    json.loads((temp_dir / "source-map.json").read_text(encoding="utf-8")),
-                )
-                for record in generated_records:
-                    self.assertEqual(record["source_commit"], IMPLEMENTATION_COMMIT)
-                    self.assertEqual(record["implementation_commit"], IMPLEMENTATION_COMMIT)
-                    self.assertIsNone(record["acceptance_commit"])
-                    self.assertIsNone(record["audit_commit"])
-                    self.assertEqual(record["audit_status"], "pending independent recertification")
-        finally:
-            for path, payload in protected.items():
-                path.write_bytes(payload)
+    def test_generator_output_root_isolated_and_provenance_parity(self) -> None:
+        tracked = (MANIFEST, MAP, DOC)
+        before = {path: sha(path.read_bytes()) for path in (*tracked, DLL)}
+        with tempfile.TemporaryDirectory(dir=ROOT / "outputs") as temp:
+            output_root = Path(temp)
+            subprocess.run(
+                [
+                    sys.executable,
+                    str(GENERATOR),
+                    "--output-root",
+                    str(output_root),
+                    "--emit-executables",
+                ],
+                cwd=ROOT,
+                check=True,
+            )
+            generated_manifest = json.loads(
+                (output_root / "data" / "candidates" / MANIFEST.name).read_text(encoding="utf-8")
+            )
+            generated_map = json.loads(
+                (output_root / "data" / "candidates" / MAP.name).read_text(encoding="utf-8")
+            )
+            self.assertEqual(generated_manifest, self.raw)
+            self.assertEqual(generated_map, self.map)
+            self.assertEqual(
+                (output_root / "docs" / DOC.name).read_text(encoding="utf-8"),
+                DOC.read_text(encoding="utf-8"),
+            )
+            audit_manifest = json.loads(
+                (output_root / "audit" / "artifact-manifest.json").read_text(encoding="utf-8")
+            )
+            audit_map = json.loads(
+                (output_root / "audit" / "source-map.json").read_text(encoding="utf-8")
+            )
+            self.assertEqual(audit_map, self.map)
+            self.assertEqual(audit_manifest["candidate_id"], self.raw["id"])
+            for record in (self.raw, self.map, audit_manifest, audit_map):
+                self.assertEqual(record["source_commit"], IMPLEMENTATION_COMMIT)
+                self.assertEqual(record["implementation_commit"], IMPLEMENTATION_COMMIT)
+                self.assertIsNone(record["acceptance_commit"])
+                self.assertIsNone(record["audit_commit"])
+                self.assertEqual(record["audit_status"], "pending independent recertification")
+            self.assertEqual(
+                sha((output_root / "audit" / "collection_progression.exe").read_bytes()),
+                sha((AUDIT / "collection_progression.exe").read_bytes()),
+            )
+            self.assertEqual(
+                sha((output_root / "audit" / "immediate_fixed.exe").read_bytes()),
+                sha((AUDIT / "immediate_fixed.exe").read_bytes()),
+            )
+            self.assertEqual(before, {path: sha(path.read_bytes()) for path in (*tracked, DLL)})
+        self.assertEqual(before, {path: sha(path.read_bytes()) for path in (*tracked, DLL)})
+
+    def test_generator_output_root_containment_fails_before_write(self) -> None:
+        for invalid in (ROOT, ROOT / "data", ROOT / "docs"):
+            result = subprocess.run(
+                [sys.executable, str(GENERATOR), "--output-root", str(invalid)],
+                cwd=ROOT,
+                capture_output=True,
+                text=True,
+            )
+            self.assertNotEqual(result.returncode, 0, invalid)
+        with tempfile.TemporaryDirectory(dir=ROOT / "outputs") as parent:
+            invalid = Path(parent) / "missing" / "root"
+            result = subprocess.run(
+                [sys.executable, str(GENERATOR), "--output-root", str(invalid)],
+                cwd=ROOT,
+                capture_output=True,
+                text=True,
+            )
+            self.assertNotEqual(result.returncode, 0)
+            self.assertFalse(invalid.exists())
 
     def test_source_fingerprint_section_geometry_and_iat_guards(self) -> None:
         source = STOCK.read_bytes()
@@ -514,25 +554,6 @@ class VV2FullMasteryCandidateTests(unittest.TestCase):
                     _fun_patches_override=[self.candidate, *others],
                 )
                 self.assertEqual(len(rendered), 0xB3000)
-
-    def test_generator_is_deterministic(self) -> None:
-        before = {
-            path: sha(path.read_bytes())
-            for path in (MANIFEST, MAP, DOC, DLL)
-        }
-        protected = {path: path.read_bytes() for path in (MANIFEST, MAP, DOC)}
-        try:
-            subprocess.run([sys.executable, str(GENERATOR)], cwd=ROOT, check=True)
-            self.assertEqual(before[DLL], sha(DLL.read_bytes()))
-        finally:
-            for path, payload in protected.items():
-                path.write_bytes(payload)
-        after = {
-            path: sha(path.read_bytes())
-            for path in (MANIFEST, MAP, DOC, DLL)
-        }
-        self.assertEqual(before, after)
-
 
 if __name__ == "__main__":
     unittest.main()

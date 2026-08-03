@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import hashlib
+import argparse
 import json
 import struct
 import sys
@@ -16,6 +17,7 @@ MANIFEST_OUT = OUT_DIR / "vv2_full_mastery_all_candidate.json"
 MAP_OUT = OUT_DIR / "vv2_full_mastery_all_candidate_map.json"
 DOC_OUT = ROOT / "docs" / "vv2-full-mastery-stage-a-candidate.md"
 COMPANION = OUT_DIR / "VVFP VV2 Full Mastery Candidate.dll"
+AUDIT_OUT = ROOT / "outputs" / "vv2-c138-native-audit"
 IMPLEMENTATION_COMMIT = "895340333d55273e599f2dce5ab0db42cbc6d0ab"
 AUDIT_STATUS = "pending independent recertification"
 
@@ -87,6 +89,52 @@ REJECTED_MODES = (
     "experimental_expanded_256",
     "experimental_expanded_256_progression",
 )
+
+
+def resolve_output_paths(output_root: Path | None) -> dict[str, Path]:
+    """Resolve every generated destination under one root, or default tracked paths."""
+    if output_root is None:
+        return {
+            "manifest": MANIFEST_OUT,
+            "map": MAP_OUT,
+            "doc": DOC_OUT,
+            "audit_dir": AUDIT_OUT,
+            "audit_manifest": AUDIT_OUT / "artifact-manifest.json",
+            "audit_source_map": AUDIT_OUT / "source-map.json",
+        }
+
+    root = output_root.expanduser().resolve(strict=False)
+    tracked_root = ROOT.resolve()
+    outputs_root = (ROOT / "outputs").resolve()
+    forbidden_tracked = tuple(
+        (ROOT / name).resolve()
+        for name in ("assets", "data", "docs", "native", "research", "scripts", "src")
+    )
+    if root == tracked_root or root in tracked_root.parents:
+        raise ValueError("output root cannot be the repository or one of its parents")
+    inside_outputs = root == outputs_root or outputs_root in root.parents
+    if tracked_root in root.parents and not inside_outputs:
+        raise ValueError("output root cannot escape into a mixed repository path")
+    if any(root == forbidden or forbidden in root.parents for forbidden in forbidden_tracked):
+        raise ValueError("output root cannot be inside tracked source/configuration paths")
+    if root.exists() and not root.is_dir():
+        raise ValueError("output root exists but is not a directory")
+    if not root.parent.exists() or not root.parent.is_dir():
+        raise ValueError("output root parent directory is missing")
+
+    paths = {
+        "manifest": root / "data" / "candidates" / MANIFEST_OUT.name,
+        "map": root / "data" / "candidates" / MAP_OUT.name,
+        "doc": root / "docs" / DOC_OUT.name,
+        "audit_dir": root / "audit",
+        "audit_manifest": root / "audit" / "artifact-manifest.json",
+        "audit_source_map": root / "audit" / "source-map.json",
+    }
+    for path in paths.values():
+        resolved = path.resolve(strict=False)
+        if resolved != root and root not in resolved.parents:
+            raise ValueError("resolved output path escapes output root")
+    return paths
 
 
 def asm(source: str, address: int) -> bytes:
@@ -1144,8 +1192,21 @@ def build() -> tuple[dict[str, object], dict[str, object]]:
     return manifest, artifact
 
 
-def main() -> None:
+def main(argv: list[str] | None = None) -> None:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        "--output-root",
+        type=Path,
+        help="redirect all generated metadata/audit files beneath this directory",
+    )
+    parser.add_argument(
+        "--emit-executables",
+        action="store_true",
+        help="also emit Collection Progression and Immediate Fixed candidate EXEs under the audit directory",
+    )
+    args = parser.parse_args(argv)
     manifest, artifact = build()
+    paths = resolve_output_paths(args.output_root)
     from vv_fun_patcher import FunPatch, load_builds, load_fun_patches, render_patched_bytes
 
     build_record = next(item for item in load_builds() if item.id == "vv2")
@@ -1156,6 +1217,7 @@ def main() -> None:
         if item.game_id == "vv2" and item.id != manifest["id"]
     ]
     rendered: dict[str, object] = {}
+    emitted_images: dict[str, bytes] = {}
     for mode in MODES:
         baseline, _ = render_patched_bytes(STOCK, build_record, mode)
         image, applied = render_patched_bytes(
@@ -1171,6 +1233,7 @@ def main() -> None:
             "pe_checksum": f"0x{struct.unpack_from('<I', image, _pe_layout(image)['checksum_offset'])[0]:08X}",
             "owners": sorted({item["owner"] for item in applied}),
         }
+        emitted_images[mode] = image
         all_image, all_applied = render_patched_bytes(
             STOCK,
             build_record,
@@ -1184,9 +1247,32 @@ def main() -> None:
         rendered[mode]["collision_status"] = "PASS"
         rendered[mode]["uninstall_target_sha256"] = sha(baseline)
     artifact["rendered_candidates"] = rendered
-    MANIFEST_OUT.write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
-    MAP_OUT.write_text(json.dumps(artifact, indent=2) + "\n", encoding="utf-8")
-    DOC_OUT.write_text(
+    audit_manifest = {
+        "candidate_id": manifest["id"],
+        "source_commit": artifact["source_commit"],
+        "implementation_commit": artifact["implementation_commit"],
+        "acceptance_commit": artifact["acceptance_commit"],
+        "audit_commit": artifact["audit_commit"],
+        "audit_status": artifact["audit_status"],
+        "implementation_status": "committed",
+        "enabled": manifest["enabled"],
+        "catalog_hidden": manifest["catalog_hidden"],
+        "allowed_modes": list(MODES),
+        "rejected_modes": list(REJECTED_MODES),
+        "rendered": {
+            mode: {
+                "path": f"{mode}.exe",
+                "sha256": details["candidate_sha256"],
+                "size": details["size"],
+                "deterministic_second_sha256": details["candidate_sha256"],
+                "uninstall_stock_sha256": details["uninstall_target_sha256"],
+                "owners": details["owners"],
+            }
+            for mode, details in rendered.items()
+        },
+        "companion": manifest["companion_files"],
+    }
+    doc = (
         "# VV2 Full Mastery repaired candidate (pending recertification)\n\n"
         "This disabled, catalog-hidden stock-only candidate is generated from the "
         "C138 D133/D134 local-layout repair. It remains unavailable pending independent "
@@ -1220,9 +1306,27 @@ def main() -> None:
         "Expanded-256 modes are rejected before output. The raw manifest and "
         "complete map are under `data/candidates/`. If a native writer succeeds "
         "and a later postverify fails, the candidate reports no-charge failure "
-        "without an unproved rollback of already-applied native changes.\n",
-        encoding="utf-8",
+        "without an unproved rollback of already-applied native changes.\n"
     )
+    output_files = [
+        paths["manifest"],
+        paths["map"],
+        paths["doc"],
+        paths["audit_manifest"],
+        paths["audit_source_map"],
+    ]
+    if args.emit_executables:
+        output_files.extend(paths["audit_dir"] / f"{mode}.exe" for mode in MODES)
+    for output in output_files:
+        output.parent.mkdir(parents=True, exist_ok=True)
+    paths["manifest"].write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
+    paths["map"].write_text(json.dumps(artifact, indent=2) + "\n", encoding="utf-8")
+    paths["doc"].write_text(doc, encoding="utf-8")
+    paths["audit_manifest"].write_text(json.dumps(audit_manifest, indent=2) + "\n", encoding="utf-8")
+    paths["audit_source_map"].write_text(json.dumps(artifact, indent=2) + "\n", encoding="utf-8")
+    if args.emit_executables:
+        for mode, image in emitted_images.items():
+            (paths["audit_dir"] / f"{mode}.exe").write_bytes(image)
 
 
 if __name__ == "__main__":
