@@ -1,36 +1,39 @@
 {
-  "section_sha256": "0D0DD6DBEA7236807D15ED7047F08E7B8CC8B9AB098051C29A49C1AFDC31C61A",
-  "entry_sha256": "68EB76203CA0AC65F3A608AEA8466B881BEFF536E8E88C64BAD7C8148C2A3D99",
-  "walker_sha256": "7B01459A15542151B07D8A716731646A165C190C064B7BCB6CEB67EB1E1FAC94",
+  "section_sha256": "50E28082858BA3C413223109EF25408884C1B7165128ED98B4C24EB913B45070",
+  "entry_sha256": "48B02CAF6C1E99BF477DA0CBA76F89A9D4371679739EF404FB60BF1EBBD3E1E4",
+  "walker_sha256": "9D0F75C1A2E27CEB96DB777E43F333140A3F639F98E2455A0D706B5F48D6C98F",
   "telemetry_sha256": "8036B4818E39533B3F5BEBF1EC38A94A71B05EE8BE72FB1EFA0B9AD72789B907",
-  "confirmation_sha256": "07011CB557B6FCF7560AACB750D41851895C6856D851A567A4B952128E6B6258",
-  "menu_resolver_sha256": "36BC57CB226CC61375D67F7673011A50A293B51F3AB651466B5162EE11CB832B",
-  "result_resolver_sha256": "1F557F2DBA3FB2A988DC0547D28DFFA7046A76B5CEA37AFA56B8740AF6C7E348",
+  "confirmation_sha256": "8868C87F2B66AD9D69F1DC7A08A469E5C5C478727955A5E1E4F6DA4EEB306B2C",
+  "menu_resolver_sha256": "38B1AECEABF47C01B945AB438954C2489C83DDC3E5C573E81321F94C2E360B4F",
+  "result_resolver_sha256": "B7002D2C62F475914719A8A99B65BEC7580B7026E7FB3A991046CBCC77FB8D0B",
   "offsets": {
     "handler": "0x0",
     "constructor": "0x40",
     "entry": "0x100",
     "walker": "0x380",
-    "telemetry": "0x520",
-    "confirmation": "0x680",
-    "menu_resolver": "0x740",
-    "result_resolver": "0x7C0",
-    "strings": "0x900"
+    "telemetry": "0x800",
+    "confirmation": "0xA00",
+    "menu_resolver": "0xB00",
+    "result_resolver": "0xC00",
+    "strings": "0x1000"
   },
   "strings": {
-    "button": "0x4B3900",
-    "candidate_dll": "0x4B3911",
-    "menu_export": "0x4B3935",
-    "result_export": "0x4B394C",
-    "user32": "0x4B3965",
-    "message_box": "0x4B3970",
-    "warning": "0x4B397C",
-    "caption": "0x4B39F8"
+    "button": "0x4B4000",
+    "candidate_dll": "0x4B4011",
+    "menu_export": "0x4B4035",
+    "result_export": "0x4B404C",
+    "user32": "0x4B4065",
+    "message_box": "0x4B4070",
+    "warning": "0x4B407C",
+    "caption": "0x4B40F8"
   },
   "absolute_references": [
     "0x474010 LoadLibraryA IAT",
     "0x4740D4 GetProcAddress IAT",
-    "0x44D4C0 native Elder evaluator",
+    "0x44F4E0 native manager getter (no args, EAX manager)",
+    "0x445430 native changed-only skill writer (thiscall, ret 0xC)",
+    "0x44D4C0 native Elder evaluator (thiscall, exactly once)",
+    "0x426290 native tech-point writer (thiscall, ret 4, exactly once)",
     "0x467F83 stock allocation helper",
     "0x4019D0 stock button constructor",
     "0x4015D0 stock button styling",
@@ -40,23 +43,25 @@
     "handler -> entry",
     "handler -> stock continuation 0x4437C5",
     "constructor -> 0x467F83/0x4019D0/0x4015D0/0x40B560",
-    "entry -> menu/walker/confirmation/0x44D4C0/telemetry/result"
+    "entry -> 0x44F4E0/walker/confirmation/0x44D4C0/0x426290/telemetry/result"
   ],
   "iat_references": [
     "0x474010 LoadLibraryA",
     "0x4740D4 GetProcAddress"
   ],
   "base_relocations": [],
-  "acceptance_commit": "93d69a7826d3c7260ea18e1467597e7580ddbae9",
-  "audit_commit": "b5183ca0564de3dca84590254cf275f6ce4db255",
+  "acceptance_commit": "C132-PENDING-INDEPENDENT-RECERTIFICATION",
+  "audit_commit": "C132-PENDING-INDEPENDENT-RECERTIFICATION",
+  "catalog_enabled": false,
+  "certification_status": "PENDING INDEPENDENT RECERTIFICATION; disabled/catalog-hidden",
   "source": {
     "size": 724992,
     "sha256": "46C1503C209255C9CDEFA941DB2F449C8CF8E2CDD5C7D13CD975326E377ED677"
   },
   "companion": {
     "path": "data/candidates/VVFP VV2 Full Mastery Candidate.dll",
-    "size": 108544,
-    "sha256": "BDEAC1B39925834A7CD8DF7CD2C13BA7D7CBDF6E27760DAED6525092FF092699",
+    "size": 109056,
+    "sha256": "B91FEA9860B247120ADB8E6A477AE4F179AE30761A28061336FD4EA49AE7BCF9",
     "exports": {
       "ShowVV2FullMasteryMenu": {
         "ordinal": 1,
@@ -113,29 +118,39 @@
     }
   },
   "command_abi": {
-    "entry": "stock thiscall Tech-screen receiver arrives in ECX; entry saves old ESI, transports ECX to ESI, and restores old ESI on exit; menu result command is kept in EBX; bound is an independent stack argument",
-    "walker": "cdecl(base,bound,mode,snapshot); EAX changed; preserves EBX/ESI/EDI/EBP",
+    "entry": "handler retains command-7 menu routing; entry calls sub_44F4E0 for manager and never transports the Tech receiver as a pool base",
+    "manager_getter": "sub_44F4E0 takes no arguments and returns manager in EAX; records begin at manager+0x52C",
+    "walker": "cdecl(manager,bound,mode,snapshot); bound 256; mode0 dry-run, mode1 native writes, mode2 exact100 postverify; preserves EBX/ESI/EDI/EBP",
     "telemetry": "cdecl(base,bound,snapshot); ECX new markers; EDX changed-but-unmarked",
+    "skill_writer": "sub_445430 thiscall ECX=manager+0x52C; stack delta, skill id, physical index; ret 0xC",
+    "evaluator": "sub_44D4C0 thiscall ECX=manager exactly once",
+    "tech_writer": "sub_426290 thiscall ECX=state; stack signed -1000000; ret 4 exactly once after evaluator",
     "result": "stdcall(status,changed,new_markers,changed_but_unmarked); ret 16"
   },
   "modes": [
     "collection_progression",
-    "immediate_fixed",
+    "immediate_fixed"
+  ],
+  "allowed_modes": [
+    "collection_progression",
+    "immediate_fixed"
+  ],
+  "rejected_modes": [
     "experimental_expanded_256",
     "experimental_expanded_256_progression"
   ],
   "rendered_candidates": {
     "collection_progression": {
       "baseline_sha256": "AD7D6F85A363510732B1D647516389326878E5FA8756A42F4526AACDFAF0C523",
-      "candidate_sha256": "C23E2D20B00A05E38A6A25737A579FA622F28F24CAD204C66A48FB11AA985931",
+      "candidate_sha256": "EB7A0B36F16CD4DD117C963CADBBF5093088DCAE9B86E828DCFDA9587FFBB7A0",
       "size": 733184,
-      "pe_checksum": "0x000BF8CA",
+      "pe_checksum": "0x000B4B14",
       "owners": [
         "automatic:population",
         "automatic:safety",
         "feature:vv2_full_mastery_all_stage_a_candidate"
       ],
-      "all_current_vv2_sha256": "BFFB45FA52E59188E29C0C18070F462E115054EFE6BB9B1C8C07C5517710EBC7",
+      "all_current_vv2_sha256": "B6E65622FF49CB473355A24519EA1EDBCB8D8F480114645BE3B97D7EF9D762CD",
       "all_current_vv2_owners": [
         "automatic:compatibility",
         "automatic:population",
@@ -153,15 +168,15 @@
     },
     "immediate_fixed": {
       "baseline_sha256": "9EA03791F24CA5F9005AB33C09E5C8930E30BEB55E05FD2B8463894F48C50C00",
-      "candidate_sha256": "707B8DAC282F98F995CB33E45973DDAB015C3EAF6D6B65BD4C055BBD8FC4891A",
+      "candidate_sha256": "05C614FC4F821493197E6F81201BFC2E53916929BF581B55E48AB65D4915E279",
       "size": 733184,
-      "pe_checksum": "0x000BE3BA",
+      "pe_checksum": "0x000B3604",
       "owners": [
         "automatic:population",
         "automatic:safety",
         "feature:vv2_full_mastery_all_stage_a_candidate"
       ],
-      "all_current_vv2_sha256": "B3F3D4278AE81BD5AB6A504C87743B9825F62736782552715CA391A210221BA2",
+      "all_current_vv2_sha256": "E335C584AE6DDF4907598457595531B2B4159EC453C746F48D4B24F4DDE2F4C8",
       "all_current_vv2_owners": [
         "automatic:compatibility",
         "automatic:population",
@@ -176,58 +191,6 @@
       ],
       "collision_status": "PASS",
       "uninstall_target_sha256": "9EA03791F24CA5F9005AB33C09E5C8930E30BEB55E05FD2B8463894F48C50C00"
-    },
-    "experimental_expanded_256": {
-      "baseline_sha256": "9EA03791F24CA5F9005AB33C09E5C8930E30BEB55E05FD2B8463894F48C50C00",
-      "candidate_sha256": "707B8DAC282F98F995CB33E45973DDAB015C3EAF6D6B65BD4C055BBD8FC4891A",
-      "size": 733184,
-      "pe_checksum": "0x000BE3BA",
-      "owners": [
-        "automatic:population",
-        "automatic:safety",
-        "feature:vv2_full_mastery_all_stage_a_candidate"
-      ],
-      "all_current_vv2_sha256": "B3F3D4278AE81BD5AB6A504C87743B9825F62736782552715CA391A210221BA2",
-      "all_current_vv2_owners": [
-        "automatic:compatibility",
-        "automatic:population",
-        "automatic:safety",
-        "feature:vv2_birth_control",
-        "feature:vv2_easier_healing_mastery",
-        "feature:vv2_full_mastery_all_stage_a_candidate",
-        "feature:vv2_gong_of_wonder_coconuts_fix",
-        "feature:vv2_hospital_recovery_heals",
-        "feature:vv2_teaching_children_grants_skill",
-        "feature:vv2_write_village_statistics"
-      ],
-      "collision_status": "PASS",
-      "uninstall_target_sha256": "9EA03791F24CA5F9005AB33C09E5C8930E30BEB55E05FD2B8463894F48C50C00"
-    },
-    "experimental_expanded_256_progression": {
-      "baseline_sha256": "AD7D6F85A363510732B1D647516389326878E5FA8756A42F4526AACDFAF0C523",
-      "candidate_sha256": "C23E2D20B00A05E38A6A25737A579FA622F28F24CAD204C66A48FB11AA985931",
-      "size": 733184,
-      "pe_checksum": "0x000BF8CA",
-      "owners": [
-        "automatic:population",
-        "automatic:safety",
-        "feature:vv2_full_mastery_all_stage_a_candidate"
-      ],
-      "all_current_vv2_sha256": "BFFB45FA52E59188E29C0C18070F462E115054EFE6BB9B1C8C07C5517710EBC7",
-      "all_current_vv2_owners": [
-        "automatic:compatibility",
-        "automatic:population",
-        "automatic:safety",
-        "feature:vv2_birth_control",
-        "feature:vv2_easier_healing_mastery",
-        "feature:vv2_full_mastery_all_stage_a_candidate",
-        "feature:vv2_gong_of_wonder_coconuts_fix",
-        "feature:vv2_hospital_recovery_heals",
-        "feature:vv2_teaching_children_grants_skill",
-        "feature:vv2_write_village_statistics"
-      ],
-      "collision_status": "PASS",
-      "uninstall_target_sha256": "AD7D6F85A363510732B1D647516389326878E5FA8756A42F4526AACDFAF0C523"
     }
   }
 }

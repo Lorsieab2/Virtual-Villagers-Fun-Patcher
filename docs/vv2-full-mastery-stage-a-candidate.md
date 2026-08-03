@@ -1,11 +1,11 @@
-# VV2 Full Mastery withdrawn candidate
+# VV2 Full Mastery repaired candidate (pending recertification)
 
-This artifact is generated from disassembly acceptance contract `93d69a7826d3c7260ea18e1467597e7580ddbae9` and confirmation ABI `b5183ca0564de3dca84590254cf275f6ce4db255`. It remains **HARD WITHDRAWN and catalog-hidden** after live Buy crashed at walker+0x1E with invalid ESI before the warning.
+This disabled, catalog-hidden stock-only candidate is generated from the C132 native ABI repair. It remains unavailable pending independent recertification; no player package is produced by this task.
 
-- Section SHA-256: `0D0DD6DBEA7236807D15ED7047F08E7B8CC8B9AB098051C29A49C1AFDC31C61A`
-- Companion SHA-256: `BDEAC1B39925834A7CD8DF7CD2C13BA7D7CBDF6E27760DAED6525092FF092699`
-- Entry SHA-256: `68EB76203CA0AC65F3A608AEA8466B881BEFF536E8E88C64BAD7C8148C2A3D99`
-- Walker SHA-256: `7B01459A15542151B07D8A716731646A165C190C064B7BCB6CEB67EB1E1FAC94`
-- Confirmation SHA-256: `07011CB557B6FCF7560AACB750D41851895C6856D851A567A4B952128E6B6258`
+- Section SHA-256: `50E28082858BA3C413223109EF25408884C1B7165128ED98B4C24EB913B45070`
+- Companion SHA-256: `B91FEA9860B247120ADB8E6A477AE4F179AE30761A28061336FD4EA49AE7BCF9`
+- Entry SHA-256: `48B02CAF6C1E99BF477DA0CBA76F89A9D4371679739EF404FB60BF1EBBD3E1E4`
+- Walker SHA-256: `9D0F75C1A2E27CEB96DB777E43F333140A3F639F98E2455A0D706B5F48D6C98F`
+- Confirmation SHA-256: `8868C87F2B66AD9D69F1DC7A08A469E5C5C478727955A5E1E4F6DA4EEB306B2C`
 
-The candidate appends `.vv2fm`; it never uses or changes `.shr`. It adds command 7 only, with commands 6/8, ownership, Remove, Gong, and Island Event interception absent. The raw manifest and complete map are under `data/candidates/`.
+The candidate appends `.vv2fm`; it never uses or changes `.shr`. It adds command 7 only, with commands 6/8, ownership, Remove, Gong, and Island Event interception absent. The transaction performs a complete 256-record dry run before funds/confirmation, reacquires the manager, uses only sub_445430 for changed skills, post-verifies exact 100, calls sub_44D4C0 once, then sub_426290 once for the single deduction. Expanded-256 modes are rejected before output. The raw manifest and complete map are under `data/candidates/`. If a native writer succeeds and a later postverify fails, the candidate reports no-charge failure without an unproved rollback of already-applied native changes.

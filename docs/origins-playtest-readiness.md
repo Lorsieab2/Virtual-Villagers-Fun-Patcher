@@ -277,7 +277,7 @@ composition checks. It does not modify manifests, executable payloads, saves,
 prices, ownership behavior, or companion DLLs.
 The isolated VV2 command-7-only implementation is now emitted-byte certified
 under `913be6982bc17d606470f31d3df3d3430942cb6a`, but it is now HARD WITHDRAWN
-and catalog-hidden after live Buy crashed at walker+0x1E with invalid ESI
+and catalog-hidden pending independent recertification of its native manager/pool repair
 before the warning. It sets only below-100 values in the five native
 skill fields to 100, calls native `sub_44D4C0` once per changed villager, and
 reports native Elder/totem outcomes including the 50-totem cap. Commands 6 and

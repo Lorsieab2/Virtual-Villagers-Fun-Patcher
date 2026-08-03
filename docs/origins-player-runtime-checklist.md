@@ -256,7 +256,7 @@ outcome bypassing Birth Control as a defect; that bypass is required.
 | Tech Point Doubler | 500,000 tech points; VV1/VV3/VV4 unowned purchase and repurchase remain unavailable. VV5 stock supports purchase, zero-cost/no-refund Remove, and full-price repurchase; VV5 expanded-256 keeps new purchase unavailable and owned Remove available. |
 | Food Point Doubler | 500,000 tech points; VV1/VV3/VV4 unowned purchase and repurchase remain unavailable. VV5 stock supports purchase, zero-cost/no-refund Remove, and full-price repurchase; VV5 expanded-256 keeps new purchase unavailable and owned Remove available. |
 | Cure all Villagers | 30,000 tech points; test the sickness-only matrix below. |
-| Village-wide rows | VV2's isolated 1,000,000 tech points Full Mastery candidate is HARD WITHDRAWN after live Buy crashed at walker+0x1E with invalid ESI before the warning. VV3Run2 is hard-withdrawn pending runtime fault capture. Both are catalog-hidden; every legacy bundled row and every command 8 row remain unavailable. |
+| Village-wide rows | VV2's isolated 1,000,000 tech points Full Mastery candidate now has a native manager/pool transaction repair, but remains disabled and catalog-hidden pending independent recertification. VV3Run2 remains hard-withdrawn pending runtime fault capture. Every legacy bundled row and every command 8 row remain unavailable. |
 
 For VV5, Time Warp, Island Event, and Barrel of Babies remain Unavailable:
 selecting them must make no charge, native call, clock change, or save/state

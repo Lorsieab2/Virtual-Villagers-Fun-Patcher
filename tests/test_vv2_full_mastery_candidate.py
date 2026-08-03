@@ -34,6 +34,8 @@ DLL = ROOT / "data" / "candidates" / "VVFP VV2 Full Mastery Candidate.dll"
 MODES = (
     "collection_progression",
     "immediate_fixed",
+)
+REJECTED_MODES = (
     "experimental_expanded_256",
     "experimental_expanded_256_progression",
 )
@@ -42,6 +44,16 @@ SKILLS = ("farming", "building", "research", "healing", "parenting")
 
 def sha(data: bytes) -> str:
     return hashlib.sha256(data).hexdigest().upper()
+
+
+def call_targets(page: bytes, base: int = 0x4B3000) -> list[int]:
+    targets: list[int] = []
+    for offset, byte in enumerate(page[:-4]):
+        if byte != 0xE8:
+            continue
+        rel = struct.unpack_from("<i", page, offset + 1)[0]
+        targets.append(base + offset + 5 + rel)
+    return targets
 
 
 def semantic_walk(records: list[dict[str, object]], commit: bool) -> tuple[int, list[int]]:
@@ -70,22 +82,26 @@ def transaction(
     confirm: int,
     mutate_before_final=None,
 ) -> tuple[str, int, int, int]:
-    if balance < 1_000_000:
-        return "insufficient", balance, 0, 0
+    for record in records:
+        if record["active"] and int(record["health"]) > 0 and not record["is_totem"]:
+            if any(int(record["skills"][name]) < 0 or int(record["skills"][name]) > 100 for name in SKILLS):
+                return "invalid", balance, 0, 0
     first, _ = semantic_walk(records, False)
     if first == 0:
         return "no_change", balance, 0, 0
+    if balance < 1_000_000:
+        return "insufficient", balance, 0, 0
     if confirm != 1:
         return "cancel", balance, 0, 0
     if mutate_before_final:
         mutate_before_final(records)
-    if balance < 1_000_000:
-        return "insufficient", balance, 0, 0
     final, _ = semantic_walk(records, False)
     if final == 0:
         return "no_change", balance, 0, 0
-    balance -= 1_000_000
     committed, snapshot = semantic_walk(records, True)
+    if any(int(item["skills"][name]) != 100 for item in records for name in SKILLS):
+        return "recheck_failed", balance, committed, sum(1 for item in snapshot if item)
+    balance -= 1_000_000
     return "committed", balance, committed, sum(1 for item in snapshot if item)
 
 
@@ -101,8 +117,8 @@ class VV2FullMasteryCandidateTests(unittest.TestCase):
         self.assertFalse(self.raw["enabled"])
         self.assertEqual(self.raw["id"], "vv2_full_mastery_all_stage_a_candidate")
         self.assertNotIn(self.raw["id"], {item.id for item in load_fun_patches()})
-        self.assertIn("walker+0x1E", self.raw["certification_status"])
-        self.assertIn("invalid ESI", self.raw["certification_status"])
+        self.assertIn("PENDING", self.raw["certification_status"])
+        self.assertTrue(self.raw["catalog_hidden"])
         contract = self.raw["transaction_contract"]
         self.assertEqual(contract["command"], 7)
         self.assertEqual(contract["price"], 1_000_000)
@@ -169,9 +185,40 @@ class VV2FullMasteryCandidateTests(unittest.TestCase):
         )
         entry_offset = int(self.map["offsets"]["entry"], 0)
         entry = page[entry_offset:entry_offset + 16]
-        # push ebp; mov ebp,esp; push ebx; push esi; mov esi,ecx; push edi.
-        # The saved ESI is restored by the existing epilogue.
-        self.assertTrue(entry.startswith(bytes.fromhex("5589E5535689CE57")))
+        self.assertTrue(entry.startswith(bytes.fromhex("5589E5535657")))
+
+    def test_native_abi_and_transaction_order_are_emitted(self) -> None:
+        page = bytes.fromhex(self.raw["pe_append_transaction"]["layouts"]["collection_progression"]["append_bytes"])
+        text = json.dumps(self.map)
+        for needle in ("0x44F4E0", "0x445430", "0x44D4C0", "0x426290"):
+            self.assertIn(needle, text)
+        self.assertEqual(self.map["allowed_modes"], list(MODES))
+        self.assertEqual(self.map["rejected_modes"], list(REJECTED_MODES))
+        self.assertEqual(page.count(bytes.fromhex("E8DBC1F9FF")), 0)
+        self.assertNotIn(bytes.fromhex("C704240064000000"), page)
+        self.assertEqual(self.raw["transaction_contract"]["native_evaluator"], "sub_44D4C0 thiscall ECX=manager exactly once globally")
+        self.assertEqual(self.raw["transaction_contract"]["native_tech_writer"], "sub_426290 thiscall ECX=state; push signed -1000000; callee ret 4 exactly once after evaluator")
+        targets = call_targets(page)
+        self.assertEqual(targets.count(0x44F4E0), 2)
+        self.assertEqual(targets.count(0x44D4C0), 1)
+        self.assertEqual(targets.count(0x426290), 1)
+        self.assertEqual(targets.count(0x445430), 5)
+        for field in (0x7E4, 0x7E8, 0x7EC, 0x7F0, 0x7F4):
+            self.assertNotIn(b"\xC7\x86" + struct.pack("<I", field), page)
+
+    def test_expanded_modes_fail_before_output_and_invalid_values_fail_closed(self) -> None:
+        self.assertEqual(self.raw["supported_modes"], list(MODES))
+        self.assertEqual(self.raw["rejected_modes"], list(REJECTED_MODES))
+        invalid = [{
+            "active": True,
+            "health": 100,
+            "is_totem": False,
+            "elder": 0,
+            "skills": {name: (101 if name == "farming" else 100) for name in SKILLS},
+        }]
+        self.assertEqual(transaction(deepcopy(invalid), 2_000_000, 1), ("invalid", 2_000_000, 0, 0))
+        with self.assertRaises(PatcherError):
+            render_patched_bytes(STOCK, self.build, REJECTED_MODES[0], _fun_patches_override=[self.candidate])
 
     def test_semantic_walker_excludes_before_skill_access_and_writes_only_below_100(self) -> None:
         records = [

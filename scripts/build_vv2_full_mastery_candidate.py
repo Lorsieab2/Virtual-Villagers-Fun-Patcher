@@ -34,11 +34,11 @@ TECH_HANDLER_OFFSET = 0x000
 TECH_CONSTRUCTOR_OFFSET = 0x040
 ENTRY_OFFSET = 0x100
 WALKER_OFFSET = 0x380
-TELEMETRY_OFFSET = 0x520
-CONFIRM_OFFSET = 0x680
-SHOW_MENU_OFFSET = 0x740
-SHOW_RESULT_OFFSET = 0x7C0
-STRINGS_OFFSET = 0x900
+TELEMETRY_OFFSET = 0x800
+CONFIRM_OFFSET = 0xA00
+SHOW_MENU_OFFSET = 0xB00
+SHOW_RESULT_OFFSET = 0xC00
+STRINGS_OFFSET = 0x1000
 PRICE = 1_000_000
 BOUND = 256
 STRIDE = 0xE48C
@@ -46,6 +46,8 @@ STRIDE = 0xE48C
 MODES = (
     "collection_progression",
     "immediate_fixed",
+)
+REJECTED_MODES = (
     "experimental_expanded_256",
     "experimental_expanded_256_progression",
 )
@@ -232,79 +234,114 @@ def build_section() -> tuple[bytes, dict[str, object]]:
     )
     _put(section, TECH_CONSTRUCTOR_OFFSET, constructor, "tech constructor")
 
-    # ESI is the stock Tech-screen object. The 0x100-byte local snapshot uses
-    # 0=unchanged, 1=changed+unmarked-before, 2=changed+already-marked.
+    # The stock manager getter is the sole pool transport.  Its result owns
+    # the 256 records at +0x52C (stride 0xE48C) and the tech-point state at
+    # +0xE574D4.  The local snapshot is telemetry only; skill writes go
+    # exclusively through sub_445430.
     entry = asm(
         f"""
             push ebp
             mov ebp, esp
             push ebx
             push esi
-            mov esi, ecx
             push edi
             sub esp, 0x124
             call 0x{show_menu_va:X}
             cmp eax, 7
             jne done
-            mov ebx, eax
-            mov edi, dword ptr [esi + 0x0C]
-            lea edx, [edi + 0x2EADC]
-            cmp dword ptr [edx], {PRICE}
-            jb insufficient
+            call 0x44F4E0
+            test eax, eax
+            jz unavailable
+            mov dword ptr [ebp - 0x1C], eax
+            mov edx, dword ptr [eax + 0xE574D4]
+            test edx, edx
+            jz unavailable
+            mov dword ptr [ebp - 0x20], edx
             lea eax, [ebp - 0x124]
             push eax
             push 0
             push {BOUND}
-            push dword ptr [esi + 0x10]
+            push dword ptr [ebp - 0x1C]
             call 0x{walker_va:X}
             add esp, 16
+            mov dword ptr [ebp - 0x18], eax
+            test eax, eax
+            js invalid
             test eax, eax
             jz no_change
+            mov edx, dword ptr [ebp - 0x20]
+            cmp dword ptr [edx + 0x2EADC], {PRICE}
+            jb insufficient
             call 0x{confirm_va:X}
             cmp eax, 1
             jne done
-            mov edi, dword ptr [esi + 0x0C]
-            lea edx, [edi + 0x2EADC]
-            cmp dword ptr [edx], {PRICE}
-            jb insufficient
+            call 0x44F4E0
+            test eax, eax
+            jz recheck_failed
+            mov dword ptr [ebp - 0x1C], eax
+            mov edx, dword ptr [eax + 0xE574D4]
+            test edx, edx
+            jz recheck_failed
+            mov dword ptr [ebp - 0x20], edx
             lea eax, [ebp - 0x124]
             push eax
             push 0
             push {BOUND}
-            push dword ptr [esi + 0x10]
+            push dword ptr [ebp - 0x1C]
             call 0x{walker_va:X}
             add esp, 16
             test eax, eax
-            jz no_change
-            mov edi, dword ptr [esi + 0x0C]
-            lea edx, [edi + 0x2EADC]
-            sub dword ptr [edx], {PRICE}
-            mov dword ptr [ebp - 0x18], eax
-            mov eax, dword ptr [esi + 0x10]
-            mov dword ptr [ebp - 0x1C], eax
-            lea edi, [ebp - 0x124]
-            xor eax, eax
-            mov ecx, 64
-            rep stosd
+            js invalid
+            test eax, eax
+            jz recheck_failed
+            mov edx, dword ptr [ebp - 0x20]
+            cmp dword ptr [edx + 0x2EADC], {PRICE}
+            jb insufficient
             lea eax, [ebp - 0x124]
             push eax
             push 1
             push {BOUND}
-            push dword ptr [esi + 0x10]
+            push dword ptr [ebp - 0x1C]
             call 0x{walker_va:X}
             add esp, 16
             mov dword ptr [ebp - 0x18], eax
+            test eax, eax
+            js recheck_failed
+            test eax, eax
+            jz recheck_failed
+            lea eax, [ebp - 0x124]
+            push 0
+            push 2
+            push {BOUND}
+            push dword ptr [ebp - 0x1C]
+            call 0x{walker_va:X}
+            add esp, 16
+            test eax, eax
+            jz recheck_failed
+            mov ecx, dword ptr [ebp - 0x1C]
             call 0x44D4C0
+            mov ecx, dword ptr [ebp - 0x20]
+            push -{PRICE}
+            call 0x426290
             lea eax, [ebp - 0x124]
             push eax
             push {BOUND}
-            push dword ptr [ebp - 0x1C]
+            mov eax, dword ptr [ebp - 0x1C]
+            add eax, 0x52C
+            push eax
             call 0x{telemetry_va:X}
             add esp, 12
             push edx
             push ecx
             push dword ptr [ebp - 0x18]
             push 1
+            call 0x{show_result_va:X}
+            jmp done
+        recheck_failed:
+            push 0
+            push 0
+            push 0
+            push 3
             call 0x{show_result_va:X}
             jmp done
         no_change:
@@ -320,6 +357,20 @@ def build_section() -> tuple[bytes, dict[str, object]]:
             push 0
             push 2
             call 0x{show_result_va:X}
+            jmp done
+        unavailable:
+            push 0
+            push 0
+            push 0
+            push 3
+            call 0x{show_result_va:X}
+            jmp done
+        invalid:
+            push 0
+            push 0
+            push 0
+            push 3
+            call 0x{show_result_va:X}
         done:
             add esp, 0x124
             pop edi
@@ -333,7 +384,9 @@ def build_section() -> tuple[bytes, dict[str, object]]:
     )
     _put(section, ENTRY_OFFSET, entry, "transaction entry")
 
-    # cdecl walker(base, bound, mode, snapshot); EAX=changed count.
+    # cdecl walker(manager, bound, mode, snapshot); EAX=changed count.
+    # mode 0 is a complete read-only dry run, mode 1 performs changed-only
+    # native writer calls, and mode 2 is the complete exact-100 postverify.
     walker = asm(
         f"""
             push ebp
@@ -342,12 +395,15 @@ def build_section() -> tuple[bytes, dict[str, object]]:
             push esi
             push edi
             mov esi, dword ptr [ebp + 8]
+            add esi, 0x52C
             mov ecx, dword ptr [ebp + 12]
             mov edx, dword ptr [ebp + 16]
             mov edi, dword ptr [ebp + 20]
+            mov dword ptr [ebp - 8], edx
             xor eax, eax
             xor ebx, ebx
         next:
+            mov edx, dword ptr [ebp - 8]
             cmp ebx, ecx
             jae walk_done
             cmp byte ptr [esi + 0x30], 0
@@ -356,6 +412,28 @@ def build_section() -> tuple[bytes, dict[str, object]]:
             jle advance
             cmp byte ptr [esi + 0x558], 0
             jne advance
+            cmp edx, 2
+            je postverify
+            cmp dword ptr [esi + 0x7E4], 0
+            jl invalid_data
+            cmp dword ptr [esi + 0x7E4], 100
+            jg invalid_data
+            cmp dword ptr [esi + 0x7E8], 0
+            jl invalid_data
+            cmp dword ptr [esi + 0x7E8], 100
+            jg invalid_data
+            cmp dword ptr [esi + 0x7EC], 0
+            jl invalid_data
+            cmp dword ptr [esi + 0x7EC], 100
+            jg invalid_data
+            cmp dword ptr [esi + 0x7F0], 0
+            jl invalid_data
+            cmp dword ptr [esi + 0x7F0], 100
+            jg invalid_data
+            cmp dword ptr [esi + 0x7F4], 0
+            jl invalid_data
+            cmp dword ptr [esi + 0x7F4], 100
+            jg invalid_data
             cmp dword ptr [esi + 0x7E4], 100
             jne changed
             cmp dword ptr [esi + 0x7E8], 100
@@ -368,33 +446,90 @@ def build_section() -> tuple[bytes, dict[str, object]]:
             je advance
         changed:
             inc eax
+            mov dword ptr [ebp - 4], eax
             test edx, edx
             jz advance
             mov byte ptr [edi + ebx], 1
-            cmp byte ptr [esi + 0x7FC], 0
-            je stores
-            mov byte ptr [edi + ebx], 2
-        stores:
             cmp dword ptr [esi + 0x7E4], 100
             je s2
-            mov dword ptr [esi + 0x7E4], 100
+            mov ecx, 100
+            sub ecx, dword ptr [esi + 0x7E4]
+            push ecx
+            push 1
+            push ebx
+            mov ecx, dword ptr [ebp + 8]
+            add ecx, 0x52C
+            call 0x445430
         s2:
             cmp dword ptr [esi + 0x7E8], 100
             je s3
-            mov dword ptr [esi + 0x7E8], 100
+            mov ecx, 100
+            sub ecx, dword ptr [esi + 0x7E8]
+            push ecx
+            push 2
+            push ebx
+            mov ecx, dword ptr [ebp + 8]
+            add ecx, 0x52C
+            call 0x445430
         s3:
             cmp dword ptr [esi + 0x7EC], 100
             je s4
-            mov dword ptr [esi + 0x7EC], 100
+            mov ecx, 100
+            sub ecx, dword ptr [esi + 0x7EC]
+            push ecx
+            push 3
+            push ebx
+            mov ecx, dword ptr [ebp + 8]
+            add ecx, 0x52C
+            call 0x445430
         s4:
             cmp dword ptr [esi + 0x7F0], 100
             je s5
-            mov dword ptr [esi + 0x7F0], 100
+            mov ecx, 100
+            sub ecx, dword ptr [esi + 0x7F0]
+            push ecx
+            push 4
+            push ebx
+            mov ecx, dword ptr [ebp + 8]
+            add ecx, 0x52C
+            call 0x445430
         s5:
             cmp dword ptr [esi + 0x7F4], 100
             je advance
-            mov dword ptr [esi + 0x7F4], 100
+            mov ecx, 100
+            sub ecx, dword ptr [esi + 0x7F4]
+            push ecx
+            push 5
+            push ebx
+            mov ecx, dword ptr [ebp + 8]
+            add ecx, 0x52C
+            call 0x445430
+            mov eax, dword ptr [ebp - 4]
+            jmp advance
+        postverify:
+            cmp dword ptr [esi + 0x7E4], 100
+            jne verify_failed
+            cmp dword ptr [esi + 0x7E8], 100
+            jne verify_failed
+            cmp dword ptr [esi + 0x7EC], 100
+            jne verify_failed
+            cmp dword ptr [esi + 0x7F0], 100
+            jne verify_failed
+            cmp dword ptr [esi + 0x7F4], 100
+            jne verify_failed
+            inc eax
+            jmp advance
+        verify_failed:
+            xor eax, eax
+            jmp walk_done
+        invalid_data:
+            mov eax, -1
+            jmp walk_done
         advance:
+            cmp dword ptr [ebp - 8], 1
+            jne next_record
+            mov eax, dword ptr [ebp - 4]
+        next_record:
             add esi, {STRIDE}
             inc ebx
             jmp next
@@ -592,7 +727,10 @@ def build_section() -> tuple[bytes, dict[str, object]]:
         "absolute_references": [
             "0x474010 LoadLibraryA IAT",
             "0x4740D4 GetProcAddress IAT",
-            "0x44D4C0 native Elder evaluator",
+            "0x44F4E0 native manager getter (no args, EAX manager)",
+            "0x445430 native changed-only skill writer (thiscall, ret 0xC)",
+            "0x44D4C0 native Elder evaluator (thiscall, exactly once)",
+            "0x426290 native tech-point writer (thiscall, ret 4, exactly once)",
             "0x467F83 stock allocation helper",
             "0x4019D0 stock button constructor",
             "0x4015D0 stock button styling",
@@ -602,7 +740,7 @@ def build_section() -> tuple[bytes, dict[str, object]]:
             "handler -> entry",
             "handler -> stock continuation 0x4437C5",
             "constructor -> 0x467F83/0x4019D0/0x4015D0/0x40B560",
-            "entry -> menu/walker/confirmation/0x44D4C0/telemetry/result",
+            "entry -> 0x44F4E0/walker/confirmation/0x44D4C0/0x426290/telemetry/result",
         ],
         "iat_references": ["0x474010 LoadLibraryA", "0x4740D4 GetProcAddress"],
         "base_relocations": [],
@@ -661,14 +799,18 @@ def build() -> tuple[dict[str, object], dict[str, object]]:
         "game_id": "vv2",
         "name": "Grant Full Mastery to All Villagers",
         "enabled": False,
-        "certification_status": "HARD WITHDRAWN after live Buy crash at walker+0x1E from invalid ESI; disabled pending exact repair and recertification",
+        "catalog_hidden": True,
+        "certification_status": "PENDING INDEPENDENT RECERTIFICATION after native manager/pool transport repair; disabled and catalog-hidden",
         "description": (
-            "Withdrawn command-7-only candidate. Live Buy crashed at walker+0x1E "
-            "because ESI was invalid before the permanent-change warning. Commands "
-            "6/8, ownership, Remove, old .shr transport, Gong, and Island Event "
-            "paths remain absent."
+            "Disabled command-7-only stock candidate. The repaired transaction uses "
+            "the native manager getter, changed-only native skill writer, native "
+            "Elder evaluator, and native tech-point writer; no raw skill stores, "
+            "precharge, .shr transport, Gong, or Island Event paths are emitted. "
+            "It remains hidden pending independent recertification."
         ),
         "dependencies": [],
+        "supported_modes": list(MODES),
+        "rejected_modes": list(REJECTED_MODES),
         "companion_files": [
             {
                 "source": "data/candidates/VVFP VV2 Full Mastery Candidate.dll",
@@ -681,13 +823,13 @@ def build() -> tuple[dict[str, object], dict[str, object]]:
                 "offset": "0x435EF",
                 "before": "8B4C24205F",
                 "after": constructor_after.hex().upper(),
-                "purpose": "append the isolated command-7 Origins Upgrades button",
+            "purpose": "append the disabled command-7 Origins Upgrades button",
             },
             {
                 "offset": "0x437C0",
                 "before": "837C240408",
                 "after": handler_after.hex().upper(),
-                "purpose": "route only the isolated command-7 button",
+            "purpose": "route only the command-7 button",
             },
         ],
         "pe_append_transaction": {
@@ -704,7 +846,22 @@ def build() -> tuple[dict[str, object], dict[str, object]]:
             "eligibility": ["byte +0x30 != 0", "signed dword +0x52C > 0", "byte +0x558 == 0"],
             "skills": ["+0x7E4", "+0x7E8", "+0x7EC", "+0x7F0", "+0x7F4"],
             "target": 100,
-            "native_evaluator": "sub_44D4C0 exactly once after commit",
+            "native_manager_getter": "sub_44F4E0 no arguments; EAX manager; fresh call after confirmation",
+            "native_skill_writer": "sub_445430 thiscall ECX=manager+0x52C; push delta, skill id, physical index; callee ret 0xC",
+            "native_evaluator": "sub_44D4C0 thiscall ECX=manager exactly once globally",
+            "native_tech_writer": "sub_426290 thiscall ECX=state; push signed -1000000; callee ret 4 exactly once after evaluator",
+            "rollback_limit": "native writer partial changes are not rolled back on postverify failure; failure is no-charge and reported",
+            "transaction_order": [
+                "complete 256-record read-only dry run",
+                "no-change result before funds/confirmation",
+                "unsigned funds check",
+                "explicit confirmation",
+                "fresh manager and complete read-only recheck",
+                "changed-only sub_445430 writes",
+                "complete exact-100 postverify",
+                "sub_44D4C0 exactly once",
+                "sub_426290 exactly once",
+            ],
         },
     }
     layouts = manifest["pe_append_transaction"]["layouts"]  # type: ignore[index]
@@ -740,8 +897,10 @@ def build() -> tuple[dict[str, object], dict[str, object]]:
 
     artifact.update(
         {
-            "acceptance_commit": "93d69a7826d3c7260ea18e1467597e7580ddbae9",
-            "audit_commit": "b5183ca0564de3dca84590254cf275f6ce4db255",
+            "acceptance_commit": "C132-PENDING-INDEPENDENT-RECERTIFICATION",
+            "audit_commit": "C132-PENDING-INDEPENDENT-RECERTIFICATION",
+            "catalog_enabled": False,
+            "certification_status": "PENDING INDEPENDENT RECERTIFICATION; disabled/catalog-hidden",
             "source": {"size": len(original), "sha256": expected_sha},
             "companion": {
                 "path": "data/candidates/VVFP VV2 Full Mastery Candidate.dll",
@@ -781,12 +940,18 @@ def build() -> tuple[dict[str, object], dict[str, object]]:
                 "return_matrix": {"0": 0, "1": 1, "2": 0, "arbitrary_non_1": 0},
             },
             "command_abi": {
-                "entry": "stock thiscall Tech-screen receiver arrives in ECX; entry saves old ESI, transports ECX to ESI, and restores old ESI on exit; menu result command is kept in EBX; bound is an independent stack argument",
-                "walker": "cdecl(base,bound,mode,snapshot); EAX changed; preserves EBX/ESI/EDI/EBP",
+                "entry": "handler retains command-7 menu routing; entry calls sub_44F4E0 for manager and never transports the Tech receiver as a pool base",
+                "manager_getter": "sub_44F4E0 takes no arguments and returns manager in EAX; records begin at manager+0x52C",
+                "walker": "cdecl(manager,bound,mode,snapshot); bound 256; mode0 dry-run, mode1 native writes, mode2 exact100 postverify; preserves EBX/ESI/EDI/EBP",
                 "telemetry": "cdecl(base,bound,snapshot); ECX new markers; EDX changed-but-unmarked",
+                "skill_writer": "sub_445430 thiscall ECX=manager+0x52C; stack delta, skill id, physical index; ret 0xC",
+                "evaluator": "sub_44D4C0 thiscall ECX=manager exactly once",
+                "tech_writer": "sub_426290 thiscall ECX=state; stack signed -1000000; ret 4 exactly once after evaluator",
                 "result": "stdcall(status,changed,new_markers,changed_but_unmarked); ret 16",
             },
             "modes": list(MODES),
+            "allowed_modes": list(MODES),
+            "rejected_modes": list(REJECTED_MODES),
         }
     )
     return manifest, artifact
@@ -835,12 +1000,10 @@ def main() -> None:
     MANIFEST_OUT.write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
     MAP_OUT.write_text(json.dumps(artifact, indent=2) + "\n", encoding="utf-8")
     DOC_OUT.write_text(
-        "# VV2 Full Mastery withdrawn candidate\n\n"
-        "This artifact is generated from disassembly acceptance contract "
-        "`93d69a7826d3c7260ea18e1467597e7580ddbae9` and confirmation ABI "
-        "`b5183ca0564de3dca84590254cf275f6ce4db255`. It remains "
-        "**HARD WITHDRAWN and catalog-hidden** after live Buy crashed at "
-        "walker+0x1E with invalid ESI before the warning.\n\n"
+        "# VV2 Full Mastery repaired candidate (pending recertification)\n\n"
+        "This disabled, catalog-hidden stock-only candidate is generated from the "
+        "C132 native ABI repair. It remains unavailable pending independent "
+        "recertification; no player package is produced by this task.\n\n"
         f"- Section SHA-256: `{artifact['section_sha256']}`\n"
         f"- Companion SHA-256: `{artifact['companion']['sha256']}`\n"
         f"- Entry SHA-256: `{artifact['entry_sha256']}`\n"
@@ -848,8 +1011,14 @@ def main() -> None:
         f"- Confirmation SHA-256: `{artifact['confirmation_sha256']}`\n\n"
         "The candidate appends `.vv2fm`; it never uses or changes `.shr`. It "
         "adds command 7 only, with commands 6/8, ownership, Remove, Gong, and "
-        "Island Event interception absent. The raw manifest and complete map "
-        "are under `data/candidates/`.\n",
+        "Island Event interception absent. The transaction performs a complete "
+        "256-record dry run before funds/confirmation, reacquires the manager, "
+        "uses only sub_445430 for changed skills, post-verifies exact 100, calls "
+        "sub_44D4C0 once, then sub_426290 once for the single deduction. Expanded-256 "
+        "modes are rejected before output. The raw manifest and complete map are "
+        "under `data/candidates/`. If a native writer succeeds and a later "
+        "postverify fails, the candidate reports no-charge failure without an "
+        "unproved rollback of already-applied native changes.\n",
         encoding="utf-8",
     )
 
