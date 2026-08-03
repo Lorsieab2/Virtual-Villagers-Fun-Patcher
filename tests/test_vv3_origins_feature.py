@@ -55,6 +55,39 @@ class VV3OriginsFeatureTests(unittest.TestCase):
         )
         self.assertIn("3 displayed years", self.manifest["description"])
 
+    def test_legacy_cure_wording_is_contained_and_command5_is_explicit(self) -> None:
+        stale = (
+            "Plus Cure all Villagers for 30,000 tech points",
+            "Cure all Villagers clears sickness",
+        )
+        contained = (
+            "preserved byte-for-byte for provenance",
+            "dominated before dispatch and unreachable in this composition",
+            "certified command-5 Full Heal / Cure All transaction replaces it",
+        )
+        for path in (
+            ROOT / "data" / "vv3_origins_feature.json",
+            ROOT / "data" / "candidates" / "vv3_origins_full_mastery_base_candidate.json",
+            ROOT / "data" / "candidates" / "vv3_origins_running_base_candidate.json",
+        ):
+            text = path.read_text(encoding="utf-8")
+            for phrase in stale:
+                self.assertNotIn(phrase, text, path)
+            for phrase in contained:
+                self.assertIn(phrase, text, path)
+
+    def test_package_source_provenance_contract_is_pinned(self) -> None:
+        text = (ROOT / "scripts" / "build_vv3_full_heal_candidate.py").read_text(
+            encoding="utf-8"
+        )
+        self.assertIn(
+            "B616282E0C21A9A8D509CE64C129EF6F24B4F50EAC538632DFBBC8C374662048",
+            text,
+        )
+        self.assertIn("419", text)
+        self.assertIn("412", text)
+        self.assertIn("417", text)
+
     def test_only_verified_hook_windows_are_changed(self) -> None:
         offsets = {int(item["offset"], 0) for item in self.manifest["patches"]}
         self.assertEqual(

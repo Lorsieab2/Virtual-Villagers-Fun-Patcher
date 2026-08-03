@@ -489,6 +489,26 @@ def render_transparency_text(
     lines.append(
         f"- Retained untouched stock EXE: {'yes' if data.get('retained_untouched_stock_executable') else 'no'} ({stock['filename']})"
     )
+    archive = data.get("source_archive")
+    if isinstance(archive, dict):
+        lines.extend(
+            [
+                "- Authenticated stock source archive:",
+                f"  {archive.get('filename', 'unknown')} | SHA-256 {archive.get('sha256', 'unknown')} | entries {archive.get('entries', 'unknown')}",
+                f"  Retained stock files: {archive.get('retained_stock_files', 'unknown')} | current package files: {archive.get('current_file_count', 'unknown')} | payload records: {archive.get('payload_records', 'unknown')}",
+                "  Excluded obsolete source members: "
+                + ", ".join(archive.get("excluded_source_members", [])),
+            ]
+        )
+    prerequisite = data.get("full_mastery_prerequisite")
+    if isinstance(prerequisite, dict):
+        lines.extend(
+            [
+                "- Full Mastery prerequisite provenance:",
+                f"  Source record: {prerequisite.get('source_record', 'unknown')} | status: {prerequisite.get('source_record_status', 'unknown')}",
+                f"  Certified composition: {prerequisite.get('composition_status', 'unknown')}",
+            ]
+        )
     lines.append("- Companion additions:")
     for companion in data.get("companion_results", []):
         lines.append(
