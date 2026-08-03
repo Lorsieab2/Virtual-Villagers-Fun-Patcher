@@ -57,6 +57,11 @@ class VV3FullHealCandidateTests(unittest.TestCase):
         self.assertEqual(self.raw["messages"], v.VV3_FULL_HEAL_MESSAGES)
         self.assertEqual(self.raw["result_helper"], v.VV3_FULL_HEAL_RESULT_HELPER)
         self.assertEqual(self.raw["health_setter"], v.VV3_FULL_HEAL_HEALTH_SETTER)
+        self.assertEqual(self.raw["eligibility"], v.VV3_FULL_HEAL_ELIGIBILITY)
+        self.assertEqual(self.raw["sickness"], v.VV3_FULL_HEAL_SICKNESS)
+        self.assertEqual(self.raw["record_zero_resolver"], v.VV3_FULL_HEAL_RECORD_ZERO_RESOLVER)
+        self.assertEqual(self.raw["messagebox_resolution"], v.VV3_FULL_HEAL_MESSAGEBOX_RESOLUTION)
+        self.assertEqual(self.raw["mutation_accounting"], v.VV3_FULL_HEAL_MUTATION_ACCOUNTING)
         self.assertNotIn(v.VV3_FULL_HEAL_CANDIDATE_ID, {item.id for item in v.load_fun_patches()})
 
     def test_both_stock_modes_emit_hook_and_cave(self) -> None:
@@ -79,6 +84,86 @@ class VV3FullHealCandidateTests(unittest.TestCase):
             first = bytes(self._render(mode))
             second = bytes(self._render(mode))
             self.assertEqual(first, second)
+
+    def test_d183_exact_shim_api_width_and_fresh_pool_markers(self) -> None:
+        cave = bytes.fromhex(self.raw["patches"][1]["after"])
+        self.assertIn(v.VV3_FULL_HEAL_NON5_SHIM, cave)
+        self.assertNotIn(bytes.fromhex("8B04BD543F4A00"), cave)
+        self.assertEqual(cave.count(bytes.fromhex("80BF100F000000")), 3)
+        self.assertNotIn(bytes.fromhex("83BF100F00000000"), cave)
+        self.assertEqual(cave.count(bytes.fromhex("FF1524C14700")), 1)
+        self.assertEqual(cave.count(bytes.fromhex("FF1528C14700")), 1)
+        self.assertEqual(cave.count(bytes.fromhex("6A00B910E15900")), 3)
+        self.assertNotIn(bytes.fromhex("C745E824E15900"), cave)
+        self.assertIn(b"USER32.dll\0", cave)
+        self.assertIn(b"MessageBoxA\0", cave)
+        self.assertIn(bytes.fromhex("8945F0"), cave)
+        self.assertEqual(cave.count(bytes.fromhex("FF80FC040000")), 1)
+
+    def test_all_reason_strings_and_partial_write_limit_are_present(self) -> None:
+        cave = bytes.fromhex(self.raw["patches"][1]["after"])
+        for text in (
+            "All eligible villagers are already healthy and free of sickness.",
+            "No valid living non-skeleton villagers are available.",
+            "Not enough tech points.",
+            "Cure All was canceled.",
+            "Villager state changed during confirmation.",
+            "Cure verification failed; some native changes may already have occurred.",
+            "Cure dependencies are unavailable.",
+            "Full Heal was granted to all eligible villagers.",
+            "No tech points have been deducted.",
+        ):
+            self.assertIn(text.encode("ascii"), cave)
+        self.assertIn("rollback is not claimed", self.raw["partial_failure_limit"])
+
+    def test_rendered_hashes_checksum_and_only_three_physical_ranges(self) -> None:
+        for mode in ("collection_progression", "immediate_fixed"):
+            parent = bytes(self._render_without_candidate(mode))
+            candidate = bytes(self._render(mode))
+            accounting = self.raw["mutation_accounting"]
+            self.assertEqual(sha(candidate), accounting["rendered_sha256"][mode])
+            self.assertEqual(candidate[0x160:0x164].hex().upper(), accounting["checksum_transitions"][mode]["after"])
+            self.assertEqual(parent[0x160:0x164].hex().upper(), accounting["checksum_transitions"][mode]["before"])
+            owned = [(0xA35EF, 0xA35F6), (0x7B721, 0x7B721 + v.VV3_FULL_HEAL_CAVE_LENGTH), (0x160, 0x164)]
+            for offset in range(len(parent)):
+                if any(start <= offset < end for start, end in owned):
+                    continue
+                self.assertEqual(parent[offset], candidate[offset], hex(offset))
+
+    def test_direct_remove_round_trip_restores_exact_parent(self) -> None:
+        expected = {
+            "collection_progression": "3644A56FE17F843DB67662E4309C3C2B41AE7ADD5FDD60EF2B6789DE2BA15FDC",
+            "immediate_fixed": "059230146E8CC36E06E5473AE187D081E337DB90638B227FBA799B9C82B58C1C",
+        }
+        for mode in expected:
+            restored = bytearray(self._render(mode))
+            v._remove_feature_bytes(restored, self.feature, mode)
+            self.assertEqual(sha(bytes(restored)), expected[mode])
+
+    def test_unknown_source_and_map_corruption_fail_before_output(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            temp_path = Path(temp)
+            bad_source = temp_path / "bad.exe"
+            source = bytearray(self.stock.read_bytes())
+            source[0x200] ^= 0x01
+            bad_source.write_bytes(source)
+            with self.assertRaises(v.PatcherError):
+                v.render_patched_bytes(
+                    bad_source,
+                    self.build,
+                    "collection_progression",
+                    self.chain,
+                    _fun_patches_override=[*self.chain_features, self.feature],
+                )
+            bad_manifest = temp_path / "manifest.json"
+            bad_map = temp_path / "map.json"
+            shutil.copy2(self.manifest_path, bad_manifest)
+            mutated_map = dict(json.loads(self.map_path.read_text(encoding="utf-8")))
+            mutated_map["cave"]["length"] = 1
+            bad_map.write_text(json.dumps(mutated_map, indent=2) + "\n", encoding="utf-8")
+            with patch.object(v, "VV3_FULL_HEAL_CANDIDATE_PATHS", {"manifest": bad_manifest, "map": bad_map}):
+                with self.assertRaises(v.PatcherError):
+                    self._render("immediate_fixed")
 
     def _render_without_candidate(self, mode: str) -> bytearray:
         return v.render_patched_bytes(

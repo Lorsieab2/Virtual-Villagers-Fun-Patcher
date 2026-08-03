@@ -29,7 +29,7 @@ HOOK_BEFORE = bytes.fromhex("8B049D543F4A00")
 HOOK_AFTER = bytes.fromhex("E92D81FDFF9090")
 CAVE_OFFSET = 0x7B721
 CAVE_VA = 0x47B721
-CAVE_LENGTH = 0x600
+CAVE_LENGTH = 0x700
 STRING_OFFSET = 0x300
 LEGACY_CURE_START = 0x7B664
 LEGACY_CURE_END = 0x7B721
@@ -40,8 +40,9 @@ MANAGER_GETTER = 0x428B60
 HEALTH_SETTER = 0x462670
 TECH_DEDUCTION = 0x427130
 MESSAGEBOX_IAT = 0x47C124
+GETPROC_IAT = 0x47C128
+MANAGER_SINGLETON = 0x59E110
 TECH_BALANCE = 0x582644
-POOL_BASE = 0x59E124
 POOL_COUNT = 150
 POOL_STRIDE = 0x1F8C
 ACTIVE_OFFSET = 0xF10
@@ -53,6 +54,10 @@ PRICE = 30_000
 STOCK_SHA256 = "8BC5DB382D02BC5C21AD5F607580D60FF44A6519CC7EB133F03113BAACAE6503"
 SOURCE_COMMIT = "64c1266503c49ba1456f6294683a1f6773eba5d6"
 IMPLEMENTATION_STATUS = "candidate implementation; D182 static predicate evidence incorporated; independent lifecycle recertification pending"
+RENDERED_SHA256 = {
+    "collection_progression": "FC145FDB6A5E448B0BB670D0C81E44EB8915DAB6D3EAA2E3F93334D5E6E3F9CB",
+    "immediate_fixed": "69213F2C3CB2E30B385E008D26E0CFB7F381B6F09016A6DDC51F8BCE61F5183A",
+}
 
 sys.path.insert(0, str(ROOT / ".tools" / "keystone-runtime"))
 from keystone import KS_ARCH_X86, KS_MODE_32, Ks  # noqa: E402
@@ -73,6 +78,8 @@ def rel32(source_va: int, target_va: int) -> bytes:
 
 def _strings() -> tuple[dict[str, int], bytes]:
     values = (
+        ("user32", "USER32.dll"),
+        ("messagebox", "MessageBoxA"),
         ("caption", "Origins Upgrades"),
         ("confirm", "Cure all eligible villagers for 30,000 tech points?\r\nPress OK to confirm, or Cancel."),
         ("no_change", "All eligible villagers are already healthy and free of sickness.\r\nNo tech points have been deducted."),
@@ -106,7 +113,13 @@ def _helper(strings: dict[str, int]) -> bytes:
         push esi
         push edi
         sub esp, 0x4D4
-        mov eax, dword ptr [{MESSAGEBOX_IAT:#x}]
+        push {strings['user32']:#x}
+        call dword ptr [{MESSAGEBOX_IAT:#x}]
+        test eax, eax
+        je dependency_failure
+        push {strings['messagebox']:#x}
+        push eax
+        call dword ptr [{GETPROC_IAT:#x}]
         test eax, eax
         je dependency_failure
         mov dword ptr [ebp-0x10], eax
@@ -114,7 +127,12 @@ def _helper(strings: dict[str, int]) -> bytes:
         test eax, eax
         je invalid_failure
         mov dword ptr [ebp-0x14], eax
-        mov dword ptr [ebp-0x18], {POOL_BASE:#x}
+        push 0
+        mov ecx, {MANAGER_SINGLETON:#x}
+        call 0x45C840
+        test eax, eax
+        je invalid_failure
+        mov dword ptr [ebp-0x18], eax
         mov dword ptr [ebp-0x1C], 0
         mov dword ptr [ebp-0x20], 0
         mov dword ptr [ebp-0x24], 0
@@ -126,7 +144,7 @@ def _helper(strings: dict[str, int]) -> bytes:
         xor esi, esi
         mov ecx, {POOL_COUNT}
     initial_scan:
-        cmp dword ptr [edi+{ACTIVE_OFFSET:#x}], 0
+        cmp byte ptr [edi+{ACTIVE_OFFSET:#x}], 0
         je initial_next
         cmp dword ptr [edi+{HEALTH_OFFSET:#x}], 0
         jle initial_next
@@ -167,13 +185,18 @@ def _helper(strings: dict[str, int]) -> bytes:
         test eax, eax
         je changed_state
         mov dword ptr [ebp-0x14], eax
-        mov dword ptr [ebp-0x18], {POOL_BASE:#x}
+        push 0
+        mov ecx, {MANAGER_SINGLETON:#x}
+        call 0x45C840
+        test eax, eax
+        je changed_state
+        mov dword ptr [ebp-0x18], eax
         mov edi, dword ptr [ebp-0x18]
         xor esi, esi
         mov ecx, {POOL_COUNT}
     recheck_scan:
         lea edx, [ebp-0x4E0]
-        cmp dword ptr [edi+{ACTIVE_OFFSET:#x}], 0
+        cmp byte ptr [edi+{ACTIVE_OFFSET:#x}], 0
         je recheck_ineligible
         cmp dword ptr [edi+{HEALTH_OFFSET:#x}], 0
         jle recheck_ineligible
@@ -216,6 +239,10 @@ def _helper(strings: dict[str, int]) -> bytes:
         mov byte ptr [edi+{SICK_OFFSET:#x}], 0
         cmp byte ptr [edi+{SICK_OFFSET:#x}], 0
         jne write_failure
+        call {MANAGER_GETTER:#x}
+        test eax, eax
+        je write_failure
+        inc dword ptr [eax+0x4FC]
     mutation_next:
         inc esi
         add edi, {POOL_STRIDE:#x}
@@ -225,10 +252,12 @@ def _helper(strings: dict[str, int]) -> bytes:
         test eax, eax
         je write_failure
         mov dword ptr [ebp-0x14], eax
-        mov dword ptr [ebp-0x18], {POOL_BASE:#x}
-        cmp dword ptr [ebp-0x20], 0
-        je postverify
-        inc dword ptr [eax+0x4FC]
+        push 0
+        mov ecx, {MANAGER_SINGLETON:#x}
+        call 0x45C840
+        test eax, eax
+        je write_failure
+        mov dword ptr [ebp-0x18], eax
     postverify:
         mov edi, dword ptr [ebp-0x18]
         xor esi, esi
@@ -237,7 +266,7 @@ def _helper(strings: dict[str, int]) -> bytes:
         lea edx, [ebp-0x4E0]
         cmp dword ptr [edx+esi*8], 0
         je postverify_next
-        cmp dword ptr [edi+{ACTIVE_OFFSET:#x}], 0
+        cmp byte ptr [edi+{ACTIVE_OFFSET:#x}], 0
         je write_failure
         cmp dword ptr [edi+{HEALTH_OFFSET:#x}], 0
         jle write_failure
@@ -254,7 +283,6 @@ def _helper(strings: dict[str, int]) -> bytes:
         test eax, eax
         je write_failure
         mov dword ptr [ebp-0x14], eax
-        mov dword ptr [ebp-0x18], {POOL_BASE:#x}
         cmp dword ptr [{TECH_BALANCE:#x}], {PRICE}
         jb write_failure
         mov ecx, {TECH_BALANCE:#x}
@@ -265,7 +293,7 @@ def _helper(strings: dict[str, int]) -> bytes:
         call {RESULT_HELPER:#x}
         jmp finish
     non_five:
-        mov eax, dword ptr [edi*4+0x4A3F54]
+        mov eax, dword ptr [ebx*4+0x4A3F54]
         jmp {NON5_CONTINUATION:#x}
     dependency_failure:
         push {strings['dependency']:#x}
@@ -366,13 +394,35 @@ def main() -> None:
         "eligibility": {
             "proved_predicate": "D182: signed health +0xE78 > 0 after active +0xF10 != 0",
             "active_offset": "0xF10",
+            "active_width": "byte",
             "health_offset": "0xE78",
             "non_skeleton": "D182 current active/living predicate; no +0xE94/status filter",
             "record_count": POOL_COUNT,
             "stride": f"0x{POOL_STRIDE:X}",
         },
         "health_setter": {"function": "0x462670", "ecx": "full_record+0xE6C", "push_reason": -1, "push_desired": 100, "forbidden": "full_record+0xA0"},
-        "sickness": {"offset": "0xE89", "clear_value": 0, "people_cured_offset": "0x4FC", "increment_once_per_transaction": True},
+        "sickness": {
+            "offset": "0xE89",
+            "clear_value": 0,
+            "people_cured_offset": "0x4FC",
+            "increment_per_verified_sick_record": True,
+            "health_only_does_not_increment": True,
+        },
+        "record_zero_resolver": {
+            "function": "0x45C840",
+            "manager_ecx": "0x59E110",
+            "index": 0,
+            "initial_and_after_confirmation": True,
+            "constant_pool_substitute": False,
+        },
+        "messagebox_resolution": {
+            "load_library_iat": "0x47C124",
+            "get_proc_address_iat": "0x47C128",
+            "module": "USER32.dll",
+            "procedure": "MessageBoxA",
+            "saved_local": "[ebp-0x10]",
+            "stdcall_stack_cleanup": "callee",
+        },
         "result_helper": {"va": "0x4A3400", "ret": 8, "caller_stack_cleanup": False},
         "messages": {"no_charge_suffix": "No tech points have been deducted.", "success": "Full Heal was granted to all eligible villagers.", "confirm_price": "30,000"},
         "partial_failure_limit": "Native writes may have occurred before postverification failure; no deduction is made and rollback is not claimed.",
@@ -382,6 +432,27 @@ def main() -> None:
             {"offset": f"0x{CAVE_OFFSET:X}", "before_fill": "00", "length": CAVE_LENGTH, "after": region.hex().upper(), "purpose": "candidate-owned RX .text Full Heal helper and strings", "virtual_address": f"0x{CAVE_VA:X}", "legacy_preserved": [f"0x{LEGACY_CURE_START:X}", f"0x{LEGACY_CURE_END:X}"], "layout": layout},
         ],
         "atomicity": {"install_remove": "hook and bounded cave are paired; exact composition, guard, cave, and uninstall preimages required", "expanded_fail_closed": True},
+        "mutation_accounting": {
+            "physical_ranges": [
+                {"offset": "0xA35EF", "length": 7, "purpose": "command-5 hook"},
+                {"offset": "0x7B721", "length": CAVE_LENGTH, "purpose": "candidate-owned cave"},
+                {"offset": "0x160", "length": 4, "purpose": "PE checksum recomputation"},
+            ],
+            "feature_owned_ranges": ["0xA35EF..0xA35F5", f"0x{CAVE_OFFSET:X}..0x{CAVE_OFFSET + CAVE_LENGTH - 1:X}"],
+            "physical_range_count": 3,
+            "feature_owned_range_count": 2,
+            "every_other_byte_identical": True,
+            "rendered_sha256": RENDERED_SHA256,
+            "uninstall_sha256": {
+                "collection_progression": "3644A56FE17F843DB67662E4309C3C2B41AE7ADD5FDD60EF2B6789DE2BA15FDC",
+                "immediate_fixed": "059230146E8CC36E06E5473AE187D081E337DB90638B227FBA799B9C82B58C1C",
+            },
+            "checksum_offset": "0x160",
+            "checksum_transitions": {
+                "collection_progression": {"before": "93790D00", "after": "22ED0C00"},
+                "immediate_fixed": {"before": "91BB0D00", "after": "202F0D00"},
+            },
+        },
     }
     manifest["base_manifest_sha256"] = sha(BASE_MANIFEST.read_bytes())
     artifact_map = {
@@ -397,11 +468,15 @@ def main() -> None:
         "cave": {"raw_offset": f"0x{CAVE_OFFSET:X}", "virtual_address": f"0x{CAVE_VA:X}", "length": CAVE_LENGTH, "before_sha256": sha(bytes(CAVE_LENGTH)), "after_sha256": sha(region), "layout": layout},
         "composition": manifest["base_chain"],
         "companion_files": manifest["companion_files"],
+        "eligibility": manifest["eligibility"],
         "transaction": manifest["transaction"],
         "result_helper": manifest["result_helper"],
         "health_setter": manifest["health_setter"],
         "sickness": manifest["sickness"],
+        "record_zero_resolver": manifest["record_zero_resolver"],
+        "messagebox_resolution": manifest["messagebox_resolution"],
         "messages": manifest["messages"],
+        "mutation_accounting": manifest["mutation_accounting"],
         "forbidden_routes": manifest["forbidden_routes"],
         "legacy_preserved_range": {"raw_start": f"0x{LEGACY_CURE_START:X}", "raw_end": f"0x{LEGACY_CURE_END:X}", "sha256": sha(stock[LEGACY_CURE_START:LEGACY_CURE_END])},
         "rendered": {mode: {"pending": "candidate disabled; render only after independent lifecycle recertification"} for mode in manifest["supported_modes"]},
@@ -417,7 +492,7 @@ def main() -> None:
         f"The command-5 detour is `{HOOK_BEFORE.hex().upper()}` -> `{HOOK_AFTER.hex().upper()}` at raw `0x{HOOK_OFFSET:X}`. "
         f"The owned cave is raw `0x{CAVE_OFFSET:X}` / VA `0x{CAVE_VA:X}` for `0x{CAVE_LENGTH:X}` bytes; legacy Cure bytes "
         f"`0x{LEGACY_CURE_START:X}..0x{LEGACY_CURE_END:X}` remain byte-identical.\n\n"
-        "The transaction scans exactly 150 records in physical order, performs a complete dry run, confirms at 30,000 tech points, reacquires and rechecks the full state, uses native health setter 0x462670 with ECX=record+0xE6C and pushes -1/100, clears sickness at +0xE89, increments People Cured +0x4FC once, postverifies, and deducts once through 0x427130. Every no-charge route ends with `No tech points have been deducted.` Native writes may remain after a postverify failure; rollback is not claimed.\n",
+        "The transaction scans exactly 150 records in physical order, resolves record zero through 0x45C840 with ECX=0x59E110 before the dry run and again after confirmation, and resolves USER32.dll/MessageBoxA before any dialog. It performs a complete dry run, confirms at 30,000 tech points, reacquires and rechecks the full state, uses native health setter 0x462670 with ECX=record+0xE6C and pushes -1/100, clears sickness at +0xE89, and increments fresh manager People Cured +0x4FC once per verified sick record (health-only records do not increment). It postverifies and deducts once through 0x427130. The hook and cave are two feature-owned ranges; the only third physical diff is the PE checksum at raw 0x160..0x163. Every no-charge route ends with `No tech points have been deducted.` Native writes may remain after a postverify failure; rollback is not claimed.\n",
         encoding="utf-8",
     )
 
