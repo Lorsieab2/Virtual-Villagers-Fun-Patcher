@@ -279,29 +279,34 @@ placement. None of those open items is inferred from the disabled payload.
 
 ### VV2 Full Mastery exact-build boundary
 
-Disassembly commit `60f649bf90b55dea3a6856d949e123bd79808782`
-confirms five contiguous signed DWORD skills: Farming `+0x7E4`, Building
+Historical disassembly commit `60f649bf90b55dea3a6856d949e123bd79808782`
+established the five contiguous signed DWORD skills: Farming `+0x7E4`, Building
 `+0x7E8`, Research `+0x7EC`, Healing `+0x7F0`, and Parenting `+0x7F4`.
 The following DWORD `+0x7F8` is job preference, not a sixth skill. Native
-consumers use thresholds 20, 50, and 88; Detail displays Master at 88 or
-higher, while native award paths cap skills at 100. Save/load persists the
-five skills and preference across 256 physical records at stride `0xE48C`.
+consumers use thresholds 20 and 50, with Master threshold 88; native award
+paths cap skills at 100.
+Save/load persists the five skills and preference across 256 physical records
+at stride `0xE48C`. Its former 90-point raw-store/precharge candidate is
+withdrawn historical evidence and is not the current implementation.
 
-The disabled candidate iterates the supplied physical bound, including sparse
-records, and requires active byte `+0x30 != 0` and signed health DWORD
-`+0x52C > 0`. It writes 90 to all five fields, returns zero counts, and cannot
-distinguish changed records or already-mastered villagers. Its transaction
-checks `state+0x2EADC`, subtracts 1,000,000 once, then uses `Purchased.`; it has
-no zero-change/no-charge result, recheck, or rollback.
+The current isolated command-7 Full Mastery candidate is statically enabled and
+catalog-visible only for stock Collection Progression and Immediate Fixed under
+independent emitted-byte GO evidence
+`13f4341201fa7757d23f77c5c17602bbe7bbf21d`; runtime/player confirmation remains
+pending. It is a repeatable Buy-only 1,000,000-point action with no Remove state.
+Across five fresh manager/state acquisition boundaries, the transaction performs
+a complete dry run, confirmation, full reacquisition and recheck, changed-only
+native skill writes to exact 100. Native sub_44D4C0 runs exactly once globally
+after complete exact-100 postverification. A fresh manager/state
+acquisition derives fresh Elder/totem telemetry, including changed villagers
+left unmarked at the native 50-totem cap, rechecks unsigned funds, and performs
+the one 1,000,000-point deduction. If a native write succeeds but later
+postverification fails, partial skill changes may remain because rollback is
+not proved safe, but no Technology Points are deducted.
 
-VV2 remains ON HOLD. Candidate 90 is Master-ranked but is not full native 100;
-no complete native all-five side-effect route is proved. Creation starts from
-zero with an optional one-skill seed, copying/cloning copies all five, and
-pregnancy, event-child, inheritance, Silver Mirror, and Gong closure remains
-incomplete. The withdrawn VV2 Origins transport also retains its `.shr`
-raw-offset/virtual-address defect. Gong and every Island Event path—including
-their selection, RNG, messages, statistics, and skill writes—must remain
-entirely native and cannot be intercepted by this command.
+Commands 6 and 8, ownership, Remove, the withdrawn VV2 Origins `.shr`
+transport, Gong and every Island Event path are outside this candidate and
+remain native and unmodified. Expanded-256 modes reject before output.
 
 ### VV1 Full Mastery exact-build boundary
 

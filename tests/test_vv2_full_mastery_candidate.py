@@ -39,6 +39,7 @@ DOC = ROOT / "docs" / "vv2-full-mastery-stage-a-candidate.md"
 TRANSPARENCY_DOC = ROOT / "docs" / "transparency-log.md"
 RUNTIME_CHECKLIST = ROOT / "docs" / "origins-player-runtime-checklist.md"
 READINESS_DOC = ROOT / "docs" / "origins-playtest-readiness.md"
+VILLAGE_WIDE_DOC = ROOT / "docs" / "origins-village-wide-upgrades.md"
 TRANSPARENCY_GENERATOR = ROOT / "scripts" / "generate_transparency_docs.py"
 DLL = ROOT / "data" / "candidates" / "VVFP VV2 Full Mastery Candidate.dll"
 IMPLEMENTATION_COMMIT = "895340333d55273e599f2dce5ab0db42cbc6d0ab"
@@ -178,6 +179,7 @@ class VV2FullMasteryCandidateTests(unittest.TestCase):
             TRANSPARENCY_DOC.read_text(encoding="utf-8"),
             RUNTIME_CHECKLIST.read_text(encoding="utf-8"),
             READINESS_DOC.read_text(encoding="utf-8"),
+            VILLAGE_WIDE_DOC.read_text(encoding="utf-8"),
         )
         stale = (
             "append the disabled command-7",
@@ -195,6 +197,42 @@ class VV2FullMasteryCandidateTests(unittest.TestCase):
         self.assertIn("895340333d55273e599f2dce5ab0db42cbc6d0ab", readiness)
         self.assertIn("statically enabled and catalog-visible only", readiness)
         self.assertIn("runtime/player confirmation remains pending", readiness)
+
+        required_current_truth = (
+            "statically enabled and catalog-visible only",
+            "five fresh manager/state acquisition boundaries",
+            "changed-only native",
+            "exact 100",
+            "exactly once globally",
+            "native 50-totem cap",
+            "one 1,000,000-point deduction",
+            "buy-only",
+            "no remove",
+            "runtime/player confirmation remains pending",
+            "expanded-256 modes reject before output",
+            "partial skill changes may remain",
+            "no technology points are deducted",
+        )
+        stale_current_claims = (
+            "also keeps command 7 on hold",
+            "the candidate writes 90",
+            "the disabled candidate iterates the supplied physical bound",
+            "it writes 90 to all five fields",
+            "vv2 remains on hold",
+            "returns zero counts",
+        )
+        readiness_vv2 = readiness.split("vv2 full mastery", 1)[1].split(
+            "vv1, vv3, and vv4 doubler", 1
+        )[0]
+        village = " ".join(VILLAGE_WIDE_DOC.read_text(encoding="utf-8").casefold().split())
+        village_vv2 = village.split("### vv2 full mastery exact-build boundary", 1)[1].split(
+            "### vv1 full mastery exact-build boundary", 1
+        )[0]
+        for section in (readiness_vv2, village_vv2):
+            for phrase in required_current_truth:
+                self.assertIn(phrase, section)
+            for phrase in stale_current_claims:
+                self.assertNotIn(phrase, section)
 
     def test_provenance_binds_full_implementation_and_independent_static_acceptance(self) -> None:
         for record in (self.raw, self.map):

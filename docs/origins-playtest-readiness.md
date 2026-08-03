@@ -236,16 +236,22 @@ offsets with virtual addresses, displacing several helper/header references by
 `0x2000`. This is a hard re-enable blocker, but it is not certified as the
 complete explanation for both crashes; no repair is attempted here.
 
-VV2 Full Mastery audit `60f649bf90b55dea3a6856d949e123bd79808782`
-also keeps command 7 ON HOLD. It confirms five signed DWORD skills
-`+0x7E4..+0x7F4`, job preference at `+0x7F8`, Master threshold 88, native
-maximum 100, persistent 256-record save/load at stride `0xE48C`, and the
-candidate's active `+0x30`/health `+0x52C` iteration. The candidate writes 90
-and charges through a generic transaction without changed-record counting,
-zero-change/no-charge handling, result detail, or rollback. No complete native
-all-five side-effect route, creation/inheritance/Silver Mirror closure, or safe
-transport/placement is proved. Gong and every Island Event route remain
-entirely native.
+VV2 Full Mastery command 7 is statically enabled and catalog-visible only for
+stock Collection Progression and Immediate Fixed under independent emitted-byte
+GO evidence `13f4341201fa7757d23f77c5c17602bbe7bbf21d`; runtime/player confirmation
+remains pending. It is a repeatable Buy-only action with no Remove state. The
+transaction uses five fresh manager/state acquisition boundaries, completes a
+full dry run and confirmation before mutation, rechecks eligibility and funds,
+and applies changed-only native skill writes to raise signed-DWORD skills to
+exact 100. Native sub_44D4C0 runs exactly once globally after complete
+exact-100 postverification. A fresh manager/state acquisition then derives Elder and
+totem telemetry, including villagers left unmarked at the native 50-totem cap,
+performs a fresh unsigned funds recheck, and makes the one 1,000,000-point
+deduction. Commands 6 and 8, ownership, Remove, Gong, Island Events, and the
+withdrawn VV2 Origins transport are not part of this candidate; Expanded-256
+modes reject before output. If a native write succeeds but later
+postverification fails, partial skill changes may remain because rollback is
+not proved safe, but no Technology Points are deducted.
 
 VV1, VV3, and VV4 doubler new purchases and repurchases remain unavailable
 until their exact-build provenance gates are cleared. VV5 stock-layout Tech and
