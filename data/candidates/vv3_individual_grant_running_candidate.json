@@ -25,6 +25,13 @@
     "full_mastery_feature": "vv3_full_mastery_all_candidate.json"
   },
   "description": "Enabled/catalog-visible stock Collection Progression/Immediate Fixed-only selected-villager Grant Running candidate composed after the certified VV3 Full Mastery chain. The withdrawn village-wide command-6 Running candidate is not reused or modified; runtime/player validation remains pending.",
+  "behavior_changes": [
+    "Command-2 selected-villager Grant Running is an exact 40,000-tech-point Buy action, repeatable=true, ownership=null, remove=false."
+  ],
+  "explicit_non_changes": [
+    "The GUI dependency closure selects the certified VV3 Full Mastery prerequisite; direct API/CLI selections containing only this ID fail closed and do not auto-expand.",
+    "The withdrawn village-wide command-6 Running candidate remains absent and is not reused or modified."
+  ],
   "mutation_accounting": {
     "feature_owned_range_count": 2,
     "feature_owned_ranges": [
@@ -137,6 +144,10 @@
   "transaction_contract": {
     "command": 2,
     "price": 40000,
+    "action": "Buy",
+    "repeatable": true,
+    "ownership": null,
+    "remove": false,
     "record_bound": 150,
     "stack_frame": {
       "saved_message_box": "-0x10",

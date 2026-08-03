@@ -154,6 +154,22 @@ class VV3IndividualGrantRunningCandidateTests(unittest.TestCase):
         self.assertEqual(self.artifact["feature_owned_ranges"][1]["file_offset"], "0xCB900")
         self.assertEqual(self.artifact["mutation_accounting"]["feature_owned_range_count"], 2)
         self.assertEqual(self.artifact["mutation_accounting"]["physical_diff_range_count"], 3)
+        transaction = self.raw["transaction_contract"]
+        self.assertEqual(
+            {key: transaction[key] for key in ("command", "price", "action", "repeatable", "ownership", "remove")},
+            {
+                "command": 2,
+                "price": 40_000,
+                "action": "Buy",
+                "repeatable": True,
+                "ownership": None,
+                "remove": False,
+            },
+        )
+        self.assertEqual(
+            list(transaction)[:6],
+            ["command", "price", "action", "repeatable", "ownership", "remove"],
+        )
 
     def test_enabled_catalog_requires_full_mastery_chain_and_excludes_village_wide(self) -> None:
         patches = load_fun_patches()
@@ -182,7 +198,10 @@ class VV3IndividualGrantRunningCandidateTests(unittest.TestCase):
                 "vv3_individual_grant_running_candidate",
             ],
         )
-        with self.assertRaisesRegex(PatcherError, "requires prerequisite"):
+        with self.assertRaisesRegex(
+            PatcherError,
+            "Full Mastery.*vv3_full_mastery_all_stage_a_candidate",
+        ):
             resolve_fun_patch_ids(
                 ["vv3_individual_grant_running_candidate"],
                 game_id="vv3",
@@ -213,6 +232,40 @@ class VV3IndividualGrantRunningCandidateTests(unittest.TestCase):
                         mode,
                         ordered,
                     )
+
+    def test_buy_contract_mutations_fail_before_source_read(self) -> None:
+        mutations = {
+            "command": lambda contract: contract.__setitem__("command", 3),
+            "price": lambda contract: contract.__setitem__("price", 40_001),
+            "action": lambda contract: contract.__setitem__("action", "buy"),
+            "repeatable": lambda contract: contract.__setitem__("repeatable", False),
+            "ownership": lambda contract: contract.__setitem__("ownership", "owned"),
+            "remove": lambda contract: contract.__setitem__("remove", True),
+            "missing_key": lambda contract: contract.pop("remove"),
+            "extra_key": lambda contract: contract.__setitem__("unexpected", True),
+        }
+        missing_source = ROOT / "outputs" / "__c179_missing_vv3_source__.exe"
+        self.assertFalse(missing_source.exists())
+        for name, mutate in mutations.items():
+            for mode in ("collection_progression", "immediate_fixed"):
+                for source in (self.stock, missing_source):
+                    with self.subTest(mutation=name, mode=mode, source=source.name):
+                        raw = copy.deepcopy(self.raw)
+                        mutate(raw["transaction_contract"])
+                        with self.assertRaisesRegex(
+                            PatcherError,
+                            "Buy transaction contract",
+                        ):
+                            render_patched_bytes(
+                                source,
+                                self.build,
+                                mode,
+                                _fun_patches_override=[
+                                    self.full_base,
+                                    self.full_feature,
+                                    FunPatch(raw),
+                                ],
+                            )
 
     def test_checksum_accounting_has_three_ranges_and_rejects_pin_mutations(self) -> None:
         expected_checksums = {

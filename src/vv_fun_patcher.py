@@ -56,8 +56,8 @@ VV3_INDIVIDUAL_RUNNING_CANDIDATE_PATHS = {
     "manifest": ROOT / "data" / "candidates" / "vv3_individual_grant_running_candidate.json",
     "map": ROOT / "data" / "candidates" / "vv3_individual_grant_running_candidate_map.json",
 }
-VV3_INDIVIDUAL_RUNNING_MANIFEST_SHA256 = "5EB91BBEBDDB34B338A0C14012CA936929E5BFAFB4557765B0FCB5EC3C27DC5C"
-VV3_INDIVIDUAL_RUNNING_MAP_SHA256 = "44F3CE4FFBB8B9CD00094C3034AF660A6DCAD7A2566BEF85470945051732C712"
+VV3_INDIVIDUAL_RUNNING_MANIFEST_SHA256 = "5A76F9BE8B7360B68F00ADA9E999E0FBA3F6A5254BB49E0CCBE3A5FF8604A130"
+VV3_INDIVIDUAL_RUNNING_MAP_SHA256 = "4029ABBC80BFDB3D0CE584BB447100F26CCAF8D3B4725DA642830B77B29B2B0F"
 VV3_INDIVIDUAL_RUNNING_SOURCE_COMMIT = "9574f488eefb97bd6320259f301beb87266072f8"
 VV3_INDIVIDUAL_RUNNING_IMPLEMENTATION_COMMIT = "a35bee6ed91fb3f105424dca5e3283ce85e01894"
 VV3_INDIVIDUAL_RUNNING_ACCEPTANCE_STATUS = (
@@ -144,6 +144,73 @@ VV3_INDIVIDUAL_RUNNING_RESULT_MESSAGES = {
     ),
     "success": "Running was granted.",
 }
+VV3_INDIVIDUAL_RUNNING_TRANSACTION_CONTRACT = {
+    "command": 2,
+    "price": 40_000,
+    "action": "Buy",
+    "repeatable": True,
+    "ownership": None,
+    "remove": False,
+    "record_bound": 150,
+    "stack_frame": VV3_INDIVIDUAL_RUNNING_STACK_FRAME,
+    "canonical_blob_layout": VV3_INDIVIDUAL_RUNNING_BLOB_LAYOUT,
+    "selection": {
+        "manager_getter": "sub_428B60",
+        "selected_index_offset": "0x12FC0",
+        "validator": "sub_45EE60 with ECX=0x59E110",
+        "resolver": "sub_45C840 with ECX=0x59E110",
+        "same_index_required_after_confirmation": True,
+    },
+    "eligibility": ["signed index 0..149", "signed health +0xE78 > 0"],
+    "likes": {
+        "offsets": ["0xFB4", "0xFB8", "0xFBC"],
+        "running": 38,
+        "empty": -1,
+    },
+    "dislikes": {"read": False, "write": False, "storage_never_touched": True},
+    "passes": [
+        "complete initial three-DWORD Like snapshot/scan",
+        "funds >= 40000",
+        "OK/Cancel",
+        "fresh singleton/index/record",
+        "complete second scan and exact snapshot comparison",
+        "fresh funds check",
+        "verified single first-empty write of 38",
+        "one native deduction",
+    ],
+    "deduction": {
+        "receiver": "ECX=0x582644",
+        "delta": -40_000,
+        "writer": "sub_427130",
+        "calls": 1,
+    },
+    "process_fault_limit": (
+        "a process fault remains possible after verified slot write and before "
+        "native deduction; no rollback atomicity is claimed"
+    ),
+}
+
+
+def _strict_manifest_value_equal(actual: Any, expected: Any) -> bool:
+    """Compare JSON values without Python's bool/int coercion or key drift."""
+
+    if type(actual) is not type(expected):
+        return False
+    if isinstance(expected, dict):
+        if list(actual.keys()) != list(expected.keys()):
+            return False
+        return all(
+            _strict_manifest_value_equal(actual[key], expected[key])
+            for key in expected
+        )
+    if isinstance(expected, list):
+        return len(actual) == len(expected) and all(
+            _strict_manifest_value_equal(left, right)
+            for left, right in zip(actual, expected)
+        )
+    return actual == expected
+
+
 VV2_FULL_MASTERY_CANDIDATE_PATHS = {
     "manifest": ROOT / "data" / "candidates" / "vv2_full_mastery_all_candidate.json",
     "map": ROOT / "data" / "candidates" / "vv2_full_mastery_all_candidate_map.json",
@@ -1359,6 +1426,15 @@ def resolve_fun_patch_ids(
             if dependency_id not in requested_set
         ]
         if missing:
+            if (
+                patch_id == VV3_INDIVIDUAL_RUNNING_CANDIDATE_ID
+                and missing == ["vv3_full_mastery_all_stage_a_candidate"]
+            ):
+                raise PatcherError(
+                    "Grant Running to Selected Villager requires the VV3 Full Mastery "
+                    "prerequisite (vv3_full_mastery_all_stage_a_candidate). Select "
+                    "the prerequisite before creating output."
+                )
             raise PatcherError(
                 f"{by_id[patch_id].name} requires prerequisite(s): "
                 + ", ".join(missing)
@@ -1481,6 +1557,13 @@ def _validate_vv3_individual_running_candidate(
         raise PatcherError("VV3 individual Grant Running transaction stack-frame metadata is not canonical.")
     if transaction.get("canonical_blob_layout") != VV3_INDIVIDUAL_RUNNING_BLOB_LAYOUT:
         raise PatcherError("VV3 individual Grant Running transaction blob layout is not canonical.")
+    if not _strict_manifest_value_equal(
+        transaction,
+        VV3_INDIVIDUAL_RUNNING_TRANSACTION_CONTRACT,
+    ):
+        raise PatcherError(
+            "VV3 individual Grant Running Buy transaction contract is not certified."
+        )
     expected_accounting = {
         "feature_owned_range_count": len(VV3_INDIVIDUAL_RUNNING_FEATURE_OWNED_RANGES),
         "feature_owned_ranges": [dict(item) for item in VV3_INDIVIDUAL_RUNNING_FEATURE_OWNED_RANGES],

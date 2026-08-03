@@ -67,7 +67,7 @@ VV3 Running is catalog-hidden and VV3Run2 is hard-withdrawn from playtesting und
 
 ## Origins village-wide atomic-payload containment
 
-All five legacy `vvN_origins_village_wide_upgrades` records remain disabled and absent from the catalog, GUI, CLI, Select All, dependency resolution, and rendered outputs because commands 6, 7, and 8 share one unsafe atomic payload. VV2's separate command-7 Full Mastery candidate is statically enabled and catalog-visible only for stock Collection Progression and Immediate Fixed; its runtime/player confirmation remains pending and Expanded-256 rejects before output. Commands 6/8, Remove, Cure, Gong, and Island Event routes remain absent from that candidate. VV3 Running remains withdrawn and catalog-hidden pending runtime fault capture. VV4 audit `628e0d9217b92b9cd695655842b09d74689a0238` and VV5 audit `02581c8f518e27ebd5fc7d2972db5597ab08ed35` keep their mastery commands contained. Disabled legacy manifests retain diagnostic payload bytes but apply none; containment never alters save ownership or issues refunds.
+All five legacy `vvN_origins_village_wide_upgrades` records remain disabled and absent from the catalog, GUI, CLI, Select All, dependency resolution, and rendered outputs because commands 6, 7, and 8 share one unsafe atomic payload. VV2's separate command-7 Full Mastery candidate is statically enabled and catalog-visible only for stock Collection Progression and Immediate Fixed; its runtime/player confirmation remains pending and Expanded-256 rejects before output. Commands 6/8, Remove, Cure, Gong, and Island Event routes remain absent from that candidate. VV3's village-wide command-6 Running remains withdrawn and absent; the separate selected-villager command-2 candidate is static-enabled only after the certified VV3 Full Mastery prerequisite and remains runtime-pending. VV4 audit `628e0d9217b92b9cd695655842b09d74689a0238` and VV5 audit `02581c8f518e27ebd5fc7d2972db5597ab08ed35` keep their mastery commands contained. Disabled legacy manifests retain diagnostic payload bytes but apply none; containment never alters save ownership or issues refunds.
 
 ## Virtual Villagers - A New Home
 
@@ -275,8 +275,8 @@ Stock-only command-7 repeatable Buy candidate using fixed manager 0x0059E110, na
 
 Enabled/catalog-visible stock Collection Progression/Immediate Fixed-only selected-villager Grant Running candidate composed after the certified VV3 Full Mastery chain. The withdrawn village-wide command-6 Running candidate is not reused or modified; runtime/player validation remains pending.
 
-- Behavior changes: Enabled/catalog-visible stock Collection Progression/Immediate Fixed-only selected-villager Grant Running candidate composed after the certified VV3 Full Mastery chain. The withdrawn village-wide command-6 Running candidate is not reused or modified; runtime/player validation remains pending.
-- Explicit non-changes/exclusions: none declared
+- Behavior changes: Command-2 selected-villager Grant Running is an exact 40,000-tech-point Buy action, repeatable=true, ownership=null, remove=false.
+- Explicit non-changes/exclusions: The GUI dependency closure selects the certified VV3 Full Mastery prerequisite; direct API/CLI selections containing only this ID fail closed and do not auto-expand. The withdrawn village-wide command-6 Running candidate remains absent and is not reused or modified.
 - Dependencies: vv3_full_mastery_all_stage_a_candidate
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending
 - Guarded executable edits: 2; every edit has an exact purpose and before/after guard in the manifest.

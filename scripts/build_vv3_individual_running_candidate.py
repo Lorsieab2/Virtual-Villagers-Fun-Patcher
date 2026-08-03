@@ -1,4 +1,4 @@
-"""Generate the disabled VV3 selected-villager Grant Running candidate.
+"""Generate the enabled VV3 selected-villager Grant Running candidate.
 
 The candidate is deliberately separate from the withdrawn command-6
 village-wide Running records.  It composes on the already-certified VV3 Full
@@ -434,6 +434,13 @@ def main() -> None:
             "VV3 Full Mastery chain. The withdrawn village-wide command-6 Running "
             "candidate is not reused or modified; runtime/player validation remains pending."
         ),
+        "behavior_changes": [
+            "Command-2 selected-villager Grant Running is an exact 40,000-tech-point Buy action, repeatable=true, ownership=null, remove=false.",
+        ],
+        "explicit_non_changes": [
+            "The GUI dependency closure selects the certified VV3 Full Mastery prerequisite; direct API/CLI selections containing only this ID fail closed and do not auto-expand.",
+            "The withdrawn village-wide command-6 Running candidate remains absent and is not reused or modified.",
+        ],
         "mutation_accounting": {
             "feature_owned_range_count": len(FEATURE_OWNED_RANGES),
             "feature_owned_ranges": [dict(item) for item in FEATURE_OWNED_RANGES],
@@ -480,6 +487,10 @@ def main() -> None:
         "transaction_contract": {
             "command": 2,
             "price": PRICE,
+            "action": "Buy",
+            "repeatable": True,
+            "ownership": None,
+            "remove": False,
             "record_bound": 150,
             "stack_frame": region_map["stack_frame"],
             "canonical_blob_layout": region_map["canonical_blob_layout"],
@@ -579,6 +590,8 @@ def main() -> None:
         f"non-command-2 continues at `0x{NON_COMMAND2_VA:X}` and every result returns to `0x{DETAIL_LOOP_VA:X}`.\n"
         f"- Owned slot: raw/VA `0x{OWNED_OFFSET:X}`/`0x{OWNED_VA:X}`, length `0x{OWNED_LENGTH:X}`, "
         f"helper `0x{region_map['helper_length']:X}` bytes `{region_map['helper_sha256']}`, strings at `0x{STRINGS_VA:X}` `{region_map['strings_length']:#x}` bytes `{region_map['strings_sha256']}`.\n"
+        "- Buy contract: command 2, price 40,000, action `Buy`, repeatable `true`, ownership `null`, remove `false`. "
+        "The GUI dependency closure selects Full Mastery; direct API/CLI requests containing only this ID fail closed.\n"
         "- Transaction: selected physical index 0..149, signed health +0xE78 > 0, complete three-DWORD Likes-only dry run and snapshot, >=40,000 funds check, exact OK/Cancel warning, fresh same-index reacquisition, complete final snapshot comparison, first exact -1 Like write of 38, readback, then one `ECX=0x582644`, push -40,000, `sub_427130` deduction. Dislikes and +0xE94 are never accessed.\n"
         "- Every no-charge result is reason-specific and includes `No tech points have been deducted.` A process fault remains possible between verified write and deduction; rollback atomicity is not claimed.\n"
         "- Only stock modes are supported. The two Expanded-256 modes, malformed/corrupt inputs, wrong chain, nonzero owned slot, and uninstall mismatches fail closed. Independent emitted-byte and runtime/player recertification remains pending.\n",
@@ -611,6 +624,8 @@ def main() -> None:
         "- Canonical stack frame: `sub esp,0x1C`; MessageBoxA pointer `[ebp-0x10]`, selected physical index `[ebp-0x14]`, "
         "record `[ebp-0x18]`, first empty Like `[ebp-0x1C]`, and the three Like snapshots `[ebp-0x20]`, "
         "`[ebp-0x24]`, `[ebp-0x28]`; these locals do not overlap saved registers or one another.\n"
+        "- Buy contract: command 2, price 40,000, action `Buy`, repeatable `true`, ownership `null`, remove `false`. "
+        "The GUI dependency closure selects the certified VV3 Full Mastery prerequisite; direct API/CLI requests containing only this ID fail closed.\n"
         "- Transaction: validate a selected physical index 0..149 through the native validator/resolver, require signed health "
         "+0xE78 > 0, and scan only Likes +0xFB4/+0xFB8/+0xFBC. A complete initial three-DWORD scan preserves every existing Running "
         "slot and records the first exact -1 slot; only then is the >=40,000 funds check and exact OK/Cancel confirmation shown. "

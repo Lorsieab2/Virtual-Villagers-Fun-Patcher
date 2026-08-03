@@ -23,7 +23,7 @@
     "full_mastery_base": "vv3_origins_full_mastery_base_candidate.json",
     "full_mastery_feature": "vv3_full_mastery_all_candidate.json"
   },
-  "manifest_sha256": "5EB91BBEBDDB34B338A0C14012CA936929E5BFAFB4557765B0FCB5EC3C27DC5C",
+  "manifest_sha256": "5A76F9BE8B7360B68F00ADA9E999E0FBA3F6A5254BB49E0CCBE3A5FF8604A130",
   "feature_owned_ranges": [
     {
       "file_offset": "0xA38C3",
