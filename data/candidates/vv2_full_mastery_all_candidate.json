@@ -5,6 +5,11 @@
   "enabled": false,
   "catalog_hidden": true,
   "certification_status": "PENDING INDEPENDENT RECERTIFICATION after native manager/pool transport repair; disabled and catalog-hidden",
+  "source_commit": "895340333d55273e599f2dce5ab0db42cbc6d0ab",
+  "implementation_commit": "895340333d55273e599f2dce5ab0db42cbc6d0ab",
+  "acceptance_commit": null,
+  "audit_commit": null,
+  "audit_status": "pending independent recertification",
   "description": "Disabled command-7-only stock candidate. The repaired transaction uses the native manager getter, changed-only native skill writer, native Elder evaluator, and native tech-point writer; no raw skill stores, precharge, .shr transport, Gong, or Island Event paths are emitted. It remains hidden pending independent recertification.",
   "dependencies": [],
   "supported_modes": [

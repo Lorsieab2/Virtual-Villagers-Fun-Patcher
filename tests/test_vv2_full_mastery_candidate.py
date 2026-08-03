@@ -31,6 +31,7 @@ MANIFEST = ROOT / "data" / "candidates" / "vv2_full_mastery_all_candidate.json"
 MAP = ROOT / "data" / "candidates" / "vv2_full_mastery_all_candidate_map.json"
 DOC = ROOT / "docs" / "vv2-full-mastery-stage-a-candidate.md"
 DLL = ROOT / "data" / "candidates" / "VVFP VV2 Full Mastery Candidate.dll"
+IMPLEMENTATION_COMMIT = "895340333d55273e599f2dce5ab0db42cbc6d0ab"
 MODES = (
     "collection_progression",
     "immediate_fixed",
@@ -148,6 +149,16 @@ class VV2FullMasteryCandidateTests(unittest.TestCase):
             {int(item["offset"], 0) for item in self.raw["patches"]},
             {0x435EF, 0x437C0},
         )
+
+    def test_provenance_binds_full_implementation_and_null_pending_acceptance(self) -> None:
+        for record in (self.raw, self.map):
+            self.assertEqual(record["source_commit"], IMPLEMENTATION_COMMIT)
+            self.assertEqual(record["implementation_commit"], IMPLEMENTATION_COMMIT)
+            self.assertIsNone(record["acceptance_commit"])
+            self.assertIsNone(record["audit_commit"])
+            self.assertEqual(record["audit_status"], "pending independent recertification")
+        self.assertEqual(len(self.raw["implementation_commit"]), 40)
+        self.assertEqual(len(self.map["implementation_commit"]), 40)
 
     def test_source_fingerprint_section_geometry_and_iat_guards(self) -> None:
         source = STOCK.read_bytes()
@@ -474,7 +485,13 @@ class VV2FullMasteryCandidateTests(unittest.TestCase):
             path: sha(path.read_bytes())
             for path in (MANIFEST, MAP, DOC, DLL)
         }
-        subprocess.run([sys.executable, str(GENERATOR)], cwd=ROOT, check=True)
+        protected = {path: path.read_bytes() for path in (MANIFEST, MAP, DOC)}
+        try:
+            subprocess.run([sys.executable, str(GENERATOR)], cwd=ROOT, check=True)
+            self.assertEqual(before[DLL], sha(DLL.read_bytes()))
+        finally:
+            for path, payload in protected.items():
+                path.write_bytes(payload)
         after = {
             path: sha(path.read_bytes())
             for path in (MANIFEST, MAP, DOC, DLL)

@@ -58,9 +58,11 @@
     "0x4740D4 GetProcAddress"
   ],
   "base_relocations": [],
-  "acceptance_commit": "PENDING_INDEPENDENT_RECERTIFICATION",
-  "implementation_commit": "PENDING_C138_IMPLEMENTATION_COMMIT",
-  "audit_status": "pending independent recertification; no audit commit claimed",
+  "source_commit": "895340333d55273e599f2dce5ab0db42cbc6d0ab",
+  "implementation_commit": "895340333d55273e599f2dce5ab0db42cbc6d0ab",
+  "acceptance_commit": null,
+  "audit_commit": null,
+  "audit_status": "pending independent recertification",
   "catalog_enabled": false,
   "certification_status": "PENDING INDEPENDENT RECERTIFICATION; disabled/catalog-hidden",
   "source": {
