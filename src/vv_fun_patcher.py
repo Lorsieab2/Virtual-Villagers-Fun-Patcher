@@ -51,6 +51,38 @@ VV3_FULL_MASTERY_CERTIFIED_SHA256 = {
     "page": "2DAE85AE4077C23C2C7C39F64B5BA944740F765AC8E24FBB097B0BF28A720DF6",
 }
 VV3_FULL_MASTERY_ENABLED = True
+VV3_INDIVIDUAL_RUNNING_CANDIDATE_ID = "vv3_individual_grant_running_candidate"
+VV3_INDIVIDUAL_RUNNING_PINS = {
+    "stock": "8BC5DB382D02BC5C21AD5F607580D60FF44A6519CC7EB133F03113BAACAE6503",
+    "collection_pre_running": "6B6FCF33C21B5ED9323F8BBE4C677EF12BA4653E775178DCDF8E77049B2F57A8",
+    "immediate_pre_running": "92C5EF70512F57CBD990301E6918DE1BE002823C31CFB4C638D4E0F141BE7514",
+    "full_mastery_page": "2DAE85AE4077C23C2C7C39F64B5BA944740F765AC8E24FBB097B0BF28A720DF6",
+    "origins_payload": "77BF4DB93204AF1212A6335AF624642068A8B8560F1D78D59E2E07FBF4751F69",
+    "hook": "DB0F47AADB04629EB6FD5966547F11CF32A7DC445E8D8641621925B76C816DA1",
+    "owned_before": "7B4FC1A8DBE6B6121F16ADA516E2AC27E02964716BACEA5FB7D07CF30595948E",
+    "owned_after": "76339C8FFBE0FF92F3F1EB2CC27A4E0600E33DCC936716DA94BBB0BD5D1AB050",
+    "helper": "B03DCCF47903326E95A192A8458FD504E80B5D592784072D47525C217202B544",
+    "strings": "52CB94EFF2FAC50C91B0C4CDF8D3CC973348F5ECE6BC3BAA0B74307FC1ACDC50",
+}
+VV3_INDIVIDUAL_RUNNING_HELPER_LENGTH = 0x271
+VV3_INDIVIDUAL_RUNNING_STRINGS_LENGTH = 0x2E7
+VV3_INDIVIDUAL_RUNNING_OWNED_LENGTH = 0x700
+VV3_INDIVIDUAL_RUNNING_STACK_FRAME = {
+    "saved_message_box": "-0x10",
+    "selected_index": "-0x14",
+    "record": "-0x18",
+    "first_empty_like": "-0x1C",
+    "snapshot": ["-0x20", "-0x24", "-0x28"],
+    "local_allocation": "0x1C",
+}
+VV3_INDIVIDUAL_RUNNING_BLOB_LAYOUT = {
+    "helper_offset": "0x0",
+    "helper_length": "0x271",
+    "strings_offset": "0x400",
+    "strings_length": "0x2E7",
+    "tail_offset": "0x6E7",
+    "tail_length": "0x19",
+}
 VV2_FULL_MASTERY_CANDIDATE_PATHS = {
     "manifest": ROOT / "data" / "candidates" / "vv2_full_mastery_all_candidate.json",
     "map": ROOT / "data" / "candidates" / "vv2_full_mastery_all_candidate_map.json",
@@ -1200,6 +1232,92 @@ def _patch_bytes(patch: dict[str, Any], field: str) -> bytes:
     raise PatcherError(f"Internal manifest error: patch is missing {field}")
 
 
+def _validate_vv3_individual_running_candidate(
+    feature: FunPatch,
+    selected_ids: set[str],
+    patch_mode: str,
+) -> None:
+    """Fail closed on every immutable D166 individual-Running contract.
+
+    This validator intentionally runs before any candidate-owned byte is
+    applied.  The candidate is disabled/catalog-hidden today, but a direct
+    API/CLI override must not be able to bypass the exact two-range and
+    Full-Mastery-chain guards.
+    """
+    raw = feature.raw
+    if patch_mode in EXPANDED_PATCH_MODES:
+        raise PatcherError(
+            "VV3 individual Grant Running is stock-mode only; Expanded-256 is fail-closed."
+        )
+    if "vv3_full_mastery_all_stage_a_candidate" not in selected_ids:
+        raise PatcherError(
+            "VV3 individual Grant Running requires the certified VV3 Full Mastery chain."
+        )
+    if raw.get("dependencies") != ["vv3_full_mastery_all_stage_a_candidate"]:
+        raise PatcherError("VV3 individual Grant Running dependency metadata is not certified.")
+    chain = raw.get("base_chain")
+    expected_chain = {
+        "collection_pre_running_sha256": VV3_INDIVIDUAL_RUNNING_PINS["collection_pre_running"],
+        "immediate_pre_running_sha256": VV3_INDIVIDUAL_RUNNING_PINS["immediate_pre_running"],
+        "full_mastery_page_sha256": VV3_INDIVIDUAL_RUNNING_PINS["full_mastery_page"],
+        "origins_payload_sha256": VV3_INDIVIDUAL_RUNNING_PINS["origins_payload"],
+    }
+    if not isinstance(chain, dict) or any(chain.get(key) != value for key, value in expected_chain.items()):
+        raise PatcherError("VV3 individual Grant Running Full Mastery chain identity is not certified.")
+    if "pe_append_transaction" in raw or raw.get("header_patches"):
+        raise PatcherError(
+            "VV3 individual Grant Running may not append a section or mutate PE headers."
+        )
+    patches = raw.get("patches")
+    if not isinstance(patches, list) or len(patches) != 2:
+        raise PatcherError("VV3 individual Grant Running must have exactly two mutation ranges.")
+    hook, owned = patches
+    if (
+        hook.get("offset") != "0xA38C3"
+        or _patch_bytes(hook, "before") != bytes.fromhex("83FB027525")
+        or _patch_bytes(hook, "after") != bytes.fromhex("E938C02300")
+        or hashlib.sha256(_patch_bytes(hook, "after")).hexdigest().upper()
+        != VV3_INDIVIDUAL_RUNNING_PINS["hook"]
+    ):
+        raise PatcherError("VV3 individual Grant Running command-2 mutation is not certified.")
+    try:
+        owned_before = _patch_bytes(owned, "before")
+        owned_after = _patch_bytes(owned, "after")
+    except (KeyError, TypeError, ValueError) as exc:
+        raise PatcherError("VV3 individual Grant Running owned region is malformed.") from exc
+    if (
+        owned.get("offset") != "0xCB900"
+        or len(owned_before) != VV3_INDIVIDUAL_RUNNING_OWNED_LENGTH
+        or len(owned_after) != VV3_INDIVIDUAL_RUNNING_OWNED_LENGTH
+        or hashlib.sha256(owned_before).hexdigest().upper()
+        != VV3_INDIVIDUAL_RUNNING_PINS["owned_before"]
+        or hashlib.sha256(owned_after).hexdigest().upper()
+        != VV3_INDIVIDUAL_RUNNING_PINS["owned_after"]
+    ):
+        raise PatcherError("VV3 individual Grant Running owned .vv3fm range is not certified.")
+    if (
+        owned.get("helper_length") != VV3_INDIVIDUAL_RUNNING_HELPER_LENGTH
+        or owned.get("strings_length") != VV3_INDIVIDUAL_RUNNING_STRINGS_LENGTH
+        or owned.get("helper_sha256") != VV3_INDIVIDUAL_RUNNING_PINS["helper"]
+        or owned.get("strings_sha256") != VV3_INDIVIDUAL_RUNNING_PINS["strings"]
+    ):
+        raise PatcherError("VV3 individual Grant Running helper/string pins are not certified.")
+    owned_region = raw.get("owned_region")
+    transaction = raw.get("transaction_contract")
+    if not isinstance(owned_region, dict) or not isinstance(transaction, dict):
+        raise PatcherError("VV3 individual Grant Running canonical layout metadata is missing.")
+    if owned_region.get("stack_frame") != VV3_INDIVIDUAL_RUNNING_STACK_FRAME:
+        raise PatcherError("VV3 individual Grant Running stack-frame locals are not canonical.")
+    if owned_region.get("canonical_blob_layout") != VV3_INDIVIDUAL_RUNNING_BLOB_LAYOUT:
+        raise PatcherError("VV3 individual Grant Running helper/string layout is not canonical.")
+    if transaction.get("stack_frame") != VV3_INDIVIDUAL_RUNNING_STACK_FRAME:
+        raise PatcherError("VV3 individual Grant Running transaction stack-frame metadata is not canonical.")
+    if transaction.get("canonical_blob_layout") != VV3_INDIVIDUAL_RUNNING_BLOB_LAYOUT:
+        raise PatcherError("VV3 individual Grant Running transaction blob layout is not canonical.")
+    if b"\xFC\x0F" in owned_after or b"\x94\x0E" in owned_after:
+        raise PatcherError("VV3 individual Grant Running may not access Dislikes or +0xE94.")
+
+
 def _append_layout(feature: FunPatch, patch_mode: str) -> dict[str, Any] | None:
     transaction = feature.raw.get("pe_append_transaction")
     if transaction is None:
@@ -1913,6 +2031,14 @@ def render_patched_bytes(
         if _fun_patches_override is None
         else list(_fun_patches_override)
     )
+    selected_fun_ids = {patch.id for patch in fun_patches}
+    for feature in fun_patches:
+        if feature.id == VV3_INDIVIDUAL_RUNNING_CANDIDATE_ID:
+            _validate_vv3_individual_running_candidate(
+                feature,
+                selected_fun_ids,
+                patch_mode,
+            )
     if (
         _fun_patches_override is None
         and build.id == "vv4"
@@ -2070,7 +2196,21 @@ def render_patched_bytes(
                         and offset == 0xDB766
                         and before == bytes.fromhex("83FB027525")
                     )
-                    if allowed_vv1_composition_overlay or allowed_vv5_individual_overlay:
+                    allowed_vv3_individual_running_overlay = (
+                        owner == "feature:vv3_individual_grant_running_candidate"
+                        and prior_owner
+                        in {
+                            "feature:vv3_enable_origins_exclusive_features",
+                            "feature:vv3_enable_origins_exclusive_features_full_mastery_candidate",
+                        }
+                        and offset == 0xA38C3
+                        and before == bytes.fromhex("83FB027525")
+                    )
+                    if (
+                        allowed_vv1_composition_overlay
+                        or allowed_vv5_individual_overlay
+                        or allowed_vv3_individual_running_overlay
+                    ):
                         continue
                     raise PatcherError(
                         f"Patch overlap between {prior_owner} and {owner} at 0x{offset:X}."

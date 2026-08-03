@@ -1,0 +1,130 @@
+{
+  "candidate_id": "vv3_individual_grant_running_candidate",
+  "candidate_enabled": false,
+  "catalog_hidden": true,
+  "catalog_enabled": false,
+  "source_commit": "9574f488eefb97bd6320259f301beb87266072f8",
+  "acceptance_status": "pending independent D166 emitted-byte and runtime recertification",
+  "source": {
+    "size": 831488,
+    "sha256": "8BC5DB382D02BC5C21AD5F607580D60FF44A6519CC7EB133F03113BAACAE6503"
+  },
+  "base_chain": {
+    "collection_pre_running_sha256": "6B6FCF33C21B5ED9323F8BBE4C677EF12BA4653E775178DCDF8E77049B2F57A8",
+    "immediate_pre_running_sha256": "92C5EF70512F57CBD990301E6918DE1BE002823C31CFB4C638D4E0F141BE7514",
+    "full_mastery_page_sha256": "2DAE85AE4077C23C2C7C39F64B5BA944740F765AC8E24FBB097B0BF28A720DF6",
+    "origins_payload_sha256": "77BF4DB93204AF1212A6335AF624642068A8B8560F1D78D59E2E07FBF4751F69",
+    "full_mastery_base": "vv3_origins_full_mastery_base_candidate.json",
+    "full_mastery_feature": "vv3_full_mastery_all_candidate.json"
+  },
+  "manifest_sha256": "C09629823AFA050B096E2DE9305A311EF79AF9AFE6D306A4CFD04501E19B3360",
+  "mutations": [
+    {
+      "file_offset": "0xA38C3",
+      "virtual_address": "0x4A38C3",
+      "length": 5,
+      "before": "83FB027525",
+      "after": "E938C02300",
+      "sha256": "DB0F47AADB04629EB6FD5966547F11CF32A7DC445E8D8641621925B76C816DA1"
+    },
+    {
+      "file_offset": "0xCB900",
+      "virtual_address": "0x6DF900",
+      "length": 1792,
+      "before_sha256": "7B4FC1A8DBE6B6121F16ADA516E2AC27E02964716BACEA5FB7D07CF30595948E",
+      "after_sha256": "76339C8FFBE0FF92F3F1EB2CC27A4E0600E33DCC936716DA94BBB0BD5D1AB050",
+      "helper_sha256": "B03DCCF47903326E95A192A8458FD504E80B5D592784072D47525C217202B544",
+      "strings_sha256": "52CB94EFF2FAC50C91B0C4CDF8D3CC973348F5ECE6BC3BAA0B74307FC1ACDC50"
+    }
+  ],
+  "protected_regions": "all bytes outside 0xA38C3..0xA38C7 and 0xCB900..0xCBFFF are byte-identical",
+  "protected_calls": {
+    "manager_getter": "0x428B60",
+    "validator": "0x45EE60",
+    "resolver": "0x45C840",
+    "deduction": "0x427130"
+  },
+  "no_dislike_or_e94_access": true,
+  "stack_frame": {
+    "saved_message_box": "-0x10",
+    "selected_index": "-0x14",
+    "record": "-0x18",
+    "first_empty_like": "-0x1C",
+    "snapshot": [
+      "-0x20",
+      "-0x24",
+      "-0x28"
+    ],
+    "local_allocation": "0x1C"
+  },
+  "canonical_blob_layout": {
+    "helper_offset": "0x0",
+    "helper_length": "0x271",
+    "strings_offset": "0x400",
+    "strings_length": "0x2E7",
+    "tail_offset": "0x6E7",
+    "tail_length": "0x19"
+  },
+  "semantic_guards": {
+    "command_gate_before_api": true,
+    "message_box_pointer": "[ebp-0x10]",
+    "selected_index_local": "[ebp-0x14]",
+    "record_local": "[ebp-0x18]",
+    "first_empty_like_local": "[ebp-0x1C]",
+    "snapshot_locals": [
+      "[ebp-0x20]",
+      "[ebp-0x24]",
+      "[ebp-0x28]"
+    ],
+    "likes_only_offsets": [
+      "0xFB4",
+      "0xFB8",
+      "0xFBC"
+    ],
+    "forbidden_offsets": [
+      "0xFC0",
+      "0xFC4",
+      "0xFC8",
+      "0xE94"
+    ],
+    "native_deduction_calls": 1
+  },
+  "composition": {
+    "full_mastery_chain": "required and verified before candidate patch",
+    "withdrawn_village_wide_running": "not a dependency and not reused"
+  },
+  "rendered": {
+    "collection_progression": {
+      "sha256": "3644A56FE17F843DB67662E4309C3C2B41AE7ADD5FDD60EF2B6789DE2BA15FDC",
+      "size": 835584,
+      "pre_running_sha256": "6B6FCF33C21B5ED9323F8BBE4C677EF12BA4653E775178DCDF8E77049B2F57A8",
+      "pe_checksum": "0x000D7993",
+      "owners": [
+        "automatic:population",
+        "automatic:safety",
+        "feature:vv3_enable_origins_exclusive_features",
+        "feature:vv3_full_mastery_all_stage_a_candidate",
+        "feature:vv3_individual_grant_running_candidate"
+      ]
+    },
+    "immediate_fixed": {
+      "sha256": "059230146E8CC36E06E5473AE187D081E337DB90638B227FBA799B9C82B58C1C",
+      "size": 835584,
+      "pre_running_sha256": "92C5EF70512F57CBD990301E6918DE1BE002823C31CFB4C638D4E0F141BE7514",
+      "pe_checksum": "0x000DBB91",
+      "owners": [
+        "automatic:population",
+        "automatic:safety",
+        "feature:vv3_enable_origins_exclusive_features",
+        "feature:vv3_full_mastery_all_stage_a_candidate",
+        "feature:vv3_individual_grant_running_candidate"
+      ]
+    },
+    "experimental_expanded_256": {
+      "rejected": "VV3 individual Grant Running is stock-mode only; Expanded-256 is fail-closed."
+    },
+    "experimental_expanded_256_progression": {
+      "rejected": "VV3 individual Grant Running is stock-mode only; Expanded-256 is fail-closed."
+    }
+  }
+}

@@ -1,0 +1,182 @@
+{
+  "id": "vv3_individual_grant_running_candidate",
+  "game_id": "vv3",
+  "name": "DISABLED Candidate: Grant Running to Selected Villager",
+  "enabled": false,
+  "catalog_hidden": true,
+  "catalog_enabled": false,
+  "certification_status": "disabled; pending independent D166 emitted-byte and runtime recertification",
+  "source_commit": "9574f488eefb97bd6320259f301beb87266072f8",
+  "implementation_commit": null,
+  "dependencies": [
+    "vv3_full_mastery_all_stage_a_candidate"
+  ],
+  "base_chain": {
+    "collection_pre_running_sha256": "6B6FCF33C21B5ED9323F8BBE4C677EF12BA4653E775178DCDF8E77049B2F57A8",
+    "immediate_pre_running_sha256": "92C5EF70512F57CBD990301E6918DE1BE002823C31CFB4C638D4E0F141BE7514",
+    "full_mastery_page_sha256": "2DAE85AE4077C23C2C7C39F64B5BA944740F765AC8E24FBB097B0BF28A720DF6",
+    "origins_payload_sha256": "77BF4DB93204AF1212A6335AF624642068A8B8560F1D78D59E2E07FBF4751F69",
+    "full_mastery_base": "vv3_origins_full_mastery_base_candidate.json",
+    "full_mastery_feature": "vv3_full_mastery_all_candidate.json"
+  },
+  "description": "Stock Collection Progression/Immediate Fixed-only selected-villager Grant Running candidate composed after the certified VV3 Full Mastery chain. It is disabled and catalog-hidden; the withdrawn village-wide command-6 Running candidate is not reused or modified.",
+  "companion_files": [],
+  "patches": [
+    {
+      "offset": "0xA38C3",
+      "before": "83FB027525",
+      "after": "E938C02300",
+      "purpose": "detour only command 2 before legacy price lookup/charge to the selected-villager helper"
+    },
+    {
+      "offset": "0xCB900",
+      "before_fill": "00",
+      "length": 1792,
+      "after": "83FB020F85E43FDCFF5589E553565783EC1C6800FD6D00FF1524C1470085C00F8440020000680BFD6D0050FF1528C1470085C00F842C0200008945F0E81F92D4FF85C00F84EE0100008B88C02F0100894DEC85C90F88DD01000081F9960000000F83D101000051B910E15900E8EFF4D7FF84C00F84BE010000FF75ECB910E15900E8BACED7FF85C00F84A901000083B8780E0000000F8E9C0100008945E88B88B40F0000894DE08B88B80F0000894DDC8B88BC0F0000894DD8C745E4000000008DB8B40F0000B903000000833F260F8455010000833FFF7509837DE4007503897DE483C7044975E3837DE4000F843E010000813D44265800409C00000F824A0100006A016817FD6D006829FD6D006A00FF55F083F8010F8537010000E83F91D4FF85C00F84150100008B88C02F01003B4DEC0F850601000085C90F88FE00000081F9960000000F83F200000051B910E15900E809F4D7FF84C00F84DF000000FF75ECB910E15900E8D4CDD7FF85C00F84CA00000083B8780E0000000F8EBD0000008945E88B88B40F00003B4DE00F85B20000008B88B80F00003B4DDC0F85A30000008B88BC0F00003B4DD80F8594000000C745E4000000008DB8B40F0000B903000000833F26747D833FFF7509837DE4007503897DE483C7044975E7837DE4007463813D44265800409C0000725E8B7DE4833FFF754FC70726000000833F26751668C063FFFFB944265800E82076D4FFBA81FD6D00EB41833F267506C707FFFFFFFFBAA4FF6D00EB2FBA96FD6D00EB28BADFFD6D00EB21BA29FE6D00EB1ABA73FE6D00EB13BAD4FE6D00EB0CBA28FF6D00EB05BA64FF6D006A006817FD6D00526A00FF55F083C41C5F5E5B5DE9653CDCFF0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000005553455233322E646C6C004D657373616765426F78410056696C6C61676572205570677261646573004772616E742052756E6E696E6720746F20746869732076696C6C6167657220666F722034302C303030207465636820706F696E74733F0D0A5072657373204F4B20746F20636F6E6669726D2C206F722043616E63656C2E0052756E6E696E6720776173206772616E7465642E00546869732076696C6C6167657220616C7265616479206C696B65732052756E6E696E672E0D0A4E6F207465636820706F696E74732068617665206265656E2064656475637465642E00546869732076696C6C6167657220686173206E6F20656D707479204C696B6520736C6F742E0D0A4E6F207465636820706F696E74732068617665206265656E2064656475637465642E004E6F2076616C6964206C6976696E672076696C6C616765722069732073656C65637465642E0D0A4E6F207465636820706F696E74732068617665206265656E2064656475637465642E005468652073656C656374696F6E206F722076696C6C61676572207374617465206368616E67656420647572696E6720636F6E6669726D6174696F6E2E0D0A4E6F207465636820706F696E74732068617665206265656E2064656475637465642E005468652076696C6C61676572204C696B6573206368616E67656420647572696E6720636F6E6669726D6174696F6E2E0D0A4E6F207465636820706F696E74732068617665206265656E2064656475637465642E004E6F7420656E6F756768207465636820706F696E74732E0D0A4E6F207465636820706F696E74732068617665206265656E2064656475637465642E004772616E742052756E6E696E67207761732063616E63656C65642E0D0A4E6F207465636820706F696E74732068617665206265656E2064656475637465642E0052756E6E696E6720636F756C64206E6F742062652076657269666965642E0D0A4E6F207465636820706F696E74732068617665206265656E2064656475637465642E0000000000000000000000000000000000000000000000000000",
+      "helper_length": 625,
+      "helper_sha256": "B03DCCF47903326E95A192A8458FD504E80B5D592784072D47525C217202B544",
+      "strings_length": 743,
+      "strings_sha256": "52CB94EFF2FAC50C91B0C4CDF8D3CC973348F5ECE6BC3BAA0B74307FC1ACDC50",
+      "purpose": "install exactly the candidate-owned D166 canonical helper/strings in the existing .vv3fm zero slot"
+    }
+  ],
+  "unsupported_patch_modes": [
+    "experimental_expanded_256",
+    "experimental_expanded_256_progression"
+  ],
+  "owned_region": {
+    "raw_offset": "0xCB900",
+    "virtual_address": "0x6DF900",
+    "length": 1792,
+    "helper_length": 625,
+    "helper_sha256": "B03DCCF47903326E95A192A8458FD504E80B5D592784072D47525C217202B544",
+    "strings_offset": "0xCBD00",
+    "strings_virtual_address": "0x6DFD00",
+    "strings_length": 743,
+    "strings_sha256": "52CB94EFF2FAC50C91B0C4CDF8D3CC973348F5ECE6BC3BAA0B74307FC1ACDC50",
+    "strings": {
+      "user32": "0x6DFD00",
+      "message_box": "0x6DFD0B",
+      "caption": "0x6DFD17",
+      "warning": "0x6DFD29",
+      "success": "0x6DFD81",
+      "already": "0x6DFD96",
+      "no_empty": "0x6DFDDF",
+      "invalid": "0x6DFE29",
+      "selection_changed": "0x6DFE73",
+      "likes_changed": "0x6DFED4",
+      "insufficient": "0x6DFF28",
+      "cancel": "0x6DFF64",
+      "write_failure": "0x6DFFA4"
+    },
+    "stack_frame": {
+      "saved_message_box": "-0x10",
+      "selected_index": "-0x14",
+      "record": "-0x18",
+      "first_empty_like": "-0x1C",
+      "snapshot": [
+        "-0x20",
+        "-0x24",
+        "-0x28"
+      ],
+      "local_allocation": "0x1C"
+    },
+    "canonical_blob_layout": {
+      "helper_offset": "0x0",
+      "helper_length": "0x271",
+      "strings_offset": "0x400",
+      "strings_length": "0x2E7",
+      "tail_offset": "0x6E7",
+      "tail_length": "0x19"
+    },
+    "tail_offset": "0xCBFE7",
+    "tail_length": 25,
+    "helper_region_sha256": "96CA1FBFA8B431187A291ED7E97D1CBA2793B9617A7EEEBB2286653B6EB375E0",
+    "no_dislike_offsets": [],
+    "preimage_sha256": "7B4FC1A8DBE6B6121F16ADA516E2AC27E02964716BACEA5FB7D07CF30595948E",
+    "after_sha256": "76339C8FFBE0FF92F3F1EB2CC27A4E0600E33DCC936716DA94BBB0BD5D1AB050",
+    "tail_zero_length": 25
+  },
+  "transaction_contract": {
+    "command": 2,
+    "price": 40000,
+    "record_bound": 150,
+    "stack_frame": {
+      "saved_message_box": "-0x10",
+      "selected_index": "-0x14",
+      "record": "-0x18",
+      "first_empty_like": "-0x1C",
+      "snapshot": [
+        "-0x20",
+        "-0x24",
+        "-0x28"
+      ],
+      "local_allocation": "0x1C"
+    },
+    "canonical_blob_layout": {
+      "helper_offset": "0x0",
+      "helper_length": "0x271",
+      "strings_offset": "0x400",
+      "strings_length": "0x2E7",
+      "tail_offset": "0x6E7",
+      "tail_length": "0x19"
+    },
+    "selection": {
+      "manager_getter": "sub_428B60",
+      "selected_index_offset": "0x12FC0",
+      "validator": "sub_45EE60 with ECX=0x59E110",
+      "resolver": "sub_45C840 with ECX=0x59E110",
+      "same_index_required_after_confirmation": true
+    },
+    "eligibility": [
+      "signed index 0..149",
+      "signed health +0xE78 > 0"
+    ],
+    "likes": {
+      "offsets": [
+        "0xFB4",
+        "0xFB8",
+        "0xFBC"
+      ],
+      "running": 38,
+      "empty": -1
+    },
+    "dislikes": {
+      "read": false,
+      "write": false,
+      "storage_never_touched": true
+    },
+    "passes": [
+      "complete initial three-DWORD Like snapshot/scan",
+      "funds >= 40000",
+      "OK/Cancel",
+      "fresh singleton/index/record",
+      "complete second scan and exact snapshot comparison",
+      "fresh funds check",
+      "verified single first-empty write of 38",
+      "one native deduction"
+    ],
+    "deduction": {
+      "receiver": "ECX=0x582644",
+      "delta": -40000,
+      "writer": "sub_427130",
+      "calls": 1
+    },
+    "process_fault_limit": "a process fault remains possible after verified slot write and before native deduction; no rollback atomicity is claimed"
+  },
+  "result_messages": {
+    "no_charge_suffix": "No tech points have been deducted.",
+    "distinct": [
+      "already_running",
+      "no_empty_like",
+      "invalid_selection",
+      "selection_changed",
+      "inactive_or_dead",
+      "likes_changed",
+      "insufficient_funds",
+      "canceled",
+      "write_verification_failure"
+    ],
+    "success": "Running has been granted to this villager."
+  }
+}
