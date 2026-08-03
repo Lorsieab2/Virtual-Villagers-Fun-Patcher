@@ -536,6 +536,7 @@ class VV3RunningCandidateTests(unittest.TestCase):
                 "vv3_enable_origins_exclusive_features",
                 "vv3_all_villagers_like_running",
                 "vv3_full_mastery_all_stage_a_candidate",
+                "vv3_individual_grant_running_candidate",
             }
         ]
         for mode in MODES:

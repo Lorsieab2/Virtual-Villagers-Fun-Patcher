@@ -18,7 +18,9 @@ from vv_fun_patcher import (  # noqa: E402
     PatcherError,
     _remove_feature_bytes,
     load_builds,
+    load_fun_patches,
     render_patched_bytes,
+    resolve_fun_patch_ids,
 )
 
 
@@ -130,10 +132,12 @@ class VV3IndividualGrantRunningCandidateTests(unittest.TestCase):
         self.assertEqual(self.artifact["stack_frame"]["saved_message_box"], "-0x10")
         self.assertEqual(self.artifact["semantic_guards"]["message_box_pointer"], "[ebp-0x10]")
 
-    def test_exact_two_feature_ranges_and_disabled_state(self) -> None:
-        self.assertFalse(self.raw["enabled"])
-        self.assertTrue(self.raw["catalog_hidden"])
-        self.assertFalse(self.raw["catalog_enabled"])
+    def test_exact_two_feature_ranges_and_enabled_static_state(self) -> None:
+        self.assertTrue(self.raw["enabled"])
+        self.assertFalse(self.raw["catalog_hidden"])
+        self.assertTrue(self.raw["catalog_enabled"])
+        self.assertEqual(self.raw["supported_modes"], ["collection_progression", "immediate_fixed"])
+        self.assertEqual(self.raw["runtime_player_status"], "pending")
         self.assertEqual(len(self.raw["patches"]), 2)
         hook, owned = self.raw["patches"]
         self.assertEqual(hook["before"], "83FB027525")
@@ -150,6 +154,65 @@ class VV3IndividualGrantRunningCandidateTests(unittest.TestCase):
         self.assertEqual(self.artifact["feature_owned_ranges"][1]["file_offset"], "0xCB900")
         self.assertEqual(self.artifact["mutation_accounting"]["feature_owned_range_count"], 2)
         self.assertEqual(self.artifact["mutation_accounting"]["physical_diff_range_count"], 3)
+
+    def test_enabled_catalog_requires_full_mastery_chain_and_excludes_village_wide(self) -> None:
+        patches = load_fun_patches()
+        by_id = {patch.id: patch for patch in patches}
+        self.assertIn("vv3_individual_grant_running_candidate", by_id)
+        self.assertIn("vv3_enable_origins_exclusive_features", by_id)
+        self.assertIn("vv3_full_mastery_all_stage_a_candidate", by_id)
+        self.assertNotIn("vv3_all_villagers_like_running", by_id)
+        self.assertNotIn("vv3_origins_village_wide_upgrades", by_id)
+        candidate = by_id["vv3_individual_grant_running_candidate"]
+        self.assertTrue(candidate.raw["enabled"])
+        self.assertFalse(candidate.raw["catalog_hidden"])
+        self.assertTrue(candidate.raw["catalog_enabled"])
+        self.assertEqual(candidate.raw["dependencies"], ["vv3_full_mastery_all_stage_a_candidate"])
+        selected = [
+            "vv3_enable_origins_exclusive_features",
+            "vv3_full_mastery_all_stage_a_candidate",
+            "vv3_individual_grant_running_candidate",
+        ]
+        ordered = resolve_fun_patch_ids(selected, game_id="vv3", patches=patches)
+        self.assertEqual(
+            ordered,
+            [
+                "vv3_enable_origins_exclusive_features",
+                "vv3_full_mastery_all_stage_a_candidate",
+                "vv3_individual_grant_running_candidate",
+            ],
+        )
+        with self.assertRaisesRegex(PatcherError, "requires prerequisite"):
+            resolve_fun_patch_ids(
+                ["vv3_individual_grant_running_candidate"],
+                game_id="vv3",
+                patches=patches,
+            )
+        with self.assertRaisesRegex(PatcherError, "Unknown optional patch"):
+            resolve_fun_patch_ids(["vv3_all_villagers_like_running"], patches=patches)
+        with self.assertRaisesRegex(PatcherError, "Unknown optional patch"):
+            resolve_fun_patch_ids(["vv3_origins_village_wide_upgrades"], patches=patches)
+        for mode in ("collection_progression", "immediate_fixed"):
+            with self.subTest(mode=mode):
+                rendered, _ = render_patched_bytes(
+                    self.stock,
+                    self.build,
+                    mode,
+                    ordered,
+                )
+                self.assertEqual(
+                    sha(bytes(rendered)),
+                    self.artifact["rendered"][mode]["sha256"],
+                )
+        for mode in self.builder.EXPANDED_MODES:
+            with self.subTest(mode=mode):
+                with self.assertRaisesRegex(PatcherError, "Expanded-256"):
+                    render_patched_bytes(
+                        self.stock,
+                        self.build,
+                        mode,
+                        ordered,
+                    )
 
     def test_checksum_accounting_has_three_ranges_and_rejects_pin_mutations(self) -> None:
         expected_checksums = {

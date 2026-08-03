@@ -49,6 +49,7 @@ PRICE = 40_000
 RUNNING_ID = 38
 STOCK_SHA256 = "8BC5DB382D02BC5C21AD5F607580D60FF44A6519CC7EB133F03113BAACAE6503"
 SOURCE_BASE_COMMIT = "9574f488eefb97bd6320259f301beb87266072f8"
+IMPLEMENTATION_COMMIT = "a35bee6ed91fb3f105424dca5e3283ce85e01894"
 PRE_RUNNING_SHA256 = {
     "collection_progression": "6B6FCF33C21B5ED9323F8BBE4C677EF12BA4653E775178DCDF8E77049B2F57A8",
     "immediate_fixed": "92C5EF70512F57CBD990301E6918DE1BE002823C31CFB4C638D4E0F141BE7514",
@@ -369,7 +370,7 @@ def main() -> None:
     for path, expected in (
         (FULL_MASTERY_BASE, "657D2D4F01550A121127053878E2777AB719CF00300A2AD69016296A4758B989"),
         (FULL_MASTERY_FEATURE, "844A3CB7996793F51D741409C9EFAF675E07ED92122BCD2F91750766D7357783"),
-        (FULL_MASTERY_MAP, "A8075640C3FC7230965E9645285254C5AF0C6E14C7E0437CBDDA9DF6B1E1B818"),
+        (FULL_MASTERY_MAP, "018586F36A9B242D11C6A245DC5E2C2A8C5BA0A5E20B398DC00AFB3E86CCDAF7"),
     ):
         actual = sha(path.read_bytes())
         if actual != expected:
@@ -405,13 +406,19 @@ def main() -> None:
     candidate = {
         "id": "vv3_individual_grant_running_candidate",
         "game_id": "vv3",
-        "name": "DISABLED Candidate: Grant Running to Selected Villager",
-        "enabled": False,
-        "catalog_hidden": True,
-        "catalog_enabled": False,
-        "certification_status": "disabled; pending independent D166 emitted-byte and runtime recertification",
+        "name": "Grant Running to Selected Villager",
+        "enabled": True,
+        "catalog_hidden": False,
+        "catalog_enabled": True,
+        "certification_status": (
+            "D172 independent static GO; stock Collection Progression and "
+            "Immediate Fixed catalog-enabled; runtime/player validation pending; "
+            "Expanded-256 fail-closed"
+        ),
         "source_commit": SOURCE_BASE_COMMIT,
-        "implementation_commit": None,
+        "implementation_commit": IMPLEMENTATION_COMMIT,
+        "runtime_player_status": "pending",
+        "supported_modes": ["collection_progression", "immediate_fixed"],
         "dependencies": ["vv3_full_mastery_all_stage_a_candidate"],
         "base_chain": {
             "collection_pre_running_sha256": PRE_RUNNING_SHA256["collection_progression"],
@@ -422,10 +429,10 @@ def main() -> None:
             "full_mastery_feature": FULL_MASTERY_FEATURE.name,
         },
         "description": (
-            "Stock Collection Progression/Immediate Fixed-only selected-villager "
-            "Grant Running candidate composed after the certified VV3 Full Mastery "
-            "chain. It is disabled and catalog-hidden; the withdrawn village-wide "
-            "command-6 Running candidate is not reused or modified."
+            "Enabled/catalog-visible stock Collection Progression/Immediate Fixed-only "
+            "selected-villager Grant Running candidate composed after the certified "
+            "VV3 Full Mastery chain. The withdrawn village-wide command-6 Running "
+            "candidate is not reused or modified; runtime/player validation remains pending."
         ),
         "mutation_accounting": {
             "feature_owned_range_count": len(FEATURE_OWNED_RANGES),
@@ -502,11 +509,14 @@ def main() -> None:
     renders = _render_map(candidate, owned_region, region_map)
     artifact = {
         "candidate_id": candidate["id"],
-        "candidate_enabled": False,
-        "catalog_hidden": True,
-        "catalog_enabled": False,
+        "candidate_enabled": True,
+        "catalog_hidden": False,
+        "catalog_enabled": True,
         "source_commit": SOURCE_BASE_COMMIT,
-        "acceptance_status": "pending independent D166 emitted-byte and runtime recertification",
+        "implementation_commit": IMPLEMENTATION_COMMIT,
+        "acceptance_status": "D172 independent static GO; runtime/player validation pending",
+        "allowed_modes": ["collection_progression", "immediate_fixed"],
+        "expanded_fail_closed": True,
         "source": {"size": len(stock), "sha256": STOCK_SHA256},
         "base_chain": candidate["base_chain"],
         "manifest_sha256": sha(MANIFEST_OUT.read_bytes()),
@@ -557,10 +567,11 @@ def main() -> None:
     }
     MAP_OUT.write_text(json.dumps(artifact, indent=2) + "\n", encoding="utf-8")
     DOC_OUT.write_text(
-        "# VV3 individual Grant Running - disabled candidate\n\n"
-        "This candidate is stock-only, disabled, and catalog-hidden. It composes "
-        "after the certified VV3 Full Mastery chain; it does not reuse or modify "
-        "the withdrawn village-wide command-6 Running candidate.\n\n"
+        "# VV3 individual Grant Running - enabled static candidate\n\n"
+        "This candidate is enabled and catalog-visible only for stock Collection "
+        "Progression and Immediate Fixed. It composes after the certified VV3 Full "
+        "Mastery chain; runtime/player validation remains pending, and it does not "
+        "reuse or modify the withdrawn village-wide command-6 Running candidate.\n\n"
         f"- Stock SHA-256: `{STOCK_SHA256}`; source baseline: `{SOURCE_BASE_COMMIT}`.\n"
         f"- Certified pre-Running identities: Collection `{PRE_RUNNING_SHA256['collection_progression']}`, "
         f"Immediate `{PRE_RUNNING_SHA256['immediate_fixed']}`; Full Mastery `.vv3fm` page `{FULL_MASTERY_PAGE_SHA256}`.\n"
@@ -577,9 +588,10 @@ def main() -> None:
     # legacy block above; this keeps the on-disk artifact free of stale claims
     # while the source diff remains limited to this candidate generator.
     DOC_OUT.write_text(
-        "# VV3 individual Grant Running - disabled candidate\n\n"
-        "This stock-only candidate is disabled and catalog-hidden pending independent "
-        "emitted-byte and runtime/player recertification. It composes only after the "
+        "# VV3 individual Grant Running - enabled static candidate\n\n"
+        "This stock-only candidate is enabled and catalog-visible only for Collection "
+        "Progression and Immediate Fixed after D172 independent static GO. Runtime/player "
+        "validation remains pending. It composes only after the "
         "certified VV3 Full Mastery chain and does not reuse or modify the withdrawn "
         "village-wide command-6 Running candidate.\n\n"
         f"- Stock SHA-256: `{STOCK_SHA256}`; source baseline: `{SOURCE_BASE_COMMIT}`.\n"

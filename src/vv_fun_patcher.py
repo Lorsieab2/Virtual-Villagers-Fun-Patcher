@@ -44,7 +44,7 @@ VV3_FULL_MASTERY_CANDIDATE_PATHS = {
 VV3_FULL_MASTERY_CERTIFIED_SHA256 = {
     "base": "657D2D4F01550A121127053878E2777AB719CF00300A2AD69016296A4758B989",
     "feature": "844A3CB7996793F51D741409C9EFAF675E07ED92122BCD2F91750766D7357783",
-    "map": "A8075640C3FC7230965E9645285254C5AF0C6E14C7E0437CBDDA9DF6B1E1B818",
+    "map": "018586F36A9B242D11C6A245DC5E2C2A8C5BA0A5E20B398DC00AFB3E86CCDAF7",
     "dll": "35FB96199E745C7D8054FF6A12851B9E09225E3E41D0CE04012604E74968C0D5",
     "entry": "9685954F75E1DD26103507213FBEADBD9DED2705E62CB37D14080F6EBEC6EB23",
     "slot": "B1499EB3B10B7E4728746711E9F63B88211E4B80CA378742ADC5DC06782DAADA",
@@ -52,6 +52,21 @@ VV3_FULL_MASTERY_CERTIFIED_SHA256 = {
 }
 VV3_FULL_MASTERY_ENABLED = True
 VV3_INDIVIDUAL_RUNNING_CANDIDATE_ID = "vv3_individual_grant_running_candidate"
+VV3_INDIVIDUAL_RUNNING_CANDIDATE_PATHS = {
+    "manifest": ROOT / "data" / "candidates" / "vv3_individual_grant_running_candidate.json",
+    "map": ROOT / "data" / "candidates" / "vv3_individual_grant_running_candidate_map.json",
+}
+VV3_INDIVIDUAL_RUNNING_MANIFEST_SHA256 = "5EB91BBEBDDB34B338A0C14012CA936929E5BFAFB4557765B0FCB5EC3C27DC5C"
+VV3_INDIVIDUAL_RUNNING_MAP_SHA256 = "44F3CE4FFBB8B9CD00094C3034AF660A6DCAD7A2566BEF85470945051732C712"
+VV3_INDIVIDUAL_RUNNING_SOURCE_COMMIT = "9574f488eefb97bd6320259f301beb87266072f8"
+VV3_INDIVIDUAL_RUNNING_IMPLEMENTATION_COMMIT = "a35bee6ed91fb3f105424dca5e3283ce85e01894"
+VV3_INDIVIDUAL_RUNNING_ACCEPTANCE_STATUS = (
+    "D172 independent static GO; runtime/player validation pending"
+)
+VV3_INDIVIDUAL_RUNNING_RENDERED_SHA256 = {
+    "collection_progression": "3644A56FE17F843DB67662E4309C3C2B41AE7ADD5FDD60EF2B6789DE2BA15FDC",
+    "immediate_fixed": "059230146E8CC36E06E5473AE187D081E337DB90638B227FBA799B9C82B58C1C",
+}
 VV3_INDIVIDUAL_RUNNING_PINS = {
     "stock": "8BC5DB382D02BC5C21AD5F607580D60FF44A6519CC7EB133F03113BAACAE6503",
     "collection_pre_running": "6B6FCF33C21B5ED9323F8BBE4C677EF12BA4653E775178DCDF8E77049B2F57A8",
@@ -431,6 +446,106 @@ def _certified_vv3_full_mastery_records(
         }
     )
     return base, feature
+
+
+def _certified_vv3_individual_running_record(
+    active_base: dict[str, Any],
+    full_mastery_feature: dict[str, Any],
+) -> dict[str, Any] | None:
+    """Load the enabled selected-villager record only from pinned metadata."""
+
+    manifest_path = VV3_INDIVIDUAL_RUNNING_CANDIDATE_PATHS["manifest"]
+    map_path = VV3_INDIVIDUAL_RUNNING_CANDIDATE_PATHS["map"]
+    manifest_bytes = manifest_path.read_bytes()
+    manifest_digest = hashlib.sha256(manifest_bytes).hexdigest().upper()
+    if manifest_digest != VV3_INDIVIDUAL_RUNNING_MANIFEST_SHA256:
+        raise PatcherError(
+            "VV3 individual Grant Running manifest bytes are not the certified record."
+        )
+    map_bytes = map_path.read_bytes()
+    map_digest = hashlib.sha256(map_bytes).hexdigest().upper()
+    if map_digest != VV3_INDIVIDUAL_RUNNING_MAP_SHA256:
+        raise PatcherError(
+            "VV3 individual Grant Running map bytes are not the certified record."
+        )
+    manifest = json.loads(manifest_bytes.decode("utf-8"))
+    artifact_map = json.loads(map_bytes.decode("utf-8"))
+    if not manifest.get("enabled", True):
+        return None
+    if (
+        manifest.get("id") != VV3_INDIVIDUAL_RUNNING_CANDIDATE_ID
+        or manifest.get("game_id") != "vv3"
+        or manifest.get("catalog_hidden") is not False
+        or manifest.get("catalog_enabled") is not True
+        or manifest.get("source_commit") != VV3_INDIVIDUAL_RUNNING_SOURCE_COMMIT
+        or manifest.get("implementation_commit")
+        != VV3_INDIVIDUAL_RUNNING_IMPLEMENTATION_COMMIT
+        or manifest.get("runtime_player_status") != "pending"
+        or manifest.get("supported_modes") != [
+            "collection_progression",
+            "immediate_fixed",
+        ]
+        or manifest.get("unsupported_patch_modes") != [
+            "experimental_expanded_256",
+            "experimental_expanded_256_progression",
+        ]
+        or manifest.get("dependencies") != [
+            "vv3_full_mastery_all_stage_a_candidate"
+        ]
+        or not str(manifest.get("certification_status", "")).startswith(
+            "D172 independent static GO;"
+        )
+    ):
+        raise PatcherError(
+            "VV3 individual Grant Running manifest enablement is not certified."
+        )
+    if (
+        artifact_map.get("candidate_id") != VV3_INDIVIDUAL_RUNNING_CANDIDATE_ID
+        or artifact_map.get("candidate_enabled") is not True
+        or artifact_map.get("catalog_hidden") is not False
+        or artifact_map.get("catalog_enabled") is not True
+        or artifact_map.get("source_commit") != VV3_INDIVIDUAL_RUNNING_SOURCE_COMMIT
+        or artifact_map.get("implementation_commit")
+        != VV3_INDIVIDUAL_RUNNING_IMPLEMENTATION_COMMIT
+        or artifact_map.get("acceptance_status") != VV3_INDIVIDUAL_RUNNING_ACCEPTANCE_STATUS
+        or artifact_map.get("allowed_modes") != [
+            "collection_progression",
+            "immediate_fixed",
+        ]
+        or artifact_map.get("expanded_fail_closed") is not True
+    ):
+        raise PatcherError(
+            "VV3 individual Grant Running map enablement is not certified."
+        )
+    rendered = artifact_map.get("rendered")
+    if not isinstance(rendered, dict):
+        raise PatcherError(
+            "VV3 individual Grant Running rendered-mode metadata is missing."
+        )
+    for mode, expected_sha256 in VV3_INDIVIDUAL_RUNNING_RENDERED_SHA256.items():
+        if rendered.get(mode, {}).get("sha256") != expected_sha256:
+            raise PatcherError(
+                f"VV3 individual Grant Running {mode} rendered identity is not certified."
+            )
+    for mode in EXPANDED_PATCH_MODES:
+        if rendered.get(mode) != {
+            "rejected": "VV3 individual Grant Running is stock-mode only; Expanded-256 is fail-closed."
+        }:
+            raise PatcherError(
+                f"VV3 individual Grant Running Expanded mode {mode} is not fail-closed."
+            )
+    candidate = FunPatch(manifest)
+    selected_ids = {
+        active_base["id"],
+        full_mastery_feature["id"],
+        VV3_INDIVIDUAL_RUNNING_CANDIDATE_ID,
+    }
+    _validate_vv3_individual_running_candidate(
+        candidate,
+        selected_ids,
+        "collection_progression",
+    )
+    return manifest
 
 
 def _certified_vv2_full_mastery_record() -> dict[str, Any] | None:
@@ -979,6 +1094,12 @@ def _load_fun_patch_records() -> list[FunPatch]:
                         )
                     else:
                         items.extend(mastery)
+                        individual_running = _certified_vv3_individual_running_record(
+                            certified_base,
+                            mastery[1],
+                        )
+                        if individual_running is not None:
+                            items.append(individual_running)
                     if running is not None and mastery is None:
                         items.append(running)
                 elif record.get("id") == "vv4_enable_origins_exclusive_features":
@@ -1286,9 +1407,9 @@ def _validate_vv3_individual_running_candidate(
     """Fail closed on every immutable D166 individual-Running contract.
 
     This validator intentionally runs before any candidate-owned byte is
-    applied.  The candidate is disabled/catalog-hidden today, but a direct
-    API/CLI override must not be able to bypass the exact two-range and
-    Full-Mastery-chain guards.
+    applied.  Catalog exposure is separately pinned to the certified stock
+    modes, and a direct API/CLI override must not bypass the exact two-range
+    and Full-Mastery-chain guards.
     """
     raw = feature.raw
     if patch_mode in EXPANDED_PATCH_MODES:

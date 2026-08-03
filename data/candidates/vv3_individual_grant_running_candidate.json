@@ -1,13 +1,18 @@
 {
   "id": "vv3_individual_grant_running_candidate",
   "game_id": "vv3",
-  "name": "DISABLED Candidate: Grant Running to Selected Villager",
-  "enabled": false,
-  "catalog_hidden": true,
-  "catalog_enabled": false,
-  "certification_status": "disabled; pending independent D166 emitted-byte and runtime recertification",
+  "name": "Grant Running to Selected Villager",
+  "enabled": true,
+  "catalog_hidden": false,
+  "catalog_enabled": true,
+  "certification_status": "D172 independent static GO; stock Collection Progression and Immediate Fixed catalog-enabled; runtime/player validation pending; Expanded-256 fail-closed",
   "source_commit": "9574f488eefb97bd6320259f301beb87266072f8",
-  "implementation_commit": null,
+  "implementation_commit": "a35bee6ed91fb3f105424dca5e3283ce85e01894",
+  "runtime_player_status": "pending",
+  "supported_modes": [
+    "collection_progression",
+    "immediate_fixed"
+  ],
   "dependencies": [
     "vv3_full_mastery_all_stage_a_candidate"
   ],
@@ -19,7 +24,7 @@
     "full_mastery_base": "vv3_origins_full_mastery_base_candidate.json",
     "full_mastery_feature": "vv3_full_mastery_all_candidate.json"
   },
-  "description": "Stock Collection Progression/Immediate Fixed-only selected-villager Grant Running candidate composed after the certified VV3 Full Mastery chain. It is disabled and catalog-hidden; the withdrawn village-wide command-6 Running candidate is not reused or modified.",
+  "description": "Enabled/catalog-visible stock Collection Progression/Immediate Fixed-only selected-villager Grant Running candidate composed after the certified VV3 Full Mastery chain. The withdrawn village-wide command-6 Running candidate is not reused or modified; runtime/player validation remains pending.",
   "mutation_accounting": {
     "feature_owned_range_count": 2,
     "feature_owned_ranges": [

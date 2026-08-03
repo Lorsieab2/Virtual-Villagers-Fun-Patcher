@@ -271,6 +271,16 @@ Stock-only command-7 repeatable Buy candidate using fixed manager 0x0059E110, na
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending
 - Guarded executable edits: 1; every edit has an exact purpose and before/after guard in the manifest.
 
+#### Grant Running to Selected Villager (`vv3_individual_grant_running_candidate`)
+
+Enabled/catalog-visible stock Collection Progression/Immediate Fixed-only selected-villager Grant Running candidate composed after the certified VV3 Full Mastery chain. The withdrawn village-wide command-6 Running candidate is not reused or modified; runtime/player validation remains pending.
+
+- Behavior changes: Enabled/catalog-visible stock Collection Progression/Immediate Fixed-only selected-villager Grant Running candidate composed after the certified VV3 Full Mastery chain. The withdrawn village-wide command-6 Running candidate is not reused or modified; runtime/player validation remains pending.
+- Explicit non-changes/exclusions: none declared
+- Dependencies: vv3_full_mastery_all_stage_a_candidate
+- Evidence status: static source/manifest verification performed; runtime/player confirmation pending
+- Guarded executable edits: 2; every edit has an exact purpose and before/after guard in the manifest.
+
 #### Nature Level 1 Actually Replenishes Food Sources Faster (`vv3_nature_honey_refill`)
 
 Nature level 1 or higher reduces fruit-tree refills from 3 hours to 2 hours 15 minutes and honey refills from 1 hour to 45 minutes. Fruit trees retain their stock Nature quantity bonus, while honey gains the same proportional quantity bonus.

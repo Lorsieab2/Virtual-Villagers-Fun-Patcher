@@ -108,7 +108,7 @@ class VV3OriginsFeatureTests(unittest.TestCase):
         for mode in MODES:
             with self.subTest(mode=mode):
                 if mode.startswith("experimental_expanded_256"):
-                    with self.assertRaisesRegex(PatcherError, "has no append layout"):
+                    with self.assertRaisesRegex(PatcherError, "(?:has no append layout|stock-mode only)"):
                         render_patched_bytes(STOCK, self.build, mode, patch_ids)
                     continue
                 rendered, applied = render_patched_bytes(

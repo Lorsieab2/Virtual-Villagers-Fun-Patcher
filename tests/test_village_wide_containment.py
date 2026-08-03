@@ -152,7 +152,7 @@ class VillageWideContainmentTests(unittest.TestCase):
                         "experimental_expanded_256"
                     ):
                         with self.assertRaisesRegex(
-                            PatcherError, "has no append layout"
+                            PatcherError, "(?:has no append layout|stock-mode only)"
                         ):
                             render_patched_bytes(
                                 source, build, mode.id, game_ids

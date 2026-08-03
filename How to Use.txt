@@ -41,7 +41,11 @@ save-recognition, and complete 256-villager save/reload testing.
    "Nature Level 1 Actually Replenishes Food Sources Faster" and/or
    "Nature Level 3 Actually Alters Mortality" and/or
    "Pointing Out a Rare Collectible Always Works" and/or
-   "Enable Origins-Exclusive Features".
+   "Enable Origins-Exclusive Features" and/or
+   "Grant Running to Selected Villager". The VV3 selected-villager Running
+   candidate is stock Collection Progression/Immediate Fixed-only, costs 40,000,
+   remains runtime/player pending, and never exposes the withdrawn village-wide
+   command-6 row.
 6. Optional for The Tree of Life: check
    "Complete Fish Scales = Golden Fish in Nets" and/or "Enable Origins-Exclusive
    Features". VV4 remains the untouched vanilla Breeding and Embracing

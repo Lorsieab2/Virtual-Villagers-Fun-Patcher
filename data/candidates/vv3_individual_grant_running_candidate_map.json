@@ -1,10 +1,16 @@
 {
   "candidate_id": "vv3_individual_grant_running_candidate",
-  "candidate_enabled": false,
-  "catalog_hidden": true,
-  "catalog_enabled": false,
+  "candidate_enabled": true,
+  "catalog_hidden": false,
+  "catalog_enabled": true,
   "source_commit": "9574f488eefb97bd6320259f301beb87266072f8",
-  "acceptance_status": "pending independent D166 emitted-byte and runtime recertification",
+  "implementation_commit": "a35bee6ed91fb3f105424dca5e3283ce85e01894",
+  "acceptance_status": "D172 independent static GO; runtime/player validation pending",
+  "allowed_modes": [
+    "collection_progression",
+    "immediate_fixed"
+  ],
+  "expanded_fail_closed": true,
   "source": {
     "size": 831488,
     "sha256": "8BC5DB382D02BC5C21AD5F607580D60FF44A6519CC7EB133F03113BAACAE6503"
@@ -17,7 +23,7 @@
     "full_mastery_base": "vv3_origins_full_mastery_base_candidate.json",
     "full_mastery_feature": "vv3_full_mastery_all_candidate.json"
   },
-  "manifest_sha256": "CB66D9007A85F7D5589F4A4F71586A5917E4432A9AFB4D7E03AA0C5F70C579EF",
+  "manifest_sha256": "5EB91BBEBDDB34B338A0C14012CA936929E5BFAFB4557765B0FCB5EC3C27DC5C",
   "feature_owned_ranges": [
     {
       "file_offset": "0xA38C3",

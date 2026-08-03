@@ -303,6 +303,16 @@ slot, removes Running from Dislikes, and never changes movement speed. The
 feature is exact-build guarded, but its native dialog and upgrade UI still need
 player runtime validation.
 
+## VV3: Grant Running to Selected Villager
+
+The enabled/catalog-visible `vv3_individual_grant_running_candidate` is available
+only in stock Collection Progression and Immediate Fixed when the certified VV3
+Full Mastery chain is selected. It uses the existing Villager Upgrades command-2
+route, costs 40,000 tech points, and is Buy-only with no ownership or Remove
+route. The withdrawn village-wide command-6 Running row remains absent. Expanded-
+256, unknown builds, and corrupt metadata fail closed; static evidence is GO while
+runtime/player validation remains pending.
+
 ## VV4 breeding reference
 
 VV4 remains the untouched vanilla Breeding and Embracing reference, including
