@@ -56,7 +56,7 @@
   "preference_contract": {
     "field": "+0x3D0",
     "behavior": "read-only; never written or normalized; any checked preference remains authoritative",
-    "absent_preference": "stock sub_43B520 tie/highest-skill naming behavior remains authoritative; user-observed expected result is Master Parent, pending exact static reconciliation"
+    "absent_preference": "stock sub_43B520 remains authoritative: it compares +0x3BC Parenting/code2, +0x3C0 Building/code4, +0x3C8 Healing/code5, +0x3C4 Farming/code1, then +0x3CC Research/code3 with strict-greater comparisons; all-equal skills retain code2 and native mapping renders Master Parent"
   },
   "post_verify_pass": {
     "mode": 1,

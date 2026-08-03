@@ -133,7 +133,7 @@
     "target": 100,
     "native_writer": "sub_437230 once for each valid below-100 skill",
     "pool_transport": "state=[Tech+0x0C], pool=[state+0xADE8]; null is fail-closed",
-    "preference": "read-only +0x3D0; never written or normalized; checked preference remains authoritative; no preference uses stock sub_43B520 tie/highest-skill behavior; user-observed expected result is Master Parent, pending exact static reconciliation",
+    "preference": "read-only +0x3D0; never written or normalized; no naming or preference code is changed; checked preference remains authoritative. With no checked preference, stock sub_43B520 compares +0x3BC Parenting/code2, +0x3C0 Building/code4, +0x3C8 Healing/code5, +0x3C4 Farming/code1, then +0x3CC Research/code3 using strict-greater comparisons; all-equal skills therefore retain code2 and the native label mapping is Master Parent.",
     "post_verify": "mode 1 reacquires [EBP+8] and performs a complete second read-only pass over all 256 records after native writes; identical eligibility/range validation and exact signed DWORD integer 100 for every eligible skill are required before deduction",
     "rollback_limit": "partial native writes may remain after interruption or failed post-verification; no charge is made"
   },

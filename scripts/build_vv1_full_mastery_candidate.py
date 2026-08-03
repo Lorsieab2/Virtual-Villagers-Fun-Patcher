@@ -679,7 +679,7 @@ def build_section() -> tuple[bytes, dict[str, object]]:
         "preference_contract": {
             "field": "+0x3D0",
             "behavior": "read-only; never written or normalized; any checked preference remains authoritative",
-            "absent_preference": "stock sub_43B520 tie/highest-skill naming behavior remains authoritative; user-observed expected result is Master Parent, pending exact static reconciliation",
+            "absent_preference": "stock sub_43B520 remains authoritative: it compares +0x3BC Parenting/code2, +0x3C0 Building/code4, +0x3C8 Healing/code5, +0x3C4 Farming/code1, then +0x3CC Research/code3 with strict-greater comparisons; all-equal skills retain code2 and native mapping renders Master Parent",
         },
         "post_verify_pass": {
             "mode": 1,
@@ -824,7 +824,7 @@ def build() -> tuple[dict[str, object], dict[str, object]]:
             "target": 100,
             "native_writer": "sub_437230 once for each valid below-100 skill",
             "pool_transport": "state=[Tech+0x0C], pool=[state+0xADE8]; null is fail-closed",
-            "preference": "read-only +0x3D0; never written or normalized; checked preference remains authoritative; no preference uses stock sub_43B520 tie/highest-skill behavior; user-observed expected result is Master Parent, pending exact static reconciliation",
+            "preference": "read-only +0x3D0; never written or normalized; no naming or preference code is changed; checked preference remains authoritative. With no checked preference, stock sub_43B520 compares +0x3BC Parenting/code2, +0x3C0 Building/code4, +0x3C8 Healing/code5, +0x3C4 Farming/code1, then +0x3CC Research/code3 using strict-greater comparisons; all-equal skills therefore retain code2 and the native label mapping is Master Parent.",
             "post_verify": "mode 1 reacquires [EBP+8] and performs a complete second read-only pass over all 256 records after native writes; identical eligibility/range validation and exact signed DWORD integer 100 for every eligible skill are required before deduction",
             "rollback_limit": "partial native writes may remain after interruption or failed post-verification; no charge is made",
         },
@@ -1011,9 +1011,12 @@ def main() -> None:
         "Island Event interception absent. Eligible records exclude Golden Child "
         "special value 199; the five skill fields are signed DWORD integers and "
         "must finish at exact integer 100. Preference +0x3D0 is read-only and "
-        "never written or normalized: a checked preference stays authoritative, "
-        "while no preference follows stock sub_43B520 tie/highest-skill naming; "
-        "the user-observed expected result is Master Parent, pending exact static reconciliation. "
+        "never written or normalized; no naming or preference code is changed: "
+        "a checked preference stays authoritative, "
+        "while no preference follows the D115-confirmed stock sub_43B520 order "
+        "(+0x3BC Parenting/code2, +0x3C0 Building/code4, +0x3C8 Healing/code5, "
+        "+0x3C4 Farming/code1, +0x3CC Research/code3) with strict-greater ties; "
+        "all-equal skills retain code2 and native mapping renders Master Parent. "
         "The result export is resolved and "
         "validated before any charge or native writer call, then retained through "
         "commit. The physical pool is reacquired from `state=[Tech+0x0C]` and "
