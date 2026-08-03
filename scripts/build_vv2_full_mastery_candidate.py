@@ -43,6 +43,39 @@ STRINGS_OFFSET = 0x1000
 PRICE = 1_000_000
 BOUND = 256
 STRIDE = 0xE48C
+SNAPSHOT_LOW = -0x124
+SNAPSHOT_HIGH = -0x25
+ENTRY_SCALAR_LOCALS = {
+    "result_pointer": -0x10,
+    "changed_but_unmarked": -0x14,
+    "changed_count": -0x18,
+    "manager": -0x1C,
+    "state": -0x20,
+    "new_elder_count": -0x24,
+}
+ENTRY_SAVED_SLOTS = {"ebx": -0x04, "esi": -0x08, "edi": -0x0C}
+
+
+def _assert_entry_scalar_layout() -> None:
+    """Reject any scalar local overlapping the snapshot or saved registers."""
+    def span(offset: int) -> tuple[int, int]:
+        return offset, offset + 3
+
+    snapshot = (SNAPSHOT_LOW, SNAPSHOT_HIGH)
+    saved = [span(offset) for offset in ENTRY_SAVED_SLOTS.values()]
+    seen: list[tuple[str, tuple[int, int]]] = []
+    for name, offset in ENTRY_SCALAR_LOCALS.items():
+        current = span(offset)
+        if current[0] >= snapshot[0] and current[1] <= snapshot[1]:
+            raise ValueError(f"entry scalar {name} overlaps snapshot interval")
+        if current[0] <= snapshot[1] and current[1] >= snapshot[0]:
+            raise ValueError(f"entry scalar {name} partially overlaps snapshot interval")
+        if any(current[0] <= slot[1] and current[1] >= slot[0] for slot in saved):
+            raise ValueError(f"entry scalar {name} overlaps saved-register slots")
+        for prior_name, prior in seen:
+            if current[0] <= prior[1] and current[1] >= prior[0]:
+                raise ValueError(f"entry scalar {name} overlaps {prior_name}")
+        seen.append((name, current))
 
 MODES = (
     "collection_progression",
@@ -149,6 +182,7 @@ def _pe_layout(image: bytes) -> dict[str, int]:
 
 
 def build_section() -> tuple[bytes, dict[str, object]]:
+    _assert_entry_scalar_layout()
     section = bytearray(SECTION_SIZE)
     cursor = STRINGS_OFFSET
     strings: dict[str, int] = {}
@@ -258,7 +292,7 @@ def build_section() -> tuple[bytes, dict[str, object]]:
             call 0x{result_preflight_va:X}
             test eax, eax
             jz no_result
-            mov dword ptr [ebp - 0x2C], eax
+            mov dword ptr [ebp - 0x10], eax
             call 0x44F4E0
             test eax, eax
             jz unavailable
@@ -364,60 +398,60 @@ def build_section() -> tuple[bytes, dict[str, object]]:
             call 0x{telemetry_va:X}
             add esp, 12
             mov dword ptr [ebp - 0x24], ecx
-            mov dword ptr [ebp - 0x28], edx
+            mov dword ptr [ebp - 0x14], edx
             mov edx, dword ptr [ebp - 0x20]
             cmp dword ptr [edx + 0x2EADC], {PRICE}
             jb insufficient
             mov ecx, edx
             push -{PRICE}
             call 0x426290
-            push dword ptr [ebp - 0x28]
+            push dword ptr [ebp - 0x14]
             push dword ptr [ebp - 0x24]
             push dword ptr [ebp - 0x18]
             push 1
-            call dword ptr [ebp - 0x2C]
+            call dword ptr [ebp - 0x10]
             jmp done
         recheck_failed:
             push 0
             push 0
             push 0
             push 3
-            call dword ptr [ebp - 0x2C]
+            call dword ptr [ebp - 0x10]
             jmp done
         no_change:
             push 0
             push 0
             push 0
             push 0
-            call dword ptr [ebp - 0x2C]
+            call dword ptr [ebp - 0x10]
             jmp done
         insufficient:
             push 0
             push 0
             push 0
             push 2
-            call dword ptr [ebp - 0x2C]
+            call dword ptr [ebp - 0x10]
             jmp done
         canceled:
             push 0
             push 0
             push 0
             push 4
-            call dword ptr [ebp - 0x2C]
+            call dword ptr [ebp - 0x10]
             jmp done
         unavailable:
             push 0
             push 0
             push 0
             push 3
-            call dword ptr [ebp - 0x2C]
+            call dword ptr [ebp - 0x10]
             jmp done
         invalid:
             push 0
             push 0
             push 0
             push 3
-            call dword ptr [ebp - 0x2C]
+            call dword ptr [ebp - 0x10]
             jmp done
         no_result:
             jmp done
@@ -976,7 +1010,21 @@ def build() -> tuple[dict[str, object], dict[str, object]]:
                 "snapshot": "entry [ebp-0x124..-0x24], zeroed 256 bytes before mutation",
             },
             "result_preflight": "both menu and result exports are resolved before confirmation/mutation",
-            "result_pointer_local": "[ebp-0x2C], outside the 256-byte snapshot; every post-preflight result uses the saved stdcall pointer",
+            "result_pointer_local": "[ebp-0x10], outside the 256-byte snapshot; every post-preflight result uses the saved stdcall pointer",
+            "entry_snapshot_interval": "[ebp-0x124..ebp-0x25] inclusive (256 bytes)",
+            "entry_scalar_locals": {
+                "result_pointer": "[ebp-0x10]",
+                "changed_but_unmarked": "[ebp-0x14]",
+                "changed_count": "[ebp-0x18]",
+                "manager": "[ebp-0x1C]",
+                "state": "[ebp-0x20]",
+                "new_elder_count": "[ebp-0x24]",
+            },
+            "entry_saved_register_slots": {
+                "ebx": "[ebp-0x04]",
+                "esi": "[ebp-0x08]",
+                "edi": "[ebp-0x0C]",
+            },
             "fresh_manager_boundaries": [
                 "initial dry-run",
                 "post-confirmation recheck",
@@ -1026,8 +1074,9 @@ def build() -> tuple[dict[str, object], dict[str, object]]:
 
     artifact.update(
         {
-            "acceptance_commit": "C134-PENDING-INDEPENDENT-RECERTIFICATION",
-            "audit_commit": "C134-PENDING-INDEPENDENT-RECERTIFICATION",
+            "acceptance_commit": "PENDING_INDEPENDENT_RECERTIFICATION",
+            "implementation_commit": "PENDING_C138_IMPLEMENTATION_COMMIT",
+            "audit_status": "pending independent recertification; no audit commit claimed",
             "catalog_enabled": False,
             "certification_status": "PENDING INDEPENDENT RECERTIFICATION; disabled/catalog-hidden",
             "source": {"size": len(original), "sha256": expected_sha},
@@ -1131,7 +1180,7 @@ def main() -> None:
     DOC_OUT.write_text(
         "# VV2 Full Mastery repaired candidate (pending recertification)\n\n"
         "This disabled, catalog-hidden stock-only candidate is generated from the "
-        "C134 D129 native transaction repair. It remains unavailable pending independent "
+        "C138 D133/D134 local-layout repair. It remains unavailable pending independent "
         "recertification; no player package is produced by this task.\n\n"
         f"- Section SHA-256: `{artifact['section_sha256']}`\n"
         f"- Companion SHA-256: `{artifact['companion']['sha256']}`\n"
@@ -1146,8 +1195,10 @@ def main() -> None:
         "256-record bound stable across every native call. A zeroed snapshot "
         "records 0 unchanged, 1 newly changed from unmarked, and 2 newly changed "
         "from marked. Both menu and result exports are preflighted before any "
-        "confirmation or mutation. The result pointer is saved in a non-snapshot "
-        "local and every post-preflight result uses that pointer without another "
+        "confirmation or mutation. The result pointer is saved at `[ebp-0x10]` "
+        "and changed-but-unmarked telemetry at `[ebp-0x14]`, both disjoint from "
+        "the `[ebp-0x124..ebp-0x25]` snapshot and saved-register slots; every "
+        "post-preflight result uses that pointer without another "
         "resolver. The transaction performs a complete 256-record dry run before "
         "funds/confirmation, reacquires manager/state at five pointer-sensitive "
         "boundaries, post-verifies exact 100, calls sub_44D4C0 once, reacquires "

@@ -76,6 +76,21 @@ def semantic_walk(records: list[dict[str, object]], commit: bool) -> tuple[int, 
     return changed, snapshot
 
 
+def telemetry_model(records: list[dict[str, object]], snapshot: list[int]) -> tuple[int, int]:
+    new_markers = 0
+    changed_but_unmarked = 0
+    for index, state in enumerate(snapshot):
+        if state == 0:
+            continue
+        record = records[index]
+        if record["elder"]:
+            if state == 1:
+                new_markers += 1
+        elif sum(int(record["skills"][name]) < 88 for name in SKILLS) >= 3:
+            changed_but_unmarked += 1
+    return new_markers, changed_but_unmarked
+
+
 def transaction(
     records: list[dict[str, object]],
     balance: int,
@@ -218,13 +233,20 @@ class VV2FullMasteryCandidateTests(unittest.TestCase):
         self.assertIn("both menu and result exports", self.raw["transaction_contract"]["result_preflight"])
         self.assertEqual(
             self.raw["transaction_contract"]["result_pointer_local"],
-            "[ebp-0x2C], outside the 256-byte snapshot; every post-preflight result uses the saved stdcall pointer",
+            "[ebp-0x10], outside the 256-byte snapshot; every post-preflight result uses the saved stdcall pointer",
         )
         self.assertEqual(len(self.raw["transaction_contract"]["fresh_manager_boundaries"]), 5)
         entry_offset = int(self.map["offsets"]["entry"], 0)
         entry = page[entry_offset:0x380]
         self.assertNotIn(0x4B3C00, call_targets(entry, 0x4B3000 + entry_offset))
-        self.assertEqual(entry.count(bytes.fromhex("FF55D4")), 7)
+        self.assertEqual(entry.count(bytes.fromhex("FF55D4")), 0)
+        self.assertEqual(entry.count(bytes.fromhex("FF55F0")), 7)
+        self.assertNotIn(bytes.fromhex("FF55D4"), entry)
+        self.assertIn(bytes.fromhex("8945F0"), entry)
+        self.assertIn(bytes.fromhex("8955EC"), entry)
+        self.assertIn(bytes.fromhex("FF75EC"), entry)
+        self.assertNotIn(bytes.fromhex("8955D8"), entry)
+        self.assertNotIn(bytes.fromhex("FF75D8"), entry)
         self.assertEqual(entry.count(bytes.fromhex("81BADC EA020040420F00".replace(" ", ""))), 3)
         self.assertEqual(
             self.raw["transaction_contract"]["result_statuses"]["4"],
@@ -337,6 +359,51 @@ class VV2FullMasteryCandidateTests(unittest.TestCase):
         self.assertIn(bytes.fromhex("80BEFC07000000"), page)
         self.assertIn(bytes.fromhex("C6041F01"), page)
         self.assertIn(bytes.fromhex("C6041F02"), page)
+
+    def test_entry_scalar_intervals_and_high_index_telemetry_are_disjoint(self) -> None:
+        contract = self.raw["transaction_contract"]
+        page = bytes.fromhex(self.raw["pe_append_transaction"]["layouts"]["collection_progression"]["append_bytes"])
+        entry = page[int(self.map["offsets"]["entry"], 0):0x380]
+        self.assertEqual(contract["entry_snapshot_interval"], "[ebp-0x124..ebp-0x25] inclusive (256 bytes)")
+        expected = {
+            "result_pointer": -0x10,
+            "changed_but_unmarked": -0x14,
+            "changed_count": -0x18,
+            "manager": -0x1C,
+            "state": -0x20,
+            "new_elder_count": -0x24,
+        }
+        actual = {
+            name: int(value.removeprefix("[ebp-").removesuffix("]"), 16) * -1
+            for name, value in contract["entry_scalar_locals"].items()
+        }
+        self.assertEqual(actual, expected)
+        snapshot = (-0x124, -0x25)
+        saved = [(-0x04, -0x01), (-0x08, -0x05), (-0x0C, -0x09)]
+        for offset in actual.values():
+            span = (offset, offset + 3)
+            self.assertFalse(span[0] <= snapshot[1] and span[1] >= snapshot[0])
+            self.assertFalse(any(span[0] <= slot[1] and span[1] >= slot[0] for slot in saved))
+
+        empty = {
+            "active": False,
+            "health": 100,
+            "is_totem": False,
+            "elder": 0,
+            "skills": {name: 99 for name in SKILLS},
+        }
+        records = [deepcopy(empty) for _ in range(256)]
+        entry_before = entry
+        for index in range(248, 256):
+            records[index]["active"] = True
+            records[index]["skills"]["farming"] = 99 - (index - 248)
+        changed, snapshot_values = semantic_walk(records, True)
+        self.assertEqual(changed, 8)
+        self.assertEqual(snapshot_values[248:256], [1] * 8)
+        for index in range(248, 256):
+            records[index]["elder"] = 1
+        self.assertEqual(telemetry_model(records, snapshot_values), (8, 0))
+        self.assertEqual(entry, entry_before)
 
     def test_all_modes_render_checksum_and_exact_uninstall_roundtrip(self) -> None:
         for mode in MODES:

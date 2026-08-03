@@ -1,6 +1,6 @@
 {
-  "section_sha256": "D98A11A00041A08F123766D63D35AC2F41BCF0226B01DEF857094EF5C85D0B43",
-  "entry_sha256": "AB477E86BD0BFE525BE25C523D83F0E601B7347B44EB1B8FCE05F0A195D76C70",
+  "section_sha256": "D84DA1DF60C9AC160312C5AC0943663CA16DA909935A96FA3E1B9D723462B9A1",
+  "entry_sha256": "505DCF6A0891E640FA73B41A0CBC6868B35FF1C9D5F2A598A6C067004F78A58F",
   "walker_sha256": "E67F5F34AEB66A953B5B2A77FD6A5EA00B907D26B61A25A0C132F62C713C98DD",
   "telemetry_sha256": "8036B4818E39533B3F5BEBF1EC38A94A71B05EE8BE72FB1EFA0B9AD72789B907",
   "confirmation_sha256": "8868C87F2B66AD9D69F1DC7A08A469E5C5C478727955A5E1E4F6DA4EEB306B2C",
@@ -58,8 +58,9 @@
     "0x4740D4 GetProcAddress"
   ],
   "base_relocations": [],
-  "acceptance_commit": "C134-PENDING-INDEPENDENT-RECERTIFICATION",
-  "audit_commit": "C134-PENDING-INDEPENDENT-RECERTIFICATION",
+  "acceptance_commit": "PENDING_INDEPENDENT_RECERTIFICATION",
+  "implementation_commit": "PENDING_C138_IMPLEMENTATION_COMMIT",
+  "audit_status": "pending independent recertification; no audit commit claimed",
   "catalog_enabled": false,
   "certification_status": "PENDING INDEPENDENT RECERTIFICATION; disabled/catalog-hidden",
   "source": {
@@ -150,15 +151,15 @@
   "rendered_candidates": {
     "collection_progression": {
       "baseline_sha256": "AD7D6F85A363510732B1D647516389326878E5FA8756A42F4526AACDFAF0C523",
-      "candidate_sha256": "5199119B1DE53B77A8DA3FB6E34E88DEDA3DD2F4AD2537F439A40A3A57FE4B32",
+      "candidate_sha256": "EC9AA5F8A1A8D7AC7CAE5B9C8B41027C7E2FF98A240D06725E7C406028EBFBDB",
       "size": 733184,
-      "pe_checksum": "0x000B88B2",
+      "pe_checksum": "0x000BF94A",
       "owners": [
         "automatic:population",
         "automatic:safety",
         "feature:vv2_full_mastery_all_stage_a_candidate"
       ],
-      "all_current_vv2_sha256": "CBE251523FF0C1E0110DB2794BE80362BD85D68C5C73A83E26F0A00617C85094",
+      "all_current_vv2_sha256": "C7C0BEC312B6537B5F1DD692D2C90ED0D0963D6CE3A7F5271AF4A6C680B8ACBC",
       "all_current_vv2_owners": [
         "automatic:compatibility",
         "automatic:population",
@@ -176,15 +177,15 @@
     },
     "immediate_fixed": {
       "baseline_sha256": "9EA03791F24CA5F9005AB33C09E5C8930E30BEB55E05FD2B8463894F48C50C00",
-      "candidate_sha256": "F4E89DE206D256C8641F9DB99D83ED32281EE25F146A46E9FA4A1FFC13EB718E",
+      "candidate_sha256": "61CF93212009F9719F1A0D104AAC14EC5B80F7B25C1BC2D2951189844515516C",
       "size": 733184,
-      "pe_checksum": "0x000B73A2",
+      "pe_checksum": "0x000BE43A",
       "owners": [
         "automatic:population",
         "automatic:safety",
         "feature:vv2_full_mastery_all_stage_a_candidate"
       ],
-      "all_current_vv2_sha256": "6E27AA17F4789E7E83CF7E16F58A44978B61DE806191CE6BF3FC9879952A4FA5",
+      "all_current_vv2_sha256": "6AEE09C69C3E7C1AD12284EA5B5A188AF05DA3D87AD6149545CEE65D896E6774",
       "all_current_vv2_owners": [
         "automatic:compatibility",
         "automatic:population",
