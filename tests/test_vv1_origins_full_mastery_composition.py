@@ -52,6 +52,7 @@ class VV1OriginsCompositionTests(unittest.TestCase):
         )
         self.assertTrue(self.map["candidate_enabled"] is False)
         self.assertTrue(self.map["expanded_rejected"])
+        self.assertEqual(self.map["direct_entry"]["virtual_address"], "0x490100")
         self.assertNotIn(
             "vv1_full_mastery_origins_composition",
             {item.id for item in load_fun_patches()},
@@ -59,8 +60,7 @@ class VV1OriginsCompositionTests(unittest.TestCase):
 
     def test_rendered_hook_shim_and_direct_entry(self) -> None:
         expected_shim = bytes.fromhex(
-            "83FB07740F83FB067205E97E6AFCFFE9AE6AFCFF89F1"
-            "E8E51B0000E9A569FCFF"
+            "83FB07750C89F1E8F4000000E9B469FCFF83FB060F82A86AFCFFE96E6AFCFF"
         )
         for mode in MODES:
             with self.subTest(mode=mode):
@@ -77,11 +77,26 @@ class VV1OriginsCompositionTests(unittest.TestCase):
                 self.assertEqual(bytes(combined[0x56A88:0x56A8D]), bytes.fromhex("E973950300"))
                 self.assertEqual(bytes(combined[0x8E000:0x8E000 + len(bytes.fromhex(self.map["layouts"][mode]["append_bytes"]))]), bytes.fromhex(self.map["layouts"][mode]["append_bytes"]))
                 self.assertEqual(bytes(combined[0x8E000:0x8E000 + len(expected_shim)]), expected_shim)
+                section = bytes(combined[0x8E000:0x90000])
+                self.assertEqual(section[0x900:0x911], b"\0" * (0x911 - 0x900))
+                self.assertEqual(section[0x935:0x94C], b"\0" * (0x94C - 0x935))
                 self.assertNotIn("0x358DC", {item["offset"] for item in applied if item["owner"] == "feature:vv1_full_mastery_origins_composition"})
                 self.assertNotIn("0x35AB0", {item["offset"] for item in applied if item["owner"] == "feature:vv1_full_mastery_origins_composition"})
-                direct = bytes(combined[0x8E000 + 0x1C00:0x8E000 + 0x1C00 + 16])
+                direct = bytes(combined[0x8E000 + 0x100:0x8E000 + 0x100 + 16])
                 self.assertEqual(direct[:7], bytes.fromhex("5589E5535689CE"))
-                self.assertNotIn(bytes.fromhex("E830050000"), bytes(combined[0x8E000 + 0x1C00:0x8E000 + 0x1C00 + 0x200]))
+                direct_blob = bytes(combined[0x8E000 + 0x100:0x8E000 + 0x380])
+                self.assertNotIn(bytes.fromhex("E830050000"), direct_blob)
+                self.assertEqual(direct_blob.count(bytes.fromhex("E8F4000000")), 0)
+                self.assertEqual(
+                    sum(
+                        1
+                        for i in range(len(direct_blob) - 4)
+                        if direct_blob[i] == 0xE8
+                        and int.from_bytes(direct_blob[i + 1:i + 5], "little", signed=True)
+                        == 0x490380 - (0x490100 + i + 5)
+                    ),
+                    3,
+                )
 
     def test_exact_active_origins_uninstall_and_expanded_rejection(self) -> None:
         for mode in MODES:

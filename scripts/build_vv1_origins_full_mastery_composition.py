@@ -43,8 +43,15 @@ HOOK_OFFSET = 0x56A88
 HOOK_VA = 0x456A88
 HOOK_BEFORE = bytes.fromhex("83FB067235")
 HOOK_AFTER = bytes.fromhex("E973950300")
-DIRECT_ENTRY_OFFSET = 0x1C00
+DIRECT_ENTRY_OFFSET = 0x100
 DIRECT_ENTRY_VA = SECTION_VA + DIRECT_ENTRY_OFFSET
+WALKER_OFFSET = 0x380
+CONFIRM_OFFSET = 0x580
+RESULT_OFFSET = 0x6C0
+STRINGS_OFFSET = 0x900
+SHIM_BYTES = bytes.fromhex(
+    "83FB07750C89F1E8F4000000E9B469FCFF83FB060F82A86AFCFFE96E6AFCFF"
+)
 
 
 def asm(source: str, address: int) -> bytes:
@@ -203,28 +210,28 @@ def _direct_transaction() -> bytes:
 
 
 def composition_section() -> tuple[bytes, dict[str, str]]:
+    # Reuse only the certified walker/confirmation/result helpers from the
+    # isolated candidate section.  The composition section intentionally has
+    # no candidate constructor, handler, menu resolver, or menu transaction.
     base, _ = build_section()
-    section = bytearray(base)
-    shim = asm(
-        f"""
-            cmp ebx, 7
-            je command7
-            cmp ebx, 6
-            jb legacy_low
-            jmp 0x456A8D
-        legacy_low:
-            jmp 0x456AC2
-        command7:
-            mov ecx, esi
-            call 0x{DIRECT_ENTRY_VA:X}
-            jmp 0x4569C5
-        """,
-        SECTION_VA,
-    )
+    section = bytearray(SECTION_SIZE)
+    shim = SHIM_BYTES
+    _put(section, WALKER_OFFSET, base[WALKER_OFFSET:CONFIRM_OFFSET], "composition walker")
+    _put(section, CONFIRM_OFFSET, base[CONFIRM_OFFSET:0x640], "composition confirmation helper")
+    _put(section, RESULT_OFFSET, base[RESULT_OFFSET:0x740], "composition result helper")
+    required_strings = {
+        0x911: b"VVFP VV1 Full Mastery Candidate.dll\0",
+        0x94C: b"ShowVV1FullMasteryResult\0",
+        0x965: b"user32.dll\0",
+        0x970: b"MessageBoxA\0",
+        0x97C: b"Grant Full Mastery to all villagers for 1,000,000 tech points?\r\nPress OK to confirm, or Cancel.\0",
+        0x9DC: b"Origins Upgrades\0",
+        0x9ED: b"Full Mastery could not be verified after native writes.\r\nNo tech points have been deducted.\0",
+    }
+    for offset, value in required_strings.items():
+        _put(section, offset, value, f"composition string 0x{offset:X}")
     direct = _direct_transaction()
-    if len(shim) > 0x40:
-        raise RuntimeError("composition command-7 shim overlaps the constructor slot")
-    section[: len(shim)] = shim
+    _put(section, 0, shim, "composition command-7 shim")
     _put(section, DIRECT_ENTRY_OFFSET, direct, "direct transaction entry")
     return bytes(section), {
         "shim_sha256": sha(shim),
@@ -320,16 +327,37 @@ def main() -> None:
         if sha(removed) != REQUIRED_BASE_SHA256:
             raise PatcherError("composition uninstall did not restore active Origins base")
         (OUTPUT_ROOT / mode / "active-origins-base.exe").write_bytes(base)
+        (OUTPUT_ROOT / mode / "uninstalled-active-origins.exe").write_bytes(removed)
         rendered[mode] = {"base_sha256": sha(base), "combined_sha256": sha(combined), "uninstall_sha256": sha(removed), "applied": applied}
     artifact["rendered"] = rendered
     MANIFEST_OUT.write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
     MAP_OUT.write_text(json.dumps(artifact, indent=2) + "\n", encoding="utf-8")
+    (OUTPUT_ROOT / "composition-proof.json").write_text(
+        json.dumps(
+            {
+                "active_base_sha256": REQUIRED_BASE_SHA256,
+                "modes": {
+                    mode: {
+                        "combined_sha256": values["combined_sha256"],
+                        "active_base_sha256": values["base_sha256"],
+                        "uninstalled_sha256": values["uninstall_sha256"],
+                        "uninstall_equals_active_base": values["uninstall_sha256"] == values["base_sha256"] == REQUIRED_BASE_SHA256,
+                    }
+                    for mode, values in rendered.items()
+                },
+            },
+            indent=2,
+        )
+        + "\n",
+        encoding="utf-8",
+    )
     DOC_OUT.write_text(
         "# VV1 Origins + Full Mastery composition (disabled)\n\n"
         "This stock-only composition remains disabled and catalog-hidden pending independent recertification. "
         "It requires the exact active Origins base and Origins DLL hashes recorded in the map, reuses Tech row ID1007/command 7, "
         "and detours only file `0x56A88` / VA `0x456A88`. Command 7 sets `ECX=ESI`, calls a direct transaction entry without opening another menu, "
         "then returns to the Origins menu loop at `0x4569C5`. Commands 0-5 and 6/8 reconstruct the original branches at `0x456AC2` and `0x456A8D`. "
+        "The direct entry is exactly VA `0x490100`; the section contains one walker and exactly three direct walker calls, with no isolated constructor, handler, menu resolver, or duplicate menu path. "
         "Removal is guarded and must reproduce the active Origins base byte-for-byte. Expanded-256 is rejected before output.\n",
         encoding="utf-8",
     )
