@@ -50,6 +50,11 @@ REJECTED_MODES = (
     "experimental_expanded_256",
     "experimental_expanded_256_progression",
 )
+RECERT_SOURCE_COMMIT = "2f22a8b435918bf01b95aa4b9a6e6f4287d0ac94"
+RECERT_BUNDLE = "outputs/vv1-full-mastery-c76-recert"
+RECERT_ISOLATED_SHA256 = "3DB0D70ED5512D6A38765AA71B90DE4D9C3BD5BE30CD528C17A351413B28D06F"
+RECERT_COMBINED_SHA256 = "9B5CA9671558DE0A8CACB6E62AD98BA6C692522D253374DA74E52984B53FF230"
+RECERT_ACTIVE_ORIGINS_SHA256 = "5434C71C342B830A5896AFFB610A76C670578760BD33C6145882FA280F6406A3"
 
 
 def require_supported_mode(mode: str) -> None:
@@ -689,7 +694,7 @@ def build_section() -> tuple[bytes, dict[str, object]]:
             "uninstall_identity": "remove only the candidate .vv1fm append/header/hooks and restore the active Origins/Cure bytes",
             "proof": "combined uninstall must equal the active Origins/Cure base byte-for-byte",
             "shared_hook_policy": "ordinary catalog composition remains collision-fail-closed; the recertification bundle uses an explicit guarded audit composition only",
-            "bundle_output": "outputs/vv1-full-mastery-c71-recert",
+            "bundle_output": RECERT_BUNDLE,
             "identity_files": [
                 "active-origins-cure-base/Virtual Villagers - A New Home - Active Origins.exe",
                 "combined-origins-cure-full-mastery/Virtual Villagers - A New Home - Full Mastery.exe",
@@ -753,13 +758,30 @@ def build() -> tuple[dict[str, object], dict[str, object]]:
         "id": "vv1_full_mastery_all_stage_a_candidate",
         "game_id": "vv1",
         "name": "Grant Full Mastery to All Villagers",
-        "enabled": False,
-        "certification_status": "disabled Stage-A emitted candidate awaiting independent Sol byte certification",
+        "enabled": True,
+        "catalog_hidden": False,
+        "certification_status": "C76/D82/C83 independently recertified; stock-mode catalog enabled for collection_progression and immediate_fixed; Expanded-256 ON HOLD/fail-closed",
+        "evidence_status": f"C76/D82/C83 GO against exact source commit {RECERT_SOURCE_COMMIT}; rendered payload and exact uninstall identities are hash-bound below; runtime/player confirmation remains pending",
         "description": (
-            "Uncertified disabled command-7-only Stage-A candidate. Commands 6/8, "
-            "ownership, Remove, Golden Child, and Island Event paths are absent."
+            "Stock-only command-7 Full Mastery candidate. Commands 6/8, ownership, "
+            "Remove, Golden Child, and Island Event paths are absent; Expanded-256 "
+            "is rejected before output."
         ),
         "dependencies": [],
+        "acceptance": {
+            "source_commit": RECERT_SOURCE_COMMIT,
+            "reviews": ["C76", "D82", "C83"],
+            "bundle": RECERT_BUNDLE,
+            "allowed_modes": list(MODES),
+            "expanded_rejected": True,
+            "source_sha256": expected_sha,
+            "companion_sha256": sha(COMPANION.read_bytes()),
+            "active_origins_base_sha256": RECERT_ACTIVE_ORIGINS_SHA256,
+            "isolated_candidate_sha256": RECERT_ISOLATED_SHA256,
+            "combined_origins_full_mastery_sha256": RECERT_COMBINED_SHA256,
+            "uninstalled_sha256": RECERT_ACTIVE_ORIGINS_SHA256,
+            "uninstall_equals_active_origins_base": True,
+        },
         "companion_files": [
             {
                 "source": "data/candidates/VVFP VV1 Full Mastery Candidate.dll",
@@ -849,7 +871,21 @@ def build() -> tuple[dict[str, object], dict[str, object]]:
 
     artifact.update(
         {
-            "acceptance_commit": "1b3e4565d4168457c00404a12ed30cfb777c86e9",
+            "acceptance_commit": RECERT_SOURCE_COMMIT,
+            "catalog_enabled": True,
+            "independent_recertification": {
+                "reviews": ["C76", "D82", "C83"],
+                "status": "GO",
+                "source_commit": RECERT_SOURCE_COMMIT,
+                "bundle": RECERT_BUNDLE,
+                "allowed_modes": list(MODES),
+                "expanded_rejected": True,
+                "active_origins_base_sha256": RECERT_ACTIVE_ORIGINS_SHA256,
+                "isolated_candidate_sha256": RECERT_ISOLATED_SHA256,
+                "combined_origins_full_mastery_sha256": RECERT_COMBINED_SHA256,
+                "uninstalled_sha256": RECERT_ACTIVE_ORIGINS_SHA256,
+                "uninstall_equals_active_origins_base": True,
+            },
             "semantic_commit": "b328c1b1c76f68ade762ec139ee6c2e08ce54a96",
             "correction_audit_commit": "284b8cad9e876e53eefdd5ec909d25dfd336b398",
             "source": {"size": len(original), "sha256": expected_sha},
@@ -950,12 +986,12 @@ def main() -> None:
     MANIFEST_OUT.write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
     MAP_OUT.write_text(json.dumps(artifact, indent=2) + "\n", encoding="utf-8")
     DOC_OUT.write_text(
-        "# VV1 Full Mastery disabled Stage-A candidate\n\n"
-        "This catalog-hidden artifact is generated from disassembly acceptance "
-        "contract `1b3e4565d4168457c00404a12ed30cfb777c86e9` and applies the "
-        "pre-resolved-result correction from certification report "
-        "`284b8cad9e876e53eefdd5ec909d25dfd336b398`. It remains "
-        "**disabled pending independent Sol emitted-byte certification**.\n\n"
+        "# VV1 Full Mastery stock-mode candidate\n\n"
+        "The exact stock-only candidate is catalog-enabled for "
+        "`collection_progression` and `immediate_fixed` after the C76/D82/C83 "
+        f"static recertification gate against source commit `{RECERT_SOURCE_COMMIT}`. "
+        "Runtime/player confirmation is still pending; no Expanded-256 output "
+        "is accepted.\n\n"
         f"- Section SHA-256: `{artifact['section_sha256']}`\n"
         f"- Companion SHA-256: `{artifact['companion']['sha256']}`\n"
         f"- Entry SHA-256: `{artifact['entry_sha256']}`\n"
@@ -977,7 +1013,7 @@ def main() -> None:
         "process interruption or failed verification cannot safely roll back "
         "partial native writes, so no charge is made. Collection Progression and "
         "Immediate Fixed are the only allowed modes; Expanded-256 is rejected "
-        "before output creation. The ignored C71 recertification bundle emits the "
+        "before output creation. The C76 recertification bundle emits the "
         "active Origins/Cure base, combined Origins/Cure plus Full Mastery audit "
         "identity, Full Mastery uninstall identity, and a proof manifest whose "
         "uninstall hash equals the active base hash. The raw manifest and "

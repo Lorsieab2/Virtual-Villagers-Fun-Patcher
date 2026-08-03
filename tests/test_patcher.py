@@ -142,11 +142,9 @@ class ManifestTests(unittest.TestCase):
         active_ids = {feature.id for feature in load_fun_patches()}
         self.assertTrue(active_ids)
         self.assertTrue(
-            {
-                "vv1_full_mastery_all_stage_a_candidate",
-                "vv3_all_villagers_like_running",
-            }.isdisjoint(active_ids)
+            "vv1_full_mastery_all_stage_a_candidate" in active_ids
         )
+        self.assertNotIn("vv3_all_villagers_like_running", active_ids)
         self.assertNotIn("vv5_full_mastery_all_stage_a_candidate", active_ids)
         self.assertIn("vv3_full_mastery_all_stage_a_candidate", active_ids)
 
@@ -742,6 +740,15 @@ class StockIntegrationTests(unittest.TestCase):
                     )
                     with self.assertRaisesRegex(PatcherError, "ON HOLD"):
                         render_patched_bytes(STOCK / build.input_name, build, "experimental_expanded_256", patches_by_game[build.id])
+                    continue
+                if build.id == "vv1" and "vv1_full_mastery_all_stage_a_candidate" in patches_by_game[build.id]:
+                    with self.assertRaisesRegex(PatcherError, "ON HOLD"):
+                        render_patched_bytes(
+                            STOCK / build.input_name,
+                            build,
+                            "experimental_expanded_256",
+                            patches_by_game[build.id],
+                        )
                     continue
                 rendered, applied = render_patched_bytes(
                     STOCK / build.input_name,
@@ -1366,7 +1373,10 @@ class StockIntegrationTests(unittest.TestCase):
     def test_vv1_magic_fruit_combines_with_every_vv1_patch(self) -> None:
         build = next(build for build in load_builds() if build.id == "vv1")
         selected = [
-            patch.id for patch in load_fun_patches() if patch.game_id == "vv1"
+            patch.id
+            for patch in load_fun_patches()
+            if patch.game_id == "vv1"
+            and patch.id != "vv1_full_mastery_all_stage_a_candidate"
         ]
         rendered, applied = render_patched_bytes(
             STOCK / build.input_name,
@@ -1376,6 +1386,13 @@ class StockIntegrationTests(unittest.TestCase):
         )
         self.assertTrue(rendered)
         self.assertGreater(len(applied), 5)
+        with self.assertRaisesRegex(PatcherError, "overlap"):
+            render_patched_bytes(
+                STOCK / build.input_name,
+                build,
+                DEFAULT_PATCH_MODE,
+                [*selected, "vv1_full_mastery_all_stage_a_candidate"],
+            )
 
     def test_vv1_builder_action_fixes_preserve_other_scheduler_paths(self) -> None:
         patch = get_fun_patch("vv1_builder_action_fixes")

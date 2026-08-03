@@ -64,6 +64,24 @@ VV2_FULL_MASTERY_CERTIFIED_SHA256 = {
     "confirmation": "07011CB557B6FCF7560AACB750D41851895C6856D851A567A4B952128E6B6258",
     "dll": "BDEAC1B39925834A7CD8DF7CD2C13BA7D7CBDF6E27760DAED6525092FF092699",
 }
+VV1_FULL_MASTERY_CANDIDATE_PATHS = {
+    "manifest": ROOT / "data" / "candidates" / "vv1_full_mastery_all_candidate.json",
+    "map": ROOT / "data" / "candidates" / "vv1_full_mastery_all_candidate_map.json",
+    "dll": ROOT / "data" / "candidates" / "VVFP VV1 Full Mastery Candidate.dll",
+}
+VV1_FULL_MASTERY_CERTIFIED_SHA256 = {
+    "section": "85DE335D905D0AF99FBDD0388A004D69C393AA7C0771DFB36B15A4A94062BA92",
+    "entry": "DB742B8C696A5D197D4985E49DE636C4E3E584BBC1B7E65132611E2FC4B42A31",
+    "walker": "948C1B9E968FB5A8F957E33F6C344A1FF0DC25805BB97DB2D959129A4E2B8C9E",
+    "confirmation": "39FBB3CA5B2C32C5566EA918C249D77718F2872AF871511EA23147C48AE6E779",
+    "menu_resolver": "66A089D58C80B15DD4BB47DAC3B3ABC1DD5CF8969B9863D90BD084B462496C98",
+    "result_resolver": "2945F92280B7A6E59E6F0B91F25A1FBD3C1D49789460D4C4CC094DCE873FA8E8",
+    "dll": "4736E5EFB8F680E3B1F124D1920A9390D9F6427260E60743039FA80F8646CCB3",
+    "source": "1EC790B927741081D5CE13A48FB76983A4FD4336EA08F89317872643760AF03D",
+    "candidate": "3DB0D70ED5512D6A38765AA71B90DE4D9C3BD5BE30CD528C17A351413B28D06F",
+    "active_origins": "5434C71C342B830A5896AFFB610A76C670578760BD33C6145882FA280F6406A3",
+    "combined": "9B5CA9671558DE0A8CACB6E62AD98BA6C692522D253374DA74E52984B53FF230",
+}
 VV4_FULL_MASTERY_CANDIDATE_PATHS = {
     "base": ROOT / "data" / "candidates" / "vv4_origins_full_mastery_base_candidate.json",
     "feature": ROOT / "data" / "candidates" / "vv4_full_mastery_all_candidate.json",
@@ -307,6 +325,94 @@ def _certified_vv2_full_mastery_record() -> dict[str, Any] | None:
         raise PatcherError(
             "Certified VV2 Full Mastery DLL hash mismatch: "
             f"expected {VV2_FULL_MASTERY_CERTIFIED_SHA256['dll']}, got {dll_digest}."
+        )
+    return manifest
+
+
+def _certified_vv1_full_mastery_record() -> dict[str, Any] | None:
+    manifest = json.loads(
+        VV1_FULL_MASTERY_CANDIDATE_PATHS["manifest"].read_text(encoding="utf-8")
+    )
+    if not manifest.get("enabled", True):
+        return None
+    if (
+        manifest.get("id") != "vv1_full_mastery_all_stage_a_candidate"
+        or manifest.get("catalog_hidden") is not False
+    ):
+        raise PatcherError(
+            "VV1 Full Mastery catalog metadata is not explicitly enabled; refusing enablement."
+        )
+    acceptance = manifest.get("acceptance")
+    if not isinstance(acceptance, dict):
+        raise PatcherError("VV1 Full Mastery acceptance metadata is missing; refusing enablement.")
+    if acceptance.get("source_commit") != "2f22a8b435918bf01b95aa4b9a6e6f4287d0ac94":
+        raise PatcherError("VV1 Full Mastery acceptance source commit is not the recertified commit.")
+    if acceptance.get("allowed_modes") != ["collection_progression", "immediate_fixed"]:
+        raise PatcherError("VV1 Full Mastery acceptance permits a non-stock mode.")
+    if acceptance.get("expanded_rejected") is not True:
+        raise PatcherError("VV1 Full Mastery Expanded-256 rejection is not certified.")
+    if acceptance.get("reviews") != ["C76", "D82", "C83"]:
+        raise PatcherError("VV1 Full Mastery independent review set is not certified.")
+    if acceptance.get("bundle") != "outputs/vv1-full-mastery-c76-recert":
+        raise PatcherError("VV1 Full Mastery recertification bundle is not certified.")
+    for key, expected in (
+        ("source_sha256", VV1_FULL_MASTERY_CERTIFIED_SHA256["source"]),
+        ("companion_sha256", VV1_FULL_MASTERY_CERTIFIED_SHA256["dll"]),
+        ("active_origins_base_sha256", VV1_FULL_MASTERY_CERTIFIED_SHA256["active_origins"]),
+        ("isolated_candidate_sha256", VV1_FULL_MASTERY_CERTIFIED_SHA256["candidate"]),
+        ("combined_origins_full_mastery_sha256", VV1_FULL_MASTERY_CERTIFIED_SHA256["combined"]),
+        ("uninstalled_sha256", VV1_FULL_MASTERY_CERTIFIED_SHA256["active_origins"]),
+    ):
+        if acceptance.get(key) != expected:
+            raise PatcherError(f"VV1 Full Mastery acceptance hash {key} is not certified.")
+    if acceptance.get("uninstall_equals_active_origins_base") is not True:
+        raise PatcherError("VV1 Full Mastery uninstall equality is not certified.")
+    artifact_map = json.loads(
+        VV1_FULL_MASTERY_CANDIDATE_PATHS["map"].read_text(encoding="utf-8")
+    )
+    if artifact_map.get("acceptance_commit") != acceptance["source_commit"]:
+        raise PatcherError("VV1 Full Mastery map acceptance commit is not certified.")
+    if artifact_map.get("catalog_enabled") is not True:
+        raise PatcherError("VV1 Full Mastery map catalog gate is not enabled.")
+    independent = artifact_map.get("independent_recertification")
+    if not isinstance(independent, dict) or independent.get("status") != "GO":
+        raise PatcherError("VV1 Full Mastery map independent recertification is not GO.")
+    if independent.get("reviews") != acceptance["reviews"] or independent.get("source_commit") != acceptance["source_commit"]:
+        raise PatcherError("VV1 Full Mastery map review binding is not certified.")
+    if independent.get("bundle") != acceptance["bundle"] or independent.get("expanded_rejected") is not True:
+        raise PatcherError("VV1 Full Mastery map mode/bundle gate is not certified.")
+    for label in ("section", "entry", "walker", "confirmation", "menu_resolver", "result_resolver"):
+        actual = artifact_map.get(f"{label}_sha256")
+        expected = VV1_FULL_MASTERY_CERTIFIED_SHA256[label]
+        if actual != expected:
+            raise PatcherError(
+                f"Certified VV1 Full Mastery {label} artifact hash mismatch: "
+                f"expected {expected}, got {actual}."
+            )
+    source = artifact_map.get("source", {})
+    if source.get("sha256") != VV1_FULL_MASTERY_CERTIFIED_SHA256["source"]:
+        raise PatcherError("VV1 Full Mastery source fingerprint metadata is not certified.")
+    if artifact_map.get("allowed_modes") != ["collection_progression", "immediate_fixed"]:
+        raise PatcherError("VV1 Full Mastery map permits a non-stock mode.")
+    if artifact_map.get("rejected_modes") != [
+        "experimental_expanded_256",
+        "experimental_expanded_256_progression",
+    ]:
+        raise PatcherError("VV1 Full Mastery map does not reject both Expanded-256 modes.")
+    rendered = artifact_map.get("rendered_candidates", {})
+    for mode in ("collection_progression", "immediate_fixed"):
+        record = rendered.get(mode, {})
+        if record.get("candidate_sha256") != VV1_FULL_MASTERY_CERTIFIED_SHA256["candidate"]:
+            raise PatcherError("VV1 Full Mastery rendered candidate hash is not certified.")
+        if record.get("uninstall_target_sha256") != record.get("baseline_sha256"):
+            raise PatcherError("VV1 Full Mastery uninstall target does not equal its baseline.")
+    dll_digest = hashlib.sha256(
+        VV1_FULL_MASTERY_CANDIDATE_PATHS["dll"].read_bytes()
+    ).hexdigest().upper()
+    if dll_digest != VV1_FULL_MASTERY_CERTIFIED_SHA256["dll"]:
+        raise PatcherError(
+            "Certified VV1 Full Mastery DLL hash mismatch: "
+            f"expected {VV1_FULL_MASTERY_CERTIFIED_SHA256['dll']}, got {dll_digest}."
         )
     return manifest
 
@@ -614,6 +720,9 @@ def _load_fun_patch_records() -> list[FunPatch]:
                         items.extend(mastery)
                 else:
                     items.append(record)
+    vv1_full_mastery = _certified_vv1_full_mastery_record()
+    if vv1_full_mastery is not None:
+        items.append(vv1_full_mastery)
     for feature_path in ORIGINS_VILLAGE_WIDE_FEATURE_PATHS:
         if feature_path.is_file():
             record = json.loads(feature_path.read_text(encoding="utf-8"))
@@ -1589,6 +1698,18 @@ def render_patched_bytes(
     ):
         raise PatcherError(
             "VV4 Full Mastery is certified for stock modes only; "
+            "Expanded-256 remains ON HOLD/fail-closed."
+        )
+    if (
+        build.id == "vv1"
+        and patch_mode in EXPANDED_PATCH_MODES
+        and any(
+            patch.id == "vv1_full_mastery_all_stage_a_candidate"
+            for patch in fun_patches
+        )
+    ):
+        raise PatcherError(
+            "VV1 Full Mastery is certified for stock modes only; "
             "Expanded-256 remains ON HOLD/fail-closed."
         )
     composition = next(

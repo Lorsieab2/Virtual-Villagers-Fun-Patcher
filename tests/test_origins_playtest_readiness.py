@@ -43,7 +43,15 @@ class OriginsPlaytestReadinessTests(unittest.TestCase):
             with self.subTest(game=build.id):
                 source = STOCK / build.input_name
                 before = source.read_bytes()
-                game_patches = [patch for patch in catalog if patch.game_id == build.id]
+                game_patches = [
+                    patch
+                    for patch in catalog
+                    if patch.game_id == build.id
+                    and not (
+                        build.id == "vv1"
+                        and patch.id == "vv1_full_mastery_all_stage_a_candidate"
+                    )
+                ]
                 ids = [patch.id for patch in game_patches]
                 base_id = f"{build.id}_enable_origins_exclusive_features"
                 wide_id = f"{build.id}_origins_village_wide_upgrades"

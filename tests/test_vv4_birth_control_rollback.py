@@ -54,7 +54,12 @@ class VV4BirthControlRollbackTests(unittest.TestCase):
 
         build = next(item for item in load_builds() if item.id == "vv1")
         source = ROOT / "research" / "stock-executables" / build.input_name
-        game_patches = [patch for patch in catalog if patch.game_id == "vv1"]
+        game_patches = [
+            patch
+            for patch in catalog
+            if patch.game_id == "vv1"
+            and patch.id != "vv1_full_mastery_all_stage_a_candidate"
+        ]
         selected = resolve_fun_patch_ids(
             [patch.id for patch in game_patches],
             game_id="vv1",

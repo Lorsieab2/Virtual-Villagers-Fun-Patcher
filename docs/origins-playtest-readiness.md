@@ -131,6 +131,17 @@ changed-record preflight, no-charge result, recheck, or rollback. Preference/
 title policy, distributed native side effects, creation/clone policy, strict
 Golden Child/Event bypass, and placement/composition remain unresolved.
 
+The isolated VV1 command-7-only Full Mastery candidate supersedes that historical
+Stage-A status for stock modes. C76/D82/C83 independently recertified the exact
+payload and four identity outputs against source commit
+`2f22a8b435918bf01b95aa4b9a6e6f4287d0ac94`; the candidate is catalog-enabled for
+`collection_progression` and `immediate_fixed` only. Its active Origins/Cure base
+SHA is `5434C71C342B830A5896AFFB610A76C670578760BD33C6145882FA280F6406A3`,
+the isolated candidate SHA is
+`3DB0D70ED5512D6A38765AA71B90DE4D9C3BD5BE30CD528C17A351413B28D06F`, and
+uninstall returns byte-for-byte to the active base. Expanded-256 remains
+fail-closed and runtime/player confirmation remains pending.
+
 VV5 All Villagers are 18 audit
 `aaddf71797c28f37b0cc1f5728e567c0601a05aa` confirms age DWORD `+0x1B8C`,
 20 units per year, and age 18 value 360. Native ordinary/offline aging uses

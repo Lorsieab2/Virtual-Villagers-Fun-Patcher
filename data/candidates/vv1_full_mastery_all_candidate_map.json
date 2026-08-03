@@ -68,7 +68,7 @@
     "uninstall_identity": "remove only the candidate .vv1fm append/header/hooks and restore the active Origins/Cure bytes",
     "proof": "combined uninstall must equal the active Origins/Cure base byte-for-byte",
     "shared_hook_policy": "ordinary catalog composition remains collision-fail-closed; the recertification bundle uses an explicit guarded audit composition only",
-    "bundle_output": "outputs/vv1-full-mastery-c71-recert",
+    "bundle_output": "outputs/vv1-full-mastery-c76-recert",
     "identity_files": [
       "active-origins-cure-base/Virtual Villagers - A New Home - Active Origins.exe",
       "combined-origins-cure-full-mastery/Virtual Villagers - A New Home - Full Mastery.exe",
@@ -78,7 +78,28 @@
     "candidate_enabled": false
   },
   "base_relocations": [],
-  "acceptance_commit": "1b3e4565d4168457c00404a12ed30cfb777c86e9",
+  "acceptance_commit": "2f22a8b435918bf01b95aa4b9a6e6f4287d0ac94",
+  "catalog_enabled": true,
+  "independent_recertification": {
+    "reviews": [
+      "C76",
+      "D82",
+      "C83"
+    ],
+    "status": "GO",
+    "source_commit": "2f22a8b435918bf01b95aa4b9a6e6f4287d0ac94",
+    "bundle": "outputs/vv1-full-mastery-c76-recert",
+    "allowed_modes": [
+      "collection_progression",
+      "immediate_fixed"
+    ],
+    "expanded_rejected": true,
+    "active_origins_base_sha256": "5434C71C342B830A5896AFFB610A76C670578760BD33C6145882FA280F6406A3",
+    "isolated_candidate_sha256": "3DB0D70ED5512D6A38765AA71B90DE4D9C3BD5BE30CD528C17A351413B28D06F",
+    "combined_origins_full_mastery_sha256": "9B5CA9671558DE0A8CACB6E62AD98BA6C692522D253374DA74E52984B53FF230",
+    "uninstalled_sha256": "5434C71C342B830A5896AFFB610A76C670578760BD33C6145882FA280F6406A3",
+    "uninstall_equals_active_origins_base": true
+  },
   "semantic_commit": "b328c1b1c76f68ade762ec139ee6c2e08ce54a96",
   "correction_audit_commit": "284b8cad9e876e53eefdd5ec909d25dfd336b398",
   "source": {

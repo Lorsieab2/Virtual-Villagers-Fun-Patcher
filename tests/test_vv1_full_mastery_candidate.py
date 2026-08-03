@@ -143,9 +143,15 @@ class VV1FullMasteryCandidateTests(unittest.TestCase):
         cls.candidate = FunPatch(cls.raw)
         cls.build = next(item for item in load_builds() if item.id == "vv1")
 
-    def test_disabled_hidden_command_seven_only(self) -> None:
-        self.assertFalse(self.raw["enabled"])
-        self.assertNotIn(self.raw["id"], {item.id for item in load_fun_patches()})
+    def test_enabled_stock_modes_command_seven_only(self) -> None:
+        self.assertTrue(self.raw["enabled"])
+        self.assertFalse(self.raw["catalog_hidden"])
+        self.assertIn(self.raw["id"], {item.id for item in load_fun_patches()})
+        self.assertEqual(self.raw["acceptance"]["source_commit"], "2f22a8b435918bf01b95aa4b9a6e6f4287d0ac94")
+        self.assertEqual(self.raw["acceptance"]["allowed_modes"], list(MODES))
+        self.assertTrue(self.raw["acceptance"]["expanded_rejected"])
+        self.assertEqual(self.raw["acceptance"]["isolated_candidate_sha256"], "3DB0D70ED5512D6A38765AA71B90DE4D9C3BD5BE30CD528C17A351413B28D06F")
+        self.assertEqual(self.raw["acceptance"]["uninstalled_sha256"], "5434C71C342B830A5896AFFB610A76C670578760BD33C6145882FA280F6406A3")
         contract = self.raw["transaction_contract"]
         self.assertEqual((contract["command"], contract["price"]), (7, 1_000_000))
         self.assertIsNone(contract["ownership"])
@@ -378,7 +384,12 @@ class VV1FullMasteryCandidateTests(unittest.TestCase):
     def test_all_modes_checksum_composition_and_exact_uninstall(self) -> None:
         others = [
             item for item in load_fun_patches()
-            if item.game_id == "vv1" and item.id != "vv1_enable_origins_exclusive_features"
+            if item.game_id == "vv1"
+            and item.id
+            not in {
+                "vv1_enable_origins_exclusive_features",
+                "vv1_full_mastery_all_stage_a_candidate",
+            }
         ]
         old_origins = next(item for item in load_fun_patches() if item.id == "vv1_enable_origins_exclusive_features")
         for mode in MODES:

@@ -36,6 +36,10 @@ VV2 Grant Full Mastery to All Villagers is independently emitted-byte certified 
 
 VV1 Full Mastery audit `e0bed87ce17dca5331afed1abc2d753ec3d8f0aa` confirms five contiguous signed DWORD skills at +0x3BC..+0x3CC, job preference +0x3D0, Master threshold 90, native cap 100, and persistent 32-record save packing at stride 0x3D8. The disabled candidate iterates occupied +0x28 and positive signed health +0x344, writes 90 while leaving preference unchanged, returns no changed count, and uses state+0xA2FC for a one-million-point transaction without preflight, commit recheck, no-charge no-op result, or rollback. Target 90-versus-100 semantics, preference/title policy, distributed native side effects and the lack of a complete all-five route, creation/clone policy, strict Golden Child and Island Event bypass, and placement/composition remain unresolved.
 
+### Current VV1 Full Mastery enablement
+
+The exact VV1 Full Mastery candidate is catalog-enabled only for stock `collection_progression` and `immediate_fixed` after C76/D82/C83 independent static recertification against source commit `2f22a8b435918bf01b95aa4b9a6e6f4287d0ac94`. The isolated candidate hash is `3DB0D70ED5512D6A38765AA71B90DE4D9C3BD5BE30CD528C17A351413B28D06F`; its companion DLL is `4736E5EFB8F680E3B1F124D1920A9390D9F6427260E60743039FA80F8646CCB3`. The C76 bundle also proves active Origins/Cure base `5434C71C342B830A5896AFFB610A76C670578760BD33C6145882FA280F6406A3`, combined audit `9B5CA9671558DE0A8CACB6E62AD98BA6C692522D253374DA74E52984B53FF230`, and exact uninstall equality to the active base. Expanded-256 remains ON HOLD/fail-closed, ordinary Origins composition remains collision-fail-closed, and runtime/player confirmation is pending.
+
 VV5 All Villagers are 18 audit `aaddf71797c28f37b0cc1f5728e567c0601a05aa` confirms signed age DWORD +0x1B8C, 20 units per displayed year, and age 18 value 360. Native detail refresh, ordinary/offline increment writer 0x46F7F0, oldest-villager statistic update, and persistence of the 0xA8 age object are mapped. The disabled candidate raw store bypasses that native route and differs from the selected-age candidate's related +0x1C3C and nonzero +0x1C4C writes. It tests active +0x1CD4, positive health +0x1C40, current-believer faction +0x1CEC==0, and an unproved extra +0x1CE1==0 exclusion. Its 0x51D5F8/native-tech-writer transaction charges no-op and already-18 cases, returns zero results, and has no tied recheck or rollback. Nursing timer and nursing/pregnancy state must never change; this raw helper is not proved to satisfy that semantic rule. Expanded composition remains ON HOLD with 43 missing relocations.
 
 VV4 All Villagers are 18 audit `ab404b0c5e80cab4d327de9a51069e6e3529df27` covers exact 929,792-byte build SHA-256 6D27A429FFCA5F1F71FDD7ECA761ED1BB67E85F976494BA178B3D7BE01F1B220 and confirms signed age +0x1B8C, 20 units/year, age 18 value 360, detail refresh sub_43BA80, native increment sub_465F10, offline call 0x46663B then oldest statistic dword_4D6E00, and persistence through sub_45DB30/sub_45DBE0. The disabled stride-0x2E3C candidate takes a 150/256 bound and tests active +0x1CC4, status +0x1CC7==0, and positive signed health +0x1C40. Its raw store bypasses native statistic/transition handling; a selected-age raw store is not native proof, and status semantics remain incomplete. The unsigned 1,000,000-point 0x4D6F88/sub_41E300 transaction charges no-op/all-already-18 cases, returns zero results, and has no rollback. Processed age +0x1C3C, nursing/pregnancy companion +0x1C4C, pending baby count, and unrelated fields must never change. Future birth/clone/Event exclusion and full stock-plus-expanded placement/composition remain unresolved.
@@ -106,6 +110,16 @@ Inspired by the Virtual Villagers 1 mobile port where these exclusive Origins up
 - Doubler purchase status: {'new_purchase': 'temporarily unavailable pending exact-build provenance verification', 'existing_owned': 'removable at zero cost with zero refund', 'repurchase': 'temporarily disabled pending exact-build provenance verification'}
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending
 - Guarded executable edits: 12; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Grant Full Mastery to All Villagers (`vv1_full_mastery_all_stage_a_candidate`)
+
+Stock-only command-7 Full Mastery candidate. Commands 6/8, ownership, Remove, Golden Child, and Island Event paths are absent; Expanded-256 is rejected before output.
+
+- Behavior changes: Stock-only command-7 Full Mastery candidate. Commands 6/8, ownership, Remove, Golden Child, and Island Event paths are absent; Expanded-256 is rejected before output.
+- Explicit non-changes/exclusions: none declared
+- Dependencies: none
+- Evidence status: C76/D82/C83 GO against exact source commit 2f22a8b435918bf01b95aa4b9a6e6f4287d0ac94; rendered payload and exact uninstall identities are hash-bound below; runtime/player confirmation remains pending
+- Guarded executable edits: 2; every edit has an exact purpose and before/after guard in the manifest.
 
 #### Magic Fruit of Life Alters Mortality (`vv1_magic_fruit_alters_mortality`)
 
