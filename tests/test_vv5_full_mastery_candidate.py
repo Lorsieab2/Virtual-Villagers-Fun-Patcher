@@ -9,6 +9,7 @@ import tempfile
 import unittest
 from copy import deepcopy
 from pathlib import Path
+from unittest.mock import patch as mock_patch
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -27,6 +28,7 @@ from vv_fun_patcher import (  # noqa: E402
     pe_checksum,
     render_patched_bytes,
 )
+import vv_fun_patcher as patcher_module  # noqa: E402
 from runtime_freeze import isolated_runtime_freeze  # noqa: E402
 
 
@@ -154,6 +156,83 @@ class VV5FullMasteryCandidateTests(unittest.TestCase):
         self.assertNotIn("command 6", folded)
         self.assertNotIn("command 8", folded)
         self.assertNotIn("remove state", folded)
+
+    def _render_with_loader_mutation(self, mode: str, mutation: str):
+        with tempfile.TemporaryDirectory(dir=ROOT) as temp_dir:
+            temp = Path(temp_dir)
+            paths = {}
+            for key, source in patcher_module.VV5_FULL_MASTERY_CANDIDATE_PATHS.items():
+                target = temp / source.name
+                if source.is_file():
+                    target.write_bytes(source.read_bytes())
+                paths[key] = target
+            for key in ("base", "feature", "map"):
+                data = json.loads(paths[key].read_text(encoding="utf-8"))
+                if mutation == "acceptance_commit" and key == "map":
+                    data["acceptance_commit"] = "0000000000000000000000000000000000000000"
+                elif mutation == "stock_page" and key == "map":
+                    for layout in data["layouts"].values():
+                        if isinstance(layout, dict) and "installed_page_sha256" in layout:
+                            layout["installed_page_sha256"] = "0" * 64
+                elif mutation == "resource_id" and key == "base":
+                    data["ui_geometry_contract"]["resource_id"] = "0x53"
+                elif mutation == "missing_detail" and key == "feature":
+                    data["ui_geometry_contract"].pop("detail")
+                elif mutation == "dimensions" and key == "feature":
+                    data["ui_geometry_contract"]["native_dimensions"] = [100, 39]
+                paths[key].write_text(json.dumps(data), encoding="utf-8")
+            if mutation == "missing_asset":
+                paths["provenance_asset"] = temp / "missing-btn_trophies.png"
+            elif mutation == "corrupt_asset":
+                paths["provenance_asset"].write_bytes(
+                    paths["provenance_asset"].read_bytes() + b"corrupt"
+                )
+            with mock_patch.object(
+                patcher_module, "VV5_FULL_MASTERY_CANDIDATE_PATHS", paths
+            ):
+                return render_patched_bytes(
+                    STOCK,
+                    self.build,
+                    mode,
+                    [
+                        "vv5_enable_origins_exclusive_features",
+                        "vv5_full_mastery_all_stage_a_candidate",
+                    ],
+                )
+
+    def test_c103_loader_contract_and_asset_mutations_fail_before_output(self):
+        mutations = (
+            ("acceptance_commit", "acceptance_commit"),
+            ("stock_page", "stock page hash"),
+            ("resource_id", "UI contract"),
+            ("missing_detail", "UI contract"),
+            ("dimensions", "UI contract"),
+            ("missing_asset", "provenance btn_trophies asset is missing"),
+            ("corrupt_asset", "provenance btn_trophies asset hash mismatch"),
+        )
+        for mutation, message in mutations:
+            for mode in ("collection_progression", "immediate_fixed"):
+                with self.subTest(mutation=mutation, mode=mode):
+                    with self.assertRaisesRegex(PatcherError, message):
+                        self._render_with_loader_mutation(mode, mutation)
+
+    def test_c103_loader_accepts_both_certified_stock_modes(self):
+        expected = {
+            "collection_progression": "15E04105D84809AC944C9060E140A0AD4DEFB9BFCDFCE9155E68DE1A67A703C7",
+            "immediate_fixed": "4D5D84617788E94C0289F7CBBC4B58B396D1D64B5651F4A17088422F88EA1F46",
+        }
+        for mode, digest in expected.items():
+            with self.subTest(mode=mode):
+                rendered, _ = render_patched_bytes(
+                    STOCK,
+                    self.build,
+                    mode,
+                    [
+                        "vv5_enable_origins_exclusive_features",
+                        "vv5_full_mastery_all_stage_a_candidate",
+                    ],
+                )
+                self.assertEqual(sha(rendered), digest)
 
     def test_exact_fingerprint_layout_bounds_and_fixed_base(self):
         source = STOCK.read_bytes()

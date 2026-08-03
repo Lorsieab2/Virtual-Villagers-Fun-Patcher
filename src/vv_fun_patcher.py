@@ -122,12 +122,16 @@ VV5_FULL_MASTERY_CANDIDATE_PATHS = {
     "feature": ROOT / "data" / "candidates" / "vv5_full_mastery_all_candidate.json",
     "map": ROOT / "data" / "candidates" / "vv5_full_mastery_all_candidate_map.json",
     "dll": ROOT / "data" / "candidates" / "VVFP VV5 Full Mastery Candidate.dll",
+    "provenance_asset": ROOT / "assets" / "candidates" / "vv5_full_mastery" / "provenance" / "btn_trophies.png",
 }
+VV5_FULL_MASTERY_ACCEPTANCE_COMMIT = "48955b5f19da5d4279887a4c1b71250a63ac9ade"
 VV5_FULL_MASTERY_CERTIFIED_SHA256 = {
     "stock_entry": "3931DE449CDC334B9BD93D0FCF813CC8D44885E7DA430D79C22234F4B3DB1BBB",
     "stock_walker": "7466674FBC225EE898E10086B355509BF6AAB2E2D9024C8E3FCE4D0833CADAB8",
     "stock_confirmation": "234E2D9320A75D6B95DED0A682F13087294AE5E48F126DF30269C6F37653C18F",
+    "stock_page": "9B191EE433100638E2C45AD6BC14B65C73C05BFC02DF6553F892F570CD2FC586",
     "dll": "29927CECB448B64944E18E2BA11893DC84C91B39241FBB2549FC2A464E0BE2ED",
+    "provenance_asset": "F39E94CBDF24776631D803D1218EFCCDE555081C9C8C644DD073B75EC7DD2095",
 }
 VV5_FULL_MASTERY_RENDERED_SHA256 = {
     "collection_progression": "15E04105D84809AC944C9060E140A0AD4DEFB9BFCDFCE9155E68DE1A67A703C7",
@@ -623,6 +627,46 @@ def _certified_vv5_full_mastery_records(
     artifact = json.loads(
         VV5_FULL_MASTERY_CANDIDATE_PATHS["map"].read_text(encoding="utf-8")
     )
+    if artifact.get("acceptance_commit") != VV5_FULL_MASTERY_ACCEPTANCE_COMMIT:
+        raise PatcherError(
+            "VV5 Full Mastery acceptance_commit is not the independently certified C99 commit."
+        )
+    expected_ui = {
+        "asset": "native cached Images\\btn_trophies.png",
+        "asset_sha256": VV5_FULL_MASTERY_CERTIFIED_SHA256["provenance_asset"],
+        "resource_id": "0x6A",
+        "native_dimensions": [96, 39],
+        "tech": {
+            "local_x": 137,
+            "local_y": 2,
+            "event": 13,
+            "factory": "0x401BD0",
+            "ownership": "0x40C680",
+        },
+        "detail": {
+            "local_x": 137,
+            "local_y": 2,
+            "event": 13,
+            "factory": "0x401BD0",
+            "ownership": "0x40C680",
+        },
+    }
+    for label, record in (("base", base), ("feature", feature)):
+        ui = record.get("ui_geometry_contract")
+        if not isinstance(ui, dict) or any(ui.get(key) != value for key, value in expected_ui.items()):
+            raise PatcherError(
+                f"VV5 Full Mastery {label} UI contract is not the certified native btn_trophies contract."
+            )
+    provenance_asset = VV5_FULL_MASTERY_CANDIDATE_PATHS["provenance_asset"]
+    if not provenance_asset.is_file():
+        raise PatcherError(
+            "VV5 Full Mastery provenance btn_trophies asset is missing; refusing output."
+        )
+    provenance_digest = hashlib.sha256(provenance_asset.read_bytes()).hexdigest().upper()
+    if provenance_digest != VV5_FULL_MASTERY_CERTIFIED_SHA256["provenance_asset"]:
+        raise PatcherError(
+            "VV5 Full Mastery provenance btn_trophies asset hash mismatch; refusing output."
+        )
     layouts = artifact.get("layouts")
     if not isinstance(layouts, dict) or set(layouts) != set(VV5_FULL_MASTERY_RENDERED_SHA256):
         raise PatcherError(
@@ -651,6 +695,11 @@ def _certified_vv5_full_mastery_records(
             )
     stock = layouts["collection_progression"]
     installed = stock.get("slot_map", {}).get("installed", {})
+    for mode in ("collection_progression", "immediate_fixed"):
+        if layouts[mode].get("installed_page_sha256") != VV5_FULL_MASTERY_CERTIFIED_SHA256["stock_page"]:
+            raise PatcherError(
+                f"VV5 Full Mastery {mode} stock page hash is not the certified identity."
+            )
     actual = {
         "stock_entry": installed.get("entry_sha256"),
         "stock_walker": installed.get("walker_sha256"),
@@ -659,6 +708,7 @@ def _certified_vv5_full_mastery_records(
         "dll": hashlib.sha256(
             VV5_FULL_MASTERY_CANDIDATE_PATHS["dll"].read_bytes()
         ).hexdigest().upper(),
+        "provenance_asset": provenance_digest,
     }
     for label, expected in VV5_FULL_MASTERY_CERTIFIED_SHA256.items():
         if actual[label] != expected:
