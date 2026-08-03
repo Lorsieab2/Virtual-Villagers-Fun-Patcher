@@ -1285,16 +1285,53 @@ def write_output_bundle(
             attributes = getattr(cursor.stat(), "st_file_attributes", 0)
             if stat.S_ISLNK(cursor.stat().st_mode) or attributes & 0x400:
                 raise ValueError("output root traverses a symlink/reparse point")
-    replace = replace_func or os.replace
+    rename = replace_func or os.rename
     writer = write_func or (lambda path, data: path.write_bytes(data))
     stage_path: Path | None = None
-    final_was_absent = not final_root.exists()
+    stage_parent: Path | None = None
+    stage_name: str | None = None
+    stage_identity: tuple[int, int] | None = None
+
+    def stage_is_owned() -> bool:
+        if stage_path is None or stage_parent is None or stage_name is None or stage_identity is None:
+            return False
+        try:
+            if stage_path.name != stage_name:
+                return False
+            if stage_path.parent.resolve(strict=False) != stage_parent:
+                return False
+            if not stage_path.exists() or not stage_path.is_dir() or stage_path.is_symlink():
+                return False
+            attributes = getattr(stage_path.stat(), "st_file_attributes", 0)
+            if attributes & 0x400:
+                return False
+            current = stage_path.stat()
+            return (current.st_dev, current.st_ino) == stage_identity
+        except (OSError, ValueError):
+            return False
+
+    def cleanup_owned_stage() -> None:
+        try:
+            if not stage_is_owned():
+                return
+            shutil.rmtree(stage_path, ignore_errors=True)
+        except (OSError, ValueError):
+            return
+
     try:
         stage_path = Path(tempfile.mkdtemp(prefix=f".{final_root.name}.staging-", dir=str(final_root.parent)))
+        stage_parent = final_root.parent.resolve(strict=False)
+        stage_name = stage_path.name
+        initial = stage_path.stat()
+        stage_identity = (initial.st_dev, initial.st_ino)
+        if not stage_is_owned():
+            raise RuntimeError("owned staging directory identity could not be established")
         for relative, data in bundle.items():
             destination = stage_path / relative
             destination.parent.mkdir(parents=True, exist_ok=True)
             writer(destination, data)
+        if not stage_is_owned():
+            raise RuntimeError("staging directory was replaced before validation")
         staged_paths = list(stage_path.rglob("*"))
         for path in staged_paths:
             if path.is_symlink():
@@ -1317,19 +1354,16 @@ def write_output_bundle(
                 raise ValueError(f"staged product hash mismatch: {relative}")
             if relative.endswith(".json"):
                 json.loads(actual_path.read_text(encoding="utf-8"))
-        try:
-            replace(stage_path, final_root)
-        except Exception:
-            if final_was_absent and final_root.exists():
-                if final_root.is_dir():
-                    shutil.rmtree(final_root, ignore_errors=True)
-                else:
-                    final_root.unlink(missing_ok=True)
-            raise
+        if not stage_is_owned():
+            raise RuntimeError("staging directory was replaced before rename")
+        if final_root.exists():
+            raise FileExistsError("output destination appeared before atomic rename")
+        rename(stage_path, final_root)
+        if stage_path.exists():
+            raise RuntimeError("atomic rename did not transfer the owned staging directory")
         stage_path = None
     finally:
-        if stage_path is not None and stage_path.exists():
-            shutil.rmtree(stage_path, ignore_errors=True)
+        cleanup_owned_stage()
 
 
 def main(argv: list[str] | None = None) -> None:

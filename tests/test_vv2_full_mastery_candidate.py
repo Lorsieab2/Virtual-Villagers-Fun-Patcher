@@ -4,6 +4,7 @@ import hashlib
 import json
 import struct
 import subprocess
+import shutil
 import sys
 import tempfile
 import unittest
@@ -301,8 +302,27 @@ class VV2FullMasteryCandidateTests(unittest.TestCase):
 
             with self.assertRaises(OSError):
                 module.write_output_bundle(final, {"probe.txt": b"x"}, replace_func=fail_replace)
-            self.assertFalse(final.exists())
+            self.assertTrue(final.exists())
+            self.assertEqual((final / "partial.txt").read_text(encoding="utf-8"), "partial")
             self.assertEqual(list(parent.glob(".rename-failure.staging-*")), [])
+
+            transferred = parent / "rename-success"
+            module.write_output_bundle(transferred, {"probe.txt": b"x"})
+            self.assertEqual((transferred / "probe.txt").read_bytes(), b"x")
+            self.assertEqual(list(parent.glob(".rename-success.staging-*")), [])
+
+            raced = parent / "foreign-race"
+
+            def foreign_race(stage, destination):
+                destination.mkdir()
+                (destination / "sentinel.txt").write_bytes(b"foreign")
+                raise FileExistsError("foreign destination appeared")
+
+            with self.assertRaises(FileExistsError):
+                module.write_output_bundle(raced, {"probe.txt": b"x"}, replace_func=foreign_race)
+            self.assertTrue(raced.exists())
+            self.assertEqual((raced / "sentinel.txt").read_bytes(), b"foreign")
+            self.assertEqual(list(parent.glob(".foreign-race.staging-*")), [])
 
     def test_companion_missing_or_hash_altered_fails_before_output_creation(self) -> None:
         import importlib.util
@@ -342,6 +362,80 @@ class VV2FullMasteryCandidateTests(unittest.TestCase):
             )
             self.assertNotEqual(result.returncode, 0)
             self.assertFalse((external / "candidate").exists())
+
+    def test_staging_reparse_substitution_is_not_deleted_when_supported(self) -> None:
+        import importlib.util
+
+        spec = importlib.util.spec_from_file_location("vv2_generator_stage_reparse", GENERATOR)
+        self.assertIsNotNone(spec)
+        module = importlib.util.module_from_spec(spec)
+        assert spec.loader is not None
+        spec.loader.exec_module(module)
+        with tempfile.TemporaryDirectory(dir=ROOT / "outputs") as temp:
+            parent = Path(temp)
+            final = parent / "stage-reparse"
+            substituted: dict[str, Path] = {}
+
+            def substitute_stage(path, data):
+                stage = path.parent
+                backup = parent / "substituted-stage-backup"
+                stage.rename(backup)
+                try:
+                    stage.symlink_to(backup, target_is_directory=True)
+                except (OSError, NotImplementedError):
+                    backup.rename(stage)
+                    raise unittest.SkipTest("directory symlinks unavailable")
+                substituted["stage"] = stage
+                substituted["backup"] = backup
+                raise OSError("injected staging substitution")
+
+            try:
+                module.write_output_bundle(final, {"probe.txt": b"x"}, write_func=substitute_stage)
+            except unittest.SkipTest as exc:
+                self.skipTest(str(exc))
+            except OSError:
+                pass
+            else:
+                self.fail("staging substitution did not fail closed")
+            if substituted:
+                self.assertTrue(substituted["stage"].is_symlink())
+                self.assertTrue(substituted["backup"].is_dir())
+                substituted["stage"].unlink()
+                shutil.rmtree(substituted["backup"], ignore_errors=True)
+
+
+    def test_staging_identity_substitution_is_not_deleted(self) -> None:
+        import importlib.util
+
+        spec = importlib.util.spec_from_file_location("vv2_generator_stage_identity", GENERATOR)
+        self.assertIsNotNone(spec)
+        module = importlib.util.module_from_spec(spec)
+        assert spec.loader is not None
+        spec.loader.exec_module(module)
+        with tempfile.TemporaryDirectory(dir=ROOT / "outputs") as temp:
+            parent = Path(temp)
+            replaced = parent / "stage-identity"
+            foreign: dict[str, Path] = {}
+
+            def replace_stage_with_foreign_directory(path, data):
+                stage = path.parent
+                backup = parent / "owned-stage-moved"
+                stage.rename(backup)
+                stage.mkdir()
+                foreign["stage"] = stage
+                foreign["backup"] = backup
+                raise OSError("injected ordinary staging substitution")
+
+            with self.assertRaises(OSError):
+                module.write_output_bundle(
+                    replaced,
+                    {"probe.txt": b"x"},
+                    write_func=replace_stage_with_foreign_directory,
+                )
+            self.assertTrue(foreign["stage"].is_dir())
+            self.assertTrue(foreign["backup"].is_dir())
+            foreign["stage"].rmdir()
+            shutil.rmtree(foreign["backup"], ignore_errors=True)
 
     def test_source_fingerprint_section_geometry_and_iat_guards(self) -> None:
         source = STOCK.read_bytes()
