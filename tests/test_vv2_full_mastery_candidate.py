@@ -3,6 +3,7 @@ from __future__ import annotations
 import hashlib
 import json
 import os
+import stat
 import struct
 import subprocess
 import shutil
@@ -353,6 +354,111 @@ class VV2FullMasteryCandidateTests(unittest.TestCase):
             self.assertFalse(rename_called["value"])
             self.assertFalse(destination.exists())
             self.assertEqual(list(parent.glob(".lexical-race.staging-*")), [])
+
+    def test_parent_identity_recheck_blocks_publish(self) -> None:
+        import importlib.util
+
+        spec = importlib.util.spec_from_file_location("vv2_generator_parent_identity", GENERATOR)
+        self.assertIsNotNone(spec)
+        module = importlib.util.module_from_spec(spec)
+        assert spec.loader is not None
+        spec.loader.exec_module(module)
+        with tempfile.TemporaryDirectory(dir=ROOT / "outputs") as temp:
+            parent = Path(temp)
+            destination = parent / "parent-identity"
+            original_entry_matches = module._entry_matches
+            checks = {"parent": 0}
+
+            def changed_parent(path, expected):
+                if path == parent:
+                    checks["parent"] += 1
+                    if checks["parent"] >= 2:
+                        return False
+                return original_entry_matches(path, expected)
+
+            module._entry_matches = changed_parent
+            rename_called = {"value": False}
+
+            def unexpected_rename(stage, final):
+                rename_called["value"] = True
+                raise AssertionError("rename should not be reached")
+
+            try:
+                with self.assertRaises(RuntimeError):
+                    module.write_output_bundle(
+                        destination,
+                        {"probe.txt": b"x"},
+                        replace_func=unexpected_rename,
+                    )
+            finally:
+                module._entry_matches = original_entry_matches
+            self.assertGreaterEqual(checks["parent"], 2)
+            self.assertFalse(rename_called["value"])
+            self.assertFalse(destination.exists())
+            self.assertEqual(list(parent.glob(".parent-identity.staging-*")), [])
+
+    def test_invalid_destinations_are_rejected_before_build(self) -> None:
+        import importlib.util
+        import types
+
+        spec = importlib.util.spec_from_file_location("vv2_generator_prebuild", GENERATOR)
+        self.assertIsNotNone(spec)
+        module = importlib.util.module_from_spec(spec)
+        assert spec.loader is not None
+        spec.loader.exec_module(module)
+        calls = {"build": 0}
+
+        def unexpected_build():
+            calls["build"] += 1
+            raise AssertionError("build must not run for invalid output roots")
+
+        module.build = unexpected_build
+        with tempfile.TemporaryDirectory(dir=ROOT / "outputs") as temp:
+            parent = Path(temp)
+            outside = ROOT.parent / "c154-outside-destination"
+            existing = parent / "existing"
+            existing.mkdir()
+            invalid = [
+                ROOT,
+                ROOT / "data",
+                ROOT / "docs",
+                outside,
+                ROOT / "outputs" / "safe" / ".." / "escape",
+                existing,
+            ]
+            for destination in invalid:
+                with self.assertRaises((ValueError, AssertionError)):
+                    module.main(["--output-root", str(destination)])
+                self.assertEqual(calls["build"], 0)
+            broken = parent / "broken"
+            try:
+                broken.symlink_to(parent / "missing-target", target_is_directory=True)
+            except (OSError, NotImplementedError):
+                pass
+            else:
+                with self.assertRaises(ValueError):
+                    module.main(["--output-root", str(broken)])
+                self.assertEqual(calls["build"], 0)
+
+            ancestor = parent / "ancestor"
+            ancestor.mkdir()
+            candidate = ancestor / "candidate"
+            original_lstat = module.os.lstat
+            fake_link = types.SimpleNamespace(st_mode=stat.S_IFLNK, st_file_attributes=0)
+
+            def fake_lstat(path):
+                if os.fspath(path) == os.fspath(ancestor):
+                    return fake_link
+                return original_lstat(path)
+
+            module.os.lstat = fake_lstat
+            try:
+                with self.assertRaises(ValueError):
+                    module.main(["--output-root", str(candidate)])
+            finally:
+                module.os.lstat = original_lstat
+            self.assertEqual(calls["build"], 0)
+            self.assertFalse(candidate.exists())
 
     def test_atomic_bundle_cleans_staging_on_write_and_rename_failure(self) -> None:
         import importlib.util

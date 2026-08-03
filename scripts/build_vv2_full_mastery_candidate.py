@@ -115,22 +115,41 @@ def resolve_output_paths(output_root: Path | None) -> dict[str, object]:
         raise ValueError("output root lexical destination already exists")
     if ".." in requested.parts:
         raise ValueError("output root cannot contain traversal components")
-    root = requested.resolve(strict=False)
-    outputs_root = (ROOT / "outputs").resolve()
+    lexical_root = Path(os.path.abspath(os.fspath(requested)))
+    lexical_outputs = Path(os.path.abspath(os.fspath(ROOT / "outputs")))
+    outputs_info = os.lstat(lexical_outputs)
+    outputs_attributes = int(getattr(outputs_info, "st_file_attributes", 0))
+    if stat.S_ISLNK(outputs_info.st_mode) or outputs_attributes & 0x400:
+        raise ValueError("repository outputs directory is a reparse point")
+    try:
+        lexical_relative = lexical_root.relative_to(lexical_outputs)
+    except ValueError as exc:
+        raise ValueError("output root must be a child of the repository outputs directory") from exc
+    if not lexical_relative.parts:
+        raise ValueError("output root must be a strict child of the repository outputs directory")
+    lexical_parent = lexical_root.parent
+    try:
+        parent_relative = lexical_parent.relative_to(lexical_outputs)
+    except ValueError as exc:
+        raise ValueError("output root parent escapes the repository outputs directory") from exc
+    cursor = lexical_outputs
+    for component in parent_relative.parts:
+        cursor = cursor / component
+        if os.path.lexists(os.fspath(cursor)):
+            info = os.lstat(cursor)
+            attributes = int(getattr(info, "st_file_attributes", 0))
+            if stat.S_ISLNK(info.st_mode) or attributes & 0x400:
+                raise ValueError("output root traverses a symlink/reparse point")
+            if not stat.S_ISDIR(info.st_mode):
+                raise ValueError("output root parent is not a directory")
+    if not os.path.lexists(os.fspath(lexical_parent)) or not lexical_parent.is_dir():
+        raise ValueError("output root parent directory is missing")
+    root = lexical_root.resolve(strict=False)
+    outputs_root = lexical_outputs.resolve(strict=False)
     if root == outputs_root or outputs_root not in root.parents:
-        raise ValueError("output root must be a child of the repository outputs directory")
+        raise ValueError("resolved output root escapes the repository outputs directory")
     if root.exists():
         raise ValueError("output root already exists; choose a fresh destination")
-    if not root.parent.exists() or not root.parent.is_dir():
-        raise ValueError("output root parent directory is missing")
-
-    cursor = outputs_root
-    for component in root.relative_to(outputs_root).parts[:-1]:
-        cursor = cursor / component
-        if cursor.exists():
-            attributes = getattr(cursor.stat(), "st_file_attributes", 0)
-            if stat.S_ISLNK(cursor.stat().st_mode) or attributes & 0x400:
-                raise ValueError("output root traverses a symlink/reparse point")
 
     paths = {
         "manifest": root / "data" / "candidates" / MANIFEST_OUT.name,
@@ -1409,6 +1428,9 @@ def write_output_bundle(
         raise ValueError("output root already exists")
     if not final_root.parent.exists() or not final_root.parent.is_dir():
         raise ValueError("output root parent is missing")
+    parent_identity = _lstat_entry(final_root.parent)
+    if parent_identity["type"] != "directory":
+        raise ValueError("output root parent is not an ordinary directory")
     cursor = outputs_root
     for component in final_root.relative_to(outputs_root).parts[:-1]:
         cursor = cursor / component
@@ -1424,6 +1446,8 @@ def write_output_bundle(
     inventory: dict[str, dict[str, object]] = {}
 
     try:
+        if not _entry_matches(final_root.parent, parent_identity):
+            raise RuntimeError("output root parent changed before staging")
         stage_path = Path(tempfile.mkdtemp(prefix=f".{final_root.name}.staging-", dir=str(final_root.parent)))
         stage_parent = final_root.parent.resolve(strict=False)
         stage_name = stage_path.name
@@ -1470,6 +1494,8 @@ def write_output_bundle(
                 json.loads(actual_path.read_text(encoding="utf-8"))
         if not _inventory_matches(stage_path, inventory):
             raise RuntimeError("staging directory changed before rename")
+        if not _entry_matches(final_root.parent, parent_identity):
+            raise RuntimeError("output root parent changed before rename")
         if os.path.lexists(os.fspath(requested)) or os.path.lexists(os.fspath(final_root)):
             raise FileExistsError("output destination appeared before atomic rename")
         rename(stage_path, final_root)
@@ -1494,8 +1520,8 @@ def main(argv: list[str] | None = None) -> None:
         help="also emit Collection Progression and Immediate Fixed candidate EXEs under the audit directory",
     )
     args = parser.parse_args(argv)
-    manifest, artifact = build()
     paths = resolve_output_paths(args.output_root)
+    manifest, artifact = build()
     from vv_fun_patcher import FunPatch, load_builds, load_fun_patches, render_patched_bytes
 
     build_record = next(item for item in load_builds() if item.id == "vv2")
