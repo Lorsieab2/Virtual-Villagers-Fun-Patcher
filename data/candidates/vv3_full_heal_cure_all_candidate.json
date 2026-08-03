@@ -16,7 +16,12 @@
     "experimental_expanded_256",
     "experimental_expanded_256_progression"
   ],
-  "source_commit": "64c1266503c49ba1456f6294683a1f6773eba5d6",
+  "provenance": {
+    "design_source_commit": "64c1266503c49ba1456f6294683a1f6773eba5d6",
+    "implementation_base_commit": "ea6125489a60a3bdbb7f4c72e2619a798d23d5f6",
+    "metadata_commit": null,
+    "metadata_status": "pending metadata commit; intentionally non-self-referential"
+  },
   "implementation_status": "candidate implementation; D182 static predicate evidence incorporated; independent lifecycle recertification pending",
   "runtime_player_status": "pending",
   "price": 30000,
@@ -36,6 +41,7 @@
     "running_region_sha256": "76339C8FFBE0FF92F3F1EB2CC27A4E0600E33DCC936716DA94BBB0BD5D1AB050",
     "running_composed_parent_helper_sha256": "CFF1AAA9111728F003621FF662F100940C2F978943F5E69CC64180EA5DE63F7D",
     "stock_cure_cave_preimage_sha256": "7B4FC1A8DBE6B6121F16ADA516E2AC27E02964716BACEA5FB7D07CF30595948E",
+    "stock_zero_preimage_legacy_range_sha256": "06EA118EDADD836A02B202C05BC7E47356B57E28C01EDF1DAD6CC4CF90C662E2",
     "full_mastery_running_dependency": "vv3_individual_grant_running_candidate",
     "composition": "Origins + Full Mastery + individual Grant Running"
   },

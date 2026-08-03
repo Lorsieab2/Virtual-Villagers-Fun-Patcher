@@ -56,8 +56,17 @@ PRICE = 30_000
 STOCK_SHA256 = "8BC5DB382D02BC5C21AD5F607580D60FF44A6519CC7EB133F03113BAACAE6503"
 COMPOSED_PARENT_HELPER_SHA256 = "CFF1AAA9111728F003621FF662F100940C2F978943F5E69CC64180EA5DE63F7D"
 STOCK_CURE_CAVE_PREIMAGE_SHA256 = "7B4FC1A8DBE6B6121F16ADA516E2AC27E02964716BACEA5FB7D07CF30595948E"
+LEGACY_PRESERVED_RANGE_SHA256 = COMPOSED_PARENT_HELPER_SHA256
+STOCK_ZERO_PREIMAGE_LEGACY_RANGE_SHA256 = "06EA118EDADD836A02B202C05BC7E47356B57E28C01EDF1DAD6CC4CF90C662E2"
 SOURCE_COMMIT = "64c1266503c49ba1456f6294683a1f6773eba5d6"
+IMPLEMENTATION_BASE_COMMIT = "ea6125489a60a3bdbb7f4c72e2619a798d23d5f6"
 IMPLEMENTATION_STATUS = "candidate implementation; D182 static predicate evidence incorporated; independent lifecycle recertification pending"
+PROVENANCE = {
+    "design_source_commit": SOURCE_COMMIT,
+    "implementation_base_commit": IMPLEMENTATION_BASE_COMMIT,
+    "metadata_commit": None,
+    "metadata_status": "pending metadata commit; intentionally non-self-referential",
+}
 RENDERED_SHA256 = {
     "collection_progression": "1AB729027342F3EE90B875BF47534A35AF6522F987CD9441E1E8A3D52BF16C47",
     "immediate_fixed": "06B97177673D405C3F5BB711EAB04EF8DC703F7C80AB042F31F0CCDAE3850D1D",
@@ -427,7 +436,7 @@ def main() -> None:
         "dependencies": ["vv3_individual_grant_running_candidate"],
         "supported_modes": ["collection_progression", "immediate_fixed"],
         "unsupported_patch_modes": ["experimental_expanded_256", "experimental_expanded_256_progression"],
-        "source_commit": SOURCE_COMMIT,
+        "provenance": PROVENANCE,
         "implementation_status": IMPLEMENTATION_STATUS,
         "runtime_player_status": "pending",
         "price": PRICE,
@@ -440,6 +449,7 @@ def main() -> None:
             "running_region_sha256": "76339C8FFBE0FF92F3F1EB2CC27A4E0600E33DCC936716DA94BBB0BD5D1AB050",
             "running_composed_parent_helper_sha256": COMPOSED_PARENT_HELPER_SHA256,
             "stock_cure_cave_preimage_sha256": STOCK_CURE_CAVE_PREIMAGE_SHA256,
+            "stock_zero_preimage_legacy_range_sha256": STOCK_ZERO_PREIMAGE_LEGACY_RANGE_SHA256,
             "full_mastery_running_dependency": "vv3_individual_grant_running_candidate",
             "composition": "Origins + Full Mastery + individual Grant Running",
         },
@@ -525,7 +535,7 @@ def main() -> None:
         "candidate_enabled": False,
         "catalog_hidden": True,
         "catalog_enabled": False,
-        "source_commit": SOURCE_COMMIT,
+        "provenance": PROVENANCE,
         "implementation_status": IMPLEMENTATION_STATUS,
         "allowed_modes": manifest["supported_modes"],
         "expanded_fail_closed": True,
@@ -543,7 +553,8 @@ def main() -> None:
         "messages": manifest["messages"],
         "mutation_accounting": manifest["mutation_accounting"],
         "forbidden_routes": manifest["forbidden_routes"],
-        "legacy_preserved_range": {"raw_start": f"0x{LEGACY_CURE_START:X}", "raw_end": f"0x{LEGACY_CURE_END:X}", "sha256": sha(stock[LEGACY_CURE_START:LEGACY_CURE_END])},
+        "legacy_preserved_range": {"raw_start": f"0x{LEGACY_CURE_START:X}", "raw_end": f"0x{LEGACY_CURE_END:X}", "sha256": LEGACY_PRESERVED_RANGE_SHA256},
+        "stock_zero_preimage_legacy_range": {"raw_start": f"0x{LEGACY_CURE_START:X}", "raw_end": f"0x{LEGACY_CURE_END:X}", "sha256": STOCK_ZERO_PREIMAGE_LEGACY_RANGE_SHA256},
         "rendered": {mode: {"pending": "candidate disabled; render only after independent lifecycle recertification"} for mode in manifest["supported_modes"]},
     }
     OUT_DIR.mkdir(parents=True, exist_ok=True)
@@ -554,6 +565,7 @@ def main() -> None:
         "This stock-only candidate is catalog-hidden and disabled pending independent lifecycle recertification. "
         "It composes only after the certified VV3 Origins + Full Mastery + individual Grant Running chain in "
         "Collection Progression or Immediate Fixed. Expanded-256 is rejected before output.\n\n"
+        f"Provenance is non-circular: design/source lineage `{SOURCE_COMMIT}`, implementation base `{IMPLEMENTATION_BASE_COMMIT}`, and metadata commit is intentionally null until a later audit. The legacy preserved range `0x{LEGACY_CURE_START:X}..0x{LEGACY_CURE_END:X}` is `{LEGACY_PRESERVED_RANGE_SHA256}` in both composed parents; the stock-zero preimage is separately `{STOCK_ZERO_PREIMAGE_LEGACY_RANGE_SHA256}`.\n\n"
         f"The command-5 detour is `{HOOK_BEFORE.hex().upper()}` -> `{HOOK_AFTER.hex().upper()}` at raw `0x{HOOK_OFFSET:X}`. "
         f"The owned cave is raw `0x{CAVE_OFFSET:X}` / VA `0x{CAVE_VA:X}` for `0x{CAVE_LENGTH:X}` bytes; legacy Cure bytes "
         f"`0x{LEGACY_CURE_START:X}..0x{LEGACY_CURE_END:X}` remain byte-identical.\n\n"

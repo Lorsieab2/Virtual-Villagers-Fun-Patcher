@@ -195,8 +195,8 @@ VV3_FULL_HEAL_CANDIDATE_PATHS = {
     "manifest": ROOT / "data" / "candidates" / "vv3_full_heal_cure_all_candidate.json",
     "map": ROOT / "data" / "candidates" / "vv3_full_heal_cure_all_candidate_map.json",
 }
-VV3_FULL_HEAL_MANIFEST_SHA256 = "F8B6212685EE8D76551437FDD2CDD5FD4B5E19AA0BAE1EF6AAEA19E9DCFF0880"
-VV3_FULL_HEAL_MAP_SHA256 = "9CE2A017C328DF1F9B8D8E877D9D21A27B1DB11F626A2FB587FB0C0F0B2BFBBB"
+VV3_FULL_HEAL_MANIFEST_SHA256 = "348AC71046772CE88A05C2B2394AAE5D1EF38CD339929840426BCF5C51E8BDD0"
+VV3_FULL_HEAL_MAP_SHA256 = "65C30D093597AF279FC220FFA4FD315AE9E5B08170FC01B07A39CB5D1967854C"
 VV3_FULL_HEAL_STOCK_SHA256 = "8BC5DB382D02BC5C21AD5F607580D60FF44A6519CC7EB133F03113BAACAE6503"
 VV3_FULL_HEAL_DLL_PATH = ROOT / "data" / "candidates" / "VVFP VV3 Full Mastery Candidate.dll"
 VV3_FULL_HEAL_DLL_SHA256 = "35FB96199E745C7D8054FF6A12851B9E09225E3E41D0CE04012604E74968C0D5"
@@ -209,6 +209,8 @@ VV3_FULL_HEAL_HOOK_BEFORE = bytes.fromhex("8B049D543F4A00")
 VV3_FULL_HEAL_HOOK_AFTER = bytes.fromhex("E92D81FDFF9090")
 VV3_FULL_HEAL_CAVE_OFFSET = "0x7B721"
 VV3_FULL_HEAL_CAVE_LENGTH = 0x700
+VV3_FULL_HEAL_LEGACY_START = 0x7B664
+VV3_FULL_HEAL_LEGACY_END_OFFSET = 0x7B721
 VV3_FULL_HEAL_LEGACY_END = "0x7B721"
 VV3_FULL_HEAL_CAVE_SHA256 = "FD9CD28D75CF660294E30E0C8D1D73D6E33079144F877D9EA32027FC76BDDD07"
 VV3_FULL_HEAL_HELPER_SHA256 = "1DAEEE7166ABBE0759D3A952A391C731E9531ABB7B03B327943D4B123BEE160B"
@@ -218,6 +220,14 @@ VV3_FULL_HEAL_STRINGS_LENGTH = 0x2E8
 VV3_FULL_HEAL_TAIL_ZERO_LENGTH = 0xE8
 VV3_FULL_HEAL_COMPOSED_PARENT_HELPER_SHA256 = "CFF1AAA9111728F003621FF662F100940C2F978943F5E69CC64180EA5DE63F7D"
 VV3_FULL_HEAL_STOCK_CURE_CAVE_PREIMAGE_SHA256 = "7B4FC1A8DBE6B6121F16ADA516E2AC27E02964716BACEA5FB7D07CF30595948E"
+VV3_FULL_HEAL_LEGACY_PRESERVED_RANGE_SHA256 = VV3_FULL_HEAL_COMPOSED_PARENT_HELPER_SHA256
+VV3_FULL_HEAL_STOCK_ZERO_PREIMAGE_LEGACY_RANGE_SHA256 = "06EA118EDADD836A02B202C05BC7E47356B57E28C01EDF1DAD6CC4CF90C662E2"
+VV3_FULL_HEAL_PROVENANCE = {
+    "design_source_commit": "64c1266503c49ba1456f6294683a1f6773eba5d6",
+    "implementation_base_commit": "ea6125489a60a3bdbb7f4c72e2619a798d23d5f6",
+    "metadata_commit": None,
+    "metadata_status": "pending metadata commit; intentionally non-self-referential",
+}
 VV3_FULL_HEAL_HELPER_INSTRUCTION_COUNT = 198
 VV3_FULL_HEAL_HELPER_EPILOGUE_OFFSET = "0x31D"
 VV3_FULL_HEAL_INTERNAL_TARGET_OFFSETS = [
@@ -1765,6 +1775,7 @@ def _validate_vv3_full_heal_candidate(
         "messages",
         "mutation_accounting",
         "forbidden_routes",
+        "provenance",
     ):
         if canonical_map.get(key) != feature.raw.get(key):
             raise PatcherError(f"VV3 Full Heal candidate map {key} metadata is not certified.")
@@ -1775,6 +1786,18 @@ def _validate_vv3_full_heal_candidate(
         "sha256": hashlib.sha256(VV3_FULL_HEAL_HOOK_AFTER).hexdigest().upper(),
     }:
         raise PatcherError("VV3 Full Heal candidate map hook identity is not certified.")
+    if canonical_map.get("legacy_preserved_range") != {
+        "raw_start": "0x7B664",
+        "raw_end": "0x7B721",
+        "sha256": VV3_FULL_HEAL_LEGACY_PRESERVED_RANGE_SHA256,
+    }:
+        raise PatcherError("VV3 Full Heal composed-parent legacy range identity is not certified.")
+    if canonical_map.get("stock_zero_preimage_legacy_range") != {
+        "raw_start": "0x7B664",
+        "raw_end": "0x7B721",
+        "sha256": VV3_FULL_HEAL_STOCK_ZERO_PREIMAGE_LEGACY_RANGE_SHA256,
+    }:
+        raise PatcherError("VV3 Full Heal stock-zero legacy preimage identity is not certified.")
     if patch_mode in EXPANDED_PATCH_MODES:
         raise PatcherError(
             "VV3 Full Heal/Cure All is stock-mode only; Expanded-256 is fail-closed."
@@ -1782,6 +1805,8 @@ def _validate_vv3_full_heal_candidate(
     raw = feature.raw
     if raw.get("id") != VV3_FULL_HEAL_CANDIDATE_ID:
         raise PatcherError("VV3 Full Heal candidate identity is not certified.")
+    if raw.get("provenance") != VV3_FULL_HEAL_PROVENANCE:
+        raise PatcherError("VV3 Full Heal provenance is not stable or is self-referential.")
     if raw.get("enabled") is not False or raw.get("catalog_hidden") is not True or raw.get("catalog_enabled") is not False:
         raise PatcherError("VV3 Full Heal candidate must remain disabled and catalog-hidden.")
     if raw.get("dependencies") != [VV3_INDIVIDUAL_RUNNING_CANDIDATE_ID] or not {
@@ -1807,6 +1832,8 @@ def _validate_vv3_full_heal_candidate(
         != VV3_FULL_HEAL_COMPOSED_PARENT_HELPER_SHA256
         or chain.get("stock_cure_cave_preimage_sha256")
         != VV3_FULL_HEAL_STOCK_CURE_CAVE_PREIMAGE_SHA256
+        or chain.get("stock_zero_preimage_legacy_range_sha256")
+        != VV3_FULL_HEAL_STOCK_ZERO_PREIMAGE_LEGACY_RANGE_SHA256
     ):
         raise PatcherError("VV3 Full Heal dependency-region identities are not certified.")
     companion = raw.get("companion_files")
@@ -2791,6 +2818,10 @@ def render_patched_bytes(
                     raise PatcherError(
                         "VV3 Full Heal requires the exact certified Origins + Full Mastery + individual Running composition."
                     )
+                if hashlib.sha256(data[VV3_FULL_HEAL_LEGACY_START:VV3_FULL_HEAL_LEGACY_END_OFFSET]).hexdigest().upper() != VV3_FULL_HEAL_LEGACY_PRESERVED_RANGE_SHA256:
+                    raise PatcherError("VV3 Full Heal composed-parent legacy range fingerprint mismatch.")
+                if hashlib.sha256(original_data[VV3_FULL_HEAL_LEGACY_START:VV3_FULL_HEAL_LEGACY_END_OFFSET]).hexdigest().upper() != VV3_FULL_HEAL_STOCK_ZERO_PREIMAGE_LEGACY_RANGE_SHA256:
+                    raise PatcherError("VV3 Full Heal stock-zero legacy preimage fingerprint mismatch.")
                 candidate_preimage_checked = True
                 candidate_preimage_checksum = bytes(data[0x160:0x164])
             if (

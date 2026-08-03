@@ -63,6 +63,11 @@ class VV3FullHealCandidateTests(unittest.TestCase):
         self.assertEqual(self.raw["eligibility"], v.VV3_FULL_HEAL_ELIGIBILITY)
         self.assertEqual(self.raw["sickness"], v.VV3_FULL_HEAL_SICKNESS)
         self.assertEqual(self.raw["base_chain"]["running_composed_parent_helper_sha256"], v.VV3_FULL_HEAL_COMPOSED_PARENT_HELPER_SHA256)
+        self.assertEqual(self.raw["base_chain"]["stock_zero_preimage_legacy_range_sha256"], v.VV3_FULL_HEAL_STOCK_ZERO_PREIMAGE_LEGACY_RANGE_SHA256)
+        self.assertEqual(self.raw["provenance"], v.VV3_FULL_HEAL_PROVENANCE)
+        self.assertEqual(self.raw["provenance"]["design_source_commit"], "64c1266503c49ba1456f6294683a1f6773eba5d6")
+        self.assertEqual(self.raw["provenance"]["implementation_base_commit"], "ea6125489a60a3bdbb7f4c72e2619a798d23d5f6")
+        self.assertIsNone(self.raw["provenance"]["metadata_commit"])
         self.assertEqual(self.raw["base_chain"]["stock_cure_cave_preimage_sha256"], v.VV3_FULL_HEAL_STOCK_CURE_CAVE_PREIMAGE_SHA256)
         self.assertEqual(self.raw["record_zero_resolver"], v.VV3_FULL_HEAL_RECORD_ZERO_RESOLVER)
         self.assertEqual(self.raw["messagebox_resolution"], v.VV3_FULL_HEAL_MESSAGEBOX_RESOLUTION)
@@ -72,6 +77,15 @@ class VV3FullHealCandidateTests(unittest.TestCase):
     def test_both_stock_modes_emit_hook_and_cave(self) -> None:
         for mode in ("collection_progression", "immediate_fixed"):
             rendered = self._render(mode)
+            parent = self._render_without_candidate(mode)
+            self.assertEqual(
+                sha(bytes(parent[v.VV3_FULL_HEAL_LEGACY_START : v.VV3_FULL_HEAL_LEGACY_END_OFFSET])),
+                v.VV3_FULL_HEAL_LEGACY_PRESERVED_RANGE_SHA256,
+            )
+            self.assertEqual(
+                sha(self.stock.read_bytes()[v.VV3_FULL_HEAL_LEGACY_START : v.VV3_FULL_HEAL_LEGACY_END_OFFSET]),
+                v.VV3_FULL_HEAL_STOCK_ZERO_PREIMAGE_LEGACY_RANGE_SHA256,
+            )
             self.assertEqual(rendered[0xA35EF : 0xA35F6], v.VV3_FULL_HEAL_HOOK_AFTER)
             self.assertEqual(
                 sha(bytes(rendered[0x7B721 : 0x7B721 + v.VV3_FULL_HEAL_CAVE_LENGTH])),
@@ -299,6 +313,53 @@ class VV3FullHealCandidateTests(unittest.TestCase):
             ):
                 with self.assertRaises(v.PatcherError):
                     self._render("collection_progression")
+
+    def _assert_map_mutation_refuses(self, field: str, value: str) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            temp_path = Path(temp)
+            bad_manifest = temp_path / "manifest.json"
+            bad_map = temp_path / "map.json"
+            shutil.copy2(self.manifest_path, bad_manifest)
+            mutated_map = json.loads(self.map_path.read_text(encoding="utf-8"))
+            if field == "legacy_preserved_range":
+                mutated_map[field]["sha256"] = value
+            else:
+                mutated_map[field]["sha256"] = value
+            bad_map.write_text(json.dumps(mutated_map, indent=2) + "\n", encoding="utf-8")
+            with patch.object(
+                v,
+                "VV3_FULL_HEAL_CANDIDATE_PATHS",
+                {"manifest": bad_manifest, "map": bad_map},
+            ):
+                with self.assertRaises(v.PatcherError):
+                    self._render("collection_progression")
+
+    def test_legacy_preserved_range_mutation_refuses_before_render(self) -> None:
+        self._assert_map_mutation_refuses(
+            "legacy_preserved_range", v.VV3_FULL_HEAL_STOCK_ZERO_PREIMAGE_LEGACY_RANGE_SHA256
+        )
+
+    def test_stock_zero_preimage_legacy_range_mutation_refuses_before_render(self) -> None:
+        self._assert_map_mutation_refuses(
+            "stock_zero_preimage_legacy_range", v.VV3_FULL_HEAL_LEGACY_PRESERVED_RANGE_SHA256
+        )
+
+    def test_provenance_mutation_refuses_before_render(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            temp_path = Path(temp)
+            bad_manifest = temp_path / "manifest.json"
+            bad_map = temp_path / "map.json"
+            mutated = json.loads(self.manifest_path.read_text(encoding="utf-8"))
+            mutated["provenance"]["implementation_base_commit"] = "0" * 40
+            bad_manifest.write_text(json.dumps(mutated, indent=2) + "\n", encoding="utf-8")
+            shutil.copy2(self.map_path, bad_map)
+            with patch.object(
+                v,
+                "VV3_FULL_HEAL_CANDIDATE_PATHS",
+                {"manifest": bad_manifest, "map": bad_map},
+            ):
+                with self.assertRaises(v.PatcherError):
+                    self._render("immediate_fixed")
 
     def test_missing_companion_refuses_before_render(self) -> None:
         with tempfile.TemporaryDirectory() as temp:
