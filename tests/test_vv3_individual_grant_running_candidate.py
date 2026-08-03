@@ -130,7 +130,7 @@ class VV3IndividualGrantRunningCandidateTests(unittest.TestCase):
         self.assertEqual(self.artifact["stack_frame"]["saved_message_box"], "-0x10")
         self.assertEqual(self.artifact["semantic_guards"]["message_box_pointer"], "[ebp-0x10]")
 
-    def test_exact_two_mutations_and_disabled_state(self) -> None:
+    def test_exact_two_feature_ranges_and_disabled_state(self) -> None:
         self.assertFalse(self.raw["enabled"])
         self.assertTrue(self.raw["catalog_hidden"])
         self.assertFalse(self.raw["catalog_enabled"])
@@ -143,8 +143,49 @@ class VV3IndividualGrantRunningCandidateTests(unittest.TestCase):
         self.assertEqual(len(bytes.fromhex(owned["after"])), 0x700)
         self.assertEqual(sha(bytes.fromhex(owned["after"])), "76339C8FFBE0FF92F3F1EB2CC27A4E0600E33DCC936716DA94BBB0BD5D1AB050")
         self.assertEqual(self.raw["unsupported_patch_modes"], list(self.builder.EXPANDED_MODES))
-        self.assertEqual(self.artifact["mutations"][0]["file_offset"], "0xA38C3")
-        self.assertEqual(self.artifact["mutations"][1]["file_offset"], "0xCB900")
+        self.assertEqual(self.raw["result_messages"]["success"], "Running was granted.")
+        self.assertNotIn("inactive_or_dead", self.raw["result_messages"]["distinct"])
+        self.assertEqual(self.raw["result_messages"]["aliases"]["inactive_or_dead"], "invalid_selection")
+        self.assertEqual(self.artifact["feature_owned_ranges"][0]["file_offset"], "0xA38C3")
+        self.assertEqual(self.artifact["feature_owned_ranges"][1]["file_offset"], "0xCB900")
+        self.assertEqual(self.artifact["mutation_accounting"]["feature_owned_range_count"], 2)
+        self.assertEqual(self.artifact["mutation_accounting"]["physical_diff_range_count"], 3)
+
+    def test_checksum_accounting_has_three_ranges_and_rejects_pin_mutations(self) -> None:
+        expected_checksums = {
+            "collection_progression": ("E9AC0D00", "93790D00"),
+            "immediate_fixed": ("E8EE0C00", "91BB0D00"),
+        }
+        for mode, (pre_pin, candidate_pin) in expected_checksums.items():
+            with self.subTest(mode=mode):
+                pre, _ = render_patched_bytes(
+                    self.stock, self.build, mode, _fun_patches_override=[self.full_base, self.full_feature]
+                )
+                rendered, _ = render_patched_bytes(
+                    self.stock, self.build, mode, _fun_patches_override=[self.full_base, self.full_feature, self.feature]
+                )
+                accounting = self.builder._accounted_physical_ranges(pre, rendered, mode)
+                self.assertEqual(len(accounting), 3)
+                self.assertEqual(len(self.artifact["rendered"][mode]["physical_diff_ranges"]), 3)
+                self.assertEqual(len(self.artifact["rendered"][mode]["feature_owned_ranges"]), 2)
+                self.assertEqual(bytes(pre[0x160:0x164]).hex().upper(), pre_pin)
+                self.assertEqual(bytes(rendered[0x160:0x164]).hex().upper(), candidate_pin)
+                accounted = set()
+                for item in accounting:
+                    start = int(str(item["raw_offset"]), 0)
+                    accounted.update(range(start, start + int(item["length"])))
+                self.assertEqual(
+                    [
+                        offset
+                        for offset, (left, right) in enumerate(zip(pre, rendered))
+                        if left != right and offset not in accounted
+                    ],
+                    [],
+                )
+                bad = bytearray(rendered)
+                bad[0x160] ^= 1
+                with self.assertRaisesRegex(RuntimeError, "PE checksum pin mismatch"):
+                    self.builder._accounted_physical_ranges(pre, bad, mode)
 
     def test_stock_modes_render_and_uninstall_exact(self) -> None:
         for mode, expected in self.builder.PRE_RUNNING_SHA256.items():

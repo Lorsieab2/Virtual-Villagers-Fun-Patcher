@@ -43,6 +43,8 @@ HELPER_OFFSET = 0x900
 HELPER_VA = OWNED_VA
 STRINGS_OFFSET = 0xD00
 STRINGS_VA = 0x6DFD00
+PE_CHECKSUM_OFFSET = 0x160
+PE_CHECKSUM_LENGTH = 4
 PRICE = 40_000
 RUNNING_ID = 38
 STOCK_SHA256 = "8BC5DB382D02BC5C21AD5F607580D60FF44A6519CC7EB133F03113BAACAE6503"
@@ -51,6 +53,28 @@ PRE_RUNNING_SHA256 = {
     "collection_progression": "6B6FCF33C21B5ED9323F8BBE4C677EF12BA4653E775178DCDF8E77049B2F57A8",
     "immediate_fixed": "92C5EF70512F57CBD990301E6918DE1BE002823C31CFB4C638D4E0F141BE7514",
 }
+EXPECTED_PE_CHECKSUMS = {
+    "collection_progression": {
+        "pre": "E9AC0D00",
+        "candidate": "93790D00",
+    },
+    "immediate_fixed": {
+        "pre": "E8EE0C00",
+        "candidate": "91BB0D00",
+    },
+}
+FEATURE_OWNED_RANGES = (
+    {
+        "raw_offset": "0xA38C3",
+        "length": 5,
+        "purpose": "candidate command-2 detour",
+    },
+    {
+        "raw_offset": "0xCB900",
+        "length": OWNED_LENGTH,
+        "purpose": "candidate-owned .vv3fm helper/string region",
+    },
+)
 FULL_MASTERY_PAGE_SHA256 = "2DAE85AE4077C23C2C7C39F64B5BA944740F765AC8E24FBB097B0BF28A720DF6"
 ORIGINS_PAYLOAD_SHA256 = "77BF4DB93204AF1212A6335AF624642068A8B8560F1D78D59E2E07FBF4751F69"
 OWNED_ZERO_SHA256 = "7B4FC1A8DBE6B6121F16ADA516E2AC27E02964716BACEA5FB7D07CF30595948E"
@@ -86,6 +110,67 @@ def sha(data: bytes) -> str:
 
 def _rel32_jump(source_va: int, target_va: int) -> bytes:
     return b"\xE9" + int(target_va - source_va - 5).to_bytes(4, "little", signed=True)
+
+
+def _accounted_physical_ranges(
+    before: bytes | bytearray,
+    after: bytes | bytearray,
+    mode: str,
+) -> list[dict[str, object]]:
+    """Return the three logical physical ranges changed by rendering.
+
+    The owned 0x700-byte slot is one candidate range even when some of its
+    trailing bytes remain zero.  The renderer's PE checksum is the only
+    deterministic non-feature range; every byte outside these three ranges
+    must remain identical.
+    """
+    if len(before) != len(after):
+        raise RuntimeError("rendered candidate size changed during checksum accounting")
+    checksum = EXPECTED_PE_CHECKSUMS[mode]
+    expected_ranges = [
+        {
+            "raw_offset": f"0x{PE_CHECKSUM_OFFSET:X}",
+            "length": PE_CHECKSUM_LENGTH,
+            "owner": "renderer:pe_checksum",
+            "before": checksum["pre"],
+            "after": checksum["candidate"],
+        },
+        {
+            "raw_offset": "0xA38C3",
+            "length": 5,
+            "owner": "candidate:command2_detour",
+            "before": "83FB027525",
+            "after": "E938C02300",
+        },
+        {
+            "raw_offset": "0xCB900",
+            "length": OWNED_LENGTH,
+            "owner": "candidate:owned_vv3fm_region",
+            "before_sha256": OWNED_ZERO_SHA256,
+            "after_sha256": EXPECTED_REGION_SHA256,
+        },
+    ]
+    accounted = bytearray(len(before))
+    for item in expected_ranges:
+        offset = int(str(item["raw_offset"]), 0)
+        length = int(item["length"])
+        if offset < 0 or offset + length > len(before):
+            raise RuntimeError("checksum accounting range is outside the rendered image")
+        accounted[offset : offset + length] = b"\x01" * length
+    outside_diffs = [
+        offset for offset, (left, right) in enumerate(zip(before, after))
+        if left != right and not accounted[offset]
+    ]
+    if outside_diffs:
+        raise RuntimeError(
+            "rendered candidate changed bytes outside checksum and two feature ranges: "
+            + ",".join(f"0x{item:X}" for item in outside_diffs[:8])
+        )
+    if before[PE_CHECKSUM_OFFSET : PE_CHECKSUM_OFFSET + PE_CHECKSUM_LENGTH].hex().upper() != checksum["pre"]:
+        raise RuntimeError(f"{mode} pre-render PE checksum pin mismatch")
+    if after[PE_CHECKSUM_OFFSET : PE_CHECKSUM_OFFSET + PE_CHECKSUM_LENGTH].hex().upper() != checksum["candidate"]:
+        raise RuntimeError(f"{mode} candidate PE checksum pin mismatch")
+    return expected_ranges
 
 
 CANONICAL_HELPER_HEX = "83FB020F85E43FDCFF5589E553565783EC1C6800FD6D00FF1524C1470085C00F8440020000680BFD6D0050FF1528C1470085C00F842C0200008945F0E81F92D4FF85C00F84EE0100008B88C02F0100894DEC85C90F88DD01000081F9960000000F83D101000051B910E15900E8EFF4D7FF84C00F84BE010000FF75ECB910E15900E8BACED7FF85C00F84A901000083B8780E0000000F8E9C0100008945E88B88B40F0000894DE08B88B80F0000894DDC8B88BC0F0000894DD8C745E4000000008DB8B40F0000B903000000833F260F8455010000833FFF7509837DE4007503897DE483C7044975E3837DE4000F843E010000813D44265800409C00000F824A0100006A016817FD6D006829FD6D006A00FF55F083F8010F8537010000E83F91D4FF85C00F84150100008B88C02F01003B4DEC0F850601000085C90F88FE00000081F9960000000F83F200000051B910E15900E809F4D7FF84C00F84DF000000FF75ECB910E15900E8D4CDD7FF85C00F84CA00000083B8780E0000000F8EBD0000008945E88B88B40F00003B4DE00F85B20000008B88B80F00003B4DDC0F85A30000008B88BC0F00003B4DD80F8594000000C745E4000000008DB8B40F0000B903000000833F26747D833FFF7509837DE4007503897DE483C7044975E7837DE4007463813D44265800409C0000725E8B7DE4833FFF754FC70726000000833F26751668C063FFFFB944265800E82076D4FFBA81FD6D00EB41833F267506C707FFFFFFFFBAA4FF6D00EB2FBA96FD6D00EB28BADFFD6D00EB21BA29FE6D00EB1ABA73FE6D00EB13BAD4FE6D00EB0CBA28FF6D00EB05BA64FF6D006A006817FD6D00526A00FF55F083C41C5F5E5B5DE9653CDCFF"
@@ -246,11 +331,20 @@ def _render_map(
             _fun_patches_override=[full_base, full_feature, feature],
         )
         checksum_offset, _ = _pe_checksum_layout(rendered)
+        if checksum_offset != PE_CHECKSUM_OFFSET:
+            raise RuntimeError(f"{mode} PE checksum offset changed: 0x{checksum_offset:X}")
+        physical_ranges = _accounted_physical_ranges(pre_running, rendered, mode)
         renders[mode] = {
             "sha256": sha(bytes(rendered)),
             "size": len(rendered),
             "pre_running_sha256": pre_sha,
+            "pre_pe_checksum": f"0x{struct.unpack_from('<I', pre_running, checksum_offset)[0]:08X}",
             "pe_checksum": f"0x{struct.unpack_from('<I', rendered, checksum_offset)[0]:08X}",
+            "physical_diff_ranges": physical_ranges,
+            "feature_owned_ranges": [dict(item) for item in FEATURE_OWNED_RANGES],
+            "physical_diff_range_count": len(physical_ranges),
+            "feature_owned_range_count": len(FEATURE_OWNED_RANGES),
+            "all_other_bytes_identical": True,
             "owners": sorted({item["owner"] for item in applied}),
         }
     for mode in EXPANDED_MODES:
@@ -333,6 +427,22 @@ def main() -> None:
             "chain. It is disabled and catalog-hidden; the withdrawn village-wide "
             "command-6 Running candidate is not reused or modified."
         ),
+        "mutation_accounting": {
+            "feature_owned_range_count": len(FEATURE_OWNED_RANGES),
+            "feature_owned_ranges": [dict(item) for item in FEATURE_OWNED_RANGES],
+            "physical_diff_range_count": 3,
+            "checksum_range": {
+                "raw_offset": f"0x{PE_CHECKSUM_OFFSET:X}",
+                "length": PE_CHECKSUM_LENGTH,
+                "purpose": "deterministic PE checksum recomputation",
+                "per_mode": EXPECTED_PE_CHECKSUMS,
+            },
+            "rule": (
+                "The two candidate-owned feature ranges plus raw 0x160..0x163 "
+                "PE checksum are the three physical accounting ranges; every "
+                "other byte is identical to the certified pre-Running image."
+            ),
+        },
         "companion_files": [],
         "patches": [
             {
@@ -382,8 +492,10 @@ def main() -> None:
         },
         "result_messages": {
             "no_charge_suffix": "No tech points have been deducted.",
-            "distinct": ["already_running", "no_empty_like", "invalid_selection", "selection_changed", "inactive_or_dead", "likes_changed", "insufficient_funds", "canceled", "write_verification_failure"],
-            "success": "Running has been granted to this villager.",
+            "distinct": ["already_running", "no_empty_like", "invalid_selection", "selection_changed", "likes_changed", "insufficient_funds", "canceled", "write_verification_failure"],
+            "aliases": {"inactive_or_dead": "invalid_selection"},
+            "invalid_selection_text": "No valid living villager is selected.\r\nNo tech points have been deducted.",
+            "success": "Running was granted.",
         },
     }
     MANIFEST_OUT.write_text(json.dumps(candidate, indent=2) + "\n", encoding="utf-8")
@@ -398,7 +510,7 @@ def main() -> None:
         "source": {"size": len(stock), "sha256": STOCK_SHA256},
         "base_chain": candidate["base_chain"],
         "manifest_sha256": sha(MANIFEST_OUT.read_bytes()),
-        "mutations": [
+        "feature_owned_ranges": [
             {
                 "file_offset": f"0x{COMMAND2_OFFSET:X}",
                 "virtual_address": f"0x{COMMAND2_VA:X}",
@@ -417,7 +529,14 @@ def main() -> None:
                 "strings_sha256": EXPECTED_STRINGS_SHA256,
             },
         ],
-        "protected_regions": "all bytes outside 0xA38C3..0xA38C7 and 0xCB900..0xCBFFF are byte-identical",
+        "physical_diff_ranges": {
+            mode: renders[mode]["physical_diff_ranges"] for mode in STOCK_MODES
+        },
+        "mutation_accounting": candidate["mutation_accounting"],
+        "protected_regions": (
+            "every byte outside raw 0x160..0x163, 0xA38C3..0xA38C7, and "
+            "0xCB900..0xCBFFF is byte-identical to the certified pre-Running image"
+        ),
         "protected_calls": {"manager_getter": "0x428B60", "validator": "0x45EE60", "resolver": "0x45C840", "deduction": "0x427130"},
         "no_dislike_or_e94_access": True,
         "stack_frame": region_map["stack_frame"],
@@ -470,6 +589,9 @@ def main() -> None:
         f"- Hook: raw/file and VA `0x{COMMAND2_OFFSET:X}`/`0x{COMMAND2_VA:X}`, `{COMMAND2_BEFORE.hex().upper()}` -> `{hook_after.hex().upper()}` "
         f"(SHA-256 `{EXPECTED_HOOK_SHA256}`); command 2 is gated before any API call, non-command-2 continues at `0x{NON_COMMAND2_VA:X}`, "
         f"and result paths return to `0x{DETAIL_LOOP_VA:X}`.\n"
+        "- Physical accounting has exactly three ranges: candidate-owned `0xA38C3..0xA38C7` and `0xCB900..0xCBFFF`, plus deterministic "
+        "PE checksum recomputation at raw `0x160..0x163`. Collection is `E9AC0D00` -> `93790D00`; Immediate is `E8EE0C00` -> `91BB0D00`; "
+        "every other byte is identical to the certified pre-Running image.\n"
         f"- Existing owned `.vv3fm` slot: raw/VA `0x{OWNED_OFFSET:X}`/`0x{OWNED_VA:X}`, length `0x{OWNED_LENGTH:X}`, "
         f"helper `0x{region_map['helper_length']:X}` bytes (SHA-256 `{region_map['helper_sha256']}`), "
         f"strings at VA `0x{STRINGS_VA:X}` length `0x{region_map['strings_length']:X}` (SHA-256 `{region_map['strings_sha256']}`), "
@@ -482,9 +604,10 @@ def main() -> None:
         "slot and records the first exact -1 slot; only then is the >=40,000 funds check and exact OK/Cancel confirmation shown. "
         "After OK, reacquire the singleton, selection, record, eligibility, Likes, and funds; require an exact snapshot match, write 38 "
         "only to the first still-empty slot, read it back, then perform one native `ECX=0x582644`, push -40,000, `sub_427130` deduction.\n"
-        "- Distinct reason-aware no-charge results cover already Running, no empty Like, invalid/dead selection, selection/state change, "
+        "- Distinct reason-aware no-charge results cover already Running, no empty Like, selection/state change, "
         "Likes changed, insufficient funds, cancellation, and write verification failure. Every no-charge result includes `No tech points have been deducted.` "
-        "Dislikes (+0xFC0 onward) and +0xE94 are never read or written. A process fault remains possible between verified slot write and "
+        "Inactive/dead acquisition failures share the invalid-selection text `No valid living villager is selected.\\r\\nNo tech points have been deducted.` "
+        "The success result is exactly `Running was granted.` Dislikes (+0xFC0 onward) and +0xE94 are never read or written. A process fault remains possible between verified slot write and "
         "native deduction; rollback atomicity is not claimed.\n"
         "- Only stock Collection Progression and Immediate Fixed are supported. Expanded-256, malformed/corrupt inputs, wrong Full Mastery "
         "chain, nonzero owned slot, and uninstall mismatches fail closed before output or mutation.\n",

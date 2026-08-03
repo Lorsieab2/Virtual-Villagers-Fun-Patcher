@@ -20,6 +20,38 @@
     "full_mastery_feature": "vv3_full_mastery_all_candidate.json"
   },
   "description": "Stock Collection Progression/Immediate Fixed-only selected-villager Grant Running candidate composed after the certified VV3 Full Mastery chain. It is disabled and catalog-hidden; the withdrawn village-wide command-6 Running candidate is not reused or modified.",
+  "mutation_accounting": {
+    "feature_owned_range_count": 2,
+    "feature_owned_ranges": [
+      {
+        "raw_offset": "0xA38C3",
+        "length": 5,
+        "purpose": "candidate command-2 detour"
+      },
+      {
+        "raw_offset": "0xCB900",
+        "length": 1792,
+        "purpose": "candidate-owned .vv3fm helper/string region"
+      }
+    ],
+    "physical_diff_range_count": 3,
+    "checksum_range": {
+      "raw_offset": "0x160",
+      "length": 4,
+      "purpose": "deterministic PE checksum recomputation",
+      "per_mode": {
+        "collection_progression": {
+          "pre": "E9AC0D00",
+          "candidate": "93790D00"
+        },
+        "immediate_fixed": {
+          "pre": "E8EE0C00",
+          "candidate": "91BB0D00"
+        }
+      }
+    },
+    "rule": "The two candidate-owned feature ranges plus raw 0x160..0x163 PE checksum are the three physical accounting ranges; every other byte is identical to the certified pre-Running image."
+  },
   "companion_files": [],
   "patches": [
     {
@@ -171,12 +203,15 @@
       "no_empty_like",
       "invalid_selection",
       "selection_changed",
-      "inactive_or_dead",
       "likes_changed",
       "insufficient_funds",
       "canceled",
       "write_verification_failure"
     ],
-    "success": "Running has been granted to this villager."
+    "aliases": {
+      "inactive_or_dead": "invalid_selection"
+    },
+    "invalid_selection_text": "No valid living villager is selected.\r\nNo tech points have been deducted.",
+    "success": "Running was granted."
   }
 }
