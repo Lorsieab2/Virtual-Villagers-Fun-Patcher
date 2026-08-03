@@ -66,21 +66,12 @@ LAYOUTS = {
         "old_size_of_image": 0x3C9000,
         "new_size_of_image": 0x3CB000,
     },
-    "experimental_expanded_256": {
-        "page_rva": 0x502000,
-        "page_va": 0x902000,
-        "bound": 256,
-        "old_size_of_image": 0x502000,
-        "new_size_of_image": 0x504000,
-    },
-    "experimental_expanded_256_progression": {
-        "page_rva": 0x502000,
-        "page_va": 0x902000,
-        "bound": 256,
-        "old_size_of_image": 0x502000,
-        "new_size_of_image": 0x504000,
-    },
 }
+
+EXPANDED_MODES = (
+    "experimental_expanded_256",
+    "experimental_expanded_256_progression",
+)
 
 
 def asm(source: str, address: int) -> bytes:
@@ -163,8 +154,8 @@ def build_individual_helper(page_va: int, strings: dict[str, int]) -> bytes:
         cmp ebx, 1
         je individual_body
         cmp ebx, 2
-        je 0x7B2790
-        jmp 0x7B276B
+        je 0x7B276B
+        jmp 0x7B2790
     individual_body:
         push ebp
         mov ebp, esp
@@ -387,7 +378,7 @@ def build_slot(page_va: int, installed: bool) -> tuple[bytes, dict[str, object]]
         ("individual_invalid", b"Full Mastery cannot be applied because the selected villager has an out-of-range skill.\r\nNo tech points have been deducted."),
         ("individual_insufficient", b"You do not have enough tech points.\r\nNo tech points have been deducted."),
         ("individual_cancel", b"Full Mastery was canceled.\r\nNo tech points have been deducted."),
-        ("individual_recheck", b"The selected villager changed before confirmation.\r\nNo tech points have been deducted."),
+        ("individual_recheck", b"The selected villager changed or no longer passed the final checks.\r\nNo tech points have been deducted."),
         ("individual_postverify", b"Full Mastery could not be verified.\r\nNo tech points have been deducted."),
         ("individual_confirm", b"Grant Full Mastery to this villager for 100,000 tech points?\r\nPress OK to confirm, or Cancel."),
         ("individual_success", b"Full Mastery has been granted to the selected villager."),
@@ -590,7 +581,7 @@ def build_slot(page_va: int, installed: bool) -> tuple[bytes, dict[str, object]]
             jz cancel
             push 1
             push 0x{strings['caption']:X}
-            push 0x{strings['warning']:X}
+            push 0x{strings['individual_confirm']:X}
             push 0
             call eax
             cmp eax, 1
@@ -692,7 +683,7 @@ def build_page(page_va: int, slot: bytes, dispatcher: bytes) -> bytes:
         b"Full Mastery cannot be applied because the selected villager has an out-of-range skill.\r\nNo tech points have been deducted.\0",
         b"You do not have enough tech points.\r\nNo tech points have been deducted.\0",
         b"Full Mastery was canceled.\r\nNo tech points have been deducted.\0",
-        b"The selected villager changed before confirmation.\r\nNo tech points have been deducted.\0",
+        b"The selected villager changed or no longer passed the final checks.\r\nNo tech points have been deducted.\0",
         b"Full Mastery could not be verified.\r\nNo tech points have been deducted.\0",
         b"Grant Full Mastery to this villager for 100,000 tech points?\r\nPress OK to confirm, or Cancel.\0",
         b"Full Mastery has been granted to the selected villager.\0",
@@ -873,9 +864,6 @@ def main() -> None:
     stock_payload = build_base_payload(
         active_payload, LAYOUTS["collection_progression"]["page_va"]
     )
-    expanded_payload = build_base_payload(
-        active_payload, LAYOUTS["experimental_expanded_256"]["page_va"]
-    )
     base = deepcopy(active)
     base["id"] = "vv5_enable_origins_exclusive_features_full_mastery_candidate"
     base["name"] = "DISABLED Candidate: VV5 Origins Full Mastery Extension Base"
@@ -1002,7 +990,7 @@ def main() -> None:
             "command": 7,
             "price": PRICE,
             "ownership": None,
-            "record_bounds": {"stock": 150, "expanded": 256},
+            "record_bounds": {"stock": 150},
             "eligibility": [
                 "byte +0x1CD4 != 0",
                 "signed dword +0x1C40 > 0",
@@ -1087,9 +1075,6 @@ def main() -> None:
     build = next(item for item in load_builds() if item.id == "vv5")
     renders: dict[str, object] = {}
     for mode in LAYOUTS:
-        if mode.startswith("experimental_expanded_256"):
-            renders[mode] = {"rejected": True, "reason": "Expanded-256 fail-closed"}
-            continue
         baseline, _ = render_patched_bytes(STOCK, build, mode)
         base_render, _ = render_patched_bytes(
             STOCK, build, mode, _fun_patches_override=[FunPatch(base)]
@@ -1130,7 +1115,6 @@ def main() -> None:
         "base_manifest_sha256": sha(BASE_OUT.read_bytes()),
         "feature_manifest_sha256": sha(FEATURE_OUT.read_bytes()),
         "base_stock_payload_sha256": sha(stock_payload),
-        "base_expanded_payload_sha256": sha(expanded_payload),
         "companion": {
             "path": "data/candidates/VVFP VV5 Full Mastery Candidate.dll",
             "size": COMPANION.stat().st_size,
@@ -1177,7 +1161,13 @@ def main() -> None:
         "runtime_freeze": isolated_runtime_freeze(
             game_id="vv5", map_path=MAP_OUT, data_root=ROOT / "data"
         ),
-        "rendered_candidates": renders,
+        "rendered_candidates": {
+            **renders,
+            **{
+                mode: {"rejected": True, "reason": "Expanded-256 fail-closed"}
+                for mode in EXPANDED_MODES
+            },
+        },
     }
     MAP_OUT.write_text(json.dumps(artifact, indent=2) + "\n", encoding="utf-8")
     DOC_OUT.write_text(
@@ -1203,7 +1193,6 @@ def main() -> None:
         )
         + f"- Companion SHA-256: `{artifact['companion']['sha256']}`\n"
         f"- Stock installed slot SHA-256: `{artifact['layouts']['collection_progression']['installed_slot_sha256']}`\n"
-        f"- Expanded installed slot SHA-256: `{artifact['layouts']['experimental_expanded_256']['installed_slot_sha256']}`\n"
         f"- Stock base+mastery render SHA-256: `{renders['collection_progression']['base_plus_mastery_sha256']}`\n"
         "- Expanded-256 render: rejected before artifact output (fail-closed).\n\n"
         "The feature exposes command 7 only inside its certified base dependency. "
@@ -1212,7 +1201,12 @@ def main() -> None:
         "with 100-current deltas, verifies six exact 100.0f values, then deducts "
         "once through 0x4237B0; failures use 'No tech points have been deducted.'. "
         "Commands 6/8, village-wide Running/Age bytes, direct skill stores, ownership, "
-        "Remove, and save-format changes are absent. Expanded-256 remains on hold.\n",
+        "Remove, and save-format changes are absent. The command shim routes EBX=1 to "
+        "the individual helper, EBX=2 to the native Running preflight, and all other "
+        "values to the legacy path. The individual confirmation uses the exact "
+        "100,000-point confirmation string, and recheck reports a changed villager or "
+        "failed final checks with no deduction. Expanded-256 remains on hold and is "
+        "rejected before output.\n",
         encoding="utf-8",
     )
 

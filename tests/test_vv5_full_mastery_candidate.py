@@ -149,7 +149,15 @@ class VV5FullMasteryCandidateTests(unittest.TestCase):
             "92946781980220E9D1A2E6C573925519934608F5215F4A0F8CE3B90088C5C65D",
         )
         self.assertEqual(self.map["layouts"]["collection_progression"]["bound"], 150)
-        self.assertEqual(self.map["layouts"]["experimental_expanded_256"]["bound"], 256)
+        self.assertEqual(
+            set(self.map["layouts"]), {"collection_progression", "immediate_fixed"}
+        )
+        for mode in MODES[2:]:
+            self.assertEqual(
+                self.map["rendered_candidates"][mode],
+                {"rejected": True, "reason": "Expanded-256 fail-closed"},
+            )
+        self.assertNotIn("base_expanded_payload_sha256", self.map)
         self.assertEqual(self.map["references"]["base_relocations"], [])
         for mode in MODES[:2]:
             layout = self.base_raw["pe_append_transaction"]["layouts"][mode]
@@ -369,12 +377,34 @@ class VV5FullMasteryCandidateTests(unittest.TestCase):
         self.assertEqual(payload[0x7B5:0x7BA].hex().upper(), "83FB017451")
         self.assertEqual(self.feature_raw["patch_mode_overrides"], {})
         helper = bytes.fromhex(self.feature_raw["patches"][0]["after"])[0xC00:0xC00 + 689]
+        self.assertEqual(
+            helper[:19].hex().upper(),
+            "83FB01740E83FB020F845D8AFEFFE97D8AFEFF",
+        )
         self.assertEqual(helper.count(bytes.fromhex("B948415500")), 4)
         self.assertIn(bytes.fromhex("3D96000000"), helper)
         self.assertIn(bytes.fromhex("81E2FFFFFF7F"), helper)
         self.assertIn(bytes.fromhex("A0860100"), helper)
         for key in ("individual_insufficient", "individual_cancel", "individual_recheck", "individual_postverify"):
             self.assertIn(key, self.map["layouts"]["collection_progression"]["slot_map"]["installed"]["strings"])
+
+    def test_individual_confirmation_and_recheck_strings_are_emitted_and_referenced(self):
+        strings = self.map["layouts"]["collection_progression"]["slot_map"]["installed"]["strings"]
+        page = bytes.fromhex(
+            self.base_raw["pe_append_transaction"]["layouts"]["collection_progression"]["append_bytes"]
+        )
+        slot = bytes.fromhex(self.feature_raw["patches"][0]["after"])
+        installed_page = page[:0x100] + slot + page[0x100 + len(slot) :]
+        confirmation = installed_page[0x100 + 0x800 : 0x100 + 0xC00]
+        confirm_ptr = int(strings["individual_confirm"], 0).to_bytes(4, "little")
+        warning_ptr = int(strings["warning"], 0).to_bytes(4, "little")
+        self.assertEqual(confirmation.count(b"\x68" + confirm_ptr), 1)
+        self.assertNotIn(b"\x68" + warning_ptr, confirmation)
+        self.assertIn(
+            b"The selected villager changed or no longer passed the final checks.\r\n"
+            b"No tech points have been deducted.\0",
+            installed_page,
+        )
 
     def test_all_modes_render_checksum_composition_and_uninstall(self):
         compatible = [
