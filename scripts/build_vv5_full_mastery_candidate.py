@@ -48,6 +48,7 @@ CONFIRM_OFFSET = 0x800
 INDIVIDUAL_OFFSET = 0xC00
 STRINGS_OFFSET = 0x1200
 PRICE = 1_000_000
+INDIVIDUAL_PRICE = 100_000
 STRIDE = 0x2F44
 
 LAYOUTS = {
@@ -159,6 +160,12 @@ def build_individual_helper(page_va: int, strings: dict[str, int]) -> bytes:
     """Candidate-only command-1 transaction; native writer, no raw stores."""
     va = page_va + SLOT_OFFSET + INDIVIDUAL_OFFSET
     return asm(f"""
+        cmp ebx, 1
+        je individual_body
+        cmp ebx, 2
+        je 0x7B2790
+        jmp 0x7B276B
+    individual_body:
         push ebp
         mov ebp, esp
         push ebx
@@ -170,9 +177,10 @@ def build_individual_helper(page_va: int, strings: dict[str, int]) -> bytes:
         test eax, eax
         jz bad
         mov eax, dword ptr [eax+0x17E24]
-        cmp eax, 0x95
+        cmp eax, 0x96
         jae bad
         mov dword ptr [ebp-0x14], eax
+        mov ecx, 0x554148
         push eax
         call 0x471840
         test eax, eax
@@ -206,7 +214,7 @@ def build_individual_helper(page_va: int, strings: dict[str, int]) -> bytes:
         cmp edx, 0x42C80000
         ja bad
     dry1_next:
-        cmp eax, 0x42C80000
+        cmp edx, 0x42C80000
         jae dry1_count
         inc ebx
     dry1_count:
@@ -215,36 +223,37 @@ def build_individual_helper(page_va: int, strings: dict[str, int]) -> bytes:
     dry1_done:
         test ebx, ebx
         jz no_change
-        cmp dword ptr [0x51D5F8], 1000000
-        jb no_funds
+        cmp dword ptr [0x51D5F8], {INDIVIDUAL_PRICE}
+        jb insufficient
         call 0x{page_va + SLOT_OFFSET + CONFIRM_OFFSET:X}
         test eax, eax
-        jz done
+        jz cancel
         call 0x425950
         test eax, eax
-        jz bad
+        jz recheck
         mov eax, dword ptr [eax+0x17E24]
         cmp eax, dword ptr [ebp-0x14]
-        jne bad
+        jne recheck
+        mov ecx, 0x554148
         push eax
         call 0x471840
         test eax, eax
-        jz bad
+        jz recheck
         mov ecx, 0x554148
         push dword ptr [ebp-0x14]
         call 0x46F950
         test eax, eax
-        jz bad
+        jz recheck
         mov dword ptr [ebp-0x18], eax
         mov esi, eax
         cmp byte ptr [esi+0x1CD4], 0
-        je bad
+        je recheck
         cmp dword ptr [esi+0x1C40], 0
-        jle bad
+        jle recheck
         cmp byte ptr [esi+0x1CE1], 0
-        jne bad
+        jne recheck
         cmp byte ptr [esi+0x1CEC], 0
-        jne bad
+        jne recheck
         xor edi, edi
         xor ebx, ebx
     dry2:
@@ -255,11 +264,11 @@ def build_individual_helper(page_va: int, strings: dict[str, int]) -> bytes:
         and edx, 0x7FFFFFFF
         jz dry2_next
         test eax, 0x80000000
-        jne bad
+        jne recheck
         cmp edx, 0x42C80000
-        ja bad
+        ja recheck
     dry2_next:
-        cmp eax, 0x42C80000
+        cmp edx, 0x42C80000
         jae dry2_count
         inc ebx
     dry2_count:
@@ -267,9 +276,9 @@ def build_individual_helper(page_va: int, strings: dict[str, int]) -> bytes:
         jmp dry2
     dry2_done:
         test ebx, ebx
-        jz no_change
-        cmp dword ptr [0x51D5F8], 1000000
-        jb no_funds
+        jz recheck
+        cmp dword ptr [0x51D5F8], {INDIVIDUAL_PRICE}
+        jb insufficient
         xor edi, edi
     write_loop:
         cmp edi, 6
@@ -293,29 +302,45 @@ def build_individual_helper(page_va: int, strings: dict[str, int]) -> bytes:
         cmp edi, 6
         jae commit
         cmp dword ptr [esi+edi*4+0x1C5C], 0x42C80000
-        jne bad
+        jne postverify
         inc edi
         jmp verify_loop
     commit:
-        push -1000000
+        push -{INDIVIDUAL_PRICE}
         mov ecx, 0x51D5F8
         call 0x4237B0
         push 0x{strings['individual_success']:X}
         push 0x{strings['caption']:X}
-        push 0
         call 0x7B2210
         jmp done
     no_change:
         push 0x{strings['individual_no_change']:X}
         push 0x{strings['caption']:X}
-        push 0
         call 0x7B2210
         jmp done
-    no_funds:
+    insufficient:
+        push 0x{strings['individual_insufficient']:X}
+        push 0x{strings['caption']:X}
+        call 0x7B2210
+        jmp done
+    cancel:
+        push 0x{strings['individual_cancel']:X}
+        push 0x{strings['caption']:X}
+        call 0x7B2210
+        jmp done
+    recheck:
+        push 0x{strings['individual_recheck']:X}
+        push 0x{strings['caption']:X}
+        call 0x7B2210
+        jmp done
+    postverify:
+        push 0x{strings['individual_postverify']:X}
+        push 0x{strings['caption']:X}
+        call 0x7B2210
+        jmp done
     bad:
         push 0x{strings['individual_invalid']:X}
         push 0x{strings['caption']:X}
-        push 0
         call 0x7B2210
     done:
         mov esi, dword ptr [ebp-0x10]
@@ -360,7 +385,11 @@ def build_slot(page_va: int, installed: bool) -> tuple[bytes, dict[str, object]]
         ("caption", b"Origins Upgrades"),
         ("individual_no_change", b"This villager is already fully mastered.\r\nNo tech points have been deducted."),
         ("individual_invalid", b"Full Mastery cannot be applied because the selected villager has an out-of-range skill.\r\nNo tech points have been deducted."),
-        ("individual_confirm", b"Grant Full Mastery to this villager for 1,000,000 tech points?\r\nPress OK to confirm, or Cancel."),
+        ("individual_insufficient", b"You do not have enough tech points.\r\nNo tech points have been deducted."),
+        ("individual_cancel", b"Full Mastery was canceled.\r\nNo tech points have been deducted."),
+        ("individual_recheck", b"The selected villager changed before confirmation.\r\nNo tech points have been deducted."),
+        ("individual_postverify", b"Full Mastery could not be verified.\r\nNo tech points have been deducted."),
+        ("individual_confirm", b"Grant Full Mastery to this villager for 100,000 tech points?\r\nPress OK to confirm, or Cancel."),
         ("individual_success", b"Full Mastery has been granted to the selected villager."),
     ):
         if not value.endswith(b"\0"):
@@ -661,7 +690,11 @@ def build_page(page_va: int, slot: bytes, dispatcher: bytes) -> bytes:
         b"Origins Upgrades\0",
         b"This villager is already fully mastered.\r\nNo tech points have been deducted.\0",
         b"Full Mastery cannot be applied because the selected villager has an out-of-range skill.\r\nNo tech points have been deducted.\0",
-        b"Grant Full Mastery to this villager for 1,000,000 tech points?\r\nPress OK to confirm, or Cancel.\0",
+        b"You do not have enough tech points.\r\nNo tech points have been deducted.\0",
+        b"Full Mastery was canceled.\r\nNo tech points have been deducted.\0",
+        b"The selected villager changed before confirmation.\r\nNo tech points have been deducted.\0",
+        b"Full Mastery could not be verified.\r\nNo tech points have been deducted.\0",
+        b"Grant Full Mastery to this villager for 100,000 tech points?\r\nPress OK to confirm, or Cancel.\0",
         b"Full Mastery has been granted to the selected villager.\0",
     ):
         page[cursor : cursor + len(value)] = value
@@ -897,22 +930,7 @@ def main() -> None:
         "detail": {"local_x": 137, "local_y": 2, "event": 13, "factory": "0x401BD0", "ownership": "0x40C680"},
         "status": "disabled pending independent emitted-byte recertification",
     }
-    existing_overrides = deepcopy(active.get("patch_mode_overrides", {}))
-    base["patch_mode_overrides"] = {
-        mode: [
-            {
-                "offset": f"0x{PAYLOAD_OFFSET:X}",
-                "before": stock_payload.hex().upper(),
-                "after": expanded_payload.hex().upper(),
-                "purpose": "retarget only base-owned command-7 page references",
-            },
-            *existing_overrides.get(mode, []),
-        ]
-        for mode in (
-            "experimental_expanded_256",
-            "experimental_expanded_256_progression",
-        )
-    }
+    base["patch_mode_overrides"] = {}
     base["pe_append_transaction"] = {
         "owner": base["id"],
         "section_name": ".vv5fm",
@@ -930,11 +948,11 @@ def main() -> None:
 
     stock_noop = noop_slots["collection_progression"]
     stock_installed = installed_slots["collection_progression"]
-    route_offset = PAYLOAD_OFFSET + 0x7B5
-    route_before = bytes.fromhex("83FB017451")
+    route_offset = PAYLOAD_OFFSET + 0x766
+    route_before = bytes.fromhex("83FB027525")
     route_after = asm(
         f"jmp 0x{LAYOUTS['collection_progression']['page_va'] + SLOT_OFFSET + INDIVIDUAL_OFFSET:X}",
-        PAYLOAD_VA + 0x7B5,
+        PAYLOAD_VA + 0x766,
     )
     existing_feature = (
         json.loads(FEATURE_OUT.read_text(encoding="utf-8"))
@@ -961,8 +979,8 @@ def main() -> None:
         ),
         "dependencies": [base["id"]],
         "description": (
-            "Command-7-only repeatable Buy candidate using native six-skill Float32 "
-            "writer sub_475730; commands 6/8 are absent and current Heathens are excluded."
+            "Command-7 village-wide and guarded command-1 selected-Believer Full Mastery "
+            "candidate using native six-skill Float32 writer sub_475730; commands 6/8 are absent."
         ),
         "companion_files": [],
         "patches": [
@@ -976,29 +994,10 @@ def main() -> None:
                 "offset": f"0x{route_offset:X}",
                 "before": route_before.hex().upper(),
                 "after": route_after.hex().upper(),
-                "purpose": "route Detail command 1 to the guarded native exact-100 transaction",
+                "purpose": "intercept command 1 before legacy charge; preserve command 2 preflight and other legacy routes",
             }
         ],
-        "patch_mode_overrides": {
-            mode: [
-                {
-                    "offset": f"0x{APPEND_OFFSET + SLOT_OFFSET:X}",
-                    "before": stock_installed.hex().upper(),
-                    "after": installed_slots[mode].hex().upper(),
-                    "purpose": "relocate only the dependent command-7 slot for expanded layout",
-                },
-                {
-                    "offset": f"0x{route_offset:X}",
-                    "before": route_before.hex().upper(),
-                    "after": route_after.hex().upper(),
-                    "purpose": "relocate only the guarded individual exact-100 transaction",
-                },
-            ]
-            for mode in (
-                "experimental_expanded_256",
-                "experimental_expanded_256_progression",
-            )
-        },
+        "patch_mode_overrides": {},
         "transaction_contract": {
             "command": 7,
             "price": PRICE,
@@ -1023,6 +1022,8 @@ def main() -> None:
             "individual_transaction": {
                 "route_offset": f"0x{route_offset:X}",
                 "route_before": route_before.hex().upper(),
+                "price": INDIVIDUAL_PRICE,
+                "route_target": "EBX=1 helper; EBX=2 native Running preflight; all others legacy path",
                 "target": "selected current active/living non-skeleton Believer",
                 "finite_float_range": [0.0, 100.0],
                 "native_writer": "0x475730 delta=100-current, once per changed skill",
@@ -1086,6 +1087,9 @@ def main() -> None:
     build = next(item for item in load_builds() if item.id == "vv5")
     renders: dict[str, object] = {}
     for mode in LAYOUTS:
+        if mode.startswith("experimental_expanded_256"):
+            renders[mode] = {"rejected": True, "reason": "Expanded-256 fail-closed"}
+            continue
         baseline, _ = render_patched_bytes(STOCK, build, mode)
         base_render, _ = render_patched_bytes(
             STOCK, build, mode, _fun_patches_override=[FunPatch(base)]
@@ -1201,7 +1205,7 @@ def main() -> None:
         f"- Stock installed slot SHA-256: `{artifact['layouts']['collection_progression']['installed_slot_sha256']}`\n"
         f"- Expanded installed slot SHA-256: `{artifact['layouts']['experimental_expanded_256']['installed_slot_sha256']}`\n"
         f"- Stock base+mastery render SHA-256: `{renders['collection_progression']['base_plus_mastery_sha256']}`\n"
-        f"- Expanded base+mastery render SHA-256: `{renders['experimental_expanded_256']['base_plus_mastery_sha256']}`\n\n"
+        "- Expanded-256 render: rejected before artifact output (fail-closed).\n\n"
         "The feature exposes command 7 only inside its certified base dependency. "
         "The candidate-only Detail command-1 route performs complete selected-current "
         "Believer dry-run/reacquisition/funds checks, calls native writer 0x475730 "

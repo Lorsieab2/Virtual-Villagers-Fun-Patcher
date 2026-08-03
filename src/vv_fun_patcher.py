@@ -1083,7 +1083,7 @@ def _remove_feature_bytes(
         actual = bytes(data[offset : offset + len(after)])
         if (
             feature.id == "vv5_full_mastery_all_stage_a_candidate"
-            and offset == 0xDB7B5
+            and offset == 0xDB766
             and actual == before
         ):
             continue
@@ -1707,6 +1707,21 @@ def render_patched_bytes(
             "Expanded-256 remains ON HOLD/fail-closed."
         )
     if (
+        build.id == "vv5"
+        and patch_mode in EXPANDED_PATCH_MODES
+        and any(
+            patch.id
+            in {
+                "vv5_enable_origins_exclusive_features_full_mastery_candidate",
+                "vv5_full_mastery_all_stage_a_candidate",
+            }
+            for patch in fun_patches
+        )
+    ):
+        raise PatcherError(
+            "VV5 Full Mastery candidates are stock-mode only; Expanded-256 is fail-closed."
+        )
+    if (
         build.id == "vv1"
         and patch_mode in EXPANDED_PATCH_MODES
         and any(
@@ -1804,7 +1819,7 @@ def render_patched_bytes(
             owner = patch.get("_owner", "automatic")
             if (
                 owner == "feature:vv5_full_mastery_all_stage_a_candidate"
-                and offset == 0xDB7B5
+            and offset == 0xDB766
                 and actual[:1] == b"\xE9"
             ):
                 continue
@@ -1825,8 +1840,8 @@ def render_patched_bytes(
                     allowed_vv5_individual_overlay = (
                         owner == "feature:vv5_full_mastery_all_stage_a_candidate"
                         and prior_owner == "feature:vv5_enable_origins_exclusive_features_full_mastery_candidate"
-                        and offset == 0xDB7B5
-                        and before == bytes.fromhex("83FB017451")
+                        and offset == 0xDB766
+                        and before == bytes.fromhex("83FB027525")
                     )
                     if allowed_vv1_composition_overlay or allowed_vv5_individual_overlay:
                         continue

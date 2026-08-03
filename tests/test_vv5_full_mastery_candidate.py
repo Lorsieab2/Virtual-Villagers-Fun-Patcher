@@ -151,7 +151,7 @@ class VV5FullMasteryCandidateTests(unittest.TestCase):
         self.assertEqual(self.map["layouts"]["collection_progression"]["bound"], 150)
         self.assertEqual(self.map["layouts"]["experimental_expanded_256"]["bound"], 256)
         self.assertEqual(self.map["references"]["base_relocations"], [])
-        for mode in MODES:
+        for mode in MODES[:2]:
             layout = self.base_raw["pe_append_transaction"]["layouts"][mode]
             self.assertEqual(layout["append_offset"], "0xF2000")
             self.assertEqual(layout["append_length"], 0x2000)
@@ -359,6 +359,23 @@ class VV5FullMasteryCandidateTests(unittest.TestCase):
         self.assertEqual(slot_map["individual_offset"], 0xC00)
         self.assertGreater(length, 300)
 
+    def test_command1_precharge_hook_and_fail_closed_contract(self):
+        patches = {int(item["offset"], 0): item for item in self.feature_raw["patches"]}
+        self.assertEqual(patches[0xDB766]["before"], "83FB027525")
+        self.assertTrue(patches[0xDB766]["after"].startswith("E9"))
+        payload = bytes.fromhex(
+            next(item["after"] for item in self.base_raw["patches"] if int(item["offset"], 0) == 0xDB000)
+        )
+        self.assertEqual(payload[0x7B5:0x7BA].hex().upper(), "83FB017451")
+        self.assertEqual(self.feature_raw["patch_mode_overrides"], {})
+        helper = bytes.fromhex(self.feature_raw["patches"][0]["after"])[0xC00:0xC00 + 689]
+        self.assertEqual(helper.count(bytes.fromhex("B948415500")), 4)
+        self.assertIn(bytes.fromhex("3D96000000"), helper)
+        self.assertIn(bytes.fromhex("81E2FFFFFF7F"), helper)
+        self.assertIn(bytes.fromhex("A0860100"), helper)
+        for key in ("individual_insufficient", "individual_cancel", "individual_recheck", "individual_postverify"):
+            self.assertIn(key, self.map["layouts"]["collection_progression"]["slot_map"]["installed"]["strings"])
+
     def test_all_modes_render_checksum_composition_and_uninstall(self):
         compatible = [
             item for item in load_fun_patches()
@@ -369,7 +386,7 @@ class VV5FullMasteryCandidateTests(unittest.TestCase):
                 "vv5_full_mastery_all_stage_a_candidate",
             }
         ]
-        for mode in MODES:
+        for mode in MODES[:2]:
             with self.subTest(mode=mode):
                 baseline, _ = render_patched_bytes(STOCK, self.build, mode)
                 base_render, _ = render_patched_bytes(STOCK, self.build, mode, _fun_patches_override=[self.base])
@@ -393,6 +410,14 @@ class VV5FullMasteryCandidateTests(unittest.TestCase):
                 self.assertEqual(work, base_render)
                 _remove_feature_bytes(work, self.base, mode)
                 self.assertEqual(work, baseline)
+
+        for mode in MODES[2:]:
+            with self.subTest(expanded_mode=mode):
+                with self.assertRaises(PatcherError):
+                    render_patched_bytes(
+                        STOCK, self.build, mode,
+                        _fun_patches_override=[self.base, self.feature],
+                    )
 
     def test_old_origins_and_withdrawn_running_collide_fail_closed(self):
         active = {item.id: item for item in load_fun_patches()}
