@@ -3,7 +3,7 @@
   "game_id": "vv5",
   "name": "DISABLED Candidate: Grant Full Mastery to All Villagers",
   "enabled": false,
-  "certification_status": "disabled geometry-only candidate awaiting independent recertification of the VV5 Tech-screen Upgrades resource and rectangle",
+  "certification_status": "disabled geometry-only candidate awaiting independent recertification of the VV5 Tech/Detail native btn_trophies resource and top-left rectangle",
   "dependencies": [
     "vv5_enable_origins_exclusive_features_full_mastery_candidate"
   ],
@@ -59,5 +59,29 @@
     "target": 100,
     "native_writer": "sub_475730 once for each below-100 Float32 skill",
     "native_evaluator": null
+  },
+  "ui_geometry_contract": {
+    "asset": "native cached Images\\btn_trophies.png",
+    "asset_sha256": "F39E94CBDF24776631D803D1218EFCCDE555081C9C8C644DD073B75EC7DD2095",
+    "resource_id": "0x53",
+    "native_dimensions": [
+      96,
+      39
+    ],
+    "tech": {
+      "local_x": 137,
+      "local_y": 2,
+      "event": 13,
+      "factory": "0x401BD0",
+      "ownership": "0x40C680"
+    },
+    "detail": {
+      "local_x": 137,
+      "local_y": 2,
+      "event": 13,
+      "factory": "0x401BD0",
+      "ownership": "0x40C680"
+    },
+    "status": "disabled pending independent emitted-byte recertification"
   }
 }

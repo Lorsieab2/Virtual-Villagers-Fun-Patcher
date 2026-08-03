@@ -540,11 +540,10 @@ exposing commands 6/8 or the legacy atomic village-wide record.
 VV5's former command-7-only Full Mastery package at commit `5e52be5` was
 withdrawn after an immediate startup auto-close. The corrected constructors
 were independently certified under `7970cd9`, and M2 passed startup and Full
-Mastery live testing. Its Tech-screen `Upgrades` text overran the narrow native
-Done graphic, so the feature is catalog-hidden while a geometry-only candidate
-using native wide resource 100 at nominal x=145, y=690 awaits independent byte
-recertification. The Villager Detail control is unchanged pending its own exact
-geometry gate.
+Mastery live testing. The disabled geometry candidate now uses cached
+`Images\\btn_trophies.png`, native resource `0x53` (96x39), at local `(137,2)`
+for both Tech and Detail, preserving event 13, `sub_401BD0`, and `0x40C680`
+ownership; independent emitted-byte recertification remains required.
 The feature is inspired by the
 selected exclusive upgrades in the Virtual Villagers 1 mobile port. VV5
 excludes Heathens; all games leave movement speed, nursing/pregnancy timers,

@@ -19,6 +19,8 @@ FEATURE_OUT = OUT_DIR / "vv5_full_mastery_all_candidate.json"
 MAP_OUT = OUT_DIR / "vv5_full_mastery_all_candidate_map.json"
 DOC_OUT = ROOT / "docs" / "vv5-full-mastery-stage-a-candidate.md"
 COMPANION = OUT_DIR / "VVFP VV5 Full Mastery Candidate.dll"
+PROVENANCE_ASSET = ROOT / "assets" / "candidates" / "vv5_full_mastery" / "provenance" / "btn_trophies.png"
+PROVENANCE_ASSET_SHA256 = "F39E94CBDF24776631D803D1218EFCCDE555081C9C8C644DD073B75EC7DD2095"
 
 sys.path.insert(0, str(ROOT / ".tools" / "keystone"))
 sys.path.insert(0, str(ROOT / ".tools" / "keystone-runtime"))
@@ -525,19 +527,29 @@ def append_layout(layout: dict[str, int], page: bytes) -> dict[str, object]:
 
 def build_base_payload(active_payload: bytes, page_va: int) -> bytes:
     payload = bytearray(active_payload)
-    tech_ctor = bytearray(payload[0x40:0xC0])
-    geometry_replacements = (
-        (bytes.fromhex("6A48"), bytes.fromhex("6A64")),
-        (bytes.fromhex("68D2020000"), bytes.fromhex("68B2020000")),
-        (bytes.fromhex("68B4000000"), bytes.fromhex("6891000000")),
-    )
-    for before, after in geometry_replacements:
-        if tech_ctor.count(before) != 1:
-            raise RuntimeError(
-                f"VV5 Tech Upgrades geometry guard mismatch: {before.hex().upper()}"
-            )
-        tech_ctor = tech_ctor.replace(before, after)
-    payload[0x40:0xC0] = tech_ctor
+    # D79's native top-left contract uses cached btn_trophies (resource 0x53,
+    # 96x39) for both controls. Constructor arguments are pushed y then x.
+    constructors = {
+        "Tech": (0x40, 0xC0, bytes.fromhex("68D2020000")),
+        "Detail": (0x100, 0x180, bytes.fromhex("68BC020000")),
+    }
+    for label, (start, end, old_y) in constructors.items():
+        ctor = bytearray(payload[start:end])
+        replacements = (
+            (bytes.fromhex("6A48"), bytes.fromhex("6A53")),
+            (old_y, bytes.fromhex("6802000000")),
+            (bytes.fromhex("68B4000000"), bytes.fromhex("6889000000")),
+        )
+        for before, after in replacements:
+            if ctor.count(before) != 1:
+                raise RuntimeError(
+                    f"VV5 {label} Upgrades geometry guard mismatch: "
+                    f"{before.hex().upper()}"
+                )
+            ctor = ctor.replace(before, after)
+        if ctor.count(bytes.fromhex("6A53")) != 1 or ctor.count(bytes.fromhex("6889000000")) != 1:
+            raise RuntimeError(f"VV5 {label} native top-left geometry postcondition failed")
+        payload[start:end] = ctor
     dll_offset = payload.find(b"VVFP Origins Icons.dll\0")
     menu_offset = payload.find(b"ShowOriginsUpgradeMenuState\0")
     if dll_offset < 0 or menu_offset < 0:
@@ -613,6 +625,8 @@ def main() -> None:
         raise RuntimeError("VV5 stock fixture fingerprint mismatch")
     if not COMPANION.is_file():
         raise RuntimeError("build the certified companion DLL first")
+    if not PROVENANCE_ASSET.is_file() or sha(PROVENANCE_ASSET.read_bytes()) != PROVENANCE_ASSET_SHA256:
+        raise RuntimeError("VV5 btn_trophies provenance asset fingerprint mismatch")
 
     active = json.loads(ACTIVE_BASE.read_text(encoding="utf-8"))
     payload_patch = next(
@@ -687,6 +701,15 @@ def main() -> None:
     payload_item["purpose"] = (
         "install the base Origins core with a guarded command-7 no-op extension slot"
     )
+    base["ui_geometry_contract"] = {
+        "asset": "native cached Images\\btn_trophies.png",
+        "asset_sha256": PROVENANCE_ASSET_SHA256,
+        "resource_id": "0x53",
+        "native_dimensions": [96, 39],
+        "tech": {"local_x": 137, "local_y": 2, "event": 13, "factory": "0x401BD0", "ownership": "0x40C680"},
+        "detail": {"local_x": 137, "local_y": 2, "event": 13, "factory": "0x401BD0", "ownership": "0x40C680"},
+        "status": "disabled pending independent emitted-byte recertification",
+    }
     existing_overrides = deepcopy(active.get("patch_mode_overrides", {}))
     base["patch_mode_overrides"] = {
         mode: [
@@ -740,7 +763,7 @@ def main() -> None:
             if feature_enabled
             else (
                 "disabled geometry-only candidate awaiting independent recertification "
-                "of the VV5 Tech-screen Upgrades resource and rectangle"
+                "of the VV5 Tech/Detail native btn_trophies resource and top-left rectangle"
             )
         ),
         "dependencies": [base["id"]],
@@ -792,6 +815,15 @@ def main() -> None:
             "target": 100,
             "native_writer": "sub_475730 once for each below-100 Float32 skill",
             "native_evaluator": None,
+        },
+        "ui_geometry_contract": {
+            "asset": "native cached Images\\btn_trophies.png",
+            "asset_sha256": "F39E94CBDF24776631D803D1218EFCCDE555081C9C8C644DD073B75EC7DD2095",
+            "resource_id": "0x53",
+            "native_dimensions": [96, 39],
+            "tech": {"local_x": 137, "local_y": 2, "event": 13, "factory": "0x401BD0", "ownership": "0x40C680"},
+            "detail": {"local_x": 137, "local_y": 2, "event": 13, "factory": "0x401BD0", "ownership": "0x40C680"},
+            "status": "disabled pending independent emitted-byte recertification",
         },
     }
 
@@ -867,6 +899,15 @@ def main() -> None:
     artifact = {
         "acceptance_commit": "48dd3266f8dd934be0434e07f6b24751d0e417c3",
         "source": {"size": len(stock), "sha256": expected_sha},
+        "ui_geometry_contract": {
+            "asset": "Images\\btn_trophies.png",
+            "provenance": "assets/candidates/vv5_full_mastery/provenance/btn_trophies.png",
+            "asset_sha256": "F39E94CBDF24776631D803D1218EFCCDE555081C9C8C644DD073B75EC7DD2095",
+            "resource_id": "0x53",
+            "native_dimensions": [96, 39],
+            "tech": {"local_x": 137, "local_y": 2, "event": 13, "factory": "0x401BD0", "ownership": "0x40C680"},
+            "detail": {"local_x": 137, "local_y": 2, "event": 13, "factory": "0x401BD0", "ownership": "0x40C680"},
+        },
         "base_manifest_sha256": sha(BASE_OUT.read_bytes()),
         "feature_manifest_sha256": sha(FEATURE_OUT.read_bytes()),
         "base_stock_payload_sha256": sha(stock_payload),
@@ -924,7 +965,7 @@ def main() -> None:
         (
             "# VV5 Full Mastery certified playtest feature\n\n"
             if feature_enabled
-            else "# VV5 Full Mastery geometry-only corrective candidate\n\n"
+            else "# VV5 Full Mastery native top-left geometry corrective candidate\n\n"
         )
         + "Generated from acceptance contract "
         "`48dd3266f8dd934be0434e07f6b24751d0e417c3`. "
@@ -935,11 +976,11 @@ def main() -> None:
             "until stable startup is confirmed.\n\n"
             if feature_enabled
             else "The corrected constructor and Full Mastery paths passed the M2 live "
-            "test, but the Tech-screen `Upgrades` label spilled beyond its narrow native "
-            "Done graphic. This disabled geometry-only candidate changes that control to "
-            "native wide resource 100 at nominal x=145, y=690. It remains catalog-hidden "
-            "pending independent emitted-byte recertification. The Villager Detail "
-            "control is unchanged and requires a separate exact gate.\n\n"
+            "test, but the Upgrades controls require the proven native top-left layout. "
+            "This disabled candidate uses cached `Images\\btn_trophies.png`, resource "
+            "0x53 (96x39), at local (137,2) for both Tech and Detail, with event 13, "
+            "sub_401BD0, and existing 0x40C680 ownership. It remains catalog-hidden "
+            "pending independent emitted-byte recertification.\n\n"
         )
         + f"- Companion SHA-256: `{artifact['companion']['sha256']}`\n"
         f"- Stock installed slot SHA-256: `{artifact['layouts']['collection_progression']['installed_slot_sha256']}`\n"

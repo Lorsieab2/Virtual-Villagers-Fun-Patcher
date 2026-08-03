@@ -198,11 +198,11 @@ was HARD WITHDRAWN after an immediate startup auto-close. WER recorded
 required thiscall `ECX` receiver before calling the stock routine. Certification
 `8193629` is revoked. The corrected bundle assigns the allocated object to
 `ECX` at both sites and was independently certified under `7970cd9`. M2 passed
-startup and Full Mastery live testing, but the Tech-screen `Upgrades` text
-overran its narrow native Done graphic. The feature is catalog-hidden while a
-geometry-only candidate switches that Tech control to native wide resource 100
-at nominal x=145, y=690 pending independent byte recertification. The Villager
-Detail control is unchanged pending its separate exact gate.
+startup and Full Mastery live testing. The disabled geometry candidate now uses
+cached `Images\\btn_trophies.png`, native resource `0x53` (96x39), at local
+`(137,2)` for both Tech and Detail, preserving event 13, `sub_401BD0`, and
+`0x40C680` ownership; independent emitted-byte recertification remains
+required.
 
 The disabled diagnostic payload bytes are retained in their manifests but are
 not rendered into stock or expanded outputs. This catalog containment does not

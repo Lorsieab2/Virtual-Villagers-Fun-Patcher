@@ -37,6 +37,7 @@ FEATURE = ROOT / "data" / "candidates" / "vv5_full_mastery_all_candidate.json"
 MAP = ROOT / "data" / "candidates" / "vv5_full_mastery_all_candidate_map.json"
 DOC = ROOT / "docs" / "vv5-full-mastery-stage-a-candidate.md"
 DLL = ROOT / "data" / "candidates" / "VVFP VV5 Full Mastery Candidate.dll"
+PROVENANCE_ASSET = ROOT / "assets" / "candidates" / "vv5_full_mastery" / "provenance" / "btn_trophies.png"
 MODES = (
     "collection_progression",
     "immediate_fixed",
@@ -321,16 +322,28 @@ class VV5FullMasteryCandidateTests(unittest.TestCase):
         self.assertEqual(cure[2:97], b"\x90" * 95)
         self.assertEqual(cure[97:105], bytes.fromhex("53555152565731C0"))
 
-    def test_tech_upgrades_uses_certified_wide_resource_and_rectangle(self):
+    def test_tech_and_detail_upgrades_use_native_top_left_resource_and_rectangle(self):
         patches = {int(item["offset"], 0): item for item in self.base_raw["patches"]}
         payload = bytes.fromhex(patches[0xDB000]["after"])
         tech_ctor = payload[0x40:0xC0]
-        self.assertIn(bytes.fromhex("6A64"), tech_ctor)
-        self.assertIn(bytes.fromhex("68B2020000"), tech_ctor)
-        self.assertIn(bytes.fromhex("6891000000"), tech_ctor)
-        self.assertNotIn(bytes.fromhex("6A48"), tech_ctor)
+        detail_ctor = payload[0x100:0x180]
+        for ctor in (tech_ctor, detail_ctor):
+            self.assertIn(bytes.fromhex("6A53"), ctor)
+            self.assertIn(bytes.fromhex("6802000000"), ctor)
+            self.assertIn(bytes.fromhex("6889000000"), ctor)
+            self.assertNotIn(bytes.fromhex("6A48"), ctor)
+            self.assertNotIn(bytes.fromhex("68B4000000"), ctor)
         self.assertNotIn(bytes.fromhex("68D2020000"), tech_ctor)
-        self.assertNotIn(bytes.fromhex("68B4000000"), tech_ctor)
+        self.assertNotIn(bytes.fromhex("68BC020000"), detail_ctor)
+        contract = self.base_raw["ui_geometry_contract"]
+        self.assertEqual(contract["asset_sha256"], "F39E94CBDF24776631D803D1218EFCCDE555081C9C8C644DD073B75EC7DD2095")
+        self.assertEqual(contract["resource_id"], "0x53")
+        self.assertEqual(contract["native_dimensions"], [96, 39])
+        self.assertEqual(contract["tech"]["local_x"], 137)
+        self.assertEqual(contract["tech"]["local_y"], 2)
+        self.assertEqual(contract["detail"]["local_x"], 137)
+        self.assertEqual(contract["detail"]["local_y"], 2)
+        self.assertEqual(sha(PROVENANCE_ASSET.read_bytes()), contract["asset_sha256"])
 
     def test_all_modes_render_checksum_composition_and_uninstall(self):
         compatible = [
