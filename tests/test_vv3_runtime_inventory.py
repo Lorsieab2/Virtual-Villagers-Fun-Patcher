@@ -2,8 +2,10 @@ from __future__ import annotations
 
 import importlib.util
 import json
+import hashlib
 import tempfile
 import unittest
+import zipfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -95,3 +97,41 @@ class VV3RuntimeInventoryTests(unittest.TestCase):
                     save_route="", catalog_status={}, runtime_player_status="pending",
                 )
 
+    def test_excluded_source_members_bind_to_authenticated_zip_preimages(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            self._tree(root)
+            archive_path = root.parent / "stock.zip"
+            excluded = [f"excluded-{index}.bin" for index in range(5)]
+            contents = {name: f"authenticated-{index}".encode("ascii") for index, name in enumerate(excluded)}
+            with zipfile.ZipFile(archive_path, "w") as archive:
+                for name, data in contents.items():
+                    archive.writestr(f"stock-root/{name}", data)
+            archive_sha = hashlib.sha256(archive_path.read_bytes()).hexdigest().upper()
+            inventory, _ = MODULE.build_inventory(
+                root,
+                entry_executable="game.exe",
+                source_archive={"filename": archive_path.name, "sha256": archive_sha},
+                source_archive_path=archive_path,
+                excluded_source_members=excluded,
+                generated_payload_roles={
+                    "game.exe": "entry_executable", "candidate.dll": "companion_dll",
+                    "patch-log.json": "patch_log", "transparency.txt": "transparency_log",
+                    "README.txt": "player_readme",
+                },
+                generated_file_roles={
+                    "game.exe": "entry_executable", "candidate.dll": "companion_dll",
+                    "patch-log.json": "patch_log", "transparency.txt": "transparency_log",
+                    "README.txt": "player_readme", "runtime-inventory.json": "runtime_inventory",
+                    "SHA256SUMS.txt": "checksum_list",
+                },
+                preimage_identities={}, dependency_chain=[], commits={}, identities={},
+                save_route="", catalog_status={}, runtime_player_status="pending",
+            )
+            expected = [
+                {"member": name, "archive_path": f"stock-root/{name}", "size": len(contents[name]),
+                 "sha256": hashlib.sha256(contents[name]).hexdigest().upper()}
+                for name in excluded
+            ]
+            self.assertEqual(inventory["source_archive"]["excluded_source_member_identities"], expected)
+            self.assertEqual(inventory["preimage_identities"]["excluded_source_members"], expected)

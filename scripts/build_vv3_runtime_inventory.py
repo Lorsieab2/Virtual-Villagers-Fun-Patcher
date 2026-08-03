@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import zipfile
 from pathlib import Path
 from typing import Mapping, Sequence
 
@@ -18,6 +19,42 @@ def _sha256(path: Path) -> str:
         for chunk in iter(lambda: handle.read(1024 * 1024), b""):
             digest.update(chunk)
     return digest.hexdigest().upper()
+
+
+def _sha256_bytes(data: bytes) -> str:
+    return hashlib.sha256(data).hexdigest().upper()
+
+
+def _excluded_source_identities(
+    archive_path: Path,
+    archive_sha256: str,
+    excluded_source_members: Sequence[str],
+) -> list[dict[str, object]]:
+    """Hash each excluded member directly from the authenticated source ZIP."""
+
+    archive_path = Path(archive_path)
+    if not archive_path.is_file() or _sha256(archive_path) != str(archive_sha256).upper():
+        raise ValueError("authenticated source archive is missing or hash-mismatched")
+    identities: list[dict[str, object]] = []
+    with zipfile.ZipFile(archive_path) as archive:
+        infos = [info for info in archive.infolist() if not info.is_dir()]
+        for member in excluded_source_members:
+            matches = [info for info in infos if Path(info.filename).name == member]
+            if len(matches) != 1:
+                raise ValueError(f"excluded source member is not unique in archive: {member}")
+            info = matches[0]
+            data = archive.read(info)
+            if len(data) != info.file_size:
+                raise ValueError(f"source archive member size mismatch: {member}")
+            identities.append(
+                {
+                    "member": member,
+                    "archive_path": info.filename,
+                    "size": info.file_size,
+                    "sha256": _sha256_bytes(data),
+                }
+            )
+    return identities
 
 
 def build_inventory(
@@ -35,6 +72,7 @@ def build_inventory(
     save_route: str,
     catalog_status: Mapping[str, object],
     runtime_player_status: str,
+    source_archive_path: Path | None = None,
     mode: str = "collection_progression",
     expanded: bool = False,
 ) -> tuple[dict[str, object], list[dict[str, object]]]:
@@ -93,6 +131,16 @@ def build_inventory(
             "excluded_source_members": list(excluded_source_members),
         }
     )
+    excluded_identities = (
+        _excluded_source_identities(source_archive_path, str(archive["sha256"]), excluded_source_members)
+        if source_archive_path is not None
+        else []
+    )
+    if excluded_identities:
+        archive["excluded_source_member_identities"] = excluded_identities
+    preimages = dict(preimage_identities)
+    if excluded_identities:
+        preimages["excluded_source_members"] = excluded_identities
     inventory = {
         "schema": SCHEMA_VERSION,
         "physical_files": 419,
@@ -107,7 +155,7 @@ def build_inventory(
             "payload_records": "412 retained stock + 5 current payload files; inventory/checksum are outer evidence",
             "excluded_source_members": list(excluded_source_members),
         },
-        "preimage_identities": dict(preimage_identities),
+        "preimage_identities": preimages,
         "dependency_chain": list(dependency_chain),
         "commits": dict(commits),
         "candidate_identities": dict(identities),
