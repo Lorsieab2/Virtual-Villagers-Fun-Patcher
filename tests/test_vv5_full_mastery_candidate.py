@@ -180,6 +180,61 @@ class VV5FullMasteryCandidateTests(unittest.TestCase):
                     data["ui_geometry_contract"].pop("detail")
                 elif mutation == "dimensions" and key == "feature":
                     data["ui_geometry_contract"]["native_dimensions"] = [100, 39]
+                elif key == "map" and mutation.startswith("map_wrong_"):
+                    field = mutation.removeprefix("map_wrong_")
+                    wrong = {
+                        "asset": "Images\\wrong.png",
+                        "provenance": "assets/wrong.png",
+                        "asset_sha256": "0" * 64,
+                        "resource_id": "0x53",
+                        "native_dimensions": [96, 40],
+                        "tech.local_x": 138,
+                        "tech.local_y": 3,
+                        "tech.event": 2,
+                        "tech.factory": "0x401C20",
+                        "tech.ownership": "0x40C681",
+                        "detail.local_x": 138,
+                        "detail.local_y": 3,
+                        "detail.event": 2,
+                        "detail.factory": "0x401C20",
+                        "detail.ownership": "0x40C681",
+                    }[field]
+                    target = data["ui_geometry_contract"]
+                    parts = field.split(".")
+                    for part in parts[:-1]:
+                        target = target[part]
+                    target[parts[-1]] = wrong
+                elif key == "map" and mutation.startswith("map_missing_"):
+                    field = mutation.removeprefix("map_missing_")
+                    target = data["ui_geometry_contract"]
+                    parts = field.split(".")
+                    for part in parts[:-1]:
+                        target = target[part]
+                    target.pop(parts[-1])
+                elif key == "map" and mutation.startswith("map_type_"):
+                    field = mutation.removeprefix("map_type_")
+                    wrong_type = {
+                        "asset": 106,
+                        "provenance": None,
+                        "asset_sha256": ["0" * 64],
+                        "resource_id": 106,
+                        "native_dimensions": "96x39",
+                        "tech.local_x": "137",
+                        "tech.local_y": True,
+                        "tech.event": "13",
+                        "tech.factory": 0x401BD0,
+                        "tech.ownership": None,
+                        "detail.local_x": "137",
+                        "detail.local_y": True,
+                        "detail.event": "13",
+                        "detail.factory": 0x401BD0,
+                        "detail.ownership": None,
+                    }[field]
+                    target = data["ui_geometry_contract"]
+                    parts = field.split(".")
+                    for part in parts[:-1]:
+                        target = target[part]
+                    target[parts[-1]] = wrong_type
                 paths[key].write_text(json.dumps(data), encoding="utf-8")
             if mutation == "missing_asset":
                 paths["provenance_asset"] = temp / "missing-btn_trophies.png"
@@ -233,6 +288,32 @@ class VV5FullMasteryCandidateTests(unittest.TestCase):
                     ],
                 )
                 self.assertEqual(sha(rendered), digest)
+
+    def test_c105_map_ui_contract_mutations_fail_before_output(self):
+        fields = (
+            "asset",
+            "provenance",
+            "asset_sha256",
+            "resource_id",
+            "native_dimensions",
+            "tech.local_x",
+            "tech.local_y",
+            "tech.event",
+            "tech.factory",
+            "tech.ownership",
+            "detail.local_x",
+            "detail.local_y",
+            "detail.event",
+            "detail.factory",
+            "detail.ownership",
+        )
+        for prefix in ("map_wrong_", "map_missing_", "map_type_"):
+            for field in fields:
+                mutation = prefix + field
+                for mode in ("collection_progression", "immediate_fixed"):
+                    with self.subTest(mutation=mutation, mode=mode):
+                        with self.assertRaisesRegex(PatcherError, "candidate map UI contract"):
+                            self._render_with_loader_mutation(mode, mutation)
 
     def test_exact_fingerprint_layout_bounds_and_fixed_base(self):
         source = STOCK.read_bytes()

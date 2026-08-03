@@ -14,5 +14,8 @@ The loader requires the exact acceptance commit above before any output is
 created. It also requires the physical provenance asset hash and the complete
 native UI contract: resource `0x6A`, dimensions `96x39`, Tech and Detail local
 position `(137,2)`, event `13`, factory `0x401BD0`, and ownership `0x40C680`.
+The candidate map `ui_geometry_contract` must reproduce this contract exactly
+(including asset/provenance paths and hashes) before either stock-mode output
+is created; missing, mistyped, or extra fields fail closed.
 
 The feature exposes command 7 only inside its certified base dependency. The candidate-only Detail command-1 route performs complete selected-current Believer dry-run/reacquisition/funds checks, calls native writer 0x475730 with 100-current deltas, verifies six exact 100.0f values, then deducts once through 0x4237B0; failures use 'No tech points have been deducted.'. Commands 6/8, village-wide Running/Age bytes, direct skill stores, ownership, Remove, and save-format changes are absent. The command shim routes EBX=1 to the individual helper, EBX=2 to the native Running preflight, and all other values to the legacy path. The individual confirmation uses the exact 100,000-point confirmation string, and recheck reports a changed villager or failed final checks with no deduction. Expanded-256 remains on hold and is rejected before output. The village-wide command-7 route uses a separate confirmation routine and the exact 1,000,000-point text; the individual confirmation routine and string remain distinct.

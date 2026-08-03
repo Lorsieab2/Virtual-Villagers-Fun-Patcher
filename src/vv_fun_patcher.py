@@ -651,6 +651,33 @@ def _certified_vv5_full_mastery_records(
             "ownership": "0x40C680",
         },
     }
+    expected_map_ui = {
+        "asset": "Images\\btn_trophies.png",
+        "provenance": "assets/candidates/vv5_full_mastery/provenance/btn_trophies.png",
+        "asset_sha256": VV5_FULL_MASTERY_CERTIFIED_SHA256["provenance_asset"],
+        "resource_id": "0x6A",
+        "native_dimensions": [96, 39],
+        "tech": expected_ui["tech"],
+        "detail": expected_ui["detail"],
+    }
+
+    def exact_tree(actual: Any, expected: Any) -> bool:
+        if type(actual) is not type(expected):
+            return False
+        if isinstance(expected, dict):
+            return set(actual) == set(expected) and all(
+                exact_tree(actual[key], expected[key]) for key in expected
+            )
+        if isinstance(expected, list):
+            return len(actual) == len(expected) and all(
+                exact_tree(value, wanted) for value, wanted in zip(actual, expected)
+            )
+        return actual == expected
+
+    if not exact_tree(artifact.get("ui_geometry_contract"), expected_map_ui):
+        raise PatcherError(
+            "VV5 Full Mastery candidate map UI contract is not the certified native btn_trophies contract."
+        )
     for label, record in (("base", base), ("feature", feature)):
         ui = record.get("ui_geometry_contract")
         if not isinstance(ui, dict) or any(ui.get(key) != value for key, value in expected_ui.items()):
