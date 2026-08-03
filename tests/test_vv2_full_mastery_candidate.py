@@ -273,6 +273,87 @@ class VV2FullMasteryCandidateTests(unittest.TestCase):
         )
         self.assertNotEqual(result.returncode, 0)
 
+    def test_lexical_broken_destination_is_rejected_when_supported(self) -> None:
+        import importlib.util
+
+        spec = importlib.util.spec_from_file_location("vv2_generator_broken_link", GENERATOR)
+        self.assertIsNotNone(spec)
+        module = importlib.util.module_from_spec(spec)
+        assert spec.loader is not None
+        spec.loader.exec_module(module)
+        with tempfile.TemporaryDirectory(dir=ROOT / "outputs") as temp:
+            parent = Path(temp)
+            destination = parent / "broken-destination"
+            target = parent / "missing-target"
+            try:
+                destination.symlink_to(target, target_is_directory=True)
+            except (OSError, NotImplementedError):
+                self.skipTest("directory symlinks unavailable")
+            with self.assertRaises(ValueError):
+                module.resolve_output_paths(destination)
+            self.assertTrue(destination.is_symlink())
+            self.assertFalse(target.exists())
+
+    def test_lexical_destination_checks_have_deterministic_mock_fallback(self) -> None:
+        import importlib.util
+
+        spec = importlib.util.spec_from_file_location("vv2_generator_lexical_mock", GENERATOR)
+        self.assertIsNotNone(spec)
+        module = importlib.util.module_from_spec(spec)
+        assert spec.loader is not None
+        spec.loader.exec_module(module)
+        with tempfile.TemporaryDirectory(dir=ROOT / "outputs") as temp:
+            parent = Path(temp)
+            destination = parent / "mocked-destination"
+            original_lexists = module.os.path.lexists
+            module.os.path.lexists = lambda path: os.fspath(path) == os.fspath(destination)
+            try:
+                with self.assertRaises(ValueError):
+                    module.resolve_output_paths(destination)
+            finally:
+                module.os.path.lexists = original_lexists
+            self.assertFalse(destination.exists())
+
+    def test_lexical_race_check_precedes_rename(self) -> None:
+        import importlib.util
+
+        spec = importlib.util.spec_from_file_location("vv2_generator_lexical_race", GENERATOR)
+        self.assertIsNotNone(spec)
+        module = importlib.util.module_from_spec(spec)
+        assert spec.loader is not None
+        spec.loader.exec_module(module)
+        with tempfile.TemporaryDirectory(dir=ROOT / "outputs") as temp:
+            parent = Path(temp)
+            destination = parent / "lexical-race"
+            original_lexists = module.os.path.lexists
+            calls = {"destination": 0}
+
+            def race_lexists(path):
+                if os.fspath(path) == os.fspath(destination):
+                    calls["destination"] += 1
+                    return calls["destination"] >= 2
+                return original_lexists(path)
+
+            module.os.path.lexists = race_lexists
+            rename_called = {"value": False}
+
+            def unexpected_rename(stage, final):
+                rename_called["value"] = True
+                raise AssertionError("rename should not be reached")
+
+            try:
+                with self.assertRaises(FileExistsError):
+                    module.write_output_bundle(
+                        destination,
+                        {"probe.txt": b"x"},
+                        replace_func=unexpected_rename,
+                    )
+            finally:
+                module.os.path.lexists = original_lexists
+            self.assertFalse(rename_called["value"])
+            self.assertFalse(destination.exists())
+            self.assertEqual(list(parent.glob(".lexical-race.staging-*")), [])
+
     def test_atomic_bundle_cleans_staging_on_write_and_rename_failure(self) -> None:
         import importlib.util
 

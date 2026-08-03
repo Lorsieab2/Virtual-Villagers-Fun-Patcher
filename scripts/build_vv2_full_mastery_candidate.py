@@ -111,6 +111,8 @@ def resolve_output_paths(output_root: Path | None) -> dict[str, object]:
         }
 
     requested = Path(output_root).expanduser()
+    if os.path.lexists(os.fspath(requested)):
+        raise ValueError("output root lexical destination already exists")
     if ".." in requested.parts:
         raise ValueError("output root cannot contain traversal components")
     root = requested.resolve(strict=False)
@@ -1395,6 +1397,8 @@ def write_output_bundle(
 ) -> None:
     """Atomically publish a validated isolated bundle beneath outputs."""
     requested = Path(final_root).expanduser()
+    if os.path.lexists(os.fspath(requested)):
+        raise ValueError("output root lexical destination already exists")
     if ".." in requested.parts:
         raise ValueError("output root cannot contain traversal components")
     final_root = requested.resolve(strict=False)
@@ -1466,7 +1470,7 @@ def write_output_bundle(
                 json.loads(actual_path.read_text(encoding="utf-8"))
         if not _inventory_matches(stage_path, inventory):
             raise RuntimeError("staging directory changed before rename")
-        if final_root.exists():
+        if os.path.lexists(os.fspath(requested)) or os.path.lexists(os.fspath(final_root)):
             raise FileExistsError("output destination appeared before atomic rename")
         rename(stage_path, final_root)
         if stage_path.exists():
