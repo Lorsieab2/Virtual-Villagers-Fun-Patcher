@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
 import struct
 import subprocess
 import shutil
@@ -285,7 +286,6 @@ class VV2FullMasteryCandidateTests(unittest.TestCase):
             final = parent / "write-failure"
 
             def fail_write(path, data):
-                path.write_bytes(b"partial")
                 raise OSError("injected write failure")
 
             with self.assertRaises(OSError):
@@ -323,6 +323,126 @@ class VV2FullMasteryCandidateTests(unittest.TestCase):
             self.assertTrue(raced.exists())
             self.assertEqual((raced / "sentinel.txt").read_bytes(), b"foreign")
             self.assertEqual(list(parent.glob(".foreign-race.staging-*")), [])
+
+    def test_partial_write_unknown_file_preserves_suspect_staging(self) -> None:
+        import importlib.util
+
+        spec = importlib.util.spec_from_file_location("vv2_generator_partial_write", GENERATOR)
+        self.assertIsNotNone(spec)
+        module = importlib.util.module_from_spec(spec)
+        assert spec.loader is not None
+        spec.loader.exec_module(module)
+        with tempfile.TemporaryDirectory(dir=ROOT / "outputs") as temp:
+            parent = Path(temp)
+            final = parent / "partial-write"
+
+            def partial_write(path, data):
+                path.write_bytes(b"partial")
+                raise OSError("injected partial write")
+
+            with self.assertRaises(OSError):
+                module.write_output_bundle(final, {"probe.txt": b"x"}, write_func=partial_write)
+            self.assertFalse(final.exists())
+            suspect = list(parent.glob(".partial-write.staging-*"))
+            self.assertEqual(len(suspect), 1)
+            self.assertEqual((suspect[0] / "probe.txt").read_bytes(), b"partial")
+            (suspect[0] / "probe.txt").unlink()
+            suspect[0].rmdir()
+
+    def test_unknown_entries_and_replaced_files_preserve_suspect_staging(self) -> None:
+        import importlib.util
+
+        spec = importlib.util.spec_from_file_location("vv2_generator_inventory_mismatch", GENERATOR)
+        self.assertIsNotNone(spec)
+        module = importlib.util.module_from_spec(spec)
+        assert spec.loader is not None
+        spec.loader.exec_module(module)
+        with tempfile.TemporaryDirectory(dir=ROOT / "outputs") as temp:
+            parent = Path(temp)
+
+            def add_sentinel(path, data):
+                path.write_bytes(data)
+                (path.parent / "sentinel.txt").write_bytes(b"foreign")
+
+            final = parent / "unknown-file"
+            with self.assertRaises(ValueError):
+                module.write_output_bundle(final, {"probe.txt": b"x"}, write_func=add_sentinel)
+            suspect = list(parent.glob(".unknown-file.staging-*"))
+            self.assertEqual(len(suspect), 1)
+            self.assertEqual((suspect[0] / "sentinel.txt").read_bytes(), b"foreign")
+            (suspect[0] / "probe.txt").unlink()
+            (suspect[0] / "sentinel.txt").unlink()
+            suspect[0].rmdir()
+
+            first_path: Path | None = None
+
+            def replace_first(path, data):
+                nonlocal first_path
+                if first_path is None:
+                    path.write_bytes(data)
+                    first_path = path
+                    return
+                first_path.unlink()
+                first_path.write_bytes(b"replaced")
+                path.write_bytes(data)
+
+            final = parent / "replaced-file"
+            with self.assertRaises(ValueError):
+                module.write_output_bundle(
+                    final,
+                    {"first.bin": b"first", "second.bin": b"second"},
+                    write_func=replace_first,
+                )
+            suspect = list(parent.glob(".replaced-file.staging-*"))
+            self.assertEqual(len(suspect), 1)
+            self.assertEqual((suspect[0] / "first.bin").read_bytes(), b"replaced")
+            (suspect[0] / "first.bin").unlink()
+            (suspect[0] / "second.bin").unlink()
+            suspect[0].rmdir()
+
+    def test_hardlink_substitution_preserves_suspect_staging_when_supported(self) -> None:
+        import importlib.util
+
+        spec = importlib.util.spec_from_file_location("vv2_generator_hardlink", GENERATOR)
+        self.assertIsNotNone(spec)
+        module = importlib.util.module_from_spec(spec)
+        assert spec.loader is not None
+        spec.loader.exec_module(module)
+        with tempfile.TemporaryDirectory(dir=ROOT / "outputs") as temp:
+            parent = Path(temp)
+            first_path: Path | None = None
+
+            def make_hardlink(path, data):
+                nonlocal first_path
+                if first_path is None:
+                    path.write_bytes(data)
+                    first_path = path
+                    return
+                hardlink = path.parent / "hardlink.bin"
+                try:
+                    os.link(first_path, hardlink)
+                except (OSError, NotImplementedError):
+                    raise unittest.SkipTest("hardlinks unavailable")
+                path.write_bytes(data)
+
+            final = parent / "hardlink"
+            try:
+                module.write_output_bundle(
+                    final,
+                    {"first.bin": b"first", "second.bin": b"second"},
+                    write_func=make_hardlink,
+                )
+            except unittest.SkipTest as exc:
+                self.skipTest(str(exc))
+            except ValueError:
+                pass
+            else:
+                self.fail("hardlink substitution did not fail closed")
+            suspect = list(parent.glob(".hardlink.staging-*"))
+            if suspect:
+                for path in suspect[0].iterdir():
+                    path.unlink()
+                suspect[0].rmdir()
 
     def test_companion_missing_or_hash_altered_fails_before_output_creation(self) -> None:
         import importlib.util

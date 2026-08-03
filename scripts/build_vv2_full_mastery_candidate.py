@@ -6,7 +6,6 @@ import hashlib
 import argparse
 import json
 import os
-import shutil
 import stat
 import struct
 import sys
@@ -1259,6 +1258,134 @@ def _validate_generated_bundle(
             raise ValueError(f"rendered {mode} does not match its in-memory identity")
 
 
+def _lstat_entry(path: Path, expected_hash: str | None = None) -> dict[str, object]:
+    info = os.lstat(path)
+    attributes = int(getattr(info, "st_file_attributes", 0))
+    if stat.S_ISLNK(info.st_mode) or attributes & 0x400:
+        entry_type = "reparse"
+    elif stat.S_ISREG(info.st_mode):
+        entry_type = "file"
+    elif stat.S_ISDIR(info.st_mode):
+        entry_type = "directory"
+    else:
+        entry_type = "other"
+    entry: dict[str, object] = {
+        "type": entry_type,
+        "identity": (int(info.st_dev), int(info.st_ino)),
+        "attributes": attributes,
+        "mode": stat.S_IMODE(info.st_mode),
+        "nlink": int(info.st_nlink),
+    }
+    if expected_hash is not None:
+        entry["expected_hash"] = expected_hash
+    return entry
+
+
+def _enumerate_lstat_tree(root: Path) -> dict[str, dict[str, object]] | None:
+    try:
+        entries = {"": _lstat_entry(root)}
+        pending = [root]
+        while pending:
+            directory = pending.pop()
+            directory_entry = entries[directory.relative_to(root).as_posix() if directory != root else ""]
+            if directory_entry["type"] != "directory":
+                return None
+            with os.scandir(directory) as children:
+                for child in children:
+                    child_path = Path(child.path)
+                    relative = child_path.relative_to(root).as_posix()
+                    entry = _lstat_entry(child_path)
+                    entries[relative] = entry
+                    if entry["type"] == "reparse":
+                        return None
+                    if entry["type"] == "directory":
+                        pending.append(child_path)
+        return entries
+    except (OSError, ValueError):
+        return None
+
+
+def _inventory_matches(root: Path, inventory: dict[str, dict[str, object]]) -> bool:
+    actual = _enumerate_lstat_tree(root)
+    if actual is None or set(actual) != set(inventory):
+        return False
+    for relative, expected in inventory.items():
+        current = actual[relative]
+        for field in ("type", "identity", "attributes", "mode"):
+            if current.get(field) != expected.get(field):
+                return False
+        if expected["type"] == "file":
+            if current.get("nlink") != expected.get("nlink") or int(current.get("nlink", 0)) != 1:
+                return False
+            path = root / relative
+            try:
+                before = _lstat_entry(path)
+                digest = sha(path.read_bytes())
+                after = _lstat_entry(path)
+            except (OSError, ValueError):
+                return False
+            if before != after or before["identity"] != expected["identity"]:
+                return False
+            if digest != expected.get("expected_hash"):
+                return False
+    return True
+
+
+def _entry_matches(path: Path, expected: dict[str, object]) -> bool:
+    try:
+        current = _lstat_entry(path)
+        for field in ("type", "identity", "attributes", "mode"):
+            if current.get(field) != expected.get(field):
+                return False
+        return expected["type"] != "file" or (
+            current.get("nlink") == expected.get("nlink") and current.get("nlink") == 1
+        )
+    except (OSError, ValueError):
+        return False
+
+
+def _cleanup_owned_tree(
+    root: Path,
+    inventory: dict[str, dict[str, object]],
+    parent: Path,
+    name: str,
+) -> bool:
+    if root.name != name or root.parent.resolve(strict=False) != parent:
+        return False
+    if not _inventory_matches(root, inventory):
+        return False
+    files = sorted(
+        (relative for relative, entry in inventory.items() if entry["type"] == "file"),
+        key=lambda value: (value.count("/"), value),
+        reverse=True,
+    )
+    directories = sorted(
+        (relative for relative, entry in inventory.items() if entry["type"] == "directory" and relative),
+        key=lambda value: (value.count("/"), value),
+        reverse=True,
+    )
+    directories.append("")
+    try:
+        for relative in files:
+            path = root / relative
+            expected = inventory[relative]
+            if not _entry_matches(path, expected):
+                return False
+            path.unlink()
+            if os.path.lexists(path):
+                return False
+        for relative in directories:
+            path = root / relative if relative else root
+            if not _entry_matches(path, inventory[relative]) or inventory[relative]["type"] != "directory":
+                return False
+            path.rmdir()
+            if os.path.lexists(path):
+                return False
+        return True
+    except (OSError, ValueError):
+        return False
+
+
 def write_output_bundle(
     final_root: Path,
     bundle: dict[str, bytes],
@@ -1290,62 +1417,45 @@ def write_output_bundle(
     stage_path: Path | None = None
     stage_parent: Path | None = None
     stage_name: str | None = None
-    stage_identity: tuple[int, int] | None = None
-
-    def stage_is_owned() -> bool:
-        if stage_path is None or stage_parent is None or stage_name is None or stage_identity is None:
-            return False
-        try:
-            if stage_path.name != stage_name:
-                return False
-            if stage_path.parent.resolve(strict=False) != stage_parent:
-                return False
-            if not stage_path.exists() or not stage_path.is_dir() or stage_path.is_symlink():
-                return False
-            attributes = getattr(stage_path.stat(), "st_file_attributes", 0)
-            if attributes & 0x400:
-                return False
-            current = stage_path.stat()
-            return (current.st_dev, current.st_ino) == stage_identity
-        except (OSError, ValueError):
-            return False
-
-    def cleanup_owned_stage() -> None:
-        try:
-            if not stage_is_owned():
-                return
-            shutil.rmtree(stage_path, ignore_errors=True)
-        except (OSError, ValueError):
-            return
+    inventory: dict[str, dict[str, object]] = {}
 
     try:
         stage_path = Path(tempfile.mkdtemp(prefix=f".{final_root.name}.staging-", dir=str(final_root.parent)))
         stage_parent = final_root.parent.resolve(strict=False)
         stage_name = stage_path.name
-        initial = stage_path.stat()
-        stage_identity = (initial.st_dev, initial.st_ino)
-        if not stage_is_owned():
+        inventory[""] = _lstat_entry(stage_path)
+        if inventory[""]["type"] != "directory":
             raise RuntimeError("owned staging directory identity could not be established")
         for relative, data in bundle.items():
             destination = stage_path / relative
-            destination.parent.mkdir(parents=True, exist_ok=True)
-            writer(destination, data)
-        if not stage_is_owned():
-            raise RuntimeError("staging directory was replaced before validation")
-        staged_paths = list(stage_path.rglob("*"))
-        for path in staged_paths:
-            if path.is_symlink():
-                raise ValueError("staged output contains a symlink/reparse point")
-            attributes = getattr(path.stat(), "st_file_attributes", 0)
-            if attributes & 0x400:
-                raise ValueError("staged output contains a symlink/reparse point")
-        staged_files = {
-            path.relative_to(stage_path).as_posix()
-            for path in staged_paths
-            if path.is_file()
-        }
-        if staged_files != set(bundle):
-            raise ValueError("staged product set contains an unexpected or missing file")
+            relative_path = destination.relative_to(stage_path)
+            for parent_relative in reversed(relative_path.parents):
+                parent_text = parent_relative.as_posix()
+                if parent_text == ".":
+                    continue
+                parent_path = stage_path / parent_relative
+                if parent_text in inventory:
+                    if not _entry_matches(parent_path, inventory[parent_text]):
+                        raise ValueError("staging directory identity changed")
+                    continue
+                if os.path.lexists(parent_path):
+                    raise ValueError("unexpected pre-existing staging entry")
+                parent_path.mkdir()
+                inventory[parent_text] = _lstat_entry(parent_path)
+                if inventory[parent_text]["type"] != "directory":
+                    raise ValueError("staging parent is not a directory")
+            try:
+                writer(destination, data)
+            except Exception:
+                raise
+            if not os.path.lexists(destination):
+                raise ValueError(f"staged product was not created: {relative}")
+            entry = _lstat_entry(destination, sha(data))
+            if entry["type"] != "file" or entry["nlink"] != 1:
+                raise ValueError("staged product is not an ordinary owned file")
+            inventory[relative_path.as_posix()] = entry
+        if not _inventory_matches(stage_path, inventory):
+            raise ValueError("staged product inventory mismatch")
         for relative, expected in bundle.items():
             actual_path = stage_path / relative
             if not actual_path.is_file() or actual_path.read_bytes() != expected:
@@ -1354,8 +1464,8 @@ def write_output_bundle(
                 raise ValueError(f"staged product hash mismatch: {relative}")
             if relative.endswith(".json"):
                 json.loads(actual_path.read_text(encoding="utf-8"))
-        if not stage_is_owned():
-            raise RuntimeError("staging directory was replaced before rename")
+        if not _inventory_matches(stage_path, inventory):
+            raise RuntimeError("staging directory changed before rename")
         if final_root.exists():
             raise FileExistsError("output destination appeared before atomic rename")
         rename(stage_path, final_root)
@@ -1363,7 +1473,8 @@ def write_output_bundle(
             raise RuntimeError("atomic rename did not transfer the owned staging directory")
         stage_path = None
     finally:
-        cleanup_owned_stage()
+        if stage_path is not None and stage_parent is not None and stage_name is not None:
+            _cleanup_owned_tree(stage_path, inventory, stage_parent, stage_name)
 
 
 def main(argv: list[str] | None = None) -> None:
