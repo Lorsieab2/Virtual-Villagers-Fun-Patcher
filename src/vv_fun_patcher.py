@@ -1081,6 +1081,12 @@ def _remove_feature_bytes(
         before = _patch_bytes(patch, "before")
         after = _patch_bytes(patch, "after")
         actual = bytes(data[offset : offset + len(after)])
+        if (
+            feature.id == "vv5_full_mastery_all_stage_a_candidate"
+            and offset == 0xDB7B5
+            and actual == before
+        ):
+            continue
         if actual != after:
             raise PatcherError(
                 f"Removal guard failed for {feature.id} at {patch['offset']}: "
@@ -1796,6 +1802,12 @@ def render_patched_bytes(
                 )
             actual = bytes(data[offset : offset + len(before)])
             owner = patch.get("_owner", "automatic")
+            if (
+                owner == "feature:vv5_full_mastery_all_stage_a_candidate"
+                and offset == 0xDB7B5
+                and actual[:1] == b"\xE9"
+            ):
+                continue
             end = offset + len(before)
             for prior_start, prior_end, prior_owner in applied_ranges:
                 if offset < prior_end and prior_start < end and prior_owner != owner:
@@ -1810,7 +1822,13 @@ def render_patched_bytes(
                         and offset == 0x56A88
                         and before == bytes.fromhex("83FB067235")
                     )
-                    if allowed_vv1_composition_overlay:
+                    allowed_vv5_individual_overlay = (
+                        owner == "feature:vv5_full_mastery_all_stage_a_candidate"
+                        and prior_owner == "feature:vv5_enable_origins_exclusive_features_full_mastery_candidate"
+                        and offset == 0xDB7B5
+                        and before == bytes.fromhex("83FB017451")
+                    )
+                    if allowed_vv1_composition_overlay or allowed_vv5_individual_overlay:
                         continue
                     raise PatcherError(
                         f"Patch overlap between {prior_owner} and {owner} at 0x{offset:X}."

@@ -142,8 +142,12 @@ The selected record used by the detail screen is:
   - record `+8044`
   - record `+8048`
 
-Full Mastery must write `90.0f` (`0x42B40000`) to all six skill fields. Writing
-the integer `90` would corrupt the VV5 float representation.
+The candidate Full Mastery transaction targets exact `100.0f` (`0x42C80000`) for
+all six skill fields. It validates finite Float32 values, reacquires the same
+selected current Believer, calls native writer `0x475730` with a `100-current`
+delta once per changed skill, post-verifies all six fields, and deducts only
+after that verification. The earlier raw-store/90 path is not used by the
+candidate route.
 
 Running is normal preference ID `38`. Grant Running must:
 

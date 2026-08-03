@@ -8,7 +8,7 @@
     "asset": "Images\\btn_trophies.png",
     "provenance": "assets/candidates/vv5_full_mastery/provenance/btn_trophies.png",
     "asset_sha256": "F39E94CBDF24776631D803D1218EFCCDE555081C9C8C644DD073B75EC7DD2095",
-    "resource_id": "0x53",
+    "resource_id": "0x6A",
     "native_dimensions": [
       96,
       39
@@ -28,10 +28,10 @@
       "ownership": "0x40C680"
     }
   },
-  "base_manifest_sha256": "98D5C9A54E9C10BCA7FCE4A9EA2C05D2E4BA1D00A4481D83FDBD505668C34FCC",
-  "feature_manifest_sha256": "F31F9245E9A3EECB8B144D31740BBE4BB261597F3A586F9FDE5356FCDC0091C2",
-  "base_stock_payload_sha256": "DFDBCA69A26D64611466D1ED544465E5599915E52B34E85FC799307746F3320C",
-  "base_expanded_payload_sha256": "B331C024D6BE37CD6B3D0E80D220BA6C34FBA3912CD1AECBAAB162FFB024E26E",
+  "base_manifest_sha256": "BC8BA089291F93E65EC9C1C1685E9336CE15F2B8F9C4ECC99E9ADF70C88EFBAC",
+  "feature_manifest_sha256": "538C53300FEFD4D2B9D6578908C785B96B13A5FE8EEB6B9525CCC4694146FF27",
+  "base_stock_payload_sha256": "624E8E6F377C435B80BBA5599FFE5C086DE231A942474880364A7D8161933281",
+  "base_expanded_payload_sha256": "97F627A5E09CAD9CF41938025E67AE837546B542295827B62159B009DA267249",
   "companion": {
     "path": "data/candidates/VVFP VV5 Full Mastery Candidate.dll",
     "size": 298496,
@@ -95,10 +95,10 @@
       "old_size_of_image": 3969024,
       "new_size_of_image": 3977216,
       "noop_slot_sha256": "47864C7187C97F5DD46F37F365F1F6DDE3042A465D5904EA25204DB5C6EF2597",
-      "installed_slot_sha256": "38F8F66530BB52767D7053E5764E5033EA2AC2AD7D0BCDEA20754ED94E27DC82",
+      "installed_slot_sha256": "DF58AEB7CF2BF10EF7E7139DCD0AD9C5ACB8C694420909A90007246A7795ED2C",
       "dispatcher_sha256": "9E8A93FCB4C7A0E1062BDA98394BE37995A094B42A7A080A405CCA5BFDDE4F19",
-      "base_page_sha256": "E1BF0240D6B4EB9266422104B3E076FB86739B41C09DA93E617978E5886772B3",
-      "installed_page_sha256": "DD473180CDCFE752706347739EF81008BA5072C2D5C802D41752D2964DF84FEE",
+      "base_page_sha256": "24D702B2172A2A17F2ABB32B7A6F14E8F65129EA4F905D275A091138E4EFC55C",
+      "installed_page_sha256": "C6DC7434293D626DE36118F720FEF660CE859CF69154662E1308FC94A1A901C3",
       "slot_map": {
         "noop": {
           "entry_offset": 32,
@@ -115,13 +115,20 @@
           "confirmation_offset": 2048,
           "confirmation_length": 73,
           "confirmation_sha256": "E4B72DE00646AF4779C533165ECE95F727725E36925F841797F1B0F21A3CCEE5",
+          "individual_offset": 3072,
+          "individual_length": 492,
+          "individual_sha256": "B3A7F7820D7E7307619AC0B9555FB3A13865DEEC5A98E4D06B51B8B565A308FB",
           "strings": {
             "dll": "0x7CA200",
             "result": "0x7CA217",
             "user32": "0x7CA230",
             "message_box": "0x7CA23B",
             "warning": "0x7CA247",
-            "caption": "0x7CA2C3"
+            "caption": "0x7CA2C3",
+            "individual_no_change": "0x7CA2D4",
+            "individual_invalid": "0x7CA321",
+            "individual_confirm": "0x7CA39D",
+            "individual_success": "0x7CA3FD"
           }
         }
       }
@@ -133,10 +140,10 @@
       "old_size_of_image": 3969024,
       "new_size_of_image": 3977216,
       "noop_slot_sha256": "47864C7187C97F5DD46F37F365F1F6DDE3042A465D5904EA25204DB5C6EF2597",
-      "installed_slot_sha256": "38F8F66530BB52767D7053E5764E5033EA2AC2AD7D0BCDEA20754ED94E27DC82",
+      "installed_slot_sha256": "DF58AEB7CF2BF10EF7E7139DCD0AD9C5ACB8C694420909A90007246A7795ED2C",
       "dispatcher_sha256": "9E8A93FCB4C7A0E1062BDA98394BE37995A094B42A7A080A405CCA5BFDDE4F19",
-      "base_page_sha256": "E1BF0240D6B4EB9266422104B3E076FB86739B41C09DA93E617978E5886772B3",
-      "installed_page_sha256": "DD473180CDCFE752706347739EF81008BA5072C2D5C802D41752D2964DF84FEE",
+      "base_page_sha256": "24D702B2172A2A17F2ABB32B7A6F14E8F65129EA4F905D275A091138E4EFC55C",
+      "installed_page_sha256": "C6DC7434293D626DE36118F720FEF660CE859CF69154662E1308FC94A1A901C3",
       "slot_map": {
         "noop": {
           "entry_offset": 32,
@@ -153,13 +160,20 @@
           "confirmation_offset": 2048,
           "confirmation_length": 73,
           "confirmation_sha256": "E4B72DE00646AF4779C533165ECE95F727725E36925F841797F1B0F21A3CCEE5",
+          "individual_offset": 3072,
+          "individual_length": 492,
+          "individual_sha256": "B3A7F7820D7E7307619AC0B9555FB3A13865DEEC5A98E4D06B51B8B565A308FB",
           "strings": {
             "dll": "0x7CA200",
             "result": "0x7CA217",
             "user32": "0x7CA230",
             "message_box": "0x7CA23B",
             "warning": "0x7CA247",
-            "caption": "0x7CA2C3"
+            "caption": "0x7CA2C3",
+            "individual_no_change": "0x7CA2D4",
+            "individual_invalid": "0x7CA321",
+            "individual_confirm": "0x7CA39D",
+            "individual_success": "0x7CA3FD"
           }
         }
       }
@@ -171,10 +185,10 @@
       "old_size_of_image": 5251072,
       "new_size_of_image": 5259264,
       "noop_slot_sha256": "47864C7187C97F5DD46F37F365F1F6DDE3042A465D5904EA25204DB5C6EF2597",
-      "installed_slot_sha256": "691EE21DA1CD914DB0FCE29AC3D90C6545601161673B448403B048BC705FE839",
+      "installed_slot_sha256": "BACEA39BA5CC0D8ACB6543DF8BAC89FC83D798770BA9C9E35A6B25057B9C5D20",
       "dispatcher_sha256": "094B483329CF8F65F48D9237A02D4C4D91B7A78FC22A9A063C7F35B57BA2DFB9",
-      "base_page_sha256": "E4D2E29D42EDEECC85DAB10C50D0AD8D66DACA992E24CC9F5311971C96093255",
-      "installed_page_sha256": "877BB11B9906B4D259557C2A313E46C3FCA80A2A667DD9CE1BBE49BA59D7BDD4",
+      "base_page_sha256": "A546A0908097219DCB39E5897D1D723EB6416A0A54730227A96462B64B925272",
+      "installed_page_sha256": "D66CCFEE9F91B0B7EC5103A0DBA829575EB4C2046863B5A63992FBDA4A7F469E",
       "slot_map": {
         "noop": {
           "entry_offset": 32,
@@ -191,13 +205,20 @@
           "confirmation_offset": 2048,
           "confirmation_length": 73,
           "confirmation_sha256": "BFD577602BBF2E3AC581B92B8E1C99A221EB84504B2CB574A27ADA147ECB27BD",
+          "individual_offset": 3072,
+          "individual_length": 492,
+          "individual_sha256": "133FAE35EE71ED7A37422737158708D4154EC69BBDB7668073B14F603B7DE775",
           "strings": {
             "dll": "0x903200",
             "result": "0x903217",
             "user32": "0x903230",
             "message_box": "0x90323B",
             "warning": "0x903247",
-            "caption": "0x9032C3"
+            "caption": "0x9032C3",
+            "individual_no_change": "0x9032D4",
+            "individual_invalid": "0x903321",
+            "individual_confirm": "0x90339D",
+            "individual_success": "0x9033FD"
           }
         }
       }
@@ -209,10 +230,10 @@
       "old_size_of_image": 5251072,
       "new_size_of_image": 5259264,
       "noop_slot_sha256": "47864C7187C97F5DD46F37F365F1F6DDE3042A465D5904EA25204DB5C6EF2597",
-      "installed_slot_sha256": "691EE21DA1CD914DB0FCE29AC3D90C6545601161673B448403B048BC705FE839",
+      "installed_slot_sha256": "BACEA39BA5CC0D8ACB6543DF8BAC89FC83D798770BA9C9E35A6B25057B9C5D20",
       "dispatcher_sha256": "094B483329CF8F65F48D9237A02D4C4D91B7A78FC22A9A063C7F35B57BA2DFB9",
-      "base_page_sha256": "E4D2E29D42EDEECC85DAB10C50D0AD8D66DACA992E24CC9F5311971C96093255",
-      "installed_page_sha256": "877BB11B9906B4D259557C2A313E46C3FCA80A2A667DD9CE1BBE49BA59D7BDD4",
+      "base_page_sha256": "A546A0908097219DCB39E5897D1D723EB6416A0A54730227A96462B64B925272",
+      "installed_page_sha256": "D66CCFEE9F91B0B7EC5103A0DBA829575EB4C2046863B5A63992FBDA4A7F469E",
       "slot_map": {
         "noop": {
           "entry_offset": 32,
@@ -229,13 +250,20 @@
           "confirmation_offset": 2048,
           "confirmation_length": 73,
           "confirmation_sha256": "BFD577602BBF2E3AC581B92B8E1C99A221EB84504B2CB574A27ADA147ECB27BD",
+          "individual_offset": 3072,
+          "individual_length": 492,
+          "individual_sha256": "133FAE35EE71ED7A37422737158708D4154EC69BBDB7668073B14F603B7DE775",
           "strings": {
             "dll": "0x903200",
             "result": "0x903217",
             "user32": "0x903230",
             "message_box": "0x90323B",
             "warning": "0x903247",
-            "caption": "0x9032C3"
+            "caption": "0x9032C3",
+            "individual_no_change": "0x9032D4",
+            "individual_invalid": "0x903321",
+            "individual_confirm": "0x90339D",
+            "individual_success": "0x9033FD"
           }
         }
       }
@@ -268,11 +296,11 @@
   "rendered_candidates": {
     "collection_progression": {
       "baseline_sha256": "8AD527D1930CF9501841E68308168A0B5ECA9D0E30AFFC846B4D7E74BEB6171B",
-      "base_only_sha256": "06E4D9DB8A421205354321A17B8799057440B5D10E96476E3923F6FF04E35614",
-      "base_plus_mastery_sha256": "7470CD7649CAD197C3E4F5F43A076A3F41E404860152622CFC7457A13595E9C3",
-      "all_current_compatible_sha256": "0BD116A7F172379908A77481A434D530D81CB0CA2ACD675D2BCB8FFAFCABF43B",
+      "base_only_sha256": "1E06266879E738046A2C57D6B1626F14EF86FB05D0E53D2551AF3ECAE717718F",
+      "base_plus_mastery_sha256": "9BA136F1192AA3592F7D5E5E28CD90BDC50FF9B2D09054E90F9A5D4819D3C1D2",
+      "all_current_compatible_sha256": "09103A9BEBFF52F0B12C0AD508F778E7F39A29188600D2AE0AE47834AF9B3981",
       "size": 999424,
-      "pe_checksum": "0x000FC124",
+      "pe_checksum": "0x000FB9A2",
       "owners": [
         "automatic:population",
         "automatic:safety",
@@ -293,11 +321,11 @@
     },
     "immediate_fixed": {
       "baseline_sha256": "CB55A3466A81A53E031297A668173E19BAEE68369F785E134E2736F8A5C1479D",
-      "base_only_sha256": "7FD5CD0007650AA3DDE35BCCD4F1939191A1202E65AD570305A5CDBDAC4B6470",
-      "base_plus_mastery_sha256": "BF92BB100BAFB84DC35411A50FC9EDDB5083D27CCB98EAB48C128757B30707EF",
-      "all_current_compatible_sha256": "DB9F62B0A96F46AA893505F1BF37132E733B3C130175835AA7526440700FB4CF",
+      "base_only_sha256": "56B8965AF124705999032994C7DF432779C90041F2F442E1DFFC23CACBB73ABF",
+      "base_plus_mastery_sha256": "53BCFFD642A5C0EB7CB1C699A505256CC7D42C5AB9F5F8C95C9D13E0B2C98949",
+      "all_current_compatible_sha256": "10A9E53D39AA3AA94463107752AC12DB4570AA0BCD4EF92B1B167FDFC7DBE3BE",
       "size": 999424,
-      "pe_checksum": "0x000F7D34",
+      "pe_checksum": "0x000F75B2",
       "owners": [
         "automatic:population",
         "automatic:safety",
@@ -318,11 +346,11 @@
     },
     "experimental_expanded_256": {
       "baseline_sha256": "3F7FDA81D5AF20C946D7CF554229C94960123035BB8762B3B9BFF4115403B83D",
-      "base_only_sha256": "B2B805DC052D25A5F986C40FB02041D3E7BF975356FA07BBA727F528BA39731D",
-      "base_plus_mastery_sha256": "400C6BED72BA4DC0DC68841A9E9A9A8973D75373041BB5423EE110B2D46C2432",
-      "all_current_compatible_sha256": "A17D9495FF2E2E15F9BBFCE8B08F3F1FA4F7948EBE125C1307B872797EAB6476",
+      "base_only_sha256": "598B902727E6CA9BB3C9228FAF15540A955CA0C5B061AA66D37AAD03229F1F07",
+      "base_plus_mastery_sha256": "334C702334564BDC1F1CB6EAE35BBBFAF2AB34C79C3973CDFE2C143D6E7DEE64",
+      "all_current_compatible_sha256": "F7AE064AB33D42BE4A9C031BAECC5EC35D744F7728E40C4130F7B1E9EB598260",
       "size": 999424,
-      "pe_checksum": "0x000F9AF7",
+      "pe_checksum": "0x0010250D",
       "owners": [
         "automatic:population",
         "automatic:safety",
@@ -343,11 +371,11 @@
     },
     "experimental_expanded_256_progression": {
       "baseline_sha256": "7B618C6AE2D1C0024DC63940353B565FD18510344D3912B83D62A1005DA985EA",
-      "base_only_sha256": "060A3C11D5C9C2AEB5619380298496735748B5361A7D60ABFFBCFE03F2DDE34C",
-      "base_plus_mastery_sha256": "7BECFBC1FA96DB010237ABC9D996390C2463D2424E8651CD093E5F63C88AF519",
-      "all_current_compatible_sha256": "71F3915B7ECC8CDA4AB8A4385AEB06757732FF31B150CF1611107F0C3ED827E7",
+      "base_only_sha256": "832C9EDDF70F8385A91438D7FB2D3AD167011A3FA1DD00D659505FB889945194",
+      "base_plus_mastery_sha256": "B21EC52B587FC4B73BBFE04D385F20FCB87E132B194D4C0479344FD1DEBC95A4",
+      "all_current_compatible_sha256": "29EF2F8EED11FFA30F579B5F344BDFB5297BB3FDAA2CE109895F2D37013E42C1",
       "size": 999424,
-      "pe_checksum": "0x000F7551",
+      "pe_checksum": "0x000FFF67",
       "owners": [
         "automatic:population",
         "automatic:safety",

@@ -131,7 +131,7 @@ class VV5FullMasteryCandidateTests(unittest.TestCase):
         self.assertIn("vv5_enable_origins_exclusive_features", active)
         self.assertNotIn(self.base_raw["id"], active)
         self.assertNotIn(self.feature_raw["id"], active)
-        self.assertIn("geometry-only", self.feature_raw["certification_status"])
+        self.assertIn("disabled candidate", self.feature_raw["certification_status"])
         self.assertEqual(self.feature_raw["dependencies"], [self.base_raw["id"]])
         contract = self.feature_raw["transaction_contract"]
         self.assertEqual((contract["command"], contract["price"]), (7, 1_000_000))
@@ -328,22 +328,36 @@ class VV5FullMasteryCandidateTests(unittest.TestCase):
         tech_ctor = payload[0x40:0xC0]
         detail_ctor = payload[0x100:0x180]
         for ctor in (tech_ctor, detail_ctor):
-            self.assertIn(bytes.fromhex("6A53"), ctor)
+            self.assertIn(bytes.fromhex("6A6A"), ctor)
             self.assertIn(bytes.fromhex("6802000000"), ctor)
             self.assertIn(bytes.fromhex("6889000000"), ctor)
             self.assertNotIn(bytes.fromhex("6A48"), ctor)
+            self.assertNotIn(bytes.fromhex("6A53"), ctor)
             self.assertNotIn(bytes.fromhex("68B4000000"), ctor)
         self.assertNotIn(bytes.fromhex("68D2020000"), tech_ctor)
         self.assertNotIn(bytes.fromhex("68BC020000"), detail_ctor)
         contract = self.base_raw["ui_geometry_contract"]
         self.assertEqual(contract["asset_sha256"], "F39E94CBDF24776631D803D1218EFCCDE555081C9C8C644DD073B75EC7DD2095")
-        self.assertEqual(contract["resource_id"], "0x53")
+        self.assertEqual(contract["resource_id"], "0x6A")
         self.assertEqual(contract["native_dimensions"], [96, 39])
         self.assertEqual(contract["tech"]["local_x"], 137)
         self.assertEqual(contract["tech"]["local_y"], 2)
         self.assertEqual(contract["detail"]["local_x"], 137)
         self.assertEqual(contract["detail"]["local_y"], 2)
         self.assertEqual(sha(PROVENANCE_ASSET.read_bytes()), contract["asset_sha256"])
+
+    def test_individual_transaction_uses_native_exact_100_contract(self):
+        slot = bytes.fromhex(self.feature_raw["patches"][0]["after"])
+        slot_map = self.map["layouts"]["collection_progression"]["slot_map"]["installed"]
+        off = int(slot_map["individual_offset"])
+        length = int(slot_map["individual_length"])
+        helper = slot[off:off + length]
+        self.assertIn(bytes.fromhex("00C842"), helper)
+        self.assertNotIn(bytes.fromhex("00B442"), helper)
+        self.assertIn(bytes.fromhex("E8"), helper)
+        self.assertIn("individual_no_change", slot_map["strings"])
+        self.assertEqual(slot_map["individual_offset"], 0xC00)
+        self.assertGreater(length, 300)
 
     def test_all_modes_render_checksum_composition_and_uninstall(self):
         compatible = [

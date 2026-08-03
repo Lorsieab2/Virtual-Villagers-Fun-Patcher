@@ -45,6 +45,7 @@ SLOT_SIZE = 0x1000
 SLOT_ENTRY_OFFSET = 0x20
 WALKER_OFFSET = 0x400
 CONFIRM_OFFSET = 0x800
+INDIVIDUAL_OFFSET = 0xC00
 STRINGS_OFFSET = 0x1200
 PRICE = 1_000_000
 STRIDE = 0x2F44
@@ -154,6 +155,163 @@ def _add_string(blob: bytearray, cursor: int, value: bytes, page_va: int) -> tup
     return page_va + SLOT_OFFSET + cursor, end
 
 
+def build_individual_helper(page_va: int, strings: dict[str, int]) -> bytes:
+    """Candidate-only command-1 transaction; native writer, no raw stores."""
+    va = page_va + SLOT_OFFSET + INDIVIDUAL_OFFSET
+    return asm(f"""
+        push ebp
+        mov ebp, esp
+        push ebx
+        push esi
+        push edi
+        sub esp, 0x20
+        mov dword ptr [ebp-0x10], esi
+        call 0x425950
+        test eax, eax
+        jz bad
+        mov eax, dword ptr [eax+0x17E24]
+        cmp eax, 0x95
+        jae bad
+        mov dword ptr [ebp-0x14], eax
+        push eax
+        call 0x471840
+        test eax, eax
+        jz bad
+        mov ecx, 0x554148
+        push dword ptr [ebp-0x14]
+        call 0x46F950
+        test eax, eax
+        jz bad
+        mov dword ptr [ebp-0x18], eax
+        mov esi, eax
+        xor edi, edi
+        xor ebx, ebx
+    dry1:
+        cmp edi, 6
+        jae dry1_done
+        mov eax, dword ptr [esi+edi*4+0x1C5C]
+        mov edx, eax
+        and edx, 0x7FFFFFFF
+        jz dry1_next
+        test eax, 0x80000000
+        jne bad
+        cmp edx, 0x42C80000
+        ja bad
+    dry1_next:
+        cmp eax, 0x42C80000
+        jae dry1_count
+        inc ebx
+    dry1_count:
+        inc edi
+        jmp dry1
+    dry1_done:
+        test ebx, ebx
+        jz no_change
+        cmp dword ptr [0x51D5F8], 1000000
+        jb no_funds
+        call 0x{page_va + SLOT_OFFSET + CONFIRM_OFFSET:X}
+        test eax, eax
+        jz done
+        call 0x425950
+        test eax, eax
+        jz bad
+        mov eax, dword ptr [eax+0x17E24]
+        cmp eax, dword ptr [ebp-0x14]
+        jne bad
+        push eax
+        call 0x471840
+        test eax, eax
+        jz bad
+        mov ecx, 0x554148
+        push dword ptr [ebp-0x14]
+        call 0x46F950
+        test eax, eax
+        jz bad
+        mov dword ptr [ebp-0x18], eax
+        mov esi, eax
+        xor edi, edi
+        xor ebx, ebx
+    dry2:
+        cmp edi, 6
+        jae dry2_done
+        mov eax, dword ptr [esi+edi*4+0x1C5C]
+        mov edx, eax
+        and edx, 0x7FFFFFFF
+        jz dry2_next
+        test eax, 0x80000000
+        jne bad
+        cmp edx, 0x42C80000
+        ja bad
+    dry2_next:
+        cmp eax, 0x42C80000
+        jae dry2_count
+        inc ebx
+    dry2_count:
+        inc edi
+        jmp dry2
+    dry2_done:
+        test ebx, ebx
+        jz no_change
+        cmp dword ptr [0x51D5F8], 1000000
+        jb no_funds
+        xor edi, edi
+    write_loop:
+        cmp edi, 6
+        jae verify
+        mov eax, dword ptr [esi+edi*4+0x1C5C]
+        cmp eax, 0x42C80000
+        je write_next
+        push 0x42C80000
+        fld dword ptr [esp]
+        fsub dword ptr [esi+edi*4+0x1C5C]
+        fstp dword ptr [esp]
+        push edi
+        lea ecx, [esi+0x1C5C]
+        call 0x475730
+    write_next:
+        inc edi
+        jmp write_loop
+    verify:
+        xor edi, edi
+    verify_loop:
+        cmp edi, 6
+        jae commit
+        cmp dword ptr [esi+edi*4+0x1C5C], 0x42C80000
+        jne bad
+        inc edi
+        jmp verify_loop
+    commit:
+        push -1000000
+        mov ecx, 0x51D5F8
+        call 0x4237B0
+        push 0x{strings['individual_success']:X}
+        push 0x{strings['caption']:X}
+        push 0
+        call 0x7B2210
+        jmp done
+    no_change:
+        push 0x{strings['individual_no_change']:X}
+        push 0x{strings['caption']:X}
+        push 0
+        call 0x7B2210
+        jmp done
+    no_funds:
+    bad:
+        push 0x{strings['individual_invalid']:X}
+        push 0x{strings['caption']:X}
+        push 0
+        call 0x7B2210
+    done:
+        mov esi, dword ptr [ebp-0x10]
+        add esp, 0x20
+        pop edi
+        pop esi
+        pop ebx
+        pop ebp
+        jmp 0x7B2606
+    """, va)
+
+
 def build_slot(page_va: int, installed: bool) -> tuple[bytes, dict[str, object]]:
     slot = bytearray(SLOT_SIZE)
     slot[0:8] = b"VVFMSLT\0"
@@ -184,6 +342,10 @@ def build_slot(page_va: int, installed: bool) -> tuple[bytes, dict[str, object]]
             b"you want to purchase it? Press OK to confirm, or Cancel.",
         ),
         ("caption", b"Origins Upgrades"),
+        ("individual_no_change", b"This villager is already fully mastered.\r\nNo tech points have been deducted."),
+        ("individual_invalid", b"Full Mastery cannot be applied because the selected villager has an out-of-range skill.\r\nNo tech points have been deducted."),
+        ("individual_confirm", b"Grant Full Mastery to this villager for 1,000,000 tech points?\r\nPress OK to confirm, or Cancel."),
+        ("individual_success", b"Full Mastery has been granted to the selected villager."),
     ):
         if not value.endswith(b"\0"):
             value += b"\0"
@@ -402,9 +564,11 @@ def build_slot(page_va: int, installed: bool) -> tuple[bytes, dict[str, object]]
         """,
         confirm_va,
     )
+    individual = build_individual_helper(page_va, strings)
     _put(slot, SLOT_ENTRY_OFFSET, WALKER_OFFSET - SLOT_ENTRY_OFFSET, entry, "entry")
     _put(slot, WALKER_OFFSET, CONFIRM_OFFSET - WALKER_OFFSET, walker, "walker")
-    _put(slot, CONFIRM_OFFSET, SLOT_SIZE - CONFIRM_OFFSET, confirm, "confirmation")
+    _put(slot, CONFIRM_OFFSET, INDIVIDUAL_OFFSET - CONFIRM_OFFSET, confirm, "confirmation")
+    _put(slot, INDIVIDUAL_OFFSET, SLOT_SIZE - INDIVIDUAL_OFFSET, individual, "individual transaction")
     return bytes(slot), {
         "entry_offset": SLOT_ENTRY_OFFSET,
         "entry_length": len(entry),
@@ -415,6 +579,9 @@ def build_slot(page_va: int, installed: bool) -> tuple[bytes, dict[str, object]]
         "confirmation_offset": CONFIRM_OFFSET,
         "confirmation_length": len(confirm),
         "confirmation_sha256": sha(confirm),
+        "individual_offset": INDIVIDUAL_OFFSET,
+        "individual_length": len(individual),
+        "individual_sha256": sha(individual),
         "strings": {key: f"0x{value:X}" for key, value in strings.items()},
     }
 
@@ -476,6 +643,10 @@ def build_page(page_va: int, slot: bytes, dispatcher: bytes) -> bytes:
         b"This upgrade makes permanent changes to your village. Are you sure "
         b"you want to purchase it? Press OK to confirm, or Cancel.\0",
         b"Origins Upgrades\0",
+        b"This villager is already fully mastered.\r\nNo tech points have been deducted.\0",
+        b"Full Mastery cannot be applied because the selected villager has an out-of-range skill.\r\nNo tech points have been deducted.\0",
+        b"Grant Full Mastery to this villager for 1,000,000 tech points?\r\nPress OK to confirm, or Cancel.\0",
+        b"Full Mastery has been granted to the selected villager.\0",
     ):
         page[cursor : cursor + len(value)] = value
         cursor += len(value)
@@ -527,7 +698,7 @@ def append_layout(layout: dict[str, int], page: bytes) -> dict[str, object]:
 
 def build_base_payload(active_payload: bytes, page_va: int) -> bytes:
     payload = bytearray(active_payload)
-    # D79's native top-left contract uses cached btn_trophies (resource 0x53,
+    # D79's native top-left contract uses cached btn_trophies (resource 0x6A,
     # 96x39) for both controls. Constructor arguments are pushed y then x.
     constructors = {
         "Tech": (0x40, 0xC0, bytes.fromhex("68D2020000")),
@@ -536,7 +707,7 @@ def build_base_payload(active_payload: bytes, page_va: int) -> bytes:
     for label, (start, end, old_y) in constructors.items():
         ctor = bytearray(payload[start:end])
         replacements = (
-            (bytes.fromhex("6A48"), bytes.fromhex("6A53")),
+            (bytes.fromhex("6A48"), bytes.fromhex("6A6A")),
             (old_y, bytes.fromhex("6802000000")),
             (bytes.fromhex("68B4000000"), bytes.fromhex("6889000000")),
         )
@@ -547,7 +718,7 @@ def build_base_payload(active_payload: bytes, page_va: int) -> bytes:
                     f"{before.hex().upper()}"
                 )
             ctor = ctor.replace(before, after)
-        if ctor.count(bytes.fromhex("6A53")) != 1 or ctor.count(bytes.fromhex("6889000000")) != 1:
+        if ctor.count(bytes.fromhex("6A6A")) != 1 or ctor.count(bytes.fromhex("6889000000")) != 1:
             raise RuntimeError(f"VV5 {label} native top-left geometry postcondition failed")
         payload[start:end] = ctor
     dll_offset = payload.find(b"VVFP Origins Icons.dll\0")
@@ -704,7 +875,7 @@ def main() -> None:
     base["ui_geometry_contract"] = {
         "asset": "native cached Images\\btn_trophies.png",
         "asset_sha256": PROVENANCE_ASSET_SHA256,
-        "resource_id": "0x53",
+        "resource_id": "0x6A",
         "native_dimensions": [96, 39],
         "tech": {"local_x": 137, "local_y": 2, "event": 13, "factory": "0x401BD0", "ownership": "0x40C680"},
         "detail": {"local_x": 137, "local_y": 2, "event": 13, "factory": "0x401BD0", "ownership": "0x40C680"},
@@ -743,6 +914,12 @@ def main() -> None:
 
     stock_noop = noop_slots["collection_progression"]
     stock_installed = installed_slots["collection_progression"]
+    route_offset = PAYLOAD_OFFSET + 0x7B5
+    route_before = bytes.fromhex("83FB017451")
+    route_after = asm(
+        f"jmp 0x{LAYOUTS['collection_progression']['page_va'] + SLOT_OFFSET + INDIVIDUAL_OFFSET:X}",
+        PAYLOAD_VA + 0x7B5,
+    )
     existing_feature = (
         json.loads(FEATURE_OUT.read_text(encoding="utf-8"))
         if FEATURE_OUT.is_file()
@@ -762,8 +939,8 @@ def main() -> None:
             existing_feature.get("certification_status")
             if feature_enabled
             else (
-                "disabled geometry-only candidate awaiting independent recertification "
-                "of the VV5 Tech/Detail native btn_trophies resource and top-left rectangle"
+                "disabled candidate awaiting independent recertification of the VV5 "
+                "native btn_trophies resource and exact-100 individual transaction"
             )
         ),
         "dependencies": [base["id"]],
@@ -778,6 +955,12 @@ def main() -> None:
                 "before": stock_noop.hex().upper(),
                 "after": stock_installed.hex().upper(),
                 "purpose": "replace only the guarded base-owned no-op slot with command 7",
+            },
+            {
+                "offset": f"0x{route_offset:X}",
+                "before": route_before.hex().upper(),
+                "after": route_after.hex().upper(),
+                "purpose": "route Detail command 1 to the guarded native exact-100 transaction",
             }
         ],
         "patch_mode_overrides": {
@@ -787,7 +970,13 @@ def main() -> None:
                     "before": stock_installed.hex().upper(),
                     "after": installed_slots[mode].hex().upper(),
                     "purpose": "relocate only the dependent command-7 slot for expanded layout",
-                }
+                },
+                {
+                    "offset": f"0x{route_offset:X}",
+                    "before": route_before.hex().upper(),
+                    "after": route_after.hex().upper(),
+                    "purpose": "relocate only the guarded individual exact-100 transaction",
+                },
             ]
             for mode in (
                 "experimental_expanded_256",
@@ -815,11 +1004,21 @@ def main() -> None:
             "target": 100,
             "native_writer": "sub_475730 once for each below-100 Float32 skill",
             "native_evaluator": None,
+            "individual_transaction": {
+                "route_offset": f"0x{route_offset:X}",
+                "route_before": route_before.hex().upper(),
+                "target": "selected current active/living non-skeleton Believer",
+                "finite_float_range": [0.0, 100.0],
+                "native_writer": "0x475730 delta=100-current, once per changed skill",
+                "reacquire_same_index": True,
+                "postverify": "all six exact 100.0f before 0x4237B0 deduction",
+                "no_deduction_text": "No tech points have been deducted.",
+            },
         },
         "ui_geometry_contract": {
             "asset": "native cached Images\\btn_trophies.png",
             "asset_sha256": "F39E94CBDF24776631D803D1218EFCCDE555081C9C8C644DD073B75EC7DD2095",
-            "resource_id": "0x53",
+            "resource_id": "0x6A",
             "native_dimensions": [96, 39],
             "tech": {"local_x": 137, "local_y": 2, "event": 13, "factory": "0x401BD0", "ownership": "0x40C680"},
             "detail": {"local_x": 137, "local_y": 2, "event": 13, "factory": "0x401BD0", "ownership": "0x40C680"},
@@ -903,7 +1102,7 @@ def main() -> None:
             "asset": "Images\\btn_trophies.png",
             "provenance": "assets/candidates/vv5_full_mastery/provenance/btn_trophies.png",
             "asset_sha256": "F39E94CBDF24776631D803D1218EFCCDE555081C9C8C644DD073B75EC7DD2095",
-            "resource_id": "0x53",
+            "resource_id": "0x6A",
             "native_dimensions": [96, 39],
             "tech": {"local_x": 137, "local_y": 2, "event": 13, "factory": "0x401BD0", "ownership": "0x40C680"},
             "detail": {"local_x": 137, "local_y": 2, "event": 13, "factory": "0x401BD0", "ownership": "0x40C680"},
@@ -978,7 +1177,7 @@ def main() -> None:
             else "The corrected constructor and Full Mastery paths passed the M2 live "
             "test, but the Upgrades controls require the proven native top-left layout. "
             "This disabled candidate uses cached `Images\\btn_trophies.png`, resource "
-            "0x53 (96x39), at local (137,2) for both Tech and Detail, with event 13, "
+            "0x6A (96x39), at local (137,2) for both Tech and Detail, with event 13, "
             "sub_401BD0, and existing 0x40C680 ownership. It remains catalog-hidden "
             "pending independent emitted-byte recertification.\n\n"
         )
@@ -988,8 +1187,12 @@ def main() -> None:
         f"- Stock base+mastery render SHA-256: `{renders['collection_progression']['base_plus_mastery_sha256']}`\n"
         f"- Expanded base+mastery render SHA-256: `{renders['experimental_expanded_256']['base_plus_mastery_sha256']}`\n\n"
         "The feature exposes command 7 only inside its certified base dependency. "
-        "Commands 6/8, village-wide Running/Age bytes, direct "
-        "skill stores, ownership, Remove, and save-format changes are absent.\n",
+        "The candidate-only Detail command-1 route performs complete selected-current "
+        "Believer dry-run/reacquisition/funds checks, calls native writer 0x475730 "
+        "with 100-current deltas, verifies six exact 100.0f values, then deducts "
+        "once through 0x4237B0; failures use 'No tech points have been deducted.'. "
+        "Commands 6/8, village-wide Running/Age bytes, direct skill stores, ownership, "
+        "Remove, and save-format changes are absent. Expanded-256 remains on hold.\n",
         encoding="utf-8",
     )
 
