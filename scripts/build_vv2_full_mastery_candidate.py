@@ -5,8 +5,12 @@ from __future__ import annotations
 import hashlib
 import argparse
 import json
+import os
+import shutil
+import stat
 import struct
 import sys
+import tempfile
 from pathlib import Path
 
 
@@ -18,6 +22,8 @@ MAP_OUT = OUT_DIR / "vv2_full_mastery_all_candidate_map.json"
 DOC_OUT = ROOT / "docs" / "vv2-full-mastery-stage-a-candidate.md"
 COMPANION = OUT_DIR / "VVFP VV2 Full Mastery Candidate.dll"
 AUDIT_OUT = ROOT / "outputs" / "vv2-c138-native-audit"
+COMPANION_SIZE = 109056
+COMPANION_SHA256 = "1324EDFB83ABA755AFF6410D71DD668F4860127CD67A952722FDE5DD2FDC92C2"
 IMPLEMENTATION_COMMIT = "895340333d55273e599f2dce5ab0db42cbc6d0ab"
 AUDIT_STATUS = "pending independent recertification"
 
@@ -91,8 +97,8 @@ REJECTED_MODES = (
 )
 
 
-def resolve_output_paths(output_root: Path | None) -> dict[str, Path]:
-    """Resolve every generated destination under one root, or default tracked paths."""
+def resolve_output_paths(output_root: Path | None) -> dict[str, object]:
+    """Resolve every generated destination under one fresh outputs child."""
     if output_root is None:
         return {
             "manifest": MANIFEST_OUT,
@@ -101,26 +107,29 @@ def resolve_output_paths(output_root: Path | None) -> dict[str, Path]:
             "audit_dir": AUDIT_OUT,
             "audit_manifest": AUDIT_OUT / "artifact-manifest.json",
             "audit_source_map": AUDIT_OUT / "source-map.json",
+            "isolated": False,
+            "root": None,
         }
 
-    root = output_root.expanduser().resolve(strict=False)
-    tracked_root = ROOT.resolve()
+    requested = Path(output_root).expanduser()
+    if ".." in requested.parts:
+        raise ValueError("output root cannot contain traversal components")
+    root = requested.resolve(strict=False)
     outputs_root = (ROOT / "outputs").resolve()
-    forbidden_tracked = tuple(
-        (ROOT / name).resolve()
-        for name in ("assets", "data", "docs", "native", "research", "scripts", "src")
-    )
-    if root == tracked_root or root in tracked_root.parents:
-        raise ValueError("output root cannot be the repository or one of its parents")
-    inside_outputs = root == outputs_root or outputs_root in root.parents
-    if tracked_root in root.parents and not inside_outputs:
-        raise ValueError("output root cannot escape into a mixed repository path")
-    if any(root == forbidden or forbidden in root.parents for forbidden in forbidden_tracked):
-        raise ValueError("output root cannot be inside tracked source/configuration paths")
-    if root.exists() and not root.is_dir():
-        raise ValueError("output root exists but is not a directory")
+    if root == outputs_root or outputs_root not in root.parents:
+        raise ValueError("output root must be a child of the repository outputs directory")
+    if root.exists():
+        raise ValueError("output root already exists; choose a fresh destination")
     if not root.parent.exists() or not root.parent.is_dir():
         raise ValueError("output root parent directory is missing")
+
+    cursor = outputs_root
+    for component in root.relative_to(outputs_root).parts[:-1]:
+        cursor = cursor / component
+        if cursor.exists():
+            attributes = getattr(cursor.stat(), "st_file_attributes", 0)
+            if stat.S_ISLNK(cursor.stat().st_mode) or attributes & 0x400:
+                raise ValueError("output root traverses a symlink/reparse point")
 
     paths = {
         "manifest": root / "data" / "candidates" / MANIFEST_OUT.name,
@@ -131,9 +140,13 @@ def resolve_output_paths(output_root: Path | None) -> dict[str, Path]:
         "audit_source_map": root / "audit" / "source-map.json",
     }
     for path in paths.values():
+        if not isinstance(path, Path):
+            continue
         resolved = path.resolve(strict=False)
         if resolved != root and root not in resolved.parents:
             raise ValueError("resolved output path escapes output root")
+    paths["isolated"] = True
+    paths["root"] = root
     return paths
 
 
@@ -938,6 +951,11 @@ def build() -> tuple[dict[str, object], dict[str, object]]:
         raise RuntimeError("VV2 stock SHA-256 mismatch")
     if not COMPANION.is_file():
         raise RuntimeError("build the disabled candidate companion DLL first")
+    companion_bytes = COMPANION.read_bytes()
+    if len(companion_bytes) != COMPANION_SIZE:
+        raise RuntimeError("VV2 companion DLL size mismatch")
+    if sha(companion_bytes) != COMPANION_SHA256:
+        raise RuntimeError("VV2 companion DLL SHA-256 mismatch")
 
     pe = _pe_layout(original)
     if pe["section_count"] != 5:
@@ -1001,7 +1019,7 @@ def build() -> tuple[dict[str, object], dict[str, object]]:
             {
                 "source": "data/candidates/VVFP VV2 Full Mastery Candidate.dll",
                 "destination": "VVFP VV2 Full Mastery Candidate.dll",
-                "sha256": sha(COMPANION.read_bytes()),
+                "sha256": sha(companion_bytes),
             }
         ],
         "patches": [
@@ -1139,9 +1157,9 @@ def build() -> tuple[dict[str, object], dict[str, object]]:
             "source": {"size": len(original), "sha256": expected_sha},
             "companion": {
                 "path": "data/candidates/VVFP VV2 Full Mastery Candidate.dll",
-                "size": COMPANION.stat().st_size,
-                "sha256": sha(COMPANION.read_bytes()),
-                "exports": export_map(COMPANION.read_bytes()),
+                "size": len(companion_bytes),
+                "sha256": sha(companion_bytes),
+                "exports": export_map(companion_bytes),
             },
             "section": {
                 "name": ".vv2fm",
@@ -1190,6 +1208,128 @@ def build() -> tuple[dict[str, object], dict[str, object]]:
         }
     )
     return manifest, artifact
+
+
+def _json_bytes(value: object) -> bytes:
+    return (json.dumps(value, indent=2) + "\n").encode("utf-8")
+
+
+def _validate_generated_bundle(
+    bundle: dict[str, bytes],
+    manifest: dict[str, object],
+    artifact: dict[str, object],
+    audit_manifest: dict[str, object],
+    emitted_images: dict[str, bytes],
+) -> None:
+    required = {
+        "data/candidates/vv2_full_mastery_all_candidate.json",
+        "data/candidates/vv2_full_mastery_all_candidate_map.json",
+        "docs/vv2-full-mastery-stage-a-candidate.md",
+        "audit/artifact-manifest.json",
+        "audit/source-map.json",
+    }
+    expected = set(required)
+    expected.update(f"audit/{mode}.exe" for mode in emitted_images)
+    if set(bundle) != expected:
+        raise ValueError("generated product set is incomplete or contains unexpected paths")
+    parsed_manifest = json.loads(bundle[next(path for path in bundle if path.endswith("_candidate.json"))])
+    parsed_map = json.loads(bundle[next(path for path in bundle if path.endswith("_candidate_map.json"))])
+    parsed_audit = json.loads(bundle["audit/artifact-manifest.json"])
+    parsed_source_map = json.loads(bundle["audit/source-map.json"])
+    if parsed_manifest != manifest or parsed_map != artifact or parsed_source_map != artifact:
+        raise ValueError("in-memory generated metadata does not match source records")
+    if parsed_audit != audit_manifest:
+        raise ValueError("in-memory audit manifest does not match source record")
+    for record in (parsed_manifest, parsed_map, parsed_audit, parsed_source_map):
+        if record.get("source_commit") != IMPLEMENTATION_COMMIT:
+            raise ValueError("generated provenance source commit mismatch")
+        if record.get("implementation_commit") != IMPLEMENTATION_COMMIT:
+            raise ValueError("generated provenance implementation commit mismatch")
+        if record.get("audit_commit") is not None or record.get("acceptance_commit") is not None:
+            raise ValueError("generated provenance must not claim audit or acceptance")
+    if parsed_manifest.get("enabled") or not parsed_manifest.get("catalog_hidden"):
+        raise ValueError("candidate must remain disabled and catalog-hidden")
+    if parsed_manifest.get("supported_modes") != list(MODES):
+        raise ValueError("supported mode contract mismatch")
+    if not bundle["docs/vv2-full-mastery-stage-a-candidate.md"].decode("utf-8").strip():
+        raise ValueError("generated documentation is empty")
+    for mode, image in emitted_images.items():
+        emitted = bundle[f"audit/{mode}.exe"]
+        if emitted != image or sha(emitted) != artifact["rendered_candidates"][mode]["candidate_sha256"]:  # type: ignore[index]
+            raise ValueError(f"rendered {mode} does not match its in-memory identity")
+
+
+def write_output_bundle(
+    final_root: Path,
+    bundle: dict[str, bytes],
+    *,
+    replace_func=None,
+    write_func=None,
+) -> None:
+    """Atomically publish a validated isolated bundle beneath outputs."""
+    requested = Path(final_root).expanduser()
+    if ".." in requested.parts:
+        raise ValueError("output root cannot contain traversal components")
+    final_root = requested.resolve(strict=False)
+    outputs_root = (ROOT / "outputs").resolve()
+    if final_root == outputs_root or outputs_root not in final_root.parents:
+        raise ValueError("output root must be a strict child of outputs")
+    if final_root.exists():
+        raise ValueError("output root already exists")
+    if not final_root.parent.exists() or not final_root.parent.is_dir():
+        raise ValueError("output root parent is missing")
+    cursor = outputs_root
+    for component in final_root.relative_to(outputs_root).parts[:-1]:
+        cursor = cursor / component
+        if cursor.exists():
+            attributes = getattr(cursor.stat(), "st_file_attributes", 0)
+            if stat.S_ISLNK(cursor.stat().st_mode) or attributes & 0x400:
+                raise ValueError("output root traverses a symlink/reparse point")
+    replace = replace_func or os.replace
+    writer = write_func or (lambda path, data: path.write_bytes(data))
+    stage_path: Path | None = None
+    final_was_absent = not final_root.exists()
+    try:
+        stage_path = Path(tempfile.mkdtemp(prefix=f".{final_root.name}.staging-", dir=str(final_root.parent)))
+        for relative, data in bundle.items():
+            destination = stage_path / relative
+            destination.parent.mkdir(parents=True, exist_ok=True)
+            writer(destination, data)
+        staged_paths = list(stage_path.rglob("*"))
+        for path in staged_paths:
+            if path.is_symlink():
+                raise ValueError("staged output contains a symlink/reparse point")
+            attributes = getattr(path.stat(), "st_file_attributes", 0)
+            if attributes & 0x400:
+                raise ValueError("staged output contains a symlink/reparse point")
+        staged_files = {
+            path.relative_to(stage_path).as_posix()
+            for path in staged_paths
+            if path.is_file()
+        }
+        if staged_files != set(bundle):
+            raise ValueError("staged product set contains an unexpected or missing file")
+        for relative, expected in bundle.items():
+            actual_path = stage_path / relative
+            if not actual_path.is_file() or actual_path.read_bytes() != expected:
+                raise ValueError(f"staged product mismatch: {relative}")
+            if sha(actual_path.read_bytes()) != sha(expected):
+                raise ValueError(f"staged product hash mismatch: {relative}")
+            if relative.endswith(".json"):
+                json.loads(actual_path.read_text(encoding="utf-8"))
+        try:
+            replace(stage_path, final_root)
+        except Exception:
+            if final_was_absent and final_root.exists():
+                if final_root.is_dir():
+                    shutil.rmtree(final_root, ignore_errors=True)
+                else:
+                    final_root.unlink(missing_ok=True)
+            raise
+        stage_path = None
+    finally:
+        if stage_path is not None and stage_path.exists():
+            shutil.rmtree(stage_path, ignore_errors=True)
 
 
 def main(argv: list[str] | None = None) -> None:
@@ -1308,25 +1448,31 @@ def main(argv: list[str] | None = None) -> None:
         "and a later postverify fails, the candidate reports no-charge failure "
         "without an unproved rollback of already-applied native changes.\n"
     )
-    output_files = [
-        paths["manifest"],
-        paths["map"],
-        paths["doc"],
-        paths["audit_manifest"],
-        paths["audit_source_map"],
-    ]
+    bundle = {
+        "data/candidates/vv2_full_mastery_all_candidate.json": _json_bytes(manifest),
+        "data/candidates/vv2_full_mastery_all_candidate_map.json": _json_bytes(artifact),
+        "docs/vv2-full-mastery-stage-a-candidate.md": doc.encode("utf-8"),
+        "audit/artifact-manifest.json": _json_bytes(audit_manifest),
+        "audit/source-map.json": _json_bytes(artifact),
+    }
     if args.emit_executables:
-        output_files.extend(paths["audit_dir"] / f"{mode}.exe" for mode in MODES)
-    for output in output_files:
+        bundle.update({f"audit/{mode}.exe": image for mode, image in emitted_images.items()})
+    _validate_generated_bundle(bundle, manifest, artifact, audit_manifest, emitted_images if args.emit_executables else {})
+    if paths["isolated"]:
+        write_output_bundle(paths["root"], bundle)  # type: ignore[arg-type]
+        return
+    direct_files = {
+        paths["manifest"]: bundle["data/candidates/vv2_full_mastery_all_candidate.json"],
+        paths["map"]: bundle["data/candidates/vv2_full_mastery_all_candidate_map.json"],
+        paths["doc"]: bundle["docs/vv2-full-mastery-stage-a-candidate.md"],
+        paths["audit_manifest"]: bundle["audit/artifact-manifest.json"],
+        paths["audit_source_map"]: bundle["audit/source-map.json"],
+    }
+    if args.emit_executables:
+        direct_files.update({paths["audit_dir"] / f"{mode}.exe": image for mode, image in emitted_images.items()})
+    for output, data in direct_files.items():
         output.parent.mkdir(parents=True, exist_ok=True)
-    paths["manifest"].write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
-    paths["map"].write_text(json.dumps(artifact, indent=2) + "\n", encoding="utf-8")
-    paths["doc"].write_text(doc, encoding="utf-8")
-    paths["audit_manifest"].write_text(json.dumps(audit_manifest, indent=2) + "\n", encoding="utf-8")
-    paths["audit_source_map"].write_text(json.dumps(artifact, indent=2) + "\n", encoding="utf-8")
-    if args.emit_executables:
-        for mode, image in emitted_images.items():
-            (paths["audit_dir"] / f"{mode}.exe").write_bytes(image)
+        output.write_bytes(data)
 
 
 if __name__ == "__main__":

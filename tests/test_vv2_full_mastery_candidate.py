@@ -166,7 +166,7 @@ class VV2FullMasteryCandidateTests(unittest.TestCase):
         tracked = (MANIFEST, MAP, DOC)
         before = {path: sha(path.read_bytes()) for path in (*tracked, DLL)}
         with tempfile.TemporaryDirectory(dir=ROOT / "outputs") as temp:
-            output_root = Path(temp)
+            output_root = Path(temp) / "fresh-candidate"
             subprocess.run(
                 [
                     sys.executable,
@@ -234,6 +234,114 @@ class VV2FullMasteryCandidateTests(unittest.TestCase):
             )
             self.assertNotEqual(result.returncode, 0)
             self.assertFalse(invalid.exists())
+
+    def test_generator_rejects_existing_empty_and_nonempty_destinations(self) -> None:
+        with tempfile.TemporaryDirectory(dir=ROOT / "outputs") as temp:
+            parent = Path(temp)
+            for name, populated in (("empty", False), ("nonempty", True)):
+                destination = parent / name
+                destination.mkdir()
+                if populated:
+                    (destination / "sentinel.txt").write_text("keep", encoding="utf-8")
+                result = subprocess.run(
+                    [sys.executable, str(GENERATOR), "--output-root", str(destination)],
+                    cwd=ROOT,
+                    capture_output=True,
+                    text=True,
+                )
+                self.assertNotEqual(result.returncode, 0)
+                self.assertTrue(destination.is_dir())
+                if populated:
+                    self.assertEqual((destination / "sentinel.txt").read_text(encoding="utf-8"), "keep")
+
+    def test_generator_rejects_outside_and_traversal_roots(self) -> None:
+        with tempfile.TemporaryDirectory() as outside:
+            result = subprocess.run(
+                [sys.executable, str(GENERATOR), "--output-root", outside],
+                cwd=ROOT,
+                capture_output=True,
+                text=True,
+            )
+            self.assertNotEqual(result.returncode, 0)
+        result = subprocess.run(
+            [sys.executable, str(GENERATOR), "--output-root", str(ROOT / "outputs" / "safe" / ".." / "escape")],
+            cwd=ROOT,
+            capture_output=True,
+            text=True,
+        )
+        self.assertNotEqual(result.returncode, 0)
+
+    def test_atomic_bundle_cleans_staging_on_write_and_rename_failure(self) -> None:
+        import importlib.util
+
+        spec = importlib.util.spec_from_file_location("vv2_generator", GENERATOR)
+        self.assertIsNotNone(spec)
+        module = importlib.util.module_from_spec(spec)
+        assert spec.loader is not None
+        spec.loader.exec_module(module)
+        with tempfile.TemporaryDirectory(dir=ROOT / "outputs") as temp:
+            parent = Path(temp)
+            final = parent / "write-failure"
+
+            def fail_write(path, data):
+                path.write_bytes(b"partial")
+                raise OSError("injected write failure")
+
+            with self.assertRaises(OSError):
+                module.write_output_bundle(final, {"probe.txt": b"x"}, write_func=fail_write)
+            self.assertFalse(final.exists())
+            self.assertEqual(list(parent.glob(".write-failure.staging-*")), [])
+
+            final = parent / "rename-failure"
+
+            def fail_replace(stage, destination):
+                destination.mkdir()
+                (destination / "partial.txt").write_text("partial", encoding="utf-8")
+                raise OSError("injected rename failure")
+
+            with self.assertRaises(OSError):
+                module.write_output_bundle(final, {"probe.txt": b"x"}, replace_func=fail_replace)
+            self.assertFalse(final.exists())
+            self.assertEqual(list(parent.glob(".rename-failure.staging-*")), [])
+
+    def test_companion_missing_or_hash_altered_fails_before_output_creation(self) -> None:
+        import importlib.util
+
+        spec = importlib.util.spec_from_file_location("vv2_generator_companion", GENERATOR)
+        self.assertIsNotNone(spec)
+        module = importlib.util.module_from_spec(spec)
+        assert spec.loader is not None
+        spec.loader.exec_module(module)
+        original = module.COMPANION
+        with tempfile.TemporaryDirectory() as temp:
+            temp_path = Path(temp) / "candidate.dll"
+            temp_path.write_bytes(original.read_bytes())
+            module.COMPANION = temp_path
+            temp_path.unlink()
+            with self.assertRaises(RuntimeError):
+                module.build()
+            temp_path.write_bytes(original.read_bytes()[:-1] + b"X")
+            with self.assertRaises(RuntimeError):
+                module.build()
+            module.COMPANION = original
+
+    def test_output_root_reparse_ancestor_is_rejected_when_supported(self) -> None:
+        with tempfile.TemporaryDirectory(dir=ROOT / "outputs") as temp:
+            parent = Path(temp)
+            external = Path(tempfile.mkdtemp())
+            link = parent / "link"
+            try:
+                link.symlink_to(external, target_is_directory=True)
+            except (OSError, NotImplementedError):
+                self.skipTest("directory symlinks unavailable")
+            result = subprocess.run(
+                [sys.executable, str(GENERATOR), "--output-root", str(link / "candidate")],
+                cwd=ROOT,
+                capture_output=True,
+                text=True,
+            )
+            self.assertNotEqual(result.returncode, 0)
+            self.assertFalse((external / "candidate").exists())
 
     def test_source_fingerprint_section_geometry_and_iat_guards(self) -> None:
         source = STOCK.read_bytes()
