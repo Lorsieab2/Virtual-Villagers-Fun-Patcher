@@ -195,8 +195,8 @@ VV3_FULL_HEAL_CANDIDATE_PATHS = {
     "manifest": ROOT / "data" / "candidates" / "vv3_full_heal_cure_all_candidate.json",
     "map": ROOT / "data" / "candidates" / "vv3_full_heal_cure_all_candidate_map.json",
 }
-VV3_FULL_HEAL_MANIFEST_SHA256 = "AD59324CBC17003D5FC0123D0AF8E2948B98EBB08B76C48AB982064A89BE6DB7"
-VV3_FULL_HEAL_MAP_SHA256 = "F0CC04535D3408BD13E44F20AAB5F1680E2AE657EDE8A986689F89277D583049"
+VV3_FULL_HEAL_MANIFEST_SHA256 = "C51AACF19B61C90C1132675207BCED4ACCCC9B9439C0DBEC145E7288FD539C63"
+VV3_FULL_HEAL_MAP_SHA256 = "4BCEB5AAFF77FDD0003D9A8E23D63259D8AD7FCA329CD79CB4A0220A045E7625"
 VV3_FULL_HEAL_STOCK_SHA256 = "8BC5DB382D02BC5C21AD5F607580D60FF44A6519CC7EB133F03113BAACAE6503"
 VV3_FULL_HEAL_DLL_PATH = ROOT / "data" / "candidates" / "VVFP VV3 Full Mastery Candidate.dll"
 VV3_FULL_HEAL_DLL_SHA256 = "35FB96199E745C7D8054FF6A12851B9E09225E3E41D0CE04012604E74968C0D5"
@@ -262,6 +262,12 @@ VV3_FULL_HEAL_MESSAGES = {
     "success": "Full Heal was granted to all eligible villagers.",
     "confirm_price": "30,000",
 }
+VV3_FULL_HEAL_PARTIAL_FAILURE_DISCLOSURE = (
+    "If native writes begin and a later write or postverification fails, earlier "
+    "verified health, sickness, or People Cured effects may remain. No tech points "
+    "are deducted on that failure, but complete rollback of native side effects is "
+    "not claimed."
+)
 VV3_FULL_HEAL_HEALTH_SETTER = {
     "function": "0x462670",
     "ecx": "full_record+0xE6C",
@@ -1794,6 +1800,8 @@ def _validate_vv3_full_heal_candidate(
         "record_zero_resolver",
         "messagebox_resolution",
         "messages",
+        "partial_failure_limit",
+        "rollback_disclosure",
         "mutation_accounting",
         "forbidden_routes",
         "provenance",
@@ -1895,6 +1903,8 @@ def _validate_vv3_full_heal_candidate(
         raise PatcherError("VV3 Full Heal mutation accounting metadata is not immutable.")
     if raw.get("messages") != VV3_FULL_HEAL_MESSAGES:
         raise PatcherError("VV3 Full Heal result-message metadata is not immutable.")
+    if raw.get("partial_failure_limit") != VV3_FULL_HEAL_PARTIAL_FAILURE_DISCLOSURE or raw.get("rollback_disclosure") != VV3_FULL_HEAL_PARTIAL_FAILURE_DISCLOSURE:
+        raise PatcherError("VV3 Full Heal rollback disclosure metadata is not immutable.")
     if raw.get("health_setter") != VV3_FULL_HEAL_HEALTH_SETTER:
         raise PatcherError("VV3 Full Heal health-setter ABI metadata is not immutable.")
     if raw.get("result_helper") != VV3_FULL_HEAL_RESULT_HELPER:

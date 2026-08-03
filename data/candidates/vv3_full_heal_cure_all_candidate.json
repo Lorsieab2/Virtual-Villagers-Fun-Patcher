@@ -132,7 +132,8 @@
     "success": "Full Heal was granted to all eligible villagers.",
     "confirm_price": "30,000"
   },
-  "partial_failure_limit": "Native writes may have occurred before postverification failure; no deduction is made and rollback is not claimed.",
+  "partial_failure_limit": "If native writes begin and a later write or postverification fails, earlier verified health, sickness, or People Cured effects may remain. No tech points are deducted on that failure, but complete rollback of native side effects is not claimed.",
+  "rollback_disclosure": "If native writes begin and a later write or postverification fails, earlier verified health, sickness, or People Cured effects may remain. No tech points are deducted on that failure, but complete rollback of native side effects is not claimed.",
   "forbidden_routes": {
     "legacy_cure_entry": "0x47B664",
     "legacy_text_helper": "0x40D8A0",

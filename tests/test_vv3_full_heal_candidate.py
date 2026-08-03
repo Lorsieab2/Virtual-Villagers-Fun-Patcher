@@ -23,6 +23,12 @@ def sha(data: bytes) -> str:
 
 
 class VV3FullHealCandidateTests(unittest.TestCase):
+    PARTIAL_FAILURE_DISCLOSURE = (
+        "If native writes begin and a later write or postverification fails, earlier "
+        "verified health, sickness, or People Cured effects may remain. No tech points "
+        "are deducted on that failure, but complete rollback of native side effects is "
+        "not claimed."
+    )
     @classmethod
     def setUpClass(cls) -> None:
         cls.manifest_path = v.VV3_FULL_HEAL_CANDIDATE_PATHS["manifest"]
@@ -58,6 +64,8 @@ class VV3FullHealCandidateTests(unittest.TestCase):
         self.assertEqual(sha(self.map_path.read_bytes()), v.VV3_FULL_HEAL_MAP_SHA256)
         self.assertEqual(self.raw["transaction"], v.VV3_FULL_HEAL_TRANSACTION)
         self.assertEqual(self.raw["messages"], v.VV3_FULL_HEAL_MESSAGES)
+        self.assertEqual(self.raw["partial_failure_limit"], v.VV3_FULL_HEAL_PARTIAL_FAILURE_DISCLOSURE)
+        self.assertEqual(self.raw["rollback_disclosure"], v.VV3_FULL_HEAL_PARTIAL_FAILURE_DISCLOSURE)
         self.assertEqual(self.raw["result_helper"], v.VV3_FULL_HEAL_RESULT_HELPER)
         self.assertEqual(self.raw["health_setter"], v.VV3_FULL_HEAL_HEALTH_SETTER)
         self.assertEqual(self.raw["eligibility"], v.VV3_FULL_HEAL_ELIGIBILITY)
@@ -258,6 +266,22 @@ class VV3FullHealCandidateTests(unittest.TestCase):
         ):
             self.assertIn(text.encode("ascii"), cave)
         self.assertIn("rollback is not claimed", self.raw["partial_failure_limit"])
+        self.assertEqual(self.raw["partial_failure_limit"], self.PARTIAL_FAILURE_DISCLOSURE)
+        self.assertEqual(self.raw["rollback_disclosure"], self.PARTIAL_FAILURE_DISCLOSURE)
+        self.assertIn(self.PARTIAL_FAILURE_DISCLOSURE.encode("ascii"), cave)
+
+    def test_partial_write_disclosure_is_exact_and_player_facing(self) -> None:
+        self.assertEqual(self.raw["partial_failure_limit"], self.PARTIAL_FAILURE_DISCLOSURE)
+        self.assertEqual(self.raw["rollback_disclosure"], self.PARTIAL_FAILURE_DISCLOSURE)
+        doc = (ROOT / "docs" / "vv3-full-heal-candidate.md").read_text(encoding="utf-8")
+        self.assertIn(self.PARTIAL_FAILURE_DISCLOSURE, doc)
+        transparency = (ROOT / "docs" / "transparency-log.md").read_text(encoding="utf-8")
+        self.assertIn(self.PARTIAL_FAILURE_DISCLOSURE, transparency)
+
+    def test_map_carries_exact_partial_write_disclosure(self) -> None:
+        mapped = json.loads(self.map_path.read_text(encoding="utf-8"))
+        self.assertEqual(mapped["partial_failure_limit"], self.PARTIAL_FAILURE_DISCLOSURE)
+        self.assertEqual(mapped["rollback_disclosure"], self.PARTIAL_FAILURE_DISCLOSURE)
 
     def test_rendered_hashes_checksum_and_only_three_physical_ranges(self) -> None:
         for mode in ("collection_progression", "immediate_fixed"):

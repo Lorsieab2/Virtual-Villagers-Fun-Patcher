@@ -134,6 +134,8 @@ def build_document() -> str:
             dependencies = _items(raw.get("dependencies", []))
             lines.append("- Behavior changes: " + (" ".join(behavior) or "none declared"))
             lines.append("- Explicit non-changes/exclusions: " + (" ".join(exclusions) or "none declared"))
+            if raw.get("partial_failure_limit"):
+                lines.append("- Partial-write disclosure: " + str(raw["partial_failure_limit"]))
             lines.append("- Dependencies: " + (", ".join(dependencies) or "none"))
             if "running_preference_id" in raw:
                 evidence = raw.get("running_preference_evidence", {})

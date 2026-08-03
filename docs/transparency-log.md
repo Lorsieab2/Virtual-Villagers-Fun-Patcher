@@ -266,6 +266,7 @@ Inspired by the Virtual Villagers 1 mobile port where these exclusive Origins up
 Enabled static VV3 Full Heal / Cure All command-5 Buy action for certified Collection Progression and Immediate Fixed compositions after Origins + Full Mastery + individual Grant Running; runtime/player validation remains pending.
 
 - Behavior changes: Command 5 performs the certified Full Heal / Cure All transaction at 30,000 tech points.
+- Partial-write disclosure: If native writes begin and a later write or postverification fails, earlier verified health, sickness, or People Cured effects may remain. No tech points are deducted on that failure, but complete rollback of native side effects is not claimed.
 - Explicit non-changes/exclusions: Expanded-256 and unknown builds remain fail-closed; the withdrawn village-wide Running route is absent. The candidate is stock-mode only and does not add Remove or ownership behavior.
 - Dependencies: vv3_individual_grant_running_candidate
 - Evidence status: independent static GO at commit f23b3211775e49d7730caedd73b2bedbd1c34a87; runtime/player validation pending

@@ -58,9 +58,17 @@ STOCK_SHA256 = "8BC5DB382D02BC5C21AD5F607580D60FF44A6519CC7EB133F03113BAACAE6503
 # the patch/transparency log without changing the candidate executable.
 PACKAGE_SOURCE_ZIP_SHA256 = "B616282E0C21A9A8D509CE64C129EF6F24B4F50EAC538632DFBBC8C374662048"
 PACKAGE_SOURCE_ZIP_ENTRIES = 419
+PACKAGE_SOURCE_RUNTIME_MEMBERS = 417
+PACKAGE_SOURCE_OUTER_EVIDENCE_FILES = 2
 PACKAGE_SOURCE_RETAINED_STOCK_FILES = 412
 PACKAGE_SOURCE_PAYLOAD_RECORDS = 417
 PACKAGE_CURRENT_FILE_COUNT = 7
+PARTIAL_FAILURE_DISCLOSURE = (
+    "If native writes begin and a later write or postverification fails, earlier "
+    "verified health, sickness, or People Cured effects may remain. No tech points "
+    "are deducted on that failure, but complete rollback of native side effects is "
+    "not claimed."
+)
 COMPOSED_PARENT_HELPER_SHA256 = "CFF1AAA9111728F003621FF662F100940C2F978943F5E69CC64180EA5DE63F7D"
 STOCK_CURE_CAVE_PREIMAGE_SHA256 = "7B4FC1A8DBE6B6121F16ADA516E2AC27E02964716BACEA5FB7D07CF30595948E"
 LEGACY_PRESERVED_RANGE_SHA256 = COMPOSED_PARENT_HELPER_SHA256
@@ -528,7 +536,8 @@ def main() -> None:
         },
         "result_helper": {"va": "0x4A3400", "ret": 8, "caller_stack_cleanup": False},
         "messages": {"no_charge_suffix": "No tech points have been deducted.", "success": "Full Heal was granted to all eligible villagers.", "confirm_price": "30,000"},
-        "partial_failure_limit": "Native writes may have occurred before postverification failure; no deduction is made and rollback is not claimed.",
+        "partial_failure_limit": PARTIAL_FAILURE_DISCLOSURE,
+        "rollback_disclosure": PARTIAL_FAILURE_DISCLOSURE,
         "forbidden_routes": {"legacy_cure_entry": "0x47B664", "legacy_text_helper": "0x40D8A0", "e94_status_filter": False},
         "patches": [
             {"offset": "0xA35EF", "before": HOOK_BEFORE.hex().upper(), "after": HOOK_AFTER.hex().upper(), "purpose": "command-5 dominance before legacy price lookup/precharge", "continuation_non5": "0x4A35F6"},
@@ -580,6 +589,8 @@ def main() -> None:
         "record_zero_resolver": manifest["record_zero_resolver"],
         "messagebox_resolution": manifest["messagebox_resolution"],
         "messages": manifest["messages"],
+        "partial_failure_limit": manifest["partial_failure_limit"],
+        "rollback_disclosure": PARTIAL_FAILURE_DISCLOSURE,
         "mutation_accounting": manifest["mutation_accounting"],
         "forbidden_routes": manifest["forbidden_routes"],
         "legacy_preserved_range": {"raw_start": f"0x{LEGACY_CURE_START:X}", "raw_end": f"0x{LEGACY_CURE_END:X}", "sha256": LEGACY_PRESERVED_RANGE_SHA256},
@@ -598,7 +609,7 @@ def main() -> None:
         f"The command-5 detour is `{HOOK_BEFORE.hex().upper()}` -> `{HOOK_AFTER.hex().upper()}` at raw `0x{HOOK_OFFSET:X}`. "
         f"The owned cave is raw `0x{CAVE_OFFSET:X}` / VA `0x{CAVE_VA:X}` for `0x{CAVE_LENGTH:X}` bytes; legacy Cure bytes "
         f"`0x{LEGACY_CURE_START:X}..0x{LEGACY_CURE_END:X}` remain byte-identical.\n\n"
-        f"The transaction scans exactly 150 records in physical order, resolves record zero through 0x45C840 with ECX=0x59E110 before the dry run and again after confirmation, and resolves USER32.dll/MessageBoxA before any dialog. The assembled helper is `0x{len(region[:layout['helper_length']]):X}` bytes and strings begin at aligned cave offset `0x{STRING_OFFSET:X}` with no overlap; the mutation counter is the disjoint `[ebp-0x28]` local so neither the manager getter nor native setter can clobber the 150-record bound. It performs a complete dry run, confirms at 30,000 tech points, reacquires and rechecks the full state, uses native health setter 0x462670 with ECX=record+0xE6C and pushes -1/100, acquires a fresh manager before clearing sickness at +0xE89, and increments fresh manager People Cured +0x4FC once per verified sick record (health-only records do not increment). It postverifies and deducts once through 0x427130. The hook and cave are two feature-owned ranges; the only third physical diff is the PE checksum at raw 0x160..0x163. Every no-charge route ends with `No tech points have been deducted.` Native writes may remain after a postverify failure; rollback is not claimed.\n",
+        f"The transaction scans exactly 150 records in physical order, resolves record zero through 0x45C840 with ECX=0x59E110 before the dry run and again after confirmation, and resolves USER32.dll/MessageBoxA before any dialog. The assembled helper is `0x{len(region[:layout['helper_length']]):X}` bytes and strings begin at aligned cave offset `0x{STRING_OFFSET:X}` with no overlap; the mutation counter is the disjoint `[ebp-0x28]` local so neither the manager getter nor native setter can clobber the 150-record bound. It performs a complete dry run, confirms at 30,000 tech points, reacquires and rechecks the full state, uses native health setter 0x462670 with ECX=record+0xE6C and pushes -1/100, acquires a fresh manager before clearing sickness at +0xE89, and increments fresh manager People Cured +0x4FC once per verified sick record (health-only records do not increment). It postverifies and deducts once through 0x427130. The hook and cave are two feature-owned ranges; the only third physical diff is the PE checksum at raw 0x160..0x163. Every no-charge route ends with `No tech points have been deducted.` {PARTIAL_FAILURE_DISCLOSURE}\n",
         encoding="utf-8",
     )
 
