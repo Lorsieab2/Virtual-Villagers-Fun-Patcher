@@ -184,6 +184,14 @@ def build_individual_helper(page_va: int, strings: dict[str, int]) -> bytes:
         jz bad
         mov dword ptr [ebp-0x18], eax
         mov esi, eax
+        cmp byte ptr [esi+0x1CD4], 0
+        je bad
+        cmp dword ptr [esi+0x1C40], 0
+        jle bad
+        cmp byte ptr [esi+0x1CE1], 0
+        jne bad
+        cmp byte ptr [esi+0x1CEC], 0
+        jne bad
         xor edi, edi
         xor ebx, ebx
     dry1:
@@ -229,6 +237,14 @@ def build_individual_helper(page_va: int, strings: dict[str, int]) -> bytes:
         jz bad
         mov dword ptr [ebp-0x18], eax
         mov esi, eax
+        cmp byte ptr [esi+0x1CD4], 0
+        je bad
+        cmp dword ptr [esi+0x1C40], 0
+        jle bad
+        cmp byte ptr [esi+0x1CE1], 0
+        jne bad
+        cmp byte ptr [esi+0x1CEC], 0
+        jne bad
         xor edi, edi
         xor ebx, ebx
     dry2:
