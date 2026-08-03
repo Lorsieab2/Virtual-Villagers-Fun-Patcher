@@ -11,8 +11,11 @@ from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
+sys.path.insert(0, str(ROOT / ".tools" / "capstone"))
 
 import vv_fun_patcher as v  # noqa: E402
+from capstone import CS_ARCH_X86, CS_MODE_32, CS_GRP_CALL, CS_GRP_JUMP, Cs  # noqa: E402
+from capstone.x86_const import X86_OP_IMM  # noqa: E402
 
 
 def sha(data: bytes) -> str:
@@ -59,6 +62,8 @@ class VV3FullHealCandidateTests(unittest.TestCase):
         self.assertEqual(self.raw["health_setter"], v.VV3_FULL_HEAL_HEALTH_SETTER)
         self.assertEqual(self.raw["eligibility"], v.VV3_FULL_HEAL_ELIGIBILITY)
         self.assertEqual(self.raw["sickness"], v.VV3_FULL_HEAL_SICKNESS)
+        self.assertEqual(self.raw["base_chain"]["running_composed_parent_helper_sha256"], v.VV3_FULL_HEAL_COMPOSED_PARENT_HELPER_SHA256)
+        self.assertEqual(self.raw["base_chain"]["stock_cure_cave_preimage_sha256"], v.VV3_FULL_HEAL_STOCK_CURE_CAVE_PREIMAGE_SHA256)
         self.assertEqual(self.raw["record_zero_resolver"], v.VV3_FULL_HEAL_RECORD_ZERO_RESOLVER)
         self.assertEqual(self.raw["messagebox_resolution"], v.VV3_FULL_HEAL_MESSAGEBOX_RESOLUTION)
         self.assertEqual(self.raw["mutation_accounting"], v.VV3_FULL_HEAL_MUTATION_ACCOUNTING)
@@ -99,6 +104,104 @@ class VV3FullHealCandidateTests(unittest.TestCase):
         self.assertIn(b"MessageBoxA\0", cave)
         self.assertIn(bytes.fromhex("8945F0"), cave)
         self.assertEqual(cave.count(bytes.fromhex("FF80FC040000")), 1)
+        self.assertEqual(cave.count(bytes.fromhex("C745D896000000")), 1)
+        self.assertEqual(cave.count(bytes.fromhex("FF4DD8")), 1)
+
+    def test_layout_hash_and_internal_control_flow_stay_before_strings(self) -> None:
+        cave = bytes.fromhex(self.raw["patches"][1]["after"])
+        layout = self.raw["patches"][1]["layout"]
+        helper_length = layout["helper_length"]
+        strings_offset = int(layout["strings_offset"], 0)
+        self.assertLess(helper_length, strings_offset)
+        self.assertEqual(sha(cave[:helper_length]), layout["helper_sha256"])
+        self.assertEqual(sha(cave), layout["region_sha256"])
+        self.assertEqual(layout["tail_zero_length"], v.VV3_FULL_HEAL_TAIL_ZERO_LENGTH)
+        md = Cs(CS_ARCH_X86, CS_MODE_32)
+        md.detail = True
+        instructions = list(md.disasm(cave[:helper_length], 0x47B721))
+        self.assertEqual(sum(item.size for item in instructions), helper_length)
+        starts = {item.address for item in instructions}
+        code_end = 0x47B721 + strings_offset
+        for item in instructions:
+            self.assertLessEqual(item.address + item.size, code_end)
+            if not (item.group(CS_GRP_CALL) or item.group(CS_GRP_JUMP)):
+                continue
+            if not item.operands or item.operands[0].type != X86_OP_IMM:
+                continue
+            target = item.operands[0].imm
+            if 0x47B721 <= target < 0x47B721 + len(cave):
+                self.assertLess(target, code_end)
+                self.assertIn(target, starts)
+        self.assertEqual(layout["internal_target_offsets"], v.VV3_FULL_HEAL_INTERNAL_TARGET_OFFSETS)
+        self.assertEqual(layout["epilogue_offset"], v.VV3_FULL_HEAL_HELPER_EPILOGUE_OFFSET)
+        self.assertEqual(layout["instruction_count"], v.VV3_FULL_HEAL_HELPER_INSTRUCTION_COUNT)
+        self.assertEqual(len([item for item in instructions if item.group(CS_GRP_CALL) and item.operands and item.operands[0].type == X86_OP_IMM and item.operands[0].imm == 0x4A3400]), 2)
+        self.assertEqual(len([item for item in instructions if item.group(CS_GRP_CALL) and item.operands and item.operands[0].type == X86_OP_IMM and item.operands[0].imm == 0x427130]), 1)
+        for mode in ("collection_progression", "immediate_fixed"):
+            rendered_cave = bytes(self._render(mode)[0x7B721 : 0x7B721 + v.VV3_FULL_HEAL_CAVE_LENGTH])
+            self.assertEqual(rendered_cave, cave)
+            rendered_instructions = list(md.disasm(rendered_cave[:helper_length], 0x47B721))
+            self.assertEqual(sum(item.size for item in rendered_instructions), helper_length)
+
+    def test_mutation_counter_is_local_and_sickness_manager_precedes_clear(self) -> None:
+        cave = bytes.fromhex(self.raw["patches"][1]["after"])
+        self.assertEqual(cave.count(bytes.fromhex("C745D896000000")), 1)
+        self.assertEqual(cave.count(bytes.fromhex("FF4DD8")), 1)
+        self.assertEqual(cave.count(bytes.fromhex("FF80FC040000")), 1)
+        clear = bytes.fromhex("C687890E000000")
+        clear_at = cave.find(clear)
+        self.assertGreater(clear_at, 0)
+        md = Cs(CS_ARCH_X86, CS_MODE_32)
+        md.detail = True
+        getter_targets = []
+        for item in md.disasm(cave, 0x47B721):
+            if not item.group(CS_GRP_CALL) or not item.operands:
+                continue
+            if item.operands[0].type == X86_OP_IMM and item.operands[0].imm == 0x428B60:
+                getter_targets.append(item.address - 0x47B721)
+        self.assertTrue(any(offset < clear_at for offset in getter_targets))
+        decoded = list(md.disasm(cave, 0x47B721))
+        clear_index = next(i for i, item in enumerate(decoded) if item.address - 0x47B721 == clear_at)
+        self.assertGreaterEqual(clear_index, 3)
+        self.assertEqual(decoded[clear_index - 1].mnemonic, "je")
+        self.assertEqual(decoded[clear_index - 2].mnemonic, "test")
+        self.assertEqual(decoded[clear_index - 3].mnemonic, "call")
+        self.assertTrue(
+            decoded[clear_index - 3].operands
+            and decoded[clear_index - 3].operands[0].type == X86_OP_IMM
+            and decoded[clear_index - 3].operands[0].imm == 0x428B60
+        )
+        self.assertEqual(self.raw["sickness"]["manager_acquired_before_clear"], True)
+        self.assertEqual(self.raw["sickness"]["mutation_loop_counter_local"], "[ebp-0x28]")
+        self.assertEqual(self.raw["sickness"]["mutation_loop_counter_bound"], 150)
+        self.assertTrue(self.raw["sickness"]["manager_null_means_no_sickness_write"])
+
+    def test_model_scans_exactly_150_and_counts_sick_records(self) -> None:
+        def model(records: list[tuple[int, int, int]]) -> tuple[int, int, int]:
+            self.assertEqual(len(records), 150)
+            snapshot = []
+            for active, health, sick in records:
+                if active != 0 and health > 0:
+                    snapshot.append((health, sick))
+                else:
+                    snapshot.append((0, 0))
+            changed = [item for item in snapshot if item != (0, 0) and item != (100, 0)]
+            sick_changes = sum(1 for health, sick in changed if sick != 0)
+            return len(snapshot), len(changed), sick_changes
+
+        clean = [(1, 100, 0)] * 150
+        one_sick = clean.copy()
+        one_sick[149] = (1, 100, 1)
+        three_sick = clean.copy()
+        three_sick[0] = (1, 90, 2)
+        three_sick[75] = (1, 100, 1)
+        three_sick[149] = (1, 80, 3)
+        health_only = clean.copy()
+        health_only[149] = (1, 90, 0)
+        self.assertEqual(model(clean), (150, 0, 0))
+        self.assertEqual(model(one_sick), (150, 1, 1))
+        self.assertEqual(model(three_sick), (150, 3, 3))
+        self.assertEqual(model(health_only), (150, 1, 0))
 
     def test_all_reason_strings_and_partial_write_limit_are_present(self) -> None:
         cave = bytes.fromhex(self.raw["patches"][1]["after"])

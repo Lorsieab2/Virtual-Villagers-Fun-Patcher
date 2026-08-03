@@ -21,16 +21,41 @@
     "virtual_address": "0x47B721",
     "length": 1792,
     "before_sha256": "7B4FC1A8DBE6B6121F16ADA516E2AC27E02964716BACEA5FB7D07CF30595948E",
-    "after_sha256": "67561EFB49B707495E16FE1DA130D29E53143649BEE74E009F19E27106639584",
+    "after_sha256": "FD9CD28D75CF660294E30E0C8D1D73D6E33079144F877D9EA32027FC76BDDD07",
     "layout": {
-      "helper_length": 805,
-      "helper_sha256": "09B8B741DF16A9CFDE58A62FCF942F1B9616FD4F65456A00CF7BCEB857D499A4",
-      "strings_offset": "0x300",
+      "helper_length": 809,
+      "helper_sha256": "1DAEEE7166ABBE0759D3A952A391C731E9531ABB7B03B327943D4B123BEE160B",
+      "strings_offset": "0x330",
       "strings_length": 744,
       "strings_sha256": "F12A532B7D2B442F1BD13F44089935776323959D7147791FFEB447227DE4BF6B",
-      "region_sha256": "67561EFB49B707495E16FE1DA130D29E53143649BEE74E009F19E27106639584",
-      "used_length": 1512,
-      "tail_zero_length": 280
+      "region_sha256": "FD9CD28D75CF660294E30E0C8D1D73D6E33079144F877D9EA32027FC76BDDD07",
+      "used_length": 1560,
+      "tail_zero_length": 232,
+      "instruction_count": 198,
+      "internal_target_offsets": [
+        "0x94",
+        "0xD0",
+        "0xDD",
+        "0x156",
+        "0x19A",
+        "0x1A4",
+        "0x1BA",
+        "0x1ED",
+        "0x21D",
+        "0x25A",
+        "0x296",
+        "0x2D8",
+        "0x2E4",
+        "0x2EB",
+        "0x2F2",
+        "0x2F9",
+        "0x300",
+        "0x307",
+        "0x30E",
+        "0x313",
+        "0x31D"
+      ],
+      "epilogue_offset": "0x31D"
     }
   },
   "composition": {
@@ -39,6 +64,8 @@
     "immediate_pre_cure_sha256": "059230146E8CC36E06E5473AE187D081E337DB90638B227FBA799B9C82B58C1C",
     "full_mastery_page_sha256": "2DAE85AE4077C23C2C7C39F64B5BA944740F765AC8E24FBB097B0BF28A720DF6",
     "running_region_sha256": "76339C8FFBE0FF92F3F1EB2CC27A4E0600E33DCC936716DA94BBB0BD5D1AB050",
+    "running_composed_parent_helper_sha256": "CFF1AAA9111728F003621FF662F100940C2F978943F5E69CC64180EA5DE63F7D",
+    "stock_cure_cave_preimage_sha256": "7B4FC1A8DBE6B6121F16ADA516E2AC27E02964716BACEA5FB7D07CF30595948E",
     "full_mastery_running_dependency": "vv3_individual_grant_running_candidate",
     "composition": "Origins + Full Mastery + individual Grant Running"
   },
@@ -84,7 +111,12 @@
     "clear_value": 0,
     "people_cured_offset": "0x4FC",
     "increment_per_verified_sick_record": true,
-    "health_only_does_not_increment": true
+    "health_only_does_not_increment": true,
+    "manager_acquired_before_clear": true,
+    "loop_counter_preserved_across_manager_getter": true,
+    "mutation_loop_counter_local": "[ebp-0x28]",
+    "mutation_loop_counter_bound": 150,
+    "manager_null_means_no_sickness_write": true
   },
   "record_zero_resolver": {
     "function": "0x45C840",
@@ -132,8 +164,8 @@
     "feature_owned_range_count": 2,
     "every_other_byte_identical": true,
     "rendered_sha256": {
-      "collection_progression": "FC145FDB6A5E448B0BB670D0C81E44EB8915DAB6D3EAA2E3F93334D5E6E3F9CB",
-      "immediate_fixed": "69213F2C3CB2E30B385E008D26E0CFB7F381B6F09016A6DDC51F8BCE61F5183A"
+      "collection_progression": "1AB729027342F3EE90B875BF47534A35AF6522F987CD9441E1E8A3D52BF16C47",
+      "immediate_fixed": "06B97177673D405C3F5BB711EAB04EF8DC703F7C80AB042F31F0CCDAE3850D1D"
     },
     "uninstall_sha256": {
       "collection_progression": "3644A56FE17F843DB67662E4309C3C2B41AE7ADD5FDD60EF2B6789DE2BA15FDC",
@@ -143,11 +175,11 @@
     "checksum_transitions": {
       "collection_progression": {
         "before": "93790D00",
-        "after": "22ED0C00"
+        "after": "09B50D00"
       },
       "immediate_fixed": {
         "before": "91BB0D00",
-        "after": "202F0D00"
+        "after": "08F70C00"
       }
     }
   },

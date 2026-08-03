@@ -30,7 +30,9 @@ HOOK_AFTER = bytes.fromhex("E92D81FDFF9090")
 CAVE_OFFSET = 0x7B721
 CAVE_VA = 0x47B721
 CAVE_LENGTH = 0x700
-STRING_OFFSET = 0x300
+# The helper is assembled before strings.  Keep a deliberate alignment gap so
+# a helper growth can never overwrite the first string bytes.
+STRING_OFFSET = 0x330
 LEGACY_CURE_START = 0x7B664
 LEGACY_CURE_END = 0x7B721
 NON5_CONTINUATION = 0x4A35F6
@@ -52,15 +54,20 @@ SICK_OFFSET = 0xE89
 PE_CHECKSUM_OFFSET = 0x160
 PRICE = 30_000
 STOCK_SHA256 = "8BC5DB382D02BC5C21AD5F607580D60FF44A6519CC7EB133F03113BAACAE6503"
+COMPOSED_PARENT_HELPER_SHA256 = "CFF1AAA9111728F003621FF662F100940C2F978943F5E69CC64180EA5DE63F7D"
+STOCK_CURE_CAVE_PREIMAGE_SHA256 = "7B4FC1A8DBE6B6121F16ADA516E2AC27E02964716BACEA5FB7D07CF30595948E"
 SOURCE_COMMIT = "64c1266503c49ba1456f6294683a1f6773eba5d6"
 IMPLEMENTATION_STATUS = "candidate implementation; D182 static predicate evidence incorporated; independent lifecycle recertification pending"
 RENDERED_SHA256 = {
-    "collection_progression": "FC145FDB6A5E448B0BB670D0C81E44EB8915DAB6D3EAA2E3F93334D5E6E3F9CB",
-    "immediate_fixed": "69213F2C3CB2E30B385E008D26E0CFB7F381B6F09016A6DDC51F8BCE61F5183A",
+    "collection_progression": "1AB729027342F3EE90B875BF47534A35AF6522F987CD9441E1E8A3D52BF16C47",
+    "immediate_fixed": "06B97177673D405C3F5BB711EAB04EF8DC703F7C80AB042F31F0CCDAE3850D1D",
 }
 
 sys.path.insert(0, str(ROOT / ".tools" / "keystone-runtime"))
 from keystone import KS_ARCH_X86, KS_MODE_32, Ks  # noqa: E402
+sys.path.insert(0, str(ROOT / ".tools" / "capstone"))
+from capstone import CS_ARCH_X86, CS_MODE_32, CS_GRP_CALL, CS_GRP_JUMP, Cs  # noqa: E402
+from capstone.x86_const import X86_OP_IMM  # noqa: E402
 
 
 def sha(data: bytes) -> str:
@@ -102,8 +109,9 @@ def _strings() -> tuple[dict[str, int], bytes]:
 def _helper(strings: dict[str, int]) -> bytes:
     # Stack contract: saved EBX/ESI/EDI are -4/-8/-C, MessageBoxA -10,
     # manager -14, pool -18, initial changed/sick counts -1C/-20,
-    # recheck count -24, and 150 pairs of health/sickness snapshots occupy
-    # -4E0..-31.  No +0xE94 or unrelated status field is read.
+    # recheck count -24, mutation loop counter -28, and 150 pairs of
+    # health/sickness snapshots occupy -4E0..-31.  No +0xE94 or unrelated
+    # status field is read.
     source = f"""
         cmp ebx, 5
         jne non_five
@@ -219,7 +227,7 @@ def _helper(strings: dict[str, int]) -> bytes:
         jnz recheck_scan
         mov edi, dword ptr [ebp-0x18]
         xor esi, esi
-        mov ecx, {POOL_COUNT}
+        mov dword ptr [ebp-0x28], {POOL_COUNT}
     mutation_scan:
         lea edx, [ebp-0x4E0]
         cmp dword ptr [edx+esi*8], 0
@@ -233,20 +241,24 @@ def _helper(strings: dict[str, int]) -> bytes:
         call {HEALTH_SETTER:#x}
         cmp dword ptr [edi+{HEALTH_OFFSET:#x}], 100
         jne write_failure
-    health_done:
-        cmp byte ptr [edi+{SICK_OFFSET:#x}], 0
-        je mutation_next
-        mov byte ptr [edi+{SICK_OFFSET:#x}], 0
-        cmp byte ptr [edi+{SICK_OFFSET:#x}], 0
-        jne write_failure
+        health_done:
+            cmp byte ptr [edi+{SICK_OFFSET:#x}], 0
+            je mutation_next
+        # Acquire the fresh manager before touching sickness.  The mutation
+        # loop counter lives in a disjoint local because both this getter and
+        # the native setter are allowed to consume ECX.  A null manager
+        # therefore causes no sickness write.
         call {MANAGER_GETTER:#x}
         test eax, eax
         je write_failure
+        mov byte ptr [edi+{SICK_OFFSET:#x}], 0
+        cmp byte ptr [edi+{SICK_OFFSET:#x}], 0
+        jne write_failure
         inc dword ptr [eax+0x4FC]
     mutation_next:
         inc esi
         add edi, {POOL_STRIDE:#x}
-        dec ecx
+        dec dword ptr [ebp-0x28]
         jnz mutation_scan
         call {MANAGER_GETTER:#x}
         test eax, eax
@@ -329,14 +341,59 @@ def _helper(strings: dict[str, int]) -> bytes:
     return assemble(source, CAVE_VA)
 
 
+def _verify_helper_targets(helper: bytes) -> dict[str, object]:
+    """Disassemble the assembled helper and reject code/string control-flow overlap."""
+
+    if len(helper) >= STRING_OFFSET:
+        raise RuntimeError(
+            f"VV3 Cure helper overlaps strings: helper={len(helper):#x}, strings={STRING_OFFSET:#x}"
+        )
+    disassembler = Cs(CS_ARCH_X86, CS_MODE_32)
+    disassembler.detail = True
+    instructions = list(disassembler.disasm(helper, CAVE_VA))
+    if not instructions or sum(item.size for item in instructions) != len(helper):
+        raise RuntimeError("VV3 Cure helper did not disassemble completely.")
+    starts = {item.address for item in instructions}
+    internal_targets: set[int] = set()
+    string_start = CAVE_VA + STRING_OFFSET
+    cave_end = CAVE_VA + CAVE_LENGTH
+    for item in instructions:
+        if item.address + item.size > string_start:
+            raise RuntimeError("VV3 Cure helper instruction crosses into strings.")
+        if not (item.group(CS_GRP_JUMP) or item.group(CS_GRP_CALL)):
+            continue
+        if not item.operands or item.operands[0].type != X86_OP_IMM:
+            continue
+        target = item.operands[0].imm
+        if CAVE_VA <= target < cave_end:
+            if target >= string_start:
+                raise RuntimeError("VV3 Cure branch/call targets strings or tail.")
+            if target not in starts:
+                raise RuntimeError(
+                    f"VV3 Cure branch/call target is not an instruction boundary: {target:#x}"
+                )
+            internal_targets.add(target - CAVE_VA)
+    epilogue = helper.rfind(b"\x8D\x65\xF4")
+    if epilogue < 0 or epilogue >= STRING_OFFSET:
+        raise RuntimeError("VV3 Cure epilogue is missing or outside the code range.")
+    return {
+        "instruction_count": len(instructions),
+        "internal_target_offsets": [f"0x{offset:X}" for offset in sorted(internal_targets)],
+        "epilogue_offset": f"0x{epilogue:X}",
+    }
+
+
 def build_region() -> tuple[bytes, dict[str, object]]:
     strings, blob = _strings()
     helper = _helper(strings)
-    if len(helper) > 0x500 or len(helper) + len(blob) > CAVE_LENGTH:
+    control_flow = _verify_helper_targets(helper)
+    if len(helper) > STRING_OFFSET or STRING_OFFSET + len(blob) > CAVE_LENGTH:
         raise RuntimeError(f"VV3 Cure helper exceeds bounded cave: {len(helper):#x}")
     region = bytearray(CAVE_LENGTH)
     region[: len(helper)] = helper
     region[STRING_OFFSET : STRING_OFFSET + len(blob)] = blob
+    if sha(bytes(region[: len(helper)])) != sha(helper):
+        raise RuntimeError("VV3 Cure helper slice hash differs after layout.")
     return bytes(region), {
         "helper_length": len(helper),
         "helper_sha256": sha(helper),
@@ -346,6 +403,7 @@ def build_region() -> tuple[bytes, dict[str, object]]:
         "region_sha256": sha(region),
         "used_length": STRING_OFFSET + len(blob),
         "tail_zero_length": CAVE_LENGTH - (STRING_OFFSET + len(blob)),
+        **control_flow,
     }
 
 
@@ -380,6 +438,8 @@ def main() -> None:
             "immediate_pre_cure_sha256": "059230146E8CC36E06E5473AE187D081E337DB90638B227FBA799B9C82B58C1C",
             "full_mastery_page_sha256": "2DAE85AE4077C23C2C7C39F64B5BA944740F765AC8E24FBB097B0BF28A720DF6",
             "running_region_sha256": "76339C8FFBE0FF92F3F1EB2CC27A4E0600E33DCC936716DA94BBB0BD5D1AB050",
+            "running_composed_parent_helper_sha256": COMPOSED_PARENT_HELPER_SHA256,
+            "stock_cure_cave_preimage_sha256": STOCK_CURE_CAVE_PREIMAGE_SHA256,
             "full_mastery_running_dependency": "vv3_individual_grant_running_candidate",
             "composition": "Origins + Full Mastery + individual Grant Running",
         },
@@ -407,6 +467,11 @@ def main() -> None:
             "people_cured_offset": "0x4FC",
             "increment_per_verified_sick_record": True,
             "health_only_does_not_increment": True,
+            "manager_acquired_before_clear": True,
+            "loop_counter_preserved_across_manager_getter": True,
+            "mutation_loop_counter_local": "[ebp-0x28]",
+            "mutation_loop_counter_bound": POOL_COUNT,
+            "manager_null_means_no_sickness_write": True,
         },
         "record_zero_resolver": {
             "function": "0x45C840",
@@ -449,8 +514,8 @@ def main() -> None:
             },
             "checksum_offset": "0x160",
             "checksum_transitions": {
-                "collection_progression": {"before": "93790D00", "after": "22ED0C00"},
-                "immediate_fixed": {"before": "91BB0D00", "after": "202F0D00"},
+                "collection_progression": {"before": "93790D00", "after": "09B50D00"},
+                "immediate_fixed": {"before": "91BB0D00", "after": "08F70C00"},
             },
         },
     }
@@ -492,7 +557,7 @@ def main() -> None:
         f"The command-5 detour is `{HOOK_BEFORE.hex().upper()}` -> `{HOOK_AFTER.hex().upper()}` at raw `0x{HOOK_OFFSET:X}`. "
         f"The owned cave is raw `0x{CAVE_OFFSET:X}` / VA `0x{CAVE_VA:X}` for `0x{CAVE_LENGTH:X}` bytes; legacy Cure bytes "
         f"`0x{LEGACY_CURE_START:X}..0x{LEGACY_CURE_END:X}` remain byte-identical.\n\n"
-        "The transaction scans exactly 150 records in physical order, resolves record zero through 0x45C840 with ECX=0x59E110 before the dry run and again after confirmation, and resolves USER32.dll/MessageBoxA before any dialog. It performs a complete dry run, confirms at 30,000 tech points, reacquires and rechecks the full state, uses native health setter 0x462670 with ECX=record+0xE6C and pushes -1/100, clears sickness at +0xE89, and increments fresh manager People Cured +0x4FC once per verified sick record (health-only records do not increment). It postverifies and deducts once through 0x427130. The hook and cave are two feature-owned ranges; the only third physical diff is the PE checksum at raw 0x160..0x163. Every no-charge route ends with `No tech points have been deducted.` Native writes may remain after a postverify failure; rollback is not claimed.\n",
+        f"The transaction scans exactly 150 records in physical order, resolves record zero through 0x45C840 with ECX=0x59E110 before the dry run and again after confirmation, and resolves USER32.dll/MessageBoxA before any dialog. The assembled helper is `0x{len(region[:layout['helper_length']]):X}` bytes and strings begin at aligned cave offset `0x{STRING_OFFSET:X}` with no overlap; the mutation counter is the disjoint `[ebp-0x28]` local so neither the manager getter nor native setter can clobber the 150-record bound. It performs a complete dry run, confirms at 30,000 tech points, reacquires and rechecks the full state, uses native health setter 0x462670 with ECX=record+0xE6C and pushes -1/100, acquires a fresh manager before clearing sickness at +0xE89, and increments fresh manager People Cured +0x4FC once per verified sick record (health-only records do not increment). It postverifies and deducts once through 0x427130. The hook and cave are two feature-owned ranges; the only third physical diff is the PE checksum at raw 0x160..0x163. Every no-charge route ends with `No tech points have been deducted.` Native writes may remain after a postverify failure; rollback is not claimed.\n",
         encoding="utf-8",
     )
 
