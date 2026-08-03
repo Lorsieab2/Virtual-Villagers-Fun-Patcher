@@ -395,16 +395,51 @@ class VV5FullMasteryCandidateTests(unittest.TestCase):
         )
         slot = bytes.fromhex(self.feature_raw["patches"][0]["after"])
         installed_page = page[:0x100] + slot + page[0x100 + len(slot) :]
-        confirmation = installed_page[0x100 + 0x800 : 0x100 + 0xC00]
+        confirmation = installed_page[0x100 + 0x800 : 0x100 + 0x850]
+        village_confirmation = installed_page[0x100 + 0x850 : 0x100 + 0xC00]
         confirm_ptr = int(strings["individual_confirm"], 0).to_bytes(4, "little")
+        village_ptr = int(strings["village_confirm"], 0).to_bytes(4, "little")
         warning_ptr = int(strings["warning"], 0).to_bytes(4, "little")
         self.assertEqual(confirmation.count(b"\x68" + confirm_ptr), 1)
         self.assertNotIn(b"\x68" + warning_ptr, confirmation)
+        self.assertEqual(village_confirmation.count(b"\x68" + village_ptr), 1)
+        self.assertNotIn(b"\x68" + confirm_ptr, village_confirmation)
+        self.assertNotIn(b"\x68" + warning_ptr, village_confirmation)
+        self.assertIn(
+            b"Grant Full Mastery to this villager for 100,000 tech points?\r\n"
+            b"Press OK to confirm, or Cancel.\0",
+            installed_page,
+        )
+        self.assertIn(
+            b"Grant Full Mastery to all eligible villagers for 1,000,000 tech points?\r\n"
+            b"Press OK to confirm, or Cancel.\0",
+            installed_page,
+        )
         self.assertIn(
             b"The selected villager changed or no longer passed the final checks.\r\n"
             b"No tech points have been deducted.\0",
             installed_page,
         )
+
+        slot = bytes.fromhex(self.feature_raw["patches"][0]["after"])
+        installed = self.map["layouts"]["collection_progression"]["slot_map"]["installed"]
+        page_va = self.map["layouts"]["collection_progression"]["page_va"]
+        slot_va = page_va + int(self.map["slot_layout"]["offset"], 0)
+        confirm_va = slot_va + int(installed["confirmation_offset"])
+        village_confirm_va = slot_va + int(installed["village_confirmation_offset"])
+        entry_offset = int(self.map["slot_layout"]["entry_offset"], 0)
+        entry = slot[entry_offset : entry_offset + installed["entry_length"]]
+        entry_va = slot_va + entry_offset
+        individual_offset = int(installed["individual_offset"])
+        individual = slot[individual_offset : individual_offset + installed["individual_length"]]
+        individual_va = slot_va + individual_offset
+        self.assertIn(village_confirm_va, rel32_targets(entry, entry_va))
+        self.assertNotIn(confirm_va, rel32_targets(entry, entry_va))
+        self.assertIn(confirm_va, rel32_targets(individual, individual_va))
+        self.assertEqual(installed["confirmation_sha256"], "234E2D9320A75D6B95DED0A682F13087294AE5E48F126DF30269C6F37653C18F")
+        self.assertEqual(installed["individual_sha256"], "00AEE03769489F44BF308385F869D1B26AA64BA25083E38FC7C734C56D97C19B")
+        self.assertEqual(self.feature_raw["transaction_contract"]["price"], 1_000_000)
+        self.assertEqual(self.feature_raw["transaction_contract"]["individual_transaction"]["price"], 100_000)
 
     def test_all_modes_render_checksum_composition_and_uninstall(self):
         compatible = [

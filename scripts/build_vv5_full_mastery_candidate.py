@@ -45,6 +45,10 @@ SLOT_SIZE = 0x1000
 SLOT_ENTRY_OFFSET = 0x20
 WALKER_OFFSET = 0x400
 CONFIRM_OFFSET = 0x800
+# Keep the independently certified individual confirmation at 0x800.  The
+# village-wide command gets its own bounded routine in the remaining zero cave
+# before the individual transaction at 0xC00.
+VILLAGE_CONFIRM_OFFSET = 0x850
 INDIVIDUAL_OFFSET = 0xC00
 STRINGS_OFFSET = 0x1200
 PRICE = 1_000_000
@@ -344,6 +348,53 @@ def build_individual_helper(page_va: int, strings: dict[str, int]) -> bytes:
     """, va)
 
 
+def build_confirmation(
+    routine_va: int,
+    user32_va: int,
+    message_box_va: int,
+    caption_va: int,
+    message_va: int,
+) -> bytes:
+    """Emit the fixed stdcall MessageBoxA wrapper for one confirmation text."""
+    return asm(
+        f"""
+            push ebp
+            mov ebp, esp
+            push ebx
+            push esi
+            push edi
+            push 0x{user32_va:X}
+            call dword ptr [0x4951E0]
+            test eax, eax
+            jz cancel
+            push 0x{message_box_va:X}
+            push eax
+            call dword ptr [0x4951DC]
+            test eax, eax
+            jz cancel
+            push 1
+            push 0x{caption_va:X}
+            push 0x{message_va:X}
+            push 0
+            call eax
+            cmp eax, 1
+            sete al
+            movzx eax, al
+            jmp confirm_done
+        cancel:
+            xor eax, eax
+        confirm_done:
+            pop edi
+            pop esi
+            pop ebx
+            mov esp, ebp
+            pop ebp
+            ret
+        """,
+        routine_va,
+    )
+
+
 def build_slot(page_va: int, installed: bool) -> tuple[bytes, dict[str, object]]:
     slot = bytearray(SLOT_SIZE)
     slot[0:8] = b"VVFMSLT\0"
@@ -382,6 +433,11 @@ def build_slot(page_va: int, installed: bool) -> tuple[bytes, dict[str, object]]
         ("individual_postverify", b"Full Mastery could not be verified.\r\nNo tech points have been deducted."),
         ("individual_confirm", b"Grant Full Mastery to this villager for 100,000 tech points?\r\nPress OK to confirm, or Cancel."),
         ("individual_success", b"Full Mastery has been granted to the selected villager."),
+        (
+            "village_confirm",
+            b"Grant Full Mastery to all eligible villagers for 1,000,000 tech points?\r\n"
+            b"Press OK to confirm, or Cancel.",
+        ),
     ):
         if not value.endswith(b"\0"):
             value += b"\0"
@@ -392,6 +448,7 @@ def build_slot(page_va: int, installed: bool) -> tuple[bytes, dict[str, object]]
 
     walker_va = page_va + SLOT_OFFSET + WALKER_OFFSET
     confirm_va = page_va + SLOT_OFFSET + CONFIRM_OFFSET
+    village_confirm_va = page_va + SLOT_OFFSET + VILLAGE_CONFIRM_OFFSET
     entry = asm(
         f"""
             push ebp
@@ -422,7 +479,7 @@ def build_slot(page_va: int, installed: bool) -> tuple[bytes, dict[str, object]]
             je invalid
             test eax, eax
             jz no_change
-            call 0x{confirm_va:X}
+            call 0x{village_confirm_va:X}
             cmp eax, 1
             jne done
             cmp dword ptr [0x51D5F8], {PRICE}
@@ -563,47 +620,37 @@ def build_slot(page_va: int, installed: bool) -> tuple[bytes, dict[str, object]]
         walker_va,
     )
 
-    confirm = asm(
-        f"""
-            push ebp
-            mov ebp, esp
-            push ebx
-            push esi
-            push edi
-            push 0x{strings['user32']:X}
-            call dword ptr [0x4951E0]
-            test eax, eax
-            jz cancel
-            push 0x{strings['message_box']:X}
-            push eax
-            call dword ptr [0x4951DC]
-            test eax, eax
-            jz cancel
-            push 1
-            push 0x{strings['caption']:X}
-            push 0x{strings['individual_confirm']:X}
-            push 0
-            call eax
-            cmp eax, 1
-            sete al
-            movzx eax, al
-            jmp confirm_done
-        cancel:
-            xor eax, eax
-        confirm_done:
-            pop edi
-            pop esi
-            pop ebx
-            mov esp, ebp
-            pop ebp
-            ret
-        """,
+    confirm = build_confirmation(
         confirm_va,
+        strings["user32"],
+        strings["message_box"],
+        strings["caption"],
+        strings["individual_confirm"],
+    )
+    village_confirm = build_confirmation(
+        village_confirm_va,
+        strings["user32"],
+        strings["message_box"],
+        strings["caption"],
+        strings["village_confirm"],
     )
     individual = build_individual_helper(page_va, strings)
     _put(slot, SLOT_ENTRY_OFFSET, WALKER_OFFSET - SLOT_ENTRY_OFFSET, entry, "entry")
     _put(slot, WALKER_OFFSET, CONFIRM_OFFSET - WALKER_OFFSET, walker, "walker")
-    _put(slot, CONFIRM_OFFSET, INDIVIDUAL_OFFSET - CONFIRM_OFFSET, confirm, "confirmation")
+    _put(
+        slot,
+        CONFIRM_OFFSET,
+        VILLAGE_CONFIRM_OFFSET - CONFIRM_OFFSET,
+        confirm,
+        "individual confirmation",
+    )
+    _put(
+        slot,
+        VILLAGE_CONFIRM_OFFSET,
+        INDIVIDUAL_OFFSET - VILLAGE_CONFIRM_OFFSET,
+        village_confirm,
+        "village-wide confirmation",
+    )
     _put(slot, INDIVIDUAL_OFFSET, SLOT_SIZE - INDIVIDUAL_OFFSET, individual, "individual transaction")
     return bytes(slot), {
         "entry_offset": SLOT_ENTRY_OFFSET,
@@ -615,6 +662,9 @@ def build_slot(page_va: int, installed: bool) -> tuple[bytes, dict[str, object]]
         "confirmation_offset": CONFIRM_OFFSET,
         "confirmation_length": len(confirm),
         "confirmation_sha256": sha(confirm),
+        "village_confirmation_offset": VILLAGE_CONFIRM_OFFSET,
+        "village_confirmation_length": len(village_confirm),
+        "village_confirmation_sha256": sha(village_confirm),
         "individual_offset": INDIVIDUAL_OFFSET,
         "individual_length": len(individual),
         "individual_sha256": sha(individual),
@@ -687,6 +737,8 @@ def build_page(page_va: int, slot: bytes, dispatcher: bytes) -> bytes:
         b"Full Mastery could not be verified.\r\nNo tech points have been deducted.\0",
         b"Grant Full Mastery to this villager for 100,000 tech points?\r\nPress OK to confirm, or Cancel.\0",
         b"Full Mastery has been granted to the selected villager.\0",
+        b"Grant Full Mastery to all eligible villagers for 1,000,000 tech points?\r\n"
+        b"Press OK to confirm, or Cancel.\0",
     ):
         page[cursor : cursor + len(value)] = value
         cursor += len(value)
@@ -1128,6 +1180,7 @@ def main() -> None:
             "entry_offset": f"0x{SLOT_ENTRY_OFFSET:X}",
             "walker_offset": f"0x{WALKER_OFFSET:X}",
             "confirmation_offset": f"0x{CONFIRM_OFFSET:X}",
+            "village_confirmation_offset": f"0x{VILLAGE_CONFIRM_OFFSET:X}",
         },
         "layouts": {
             mode: {
@@ -1153,7 +1206,8 @@ def main() -> None:
             "rel32": [
                 "base Tech menu -> mode-specific page dispatcher",
                 "dispatcher -> mode-specific slot entry",
-                "entry -> walker/confirmation",
+                "entry -> walker/village confirmation",
+                "individual helper -> individual confirmation",
                 "walker -> 0x475730",
             ],
             "base_relocations": [],
@@ -1206,7 +1260,9 @@ def main() -> None:
         "values to the legacy path. The individual confirmation uses the exact "
         "100,000-point confirmation string, and recheck reports a changed villager or "
         "failed final checks with no deduction. Expanded-256 remains on hold and is "
-        "rejected before output.\n",
+        "rejected before output. The village-wide command-7 route uses a separate "
+        "confirmation routine and the exact 1,000,000-point text; the individual "
+        "confirmation routine and string remain distinct.\n",
         encoding="utf-8",
     )
 
