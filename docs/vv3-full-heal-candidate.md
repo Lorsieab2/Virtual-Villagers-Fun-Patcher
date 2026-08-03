@@ -1,6 +1,6 @@
-# VV3 Full Heal / Cure All candidate (disabled)
+# VV3 Full Heal / Cure All (enabled static candidate)
 
-This stock-only candidate is catalog-hidden and disabled pending independent lifecycle recertification. It composes only after the certified VV3 Origins + Full Mastery + individual Grant Running chain in Collection Progression or Immediate Fixed. Expanded-256 is rejected before output.
+This stock-only candidate is enabled and catalog-visible for certified Collection Progression and Immediate Fixed compositions only. Runtime/player validation remains pending. It composes only after the certified VV3 Origins + Full Mastery + individual Grant Running chain in Collection Progression or Immediate Fixed. Expanded-256 is rejected before output.
 
 Provenance is non-circular: design/source lineage `64c1266503c49ba1456f6294683a1f6773eba5d6`, implementation base `ea6125489a60a3bdbb7f4c72e2619a798d23d5f6`, and metadata commit is intentionally null until a later audit. The legacy preserved range `0x7B664..0x7B721` is `CFF1AAA9111728F003621FF662F100940C2F978943F5E69CC64180EA5DE63F7D` in both composed parents; the stock-zero preimage is separately `06EA118EDADD836A02B202C05BC7E47356B57E28C01EDF1DAD6CC4CF90C662E2`.
 

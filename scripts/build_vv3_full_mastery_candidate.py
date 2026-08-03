@@ -787,6 +787,7 @@ def main() -> None:
             "vv3_enable_origins_exclusive_features",
             "vv3_all_villagers_like_running",
             "vv3_full_mastery_all_stage_a_candidate",
+            "vv3_full_heal_cure_all_candidate",
         }
     ]
     renders: dict[str, object] = {}

@@ -139,6 +139,7 @@ class VillageWideContainmentTests(unittest.TestCase):
                 and not (
                     (build.id == "vv1" and patch.id == "vv1_full_mastery_all_stage_a_candidate")
                     or (build.id == "vv2" and patch.id == "vv2_full_mastery_all_stage_a_candidate")
+                    or (build.id == "vv3" and patch.id == "vv3_full_heal_cure_all_candidate")
                 )
             ]
             raw = raw_record(build.id)

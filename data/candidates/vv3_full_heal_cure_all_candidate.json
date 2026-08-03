@@ -1,10 +1,10 @@
 {
   "id": "vv3_full_heal_cure_all_candidate",
   "game_id": "vv3",
-  "name": "Full Heal / Cure All (candidate)",
-  "enabled": false,
-  "catalog_hidden": true,
-  "catalog_enabled": false,
+  "name": "Full Heal / Cure All",
+  "enabled": true,
+  "catalog_hidden": false,
+  "catalog_enabled": true,
   "dependencies": [
     "vv3_individual_grant_running_candidate"
   ],
@@ -22,8 +22,34 @@
     "metadata_commit": null,
     "metadata_status": "pending metadata commit; intentionally non-self-referential"
   },
-  "implementation_status": "candidate implementation; D182 static predicate evidence incorporated; independent lifecycle recertification pending",
+  "static_acceptance": {
+    "commit": "f23b3211775e49d7730caedd73b2bedbd1c34a87",
+    "manifest_sha256": "348AC71046772CE88A05C2B2394AAE5D1EF38CD339929840426BCF5C51E8BDD0",
+    "map_sha256": "65C30D093597AF279FC220FFA4FD315AE9E5B08170FC01B07A39CB5D1967854C",
+    "helper_sha256": "1DAEEE7166ABBE0759D3A952A391C731E9531ABB7B03B327943D4B123BEE160B",
+    "strings_sha256": "F12A532B7D2B442F1BD13F44089935776323959D7147791FFEB447227DE4BF6B",
+    "cave_sha256": "FD9CD28D75CF660294E30E0C8D1D73D6E33079144F877D9EA32027FC76BDDD07",
+    "rendered_sha256": {
+      "collection_progression": "1AB729027342F3EE90B875BF47534A35AF6522F987CD9441E1E8A3D52BF16C47",
+      "immediate_fixed": "06B97177673D405C3F5BB711EAB04EF8DC703F7C80AB042F31F0CCDAE3850D1D"
+    },
+    "supported_modes": [
+      "collection_progression",
+      "immediate_fixed"
+    ],
+    "expanded_rejected": true
+  },
+  "implementation_status": "static certified GO; runtime/player validation pending",
   "runtime_player_status": "pending",
+  "description": "Enabled static VV3 Full Heal / Cure All command-5 Buy action for certified Collection Progression and Immediate Fixed compositions after Origins + Full Mastery + individual Grant Running; runtime/player validation remains pending.",
+  "behavior_changes": [
+    "Command 5 performs the certified Full Heal / Cure All transaction at 30,000 tech points."
+  ],
+  "explicit_non_changes": [
+    "Expanded-256 and unknown builds remain fail-closed; the withdrawn village-wide Running route is absent.",
+    "The candidate is stock-mode only and does not add Remove or ownership behavior."
+  ],
+  "evidence_status": "independent static GO at commit f23b3211775e49d7730caedd73b2bedbd1c34a87; runtime/player validation pending",
   "price": 30000,
   "transaction": {
     "command": 5,

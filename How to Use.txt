@@ -46,6 +46,11 @@ save-recognition, and complete 256-villager save/reload testing.
    candidate is stock Collection Progression/Immediate Fixed-only, costs 40,000,
    remains runtime/player pending, and never exposes the withdrawn village-wide
    command-6 row.
+   "Full Heal / Cure All" is enabled/catalog-visible only after the certified
+   Origins + Full Mastery + selected-villager Running chain for stock Collection
+   Progression and Immediate Fixed. It is a repeatable Buy command 5 costing
+   30,000 tech points; runtime/player confirmation remains pending and Expanded
+   modes reject before output.
 6. Optional for The Tree of Life: check
    "Complete Fish Scales = Golden Fish in Nets" and/or "Enable Origins-Exclusive
    Features". VV4 remains the untouched vanilla Breeding and Embracing

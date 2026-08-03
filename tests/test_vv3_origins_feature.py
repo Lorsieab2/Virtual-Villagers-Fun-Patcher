@@ -102,7 +102,10 @@ class VV3OriginsFeatureTests(unittest.TestCase):
 
     def test_composes_with_every_current_vv3_patch_in_all_modes(self) -> None:
         patch_ids = [
-            patch.id for patch in load_fun_patches() if patch.game_id == "vv3"
+            patch.id
+            for patch in load_fun_patches()
+            if patch.game_id == "vv3"
+            and patch.id != "vv3_full_heal_cure_all_candidate"
         ]
         self.assertIn("vv3_enable_origins_exclusive_features", patch_ids)
         for mode in MODES:

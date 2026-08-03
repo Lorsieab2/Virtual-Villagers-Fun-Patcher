@@ -50,10 +50,10 @@ class VV3FullHealCandidateTests(unittest.TestCase):
             _fun_patches_override=[*self.chain_features, self.feature],
         )[0]
 
-    def test_disabled_hidden_and_exact_pins(self) -> None:
-        self.assertFalse(self.raw["enabled"])
-        self.assertTrue(self.raw["catalog_hidden"])
-        self.assertFalse(self.raw["catalog_enabled"])
+    def test_enabled_catalog_visible_and_exact_pins(self) -> None:
+        self.assertTrue(self.raw["enabled"])
+        self.assertFalse(self.raw["catalog_hidden"])
+        self.assertTrue(self.raw["catalog_enabled"])
         self.assertEqual(sha(self.manifest_path.read_bytes()), v.VV3_FULL_HEAL_MANIFEST_SHA256)
         self.assertEqual(sha(self.map_path.read_bytes()), v.VV3_FULL_HEAL_MAP_SHA256)
         self.assertEqual(self.raw["transaction"], v.VV3_FULL_HEAL_TRANSACTION)
@@ -68,11 +68,37 @@ class VV3FullHealCandidateTests(unittest.TestCase):
         self.assertEqual(self.raw["provenance"]["design_source_commit"], "64c1266503c49ba1456f6294683a1f6773eba5d6")
         self.assertEqual(self.raw["provenance"]["implementation_base_commit"], "ea6125489a60a3bdbb7f4c72e2619a798d23d5f6")
         self.assertIsNone(self.raw["provenance"]["metadata_commit"])
+        self.assertEqual(self.raw["static_acceptance"], v.VV3_FULL_HEAL_STATIC_ACCEPTANCE)
         self.assertEqual(self.raw["base_chain"]["stock_cure_cave_preimage_sha256"], v.VV3_FULL_HEAL_STOCK_CURE_CAVE_PREIMAGE_SHA256)
         self.assertEqual(self.raw["record_zero_resolver"], v.VV3_FULL_HEAL_RECORD_ZERO_RESOLVER)
         self.assertEqual(self.raw["messagebox_resolution"], v.VV3_FULL_HEAL_MESSAGEBOX_RESOLUTION)
         self.assertEqual(self.raw["mutation_accounting"], v.VV3_FULL_HEAL_MUTATION_ACCOUNTING)
-        self.assertNotIn(v.VV3_FULL_HEAL_CANDIDATE_ID, {item.id for item in v.load_fun_patches()})
+        self.assertIn(v.VV3_FULL_HEAL_CANDIDATE_ID, {item.id for item in v.load_fun_patches()})
+
+    def test_enabled_catalog_requires_complete_chain_and_excludes_village_wide(self) -> None:
+        patches = v.load_fun_patches()
+        ids = {item.id for item in patches}
+        self.assertIn(v.VV3_FULL_HEAL_CANDIDATE_ID, ids)
+        self.assertNotIn("vv3_all_villagers_like_running", ids)
+        self.assertNotIn("vv3_origins_village_wide_upgrades", ids)
+        full_chain = [
+            "vv3_enable_origins_exclusive_features",
+            "vv3_full_mastery_all_stage_a_candidate",
+            "vv3_individual_grant_running_candidate",
+            v.VV3_FULL_HEAL_CANDIDATE_ID,
+        ]
+        self.assertEqual(
+            v.resolve_fun_patch_ids(full_chain, game_id="vv3", patches=patches),
+            full_chain,
+        )
+        with self.assertRaisesRegex(v.PatcherError, "Full Heal / Cure All.*vv3_individual_grant_running_candidate"):
+            v.resolve_fun_patch_ids(
+                [v.VV3_FULL_HEAL_CANDIDATE_ID], game_id="vv3", patches=patches
+            )
+        with self.assertRaisesRegex(v.PatcherError, "Grant Running.*Full Mastery"):
+            v.resolve_fun_patch_ids(
+                ["vv3_individual_grant_running_candidate"], game_id="vv3", patches=patches
+            )
 
     def test_both_stock_modes_emit_hook_and_cave(self) -> None:
         for mode in ("collection_progression", "immediate_fixed"):

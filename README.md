@@ -313,6 +313,15 @@ route. The withdrawn village-wide command-6 Running row remains absent. Expanded
 256, unknown builds, and corrupt metadata fail closed; static evidence is GO while
 runtime/player validation remains pending.
 
+## VV3: Full Heal / Cure All
+
+The enabled/catalog-visible `vv3_full_heal_cure_all_candidate` is available only
+for stock Collection Progression and Immediate Fixed when the certified Origins,
+Full Mastery, and selected-villager Running chain is selected. It is a repeatable
+Buy-only command 5 costing 30,000 tech points; no Remove or ownership route is
+added. Expanded-256, unknown builds, and corrupt metadata fail closed, and
+runtime/player confirmation remains pending.
+
 ## VV4 breeding reference
 
 VV4 remains the untouched vanilla Breeding and Embracing reference, including
@@ -490,7 +499,7 @@ as `vv1_full_mastery_all_stage_a_candidate` for `collection_progression` and
 `immediate_fixed` only. Expanded-256 rejects before output; runtime/player
 confirmation remains pending.
 
-Pass `--patch-mode collection_progression`, `--patch-mode immediate_fixed`, `--patch-mode experimental_expanded_256`, or `--patch-mode experimental_expanded_256_progression` to `dry-run`, `apply`, `dry-run-all`, or `apply-all`. Optional features use repeatable `--fun-patch` arguments. The available IDs are `vv1_school_lessons_grant_skill`, `vv1_continue_research_at_max_technologies`, `vv1_f6_clothing_change_cheat`, `vv1_magic_fruit_alters_mortality`, `vv1_builder_action_fixes`, `vv1_enable_origins_exclusive_features`, `vv2_easier_healing_mastery`, `vv2_teaching_children_grants_skill`, `vv2_hospital_recovery_heals`, `vv2_birth_control`, `vv2_gong_of_wonder_coconuts_fix`, `vv2_full_mastery_all_stage_a_candidate`, `vv3_nature_honey_refill`, `vv3_nature_level_three_alters_mortality`, `vv3_rare_collectible_retry`, `vv3_enable_origins_exclusive_features`, `vv3_full_mastery_all_stage_a_candidate`, `vv4_complete_scales_golden_fish`, `vv4_enable_origins_exclusive_features`, `vv5_heathen_mommy_puzzle`, `vv5_easier_devotee_training`, `vv5_statue_polishing_or_honoring`, `vv5_vv4_nursery_divisor_parity`, and `vv5_enable_origins_exclusive_features`. The per-game Village Statistics IDs are `vv1_write_village_statistics`, `vv2_write_village_statistics`, `vv3_write_village_statistics`, `vv4_write_village_statistics`, and `vv5_write_village_statistics`. VV2 Full Mastery is stock-mode-only; both Expanded modes reject before output. The VV2 Origins IDs and the VV4 Origins/Full Mastery records remain intentionally omitted while contained; the VV4 C6 candidate is not selectable until fresh recertification.
+Pass `--patch-mode collection_progression`, `--patch-mode immediate_fixed`, `--patch-mode experimental_expanded_256`, or `--patch-mode experimental_expanded_256_progression` to `dry-run`, `apply`, `dry-run-all`, or `apply-all`. Optional features use repeatable `--fun-patch` arguments. The available IDs are `vv1_school_lessons_grant_skill`, `vv1_continue_research_at_max_technologies`, `vv1_f6_clothing_change_cheat`, `vv1_magic_fruit_alters_mortality`, `vv1_builder_action_fixes`, `vv1_enable_origins_exclusive_features`, `vv2_easier_healing_mastery`, `vv2_teaching_children_grants_skill`, `vv2_hospital_recovery_heals`, `vv2_birth_control`, `vv2_gong_of_wonder_coconuts_fix`, `vv2_full_mastery_all_stage_a_candidate`, `vv3_nature_honey_refill`, `vv3_nature_level_three_alters_mortality`, `vv3_rare_collectible_retry`, `vv3_enable_origins_exclusive_features`, `vv3_full_mastery_all_stage_a_candidate`, `vv3_full_heal_cure_all_candidate`, `vv4_complete_scales_golden_fish`, `vv4_enable_origins_exclusive_features`, `vv5_heathen_mommy_puzzle`, `vv5_easier_devotee_training`, `vv5_statue_polishing_or_honoring`, `vv5_vv4_nursery_divisor_parity`, and `vv5_enable_origins_exclusive_features`. The per-game Village Statistics IDs are `vv1_write_village_statistics`, `vv2_write_village_statistics`, `vv3_write_village_statistics`, `vv4_write_village_statistics`, and `vv5_write_village_statistics`. VV2 Full Mastery is stock-mode-only; both Expanded modes reject before output. The VV2 Origins IDs and the VV4 Origins/Full Mastery records remain intentionally omitted while contained; the VV4 C6 candidate is not selectable until fresh recertification.
 
 The statically certified VV2 command-7-only Full Mastery feature is catalog-visible
 only for stock Collection Progression and Immediate Fixed; runtime/player

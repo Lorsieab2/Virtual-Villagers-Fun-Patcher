@@ -1,4 +1,4 @@
-"""Build the disabled VV3 Full Heal/Cure All candidate.
+"""Build the VV3 Full Heal/Cure All candidate metadata.
 
 The candidate is deliberately separate from the withdrawn command-6 payload and
 from the selected-villager Running slot.  It is emitted only as a source-owned
@@ -60,7 +60,7 @@ LEGACY_PRESERVED_RANGE_SHA256 = COMPOSED_PARENT_HELPER_SHA256
 STOCK_ZERO_PREIMAGE_LEGACY_RANGE_SHA256 = "06EA118EDADD836A02B202C05BC7E47356B57E28C01EDF1DAD6CC4CF90C662E2"
 SOURCE_COMMIT = "64c1266503c49ba1456f6294683a1f6773eba5d6"
 IMPLEMENTATION_BASE_COMMIT = "ea6125489a60a3bdbb7f4c72e2619a798d23d5f6"
-IMPLEMENTATION_STATUS = "candidate implementation; D182 static predicate evidence incorporated; independent lifecycle recertification pending"
+IMPLEMENTATION_STATUS = "static certified GO; runtime/player validation pending"
 PROVENANCE = {
     "design_source_commit": SOURCE_COMMIT,
     "implementation_base_commit": IMPLEMENTATION_BASE_COMMIT,
@@ -70,6 +70,17 @@ PROVENANCE = {
 RENDERED_SHA256 = {
     "collection_progression": "1AB729027342F3EE90B875BF47534A35AF6522F987CD9441E1E8A3D52BF16C47",
     "immediate_fixed": "06B97177673D405C3F5BB711EAB04EF8DC703F7C80AB042F31F0CCDAE3850D1D",
+}
+STATIC_ACCEPTANCE = {
+    "commit": "f23b3211775e49d7730caedd73b2bedbd1c34a87",
+    "manifest_sha256": "348AC71046772CE88A05C2B2394AAE5D1EF38CD339929840426BCF5C51E8BDD0",
+    "map_sha256": "65C30D093597AF279FC220FFA4FD315AE9E5B08170FC01B07A39CB5D1967854C",
+    "helper_sha256": "1DAEEE7166ABBE0759D3A952A391C731E9531ABB7B03B327943D4B123BEE160B",
+    "strings_sha256": "F12A532B7D2B442F1BD13F44089935776323959D7147791FFEB447227DE4BF6B",
+    "cave_sha256": "FD9CD28D75CF660294E30E0C8D1D73D6E33079144F877D9EA32027FC76BDDD07",
+    "rendered_sha256": RENDERED_SHA256,
+    "supported_modes": ["collection_progression", "immediate_fixed"],
+    "expanded_rejected": True,
 }
 
 sys.path.insert(0, str(ROOT / ".tools" / "keystone-runtime"))
@@ -429,16 +440,26 @@ def main() -> None:
     manifest = {
         "id": "vv3_full_heal_cure_all_candidate",
         "game_id": "vv3",
-        "name": "Full Heal / Cure All (candidate)",
-        "enabled": False,
-        "catalog_hidden": True,
-        "catalog_enabled": False,
+        "name": "Full Heal / Cure All",
+        "enabled": True,
+        "catalog_hidden": False,
+        "catalog_enabled": True,
         "dependencies": ["vv3_individual_grant_running_candidate"],
         "supported_modes": ["collection_progression", "immediate_fixed"],
         "unsupported_patch_modes": ["experimental_expanded_256", "experimental_expanded_256_progression"],
         "provenance": PROVENANCE,
+        "static_acceptance": STATIC_ACCEPTANCE,
         "implementation_status": IMPLEMENTATION_STATUS,
         "runtime_player_status": "pending",
+        "description": "Enabled static VV3 Full Heal / Cure All command-5 Buy action for certified Collection Progression and Immediate Fixed compositions after Origins + Full Mastery + individual Grant Running; runtime/player validation remains pending.",
+        "behavior_changes": [
+            "Command 5 performs the certified Full Heal / Cure All transaction at 30,000 tech points.",
+        ],
+        "explicit_non_changes": [
+            "Expanded-256 and unknown builds remain fail-closed; the withdrawn village-wide Running route is absent.",
+            "The candidate is stock-mode only and does not add Remove or ownership behavior.",
+        ],
+        "evidence_status": "independent static GO at commit f23b3211775e49d7730caedd73b2bedbd1c34a87; runtime/player validation pending",
         "price": PRICE,
         "transaction": {"command": 5, "price": PRICE, "action": "Buy", "repeatable": True, "ownership": None, "remove": False},
         "base_chain": {
@@ -532,10 +553,11 @@ def main() -> None:
     manifest["base_manifest_sha256"] = sha(BASE_MANIFEST.read_bytes())
     artifact_map = {
         "candidate_id": manifest["id"],
-        "candidate_enabled": False,
-        "catalog_hidden": True,
-        "catalog_enabled": False,
+        "candidate_enabled": True,
+        "catalog_hidden": False,
+        "catalog_enabled": True,
         "provenance": PROVENANCE,
+        "static_acceptance": STATIC_ACCEPTANCE,
         "implementation_status": IMPLEMENTATION_STATUS,
         "allowed_modes": manifest["supported_modes"],
         "expanded_fail_closed": True,
@@ -555,14 +577,14 @@ def main() -> None:
         "forbidden_routes": manifest["forbidden_routes"],
         "legacy_preserved_range": {"raw_start": f"0x{LEGACY_CURE_START:X}", "raw_end": f"0x{LEGACY_CURE_END:X}", "sha256": LEGACY_PRESERVED_RANGE_SHA256},
         "stock_zero_preimage_legacy_range": {"raw_start": f"0x{LEGACY_CURE_START:X}", "raw_end": f"0x{LEGACY_CURE_END:X}", "sha256": STOCK_ZERO_PREIMAGE_LEGACY_RANGE_SHA256},
-        "rendered": {mode: {"pending": "candidate disabled; render only after independent lifecycle recertification"} for mode in manifest["supported_modes"]},
+        "rendered": {mode: {"sha256": RENDERED_SHA256[mode], "runtime_player_status": "pending"} for mode in manifest["supported_modes"]},
     }
     OUT_DIR.mkdir(parents=True, exist_ok=True)
     MANIFEST_OUT.write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
     MAP_OUT.write_text(json.dumps(artifact_map, indent=2) + "\n", encoding="utf-8")
     DOC_OUT.write_text(
-        "# VV3 Full Heal / Cure All candidate (disabled)\n\n"
-        "This stock-only candidate is catalog-hidden and disabled pending independent lifecycle recertification. "
+        "# VV3 Full Heal / Cure All (enabled static candidate)\n\n"
+        "This stock-only candidate is enabled and catalog-visible for certified Collection Progression and Immediate Fixed compositions only. Runtime/player validation remains pending. "
         "It composes only after the certified VV3 Origins + Full Mastery + individual Grant Running chain in "
         "Collection Progression or Immediate Fixed. Expanded-256 is rejected before output.\n\n"
         f"Provenance is non-circular: design/source lineage `{SOURCE_COMMIT}`, implementation base `{IMPLEMENTATION_BASE_COMMIT}`, and metadata commit is intentionally null until a later audit. The legacy preserved range `0x{LEGACY_CURE_START:X}..0x{LEGACY_CURE_END:X}` is `{LEGACY_PRESERVED_RANGE_SHA256}` in both composed parents; the stock-zero preimage is separately `{STOCK_ZERO_PREIMAGE_LEGACY_RANGE_SHA256}`.\n\n"

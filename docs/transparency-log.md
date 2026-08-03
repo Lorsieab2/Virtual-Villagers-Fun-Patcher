@@ -261,6 +261,16 @@ Inspired by the Virtual Villagers 1 mobile port where these exclusive Origins up
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending
 - Guarded executable edits: 9; every edit has an exact purpose and before/after guard in the manifest.
 
+#### Full Heal / Cure All (`vv3_full_heal_cure_all_candidate`)
+
+Enabled static VV3 Full Heal / Cure All command-5 Buy action for certified Collection Progression and Immediate Fixed compositions after Origins + Full Mastery + individual Grant Running; runtime/player validation remains pending.
+
+- Behavior changes: Command 5 performs the certified Full Heal / Cure All transaction at 30,000 tech points.
+- Explicit non-changes/exclusions: Expanded-256 and unknown builds remain fail-closed; the withdrawn village-wide Running route is absent. The candidate is stock-mode only and does not add Remove or ownership behavior.
+- Dependencies: vv3_individual_grant_running_candidate
+- Evidence status: independent static GO at commit f23b3211775e49d7730caedd73b2bedbd1c34a87; runtime/player validation pending
+- Guarded executable edits: 2; every edit has an exact purpose and before/after guard in the manifest.
+
 #### Grant Full Mastery to All Villagers (`vv3_full_mastery_all_stage_a_candidate`)
 
 Stock-only command-7 repeatable Buy candidate using fixed manager 0x0059E110, native resolver sub_45C840, native skill writer sub_455740, and Award evaluator sub_462500; commands 6/8 are absent.
