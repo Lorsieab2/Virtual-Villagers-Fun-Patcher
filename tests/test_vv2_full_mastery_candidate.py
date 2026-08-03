@@ -36,6 +36,10 @@ GENERATOR = ROOT / "scripts" / "build_vv2_full_mastery_candidate.py"
 MANIFEST = ROOT / "data" / "candidates" / "vv2_full_mastery_all_candidate.json"
 MAP = ROOT / "data" / "candidates" / "vv2_full_mastery_all_candidate_map.json"
 DOC = ROOT / "docs" / "vv2-full-mastery-stage-a-candidate.md"
+TRANSPARENCY_DOC = ROOT / "docs" / "transparency-log.md"
+RUNTIME_CHECKLIST = ROOT / "docs" / "origins-player-runtime-checklist.md"
+READINESS_DOC = ROOT / "docs" / "origins-playtest-readiness.md"
+TRANSPARENCY_GENERATOR = ROOT / "scripts" / "generate_transparency_docs.py"
 DLL = ROOT / "data" / "candidates" / "VVFP VV2 Full Mastery Candidate.dll"
 IMPLEMENTATION_COMMIT = "895340333d55273e599f2dce5ab0db42cbc6d0ab"
 AUDIT = ROOT / "outputs" / "vv2-c138-native-audit"
@@ -159,6 +163,38 @@ class VV2FullMasteryCandidateTests(unittest.TestCase):
             {int(item["offset"], 0) for item in self.raw["patches"]},
             {0x435EF, 0x437C0},
         )
+
+    def test_enabled_metadata_and_docs_use_exact_global_evaluator_truth(self) -> None:
+        expected = (
+            "native sub_44d4c0 runs exactly once globally after complete exact-100 "
+            "postverification"
+        )
+        generated_records = (
+            json.dumps(self.raw),
+            json.dumps(self.map),
+            GENERATOR.read_text(encoding="utf-8"),
+            DOC.read_text(encoding="utf-8"),
+            TRANSPARENCY_GENERATOR.read_text(encoding="utf-8"),
+            TRANSPARENCY_DOC.read_text(encoding="utf-8"),
+            RUNTIME_CHECKLIST.read_text(encoding="utf-8"),
+            READINESS_DOC.read_text(encoding="utf-8"),
+        )
+        stale = (
+            "append the disabled command-7",
+            "add the disabled candidate .vv2fm",
+            "sub_44d4c0 exactly once per changed villager",
+        )
+        for text in generated_records:
+            folded = " ".join(text.casefold().split())
+            self.assertIn(expected, folded)
+            for phrase in stale:
+                self.assertNotIn(phrase, folded)
+        readiness = " ".join(READINESS_DOC.read_text(encoding="utf-8").casefold().split())
+        self.assertNotIn("913be6982bc17d606470f31d3df3d3430942cb6a", readiness)
+        self.assertIn("13f4341201fa7757d23f77c5c17602bbe7bbf21d", readiness)
+        self.assertIn("895340333d55273e599f2dce5ab0db42cbc6d0ab", readiness)
+        self.assertIn("statically enabled and catalog-visible only", readiness)
+        self.assertIn("runtime/player confirmation remains pending", readiness)
 
     def test_provenance_binds_full_implementation_and_independent_static_acceptance(self) -> None:
         for record in (self.raw, self.map):
@@ -863,7 +899,10 @@ class VV2FullMasteryCandidateTests(unittest.TestCase):
         self.assertEqual(self.map["rejected_modes"], list(REJECTED_MODES))
         self.assertEqual(page.count(bytes.fromhex("E8DBC1F9FF")), 0)
         self.assertNotIn(bytes.fromhex("C704240064000000"), page)
-        self.assertEqual(self.raw["transaction_contract"]["native_evaluator"], "sub_44D4C0 thiscall ECX=manager exactly once globally")
+        self.assertEqual(
+            self.raw["transaction_contract"]["native_evaluator"],
+            "native sub_44D4C0 runs exactly once globally after complete exact-100 postverification; thiscall ECX=manager",
+        )
         self.assertEqual(self.raw["transaction_contract"]["native_tech_writer"], "sub_426290 thiscall ECX=state; push signed -1000000; callee ret 4 exactly once after evaluator")
         targets = call_targets(page)
         self.assertEqual(targets.count(0x44F4E0), 5)

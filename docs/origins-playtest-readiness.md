@@ -275,14 +275,17 @@ The matrix is intentionally catalog-driven rather than a hard-coded feature
 list, so newly enabled game-scoped patches cannot silently escape the
 composition checks. It does not modify manifests, executable payloads, saves,
 prices, ownership behavior, or companion DLLs.
-The isolated VV2 command-7-only implementation is now emitted-byte certified
-under `913be6982bc17d606470f31d3df3d3430942cb6a`, but it is now HARD WITHDRAWN
-and catalog-hidden pending independent recertification of its native manager/pool repair
-before the warning. It sets only below-100 values in the five native
-skill fields to 100, calls native `sub_44D4C0` once per changed villager, and
-reports native Elder/totem outcomes including the 50-totem cap. Commands 6 and
-8 remain absent, both withdrawn VV2 Origins manifests remain disabled, and
-runtime/player confirmation is still pending.
+The isolated VV2 command-7-only Full Mastery implementation is statically
+enabled and catalog-visible only for stock Collection Progression and Immediate
+Fixed under independent emitted-byte GO evidence
+`13f4341201fa7757d23f77c5c17602bbe7bbf21d`, with implementation/source bound
+to `895340333d55273e599f2dce5ab0db42cbc6d0ab`. It sets only below-100 values
+in the five native skill fields to 100. Native sub_44D4C0 runs exactly once
+globally after complete exact-100 postverification. It then
+reacquires fresh manager/state, derives fresh telemetry, rechecks unsigned
+funds, and performs the single native deduction. Commands 6 and 8 remain
+absent, both withdrawn VV2 Origins manifests remain disabled, Expanded-256
+modes reject before output, and runtime/player confirmation remains pending.
 
 The isolated VV4 command-7-only implementation is emitted-byte certified under
 `91a01eba0dc561b1244184301837b7199868c490` and catalog-enabled. It validates

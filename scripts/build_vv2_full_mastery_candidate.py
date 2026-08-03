@@ -53,6 +53,7 @@ STRINGS_OFFSET = 0x1000
 PRICE = 1_000_000
 BOUND = 256
 STRIDE = 0xE48C
+EVALUATOR_TRUTH = "native sub_44D4C0 runs exactly once globally after complete exact-100 postverification"
 SNAPSHOT_LOW = -0x124
 SNAPSHOT_HIGH = -0x25
 ENTRY_SCALAR_LOCALS = {
@@ -966,7 +967,7 @@ def build_section() -> tuple[bytes, dict[str, object]]:
             "0x4740D4 GetProcAddress IAT",
             "0x44F4E0 native manager getter (no args, EAX manager)",
             "0x445430 native changed-only skill writer (thiscall, ret 0xC)",
-            "0x44D4C0 native Elder evaluator (thiscall, exactly once)",
+            f"{EVALUATOR_TRUTH} at 0x44D4C0 (thiscall ECX=manager)",
             "0x426290 native tech-point writer (thiscall, ret 4, exactly once)",
             "0x467F83 stock allocation helper",
             "0x4019D0 stock button constructor",
@@ -993,7 +994,7 @@ def build() -> tuple[dict[str, object], dict[str, object]]:
     if sha(original) != expected_sha:
         raise RuntimeError("VV2 stock SHA-256 mismatch")
     if not COMPANION.is_file():
-        raise RuntimeError("build the disabled candidate companion DLL first")
+        raise RuntimeError("build the enabled static-candidate companion DLL first")
     companion_bytes = COMPANION.read_bytes()
     if len(companion_bytes) != COMPANION_SIZE:
         raise RuntimeError("VV2 companion DLL size mismatch")
@@ -1073,13 +1074,13 @@ def build() -> tuple[dict[str, object], dict[str, object]]:
                 "offset": "0x435EF",
                 "before": "8B4C24205F",
                 "after": constructor_after.hex().upper(),
-            "purpose": "append the disabled command-7 Origins Upgrades button",
+            "purpose": "append the enabled command-7 static-candidate Origins Upgrades button",
             },
             {
                 "offset": "0x437C0",
                 "before": "837C240408",
                 "after": handler_after.hex().upper(),
-            "purpose": "route only the command-7 button",
+            "purpose": "route only the enabled command-7 static-candidate button",
             },
         ],
         "pe_append_transaction": {
@@ -1104,7 +1105,7 @@ def build() -> tuple[dict[str, object], dict[str, object]]:
             "target": 100,
             "native_manager_getter": "sub_44F4E0 no arguments; EAX manager; fresh calls at initial, post-confirmation, post-write, pre-evaluator, and post-evaluator boundaries",
             "native_skill_writer": "sub_445430 thiscall ECX=manager+0x52C; push delta, skill id, physical index; callee ret 0xC",
-            "native_evaluator": "sub_44D4C0 thiscall ECX=manager exactly once globally",
+            "native_evaluator": f"{EVALUATOR_TRUTH}; thiscall ECX=manager",
             "native_tech_writer": "sub_426290 thiscall ECX=state; push signed -1000000; callee ret 4 exactly once after evaluator",
             "rollback_limit": "native writer partial changes are not rolled back on postverify failure; failure is no-charge and reported",
             "transaction_order": [
@@ -1116,7 +1117,7 @@ def build() -> tuple[dict[str, object], dict[str, object]]:
                 "changed-only sub_445430 writes",
                 "complete exact-100 postverify",
                 "fresh manager/state acquisition before evaluator",
-                "sub_44D4C0 exactly once",
+                EVALUATOR_TRUTH,
                 "fresh manager/state acquisition after evaluator",
                 "fresh telemetry after evaluator",
                 "fresh unsigned funds >= 1000000 recheck",
@@ -1168,13 +1169,13 @@ def build() -> tuple[dict[str, object], dict[str, object]]:
             "append_length": SECTION_SIZE,
             "append_bytes": section.hex().upper(),
             "virtual_address": f"0x{SECTION_VA:X}",
-            "purpose": "append the disabled command-7-only .vv2fm RX section",
+            "purpose": "append the enabled command-7-only .vv2fm RX static-candidate section",
             "header_patches": [
                 {
                     "offset": f"0x{pe['section_count_offset']:X}",
                     "before": "0500",
                     "after": "0600",
-                    "purpose": "add the disabled candidate .vv2fm section",
+                    "purpose": "add the enabled static-candidate .vv2fm section",
                 },
                 {
                     "offset": f"0x{pe['size_of_image_offset']:X}",
@@ -1186,7 +1187,7 @@ def build() -> tuple[dict[str, object], dict[str, object]]:
                     "offset": f"0x{pe['section_header_offset']:X}",
                     "before": header_before.hex().upper(),
                     "after": header.hex().upper(),
-                    "purpose": "install guarded .vv2fm RX section header",
+                    "purpose": "install the enabled static-candidate .vv2fm RX section header",
                 },
             ],
         }
@@ -1245,7 +1246,7 @@ def build() -> tuple[dict[str, object], dict[str, object]]:
                 "walker": "cdecl(manager,bound,mode,snapshot); bound 256; mode0 dry-run, mode1 native writes, mode2 exact100 postverify; preserves EBX/ESI/EDI/EBP",
                 "telemetry": "cdecl(base,bound,snapshot); ECX new markers; EDX changed-but-unmarked",
                 "skill_writer": "sub_445430 thiscall ECX=manager+0x52C; stack delta, skill id, physical index; ret 0xC",
-                "evaluator": "sub_44D4C0 thiscall ECX=manager exactly once",
+                "evaluator": f"{EVALUATOR_TRUTH}; thiscall ECX=manager",
                 "tech_writer": "sub_426290 thiscall ECX=state; stack signed -1000000; ret 4 exactly once after evaluator",
                 "result": "stdcall(status,changed,new_markers,changed_but_unmarked); ret 16",
             },
@@ -1666,7 +1667,8 @@ def main(argv: list[str] | None = None) -> None:
         "post-preflight result uses that pointer without another "
         "resolver. The transaction performs a complete 256-record dry run before "
         "funds/confirmation, reacquires manager/state at five pointer-sensitive "
-        "boundaries, post-verifies exact 100, calls sub_44D4C0 once, reacquires "
+        "boundaries, post-verifies exact 100, then native sub_44D4C0 runs exactly "
+        "once globally after complete exact-100 postverification. It reacquires "
         "again, refreshes telemetry, performs a fresh unsigned funds check, then "
         "calls sub_426290 once for the single deduction. Cancel reports `Full "
         "Mastery was canceled.` followed by `No tech points have been deducted.` "

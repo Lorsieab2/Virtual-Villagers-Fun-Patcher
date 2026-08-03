@@ -82,10 +82,11 @@ stock Collection Progression and Immediate Fixed under independent GO evidence
 pending. The isolated command-7-only
 feature scans active `+0x30`, positive signed health `+0x52C`, non-totem
 `+0x558` records and changes only native skill DWORDs `+0x7E4..+0x7F4` that
-are below 100. It then calls native `sub_44D4C0` exactly once per changed
-villager. The repeatable 1,000,000-point Buy transaction performs a complete
+are below 100. Native sub_44D4C0 runs exactly once globally after complete
+exact-100 postverification. The repeatable 1,000,000-point Buy transaction performs a complete
 dry-run, exact no-change/no-charge result, universal OK/Cancel confirmation,
-final unsigned funds and eligibility recheck, one deduction, and one commit.
+final unsigned funds and eligibility recheck, one commit, fresh post-evaluator
+telemetry, a fresh funds recheck, and one native deduction.
 Commands 6/8, ownership, Remove, withdrawn `.shr`, Gong, and Island Events are
 absent. Static certification is complete; runtime/player confirmation remains
 pending.
