@@ -56,10 +56,15 @@ class VV3FullHealCandidateTests(unittest.TestCase):
             _fun_patches_override=[*self.chain_features, self.feature],
         )[0]
 
-    def test_enabled_catalog_visible_and_exact_pins(self) -> None:
-        self.assertTrue(self.raw["enabled"])
-        self.assertFalse(self.raw["catalog_hidden"])
-        self.assertTrue(self.raw["catalog_enabled"])
+    def _cave(self) -> bytes:
+        return bytes.fromhex(
+            self.raw["pe_append_transaction"]["layouts"]["collection_progression"]["append_bytes"]
+        )
+
+    def test_disabled_catalog_hidden_and_exact_pins(self) -> None:
+        self.assertFalse(self.raw["enabled"])
+        self.assertTrue(self.raw["catalog_hidden"])
+        self.assertFalse(self.raw["catalog_enabled"])
         self.assertEqual(sha(self.manifest_path.read_bytes()), v.VV3_FULL_HEAL_MANIFEST_SHA256)
         self.assertEqual(sha(self.map_path.read_bytes()), v.VV3_FULL_HEAL_MAP_SHA256)
         self.assertEqual(self.raw["transaction"], v.VV3_FULL_HEAL_TRANSACTION)
@@ -81,12 +86,12 @@ class VV3FullHealCandidateTests(unittest.TestCase):
         self.assertEqual(self.raw["record_zero_resolver"], v.VV3_FULL_HEAL_RECORD_ZERO_RESOLVER)
         self.assertEqual(self.raw["messagebox_resolution"], v.VV3_FULL_HEAL_MESSAGEBOX_RESOLUTION)
         self.assertEqual(self.raw["mutation_accounting"], v.VV3_FULL_HEAL_MUTATION_ACCOUNTING)
-        self.assertIn(v.VV3_FULL_HEAL_CANDIDATE_ID, {item.id for item in v.load_fun_patches()})
+        self.assertNotIn(v.VV3_FULL_HEAL_CANDIDATE_ID, {item.id for item in v.load_fun_patches()})
 
-    def test_enabled_catalog_requires_complete_chain_and_excludes_village_wide(self) -> None:
+    def test_disabled_catalog_requires_complete_chain_and_excludes_village_wide(self) -> None:
         patches = v.load_fun_patches()
         ids = {item.id for item in patches}
-        self.assertIn(v.VV3_FULL_HEAL_CANDIDATE_ID, ids)
+        self.assertNotIn(v.VV3_FULL_HEAL_CANDIDATE_ID, ids)
         self.assertNotIn("vv3_all_villagers_like_running", ids)
         self.assertNotIn("vv3_origins_village_wide_upgrades", ids)
         full_chain = [
@@ -95,14 +100,8 @@ class VV3FullHealCandidateTests(unittest.TestCase):
             "vv3_individual_grant_running_candidate",
             v.VV3_FULL_HEAL_CANDIDATE_ID,
         ]
-        self.assertEqual(
-            v.resolve_fun_patch_ids(full_chain, game_id="vv3", patches=patches),
-            full_chain,
-        )
-        with self.assertRaisesRegex(v.PatcherError, "Full Heal / Cure All.*vv3_individual_grant_running_candidate"):
-            v.resolve_fun_patch_ids(
-                [v.VV3_FULL_HEAL_CANDIDATE_ID], game_id="vv3", patches=patches
-            )
+        with self.assertRaises(v.PatcherError):
+            v.resolve_fun_patch_ids(full_chain, game_id="vv3", patches=patches)
         with self.assertRaisesRegex(v.PatcherError, "Grant Running.*Full Mastery"):
             v.resolve_fun_patch_ids(
                 ["vv3_individual_grant_running_candidate"], game_id="vv3", patches=patches
@@ -122,7 +121,7 @@ class VV3FullHealCandidateTests(unittest.TestCase):
             )
             self.assertEqual(rendered[0xA35EF : 0xA35F6], v.VV3_FULL_HEAL_HOOK_AFTER)
             self.assertEqual(
-                sha(bytes(rendered[0x7B721 : 0x7B721 + v.VV3_FULL_HEAL_CAVE_LENGTH])),
+                sha(bytes(rendered[v.VV3_FULL_HEAL_CAVE_OFFSET_INT : v.VV3_FULL_HEAL_CAVE_OFFSET_INT + v.VV3_FULL_HEAL_CAVE_LENGTH])),
                 v.VV3_FULL_HEAL_CAVE_SHA256,
             )
             self.assertEqual(
@@ -139,25 +138,25 @@ class VV3FullHealCandidateTests(unittest.TestCase):
             self.assertEqual(first, second)
 
     def test_d183_exact_shim_api_width_and_fresh_pool_markers(self) -> None:
-        cave = bytes.fromhex(self.raw["patches"][1]["after"])
+        cave = self._cave()
         self.assertIn(v.VV3_FULL_HEAL_NON5_SHIM, cave)
         self.assertNotIn(bytes.fromhex("8B04BD543F4A00"), cave)
         self.assertEqual(cave.count(bytes.fromhex("80BF100F000000")), 3)
         self.assertNotIn(bytes.fromhex("83BF100F00000000"), cave)
         self.assertEqual(cave.count(bytes.fromhex("FF1524C14700")), 1)
-        self.assertEqual(cave.count(bytes.fromhex("FF1528C14700")), 1)
+        self.assertEqual(cave.count(bytes.fromhex("FF1528C14700")), 2)
         self.assertEqual(cave.count(bytes.fromhex("6A00B910E15900")), 3)
         self.assertNotIn(bytes.fromhex("C745E824E15900"), cave)
         self.assertIn(b"USER32.dll\0", cave)
         self.assertIn(b"MessageBoxA\0", cave)
         self.assertIn(bytes.fromhex("8945F0"), cave)
         self.assertEqual(cave.count(bytes.fromhex("FF80FC040000")), 1)
-        self.assertEqual(cave.count(bytes.fromhex("C745D896000000")), 1)
-        self.assertEqual(cave.count(bytes.fromhex("FF4DD8")), 1)
+        self.assertEqual(cave.count(bytes.fromhex("C745D096000000")), 1)
+        self.assertEqual(cave.count(bytes.fromhex("FF4DD0")), 1)
 
     def test_layout_hash_and_internal_control_flow_stay_before_strings(self) -> None:
-        cave = bytes.fromhex(self.raw["patches"][1]["after"])
-        layout = self.raw["patches"][1]["layout"]
+        cave = self._cave()
+        layout = json.loads(self.map_path.read_text(encoding="utf-8"))["section"]["layout"]
         helper_length = layout["helper_length"]
         strings_offset = int(layout["strings_offset"], 0)
         self.assertLess(helper_length, strings_offset)
@@ -166,10 +165,10 @@ class VV3FullHealCandidateTests(unittest.TestCase):
         self.assertEqual(layout["tail_zero_length"], v.VV3_FULL_HEAL_TAIL_ZERO_LENGTH)
         md = Cs(CS_ARCH_X86, CS_MODE_32)
         md.detail = True
-        instructions = list(md.disasm(cave[:helper_length], 0x47B721))
+        instructions = list(md.disasm(cave[:helper_length], 0x6E0000))
         self.assertEqual(sum(item.size for item in instructions), helper_length)
         starts = {item.address for item in instructions}
-        code_end = 0x47B721 + strings_offset
+        code_end = 0x6E0000 + strings_offset
         for item in instructions:
             self.assertLessEqual(item.address + item.size, code_end)
             if not (item.group(CS_GRP_CALL) or item.group(CS_GRP_JUMP)):
@@ -177,24 +176,24 @@ class VV3FullHealCandidateTests(unittest.TestCase):
             if not item.operands or item.operands[0].type != X86_OP_IMM:
                 continue
             target = item.operands[0].imm
-            if 0x47B721 <= target < 0x47B721 + len(cave):
+            if 0x6E0000 <= target < 0x6E0000 + len(cave):
                 self.assertLess(target, code_end)
                 self.assertIn(target, starts)
         self.assertEqual(layout["internal_target_offsets"], v.VV3_FULL_HEAL_INTERNAL_TARGET_OFFSETS)
         self.assertEqual(layout["epilogue_offset"], v.VV3_FULL_HEAL_HELPER_EPILOGUE_OFFSET)
         self.assertEqual(layout["instruction_count"], v.VV3_FULL_HEAL_HELPER_INSTRUCTION_COUNT)
-        self.assertEqual(len([item for item in instructions if item.group(CS_GRP_CALL) and item.operands and item.operands[0].type == X86_OP_IMM and item.operands[0].imm == 0x4A3400]), 2)
+        self.assertEqual(len([item for item in instructions if item.group(CS_GRP_CALL) and item.operands and item.operands[0].type == X86_OP_IMM and item.operands[0].imm == 0x4A3400]), 3)
         self.assertEqual(len([item for item in instructions if item.group(CS_GRP_CALL) and item.operands and item.operands[0].type == X86_OP_IMM and item.operands[0].imm == 0x427130]), 1)
         for mode in ("collection_progression", "immediate_fixed"):
-            rendered_cave = bytes(self._render(mode)[0x7B721 : 0x7B721 + v.VV3_FULL_HEAL_CAVE_LENGTH])
+            rendered_cave = bytes(self._render(mode)[v.VV3_FULL_HEAL_CAVE_OFFSET_INT : v.VV3_FULL_HEAL_CAVE_OFFSET_INT + v.VV3_FULL_HEAL_CAVE_LENGTH])
             self.assertEqual(rendered_cave, cave)
-            rendered_instructions = list(md.disasm(rendered_cave[:helper_length], 0x47B721))
+            rendered_instructions = list(md.disasm(rendered_cave[:helper_length], 0x6E0000))
             self.assertEqual(sum(item.size for item in rendered_instructions), helper_length)
 
     def test_mutation_counter_is_local_and_sickness_manager_precedes_clear(self) -> None:
-        cave = bytes.fromhex(self.raw["patches"][1]["after"])
-        self.assertEqual(cave.count(bytes.fromhex("C745D896000000")), 1)
-        self.assertEqual(cave.count(bytes.fromhex("FF4DD8")), 1)
+        cave = self._cave()
+        self.assertEqual(cave.count(bytes.fromhex("C745D096000000")), 1)
+        self.assertEqual(cave.count(bytes.fromhex("FF4DD0")), 1)
         self.assertEqual(cave.count(bytes.fromhex("FF80FC040000")), 1)
         clear = bytes.fromhex("C687890E000000")
         clear_at = cave.find(clear)
@@ -202,14 +201,14 @@ class VV3FullHealCandidateTests(unittest.TestCase):
         md = Cs(CS_ARCH_X86, CS_MODE_32)
         md.detail = True
         getter_targets = []
-        for item in md.disasm(cave, 0x47B721):
+        for item in md.disasm(cave, 0x6E0000):
             if not item.group(CS_GRP_CALL) or not item.operands:
                 continue
             if item.operands[0].type == X86_OP_IMM and item.operands[0].imm == 0x428B60:
-                getter_targets.append(item.address - 0x47B721)
+                getter_targets.append(item.address - 0x6E0000)
         self.assertTrue(any(offset < clear_at for offset in getter_targets))
-        decoded = list(md.disasm(cave, 0x47B721))
-        clear_index = next(i for i, item in enumerate(decoded) if item.address - 0x47B721 == clear_at)
+        decoded = list(md.disasm(cave, 0x6E0000))
+        clear_index = next(i for i, item in enumerate(decoded) if item.address - 0x6E0000 == clear_at)
         self.assertGreaterEqual(clear_index, 3)
         self.assertEqual(decoded[clear_index - 1].mnemonic, "je")
         self.assertEqual(decoded[clear_index - 2].mnemonic, "test")
@@ -220,22 +219,19 @@ class VV3FullHealCandidateTests(unittest.TestCase):
             and decoded[clear_index - 3].operands[0].imm == 0x428B60
         )
         self.assertEqual(self.raw["sickness"]["manager_acquired_before_clear"], True)
-        self.assertEqual(self.raw["sickness"]["mutation_loop_counter_local"], "[ebp-0x28]")
+        self.assertEqual(self.raw["sickness"]["mutation_loop_counter_local"], "[ebp-0x30]")
         self.assertEqual(self.raw["sickness"]["mutation_loop_counter_bound"], 150)
         self.assertTrue(self.raw["sickness"]["manager_null_means_no_sickness_write"])
 
-    def test_model_scans_exactly_150_and_counts_sick_records(self) -> None:
-        def model(records: list[tuple[int, int, int]]) -> tuple[int, int, int]:
+    def test_model_scans_exactly_150_and_counts_overlap_a_and_b(self) -> None:
+        def model(records: list[tuple[int, int, int]]) -> tuple[int, int]:
             self.assertEqual(len(records), 150)
-            snapshot = []
+            count_a = count_b = 0
             for active, health, sick in records:
                 if active != 0 and health > 0:
-                    snapshot.append((health, sick))
-                else:
-                    snapshot.append((0, 0))
-            changed = [item for item in snapshot if item != (0, 0) and item != (100, 0)]
-            sick_changes = sum(1 for health, sick in changed if sick != 0)
-            return len(snapshot), len(changed), sick_changes
+                    count_a += sick != 0
+                    count_b += 1 <= health <= 99
+            return count_a, count_b
 
         clean = [(1, 100, 0)] * 150
         one_sick = clean.copy()
@@ -246,26 +242,21 @@ class VV3FullHealCandidateTests(unittest.TestCase):
         three_sick[149] = (1, 80, 3)
         health_only = clean.copy()
         health_only[149] = (1, 90, 0)
-        self.assertEqual(model(clean), (150, 0, 0))
-        self.assertEqual(model(one_sick), (150, 1, 1))
-        self.assertEqual(model(three_sick), (150, 3, 3))
-        self.assertEqual(model(health_only), (150, 1, 0))
+        self.assertEqual(model(clean), (0, 0))
+        self.assertEqual(model(one_sick), (1, 0))
+        self.assertEqual(model(three_sick), (3, 2))
+        self.assertEqual(model(health_only), (0, 1))
 
     def test_all_reason_strings_and_partial_write_limit_are_present(self) -> None:
-        cave = bytes.fromhex(self.raw["patches"][1]["after"])
+        cave = self._cave()
         for text in (
-            "All eligible villagers are already healthy and free of sickness.",
-            "No valid living non-skeleton villagers are available.",
-            "Not enough tech points.",
-            "Cure All was canceled.",
-            "Villager state changed during confirmation.",
-            "Cure verification failed; some native changes may already have occurred.",
-            "Cure dependencies are unavailable.",
-            "Full Heal was granted to all eligible villagers.",
+            "Full Heal / Cure All will clear sickness from %u eligible villagers and restore %u partial-health villagers for 30,000 tech points?",
+            "Full Heal / Cure All completed: %u sickness clears and %u full-health restores were verified.",
+            "Full Heal / Cure All failed after %u sickness clears and %u full-health restores were verified.",
             "No tech points have been deducted.",
         ):
             self.assertIn(text.encode("ascii"), cave)
-        self.assertIn("rollback is not claimed", self.raw["partial_failure_limit"])
+        self.assertIn("not claimed", self.raw["partial_failure_limit"])
         self.assertEqual(self.raw["partial_failure_limit"], self.PARTIAL_FAILURE_DISCLOSURE)
         self.assertEqual(self.raw["rollback_disclosure"], self.PARTIAL_FAILURE_DISCLOSURE)
         self.assertIn(self.PARTIAL_FAILURE_DISCLOSURE.encode("ascii"), cave)
@@ -291,7 +282,7 @@ class VV3FullHealCandidateTests(unittest.TestCase):
             self.assertEqual(sha(candidate), accounting["rendered_sha256"][mode])
             self.assertEqual(candidate[0x160:0x164].hex().upper(), accounting["checksum_transitions"][mode]["after"])
             self.assertEqual(parent[0x160:0x164].hex().upper(), accounting["checksum_transitions"][mode]["before"])
-            owned = [(0xA35EF, 0xA35F6), (0x7B721, 0x7B721 + v.VV3_FULL_HEAL_CAVE_LENGTH), (0x160, 0x164)]
+            owned = [(0xA35EF, 0xA35F6), (0x10E, 0x110), (0x158, 0x15C), (0x2F0, 0x318), (v.VV3_FULL_HEAL_CAVE_OFFSET_INT, v.VV3_FULL_HEAL_CAVE_OFFSET_INT + v.VV3_FULL_HEAL_CAVE_LENGTH), (0x160, 0x164)]
             for offset in range(len(parent)):
                 if any(start <= offset < end for start, end in owned):
                     continue
@@ -326,7 +317,7 @@ class VV3FullHealCandidateTests(unittest.TestCase):
             bad_map = temp_path / "map.json"
             shutil.copy2(self.manifest_path, bad_manifest)
             mutated_map = dict(json.loads(self.map_path.read_text(encoding="utf-8")))
-            mutated_map["cave"]["length"] = 1
+            mutated_map["section"]["length"] = 1
             bad_map.write_text(json.dumps(mutated_map, indent=2) + "\n", encoding="utf-8")
             with patch.object(v, "VV3_FULL_HEAL_CANDIDATE_PATHS", {"manifest": bad_manifest, "map": bad_map}):
                 with self.assertRaises(v.PatcherError):
@@ -426,7 +417,7 @@ class VV3FullHealCandidateTests(unittest.TestCase):
                     self._render("immediate_fixed")
 
     def test_native_and_forbidden_markers(self) -> None:
-        cave = bytes.fromhex(self.raw["patches"][1]["after"])
+        cave = self._cave()
         self.assertIn(b"\x6A\xFF\x6A\x64", cave)
         self.assertNotIn(b"\x94\x0E", cave)
         self.assertNotIn(b"\xFC\x0F", cave)
@@ -434,6 +425,11 @@ class VV3FullHealCandidateTests(unittest.TestCase):
         self.assertIn("full_record+0xE6C", self.raw["health_setter"]["ecx"])
         self.assertEqual(self.raw["health_setter"]["forbidden"], "full_record+0xA0")
         self.assertEqual(self.raw["result_helper"]["va"], "0x4A3400")
+
+    def test_companion_dialog_resources_use_exact_label(self) -> None:
+        dll = v.VV3_FULL_HEAL_DLL_PATH.read_bytes()
+        self.assertGreaterEqual(dll.count("Full Heal / Cure All".encode("utf-16le")), 2)
+        self.assertNotIn("Cure all Villagers".encode("utf-16le"), dll)
 
 
 if __name__ == "__main__":

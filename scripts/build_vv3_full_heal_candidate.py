@@ -26,13 +26,21 @@ DOC_OUT = ROOT / "docs" / "vv3-full-heal-candidate.md"
 HOOK_OFFSET = 0xA35EF
 HOOK_VA = 0x4A35EF
 HOOK_BEFORE = bytes.fromhex("8B049D543F4A00")
-HOOK_AFTER = bytes.fromhex("E92D81FDFF9090")
-CAVE_OFFSET = 0x7B721
-CAVE_VA = 0x47B721
-CAVE_LENGTH = 0x700
-# The helper is assembled before strings.  Keep a deliberate alignment gap so
-# a helper growth can never overwrite the first string bytes.
-STRING_OFFSET = 0x330
+HOOK_AFTER = bytes.fromhex("E90CCA23009090")
+# The legacy Cure cave is deliberately left untouched.  The revised candidate
+# owns a separately guarded RX page appended after the certified parent chain.
+OLD_CAVE_OFFSET = 0x7B721
+OLD_CAVE_LENGTH = 0x700
+APPEND_OFFSET = 0xCC000
+SECTION_RVA = 0x2E0000
+SECTION_VA = 0x6E0000
+SECTION_HEADER_OFFSET = 0x2F0
+SECTION_PAGE_SIZE = 0x1000
+CAVE_OFFSET = APPEND_OFFSET
+CAVE_VA = SECTION_VA
+CAVE_LENGTH = SECTION_PAGE_SIZE
+# Keep code and strings disjoint inside the dedicated page.
+STRING_OFFSET = 0x800
 LEGACY_CURE_START = 0x7B664
 LEGACY_CURE_END = 0x7B721
 NON5_CONTINUATION = 0x4A35F6
@@ -83,16 +91,16 @@ PROVENANCE = {
     "metadata_status": "pending metadata commit; intentionally non-self-referential",
 }
 RENDERED_SHA256 = {
-    "collection_progression": "1AB729027342F3EE90B875BF47534A35AF6522F987CD9441E1E8A3D52BF16C47",
-    "immediate_fixed": "06B97177673D405C3F5BB711EAB04EF8DC703F7C80AB042F31F0CCDAE3850D1D",
+    "collection_progression": "38DC5C0599F4E74D9A6C787BDB5FF30EAF54E9E67DCB6718964BBB305359C20F",
+    "immediate_fixed": "F8EDF1F1375C269EB8C108D452AED738AD82867DFE3DC8D1EB369719D1F96B47",
 }
 STATIC_ACCEPTANCE = {
     "commit": "f23b3211775e49d7730caedd73b2bedbd1c34a87",
-    "manifest_sha256": "348AC71046772CE88A05C2B2394AAE5D1EF38CD339929840426BCF5C51E8BDD0",
-    "map_sha256": "65C30D093597AF279FC220FFA4FD315AE9E5B08170FC01B07A39CB5D1967854C",
-    "helper_sha256": "1DAEEE7166ABBE0759D3A952A391C731E9531ABB7B03B327943D4B123BEE160B",
-    "strings_sha256": "F12A532B7D2B442F1BD13F44089935776323959D7147791FFEB447227DE4BF6B",
-    "cave_sha256": "FD9CD28D75CF660294E30E0C8D1D73D6E33079144F877D9EA32027FC76BDDD07",
+    "manifest_sha256": "PENDING",
+    "map_sha256": "PENDING",
+    "helper_sha256": "F367C737D0A3A7A17244B591E231FAF6E2DC6D1FBD02F1EFF27DCA3656F30C28",
+    "strings_sha256": "AA9F42C2EC017377268F3BC1E5BB164BF453C720FC2FFA756CAABA9308C1FDEB",
+    "cave_sha256": "711F1E9DB89AB821FBA5E9B3B81FD3EDB9D334DDF7901E2E5C10F3B0E53FB3F4",
     "rendered_sha256": RENDERED_SHA256,
     "supported_modes": ["collection_progression", "immediate_fixed"],
     "expanded_rejected": True,
@@ -122,16 +130,18 @@ def _strings() -> tuple[dict[str, int], bytes]:
     values = (
         ("user32", "USER32.dll"),
         ("messagebox", "MessageBoxA"),
+        ("wsprintf", "wsprintfA"),
         ("caption", "Origins Upgrades"),
-        ("confirm", "Cure all eligible villagers for 30,000 tech points?\r\nPress OK to confirm, or Cancel."),
+        ("confirm_format", "Full Heal / Cure All will clear sickness from %u eligible villagers and restore %u partial-health villagers for 30,000 tech points?\r\nPress OK to confirm, or Cancel."),
         ("no_change", "All eligible villagers are already healthy and free of sickness.\r\nNo tech points have been deducted."),
         ("invalid", "No valid living non-skeleton villagers are available.\r\nNo tech points have been deducted."),
         ("insufficient", "Not enough tech points.\r\nNo tech points have been deducted."),
         ("canceled", "Cure All was canceled.\r\nNo tech points have been deducted."),
         ("changed", "Villager state changed during confirmation.\r\nNo tech points have been deducted."),
-        ("write_failure", "Cure verification failed; some native changes may already have occurred.\r\nNo tech points have been deducted."),
-        ("success", "Full Heal was granted to all eligible villagers."),
+        ("write_failure_format", "Full Heal / Cure All failed after %u sickness clears and %u full-health restores were verified.\r\nNo tech points have been deducted."),
+        ("success_format", "Full Heal / Cure All completed: %u sickness clears and %u full-health restores were verified."),
         ("dependency", "Cure dependencies are unavailable.\r\nNo tech points have been deducted."),
+        ("rollback_disclosure", PARTIAL_FAILURE_DISCLOSURE),
     )
     blob = bytearray()
     labels: dict[str, int] = {}
@@ -143,9 +153,10 @@ def _strings() -> tuple[dict[str, int], bytes]:
 
 def _helper(strings: dict[str, int]) -> bytes:
     # Stack contract: saved EBX/ESI/EDI are -4/-8/-C, MessageBoxA -10,
-    # manager -14, pool -18, initial changed/sick counts -1C/-20,
-    # recheck count -24, mutation loop counter -28, and 150 pairs of
-    # health/sickness snapshots occupy -4E0..-31.  No +0xE94 or unrelated
+    # wsprintfA -14, manager -18, pool -1C, predicted A/B -20/-24,
+    # verified A/B -28/-2C, eligible/mutation locals -30/-34, and 150
+    # pairs of health/sickness snapshots occupy -4E0..-31.  A dedicated
+    # 512-byte format buffer occupies -6E0..-4E1.  No +0xE94 or unrelated
     # status field is read.
     source = f"""
         cmp ebx, 5
@@ -155,7 +166,7 @@ def _helper(strings: dict[str, int]) -> bytes:
         push ebx
         push esi
         push edi
-        sub esp, 0x4D4
+        sub esp, 0x6D4
         push {strings['user32']:#x}
         call dword ptr [{MESSAGEBOX_IAT:#x}]
         test eax, eax
@@ -166,24 +177,33 @@ def _helper(strings: dict[str, int]) -> bytes:
         test eax, eax
         je dependency_failure
         mov dword ptr [ebp-0x10], eax
+        push {strings['wsprintf']:#x}
+        push dword ptr [ebp-0x10]
+        call dword ptr [{GETPROC_IAT:#x}]
+        test eax, eax
+        je dependency_failure
+        mov dword ptr [ebp-0x14], eax
         call {MANAGER_GETTER:#x}
         test eax, eax
         je invalid_failure
-        mov dword ptr [ebp-0x14], eax
+        mov dword ptr [ebp-0x18], eax
         push 0
         mov ecx, {MANAGER_SINGLETON:#x}
         call 0x45C840
         test eax, eax
         je invalid_failure
-        mov dword ptr [ebp-0x18], eax
-        mov dword ptr [ebp-0x1C], 0
+        mov dword ptr [ebp-0x1C], eax
         mov dword ptr [ebp-0x20], 0
         mov dword ptr [ebp-0x24], 0
+        mov dword ptr [ebp-0x20], 0
+        mov dword ptr [ebp-0x28], 0
+        mov dword ptr [ebp-0x2C], 0
+        mov dword ptr [ebp-0x30], 0
         lea edi, [ebp-0x4E0]
         xor eax, eax
         mov ecx, 300
         rep stosd
-        mov edi, dword ptr [ebp-0x18]
+        mov edi, dword ptr [ebp-0x1C]
         xor esi, esi
         mov ecx, {POOL_COUNT}
     initial_scan:
@@ -191,35 +211,46 @@ def _helper(strings: dict[str, int]) -> bytes:
         je initial_next
         cmp dword ptr [edi+{HEALTH_OFFSET:#x}], 0
         jle initial_next
-        inc dword ptr [ebp-0x24]
+        inc dword ptr [ebp-0x30]
         mov eax, dword ptr [edi+{HEALTH_OFFSET:#x}]
         lea edx, [ebp-0x4E0]
         mov dword ptr [edx+esi*8], eax
         movzx eax, byte ptr [edi+{SICK_OFFSET:#x}]
         mov dword ptr [edx+esi*8+4], eax
-        cmp dword ptr [edx+esi*8], 100
-        jne initial_need
-        cmp dword ptr [edx+esi*8+4], 0
-        je initial_next
-    initial_need:
-        inc dword ptr [ebp-0x1C]
-        cmp dword ptr [edx+esi*8+4], 0
-        je initial_next
+        test eax, eax
+        je initial_partial
         inc dword ptr [ebp-0x20]
+    initial_partial:
+        cmp dword ptr [edx+esi*8], 1
+        jl initial_next
+        cmp dword ptr [edx+esi*8], 99
+        jg initial_next
+        inc dword ptr [ebp-0x24]
     initial_next:
         inc esi
         add edi, {POOL_STRIDE:#x}
         dec ecx
         jnz initial_scan
-        cmp dword ptr [ebp-0x24], 0
+        cmp dword ptr [ebp-0x30], 0
         je invalid_failure
-        cmp dword ptr [ebp-0x1C], 0
+        cmp dword ptr [ebp-0x20], 0
+        jne have_changes
+        cmp dword ptr [ebp-0x24], 0
         je no_change
+    have_changes:
         cmp dword ptr [{TECH_BALANCE:#x}], {PRICE}
         jb insufficient
+        lea eax, [ebp-0x6E0]
+        push dword ptr [ebp-0x24]
+        push dword ptr [ebp-0x20]
+        push {strings['confirm_format']:#x}
+        push eax
+        call dword ptr [ebp-0x14]
+        add esp, 0x10
+        lea eax, [ebp-0x6E0]
         push 1
         push {strings['caption']:#x}
-        push {strings['confirm']:#x}
+        push eax
         push 0
         call dword ptr [ebp-0x10]
         cmp eax, 1
@@ -227,14 +258,14 @@ def _helper(strings: dict[str, int]) -> bytes:
         call {MANAGER_GETTER:#x}
         test eax, eax
         je changed_state
-        mov dword ptr [ebp-0x14], eax
+        mov dword ptr [ebp-0x18], eax
         push 0
         mov ecx, {MANAGER_SINGLETON:#x}
         call 0x45C840
         test eax, eax
         je changed_state
-        mov dword ptr [ebp-0x18], eax
-        mov edi, dword ptr [ebp-0x18]
+        mov dword ptr [ebp-0x1C], eax
+        mov edi, dword ptr [ebp-0x1C]
         xor esi, esi
         mov ecx, {POOL_COUNT}
     recheck_scan:
@@ -260,9 +291,11 @@ def _helper(strings: dict[str, int]) -> bytes:
         add edi, {POOL_STRIDE:#x}
         dec ecx
         jnz recheck_scan
-        mov edi, dword ptr [ebp-0x18]
+        mov dword ptr [ebp-0x28], 0
+        mov dword ptr [ebp-0x2C], 0
+        mov edi, dword ptr [ebp-0x1C]
         xor esi, esi
-        mov dword ptr [ebp-0x28], {POOL_COUNT}
+        mov dword ptr [ebp-0x30], {POOL_COUNT}
     mutation_scan:
         lea edx, [ebp-0x4E0]
         cmp dword ptr [edx+esi*8], 0
@@ -276,6 +309,7 @@ def _helper(strings: dict[str, int]) -> bytes:
         call {HEALTH_SETTER:#x}
         cmp dword ptr [edi+{HEALTH_OFFSET:#x}], 100
         jne write_failure
+        inc dword ptr [ebp-0x2C]
         health_done:
             cmp byte ptr [edi+{SICK_OFFSET:#x}], 0
             je mutation_next
@@ -290,23 +324,24 @@ def _helper(strings: dict[str, int]) -> bytes:
         cmp byte ptr [edi+{SICK_OFFSET:#x}], 0
         jne write_failure
         inc dword ptr [eax+0x4FC]
+        inc dword ptr [ebp-0x28]
     mutation_next:
         inc esi
         add edi, {POOL_STRIDE:#x}
-        dec dword ptr [ebp-0x28]
+        dec dword ptr [ebp-0x30]
         jnz mutation_scan
         call {MANAGER_GETTER:#x}
         test eax, eax
         je write_failure
-        mov dword ptr [ebp-0x14], eax
+        mov dword ptr [ebp-0x18], eax
         push 0
         mov ecx, {MANAGER_SINGLETON:#x}
         call 0x45C840
         test eax, eax
         je write_failure
-        mov dword ptr [ebp-0x18], eax
+        mov dword ptr [ebp-0x1C], eax
     postverify:
-        mov edi, dword ptr [ebp-0x18]
+        mov edi, dword ptr [ebp-0x1C]
         xor esi, esi
         mov ecx, {POOL_COUNT}
     postverify_scan:
@@ -329,13 +364,21 @@ def _helper(strings: dict[str, int]) -> bytes:
         call {MANAGER_GETTER:#x}
         test eax, eax
         je write_failure
-        mov dword ptr [ebp-0x14], eax
+        mov dword ptr [ebp-0x18], eax
         cmp dword ptr [{TECH_BALANCE:#x}], {PRICE}
         jb write_failure
         mov ecx, {TECH_BALANCE:#x}
         push -{PRICE}
         call {TECH_DEDUCTION:#x}
-        push {strings['success']:#x}
+        lea eax, [ebp-0x6E0]
+        push dword ptr [ebp-0x2C]
+        push dword ptr [ebp-0x28]
+        push {strings['success_format']:#x}
+        push eax
+        call dword ptr [ebp-0x14]
+        add esp, 0x10
+        lea eax, [ebp-0x6E0]
+        push eax
         push {strings['caption']:#x}
         call {RESULT_HELPER:#x}
         jmp finish
@@ -343,25 +386,32 @@ def _helper(strings: dict[str, int]) -> bytes:
         mov eax, dword ptr [ebx*4+0x4A3F54]
         jmp {NON5_CONTINUATION:#x}
     dependency_failure:
-        push {strings['dependency']:#x}
-        jmp show_no_charge
+        jmp counted_failure
     invalid_failure:
-        push {strings['invalid']:#x}
-        jmp show_no_charge
+        jmp counted_failure
     no_change:
         push {strings['no_change']:#x}
         jmp show_no_charge
     insufficient:
-        push {strings['insufficient']:#x}
-        jmp show_no_charge
+        jmp counted_failure
     canceled:
-        push {strings['canceled']:#x}
-        jmp show_no_charge
+        jmp counted_failure
     changed_state:
-        push {strings['changed']:#x}
-        jmp show_no_charge
+        jmp counted_failure
     write_failure:
-        push {strings['write_failure']:#x}
+    counted_failure:
+        lea eax, [ebp-0x6E0]
+        push dword ptr [ebp-0x2C]
+        push dword ptr [ebp-0x28]
+        push {strings['write_failure_format']:#x}
+        push eax
+        call dword ptr [ebp-0x14]
+        add esp, 0x10
+        lea eax, [ebp-0x6E0]
+        push eax
+        push {strings['caption']:#x}
+        call {RESULT_HELPER:#x}
+        jmp finish
     show_no_charge:
         push {strings['caption']:#x}
         call {RESULT_HELPER:#x}
@@ -442,23 +492,57 @@ def build_region() -> tuple[bytes, dict[str, object]]:
     }
 
 
+def section_header() -> bytes:
+    return (
+        b".vv3hc\0\0"
+        + SECTION_PAGE_SIZE.to_bytes(4, "little")
+        + SECTION_RVA.to_bytes(4, "little")
+        + SECTION_PAGE_SIZE.to_bytes(4, "little")
+        + APPEND_OFFSET.to_bytes(4, "little")
+        + b"\0" * 12
+        + (0x60000020).to_bytes(4, "little")
+    )
+
+
+def append_layout(region: bytes) -> dict[str, object]:
+    if len(region) != SECTION_PAGE_SIZE:
+        raise RuntimeError("VV3 Full Heal .vv3hc page must be exactly 0x1000 bytes.")
+    return {
+        "original_file_size": f"0x{APPEND_OFFSET:X}",
+        "append_offset": f"0x{APPEND_OFFSET:X}",
+        "append_length": SECTION_PAGE_SIZE,
+        "append_bytes": region.hex().upper(),
+        "virtual_address": f"0x{SECTION_VA:X}",
+        "section_name": ".vv3hc",
+        "section_rva": f"0x{SECTION_RVA:X}",
+        "section_characteristics": "0x60000020",
+        "purpose": "append the guarded VV3 Full Heal / Cure All .vv3hc RX page",
+        "header_patches": [
+            {"offset": "0x10E", "before": "0600", "after": "0700", "purpose": "add the candidate .vv3hc section"},
+            {"offset": "0x158", "before": "00002E00", "after": "00102E00", "purpose": "extend SizeOfImage for .vv3hc"},
+            {"offset": f"0x{SECTION_HEADER_OFFSET:X}", "before": "00" * 40, "after": section_header().hex().upper(), "purpose": "install the guarded .vv3hc RX section header"},
+        ],
+    }
+
+
 def main() -> None:
     stock = STOCK.read_bytes()
     if sha(stock) != STOCK_SHA256:
         raise RuntimeError("VV3 stock fingerprint mismatch")
-    if bytes.fromhex(HOOK_AFTER.hex()) != rel32(HOOK_VA, CAVE_VA) + b"\x90\x90":
+    if HOOK_AFTER != rel32(HOOK_VA, SECTION_VA) + b"\x90\x90":
         raise RuntimeError("VV3 Cure hook rel32 mismatch")
     region, layout = build_region()
-    if any(stock[CAVE_OFFSET : CAVE_OFFSET + CAVE_LENGTH]):
-        raise RuntimeError("VV3 Cure cave is not zero in stock preimage")
+    if any(stock[OLD_CAVE_OFFSET : OLD_CAVE_OFFSET + OLD_CAVE_LENGTH]):
+        raise RuntimeError("VV3 legacy Cure cave is not zero in stock preimage")
+    append = append_layout(region)
     base = json.loads(BASE_MANIFEST.read_text(encoding="utf-8"))
     manifest = {
         "id": "vv3_full_heal_cure_all_candidate",
         "game_id": "vv3",
         "name": "Full Heal / Cure All",
-        "enabled": True,
-        "catalog_hidden": False,
-        "catalog_enabled": True,
+        "enabled": False,
+        "catalog_hidden": True,
+        "catalog_enabled": False,
         "dependencies": ["vv3_individual_grant_running_candidate"],
         "supported_modes": ["collection_progression", "immediate_fixed"],
         "unsupported_patch_modes": ["experimental_expanded_256", "experimental_expanded_256_progression"],
@@ -466,7 +550,7 @@ def main() -> None:
         "static_acceptance": STATIC_ACCEPTANCE,
         "implementation_status": IMPLEMENTATION_STATUS,
         "runtime_player_status": "pending",
-        "description": "Enabled static VV3 Full Heal / Cure All command-5 Buy action for certified Collection Progression and Immediate Fixed compositions after Origins + Full Mastery + individual Grant Running; runtime/player validation remains pending.",
+        "description": "Disabled/catalog-hidden VV3 Full Heal / Cure All command-5 Buy candidate for certified Collection Progression and Immediate Fixed compositions after Origins + Full Mastery + individual Grant Running; runtime/player validation remains pending.",
         "behavior_changes": [
             "Command 5 performs the certified Full Heal / Cure All transaction at 30,000 tech points.",
         ],
@@ -494,7 +578,7 @@ def main() -> None:
                 "source": "data/candidates/VVFP VV3 Full Mastery Candidate.dll",
                 "destination": "VVFP VV3 Full Mastery Candidate.dll",
                 "size": 298496,
-                "sha256": "35FB96199E745C7D8054FF6A12851B9E09225E3E41D0CE04012604E74968C0D5",
+                "sha256": "C2F8A6A4B92DF9A1DB7D72039793EF5D84E75546C1CB26E8D20EED9D8B7E94CD",
             }
         ],
         "eligibility": {
@@ -515,9 +599,14 @@ def main() -> None:
             "health_only_does_not_increment": True,
             "manager_acquired_before_clear": True,
             "loop_counter_preserved_across_manager_getter": True,
-            "mutation_loop_counter_local": "[ebp-0x28]",
+            "mutation_loop_counter_local": "[ebp-0x30]",
             "mutation_loop_counter_bound": POOL_COUNT,
             "manager_null_means_no_sickness_write": True,
+            "predicted_count_a": "sickness != 0",
+            "predicted_count_b": "health >= 1 && health <= 99",
+            "verified_count_a": "verified sickness clears",
+            "verified_count_b": "verified health restores",
+            "overlap_counted_in_both": True,
         },
         "record_zero_resolver": {
             "function": "0x45C840",
@@ -531,28 +620,41 @@ def main() -> None:
             "get_proc_address_iat": "0x47C128",
             "module": "USER32.dll",
             "procedure": "MessageBoxA",
+            "formatter_procedure": "wsprintfA",
+            "formatter_saved_local": "[ebp-0x14]",
+            "format_buffer": "[ebp-0x6E0..ebp-0x4E1]",
+            "format_buffer_size": 512,
             "saved_local": "[ebp-0x10]",
             "stdcall_stack_cleanup": "callee",
         },
         "result_helper": {"va": "0x4A3400", "ret": 8, "caller_stack_cleanup": False},
-        "messages": {"no_charge_suffix": "No tech points have been deducted.", "success": "Full Heal was granted to all eligible villagers.", "confirm_price": "30,000"},
+        "messages": {
+            "label": "Full Heal / Cure All",
+            "no_charge_suffix": "No tech points have been deducted.",
+            "confirm_format": "Full Heal / Cure All will clear sickness from %u eligible villagers and restore %u partial-health villagers for 30,000 tech points?\r\nPress OK to confirm, or Cancel.",
+            "success_format": "Full Heal / Cure All completed: %u sickness clears and %u full-health restores were verified.",
+            "failure_format": "Full Heal / Cure All failed after %u sickness clears and %u full-health restores were verified.\r\nNo tech points have been deducted.",
+            "confirm_price": "30,000",
+        },
         "partial_failure_limit": PARTIAL_FAILURE_DISCLOSURE,
         "rollback_disclosure": PARTIAL_FAILURE_DISCLOSURE,
         "forbidden_routes": {"legacy_cure_entry": "0x47B664", "legacy_text_helper": "0x40D8A0", "e94_status_filter": False},
         "patches": [
             {"offset": "0xA35EF", "before": HOOK_BEFORE.hex().upper(), "after": HOOK_AFTER.hex().upper(), "purpose": "command-5 dominance before legacy price lookup/precharge", "continuation_non5": "0x4A35F6"},
-            {"offset": f"0x{CAVE_OFFSET:X}", "before_fill": "00", "length": CAVE_LENGTH, "after": region.hex().upper(), "purpose": "candidate-owned RX .text Full Heal helper and strings", "virtual_address": f"0x{CAVE_VA:X}", "legacy_preserved": [f"0x{LEGACY_CURE_START:X}", f"0x{LEGACY_CURE_END:X}"], "layout": layout},
         ],
+        "pe_append_transaction": {"owner": "vv3_full_heal_cure_all_candidate", "section_name": ".vv3hc", "append_length": SECTION_PAGE_SIZE, "layouts": {"collection_progression": append, "immediate_fixed": append}, "removal_policy": "restore exact parent headers, hook, and truncate only the owned .vv3hc page"},
+        "legacy_cave_guard": {"raw_offset": f"0x{OLD_CAVE_OFFSET:X}", "length": OLD_CAVE_LENGTH, "before_sha256": sha(bytes(OLD_CAVE_LENGTH)), "must_remain_zero": True},
         "atomicity": {"install_remove": "hook and bounded cave are paired; exact composition, guard, cave, and uninstall preimages required", "expanded_fail_closed": True},
         "mutation_accounting": {
             "physical_ranges": [
                 {"offset": "0xA35EF", "length": 7, "purpose": "command-5 hook"},
-                {"offset": "0x7B721", "length": CAVE_LENGTH, "purpose": "candidate-owned cave"},
+                {"offset": "0x2F0", "length": 40, "purpose": "candidate-owned .vv3hc section header"},
+                {"offset": "0xCC000", "length": SECTION_PAGE_SIZE, "purpose": "candidate-owned .vv3hc RX page"},
                 {"offset": "0x160", "length": 4, "purpose": "PE checksum recomputation"},
             ],
-            "feature_owned_ranges": ["0xA35EF..0xA35F5", f"0x{CAVE_OFFSET:X}..0x{CAVE_OFFSET + CAVE_LENGTH - 1:X}"],
-            "physical_range_count": 3,
-            "feature_owned_range_count": 2,
+            "feature_owned_ranges": ["0xA35EF..0xA35F5", "0x2F0..0x317", "0xCC000..0xCCFFF"],
+            "physical_range_count": 4,
+            "feature_owned_range_count": 3,
             "every_other_byte_identical": True,
             "rendered_sha256": RENDERED_SHA256,
             "uninstall_sha256": {
@@ -561,24 +663,26 @@ def main() -> None:
             },
             "checksum_offset": "0x160",
             "checksum_transitions": {
-                "collection_progression": {"before": "93790D00", "after": "09B50D00"},
-                "immediate_fixed": {"before": "91BB0D00", "after": "08F70C00"},
+                "collection_progression": {"before": "93790D00", "after": "A41C0D00"},
+                "immediate_fixed": {"before": "91BB0D00", "after": "A25E0D00"},
             },
+            "section_header": {"name": ".vv3hc", "raw_offset": "0x2F0", "raw_start": "0xCC000", "rva": "0x2E0000", "va": "0x6E0000", "size": "0x1000", "section_count_before": 6, "section_count_after": 7, "size_of_image_before": "0x2E0000", "size_of_image_after": "0x2E1000"},
         },
     }
     manifest["base_manifest_sha256"] = sha(BASE_MANIFEST.read_bytes())
     artifact_map = {
         "candidate_id": manifest["id"],
-        "candidate_enabled": True,
-        "catalog_hidden": False,
-        "catalog_enabled": True,
+        "candidate_enabled": False,
+        "catalog_hidden": True,
+        "catalog_enabled": False,
         "provenance": PROVENANCE,
         "static_acceptance": STATIC_ACCEPTANCE,
         "implementation_status": IMPLEMENTATION_STATUS,
         "allowed_modes": manifest["supported_modes"],
         "expanded_fail_closed": True,
         "hook": {"raw_offset": "0xA35EF", "before": HOOK_BEFORE.hex().upper(), "after": HOOK_AFTER.hex().upper(), "sha256": sha(HOOK_AFTER)},
-        "cave": {"raw_offset": f"0x{CAVE_OFFSET:X}", "virtual_address": f"0x{CAVE_VA:X}", "length": CAVE_LENGTH, "before_sha256": sha(bytes(CAVE_LENGTH)), "after_sha256": sha(region), "layout": layout},
+        "section": {"name": ".vv3hc", "raw_offset": f"0x{APPEND_OFFSET:X}", "virtual_address": f"0x{SECTION_VA:X}", "rva": f"0x{SECTION_RVA:X}", "length": SECTION_PAGE_SIZE, "before_sha256": sha(bytes(SECTION_PAGE_SIZE)), "after_sha256": sha(region), "layout": layout, "append": append},
+        "legacy_cave": {"raw_offset": f"0x{OLD_CAVE_OFFSET:X}", "length": OLD_CAVE_LENGTH, "before_sha256": sha(bytes(OLD_CAVE_LENGTH)), "must_remain_zero": True},
         "composition": manifest["base_chain"],
         "companion_files": manifest["companion_files"],
         "eligibility": manifest["eligibility"],
@@ -601,15 +705,13 @@ def main() -> None:
     MANIFEST_OUT.write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
     MAP_OUT.write_text(json.dumps(artifact_map, indent=2) + "\n", encoding="utf-8")
     DOC_OUT.write_text(
-        "# VV3 Full Heal / Cure All (enabled static candidate)\n\n"
-        "This stock-only candidate is enabled and catalog-visible for certified Collection Progression and Immediate Fixed compositions only. Runtime/player validation remains pending. "
+        "# VV3 Full Heal / Cure All (disabled static candidate)\n\n"
+        "This stock-only candidate is disabled and catalog-hidden pending independent recertification. It is designed for certified Collection Progression and Immediate Fixed compositions only; runtime/player validation remains pending. "
         "It composes only after the certified VV3 Origins + Full Mastery + individual Grant Running chain in "
         "Collection Progression or Immediate Fixed. Expanded-256 is rejected before output.\n\n"
         f"Provenance is non-circular: design/source lineage `{SOURCE_COMMIT}`, implementation base `{IMPLEMENTATION_BASE_COMMIT}`, and metadata commit is intentionally null until a later audit. The legacy preserved range `0x{LEGACY_CURE_START:X}..0x{LEGACY_CURE_END:X}` is `{LEGACY_PRESERVED_RANGE_SHA256}` in both composed parents; the stock-zero preimage is separately `{STOCK_ZERO_PREIMAGE_LEGACY_RANGE_SHA256}`.\n\n"
-        f"The command-5 detour is `{HOOK_BEFORE.hex().upper()}` -> `{HOOK_AFTER.hex().upper()}` at raw `0x{HOOK_OFFSET:X}`. "
-        f"The owned cave is raw `0x{CAVE_OFFSET:X}` / VA `0x{CAVE_VA:X}` for `0x{CAVE_LENGTH:X}` bytes; legacy Cure bytes "
-        f"`0x{LEGACY_CURE_START:X}..0x{LEGACY_CURE_END:X}` remain byte-identical.\n\n"
-        f"The transaction scans exactly 150 records in physical order, resolves record zero through 0x45C840 with ECX=0x59E110 before the dry run and again after confirmation, and resolves USER32.dll/MessageBoxA before any dialog. The assembled helper is `0x{len(region[:layout['helper_length']]):X}` bytes and strings begin at aligned cave offset `0x{STRING_OFFSET:X}` with no overlap; the mutation counter is the disjoint `[ebp-0x28]` local so neither the manager getter nor native setter can clobber the 150-record bound. It performs a complete dry run, confirms at 30,000 tech points, reacquires and rechecks the full state, uses native health setter 0x462670 with ECX=record+0xE6C and pushes -1/100, acquires a fresh manager before clearing sickness at +0xE89, and increments fresh manager People Cured +0x4FC once per verified sick record (health-only records do not increment). It postverifies and deducts once through 0x427130. The hook and cave are two feature-owned ranges; the only third physical diff is the PE checksum at raw 0x160..0x163. Every no-charge route ends with `No tech points have been deducted.` {PARTIAL_FAILURE_DISCLOSURE}\n",
+        f"The command-5 detour is `{HOOK_BEFORE.hex().upper()}` -> `{HOOK_AFTER.hex().upper()}` at raw `0x{HOOK_OFFSET:X}`. The dedicated `.vv3hc` RX page is raw `0x{APPEND_OFFSET:X}` / VA `0x{SECTION_VA:X}` with a guarded header at `0x{SECTION_HEADER_OFFSET:X}`; the old Cure cave remains zero and legacy bytes `0x{LEGACY_CURE_START:X}..0x{LEGACY_CURE_END:X}` remain byte-identical.\n\n"
+        f"The transaction scans exactly 150 records in physical order. Dry-run Count A is sick eligible villagers, Count B is eligible health 1..99 villagers, and overlap is counted in both. Confirmation formats both predicted counts and the 30,000 cost into a dedicated 512-byte buffer; success and failure format verified sickness clears and verified health restores. It resolves record zero through 0x45C840 with ECX=0x59E110 before the dry run and again after confirmation, resolves USER32.dll/MessageBoxA/wsprintfA before any dialog, uses native health setter 0x462670 with ECX=record+0xE6C and pushes -1/100, acquires a fresh manager before clearing sickness at +0xE89, and increments fresh manager People Cured +0x4FC only after each verified sick clear. It postverifies and deducts once through 0x427130. Every no-charge route ends with `No tech points have been deducted.` {PARTIAL_FAILURE_DISCLOSURE}\n",
         encoding="utf-8",
     )
 

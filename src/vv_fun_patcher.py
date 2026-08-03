@@ -42,10 +42,10 @@ VV3_FULL_MASTERY_CANDIDATE_PATHS = {
     "dll": ROOT / "data" / "candidates" / "VVFP VV3 Full Mastery Candidate.dll",
 }
 VV3_FULL_MASTERY_CERTIFIED_SHA256 = {
-    "base": "2F0FCE75725990E214506C79CFFC2BCF0CAB3088117DF532FCF2BAF6970DD7B1",
+    "base": "954F2E55F4033BA3B7EA90E2BC42B4FA781C9B95C6934CDC97E1C65771B02822",
     "feature": "844A3CB7996793F51D741409C9EFAF675E07ED92122BCD2F91750766D7357783",
-    "map": "9C988B2C4BFE64E2001AB87CFB8034E42AA556F49B0AF2F4FBFA56FA9E47F431",
-    "dll": "35FB96199E745C7D8054FF6A12851B9E09225E3E41D0CE04012604E74968C0D5",
+    "map": "14FA2F645CF4600D993F275EC886C9EB033396583CE971FDA5B01FB277F418E3",
+    "dll": "C2F8A6A4B92DF9A1DB7D72039793EF5D84E75546C1CB26E8D20EED9D8B7E94CD",
     "entry": "9685954F75E1DD26103507213FBEADBD9DED2705E62CB37D14080F6EBEC6EB23",
     "slot": "B1499EB3B10B7E4728746711E9F63B88211E4B80CA378742ADC5DC06782DAADA",
     "page": "2DAE85AE4077C23C2C7C39F64B5BA944740F765AC8E24FBB097B0BF28A720DF6",
@@ -195,29 +195,30 @@ VV3_FULL_HEAL_CANDIDATE_PATHS = {
     "manifest": ROOT / "data" / "candidates" / "vv3_full_heal_cure_all_candidate.json",
     "map": ROOT / "data" / "candidates" / "vv3_full_heal_cure_all_candidate_map.json",
 }
-VV3_FULL_HEAL_MANIFEST_SHA256 = "C51AACF19B61C90C1132675207BCED4ACCCC9B9439C0DBEC145E7288FD539C63"
-VV3_FULL_HEAL_MAP_SHA256 = "4BCEB5AAFF77FDD0003D9A8E23D63259D8AD7FCA329CD79CB4A0220A045E7625"
+VV3_FULL_HEAL_MANIFEST_SHA256 = "9469924E57DFDDD3D50180580A493A1B77F9C62F800CE4A7AED8EDE2314F11EE"
+VV3_FULL_HEAL_MAP_SHA256 = "DFA1C5BAB52689507B8D0403C51F4E946A6B2094EBEA5B9FD94292BBA1DCF431"
 VV3_FULL_HEAL_STOCK_SHA256 = "8BC5DB382D02BC5C21AD5F607580D60FF44A6519CC7EB133F03113BAACAE6503"
 VV3_FULL_HEAL_DLL_PATH = ROOT / "data" / "candidates" / "VVFP VV3 Full Mastery Candidate.dll"
-VV3_FULL_HEAL_DLL_SHA256 = "35FB96199E745C7D8054FF6A12851B9E09225E3E41D0CE04012604E74968C0D5"
+VV3_FULL_HEAL_DLL_SHA256 = "C2F8A6A4B92DF9A1DB7D72039793EF5D84E75546C1CB26E8D20EED9D8B7E94CD"
 VV3_FULL_HEAL_DLL_SIZE = 298496
 VV3_FULL_HEAL_PRE_CURE_RENDERED_SHA256 = {
-    "collection_progression": "EE539BAB9D8406D1176B4B6E6BE25F41254A3A0EBD27C8CFBAF3B93931DF3FEB",
-    "immediate_fixed": "7613E341A5BFC704564B572C6AE0CCCA7E8D34862B6B81F4A5F78DE9B5E27818",
+    "collection_progression": "3644A56FE17F843DB67662E4309C3C2B41AE7ADD5FDD60EF2B6789DE2BA15FDC",
+    "immediate_fixed": "059230146E8CC36E06E5473AE187D081E337DB90638B227FBA799B9C82B58C1C",
 }
 VV3_FULL_HEAL_HOOK_BEFORE = bytes.fromhex("8B049D543F4A00")
-VV3_FULL_HEAL_HOOK_AFTER = bytes.fromhex("E92D81FDFF9090")
-VV3_FULL_HEAL_CAVE_OFFSET = "0x7B721"
-VV3_FULL_HEAL_CAVE_LENGTH = 0x700
+VV3_FULL_HEAL_HOOK_AFTER = bytes.fromhex("E90CCA23009090")
+VV3_FULL_HEAL_CAVE_OFFSET = "0xCC000"
+VV3_FULL_HEAL_CAVE_OFFSET_INT = 0xCC000
+VV3_FULL_HEAL_CAVE_LENGTH = 0x1000
 VV3_FULL_HEAL_LEGACY_START = 0x7B664
 VV3_FULL_HEAL_LEGACY_END_OFFSET = 0x7B721
 VV3_FULL_HEAL_LEGACY_END = "0x7B721"
-VV3_FULL_HEAL_CAVE_SHA256 = "FD9CD28D75CF660294E30E0C8D1D73D6E33079144F877D9EA32027FC76BDDD07"
-VV3_FULL_HEAL_HELPER_SHA256 = "1DAEEE7166ABBE0759D3A952A391C731E9531ABB7B03B327943D4B123BEE160B"
-VV3_FULL_HEAL_HELPER_LENGTH = 0x329
-VV3_FULL_HEAL_STRINGS_OFFSET = 0x330
-VV3_FULL_HEAL_STRINGS_LENGTH = 0x2E8
-VV3_FULL_HEAL_TAIL_ZERO_LENGTH = 0xE8
+VV3_FULL_HEAL_CAVE_SHA256 = "711F1E9DB89AB821FBA5E9B3B81FD3EDB9D334DDF7901E2E5C10F3B0E53FB3F4"
+VV3_FULL_HEAL_HELPER_SHA256 = "F367C737D0A3A7A17244B591E231FAF6E2DC6D1FBD02F1EFF27DCA3656F30C28"
+VV3_FULL_HEAL_HELPER_LENGTH = 0x3AE
+VV3_FULL_HEAL_STRINGS_OFFSET = 0x800
+VV3_FULL_HEAL_STRINGS_LENGTH = 0x47B
+VV3_FULL_HEAL_TAIL_ZERO_LENGTH = 0x385
 VV3_FULL_HEAL_COMPOSED_PARENT_HELPER_SHA256 = "CFF1AAA9111728F003621FF662F100940C2F978943F5E69CC64180EA5DE63F7D"
 VV3_FULL_HEAL_STOCK_CURE_CAVE_PREIMAGE_SHA256 = "7B4FC1A8DBE6B6121F16ADA516E2AC27E02964716BACEA5FB7D07CF30595948E"
 VV3_FULL_HEAL_LEGACY_PRESERVED_RANGE_SHA256 = VV3_FULL_HEAL_COMPOSED_PARENT_HELPER_SHA256
@@ -230,24 +231,25 @@ VV3_FULL_HEAL_PROVENANCE = {
 }
 VV3_FULL_HEAL_STATIC_ACCEPTANCE = {
     "commit": "f23b3211775e49d7730caedd73b2bedbd1c34a87",
-    "manifest_sha256": "348AC71046772CE88A05C2B2394AAE5D1EF38CD339929840426BCF5C51E8BDD0",
-    "map_sha256": "65C30D093597AF279FC220FFA4FD315AE9E5B08170FC01B07A39CB5D1967854C",
-    "helper_sha256": "1DAEEE7166ABBE0759D3A952A391C731E9531ABB7B03B327943D4B123BEE160B",
-    "strings_sha256": "F12A532B7D2B442F1BD13F44089935776323959D7147791FFEB447227DE4BF6B",
-    "cave_sha256": "FD9CD28D75CF660294E30E0C8D1D73D6E33079144F877D9EA32027FC76BDDD07",
+    "manifest_sha256": "PENDING",
+    "map_sha256": "PENDING",
+    "helper_sha256": "F367C737D0A3A7A17244B591E231FAF6E2DC6D1FBD02F1EFF27DCA3656F30C28",
+    "strings_sha256": "AA9F42C2EC017377268F3BC1E5BB164BF453C720FC2FFA756CAABA9308C1FDEB",
+    "cave_sha256": "711F1E9DB89AB821FBA5E9B3B81FD3EDB9D334DDF7901E2E5C10F3B0E53FB3F4",
     "rendered_sha256": {
-        "collection_progression": "1AB729027342F3EE90B875BF47534A35AF6522F987CD9441E1E8A3D52BF16C47",
-        "immediate_fixed": "06B97177673D405C3F5BB711EAB04EF8DC703F7C80AB042F31F0CCDAE3850D1D",
+        "collection_progression": "38DC5C0599F4E74D9A6C787BDB5FF30EAF54E9E67DCB6718964BBB305359C20F",
+        "immediate_fixed": "F8EDF1F1375C269EB8C108D452AED738AD82867DFE3DC8D1EB369719D1F96B47",
     },
     "supported_modes": ["collection_progression", "immediate_fixed"],
     "expanded_rejected": True,
 }
-VV3_FULL_HEAL_HELPER_INSTRUCTION_COUNT = 198
-VV3_FULL_HEAL_HELPER_EPILOGUE_OFFSET = "0x31D"
+VV3_FULL_HEAL_HELPER_INSTRUCTION_COUNT = 235
+VV3_FULL_HEAL_HELPER_EPILOGUE_OFFSET = "0x3A2"
 VV3_FULL_HEAL_INTERNAL_TARGET_OFFSETS = [
-    "0x94", "0xD0", "0xDD", "0x156", "0x19A", "0x1A4", "0x1BA",
-    "0x1ED", "0x21D", "0x25A", "0x296", "0x2D8", "0x2E4", "0x2EB",
-    "0x2F2", "0x2F9", "0x300", "0x307", "0x30E", "0x313", "0x31D",
+    "0xC2", "0xF8", "0x107", "0x12B", "0x1A0", "0x1E4", "0x1EE",
+    "0x212", "0x248", "0x27B", "0x2B8", "0x2F4", "0x350", "0x35C",
+    "0x35E", "0x360", "0x367", "0x369", "0x36B", "0x36D", "0x398",
+    "0x3A2",
 ]
 VV3_FULL_HEAL_TRANSACTION = {
     "command": 5,
@@ -258,8 +260,11 @@ VV3_FULL_HEAL_TRANSACTION = {
     "remove": False,
 }
 VV3_FULL_HEAL_MESSAGES = {
+    "label": "Full Heal / Cure All",
     "no_charge_suffix": "No tech points have been deducted.",
-    "success": "Full Heal was granted to all eligible villagers.",
+    "confirm_format": "Full Heal / Cure All will clear sickness from %u eligible villagers and restore %u partial-health villagers for 30,000 tech points?\r\nPress OK to confirm, or Cancel.",
+    "success_format": "Full Heal / Cure All completed: %u sickness clears and %u full-health restores were verified.",
+    "failure_format": "Full Heal / Cure All failed after %u sickness clears and %u full-health restores were verified.\r\nNo tech points have been deducted.",
     "confirm_price": "30,000",
 }
 VV3_FULL_HEAL_PARTIAL_FAILURE_DISCLOSURE = (
@@ -298,9 +303,14 @@ VV3_FULL_HEAL_SICKNESS = {
     "health_only_does_not_increment": True,
     "manager_acquired_before_clear": True,
     "loop_counter_preserved_across_manager_getter": True,
-    "mutation_loop_counter_local": "[ebp-0x28]",
+    "mutation_loop_counter_local": "[ebp-0x30]",
     "mutation_loop_counter_bound": 150,
     "manager_null_means_no_sickness_write": True,
+    "predicted_count_a": "sickness != 0",
+    "predicted_count_b": "health >= 1 && health <= 99",
+    "verified_count_a": "verified sickness clears",
+    "verified_count_b": "verified health restores",
+    "overlap_counted_in_both": True,
 }
 VV3_FULL_HEAL_RECORD_ZERO_RESOLVER = {
     "function": "0x45C840",
@@ -314,22 +324,27 @@ VV3_FULL_HEAL_MESSAGEBOX_RESOLUTION = {
     "get_proc_address_iat": "0x47C128",
     "module": "USER32.dll",
     "procedure": "MessageBoxA",
+    "formatter_procedure": "wsprintfA",
+    "formatter_saved_local": "[ebp-0x14]",
+    "format_buffer": "[ebp-0x6E0..ebp-0x4E1]",
+    "format_buffer_size": 512,
     "saved_local": "[ebp-0x10]",
     "stdcall_stack_cleanup": "callee",
 }
 VV3_FULL_HEAL_MUTATION_ACCOUNTING = {
     "physical_ranges": [
         {"offset": "0xA35EF", "length": 7, "purpose": "command-5 hook"},
-        {"offset": "0x7B721", "length": 0x700, "purpose": "candidate-owned cave"},
+        {"offset": "0x2F0", "length": 40, "purpose": "candidate-owned .vv3hc section header"},
+        {"offset": "0xCC000", "length": 0x1000, "purpose": "candidate-owned .vv3hc RX page"},
         {"offset": "0x160", "length": 4, "purpose": "PE checksum recomputation"},
     ],
-    "feature_owned_ranges": ["0xA35EF..0xA35F5", "0x7B721..0x7BE20"],
-    "physical_range_count": 3,
-    "feature_owned_range_count": 2,
+    "feature_owned_ranges": ["0xA35EF..0xA35F5", "0x2F0..0x317", "0xCC000..0xCCFFF"],
+    "physical_range_count": 4,
+    "feature_owned_range_count": 3,
     "every_other_byte_identical": True,
     "rendered_sha256": {
-        "collection_progression": "1AB729027342F3EE90B875BF47534A35AF6522F987CD9441E1E8A3D52BF16C47",
-        "immediate_fixed": "06B97177673D405C3F5BB711EAB04EF8DC703F7C80AB042F31F0CCDAE3850D1D",
+        "collection_progression": "38DC5C0599F4E74D9A6C787BDB5FF30EAF54E9E67DCB6718964BBB305359C20F",
+        "immediate_fixed": "F8EDF1F1375C269EB8C108D452AED738AD82867DFE3DC8D1EB369719D1F96B47",
     },
     "uninstall_sha256": {
         "collection_progression": "3644A56FE17F843DB67662E4309C3C2B41AE7ADD5FDD60EF2B6789DE2BA15FDC",
@@ -337,20 +352,24 @@ VV3_FULL_HEAL_MUTATION_ACCOUNTING = {
     },
     "checksum_offset": "0x160",
     "checksum_transitions": {
-        "collection_progression": {"before": "93790D00", "after": "09B50D00"},
-        "immediate_fixed": {"before": "91BB0D00", "after": "08F70C00"},
+        "collection_progression": {"before": "93790D00", "after": "A41C0D00"},
+        "immediate_fixed": {"before": "91BB0D00", "after": "A25E0D00"},
     },
+    "section_header": {"name": ".vv3hc", "raw_offset": "0x2F0", "raw_start": "0xCC000", "rva": "0x2E0000", "va": "0x6E0000", "size": "0x1000", "section_count_before": 6, "section_count_after": 7, "size_of_image_before": "0x2E0000", "size_of_image_after": "0x2E1000"},
 }
 VV3_FULL_HEAL_RENDERED_SHA256 = {
-    "collection_progression": "1AB729027342F3EE90B875BF47534A35AF6522F987CD9441E1E8A3D52BF16C47",
-    "immediate_fixed": "06B97177673D405C3F5BB711EAB04EF8DC703F7C80AB042F31F0CCDAE3850D1D",
+    "collection_progression": "38DC5C0599F4E74D9A6C787BDB5FF30EAF54E9E67DCB6718964BBB305359C20F",
+    "immediate_fixed": "F8EDF1F1375C269EB8C108D452AED738AD82867DFE3DC8D1EB369719D1F96B47",
 }
 VV3_FULL_HEAL_CHECKSUM_TRANSITIONS = {
-    "collection_progression": {"before": "93790D00", "after": "09B50D00"},
-    "immediate_fixed": {"before": "91BB0D00", "after": "08F70C00"},
+    "collection_progression": {"before": "93790D00", "after": "A41C0D00"},
+    "immediate_fixed": {"before": "91BB0D00", "after": "A25E0D00"},
 }
-VV3_FULL_HEAL_PRE_CANDIDATE_CHECKSUM = "00000000"
-VV3_FULL_HEAL_NON5_SHIM = bytes.fromhex("8B049D543F4A00E9F17B0200")
+VV3_FULL_HEAL_PRE_CANDIDATE_CHECKSUM = {
+    "collection_progression": "93790D00",
+    "immediate_fixed": "91BB0D00",
+}
+VV3_FULL_HEAL_NON5_SHIM = bytes.fromhex("8B049D543F4A00E99A32DCFF")
 
 
 def _strict_manifest_value_equal(actual: Any, expected: Any) -> bool:
@@ -1785,7 +1804,7 @@ def _validate_vv3_full_heal_candidate(
         raise PatcherError("VV3 Full Heal candidate object differs from its pinned manifest.")
     if canonical_map.get("candidate_id") != VV3_FULL_HEAL_CANDIDATE_ID:
         raise PatcherError("VV3 Full Heal candidate map identity is not certified.")
-    if canonical_map.get("candidate_enabled") is not True or canonical_map.get("catalog_hidden") is not False or canonical_map.get("catalog_enabled") is not True:
+    if canonical_map.get("candidate_enabled") is not False or canonical_map.get("catalog_hidden") is not True or canonical_map.get("catalog_enabled") is not False:
         raise PatcherError("VV3 Full Heal candidate map enablement is not certified.")
     if canonical_map.get("allowed_modes") != ["collection_progression", "immediate_fixed"] or canonical_map.get("expanded_fail_closed") is not True:
         raise PatcherError("VV3 Full Heal candidate map mode gate is not certified.")
@@ -1839,7 +1858,7 @@ def _validate_vv3_full_heal_candidate(
         raise PatcherError("VV3 Full Heal provenance is not stable or is self-referential.")
     if raw.get("static_acceptance") != VV3_FULL_HEAL_STATIC_ACCEPTANCE:
         raise PatcherError("VV3 Full Heal static acceptance evidence is not certified.")
-    if raw.get("enabled") is not True or raw.get("catalog_hidden") is not False or raw.get("catalog_enabled") is not True:
+    if raw.get("enabled") is not False or raw.get("catalog_hidden") is not True or raw.get("catalog_enabled") is not False:
         raise PatcherError("VV3 Full Heal candidate enablement is not certified.")
     if raw.get("dependencies") != [VV3_INDIVIDUAL_RUNNING_CANDIDATE_ID] or not {
         "vv3_enable_origins_exclusive_features",
@@ -1912,9 +1931,9 @@ def _validate_vv3_full_heal_candidate(
     if raw.get("forbidden_routes") != VV3_FULL_HEAL_FORBIDDEN_ROUTES:
         raise PatcherError("VV3 Full Heal forbidden-route metadata is not immutable.")
     patches = raw.get("patches")
-    if not isinstance(patches, list) or len(patches) != 2:
-        raise PatcherError("VV3 Full Heal must have exactly hook and cave ranges.")
-    hook, cave = patches
+    if not isinstance(patches, list) or len(patches) != 1:
+        raise PatcherError("VV3 Full Heal must have exactly one command hook plus the guarded .vv3hc append.")
+    hook = patches[0]
     if (
         hook.get("offset") != "0xA35EF"
         or _patch_bytes(hook, "before") != VV3_FULL_HEAL_HOOK_BEFORE
@@ -1922,16 +1941,21 @@ def _validate_vv3_full_heal_candidate(
         or hook.get("continuation_non5") != "0x4A35F6"
     ):
         raise PatcherError("VV3 Full Heal command-5 dominance hook is not certified.")
-    if (
-        cave.get("offset") != VV3_FULL_HEAL_CAVE_OFFSET
-        or cave.get("length") != VV3_FULL_HEAL_CAVE_LENGTH
-        or _patch_bytes(cave, "before") != bytes(VV3_FULL_HEAL_CAVE_LENGTH)
-        or len(_patch_bytes(cave, "after")) != VV3_FULL_HEAL_CAVE_LENGTH
-        or cave.get("virtual_address") != "0x47B721"
-    ):
-        raise PatcherError("VV3 Full Heal owned RX cave is not certified.")
-    after = _patch_bytes(cave, "after")
-    layout = cave.get("layout")
+    append_tx = raw.get("pe_append_transaction")
+    if not isinstance(append_tx, dict) or append_tx.get("section_name") != ".vv3hc":
+        raise PatcherError("VV3 Full Heal .vv3hc append transaction is not certified.")
+    layout = append_tx.get("layouts", {}).get(patch_mode)
+    if not isinstance(layout, dict) or int(layout.get("append_offset", "-1"), 0) != 0xCC000:
+        raise PatcherError("VV3 Full Heal .vv3hc append layout is not certified.")
+    after = bytes.fromhex(layout.get("append_bytes", ""))
+    if len(after) != VV3_FULL_HEAL_CAVE_LENGTH:
+        raise PatcherError("VV3 Full Heal .vv3hc page length is not certified.")
+    section = canonical_map.get("section")
+    if not isinstance(section, dict) or section.get("name") != ".vv3hc" or section.get("raw_offset") != "0xCC000" or section.get("virtual_address") != "0x6E0000" or section.get("rva") != "0x2E0000":
+        raise PatcherError("VV3 Full Heal .vv3hc section identity is not certified.")
+    if canonical_map.get("legacy_cave", {}).get("raw_offset") != "0x7B721" or canonical_map.get("legacy_cave", {}).get("length") != 0x700 or canonical_map.get("legacy_cave", {}).get("must_remain_zero") is not True:
+        raise PatcherError("VV3 Full Heal legacy Cure cave guard is not certified.")
+    layout = section.get("layout")
     if not isinstance(layout, dict) or layout.get("strings_offset") != f"0x{VV3_FULL_HEAL_STRINGS_OFFSET:X}":
         raise PatcherError("VV3 Full Heal helper/string layout is not certified.")
     if layout.get("region_sha256") != VV3_FULL_HEAL_CAVE_SHA256:
@@ -1972,7 +1996,7 @@ def _validate_vv3_full_heal_candidate(
         raise PatcherError("VV3 Full Heal non-command-5 shim must preserve the EBX-indexed lookup.")
     if VV3_FULL_HEAL_NON5_SHIM not in after:
         raise PatcherError("VV3 Full Heal non-command-5 shim continuation is not exact.")
-    if after.count(b"\xFF\x15\x24\xC1\x47\x00") != 1 or after.count(b"\xFF\x15\x28\xC1\x47\x00") != 1:
+    if after.count(b"\xFF\x15\x24\xC1\x47\x00") != 1 or after.count(b"\xFF\x15\x28\xC1\x47\x00") != 2:
         raise PatcherError("VV3 Full Heal MessageBoxA API resolution calls are not exact.")
     if after.count(b"\x6A\x00\xB9\x10\xE1\x59\x00") != 3:
         raise PatcherError("VV3 Full Heal must resolve record zero at each required fresh-pool boundary.")
@@ -1980,7 +2004,7 @@ def _validate_vv3_full_heal_candidate(
         raise PatcherError("VV3 Full Heal may not substitute the fixed pool constant for record-zero resolution.")
     if after.count(b"\xFF\x80\xFC\x04\x00\x00") != 1:
         raise PatcherError("VV3 Full Heal must increment People Cured once per verified sick record.")
-    if after.count(b"\xC7\x45\xD8\x96\x00\x00\x00") != 1 or after.count(b"\xFF\x4D\xD8") != 1:
+    if after.count(b"\xC7\x45\xD0\x96\x00\x00\x00") != 1 or after.count(b"\xFF\x4D\xD0") != 1:
         raise PatcherError("VV3 Full Heal mutation loop must use the disjoint 150-record local counter.")
     if b"\xE9\x00\x00\x00\x00" in after:
         raise PatcherError("VV3 Full Heal cave contains an unresolved branch relocation.")
@@ -2826,6 +2850,27 @@ def render_patched_bytes(
                 fun_bytes.append(dict(patch, _owner=f"feature:{feature.id}"))
     candidate_preimage_checked = False
     candidate_preimage_checksum: bytes | None = None
+    if any(feature.id == VV3_FULL_HEAL_CANDIDATE_ID for feature in fun_patches):
+        expected_preimage = VV3_FULL_HEAL_PRE_CURE_RENDERED_SHA256.get(patch_mode)
+        parent_features = [feature for feature in fun_patches if feature.id != VV3_FULL_HEAL_CANDIDATE_ID]
+        parent_bytes, _ = render_patched_bytes(
+            source,
+            build,
+            patch_mode,
+            _fun_patches_override=parent_features,
+        )
+        if build.id != "vv3" or expected_preimage is None or hashlib.sha256(parent_bytes).hexdigest().upper() != expected_preimage:
+            raise PatcherError(
+                "VV3 Full Heal requires the exact certified Origins + Full Mastery + individual Running composition."
+            )
+        if hashlib.sha256(parent_bytes[VV3_FULL_HEAL_LEGACY_START:VV3_FULL_HEAL_LEGACY_END_OFFSET]).hexdigest().upper() != VV3_FULL_HEAL_LEGACY_PRESERVED_RANGE_SHA256:
+            raise PatcherError("VV3 Full Heal composed-parent legacy range fingerprint mismatch.")
+        if hashlib.sha256(original_data[VV3_FULL_HEAL_LEGACY_START:VV3_FULL_HEAL_LEGACY_END_OFFSET]).hexdigest().upper() != VV3_FULL_HEAL_STOCK_ZERO_PREIMAGE_LEGACY_RANGE_SHA256:
+            raise PatcherError("VV3 Full Heal stock-zero preimage legacy range fingerprint mismatch.")
+        if any(parent_bytes[0x7B721:0x7B721 + 0x700]):
+            raise PatcherError("VV3 Full Heal legacy Cure cave must remain zero.")
+        candidate_preimage_checked = True
+        candidate_preimage_checksum = bytes(parent_bytes[0x160:0x164])
     for phase_index, phase in enumerate(
         ([*expanded, *safety, *population, *support], fun_bytes)
     ):
@@ -2960,7 +3005,7 @@ def render_patched_bytes(
             raise PatcherError("VV3 Full Heal rendered output identity is not certified.")
         if hashlib.sha256(data).hexdigest().upper() != expected_rendered:
             raise PatcherError("VV3 Full Heal rendered output hash is not certified.")
-        if candidate_preimage_checksum is None or candidate_preimage_checksum.hex().upper() != VV3_FULL_HEAL_PRE_CANDIDATE_CHECKSUM:
+        if candidate_preimage_checksum is None or candidate_preimage_checksum.hex().upper() != VV3_FULL_HEAL_PRE_CANDIDATE_CHECKSUM[patch_mode]:
             raise PatcherError("VV3 Full Heal checksum preimage is not certified.")
         if bytes(data[0x160:0x164]).hex().upper() != expected_transition["after"]:
             raise PatcherError("VV3 Full Heal checksum transition is not certified.")

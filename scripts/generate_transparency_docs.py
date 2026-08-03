@@ -24,6 +24,16 @@ def build_document() -> str:
         if candidate_map_path.is_file()
         else None
     )
+    # The revised VV3 Full Heal candidate is intentionally disabled and therefore
+    # is not returned by load_fun_patches().  Its player-facing safety disclosure
+    # still belongs in the generated transparency document, sourced directly from
+    # the authoritative candidate manifest rather than duplicated here.
+    full_heal_path = ROOT / "data" / "candidates" / "vv3_full_heal_cure_all_candidate.json"
+    full_heal = (
+        json.loads(full_heal_path.read_text(encoding="utf-8"))
+        if full_heal_path.is_file()
+        else None
+    )
     by_game = {build.id: [p for p in patches if p.game_id == build.id] for build in load_builds()}
     lines = [
         "# Virtual Villagers Fun Patcher — Transparency Coverage",
@@ -104,6 +114,12 @@ def build_document() -> str:
         "## Origins village-wide atomic-payload containment",
         "",
         "All five legacy `vvN_origins_village_wide_upgrades` records remain disabled and absent from the catalog, GUI, CLI, Select All, dependency resolution, and rendered outputs because commands 6, 7, and 8 share one unsafe atomic payload. VV2's separate command-7 Full Mastery candidate is statically enabled and catalog-visible only for stock Collection Progression and Immediate Fixed; its runtime/player confirmation remains pending and Expanded-256 rejects before output. Commands 6/8, Remove, Cure, Gong, and Island Event routes remain absent from that candidate. VV3's village-wide command-6 Running remains withdrawn and absent; the separate selected-villager command-2 candidate is static-enabled only after the certified VV3 Full Mastery prerequisite and remains runtime-pending. VV4 audit `628e0d9217b92b9cd695655842b09d74689a0238` and VV5 audit `02581c8f518e27ebd5fc7d2972db5597ab08ed35` keep their mastery commands contained. Disabled legacy manifests retain diagnostic payload bytes but apply none; containment never alters save ownership or issues refunds.",
+        "",
+        "## VV3 Full Heal / Cure All candidate",
+        "",
+        "The revised VV3 Full Heal / Cure All candidate remains disabled and catalog-hidden pending runtime/player validation; this generated disclosure is sourced from its authoritative candidate manifest and does not expose the candidate in the public chooser.",
+        "- Partial-write disclosure: "
+        + (str(full_heal.get("partial_failure_limit", "not recorded")) if full_heal else "not recorded"),
         "",
     ]
     for build in load_builds():
