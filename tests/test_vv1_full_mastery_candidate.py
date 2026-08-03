@@ -42,6 +42,21 @@ REJECTED_MODES = (
 SKILLS = ("parenting", "building", "farming", "healing", "research")
 SKILL_CODES = (2, 4, 1, 5, 3)
 
+GENERATOR_BOOTSTRAP = (
+    "import runpy,sys; sys.modules.pop('keystone',None); "
+    "sys.path.insert(0,'.tools/keystone-runtime'); import keystone; "
+    "sys.argv=['build_vv1_full_mastery_candidate.py', *sys.argv[1:]]; "
+    "runpy.run_path('scripts/build_vv1_full_mastery_candidate.py', run_name='__main__')"
+)
+
+
+def run_generator(*args: str, **kwargs: object) -> subprocess.CompletedProcess[str]:
+    return subprocess.run(
+        [sys.executable, "-c", GENERATOR_BOOTSTRAP, *args],
+        cwd=ROOT,
+        **kwargs,
+    )
+
 
 def sha(data: bytes) -> str:
     return hashlib.sha256(data).hexdigest().upper()
@@ -231,7 +246,7 @@ class VV1FullMasteryCandidateTests(unittest.TestCase):
         self.assertEqual(post_verify["mode"], 1)
         self.assertIn("complete second read-only pass", post_verify["scope"])
         self.assertIn("reload [EBP+8]", post_verify["reacquire"])
-        self.assertIn("exact Float32 100", post_verify["value_validation"])
+        self.assertIn("exact signed DWORD integer 100", post_verify["value_validation"])
         self.assertIn("EDX=2", post_verify["failure"])
         composition = self.map["composition_audit"]
         self.assertEqual(composition["candidate_enabled"], False)
@@ -241,6 +256,12 @@ class VV1FullMasteryCandidateTests(unittest.TestCase):
         self.assertIn("complete second read-only pass", source)
         self.assertNotIn("verify_record:", source)
         self.assertNotIn("mode2", self.map["command_abi"]["walker"])
+        self.assertTrue(self.map["catalog_enabled"])
+        self.assertTrue(self.map["enabled"])
+        self.assertFalse(self.map["catalog_hidden"])
+        self.assertIn("enabled/catalog-visible", self.raw["description"])
+        self.assertNotIn("exact Float32", json.dumps(self.raw))
+        self.assertNotIn("exact Float32", json.dumps(self.map))
         self.assertEqual(self.map["modes"], list(MODES))
         self.assertEqual(self.map["rejected_modes"], list(REJECTED_MODES))
         page = bytes.fromhex(
@@ -272,9 +293,8 @@ class VV1FullMasteryCandidateTests(unittest.TestCase):
         before = {path: sha(path.read_bytes()) for path in (MANIFEST, MAP, DOC, DLL)}
         for mode in REJECTED_MODES:
             with self.subTest(mode=mode):
-                result = subprocess.run(
-                    [sys.executable, str(GENERATOR), mode],
-                    cwd=ROOT,
+                result = run_generator(
+                    mode,
                     capture_output=True,
                     text=True,
                 )
@@ -302,6 +322,11 @@ class VV1FullMasteryCandidateTests(unittest.TestCase):
         self.assertEqual(calls, [(3, 2, 1), (3, 4, 10), (3, 5, 100), (3, 3, 12)])
         self.assertEqual(changed["preference"], 77)
         self.assertEqual(changed["skills"], {name: 100 for name in SKILLS})
+        self.assertIn("+0x3D0", self.raw["transaction_contract"]["preference"])
+        self.assertIn("never written or normalized", self.raw["transaction_contract"]["preference"])
+        self.assertIn("sub_43B520", self.raw["transaction_contract"]["preference"])
+        self.assertIn("Master Parent", self.raw["transaction_contract"]["preference"])
+        self.assertNotIn("Master Farmer", self.raw["transaction_contract"]["preference"])
 
         empty = {"occupied": False, "health": 0, "special": 0, "skills": {name: 100 for name in SKILLS}}
         bounded = [deepcopy(empty) for _ in range(256)]
@@ -483,9 +508,28 @@ class VV1FullMasteryCandidateTests(unittest.TestCase):
                 with self.assertRaises(PatcherError):
                     _remove_feature_bytes(work, self.candidate, "collection_progression")
         before = {path: sha(path.read_bytes()) for path in (MANIFEST, MAP, DOC, DLL)}
-        subprocess.run([sys.executable, str(GENERATOR)], cwd=ROOT, check=True)
+        run_generator(check=True)
         after = {path: sha(path.read_bytes()) for path in (MANIFEST, MAP, DOC, DLL)}
         self.assertEqual(before, after)
+
+    def test_documentation_matches_enabled_integer_contract(self) -> None:
+        generator = GENERATOR.read_text(encoding="utf-8")
+        docs = DOC.read_text(encoding="utf-8")
+        transparency_generator = (ROOT / "scripts" / "generate_transparency_docs.py").read_text(encoding="utf-8")
+        transparency = (ROOT / "docs" / "transparency-log.md").read_text(encoding="utf-8")
+        self.assertIn("enabled/catalog-visible", self.raw["description"])
+        self.assertIn("signed DWORD integer 100", json.dumps(self.raw))
+        self.assertIn("signed DWORD integer 100", json.dumps(self.map))
+        self.assertIn("never written or normalized", self.raw["transaction_contract"]["preference"])
+        self.assertIn("sub_43B520", self.raw["transaction_contract"]["preference"])
+        self.assertIn("Master Parent", self.raw["transaction_contract"]["preference"])
+        self.assertNotIn("Master Farmer", self.raw["transaction_contract"]["preference"])
+        self.assertIn("state=[Tech+0x0C]", docs)
+        self.assertIn("Golden Child", docs)
+        self.assertIn("Superseded historical evidence (withdrawn; not current behavior): VV1 Full Mastery", transparency_generator)
+        self.assertIn("Superseded historical evidence (withdrawn; not current behavior): VV1 Full Mastery", transparency)
+        self.assertNotIn("vv1-full-mastery-c71-recert", json.dumps(self.raw))
+        self.assertNotIn("exact Float32 100", generator + docs + transparency_generator + transparency)
 
 
 if __name__ == "__main__":

@@ -1,4 +1,4 @@
-"""Generate the disabled VV1 command-7 Full Mastery Stage-A candidate."""
+"""Generate the enabled VV1 command-7 Full Mastery stock-mode candidate."""
 
 from __future__ import annotations
 
@@ -676,12 +676,17 @@ def build_section() -> tuple[bytes, dict[str, object]]:
             "bound": BOUND,
             "stride": f"0x{STRIDE:X}",
         },
+        "preference_contract": {
+            "field": "+0x3D0",
+            "behavior": "read-only; never written or normalized; any checked preference remains authoritative",
+            "absent_preference": "stock sub_43B520 tie/highest-skill naming behavior remains authoritative; user-observed expected result is Master Parent, pending exact static reconciliation",
+        },
         "post_verify_pass": {
             "mode": 1,
             "scope": "complete second read-only pass over all 256 records after the entire native-write pass",
             "reacquire": "reload [EBP+8] and reset physical index to zero",
             "eligibility": "same occupied/health/special guards as the first pass",
-            "value_validation": "same five-skill range checks, then every eligible skill must equal exact Float32 100",
+            "value_validation": "same five-skill range checks, then every eligible skill must equal exact signed DWORD integer 100",
             "failure": "EDX=2 on any invalid or non-100 eligible record; EDX=0 only after the full pass",
         },
         "rollback_limit": (
@@ -716,7 +721,7 @@ def build() -> tuple[dict[str, object], dict[str, object]]:
     if sha(original) != expected_sha:
         raise RuntimeError("VV1 stock SHA-256 mismatch")
     if not COMPANION.is_file():
-        raise RuntimeError("build the disabled candidate companion DLL first")
+        raise RuntimeError("build the enabled candidate companion DLL first")
 
     pe = _pe_layout(original)
     if pe["section_count"] != 5:
@@ -763,7 +768,7 @@ def build() -> tuple[dict[str, object], dict[str, object]]:
         "certification_status": "C76/D82/C83 independently recertified; stock-mode catalog enabled for collection_progression and immediate_fixed; Expanded-256 ON HOLD/fail-closed",
         "evidence_status": f"C76/D82/C83 GO against exact source commit {RECERT_SOURCE_COMMIT}; rendered payload and exact uninstall identities are hash-bound below; runtime/player confirmation remains pending",
         "description": (
-            "Stock-only command-7 Full Mastery candidate. Commands 6/8, ownership, "
+            "enabled/catalog-visible stock-only command-7 Full Mastery candidate. Commands 6/8, ownership, "
             "Remove, Golden Child, and Island Event paths are absent; Expanded-256 "
             "is rejected before output."
         ),
@@ -819,7 +824,8 @@ def build() -> tuple[dict[str, object], dict[str, object]]:
             "target": 100,
             "native_writer": "sub_437230 once for each valid below-100 skill",
             "pool_transport": "state=[Tech+0x0C], pool=[state+0xADE8]; null is fail-closed",
-            "post_verify": "mode 1 reacquires [EBP+8] and performs a complete second read-only pass over all 256 records after native writes; identical eligibility/range validation and exact Float32 100 for every eligible skill are required before deduction",
+            "preference": "read-only +0x3D0; never written or normalized; checked preference remains authoritative; no preference uses stock sub_43B520 tie/highest-skill behavior; user-observed expected result is Master Parent, pending exact static reconciliation",
+            "post_verify": "mode 1 reacquires [EBP+8] and performs a complete second read-only pass over all 256 records after native writes; identical eligibility/range validation and exact signed DWORD integer 100 for every eligible skill are required before deduction",
             "rollback_limit": "partial native writes may remain after interruption or failed post-verification; no charge is made",
         },
         "composition_audit": {
@@ -828,7 +834,7 @@ def build() -> tuple[dict[str, object], dict[str, object]]:
             "uninstall_identity": "remove only the candidate .vv1fm append/header/hooks and restore the active Origins/Cure bytes",
             "proof": "combined uninstall must equal the active Origins/Cure base byte-for-byte",
             "shared_hook_policy": "ordinary catalog composition remains collision-fail-closed; the recertification bundle uses an explicit guarded audit composition only",
-            "bundle_output": "outputs/vv1-full-mastery-c71-recert",
+            "bundle_output": RECERT_BUNDLE,
             "identity_files": [
                 "active-origins-cure-base/Virtual Villagers - A New Home - Active Origins.exe",
                 "combined-origins-cure-full-mastery/Virtual Villagers - A New Home - Full Mastery.exe",
@@ -846,13 +852,13 @@ def build() -> tuple[dict[str, object], dict[str, object]]:
             "append_length": SECTION_SIZE,
             "append_bytes": section.hex().upper(),
             "virtual_address": f"0x{SECTION_VA:X}",
-            "purpose": "append the disabled command-7-only .vv1fm RX section",
+            "purpose": "append the enabled/catalog-visible command-7-only .vv1fm RX section",
             "header_patches": [
                 {
                     "offset": f"0x{pe['section_count_offset']:X}",
                     "before": "0500",
                     "after": "0600",
-                    "purpose": "add the disabled candidate .vv1fm section",
+                    "purpose": "add the enabled candidate .vv1fm section",
                 },
                 {
                     "offset": f"0x{pe['size_of_image_offset']:X}",
@@ -872,6 +878,8 @@ def build() -> tuple[dict[str, object], dict[str, object]]:
     artifact.update(
         {
             "acceptance_commit": RECERT_SOURCE_COMMIT,
+            "enabled": True,
+            "catalog_hidden": False,
             "catalog_enabled": True,
             "independent_recertification": {
                 "reviews": ["C76", "D82", "C83"],
@@ -928,7 +936,7 @@ def build() -> tuple[dict[str, object], dict[str, object]]:
             },
             "command_abi": {
                 "entry": "stock thiscall Tech-screen receiver arrives in ECX; entry saves old ESI, transports ECX to ESI, and restores old ESI on exit",
-                "walker": "cdecl(pool,bound,mode); mode0 dry-run, mode1 native commit followed by a complete second 256-record read-only exact-100 pass; EAX changed, EDX 1=first-pass invalid/2=second-pass mismatch; no fourth entry walk; preserves EBX/ESI/EDI/EBP",
+                "walker": "cdecl(pool,bound,mode); mode0 dry-run, mode1 native commit followed by a complete second 256-record read-only exact signed DWORD integer-100 pass; EAX changed, EDX 1=first-pass invalid/2=second-pass mismatch; no fourth entry walk; preserves EBX/ESI/EDI/EBP",
                 "result": "stdcall(status,changed,retained_export); ret 12; retained export itself is stdcall(status,changed), ret 8",
             },
             "modes": list(MODES),
@@ -987,7 +995,7 @@ def main() -> None:
     MAP_OUT.write_text(json.dumps(artifact, indent=2) + "\n", encoding="utf-8")
     DOC_OUT.write_text(
         "# VV1 Full Mastery stock-mode candidate\n\n"
-        "The exact stock-only candidate is catalog-enabled for "
+        "The exact enabled/catalog-visible stock-only candidate is catalog-enabled for "
         "`collection_progression` and `immediate_fixed` after the C76/D82/C83 "
         f"static recertification gate against source commit `{RECERT_SOURCE_COMMIT}`. "
         "Runtime/player confirmation is still pending; no Expanded-256 output "
@@ -1000,7 +1008,13 @@ def main() -> None:
         "The candidate appends `.vv1fm`; it does not reuse the overlapping old "
         "Origins payload. It "
         "adds command 7 only, with commands 6/8, ownership, Remove, Gong, and "
-        "Island Event interception absent. The result export is resolved and "
+        "Island Event interception absent. Eligible records exclude Golden Child "
+        "special value 199; the five skill fields are signed DWORD integers and "
+        "must finish at exact integer 100. Preference +0x3D0 is read-only and "
+        "never written or normalized: a checked preference stays authoritative, "
+        "while no preference follows stock sub_43B520 tie/highest-skill naming; "
+        "the user-observed expected result is Master Parent, pending exact static reconciliation. "
+        "The result export is resolved and "
         "validated before any charge or native writer call, then retained through "
         "commit. The physical pool is reacquired from `state=[Tech+0x0C]` and "
         "`pool=[state+0xADE8]` with null fail-closed guards, preserving 256 "
@@ -1008,7 +1022,7 @@ def main() -> None:
         "precede the unsigned funds check and explicit 1,000,000-point confirmation. "
         "Mode 1 performs the complete native write pass, then reacquires the pool "
         "and performs a second read-only pass over all 256 records with identical "
-        "eligibility/range checks and exact-100 requirements before the single "
+        "eligibility/range checks and exact signed DWORD integer-100 requirements before the single "
         "deduction; there is no mode-2 entry walk. A "
         "process interruption or failed verification cannot safely roll back "
         "partial native writes, so no charge is made. Collection Progression and "

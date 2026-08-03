@@ -53,12 +53,17 @@
     "bound": 256,
     "stride": "0x3D8"
   },
+  "preference_contract": {
+    "field": "+0x3D0",
+    "behavior": "read-only; never written or normalized; any checked preference remains authoritative",
+    "absent_preference": "stock sub_43B520 tie/highest-skill naming behavior remains authoritative; user-observed expected result is Master Parent, pending exact static reconciliation"
+  },
   "post_verify_pass": {
     "mode": 1,
     "scope": "complete second read-only pass over all 256 records after the entire native-write pass",
     "reacquire": "reload [EBP+8] and reset physical index to zero",
     "eligibility": "same occupied/health/special guards as the first pass",
-    "value_validation": "same five-skill range checks, then every eligible skill must equal exact Float32 100",
+    "value_validation": "same five-skill range checks, then every eligible skill must equal exact signed DWORD integer 100",
     "failure": "EDX=2 on any invalid or non-100 eligible record; EDX=0 only after the full pass"
   },
   "rollback_limit": "Native skill writes are not rolled back if the process is interrupted or post-write verification fails; no deduction is made on failure.",
@@ -79,6 +84,8 @@
   },
   "base_relocations": [],
   "acceptance_commit": "2f22a8b435918bf01b95aa4b9a6e6f4287d0ac94",
+  "enabled": true,
+  "catalog_hidden": false,
   "catalog_enabled": true,
   "independent_recertification": {
     "reviews": [
@@ -167,7 +174,7 @@
   },
   "command_abi": {
     "entry": "stock thiscall Tech-screen receiver arrives in ECX; entry saves old ESI, transports ECX to ESI, and restores old ESI on exit",
-    "walker": "cdecl(pool,bound,mode); mode0 dry-run, mode1 native commit followed by a complete second 256-record read-only exact-100 pass; EAX changed, EDX 1=first-pass invalid/2=second-pass mismatch; no fourth entry walk; preserves EBX/ESI/EDI/EBP",
+    "walker": "cdecl(pool,bound,mode); mode0 dry-run, mode1 native commit followed by a complete second 256-record read-only exact signed DWORD integer-100 pass; EAX changed, EDX 1=first-pass invalid/2=second-pass mismatch; no fourth entry walk; preserves EBX/ESI/EDI/EBP",
     "result": "stdcall(status,changed,retained_export); ret 12; retained export itself is stdcall(status,changed), ret 8"
   },
   "modes": [
