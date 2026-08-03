@@ -124,14 +124,28 @@ class VV5FullMasteryCandidateTests(unittest.TestCase):
         cls.feature = FunPatch(cls.feature_raw)
         cls.build = next(item for item in load_builds() if item.id == "vv5")
 
-    def test_geometry_candidate_is_hidden_and_command_seven_only(self):
+    def test_c99_metadata_enablement_and_command_seven_only(self):
         self.assertTrue(self.base_raw["enabled"])
-        self.assertFalse(self.feature_raw["enabled"])
+        self.assertFalse(self.base_raw["catalog_hidden"])
+        self.assertTrue(self.feature_raw["enabled"])
+        self.assertFalse(self.feature_raw["catalog_hidden"])
         active = {item.id: item for item in load_fun_patches()}
         self.assertIn("vv5_enable_origins_exclusive_features", active)
-        self.assertNotIn(self.base_raw["id"], active)
-        self.assertNotIn(self.feature_raw["id"], active)
-        self.assertIn("disabled candidate", self.feature_raw["certification_status"])
+        self.assertIn(self.feature_raw["id"], active)
+        self.assertIn("C99 independently certified", self.feature_raw["certification_status"])
+        self.assertTrue(self.map["candidate_enabled"])
+        self.assertTrue(self.map["catalog_enabled"])
+        self.assertFalse(self.map["catalog_hidden"])
+        self.assertEqual(self.map["allowed_modes"], ["collection_progression", "immediate_fixed"])
+        self.assertTrue(self.map["expanded_fail_closed"])
+        self.assertEqual(
+            self.map["confirmation_contract"]["individual_string_sha256"],
+            "60C9A875AFC93174041B78B3A185B4E1BAE468404F20C3AFC1CF1F127802FD3C",
+        )
+        self.assertEqual(
+            self.map["confirmation_contract"]["village_string_sha256"],
+            "56BC07733ED0F93F211BA0D1887502F8A45E03A4187B8C17067F32FF87117D46",
+        )
         self.assertEqual(self.feature_raw["dependencies"], [self.base_raw["id"]])
         contract = self.feature_raw["transaction_contract"]
         self.assertEqual((contract["command"], contract["price"]), (7, 1_000_000))

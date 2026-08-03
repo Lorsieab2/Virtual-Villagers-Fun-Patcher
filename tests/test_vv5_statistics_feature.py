@@ -10,7 +10,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
-from vv_fun_patcher import load_builds, render_patched_bytes
+from vv_fun_patcher import PatcherError, load_builds, render_patched_bytes
 
 STOCK = ROOT / "research/stock-executables/Virtual Villagers - New Believers.exe"
 MANIFEST = ROOT / "data/statistics_features.json"
@@ -89,6 +89,12 @@ class VV5StatisticsFeatureTests(unittest.TestCase):
         build = next(build for build in load_builds() if build.id == "vv5")
         for mode in MODES:
             with self.subTest(mode=mode):
+                if mode.startswith("experimental_expanded_256"):
+                    with self.assertRaisesRegex(PatcherError, "(?:stock-mode only|no append layout)"):
+                        render_patched_bytes(
+                            STOCK, build, mode, [FEATURE_ID, ORIGINS_ID]
+                        )
+                    continue
                 rendered, _ = render_patched_bytes(
                     STOCK, build, mode, [FEATURE_ID, ORIGINS_ID]
                 )

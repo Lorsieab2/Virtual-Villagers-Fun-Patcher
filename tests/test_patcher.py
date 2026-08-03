@@ -145,7 +145,7 @@ class ManifestTests(unittest.TestCase):
             "vv1_full_mastery_all_stage_a_candidate" in active_ids
         )
         self.assertNotIn("vv3_all_villagers_like_running", active_ids)
-        self.assertNotIn("vv5_full_mastery_all_stage_a_candidate", active_ids)
+        self.assertIn("vv5_full_mastery_all_stage_a_candidate", active_ids)
         self.assertIn("vv3_full_mastery_all_stage_a_candidate", active_ids)
 
     def test_origins_village_wide_payloads_use_zero_owned_reserves(self) -> None:
@@ -740,6 +740,19 @@ class StockIntegrationTests(unittest.TestCase):
                     )
                     with self.assertRaisesRegex(PatcherError, "ON HOLD"):
                         render_patched_bytes(STOCK / build.input_name, build, "experimental_expanded_256", patches_by_game[build.id])
+                    continue
+                if build.id == "vv5":
+                    self.assertIn(
+                        "vv5_full_mastery_all_stage_a_candidate",
+                        patches_by_game[build.id],
+                    )
+                    with self.assertRaisesRegex(PatcherError, "stock-mode only"):
+                        render_patched_bytes(
+                            STOCK / build.input_name,
+                            build,
+                            "experimental_expanded_256",
+                            patches_by_game[build.id],
+                        )
                     continue
                 if build.id == "vv1" and "vv1_full_mastery_all_stage_a_candidate" in patches_by_game[build.id]:
                     with self.assertRaisesRegex(PatcherError, "ON HOLD"):

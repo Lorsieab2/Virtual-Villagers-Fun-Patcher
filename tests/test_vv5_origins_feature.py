@@ -10,7 +10,13 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
-from vv_fun_patcher import FunPatch, load_builds, load_fun_patches, render_patched_bytes
+from vv_fun_patcher import (
+    FunPatch,
+    PatcherError,
+    load_builds,
+    load_fun_patches,
+    render_patched_bytes,
+)
 
 STOCK = ROOT / "research/stock-executables/Virtual Villagers - New Believers.exe"
 MANIFEST = ROOT / "data/vv5_origins_feature.json"
@@ -135,7 +141,7 @@ class VV5OriginsFeatureTests(unittest.TestCase):
 
     def test_generated_vv5_transparency_section_matches_cure_truth(self) -> None:
         transparency = (ROOT / "docs" / "transparency-log.md").read_text(encoding="utf-8")
-        marker = "#### Enable Origins-Exclusive Features (`vv5_enable_origins_exclusive_features`)"
+        marker = "#### VV5 Origins Full Mastery Extension Base (`vv5_enable_origins_exclusive_features`)"
         section = transparency.split(marker, 1)[1].split("\n#### ", 1)[0].casefold()
         self.assertIn("legacy cure row and command 5 are withdrawn", section)
         self.assertIn("bypassed by the eb5f containment gate", section)
@@ -298,6 +304,10 @@ class VV5OriginsFeatureTests(unittest.TestCase):
             ("experimental_expanded_256_progression", "568B742408", "00010000"),
         ):
             with self.subTest(mode=mode):
+                if mode.startswith("experimental_expanded_256"):
+                    with self.assertRaisesRegex(PatcherError, "(?:stock-mode only|no append layout)"):
+                        render_patched_bytes(STOCK, build, mode, [FEATURE_ID])
+                    continue
                 rendered, _ = render_patched_bytes(
                     STOCK, build, mode, [FEATURE_ID]
                 )
@@ -386,6 +396,10 @@ class VV5OriginsFeatureTests(unittest.TestCase):
             ("experimental_expanded_256_progression", "85F67E3456", "00010000"),
         ):
             with self.subTest(mode=mode):
+                if mode.startswith("experimental_expanded_256"):
+                    with self.assertRaisesRegex(PatcherError, "(?:stock-mode only|no append layout)"):
+                        render_patched_bytes(STOCK, build, mode, [FEATURE_ID])
+                    continue
                 rendered, _ = render_patched_bytes(
                     STOCK, build, mode, [FEATURE_ID]
                 )
@@ -504,7 +518,7 @@ class VV5OriginsFeatureTests(unittest.TestCase):
         ]
         active_ids = {item.id for item in load_fun_patches() if item.game_id == "vv5"}
         self.assertIn(FEATURE_ID, active_ids)
-        self.assertNotIn("vv5_full_mastery_all_stage_a_candidate", active_ids)
+        self.assertIn("vv5_full_mastery_all_stage_a_candidate", active_ids)
         for mode in (
             "collection_progression",
             "immediate_fixed",
@@ -592,19 +606,13 @@ class VV5OriginsFeatureTests(unittest.TestCase):
 
     def test_expanded_output_keeps_vanilla_name_and_stock_save_fallback(self) -> None:
         build = next(item for item in load_builds() if item.id == "vv5")
-        rendered, _ = render_patched_bytes(
-            STOCK,
-            build,
-            "experimental_expanded_256",
-            [FEATURE_ID],
-        )
-        self.assertEqual(bytes(rendered[0x95794 : 0x9579D]), b"%s%d.ldw\0")
-        self.assertEqual(bytes(rendered[0x25709 : 0x2570E]), bytes.fromhex("E85EEF0600"))
-        cave = bytes(rendered[0x9466C : 0x9466C + 102])
-        self.assertIn(bytes.fromhex("68787D0100"), cave)
-        self.assertIn(bytes.fromhex("FDF3A5FC"), cave)
-        self.assertIn(bytes.fromhex("B919040000"), cave)
-        self.assertIn(bytes.fromhex("B9FC1C0000"), cave)
+        with self.assertRaisesRegex(PatcherError, "(?:stock-mode only|no append layout)"):
+            render_patched_bytes(
+                STOCK,
+                build,
+                "experimental_expanded_256",
+                [FEATURE_ID],
+            )
 
 
 if __name__ == "__main__":

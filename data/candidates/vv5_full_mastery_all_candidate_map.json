@@ -1,5 +1,14 @@
 {
-  "acceptance_commit": "48dd3266f8dd934be0434e07f6b24751d0e417c3",
+  "acceptance_commit": "48955b5f19da5d4279887a4c1b71250a63ac9ade",
+  "candidate_enabled": true,
+  "catalog_enabled": true,
+  "catalog_hidden": false,
+  "certification_status": "C99 independently certified; stock Collection Progression and Immediate Fixed catalog-enabled; Expanded-256 ON HOLD/fail-closed",
+  "allowed_modes": [
+    "collection_progression",
+    "immediate_fixed"
+  ],
+  "expanded_fail_closed": true,
   "source": {
     "size": 991232,
     "sha256": "92946781980220E9D1A2E6C573925519934608F5215F4A0F8CE3B90088C5C65D"
@@ -28,8 +37,8 @@
       "ownership": "0x40C680"
     }
   },
-  "base_manifest_sha256": "B29C36AC3BF504E4C38BEF44F7FE143E53E9BAB7B95335B1CC093BA924A11DD6",
-  "feature_manifest_sha256": "94C5E72E6E43BEC45CA615EA3F505AE2C397DFCDEA5F90ECF6406FB407B9740A",
+  "base_manifest_sha256": "8402BC9A183BC6C5EAEF75BD9ADA0C4641E4E28D56A285B696CAA29D0BC20E74",
+  "feature_manifest_sha256": "DC7AA7E678644D301A5BC104ED6DBA4972C4253465DFCF6F79FB2E15C25E3C8C",
   "base_stock_payload_sha256": "624E8E6F377C435B80BBA5599FFE5C086DE231A942474880364A7D8161933281",
   "companion": {
     "path": "data/candidates/VVFP VV5 Full Mastery Candidate.dll",
@@ -87,6 +96,14 @@
     "confirmation_offset": "0x800",
     "village_confirmation_offset": "0x850"
   },
+  "confirmation_contract": {
+    "individual_routine_sha256": "234E2D9320A75D6B95DED0A682F13087294AE5E48F126DF30269C6F37653C18F",
+    "village_routine_sha256": "2C392F952854EB485091199AC96AAC0B1C5683B7061D9267650411868926D763",
+    "individual_string_sha256": "60C9A875AFC93174041B78B3A185B4E1BAE468404F20C3AFC1CF1F127802FD3C",
+    "village_string_sha256": "56BC07733ED0F93F211BA0D1887502F8A45E03A4187B8C17067F32FF87117D46",
+    "individual_price": 100000,
+    "village_price": 1000000
+  },
   "layouts": {
     "collection_progression": {
       "page_rva": 3969024,
@@ -118,6 +135,10 @@
           "village_confirmation_offset": 2128,
           "village_confirmation_length": 73,
           "village_confirmation_sha256": "2C392F952854EB485091199AC96AAC0B1C5683B7061D9267650411868926D763",
+          "confirmation_string_sha256": {
+            "individual_confirm": "60C9A875AFC93174041B78B3A185B4E1BAE468404F20C3AFC1CF1F127802FD3C",
+            "village_confirm": "56BC07733ED0F93F211BA0D1887502F8A45E03A4187B8C17067F32FF87117D46"
+          },
           "individual_offset": 3072,
           "individual_length": 689,
           "individual_sha256": "00AEE03769489F44BF308385F869D1B26AA64BA25083E38FC7C734C56D97C19B",
@@ -171,6 +192,10 @@
           "village_confirmation_offset": 2128,
           "village_confirmation_length": 73,
           "village_confirmation_sha256": "2C392F952854EB485091199AC96AAC0B1C5683B7061D9267650411868926D763",
+          "confirmation_string_sha256": {
+            "individual_confirm": "60C9A875AFC93174041B78B3A185B4E1BAE468404F20C3AFC1CF1F127802FD3C",
+            "village_confirm": "56BC07733ED0F93F211BA0D1887502F8A45E03A4187B8C17067F32FF87117D46"
+          },
           "individual_offset": 3072,
           "individual_length": 689,
           "individual_sha256": "00AEE03769489F44BF308385F869D1B26AA64BA25083E38FC7C734C56D97C19B",

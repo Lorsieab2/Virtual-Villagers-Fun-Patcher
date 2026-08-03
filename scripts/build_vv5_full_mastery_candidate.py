@@ -665,6 +665,16 @@ def build_slot(page_va: int, installed: bool) -> tuple[bytes, dict[str, object]]
         "village_confirmation_offset": VILLAGE_CONFIRM_OFFSET,
         "village_confirmation_length": len(village_confirm),
         "village_confirmation_sha256": sha(village_confirm),
+        "confirmation_string_sha256": {
+            "individual_confirm": sha(
+                b"Grant Full Mastery to this villager for 100,000 tech points?\r\n"
+                b"Press OK to confirm, or Cancel.\0"
+            ),
+            "village_confirm": sha(
+                b"Grant Full Mastery to all eligible villagers for 1,000,000 tech points?\r\n"
+                b"Press OK to confirm, or Cancel.\0"
+            ),
+        },
         "individual_offset": INDIVIDUAL_OFFSET,
         "individual_length": len(individual),
         "individual_sha256": sha(individual),
@@ -918,10 +928,20 @@ def main() -> None:
     )
     base = deepcopy(active)
     base["id"] = "vv5_enable_origins_exclusive_features_full_mastery_candidate"
-    base["name"] = "DISABLED Candidate: VV5 Origins Full Mastery Extension Base"
+    base["name"] = (
+        "VV5 Origins Full Mastery Extension Base"
+        if bool(json.loads(FEATURE_OUT.read_text(encoding="utf-8")).get("enabled", False))
+        else "DISABLED Candidate: VV5 Origins Full Mastery Extension Base"
+    )
     base["enabled"] = True
+    base["catalog_hidden"] = not bool(
+        json.loads(FEATURE_OUT.read_text(encoding="utf-8")).get("enabled", False)
+    )
     base["certification_status"] = (
-        "disabled Stage-A candidate awaiting independent emitted-byte certification"
+        "C99 independently certified; stock Collection Progression and Immediate Fixed "
+        "catalog-enabled; Expanded-256 ON HOLD/fail-closed"
+        if not base["catalog_hidden"]
+        else "disabled Stage-A candidate awaiting independent emitted-byte certification"
     )
     base["dependencies"] = []
     base["expanded_shr_relocations"]["patches"] = []
@@ -968,7 +988,11 @@ def main() -> None:
         "native_dimensions": [96, 39],
         "tech": {"local_x": 137, "local_y": 2, "event": 13, "factory": "0x401BD0", "ownership": "0x40C680"},
         "detail": {"local_x": 137, "local_y": 2, "event": 13, "factory": "0x401BD0", "ownership": "0x40C680"},
-        "status": "disabled pending independent emitted-byte recertification",
+        "status": (
+            "independent metadata recertification GO; stock modes only; Expanded-256 ON HOLD/fail-closed"
+            if not base["catalog_hidden"]
+            else "disabled pending independent emitted-byte recertification"
+        ),
     }
     base["patch_mode_overrides"] = {}
     base["pe_append_transaction"] = {
@@ -1008,6 +1032,7 @@ def main() -> None:
             if feature_enabled
             else "DISABLED Candidate: Grant Full Mastery to All Villagers"
         ),
+        "catalog_hidden": not feature_enabled,
         "enabled": feature_enabled,
         "certification_status": (
             existing_feature.get("certification_status")
@@ -1079,7 +1104,11 @@ def main() -> None:
             "native_dimensions": [96, 39],
             "tech": {"local_x": 137, "local_y": 2, "event": 13, "factory": "0x401BD0", "ownership": "0x40C680"},
             "detail": {"local_x": 137, "local_y": 2, "event": 13, "factory": "0x401BD0", "ownership": "0x40C680"},
-            "status": "disabled pending independent emitted-byte recertification",
+            "status": (
+                "independent metadata recertification GO; stock modes only; Expanded-256 ON HOLD/fail-closed"
+                if feature_enabled
+                else "disabled pending independent emitted-byte recertification"
+            ),
         },
     }
 
@@ -1153,7 +1182,17 @@ def main() -> None:
         }
 
     artifact = {
-        "acceptance_commit": "48dd3266f8dd934be0434e07f6b24751d0e417c3",
+        "acceptance_commit": "48955b5f19da5d4279887a4c1b71250a63ac9ade",
+        "candidate_enabled": feature_enabled,
+        "catalog_enabled": feature_enabled,
+        "catalog_hidden": not feature_enabled,
+        "certification_status": (
+            "C99 independently certified; stock Collection Progression and Immediate Fixed catalog-enabled; Expanded-256 ON HOLD/fail-closed"
+            if feature_enabled
+            else "disabled candidate awaiting independent emitted-byte certification"
+        ),
+        "allowed_modes": ["collection_progression", "immediate_fixed"],
+        "expanded_fail_closed": True,
         "source": {"size": len(stock), "sha256": expected_sha},
         "ui_geometry_contract": {
             "asset": "Images\\btn_trophies.png",
@@ -1181,6 +1220,14 @@ def main() -> None:
             "walker_offset": f"0x{WALKER_OFFSET:X}",
             "confirmation_offset": f"0x{CONFIRM_OFFSET:X}",
             "village_confirmation_offset": f"0x{VILLAGE_CONFIRM_OFFSET:X}",
+        },
+        "confirmation_contract": {
+            "individual_routine_sha256": "234E2D9320A75D6B95DED0A682F13087294AE5E48F126DF30269C6F37653C18F",
+            "village_routine_sha256": "2C392F952854EB485091199AC96AAC0B1C5683B7061D9267650411868926D763",
+            "individual_string_sha256": "60C9A875AFC93174041B78B3A185B4E1BAE468404F20C3AFC1CF1F127802FD3C",
+            "village_string_sha256": "56BC07733ED0F93F211BA0D1887502F8A45E03A4187B8C17067F32FF87117D46",
+            "individual_price": 100000,
+            "village_price": 1000000,
         },
         "layouts": {
             mode: {
@@ -1231,12 +1278,12 @@ def main() -> None:
             else "# VV5 Full Mastery native top-left geometry corrective candidate\n\n"
         )
         + "Generated from acceptance contract "
-        "`48dd3266f8dd934be0434e07f6b24751d0e417c3`. "
+        "`48955b5f19da5d4279887a4c1b71250a63ac9ade`. "
         + (
-            "The exact corrected startup-receiver bundle received FINAL CERTIFIED "
-            "GO under `7970cd9`; the dependent command-7 record is available only "
-            "for startup-first runtime testing, with Tech/Details/Buy forbidden "
-            "until stable startup is confirmed.\n\n"
+            "C99 independently certified the emitted bytes and C101 enables this "
+            "candidate only for stock Collection Progression and Immediate Fixed. "
+            "Expanded-256 remains fail-closed; Cure command 5 remains withdrawn and "
+            "unreachable.\n\n"
             if feature_enabled
             else "The corrected constructor and Full Mastery paths passed the M2 live "
             "test, but the Upgrades controls require the proven native top-left layout. "
@@ -1247,7 +1294,8 @@ def main() -> None:
         )
         + f"- Companion SHA-256: `{artifact['companion']['sha256']}`\n"
         f"- Stock installed slot SHA-256: `{artifact['layouts']['collection_progression']['installed_slot_sha256']}`\n"
-        f"- Stock base+mastery render SHA-256: `{renders['collection_progression']['base_plus_mastery_sha256']}`\n"
+        f"- Collection Progression render SHA-256: `{renders['collection_progression']['base_plus_mastery_sha256']}`\n"
+        f"- Immediate Fixed render SHA-256: `{renders['immediate_fixed']['base_plus_mastery_sha256']}`\n"
         "- Expanded-256 render: rejected before artifact output (fail-closed).\n\n"
         "The feature exposes command 7 only inside its certified base dependency. "
         "The candidate-only Detail command-1 route performs complete selected-current "

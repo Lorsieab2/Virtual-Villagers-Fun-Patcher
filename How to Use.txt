@@ -274,6 +274,21 @@ Polishing the Statue for eligible upgradeable and completed statues.
 It does not change autonomous work, skill gain amounts, statue upgrades, or
 Retired Chief activities.
 
+VV5 ORIGINS FULL MASTERY EXTENSION
+
+The independently certified "VV5 Origins Full Mastery Extension Base"
+(vv5_origins_full_mastery_base_candidate) and "Grant Full Mastery to All
+Villagers" (vv5_full_mastery_all_stage_a_candidate) are available only for the
+exact stock Collection Progression and Immediate Fixed modes. The candidate is
+bound to its certified executable, Origins DLL, native trophy artwork,
+confirmation routines/strings, and map guards. Expanded-256 is rejected before
+any output is created and remains ON HOLD.
+
+The selected current living Believer receives the native exact-100 Full Mastery
+transaction. Cure row/command 5 is withdrawn, unavailable, bypassed, and
+unreachable; do not purchase Cure and no 30,000-point Cure behavior is included.
+Other VV5 actions and unrelated features remain native.
+
 ORIGINS VILLAGE-WIDE UPGRADES
 
 All five legacy village-wide Origins records remain unavailable. Commands

@@ -124,15 +124,20 @@ VV5_FULL_MASTERY_CANDIDATE_PATHS = {
     "dll": ROOT / "data" / "candidates" / "VVFP VV5 Full Mastery Candidate.dll",
 }
 VV5_FULL_MASTERY_CERTIFIED_SHA256 = {
-    "stock_entry": "5BCB2527C5C7350779F98C9ECAC7CA9C2B2E2247DDA7D553085DA6FFD5CC8DEA",
+    "stock_entry": "3931DE449CDC334B9BD93D0FCF813CC8D44885E7DA430D79C22234F4B3DB1BBB",
     "stock_walker": "7466674FBC225EE898E10086B355509BF6AAB2E2D9024C8E3FCE4D0833CADAB8",
-    "stock_confirmation": "E4B72DE00646AF4779C533165ECE95F727725E36925F841797F1B0F21A3CCEE5",
-    "expanded_entry": "B7AAF750DC64DBED77D6D64BB83C50F631AAC5F109C9635F92FB88478D35FE5F",
-    "expanded_walker": "35DFE0E67EF7B356ED6D3CB7E558FBFAF6F3364000818F4FC2D84599B902419F",
-    "expanded_confirmation": "BFD577602BBF2E3AC581B92B8E1C99A221EB84504B2CB574A27ADA147ECB27BD",
-    "stock_page": "DD473180CDCFE752706347739EF81008BA5072C2D5C802D41752D2964DF84FEE",
-    "expanded_page": "877BB11B9906B4D259557C2A313E46C3FCA80A2A667DD9CE1BBE49BA59D7BDD4",
+    "stock_confirmation": "234E2D9320A75D6B95DED0A682F13087294AE5E48F126DF30269C6F37653C18F",
     "dll": "29927CECB448B64944E18E2BA11893DC84C91B39241FBB2549FC2A464E0BE2ED",
+}
+VV5_FULL_MASTERY_RENDERED_SHA256 = {
+    "collection_progression": "15E04105D84809AC944C9060E140A0AD4DEFB9BFCDFCE9155E68DE1A67A703C7",
+    "immediate_fixed": "4D5D84617788E94C0289F7CBBC4B58B396D1D64B5651F4A17088422F88EA1F46",
+}
+VV5_FULL_MASTERY_CONFIRMATION_SHA256 = {
+    "individual_routine": "234E2D9320A75D6B95DED0A682F13087294AE5E48F126DF30269C6F37653C18F",
+    "village_routine": "2C392F952854EB485091199AC96AAC0B1C5683B7061D9267650411868926D763",
+    "individual_string": "60C9A875AFC93174041B78B3A185B4E1BAE468404F20C3AFC1CF1F127802FD3C",
+    "village_string": "56BC07733ED0F93F211BA0D1887502F8A45E03A4187B8C17067F32FF87117D46",
 }
 STATISTICS_FEATURES_PATH = ROOT / "data" / "statistics_features.json"
 DEFAULT_PATCH_MODE = "collection_progression"
@@ -618,17 +623,39 @@ def _certified_vv5_full_mastery_records(
     artifact = json.loads(
         VV5_FULL_MASTERY_CANDIDATE_PATHS["map"].read_text(encoding="utf-8")
     )
-    stock = artifact["layouts"]["collection_progression"]
-    expanded = artifact["layouts"]["experimental_expanded_256"]
+    layouts = artifact.get("layouts")
+    if not isinstance(layouts, dict) or set(layouts) != set(VV5_FULL_MASTERY_RENDERED_SHA256):
+        raise PatcherError(
+            "VV5 Full Mastery metadata must expose only the two certified stock-mode layouts."
+        )
+    rendered = artifact.get("rendered_candidates")
+    if not isinstance(rendered, dict):
+        raise PatcherError("VV5 Full Mastery rendered-mode gate is missing.")
+    if (
+        artifact.get("candidate_enabled") is not True
+        or artifact.get("catalog_enabled") is not True
+        or artifact.get("catalog_hidden") is not False
+        or artifact.get("allowed_modes") != ["collection_progression", "immediate_fixed"]
+        or artifact.get("expanded_fail_closed") is not True
+    ):
+        raise PatcherError("VV5 Full Mastery catalog enablement metadata is not C99-certified.")
+    for mode in EXPANDED_PATCH_MODES:
+        if rendered.get(mode) != {"rejected": True, "reason": "Expanded-256 fail-closed"}:
+            raise PatcherError(
+                f"VV5 Full Mastery Expanded-256 mode {mode} is not fail-closed."
+            )
+    for mode, expected in VV5_FULL_MASTERY_RENDERED_SHA256.items():
+        if rendered.get(mode, {}).get("base_plus_mastery_sha256") != expected:
+            raise PatcherError(
+                f"VV5 Full Mastery {mode} rendered hash is not the certified C99 identity."
+            )
+    stock = layouts["collection_progression"]
+    installed = stock.get("slot_map", {}).get("installed", {})
     actual = {
-        "stock_entry": stock["slot_map"]["installed"]["entry_sha256"],
-        "stock_walker": stock["slot_map"]["installed"]["walker_sha256"],
-        "stock_confirmation": stock["slot_map"]["installed"]["confirmation_sha256"],
-        "expanded_entry": expanded["slot_map"]["installed"]["entry_sha256"],
-        "expanded_walker": expanded["slot_map"]["installed"]["walker_sha256"],
-        "expanded_confirmation": expanded["slot_map"]["installed"]["confirmation_sha256"],
-        "stock_page": stock["installed_page_sha256"],
-        "expanded_page": expanded["installed_page_sha256"],
+        "stock_entry": installed.get("entry_sha256"),
+        "stock_walker": installed.get("walker_sha256"),
+        "stock_confirmation": installed.get("confirmation_sha256"),
+        "stock_page": stock.get("installed_page_sha256"),
         "dll": hashlib.sha256(
             VV5_FULL_MASTERY_CANDIDATE_PATHS["dll"].read_bytes()
         ).hexdigest().upper(),
@@ -639,9 +666,30 @@ def _certified_vv5_full_mastery_records(
                 f"Certified VV5 Full Mastery {label} artifact hash mismatch: "
                 f"expected {expected}, got {actual[label]}."
             )
+    if installed.get("village_confirmation_sha256") != VV5_FULL_MASTERY_CONFIRMATION_SHA256["village_routine"]:
+        raise PatcherError("VV5 Full Mastery village-wide confirmation routine hash is not certified.")
+    if installed.get("confirmation_string_sha256") != {
+        "individual_confirm": VV5_FULL_MASTERY_CONFIRMATION_SHA256["individual_string"],
+        "village_confirm": VV5_FULL_MASTERY_CONFIRMATION_SHA256["village_string"],
+    }:
+        raise PatcherError("VV5 Full Mastery confirmation string hashes are not certified.")
+    if artifact.get("confirmation_contract") != {
+        "individual_routine_sha256": VV5_FULL_MASTERY_CONFIRMATION_SHA256["individual_routine"],
+        "village_routine_sha256": VV5_FULL_MASTERY_CONFIRMATION_SHA256["village_routine"],
+        "individual_string_sha256": VV5_FULL_MASTERY_CONFIRMATION_SHA256["individual_string"],
+        "village_string_sha256": VV5_FULL_MASTERY_CONFIRMATION_SHA256["village_string"],
+        "individual_price": 100000,
+        "village_price": 1000000,
+    }:
+        raise PatcherError("VV5 Full Mastery confirmation metadata is not C99-certified.")
     base = dict(base)
     base.update(
-        {"id": active_base["id"], "name": active_base["name"], "enabled": True}
+        {
+            "id": active_base["id"],
+            "name": "VV5 Origins Full Mastery Extension Base",
+            "enabled": True,
+            "catalog_hidden": False,
+        }
     )
     feature = dict(feature)
     feature.update(
@@ -649,6 +697,7 @@ def _certified_vv5_full_mastery_records(
             "id": "vv5_full_mastery_all_stage_a_candidate",
             "name": "Grant Full Mastery to All Villagers",
             "enabled": True,
+            "catalog_hidden": False,
             "dependencies": [active_base["id"]],
         }
     )
@@ -1839,7 +1888,10 @@ def render_patched_bytes(
                     )
                     allowed_vv5_individual_overlay = (
                         owner == "feature:vv5_full_mastery_all_stage_a_candidate"
-                        and prior_owner == "feature:vv5_enable_origins_exclusive_features_full_mastery_candidate"
+                        and prior_owner in {
+                            "feature:vv5_enable_origins_exclusive_features",
+                            "feature:vv5_enable_origins_exclusive_features_full_mastery_candidate",
+                        }
                         and offset == 0xDB766
                         and before == bytes.fromhex("83FB027525")
                     )

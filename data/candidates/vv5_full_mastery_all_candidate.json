@@ -1,9 +1,10 @@
 {
   "id": "vv5_full_mastery_all_stage_a_candidate",
   "game_id": "vv5",
-  "name": "DISABLED Candidate: Grant Full Mastery to All Villagers",
-  "enabled": false,
-  "certification_status": "disabled candidate awaiting independent recertification of the VV5 native btn_trophies resource and exact-100 individual transaction",
+  "name": "Grant Full Mastery to All Villagers",
+  "catalog_hidden": false,
+  "enabled": true,
+  "certification_status": "C99 independently certified; stock Collection Progression and Immediate Fixed catalog-enabled; Expanded-256 ON HOLD/fail-closed",
   "dependencies": [
     "vv5_enable_origins_exclusive_features_full_mastery_candidate"
   ],
@@ -85,6 +86,6 @@
       "factory": "0x401BD0",
       "ownership": "0x40C680"
     },
-    "status": "disabled pending independent emitted-byte recertification"
+    "status": "independent metadata recertification GO; stock modes only; Expanded-256 ON HOLD/fail-closed"
   }
 }
