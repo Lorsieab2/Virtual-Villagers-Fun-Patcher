@@ -38,6 +38,7 @@ TELEMETRY_OFFSET = 0x800
 CONFIRM_OFFSET = 0xA00
 SHOW_MENU_OFFSET = 0xB00
 SHOW_RESULT_OFFSET = 0xC00
+RESULT_PREFLIGHT_OFFSET = 0xD00
 STRINGS_OFFSET = 0x1000
 PRICE = 1_000_000
 BOUND = 256
@@ -175,6 +176,7 @@ def build_section() -> tuple[bytes, dict[str, object]]:
     confirm_va = SECTION_VA + CONFIRM_OFFSET
     show_menu_va = SECTION_VA + SHOW_MENU_OFFSET
     show_result_va = SECTION_VA + SHOW_RESULT_OFFSET
+    result_preflight_va = SECTION_VA + RESULT_PREFLIGHT_OFFSET
 
     handler = asm(
         f"""
@@ -246,9 +248,16 @@ def build_section() -> tuple[bytes, dict[str, object]]:
             push esi
             push edi
             sub esp, 0x124
+            lea edi, [ebp - 0x124]
+            xor eax, eax
+            mov ecx, 64
+            rep stosd
             call 0x{show_menu_va:X}
             cmp eax, 7
             jne done
+            call 0x{result_preflight_va:X}
+            test eax, eax
+            jz unavailable
             call 0x44F4E0
             test eax, eax
             jz unavailable
@@ -274,7 +283,7 @@ def build_section() -> tuple[bytes, dict[str, object]]:
             jb insufficient
             call 0x{confirm_va:X}
             cmp eax, 1
-            jne done
+            jne canceled
             call 0x44F4E0
             test eax, eax
             jz recheck_failed
@@ -309,6 +318,14 @@ def build_section() -> tuple[bytes, dict[str, object]]:
             js recheck_failed
             test eax, eax
             jz recheck_failed
+            call 0x44F4E0
+            test eax, eax
+            jz recheck_failed
+            mov dword ptr [ebp - 0x1C], eax
+            mov edx, dword ptr [eax + 0xE574D4]
+            test edx, edx
+            jz recheck_failed
+            mov dword ptr [ebp - 0x20], edx
             lea eax, [ebp - 0x124]
             push 0
             push 2
@@ -320,9 +337,10 @@ def build_section() -> tuple[bytes, dict[str, object]]:
             jz recheck_failed
             mov ecx, dword ptr [ebp - 0x1C]
             call 0x44D4C0
-            mov ecx, dword ptr [ebp - 0x20]
-            push -{PRICE}
-            call 0x426290
+            mov edx, dword ptr [ebp - 0x1C]
+            mov edx, dword ptr [edx + 0xE574D4]
+            test edx, edx
+            jz recheck_failed
             lea eax, [ebp - 0x124]
             push eax
             push {BOUND}
@@ -331,8 +349,18 @@ def build_section() -> tuple[bytes, dict[str, object]]:
             push eax
             call 0x{telemetry_va:X}
             add esp, 12
-            push edx
-            push ecx
+            mov dword ptr [ebp - 0x24], ecx
+            mov dword ptr [ebp - 0x28], edx
+            mov edx, dword ptr [ebp - 0x1C]
+            mov edx, dword ptr [edx + 0xE574D4]
+            test edx, edx
+            jz recheck_failed
+            mov dword ptr [ebp - 0x20], edx
+            mov ecx, edx
+            push -{PRICE}
+            call 0x426290
+            push dword ptr [ebp - 0x28]
+            push dword ptr [ebp - 0x24]
             push dword ptr [ebp - 0x18]
             push 1
             call 0x{show_result_va:X}
@@ -356,6 +384,13 @@ def build_section() -> tuple[bytes, dict[str, object]]:
             push 0
             push 0
             push 2
+            call 0x{show_result_va:X}
+            jmp done
+        canceled:
+            push 0
+            push 0
+            push 0
+            push 4
             call 0x{show_result_va:X}
             jmp done
         unavailable:
@@ -394,16 +429,20 @@ def build_section() -> tuple[bytes, dict[str, object]]:
             push ebx
             push esi
             push edi
+            sub esp, 0x0C
             mov esi, dword ptr [ebp + 8]
             add esi, 0x52C
             mov ecx, dword ptr [ebp + 12]
             mov edx, dword ptr [ebp + 16]
             mov edi, dword ptr [ebp + 20]
-            mov dword ptr [ebp - 8], edx
+            mov dword ptr [ebp - 0x10], edx
+            mov dword ptr [ebp - 0x14], ecx
+            mov dword ptr [ebp - 0x18], 0
             xor eax, eax
             xor ebx, ebx
         next:
-            mov edx, dword ptr [ebp - 8]
+            mov edx, dword ptr [ebp - 0x10]
+            mov ecx, dword ptr [ebp - 0x14]
             cmp ebx, ecx
             jae walk_done
             cmp byte ptr [esi + 0x30], 0
@@ -446,16 +485,22 @@ def build_section() -> tuple[bytes, dict[str, object]]:
             je advance
         changed:
             inc eax
-            mov dword ptr [ebp - 4], eax
+            mov dword ptr [ebp - 0x18], eax
             test edx, edx
             jz advance
+            cmp byte ptr [esi + 0x7FC], 0
+            jne originally_marked
             mov byte ptr [edi + ebx], 1
+            jmp snapshot_done
+        originally_marked:
+            mov byte ptr [edi + ebx], 2
+        snapshot_done:
             cmp dword ptr [esi + 0x7E4], 100
             je s2
             mov ecx, 100
             sub ecx, dword ptr [esi + 0x7E4]
             push ecx
-            push 1
+            push 3
             push ebx
             mov ecx, dword ptr [ebp + 8]
             add ecx, 0x52C
@@ -477,7 +522,7 @@ def build_section() -> tuple[bytes, dict[str, object]]:
             mov ecx, 100
             sub ecx, dword ptr [esi + 0x7EC]
             push ecx
-            push 3
+            push 1
             push ebx
             mov ecx, dword ptr [ebp + 8]
             add ecx, 0x52C
@@ -488,7 +533,7 @@ def build_section() -> tuple[bytes, dict[str, object]]:
             mov ecx, 100
             sub ecx, dword ptr [esi + 0x7F0]
             push ecx
-            push 4
+            push 5
             push ebx
             mov ecx, dword ptr [ebp + 8]
             add ecx, 0x52C
@@ -499,12 +544,12 @@ def build_section() -> tuple[bytes, dict[str, object]]:
             mov ecx, 100
             sub ecx, dword ptr [esi + 0x7F4]
             push ecx
-            push 5
+            push 4
             push ebx
             mov ecx, dword ptr [ebp + 8]
             add ecx, 0x52C
             call 0x445430
-            mov eax, dword ptr [ebp - 4]
+            mov eax, dword ptr [ebp - 0x18]
             jmp advance
         postverify:
             cmp dword ptr [esi + 0x7E4], 100
@@ -526,14 +571,15 @@ def build_section() -> tuple[bytes, dict[str, object]]:
             mov eax, -1
             jmp walk_done
         advance:
-            cmp dword ptr [ebp - 8], 1
+            cmp dword ptr [ebp - 0x10], 1
             jne next_record
-            mov eax, dword ptr [ebp - 4]
+            mov eax, dword ptr [ebp - 0x18]
         next_record:
             add esi, {STRIDE}
             inc ebx
             jmp next
         walk_done:
+            add esp, 0x0C
             pop edi
             pop esi
             pop ebx
@@ -676,6 +722,34 @@ def build_section() -> tuple[bytes, dict[str, object]]:
     )
     _put(section, SHOW_MENU_OFFSET, show_menu, "menu resolver")
 
+    result_preflight = asm(
+        f"""
+            push ebx
+            push esi
+            push 0x{strings['candidate_dll']:X}
+            call dword ptr [0x474010]
+            test eax, eax
+            jz result_unavailable
+            push 0x{strings['result_export']:X}
+            push eax
+            call dword ptr [0x4740D4]
+            test eax, eax
+            jz result_unavailable
+            mov esi, eax
+            mov eax, esi
+            pop esi
+            pop ebx
+            ret
+        result_unavailable:
+            xor eax, eax
+            pop esi
+            pop ebx
+            ret
+        """,
+        result_preflight_va,
+    )
+    _put(section, RESULT_PREFLIGHT_OFFSET, result_preflight, "result export preflight")
+
     # stdcall show_result(status, changed, new_markers, unmarked), ret 16.
     show_result = asm(
         f"""
@@ -711,6 +785,7 @@ def build_section() -> tuple[bytes, dict[str, object]]:
         "telemetry_sha256": sha(telemetry),
         "confirmation_sha256": sha(confirm),
         "menu_resolver_sha256": sha(show_menu),
+        "result_preflight_sha256": sha(result_preflight),
         "result_resolver_sha256": sha(show_result),
         "offsets": {
             "handler": f"0x{TECH_HANDLER_OFFSET:X}",
@@ -720,8 +795,15 @@ def build_section() -> tuple[bytes, dict[str, object]]:
             "telemetry": f"0x{TELEMETRY_OFFSET:X}",
             "confirmation": f"0x{CONFIRM_OFFSET:X}",
             "menu_resolver": f"0x{SHOW_MENU_OFFSET:X}",
+            "result_preflight": f"0x{RESULT_PREFLIGHT_OFFSET:X}",
             "result_resolver": f"0x{SHOW_RESULT_OFFSET:X}",
             "strings": f"0x{STRINGS_OFFSET:X}",
+        },
+        "constructor_pointer": {
+            "instruction_va": f"0x{constructor_va + 0x3C:X}",
+            "target_va": f"0x{strings['button']:X}",
+            "target_text": "Origins Upgrades",
+            "guard": "constructor button pointer must resolve inside emitted string block",
         },
         "strings": {key: f"0x{value:X}" for key, value in strings.items()},
         "absolute_references": [
@@ -740,7 +822,7 @@ def build_section() -> tuple[bytes, dict[str, object]]:
             "handler -> entry",
             "handler -> stock continuation 0x4437C5",
             "constructor -> 0x467F83/0x4019D0/0x4015D0/0x40B560",
-            "entry -> 0x44F4E0/walker/confirmation/0x44D4C0/0x426290/telemetry/result",
+            "entry -> 0x44F4E0/walker/confirmation/0x44D4C0/0x426290/telemetry/result-preflight/result",
         ],
         "iat_references": ["0x474010 LoadLibraryA", "0x4740D4 GetProcAddress"],
         "base_relocations": [],
@@ -844,7 +926,13 @@ def build() -> tuple[dict[str, object], dict[str, object]]:
             "ownership": None,
             "record_bound": BOUND,
             "eligibility": ["byte +0x30 != 0", "signed dword +0x52C > 0", "byte +0x558 == 0"],
-            "skills": ["+0x7E4", "+0x7E8", "+0x7EC", "+0x7F0", "+0x7F4"],
+            "skills": {
+                "farming": "+0x7E4 -> native skill 3",
+                "building": "+0x7E8 -> native skill 2",
+                "research": "+0x7EC -> native skill 1",
+                "healing": "+0x7F0 -> native skill 5",
+                "parenting": "+0x7F4 -> native skill 4",
+            },
             "target": 100,
             "native_manager_getter": "sub_44F4E0 no arguments; EAX manager; fresh call after confirmation",
             "native_skill_writer": "sub_445430 thiscall ECX=manager+0x52C; push delta, skill id, physical index; callee ret 0xC",
@@ -860,8 +948,22 @@ def build() -> tuple[dict[str, object], dict[str, object]]:
                 "changed-only sub_445430 writes",
                 "complete exact-100 postverify",
                 "sub_44D4C0 exactly once",
+                "fresh telemetry after evaluator",
                 "sub_426290 exactly once",
             ],
+            "walker_locals": {
+                "mode": "[ebp-0x10]",
+                "bound": "[ebp-0x14]",
+                "changed_count": "[ebp-0x18]",
+                "snapshot": "entry [ebp-0x124..-0x24], zeroed 256 bytes before mutation",
+            },
+            "result_preflight": "both menu and result exports are resolved before confirmation/mutation",
+            "result_statuses": {
+                "0": "no eligible changes; no charge",
+                "2": "insufficient funds; no charge",
+                "3": "validation or pointer failure; no charge",
+                "4": "cancelled; No tech points have been deducted.",
+            },
         },
     }
     layouts = manifest["pe_append_transaction"]["layouts"]  # type: ignore[index]
@@ -897,8 +999,8 @@ def build() -> tuple[dict[str, object], dict[str, object]]:
 
     artifact.update(
         {
-            "acceptance_commit": "C132-PENDING-INDEPENDENT-RECERTIFICATION",
-            "audit_commit": "C132-PENDING-INDEPENDENT-RECERTIFICATION",
+            "acceptance_commit": "C134-PENDING-INDEPENDENT-RECERTIFICATION",
+            "audit_commit": "C134-PENDING-INDEPENDENT-RECERTIFICATION",
             "catalog_enabled": False,
             "certification_status": "PENDING INDEPENDENT RECERTIFICATION; disabled/catalog-hidden",
             "source": {"size": len(original), "sha256": expected_sha},
@@ -1002,7 +1104,7 @@ def main() -> None:
     DOC_OUT.write_text(
         "# VV2 Full Mastery repaired candidate (pending recertification)\n\n"
         "This disabled, catalog-hidden stock-only candidate is generated from the "
-        "C132 native ABI repair. It remains unavailable pending independent "
+        "C134 D129 native transaction repair. It remains unavailable pending independent "
         "recertification; no player package is produced by this task.\n\n"
         f"- Section SHA-256: `{artifact['section_sha256']}`\n"
         f"- Companion SHA-256: `{artifact['companion']['sha256']}`\n"
@@ -1011,14 +1113,21 @@ def main() -> None:
         f"- Confirmation SHA-256: `{artifact['confirmation_sha256']}`\n\n"
         "The candidate appends `.vv2fm`; it never uses or changes `.shr`. It "
         "adds command 7 only, with commands 6/8, ownership, Remove, Gong, and "
-        "Island Event interception absent. The transaction performs a complete "
-        "256-record dry run before funds/confirmation, reacquires the manager, "
-        "uses only sub_445430 for changed skills, post-verifies exact 100, calls "
-        "sub_44D4C0 once, then sub_426290 once for the single deduction. Expanded-256 "
-        "modes are rejected before output. The raw manifest and complete map are "
-        "under `data/candidates/`. If a native writer succeeds and a later "
-        "postverify fails, the candidate reports no-charge failure without an "
-        "unproved rollback of already-applied native changes.\n",
+        "Island Event interception absent. The five native skill IDs are "
+        "Farming=3, Building=2, Research=1, Healing=5, and Parenting=4; the "
+        "walker uses real stack locals, preserves EBX/ESI/EDI, and keeps the "
+        "256-record bound stable across every native call. A zeroed snapshot "
+        "records 0 unchanged, 1 newly changed from unmarked, and 2 newly changed "
+        "from marked. Both menu and result exports are preflighted before any "
+        "confirmation or mutation. The transaction performs a complete 256-record "
+        "dry run before funds/confirmation, reacquires manager/state at every "
+        "pointer-sensitive phase, post-verifies exact 100, calls sub_44D4C0 once, "
+        "refreshes telemetry, then calls sub_426290 once for the single deduction. "
+        "Cancel and every failure report `No tech points have been deducted.` "
+        "Expanded-256 modes are rejected before output. The raw manifest and "
+        "complete map are under `data/candidates/`. If a native writer succeeds "
+        "and a later postverify fails, the candidate reports no-charge failure "
+        "without an unproved rollback of already-applied native changes.\n",
         encoding="utf-8",
     )
 

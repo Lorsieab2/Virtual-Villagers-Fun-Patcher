@@ -199,10 +199,27 @@ class VV2FullMasteryCandidateTests(unittest.TestCase):
         self.assertEqual(self.raw["transaction_contract"]["native_evaluator"], "sub_44D4C0 thiscall ECX=manager exactly once globally")
         self.assertEqual(self.raw["transaction_contract"]["native_tech_writer"], "sub_426290 thiscall ECX=state; push signed -1000000; callee ret 4 exactly once after evaluator")
         targets = call_targets(page)
-        self.assertEqual(targets.count(0x44F4E0), 2)
+        self.assertEqual(targets.count(0x44F4E0), 3)
         self.assertEqual(targets.count(0x44D4C0), 1)
         self.assertEqual(targets.count(0x426290), 1)
         self.assertEqual(targets.count(0x445430), 5)
+        self.assertEqual(
+            self.raw["transaction_contract"]["skills"],
+            {
+                "farming": "+0x7E4 -> native skill 3",
+                "building": "+0x7E8 -> native skill 2",
+                "research": "+0x7EC -> native skill 1",
+                "healing": "+0x7F0 -> native skill 5",
+                "parenting": "+0x7F4 -> native skill 4",
+            },
+        )
+        self.assertEqual(self.raw["transaction_contract"]["walker_locals"]["mode"], "[ebp-0x10]")
+        self.assertEqual(self.raw["transaction_contract"]["walker_locals"]["bound"], "[ebp-0x14]")
+        self.assertIn("both menu and result exports", self.raw["transaction_contract"]["result_preflight"])
+        self.assertEqual(
+            self.raw["transaction_contract"]["result_statuses"]["4"],
+            "cancelled; No tech points have been deducted.",
+        )
         for field in (0x7E4, 0x7E8, 0x7EC, 0x7F0, 0x7F4):
             self.assertNotIn(b"\xC7\x86" + struct.pack("<I", field), page)
 
@@ -287,6 +304,7 @@ class VV2FullMasteryCandidateTests(unittest.TestCase):
         )
         self.assertIn("Everyone is already fully mastered.\\r\\n", source)
         self.assertIn("No tech points have been deducted.", source)
+        self.assertIn("The upgrade was cancelled.", source)
         longest = (
             "Fully mastered 4294967295 villagers.\r\n"
             "4294967295 villagers became Esteemed Elders.\r\n"
@@ -294,6 +312,17 @@ class VV2FullMasteryCandidateTests(unittest.TestCase):
             "because the native 50-totem limit was reached."
         )
         self.assertLessEqual(len(longest.encode("ascii")) + 1, 256)
+
+    def test_constructor_pointer_is_valid_and_snapshot_states_are_emitted(self) -> None:
+        page = bytes.fromhex(self.raw["pe_append_transaction"]["layouts"]["collection_progression"]["append_bytes"])
+        button_va = int(self.map["strings"]["button"], 0)
+        self.assertEqual(struct.unpack_from("<I", page, 0x7D)[0], button_va)
+        self.assertIn(b"Origins Upgrades\0", page[0x1000:])
+        entry = page[int(self.map["offsets"]["entry"], 0):]
+        self.assertIn(bytes.fromhex("31C0B940000000F3AB"), entry)  # zero 256-byte snapshot
+        self.assertIn(bytes.fromhex("80BEFC07000000"), page)
+        self.assertIn(bytes.fromhex("C6041F01"), page)
+        self.assertIn(bytes.fromhex("C6041F02"), page)
 
     def test_all_modes_render_checksum_and_exact_uninstall_roundtrip(self) -> None:
         for mode in MODES:

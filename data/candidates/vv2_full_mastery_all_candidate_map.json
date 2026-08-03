@@ -1,10 +1,11 @@
 {
-  "section_sha256": "50E28082858BA3C413223109EF25408884C1B7165128ED98B4C24EB913B45070",
-  "entry_sha256": "48B02CAF6C1E99BF477DA0CBA76F89A9D4371679739EF404FB60BF1EBBD3E1E4",
-  "walker_sha256": "9D0F75C1A2E27CEB96DB777E43F333140A3F639F98E2455A0D706B5F48D6C98F",
+  "section_sha256": "C1DA8ED6D809FFE240A85E14D2D541CC89F3ED5DB11DDAFD303FC88A9EF86297",
+  "entry_sha256": "EC14EEE56222B0345A5610C4ADCB347BA8E9E3442B9804C0941A9E8F984A170C",
+  "walker_sha256": "E67F5F34AEB66A953B5B2A77FD6A5EA00B907D26B61A25A0C132F62C713C98DD",
   "telemetry_sha256": "8036B4818E39533B3F5BEBF1EC38A94A71B05EE8BE72FB1EFA0B9AD72789B907",
   "confirmation_sha256": "8868C87F2B66AD9D69F1DC7A08A469E5C5C478727955A5E1E4F6DA4EEB306B2C",
   "menu_resolver_sha256": "38B1AECEABF47C01B945AB438954C2489C83DDC3E5C573E81321F94C2E360B4F",
+  "result_preflight_sha256": "C994315AD623EE3E3001193735C435FBC9A721EDB5A0A521E6069421C63D60E5",
   "result_resolver_sha256": "B7002D2C62F475914719A8A99B65BEC7580B7026E7FB3A991046CBCC77FB8D0B",
   "offsets": {
     "handler": "0x0",
@@ -14,8 +15,15 @@
     "telemetry": "0x800",
     "confirmation": "0xA00",
     "menu_resolver": "0xB00",
+    "result_preflight": "0xD00",
     "result_resolver": "0xC00",
     "strings": "0x1000"
+  },
+  "constructor_pointer": {
+    "instruction_va": "0x4B307C",
+    "target_va": "0x4B4000",
+    "target_text": "Origins Upgrades",
+    "guard": "constructor button pointer must resolve inside emitted string block"
   },
   "strings": {
     "button": "0x4B4000",
@@ -43,15 +51,15 @@
     "handler -> entry",
     "handler -> stock continuation 0x4437C5",
     "constructor -> 0x467F83/0x4019D0/0x4015D0/0x40B560",
-    "entry -> 0x44F4E0/walker/confirmation/0x44D4C0/0x426290/telemetry/result"
+    "entry -> 0x44F4E0/walker/confirmation/0x44D4C0/0x426290/telemetry/result-preflight/result"
   ],
   "iat_references": [
     "0x474010 LoadLibraryA",
     "0x4740D4 GetProcAddress"
   ],
   "base_relocations": [],
-  "acceptance_commit": "C132-PENDING-INDEPENDENT-RECERTIFICATION",
-  "audit_commit": "C132-PENDING-INDEPENDENT-RECERTIFICATION",
+  "acceptance_commit": "C134-PENDING-INDEPENDENT-RECERTIFICATION",
+  "audit_commit": "C134-PENDING-INDEPENDENT-RECERTIFICATION",
   "catalog_enabled": false,
   "certification_status": "PENDING INDEPENDENT RECERTIFICATION; disabled/catalog-hidden",
   "source": {
@@ -61,7 +69,7 @@
   "companion": {
     "path": "data/candidates/VVFP VV2 Full Mastery Candidate.dll",
     "size": 109056,
-    "sha256": "B91FEA9860B247120ADB8E6A477AE4F179AE30761A28061336FD4EA49AE7BCF9",
+    "sha256": "05798EA051F7D9FE0EB65C3C40719E7A37683E2F3C446CF53BF0489C28A0876F",
     "exports": {
       "ShowVV2FullMasteryMenu": {
         "ordinal": 1,
@@ -142,15 +150,15 @@
   "rendered_candidates": {
     "collection_progression": {
       "baseline_sha256": "AD7D6F85A363510732B1D647516389326878E5FA8756A42F4526AACDFAF0C523",
-      "candidate_sha256": "EB7A0B36F16CD4DD117C963CADBBF5093088DCAE9B86E828DCFDA9587FFBB7A0",
+      "candidate_sha256": "AA7FDD23D1453F72C5578F041DA05BA5A0471BBAB463823A8DDFF400C5122169",
       "size": 733184,
-      "pe_checksum": "0x000B4B14",
+      "pe_checksum": "0x000B41E5",
       "owners": [
         "automatic:population",
         "automatic:safety",
         "feature:vv2_full_mastery_all_stage_a_candidate"
       ],
-      "all_current_vv2_sha256": "B6E65622FF49CB473355A24519EA1EDBCB8D8F480114645BE3B97D7EF9D762CD",
+      "all_current_vv2_sha256": "9B6FB8F592D533E0B4D2B015A06A6DD13B08A271BF4D4FD91B3111BFDAAED6D3",
       "all_current_vv2_owners": [
         "automatic:compatibility",
         "automatic:population",
@@ -168,15 +176,15 @@
     },
     "immediate_fixed": {
       "baseline_sha256": "9EA03791F24CA5F9005AB33C09E5C8930E30BEB55E05FD2B8463894F48C50C00",
-      "candidate_sha256": "05C614FC4F821493197E6F81201BFC2E53916929BF581B55E48AB65D4915E279",
+      "candidate_sha256": "265D6480A63B0C623B2E627182D108C7F35AA199503248BDA9DD7C5761506E1C",
       "size": 733184,
-      "pe_checksum": "0x000B3604",
+      "pe_checksum": "0x000C2CD4",
       "owners": [
         "automatic:population",
         "automatic:safety",
         "feature:vv2_full_mastery_all_stage_a_candidate"
       ],
-      "all_current_vv2_sha256": "E335C584AE6DDF4907598457595531B2B4159EC453C746F48D4B24F4DDE2F4C8",
+      "all_current_vv2_sha256": "535E66636A5EB151E486734041364D7E9909874146F02BCD77232AB618727796",
       "all_current_vv2_owners": [
         "automatic:compatibility",
         "automatic:population",

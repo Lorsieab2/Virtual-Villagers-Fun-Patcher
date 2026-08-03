@@ -75,6 +75,12 @@ __declspec(dllexport) int __stdcall ShowVV2FullMasteryResult(
             "The selected village changed or failed final validation.\r\n"
             "No tech points have been deducted."
         );
+    } else if (status == 4) {
+        lstrcpyA(
+            message,
+            "The upgrade was cancelled.\r\n"
+            "No tech points have been deducted."
+        );
     } else {
         wsprintfA(
             message,
