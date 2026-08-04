@@ -41,6 +41,12 @@ VILLAGE_PREFLIGHT_VA = IMAGE_BASE + VILLAGE_PREFLIGHT_FILE_OFFSET
 RUNNING_PREFERENCE_ID = 38  # exact-build preference-table evidence: 0x97488
 DETAIL_BUTTON_PTR = PAYLOAD_VA + 0xBF0
 DETAIL_BUTTON_ID = 6
+# VV3's stock Tech handler receives message 8.  IDs through 14 are stock
+# routes, so command 15 is the first free/custom button event for Origins.
+# Keep these values named and shared by the constructor and handler so a
+# future edit cannot silently make the visible control unreachable.
+TECH_BUTTON_MESSAGE = 8
+TECH_BUTTON_EVENT = 15
 
 
 def assemble(source: str, address: int) -> bytes:
@@ -153,9 +159,9 @@ def main() -> None:
     put(
         tech_handler,
         f"""
-            cmp dword ptr [esp + 4], 8
+            cmp dword ptr [esp + 4], {TECH_BUTTON_MESSAGE}
             jne original_handler
-            cmp dword ptr [esp + 8], 15
+            cmp dword ptr [esp + 8], {TECH_BUTTON_EVENT}
             jne original_handler
             call 0x{tech_menu:X}
             xor eax, eax
@@ -185,7 +191,7 @@ def main() -> None:
             push 563
             push 138
             push eax
-            push 15
+            push {TECH_BUTTON_EVENT}
             mov ecx, edi
             call 0x4019F0
             mov edi, eax
@@ -989,7 +995,7 @@ def main() -> None:
         0x65640,
         bytes.fromhex("6AFF64A100000000"),
         rel32_jump(0x465640, tech_handler, 8),
-        "route Tech-screen command 15 through the guarded Origins handler",
+        "route only Tech message 8 / free command-15 event through the guarded Origins handler",
     )
     patch(
         0x6DA2C,

@@ -120,7 +120,7 @@
       "offset": "0x65640",
       "before": "6AFF64A100000000",
       "after": "E93BDB0300909090",
-      "purpose": "route Tech-screen command 15 through the guarded Origins handler"
+      "purpose": "route only Tech message 8 / free command-15 event through the guarded Origins handler"
     },
     {
       "offset": "0x6DA2C",

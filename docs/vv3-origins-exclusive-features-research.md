@@ -284,6 +284,15 @@ Paused values (`>= 999`) are refused without charging.
 An Origins button may use an otherwise-unused ID greater than 14 if the
 injected handler intercepts it before stock range handling.
 
+The current candidate uses the first free/custom event, command `15`: the
+constructor emits event `15`, and the detour accepts exactly `(message=8,
+event=15)`. Any other message or event falls through to the stock handler.
+This route and the 3,580-byte payload remain byte-identical to the prior
+static UI build; the Playtest 9 report that the visible control did not open
+the popup is therefore a runtime STOP that is not explained by a source or
+emitted-byte mismatch. No new package is authorized until that runtime
+discrepancy is independently reproduced and resolved.
+
 ### Villager Detail
 
 - Constructor: `sub_46CB50`

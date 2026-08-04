@@ -228,6 +228,68 @@ class VV3OriginsFeatureTests(unittest.TestCase):
         self.assertIn("call 0x418460", source)
         self.assertIn("add esp, 0x868", source)
 
+    def test_tech_click_contract_is_message8_and_free_command15(self) -> None:
+        """The visible Tech button must have one, and only one, route."""
+        source = BUILDER.read_text(encoding="utf-8")
+        self.assertIn("TECH_BUTTON_MESSAGE = 8", source)
+        self.assertIn("TECH_BUTTON_EVENT = 15", source)
+        tech_handler = source.split("        tech_handler,", 1)[1].split(
+            "    put(\n        tech_constructor,", 1
+        )[0]
+        self.assertIn(
+            "cmp dword ptr [esp + 4], {TECH_BUTTON_MESSAGE}",
+            tech_handler,
+        )
+        self.assertIn(
+            "cmp dword ptr [esp + 8], {TECH_BUTTON_EVENT}",
+            tech_handler,
+        )
+        tech_constructor = source.split("        tech_constructor,", 1)[1].split(
+            "    put(\n        detail_handler,", 1
+        )[0]
+        self.assertIn("push {TECH_BUTTON_EVENT}", tech_constructor)
+
+        route = next(
+            item
+            for item in self.manifest["patches"]
+            if int(item["offset"], 0) == 0x65640
+        )
+        self.assertIn("message 8", route["purpose"])
+        self.assertIn("command-15", route["purpose"])
+
+    def test_tech_click_wrong_message_or_event_is_rejected(self) -> None:
+        """Negative route cases must remain on the stock handler path."""
+        def route(message: int, event: int) -> str:
+            return "origins" if message == 8 and event == 15 else "stock"
+
+        self.assertEqual(route(8, 15), "origins")
+        for message, event in ((7, 15), (9, 15), (8, 14), (8, 16), (7, 14)):
+            with self.subTest(message=message, event=event):
+                self.assertEqual(route(message, event), "stock")
+
+    def test_prior_certified_tech_route_bytes_are_unchanged(self) -> None:
+        payload = bytes.fromhex(
+            next(
+                item
+                for item in self.manifest["patches"]
+                if int(item["offset"], 0) == 0xA3180
+            )["after"]
+        )
+        self.assertEqual(
+            hashlib.sha256(payload).hexdigest().upper(),
+            "91EE43DC2CCD93B9AB807DC9E2C15EEF88B9BFFA8F7A528C6785B29518D96CC6",
+        )
+        self.assertEqual(
+            bytes.fromhex(
+                next(
+                    item
+                    for item in self.manifest["patches"]
+                    if int(item["offset"], 0) == 0x65640
+                )["after"]
+            ),
+            bytes.fromhex("E93BDB0300909090"),
+        )
+
 
 if __name__ == "__main__":
     unittest.main()
