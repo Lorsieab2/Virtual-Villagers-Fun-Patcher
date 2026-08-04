@@ -1,20 +1,29 @@
 {
   "candidate_id": "vv3_full_heal_cure_all_candidate",
-  "candidate_enabled": false,
-  "catalog_hidden": true,
-  "catalog_enabled": false,
+  "candidate_enabled": true,
+  "catalog_hidden": false,
+  "catalog_enabled": true,
+  "audit_commit": null,
+  "acceptance_commit": null,
   "provenance": {
     "design_source_commit": "64c1266503c49ba1456f6294683a1f6773eba5d6",
     "implementation_parent_commit": "38510cc21b7cd322a52fbabc936794dfc8601ccc",
     "implementation_commit": "49595a75b65cd0561811593ba19825239ec97dde",
     "metadata_commit": null,
-    "metadata_status": "implementation complete; independent audit pending; no acceptance claimed"
+    "audit_source_test_commit": "e2f1a466b61392d161a0df2fbf8da94fc05ee4ca",
+    "metadata_status": "enabled/catalog-visible for certified stock modes; D209/C213 independent static GO; runtime/player validation pending"
   },
   "static_acceptance": {
     "commit": null,
-    "status": "pending independent recertification; no acceptance claimed"
+    "status": "D209 and C213 independent static GO; runtime/player validation pending",
+    "reports": [
+      "D209",
+      "C213"
+    ],
+    "audit_commit": null,
+    "acceptance_commit": null
   },
-  "implementation_status": "implementation complete; independent audit pending; no acceptance claimed",
+  "implementation_status": "enabled/catalog-visible for certified stock modes; D209/C213 independent static GO; runtime/player validation pending",
   "allowed_modes": [
     "collection_progression",
     "immediate_fixed"

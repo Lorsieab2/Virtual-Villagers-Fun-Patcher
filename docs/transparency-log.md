@@ -71,7 +71,7 @@ All five legacy `vvN_origins_village_wide_upgrades` records remain disabled and 
 
 ## VV3 Full Heal / Cure All candidate
 
-The revised VV3 Full Heal / Cure All candidate remains disabled and catalog-hidden; implementation is complete at `49595a75b65cd0561811593ba19825239ec97dde` with parent `38510cc21b7cd322a52fbabc936794dfc8601ccc`. Static acceptance is pending independent recertification and runtime/player validation remains pending; this generated disclosure is sourced from its authoritative candidate manifest and does not expose the candidate in the public chooser.
+The revised VV3 Full Heal / Cure All candidate is enabled and catalog-visible only for certified Collection Progression and Immediate Fixed; implementation is complete at `49595a75b65cd0561811593ba19825239ec97dde` with parent `38510cc21b7cd322a52fbabc936794dfc8601ccc`. Independent static GO reports D209/C213 are recorded without inventing audit or acceptance commit identities; runtime/player validation remains pending. This generated disclosure is sourced from its authoritative candidate manifest.
 - Partial-write disclosure: If native writes begin and a later write or postverification fails, earlier verified health, sickness, or People Cured effects may remain. No tech points are deducted on that failure, but complete rollback of native side effects is not claimed.
 
 ## Virtual Villagers - A New Home
@@ -265,6 +265,17 @@ Inspired by the Virtual Villagers 1 mobile port where these exclusive Origins up
 - Doubler purchase status: {'new_purchase': 'temporarily unavailable pending exact-build provenance verification', 'existing_owned': 'removable at zero cost with zero refund', 'repurchase': 'temporarily disabled pending exact-build provenance verification'}
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending
 - Guarded executable edits: 9; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Full Heal / Cure All (`vv3_full_heal_cure_all_candidate`)
+
+Enabled/catalog-visible VV3 Full Heal / Cure All command-5 Buy candidate for certified Collection Progression and Immediate Fixed compositions after Origins + Full Mastery + individual Grant Running; static evidence is GO from D209/C213 and runtime/player validation remains pending.
+
+- Behavior changes: Command 5 performs the certified Full Heal / Cure All transaction at 30,000 tech points.
+- Explicit non-changes/exclusions: Expanded-256 and unknown builds remain fail-closed; the withdrawn village-wide Running route is absent. The candidate is stock-mode only and does not add Remove or ownership behavior.
+- Partial-write disclosure: If native writes begin and a later write or postverification fails, earlier verified health, sickness, or People Cured effects may remain. No tech points are deducted on that failure, but complete rollback of native side effects is not claimed.
+- Dependencies: vv3_individual_grant_running_candidate
+- Evidence status: implementation generated at 49595a75b65cd0561811593ba19825239ec97dde; source/test state audited at e2f1a466b61392d161a0df2fbf8da94fc05ee4ca; independent static GO reports D209/C213; runtime/player validation pending
+- Guarded executable edits: 1; every edit has an exact purpose and before/after guard in the manifest.
 
 #### Grant Full Mastery to All Villagers (`vv3_full_mastery_all_stage_a_candidate`)
 

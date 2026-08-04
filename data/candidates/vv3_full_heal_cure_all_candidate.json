@@ -2,9 +2,11 @@
   "id": "vv3_full_heal_cure_all_candidate",
   "game_id": "vv3",
   "name": "Full Heal / Cure All",
-  "enabled": false,
-  "catalog_hidden": true,
-  "catalog_enabled": false,
+  "enabled": true,
+  "catalog_hidden": false,
+  "catalog_enabled": true,
+  "audit_commit": null,
+  "acceptance_commit": null,
   "dependencies": [
     "vv3_individual_grant_running_candidate"
   ],
@@ -21,15 +23,22 @@
     "implementation_parent_commit": "38510cc21b7cd322a52fbabc936794dfc8601ccc",
     "implementation_commit": "49595a75b65cd0561811593ba19825239ec97dde",
     "metadata_commit": null,
-    "metadata_status": "implementation complete; independent audit pending; no acceptance claimed"
+    "audit_source_test_commit": "e2f1a466b61392d161a0df2fbf8da94fc05ee4ca",
+    "metadata_status": "enabled/catalog-visible for certified stock modes; D209/C213 independent static GO; runtime/player validation pending"
   },
   "static_acceptance": {
     "commit": null,
-    "status": "pending independent recertification; no acceptance claimed"
+    "status": "D209 and C213 independent static GO; runtime/player validation pending",
+    "reports": [
+      "D209",
+      "C213"
+    ],
+    "audit_commit": null,
+    "acceptance_commit": null
   },
-  "implementation_status": "implementation complete; independent audit pending; no acceptance claimed",
+  "implementation_status": "enabled/catalog-visible for certified stock modes; D209/C213 independent static GO; runtime/player validation pending",
   "runtime_player_status": "pending",
-  "description": "Disabled/catalog-hidden VV3 Full Heal / Cure All command-5 Buy candidate for certified Collection Progression and Immediate Fixed compositions after Origins + Full Mastery + individual Grant Running; runtime/player validation remains pending.",
+  "description": "Enabled/catalog-visible VV3 Full Heal / Cure All command-5 Buy candidate for certified Collection Progression and Immediate Fixed compositions after Origins + Full Mastery + individual Grant Running; static evidence is GO from D209/C213 and runtime/player validation remains pending.",
   "behavior_changes": [
     "Command 5 performs the certified Full Heal / Cure All transaction at 30,000 tech points."
   ],
@@ -37,7 +46,7 @@
     "Expanded-256 and unknown builds remain fail-closed; the withdrawn village-wide Running route is absent.",
     "The candidate is stock-mode only and does not add Remove or ownership behavior."
   ],
-  "evidence_status": "implementation generated at commit 49595a75b65cd0561811593ba19825239ec97dde; static acceptance pending independent recertification; runtime/player validation pending",
+  "evidence_status": "implementation generated at 49595a75b65cd0561811593ba19825239ec97dde; source/test state audited at e2f1a466b61392d161a0df2fbf8da94fc05ee4ca; independent static GO reports D209/C213; runtime/player validation pending",
   "price": 30000,
   "transaction": {
     "command": 5,

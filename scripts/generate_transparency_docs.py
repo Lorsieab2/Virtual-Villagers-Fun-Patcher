@@ -24,10 +24,8 @@ def build_document() -> str:
         if candidate_map_path.is_file()
         else None
     )
-    # The revised VV3 Full Heal candidate is intentionally disabled and therefore
-    # is not returned by load_fun_patches(). Its implementation/provenance and
-    # player-facing safety disclosure still belong in the generated transparency
-    # document, sourced directly from the authoritative candidate manifest.
+    # Keep the dedicated VV3 Full Heal section sourced from the authoritative
+    # manifest even though the enabled candidate also appears in the catalog.
     full_heal_path = ROOT / "data" / "candidates" / "vv3_full_heal_cure_all_candidate.json"
     full_heal = (
         json.loads(full_heal_path.read_text(encoding="utf-8"))
@@ -117,7 +115,7 @@ def build_document() -> str:
         "",
         "## VV3 Full Heal / Cure All candidate",
         "",
-        "The revised VV3 Full Heal / Cure All candidate remains disabled and catalog-hidden; implementation is complete at `" + str(full_heal.get("provenance", {}).get("implementation_commit", "not recorded")) + "` with parent `" + str(full_heal.get("provenance", {}).get("implementation_parent_commit", "not recorded")) + "`. Static acceptance is pending independent recertification and runtime/player validation remains pending; this generated disclosure is sourced from its authoritative candidate manifest and does not expose the candidate in the public chooser.",
+        "The revised VV3 Full Heal / Cure All candidate is enabled and catalog-visible only for certified Collection Progression and Immediate Fixed; implementation is complete at `" + str(full_heal.get("provenance", {}).get("implementation_commit", "not recorded")) + "` with parent `" + str(full_heal.get("provenance", {}).get("implementation_parent_commit", "not recorded")) + "`. Independent static GO reports D209/C213 are recorded without inventing audit or acceptance commit identities; runtime/player validation remains pending. This generated disclosure is sourced from its authoritative candidate manifest.",
         "- Partial-write disclosure: "
         + (str(full_heal.get("partial_failure_limit", "not recorded")) if full_heal else "not recorded"),
         "",

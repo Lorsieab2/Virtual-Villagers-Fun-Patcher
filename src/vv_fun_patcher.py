@@ -196,8 +196,8 @@ VV3_FULL_HEAL_CANDIDATE_PATHS = {
     "manifest": ROOT / "data" / "candidates" / "vv3_full_heal_cure_all_candidate.json",
     "map": ROOT / "data" / "candidates" / "vv3_full_heal_cure_all_candidate_map.json",
 }
-VV3_FULL_HEAL_MANIFEST_SHA256 = "683F6C2295DC91D9C6D5074F215F6B65306191AF6D93F83C754E7B608BB1E090"
-VV3_FULL_HEAL_MAP_SHA256 = "9719363E01A2B2520B1B969D14670165F53D834DC6C3B24D7BB379F44FFAC1C7"
+VV3_FULL_HEAL_MANIFEST_SHA256 = "63D8C9CA7A9F8326B76551471347AB65C1976C89971C3F9861BAB28673F16029"
+VV3_FULL_HEAL_MAP_SHA256 = "425467DA364C7165F40FB633E70AB63EEC193190C6DAD5D7A0B1A05EF751526E"
 VV3_FULL_HEAL_STOCK_SHA256 = "8BC5DB382D02BC5C21AD5F607580D60FF44A6519CC7EB133F03113BAACAE6503"
 VV3_FULL_HEAL_BASE_DLL_PATH = ROOT / "data" / "candidates" / "VVFP VV3 Full Mastery Candidate.dll"
 VV3_FULL_HEAL_DLL_PATH = ROOT / "data" / "candidates" / "VVFP VV3 Full Heal Candidate.dll"
@@ -231,12 +231,17 @@ VV3_FULL_HEAL_PROVENANCE = {
     "implementation_parent_commit": "38510cc21b7cd322a52fbabc936794dfc8601ccc",
     "implementation_commit": "49595a75b65cd0561811593ba19825239ec97dde",
     "metadata_commit": None,
-    "metadata_status": "implementation complete; independent audit pending; no acceptance claimed",
+    "audit_source_test_commit": "e2f1a466b61392d161a0df2fbf8da94fc05ee4ca",
+    "metadata_status": "enabled/catalog-visible for certified stock modes; D209/C213 independent static GO; runtime/player validation pending",
 }
 VV3_FULL_HEAL_STATIC_ACCEPTANCE = {
     "commit": None,
-    "status": "pending independent recertification; no acceptance claimed",
+    "status": "D209 and C213 independent static GO; runtime/player validation pending",
+    "reports": ["D209", "C213"],
+    "audit_commit": None,
+    "acceptance_commit": None,
 }
+VV3_FULL_HEAL_IMPLEMENTATION_STATUS = "enabled/catalog-visible for certified stock modes; D209/C213 independent static GO; runtime/player validation pending"
 VV3_FULL_HEAL_HELPER_INSTRUCTION_COUNT = 262
 VV3_FULL_HEAL_HELPER_EPILOGUE_OFFSET = "0x41F"
 VV3_FULL_HEAL_INTERNAL_TARGET_OFFSETS = [
@@ -1855,10 +1860,12 @@ def _validate_vv3_full_heal_candidate(
         raise PatcherError("VV3 Full Heal candidate object differs from its pinned manifest.")
     if canonical_map.get("candidate_id") != VV3_FULL_HEAL_CANDIDATE_ID:
         raise PatcherError("VV3 Full Heal candidate map identity is not certified.")
-    if canonical_map.get("candidate_enabled") is not False or canonical_map.get("catalog_hidden") is not True or canonical_map.get("catalog_enabled") is not False:
+    if canonical_map.get("candidate_enabled") is not True or canonical_map.get("catalog_hidden") is not False or canonical_map.get("catalog_enabled") is not True:
         raise PatcherError("VV3 Full Heal candidate map enablement is not certified.")
     if canonical_map.get("allowed_modes") != ["collection_progression", "immediate_fixed"] or canonical_map.get("expanded_fail_closed") is not True:
         raise PatcherError("VV3 Full Heal candidate map mode gate is not certified.")
+    if canonical_map.get("audit_commit") is not None or canonical_map.get("acceptance_commit") is not None:
+        raise PatcherError("VV3 Full Heal audit/acceptance commit fields must remain null until separately recorded.")
     if canonical_map.get("companion_files") != feature.raw.get("companion_files"):
         raise PatcherError("VV3 Full Heal candidate map companion identity is not certified.")
     for key in (
@@ -1876,6 +1883,7 @@ def _validate_vv3_full_heal_candidate(
         "forbidden_routes",
         "provenance",
         "static_acceptance",
+        "implementation_status",
     ):
         if canonical_map.get(key) != feature.raw.get(key):
             raise PatcherError(f"VV3 Full Heal candidate map {key} metadata is not certified.")
@@ -1909,8 +1917,12 @@ def _validate_vv3_full_heal_candidate(
         raise PatcherError("VV3 Full Heal provenance is not stable or is self-referential.")
     if raw.get("static_acceptance") != VV3_FULL_HEAL_STATIC_ACCEPTANCE:
         raise PatcherError("VV3 Full Heal static acceptance evidence is not certified.")
-    if raw.get("enabled") is not False or raw.get("catalog_hidden") is not True or raw.get("catalog_enabled") is not False:
+    if raw.get("implementation_status") != VV3_FULL_HEAL_IMPLEMENTATION_STATUS:
+        raise PatcherError("VV3 Full Heal implementation status is not truthful or certified.")
+    if raw.get("enabled") is not True or raw.get("catalog_hidden") is not False or raw.get("catalog_enabled") is not True:
         raise PatcherError("VV3 Full Heal candidate enablement is not certified.")
+    if raw.get("audit_commit") is not None or raw.get("acceptance_commit") is not None:
+        raise PatcherError("VV3 Full Heal audit/acceptance commit fields must remain null until separately recorded.")
     if raw.get("dependencies") != [VV3_INDIVIDUAL_RUNNING_CANDIDATE_ID] or not {
         "vv3_enable_origins_exclusive_features",
         "vv3_full_mastery_all_stage_a_candidate",

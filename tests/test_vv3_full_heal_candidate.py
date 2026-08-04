@@ -63,10 +63,12 @@ class VV3FullHealCandidateTests(unittest.TestCase):
             self.raw["pe_append_transaction"]["layouts"]["collection_progression"]["append_bytes"]
         )
 
-    def test_disabled_catalog_hidden_and_exact_pins(self) -> None:
-        self.assertFalse(self.raw["enabled"])
-        self.assertTrue(self.raw["catalog_hidden"])
-        self.assertFalse(self.raw["catalog_enabled"])
+    def test_enabled_catalog_visible_and_exact_pins(self) -> None:
+        self.assertTrue(self.raw["enabled"])
+        self.assertFalse(self.raw["catalog_hidden"])
+        self.assertTrue(self.raw["catalog_enabled"])
+        self.assertIsNone(self.raw["audit_commit"])
+        self.assertIsNone(self.raw["acceptance_commit"])
         self.assertEqual(sha(self.manifest_path.read_bytes()), v.VV3_FULL_HEAL_MANIFEST_SHA256)
         self.assertEqual(sha(self.map_path.read_bytes()), v.VV3_FULL_HEAL_MAP_SHA256)
         self.assertEqual(self.raw["transaction"], v.VV3_FULL_HEAL_TRANSACTION)
@@ -84,19 +86,25 @@ class VV3FullHealCandidateTests(unittest.TestCase):
         self.assertEqual(self.raw["provenance"]["implementation_parent_commit"], "38510cc21b7cd322a52fbabc936794dfc8601ccc")
         self.assertEqual(self.raw["provenance"]["implementation_commit"], "49595a75b65cd0561811593ba19825239ec97dde")
         self.assertIsNone(self.raw["provenance"]["metadata_commit"])
+        self.assertEqual(
+            self.raw["provenance"]["audit_source_test_commit"],
+            "e2f1a466b61392d161a0df2fbf8da94fc05ee4ca",
+        )
         self.assertEqual(self.raw["static_acceptance"], v.VV3_FULL_HEAL_STATIC_ACCEPTANCE)
         self.assertIsNone(self.raw["static_acceptance"]["commit"])
-        self.assertIn("pending independent recertification", self.raw["static_acceptance"]["status"])
+        self.assertEqual(self.raw["static_acceptance"]["reports"], ["D209", "C213"])
+        self.assertIn("independent static GO", self.raw["static_acceptance"]["status"])
+        self.assertEqual(self.raw["implementation_status"], v.VV3_FULL_HEAL_IMPLEMENTATION_STATUS)
         self.assertEqual(self.raw["base_chain"]["stock_cure_cave_preimage_sha256"], v.VV3_FULL_HEAL_STOCK_CURE_CAVE_PREIMAGE_SHA256)
         self.assertEqual(self.raw["record_zero_resolver"], v.VV3_FULL_HEAL_RECORD_ZERO_RESOLVER)
         self.assertEqual(self.raw["messagebox_resolution"], v.VV3_FULL_HEAL_MESSAGEBOX_RESOLUTION)
         self.assertEqual(self.raw["mutation_accounting"], v.VV3_FULL_HEAL_MUTATION_ACCOUNTING)
-        self.assertNotIn(v.VV3_FULL_HEAL_CANDIDATE_ID, {item.id for item in v.load_fun_patches()})
+        self.assertIn(v.VV3_FULL_HEAL_CANDIDATE_ID, {item.id for item in v.load_fun_patches()})
 
-    def test_disabled_catalog_requires_complete_chain_and_excludes_village_wide(self) -> None:
+    def test_enabled_catalog_requires_complete_chain_and_excludes_village_wide(self) -> None:
         patches = v.load_fun_patches()
         ids = {item.id for item in patches}
-        self.assertNotIn(v.VV3_FULL_HEAL_CANDIDATE_ID, ids)
+        self.assertIn(v.VV3_FULL_HEAL_CANDIDATE_ID, ids)
         self.assertNotIn("vv3_all_villagers_like_running", ids)
         self.assertNotIn("vv3_origins_village_wide_upgrades", ids)
         full_chain = [
@@ -105,8 +113,8 @@ class VV3FullHealCandidateTests(unittest.TestCase):
             "vv3_individual_grant_running_candidate",
             v.VV3_FULL_HEAL_CANDIDATE_ID,
         ]
-        with self.assertRaises(v.PatcherError):
-            v.resolve_fun_patch_ids(full_chain, game_id="vv3", patches=patches)
+        resolved = v.resolve_fun_patch_ids(full_chain, game_id="vv3", patches=patches)
+        self.assertEqual(set(resolved), set(full_chain))
         with self.assertRaisesRegex(v.PatcherError, "Grant Running.*Full Mastery"):
             v.resolve_fun_patch_ids(
                 ["vv3_individual_grant_running_candidate"], game_id="vv3", patches=patches
@@ -713,14 +721,17 @@ class VV3FullHealCandidateTests(unittest.TestCase):
         self.assertNotIn("PENDING", json.dumps(self.raw))
         self.assertEqual(self.raw["runtime_player_status"], "pending")
 
-    def test_c210_provenance_does_not_claim_d203_acceptance(self) -> None:
+    def test_c210_provenance_records_static_go_without_circular_acceptance(self) -> None:
         provenance = self.raw["provenance"]
         self.assertEqual(provenance["implementation_parent_commit"], "38510cc21b7cd322a52fbabc936794dfc8601ccc")
         self.assertEqual(provenance["implementation_commit"], "49595a75b65cd0561811593ba19825239ec97dde")
         self.assertIsNone(provenance["metadata_commit"])
         static = self.raw["static_acceptance"]
         self.assertIsNone(static["commit"])
-        self.assertEqual(static["status"], "pending independent recertification; no acceptance claimed")
+        self.assertEqual(static["status"], "D209 and C213 independent static GO; runtime/player validation pending")
+        self.assertEqual(static["reports"], ["D209", "C213"])
+        self.assertIsNone(static["audit_commit"])
+        self.assertIsNone(static["acceptance_commit"])
         self.assertNotIn("D203", json.dumps(self.raw))
 
     def test_c210_companion_failure_atomicity(self) -> None:
