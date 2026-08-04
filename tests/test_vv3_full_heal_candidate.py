@@ -684,18 +684,61 @@ class VV3FullHealCandidateTests(unittest.TestCase):
     def test_c208_companion_is_resource_only_and_reversible(self) -> None:
         base = v.VV3_FULL_HEAL_BASE_DLL_PATH.read_bytes()
         candidate = v.VV3_FULL_HEAL_DLL_PATH.read_bytes()
-        allowed = set()
-        for start in (0x46C60, 0x47A78):
-            allowed.update(range(start, start + 42))
         self.assertEqual(len(base), v.VV3_FULL_HEAL_DLL_SIZE)
         self.assertEqual(len(candidate), v.VV3_FULL_HEAL_DLL_SIZE)
-        diffs = {i for i, (before, after) in enumerate(zip(base, candidate)) if before != after}
-        self.assertTrue(diffs)
-        self.assertTrue(diffs <= allowed)
         self.assertEqual(sha(candidate), v.VV3_FULL_HEAL_DLL_SHA256)
+        self.assertEqual(sha(candidate), "9F866CB6F92C745CD2AA7009AEC4EB70FA5521EFF0C8F7BABE2058BB4D2F8533")
         self.assertEqual(sha(base), v.VV3_FULL_HEAL_BASE_DLL_SHA256)
+        base_meta, base_leaves = v._vv3_full_heal_resource_tree(base)
+        cand_meta, cand_leaves = v._vv3_full_heal_resource_tree(candidate)
+        self.assertEqual(base_meta["raw_size"], cand_meta["raw_size"])
+        self.assertEqual(base_meta["section_table"], cand_meta["section_table"])
+        self.assertEqual(cand_leaves[(5, 201, 1033)][0], 0x466C0)
+        self.assertEqual(cand_leaves[(5, 202, 1033)][0], 0x4705C)
+        self.assertEqual(cand_leaves[(5, 203, 1033)][0], 0x474D8)
+        self.assertEqual(len(cand_leaves[(5, 201, 1033)][2]), 0x99C)
+        self.assertEqual(len(cand_leaves[(5, 202, 1033)][2]), 0x47C)
+        self.assertEqual(len(cand_leaves[(5, 203, 1033)][2]), 0x788)
+        self.assertEqual(cand_leaves[(5, 202, 1033)][2], base_leaves[(5, 202, 1033)][2])
+        # Every non-resource section and the section table remain byte-identical.
+        self.assertEqual(base[:0x14600], candidate[:0x14600])
+        self.assertEqual(base[0x47E00:], candidate[0x47E00:])
+        self.assertEqual(base[0x100:0x400], candidate[0x100:0x400])
         self.assertEqual(self.raw["companion_files"][0]["preimage_sha256"], v.VV3_FULL_HEAL_BASE_DLL_SHA256)
         self.assertEqual(self.raw["companion_files"][0]["restore_sha256"], v.VV3_FULL_HEAL_BASE_DLL_SHA256)
+
+    def test_c220_strict_dialog_walks_and_title_only_delta(self) -> None:
+        base_leaves = v._vv3_full_heal_resource_tree(v.VV3_FULL_HEAL_BASE_DLL_PATH.read_bytes())[1]
+        candidate_leaves = v._vv3_full_heal_resource_tree(v.VV3_FULL_HEAL_DLL_PATH.read_bytes())[1]
+        v._vv3_full_heal_dialog_walk(base_leaves[(5, 201, 1033)][2], 46, 0x998)
+        v._vv3_full_heal_dialog_walk(candidate_leaves[(5, 201, 1033)][2], 46, 0x99C)
+        v._vv3_full_heal_dialog_walk(base_leaves[(5, 202, 1033)][2], 21, 0x450)
+        v._vv3_full_heal_dialog_walk(candidate_leaves[(5, 202, 1033)][2], 21, 0x450)
+        v._vv3_full_heal_dialog_walk(base_leaves[(5, 203, 1033)][2], 36, 0x784)
+        v._vv3_full_heal_dialog_walk(candidate_leaves[(5, 203, 1033)][2], 36, 0x788)
+
+    def test_c220_rejects_malformed_playtest9_in_place_dll(self) -> None:
+        # The old equal-length artifact has no structural data-entry size/RVA
+        # transition and must not be accepted as the replacement companion.
+        with tempfile.TemporaryDirectory() as temp:
+            path = Path(temp) / "malformed.dll"
+            # Locate the historical artifact from Playtest 9 if present;
+            # otherwise use the tracked pre-C220 bytes as a deterministic fixture.
+            package = Path(r"C:\Users\Owner\Downloads\VV3 Full Heal Collection Playtest 9 - Modded\VVFP VV3 Full Mastery Candidate.dll")
+            if package.is_file():
+                path.write_bytes(package.read_bytes())
+            else:
+                malformed = bytearray(v.VV3_FULL_HEAL_BASE_DLL_PATH.read_bytes())
+                old = "Cure all Villagers".encode("utf-16le") + b"\0\0"
+                new = "Full Heal / Cure All".encode("utf-16le") + b"\0\0"
+                for offset in (0x46C60, 0x47A78):
+                    self.assertEqual(malformed[offset : offset + len(old)], old)
+                    malformed[offset : offset + len(new)] = new
+                self.assertEqual(sha(bytes(malformed)), "A1C58D5DD34252C532C288F87210363FE4C85E355E76946276954F907FAA88FC")
+                path.write_bytes(malformed)
+            with patch.object(v, "VV3_FULL_HEAL_DLL_PATH", path):
+                with self.assertRaises(v.PatcherError):
+                    v._validate_vv3_full_heal_companion_transform()
 
     def test_c208_companion_install_and_remove_restore_exact_preimage(self) -> None:
         with tempfile.TemporaryDirectory() as temp:

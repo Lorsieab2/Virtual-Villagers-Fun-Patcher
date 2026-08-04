@@ -196,13 +196,13 @@ VV3_FULL_HEAL_CANDIDATE_PATHS = {
     "manifest": ROOT / "data" / "candidates" / "vv3_full_heal_cure_all_candidate.json",
     "map": ROOT / "data" / "candidates" / "vv3_full_heal_cure_all_candidate_map.json",
 }
-VV3_FULL_HEAL_MANIFEST_SHA256 = "63D8C9CA7A9F8326B76551471347AB65C1976C89971C3F9861BAB28673F16029"
-VV3_FULL_HEAL_MAP_SHA256 = "425467DA364C7165F40FB633E70AB63EEC193190C6DAD5D7A0B1A05EF751526E"
+VV3_FULL_HEAL_MANIFEST_SHA256 = "7CD26E4F66F077646C88A1C1D7C60FD92CD54F36663AFF872E737D27246AEB69"
+VV3_FULL_HEAL_MAP_SHA256 = "8A43CC0FCD43553147FA8237B18BC8C479693A664901AE76037EEAAD5A11CFC9"
 VV3_FULL_HEAL_STOCK_SHA256 = "8BC5DB382D02BC5C21AD5F607580D60FF44A6519CC7EB133F03113BAACAE6503"
 VV3_FULL_HEAL_BASE_DLL_PATH = ROOT / "data" / "candidates" / "VVFP VV3 Full Mastery Candidate.dll"
 VV3_FULL_HEAL_DLL_PATH = ROOT / "data" / "candidates" / "VVFP VV3 Full Heal Candidate.dll"
 VV3_FULL_HEAL_BASE_DLL_SHA256 = "35FB96199E745C7D8054FF6A12851B9E09225E3E41D0CE04012604E74968C0D5"
-VV3_FULL_HEAL_DLL_SHA256 = "A1C58D5DD34252C532C288F87210363FE4C85E355E76946276954F907FAA88FC"
+VV3_FULL_HEAL_DLL_SHA256 = "9F866CB6F92C745CD2AA7009AEC4EB70FA5521EFF0C8F7BABE2058BB4D2F8533"
 VV3_FULL_HEAL_DLL_SIZE = 298496
 VV3_FULL_HEAL_PRE_CURE_RENDERED_SHA256 = {
     "collection_progression": "3644A56FE17F843DB67662E4309C3C2B41AE7ADD5FDD60EF2B6789DE2BA15FDC",
@@ -1784,8 +1784,8 @@ def _validate_vv3_individual_running_candidate(
         raise PatcherError("VV3 individual Grant Running may not access Dislikes or +0xE94.")
 
 
-def _vv3_full_heal_rsrc_ranges(data: bytes) -> tuple[tuple[int, int], ...]:
-    """Return the two certified RT_DIALOG leaf spans in the companion DLL."""
+def _vv3_full_heal_resource_tree(data: bytes) -> tuple[dict[str, Any], dict[tuple[int, int, int], tuple[int, int, bytes]]]:
+    """Parse the numeric RT_DIALOG tree without following arbitrary pointers."""
     if data[:2] != b"MZ":
         raise PatcherError("VV3 Full Heal companion is not a PE image.")
     pe_offset = struct.unpack_from("<I", data, 0x3C)[0]
@@ -1794,22 +1794,100 @@ def _vv3_full_heal_rsrc_ranges(data: bytes) -> tuple[tuple[int, int], ...]:
     section_count = struct.unpack_from("<H", data, pe_offset + 6)[0]
     optional_size = struct.unpack_from("<H", data, pe_offset + 20)[0]
     section_table = pe_offset + 24 + optional_size
-    sections: dict[str, tuple[int, int]] = {}
+    sections: dict[str, tuple[int, int, int, int]] = {}
     for index in range(section_count):
         entry = section_table + index * 40
         name = data[entry : entry + 8].rstrip(b"\0").decode("ascii", errors="strict")
-        raw_size = struct.unpack_from("<I", data, entry + 16)[0]
-        raw_offset = struct.unpack_from("<I", data, entry + 20)[0]
-        sections[name] = (raw_offset, raw_size)
+        sections[name] = (
+            struct.unpack_from("<I", data, entry + 20)[0],
+            struct.unpack_from("<I", data, entry + 16)[0],
+            struct.unpack_from("<I", data, entry + 12)[0],
+            struct.unpack_from("<I", data, entry + 8)[0],
+        )
     if ".rsrc" not in sections:
         raise PatcherError("VV3 Full Heal companion has no .rsrc section.")
-    raw_offset, raw_size = sections[".rsrc"]
-    if (raw_offset, raw_size) != (0x14600, 0x33800):
+    raw_offset, raw_size, rva, virtual_size = sections[".rsrc"]
+    if raw_offset != 0x14600 or rva != 0x17000 or virtual_size != 0x33660 or raw_size not in (0x33800, 0x33A00):
         raise PatcherError("VV3 Full Heal companion .rsrc layout is not certified.")
-    # The two dialog leaves are fixed by the certified stock resource tree:
-    # RT_DIALOG/201 and RT_DIALOG/203, each replacing only its label plus the
-    # four documented zero-padding bytes that follow the stock NUL.
-    return ((0x46C60, 42), (0x47A78, 42))
+    section = data[raw_offset : raw_offset + raw_size]
+    leaves: dict[tuple[int, int, int], tuple[int, int, bytes]] = {}
+
+    def walk(directory: int, path: tuple[int, ...]) -> None:
+        named, ids = struct.unpack_from("<HH", section, directory + 12)
+        for index in range(named + ids):
+            entry = directory + 16 + index * 8
+            name, child = struct.unpack_from("<II", section, entry)
+            if name & 0x80000000:
+                raise PatcherError("VV3 Full Heal resource tree contains a named node.")
+            if child & 0x80000000:
+                walk(child & 0x7FFFFFFF, path + (name,))
+                continue
+            data_entry = child & 0x7FFFFFFF
+            data_rva, size = struct.unpack_from("<II", section, data_entry)
+            data_raw = raw_offset + (data_rva - rva)
+            if data_raw < raw_offset or data_raw + size > raw_offset + raw_size:
+                raise PatcherError("VV3 Full Heal resource data escapes .rsrc.")
+            if len(path) != 2:
+                raise PatcherError("VV3 Full Heal resource leaf path is not type/id/language.")
+            leaves[(path[0], path[1], name)] = (data_raw, size, data[data_raw : data_raw + size])
+
+    walk(0, ())
+    return {"raw_offset": raw_offset, "raw_size": raw_size, "rva": rva, "virtual_size": virtual_size, "section_table": section_table}, leaves
+
+
+def _vv3_full_heal_dialog_walk(blob: bytes, expected_items: int, expected_end: int) -> list[tuple[int, int]]:
+    """Return item title spans for strict DIALOGEX counts/ends."""
+    if len(blob) < 26 or struct.unpack_from("<H", blob, 0)[0] != 1 or blob[2:4] != b"\xff\xff":
+        raise PatcherError("VV3 Full Heal target is not DIALOGEX.")
+    if struct.unpack_from("<H", blob, 16)[0] != expected_items:
+        raise PatcherError("VV3 Full Heal DIALOGEX item count is not certified.")
+
+    def skip(cursor: int) -> tuple[int, bytes]:
+        first = struct.unpack_from("<H", blob, cursor)[0]
+        if first == 0:
+            return cursor + 2, blob[cursor : cursor + 2]
+        if first == 0xFFFF:
+            return cursor + 4, blob[cursor : cursor + 4]
+        start = cursor
+        cursor += 2
+        while struct.unpack_from("<H", blob, cursor)[0] != 0:
+            cursor += 2
+        return cursor + 2, blob[start : cursor + 2]
+
+    cursor = 26
+    for _ in range(3):
+        cursor, _ = skip(cursor)
+    cursor += 6
+    cursor = (cursor + 3) & ~3
+    spans: list[tuple[int, int]] = []
+    for _ in range(expected_items):
+        cursor = (cursor + 3) & ~3
+        if cursor + 24 > len(blob):
+            raise PatcherError("VV3 Full Heal DIALOGEX item header is truncated.")
+        cursor += 24
+        cursor, _ = skip(cursor)
+        title_start = cursor
+        cursor, _ = skip(cursor)
+        if cursor + 2 > len(blob):
+            raise PatcherError("VV3 Full Heal DIALOGEX creation length is truncated.")
+        words = struct.unpack_from("<H", blob, cursor)[0]
+        cursor += 2 + words * 2
+        cursor = (cursor + 3) & ~3
+        spans.append((title_start, cursor))
+    if cursor != expected_end:
+        raise PatcherError("VV3 Full Heal DIALOGEX exact end is not certified.")
+    return spans
+
+
+def _vv3_full_heal_rsrc_ranges(data: bytes) -> tuple[tuple[int, int], ...]:
+    meta, leaves = _vv3_full_heal_resource_tree(data)
+    ranges: list[tuple[int, int]] = []
+    for resource_id, expected_size in ((201, 0x99C), (203, 0x788)):
+        raw, size, blob = leaves[(5, resource_id, 1033)]
+        if size != expected_size:
+            raise PatcherError("VV3 Full Heal target dialog size is not certified.")
+        ranges.append((raw, size))
+    return tuple(ranges)
 
 
 def _validate_vv3_full_heal_companion_transform() -> None:
@@ -1819,20 +1897,47 @@ def _validate_vv3_full_heal_companion_transform() -> None:
         raise PatcherError("VV3 Full Heal dependency DLL preimage is not certified.")
     if len(candidate) != VV3_FULL_HEAL_DLL_SIZE or hashlib.sha256(candidate).hexdigest().upper() != VV3_FULL_HEAL_DLL_SHA256:
         raise PatcherError("VV3 Full Heal replacement DLL is not certified.")
-    ranges = _vv3_full_heal_rsrc_ranges(base)
-    if _vv3_full_heal_rsrc_ranges(candidate) != ranges:
-        raise PatcherError("VV3 Full Heal replacement DLL .rsrc layout changed.")
-    allowed = {offset + delta for offset, length in ranges for delta in range(length)}
-    for offset, (before, after) in enumerate(zip(base, candidate)):
-        if before != after and offset not in allowed:
-            raise PatcherError("VV3 Full Heal replacement DLL changed non-resource bytes.")
-    old_label = "Cure all Villagers".encode("utf-16le") + b"\0\0"
-    new_label = "Full Heal / Cure All".encode("utf-16le") + b"\0\0"
-    for offset, length in ranges:
-        if base[offset : offset + len(old_label)] != old_label:
-            raise PatcherError("VV3 Full Heal resource preimage label is not exact.")
-        if candidate[offset : offset + len(new_label)] != new_label:
-            raise PatcherError("VV3 Full Heal resource replacement label is not exact.")
+    base_meta, base_leaves = _vv3_full_heal_resource_tree(base)
+    cand_meta, cand_leaves = _vv3_full_heal_resource_tree(candidate)
+    if cand_meta["raw_offset"] != base_meta["raw_offset"] or cand_meta["rva"] != base_meta["rva"] or cand_meta["virtual_size"] != base_meta["virtual_size"] or cand_meta["raw_size"] != 0x33800:
+        raise PatcherError("VV3 Full Heal replacement DLL .rsrc repack layout is not certified.")
+    if len(candidate) != 298496 or len(base) != 298496:
+        raise PatcherError("VV3 Full Heal replacement DLL size transition is not certified.")
+    # Every non-resource byte and every section-header byte are immutable;
+    # this rejects the malformed Playtest 9 in-place DLL.
+    for offset, before in enumerate(base):
+        if offset >= len(candidate):
+            raise PatcherError("VV3 Full Heal replacement DLL was truncated.")
+        if before == candidate[offset]:
+            continue
+        if 0x14600 <= offset < 0x14600 + 0x33800:
+            continue
+        raise PatcherError("VV3 Full Heal replacement DLL changed non-resource bytes.")
+    for path, (raw, size, blob) in base_leaves.items():
+        if path not in cand_leaves:
+            raise PatcherError("VV3 Full Heal replacement DLL resource leaf set changed.")
+        cand_raw, cand_size, cand_blob = cand_leaves[path]
+        if path == (5, 202, 1033):
+            _vv3_full_heal_dialog_walk(blob, 21, 0x450)
+            _vv3_full_heal_dialog_walk(cand_blob, 21, 0x450)
+            if cand_raw != 0x4705C or raw != 0x47058:
+                raise PatcherError("VV3 Full Heal resource 202 relocation is not certified.")
+            if cand_blob != blob:
+                raise PatcherError("VV3 Full Heal resource 202 changed.")
+        elif path in ((5, 201, 1033), (5, 203, 1033)):
+            expected_items = 46 if path[1] == 201 else 36
+            expected_end = 0x99C if path[1] == 201 else 0x788
+            _vv3_full_heal_dialog_walk(blob, expected_items, len(blob))
+            _vv3_full_heal_dialog_walk(cand_blob, expected_items, expected_end)
+            expected_raw = 0x466C0 if path[1] == 201 else 0x474D8
+            if cand_raw != expected_raw:
+                raise PatcherError("VV3 Full Heal target dialog relocation is not certified.")
+            old_label = "Cure all Villagers".encode("utf-16le") + b"\0\0"
+            new_label = "Full Heal / Cure All".encode("utf-16le") + b"\0\0"
+            if blob.count(old_label) != 1 or cand_blob.count(new_label) != 1 or cand_size != size + 4:
+                raise PatcherError("VV3 Full Heal target dialog title delta is not certified.")
+        elif cand_blob != blob or cand_size != size:
+            raise PatcherError("VV3 Full Heal replacement DLL changed an unrelated resource leaf.")
 
 
 def _validate_vv3_full_heal_candidate(
@@ -1877,6 +1982,7 @@ def _validate_vv3_full_heal_candidate(
         "record_zero_resolver",
         "messagebox_resolution",
         "messages",
+        "resource_transform",
         "partial_failure_limit",
         "rollback_disclosure",
         "mutation_accounting",
@@ -1960,6 +2066,18 @@ def _validate_vv3_full_heal_candidate(
         "restore_source": "data/candidates/VVFP VV3 Full Mastery Candidate.dll",
         "restore_sha256": VV3_FULL_HEAL_BASE_DLL_SHA256,
         "resource_only": True,
+        "resource_transform": {
+            "type": "RT_DIALOG DIALOGEX structural repack",
+            "resource_type": 5,
+            "targets": {
+                "201": {"items": 46, "old_size": "0x998", "new_size": "0x99C", "raw": "0x466C0", "title_only": True},
+                "202": {"items": 21, "size": "0x47C", "old_raw": "0x47058", "new_raw": "0x4705C", "unchanged": True, "exact_dialog_end": "0x450"},
+                "203": {"items": 36, "old_size": "0x784", "new_size": "0x788", "raw": "0x474D8", "title_only": True},
+            },
+            "alignment_gap_consumed": "0x4",
+            "section_header_unchanged": True,
+            "non_resource_bytes_unchanged": True,
+        },
     }
     if companion != [expected_companion]:
         raise PatcherError("VV3 Full Heal companion metadata is not certified.")

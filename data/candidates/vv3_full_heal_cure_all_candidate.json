@@ -73,11 +73,23 @@
       "source": "data/candidates/VVFP VV3 Full Heal Candidate.dll",
       "destination": "VVFP VV3 Full Mastery Candidate.dll",
       "size": 298496,
-      "sha256": "A1C58D5DD34252C532C288F87210363FE4C85E355E76946276954F907FAA88FC",
+      "sha256": "9F866CB6F92C745CD2AA7009AEC4EB70FA5521EFF0C8F7BABE2058BB4D2F8533",
       "preimage_sha256": "35FB96199E745C7D8054FF6A12851B9E09225E3E41D0CE04012604E74968C0D5",
       "restore_source": "data/candidates/VVFP VV3 Full Mastery Candidate.dll",
       "restore_sha256": "35FB96199E745C7D8054FF6A12851B9E09225E3E41D0CE04012604E74968C0D5",
-      "resource_only": true
+      "resource_only": true,
+      "resource_transform": {
+        "type": "RT_DIALOG DIALOGEX structural repack",
+        "resource_type": 5,
+        "targets": {
+          "201": {"items": 46, "old_size": "0x998", "new_size": "0x99C", "raw": "0x466C0", "title_only": true},
+          "202": {"items": 21, "size": "0x47C", "old_raw": "0x47058", "new_raw": "0x4705C", "unchanged": true, "exact_dialog_end": "0x450"},
+          "203": {"items": 36, "old_size": "0x784", "new_size": "0x788", "raw": "0x474D8", "title_only": true}
+        },
+        "alignment_gap_consumed": "0x4",
+        "section_header_unchanged": true,
+        "non_resource_bytes_unchanged": true
+      }
     }
   ],
   "eligibility": {

@@ -108,8 +108,21 @@ STATIC_ACCEPTANCE = {
 BASE_DLL_PATH = OUT_DIR / "VVFP VV3 Full Mastery Candidate.dll"
 FULL_HEAL_DLL_PATH = OUT_DIR / "VVFP VV3 Full Heal Candidate.dll"
 BASE_DLL_SHA256 = "35FB96199E745C7D8054FF6A12851B9E09225E3E41D0CE04012604E74968C0D5"
-FULL_HEAL_DLL_SHA256 = "A1C58D5DD34252C532C288F87210363FE4C85E355E76946276954F907FAA88FC"
+FULL_HEAL_DLL_SHA256 = "9F866CB6F92C745CD2AA7009AEC4EB70FA5521EFF0C8F7BABE2058BB4D2F8533"
 FULL_HEAL_DLL_SIZE = 298496
+BASE_DLL_SIZE = 298496
+RESOURCE_TRANSFORM = {
+    "type": "RT_DIALOG DIALOGEX structural repack",
+    "resource_type": 5,
+    "targets": {
+        "201": {"items": 46, "old_size": "0x998", "new_size": "0x99C", "raw": "0x466C0", "title_only": True},
+        "202": {"items": 21, "size": "0x47C", "old_raw": "0x47058", "new_raw": "0x4705C", "unchanged": True, "exact_dialog_end": "0x450"},
+        "203": {"items": 36, "old_size": "0x784", "new_size": "0x788", "raw": "0x474D8", "title_only": True},
+    },
+    "alignment_gap_consumed": "0x4",
+    "section_header_unchanged": True,
+    "non_resource_bytes_unchanged": True,
+}
 
 sys.path.insert(0, str(ROOT / ".tools" / "keystone-runtime"))
 from keystone import KS_ARCH_X86, KS_MODE_32, Ks  # noqa: E402
@@ -122,40 +135,205 @@ def sha(data: bytes) -> str:
     return hashlib.sha256(data).hexdigest().upper()
 
 
-def build_resource_only_companion(base: bytes) -> bytes:
-    """Derive the Full Heal companion from the certified Full Mastery DLL.
+def _resource_section(data: bytes) -> tuple[int, int, int, int]:
+    """Return raw offset/size and RVA/virtual size for the .rsrc section."""
+    if data[:2] != b"MZ":
+        raise RuntimeError("VV3 Full Heal companion is not a PE image")
+    pe = int.from_bytes(data[0x3C:0x40], "little")
+    if data[pe : pe + 4] != b"PE\0\0":
+        raise RuntimeError("VV3 Full Heal companion PE signature is invalid")
+    count = int.from_bytes(data[pe + 6 : pe + 8], "little")
+    optional = int.from_bytes(data[pe + 20 : pe + 22], "little")
+    table = pe + 24 + optional
+    for index in range(count):
+        entry = table + index * 40
+        name = data[entry : entry + 8].rstrip(b"\0").decode("ascii")
+        if name == ".rsrc":
+            return (
+                int.from_bytes(data[entry + 20 : entry + 24], "little"),
+                int.from_bytes(data[entry + 16 : entry + 20], "little"),
+                int.from_bytes(data[entry + 12 : entry + 16], "little"),
+                int.from_bytes(data[entry + 8 : entry + 12], "little"),
+            )
+    raise RuntimeError("VV3 Full Heal companion has no .rsrc section")
 
-    The transformation is deliberately length-preserving: only the two exact
-    RT_DIALOG leaf label strings are replaced, consuming the documented four
-    zero padding bytes that follow each stock string.  PE headers, section
-    tables, every non-.rsrc byte, every other resource leaf, and all exports
-    therefore remain byte-identical.
-    """
-    if len(base) != FULL_HEAL_DLL_SIZE or sha(base) != BASE_DLL_SHA256:
+
+def _walk_dialogex(blob: bytes, expected_items: int, expected_end: int | None = None) -> dict[str, object]:
+    """Walk a DIALOGEX leaf and return strict item/title boundaries."""
+    if len(blob) < 26 or int.from_bytes(blob[0:2], "little") != 1 or blob[2:4] != b"\xff\xff":
+        raise RuntimeError("VV3 Full Heal target is not a DIALOGEX leaf")
+    count = int.from_bytes(blob[16:18], "little")
+    if count != expected_items:
+        raise RuntimeError(f"VV3 Full Heal DIALOGEX item count {count} != {expected_items}")
+
+    def skip(value: int) -> tuple[int, bytes]:
+        start = value
+        first = int.from_bytes(blob[value : value + 2], "little")
+        if first == 0:
+            return value + 2, blob[start : value + 2]
+        if first == 0xFFFF:
+            return value + 4, blob[start : value + 4]
+        value += 2
+        while value + 2 <= len(blob) and blob[value : value + 2] != b"\0\0":
+            value += 2
+        if value + 2 > len(blob):
+            raise RuntimeError("VV3 Full Heal DIALOGEX string is unterminated")
+        return value + 2, blob[start : value + 2]
+
+    cursor = 26
+    for _ in range(3):
+        cursor, _ = skip(cursor)
+    if cursor + 6 > len(blob):
+        raise RuntimeError("VV3 Full Heal DIALOGEX font is truncated")
+    cursor += 6
+    cursor = (cursor + 3) & ~3
+    items: list[dict[str, object]] = []
+    for index in range(count):
+        cursor = (cursor + 3) & ~3
+        start = cursor
+        if cursor + 24 > len(blob):
+            raise RuntimeError("VV3 Full Heal DIALOGEX item header is truncated")
+        cursor += 24
+        cursor, _ = skip(cursor)
+        title_start = cursor
+        cursor, title_bytes = skip(cursor)
+        title_text = None
+        if title_bytes[:2] != b"\xff\xff" and title_bytes != b"\0\0":
+            title_text = title_bytes[:-2].decode("utf-16le")
+        if cursor + 2 > len(blob):
+            raise RuntimeError("VV3 Full Heal DIALOGEX creation length is truncated")
+        words = int.from_bytes(blob[cursor : cursor + 2], "little")
+        cursor += 2 + words * 2
+        if cursor > len(blob):
+            raise RuntimeError("VV3 Full Heal DIALOGEX creation data is truncated")
+        end = (cursor + 3) & ~3
+        if end > len(blob):
+            raise RuntimeError("VV3 Full Heal DIALOGEX item alignment is truncated")
+        items.append({"index": index, "start": start, "title_start": title_start, "title_end": cursor, "title": title_text})
+        cursor = end
+    exact_end = len(blob) if expected_end is None else expected_end
+    if cursor != exact_end:
+        raise RuntimeError(f"VV3 Full Heal DIALOGEX end mismatch: {cursor:#x} != {exact_end:#x}")
+    return {"count": count, "end": cursor, "items": items}
+
+
+def _resource_leaves(data: bytes) -> tuple[tuple[int, int, int, int, bytes], ...]:
+    raw_offset, raw_size, rva, _ = _resource_section(data)
+    section = data[raw_offset : raw_offset + raw_size]
+    leaves: list[tuple[int, int, int, int, bytes]] = []
+
+    def walk(directory: int, path: tuple[int, ...]) -> None:
+        if directory + 16 > len(section):
+            raise RuntimeError("VV3 resource directory is truncated")
+        named = int.from_bytes(section[directory + 12 : directory + 14], "little")
+        ids = int.from_bytes(section[directory + 14 : directory + 16], "little")
+        for index in range(named + ids):
+            entry = directory + 16 + index * 8
+            name = int.from_bytes(section[entry : entry + 4], "little")
+            child = int.from_bytes(section[entry + 4 : entry + 8], "little")
+            if name & 0x80000000:
+                raise RuntimeError("VV3 Full Heal resource tree contains an unsupported named node")
+            if child & 0x80000000:
+                walk(child & 0x7FFFFFFF, path + (name,))
+                continue
+            data_entry = child & 0x7FFFFFFF
+            data_rva = int.from_bytes(section[data_entry : data_entry + 4], "little")
+            size = int.from_bytes(section[data_entry + 4 : data_entry + 8], "little")
+            data_raw = raw_offset + (data_rva - rva)
+            if data_raw < raw_offset or data_raw + size > raw_offset + raw_size:
+                raise RuntimeError("VV3 resource data entry escapes .rsrc")
+            resource_id = path[1] if len(path) >= 2 else name
+            leaves.append((resource_id, data_entry, data_raw, size, data[data_raw : data_raw + size]))
+
+    walk(0, ())
+    return tuple(leaves)
+
+
+def build_resource_only_companion(base: bytes) -> bytes:
+    """Repack RT_DIALOG 201/203 for the longer title without in-place growth."""
+    if len(base) != BASE_DLL_SIZE or sha(base) != BASE_DLL_SHA256:
         raise RuntimeError("VV3 Full Heal companion base DLL fingerprint mismatch")
+    raw_offset, raw_size, rsrc_rva, _ = _resource_section(base)
+    leaves = list(_resource_leaves(base))
+    by_type = {resource_id: [leaf for leaf in leaves if leaf[0] == resource_id] for resource_id in (201, 202, 203)}
+    if any(len(items) != 1 for items in by_type.values()):
+        raise RuntimeError("VV3 Full Heal RT_DIALOG tree is not unique")
     old = "Cure all Villagers".encode("utf-16le") + b"\0\0"
     new = "Full Heal / Cure All".encode("utf-16le") + b"\0\0"
-    if len(new) != len(old) + 4 or base.count(old) != 2:
-        raise RuntimeError("VV3 Full Heal companion resource preimage is not exact")
+    if len(new) != len(old) + 4:
+        raise RuntimeError("VV3 Full Heal label length delta is not four bytes")
+    replacements: dict[int, bytes] = {}
+    for resource_id, expected_count in ((201, 46), (202, 21), (203, 36)):
+        leaf = by_type[resource_id][0]
+        blob = leaf[4]
+        walked = _walk_dialogex(blob, expected_count, 0x450 if resource_id == 202 else None)
+        matches = [item for item in walked["items"] if item["title"] == "Cure all Villagers"]
+        if resource_id == 202:
+            if matches:
+                raise RuntimeError("VV3 Full Heal resource 202 unexpectedly contains target title")
+            continue
+        if len(matches) != 1:
+            raise RuntimeError(f"VV3 Full Heal resource {resource_id} title walk is not unique")
+        # The stock leaf carries four certified zero bytes after the UTF-16
+        # terminator. Replace the exact title+terminator token and retain that
+        # padding; do not infer a variable-length in-place overwrite.
+        start = blob.find(old)
+        if start < 0 or blob.find(old, start + 1) >= 0:
+            raise RuntimeError(f"VV3 Full Heal resource {resource_id} title preimage is not unique")
+        end = start + len(old)
+        if blob[end : end + 4] != b"\0" * 4:
+            raise RuntimeError(f"VV3 Full Heal resource {resource_id} title padding is not certified")
+        changed = blob[:start] + new + blob[end:]
+        after = _walk_dialogex(changed, expected_count)
+        if after["end"] != len(blob) + 4 or changed[:start] != blob[:start] or changed[start + len(new) :] != blob[end:]:
+            raise RuntimeError(f"VV3 Full Heal resource {resource_id} changed bytes outside title")
+        replacements[leaves.index(leaf)] = changed
+    output = bytearray()
+    cursor = raw_offset
+    updated_entries: dict[int, int] = {}
+    updated_sizes: dict[int, int] = {}
+    # Resource leaves may share a data blob. Repack each unique raw span once,
+    # then point every data entry at its single shifted copy.
+    groups: dict[tuple[int, int], list[int]] = {}
+    for index, leaf in enumerate(leaves):
+        groups.setdefault((leaf[2], leaf[3]), []).append(index)
+    for data_raw, size in sorted(groups):
+        # D215 consumes the certified four-byte alignment gap between the
+        # untouched 202 leaf and 203 while repacking the two grown leaves.
+        if data_raw == 0x474D8 and cursor == 0x474D4:
+            if base[cursor:data_raw] != b"\0" * 4:
+                raise RuntimeError("VV3 Full Heal 202/203 alignment preimage is not exact")
+        else:
+            output.extend(base[cursor:data_raw])
+        new_raw = raw_offset + len(output)
+        indices = groups[(data_raw, size)]
+        blob = leaves[indices[0]][4]
+        replacement = next((replacements[i] for i in indices if i in replacements), blob)
+        output.extend(replacement)
+        for index in indices:
+            updated_entries[leaves[index][1]] = new_raw
+            updated_sizes[leaves[index][1]] = len(replacement)
+        cursor = data_raw + size
+    output.extend(base[cursor : raw_offset + raw_size])
+    if len(output) > raw_size:
+        excess = output[raw_size:]
+        if excess != b"\0" * len(excess):
+            raise RuntimeError("VV3 Full Heal .rsrc repack exceeds certified raw section")
+        output = output[:raw_size]
+    new_raw_size = raw_size
+    output.extend(b"\0" * (raw_size - len(output)))
+    for entry, new_raw in updated_entries.items():
+        int_rva = rsrc_rva + (new_raw - raw_offset)
+        output[entry : entry + 4] = int_rva.to_bytes(4, "little")
+        output[entry + 4 : entry + 8] = updated_sizes[entry].to_bytes(4, "little")
     result = bytearray(base)
-    cursor = 0
-    positions: list[int] = []
-    while True:
-        position = base.find(old, cursor)
-        if position < 0:
-            break
-        # The four bytes immediately following the stock NUL are required
-        # padding; no resource directory or leaf-size rewrite is permitted.
-        if base[position + len(old) : position + len(new)] != b"\0" * 4:
-            raise RuntimeError("VV3 Full Heal resource label lacks certified padding")
-        result[position : position + len(new)] = new
-        positions.append(position)
-        cursor = position + len(old)
-    if positions != [0x46C60, 0x47A78]:
-        raise RuntimeError(f"VV3 Full Heal resource leaf offsets changed: {positions!r}")
+    result[raw_offset : raw_offset + new_raw_size] = output
     transformed = bytes(result)
-    if sha(transformed) != FULL_HEAL_DLL_SHA256:
-        raise RuntimeError("VV3 Full Heal companion transformation hash mismatch")
+    for index, leaf in enumerate(leaves):
+        if leaf[0] == 202:
+            new_raw = updated_entries[leaf[1]]
+            if transformed[new_raw : new_raw + leaf[3]] != leaf[4]:
+                raise RuntimeError("VV3 Full Heal resource 202 was modified")
     return transformed
 
 
@@ -665,6 +843,7 @@ def main() -> None:
                 "restore_source": "data/candidates/VVFP VV3 Full Mastery Candidate.dll",
                 "restore_sha256": BASE_DLL_SHA256,
                 "resource_only": True,
+                "resource_transform": RESOURCE_TRANSFORM,
             }
         ],
         "eligibility": {
