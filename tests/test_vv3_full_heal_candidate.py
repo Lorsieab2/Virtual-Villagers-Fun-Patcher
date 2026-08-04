@@ -3,6 +3,8 @@ from __future__ import annotations
 import hashlib
 import json
 import shutil
+import struct
+import subprocess
 import sys
 import tempfile
 import unittest
@@ -530,6 +532,7 @@ class VV3FullHealCandidateTests(unittest.TestCase):
             self.assertNotEqual(branch.operands[0].imm, deduction.address)
         self.assertEqual(len(mismatch_targets), 2)
         self.assertEqual(len(set(mismatch_targets)), 1)
+        self.assertEqual(set(mismatch_targets), {0x6E03EA})
 
         string_base = 0x6E0000 + strings_offset
         reason_texts = (
@@ -570,6 +573,86 @@ class VV3FullHealCandidateTests(unittest.TestCase):
         failure_bytes = cave[:helper_length]
         self.assertIn(bytes.fromhex("FF75D4FF75D8"), failure_bytes)
         self.assertIn(self.PARTIAL_FAILURE_DISCLOSURE.encode("ascii"), cave)
+
+    def test_c212_charge_reachable_mismatch_mutation_fails_contract(self) -> None:
+        mapped = json.loads(self.map_path.read_text(encoding="utf-8"))
+        append_hex = mapped["section"]["append"]["append_bytes"]
+        mutated = bytearray.fromhex(append_hex)
+        base = 0x6E0000
+        for va in (0x6E0355, 0x6E0361):
+            offset = va - base
+            self.assertEqual(mutated[offset : offset + 2], bytes.fromhex("0F85"))
+            struct.pack_into("<i", mutated, offset + 2, 0x6E0367 - (va + 6))
+
+        md = Cs(CS_ARCH_X86, CS_MODE_32)
+        md.detail = True
+        decoded = list(md.disasm(bytes(mutated), base))
+        mutated_targets = [
+            branch.operands[0].imm
+            for index, item in enumerate(decoded)
+            if item.mnemonic == "cmp"
+            and item.op_str in {
+                "eax, dword ptr [ebp - 0x20]",
+                "eax, dword ptr [ebp - 0x24]",
+            }
+            for branch in decoded[index + 1 : index + 2]
+            if branch.mnemonic == "jne"
+        ]
+        self.assertEqual(mutated_targets, [0x6E0367, 0x6E0367])
+        with self.assertRaises(AssertionError):
+            self.assertEqual(mutated_targets, [0x6E03EA, 0x6E03EA])
+
+        with tempfile.TemporaryDirectory() as temp:
+            temp_path = Path(temp)
+            bad_manifest = temp_path / "manifest.json"
+            bad_map = temp_path / "map.json"
+            shutil.copy2(self.manifest_path, bad_manifest)
+            mapped["section"]["append"]["append_bytes"] = bytes(mutated).hex().upper()
+            bad_map.write_text(json.dumps(mapped, indent=2) + "\n", encoding="utf-8")
+            with patch.object(
+                v,
+                "VV3_FULL_HEAL_CANDIDATE_PATHS",
+                {"manifest": bad_manifest, "map": bad_map},
+            ):
+                with self.assertRaises(v.PatcherError):
+                    self._render("collection_progression")
+
+    def test_c212_old_d203_helper_fixture_fails_decoded_contract(self) -> None:
+        old_commit = "38510cc21b7cd322a52fbabc936794dfc8601ccc"
+        old_map_bytes = subprocess.check_output(
+            [
+                "git",
+                "show",
+                f"{old_commit}:data/candidates/vv3_full_heal_cure_all_candidate_map.json",
+            ],
+            cwd=ROOT,
+        )
+        old_map = json.loads(old_map_bytes)
+        old_layout = old_map["section"]["layout"]
+        old_blob = bytes.fromhex(old_map["section"]["append"]["append_bytes"])
+        old_helper = old_blob[: int(old_layout["helper_length"])]
+        self.assertEqual(
+            hashlib.sha256(old_helper).hexdigest().upper(),
+            "F367C737D0A3A7A17244B591E231FAF6E2DC6D1FBD02F1EFF27DCA3656F30C28",
+        )
+
+        md = Cs(CS_ARCH_X86, CS_MODE_32)
+        md.detail = True
+        old_instructions = list(md.disasm(old_helper, 0x6E0000))
+        self.assertEqual(sum(item.size for item in old_instructions), len(old_helper))
+        with self.assertRaises(AssertionError):
+            self.assertEqual(len(old_helper), v.VV3_FULL_HEAL_HELPER_LENGTH)
+            old_targets = [
+                old_instructions[index + 1].operands[0].imm
+                for index, item in enumerate(old_instructions[:-1])
+                if item.mnemonic == "cmp"
+                and item.op_str in {
+                    "eax, dword ptr [ebp - 0x20]",
+                    "eax, dword ptr [ebp - 0x24]",
+                }
+                and old_instructions[index + 1].mnemonic == "jne"
+            ]
+            self.assertEqual(old_targets, [0x6E03EA, 0x6E03EA])
 
     def test_c208_reason_routes_are_live_and_no_charge(self) -> None:
         cave = self._cave()
