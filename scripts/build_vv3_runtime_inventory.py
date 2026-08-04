@@ -25,6 +25,41 @@ def _sha256_bytes(data: bytes) -> str:
     return hashlib.sha256(data).hexdigest().upper()
 
 
+def vv3_authoritative_result_messages(manifest_path: Path) -> dict[str, str]:
+    """Return the exact result strings used by the emitted VV3 Full Heal helper.
+
+    The candidate manifest is the source-of-truth projection of the helper's
+    ASCII strings.  Package logs must copy these values byte-for-byte; they may
+    not paraphrase punctuation, CRLFs, or the inline rollback disclosure.
+    """
+
+    manifest = json.loads(Path(manifest_path).read_text(encoding="utf-8"))
+    messages = manifest.get("messages")
+    if not isinstance(messages, dict):
+        raise ValueError("VV3 Full Heal manifest messages are missing")
+    result = {
+        "success": messages.get("success_format"),
+        "failure": messages.get("failure_format"),
+    }
+    if not all(isinstance(value, str) for value in result.values()):
+        raise ValueError("VV3 Full Heal result strings are missing")
+    return result
+
+
+def update_vv3_patch_log_messages(
+    patch_log_path: Path, manifest_path: Path
+) -> dict[str, object]:
+    """Copy authoritative helper result strings into a package patch log."""
+
+    patch_log_path = Path(patch_log_path)
+    log = json.loads(patch_log_path.read_text(encoding="utf-8"))
+    messages = dict(log.get("messages") or {})
+    messages.update(vv3_authoritative_result_messages(manifest_path))
+    log["messages"] = messages
+    patch_log_path.write_text(json.dumps(log, indent=2) + "\n", encoding="utf-8")
+    return log
+
+
 def _excluded_source_identities(
     archive_path: Path,
     archive_sha256: str,

@@ -135,3 +135,24 @@ class VV3RuntimeInventoryTests(unittest.TestCase):
             ]
             self.assertEqual(inventory["source_archive"]["excluded_source_member_identities"], expected)
             self.assertEqual(inventory["preimage_identities"]["excluded_source_members"], expected)
+
+    def test_patch_log_result_messages_copy_authoritative_manifest_bytes(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            manifest = root / "candidate.json"
+            patch_log = root / "candidate.patch-log.json"
+            success = "Full Heal / Cure All completed: %u sickness clears and %u full-health restores were verified."
+            failure = (
+                "Full Heal / Cure All failed after %u sickness clears and %u full-health restores were verified.\r\n"
+                "No tech points have been deducted.\r\n"
+                "If native writes begin and a later write or postverification fails, earlier verified health, "
+                "sickness, or People Cured effects may remain. No tech points are deducted on that failure, "
+                "but complete rollback of native side effects is not claimed."
+            )
+            manifest.write_text(json.dumps({"messages": {"success_format": success, "failure_format": failure}}), encoding="utf-8")
+            patch_log.write_text(json.dumps({"messages": {"success": "PARAPHRASE", "failure": "PARAPHRASE"}}), encoding="utf-8")
+            result = MODULE.update_vv3_patch_log_messages(patch_log, manifest)
+            messages = result["messages"]
+            self.assertEqual(messages["success"].encode("utf-8"), success.encode("utf-8"))
+            self.assertEqual(messages["failure"].encode("utf-8"), failure.encode("utf-8"))
+            self.assertIn("\r\n", messages["failure"])
