@@ -196,8 +196,8 @@ VV3_FULL_HEAL_CANDIDATE_PATHS = {
     "manifest": ROOT / "data" / "candidates" / "vv3_full_heal_cure_all_candidate.json",
     "map": ROOT / "data" / "candidates" / "vv3_full_heal_cure_all_candidate_map.json",
 }
-VV3_FULL_HEAL_MANIFEST_SHA256 = "7CD26E4F66F077646C88A1C1D7C60FD92CD54F36663AFF872E737D27246AEB69"
-VV3_FULL_HEAL_MAP_SHA256 = "8A43CC0FCD43553147FA8237B18BC8C479693A664901AE76037EEAAD5A11CFC9"
+VV3_FULL_HEAL_MANIFEST_SHA256 = "B0E923568EA024D3A47E7290EFAE80A1008BE29961C59727D601ADAB13256823"
+VV3_FULL_HEAL_MAP_SHA256 = "51F50278B6904DE0724029C3ABCC6058786AB6839FAA9D1822E95AB1E1119DF9"
 VV3_FULL_HEAL_STOCK_SHA256 = "8BC5DB382D02BC5C21AD5F607580D60FF44A6519CC7EB133F03113BAACAE6503"
 VV3_FULL_HEAL_BASE_DLL_PATH = ROOT / "data" / "candidates" / "VVFP VV3 Full Mastery Candidate.dll"
 VV3_FULL_HEAL_DLL_PATH = ROOT / "data" / "candidates" / "VVFP VV3 Full Heal Candidate.dll"
@@ -216,8 +216,8 @@ VV3_FULL_HEAL_CAVE_LENGTH = 0x1000
 VV3_FULL_HEAL_LEGACY_START = 0x7B664
 VV3_FULL_HEAL_LEGACY_END_OFFSET = 0x7B721
 VV3_FULL_HEAL_LEGACY_END = "0x7B721"
-VV3_FULL_HEAL_CAVE_SHA256 = "AF71F2958E7CF9AF83EFC00B9394D66933C6207D3FF9C983268A16A139F37086"
-VV3_FULL_HEAL_HELPER_SHA256 = "86C9E258C9F6C59EBBEF290774EAA9DEE4E9533B4F8AAE59EC6294DE9CBD97C8"
+VV3_FULL_HEAL_CAVE_SHA256 = "E0C7B25F6EEA07D3C0986FA7F7FC919AC63D09DE2518C2B768C856F390DEE738"
+VV3_FULL_HEAL_HELPER_SHA256 = "D17F982937FE07B4E4D7EFAC06466ACD05BE0E286673DFA4E19CA8178CC8BDC5"
 VV3_FULL_HEAL_HELPER_LENGTH = 0x42B
 VV3_FULL_HEAL_STRINGS_OFFSET = 0x800
 VV3_FULL_HEAL_STRINGS_LENGTH = 0x4E7
@@ -242,7 +242,7 @@ VV3_FULL_HEAL_STATIC_ACCEPTANCE = {
     "acceptance_commit": None,
 }
 VV3_FULL_HEAL_IMPLEMENTATION_STATUS = "enabled/catalog-visible for certified stock modes; D209/C213 independent static GO; runtime/player validation pending"
-VV3_FULL_HEAL_HELPER_INSTRUCTION_COUNT = 262
+VV3_FULL_HEAL_HELPER_INSTRUCTION_COUNT = 269
 VV3_FULL_HEAL_HELPER_EPILOGUE_OFFSET = "0x41F"
 VV3_FULL_HEAL_INTERNAL_TARGET_OFFSETS = [
     "0xC2", "0xF8", "0x107", "0x12B", "0x1A0", "0x1E4", "0x1EE",
@@ -328,6 +328,7 @@ VV3_FULL_HEAL_MESSAGEBOX_RESOLUTION = {
     "module": "USER32.dll",
     "procedure": "MessageBoxA",
     "formatter_procedure": "wsprintfA",
+    "formatter_resolution": "direct imported USER32!wsprintfA at IAT 0x47C3A0",
     "formatter_saved_local": "[ebp-0x14]",
     "format_buffer": "[ebp-0x6E0..ebp-0x4E1]",
     "format_buffer_size": 512,
@@ -348,8 +349,8 @@ VV3_FULL_HEAL_MUTATION_ACCOUNTING = {
     "feature_owned_range_count": 3,
     "every_other_byte_identical": True,
     "rendered_sha256": {
-        "collection_progression": "B095FAFCC53B66B8FE7C852DAF488B8921EA4FBD3247FD293E1BBDCA369BF173",
-        "immediate_fixed": "CFE508B213C566E8A81302556946AAA500F701B25E8F0BE620D3C6A8844C2B61",
+        "collection_progression": "15D58F10FEC11D1E3BE0066A9E7109B08EF3AAD2E8E20E0056E41597277ABEEB",
+        "immediate_fixed": "3142012C853615F513E009E4D22AA544C14D72F6ADC960E51E676A8636A571C4",
     },
     "uninstall_sha256": {
         "collection_progression": "3644A56FE17F843DB67662E4309C3C2B41AE7ADD5FDD60EF2B6789DE2BA15FDC",
@@ -357,18 +358,18 @@ VV3_FULL_HEAL_MUTATION_ACCOUNTING = {
     },
     "checksum_offset": "0x160",
     "checksum_transitions": {
-        "collection_progression": {"before": "93790D00", "after": "F3260D00"},
-        "immediate_fixed": {"before": "91BB0D00", "after": "F1680D00"},
+        "collection_progression": {"before": "93790D00", "after": "BB270D00"},
+        "immediate_fixed": {"before": "91BB0D00", "after": "B9690D00"},
     },
     "section_header": {"name": ".vv3hc", "raw_offset": "0x2F0", "raw_start": "0xCC000", "rva": "0x2E0000", "va": "0x6E0000", "size": "0x1000", "section_count_before": 6, "section_count_after": 7, "size_of_image_before": "0x2E0000", "size_of_image_after": "0x2E1000"},
 }
 VV3_FULL_HEAL_RENDERED_SHA256 = {
-    "collection_progression": "B095FAFCC53B66B8FE7C852DAF488B8921EA4FBD3247FD293E1BBDCA369BF173",
-    "immediate_fixed": "CFE508B213C566E8A81302556946AAA500F701B25E8F0BE620D3C6A8844C2B61",
+    "collection_progression": "15D58F10FEC11D1E3BE0066A9E7109B08EF3AAD2E8E20E0056E41597277ABEEB",
+    "immediate_fixed": "3142012C853615F513E009E4D22AA544C14D72F6ADC960E51E676A8636A571C4",
 }
 VV3_FULL_HEAL_CHECKSUM_TRANSITIONS = {
-    "collection_progression": {"before": "93790D00", "after": "F3260D00"},
-    "immediate_fixed": {"before": "91BB0D00", "after": "F1680D00"},
+    "collection_progression": {"before": "93790D00", "after": "BB270D00"},
+    "immediate_fixed": {"before": "91BB0D00", "after": "B9690D00"},
 }
 VV3_FULL_HEAL_PRE_CANDIDATE_CHECKSUM = {
     "collection_progression": "93790D00",
@@ -2188,8 +2189,12 @@ def _validate_vv3_full_heal_candidate(
         raise PatcherError("VV3 Full Heal non-command-5 shim must preserve the EBX-indexed lookup.")
     if VV3_FULL_HEAL_NON5_SHIM not in after:
         raise PatcherError("VV3 Full Heal non-command-5 shim continuation is not exact.")
-    if after.count(b"\xFF\x15\x24\xC1\x47\x00") != 1 or after.count(b"\xFF\x15\x28\xC1\x47\x00") != 2:
+    if after.count(b"\xFF\x15\x24\xC1\x47\x00") != 1 or after.count(b"\xFF\x15\x28\xC1\x47\x00") != 1:
         raise PatcherError("VV3 Full Heal MessageBoxA API resolution calls are not exact.")
+    if b"\xA1\xA0\xC3\x47\x00\x85\xC0\x0F\x84\x6D\x03\x00\x00\x89\x45\xEC\x90\x90\x90\x90\x90\x90\x90\x90\x90" not in after:
+        raise PatcherError("VV3 Full Heal wsprintfA direct-IAT resolution is not exact.")
+    if b"\x68\x17\x08\x6E\x00\xFF\x75\xF0\xFF\x15\x28\xC1\x47\x00" in after:
+        raise PatcherError("VV3 Full Heal historical second GetProcAddress sequence remains reachable.")
     if after.count(b"\x6A\x00\xB9\x10\xE1\x59\x00") != 3:
         raise PatcherError("VV3 Full Heal must resolve record zero at each required fresh-pool boundary.")
     if b"\xC7\x45\xE8\x24\xE1\x59\x00" in after:

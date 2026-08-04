@@ -51,6 +51,7 @@ HEALTH_SETTER = 0x462670
 TECH_DEDUCTION = 0x427130
 MESSAGEBOX_IAT = 0x47C124
 GETPROC_IAT = 0x47C128
+WSPRINTF_IAT = 0x47C3A0
 MANAGER_SINGLETON = 0x59E110
 TECH_BALANCE = 0x582644
 POOL_COUNT = 150
@@ -94,8 +95,8 @@ PROVENANCE = {
     "metadata_status": "enabled/catalog-visible for certified stock modes; D209/C213 independent static GO; runtime/player validation pending",
 }
 RENDERED_SHA256 = {
-    "collection_progression": "B095FAFCC53B66B8FE7C852DAF488B8921EA4FBD3247FD293E1BBDCA369BF173",
-    "immediate_fixed": "CFE508B213C566E8A81302556946AAA500F701B25E8F0BE620D3C6A8844C2B61",
+    "collection_progression": "15D58F10FEC11D1E3BE0066A9E7109B08EF3AAD2E8E20E0056E41597277ABEEB",
+    "immediate_fixed": "3142012C853615F513E009E4D22AA544C14D72F6ADC960E51E676A8636A571C4",
 }
 STATIC_ACCEPTANCE = {
     "commit": None,
@@ -397,12 +398,19 @@ def _helper(strings: dict[str, int]) -> bytes:
         test eax, eax
         je dependency_failure
         mov dword ptr [ebp-0x10], eax
-        push {strings['wsprintf']:#x}
-        push dword ptr [ebp-0x10]
-        call dword ptr [{GETPROC_IAT:#x}]
+        mov eax, dword ptr [{WSPRINTF_IAT:#x}]
         test eax, eax
         je dependency_failure
         mov dword ptr [ebp-0x14], eax
+        nop
+        nop
+        nop
+        nop
+        nop
+        nop
+        nop
+        nop
+        nop
         call {MANAGER_GETTER:#x}
         test eax, eax
         je invalid_failure
@@ -890,6 +898,7 @@ def main() -> None:
             "module": "USER32.dll",
             "procedure": "MessageBoxA",
             "formatter_procedure": "wsprintfA",
+            "formatter_resolution": "direct imported USER32!wsprintfA at IAT 0x47C3A0",
             "formatter_saved_local": "[ebp-0x14]",
             "format_buffer": "[ebp-0x6E0..ebp-0x4E1]",
             "format_buffer_size": 512,
@@ -934,8 +943,8 @@ def main() -> None:
             },
             "checksum_offset": "0x160",
             "checksum_transitions": {
-                "collection_progression": {"before": "93790D00", "after": "F3260D00"},
-                "immediate_fixed": {"before": "91BB0D00", "after": "F1680D00"},
+                "collection_progression": {"before": "93790D00", "after": "BB270D00"},
+                "immediate_fixed": {"before": "91BB0D00", "after": "B9690D00"},
             },
             "section_header": {"name": ".vv3hc", "raw_offset": "0x2F0", "raw_start": "0xCC000", "rva": "0x2E0000", "va": "0x6E0000", "size": "0x1000", "section_count_before": 6, "section_count_after": 7, "size_of_image_before": "0x2E0000", "size_of_image_after": "0x2E1000"},
         },

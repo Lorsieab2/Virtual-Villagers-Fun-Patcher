@@ -157,12 +157,30 @@ class VV3FullHealCandidateTests(unittest.TestCase):
         self.assertEqual(cave.count(bytes.fromhex("80BF100F000000")), 3)
         self.assertNotIn(bytes.fromhex("83BF100F00000000"), cave)
         self.assertEqual(cave.count(bytes.fromhex("FF1524C14700")), 1)
-        self.assertEqual(cave.count(bytes.fromhex("FF1528C14700")), 2)
+        self.assertEqual(cave.count(bytes.fromhex("FF1528C14700")), 1)
         self.assertEqual(cave.count(bytes.fromhex("6A00B910E15900")), 3)
         self.assertNotIn(bytes.fromhex("C745E824E15900"), cave)
         self.assertIn(b"USER32.dll\0", cave)
         self.assertIn(b"MessageBoxA\0", cave)
         self.assertIn(bytes.fromhex("8945F0"), cave)
+        # LoadLibraryA returns the USER32 module handle.  Only MessageBoxA is
+        # resolved dynamically; wsprintfA is already imported from USER32 and
+        # must be loaded directly from its IAT slot.
+        helper_length = json.loads(self.map_path.read_text(encoding="utf-8"))["section"]["layout"]["helper_length"]
+        md = Cs(CS_ARCH_X86, CS_MODE_32)
+        instructions = list(md.disasm(cave[:helper_length], 0x6E0000))
+        getproc_calls = [
+            index
+            for index, item in enumerate(instructions)
+            if item.mnemonic == "call" and "0x47c128" in item.op_str
+        ]
+        self.assertEqual(len(getproc_calls), 1)
+        for index in getproc_calls:
+            self.assertGreaterEqual(index, 2)
+            self.assertEqual(instructions[index - 1].mnemonic, "push")
+            self.assertEqual(instructions[index - 1].op_str, "eax")
+        self.assertIn(bytes.fromhex("A1A0C3470085C0"), cave)
+        self.assertNotIn(bytes.fromhex("6817086E00FF75F0FF1528C14700"), cave)
         self.assertEqual(cave.count(bytes.fromhex("FF80FC040000")), 1)
         self.assertEqual(cave.count(bytes.fromhex("C745D096000000")), 1)
         self.assertEqual(cave.count(bytes.fromhex("FF4DD0")), 1)
@@ -680,6 +698,18 @@ class VV3FullHealCandidateTests(unittest.TestCase):
             self.raw["sickness"]["reason_routes"],
             ["dependency", "initial_insufficient", "cancel", "recheck", "postwrite_partial"],
         )
+
+    def test_c225_dependency_preflight_models_all_failures_as_no_write_no_charge(self) -> None:
+        def preflight(module_handle: bool, message_box: bool, formatter: bool) -> dict[str, object]:
+            if not module_handle or not message_box or not formatter:
+                return {"route": "dependency", "writes": 0, "charge": 0}
+            return {"route": "continue", "writes": 0, "charge": 0}
+
+        for failed in ((False, True, True), (True, False, True), (True, True, False)):
+            with self.subTest(failed=failed):
+                result = preflight(*failed)
+                self.assertEqual(result, {"route": "dependency", "writes": 0, "charge": 0})
+        self.assertEqual(preflight(True, True, True), {"route": "continue", "writes": 0, "charge": 0})
 
     def test_c208_companion_is_resource_only_and_reversible(self) -> None:
         base = v.VV3_FULL_HEAL_BASE_DLL_PATH.read_bytes()
