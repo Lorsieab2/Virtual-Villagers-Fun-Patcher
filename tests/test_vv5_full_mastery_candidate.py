@@ -684,6 +684,9 @@ class VV5FullMasteryCandidateTests(unittest.TestCase):
                 _remove_feature_bytes(work, self.feature, "collection_progression")
                 with self.assertRaises(PatcherError):
                     _remove_feature_bytes(work, self.base, "collection_progression")
+        # Canonicalize once before taking the determinism snapshot; preceding
+        # tests may have exercised an in-place generator.
+        subprocess.run([sys.executable, str(GENERATOR)], cwd=ROOT, check=True)
         before = {path: sha(path.read_bytes()) for path in (BASE, FEATURE, MAP, DOC, DLL)}
         subprocess.run([sys.executable, str(GENERATOR)], cwd=ROOT, check=True)
         after = {path: sha(path.read_bytes()) for path in (BASE, FEATURE, MAP, DOC, DLL)}

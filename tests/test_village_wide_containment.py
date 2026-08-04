@@ -67,7 +67,30 @@ class VillageWideContainmentTests(unittest.TestCase):
                     )
                 )
                 if game_id != "vv5":
-                    self.assertEqual(base_current["patches"], base_prior["patches"])
+                    if game_id == "vv3":
+                        # C219 changed only descriptive prose for the
+                        # message-8/free-command-15 route. Keep the byte,
+                        # guard, and target fields frozen while asserting the
+                        # exact intentional purpose delta.
+                        current_patches = [
+                            {k: v for k, v in item.items() if k != "purpose"}
+                            for item in base_current["patches"]
+                        ]
+                        prior_patches = [
+                            {k: v for k, v in item.items() if k != "purpose"}
+                            for item in base_prior["patches"]
+                        ]
+                        self.assertEqual(current_patches, prior_patches)
+                        self.assertEqual(
+                            base_prior["patches"][6]["purpose"],
+                            "route Tech-screen command 15 through the guarded Origins handler",
+                        )
+                        self.assertEqual(
+                            base_current["patches"][6]["purpose"],
+                            "route only Tech message 8 / free command-15 event through the guarded Origins handler",
+                        )
+                    else:
+                        self.assertEqual(base_current["patches"], base_prior["patches"])
                     self.assertEqual(
                         base_current.get("patch_mode_overrides"),
                         base_prior.get("patch_mode_overrides"),

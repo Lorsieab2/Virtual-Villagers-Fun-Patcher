@@ -146,6 +146,10 @@ class VV3RunningCandidateTests(unittest.TestCase):
         )
 
     def test_generator_is_deterministic(self) -> None:
+        # Establish the producer's canonical map first. Other candidate tests
+        # may exercise generators in-place; determinism compares two producer
+        # passes, never a contaminated pre-test snapshot.
+        subprocess.run([str(PYTHON), str(GENERATOR)], cwd=ROOT, check=True)
         before = {
             path: hashlib.sha256(path.read_bytes()).hexdigest()
             for path in (BASE_PATH, RUNNING_PATH, MAP_PATH, DOC_PATH)
