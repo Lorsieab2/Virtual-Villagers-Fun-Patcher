@@ -172,3 +172,21 @@ class VV3RuntimeInventoryTests(unittest.TestCase):
             MODULE.validate_vv3_package_provenance(
                 inventory, patch_log, marker, marker, "0123456"
             )
+
+    def test_package_provenance_rejects_unqualified_playtest8_stale_claim(self) -> None:
+        commit = "0123456789abcdef0123456789abcdef01234567"
+        inventory = {"commits": {"metadata_commit": commit, "package_source_commit": commit}}
+        patch_log = {
+            "candidate": {"metadata_commit": commit},
+            "provenance": {"metadata_commit": commit},
+        }
+        marker = f"Package source commit: {commit}"
+        stale = marker + "\nProvenance: metadata/package 280352f8686f3b2bb8d3ab26db14aeda4b138418"
+        with self.assertRaises(ValueError):
+            MODULE.validate_vv3_package_provenance(
+                inventory, patch_log, stale, marker, commit
+            )
+        historical = marker + "\nHistorical Playtest-6 metadata: 280352f8686f3b2bb8d3ab26db14aeda4b138418"
+        MODULE.validate_vv3_package_provenance(
+            inventory, patch_log, historical, marker, commit
+        )

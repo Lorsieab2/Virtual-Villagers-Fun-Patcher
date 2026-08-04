@@ -13,6 +13,8 @@ SCHEMA_VERSION = "vvfp.runtime_inventory.v1"
 INVENTORY_NAME = "runtime-inventory.json"
 CHECKSUMS_NAME = "SHA256SUMS.txt"
 _FULL_COMMIT = re.compile(r"^[0-9a-f]{40}$")
+_COMMIT_TOKEN = re.compile(r"(?i)\b[0-9a-f]{40}\b")
+_PACKAGE_COMMIT_WORDS = ("metadata", "package", "package source")
 
 
 def _sha256(path: Path) -> str:
@@ -92,6 +94,36 @@ def validate_vv3_package_provenance(
     marker = f"Package source commit: {expected}"
     if marker not in transparency_text or marker not in readme_text:
         raise ValueError("package source commit marker is missing from player evidence")
+    texts = {
+        "transparency": transparency_text,
+        "readme": readme_text,
+    }
+    claims: list[dict[str, object]] = []
+    for surface, text in texts.items():
+        for line in text.splitlines():
+            lowered = line.lower()
+            if not any(word in lowered for word in _PACKAGE_COMMIT_WORDS):
+                continue
+            for token in _COMMIT_TOKEN.findall(line):
+                claims.append(
+                    {
+                        "surface": surface,
+                        "commit": token.lower(),
+                        "historical": "historical playtest-6 metadata" in lowered,
+                        "line": line,
+                    }
+                )
+    conflicting = [
+        claim
+        for claim in claims
+        if claim["commit"] != expected
+        and not claim["historical"]
+    ]
+    if conflicting:
+        raise ValueError(
+            "conflicting unqualified current metadata/package commit claim: "
+            + repr(conflicting[0])
+        )
 
 
 def _excluded_source_identities(
