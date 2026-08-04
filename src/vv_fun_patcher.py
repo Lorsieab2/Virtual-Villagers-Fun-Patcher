@@ -42,10 +42,10 @@ VV3_FULL_MASTERY_CANDIDATE_PATHS = {
     "dll": ROOT / "data" / "candidates" / "VVFP VV3 Full Mastery Candidate.dll",
 }
 VV3_FULL_MASTERY_CERTIFIED_SHA256 = {
-    "base": "954F2E55F4033BA3B7EA90E2BC42B4FA781C9B95C6934CDC97E1C65771B02822",
+    "base": "2F0FCE75725990E214506C79CFFC2BCF0CAB3088117DF532FCF2BAF6970DD7B1",
     "feature": "844A3CB7996793F51D741409C9EFAF675E07ED92122BCD2F91750766D7357783",
-    "map": "14FA2F645CF4600D993F275EC886C9EB033396583CE971FDA5B01FB277F418E3",
-    "dll": "C2F8A6A4B92DF9A1DB7D72039793EF5D84E75546C1CB26E8D20EED9D8B7E94CD",
+    "map": "9C988B2C4BFE64E2001AB87CFB8034E42AA556F49B0AF2F4FBFA56FA9E47F431",
+    "dll": "35FB96199E745C7D8054FF6A12851B9E09225E3E41D0CE04012604E74968C0D5",
     "entry": "9685954F75E1DD26103507213FBEADBD9DED2705E62CB37D14080F6EBEC6EB23",
     "slot": "B1499EB3B10B7E4728746711E9F63B88211E4B80CA378742ADC5DC06782DAADA",
     "page": "2DAE85AE4077C23C2C7C39F64B5BA944740F765AC8E24FBB097B0BF28A720DF6",
@@ -195,11 +195,13 @@ VV3_FULL_HEAL_CANDIDATE_PATHS = {
     "manifest": ROOT / "data" / "candidates" / "vv3_full_heal_cure_all_candidate.json",
     "map": ROOT / "data" / "candidates" / "vv3_full_heal_cure_all_candidate_map.json",
 }
-VV3_FULL_HEAL_MANIFEST_SHA256 = "9469924E57DFDDD3D50180580A493A1B77F9C62F800CE4A7AED8EDE2314F11EE"
-VV3_FULL_HEAL_MAP_SHA256 = "DFA1C5BAB52689507B8D0403C51F4E946A6B2094EBEA5B9FD94292BBA1DCF431"
+VV3_FULL_HEAL_MANIFEST_SHA256 = "340EDC00174C45CADDA83A75A3D187685DC2BE1492FB1B5A8D55C1346EECE47F"
+VV3_FULL_HEAL_MAP_SHA256 = "F544F2586039BFAEF10331996C8396550C52B31D82F1E125E1C9035DCC2262EF"
 VV3_FULL_HEAL_STOCK_SHA256 = "8BC5DB382D02BC5C21AD5F607580D60FF44A6519CC7EB133F03113BAACAE6503"
-VV3_FULL_HEAL_DLL_PATH = ROOT / "data" / "candidates" / "VVFP VV3 Full Mastery Candidate.dll"
-VV3_FULL_HEAL_DLL_SHA256 = "C2F8A6A4B92DF9A1DB7D72039793EF5D84E75546C1CB26E8D20EED9D8B7E94CD"
+VV3_FULL_HEAL_BASE_DLL_PATH = ROOT / "data" / "candidates" / "VVFP VV3 Full Mastery Candidate.dll"
+VV3_FULL_HEAL_DLL_PATH = ROOT / "data" / "candidates" / "VVFP VV3 Full Heal Candidate.dll"
+VV3_FULL_HEAL_BASE_DLL_SHA256 = "35FB96199E745C7D8054FF6A12851B9E09225E3E41D0CE04012604E74968C0D5"
+VV3_FULL_HEAL_DLL_SHA256 = "A1C58D5DD34252C532C288F87210363FE4C85E355E76946276954F907FAA88FC"
 VV3_FULL_HEAL_DLL_SIZE = 298496
 VV3_FULL_HEAL_PRE_CURE_RENDERED_SHA256 = {
     "collection_progression": "3644A56FE17F843DB67662E4309C3C2B41AE7ADD5FDD60EF2B6789DE2BA15FDC",
@@ -213,43 +215,44 @@ VV3_FULL_HEAL_CAVE_LENGTH = 0x1000
 VV3_FULL_HEAL_LEGACY_START = 0x7B664
 VV3_FULL_HEAL_LEGACY_END_OFFSET = 0x7B721
 VV3_FULL_HEAL_LEGACY_END = "0x7B721"
-VV3_FULL_HEAL_CAVE_SHA256 = "711F1E9DB89AB821FBA5E9B3B81FD3EDB9D334DDF7901E2E5C10F3B0E53FB3F4"
-VV3_FULL_HEAL_HELPER_SHA256 = "F367C737D0A3A7A17244B591E231FAF6E2DC6D1FBD02F1EFF27DCA3656F30C28"
-VV3_FULL_HEAL_HELPER_LENGTH = 0x3AE
+VV3_FULL_HEAL_CAVE_SHA256 = "AF71F2958E7CF9AF83EFC00B9394D66933C6207D3FF9C983268A16A139F37086"
+VV3_FULL_HEAL_HELPER_SHA256 = "86C9E258C9F6C59EBBEF290774EAA9DEE4E9533B4F8AAE59EC6294DE9CBD97C8"
+VV3_FULL_HEAL_HELPER_LENGTH = 0x42B
 VV3_FULL_HEAL_STRINGS_OFFSET = 0x800
-VV3_FULL_HEAL_STRINGS_LENGTH = 0x47B
-VV3_FULL_HEAL_TAIL_ZERO_LENGTH = 0x385
+VV3_FULL_HEAL_STRINGS_LENGTH = 0x4E7
+VV3_FULL_HEAL_TAIL_ZERO_LENGTH = 0x319
 VV3_FULL_HEAL_COMPOSED_PARENT_HELPER_SHA256 = "CFF1AAA9111728F003621FF662F100940C2F978943F5E69CC64180EA5DE63F7D"
 VV3_FULL_HEAL_STOCK_CURE_CAVE_PREIMAGE_SHA256 = "7B4FC1A8DBE6B6121F16ADA516E2AC27E02964716BACEA5FB7D07CF30595948E"
 VV3_FULL_HEAL_LEGACY_PRESERVED_RANGE_SHA256 = VV3_FULL_HEAL_COMPOSED_PARENT_HELPER_SHA256
 VV3_FULL_HEAL_STOCK_ZERO_PREIMAGE_LEGACY_RANGE_SHA256 = "06EA118EDADD836A02B202C05BC7E47356B57E28C01EDF1DAD6CC4CF90C662E2"
 VV3_FULL_HEAL_PROVENANCE = {
     "design_source_commit": "64c1266503c49ba1456f6294683a1f6773eba5d6",
-    "implementation_base_commit": "ea6125489a60a3bdbb7f4c72e2619a798d23d5f6",
+    "implementation_base_commit": "38510cc21b7cd322a52fbabc936794dfc8601ccc",
     "metadata_commit": None,
-    "metadata_status": "pending metadata commit; intentionally non-self-referential",
+    "metadata_status": "implementation evidence complete; no external certification claimed",
 }
 VV3_FULL_HEAL_STATIC_ACCEPTANCE = {
-    "commit": "f23b3211775e49d7730caedd73b2bedbd1c34a87",
-    "manifest_sha256": "PENDING",
-    "map_sha256": "PENDING",
-    "helper_sha256": "F367C737D0A3A7A17244B591E231FAF6E2DC6D1FBD02F1EFF27DCA3656F30C28",
-    "strings_sha256": "AA9F42C2EC017377268F3BC1E5BB164BF453C720FC2FFA756CAABA9308C1FDEB",
-    "cave_sha256": "711F1E9DB89AB821FBA5E9B3B81FD3EDB9D334DDF7901E2E5C10F3B0E53FB3F4",
+    "commit": "38510cc21b7cd322a52fbabc936794dfc8601ccc",
+    "status": "implementation evidence only; no external certification claimed",
+    "manifest_sha256": None,
+    "map_sha256": None,
+    "helper_sha256": "86C9E258C9F6C59EBBEF290774EAA9DEE4E9533B4F8AAE59EC6294DE9CBD97C8",
+    "strings_sha256": "7DEABBEBB223C8FFB4762CF6A35A5555388D4FD078144724FE1EA01CCF2E9BB5",
+    "cave_sha256": "AF71F2958E7CF9AF83EFC00B9394D66933C6207D3FF9C983268A16A139F37086",
     "rendered_sha256": {
-        "collection_progression": "38DC5C0599F4E74D9A6C787BDB5FF30EAF54E9E67DCB6718964BBB305359C20F",
-        "immediate_fixed": "F8EDF1F1375C269EB8C108D452AED738AD82867DFE3DC8D1EB369719D1F96B47",
+        "collection_progression": "B095FAFCC53B66B8FE7C852DAF488B8921EA4FBD3247FD293E1BBDCA369BF173",
+        "immediate_fixed": "CFE508B213C566E8A81302556946AAA500F701B25E8F0BE620D3C6A8844C2B61",
     },
     "supported_modes": ["collection_progression", "immediate_fixed"],
     "expanded_rejected": True,
 }
-VV3_FULL_HEAL_HELPER_INSTRUCTION_COUNT = 235
-VV3_FULL_HEAL_HELPER_EPILOGUE_OFFSET = "0x3A2"
+VV3_FULL_HEAL_HELPER_INSTRUCTION_COUNT = 262
+VV3_FULL_HEAL_HELPER_EPILOGUE_OFFSET = "0x41F"
 VV3_FULL_HEAL_INTERNAL_TARGET_OFFSETS = [
     "0xC2", "0xF8", "0x107", "0x12B", "0x1A0", "0x1E4", "0x1EE",
-    "0x212", "0x248", "0x27B", "0x2B8", "0x2F4", "0x350", "0x35C",
-    "0x35E", "0x360", "0x367", "0x369", "0x36B", "0x36D", "0x398",
-    "0x3A2",
+    "0x222", "0x264", "0x297", "0x2D8", "0x319", "0x328", "0x335",
+    "0x3AD", "0x3B9", "0x3C0", "0x3C7", "0x3CE", "0x3D5", "0x3DC",
+    "0x3E3", "0x3EA", "0x415", "0x41F",
 ]
 VV3_FULL_HEAL_TRANSACTION = {
     "command": 5,
@@ -264,7 +267,7 @@ VV3_FULL_HEAL_MESSAGES = {
     "no_charge_suffix": "No tech points have been deducted.",
     "confirm_format": "Full Heal / Cure All will clear sickness from %u eligible villagers and restore %u partial-health villagers for 30,000 tech points?\r\nPress OK to confirm, or Cancel.",
     "success_format": "Full Heal / Cure All completed: %u sickness clears and %u full-health restores were verified.",
-    "failure_format": "Full Heal / Cure All failed after %u sickness clears and %u full-health restores were verified.\r\nNo tech points have been deducted.",
+    "failure_format": "Full Heal / Cure All failed after %u sickness clears and %u full-health restores were verified.\r\nNo tech points have been deducted.\r\nIf native writes begin and a later write or postverification fails, earlier verified health, sickness, or People Cured effects may remain. No tech points are deducted on that failure, but complete rollback of native side effects is not claimed.",
     "confirm_price": "30,000",
 }
 VV3_FULL_HEAL_PARTIAL_FAILURE_DISCLOSURE = (
@@ -311,6 +314,10 @@ VV3_FULL_HEAL_SICKNESS = {
     "verified_count_a": "verified sickness clears",
     "verified_count_b": "verified health restores",
     "overlap_counted_in_both": True,
+    "health_write_snapshot_range": "1..99 only",
+    "health_ge_100_preserved": True,
+    "actual_counts_must_equal_predicted_before_deduction": True,
+    "reason_routes": ["dependency", "initial_insufficient", "cancel", "recheck", "postwrite_partial"],
 }
 VV3_FULL_HEAL_RECORD_ZERO_RESOLVER = {
     "function": "0x45C840",
@@ -334,17 +341,19 @@ VV3_FULL_HEAL_MESSAGEBOX_RESOLUTION = {
 VV3_FULL_HEAL_MUTATION_ACCOUNTING = {
     "physical_ranges": [
         {"offset": "0xA35EF", "length": 7, "purpose": "command-5 hook"},
+        {"offset": "0x10E", "length": 2, "purpose": "PE section-count update"},
+        {"offset": "0x158", "length": 4, "purpose": "PE SizeOfImage update"},
         {"offset": "0x2F0", "length": 40, "purpose": "candidate-owned .vv3hc section header"},
         {"offset": "0xCC000", "length": 0x1000, "purpose": "candidate-owned .vv3hc RX page"},
         {"offset": "0x160", "length": 4, "purpose": "PE checksum recomputation"},
     ],
     "feature_owned_ranges": ["0xA35EF..0xA35F5", "0x2F0..0x317", "0xCC000..0xCCFFF"],
-    "physical_range_count": 4,
+    "physical_range_count": 6,
     "feature_owned_range_count": 3,
     "every_other_byte_identical": True,
     "rendered_sha256": {
-        "collection_progression": "38DC5C0599F4E74D9A6C787BDB5FF30EAF54E9E67DCB6718964BBB305359C20F",
-        "immediate_fixed": "F8EDF1F1375C269EB8C108D452AED738AD82867DFE3DC8D1EB369719D1F96B47",
+        "collection_progression": "B095FAFCC53B66B8FE7C852DAF488B8921EA4FBD3247FD293E1BBDCA369BF173",
+        "immediate_fixed": "CFE508B213C566E8A81302556946AAA500F701B25E8F0BE620D3C6A8844C2B61",
     },
     "uninstall_sha256": {
         "collection_progression": "3644A56FE17F843DB67662E4309C3C2B41AE7ADD5FDD60EF2B6789DE2BA15FDC",
@@ -352,24 +361,24 @@ VV3_FULL_HEAL_MUTATION_ACCOUNTING = {
     },
     "checksum_offset": "0x160",
     "checksum_transitions": {
-        "collection_progression": {"before": "93790D00", "after": "A41C0D00"},
-        "immediate_fixed": {"before": "91BB0D00", "after": "A25E0D00"},
+        "collection_progression": {"before": "93790D00", "after": "F3260D00"},
+        "immediate_fixed": {"before": "91BB0D00", "after": "F1680D00"},
     },
     "section_header": {"name": ".vv3hc", "raw_offset": "0x2F0", "raw_start": "0xCC000", "rva": "0x2E0000", "va": "0x6E0000", "size": "0x1000", "section_count_before": 6, "section_count_after": 7, "size_of_image_before": "0x2E0000", "size_of_image_after": "0x2E1000"},
 }
 VV3_FULL_HEAL_RENDERED_SHA256 = {
-    "collection_progression": "38DC5C0599F4E74D9A6C787BDB5FF30EAF54E9E67DCB6718964BBB305359C20F",
-    "immediate_fixed": "F8EDF1F1375C269EB8C108D452AED738AD82867DFE3DC8D1EB369719D1F96B47",
+    "collection_progression": "B095FAFCC53B66B8FE7C852DAF488B8921EA4FBD3247FD293E1BBDCA369BF173",
+    "immediate_fixed": "CFE508B213C566E8A81302556946AAA500F701B25E8F0BE620D3C6A8844C2B61",
 }
 VV3_FULL_HEAL_CHECKSUM_TRANSITIONS = {
-    "collection_progression": {"before": "93790D00", "after": "A41C0D00"},
-    "immediate_fixed": {"before": "91BB0D00", "after": "A25E0D00"},
+    "collection_progression": {"before": "93790D00", "after": "F3260D00"},
+    "immediate_fixed": {"before": "91BB0D00", "after": "F1680D00"},
 }
 VV3_FULL_HEAL_PRE_CANDIDATE_CHECKSUM = {
     "collection_progression": "93790D00",
     "immediate_fixed": "91BB0D00",
 }
-VV3_FULL_HEAL_NON5_SHIM = bytes.fromhex("8B049D543F4A00E99A32DCFF")
+VV3_FULL_HEAL_NON5_SHIM = bytes.fromhex("8B049D543F4A00E93D32DCFF")
 
 
 def _strict_manifest_value_equal(actual: Any, expected: Any) -> bool:
@@ -1779,6 +1788,57 @@ def _validate_vv3_individual_running_candidate(
         raise PatcherError("VV3 individual Grant Running may not access Dislikes or +0xE94.")
 
 
+def _vv3_full_heal_rsrc_ranges(data: bytes) -> tuple[tuple[int, int], ...]:
+    """Return the two certified RT_DIALOG leaf spans in the companion DLL."""
+    if data[:2] != b"MZ":
+        raise PatcherError("VV3 Full Heal companion is not a PE image.")
+    pe_offset = struct.unpack_from("<I", data, 0x3C)[0]
+    if data[pe_offset : pe_offset + 4] != b"PE\0\0":
+        raise PatcherError("VV3 Full Heal companion PE signature is invalid.")
+    section_count = struct.unpack_from("<H", data, pe_offset + 6)[0]
+    optional_size = struct.unpack_from("<H", data, pe_offset + 20)[0]
+    section_table = pe_offset + 24 + optional_size
+    sections: dict[str, tuple[int, int]] = {}
+    for index in range(section_count):
+        entry = section_table + index * 40
+        name = data[entry : entry + 8].rstrip(b"\0").decode("ascii", errors="strict")
+        raw_size = struct.unpack_from("<I", data, entry + 16)[0]
+        raw_offset = struct.unpack_from("<I", data, entry + 20)[0]
+        sections[name] = (raw_offset, raw_size)
+    if ".rsrc" not in sections:
+        raise PatcherError("VV3 Full Heal companion has no .rsrc section.")
+    raw_offset, raw_size = sections[".rsrc"]
+    if (raw_offset, raw_size) != (0x14600, 0x33800):
+        raise PatcherError("VV3 Full Heal companion .rsrc layout is not certified.")
+    # The two dialog leaves are fixed by the certified stock resource tree:
+    # RT_DIALOG/201 and RT_DIALOG/203, each replacing only its label plus the
+    # four documented zero-padding bytes that follow the stock NUL.
+    return ((0x46C60, 42), (0x47A78, 42))
+
+
+def _validate_vv3_full_heal_companion_transform() -> None:
+    base = VV3_FULL_HEAL_BASE_DLL_PATH.read_bytes() if VV3_FULL_HEAL_BASE_DLL_PATH.is_file() else b""
+    candidate = VV3_FULL_HEAL_DLL_PATH.read_bytes() if VV3_FULL_HEAL_DLL_PATH.is_file() else b""
+    if len(base) != VV3_FULL_HEAL_DLL_SIZE or hashlib.sha256(base).hexdigest().upper() != VV3_FULL_HEAL_BASE_DLL_SHA256:
+        raise PatcherError("VV3 Full Heal dependency DLL preimage is not certified.")
+    if len(candidate) != VV3_FULL_HEAL_DLL_SIZE or hashlib.sha256(candidate).hexdigest().upper() != VV3_FULL_HEAL_DLL_SHA256:
+        raise PatcherError("VV3 Full Heal replacement DLL is not certified.")
+    ranges = _vv3_full_heal_rsrc_ranges(base)
+    if _vv3_full_heal_rsrc_ranges(candidate) != ranges:
+        raise PatcherError("VV3 Full Heal replacement DLL .rsrc layout changed.")
+    allowed = {offset + delta for offset, length in ranges for delta in range(length)}
+    for offset, (before, after) in enumerate(zip(base, candidate)):
+        if before != after and offset not in allowed:
+            raise PatcherError("VV3 Full Heal replacement DLL changed non-resource bytes.")
+    old_label = "Cure all Villagers".encode("utf-16le") + b"\0\0"
+    new_label = "Full Heal / Cure All".encode("utf-16le") + b"\0\0"
+    for offset, length in ranges:
+        if base[offset : offset + len(old_label)] != old_label:
+            raise PatcherError("VV3 Full Heal resource preimage label is not exact.")
+        if candidate[offset : offset + len(new_label)] != new_label:
+            raise PatcherError("VV3 Full Heal resource replacement label is not exact.")
+
+
 def _validate_vv3_full_heal_candidate(
     feature: FunPatch,
     selected_ids: set[str],
@@ -1888,14 +1948,17 @@ def _validate_vv3_full_heal_candidate(
     ):
         raise PatcherError("VV3 Full Heal dependency-region identities are not certified.")
     companion = raw.get("companion_files")
-    if companion != [
-        {
-            "source": "data/candidates/VVFP VV3 Full Mastery Candidate.dll",
-            "destination": "VVFP VV3 Full Mastery Candidate.dll",
-            "size": VV3_FULL_HEAL_DLL_SIZE,
-            "sha256": VV3_FULL_HEAL_DLL_SHA256,
-        }
-    ]:
+    expected_companion = {
+        "source": "data/candidates/VVFP VV3 Full Heal Candidate.dll",
+        "destination": "VVFP VV3 Full Mastery Candidate.dll",
+        "size": VV3_FULL_HEAL_DLL_SIZE,
+        "sha256": VV3_FULL_HEAL_DLL_SHA256,
+        "preimage_sha256": VV3_FULL_HEAL_BASE_DLL_SHA256,
+        "restore_source": "data/candidates/VVFP VV3 Full Mastery Candidate.dll",
+        "restore_sha256": VV3_FULL_HEAL_BASE_DLL_SHA256,
+        "resource_only": True,
+    }
+    if companion != [expected_companion]:
         raise PatcherError("VV3 Full Heal companion metadata is not certified.")
     if (
         not VV3_FULL_HEAL_DLL_PATH.is_file()
@@ -1904,6 +1967,14 @@ def _validate_vv3_full_heal_candidate(
         != VV3_FULL_HEAL_DLL_SHA256
     ):
         raise PatcherError("VV3 Full Heal companion DLL is missing or hash-mismatched.")
+    if (
+        not VV3_FULL_HEAL_BASE_DLL_PATH.is_file()
+        or VV3_FULL_HEAL_BASE_DLL_PATH.stat().st_size != VV3_FULL_HEAL_DLL_SIZE
+        or hashlib.sha256(VV3_FULL_HEAL_BASE_DLL_PATH.read_bytes()).hexdigest().upper()
+        != VV3_FULL_HEAL_BASE_DLL_SHA256
+    ):
+        raise PatcherError("VV3 Full Heal certified dependency DLL preimage is missing or hash-mismatched.")
+    _validate_vv3_full_heal_companion_transform()
     if raw.get("supported_modes") != ["collection_progression", "immediate_fixed"]:
         raise PatcherError("VV3 Full Heal supported modes are not certified.")
     if set(raw.get("unsupported_patch_modes", ())) != set(EXPANDED_PATCH_MODES):
@@ -3217,6 +3288,13 @@ def _copy_companion_files(
             if not source.is_file():
                 raise PatcherError(f"Required companion file is missing: {source}")
             expected_hash = item["sha256"].upper()
+            preimage_hash = str(item.get("preimage_sha256", "")).upper() or None
+            if preimage_hash:
+                destination = output_folder / destination_name
+                if not destination.is_file() or sha256(destination) != preimage_hash:
+                    raise PatcherError(
+                        f"Companion replacement preimage mismatch: {destination}"
+                    )
             if sha256(source) != expected_hash:
                 raise PatcherError(f"Companion file hash mismatch: {source.name}")
             destination = output_folder / destination_name
@@ -3231,6 +3309,7 @@ def _copy_companion_files(
                     "feature": feature.id,
                     "path": str(destination),
                     "sha256": expected_hash,
+                    **({"preimage_sha256": preimage_hash, "restore_sha256": str(item["restore_sha256"]).upper()} if preimage_hash else {}),
                 }
             )
     return copied
@@ -3274,10 +3353,11 @@ def _validate_companion_sources(fun_patches: list[FunPatch]) -> None:
 def _remove_companion_files(
     output_folder: Path, fun_patches: list[FunPatch]
 ) -> list[dict[str, str]]:
-    """Remove only exact companion bytes, refusing corruption or path escape."""
+    """Remove or restore exact companion bytes, refusing corruption/path escape."""
     removed: list[dict[str, str]] = []
     root = output_folder.resolve()
     pending: list[tuple[FunPatch, Path, str]] = []
+    pending_restore: dict[Path, tuple[FunPatch, Path, str]] = {}
     for feature in reversed(fun_patches):
         for item in reversed(feature.raw.get("companion_files", [])):
             destination_name = _safe_companion_destination(item["destination"])
@@ -3290,12 +3370,44 @@ def _remove_companion_files(
                 raise PatcherError(f"Companion removal guard failed; missing: {destination}")
             expected_hash = str(item["sha256"]).upper()
             actual_hash = sha256(destination)
+            restore_hash = str(item.get("restore_sha256", "")).upper() or None
+            if restore_hash:
+                if actual_hash != expected_hash:
+                    raise PatcherError(
+                        f"Companion removal guard failed for {destination}: "
+                        f"expected {expected_hash}, got {actual_hash}"
+                    )
+                restore_source = (ROOT / item["restore_source"]).resolve()
+                try:
+                    restore_source.relative_to(ROOT.resolve())
+                except ValueError as exc:
+                    raise PatcherError("Companion restore source escapes the patcher folder") from exc
+                if not restore_source.is_file() or sha256(restore_source) != restore_hash:
+                    raise PatcherError("Companion restore preimage is missing or corrupt")
+                pending_restore[destination] = (feature, restore_source, restore_hash)
+                continue
+            if destination in pending_restore:
+                # The dependent Full Heal entry owns the replacement and will
+                # restore this shared dependency DLL before ordinary removal.
+                continue
             if actual_hash != expected_hash:
                 raise PatcherError(
                     f"Companion removal guard failed for {destination}: "
                     f"expected {expected_hash}, got {actual_hash}"
                 )
             pending.append((feature, destination, expected_hash))
+    for destination, (feature, restore_source, restore_hash) in pending_restore.items():
+        shutil.copy2(restore_source, destination)
+        if sha256(destination) != restore_hash:
+            raise PatcherError(f"Companion restore verification failed: {destination}")
+        removed.append(
+            {
+                "feature": feature.id,
+                "path": str(destination),
+                "sha256": restore_hash,
+                "action": "restore",
+            }
+        )
     for feature, destination, expected_hash in pending:
         destination.unlink()
         parent = destination.parent

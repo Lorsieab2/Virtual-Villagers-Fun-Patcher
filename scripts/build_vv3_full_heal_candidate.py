@@ -82,29 +82,36 @@ STOCK_CURE_CAVE_PREIMAGE_SHA256 = "7B4FC1A8DBE6B6121F16ADA516E2AC27E02964716BACE
 LEGACY_PRESERVED_RANGE_SHA256 = COMPOSED_PARENT_HELPER_SHA256
 STOCK_ZERO_PREIMAGE_LEGACY_RANGE_SHA256 = "06EA118EDADD836A02B202C05BC7E47356B57E28C01EDF1DAD6CC4CF90C662E2"
 SOURCE_COMMIT = "64c1266503c49ba1456f6294683a1f6773eba5d6"
-IMPLEMENTATION_BASE_COMMIT = "ea6125489a60a3bdbb7f4c72e2619a798d23d5f6"
-IMPLEMENTATION_STATUS = "static certified GO; runtime/player validation pending"
+IMPLEMENTATION_BASE_COMMIT = "38510cc21b7cd322a52fbabc936794dfc8601ccc"
+IMPLEMENTATION_STATUS = "implementation evidence complete; no external certification claimed"
 PROVENANCE = {
     "design_source_commit": SOURCE_COMMIT,
     "implementation_base_commit": IMPLEMENTATION_BASE_COMMIT,
     "metadata_commit": None,
-    "metadata_status": "pending metadata commit; intentionally non-self-referential",
+    "metadata_status": "implementation evidence complete; no external certification claimed",
 }
 RENDERED_SHA256 = {
-    "collection_progression": "38DC5C0599F4E74D9A6C787BDB5FF30EAF54E9E67DCB6718964BBB305359C20F",
-    "immediate_fixed": "F8EDF1F1375C269EB8C108D452AED738AD82867DFE3DC8D1EB369719D1F96B47",
+    "collection_progression": "B095FAFCC53B66B8FE7C852DAF488B8921EA4FBD3247FD293E1BBDCA369BF173",
+    "immediate_fixed": "CFE508B213C566E8A81302556946AAA500F701B25E8F0BE620D3C6A8844C2B61",
 }
 STATIC_ACCEPTANCE = {
-    "commit": "f23b3211775e49d7730caedd73b2bedbd1c34a87",
-    "manifest_sha256": "PENDING",
-    "map_sha256": "PENDING",
-    "helper_sha256": "F367C737D0A3A7A17244B591E231FAF6E2DC6D1FBD02F1EFF27DCA3656F30C28",
-    "strings_sha256": "AA9F42C2EC017377268F3BC1E5BB164BF453C720FC2FFA756CAABA9308C1FDEB",
-    "cave_sha256": "711F1E9DB89AB821FBA5E9B3B81FD3EDB9D334DDF7901E2E5C10F3B0E53FB3F4",
+    "commit": "38510cc21b7cd322a52fbabc936794dfc8601ccc",
+    "status": "implementation evidence only; no external certification claimed",
+    "manifest_sha256": None,
+    "map_sha256": None,
+    "helper_sha256": "86C9E258C9F6C59EBBEF290774EAA9DEE4E9533B4F8AAE59EC6294DE9CBD97C8",
+    "strings_sha256": "7DEABBEBB223C8FFB4762CF6A35A5555388D4FD078144724FE1EA01CCF2E9BB5",
+    "cave_sha256": "AF71F2958E7CF9AF83EFC00B9394D66933C6207D3FF9C983268A16A139F37086",
     "rendered_sha256": RENDERED_SHA256,
     "supported_modes": ["collection_progression", "immediate_fixed"],
     "expanded_rejected": True,
 }
+
+BASE_DLL_PATH = OUT_DIR / "VVFP VV3 Full Mastery Candidate.dll"
+FULL_HEAL_DLL_PATH = OUT_DIR / "VVFP VV3 Full Heal Candidate.dll"
+BASE_DLL_SHA256 = "35FB96199E745C7D8054FF6A12851B9E09225E3E41D0CE04012604E74968C0D5"
+FULL_HEAL_DLL_SHA256 = "A1C58D5DD34252C532C288F87210363FE4C85E355E76946276954F907FAA88FC"
+FULL_HEAL_DLL_SIZE = 298496
 
 sys.path.insert(0, str(ROOT / ".tools" / "keystone-runtime"))
 from keystone import KS_ARCH_X86, KS_MODE_32, Ks  # noqa: E402
@@ -115,6 +122,43 @@ from capstone.x86_const import X86_OP_IMM  # noqa: E402
 
 def sha(data: bytes) -> str:
     return hashlib.sha256(data).hexdigest().upper()
+
+
+def build_resource_only_companion(base: bytes) -> bytes:
+    """Derive the Full Heal companion from the certified Full Mastery DLL.
+
+    The transformation is deliberately length-preserving: only the two exact
+    RT_DIALOG leaf label strings are replaced, consuming the documented four
+    zero padding bytes that follow each stock string.  PE headers, section
+    tables, every non-.rsrc byte, every other resource leaf, and all exports
+    therefore remain byte-identical.
+    """
+    if len(base) != FULL_HEAL_DLL_SIZE or sha(base) != BASE_DLL_SHA256:
+        raise RuntimeError("VV3 Full Heal companion base DLL fingerprint mismatch")
+    old = "Cure all Villagers".encode("utf-16le") + b"\0\0"
+    new = "Full Heal / Cure All".encode("utf-16le") + b"\0\0"
+    if len(new) != len(old) + 4 or base.count(old) != 2:
+        raise RuntimeError("VV3 Full Heal companion resource preimage is not exact")
+    result = bytearray(base)
+    cursor = 0
+    positions: list[int] = []
+    while True:
+        position = base.find(old, cursor)
+        if position < 0:
+            break
+        # The four bytes immediately following the stock NUL are required
+        # padding; no resource directory or leaf-size rewrite is permitted.
+        if base[position + len(old) : position + len(new)] != b"\0" * 4:
+            raise RuntimeError("VV3 Full Heal resource label lacks certified padding")
+        result[position : position + len(new)] = new
+        positions.append(position)
+        cursor = position + len(old)
+    if positions != [0x46C60, 0x47A78]:
+        raise RuntimeError(f"VV3 Full Heal resource leaf offsets changed: {positions!r}")
+    transformed = bytes(result)
+    if sha(transformed) != FULL_HEAL_DLL_SHA256:
+        raise RuntimeError("VV3 Full Heal companion transformation hash mismatch")
+    return transformed
 
 
 def assemble(source: str, address: int) -> bytes:
@@ -135,13 +179,13 @@ def _strings() -> tuple[dict[str, int], bytes]:
         ("confirm_format", "Full Heal / Cure All will clear sickness from %u eligible villagers and restore %u partial-health villagers for 30,000 tech points?\r\nPress OK to confirm, or Cancel."),
         ("no_change", "All eligible villagers are already healthy and free of sickness.\r\nNo tech points have been deducted."),
         ("invalid", "No valid living non-skeleton villagers are available.\r\nNo tech points have been deducted."),
-        ("insufficient", "Not enough tech points.\r\nNo tech points have been deducted."),
+        ("insufficient", "Not enough tech points before confirmation.\r\nNo tech points have been deducted."),
+        ("initial_insufficient", "Not enough tech points after confirmation recheck.\r\nNo tech points have been deducted."),
         ("canceled", "Cure All was canceled.\r\nNo tech points have been deducted."),
         ("changed", "Villager state changed during confirmation.\r\nNo tech points have been deducted."),
-        ("write_failure_format", "Full Heal / Cure All failed after %u sickness clears and %u full-health restores were verified.\r\nNo tech points have been deducted."),
+        ("write_failure_format", "Full Heal / Cure All failed after %u sickness clears and %u full-health restores were verified.\r\nNo tech points have been deducted.\r\n" + PARTIAL_FAILURE_DISCLOSURE),
         ("success_format", "Full Heal / Cure All completed: %u sickness clears and %u full-health restores were verified."),
         ("dependency", "Cure dependencies are unavailable.\r\nNo tech points have been deducted."),
-        ("rollback_disclosure", PARTIAL_FAILURE_DISCLOSURE),
     )
     blob = bytearray()
     labels: dict[str, int] = {}
@@ -291,6 +335,11 @@ def _helper(strings: dict[str, int]) -> bytes:
         add edi, {POOL_STRIDE:#x}
         dec ecx
         jnz recheck_scan
+        # After the complete fresh state recheck and immediately before the
+        # first possible native write, re-read funds.  Failure here is a
+        # distinct no-charge route and cannot occur after mutation begins.
+        cmp dword ptr [{TECH_BALANCE:#x}], {PRICE}
+        jb initial_insufficient
         mov dword ptr [ebp-0x28], 0
         mov dword ptr [ebp-0x2C], 0
         mov edi, dword ptr [ebp-0x1C]
@@ -300,6 +349,13 @@ def _helper(strings: dict[str, int]) -> bytes:
         lea edx, [ebp-0x4E0]
         cmp dword ptr [edx+esi*8], 0
         je mutation_next
+        # Only snapshotted partial-health records may be health-written.  A
+        # snapshot at 100 or above is preserved byte-for-byte and never reaches
+        # the native setter; sickness clearing remains independently eligible.
+        cmp dword ptr [edx+esi*8], 1
+        jl mutation_next
+        cmp dword ptr [edx+esi*8], 99
+        jg health_done
         cmp dword ptr [edi+{HEALTH_OFFSET:#x}], 100
         je health_done
         lea eax, [edi+{FULL_RECORD_HEALTH_ARG:#x}]
@@ -352,8 +408,18 @@ def _helper(strings: dict[str, int]) -> bytes:
         je write_failure
         cmp dword ptr [edi+{HEALTH_OFFSET:#x}], 0
         jle write_failure
+        cmp dword ptr [edx+esi*8], 1
+        jl postverify_next
+        cmp dword ptr [edx+esi*8], 99
+        jg postverify_preserved
         cmp dword ptr [edi+{HEALTH_OFFSET:#x}], 100
         jne write_failure
+        jmp postverify_sick
+    postverify_preserved:
+        mov eax, dword ptr [edi+{HEALTH_OFFSET:#x}]
+        cmp eax, dword ptr [edx+esi*8]
+        jne write_failure
+    postverify_sick:
         cmp byte ptr [edi+{SICK_OFFSET:#x}], 0
         jne write_failure
     postverify_next:
@@ -365,6 +431,12 @@ def _helper(strings: dict[str, int]) -> bytes:
         test eax, eax
         je write_failure
         mov dword ptr [ebp-0x18], eax
+        mov eax, dword ptr [ebp-0x28]
+        cmp eax, dword ptr [ebp-0x20]
+        jne write_failure
+        mov eax, dword ptr [ebp-0x2C]
+        cmp eax, dword ptr [ebp-0x24]
+        jne write_failure
         cmp dword ptr [{TECH_BALANCE:#x}], {PRICE}
         jb write_failure
         mov ecx, {TECH_BALANCE:#x}
@@ -386,18 +458,26 @@ def _helper(strings: dict[str, int]) -> bytes:
         mov eax, dword ptr [ebx*4+0x4A3F54]
         jmp {NON5_CONTINUATION:#x}
     dependency_failure:
-        jmp counted_failure
+        push {strings['dependency']:#x}
+        jmp show_no_charge
     invalid_failure:
-        jmp counted_failure
+        push {strings['invalid']:#x}
+        jmp show_no_charge
     no_change:
         push {strings['no_change']:#x}
         jmp show_no_charge
     insufficient:
-        jmp counted_failure
+        push {strings['insufficient']:#x}
+        jmp show_no_charge
+    initial_insufficient:
+        push {strings['initial_insufficient']:#x}
+        jmp show_no_charge
     canceled:
-        jmp counted_failure
+        push {strings['canceled']:#x}
+        jmp show_no_charge
     changed_state:
-        jmp counted_failure
+        push {strings['changed']:#x}
+        jmp show_no_charge
     write_failure:
     counted_failure:
         lea eax, [ebp-0x6E0]
@@ -535,6 +615,8 @@ def main() -> None:
     if any(stock[OLD_CAVE_OFFSET : OLD_CAVE_OFFSET + OLD_CAVE_LENGTH]):
         raise RuntimeError("VV3 legacy Cure cave is not zero in stock preimage")
     append = append_layout(region)
+    transformed_dll = build_resource_only_companion(BASE_DLL_PATH.read_bytes())
+    FULL_HEAL_DLL_PATH.write_bytes(transformed_dll)
     base = json.loads(BASE_MANIFEST.read_text(encoding="utf-8"))
     manifest = {
         "id": "vv3_full_heal_cure_all_candidate",
@@ -558,7 +640,7 @@ def main() -> None:
             "Expanded-256 and unknown builds remain fail-closed; the withdrawn village-wide Running route is absent.",
             "The candidate is stock-mode only and does not add Remove or ownership behavior.",
         ],
-        "evidence_status": "independent static GO at commit f23b3211775e49d7730caedd73b2bedbd1c34a87; runtime/player validation pending",
+        "evidence_status": "implementation evidence generated at commit 38510cc21b7cd322a52fbabc936794dfc8601ccc; no external certification claimed; runtime/player validation pending",
         "price": PRICE,
         "transaction": {"command": 5, "price": PRICE, "action": "Buy", "repeatable": True, "ownership": None, "remove": False},
         "base_chain": {
@@ -575,10 +657,14 @@ def main() -> None:
         },
         "companion_files": [
             {
-                "source": "data/candidates/VVFP VV3 Full Mastery Candidate.dll",
+                "source": "data/candidates/VVFP VV3 Full Heal Candidate.dll",
                 "destination": "VVFP VV3 Full Mastery Candidate.dll",
-                "size": 298496,
-                "sha256": "C2F8A6A4B92DF9A1DB7D72039793EF5D84E75546C1CB26E8D20EED9D8B7E94CD",
+                "size": FULL_HEAL_DLL_SIZE,
+                "sha256": FULL_HEAL_DLL_SHA256,
+                "preimage_sha256": BASE_DLL_SHA256,
+                "restore_source": "data/candidates/VVFP VV3 Full Mastery Candidate.dll",
+                "restore_sha256": BASE_DLL_SHA256,
+                "resource_only": True,
             }
         ],
         "eligibility": {
@@ -607,6 +693,10 @@ def main() -> None:
             "verified_count_a": "verified sickness clears",
             "verified_count_b": "verified health restores",
             "overlap_counted_in_both": True,
+            "health_write_snapshot_range": "1..99 only",
+            "health_ge_100_preserved": True,
+            "actual_counts_must_equal_predicted_before_deduction": True,
+            "reason_routes": ["dependency", "initial_insufficient", "cancel", "recheck", "postwrite_partial"],
         },
         "record_zero_resolver": {
             "function": "0x45C840",
@@ -633,7 +723,7 @@ def main() -> None:
             "no_charge_suffix": "No tech points have been deducted.",
             "confirm_format": "Full Heal / Cure All will clear sickness from %u eligible villagers and restore %u partial-health villagers for 30,000 tech points?\r\nPress OK to confirm, or Cancel.",
             "success_format": "Full Heal / Cure All completed: %u sickness clears and %u full-health restores were verified.",
-            "failure_format": "Full Heal / Cure All failed after %u sickness clears and %u full-health restores were verified.\r\nNo tech points have been deducted.",
+            "failure_format": "Full Heal / Cure All failed after %u sickness clears and %u full-health restores were verified.\r\nNo tech points have been deducted.\r\n" + PARTIAL_FAILURE_DISCLOSURE,
             "confirm_price": "30,000",
         },
         "partial_failure_limit": PARTIAL_FAILURE_DISCLOSURE,
@@ -648,12 +738,14 @@ def main() -> None:
         "mutation_accounting": {
             "physical_ranges": [
                 {"offset": "0xA35EF", "length": 7, "purpose": "command-5 hook"},
+                {"offset": "0x10E", "length": 2, "purpose": "PE section-count update"},
+                {"offset": "0x158", "length": 4, "purpose": "PE SizeOfImage update"},
                 {"offset": "0x2F0", "length": 40, "purpose": "candidate-owned .vv3hc section header"},
                 {"offset": "0xCC000", "length": SECTION_PAGE_SIZE, "purpose": "candidate-owned .vv3hc RX page"},
                 {"offset": "0x160", "length": 4, "purpose": "PE checksum recomputation"},
             ],
             "feature_owned_ranges": ["0xA35EF..0xA35F5", "0x2F0..0x317", "0xCC000..0xCCFFF"],
-            "physical_range_count": 4,
+            "physical_range_count": 6,
             "feature_owned_range_count": 3,
             "every_other_byte_identical": True,
             "rendered_sha256": RENDERED_SHA256,
@@ -663,8 +755,8 @@ def main() -> None:
             },
             "checksum_offset": "0x160",
             "checksum_transitions": {
-                "collection_progression": {"before": "93790D00", "after": "A41C0D00"},
-                "immediate_fixed": {"before": "91BB0D00", "after": "A25E0D00"},
+                "collection_progression": {"before": "93790D00", "after": "F3260D00"},
+                "immediate_fixed": {"before": "91BB0D00", "after": "F1680D00"},
             },
             "section_header": {"name": ".vv3hc", "raw_offset": "0x2F0", "raw_start": "0xCC000", "rva": "0x2E0000", "va": "0x6E0000", "size": "0x1000", "section_count_before": 6, "section_count_after": 7, "size_of_image_before": "0x2E0000", "size_of_image_after": "0x2E1000"},
         },

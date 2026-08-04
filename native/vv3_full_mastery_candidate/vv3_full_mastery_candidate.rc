@@ -52,7 +52,7 @@ BEGIN
 
     ICON        110, -1, 8, 168,  24, 24
     ICON        109, 1105, 22, 180, 12, 12
-    LTEXT       "Full Heal / Cure All", -1, 40, 170, 170, 10
+    LTEXT       "Cure all Villagers", -1, 40, 170, 170, 10
     LTEXT       "30,000 tech points", -1, 40, 182, 150, 9
     PUSHBUTTON  "Buy", 1005, 240, 171, 55, 18
 
@@ -146,7 +146,7 @@ BEGIN
 
     ICON        110, -1, 8, 168,  24, 24
     ICON        109, 1105, 22, 180, 12, 12
-    LTEXT       "Full Heal / Cure All", -1, 40, 170, 170, 10
+    LTEXT       "Cure all Villagers", -1, 40, 170, 170, 10
     LTEXT       "30,000 tech points", -1, 40, 182, 150, 9
     PUSHBUTTON  "Buy", 1005, 240, 171, 55, 18
 

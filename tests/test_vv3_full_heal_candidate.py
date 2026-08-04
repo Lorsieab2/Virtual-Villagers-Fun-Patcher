@@ -79,7 +79,7 @@ class VV3FullHealCandidateTests(unittest.TestCase):
         self.assertEqual(self.raw["base_chain"]["stock_zero_preimage_legacy_range_sha256"], v.VV3_FULL_HEAL_STOCK_ZERO_PREIMAGE_LEGACY_RANGE_SHA256)
         self.assertEqual(self.raw["provenance"], v.VV3_FULL_HEAL_PROVENANCE)
         self.assertEqual(self.raw["provenance"]["design_source_commit"], "64c1266503c49ba1456f6294683a1f6773eba5d6")
-        self.assertEqual(self.raw["provenance"]["implementation_base_commit"], "ea6125489a60a3bdbb7f4c72e2619a798d23d5f6")
+        self.assertEqual(self.raw["provenance"]["implementation_base_commit"], "38510cc21b7cd322a52fbabc936794dfc8601ccc")
         self.assertIsNone(self.raw["provenance"]["metadata_commit"])
         self.assertEqual(self.raw["static_acceptance"], v.VV3_FULL_HEAL_STATIC_ACCEPTANCE)
         self.assertEqual(self.raw["base_chain"]["stock_cure_cave_preimage_sha256"], v.VV3_FULL_HEAL_STOCK_CURE_CAVE_PREIMAGE_SHA256)
@@ -430,6 +430,86 @@ class VV3FullHealCandidateTests(unittest.TestCase):
         dll = v.VV3_FULL_HEAL_DLL_PATH.read_bytes()
         self.assertGreaterEqual(dll.count("Full Heal / Cure All".encode("utf-16le")), 2)
         self.assertNotIn("Cure all Villagers".encode("utf-16le"), dll)
+
+    def test_c208_health_bounds_counts_funds_and_actual_predicate_markers(self) -> None:
+        cave = self._cave()
+        # Only snapshotted 1..99 health enters the native setter/write path;
+        # the explicit >99 branch preserves 100+ records byte-for-byte.
+        self.assertIn(bytes.fromhex("833CF2017C"), cave)
+        self.assertIn(bytes.fromhex("833CF2637F"), cave)
+        self.assertTrue(self.raw["sickness"]["health_ge_100_preserved"])
+        self.assertEqual(self.raw["sickness"]["health_write_snapshot_range"], "1..99 only")
+        # The actual A/B counters are compared against their predictions before
+        # the sole deduction, and the post-OK funds check precedes the first
+        # health/sickness native mutation call.
+        self.assertIn(bytes.fromhex("8B45D83B45E0"), cave)
+        self.assertIn(bytes.fromhex("8B45D43B45DC"), cave)
+        funds_positions = [
+            offset for offset in range(len(cave)) if cave.startswith(bytes.fromhex("813D442658003075"), offset)
+        ]
+        first_setter = cave.find(bytes.fromhex("6AFF6A64"))
+        self.assertGreaterEqual(len(funds_positions), 3)
+        self.assertGreater(first_setter, funds_positions[1])
+        self.assertLess(funds_positions[1], first_setter)
+        self.assertTrue(self.raw["sickness"]["actual_counts_must_equal_predicted_before_deduction"])
+
+    def test_c208_reason_routes_are_live_and_no_charge(self) -> None:
+        cave = self._cave()
+        messages = self.raw["messages"]
+        for key in ("confirm_format", "success_format", "failure_format"):
+            self.assertIn(messages[key].split("\r\n")[0].encode("ascii"), cave)
+        for phrase in (
+            "Cure dependencies are unavailable.",
+            "Not enough tech points before confirmation.",
+            "Not enough tech points after confirmation recheck.",
+            "Cure All was canceled.",
+            "Villager state changed during confirmation.",
+            "No tech points have been deducted.",
+        ):
+            self.assertIn(phrase.encode("ascii"), cave)
+        self.assertEqual(
+            self.raw["sickness"]["reason_routes"],
+            ["dependency", "initial_insufficient", "cancel", "recheck", "postwrite_partial"],
+        )
+
+    def test_c208_companion_is_resource_only_and_reversible(self) -> None:
+        base = v.VV3_FULL_HEAL_BASE_DLL_PATH.read_bytes()
+        candidate = v.VV3_FULL_HEAL_DLL_PATH.read_bytes()
+        allowed = set()
+        for start in (0x46C60, 0x47A78):
+            allowed.update(range(start, start + 42))
+        self.assertEqual(len(base), v.VV3_FULL_HEAL_DLL_SIZE)
+        self.assertEqual(len(candidate), v.VV3_FULL_HEAL_DLL_SIZE)
+        diffs = {i for i, (before, after) in enumerate(zip(base, candidate)) if before != after}
+        self.assertTrue(diffs)
+        self.assertTrue(diffs <= allowed)
+        self.assertEqual(sha(candidate), v.VV3_FULL_HEAL_DLL_SHA256)
+        self.assertEqual(sha(base), v.VV3_FULL_HEAL_BASE_DLL_SHA256)
+        self.assertEqual(self.raw["companion_files"][0]["preimage_sha256"], v.VV3_FULL_HEAL_BASE_DLL_SHA256)
+        self.assertEqual(self.raw["companion_files"][0]["restore_sha256"], v.VV3_FULL_HEAL_BASE_DLL_SHA256)
+
+    def test_c208_companion_install_and_remove_restore_exact_preimage(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            folder = Path(temp)
+            destination = folder / "VVFP VV3 Full Mastery Candidate.dll"
+            destination.write_bytes(v.VV3_FULL_HEAL_BASE_DLL_PATH.read_bytes())
+            copied = v._copy_companion_files(folder, [self.feature])
+            self.assertEqual(sha(destination.read_bytes()), v.VV3_FULL_HEAL_DLL_SHA256)
+            self.assertEqual(copied[0]["preimage_sha256"], v.VV3_FULL_HEAL_BASE_DLL_SHA256)
+            removed = v._remove_companion_files(folder, [self.feature])
+            self.assertEqual(sha(destination.read_bytes()), v.VV3_FULL_HEAL_BASE_DLL_SHA256)
+            self.assertEqual(removed[0]["action"], "restore")
+
+    def test_c208_mutation_ranges_and_truthful_provenance(self) -> None:
+        accounting = self.raw["mutation_accounting"]
+        offsets = {item["offset"] for item in accounting["physical_ranges"]}
+        self.assertTrue({"0xA35EF", "0x10E", "0x158", "0x2F0", "0xCC000", "0x160"} <= offsets)
+        self.assertEqual(accounting["physical_range_count"], 6)
+        self.assertEqual(accounting["feature_owned_range_count"], 3)
+        self.assertEqual(self.raw["provenance"]["implementation_base_commit"], "38510cc21b7cd322a52fbabc936794dfc8601ccc")
+        self.assertNotIn("f23b321", json.dumps(self.raw).lower())
+        self.assertNotIn("PENDING", json.dumps(self.raw))
+        self.assertEqual(self.raw["runtime_player_status"], "pending")
 
 
 if __name__ == "__main__":
