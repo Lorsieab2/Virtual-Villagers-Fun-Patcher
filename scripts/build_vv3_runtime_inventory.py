@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import re
 import zipfile
 from pathlib import Path
 from typing import Mapping, Sequence
@@ -11,6 +12,7 @@ from typing import Mapping, Sequence
 SCHEMA_VERSION = "vvfp.runtime_inventory.v1"
 INVENTORY_NAME = "runtime-inventory.json"
 CHECKSUMS_NAME = "SHA256SUMS.txt"
+_FULL_COMMIT = re.compile(r"^[0-9a-f]{40}$")
 
 
 def _sha256(path: Path) -> str:
@@ -58,6 +60,38 @@ def update_vv3_patch_log_messages(
     log["messages"] = messages
     patch_log_path.write_text(json.dumps(log, indent=2) + "\n", encoding="utf-8")
     return log
+
+
+def validate_vv3_package_provenance(
+    inventory: Mapping[str, object],
+    patch_log: Mapping[str, object],
+    transparency_text: str,
+    readme_text: str,
+    expected_commit: str,
+) -> None:
+    """Require every package evidence surface to bind one exact source commit."""
+
+    expected = str(expected_commit).lower()
+    if not _FULL_COMMIT.fullmatch(expected):
+        raise ValueError("package source commit must be a full 40-hex commit")
+    commits = inventory.get("commits")
+    if not isinstance(commits, Mapping):
+        raise ValueError("runtime inventory package commit provenance is missing")
+    if commits.get("package_source_commit") != expected:
+        raise ValueError("runtime inventory package source commit mismatch")
+    if commits.get("metadata_commit") != expected:
+        raise ValueError("runtime inventory metadata commit mismatch")
+    candidate = patch_log.get("candidate")
+    provenance = patch_log.get("provenance")
+    if not isinstance(candidate, Mapping) or not isinstance(provenance, Mapping):
+        raise ValueError("patch log package provenance is missing")
+    if candidate.get("metadata_commit") != expected:
+        raise ValueError("patch log candidate metadata commit mismatch")
+    if provenance.get("metadata_commit") != expected:
+        raise ValueError("patch log provenance metadata commit mismatch")
+    marker = f"Package source commit: {expected}"
+    if marker not in transparency_text or marker not in readme_text:
+        raise ValueError("package source commit marker is missing from player evidence")
 
 
 def _excluded_source_identities(
