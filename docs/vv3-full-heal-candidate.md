@@ -1,8 +1,8 @@
-# VV3 Full Heal / Cure All (disabled static candidate)
+# VV3 Full Heal / Cure All (disabled candidate; static acceptance pending)
 
-This stock-only candidate is disabled and catalog-hidden pending independent recertification. It is designed for certified Collection Progression and Immediate Fixed compositions only; runtime/player validation remains pending. It composes only after the certified VV3 Origins + Full Mastery + individual Grant Running chain in Collection Progression or Immediate Fixed. Expanded-256 is rejected before output.
+This stock-only candidate is disabled and catalog-hidden. Its implementation is bound to commit `49595a75b65cd0561811593ba19825239ec97dde` with parent `38510cc21b7cd322a52fbabc936794dfc8601ccc`; static acceptance is intentionally pending independent recertification and runtime/player validation remains pending. It composes only after the certified VV3 Origins + Full Mastery + individual Grant Running chain in Collection Progression or Immediate Fixed. Expanded-256 is rejected before output.
 
-Provenance is non-circular: design/source lineage `64c1266503c49ba1456f6294683a1f6773eba5d6`, implementation base `38510cc21b7cd322a52fbabc936794dfc8601ccc`, and metadata commit is intentionally null until a later audit. The legacy preserved range `0x7B664..0x7B721` is `CFF1AAA9111728F003621FF662F100940C2F978943F5E69CC64180EA5DE63F7D` in both composed parents; the stock-zero preimage is separately `06EA118EDADD836A02B202C05BC7E47356B57E28C01EDF1DAD6CC4CF90C662E2`.
+Provenance is non-circular: design/source lineage `64c1266503c49ba1456f6294683a1f6773eba5d6`, implementation parent `38510cc21b7cd322a52fbabc936794dfc8601ccc`, current implementation `49595a75b65cd0561811593ba19825239ec97dde`, and metadata commit is intentionally null until a later audit. The legacy preserved range `0x7B664..0x7B721` is `CFF1AAA9111728F003621FF662F100940C2F978943F5E69CC64180EA5DE63F7D` in both composed parents; the stock-zero preimage is separately `06EA118EDADD836A02B202C05BC7E47356B57E28C01EDF1DAD6CC4CF90C662E2`.
 
 The command-5 detour is `8B049D543F4A00` -> `E90CCA23009090` at raw `0xA35EF`. The dedicated `.vv3hc` RX page is raw `0xCC000` / VA `0x6E0000` with a guarded header at `0x2F0`; the old Cure cave remains zero and legacy bytes `0x7B664..0x7B721` remain byte-identical.
 

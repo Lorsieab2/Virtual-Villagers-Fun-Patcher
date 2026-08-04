@@ -71,7 +71,7 @@ All five legacy `vvN_origins_village_wide_upgrades` records remain disabled and 
 
 ## VV3 Full Heal / Cure All candidate
 
-The revised VV3 Full Heal / Cure All candidate remains disabled and catalog-hidden pending runtime/player validation; this generated disclosure is sourced from its authoritative candidate manifest and does not expose the candidate in the public chooser.
+The revised VV3 Full Heal / Cure All candidate remains disabled and catalog-hidden; implementation is complete at `49595a75b65cd0561811593ba19825239ec97dde` with parent `38510cc21b7cd322a52fbabc936794dfc8601ccc`. Static acceptance is pending independent recertification and runtime/player validation remains pending; this generated disclosure is sourced from its authoritative candidate manifest and does not expose the candidate in the public chooser.
 - Partial-write disclosure: If native writes begin and a later write or postverification fails, earlier verified health, sickness, or People Cured effects may remain. No tech points are deducted on that failure, but complete rollback of native side effects is not claimed.
 
 ## Virtual Villagers - A New Home

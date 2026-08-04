@@ -79,9 +79,12 @@ class VV3FullHealCandidateTests(unittest.TestCase):
         self.assertEqual(self.raw["base_chain"]["stock_zero_preimage_legacy_range_sha256"], v.VV3_FULL_HEAL_STOCK_ZERO_PREIMAGE_LEGACY_RANGE_SHA256)
         self.assertEqual(self.raw["provenance"], v.VV3_FULL_HEAL_PROVENANCE)
         self.assertEqual(self.raw["provenance"]["design_source_commit"], "64c1266503c49ba1456f6294683a1f6773eba5d6")
-        self.assertEqual(self.raw["provenance"]["implementation_base_commit"], "38510cc21b7cd322a52fbabc936794dfc8601ccc")
+        self.assertEqual(self.raw["provenance"]["implementation_parent_commit"], "38510cc21b7cd322a52fbabc936794dfc8601ccc")
+        self.assertEqual(self.raw["provenance"]["implementation_commit"], "49595a75b65cd0561811593ba19825239ec97dde")
         self.assertIsNone(self.raw["provenance"]["metadata_commit"])
         self.assertEqual(self.raw["static_acceptance"], v.VV3_FULL_HEAL_STATIC_ACCEPTANCE)
+        self.assertIsNone(self.raw["static_acceptance"]["commit"])
+        self.assertIn("pending independent recertification", self.raw["static_acceptance"]["status"])
         self.assertEqual(self.raw["base_chain"]["stock_cure_cave_preimage_sha256"], v.VV3_FULL_HEAL_STOCK_CURE_CAVE_PREIMAGE_SHA256)
         self.assertEqual(self.raw["record_zero_resolver"], v.VV3_FULL_HEAL_RECORD_ZERO_RESOLVER)
         self.assertEqual(self.raw["messagebox_resolution"], v.VV3_FULL_HEAL_MESSAGEBOX_RESOLUTION)
@@ -391,7 +394,7 @@ class VV3FullHealCandidateTests(unittest.TestCase):
             bad_manifest = temp_path / "manifest.json"
             bad_map = temp_path / "map.json"
             mutated = json.loads(self.manifest_path.read_text(encoding="utf-8"))
-            mutated["provenance"]["implementation_base_commit"] = "0" * 40
+            mutated["provenance"]["implementation_commit"] = "38510cc21b7cd322a52fbabc936794dfc8601ccc"
             bad_manifest.write_text(json.dumps(mutated, indent=2) + "\n", encoding="utf-8")
             shutil.copy2(self.map_path, bad_map)
             with patch.object(
@@ -453,6 +456,121 @@ class VV3FullHealCandidateTests(unittest.TestCase):
         self.assertLess(funds_positions[1], first_setter)
         self.assertTrue(self.raw["sickness"]["actual_counts_must_equal_predicted_before_deduction"])
 
+    def test_c210_emitted_branch_dominance_and_live_reason_xrefs(self) -> None:
+        mapped = json.loads(self.map_path.read_text(encoding="utf-8"))
+        layout = mapped["section"]["layout"]
+        cave = bytes.fromhex(mapped["section"]["append"]["append_bytes"])
+        helper_length = int(layout["helper_length"])
+        strings_offset = int(layout["strings_offset"], 0)
+        md = Cs(CS_ARCH_X86, CS_MODE_32)
+        md.detail = True
+        instructions = list(md.disasm(cave[:helper_length], 0x6E0000))
+        starts = {item.address for item in instructions}
+        self.assertEqual(sum(item.size for item in instructions), helper_length)
+
+        setter = next(
+            item for item in instructions
+            if item.mnemonic == "call"
+            and item.operands
+            and item.operands[0].type == X86_OP_IMM
+            and item.operands[0].imm == 0x462670
+        )
+        # The pre-write health >99 branch lands after the setter, so 100+
+        # records cannot be normalized or written.
+        bypass = [
+            item for item in instructions
+            if item.mnemonic == "jg"
+            and item.address < setter.address
+            and item.operands
+            and item.operands[0].type == X86_OP_IMM
+        ]
+        self.assertTrue(bypass)
+        self.assertTrue(any(item.operands[0].imm > setter.address for item in bypass))
+        self.assertTrue(all(item.operands[0].imm in starts for item in bypass))
+
+        # The postverify 100+ path jumps directly to the comparison/next-record
+        # block and contains no setter call on that branch.
+        postverify_skip = next(
+            item for item in instructions
+            if item.mnemonic == "jg"
+            and item.address == 0x6E0308
+        )
+        self.assertEqual(postverify_skip.operands[0].imm, 0x6E0319)
+        self.assertIn(postverify_skip.operands[0].imm, starts)
+
+        funds_checks = [
+            item for item in instructions
+            if item.mnemonic == "cmp" and "0x582644" in item.op_str
+        ]
+        self.assertGreaterEqual(len(funds_checks), 3)
+        post_ok_funds = funds_checks[1]
+        following = instructions[instructions.index(post_ok_funds) + 1]
+        self.assertEqual(following.mnemonic, "jb")
+        self.assertLess(post_ok_funds.address, setter.address)
+        self.assertGreater(following.operands[0].imm, setter.address)
+
+        deduction = next(
+            item for item in instructions
+            if item.mnemonic == "call"
+            and item.operands
+            and item.operands[0].type == X86_OP_IMM
+            and item.operands[0].imm == 0x427130
+        )
+        mismatch_targets = []
+        for index, item in enumerate(instructions):
+            if item.mnemonic != "cmp" or item.op_str not in {
+                "eax, dword ptr [ebp - 0x20]",
+                "eax, dword ptr [ebp - 0x24]",
+            }:
+                continue
+            branch = instructions[index + 1]
+            self.assertEqual(branch.mnemonic, "jne")
+            mismatch_targets.append(branch.operands[0].imm)
+            self.assertLess(branch.address, deduction.address)
+            self.assertNotEqual(branch.operands[0].imm, deduction.address)
+        self.assertEqual(len(mismatch_targets), 2)
+        self.assertEqual(len(set(mismatch_targets)), 1)
+
+        string_base = 0x6E0000 + strings_offset
+        reason_texts = (
+            "Cure dependencies are unavailable.",
+            "Not enough tech points before confirmation.",
+            "Not enough tech points after confirmation recheck.",
+            "Cure All was canceled.",
+            "Villager state changed during confirmation.",
+        )
+        for text in reason_texts:
+            offset = cave.find(text.encode("ascii"), strings_offset)
+            self.assertGreaterEqual(offset, strings_offset, text)
+            pointer = string_base + offset - strings_offset
+            self.assertTrue(
+                any(
+                    item.mnemonic == "push"
+                    and item.operands
+                    and item.operands[0].type == X86_OP_IMM
+                    and item.operands[0].imm == pointer
+                    for item in instructions
+                ),
+                text,
+            )
+
+        failure = self.raw["messages"]["failure_format"].encode("ascii") + b"\0"
+        failure_offset = cave.find(failure, strings_offset)
+        self.assertGreaterEqual(failure_offset, strings_offset)
+        failure_pointer = string_base + failure_offset - strings_offset
+        self.assertTrue(
+            any(
+                item.mnemonic == "push"
+                and item.operands
+                and item.operands[0].type == X86_OP_IMM
+                and item.operands[0].imm == failure_pointer
+                for item in instructions
+            )
+        )
+        failure_bytes = cave[:helper_length]
+        self.assertIn(bytes.fromhex("FF75D4FF75D8"), failure_bytes)
+        self.assertIn(self.PARTIAL_FAILURE_DISCLOSURE.encode("ascii"), cave)
+
     def test_c208_reason_routes_are_live_and_no_charge(self) -> None:
         cave = self._cave()
         messages = self.raw["messages"]
@@ -506,10 +624,117 @@ class VV3FullHealCandidateTests(unittest.TestCase):
         self.assertTrue({"0xA35EF", "0x10E", "0x158", "0x2F0", "0xCC000", "0x160"} <= offsets)
         self.assertEqual(accounting["physical_range_count"], 6)
         self.assertEqual(accounting["feature_owned_range_count"], 3)
-        self.assertEqual(self.raw["provenance"]["implementation_base_commit"], "38510cc21b7cd322a52fbabc936794dfc8601ccc")
+        self.assertEqual(self.raw["provenance"]["implementation_parent_commit"], "38510cc21b7cd322a52fbabc936794dfc8601ccc")
+        self.assertEqual(self.raw["provenance"]["implementation_commit"], "49595a75b65cd0561811593ba19825239ec97dde")
         self.assertNotIn("f23b321", json.dumps(self.raw).lower())
         self.assertNotIn("PENDING", json.dumps(self.raw))
         self.assertEqual(self.raw["runtime_player_status"], "pending")
+
+    def test_c210_provenance_does_not_claim_d203_acceptance(self) -> None:
+        provenance = self.raw["provenance"]
+        self.assertEqual(provenance["implementation_parent_commit"], "38510cc21b7cd322a52fbabc936794dfc8601ccc")
+        self.assertEqual(provenance["implementation_commit"], "49595a75b65cd0561811593ba19825239ec97dde")
+        self.assertIsNone(provenance["metadata_commit"])
+        static = self.raw["static_acceptance"]
+        self.assertIsNone(static["commit"])
+        self.assertEqual(static["status"], "pending independent recertification; no acceptance claimed")
+        self.assertNotIn("D203", json.dumps(self.raw))
+
+    def test_c210_companion_failure_atomicity(self) -> None:
+        base = v.VV3_FULL_HEAL_BASE_DLL_PATH.read_bytes()
+        candidate = v.VV3_FULL_HEAL_DLL_PATH.read_bytes()
+        destination_name = "VVFP VV3 Full Mastery Candidate.dll"
+
+        with tempfile.TemporaryDirectory() as temp:
+            folder = Path(temp)
+            destination = folder / destination_name
+            destination.write_bytes(base)
+            with patch.object(v.shutil, "copy2", side_effect=OSError("copy injection")):
+                with self.assertRaises(OSError):
+                    v._copy_companion_files(folder, [self.feature])
+            self.assertEqual(destination.read_bytes(), base)
+            self.assertFalse(list(folder.glob(".*.vvfp-stage")))
+
+        with tempfile.TemporaryDirectory() as temp:
+            folder = Path(temp)
+            destination = folder / destination_name
+            destination.write_bytes(base)
+            original_stage = v._stage_companion_file
+
+            def fail_stage(source: Path, parent: Path, expected: str) -> Path:
+                stage = original_stage(source, parent, expected)
+                stage.unlink()
+                raise v.PatcherError("stage verification injection")
+
+            with patch.object(v, "_stage_companion_file", side_effect=fail_stage):
+                with self.assertRaisesRegex(v.PatcherError, "stage verification"):
+                    v._copy_companion_files(folder, [self.feature])
+            self.assertEqual(destination.read_bytes(), base)
+            self.assertFalse(list(folder.glob(".*.vvfp-stage")))
+
+        with tempfile.TemporaryDirectory() as temp:
+            folder = Path(temp)
+            destination = folder / destination_name
+            destination.write_bytes(base)
+            original_match = v._companion_hash_matches
+            calls = 0
+
+            def race_match(path: Path, expected: str) -> bool:
+                nonlocal calls
+                calls += 1
+                return False if calls == 4 else original_match(path, expected)
+
+            with patch.object(v, "_companion_hash_matches", side_effect=race_match):
+                with self.assertRaisesRegex(v.PatcherError, "changed before replace"):
+                    v._copy_companion_files(folder, [self.feature])
+            self.assertEqual(destination.read_bytes(), base)
+            self.assertFalse(list(folder.glob(".*.vvfp-stage")))
+
+        with tempfile.TemporaryDirectory() as temp:
+            folder = Path(temp)
+            destination = folder / destination_name
+            destination.write_bytes(base)
+            with patch.object(v.os, "replace", side_effect=OSError("replace injection")):
+                with self.assertRaises(OSError):
+                    v._copy_companion_files(folder, [self.feature])
+            self.assertEqual(destination.read_bytes(), base)
+            self.assertFalse(list(folder.glob(".*.vvfp-stage")))
+
+        with tempfile.TemporaryDirectory() as temp:
+            folder = Path(temp)
+            destination = folder / destination_name
+            destination.write_bytes(base)
+            original_match = v._companion_hash_matches
+            calls = 0
+
+            def postverify_match(path: Path, expected: str) -> bool:
+                nonlocal calls
+                calls += 1
+                return False if calls == 5 else original_match(path, expected)
+
+            with patch.object(v, "_companion_hash_matches", side_effect=postverify_match):
+                with self.assertRaisesRegex(v.PatcherError, "post-replace verification failed"):
+                    v._copy_companion_files(folder, [self.feature])
+            self.assertEqual(destination.read_bytes(), base)
+            self.assertFalse(list(folder.glob(".*.vvfp-stage")))
+
+        with tempfile.TemporaryDirectory() as temp:
+            folder = Path(temp)
+            destination = folder / destination_name
+            destination.write_bytes(candidate)
+            original_match = v._companion_hash_matches
+            calls = 0
+
+            def restore_postverify_match(path: Path, expected: str) -> bool:
+                nonlocal calls
+                calls += 1
+                return False if calls == 5 else original_match(path, expected)
+
+            with patch.object(v, "_companion_hash_matches", side_effect=restore_postverify_match):
+                with self.assertRaisesRegex(v.PatcherError, "post-replace verification failed"):
+                    v._remove_companion_files(folder, [self.feature])
+            self.assertEqual(destination.read_bytes(), candidate)
+            self.assertFalse(list(folder.glob(".*.vvfp-stage")))
 
 
 if __name__ == "__main__":

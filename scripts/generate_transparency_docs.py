@@ -25,9 +25,9 @@ def build_document() -> str:
         else None
     )
     # The revised VV3 Full Heal candidate is intentionally disabled and therefore
-    # is not returned by load_fun_patches().  Its player-facing safety disclosure
-    # still belongs in the generated transparency document, sourced directly from
-    # the authoritative candidate manifest rather than duplicated here.
+    # is not returned by load_fun_patches(). Its implementation/provenance and
+    # player-facing safety disclosure still belong in the generated transparency
+    # document, sourced directly from the authoritative candidate manifest.
     full_heal_path = ROOT / "data" / "candidates" / "vv3_full_heal_cure_all_candidate.json"
     full_heal = (
         json.loads(full_heal_path.read_text(encoding="utf-8"))
@@ -117,7 +117,7 @@ def build_document() -> str:
         "",
         "## VV3 Full Heal / Cure All candidate",
         "",
-        "The revised VV3 Full Heal / Cure All candidate remains disabled and catalog-hidden pending runtime/player validation; this generated disclosure is sourced from its authoritative candidate manifest and does not expose the candidate in the public chooser.",
+        "The revised VV3 Full Heal / Cure All candidate remains disabled and catalog-hidden; implementation is complete at `" + str(full_heal.get("provenance", {}).get("implementation_commit", "not recorded")) + "` with parent `" + str(full_heal.get("provenance", {}).get("implementation_parent_commit", "not recorded")) + "`. Static acceptance is pending independent recertification and runtime/player validation remains pending; this generated disclosure is sourced from its authoritative candidate manifest and does not expose the candidate in the public chooser.",
         "- Partial-write disclosure: "
         + (str(full_heal.get("partial_failure_limit", "not recorded")) if full_heal else "not recorded"),
         "",

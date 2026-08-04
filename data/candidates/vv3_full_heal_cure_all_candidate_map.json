@@ -5,29 +5,16 @@
   "catalog_enabled": false,
   "provenance": {
     "design_source_commit": "64c1266503c49ba1456f6294683a1f6773eba5d6",
-    "implementation_base_commit": "38510cc21b7cd322a52fbabc936794dfc8601ccc",
+    "implementation_parent_commit": "38510cc21b7cd322a52fbabc936794dfc8601ccc",
+    "implementation_commit": "49595a75b65cd0561811593ba19825239ec97dde",
     "metadata_commit": null,
-    "metadata_status": "implementation evidence complete; no external certification claimed"
+    "metadata_status": "implementation complete; independent audit pending; no acceptance claimed"
   },
   "static_acceptance": {
-    "commit": "38510cc21b7cd322a52fbabc936794dfc8601ccc",
-    "status": "implementation evidence only; no external certification claimed",
-    "manifest_sha256": null,
-    "map_sha256": null,
-    "helper_sha256": "86C9E258C9F6C59EBBEF290774EAA9DEE4E9533B4F8AAE59EC6294DE9CBD97C8",
-    "strings_sha256": "7DEABBEBB223C8FFB4762CF6A35A5555388D4FD078144724FE1EA01CCF2E9BB5",
-    "cave_sha256": "AF71F2958E7CF9AF83EFC00B9394D66933C6207D3FF9C983268A16A139F37086",
-    "rendered_sha256": {
-      "collection_progression": "B095FAFCC53B66B8FE7C852DAF488B8921EA4FBD3247FD293E1BBDCA369BF173",
-      "immediate_fixed": "CFE508B213C566E8A81302556946AAA500F701B25E8F0BE620D3C6A8844C2B61"
-    },
-    "supported_modes": [
-      "collection_progression",
-      "immediate_fixed"
-    ],
-    "expanded_rejected": true
+    "commit": null,
+    "status": "pending independent recertification; no acceptance claimed"
   },
-  "implementation_status": "implementation evidence complete; no external certification claimed",
+  "implementation_status": "implementation complete; independent audit pending; no acceptance claimed",
   "allowed_modes": [
     "collection_progression",
     "immediate_fixed"

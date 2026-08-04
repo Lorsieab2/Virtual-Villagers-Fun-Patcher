@@ -82,29 +82,23 @@ STOCK_CURE_CAVE_PREIMAGE_SHA256 = "7B4FC1A8DBE6B6121F16ADA516E2AC27E02964716BACE
 LEGACY_PRESERVED_RANGE_SHA256 = COMPOSED_PARENT_HELPER_SHA256
 STOCK_ZERO_PREIMAGE_LEGACY_RANGE_SHA256 = "06EA118EDADD836A02B202C05BC7E47356B57E28C01EDF1DAD6CC4CF90C662E2"
 SOURCE_COMMIT = "64c1266503c49ba1456f6294683a1f6773eba5d6"
-IMPLEMENTATION_BASE_COMMIT = "38510cc21b7cd322a52fbabc936794dfc8601ccc"
-IMPLEMENTATION_STATUS = "implementation evidence complete; no external certification claimed"
+IMPLEMENTATION_PARENT_COMMIT = "38510cc21b7cd322a52fbabc936794dfc8601ccc"
+IMPLEMENTATION_COMMIT = "49595a75b65cd0561811593ba19825239ec97dde"
+IMPLEMENTATION_STATUS = "implementation complete; independent audit pending; no acceptance claimed"
 PROVENANCE = {
     "design_source_commit": SOURCE_COMMIT,
-    "implementation_base_commit": IMPLEMENTATION_BASE_COMMIT,
+    "implementation_parent_commit": IMPLEMENTATION_PARENT_COMMIT,
+    "implementation_commit": IMPLEMENTATION_COMMIT,
     "metadata_commit": None,
-    "metadata_status": "implementation evidence complete; no external certification claimed",
+    "metadata_status": "implementation complete; independent audit pending; no acceptance claimed",
 }
 RENDERED_SHA256 = {
     "collection_progression": "B095FAFCC53B66B8FE7C852DAF488B8921EA4FBD3247FD293E1BBDCA369BF173",
     "immediate_fixed": "CFE508B213C566E8A81302556946AAA500F701B25E8F0BE620D3C6A8844C2B61",
 }
 STATIC_ACCEPTANCE = {
-    "commit": "38510cc21b7cd322a52fbabc936794dfc8601ccc",
-    "status": "implementation evidence only; no external certification claimed",
-    "manifest_sha256": None,
-    "map_sha256": None,
-    "helper_sha256": "86C9E258C9F6C59EBBEF290774EAA9DEE4E9533B4F8AAE59EC6294DE9CBD97C8",
-    "strings_sha256": "7DEABBEBB223C8FFB4762CF6A35A5555388D4FD078144724FE1EA01CCF2E9BB5",
-    "cave_sha256": "AF71F2958E7CF9AF83EFC00B9394D66933C6207D3FF9C983268A16A139F37086",
-    "rendered_sha256": RENDERED_SHA256,
-    "supported_modes": ["collection_progression", "immediate_fixed"],
-    "expanded_rejected": True,
+    "commit": None,
+    "status": "pending independent recertification; no acceptance claimed",
 }
 
 BASE_DLL_PATH = OUT_DIR / "VVFP VV3 Full Mastery Candidate.dll"
@@ -640,7 +634,7 @@ def main() -> None:
             "Expanded-256 and unknown builds remain fail-closed; the withdrawn village-wide Running route is absent.",
             "The candidate is stock-mode only and does not add Remove or ownership behavior.",
         ],
-        "evidence_status": "implementation evidence generated at commit 38510cc21b7cd322a52fbabc936794dfc8601ccc; no external certification claimed; runtime/player validation pending",
+        "evidence_status": "implementation generated at commit 49595a75b65cd0561811593ba19825239ec97dde; static acceptance pending independent recertification; runtime/player validation pending",
         "price": PRICE,
         "transaction": {"command": 5, "price": PRICE, "action": "Buy", "repeatable": True, "ownership": None, "remove": False},
         "base_chain": {
@@ -797,11 +791,11 @@ def main() -> None:
     MANIFEST_OUT.write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
     MAP_OUT.write_text(json.dumps(artifact_map, indent=2) + "\n", encoding="utf-8")
     DOC_OUT.write_text(
-        "# VV3 Full Heal / Cure All (disabled static candidate)\n\n"
-        "This stock-only candidate is disabled and catalog-hidden pending independent recertification. It is designed for certified Collection Progression and Immediate Fixed compositions only; runtime/player validation remains pending. "
+        "# VV3 Full Heal / Cure All (disabled candidate; static acceptance pending)\n\n"
+        "This stock-only candidate is disabled and catalog-hidden. Its implementation is bound to commit `49595a75b65cd0561811593ba19825239ec97dde` with parent `38510cc21b7cd322a52fbabc936794dfc8601ccc`; static acceptance is intentionally pending independent recertification and runtime/player validation remains pending. "
         "It composes only after the certified VV3 Origins + Full Mastery + individual Grant Running chain in "
         "Collection Progression or Immediate Fixed. Expanded-256 is rejected before output.\n\n"
-        f"Provenance is non-circular: design/source lineage `{SOURCE_COMMIT}`, implementation base `{IMPLEMENTATION_BASE_COMMIT}`, and metadata commit is intentionally null until a later audit. The legacy preserved range `0x{LEGACY_CURE_START:X}..0x{LEGACY_CURE_END:X}` is `{LEGACY_PRESERVED_RANGE_SHA256}` in both composed parents; the stock-zero preimage is separately `{STOCK_ZERO_PREIMAGE_LEGACY_RANGE_SHA256}`.\n\n"
+        f"Provenance is non-circular: design/source lineage `{SOURCE_COMMIT}`, implementation parent `{IMPLEMENTATION_PARENT_COMMIT}`, current implementation `{IMPLEMENTATION_COMMIT}`, and metadata commit is intentionally null until a later audit. The legacy preserved range `0x{LEGACY_CURE_START:X}..0x{LEGACY_CURE_END:X}` is `{LEGACY_PRESERVED_RANGE_SHA256}` in both composed parents; the stock-zero preimage is separately `{STOCK_ZERO_PREIMAGE_LEGACY_RANGE_SHA256}`.\n\n"
         f"The command-5 detour is `{HOOK_BEFORE.hex().upper()}` -> `{HOOK_AFTER.hex().upper()}` at raw `0x{HOOK_OFFSET:X}`. The dedicated `.vv3hc` RX page is raw `0x{APPEND_OFFSET:X}` / VA `0x{SECTION_VA:X}` with a guarded header at `0x{SECTION_HEADER_OFFSET:X}`; the old Cure cave remains zero and legacy bytes `0x{LEGACY_CURE_START:X}..0x{LEGACY_CURE_END:X}` remain byte-identical.\n\n"
         f"The transaction scans exactly 150 records in physical order. Dry-run Count A is sick eligible villagers, Count B is eligible health 1..99 villagers, and overlap is counted in both. Confirmation formats both predicted counts and the 30,000 cost into a dedicated 512-byte buffer; success and failure format verified sickness clears and verified health restores. It resolves record zero through 0x45C840 with ECX=0x59E110 before the dry run and again after confirmation, resolves USER32.dll/MessageBoxA/wsprintfA before any dialog, uses native health setter 0x462670 with ECX=record+0xE6C and pushes -1/100, acquires a fresh manager before clearing sickness at +0xE89, and increments fresh manager People Cured +0x4FC only after each verified sick clear. It postverifies and deducts once through 0x427130. Every no-charge route ends with `No tech points have been deducted.` {PARTIAL_FAILURE_DISCLOSURE}\n",
         encoding="utf-8",

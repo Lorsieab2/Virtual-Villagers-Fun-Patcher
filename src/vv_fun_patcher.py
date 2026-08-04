@@ -7,6 +7,7 @@ import json
 import os
 import shutil
 import struct
+import tempfile
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
@@ -195,8 +196,8 @@ VV3_FULL_HEAL_CANDIDATE_PATHS = {
     "manifest": ROOT / "data" / "candidates" / "vv3_full_heal_cure_all_candidate.json",
     "map": ROOT / "data" / "candidates" / "vv3_full_heal_cure_all_candidate_map.json",
 }
-VV3_FULL_HEAL_MANIFEST_SHA256 = "340EDC00174C45CADDA83A75A3D187685DC2BE1492FB1B5A8D55C1346EECE47F"
-VV3_FULL_HEAL_MAP_SHA256 = "F544F2586039BFAEF10331996C8396550C52B31D82F1E125E1C9035DCC2262EF"
+VV3_FULL_HEAL_MANIFEST_SHA256 = "683F6C2295DC91D9C6D5074F215F6B65306191AF6D93F83C754E7B608BB1E090"
+VV3_FULL_HEAL_MAP_SHA256 = "9719363E01A2B2520B1B969D14670165F53D834DC6C3B24D7BB379F44FFAC1C7"
 VV3_FULL_HEAL_STOCK_SHA256 = "8BC5DB382D02BC5C21AD5F607580D60FF44A6519CC7EB133F03113BAACAE6503"
 VV3_FULL_HEAL_BASE_DLL_PATH = ROOT / "data" / "candidates" / "VVFP VV3 Full Mastery Candidate.dll"
 VV3_FULL_HEAL_DLL_PATH = ROOT / "data" / "candidates" / "VVFP VV3 Full Heal Candidate.dll"
@@ -227,24 +228,14 @@ VV3_FULL_HEAL_LEGACY_PRESERVED_RANGE_SHA256 = VV3_FULL_HEAL_COMPOSED_PARENT_HELP
 VV3_FULL_HEAL_STOCK_ZERO_PREIMAGE_LEGACY_RANGE_SHA256 = "06EA118EDADD836A02B202C05BC7E47356B57E28C01EDF1DAD6CC4CF90C662E2"
 VV3_FULL_HEAL_PROVENANCE = {
     "design_source_commit": "64c1266503c49ba1456f6294683a1f6773eba5d6",
-    "implementation_base_commit": "38510cc21b7cd322a52fbabc936794dfc8601ccc",
+    "implementation_parent_commit": "38510cc21b7cd322a52fbabc936794dfc8601ccc",
+    "implementation_commit": "49595a75b65cd0561811593ba19825239ec97dde",
     "metadata_commit": None,
-    "metadata_status": "implementation evidence complete; no external certification claimed",
+    "metadata_status": "implementation complete; independent audit pending; no acceptance claimed",
 }
 VV3_FULL_HEAL_STATIC_ACCEPTANCE = {
-    "commit": "38510cc21b7cd322a52fbabc936794dfc8601ccc",
-    "status": "implementation evidence only; no external certification claimed",
-    "manifest_sha256": None,
-    "map_sha256": None,
-    "helper_sha256": "86C9E258C9F6C59EBBEF290774EAA9DEE4E9533B4F8AAE59EC6294DE9CBD97C8",
-    "strings_sha256": "7DEABBEBB223C8FFB4762CF6A35A5555388D4FD078144724FE1EA01CCF2E9BB5",
-    "cave_sha256": "AF71F2958E7CF9AF83EFC00B9394D66933C6207D3FF9C983268A16A139F37086",
-    "rendered_sha256": {
-        "collection_progression": "B095FAFCC53B66B8FE7C852DAF488B8921EA4FBD3247FD293E1BBDCA369BF173",
-        "immediate_fixed": "CFE508B213C566E8A81302556946AAA500F701B25E8F0BE620D3C6A8844C2B61",
-    },
-    "supported_modes": ["collection_progression", "immediate_fixed"],
-    "expanded_rejected": True,
+    "commit": None,
+    "status": "pending independent recertification; no acceptance claimed",
 }
 VV3_FULL_HEAL_HELPER_INSTRUCTION_COUNT = 262
 VV3_FULL_HEAL_HELPER_EPILOGUE_OFFSET = "0x41F"
@@ -3298,12 +3289,13 @@ def _copy_companion_files(
             if sha256(source) != expected_hash:
                 raise PatcherError(f"Companion file hash mismatch: {source.name}")
             destination = output_folder / destination_name
-            destination.parent.mkdir(parents=True, exist_ok=True)
-            shutil.copy2(source, destination)
-            if sha256(destination) != expected_hash:
-                raise PatcherError(
-                    f"Companion file copy verification failed: {destination}"
-                )
+            _atomic_companion_replace(
+                source,
+                destination,
+                source_hash=expected_hash,
+                preimage_hash=preimage_hash,
+                feature_id=feature.id,
+            )
             copied.append(
                 {
                     "feature": feature.id,
@@ -3313,6 +3305,132 @@ def _copy_companion_files(
                 }
             )
     return copied
+
+
+def _companion_hash_matches(path: Path, expected_hash: str) -> bool:
+    return path.is_file() and sha256(path) == expected_hash.upper()
+
+
+def _stage_companion_file(source: Path, destination_parent: Path, expected_hash: str) -> Path:
+    """Copy and fsync one verified sibling stage file on the destination volume."""
+    destination_parent.mkdir(parents=True, exist_ok=True)
+    fd, raw_stage = tempfile.mkstemp(
+        prefix=f".{source.name}.", suffix=".vvfp-stage", dir=str(destination_parent)
+    )
+    stage = Path(raw_stage)
+    try:
+        os.close(fd)
+        shutil.copy2(source, stage)
+        with stage.open("r+b") as handle:
+            os.fsync(handle.fileno())
+        if not _companion_hash_matches(stage, expected_hash):
+            raise PatcherError(
+                f"Companion staged verification failed: {stage}"
+            )
+        return stage
+    except Exception:
+        try:
+            stage.unlink()
+        except OSError:
+            pass
+        raise
+
+
+def _atomic_companion_replace(
+    source: Path,
+    destination: Path,
+    *,
+    source_hash: str,
+    preimage_hash: str | None,
+    feature_id: str,
+) -> None:
+    """Atomically install/restore a companion while preserving a verified backup."""
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    source_hash = source_hash.upper()
+    preimage_hash = preimage_hash.upper() if preimage_hash else None
+    destination_exists = destination.exists()
+    before_hash: str | None = None
+    if preimage_hash:
+        if not _companion_hash_matches(destination, preimage_hash):
+            raise PatcherError(
+                f"Companion replacement preimage mismatch: {destination}"
+            )
+        before_hash = preimage_hash
+    elif destination_exists:
+        if not destination.is_file():
+            raise PatcherError(f"Companion destination is not a file: {destination}")
+        before_hash = sha256(destination)
+
+    stage: Path | None = None
+    backup: Path | None = None
+    replace_attempted = False
+    replace_completed = False
+    preserve_recovery = False
+    try:
+        stage = _stage_companion_file(source, destination.parent, source_hash)
+        if destination_exists:
+            backup = _stage_companion_file(destination, destination.parent, before_hash or sha256(destination))
+        # Recheck immediately before the no-overwrite replace; a race must not
+        # overwrite a foreign destination or consume the verified backup.
+        if preimage_hash:
+            if not _companion_hash_matches(destination, preimage_hash):
+                raise PatcherError(
+                    f"Companion replacement preimage changed before replace: {destination}"
+                )
+        elif destination_exists and not _companion_hash_matches(destination, before_hash or ""):
+            raise PatcherError(
+                f"Companion destination changed before replace: {destination}"
+            )
+        replace_attempted = True
+        os.replace(stage, destination)
+        stage = None
+        replace_completed = True
+        if not _companion_hash_matches(destination, source_hash):
+            raise PatcherError(
+                f"Companion post-replace verification failed: {destination}"
+            )
+        if backup is not None:
+            backup.unlink()
+            backup = None
+    except Exception as exc:
+        # If replacement happened (including an injected exception after the
+        # replace), restore only from the already-verified sibling backup.
+        replaced = replace_completed or (
+            replace_attempted
+            and destination.is_file()
+            and sha256(destination) == source_hash
+        )
+        if replaced and backup is not None:
+            try:
+                os.replace(backup, destination)
+                backup = None
+                if before_hash is None or not destination.is_file() or sha256(destination) != before_hash:
+                    raise PatcherError(
+                        f"Companion rollback verification failed: {destination}"
+                    )
+            except Exception as rollback_exc:
+                preserve_recovery = True
+                raise PatcherError(
+                    f"Companion replace failed and rollback is preserved for recovery at {backup}: {rollback_exc}"
+                ) from exc
+        elif (
+            not destination_exists
+            and (replace_completed or (destination.is_file() and sha256(destination) == source_hash))
+        ):
+            # No preimage existed; remove only our verified replacement.
+            destination.unlink()
+        raise
+    finally:
+        if stage is not None:
+            try:
+                stage.unlink()
+            except OSError:
+                pass
+        if backup is not None and not preserve_recovery:
+            try:
+                backup.unlink()
+            except OSError:
+                pass
 
 
 def _safe_companion_destination(destination: str) -> Path:
@@ -3357,7 +3475,7 @@ def _remove_companion_files(
     removed: list[dict[str, str]] = []
     root = output_folder.resolve()
     pending: list[tuple[FunPatch, Path, str]] = []
-    pending_restore: dict[Path, tuple[FunPatch, Path, str]] = {}
+    pending_restore: dict[Path, tuple[FunPatch, Path, str, str]] = {}
     for feature in reversed(fun_patches):
         for item in reversed(feature.raw.get("companion_files", [])):
             destination_name = _safe_companion_destination(item["destination"])
@@ -3384,7 +3502,7 @@ def _remove_companion_files(
                     raise PatcherError("Companion restore source escapes the patcher folder") from exc
                 if not restore_source.is_file() or sha256(restore_source) != restore_hash:
                     raise PatcherError("Companion restore preimage is missing or corrupt")
-                pending_restore[destination] = (feature, restore_source, restore_hash)
+                pending_restore[destination] = (feature, restore_source, restore_hash, expected_hash)
                 continue
             if destination in pending_restore:
                 # The dependent Full Heal entry owns the replacement and will
@@ -3396,10 +3514,14 @@ def _remove_companion_files(
                     f"expected {expected_hash}, got {actual_hash}"
                 )
             pending.append((feature, destination, expected_hash))
-    for destination, (feature, restore_source, restore_hash) in pending_restore.items():
-        shutil.copy2(restore_source, destination)
-        if sha256(destination) != restore_hash:
-            raise PatcherError(f"Companion restore verification failed: {destination}")
+    for destination, (feature, restore_source, restore_hash, expected_hash) in pending_restore.items():
+        _atomic_companion_replace(
+            restore_source,
+            destination,
+            source_hash=restore_hash,
+            preimage_hash=expected_hash,
+            feature_id=feature.id,
+        )
         removed.append(
             {
                 "feature": feature.id,
