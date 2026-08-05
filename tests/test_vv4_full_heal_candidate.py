@@ -13,6 +13,8 @@ from vv4_full_heal import (  # noqa: E402
     plan_transaction,
     success_message,
     failure_message,
+    TECH_DEDUCTION_RECEIVER,
+    TECH_DEDUCTION_CALL,
 )
 
 
@@ -31,9 +33,18 @@ class VV4FullHealCandidateTests(unittest.TestCase):
         self.assertEqual(set(manifest["rejected_modes"]), {"experimental_expanded_256", "experimental_expanded_256_progression"})
         self.assertEqual(manifest["source"]["stock_sha256"], "6D27A429FFCA5F1F71FDD7ECA761ED1BB67E85F976494BA178B3D7BE01F1B220")
         self.assertEqual(artifact_map["parents"]["vv4fm_page_sha256"], "FD72C661B533117BF38D69E7EB855250A93927C831C265226930794C1EFDDB62")
-        self.assertEqual(manifest["hook"]["hook_before_parent"], "E941FEFFFF9090")
-        self.assertEqual(manifest["hook"]["hook_after"], "E9EC792B009090")
-        self.assertEqual(manifest["hook"]["shim_bytes"], "83F8050F854C84D4FFE9F2000000")
+        self.assertEqual(manifest["hook"]["hook_before_parent"], "E941FEFFFF")
+        self.assertEqual(manifest["hook"]["hook_preserved_suffix"], "724C")
+        self.assertEqual(manifest["hook"]["hook_after"], "E9EC792B00")
+        self.assertEqual(manifest["hook"]["hook_length"], 5)
+        self.assertEqual(manifest["transaction"]["deduction"]["receiver"], "0x4D6F88")
+        self.assertEqual(manifest["transaction"]["deduction"]["call"], "0x41E300")
+        self.assertEqual(manifest["native_operations"]["sickness_clear"]["people_cured_dword"], "[0x4D6DF0]")
+        self.assertEqual(manifest["companion_files"][0]["sha256"], "CEC9E453AE490F9DD21A1429B79D01E5B1D31254D85A4FF8571303BAA676A507")
+        self.assertEqual(manifest["companion_files"][0]["size"], 282624)
+        self.assertEqual(artifact_map["companion"]["sha256"], manifest["companion_files"][0]["sha256"])
+        self.assertIn("RT_DIALOG 201/203", artifact_map["companion"]["resource_contract"])
+        self.assertEqual(manifest["hook"]["shim_bytes"], "83F8050F84F7000000E94784D4FF")
         self.assertTrue(manifest["hook"]["unknown_until_recertified"])
 
     def test_dry_run_counts_overlap_and_uses_exact_150_resolutions(self):
@@ -88,12 +99,12 @@ class VV4FullHealCandidateTests(unittest.TestCase):
             clears.append(index)
             records[index]["sick"] = 0
             return True
-        result = apply_transaction(lambda i: records[i], plan, set_health, clear, lambda: cured.append(1), deductions.append)
+        result = apply_transaction(lambda i: records[i], plan, set_health, clear, lambda: cured.append(1), lambda receiver, amount, call: deductions.append((receiver, amount, call)))
         self.assertEqual(result.status, "success")
         self.assertEqual(writes, [(2, -1, 100)])
         self.assertEqual(clears, [2, 4])
         self.assertEqual(len(cured), 2)
-        self.assertEqual(deductions, [30_000])
+        self.assertEqual(deductions, [(TECH_DEDUCTION_RECEIVER, -30_000, TECH_DEDUCTION_CALL)])
 
     def test_partial_failure_is_no_charge_and_reports_actual_counts(self):
         records = [{"active": 1, "status": 0, "health": 100, "sick": 0} for _ in range(150)]
@@ -122,6 +133,26 @@ class VV4FullHealCandidateTests(unittest.TestCase):
         self.assertEqual(calls, [])
         self.assertIn(NO_DEDUCTION, result.message)
 
+
+    def test_structural_companion_repack_is_deterministic_and_non_resource_stable(self):
+        import importlib.util
+        spec = importlib.util.spec_from_file_location(
+            "vv4hc_builder", ROOT / "scripts" / "build_vv4_full_heal_candidate.py"
+        )
+        builder = importlib.util.module_from_spec(spec)
+        assert spec.loader is not None
+        spec.loader.exec_module(builder)
+        base = builder.PARENT_DLL.read_bytes()
+        candidate, digest = builder.build_resource_only_companion(base)
+        self.assertEqual(digest, "CEC9E453AE490F9DD21A1429B79D01E5B1D31254D85A4FF8571303BAA676A507")
+        raw, size, _, base_leaves = builder._dll_resource_leaves(base)
+        _, _, _, cand_leaves = builder._dll_resource_leaves(candidate)
+        self.assertEqual(candidate[:raw], base[:raw])
+        self.assertEqual(candidate[raw + size :], base[raw + size :])
+        self.assertEqual(
+            next(x["blob"] for x in base_leaves if x["path"] == (5, 202, 1033)),
+            next(x["blob"] for x in cand_leaves if x["path"] == (5, 202, 1033)),
+        )
 
 if __name__ == "__main__":
     unittest.main()

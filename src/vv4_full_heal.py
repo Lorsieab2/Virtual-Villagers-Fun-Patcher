@@ -14,6 +14,9 @@ from typing import Callable, Mapping, Sequence
 PRICE = 30_000
 RECORD_COUNT = 150
 NO_DEDUCTION = "No tech points have been deducted."
+TECH_DEDUCTION_RECEIVER = 0x4D6F88
+TECH_DEDUCTION_CALL = 0x41E300
+PEOPLE_CURED_RECEIVER = 0x4D6DF0
 
 
 def _failure(text: str) -> str:
@@ -144,7 +147,7 @@ def apply_transaction(
     set_health: Callable[[int, int, int], bool],
     clear_sickness: Callable[[int], bool],
     increment_people_cured: Callable[[], None],
-    deduct: Callable[[int], None],
+    deduct: Callable[[int, int, int], None],
 ) -> TransactionResult:
     """Apply a committed plan through native callbacks and postverify it.
 
@@ -187,5 +190,5 @@ def apply_transaction(
         return TransactionResult("partial", failure_message(actual_sick, actual_partial, "complete postverification failed"), plan.predicted_sick, plan.predicted_partial, actual_sick, actual_partial)
     if actual_sick != plan.predicted_sick or actual_partial != plan.predicted_partial:
         return TransactionResult("partial", failure_message(actual_sick, actual_partial, "verified counts did not match the confirmed counts"), plan.predicted_sick, plan.predicted_partial, actual_sick, actual_partial)
-    deduct(PRICE)
+    deduct(TECH_DEDUCTION_RECEIVER, -PRICE, TECH_DEDUCTION_CALL)
     return TransactionResult("success", success_message(actual_sick, actual_partial), plan.predicted_sick, plan.predicted_partial, actual_sick, actual_partial, PRICE)

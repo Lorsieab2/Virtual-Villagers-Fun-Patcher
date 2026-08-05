@@ -1218,13 +1218,35 @@ def _certified_vv4_full_heal_record(
         "dry_run_before_warning_or_charge": True,
         "confirmation_counts": ["predicted_sick", "predicted_partial_health"],
         "success_counts": ["actual_sick_cured", "actual_partial_health_restored"],
-        "deduction": {"receiver": "0x4D6DF0", "amount": 30000, "calls": 1, "only_after_postverify": True},
+        "deduction": {"receiver": "0x4D6F88", "push_amount": -30000, "call": "0x41E300", "ret": 4, "calls": 1, "only_after_postverify": True},
     }:
         raise PatcherError("VV4 Full Heal transaction contract is not immutable.")
-    if manifest.get("hook", {}).get("owned_ranges") != artifact_map.get("hook", {}).get("ranges") or manifest.get("hook", {}).get("unknown_until_recertified"):
+    if transaction.get("people_cured") != {"receiver": "0x4D6DF0", "increment": 1, "only_after_verified_sickness_clear": True}:
+        raise PatcherError("VV4 Full Heal People Cured identity is not immutable.")
+    hook = manifest.get("hook", {})
+    if (hook.get("owned_ranges") != artifact_map.get("hook", {}).get("ranges")
+            or hook.get("hook_length") != 5
+            or hook.get("hook_before_parent") != "E941FEFFFF"
+            or hook.get("hook_preserved_suffix") != "724C"
+            or hook.get("hook_after") != "E9EC792B00"
+            or hook.get("shim_bytes") != "83F8050F84F7000000E94784D4FF"
+            or hook.get("shim_sha256") != "89A2E84C47D3130915A7830F48EC839C186A8BBABF7584681A83A4770582A370"
+            or hook.get("helper_length") != 884
+            or hook.get("helper_sha256") != "7A15D340E1532FDD0D7398FB14906E4D2A5DE10AEE1E4C6DED56D825A6C0E557"
+            or hook.get("page_sha256") != "3B6CE741CD511E62630DB2F1B2C90C89CA78AD2FEE6BF4E60F3E9083329549A7"
+            or hook.get("strings_sha256") != "44CB71162F5F5298E8A6AB309D874EDD20D3B4C20B169DB3D2274F84DCC0717E"
+            or hook.get("unknown_until_recertified")):
         raise PatcherError("VV4 Full Heal cannot enable before exact hook/page bytes are certified.")
     if manifest.get("messages", {}).get("label") != "Full Heal / Cure All" or manifest.get("messages", {}).get("failure_suffix") != "No tech points have been deducted.":
         raise PatcherError("VV4 Full Heal message contract is invalid.")
+    companion = manifest.get("companion_files", [{}])[0]
+    companion_map = artifact_map.get("companion", {})
+    if (companion.get("sha256") != "CEC9E453AE490F9DD21A1429B79D01E5B1D31254D85A4FF8571303BAA676A507"
+            or companion.get("size") != 282624
+            or companion_map.get("sha256") != companion.get("sha256")
+            or companion_map.get("size") != companion.get("size")
+            or companion_map.get("parent_sha256") != VV4_FULL_HEAL_PARENT_DLL_SHA256):
+        raise PatcherError("VV4 Full Heal companion resource transform is not certified.")
     return manifest
 
 

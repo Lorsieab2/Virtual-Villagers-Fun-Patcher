@@ -127,7 +127,9 @@ def build_document() -> str:
         "Its contract enumerates physical indices 0..149 through the native resolver, counts overlapping "
         "eligible sickness and health 1..99 records, confirms both predicted counts for 30,000 tech points, "
         "rechecks state and funds, clears sickness, restores partial health through the native setter, "
-        "postverifies exact health 100/sickness 0, and deducts once. Every no-charge route includes "
+        "postverifies exact health 100/sickness 0, and deducts once through ECX=0x4D6F88/call 0x41E300. "
+        "The candidate-owned companion is a deterministic RT_DIALOG 201/203 structural repack (SHA-256 CEC9E453AE490F9DD21A1429B79D01E5B1D31254D85A4FF8571303BAA676A507, 282,624 bytes); dialog 202 and all non-resource bytes remain unchanged. "
+        "People Cured is the separate [0x4D6DF0] statistic. Every no-charge route includes "
         "`No tech points have been deducted.` Expanded-256 and unknown compositions reject before output. "
         "The exact VV4 command-5 detour and `.vv4hc` page remain pending independent disassembly; existing "
         "Full Mastery UI/runtime bytes and the withdrawn legacy Cure route are unchanged.",

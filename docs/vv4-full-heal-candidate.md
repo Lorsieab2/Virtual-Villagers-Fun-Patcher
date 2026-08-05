@@ -18,7 +18,8 @@ revalidated. Partial health uses only the native setter
 (`ECX=record+0x1C34`, push `-1`, push `100`, call `0x46AF00`, `ret 8`); sickness
 is cleared only after a fresh manager is available and People Cured at
 `[0x4D6DF0]` is incremented once after verification. Success reports both
-actual counts and deducts 30,000 exactly once after complete postverification.
+actual counts and deducts 30,000 exactly once after complete postverification
+through `ECX=0x4D6F88`, push `-30000`, call `0x41E300`, callee `ret 4`.
 
 No-op, cancel, stale-state, dependency, insufficient-funds, and partial-write
 failures are no-charge and include `No tech points have been deducted.` Native
@@ -32,9 +33,9 @@ VV4 Full Mastery UI/runtime bytes, the withdrawn legacy Cure route, and
 Expanded-256 fail-closed behavior are preserved.
 
 The command gate is currently bounded to the certified Full Mastery parent
-hook preimage `E941FEFFFF9090` at raw `0x8960F`; its assembled replacement is
-`E9EC792B009090`, routing through the 14-byte shim
-`83F8050F854C84D4FFE9F2000000` in the proposed `.vv4hc` page at raw `0xE5000`
+hook preimage `E941FEFFFF724C` at raw `0x8960F`; its assembled replacement is
+`E9EC792B00`, routing through the assembled shim
+`83F8050F84F7000000E94784D4FF` in the proposed `.vv4hc` page at raw `0xE5000`
 / VA `0x741000`. The native transaction entry at `0x741100`, complete helper
 page hash, and resource-repacked companion remain disabled pending independent
 VV4 emission/disassembly recertification.

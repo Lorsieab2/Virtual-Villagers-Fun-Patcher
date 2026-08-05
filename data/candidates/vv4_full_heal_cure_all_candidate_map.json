@@ -22,7 +22,7 @@
     "resolver": "ECX=0x50E568; push physical index; call 0x466040; ret 4",
     "health_setter": "ECX=record+0x1C34; push -1; push 100; call 0x46AF00; ret 8",
     "sickness": "+0x1C48 -> 0; increment [0x4D6DF0] once after verified clear",
-    "deduction": "one 30,000 deduction only after count-match postverify"
+    "deduction": "ECX=0x4D6F88; push -30000; call 0x41E300; ret 4; exactly once after count-match postverify"
   },
   "eligibility": {"active": "+0x1CC4 != 0", "status": "+0x1CC7 == 0", "health": "+0x1C40 > 0", "partial": "1..99", "heathens": "not a separate field in this proved VV4 contract"},
   "messages": {"label": "Full Heal / Cure All", "failure_suffix": "No tech points have been deducted."},
@@ -30,14 +30,20 @@
     "status": "command gate assembled; native helper/page still pending independent recertification",
     "raw_offset": "0x8960F",
     "va": "0x48960F",
-    "before_parent": "E941FEFFFF9090",
-    "after": "E9EC792B009090",
+    "before_parent": "E941FEFFFF",
+    "preserved_suffix": "724C",
+    "after": "E9EC792B00",
     "section": {"name": ".vv4hc", "raw_offset": "0xE5000", "rva": "0x341000", "va": "0x741000", "length": 4096},
-    "shim": {"va": "0x741000", "bytes": "83F8050F854C84D4FFE9F2000000", "sha256": "7E3D0DC51B65B0A8C8885A984ADAC240A2BD44235D97C800063F9E88D5491464"},
+    "shim": {"va": "0x741000", "bytes": "83F8050F84F7000000E94784D4FF", "sha256": "89A2E84C47D3130915A7830F48EC839C186A8BBABF7584681A83A4770582A370"},
+    "helper_length": 884,
+    "helper_sha256": "7A15D340E1532FDD0D7398FB14906E4D2A5DE10AEE1E4C6DED56D825A6C0E557",
+    "page_sha256": "3B6CE741CD511E62630DB2F1B2C90C89CA78AD2FEE6BF4E60F3E9083329549A7",
+    "strings_sha256": "44CB71162F5F5298E8A6AB309D874EDD20D3B4C20B169DB3D2274F84DCC0717E",
     "transaction_entry_va": "0x741100",
-    "ranges": ["0x8960F..0x89615", "0xE5000..0xE5FFF"],
+    "ranges": ["0x8960F..0x89613", "0xE5000..0xE5FFF"],
     "unknown_until_recertified": true
   },
+  "companion": {"filename": "VVFP VV4 Full Heal Candidate.dll", "size": 282624, "sha256": "CEC9E453AE490F9DD21A1429B79D01E5B1D31254D85A4FF8571303BAA676A507", "parent_sha256": "4E1A83683A875EFE6F67116CDD862927BE1ABCB17DB7AE18143E58E98EAD01E7", "resource_contract": "RT_DIALOG 201/203 title-only structural repack; 202 and non-.rsrc bytes unchanged"},
   "runtime_status": "pending independent static and player recertification",
   "uninstall": "restore the exact Full Mastery parent EXE/DLL/page identities; zero only candidate-owned ranges",
   "provenance": {"implementation_commit": null, "audit_commit": null, "acceptance_commit": null}
