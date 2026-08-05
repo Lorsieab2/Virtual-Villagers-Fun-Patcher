@@ -46,8 +46,8 @@ PARENT_DLL = ROOT / "data/candidates/VVFP VV4 Full Mastery Candidate.dll"
 PARENT_DLL_SHA256 = "4E1A83683A875EFE6F67116CDD862927BE1ABCB17DB7AE18143E58E98EAD01E7"
 PARENT_DLL_SIZE = 282624
 # Raw source-of-truth pins are checked before any candidate output is built.
-SOURCE_MANIFEST_SHA256 = "B8E8EFEDDD9A93A4FAFDF98BAA6A5FF1B0EF3A385734F6F72BC2C205F12913A3"
-SOURCE_MAP_SHA256 = "A0D056F0360D6FE77F59BC7A0C4AFFD76765CAACF3DC94B4FD52467576744912"
+SOURCE_MANIFEST_SHA256 = "2B67B6289DCA031409AD7CDC6488A7B57C95955E7C0E7037E2A13690702F0611"
+SOURCE_MAP_SHA256 = "ADBD25BD7BE681D81EE432F012D9F088FEE6A5227E2AA5E1D14932F4CC12C237"
 
 sys.path.insert(0, str(ROOT / ".tools" / "capstone"))
 sys.path.insert(0, str(ROOT / ".tools" / "keystone-runtime"))
@@ -130,8 +130,11 @@ def _dialog_title(blob: bytes, expected_items: int) -> tuple[int, int, str]:
         raise RuntimeError("VV4 companion dialog has no string title")
     text = dialog_title[:-2].decode("utf-16le")
     title_start = pos - len(dialog_title)
-    # The font tuple follows the title; its exact values are retained.
+    # The font tuple is followed by a variable UTF-16 typeface string before
+    # the first DWORD-aligned item.  Skipping only six bytes misaligns every
+    # subsequent item on these dialogs.
     pos += 6
+    pos, _ = skip(pos)
     pos = (pos + 3) & ~3
     if not text:
         raise RuntimeError("VV4 companion dialog title is empty")
@@ -206,7 +209,10 @@ def _serialize_resource_tree(data: bytes, tree: dict[str, object]) -> bytes:
         blob_cursor = (blob_cursor + 3) & ~3
         blobs.append((leaf, blob_cursor))
         blob_cursor += len(leaf["blob"])
-    new_size = size if blob_cursor <= size else (blob_cursor + 0x1FF) & ~0x1FF
+    # D232 fixes the resource layout at a 0x33800 raw/virtual .rsrc span;
+    # retain the deterministic zero tail even when the corrected row serializer
+    # uses less than that capacity.
+    new_size = max(size, 0x33800) if blob_cursor <= size else max((blob_cursor + 0x1FF) & ~0x1FF, 0x33800)
     sec = bytearray(new_size)
     for node, off in directories:
         entries = node["entries"]
@@ -265,7 +271,7 @@ def _append_dialog_row(blob: bytes, expected_items: int) -> bytes:
         return pos + 2, blob[start:pos + 2]
     pos = 26
     for _ in range(3): pos, _ = skip(pos)
-    pos += 6; pos = (pos + 3) & ~3
+    pos += 6; pos, _ = skip(pos); pos = (pos + 3) & ~3
     spans: list[tuple[int, int]] = []
     for _ in range(expected_items):
         pos = (pos + 3) & ~3; start = pos; pos += 24; pos, _ = skip(pos); pos, title = skip(pos)
@@ -276,8 +282,9 @@ def _append_dialog_row(blob: bytes, expected_items: int) -> bytes:
     # 20..24 (primary icon, secondary icon, label, price, Buy).  Clone those
     # records exactly, changing only the command-5 title/class/id and Y
     # fields required by the native layout.
-    # Insert the new command-5 group immediately before the existing next
-    # group, preserving all following native rows and their order.
+    # Insert the new command-5 group immediately before the original item 25
+    # (the first item after the command-4 group), preserving all following
+    # native rows and their order.
     if len(spans) < 28:
         raise RuntimeError("VV4 dialog has no command-4 insertion boundary")
     rows = [blob[a:b] for a, b in spans[20:25]]
@@ -291,14 +298,30 @@ def _append_dialog_row(blob: bytes, expected_items: int) -> bytes:
         (ordinal(130), "30,000 tech points".encode("utf-16le") + b"\0\0", 0xFFFF, 182),
         (ordinal(128), "Buy".encode("utf-16le") + b"\0\0", 1005, 171),
     ]
-    insert_at = spans[27][0]
+    insert_at = spans[25][0]
     out = bytearray(blob[:insert_at])
     for row, (class_token, title_token, control_id, y) in zip(rows, specs):
+        def skip_row(pos: int) -> tuple[int, bytes]:
+            first = struct.unpack_from("<H", row, pos)[0]
+            if first == 0:
+                return pos + 2, row[pos:pos + 2]
+            if first == 0xFFFF:
+                return pos + 4, row[pos:pos + 4]
+            start = pos
+            pos += 2
+            while struct.unpack_from("<H", row, pos)[0] != 0:
+                pos += 2
+            return pos + 2, row[start:pos + 2]
         pos = 24
-        pos, _ = skip(pos)
-        pos, _ = skip(pos)
-        # Retain the original creation-data WORD and bytes exactly.
-        tail = row[pos:]
+        pos, _ = skip_row(pos)
+        pos, _ = skip_row(pos)
+        # Retain only the creation-data WORD and payload.  The source slice
+        # also contains its old end-padding; carrying that padding into a row
+        # whose title length changed would shift the next item off its native
+        # DWORD boundary.  The outer loop supplies fresh alignment.
+        words = struct.unpack_from("<H", row, pos)[0]
+        creation_end = pos + 2 + words * 2
+        tail = row[pos:creation_end]
         rebuilt = bytearray(row[:24])
         struct.pack_into("<h", rebuilt, 14, y)
         struct.pack_into("<H", rebuilt, 20, control_id)
@@ -307,6 +330,7 @@ def _append_dialog_row(blob: bytes, expected_items: int) -> bytes:
         rebuilt.extend(tail)
         row = rebuilt
         out.extend(b"\0" * ((4 - (len(out) & 3)) & 3)); out.extend(row)
+    out.extend(b"\0" * ((4 - (len(out) & 3)) & 3))
     out.extend(blob[insert_at:])
     struct.pack_into("<H", out, 16, expected_items + 5)
     return bytes(out)
@@ -368,6 +392,33 @@ def build_resource_only_companion(base: bytes) -> tuple[bytes, str]:
     # .rsrc raw-size and the following .reloc raw-pointer; every other header
     # and every pre-resource byte remains identical.
     if new_size != size:
+        # The rebuilt resource block now crosses the old virtual reloc
+        # boundary.  Move .reloc by one aligned 0x4000 RVA block while keeping
+        # its raw bytes unchanged, and recalculate SizeOfImage/data-directory
+        # fields from the resulting layout.
+        pe = struct.unpack_from("<I", candidate, 0x3C)[0]
+        table = pe + 24 + struct.unpack_from("<H", candidate, pe + 20)[0]
+        count = struct.unpack_from("<H", candidate, pe + 6)[0]
+        rsrc_header = reloc_header = None
+        for i in range(count):
+            off = table + i * 40
+            name = candidate[off:off + 8].rstrip(b"\0")
+            if name == b".rsrc": rsrc_header = off
+            elif name == b".reloc": reloc_header = off
+        if rsrc_header is None or reloc_header is None:
+            raise RuntimeError("VV4 companion section headers are incomplete")
+        candidate_mut = bytearray(candidate)
+        struct.pack_into("<I", candidate_mut, rsrc_header + 8, new_size)
+        old_reloc_rva = struct.unpack_from("<I", base, reloc_header + 12)[0]
+        new_reloc_rva = old_reloc_rva + ((new_size - size + 0xFFF) & ~0xFFF)
+        struct.pack_into("<I", candidate_mut, reloc_header + 12, new_reloc_rva)
+        reloc_virtual_size = struct.unpack_from("<I", candidate_mut, reloc_header + 8)[0]
+        struct.pack_into("<I", candidate_mut, pe + 0x50, (new_reloc_rva + reloc_virtual_size + 0xFFF) & ~0xFFF)
+        # Relocation directory RVA follows the section move; its size and raw
+        # relocation bytes remain unchanged.
+        struct.pack_into("<I", candidate_mut, pe + 24 + 96 + 5 * 8, new_reloc_rva)
+        _pe_checksum(candidate_mut)
+        candidate = bytes(candidate_mut)
         normalized_candidate = bytearray(candidate[:raw])
         normalized_base = bytearray(base[:raw])
         pe = struct.unpack_from("<I", base, 0x3C)[0]
@@ -384,7 +435,12 @@ def build_resource_only_companion(base: bytes) -> tuple[bytes, str]:
         if rsrc_header is None or reloc_header is None:
             raise RuntimeError("VV4 companion section headers are incomplete")
         normalized_candidate[rsrc_header + 16:rsrc_header + 20] = normalized_base[rsrc_header + 16:rsrc_header + 20]
+        normalized_candidate[rsrc_header + 8:rsrc_header + 12] = normalized_base[rsrc_header + 8:rsrc_header + 12]
         normalized_candidate[reloc_header + 20:reloc_header + 24] = normalized_base[reloc_header + 20:reloc_header + 24]
+        normalized_candidate[reloc_header + 12:reloc_header + 16] = normalized_base[reloc_header + 12:reloc_header + 16]
+        normalized_candidate[pe + 0x50:pe + 0x54] = normalized_base[pe + 0x50:pe + 0x54]
+        normalized_candidate[pe + 24 + 96 + 5 * 8:pe + 24 + 96 + 5 * 8 + 4] = normalized_base[pe + 24 + 96 + 5 * 8:pe + 24 + 96 + 5 * 8 + 4]
+        normalized_candidate[pe + 24 + 64:pe + 24 + 68] = normalized_base[pe + 24 + 64:pe + 24 + 68]
         if normalized_candidate != normalized_base:
             raise RuntimeError("VV4 companion changed non-resource header bytes")
     elif candidate[:raw] != base[:raw]:
@@ -495,19 +551,19 @@ def _assemble_helper(strings: dict[str, int]) -> tuple[bytes, dict[str, object]]
         push 0x{strings['user32']:X}
         call dword ptr [0x48A1E0]
         test eax, eax
-        jz dependency_failure
+        jz dependency_silent
         mov esi, eax
         push 0x{strings['message_box']:X}
         push esi
         call dword ptr [0x48A1DC]
         test eax, eax
-        jz dependency_failure
+        jz dependency_silent
         mov dword ptr [ebp-0x10], eax
         push 0x{strings['wsprintf']:X}
         push esi
         call dword ptr [0x48A1DC]
         test eax, eax
-        jz dependency_failure
+        jz dependency_result
         mov dword ptr [ebp-0x14], eax
         mov dword ptr [ebp-0x18], 0
         mov dword ptr [ebp-0x1C], 0
@@ -534,10 +590,6 @@ def _assemble_helper(strings: dict[str, int]) -> tuple[bytes, dict[str, object]]
         mov byte ptr [edx+9], al
         mov al, byte ptr [esi+0x1CC7]
         mov byte ptr [edx+10], al
-        mov eax, dword ptr [esi+0x1C40]
-        mov dword ptr [edx+4], eax
-        mov al, byte ptr [esi+0x1C48]
-        mov byte ptr [edx+11], al
         cmp byte ptr [esi+0x1CC4], 0
         je initial_next
         cmp byte ptr [esi+0x1CC7], 0
@@ -545,6 +597,9 @@ def _assemble_helper(strings: dict[str, int]) -> tuple[bytes, dict[str, object]]
         cmp dword ptr [esi+0x1C40], 0
         jle initial_next
         mov eax, dword ptr [esi+0x1C40]
+        mov dword ptr [edx+4], eax
+        mov al, byte ptr [esi+0x1C48]
+        mov byte ptr [edx+11], al
         cmp eax, 100
         jae initial_health_high
         jmp initial_health_in_range
@@ -618,12 +673,6 @@ def _assemble_helper(strings: dict[str, int]) -> tuple[bytes, dict[str, object]]
         mov al, byte ptr [esi+0x1CC7]
         cmp al, byte ptr [edx+10]
         jne stale_failure
-        mov eax, dword ptr [esi+0x1C40]
-        cmp eax, dword ptr [edx+4]
-        jne stale_failure
-        mov al, byte ptr [esi+0x1C48]
-        cmp al, byte ptr [edx+11]
-        jne stale_failure
         cmp byte ptr [esi+0x1CC4], 0
         je recheck_zero_snapshot
         cmp byte ptr [esi+0x1CC7], 0
@@ -636,6 +685,7 @@ def _assemble_helper(strings: dict[str, int]) -> tuple[bytes, dict[str, object]]
         mov al, byte ptr [esi+0x1C48]
         cmp al, byte ptr [edx+11]
         jne stale_failure
+        mov eax, dword ptr [esi+0x1C40]
         xor ecx, ecx
         cmp eax, 100
         jae recheck_health_high
@@ -706,6 +756,11 @@ def _assemble_helper(strings: dict[str, int]) -> tuple[bytes, dict[str, object]]
         cmp dword ptr [esi+0x1C40], 0
         jle mutate_zero_snapshot
         mov eax, dword ptr [esi+0x1C40]
+        cmp eax, dword ptr [edx+4]
+        jne stale_failure
+        mov al, byte ptr [esi+0x1C48]
+        cmp al, byte ptr [edx+11]
+        jne stale_failure
         xor ecx, ecx
         cmp eax, 100
         jae mutate_bits_health_done
@@ -713,6 +768,7 @@ def _assemble_helper(strings: dict[str, int]) -> tuple[bytes, dict[str, object]]
         jl mutate_zero_snapshot
         or cl, 2
     mutate_bits_health_done:
+        mov eax, dword ptr [esi+0x1C40]
         cmp byte ptr [esi+0x1C48], 0
         je mutate_bits_compare
         or cl, 1
@@ -836,6 +892,17 @@ def _assemble_helper(strings: dict[str, int]) -> tuple[bytes, dict[str, object]]
         jne partial_failure
         cmp byte ptr [edx+8], 1
         jb stale_failure
+        mov cl, byte ptr [edx+8]
+        test cl, 2
+        jz sickness_postclear_health_original
+        cmp dword ptr [esi+0x1C40], 100
+        jne partial_failure
+        jmp sickness_postclear_health_done
+    sickness_postclear_health_original:
+        mov eax, dword ptr [esi+0x1C40]
+        cmp eax, dword ptr [edx+4]
+        jne partial_failure
+    sickness_postclear_health_done:
         cmp dword ptr [esi+0x1C40], 0
         jle partial_failure
         inc dword ptr [0x4D6DF0]
@@ -882,13 +949,23 @@ def _assemble_helper(strings: dict[str, int]) -> tuple[bytes, dict[str, object]]
         jne partial_failure
     postverify_health_done:
         test cl, 0x2
-        jnz postverify_sickness
+        jnz postverify_health_exact100
+        mov eax, dword ptr [esi+0x1C40]
+        cmp eax, dword ptr [edx+4]
+        jne partial_failure
+        jmp postverify_sickness
+    postverify_health_exact100:
         cmp dword ptr [esi+0x1C40], 100
-        jb partial_failure
+        jne partial_failure
     postverify_sickness:
         test cl, 1
-        jz postverify_next
+        jz postverify_sickness_original
         cmp byte ptr [esi+0x1C48], 0
+        jne partial_failure
+        jmp postverify_next
+    postverify_sickness_original:
+        mov al, byte ptr [esi+0x1C48]
+        cmp al, byte ptr [edx+11]
         jne partial_failure
     postverify_zero_snapshot:
         cmp byte ptr [edx+8], 0
@@ -912,7 +989,20 @@ def _assemble_helper(strings: dict[str, int]) -> tuple[bytes, dict[str, object]]
         mov edx, dword ptr [ebp-0x24]
         mov esi, 0x{strings['success']:X}
         jmp result_show
-    dependency_failure:
+    dependency_silent:
+        add esp, 0x1200
+        pop edi
+        pop esi
+        pop ebx
+        pop ebp
+        jmp 0x{RESULT_CONTINUATION_VA:X}
+    dependency_result:
+        push 0
+        push 0x{strings['caption']:X}
+        push 0x{strings['dependency']:X}
+        push 0
+        call dword ptr [ebp-0x10]
+        add esp, 16
         add esp, 0x1200
         pop edi
         pop esi
@@ -990,20 +1080,23 @@ def _verify_code(page: bytes, helper_length: int) -> None:
     cs = Cs(CS_ARCH_X86, CS_MODE_32)
     cs.detail = True
     streams = [(page[:0x100], PAGE_VA), (page[0x100 : 0x100 + helper_length], ENTRY_VA)]
-    seen = 0
-    for stream, start in streams:
-        for insn in cs.disasm(stream, start):
-            seen += 1
-            if insn.mnemonic.startswith("j") or insn.mnemonic == "call":
-                if insn.op_str.startswith("0x"):
-                    target = int(insn.op_str.split()[0], 16)
-                    if PAGE_VA <= target < PAGE_VA + STRINGS_OFFSET:
-                        continue
-                    if target in {CONTINUATION_VA, RESULT_CONTINUATION_VA, 0x466040, 0x46AF00, 0x41E300}:
-                        continue
-                    if target in {0x48A1DC, 0x48A1E0}:
-                        continue
-                    raise RuntimeError(f"VV4HC branch target escapes certified code: {insn.mnemonic} {insn.op_str}")
+    decoded = [insn for stream, start in streams for insn in cs.disasm(stream, start)]
+    seen = len(decoded)
+    boundaries = {insn.address for insn in decoded}
+    external = {CONTINUATION_VA, RESULT_CONTINUATION_VA, 0x466040, 0x46AF00, 0x41E300, 0x48A1DC, 0x48A1E0}
+    for insn in decoded:
+        if not (insn.mnemonic.startswith("j") or insn.mnemonic == "call"):
+            continue
+        if not insn.op_str.startswith("0x"):
+            continue
+        target = int(insn.op_str.split()[0], 16)
+        if target in external:
+            continue
+        if PAGE_VA <= target < PAGE_VA + STRINGS_OFFSET:
+            if target not in boundaries:
+                raise RuntimeError(f"VV4HC branch target is not an instruction boundary: {insn.mnemonic} {insn.op_str}")
+            continue
+        raise RuntimeError(f"VV4HC branch target escapes certified code: {insn.mnemonic} {insn.op_str}")
     if not seen:
         raise RuntimeError("Capstone emitted no helper instructions")
 
@@ -1040,7 +1133,7 @@ def build_page() -> tuple[bytes, dict[str, object]]:
             "formatter": "[ebp-0x14]",
             "counts": {"sick": "[ebp-0x18]", "partial": "[ebp-0x1C]", "actual_sick": "[ebp-0x20]", "actual_partial": "[ebp-0x24]"},
             "result_locals": ["[ebp-0x30]", "[ebp-0x34]", "[ebp-0x38]"],
-            "snapshot": "[ebp-0xA00..ebp-0x041] (150 independent 16-byte slots: pointer, health, bits, active/status)",
+            "snapshot": "[ebp-0xA00..ebp-0xA1] (0x960 bytes; 150 independent 16-byte slots: pointer, health, bits, active/status, sickness)",
             "format_buffer": "[ebp-0x1100..ebp-0xF01] (512 bytes)",
             "frame_allocation": "sub esp,0x1200; epilogue add esp,0x1200 then pop edi/esi/ebx/ebp",
         },

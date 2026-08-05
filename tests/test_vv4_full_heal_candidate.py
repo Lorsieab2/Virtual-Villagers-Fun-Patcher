@@ -41,14 +41,14 @@ class VV4FullHealCandidateTests(unittest.TestCase):
         self.assertEqual(manifest["transaction"]["deduction"]["receiver"], "0x4D6F88")
         self.assertEqual(manifest["transaction"]["deduction"]["call"], "0x41E300")
         self.assertEqual(manifest["native_operations"]["sickness_clear"]["people_cured_dword"], "[0x4D6DF0]")
-        self.assertEqual(manifest["companion_files"][0]["sha256"], "AABC22466995014DCA18E2634C66E7823ACFF10C53AAD0ED1B6DBFBD7886BE16")
+        self.assertEqual(manifest["companion_files"][0]["sha256"], "D3C2AE77AABA371396ACC9BD69949159B358D671E07558E794CF18E261AB30A6")
         self.assertEqual(manifest["companion_files"][0]["size"], 298496)
         self.assertEqual(manifest["companion_files"][0]["destination"], "VVFP Origins Icons.dll")
         self.assertEqual(manifest["companion_files"][0]["artwork_resource_id"], 110)
         self.assertEqual(manifest["companion_files"][0]["artwork_sha256"], "83552374DFD7AC1AACC57D371C01C26BA1A438ADF34B904609A72165EB73C5A0")
-        self.assertEqual(manifest["hook"]["helper_length"], 1810)
-        self.assertEqual(manifest["hook"]["helper_sha256"], "6541D9799F1C6990BE64283AD3E5D7692396612E69ADFDB0BCAADF27417D5146")
-        self.assertEqual(manifest["hook"]["page_sha256"], "C260A67827B58F45CFB5F2E4B349EB35BC17CFD2D4AFEAEE581EA15942884CE7")
+        self.assertEqual(manifest["hook"]["helper_length"], 1925)
+        self.assertEqual(manifest["hook"]["helper_sha256"], "88C055AF0D1419F9E5570283264C45D80AC12BA7449CE7108283277FA5A456CE")
+        self.assertEqual(manifest["hook"]["page_sha256"], "CCCCA9A5F6357CDC2E147EE973F97A53FA7CFC8A53FA8474289B17E04F48A6E8")
         self.assertEqual(artifact_map["companion"]["sha256"], manifest["companion_files"][0]["sha256"])
         self.assertIn("RT_DIALOG 201/203", artifact_map["companion"]["resource_contract"])
         self.assertEqual(artifact_map["ownership"]["exe_hook"]["command5_continuation"], "0x4895D9")
@@ -156,7 +156,7 @@ class VV4FullHealCandidateTests(unittest.TestCase):
         spec.loader.exec_module(builder)
         base = builder.PARENT_DLL.read_bytes()
         candidate, digest = builder.build_resource_only_companion(base)
-        self.assertEqual(digest, "AABC22466995014DCA18E2634C66E7823ACFF10C53AAD0ED1B6DBFBD7886BE16")
+        self.assertEqual(digest, "D3C2AE77AABA371396ACC9BD69949159B358D671E07558E794CF18E261AB30A6")
         import pefile
         pe = pefile.PE(data=candidate)
         icon_type = next(x for x in pe.DIRECTORY_ENTRY_RESOURCE.entries if x.id == 14)
@@ -185,8 +185,8 @@ class VV4FullHealCandidateTests(unittest.TestCase):
                 blob.find("Full Heal / Cure All".encode("utf-16le")),
                 blob.find("All Villagers".encode("utf-16le")),
             )
-        # The structural repack may grow .rsrc by one aligned block.  Only the
-        # .rsrc raw-size and following .reloc raw-pointer are expected to move;
+        # The structural repack grows .rsrc by the certified aligned span.
+        # Only derived resource/relocation layout fields and checksum change;
         # all other headers and all bytes outside the resource section remain
         # byte-identical (with the relocated tail compared at its new offset).
         if len(candidate) != len(base):
@@ -207,8 +207,16 @@ class VV4FullHealCandidateTests(unittest.TestCase):
             self.assertIsNotNone(reloc_header)
             normalized_candidate = bytearray(candidate[:raw])
             normalized_base = bytearray(base[:raw])
+            # The structural move is allowed to change only the derived PE
+            # layout fields: .rsrc virtual/raw size, .reloc RVA/raw pointer,
+            # SizeOfImage, relocation directory RVA, and checksum.
+            normalized_candidate[rsrc_header + 8:rsrc_header + 12] = normalized_base[rsrc_header + 8:rsrc_header + 12]
             normalized_candidate[rsrc_header + 16:rsrc_header + 20] = normalized_base[rsrc_header + 16:rsrc_header + 20]
+            normalized_candidate[reloc_header + 12:reloc_header + 16] = normalized_base[reloc_header + 12:reloc_header + 16]
             normalized_candidate[reloc_header + 20:reloc_header + 24] = normalized_base[reloc_header + 20:reloc_header + 24]
+            normalized_candidate[pe + 0x50:pe + 0x54] = normalized_base[pe + 0x50:pe + 0x54]
+            normalized_candidate[pe + 24 + 96 + 5 * 8:pe + 24 + 96 + 5 * 8 + 4] = normalized_base[pe + 24 + 96 + 5 * 8:pe + 24 + 96 + 5 * 8 + 4]
+            normalized_candidate[pe + 24 + 64:pe + 24 + 68] = normalized_base[pe + 24 + 64:pe + 24 + 68]
             self.assertEqual(normalized_candidate, normalized_base)
             self.assertEqual(candidate[raw + size + delta :], base[raw + size :])
         else:
@@ -218,6 +226,131 @@ class VV4FullHealCandidateTests(unittest.TestCase):
             next(x["blob"] for x in base_leaves if x["path"] == (5, 202, 1033)),
             next(x["blob"] for x in cand_leaves if x["path"] == (5, 202, 1033)),
         )
+        pe_off = struct.unpack_from("<I", candidate, 0x3C)[0]
+        sec_table = pe_off + 24 + struct.unpack_from("<H", candidate, pe_off + 20)[0]
+        sections = {
+            candidate[sec_table + i * 40:sec_table + i * 40 + 8].rstrip(b"\0").decode(): sec_table + i * 40
+            for i in range(struct.unpack_from("<H", candidate, pe_off + 6)[0])
+        }
+        self.assertEqual(struct.unpack_from("<I", candidate, sections[".rsrc"] + 8)[0], 0x33800)
+        self.assertEqual(struct.unpack_from("<I", candidate, sections[".rsrc"] + 12)[0], 0x17000)
+        self.assertEqual(struct.unpack_from("<I", candidate, sections[".rsrc"] + 16)[0], 0x33800)
+        self.assertEqual(struct.unpack_from("<I", candidate, sections[".reloc"] + 12)[0], 0x4B000)
+        self.assertEqual(struct.unpack_from("<I", candidate, sections[".reloc"] + 20)[0], 0x47E00)
+        self.assertEqual(struct.unpack_from("<I", candidate, pe_off + 0x50)[0], 0x4C000)
+
+    def test_emitted_page_decodes_contract_and_stack_intervals(self):
+        import hashlib
+        import importlib.util
+
+        spec = importlib.util.spec_from_file_location(
+            "vv4hc_builder_page", ROOT / "scripts" / "build_vv4_full_heal_candidate.py"
+        )
+        builder = importlib.util.module_from_spec(spec)
+        assert spec.loader is not None
+        spec.loader.exec_module(builder)
+        page, meta = builder.build_page()
+        self.assertEqual(len(page), 0x1000)
+        self.assertEqual(meta["helper_length"], 1925)
+        self.assertEqual(
+            hashlib.sha256(page[0x100:0x100 + meta["helper_length"]]).hexdigest().upper(),
+            "88C055AF0D1419F9E5570283264C45D80AC12BA7449CE7108283277FA5A456CE",
+        )
+        self.assertEqual(hashlib.sha256(page).hexdigest().upper(), "CCCCA9A5F6357CDC2E147EE973F97A53FA7CFC8A53FA8474289B17E04F48A6E8")
+        body = page[0x100:0x100 + meta["helper_length"]]
+        self.assertNotIn(b"\xE9\x00\x10\x74\x00", body)  # no synthetic string-target jump
+        self.assertNotIn(struct.pack("<I", 0x50EDE8), body)
+        # Native addresses and ABI calls must be present in the actual
+        # emitted helper, not only in the model metadata.  Relative calls are
+        # checked by their decoded destinations rather than raw immediates.
+        calls = {
+            int(insn.op_str, 16)
+            for insn in builder.Cs(builder.CS_ARCH_X86, builder.CS_MODE_32).disasm(body, builder.ENTRY_VA)
+            if insn.mnemonic == "call" and insn.op_str.startswith("0x")
+        }
+        for address in (0x466040, 0x46AF00, 0x41E300):
+            self.assertIn(address, calls)
+        for address in (0x50E568, 0x4D6F88, 0x4D6DF0):
+            self.assertIn(struct.pack("<I", address), body)
+        self.assertIn(b"\x83\xF8\x64", body)  # exact health==100 checks
+        # Scalar locals and the 0x960-byte snapshot are disjoint by contract.
+        self.assertEqual(meta["stack_map"]["snapshot"], "[ebp-0xA00..ebp-0xA1] (0x960 bytes; 150 independent 16-byte slots: pointer, health, bits, active/status, sickness)")
+        self.assertEqual(meta["stack_map"]["format_buffer"], "[ebp-0x1100..ebp-0xF01] (512 bytes)")
+        self.assertIn("0x1200", meta["stack_map"]["frame_allocation"])
+
+    def test_emitted_parent_has_exact_hook_suffix_and_uninstall_identity(self):
+        import importlib.util
+        spec = importlib.util.spec_from_file_location(
+            "vv4hc_builder_parent", ROOT / "scripts" / "build_vv4_full_heal_candidate.py"
+        )
+        builder = importlib.util.module_from_spec(spec)
+        assert spec.loader is not None
+        spec.loader.exec_module(builder)
+        page, _ = builder.build_page()
+        parent = builder._render_parents()["collection_progression"]
+        candidate = builder._patch_parent(parent, page)
+        self.assertEqual(parent[builder.HOOK_RAW:builder.HOOK_RAW + 5], bytes.fromhex("E941FEFFFF"))
+        self.assertEqual(parent[builder.HOOK_RAW + 5:builder.HOOK_RAW + 7], b"\x72\x4C")
+        self.assertEqual(candidate[builder.HOOK_RAW:builder.HOOK_RAW + 5], bytes.fromhex("E9EC792B00"))
+        self.assertEqual(candidate[builder.HOOK_RAW + 5:builder.HOOK_RAW + 7], b"\x72\x4C")
+        self.assertEqual(builder.sha(parent), "CEBF0BC813059A13131CF75E4ECE11C8CCEE460CC98FB16BD87B03F5C20DB86B")
+        self.assertEqual(builder.sha(candidate), "1D4D0E6BB31A422256400E1EEFCD6116608C3790B0CF3B3DFFEA54730141DA58")
+
+    def test_emitted_dialog_command5_row_has_native_order_and_geometry(self):
+        import importlib.util
+        spec = importlib.util.spec_from_file_location(
+            "vv4hc_builder_dialog", ROOT / "scripts" / "build_vv4_full_heal_candidate.py"
+        )
+        builder = importlib.util.module_from_spec(spec)
+        assert spec.loader is not None
+        spec.loader.exec_module(builder)
+        candidate, _ = builder.build_resource_only_companion(builder.PARENT_DLL.read_bytes())
+        _, _, _, leaves = builder._dll_resource_leaves(candidate)
+
+        def parse(blob, expected_count):
+            def skip(pos):
+                first = struct.unpack_from("<H", blob, pos)[0]
+                if first == 0:
+                    return pos + 2, None
+                if first == 0xFFFF:
+                    return pos + 4, struct.unpack_from("<H", blob, pos + 2)[0]
+                start = pos
+                pos += 2
+                while struct.unpack_from("<H", blob, pos)[0] != 0:
+                    pos += 2
+                raw = blob[start:pos + 2]
+                return pos + 2, raw[:-2].decode("utf-16le")
+            pos = 26
+            for _ in range(3):
+                pos, _ = skip(pos)
+            pos += 6
+            pos, _ = skip(pos)  # variable UTF-16 typeface
+            pos = (pos + 3) & ~3
+            rows = []
+            for _ in range(expected_count):
+                pos = (pos + 3) & ~3
+                y = struct.unpack_from("<h", blob, pos + 14)[0]
+                ident = struct.unpack_from("<I", blob, pos + 20)[0]
+                pos += 24
+                pos, cls = skip(pos)
+                pos, title = skip(pos)
+                words = struct.unpack_from("<H", blob, pos)[0]
+                pos = (pos + 2 + words * 2 + 3) & ~3
+                rows.append((cls, title, ident, y))
+            self.assertEqual(pos, len(blob))
+            return rows
+
+        for ident, expected_count in ((201, 46), (203, 36)):
+            blob = next(item["blob"] for item in leaves if item["path"] == (5, ident, 1033))
+            rows = parse(blob, expected_count)
+            self.assertEqual(len(rows), expected_count)
+            self.assertEqual(rows[25:30], [
+                (130, 110, 0xFFFFFFFF, 168),
+                (130, 109, 1105, 180),
+                (130, "Full Heal / Cure All", 0xFFFFFFFF, 170),
+                (130, "30,000 tech points", 0xFFFFFFFF, 182),
+                (128, "Buy", 1005, 171),
+            ])
 
 if __name__ == "__main__":
     unittest.main()

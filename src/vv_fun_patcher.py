@@ -507,8 +507,8 @@ VV4_FULL_HEAL_CANDIDATE_PATHS = {
 VV4_FULL_HEAL_STOCK_SHA256 = "6D27A429FFCA5F1F71FDD7ECA761ED1BB67E85F976494BA178B3D7BE01F1B220"
 VV4_FULL_HEAL_PARENT_PAGE_SHA256 = "FD72C661B533117BF38D69E7EB855250A93927C831C265226930794C1EFDDB62"
 VV4_FULL_HEAL_PARENT_DLL_SHA256 = "4E1A83683A875EFE6F67116CDD862927BE1ABCB17DB7AE18143E58E98EAD01E7"
-VV4_FULL_HEAL_MANIFEST_SHA256 = "B8E8EFEDDD9A93A4FAFDF98BAA6A5FF1B0EF3A385734F6F72BC2C205F12913A3"
-VV4_FULL_HEAL_MAP_SHA256 = "A0D056F0360D6FE77F59BC7A0C4AFFD76765CAACF3DC94B4FD52467576744912"
+VV4_FULL_HEAL_MANIFEST_SHA256 = "2B67B6289DCA031409AD7CDC6488A7B57C95955E7C0E7037E2A13690702F0611"
+VV4_FULL_HEAL_MAP_SHA256 = "ADBD25BD7BE681D81EE432F012D9F088FEE6A5227E2AA5E1D14932F4CC12C237"
 VV4_FULL_HEAL_ENUMERATION = (
     "resolve every index 0..149 through ECX=0x50E568; push index; "
     "call 0x466040; ret 4; never walk a cached base"
@@ -1238,9 +1238,9 @@ def _certified_vv4_full_heal_record(
             or hook.get("hook_after") != "E9EC792B00"
             or hook.get("shim_bytes") != "83F8050F84F7000000E94784D4FF"
             or hook.get("shim_sha256") != "89A2E84C47D3130915A7830F48EC839C186A8BBABF7584681A83A4770582A370"
-            or hook.get("helper_length") != 1810
-            or hook.get("helper_sha256") != "6541D9799F1C6990BE64283AD3E5D7692396612E69ADFDB0BCAADF27417D5146"
-            or hook.get("page_sha256") != "C260A67827B58F45CFB5F2E4B349EB35BC17CFD2D4AFEAEE581EA15942884CE7"
+            or hook.get("helper_length") != 1925
+            or hook.get("helper_sha256") != "88C055AF0D1419F9E5570283264C45D80AC12BA7449CE7108283277FA5A456CE"
+            or hook.get("page_sha256") != "CCCCA9A5F6357CDC2E147EE973F97A53FA7CFC8A53FA8474289B17E04F48A6E8"
             or hook.get("strings_sha256") != "44CB71162F5F5298E8A6AB309D874EDD20D3B4C20B169DB3D2274F84DCC0717E"
             or hook.get("unknown_until_recertified")):
         raise PatcherError("VV4 Full Heal cannot enable before exact hook/page bytes are certified.")
@@ -1248,7 +1248,7 @@ def _certified_vv4_full_heal_record(
         raise PatcherError("VV4 Full Heal message contract is invalid.")
     companion = manifest.get("companion_files", [{}])[0]
     companion_map = artifact_map.get("companion", {})
-    if (companion.get("sha256") != "AABC22466995014DCA18E2634C66E7823ACFF10C53AAD0ED1B6DBFBD7886BE16"
+    if (companion.get("sha256") != "D3C2AE77AABA371396ACC9BD69949159B358D671E07558E794CF18E261AB30A6"
             or companion.get("size") != 298496
             or companion.get("destination") != "VVFP Origins Icons.dll"
             or companion.get("artwork_resource_id") != 110
@@ -1271,7 +1271,7 @@ def _certified_vv4_full_heal_record(
     } or ownership.get("page") != {
         "raw": "0xE5000", "length": 4096,
         "preimage_sha256": "zero-filled 0x1000",
-        "candidate_sha256": "C260A67827B58F45CFB5F2E4B349EB35BC17CFD2D4AFEAEE581EA15942884CE7",
+        "candidate_sha256": "CCCCA9A5F6357CDC2E147EE973F97A53FA7CFC8A53FA8474289B17E04F48A6E8",
     } or ownership.get("companion") != {
         "destination": "VVFP Origins Icons.dll",
         "preimage_sha256": VV4_FULL_HEAL_PARENT_DLL_SHA256,
