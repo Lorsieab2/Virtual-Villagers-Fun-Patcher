@@ -2697,6 +2697,7 @@ def publish_vv4_full_heal_removal(
                         "backup_path": str(backup),
                         "backup_sha256": sha256(backup) if backup.is_file() else None,
                         "backup_size": backup.stat().st_size if backup.is_file() else None,
+                        "relative_path": destination.relative_to(root).as_posix(),
                         "error": str(restore_error),
                     }
                 )
@@ -2707,18 +2708,49 @@ def publish_vv4_full_heal_removal(
             recovery_dir.mkdir()
             retained = recovery_dir / "backups"
             retained.mkdir()
-            report = recovery_dir / "recovery-report.json"
-            report.write_text(
-                json.dumps({"operation": "remove", "members": unresolved}, indent=2) + "\n",
-                encoding="utf-8",
-            )
             for item in unresolved:
                 backup = Path(item["backup_path"])
                 if backup.is_file():
                     os.replace(backup, retained / backup.name)
                     item["backup_path"] = str(retained / backup.name)
+                    # The retained original candidate backup is authoritative
+                    # for both the original size and hash in recovery records.
+                    item["original_size"] = (retained / backup.name).stat().st_size
+                    item["backup_size"] = item["original_size"]
+                    item["backup_sha256"] = sha256(retained / backup.name)
+            retained_stage = recovery_dir / "stage"
+            if stage.exists():
+                os.replace(stage, retained_stage)
+                for item in unresolved:
+                    item["stage_path"] = str(retained_stage)
+            report = recovery_dir / "recovery-report.json"
+            stage_snapshot = _capture_tree_snapshot(retained_stage) if retained_stage.exists() else None
+            restored_snapshot = _capture_tree_snapshot(root)
+            restored_entries = {item["relative_path"]: item for item in restored_snapshot["entries"]}
+            for item in unresolved:
+                rel = item["relative_path"]
+                restored_entries[rel] = {
+                    "relative_path": rel,
+                    "type": "file",
+                    "size": item["original_size"],
+                    "sha256": item["original_sha256"],
+                }
+            restored_snapshot["entries"] = sorted(restored_entries.values(), key=lambda entry: entry["relative_path"])
             report.write_text(
-                json.dumps({"operation": "remove", "members": unresolved}, indent=2) + "\n",
+                json.dumps(
+                    {
+                        "operation": "remove",
+                        "destination_root": str(root),
+                        "destination_snapshot": _capture_tree_snapshot(root),
+                        "recovery_stage_root": str(retained_stage) if retained_stage.exists() else None,
+                        "recovery_stage_snapshot": stage_snapshot,
+                        "recovery_backup_root": str(retained),
+                        "recovery_backup_snapshot": _capture_tree_snapshot(retained),
+                        "restored_snapshot": restored_snapshot,
+                        "members": unresolved,
+                    },
+                    indent=2,
+                ) + "\n",
                 encoding="utf-8",
             )
             raise PatcherError(f"VV4 Full Heal removal recovery is unresolved; evidence retained at {recovery_dir}")
@@ -2738,27 +2770,112 @@ def recover_vv4_transaction(recovery_dir: Path) -> None:
     members = payload.get("members")
     if not isinstance(members, list) or not members:
         raise PatcherError("Recovery report has no recoverable members.")
-    unresolved: list[dict[str, Any]] = []
+    destination_root = payload.get("destination_root")
+    destination_snapshot = payload.get("destination_snapshot")
+    restored_snapshot = payload.get("restored_snapshot")
+    if destination_root and isinstance(destination_snapshot, dict):
+        if not _tree_snapshot_matches(Path(destination_root), destination_snapshot):
+            raise PatcherError("Recovery destination changed or contains unknown members.")
+    recovery_stage_root = payload.get("recovery_stage_root")
+    recovery_stage_snapshot = payload.get("recovery_stage_snapshot")
+    if recovery_stage_root and isinstance(recovery_stage_snapshot, dict):
+        if not _tree_snapshot_matches(Path(recovery_stage_root), recovery_stage_snapshot):
+            raise PatcherError("Recovery stage changed or contains unknown members.")
+    recovery_backup_root = payload.get("recovery_backup_root")
+    recovery_backup_snapshot = payload.get("recovery_backup_snapshot")
+    if recovery_backup_root and isinstance(recovery_backup_snapshot, dict):
+        if not _tree_snapshot_matches(Path(recovery_backup_root), recovery_backup_snapshot):
+            raise PatcherError("Recovery backups changed or contain unknown members.")
+    actions: list[tuple[Path, Path, str, int]] = []
+    seen: set[str] = set()
     for item in members:
         destination = Path(str(item.get("original_path", "")))
         backup = Path(str(item.get("backup_path", "")))
         expected = str(item.get("original_sha256") or "").upper()
+        relative = str(item.get("relative_path", ""))
+        key = Path(relative).as_posix().casefold()
+        if not relative or key in seen or Path(relative).is_absolute() or ".." in Path(relative).parts:
+            raise PatcherError("Recovery report contains duplicate or unsafe relative paths.")
+        seen.add(key)
+        if destination_root:
+            try:
+                actual_relative = destination.resolve().relative_to(Path(destination_root).resolve())
+            except ValueError as exc:
+                raise PatcherError("Recovery destination escapes its recorded root.") from exc
+            if actual_relative.as_posix().casefold() != key:
+                raise PatcherError("Recovery destination path does not match its normalized relative path.")
         try:
-            if not backup.is_file() or not expected or sha256(backup) != expected:
-                raise PatcherError("Recovery backup is missing or corrupt.")
+            backup.resolve().relative_to(root)
+        except ValueError as exc:
+            raise PatcherError("Recovery backup escapes its owned recovery directory.") from exc
+        if not backup.is_file() or not expected:
+            raise PatcherError("Recovery backup is missing.")
+        backup_size = int(item.get("backup_size") or backup.stat().st_size)
+        if sha256(backup) != expected or backup.stat().st_size != backup_size:
+            raise PatcherError("Recovery backup is corrupt or size-mismatched.")
+        original_size = int(item.get("original_size") or backup.stat().st_size)
+        if original_size != backup.stat().st_size:
+            raise PatcherError("Recovery original/backup size accounting is inconsistent.")
+        actions.append((destination, backup, expected, backup.stat().st_size))
+    # All preflight checks complete before consuming a backup or mutating a
+    # destination.  A replacement failure retains the untouched backups for a
+    # later replay and is reported as unresolved.
+    unresolved: list[dict[str, Any]] = []
+    replaced: list[tuple[Path, Path, str]] = []
+    for destination, backup, expected, _size in actions:
+        try:
             destination.parent.mkdir(parents=True, exist_ok=True)
             os.replace(backup, destination)
             if not destination.is_file() or sha256(destination) != expected:
                 raise PatcherError("Recovered destination failed verification.")
+            replaced.append((destination, backup, expected))
         except Exception as exc:
-            unresolved.append({**item, "error": str(exc)})
+            unresolved.append(
+                {
+                    "original_path": str(destination),
+                    "original_sha256": expected,
+                    "original_size": _size,
+                    "backup_path": str(backup),
+                    "backup_sha256": sha256(backup) if backup.is_file() else None,
+                    "backup_size": backup.stat().st_size if backup.is_file() else _size,
+                    "relative_path": next((item.get("relative_path") for item in members if str(item.get("original_path")) == str(destination)), ""),
+                    "error": str(exc),
+                }
+            )
     if unresolved:
+        # Do not delete the report or any surviving backup.  The caller can
+        # repair the fault and invoke this function again.
+        if destination_root:
+            payload["destination_snapshot"] = _capture_tree_snapshot(Path(destination_root))
         report.write_text(
-            json.dumps({"operation": payload.get("operation"), "members": unresolved}, indent=2) + "\n",
+            json.dumps({**payload, "members": unresolved}, indent=2) + "\n",
             encoding="utf-8",
         )
         raise PatcherError(f"Recovery remains unresolved at {root}")
-    shutil.rmtree(root)
+    if destination_root and isinstance(restored_snapshot, dict):
+        if not _tree_snapshot_matches(Path(destination_root), restored_snapshot):
+            raise PatcherError("Recovered destination is not an exact complete tree.")
+    # Only remove an otherwise-empty owned recovery tree.  Unknown descendants
+    # are preserved for manual inspection rather than recursively discarded.
+    owned_stage = Path(recovery_stage_root).resolve() if recovery_stage_root else None
+    owned_backup = Path(recovery_backup_root).resolve() if recovery_backup_root else None
+    unknown = [
+        p for p in root.rglob("*")
+        if p.name != "recovery-report.json"
+        and (owned_stage is None or p.absolute() != owned_stage and owned_stage not in p.absolute().parents)
+        and (owned_backup is None or p.absolute() != owned_backup and owned_backup not in p.absolute().parents)
+    ]
+    if unknown:
+        raise PatcherError("Recovery contains unknown material; evidence retained.")
+    if owned_stage is not None and owned_stage.exists():
+        shutil.rmtree(owned_stage)
+    report.unlink(missing_ok=True)
+    for directory in sorted([p for p in root.rglob("*") if p.is_dir()], key=lambda p: len(p.parts), reverse=True):
+        try:
+            directory.rmdir()
+        except OSError:
+            raise PatcherError("Recovery directories are not empty; evidence retained.")
+    root.rmdir()
 
 
 def _fun_patch_support(
@@ -3974,11 +4091,64 @@ def _tree_records_match(root: Path, records: list[dict[str, Any]]) -> bool:
     )
 
 
+def _capture_tree_snapshot(root: Path) -> dict[str, Any]:
+    """Capture the complete no-follow file/directory shape of a destination."""
+    root = Path(root)
+    if not os.path.lexists(root):
+        return {"exists": False, "entries": []}
+    if not root.is_dir() or root.is_symlink():
+        raise PatcherError(f"Destination snapshot root is not a real directory: {root}")
+    entries: list[dict[str, Any]] = []
+    for path in sorted(root.rglob("*")):
+        rel = path.relative_to(root).as_posix()
+        if path.is_symlink():
+            entries.append({"relative_path": rel, "type": "symlink"})
+        elif path.is_dir():
+            entries.append({"relative_path": rel, "type": "dir"})
+        elif path.is_file():
+            entries.append(
+                {
+                    "relative_path": rel,
+                    "type": "file",
+                    "size": path.stat().st_size,
+                    "sha256": sha256(path),
+                }
+            )
+        else:
+            entries.append({"relative_path": rel, "type": "other"})
+    return {"exists": True, "entries": entries}
+
+
+def _tree_snapshot_matches(root: Path, snapshot: dict[str, Any]) -> bool:
+    try:
+        actual = _capture_tree_snapshot(root)
+    except PatcherError:
+        return False
+    expected = {str(item["relative_path"]): item for item in snapshot.get("entries", [])}
+    got = {str(item["relative_path"]): item for item in actual.get("entries", [])}
+    if bool(actual.get("exists")) != bool(snapshot.get("exists")) or set(expected) != set(got):
+        return False
+    for rel, item in expected.items():
+        current = got[rel]
+        if item.get("type") != current.get("type"):
+            return False
+        if item.get("type") == "file" and (
+            int(item.get("size", -1)) != int(current.get("size", -2))
+            or str(item.get("sha256", "")).upper() != str(current.get("sha256", "")).upper()
+        ):
+            return False
+    return True
+
+
 def _write_recovery_report(
     recovery_dir: Path,
     operation: str,
     records: list[dict[str, Any]],
     backup_root: Path | None,
+    *,
+    destination_root: Path | None = None,
+    destination_snapshot: dict[str, Any] | None = None,
+    restored_snapshot: dict[str, Any] | None = None,
 ) -> Path:
     recovery_dir.mkdir(parents=True, exist_ok=True)
     members: list[dict[str, Any]] = []
@@ -3997,8 +4167,15 @@ def _write_recovery_report(
             }
         )
     report = recovery_dir / "recovery-report.json"
+    payload: dict[str, Any] = {"operation": operation, "members": members}
+    if destination_root is not None:
+        payload["destination_root"] = str(destination_root)
+    if destination_snapshot is not None:
+        payload["destination_snapshot"] = destination_snapshot
+    if restored_snapshot is not None:
+        payload["restored_snapshot"] = restored_snapshot
     report.write_text(
-        json.dumps({"operation": operation, "members": members}, indent=2) + "\n",
+        json.dumps(payload, indent=2) + "\n",
         encoding="utf-8",
     )
     return report
@@ -4441,7 +4618,15 @@ def apply_patch(
                 backup_folder = None
             if failed_publish is not None and failed_publish.exists():
                 os.rename(failed_publish, recovery_dir / "failed-publication")
-            _write_recovery_report(recovery_dir, "install", original_records, retained_backup if retained_backup.exists() else None)
+            _write_recovery_report(
+                recovery_dir,
+                "install",
+                original_records,
+                retained_backup if retained_backup.exists() else None,
+                destination_root=output_folder,
+                destination_snapshot=_capture_tree_snapshot(output_folder),
+                restored_snapshot=_capture_tree_snapshot(retained_backup) if retained_backup.exists() else None,
+            )
             raise PatcherError(f"Install recovery is unresolved; evidence retained at {recovery_dir}")
         if failed_publish is not None and failed_publish.exists():
             shutil.rmtree(failed_publish)

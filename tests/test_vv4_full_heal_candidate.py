@@ -64,23 +64,69 @@ class VV4FullHealCandidateTests(unittest.TestCase):
             root = Path(temp)
             destination = root / "game.exe"
             destination.write_bytes(b"original")
-            backup = root / "backup.exe"
+            recovery = root / ".recovery"
+            backup_dir = recovery / "backups"
+            backup_dir.mkdir(parents=True)
+            backup = backup_dir / "backup.exe"
             backup.write_bytes(b"original")
             destination.unlink()
-            recovery = root / ".recovery"
             records = [{
                 "relative_path": "game.exe",
                 "original_path": str(destination),
                 "sha256": hashlib.sha256(b"original").hexdigest().upper(),
                 "size": len(b"original"),
             }]
-            report = patcher._write_recovery_report(recovery, "install", records, root)
+            report = patcher._write_recovery_report(recovery, "install", records, backup_dir)
             payload = json.loads(report.read_text(encoding="utf-8"))
             payload["members"][0]["backup_path"] = str(backup)
+            payload["recovery_backup_root"] = str(backup_dir)
+            payload["recovery_backup_snapshot"] = patcher._capture_tree_snapshot(backup_dir)
             report.write_text(json.dumps(payload), encoding="utf-8")
             patcher.recover_vv4_transaction(recovery)
             self.assertEqual(destination.read_bytes(), b"original")
             self.assertFalse(recovery.exists())
+
+    def test_production_removal_recovery_retains_candidate_backup_and_replays(self):
+        import importlib.util
+        import tempfile
+        import vv_fun_patcher as patcher
+        spec = importlib.util.spec_from_file_location(
+            "vv4hc_builder_production_recovery", ROOT / "scripts" / "build_vv4_full_heal_candidate.py"
+        )
+        builder = importlib.util.module_from_spec(spec)
+        assert spec.loader is not None
+        spec.loader.exec_module(builder)
+        feature = patcher.FunPatch(json.loads(MANIFEST.read_text(encoding="utf-8")))
+        page, _ = builder.build_page()
+        companion, _ = builder.build_resource_only_companion(builder.PARENT_DLL.read_bytes())
+        with tempfile.TemporaryDirectory(prefix="vv4hc-production-recovery-") as temp:
+            root = Path(temp)
+            exe_name = "Virtual Villagers - The Tree of Life - Modded.exe"
+            parent = builder._render_parents()["collection_progression"]
+            (root / exe_name).write_bytes(builder._patch_parent(parent, page))
+            (root / "VVFP Origins Icons.dll").write_bytes(companion)
+            real_replace = patcher.os.replace
+            calls = {"count": 0}
+            def fail_publish_and_first_restore(source, destination):
+                calls["count"] += 1
+                if calls["count"] in (2, 3):
+                    raise OSError("injected production restore failure")
+                return real_replace(source, destination)
+            with mock_patch.object(patcher.os, "replace", side_effect=fail_publish_and_first_restore):
+                with self.assertRaises(Exception):
+                    patcher.publish_vv4_full_heal_removal(root, exe_name, feature, "collection_progression")
+            recovery_dirs = list(root.parent.glob(f".{root.name}.remove-recovery-*"))
+            self.assertEqual(len(recovery_dirs), 1)
+            report = recovery_dirs[0] / "recovery-report.json"
+            payload = json.loads(report.read_text(encoding="utf-8"))
+            self.assertTrue(payload["members"])
+            member = payload["members"][0]
+            self.assertEqual(member["original_size"], 942080)
+            self.assertEqual(member["backup_size"], 942080)
+            self.assertTrue(member["backup_path"])
+            patcher.recover_vv4_transaction(recovery_dirs[0])
+            self.assertEqual(patcher.sha256(root / exe_name), patcher.VV4_FULL_HEAL_CANDIDATE_EXE_HASHES["collection_progression"])
+            self.assertEqual(patcher.sha256(root / "VVFP Origins Icons.dll"), feature.raw["companion_files"][0]["sha256"])
 
     def test_complete_parent_chain_and_overlay_owner_preimage_gate(self):
         import importlib.util
