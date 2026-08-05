@@ -26,8 +26,11 @@ def _failure(text: str) -> str:
 @dataclass(frozen=True)
 class EligibleState:
     index: int
+    identity: object
     health: int
     sick: bool
+    active: int = 1
+    status: int = 0
 
 
 @dataclass(frozen=True)
@@ -46,6 +49,7 @@ class TransactionResult:
     actual_sick: int = 0
     actual_partial: int = 0
     deduction: int = 0
+    snapshot: tuple[EligibleState, ...] = ()
 
 
 def _eligible(record: Mapping[str, object] | None) -> bool:
@@ -72,20 +76,26 @@ def dry_run(
     sick_count = partial_count = 0
     for index in range(RECORD_COUNT):
         record = resolve(index)
-        if not _eligible(record):
+        if record is None:
+            states.append(EligibleState(index, None, 0, False, 0, 0))
             continue
         try:
             health = int(record["health"])
             sick = int(record.get("sick", 0)) != 0
+            active = int(record.get("active", 0))
+            status = int(record.get("status", 0))
         except (KeyError, TypeError, ValueError, OverflowError):
             return None
-        if health > 100:
-            return None
+        identity = record.get("identity", record.get("pointer", index))
+        # Keep a complete physical-index snapshot, including ineligible
+        # records, so replacement/activation/status changes cannot evade the
+        # confirmation gate.
+        states.append(EligibleState(index, identity, health, sick, active, status))
+        if not _eligible(record):
+            continue
         partial = 0 < health < 100
         sick_count += int(sick)
         partial_count += int(partial)
-        if sick or partial:
-            states.append(EligibleState(index, health, sick))
     return DryRun(sick_count, partial_count, tuple(states))
 
 
@@ -127,7 +137,7 @@ def plan_transaction(
         return TransactionResult("stale", _failure("The villager state changed before confirmation."), initial.sick_count, initial.partial_count)
     if fresh_balance < PRICE:
         return TransactionResult("insufficient", _failure("Not enough tech points."), initial.sick_count, initial.partial_count)
-    return TransactionResult("commit", prompt, initial.sick_count, initial.partial_count)
+    return TransactionResult("commit", prompt, initial.sick_count, initial.partial_count, snapshot=initial.states)
 
 
 def success_message(actual_sick: int, actual_partial: int) -> str:
@@ -148,6 +158,7 @@ def apply_transaction(
     clear_sickness: Callable[[int], bool],
     increment_people_cured: Callable[[], None],
     deduct: Callable[[int, int, int], None],
+    funds: Callable[[], int] | None = None,
 ) -> TransactionResult:
     """Apply a committed plan through native callbacks and postverify it.
 
@@ -158,9 +169,33 @@ def apply_transaction(
 
     if plan.status != "commit":
         return plan
+    if funds is not None and funds() < PRICE:
+        return TransactionResult(
+            "insufficient",
+            _failure("Not enough tech points."),
+            plan.predicted_sick,
+            plan.predicted_partial,
+        )
     actual_sick = actual_partial = 0
     for index in range(RECORD_COUNT):
         record = resolve(index)
+        expected = next((state for state in plan.snapshot if state.index == index), None)
+        if expected is None:
+            return TransactionResult("partial", failure_message(actual_sick, actual_partial, "record snapshot missing"), plan.predicted_sick, plan.predicted_partial, actual_sick, actual_partial)
+        if record is None:
+            if expected != EligibleState(index, None, 0, False, 0, 0):
+                return TransactionResult("partial", failure_message(actual_sick, actual_partial, "record identity or prestate changed"), plan.predicted_sick, plan.predicted_partial, actual_sick, actual_partial)
+            continue
+        try:
+            current_identity = record.get("identity", record.get("pointer", index))
+            current_health = int(record.get("health", 0))
+            current_sick = int(record.get("sick", 0)) != 0
+            current_active = int(record.get("active", 0))
+            current_status = int(record.get("status", 0))
+        except (TypeError, ValueError, OverflowError):
+            return TransactionResult("partial", failure_message(actual_sick, actual_partial, "record revalidation failed"), plan.predicted_sick, plan.predicted_partial, actual_sick, actual_partial)
+        if (current_identity, current_health, current_sick, current_active, current_status) != (expected.identity, expected.health, expected.sick, expected.active, expected.status):
+            return TransactionResult("partial", failure_message(actual_sick, actual_partial, "record identity or prestate changed"), plan.predicted_sick, plan.predicted_partial, actual_sick, actual_partial)
         if not _eligible(record):
             continue
         try:
@@ -168,20 +203,42 @@ def apply_transaction(
             sick = int(record.get("sick", 0)) != 0
         except (KeyError, TypeError, ValueError, OverflowError):
             return TransactionResult("partial", failure_message(actual_sick, actual_partial, "record revalidation failed"), plan.predicted_sick, plan.predicted_partial, actual_sick, actual_partial)
-        if health > 100:
-            return TransactionResult("partial", failure_message(actual_sick, actual_partial, "health range changed"), plan.predicted_sick, plan.predicted_partial, actual_sick, actual_partial)
+        identity = current_identity
+        # The runtime transaction uses a complete per-index snapshot.  The
+        # model mirrors that contract while retaining the historical public
+        # result shape used by existing callers.
+        if expected is not None and (
+            identity != expected.identity
+            or int(record.get("active", 0)) != expected.active
+            or int(record.get("status", 0)) != expected.status
+            or health != expected.health
+            or (int(record.get("sick", 0)) != 0) != expected.sick
+        ):
+            return TransactionResult("partial", failure_message(actual_sick, actual_partial, "record identity or prestate changed"), plan.predicted_sick, plan.predicted_partial, actual_sick, actual_partial)
+        if health <= 0:
+            continue
         if 0 < health < 100:
             if not set_health(index, -1, 100):
                 return TransactionResult("partial", failure_message(actual_sick, actual_partial, "native health write failed"), plan.predicted_sick, plan.predicted_partial, actual_sick, actual_partial)
             after = resolve(index)
-            if after is None or int(after.get("health", 0)) != 100:
+            if after is None or after.get("identity", after.get("pointer", index)) != identity or int(after.get("health", 0)) != 100:
                 return TransactionResult("partial", failure_message(actual_sick, actual_partial, "health postverification failed"), plan.predicted_sick, plan.predicted_partial, actual_sick, actual_partial)
             actual_partial += 1
         if sick:
+            before_clear = resolve(index)
+            if (
+                before_clear is None
+                or before_clear.get("identity", before_clear.get("pointer", index)) != identity
+                or int(before_clear.get("active", 0)) == 0
+                or int(before_clear.get("status", 0)) != 0
+                or int(before_clear.get("health", 0)) <= 0
+                or int(before_clear.get("sick", 0)) == 0
+            ):
+                return TransactionResult("partial", failure_message(actual_sick, actual_partial, "record changed before sickness clear"), plan.predicted_sick, plan.predicted_partial, actual_sick, actual_partial)
             if not clear_sickness(index):
                 return TransactionResult("partial", failure_message(actual_sick, actual_partial, "native sickness clear failed"), plan.predicted_sick, plan.predicted_partial, actual_sick, actual_partial)
             after = resolve(index)
-            if after is None or int(after.get("sick", 1)) != 0:
+            if after is None or after.get("identity", after.get("pointer", index)) != identity or int(after.get("active", 0)) == 0 or int(after.get("status", 0)) != 0 or int(after.get("health", 0)) <= 0 or int(after.get("sick", 1)) != 0:
                 return TransactionResult("partial", failure_message(actual_sick, actual_partial, "sickness postverification failed"), plan.predicted_sick, plan.predicted_partial, actual_sick, actual_partial)
             increment_people_cured()
             actual_sick += 1
@@ -190,5 +247,7 @@ def apply_transaction(
         return TransactionResult("partial", failure_message(actual_sick, actual_partial, "complete postverification failed"), plan.predicted_sick, plan.predicted_partial, actual_sick, actual_partial)
     if actual_sick != plan.predicted_sick or actual_partial != plan.predicted_partial:
         return TransactionResult("partial", failure_message(actual_sick, actual_partial, "verified counts did not match the confirmed counts"), plan.predicted_sick, plan.predicted_partial, actual_sick, actual_partial)
+    if funds is not None and funds() < PRICE:
+        return TransactionResult("insufficient", failure_message(actual_sick, actual_partial, "funds changed before deduction"), plan.predicted_sick, plan.predicted_partial, actual_sick, actual_partial)
     deduct(TECH_DEDUCTION_RECEIVER, -PRICE, TECH_DEDUCTION_CALL)
     return TransactionResult("success", success_message(actual_sick, actual_partial), plan.predicted_sick, plan.predicted_partial, actual_sick, actual_partial, PRICE)

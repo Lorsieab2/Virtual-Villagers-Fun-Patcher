@@ -22,7 +22,8 @@
     "resolver": "ECX=0x50E568; push physical index; call 0x466040; ret 4",
     "health_setter": "ECX=record+0x1C34; push -1; push 100; call 0x46AF00; ret 8",
     "sickness": "+0x1C48 -> 0; increment [0x4D6DF0] once after verified clear",
-    "deduction": "ECX=0x4D6F88; push -30000; call 0x41E300; ret 4; exactly once after count-match postverify"
+    "deduction": "ECX=0x4D6F88; push -30000; call 0x41E300; ret 4; exactly once after count-match postverify",
+    "people_cured": "increment DWORD [0x4D6DF0] once per independently revalidated verified sickness clear; never for health-only records"
   },
   "eligibility": {"active": "+0x1CC4 != 0", "status": "+0x1CC7 == 0", "health": "+0x1C40 > 0", "partial": "1..99", "heathens": "not a separate field in this proved VV4 contract"},
   "messages": {"label": "Full Heal / Cure All", "failure_suffix": "No tech points have been deducted."},
@@ -35,19 +36,19 @@
     "after": "E9EC792B00",
     "section": {"name": ".vv4hc", "raw_offset": "0xE5000", "rva": "0x341000", "va": "0x741000", "length": 4096},
     "shim": {"va": "0x741000", "bytes": "83F8050F84F7000000E94784D4FF", "sha256": "89A2E84C47D3130915A7830F48EC839C186A8BBABF7584681A83A4770582A370"},
-    "helper_length": 1119,
-    "helper_sha256": "DA23AADA7B3C7574DA937CE4862E7ED9610C29C2467976A7CB3C4FC41D2C1A9D",
-    "page_sha256": "B68532BDD9028EF7705848FE61AB0C44DBE805061BF6F08A0F53C15712BE5202",
+    "helper_length": 1747,
+    "helper_sha256": "9E4BDACBD21F9287A556E400B5CA469D5B04126C11B44C96DCFFF749645280CD",
+    "page_sha256": "9911CE4342FEBFDE0C2553075F869D928F465CB52CB6EEB58688D880C99849B0",
     "strings_sha256": "44CB71162F5F5298E8A6AB309D874EDD20D3B4C20B169DB3D2274F84DCC0717E",
     "transaction_entry_va": "0x741100",
     "ranges": ["0x8960F..0x89613", "0xE5000..0xE5FFF"],
     "unknown_until_recertified": true
   },
-  "companion": {"filename": "VVFP Origins Icons.dll", "size": 283136, "sha256": "CF468556C14306FB74884BC48F23D5506CCFB5FC2B670364FA143BC1141E0EE7", "parent_sha256": "4E1A83683A875EFE6F67116CDD862927BE1ABCB17DB7AE18143E58E98EAD01E7", "resource_contract": "RT_DIALOG 201/203 five-item command-5 row inserted between command 4 and the following row; caption Origins Upgrades; 202 and non-.rsrc bytes unchanged", "artwork_resource_id": 110, "artwork_sha256": "83552374DFD7AC1AACC57D371C01C26BA1A438ADF34B904609A72165EB73C5A0"},
+  "companion": {"filename": "VVFP Origins Icons.dll", "size": 298496, "sha256": "AABC22466995014DCA18E2634C66E7823ACFF10C53AAD0ED1B6DBFBD7886BE16", "parent_sha256": "4E1A83683A875EFE6F67116CDD862927BE1ABCB17DB7AE18143E58E98EAD01E7", "resource_contract": "RT_DIALOG 201/203 structural command-5 row from parent items 20..24 inserted before item 25; 201=46 and 203=36; caption Origins Upgrades; 202/non-resource bytes unchanged; RT_ICON 46..49 and RT_GROUP_ICON 110 use authenticated cure-all artwork", "artwork_resource_id": 110, "artwork_sha256": "83552374DFD7AC1AACC57D371C01C26BA1A438ADF34B904609A72165EB73C5A0", "icon_leaf_sha256": {"46": "68FED72757B4A8A28F69ABFB7A9ED4133647676EAE7665F44BA6D8931929DD23", "47": "7B599B3876B44BECA595FCE3ED7DFC984C99E014A057F6ED0BA25CA507F49B73", "48": "1D4C17E4E54C623485E9D7D8FE613D6D67F5511521256BBA8572B9EC76D70634", "49": "0122D77CF881F79BFD488BE98E917AB76BF2049AE5AF3CC44228AF3A35D70595"}},
   "ownership": {
     "exe_hook": {"raw": "0x8960F", "length": 5, "preimage": "E941FEFFFF", "candidate": "E9EC792B00", "preserved_suffix": "724C", "non_command5_continuation": "0x489455", "command5_continuation": "0x4895D9"},
-    "page": {"raw": "0xE5000", "length": 4096, "preimage_sha256": "zero-filled 0x1000", "candidate_sha256": "B68532BDD9028EF7705848FE61AB0C44DBE805061BF6F08A0F53C15712BE5202"},
-    "companion": {"destination": "VVFP Origins Icons.dll", "preimage_sha256": "4E1A83683A875EFE6F67116CDD862927BE1ABCB17DB7AE18143E58E98EAD01E7", "candidate_sha256": "CF468556C14306FB74884BC48F23D5506CCFB5FC2B670364FA143BC1141E0EE7", "restore_sha256": "4E1A83683A875EFE6F67116CDD862927BE1ABCB17DB7AE18143E58E98EAD01E7"},
+    "page": {"raw": "0xE5000", "length": 4096, "preimage_sha256": "zero-filled 0x1000", "candidate_sha256": "9911CE4342FEBFDE0C2553075F869D928F465CB52CB6EEB58688D880C99849B0"},
+    "companion": {"destination": "VVFP Origins Icons.dll", "preimage_sha256": "4E1A83683A875EFE6F67116CDD862927BE1ABCB17DB7AE18143E58E98EAD01E7", "candidate_sha256": "AABC22466995014DCA18E2634C66E7823ACFF10C53AAD0ED1B6DBFBD7886BE16", "restore_sha256": "4E1A83683A875EFE6F67116CDD862927BE1ABCB17DB7AE18143E58E98EAD01E7"},
     "parent_collection_sha256": "CEBF0BC813059A13131CF75E4ECE11C8CCEE460CC98FB16BD87B03F5C20DB86B",
     "parent_immediate_sha256": "6070D3244567815E8880168AEDCB9FF0E43F6720095AE67628089D492DA40133"
   },

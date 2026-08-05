@@ -11,8 +11,11 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import os
+import shutil
 import struct
 import sys
+import uuid
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -42,6 +45,9 @@ STRINGS_OFFSET = 0xC00
 PARENT_DLL = ROOT / "data/candidates/VVFP VV4 Full Mastery Candidate.dll"
 PARENT_DLL_SHA256 = "4E1A83683A875EFE6F67116CDD862927BE1ABCB17DB7AE18143E58E98EAD01E7"
 PARENT_DLL_SIZE = 282624
+# Raw source-of-truth pins are checked before any candidate output is built.
+SOURCE_MANIFEST_SHA256 = "4220B43A59A234F1FB5D1150FC719B05F7A961C54FA5D5691CA7A9DB5FD6EDE5"
+SOURCE_MAP_SHA256 = "F35B766BAEFA6245C92EA38E954B004A8C1EEA221DD823434569CD5711E1B781"
 
 sys.path.insert(0, str(ROOT / ".tools" / "capstone"))
 sys.path.insert(0, str(ROOT / ".tools" / "keystone-runtime"))
@@ -266,26 +272,40 @@ def _append_dialog_row(blob: bytes, expected_items: int) -> bytes:
         words = struct.unpack_from("<H", blob, pos)[0]; pos += 2 + words * 2; end = (pos + 3) & ~3
         spans.append((start, end)); pos = end
     if pos != len(blob): raise RuntimeError("VV4 dialog does not close exactly")
-    # Command 4 is the fifth five-item group (title/price/Buy/icon/static).
+    # Command 4 is the certified five-item group at physical item offsets
+    # 20..24 (primary icon, secondary icon, label, price, Buy).  Clone those
+    # records exactly, changing only the command-5 title/class/id and Y
+    # fields required by the native layout.
     # Insert the new command-5 group immediately before the existing next
     # group, preserving all following native rows and their order.
     if len(spans) < 28:
         raise RuntimeError("VV4 dialog has no command-4 insertion boundary")
-    rows = [blob[a:b] for a, b in spans[22:27]]
-    label = "Full Heal / Cure All".encode("utf-16le") + b"\0\0"
-    price = "30,000 tech points".encode("utf-16le") + b"\0\0"
-    buy = "Buy".encode("utf-16le") + b"\0\0"
+    rows = [blob[a:b] for a, b in spans[20:25]]
+    # DIALOGEX ordinal/class tokens.  Every cloned style/exStyle/x/cx/cy and
+    # creation-data tail remains byte-identical to its command-4 source.
+    ordinal = lambda n: b"\xff\xff" + struct.pack("<H", n)
+    specs = [
+        (ordinal(130), ordinal(110), 0xFFFF, 168),
+        (ordinal(130), ordinal(109), 1105, 180),
+        (ordinal(130), "Full Heal / Cure All".encode("utf-16le") + b"\0\0", 0xFFFF, 170),
+        (ordinal(130), "30,000 tech points".encode("utf-16le") + b"\0\0", 0xFFFF, 182),
+        (ordinal(128), "Buy".encode("utf-16le") + b"\0\0", 1005, 171),
+    ]
     insert_at = spans[27][0]
     out = bytearray(blob[:insert_at])
-    for index, row in enumerate(rows):
-        token = label if index == 0 else price if index == 1 else buy if index == 2 else b"\0\0"
-        # Rebuild a bounded native control from its certified header/class;
-        # this avoids carrying unrelated creation data into the inserted row.
+    for row, (class_token, title_token, control_id, y) in zip(rows, specs):
         pos = 24
-        pos, class_token = skip(pos)
-        row = bytearray(row[:24] + class_token + token + b"\0\0")
-        if index == 2 and len(row) >= 22:
-            row = row[:20] + struct.pack("<H", 1005) + row[22:]
+        pos, _ = skip(pos)
+        pos, _ = skip(pos)
+        # Retain the original creation-data WORD and bytes exactly.
+        tail = row[pos:]
+        rebuilt = bytearray(row[:24])
+        struct.pack_into("<h", rebuilt, 14, y)
+        struct.pack_into("<H", rebuilt, 20, control_id)
+        rebuilt.extend(class_token)
+        rebuilt.extend(title_token)
+        rebuilt.extend(tail)
+        row = rebuilt
         out.extend(b"\0" * ((4 - (len(out) & 3)) & 3)); out.extend(row)
     out.extend(blob[insert_at:])
     struct.pack_into("<H", out, 16, expected_items + 5)
@@ -307,18 +327,40 @@ def build_resource_only_companion(base: bytes) -> tuple[bytes, str]:
         if title != "Origins Upgrades": raise RuntimeError("VV4 dialog caption drift")
         leaf["blob"] = _append_dialog_row(leaf["blob"], count)
     untouched = leaf_for((5, 202, 1033))["blob"]
-    # Existing icon group IDs 101..109 are preserved; ID 110 is added from the
-    # authenticated repository artwork source as a deterministic RT_GROUP_ICON leaf.
-    icons = next(child for name, child in tree["entries"] if name == 14)
-    if not any(name == 110 for name, _ in icons["entries"]):
-        artwork = (ROOT / "assets/origins/110-cure-all.ico").read_bytes()
-        if sha(artwork) != "83552374DFD7AC1AACC57D371C01C26BA1A438ADF34B904609A72165EB73C5A0":
-            raise RuntimeError("VV4 ID 110 artwork source hash mismatch")
-        # RT_GROUP_ICON references the existing native icon payload; the
-        # authenticated artwork remains separately hash-pinned.
-        template = next(child for name, child in icons["entries"] if name == 109)
-        lang = next(child for name, child in template["entries"])
-        icons["entries"].append((110, {"entries": [(1033, lang)]}))
+    # Embed the authenticated ICO's four image leaves as unique RT_ICON IDs
+    # 46..49 and build a real RT_GROUP_ICON 110 that references those leaves.
+    artwork = (ROOT / "assets/origins/110-cure-all.ico").read_bytes()
+    if sha(artwork) != "83552374DFD7AC1AACC57D371C01C26BA1A438ADF34B904609A72165EB73C5A0":
+        raise RuntimeError("VV4 ID 110 artwork source hash mismatch")
+    reserved, ico_type, ico_count = struct.unpack_from("<HHH", artwork, 0)
+    if (reserved, ico_type, ico_count) != (0, 1, 4):
+        raise RuntimeError("VV4 cure-all artwork is not a four-image ICO")
+    icon_entries: list[tuple[int, int, int, int, int, int, bytes]] = []
+    for i in range(ico_count):
+        off = 6 + i * 16
+        width, height, colors, reserved8, planes, bpp, size_image, image_off = struct.unpack_from("<BBBBHHII", artwork, off)
+        image = artwork[image_off:image_off + size_image]
+        if len(image) != size_image:
+            raise RuntimeError("VV4 cure-all ICO image escapes source")
+        icon_entries.append((width, height, colors, reserved8, planes, bpp, size_image, image))
+    icon_type_node = next((child for name, child in tree["entries"] if name == 3), None)
+    if icon_type_node is None:
+        icon_type_node = {"entries": []}; tree["entries"].append((3, icon_type_node))
+    group_type_node = next(child for name, child in tree["entries"] if name == 14)
+    # Refuse collisions instead of overwriting an unrelated native icon.
+    if any(name in {46, 47, 48, 49} for name, _ in icon_type_node["entries"]):
+        raise RuntimeError("VV4 cure-all RT_ICON IDs collide with parent resources")
+    icon_leafs: list[tuple[int, dict[str, object]]] = []
+    for icon_id, (width, height, colors, reserved8, planes, bpp, size_image, image) in zip(range(46, 50), icon_entries):
+        leaf = {"leaf": True, "blob": image, "codepage": 0, "reserved": 0}
+        icon_leafs.append((icon_id, leaf))
+        icon_type_node["entries"].append((icon_id, {"entries": [(1033, leaf)]}))
+    group = bytearray(struct.pack("<HHH", 0, 1, 4))
+    for icon_id, (width, height, colors, reserved8, planes, bpp, size_image, image) in zip(range(46, 50), icon_entries):
+        group.extend(struct.pack("<BBBBHHIH", width, height, colors, reserved8, planes, bpp, size_image, icon_id))
+    group_leaf = {"leaf": True, "blob": bytes(group), "codepage": 0, "reserved": 0}
+    group_type_node["entries"] = [(name, child) for name, child in group_type_node["entries"] if name != 110]
+    group_type_node["entries"].append((110, {"entries": [(1033, group_leaf)]}))
     candidate = _serialize_resource_tree(base, tree)
     new_size = size + (len(candidate) - len(base))
     # A structural resource repack may need one aligned block of additional
@@ -449,7 +491,7 @@ def _assemble_helper(strings: dict[str, int]) -> tuple[bytes, dict[str, object]]
         push ebx
         push esi
         push edi
-        sub esp, 0x400
+        sub esp, 0x1200
         push 0x{strings['user32']:X}
         call dword ptr [0x48A1E0]
         test eax, eax
@@ -469,10 +511,11 @@ def _assemble_helper(strings: dict[str, int]) -> tuple[bytes, dict[str, object]]
         mov dword ptr [ebp-0x14], eax
         mov dword ptr [ebp-0x18], 0
         mov dword ptr [ebp-0x1C], 0
-        lea edi, [ebp-0x130]
+        lea edi, [ebp-0xA00]
         xor eax, eax
-        mov ecx, 150
-        rep stosb
+        mov ecx, 600
+        rep stosd
+        lea edi, [ebp-0xA00]
         xor ebx, ebx
     initial_loop:
         cmp ebx, 150
@@ -483,6 +526,14 @@ def _assemble_helper(strings: dict[str, int]) -> tuple[bytes, dict[str, object]]
         mov esi, eax
         test esi, esi
         jz invalid_failure
+        lea edx, [ebx*4]
+        shl edx, 2
+        add edx, edi
+        mov dword ptr [edx], esi
+        mov al, byte ptr [esi+0x1CC4]
+        mov byte ptr [edx+9], al
+        mov al, byte ptr [esi+0x1CC7]
+        mov byte ptr [edx+10], al
         cmp byte ptr [esi+0x1CC4], 0
         je initial_next
         cmp byte ptr [esi+0x1CC7], 0
@@ -490,23 +541,31 @@ def _assemble_helper(strings: dict[str, int]) -> tuple[bytes, dict[str, object]]
         cmp dword ptr [esi+0x1C40], 0
         jle initial_next
         mov eax, dword ptr [esi+0x1C40]
-        xor edx, edx
         cmp eax, 100
-        jle initial_health_in_range
+        jae initial_health_high
+        jmp initial_health_in_range
+    initial_health_high:
+        mov dword ptr [edx+4], eax
+        xor ecx, ecx
+        cmp byte ptr [esi+0x1C48], 0
+        je initial_store_snapshot
+        or cl, 1
+        inc dword ptr [ebp-0x18]
         jmp initial_store_snapshot
     initial_health_in_range:
-        xor edx, edx
+        mov dword ptr [edx+4], eax
+        xor ecx, ecx
         cmp byte ptr [esi+0x1C48], 0
         je initial_not_sick
-        or dl, 1
+        or cl, 1
         inc dword ptr [ebp-0x18]
     initial_not_sick:
         cmp eax, 100
         jae initial_store_snapshot
-        or dl, 2
+        or cl, 2
         inc dword ptr [ebp-0x1C]
     initial_store_snapshot:
-        mov byte ptr [edi+ebx], dl
+        mov byte ptr [edx+8], cl
     initial_next:
         inc ebx
         jmp initial_loop
@@ -520,7 +579,7 @@ def _assemble_helper(strings: dict[str, int]) -> tuple[bytes, dict[str, object]]
         push dword ptr [ebp-0x1C]
         push dword ptr [ebp-0x18]
         push 0x{strings['prompt']:X}
-        lea edi, [ebp-0x3F0]
+        lea edi, [ebp-0x1100]
         push edi
         call dword ptr [ebp-0x14]
         add esp, 20
@@ -533,6 +592,7 @@ def _assemble_helper(strings: dict[str, int]) -> tuple[bytes, dict[str, object]]
         jne cancel_failure
         mov dword ptr [ebp-0x20], 0
         mov dword ptr [ebp-0x24], 0
+        lea edi, [ebp-0xA00]
         xor ebx, ebx
     recheck_loop:
         cmp ebx, 150
@@ -543,6 +603,17 @@ def _assemble_helper(strings: dict[str, int]) -> tuple[bytes, dict[str, object]]
         mov esi, eax
         test esi, esi
         jz stale_failure
+        lea edx, [ebx*4]
+        shl edx, 2
+        add edx, edi
+        cmp dword ptr [edx], esi
+        jne stale_failure
+        mov al, byte ptr [esi+0x1CC4]
+        cmp al, byte ptr [edx+9]
+        jne stale_failure
+        mov al, byte ptr [esi+0x1CC7]
+        cmp al, byte ptr [edx+10]
+        jne stale_failure
         cmp byte ptr [esi+0x1CC4], 0
         je recheck_zero_snapshot
         cmp byte ptr [esi+0x1CC7], 0
@@ -550,27 +621,35 @@ def _assemble_helper(strings: dict[str, int]) -> tuple[bytes, dict[str, object]]
         cmp dword ptr [esi+0x1C40], 0
         jle recheck_zero_snapshot
         mov eax, dword ptr [esi+0x1C40]
-        xor edx, edx
+        cmp eax, dword ptr [edx+4]
+        jne stale_failure
+        xor ecx, ecx
         cmp eax, 100
-        jle recheck_health_in_range
+        jae recheck_health_high
+        jmp recheck_health_in_range
+    recheck_health_high:
+        cmp byte ptr [esi+0x1C48], 0
+        je recheck_store_snapshot
+        or cl, 1
+        inc dword ptr [ebp-0x20]
         jmp recheck_store_snapshot
     recheck_health_in_range:
-        xor edx, edx
+        xor ecx, ecx
         cmp byte ptr [esi+0x1C48], 0
         je recheck_not_sick
-        or dl, 1
+        or cl, 1
         inc dword ptr [ebp-0x20]
     recheck_not_sick:
         cmp eax, 100
         jae recheck_store_snapshot
-        or dl, 2
+        or cl, 2
         inc dword ptr [ebp-0x24]
     recheck_store_snapshot:
-        cmp dl, byte ptr [edi+ebx]
+        cmp cl, byte ptr [edx+8]
         jne stale_failure
         jmp recheck_next
     recheck_zero_snapshot:
-        cmp byte ptr [edi+ebx], 0
+        cmp byte ptr [edx+8], 0
         jne stale_failure
     recheck_next:
         inc ebx
@@ -596,6 +675,17 @@ def _assemble_helper(strings: dict[str, int]) -> tuple[bytes, dict[str, object]]
         mov esi, eax
         test esi, esi
         jz partial_failure
+        lea edx, [ebx*4]
+        shl edx, 2
+        add edx, edi
+        cmp dword ptr [edx], esi
+        jne stale_failure
+        mov al, byte ptr [esi+0x1CC4]
+        cmp al, byte ptr [edx+9]
+        jne stale_failure
+        mov al, byte ptr [esi+0x1CC7]
+        cmp al, byte ptr [edx+10]
+        jne stale_failure
         cmp byte ptr [esi+0x1CC4], 0
         je mutate_zero_snapshot
         cmp byte ptr [esi+0x1CC7], 0
@@ -603,21 +693,23 @@ def _assemble_helper(strings: dict[str, int]) -> tuple[bytes, dict[str, object]]
         cmp dword ptr [esi+0x1C40], 0
         jle mutate_zero_snapshot
         mov eax, dword ptr [esi+0x1C40]
-        xor edx, edx
+        xor ecx, ecx
         cmp eax, 100
         jae mutate_bits_health_done
         cmp eax, 1
         jl mutate_zero_snapshot
-        or dl, 2
+        or cl, 2
     mutate_bits_health_done:
         cmp byte ptr [esi+0x1C48], 0
         je mutate_bits_compare
-        or dl, 1
+        or cl, 1
     mutate_bits_compare:
-        cmp dl, byte ptr [edi+ebx]
+        cmp cl, byte ptr [edx+8]
         jne stale_failure
-        test dl, 2
+        test cl, 2
         jz mutate_health_done
+        cmp dword ptr [0x4D6F88], 30000
+        jb insufficient_failure
         push -1
         push 100
         lea ecx, [esi+0x1C34]
@@ -628,16 +720,46 @@ def _assemble_helper(strings: dict[str, int]) -> tuple[bytes, dict[str, object]]
         mov esi, eax
         test esi, esi
         jz partial_failure
+        lea edx, [ebx*4]
+        shl edx, 2
+        add edx, edi
+        cmp dword ptr [edx], esi
+        jne stale_failure
+        mov al, byte ptr [esi+0x1CC4]
+        cmp al, byte ptr [edx+9]
+        jne stale_failure
+        mov al, byte ptr [esi+0x1CC7]
+        cmp al, byte ptr [edx+10]
+        jne stale_failure
         cmp byte ptr [esi+0x1CC4], 0
         je partial_failure
         cmp byte ptr [esi+0x1CC7], 0
         jne partial_failure
         cmp dword ptr [esi+0x1C40], 100
         jne partial_failure
+        lea edx, [ebx*4]
+        shl edx, 2
+        add edx, edi
+        mov cl, byte ptr [edx+8]
+        test cl, 2
+        jz sickness_prestate_exact
+        cmp dword ptr [esi+0x1C40], 100
+        jne stale_failure
+        jmp sickness_prestate_sick
+    sickness_prestate_exact:
+        mov eax, dword ptr [esi+0x1C40]
+        cmp eax, dword ptr [edx+4]
+        jne stale_failure
+    sickness_prestate_sick:
+        cmp byte ptr [edx+8], 1
+        jb stale_failure
         inc dword ptr [ebp-0x24]
     mutate_health_done:
-        mov dl, byte ptr [edi+ebx]
-        test dl, 1
+        lea edx, [ebx*4]
+        shl edx, 2
+        add edx, edi
+        mov cl, byte ptr [edx+8]
+        test cl, 1
         jz mutate_next
         mov ecx, 0x50E568
         push ebx
@@ -653,6 +775,32 @@ def _assemble_helper(strings: dict[str, int]) -> tuple[bytes, dict[str, object]]
         jle partial_failure
         cmp byte ptr [esi+0x1C48], 0
         je partial_failure
+        lea edx, [ebx*4]
+        shl edx, 2
+        add edx, edi
+        cmp dword ptr [edx], esi
+        jne stale_failure
+        mov al, byte ptr [esi+0x1CC4]
+        cmp al, byte ptr [edx+9]
+        jne stale_failure
+        mov al, byte ptr [esi+0x1CC7]
+        cmp al, byte ptr [edx+10]
+        jne stale_failure
+        mov cl, byte ptr [edx+8]
+        test cl, 1
+        jz stale_failure
+        test cl, 2
+        jz sickness_preclear_health_exact
+        cmp dword ptr [esi+0x1C40], 100
+        jne stale_failure
+        jmp sickness_preclear_ready
+    sickness_preclear_health_exact:
+        mov eax, dword ptr [esi+0x1C40]
+        cmp eax, dword ptr [edx+4]
+        jne stale_failure
+    sickness_preclear_ready:
+        cmp dword ptr [0x4D6F88], 30000
+        jb insufficient_failure
         mov byte ptr [esi+0x1C48], 0
         mov ecx, 0x50E568
         push ebx
@@ -660,15 +808,30 @@ def _assemble_helper(strings: dict[str, int]) -> tuple[bytes, dict[str, object]]
         mov esi, eax
         test esi, esi
         jz partial_failure
+        lea edx, [ebx*4]
+        shl edx, 2
+        add edx, edi
+        cmp dword ptr [edx], esi
+        jne stale_failure
+        mov al, byte ptr [esi+0x1CC4]
+        cmp al, byte ptr [edx+9]
+        jne stale_failure
+        mov al, byte ptr [esi+0x1CC7]
+        cmp al, byte ptr [edx+10]
+        jne stale_failure
         cmp byte ptr [esi+0x1C48], 0
         jne partial_failure
+        cmp byte ptr [edx+8], 1
+        jb stale_failure
+        cmp dword ptr [esi+0x1C40], 0
+        jle partial_failure
         inc dword ptr [0x4D6DF0]
         inc dword ptr [ebp-0x20]
     mutate_next:
         inc ebx
         jmp mutate_loop
     mutate_zero_snapshot:
-        cmp byte ptr [edi+ebx], 0
+        cmp byte ptr [edx+8], 0
         jne stale_failure
         jmp mutate_next
     postverify_start:
@@ -682,21 +845,40 @@ def _assemble_helper(strings: dict[str, int]) -> tuple[bytes, dict[str, object]]
         mov esi, eax
         test esi, esi
         jz partial_failure
-        cmp byte ptr [esi+0x1CC4], 0
-        je partial_failure
-        cmp byte ptr [esi+0x1CC7], 0
+        lea edx, [ebx*4]
+        shl edx, 2
+        add edx, edi
+        cmp dword ptr [edx], esi
         jne partial_failure
+        mov al, byte ptr [esi+0x1CC4]
+        cmp al, byte ptr [edx+9]
+        jne partial_failure
+        mov al, byte ptr [esi+0x1CC7]
+        cmp al, byte ptr [edx+10]
+        jne partial_failure
+        cmp byte ptr [esi+0x1CC4], 0
+        je postverify_zero_snapshot
+        cmp byte ptr [esi+0x1CC7], 0
+        jne postverify_zero_snapshot
         cmp dword ptr [esi+0x1C40], 0
-        jle partial_failure
-        mov dl, byte ptr [edi+ebx]
-        test dl, 2
+        jle postverify_zero_snapshot
+        mov cl, byte ptr [edx+8]
+        test cl, 2
         jz postverify_health_done
         cmp dword ptr [esi+0x1C40], 100
         jne partial_failure
     postverify_health_done:
-        test dl, 1
+        test cl, 0x2
+        jnz postverify_sickness
+        cmp dword ptr [esi+0x1C40], 100
+        jb partial_failure
+    postverify_sickness:
+        test cl, 1
         jz postverify_next
         cmp byte ptr [esi+0x1C48], 0
+        jne partial_failure
+    postverify_zero_snapshot:
+        cmp byte ptr [edx+8], 0
         jne partial_failure
     postverify_next:
         inc ebx
@@ -708,6 +890,8 @@ def _assemble_helper(strings: dict[str, int]) -> tuple[bytes, dict[str, object]]
         mov eax, dword ptr [ebp-0x24]
         cmp eax, dword ptr [ebp-0x1C]
         jne partial_failure
+        cmp dword ptr [0x4D6F88], 30000
+        jb insufficient_failure
         mov ecx, 0x4D6F88
         push -30000
         call 0x41E300
@@ -716,7 +900,7 @@ def _assemble_helper(strings: dict[str, int]) -> tuple[bytes, dict[str, object]]
         mov esi, 0x{strings['success']:X}
         jmp result_show
     dependency_failure:
-        add esp, 0x400
+        add esp, 0x1200
         pop edi
         pop esi
         pop ebx
@@ -758,7 +942,7 @@ def _assemble_helper(strings: dict[str, int]) -> tuple[bytes, dict[str, object]]
         push dword ptr [ebp-0x38]
         push dword ptr [ebp-0x34]
         push dword ptr [ebp-0x30]
-        lea edi, [ebp-0x3F0]
+        lea edi, [ebp-0x1100]
         push edi
         call dword ptr [ebp-0x14]
         add esp, 16
@@ -767,7 +951,7 @@ def _assemble_helper(strings: dict[str, int]) -> tuple[bytes, dict[str, object]]
         push edi
         push 0
         call dword ptr [ebp-0x10]
-        add esp, 0x400
+        add esp, 0x1200
         pop edi
         pop esi
         pop ebx
@@ -843,9 +1027,9 @@ def build_page() -> tuple[bytes, dict[str, object]]:
             "formatter": "[ebp-0x14]",
             "counts": {"sick": "[ebp-0x18]", "partial": "[ebp-0x1C]", "actual_sick": "[ebp-0x20]", "actual_partial": "[ebp-0x24]"},
             "result_locals": ["[ebp-0x30]", "[ebp-0x34]", "[ebp-0x38]"],
-            "snapshot": "[ebp-0x130..ebp-0x039] (150 independent bytes)",
-            "format_buffer": "[ebp-0x3F0..ebp-0x1F1] (512 bytes)",
-            "frame_allocation": "sub esp,0x400; epilogue add esp,0x400 then pop edi/esi/ebx/ebp",
+            "snapshot": "[ebp-0xA00..ebp-0x041] (150 independent 16-byte slots: pointer, health, bits, active/status)",
+            "format_buffer": "[ebp-0x1100..ebp-0xF01] (512 bytes)",
+            "frame_allocation": "sub esp,0x1200; epilogue add esp,0x1200 then pop edi/esi/ebx/ebp",
         },
     }
     return bytes(page), meta
@@ -898,9 +1082,13 @@ def _patch_parent(parent: bytes, page: bytes) -> bytes:
     return bytes(data)
 
 
-def generate(output_root: Path) -> dict[str, object]:
-    manifest = json.loads(MANIFEST.read_text(encoding="utf-8-sig"))
-    artifact_map = json.loads(MAP.read_text(encoding="utf-8-sig"))
+def _generate_into(output_root: Path) -> dict[str, object]:
+    manifest_bytes = MANIFEST.read_bytes()
+    map_bytes = MAP.read_bytes()
+    if sha(manifest_bytes) != SOURCE_MANIFEST_SHA256 or sha(map_bytes) != SOURCE_MAP_SHA256:
+        raise RuntimeError("VV4 source manifest/map raw hash pin failed before output")
+    manifest = json.loads(manifest_bytes.decode("utf-8-sig"))
+    artifact_map = json.loads(map_bytes.decode("utf-8-sig"))
     if manifest["enabled"] or not manifest["catalog_hidden"] or manifest["catalog_enabled"]:
         raise RuntimeError("VV4 Full Heal must remain disabled and catalog-hidden")
     if manifest["source"]["stock_sha256"] != STOCK_SHA256 or artifact_map["source"]["sha256"] != STOCK_SHA256:
@@ -939,6 +1127,32 @@ def generate(output_root: Path) -> dict[str, object]:
     (output_root / DOC.name).write_bytes(DOC.read_bytes())
     (output_root / "emission-audit.json").write_text(json.dumps(outputs, indent=2) + "\r\n", encoding="utf-8")
     return outputs
+
+
+def generate(output_root: Path) -> dict[str, object]:
+    """Build into a unique sibling staging directory, then publish once."""
+    output_root = Path(output_root)
+    if os.path.lexists(output_root):
+        raise RuntimeError("VV4 output destination already exists")
+    parent = output_root.parent
+    parent.mkdir(parents=True, exist_ok=True)
+    stage = parent / f".{output_root.name}.staging-{uuid.uuid4().hex}"
+    if os.path.lexists(stage):
+        raise RuntimeError("VV4 staging collision")
+    try:
+        result = _generate_into(stage)
+        required = [stage / "vv4hc-page.bin", stage / "VVFP Origins Icons.dll", stage / MANIFEST.name, stage / MAP.name, stage / "emission-audit.json"]
+        required.extend(stage.glob("VV4 - *.exe"))
+        if not required or any(not p.is_file() or p.stat().st_size == 0 for p in required):
+            raise RuntimeError("VV4 staged output verification failed")
+        if os.path.lexists(output_root):
+            raise RuntimeError("VV4 destination appeared before atomic publish")
+        os.replace(stage, output_root)
+        return result
+    except Exception:
+        if os.path.lexists(stage):
+            shutil.rmtree(stage)
+        raise
 
 
 def main() -> None:

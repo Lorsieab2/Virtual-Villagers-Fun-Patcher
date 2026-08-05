@@ -41,14 +41,14 @@ class VV4FullHealCandidateTests(unittest.TestCase):
         self.assertEqual(manifest["transaction"]["deduction"]["receiver"], "0x4D6F88")
         self.assertEqual(manifest["transaction"]["deduction"]["call"], "0x41E300")
         self.assertEqual(manifest["native_operations"]["sickness_clear"]["people_cured_dword"], "[0x4D6DF0]")
-        self.assertEqual(manifest["companion_files"][0]["sha256"], "CF468556C14306FB74884BC48F23D5506CCFB5FC2B670364FA143BC1141E0EE7")
-        self.assertEqual(manifest["companion_files"][0]["size"], 283136)
+        self.assertEqual(manifest["companion_files"][0]["sha256"], "AABC22466995014DCA18E2634C66E7823ACFF10C53AAD0ED1B6DBFBD7886BE16")
+        self.assertEqual(manifest["companion_files"][0]["size"], 298496)
         self.assertEqual(manifest["companion_files"][0]["destination"], "VVFP Origins Icons.dll")
         self.assertEqual(manifest["companion_files"][0]["artwork_resource_id"], 110)
         self.assertEqual(manifest["companion_files"][0]["artwork_sha256"], "83552374DFD7AC1AACC57D371C01C26BA1A438ADF34B904609A72165EB73C5A0")
-        self.assertEqual(manifest["hook"]["helper_length"], 1119)
-        self.assertEqual(manifest["hook"]["helper_sha256"], "DA23AADA7B3C7574DA937CE4862E7ED9610C29C2467976A7CB3C4FC41D2C1A9D")
-        self.assertEqual(manifest["hook"]["page_sha256"], "B68532BDD9028EF7705848FE61AB0C44DBE805061BF6F08A0F53C15712BE5202")
+        self.assertEqual(manifest["hook"]["helper_length"], 1747)
+        self.assertEqual(manifest["hook"]["helper_sha256"], "9E4BDACBD21F9287A556E400B5CA469D5B04126C11B44C96DCFFF749645280CD")
+        self.assertEqual(manifest["hook"]["page_sha256"], "9911CE4342FEBFDE0C2553075F869D928F465CB52CB6EEB58688D880C99849B0")
         self.assertEqual(artifact_map["companion"]["sha256"], manifest["companion_files"][0]["sha256"])
         self.assertIn("RT_DIALOG 201/203", artifact_map["companion"]["resource_contract"])
         self.assertEqual(artifact_map["ownership"]["exe_hook"]["command5_continuation"], "0x4895D9")
@@ -67,6 +67,8 @@ class VV4FullHealCandidateTests(unittest.TestCase):
         result = dry_run(lambda i: calls.append(i) or records[i])
         self.assertEqual(calls, list(range(150)))
         self.assertEqual((result.sick_count, result.partial_count), (2, 2))
+        self.assertEqual(len(result.states), 150)
+        self.assertTrue(any(s.index == 8 and s.health == 100 and s.sick for s in result.states))
 
     def test_noop_cancel_insufficient_and_success_messages_are_no_charge(self):
         records = [{"active": 1, "status": 0, "health": 100, "sick": 0} for _ in range(150)]
@@ -154,13 +156,22 @@ class VV4FullHealCandidateTests(unittest.TestCase):
         spec.loader.exec_module(builder)
         base = builder.PARENT_DLL.read_bytes()
         candidate, digest = builder.build_resource_only_companion(base)
-        self.assertEqual(digest, "CF468556C14306FB74884BC48F23D5506CCFB5FC2B670364FA143BC1141E0EE7")
+        self.assertEqual(digest, "AABC22466995014DCA18E2634C66E7823ACFF10C53AAD0ED1B6DBFBD7886BE16")
         import pefile
         pe = pefile.PE(data=candidate)
         icon_type = next(x for x in pe.DIRECTORY_ENTRY_RESOURCE.entries if x.id == 14)
         self.assertIn(110, [x.id for x in icon_type.directory.entries])
         raw, size, _, base_leaves = builder._dll_resource_leaves(base)
         _, _, _, cand_leaves = builder._dll_resource_leaves(candidate)
+        expected_icons = {
+            46: "68FED72757B4A8A28F69ABFB7A9ED4133647676EAE7665F44BA6D8931929DD23",
+            47: "7B599B3876B44BECA595FCE3ED7DFC984C99E014A057F6ED0BA25CA507F49B73",
+            48: "1D4C17E4E54C623485E9D7D8FE613D6D67F5511521256BBA8572B9EC76D70634",
+            49: "0122D77CF881F79BFD488BE98E917AB76BF2049AE5AF3CC44228AF3A35D70595",
+        }
+        for ident, expected_hash in expected_icons.items():
+            blob = next(x["blob"] for x in cand_leaves if x["path"] == (3, ident, 1033))
+            self.assertEqual(builder.sha(blob), expected_hash)
         for ident, expected in ((201, 46), (203, 36)):
             blob = next(x["blob"] for x in cand_leaves if x["path"] == (5, ident, 1033))
             self.assertEqual(struct.unpack_from("<H", blob, 16)[0], expected)
@@ -179,7 +190,8 @@ class VV4FullHealCandidateTests(unittest.TestCase):
         # all other headers and all bytes outside the resource section remain
         # byte-identical (with the relocated tail compared at its new offset).
         if len(candidate) != len(base):
-            self.assertEqual(len(candidate), len(base) + 0x200)
+            self.assertEqual(len(candidate), 298496)
+            delta = len(candidate) - len(base)
             pe = struct.unpack_from("<I", base, 0x3C)[0]
             table = pe + 24 + struct.unpack_from("<H", base, pe + 20)[0]
             count = struct.unpack_from("<H", base, pe + 6)[0]
@@ -198,7 +210,7 @@ class VV4FullHealCandidateTests(unittest.TestCase):
             normalized_candidate[rsrc_header + 16:rsrc_header + 20] = normalized_base[rsrc_header + 16:rsrc_header + 20]
             normalized_candidate[reloc_header + 20:reloc_header + 24] = normalized_base[reloc_header + 20:reloc_header + 24]
             self.assertEqual(normalized_candidate, normalized_base)
-            self.assertEqual(candidate[raw + size + 0x200 :], base[raw + size :])
+            self.assertEqual(candidate[raw + size + delta :], base[raw + size :])
         else:
             self.assertEqual(candidate[:raw], base[:raw])
             self.assertEqual(candidate[raw + size :], base[raw + size :])

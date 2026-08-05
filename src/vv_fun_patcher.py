@@ -507,8 +507,8 @@ VV4_FULL_HEAL_CANDIDATE_PATHS = {
 VV4_FULL_HEAL_STOCK_SHA256 = "6D27A429FFCA5F1F71FDD7ECA761ED1BB67E85F976494BA178B3D7BE01F1B220"
 VV4_FULL_HEAL_PARENT_PAGE_SHA256 = "FD72C661B533117BF38D69E7EB855250A93927C831C265226930794C1EFDDB62"
 VV4_FULL_HEAL_PARENT_DLL_SHA256 = "4E1A83683A875EFE6F67116CDD862927BE1ABCB17DB7AE18143E58E98EAD01E7"
-VV4_FULL_HEAL_MANIFEST_SHA256 = "9BAB2771FCED3179F271547938C4E1953B85A5DEE542962F1880B6E5D8174A31"
-VV4_FULL_HEAL_MAP_SHA256 = "5E4198CCBCC631DA9F5C26E420F661C3C365DCE4E990D5E5D1DF93BBA73772A5"
+VV4_FULL_HEAL_MANIFEST_SHA256 = "4220B43A59A234F1FB5D1150FC719B05F7A961C54FA5D5691CA7A9DB5FD6EDE5"
+VV4_FULL_HEAL_MAP_SHA256 = "F35B766BAEFA6245C92EA38E954B004A8C1EEA221DD823434569CD5711E1B781"
 VV4_FULL_HEAL_ENUMERATION = (
     "resolve every index 0..149 through ECX=0x50E568; push index; "
     "call 0x466040; ret 4; never walk a cached base"
@@ -1225,6 +1225,7 @@ def _certified_vv4_full_heal_record(
         "confirmation_counts": ["predicted_sick", "predicted_partial_health"],
         "success_counts": ["actual_sick_cured", "actual_partial_health_restored"],
         "deduction": {"receiver": "0x4D6F88", "push_amount": -30000, "call": "0x41E300", "ret": 4, "calls": 1, "only_after_postverify": True},
+        "people_cured": {"receiver": "0x4D6DF0", "increment": 1, "only_after_verified_sickness_clear": True},
     }:
         raise PatcherError("VV4 Full Heal transaction contract is not immutable.")
     if transaction.get("people_cured") != {"receiver": "0x4D6DF0", "increment": 1, "only_after_verified_sickness_clear": True}:
@@ -1237,9 +1238,9 @@ def _certified_vv4_full_heal_record(
             or hook.get("hook_after") != "E9EC792B00"
             or hook.get("shim_bytes") != "83F8050F84F7000000E94784D4FF"
             or hook.get("shim_sha256") != "89A2E84C47D3130915A7830F48EC839C186A8BBABF7584681A83A4770582A370"
-            or hook.get("helper_length") != 1119
-            or hook.get("helper_sha256") != "DA23AADA7B3C7574DA937CE4862E7ED9610C29C2467976A7CB3C4FC41D2C1A9D"
-            or hook.get("page_sha256") != "B68532BDD9028EF7705848FE61AB0C44DBE805061BF6F08A0F53C15712BE5202"
+            or hook.get("helper_length") != 1747
+            or hook.get("helper_sha256") != "9E4BDACBD21F9287A556E400B5CA469D5B04126C11B44C96DCFFF749645280CD"
+            or hook.get("page_sha256") != "9911CE4342FEBFDE0C2553075F869D928F465CB52CB6EEB58688D880C99849B0"
             or hook.get("strings_sha256") != "44CB71162F5F5298E8A6AB309D874EDD20D3B4C20B169DB3D2274F84DCC0717E"
             or hook.get("unknown_until_recertified")):
         raise PatcherError("VV4 Full Heal cannot enable before exact hook/page bytes are certified.")
@@ -1247,11 +1248,17 @@ def _certified_vv4_full_heal_record(
         raise PatcherError("VV4 Full Heal message contract is invalid.")
     companion = manifest.get("companion_files", [{}])[0]
     companion_map = artifact_map.get("companion", {})
-    if (companion.get("sha256") != "CF468556C14306FB74884BC48F23D5506CCFB5FC2B670364FA143BC1141E0EE7"
-            or companion.get("size") != 283136
+    if (companion.get("sha256") != "AABC22466995014DCA18E2634C66E7823ACFF10C53AAD0ED1B6DBFBD7886BE16"
+            or companion.get("size") != 298496
             or companion.get("destination") != "VVFP Origins Icons.dll"
             or companion.get("artwork_resource_id") != 110
             or companion.get("artwork_sha256") != "83552374DFD7AC1AACC57D371C01C26BA1A438ADF34B904609A72165EB73C5A0"
+            or companion.get("icon_leaf_sha256") != {
+                "46": "68FED72757B4A8A28F69ABFB7A9ED4133647676EAE7665F44BA6D8931929DD23",
+                "47": "7B599B3876B44BECA595FCE3ED7DFC984C99E014A057F6ED0BA25CA507F49B73",
+                "48": "1D4C17E4E54C623485E9D7D8FE613D6D67F5511521256BBA8572B9EC76D70634",
+                "49": "0122D77CF881F79BFD488BE98E917AB76BF2049AE5AF3CC44228AF3A35D70595",
+            }
             or companion_map.get("sha256") != companion.get("sha256")
             or companion_map.get("size") != companion.get("size")
             or companion_map.get("parent_sha256") != VV4_FULL_HEAL_PARENT_DLL_SHA256):
@@ -1264,7 +1271,7 @@ def _certified_vv4_full_heal_record(
     } or ownership.get("page") != {
         "raw": "0xE5000", "length": 4096,
         "preimage_sha256": "zero-filled 0x1000",
-        "candidate_sha256": "B68532BDD9028EF7705848FE61AB0C44DBE805061BF6F08A0F53C15712BE5202",
+        "candidate_sha256": "9911CE4342FEBFDE0C2553075F869D928F465CB52CB6EEB58688D880C99849B0",
     } or ownership.get("companion") != {
         "destination": "VVFP Origins Icons.dll",
         "preimage_sha256": VV4_FULL_HEAL_PARENT_DLL_SHA256,
