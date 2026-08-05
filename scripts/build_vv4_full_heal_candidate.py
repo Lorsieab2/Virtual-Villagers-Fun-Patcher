@@ -46,8 +46,8 @@ PARENT_DLL = ROOT / "data/candidates/VVFP VV4 Full Mastery Candidate.dll"
 PARENT_DLL_SHA256 = "4E1A83683A875EFE6F67116CDD862927BE1ABCB17DB7AE18143E58E98EAD01E7"
 PARENT_DLL_SIZE = 282624
 # Raw source-of-truth pins are checked before any candidate output is built.
-SOURCE_MANIFEST_SHA256 = "2B67B6289DCA031409AD7CDC6488A7B57C95955E7C0E7037E2A13690702F0611"
-SOURCE_MAP_SHA256 = "ADBD25BD7BE681D81EE432F012D9F088FEE6A5227E2AA5E1D14932F4CC12C237"
+SOURCE_MANIFEST_SHA256 = "FCB60F5EFC8A1DD3670F85838DB22964352426C5CDADA6AA311D7D2C6415568E"
+SOURCE_MAP_SHA256 = "234321F746F389ABFFF62611AD1AE699C6FF69616B9B3A36AF37E67E11A42FDC"
 
 sys.path.insert(0, str(ROOT / ".tools" / "capstone"))
 sys.path.insert(0, str(ROOT / ".tools" / "keystone-runtime"))
@@ -387,6 +387,8 @@ def build_resource_only_companion(base: bytes) -> tuple[bytes, str]:
     group_type_node["entries"].append((110, {"entries": [(1033, group_leaf)]}))
     candidate = _serialize_resource_tree(base, tree)
     new_size = size + (len(candidate) - len(base))
+    if new_size != 0x33800:
+        raise RuntimeError(f"VV4 .rsrc size drift: expected 0x33800, got 0x{new_size:X}")
     # A structural resource repack may need one aligned block of additional
     # .rsrc storage.  The only PE-header fields allowed to change are the
     # .rsrc raw-size and the following .reloc raw-pointer; every other header
@@ -409,6 +411,12 @@ def build_resource_only_companion(base: bytes) -> tuple[bytes, str]:
             raise RuntimeError("VV4 companion section headers are incomplete")
         candidate_mut = bytearray(candidate)
         struct.pack_into("<I", candidate_mut, rsrc_header + 8, new_size)
+        # IMAGE_DIRECTORY_ENTRY_RESOURCE.Size (absolute file offset 0x18C)
+        # must cover the complete rebuilt resource block.
+        pe_resource_size = pe + 24 + 96 + (2 * 8) + 4
+        if pe_resource_size != 0x18C:
+            raise RuntimeError("VV4 resource-directory layout moved unexpectedly")
+        struct.pack_into("<I", candidate_mut, pe_resource_size, new_size)
         old_reloc_rva = struct.unpack_from("<I", base, reloc_header + 12)[0]
         new_reloc_rva = old_reloc_rva + ((new_size - size + 0xFFF) & ~0xFFF)
         struct.pack_into("<I", candidate_mut, reloc_header + 12, new_reloc_rva)
@@ -436,6 +444,7 @@ def build_resource_only_companion(base: bytes) -> tuple[bytes, str]:
             raise RuntimeError("VV4 companion section headers are incomplete")
         normalized_candidate[rsrc_header + 16:rsrc_header + 20] = normalized_base[rsrc_header + 16:rsrc_header + 20]
         normalized_candidate[rsrc_header + 8:rsrc_header + 12] = normalized_base[rsrc_header + 8:rsrc_header + 12]
+        normalized_candidate[pe + 24 + 96 + (2 * 8) + 4:pe + 24 + 96 + (2 * 8) + 8] = normalized_base[pe + 24 + 96 + (2 * 8) + 4:pe + 24 + 96 + (2 * 8) + 8]
         normalized_candidate[reloc_header + 20:reloc_header + 24] = normalized_base[reloc_header + 20:reloc_header + 24]
         normalized_candidate[reloc_header + 12:reloc_header + 16] = normalized_base[reloc_header + 12:reloc_header + 16]
         normalized_candidate[pe + 0x50:pe + 0x54] = normalized_base[pe + 0x50:pe + 0x54]
@@ -600,6 +609,7 @@ def _assemble_helper(strings: dict[str, int]) -> tuple[bytes, dict[str, object]]
         mov dword ptr [edx+4], eax
         mov al, byte ptr [esi+0x1C48]
         mov byte ptr [edx+11], al
+        mov eax, dword ptr [esi+0x1C40]
         cmp eax, 100
         jae initial_health_high
         jmp initial_health_in_range
@@ -762,6 +772,7 @@ def _assemble_helper(strings: dict[str, int]) -> tuple[bytes, dict[str, object]]
         cmp al, byte ptr [edx+11]
         jne stale_failure
         xor ecx, ecx
+        mov eax, dword ptr [esi+0x1C40]
         cmp eax, 100
         jae mutate_bits_health_done
         cmp eax, 1
@@ -1002,7 +1013,6 @@ def _assemble_helper(strings: dict[str, int]) -> tuple[bytes, dict[str, object]]
         push 0x{strings['dependency']:X}
         push 0
         call dword ptr [ebp-0x10]
-        add esp, 16
         add esp, 0x1200
         pop edi
         pop esi

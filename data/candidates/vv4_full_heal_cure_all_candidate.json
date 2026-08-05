@@ -80,22 +80,60 @@
     "shim_bytes": "83F8050F84F7000000E94784D4FF",
     "shim_sha256": "89A2E84C47D3130915A7830F48EC839C186A8BBABF7584681A83A4770582A370",
     "transaction_entry_va": "0x741100",
-    "helper_length": 1925,
-    "helper_sha256": "88C055AF0D1419F9E5570283264C45D80AC12BA7449CE7108283277FA5A456CE",
-    "page_sha256": "CCCCA9A5F6357CDC2E147EE973F97A53FA7CFC8A53FA8474289B17E04F48A6E8",
+    "helper_length": 1934,
+    "helper_sha256": "BC785320E1AC766204927FD1713F4A560DD83FE071447F00226F3A5DAC34E6F3",
+    "page_sha256": "CF62185C098F2285E32B529E0AAFD33A0DA0496EF1528D0B1571943A2C5E3E53",
     "strings_sha256": "44CB71162F5F5298E8A6AB309D874EDD20D3B4C20B169DB3D2274F84DCC0717E",
     "owned_ranges": ["0x8960F..0x89613", "0xE5000..0xE5FFF"],
     "unknown_until_recertified": true
   },
+  "patches": [{
+    "offset": "0x8960F",
+    "before": "E941FEFFFF",
+    "after": "E9EC792B00",
+    "purpose": "Guarded command-5 detour; 72 4C remains the original non-command route."
+  }],
+  "pe_append_transaction": {
+    "section_name": ".vv4hc",
+    "layouts": {
+      "collection_progression": {
+        "original_file_size": "0xE5000", "append_offset": "0xE5000",
+        "append_source": "generated:vv4_full_heal_page",
+        "virtual_address": "0x741000",
+        "purpose": "Append the candidate-owned .vv4hc page without zero-filling or overwriting the parent end.",
+        "header_patches": [
+          {"offset": "0x106", "before": "0600", "after": "0700", "purpose": "section count 6 -> 7"},
+          {"offset": "0x150", "before": "00103400", "after": "00203400", "purpose": "SizeOfImage 0x341000 -> 0x342000"},
+          {"offset": "0x2E8", "before_fill": "00", "length": 40, "after": "2E7676346863000000100000001034000010000000500E0000000000000000000000000020000060", "purpose": "owned .vv4hc section header"}
+        ]
+      },
+      "immediate_fixed": {
+        "original_file_size": "0xE5000", "append_offset": "0xE5000",
+        "append_source": "generated:vv4_full_heal_page",
+        "virtual_address": "0x741000",
+        "purpose": "Append the candidate-owned .vv4hc page without zero-filling or overwriting the parent end.",
+        "header_patches": [
+          {"offset": "0x106", "before": "0600", "after": "0700", "purpose": "section count 6 -> 7"},
+          {"offset": "0x150", "before": "00103400", "after": "00203400", "purpose": "SizeOfImage 0x341000 -> 0x342000"},
+          {"offset": "0x2E8", "before_fill": "00", "length": 40, "after": "2E7676346863000000100000001034000010000000500E0000000000000000000000000020000060", "purpose": "owned .vv4hc section header"}
+        ]
+      }
+    }
+  },
   "companion_files": [{
-    "source": "data/candidates/VVFP VV4 Full Mastery Candidate.dll",
+    "source": "generated:vv4_full_heal_companion",
+    "candidate_source": "scripts/build_vv4_full_heal_candidate.py::build_resource_only_companion",
     "transform_builder": "scripts/build_vv4_full_heal_candidate.py",
     "destination": "VVFP Origins Icons.dll",
     "parent": "data/candidates/VVFP VV4 Full Mastery Candidate.dll",
     "parent_sha256": "4E1A83683A875EFE6F67116CDD862927BE1ABCB17DB7AE18143E58E98EAD01E7",
+    "preimage_sha256": "4E1A83683A875EFE6F67116CDD862927BE1ABCB17DB7AE18143E58E98EAD01E7",
+    "restore_source": "data/candidates/VVFP VV4 Full Mastery Candidate.dll",
+    "restore_sha256": "4E1A83683A875EFE6F67116CDD862927BE1ABCB17DB7AE18143E58E98EAD01E7",
     "resource_contract": "structurally insert five-item command-5 row into dialogs 201/203; preserve caption Origins Upgrades, dialog 202, exports, code, and non-.rsrc bytes",
-    "sha256": "D3C2AE77AABA371396ACC9BD69949159B358D671E07558E794CF18E261AB30A6",
+    "sha256": "165F327783DFECAB4C42DB28D6F926BCA46397F725F036BFC367BB659384C0AC",
     "size": 298496,
+    "resource_directory_size": "0x33800",
     "artwork_resource_id": 110,
     "artwork_sha256": "83552374DFD7AC1AACC57D371C01C26BA1A438ADF34B904609A72165EB73C5A0",
     "icon_leaf_sha256": {"46": "68FED72757B4A8A28F69ABFB7A9ED4133647676EAE7665F44BA6D8931929DD23", "47": "7B599B3876B44BECA595FCE3ED7DFC984C99E014A057F6ED0BA25CA507F49B73", "48": "1D4C17E4E54C623485E9D7D8FE613D6D67F5511521256BBA8572B9EC76D70634", "49": "0122D77CF881F79BFD488BE98E917AB76BF2049AE5AF3CC44228AF3A35D70595"}

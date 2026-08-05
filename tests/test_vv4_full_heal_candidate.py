@@ -41,14 +41,17 @@ class VV4FullHealCandidateTests(unittest.TestCase):
         self.assertEqual(manifest["transaction"]["deduction"]["receiver"], "0x4D6F88")
         self.assertEqual(manifest["transaction"]["deduction"]["call"], "0x41E300")
         self.assertEqual(manifest["native_operations"]["sickness_clear"]["people_cured_dword"], "[0x4D6DF0]")
-        self.assertEqual(manifest["companion_files"][0]["sha256"], "D3C2AE77AABA371396ACC9BD69949159B358D671E07558E794CF18E261AB30A6")
+        self.assertEqual(manifest["companion_files"][0]["sha256"], "165F327783DFECAB4C42DB28D6F926BCA46397F725F036BFC367BB659384C0AC")
+        self.assertEqual(manifest["companion_files"][0]["source"], "generated:vv4_full_heal_companion")
+        self.assertEqual(manifest["companion_files"][0]["preimage_sha256"], manifest["companion_files"][0]["restore_sha256"])
         self.assertEqual(manifest["companion_files"][0]["size"], 298496)
+        self.assertEqual(manifest["companion_files"][0]["resource_directory_size"], "0x33800")
         self.assertEqual(manifest["companion_files"][0]["destination"], "VVFP Origins Icons.dll")
         self.assertEqual(manifest["companion_files"][0]["artwork_resource_id"], 110)
         self.assertEqual(manifest["companion_files"][0]["artwork_sha256"], "83552374DFD7AC1AACC57D371C01C26BA1A438ADF34B904609A72165EB73C5A0")
-        self.assertEqual(manifest["hook"]["helper_length"], 1925)
-        self.assertEqual(manifest["hook"]["helper_sha256"], "88C055AF0D1419F9E5570283264C45D80AC12BA7449CE7108283277FA5A456CE")
-        self.assertEqual(manifest["hook"]["page_sha256"], "CCCCA9A5F6357CDC2E147EE973F97A53FA7CFC8A53FA8474289B17E04F48A6E8")
+        self.assertEqual(manifest["hook"]["helper_length"], 1934)
+        self.assertEqual(manifest["hook"]["helper_sha256"], "BC785320E1AC766204927FD1713F4A560DD83FE071447F00226F3A5DAC34E6F3")
+        self.assertEqual(manifest["hook"]["page_sha256"], "CF62185C098F2285E32B529E0AAFD33A0DA0496EF1528D0B1571943A2C5E3E53")
         self.assertEqual(artifact_map["companion"]["sha256"], manifest["companion_files"][0]["sha256"])
         self.assertIn("RT_DIALOG 201/203", artifact_map["companion"]["resource_contract"])
         self.assertEqual(artifact_map["ownership"]["exe_hook"]["command5_continuation"], "0x4895D9")
@@ -156,7 +159,7 @@ class VV4FullHealCandidateTests(unittest.TestCase):
         spec.loader.exec_module(builder)
         base = builder.PARENT_DLL.read_bytes()
         candidate, digest = builder.build_resource_only_companion(base)
-        self.assertEqual(digest, "D3C2AE77AABA371396ACC9BD69949159B358D671E07558E794CF18E261AB30A6")
+        self.assertEqual(digest, "165F327783DFECAB4C42DB28D6F926BCA46397F725F036BFC367BB659384C0AC")
         import pefile
         pe = pefile.PE(data=candidate)
         icon_type = next(x for x in pe.DIRECTORY_ENTRY_RESOURCE.entries if x.id == 14)
@@ -212,6 +215,7 @@ class VV4FullHealCandidateTests(unittest.TestCase):
             # SizeOfImage, relocation directory RVA, and checksum.
             normalized_candidate[rsrc_header + 8:rsrc_header + 12] = normalized_base[rsrc_header + 8:rsrc_header + 12]
             normalized_candidate[rsrc_header + 16:rsrc_header + 20] = normalized_base[rsrc_header + 16:rsrc_header + 20]
+            normalized_candidate[0x18C:0x190] = normalized_base[0x18C:0x190]
             normalized_candidate[reloc_header + 12:reloc_header + 16] = normalized_base[reloc_header + 12:reloc_header + 16]
             normalized_candidate[reloc_header + 20:reloc_header + 24] = normalized_base[reloc_header + 20:reloc_header + 24]
             normalized_candidate[pe + 0x50:pe + 0x54] = normalized_base[pe + 0x50:pe + 0x54]
@@ -238,6 +242,7 @@ class VV4FullHealCandidateTests(unittest.TestCase):
         self.assertEqual(struct.unpack_from("<I", candidate, sections[".reloc"] + 12)[0], 0x4B000)
         self.assertEqual(struct.unpack_from("<I", candidate, sections[".reloc"] + 20)[0], 0x47E00)
         self.assertEqual(struct.unpack_from("<I", candidate, pe_off + 0x50)[0], 0x4C000)
+        self.assertEqual(struct.unpack_from("<I", candidate, 0x18C)[0], 0x33800)
 
     def test_emitted_page_decodes_contract_and_stack_intervals(self):
         import hashlib
@@ -251,12 +256,12 @@ class VV4FullHealCandidateTests(unittest.TestCase):
         spec.loader.exec_module(builder)
         page, meta = builder.build_page()
         self.assertEqual(len(page), 0x1000)
-        self.assertEqual(meta["helper_length"], 1925)
+        self.assertEqual(meta["helper_length"], 1934)
         self.assertEqual(
             hashlib.sha256(page[0x100:0x100 + meta["helper_length"]]).hexdigest().upper(),
-            "88C055AF0D1419F9E5570283264C45D80AC12BA7449CE7108283277FA5A456CE",
+            "BC785320E1AC766204927FD1713F4A560DD83FE071447F00226F3A5DAC34E6F3",
         )
-        self.assertEqual(hashlib.sha256(page).hexdigest().upper(), "CCCCA9A5F6357CDC2E147EE973F97A53FA7CFC8A53FA8474289B17E04F48A6E8")
+        self.assertEqual(hashlib.sha256(page).hexdigest().upper(), "CF62185C098F2285E32B529E0AAFD33A0DA0496EF1528D0B1571943A2C5E3E53")
         body = page[0x100:0x100 + meta["helper_length"]]
         self.assertNotIn(b"\xE9\x00\x10\x74\x00", body)  # no synthetic string-target jump
         self.assertNotIn(struct.pack("<I", 0x50EDE8), body)
@@ -294,7 +299,52 @@ class VV4FullHealCandidateTests(unittest.TestCase):
         self.assertEqual(candidate[builder.HOOK_RAW:builder.HOOK_RAW + 5], bytes.fromhex("E9EC792B00"))
         self.assertEqual(candidate[builder.HOOK_RAW + 5:builder.HOOK_RAW + 7], b"\x72\x4C")
         self.assertEqual(builder.sha(parent), "CEBF0BC813059A13131CF75E4ECE11C8CCEE460CC98FB16BD87B03F5C20DB86B")
-        self.assertEqual(builder.sha(candidate), "1D4D0E6BB31A422256400E1EEFCD6116608C3790B0CF3B3DFFEA54730141DA58")
+        self.assertEqual(builder.sha(candidate), "46DC12C0B5F7FC9FBB76E9B422BF223085EF54560F16BE897AD6C8A7CEF5BC95")
+
+    def test_classifier_reloads_health_and_dependency_message_uses_stdcall(self):
+        import importlib.util
+        spec = importlib.util.spec_from_file_location(
+            "vv4hc_builder_classifier", ROOT / "scripts" / "build_vv4_full_heal_candidate.py"
+        )
+        builder = importlib.util.module_from_spec(spec)
+        assert spec.loader is not None
+        spec.loader.exec_module(builder)
+        page, meta = builder.build_page()
+        body = page[0x100:0x100 + meta["helper_length"]]
+        insns = list(builder.Cs(builder.CS_ARCH_X86, builder.CS_MODE_32).disasm(body, builder.ENTRY_VA))
+        for index, insn in enumerate(insns[:-1]):
+            if insn.mnemonic == "mov" and "byte ptr [esi + 0x1c48]" in insn.op_str:
+                window = insns[index + 1:index + 5]
+                cmp_positions = [i for i, item in enumerate(window) if item.mnemonic == "cmp" and item.op_str == "eax, 0x64"]
+                if cmp_positions:
+                    self.assertTrue(any("dword ptr [esi + 0x1c40]" in item.op_str for item in window[:cmp_positions[0]]), insn)
+        reload_compare_pairs = [
+            index for index, insn in enumerate(insns[1:], 1)
+            if insn.mnemonic == "cmp" and insn.op_str == "eax, 0x64"
+            and insns[index - 1].mnemonic == "mov"
+            and "dword ptr [esi + 0x1c40]" in insns[index - 1].op_str
+        ]
+        self.assertGreaterEqual(len(reload_compare_pairs), 2)
+        message_calls = [
+            index for index, insn in enumerate(insns[:-1])
+            if insn.mnemonic == "call" and insn.op_str == "dword ptr [ebp - 0x10]"
+        ]
+        self.assertTrue(any(insns[index + 1].mnemonic == "add" and insns[index + 1].op_str == "esp, 0x1200" for index in message_calls))
+
+    def test_append_and_companion_metadata_are_operationally_complete(self):
+        manifest = json.loads(MANIFEST.read_text(encoding="utf-8"))
+        layouts = manifest["pe_append_transaction"]["layouts"]
+        self.assertEqual(set(layouts), {"collection_progression", "immediate_fixed"})
+        for layout in layouts.values():
+            self.assertEqual(layout["original_file_size"], "0xE5000")
+            self.assertEqual(layout["append_offset"], "0xE5000")
+            self.assertEqual(layout["append_source"], "generated:vv4_full_heal_page")
+            self.assertEqual(len(layout["header_patches"]), 3)
+        companion = manifest["companion_files"][0]
+        self.assertEqual(companion["source"], "generated:vv4_full_heal_companion")
+        self.assertEqual(companion["restore_source"], companion["parent"])
+        self.assertEqual(companion["preimage_sha256"], companion["restore_sha256"])
+        self.assertEqual(json.loads(MAP.read_text(encoding="utf-8"))["companion_resource_directory_size"], "0x33800")
 
     def test_emitted_dialog_command5_row_has_native_order_and_geometry(self):
         import importlib.util

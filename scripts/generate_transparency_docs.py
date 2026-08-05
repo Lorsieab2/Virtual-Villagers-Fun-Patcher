@@ -128,7 +128,7 @@ def build_document() -> str:
         "eligible sickness and health 1..99 records, confirms both predicted counts for 30,000 tech points, "
         "rechecks state and funds, clears sickness, restores partial health through the native setter, "
         "postverifies exact health 100/sickness 0, and deducts once through ECX=0x4D6F88/call 0x41E300. "
-        "The candidate-owned companion is `VVFP Origins Icons.dll`, a deterministic structural RT_DIALOG 201/203 repack (SHA-256 D3C2AE77AABA371396ACC9BD69949159B358D671E07558E794CF18E261AB30A6, 298,496 bytes); it clones parent items 20..24, inserts the native five-item command-5 row before item 25, adds the ID 1005 Buy control and real RT_ICON 46..49 / RT_GROUP_ICON 110 artwork, and preserves the `Origins Upgrades` caption, dialog 202, exports, code, and non-resource bytes. "
+        "The candidate-owned companion is `VVFP Origins Icons.dll`, a deterministic structural RT_DIALOG 201/203 repack (SHA-256 165F327783DFECAB4C42DB28D6F926BCA46397F725F036BFC367BB659384C0AC, 298,496 bytes); it clones parent items 20..24, inserts the native five-item command-5 row before item 25, adds the ID 1005 Buy control and real RT_ICON 46..49 / RT_GROUP_ICON 110 artwork, updates the resource-directory size to 0x33800, and preserves the `Origins Upgrades` caption, dialog 202, exports, code, and non-resource bytes. "
         "People Cured is the separate [0x4D6DF0] statistic. Every no-charge route includes "
         "`No tech points have been deducted.` Expanded-256 and unknown compositions reject before output. "
         "The exact VV4 command-5 detour and `.vv4hc` page remain pending independent disassembly; existing "

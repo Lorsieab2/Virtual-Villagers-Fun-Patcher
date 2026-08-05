@@ -28,7 +28,7 @@ not claimed.
 
 The candidate owns a future `.vv4hc` RX page and a structurally transformed
 `VVFP Origins Icons.dll` companion resource (SHA-256
-`D3C2AE77AABA371396ACC9BD69949159B358D671E07558E794CF18E261AB30A6`,
+`165F327783DFECAB4C42DB28D6F926BCA46397F725F036BFC367BB659384C0AC`,
 298,496 bytes) containing a native five-item command-5 row cloned from parent
 items 20..24 and inserted before item 25 in dialogs 201/203 (caption
 `Origins Upgrades`, label `Full Heal / Cure All`, price `30,000 tech points`,

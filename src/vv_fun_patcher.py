@@ -507,8 +507,8 @@ VV4_FULL_HEAL_CANDIDATE_PATHS = {
 VV4_FULL_HEAL_STOCK_SHA256 = "6D27A429FFCA5F1F71FDD7ECA761ED1BB67E85F976494BA178B3D7BE01F1B220"
 VV4_FULL_HEAL_PARENT_PAGE_SHA256 = "FD72C661B533117BF38D69E7EB855250A93927C831C265226930794C1EFDDB62"
 VV4_FULL_HEAL_PARENT_DLL_SHA256 = "4E1A83683A875EFE6F67116CDD862927BE1ABCB17DB7AE18143E58E98EAD01E7"
-VV4_FULL_HEAL_MANIFEST_SHA256 = "2B67B6289DCA031409AD7CDC6488A7B57C95955E7C0E7037E2A13690702F0611"
-VV4_FULL_HEAL_MAP_SHA256 = "ADBD25BD7BE681D81EE432F012D9F088FEE6A5227E2AA5E1D14932F4CC12C237"
+VV4_FULL_HEAL_MANIFEST_SHA256 = "FCB60F5EFC8A1DD3670F85838DB22964352426C5CDADA6AA311D7D2C6415568E"
+VV4_FULL_HEAL_MAP_SHA256 = "234321F746F389ABFFF62611AD1AE699C6FF69616B9B3A36AF37E67E11A42FDC"
 VV4_FULL_HEAL_ENUMERATION = (
     "resolve every index 0..149 through ECX=0x50E568; push index; "
     "call 0x466040; ret 4; never walk a cached base"
@@ -1238,9 +1238,9 @@ def _certified_vv4_full_heal_record(
             or hook.get("hook_after") != "E9EC792B00"
             or hook.get("shim_bytes") != "83F8050F84F7000000E94784D4FF"
             or hook.get("shim_sha256") != "89A2E84C47D3130915A7830F48EC839C186A8BBABF7584681A83A4770582A370"
-            or hook.get("helper_length") != 1925
-            or hook.get("helper_sha256") != "88C055AF0D1419F9E5570283264C45D80AC12BA7449CE7108283277FA5A456CE"
-            or hook.get("page_sha256") != "CCCCA9A5F6357CDC2E147EE973F97A53FA7CFC8A53FA8474289B17E04F48A6E8"
+            or hook.get("helper_length") != 1934
+            or hook.get("helper_sha256") != "BC785320E1AC766204927FD1713F4A560DD83FE071447F00226F3A5DAC34E6F3"
+            or hook.get("page_sha256") != "CF62185C098F2285E32B529E0AAFD33A0DA0496EF1528D0B1571943A2C5E3E53"
             or hook.get("strings_sha256") != "44CB71162F5F5298E8A6AB309D874EDD20D3B4C20B169DB3D2274F84DCC0717E"
             or hook.get("unknown_until_recertified")):
         raise PatcherError("VV4 Full Heal cannot enable before exact hook/page bytes are certified.")
@@ -1248,8 +1248,13 @@ def _certified_vv4_full_heal_record(
         raise PatcherError("VV4 Full Heal message contract is invalid.")
     companion = manifest.get("companion_files", [{}])[0]
     companion_map = artifact_map.get("companion", {})
-    if (companion.get("sha256") != "D3C2AE77AABA371396ACC9BD69949159B358D671E07558E794CF18E261AB30A6"
+    if (companion.get("sha256") != "165F327783DFECAB4C42DB28D6F926BCA46397F725F036BFC367BB659384C0AC"
             or companion.get("size") != 298496
+            or companion.get("resource_directory_size") != "0x33800"
+            or companion.get("source") != "generated:vv4_full_heal_companion"
+            or companion.get("preimage_sha256") != VV4_FULL_HEAL_PARENT_DLL_SHA256
+            or companion.get("restore_source") != "data/candidates/VVFP VV4 Full Mastery Candidate.dll"
+            or companion.get("restore_sha256") != VV4_FULL_HEAL_PARENT_DLL_SHA256
             or companion.get("destination") != "VVFP Origins Icons.dll"
             or companion.get("artwork_resource_id") != 110
             or companion.get("artwork_sha256") != "83552374DFD7AC1AACC57D371C01C26BA1A438ADF34B904609A72165EB73C5A0"
@@ -1261,8 +1266,16 @@ def _certified_vv4_full_heal_record(
             }
             or companion_map.get("sha256") != companion.get("sha256")
             or companion_map.get("size") != companion.get("size")
-            or companion_map.get("parent_sha256") != VV4_FULL_HEAL_PARENT_DLL_SHA256):
+            or companion_map.get("parent_sha256") != VV4_FULL_HEAL_PARENT_DLL_SHA256
+            or artifact_map.get("companion_resource_directory_size") != "0x33800"):
         raise PatcherError("VV4 Full Heal companion resource transform is not certified.")
+    append_tx = manifest.get("pe_append_transaction")
+    if not isinstance(append_tx, dict) or append_tx.get("section_name") != ".vv4hc":
+        raise PatcherError("VV4 Full Heal append transaction metadata is not certified.")
+    for mode_id in ("collection_progression", "immediate_fixed"):
+        layout = append_tx.get("layouts", {}).get(mode_id)
+        if not isinstance(layout, dict) or layout.get("append_source") != "generated:vv4_full_heal_page" or int(layout.get("original_file_size", "-1"), 0) != 0xE5000 or int(layout.get("append_offset", "-1"), 0) != 0xE5000:
+            raise PatcherError("VV4 Full Heal append transaction mode is not certified.")
     ownership = artifact_map.get("ownership", {})
     if ownership.get("exe_hook") != {
         "raw": "0x8960F", "length": 5, "preimage": "E941FEFFFF",
@@ -1271,7 +1284,7 @@ def _certified_vv4_full_heal_record(
     } or ownership.get("page") != {
         "raw": "0xE5000", "length": 4096,
         "preimage_sha256": "zero-filled 0x1000",
-        "candidate_sha256": "CCCCA9A5F6357CDC2E147EE973F97A53FA7CFC8A53FA8474289B17E04F48A6E8",
+        "candidate_sha256": "CF62185C098F2285E32B529E0AAFD33A0DA0496EF1528D0B1571943A2C5E3E53",
     } or ownership.get("companion") != {
         "destination": "VVFP Origins Icons.dll",
         "preimage_sha256": VV4_FULL_HEAL_PARENT_DLL_SHA256,
@@ -1624,7 +1637,12 @@ def validate_fun_patch_catalog(
                 try:
                     original_size = int(layout["original_file_size"], 0)
                     append_offset = int(layout["append_offset"], 0)
-                    append_bytes = bytes.fromhex(layout["append_bytes"])
+                    append_source = layout.get("append_source")
+                    append_bytes = (
+                        bytes.fromhex(layout["append_bytes"])
+                        if "append_bytes" in layout
+                        else b""
+                    )
                     header_patches = layout["header_patches"]
                 except (KeyError, TypeError, ValueError) as exc:
                     raise PatcherError(
@@ -1632,8 +1650,8 @@ def validate_fun_patch_catalog(
                     ) from exc
                 if (
                     original_size != append_offset
-                    or not append_bytes
-                    or len(append_bytes) % 0x1000
+                    or (not append_bytes and append_source != "generated:vv4_full_heal_page")
+                    or (append_bytes and len(append_bytes) % 0x1000)
                     or not isinstance(header_patches, list)
                 ):
                     raise PatcherError(
@@ -2367,7 +2385,24 @@ def _apply_pe_append_transactions(
         try:
             original_size = int(layout["original_file_size"], 0)
             append_offset = int(layout["append_offset"], 0)
-            append_bytes = bytes.fromhex(layout["append_bytes"])
+            append_source = layout.get("append_source")
+            if "append_bytes" in layout:
+                append_bytes = bytes.fromhex(layout["append_bytes"])
+            elif append_source == "generated:vv4_full_heal_page" and feature.id == VV4_FULL_HEAL_CANDIDATE_ID:
+                # The VV4 candidate owns a generated page rather than a
+                # second tracked binary source.  Build it in memory so the
+                # normal renderer and its guarded append transaction consume
+                # exactly the emitted page bytes.
+                import importlib.util
+                builder_path = ROOT / "scripts" / "build_vv4_full_heal_candidate.py"
+                spec = importlib.util.spec_from_file_location("vv4_full_heal_builder_runtime", builder_path)
+                if spec is None or spec.loader is None:
+                    raise PatcherError("VV4 Full Heal page builder is unavailable.")
+                module = importlib.util.module_from_spec(spec)
+                spec.loader.exec_module(module)
+                append_bytes, _ = module.build_page()
+            else:
+                raise KeyError("append_bytes")
             header_patches = layout["header_patches"]
         except (KeyError, TypeError, ValueError) as exc:
             raise PatcherError(
@@ -3528,42 +3563,47 @@ def _copy_companion_files(
     root = ROOT.resolve()
     for feature in fun_patches:
         for item in feature.raw.get("companion_files", []):
-            source = (ROOT / item["source"]).resolve()
+            source, generated_temp = _vv4_generated_companion_path(item)
             try:
                 source.relative_to(root)
             except ValueError as exc:
-                raise PatcherError(
-                    f"Companion file escapes the patcher folder: {source}"
-                ) from exc
-            destination_name = _safe_companion_destination(item["destination"])
-            if not source.is_file():
-                raise PatcherError(f"Required companion file is missing: {source}")
-            expected_hash = item["sha256"].upper()
-            preimage_hash = str(item.get("preimage_sha256", "")).upper() or None
-            if preimage_hash:
-                destination = output_folder / destination_name
-                if not destination.is_file() or sha256(destination) != preimage_hash:
+                if generated_temp is None:
                     raise PatcherError(
-                        f"Companion replacement preimage mismatch: {destination}"
-                    )
-            if sha256(source) != expected_hash:
-                raise PatcherError(f"Companion file hash mismatch: {source.name}")
-            destination = output_folder / destination_name
-            _atomic_companion_replace(
-                source,
-                destination,
-                source_hash=expected_hash,
-                preimage_hash=preimage_hash,
-                feature_id=feature.id,
-            )
-            copied.append(
-                {
-                    "feature": feature.id,
-                    "path": str(destination),
-                    "sha256": expected_hash,
-                    **({"preimage_sha256": preimage_hash, "restore_sha256": str(item["restore_sha256"]).upper()} if preimage_hash else {}),
-                }
-            )
+                        f"Companion file escapes the patcher folder: {source}"
+                    ) from exc
+            try:
+                destination_name = _safe_companion_destination(item["destination"])
+                if not source.is_file():
+                    raise PatcherError(f"Required companion file is missing: {source}")
+                expected_hash = item["sha256"].upper()
+                preimage_hash = str(item.get("preimage_sha256", "")).upper() or None
+                if preimage_hash:
+                    destination = output_folder / destination_name
+                    if not destination.is_file() or sha256(destination) != preimage_hash:
+                        raise PatcherError(
+                            f"Companion replacement preimage mismatch: {destination}"
+                        )
+                if sha256(source) != expected_hash:
+                    raise PatcherError(f"Companion file hash mismatch: {source.name}")
+                destination = output_folder / destination_name
+                _atomic_companion_replace(
+                    source,
+                    destination,
+                    source_hash=expected_hash,
+                    preimage_hash=preimage_hash,
+                    feature_id=feature.id,
+                )
+                copied.append(
+                    {
+                        "feature": feature.id,
+                        "path": str(destination),
+                        "sha256": expected_hash,
+                        **({"preimage_sha256": preimage_hash, "restore_sha256": str(item["restore_sha256"]).upper()} if preimage_hash else {}),
+                    }
+                )
+            finally:
+                if generated_temp is not None:
+                    generated_temp.cleanup()
     return copied
 
 
@@ -3594,6 +3634,30 @@ def _stage_companion_file(source: Path, destination_parent: Path, expected_hash:
         except OSError:
             pass
         raise
+
+
+def _vv4_generated_companion_path(item: dict[str, Any]) -> tuple[Path, tempfile.TemporaryDirectory | None]:
+    """Materialize the VV4 candidate companion from the pinned builder only."""
+    if item.get("source") != "generated:vv4_full_heal_companion":
+        source = (ROOT / str(item["source"])).resolve()
+        return source, None
+    import importlib.util
+    builder_path = ROOT / "scripts" / "build_vv4_full_heal_candidate.py"
+    spec = importlib.util.spec_from_file_location("vv4_full_heal_builder_companion", builder_path)
+    if spec is None or spec.loader is None:
+        raise PatcherError("VV4 Full Heal companion builder is unavailable.")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    base_path = ROOT / str(item["restore_source"])
+    if not base_path.is_file() or sha256(base_path) != str(item["preimage_sha256"]).upper():
+        raise PatcherError("VV4 Full Heal companion parent preimage is missing or corrupt.")
+    candidate, digest = module.build_resource_only_companion(base_path.read_bytes())
+    if digest != str(item["sha256"]).upper() or len(candidate) != int(item["size"]):
+        raise PatcherError("VV4 Full Heal emitted companion identity is not pinned.")
+    temp = tempfile.TemporaryDirectory(prefix="vv4-full-heal-companion-")
+    path = Path(temp.name) / "VVFP Origins Icons.dll"
+    path.write_bytes(candidate)
+    return path, temp
 
 
 def _atomic_companion_replace(
@@ -3709,22 +3773,33 @@ def _validate_companion_sources(fun_patches: list[FunPatch]) -> None:
     root = ROOT.resolve()
     for feature in fun_patches:
         for item in feature.raw.get("companion_files", []):
-            source = (ROOT / item["source"]).resolve()
-            try:
-                source.relative_to(root)
-            except ValueError as exc:
-                raise PatcherError(
-                    f"Companion file escapes the patcher folder: {source}"
-                ) from exc
-            if not source.is_file():
-                raise PatcherError(f"Required companion file is missing: {source}")
             expected_hash = str(item["sha256"]).upper()
-            actual_hash = sha256(source)
-            if actual_hash != expected_hash:
-                raise PatcherError(
-                    f"Companion file hash mismatch: {source.name}; "
-                    f"expected {expected_hash}, got {actual_hash}"
-                )
+            source, generated_temp = _vv4_generated_companion_path(item)
+            try:
+                if generated_temp is None:
+                    try:
+                        source.relative_to(root)
+                    except ValueError as exc:
+                        raise PatcherError(
+                            f"Companion file escapes the patcher folder: {source}"
+                        ) from exc
+                if not source.is_file():
+                    raise PatcherError(f"Required companion file is missing: {source}")
+                actual_hash = sha256(source)
+                if actual_hash != expected_hash:
+                    raise PatcherError(
+                        f"Companion file hash mismatch: {source.name}; "
+                        f"expected {expected_hash}, got {actual_hash}"
+                    )
+                if item.get("source") == "generated:vv4_full_heal_companion":
+                    if item.get("preimage_sha256") != item.get("restore_sha256"):
+                        raise PatcherError("VV4 Full Heal companion restore identity is not exact.")
+                    restore_source = (ROOT / str(item.get("restore_source", ""))).resolve()
+                    if not restore_source.is_file() or sha256(restore_source) != str(item.get("restore_sha256", "")).upper():
+                        raise PatcherError("VV4 Full Heal companion restore source is missing or corrupt.")
+            finally:
+                if generated_temp is not None:
+                    generated_temp.cleanup()
             _safe_companion_destination(item["destination"])
 
 
@@ -3829,6 +3904,7 @@ def apply_patch(
     patched, applied = render_patched_bytes(source, build, patch_mode, fun_patch_ids)
     output_folder_existed = output_folder.exists()
     _copy_game_folder_direct(source.parent, output_folder, overwrite, output_root)
+    companions: list[dict[str, str]] = []
     try:
         companions = _copy_companion_files(output_folder, fun_patches)
     except Exception:
@@ -3873,6 +3949,13 @@ def apply_patch(
             json_path=log_path,
         )
     except Exception:
+        if companions:
+            try:
+                _remove_companion_files(output_folder, fun_patches)
+            except Exception:
+                # Preserve the original failure; the removal guard remains
+                # fail-closed and leaves any unrecoverable evidence in place.
+                pass
         # Do not leave an executable or a report that looks successful when
         # transparency generation fails.  A pre-existing overwrite target is
         # left in place because it cannot be safely reconstructed here.
@@ -3940,7 +4023,7 @@ def apply_all(
     for build, source, patched, applied, output_folder, output in plans:
         output_folder_existed = output_folder.exists()
         _copy_game_folder_direct(source.parent, output_folder, overwrite, output_root)
-        companions = _copy_companion_files(
+        companions: list[dict[str, str]] = _copy_companion_files(
             output_folder, selected_by_game.get(build.id, [])
         )
         with output.open("wb") as handle:
@@ -3987,6 +4070,13 @@ def apply_all(
                 json_path=log_path,
             )
         except Exception:
+            if companions:
+                try:
+                    _remove_companion_files(
+                        output_folder, selected_by_game.get(build.id, [])
+                    )
+                except Exception:
+                    pass
             if not output_folder_existed:
                 shutil.rmtree(output_folder, ignore_errors=True)
             else:
