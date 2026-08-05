@@ -74,6 +74,10 @@ All five legacy `vvN_origins_village_wide_upgrades` records remain disabled and 
 The revised VV3 Full Heal / Cure All candidate is enabled and catalog-visible only for certified Collection Progression and Immediate Fixed; implementation is complete at `49595a75b65cd0561811593ba19825239ec97dde` with parent `38510cc21b7cd322a52fbabc936794dfc8601ccc`. Independent static GO reports D209/C213 are recorded without inventing audit or acceptance commit identities; runtime/player validation remains pending. This generated disclosure is sourced from its authoritative candidate manifest.
 - Partial-write disclosure: If native writes begin and a later write or postverification fails, earlier verified health, sickness, or People Cured effects may remain. No tech points are deducted on that failure, but complete rollback of native side effects is not claimed.
 
+### VV4 Full Heal / Cure All candidate (disabled)
+
+The VV4 `Full Heal / Cure All` candidate is disabled and catalog-hidden. It is bound to stock SHA-256 `6D27A429FFCA5F1F71FDD7ECA761ED1BB67E85F976494BA178B3D7BE01F1B220` and the certified VV4 Full Mastery parents for Collection Progression and Immediate Fixed only. Its contract enumerates physical indices 0..149 through the native resolver, counts overlapping eligible sickness and health 1..99 records, confirms both predicted counts for 30,000 tech points, rechecks state and funds, clears sickness, restores partial health through the native setter, postverifies exact health 100/sickness 0, and deducts once. Every no-charge route includes `No tech points have been deducted.` Expanded-256 and unknown compositions reject before output. The exact VV4 command-5 detour and `.vv4hc` page remain pending independent disassembly; existing Full Mastery UI/runtime bytes and the withdrawn legacy Cure route are unchanged.
+
 ## Virtual Villagers - A New Home
 
 ### Automatic population and safety changes

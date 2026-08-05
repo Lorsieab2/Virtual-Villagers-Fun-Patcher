@@ -119,6 +119,19 @@ def build_document() -> str:
         "- Partial-write disclosure: "
         + (str(full_heal.get("partial_failure_limit", "not recorded")) if full_heal else "not recorded"),
         "",
+        "### VV4 Full Heal / Cure All candidate (disabled)",
+        "",
+        "The VV4 `Full Heal / Cure All` candidate is disabled and catalog-hidden. "
+        "It is bound to stock SHA-256 `6D27A429FFCA5F1F71FDD7ECA761ED1BB67E85F976494BA178B3D7BE01F1B220` "
+        "and the certified VV4 Full Mastery parents for Collection Progression and Immediate Fixed only. "
+        "Its contract enumerates physical indices 0..149 through the native resolver, counts overlapping "
+        "eligible sickness and health 1..99 records, confirms both predicted counts for 30,000 tech points, "
+        "rechecks state and funds, clears sickness, restores partial health through the native setter, "
+        "postverifies exact health 100/sickness 0, and deducts once. Every no-charge route includes "
+        "`No tech points have been deducted.` Expanded-256 and unknown compositions reject before output. "
+        "The exact VV4 command-5 detour and `.vv4hc` page remain pending independent disassembly; existing "
+        "Full Mastery UI/runtime bytes and the withdrawn legacy Cure route are unchanged.",
+        "",
     ]
     for build in load_builds():
         lines.extend(

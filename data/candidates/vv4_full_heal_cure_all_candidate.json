@@ -1,0 +1,93 @@
+{
+  "id": "vv4_full_heal_cure_all_candidate",
+  "game_id": "vv4",
+  "name": "Full Heal / Cure All",
+  "enabled": false,
+  "catalog_hidden": true,
+  "catalog_enabled": false,
+  "certification_status": "disabled; independent VV4 native-layout recertification pending",
+  "evidence_status": "candidate-only contract recorded; runtime and emitted-byte certification pending",
+  "dependencies": [
+    "vv4_enable_origins_exclusive_features_full_mastery_candidate",
+    "vv4_full_mastery_all_stage_a_candidate"
+  ],
+  "supported_modes": ["collection_progression", "immediate_fixed"],
+  "rejected_modes": ["experimental_expanded_256", "experimental_expanded_256_progression"],
+  "description": "Disabled stock-only command-5 Full Heal / Cure All candidate. It targets only eligible living current VV4 records, restores partial health to exact 100, clears sickness, reports both counts, and deducts 30,000 exactly once after complete recheck and postverification. The withdrawn legacy Cure route, Expanded-256, unknown builds, and incomplete compositions remain fail-closed.",
+  "source": {
+    "stock_size": 929792,
+    "stock_sha256": "6D27A429FFCA5F1F71FDD7ECA761ED1BB67E85F976494BA178B3D7BE01F1B220",
+    "parent_vv4fm_page_sha256": "FD72C661B533117BF38D69E7EB855250A93927C831C265226930794C1EFDDB62",
+    "parent_dll_sha256": "4E1A83683A875EFE6F67116CDD862927BE1ABCB17DB7AE18143E58E98EAD01E7",
+    "parent_collection_sha256": "CEBF0BC813059A13131CF75E4ECE11C8CCEE460CC98FB16BD87B03F5C20DB86B",
+    "parent_immediate_sha256": "6070D3244567815E8880168AEDCB9FF0E43F6720095AE67628089D492DA40133"
+  },
+  "transaction": {
+    "command": 5,
+    "price": 30000,
+    "action": "Buy",
+    "repeatable": true,
+    "ownership": null,
+    "remove": false,
+    "physical_bound": 150,
+    "enumeration": "resolve every index 0..149 through ECX=0x50E568; push index; call 0x466040; ret 4; never walk a cached base",
+    "dry_run_before_warning_or_charge": true,
+    "confirmation_counts": ["predicted_sick", "predicted_partial_health"],
+    "success_counts": ["actual_sick_cured", "actual_partial_health_restored"],
+    "deduction": {"receiver": "0x4D6DF0", "amount": 30000, "calls": 1, "only_after_postverify": true}
+  },
+  "eligibility": {
+    "record_nonnull": true,
+    "active_byte": "+0x1CC4 != 0",
+    "status_byte": "+0x1CC7 == 0",
+    "signed_health": "+0x1C40 > 0",
+    "heathen_field": "none; the proved active/status/health population gate is authoritative",
+    "never_revive": true,
+    "health_reads_after_population_gate_only": true,
+    "sick_field": "+0x1C48 != 0",
+    "partial_health": "signed health 1..99 only; health 100 is unchanged"
+  },
+  "native_operations": {
+    "health_setter": {"ecx": "record+0x1C34", "push_reason": -1, "push_value": 100, "call": "0x46AF00", "ret": 8, "verify": 100},
+    "sickness_clear": {"field": "+0x1C48", "value": 0, "verify": 0, "people_cured_dword": "[0x4D6DF0]", "increment_per_verified_clear": true},
+    "forbidden_health_setter": "0x50EDE8",
+    "raw_skill_or_health_store": false,
+    "postverify": "fresh 0..149 re-resolution; exact health 100 and sickness 0 for every changed record"
+  },
+  "messages": {
+    "label": "Full Heal / Cure All",
+    "confirmation": "Full Heal / Cure All will cure %u sick villager(s) and restore partial health for %u villager(s) for 30,000 tech points?\r\nPress OK to confirm, or Cancel.",
+    "success": "Full Heal / Cure All cured %u sick villager(s) and restored partial health for %u villager(s).",
+    "noop": "No eligible villager requires healing or sickness clearing.\r\nNo tech points have been deducted.",
+    "failure_suffix": "No tech points have been deducted."
+  },
+  "hook": {
+    "status": "command gate assembled; native helper/page still pending independent recertification",
+    "legacy_route": "command 5 must be dominated before stock price lookup/precharge",
+    "section_name": ".vv4hc",
+    "section_size": 4096,
+    "section_raw_offset": "0xE5000",
+    "section_rva": "0x341000",
+    "section_va": "0x741000",
+    "hook_raw_offset": "0x8960F",
+    "hook_va": "0x48960F",
+    "hook_length": 7,
+    "hook_before_parent": "E941FEFFFF9090",
+    "hook_after": "E9EC792B009090",
+    "hook_continuation": "0x489455",
+    "shim_bytes": "83F8050F854C84D4FFE9F2000000",
+    "shim_sha256": "7E3D0DC51B65B0A8C8885A984ADAC240A2BD44235D97C800063F9E88D5491464",
+    "transaction_entry_va": "0x741100",
+    "owned_ranges": ["0x8960F..0x89615", "0xE5000..0xE5FFF"],
+    "unknown_until_recertified": true
+  },
+  "companion_files": [{
+    "source": "native/vv4_full_heal_candidate/vv4_full_heal_candidate.dll",
+    "destination": "VVFP VV4 Full Heal Candidate.dll",
+    "parent": "data/candidates/VVFP VV4 Full Mastery Candidate.dll",
+    "parent_sha256": "4E1A83683A875EFE6F67116CDD862927BE1ABCB17DB7AE18143E58E98EAD01E7",
+    "resource_contract": "structurally repack dialog 201/203 title/control only; preserve 202, exports, code, and all non-.rsrc bytes",
+    "sha256": null
+  }],
+  "atomicity": {"install_remove": true, "unknown_or_corrupt_fails_before_output": true, "expanded_fail_closed": true, "partial_write_disclosure": "Native side effects before a later failure may remain; no deduction is made and rollback is not claimed."}
+}

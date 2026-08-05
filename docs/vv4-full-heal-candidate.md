@@ -1,0 +1,40 @@
+# VV4 Full Heal / Cure All
+
+This is a disabled, catalog-hidden stock-only candidate. It is not an emitted
+or playable patch until the exact VV4 command-5 boundary, native ABI, and
+`.vv4hc` layout receive independent disassembly recertification.
+
+The contract enumerates physical indices 0..149 through the native resolver
+(`ECX=0x50E568`, push index, call `0x466040`, `ret 4`). It applies the active,
+status, and positive-health gate before reading sickness or mutation fields.
+Count A is eligible sickness (`record+0x1C48 != 0`); Count B is eligible
+partial health (`1..99`); overlap is counted in both. Health 100 is left
+unchanged and no record is revived.
+
+The complete dry run precedes warning, confirmation, funds, or mutation. The
+confirmation reports both predicted counts and 30,000 tech points. After OK,
+the manager, every physical record, eligibility, counts, and funds are freshly
+revalidated. Partial health uses only the native setter
+(`ECX=record+0x1C34`, push `-1`, push `100`, call `0x46AF00`, `ret 8`); sickness
+is cleared only after a fresh manager is available and People Cured at
+`[0x4D6DF0]` is incremented once after verification. Success reports both
+actual counts and deducts 30,000 exactly once after complete postverification.
+
+No-op, cancel, stale-state, dependency, insufficient-funds, and partial-write
+failures are no-charge and include `No tech points have been deducted.` Native
+effects that occurred before a later failure may remain; complete rollback is
+not claimed.
+
+The candidate owns a future `.vv4hc` RX page and a structurally transformed
+companion resource containing the exact label `Full Heal / Cure All`. Dialog
+202, all exports, code, and all non-resource bytes remain unchanged. Existing
+VV4 Full Mastery UI/runtime bytes, the withdrawn legacy Cure route, and
+Expanded-256 fail-closed behavior are preserved.
+
+The command gate is currently bounded to the certified Full Mastery parent
+hook preimage `E941FEFFFF9090` at raw `0x8960F`; its assembled replacement is
+`E9EC792B009090`, routing through the 14-byte shim
+`83F8050F854C84D4FFE9F2000000` in the proposed `.vv4hc` page at raw `0xE5000`
+/ VA `0x741000`. The native transaction entry at `0x741100`, complete helper
+page hash, and resource-repacked companion remain disabled pending independent
+VV4 emission/disassembly recertification.

@@ -1,0 +1,44 @@
+{
+  "candidate_id": "vv4_full_heal_cure_all_candidate",
+  "candidate_enabled": false,
+  "catalog_hidden": true,
+  "catalog_enabled": false,
+  "allowed_modes": ["collection_progression", "immediate_fixed"],
+  "rejected_modes": ["experimental_expanded_256", "experimental_expanded_256_progression"],
+  "source": {"sha256": "6D27A429FFCA5F1F71FDD7ECA761ED1BB67E85F976494BA178B3D7BE01F1B220", "size": 929792},
+  "parents": {
+    "vv4fm_page_sha256": "FD72C661B533117BF38D69E7EB855250A93927C831C265226930794C1EFDDB62",
+    "dll_sha256": "4E1A83683A875EFE6F67116CDD862927BE1ABCB17DB7AE18143E58E98EAD01E7",
+    "collection_sha256": "CEBF0BC813059A13131CF75E4ECE11C8CCEE460CC98FB16BD87B03F5C20DB86B",
+    "immediate_sha256": "6070D3244567815E8880168AEDCB9FF0E43F6720095AE67628089D492DA40133"
+  },
+  "transaction": {
+    "command": 5,
+    "price": 30000,
+    "action": "Buy",
+    "ownership": null,
+    "remove": false,
+    "bound": 150,
+    "resolver": "ECX=0x50E568; push physical index; call 0x466040; ret 4",
+    "health_setter": "ECX=record+0x1C34; push -1; push 100; call 0x46AF00; ret 8",
+    "sickness": "+0x1C48 -> 0; increment [0x4D6DF0] once after verified clear",
+    "deduction": "one 30,000 deduction only after count-match postverify"
+  },
+  "eligibility": {"active": "+0x1CC4 != 0", "status": "+0x1CC7 == 0", "health": "+0x1C40 > 0", "partial": "1..99", "heathens": "not a separate field in this proved VV4 contract"},
+  "messages": {"label": "Full Heal / Cure All", "failure_suffix": "No tech points have been deducted."},
+  "hook": {
+    "status": "command gate assembled; native helper/page still pending independent recertification",
+    "raw_offset": "0x8960F",
+    "va": "0x48960F",
+    "before_parent": "E941FEFFFF9090",
+    "after": "E9EC792B009090",
+    "section": {"name": ".vv4hc", "raw_offset": "0xE5000", "rva": "0x341000", "va": "0x741000", "length": 4096},
+    "shim": {"va": "0x741000", "bytes": "83F8050F854C84D4FFE9F2000000", "sha256": "7E3D0DC51B65B0A8C8885A984ADAC240A2BD44235D97C800063F9E88D5491464"},
+    "transaction_entry_va": "0x741100",
+    "ranges": ["0x8960F..0x89615", "0xE5000..0xE5FFF"],
+    "unknown_until_recertified": true
+  },
+  "runtime_status": "pending independent static and player recertification",
+  "uninstall": "restore the exact Full Mastery parent EXE/DLL/page identities; zero only candidate-owned ranges",
+  "provenance": {"implementation_commit": null, "audit_commit": null, "acceptance_commit": null}
+}

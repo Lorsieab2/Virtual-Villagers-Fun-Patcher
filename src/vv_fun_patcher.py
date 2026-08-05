@@ -499,6 +499,18 @@ VV4_FULL_MASTERY_D19_HASHES = {
     "cure": "2BB7A32344293DCACB4D0359818C6839AC1FBBAEE8F9E3D00DB59C274238D726",
     "dll": "4E1A83683A875EFE6F67116CDD862927BE1ABCB17DB7AE18143E58E98EAD01E7",
 }
+VV4_FULL_HEAL_CANDIDATE_ID = "vv4_full_heal_cure_all_candidate"
+VV4_FULL_HEAL_CANDIDATE_PATHS = {
+    "manifest": ROOT / "data" / "candidates" / "vv4_full_heal_cure_all_candidate.json",
+    "map": ROOT / "data" / "candidates" / "vv4_full_heal_cure_all_candidate_map.json",
+}
+VV4_FULL_HEAL_STOCK_SHA256 = "6D27A429FFCA5F1F71FDD7ECA761ED1BB67E85F976494BA178B3D7BE01F1B220"
+VV4_FULL_HEAL_PARENT_PAGE_SHA256 = "FD72C661B533117BF38D69E7EB855250A93927C831C265226930794C1EFDDB62"
+VV4_FULL_HEAL_PARENT_DLL_SHA256 = "4E1A83683A875EFE6F67116CDD862927BE1ABCB17DB7AE18143E58E98EAD01E7"
+VV4_FULL_HEAL_ENUMERATION = (
+    "resolve every index 0..149 through ECX=0x50E568; push index; "
+    "call 0x466040; ret 4; never walk a cached base"
+)
 VV4_FULL_MASTERY_LEGACY_ASSET_KEYS = frozenset({
     "destination", "path", "png_sha256", "rgba_sha256", "grid",
     "frame_width", "frame_count", "frame_order", "identical_frames",
@@ -1160,6 +1172,62 @@ def _certified_vv4_full_mastery_records(
     return base, feature
 
 
+def _certified_vv4_full_heal_record(
+    active_base: dict[str, Any],
+    mastery_feature: dict[str, Any],
+) -> dict[str, Any] | None:
+    """Validate the disabled VV4 Full Heal contract before future output.
+
+    The candidate is intentionally not part of the public catalog yet.  Once
+    its exact stock hook and `.vv4hc` page receive independent recertification,
+    this gate is the only place that may admit it into a VV4 composition.
+    """
+
+    manifest_path = VV4_FULL_HEAL_CANDIDATE_PATHS["manifest"]
+    map_path = VV4_FULL_HEAL_CANDIDATE_PATHS["map"]
+    if not manifest_path.is_file() or not map_path.is_file():
+        return None
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8-sig"))
+    artifact_map = json.loads(map_path.read_text(encoding="utf-8-sig"))
+    if not manifest.get("enabled", False):
+        return None
+    if manifest.get("catalog_hidden") is not False or manifest.get("catalog_enabled") is not True:
+        raise PatcherError("VV4 Full Heal candidate must be explicitly catalog-visible when enabled.")
+    if manifest.get("id") != VV4_FULL_HEAL_CANDIDATE_ID or artifact_map.get("candidate_id") != VV4_FULL_HEAL_CANDIDATE_ID:
+        raise PatcherError("VV4 Full Heal candidate identity is invalid.")
+    if manifest.get("dependencies") != [active_base["id"], mastery_feature["id"]]:
+        raise PatcherError("VV4 Full Heal requires the current VV4 Full Mastery parent chain.")
+    if manifest.get("supported_modes") != ["collection_progression", "immediate_fixed"] or set(manifest.get("rejected_modes", ())) != EXPANDED_PATCH_MODES:
+        raise PatcherError("VV4 Full Heal mode gate is invalid.")
+    if manifest.get("source", {}).get("stock_sha256") != VV4_FULL_HEAL_STOCK_SHA256 or artifact_map.get("source", {}).get("sha256") != VV4_FULL_HEAL_STOCK_SHA256:
+        raise PatcherError("VV4 Full Heal stock fingerprint is invalid.")
+    if manifest.get("source", {}).get("parent_vv4fm_page_sha256") != VV4_FULL_HEAL_PARENT_PAGE_SHA256:
+        raise PatcherError("VV4 Full Heal Full Mastery page parent is invalid.")
+    if manifest.get("source", {}).get("parent_dll_sha256") != VV4_FULL_HEAL_PARENT_DLL_SHA256:
+        raise PatcherError("VV4 Full Heal companion parent is invalid.")
+    transaction = manifest.get("transaction", {})
+    if transaction != {
+        "command": 5,
+        "price": 30000,
+        "action": "Buy",
+        "repeatable": True,
+        "ownership": None,
+        "remove": False,
+        "physical_bound": 150,
+        "enumeration": VV4_FULL_HEAL_ENUMERATION,
+        "dry_run_before_warning_or_charge": True,
+        "confirmation_counts": ["predicted_sick", "predicted_partial_health"],
+        "success_counts": ["actual_sick_cured", "actual_partial_health_restored"],
+        "deduction": {"receiver": "0x4D6DF0", "amount": 30000, "calls": 1, "only_after_postverify": True},
+    }:
+        raise PatcherError("VV4 Full Heal transaction contract is not immutable.")
+    if manifest.get("hook", {}).get("owned_ranges") != artifact_map.get("hook", {}).get("ranges") or manifest.get("hook", {}).get("unknown_until_recertified"):
+        raise PatcherError("VV4 Full Heal cannot enable before exact hook/page bytes are certified.")
+    if manifest.get("messages", {}).get("label") != "Full Heal / Cure All" or manifest.get("messages", {}).get("failure_suffix") != "No tech points have been deducted.":
+        raise PatcherError("VV4 Full Heal message contract is invalid.")
+    return manifest
+
+
 def _certified_vv5_full_mastery_records(
     active_base: dict[str, Any],
 ) -> tuple[dict[str, Any], dict[str, Any]] | None:
@@ -1389,6 +1457,9 @@ def _load_fun_patch_records() -> list[FunPatch]:
                         items.append(record)
                     else:
                         items.extend(mastery)
+                        full_heal = _certified_vv4_full_heal_record(record, mastery[1])
+                        if full_heal is not None:
+                            items.append(full_heal)
                 elif record.get("id") == "vv5_enable_origins_exclusive_features":
                     mastery = _certified_vv5_full_mastery_records(record)
                     if mastery is None:
