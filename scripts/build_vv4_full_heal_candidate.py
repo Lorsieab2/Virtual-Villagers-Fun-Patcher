@@ -46,8 +46,8 @@ PARENT_DLL = ROOT / "data/candidates/VVFP VV4 Full Mastery Candidate.dll"
 PARENT_DLL_SHA256 = "4E1A83683A875EFE6F67116CDD862927BE1ABCB17DB7AE18143E58E98EAD01E7"
 PARENT_DLL_SIZE = 282624
 # Raw source-of-truth pins are checked before any candidate output is built.
-SOURCE_MANIFEST_SHA256 = "4220B43A59A234F1FB5D1150FC719B05F7A961C54FA5D5691CA7A9DB5FD6EDE5"
-SOURCE_MAP_SHA256 = "F35B766BAEFA6245C92EA38E954B004A8C1EEA221DD823434569CD5711E1B781"
+SOURCE_MANIFEST_SHA256 = "B8E8EFEDDD9A93A4FAFDF98BAA6A5FF1B0EF3A385734F6F72BC2C205F12913A3"
+SOURCE_MAP_SHA256 = "A0D056F0360D6FE77F59BC7A0C4AFFD76765CAACF3DC94B4FD52467576744912"
 
 sys.path.insert(0, str(ROOT / ".tools" / "capstone"))
 sys.path.insert(0, str(ROOT / ".tools" / "keystone-runtime"))
@@ -534,6 +534,10 @@ def _assemble_helper(strings: dict[str, int]) -> tuple[bytes, dict[str, object]]
         mov byte ptr [edx+9], al
         mov al, byte ptr [esi+0x1CC7]
         mov byte ptr [edx+10], al
+        mov eax, dword ptr [esi+0x1C40]
+        mov dword ptr [edx+4], eax
+        mov al, byte ptr [esi+0x1C48]
+        mov byte ptr [edx+11], al
         cmp byte ptr [esi+0x1CC4], 0
         je initial_next
         cmp byte ptr [esi+0x1CC7], 0
@@ -614,6 +618,12 @@ def _assemble_helper(strings: dict[str, int]) -> tuple[bytes, dict[str, object]]
         mov al, byte ptr [esi+0x1CC7]
         cmp al, byte ptr [edx+10]
         jne stale_failure
+        mov eax, dword ptr [esi+0x1C40]
+        cmp eax, dword ptr [edx+4]
+        jne stale_failure
+        mov al, byte ptr [esi+0x1C48]
+        cmp al, byte ptr [edx+11]
+        jne stale_failure
         cmp byte ptr [esi+0x1CC4], 0
         je recheck_zero_snapshot
         cmp byte ptr [esi+0x1CC7], 0
@@ -622,6 +632,9 @@ def _assemble_helper(strings: dict[str, int]) -> tuple[bytes, dict[str, object]]
         jle recheck_zero_snapshot
         mov eax, dword ptr [esi+0x1C40]
         cmp eax, dword ptr [edx+4]
+        jne stale_failure
+        mov al, byte ptr [esi+0x1C48]
+        cmp al, byte ptr [edx+11]
         jne stale_failure
         xor ecx, ecx
         cmp eax, 100
