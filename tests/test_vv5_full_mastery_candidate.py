@@ -684,13 +684,35 @@ class VV5FullMasteryCandidateTests(unittest.TestCase):
                 _remove_feature_bytes(work, self.feature, "collection_progression")
                 with self.assertRaises(PatcherError):
                     _remove_feature_bytes(work, self.base, "collection_progression")
-        # Canonicalize once before taking the determinism snapshot; preceding
-        # tests may have exercised an in-place generator.
-        subprocess.run([sys.executable, str(GENERATOR)], cwd=ROOT, check=True)
-        before = {path: sha(path.read_bytes()) for path in (BASE, FEATURE, MAP, DOC, DLL)}
-        subprocess.run([sys.executable, str(GENERATOR)], cwd=ROOT, check=True)
-        after = {path: sha(path.read_bytes()) for path in (BASE, FEATURE, MAP, DOC, DLL)}
-        self.assertEqual(before, after)
+        # The legacy generator intentionally targets tracked canonical files.
+        # Snapshot and restore them around this determinism probe so the test
+        # cannot leak a disabled/rewritten candidate into later tests.
+        tracked = (BASE, FEATURE, MAP, DOC, DLL)
+        originals = {path: path.read_bytes() for path in tracked}
+        try:
+            subprocess.run([sys.executable, str(GENERATOR)], cwd=ROOT, check=True)
+            before = {path: sha(path.read_bytes()) for path in tracked}
+            subprocess.run([sys.executable, str(GENERATOR)], cwd=ROOT, check=True)
+            after = {path: sha(path.read_bytes()) for path in tracked}
+            self.assertEqual(before, after)
+        finally:
+            for path, content in originals.items():
+                path.write_bytes(content)
+
+    def test_c251_source_repair_is_explicitly_disabled_until_native_transition_proof(self):
+        source = GENERATOR.read_text(encoding="utf-8")
+        self.assertIn("NATIVE_FULLSCREEN_TRANSITION_VA = 0x404700", source)
+        self.assertIn("feature_enabled = False", source)
+        self.assertIn("FULLSCREEN_TECH_OFFSET = 0xB40", source)
+        self.assertIn("FULLSCREEN_DETAIL_OFFSET = 0xBD8", source)
+        self.assertIn("SDL_GET_KEYBOARD_FOCUS_RVA = 0xA1910", source)
+        self.assertIn("SDL_GET_WINDOW_FLAGS_RVA = 0xA3E40", source)
+        self.assertIn("SDL_SET_WINDOW_FULLSCREEN_RVA = 0xA40E0", source)
+        self.assertIn("native_engine_transition_proof", source)
+        self.assertIn("candidate remains disabled/catalog-hidden", source)
+        self.assertIn("strip_vv5_cure_rows", source)
+        self.assertIn("cmp ebx, 5", source)
+        self.assertIn("candidate-only; requires independent emitted DLL recertification", source)
 
     def test_c37_audit_provenance_names_binary_and_documentation_commits(self):
         audit = ROOT / "outputs" / "vv5-c37-d40-audit"

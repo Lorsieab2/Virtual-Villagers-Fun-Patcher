@@ -36,6 +36,20 @@ SHOW_DIALOG_OFFSET = 0x1C0
 SHOW_DIALOG_SIZE = 0x50
 TECH_MENU_OFFSET = 0x2C0
 TECH_MENU_SIZE = 0x340
+# The two stock call sites are five-byte rel32 calls.  These bounded caves
+# are inside the existing zero gaps in the certified VV5 .shr payload; they
+# are deliberately separate so Tech and Detail can be audited independently.
+FULLSCREEN_TECH_OFFSET = 0xB40
+FULLSCREEN_DETAIL_OFFSET = 0xBD8
+FULLSCREEN_STRING_OFFSET = 0xC70
+FULLSCREEN_STRING = b"SDL2.dll\0"
+SDL_GET_KEYBOARD_FOCUS_RVA = 0xA1910
+SDL_GET_WINDOW_FLAGS_RVA = 0xA3E40
+SDL_SET_WINDOW_FULLSCREEN_RVA = 0xA40E0
+# D248 release gate: the native engine transition at 0x404700 and its exact
+# screen/engine pointer chain are not yet independently proved.  Until that
+# evidence exists this generator must emit the repair as disabled/hidden.
+NATIVE_FULLSCREEN_TRANSITION_VA = 0x404700
 CURE_OFFSET = 0x94EA0
 VILLAGE_PREFLIGHT_OFFSET = 0x94B37
 APPEND_OFFSET = 0xF2000
@@ -149,6 +163,175 @@ def _add_string(blob: bytearray, cursor: int, value: bytes, page_va: int) -> tup
         raise RuntimeError("slot strings exceed reserved space")
     blob[cursor:end] = value
     return page_va + SLOT_OFFSET + cursor, end
+
+
+def build_fullscreen_wrapper(wrapper_va: int, target_va: int, sdl_string_va: int) -> bytes:
+    """Temporarily leave SDL fullscreen-desktop around one modal menu call.
+
+    The wrapper preserves the caller's two stdcall arguments, resolves the
+    already-loaded SDL2 module through the existing LoadLibraryA IAT, and
+    calls only the three independently identified SDL entry RVAs.  If any
+    dependency or transition fails it returns zero without entering the menu;
+    this is intentionally fail-closed.  The menu export remains responsible
+    for its original stdcall cleanup (ret 8).
+    """
+    return asm(
+        f"""
+            mov eax, dword ptr [esp+4]
+            mov edx, dword ptr [esp+8]
+            push ebp
+            mov ebp, esp
+            push ebx
+            push esi
+            push edi
+            sub esp, 0x18
+            mov dword ptr [ebp-0x10], eax
+            mov dword ptr [ebp-0x14], edx
+            xor eax, eax
+            mov dword ptr [ebp-0x18], eax
+            mov dword ptr [ebp-0x0C], eax
+            push 0x{sdl_string_va:X}
+            call dword ptr [0x4951E0]
+            test eax, eax
+            jz safe_return
+            mov esi, eax
+            call dword ptr [esi+0x{SDL_GET_KEYBOARD_FOCUS_RVA:X}]
+            test eax, eax
+            jz safe_return
+            mov dword ptr [ebp-0x0C], eax
+            mov ecx, eax
+            call dword ptr [esi+0x{SDL_GET_WINDOW_FLAGS_RVA:X}]
+            test eax, 0x1001
+            jz enter_menu
+            mov dword ptr [ebp-0x18], 1
+            mov ecx, dword ptr [ebp-0x0C]
+            xor edx, edx
+            call dword ptr [esi+0x{SDL_SET_WINDOW_FULLSCREEN_RVA:X}]
+            test eax, eax
+            jnz safe_return
+        enter_menu:
+            push dword ptr [ebp-0x14]
+            push dword ptr [ebp-0x10]
+            call 0x{target_va:X}
+            mov dword ptr [ebp-0x08], eax
+            cmp dword ptr [ebp-0x18], 0
+            je done
+            mov ecx, dword ptr [ebp-0x0C]
+            mov edx, 0x1001
+            call dword ptr [esi+0x{SDL_SET_WINDOW_FULLSCREEN_RVA:X}]
+            mov eax, dword ptr [ebp-0x08]
+            jmp done
+        safe_return:
+            xor eax, eax
+        done:
+            add esp, 0x18
+            pop edi
+            pop esi
+            pop ebx
+            mov esp, ebp
+            pop ebp
+            ret 8
+        """,
+        wrapper_va,
+    )
+
+
+def _vv5_skip_resource_var(blob: bytes, cursor: int) -> int:
+    if cursor + 2 > len(blob):
+        raise RuntimeError("VV5 dialog variable is truncated")
+    first = int.from_bytes(blob[cursor : cursor + 2], "little")
+    if first == 0:
+        return cursor + 2
+    if first == 0xFFFF:
+        if cursor + 4 > len(blob):
+            raise RuntimeError("VV5 dialog ordinal is truncated")
+        return cursor + 4
+    cursor += 2
+    while cursor + 2 <= len(blob):
+        if blob[cursor : cursor + 2] == b"\0\0":
+            return cursor + 2
+        cursor += 2
+    raise RuntimeError("VV5 dialog UTF-16 value is unterminated")
+
+
+def _vv5_dialog_item_spans(blob: bytes, expected_count: int) -> list[tuple[int, int, str | None]]:
+    """Strictly parse one VV5 DIALOGEX leaf and return item spans/titles."""
+    if len(blob) < 26 or blob[0:2] != b"\x01\0" or blob[2:4] != b"\xff\xff":
+        raise RuntimeError("VV5 target is not DIALOGEX")
+    count = int.from_bytes(blob[16:18], "little")
+    if count != expected_count:
+        raise RuntimeError(f"VV5 DIALOGEX count {count} != {expected_count}")
+    cursor = 26
+    cursor = _vv5_skip_resource_var(blob, cursor)  # menu
+    cursor = _vv5_skip_resource_var(blob, cursor)  # class
+    cursor = _vv5_skip_resource_var(blob, cursor)  # caption
+    if cursor + 6 > len(blob):
+        raise RuntimeError("VV5 DIALOGEX font tuple is truncated")
+    cursor += 6
+    cursor = _vv5_skip_resource_var(blob, cursor)  # typeface
+    spans: list[tuple[int, int, str | None]] = []
+    for _ in range(count):
+        cursor = (cursor + 3) & ~3
+        start = cursor
+        if cursor + 24 > len(blob):
+            raise RuntimeError("VV5 DIALOGEX item header is truncated")
+        cursor += 24
+        cursor = _vv5_skip_resource_var(blob, cursor)  # class
+        title_start = cursor
+        title_end = _vv5_skip_resource_var(blob, cursor)
+        raw_title = blob[title_start:title_end]
+        title = None
+        if raw_title[:2] not in (b"\0\0", b"\xff\xff"):
+            title = raw_title[:-2].decode("utf-16le")
+        if title_end + 2 > len(blob):
+            raise RuntimeError("VV5 DIALOGEX creation length is truncated")
+        extra_words = int.from_bytes(blob[title_end : title_end + 2], "little")
+        cursor = title_end + 2 + extra_words * 2
+        end = (cursor + 3) & ~3
+        if end > len(blob):
+            raise RuntimeError("VV5 DIALOGEX item data is truncated")
+        spans.append((start, end, title))
+        cursor = end
+    if cursor > len(blob):
+        raise RuntimeError("VV5 DIALOGEX end escapes resource leaf")
+    return spans
+
+
+def strip_vv5_cure_rows(base: bytes) -> bytes:
+    """Structurally remove the five-item legacy Cure row from dialogs 201/203.
+
+    The leaf allocation is retained and zero-padded after the compacted item
+    list so no unrelated resource, PE section, export, or non-resource byte is
+    moved. Dialog 202 is parsed and asserted byte-identical. This function is
+    intentionally separate from the frozen C99 companion; callers must hash
+    and recertify its returned bytes before installing them.
+    """
+    if len(base) != 298496:
+        raise RuntimeError("VV5 companion size preimage mismatch")
+    output = bytearray(base)
+    leaves = ((0x466C0, 0x47070, 46), (0x47070, 0x474F0, 21), (0x474F0, 0x47C88, 36))
+    original_202 = bytes(base[0x47070:0x474F0])
+    for raw, end, count in leaves:
+        blob = bytes(base[raw:end])
+        spans = _vv5_dialog_item_spans(blob, count)
+        if count == 21:
+            if bytes(output[raw:end]) != original_202:
+                raise RuntimeError("VV5 dialog 202 changed unexpectedly")
+            continue
+        cure = [index for index, (_, _, title) in enumerate(spans) if title == "Cure all Villagers"]
+        if cure != [27]:
+            raise RuntimeError("VV5 Cure row structure is not the certified five-item row")
+        compact = blob[: spans[25][0]] + blob[spans[30][0] :]
+        if len(compact) > len(blob):
+            raise RuntimeError("VV5 Cure row compaction overflow")
+        compact += b"\0" * (len(blob) - len(compact))
+        compact = bytearray(compact)
+        compact[16:18] = (count - 5).to_bytes(2, "little")
+        after = _vv5_dialog_item_spans(bytes(compact), count - 5)
+        if any(title == "Cure all Villagers" for _, _, title in after):
+            raise RuntimeError("VV5 Cure row remains after structural removal")
+        output[raw:end] = compact
+    return bytes(output)
 
 
 def build_individual_helper(page_va: int, strings: dict[str, int]) -> bytes:
@@ -823,6 +1006,36 @@ def build_base_payload(active_payload: bytes, page_va: int) -> bytes:
         if ctor.count(bytes.fromhex("6A6A")) != 1 or ctor.count(bytes.fromhex("6889000000")) != 1:
             raise RuntimeError(f"VV5 {label} native top-left geometry postcondition failed")
         payload[start:end] = ctor
+
+    # The stock constructors already call the correct menu entry points at
+    # 0x7B200E (Tech -> 0x7B22C0) and 0x7B20CE (Detail -> 0x7B2600).  Replace
+    # only those five-byte call instructions with bounded wrappers that make
+    # the modal interaction safe for SDL fullscreen-desktop and restore the
+    # exact prior 0x1001 state on every successful return.
+    sdl_string_va = PAYLOAD_VA + FULLSCREEN_STRING_OFFSET
+    tech_wrapper_va = PAYLOAD_VA + FULLSCREEN_TECH_OFFSET
+    detail_wrapper_va = PAYLOAD_VA + FULLSCREEN_DETAIL_OFFSET
+    tech_wrapper = build_fullscreen_wrapper(tech_wrapper_va, 0x7B22C0, sdl_string_va)
+    detail_wrapper = build_fullscreen_wrapper(detail_wrapper_va, 0x7B2600, sdl_string_va)
+    for label, offset, wrapper, expected in (
+        ("Tech", 0x0E, tech_wrapper, bytes.fromhex("E8AD020000")),
+        ("Detail", 0xCE, detail_wrapper, bytes.fromhex("E82D050000")),
+    ):
+        if payload[offset : offset + 5] != expected:
+            raise RuntimeError(f"VV5 {label} menu call guard mismatch")
+        if any(payload[offset + 5 : offset + 5]):
+            raise RuntimeError(f"VV5 {label} call boundary is not five bytes")
+        call = asm(f"call 0x{(tech_wrapper_va if label == 'Tech' else detail_wrapper_va):X}", PAYLOAD_VA + offset)
+        if len(call) != 5:
+            raise RuntimeError(f"VV5 {label} wrapper call is not rel32")
+        payload[offset : offset + 5] = call
+        cave_offset = FULLSCREEN_TECH_OFFSET if label == "Tech" else FULLSCREEN_DETAIL_OFFSET
+        if any(payload[cave_offset : cave_offset + len(wrapper)]):
+            raise RuntimeError(f"VV5 {label} fullscreen wrapper cave is not zero")
+        payload[cave_offset : cave_offset + len(wrapper)] = wrapper
+    if payload[FULLSCREEN_STRING_OFFSET : FULLSCREEN_STRING_OFFSET + len(FULLSCREEN_STRING)] != b"\0" * len(FULLSCREEN_STRING):
+        raise RuntimeError("VV5 SDL2 wrapper string cave is not zero")
+    payload[FULLSCREEN_STRING_OFFSET : FULLSCREEN_STRING_OFFSET + len(FULLSCREEN_STRING)] = FULLSCREEN_STRING
     dll_offset = payload.find(b"VVFP Origins Icons.dll\0")
     menu_offset = payload.find(b"ShowOriginsUpgradeMenuState\0")
     if dll_offset < 0 or menu_offset < 0:
@@ -865,7 +1078,7 @@ def build_base_payload(active_payload: bytes, page_va: int) -> bytes:
     legacy_va = PAYLOAD_VA + TECH_MENU_OFFSET + legacy_start
     replacement = asm(
         f"""
-            cmp ebx, 6
+            cmp ebx, 5
             jb 0x{legacy_va:X}
             cmp ebx, 7
             jne 0x{menu_loop_va:X}
@@ -928,20 +1141,12 @@ def main() -> None:
     )
     base = deepcopy(active)
     base["id"] = "vv5_enable_origins_exclusive_features_full_mastery_candidate"
-    base["name"] = (
-        "VV5 Origins Full Mastery Extension Base"
-        if bool(json.loads(FEATURE_OUT.read_text(encoding="utf-8")).get("enabled", False))
-        else "DISABLED Candidate: VV5 Origins Full Mastery Extension Base"
-    )
-    base["enabled"] = True
-    base["catalog_hidden"] = not bool(
-        json.loads(FEATURE_OUT.read_text(encoding="utf-8")).get("enabled", False)
-    )
+    base["name"] = "DISABLED Candidate: VV5 Origins Full Mastery Extension Base"
+    base["enabled"] = False
+    base["catalog_hidden"] = True
     base["certification_status"] = (
-        "C99 independently certified; stock Collection Progression and Immediate Fixed "
-        "catalog-enabled; Expanded-256 ON HOLD/fail-closed"
-        if not base["catalog_hidden"]
-        else "disabled Stage-A candidate awaiting independent emitted-byte certification"
+        "disabled C251 candidate; native 0x404700 fullscreen transition proof and "
+        "independent emitted-byte recertification are pending; Expanded-256 fail-closed"
     )
     base["dependencies"] = []
     base["expanded_shr_relocations"]["patches"] = []
@@ -970,8 +1175,9 @@ def main() -> None:
         cure_jump + b"\x90" * (cure_start - len(cure_jump)) + cure_bytes[cure_start:]
     ).hex().upper()
     cure_item["purpose"] = (
-        "retain the byte-identical withdrawn Cure payload behind the EB5F containment "
-        "gate; command 5 is unavailable and unreachable"
+        "retain the legacy Cure payload byte-identically for provenance while the "
+        "candidate command-5 router returns to the menu and the candidate DLL "
+        "structurally removes the public Cure row"
     )
     payload_item = next(
         item for item in base["patches"] if int(item["offset"], 0) == PAYLOAD_OFFSET
@@ -995,6 +1201,34 @@ def main() -> None:
         ),
     }
     base["patch_mode_overrides"] = {}
+    base["fullscreen_dialog_contract"] = {
+        "status": (
+            "disabled STOP: SDL bracket is candidate-only; native engine transition "
+            "0x404700 screen/engine chain is unproved"
+        ),
+        "tech_call": {"offset": "0xDB00E", "before": "E8AD020000", "target": "0x7B22C0", "wrapper": f"0x{PAYLOAD_VA + FULLSCREEN_TECH_OFFSET:X}"},
+        "detail_call": {"offset": "0xDB0CE", "before": "E82D050000", "target": "0x7B2600", "wrapper": f"0x{PAYLOAD_VA + FULLSCREEN_DETAIL_OFFSET:X}"},
+        "sdl": {
+            "module": "SDL2.dll",
+            "get_keyboard_focus_rva": "0xA1910",
+            "get_window_flags_rva": "0xA3E40",
+            "set_window_fullscreen_rva": "0xA40E0",
+            "fullscreen_flags": "0x1001",
+        },
+        "failure": (
+            "missing SDL or failed transition returns safely without entering the modal menu; "
+            "failed restore leaves windowed, but this is not release-safe until native "
+            "0x404700 state synchronization is proved"
+        ),
+        "native_engine_transition_va": "0x404700",
+        "native_engine_transition_proof": "pending; candidate remains disabled/catalog-hidden",
+    }
+    base["cure_containment"] = {
+        "command": 5,
+        "router_guard": {"comparison": "EBX < 5", "legacy_target": "0x7B2461", "menu_loop": "0x7B22C0"},
+        "resource_transform": "structurally remove the five-item legacy Cure row from RT_DIALOG 201 and 203; 202 byte-identical",
+        "status": "candidate-only; requires independent emitted DLL recertification before enablement",
+    }
     base["pe_append_transaction"] = {
         "owner": base["id"],
         "section_name": ".vv5fm",
@@ -1023,7 +1257,9 @@ def main() -> None:
         if FEATURE_OUT.is_file()
         else {}
     )
-    feature_enabled = bool(existing_feature.get("enabled", False))
+    # Never re-enable the C99 candidate from a stale manifest while the D248
+    # native-transition gate is unresolved.
+    feature_enabled = False
     feature = {
         "id": "vv5_full_mastery_all_stage_a_candidate",
         "game_id": "vv5",
@@ -1044,8 +1280,10 @@ def main() -> None:
         ),
         "dependencies": [base["id"]],
         "description": (
-            "Command-7 village-wide and guarded command-1 selected-Believer Full Mastery "
-            "candidate using native six-skill Float32 writer sub_475730; commands 6/8 are absent."
+        "Command-7 village-wide and guarded command-1 selected-Believer Full Mastery "
+        "candidate using native six-skill Float32 writer sub_475730; commands 5/6/8 "
+        "are fail-closed and the legacy Cure row is structurally removed from the "
+        "candidate DLL."
         ),
         "companion_files": [],
         "patches": [
@@ -1206,6 +1444,8 @@ def main() -> None:
         "base_manifest_sha256": sha(BASE_OUT.read_bytes()),
         "feature_manifest_sha256": sha(FEATURE_OUT.read_bytes()),
         "base_stock_payload_sha256": sha(stock_payload),
+        "fullscreen_dialog_contract": base["fullscreen_dialog_contract"],
+        "cure_containment": base["cure_containment"],
         "companion": {
             "path": "data/candidates/VVFP VV5 Full Mastery Candidate.dll",
             "size": COMPANION.stat().st_size,
@@ -1282,8 +1522,9 @@ def main() -> None:
         + (
             "C99 independently certified the emitted bytes and C101 enables this "
             "candidate only for stock Collection Progression and Immediate Fixed. "
-            "Expanded-256 remains fail-closed; Cure command 5 remains withdrawn and "
-            "unreachable.\n\n"
+            "Expanded-256 remains fail-closed; legacy Cure command 5 is routed to a "
+            "safe menu return and its public row is removed by the candidate-owned "
+            "resource transform.\n\n"
             if feature_enabled
             else "The corrected constructor and Full Mastery paths passed the M2 live "
             "test, but the Upgrades controls require the proven native top-left layout. "
@@ -1319,7 +1560,12 @@ def main() -> None:
         "failed final checks with no deduction. Expanded-256 remains on hold and is "
         "rejected before output. The village-wide command-7 route uses a separate "
         "confirmation routine and the exact 1,000,000-point text; the individual "
-        "confirmation routine and string remain distinct.\n",
+        "confirmation routine and string remain distinct.\n"
+        "Each Tech and Detail modal call is wrapped by a guarded SDL2 fullscreen-desktop "
+        "transition using GetKeyboardFocus RVA 0xA1910, GetWindowFlags RVA 0xA3E40, "
+        "and SetWindowFullscreen RVA 0xA40E0; failed entry/restore is fail-closed.\n"
+        "The candidate-owned DLL transform removes the five-item legacy Cure row from "
+        "dialogs 201 and 203 while preserving dialog 202 and all non-resource bytes.\n",
         encoding="utf-8",
     )
 
