@@ -81,6 +81,7 @@ class VV4FullHealCandidateTests(unittest.TestCase):
             payload["members"][0]["backup_path"] = str(backup)
             payload["recovery_backup_root"] = str(backup_dir)
             payload["recovery_backup_snapshot"] = patcher._capture_tree_snapshot(backup_dir)
+            payload["destination_precondition"] = {"exists": False, "entries": []}
             report.write_text(json.dumps(payload), encoding="utf-8")
             patcher.recover_vv4_transaction(recovery)
             self.assertEqual(destination.read_bytes(), b"original")
@@ -165,6 +166,7 @@ class VV4FullHealCandidateTests(unittest.TestCase):
             payload = json.loads(report.read_text(encoding="utf-8"))
             payload["recovery_backup_root"] = str(backup_dir)
             payload["recovery_backup_snapshot"] = patcher._capture_tree_snapshot(backup_dir)
+            payload["destination_precondition"] = payload["destination_snapshot"]
             report.write_text(json.dumps(payload), encoding="utf-8")
             real_replace = patcher.os.replace
             calls = {"count": 0}
@@ -182,6 +184,18 @@ class VV4FullHealCandidateTests(unittest.TestCase):
             patcher.recover_vv4_transaction(recovery)
             self.assertEqual((destination / "a.bin").read_bytes(), b"new-a")
             self.assertEqual((destination / "b.bin").read_bytes(), b"new-b")
+
+    def test_snapshot_rejects_simulated_windows_reparse_attribute_before_walk(self):
+        import stat
+        import tempfile
+        from types import SimpleNamespace
+        import vv_fun_patcher as patcher
+        with tempfile.TemporaryDirectory(prefix="vv4hc-reparse-") as temp:
+            root = Path(temp)
+            fake = SimpleNamespace(st_mode=stat.S_IFDIR | 0o755, st_file_attributes=0x400)
+            with mock_patch.object(patcher.os, "lstat", return_value=fake):
+                with self.assertRaises(Exception):
+                    patcher._capture_tree_snapshot(root)
 
     def test_complete_parent_chain_and_overlay_owner_preimage_gate(self):
         import importlib.util

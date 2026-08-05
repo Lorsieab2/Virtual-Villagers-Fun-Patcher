@@ -6,6 +6,7 @@ import hashlib
 import json
 import os
 import shutil
+import stat
 import struct
 import tempfile
 import uuid
@@ -2645,6 +2646,7 @@ def publish_vv4_full_heal_removal(
     if not restore_source.is_file() or sha256(restore_source) != restore_hash:
         raise PatcherError("VV4 Full Heal parent companion restore source is missing or corrupt.")
     parent = root.parent
+    destination_precondition = _capture_tree_snapshot(root)
     stage = parent / f".{root.name}.remove-stage-{uuid.uuid4().hex}"
     if os.path.lexists(stage):
         raise PatcherError("VV4 Full Heal removal staging collision.")
@@ -2739,9 +2741,11 @@ def publish_vv4_full_heal_removal(
             report.write_text(
                 json.dumps(
                     {
+                        "schema_version": 2,
                         "operation": "remove",
                         "destination_root": str(root),
                         "destination_snapshot": _capture_tree_snapshot(root),
+                        "destination_precondition": destination_precondition,
                         "recovery_stage_root": str(retained_stage) if retained_stage.exists() else None,
                         "recovery_stage_snapshot": stage_snapshot,
                         "recovery_backup_root": str(retained),
@@ -2767,11 +2771,15 @@ def recover_vv4_transaction(recovery_dir: Path) -> None:
     if not report.is_file():
         raise PatcherError("Recovery report is missing.")
     payload = json.loads(report.read_text(encoding="utf-8"))
+    if payload.get("schema_version") != 2 or payload.get("operation") not in {"install", "remove"}:
+        raise PatcherError("Recovery report schema or operation is unsupported.")
     members = payload.get("members")
     if not isinstance(members, list) or not members:
         raise PatcherError("Recovery report has no recoverable members.")
     destination_root = payload.get("destination_root")
     destination_snapshot = payload.get("destination_snapshot")
+    if not isinstance(payload.get("destination_precondition"), dict):
+        raise PatcherError("Recovery destination precondition is missing or ambiguous.")
     restored_snapshot = payload.get("restored_snapshot")
     if destination_root and isinstance(destination_snapshot, dict):
         if not _tree_snapshot_matches(Path(destination_root), destination_snapshot):
@@ -4064,67 +4072,123 @@ def _verify_final_companion_records(
 
 
 def _capture_tree_records(root: Path) -> list[dict[str, Any]]:
-    if not root.is_dir():
-        return []
-    records: list[dict[str, Any]] = []
-    for path in sorted(root.rglob("*")):
-        if not path.is_file():
-            continue
-        rel = path.relative_to(root).as_posix()
-        records.append(
-            {
-                "relative_path": rel,
-                "original_path": str(root / rel),
-                "sha256": sha256(path),
-                "size": path.stat().st_size,
-            }
-        )
-    return records
+    snapshot = _capture_tree_snapshot(root)
+    return [
+        {
+            "relative_path": item["relative_path"],
+            "original_path": str(Path(root) / item["relative_path"]),
+            "sha256": item["sha256"],
+            "size": item["size"],
+        }
+        for item in snapshot.get("entries", [])
+        if item.get("type") == "file"
+    ]
 
 
 def _tree_records_match(root: Path, records: list[dict[str, Any]]) -> bool:
-    if not root.is_dir():
-        return not records
+    if not records and not os.path.lexists(root):
+        return True
+    if not records and os.path.lexists(root):
+        try:
+            snapshot = _capture_tree_snapshot(root)
+        except PatcherError:
+            return False
+        return not snapshot.get("entries")
+    try:
+        snapshot = _capture_tree_snapshot(root)
+    except PatcherError:
+        return False
     expected = {str(item["relative_path"]): item for item in records}
     actual = {
-        path.relative_to(root).as_posix(): path
-        for path in root.rglob("*")
-        if path.is_file()
+        str(item["relative_path"]): item
+        for item in snapshot.get("entries", [])
+        if item.get("type") == "file"
     }
     if set(actual) != set(expected):
         return False
     return all(
-        sha256(path) == str(expected[rel]["sha256"]).upper()
-        and path.stat().st_size == int(expected[rel]["size"])
-        for rel, path in actual.items()
+        str(item.get("sha256", "")).upper() == str(expected[rel]["sha256"]).upper()
+        and int(item.get("size", -1)) == int(expected[rel]["size"])
+        for rel, item in actual.items()
     )
 
 
 def _capture_tree_snapshot(root: Path) -> dict[str, Any]:
-    """Capture the complete no-follow file/directory shape of a destination."""
+    """Capture a complete tree with explicit no-follow enumeration."""
     root = Path(root)
     if not os.path.lexists(root):
         return {"exists": False, "entries": []}
-    if not root.is_dir() or root.is_symlink():
-        raise PatcherError(f"Destination snapshot root is not a real directory: {root}")
+
+    def reject_entry(path: Path, info: os.stat_result) -> None:
+        attrs = int(getattr(info, "st_file_attributes", 0))
+        junction = False
+        if hasattr(path, "is_junction"):
+            try:
+                junction = bool(path.is_junction())
+            except OSError:
+                junction = True
+        if attrs & 0x400 or stat.S_ISLNK(info.st_mode) or junction:
+            raise PatcherError(f"Reparse/symlink entry rejected: {path}")
+
+    try:
+        root_info = os.lstat(root)
+    except OSError as exc:
+        raise PatcherError(f"Cannot inspect snapshot root: {root}") from exc
+    reject_entry(root, root_info)
+    if not stat.S_ISDIR(root_info.st_mode):
+        raise PatcherError(f"Destination snapshot root is not a directory: {root}")
+
     entries: list[dict[str, Any]] = []
-    for path in sorted(root.rglob("*")):
-        rel = path.relative_to(root).as_posix()
-        if path.is_symlink():
-            entries.append({"relative_path": rel, "type": "symlink"})
-        elif path.is_dir():
-            entries.append({"relative_path": rel, "type": "dir"})
-        elif path.is_file():
-            entries.append(
-                {
-                    "relative_path": rel,
-                    "type": "file",
-                    "size": path.stat().st_size,
-                    "sha256": sha256(path),
-                }
-            )
-        else:
-            entries.append({"relative_path": rel, "type": "other"})
+    seen: set[str] = set()
+
+    def walk(directory: Path, relative_parent: str = "") -> None:
+        try:
+            with os.scandir(directory) as scan:
+                children = sorted(list(scan), key=lambda item: (item.name.casefold(), item.name))
+                for entry in children:
+                    rel = f"{relative_parent}/{entry.name}" if relative_parent else entry.name
+                    normalized = Path(rel).as_posix().casefold()
+                    if not normalized or normalized in seen or Path(rel).is_absolute() or ".." in Path(rel).parts:
+                        raise PatcherError(f"Unsafe or colliding snapshot path: {rel}")
+                    seen.add(normalized)
+                    try:
+                        # DirEntry.stat on Windows may expose zero file
+                        # identity fields; lstat is the authoritative no-follow
+                        # identity used for the before/after race check.
+                        before = os.lstat(entry.path)
+                    except OSError as exc:
+                        raise PatcherError(f"Cannot inspect snapshot entry: {entry.path}") from exc
+                    reject_entry(Path(entry.path), before)
+                    if stat.S_ISDIR(before.st_mode):
+                        entries.append({"relative_path": rel.replace("\\", "/"), "type": "dir"})
+                        walk(Path(entry.path), rel)
+                    elif stat.S_ISREG(before.st_mode):
+                        data = Path(entry.path).read_bytes()
+                        try:
+                            after = os.lstat(entry.path)
+                        except OSError as exc:
+                            raise PatcherError(f"Snapshot entry disappeared: {entry.path}") from exc
+                        reject_entry(Path(entry.path), after)
+                        if (before.st_dev, before.st_ino, before.st_size) != (
+                            after.st_dev, after.st_ino, after.st_size
+                        ) or len(data) != before.st_size:
+                            raise PatcherError(f"Snapshot entry changed during hashing: {entry.path}")
+                        entries.append(
+                            {
+                                "relative_path": rel.replace("\\", "/"),
+                                "type": "file",
+                                "size": len(data),
+                                "sha256": hashlib.sha256(data).hexdigest().upper(),
+                            }
+                        )
+                    else:
+                        raise PatcherError(f"Unsupported snapshot entry type: {entry.path}")
+            after_directory = os.lstat(directory)
+            reject_entry(directory, after_directory)
+        except OSError as exc:
+            raise PatcherError(f"Cannot enumerate snapshot directory: {directory}") from exc
+
+    walk(root)
     return {"exists": True, "entries": entries}
 
 
@@ -4158,6 +4222,7 @@ def _write_recovery_report(
     destination_root: Path | None = None,
     destination_snapshot: dict[str, Any] | None = None,
     restored_snapshot: dict[str, Any] | None = None,
+    destination_precondition: dict[str, Any] | None = None,
 ) -> Path:
     recovery_dir.mkdir(parents=True, exist_ok=True)
     members: list[dict[str, Any]] = []
@@ -4176,13 +4241,19 @@ def _write_recovery_report(
             }
         )
     report = recovery_dir / "recovery-report.json"
-    payload: dict[str, Any] = {"operation": operation, "members": members}
+    payload: dict[str, Any] = {
+        "schema_version": 2,
+        "operation": operation,
+        "members": members,
+    }
     if destination_root is not None:
         payload["destination_root"] = str(destination_root)
     if destination_snapshot is not None:
         payload["destination_snapshot"] = destination_snapshot
     if restored_snapshot is not None:
         payload["restored_snapshot"] = restored_snapshot
+    if destination_precondition is not None:
+        payload["destination_precondition"] = destination_precondition
     report.write_text(
         json.dumps(payload, indent=2) + "\n",
         encoding="utf-8",
@@ -4484,6 +4555,7 @@ def apply_patch(
     output = output_folder / output_name
     if output_folder.exists() and not overwrite:
         raise PatcherError(f"Modified game folder already exists: {output_folder}")
+    destination_precondition = _capture_tree_snapshot(output_folder)
     patched, applied = render_patched_bytes(source, build, patch_mode, fun_patch_ids)
     output_parent = output_folder.parent
     if os.path.lexists(output_folder) and not overwrite:
@@ -4635,6 +4707,7 @@ def apply_patch(
                 destination_root=output_folder,
                 destination_snapshot=_capture_tree_snapshot(output_folder),
                 restored_snapshot=_capture_tree_snapshot(retained_backup) if retained_backup.exists() else None,
+                destination_precondition=destination_precondition,
             )
             raise PatcherError(f"Install recovery is unresolved; evidence retained at {recovery_dir}")
         if failed_publish is not None and failed_publish.exists():
