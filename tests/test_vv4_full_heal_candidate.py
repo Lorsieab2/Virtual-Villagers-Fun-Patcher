@@ -62,12 +62,13 @@ class VV4FullHealCandidateTests(unittest.TestCase):
         import vv_fun_patcher as patcher
         with tempfile.TemporaryDirectory(prefix="vv4hc-recovery-") as temp:
             root = Path(temp)
-            destination = root / "game.exe"
+            destination = root / "dest" / "game.exe"
+            destination.parent.mkdir()
             destination.write_bytes(b"original")
             recovery = root / ".recovery"
             backup_dir = recovery / "backups"
             backup_dir.mkdir(parents=True)
-            backup = backup_dir / "backup.exe"
+            backup = backup_dir / "game.exe"
             backup.write_bytes(b"original")
             destination.unlink()
             records = [{
@@ -76,15 +77,17 @@ class VV4FullHealCandidateTests(unittest.TestCase):
                 "sha256": hashlib.sha256(b"original").hexdigest().upper(),
                 "size": len(b"original"),
             }]
-            report = patcher._write_recovery_report(recovery, "install", records, backup_dir)
-            payload = json.loads(report.read_text(encoding="utf-8"))
-            payload["members"][0]["backup_path"] = str(backup)
-            payload["recovery_backup_root"] = str(backup_dir)
-            payload["recovery_backup_snapshot"] = patcher._capture_tree_snapshot(backup_dir)
-            payload["destination_precondition"] = {"exists": False, "entries": []}
-            payload["initial_precondition"] = payload["destination_precondition"]
-            payload["replay_guard"] = {"exists": False, "entries": []}
-            report.write_text(json.dumps(payload), encoding="utf-8")
+            destination.parent.rmdir()
+            report = patcher._write_recovery_report(
+                recovery, "install", records, backup_dir,
+                destination_root=destination.parent,
+                destination_snapshot={"exists": False, "entries": []},
+                destination_precondition={"exists": False, "entries": []},
+                restored_snapshot={"exists": True, "entries": [{
+                    "relative_path": "game.exe", "type": "file", "size": 8,
+                    "sha256": hashlib.sha256(b"original").hexdigest().upper(),
+                }]},
+            )
             patcher.recover_vv4_transaction(recovery)
             self.assertEqual(destination.read_bytes(), b"original")
             self.assertFalse(recovery.exists())
@@ -127,7 +130,7 @@ class VV4FullHealCandidateTests(unittest.TestCase):
                 member = payload["members"][0]
                 self.assertEqual(member["original_size"], 942080)
                 self.assertEqual(member["backup_size"], 942080)
-                self.assertTrue(member["backup_path"])
+                self.assertTrue(member["backup_relative_path"])
                 patcher.recover_vv4_transaction(recovery_dirs[0])
                 self.assertEqual(patcher.sha256(root / exe_name), patcher.VV4_FULL_HEAL_CANDIDATE_EXE_HASHES[mode])
                 self.assertEqual(patcher.sha256(root / "VVFP Origins Icons.dll"), feature.raw["companion_files"][0]["sha256"])
@@ -160,16 +163,13 @@ class VV4FullHealCandidateTests(unittest.TestCase):
                 recovery, "remove", records, backup_dir,
                 destination_root=destination,
                 destination_snapshot=patcher._capture_tree_snapshot(destination),
+                destination_precondition=patcher._capture_tree_snapshot(destination),
                 restored_snapshot={"exists": True, "entries": [
                     {"relative_path": "a.bin", "type": "file", "size": 5, "sha256": hashlib.sha256(b"new-a").hexdigest().upper()},
                     {"relative_path": "b.bin", "type": "file", "size": 5, "sha256": hashlib.sha256(b"new-b").hexdigest().upper()},
                 ]},
             )
             payload = json.loads(report.read_text(encoding="utf-8"))
-            payload["recovery_backup_root"] = str(backup_dir)
-            payload["recovery_backup_snapshot"] = patcher._capture_tree_snapshot(backup_dir)
-            payload["destination_precondition"] = payload["destination_snapshot"]
-            report.write_text(json.dumps(payload), encoding="utf-8")
             real_replace = patcher.os.replace
             calls = {"count": 0}
             def fail_second(source, destination_path):
@@ -182,7 +182,7 @@ class VV4FullHealCandidateTests(unittest.TestCase):
                     patcher.recover_vv4_transaction(recovery)
             payload_after = json.loads(report.read_text(encoding="utf-8"))
             self.assertEqual(len(payload_after["members"]), 2)
-            self.assertTrue(all(Path(item["backup_path"]).is_file() for item in payload_after["members"]))
+            self.assertTrue(all((recovery / item["backup_relative_path"]).is_file() for item in payload_after["members"]))
             patcher.recover_vv4_transaction(recovery)
             self.assertEqual((destination / "a.bin").read_bytes(), b"new-a")
             self.assertEqual((destination / "b.bin").read_bytes(), b"new-b")
@@ -229,12 +229,6 @@ class VV4FullHealCandidateTests(unittest.TestCase):
                 restored_snapshot=restored,
                 destination_precondition=absent,
             )
-            payload = json.loads(report.read_text(encoding="utf-8"))
-            payload["recovery_backup_root"] = str(backup_dir)
-            payload["recovery_backup_snapshot"] = patcher._capture_tree_snapshot(backup_dir)
-            payload["replay_guard"] = absent
-            payload["initial_precondition"] = absent
-            report.write_text(json.dumps(payload), encoding="utf-8")
             destination.mkdir()
             (destination / "foreign.bin").write_bytes(b"foreign")
             report_before = report.read_bytes()
