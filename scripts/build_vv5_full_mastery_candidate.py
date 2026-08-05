@@ -36,19 +36,21 @@ SHOW_DIALOG_OFFSET = 0x1C0
 SHOW_DIALOG_SIZE = 0x50
 TECH_MENU_OFFSET = 0x2C0
 TECH_MENU_SIZE = 0x340
-# The two stock call sites are five-byte rel32 calls.  These bounded caves
-# are inside the existing zero gaps in the certified VV5 .shr payload; they
-# are deliberately separate so Tech and Detail can be audited independently.
+# The two stock call sites are five-byte rel32 calls.  They share one
+# candidate-owned wrapper: the Tech entry at 0x7B2B40 loads its target and
+# jumps to the common body at 0x7B2B4C; the Detail entry at 0x7B2B47 loads its
+# target and falls through to that same body.  The bounded region is an
+# existing zero gap in the certified VV5 .shr payload.
 FULLSCREEN_TECH_OFFSET = 0xB40
-FULLSCREEN_DETAIL_OFFSET = 0xBD8
-FULLSCREEN_STRING_OFFSET = 0xC70
-FULLSCREEN_STRING = b"SDL2.dll\0"
-SDL_GET_KEYBOARD_FOCUS_RVA = 0xA1910
-SDL_GET_WINDOW_FLAGS_RVA = 0xA3E40
-SDL_SET_WINDOW_FULLSCREEN_RVA = 0xA40E0
-# D248 release gate: the native engine transition at 0x404700 and its exact
-# screen/engine pointer chain are not yet independently proved.  Until that
-# evidence exists this generator must emit the repair as disabled/hidden.
+FULLSCREEN_DETAIL_OFFSET = 0xB47
+FULLSCREEN_COMMON_OFFSET = 0xB4C
+FULLSCREEN_STRING_OFFSET = 0xA5A
+FULLSCREEN_STRING = b"SDL2.dll\0SDL_GetWindowFlags\0"
+SDL_GET_WINDOW_FLAGS_IAT = 0x4951DC
+SDL_GET_MODULE_HANDLE_IAT = 0x4951D8
+NATIVE_FULLSCREEN_LEAVE_VA = 0x40A270
+NATIVE_FULLSCREEN_ENTER_VA = 0x40A280
+NATIVE_FULLSCREEN_GETTER_VA = 0x4080C0
 NATIVE_FULLSCREEN_TRANSITION_VA = 0x404700
 CURE_OFFSET = 0x94EA0
 VILLAGE_PREFLIGHT_OFFSET = 0x94B37
@@ -165,75 +167,140 @@ def _add_string(blob: bytearray, cursor: int, value: bytes, page_va: int) -> tup
     return page_va + SLOT_OFFSET + cursor, end
 
 
-def build_fullscreen_wrapper(wrapper_va: int, target_va: int, sdl_string_va: int) -> bytes:
-    """Temporarily leave SDL fullscreen-desktop around one modal menu call.
+def build_fullscreen_wrapper(common_va: int, sdl_string_va: int) -> bytes:
+    """Build the native-state-synchronised VV5 modal wrapper.
 
-    The wrapper preserves the caller's two stdcall arguments, resolves the
-    already-loaded SDL2 module through the existing LoadLibraryA IAT, and
-    calls only the three independently identified SDL entry RVAs.  If any
-    dependency or transition fails it returns zero without entering the menu;
-    this is intentionally fail-closed.  The menu export remains responsible
-    for its original stdcall cleanup (ret 8).
+    Entry stubs place the selected menu target in EAX and enter this common
+    body.  The body receives the original screen object in ECX, preserves all
+    non-volatiles, resolves only SDL_GetWindowFlags through the existing
+    GetModuleHandleA/GetProcAddress IATs, and brackets the complete blocking
+    Origins interaction with the game's native leave/enter transitions.  The
+    menu exports are plain-return functions taking ECX only; this wrapper is
+    therefore also a plain ``ret`` and never consumes handler arguments.
     """
     return asm(
         f"""
-            mov eax, dword ptr [esp+4]
-            mov edx, dword ptr [esp+8]
             push ebp
             mov ebp, esp
             push ebx
             push esi
             push edi
-            sub esp, 0x18
+            sub esp, 0x24
             mov dword ptr [ebp-0x10], eax
-            mov dword ptr [ebp-0x14], edx
+            mov dword ptr [ebp-0x14], ecx
+            test ecx, ecx
+            jz fail
             xor eax, eax
             mov dword ptr [ebp-0x18], eax
-            mov dword ptr [ebp-0x0C], eax
-            push 0x{sdl_string_va:X}
-            call dword ptr [0x4951E0]
+            mov dword ptr [ebp-0x1C], eax
+            mov dword ptr [ebp-0x20], eax
+            mov dword ptr [ebp-0x24], eax
+            mov dword ptr [ebp-0x28], eax
+            call 0x{NATIVE_FULLSCREEN_GETTER_VA:X}
             test eax, eax
-            jz safe_return
+            jz fail
             mov esi, eax
-            call dword ptr [esi+0x{SDL_GET_KEYBOARD_FOCUS_RVA:X}]
+            mov edi, dword ptr [esi]
+            test edi, edi
+            jz fail
+            mov eax, dword ptr [edi+0x38]
             test eax, eax
-            jz safe_return
-            mov dword ptr [ebp-0x0C], eax
-            mov ecx, eax
-            call dword ptr [esi+0x{SDL_GET_WINDOW_FLAGS_RVA:X}]
-            test eax, 0x1001
-            jz enter_menu
-            mov dword ptr [ebp-0x18], 1
-            mov ecx, dword ptr [ebp-0x0C]
-            xor edx, edx
-            call dword ptr [esi+0x{SDL_SET_WINDOW_FULLSCREEN_RVA:X}]
+            jz fail
+            mov dword ptr [ebp-0x18], eax
+            movzx ebx, byte ptr [edi+0x1E]
+            mov dword ptr [ebp-0x1C], ebx
+            push 0x{sdl_string_va:X}
+            call dword ptr [0x{SDL_GET_MODULE_HANDLE_IAT:X}]
+            add esp, 4
             test eax, eax
-            jnz safe_return
-        enter_menu:
-            push dword ptr [ebp-0x14]
-            push dword ptr [ebp-0x10]
-            call 0x{target_va:X}
-            mov dword ptr [ebp-0x08], eax
-            cmp dword ptr [ebp-0x18], 0
-            je done
-            mov ecx, dword ptr [ebp-0x0C]
-            mov edx, 0x1001
-            call dword ptr [esi+0x{SDL_SET_WINDOW_FULLSCREEN_RVA:X}]
-            mov eax, dword ptr [ebp-0x08]
+            jz fail
+            mov dword ptr [ebp-0x20], eax
+            push 0x{sdl_string_va + len(b'SDL2.dll\\0'):X}
+            push eax
+            call dword ptr [0x{SDL_GET_WINDOW_FLAGS_IAT:X}]
+            add esp, 8
+            test eax, eax
+            jz fail
+            mov dword ptr [ebp-0x24], eax
+            push dword ptr [ebp-0x18]
+            call eax
+            add esp, 4
+            cmp eax, 0
+            je windowed
+            cmp eax, 0x1001
+            je fullscreen
+            jmp fail
+        windowed:
+            cmp dword ptr [ebp-0x1C], 1
+            jne fail
+            jmp invoke_menu
+        fullscreen:
+            cmp dword ptr [ebp-0x1C], 0
+            jne fail
+            mov ecx, edi
+            call 0x{NATIVE_FULLSCREEN_LEAVE_VA:X}
+            test eax, eax
+            jz fail
+            call 0x{NATIVE_FULLSCREEN_GETTER_VA:X}
+            cmp eax, esi
+            jne fail
+            mov edx, dword ptr [eax]
+            cmp edx, edi
+            jne fail
+            cmp byte ptr [edx+0x1E], 1
+            jne fail
+            mov ecx, dword ptr [ebp-0x18]
+            call dword ptr [ebp-0x24]
+            cmp eax, 0
+            jne fail
+            jmp invoke_menu
+        invoke_menu:
+            mov ecx, dword ptr [ebp-0x14]
+            call dword ptr [ebp-0x10]
+            mov dword ptr [ebp-0x28], eax
+            cmp dword ptr [ebp-0x1C], 0
+            jne done
+            mov ecx, esi
+            call 0x{NATIVE_FULLSCREEN_ENTER_VA:X}
+            test eax, eax
+            jz fail_after_leave
+            call 0x{NATIVE_FULLSCREEN_GETTER_VA:X}
+            cmp eax, esi
+            jne fail_after_leave
+            mov edx, dword ptr [eax]
+            cmp edx, edi
+            jne fail_after_leave
+            cmp byte ptr [edx+0x1E], 0
+            jne fail_after_leave
+            mov ecx, dword ptr [ebp-0x18]
+            call dword ptr [ebp-0x24]
+            cmp eax, 0x1001
+            jne fail_after_leave
+            mov eax, dword ptr [ebp-0x28]
             jmp done
-        safe_return:
+        fail_after_leave:
+            xor eax, eax
+            jmp done
+        fail:
             xor eax, eax
         done:
-            add esp, 0x18
+            add esp, 0x24
             pop edi
             pop esi
             pop ebx
-            mov esp, ebp
             pop ebp
-            ret 8
+            ret
         """,
-        wrapper_va,
+        common_va,
     )
+
+
+def build_fullscreen_entry(entry_va: int, target_va: int, common_va: int, jump: bool) -> bytes:
+    """Build the compact target-selection stubs at the D249 offsets."""
+    source = f"mov eax, 0x{target_va:X}"
+    if jump:
+        source += f"; jmp 0x{common_va:X}"
+    return asm(source, entry_va)
 
 
 def _vv5_skip_resource_var(blob: bytes, cursor: int) -> int:
@@ -1008,15 +1075,17 @@ def build_base_payload(active_payload: bytes, page_va: int) -> bytes:
         payload[start:end] = ctor
 
     # The stock constructors already call the correct menu entry points at
-    # 0x7B200E (Tech -> 0x7B22C0) and 0x7B20CE (Detail -> 0x7B2600).  Replace
-    # only those five-byte call instructions with bounded wrappers that make
-    # the modal interaction safe for SDL fullscreen-desktop and restore the
-    # exact prior 0x1001 state on every successful return.
+    # 0x7B200E (Tech -> 0x7B22C0) and 0x7B20CE (Detail -> 0x7B2600). Replace
+    # only those five-byte call instructions with calls into the one common
+    # native-state wrapper. The compact Tech/Detail stubs at 0x7B2B40 and
+    # 0x7B2B47 select the target and share the body at 0x7B2B4C.
     sdl_string_va = PAYLOAD_VA + FULLSCREEN_STRING_OFFSET
     tech_wrapper_va = PAYLOAD_VA + FULLSCREEN_TECH_OFFSET
     detail_wrapper_va = PAYLOAD_VA + FULLSCREEN_DETAIL_OFFSET
-    tech_wrapper = build_fullscreen_wrapper(tech_wrapper_va, 0x7B22C0, sdl_string_va)
-    detail_wrapper = build_fullscreen_wrapper(detail_wrapper_va, 0x7B2600, sdl_string_va)
+    common_wrapper_va = PAYLOAD_VA + FULLSCREEN_COMMON_OFFSET
+    tech_wrapper = build_fullscreen_entry(tech_wrapper_va, 0x7B22C0, common_wrapper_va, True)
+    detail_wrapper = build_fullscreen_entry(detail_wrapper_va, 0x7B2600, common_wrapper_va, False)
+    common_wrapper = build_fullscreen_wrapper(common_wrapper_va, sdl_string_va)
     for label, offset, wrapper, expected in (
         ("Tech", 0x0E, tech_wrapper, bytes.fromhex("E8AD020000")),
         ("Detail", 0xCE, detail_wrapper, bytes.fromhex("E82D050000")),
@@ -1033,6 +1102,9 @@ def build_base_payload(active_payload: bytes, page_va: int) -> bytes:
         if any(payload[cave_offset : cave_offset + len(wrapper)]):
             raise RuntimeError(f"VV5 {label} fullscreen wrapper cave is not zero")
         payload[cave_offset : cave_offset + len(wrapper)] = wrapper
+    if payload[FULLSCREEN_COMMON_OFFSET : FULLSCREEN_COMMON_OFFSET + len(common_wrapper)] != b"\0" * len(common_wrapper):
+        raise RuntimeError("VV5 common fullscreen wrapper cave is not zero")
+    payload[FULLSCREEN_COMMON_OFFSET : FULLSCREEN_COMMON_OFFSET + len(common_wrapper)] = common_wrapper
     if payload[FULLSCREEN_STRING_OFFSET : FULLSCREEN_STRING_OFFSET + len(FULLSCREEN_STRING)] != b"\0" * len(FULLSCREEN_STRING):
         raise RuntimeError("VV5 SDL2 wrapper string cave is not zero")
     payload[FULLSCREEN_STRING_OFFSET : FULLSCREEN_STRING_OFFSET + len(FULLSCREEN_STRING)] = FULLSCREEN_STRING
@@ -1145,8 +1217,8 @@ def main() -> None:
     base["enabled"] = False
     base["catalog_hidden"] = True
     base["certification_status"] = (
-        "disabled C251 candidate; native 0x404700 fullscreen transition proof and "
-        "independent emitted-byte recertification are pending; Expanded-256 fail-closed"
+        "disabled C253 candidate; native 0x404700 fullscreen state chain is statically "
+        "proven and independent emitted-byte recertification is pending; Expanded-256 fail-closed"
     )
     base["dependencies"] = []
     base["expanded_shr_relocations"]["patches"] = []
@@ -1203,25 +1275,28 @@ def main() -> None:
     base["patch_mode_overrides"] = {}
     base["fullscreen_dialog_contract"] = {
         "status": (
-            "disabled STOP: SDL bracket is candidate-only; native engine transition "
-            "0x404700 screen/engine chain is unproved"
+            "disabled candidate-only native engine state-synchronised bracket; pending independent emitted-byte recertification"
         ),
         "tech_call": {"offset": "0xDB00E", "before": "E8AD020000", "target": "0x7B22C0", "wrapper": f"0x{PAYLOAD_VA + FULLSCREEN_TECH_OFFSET:X}"},
         "detail_call": {"offset": "0xDB0CE", "before": "E82D050000", "target": "0x7B2600", "wrapper": f"0x{PAYLOAD_VA + FULLSCREEN_DETAIL_OFFSET:X}"},
+        "common_wrapper": f"0x{PAYLOAD_VA + FULLSCREEN_COMMON_OFFSET:X}",
         "sdl": {
             "module": "SDL2.dll",
-            "get_keyboard_focus_rva": "0xA1910",
-            "get_window_flags_rva": "0xA3E40",
-            "set_window_fullscreen_rva": "0xA40E0",
+            "get_module_handle_iat": "0x4951D8",
+            "get_proc_address_iat": "0x4951DC",
+            "get_window_flags_symbol": "SDL_GetWindowFlags",
             "fullscreen_flags": "0x1001",
         },
         "failure": (
-            "missing SDL or failed transition returns safely without entering the modal menu; "
-            "failed restore leaves windowed, but this is not release-safe until native "
-            "0x404700 state synchronization is proved"
+            "missing dependency, singleton mismatch, unexpected flags, failed native leave, "
+            "or failed native restore returns safely without entering/charging the modal menu"
         ),
+        "native_engine_getter_va": "0x4080C0",
+        "native_engine_leave_va": "0x40A270",
+        "native_engine_enter_va": "0x40A280",
         "native_engine_transition_va": "0x404700",
-        "native_engine_transition_proof": "pending; candidate remains disabled/catalog-hidden",
+        "native_engine_state_chain": "getter -> outer [0x4DB0E8] -> engine [outer] -> window +0x38, state +0x1E",
+        "native_engine_transition_proof": "stock exact-build chain statically proven; candidate remains disabled/catalog-hidden pending emitted recertification",
     }
     base["cure_containment"] = {
         "command": 5,
@@ -1484,6 +1559,7 @@ def main() -> None:
         "references": {
             "absolute": [
                 "0x51D5F8 unsigned Technology Points",
+                "0x4951D8 GetModuleHandleA IAT",
                 "0x4951E0 LoadLibraryA IAT",
                 "0x4951DC GetProcAddress IAT",
                 "0x475730 native six-skill Float32 writer",
@@ -1561,9 +1637,13 @@ def main() -> None:
         "rejected before output. The village-wide command-7 route uses a separate "
         "confirmation routine and the exact 1,000,000-point text; the individual "
         "confirmation routine and string remain distinct.\n"
-        "Each Tech and Detail modal call is wrapped by a guarded SDL2 fullscreen-desktop "
-        "transition using GetKeyboardFocus RVA 0xA1910, GetWindowFlags RVA 0xA3E40, "
-        "and SetWindowFullscreen RVA 0xA40E0; failed entry/restore is fail-closed.\n"
+        "Each Tech and Detail modal call is wrapped by one guarded native-state "
+        "transition. Compact entries at VA 0x7B2B40 and 0x7B2B47 select the menu "
+        "target and share VA 0x7B2B4C. The wrapper resolves only SDL_GetWindowFlags "
+        "through the existing GetModuleHandleA/GetProcAddress IATs, validates flags "
+        "0 or 0x1001 against the native engine state, calls native leave 0x40A270 and "
+        "enter 0x40A280 through the 0x4080C0 singleton chain, and fail-closes on "
+        "identity, dependency, or restore failure.\n"
         "The candidate-owned DLL transform removes the five-item legacy Cure row from "
         "dialogs 201 and 203 while preserving dialog 202 and all non-resource bytes.\n",
         encoding="utf-8",

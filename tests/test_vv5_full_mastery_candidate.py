@@ -699,20 +699,36 @@ class VV5FullMasteryCandidateTests(unittest.TestCase):
             for path, content in originals.items():
                 path.write_bytes(content)
 
-    def test_c251_source_repair_is_explicitly_disabled_until_native_transition_proof(self):
+    def test_c253_source_repair_is_explicitly_disabled_until_emitted_recertification(self):
         source = GENERATOR.read_text(encoding="utf-8")
         self.assertIn("NATIVE_FULLSCREEN_TRANSITION_VA = 0x404700", source)
         self.assertIn("feature_enabled = False", source)
         self.assertIn("FULLSCREEN_TECH_OFFSET = 0xB40", source)
-        self.assertIn("FULLSCREEN_DETAIL_OFFSET = 0xBD8", source)
-        self.assertIn("SDL_GET_KEYBOARD_FOCUS_RVA = 0xA1910", source)
-        self.assertIn("SDL_GET_WINDOW_FLAGS_RVA = 0xA3E40", source)
-        self.assertIn("SDL_SET_WINDOW_FULLSCREEN_RVA = 0xA40E0", source)
+        self.assertIn("FULLSCREEN_DETAIL_OFFSET = 0xB47", source)
+        self.assertIn("FULLSCREEN_COMMON_OFFSET = 0xB4C", source)
+        self.assertIn("SDL_GET_MODULE_HANDLE_IAT = 0x4951D8", source)
+        self.assertIn("SDL_GET_WINDOW_FLAGS_IAT = 0x4951DC", source)
+        self.assertIn("NATIVE_FULLSCREEN_GETTER_VA = 0x4080C0", source)
+        self.assertIn("NATIVE_FULLSCREEN_LEAVE_VA = 0x40A270", source)
+        self.assertIn("NATIVE_FULLSCREEN_ENTER_VA = 0x40A280", source)
         self.assertIn("native_engine_transition_proof", source)
         self.assertIn("candidate remains disabled/catalog-hidden", source)
+        self.assertNotIn("disabled C251 candidate", source)
         self.assertIn("strip_vv5_cure_rows", source)
         self.assertIn("cmp ebx, 5", source)
         self.assertIn("candidate-only; requires independent emitted DLL recertification", source)
+
+    def test_c253_wrapper_contract_uses_native_engine_state_and_plain_menu_abi(self):
+        source = GENERATOR.read_text(encoding="utf-8")
+        self.assertIn("mov edi, dword ptr [esi]", source)
+        self.assertIn("mov eax, dword ptr [edi+0x38]", source)
+        self.assertIn("movzx ebx, byte ptr [edi+0x1E]", source)
+        self.assertIn("call 0x{NATIVE_FULLSCREEN_LEAVE_VA:X}", source)
+        self.assertIn("call 0x{NATIVE_FULLSCREEN_ENTER_VA:X}", source)
+        self.assertIn("ret\n        \"\"\"", source)
+        self.assertNotIn("SDL_GET_KEYBOARD_FOCUS_RVA", source)
+        self.assertNotIn("SDL_SET_WINDOW_FULLSCREEN_RVA", source)
+        self.assertNotIn("ret 8", source[source.index("def build_fullscreen_wrapper"):source.index("def build_fullscreen_entry")])
 
     def test_c37_audit_provenance_names_binary_and_documentation_commits(self):
         audit = ROOT / "outputs" / "vv5-c37-d40-audit"
