@@ -27,7 +27,11 @@ effects that occurred before a later failure may remain; complete rollback is
 not claimed.
 
 The candidate owns a future `.vv4hc` RX page and a structurally transformed
-companion resource containing the exact label `Full Heal / Cure All`. Dialog
+`VVFP Origins Icons.dll` companion resource (SHA-256
+`CF468556C14306FB74884BC48F23D5506CCFB5FC2B670364FA143BC1141E0EE7`,
+283,136 bytes) containing a native five-item
+command-5 row inserted between command 4 and the following row in dialogs 201/203 (caption `Origins Upgrades`, label `Full Heal /
+Cure All`, price `30,000 tech points`, Buy ID 1005, and resource ID 110). Dialog
 202, all exports, code, and all non-resource bytes remain unchanged. Existing
 VV4 Full Mastery UI/runtime bytes, the withdrawn legacy Cure route, and
 Expanded-256 fail-closed behavior are preserved.

@@ -80,9 +80,9 @@
     "shim_bytes": "83F8050F84F7000000E94784D4FF",
     "shim_sha256": "89A2E84C47D3130915A7830F48EC839C186A8BBABF7584681A83A4770582A370",
     "transaction_entry_va": "0x741100",
-    "helper_length": 884,
-    "helper_sha256": "7A15D340E1532FDD0D7398FB14906E4D2A5DE10AEE1E4C6DED56D825A6C0E557",
-    "page_sha256": "3B6CE741CD511E62630DB2F1B2C90C89CA78AD2FEE6BF4E60F3E9083329549A7",
+    "helper_length": 1119,
+    "helper_sha256": "DA23AADA7B3C7574DA937CE4862E7ED9610C29C2467976A7CB3C4FC41D2C1A9D",
+    "page_sha256": "B68532BDD9028EF7705848FE61AB0C44DBE805061BF6F08A0F53C15712BE5202",
     "strings_sha256": "44CB71162F5F5298E8A6AB309D874EDD20D3B4C20B169DB3D2274F84DCC0717E",
     "owned_ranges": ["0x8960F..0x89613", "0xE5000..0xE5FFF"],
     "unknown_until_recertified": true
@@ -90,12 +90,14 @@
   "companion_files": [{
     "source": "data/candidates/VVFP VV4 Full Mastery Candidate.dll",
     "transform_builder": "scripts/build_vv4_full_heal_candidate.py",
-    "destination": "VVFP VV4 Full Heal Candidate.dll",
+    "destination": "VVFP Origins Icons.dll",
     "parent": "data/candidates/VVFP VV4 Full Mastery Candidate.dll",
     "parent_sha256": "4E1A83683A875EFE6F67116CDD862927BE1ABCB17DB7AE18143E58E98EAD01E7",
-    "resource_contract": "structurally repack dialog 201/203 title/control only; preserve 202, exports, code, and all non-.rsrc bytes",
-    "sha256": "CEC9E453AE490F9DD21A1429B79D01E5B1D31254D85A4FF8571303BAA676A507",
-    "size": 282624
+    "resource_contract": "structurally insert five-item command-5 row into dialogs 201/203; preserve caption Origins Upgrades, dialog 202, exports, code, and non-.rsrc bytes",
+    "sha256": "CF468556C14306FB74884BC48F23D5506CCFB5FC2B670364FA143BC1141E0EE7",
+    "size": 283136,
+    "artwork_resource_id": 110,
+    "artwork_sha256": "83552374DFD7AC1AACC57D371C01C26BA1A438ADF34B904609A72165EB73C5A0"
   }],
   "atomicity": {"install_remove": true, "unknown_or_corrupt_fails_before_output": true, "expanded_fail_closed": true, "partial_write_disclosure": "Native side effects before a later failure may remain; no deduction is made and rollback is not claimed."}
 }

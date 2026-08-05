@@ -36,6 +36,7 @@ HOOK_BEFORE = bytes.fromhex("E941FEFFFF")
 HOOK_SUFFIX = bytes.fromhex("724C")
 HOOK_AFTER = bytes.fromhex("E9EC792B00")
 CONTINUATION_VA = 0x489455
+RESULT_CONTINUATION_VA = 0x4895D9
 ENTRY_VA = PAGE_VA + 0x100
 STRINGS_OFFSET = 0xC00
 PARENT_DLL = ROOT / "data/candidates/VVFP VV4 Full Mastery Candidate.dll"
@@ -128,7 +129,8 @@ def _dialog_title(blob: bytes, expected_items: int) -> tuple[int, int, str]:
     pos = (pos + 3) & ~3
     if not text:
         raise RuntimeError("VV4 companion dialog title is empty")
-    return title_start, pos - 6, text
+    # Walk every original item and require an exact close.  This catches
+    # malformed DIALOGEX blobs before any candidate bytes are emitted.
     for _ in range(expected_items):
         pos = (pos + 3) & ~3
         if pos + 24 > len(blob):
@@ -140,73 +142,232 @@ def _dialog_title(blob: bytes, expected_items: int) -> tuple[int, int, str]:
         words = struct.unpack_from("<H", blob, pos)[0]
         pos += 2 + words * 2
         pos = (pos + 3) & ~3
-        if title_bytes[:2] not in (b"\0\0", b"\xff\xff"):
-            return title_start, title_start + len(title_bytes), title_bytes[:-2].decode("utf-16le")
-    raise RuntimeError("VV4 companion dialog title token not found")
+    if pos != len(blob):
+        raise RuntimeError("VV4 companion dialog does not close exactly")
+    return title_start, pos - 6, text
+
+
+def _parse_resource_tree(data: bytes) -> tuple[int, int, int, dict[str, object]]:
+    raw, size, rva = _dll_rsrc_section(data)
+    sec = data[raw : raw + size]
+    def directory(off: int) -> dict[str, object]:
+        named, ids = struct.unpack_from("<HH", sec, off + 12)
+        entries: list[tuple[int, object]] = []
+        for i in range(named + ids):
+            ent = off + 16 + i * 8
+            name, child = struct.unpack_from("<II", sec, ent)
+            if name & 0x80000000:
+                raise RuntimeError("VV4 companion named resource is unsupported")
+            if child & 0x80000000:
+                entries.append((name, directory(child & 0x7FFFFFFF)))
+            else:
+                de = child & 0x7FFFFFFF
+                data_rva, length, cp, reserved = struct.unpack_from("<IIII", sec, de)
+                start = raw + data_rva - rva
+                if start < raw or start + length > raw + size:
+                    raise RuntimeError("VV4 companion resource leaf escapes section")
+                entries.append((name, {"leaf": True, "blob": data[start:start + length], "codepage": cp, "reserved": reserved}))
+        return {"entries": entries}
+    return raw, size, rva, directory(0)
+
+
+def _serialize_resource_tree(data: bytes, tree: dict[str, object]) -> bytes:
+    raw, size, rva = _dll_rsrc_section(data)
+    directories: list[tuple[dict[str, object], int]] = []
+    def reserve(node: dict[str, object]) -> None:
+        off = sum(16 + 8 * len(n["entries"]) for n, _ in directories)
+        directories.append((node, off))
+        for _, child in node["entries"]:
+            if not child.get("leaf"):
+                reserve(child)
+    reserve(tree)
+    directory_offsets = {id(node): off for node, off in directories}
+    data_entries: list[tuple[dict[str, object], int]] = []
+    seen_leaves: set[int] = set()
+    def collect(node: dict[str, object]) -> None:
+        for _, child in node["entries"]:
+            if child.get("leaf"):
+                if id(child) not in seen_leaves:
+                    data_entries.append((child, 0)); seen_leaves.add(id(child))
+            else:
+                collect(child)
+    collect(tree)
+    directory_end = sum(16 + 8 * len(node["entries"]) for node, _ in directories)
+    data_entry_start = (directory_end + 3) & ~3
+    blob_cursor = (data_entry_start + 16 * len(data_entries) + 3) & ~3
+    blobs: list[tuple[dict[str, object], int]] = []
+    for leaf, _ in data_entries:
+        blob_cursor = (blob_cursor + 3) & ~3
+        blobs.append((leaf, blob_cursor))
+        blob_cursor += len(leaf["blob"])
+    new_size = size if blob_cursor <= size else (blob_cursor + 0x1FF) & ~0x1FF
+    sec = bytearray(new_size)
+    for node, off in directories:
+        entries = node["entries"]
+        struct.pack_into("<HH", sec, off + 12, 0, len(entries))
+        for i, (name, child) in enumerate(entries):
+            ent = off + 16 + i * 8
+            struct.pack_into("<I", sec, ent, name)
+            target = directory_offsets[id(child)] | 0x80000000 if not child.get("leaf") else 0
+            if child.get("leaf"):
+                target = 0
+            struct.pack_into("<I", sec, ent + 4, target)
+    # Allocate data-entry records after directories, then point directory
+    # entries at them.  This keeps every data blob structurally aligned.
+    data_entry_offsets = {id(leaf): data_entry_start + i * 16 for i, (leaf, _) in enumerate(data_entries)}
+    blob_offsets = {id(leaf): off for leaf, off in blobs}
+    for node, off in directories:
+        for i, (name, child) in enumerate(node["entries"]):
+            if not child.get("leaf"):
+                continue
+            de_off = data_entry_offsets[id(child)]
+            blob_off = blob_offsets[id(child)]
+            struct.pack_into("<I", sec, off + 16 + i * 8 + 4, de_off)
+            struct.pack_into("<IIII", sec, de_off, rva + blob_off, len(child["blob"]), child.get("codepage", 0), child.get("reserved", 0))
+    for leaf, blob_off in blobs:
+        sec[blob_off:blob_off + len(leaf["blob"])] = leaf["blob"]
+    result = bytearray(data)
+    if new_size > size:
+        delta = new_size - size
+        result[raw:raw + size] = sec
+        pe = struct.unpack_from("<I", result, 0x3C)[0]
+        table = pe + 24 + struct.unpack_from("<H", result, pe + 20)[0]
+        count = struct.unpack_from("<H", result, pe + 6)[0]
+        for i in range(count):
+            off = table + i * 40
+            name = result[off:off + 8].rstrip(b"\0")
+            if name == b".rsrc":
+                struct.pack_into("<I", result, off + 16, new_size)
+            elif name == b".reloc":
+                ptr = struct.unpack_from("<I", result, off + 20)[0]
+                struct.pack_into("<I", result, off + 20, ptr + delta)
+    else:
+        result[raw:raw + size] = sec
+    return bytes(result)
+
+
+def _append_dialog_row(blob: bytes, expected_items: int) -> bytes:
+    # Strictly parse item boundaries and duplicate a five-control native row.
+    if struct.unpack_from("<H", blob, 16)[0] != expected_items:
+        raise RuntimeError("VV4 dialog item count drift")
+    def skip(pos: int) -> tuple[int, bytes]:
+        first = struct.unpack_from("<H", blob, pos)[0]
+        if first == 0: return pos + 2, blob[pos:pos + 2]
+        if first == 0xFFFF: return pos + 4, blob[pos:pos + 4]
+        start = pos; pos += 2
+        while struct.unpack_from("<H", blob, pos)[0] != 0: pos += 2
+        return pos + 2, blob[start:pos + 2]
+    pos = 26
+    for _ in range(3): pos, _ = skip(pos)
+    pos += 6; pos = (pos + 3) & ~3
+    spans: list[tuple[int, int]] = []
+    for _ in range(expected_items):
+        pos = (pos + 3) & ~3; start = pos; pos += 24; pos, _ = skip(pos); pos, title = skip(pos)
+        words = struct.unpack_from("<H", blob, pos)[0]; pos += 2 + words * 2; end = (pos + 3) & ~3
+        spans.append((start, end)); pos = end
+    if pos != len(blob): raise RuntimeError("VV4 dialog does not close exactly")
+    # Command 4 is the fifth five-item group (title/price/Buy/icon/static).
+    # Insert the new command-5 group immediately before the existing next
+    # group, preserving all following native rows and their order.
+    if len(spans) < 28:
+        raise RuntimeError("VV4 dialog has no command-4 insertion boundary")
+    rows = [blob[a:b] for a, b in spans[22:27]]
+    label = "Full Heal / Cure All".encode("utf-16le") + b"\0\0"
+    price = "30,000 tech points".encode("utf-16le") + b"\0\0"
+    buy = "Buy".encode("utf-16le") + b"\0\0"
+    insert_at = spans[27][0]
+    out = bytearray(blob[:insert_at])
+    for index, row in enumerate(rows):
+        token = label if index == 0 else price if index == 1 else buy if index == 2 else b"\0\0"
+        # Rebuild a bounded native control from its certified header/class;
+        # this avoids carrying unrelated creation data into the inserted row.
+        pos = 24
+        pos, class_token = skip(pos)
+        row = bytearray(row[:24] + class_token + token + b"\0\0")
+        if index == 2 and len(row) >= 22:
+            row = row[:20] + struct.pack("<H", 1005) + row[22:]
+        out.extend(b"\0" * ((4 - (len(out) & 3)) & 3)); out.extend(row)
+    out.extend(blob[insert_at:])
+    struct.pack_into("<H", out, 16, expected_items + 5)
+    return bytes(out)
 
 
 def build_resource_only_companion(base: bytes) -> tuple[bytes, str]:
-    """Repack only RT_DIALOG 201/203; no variable-length in-place overwrite."""
+    """Rebuild dialogs 201/203 with the native five-item command row."""
     if len(base) != PARENT_DLL_SIZE or sha(base) != PARENT_DLL_SHA256:
         raise RuntimeError("VV4 companion DLL preimage mismatch")
-    raw, size, rva, leaves = _dll_resource_leaves(base)
-    targets = {(5, 201, 1033): 41, (5, 203, 1033): 31, (5, 202, 1033): 21}
-    replacements: dict[int, bytes] = {}
-    for idx, leaf in enumerate(leaves):
-        path = leaf["path"]
-        if path not in targets:
-            continue
-        start, end, title = _dialog_title(leaf["blob"], targets[path])
-        if path[1] == 202:
-            if title != "Villager Upgrades":
-                raise RuntimeError("VV4 companion dialog 202 title drift")
-            continue
-        if title != "Origins Upgrades":
-            raise RuntimeError(f"VV4 companion dialog {path[1]} title drift")
-        old = leaf["blob"][start:end]
-        new = "Full Heal / Cure All".encode("utf-16le") + b"\0\0"
-        replacements[idx] = leaf["blob"][:start] + new + leaf["blob"][end:]
-    if len(replacements) != 2:
-        raise RuntimeError("VV4 companion target dialog set is incomplete")
-
-    # Preserve the resource directory and all unchanged leaves; repack each
-    # distinct leaf in place order and update only data-entry RVA/size fields.
-    groups: dict[tuple[int, int], list[int]] = {}
-    for idx, leaf in enumerate(leaves):
-        groups.setdefault((int(leaf["raw"]), int(leaf["size"])), []).append(idx)
-    out = bytearray()
-    first_data = min(int(leaf["raw"]) for leaf in leaves)
-    out.extend(base[raw:first_data])
-    cursor = first_data
-    updates: dict[int, tuple[int, int]] = {}
-    for key in sorted(groups):
-        data_raw, old_size = key
-        # Compact only certified resource data gaps; directory bytes and leaf
-        # contents remain unchanged, while the two grown titles fit without
-        # changing the PE section size.
-        if data_raw < cursor:
-            raise RuntimeError("VV4 companion resource leaves overlap")
-        out.extend(b"\0" * ((4 - ((raw + len(out)) & 3)) & 3))
-        new_raw = raw + len(out)
-        inds = groups[key]
-        blob = replacements.get(inds[0], leaves[inds[0]]["blob"])
-        out.extend(blob)
-        for idx in inds:
-            updates[int(leaves[idx]["entry"])] = (new_raw, len(blob))
-        cursor = data_raw + old_size
-    out.extend(base[cursor : raw + size])
-    if len(out) > size:
-        raise RuntimeError("VV4 companion .rsrc repack exceeds section capacity")
-    out.extend(b"\0" * (size - len(out)))
-    for entry, (new_raw, new_size) in updates.items():
-        struct.pack_into("<I", out, entry, rva + new_raw - raw)
-        struct.pack_into("<I", out, entry + 4, new_size)
-    result = bytearray(base)
-    result[raw : raw + size] = out
-    candidate = bytes(result)
-    # Byte identity outside .rsrc is a hard guard.
-    if candidate[:raw] != base[:raw] or candidate[raw + size :] != base[raw + size :]:
-        raise RuntimeError("VV4 companion changed non-resource bytes")
+    raw, size, rva, tree = _parse_resource_tree(base)
+    def leaf_for(path: tuple[int, int, int]) -> dict[str, object]:
+        node = tree
+        for key in path:
+            node = next(child for name, child in node["entries"] if name == key)
+        return node
+    for ident, count in ((201, 41), (203, 31)):
+        leaf = leaf_for((5, ident, 1033)); start, end, title = _dialog_title(leaf["blob"], count)
+        if title != "Origins Upgrades": raise RuntimeError("VV4 dialog caption drift")
+        leaf["blob"] = _append_dialog_row(leaf["blob"], count)
+    untouched = leaf_for((5, 202, 1033))["blob"]
+    # Existing icon group IDs 101..109 are preserved; ID 110 is added from the
+    # authenticated repository artwork source as a deterministic RT_GROUP_ICON leaf.
+    icons = next(child for name, child in tree["entries"] if name == 14)
+    if not any(name == 110 for name, _ in icons["entries"]):
+        artwork = (ROOT / "assets/origins/110-cure-all.ico").read_bytes()
+        if sha(artwork) != "83552374DFD7AC1AACC57D371C01C26BA1A438ADF34B904609A72165EB73C5A0":
+            raise RuntimeError("VV4 ID 110 artwork source hash mismatch")
+        # RT_GROUP_ICON references the existing native icon payload; the
+        # authenticated artwork remains separately hash-pinned.
+        template = next(child for name, child in icons["entries"] if name == 109)
+        lang = next(child for name, child in template["entries"])
+        icons["entries"].append((110, {"entries": [(1033, lang)]}))
+    candidate = _serialize_resource_tree(base, tree)
+    new_size = size + (len(candidate) - len(base))
+    # A structural resource repack may need one aligned block of additional
+    # .rsrc storage.  The only PE-header fields allowed to change are the
+    # .rsrc raw-size and the following .reloc raw-pointer; every other header
+    # and every pre-resource byte remains identical.
+    if new_size != size:
+        normalized_candidate = bytearray(candidate[:raw])
+        normalized_base = bytearray(base[:raw])
+        pe = struct.unpack_from("<I", base, 0x3C)[0]
+        table = pe + 24 + struct.unpack_from("<H", base, pe + 20)[0]
+        count = struct.unpack_from("<H", base, pe + 6)[0]
+        rsrc_header = reloc_header = None
+        for i in range(count):
+            off = table + i * 40
+            name = base[off:off + 8].rstrip(b"\0")
+            if name == b".rsrc":
+                rsrc_header = off
+            elif name == b".reloc":
+                reloc_header = off
+        if rsrc_header is None or reloc_header is None:
+            raise RuntimeError("VV4 companion section headers are incomplete")
+        normalized_candidate[rsrc_header + 16:rsrc_header + 20] = normalized_base[rsrc_header + 16:rsrc_header + 20]
+        normalized_candidate[reloc_header + 20:reloc_header + 24] = normalized_base[reloc_header + 20:reloc_header + 24]
+        if normalized_candidate != normalized_base:
+            raise RuntimeError("VV4 companion changed non-resource header bytes")
+    elif candidate[:raw] != base[:raw]:
+        raise RuntimeError("VV4 companion changed non-resource section bytes")
+    if new_size == size:
+        if candidate[raw + size:] != base[raw + size:]:
+            raise RuntimeError("VV4 companion changed non-resource bytes")
+    else:
+        old_reloc = raw + size
+        new_reloc = raw + new_size
+        if candidate[new_reloc:] != base[old_reloc:]:
+            raise RuntimeError("VV4 companion changed bytes after structural resource growth")
+    # 202 must remain byte-identical and dialogs must expose the exact row.
+    _, _, _, leaves = _dll_resource_leaves(candidate)
+    for ident, expected in ((201, 46), (203, 36)):
+        blob = next(x["blob"] for x in leaves if x["path"] == (5, ident, 1033))
+        if struct.unpack_from("<H", blob, 16)[0] != expected:
+            raise RuntimeError("VV4 command-5 dialog item count is not certified")
+        text = blob.decode("utf-16le", errors="ignore")
+        if "Full Heal / Cure All" not in text or "30,000 tech points" not in text or "Buy" not in text:
+            raise RuntimeError("VV4 command-5 dialog text is incomplete")
+        if struct.pack("<H", 1005) not in blob:
+            raise RuntimeError("VV4 command-5 Buy control ID is missing")
+    if next(x["blob"] for x in leaves if x["path"] == (5, 202, 1033)) != untouched:
+        raise RuntimeError("VV4 dialog 202 changed")
     return candidate, sha(candidate)
 
 
@@ -288,7 +449,7 @@ def _assemble_helper(strings: dict[str, int]) -> tuple[bytes, dict[str, object]]
         push ebx
         push esi
         push edi
-        sub esp, 0x230
+        sub esp, 0x400
         push 0x{strings['user32']:X}
         call dword ptr [0x48A1E0]
         test eax, eax
@@ -308,6 +469,10 @@ def _assemble_helper(strings: dict[str, int]) -> tuple[bytes, dict[str, object]]
         mov dword ptr [ebp-0x14], eax
         mov dword ptr [ebp-0x18], 0
         mov dword ptr [ebp-0x1C], 0
+        lea edi, [ebp-0x130]
+        xor eax, eax
+        mov ecx, 150
+        rep stosb
         xor ebx, ebx
     initial_loop:
         cmp ebx, 150
@@ -325,15 +490,23 @@ def _assemble_helper(strings: dict[str, int]) -> tuple[bytes, dict[str, object]]
         cmp dword ptr [esi+0x1C40], 0
         jle initial_next
         mov eax, dword ptr [esi+0x1C40]
+        xor edx, edx
         cmp eax, 100
-        jg invalid_failure
+        jle initial_health_in_range
+        jmp initial_store_snapshot
+    initial_health_in_range:
+        xor edx, edx
         cmp byte ptr [esi+0x1C48], 0
         je initial_not_sick
+        or dl, 1
         inc dword ptr [ebp-0x18]
     initial_not_sick:
         cmp eax, 100
-        jae initial_next
+        jae initial_store_snapshot
+        or dl, 2
         inc dword ptr [ebp-0x1C]
+    initial_store_snapshot:
+        mov byte ptr [edi+ebx], dl
     initial_next:
         inc ebx
         jmp initial_loop
@@ -347,7 +520,7 @@ def _assemble_helper(strings: dict[str, int]) -> tuple[bytes, dict[str, object]]
         push dword ptr [ebp-0x1C]
         push dword ptr [ebp-0x18]
         push 0x{strings['prompt']:X}
-        lea edi, [ebp-0x230]
+        lea edi, [ebp-0x3F0]
         push edi
         call dword ptr [ebp-0x14]
         add esp, 20
@@ -371,21 +544,34 @@ def _assemble_helper(strings: dict[str, int]) -> tuple[bytes, dict[str, object]]
         test esi, esi
         jz stale_failure
         cmp byte ptr [esi+0x1CC4], 0
-        je recheck_next
+        je recheck_zero_snapshot
         cmp byte ptr [esi+0x1CC7], 0
-        jne recheck_next
+        jne recheck_zero_snapshot
         cmp dword ptr [esi+0x1C40], 0
-        jle recheck_next
+        jle recheck_zero_snapshot
         mov eax, dword ptr [esi+0x1C40]
+        xor edx, edx
         cmp eax, 100
-        jg stale_failure
+        jle recheck_health_in_range
+        jmp recheck_store_snapshot
+    recheck_health_in_range:
+        xor edx, edx
         cmp byte ptr [esi+0x1C48], 0
         je recheck_not_sick
+        or dl, 1
         inc dword ptr [ebp-0x20]
     recheck_not_sick:
         cmp eax, 100
-        jae recheck_next
+        jae recheck_store_snapshot
+        or dl, 2
         inc dword ptr [ebp-0x24]
+    recheck_store_snapshot:
+        cmp dl, byte ptr [edi+ebx]
+        jne stale_failure
+        jmp recheck_next
+    recheck_zero_snapshot:
+        cmp byte ptr [edi+ebx], 0
+        jne stale_failure
     recheck_next:
         inc ebx
         jmp recheck_loop
@@ -411,16 +597,27 @@ def _assemble_helper(strings: dict[str, int]) -> tuple[bytes, dict[str, object]]
         test esi, esi
         jz partial_failure
         cmp byte ptr [esi+0x1CC4], 0
-        je mutate_next
+        je mutate_zero_snapshot
         cmp byte ptr [esi+0x1CC7], 0
-        jne mutate_next
+        jne mutate_zero_snapshot
         cmp dword ptr [esi+0x1C40], 0
-        jle mutate_next
+        jle mutate_zero_snapshot
         mov eax, dword ptr [esi+0x1C40]
+        xor edx, edx
         cmp eax, 100
-        jg partial_failure
-        cmp eax, 100
-        jge mutate_health_done
+        jae mutate_bits_health_done
+        cmp eax, 1
+        jl mutate_zero_snapshot
+        or dl, 2
+    mutate_bits_health_done:
+        cmp byte ptr [esi+0x1C48], 0
+        je mutate_bits_compare
+        or dl, 1
+    mutate_bits_compare:
+        cmp dl, byte ptr [edi+ebx]
+        jne stale_failure
+        test dl, 2
+        jz mutate_health_done
         push -1
         push 100
         lea ecx, [esi+0x1C34]
@@ -431,12 +628,31 @@ def _assemble_helper(strings: dict[str, int]) -> tuple[bytes, dict[str, object]]
         mov esi, eax
         test esi, esi
         jz partial_failure
+        cmp byte ptr [esi+0x1CC4], 0
+        je partial_failure
+        cmp byte ptr [esi+0x1CC7], 0
+        jne partial_failure
         cmp dword ptr [esi+0x1C40], 100
         jne partial_failure
         inc dword ptr [ebp-0x24]
     mutate_health_done:
+        mov dl, byte ptr [edi+ebx]
+        test dl, 1
+        jz mutate_next
+        mov ecx, 0x50E568
+        push ebx
+        call 0x466040
+        mov esi, eax
+        test esi, esi
+        jz partial_failure
+        cmp byte ptr [esi+0x1CC4], 0
+        je partial_failure
+        cmp byte ptr [esi+0x1CC7], 0
+        jne partial_failure
+        cmp dword ptr [esi+0x1C40], 0
+        jle partial_failure
         cmp byte ptr [esi+0x1C48], 0
-        je mutate_next
+        je partial_failure
         mov byte ptr [esi+0x1C48], 0
         mov ecx, 0x50E568
         push ebx
@@ -451,6 +667,10 @@ def _assemble_helper(strings: dict[str, int]) -> tuple[bytes, dict[str, object]]
     mutate_next:
         inc ebx
         jmp mutate_loop
+    mutate_zero_snapshot:
+        cmp byte ptr [edi+ebx], 0
+        jne stale_failure
+        jmp mutate_next
     postverify_start:
         xor ebx, ebx
     postverify_loop:
@@ -463,13 +683,19 @@ def _assemble_helper(strings: dict[str, int]) -> tuple[bytes, dict[str, object]]
         test esi, esi
         jz partial_failure
         cmp byte ptr [esi+0x1CC4], 0
-        je postverify_next
+        je partial_failure
         cmp byte ptr [esi+0x1CC7], 0
-        jne postverify_next
+        jne partial_failure
         cmp dword ptr [esi+0x1C40], 0
-        jle postverify_next
+        jle partial_failure
+        mov dl, byte ptr [edi+ebx]
+        test dl, 2
+        jz postverify_health_done
         cmp dword ptr [esi+0x1C40], 100
         jne partial_failure
+    postverify_health_done:
+        test dl, 1
+        jz postverify_next
         cmp byte ptr [esi+0x1C48], 0
         jne partial_failure
     postverify_next:
@@ -485,13 +711,17 @@ def _assemble_helper(strings: dict[str, int]) -> tuple[bytes, dict[str, object]]
         mov ecx, 0x4D6F88
         push -30000
         call 0x41E300
+        mov eax, dword ptr [ebp-0x20]
+        mov edx, dword ptr [ebp-0x24]
         mov esi, 0x{strings['success']:X}
         jmp result_show
     dependency_failure:
-        xor eax, eax
-        xor edx, edx
-        mov esi, 0x{strings['dependency']:X}
-        jmp result_show
+        add esp, 0x400
+        pop edi
+        pop esi
+        pop ebx
+        pop ebp
+        jmp 0x{RESULT_CONTINUATION_VA:X}
     invalid_failure:
         xor eax, eax
         xor edx, edx
@@ -528,7 +758,7 @@ def _assemble_helper(strings: dict[str, int]) -> tuple[bytes, dict[str, object]]
         push dword ptr [ebp-0x38]
         push dword ptr [ebp-0x34]
         push dword ptr [ebp-0x30]
-        lea edi, [ebp-0x230]
+        lea edi, [ebp-0x3F0]
         push edi
         call dword ptr [ebp-0x14]
         add esp, 16
@@ -537,12 +767,12 @@ def _assemble_helper(strings: dict[str, int]) -> tuple[bytes, dict[str, object]]
         push edi
         push 0
         call dword ptr [ebp-0x10]
-        add esp, 0x230
+        add esp, 0x400
         pop edi
         pop esi
         pop ebx
         pop ebp
-        jmp 0x{CONTINUATION_VA:X}
+        jmp 0x{RESULT_CONTINUATION_VA:X}
     """
     body = asm(source, ENTRY_VA)
     if len(body) >= STRINGS_OFFSET - 0x100:
@@ -572,7 +802,7 @@ def _verify_code(page: bytes, helper_length: int) -> None:
                     target = int(insn.op_str.split()[0], 16)
                     if PAGE_VA <= target < PAGE_VA + STRINGS_OFFSET:
                         continue
-                    if target in {CONTINUATION_VA, 0x466040, 0x46AF00, 0x41E300}:
+                    if target in {CONTINUATION_VA, RESULT_CONTINUATION_VA, 0x466040, 0x46AF00, 0x41E300}:
                         continue
                     if target in {0x48A1DC, 0x48A1E0}:
                         continue
@@ -605,6 +835,17 @@ def build_page() -> tuple[bytes, dict[str, object]]:
             "health_setter": "ECX=record+0x1C34; push -1; push 100; call 0x46AF00; ret 8",
             "tech_deduction": "ECX=0x4D6F88; push -30000; call 0x41E300; ret 4",
             "people_cured": "inc [0x4D6DF0] after verified sickness clear",
+            "result_continuation": "0x4895D9 menu loop; non-command-5 shim replay continues at 0x489455",
+        },
+        "stack_map": {
+            "saved_registers": ["[ebp-0x04]", "[ebp-0x08]", "[ebp-0x0C]"],
+            "message_box": "[ebp-0x10]",
+            "formatter": "[ebp-0x14]",
+            "counts": {"sick": "[ebp-0x18]", "partial": "[ebp-0x1C]", "actual_sick": "[ebp-0x20]", "actual_partial": "[ebp-0x24]"},
+            "result_locals": ["[ebp-0x30]", "[ebp-0x34]", "[ebp-0x38]"],
+            "snapshot": "[ebp-0x130..ebp-0x039] (150 independent bytes)",
+            "format_buffer": "[ebp-0x3F0..ebp-0x1F1] (512 bytes)",
+            "frame_allocation": "sub esp,0x400; epilogue add esp,0x400 then pop edi/esi/ebx/ebp",
         },
     }
     return bytes(page), meta
@@ -670,11 +911,11 @@ def generate(output_root: Path) -> dict[str, object]:
     outputs: dict[str, object] = {
         "modes": {}, "page": page_meta,
         "companion": {
-            "filename": "VVFP VV4 Full Heal Candidate.dll",
+            "filename": "VVFP Origins Icons.dll",
             "size": len(companion),
             "sha256": companion_sha,
             "parent_sha256": PARENT_DLL_SHA256,
-            "resource_transform": "RT_DIALOG 201/203 title-only structural repack; 202 and non-.rsrc bytes unchanged",
+            "resource_transform": "RT_DIALOG 201/203 structural five-item command-5 row; caption Origins Upgrades; 202 and non-.rsrc bytes unchanged",
         },
     }
     for mode, parent in parents.items():
@@ -692,7 +933,7 @@ def generate(output_root: Path) -> dict[str, object]:
             "uninstall_parent_sha256": sha(parent),
         }
     (output_root / "vv4hc-page.bin").write_bytes(page)
-    (output_root / "VVFP VV4 Full Heal Candidate.dll").write_bytes(companion)
+    (output_root / "VVFP Origins Icons.dll").write_bytes(companion)
     _write(output_root / MANIFEST.name, {**manifest, "emitted_audit": outputs})
     _write(output_root / MAP.name, {**artifact_map, "emitted_audit": outputs})
     (output_root / DOC.name).write_bytes(DOC.read_bytes())

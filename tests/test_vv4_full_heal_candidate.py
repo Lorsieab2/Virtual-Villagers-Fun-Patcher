@@ -1,4 +1,5 @@
 import json
+import struct
 import sys
 import unittest
 from pathlib import Path
@@ -40,10 +41,19 @@ class VV4FullHealCandidateTests(unittest.TestCase):
         self.assertEqual(manifest["transaction"]["deduction"]["receiver"], "0x4D6F88")
         self.assertEqual(manifest["transaction"]["deduction"]["call"], "0x41E300")
         self.assertEqual(manifest["native_operations"]["sickness_clear"]["people_cured_dword"], "[0x4D6DF0]")
-        self.assertEqual(manifest["companion_files"][0]["sha256"], "CEC9E453AE490F9DD21A1429B79D01E5B1D31254D85A4FF8571303BAA676A507")
-        self.assertEqual(manifest["companion_files"][0]["size"], 282624)
+        self.assertEqual(manifest["companion_files"][0]["sha256"], "CF468556C14306FB74884BC48F23D5506CCFB5FC2B670364FA143BC1141E0EE7")
+        self.assertEqual(manifest["companion_files"][0]["size"], 283136)
+        self.assertEqual(manifest["companion_files"][0]["destination"], "VVFP Origins Icons.dll")
+        self.assertEqual(manifest["companion_files"][0]["artwork_resource_id"], 110)
+        self.assertEqual(manifest["companion_files"][0]["artwork_sha256"], "83552374DFD7AC1AACC57D371C01C26BA1A438ADF34B904609A72165EB73C5A0")
+        self.assertEqual(manifest["hook"]["helper_length"], 1119)
+        self.assertEqual(manifest["hook"]["helper_sha256"], "DA23AADA7B3C7574DA937CE4862E7ED9610C29C2467976A7CB3C4FC41D2C1A9D")
+        self.assertEqual(manifest["hook"]["page_sha256"], "B68532BDD9028EF7705848FE61AB0C44DBE805061BF6F08A0F53C15712BE5202")
         self.assertEqual(artifact_map["companion"]["sha256"], manifest["companion_files"][0]["sha256"])
         self.assertIn("RT_DIALOG 201/203", artifact_map["companion"]["resource_contract"])
+        self.assertEqual(artifact_map["ownership"]["exe_hook"]["command5_continuation"], "0x4895D9")
+        self.assertEqual(artifact_map["ownership"]["exe_hook"]["non_command5_continuation"], "0x489455")
+        self.assertEqual(artifact_map["ownership"]["companion"]["destination"], "VVFP Origins Icons.dll")
         self.assertEqual(manifest["hook"]["shim_bytes"], "83F8050F84F7000000E94784D4FF")
         self.assertTrue(manifest["hook"]["unknown_until_recertified"])
 
@@ -144,11 +154,54 @@ class VV4FullHealCandidateTests(unittest.TestCase):
         spec.loader.exec_module(builder)
         base = builder.PARENT_DLL.read_bytes()
         candidate, digest = builder.build_resource_only_companion(base)
-        self.assertEqual(digest, "CEC9E453AE490F9DD21A1429B79D01E5B1D31254D85A4FF8571303BAA676A507")
+        self.assertEqual(digest, "CF468556C14306FB74884BC48F23D5506CCFB5FC2B670364FA143BC1141E0EE7")
+        import pefile
+        pe = pefile.PE(data=candidate)
+        icon_type = next(x for x in pe.DIRECTORY_ENTRY_RESOURCE.entries if x.id == 14)
+        self.assertIn(110, [x.id for x in icon_type.directory.entries])
         raw, size, _, base_leaves = builder._dll_resource_leaves(base)
         _, _, _, cand_leaves = builder._dll_resource_leaves(candidate)
-        self.assertEqual(candidate[:raw], base[:raw])
-        self.assertEqual(candidate[raw + size :], base[raw + size :])
+        for ident, expected in ((201, 46), (203, 36)):
+            blob = next(x["blob"] for x in cand_leaves if x["path"] == (5, ident, 1033))
+            self.assertEqual(struct.unpack_from("<H", blob, 16)[0], expected)
+            text = blob.decode("utf-16le", errors="ignore")
+            self.assertIn("Origins Upgrades", text)
+            self.assertIn("Full Heal / Cure All", text)
+            self.assertIn("30,000 tech points", text)
+            self.assertIn("Buy", text)
+            self.assertIn(struct.pack("<H", 1005), blob)
+            self.assertLess(
+                blob.find("Full Heal / Cure All".encode("utf-16le")),
+                blob.find("All Villagers".encode("utf-16le")),
+            )
+        # The structural repack may grow .rsrc by one aligned block.  Only the
+        # .rsrc raw-size and following .reloc raw-pointer are expected to move;
+        # all other headers and all bytes outside the resource section remain
+        # byte-identical (with the relocated tail compared at its new offset).
+        if len(candidate) != len(base):
+            self.assertEqual(len(candidate), len(base) + 0x200)
+            pe = struct.unpack_from("<I", base, 0x3C)[0]
+            table = pe + 24 + struct.unpack_from("<H", base, pe + 20)[0]
+            count = struct.unpack_from("<H", base, pe + 6)[0]
+            rsrc_header = reloc_header = None
+            for index in range(count):
+                off = table + index * 40
+                name = base[off:off + 8].rstrip(b"\0")
+                if name == b".rsrc":
+                    rsrc_header = off
+                elif name == b".reloc":
+                    reloc_header = off
+            self.assertIsNotNone(rsrc_header)
+            self.assertIsNotNone(reloc_header)
+            normalized_candidate = bytearray(candidate[:raw])
+            normalized_base = bytearray(base[:raw])
+            normalized_candidate[rsrc_header + 16:rsrc_header + 20] = normalized_base[rsrc_header + 16:rsrc_header + 20]
+            normalized_candidate[reloc_header + 20:reloc_header + 24] = normalized_base[reloc_header + 20:reloc_header + 24]
+            self.assertEqual(normalized_candidate, normalized_base)
+            self.assertEqual(candidate[raw + size + 0x200 :], base[raw + size :])
+        else:
+            self.assertEqual(candidate[:raw], base[:raw])
+            self.assertEqual(candidate[raw + size :], base[raw + size :])
         self.assertEqual(
             next(x["blob"] for x in base_leaves if x["path"] == (5, 202, 1033)),
             next(x["blob"] for x in cand_leaves if x["path"] == (5, 202, 1033)),

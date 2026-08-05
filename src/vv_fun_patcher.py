@@ -507,6 +507,8 @@ VV4_FULL_HEAL_CANDIDATE_PATHS = {
 VV4_FULL_HEAL_STOCK_SHA256 = "6D27A429FFCA5F1F71FDD7ECA761ED1BB67E85F976494BA178B3D7BE01F1B220"
 VV4_FULL_HEAL_PARENT_PAGE_SHA256 = "FD72C661B533117BF38D69E7EB855250A93927C831C265226930794C1EFDDB62"
 VV4_FULL_HEAL_PARENT_DLL_SHA256 = "4E1A83683A875EFE6F67116CDD862927BE1ABCB17DB7AE18143E58E98EAD01E7"
+VV4_FULL_HEAL_MANIFEST_SHA256 = "9BAB2771FCED3179F271547938C4E1953B85A5DEE542962F1880B6E5D8174A31"
+VV4_FULL_HEAL_MAP_SHA256 = "5E4198CCBCC631DA9F5C26E420F661C3C365DCE4E990D5E5D1DF93BBA73772A5"
 VV4_FULL_HEAL_ENUMERATION = (
     "resolve every index 0..149 through ECX=0x50E568; push index; "
     "call 0x466040; ret 4; never walk a cached base"
@@ -1187,8 +1189,12 @@ def _certified_vv4_full_heal_record(
     map_path = VV4_FULL_HEAL_CANDIDATE_PATHS["map"]
     if not manifest_path.is_file() or not map_path.is_file():
         return None
-    manifest = json.loads(manifest_path.read_text(encoding="utf-8-sig"))
-    artifact_map = json.loads(map_path.read_text(encoding="utf-8-sig"))
+    manifest_bytes = manifest_path.read_bytes()
+    map_bytes = map_path.read_bytes()
+    if hashlib.sha256(manifest_bytes).hexdigest().upper() != VV4_FULL_HEAL_MANIFEST_SHA256 or hashlib.sha256(map_bytes).hexdigest().upper() != VV4_FULL_HEAL_MAP_SHA256:
+        raise PatcherError("VV4 Full Heal candidate manifest/map raw bytes are not pinned.")
+    manifest = json.loads(manifest_bytes.decode("utf-8-sig"))
+    artifact_map = json.loads(map_bytes.decode("utf-8-sig"))
     if not manifest.get("enabled", False):
         return None
     if manifest.get("catalog_hidden") is not False or manifest.get("catalog_enabled") is not True:
@@ -1231,9 +1237,9 @@ def _certified_vv4_full_heal_record(
             or hook.get("hook_after") != "E9EC792B00"
             or hook.get("shim_bytes") != "83F8050F84F7000000E94784D4FF"
             or hook.get("shim_sha256") != "89A2E84C47D3130915A7830F48EC839C186A8BBABF7584681A83A4770582A370"
-            or hook.get("helper_length") != 884
-            or hook.get("helper_sha256") != "7A15D340E1532FDD0D7398FB14906E4D2A5DE10AEE1E4C6DED56D825A6C0E557"
-            or hook.get("page_sha256") != "3B6CE741CD511E62630DB2F1B2C90C89CA78AD2FEE6BF4E60F3E9083329549A7"
+            or hook.get("helper_length") != 1119
+            or hook.get("helper_sha256") != "DA23AADA7B3C7574DA937CE4862E7ED9610C29C2467976A7CB3C4FC41D2C1A9D"
+            or hook.get("page_sha256") != "B68532BDD9028EF7705848FE61AB0C44DBE805061BF6F08A0F53C15712BE5202"
             or hook.get("strings_sha256") != "44CB71162F5F5298E8A6AB309D874EDD20D3B4C20B169DB3D2274F84DCC0717E"
             or hook.get("unknown_until_recertified")):
         raise PatcherError("VV4 Full Heal cannot enable before exact hook/page bytes are certified.")
@@ -1241,12 +1247,31 @@ def _certified_vv4_full_heal_record(
         raise PatcherError("VV4 Full Heal message contract is invalid.")
     companion = manifest.get("companion_files", [{}])[0]
     companion_map = artifact_map.get("companion", {})
-    if (companion.get("sha256") != "CEC9E453AE490F9DD21A1429B79D01E5B1D31254D85A4FF8571303BAA676A507"
-            or companion.get("size") != 282624
+    if (companion.get("sha256") != "CF468556C14306FB74884BC48F23D5506CCFB5FC2B670364FA143BC1141E0EE7"
+            or companion.get("size") != 283136
+            or companion.get("destination") != "VVFP Origins Icons.dll"
+            or companion.get("artwork_resource_id") != 110
+            or companion.get("artwork_sha256") != "83552374DFD7AC1AACC57D371C01C26BA1A438ADF34B904609A72165EB73C5A0"
             or companion_map.get("sha256") != companion.get("sha256")
             or companion_map.get("size") != companion.get("size")
             or companion_map.get("parent_sha256") != VV4_FULL_HEAL_PARENT_DLL_SHA256):
         raise PatcherError("VV4 Full Heal companion resource transform is not certified.")
+    ownership = artifact_map.get("ownership", {})
+    if ownership.get("exe_hook") != {
+        "raw": "0x8960F", "length": 5, "preimage": "E941FEFFFF",
+        "candidate": "E9EC792B00", "preserved_suffix": "724C",
+        "non_command5_continuation": "0x489455", "command5_continuation": "0x4895D9",
+    } or ownership.get("page") != {
+        "raw": "0xE5000", "length": 4096,
+        "preimage_sha256": "zero-filled 0x1000",
+        "candidate_sha256": "B68532BDD9028EF7705848FE61AB0C44DBE805061BF6F08A0F53C15712BE5202",
+    } or ownership.get("companion") != {
+        "destination": "VVFP Origins Icons.dll",
+        "preimage_sha256": VV4_FULL_HEAL_PARENT_DLL_SHA256,
+        "candidate_sha256": companion.get("sha256"),
+        "restore_sha256": VV4_FULL_HEAL_PARENT_DLL_SHA256,
+    }:
+        raise PatcherError("VV4 Full Heal ownership records are not certified.")
     return manifest
 
 

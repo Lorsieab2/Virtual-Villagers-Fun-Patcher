@@ -35,15 +35,22 @@
     "after": "E9EC792B00",
     "section": {"name": ".vv4hc", "raw_offset": "0xE5000", "rva": "0x341000", "va": "0x741000", "length": 4096},
     "shim": {"va": "0x741000", "bytes": "83F8050F84F7000000E94784D4FF", "sha256": "89A2E84C47D3130915A7830F48EC839C186A8BBABF7584681A83A4770582A370"},
-    "helper_length": 884,
-    "helper_sha256": "7A15D340E1532FDD0D7398FB14906E4D2A5DE10AEE1E4C6DED56D825A6C0E557",
-    "page_sha256": "3B6CE741CD511E62630DB2F1B2C90C89CA78AD2FEE6BF4E60F3E9083329549A7",
+    "helper_length": 1119,
+    "helper_sha256": "DA23AADA7B3C7574DA937CE4862E7ED9610C29C2467976A7CB3C4FC41D2C1A9D",
+    "page_sha256": "B68532BDD9028EF7705848FE61AB0C44DBE805061BF6F08A0F53C15712BE5202",
     "strings_sha256": "44CB71162F5F5298E8A6AB309D874EDD20D3B4C20B169DB3D2274F84DCC0717E",
     "transaction_entry_va": "0x741100",
     "ranges": ["0x8960F..0x89613", "0xE5000..0xE5FFF"],
     "unknown_until_recertified": true
   },
-  "companion": {"filename": "VVFP VV4 Full Heal Candidate.dll", "size": 282624, "sha256": "CEC9E453AE490F9DD21A1429B79D01E5B1D31254D85A4FF8571303BAA676A507", "parent_sha256": "4E1A83683A875EFE6F67116CDD862927BE1ABCB17DB7AE18143E58E98EAD01E7", "resource_contract": "RT_DIALOG 201/203 title-only structural repack; 202 and non-.rsrc bytes unchanged"},
+  "companion": {"filename": "VVFP Origins Icons.dll", "size": 283136, "sha256": "CF468556C14306FB74884BC48F23D5506CCFB5FC2B670364FA143BC1141E0EE7", "parent_sha256": "4E1A83683A875EFE6F67116CDD862927BE1ABCB17DB7AE18143E58E98EAD01E7", "resource_contract": "RT_DIALOG 201/203 five-item command-5 row inserted between command 4 and the following row; caption Origins Upgrades; 202 and non-.rsrc bytes unchanged", "artwork_resource_id": 110, "artwork_sha256": "83552374DFD7AC1AACC57D371C01C26BA1A438ADF34B904609A72165EB73C5A0"},
+  "ownership": {
+    "exe_hook": {"raw": "0x8960F", "length": 5, "preimage": "E941FEFFFF", "candidate": "E9EC792B00", "preserved_suffix": "724C", "non_command5_continuation": "0x489455", "command5_continuation": "0x4895D9"},
+    "page": {"raw": "0xE5000", "length": 4096, "preimage_sha256": "zero-filled 0x1000", "candidate_sha256": "B68532BDD9028EF7705848FE61AB0C44DBE805061BF6F08A0F53C15712BE5202"},
+    "companion": {"destination": "VVFP Origins Icons.dll", "preimage_sha256": "4E1A83683A875EFE6F67116CDD862927BE1ABCB17DB7AE18143E58E98EAD01E7", "candidate_sha256": "CF468556C14306FB74884BC48F23D5506CCFB5FC2B670364FA143BC1141E0EE7", "restore_sha256": "4E1A83683A875EFE6F67116CDD862927BE1ABCB17DB7AE18143E58E98EAD01E7"},
+    "parent_collection_sha256": "CEBF0BC813059A13131CF75E4ECE11C8CCEE460CC98FB16BD87B03F5C20DB86B",
+    "parent_immediate_sha256": "6070D3244567815E8880168AEDCB9FF0E43F6720095AE67628089D492DA40133"
+  },
   "runtime_status": "pending independent static and player recertification",
   "uninstall": "restore the exact Full Mastery parent EXE/DLL/page identities; zero only candidate-owned ranges",
   "provenance": {"implementation_commit": null, "audit_commit": null, "acceptance_commit": null}
