@@ -8,7 +8,7 @@
   "certification_status": "disabled; independent VV4 native-layout recertification pending",
   "evidence_status": "candidate-only contract recorded; runtime and emitted-byte certification pending",
   "dependencies": [
-    "vv4_enable_origins_exclusive_features_full_mastery_candidate",
+    "vv4_enable_origins_exclusive_features",
     "vv4_full_mastery_all_stage_a_candidate"
   ],
   "supported_modes": ["collection_progression", "immediate_fixed"],
@@ -80,9 +80,9 @@
     "shim_bytes": "83F8050F84F7000000E94784D4FF",
     "shim_sha256": "89A2E84C47D3130915A7830F48EC839C186A8BBABF7584681A83A4770582A370",
     "transaction_entry_va": "0x741100",
-    "helper_length": 1934,
-    "helper_sha256": "BC785320E1AC766204927FD1713F4A560DD83FE071447F00226F3A5DAC34E6F3",
-    "page_sha256": "CF62185C098F2285E32B529E0AAFD33A0DA0496EF1528D0B1571943A2C5E3E53",
+    "helper_length": 2053,
+    "helper_sha256": "F4271D44AB481D1441EA7D8D297AC346FCF0F2840EE9869B90EE1E875A4B403F",
+    "page_sha256": "EC7E987845C3081C435CED913CCEE951CC67B0E766FAAB363D313D0B5874A739",
     "strings_sha256": "44CB71162F5F5298E8A6AB309D874EDD20D3B4C20B169DB3D2274F84DCC0717E",
     "owned_ranges": ["0x8960F..0x89613", "0xE5000..0xE5FFF"],
     "unknown_until_recertified": true

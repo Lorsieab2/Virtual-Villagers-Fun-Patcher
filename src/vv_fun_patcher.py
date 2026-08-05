@@ -507,8 +507,10 @@ VV4_FULL_HEAL_CANDIDATE_PATHS = {
 VV4_FULL_HEAL_STOCK_SHA256 = "6D27A429FFCA5F1F71FDD7ECA761ED1BB67E85F976494BA178B3D7BE01F1B220"
 VV4_FULL_HEAL_PARENT_PAGE_SHA256 = "FD72C661B533117BF38D69E7EB855250A93927C831C265226930794C1EFDDB62"
 VV4_FULL_HEAL_PARENT_DLL_SHA256 = "4E1A83683A875EFE6F67116CDD862927BE1ABCB17DB7AE18143E58E98EAD01E7"
-VV4_FULL_HEAL_MANIFEST_SHA256 = "FCB60F5EFC8A1DD3670F85838DB22964352426C5CDADA6AA311D7D2C6415568E"
-VV4_FULL_HEAL_MAP_SHA256 = "234321F746F389ABFFF62611AD1AE699C6FF69616B9B3A36AF37E67E11A42FDC"
+VV4_FULL_HEAL_PARENT_COLLECTION_SHA256 = "CEBF0BC813059A13131CF75E4ECE11C8CCEE460CC98FB16BD87B03F5C20DB86B"
+VV4_FULL_HEAL_PARENT_IMMEDIATE_SHA256 = "6070D3244567815E8880168AEDCB9FF0E43F6720095AE67628089D492DA40133"
+VV4_FULL_HEAL_MANIFEST_SHA256 = "E1E9BCBA9154EBED43C4373A59EAD518B99D30BF3CE7BED7F4396CE676AAEDC5"
+VV4_FULL_HEAL_MAP_SHA256 = "69A4F5380C56930E53B45BD7605FB36F0F4F0C1EDA7A9098349A7ABD0CDD9B7E"
 VV4_FULL_HEAL_ENUMERATION = (
     "resolve every index 0..149 through ECX=0x50E568; push index; "
     "call 0x466040; ret 4; never walk a cached base"
@@ -1201,8 +1203,11 @@ def _certified_vv4_full_heal_record(
         raise PatcherError("VV4 Full Heal candidate must be explicitly catalog-visible when enabled.")
     if manifest.get("id") != VV4_FULL_HEAL_CANDIDATE_ID or artifact_map.get("candidate_id") != VV4_FULL_HEAL_CANDIDATE_ID:
         raise PatcherError("VV4 Full Heal candidate identity is invalid.")
-    if manifest.get("dependencies") != [active_base["id"], mastery_feature["id"]]:
+    expected_vv4_full_heal_dependencies = [active_base["id"], mastery_feature["id"]]
+    if manifest.get("dependencies") != expected_vv4_full_heal_dependencies:
         raise PatcherError("VV4 Full Heal requires the current VV4 Full Mastery parent chain.")
+    if artifact_map.get("dependencies") != expected_vv4_full_heal_dependencies:
+        raise PatcherError("VV4 Full Heal map dependency identity is not current.")
     if manifest.get("supported_modes") != ["collection_progression", "immediate_fixed"] or set(manifest.get("rejected_modes", ())) != EXPANDED_PATCH_MODES:
         raise PatcherError("VV4 Full Heal mode gate is invalid.")
     if manifest.get("source", {}).get("stock_sha256") != VV4_FULL_HEAL_STOCK_SHA256 or artifact_map.get("source", {}).get("sha256") != VV4_FULL_HEAL_STOCK_SHA256:
@@ -1238,9 +1243,9 @@ def _certified_vv4_full_heal_record(
             or hook.get("hook_after") != "E9EC792B00"
             or hook.get("shim_bytes") != "83F8050F84F7000000E94784D4FF"
             or hook.get("shim_sha256") != "89A2E84C47D3130915A7830F48EC839C186A8BBABF7584681A83A4770582A370"
-            or hook.get("helper_length") != 1934
-            or hook.get("helper_sha256") != "BC785320E1AC766204927FD1713F4A560DD83FE071447F00226F3A5DAC34E6F3"
-            or hook.get("page_sha256") != "CF62185C098F2285E32B529E0AAFD33A0DA0496EF1528D0B1571943A2C5E3E53"
+            or hook.get("helper_length") != 2053
+            or hook.get("helper_sha256") != "F4271D44AB481D1441EA7D8D297AC346FCF0F2840EE9869B90EE1E875A4B403F"
+            or hook.get("page_sha256") != "EC7E987845C3081C435CED913CCEE951CC67B0E766FAAB363D313D0B5874A739"
             or hook.get("strings_sha256") != "44CB71162F5F5298E8A6AB309D874EDD20D3B4C20B169DB3D2274F84DCC0717E"
             or hook.get("unknown_until_recertified")):
         raise PatcherError("VV4 Full Heal cannot enable before exact hook/page bytes are certified.")
@@ -1284,7 +1289,7 @@ def _certified_vv4_full_heal_record(
     } or ownership.get("page") != {
         "raw": "0xE5000", "length": 4096,
         "preimage_sha256": "zero-filled 0x1000",
-        "candidate_sha256": "CF62185C098F2285E32B529E0AAFD33A0DA0496EF1528D0B1571943A2C5E3E53",
+        "candidate_sha256": "EC7E987845C3081C435CED913CCEE951CC67B0E766FAAB363D313D0B5874A739",
     } or ownership.get("companion") != {
         "destination": "VVFP Origins Icons.dll",
         "preimage_sha256": VV4_FULL_HEAL_PARENT_DLL_SHA256,
@@ -2386,23 +2391,7 @@ def _apply_pe_append_transactions(
             original_size = int(layout["original_file_size"], 0)
             append_offset = int(layout["append_offset"], 0)
             append_source = layout.get("append_source")
-            if "append_bytes" in layout:
-                append_bytes = bytes.fromhex(layout["append_bytes"])
-            elif append_source == "generated:vv4_full_heal_page" and feature.id == VV4_FULL_HEAL_CANDIDATE_ID:
-                # The VV4 candidate owns a generated page rather than a
-                # second tracked binary source.  Build it in memory so the
-                # normal renderer and its guarded append transaction consume
-                # exactly the emitted page bytes.
-                import importlib.util
-                builder_path = ROOT / "scripts" / "build_vv4_full_heal_candidate.py"
-                spec = importlib.util.spec_from_file_location("vv4_full_heal_builder_runtime", builder_path)
-                if spec is None or spec.loader is None:
-                    raise PatcherError("VV4 Full Heal page builder is unavailable.")
-                module = importlib.util.module_from_spec(spec)
-                spec.loader.exec_module(module)
-                append_bytes, _ = module.build_page()
-            else:
-                raise KeyError("append_bytes")
+            append_bytes = _resolve_append_bytes(feature, layout)
             header_patches = layout["header_patches"]
         except (KeyError, TypeError, ValueError) as exc:
             raise PatcherError(
@@ -2456,6 +2445,33 @@ def _apply_pe_append_transactions(
     return applied
 
 
+def _resolve_append_bytes(feature: FunPatch, layout: dict[str, Any]) -> bytes:
+    """Resolve an append payload identically for install and removal.
+
+    Generated pages are built in memory from the authoritative builder and are
+    hash/size checked before a caller is allowed to mutate executable bytes.
+    """
+    if "append_bytes" in layout:
+        return bytes.fromhex(layout["append_bytes"])
+    if layout.get("append_source") != "generated:vv4_full_heal_page" or feature.id != VV4_FULL_HEAL_CANDIDATE_ID:
+        raise PatcherError("Append layout has no supported immutable payload source.")
+    import importlib.util
+    builder_path = ROOT / "scripts" / "build_vv4_full_heal_candidate.py"
+    spec = importlib.util.spec_from_file_location("vv4_full_heal_builder_runtime", builder_path)
+    if spec is None or spec.loader is None:
+        raise PatcherError("VV4 Full Heal page builder is unavailable.")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    append_bytes, _ = module.build_page()
+    expected = str(feature.raw.get("hook", {}).get("page_sha256", "")).upper()
+    actual = hashlib.sha256(append_bytes).hexdigest().upper()
+    if len(append_bytes) != 0x1000 or not expected or actual != expected:
+        raise PatcherError(
+            f"Generated VV4 Full Heal page identity mismatch: expected {expected}, got {actual}."
+        )
+    return bytes(append_bytes)
+
+
 def _remove_feature_bytes(
     data: bytearray,
     feature: FunPatch,
@@ -2464,6 +2480,7 @@ def _remove_feature_bytes(
 ) -> list[dict[str, str]]:
     """Guardedly undo one feature, including its owned append transaction."""
     original_data = bytes(data)
+    work = bytearray(original_data)
     removed: list[dict[str, str]] = []
     patches = list(feature.patches)
     patches.extend(feature.raw.get("patch_mode_overrides", {}).get(patch_mode, []))
@@ -2471,7 +2488,7 @@ def _remove_feature_bytes(
         offset = int(patch["offset"], 0)
         before = _patch_bytes(patch, "before")
         after = _patch_bytes(patch, "after")
-        actual = bytes(data[offset : offset + len(after)])
+        actual = bytes(work[offset : offset + len(after)])
         if (
             feature.id == "vv5_full_mastery_all_stage_a_candidate"
             and offset == 0xDB766
@@ -2483,7 +2500,7 @@ def _remove_feature_bytes(
                 f"Removal guard failed for {feature.id} at {patch['offset']}: "
                 f"expected {after.hex().upper()}, found {actual.hex().upper()}"
             )
-        data[offset : offset + len(before)] = before
+        work[offset : offset + len(before)] = before
         removed.append(
             {
                 "offset": patch["offset"],
@@ -2496,27 +2513,27 @@ def _remove_feature_bytes(
     layout = _append_layout(feature, patch_mode)
     if layout is not None:
         append_offset = int(layout["append_offset"], 0)
-        append_bytes = bytes.fromhex(layout["append_bytes"])
-        if len(data) != append_offset + len(append_bytes):
+        append_bytes = _resolve_append_bytes(feature, layout)
+        if len(work) != append_offset + len(append_bytes):
             raise PatcherError(
                 f"{feature.name} cannot be removed: appended file length is not owned."
             )
-        actual = bytes(data[append_offset:])
+        actual = bytes(work[append_offset:])
         if actual != append_bytes:
             raise PatcherError(
                 f"{feature.name} cannot be removed: appended page guard differs."
             )
-        del data[append_offset:]
+        del work[append_offset:]
         for item in reversed(layout["header_patches"]):
             offset = int(item["offset"], 0)
             before = _patch_bytes(item, "before")
             after = _patch_bytes(item, "after")
-            actual = bytes(data[offset : offset + len(after)])
+            actual = bytes(work[offset : offset + len(after)])
             if actual != after:
                 raise PatcherError(
                     f"{feature.name} removal header guard failed at {item['offset']}."
                 )
-            data[offset : offset + len(before)] = before
+            work[offset : offset + len(before)] = before
         removed.append(
             {
                 "offset": layout["append_offset"],
@@ -2526,15 +2543,12 @@ def _remove_feature_bytes(
                 "owner": f"feature:{feature.id}",
             }
         )
-    checksum_offset, _ = _pe_checksum_layout(data)
-    struct.pack_into("<I", data, checksum_offset, 0)
-    struct.pack_into("<I", data, checksum_offset, pe_checksum(data))
+    checksum_offset, _ = _pe_checksum_layout(work)
+    struct.pack_into("<I", work, checksum_offset, 0)
+    struct.pack_into("<I", work, checksum_offset, pe_checksum(work))
     if output_folder is not None:
-        try:
-            _remove_companion_files(output_folder, [feature])
-        except Exception:
-            data[:] = original_data
-            raise
+        _remove_companion_files(output_folder, [feature])
+    data[:] = work
     return removed
 
 
@@ -3319,12 +3333,26 @@ def render_patched_bytes(
                         and offset == 0x7B721
                         and before == bytes(VV3_FULL_HEAL_CAVE_LENGTH)
                     )
+                    allowed_vv4_full_heal_overlay = (
+                        owner == f"feature:{VV4_FULL_HEAL_CANDIDATE_ID}"
+                        and prior_owner == "feature:vv4_enable_origins_exclusive_features"
+                        and patch_mode in {"collection_progression", "immediate_fixed"}
+                        and offset == 0x8960F
+                        and before == bytes.fromhex("E941FEFFFF")
+                        and feature.raw.get("dependencies") == [
+                            "vv4_enable_origins_exclusive_features",
+                            "vv4_full_mastery_all_stage_a_candidate",
+                        ]
+                        and feature.raw.get("source", {}).get("parent_collection_sha256") == VV4_FULL_HEAL_PARENT_COLLECTION_SHA256
+                        and feature.raw.get("source", {}).get("parent_immediate_sha256") == VV4_FULL_HEAL_PARENT_IMMEDIATE_SHA256
+                    )
                     if (
                         allowed_vv1_composition_overlay
                         or allowed_vv5_individual_overlay
                         or allowed_vv3_individual_running_overlay
                         or allowed_vv3_full_heal_overlay
                         or allowed_vv3_full_heal_cave_overlay
+                        or allowed_vv4_full_heal_overlay
                     ):
                         continue
                     raise PatcherError(

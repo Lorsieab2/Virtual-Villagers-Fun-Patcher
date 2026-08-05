@@ -46,8 +46,8 @@ PARENT_DLL = ROOT / "data/candidates/VVFP VV4 Full Mastery Candidate.dll"
 PARENT_DLL_SHA256 = "4E1A83683A875EFE6F67116CDD862927BE1ABCB17DB7AE18143E58E98EAD01E7"
 PARENT_DLL_SIZE = 282624
 # Raw source-of-truth pins are checked before any candidate output is built.
-SOURCE_MANIFEST_SHA256 = "FCB60F5EFC8A1DD3670F85838DB22964352426C5CDADA6AA311D7D2C6415568E"
-SOURCE_MAP_SHA256 = "234321F746F389ABFFF62611AD1AE699C6FF69616B9B3A36AF37E67E11A42FDC"
+SOURCE_MANIFEST_SHA256 = "E1E9BCBA9154EBED43C4373A59EAD518B99D30BF3CE7BED7F4396CE676AAEDC5"
+SOURCE_MAP_SHA256 = "69A4F5380C56930E53B45BD7605FB36F0F4F0C1EDA7A9098349A7ABD0CDD9B7E"
 
 sys.path.insert(0, str(ROOT / ".tools" / "capstone"))
 sys.path.insert(0, str(ROOT / ".tools" / "keystone-runtime"))
@@ -590,7 +590,13 @@ def _assemble_helper(strings: dict[str, int]) -> tuple[bytes, dict[str, object]]
         call 0x466040
         mov esi, eax
         test esi, esi
-        jz invalid_failure
+        jz initial_next
+        cmp byte ptr [esi+0x1CC4], 0
+        je initial_next
+        cmp byte ptr [esi+0x1CC7], 0
+        jne initial_next
+        cmp dword ptr [esi+0x1C40], 0
+        jle initial_next
         lea edx, [ebx*4]
         shl edx, 2
         add edx, edi
@@ -599,12 +605,6 @@ def _assemble_helper(strings: dict[str, int]) -> tuple[bytes, dict[str, object]]
         mov byte ptr [edx+9], al
         mov al, byte ptr [esi+0x1CC7]
         mov byte ptr [edx+10], al
-        cmp byte ptr [esi+0x1CC4], 0
-        je initial_next
-        cmp byte ptr [esi+0x1CC7], 0
-        jne initial_next
-        cmp dword ptr [esi+0x1C40], 0
-        jle initial_next
         mov eax, dword ptr [esi+0x1C40]
         mov dword ptr [edx+4], eax
         mov al, byte ptr [esi+0x1C48]
@@ -675,6 +675,12 @@ def _assemble_helper(strings: dict[str, int]) -> tuple[bytes, dict[str, object]]
         lea edx, [ebx*4]
         shl edx, 2
         add edx, edi
+        cmp byte ptr [esi+0x1CC4], 0
+        je recheck_zero_snapshot
+        cmp byte ptr [esi+0x1CC7], 0
+        jne recheck_zero_snapshot
+        cmp dword ptr [esi+0x1C40], 0
+        jle recheck_zero_snapshot
         cmp dword ptr [edx], esi
         jne stale_failure
         mov al, byte ptr [esi+0x1CC4]
@@ -683,12 +689,6 @@ def _assemble_helper(strings: dict[str, int]) -> tuple[bytes, dict[str, object]]
         mov al, byte ptr [esi+0x1CC7]
         cmp al, byte ptr [edx+10]
         jne stale_failure
-        cmp byte ptr [esi+0x1CC4], 0
-        je recheck_zero_snapshot
-        cmp byte ptr [esi+0x1CC7], 0
-        jne recheck_zero_snapshot
-        cmp dword ptr [esi+0x1C40], 0
-        jle recheck_zero_snapshot
         mov eax, dword ptr [esi+0x1C40]
         cmp eax, dword ptr [edx+4]
         jne stale_failure
@@ -722,7 +722,13 @@ def _assemble_helper(strings: dict[str, int]) -> tuple[bytes, dict[str, object]]
         jne stale_failure
         jmp recheck_next
     recheck_zero_snapshot:
-        cmp byte ptr [edx+8], 0
+        cmp dword ptr [edx], 0
+        jne stale_failure
+        cmp dword ptr [edx+4], 0
+        jne stale_failure
+        cmp dword ptr [edx+8], 0
+        jne stale_failure
+        cmp dword ptr [edx+0xC], 0
         jne stale_failure
     recheck_next:
         inc ebx
@@ -751,6 +757,12 @@ def _assemble_helper(strings: dict[str, int]) -> tuple[bytes, dict[str, object]]
         lea edx, [ebx*4]
         shl edx, 2
         add edx, edi
+        cmp byte ptr [esi+0x1CC4], 0
+        je mutate_zero_snapshot
+        cmp byte ptr [esi+0x1CC7], 0
+        jne mutate_zero_snapshot
+        cmp dword ptr [esi+0x1C40], 0
+        jle mutate_zero_snapshot
         cmp dword ptr [edx], esi
         jne stale_failure
         mov al, byte ptr [esi+0x1CC4]
@@ -759,12 +771,6 @@ def _assemble_helper(strings: dict[str, int]) -> tuple[bytes, dict[str, object]]
         mov al, byte ptr [esi+0x1CC7]
         cmp al, byte ptr [edx+10]
         jne stale_failure
-        cmp byte ptr [esi+0x1CC4], 0
-        je mutate_zero_snapshot
-        cmp byte ptr [esi+0x1CC7], 0
-        jne mutate_zero_snapshot
-        cmp dword ptr [esi+0x1C40], 0
-        jle mutate_zero_snapshot
         mov eax, dword ptr [esi+0x1C40]
         cmp eax, dword ptr [edx+4]
         jne stale_failure
@@ -922,7 +928,13 @@ def _assemble_helper(strings: dict[str, int]) -> tuple[bytes, dict[str, object]]
         inc ebx
         jmp mutate_loop
     mutate_zero_snapshot:
-        cmp byte ptr [edx+8], 0
+        cmp dword ptr [edx], 0
+        jne stale_failure
+        cmp dword ptr [edx+4], 0
+        jne stale_failure
+        cmp dword ptr [edx+8], 0
+        jne stale_failure
+        cmp dword ptr [edx+0xC], 0
         jne stale_failure
         jmp mutate_next
     postverify_start:
@@ -939,6 +951,12 @@ def _assemble_helper(strings: dict[str, int]) -> tuple[bytes, dict[str, object]]
         lea edx, [ebx*4]
         shl edx, 2
         add edx, edi
+        cmp byte ptr [esi+0x1CC4], 0
+        je postverify_zero_snapshot
+        cmp byte ptr [esi+0x1CC7], 0
+        jne postverify_zero_snapshot
+        cmp dword ptr [esi+0x1C40], 0
+        jle postverify_zero_snapshot
         cmp dword ptr [edx], esi
         jne partial_failure
         mov al, byte ptr [esi+0x1CC4]
@@ -947,12 +965,6 @@ def _assemble_helper(strings: dict[str, int]) -> tuple[bytes, dict[str, object]]
         mov al, byte ptr [esi+0x1CC7]
         cmp al, byte ptr [edx+10]
         jne partial_failure
-        cmp byte ptr [esi+0x1CC4], 0
-        je postverify_zero_snapshot
-        cmp byte ptr [esi+0x1CC7], 0
-        jne postverify_zero_snapshot
-        cmp dword ptr [esi+0x1C40], 0
-        jle postverify_zero_snapshot
         mov cl, byte ptr [edx+8]
         test cl, 2
         jz postverify_health_done
@@ -979,7 +991,13 @@ def _assemble_helper(strings: dict[str, int]) -> tuple[bytes, dict[str, object]]
         cmp al, byte ptr [edx+11]
         jne partial_failure
     postverify_zero_snapshot:
-        cmp byte ptr [edx+8], 0
+        cmp dword ptr [edx], 0
+        jne partial_failure
+        cmp dword ptr [edx+4], 0
+        jne partial_failure
+        cmp dword ptr [edx+8], 0
+        jne partial_failure
+        cmp dword ptr [edx+0xC], 0
         jne partial_failure
     postverify_next:
         inc ebx
@@ -1144,6 +1162,7 @@ def build_page() -> tuple[bytes, dict[str, object]]:
             "counts": {"sick": "[ebp-0x18]", "partial": "[ebp-0x1C]", "actual_sick": "[ebp-0x20]", "actual_partial": "[ebp-0x24]"},
             "result_locals": ["[ebp-0x30]", "[ebp-0x34]", "[ebp-0x38]"],
             "snapshot": "[ebp-0xA00..ebp-0xA1] (0x960 bytes; 150 independent 16-byte slots: pointer, health, bits, active/status, sickness)",
+            "ineligible_slot": "all 16 bytes remain zero; pointer, active/status, health, bits, and sickness are stored only after the population gate passes",
             "format_buffer": "[ebp-0x1100..ebp-0xF01] (512 bytes)",
             "frame_allocation": "sub esp,0x1200; epilogue add esp,0x1200 then pop edi/esi/ebx/ebp",
         },

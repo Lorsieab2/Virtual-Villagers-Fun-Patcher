@@ -49,9 +49,9 @@ class VV4FullHealCandidateTests(unittest.TestCase):
         self.assertEqual(manifest["companion_files"][0]["destination"], "VVFP Origins Icons.dll")
         self.assertEqual(manifest["companion_files"][0]["artwork_resource_id"], 110)
         self.assertEqual(manifest["companion_files"][0]["artwork_sha256"], "83552374DFD7AC1AACC57D371C01C26BA1A438ADF34B904609A72165EB73C5A0")
-        self.assertEqual(manifest["hook"]["helper_length"], 1934)
-        self.assertEqual(manifest["hook"]["helper_sha256"], "BC785320E1AC766204927FD1713F4A560DD83FE071447F00226F3A5DAC34E6F3")
-        self.assertEqual(manifest["hook"]["page_sha256"], "CF62185C098F2285E32B529E0AAFD33A0DA0496EF1528D0B1571943A2C5E3E53")
+        self.assertEqual(manifest["hook"]["helper_length"], 2053)
+        self.assertEqual(manifest["hook"]["helper_sha256"], "F4271D44AB481D1441EA7D8D297AC346FCF0F2840EE9869B90EE1E875A4B403F")
+        self.assertEqual(manifest["hook"]["page_sha256"], "EC7E987845C3081C435CED913CCEE951CC67B0E766FAAB363D313D0B5874A739")
         self.assertEqual(artifact_map["companion"]["sha256"], manifest["companion_files"][0]["sha256"])
         self.assertIn("RT_DIALOG 201/203", artifact_map["companion"]["resource_contract"])
         self.assertEqual(artifact_map["ownership"]["exe_hook"]["command5_continuation"], "0x4895D9")
@@ -256,12 +256,12 @@ class VV4FullHealCandidateTests(unittest.TestCase):
         spec.loader.exec_module(builder)
         page, meta = builder.build_page()
         self.assertEqual(len(page), 0x1000)
-        self.assertEqual(meta["helper_length"], 1934)
+        self.assertEqual(meta["helper_length"], 2053)
         self.assertEqual(
             hashlib.sha256(page[0x100:0x100 + meta["helper_length"]]).hexdigest().upper(),
-            "BC785320E1AC766204927FD1713F4A560DD83FE071447F00226F3A5DAC34E6F3",
+            "F4271D44AB481D1441EA7D8D297AC346FCF0F2840EE9869B90EE1E875A4B403F",
         )
-        self.assertEqual(hashlib.sha256(page).hexdigest().upper(), "CF62185C098F2285E32B529E0AAFD33A0DA0496EF1528D0B1571943A2C5E3E53")
+        self.assertEqual(hashlib.sha256(page).hexdigest().upper(), "EC7E987845C3081C435CED913CCEE951CC67B0E766FAAB363D313D0B5874A739")
         body = page[0x100:0x100 + meta["helper_length"]]
         self.assertNotIn(b"\xE9\x00\x10\x74\x00", body)  # no synthetic string-target jump
         self.assertNotIn(struct.pack("<I", 0x50EDE8), body)
@@ -282,6 +282,65 @@ class VV4FullHealCandidateTests(unittest.TestCase):
         self.assertEqual(meta["stack_map"]["snapshot"], "[ebp-0xA00..ebp-0xA1] (0x960 bytes; 150 independent 16-byte slots: pointer, health, bits, active/status, sickness)")
         self.assertEqual(meta["stack_map"]["format_buffer"], "[ebp-0x1100..ebp-0xF01] (512 bytes)")
         self.assertIn("0x1200", meta["stack_map"]["frame_allocation"])
+        self.assertIn("all 16 bytes remain zero", meta["stack_map"]["ineligible_slot"])
+
+    def test_generated_page_removal_round_trips_both_parent_modes(self):
+        import importlib.util
+        import sys
+        import tempfile
+        sys.path.insert(0, str(ROOT / "src"))
+        import vv_fun_patcher as patcher
+        spec = importlib.util.spec_from_file_location(
+            "vv4hc_builder_remove", ROOT / "scripts" / "build_vv4_full_heal_candidate.py"
+        )
+        builder = importlib.util.module_from_spec(spec)
+        assert spec.loader is not None
+        spec.loader.exec_module(builder)
+        feature = patcher.FunPatch(json.loads(MANIFEST.read_text(encoding="utf-8")))
+        page, _ = builder.build_page()
+        for mode, parent in builder._render_parents().items():
+            candidate = bytearray(builder._patch_parent(parent, page))
+            with tempfile.TemporaryDirectory(prefix="vv4hc-remove-") as temp:
+                folder = Path(temp)
+                companion, _ = builder.build_resource_only_companion(builder.PARENT_DLL.read_bytes())
+                (folder / "VVFP Origins Icons.dll").write_bytes(companion)
+                patcher._remove_feature_bytes(candidate, feature, mode, output_folder=folder)
+                self.assertEqual(bytes(candidate), parent)
+                self.assertEqual(patcher.sha256(folder / "VVFP Origins Icons.dll"), builder.PARENT_DLL_SHA256)
+
+    def test_full_heal_dependency_identity_is_active_catalog_id(self):
+        manifest = json.loads(MANIFEST.read_text(encoding="utf-8"))
+        artifact_map = json.loads(MAP.read_text(encoding="utf-8"))
+        expected = ["vv4_enable_origins_exclusive_features", "vv4_full_mastery_all_stage_a_candidate"]
+        self.assertEqual(manifest["dependencies"], expected)
+        self.assertEqual(artifact_map["dependencies"], expected)
+
+    def test_generated_page_hash_failure_is_atomic_for_exe_and_companion(self):
+        import importlib.util
+        import sys
+        import tempfile
+        import vv_fun_patcher as patcher
+        spec = importlib.util.spec_from_file_location(
+            "vv4hc_builder_corrupt", ROOT / "scripts" / "build_vv4_full_heal_candidate.py"
+        )
+        builder = importlib.util.module_from_spec(spec)
+        assert spec.loader is not None
+        spec.loader.exec_module(builder)
+        feature_raw = json.loads(MANIFEST.read_text(encoding="utf-8"))
+        feature_raw["hook"]["page_sha256"] = "00" * 32
+        feature = patcher.FunPatch(feature_raw)
+        page, _ = builder.build_page()
+        candidate = bytearray(builder._patch_parent(builder._render_parents()["collection_progression"], page))
+        before_exe = bytes(candidate)
+        with tempfile.TemporaryDirectory(prefix="vv4hc-corrupt-") as temp:
+            folder = Path(temp)
+            companion, _ = builder.build_resource_only_companion(builder.PARENT_DLL.read_bytes())
+            (folder / "VVFP Origins Icons.dll").write_bytes(companion)
+            before_dll = (folder / "VVFP Origins Icons.dll").read_bytes()
+            with self.assertRaises(patcher.PatcherError):
+                patcher._remove_feature_bytes(candidate, feature, "collection_progression", output_folder=folder)
+            self.assertEqual(bytes(candidate), before_exe)
+            self.assertEqual((folder / "VVFP Origins Icons.dll").read_bytes(), before_dll)
 
     def test_emitted_parent_has_exact_hook_suffix_and_uninstall_identity(self):
         import importlib.util
@@ -299,7 +358,7 @@ class VV4FullHealCandidateTests(unittest.TestCase):
         self.assertEqual(candidate[builder.HOOK_RAW:builder.HOOK_RAW + 5], bytes.fromhex("E9EC792B00"))
         self.assertEqual(candidate[builder.HOOK_RAW + 5:builder.HOOK_RAW + 7], b"\x72\x4C")
         self.assertEqual(builder.sha(parent), "CEBF0BC813059A13131CF75E4ECE11C8CCEE460CC98FB16BD87B03F5C20DB86B")
-        self.assertEqual(builder.sha(candidate), "46DC12C0B5F7FC9FBB76E9B422BF223085EF54560F16BE897AD6C8A7CEF5BC95")
+        self.assertEqual(builder.sha(candidate), "0DD83962514449D8A0F513B5DDAF85277E2C3B1C39AB16CB2A266AB39C8D504C")
 
     def test_classifier_reloads_health_and_dependency_message_uses_stdcall(self):
         import importlib.util
