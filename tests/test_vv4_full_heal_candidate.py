@@ -129,6 +129,60 @@ class VV4FullHealCandidateTests(unittest.TestCase):
                 self.assertEqual(patcher.sha256(root / exe_name), patcher.VV4_FULL_HEAL_CANDIDATE_EXE_HASHES[mode])
                 self.assertEqual(patcher.sha256(root / "VVFP Origins Icons.dll"), feature.raw["companion_files"][0]["sha256"])
 
+    def test_replay_second_member_failure_retains_backups_for_successful_retry(self):
+        import tempfile
+        import hashlib
+        import vv_fun_patcher as patcher
+        with tempfile.TemporaryDirectory(prefix="vv4hc-replay-retry-") as temp:
+            root = Path(temp)
+            destination = root / "dest"
+            destination.mkdir()
+            (destination / "a.bin").write_bytes(b"old-a")
+            (destination / "b.bin").write_bytes(b"old-b")
+            recovery = root / ".recovery"
+            backup_dir = recovery / "backups"
+            backup_dir.mkdir(parents=True)
+            (backup_dir / "a.bin").write_bytes(b"new-a")
+            (backup_dir / "b.bin").write_bytes(b"new-b")
+            records = []
+            for name in ("a.bin", "b.bin"):
+                data = (backup_dir / name).read_bytes()
+                records.append({
+                    "relative_path": name,
+                    "original_path": str(destination / name),
+                    "sha256": hashlib.sha256(data).hexdigest().upper(),
+                    "size": len(data),
+                })
+            report = patcher._write_recovery_report(
+                recovery, "remove", records, backup_dir,
+                destination_root=destination,
+                destination_snapshot=patcher._capture_tree_snapshot(destination),
+                restored_snapshot={"exists": True, "entries": [
+                    {"relative_path": "a.bin", "type": "file", "size": 5, "sha256": hashlib.sha256(b"new-a").hexdigest().upper()},
+                    {"relative_path": "b.bin", "type": "file", "size": 5, "sha256": hashlib.sha256(b"new-b").hexdigest().upper()},
+                ]},
+            )
+            payload = json.loads(report.read_text(encoding="utf-8"))
+            payload["recovery_backup_root"] = str(backup_dir)
+            payload["recovery_backup_snapshot"] = patcher._capture_tree_snapshot(backup_dir)
+            report.write_text(json.dumps(payload), encoding="utf-8")
+            real_replace = patcher.os.replace
+            calls = {"count": 0}
+            def fail_second(source, destination_path):
+                calls["count"] += 1
+                if calls["count"] == 2:
+                    raise OSError("injected replay failure")
+                return real_replace(source, destination_path)
+            with mock_patch.object(patcher.os, "replace", side_effect=fail_second):
+                with self.assertRaises(Exception):
+                    patcher.recover_vv4_transaction(recovery)
+            payload_after = json.loads(report.read_text(encoding="utf-8"))
+            self.assertEqual(len(payload_after["members"]), 2)
+            self.assertTrue(all(Path(item["backup_path"]).is_file() for item in payload_after["members"]))
+            patcher.recover_vv4_transaction(recovery)
+            self.assertEqual((destination / "a.bin").read_bytes(), b"new-a")
+            self.assertEqual((destination / "b.bin").read_bytes(), b"new-b")
+
     def test_complete_parent_chain_and_overlay_owner_preimage_gate(self):
         import importlib.util
         import vv_fun_patcher as patcher

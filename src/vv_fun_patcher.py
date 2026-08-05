@@ -2817,41 +2817,50 @@ def recover_vv4_transaction(recovery_dir: Path) -> None:
         if original_size != backup.stat().st_size:
             raise PatcherError("Recovery original/backup size accounting is inconsistent.")
         actions.append((destination, backup, expected, backup.stat().st_size))
-    # All preflight checks complete before consuming a backup or mutating a
-    # destination.  A replacement failure retains the untouched backups for a
-    # later replay and is reported as unresolved.
-    unresolved: list[dict[str, Any]] = []
-    replaced: list[tuple[Path, Path, str]] = []
-    for destination, backup, expected, _size in actions:
-        try:
+    # Keep every original backup untouched while replaying from verified
+    # same-volume copies.  A partial or final-verification failure can then
+    # refresh the report and be retried transaction-wide.
+    replay_stage = root / f".replay-stage-{uuid.uuid4().hex}"
+    replay_files: list[tuple[Path, Path, str, int]] = []
+    try:
+        replay_stage.mkdir()
+        for index, (destination, backup, expected, size) in enumerate(actions):
+            staged = replay_stage / f"member-{index:04d}.bin"
+            shutil.copy2(backup, staged)
+            if sha256(staged) != expected or staged.stat().st_size != size:
+                raise PatcherError("Replay staging verification failed.")
+            replay_files.append((destination, staged, expected, size))
+        for destination, staged, expected, _size in replay_files:
             destination.parent.mkdir(parents=True, exist_ok=True)
-            os.replace(backup, destination)
+            os.replace(staged, destination)
             if not destination.is_file() or sha256(destination) != expected:
                 raise PatcherError("Recovered destination failed verification.")
-            replaced.append((destination, backup, expected))
-        except Exception as exc:
-            unresolved.append(
-                {
-                    "original_path": str(destination),
-                    "original_sha256": expected,
-                    "original_size": _size,
-                    "backup_path": str(backup),
-                    "backup_sha256": sha256(backup) if backup.is_file() else None,
-                    "backup_size": backup.stat().st_size if backup.is_file() else _size,
-                    "relative_path": next((item.get("relative_path") for item in members if str(item.get("original_path")) == str(destination)), ""),
-                    "error": str(exc),
-                }
-            )
-    if unresolved:
-        # Do not delete the report or any surviving backup.  The caller can
-        # repair the fault and invoke this function again.
+        if destination_root and isinstance(restored_snapshot, dict):
+            if not _tree_snapshot_matches(Path(destination_root), restored_snapshot):
+                raise PatcherError("Recovered destination is not an exact complete tree.")
+    except Exception as exc:
         if destination_root:
             payload["destination_snapshot"] = _capture_tree_snapshot(Path(destination_root))
-        report.write_text(
-            json.dumps({**payload, "members": unresolved}, indent=2) + "\n",
-            encoding="utf-8",
-        )
-        raise PatcherError(f"Recovery remains unresolved at {root}")
+        if recovery_backup_root:
+            payload["recovery_backup_snapshot"] = _capture_tree_snapshot(Path(recovery_backup_root))
+        payload["members"] = members
+        payload["last_error"] = str(exc)
+        try:
+            shutil.rmtree(replay_stage)
+        except OSError:
+            payload["replay_stage_root"] = str(replay_stage)
+        report.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
+        raise PatcherError(f"Recovery remains unresolved at {root}") from exc
+    else:
+        # Only after complete tree verification may original backups/evidence
+        # be consumed.
+        if recovery_backup_root:
+            backup_root = Path(recovery_backup_root)
+            for path in sorted(backup_root.rglob("*"), key=lambda p: len(p.parts), reverse=True):
+                if path.is_file() or path.is_symlink():
+                    path.unlink()
+        if replay_stage.exists():
+            shutil.rmtree(replay_stage)
     if destination_root and isinstance(restored_snapshot, dict):
         if not _tree_snapshot_matches(Path(destination_root), restored_snapshot):
             raise PatcherError("Recovered destination is not an exact complete tree.")
