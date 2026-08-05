@@ -25,6 +25,63 @@ MAP = ROOT / "data/candidates/vv4_full_heal_cure_all_candidate_map.json"
 
 
 class VV4FullHealCandidateTests(unittest.TestCase):
+    def test_final_companion_verification_uses_full_relative_path_and_last_writer(self):
+        import tempfile
+        import hashlib
+        import vv_fun_patcher as patcher
+        with tempfile.TemporaryDirectory(prefix="vv4hc-companion-final-") as temp:
+            root = Path(temp)
+            (root / "a").mkdir()
+            (root / "b").mkdir()
+            (root / "a" / "same.dll").write_bytes(b"final-a")
+            (root / "b" / "same.dll").write_bytes(b"final-b")
+            records = [
+                {"path": str(root / "a" / "same.dll"), "sha256": hashlib.sha256(b"old-a").hexdigest()},
+                {"path": str(root / "a" / "same.dll"), "sha256": hashlib.sha256(b"final-a").hexdigest()},
+                {"path": str(root / "b" / "same.dll"), "sha256": hashlib.sha256(b"final-b").hexdigest()},
+            ]
+            patcher._verify_final_companion_records(root, records)
+
+    def test_final_companion_verification_rejects_stale_last_writer(self):
+        import tempfile
+        import hashlib
+        import vv_fun_patcher as patcher
+        with tempfile.TemporaryDirectory(prefix="vv4hc-companion-stale-") as temp:
+            root = Path(temp)
+            (root / "same.dll").write_bytes(b"candidate")
+            records = [
+                {"path": str(root / "same.dll"), "sha256": hashlib.sha256(b"candidate").hexdigest()},
+                {"path": str(root / "same.dll"), "sha256": hashlib.sha256(b"parent").hexdigest()},
+            ]
+            with self.assertRaises(Exception):
+                patcher._verify_final_companion_records(root, records)
+
+    def test_recovery_report_replays_verified_backup_and_cleans_material(self):
+        import tempfile
+        import hashlib
+        import vv_fun_patcher as patcher
+        with tempfile.TemporaryDirectory(prefix="vv4hc-recovery-") as temp:
+            root = Path(temp)
+            destination = root / "game.exe"
+            destination.write_bytes(b"original")
+            backup = root / "backup.exe"
+            backup.write_bytes(b"original")
+            destination.unlink()
+            recovery = root / ".recovery"
+            records = [{
+                "relative_path": "game.exe",
+                "original_path": str(destination),
+                "sha256": hashlib.sha256(b"original").hexdigest().upper(),
+                "size": len(b"original"),
+            }]
+            report = patcher._write_recovery_report(recovery, "install", records, root)
+            payload = json.loads(report.read_text(encoding="utf-8"))
+            payload["members"][0]["backup_path"] = str(backup)
+            report.write_text(json.dumps(payload), encoding="utf-8")
+            patcher.recover_vv4_transaction(recovery)
+            self.assertEqual(destination.read_bytes(), b"original")
+            self.assertFalse(recovery.exists())
+
     def test_complete_parent_chain_and_overlay_owner_preimage_gate(self):
         import importlib.util
         import vv_fun_patcher as patcher

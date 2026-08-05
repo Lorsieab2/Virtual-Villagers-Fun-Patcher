@@ -2654,6 +2654,7 @@ def publish_vv4_full_heal_removal(
     backup_exe = stage / f"{executable_name}.backup"
     backup_dll = stage / f"{dll.name}.backup"
     replaced: list[tuple[Path, Path]] = []
+    unresolved: list[dict[str, Any]] = []
     try:
         staged_exe.write_bytes(work)
         shutil.copy2(restore_source, staged_dll)
@@ -2680,12 +2681,84 @@ def publish_vv4_full_heal_removal(
         if (dll, backup_dll) not in replaced and backup_dll.is_file() and sha256(dll) == restore_hash:
             replaced.append((dll, backup_dll))
         for destination, backup in reversed(replaced):
-            if backup.is_file() and sha256(backup) == (candidate_exe_hash if destination == exe else candidate_dll_hash):
+            expected = candidate_exe_hash if destination == exe else candidate_dll_hash
+            try:
+                if not backup.is_file() or sha256(backup) != expected:
+                    raise PatcherError(f"Removal backup verification failed: {backup}")
                 os.replace(backup, destination)
+                if not destination.is_file() or sha256(destination) != expected:
+                    raise PatcherError(f"Removal restore verification failed: {destination}")
+            except Exception as restore_error:
+                unresolved.append(
+                    {
+                        "original_path": str(destination),
+                        "original_sha256": expected,
+                        "original_size": destination.stat().st_size if destination.is_file() else None,
+                        "backup_path": str(backup),
+                        "backup_sha256": sha256(backup) if backup.is_file() else None,
+                        "backup_size": backup.stat().st_size if backup.is_file() else None,
+                        "error": str(restore_error),
+                    }
+                )
+        if unresolved:
+            recovery_dir = parent / f".{root.name}.remove-recovery-{uuid.uuid4().hex}"
+            if os.path.lexists(recovery_dir):
+                raise PatcherError("VV4 Full Heal removal recovery destination collision.")
+            recovery_dir.mkdir()
+            retained = recovery_dir / "backups"
+            retained.mkdir()
+            report = recovery_dir / "recovery-report.json"
+            report.write_text(
+                json.dumps({"operation": "remove", "members": unresolved}, indent=2) + "\n",
+                encoding="utf-8",
+            )
+            for item in unresolved:
+                backup = Path(item["backup_path"])
+                if backup.is_file():
+                    os.replace(backup, retained / backup.name)
+                    item["backup_path"] = str(retained / backup.name)
+            report.write_text(
+                json.dumps({"operation": "remove", "members": unresolved}, indent=2) + "\n",
+                encoding="utf-8",
+            )
+            raise PatcherError(f"VV4 Full Heal removal recovery is unresolved; evidence retained at {recovery_dir}")
         raise
     finally:
-        if stage.exists():
+        if stage.exists() and not unresolved:
             shutil.rmtree(stage, ignore_errors=True)
+
+
+def recover_vv4_transaction(recovery_dir: Path) -> None:
+    """Replay a retained destination-local recovery report safely."""
+    root = Path(recovery_dir).resolve()
+    report = root / "recovery-report.json"
+    if not report.is_file():
+        raise PatcherError("Recovery report is missing.")
+    payload = json.loads(report.read_text(encoding="utf-8"))
+    members = payload.get("members")
+    if not isinstance(members, list) or not members:
+        raise PatcherError("Recovery report has no recoverable members.")
+    unresolved: list[dict[str, Any]] = []
+    for item in members:
+        destination = Path(str(item.get("original_path", "")))
+        backup = Path(str(item.get("backup_path", "")))
+        expected = str(item.get("original_sha256") or "").upper()
+        try:
+            if not backup.is_file() or not expected or sha256(backup) != expected:
+                raise PatcherError("Recovery backup is missing or corrupt.")
+            destination.parent.mkdir(parents=True, exist_ok=True)
+            os.replace(backup, destination)
+            if not destination.is_file() or sha256(destination) != expected:
+                raise PatcherError("Recovered destination failed verification.")
+        except Exception as exc:
+            unresolved.append({**item, "error": str(exc)})
+    if unresolved:
+        report.write_text(
+            json.dumps({"operation": payload.get("operation"), "members": unresolved}, indent=2) + "\n",
+            encoding="utf-8",
+        )
+        raise PatcherError(f"Recovery remains unresolved at {root}")
+    shutil.rmtree(root)
 
 
 def _fun_patch_support(
@@ -3817,6 +3890,120 @@ def _copy_companion_files(
     return copied
 
 
+def _companion_relative_destination(path: Path, output_folder: Path) -> tuple[Path, str]:
+    """Return a normalized full relative destination and its comparison key.
+
+    Companion records may be absolute while a tree is staged.  Verification
+    must retain directory identity (``a/X.dll`` and ``b/X.dll`` are distinct)
+    and only collapse repeated writes to the same normalized destination.
+    """
+    root = Path(output_folder).resolve()
+    candidate = Path(path)
+    try:
+        relative = Path(os.path.relpath(str(candidate), str(root)))
+    except (OSError, ValueError) as exc:
+        raise PatcherError(f"Companion destination cannot be normalized: {path}") from exc
+    if relative.is_absolute() or ".." in relative.parts:
+        raise PatcherError(f"Companion destination escapes output folder: {path}")
+    normalized = Path(*[part for part in relative.parts if part not in ("", ".")])
+    if not normalized.parts:
+        raise PatcherError(f"Companion destination is empty: {path}")
+    return normalized, normalized.as_posix().casefold()
+
+
+def _verify_final_companion_records(
+    output_folder: Path, records: list[dict[str, str]]
+) -> None:
+    """Verify only the final writer for each complete relative destination.
+
+    Intermediate records are still validated while staging.  At publication,
+    repeated records for one destination are intentionally reduced to the last
+    writer; records in different directories remain independent.
+    """
+    final: dict[str, tuple[Path, dict[str, str]]] = {}
+    for item in records:
+        relative, key = _companion_relative_destination(Path(item["path"]), output_folder)
+        final[key] = (relative, item)
+    for relative, item in final.values():
+        destination = Path(output_folder) / relative
+        expected = str(item["sha256"]).upper()
+        if not destination.is_file() or sha256(destination) != expected:
+            raise PatcherError(
+                f"Post-publish companion verification failed: {relative.as_posix()}"
+            )
+        if "size" in item and destination.stat().st_size != int(item["size"]):
+            raise PatcherError(
+                f"Post-publish companion size verification failed: {relative.as_posix()}"
+            )
+
+
+def _capture_tree_records(root: Path) -> list[dict[str, Any]]:
+    if not root.is_dir():
+        return []
+    records: list[dict[str, Any]] = []
+    for path in sorted(root.rglob("*")):
+        if not path.is_file():
+            continue
+        rel = path.relative_to(root).as_posix()
+        records.append(
+            {
+                "relative_path": rel,
+                "original_path": str(root / rel),
+                "sha256": sha256(path),
+                "size": path.stat().st_size,
+            }
+        )
+    return records
+
+
+def _tree_records_match(root: Path, records: list[dict[str, Any]]) -> bool:
+    if not root.is_dir():
+        return not records
+    expected = {str(item["relative_path"]): item for item in records}
+    actual = {
+        path.relative_to(root).as_posix(): path
+        for path in root.rglob("*")
+        if path.is_file()
+    }
+    if set(actual) != set(expected):
+        return False
+    return all(
+        sha256(path) == str(expected[rel]["sha256"]).upper()
+        and path.stat().st_size == int(expected[rel]["size"])
+        for rel, path in actual.items()
+    )
+
+
+def _write_recovery_report(
+    recovery_dir: Path,
+    operation: str,
+    records: list[dict[str, Any]],
+    backup_root: Path | None,
+) -> Path:
+    recovery_dir.mkdir(parents=True, exist_ok=True)
+    members: list[dict[str, Any]] = []
+    for item in records:
+        rel = str(item["relative_path"])
+        backup_path = (backup_root / rel) if backup_root is not None else None
+        members.append(
+            {
+                "original_path": item.get("original_path"),
+                "original_sha256": item.get("sha256"),
+                "original_size": item.get("size"),
+                "backup_path": str(backup_path) if backup_path is not None else None,
+                "backup_sha256": sha256(backup_path) if backup_path and backup_path.is_file() else None,
+                "backup_size": backup_path.stat().st_size if backup_path and backup_path.is_file() else None,
+                "relative_path": rel,
+            }
+        )
+    report = recovery_dir / "recovery-report.json"
+    report.write_text(
+        json.dumps({"operation": operation, "members": members}, indent=2) + "\n",
+        encoding="utf-8",
+    )
+    return report
+
+
 def _companion_hash_matches(path: Path, expected_hash: str) -> bool:
     return path.is_file() and sha256(path) == expected_hash.upper()
 
@@ -4124,12 +4311,15 @@ def apply_patch(
     log_path = staged_output.with_suffix(".patch-log.json")
     backup_folder: Path | None = None
     published = False
+    original_records: list[dict[str, Any]] = []
+    recovery_dir: Path | None = None
     try:
         companions = _copy_companion_files(staging_folder, fun_patches)
-        companions = [
-            {**item, "path": str(output_folder / Path(item["path"]).name)}
-            for item in companions
-        ]
+        converted: list[dict[str, str]] = []
+        for item in companions:
+            relative, _ = _companion_relative_destination(Path(item["path"]), staging_folder)
+            converted.append({**item, "path": str(output_folder / relative)})
+        companions = converted
         with staged_output.open("wb") as handle:
             handle.write(patched)
             handle.flush()
@@ -4173,6 +4363,7 @@ def apply_patch(
                 raise PatcherError(f"Modified game folder appeared before publish: {output_folder}")
             # Preserve user-created files in an overwrite transaction while
             # still replacing the certified EXE/DLL pair as one tree.
+            original_records = _capture_tree_records(output_folder)
             for prior in output_folder.rglob("*"):
                 if not prior.is_file():
                     continue
@@ -4192,39 +4383,72 @@ def apply_patch(
         published = True
         output = output_folder / output_name
         log_path = output.with_suffix(".patch-log.json")
+        # The log is rendered before publication while the tree still has its
+        # staging name.  Normalize the emitted output identity after the
+        # atomic rename so consumers never observe a transient staging path.
+        if log_path.is_file():
+            published_log = json.loads(log_path.read_text(encoding="utf-8"))
+            published_log["output_path"] = str(output)
+            log_path.write_text(
+                json.dumps(published_log, indent=2, ensure_ascii=False) + "\n",
+                encoding="utf-8",
+            )
         if not output.is_file() or sha256(output) != expected_hash:
             raise PatcherError("Post-publish executable verification failed")
-        for item in companions:
-            destination = Path(item["path"])
-            published_destination = output_folder / destination.name
-            if sha256(published_destination) != item["sha256"]:
-                raise PatcherError("Post-publish companion verification failed")
+        _verify_final_companion_records(output_folder, companions)
         if backup_folder is not None:
+            if not _tree_records_match(backup_folder, original_records):
+                raise PatcherError("Install backup verification failed before cleanup")
             shutil.rmtree(backup_folder)
             backup_folder = None
     except Exception:
+        restore_ok = True
+        failed_publish: Path | None = None
         if published and output_folder.exists():
             failed_publish = output_parent / f".{output_folder.name}.failed-{uuid.uuid4().hex}"
             try:
                 os.rename(output_folder, failed_publish)
-                shutil.rmtree(failed_publish)
+                if failed_publish.exists():
+                    # Keep the failed publication available until the prior
+                    # tree is proven restored; it becomes recovery evidence if
+                    # restoration cannot be completed.
+                    pass
             except OSError:
-                pass
+                restore_ok = False
         elif staging_folder.exists():
-            shutil.rmtree(staging_folder, ignore_errors=True)
+            try:
+                shutil.rmtree(staging_folder)
+            except OSError:
+                restore_ok = False
         if backup_folder is not None and backup_folder.exists() and not output_folder.exists():
-            os.rename(backup_folder, output_folder)
+            try:
+                os.rename(backup_folder, output_folder)
+                if not _tree_records_match(output_folder, original_records):
+                    restore_ok = False
+                else:
+                    shutil.rmtree(output_folder.parent / backup_folder.name, ignore_errors=True)
+                    backup_folder = None
+            except OSError:
+                restore_ok = False
+        if not restore_ok or (backup_folder is not None and backup_folder.exists()):
+            recovery_dir = output_parent / f".{output_folder.name}.recovery-{uuid.uuid4().hex}"
+            if os.path.lexists(recovery_dir):
+                raise PatcherError("Recovery destination collision; original evidence retained")
+            recovery_dir.mkdir()
+            retained_backup = recovery_dir / "backup"
+            if backup_folder is not None and backup_folder.exists():
+                os.rename(backup_folder, retained_backup)
+                backup_folder = None
+            if failed_publish is not None and failed_publish.exists():
+                os.rename(failed_publish, recovery_dir / "failed-publication")
+            _write_recovery_report(recovery_dir, "install", original_records, retained_backup if retained_backup.exists() else None)
+            raise PatcherError(f"Install recovery is unresolved; evidence retained at {recovery_dir}")
+        if failed_publish is not None and failed_publish.exists():
+            shutil.rmtree(failed_publish)
         raise
     finally:
         if staging_folder.exists():
             shutil.rmtree(staging_folder, ignore_errors=True)
-        if backup_folder is not None and backup_folder.exists():
-            # A successful path clears the backup above; on a failed path the
-            # restore branch owns it.  Never leave a sibling residue.
-            try:
-                shutil.rmtree(backup_folder)
-            except OSError:
-                pass
     return output, log_path
 
 
@@ -4277,81 +4501,25 @@ def apply_all(
             "Bulk modified game folder already exists; no files were written:\n"
             + "\n".join(str(path) for path in existing)
         )
+    # All paths are preflighted above before any write.  Delegate each actual
+    # publication to the same destination-local atomic transaction used by a
+    # single patch; this prevents the bulk path from bypassing companion and
+    # recovery verification.
     results: list[tuple[Path, Path]] = []
-    completed_outputs: list[tuple[Path, bool, Path, Path]] = []
-    for build, source, patched, applied, output_folder, output in plans:
-        output_folder_existed = output_folder.exists()
-        _copy_game_folder_direct(source.parent, output_folder, overwrite, output_root)
-        companions: list[dict[str, str]] = _copy_companion_files(
-            output_folder, selected_by_game.get(build.id, [])
-        )
-        with output.open("wb") as handle:
-            handle.write(patched)
-            handle.flush()
-            os.fsync(handle.fileno())
-        if output.stat().st_size != source.stat().st_size:
-            raise PatcherError(f"Bulk verification failed: {build.title} size changed")
-        output_hash = sha256(output)
-        expected_hash = hashlib.sha256(patched).hexdigest().upper()
-        if output_hash != expected_hash:
-            raise PatcherError(f"Bulk verification failed: {build.title} hash mismatch")
-        log_path = output.with_suffix(".patch-log.json")
-        log_data = _log_data(
-            build,
-            source,
-            output,
-            patch_mode,
-            output_hash,
-            applied,
-            selected_by_game.get(build.id, []),
-        )
-        log_data["companion_files"] = companions
-        save_copy: dict[str, Any] | None = None
-        if copy_saves:
-            save_copy = copy_vanilla_saves(
-                build,
-                patch_mode,
-                replace_existing=replace_modded_saves,
+    for build, source, _patched, _applied, _output_folder, _output in plans:
+        selected_ids = [patch.id for patch in selected_by_game.get(build.id, [])]
+        results.append(
+            apply_patch(
+                source,
+                patch_mode=patch_mode,
+                overwrite=overwrite,
+                fun_patch_ids=selected_ids,
+                output_root=output_root,
+                copy_saves=copy_saves,
+                replace_modded_saves=replace_modded_saves,
                 save_root=save_root,
             )
-        try:
-            write_transparency_artifacts(
-                base_log=log_data,
-                source=source,
-                output=output,
-                source_folder=source.parent,
-                output_folder=output_folder,
-                fun_patches=selected_by_game.get(build.id, []),
-                companions=companions,
-                applied=applied,
-                save_copy=save_copy,
-                root=ROOT,
-                json_path=log_path,
-            )
-        except Exception:
-            if companions:
-                try:
-                    _remove_companion_files(
-                        output_folder, selected_by_game.get(build.id, [])
-                    )
-                except Exception:
-                    pass
-            if not output_folder_existed:
-                shutil.rmtree(output_folder, ignore_errors=True)
-            else:
-                output.unlink(missing_ok=True)
-                log_path.unlink(missing_ok=True)
-                (output.parent / "VVFP Transparency Log.txt").unlink(missing_ok=True)
-            for completed_folder, completed_existed, completed_output, completed_log in completed_outputs:
-                if not completed_existed:
-                    shutil.rmtree(completed_folder, ignore_errors=True)
-                else:
-                    completed_output.unlink(missing_ok=True)
-                    completed_log.unlink(missing_ok=True)
-                    (completed_folder / "VVFP Transparency Log.txt").unlink(missing_ok=True)
-            raise
-        completed_outputs.append((output_folder, output_folder_existed, output, log_path))
-        results.append((output, log_path))
+        )
     return results
 
 
