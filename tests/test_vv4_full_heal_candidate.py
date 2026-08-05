@@ -82,6 +82,8 @@ class VV4FullHealCandidateTests(unittest.TestCase):
             payload["recovery_backup_root"] = str(backup_dir)
             payload["recovery_backup_snapshot"] = patcher._capture_tree_snapshot(backup_dir)
             payload["destination_precondition"] = {"exists": False, "entries": []}
+            payload["initial_precondition"] = payload["destination_precondition"]
+            payload["replay_guard"] = {"exists": False, "entries": []}
             report.write_text(json.dumps(payload), encoding="utf-8")
             patcher.recover_vv4_transaction(recovery)
             self.assertEqual(destination.read_bytes(), b"original")
@@ -194,6 +196,83 @@ class VV4FullHealCandidateTests(unittest.TestCase):
             root = Path(temp)
             fake = SimpleNamespace(st_mode=stat.S_IFDIR | 0o755, st_file_attributes=0x400)
             with mock_patch.object(patcher.os, "lstat", return_value=fake):
+                with self.assertRaises(Exception):
+                    patcher._capture_tree_snapshot(root)
+
+    def test_install_new_recovery_rejects_foreign_destination_before_any_write(self):
+        import hashlib
+        import tempfile
+        import vv_fun_patcher as patcher
+        with tempfile.TemporaryDirectory(prefix="vv4hc-install-new-race-") as temp:
+            root = Path(temp)
+            destination = root / "new-game"
+            recovery = root / ".recovery"
+            backup_dir = recovery / "backups"
+            backup_dir.mkdir(parents=True)
+            backup = backup_dir / "game.exe"
+            backup.write_bytes(b"original")
+            digest = hashlib.sha256(b"original").hexdigest().upper()
+            record = [{
+                "relative_path": "game.exe",
+                "original_path": str(destination / "game.exe"),
+                "sha256": digest,
+                "size": 8,
+            }]
+            absent = {"exists": False, "entries": []}
+            restored = {"exists": True, "entries": [{
+                "relative_path": "game.exe", "type": "file", "size": 8, "sha256": digest,
+            }]}
+            report = patcher._write_recovery_report(
+                recovery, "install", record, backup_dir,
+                destination_root=destination,
+                destination_snapshot=absent,
+                restored_snapshot=restored,
+                destination_precondition=absent,
+            )
+            payload = json.loads(report.read_text(encoding="utf-8"))
+            payload["recovery_backup_root"] = str(backup_dir)
+            payload["recovery_backup_snapshot"] = patcher._capture_tree_snapshot(backup_dir)
+            payload["replay_guard"] = absent
+            payload["initial_precondition"] = absent
+            report.write_text(json.dumps(payload), encoding="utf-8")
+            destination.mkdir()
+            (destination / "foreign.bin").write_bytes(b"foreign")
+            report_before = report.read_bytes()
+            backup_before = backup.read_bytes()
+            with self.assertRaises(Exception):
+                patcher.recover_vv4_transaction(recovery)
+            self.assertEqual(report.read_bytes(), report_before)
+            self.assertEqual(backup.read_bytes(), backup_before)
+            self.assertEqual((destination / "foreign.bin").read_bytes(), b"foreign")
+            for item in destination.iterdir():
+                item.unlink()
+            destination.rmdir()
+            patcher.recover_vv4_transaction(recovery)
+            self.assertEqual((destination / "game.exe").read_bytes(), b"original")
+
+    def test_snapshot_rejects_reparse_descendant_before_hash(self):
+        import stat
+        import tempfile
+        from types import SimpleNamespace
+        import vv_fun_patcher as patcher
+        with tempfile.TemporaryDirectory(prefix="vv4hc-reparse-descendant-") as temp:
+            root = Path(temp)
+            child = root / "child"
+            child.mkdir()
+            (child / "data.bin").write_bytes(b"x")
+            real_lstat = patcher.os.lstat
+            def fake_lstat(path):
+                info = real_lstat(path)
+                if Path(path) == child:
+                    return SimpleNamespace(
+                        st_mode=stat.S_IFDIR | 0o755,
+                        st_file_attributes=0x400,
+                        st_dev=info.st_dev,
+                        st_ino=info.st_ino,
+                        st_size=info.st_size,
+                    )
+                return info
+            with mock_patch.object(patcher.os, "lstat", side_effect=fake_lstat):
                 with self.assertRaises(Exception):
                     patcher._capture_tree_snapshot(root)
 
