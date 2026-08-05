@@ -2,6 +2,7 @@ import json
 import struct
 import sys
 import unittest
+from unittest.mock import patch as mock_patch
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -24,6 +25,103 @@ MAP = ROOT / "data/candidates/vv4_full_heal_cure_all_candidate_map.json"
 
 
 class VV4FullHealCandidateTests(unittest.TestCase):
+    def test_complete_parent_chain_and_overlay_owner_preimage_gate(self):
+        import importlib.util
+        import vv_fun_patcher as patcher
+        spec = importlib.util.spec_from_file_location("vv4hc_builder_overlay", ROOT / "scripts" / "build_vv4_full_heal_candidate.py")
+        builder = importlib.util.module_from_spec(spec)
+        assert spec.loader is not None
+        spec.loader.exec_module(builder)
+        feature = patcher.FunPatch(json.loads(MANIFEST.read_text(encoding="utf-8")))
+        parent = builder._render_parents()["collection_progression"]
+        self.assertTrue(patcher._vv4_full_heal_overlay_allowed(
+            feature=feature,
+            current_owner="feature:vv4_full_heal_cure_all_candidate",
+            prior_owner="feature:vv4_enable_origins_exclusive_features",
+            prior_start=0x8960F,
+            prior_end=0x89614,
+            patch_mode="collection_progression",
+            offset=0x8960F,
+            before=bytes.fromhex("E941FEFFFF"),
+            composed_sha256=__import__("hashlib").sha256(parent).hexdigest().upper(),
+        ))
+        for kwargs in (
+            {"current_owner": "feature:wrong"},
+            {"prior_owner": "feature:wrong"},
+            {"patch_mode": "experimental_expanded_256"},
+            {"before": b"\x00" * 5},
+        ):
+            args = {
+                "feature": feature,
+                "current_owner": "feature:vv4_full_heal_cure_all_candidate",
+                "prior_owner": "feature:vv4_enable_origins_exclusive_features",
+                "prior_start": 0x8960F,
+                "prior_end": 0x89614,
+                "patch_mode": "collection_progression",
+                "offset": 0x8960F,
+                "before": bytes.fromhex("E941FEFFFF"),
+                "composed_sha256": __import__("hashlib").sha256(parent).hexdigest().upper(),
+            }
+            args.update(kwargs)
+            self.assertFalse(patcher._vv4_full_heal_overlay_allowed(**args))
+
+    def test_atomic_combined_removal_restores_exact_parent_exe_and_dll(self):
+        import importlib.util
+        import tempfile
+        import vv_fun_patcher as patcher
+        spec = importlib.util.spec_from_file_location("vv4hc_builder_remove", ROOT / "scripts" / "build_vv4_full_heal_candidate.py")
+        builder = importlib.util.module_from_spec(spec)
+        assert spec.loader is not None
+        spec.loader.exec_module(builder)
+        feature = patcher.FunPatch(json.loads(MANIFEST.read_text(encoding="utf-8")))
+        page, _ = builder.build_page()
+        companion, _ = builder.build_resource_only_companion(builder.PARENT_DLL.read_bytes())
+        for mode in ("collection_progression", "immediate_fixed"):
+            with tempfile.TemporaryDirectory(prefix="vv4hc-publish-remove-") as temp:
+                root = Path(temp)
+                exe_name = "Virtual Villagers - The Tree of Life - Modded.exe"
+                parent = builder._render_parents()[mode]
+                candidate = builder._patch_parent(parent, page)
+                (root / exe_name).write_bytes(candidate)
+                (root / "VVFP Origins Icons.dll").write_bytes(companion)
+                patcher.publish_vv4_full_heal_removal(root, exe_name, feature, mode)
+                self.assertEqual(patcher.sha256(root / exe_name), builder.PARENT_HASHES[mode])
+                self.assertEqual(patcher.sha256(root / "VVFP Origins Icons.dll"), builder.PARENT_DLL_SHA256)
+                self.assertEqual(list(root.glob(".*stage-*")), [])
+
+    def test_atomic_combined_removal_second_replace_failure_restores_both(self):
+        import importlib.util
+        import tempfile
+        import vv_fun_patcher as patcher
+        spec = importlib.util.spec_from_file_location("vv4hc_builder_remove_fail", ROOT / "scripts" / "build_vv4_full_heal_candidate.py")
+        builder = importlib.util.module_from_spec(spec)
+        assert spec.loader is not None
+        spec.loader.exec_module(builder)
+        feature = patcher.FunPatch(json.loads(MANIFEST.read_text(encoding="utf-8")))
+        page, _ = builder.build_page()
+        companion, _ = builder.build_resource_only_companion(builder.PARENT_DLL.read_bytes())
+        with tempfile.TemporaryDirectory(prefix="vv4hc-publish-remove-fail-") as temp:
+            root = Path(temp)
+            exe_name = "Virtual Villagers - The Tree of Life - Modded.exe"
+            parent = builder._render_parents()["immediate_fixed"]
+            (root / exe_name).write_bytes(builder._patch_parent(parent, page))
+            (root / "VVFP Origins Icons.dll").write_bytes(companion)
+            before_exe = (root / exe_name).read_bytes()
+            before_dll = (root / "VVFP Origins Icons.dll").read_bytes()
+            real_replace = patcher.os.replace
+            state = {"replaces": 0, "failed": False}
+            def fail_second(source, destination):
+                state["replaces"] += 1
+                if state["replaces"] == 2 and not state["failed"]:
+                    state["failed"] = True
+                    raise OSError("injected second replace failure")
+                return real_replace(source, destination)
+            with mock_patch.object(patcher.os, "replace", side_effect=fail_second):
+                with self.assertRaises(Exception):
+                    patcher.publish_vv4_full_heal_removal(root, exe_name, feature, "immediate_fixed")
+            self.assertEqual((root / exe_name).read_bytes(), before_exe)
+            self.assertEqual((root / "VVFP Origins Icons.dll").read_bytes(), before_dll)
+            self.assertEqual(list(root.parent.glob(f".{root.name}.remove-stage-*")), [])
     def test_candidate_is_disabled_and_stock_only(self):
         manifest = json.loads(MANIFEST.read_text(encoding="utf-8"))
         artifact_map = json.loads(MAP.read_text(encoding="utf-8"))
@@ -311,7 +409,12 @@ class VV4FullHealCandidateTests(unittest.TestCase):
     def test_full_heal_dependency_identity_is_active_catalog_id(self):
         manifest = json.loads(MANIFEST.read_text(encoding="utf-8"))
         artifact_map = json.loads(MAP.read_text(encoding="utf-8"))
-        expected = ["vv4_enable_origins_exclusive_features", "vv4_full_mastery_all_stage_a_candidate"]
+        expected = [
+            "vv4_complete_scales_golden_fish",
+            "vv4_enable_origins_exclusive_features",
+            "vv4_full_mastery_all_stage_a_candidate",
+            "vv4_write_village_statistics",
+        ]
         self.assertEqual(manifest["dependencies"], expected)
         self.assertEqual(artifact_map["dependencies"], expected)
 

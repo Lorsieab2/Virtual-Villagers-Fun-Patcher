@@ -8,6 +8,7 @@ import os
 import shutil
 import struct
 import tempfile
+import uuid
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
@@ -509,8 +510,14 @@ VV4_FULL_HEAL_PARENT_PAGE_SHA256 = "FD72C661B533117BF38D69E7EB855250A93927C831C2
 VV4_FULL_HEAL_PARENT_DLL_SHA256 = "4E1A83683A875EFE6F67116CDD862927BE1ABCB17DB7AE18143E58E98EAD01E7"
 VV4_FULL_HEAL_PARENT_COLLECTION_SHA256 = "CEBF0BC813059A13131CF75E4ECE11C8CCEE460CC98FB16BD87B03F5C20DB86B"
 VV4_FULL_HEAL_PARENT_IMMEDIATE_SHA256 = "6070D3244567815E8880168AEDCB9FF0E43F6720095AE67628089D492DA40133"
-VV4_FULL_HEAL_MANIFEST_SHA256 = "E1E9BCBA9154EBED43C4373A59EAD518B99D30BF3CE7BED7F4396CE676AAEDC5"
-VV4_FULL_HEAL_MAP_SHA256 = "69A4F5380C56930E53B45BD7605FB36F0F4F0C1EDA7A9098349A7ABD0CDD9B7E"
+VV4_FULL_HEAL_PARENT_DEPENDENCIES = (
+    "vv4_complete_scales_golden_fish",
+    "vv4_enable_origins_exclusive_features",
+    "vv4_full_mastery_all_stage_a_candidate",
+    "vv4_write_village_statistics",
+)
+VV4_FULL_HEAL_MANIFEST_SHA256 = "C0383432B8A65398DB01A486184EF32FE73AE03B08FC16CBA718B24F6012B17B"
+VV4_FULL_HEAL_MAP_SHA256 = "B9333CE2564195909F3DB9C05AE041507AF499A3CC65DAADCA4F94F2D55D658D"
 VV4_FULL_HEAL_ENUMERATION = (
     "resolve every index 0..149 through ECX=0x50E568; push index; "
     "call 0x466040; ret 4; never walk a cached base"
@@ -1203,11 +1210,29 @@ def _certified_vv4_full_heal_record(
         raise PatcherError("VV4 Full Heal candidate must be explicitly catalog-visible when enabled.")
     if manifest.get("id") != VV4_FULL_HEAL_CANDIDATE_ID or artifact_map.get("candidate_id") != VV4_FULL_HEAL_CANDIDATE_ID:
         raise PatcherError("VV4 Full Heal candidate identity is invalid.")
-    expected_vv4_full_heal_dependencies = [active_base["id"], mastery_feature["id"]]
+    expected_vv4_full_heal_dependencies = list(VV4_FULL_HEAL_PARENT_DEPENDENCIES)
+    if active_base["id"] != expected_vv4_full_heal_dependencies[1] or mastery_feature["id"] != expected_vv4_full_heal_dependencies[2]:
+        raise PatcherError("VV4 Full Heal parent IDs are not the current loader identities.")
     if manifest.get("dependencies") != expected_vv4_full_heal_dependencies:
         raise PatcherError("VV4 Full Heal requires the current VV4 Full Mastery parent chain.")
     if artifact_map.get("dependencies") != expected_vv4_full_heal_dependencies:
         raise PatcherError("VV4 Full Heal map dependency identity is not current.")
+    parent_composition = manifest.get("parent_composition", {})
+    map_parent_composition = artifact_map.get("parent_composition", {})
+    expected_composition = {
+        "ids": expected_vv4_full_heal_dependencies,
+        "order": expected_vv4_full_heal_dependencies,
+        "collection_sha256": VV4_FULL_HEAL_PARENT_COLLECTION_SHA256,
+        "immediate_sha256": VV4_FULL_HEAL_PARENT_IMMEDIATE_SHA256,
+    }
+    if parent_composition != expected_composition or map_parent_composition != expected_composition:
+        raise PatcherError("VV4 Full Heal parent composition is not the current complete loader chain.")
+    expected_rendered_modes = {
+        "collection_progression": {"parent_sha256": VV4_FULL_HEAL_PARENT_COLLECTION_SHA256, "candidate_sha256": VV4_FULL_HEAL_CANDIDATE_EXE_HASHES["collection_progression"], "size": 942080},
+        "immediate_fixed": {"parent_sha256": VV4_FULL_HEAL_PARENT_IMMEDIATE_SHA256, "candidate_sha256": VV4_FULL_HEAL_CANDIDATE_EXE_HASHES["immediate_fixed"], "size": 942080},
+    }
+    if manifest.get("rendered_modes") != expected_rendered_modes or artifact_map.get("rendered_modes") != expected_rendered_modes:
+        raise PatcherError("VV4 Full Heal rendered parent/candidate identities are not pinned.")
     if manifest.get("supported_modes") != ["collection_progression", "immediate_fixed"] or set(manifest.get("rejected_modes", ())) != EXPANDED_PATCH_MODES:
         raise PatcherError("VV4 Full Heal mode gate is invalid.")
     if manifest.get("source", {}).get("stock_sha256") != VV4_FULL_HEAL_STOCK_SHA256 or artifact_map.get("source", {}).get("sha256") != VV4_FULL_HEAL_STOCK_SHA256:
@@ -2571,6 +2596,98 @@ def _remove_feature_with_dependency_guard(
     return _remove_feature_bytes(data, feature, patch_mode)
 
 
+VV4_FULL_HEAL_CANDIDATE_EXE_HASHES = {
+    "collection_progression": "0DD83962514449D8A0F513B5DDAF85277E2C3B1C39AB16CB2A266AB39C8D504C",
+    "immediate_fixed": "6448E049F2C5CFE51F536950D1ABFE6A767534F0FCE43C08511E1E1922881C3D",
+}
+
+
+def publish_vv4_full_heal_removal(
+    output_folder: Path,
+    executable_name: str,
+    feature: FunPatch,
+    patch_mode: str,
+) -> list[dict[str, str]]:
+    """Atomically restore the parent EXE and companion DLL together.
+
+    The candidate files are verified before staging, both replacements are
+    backed up on the destination volume, and any replace/postverify failure
+    restores both originals.  No mixed candidate/parent state is published.
+    """
+    if feature.id != VV4_FULL_HEAL_CANDIDATE_ID:
+        raise PatcherError("VV4 Full Heal removal requires the certified candidate feature.")
+    root = Path(output_folder).resolve()
+    exe = (root / executable_name).resolve()
+    if exe.parent != root or not exe.is_file():
+        raise PatcherError("VV4 Full Heal removal executable path is unsafe or missing.")
+    companion_item = next(iter(feature.raw.get("companion_files", [])), None)
+    if companion_item is None:
+        raise PatcherError("VV4 Full Heal companion metadata is missing.")
+    dll = root / _safe_companion_destination(companion_item["destination"])
+    if not dll.is_file():
+        raise PatcherError("VV4 Full Heal removal companion is missing.")
+    candidate_exe_hash = VV4_FULL_HEAL_CANDIDATE_EXE_HASHES.get(patch_mode)
+    if candidate_exe_hash is None or sha256(exe) != candidate_exe_hash:
+        raise PatcherError("VV4 Full Heal removal executable preimage mismatch.")
+    candidate_dll_hash = str(companion_item["sha256"]).upper()
+    if sha256(dll) != candidate_dll_hash:
+        raise PatcherError("VV4 Full Heal removal companion preimage mismatch.")
+    work = bytearray(exe.read_bytes())
+    removed = _remove_feature_bytes(work, feature, patch_mode, output_folder=None)
+    expected_parent_hash = {
+        "collection_progression": VV4_FULL_HEAL_PARENT_COLLECTION_SHA256,
+        "immediate_fixed": VV4_FULL_HEAL_PARENT_IMMEDIATE_SHA256,
+    }.get(patch_mode)
+    if expected_parent_hash is None or hashlib.sha256(work).hexdigest().upper() != expected_parent_hash:
+        raise PatcherError("VV4 Full Heal removal did not reconstruct the certified parent EXE.")
+    restore_source = (ROOT / str(companion_item["restore_source"])).resolve()
+    restore_hash = str(companion_item["restore_sha256"]).upper()
+    if not restore_source.is_file() or sha256(restore_source) != restore_hash:
+        raise PatcherError("VV4 Full Heal parent companion restore source is missing or corrupt.")
+    parent = root.parent
+    stage = parent / f".{root.name}.remove-stage-{uuid.uuid4().hex}"
+    if os.path.lexists(stage):
+        raise PatcherError("VV4 Full Heal removal staging collision.")
+    stage.mkdir()
+    staged_exe = stage / executable_name
+    staged_dll = stage / dll.name
+    backup_exe = stage / f"{executable_name}.backup"
+    backup_dll = stage / f"{dll.name}.backup"
+    replaced: list[tuple[Path, Path]] = []
+    try:
+        staged_exe.write_bytes(work)
+        shutil.copy2(restore_source, staged_dll)
+        if sha256(staged_exe) != expected_parent_hash or sha256(staged_dll) != restore_hash:
+            raise PatcherError("VV4 Full Heal removal staged verification failed.")
+        # Immediate race recheck before either replace.
+        if sha256(exe) != candidate_exe_hash or sha256(dll) != candidate_dll_hash:
+            raise PatcherError("VV4 Full Heal removal destination changed before replace.")
+        shutil.copy2(exe, backup_exe)
+        shutil.copy2(dll, backup_dll)
+        os.replace(staged_exe, exe)
+        replaced.append((exe, backup_exe))
+        os.replace(staged_dll, dll)
+        replaced.append((dll, backup_dll))
+        if sha256(exe) != expected_parent_hash or sha256(dll) != restore_hash:
+            raise PatcherError("VV4 Full Heal removal postverify failed.")
+        return removed
+    except Exception:
+        # Restore every destination that may have been replaced, in reverse
+        # order, using the verified backups.  If no replace occurred the
+        # original files were never touched.
+        if (exe, backup_exe) not in replaced and backup_exe.is_file() and sha256(exe) == expected_parent_hash:
+            replaced.append((exe, backup_exe))
+        if (dll, backup_dll) not in replaced and backup_dll.is_file() and sha256(dll) == restore_hash:
+            replaced.append((dll, backup_dll))
+        for destination, backup in reversed(replaced):
+            if backup.is_file() and sha256(backup) == (candidate_exe_hash if destination == exe else candidate_dll_hash):
+                os.replace(backup, destination)
+        raise
+    finally:
+        if stage.exists():
+            shutil.rmtree(stage, ignore_errors=True)
+
+
 def _fun_patch_support(
     build: Build, fun_patches: list[FunPatch]
 ) -> list[dict[str, str]]:
@@ -3080,6 +3197,54 @@ def _virtual_address_for_offset(data: bytes, file_offset: int) -> str | None:
     return None
 
 
+def _vv4_full_heal_overlay_allowed(
+    *,
+    feature: FunPatch,
+    current_owner: str,
+    prior_owner: str,
+    prior_start: int,
+    prior_end: int,
+    patch_mode: str,
+    offset: int,
+    before: bytes,
+    composed_sha256: str,
+) -> bool:
+    """Allow only the certified Full Mastery -> Full Heal hook overlay.
+
+    Every value involved is passed explicitly from the current overlap pair;
+    no loop-carried owner or stale preimage is consulted.  The complete
+    pre-Running composition hash is checked against the in-memory bytes at the
+    moment the overlay is requested, so unrelated later patches do not affect
+    this decision while an earlier mutation cannot be hidden.
+    """
+    if current_owner != f"feature:{VV4_FULL_HEAL_CANDIDATE_ID}":
+        return False
+    if prior_owner not in {
+        "feature:vv4_enable_origins_exclusive_features",
+        "feature:vv4_full_mastery_all_stage_a_candidate",
+    }:
+        return False
+    if patch_mode not in {"collection_progression", "immediate_fixed"}:
+        return False
+    if offset != 0x8960F or not (prior_start <= offset < prior_end):
+        return False
+    if before != bytes.fromhex("E941FEFFFF"):
+        return False
+    dependencies = feature.raw.get("dependencies")
+    if dependencies != list(VV4_FULL_HEAL_PARENT_DEPENDENCIES):
+        return False
+    source = feature.raw.get("source", {})
+    if source.get("parent_collection_sha256") != VV4_FULL_HEAL_PARENT_COLLECTION_SHA256:
+        return False
+    if source.get("parent_immediate_sha256") != VV4_FULL_HEAL_PARENT_IMMEDIATE_SHA256:
+        return False
+    expected = {
+        "collection_progression": VV4_FULL_HEAL_PARENT_COLLECTION_SHA256,
+        "immediate_fixed": VV4_FULL_HEAL_PARENT_IMMEDIATE_SHA256,
+    }[patch_mode]
+    return composed_sha256.upper() == expected
+
+
 def render_patched_bytes(
     source: Path,
     build: Build,
@@ -3221,6 +3386,25 @@ def render_patched_bytes(
                 fun_bytes.append(dict(patch, _owner=f"feature:{feature.id}"))
     candidate_preimage_checked = False
     candidate_preimage_checksum: bytes | None = None
+    vv4_composed_parent_sha256: str | None = None
+    if any(feature.id == VV4_FULL_HEAL_CANDIDATE_ID for feature in fun_patches):
+        vv4_parent_features = [
+            feature for feature in fun_patches
+            if feature.id != VV4_FULL_HEAL_CANDIDATE_ID
+        ]
+        vv4_parent_bytes, _ = render_patched_bytes(
+            source,
+            build,
+            patch_mode,
+            _fun_patches_override=vv4_parent_features,
+        )
+        vv4_composed_parent_sha256 = hashlib.sha256(vv4_parent_bytes).hexdigest().upper()
+        expected_vv4_parent = {
+            "collection_progression": VV4_FULL_HEAL_PARENT_COLLECTION_SHA256,
+            "immediate_fixed": VV4_FULL_HEAL_PARENT_IMMEDIATE_SHA256,
+        }.get(patch_mode)
+        if expected_vv4_parent is None or vv4_composed_parent_sha256 != expected_vv4_parent:
+            raise PatcherError("VV4 Full Heal requires the exact complete certified parent composition.")
     if any(feature.id == VV3_FULL_HEAL_CANDIDATE_ID for feature in fun_patches):
         expected_preimage = VV3_FULL_HEAL_PRE_CURE_RENDERED_SHA256.get(patch_mode)
         parent_features = [feature for feature in fun_patches if feature.id != VV3_FULL_HEAL_CANDIDATE_ID]
@@ -3333,18 +3517,16 @@ def render_patched_bytes(
                         and offset == 0x7B721
                         and before == bytes(VV3_FULL_HEAL_CAVE_LENGTH)
                     )
-                    allowed_vv4_full_heal_overlay = (
-                        owner == f"feature:{VV4_FULL_HEAL_CANDIDATE_ID}"
-                        and prior_owner == "feature:vv4_enable_origins_exclusive_features"
-                        and patch_mode in {"collection_progression", "immediate_fixed"}
-                        and offset == 0x8960F
-                        and before == bytes.fromhex("E941FEFFFF")
-                        and feature.raw.get("dependencies") == [
-                            "vv4_enable_origins_exclusive_features",
-                            "vv4_full_mastery_all_stage_a_candidate",
-                        ]
-                        and feature.raw.get("source", {}).get("parent_collection_sha256") == VV4_FULL_HEAL_PARENT_COLLECTION_SHA256
-                        and feature.raw.get("source", {}).get("parent_immediate_sha256") == VV4_FULL_HEAL_PARENT_IMMEDIATE_SHA256
+                    allowed_vv4_full_heal_overlay = _vv4_full_heal_overlay_allowed(
+                        feature=feature,
+                        current_owner=owner,
+                        prior_owner=prior_owner,
+                        prior_start=prior_start,
+                        prior_end=prior_end,
+                        patch_mode=patch_mode,
+                        offset=offset,
+                        before=before,
+                        composed_sha256=vv4_composed_parent_sha256 or "",
                     )
                     if (
                         allowed_vv1_composition_overlay
@@ -3930,29 +4112,36 @@ def apply_patch(
     if output_folder.exists() and not overwrite:
         raise PatcherError(f"Modified game folder already exists: {output_folder}")
     patched, applied = render_patched_bytes(source, build, patch_mode, fun_patch_ids)
-    output_folder_existed = output_folder.exists()
-    _copy_game_folder_direct(source.parent, output_folder, overwrite, output_root)
+    output_parent = output_folder.parent
+    if os.path.lexists(output_folder) and not overwrite:
+        raise PatcherError(f"Modified game folder already exists: {output_folder}")
+    staging_folder = output_parent / f".{output_folder.name}.staging-{uuid.uuid4().hex}"
+    if os.path.lexists(staging_folder):
+        raise PatcherError(f"Staging destination already exists: {staging_folder}")
+    _copy_game_folder_direct(source.parent, staging_folder, False, output_root)
+    staged_output = staging_folder / output_name
     companions: list[dict[str, str]] = []
+    log_path = staged_output.with_suffix(".patch-log.json")
+    backup_folder: Path | None = None
+    published = False
     try:
-        companions = _copy_companion_files(output_folder, fun_patches)
-    except Exception:
-        if not output_folder_existed:
-            shutil.rmtree(output_folder, ignore_errors=True)
-        raise
-    log_path = output.with_suffix(".patch-log.json")
-    try:
-        with output.open("wb") as handle:
+        companions = _copy_companion_files(staging_folder, fun_patches)
+        companions = [
+            {**item, "path": str(output_folder / Path(item["path"]).name)}
+            for item in companions
+        ]
+        with staged_output.open("wb") as handle:
             handle.write(patched)
             handle.flush()
             os.fsync(handle.fileno())
-        if output.stat().st_size != len(patched):
+        if staged_output.stat().st_size != len(patched):
             raise PatcherError("Verification failed: patched file size mismatch")
-        output_hash = sha256(output)
+        output_hash = sha256(staged_output)
         expected_hash = hashlib.sha256(patched).hexdigest().upper()
         if output_hash != expected_hash:
             raise PatcherError("Verification failed: output hash mismatch")
         log_data = _log_data(
-            build, source, output, patch_mode, output_hash, applied, fun_patches
+            build, source, staged_output, patch_mode, output_hash, applied, fun_patches
         )
         log_data["companion_files"] = companions
         save_copy: dict[str, Any] | None = None
@@ -3966,9 +4155,9 @@ def apply_patch(
         write_transparency_artifacts(
             base_log=log_data,
             source=source,
-            output=output,
+            output=staged_output,
             source_folder=source.parent,
-            output_folder=output_folder,
+            output_folder=staging_folder,
             fun_patches=fun_patches,
             companions=companions,
             applied=applied,
@@ -3976,24 +4165,66 @@ def apply_patch(
             root=ROOT,
             json_path=log_path,
         )
+        # Publish the complete EXE+DLL tree only after every staged product is
+        # verified.  A prior destination is moved to a sibling backup and is
+        # restored byte-for-byte on any rename/postverify failure.
+        if os.path.lexists(output_folder):
+            if not overwrite:
+                raise PatcherError(f"Modified game folder appeared before publish: {output_folder}")
+            # Preserve user-created files in an overwrite transaction while
+            # still replacing the certified EXE/DLL pair as one tree.
+            for prior in output_folder.rglob("*"):
+                if not prior.is_file():
+                    continue
+                relative = prior.relative_to(output_folder)
+                target = staging_folder / relative
+                if target.exists():
+                    continue
+                target.parent.mkdir(parents=True, exist_ok=True)
+                shutil.copy2(prior, target)
+            backup_folder = output_parent / f".{output_folder.name}.backup-{uuid.uuid4().hex}"
+            if os.path.lexists(backup_folder):
+                raise PatcherError(f"Backup destination already exists: {backup_folder}")
+            os.rename(output_folder, backup_folder)
+        if os.path.lexists(output_folder):
+            raise PatcherError(f"Modified game folder appeared during publish: {output_folder}")
+        os.rename(staging_folder, output_folder)
+        published = True
+        output = output_folder / output_name
+        log_path = output.with_suffix(".patch-log.json")
+        if not output.is_file() or sha256(output) != expected_hash:
+            raise PatcherError("Post-publish executable verification failed")
+        for item in companions:
+            destination = Path(item["path"])
+            published_destination = output_folder / destination.name
+            if sha256(published_destination) != item["sha256"]:
+                raise PatcherError("Post-publish companion verification failed")
+        if backup_folder is not None:
+            shutil.rmtree(backup_folder)
+            backup_folder = None
     except Exception:
-        if companions:
+        if published and output_folder.exists():
+            failed_publish = output_parent / f".{output_folder.name}.failed-{uuid.uuid4().hex}"
             try:
-                _remove_companion_files(output_folder, fun_patches)
-            except Exception:
-                # Preserve the original failure; the removal guard remains
-                # fail-closed and leaves any unrecoverable evidence in place.
+                os.rename(output_folder, failed_publish)
+                shutil.rmtree(failed_publish)
+            except OSError:
                 pass
-        # Do not leave an executable or a report that looks successful when
-        # transparency generation fails.  A pre-existing overwrite target is
-        # left in place because it cannot be safely reconstructed here.
-        if not output_folder_existed:
-            shutil.rmtree(output_folder, ignore_errors=True)
-        else:
-            output.unlink(missing_ok=True)
-            log_path.unlink(missing_ok=True)
-            (output.parent / "VVFP Transparency Log.txt").unlink(missing_ok=True)
+        elif staging_folder.exists():
+            shutil.rmtree(staging_folder, ignore_errors=True)
+        if backup_folder is not None and backup_folder.exists() and not output_folder.exists():
+            os.rename(backup_folder, output_folder)
         raise
+    finally:
+        if staging_folder.exists():
+            shutil.rmtree(staging_folder, ignore_errors=True)
+        if backup_folder is not None and backup_folder.exists():
+            # A successful path clears the backup above; on a failed path the
+            # restore branch owns it.  Never leave a sibling residue.
+            try:
+                shutil.rmtree(backup_folder)
+            except OSError:
+                pass
     return output, log_path
 
 

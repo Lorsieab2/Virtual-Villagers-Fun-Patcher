@@ -4,6 +4,14 @@ This is a disabled, catalog-hidden stock-only candidate. It is not an emitted
 or playable patch until the exact VV4 command-5 boundary, native ABI, and
 `.vv4hc` layout receive independent disassembly recertification.
 
+Normal production composition resolves the complete current loader chain in
+dependency-first order: `vv4_complete_scales_golden_fish` ->
+`vv4_enable_origins_exclusive_features` ->
+`vv4_full_mastery_all_stage_a_candidate` -> `vv4_write_village_statistics`.
+The resulting pre-Full-Heal executable identities are pinned to Collection
+`CEBF0BC813059A13131CF75E4ECE11C8CCEE460CC98FB16BD87B03F5C20DB86B` and
+Immediate `6070D3244567815E8880168AEDCB9FF0E43F6720095AE67628089D492DA40133`.
+
 The contract enumerates physical indices 0..149 through the native resolver
 (`ECX=0x50E568`, push index, call `0x466040`, `ret 4`). It applies the active,
 status, and positive-health gate before reading sickness or mutation fields.

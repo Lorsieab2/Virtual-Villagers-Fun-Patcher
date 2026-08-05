@@ -28,6 +28,16 @@ PARENT_HASHES = {
     "collection_progression": "CEBF0BC813059A13131CF75E4ECE11C8CCEE460CC98FB16BD87B03F5C20DB86B",
     "immediate_fixed": "6070D3244567815E8880168AEDCB9FF0E43F6720095AE67628089D492DA40133",
 }
+PARENT_DEPENDENCIES = [
+    "vv4_complete_scales_golden_fish",
+    "vv4_enable_origins_exclusive_features",
+    "vv4_full_mastery_all_stage_a_candidate",
+    "vv4_write_village_statistics",
+]
+CANDIDATE_HASHES = {
+    "collection_progression": "0DD83962514449D8A0F513B5DDAF85277E2C3B1C39AB16CB2A266AB39C8D504C",
+    "immediate_fixed": "6448E049F2C5CFE51F536950D1ABFE6A767534F0FCE43C08511E1E1922881C3D",
+}
 PARENT_SIZE = 0xE5000
 PAGE_RAW = 0xE5000
 PAGE_RVA = 0x341000
@@ -46,8 +56,8 @@ PARENT_DLL = ROOT / "data/candidates/VVFP VV4 Full Mastery Candidate.dll"
 PARENT_DLL_SHA256 = "4E1A83683A875EFE6F67116CDD862927BE1ABCB17DB7AE18143E58E98EAD01E7"
 PARENT_DLL_SIZE = 282624
 # Raw source-of-truth pins are checked before any candidate output is built.
-SOURCE_MANIFEST_SHA256 = "E1E9BCBA9154EBED43C4373A59EAD518B99D30BF3CE7BED7F4396CE676AAEDC5"
-SOURCE_MAP_SHA256 = "69A4F5380C56930E53B45BD7605FB36F0F4F0C1EDA7A9098349A7ABD0CDD9B7E"
+SOURCE_MANIFEST_SHA256 = "C0383432B8A65398DB01A486184EF32FE73AE03B08FC16CBA718B24F6012B17B"
+SOURCE_MAP_SHA256 = "B9333CE2564195909F3DB9C05AE041507AF499A3CC65DAADCA4F94F2D55D658D"
 
 sys.path.insert(0, str(ROOT / ".tools" / "capstone"))
 sys.path.insert(0, str(ROOT / ".tools" / "keystone-runtime"))
@@ -1174,15 +1184,36 @@ def _render_parents() -> dict[str, bytes]:
     if sha(STOCK.read_bytes()) != STOCK_SHA256:
         raise RuntimeError("VV4 stock fingerprint mismatch")
     sys.path.insert(0, str(ROOT / "src"))
-    from vv_fun_patcher import identify, render_patched_bytes
+    from vv_fun_patcher import identify, load_fun_patches, render_patched_bytes, resolve_fun_patch_ids
 
     build = identify(STOCK)
-    ids = [
-        "vv4_complete_scales_golden_fish",
-        "vv4_enable_origins_exclusive_features",
-        "vv4_full_mastery_all_stage_a_candidate",
-        "vv4_write_village_statistics",
+    records = load_fun_patches()
+    by_id = {record.id: record for record in records if record.game_id == "vv4"}
+    # Discover the current IDs from the loader rather than carrying a second,
+    # potentially stale catalog.  The semantic names are stable source
+    # records; their IDs and dependency-first order are then resolved by the
+    # production resolver itself.
+    required_names = {
+        "golden_fish": "Complete Fish Scales = Golden Fish in Nets",
+        "origins": "Enable Origins-Exclusive Features",
+        "full_mastery": "Grant Full Mastery to All Villagers",
+        "village_statistics": "Write Village Statistics to Text File",
+    }
+    discovered: dict[str, str] = {}
+    for key, name in required_names.items():
+        matches = [record.id for record in by_id.values() if record.name == name]
+        if len(matches) != 1:
+            raise RuntimeError(f"VV4 parent composition record is not uniquely discoverable: {key}")
+        discovered[key] = matches[0]
+    requested = [
+        discovered["golden_fish"],
+        discovered["origins"],
+        discovered["full_mastery"],
+        discovered["village_statistics"],
     ]
+    ids = resolve_fun_patch_ids(requested, game_id="vv4", patches=records)
+    if ids != requested:
+        raise RuntimeError(f"VV4 parent composition order drifted: {ids!r}")
     rendered: dict[str, bytes] = {}
     for mode in PARENT_HASHES:
         data, _ = render_patched_bytes(STOCK, build, mode, ids)
@@ -1226,6 +1257,18 @@ def _generate_into(output_root: Path) -> dict[str, object]:
     artifact_map = json.loads(map_bytes.decode("utf-8-sig"))
     if manifest["enabled"] or not manifest["catalog_hidden"] or manifest["catalog_enabled"]:
         raise RuntimeError("VV4 Full Heal must remain disabled and catalog-hidden")
+    if manifest.get("dependencies") != PARENT_DEPENDENCIES or artifact_map.get("dependencies") != PARENT_DEPENDENCIES:
+        raise RuntimeError("VV4 Full Heal complete parent dependency chain is not pinned")
+    composition = manifest.get("parent_composition", {})
+    map_composition = artifact_map.get("parent_composition", {})
+    expected_composition = {
+        "ids": PARENT_DEPENDENCIES,
+        "order": PARENT_DEPENDENCIES,
+        "collection_sha256": PARENT_HASHES["collection_progression"],
+        "immediate_sha256": PARENT_HASHES["immediate_fixed"],
+    }
+    if composition != expected_composition or map_composition != expected_composition:
+        raise RuntimeError("VV4 Full Heal complete parent composition metadata is not pinned")
     if manifest["source"]["stock_sha256"] != STOCK_SHA256 or artifact_map["source"]["sha256"] != STOCK_SHA256:
         raise RuntimeError("VV4 Full Heal stock fingerprint is not immutable")
     page, page_meta = build_page()
@@ -1255,10 +1298,16 @@ def _generate_into(output_root: Path) -> dict[str, object]:
             "section": {"name": ".vv4hc", "raw": "0xE5000", "rva": "0x341000", "va": "0x741000", "size": "0x1000"},
             "uninstall_parent_sha256": sha(parent),
         }
+        if sha(candidate) != CANDIDATE_HASHES[mode]:
+            raise RuntimeError(f"VV4 Full Heal candidate identity changed for {mode}")
     (output_root / "vv4hc-page.bin").write_bytes(page)
     (output_root / "VVFP Origins Icons.dll").write_bytes(companion)
-    _write(output_root / MANIFEST.name, {**manifest, "emitted_audit": outputs})
-    _write(output_root / MAP.name, {**artifact_map, "emitted_audit": outputs})
+    rendered_modes = {
+        mode: {"parent_sha256": PARENT_HASHES[mode], "candidate_sha256": CANDIDATE_HASHES[mode], "size": PARENT_SIZE + PAGE_SIZE}
+        for mode in PARENT_HASHES
+    }
+    _write(output_root / MANIFEST.name, {**manifest, "rendered_modes": rendered_modes, "emitted_audit": outputs})
+    _write(output_root / MAP.name, {**artifact_map, "rendered_modes": rendered_modes, "emitted_audit": outputs})
     (output_root / DOC.name).write_bytes(DOC.read_bytes())
     (output_root / "emission-audit.json").write_text(json.dumps(outputs, indent=2) + "\r\n", encoding="utf-8")
     return outputs
