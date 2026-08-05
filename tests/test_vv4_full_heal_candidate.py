@@ -99,34 +99,35 @@ class VV4FullHealCandidateTests(unittest.TestCase):
         feature = patcher.FunPatch(json.loads(MANIFEST.read_text(encoding="utf-8")))
         page, _ = builder.build_page()
         companion, _ = builder.build_resource_only_companion(builder.PARENT_DLL.read_bytes())
-        with tempfile.TemporaryDirectory(prefix="vv4hc-production-recovery-") as temp:
-            root = Path(temp)
-            exe_name = "Virtual Villagers - The Tree of Life - Modded.exe"
-            parent = builder._render_parents()["collection_progression"]
-            (root / exe_name).write_bytes(builder._patch_parent(parent, page))
-            (root / "VVFP Origins Icons.dll").write_bytes(companion)
-            real_replace = patcher.os.replace
-            calls = {"count": 0}
-            def fail_publish_and_first_restore(source, destination):
-                calls["count"] += 1
-                if calls["count"] in (2, 3):
-                    raise OSError("injected production restore failure")
-                return real_replace(source, destination)
-            with mock_patch.object(patcher.os, "replace", side_effect=fail_publish_and_first_restore):
-                with self.assertRaises(Exception):
-                    patcher.publish_vv4_full_heal_removal(root, exe_name, feature, "collection_progression")
-            recovery_dirs = list(root.parent.glob(f".{root.name}.remove-recovery-*"))
-            self.assertEqual(len(recovery_dirs), 1)
-            report = recovery_dirs[0] / "recovery-report.json"
-            payload = json.loads(report.read_text(encoding="utf-8"))
-            self.assertTrue(payload["members"])
-            member = payload["members"][0]
-            self.assertEqual(member["original_size"], 942080)
-            self.assertEqual(member["backup_size"], 942080)
-            self.assertTrue(member["backup_path"])
-            patcher.recover_vv4_transaction(recovery_dirs[0])
-            self.assertEqual(patcher.sha256(root / exe_name), patcher.VV4_FULL_HEAL_CANDIDATE_EXE_HASHES["collection_progression"])
-            self.assertEqual(patcher.sha256(root / "VVFP Origins Icons.dll"), feature.raw["companion_files"][0]["sha256"])
+        for mode in ("collection_progression", "immediate_fixed"):
+            with tempfile.TemporaryDirectory(prefix="vv4hc-production-recovery-") as temp:
+                root = Path(temp)
+                exe_name = "Virtual Villagers - The Tree of Life - Modded.exe"
+                parent = builder._render_parents()[mode]
+                (root / exe_name).write_bytes(builder._patch_parent(parent, page))
+                (root / "VVFP Origins Icons.dll").write_bytes(companion)
+                real_replace = patcher.os.replace
+                calls = {"count": 0}
+                def fail_publish_and_first_restore(source, destination):
+                    calls["count"] += 1
+                    if calls["count"] in (2, 3):
+                        raise OSError("injected production restore failure")
+                    return real_replace(source, destination)
+                with mock_patch.object(patcher.os, "replace", side_effect=fail_publish_and_first_restore):
+                    with self.assertRaises(Exception):
+                        patcher.publish_vv4_full_heal_removal(root, exe_name, feature, mode)
+                recovery_dirs = list(root.parent.glob(f".{root.name}.remove-recovery-*"))
+                self.assertEqual(len(recovery_dirs), 1)
+                report = recovery_dirs[0] / "recovery-report.json"
+                payload = json.loads(report.read_text(encoding="utf-8"))
+                self.assertTrue(payload["members"])
+                member = payload["members"][0]
+                self.assertEqual(member["original_size"], 942080)
+                self.assertEqual(member["backup_size"], 942080)
+                self.assertTrue(member["backup_path"])
+                patcher.recover_vv4_transaction(recovery_dirs[0])
+                self.assertEqual(patcher.sha256(root / exe_name), patcher.VV4_FULL_HEAL_CANDIDATE_EXE_HASHES[mode])
+                self.assertEqual(patcher.sha256(root / "VVFP Origins Icons.dll"), feature.raw["companion_files"][0]["sha256"])
 
     def test_complete_parent_chain_and_overlay_owner_preimage_gate(self):
         import importlib.util
