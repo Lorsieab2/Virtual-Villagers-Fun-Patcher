@@ -243,6 +243,8 @@ def _cleanup(path: Path, *, expected: dict[str, object] | None = None) -> None:
     if after.st_size != actual["size"] or stat.S_ISLNK(after.st_mode) or _unsafe(after):
         raise PatcherError(f"VV5 Running owned cleanup identity changed: {path}")
     _strict_delete_file_by_handle(path, actual)
+    if os.path.lexists(path):
+        raise PatcherError(f"VV5 Running owned cleanup path remained after identity-bound deletion: {path}")
 
 
 def _restore(path: Path, pre: tuple[bool, bytes | None], published: bytes, backup: Path | None) -> bool:
@@ -465,12 +467,15 @@ def _quarantine_owned(
     owner_parent: Path,
     tombstone_name: str | None = None,
     preserved_name: str | None = None,
+    progress=None,
 ) -> tuple[Path, dict[str, object], Path]:
     """Move an owned registry member outside the registry without overwriting."""
     _require_windows_identity_atomic()
     actual = _inventory(path.parent, path)
     if actual is None or any(actual.get(key) != expected.get(key) for key in ("type", "size", "sha256", "st_dev", "st_ino")):
         raise PatcherError(f"VV5 Running issuance cleanup identity changed: {path}")
+    if progress is not None:
+        progress("intent", {"source_record": actual})
     tombstone_name = tombstone_name or f".{path.parent.name}-{path.name}.vv5run-tombstone-{uuid.uuid4().hex}"
     preserved_name = preserved_name or f".{path.name}.vv5run-preserved-{uuid.uuid4().hex}.backup"
     if Path(tombstone_name).name != tombstone_name or Path(preserved_name).name != preserved_name:
@@ -488,6 +493,8 @@ def _quarantine_owned(
     moved = _inventory(owner_parent, tombstone)
     if moved is None or any(moved.get(key) != actual.get(key) for key in ("type", "size", "sha256", "st_dev", "st_ino")):
         raise PatcherError("VV5 Running issuance tombstone identity changed.")
+    if progress is not None:
+        progress("tombstone_verified", {"tombstone_name": tombstone.name, "tombstone_record": moved})
     source_before_delete = _inventory(path.parent, path)
     tombstone_before_delete = _inventory(owner_parent, tombstone)
     if source_before_delete != actual or tombstone_before_delete != moved:
@@ -539,6 +546,8 @@ def _quarantine_owned(
     preserved_record = preserved_after_exception or _inventory(owner_parent, preserved)
     if preserved_record is None or preserved_record.get("sha256") != actual.get("sha256") or preserved_record.get("size") != actual.get("size"):
         raise PatcherError("VV5 Running issuance preserved backup verification failed.")
+    if progress is not None:
+        progress("preserved_verified", {"preserved_name": preserved.name, "preserved_record": preserved_record})
     source_before_delete = _inventory(path.parent, path)
     tombstone_before_delete = _inventory(owner_parent, tombstone)
     if source_before_delete != actual or tombstone_before_delete != moved:
@@ -552,6 +561,8 @@ def _quarantine_owned(
         raise PatcherError("VV5 Running issuance tombstone changed after source deletion.")
     if os.path.lexists(path):
         raise PatcherError("VV5 Running issuance source was replaced during deletion.")
+    if progress is not None:
+        progress("source_removed_verified", {"source_record": actual, "tombstone_record": moved, "preserved_record": preserved_record})
     return tombstone, moved, preserved
 
 
@@ -977,12 +988,40 @@ def recover_cleanup_atomic(record_path: Path, mode: str = VV5_MODE) -> None:
             else:
                 tombstone_name = f".{registry.name}-{source.name}.vv5run-tombstone-{uuid.uuid4().hex}"
                 preserved_name = f".{source.name}.vv5run-preserved-{uuid.uuid4().hex}.backup"
+
+            # Recovery may discover an older record that predates the pending
+            # quarantine checkpoint.  Publish that intent before touching the
+            # source; the next replay then has deterministic names and an
+            # identity-bound starting point.
+            if pending_for_item is None:
+                raw.setdefault("transaction_binding", {})["pending"] = {
+                    "name": item["name"],
+                    "source_record": expected_source,
+                    "tombstone_name": tombstone_name,
+                    "preserved_name": preserved_name,
+                    "substate": "intent",
+                }
+                raw["state"] = "started"
+                next_path, _next_identity = _update_cleanup_record(record_path, record_identity, raw)
+                return recover_cleanup_atomic(next_path, mode=mode)
+
+            def journal_progress(state, details):
+                nonlocal record_path, record_identity
+                pending = raw.get("transaction_binding", {}).get("pending")
+                if not isinstance(pending, dict) or pending.get("name") != item["name"]:
+                    raise PatcherError("VV5 Running recovery quarantine lost its pending source binding.")
+                pending["substate"] = state
+                pending.update(details)
+                raw["state"] = "quarantining"
+                record_path, record_identity = _update_cleanup_record(record_path, record_identity, raw)
+
             tombstone, tombstone_record, preserved = _quarantine_owned(
                 source,
                 source_record,
                 owner_parent=owner_parent,
                 tombstone_name=tombstone_name,
                 preserved_name=preserved_name,
+                progress=journal_progress,
             )
             item["tombstone_name"] = tombstone.name
             item["tombstone_record"] = tombstone_record
@@ -1127,12 +1166,24 @@ def _cleanup_issuance_artifacts(
             }
             cleanup_payload["state"] = "quarantining"
             cleanup_record_path, cleanup_record_identity = _update_cleanup_record(cleanup_record_path, cleanup_record_identity, cleanup_payload)
+
+            def journal_progress(state, details):
+                nonlocal cleanup_record_path, cleanup_record_identity
+                pending = cleanup_payload["transaction_binding"].get("pending")
+                if not isinstance(pending, dict) or pending.get("name") != path.name:
+                    raise PatcherError("VV5 Running quarantine progress lost its pending source binding.")
+                pending["substate"] = state
+                pending.update(details)
+                cleanup_payload["state"] = "quarantining"
+                cleanup_record_path, cleanup_record_identity = _update_cleanup_record(cleanup_record_path, cleanup_record_identity, cleanup_payload)
+
             quarantine = _quarantine_owned(
                 path,
                 record,
                 owner_parent=registry.parent,
                 tombstone_name=pending_tombstone,
                 preserved_name=pending_preserved,
+                progress=journal_progress,
             )
             tombstones.append(quarantine)
             item = next(item for item in cleanup_payload["artifacts"] if item["name"] == path.name)

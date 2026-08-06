@@ -350,7 +350,17 @@ def _write_recovery_impl(parent: Path, details: dict[str, object]) -> Path:
     report = parent / f"{report_prefix}-recovery-{uuid.uuid4().hex}.json"
     tmp = report.with_suffix(".tmp")
     payload = {"schema_version": 2, **payload_details, "report_relative": report.name}
-    metadata_keys = {"feature_owner", "mode", "parent_sha256", "candidate_sha256", "destination_exe_basename", "companion_dll_basename", "member_roles", "recovery_root_name", "recovery_root_identity", "report_name", "report_parent_identity", "issuance_token", "issuance_name", "issuance_registry_relative", "issuance_registry_identity", "issuance_identity", "destination_parent_absolute", "destination_paths_absolute"}
+    # Metadata is caller-owned.  Do not expose one permissive union to every
+    # writer: each feature owner gets an explicit schema, and an unknown owner
+    # cannot smuggle arbitrary fields through the shared report writer.
+    metadata_schemas = {
+        "vv3_individual_full_mastery": {"feature_owner", "mode", "parent_sha256", "candidate_sha256", "destination_exe_basename", "companion_dll_basename", "member_roles", "recovery_root_name", "recovery_root_identity", "report_name", "report_parent_identity", "issuance_token", "issuance_name", "issuance_registry_relative", "issuance_registry_identity", "issuance_identity", "destination_parent_absolute", "destination_paths_absolute"},
+        "vv5_individual_grant_running_candidate": {"feature_owner", "mode", "parent_sha256", "candidate_sha256", "destination_exe_basename", "companion_dll_basename", "member_roles", "recovery_root_name", "recovery_root_identity", "report_name", "report_parent_identity", "issuance_token", "issuance_name", "issuance_registry_relative", "issuance_registry_identity", "issuance_identity", "destination_parent_absolute", "destination_paths_absolute"},
+    }
+    feature_owner = payload_details.get("feature_owner")
+    metadata_keys = metadata_schemas.get(str(feature_owner), set())
+    if feature_owner is not None and str(feature_owner) not in metadata_schemas:
+        raise PatcherError("VV3 individual Full Mastery recovery metadata owner is unsupported.")
     if "feature_owner" in payload_details:
         root_name = details.get("_recovery_root_name")
         root_identity = details.get("_recovery_root_identity")
