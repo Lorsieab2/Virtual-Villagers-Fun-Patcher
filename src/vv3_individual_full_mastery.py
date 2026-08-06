@@ -259,12 +259,22 @@ def _write_file(path: Path, data: bytes) -> None:
 
 def _write_recovery(parent: Path, details: dict[str, object]) -> Path:
     report_prefix = str(details.get("_report_prefix", ".vv3im"))
-    payload_details = {key: value for key, value in details.items() if key != "_report_prefix"}
+    payload_details = {key: value for key, value in details.items() if not key.startswith("_")}
     report = parent / f"{report_prefix}-recovery-{uuid.uuid4().hex}.json"
     tmp = report.with_suffix(".tmp")
     payload = {"schema_version": 2, "report_relative": report.name, **payload_details}
-    metadata_keys = {"feature_owner", "mode", "parent_sha256", "candidate_sha256"}
-    allowed_metadata = metadata_keys if metadata_keys.intersection(payload_details) else set()
+    metadata_keys = {"feature_owner", "mode", "parent_sha256", "candidate_sha256", "destination_exe_basename", "companion_dll_basename", "member_roles", "recovery_root_name", "recovery_root_identity", "report_name", "report_parent_identity"}
+    if "feature_owner" in payload_details:
+        root_name = details.get("_recovery_root_name")
+        root_identity = details.get("_recovery_root_identity")
+        if not isinstance(root_name, str) or not isinstance(root_identity, dict):
+            raise PatcherError("VV3 individual Full Mastery recovery root identity is missing.")
+        parent_st = os.lstat(parent)
+        payload["recovery_root_name"] = root_name
+        payload["recovery_root_identity"] = root_identity
+        payload["report_name"] = report.name
+        payload["report_parent_identity"] = {"st_dev": int(parent_st.st_dev), "st_ino": int(parent_st.st_ino)}
+    allowed_metadata = metadata_keys if "feature_owner" in payload_details else set()
     _validate_recovery_payload(payload, parent, allowed_metadata=allowed_metadata)
     _write_file(tmp, (json.dumps(payload, indent=2, sort_keys=True) + "\n").encode("utf-8"))
     if not os.path.lexists(tmp):
@@ -703,6 +713,8 @@ def _transaction(operation: str, destinations: list[Path], pre: dict[Path, tuple
                 "failure_diagnostic": str(exc),
                 **recovery_metadata,
                 "_report_prefix": recovery_prefix,
+                "_recovery_root_name": recovery_root.name,
+                "_recovery_root_identity": {"st_dev": int(os.lstat(recovery_root).st_dev), "st_ino": int(os.lstat(recovery_root).st_ino)},
             })
             raise PatcherError(f"VV3 individual Full Mastery transaction failed; recovery retained at {report}") from exc
     finally:
@@ -733,6 +745,8 @@ def _transaction(operation: str, destinations: list[Path], pre: dict[Path, tuple
                             "failure_diagnostic": f"cleanup failure: {cleanup_exc}",
                             **recovery_metadata,
                             "_report_prefix": recovery_prefix,
+                            "_recovery_root_name": recovery_root.name,
+                            "_recovery_root_identity": {"st_dev": int(os.lstat(recovery_root).st_dev), "st_ino": int(os.lstat(recovery_root).st_ino)},
                         })
                 finally:
                     raise PatcherError("VV3 individual Full Mastery cleanup failed; recovery evidence retained.") from cleanup_exc

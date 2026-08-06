@@ -3746,6 +3746,16 @@ def render_patched_bytes(
     *,
     _fun_patches_override: list[FunPatch] | None = None,
 ) -> tuple[bytearray, list[dict[str, str]]]:
+    # VV5 Running is Collection-only.  Keep this guard ahead of variant,
+    # catalog, manifest, and source access in the generic production path.
+    vv5_running_selected = VV5_INDIVIDUAL_RUNNING_CANDIDATE_ID in set(fun_patch_ids)
+    if _fun_patches_override is not None:
+        vv5_running_selected = vv5_running_selected or any(
+            patch.id == VV5_INDIVIDUAL_RUNNING_CANDIDATE_ID
+            for patch in _fun_patches_override
+        )
+    if build.id == "vv5" and vv5_running_selected and patch_mode != "collection_progression":
+        raise PatcherError("VV5 Running supports Collection Progression only.")
     variant = get_patch_variant(build, patch_mode)
     fun_patches = (
         _selected_fun_patches(build, fun_patch_ids)

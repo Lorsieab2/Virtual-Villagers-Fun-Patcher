@@ -24,6 +24,7 @@ DLL_SIZE = 298496
 DLL_NAME = "VVFP VV5 Full Mastery Candidate.dll"
 VV5_FEATURE_OWNER = "vv5_individual_grant_running_candidate"
 VV5_MODE = "collection_progression"
+VV5_EXE_BASENAME = "Virtual Villagers - New Believers - Modded.exe"
 VV5_PARENT_EXE_SHA256 = "857E22D7C361B802508BF789C3CC486E42E76021F5AA579BB1D16CC6E0D017A0"
 VV5_CANDIDATE_EXE_SHA256 = "1E3FD6CE44E906BD8DDD7C937D68AB74671D8F197BC1D767A2B0622F1A0F7907"
 VV5_PARENT_DLL_SHA256 = DLL_SHA256
@@ -217,6 +218,8 @@ def _report(parent: Path, operation: str, members: list[dict[str, object]], erro
 def _publish(operation: str, destinations: list[Path], pre: dict[Path, tuple[bool, bytes | None]], published: dict[Path, bytes], parent: Path, *, mode: str = VV5_MODE) -> None:
     if mode != VV5_MODE:
         raise PatcherError("VV5 Running supports Collection Progression only.")
+    if [Path(destination).name for destination in destinations] != [VV5_EXE_BASENAME, DLL_NAME]:
+        raise PatcherError("VV5 Running destinations do not match the certified game/DLL names.")
     # Reuse the independently hardened schema-v2 pair transaction.  This
     # keeps VV5 recovery fail-closed on complete ownership inventories,
     # no-follow/reparse checks, immutable preconditions, durable retry
@@ -236,6 +239,9 @@ def _publish(operation: str, destinations: list[Path], pre: dict[Path, tuple[boo
             "mode": VV5_MODE,
             "parent_sha256": VV5_PARENT_EXE_SHA256,
             "candidate_sha256": VV5_CANDIDATE_EXE_SHA256,
+            "destination_exe_basename": VV5_EXE_BASENAME,
+            "companion_dll_basename": DLL_NAME,
+            "member_roles": {VV5_EXE_BASENAME: "game_executable", DLL_NAME: "companion_dll"},
         },
     )
     return
@@ -298,8 +304,39 @@ def recover_atomic(report_path: Path, mode: str = VV5_MODE) -> None:
         "mode": VV5_MODE,
         "parent_sha256": VV5_PARENT_EXE_SHA256,
         "candidate_sha256": VV5_CANDIDATE_EXE_SHA256,
+        "destination_exe_basename": VV5_EXE_BASENAME,
+        "companion_dll_basename": DLL_NAME,
+        "member_roles": {VV5_EXE_BASENAME: "game_executable", DLL_NAME: "companion_dll"},
     }.items()):
         raise PatcherError("VV5 Running recovery report identity mismatch.")
+    root_identity = raw.get("recovery_root_identity")
+    report_parent_identity = raw.get("report_parent_identity")
+    root_entry = next((item for item in raw.get("ownership_inventory", []) if item.get("type") == "directory" and "/" not in str(item.get("path", ""))), None)
+    expected_root_identity = {"st_dev": int(root_entry["st_dev"]), "st_ino": int(root_entry["st_ino"])} if isinstance(root_entry, dict) else None
+    if raw.get("report_name") != report.name or raw.get("recovery_root_name") != (Path(str(root_entry["path"])).name if isinstance(root_entry, dict) else None) or root_identity != expected_root_identity:
+        raise PatcherError("VV5 Running recovery report location identity mismatch.")
+    parent_st = os.lstat(report.parent)
+    if not isinstance(root_identity, dict) or not isinstance(report_parent_identity, dict) or report_parent_identity != {"st_dev": int(parent_st.st_dev), "st_ino": int(parent_st.st_ino)}:
+        raise PatcherError("VV5 Running recovery report root identity mismatch.")
+    members = raw.get("members")
+    if not isinstance(members, list) or [Path(str(item.get("destination_relative"))).name for item in members] != [VV5_EXE_BASENAME, DLL_NAME]:
+        raise PatcherError("VV5 Running recovery member names are not canonical.")
+    expected_member_identity = {
+        VV5_EXE_BASENAME: {
+            "install": (VV5_CANDIDATE_EXE_SHA256, 0xF6000),
+            "install_new": (VV5_CANDIDATE_EXE_SHA256, 0xF6000),
+            "install_existing": (VV5_CANDIDATE_EXE_SHA256, 0xF6000),
+            "removal": (VV5_PARENT_EXE_SHA256, 0xF4000),
+        },
+        DLL_NAME: {"install": (DLL_SHA256, DLL_SIZE), "install_new": (DLL_SHA256, DLL_SIZE), "install_existing": (DLL_SHA256, DLL_SIZE), "removal": (DLL_SHA256, DLL_SIZE)},
+    }
+    for member in members:
+        name = Path(str(member["destination_relative"])).name
+        expected_sha, expected_size = expected_member_identity[name][str(raw.get("operation"))]
+        if member.get("published_sha256") != expected_sha or member.get("published_size") != expected_size:
+            raise PatcherError("VV5 Running recovery member hash/size identity mismatch.")
+        if member.get("pre_exists") and (member.get("pre_sha256") != (VV5_PARENT_EXE_SHA256 if name == VV5_EXE_BASENAME else DLL_SHA256) or member.get("pre_size") != (0xF4000 if name == VV5_EXE_BASENAME else DLL_SIZE)):
+            raise PatcherError("VV5 Running recovery member preimage identity mismatch.")
     return _strict_recover_atomic(
         report,
         recovery_prefix=".vv5run",
@@ -308,6 +345,13 @@ def recover_atomic(report_path: Path, mode: str = VV5_MODE) -> None:
             "mode": VV5_MODE,
             "parent_sha256": VV5_PARENT_EXE_SHA256,
             "candidate_sha256": VV5_CANDIDATE_EXE_SHA256,
+            "destination_exe_basename": VV5_EXE_BASENAME,
+            "companion_dll_basename": DLL_NAME,
+            "member_roles": {VV5_EXE_BASENAME: "game_executable", DLL_NAME: "companion_dll"},
+            "recovery_root_name": raw.get("recovery_root_name"),
+            "recovery_root_identity": root_identity,
+            "report_name": report.name,
+            "report_parent_identity": report_parent_identity,
         },
         expected_report_sha256=report_sha256,
     )
@@ -380,6 +424,8 @@ def install_atomic(source: Path, destination: Path, mode: str, *, companion_sour
         raise PatcherError("VV5 Running supports Collection Progression only.")
     if companion_source is None or companion_destination is None:
         raise PatcherError("VV5 Running companion is mandatory.")
+    if Path(destination).name != VV5_EXE_BASENAME or Path(companion_destination).name != DLL_NAME:
+        raise PatcherError("VV5 Running destinations do not match the certified game/DLL names.")
     destinations = [Path(destination), Path(companion_destination)]
     parent = _parent(destinations)
     # Read each authenticated input once, then carry those bytes through
@@ -409,6 +455,8 @@ def remove_atomic(destination: Path, mode: str, *, companion_destination: Path |
         raise PatcherError("VV5 Running supports Collection Progression only.")
     if companion_destination is None or companion_restore_source is None:
         raise PatcherError("VV5 Running removal companion arguments are mandatory.")
+    if Path(destination).name != VV5_EXE_BASENAME or Path(companion_destination).name != DLL_NAME:
+        raise PatcherError("VV5 Running destinations do not match the certified game/DLL names.")
     destinations = [Path(destination), Path(companion_destination)]
     parent = _parent(destinations)
     candidate = _read(destination)

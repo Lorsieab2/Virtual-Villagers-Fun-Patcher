@@ -5,14 +5,14 @@ import unittest
 from unittest import mock
 from pathlib import Path
 
-from src.vv5_individual_running import PatcherError, _parent, _publish, _state, install_atomic, remove_atomic, recover_atomic
+from src.vv5_individual_running import PatcherError, VV5_EXE_BASENAME, DLL_NAME, _parent, _publish, _state, install_atomic, remove_atomic, recover_atomic
 
 
 class VV5RunningPublicationTests(unittest.TestCase):
     def test_pair_publish_and_remove_style_restore_is_exact(self) -> None:
         with tempfile.TemporaryDirectory() as td:
             root = Path(td)
-            exe, dll = root / "game.exe", root / "VVFP VV5 Full Mastery Candidate.dll"
+            exe, dll = root / VV5_EXE_BASENAME, root / DLL_NAME
             exe.write_bytes(b"parent-exe")
             dll.write_bytes(b"parent-dll")
             destinations = [exe, dll]
@@ -31,7 +31,7 @@ class VV5RunningPublicationTests(unittest.TestCase):
     def test_second_replace_failure_never_accepts_mixed_pair(self) -> None:
         with tempfile.TemporaryDirectory() as td:
             root = Path(td)
-            exe, dll = root / "game.exe", root / "companion.dll"
+            exe, dll = root / VV5_EXE_BASENAME, root / DLL_NAME
             exe.write_bytes(b"exe0")
             dll.write_bytes(b"dll0")
             pre = {exe: _state(exe), dll: _state(dll)}
@@ -77,6 +77,14 @@ class VV5RunningPublicationTests(unittest.TestCase):
                 remove_atomic(Path("missing.exe"), "immediate_fixed")
             with self.assertRaises(PatcherError):
                 recover_atomic(Path("missing-report.json"), "immediate_fixed")
+
+    def test_generic_render_rejects_immediate_before_variant_or_catalog_lookup(self) -> None:
+        from types import SimpleNamespace
+        import src.vv_fun_patcher as patcher
+        with mock.patch.object(patcher, "get_patch_variant", side_effect=AssertionError("variant lookup")), \
+             mock.patch.object(patcher, "_selected_fun_patches", side_effect=AssertionError("catalog lookup")):
+            with self.assertRaises(patcher.PatcherError):
+                patcher.render_patched_bytes(Path("missing.exe"), SimpleNamespace(id="vv5"), "immediate_fixed", ("vv5_individual_grant_running_candidate",))
 
     def test_cross_game_recovery_report_rejected_by_owner_before_replay(self) -> None:
         with tempfile.TemporaryDirectory() as td:
