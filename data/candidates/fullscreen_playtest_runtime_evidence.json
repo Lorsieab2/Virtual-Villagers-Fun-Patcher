@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "evidence_type": "player_runtime_observation",
+  "recorded_at": "2026-08-05",
+  "scope": "fullscreen Collection playtest menu interaction only",
+  "runtime_status": "bounded_observation",
+  "records": {
+    "vv3_fullscreen_collection_playtest_1": {
+      "game": "VV3",
+      "package": "VV3 Fullscreen Collection Playtest 1 - Modded",
+      "fullscreen_menu_status": "pass",
+      "observation": "Player reported that the fullscreen menus pass.",
+      "broad_feature_runtime_status": "pending"
+    },
+    "vv4_fullscreen_collection_playtest_1": {
+      "game": "VV4",
+      "package": "VV4 Fullscreen Collection Playtest 1 - Modded",
+      "fullscreen_menu_status": "pass",
+      "observation": "Player reported that the fullscreen menus pass.",
+      "broad_feature_runtime_status": "pending"
+    },
+    "vv5_fullscreen_collection_playtest_1": {
+      "game": "VV5",
+      "package": "VV5 Fullscreen Collection Playtest 1 - Modded",
+      "fullscreen_menu_status": "stop",
+      "observation": "Player reported that controls render, but both Tech and Detail clicks produce no menu.",
+      "broad_feature_runtime_status": "pending"
+    }
+  },
+  "limitations": [
+    "These observations do not certify Full Mastery, Full Heal, Running, Cure, save/reload, or other gameplay behavior.",
+    "No runtime observation is recorded for VV1 or VV2 in this evidence record.",
+    "Expanded-256 remains rejected before output for every candidate."
+  ]
+}
