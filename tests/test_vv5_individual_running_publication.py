@@ -40,14 +40,19 @@ class VV5RunningPublicationTests(unittest.TestCase):
                 with self.assertRaises(PatcherError):
                     _publish("install", [exe, dll], pre, published, root)
             reports = list(root.glob(".vv5run-recovery-*.json"))
-            issuances = list((root / ISSUANCE_REGISTRY_NAME).glob("*.json"))
+            issuances = [p for p in (root / ISSUANCE_REGISTRY_NAME).glob("*.json") if ".v" not in p.name]
+            successors = [p for p in (root / ISSUANCE_REGISTRY_NAME).glob("*.v*.json")]
             self.assertEqual(len(reports), 1)
             self.assertEqual(len(issuances), 1)
+            self.assertEqual(len(successors), 1)
+            self.assertTrue((root / ISSUANCE_REGISTRY_NAME / f".{issuances[0].name}.pointer").exists())
             report = json.loads(reports[0].read_text(encoding="utf-8"))
             issuance = json.loads(issuances[0].read_text(encoding="utf-8"))
+            bound = json.loads(successors[0].read_text(encoding="utf-8"))
             self.assertEqual(report["issuance_token"], issuance["token"])
-            self.assertEqual(issuance["report_name"], reports[0].name)
-            self.assertEqual(issuance["report_sha256"], __import__("hashlib").sha256(reports[0].read_bytes()).hexdigest().upper())
+            self.assertNotIn("report_name", issuance)
+            self.assertEqual(bound["report_name"], reports[0].name)
+            self.assertEqual(bound["report_sha256"], __import__("hashlib").sha256(reports[0].read_bytes()).hexdigest().upper())
             self.assertEqual(issuance["destination_parent_absolute"], str(root).lower())
             self.assertEqual(issuance["registry_relative"], ISSUANCE_REGISTRY_NAME)
 
@@ -211,12 +216,12 @@ class VV5RunningPublicationTests(unittest.TestCase):
             exe.write_bytes(b"parent-exe"); dll.write_bytes(b"parent-dll")
             pre = {exe: _state(exe), dll: _state(dll)}
             published = {exe: b"candidate-exe", dll: b"candidate-dll"}
-            real_cleanup = running._cleanup
-            def substitute(path, *, expected=None):
-                if path.suffix == ".json" and path.parent.name == ISSUANCE_REGISTRY_NAME and expected is not None:
-                    path.write_bytes(b"foreign")
-                return real_cleanup(path, expected=expected)
-            with mock.patch.object(running, "_cleanup", side_effect=substitute):
+            real_rename = running.os.rename
+            def substitute(src, dst):
+                if Path(src).parent.name == ISSUANCE_REGISTRY_NAME and Path(src).suffix == ".json":
+                    Path(src).write_bytes(b"foreign")
+                return real_rename(src, dst)
+            with mock.patch.object(running.os, "rename", side_effect=substitute):
                 with self.assertRaises(PatcherError):
                     _publish("install", [exe, dll], pre, published, root)
             self.assertEqual(exe.read_bytes(), b"candidate-exe")
@@ -272,6 +277,112 @@ class VV5RunningPublicationTests(unittest.TestCase):
             shutil.copytree(root, relocated)
             with self.assertRaises(PatcherError):
                 recover_atomic(relocated / report.name)
+
+    def test_c289_foreign_registry_child_surfaces_and_preserves_authority(self) -> None:
+        import src.vv5_individual_running as running
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            exe, dll = root / VV5_EXE_BASENAME, root / DLL_NAME
+            exe.write_bytes(b"parent-exe"); dll.write_bytes(b"parent-dll")
+            pre = {exe: _state(exe), dll: _state(dll)}
+            published = {exe: b"candidate-exe", dll: b"candidate-dll"}
+            real_cleanup = running._cleanup_registry
+            raced = {"done": False}
+            def inject(registry, expected):
+                if not raced["done"]:
+                    (registry / "foreign-child").write_bytes(b"foreign")
+                    raced["done"] = True
+                return real_cleanup(registry, expected)
+            with mock.patch.object(running, "_cleanup_registry", side_effect=inject):
+                with self.assertRaises(PatcherError):
+                    _publish("install", [exe, dll], pre, published, root)
+            self.assertEqual((root / ISSUANCE_REGISTRY_NAME / "foreign-child").read_bytes(), b"foreign")
+            self.assertTrue(list(root.glob(f".{ISSUANCE_REGISTRY_NAME}-*.vv5run-tombstone-*")))
+
+    def test_c289_issuance_pointer_race_is_no_overwrite(self) -> None:
+        import src.vv5_individual_running as running
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td); registry, _identity, _created = running._registry(root)
+            issuance = registry / "0123456789abcdef0123456789abcdef.json"
+            running._write_issuance(issuance, {"schema_version": 2, "token": "t"})
+            before = running._inventory(root, issuance)
+            self.assertIsNotNone(before)
+            real_link = running.os.link
+            def race(src, dst):
+                if Path(dst).name == f".{issuance.name}.pointer":
+                    Path(dst).write_bytes(b"foreign-pointer")
+                return real_link(src, dst)
+            with mock.patch.object(running.os, "link", side_effect=race):
+                with self.assertRaises(PatcherError):
+                    running._replace_issuance(issuance, before, {"schema_version": 2, "token": "t", "bound": True})
+            self.assertEqual((registry / f".{issuance.name}.pointer").read_bytes(), b"foreign-pointer")
+            self.assertEqual(json.loads(issuance.read_text(encoding="utf-8"))["token"], "t")
+
+    def test_c289_issuance_delete_substitution_is_quarantined_and_survives(self) -> None:
+        import src.vv5_individual_running as running
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td); registry, _identity, _created = running._registry(root)
+            issuance = registry / "0123456789abcdef0123456789abcdef.json"
+            running._write_issuance(issuance, {"schema_version": 2, "token": "t"})
+            expected = running._inventory(root, issuance)
+            real_rename = running.os.rename
+            def race(src, dst):
+                if Path(src) == issuance:
+                    issuance.write_bytes(b"foreign")
+                return real_rename(src, dst)
+            with mock.patch.object(running.os, "rename", side_effect=race):
+                with self.assertRaises(PatcherError):
+                    running._quarantine_owned(issuance, expected, owner_parent=root)
+            tombstones = list(root.glob(f".{ISSUANCE_REGISTRY_NAME}-*.vv5run-tombstone-*"))
+            self.assertEqual(len(tombstones), 1)
+            self.assertEqual(tombstones[0].read_bytes(), b"foreign")
+
+    def test_c289_existing_registry_without_issued_authority_rejects_before_publish(self) -> None:
+        import src.vv5_individual_running as running
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            (root / ISSUANCE_REGISTRY_NAME).mkdir()
+            exe, dll = root / VV5_EXE_BASENAME, root / DLL_NAME
+            exe.write_bytes(b"parent-exe"); dll.write_bytes(b"parent-dll")
+            pre = {exe: _state(exe), dll: _state(dll)}
+            with self.assertRaises(PatcherError):
+                _publish("install", [exe, dll], pre, {exe: b"candidate-exe", dll: b"candidate-dll"}, root)
+            self.assertEqual(exe.read_bytes(), b"parent-exe")
+            self.assertEqual(dll.read_bytes(), b"parent-dll")
+
+    def test_c289_emergency_marker_replays_and_cleans_issuance(self) -> None:
+        import src.vv5_individual_running as running
+        import hashlib
+        parent_exe = b"P" * 0xF4000
+        parent_dll = b"D" * 64
+        candidate_exe = b"C" * 0xF6000
+        values = {
+            "VV5_PARENT_EXE_SHA256": hashlib.sha256(parent_exe).hexdigest().upper(),
+            "VV5_CANDIDATE_EXE_SHA256": hashlib.sha256(candidate_exe).hexdigest().upper(),
+            "VV5_PARENT_DLL_SHA256": hashlib.sha256(parent_dll).hexdigest().upper(),
+            "VV5_CANDIDATE_DLL_SHA256": hashlib.sha256(parent_dll).hexdigest().upper(),
+            "DLL_SHA256": hashlib.sha256(parent_dll).hexdigest().upper(),
+            "DLL_SIZE": len(parent_dll),
+        }
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            exe, dll = root / VV5_EXE_BASENAME, root / DLL_NAME
+            exe.write_bytes(parent_exe); dll.write_bytes(parent_dll)
+            pre = {exe: _state(exe), dll: _state(dll)}
+            with mock.patch.multiple(running, **values), \
+                 mock.patch("vv3_individual_full_mastery._replace_verified", side_effect=OSError("replace")), \
+                 mock.patch("vv3_individual_full_mastery._restore_member", return_value=False), \
+                 mock.patch("vv3_individual_full_mastery._write_recovery_impl", side_effect=PatcherError("report publication")):
+                with self.assertRaises(PatcherError):
+                    _publish("install", [exe, dll], pre, {exe: candidate_exe, dll: parent_dll}, root)
+            marker = next(root.glob(".vv5run-emergency-*.json"))
+            with mock.patch.multiple(running, **values):
+                recover_atomic(marker)
+            self.assertEqual(exe.read_bytes(), parent_exe)
+            self.assertEqual(dll.read_bytes(), parent_dll)
+            self.assertFalse(marker.exists())
+            self.assertFalse((root / ISSUANCE_REGISTRY_NAME).exists())
+            self.assertEqual(list(root.glob(".vv5run-*")), [])
 
 
 if __name__ == "__main__":

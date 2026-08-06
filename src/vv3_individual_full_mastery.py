@@ -1076,7 +1076,13 @@ def _recover_from_emergency_marker(marker: Path, *, recovery_prefix: str, requir
     })
     _validate_emergency_root(marker.parent, details)
     report = _write_recovery(marker.parent, details)
-    recover_atomic(report, recovery_prefix=recovery_prefix, required_metadata=required_metadata, expected_report_sha256=None)
+    # The reconstructed canonical report receives a fresh UUID name.  Bind
+    # the strict metadata check to that actual name rather than the marker's
+    # diagnostic filename, while preserving every other authority field.
+    inner_metadata = dict(required_metadata or {})
+    if required_metadata is not None:
+        inner_metadata["report_name"] = report.name
+    recover_atomic(report, recovery_prefix=recovery_prefix, required_metadata=inner_metadata, expected_report_sha256=None)
     _remove_owned(marker, expected=marker_record)
 
 
