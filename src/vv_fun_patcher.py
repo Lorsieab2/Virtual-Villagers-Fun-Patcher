@@ -583,6 +583,10 @@ EXPANDED_PATCH_MODES = {
     "experimental_expanded_256",
     "experimental_expanded_256_progression",
 }
+# Expanded-256 rendering/audit helpers remain available, but public
+# publication is an explicit fail-closed gate until the mode is independently
+# certified.  Keep this literal false rather than deriving it from metadata.
+EXPANDED_256_PUBLICATION_ENABLED = False
 VV1_ORIGINS_COMPOSITION_ID = "vv1_full_mastery_origins_composition"
 VV1_ORIGINS_COMPOSITION_BASE_SHA256 = "5434C71C342B830A5896AFFB610A76C670578760BD33C6145882FA280F6406A3"
 VV1_ORIGINS_COMPOSITION_DLL_SHA256 = "2ED1100E7F2EA5B8E522C2DE11F6B00CA8A02B968319C251365E9EFD634BCAF9"
@@ -590,6 +594,14 @@ VV1_ORIGINS_COMPOSITION_DLL_SHA256 = "2ED1100E7F2EA5B8E522C2DE11F6B00CA8A02B9683
 
 class PatcherError(RuntimeError):
     pass
+
+
+def _reject_expanded_256_publication(patch_mode: str) -> None:
+    """Reject public Expanded-256 publication before any input access."""
+    if not EXPANDED_256_PUBLICATION_ENABLED and patch_mode in EXPANDED_PATCH_MODES:
+        raise PatcherError(
+            "Expanded-256 publication is disabled; use dry-run or static rendering only."
+        )
 
 
 @dataclass(frozen=True)
@@ -5292,6 +5304,7 @@ def apply_patch(
     replace_modded_saves: bool = False,
     save_root: Path | None = None,
 ) -> tuple[Path, Path]:
+    _reject_expanded_256_publication(patch_mode)
     _reject_vv5_running_unsupported_mode(patch_mode, fun_patch_ids)
     source = source.resolve()
     build = identify(source)
@@ -5482,6 +5495,7 @@ def apply_all(
     replace_modded_saves: bool = False,
     save_root: Path | None = None,
 ) -> list[tuple[Path, Path]]:
+    _reject_expanded_256_publication(patch_mode)
     _reject_vv5_running_unsupported_mode(patch_mode, fun_patch_ids)
     validated = validate_all_sources(sources)
     plans: list[
@@ -5674,6 +5688,7 @@ def main() -> int:
                 )
             )
         elif args.command == "apply":
+            _reject_expanded_256_publication(args.patch_mode)
             output, log = apply_patch(
                 args.exe,
                 args.patch_mode,
@@ -5698,6 +5713,7 @@ def main() -> int:
                 )
             )
         else:
+            _reject_expanded_256_publication(args.patch_mode)
             results = apply_all(
                 _all_sources_from_args(args),
                 args.patch_mode,

@@ -33,6 +33,7 @@ from vv_fun_patcher import (  # noqa: E402
     modded_save_folder_for,
     render_patched_bytes,
     Record,
+    EXPANDED_256_PUBLICATION_ENABLED,
     validate_all_sources,
     vanilla_save_folder_for,
 )
@@ -1549,11 +1550,10 @@ class StockIntegrationTests(unittest.TestCase):
             game_folder.mkdir()
             source = game_folder / build.input_name
             shutil.copy2(STOCK / build.input_name, source)
-            output, log = apply_patch(source, "experimental_expanded_256")
-            self.assertEqual(output.name, expanded_exe_name(build))
-            self.assertEqual(output.parent.name, f"{build.title} - Modded 256")
-            self.assertEqual(log.name, f"{build.title} - Modded 256.patch-log.json")
-            self.assertTrue((output.parent / build.input_name).is_file())
+            self.assertFalse(EXPANDED_256_PUBLICATION_ENABLED)
+            with self.assertRaisesRegex(PatcherError, "Expanded-256 publication is disabled"):
+                apply_patch(source, "experimental_expanded_256")
+            self.assertFalse((game_folder.parent / f"{build.title} - Modded 256").exists())
 
     def test_expanded_save_copy_keeps_slot_zero_with_numbered_saves(self) -> None:
         with tempfile.TemporaryDirectory() as temp:

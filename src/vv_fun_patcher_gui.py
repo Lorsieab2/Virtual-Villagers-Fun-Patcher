@@ -10,6 +10,7 @@ from tkinter import filedialog, messagebox, ttk
 
 from vv_fun_patcher import (
     DEFAULT_PATCH_MODE,
+    _reject_expanded_256_publication,
     PatcherError,
     apply_all,
     apply_patch,
@@ -747,6 +748,7 @@ class App(tk.Tk):
 
     def _apply(self) -> None:
         try:
+            _reject_expanded_256_publication(self._mode())
             source = self._source()
             build = identify(source)
             preview = dry_run(
@@ -793,6 +795,7 @@ class App(tk.Tk):
 
     def _apply_all(self) -> None:
         try:
+            _reject_expanded_256_publication(self._mode())
             sources = self._all_sources()
             validated = validate_all_sources(sources)
             previews = dry_run_all(
