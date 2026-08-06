@@ -3,10 +3,11 @@ from __future__ import annotations
 import tempfile
 import unittest
 import json
+import shutil
 from unittest import mock
 from pathlib import Path
 
-from src.vv5_individual_running import PatcherError, VV5_EXE_BASENAME, DLL_NAME, _parent, _publish, _state, install_atomic, remove_atomic, recover_atomic
+from src.vv5_individual_running import PatcherError, VV5_EXE_BASENAME, DLL_NAME, VV5_MODE, ISSUANCE_REGISTRY_NAME, _parent, _publish, _state, install_atomic, remove_atomic, recover_atomic
 
 
 class VV5RunningPublicationTests(unittest.TestCase):
@@ -39,7 +40,7 @@ class VV5RunningPublicationTests(unittest.TestCase):
                 with self.assertRaises(PatcherError):
                     _publish("install", [exe, dll], pre, published, root)
             reports = list(root.glob(".vv5run-recovery-*.json"))
-            issuances = list(root.glob(".vv5run-issuance-*.json"))
+            issuances = list((root / ISSUANCE_REGISTRY_NAME).glob("*.json"))
             self.assertEqual(len(reports), 1)
             self.assertEqual(len(issuances), 1)
             report = json.loads(reports[0].read_text(encoding="utf-8"))
@@ -47,6 +48,8 @@ class VV5RunningPublicationTests(unittest.TestCase):
             self.assertEqual(report["issuance_token"], issuance["token"])
             self.assertEqual(issuance["report_name"], reports[0].name)
             self.assertEqual(issuance["report_sha256"], __import__("hashlib").sha256(reports[0].read_bytes()).hexdigest().upper())
+            self.assertEqual(issuance["destination_parent_absolute"], str(root).lower())
+            self.assertEqual(issuance["registry_relative"], ISSUANCE_REGISTRY_NAME)
 
     def test_recovery_rejects_nested_or_alternate_destination_paths(self) -> None:
         from src.vv5_individual_running import _validate_report
@@ -152,6 +155,123 @@ class VV5RunningPublicationTests(unittest.TestCase):
             with self.assertRaises(PatcherError):
                 recover_atomic(report)
             self.assertTrue(report.is_file())
+
+    def test_c287_production_failure_strict_replay_cleans_pair_report_and_registry(self) -> None:
+        """A real VV5 publication report must replay through the strict path once."""
+        import hashlib
+        import src.vv5_individual_running as running
+        parent_exe = b"P" * 0xF4000
+        parent_dll = b"parent-dll"
+        candidate_exe = b"C" * 0xF6000
+        candidate_dll = parent_dll
+        values = {
+            "VV5_PARENT_EXE_SHA256": hashlib.sha256(parent_exe).hexdigest().upper(),
+            "VV5_CANDIDATE_EXE_SHA256": hashlib.sha256(candidate_exe).hexdigest().upper(),
+            "VV5_PARENT_DLL_SHA256": hashlib.sha256(parent_dll).hexdigest().upper(),
+            "VV5_CANDIDATE_DLL_SHA256": hashlib.sha256(candidate_dll).hexdigest().upper(),
+            "DLL_SHA256": hashlib.sha256(parent_dll).hexdigest().upper(),
+            "DLL_SIZE": len(parent_dll),
+        }
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            exe, dll = root / VV5_EXE_BASENAME, root / DLL_NAME
+            exe.write_bytes(parent_exe); dll.write_bytes(parent_dll)
+            pre = {exe: _state(exe), dll: _state(dll)}
+            with mock.patch.multiple(running, **values), \
+                 mock.patch("vv3_individual_full_mastery._replace_verified", side_effect=OSError("replace")), \
+                 mock.patch("vv3_individual_full_mastery._restore_member", return_value=False):
+                with self.assertRaises(PatcherError):
+                    _publish("install", [exe, dll], pre, {exe: candidate_exe, dll: candidate_dll}, root)
+            report = next(root.glob(".vv5run-recovery-*.json"))
+            issuance = next((root / ISSUANCE_REGISTRY_NAME).glob("*.json"))
+            relocated = root.parent / "relocated-vv5-evidence"
+            shutil.copytree(root, relocated)
+            try:
+                with mock.patch.multiple(running, **values):
+                    with self.assertRaises(PatcherError):
+                        recover_atomic(relocated / report.name)
+                self.assertTrue(report.exists())
+                self.assertTrue(issuance.exists())
+            finally:
+                shutil.rmtree(relocated)
+            with mock.patch.multiple(running, **values):
+                recover_atomic(report)
+            self.assertEqual(exe.read_bytes(), parent_exe)
+            self.assertEqual(dll.read_bytes(), parent_dll)
+            self.assertFalse(report.exists())
+            self.assertFalse(issuance.exists())
+            self.assertFalse((root / ISSUANCE_REGISTRY_NAME).exists())
+            self.assertEqual(list(root.glob(".vv5run-*")), [])
+
+    def test_c287_issuance_substitution_before_cleanup_is_rejected(self) -> None:
+        import src.vv5_individual_running as running
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            exe, dll = root / VV5_EXE_BASENAME, root / DLL_NAME
+            exe.write_bytes(b"parent-exe"); dll.write_bytes(b"parent-dll")
+            pre = {exe: _state(exe), dll: _state(dll)}
+            published = {exe: b"candidate-exe", dll: b"candidate-dll"}
+            real_cleanup = running._cleanup
+            def substitute(path, *, expected=None):
+                if path.suffix == ".json" and path.parent.name == ISSUANCE_REGISTRY_NAME and expected is not None:
+                    path.write_bytes(b"foreign")
+                return real_cleanup(path, expected=expected)
+            with mock.patch.object(running, "_cleanup", side_effect=substitute):
+                with self.assertRaises(PatcherError):
+                    _publish("install", [exe, dll], pre, published, root)
+            self.assertEqual(exe.read_bytes(), b"candidate-exe")
+            self.assertEqual(dll.read_bytes(), b"candidate-dll")
+            self.assertTrue(any((root / ISSUANCE_REGISTRY_NAME).iterdir()))
+
+    def test_c287_issuance_creation_race_is_exclusive_and_does_not_publish(self) -> None:
+        import src.vv5_individual_running as running
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            exe, dll = root / VV5_EXE_BASENAME, root / DLL_NAME
+            exe.write_bytes(b"parent-exe"); dll.write_bytes(b"parent-dll")
+            pre = {exe: _state(exe), dll: _state(dll)}
+            original_link = running.os.link
+            def race_link(src, dst):
+                Path(dst).write_bytes(b"foreign-issuance")
+                return original_link(src, dst)
+            with mock.patch.object(running.os, "link", side_effect=race_link):
+                with self.assertRaises(PatcherError):
+                    _publish("install", [exe, dll], pre, {exe: b"candidate-exe", dll: b"candidate-dll"}, root)
+            self.assertEqual(exe.read_bytes(), b"parent-exe")
+            self.assertEqual(dll.read_bytes(), b"parent-dll")
+            self.assertTrue((root / ISSUANCE_REGISTRY_NAME).is_dir())
+            self.assertEqual((root / ISSUANCE_REGISTRY_NAME / next((root / ISSUANCE_REGISTRY_NAME).iterdir()).name).read_bytes(), b"foreign-issuance")
+
+    def test_c287_issuance_binding_replacement_race_is_rejected(self) -> None:
+        import src.vv5_individual_running as running
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            registry, registry_identity, _ = running._registry(root)
+            issuance = registry / "token.json"
+            running._write_issuance(issuance, {"schema_version": 1, "token": "token"})
+            before = running._inventory(root, issuance)
+            self.assertIsNotNone(before)
+            original_inventory = running._inventory
+            calls = {"n": 0}
+            def race_inventory(base, path):
+                if path == issuance:
+                    calls["n"] += 1
+                    if calls["n"] == 2:
+                        issuance.write_bytes(b"substituted")
+                return original_inventory(base, path)
+            with mock.patch.object(running, "_inventory", side_effect=race_inventory):
+                with self.assertRaises(PatcherError):
+                    running._replace_issuance(issuance, before, {"schema_version": 1, "token": "token", "bound": True})
+            self.assertEqual(issuance.read_bytes(), b"substituted")
+
+    def test_c287_relocated_complete_tree_is_rejected_before_replay(self) -> None:
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td); relocated = root / "relocated"
+            report = root / ".vv5run-recovery-fabricated.json"
+            report.write_text(json.dumps({"feature_owner": "vv5_individual_grant_running_candidate", "mode": VV5_MODE}), encoding="utf-8")
+            shutil.copytree(root, relocated)
+            with self.assertRaises(PatcherError):
+                recover_atomic(relocated / report.name)
 
 
 if __name__ == "__main__":
