@@ -23,9 +23,9 @@
     "patches": [
       {
         "offset": "0xDB766",
-        "before": "83FB027525",
-        "after": "E9B5690100",
-        "purpose": "guarded command dispatcher: command 1 remains certified Full Mastery, command 2 enters Running helper, commands 0/3 continue legacy"
+        "before": "E995750100",
+        "after": "E9B5880100",
+        "purpose": "guarded composed-parent dispatcher: EBX=1 remains 0x7C9D00, EBX=2 enters Running, all other commands continue 0x7B2790"
       }
     ],
     "parent_hashes": {
@@ -36,10 +36,29 @@
       "status": "disabled projection; dedicated .vv5run RX extension and production install/remove remain pending",
       "section": ".vv5run",
       "append_source": "generated:vv5_individual_running_page",
+      "append_offset": "0xF4000",
+      "rva": "0x3CB000",
+      "va": "0x7CB000",
       "append_length": 8192,
-      "hook_preimage": "83FB027525",
+      "section_characteristics": "RX",
+      "dispatcher_offset": "0x20",
+      "dispatcher_va": "0x7CB020",
+      "hook_preimage": "E995750100",
+      "hook_after": "E9B5880100",
       "hook_owner": "vv5_individual_grant_running_candidate",
-      "uninstall": "restore exact composed parent and truncate only candidate-owned append"
+      "uninstall": "restore exact composed parent hook and truncate only candidate-owned .vv5run append",
+      "layouts": {
+        "collection_progression": {
+          "parent_sha256": "857E22D7C361B802508BF789C3CC486E42E76021F5AA579BB1D16CC6E0D017A0",
+          "hook_before": "E995750100",
+          "hook_after": "E9B5880100"
+        },
+        "immediate_fixed": {
+          "parent_sha256": "E93822F752F730ECB751EBAA87021194C992984721B4370FF0015D5FC4BB2E9A",
+          "hook_before": "E995750100",
+          "hook_after": "E9B5880100"
+        }
+      }
     },
     "transaction_contract": {
       "command": 2,
@@ -49,6 +68,12 @@
       "ownership": null,
       "remove": false,
       "selected_index": "sub_425950()+0x17E24 signed 0..149",
+      "eligibility": [
+        "byte record+0x1CD4 != 0",
+        "signed dword record+0x1C40 > 0",
+        "byte record+0x1CE1 == 0 (current Believer)",
+        "byte record+0x1CEC == 0 (non-skeleton)"
+      ],
       "likes": [
         "record+0x1F5C",
         "record+0x1F60",
@@ -58,6 +83,12 @@
       "empty_value": -1,
       "dry_run": "scan all Likes before confirmation; preserve duplicates; first physical -1 only",
       "reacquire": "same selected index and exact three-Like snapshot before write",
+      "record_identity": "initial and confirmed resolver pointers must match exactly; no cached physical-base walking",
+      "funds_checks": [
+        "complete dry-run before confirmation",
+        "immediately before write"
+      ],
+      "rollback": "on failed write/readback, reacquire same index and record identity, require target still helper-written 38, restore -1 and verify; no charge",
       "deduction": "ECX=0x51D5F8; push -40000; call 0x4237B0 exactly once",
       "forbidden_reads": [
         "Dislikes",
@@ -77,9 +108,15 @@
       }
     },
     "emitted": {
-      "page_sha256": "4FC2362AB25D38FFA79B4EAA3B58390DBCDB7CC9FC4BAD49DD806315EABBFC66",
-      "helper_sha256": "FF759D04EAB5249C509060AFE243E66750B8D3038F491C03B092ECE32326DB55",
-      "helper_length": 508
+      "page_sha256": "F5B86214F5E27EB0929FB97B18641BF37BDC9C0B5374FD1439F68C15B11005FC",
+      "page_rva": "0x3CB000",
+      "page_va": "0x7CB000",
+      "append_offset": "0xF4000",
+      "dispatcher_va": "0x7CB020",
+      "dispatcher_sha256": "BBB4C701A93F3863A841D4ED157857390DEF4E904D197CE071F7B981AA1918D6",
+      "dispatcher_bytes": "83FB010F84D7ECFFFF83FB020F84CE170000E95977FEFF",
+      "helper_sha256": "269C77CEEB7262617E93D6A52A23D774E20E8DD20AC404E67A99BC07017D7E96",
+      "helper_length": 677
     },
     "provenance": {
       "implementation_parent": "f1256fca68f2711974e93057e599f2642c77a2a4",
@@ -91,54 +128,101 @@
   "slot": {
     "entry_offset": 32,
     "entry_length": 227,
-    "entry_sha256": "3931DE449CDC334B9BD93D0FCF813CC8D44885E7DA430D79C22234F4B3DB1BBB",
+    "entry_sha256": "DC1FCC52E188FD76A52BAD9DD342C20BB2081857FBD22771C8A3C2AE7B05FC91",
     "walker_offset": 1024,
     "walker_length": 236,
-    "walker_sha256": "7466674FBC225EE898E10086B355509BF6AAB2E2D9024C8E3FCE4D0833CADAB8",
+    "walker_sha256": "CBD5223DFDEDDCB8D4ECE1947465823BD2F13F9C3A961EE86CC2D3AE721164DC",
     "confirmation_offset": 2048,
     "confirmation_length": 73,
-    "confirmation_sha256": "234E2D9320A75D6B95DED0A682F13087294AE5E48F126DF30269C6F37653C18F",
+    "confirmation_sha256": "EDEBDB52525BE865E27502760A2C5A4859CAB04392A9FDB3F30B08C6EC48E4DB",
     "village_confirmation_offset": 2128,
     "village_confirmation_length": 73,
-    "village_confirmation_sha256": "2C392F952854EB485091199AC96AAC0B1C5683B7061D9267650411868926D763",
+    "village_confirmation_sha256": "60755BE1E2FF5356FEB8F59BBDEF29367AAD9EBEFA5A21DB597388FECAD81C39",
     "confirmation_string_sha256": {
       "individual_confirm": "60C9A875AFC93174041B78B3A185B4E1BAE468404F20C3AFC1CF1F127802FD3C",
       "village_confirm": "56BC07733ED0F93F211BA0D1887502F8A45E03A4187B8C17067F32FF87117D46"
     },
     "individual_offset": 3072,
     "individual_length": 689,
-    "individual_sha256": "289263A8222D462908DED658084C49A9F770EB31AE9E96E1383001485109A960",
+    "individual_sha256": "3E41D12B406B5A86AF389F337D9D39EE550EB7994EEF6E818CCCB0633A805553",
     "strings": {
-      "dll": "0x7CA200",
-      "result": "0x7CA217",
-      "user32": "0x7CA230",
-      "message_box": "0x7CA23B",
-      "warning": "0x7CA247",
-      "caption": "0x7CA2C3",
-      "individual_no_change": "0x7CA2D4",
-      "individual_invalid": "0x7CA321",
-      "individual_insufficient": "0x7CA39D",
-      "individual_cancel": "0x7CA3E5",
-      "individual_recheck": "0x7CA424",
-      "individual_postverify": "0x7CA48C",
-      "individual_confirm": "0x7CA4D4",
-      "individual_success": "0x7CA532",
-      "village_confirm": "0x7CA56A",
-      "running_confirm": "0x7CAC00",
-      "running_success": "0x7CAC58",
-      "running_already": "0x7CAC6D",
-      "running_no_slot": "0x7CACB6",
-      "running_cancel": "0x7CAD00",
-      "running_recheck": "0x7CAD40",
-      "running_write_failed": "0x7CAD97",
-      "running_invalid": "0x7CADDA",
-      "running_insufficient": "0x7CAE24"
+      "dll": "0x7CC200",
+      "result": "0x7CC217",
+      "user32": "0x7CC230",
+      "message_box": "0x7CC23B",
+      "warning": "0x7CC247",
+      "caption": "0x7CC2C3",
+      "individual_no_change": "0x7CC2D4",
+      "individual_invalid": "0x7CC321",
+      "individual_insufficient": "0x7CC39D",
+      "individual_cancel": "0x7CC3E5",
+      "individual_recheck": "0x7CC424",
+      "individual_postverify": "0x7CC48C",
+      "individual_confirm": "0x7CC4D4",
+      "individual_success": "0x7CC532",
+      "village_confirm": "0x7CC56A",
+      "running_confirm": "0x7CCC00",
+      "running_success": "0x7CCC58",
+      "running_already": "0x7CCC6D",
+      "running_no_slot": "0x7CCCB6",
+      "running_cancel": "0x7CCD00",
+      "running_recheck": "0x7CCD40",
+      "running_write_failed": "0x7CCD97",
+      "running_invalid": "0x7CCDDA",
+      "running_insufficient": "0x7CCE24"
     },
     "running_offset": 6144,
     "running_confirm_offset": 5888,
-    "running_helper_length": 508,
-    "running_helper_sha256": "FF759D04EAB5249C509060AFE243E66750B8D3038F491C03B092ECE32326DB55",
-    "running_helper_bytes": "5589E553565783EC208975F0E83FB1C5FF85C00F84C90100008B80247E01003D960000000F83B80100008945ECB94841550050E80870CAFF85C00F84A2010000B948415500FF75ECE80351CAFF85C00F848D01000089C680BED41C0000000F847E01000083BE401C0000000F8E7101000080BEEC1C0000000F856401000031FFC745E8FFFFFFFF83FF0373258B84BE5C1F00008944BDE083F8260F841801000083F8FF7509837DE8FF7503897DE847EBD6837DE8FF0F8404010000813DF8D55100409C00000F82FB000000E830FEFFFF85C00F84F5000000E873B0C5FF85C00F84EF0000008B80247E01003B45EC0F85E0000000B94841550050E8416FCAFF85C00F84CD000000B948415500FF75ECE83C50CAFF85C00F84B800000089C680BED41C0000000F84A900000083BE401C0000000F8E9C00000080BEEC1C0000000F858F0000008B865C1F00003B45E00F85800000008B86601F00003B45DC75758B86641F00003B45D8756A8B7DE883BCBE5C1F0000FF755D813DF8D55100409C00007243C784BE5C1F00002600000083BCBE5C1F000026754368C063FFFFB9F8D55100E8098EC5FF6858AC7C0068C3A27C00E85A78FEFFEB39686DAC7C00EB2868B6AC7C00EB216824AE7C00EB1A6800AD7C00EB136840AD7C00EB0C6897AD7C00EB0568DAAD7C0068C3A27C00E81F78FEFF8B75F083C4205F5E5B5DC3",
-    "running_confirm_bytes": "5589E55356576830A27C00FF15E051490085C0742B683BA27C0050FF15DC51490085C0741B6A0168C3A27C006800AC7C006A00FFD083F8010F94C00FB6C0EB0231C05F5E5B89EC5DC3"
+    "running_helper_length": 677,
+    "running_helper_sha256": "269C77CEEB7262617E93D6A52A23D774E20E8DD20AC404E67A99BC07017D7E96",
+    "running_helper_bytes": "5589E553565783EC308975F0E83F91C5FF85C00F84720200008B80247E01003D960000000F83610200008945ECB94841550050E80850CAFF85C00F844B020000B948415500FF75ECE80331CAFF85C00F84360200008945E489C680BED41C0000000F842402000083BE401C0000000F8E1702000080BEE11C0000000F850A02000080BEEC1C0000000F85FD01000031FFC745E8FFFFFFFF83FF0373258B84BE5C1F00008944BDE083F8260F843501000083F8FF7509837DE8FF7503897DE847EBD6837DE8FF0F8424010000813DF8D55100409C00000F821E010000E820FEFFFF85C00F841B010000E86390C5FF85C00F84180100008B80247E01003B45EC0F8509010000B94841550050E8314FCAFF85C00F84F6000000B948415500FF75ECE82C30CAFF85C00F84E10000003B45E40F85D800000089C680BED41C0000000F84C900000083BE401C0000000F8EBC00000080BEE11C0000000F85AF00000080BEEC1C0000000F85A20000008B865C1F00003B45E00F85930000008B86601F00003B45DC0F85840000008B86641F00003B45D875798B7DE883BCBE5C1F0000FF756C813DF8D55100409C0000724CC784BE5C1F00002600000083BCBE5C1F000026755268C063FFFFB9F8D55100E8DF6DC5FF6858CC7C0068C3C27C00E83058FEFFE9B5000000686DCC7C00E9A100000068B6CC7C00E9970000006824CE7C00E98D0000006800CD7C00E9830000006840CD7C00EB7CE8378FC5FF85C074678B80247E01003B45EC755CB94841550050E81D2FCAFF85C0744D3B45E4754889C680BED41C000000743D83BE401C0000007E3480BEE11C000000752B80BEEC1C00000075228B7DE883BCBE5C1F0000267515C784BE5C1F0000FFFFFFFF83BCBE5C1F0000FF75006897CD7C00EB0568DACD7C0068C3C27C00E87657FEFF8B75F083C4305F5E5B5DC3",
+    "running_confirm_bytes": "5589E55356576830C27C00FF15E051490085C0742B683BC27C0050FF15DC51490085C0741B6A0168C3C27C006800CC7C006A00FFD083F8010F94C00FB6C0EB0231C05F5E5B89EC5DC3",
+    "running_stack_frame_size": 48,
+    "running_stack_locals": {
+      "saved_esi": [
+        -16,
+        -13
+      ],
+      "selected_index": [
+        -20,
+        -17
+      ],
+      "first_empty_slot": [
+        -24,
+        -21
+      ],
+      "record_identity": [
+        -28,
+        -25
+      ],
+      "likes_snapshot_0": [
+        -32,
+        -29
+      ],
+      "likes_snapshot_1": [
+        -36,
+        -33
+      ],
+      "likes_snapshot_2": [
+        -40,
+        -37
+      ]
+    },
+    "running_saved_register_intervals": {
+      "saved_ebx": [
+        -4,
+        -1
+      ],
+      "saved_esi": [
+        -8,
+        -5
+      ],
+      "saved_edi": [
+        -12,
+        -9
+      ]
+    },
+    "running_snapshot_initialization": "all three Like DWORDs are stored before confirmation; first-empty initializes to -1",
+    "running_rollback": "after failed readback reacquire same index and record pointer, verify active/living/non-skeleton and slot==38, restore -1 and verify; never deduct"
   }
 }

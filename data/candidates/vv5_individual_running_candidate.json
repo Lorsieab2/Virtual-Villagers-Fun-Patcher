@@ -22,9 +22,9 @@
   "patches": [
     {
       "offset": "0xDB766",
-      "before": "83FB027525",
-      "after": "E9B5690100",
-      "purpose": "guarded command dispatcher: command 1 remains certified Full Mastery, command 2 enters Running helper, commands 0/3 continue legacy"
+      "before": "E995750100",
+      "after": "E9B5880100",
+      "purpose": "guarded composed-parent dispatcher: EBX=1 remains 0x7C9D00, EBX=2 enters Running, all other commands continue 0x7B2790"
     }
   ],
   "parent_hashes": {
@@ -35,10 +35,29 @@
     "status": "disabled projection; dedicated .vv5run RX extension and production install/remove remain pending",
     "section": ".vv5run",
     "append_source": "generated:vv5_individual_running_page",
+    "append_offset": "0xF4000",
+    "rva": "0x3CB000",
+    "va": "0x7CB000",
     "append_length": 8192,
-    "hook_preimage": "83FB027525",
+    "section_characteristics": "RX",
+    "dispatcher_offset": "0x20",
+    "dispatcher_va": "0x7CB020",
+    "hook_preimage": "E995750100",
+    "hook_after": "E9B5880100",
     "hook_owner": "vv5_individual_grant_running_candidate",
-    "uninstall": "restore exact composed parent and truncate only candidate-owned append"
+    "uninstall": "restore exact composed parent hook and truncate only candidate-owned .vv5run append",
+    "layouts": {
+      "collection_progression": {
+        "parent_sha256": "857E22D7C361B802508BF789C3CC486E42E76021F5AA579BB1D16CC6E0D017A0",
+        "hook_before": "E995750100",
+        "hook_after": "E9B5880100"
+      },
+      "immediate_fixed": {
+        "parent_sha256": "E93822F752F730ECB751EBAA87021194C992984721B4370FF0015D5FC4BB2E9A",
+        "hook_before": "E995750100",
+        "hook_after": "E9B5880100"
+      }
+    }
   },
   "transaction_contract": {
     "command": 2,
@@ -48,6 +67,12 @@
     "ownership": null,
     "remove": false,
     "selected_index": "sub_425950()+0x17E24 signed 0..149",
+    "eligibility": [
+      "byte record+0x1CD4 != 0",
+      "signed dword record+0x1C40 > 0",
+      "byte record+0x1CE1 == 0 (current Believer)",
+      "byte record+0x1CEC == 0 (non-skeleton)"
+    ],
     "likes": [
       "record+0x1F5C",
       "record+0x1F60",
@@ -57,6 +82,12 @@
     "empty_value": -1,
     "dry_run": "scan all Likes before confirmation; preserve duplicates; first physical -1 only",
     "reacquire": "same selected index and exact three-Like snapshot before write",
+    "record_identity": "initial and confirmed resolver pointers must match exactly; no cached physical-base walking",
+    "funds_checks": [
+      "complete dry-run before confirmation",
+      "immediately before write"
+    ],
+    "rollback": "on failed write/readback, reacquire same index and record identity, require target still helper-written 38, restore -1 and verify; no charge",
     "deduction": "ECX=0x51D5F8; push -40000; call 0x4237B0 exactly once",
     "forbidden_reads": [
       "Dislikes",
@@ -76,9 +107,15 @@
     }
   },
   "emitted": {
-    "page_sha256": "4FC2362AB25D38FFA79B4EAA3B58390DBCDB7CC9FC4BAD49DD806315EABBFC66",
-    "helper_sha256": "FF759D04EAB5249C509060AFE243E66750B8D3038F491C03B092ECE32326DB55",
-    "helper_length": 508
+    "page_sha256": "F5B86214F5E27EB0929FB97B18641BF37BDC9C0B5374FD1439F68C15B11005FC",
+    "page_rva": "0x3CB000",
+    "page_va": "0x7CB000",
+    "append_offset": "0xF4000",
+    "dispatcher_va": "0x7CB020",
+    "dispatcher_sha256": "BBB4C701A93F3863A841D4ED157857390DEF4E904D197CE071F7B981AA1918D6",
+    "dispatcher_bytes": "83FB010F84D7ECFFFF83FB020F84CE170000E95977FEFF",
+    "helper_sha256": "269C77CEEB7262617E93D6A52A23D774E20E8DD20AC404E67A99BC07017D7E96",
+    "helper_length": 677
   },
   "provenance": {
     "implementation_parent": "f1256fca68f2711974e93057e599f2642c77a2a4",

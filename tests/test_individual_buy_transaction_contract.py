@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import struct
 import unittest
 from pathlib import Path
 
@@ -105,7 +106,70 @@ class IndividualBuyTransactionContractTests(unittest.TestCase):
         self.assertIn(bytes.fromhex("3B 45 DC"), helper)
         self.assertIn(bytes.fromhex("3B 45 D8"), helper)
         self.assertEqual(helper.count(bytes.fromhex("68 C0 63 FF FF")), 1)
-        self.assertNotIn(bytes.fromhex("1F68"), helper)
+        # Dislikes begin immediately after the three Likes DWORDs; neither
+        # their little-endian displacement nor the following slots may occur.
+        self.assertNotIn(bytes.fromhex("68 1F 00 00"), helper)
+        self.assertNotIn(bytes.fromhex("6C 1F 00 00"), helper)
+        self.assertNotIn(bytes.fromhex("70 1F 00 00"), helper)
+
+    def test_vv5_running_stack_intervals_are_disjoint_and_initialized(self) -> None:
+        raw = load("vv5_individual_running_candidate_map.json")
+        slot = raw["slot"]
+        self.assertEqual(slot["running_stack_frame_size"], 0x30)
+        self.assertLessEqual(slot["running_helper_length"], 0x400)
+        self.assertEqual(slot["running_offset"], 0x1800)
+        self.assertEqual(slot["running_confirm_offset"], 0x1700)
+        locals_ = slot["running_stack_locals"]
+        saved = slot["running_saved_register_intervals"]
+        intervals = list(locals_.items()) + list(saved.items())
+        for i, (name, (start, end)) in enumerate(intervals):
+            self.assertLessEqual(start, end, name)
+            self.assertGreaterEqual(start, -0x30, name)
+            self.assertLessEqual(end, -1, name)
+            for other, (other_start, other_end) in intervals[i + 1 :]:
+                self.assertTrue(end < other_start or other_end < start, f"{name} overlaps {other}")
+        snapshots = [locals_[f"likes_snapshot_{i}"] for i in range(3)]
+        self.assertEqual(snapshots, [[-0x20, -0x1D], [-0x24, -0x21], [-0x28, -0x25]])
+        self.assertIn("all three Like DWORDs are stored before confirmation", slot["running_snapshot_initialization"])
+        helper = bytes.fromhex(slot["running_helper_bytes"])
+        self.assertIn(bytes.fromhex("83 EC 30"), helper)
+        self.assertIn(bytes.fromhex("89 45 E4"), helper)  # record identity -0x1C
+        self.assertGreaterEqual(helper.count(bytes.fromhex("89 44 BD E0")), 1)
+        self.assertIn(bytes.fromhex("3B 45 E4"), helper)  # identity recheck
+        self.assertIn(bytes.fromhex("83 C4 30"), helper)
+
+    def test_vv5_running_production_page_dispatch_and_composed_hook(self) -> None:
+        raw = load("vv5_individual_running_candidate.json")
+        patch = raw["patches"][0]
+        self.assertEqual(patch["offset"], "0xDB766")
+        self.assertEqual(patch["before"], "E995750100")
+        self.assertEqual(patch["after"], "E9B5880100")
+        append = raw["pe_append_transaction"]
+        self.assertEqual(append["section"], ".vv5run")
+        self.assertEqual(append["append_offset"], "0xF4000")
+        self.assertEqual(append["rva"], "0x3CB000")
+        self.assertEqual(append["va"], "0x7CB000")
+        self.assertEqual(append["dispatcher_va"], "0x7CB020")
+        self.assertEqual(append["append_length"], 0x2000)
+        self.assertEqual(set(append["layouts"]), {"collection_progression", "immediate_fixed"})
+        for layout in append["layouts"].values():
+            self.assertEqual(layout["hook_before"], "E995750100")
+            self.assertEqual(layout["hook_after"], "E9B5880100")
+        emitted = raw["emitted"]
+        self.assertEqual(emitted["page_va"], "0x7CB000")
+        self.assertEqual(emitted["dispatcher_va"], "0x7CB020")
+        disp = bytes.fromhex(emitted["dispatcher_bytes"])
+        self.assertGreaterEqual(len(disp), 5)
+        targets: list[int] = []
+        for i in range(len(disp) - 4):
+            if disp[i : i + 2] == b"\x0f\x84":
+                rel = struct.unpack_from("<i", disp, i + 2)[0]
+                targets.append(0x7CB020 + i + 6 + rel)
+            elif disp[i] == 0xE9:
+                rel = struct.unpack_from("<i", disp, i + 1)[0]
+                targets.append(0x7CB020 + i + 5 + rel)
+        self.assertEqual(set(targets), {0x7C9D00, 0x7CC800, 0x7B2790})
+        self.assertNotIn("83FB027525", json.dumps(raw))
 
 
 if __name__ == "__main__":

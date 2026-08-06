@@ -79,6 +79,16 @@ STRINGS_OFFSET = 0x1200
 RUNNING_OFFSET = 0x1800
 RUNNING_CONFIRM_OFFSET = 0x1700
 RUNNING_STRINGS_OFFSET = 0x1C00
+# Individual Grant Running is an isolated extension layered over the
+# already-composed Full Mastery parent.  Keep it out of the certified
+# .vv5fm page so the enabled feature's bytes remain byte-identical.
+RUNNING_APPEND_OFFSET = 0xF4000
+RUNNING_PAGE_RVA = 0x3CB000
+RUNNING_PAGE_VA = 0x7CB000
+RUNNING_DISPATCHER_OFFSET = 0x20
+RUNNING_PARENT_HOOK_BEFORE = "E995750100"
+RUNNING_HOOK_AFTER = "E9B5880100"
+RUNNING_PARENT_HOOK_OFFSET = 0xDB766
 PRICE = 1_000_000
 INDIVIDUAL_PRICE = 100_000
 STRIDE = 0x2F44
@@ -725,7 +735,10 @@ def build_running_helper(page_va: int, strings: dict[str, int]) -> bytes:
         push ebx
         push esi
         push edi
-        sub esp, 0x20
+        # Locals are deliberately disjoint from saved registers (-4..-0xC):
+        # saved ESI -0x10, selected index -0x14, first empty -0x18, and
+        # three independent Like snapshots -0x20/-0x24/-0x28.
+        sub esp, 0x30
         mov dword ptr [ebp-0x10], esi
         call 0x425950
         test eax, eax
@@ -744,11 +757,14 @@ def build_running_helper(page_va: int, strings: dict[str, int]) -> bytes:
         call 0x46F950
         test eax, eax
         jz fail
+        mov dword ptr [ebp-0x1C], eax
         mov esi, eax
         cmp byte ptr [esi+0x1CD4], 0
         je fail
         cmp dword ptr [esi+0x1C40], 0
         jle fail
+        cmp byte ptr [esi+0x1CE1], 0
+        jne fail
         cmp byte ptr [esi+0x1CEC], 0
         jne fail
         xor edi, edi
@@ -792,11 +808,15 @@ def build_running_helper(page_va: int, strings: dict[str, int]) -> bytes:
         call 0x46F950
         test eax, eax
         jz stale
+        cmp eax, dword ptr [ebp-0x1C]
+        jne stale
         mov esi, eax
         cmp byte ptr [esi+0x1CD4], 0
         je stale
         cmp dword ptr [esi+0x1C40], 0
         jle stale
+        cmp byte ptr [esi+0x1CE1], 0
+        jne stale
         cmp byte ptr [esi+0x1CEC], 0
         jne stale
         mov eax, dword ptr [esi+0x1F5C]
@@ -839,6 +859,38 @@ def build_running_helper(page_va: int, strings: dict[str, int]) -> bytes:
         push 0x{strings['running_recheck']:X}
         jmp result
     write_failed:
+        # A failed readback may have left our 38 in place.  Restore only
+        # after reacquiring the same selected index and record identity and
+        # proving the target still contains exactly the value we wrote.
+        call 0x425950
+        test eax, eax
+        jz write_failed_result
+        mov eax, dword ptr [eax+0x17E24]
+        cmp eax, dword ptr [ebp-0x14]
+        jne write_failed_result
+        mov ecx, 0x554148
+        push eax
+        call 0x46F950
+        test eax, eax
+        jz write_failed_result
+        cmp eax, dword ptr [ebp-0x1C]
+        jne write_failed_result
+        mov esi, eax
+        cmp byte ptr [esi+0x1CD4], 0
+        je write_failed_result
+        cmp dword ptr [esi+0x1C40], 0
+        jle write_failed_result
+        cmp byte ptr [esi+0x1CE1], 0
+        jne write_failed_result
+        cmp byte ptr [esi+0x1CEC], 0
+        jne write_failed_result
+        mov edi, dword ptr [ebp-0x18]
+        cmp dword ptr [esi+edi*4+0x1F5C], 38
+        jne write_failed_result
+        mov dword ptr [esi+edi*4+0x1F5C], -1
+        cmp dword ptr [esi+edi*4+0x1F5C], -1
+        jne write_failed_result
+    write_failed_result:
         push 0x{strings['running_write_failed']:X}
         jmp result
     fail:
@@ -848,7 +900,7 @@ def build_running_helper(page_va: int, strings: dict[str, int]) -> bytes:
         call 0x7B2210
     done:
         mov esi, dword ptr [ebp-0x10]
-        add esp, 0x20
+        add esp, 0x30
         pop edi
         pop esi
         pop ebx
@@ -1177,11 +1229,28 @@ def build_slot(page_va: int, installed: bool, include_running: bool = False) -> 
             "running_helper_sha256": sha(running_helper),
             "running_helper_bytes": running_helper.hex().upper(),
             "running_confirm_bytes": running_confirm.hex().upper(),
+            "running_stack_frame_size": 0x30,
+            "running_stack_locals": {
+                "saved_esi": [-0x10, -0x0D],
+                "selected_index": [-0x14, -0x11],
+                "first_empty_slot": [-0x18, -0x15],
+                "record_identity": [-0x1C, -0x19],
+                "likes_snapshot_0": [-0x20, -0x1D],
+                "likes_snapshot_1": [-0x24, -0x21],
+                "likes_snapshot_2": [-0x28, -0x25],
+            },
+            "running_saved_register_intervals": {
+                "saved_ebx": [-0x04, -0x01],
+                "saved_esi": [-0x08, -0x05],
+                "saved_edi": [-0x0C, -0x09],
+            },
+            "running_snapshot_initialization": "all three Like DWORDs are stored before confirmation; first-empty initializes to -1",
+            "running_rollback": "after failed readback reacquire same index and record pointer, verify active/living/non-skeleton and slot==38, restore -1 and verify; never deduct",
         })
     return bytes(slot), result
 
 
-def build_dispatcher(page_va: int, bound: int) -> bytes:
+def build_dispatcher(page_va: int, bound: int, dispatcher_offset: int = 0x40) -> bytes:
     slot_va = page_va + SLOT_OFFSET
     entry_va = slot_va + SLOT_ENTRY_OFFSET
     return asm(
@@ -1212,11 +1281,31 @@ def build_dispatcher(page_va: int, bound: int) -> bytes:
             pop ebp
             ret
         """,
-        page_va + 0x40,
+        page_va + dispatcher_offset,
     )
 
 
-def build_page(page_va: int, slot: bytes, dispatcher: bytes, slot_map: dict[str, object] | None = None) -> bytes:
+def build_running_dispatcher(page_va: int) -> bytes:
+    """Route the composed command-1/2 hook without touching legacy commands."""
+    return asm(
+        f"""
+            cmp ebx, 1
+            je 0x7C9D00
+            cmp ebx, 2
+            je 0x{page_va + RUNNING_OFFSET:X}
+            jmp 0x7B2790
+        """,
+        page_va + RUNNING_DISPATCHER_OFFSET,
+    )
+
+
+def build_page(
+    page_va: int,
+    slot: bytes,
+    dispatcher: bytes,
+    slot_map: dict[str, object] | None = None,
+    dispatcher_offset: int = 0x40,
+) -> bytes:
     page = bytearray(PAGE_SIZE)
     page[0:8] = b"VFM5PG\0\0"
     page[8:12] = (1).to_bytes(4, "little")
@@ -1225,9 +1314,9 @@ def build_page(page_va: int, slot: bytes, dispatcher: bytes, slot_map: dict[str,
     page[20:24] = SLOT_SIZE.to_bytes(4, "little")
     page[24:28] = (SLOT_OFFSET + SLOT_ENTRY_OFFSET).to_bytes(4, "little")
     page[28:32] = page_va.to_bytes(4, "little")
-    if 0x40 + len(dispatcher) > SLOT_OFFSET:
+    if dispatcher_offset + len(dispatcher) > SLOT_OFFSET:
         raise RuntimeError("base dispatcher overlaps command-7 slot")
-    page[0x40 : 0x40 + len(dispatcher)] = dispatcher
+    page[dispatcher_offset : dispatcher_offset + len(dispatcher)] = dispatcher
     page[SLOT_OFFSET : SLOT_OFFSET + SLOT_SIZE] = slot
     if slot_map and slot_map.get("running_helper_bytes"):
         helper = bytes.fromhex(str(slot_map["running_helper_bytes"]))
@@ -1491,10 +1580,14 @@ def main() -> None:
     # Keep the new command-2 candidate isolated from the certified Full
     # Mastery feature page.  Its bytes and metadata are emitted as a separate
     # disabled projection until independent recertification.
-    running_slot, running_map = build_slot(LAYOUTS["collection_progression"]["page_va"], True, True)
+    running_slot, running_map = build_slot(RUNNING_PAGE_VA, True, True)
+    running_dispatcher = build_running_dispatcher(RUNNING_PAGE_VA)
     running_page = build_page(
-        LAYOUTS["collection_progression"]["page_va"], running_slot,
-        build_dispatcher(LAYOUTS["collection_progression"]["page_va"], 150), running_map
+        RUNNING_PAGE_VA,
+        running_slot,
+        running_dispatcher,
+        running_map,
+        dispatcher_offset=RUNNING_DISPATCHER_OFFSET,
     )
     running_candidate = {
         "id": "vv5_individual_grant_running_candidate",
@@ -1510,10 +1603,10 @@ def main() -> None:
         "expanded_fail_closed": True,
         "dependencies": ["vv5_full_mastery_all_stage_a_candidate"],
         "patches": [{
-            "offset": f"0x{PAYLOAD_OFFSET + 0x766:X}",
-            "before": "83FB027525",
-            "after": asm(f"jmp 0x{LAYOUTS['collection_progression']['page_va'] + SLOT_OFFSET + SLOT_ENTRY_OFFSET:X}", PAYLOAD_VA + 0x766).hex().upper(),
-            "purpose": "guarded command dispatcher: command 1 remains certified Full Mastery, command 2 enters Running helper, commands 0/3 continue legacy",
+            "offset": f"0x{RUNNING_PARENT_HOOK_OFFSET:X}",
+            "before": RUNNING_PARENT_HOOK_BEFORE,
+            "after": RUNNING_HOOK_AFTER,
+            "purpose": "guarded composed-parent dispatcher: EBX=1 remains 0x7C9D00, EBX=2 enters Running, all other commands continue 0x7B2790",
         }],
         "parent_hashes": {
             "collection_progression": "857E22D7C361B802508BF789C3CC486E42E76021F5AA579BB1D16CC6E0D017A0",
@@ -1523,19 +1616,34 @@ def main() -> None:
             "status": "disabled projection; dedicated .vv5run RX extension and production install/remove remain pending",
             "section": ".vv5run",
             "append_source": "generated:vv5_individual_running_page",
-            "append_length": 0x2000,
-            "hook_preimage": "83FB027525",
+            "append_offset": f"0x{RUNNING_APPEND_OFFSET:X}",
+            "rva": f"0x{RUNNING_PAGE_RVA:X}",
+            "va": f"0x{RUNNING_PAGE_VA:X}",
+            "append_length": PAGE_SIZE,
+            "section_characteristics": "RX",
+            "dispatcher_offset": f"0x{RUNNING_DISPATCHER_OFFSET:X}",
+            "dispatcher_va": f"0x{RUNNING_PAGE_VA + RUNNING_DISPATCHER_OFFSET:X}",
+            "hook_preimage": RUNNING_PARENT_HOOK_BEFORE,
+            "hook_after": RUNNING_HOOK_AFTER,
             "hook_owner": "vv5_individual_grant_running_candidate",
-            "uninstall": "restore exact composed parent and truncate only candidate-owned append",
+            "uninstall": "restore exact composed parent hook and truncate only candidate-owned .vv5run append",
+            "layouts": {
+                "collection_progression": {"parent_sha256": "857E22D7C361B802508BF789C3CC486E42E76021F5AA579BB1D16CC6E0D017A0", "hook_before": RUNNING_PARENT_HOOK_BEFORE, "hook_after": RUNNING_HOOK_AFTER},
+                "immediate_fixed": {"parent_sha256": "E93822F752F730ECB751EBAA87021194C992984721B4370FF0015D5FC4BB2E9A", "hook_before": RUNNING_PARENT_HOOK_BEFORE, "hook_after": RUNNING_HOOK_AFTER},
+            },
         },
         "transaction_contract": {
             "command": 2, "price": 40000, "action": "Buy", "repeatable": True,
             "ownership": None, "remove": False,
             "selected_index": "sub_425950()+0x17E24 signed 0..149",
+            "eligibility": ["byte record+0x1CD4 != 0", "signed dword record+0x1C40 > 0", "byte record+0x1CE1 == 0 (current Believer)", "byte record+0x1CEC == 0 (non-skeleton)"],
             "likes": ["record+0x1F5C", "record+0x1F60", "record+0x1F64"],
             "running_value": 38, "empty_value": -1,
             "dry_run": "scan all Likes before confirmation; preserve duplicates; first physical -1 only",
             "reacquire": "same selected index and exact three-Like snapshot before write",
+            "record_identity": "initial and confirmed resolver pointers must match exactly; no cached physical-base walking",
+            "funds_checks": ["complete dry-run before confirmation", "immediately before write"],
+            "rollback": "on failed write/readback, reacquire same index and record identity, require target still helper-written 38, restore -1 and verify; no charge",
             "deduction": "ECX=0x51D5F8; push -40000; call 0x4237B0 exactly once",
             "forbidden_reads": ["Dislikes", "movement", "speed"],
             "confirmation": "Grant Running to this villager for 40,000 tech points?\\r\\nPress OK to confirm, or Cancel.",
@@ -1550,7 +1658,17 @@ def main() -> None:
                 "success": "Running was granted.",
             },
         },
-        "emitted": {"page_sha256": sha(running_page), "helper_sha256": running_map["running_helper_sha256"], "helper_length": running_map["running_helper_length"]},
+        "emitted": {
+            "page_sha256": sha(running_page),
+            "page_rva": f"0x{RUNNING_PAGE_RVA:X}",
+            "page_va": f"0x{RUNNING_PAGE_VA:X}",
+            "append_offset": f"0x{RUNNING_APPEND_OFFSET:X}",
+            "dispatcher_va": f"0x{RUNNING_PAGE_VA + RUNNING_DISPATCHER_OFFSET:X}",
+            "dispatcher_sha256": sha(running_dispatcher),
+            "dispatcher_bytes": running_dispatcher.hex().upper(),
+            "helper_sha256": running_map["running_helper_sha256"],
+            "helper_length": running_map["running_helper_length"],
+        },
         "provenance": {"implementation_parent": "f1256fca68f2711974e93057e599f2642c77a2a4", "implementation_commit": None, "audit_commit": None, "acceptance_commit": None},
     }
     RUNNING_OUT.write_text(json.dumps(running_candidate, indent=2) + "\n", encoding="utf-8")
@@ -1562,6 +1680,9 @@ def main() -> None:
         "The transaction is command 2, Buy-only, 40,000 tech points. It performs a complete selected-villager dry run, "
         "scans only Likes +0x1F5C/+0x1F60/+0x1F64, preserves duplicates, writes only the first exact -1 slot, "
         "reacquires and rechecks before mutation, verifies the write, then performs one native deduction. Dislikes, movement, and speed are untouched.\n\n"
+        "The disabled production projection owns .vv5run at raw 0xF4000 / RVA 0x3CB000 / VA 0x7CB000 (RX, 0x2000 bytes); "
+        "its dispatcher is VA 0x7CB020 and replaces the composed-parent hook E995750100 with E9B5880100. "
+        "EBX=1 remains the certified Full Mastery helper at 0x7C9D00, EBX=2 is Running, and all other commands continue at 0x7B2790.\n\n"
         "Every cancel, no-change, recheck, dependency, and failure result includes `No tech points have been deducted.` "
         "The existing enabled VV5 Full Mastery bytes remain unchanged; this overlay is not catalog-visible.\n",
         encoding="utf-8",
