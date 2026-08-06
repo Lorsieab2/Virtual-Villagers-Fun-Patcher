@@ -951,7 +951,7 @@ def recover_atomic(report_path: Path, mode: str = VV5_MODE) -> None:
                     continue
                 if stat.S_ISLNK(entry_st.st_mode) or _unsafe(entry_st) or not stat.S_ISREG(entry_st.st_mode):
                     raise PatcherError(f"VV5 Running recovery chain contains an unsafe member: {name}")
-                if re.fullmatch(r"\.vv5run-(?:recovery|emergency)-[0-9a-f]{32}\.json\.pointer", name) or name.startswith(".vv5run-") and ".chain-" in name:
+                if re.fullmatch(r"\.vv5run-(?:recovery|emergency)-[0-9a-f]{32}\.json\.pointer", name):
                     continue
                 if re.fullmatch(r"\.vv5run-recovery-[0-9a-f]{32}\.json", name):
                     canonical.append(candidate)
