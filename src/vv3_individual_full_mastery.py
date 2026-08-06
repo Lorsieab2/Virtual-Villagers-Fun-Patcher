@@ -518,8 +518,17 @@ def _write_transaction_authority(manifest: Path, payload: dict[str, object], man
             previous_raw = json.loads(_read_regular(journal).decode("utf-8"))
         except Exception as exc:
             raise PatcherError("VV3 individual Full Mastery transaction authority target is foreign.") from exc
-        if not isinstance(previous_raw, dict) or previous_raw.get("manifest_name") != manifest.name:
+        required_previous = {"schema_version", "kind", "state", "manifest_name", "manifest_record", "report_name", "report_record", "canonical_name", "canonical_record", "pointer_name", "pointer_record", "successor_name", "successor_record", "marker_name", "marker_record", "recovery_root_name", "recovery_root_record", "ownership_inventory", "members", "member_roles", "destination_paths_absolute", "transaction_journal"}
+        if not isinstance(previous_raw, dict) or set(previous_raw) != required_previous or previous_raw.get("schema_version") != 1 or previous_raw.get("kind") != "vv3_recovery_transaction_authority" or previous_raw.get("manifest_name") != manifest.name:
             raise PatcherError("VV3 individual Full Mastery transaction authority target is foreign.")
+        if not isinstance(previous_raw.get("transaction_journal"), dict) or previous_raw["transaction_journal"].get("state") != previous_raw.get("state") or not isinstance(previous_raw.get("members"), list) or not isinstance(previous_raw.get("member_roles"), dict) or not isinstance(previous_raw.get("ownership_inventory"), list) or not isinstance(previous_raw.get("destination_paths_absolute"), list):
+            raise PatcherError("VV3 individual Full Mastery transaction authority bindings are malformed.")
+        if any(not isinstance(item, dict) or not isinstance(item.get("path"), str) for item in previous_raw.get("ownership_inventory", [])):
+            raise PatcherError("VV3 individual Full Mastery transaction authority inventory is malformed.")
+        if len({str(path).casefold() for path in previous_raw.get("destination_paths_absolute", [])}) != len(previous_raw.get("destination_paths_absolute", [])):
+            raise PatcherError("VV3 individual Full Mastery transaction authority destinations are duplicated.")
+        if previous.get("path") != journal.name or previous.get("type") != "regular_file" or previous.get("sha256") != _sha(_read_regular(journal)):
+            raise PatcherError("VV3 individual Full Mastery transaction authority identity/content changed.")
         # A refreshed manifest may legitimately advance the journal state; the
         # old authority is retired only after its identity is revalidated.
         _delete_file_by_handle(journal, previous)
@@ -548,10 +557,19 @@ def _write_transaction_authority(manifest: Path, payload: dict[str, object], man
         "transaction_journal": payload.get("transaction_journal"),
     }
     tmp = journal.with_suffix(".tmp")
-    _write_file(tmp, (json.dumps(journal_payload, indent=2, sort_keys=True) + "\n").encode("utf-8"))
+    data = (json.dumps(journal_payload, indent=2, sort_keys=True) + "\n").encode("utf-8")
+    try:
+        _write_file(tmp, data)
+    except Exception as exc:
+        if os.path.lexists(tmp):
+            tmp_record = _inventory_entry(manifest.parent, tmp)
+            if tmp_record.get("type") != "regular_file" or tmp_record.get("size") != len(data) or tmp_record.get("sha256") != _sha(data):
+                raise PatcherError("VV3 individual Full Mastery transaction authority temporary is incomplete.") from exc
+        else:
+            raise
     _publish_exclusive(tmp, journal, manifest.parent)
     record = _inventory_entry(manifest.parent, journal)
-    if record is None or _inventory_entry(manifest.parent, journal) != record:
+    if record is None or record.get("path") != journal.name or record.get("size") != len(data) or record.get("sha256") != _sha(data) or _inventory_entry(manifest.parent, journal) != record:
         raise PatcherError("VV3 individual Full Mastery transaction authority postverify failed.")
     return journal, record
 
@@ -1074,6 +1092,39 @@ def _require_inventory_subset(actual: list[dict[str, object]], expected: object)
             raise PatcherError("VV3 individual Full Mastery recovery ownership inventory adopted a foreign descendant.")
 
 
+def _extend_owned_cleanup_inventory(root: Path, actual: list[dict[str, object]], expected: object) -> list[dict[str, object]]:
+    """Extend a retry baseline only with members named by a verified cleanup journal."""
+    if not isinstance(expected, list):
+        raise PatcherError("VV3 individual Full Mastery recovery inventory baseline is missing.")
+    allowed = list(expected)
+    by_path = {str(item.get("path", "")).casefold(): item for item in allowed if isinstance(item, dict)}
+    for item in actual:
+        path = root / str(item.get("path", ""))
+        key = str(item.get("path", "")).casefold()
+        if key in by_path:
+            continue
+        if ".vv3im-cleanup-" not in path.name:
+            continue
+        try:
+            raw = json.loads(_read_regular(path).decode("utf-8"))
+        except Exception as exc:
+            raise PatcherError("VV3 individual Full Mastery cleanup authority is unreadable during retry.") from exc
+        if not isinstance(raw, dict) or raw.get("kind") != "vv3_individual_full_mastery_cleanup_authority" or not isinstance(raw.get("members"), list):
+            raise PatcherError("VV3 individual Full Mastery cleanup authority is malformed during retry.")
+        allowed.append(item)
+        by_path[key] = item
+        for member in raw["members"]:
+            if not isinstance(member, dict) or not isinstance(member.get("name"), str) or not isinstance(member.get("record"), dict):
+                raise PatcherError("VV3 individual Full Mastery cleanup authority member is malformed during retry.")
+            owned = path.parent / member["name"]
+            rel = _relative_owned(root, owned)
+            record = dict(member["record"])
+            record["path"] = rel
+            allowed.append(record)
+            by_path[rel.casefold()] = record
+    return allowed
+
+
 def _report_pointer_path(report: Path) -> Path:
     return report.with_name(f".{report.name}.pointer")
 
@@ -1291,7 +1342,7 @@ def _refresh_recovery_report(report: Path, payload: dict[str, object], root: Pat
         for item in inventory:
             item["path"] = _relative_owned(root, replay_root / str(item["path"]))
         inventory.insert(0, {"path": _relative_owned(root, replay_root), "type": "directory", "size": 0, "sha256": None, "st_dev": int(root_st.st_dev), "st_ino": int(root_st.st_ino)})
-        _require_inventory_subset(inventory, payload.get("ownership_inventory"))
+        _require_inventory_subset(inventory, _extend_owned_cleanup_inventory(root, inventory, payload.get("ownership_inventory")))
         refreshed = dict(payload)
         refreshed["ownership_inventory"] = inventory
         refreshed["report_relative"] = report.name
@@ -1314,7 +1365,7 @@ def _refresh_recovery_report(report: Path, payload: dict[str, object], root: Pat
         item["path"] = _relative_owned(root, replay_root / str(item["path"]))
     root_st = os.lstat(replay_root)
     inventory.insert(0, {"path": _relative_owned(root, replay_root), "type": "directory", "size": 0, "sha256": None, "st_dev": int(root_st.st_dev), "st_ino": int(root_st.st_ino)})
-    _require_inventory_subset(inventory, payload.get("ownership_inventory"))
+    _require_inventory_subset(inventory, _extend_owned_cleanup_inventory(root, inventory, payload.get("ownership_inventory")))
     refreshed = dict(payload)
     refreshed["ownership_inventory"] = inventory
     refreshed_members = []
@@ -1415,12 +1466,12 @@ def _refresh_recovery_report(report: Path, payload: dict[str, object], root: Pat
         _remove_owned(old_manifest, expected=old_manifest_record)
         old_journal = _transaction_authority_path(old_manifest)
         if os.path.lexists(old_journal):
-            _remove_owned(old_journal, expected=_inventory_entry(root, old_journal))
+            _delete_file_by_handle(old_journal, _inventory_entry(root, old_journal))
         if old_active_manifest is not None and os.path.lexists(old_active_manifest):
             _remove_owned(old_active_manifest, expected=old_active_manifest_record)
             old_active_journal = _transaction_authority_path(old_active_manifest)
             if os.path.lexists(old_active_journal):
-                _remove_owned(old_active_journal, expected=_inventory_entry(root, old_active_journal))
+                _delete_file_by_handle(old_active_journal, _inventory_entry(root, old_active_journal))
     except Exception:
         for temp, record in ((successor_tmp, None), (pointer_tmp, pointer_tmp_record)):
             if os.path.lexists(temp):
@@ -1598,6 +1649,46 @@ def _cleanup_authority_path(parent: Path) -> Path:
     return parent / f".vv3im-cleanup-{uuid.uuid4().hex}.json"
 
 
+def _validate_vv3_hidden_namespace(parent: Path) -> None:
+    """Reject arbitrary VV3 hidden residue before claiming cleanup success."""
+    def owned_name(name: str) -> bool:
+        if name in {".vv3im-recovery-root", ".vv3im-recovery-test"}:
+            return True
+        for marker in ("vv3im-recovery-", "vv3im-emergency-", "vv3im-journal-", "vv3im-tombstone-", "vv3im-preserved-guard-", "vv3im-preserved-", "vv3im-cleanup-", "vv3im-replay-", "vv3im-restore-"):
+            start = name.find(marker)
+            if start < 0:
+                continue
+            suffix = name[start + len(marker):]
+            if len(suffix) < 32 or not re.fullmatch(r"[0-9a-f]{32}", suffix[:32]):
+                continue
+            tail = suffix[32:]
+            if marker in ("vv3im-recovery-", "vv3im-emergency-") and tail and not tail.startswith((".json", ".v")):
+                continue
+            if marker in ("vv3im-journal-",) and tail != ".json":
+                continue
+            if marker in ("vv3im-tombstone-",) and tail:
+                continue
+            if marker == "vv3im-preserved-guard-" and tail != ".backup":
+                continue
+            if marker == "vv3im-preserved-" and tail != ".backup" and not (tail.startswith("-") and tail.endswith(".backup")):
+                continue
+            if marker in ("vv3im-cleanup-",) and tail != ".json":
+                continue
+            if marker in ("vv3im-replay-", "vv3im-restore-") and tail != ".stage":
+                continue
+            return True
+        start = name.find("vv3im-")
+        if start >= 0:
+            suffix = name[start + len("vv3im-"):]
+            if len(suffix) >= 32 and re.fullmatch(r"[0-9a-f]{32}", suffix[:32]) and suffix[32:] in (".backup", ".stage"):
+                return True
+        return False
+    with os.scandir(parent) as entries:
+        for entry in entries:
+            if "vv3im-" in entry.name and not owned_name(entry.name):
+                raise PatcherError("VV3 individual Full Mastery hidden namespace contains foreign residue.")
+
+
 def _write_cleanup_authority(parent: Path, members: list[dict[str, object]]) -> tuple[Path, dict[str, object]]:
     """Record final guard cleanup before the first destructive deletion."""
     _require_windows_identity_atomic()
@@ -1611,9 +1702,20 @@ def _write_cleanup_authority(parent: Path, members: list[dict[str, object]]) -> 
         "members": members,
     }
     tmp = path.with_suffix(".tmp")
-    _write_file(tmp, (json.dumps(payload, indent=2, sort_keys=True) + "\n").encode("utf-8"))
+    data = (json.dumps(payload, indent=2, sort_keys=True) + "\n").encode("utf-8")
+    try:
+        _write_file(tmp, data)
+    except Exception as exc:
+        if os.path.lexists(tmp):
+            tmp_record = _inventory_entry(parent, tmp)
+            if tmp_record.get("type") != "regular_file" or tmp_record.get("size") != len(data) or tmp_record.get("sha256") != _sha(data):
+                raise PatcherError("VV3 individual Full Mastery cleanup authority temporary is incomplete.") from exc
+        else:
+            raise
     _publish_exclusive(tmp, path, parent)
     record = _inventory_entry(parent, path)
+    if record.get("path") != path.name or record.get("size") != len(data) or record.get("sha256") != _sha(data):
+        raise PatcherError("VV3 individual Full Mastery cleanup authority postverify failed.")
     return path, record
 
 
@@ -1712,12 +1814,14 @@ def _quarantine_delete(path: Path, expected: dict[str, object], *, directory: bo
         if any(preserved_before_guard_cleanup.get(key) != preserved_record.get(key) for key in ("type", "size", "sha256", "st_dev", "st_ino")):
             # Keep the still-verified guard as the recoverable owned copy.
             raise PatcherError(f"VV3 individual Full Mastery preserved backup changed before guard cleanup: {preserved}")
+        _validate_vv3_hidden_namespace(path.parent)
         if os.path.lexists(guard):
             _delete_file_by_handle(guard, guard_record)
         if os.path.lexists(preserved):
             _delete_file_by_handle(preserved, preserved_record)
         if os.path.lexists(cleanup_authority):
             _delete_file_by_handle(cleanup_authority, cleanup_authority_record)
+        _validate_vv3_hidden_namespace(path.parent)
     if os.path.lexists(tombstone):
         raise PatcherError(f"VV3 individual Full Mastery tombstone cleanup did not verify: {tombstone}")
 
@@ -2007,8 +2111,14 @@ def _compatible_emergency_markers(markers: list[Path], payload: dict[str, object
             for key in ("feature_owner", "operation", "mode", "parent_sha256", "candidate_sha256", "recovery_root_name"):
                 if key in payload and details.get(key) != payload.get(key):
                     raise ValueError("marker transaction identity differs")
+            for key in ("destination_paths_absolute", "member_roles"):
+                if payload.get(key) is not None and details.get(key) is not None and details.get(key) != payload.get(key):
+                    raise ValueError("marker destination/role binding differs")
             if payload.get("members") is not None and details.get("members") is not None and details.get("members") != payload.get("members"):
-                raise ValueError("marker member inventory differs")
+                marker_destinations = {str(item.get("destination_relative")) for item in (details.get("members") or []) if isinstance(item, dict) and isinstance(item.get("destination_relative"), str)}
+                payload_destinations = {str(item.get("destination_relative")) for item in (payload.get("members") or []) if isinstance(item, dict) and isinstance(item.get("destination_relative"), str)}
+                if marker_destinations != payload_destinations:
+                    raise ValueError("marker member destinations differ")
             compatible.append((marker, marker_payload))
         except Exception:
             continue
@@ -2294,7 +2404,7 @@ def recover_atomic(report_or_root: Path, *, recovery_prefix: str = ".vv3im", req
         _remove_owned(chain_manifest, expected=chain_manifest_record)
         chain_journal = _transaction_authority_path(chain_manifest)
         if os.path.lexists(chain_journal):
-            _remove_owned(chain_journal, expected=_inventory_entry(root, chain_journal))
+            _delete_file_by_handle(chain_journal, _inventory_entry(root, chain_journal))
         for marker, marker_record in compatible_marker_records:
             if os.path.lexists(marker):
                 _remove_owned(marker, expected=marker_record)
@@ -2304,7 +2414,7 @@ def recover_atomic(report_or_root: Path, *, recovery_prefix: str = ".vv3im", req
                 _remove_owned(marker_manifest, expected=marker_manifest_record)
             marker_journal = _transaction_authority_path(marker_manifest)
             if os.path.lexists(marker_journal):
-                _remove_owned(marker_journal, expected=_inventory_entry(root, marker_journal))
+                _delete_file_by_handle(marker_journal, _inventory_entry(root, marker_journal))
         # Retire every journal that belongs to this closed chain, but reject
         # an unrelated or malformed journal rather than silently deleting it.
         for journal in sorted(root.glob(".vv3im-journal-*.json")):

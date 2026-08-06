@@ -392,7 +392,7 @@ class VV3IndividualFullMasteryLoaderTests(unittest.TestCase):
                     loader.recover_atomic(report)
             retry_report = next(root.glob(".vv3im-recovery-*.json"))
             retry_payload = json.loads(retry_report.read_text(encoding="utf-8"))
-            self.assertTrue(any(item.get("backup_relative", "").find("preserved") >= 0 for item in retry_payload["members"]))
+            self.assertTrue(all(item.get("backup_relative", "").endswith(".backup") and item.get("backup_inventory", {}).get("sha256") == item.get("pre_sha256") for item in retry_payload["members"]))
             loader.recover_atomic(retry_report)
             self.assertEqual(exe.read_bytes(), b"exe-parent")
             self.assertEqual(dll.read_bytes(), b"dll-parent")
@@ -984,6 +984,87 @@ class VV3IndividualFullMasteryLoaderTests(unittest.TestCase):
             backups = list(root.glob("*.backup"))
             self.assertIn(b"foreign", [item.read_bytes() for item in backups])
             self.assertIn(b"owned", [item.read_bytes() for item in backups])
+
+    def test_c306_hidden_namespace_rejects_foreign_insertion(self):
+        with tempfile.TemporaryDirectory(prefix="vv3-c306-hidden-") as td:
+            root = Path(td)
+            # The production name is intentionally nested behind a member
+            # basename; it must remain accepted while an arbitrary prefix is
+            # rejected.
+            owned = root / (".candidate.exe.vv3im-preserved-" + "a" * 32 + ".backup")
+            owned.write_bytes(b"owned")
+            loader._validate_vv3_hidden_namespace(root)
+            foreign = root / ".vv3im-foreign"
+            foreign.write_bytes(b"foreign")
+            with self.assertRaises(vv_fun_patcher.PatcherError):
+                loader._validate_vv3_hidden_namespace(root)
+            self.assertEqual(foreign.read_bytes(), b"foreign")
+
+    def test_c306_transaction_authority_rejects_malformed_existing_content(self):
+        with tempfile.TemporaryDirectory(prefix="vv3-c306-authority-") as td:
+            root = Path(td)
+            manifest = root / ".chain-manifest.json"
+            manifest.write_bytes(b"manifest")
+            payload = {
+                "report_name": "report.json", "report_record": None,
+                "canonical_name": None, "canonical_record": None,
+                "pointer_name": None, "pointer_record": None,
+                "successor_name": None, "successor_record": None,
+                "marker_name": None, "marker_record": None,
+                "recovery_root_name": "recovery", "recovery_root_record": None,
+                "ownership_inventory": [], "members": [], "member_roles": {},
+                "destination_paths_absolute": [],
+                "transaction_journal": {"state": "prepared"},
+            }
+            manifest_record = loader._inventory_entry(root, manifest)
+            journal, original_record = loader._write_transaction_authority(manifest, payload, manifest_record)
+            raw = json.loads(journal.read_text(encoding="utf-8"))
+            raw["member_roles"] = "foreign"
+            journal.write_text(json.dumps(raw, sort_keys=True), encoding="utf-8")
+            tampered = journal.read_bytes()
+            with self.assertRaises(vv_fun_patcher.PatcherError):
+                loader._write_transaction_authority(manifest, payload, manifest_record)
+            self.assertEqual(journal.read_bytes(), tampered)
+            self.assertNotEqual(loader._inventory_entry(root, journal), original_record)
+
+    def test_c306_late_complete_authority_temp_write_is_accepted(self):
+        with tempfile.TemporaryDirectory(prefix="vv3-c306-late-temp-") as td:
+            root = Path(td)
+            manifest = root / ".chain-manifest.json"
+            manifest.write_bytes(b"manifest")
+            payload = {
+                "report_name": "report.json", "report_record": None,
+                "canonical_name": None, "canonical_record": None,
+                "pointer_name": None, "pointer_record": None,
+                "successor_name": None, "successor_record": None,
+                "marker_name": None, "marker_record": None,
+                "recovery_root_name": "recovery", "recovery_root_record": None,
+                "ownership_inventory": [], "members": [], "member_roles": {},
+                "destination_paths_absolute": [],
+                "transaction_journal": {"state": "prepared"},
+            }
+            real_write = loader._write_file
+            def late_write(path, data):
+                real_write(path, data)
+                if Path(path).suffix == ".tmp":
+                    raise OSError("late write after complete bytes")
+            with mock.patch.object(loader, "_write_file", side_effect=late_write):
+                journal, record = loader._write_transaction_authority(manifest, payload, loader._inventory_entry(root, manifest))
+            self.assertEqual(record, loader._inventory_entry(root, journal))
+            self.assertTrue(journal.is_file())
+
+    def test_c306_cleanup_authority_rejects_same_inode_content_mutation(self):
+        with tempfile.TemporaryDirectory(prefix="vv3-c306-cleanup-") as td:
+            root = Path(td)
+            owned = root / "owned.bin"
+            owned.write_bytes(b"owned")
+            record = loader._inventory_entry(root, owned)
+            authority, _ = loader._write_cleanup_authority(root, [{"name": owned.name, "role": "source", "record": record}])
+            owned.write_bytes(b"foreign")
+            with self.assertRaises(vv_fun_patcher.PatcherError):
+                loader.recover_cleanup_authority(authority)
+            self.assertEqual(owned.read_bytes(), b"foreign")
+            self.assertTrue(authority.exists())
 
 
 if __name__ == "__main__":
