@@ -64,14 +64,49 @@ class VV3VV4FullscreenCandidateTests(unittest.TestCase):
             # Every SDL_GetWindowFlags call receives the window as its cdecl
             # argument. Native leave/enter return values are never treated as
             # success indicators; state/flag reacquisition is authoritative.
-            self.assertEqual(sum(i.mnemonic == "push" and i.op_str == "dword ptr [ebp - 0x18]" for i in ins), 2)
-            self.assertEqual(sum(i.mnemonic == "add" and i.op_str == "esp, 4" for i in ins), 2)
+            self.assertEqual(sum(i.mnemonic == "push" and i.op_str == "dword ptr [ebp - 0x1c]" for i in ins), 3)
+            self.assertEqual(sum(i.mnemonic == "add" and i.op_str == "esp, 4" for i in ins), 3)
+            self.assertEqual(meta["assembled_va"], f"0x{int(cfg['section_va']) + 0x100:X}")
+            self.assertTrue(any(i.mnemonic == "cmp" and i.op_str == "esi, dword ptr [ebp - 0x14]" for i in ins))
+            self.assertTrue(any(i.mnemonic == "cmp" and i.op_str == "edi, dword ptr [ebp - 0x18]" for i in ins))
+            self.assertTrue(any(i.mnemonic == "cmp" and i.op_str == "eax, dword ptr [ebp - 0x1c]" for i in ins))
+            self.assertNotIn("dword ptr [ebp - 0x18]", [i.op_str for i in ins if i.mnemonic == "push"])
+            self.assertIn("every post-leave exit attempts one fresh restoration", meta["failure"])
             for index, insn in enumerate(ins[:-1]):
                 if insn.mnemonic == "call" and insn.op_str in {
                     f"0x{self.builder.CONFIG[game]['leave']:x}",
                     f"0x{self.builder.CONFIG[game]['enter']:x}",
                 }:
                     self.assertNotEqual(ins[index + 1].mnemonic, "test")
+
+    def test_c257_final_hook_rel32_and_distinct_helper_vas(self):
+        expected = {
+            "vv3": (bytes.fromhex("E86DDF2300"), bytes.fromhex("E86DE12300")),
+            "vv4": (bytes.fromhex("E87A7D2B00"), bytes.fromhex("E8457E2B00")),
+        }
+        with tempfile.TemporaryDirectory() as root:
+            out = Path(root)
+            for game, cfg in self.builder.CONFIG.items():
+                result = self.builder.emit_game(game, cfg, out, emit_binaries=True)
+                stem = f"vv{game[-1]}_fullscreen_safe_candidate"
+                for mode in cfg["parents"]:
+                    data = (out / f"{stem}_{mode}.exe").read_bytes()
+                    tech = data[cfg["tech"][0] - 0x400000:cfg["tech"][0] - 0x400000 + 5]
+                    detail = data[cfg["detail"][0] - 0x400000:cfg["detail"][0] - 0x400000 + 5]
+                    self.assertEqual(tech, expected[game][0])
+                    self.assertEqual(detail, expected[game][1])
+                    self.assertNotEqual(tech, b"\xE8" + self.builder.rel32(cfg["tech"][0] + 0x400000, cfg["section_va"] + 0x100))
+                    self.assertNotEqual(detail, b"\xE8" + self.builder.rel32(cfg["detail"][0] + 0x400000, cfg["section_va"] + 0x400))
+                    self.assertNotEqual(detail, b"\xE8" + self.builder.rel32(cfg["detail"][0], cfg["section_va"] + 0x100))
+                self.assertNotEqual(result["page"]["tech"]["assembled_va"], result["page"]["detail"]["assembled_va"])
+                self.assertEqual(result["page"]["tech"]["assembled_va"], f"0x{cfg['section_va'] + 0x100:X}")
+                self.assertEqual(result["page"]["detail"]["assembled_va"], f"0x{cfg['section_va'] + 0x400:X}")
+
+    def test_c257_companion_inputs_are_pinned_before_emission(self):
+        for game, cfg in self.builder.CONFIG.items():
+            dll = cfg["dll_path"]
+            self.assertEqual(dll.stat().st_size, cfg["dll_size"])
+            self.assertEqual(self.builder.sha(dll.read_bytes()), cfg["dll"])
 
     def test_isolated_generation_is_deterministic_and_pins_parent_outputs(self):
         with tempfile.TemporaryDirectory() as first, tempfile.TemporaryDirectory() as second:

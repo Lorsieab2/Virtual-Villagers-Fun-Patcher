@@ -9,38 +9,40 @@
   },
   "page": {
     "tech": {
-      "helper_length": 313,
-      "helper_sha256": "AE3415BA94BC943460D77858A0EF17B1489D33DF2D949A885724CDC5EDB2768F",
-      "instruction_count": 100,
+      "assembled_va": "0x741100",
+      "helper_length": 404,
+      "helper_sha256": "6434441BC49F81C0B9A9C80DE7433FE9C48475500F318CF24C3A1B3E399E1336",
+      "instruction_count": 127,
       "target": "0x4895D3",
       "flags_mask": "0x1001",
-      "api_abi": "GetModuleHandleA/GetProcAddress stdcall with no caller cleanup; SDL_GetWindowFlags cdecl add esp,4",
-      "state_chain": "getter -> configured outer -> engine[outer] -> window +0x38/state +0x1E",
-      "failure": "leave/restore/identity/flag failure returns safely without entering the modal route or charging"
+      "api_abi": "GetModuleHandleA/GetProcAddress stdcall with no caller cleanup; SDL_GetWindowFlags push SDL_Window*; indirect call; add esp,4",
+      "state_chain": "getter -> typed outer -> typed engine -> typed SDL_Window +0x38/state +0x1E",
+      "failure": "leave/restore/identity/flag failure returns safely without entering the modal route or charging; every post-leave exit attempts one fresh restoration"
     },
     "detail": {
-      "helper_length": 313,
-      "helper_sha256": "B2142F986C69759DD47AF76D8D3D589ABF5BAA11626FD04DF2822C8E1F17F4DF",
-      "instruction_count": 100,
+      "assembled_va": "0x741400",
+      "helper_length": 404,
+      "helper_sha256": "78E1C51CE00E1080AE3B9DA6FDFECDFD53A65DC03432E0AE489FD2A52584E858",
+      "instruction_count": 127,
       "target": "0x489873",
       "flags_mask": "0x1001",
-      "api_abi": "GetModuleHandleA/GetProcAddress stdcall with no caller cleanup; SDL_GetWindowFlags cdecl add esp,4",
-      "state_chain": "getter -> configured outer -> engine[outer] -> window +0x38/state +0x1E",
-      "failure": "leave/restore/identity/flag failure returns safely without entering the modal route or charging"
+      "api_abi": "GetModuleHandleA/GetProcAddress stdcall with no caller cleanup; SDL_GetWindowFlags push SDL_Window*; indirect call; add esp,4",
+      "state_chain": "getter -> typed outer -> typed engine -> typed SDL_Window +0x38/state +0x1E",
+      "failure": "leave/restore/identity/flag failure returns safely without entering the modal route or charging; every post-leave exit attempts one fresh restoration"
     },
     "strings_offset": "0xE00",
     "strings_sha256": "80CB76A676252BED6D4D61F829E6323F539108B16540B225723E82E312B52ADA",
-    "page_sha256": "7EF8E9E877D8E73B7C356034C21EFF6F59F25EEA811471ACEBF7599E467288F3"
+    "page_sha256": "2A722F2867BECFAA35CC46EE2B4B7D50056063142E983B11F447221E1AD13512"
   },
   "rendered_modes": {
     "collection_progression": {
       "parent_sha256": "0E26D7B6FEF660194297BA017419D6E9F4D70F01A80265830C8461341B9334E9",
-      "candidate_sha256": "1B94B9C2E5310214AF293429127B7EBBF2E6D8AA0C37DB5CF1C6594B332E7392",
+      "candidate_sha256": "9E34022AEA1FA8C2DA42059E65AB994821C59C80CF17ECC312600FF982C9DC67",
       "size": 942080
     },
     "immediate_fixed": {
       "parent_sha256": "043DA03EDEE4CDA82269F0584178E84D90D7DAC54ABD80873A3F59E3B4957388",
-      "candidate_sha256": "952C483DBDF1637F6479443C2248E855409C5586B1FC321138707AACCB623D31",
+      "candidate_sha256": "604DBE099ABF6F79BC5CC4EF3C9591CC7640ABFD68CC4E5D79B182895CDEBDBB",
       "size": 942080
     }
   },
@@ -52,6 +54,8 @@
   "companion_install": {
     "required": false,
     "reason": "fullscreen-only wrapper; certified companion/resource bytes are not replaced",
+    "input": "data\\candidates\\VVFP VV4 Full Mastery Candidate.dll",
+    "size": 282624,
     "sha256_if_present": "4E1A83683A875EFE6F67116CDD862927BE1ABCB17DB7AE18143E58E98EAD01E7"
   },
   "feature_ranges": [

@@ -88,6 +88,7 @@ CONFIG = {
         "image_after": 0x2E2000,
         "parent_size": 0xCD000,
         "dll": "9F866CB6F92C745CD2AA7009AEC4EB70FA5521EFF0C8F7BABE2058BB4D2F8533",
+        "dll_path": ROOT / "data/candidates/VVFP VV3 Full Heal Candidate.dll",
         "dll_size": 298496,
     },
     "vv4": {
@@ -118,6 +119,7 @@ CONFIG = {
         "image_after": 0x342000,
         "parent_size": 0xE5000,
         "dll": "4E1A83683A875EFE6F67116CDD862927BE1ABCB17DB7AE18143E58E98EAD01E7",
+        "dll_path": ROOT / "data/candidates/VVFP VV4 Full Mastery Candidate.dll",
         "dll_size": 282624,
     },
 }
@@ -127,7 +129,7 @@ def _target(call_va: int, before: bytes) -> int:
     return call_va + 5 + int.from_bytes(before[1:5], "little", signed=True)
 
 
-def build_wrapper(cfg: dict[str, object], page_va: int, string_va: int, target_va: int) -> tuple[bytes, dict[str, object]]:
+def _build_wrapper_legacy(cfg: dict[str, object], page_va: int, string_va: int, target_va: int) -> tuple[bytes, dict[str, object]]:
     # The wrapper is a plain-return call replacement.  It uses the game's
     # proven singleton transport, leaves/enters native fullscreen, and checks
     # only the SDL fullscreen bits so unrelated SDL flags are accepted.
@@ -262,6 +264,182 @@ def build_wrapper(cfg: dict[str, object], page_va: int, string_va: int, target_v
     }
 
 
+def build_wrapper(
+    cfg: dict[str, object],
+    helper_va: int,
+    string_va: int,
+    target_va: int,
+) -> tuple[bytes, dict[str, object]]:
+    """Assemble one helper at its final VA with typed state locals."""
+    reacquire_outer = (
+        f"mov esi, dword ptr [0x{cfg['outer_global']:X}]"
+        if cfg["outer_global"] is not None
+        else "mov esi, eax"
+    )
+    source = f"""
+        push ebp
+        mov ebp, esp
+        push ebx
+        push esi
+        push edi
+        sub esp, 0x2C
+        mov dword ptr [ebp-0x10], ecx
+        xor eax, eax
+        mov dword ptr [ebp-0x28], eax
+        mov dword ptr [ebp-0x2C], eax
+        call reacquire
+        test eax, eax
+        jz fail
+        mov dword ptr [ebp-0x14], esi
+        mov dword ptr [ebp-0x18], edi
+        mov dword ptr [ebp-0x1C], eax
+        movzx ebx, byte ptr [edi+0x1E]
+        mov dword ptr [ebp-0x20], ebx
+        push 0x{string_va:X}
+        call dword ptr [0x{cfg['module_iat']:X}]
+        test eax, eax
+        jz fail
+        push 0x{string_va + len(b'SDL2.dll\0'):X}
+        push eax
+        call dword ptr [0x{cfg['proc_iat']:X}]
+        test eax, eax
+        jz fail
+        mov dword ptr [ebp-0x24], eax
+        push dword ptr [ebp-0x1C]
+        call dword ptr [ebp-0x24]
+        add esp, 4
+        mov edx, eax
+        and edx, 0x1001
+        cmp edx, 0
+        je windowed
+        cmp edx, 0x1001
+        je fullscreen
+        jmp fail
+    windowed:
+        cmp dword ptr [ebp-0x20], 1
+        jne fail
+        mov ecx, dword ptr [ebp-0x10]
+        call 0x{target_va:X}
+        jmp done
+    fullscreen:
+        cmp dword ptr [ebp-0x20], 0
+        jne fail
+        mov ecx, dword ptr [ebp-0x14]
+        call 0x{cfg['leave']:X}
+        mov dword ptr [ebp-0x2C], 1
+        call reacquire
+        cmp esi, dword ptr [ebp-0x14]
+        jne post_leave_failed
+        cmp edi, dword ptr [ebp-0x18]
+        jne post_leave_failed
+        cmp eax, dword ptr [ebp-0x1C]
+        jne post_leave_failed
+        cmp byte ptr [edi+0x1E], 1
+        jne post_leave_failed
+        push dword ptr [ebp-0x1C]
+        call dword ptr [ebp-0x24]
+        add esp, 4
+        mov edx, eax
+        and edx, 0x1001
+        cmp edx, 0
+        jne post_leave_failed
+        mov ecx, dword ptr [ebp-0x10]
+        call 0x{target_va:X}
+        mov dword ptr [ebp-0x28], eax
+        cmp dword ptr [ebp-0x2C], 0
+        je done
+    restore_start:
+        call reacquire
+        test eax, eax
+        jz restore_failed
+        cmp esi, dword ptr [ebp-0x14]
+        jne restore_failed
+        cmp edi, dword ptr [ebp-0x18]
+        jne restore_failed
+        cmp eax, dword ptr [ebp-0x1C]
+        jne restore_failed
+        mov ecx, dword ptr [ebp-0x14]
+        call 0x{cfg['enter']:X}
+        call reacquire
+        test eax, eax
+        jz restore_failed
+        cmp esi, dword ptr [ebp-0x14]
+        jne restore_failed
+        cmp edi, dword ptr [ebp-0x18]
+        jne restore_failed
+        cmp eax, dword ptr [ebp-0x1C]
+        jne restore_failed
+        cmp byte ptr [edi+0x1E], 0
+        jne restore_failed
+        push dword ptr [ebp-0x1C]
+        call dword ptr [ebp-0x24]
+        add esp, 4
+        mov edx, eax
+        and edx, 0x1001
+        cmp edx, 0x1001
+        jne restore_failed
+        mov eax, dword ptr [ebp-0x28]
+        jmp done
+    post_leave_failed:
+        xor eax, eax
+        mov dword ptr [ebp-0x28], eax
+        jmp restore_start
+    reacquire:
+        call 0x{cfg['getter']:X}
+        test eax, eax
+        jz reacquire_failed
+        {reacquire_outer}
+        test esi, esi
+        jz reacquire_failed
+        mov edi, dword ptr [esi]
+        test edi, edi
+        jz reacquire_failed
+        mov eax, dword ptr [edi+0x38]
+        test eax, eax
+        jz reacquire_failed
+        ret
+    reacquire_failed:
+        xor eax, eax
+        ret
+    restore_failed:
+        xor eax, eax
+        jmp done
+    fail:
+        xor eax, eax
+    done:
+        add esp, 0x2C
+        pop edi
+        pop esi
+        pop ebx
+        pop ebp
+        ret
+    """
+    body = asm(source, helper_va)
+    md = Cs(CS_ARCH_X86, CS_MODE_32)
+    ins = list(md.disasm(body, helper_va))
+    if not ins or sum(i.size for i in ins) != len(body):
+        raise RuntimeError("fullscreen helper did not disassemble continuously")
+    if any(i.mnemonic == "ret" and i.op_str for i in ins):
+        raise RuntimeError("fullscreen helper consumed handler arguments")
+    boundaries = {i.address for i in ins}
+    for i in ins:
+        if i.mnemonic in {"call", "jmp", "je", "jne", "jz", "jnz"} and i.op_str.startswith("0x"):
+            target = int(i.op_str, 16)
+            if helper_va <= target < helper_va + len(body) and target not in boundaries:
+                raise RuntimeError("fullscreen helper branches into a non-instruction boundary")
+    return body, {
+        "assembled_va": f"0x{helper_va:X}",
+        "helper_length": len(body),
+        "helper_sha256": sha(body),
+        "instruction_count": len(ins),
+        "target": f"0x{target_va:X}",
+        "flags_mask": "0x1001",
+        "api_abi": "GetModuleHandleA/GetProcAddress stdcall with no caller cleanup; SDL_GetWindowFlags push SDL_Window*; indirect call; add esp,4",
+        "state_chain": "getter -> typed outer -> typed engine -> typed SDL_Window +0x38/state +0x1E",
+        "failure": "leave/restore/identity/flag failure returns safely without entering the modal route or charging; every post-leave exit attempts one fresh restoration",
+    }
+
+
 def section_header(cfg: dict[str, object]) -> bytes:
     return (
         cfg["section_name"]
@@ -276,6 +454,11 @@ def section_header(cfg: dict[str, object]) -> bytes:
 
 def emit_game(game: str, cfg: dict[str, object], output_root: Path = OUT, emit_binaries: bool = False) -> dict[str, object]:
     stock = cfg["stock"].read_bytes()
+    dll_path = cfg["dll_path"]
+    if not dll_path.is_file() or dll_path.stat().st_size != cfg["dll_size"]:
+        raise RuntimeError(f"{game} companion DLL input is missing or has the wrong size")
+    if sha(dll_path.read_bytes()) != cfg["dll"]:
+        raise RuntimeError(f"{game} companion DLL input hash mismatch")
     parents = cfg["parents"]
     if len(stock) > cfg["parent_size"]:
         raise RuntimeError(f"{game} stock exceeds parent append boundary")
@@ -296,8 +479,12 @@ def emit_game(game: str, cfg: dict[str, object], output_root: Path = OUT, emit_b
     page_va = int(cfg["section_va"])
     string_offset = 0xE00
     strings = b"SDL2.dll\0SDL_GetWindowFlags\0"
-    tech_helper, tech_meta = build_wrapper(cfg, page_va, page_va + string_offset, _target(*cfg["tech"]))
-    detail_helper, detail_meta = build_wrapper(cfg, page_va, page_va + string_offset, _target(*cfg["detail"]))
+    tech_helper, tech_meta = build_wrapper(
+        cfg, page_va + 0x100, page_va + string_offset, _target(*cfg["tech"])
+    )
+    detail_helper, detail_meta = build_wrapper(
+        cfg, page_va + 0x400, page_va + string_offset, _target(*cfg["detail"])
+    )
     if len(tech_helper) > 0x400 or len(detail_helper) > string_offset or string_offset + len(strings) > 0x1000:
         raise RuntimeError("fullscreen helper/string layout exceeds page")
     page = bytearray(0x1000)
@@ -316,7 +503,7 @@ def emit_game(game: str, cfg: dict[str, object], output_root: Path = OUT, emit_b
                 raise RuntimeError(f"{game} {key} hook guard mismatch")
             wrapper_va = page_va + (0x100 if key == "tech" else 0x400)
             call_va = off_va
-            data[off:off + 5] = b"\xE8" + rel32(call_va + 0x400000, wrapper_va)
+            data[off:off + 5] = b"\xE8" + rel32(call_va, wrapper_va)
         if len(data) != cfg["append_raw"]:
             raise RuntimeError(f"{game} parent size does not equal fullscreen append raw")
         pe = struct.unpack_from("<I", data, 0x3C)[0]
@@ -342,8 +529,8 @@ def emit_game(game: str, cfg: dict[str, object], output_root: Path = OUT, emit_b
         "enter": hex(cfg["enter"]),
         "get_module_handle_iat": hex(cfg["module_iat"]),
         "get_proc_address_iat": hex(cfg["proc_iat"]),
-        "tech": {"va": hex(cfg["tech"][0]), "raw": hex(cfg["tech"][0] - 0x400000), "before": cfg["tech"][1].hex().upper(), "target": hex(_target(*cfg["tech"]))},
-        "detail": {"va": hex(cfg["detail"][0]), "raw": hex(cfg["detail"][0] - 0x400000), "before": cfg["detail"][1].hex().upper(), "target": hex(_target(*cfg["detail"]))},
+        "tech": {"va": hex(cfg["tech"][0]), "raw": hex(cfg["tech"][0] - 0x400000), "before": cfg["tech"][1].hex().upper(), "after": (b"\xE8" + rel32(cfg["tech"][0], page_va + 0x100)).hex().upper(), "target": hex(_target(*cfg["tech"]))},
+        "detail": {"va": hex(cfg["detail"][0]), "raw": hex(cfg["detail"][0] - 0x400000), "before": cfg["detail"][1].hex().upper(), "after": (b"\xE8" + rel32(cfg["detail"][0], page_va + 0x400)).hex().upper(), "target": hex(_target(*cfg["detail"]))},
         "section_header": {"offset": hex(cfg["header"]), "bytes": section_header(cfg).hex().upper()},
         "page_raw": hex(cfg["append_raw"]),
         "section_rva": hex(cfg["section_rva"]),
@@ -368,6 +555,8 @@ def emit_game(game: str, cfg: dict[str, object], output_root: Path = OUT, emit_b
         "companion_install": {
             "required": False,
             "reason": "fullscreen-only wrapper; certified companion/resource bytes are not replaced",
+            "input": str(dll_path.relative_to(ROOT)),
+            "size": cfg["dll_size"],
             "sha256_if_present": cfg["dll"],
         },
         "fullscreen_contract": contract,
