@@ -15,7 +15,7 @@ from typing import Callable, Mapping, Sequence
 PRICE = 100_000
 TARGET = 100
 SKILL_OFFSETS = (0xEAC, 0xEB0, 0xEB4, 0xEB8, 0xEBC)
-SKILL_NAMES = ("farming", "parenting", "healing", "research", "building")
+SKILL_NAMES = ("farming", "building", "research", "healing", "parenting")
 NOOP_MESSAGE = (
     "This villager is already fully mastered.\r\n"
     "No tech points have been deducted."

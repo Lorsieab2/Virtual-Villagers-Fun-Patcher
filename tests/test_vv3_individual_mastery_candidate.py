@@ -52,6 +52,7 @@ class VV3IndividualMasteryCandidateTests(unittest.TestCase):
         self.assertEqual(mapping["transaction"]["native_writer"], "0x455740")
         self.assertIn("0x462500", mapping["transaction"]["native_evaluator"])
         self.assertEqual(mapping["transaction"]["preferred_job"], "0xEC0 read-only snapshot")
+        self.assertEqual(mapping["skill_order"], ["Farming", "Building", "Research", "Healing", "Parenting"])
 
     def test_dry_run_noop_cancel_and_confirmation_order(self):
         initial = record((100, 100, 100, 100, 100))
@@ -99,7 +100,7 @@ class VV3IndividualMasteryCandidateTests(unittest.TestCase):
             lambda: (0, [deepcopy(initial)], PRICE),
         )
         self.assertEqual(plan.status, "commit")
-        self.assertEqual([(c.skill_index, c.delta) for c in plan.calls], [(0, 2), (2, 3)])
+        self.assertEqual([(c.skill_index, c.delta) for c in plan.calls], [(0, 2), (3, 3)])
         result = apply_plan(
             plan,
             lambda index, skill, delta: writer_calls.append((index, skill, delta)),
@@ -107,7 +108,7 @@ class VV3IndividualMasteryCandidateTests(unittest.TestCase):
             lambda amount: deduction_calls.append(amount),
         )
         self.assertEqual(result, "Full Mastery was granted.")
-        self.assertEqual(writer_calls, [(0, 0, 2), (0, 2, 3)])
+        self.assertEqual(writer_calls, [(0, 0, 2), (0, 3, 3)])
         self.assertEqual(evaluator_calls, [0])
         self.assertEqual(deduction_calls, [PRICE])
 
