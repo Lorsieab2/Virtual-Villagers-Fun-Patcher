@@ -196,16 +196,12 @@ def build_fullscreen_wrapper(common_va: int, sdl_string_va: int) -> bytes:
             mov dword ptr [ebp-0x14], ecx
             test ecx, ecx
             jz fail
-            xor eax, eax
-            mov dword ptr [ebp-0x2C], eax
-            mov dword ptr [ebp-0x30], eax
-            call 0x{NATIVE_FULLSCREEN_GETTER_VA:X}
-            test eax, eax
-            jz fail
+            mov byte ptr [ebp-0x30], 0
             call reacquire
             test eax, eax
             jz fail
             mov dword ptr [ebp-0x18], esi
+            mov dword ptr [ebp-0x1C], edi
             mov dword ptr [ebp-0x20], eax
             movzx ebx, byte ptr [edi+0x1E]
             mov dword ptr [ebp-0x24], ebx
@@ -242,6 +238,8 @@ def build_fullscreen_wrapper(common_va: int, sdl_string_va: int) -> bytes:
             call reacquire
             cmp esi, dword ptr [ebp-0x18]
             jne post_leave_failed
+            cmp edi, dword ptr [ebp-0x1C]
+            jne post_leave_failed
             cmp eax, dword ptr [ebp-0x20]
             jne post_leave_failed
             cmp byte ptr [edi+0x1E], 1
@@ -249,7 +247,9 @@ def build_fullscreen_wrapper(common_va: int, sdl_string_va: int) -> bytes:
             push dword ptr [ebp-0x20]
             call dword ptr [ebp-0x28]
             add esp, 4
-            cmp eax, 0
+            mov edx, eax
+            and edx, 0x1001
+            cmp edx, 0
             jne post_leave_failed
             jmp invoke_menu
         invoke_menu:
@@ -259,11 +259,10 @@ def build_fullscreen_wrapper(common_va: int, sdl_string_va: int) -> bytes:
             cmp dword ptr [ebp-0x30], 0
             je windowed_done
         restore_start:
-            call 0x{NATIVE_FULLSCREEN_GETTER_VA:X}
-            test eax, eax
-            jz restore_failed
             call reacquire
             cmp esi, dword ptr [ebp-0x18]
+            jne restore_failed
+            cmp edi, dword ptr [ebp-0x1C]
             jne restore_failed
             cmp eax, dword ptr [ebp-0x20]
             jne restore_failed
@@ -275,13 +274,13 @@ def build_fullscreen_wrapper(common_va: int, sdl_string_va: int) -> bytes:
             call reacquire
             cmp esi, dword ptr [ebp-0x18]
             jne restore_failed
+            cmp edi, dword ptr [ebp-0x1C]
+            jne restore_failed
             cmp eax, dword ptr [ebp-0x20]
             jne restore_failed
             push dword ptr [ebp-0x20]
             call dword ptr [ebp-0x28]
             add esp, 4
-            test eax, eax
-            jz restore_failed
             mov edx, eax
             and edx, 0x1001
             cmp byte ptr [edi+0x1E], 0

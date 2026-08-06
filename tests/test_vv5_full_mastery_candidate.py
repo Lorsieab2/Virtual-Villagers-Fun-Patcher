@@ -288,8 +288,8 @@ class VV5FullMasteryCandidateTests(unittest.TestCase):
 
     def test_c103_loader_accepts_both_certified_stock_modes(self):
         expected = {
-            "collection_progression": "4CC19EBE2684D0117E241BEE40042053001CAF6FBC309639C78F4A45814F08D2",
-            "immediate_fixed": "53DCACAC56E386E5291FAFF81ABA92858AA0E74255E87B974EB05D692C9275ED",
+            "collection_progression": "4D8A13996094567B088D931AB826C76AB8034BFAB2D63957F1408C5199F9934F",
+            "immediate_fixed": "E920C6C6B9EA5367BB8380F0E37D0790BD7D18B74B67C4D9029CF63AF8C3FB4F",
         }
         for mode, digest in expected.items():
             with self.subTest(mode=mode):
@@ -775,7 +775,7 @@ class VV5FullMasteryCandidateTests(unittest.TestCase):
         self.assertIn("call 0x{NATIVE_FULLSCREEN_GETTER_VA:X}", wrapper)
         enter_index = wrapper.index("call 0x{NATIVE_FULLSCREEN_ENTER_VA:X}")
         leave_index = wrapper.index("call 0x{NATIVE_FULLSCREEN_LEAVE_VA:X}")
-        self.assertLess(wrapper.find("call reacquire", leave_index), enter_index)
+        self.assertLess(wrapper.find("call reacquire"), leave_index)
         self.assertNotEqual(wrapper.find("call 0x{NATIVE_FULLSCREEN_GETTER_VA:X}", enter_index), -1)
         self.assertNotIn("call dword ptr [0x{SDL_GET_MODULE_HANDLE_IAT:X}]\n            add esp", wrapper)
         self.assertNotIn("call dword ptr [0x{SDL_GET_WINDOW_FLAGS_IAT:X}]\n            add esp", wrapper)
@@ -808,10 +808,9 @@ class VV5FullMasteryCandidateTests(unittest.TestCase):
                 vv5_builder.PAYLOAD_VA + vv5_builder.FULLSCREEN_COMMON_OFFSET,
             )
         )
-        # The wrapper samples flags before leaving fullscreen and once after
-        # restoration.  There are exactly two masked flag tests; the three
-        # SDL calls are still asserted independently below.
-        self.assertEqual(sum(1 for ins in instructions if ins.mnemonic == "and" and ins.op_str == "edx, 0x1001"), 2)
+        # Every SDL query is followed by a semantic 0x1001 mask, including the
+        # post-leave query before the modal call.
+        self.assertEqual(sum(1 for ins in instructions if ins.mnemonic == "and" and ins.op_str == "edx, 0x1001"), 3)
         flags_calls = [
             i for i, ins in enumerate(instructions)
             if ins.mnemonic == "call" and ins.op_str == "dword ptr [ebp - 0x28]"
@@ -826,7 +825,9 @@ class VV5FullMasteryCandidateTests(unittest.TestCase):
         self.assertEqual(instructions[leave_index - 1].mnemonic, "mov")
         self.assertEqual(instructions[leave_index - 1].op_str, "ecx, esi")
         enter_index = next(i for i, ins in enumerate(instructions) if ins.mnemonic == "call" and f"0x{vv5_builder.NATIVE_FULLSCREEN_ENTER_VA:x}" in ins.op_str)
-        self.assertTrue(any(ins.mnemonic == "call" and f"0x{vv5_builder.NATIVE_FULLSCREEN_GETTER_VA:x}" in ins.op_str for ins in instructions[:leave_index]))
+        self.assertTrue(any(ins.mnemonic == "call" and f"0x{vv5_builder.NATIVE_FULLSCREEN_GETTER_VA:x}" in ins.op_str for ins in instructions[enter_index + 1 :]))
+        self.assertTrue(any(ins.mnemonic == "cmp" and ins.op_str == "edi, dword ptr [ebp - 0x1c]" for ins in instructions[leave_index:]))
+        self.assertTrue(sum(ins.mnemonic == "cmp" and ins.op_str == "edi, dword ptr [ebp - 0x1c]" for ins in instructions) >= 3)
         self.assertTrue(any(ins.mnemonic == "call" and f"0x{vv5_builder.NATIVE_FULLSCREEN_GETTER_VA:x}" in ins.op_str for ins in instructions[enter_index + 1 :]))
         for i, ins in enumerate(instructions):
             if ins.mnemonic == "call" and ins.op_str in ("dword ptr [0x4951d8]", "dword ptr [0x4951dc]"):
@@ -846,6 +847,10 @@ class VV5FullMasteryCandidateTests(unittest.TestCase):
         )
         self.assertEqual(instructions[-1].mnemonic, "ret")
         self.assertEqual(instructions[-1].op_str, "")
+        self.assertFalse(vv5_builder.sha(wrapper).startswith("ED1059"))
+        source = GENERATOR.read_text(encoding="utf-8")
+        self.assertEqual(source.count("restore_start:"), 1)
+        self.assertIn("jmp restore_start", source[source.index("post_leave_failed:"):source.index("restore_failed:")])
 
     def test_d252_candidate_companion_is_projection_with_exact_restore_parent(self):
         companion = self.base_raw["companion_files"]
