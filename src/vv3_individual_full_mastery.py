@@ -121,6 +121,34 @@ def _unsafe_stat(st: os.stat_result) -> bool:
     return bool(getattr(st, "st_file_attributes", 0) & 0x400)
 
 
+def _reject_entry(path: Path, st: os.stat_result, *, directory: bool | None = None) -> None:
+    """Reject every link/reparse/mount and enforce the expected entry type."""
+    if stat.S_ISLNK(st.st_mode) or _unsafe_stat(st):
+        raise PatcherError(f"VV3 individual Full Mastery reparse/symlink entry: {path}")
+    if getattr(path, "is_junction", lambda: False)():
+        raise PatcherError(f"VV3 individual Full Mastery junction entry: {path}")
+    if path != Path(os.path.abspath(os.fspath(path))) and not path.is_absolute():
+        raise PatcherError(f"VV3 individual Full Mastery non-canonical entry: {path}")
+    # Do not reject the volume root itself; reject mount-point descendants.
+    if path.parent != path and str(path) != path.anchor and os.path.ismount(path):
+        raise PatcherError(f"VV3 individual Full Mastery mount entry: {path}")
+    if directory is True and not stat.S_ISDIR(st.st_mode):
+        raise PatcherError(f"VV3 individual Full Mastery directory type changed: {path}")
+    if directory is False and not stat.S_ISREG(st.st_mode):
+        raise PatcherError(f"VV3 individual Full Mastery regular-file type changed: {path}")
+
+
+def _validate_recovery_root(path: Path) -> Path:
+    """Validate a supplied recovery root before any is_dir/scandir operation."""
+    absolute = Path(os.path.abspath(os.fspath(path)))
+    _safe_ancestor_chain(absolute.parent)
+    if not os.path.lexists(absolute):
+        raise PatcherError(f"VV3 individual Full Mastery recovery root is missing: {absolute}")
+    st = os.lstat(absolute)
+    _reject_entry(absolute, st, directory=True)
+    return absolute
+
+
 def _safe_ancestor_chain(path: Path) -> None:
     """Reject links/reparse points in every existing ancestor without resolve()."""
     absolute = Path(os.path.abspath(os.fspath(path)))
@@ -137,6 +165,8 @@ def _safe_ancestor_chain(path: Path) -> None:
         st = os.lstat(item)
         if stat.S_ISLNK(st.st_mode) or _unsafe_stat(st):
             raise PatcherError(f"VV3 individual Full Mastery reparse ancestor: {item}")
+        if item.parent != item and str(item) != item.anchor and os.path.ismount(item):
+            raise PatcherError(f"VV3 individual Full Mastery mount ancestor: {item}")
         if item != absolute and not stat.S_ISDIR(st.st_mode):
             raise PatcherError(f"VV3 individual Full Mastery non-directory ancestor: {item}")
         if getattr(item, "is_junction", lambda: False)():
@@ -146,6 +176,8 @@ def _safe_ancestor_chain(path: Path) -> None:
 def _read_regular(path: Path) -> bytes:
     """No-follow read with identity checks before and after hashing."""
     _safe_ancestor_chain(path.parent)
+    if os.name != "nt" and not hasattr(os, "O_NOFOLLOW"):
+        raise PatcherError("VV3 individual Full Mastery no-follow capability is unavailable.")
     if not os.path.lexists(path):
         raise PatcherError(f"VV3 individual Full Mastery unsafe or missing file: {path}")
     before = os.lstat(path)
@@ -228,11 +260,15 @@ def _write_file(path: Path, data: bytes) -> None:
 def _write_recovery(parent: Path, details: dict[str, object]) -> Path:
     report = parent / f".vv3im-recovery-{uuid.uuid4().hex}.json"
     tmp = report.with_suffix(".tmp")
-    payload = {"schema_version": 2, **details}
+    payload = {"schema_version": 2, "report_relative": report.name, **details}
     _validate_recovery_payload(payload, parent)
     _write_file(tmp, (json.dumps(payload, indent=2, sort_keys=True) + "\n").encode("utf-8"))
+    if not os.path.lexists(tmp):
+        raise PatcherError("VV3 individual Full Mastery recovery temporary report disappeared.")
     os.replace(tmp, report)
     _fsync_dir(parent)
+    report_st = os.lstat(report)
+    _reject_entry(report, report_st, directory=False)
     _validate_recovery_payload(json.loads(_read_regular(report).decode("utf-8")), parent)
     return report
 
@@ -264,11 +300,64 @@ def _inventory_member(root: Path, path: Path | None) -> dict[str, object] | None
     }
 
 
+def _inventory_tree(root: Path, *, exclude: set[str] | None = None) -> list[dict[str, object]]:
+    """Enumerate every owned recovery descendant without following links."""
+    root = _validate_recovery_root(root)
+    excluded = {str(item).replace("\\", "/").casefold() for item in (exclude or set())}
+    records: list[dict[str, object]] = []
+    seen: set[str] = set()
+
+    def walk(directory: Path, prefix: str = "") -> None:
+        before = os.lstat(directory)
+        _reject_entry(directory, before, directory=True)
+        with os.scandir(directory) as scan:
+            entries = sorted(list(scan), key=lambda item: (item.name.casefold(), item.name))
+        for entry in entries:
+            rel = f"{prefix}/{entry.name}" if prefix else entry.name
+            rel = rel.replace("\\", "/")
+            key = rel.casefold()
+            if not key or key in seen or Path(rel).is_absolute() or ".." in Path(rel).parts:
+                raise PatcherError(f"VV3 individual Full Mastery recovery inventory collision: {rel}")
+            seen.add(key)
+            if key in excluded:
+                continue
+            path = Path(entry.path)
+            st = os.lstat(path)
+            if stat.S_ISDIR(st.st_mode):
+                _reject_entry(path, st, directory=True)
+                records.append({"path": rel, "type": "directory", "size": 0, "sha256": None,
+                                "st_dev": int(getattr(st, "st_dev", 0)), "st_ino": int(getattr(st, "st_ino", 0))})
+                walk(path, rel)
+            elif stat.S_ISREG(st.st_mode):
+                _reject_entry(path, st, directory=False)
+                data = _read_regular(path)
+                after = os.lstat(path)
+                if (st.st_dev, st.st_ino, st.st_size) != (after.st_dev, after.st_ino, after.st_size):
+                    raise PatcherError(f"VV3 individual Full Mastery recovery file identity changed: {path}")
+                records.append({"path": rel, "type": "regular_file", "size": len(data), "sha256": _sha(data),
+                                "st_dev": int(getattr(st, "st_dev", 0)), "st_ino": int(getattr(st, "st_ino", 0))})
+            else:
+                raise PatcherError(f"VV3 individual Full Mastery recovery unsupported entry: {path}")
+        after = os.lstat(directory)
+        if (before.st_dev, before.st_ino, before.st_mode) != (after.st_dev, after.st_ino, after.st_mode):
+            raise PatcherError(f"VV3 individual Full Mastery recovery directory identity changed: {directory}")
+
+    walk(root)
+    return records
+
+
+def _verify_inventory(root: Path, expected: list[dict[str, object]], *, exclude: set[str] | None = None) -> None:
+    actual = _inventory_tree(root, exclude=exclude)
+    normalize = lambda rows: sorted(rows, key=lambda item: str(item["path"]).casefold())
+    if normalize(actual) != normalize(expected):
+        raise PatcherError("VV3 individual Full Mastery recovery ownership inventory changed.")
+
+
 def _validate_recovery_payload(payload: dict[str, object], root: Path) -> None:
-    required = {"schema_version", "operation", "recovery_root", "destination_parent", "initial_precondition", "replay_guard", "members", "ownership_inventory", "failure_diagnostic"}
+    required = {"schema_version", "operation", "recovery_root", "destination_parent", "report_relative", "initial_precondition", "replay_guard", "members", "ownership_inventory", "failure_diagnostic"}
     if not isinstance(payload, dict) or set(payload) != required or payload.get("schema_version") != 2:
         raise PatcherError("VV3 individual Full Mastery recovery schema is unsupported or ambiguous.")
-    if payload["operation"] not in {"install_new", "install_existing", "removal"} or payload["recovery_root"] != "." or payload["destination_parent"] != ".":
+    if payload["operation"] not in {"install_new", "install_existing", "removal"} or payload["recovery_root"] != "." or payload["destination_parent"] != "." or not isinstance(payload["report_relative"], str) or Path(payload["report_relative"]).name != payload["report_relative"]:
         raise PatcherError("VV3 individual Full Mastery recovery operation/root contract is invalid.")
     initial = payload["initial_precondition"]
     if not isinstance(initial, dict) or set(initial) != {"kind", "members"} or initial["kind"] not in {"absent", "pair"}:
@@ -277,14 +366,22 @@ def _validate_recovery_payload(payload: dict[str, object], root: Path) -> None:
         raise PatcherError("install_new requires an immutable absent precondition.")
     if payload["operation"] != "install_new" and initial["kind"] != "pair":
         raise PatcherError("VV3 recovery operation requires an owned pair precondition.")
+    guard = payload["replay_guard"]
+    if not isinstance(guard, dict) or set(guard) != {"kind", "members"}:
+        raise PatcherError("VV3 individual Full Mastery replay guard schema is invalid.")
+    expected_guard_kind = "absent" if payload["operation"] == "install_new" else "pair"
+    if guard["kind"] != expected_guard_kind or not isinstance(guard["members"], list):
+        raise PatcherError("VV3 individual Full Mastery replay guard operation is invalid.")
     members = payload["members"]
     if not isinstance(members, list) or len(members) != 2:
         raise PatcherError("VV3 individual Full Mastery recovery requires exactly two members.")
-    member_keys = {"destination_relative", "destination_type", "pre_exists", "pre_sha256", "pre_size", "published_sha256", "published_size", "backup_relative", "stage_relative", "backup_inventory", "stage_inventory"}
+    member_keys = {"destination_relative", "destination_type", "pre_exists", "pre_sha256", "pre_size", "published_sha256", "published_size", "backup_relative", "stage_relative", "backup_inventory", "stage_inventory", "published_inventory"}
     seen: set[str] = set()
     for member in members:
         if not isinstance(member, dict) or set(member) != member_keys or member["destination_type"] != "regular_file":
             raise PatcherError("VV3 individual Full Mastery recovery member schema is invalid.")
+        if not isinstance(member["pre_exists"], bool):
+            raise PatcherError("VV3 individual Full Mastery recovery pre_exists type is invalid.")
         rel = Path(str(member["destination_relative"]))
         key = rel.as_posix().casefold()
         if rel.is_absolute() or not rel.parts or ".." in rel.parts or key in seen:
@@ -297,40 +394,70 @@ def _validate_recovery_payload(payload: dict[str, object], root: Path) -> None:
                 if p.is_absolute() or ".." in p.parts or not p.parts:
                     raise PatcherError("VV3 individual Full Mastery recovery owned path is unsafe.")
         for field in ("pre_sha256", "published_sha256"):
-            if member[field] is not None and (not isinstance(member[field], str) or len(member[field]) != 64):
+            if member[field] is not None and (not isinstance(member[field], str) or len(member[field]) != 64 or any(ch not in "0123456789abcdefABCDEF" for ch in member[field])):
                 raise PatcherError("VV3 individual Full Mastery recovery hash is malformed.")
         for field in ("pre_size", "published_size"):
             if not isinstance(member[field], int) or member[field] < 0:
                 raise PatcherError("VV3 individual Full Mastery recovery size is malformed.")
-        for field in ("backup_inventory", "stage_inventory"):
+        for field in ("backup_inventory", "stage_inventory", "published_inventory"):
             inv = member[field]
             if inv is not None:
-                if not isinstance(inv, dict) or set(inv) != {"path", "type", "size", "sha256", "st_dev", "st_ino"} or inv["type"] != "regular_file":
+                if not isinstance(inv, dict) or set(inv) != {"path", "type", "size", "sha256", "st_dev", "st_ino"} or inv["type"] != "regular_file" or not isinstance(inv["size"], int) or not isinstance(inv["sha256"], str) or len(inv["sha256"]) != 64:
                     raise PatcherError("VV3 individual Full Mastery recovery inventory is malformed.")
+    guard_paths = [Path(str(item)) for item in guard["members"]]
+    member_paths = [Path(str(item["destination_relative"])) for item in members]
+    if guard_paths != member_paths or any(p.is_absolute() or not p.parts or ".." in p.parts for p in guard_paths):
+        raise PatcherError("VV3 individual Full Mastery replay guard members do not match destinations.")
+    if payload["operation"] == "install_new" and any(bool(member["pre_exists"]) for member in members):
+        raise PatcherError("VV3 individual Full Mastery install_new precondition is not immutable-absent.")
     inventory = payload["ownership_inventory"]
     if not isinstance(inventory, list):
         raise PatcherError("VV3 individual Full Mastery recovery ownership inventory is malformed.")
     seen_inventory: set[str] = set()
     for item in inventory:
-        if not isinstance(item, dict) or set(item) != {"path", "type", "size", "sha256", "st_dev", "st_ino"} or item["type"] != "regular_file":
+        if not isinstance(item, dict) or set(item) != {"path", "type", "size", "sha256", "st_dev", "st_ino"} or item["type"] not in {"regular_file", "directory"}:
             raise PatcherError("VV3 individual Full Mastery recovery ownership item is malformed.")
         rel = Path(str(item["path"]))
         key = rel.as_posix().casefold()
         if rel.is_absolute() or not rel.parts or ".." in rel.parts or key in seen_inventory:
             raise PatcherError("VV3 individual Full Mastery recovery ownership path is unsafe or duplicated.")
+        if item["type"] == "regular_file" and (not isinstance(item["sha256"], str) or len(item["sha256"]) != 64):
+            raise PatcherError("VV3 individual Full Mastery recovery ownership hash is malformed.")
+        if item["type"] == "directory" and item["sha256"] is not None:
+            raise PatcherError("VV3 individual Full Mastery recovery directory hash is invalid.")
+        if not isinstance(item["size"], int) or item["size"] < 0:
+            raise PatcherError("VV3 individual Full Mastery recovery ownership size is invalid.")
         seen_inventory.add(key)
 
 
-def _remove_owned(path: Path) -> None:
+def _remove_owned(path: Path, *, expected: dict[str, object] | None = None) -> None:
     if not os.path.lexists(path):
         return
     st = os.lstat(path)
-    if stat.S_ISLNK(st.st_mode) or _unsafe_stat(st) or not stat.S_ISREG(st.st_mode):
+    _reject_entry(path, st)
+    if stat.S_ISDIR(st.st_mode):
+        _inventory_tree(path)
+        with os.scandir(path) as scan:
+            children = sorted([Path(item.path) for item in scan], key=lambda item: (item.name.casefold(), item.name))
+        for child in children:
+            _remove_owned(child)
+        before = os.lstat(path)
+        _reject_entry(path, before, directory=True)
+        if (before.st_dev, before.st_ino) != (st.st_dev, st.st_ino):
+            raise PatcherError(f"VV3 individual Full Mastery cleanup directory identity changed: {path}")
+        path.rmdir()
+        return
+    if not stat.S_ISREG(st.st_mode):
         raise PatcherError(f"VV3 individual Full Mastery unsafe cleanup member: {path}")
-    # Recheck identity/type/hash immediately before unlinking owned material.
     checked = _read_regular(path)
+    if expected is not None:
+        if expected.get("type") != "regular_file" or _sha(checked) != str(expected.get("sha256", "")).upper() or len(checked) != int(expected.get("size", -1)):
+            raise PatcherError(f"VV3 individual Full Mastery cleanup content changed: {path}")
+        if int(expected.get("st_dev", st.st_dev)) != st.st_dev or int(expected.get("st_ino", st.st_ino)) != st.st_ino:
+            raise PatcherError(f"VV3 individual Full Mastery cleanup identity changed: {path}")
     st2 = os.lstat(path)
-    if stat.S_ISLNK(st2.st_mode) or _unsafe_stat(st2) or not stat.S_ISREG(st2.st_mode) or st2.st_size != len(checked):
+    _reject_entry(path, st2, directory=False)
+    if (st.st_dev, st.st_ino, st.st_size) != (st2.st_dev, st2.st_ino, st2.st_size):
         raise PatcherError(f"VV3 individual Full Mastery cleanup identity changed: {path}")
     path.unlink()
 
@@ -345,12 +472,25 @@ def _replace_verified(stage: Path, destination: Path, expected_destination: tupl
     """Perform a replace only after immediate no-follow identity/hash checks."""
     if _state(destination) != expected_destination:
         raise PatcherError(f"VV3 individual Full Mastery destination race: {destination}")
+    stage_before = os.lstat(stage)
+    _reject_entry(stage, stage_before, directory=False)
     if _read_regular(stage) != expected_stage:
         raise PatcherError(f"VV3 individual Full Mastery stage race: {stage}")
+    stage_check = os.lstat(stage)
+    _reject_entry(stage, stage_check, directory=False)
+    if (stage_before.st_dev, stage_before.st_ino, stage_before.st_size) != (stage_check.st_dev, stage_check.st_ino, stage_check.st_size):
+        raise PatcherError(f"VV3 individual Full Mastery stage identity changed: {stage}")
+    destination_before = os.lstat(destination) if os.path.lexists(destination) else None
+    if destination_before is not None:
+        _reject_entry(destination, destination_before, directory=False)
     os.replace(stage, destination)
+    after = os.lstat(destination)
+    _reject_entry(destination, after, directory=False)
+    if _read_regular(destination) != expected_stage:
+        raise PatcherError(f"VV3 individual Full Mastery replacement postverify failed: {destination}")
 
 
-def _restore_member(path: Path, existed: bool, original: bytes | None, published: bytes, *, backup: Path | None = None) -> bool:
+def _restore_member(path: Path, existed: bool, original: bytes | None, published: bytes, *, backup: Path | None = None, staging_root: Path | None = None) -> bool:
     """Restore one member independently through an owned sibling stage."""
     try:
         current = _state(path)
@@ -364,7 +504,8 @@ def _restore_member(path: Path, existed: bool, original: bytes | None, published
             source = backup if backup is not None else None
             if source is not None and _read_regular(source) != original:
                 return False
-            stage = path.parent / f".{path.name}.vv3im-restore-{uuid.uuid4().hex}.stage"
+            stage_parent = staging_root if staging_root is not None else path.parent
+            stage = stage_parent / f".{path.name}.vv3im-restore-{uuid.uuid4().hex}.stage"
             _copy_preserved(source, stage, original or b"") if source is not None else _write_file(stage, original or b"")
             _replace_verified(stage, path, current, original or b"")
             return _state(path) == (True, original)
@@ -388,8 +529,22 @@ def _validate_pair_parent(destinations: list[Path]) -> Path:
 
 def _transaction(operation: str, destinations: list[Path], pre: dict[Path, tuple[bool, bytes | None]], published: dict[Path, bytes], *, expected_preimage: dict[Path, bytes], parent: Path) -> None:
     token = uuid.uuid4().hex
-    stages = {p: parent / f".{p.name}.vv3im-{token}.stage" for p in destinations}
-    backups = {p: parent / f".{p.name}.vv3im-{token}.backup" for p in destinations if pre[p][0]}
+    recovery_root = parent / f".vv3im-recovery-{token}"
+    _safe_ancestor_chain(parent)
+    if os.path.lexists(recovery_root):
+        raise PatcherError("VV3 individual Full Mastery recovery-root collision.")
+    try:
+        recovery_root.mkdir()
+        _fsync_dir(parent)
+    except Exception:
+        if os.path.lexists(recovery_root):
+            try:
+                _remove_owned(recovery_root)
+            except Exception:
+                pass
+        raise
+    stages = {p: recovery_root / f".{p.name}.vv3im-{token}.stage" for p in destinations}
+    backups = {p: recovery_root / f".{p.name}.vv3im-{token}.backup" for p in destinations if pre[p][0]}
     if any(os.path.lexists(p) for p in (*stages.values(), *backups.values())):
         raise PatcherError("VV3 individual Full Mastery staging collision.")
     committed = False
@@ -415,11 +570,10 @@ def _transaction(operation: str, destinations: list[Path], pre: dict[Path, tuple
     except Exception as exc:
         restored = {}
         for p in destinations:
-            restored[p] = _restore_member(p, *pre[p], published[p], backup=backups.get(p))
+            restored[p] = _restore_member(p, *pre[p], published[p], backup=backups.get(p), staging_root=recovery_root)
         if all(restored.values()) and all(_state(p) == pre[p] for p in destinations):
-            for p in (*stages.values(), *backups.values()):
-                if os.path.lexists(p):
-                    _remove_owned(p)
+            if os.path.lexists(recovery_root):
+                _remove_owned(recovery_root)
             _fsync_dir(parent)
             raise PatcherError(f"VV3 individual Full Mastery {operation} publication failed; pair restored") from exc
         else:
@@ -440,7 +594,13 @@ def _transaction(operation: str, destinations: list[Path], pre: dict[Path, tuple
                     "stage_relative": _relative_owned(parent, stage),
                     "backup_inventory": _inventory_member(parent, backup),
                     "stage_inventory": _inventory_member(parent, stage),
+                    "published_inventory": _inventory_member(parent, p) if _state(p) == (True, published[p]) else None,
                 })
+            inventory = _inventory_tree(recovery_root)
+            for item in inventory:
+                item["path"] = _relative_owned(parent, recovery_root / str(item["path"]))
+            root_st = os.lstat(recovery_root)
+            inventory.insert(0, {"path": _relative_owned(parent, recovery_root), "type": "directory", "size": 0, "sha256": None, "st_dev": int(root_st.st_dev), "st_ino": int(root_st.st_ino)})
             report = _write_recovery(parent, {
                 "operation": report_operation,
                 "recovery_root": ".",
@@ -449,36 +609,99 @@ def _transaction(operation: str, destinations: list[Path], pre: dict[Path, tuple
                     "kind": "absent" if report_operation == "install_new" else "pair",
                     "members": [{"path": _relative_owned(parent, p), "exists": bool(pre[p][0]), "sha256": _sha(pre[p][1]) if pre[p][1] is not None else None, "size": len(pre[p][1]) if pre[p][1] is not None else 0} for p in destinations],
                 },
-                "replay_guard": "published_or_initial",
+                "replay_guard": {
+                    "kind": "absent" if report_operation == "install_new" else "pair",
+                    "members": [_relative_owned(parent, p) for p in destinations],
+                },
                 "members": member_records,
-                "ownership_inventory": [m for rec in member_records for m in (rec["backup_inventory"], rec["stage_inventory"]) if m is not None],
+                "ownership_inventory": inventory,
                 "failure_diagnostic": str(exc),
             })
             raise PatcherError(f"VV3 individual Full Mastery transaction failed; recovery retained at {report}") from exc
     finally:
         if committed:
-            for p in (*stages.values(), *backups.values()):
-                if os.path.lexists(p):
-                    _remove_owned(p)
-            _fsync_dir(parent)
+            try:
+                if os.path.lexists(recovery_root):
+                    _remove_owned(recovery_root)
+                _fsync_dir(parent)
+            except Exception as cleanup_exc:
+                # Cleanup is part of the publication contract.  Retain a
+                # complete report whenever ownership cleanup or directory
+                # durability fails instead of silently leaving residue.
+                try:
+                    if os.path.lexists(recovery_root):
+                        inventory = _inventory_tree(recovery_root)
+                        for item in inventory:
+                            item["path"] = _relative_owned(parent, recovery_root / str(item["path"]))
+                        root_st = os.lstat(recovery_root)
+                        inventory.insert(0, {"path": _relative_owned(parent, recovery_root), "type": "directory", "size": 0, "sha256": None, "st_dev": int(root_st.st_dev), "st_ino": int(root_st.st_ino)})
+                        _write_recovery(parent, {
+                            "operation": "removal" if operation == "remove" else ("install_existing" if any(pre[p][0] for p in destinations) else "install_new"),
+                            "recovery_root": ".",
+                            "destination_parent": ".",
+                            "initial_precondition": {"kind": "pair" if any(pre[p][0] for p in destinations) or operation == "remove" else "absent", "members": [{"path": _relative_owned(parent, p), "exists": bool(pre[p][0]), "sha256": _sha(pre[p][1]) if pre[p][1] is not None else None, "size": len(pre[p][1]) if pre[p][1] is not None else 0} for p in destinations]},
+                            "replay_guard": {"kind": "pair" if any(pre[p][0] for p in destinations) or operation == "remove" else "absent", "members": [_relative_owned(parent, p) for p in destinations]},
+                            "members": [{"destination_relative": _relative_owned(parent, p), "destination_type": "regular_file", "pre_exists": bool(pre[p][0]), "pre_sha256": _sha(pre[p][1]) if pre[p][1] is not None else None, "pre_size": len(pre[p][1]) if pre[p][1] is not None else 0, "published_sha256": _sha(published[p]), "published_size": len(published[p]), "backup_relative": _relative_owned(parent, backups.get(p)), "stage_relative": _relative_owned(parent, stages[p]), "backup_inventory": _inventory_member(parent, backups.get(p)), "stage_inventory": _inventory_member(parent, stages[p]), "published_inventory": _inventory_member(parent, p) if _state(p) == (True, published[p]) else None} for p in destinations],
+                            "ownership_inventory": inventory,
+                            "failure_diagnostic": f"cleanup failure: {cleanup_exc}",
+                        })
+                finally:
+                    raise PatcherError("VV3 individual Full Mastery cleanup failed; recovery evidence retained.") from cleanup_exc
 
 
 def recover_atomic(report_or_root: Path) -> None:
     """Replay schema-v2 evidence with relative no-follow ownership checks."""
     report = Path(report_or_root)
-    if report.is_dir():
-        reports = [p for p in os.scandir(report) if p.name.startswith(".vv3im-recovery-") and p.name.endswith(".json")]
+    # Validate the supplied path before calling is_dir/scandir.  A symlink,
+    # junction, mount or reparse root is never opened or traversed.
+    supplied = Path(os.path.abspath(os.fspath(report)))
+    if not os.path.lexists(supplied):
+        raise PatcherError("VV3 individual Full Mastery recovery root/report is missing.")
+    supplied_st = os.lstat(supplied)
+    _reject_entry(supplied, supplied_st)
+    if stat.S_ISDIR(supplied_st.st_mode):
+        _validate_recovery_root(supplied)
+        reports = [Path(p.path) for p in os.scandir(supplied) if p.name.startswith(".vv3im-recovery-") and p.name.endswith(".json")]
         if len(reports) != 1:
             raise PatcherError("VV3 individual Full Mastery recovery report is ambiguous.")
-        report = Path(reports[0].path)
+        report = reports[0]
+    else:
+        _reject_entry(supplied, supplied_st, directory=False)
+        report = supplied
     _safe_ancestor_chain(report.parent)
+    report_st_before = os.lstat(report)
+    _reject_entry(report, report_st_before, directory=False)
     payload = json.loads(_read_regular(report).decode("utf-8"))
     _validate_recovery_payload(payload, report.parent)
+    if payload["report_relative"] != report.name:
+        raise PatcherError("VV3 individual Full Mastery recovery report identity/path mismatch.")
     root = report.parent
+    owned_dirs = [item for item in payload["ownership_inventory"] if item.get("type") == "directory" and "/" not in str(item.get("path", ""))]
+    if len(owned_dirs) != 1:
+        raise PatcherError("VV3 individual Full Mastery recovery root inventory is ambiguous.")
+    replay_root = root / str(owned_dirs[0]["path"])
+    _validate_recovery_root(replay_root)
+    # Compare all owned hidden recovery material before any destination or
+    # staging mutation.  Destination members are external and are validated
+    # separately below; every .vv3im-* sibling must be represented exactly.
+    expected_owned = payload["ownership_inventory"]
+    destination_exclusions = {str(member["destination_relative"]).replace("\\", "/") for member in payload["members"]}
+    actual_owned = _inventory_tree(root, exclude={report.name, *destination_exclusions})
+    if sorted(actual_owned, key=lambda item: str(item["path"]).casefold()) != sorted(expected_owned, key=lambda item: str(item["path"]).casefold()):
+        raise PatcherError("VV3 individual Full Mastery recovery ownership inventory changed.")
     for item in payload["ownership_inventory"]:
         owned = root / str(item["path"])
-        if not os.path.lexists(owned) or _unsafe_stat(os.lstat(owned)) or _sha(_read_regular(owned)) != item["sha256"] or os.lstat(owned).st_size != item["size"]:
+        if not os.path.lexists(owned):
             raise PatcherError("VV3 individual Full Mastery recovery ownership inventory changed.")
+        st = os.lstat(owned)
+        if item["type"] == "directory":
+            _reject_entry(owned, st, directory=True)
+            if (st.st_dev, st.st_ino) != (int(item["st_dev"]), int(item["st_ino"])):
+                raise PatcherError("VV3 individual Full Mastery recovery ownership directory identity changed.")
+        else:
+            _reject_entry(owned, st, directory=False)
+            if _sha(_read_regular(owned)) != item["sha256"] or st.st_size != item["size"] or (st.st_dev, st.st_ino) != (int(item["st_dev"]), int(item["st_ino"])):
+                raise PatcherError("VV3 individual Full Mastery recovery ownership file changed.")
     members = payload["members"]
     resolved: list[tuple[dict[str, object], Path, Path | None]] = []
     for member in members:
@@ -492,6 +715,13 @@ def recover_atomic(report_or_root: Path) -> None:
                 raise PatcherError("VV3 individual Full Mastery recovery backup mismatch.")
         current = _state(destination)
         pre_exists = bool(member["pre_exists"])
+        # install_new has an immutable absent precondition.  A foreign tree
+        # with byte-identical published content is still a race and is never
+        # adopted by replay.
+        if payload["operation"] == "install_new" and current[0]:
+            published_identity = member.get("published_inventory")
+            if published_identity is None or current[1] is None or _sha(current[1]) != member["published_sha256"] or int(published_identity.get("st_dev", -1)) != int(os.lstat(destination).st_dev) or int(published_identity.get("st_ino", -1)) != int(os.lstat(destination).st_ino):
+                raise PatcherError("VV3 individual Full Mastery install_new recovery requires an absent or owned-published destination.")
         if current[0] and _sha(current[1] or b"") not in {member["published_sha256"], member["pre_sha256"]}:
             raise PatcherError("VV3 individual Full Mastery recovery destination is foreign.")
         if not current[0] and pre_exists:
@@ -499,13 +729,15 @@ def recover_atomic(report_or_root: Path) -> None:
         resolved.append((member, destination, backup))
     # Stage every restore before replacing either member; backups remain intact.
     stages: list[tuple[dict[str, object], Path, Path]] = []
+    replay_stage_paths: list[Path] = []
     try:
         for member, destination, backup in resolved:
             if not member["pre_exists"]:
                 continue
             data = _read_regular(backup) if backup is not None else b""
-            stage = root / f".{destination.name}.vv3im-replay-{uuid.uuid4().hex}.stage"
+            stage = replay_root / f".{destination.name}.vv3im-replay-{uuid.uuid4().hex}.stage"
             _write_file(stage, data)
+            replay_stage_paths.append(stage)
             if _sha(_read_regular(stage)) != member["pre_sha256"]:
                 raise PatcherError("VV3 individual Full Mastery replay stage mismatch.")
             stages.append((member, destination, stage))
@@ -530,10 +762,28 @@ def recover_atomic(report_or_root: Path) -> None:
                 raise PatcherError("VV3 individual Full Mastery replay pair verification failed.")
         for member, destination, backup in resolved:
             if backup is not None and os.path.lexists(backup):
-                _remove_owned(backup)
+                record = next((item for item in payload["ownership_inventory"] if item["path"] == member["backup_relative"]), None)
+                _remove_owned(backup, expected=record)
+        for stage in replay_stage_paths:
+            if os.path.lexists(stage):
+                _remove_owned(stage)
+        report_before_delete = os.lstat(report)
+        _reject_entry(report, report_before_delete, directory=False)
         _remove_owned(report)
+        if os.path.lexists(replay_root):
+            _remove_owned(replay_root)
+        _fsync_dir(root)
     except Exception:
-        # Never consume backups or delete evidence on a failed replay.
+        # Never consume backups or delete evidence on a failed replay.  Replay
+        # stages are owned temporary material; remove them only after an
+        # identity/hash check.  If cleanup itself fails the evidence remains,
+        # and the caller receives the fail-closed error.
+        for stage in replay_stage_paths:
+            if os.path.lexists(stage):
+                try:
+                    _remove_owned(stage)
+                except Exception:
+                    pass
         raise
 
 

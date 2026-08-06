@@ -209,8 +209,9 @@ class VV3IndividualFullMasteryLoaderTests(unittest.TestCase):
             "operation": "install_new",
             "recovery_root": ".",
             "destination_parent": ".",
+            "report_relative": "recovery.json",
             "initial_precondition": {"kind": "absent", "members": []},
-            "replay_guard": "published_or_initial",
+            "replay_guard": {"kind": "absent", "members": []},
             "members": [],
             "ownership_inventory": [],
             "failure_diagnostic": "x",
@@ -228,11 +229,88 @@ class VV3IndividualFullMasteryLoaderTests(unittest.TestCase):
                 "stage_relative": None,
                 "backup_inventory": None,
                 "stage_inventory": None,
+                "published_inventory": None,
             }
             payload = dict(base)
             payload["members"] = [member, dict(member)]
             with self.assertRaises(vv_fun_patcher.PatcherError):
                 loader._validate_recovery_payload(payload, Path(tempfile.gettempdir()))
+
+    def _make_unresolved_report(self, root: Path):
+        parent = PARENTS / "vv3_fullscreen_safe_candidate_collection_progression.exe"
+        candidate_dll = ROOT / "data" / "candidates" / "VVFP VV3 Full Heal Candidate.dll"
+        destination = root / "candidate.exe"
+        companion_destination = root / "VVFP VV3 Full Mastery Candidate.dll"
+        real_replace = loader.os.replace
+        calls = {"publish": 0}
+        def fail_second(src, dst):
+            if str(src).endswith(".stage") and Path(dst) in {destination, companion_destination}:
+                calls["publish"] += 1
+                if calls["publish"] == 2:
+                    raise OSError("injected second-member replace failure")
+            return real_replace(src, dst)
+        with mock.patch.object(loader, "render_parent", return_value=b"CANDIDATE-EXE"):
+            with mock.patch.object(loader, "_restore_member", return_value=False):
+                with mock.patch.object(loader.os, "replace", side_effect=fail_second):
+                    with self.assertRaises(vv_fun_patcher.PatcherError):
+                        loader.install_atomic(parent, destination, "collection_progression", companion_source=candidate_dll, companion_destination=companion_destination)
+        return next(root.glob(".vv3im-recovery-*.json")), destination, companion_destination
+
+    def test_d274_unknown_recovery_descendant_rejected_before_mutation(self):
+        with tempfile.TemporaryDirectory(prefix="vv3-d274-unknown-") as td:
+            root = Path(td)
+            report, destination, companion = self._make_unresolved_report(root)
+            recovery_dir = next(p for p in root.glob(".vv3im-recovery-*") if p.is_dir())
+            foreign = recovery_dir / ".foreign-stage"
+            foreign.write_bytes(b"foreign")
+            before = sorted((p.relative_to(root).as_posix(), p.read_bytes() if p.is_file() else None) for p in root.rglob("*") if p.is_file())
+            with self.assertRaises(vv_fun_patcher.PatcherError):
+                loader.recover_vv3_transaction(report)
+            after = sorted((p.relative_to(root).as_posix(), p.read_bytes() if p.is_file() else None) for p in root.rglob("*") if p.is_file())
+            self.assertEqual(after, before)
+
+    def test_d274_install_new_same_content_foreign_identity_rejected(self):
+        with tempfile.TemporaryDirectory(prefix="vv3-d274-identity-") as td:
+            root = Path(td)
+            report, destination, companion = self._make_unresolved_report(root)
+            original = destination.read_bytes()
+            destination.unlink()
+            destination.write_bytes(original)
+            with self.assertRaises(vv_fun_patcher.PatcherError):
+                loader.recover_vv3_transaction(report)
+            self.assertEqual(destination.read_bytes(), original)
+            self.assertTrue(report.exists())
+
+    def test_d274_recovery_root_reparse_rejected_before_report_open(self):
+        with tempfile.TemporaryDirectory(prefix="vv3-d274-root-") as td:
+            root = Path(td)
+            recovery = root / ".vv3im-recovery-root"
+            recovery.mkdir()
+            report = recovery / ".vv3im-recovery-test.json"
+            report.write_text("{}", encoding="utf-8")
+            real_lstat = loader.os.lstat
+            def fake_lstat(path):
+                st = real_lstat(path)
+                if Path(path) == recovery:
+                    return SimpleNamespace(st_mode=st.st_mode, st_file_attributes=0x400, st_dev=st.st_dev, st_ino=st.st_ino, st_size=st.st_size)
+                return st
+            with mock.patch.object(loader.os, "lstat", side_effect=fake_lstat):
+                with self.assertRaises(vv_fun_patcher.PatcherError):
+                    loader.recover_vv3_transaction(recovery)
+
+    def test_d274_cleanup_failure_retains_report_and_recovery_material(self):
+        with tempfile.TemporaryDirectory(prefix="vv3-d274-cleanup-") as td:
+            root = Path(td)
+            report, destination, companion = self._make_unresolved_report(root)
+            real_remove = loader._remove_owned
+            def fail_recovery(path, **kwargs):
+                if Path(path).name.startswith(".vv3im-recovery-"):
+                    raise vv_fun_patcher.PatcherError("injected cleanup failure")
+                return real_remove(path, **kwargs)
+            with mock.patch.object(loader, "_remove_owned", side_effect=fail_recovery):
+                with self.assertRaises(vv_fun_patcher.PatcherError):
+                    loader.recover_vv3_transaction(report)
+            self.assertTrue(report.exists())
 
 
 if __name__ == "__main__":
