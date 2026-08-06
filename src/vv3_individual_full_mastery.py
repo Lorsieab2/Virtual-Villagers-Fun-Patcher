@@ -258,10 +258,14 @@ def _write_file(path: Path, data: bytes) -> None:
 
 
 def _write_recovery(parent: Path, details: dict[str, object]) -> Path:
-    report = parent / f".vv3im-recovery-{uuid.uuid4().hex}.json"
+    report_prefix = str(details.get("_report_prefix", ".vv3im"))
+    payload_details = {key: value for key, value in details.items() if key != "_report_prefix"}
+    report = parent / f"{report_prefix}-recovery-{uuid.uuid4().hex}.json"
     tmp = report.with_suffix(".tmp")
-    payload = {"schema_version": 2, "report_relative": report.name, **details}
-    _validate_recovery_payload(payload, parent)
+    payload = {"schema_version": 2, "report_relative": report.name, **payload_details}
+    metadata_keys = {"feature_owner", "mode", "parent_sha256", "candidate_sha256"}
+    allowed_metadata = metadata_keys if metadata_keys.intersection(payload_details) else set()
+    _validate_recovery_payload(payload, parent, allowed_metadata=allowed_metadata)
     _write_file(tmp, (json.dumps(payload, indent=2, sort_keys=True) + "\n").encode("utf-8"))
     if not os.path.lexists(tmp):
         raise PatcherError("VV3 individual Full Mastery recovery temporary report disappeared.")
@@ -269,7 +273,7 @@ def _write_recovery(parent: Path, details: dict[str, object]) -> Path:
     _fsync_dir(parent)
     report_st = os.lstat(report)
     _reject_entry(report, report_st, directory=False)
-    _validate_recovery_payload(json.loads(_read_regular(report).decode("utf-8")), parent)
+    _validate_recovery_payload(json.loads(_read_regular(report).decode("utf-8")), parent, allowed_metadata=allowed_metadata)
     return report
 
 
@@ -353,9 +357,10 @@ def _verify_inventory(root: Path, expected: list[dict[str, object]], *, exclude:
         raise PatcherError("VV3 individual Full Mastery recovery ownership inventory changed.")
 
 
-def _validate_recovery_payload(payload: dict[str, object], root: Path) -> None:
+def _validate_recovery_payload(payload: dict[str, object], root: Path, *, allowed_metadata: set[str] | None = None) -> None:
     required = {"schema_version", "operation", "recovery_root", "destination_parent", "report_relative", "initial_precondition", "replay_guard", "members", "ownership_inventory", "failure_diagnostic"}
-    if not isinstance(payload, dict) or set(payload) != required or payload.get("schema_version") != 2:
+    optional = set(allowed_metadata or ())
+    if not isinstance(payload, dict) or not required.issubset(payload) or set(payload) - required - optional or payload.get("schema_version") != 2:
         raise PatcherError("VV3 individual Full Mastery recovery schema is unsupported or ambiguous.")
     if payload["operation"] not in {"install_new", "install_existing", "removal"} or payload["recovery_root"] != "." or payload["destination_parent"] != "." or not isinstance(payload["report_relative"], str) or Path(payload["report_relative"]).name != payload["report_relative"]:
         raise PatcherError("VV3 individual Full Mastery recovery operation/root contract is invalid.")
@@ -561,9 +566,10 @@ def _validate_pair_parent(destinations: list[Path]) -> Path:
     return parent
 
 
-def _transaction(operation: str, destinations: list[Path], pre: dict[Path, tuple[bool, bytes | None]], published: dict[Path, bytes], *, expected_preimage: dict[Path, bytes], parent: Path) -> None:
+def _transaction(operation: str, destinations: list[Path], pre: dict[Path, tuple[bool, bytes | None]], published: dict[Path, bytes], *, expected_preimage: dict[Path, bytes], parent: Path, recovery_prefix: str = ".vv3im", recovery_metadata: dict[str, object] | None = None) -> None:
     token = uuid.uuid4().hex
-    recovery_root = parent / f".vv3im-recovery-{token}"
+    recovery_root = parent / f"{recovery_prefix}-recovery-{token}"
+    recovery_metadata = dict(recovery_metadata or {})
     _safe_ancestor_chain(parent)
     if os.path.lexists(recovery_root):
         raise PatcherError("VV3 individual Full Mastery recovery-root collision.")
@@ -577,8 +583,8 @@ def _transaction(operation: str, destinations: list[Path], pre: dict[Path, tuple
             except Exception:
                 pass
         raise
-    stages = {p: recovery_root / f".{p.name}.vv3im-{token}.stage" for p in destinations}
-    backups = {p: recovery_root / f".{p.name}.vv3im-{token}.backup" for p in destinations if pre[p][0]}
+    stages = {p: recovery_root / f".{p.name}.{recovery_prefix.lstrip('.')}-{token}.stage" for p in destinations}
+    backups = {p: recovery_root / f".{p.name}.{recovery_prefix.lstrip('.')}-{token}.backup" for p in destinations if pre[p][0]}
     if any(os.path.lexists(p) for p in (*stages.values(), *backups.values())):
         raise PatcherError("VV3 individual Full Mastery staging collision.")
     committed = False
@@ -652,6 +658,8 @@ def _transaction(operation: str, destinations: list[Path], pre: dict[Path, tuple
                 "members": member_records,
                 "ownership_inventory": inventory,
                 "failure_diagnostic": str(exc),
+                **recovery_metadata,
+                "_report_prefix": recovery_prefix,
             })
             raise PatcherError(f"VV3 individual Full Mastery transaction failed; recovery retained at {report}") from exc
     finally:
@@ -680,12 +688,14 @@ def _transaction(operation: str, destinations: list[Path], pre: dict[Path, tuple
                             "members": [{"destination_relative": _relative_owned(parent, p), "destination_type": "regular_file", "pre_exists": bool(pre[p][0]), "pre_sha256": _sha(pre[p][1]) if pre[p][1] is not None else None, "pre_size": len(pre[p][1]) if pre[p][1] is not None else 0, "published_sha256": _sha(published[p]), "published_size": len(published[p]), "backup_relative": _relative_owned(parent, backups.get(p)), "stage_relative": _relative_owned(parent, stages[p]), "backup_inventory": _inventory_member(parent, backups.get(p)), "stage_inventory": _inventory_member(parent, stages[p]), "published_inventory": _inventory_member(parent, p) if _state(p) == (True, published[p]) else None} for p in destinations],
                             "ownership_inventory": inventory,
                             "failure_diagnostic": f"cleanup failure: {cleanup_exc}",
+                            **recovery_metadata,
+                            "_report_prefix": recovery_prefix,
                         })
                 finally:
                     raise PatcherError("VV3 individual Full Mastery cleanup failed; recovery evidence retained.") from cleanup_exc
 
 
-def recover_atomic(report_or_root: Path) -> None:
+def recover_atomic(report_or_root: Path, *, recovery_prefix: str = ".vv3im", required_metadata: dict[str, object] | None = None) -> None:
     """Replay schema-v2 evidence with relative no-follow ownership checks."""
     report = Path(report_or_root)
     # Validate the supplied path before calling is_dir/scandir.  A symlink,
@@ -697,7 +707,7 @@ def recover_atomic(report_or_root: Path) -> None:
     _reject_entry(supplied, supplied_st)
     if stat.S_ISDIR(supplied_st.st_mode):
         _validate_recovery_root(supplied)
-        reports = [Path(p.path) for p in os.scandir(supplied) if p.name.startswith(".vv3im-recovery-") and p.name.endswith(".json")]
+        reports = [Path(p.path) for p in os.scandir(supplied) if p.name.startswith(f"{recovery_prefix}-recovery-") and p.name.endswith(".json")]
         if len(reports) != 1:
             raise PatcherError("VV3 individual Full Mastery recovery report is ambiguous.")
         report = reports[0]
@@ -708,7 +718,10 @@ def recover_atomic(report_or_root: Path) -> None:
     report_st_before = os.lstat(report)
     _reject_entry(report, report_st_before, directory=False)
     payload = json.loads(_read_regular(report).decode("utf-8"))
-    _validate_recovery_payload(payload, report.parent)
+    _validate_recovery_payload(payload, report.parent, allowed_metadata=set((required_metadata or {}).keys()))
+    if required_metadata is not None:
+        if any(payload.get(key) != value for key, value in required_metadata.items()):
+            raise PatcherError("VV3 individual Full Mastery recovery metadata identity mismatch.")
     if payload["report_relative"] != report.name:
         raise PatcherError("VV3 individual Full Mastery recovery report identity/path mismatch.")
     root = report.parent

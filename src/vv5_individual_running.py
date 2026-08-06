@@ -22,6 +22,12 @@ ROOT = Path(__file__).resolve().parents[1]
 DLL_SHA256 = "29927CECB448B64944E18E2BA11893DC84C91B39241FBB2549FC2A464E0BE2ED"
 DLL_SIZE = 298496
 DLL_NAME = "VVFP VV5 Full Mastery Candidate.dll"
+VV5_FEATURE_OWNER = "vv5_individual_grant_running_candidate"
+VV5_MODE = "collection_progression"
+VV5_PARENT_EXE_SHA256 = "857E22D7C361B802508BF789C3CC486E42E76021F5AA579BB1D16CC6E0D017A0"
+VV5_CANDIDATE_EXE_SHA256 = "1E3FD6CE44E906BD8DDD7C937D68AB74671D8F197BC1D767A2B0622F1A0F7907"
+VV5_PARENT_DLL_SHA256 = DLL_SHA256
+VV5_CANDIDATE_DLL_SHA256 = DLL_SHA256
 
 
 def _sha(data: bytes) -> str:
@@ -60,7 +66,10 @@ def _read(path: Path) -> bytes:
     fd = os.open(os.fspath(path), os.O_RDONLY | getattr(os, "O_BINARY", 0) | getattr(os, "O_NOFOLLOW", 0))
     try:
         opened = os.fstat(fd)
-        if opened.st_size != before.st_size or stat.S_IFMT(opened.st_mode) != stat.S_IFMT(before.st_mode):
+        if (opened.st_size != before.st_size or
+                stat.S_IFMT(opened.st_mode) != stat.S_IFMT(before.st_mode) or
+                (before.st_ino and opened.st_ino and before.st_ino != opened.st_ino) or
+                (before.st_dev and opened.st_dev and before.st_dev != opened.st_dev)):
             raise PatcherError(f"VV5 Running file identity changed: {path}")
         data = bytearray()
         while True:
@@ -69,7 +78,9 @@ def _read(path: Path) -> bytes:
                 break
             data.extend(chunk)
         after = os.fstat(fd)
-        if after.st_size != opened.st_size or (opened.st_ino and after.st_ino and opened.st_ino != after.st_ino):
+        if (after.st_size != opened.st_size or
+                (opened.st_ino and after.st_ino and opened.st_ino != after.st_ino) or
+                (opened.st_dev and after.st_dev and opened.st_dev != after.st_dev)):
             raise PatcherError(f"VV5 Running file changed while reading: {path}")
         return bytes(data)
     finally:
@@ -203,7 +214,9 @@ def _report(parent: Path, operation: str, members: list[dict[str, object]], erro
     return report
 
 
-def _publish(operation: str, destinations: list[Path], pre: dict[Path, tuple[bool, bytes | None]], published: dict[Path, bytes], parent: Path) -> None:
+def _publish(operation: str, destinations: list[Path], pre: dict[Path, tuple[bool, bytes | None]], published: dict[Path, bytes], parent: Path, *, mode: str = VV5_MODE) -> None:
+    if mode != VV5_MODE:
+        raise PatcherError("VV5 Running supports Collection Progression only.")
     # Reuse the independently hardened schema-v2 pair transaction.  This
     # keeps VV5 recovery fail-closed on complete ownership inventories,
     # no-follow/reparse checks, immutable preconditions, durable retry
@@ -217,6 +230,13 @@ def _publish(operation: str, destinations: list[Path], pre: dict[Path, tuple[boo
         published,
         expected_preimage=expected_preimage,
         parent=parent,
+        recovery_prefix=".vv5run",
+        recovery_metadata={
+            "feature_owner": VV5_FEATURE_OWNER,
+            "mode": VV5_MODE,
+            "parent_sha256": VV5_PARENT_EXE_SHA256,
+            "candidate_sha256": VV5_CANDIDATE_EXE_SHA256,
+        },
     )
     return
 
@@ -256,15 +276,38 @@ def _publish(operation: str, destinations: list[Path], pre: dict[Path, tuple[boo
             _cleanup(p)
 
 
-def recover_atomic(report_path: Path) -> None:
+def recover_atomic(report_path: Path, mode: str = VV5_MODE) -> None:
     """Replay a retained VV5 pair report without consuming its evidence.
 
-    The report is intentionally strict: only schema-1 reports produced by this
+    The report is intentionally strict: only schema-2 reports produced by this
     module are accepted, both members must still be the published pair, and
     backups are copied to fresh sibling stages and retained until the complete
     pair verifies.  A failed replay leaves the report and backups intact.
     """
-    return _strict_recover_atomic(Path(report_path))
+    if mode != VV5_MODE:
+        raise PatcherError("VV5 Running supports Collection Progression only.")
+    report = Path(report_path)
+    if not report.name.startswith(".vv5run-recovery-"):
+        raise PatcherError("VV5 Running recovery report owner is invalid.")
+    _safe_ancestors(report.parent)
+    raw = json.loads(_read(report).decode("utf-8"))
+    if any(raw.get(k) != v for k, v in {
+        "feature_owner": VV5_FEATURE_OWNER,
+        "mode": VV5_MODE,
+        "parent_sha256": VV5_PARENT_EXE_SHA256,
+        "candidate_sha256": VV5_CANDIDATE_EXE_SHA256,
+    }.items()):
+        raise PatcherError("VV5 Running recovery report identity mismatch.")
+    return _strict_recover_atomic(
+        report,
+        recovery_prefix=".vv5run",
+        required_metadata={
+            "feature_owner": VV5_FEATURE_OWNER,
+            "mode": VV5_MODE,
+            "parent_sha256": VV5_PARENT_EXE_SHA256,
+            "candidate_sha256": VV5_CANDIDATE_EXE_SHA256,
+        },
+    )
 
     report_path = Path(report_path)
     parent = report_path.parent
@@ -330,35 +373,51 @@ def recover_atomic(report_path: Path) -> None:
 
 
 def install_atomic(source: Path, destination: Path, mode: str, *, companion_source: Path | None = None, companion_destination: Path | None = None) -> None:
+    if mode != VV5_MODE:
+        raise PatcherError("VV5 Running supports Collection Progression only.")
     if companion_source is None or companion_destination is None:
         raise PatcherError("VV5 Running companion is mandatory.")
     destinations = [Path(destination), Path(companion_destination)]
     parent = _parent(destinations)
+    # Read each authenticated input once, then carry those bytes through
+    # rendering/publication so a source race cannot be hidden by a reread.
     source_bytes = _read(source)
-    candidate, _ = render_vv5_individual_running_parent(source, mode)
+    if _sha(source_bytes) != VV5_PARENT_EXE_SHA256:
+        raise PatcherError("VV5 Running source EXE identity mismatch.")
     dll = _read(companion_source)
     if len(dll) != DLL_SIZE or _sha(dll) != DLL_SHA256:
         raise PatcherError("VV5 Running companion hash mismatch.")
-    pre = {p: _state(p) for p in destinations}
     parent_dll = _read(ROOT / "data" / "candidates" / DLL_NAME)
+    if len(parent_dll) != DLL_SIZE or _sha(parent_dll) != DLL_SHA256:
+        raise PatcherError("VV5 Running parent DLL identity mismatch.")
+    candidate, _ = render_vv5_individual_running_parent(source_bytes, mode)
+    if len(candidate) != 0xF6000 or _sha(bytes(candidate)) != VV5_CANDIDATE_EXE_SHA256:
+        raise PatcherError("VV5 Running candidate EXE identity mismatch.")
+    pre = {p: _state(p) for p in destinations}
     expected = {destinations[0]: source_bytes, destinations[1]: parent_dll}
     for p in destinations:
         if pre[p][0] and pre[p][1] != expected[p]:
             raise PatcherError("VV5 Running destination preimage mismatch.")
-    _publish("install", destinations, pre, {destinations[0]: bytes(candidate), destinations[1]: dll}, parent)
+    _publish("install", destinations, pre, {destinations[0]: bytes(candidate), destinations[1]: dll}, parent, mode=mode)
 
 
 def remove_atomic(destination: Path, mode: str, *, companion_destination: Path | None = None, companion_restore_source: Path | None = None) -> None:
+    if mode != VV5_MODE:
+        raise PatcherError("VV5 Running supports Collection Progression only.")
     if companion_destination is None or companion_restore_source is None:
         raise PatcherError("VV5 Running removal companion arguments are mandatory.")
     destinations = [Path(destination), Path(companion_destination)]
     parent = _parent(destinations)
     candidate = _read(destination)
+    if len(candidate) != 0xF6000 or _sha(candidate) != VV5_CANDIDATE_EXE_SHA256:
+        raise PatcherError("VV5 Running removal EXE identity mismatch.")
     restored_exe = bytearray(candidate)
     remove_vv5_individual_running_parent(restored_exe, mode)
     parent_dll = _read(companion_restore_source)
     current_dll = _read(companion_destination)
-    if _sha(current_dll) != DLL_SHA256 or _sha(parent_dll) != DLL_SHA256:
+    if len(current_dll) != DLL_SIZE or len(parent_dll) != DLL_SIZE or _sha(current_dll) != DLL_SHA256 or _sha(parent_dll) != DLL_SHA256:
         raise PatcherError("VV5 Running removal companion identity mismatch.")
     pre = {destinations[0]: (True, candidate), destinations[1]: (True, current_dll)}
-    _publish("remove", destinations, pre, {destinations[0]: bytes(restored_exe), destinations[1]: parent_dll}, parent)
+    if _sha(bytes(restored_exe)) != VV5_PARENT_EXE_SHA256:
+        raise PatcherError("VV5 Running removal did not restore the exact parent EXE.")
+    _publish("remove", destinations, pre, {destinations[0]: bytes(restored_exe), destinations[1]: parent_dll}, parent, mode=mode)

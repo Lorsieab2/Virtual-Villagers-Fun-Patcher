@@ -5,7 +5,7 @@ import unittest
 from unittest import mock
 from pathlib import Path
 
-from src.vv5_individual_running import PatcherError, _parent, _publish, _state
+from src.vv5_individual_running import PatcherError, _parent, _publish, _state, install_atomic, remove_atomic, recover_atomic
 
 
 class VV5RunningPublicationTests(unittest.TestCase):
@@ -64,6 +64,28 @@ class VV5RunningPublicationTests(unittest.TestCase):
                 self.skipTest("symlink creation unavailable")
             with self.assertRaises(PatcherError):
                 _parent([link / "a.exe", link / "b.dll"])
+
+    def test_immediate_mode_rejected_before_any_filesystem_access(self) -> None:
+        """The unsupported mode gate is the first operation of each API."""
+        with mock.patch("src.vv5_individual_running.Path.read_bytes", side_effect=AssertionError("read")), \
+             mock.patch("src.vv5_individual_running.Path.read_text", side_effect=AssertionError("text")), \
+             mock.patch("src.vv5_individual_running.os.lstat", side_effect=AssertionError("lstat")), \
+             mock.patch("src.vv5_individual_running.os.scandir", side_effect=AssertionError("scandir")):
+            with self.assertRaises(PatcherError):
+                install_atomic(Path("missing.exe"), Path("missing.exe"), "immediate_fixed")
+            with self.assertRaises(PatcherError):
+                remove_atomic(Path("missing.exe"), "immediate_fixed")
+            with self.assertRaises(PatcherError):
+                recover_atomic(Path("missing-report.json"), "immediate_fixed")
+
+    def test_cross_game_recovery_report_rejected_by_owner_before_replay(self) -> None:
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            report = root / ".vv5run-recovery-cross-game.json"
+            report.write_text('{"feature_owner":"vv3_individual_full_mastery","mode":"collection_progression","parent_sha256":"x","candidate_sha256":"y"}', encoding="utf-8")
+            with self.assertRaises(PatcherError):
+                recover_atomic(report)
+            self.assertTrue(report.is_file())
 
 
 if __name__ == "__main__":

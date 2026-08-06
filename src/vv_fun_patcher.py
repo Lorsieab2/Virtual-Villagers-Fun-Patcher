@@ -4090,7 +4090,7 @@ def render_patched_bytes(
 
 
 def render_vv5_individual_running_parent(
-    source: Path,
+    source: Path | bytes,
     patch_mode: str,
 ) -> tuple[bytearray, list[dict[str, str]]]:
     """Render the disabled VV5 Running overlay over an authenticated FM parent.
@@ -4099,11 +4099,13 @@ def render_vv5_individual_running_parent(
     while using the same guarded append resolver and removal identities as the
     production path.  It never accepts stock or Expanded input as a parent.
     """
+    if patch_mode != "collection_progression":
+        raise PatcherError("VV5 Running supports Collection Progression only.")
     manifest_path = VV5_INDIVIDUAL_RUNNING_CANDIDATE_PATHS["manifest"]
     feature = FunPatch(json.loads(manifest_path.read_text(encoding="utf-8")))
     _validate_vv5_individual_running_candidate(feature, {feature.id}, patch_mode)
     expected = VV5_INDIVIDUAL_RUNNING_PARENT_SHA256[patch_mode]
-    source_bytes = source.read_bytes()
+    source_bytes = bytes(source) if isinstance(source, (bytes, bytearray)) else source.read_bytes()
     if hashlib.sha256(source_bytes).hexdigest().upper() != expected:
         raise PatcherError("VV5 Running requires the exact composed Full Mastery parent bytes.")
     data = bytearray(source_bytes)
@@ -4127,6 +4129,8 @@ def remove_vv5_individual_running_parent(
     patch_mode: str,
 ) -> list[dict[str, str]]:
     """Remove the VV5 Running overlay and require the exact parent restoration."""
+    if patch_mode != "collection_progression":
+        raise PatcherError("VV5 Running supports Collection Progression only.")
     feature = FunPatch(json.loads(VV5_INDIVIDUAL_RUNNING_CANDIDATE_PATHS["manifest"].read_text(encoding="utf-8")))
     _validate_vv5_individual_running_candidate(feature, {feature.id}, patch_mode)
     removed = _remove_feature_bytes(installed, feature, patch_mode)
