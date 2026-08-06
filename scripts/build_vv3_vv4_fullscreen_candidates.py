@@ -25,6 +25,11 @@ def sha(data: bytes) -> str:
     return hashlib.sha256(data).hexdigest().upper()
 
 
+def json_bytes(value: object) -> bytes:
+    """Return the repository's deterministic UTF-8/CRLF JSON representation."""
+    return (json.dumps(value, indent=2) + "\n").replace("\n", "\r\n").encode("utf-8")
+
+
 def asm(source: str, address: int) -> bytes:
     ks = Ks(KS_ARCH_X86, KS_MODE_32)
     encoded, _ = ks.asm(source, addr=address)
@@ -369,9 +374,11 @@ def emit_game(game: str, cfg: dict[str, object], output_root: Path = OUT) -> dic
     }
     artifact_map = {"candidate_id": stem, "enabled": False, "catalog_hidden": True, "catalog_enabled": False, "parents": parents, "page": page_meta, "rendered_modes": modes, "rejected_modes": manifest["rejected_modes"], "dll_sha256": cfg["dll"], "companion_install": manifest["companion_install"], "feature_ranges": [hex(cfg["tech"][0] - 0x400000), hex(cfg["detail"][0] - 0x400000), f"{hex(cfg['header'])}..{hex(cfg['header'] + 40)}", f"{hex(cfg['append_raw'])}..{hex(cfg['append_raw'] + 0x1000)}"]}
     output_root.mkdir(parents=True, exist_ok=True)
-    (output_root / f"{stem}.json").write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
-    (output_root / f"{stem}_map.json").write_text(json.dumps(artifact_map, indent=2) + "\n", encoding="utf-8")
-    return {"manifest": sha(json.dumps(manifest, indent=2).encode() + b"\n"), "map": sha(json.dumps(artifact_map, indent=2).encode() + b"\n"), "page": page_meta, "modes": modes}
+    manifest_bytes = json_bytes(manifest)
+    map_bytes = json_bytes(artifact_map)
+    (output_root / f"{stem}.json").write_bytes(manifest_bytes)
+    (output_root / f"{stem}_map.json").write_bytes(map_bytes)
+    return {"manifest": sha(manifest_bytes), "map": sha(map_bytes), "page": page_meta, "modes": modes}
 
 
 def main() -> None:

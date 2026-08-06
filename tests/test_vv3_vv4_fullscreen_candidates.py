@@ -88,6 +88,9 @@ class VV3VV4FullscreenCandidateTests(unittest.TestCase):
                 self.assertEqual((first_root / name).read_bytes(), (second_root / name).read_bytes(), name)
             self.assertEqual(first_result, second_result)
             for game, cfg in self.builder.CONFIG.items():
+                stem = f"vv{game[-1]}_fullscreen_safe_candidate"
+                self.assertEqual(first_result[game]["manifest"], self.builder.sha((first_root / f"{stem}.json").read_bytes()))
+                self.assertEqual(first_result[game]["map"], self.builder.sha((first_root / f"{stem}_map.json").read_bytes()))
                 for mode, parent in cfg["parents"].items():
                     self.assertEqual(first_result[game]["modes"][mode]["parent_sha256"], parent)
                     self.assertEqual(first_result[game]["modes"][mode]["size"], cfg["parent_size"] + 0x1000)
