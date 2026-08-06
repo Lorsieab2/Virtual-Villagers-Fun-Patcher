@@ -54,6 +54,22 @@ VV3_FULL_MASTERY_CERTIFIED_SHA256 = {
     "page": "2DAE85AE4077C23C2C7C39F64B5BA944740F765AC8E24FBB097B0BF28A720DF6",
 }
 VV3_FULL_MASTERY_ENABLED = True
+VV3_INDIVIDUAL_FULL_MASTERY_CANDIDATE_ID = "vv3_individual_full_mastery_candidate"
+VV3_INDIVIDUAL_FULL_MASTERY_CANDIDATE_PATHS = {
+    "manifest": ROOT / "data" / "candidates" / "vv3_individual_full_mastery_candidate.json",
+    "map": ROOT / "data" / "candidates" / "vv3_individual_full_mastery_candidate_map.json",
+}
+VV3_INDIVIDUAL_FULL_MASTERY_MANIFEST_SHA256 = "88D0AE1F4600F6F881C1910F47FFA868E0B07FD4E5D94C62CDBE5703CE8E5524"
+VV3_INDIVIDUAL_FULL_MASTERY_MAP_SHA256 = "C9EE18D0D5B4AFFA358CB699B6DD33A7B64B8F627284DA99D56EA787D416155A"
+VV3_INDIVIDUAL_FULL_MASTERY_PAGE_SHA256 = "536D4AA73D1A1820A44D072732E41FD351609E0F7A2302EA9ABD7AA675959F12"
+VV3_INDIVIDUAL_FULL_MASTERY_PARENT_SHA256 = {
+    "collection_progression": "8DD1CE07C885DDA3DD038D0B2F5C4F019D8C5BAC5DCA29F9799CE0C7909D2CEA",
+    "immediate_fixed": "78758FD0003842AEFAC092A47874329C9C103F9AD46483E6ECA71291EFD3E382",
+}
+VV3_INDIVIDUAL_FULL_MASTERY_OUTPUT_SHA256 = {
+    "collection_progression": "912C6D70518AE55CC7396E2AB3317356E814A4E7F4975150C3BD0263A4ECA174",
+    "immediate_fixed": "C18FEF7F5111B8A8B33940F73F2549E882C6BECDCF3FF4F8904AFC01F0204B4E",
+}
 VV3_INDIVIDUAL_RUNNING_CANDIDATE_ID = "vv3_individual_grant_running_candidate"
 VV3_INDIVIDUAL_RUNNING_CANDIDATE_PATHS = {
     "manifest": ROOT / "data" / "candidates" / "vv3_individual_grant_running_candidate.json",
@@ -828,6 +844,73 @@ def _certified_vv3_individual_running_record(
     return manifest
 
 
+def _validate_vv3_individual_full_mastery_candidate() -> dict[str, Any] | None:
+    """Validate the disabled VV3 individual-FM record without catalog exposure.
+
+    The public catalog intentionally excludes this record while its exact raw
+    manifest/map and generated page remain available to the production append
+    resolver for an explicitly selected, independently reviewed candidate.
+    """
+    manifest_path = VV3_INDIVIDUAL_FULL_MASTERY_CANDIDATE_PATHS["manifest"]
+    map_path = VV3_INDIVIDUAL_FULL_MASTERY_CANDIDATE_PATHS["map"]
+    if not manifest_path.is_file() or not map_path.is_file():
+        return None
+    manifest_bytes = manifest_path.read_bytes()
+    map_bytes = map_path.read_bytes()
+    if hashlib.sha256(manifest_bytes).hexdigest().upper() != VV3_INDIVIDUAL_FULL_MASTERY_MANIFEST_SHA256:
+        raise PatcherError("VV3 individual Full Mastery manifest raw hash mismatch.")
+    if hashlib.sha256(map_bytes).hexdigest().upper() != VV3_INDIVIDUAL_FULL_MASTERY_MAP_SHA256:
+        raise PatcherError("VV3 individual Full Mastery map raw hash mismatch.")
+    manifest = json.loads(manifest_bytes.decode("utf-8"))
+    artifact_map = json.loads(map_bytes.decode("utf-8"))
+    if (
+        manifest.get("id") != VV3_INDIVIDUAL_FULL_MASTERY_CANDIDATE_ID
+        or manifest.get("game_id") != "vv3"
+        or manifest.get("enabled") is not False
+        or manifest.get("catalog_hidden") is not True
+        or manifest.get("catalog_enabled") is not False
+        or manifest.get("runtime_player_status") != "pending"
+        or manifest.get("supported_modes") != ["collection_progression", "immediate_fixed"]
+        or set(manifest.get("unsupported_patch_modes", ())) != EXPANDED_PATCH_MODES
+        or manifest.get("dependencies") != [VV3_INDIVIDUAL_RUNNING_CANDIDATE_ID]
+    ):
+        raise PatcherError("VV3 individual Full Mastery candidate metadata is not disabled/stock-only.")
+    chain = manifest.get("base_chain", {})
+    if chain.get("collection_progression_parent_sha256") != VV3_INDIVIDUAL_FULL_MASTERY_PARENT_SHA256["collection_progression"] or chain.get("immediate_fixed_parent_sha256") != VV3_INDIVIDUAL_FULL_MASTERY_PARENT_SHA256["immediate_fixed"]:
+        raise PatcherError("VV3 individual Full Mastery parent hashes are not certified.")
+    patches = manifest.get("patches")
+    if not isinstance(patches, list) or len(patches) != 1 or patches[0].get("offset") != "0xA38C3" or patches[0].get("before") != "E938C02300" or patches[0].get("after") != "E938E72300":
+        raise PatcherError("VV3 individual Full Mastery command dispatcher guard is not certified.")
+    tx = manifest.get("pe_append_transaction", {})
+    layouts = tx.get("layouts")
+    if tx.get("append_source") != "generated:vv3_individual_full_mastery_page" or tx.get("page_sha256") != VV3_INDIVIDUAL_FULL_MASTERY_PAGE_SHA256 or not isinstance(layouts, dict) or set(layouts) != {"collection_progression", "immediate_fixed"}:
+        raise PatcherError("VV3 individual Full Mastery append source/layout metadata is not certified.")
+    for mode, layout in layouts.items():
+        if not isinstance(layout, dict) or int(layout.get("original_file_size", "-1"), 0) != 0xCE000 or int(layout.get("append_offset", "-1"), 0) != 0xCE000 or layout.get("append_source") != "generated:vv3_individual_full_mastery_page" or int(layout.get("append_length", "-1"), 0) != 0x1000 or layout.get("page_sha256") != VV3_INDIVIDUAL_FULL_MASTERY_PAGE_SHA256 or len(layout.get("header_patches", [])) != 3:
+            raise PatcherError(f"VV3 individual Full Mastery {mode} append layout is not certified.")
+        rendered = manifest.get("rendered_modes", {}).get(mode, {})
+        if rendered.get("candidate_sha256") != VV3_INDIVIDUAL_FULL_MASTERY_OUTPUT_SHA256[mode] or rendered.get("size") != 0xCF000:
+            raise PatcherError(f"VV3 individual Full Mastery {mode} rendered identity is not certified.")
+        patches = layout.get("header_patches")
+        if patches[0].get("offset") != "0x10E" or patches[0].get("before") != "0800" or patches[0].get("after") != "0900" or patches[1].get("offset") != "0x158" or patches[1].get("before") != "00202E00" or patches[1].get("after") != "00302E00" or patches[2].get("offset") != "0x340" or len(bytes.fromhex(patches[2].get("before", ""))) != 40 or len(bytes.fromhex(patches[2].get("after", ""))) != 40:
+            raise PatcherError("VV3 individual Full Mastery section/header guards are not certified.")
+    if artifact_map.get("candidate_id") != VV3_INDIVIDUAL_FULL_MASTERY_CANDIDATE_ID or artifact_map.get("enabled") is not False or artifact_map.get("catalog_hidden") is not True or artifact_map.get("rendered_modes") != manifest.get("rendered_modes"):
+        raise PatcherError("VV3 individual Full Mastery map enablement is not fail-closed.")
+    return manifest
+
+
+def load_hidden_vv3_individual_full_mastery_candidate() -> FunPatch:
+    """Return the disabled VV3 candidate for an explicit internal render only.
+
+    This is deliberately separate from ``load_fun_patches`` and public catalog
+    resolution; callers must supply the certified composed parent themselves.
+    """
+    manifest = _validate_vv3_individual_full_mastery_candidate()
+    if manifest is None:
+        raise PatcherError("VV3 individual Full Mastery candidate metadata is unavailable.")
+    return FunPatch(manifest)
+
+
 def _certified_vv2_full_mastery_record() -> dict[str, Any] | None:
     manifest_bytes = VV2_FULL_MASTERY_CANDIDATE_PATHS["manifest"].read_bytes()
     manifest_digest = hashlib.sha256(manifest_bytes).hexdigest().upper()
@@ -1592,6 +1675,9 @@ def _load_fun_patch_records() -> list[FunPatch]:
         )
         if vv3_full_heal_record.get("enabled", True):
             items.append(vv3_full_heal_record)
+    # Validate the hidden VV3 individual-FM artifact for direct production
+    # resolver use, but never add it to public catalog choices while disabled.
+    _validate_vv3_individual_full_mastery_candidate()
     vv1_full_mastery = _certified_vv1_full_mastery_record()
     if vv1_full_mastery is not None:
         items.append(vv1_full_mastery)
@@ -1700,13 +1786,22 @@ def validate_fun_patch_catalog(
                     ) from exc
                 if (
                     original_size != append_offset
-                    or (not append_bytes and append_source != "generated:vv4_full_heal_page")
+                    or (
+                        not append_bytes
+                        and append_source
+                        not in {
+                            "generated:vv4_full_heal_page",
+                            "generated:vv3_individual_full_mastery_page",
+                        }
+                    )
                     or (append_bytes and len(append_bytes) % 0x1000)
                     or not isinstance(header_patches, list)
                 ):
                     raise PatcherError(
                         f"{patch.name} ({patch.id}) has unsafe {mode_id} append geometry."
                     )
+                if append_source == "generated:vv3_individual_full_mastery_page" and patch.id != VV3_INDIVIDUAL_FULL_MASTERY_CANDIDATE_ID:
+                    raise PatcherError("VV3 individual Full Mastery generated append source is owner-bound.")
                 for item in header_patches:
                     if not isinstance(item, dict):
                         raise PatcherError(
@@ -2498,6 +2593,22 @@ def _resolve_append_bytes(feature: FunPatch, layout: dict[str, Any]) -> bytes:
     """
     if "append_bytes" in layout:
         return bytes.fromhex(layout["append_bytes"])
+    if layout.get("append_source") == "generated:vv3_individual_full_mastery_page":
+        if feature.id != VV3_INDIVIDUAL_FULL_MASTERY_CANDIDATE_ID:
+            raise PatcherError("VV3 individual Full Mastery append source owner mismatch.")
+        import importlib.util
+        builder_path = ROOT / "scripts" / "build_vv3_individual_mastery_candidate.py"
+        spec = importlib.util.spec_from_file_location("vv3_individual_mastery_builder_runtime", builder_path)
+        if spec is None or spec.loader is None:
+            raise PatcherError("VV3 individual Full Mastery page builder is unavailable.")
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        append_bytes, details = module.build_page()
+        expected = str(layout.get("page_sha256", "")).upper()
+        actual = hashlib.sha256(append_bytes).hexdigest().upper()
+        if len(append_bytes) != 0x1000 or expected != VV3_INDIVIDUAL_FULL_MASTERY_PAGE_SHA256 or actual != expected or details.get("page_sha256") != expected:
+            raise PatcherError(f"Generated VV3 individual Full Mastery page identity mismatch: expected {expected}, got {actual}.")
+        return bytes(append_bytes)
     if layout.get("append_source") != "generated:vv4_full_heal_page" or feature.id != VV4_FULL_HEAL_CANDIDATE_ID:
         raise PatcherError("Append layout has no supported immutable payload source.")
     import importlib.util

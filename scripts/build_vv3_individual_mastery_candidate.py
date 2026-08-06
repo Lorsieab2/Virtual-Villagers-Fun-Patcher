@@ -34,6 +34,27 @@ SKILLS = (0xEAC, 0xEB0, 0xEB4, 0xEB8, 0xEBC)
 SKILL_NAMES = ("Farming", "Building", "Research", "Healing", "Parenting")
 PRICE = 100_000
 
+# The certified Fullscreen Collection/Immediate parents are already complete
+# 0xCE000-byte images (the .vv3fs section occupies raw 0xCD000).  The new
+# individual-Mastery page is therefore the next aligned section at raw
+# 0xCE000/RVA 0x2E2000.  These header edits are derived from those parents and
+# are guarded byte-for-byte by the production resolver.
+PARENT_FILE_SIZE = 0xCE000
+SECTION_HEADER_OFFSET = 0x340
+SECTION_HEADER_BEFORE = bytes(40)
+SECTION_HEADER_AFTER = bytes.fromhex(
+    "2E767633696D00000010000000202E000010000000E00C0000000000000000000000000020000060"
+)
+HEADER_PATCHES = [
+    {"offset": "0x10E", "before": "0800", "after": "0900", "purpose": "add owned .vv3im section"},
+    {"offset": "0x158", "before": "00202E00", "after": "00302E00", "purpose": "extend SizeOfImage for .vv3im"},
+    {"offset": "0x340", "before": SECTION_HEADER_BEFORE.hex().upper(), "after": SECTION_HEADER_AFTER.hex().upper(), "purpose": "write owned .vv3im section header"},
+]
+RENDERED_OUTPUTS = {
+    "collection_progression": {"parent_sha256": PARENTS["collection_progression"], "candidate_sha256": "912C6D70518AE55CC7396E2AB3317356E814A4E7F4975150C3BD0263A4ECA174", "size": 0xCF000, "checksum": "E29C0D00"},
+    "immediate_fixed": {"parent_sha256": PARENTS["immediate_fixed"], "candidate_sha256": "C18FEF7F5111B8A8B33940F73F2549E882C6BECDCF3FF4F8904AFC01F0204B4E", "size": 0xCF000, "checksum": "E0DE0D00"},
+}
+
 
 def sha(data: bytes) -> str:
     return hashlib.sha256(data).hexdigest().upper()
@@ -158,13 +179,14 @@ def main() -> None:
         "skills": {"order": list(SKILL_NAMES), "offsets": [f"0x{x:X}" for x in SKILLS], "range": "signed DWORD 0..100", "preferred_job": {"offset": "0xEC0", "access": "snapshot/revalidate only", "writes": False}, "writer": {"address": "0x455740", "abi": "ECX=record+offset; push delta; push skill index; ret 8"}, "evaluator": {"address": "0x462500", "calls": "exactly once after exact-100 postverify"}},
         "base_chain": {"stock_sha256": STOCK_SHA, **{f"{k}_parent_sha256": v for k, v in PARENTS.items()}, "dll_sha256": "9F866CB6F92C745CD2AA7009AEC4EB70FA5521EFF0C8F7BABE2058BB4D2F8533", "running_command2": "0x6DF900"},
         "patches": [{"offset": "0xA38C3", "before": HOOK_BEFORE.hex().upper(), "after": HOOK_AFTER.hex().upper(), "purpose": "guarded command-1 dispatcher composition"}],
-        "pe_append_transaction": {"owner": "vv3_individual_full_mastery_candidate", "section_name": ".vv3im", "append_offset": "0xCE000", "append_length": PAGE_SIZE, "section_rva": "0x2E2000", "section_va": "0x6E2000", "section_characteristics": "0x60000020", "header_offset": "0x318", "section_count_before": 7, "section_count_after": 8, "size_of_image_before": "0x2E1000", "size_of_image_after": "0x2E2000", "page_sha256": emitted["page_sha256"], "page_hex": page.hex().upper()},
+        "pe_append_transaction": {"owner": "vv3_individual_full_mastery_candidate", "section_name": ".vv3im", "append_source": "generated:vv3_individual_full_mastery_page", "append_length": PAGE_SIZE, "section_rva": "0x2E2000", "section_va": "0x6E2000", "section_characteristics": "0x60000020", "header_offset": "0x340", "section_count_before": 8, "section_count_after": 9, "size_of_image_before": "0x2E2000", "size_of_image_after": "0x2E3000", "original_file_size": "0xCE000", "append_offset": "0xCE000", "page_sha256": emitted["page_sha256"], "header_patches": HEADER_PATCHES, "parent_hashes": PARENTS, "layouts": {mode: {"original_file_size": "0xCE000", "append_offset": "0xCE000", "append_source": "generated:vv3_individual_full_mastery_page", "append_length": "0x1000", "virtual_address": "0x6E2000", "section_rva": "0x2E2000", "section_name": ".vv3im", "section_characteristics": "0x60000020", "header_patches": HEADER_PATCHES, "page_sha256": emitted["page_sha256"], "purpose": "append guarded VV3 individual Full Mastery .vv3im page"} for mode in ("collection_progression", "immediate_fixed")}},
         "emitted": {"dispatcher_va": "0x6E2000", "dispatcher_hex": DISPATCHER.hex().upper(), "dispatcher_sha256": sha(DISPATCHER), "helper_va": "0x6E2100", **{k: v for k, v in emitted.items() if k != "pointer_map"}},
+        "rendered_modes": RENDERED_OUTPUTS,
         "failure_policy": {"cancel_noop_recheck_failure": "no writes/no charge; No tech points have been deducted.", "partial_native_failure": "native partial effects may remain; no deduction; rollback is not claimed"},
         "explicit_non_changes": ["+0xEC0 is never written or normalized; stock naming/tie behavior remains authoritative, including Master Parent fallback", "command 2 remains Grant Running at 0x6DF900", "Full Heal/fullscreen/DLL/Expanded and existing certified bytes remain unchanged"],
     }
     tx_map = {**manifest["transaction"], "native_writer": "0x455740", "native_evaluator": "0x462500 exactly once globally after complete postverify", "preferred_job": "0xEC0 read-only snapshot"}
-    mapping = {"candidate_id": manifest["id"], "enabled": False, "catalog_hidden": True, "catalog_enabled": False, "supported_modes": manifest["supported_modes"], "rejected_modes": manifest["unsupported_patch_modes"], "dependencies": manifest["dependencies"], "base_chain": manifest["base_chain"], "dispatcher": {"raw_offset": "0xA38C3", "before": HOOK_BEFORE.hex().upper(), "after": HOOK_AFTER.hex().upper(), "target": "0x6E2000", "bytes": DISPATCHER.hex().upper()}, "section": manifest["pe_append_transaction"], "emitted": manifest["emitted"], "transaction": tx_map, "skill_order": list(SKILL_NAMES), "skill_offsets": [f"0x{x:X}" for x in SKILLS], "no_preference_write": True, "runtime_status": "pending", "provenance": manifest["provenance"], "stack_intervals": {"saved_ebx": [-4, -1], "saved_esi": [-8, -5], "saved_edi": [-12, -9], "messagebox": [-16, -13], "manager": [-20, -17], "record": [-24, -21], "selected_index": [-28, -25], "skill_snapshot_0": [-32, -29], "skill_snapshot_1": [-36, -33], "skill_snapshot_2": [-40, -37], "skill_snapshot_3": [-44, -41], "skill_snapshot_4": [-48, -45], "preferred_job": [-52, -49], "active_snapshot": [-56, -53], "health_snapshot": [-60, -57], "changed_mask": [-64, -61]}, "source": {"stock_sha256": STOCK_SHA, "helper_sha256": emitted["helper_sha256"], "page_sha256": emitted["page_sha256"]}}
+    mapping = {"candidate_id": manifest["id"], "enabled": False, "catalog_hidden": True, "catalog_enabled": False, "supported_modes": manifest["supported_modes"], "rejected_modes": manifest["unsupported_patch_modes"], "dependencies": manifest["dependencies"], "base_chain": manifest["base_chain"], "dispatcher": {"raw_offset": "0xA38C3", "before": HOOK_BEFORE.hex().upper(), "after": HOOK_AFTER.hex().upper(), "target": "0x6E2000", "bytes": DISPATCHER.hex().upper()}, "section": manifest["pe_append_transaction"], "rendered_modes": RENDERED_OUTPUTS, "emitted": manifest["emitted"], "transaction": tx_map, "skill_order": list(SKILL_NAMES), "skill_offsets": [f"0x{x:X}" for x in SKILLS], "no_preference_write": True, "runtime_status": "pending", "provenance": manifest["provenance"], "stack_intervals": {"saved_ebx": [-4, -1], "saved_esi": [-8, -5], "saved_edi": [-12, -9], "messagebox": [-16, -13], "manager": [-20, -17], "record": [-24, -21], "selected_index": [-28, -25], "skill_snapshot_0": [-32, -29], "skill_snapshot_1": [-36, -33], "skill_snapshot_2": [-40, -37], "skill_snapshot_3": [-44, -41], "skill_snapshot_4": [-48, -45], "preferred_job": [-52, -49], "active_snapshot": [-56, -53], "health_snapshot": [-60, -57], "changed_mask": [-64, -61]}, "source": {"stock_sha256": STOCK_SHA, "helper_sha256": emitted["helper_sha256"], "page_sha256": emitted["page_sha256"]}}
     OUT.mkdir(exist_ok=True)
     MANIFEST.write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
     MAP.write_text(json.dumps(mapping, indent=2) + "\n", encoding="utf-8")
