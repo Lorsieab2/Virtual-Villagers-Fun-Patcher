@@ -304,7 +304,9 @@ def _write_emergency_marker(parent: Path, details: dict[str, object], error: Bas
         _publish_exclusive(tmp, marker, parent)
         manifest_payload = dict(payload)
         recovery_payload = payload.get("recovery_payload") if isinstance(payload.get("recovery_payload"), dict) else {}
+        manifest_payload["ownership_inventory"] = recovery_payload.get("ownership_inventory", payload.get("ownership_inventory"))
         manifest_payload["members"] = recovery_payload.get("members", [])
+        manifest_payload["member_roles"] = recovery_payload.get("member_roles") or {}
         manifest_payload["destination_paths_absolute"] = recovery_payload.get("destination_paths_absolute")
         _write_chain_manifest(marker, manifest_payload, marker_name=marker.name)
         _fsync_dir(parent)
@@ -483,8 +485,9 @@ def _write_chain_manifest(
     if not isinstance(root_record, dict):
         raise PatcherError("VV3 individual Full Mastery chain manifest root identity is missing.")
     manifest_payload = {
-        "schema_version": 1,
+        "schema_version": 2,
         "kind": "vv3_recovery_chain_manifest",
+        "recovery_prefix": str(payload.get("recovery_prefix") or report.name.split("-recovery-", 1)[0].split("-emergency-", 1)[0]),
         "report_name": report.name,
         "report_record": report_record,
         "canonical_name": canonical_name or report.name,
@@ -499,7 +502,8 @@ def _write_chain_manifest(
         "recovery_root_record": root_record,
         "ownership_inventory": payload.get("ownership_inventory"),
         "members": payload.get("members"),
-        "destination_paths_absolute": payload.get("destination_paths_absolute"),
+        "member_roles": payload.get("member_roles") or {},
+        "destination_paths_absolute": payload.get("destination_paths_absolute") or [],
     }
     tmp = manifest.with_suffix(".tmp")
     _write_file(tmp, (json.dumps(manifest_payload, indent=2, sort_keys=True) + "\n").encode("utf-8"))
@@ -512,9 +516,12 @@ def _read_chain_manifest(report: Path) -> tuple[Path, dict[str, object], dict[st
     manifest = _chain_manifest_path(report)
     record = _inventory_entry(report.parent, manifest)
     raw = json.loads(_read_regular(manifest).decode("utf-8"))
-    required = {"schema_version", "kind", "report_name", "report_record", "canonical_name", "canonical_record", "pointer_name", "pointer_record", "successor_name", "successor_record", "marker_name", "marker_record", "recovery_root_name", "recovery_root_record", "ownership_inventory", "members", "destination_paths_absolute"}
-    if not isinstance(raw, dict) or set(raw) != required or raw.get("schema_version") != 1 or raw.get("kind") != "vv3_recovery_chain_manifest" or raw.get("report_name") != report.name:
+    required = {"schema_version", "kind", "recovery_prefix", "report_name", "report_record", "canonical_name", "canonical_record", "pointer_name", "pointer_record", "successor_name", "successor_record", "marker_name", "marker_record", "recovery_root_name", "recovery_root_record", "ownership_inventory", "members", "member_roles", "destination_paths_absolute"}
+    if not isinstance(raw, dict) or set(raw) != required or raw.get("schema_version") != 2 or raw.get("kind") != "vv3_recovery_chain_manifest" or raw.get("report_name") != report.name:
         raise PatcherError("VV3 individual Full Mastery recovery chain manifest is malformed.")
+    expected_prefix = report.name.split("-recovery-", 1)[0].split("-emergency-", 1)[0]
+    if raw.get("recovery_prefix") != expected_prefix:
+        raise PatcherError("VV3 individual Full Mastery recovery chain prefix is invalid.")
     if raw.get("report_record") != _inventory_entry(report.parent, report):
         raise PatcherError("VV3 individual Full Mastery recovery chain report identity changed.")
     for name_key, record_key in (("canonical_name", "canonical_record"), ("pointer_name", "pointer_record"), ("successor_name", "successor_record"), ("marker_name", "marker_record")):
@@ -538,8 +545,31 @@ def _read_chain_manifest(report: Path) -> tuple[Path, dict[str, object], dict[st
     root = report.parent / root_rel
     if _inventory_entry(report.parent, root) != root_record:
         raise PatcherError("VV3 individual Full Mastery recovery chain root identity changed.")
-    if not isinstance(raw.get("ownership_inventory"), list) or not isinstance(raw.get("members"), list):
+    if not isinstance(raw.get("ownership_inventory"), list) or not isinstance(raw.get("members"), list) or not isinstance(raw.get("member_roles"), dict) or not isinstance(raw.get("destination_paths_absolute"), list):
         raise PatcherError("VV3 individual Full Mastery recovery chain ownership is incomplete.")
+    paths = [str(item.get("path")) for item in raw["ownership_inventory"] if isinstance(item, dict)]
+    if len(paths) != len(raw["ownership_inventory"]) or len({path.casefold() for path in paths}) != len(paths) or any(Path(path).is_absolute() or not Path(path).parts or ".." in Path(path).parts for path in paths):
+        raise PatcherError("VV3 individual Full Mastery recovery chain inventory is unsafe.")
+    if len({str(path).casefold() for path in raw["destination_paths_absolute"]}) != len(raw["destination_paths_absolute"]):
+        raise PatcherError("VV3 individual Full Mastery recovery chain destination paths are duplicated.")
+    effective = json.loads(_read_regular(report).decode("utf-8"))
+    if isinstance(effective, dict) and effective.get("kind") == "emergency_recovery_marker":
+        effective = effective.get("recovery_payload") if isinstance(effective.get("recovery_payload"), dict) else {}
+    if not isinstance(effective, dict):
+        raise PatcherError("VV3 individual Full Mastery recovery chain report payload is malformed.")
+    if raw.get("members") != effective.get("members") or raw.get("ownership_inventory") != effective.get("ownership_inventory") or raw.get("destination_paths_absolute") != (effective.get("destination_paths_absolute") or []) or raw.get("member_roles") != (effective.get("member_roles") or {}):
+        raise PatcherError("VV3 individual Full Mastery recovery chain does not bind the active report.")
+    canonical_name = raw.get("canonical_name")
+    pointer_name = raw.get("pointer_name")
+    successor_name = raw.get("successor_name")
+    if canonical_name != report.name:
+        if not isinstance(canonical_name, str) or not isinstance(pointer_name, str) or successor_name != report.name or _report_pointer_path(report.parent / canonical_name).name != pointer_name:
+            raise PatcherError("VV3 individual Full Mastery recovery chain canonical/pointer relationship is invalid.")
+    elif pointer_name is not None or successor_name is not None:
+        raise PatcherError("VV3 individual Full Mastery recovery chain has an unbound pointer or successor.")
+    marker_name = raw.get("marker_name")
+    if marker_name is not None and (marker_name != report.name or not report.name.startswith(raw["recovery_prefix"] + "-emergency-")):
+        raise PatcherError("VV3 individual Full Mastery recovery chain marker relationship is invalid.")
     return manifest, record, raw
 
 
@@ -567,6 +597,7 @@ def _delete_file_by_handle(path: Path, expected: dict[str, object]) -> None:
         import ctypes
         from ctypes import wintypes
         kernel32 = ctypes.windll.kernel32
+        _configure_windows_delete_api(kernel32, ctypes, wintypes)
         GENERIC_READ = 0x80000000
         DELETE = 0x00010000
         FILE_SHARE_READ = 0x00000001
@@ -579,7 +610,7 @@ def _delete_file_by_handle(path: Path, expected: dict[str, object]) -> None:
             FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
             None, OPEN_EXISTING, FILE_FLAG_OPEN_REPARSE_POINT, None,
         )
-        if handle == wintypes.HANDLE(-1).value:
+        if handle == ctypes.c_void_p(-1).value:
             raise PatcherError(f"VV3 individual Full Mastery file delete could not open target: {path}")
         try:
             opened = os.lstat(path)
@@ -597,14 +628,17 @@ def _delete_file_by_handle(path: Path, expected: dict[str, object]) -> None:
         if os.path.lexists(path):
             raise PatcherError(f"VV3 individual Full Mastery file delete postverify failed: {path}")
         return
-    # POSIX fallback keeps the same identity checks and fails closed on a
-    # substitution detected around the unlink operation.
-    before = os.lstat(path)
-    if (int(before.st_dev), int(before.st_ino), int(before.st_size)) != (int(expected["st_dev"]), int(expected["st_ino"]), int(expected["size"])):
-        raise PatcherError(f"VV3 individual Full Mastery file delete identity changed: {path}")
-    path.unlink()
-    if os.path.lexists(path):
-        raise PatcherError(f"VV3 individual Full Mastery file delete postverify failed: {path}")
+    raise PatcherError("VV3 individual Full Mastery identity-atomic file deletion is certified only on 64-bit Windows.")
+
+
+def _configure_windows_delete_api(kernel32: object, ctypes_module: object, wintypes: object) -> None:
+    """Declare the exact 64-bit Win32 signatures used by handle deletion."""
+    kernel32.CreateFileW.argtypes = [wintypes.LPCWSTR, wintypes.DWORD, wintypes.DWORD, wintypes.LPVOID, wintypes.DWORD, wintypes.DWORD, wintypes.HANDLE]
+    kernel32.CreateFileW.restype = wintypes.HANDLE
+    kernel32.SetFileInformationByHandle.argtypes = [wintypes.HANDLE, wintypes.INT, wintypes.LPVOID, wintypes.DWORD]
+    kernel32.SetFileInformationByHandle.restype = wintypes.BOOL
+    kernel32.CloseHandle.argtypes = [wintypes.HANDLE]
+    kernel32.CloseHandle.restype = wintypes.BOOL
 
 
 def _inventory_tree(root: Path, *, exclude: set[str] | None = None) -> list[dict[str, object]]:
@@ -733,16 +767,66 @@ def _report_chain_siblings(parent: Path, report: Path, *, recovery_prefix: str) 
     canonical: list[Path] = []
     successors: list[Path] = []
     markers: list[Path] = []
+    parent_record = _inventory_entry(parent.parent, parent)
+    chain_names: list[str] = []
+    pointer_names: list[str] = []
     with os.scandir(parent) as scan:
         for entry in scan:
             candidate = Path(entry.path)
-            if canonical_re.fullmatch(entry.name):
+            name = entry.name
+            if name.startswith(".chain-"):
+                st = os.lstat(candidate)
+                if not stat.S_ISREG(st.st_mode) or _reject_entry(candidate, st, directory=False):
+                    raise PatcherError("VV3 individual Full Mastery recovery chain manifest is unsafe.")
+                chain_names.append(name)
+            elif canonical_re.fullmatch(name):
+                st = os.lstat(candidate)
+                if not stat.S_ISREG(st.st_mode) or _reject_entry(candidate, st, directory=False):
+                    raise PatcherError("VV3 individual Full Mastery recovery report is unsafe.")
                 canonical.append(candidate)
-            elif successor_re.fullmatch(entry.name):
+            elif successor_re.fullmatch(name):
+                st = os.lstat(candidate)
+                if not stat.S_ISREG(st.st_mode) or _reject_entry(candidate, st, directory=False):
+                    raise PatcherError("VV3 individual Full Mastery recovery successor is unsafe.")
                 successors.append(candidate)
-            elif emergency_re.fullmatch(entry.name):
+            elif emergency_re.fullmatch(name):
+                st = os.lstat(candidate)
+                if not stat.S_ISREG(st.st_mode) or _reject_entry(candidate, st, directory=False):
+                    raise PatcherError("VV3 individual Full Mastery emergency marker is unsafe.")
                 markers.append(candidate)
+            elif name.startswith(f".{recovery_prefix}-") and name.endswith(".pointer"):
+                st = os.lstat(candidate)
+                if not stat.S_ISREG(st.st_mode) or _reject_entry(candidate, st, directory=False):
+                    raise PatcherError("VV3 individual Full Mastery recovery pointer is unsafe.")
+                pointer_names.append(name)
+    known_names = {path.name for path in (*canonical, *successors, *markers)}
+    orphan_chain_names = [name for name in chain_names if name[len(".chain-"):-len(".json")] not in known_names]
+    if orphan_chain_names and not markers:
+        raise PatcherError("VV3 individual Full Mastery recovery chain manifest is orphaned or foreign.")
+    for pointer_name in pointer_names:
+        target = pointer_name[1:-len(".pointer")]
+        if target not in known_names:
+            raise PatcherError("VV3 individual Full Mastery recovery pointer is orphaned or foreign.")
+    if _inventory_entry(parent.parent, parent) != parent_record:
+        raise PatcherError("VV3 individual Full Mastery recovery report parent changed during discovery.")
     return canonical, successors, markers
+
+
+def _orphan_chain_manifests(parent: Path, known_names: set[str]) -> list[Path]:
+    """Return orphan chain manifests for emergency compatibility checking."""
+    found: list[Path] = []
+    with os.scandir(parent) as scan:
+        for entry in scan:
+            if not entry.name.startswith(".chain-"):
+                continue
+            target = entry.name[len(".chain-"):-len(".json")] if entry.name.endswith(".json") else ""
+            if target not in known_names:
+                candidate = Path(entry.path)
+                st = os.lstat(candidate)
+                if not stat.S_ISREG(st.st_mode) or _reject_entry(candidate, st, directory=False):
+                    raise PatcherError("VV3 individual Full Mastery orphan chain manifest is unsafe.")
+                found.append(candidate)
+    return found
 
 
 def _refresh_recovery_report(report: Path, payload: dict[str, object], root: Path, replay_root: Path) -> None:
@@ -753,7 +837,7 @@ def _refresh_recovery_report(report: Path, payload: dict[str, object], root: Pat
     # but the durable pointer belongs to the original canonical report.  Walk
     # that relationship before publishing the next successor so retries do
     # not create nested, orphaned pointer chains.
-    if ".v" in report.stem:
+    if re.search(r"-recovery-[0-9a-f]{32}\.v[0-9a-f]{32}$", report.stem):
         sibling_reports, _sibling_successors, _sibling_markers = _report_chain_siblings(root, report, recovery_prefix=".vv3im")
         for candidate in sibling_reports:
             try:
@@ -1322,12 +1406,24 @@ def _transaction(operation: str, destinations: list[Path], pre: dict[Path, tuple
 
 
 def _recover_from_emergency_marker(marker: Path, *, recovery_prefix: str, required_metadata: dict[str, object] | None, expected_report_sha256: str | None) -> None:
+    canonical, successors, markers = _report_chain_siblings(marker.parent, marker, recovery_prefix=recovery_prefix)
+    if canonical or successors or len(markers) != 1 or markers[0] != marker:
+        raise PatcherError("VV3 individual Full Mastery emergency marker conflicts with an existing recovery chain.")
+    orphan_manifests = _orphan_chain_manifests(marker.parent, {marker.name})
     marker_manifest, marker_manifest_record, _marker_manifest_payload = _read_chain_manifest(marker)
     marker_record = _inventory_entry(marker.parent, marker)
     marker_payload = json.loads(_read_regular(marker).decode("utf-8"))
     if not isinstance(marker_payload, dict) or set(marker_payload) != {"schema_version", "kind", "feature_owner", "operation", "recovery_root_name", "recovery_root_identity", "ownership_inventory", "expected_ownership_inventory", "recovery_payload", "failure", "canonical_report_target"} or marker_payload.get("schema_version") != 1 or marker_payload.get("kind") != "emergency_recovery_marker":
         raise PatcherError("VV3 individual Full Mastery emergency marker schema is unsupported.")
     details = dict(marker_payload.get("recovery_payload") or {})
+    orphan_records: list[tuple[Path, dict[str, object]]] = []
+    for orphan in orphan_manifests:
+        orphan_raw = json.loads(_read_regular(orphan).decode("utf-8"))
+        orphan_root = orphan_raw.get("recovery_root_record") if isinstance(orphan_raw, dict) else None
+        root_matches = isinstance(orphan_root, dict) and orphan_root.get("st_dev") == (marker_payload.get("recovery_root_identity") or {}).get("st_dev") and orphan_root.get("st_ino") == (marker_payload.get("recovery_root_identity") or {}).get("st_ino")
+        if not isinstance(orphan_raw, dict) or orphan_raw.get("schema_version") != 2 or orphan_raw.get("kind") != "vv3_recovery_chain_manifest" or orphan_raw.get("recovery_root_name") != marker_payload.get("recovery_root_name") or not root_matches or orphan_raw.get("ownership_inventory") != details.get("ownership_inventory") or orphan_raw.get("members") != details.get("members") or orphan_raw.get("destination_paths_absolute") != (details.get("destination_paths_absolute") or []):
+            raise PatcherError("VV3 individual Full Mastery emergency marker is incompatible with an orphan chain manifest.")
+        orphan_records.append((orphan, _inventory_entry(marker.parent, orphan)))
     details.update({
         "_report_prefix": recovery_prefix,
         "_recovery_root_name": marker_payload.get("recovery_root_name"),
@@ -1345,6 +1441,8 @@ def _recover_from_emergency_marker(marker: Path, *, recovery_prefix: str, requir
     recover_atomic(report, recovery_prefix=recovery_prefix, required_metadata=inner_metadata, expected_report_sha256=None, _from_emergency=True)
     _remove_owned(marker, expected=marker_record)
     _remove_owned(marker_manifest, expected=marker_manifest_record)
+    for orphan, orphan_record in orphan_records:
+        _remove_owned(orphan, expected=orphan_record)
 
 
 def _compatible_emergency_markers(markers: list[Path], payload: dict[str, object]) -> list[tuple[Path, dict[str, object]]]:

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import ctypes
 import tempfile
 import unittest
 from unittest import mock
@@ -668,6 +669,34 @@ class VV3IndividualFullMasteryLoaderTests(unittest.TestCase):
             tombstones = list(root.glob(".owned.bin.vv3im-tombstone-*"))
             self.assertEqual(len(tombstones), 1)
             self.assertEqual(tombstones[0].read_bytes(), b"foreign")
+
+    def test_c294_windows_delete_api_signatures_are_declared(self):
+        class FakeFunction:
+            pass
+        class FakeKernel:
+            CreateFileW = FakeFunction()
+            SetFileInformationByHandle = FakeFunction()
+            CloseHandle = FakeFunction()
+        from ctypes import wintypes
+        fake = FakeKernel()
+        loader._configure_windows_delete_api(fake, ctypes, wintypes)
+        self.assertIs(fake.CreateFileW.restype, wintypes.HANDLE)
+        self.assertIs(fake.SetFileInformationByHandle.restype, wintypes.BOOL)
+        self.assertIs(fake.CloseHandle.restype, wintypes.BOOL)
+        self.assertEqual(len(fake.CreateFileW.argtypes), 7)
+        self.assertEqual(len(fake.SetFileInformationByHandle.argtypes), 4)
+        self.assertEqual(len(fake.CloseHandle.argtypes), 1)
+
+    def test_c294_non_windows_delete_path_fails_closed(self):
+        with tempfile.TemporaryDirectory(prefix="vv3-c294-posix-delete-") as td:
+            root = Path(td)
+            target = root / "owned.bin"
+            target.write_bytes(b"owned")
+            expected = loader._inventory_entry(root, target)
+            with mock.patch.object(loader.os, "name", "posix"):
+                with self.assertRaises(vv_fun_patcher.PatcherError):
+                    loader._delete_file_by_handle(target, expected)
+            self.assertEqual(target.read_bytes(), b"owned")
 
 
 if __name__ == "__main__":
