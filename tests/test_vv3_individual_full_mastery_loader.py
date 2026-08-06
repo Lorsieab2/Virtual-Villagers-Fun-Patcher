@@ -1271,6 +1271,64 @@ class VV3IndividualFullMasteryLoaderTests(unittest.TestCase):
                     loader.recover_vv3_transaction(report)
             self.assertTrue(list(root.glob(".vv3im-journal-*.json")))
 
+    def test_c320_emergency_marker_requires_embedded_report_name_before_create(self):
+        with tempfile.TemporaryDirectory(prefix="vv3-c320-report-name-") as td:
+            root = Path(td)
+            report, _destination, _companion = self._make_unresolved_report(root)
+            payload = json.loads(report.read_text(encoding="utf-8"))
+            recovery_root = root / next(item["path"] for item in payload["ownership_inventory"] if item["type"] == "directory")
+            details = dict(payload)
+            details.update({
+                "_report_prefix": ".vv3im",
+                "_recovery_root_name": recovery_root.name,
+                "_recovery_root_identity": loader._inventory_entry(root, recovery_root),
+                "_expected_ownership_inventory": payload["ownership_inventory"],
+            })
+            details.pop("report_name", None)
+            loader._remove_owned(report, expected=loader._inventory_entry(root, report))
+            with self.assertRaises(vv_fun_patcher.PatcherError):
+                loader._write_emergency_marker(root, details, vv_fun_patcher.PatcherError("injected"))
+            self.assertFalse(list(root.glob(".vv3im-emergency-*.json")))
+
+    def test_c320_finalization_successor_carries_complete_replay_payload(self):
+        with tempfile.TemporaryDirectory(prefix="vv3-c320-finalization-successor-") as td:
+            root = Path(td)
+            report, _destination, _companion = self._make_unresolved_report(root)
+            original_delete = loader._delete_file_by_handle
+            failed = {"value": False}
+            def fail_first_authority(path, expected):
+                if not failed["value"] and Path(path).name.startswith(".vv3im-journal-") and Path(path).name.count(".") == 2:
+                    failed["value"] = True
+                    raise vv_fun_patcher.PatcherError("injected successor retirement failure")
+                return original_delete(path, expected)
+            with mock.patch.object(loader, "_delete_file_by_handle", side_effect=fail_first_authority):
+                with self.assertRaises(vv_fun_patcher.PatcherError):
+                    loader.recover_vv3_transaction(report)
+            successors = list(root.glob(".vv3im-journal-*.v*.json"))
+            self.assertTrue(successors)
+            raw = json.loads(successors[0].read_text(encoding="utf-8"))
+            self.assertEqual(raw.get("finalization_state"), "finalizing")
+            self.assertIsInstance(raw.get("finalization_payload"), dict)
+            self.assertEqual(raw["finalization_payload"].get("report_name"), report.name)
+            self.assertEqual(raw.get("feature_owner"), "vv3_individual_full_mastery")
+
+    def test_c320_authority_mutation_inside_retirement_is_fail_closed(self):
+        with tempfile.TemporaryDirectory(prefix="vv3-c320-authority-race-") as td:
+            root = Path(td)
+            report, _destination, _companion = self._make_unresolved_report(root)
+            original_delete = loader._delete_file_by_handle
+            mutated = {"value": False}
+            def mutate_before_delete(path, expected):
+                if not mutated["value"] and Path(path).name.startswith(".vv3im-journal-") and ".v" in Path(path).name:
+                    mutated["value"] = True
+                    Path(path).write_bytes(b"foreign-authority")
+                return original_delete(path, expected)
+            with mock.patch.object(loader, "_delete_file_by_handle", side_effect=mutate_before_delete):
+                with self.assertRaises(vv_fun_patcher.PatcherError):
+                    loader.recover_vv3_transaction(report)
+            self.assertTrue(mutated["value"])
+            self.assertTrue(list(root.glob(".vv3im-journal-*.v*.json")))
+
 
 if __name__ == "__main__":
     unittest.main()

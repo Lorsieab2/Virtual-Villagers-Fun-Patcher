@@ -62,6 +62,23 @@ VV5_RECOVERY_METADATA_REQUIRED = {
     "issuance_identity", "destination_parent_absolute",
     "destination_paths_absolute", "vv5_schema",
 }
+# Exact schema emitted by ``vv5_individual_running._bind_issuance``.  The
+# shared authority reader validates the complete external record rather than
+# accepting a compact projection of its security fields.
+VV5_ISSUANCE_SCHEMA_KEYS = {
+    "schema_version", "token", "authority_token", "authority_record",
+    "feature_owner", "mode", "operation", "parent_identity",
+    "destination_parent_absolute", "destination_paths_absolute",
+    "registry_relative", "registry_identity", "members", "report_name",
+    "report_sha256", "report_parent_identity", "recovery_root_name",
+    "recovery_root_identity", "report_members", "report_kind",
+}
+VV5_ISSUANCE_START_KEYS = {
+    "schema_version", "token", "authority_token", "authority_record",
+    "feature_owner", "mode", "operation", "parent_identity",
+    "destination_parent_absolute", "destination_paths_absolute",
+    "registry_relative", "registry_identity", "members",
+}
 
 
 def _validate_emergency_binding_payload(payload: dict[str, object], *, owner: str) -> None:
@@ -89,11 +106,13 @@ def _validate_emergency_binding_payload(payload: dict[str, object], *, owner: st
     issuance_token = payload.get("issuance_token")
     issuance_name = payload.get("issuance_name")
     issuance_identity = payload.get("issuance_identity")
+    report_name = payload.get("report_name")
     if (
         not isinstance(root_name, str) or not isinstance(root_identity, dict)
         or not isinstance(parent_identity, dict) or not isinstance(destination_parent, str)
         or not isinstance(issuance_token, str) or not re.fullmatch(r"[0-9a-f]{32}", issuance_token)
         or not isinstance(issuance_name, str) or not isinstance(issuance_identity, dict)
+        or not isinstance(report_name, str) or Path(report_name).name != report_name
         or not isinstance(payload.get("member_roles"), dict)
         or not isinstance(payload.get("destination_paths_absolute"), list)
     ):
@@ -362,17 +381,18 @@ def _write_emergency_marker(parent: Path, details: dict[str, object], error: Bas
     # embedded durable envelope.
     recovery_payload["recovery_root_name"] = root.name
     recovery_payload["recovery_root_identity"] = root_record
-    # When canonical publication failed before it could allocate a report,
-    # this marker is the issued report object.  Persist that exact name in the
-    # embedded envelope; recovery never derives it later from marker location.
-    recovery_payload.setdefault("report_name", marker.name)
+    # The failed writer must have already issued the exact canonical report
+    # name.  Never synthesize it from this marker's filename or location.
+    # Without that embedded binding, no emergency marker is created.
+    if not isinstance(recovery_payload.get("report_name"), str):
+        raise PatcherError("Current emergency marker requires an embedded report_name binding.")
     # Structural report fields are persisted in the marker as a complete
     # schema-v2 envelope even when canonical writer failed before assembling
     # them.  These are not inferred security bindings.
     recovery_payload.setdefault("schema_version", 2)
     recovery_payload.setdefault("recovery_root", ".")
     recovery_payload.setdefault("destination_parent", ".")
-    recovery_payload.setdefault("report_relative", marker.name)
+    recovery_payload.setdefault("report_relative", recovery_payload["report_name"])
     recovery_payload.setdefault("failure_diagnostic", str(error))
     _validate_emergency_binding_payload(recovery_payload, owner=owner)
     payload = {
@@ -399,6 +419,13 @@ def _write_emergency_marker(parent: Path, details: dict[str, object], error: Bas
         manifest_payload["members"] = recovery_payload.get("members", [])
         manifest_payload["member_roles"] = recovery_payload.get("member_roles") or {}
         manifest_payload["destination_paths_absolute"] = recovery_payload.get("destination_paths_absolute")
+        # Preserve the complete caller binding when the emergency marker's
+        # chain authority is written.  The chain manifest itself remains the
+        # fixed descriptive schema, while _write_chain_manifest projects
+        # these exact fields into the independent authority journal.
+        for key in ("feature_owner", "mode", "operation", "destination_parent_absolute", "report_parent_identity", "initial_precondition", "replay_guard"):
+            if key in recovery_payload:
+                manifest_payload[key] = recovery_payload[key]
         _write_chain_manifest(marker, manifest_payload, marker_name=marker.name, commit_state="emergency_marker")
         _fsync_dir(parent)
         return marker
@@ -415,7 +442,12 @@ def _write_recovery_impl(parent: Path, details: dict[str, object]) -> Path:
     _require_windows_identity_atomic()
     report_prefix = str(details.get("_report_prefix", ".vv3im"))
     payload_details = {key: value for key, value in details.items() if not key.startswith("_")}
-    report = parent / f"{report_prefix}-recovery-{uuid.uuid4().hex}.json"
+    requested_report_name = details.get("report_name")
+    if isinstance(requested_report_name, str) and Path(requested_report_name).name == requested_report_name and re.fullmatch(re.escape(report_prefix) + r"-recovery-[0-9a-f]{32}\.json", requested_report_name):
+        report_name = requested_report_name
+    else:
+        report_name = f"{report_prefix}-recovery-{uuid.uuid4().hex}.json"
+    report = parent / report_name
     tmp = report.with_suffix(".tmp")
     payload = {"schema_version": 2, **payload_details, "report_relative": report.name}
     # Metadata is caller-owned.  Do not expose one permissive union to every
@@ -613,6 +645,7 @@ def _read_issuance_binding(manifest: Path) -> dict[str, object] | None:
     report = manifest.parent / report_name
     if not os.path.lexists(report):
         return None
+    bound_report_path = report
     try:
         report_raw = json.loads(_read_regular(report).decode("utf-8"))
     except Exception:
@@ -682,11 +715,110 @@ def _read_issuance_binding(manifest: Path) -> dict[str, object] | None:
     if strict_vv3 and not issuance_record.get("path", "").replace("\\", "/").startswith(str(root_name) + "/"):
         return None
     issuance_payload = json.loads(_read_regular(issuance).decode("utf-8"))
-    # VV5 owns a separate parent-registry issuance schema.  The shared
-    # authority journal must preserve and compare that external record, but
-    # VV3's stricter transaction-start schema applies only to VV3 issuance.
+    # VV5 publishes an immutable canonical issuance followed by a pointer and
+    # a bound successor containing the report fields.  Validate the complete
+    # successor record when that chain exists; never accept the compact
+    # transaction-start canonical record as the final authority.
+    if report_raw.get("feature_owner") == "vv5_individual_grant_running_candidate" and isinstance(issuance_payload, dict) and set(issuance_payload) == VV5_ISSUANCE_START_KEYS and not os.path.lexists(issuance.with_name(f".{issuance.name}.pointer")):
+        # Transaction start is intentionally before a report exists.  Accept
+        # only the exact VV5 start envelope here; publication must later
+        # replace the authority binding with the complete successor record.
+        return {
+            "token": token,
+            "name": name,
+            "record": identity.get("record"),
+            "owner": feature_owner,
+            "operation": report_raw.get("operation"),
+            "destination_paths_absolute": report_raw.get("destination_paths_absolute"),
+            "member_roles": report_raw.get("member_roles"),
+            "payload": issuance_payload,
+            "pending": True,
+        }
+    if report_raw.get("feature_owner") == "vv5_individual_grant_running_candidate" and isinstance(issuance_payload, dict) and set(issuance_payload) != VV5_ISSUANCE_SCHEMA_KEYS:
+        pointer = issuance.with_name(f".{issuance.name}.pointer")
+        if os.path.lexists(pointer):
+            pointer_raw = json.loads(_read_regular(pointer).decode("utf-8"))
+            def _same_registry_record(actual: dict[str, object] | None, expected: object) -> bool:
+                return isinstance(actual, dict) and isinstance(expected, dict) and all(actual.get(key) == expected.get(key) for key in ("type", "size", "sha256", "st_dev", "st_ino"))
+            if not isinstance(pointer_raw, dict) or set(pointer_raw) != {"schema_version", "kind", "canonical_name", "canonical_record", "successor_name", "successor_record", "registry_identity"} or pointer_raw.get("canonical_name") != issuance.name or not _same_registry_record(_inventory_entry(manifest.parent, issuance), pointer_raw.get("canonical_record")):
+                raise PatcherError("VV5 Running issuance pointer is incomplete or stale.")
+            successor_name = pointer_raw.get("successor_name")
+            if not isinstance(successor_name, str) or Path(successor_name).name != successor_name or not re.fullmatch(re.escape(issuance.stem) + r"\.v[0-9a-f]{32}" + re.escape(issuance.suffix), successor_name):
+                raise PatcherError("VV5 Running issuance successor name is unsafe.")
+            successor = issuance.with_name(successor_name)
+            successor_record = _inventory_entry(issuance.parent, successor)
+            if successor_record is None or not _same_registry_record(_inventory_entry(manifest.parent, successor), pointer_raw.get("successor_record")):
+                raise PatcherError("VV5 Running issuance successor identity changed.")
+            issuance = successor
+            issuance_payload = json.loads(_read_regular(issuance).decode("utf-8"))
+        if not isinstance(issuance_payload, dict) or set(issuance_payload) != VV5_ISSUANCE_SCHEMA_KEYS:
+            raise PatcherError("VV5 Running issuance evidence is not the complete bound record.")
+    # VV5 owns a separate parent-registry issuance schema.  Validate the
+    # complete bound record here; a compact projection would allow a polluted
+    # issuance object to pass shared-authority validation.
     if report_raw.get("feature_owner") == "vv5_individual_grant_running_candidate":
-        return {"token": token, "name": name, "record": identity.get("record"), "owner": report_raw.get("feature_owner"), "operation": report_raw.get("operation"), "destination_paths_absolute": report_raw.get("destination_paths_absolute"), "member_roles": report_raw.get("member_roles")}
+        if not isinstance(issuance_payload, dict) or set(issuance_payload) != VV5_ISSUANCE_SCHEMA_KEYS:
+            raise PatcherError("VV5 Running issuance evidence schema is incomplete or polluted.")
+        issuance_bound_report = bound_report_path
+        if isinstance(issuance_payload.get("report_name"), str):
+            candidate_bound_report = manifest.parent / str(issuance_payload["report_name"])
+            if os.path.lexists(candidate_bound_report):
+                candidate_kind = json.loads(_read_regular(candidate_bound_report).decode("utf-8")).get("kind")
+                if candidate_kind in {"recovery_report", "emergency_recovery_marker"}:
+                    issuance_bound_report = candidate_bound_report
+        if (
+            issuance_payload.get("schema_version") != 2
+            or issuance_payload.get("token") != token
+            or not isinstance(issuance_payload.get("authority_token"), str)
+            or not re.fullmatch(r"[0-9a-f]{64}", issuance_payload.get("authority_token", ""))
+            or issuance_payload.get("authority_record") != identity.get("authority_record")
+            or issuance_payload.get("feature_owner") != feature_owner
+            or issuance_payload.get("mode") != report_raw.get("mode")
+            or issuance_payload.get("operation") not in {"install", "remove"}
+            or issuance_payload.get("parent_identity") != {"st_dev": int(actual_parent.get("st_dev", -1)), "st_ino": int(actual_parent.get("st_ino", -1))}
+            or issuance_payload.get("destination_parent_absolute") != report_raw.get("destination_parent_absolute")
+            or issuance_payload.get("destination_paths_absolute") != report_raw.get("destination_paths_absolute")
+            or issuance_payload.get("registry_relative") != ".vv5run-issuance"
+            or issuance_payload.get("registry_identity") != {
+                "st_dev": int(_inventory_entry(manifest.parent, issuance.parent).get("st_dev", -1)),
+                "st_ino": int(_inventory_entry(manifest.parent, issuance.parent).get("st_ino", -1)),
+            }
+            or issuance_payload.get("report_name") != issuance_bound_report.name
+            or issuance_payload.get("report_sha256") != _sha(_read_regular(issuance_bound_report))
+            or issuance_payload.get("report_parent_identity") != report_parent_identity
+            or issuance_payload.get("recovery_root_name") != root_name
+            or issuance_payload.get("recovery_root_identity") != root_identity
+            or issuance_payload.get("report_members") != report_raw.get("members")
+            or issuance_payload.get("report_kind") not in {"recovery_report", "emergency_recovery_marker"}
+        ):
+            raise PatcherError("VV5 Running issuance evidence binding is inconsistent.")
+        issuance_members = issuance_payload.get("members")
+        report_members = report_raw.get("members")
+        member_keys = {"destination", "pre_exists", "pre_sha256", "pre_size", "published_sha256", "published_size"}
+        if not isinstance(issuance_members, list) or not isinstance(report_members, list) or len(issuance_members) != len(report_members):
+            raise PatcherError("VV5 Running issuance member binding is incomplete.")
+        for issued, reported in zip(issuance_members, report_members):
+            if not isinstance(issued, dict) or set(issued) != member_keys or not isinstance(reported, dict):
+                raise PatcherError("VV5 Running issuance member schema is polluted.")
+            if {
+                "destination": reported.get("destination_relative"),
+                "pre_exists": bool(reported.get("pre_exists")),
+                "pre_sha256": reported.get("pre_sha256"),
+                "pre_size": int(reported.get("pre_size", 0)),
+                "published_sha256": reported.get("published_sha256"),
+                "published_size": int(reported.get("published_size", 0)),
+            } != issued:
+                raise PatcherError("VV5 Running issuance member binding differs from report.")
+        return {
+            "token": token,
+            "name": name,
+            "record": identity.get("record"),
+            "owner": feature_owner,
+            "operation": report_raw.get("operation"),
+            "destination_paths_absolute": report_raw.get("destination_paths_absolute"),
+            "member_roles": report_raw.get("member_roles"),
+            "payload": issuance_payload,
+        }
     required = {"schema_version", "kind", "feature_owner", "operation", "transaction_id", "token", "owner_parent_absolute", "parent_identity", "recovery_root_name", "recovery_root_identity", "destination_paths_absolute", "member_roles", "member_digest", "members", "precondition"}
     if not isinstance(issuance_payload, dict) or set(issuance_payload) != required or issuance_payload.get("schema_version") != 1 or issuance_payload.get("kind") != "vv3_recovery_issuance":
         raise PatcherError("VV3 individual Full Mastery issuance evidence schema is unsupported or forged.")
@@ -753,6 +885,28 @@ def _discover_transaction_authority(manifest: Path) -> Path:
             raise PatcherError("VV3 individual Full Mastery transaction authority identity disappeared.")
         records[path] = {"raw": raw, "record": record}
 
+    current_manifest_record = _inventory_entry(manifest.parent, manifest) if os.path.lexists(manifest) else None
+    current_report_path = manifest.parent / str(records[next(iter(records))]["raw"].get("report_name")) if records and isinstance(records[next(iter(records))]["raw"].get("report_name"), str) else None
+    current_report_record = _inventory_entry(manifest.parent, current_report_path) if current_report_path is not None and os.path.lexists(current_report_path) else None
+    finalizing = [
+        (path, entry) for path, entry in records.items()
+        if entry["raw"].get("finalization_state") == "finalizing"
+        and (current_manifest_record is None or entry["raw"].get("manifest_record") == current_manifest_record)
+        and (current_report_record is None or entry["raw"].get("report_record") == current_report_record)
+    ]
+    if finalizing:
+        steps = [entry["raw"].get("finalization_step") for _path, entry in finalizing]
+        if any(not isinstance(step, int) or step < 0 for step in steps) or len(set(steps)) != len(steps):
+            raise PatcherError("VV3 individual Full Mastery finalization authorities are ambiguous.")
+        latest_path, latest_entry = max(finalizing, key=lambda item: int(item[1]["raw"]["finalization_step"]))
+        if any(
+            entry["raw"].get("manifest_name") != latest_entry["raw"].get("manifest_name")
+            or entry["raw"].get("feature_owner") != latest_entry["raw"].get("feature_owner")
+            for _path, entry in finalizing
+        ):
+            raise PatcherError("VV3 individual Full Mastery finalization authority binding differs.")
+        return latest_path
+
     # A canonical journal is the only valid chain root when present.  Every
     # successor must bind to the immediately preceding captured identity.
     if os.path.lexists(canonical):
@@ -786,16 +940,27 @@ def _discover_transaction_authority(manifest: Path) -> Path:
     return current
 
 
-def _write_transaction_authority(manifest: Path, payload: dict[str, object], manifest_record: dict[str, object]) -> tuple[Path, dict[str, object]]:
+def _write_transaction_authority(
+    manifest: Path,
+    payload: dict[str, object],
+    manifest_record: dict[str, object],
+    *,
+    detach_previous: bool = False,
+    finalization_state: str | None = None,
+    finalization_step: int | None = None,
+) -> tuple[Path, dict[str, object]]:
     """Publish an independent, identity-bound journal for every chain state."""
     _require_windows_identity_atomic()
     journal = _transaction_authority_path(manifest)
     previous: dict[str, object] | None = None
     previous_path: Path | None = None
-    if os.path.lexists(journal) or any(
-        re.fullmatch(re.escape(journal.stem) + r"\.v[0-9a-f]{32}\.json", entry.name)
-        for entry in os.scandir(manifest.parent)
-    ):
+    strict_owner = payload.get("feature_owner") in {"vv3_individual_full_mastery", "vv5_individual_grant_running_candidate"}
+    with os.scandir(manifest.parent) as _authority_entries:
+        has_successor = any(
+            re.fullmatch(re.escape(journal.stem) + r"\.v[0-9a-f]{32}\.json", entry.name)
+            for entry in _authority_entries
+        )
+    if not detach_previous and (os.path.lexists(journal) or has_successor):
         # Continue from the discovered chain head, including successor-only
         # states left after an interrupted canonical retirement.  Never select
         # a same-name record by convenience.
@@ -808,8 +973,11 @@ def _write_transaction_authority(manifest: Path, payload: dict[str, object], man
         except Exception as exc:
             raise PatcherError("VV3 individual Full Mastery transaction authority target is foreign.") from exc
         required_previous = {"schema_version", "kind", "state", "manifest_name", "manifest_record", "report_name", "report_record", "canonical_name", "canonical_record", "pointer_name", "pointer_record", "successor_name", "successor_record", "marker_name", "marker_record", "recovery_root_name", "recovery_root_record", "ownership_inventory", "members", "member_roles", "destination_paths_absolute", "transaction_journal", "previous_authority_record"}
+        if strict_owner:
+            required_previous |= {"feature_owner", "mode", "operation", "destination_parent_absolute", "report_parent_identity", "initial_precondition", "replay_guard", "finalization_state", "finalization_step"}
         previous_keys = set(previous_raw) if isinstance(previous_raw, dict) else set()
-        if not isinstance(previous_raw, dict) or previous_keys not in (required_previous, required_previous | {"external_issuance"}) or previous_raw.get("schema_version") != 1 or previous_raw.get("kind") != "vv3_recovery_transaction_authority" or previous_raw.get("manifest_name") != manifest.name:
+        previous_options = (required_previous, required_previous | {"external_issuance"}, required_previous | {"finalization_payload"}, required_previous | {"external_issuance", "finalization_payload"})
+        if not isinstance(previous_raw, dict) or previous_keys not in previous_options or previous_raw.get("schema_version") != 1 or previous_raw.get("kind") != "vv3_recovery_transaction_authority" or previous_raw.get("manifest_name") != manifest.name:
             raise PatcherError("VV3 individual Full Mastery transaction authority target is foreign.")
         if not isinstance(previous_raw.get("transaction_journal"), dict) or previous_raw["transaction_journal"].get("state") != previous_raw.get("state") or not isinstance(previous_raw.get("members"), list) or not isinstance(previous_raw.get("member_roles"), dict) or not isinstance(previous_raw.get("ownership_inventory"), list) or not isinstance(previous_raw.get("destination_paths_absolute"), list):
             raise PatcherError("VV3 individual Full Mastery transaction authority bindings are malformed.")
@@ -844,6 +1012,18 @@ def _write_transaction_authority(manifest: Path, payload: dict[str, object], man
         "transaction_journal": payload.get("transaction_journal"),
         "previous_authority_record": previous,
     }
+    if strict_owner:
+        journal_payload.update({
+            "feature_owner": payload.get("feature_owner"),
+            "mode": payload.get("mode"),
+            "operation": payload.get("operation"),
+            "destination_parent_absolute": payload.get("destination_parent_absolute"),
+            "report_parent_identity": payload.get("report_parent_identity"),
+            "initial_precondition": payload.get("initial_precondition"),
+            "replay_guard": payload.get("replay_guard"),
+            "finalization_state": finalization_state or payload.get("finalization_state") or "active",
+            "finalization_step": finalization_step if finalization_step is not None else int(payload.get("finalization_step", 0)),
+        })
     try:
         issuance_binding = _read_issuance_binding(manifest)
     except PatcherError:
@@ -856,7 +1036,7 @@ def _write_transaction_authority(manifest: Path, payload: dict[str, object], man
     # The prior valid journal is never consumed before that successor has been
     # fully written and identity-verified.  A failure after successor
     # publication leaves the successor discoverable for deterministic replay.
-    target = journal if previous is None else journal.with_name(f"{journal.stem}.v{uuid.uuid4().hex}.json")
+    target = journal if previous is None and not detach_previous else journal.with_name(f"{journal.stem}.v{uuid.uuid4().hex}.json")
     tmp = target.with_suffix(".tmp")
     data = (json.dumps(journal_payload, indent=2, sort_keys=True) + "\n").encode("utf-8")
     try:
@@ -886,7 +1066,21 @@ def _validate_transaction_authority(manifest: Path, payload: dict[str, object], 
     raw = json.loads(_read_regular(journal).decode("utf-8"))
     required = {"schema_version", "kind", "state", "manifest_name", "manifest_record", "report_name", "report_record", "canonical_name", "canonical_record", "pointer_name", "pointer_record", "successor_name", "successor_record", "marker_name", "marker_record", "recovery_root_name", "recovery_root_record", "ownership_inventory", "members", "member_roles", "destination_paths_absolute", "transaction_journal", "previous_authority_record"}
     raw_keys = set(raw) if isinstance(raw, dict) else set()
-    if not isinstance(raw, dict) or raw_keys not in (required, required | {"external_issuance"}) or raw.get("schema_version") != 1 or raw.get("kind") != "vv3_recovery_transaction_authority" or raw.get("manifest_name") != manifest.name:
+    validation_payload = dict(payload)
+    if validation_payload.get("feature_owner") is None and isinstance(raw, dict) and isinstance(raw.get("report_name"), str):
+        report_path = manifest.parent / str(raw["report_name"])
+        if os.path.lexists(report_path):
+            report_raw = json.loads(_read_regular(report_path).decode("utf-8"))
+            if isinstance(report_raw, dict) and report_raw.get("kind") == "emergency_recovery_marker":
+                report_raw = report_raw.get("recovery_payload") if isinstance(report_raw.get("recovery_payload"), dict) else report_raw
+            if isinstance(report_raw, dict):
+                validation_payload.update(report_raw)
+    strict_owner = validation_payload.get("feature_owner") in {"vv3_individual_full_mastery", "vv5_individual_grant_running_candidate"}
+    strict_keys = {"feature_owner", "mode", "operation", "destination_parent_absolute", "report_parent_identity", "initial_precondition", "replay_guard", "finalization_state", "finalization_step"}
+    strict_base = required | strict_keys
+    strict_options = (strict_base, strict_base | {"external_issuance"}, strict_base | {"finalization_payload"}, strict_base | {"external_issuance", "finalization_payload"})
+    allowed_authority_keys = strict_options if strict_owner else (required, required | {"external_issuance"})
+    if not isinstance(raw, dict) or raw_keys not in allowed_authority_keys or raw.get("schema_version") != 1 or raw.get("kind") != "vv3_recovery_transaction_authority" or raw.get("manifest_name") != manifest.name:
         raise PatcherError("VV3 individual Full Mastery independent transaction authority is malformed.")
     expected_manifest = manifest_record or _inventory_entry(manifest.parent, manifest)
     if raw.get("manifest_record") != expected_manifest:
@@ -898,12 +1092,108 @@ def _validate_transaction_authority(manifest: Path, payload: dict[str, object], 
         raise PatcherError("VV3 individual Full Mastery independent transaction authority state is inconsistent.")
     if raw.get("previous_authority_record") is not None and not isinstance(raw.get("previous_authority_record"), dict):
         raise PatcherError("VV3 individual Full Mastery transaction authority predecessor binding is malformed.")
+    if strict_owner:
+        if (
+            raw.get("feature_owner") != validation_payload.get("feature_owner")
+            or raw.get("mode") != validation_payload.get("mode")
+            or raw.get("operation") != validation_payload.get("operation")
+            or raw.get("destination_parent_absolute") != validation_payload.get("destination_parent_absolute")
+            or raw.get("report_parent_identity") != validation_payload.get("report_parent_identity")
+            or raw.get("initial_precondition") != validation_payload.get("initial_precondition")
+            or raw.get("replay_guard") != validation_payload.get("replay_guard")
+            or raw.get("finalization_state") not in {"active", "finalizing"}
+            or not isinstance(raw.get("finalization_step"), int)
+            or raw.get("finalization_step") < 0
+        ):
+            raise PatcherError("Current recovery transaction authority strict binding is stale or malformed.")
+        if raw.get("finalization_state") == "finalizing" and not isinstance(raw.get("finalization_payload"), dict):
+            raise PatcherError("Current recovery finalization successor is not self-contained.")
     expected_issuance = _read_issuance_binding(manifest)
     if expected_issuance is None or raw.get("external_issuance") != expected_issuance:
         raise PatcherError("Current recovery transaction authority issuance binding is missing or stale.")
     if _inventory_entry(manifest.parent, journal) != record:
         raise PatcherError("VV3 individual Full Mastery independent transaction authority changed before use.")
     return journal, record
+
+
+def _publish_finalization_successor(
+    manifest: Path,
+    current_path: Path,
+    current_record: dict[str, object],
+    *,
+    step: int,
+    recovery_payload: dict[str, object] | None = None,
+) -> tuple[Path, dict[str, object]]:
+    """Publish a detached, self-contained authority for one cleanup step.
+
+    The successor copies every binding from the current authority, clears its
+    predecessor pointer, and is identity-verified before the prior authority
+    may be retired.  This keeps replay independent of evidence that the next
+    cleanup boundary is about to remove.
+    """
+    _require_windows_identity_atomic()
+    if _inventory_entry(manifest.parent, current_path) != current_record:
+        raise PatcherError("VV3 individual Full Mastery finalization authority changed before successor publication.")
+    raw = json.loads(_read_regular(current_path).decode("utf-8"))
+    if not isinstance(raw, dict) or raw.get("kind") != "vv3_recovery_transaction_authority":
+        raise PatcherError("VV3 individual Full Mastery finalization authority is malformed.")
+    raw["finalization_state"] = "finalizing"
+    raw["finalization_step"] = int(step)
+    raw["previous_authority_record"] = None
+    if recovery_payload is not None:
+        raw["finalization_payload"] = json.loads(json.dumps(recovery_payload, sort_keys=True))
+    canonical = _transaction_authority_path(manifest)
+    target = canonical.with_name(f"{canonical.stem}.v{uuid.uuid4().hex}.json")
+    tmp = target.with_suffix(".tmp")
+    data = (json.dumps(raw, indent=2, sort_keys=True) + "\n").encode("utf-8")
+    _write_file(tmp, data)
+    tmp_record = _inventory_entry(manifest.parent, tmp)
+    if tmp_record is None:
+        raise PatcherError("VV3 individual Full Mastery finalization successor temporary disappeared.")
+    try:
+        _publish_exclusive(tmp, target, manifest.parent)
+    except Exception:
+        if os.path.lexists(tmp):
+            try:
+                _remove_owned(tmp, expected=tmp_record)
+            except Exception:
+                pass
+        raise
+    successor_record = _inventory_entry(manifest.parent, target)
+    if successor_record is None or successor_record.get("sha256") != _sha(data) or successor_record.get("size") != len(data):
+        raise PatcherError("VV3 individual Full Mastery finalization successor postverify failed.")
+    if _inventory_entry(manifest.parent, target) != successor_record:
+        raise PatcherError("VV3 individual Full Mastery finalization successor changed before retirement.")
+    return target, successor_record
+
+
+def _refresh_transaction_authority_issuance(manifest: Path) -> tuple[Path, dict[str, object]]:
+    """Replace a VV5 transaction-start authority with its full bound record."""
+    _require_windows_identity_atomic()
+    current = _discover_transaction_authority(manifest)
+    current_record = _inventory_entry(manifest.parent, current)
+    if current_record is None:
+        raise PatcherError("Current recovery transaction authority disappeared before issuance refresh.")
+    binding = _read_issuance_binding(manifest)
+    if not isinstance(binding, dict) or binding.get("pending"):
+        raise PatcherError("Current VV5 issuance is not fully bound for authority refresh.")
+    raw = json.loads(_read_regular(current).decode("utf-8"))
+    if not isinstance(raw, dict) or raw.get("kind") != "vv3_recovery_transaction_authority":
+        raise PatcherError("Current recovery transaction authority is malformed before issuance refresh.")
+    raw["external_issuance"] = binding
+    target = current.with_name(f"{current.stem}.v{uuid.uuid4().hex}.json")
+    tmp = target.with_suffix(".tmp")
+    data = (json.dumps(raw, indent=2, sort_keys=True) + "\n").encode("utf-8")
+    _write_file(tmp, data)
+    tmp_record = _inventory_entry(manifest.parent, tmp)
+    _publish_exclusive(tmp, target, manifest.parent)
+    new_record = _inventory_entry(manifest.parent, target)
+    if new_record is None or new_record.get("sha256") != _sha(data) or _inventory_entry(manifest.parent, target) != new_record:
+        raise PatcherError("Current recovery transaction authority issuance refresh postverify failed.")
+    _delete_file_by_handle(current, current_record)
+    if os.path.lexists(current):
+        raise PatcherError("Current recovery transaction authority predecessor retirement failed after issuance refresh.")
+    return target, new_record
 
 
 def _transaction_journal(
@@ -1063,7 +1353,16 @@ def _write_chain_manifest(
     # durable ownership source for interrupted transitions and replay.
     if payload.get("feature_owner") not in {"vv3_individual_full_mastery", "vv5_individual_grant_running_candidate"}:
         raise PatcherError("Current recovery chain has no strict feature owner or issuance authority.")
-    authority_payload = {**manifest_payload, "feature_owner": payload.get("feature_owner"), "mode": payload.get("mode")}
+    authority_payload = {
+        **manifest_payload,
+        "feature_owner": payload.get("feature_owner"),
+        "mode": payload.get("mode"),
+        "operation": payload.get("operation"),
+        "destination_parent_absolute": payload.get("destination_parent_absolute"),
+        "report_parent_identity": payload.get("report_parent_identity"),
+        "initial_precondition": payload.get("initial_precondition"),
+        "replay_guard": payload.get("replay_guard"),
+    }
     _write_transaction_authority(manifest, authority_payload, record)
     return manifest, record
 
@@ -1113,7 +1412,13 @@ def _read_chain_manifest(report: Path) -> tuple[Path, dict[str, object], dict[st
     emergency_manifest = isinstance(effective, dict) and effective.get("kind") == "emergency_recovery_marker"
     if emergency_manifest:
         marker_payload = effective
-        if not re.fullmatch(re.escape(raw["recovery_prefix"]) + r"-emergency-[0-9a-f]{32}\.json", report.name) or marker_payload.get("report_name", report.name) != report.name or marker_payload.get("canonical_report_target") != f"{raw['recovery_prefix']}-recovery-*.json":
+        embedded_report_name = marker_payload.get("recovery_payload", {}).get("report_name") if isinstance(marker_payload.get("recovery_payload"), dict) else None
+        if (
+            not re.fullmatch(re.escape(raw["recovery_prefix"]) + r"-emergency-[0-9a-f]{32}\.json", report.name)
+            or not isinstance(embedded_report_name, str)
+            or not re.fullmatch(re.escape(raw["recovery_prefix"]) + r"-recovery-[0-9a-f]{32}\.json", embedded_report_name)
+            or marker_payload.get("canonical_report_target") != f"{raw['recovery_prefix']}-recovery-*.json"
+        ):
             raise PatcherError("VV3 individual Full Mastery emergency marker filename role is invalid.")
         effective = marker_payload.get("recovery_payload") if isinstance(marker_payload.get("recovery_payload"), dict) else {}
     if not isinstance(effective, dict):
@@ -2609,6 +2914,10 @@ def _transaction(operation: str, destinations: list[Path], pre: dict[Path, tuple
                 "members": member_records,
                 "ownership_inventory": inventory,
                 "failure_diagnostic": str(exc),
+                # Allocate the canonical report identity at transaction
+                # start so an emergency marker can carry it even when the
+                # canonical writer itself fails before publication.
+                "report_name": f"{recovery_prefix}-recovery-{uuid.uuid4().hex}.json",
                 **recovery_metadata,
                 "_report_prefix": recovery_prefix,
                 "_recovery_root_name": recovery_root.name,
@@ -2697,6 +3006,30 @@ def _recover_from_emergency_marker(marker: Path, *, recovery_prefix: str, requir
         "_expected_ownership_inventory": marker_payload.get("expected_ownership_inventory") or marker_payload.get("ownership_inventory"),
     })
     _validate_emergency_root(marker.parent, details)
+    # A failed canonical publication may have left its already-verified chain
+    # manifest behind while the marker became the active authority.  Retire
+    # only those exact, validated orphan manifests before reconstructing the
+    # canonical report; otherwise the exclusive canonical manifest target
+    # would collide.  The marker's own manifest remains the durable fallback
+    # if reconstruction fails.
+    remaining_orphans: list[tuple[Path, dict[str, object]]] = []
+    for orphan, orphan_record in orphan_records:
+        # An orphan manifest may already have been retired by an interrupted
+        # reconstruction attempt.  Its absence is the recorded, safe state;
+        # any present member still requires the captured identity check.
+        if os.path.lexists(orphan):
+            try:
+                _remove_owned(orphan, expected=orphan_record)
+            except PatcherError:
+                # If the exact member disappeared during this retirement
+                # boundary, re-observe it.  Absence is already the recorded
+                # post-retirement state; any surviving/substituted member
+                # remains a hard failure.
+                if os.path.lexists(orphan):
+                    raise
+        else:
+            continue
+    orphan_records = remaining_orphans
     report = _write_recovery(marker.parent, details)
     # The reconstructed canonical report receives a fresh UUID name.  Bind
     # the strict metadata check to that actual name rather than the marker's
@@ -2807,6 +3140,24 @@ def recover_atomic(report_or_root: Path, *, recovery_prefix: str = ".vv3im", req
     final_authority_record = _inventory_entry(report.parent, final_authority_path)
     if final_authority_record is None:
         raise PatcherError("VV3 individual Full Mastery finalization authority is missing.")
+    def advance_finalization(step: int) -> None:
+        nonlocal final_authority_path, final_authority_record
+        previous_path = final_authority_path
+        previous_record = final_authority_record
+        successor_path, successor_record = _publish_finalization_successor(
+            chain_manifest,
+            previous_path,
+            previous_record,
+            step=step,
+            recovery_payload=payload,
+        )
+        # Retire only the exact captured predecessor after the detached
+        # successor is durable and identity-verified.  A failure leaves both
+        # records for deterministic replay rather than losing authority.
+        _delete_file_by_handle(previous_path, previous_record)
+        if os.path.lexists(previous_path):
+            raise PatcherError("VV3 individual Full Mastery predecessor authority retirement did not verify.")
+        final_authority_path, final_authority_record = successor_path, successor_record
     _safe_ancestor_chain(report.parent)
     report_st_before = os.lstat(report)
     _reject_entry(report, report_st_before, directory=False)
@@ -2915,6 +3266,10 @@ def recover_atomic(report_or_root: Path, *, recovery_prefix: str = ".vv3im", req
             raise PatcherError("VV3 individual Full Mastery recovery destination changed before mutation.")
         if member["pre_exists"] and (backup is None or _inventory_entry(root, backup) != member.get("backup_inventory")):
             raise PatcherError("VV3 individual Full Mastery recovery backup changed before mutation.")
+    # Establish an independently replayable finalization authority only after
+    # every report/root/member precondition has passed, and before any bound
+    # evidence is retired.
+    advance_finalization(0)
     # Stage every restore before replacing either member; backups remain intact.
     replay_payload = payload
     preserved_backup_paths: list[Path] = []
@@ -3007,6 +3362,7 @@ def recover_atomic(report_or_root: Path, *, recovery_prefix: str = ".vv3im", req
             _remove_owned(pointer_canonical, expected=pointer_canonical_record)
             _remove_owned(pointer_path, expected=pointer_record)
         _fsync_dir(root)
+        advance_finalization(1)
         for member in members:
             backup = root / str(member["backup_relative"]) if member.get("backup_relative") else None
             if backup is not None and os.path.lexists(backup):
@@ -3039,6 +3395,7 @@ def recover_atomic(report_or_root: Path, *, recovery_prefix: str = ".vv3im", req
         if chain_manifest.name.startswith(".chain-"):
             closed_manifest_names.add(chain_manifest.name)
         _remove_owned(chain_manifest, expected=chain_manifest_record)
+        advance_finalization(2)
         chain_journal = _transaction_authority_path(chain_manifest)
         if os.path.lexists(chain_journal) and chain_journal != final_authority_path:
             _delete_file_by_handle(chain_journal, _inventory_entry(root, chain_journal))
@@ -3068,6 +3425,7 @@ def recover_atomic(report_or_root: Path, *, recovery_prefix: str = ".vv3im", req
                 raise PatcherError("VV3 individual Full Mastery foreign transaction authority remains during cleanup.")
             _delete_file_by_handle(journal, journal_record)
         _fsync_dir(root)
+        advance_finalization(3)
         # The final authority remains while every predecessor/member cleanup
         # is complete.  Two full hidden-namespace captures plus an immediate
         # identity recapture close the last mutation interval before its

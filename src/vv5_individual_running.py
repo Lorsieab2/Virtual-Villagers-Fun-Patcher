@@ -23,6 +23,8 @@ from vv3_individual_full_mastery import (
     _quarantine_delete as _strict_quarantine_delete,
     _inventory_entry as _strict_inventory_entry,
     _publish_exclusive as _strict_publish_exclusive,
+    _refresh_transaction_authority_issuance as _refresh_strict_authority_issuance,
+    _chain_manifest_path,
 )
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -1943,6 +1945,7 @@ def _publish(operation: str, destinations: list[Path], pre: dict[Path, tuple[boo
                 bound_identity = _bind_issuance(issuance_path, issuance_token, reports[0][0], reports[0][1], issuance_identity)
                 if bound_identity is None:
                     raise PatcherError("VV5 Running issuance binding identity is missing.")
+                _refresh_strict_authority_issuance(_chain_manifest_path(reports[0][0]))
             except Exception as bind_exc:
                 raise PatcherError("VV5 Running recovery issuance binding failed; report and issuance retained.") from bind_exc
         elif len(reports) > 1:
@@ -2155,7 +2158,10 @@ def recover_atomic(report_path: Path, mode: str = VV5_MODE) -> None:
     root_entry = next((item for item in raw.get("ownership_inventory", []) if item.get("type") == "directory" and "/" not in str(item.get("path", ""))), None)
     expected_root_identity = {"st_dev": int(root_entry["st_dev"]), "st_ino": int(root_entry["st_ino"])} if isinstance(root_entry, dict) else None
     root_identity_matches = isinstance(root_identity, dict) and isinstance(expected_root_identity, dict) and root_identity.get("st_dev") == expected_root_identity["st_dev"] and root_identity.get("st_ino") == expected_root_identity["st_ino"]
-    if raw.get("report_name") != report.name or raw.get("recovery_root_name") != (Path(str(root_entry["path"])).name if isinstance(root_entry, dict) else None) or not root_identity_matches:
+    if ((not is_emergency and raw.get("report_name") != report.name)
+        or (is_emergency and (not isinstance(raw.get("report_name"), str) or not re.fullmatch(r"\.vv5run-recovery-[0-9a-f]{32}\.json", str(raw.get("report_name")))))
+        or raw.get("recovery_root_name") != (Path(str(root_entry["path"])).name if isinstance(root_entry, dict) else None)
+        or not root_identity_matches):
         raise PatcherError("VV5 Running recovery report location identity mismatch.")
     parent_st = os.lstat(report.parent)
     if not isinstance(root_identity, dict) or not isinstance(report_parent_identity, dict) or report_parent_identity != {"st_dev": int(parent_st.st_dev), "st_ino": int(parent_st.st_ino)}:
