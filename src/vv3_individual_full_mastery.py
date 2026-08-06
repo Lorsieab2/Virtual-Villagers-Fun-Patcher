@@ -39,6 +39,11 @@ COMPANION_DLL_SHA256 = "9F866CB6F92C745CD2AA7009AEC4EB70FA5521EFF0C8F7BABE2058BB
 COMPANION_PARENT_DLL_SHA256 = "35FB96199E745C7D8054FF6A12851B9E09225E3E41D0CE04012604E74968C0D5"
 
 
+def _require_windows_identity_atomic() -> None:
+    if os.name != "nt" or struct.calcsize("P") != 8:
+        raise PatcherError("VV3 individual Full Mastery identity-atomic mutation is certified only on 64-bit Windows.")
+
+
 def _sha(data: bytes) -> str:
     return hashlib.sha256(data).hexdigest().upper()
 
@@ -250,6 +255,7 @@ def _fsync_dir(path: Path) -> None:
 
 
 def _write_file(path: Path, data: bytes) -> None:
+    _require_windows_identity_atomic()
     _safe_ancestor_chain(path.parent)
     with open(path, "xb") as handle:
         handle.write(data)
@@ -281,6 +287,7 @@ def _validate_emergency_root(parent: Path, details: dict[str, object], *, invent
 
 def _write_emergency_marker(parent: Path, details: dict[str, object], error: BaseException) -> Path:
     """Retain identity-bound evidence when canonical report publication fails."""
+    _require_windows_identity_atomic()
     prefix = str(details.get("_report_prefix", ".vv3im"))
     marker = parent / f"{prefix}-emergency-{uuid.uuid4().hex}.json"
     root, root_record, inventory = _validate_emergency_root(parent, details)
@@ -324,7 +331,7 @@ def _write_emergency_marker(parent: Path, details: dict[str, object], error: Bas
         manifest_payload["members"] = recovery_payload.get("members", [])
         manifest_payload["member_roles"] = recovery_payload.get("member_roles") or {}
         manifest_payload["destination_paths_absolute"] = recovery_payload.get("destination_paths_absolute")
-        _write_chain_manifest(marker, manifest_payload, marker_name=marker.name)
+        _write_chain_manifest(marker, manifest_payload, marker_name=marker.name, commit_state="emergency_marker")
         _fsync_dir(parent)
         return marker
     except Exception:
@@ -337,6 +344,7 @@ def _write_emergency_marker(parent: Path, details: dict[str, object], error: Bas
 
 
 def _write_recovery_impl(parent: Path, details: dict[str, object]) -> Path:
+    _require_windows_identity_atomic()
     report_prefix = str(details.get("_report_prefix", ".vv3im"))
     payload_details = {key: value for key, value in details.items() if not key.startswith("_")}
     report = parent / f"{report_prefix}-recovery-{uuid.uuid4().hex}.json"
@@ -460,6 +468,7 @@ def _inventory_entry(root: Path, path: Path) -> dict[str, object]:
 
 def _publish_exclusive(tmp: Path, final: Path, root: Path) -> None:
     """Publish a new report without replacing a raced final target."""
+    _require_windows_identity_atomic()
     tmp_before = _inventory_entry(root, tmp)
     if os.path.lexists(final):
         raise PatcherError(f"VV3 individual Full Mastery exclusive report target raced: {final}")
@@ -498,8 +507,10 @@ def _write_chain_manifest(
     pointer_name: str | None = None,
     successor_name: str | None = None,
     marker_name: str | None = None,
+    commit_state: str = "canonical_published",
 ) -> tuple[Path, dict[str, object]]:
     """Publish one durable ownership record for the complete report chain."""
+    _require_windows_identity_atomic()
     manifest = _chain_manifest_path(report)
     if os.path.lexists(manifest):
         raise PatcherError(f"VV3 individual Full Mastery chain manifest target raced: {manifest}")
@@ -525,6 +536,7 @@ def _write_chain_manifest(
     manifest_payload = {
         "schema_version": 2,
         "kind": "vv3_recovery_chain_manifest",
+        "commit_state": commit_state,
         "recovery_prefix": str(payload.get("recovery_prefix") or report.name.split("-recovery-", 1)[0].split("-emergency-", 1)[0]),
         "report_name": report.name,
         "report_record": report_record,
@@ -554,8 +566,8 @@ def _read_chain_manifest(report: Path) -> tuple[Path, dict[str, object], dict[st
     manifest = _chain_manifest_path(report)
     record = _inventory_entry(report.parent, manifest)
     raw = json.loads(_read_regular(manifest).decode("utf-8"))
-    required = {"schema_version", "kind", "recovery_prefix", "report_name", "report_record", "canonical_name", "canonical_record", "pointer_name", "pointer_record", "successor_name", "successor_record", "marker_name", "marker_record", "recovery_root_name", "recovery_root_record", "ownership_inventory", "members", "member_roles", "destination_paths_absolute"}
-    if not isinstance(raw, dict) or set(raw) != required or raw.get("schema_version") != 2 or raw.get("kind") != "vv3_recovery_chain_manifest" or raw.get("report_name") != report.name:
+    required = {"schema_version", "kind", "commit_state", "recovery_prefix", "report_name", "report_record", "canonical_name", "canonical_record", "pointer_name", "pointer_record", "successor_name", "successor_record", "marker_name", "marker_record", "recovery_root_name", "recovery_root_record", "ownership_inventory", "members", "member_roles", "destination_paths_absolute"}
+    if not isinstance(raw, dict) or set(raw) != required or raw.get("schema_version") != 2 or raw.get("kind") != "vv3_recovery_chain_manifest" or raw.get("commit_state") not in {"canonical_published", "successor_pointer_manifest", "emergency_marker"} or raw.get("report_name") != report.name:
         raise PatcherError("VV3 individual Full Mastery recovery chain manifest is malformed.")
     expected_prefix = report.name.split("-recovery-", 1)[0].split("-emergency-", 1)[0]
     if raw.get("recovery_prefix") != expected_prefix:
@@ -607,6 +619,8 @@ def _read_chain_manifest(report: Path) -> tuple[Path, dict[str, object], dict[st
         effective_destinations = effective_destinations or [str(member.get("destination_relative")) for member in effective_members if isinstance(member, dict) and isinstance(member.get("destination_relative"), str)]
     if raw.get("members") != effective_members or raw.get("ownership_inventory") != effective.get("ownership_inventory") or raw.get("destination_paths_absolute") != (effective_destinations or []) or raw.get("member_roles") != (effective_roles or {}):
         raise PatcherError("VV3 individual Full Mastery recovery chain does not bind the active report.")
+    if not isinstance(effective_roles, dict) or any(not isinstance(value, str) or value not in {"recovery_member", "game_executable", "companion_dll"} for value in effective_roles.values()):
+        raise PatcherError("VV3 individual Full Mastery recovery member roles are invalid.")
     if emergency_manifest and (not isinstance(effective.get("member_roles"), dict) or not isinstance(effective.get("destination_paths_absolute"), list) or len({str(item).casefold() for item in effective.get("destination_paths_absolute", [])}) != len(effective.get("destination_paths_absolute", []))):
         raise PatcherError("VV3 individual Full Mastery recovery chain member roles/destinations are ambiguous.")
     canonical_name = raw.get("canonical_name")
@@ -620,6 +634,10 @@ def _read_chain_manifest(report: Path) -> tuple[Path, dict[str, object], dict[st
     marker_name = raw.get("marker_name")
     if marker_name is not None and (marker_name != report.name or not report.name.startswith(raw["recovery_prefix"] + "-emergency-")):
         raise PatcherError("VV3 individual Full Mastery recovery chain marker relationship is invalid.")
+    if successor_name == report.name and (pointer_name is None or raw.get("commit_state") != "successor_pointer_manifest"):
+        raise PatcherError("VV3 individual Full Mastery successor chain commit state is incomplete.")
+    if marker_name == report.name and raw.get("commit_state") != "emergency_marker":
+        raise PatcherError("VV3 individual Full Mastery emergency chain commit state is invalid.")
     # Re-read the manifest, every bound sibling, and the root immediately
     # before returning them to replay.  This closes the use-after-discovery
     # interval for same-content replacements and foreign chain members.
@@ -637,6 +655,7 @@ def _read_chain_manifest(report: Path) -> tuple[Path, dict[str, object], dict[st
 
 def _move_noreplace(source: Path, destination: Path) -> None:
     """Move a directory to a fresh tombstone without replacing a raced target."""
+    _require_windows_identity_atomic()
     if os.name != "nt":
         raise PatcherError("VV3 individual Full Mastery directory quarantine is certified only on 64-bit Windows.")
     if not os.path.lexists(source):
@@ -793,6 +812,7 @@ def _verify_inventory(root: Path, expected: list[dict[str, object]], *, exclude:
 
 
 def _write_recovery_at(report: Path, payload: dict[str, object], root: Path) -> None:
+    _require_windows_identity_atomic()
     refreshed = dict(payload)
     refreshed["report_relative"] = report.name
     if "report_name" in refreshed:
@@ -955,8 +975,8 @@ def _validate_chain_manifest_binding(manifest: Path, parent: Path, *, recovery_p
     if not (re.fullmatch(canonical_re, target) or re.fullmatch(successor_re, target) or re.fullmatch(emergency_re, target)):
         raise PatcherError("VV3 individual Full Mastery chain manifest prefix or report role is invalid.")
     raw = json.loads(_read_regular(manifest).decode("utf-8"))
-    required = {"schema_version", "kind", "recovery_prefix", "report_name", "report_record", "canonical_name", "canonical_record", "pointer_name", "pointer_record", "successor_name", "successor_record", "marker_name", "marker_record", "recovery_root_name", "recovery_root_record", "ownership_inventory", "members", "member_roles", "destination_paths_absolute"}
-    if not isinstance(raw, dict) or set(raw) != required or raw.get("schema_version") != 2 or raw.get("kind") != "vv3_recovery_chain_manifest":
+    required = {"schema_version", "kind", "commit_state", "recovery_prefix", "report_name", "report_record", "canonical_name", "canonical_record", "pointer_name", "pointer_record", "successor_name", "successor_record", "marker_name", "marker_record", "recovery_root_name", "recovery_root_record", "ownership_inventory", "members", "member_roles", "destination_paths_absolute"}
+    if not isinstance(raw, dict) or set(raw) != required or raw.get("schema_version") != 2 or raw.get("kind") != "vv3_recovery_chain_manifest" or raw.get("commit_state") not in {"canonical_published", "successor_pointer_manifest", "emergency_marker"}:
         raise PatcherError("VV3 individual Full Mastery chain manifest schema is unsupported.")
     if raw.get("recovery_prefix") != recovery_prefix or raw.get("report_name") != target:
         raise PatcherError("VV3 individual Full Mastery chain manifest report binding is invalid.")
@@ -991,8 +1011,12 @@ def _validate_chain_manifest_binding(manifest: Path, parent: Path, *, recovery_p
     if not isinstance(members, list) or not isinstance(roles, dict) or not isinstance(destinations, list):
         raise PatcherError("VV3 individual Full Mastery chain manifest ownership is incomplete.")
     member_paths = [str(item.get("destination_relative")) for item in members if isinstance(item, dict) and isinstance(item.get("destination_relative"), str)]
-    if len(member_paths) != len(members) or len({p.casefold() for p in member_paths}) != len(member_paths) or set(roles) != set(member_paths) or len({str(p).casefold() for p in destinations}) != len(destinations):
+    if len(member_paths) != len(members) or len({p.casefold() for p in member_paths}) != len(member_paths) or set(roles) != set(member_paths) or any(not isinstance(value, str) or value not in {"recovery_member", "game_executable", "companion_dll"} for value in roles.values()) or len({str(p).casefold() for p in destinations}) != len(destinations):
         raise PatcherError("VV3 individual Full Mastery chain manifest members/roles/destinations are ambiguous.")
+    if re.fullmatch(successor_re, target) and raw.get("commit_state") != "successor_pointer_manifest":
+        raise PatcherError("VV3 individual Full Mastery successor chain commit state is incomplete.")
+    if re.fullmatch(emergency_re, target) and raw.get("commit_state") != "emergency_marker":
+        raise PatcherError("VV3 individual Full Mastery emergency chain commit state is invalid.")
     ownership = raw.get("ownership_inventory")
     if not isinstance(ownership, list):
         raise PatcherError("VV3 individual Full Mastery chain manifest inventory is missing.")
@@ -1014,6 +1038,7 @@ def _validate_chain_manifest_binding(manifest: Path, parent: Path, *, recovery_p
 
 def _refresh_recovery_report(report: Path, payload: dict[str, object], root: Path, replay_root: Path) -> None:
     """Persist the actual retained recovery inventory after a failed replay."""
+    _require_windows_identity_atomic()
     active_report = report
     canonical_report = report
     # A replay through a version pointer operates on the active successor,
@@ -1156,6 +1181,7 @@ def _refresh_recovery_report(report: Path, payload: dict[str, object], root: Pat
             canonical_name=report.name,
             pointer_name=pointer.name,
             successor_name=successor.name,
+            commit_state="successor_pointer_manifest",
         )
         _remove_owned(old_manifest, expected=old_manifest_record)
         if old_active_manifest is not None and os.path.lexists(old_active_manifest):
@@ -1273,6 +1299,7 @@ def _validate_recovery_payload(payload: dict[str, object], root: Path, *, allowe
 
 
 def _remove_owned(path: Path, *, expected: dict[str, object] | None = None, expected_tree: list[dict[str, object]] | None = None) -> None:
+    _require_windows_identity_atomic()
     if not os.path.lexists(path):
         if expected is not None or expected_tree is not None:
             raise PatcherError(f"VV3 individual Full Mastery cleanup target disappeared: {path}")
@@ -1334,6 +1361,7 @@ def _remove_owned(path: Path, *, expected: dict[str, object] | None = None, expe
 
 def _quarantine_delete(path: Path, expected: dict[str, object], *, directory: bool) -> None:
     """Quarantine an owned member before final deletion to bound races."""
+    _require_windows_identity_atomic()
     tombstone = path.with_name(f".{path.name}.vv3im-tombstone-{uuid.uuid4().hex}")
     if os.path.lexists(tombstone):
         raise PatcherError(f"VV3 individual Full Mastery tombstone collision: {tombstone}")
@@ -1365,6 +1393,13 @@ def _quarantine_delete(path: Path, expected: dict[str, object], *, directory: bo
         tombstone_boundary = _inventory_entry(path.parent, tombstone)
         if any(check.get(key) != before.get(key) for key in ("type", "size", "sha256", "st_dev", "st_ino")) or any(source_boundary.get(key) != before.get(key) for key in ("type", "size", "sha256", "st_dev", "st_ino")) or any(tombstone_boundary.get(key) != before.get(key) for key in ("type", "size", "sha256", "st_dev", "st_ino")):
             raise PatcherError(f"VV3 individual Full Mastery tombstone identity changed: {tombstone}")
+        preserved = path.with_name(f".{path.name}.vv3im-preserved-{uuid.uuid4().hex}.backup")
+        _copy_preserved(path, preserved, _read_regular(path))
+        preserved_record = _inventory_entry(path.parent, preserved)
+        if preserved_record.get("sha256") != before.get("sha256") or preserved_record.get("size") != before.get("size"):
+            raise PatcherError(f"VV3 individual Full Mastery preserved deletion backup mismatch: {preserved}")
+        if _inventory_entry(path.parent, path) != before or _inventory_entry(path.parent, tombstone) != moved:
+            raise PatcherError(f"VV3 individual Full Mastery tombstone/source changed before deletion: {path}")
         # The hard-link publication above is exclusive/no-replace.  Remove
         # the original only through the identity-bound handle operation.
         _delete_file_by_handle(path, before)
@@ -1372,6 +1407,8 @@ def _quarantine_delete(path: Path, expected: dict[str, object], *, directory: bo
         if any(tombstone_before.get(key) != before.get(key) for key in ("type", "size", "sha256", "st_dev", "st_ino")):
             raise PatcherError(f"VV3 individual Full Mastery tombstone identity changed: {tombstone}")
         _delete_file_by_handle(tombstone, tombstone_before)
+        if os.path.lexists(preserved):
+            _delete_file_by_handle(preserved, preserved_record)
     if os.path.lexists(tombstone):
         raise PatcherError(f"VV3 individual Full Mastery tombstone cleanup did not verify: {tombstone}")
 
@@ -1384,6 +1421,7 @@ def _copy_preserved(source: Path, target: Path, expected: bytes) -> None:
 
 def _replace_verified(stage: Path, destination: Path, expected_destination: tuple[bool, bytes | None], expected_stage: bytes) -> None:
     """Perform a replace only after immediate no-follow identity/hash checks."""
+    _require_windows_identity_atomic()
     if _state(destination) != expected_destination:
         raise PatcherError(f"VV3 individual Full Mastery destination race: {destination}")
     stage_before = os.lstat(stage)
@@ -1442,6 +1480,7 @@ def _validate_pair_parent(destinations: list[Path]) -> Path:
 
 
 def _transaction(operation: str, destinations: list[Path], pre: dict[Path, tuple[bool, bytes | None]], published: dict[Path, bytes], *, expected_preimage: dict[Path, bytes], parent: Path, recovery_prefix: str = ".vv3im", recovery_metadata: dict[str, object] | None = None) -> None:
+    _require_windows_identity_atomic()
     token = uuid.uuid4().hex
     recovery_root = parent / f"{recovery_prefix}-recovery-{token}"
     recovery_metadata = dict(recovery_metadata or {})
@@ -1668,6 +1707,7 @@ def _compatible_emergency_markers(markers: list[Path], payload: dict[str, object
 
 
 def recover_atomic(report_or_root: Path, *, recovery_prefix: str = ".vv3im", required_metadata: dict[str, object] | None = None, expected_report_sha256: str | None = None, _from_emergency: bool = False) -> None:
+    _require_windows_identity_atomic()
     """Replay schema-v2 evidence with relative no-follow ownership checks."""
     report = Path(report_or_root)
     # Validate the supplied path before calling is_dir/scandir.  A symlink,
@@ -1988,6 +2028,7 @@ recover_vv3_transaction = recover_atomic
 
 
 def install_atomic(source: Path, destination: Path, mode: str, *, companion_source: Path | None = None, companion_destination: Path | None = None) -> None:
+    _require_windows_identity_atomic()
     if companion_source is None or companion_destination is None:
         raise PatcherError("VV3 individual Full Mastery companion is mandatory.")
     destinations = [Path(destination), Path(companion_destination)]
@@ -2010,6 +2051,7 @@ def install_atomic(source: Path, destination: Path, mode: str, *, companion_sour
 
 
 def remove_atomic(destination: Path, mode: str, *, companion_destination: Path | None = None, companion_restore_source: Path | None = None) -> None:
+    _require_windows_identity_atomic()
     if companion_destination is None or companion_restore_source is None:
         raise PatcherError("VV3 individual Full Mastery companion removal arguments are mandatory.")
     candidate = _read_regular(destination)

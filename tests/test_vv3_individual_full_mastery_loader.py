@@ -805,6 +805,48 @@ class VV3IndividualFullMasteryLoaderTests(unittest.TestCase):
                 loader._move_noreplace(root / "missing", root / "tombstone")
             self.assertFalse((root / "tombstone").exists())
 
+    def test_c300_chain_commit_states_are_explicit_and_replayable(self):
+        with tempfile.TemporaryDirectory(prefix="vv3-c300-states-") as td:
+            root = Path(td)
+            report, _destination, _companion = self._make_unresolved_report(root)
+            manifest = loader._chain_manifest_path(report)
+            self.assertEqual(json.loads(manifest.read_text(encoding="utf-8"))["commit_state"], "canonical_published")
+            payload = json.loads(report.read_text(encoding="utf-8"))
+            recovery_root = root / next(item["path"] for item in payload["ownership_inventory"] if item["type"] == "directory")
+            loader._refresh_recovery_report(report, payload, root, recovery_root)
+            successor = next(root.glob(f"{report.stem}.v*.json"))
+            successor_manifest = loader._chain_manifest_path(successor)
+            self.assertEqual(json.loads(successor_manifest.read_text(encoding="utf-8"))["commit_state"], "successor_pointer_manifest")
+
+    def test_c300_vv3_mutation_fails_before_io_on_32bit_windows(self):
+        with mock.patch.object(loader.os, "name", "nt"), \
+             mock.patch.object(loader.struct, "calcsize", return_value=4), \
+             mock.patch.object(loader.os, "lstat", side_effect=AssertionError("filesystem touched")):
+            with self.assertRaises(vv_fun_patcher.PatcherError):
+                loader.install_atomic(Path("missing.exe"), Path("candidate.exe"), "collection_progression", companion_source=Path("missing.dll"), companion_destination=Path("companion.dll"))
+
+    def test_c300_tombstone_deletion_substitution_retains_verified_vv3_backup(self):
+        with tempfile.TemporaryDirectory(prefix="vv3-c300-preserved-") as td:
+            root = Path(td)
+            target = root / "owned.bin"
+            target.write_bytes(b"owned")
+            expected = loader._inventory_entry(root, target)
+            original_delete = loader._delete_file_by_handle
+
+            def substitute(path, identity):
+                if path == target:
+                    target.unlink()
+                    target.write_bytes(b"foreign")
+                return original_delete(path, identity)
+
+            with mock.patch.object(loader, "_delete_file_by_handle", side_effect=substitute):
+                with self.assertRaises(vv_fun_patcher.PatcherError):
+                    loader._quarantine_delete(target, expected, directory=False)
+            preserved = list(root.glob(".owned.bin.vv3im-preserved-*.backup"))
+            self.assertEqual(len(preserved), 1)
+            self.assertEqual(preserved[0].read_bytes(), b"owned")
+            self.assertEqual(target.read_bytes(), b"foreign")
+
 
 if __name__ == "__main__":
     unittest.main()
