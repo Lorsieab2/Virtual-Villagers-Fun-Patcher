@@ -950,30 +950,70 @@ def recover_cleanup_atomic(record_path: Path, mode: str = VV5_MODE) -> None:
             pending_for_item = pending if isinstance(pending, dict) and pending.get("name") == item.get("name") else None
             if pending_for_item is not None and pending_for_item.get("source_record") != item.get("source_record"):
                 raise PatcherError("VV5 Running pending quarantine source binding is inconsistent.")
-            if pending_for_item is not None and not os.path.lexists(source):
-                # The source may have been removed after quarantine but before
-                # its successor record was published.  Adopt only the exact
-                # pre-journaled tombstone/preserved identities, then publish
-                # the successor; never infer names from arbitrary residue.
-                tombstone = owner_parent / str(pending_for_item.get("tombstone_name"))
-                preserved = owner_parent / str(pending_for_item.get("preserved_name"))
-                tombstone_record = pending_for_item.get("tombstone_record") or _inventory(owner_parent, tombstone)
-                preserved_record = pending_for_item.get("preserved_record") or _inventory(owner_parent, preserved)
-                source_binding = pending_for_item.get("source_record") or {}
-                if (
-                    tombstone_record is None
-                    or preserved_record is None
-                    or any(tombstone_record.get(key) != source_binding.get(key) for key in ("type", "size", "sha256"))
-                    or any(preserved_record.get(key) != source_binding.get(key) for key in ("type", "size", "sha256"))
-                ):
-                    raise PatcherError("VV5 Running started cleanup pending quarantine evidence is missing or changed.")
-                item["tombstone_name"] = tombstone.name
-                item["tombstone_record"] = tombstone_record
-                item["preserved_name"] = preserved.name
-                item["preserved_record"] = preserved_record
-                raw["transaction_binding"].pop("pending", None)
-                next_path, _next_identity = _update_cleanup_record(record_path, record_identity, raw)
-                return recover_cleanup_atomic(next_path, mode=mode)
+            if pending_for_item is not None:
+                # A restart must adopt only targets whose exact records were
+                # durably journaled.  A physical target with no checkpoint is
+                # ambiguous (including same-content foreign material), so it
+                # remains untouched and recovery fails closed.
+                tombstone_name = pending_for_item.get("tombstone_name")
+                preserved_name = pending_for_item.get("preserved_name")
+                if not isinstance(tombstone_name, str) or not isinstance(preserved_name, str) or Path(tombstone_name).name != tombstone_name or Path(preserved_name).name != preserved_name:
+                    raise PatcherError("VV5 Running pending quarantine names are malformed.")
+                tombstone = owner_parent / tombstone_name
+                preserved = owner_parent / preserved_name
+                source_binding = pending_for_item.get("source_record")
+                if not isinstance(source_binding, dict):
+                    raise PatcherError("VV5 Running pending quarantine source identity is missing.")
+                substate = pending_for_item.get("substate", "intent")
+                if substate not in {"intent", "tombstone_verified", "preserved_verified", "source_removed_verified"}:
+                    raise PatcherError("VV5 Running pending quarantine substate is unsupported.")
+                tombstone_expected = pending_for_item.get("tombstone_record")
+                preserved_expected = pending_for_item.get("preserved_record")
+                tombstone_exists = os.path.lexists(tombstone)
+                preserved_exists = os.path.lexists(preserved)
+                if tombstone_exists and not isinstance(tombstone_expected, dict):
+                    raise PatcherError("VV5 Running pending tombstone exists without an immutable checkpoint.")
+                if preserved_exists and not isinstance(preserved_expected, dict):
+                    raise PatcherError("VV5 Running pending preserved copy exists without an immutable checkpoint.")
+                if isinstance(tombstone_expected, dict) and _inventory(owner_parent, tombstone) != tombstone_expected:
+                    raise PatcherError("VV5 Running pending tombstone identity changed.")
+                if isinstance(preserved_expected, dict) and _inventory(owner_parent, preserved) != preserved_expected:
+                    raise PatcherError("VV5 Running pending preserved identity changed.")
+                if substate in {"tombstone_verified", "preserved_verified", "source_removed_verified"} and (not tombstone_exists or not preserved_exists):
+                    raise PatcherError("VV5 Running pending checkpoint targets are missing.")
+                if substate == "source_removed_verified":
+                    if os.path.lexists(source):
+                        raise PatcherError("VV5 Running source reappeared after removal checkpoint.")
+                    item["tombstone_name"] = tombstone.name
+                    item["tombstone_record"] = tombstone_expected
+                    item["preserved_name"] = preserved.name
+                    item["preserved_record"] = preserved_expected
+                    raw["transaction_binding"].pop("pending", None)
+                    next_path, _next_identity = _update_cleanup_record(record_path, record_identity, raw)
+                    return recover_cleanup_atomic(next_path, mode=mode)
+                if substate in {"tombstone_verified", "preserved_verified"} and os.path.lexists(source):
+                    source_record = _inventory(registry.parent, source)
+                    if source_record != source_binding:
+                        raise PatcherError("VV5 Running pending source identity changed before adoption.")
+                    if substate == "tombstone_verified":
+                        # A verified tombstone is not enough to recreate the
+                        # preserved target; its absence is a hard stop.
+                        if not preserved_exists:
+                            raise PatcherError("VV5 Running preserved target is missing after tombstone checkpoint.")
+                        pending_for_item["substate"] = "preserved_verified"
+                        next_path, _next_identity = _update_cleanup_record(record_path, record_identity, raw)
+                        return recover_cleanup_atomic(next_path, mode=mode)
+                    _strict_delete_file_by_handle(source, source_binding)
+                    if os.path.lexists(source):
+                        raise PatcherError("VV5 Running pending source removal did not verify.")
+                    pending_for_item["substate"] = "source_removed_verified"
+                    pending_for_item["source_record"] = source_binding
+                    next_path, _next_identity = _update_cleanup_record(record_path, record_identity, raw)
+                    return recover_cleanup_atomic(next_path, mode=mode)
+                if substate in {"tombstone_verified", "preserved_verified"}:
+                    raise PatcherError("VV5 Running pending source state is inconsistent with checkpoint.")
+                if substate == "intent" and (tombstone_exists or preserved_exists):
+                    raise PatcherError("VV5 Running uncheckpointed quarantine target cannot be adopted safely.")
             if not os.path.lexists(source):
                 raise PatcherError("VV5 Running started cleanup issuance member is missing.")
             source_record = _inventory(registry.parent, source)
@@ -1683,6 +1723,7 @@ def _publish(operation: str, destinations: list[Path], pre: dict[Path, tuple[boo
                 "issuance_registry_relative": ISSUANCE_REGISTRY_NAME,
                 "issuance_registry_identity": registry_identity,
                 "issuance_identity": {"record": issuance_identity, "authority_token": authority_token, "authority_record": authority["record"]},
+                "vv5_schema": "vv5_running_recovery_v2",
                 "destination_parent_absolute": _canonical(parent),
                 "destination_paths_absolute": [_canonical(p) for p in destinations],
             },
@@ -1986,6 +2027,7 @@ def recover_atomic(report_path: Path, mode: str = VV5_MODE) -> None:
         "issuance_registry_relative": raw.get("issuance_registry_relative"),
         "issuance_registry_identity": raw.get("issuance_registry_identity"),
         "issuance_identity": issuance_meta,
+        "vv5_schema": "vv5_running_recovery_v2",
         "destination_parent_absolute": raw.get("destination_parent_absolute"),
         "destination_paths_absolute": raw.get("destination_paths_absolute"),
     }

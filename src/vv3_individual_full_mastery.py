@@ -355,7 +355,11 @@ def _write_recovery_impl(parent: Path, details: dict[str, object]) -> Path:
     # cannot smuggle arbitrary fields through the shared report writer.
     metadata_schemas = {
         "vv3_individual_full_mastery": {"feature_owner", "mode", "parent_sha256", "candidate_sha256", "destination_exe_basename", "companion_dll_basename", "member_roles", "recovery_root_name", "recovery_root_identity", "report_name", "report_parent_identity", "issuance_token", "issuance_name", "issuance_registry_relative", "issuance_registry_identity", "issuance_identity", "destination_parent_absolute", "destination_paths_absolute"},
-        "vv5_individual_grant_running_candidate": {"feature_owner", "mode", "parent_sha256", "candidate_sha256", "destination_exe_basename", "companion_dll_basename", "member_roles", "recovery_root_name", "recovery_root_identity", "report_name", "report_parent_identity", "issuance_token", "issuance_name", "issuance_registry_relative", "issuance_registry_identity", "issuance_identity", "destination_parent_absolute", "destination_paths_absolute"},
+        # VV5 uses the same transport envelope but has a distinct caller
+        # contract marker and does not inherit VV3's unqualified metadata
+        # acceptance.  The root/report/registry fields are emitted by this
+        # writer and therefore remain explicitly enumerated here.
+        "vv5_individual_grant_running_candidate": {"feature_owner", "mode", "parent_sha256", "candidate_sha256", "destination_exe_basename", "companion_dll_basename", "member_roles", "recovery_root_name", "recovery_root_identity", "report_name", "report_parent_identity", "issuance_token", "issuance_name", "issuance_registry_relative", "issuance_registry_identity", "issuance_identity", "destination_parent_absolute", "destination_paths_absolute", "vv5_schema"},
     }
     feature_owner = payload_details.get("feature_owner")
     metadata_keys = metadata_schemas.get(str(feature_owner), set())
@@ -1706,6 +1710,10 @@ def _validate_recovery_payload(payload: dict[str, object], root: Path, *, allowe
     optional = set(allowed_metadata or ())
     if not isinstance(payload, dict) or not required.issubset(payload) or set(payload) - required - optional or payload.get("schema_version") != 2:
         raise PatcherError("VV3 individual Full Mastery recovery schema is unsupported or ambiguous.")
+    if payload.get("feature_owner") == "vv5_individual_grant_running_candidate" and payload.get("vv5_schema") != "vv5_running_recovery_v2":
+        raise PatcherError("VV5 Running recovery caller schema is unsupported or ambiguous.")
+    if payload.get("feature_owner") != "vv5_individual_grant_running_candidate" and "vv5_schema" in payload:
+        raise PatcherError("VV5 Running metadata is not valid for this recovery caller.")
     if payload["operation"] not in {"install_new", "install_existing", "removal"} or payload["recovery_root"] != "." or payload["destination_parent"] != "." or not isinstance(payload["report_relative"], str) or Path(payload["report_relative"]).name != payload["report_relative"]:
         raise PatcherError("VV3 individual Full Mastery recovery operation/root contract is invalid.")
     initial = payload["initial_precondition"]
@@ -2654,7 +2662,7 @@ def recover_atomic(report_or_root: Path, *, recovery_prefix: str = ".vv3im", req
         "report_parent_identity", "issuance_token", "issuance_name",
         "issuance_registry_relative", "issuance_registry_identity",
         "issuance_identity", "destination_parent_absolute",
-        "destination_paths_absolute",
+        "destination_paths_absolute", "vv5_schema",
     }
     _validate_recovery_payload(payload, report.parent, allowed_metadata=recovery_metadata_keys.intersection(payload))
     if sibling_markers and not _from_emergency:
