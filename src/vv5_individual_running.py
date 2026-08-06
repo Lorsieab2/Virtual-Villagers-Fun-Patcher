@@ -587,31 +587,52 @@ def _cleanup_record_payload(
 def _write_cleanup_record(owner_parent: Path, payload: dict[str, object]) -> tuple[Path, dict[str, object]]:
     _require_windows_identity_atomic()
     record_path = _cleanup_record_path(owner_parent)
-    _write(record_path, (json.dumps(payload, indent=2, sort_keys=True) + "\n").encode("utf-8"))
+    data = (json.dumps(payload, indent=2, sort_keys=True) + "\n").encode("utf-8")
+    try:
+        _write(record_path, data)
+    except Exception as exc:
+        # A late flush exception can occur after a complete exclusive record
+        # is durable.  Accept only that exact complete record as replayable.
+        if os.path.lexists(record_path):
+            actual = _inventory(owner_parent, record_path)
+            if actual is not None and actual.get("sha256") == _sha(data) and actual.get("size") == len(data):
+                return record_path, actual
+        raise PatcherError("VV5 Running cleanup authority creation failed; evidence was not proven complete.") from exc
     record = _inventory(owner_parent, record_path)
     if record is None:
         raise PatcherError("VV5 Running cleanup authority could not be captured.")
     return record_path, record
 
 
-def _update_cleanup_record(record_path: Path, expected: dict[str, object], payload: dict[str, object]) -> dict[str, object]:
-    """Version an owned cleanup authority without accepting a raced target."""
+def _update_cleanup_record(record_path: Path, expected: dict[str, object], payload: dict[str, object]) -> tuple[Path, dict[str, object]]:
+    """Version an owned cleanup authority with exclusive no-replace publication."""
     _require_windows_identity_atomic()
     current = _inventory(record_path.parent, record_path)
     if current != expected:
         raise PatcherError("VV5 Running cleanup authority changed before update.")
-    tmp = record_path.with_name(record_path.name + ".tmp")
-    if os.path.lexists(tmp):
-        raise PatcherError("VV5 Running cleanup authority temporary target raced.")
-    _write(tmp, (json.dumps(payload, indent=2, sort_keys=True) + "\n").encode("utf-8"))
+    next_path = _cleanup_record_path(record_path.parent)
+    tmp = next_path.with_suffix(".tmp")
+    data = (json.dumps(payload, indent=2, sort_keys=True) + "\n").encode("utf-8")
+    try:
+        _write(tmp, data)
+    except Exception as exc:
+        if os.path.lexists(tmp):
+            partial = _inventory(record_path.parent, tmp)
+            if partial is None or partial.get("sha256") != _sha(data) or partial.get("size") != len(data):
+                raise PatcherError("VV5 Running cleanup authority update left incomplete evidence.") from exc
+        else:
+            raise
     if _inventory(record_path.parent, record_path) != expected:
         _cleanup(tmp, expected=_inventory(record_path.parent, tmp))
         raise PatcherError("VV5 Running cleanup authority raced during update.")
-    os.replace(tmp, record_path)
-    updated = _inventory(record_path.parent, record_path)
-    if updated is None or updated.get("sha256") != _sha((json.dumps(payload, indent=2, sort_keys=True) + "\n").encode("utf-8")):
+    _strict_publish_exclusive(tmp, next_path, record_path.parent)
+    updated = _inventory(record_path.parent, next_path)
+    if updated is None or updated.get("sha256") != _sha(data):
         raise PatcherError("VV5 Running cleanup authority update postverify failed.")
-    return updated
+    # Retire only the exact prior identity.  If this deletion fails, both
+    # records remain durable evidence and the caller fails closed.
+    _cleanup(record_path, expected=expected)
+    return next_path, updated
 
 
 def _validate_cleanup_record(record_path: Path) -> tuple[dict[str, object], dict[str, object]]:
@@ -630,7 +651,7 @@ def _validate_cleanup_record(record_path: Path) -> tuple[dict[str, object], dict
         raise PatcherError("VV5 Running cleanup authority contains duplicate members.")
     artifact_keys = {"name", "role", "source_record", "tombstone_name", "tombstone_record", "preserved_name", "preserved_record", "guard_name", "guard_record"}
     for item in raw["artifacts"]:
-        if not isinstance(item, dict) or set(item) != artifact_keys or not isinstance(item.get("name"), str) or item.get("role") not in {"authority", "issuance_member"}:
+        if not isinstance(item, dict) or set(item) != artifact_keys or not isinstance(item.get("name"), str) or Path(item["name"]).name != item["name"] or item.get("role") not in {"authority", "issuance_member"}:
             raise PatcherError("VV5 Running cleanup authority member schema is invalid.")
         for key in ("source_record", "tombstone_record", "preserved_record", "guard_record"):
             value = item.get(key)
@@ -642,6 +663,9 @@ def _validate_cleanup_record(record_path: Path) -> tuple[dict[str, object], dict
             if not isinstance(sha, str) or not re.fullmatch(r"[0-9A-Fa-f]{64}", sha):
                 raise PatcherError("VV5 Running cleanup authority SHA-256 is invalid.")
             value["sha256"] = sha.upper()
+        source_record = item.get("source_record")
+        if not isinstance(source_record, dict) or source_record.get("path") != f"{ISSUANCE_REGISTRY_NAME}/{item['name']}":
+            raise PatcherError("VV5 Running cleanup authority source path is not registry-bound.")
     return raw, record
 
 
@@ -652,11 +676,28 @@ def recover_cleanup_atomic(record_path: Path, mode: str = VV5_MODE) -> None:
     record_path = Path(record_path)
     raw, record_identity = _validate_cleanup_record(record_path)
     owner_parent = record_path.parent
+    cleanup_names = [
+        entry.name
+        for entry in os.scandir(owner_parent)
+        if re.fullmatch(r"\.vv5run-cleanup-[0-9a-f]{32}\.json", entry.name)
+    ]
+    if cleanup_names != [record_path.name]:
+        raise PatcherError("VV5 Running cleanup authority namespace is ambiguous.")
     registry = owner_parent / ISSUANCE_REGISTRY_NAME
     registry_identity = raw.get("registry_identity")
-    if not isinstance(registry_identity, dict) or not os.path.lexists(registry) or _identity(registry) != registry_identity:
+    registry_present = os.path.lexists(registry)
+    if not isinstance(registry_identity, dict) or (registry_present and _identity(registry) != registry_identity) or (not registry_present and not bool(raw.get("remove_registry"))):
         raise PatcherError("VV5 Running cleanup registry identity changed.")
     artifacts = raw["artifacts"]
+    allowed_hidden = {record_path.name}
+    for item in artifacts:
+        for key in ("name", "tombstone_name", "preserved_name", "guard_name"):
+            if isinstance(item, dict) and isinstance(item.get(key), str):
+                allowed_hidden.add(item[key])
+    for entry in os.scandir(owner_parent):
+        if entry.name.startswith(".vv5run-") or entry.name.startswith(".vv5-preserved-"):
+            if entry.name not in allowed_hidden and entry.name != ISSUANCE_REGISTRY_NAME:
+                raise PatcherError("VV5 Running cleanup namespace contains unknown residue.")
     for item in artifacts:
         if not isinstance(item, dict):
             raise PatcherError("VV5 Running cleanup authority member is malformed.")
@@ -667,24 +708,44 @@ def recover_cleanup_atomic(record_path: Path, mode: str = VV5_MODE) -> None:
         tombstone = owner_parent / item["tombstone_name"] if item.get("tombstone_name") else None
         preserved = owner_parent / item["preserved_name"] if item.get("preserved_name") else None
         guard = owner_parent / item["guard_name"] if item.get("guard_name") else None
+        if registry_present:
+            expected_members = _registry_members(registry)
+            expected_names = set(expected_members)
+            if item["name"] in expected_names:
+                if _inventory(registry, registry / item["name"]) != item.get("source_record"):
+                    raise PatcherError("VV5 Running cleanup registry member changed before deletion.")
         if tombstone is not None and os.path.lexists(tombstone):
             _cleanup(tombstone, expected=item.get("tombstone_record"))
-        if preserved is not None and os.path.lexists(preserved):
-            expected = item.get("preserved_record")
-            actual = _inventory(owner_parent, preserved)
-            if actual != expected:
-                raise PatcherError("VV5 Running cleanup preserved backup changed during replay.")
-            _cleanup(preserved, expected=expected)
+            if os.path.lexists(tombstone):
+                raise PatcherError("VV5 Running cleanup tombstone remained after deletion.")
         if guard is not None and os.path.lexists(guard):
             expected = item.get("guard_record")
             actual = _inventory(owner_parent, guard)
             if actual != expected:
                 raise PatcherError("VV5 Running cleanup guard changed during replay.")
             _cleanup(guard, expected=expected)
-    if bool(raw.get("remove_registry")):
+            if os.path.lexists(guard):
+                raise PatcherError("VV5 Running cleanup guard remained after deletion.")
+        if preserved is not None and os.path.lexists(preserved):
+            expected = item.get("preserved_record")
+            actual = _inventory(owner_parent, preserved)
+            if actual != expected:
+                raise PatcherError("VV5 Running cleanup preserved backup changed during replay.")
+            _cleanup(preserved, expected=expected)
+            if os.path.lexists(preserved):
+                raise PatcherError("VV5 Running cleanup preserved copy remained after deletion.")
+    if bool(raw.get("remove_registry")) and registry_present:
         _assert_registry_members(registry, registry_identity, {})
         _cleanup_registry(registry, registry_identity)
+        if os.path.lexists(registry):
+            raise PatcherError("VV5 Running cleanup registry remained after deletion.")
+    for entry in os.scandir(owner_parent):
+        if entry.name.startswith(".vv5run-") or entry.name.startswith(".vv5-preserved-"):
+            if entry.name != record_path.name:
+                raise PatcherError("VV5 Running cleanup namespace retained unknown residue.")
     _cleanup(record_path, expected=record_identity)
+    if os.path.lexists(record_path):
+        raise PatcherError("VV5 Running cleanup authority remained after deletion.")
 
 
 def _cleanup_issuance_artifacts(
@@ -722,7 +783,7 @@ def _cleanup_issuance_artifacts(
             item["preserved_name"] = quarantine[2].name
             item["preserved_record"] = _inventory(registry.parent, quarantine[2])
             cleanup_payload["state"] = "quarantining"
-            cleanup_record_identity = _update_cleanup_record(cleanup_record_path, cleanup_record_identity, cleanup_payload)
+            cleanup_record_path, cleanup_record_identity = _update_cleanup_record(cleanup_record_path, cleanup_record_identity, cleanup_payload)
             expected.pop(path.name, None)
             _assert_registry_members(registry, registry_identity, expected)
         for _tombstone, record, preserved in tombstones:
@@ -741,15 +802,25 @@ def _cleanup_issuance_artifacts(
             item["guard_name"] = guard.name
             item["guard_record"] = guard_record
         cleanup_payload["state"] = "cleaning"
-        cleanup_record_identity = _update_cleanup_record(cleanup_record_path, cleanup_record_identity, cleanup_payload)
+        cleanup_record_path, cleanup_record_identity = _update_cleanup_record(cleanup_record_path, cleanup_record_identity, cleanup_payload)
         for tombstone, record, preserved in tombstones:
+            _assert_registry_members(registry, registry_identity, expected)
             _cleanup(tombstone, expected=record)
+            _assert_registry_members(registry, registry_identity, expected)
             preserved_record = _inventory(preserved.parent, preserved)
             if preserved_record is None or preserved_record.get("sha256") != record.get("sha256") or preserved_record.get("size") != record.get("size"):
                 raise PatcherError("VV5 Running preserved backup changed before cleanup.")
             _cleanup(preserved, expected=preserved_record)
             guard, guard_record = guards[str(preserved)]
+            _assert_registry_members(registry, registry_identity, expected)
             _cleanup(guard, expected=guard_record)
+            if os.path.lexists(guard):
+                raise PatcherError("VV5 Running preserved-backup guard remained after cleanup.")
+        allowed_hidden = {cleanup_record_path.name, ISSUANCE_REGISTRY_NAME}
+        for entry in os.scandir(registry.parent):
+            if entry.name.startswith(".vv5run-") or entry.name.startswith(".vv5-preserved-"):
+                if entry.name not in allowed_hidden:
+                    raise PatcherError("VV5 Running cleanup namespace contains unknown residue.")
         # Keep the registry as durable authority until every tombstone and
         # preserved backup has been verified and retired.  A registry cleanup
         # failure therefore remains retryable and cannot discard the last

@@ -325,6 +325,55 @@ class VV5RunningPublicationTests(unittest.TestCase):
             self.assertFalse(cleanup_record.exists())
             self.assertFalse(registry.exists())
 
+    def test_c305_late_complete_cleanup_record_write_is_replayable(self) -> None:
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            registry = root / ISSUANCE_REGISTRY_NAME
+            registry.mkdir()
+            source = registry / "issuance.json"
+            source.write_bytes(b"owned")
+            payload = running._cleanup_record_payload(
+                root,
+                registry,
+                running._identity(registry),
+                [(source, running._inventory(root, source))],
+                remove_registry=True,
+            )
+            original_write = running._write
+
+            def late_write(path, data):
+                original_write(path, data)
+                if path.name.startswith(".vv5run-cleanup-"):
+                    raise OSError("late flush report")
+
+            with mock.patch.object(running, "_write", side_effect=late_write):
+                record_path, _record = running._write_cleanup_record(root, payload)
+            self.assertTrue(record_path.exists())
+            record_path.unlink()
+            source.unlink()
+            registry.rmdir()
+
+    def test_c305_registry_already_removed_finalization_replays_to_zero_residue(self) -> None:
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            registry = root / ISSUANCE_REGISTRY_NAME
+            registry.mkdir()
+            source = registry / "issuance.json"
+            source.write_bytes(b"owned")
+            payload = running._cleanup_record_payload(
+                root,
+                registry,
+                running._identity(registry),
+                [(source, running._inventory(root, source))],
+                remove_registry=True,
+            )
+            record_path, _record = running._write_cleanup_record(root, payload)
+            source.unlink()
+            registry.rmdir()
+            recover_cleanup_atomic(record_path)
+            self.assertFalse(record_path.exists())
+            self.assertFalse(registry.exists())
+
     def test_c299_32bit_windows_capability_fails_before_io(self) -> None:
         with mock.patch.object(running.os, "name", "nt"), \
              mock.patch.object(running.struct, "calcsize", return_value=4), \
