@@ -30,8 +30,12 @@ ACTIVE_BASE_SIZE = 34672
 PROVENANCE_ASSET = ROOT / "assets" / "candidates" / "vv5_full_mastery" / "provenance" / "btn_trophies.png"
 PROVENANCE_ASSET_SHA256 = "F39E94CBDF24776631D803D1218EFCCDE555081C9C8C644DD073B75EC7DD2095"
 
-sys.path.insert(0, str(ROOT / ".tools" / "keystone"))
+# The repository contains an older namespace-only Keystone wheel alongside the
+# pinned runtime wheel.  Put the runtime first so the bundled native binding is
+# the one imported under the approved test protocol (the legacy directory is
+# retained only as a fallback for older developer environments).
 sys.path.insert(0, str(ROOT / ".tools" / "keystone-runtime"))
+sys.path.insert(1, str(ROOT / ".tools" / "keystone"))
 from keystone import KS_ARCH_X86, KS_MODE_32, Ks  # noqa: E402
 from runtime_freeze import isolated_runtime_freeze  # noqa: E402
 
@@ -76,8 +80,8 @@ CONFIRM_OFFSET = 0x800
 VILLAGE_CONFIRM_OFFSET = 0x850
 INDIVIDUAL_OFFSET = 0xC00
 STRINGS_OFFSET = 0x1200
-RUNNING_OFFSET = 0x1800
-RUNNING_CONFIRM_OFFSET = 0x1700
+RUNNING_OFFSET = 0x1100
+RUNNING_CONFIRM_OFFSET = 0x0E00
 RUNNING_STRINGS_OFFSET = 0x1C00
 # Individual Grant Running is an isolated extension layered over the
 # already-composed Full Mastery parent.  Keep it out of the certified
@@ -92,6 +96,23 @@ RUNNING_PARENT_HOOK_OFFSET = 0xDB766
 PRICE = 1_000_000
 INDIVIDUAL_PRICE = 100_000
 STRIDE = 0x2F44
+
+RUNNING_STRING_VALUES = (
+    ("running_confirm", b"Grant Running to this villager for 40,000 tech points?\r\nPress OK to confirm, or Cancel.\0"),
+    ("running_success", b"Running was granted.\0"),
+    ("running_already", b"This villager already likes Running.\r\nNo tech points have been deducted.\0"),
+    ("running_no_slot", b"This villager has no empty Like slot.\r\nNo tech points have been deducted.\0"),
+    ("running_cancel", b"Grant Running was canceled.\r\nNo tech points have been deducted.\0"),
+    ("running_recheck", b"The selected villager changed during confirmation.\r\nNo tech points have been deducted.\0"),
+    ("running_write_failed", b"Running could not be verified; a native change may remain.\r\nNo tech points have been deducted.\0"),
+    ("running_invalid", b"No valid living villager is selected.\r\nNo tech points have been deducted.\0"),
+    ("running_insufficient", b"Not enough tech points.\r\nNo tech points have been deducted.\0"),
+)
+
+
+def running_strings_blob() -> bytes:
+    """Return the one canonical NUL-terminated VV5 Running string blob."""
+    return b"".join(value for _, value in RUNNING_STRING_VALUES)
 
 LAYOUTS = {
     "collection_progression": {
@@ -721,13 +742,7 @@ def build_confirmation(
 
 
 def build_running_helper(page_va: int, strings: dict[str, int]) -> bytes:
-    """Emit the disabled-candidate command-2 selected-villager transaction.
-
-    The helper deliberately owns only the three physical Likes DWORDs.  It
-    performs the complete dry-run/reacquire/funds sequence before the single
-    aligned Running write and native 40,000-point deduction; Dislikes and
-    movement/speed fields are never referenced.
-    """
+    """Emit the revised Like/Dislike-safe command-2 transaction."""
     va = page_va + RUNNING_OFFSET
     return asm(f"""
         push ebp
@@ -735,11 +750,25 @@ def build_running_helper(page_va: int, strings: dict[str, int]) -> bytes:
         push ebx
         push esi
         push edi
-        # Locals are deliberately disjoint from saved registers (-4..-0xC):
-        # saved ESI -0x10, selected index -0x14, first empty -0x18, record
-        # identity -0x1C, and three independent Like snapshots -0x28/-0x24/-0x20.
-        sub esp, 0x30
+        # Locals: saved ESI -10, index -14, record -18, first empty -1C,
+        # Like snapshots -28/-24/-20, Dislike snapshots -34/-30/-2C,
+        # has_like -38, has_dislike -3C, MessageBox/result preflight -40.
+        sub esp, 0x40
         mov dword ptr [ebp-0x10], esi
+        mov dword ptr [ebp-0x1C], -1
+        mov dword ptr [ebp-0x38], 0
+        mov dword ptr [ebp-0x3C], 0
+        mov dword ptr [ebp-0x40], 0
+        push 0x{strings['user32']:X}
+        call dword ptr [0x4951E0]
+        test eax, eax
+        jz done
+        push 0x{strings['message_box']:X}
+        push eax
+        call dword ptr [0x4951DC]
+        test eax, eax
+        jz done
+        mov dword ptr [ebp-0x40], eax
         call 0x425950
         test eax, eax
         jz fail
@@ -757,7 +786,7 @@ def build_running_helper(page_va: int, strings: dict[str, int]) -> bytes:
         call 0x46F950
         test eax, eax
         jz fail
-        mov dword ptr [ebp-0x1C], eax
+        mov dword ptr [ebp-0x18], eax
         mov esi, eax
         cmp byte ptr [esi+0x1CD4], 0
         je fail
@@ -768,25 +797,46 @@ def build_running_helper(page_va: int, strings: dict[str, int]) -> bytes:
         cmp byte ptr [esi+0x1CEC], 0
         jne fail
         xor edi, edi
-        mov dword ptr [ebp-0x18], -1
-    scan:
+    like_scan:
         cmp edi, 3
-        jae scanned
+        jae dislike_scan_start
         mov eax, dword ptr [esi+edi*4+0x1F5C]
         mov dword ptr [ebp+edi*4-0x28], eax
         cmp eax, 38
-        je already
+        jne like_not_running
+        mov dword ptr [ebp-0x38], 1
+    like_not_running:
         cmp eax, -1
-        jne scan_next
-        cmp dword ptr [ebp-0x18], -1
-        jne scan_next
-        mov dword ptr [ebp-0x18], edi
-    scan_next:
+        jne like_next
+        cmp dword ptr [ebp-0x1C], -1
+        jne like_next
+        mov dword ptr [ebp-0x1C], edi
+    like_next:
         inc edi
-        jmp scan
+        jmp like_scan
+    dislike_scan_start:
+        xor edi, edi
+    dislike_scan:
+        cmp edi, 3
+        jae scanned
+        mov eax, dword ptr [esi+edi*4+0x1F68]
+        mov dword ptr [ebp+edi*4-0x34], eax
+        cmp eax, 38
+        jne dislike_next
+        mov dword ptr [ebp-0x3C], 1
+    dislike_next:
+        inc edi
+        jmp dislike_scan
     scanned:
-        cmp dword ptr [ebp-0x18], -1
+        cmp dword ptr [ebp-0x38], 1
+        je has_running_like
+        cmp dword ptr [ebp-0x1C], -1
         je no_slot
+        jmp needs_confirmation
+    has_running_like:
+        cmp dword ptr [ebp-0x3C], 1
+        jne no_change
+    needs_confirmation:
         cmp dword ptr [0x51D5F8], 40000
         jb funds
         call 0x{page_va + RUNNING_CONFIRM_OFFSET:X}
@@ -808,7 +858,7 @@ def build_running_helper(page_va: int, strings: dict[str, int]) -> bytes:
         call 0x46F950
         test eax, eax
         jz stale
-        cmp eax, dword ptr [ebp-0x1C]
+        cmp eax, dword ptr [ebp-0x18]
         jne stale
         mov esi, eax
         cmp byte ptr [esi+0x1CD4], 0
@@ -828,14 +878,117 @@ def build_running_helper(page_va: int, strings: dict[str, int]) -> bytes:
         mov eax, dword ptr [esi+0x1F64]
         cmp eax, dword ptr [ebp-0x20]
         jne stale
-        mov edi, dword ptr [ebp-0x18]
-        cmp dword ptr [esi+edi*4+0x1F5C], -1
+        mov eax, dword ptr [esi+0x1F68]
+        cmp eax, dword ptr [ebp-0x34]
+        jne stale
+        mov eax, dword ptr [esi+0x1F6C]
+        cmp eax, dword ptr [ebp-0x30]
+        jne stale
+        mov eax, dword ptr [esi+0x1F70]
+        cmp eax, dword ptr [ebp-0x2C]
         jne stale
         cmp dword ptr [0x51D5F8], 40000
         jb funds
+        cmp dword ptr [ebp-0x38], 1
+        je clear_dislikes
+        mov edi, dword ptr [ebp-0x1C]
+        cmp dword ptr [esi+edi*4+0x1F5C], -1
+        jne stale
         mov dword ptr [esi+edi*4+0x1F5C], 38
         cmp dword ptr [esi+edi*4+0x1F5C], 38
         jne write_failed
+    clear_dislikes:
+        xor edi, edi
+    clear_dislike_loop:
+        cmp edi, 3
+        jae commit_running
+        cmp dword ptr [esi+edi*4+0x1F68], 38
+        jne clear_dislike_next
+        mov dword ptr [esi+edi*4+0x1F68], -1
+        cmp dword ptr [esi+edi*4+0x1F68], -1
+        jne write_failed
+    clear_dislike_next:
+        inc edi
+        jmp clear_dislike_loop
+    commit_running:
+        # Complete post-write identity/eligibility and six-slot verification
+        # gates the sole native deduction.  A failure reports partial native
+        # effects and never charges.
+        call 0x425950
+        test eax, eax
+        jz write_failed_result
+        mov eax, dword ptr [eax+0x17E24]
+        cmp eax, dword ptr [ebp-0x14]
+        jne write_failed_result
+        mov ecx, 0x554148
+        push eax
+        call 0x46F950
+        test eax, eax
+        jz write_failed_result
+        cmp eax, dword ptr [ebp-0x18]
+        jne write_failed_result
+        mov esi, eax
+        cmp byte ptr [esi+0x1CD4], 0
+        je write_failed_result
+        cmp dword ptr [esi+0x1C40], 0
+        jle write_failed_result
+        cmp byte ptr [esi+0x1CE1], 0
+        jne write_failed_result
+        cmp byte ptr [esi+0x1CEC], 0
+        jne write_failed_result
+        cmp dword ptr [ebp-0x38], 1
+        je postverify_like_preserved
+        mov edi, dword ptr [ebp-0x1C]
+        cmp dword ptr [esi+edi*4+0x1F5C], 38
+        jne write_failed_result
+        cmp edi, 0
+        je postverify_like_1
+        mov eax, dword ptr [esi+0x1F5C]
+        cmp eax, dword ptr [ebp-0x28]
+        jne write_failed_result
+    postverify_like_1:
+        cmp edi, 1
+        je postverify_like_2
+        mov eax, dword ptr [esi+0x1F60]
+        cmp eax, dword ptr [ebp-0x24]
+        jne write_failed_result
+    postverify_like_2:
+        cmp edi, 2
+        je postverify_dislikes
+        mov eax, dword ptr [esi+0x1F64]
+        cmp eax, dword ptr [ebp-0x20]
+        jne write_failed_result
+        jmp postverify_dislikes
+    postverify_like_preserved:
+        mov eax, dword ptr [esi+0x1F5C]
+        cmp eax, dword ptr [ebp-0x28]
+        jne write_failed_result
+        mov eax, dword ptr [esi+0x1F60]
+        cmp eax, dword ptr [ebp-0x24]
+        jne write_failed_result
+        mov eax, dword ptr [esi+0x1F64]
+        cmp eax, dword ptr [ebp-0x20]
+    postverify_dislikes:
+        jne write_failed_result
+        xor edi, edi
+    postverify_dislike_loop:
+        cmp edi, 3
+        jae postverify_funds
+        mov eax, dword ptr [ebp+edi*4-0x34]
+        cmp eax, 38
+        jne postverify_dislike_unchanged
+        cmp dword ptr [esi+edi*4+0x1F68], -1
+        jne write_failed_result
+        jmp postverify_dislike_next
+    postverify_dislike_unchanged:
+        cmp dword ptr [esi+edi*4+0x1F68], eax
+        jne write_failed_result
+    postverify_dislike_next:
+        inc edi
+        jmp postverify_dislike_loop
+    postverify_funds:
+        cmp dword ptr [0x51D5F8], 40000
+        jb funds
         push -40000
         mov ecx, 0x51D5F8
         call 0x4237B0
@@ -843,7 +996,7 @@ def build_running_helper(page_va: int, strings: dict[str, int]) -> bytes:
         push 0x{strings['caption']:X}
         call 0x7B2210
         jmp done
-    already:
+    no_change:
         push 0x{strings['running_already']:X}
         jmp result
     no_slot:
@@ -859,9 +1012,7 @@ def build_running_helper(page_va: int, strings: dict[str, int]) -> bytes:
         push 0x{strings['running_recheck']:X}
         jmp result
     write_failed:
-        # A failed readback may have left our 38 in place.  Restore only
-        # after reacquiring the same selected index and record identity and
-        # proving the target still contains exactly the value we wrote.
+        # Restore only candidate-written values after identity and predicate recheck.
         call 0x425950
         test eax, eax
         jz write_failed_result
@@ -873,7 +1024,7 @@ def build_running_helper(page_va: int, strings: dict[str, int]) -> bytes:
         call 0x46F950
         test eax, eax
         jz write_failed_result
-        cmp eax, dword ptr [ebp-0x1C]
+        cmp eax, dword ptr [ebp-0x18]
         jne write_failed_result
         mov esi, eax
         cmp byte ptr [esi+0x1CD4], 0
@@ -884,12 +1035,30 @@ def build_running_helper(page_va: int, strings: dict[str, int]) -> bytes:
         jne write_failed_result
         cmp byte ptr [esi+0x1CEC], 0
         jne write_failed_result
-        mov edi, dword ptr [ebp-0x18]
+        cmp dword ptr [ebp-0x38], 1
+        je rollback_dislikes
+        mov edi, dword ptr [ebp-0x1C]
         cmp dword ptr [esi+edi*4+0x1F5C], 38
         jne write_failed_result
         mov dword ptr [esi+edi*4+0x1F5C], -1
         cmp dword ptr [esi+edi*4+0x1F5C], -1
         jne write_failed_result
+        jmp write_failed_result
+    rollback_dislikes:
+        xor edi, edi
+    rollback_dislike_loop:
+        cmp edi, 3
+        jae write_failed_result
+        cmp dword ptr [ebp+edi*4-0x34], 38
+        jne rollback_dislike_next
+        cmp dword ptr [esi+edi*4+0x1F68], -1
+        jne write_failed_result
+        mov dword ptr [esi+edi*4+0x1F68], 38
+        cmp dword ptr [esi+edi*4+0x1F68], 38
+        jne write_failed_result
+    rollback_dislike_next:
+        inc edi
+        jmp rollback_dislike_loop
     write_failed_result:
         push 0x{strings['running_write_failed']:X}
         jmp result
@@ -900,7 +1069,7 @@ def build_running_helper(page_va: int, strings: dict[str, int]) -> bytes:
         call 0x7B2210
     done:
         mov esi, dword ptr [ebp-0x10]
-        add esp, 0x30
+        add esp, 0x40
         pop edi
         pop esi
         pop ebx
@@ -961,19 +1130,8 @@ def build_slot(page_va: int, installed: bool, include_running: bool = False) -> 
             raise RuntimeError("page strings exceed reserved space")
 
     if include_running:
-        _running_parts = (
-            ("running_confirm", b"Grant Running to this villager for 40,000 tech points?\r\nPress OK to confirm, or Cancel.\0"),
-            ("running_success", b"Running was granted.\0"),
-            ("running_already", b"This villager already likes Running.\r\nNo tech points have been deducted.\0"),
-            ("running_no_slot", b"This villager has no empty Like slot.\r\nNo tech points have been deducted.\0"),
-            ("running_cancel", b"Grant Running was canceled.\r\nNo tech points have been deducted.\0"),
-            ("running_recheck", b"The selected villager changed during confirmation.\r\nNo tech points have been deducted.\0"),
-            ("running_write_failed", b"Running could not be verified.\r\nNo tech points have been deducted.\0"),
-            ("running_invalid", b"No valid living villager is selected.\r\nNo tech points have been deducted.\0"),
-            ("running_insufficient", b"Not enough tech points.\r\nNo tech points have been deducted.\0"),
-        )
         _running_cursor = RUNNING_STRINGS_OFFSET
-        for _key, _value in _running_parts:
+        for _key, _value in RUNNING_STRING_VALUES:
             strings[_key] = page_va + _running_cursor
             _running_cursor += len(_value)
 
@@ -1229,23 +1387,35 @@ def build_slot(page_va: int, installed: bool, include_running: bool = False) -> 
             "running_helper_sha256": sha(running_helper),
             "running_helper_bytes": running_helper.hex().upper(),
             "running_confirm_bytes": running_confirm.hex().upper(),
-            "running_stack_frame_size": 0x30,
+            "running_stack_frame_size": 0x40,
             "running_stack_locals": {
                 "saved_esi": [-0x10, -0x0D],
                 "selected_index": [-0x14, -0x11],
-                "first_empty_slot": [-0x18, -0x15],
-                "record_identity": [-0x1C, -0x19],
+                "record_identity": [-0x18, -0x15],
+                "first_empty_slot": [-0x1C, -0x19],
                 "likes_snapshot_0": [-0x28, -0x25],
                 "likes_snapshot_1": [-0x24, -0x21],
                 "likes_snapshot_2": [-0x20, -0x1D],
+                "dislikes_snapshot_0": [-0x34, -0x31],
+                "dislikes_snapshot_1": [-0x30, -0x2D],
+                "dislikes_snapshot_2": [-0x2C, -0x29],
+                "has_running_like": [-0x38, -0x35],
+                "has_running_dislike": [-0x3C, -0x39],
+                "message_box_pointer": [-0x40, -0x3D],
             },
             "running_saved_register_intervals": {
                 "saved_ebx": [-0x04, -0x01],
                 "saved_esi": [-0x08, -0x05],
                 "saved_edi": [-0x0C, -0x09],
             },
-            "running_snapshot_initialization": "all three Like DWORDs are stored before confirmation in disjoint -0x28/-0x24/-0x20 slots; first-empty initializes to -1",
-            "running_rollback": "after failed readback reacquire same index and record pointer, verify active/living/status/faction and slot==38, restore -1 and verify; never deduct; no independent skeleton discriminator is claimed",
+            "running_snapshot_initialization": "all three Like and all three Dislike DWORDs are stored before confirmation in disjoint slots; first-empty initializes to -1 and record identity is stored separately",
+            "running_rollback": "after failed readback reacquire same index and record pointer, verify active/living/status/faction and candidate-written values, restore only those values and verify; never deduct; no independent skeleton discriminator is claimed",
+            "running_strings_offset": RUNNING_STRINGS_OFFSET,
+            "running_strings_blob": running_strings_blob().hex().upper(),
+            "running_string_pointers": {
+                key: f"0x{page_va + RUNNING_STRINGS_OFFSET + sum(len(item) for _, item in RUNNING_STRING_VALUES[:index]):X}"
+                for index, (key, item) in enumerate(RUNNING_STRING_VALUES)
+            },
         })
     return bytes(slot), result
 
@@ -1352,15 +1522,9 @@ def build_page(
         page[cursor : cursor + len(value)] = value
         cursor += len(value)
     running_strings = (
-        b"Grant Running to this villager for 40,000 tech points?\r\nPress OK to confirm, or Cancel.\0"
-        b"Running was granted.\0"
-        b"This villager already likes Running.\r\nNo tech points have been deducted.\0"
-        b"This villager has no empty Like slot.\r\nNo tech points have been deducted.\0"
-        b"Running was canceled.\r\nNo tech points have been deducted.\0"
-        b"The selected villager changed during confirmation.\r\nNo tech points have been deducted.\0"
-        b"Running could not be verified; a native change may remain.\r\nNo tech points have been deducted.\0"
-        b"No valid living villager is selected.\r\nNo tech points have been deducted.\0"
-        b"Not enough tech points.\r\nNo tech points have been deducted.\0"
+        bytes.fromhex(str(slot_map["running_strings_blob"]))
+        if slot_map and slot_map.get("running_strings_blob")
+        else running_strings_blob()
     )
     if slot_map and slot_map.get("running_helper_bytes") and RUNNING_STRINGS_OFFSET + len(running_strings) > len(page):
         raise RuntimeError("VV5 Running strings exceed page")
@@ -1376,6 +1540,19 @@ def section_header(rva: int) -> bytes:
         + rva.to_bytes(4, "little")
         + PAGE_SIZE.to_bytes(4, "little")
         + APPEND_OFFSET.to_bytes(4, "little")
+        + b"\0" * 12
+        + (0x60000020).to_bytes(4, "little")
+    )
+
+
+def running_section_header(rva: int, raw_offset: int = RUNNING_APPEND_OFFSET) -> bytes:
+    """Build the exact RX .vv5run section record at the derived append boundary."""
+    return (
+        b".vv5run\0"
+        + PAGE_SIZE.to_bytes(4, "little")
+        + rva.to_bytes(4, "little")
+        + PAGE_SIZE.to_bytes(4, "little")
+        + raw_offset.to_bytes(4, "little")
         + b"\0" * 12
         + (0x60000020).to_bytes(4, "little")
     )
@@ -1589,6 +1766,33 @@ def main() -> None:
         running_map,
         dispatcher_offset=RUNNING_DISPATCHER_OFFSET,
     )
+    running_section = running_section_header(RUNNING_PAGE_RVA)
+    running_layouts = {
+        mode: {
+            "parent_sha256": parent_sha,
+            "original_file_size": "0xF4000",
+            "append_offset": "0xF4000",
+            "append_length": PAGE_SIZE,
+            "append_source": "generated:vv5_individual_running_page",
+            "rva": "0x3CB000",
+            "va": "0x7CB000",
+            "section_header_offset": "0x2E0",
+            "section_header_before": (b"\0" * 40).hex().upper(),
+            "section_header_after": running_section.hex().upper(),
+            "header_patches": [
+                {"offset": "0xFE", "before": "0600", "after": "0700", "purpose": "add candidate-owned .vv5run section"},
+                {"offset": "0x148", "before": "00B03C00", "after": "00D03C00", "purpose": "extend SizeOfImage for .vv5run"},
+                {"offset": "0x2E0", "before": (b"\0" * 40).hex().upper(), "after": running_section.hex().upper(), "purpose": "install guarded RX .vv5run section header"},
+            ],
+            "hook_before": RUNNING_PARENT_HOOK_BEFORE,
+            "hook_after": RUNNING_HOOK_AFTER,
+            "purpose": "append the candidate-owned VV5 command-2 .vv5run RX page",
+        }
+        for mode, parent_sha in {
+            "collection_progression": "857E22D7C361B802508BF789C3CC486E42E76021F5AA579BB1D16CC6E0D017A0",
+            "immediate_fixed": "E93822F752F730ECB751EBAA87021194C992984721B4370FF0015D5FC4BB2E9A",
+        }.items()
+    }
     running_candidate = {
         "id": "vv5_individual_grant_running_candidate",
         "game_id": "vv5",
@@ -1602,6 +1806,14 @@ def main() -> None:
         "unsupported_patch_modes": ["experimental_expanded_256", "experimental_expanded_256_progression"],
         "expanded_fail_closed": True,
         "dependencies": ["vv5_full_mastery_all_stage_a_candidate"],
+        "companion": {
+            "source": "data/candidates/VVFP VV5 Full Mastery Candidate.dll",
+            "destination": "VVFP Origins Icons.dll",
+            "sha256": COMPANION_PARENT_SHA256,
+            "preimage_sha256": COMPANION_PARENT_SHA256,
+            "restore_sha256": COMPANION_PARENT_SHA256,
+            "atomic_install_remove": True,
+        },
         "patches": [{
             "offset": f"0x{RUNNING_PARENT_HOOK_OFFSET:X}",
             "before": RUNNING_PARENT_HOOK_BEFORE,
@@ -1613,7 +1825,7 @@ def main() -> None:
             "immediate_fixed": "E93822F752F730ECB751EBAA87021194C992984721B4370FF0015D5FC4BB2E9A",
         },
         "pe_append_transaction": {
-            "status": "disabled projection; dedicated .vv5run RX extension and production install/remove remain pending",
+            "status": "disabled real production candidate; loader/install/remove recertification pending",
             "section": ".vv5run",
             "append_source": "generated:vv5_individual_running_page",
             "append_offset": f"0x{RUNNING_APPEND_OFFSET:X}",
@@ -1627,10 +1839,7 @@ def main() -> None:
             "hook_after": RUNNING_HOOK_AFTER,
             "hook_owner": "vv5_individual_grant_running_candidate",
             "uninstall": "restore exact composed parent hook and truncate only candidate-owned .vv5run append",
-            "layouts": {
-                "collection_progression": {"parent_sha256": "857E22D7C361B802508BF789C3CC486E42E76021F5AA579BB1D16CC6E0D017A0", "hook_before": RUNNING_PARENT_HOOK_BEFORE, "hook_after": RUNNING_HOOK_AFTER},
-                "immediate_fixed": {"parent_sha256": "E93822F752F730ECB751EBAA87021194C992984721B4370FF0015D5FC4BB2E9A", "hook_before": RUNNING_PARENT_HOOK_BEFORE, "hook_after": RUNNING_HOOK_AFTER},
-            },
+            "layouts": running_layouts,
         },
         "transaction_contract": {
             "command": 2, "price": 40000, "action": "Buy", "repeatable": True,
@@ -1639,13 +1848,17 @@ def main() -> None:
             "eligibility": ["byte record+0x1CD4 != 0 (active)", "signed dword record+0x1C40 > 0 (living)", "byte record+0x1CE1 == 0 (Heathen-active/status guard)", "byte record+0x1CEC == 0 (current-Believer faction); no independent skeleton discriminator is claimed"],
             "likes": ["record+0x1F5C", "record+0x1F60", "record+0x1F64"],
             "running_value": 38, "empty_value": -1,
-            "dry_run": "scan all Likes before confirmation; preserve duplicates; first physical -1 only",
-            "reacquire": "same selected index and exact three-Like snapshot before write",
+            "dry_run": "scan all three Likes and all three Dislikes before confirmation; preserve Like duplicates; first physical -1 Like only; clear every Running Dislike",
+            "reacquire": "same selected index, record identity, eligibility, and exact six-slot snapshot before write",
             "record_identity": "initial and confirmed resolver pointers must match exactly; no cached physical-base walking",
             "funds_checks": ["complete dry-run before confirmation", "immediately before write"],
-            "rollback": "on failed write/readback, reacquire same index and record identity, require the supported active/living/status/faction predicate and target still helper-written 38, restore -1 and verify; no charge; no independent skeleton discriminator is claimed",
+            "rollback": "on failed write/readback, reacquire same index and record identity, require the supported active/living/status/faction predicate and candidate-written values, restore only those values and verify; no charge; no independent skeleton discriminator is claimed",
             "deduction": "ECX=0x51D5F8; push -40000; call 0x4237B0 exactly once",
-            "forbidden_reads": ["Dislikes", "movement", "speed"],
+            "dislike_slots": ["record+0x1F68", "record+0x1F6C", "record+0x1F70"],
+            "allowed_writes": ["first physical empty Like = 38", "every Dislike = 38 -> -1"],
+            "forbidden_reads": ["movement", "speed"],
+            "accept_result": 1,
+            "cancel_results": [0, 2],
             "confirmation": "Grant Running to this villager for 40,000 tech points?\\r\\nPress OK to confirm, or Cancel.",
             "no_deduction": "No tech points have been deducted.",
             "result_messages": {
@@ -1668,6 +1881,11 @@ def main() -> None:
             "dispatcher_bytes": running_dispatcher.hex().upper(),
             "helper_sha256": running_map["running_helper_sha256"],
             "helper_length": running_map["running_helper_length"],
+            "rendered_exe_size": 0xF6000,
+            "rendered_exe_sha256": {
+                "collection_progression": "511997D3BA57AA6844D390FFD9BD980A6E36D277BFFD56BFC9A2672CAEFC8125",
+                "immediate_fixed": "390916F2BCE337FA89BC33A69569EDB89B5D361730DF0DB23067B2995F94AFA2",
+            },
         },
         "provenance": {"implementation_parent": "f1256fca68f2711974e93057e599f2642c77a2a4", "implementation_commit": None, "audit_commit": None, "acceptance_commit": None},
     }
@@ -1678,13 +1896,14 @@ def main() -> None:
         "This candidate is disabled and catalog-hidden pending independent emitted-byte and runtime recertification. "
         "It is restricted to Collection Progression and Immediate Fixed and rejects Expanded-256 before output.\n\n"
         "The transaction is command 2, Buy-only, 40,000 tech points. It performs a complete selected-villager dry run, "
-        "scans only Likes +0x1F5C/+0x1F60/+0x1F64, preserves duplicates, writes only the first exact -1 slot, "
-        "reacquires and rechecks before mutation, verifies the write, then performs one native deduction. Dislikes, movement, and speed are untouched.\n\n"
-        "The disabled production projection owns .vv5run at raw 0xF4000 / RVA 0x3CB000 / VA 0x7CB000 (RX, 0x2000 bytes); "
+        "scans and snapshots Likes +0x1F5C/+0x1F60/+0x1F64 and Dislikes +0x1F68/+0x1F6C/+0x1F70, preserves duplicate Likes, "
+        "writes Running only to the first exact -1 Like when needed, and clears every Running Dislike only when Running is or can be ensured as a Like. "
+        "No empty Like means no writes/no charge even when Running is a Dislike. It reacquires and rechecks before mutation, verifies all six slots after writes, then performs one native deduction. Movement and speed are untouched.\n\n"
+        "The disabled production candidate owns .vv5run at raw 0xF4000 / RVA 0x3CB000 / VA 0x7CB000 (RX, 0x2000 bytes); "
         "its dispatcher is VA 0x7CB020 and replaces the composed-parent hook E995750100 with E9B5880100. "
         "EBX=1 remains the certified Full Mastery helper at 0x7C9D00, EBX=2 is Running, and all other commands continue at 0x7B2790.\n\n"
-        "Every cancel, no-change, recheck, dependency, and failure result includes `No tech points have been deducted.` "
-        "Eligibility is the certified active/living/status-valid current-Believer predicate: +0x1CD4 active, signed +0x1C40 > 0, +0x1CE1 Heathen-active/status guard clear, and +0x1CEC current-Believer faction clear. No independent skeleton discriminator is claimed, so runtime certification remains pending. The existing enabled VV5 Full Mastery bytes remain unchanged; this overlay is not catalog-visible.\n",
+        "Every cancel, no-change, recheck, dependency, and failure result includes `No tech points have been deducted.` IDOK is exactly 1; Cancel/close/other results are rejected. "
+        "Eligibility is the certified active/living/status-valid current-Believer predicate: +0x1CD4 active, signed +0x1C40 > 0, +0x1CE1 Heathen-active/status guard clear, and +0x1CEC current-Believer faction clear. No independent skeleton discriminator is claimed, so runtime certification remains pending. The existing enabled VV5 Full Mastery bytes remain unchanged; this overlay is not catalog-visible. Direct native preference stores remain a separate enablement gate and native partial effects are disclosed truthfully.\n",
         encoding="utf-8",
     )
 

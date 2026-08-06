@@ -1457,6 +1457,85 @@ def _certified_vv4_full_heal_record(
     return manifest
 
 
+def _validate_vv5_individual_running_candidate(
+    feature: FunPatch,
+    selected_fun_ids: set[str],
+    patch_mode: str,
+) -> None:
+    """Validate the disabled VV5 Like/Dislike overlay before any PE mutation."""
+    manifest_bytes = VV5_INDIVIDUAL_RUNNING_CANDIDATE_PATHS["manifest"].read_bytes()
+    map_bytes = VV5_INDIVIDUAL_RUNNING_CANDIDATE_PATHS["map"].read_bytes()
+    if hashlib.sha256(manifest_bytes).hexdigest().upper() != VV5_INDIVIDUAL_RUNNING_MANIFEST_SHA256:
+        raise PatcherError("VV5 revised Running manifest raw hash is not certified.")
+    if hashlib.sha256(map_bytes).hexdigest().upper() != VV5_INDIVIDUAL_RUNNING_MAP_SHA256:
+        raise PatcherError("VV5 revised Running map raw hash is not certified.")
+    raw = feature.raw
+    if feature.id != VV5_INDIVIDUAL_RUNNING_CANDIDATE_ID:
+        raise PatcherError("VV5 Running validator received an unexpected feature.")
+    if raw.get("enabled", True) or not raw.get("catalog_hidden", False) or raw.get("catalog_enabled", True):
+        raise PatcherError("VV5 revised Running must remain disabled and catalog-hidden pending recertification.")
+    if patch_mode not in VV5_INDIVIDUAL_RUNNING_PARENT_SHA256:
+        raise PatcherError("VV5 revised Running rejects Expanded-256 before output.")
+    if raw.get("dependencies") != ["vv5_full_mastery_all_stage_a_candidate"]:
+        raise PatcherError("VV5 revised Running requires the certified Full Mastery parent identity.")
+    tx = raw.get("transaction_contract")
+    required_likes = ["record+0x1F5C", "record+0x1F60", "record+0x1F64"]
+    required_dislikes = ["record+0x1F68", "record+0x1F6C", "record+0x1F70"]
+    if not isinstance(tx, dict) or tx.get("command") != 2 or tx.get("price") != 40000 or tx.get("action") != "Buy" or tx.get("repeatable") is not True or tx.get("ownership") is not None or tx.get("remove") is not False:
+        raise PatcherError("VV5 revised Running transaction identity is not exact.")
+    if tx.get("likes") != required_likes or tx.get("dislike_slots") != required_dislikes:
+        raise PatcherError("VV5 revised Running must bind all six preference slots.")
+    if tx.get("forbidden_reads") != ["movement", "speed"] or tx.get("accept_result") != 1 or tx.get("cancel_results") != [0, 2]:
+        raise PatcherError("VV5 revised Running result/forbidden-read contract is malformed.")
+    append = raw.get("pe_append_transaction")
+    layout = append.get("layouts", {}).get(patch_mode) if isinstance(append, dict) else None
+    expected_parent = VV5_INDIVIDUAL_RUNNING_PARENT_SHA256[patch_mode]
+    if not isinstance(layout, dict) or layout.get("parent_sha256") != expected_parent or layout.get("append_source") != "generated:vv5_individual_running_page" or int(layout.get("original_file_size", "-1"), 0) != 0xF4000 or int(layout.get("append_offset", "-1"), 0) != 0xF4000 or int(layout.get("append_length", "-1")) != 0x2000:
+        raise PatcherError("VV5 revised Running append layout is not bound to the certified composed parent.")
+    if raw.get("parent_hashes", {}).get(patch_mode) != expected_parent:
+        raise PatcherError("VV5 revised Running parent hash is not certified.")
+    companion = raw.get("companion")
+    if not isinstance(companion, dict) or companion.get("destination") != "VVFP Origins Icons.dll" or companion.get("sha256") != VV5_FULL_MASTERY_CERTIFIED_SHA256["dll"] or companion.get("preimage_sha256") != VV5_FULL_MASTERY_CERTIFIED_SHA256["dll"] or companion.get("restore_sha256") != VV5_FULL_MASTERY_CERTIFIED_SHA256["dll"]:
+        raise PatcherError("VV5 revised Running companion identity is not exact.")
+    companion_path = ROOT / str(companion.get("source", ""))
+    if not companion_path.is_file() or hashlib.sha256(companion_path.read_bytes()).hexdigest().upper() != VV5_FULL_MASTERY_CERTIFIED_SHA256["dll"]:
+        raise PatcherError("VV5 revised Running companion source is missing or corrupt.")
+    hook = raw.get("patches", [{}])[0]
+    if hook.get("offset") != "0xDB766" or hook.get("before") != "E995750100" or hook.get("after") != "E9B5880100":
+        raise PatcherError("VV5 revised Running hook guard is not exact.")
+    emitted = raw.get("emitted", {})
+    if int(emitted.get("helper_length", 0)) <= 0 or int(emitted.get("helper_length", 0)) >= 0x800:
+        raise PatcherError("VV5 revised Running helper length is not bounded.")
+    import importlib.util
+    import sys
+    scripts_path = str(ROOT / "scripts")
+    if scripts_path not in sys.path:
+        sys.path.insert(0, scripts_path)
+    builder_path = ROOT / "scripts" / "build_vv5_full_mastery_candidate.py"
+    spec = importlib.util.spec_from_file_location("vv5_running_validator_builder", builder_path)
+    if spec is None or spec.loader is None:
+        raise PatcherError("VV5 revised Running builder is unavailable.")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    _, slot_map = module.build_slot(module.RUNNING_PAGE_VA, True, True)
+    running_page = module.build_page(
+        module.RUNNING_PAGE_VA,
+        module.build_slot(module.RUNNING_PAGE_VA, True, True)[0],
+        module.build_running_dispatcher(module.RUNNING_PAGE_VA),
+        slot_map,
+        dispatcher_offset=module.RUNNING_DISPATCHER_OFFSET,
+    )
+    if slot_map.get("running_helper_sha256") != VV5_INDIVIDUAL_RUNNING_HELPER_SHA256 or hashlib.sha256(bytes.fromhex(slot_map["running_helper_bytes"])).hexdigest().upper() != VV5_INDIVIDUAL_RUNNING_HELPER_SHA256:
+        raise PatcherError("VV5 revised Running helper identity is not certified.")
+    if hashlib.sha256(running_page).hexdigest().upper() != VV5_INDIVIDUAL_RUNNING_PAGE_SHA256 or emitted.get("page_sha256") != VV5_INDIVIDUAL_RUNNING_PAGE_SHA256:
+        raise PatcherError("VV5 revised Running page identity is not certified.")
+    if emitted.get("rendered_exe_size") != 0xF6000 or emitted.get("rendered_exe_sha256") != {
+        "collection_progression": "511997D3BA57AA6844D390FFD9BD980A6E36D277BFFD56BFC9A2672CAEFC8125",
+        "immediate_fixed": "390916F2BCE337FA89BC33A69569EDB89B5D361730DF0DB23067B2995F94AFA2",
+    }:
+        raise PatcherError("VV5 revised Running rendered output identities are not certified.")
+
+
 def _certified_vv5_full_mastery_records(
     active_base: dict[str, Any],
 ) -> tuple[dict[str, Any], dict[str, Any]] | None:
@@ -1845,8 +1924,9 @@ def validate_fun_patch_catalog(
                         not append_bytes
                         and append_source
                         not in {
-                            "generated:vv4_full_heal_page",
-                            "generated:vv3_individual_full_mastery_page",
+                        "generated:vv4_full_heal_page",
+                        "generated:vv3_individual_full_mastery_page",
+                        "generated:vv5_individual_running_page",
                         }
                     )
                     or (append_bytes and len(append_bytes) % 0x1000)
@@ -1857,6 +1937,8 @@ def validate_fun_patch_catalog(
                     )
                 if append_source == "generated:vv3_individual_full_mastery_page" and patch.id != VV3_INDIVIDUAL_FULL_MASTERY_CANDIDATE_ID:
                     raise PatcherError("VV3 individual Full Mastery generated append source is owner-bound.")
+                if append_source == "generated:vv5_individual_running_page" and patch.id != VV5_INDIVIDUAL_RUNNING_CANDIDATE_ID:
+                    raise PatcherError("VV5 individual Running generated append source is owner-bound.")
                 for item in header_patches:
                     if not isinstance(item, dict):
                         raise PatcherError(
@@ -2664,6 +2746,36 @@ def _resolve_append_bytes(feature: FunPatch, layout: dict[str, Any]) -> bytes:
         if len(append_bytes) != 0x1000 or expected != VV3_INDIVIDUAL_FULL_MASTERY_PAGE_SHA256 or actual != expected or details.get("page_sha256") != expected:
             raise PatcherError(f"Generated VV3 individual Full Mastery page identity mismatch: expected {expected}, got {actual}.")
         return bytes(append_bytes)
+    if layout.get("append_source") == "generated:vv5_individual_running_page":
+        if feature.id != VV5_INDIVIDUAL_RUNNING_CANDIDATE_ID:
+            raise PatcherError("VV5 individual Running append source owner mismatch.")
+        import importlib.util
+        import sys
+        builder_path = ROOT / "scripts" / "build_vv5_full_mastery_candidate.py"
+        scripts_path = str(ROOT / "scripts")
+        if scripts_path not in sys.path:
+            sys.path.insert(0, scripts_path)
+        spec = importlib.util.spec_from_file_location("vv5_running_builder_runtime", builder_path)
+        if spec is None or spec.loader is None:
+            raise PatcherError("VV5 individual Running page builder is unavailable.")
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        running_slot, running_map = module.build_slot(module.RUNNING_PAGE_VA, True, True)
+        running_dispatcher = module.build_running_dispatcher(module.RUNNING_PAGE_VA)
+        append_bytes = module.build_page(
+            module.RUNNING_PAGE_VA,
+            running_slot,
+            running_dispatcher,
+            running_map,
+            dispatcher_offset=module.RUNNING_DISPATCHER_OFFSET,
+        )
+        expected = str(feature.raw.get("emitted", {}).get("page_sha256", "")).upper()
+        actual = hashlib.sha256(append_bytes).hexdigest().upper()
+        if len(append_bytes) != 0x2000 or not expected or actual != expected:
+            raise PatcherError(
+                f"Generated VV5 individual Running page identity mismatch: expected {expected}, got {actual}."
+            )
+        return bytes(append_bytes)
     if layout.get("append_source") != "generated:vv4_full_heal_page" or feature.id != VV4_FULL_HEAL_CANDIDATE_ID:
         raise PatcherError("Append layout has no supported immutable payload source.")
     import importlib.util
@@ -2786,6 +2898,19 @@ VV4_FULL_HEAL_CANDIDATE_EXE_HASHES = {
     "collection_progression": "0DD83962514449D8A0F513B5DDAF85277E2C3B1C39AB16CB2A266AB39C8D504C",
     "immediate_fixed": "6448E049F2C5CFE51F536950D1ABFE6A767534F0FCE43C08511E1E1922881C3D",
 }
+VV5_INDIVIDUAL_RUNNING_CANDIDATE_ID = "vv5_individual_grant_running_candidate"
+VV5_INDIVIDUAL_RUNNING_CANDIDATE_PATHS = {
+    "manifest": ROOT / "data" / "candidates" / "vv5_individual_running_candidate.json",
+    "map": ROOT / "data" / "candidates" / "vv5_individual_running_candidate_map.json",
+}
+VV5_INDIVIDUAL_RUNNING_PARENT_SHA256 = {
+    "collection_progression": "857E22D7C361B802508BF789C3CC486E42E76021F5AA579BB1D16CC6E0D017A0",
+    "immediate_fixed": "E93822F752F730ECB751EBAA87021194C992984721B4370FF0015D5FC4BB2E9A",
+}
+VV5_INDIVIDUAL_RUNNING_MANIFEST_SHA256 = "833CF24DCE1B11D6A837AEDD70A94F448B496435ABBFA23992A9EDDB2EA470CA"
+VV5_INDIVIDUAL_RUNNING_MAP_SHA256 = "7F349E6BC98036B9954E6020BAE7899C00CFCB46CDE03975EF91C114DA2ECF60"
+VV5_INDIVIDUAL_RUNNING_HELPER_SHA256 = "0F3AE9C5F1998A6BF1FD65962E1565969B9FB08D1A003937B08BABB69E0598AF"
+VV5_INDIVIDUAL_RUNNING_PAGE_SHA256 = "8CE3015E5B7E3587C8997A36CA52BD0DE06537B09D76DAD3ED8ABF101352EF6C"
 
 
 def publish_vv4_full_heal_removal(
@@ -3638,6 +3763,12 @@ def render_patched_bytes(
                 selected_fun_ids,
                 patch_mode,
             )
+        if feature.id == VV5_INDIVIDUAL_RUNNING_CANDIDATE_ID:
+            _validate_vv5_individual_running_candidate(
+                feature,
+                selected_fun_ids,
+                patch_mode,
+            )
     if (
         _fun_patches_override is None
         and build.id == "vv4"
@@ -3663,6 +3794,7 @@ def render_patched_bytes(
             in {
                 "vv5_enable_origins_exclusive_features_full_mastery_candidate",
                 "vv5_full_mastery_all_stage_a_candidate",
+                VV5_INDIVIDUAL_RUNNING_CANDIDATE_ID,
             }
             for patch in fun_patches
         )
@@ -3852,6 +3984,15 @@ def render_patched_bytes(
                         and offset == 0xDB766
                         and before == bytes.fromhex("83FB027525")
                     )
+                    allowed_vv5_running_overlay = (
+                        owner == f"feature:{VV5_INDIVIDUAL_RUNNING_CANDIDATE_ID}"
+                        and prior_owner in {
+                            "feature:vv5_full_mastery_all_stage_a_candidate",
+                            "feature:vv5_enable_origins_exclusive_features_full_mastery_candidate",
+                        }
+                        and offset == 0xDB766
+                        and before == bytes.fromhex("E995750100")
+                    )
                     allowed_vv3_individual_running_overlay = (
                         owner == "feature:vv3_individual_grant_running_candidate"
                         and prior_owner
@@ -3896,6 +4037,7 @@ def render_patched_bytes(
                     if (
                         allowed_vv1_composition_overlay
                         or allowed_vv5_individual_overlay
+                        or allowed_vv5_running_overlay
                         or allowed_vv3_individual_running_overlay
                         or allowed_vv3_full_heal_overlay
                         or allowed_vv3_full_heal_cave_overlay
@@ -3942,6 +4084,53 @@ def render_patched_bytes(
         if bytes(data[0x160:0x164]).hex().upper() != expected_transition["after"]:
             raise PatcherError("VV3 Full Heal checksum transition is not certified.")
     return data, applied
+
+
+def render_vv5_individual_running_parent(
+    source: Path,
+    patch_mode: str,
+) -> tuple[bytearray, list[dict[str, str]]]:
+    """Render the disabled VV5 Running overlay over an authenticated FM parent.
+
+    This deliberately bypasses the public catalog (the candidate is disabled)
+    while using the same guarded append resolver and removal identities as the
+    production path.  It never accepts stock or Expanded input as a parent.
+    """
+    manifest_path = VV5_INDIVIDUAL_RUNNING_CANDIDATE_PATHS["manifest"]
+    feature = FunPatch(json.loads(manifest_path.read_text(encoding="utf-8")))
+    _validate_vv5_individual_running_candidate(feature, {feature.id}, patch_mode)
+    expected = VV5_INDIVIDUAL_RUNNING_PARENT_SHA256[patch_mode]
+    source_bytes = source.read_bytes()
+    if hashlib.sha256(source_bytes).hexdigest().upper() != expected:
+        raise PatcherError("VV5 Running requires the exact composed Full Mastery parent bytes.")
+    data = bytearray(source_bytes)
+    applied = _apply_pe_append_transactions(data, [feature], patch_mode)
+    patch = feature.patches[0]
+    offset = int(patch["offset"], 0)
+    before = _patch_bytes(patch, "before")
+    after = _patch_bytes(patch, "after")
+    if bytes(data[offset : offset + len(before)]) != before:
+        raise PatcherError("VV5 Running composed hook preimage mismatch.")
+    data[offset : offset + len(after)] = after
+    applied.append({"offset": patch["offset"], "before": before.hex().upper(), "after": after.hex().upper(), "purpose": patch["purpose"], "owner": f"feature:{feature.id}"})
+    checksum_offset, _ = _pe_checksum_layout(data)
+    struct.pack_into("<I", data, checksum_offset, 0)
+    struct.pack_into("<I", data, checksum_offset, pe_checksum(data))
+    return data, applied
+
+
+def remove_vv5_individual_running_parent(
+    installed: bytearray,
+    patch_mode: str,
+) -> list[dict[str, str]]:
+    """Remove the VV5 Running overlay and require the exact parent restoration."""
+    feature = FunPatch(json.loads(VV5_INDIVIDUAL_RUNNING_CANDIDATE_PATHS["manifest"].read_text(encoding="utf-8")))
+    _validate_vv5_individual_running_candidate(feature, {feature.id}, patch_mode)
+    removed = _remove_feature_bytes(installed, feature, patch_mode)
+    expected = VV5_INDIVIDUAL_RUNNING_PARENT_SHA256[patch_mode]
+    if hashlib.sha256(installed).hexdigest().upper() != expected:
+        raise PatcherError("VV5 Running removal did not restore the exact composed parent.")
+    return removed
 
 
 def _result(

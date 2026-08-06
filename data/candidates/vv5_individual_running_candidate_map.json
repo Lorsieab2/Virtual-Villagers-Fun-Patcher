@@ -20,6 +20,14 @@
     "dependencies": [
       "vv5_full_mastery_all_stage_a_candidate"
     ],
+    "companion": {
+      "source": "data/candidates/VVFP VV5 Full Mastery Candidate.dll",
+      "destination": "VVFP Origins Icons.dll",
+      "sha256": "29927CECB448B64944E18E2BA11893DC84C91B39241FBB2549FC2A464E0BE2ED",
+      "preimage_sha256": "29927CECB448B64944E18E2BA11893DC84C91B39241FBB2549FC2A464E0BE2ED",
+      "restore_sha256": "29927CECB448B64944E18E2BA11893DC84C91B39241FBB2549FC2A464E0BE2ED",
+      "atomic_install_remove": true
+    },
     "patches": [
       {
         "offset": "0xDB766",
@@ -33,7 +41,7 @@
       "immediate_fixed": "E93822F752F730ECB751EBAA87021194C992984721B4370FF0015D5FC4BB2E9A"
     },
     "pe_append_transaction": {
-      "status": "disabled projection; dedicated .vv5run RX extension and production install/remove remain pending",
+      "status": "disabled real production candidate; loader/install/remove recertification pending",
       "section": ".vv5run",
       "append_source": "generated:vv5_individual_running_page",
       "append_offset": "0xF4000",
@@ -50,13 +58,73 @@
       "layouts": {
         "collection_progression": {
           "parent_sha256": "857E22D7C361B802508BF789C3CC486E42E76021F5AA579BB1D16CC6E0D017A0",
+          "original_file_size": "0xF4000",
+          "append_offset": "0xF4000",
+          "append_length": 8192,
+          "append_source": "generated:vv5_individual_running_page",
+          "rva": "0x3CB000",
+          "va": "0x7CB000",
+          "section_header_offset": "0x2E0",
+          "section_header_before": "00000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "section_header_after": "2E76763572756E000020000000B03C000020000000400F0000000000000000000000000020000060",
+          "header_patches": [
+            {
+              "offset": "0xFE",
+              "before": "0600",
+              "after": "0700",
+              "purpose": "add candidate-owned .vv5run section"
+            },
+            {
+              "offset": "0x148",
+              "before": "00B03C00",
+              "after": "00D03C00",
+              "purpose": "extend SizeOfImage for .vv5run"
+            },
+            {
+              "offset": "0x2E0",
+              "before": "00000000000000000000000000000000000000000000000000000000000000000000000000000000",
+              "after": "2E76763572756E000020000000B03C000020000000400F0000000000000000000000000020000060",
+              "purpose": "install guarded RX .vv5run section header"
+            }
+          ],
           "hook_before": "E995750100",
-          "hook_after": "E9B5880100"
+          "hook_after": "E9B5880100",
+          "purpose": "append the candidate-owned VV5 command-2 .vv5run RX page"
         },
         "immediate_fixed": {
           "parent_sha256": "E93822F752F730ECB751EBAA87021194C992984721B4370FF0015D5FC4BB2E9A",
+          "original_file_size": "0xF4000",
+          "append_offset": "0xF4000",
+          "append_length": 8192,
+          "append_source": "generated:vv5_individual_running_page",
+          "rva": "0x3CB000",
+          "va": "0x7CB000",
+          "section_header_offset": "0x2E0",
+          "section_header_before": "00000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "section_header_after": "2E76763572756E000020000000B03C000020000000400F0000000000000000000000000020000060",
+          "header_patches": [
+            {
+              "offset": "0xFE",
+              "before": "0600",
+              "after": "0700",
+              "purpose": "add candidate-owned .vv5run section"
+            },
+            {
+              "offset": "0x148",
+              "before": "00B03C00",
+              "after": "00D03C00",
+              "purpose": "extend SizeOfImage for .vv5run"
+            },
+            {
+              "offset": "0x2E0",
+              "before": "00000000000000000000000000000000000000000000000000000000000000000000000000000000",
+              "after": "2E76763572756E000020000000B03C000020000000400F0000000000000000000000000020000060",
+              "purpose": "install guarded RX .vv5run section header"
+            }
+          ],
           "hook_before": "E995750100",
-          "hook_after": "E9B5880100"
+          "hook_after": "E9B5880100",
+          "purpose": "append the candidate-owned VV5 command-2 .vv5run RX page"
         }
       }
     },
@@ -81,19 +149,32 @@
       ],
       "running_value": 38,
       "empty_value": -1,
-      "dry_run": "scan all Likes before confirmation; preserve duplicates; first physical -1 only",
-      "reacquire": "same selected index and exact three-Like snapshot before write",
+      "dry_run": "scan all three Likes and all three Dislikes before confirmation; preserve Like duplicates; first physical -1 Like only; clear every Running Dislike",
+      "reacquire": "same selected index, record identity, eligibility, and exact six-slot snapshot before write",
       "record_identity": "initial and confirmed resolver pointers must match exactly; no cached physical-base walking",
       "funds_checks": [
         "complete dry-run before confirmation",
         "immediately before write"
       ],
-      "rollback": "on failed write/readback, reacquire same index and record identity, require the supported active/living/status/faction predicate and target still helper-written 38, restore -1 and verify; no charge; no independent skeleton discriminator is claimed",
+      "rollback": "on failed write/readback, reacquire same index and record identity, require the supported active/living/status/faction predicate and candidate-written values, restore only those values and verify; no charge; no independent skeleton discriminator is claimed",
       "deduction": "ECX=0x51D5F8; push -40000; call 0x4237B0 exactly once",
+      "dislike_slots": [
+        "record+0x1F68",
+        "record+0x1F6C",
+        "record+0x1F70"
+      ],
+      "allowed_writes": [
+        "first physical empty Like = 38",
+        "every Dislike = 38 -> -1"
+      ],
       "forbidden_reads": [
-        "Dislikes",
         "movement",
         "speed"
+      ],
+      "accept_result": 1,
+      "cancel_results": [
+        0,
+        2
       ],
       "confirmation": "Grant Running to this villager for 40,000 tech points?\\r\\nPress OK to confirm, or Cancel.",
       "no_deduction": "No tech points have been deducted.",
@@ -108,15 +189,20 @@
       }
     },
     "emitted": {
-      "page_sha256": "4D4FEDD456F241C91F94FED50BC05BF00B7CB8132A557558063184766259E097",
+      "page_sha256": "8CE3015E5B7E3587C8997A36CA52BD0DE06537B09D76DAD3ED8ABF101352EF6C",
       "page_rva": "0x3CB000",
       "page_va": "0x7CB000",
       "append_offset": "0xF4000",
       "dispatcher_va": "0x7CB020",
-      "dispatcher_sha256": "BBB4C701A93F3863A841D4ED157857390DEF4E904D197CE071F7B981AA1918D6",
-      "dispatcher_bytes": "83FB010F84D7ECFFFF83FB020F84CE170000E95977FEFF",
-      "helper_sha256": "8B6F473B55A30CD71FB81F93218A08D46F9C577C751FF3562BCCF67D8FAEB19E",
-      "helper_length": 677
+      "dispatcher_sha256": "AA52DA90C08DDD0668926C93921B1D21683D006E05F1C00F7D8AB64550D8227C",
+      "dispatcher_bytes": "83FB010F84D7ECFFFF83FB020F84CE100000E95977FEFF",
+      "helper_sha256": "0F3AE9C5F1998A6BF1FD65962E1565969B9FB08D1A003937B08BABB69E0598AF",
+      "helper_length": 1281,
+      "rendered_exe_size": 1007616,
+      "rendered_exe_sha256": {
+        "collection_progression": "511997D3BA57AA6844D390FFD9BD980A6E36D277BFFD56BFC9A2672CAEFC8125",
+        "immediate_fixed": "390916F2BCE337FA89BC33A69569EDB89B5D361730DF0DB23067B2995F94AFA2"
+      }
     },
     "provenance": {
       "implementation_parent": "f1256fca68f2711974e93057e599f2642c77a2a4",
@@ -144,7 +230,7 @@
     },
     "individual_offset": 3072,
     "individual_length": 689,
-    "individual_sha256": "3E41D12B406B5A86AF389F337D9D39EE550EB7994EEF6E818CCCB0633A805553",
+    "individual_sha256": "0C4BF4F9A9B09EF760548F965715C8B062CF584DE770749EC758F354FF72FB90",
     "strings": {
       "dll": "0x7CC200",
       "result": "0x7CC217",
@@ -168,16 +254,16 @@
       "running_cancel": "0x7CCD00",
       "running_recheck": "0x7CCD40",
       "running_write_failed": "0x7CCD97",
-      "running_invalid": "0x7CCDDA",
-      "running_insufficient": "0x7CCE24"
+      "running_invalid": "0x7CCDF6",
+      "running_insufficient": "0x7CCE40"
     },
-    "running_offset": 6144,
-    "running_confirm_offset": 5888,
-    "running_helper_length": 677,
-    "running_helper_sha256": "8B6F473B55A30CD71FB81F93218A08D46F9C577C751FF3562BCCF67D8FAEB19E",
-    "running_helper_bytes": "5589E553565783EC308975F0E83F91C5FF85C00F84720200008B80247E01003D960000000F83610200008945ECB94841550050E80850CAFF85C00F844B020000B948415500FF75ECE80331CAFF85C00F84360200008945E489C680BED41C0000000F842402000083BE401C0000000F8E1702000080BEE11C0000000F850A02000080BEEC1C0000000F85FD01000031FFC745E8FFFFFFFF83FF0373258B84BE5C1F00008944BDD883F8260F843501000083F8FF7509837DE8FF7503897DE847EBD6837DE8FF0F8424010000813DF8D55100409C00000F821E010000E820FEFFFF85C00F841B010000E86390C5FF85C00F84180100008B80247E01003B45EC0F8509010000B94841550050E8314FCAFF85C00F84F6000000B948415500FF75ECE82C30CAFF85C00F84E10000003B45E40F85D800000089C680BED41C0000000F84C900000083BE401C0000000F8EBC00000080BEE11C0000000F85AF00000080BEEC1C0000000F85A20000008B865C1F00003B45D80F85930000008B86601F00003B45DC0F85840000008B86641F00003B45E075798B7DE883BCBE5C1F0000FF756C813DF8D55100409C0000724CC784BE5C1F00002600000083BCBE5C1F000026755268C063FFFFB9F8D55100E8DF6DC5FF6858CC7C0068C3C27C00E83058FEFFE9B5000000686DCC7C00E9A100000068B6CC7C00E9970000006824CE7C00E98D0000006800CD7C00E9830000006840CD7C00EB7CE8378FC5FF85C074678B80247E01003B45EC755CB94841550050E81D2FCAFF85C0744D3B45E4754889C680BED41C000000743D83BE401C0000007E3480BEE11C000000752B80BEEC1C00000075228B7DE883BCBE5C1F0000267515C784BE5C1F0000FFFFFFFF83BCBE5C1F0000FF75006897CD7C00EB0568DACD7C0068C3C27C00E87657FEFF8B75F083C4305F5E5B5DC3",
+    "running_offset": 4352,
+    "running_confirm_offset": 3584,
+    "running_helper_length": 1281,
+    "running_helper_sha256": "0F3AE9C5F1998A6BF1FD65962E1565969B9FB08D1A003937B08BABB69E0598AF",
+    "running_helper_bytes": "5589E553565783EC408975F0C745E4FFFFFFFFC745C800000000C745C400000000C745C0000000006830C27C00FF15E051490085C00F84BB040000683BC27C0050FF15DC51490085C00F84A70400008945C0E8F997C5FF85C00F84880400008B80247E01003D960000000F83770400008945ECB94841550050E8C256CAFF85C00F8461040000B948415500FF75ECE8BD37CAFF85C00F844C0400008945E889C680BED41C0000000F843A04000083BE401C0000000F8E2D04000080BEE11C0000000F852004000080BEEC1C0000000F851304000031FF83FF0373288B84BE5C1F00008944BDD883F8267507C745C80100000083F8FF7509837DE4FF7503897DE447EBD331FF83FF03731A8B84BE681F00008944BDCC83F8267507C745C40100000047EBE1837DC801740C837DE4FF0F84CC020000EB0A837DC4010F85B6020000813DF8D55100409C00000F82BA020000E8ABFBFFFF85C00F84B7020000E8EE96C5FF85C00F84B40200008B80247E01003B45EC0F85A5020000B94841550050E8BC55CAFF85C00F8492020000B948415500FF75ECE8B736CAFF85C00F847D0200003B45E80F857402000089C680BED41C0000000F846502000083BE401C0000000F8E5802000080BEE11C0000000F854B02000080BEEC1C0000000F853E0200008B865C1F00003B45D80F852F0200008B86601F00003B45DC0F85200200008B86641F00003B45E00F85110200008B86681F00003B45CC0F85020200008B866C1F00003B45D00F85F30100008B86701F00003B45D40F85E4010000813DF8D55100409C00000F82C0010000837DC801742A8B7DE483BCBE5C1F0000FF0F85BD010000C784BE5C1F00002600000083BCBE5C1F0000260F85AE01000031FF83FF03732683BCBE681F0000267519C784BE681F0000FFFFFFFF83BCBE681F0000FF0F858401000047EBD5E8A495C5FF85C00F842C0200008B80247E01003B45EC0F851D020000B94841550050E88235CAFF85C00F840A0200003B45E80F850102000089C680BED41C0000000F84F201000083BE401C0000000F8EE501000080BEE11C0000000F85D801000080BEEC1C0000000F85CB010000837DC801744F8B7DE483BCBE5C1F0000260F85B401000083FF00740F8B865C1F00003B45D80F85A001000083FF01740F8B86601F00003B45DC0F858C01000083FF0274388B86641F00003B45E00F8578010000EB278B865C1F00003B45D80F85670100008B86601F00003B45DC0F85580100008B86641F00003B45E00F854901000031FF83FF0373298B44BDCC83F826751083BCBE681F0000FF0F852B010000EB0D3984BE681F00000F851C01000047EBD2813DF8D55100409C0000723768C063FFFFB9F8D55100E8CE72C5FF6858CC7C0068C3C27C00E81F5DFEFFE900010000686DCC7C00E9EC00000068B6CC7C00E9E20000006840CE7C00E9D80000006800CD7C00E9CE0000006840CD7C00E9C4000000E82394C5FF85C00F84AB0000008B80247E01003B45EC0F859C000000B94841550050E80134CAFF85C00F84890000003B45E80F858000000089C680BED41C000000747583BE401C0000007E6C80BEE11C000000756380BEEC1C000000755A837DC80174248B7DE483BCBE5C1F0000267547C784BE5C1F0000FFFFFFFF83BCBE5C1F0000FF7532EB3031FF83FF037329837CBDCC26751F83BCBE681F0000FF7518C784BE681F00002600000083BCBE681F000026750347EBD26897CD7C00EB0568F6CD7C0068C3C27C00E81A5CFEFF8B75F083C4405F5E5B5DC3",
     "running_confirm_bytes": "5589E55356576830C27C00FF15E051490085C0742B683BC27C0050FF15DC51490085C0741B6A0168C3C27C006800CC7C006A00FFD083F8010F94C00FB6C0EB0231C05F5E5B89EC5DC3",
-    "running_stack_frame_size": 48,
+    "running_stack_frame_size": 64,
     "running_stack_locals": {
       "saved_esi": [
         -16,
@@ -187,11 +273,11 @@
         -20,
         -17
       ],
-      "first_empty_slot": [
+      "record_identity": [
         -24,
         -21
       ],
-      "record_identity": [
+      "first_empty_slot": [
         -28,
         -25
       ],
@@ -206,6 +292,30 @@
       "likes_snapshot_2": [
         -32,
         -29
+      ],
+      "dislikes_snapshot_0": [
+        -52,
+        -49
+      ],
+      "dislikes_snapshot_1": [
+        -48,
+        -45
+      ],
+      "dislikes_snapshot_2": [
+        -44,
+        -41
+      ],
+      "has_running_like": [
+        -56,
+        -53
+      ],
+      "has_running_dislike": [
+        -60,
+        -57
+      ],
+      "message_box_pointer": [
+        -64,
+        -61
       ]
     },
     "running_saved_register_intervals": {
@@ -222,7 +332,20 @@
         -9
       ]
     },
-    "running_snapshot_initialization": "all three Like DWORDs are stored before confirmation in disjoint -0x28/-0x24/-0x20 slots; first-empty initializes to -1",
-    "running_rollback": "after failed readback reacquire same index and record pointer, verify active/living/status/faction and slot==38, restore -1 and verify; never deduct; no independent skeleton discriminator is claimed"
+    "running_snapshot_initialization": "all three Like and all three Dislike DWORDs are stored before confirmation in disjoint slots; first-empty initializes to -1 and record identity is stored separately",
+    "running_rollback": "after failed readback reacquire same index and record pointer, verify active/living/status/faction and candidate-written values, restore only those values and verify; never deduct; no independent skeleton discriminator is claimed",
+    "running_strings_offset": 7168,
+    "running_strings_blob": "4772616E742052756E6E696E6720746F20746869732076696C6C6167657220666F722034302C303030207465636820706F696E74733F0D0A5072657373204F4B20746F20636F6E6669726D2C206F722043616E63656C2E0052756E6E696E6720776173206772616E7465642E00546869732076696C6C6167657220616C7265616479206C696B65732052756E6E696E672E0D0A4E6F207465636820706F696E74732068617665206265656E2064656475637465642E00546869732076696C6C6167657220686173206E6F20656D707479204C696B6520736C6F742E0D0A4E6F207465636820706F696E74732068617665206265656E2064656475637465642E004772616E742052756E6E696E67207761732063616E63656C65642E0D0A4E6F207465636820706F696E74732068617665206265656E2064656475637465642E005468652073656C65637465642076696C6C61676572206368616E67656420647572696E6720636F6E6669726D6174696F6E2E0D0A4E6F207465636820706F696E74732068617665206265656E2064656475637465642E0052756E6E696E6720636F756C64206E6F742062652076657269666965643B2061206E6174697665206368616E6765206D61792072656D61696E2E0D0A4E6F207465636820706F696E74732068617665206265656E2064656475637465642E004E6F2076616C6964206C6976696E672076696C6C616765722069732073656C65637465642E0D0A4E6F207465636820706F696E74732068617665206265656E2064656475637465642E004E6F7420656E6F756768207465636820706F696E74732E0D0A4E6F207465636820706F696E74732068617665206265656E2064656475637465642E00",
+    "running_string_pointers": {
+      "running_confirm": "0x7CCC00",
+      "running_success": "0x7CCC58",
+      "running_already": "0x7CCC6D",
+      "running_no_slot": "0x7CCCB6",
+      "running_cancel": "0x7CCD00",
+      "running_recheck": "0x7CCD40",
+      "running_write_failed": "0x7CCD97",
+      "running_invalid": "0x7CCDF6",
+      "running_insufficient": "0x7CCE40"
+    }
   }
 }

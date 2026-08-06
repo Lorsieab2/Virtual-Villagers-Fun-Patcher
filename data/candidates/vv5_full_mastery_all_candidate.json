@@ -53,7 +53,7 @@
       "route_before": "83FB027525",
       "price": 100000,
       "route_target": "EBX=1 helper; EBX=2 native Running preflight; all others legacy path",
-      "target": "selected current active/living non-skeleton Believer",
+      "target": "selected current active/living status-valid current-Believer; no independent skeleton discriminator is claimed",
       "finite_float_range": [
         0.0,
         100.0

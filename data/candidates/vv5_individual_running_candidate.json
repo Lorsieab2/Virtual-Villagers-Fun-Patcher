@@ -19,6 +19,14 @@
   "dependencies": [
     "vv5_full_mastery_all_stage_a_candidate"
   ],
+  "companion": {
+    "source": "data/candidates/VVFP VV5 Full Mastery Candidate.dll",
+    "destination": "VVFP Origins Icons.dll",
+    "sha256": "29927CECB448B64944E18E2BA11893DC84C91B39241FBB2549FC2A464E0BE2ED",
+    "preimage_sha256": "29927CECB448B64944E18E2BA11893DC84C91B39241FBB2549FC2A464E0BE2ED",
+    "restore_sha256": "29927CECB448B64944E18E2BA11893DC84C91B39241FBB2549FC2A464E0BE2ED",
+    "atomic_install_remove": true
+  },
   "patches": [
     {
       "offset": "0xDB766",
@@ -32,7 +40,7 @@
     "immediate_fixed": "E93822F752F730ECB751EBAA87021194C992984721B4370FF0015D5FC4BB2E9A"
   },
   "pe_append_transaction": {
-    "status": "disabled projection; dedicated .vv5run RX extension and production install/remove remain pending",
+    "status": "disabled real production candidate; loader/install/remove recertification pending",
     "section": ".vv5run",
     "append_source": "generated:vv5_individual_running_page",
     "append_offset": "0xF4000",
@@ -49,13 +57,73 @@
     "layouts": {
       "collection_progression": {
         "parent_sha256": "857E22D7C361B802508BF789C3CC486E42E76021F5AA579BB1D16CC6E0D017A0",
+        "original_file_size": "0xF4000",
+        "append_offset": "0xF4000",
+        "append_length": 8192,
+        "append_source": "generated:vv5_individual_running_page",
+        "rva": "0x3CB000",
+        "va": "0x7CB000",
+        "section_header_offset": "0x2E0",
+        "section_header_before": "00000000000000000000000000000000000000000000000000000000000000000000000000000000",
+        "section_header_after": "2E76763572756E000020000000B03C000020000000400F0000000000000000000000000020000060",
+        "header_patches": [
+          {
+            "offset": "0xFE",
+            "before": "0600",
+            "after": "0700",
+            "purpose": "add candidate-owned .vv5run section"
+          },
+          {
+            "offset": "0x148",
+            "before": "00B03C00",
+            "after": "00D03C00",
+            "purpose": "extend SizeOfImage for .vv5run"
+          },
+          {
+            "offset": "0x2E0",
+            "before": "00000000000000000000000000000000000000000000000000000000000000000000000000000000",
+            "after": "2E76763572756E000020000000B03C000020000000400F0000000000000000000000000020000060",
+            "purpose": "install guarded RX .vv5run section header"
+          }
+        ],
         "hook_before": "E995750100",
-        "hook_after": "E9B5880100"
+        "hook_after": "E9B5880100",
+        "purpose": "append the candidate-owned VV5 command-2 .vv5run RX page"
       },
       "immediate_fixed": {
         "parent_sha256": "E93822F752F730ECB751EBAA87021194C992984721B4370FF0015D5FC4BB2E9A",
+        "original_file_size": "0xF4000",
+        "append_offset": "0xF4000",
+        "append_length": 8192,
+        "append_source": "generated:vv5_individual_running_page",
+        "rva": "0x3CB000",
+        "va": "0x7CB000",
+        "section_header_offset": "0x2E0",
+        "section_header_before": "00000000000000000000000000000000000000000000000000000000000000000000000000000000",
+        "section_header_after": "2E76763572756E000020000000B03C000020000000400F0000000000000000000000000020000060",
+        "header_patches": [
+          {
+            "offset": "0xFE",
+            "before": "0600",
+            "after": "0700",
+            "purpose": "add candidate-owned .vv5run section"
+          },
+          {
+            "offset": "0x148",
+            "before": "00B03C00",
+            "after": "00D03C00",
+            "purpose": "extend SizeOfImage for .vv5run"
+          },
+          {
+            "offset": "0x2E0",
+            "before": "00000000000000000000000000000000000000000000000000000000000000000000000000000000",
+            "after": "2E76763572756E000020000000B03C000020000000400F0000000000000000000000000020000060",
+            "purpose": "install guarded RX .vv5run section header"
+          }
+        ],
         "hook_before": "E995750100",
-        "hook_after": "E9B5880100"
+        "hook_after": "E9B5880100",
+        "purpose": "append the candidate-owned VV5 command-2 .vv5run RX page"
       }
     }
   },
@@ -80,19 +148,32 @@
     ],
     "running_value": 38,
     "empty_value": -1,
-    "dry_run": "scan all Likes before confirmation; preserve duplicates; first physical -1 only",
-    "reacquire": "same selected index and exact three-Like snapshot before write",
+    "dry_run": "scan all three Likes and all three Dislikes before confirmation; preserve Like duplicates; first physical -1 Like only; clear every Running Dislike",
+    "reacquire": "same selected index, record identity, eligibility, and exact six-slot snapshot before write",
     "record_identity": "initial and confirmed resolver pointers must match exactly; no cached physical-base walking",
     "funds_checks": [
       "complete dry-run before confirmation",
       "immediately before write"
     ],
-    "rollback": "on failed write/readback, reacquire same index and record identity, require the supported active/living/status/faction predicate and target still helper-written 38, restore -1 and verify; no charge; no independent skeleton discriminator is claimed",
+    "rollback": "on failed write/readback, reacquire same index and record identity, require the supported active/living/status/faction predicate and candidate-written values, restore only those values and verify; no charge; no independent skeleton discriminator is claimed",
     "deduction": "ECX=0x51D5F8; push -40000; call 0x4237B0 exactly once",
+    "dislike_slots": [
+      "record+0x1F68",
+      "record+0x1F6C",
+      "record+0x1F70"
+    ],
+    "allowed_writes": [
+      "first physical empty Like = 38",
+      "every Dislike = 38 -> -1"
+    ],
     "forbidden_reads": [
-      "Dislikes",
       "movement",
       "speed"
+    ],
+    "accept_result": 1,
+    "cancel_results": [
+      0,
+      2
     ],
     "confirmation": "Grant Running to this villager for 40,000 tech points?\\r\\nPress OK to confirm, or Cancel.",
     "no_deduction": "No tech points have been deducted.",
@@ -107,15 +188,20 @@
     }
   },
   "emitted": {
-    "page_sha256": "4D4FEDD456F241C91F94FED50BC05BF00B7CB8132A557558063184766259E097",
+    "page_sha256": "8CE3015E5B7E3587C8997A36CA52BD0DE06537B09D76DAD3ED8ABF101352EF6C",
     "page_rva": "0x3CB000",
     "page_va": "0x7CB000",
     "append_offset": "0xF4000",
     "dispatcher_va": "0x7CB020",
-    "dispatcher_sha256": "BBB4C701A93F3863A841D4ED157857390DEF4E904D197CE071F7B981AA1918D6",
-    "dispatcher_bytes": "83FB010F84D7ECFFFF83FB020F84CE170000E95977FEFF",
-    "helper_sha256": "8B6F473B55A30CD71FB81F93218A08D46F9C577C751FF3562BCCF67D8FAEB19E",
-    "helper_length": 677
+    "dispatcher_sha256": "AA52DA90C08DDD0668926C93921B1D21683D006E05F1C00F7D8AB64550D8227C",
+    "dispatcher_bytes": "83FB010F84D7ECFFFF83FB020F84CE100000E95977FEFF",
+    "helper_sha256": "0F3AE9C5F1998A6BF1FD65962E1565969B9FB08D1A003937B08BABB69E0598AF",
+    "helper_length": 1281,
+    "rendered_exe_size": 1007616,
+    "rendered_exe_sha256": {
+      "collection_progression": "511997D3BA57AA6844D390FFD9BD980A6E36D277BFFD56BFC9A2672CAEFC8125",
+      "immediate_fixed": "390916F2BCE337FA89BC33A69569EDB89B5D361730DF0DB23067B2995F94AFA2"
+    }
   },
   "provenance": {
     "implementation_parent": "f1256fca68f2711974e93057e599f2642c77a2a4",
