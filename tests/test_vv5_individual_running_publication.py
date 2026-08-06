@@ -13,9 +13,34 @@ from src.vv5_individual_running import (
     AUTHORITY_NAME, _parent, _publish, _state, install_atomic, remove_atomic,
     recover_atomic, _registry_members, _discover_reports, _quarantine_owned,
 )
+import src.vv5_individual_running as running
 
 
 class VV5RunningPublicationTests(unittest.TestCase):
+    def test_c297_direct_recovery_rejects_orphan_chain_before_report_read(self) -> None:
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            report = root / (".vv5run-recovery-" + "a" * 32 + ".json")
+            report.write_bytes(b"not-json")
+            orphan = root / ".chain-foreign.json"
+            orphan.write_bytes(b"foreign")
+            with self.assertRaises(PatcherError):
+                recover_atomic(report)
+            self.assertEqual(orphan.read_bytes(), b"foreign")
+
+    def test_c297_non_windows_install_fails_before_filesystem_io(self) -> None:
+        with mock.patch.object(running.os, "name", "posix"), \
+             mock.patch.object(running.os, "lstat", side_effect=AssertionError("filesystem touched")):
+            with self.assertRaises(PatcherError):
+                install_atomic(Path("missing.exe"), Path(VV5_EXE_BASENAME), VV5_MODE,
+                               companion_source=Path("missing.dll"), companion_destination=Path(DLL_NAME))
+
+    def test_c297_non_windows_publish_fails_before_filesystem_io(self) -> None:
+        with mock.patch.object(running.os, "name", "posix"), \
+             mock.patch.object(running.os, "lstat", side_effect=AssertionError("filesystem touched")):
+            with self.assertRaises(PatcherError):
+                _publish("install", [Path(VV5_EXE_BASENAME), Path(DLL_NAME)], {}, {}, Path("."))
+
     def test_all_public_vv5_running_apis_reject_unsupported_mode_before_io(self) -> None:
         import src.vv_fun_patcher as patcher
         missing = Path("missing-vv5-running.exe")

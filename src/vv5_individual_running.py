@@ -41,6 +41,11 @@ AUTHORITY_NAME = ".authority"
 AUTHORITY_SCHEMA_VERSION = 1
 
 
+def _require_windows_identity_atomic() -> None:
+    if os.name != "nt":
+        raise PatcherError("VV5 Running publication/recovery identity-atomic operations are certified only on 64-bit Windows.")
+
+
 def _sha(data: bytes) -> str:
     return hashlib.sha256(data).hexdigest().upper()
 
@@ -86,6 +91,45 @@ def _validate_recovery_ancestors(path: Path) -> None:
             raise PatcherError(f"VV5 Running recovery reparse ancestor: {item}")
         if not stat.S_ISDIR(st.st_mode):
             raise PatcherError(f"VV5 Running recovery non-directory ancestor: {item}")
+
+
+def _validate_recovery_siblings(parent: Path, *, selected: str | None = None) -> None:
+    """Reject unknown VV5/chain residue before a report is used or mutated."""
+    canonical_re = re.compile(r"\.vv5run-recovery-[0-9a-f]{32}\.json")
+    emergency_re = re.compile(r"\.vv5run-emergency-[0-9a-f]{32}\.json")
+    successor_re = re.compile(r"\.vv5run-recovery-[0-9a-f]{32}\.v[0-9a-f]{32}\.json")
+    pointer_re = re.compile(r"\.vv5run-(?:recovery|emergency)-[0-9a-f]{32}\.json\.pointer")
+    known_reports: set[str] = set()
+    chain_entries: list[tuple[str, Path, os.stat_result]] = []
+    entries = list(os.scandir(parent))
+    for entry in entries:
+        name = entry.name
+        if name.startswith(".vv5run-"):
+            path = Path(entry.path)
+            st = os.lstat(path)
+            if name == ISSUANCE_REGISTRY_NAME or re.fullmatch(r"\.vv5run-recovery-[0-9a-f]{32}", name):
+                if stat.S_ISLNK(st.st_mode) or _unsafe(st) or not stat.S_ISDIR(st.st_mode):
+                    raise PatcherError(f"VV5 Running recovery sibling is unsafe: {name}")
+                continue
+            if canonical_re.fullmatch(name) or emergency_re.fullmatch(name) or successor_re.fullmatch(name) or pointer_re.fullmatch(name):
+                if stat.S_ISLNK(st.st_mode) or _unsafe(st) or not stat.S_ISREG(st.st_mode):
+                    raise PatcherError(f"VV5 Running recovery sibling is unsafe: {name}")
+                if canonical_re.fullmatch(name) or emergency_re.fullmatch(name):
+                    known_reports.add(name)
+                continue
+            raise PatcherError(f"VV5 Running recovery contains unknown .vv5run residue: {name}")
+        if name.startswith(".chain-"):
+            path = Path(entry.path)
+            st = os.lstat(path)
+            if stat.S_ISLNK(st.st_mode) or _unsafe(st) or not stat.S_ISREG(st.st_mode) or not name.endswith(".json"):
+                raise PatcherError(f"VV5 Running recovery chain member is unsafe: {name}")
+            chain_entries.append((name, path, st))
+    for name, _path, _st in chain_entries:
+        target = name[len(".chain-"):-len(".json")]
+        if target not in known_reports:
+            raise PatcherError(f"VV5 Running recovery chain manifest is orphaned or foreign: {name}")
+    if selected is not None and selected not in known_reports:
+        raise PatcherError("VV5 Running selected recovery report is not an accepted chain member.")
 
 
 def _read(path: Path) -> bytes:
@@ -428,6 +472,7 @@ def _cleanup_issuance_artifacts(
             _assert_registry_members(registry, registry_identity, expected)
             tombstones.append(_quarantine_owned(path, record, owner_parent=registry.parent))
             expected.pop(path.name, None)
+            _assert_registry_members(registry, registry_identity, expected)
         if remove_registry:
             _cleanup_registry(registry, registry_identity)
         for tombstone, record in tombstones:
@@ -738,6 +783,7 @@ def _report(parent: Path, operation: str, members: list[dict[str, object]], erro
 
 
 def _publish(operation: str, destinations: list[Path], pre: dict[Path, tuple[bool, bytes | None]], published: dict[Path, bytes], parent: Path, *, mode: str = VV5_MODE) -> None:
+    _require_windows_identity_atomic()
     if mode != VV5_MODE:
         raise PatcherError("VV5 Running supports Collection Progression only.")
     if [Path(destination).name for destination in destinations] != [VV5_EXE_BASENAME, DLL_NAME]:
@@ -929,6 +975,10 @@ def recover_atomic(report_path: Path, mode: str = VV5_MODE) -> None:
     if supplied_st is None:
         raise PatcherError("VV5 Running recovery report is missing.")
     if stat.S_ISDIR(supplied_st.st_mode):
+        _validate_recovery_siblings(report)
+    else:
+        _validate_recovery_siblings(report.parent, selected=report.name)
+    if stat.S_ISDIR(supplied_st.st_mode):
         _safe_ancestors(report)
         directory_record = _strict_inventory_entry(report.parent, report)
         canonical = []
@@ -978,6 +1028,9 @@ def recover_atomic(report_path: Path, mode: str = VV5_MODE) -> None:
     _safe_ancestors(report.parent)
     report_parent_before = _identity(report.parent)
     report_bytes = _read(report)
+    report_record_before = _inventory(report.parent, report)
+    if report_record_before is None:
+        raise PatcherError("VV5 Running recovery report disappeared during capture.")
     report_sha256 = _sha(report_bytes)
     raw_loaded = json.loads(report_bytes.decode("utf-8"))
     is_emergency = isinstance(raw_loaded, dict) and raw_loaded.get("kind") == "emergency_recovery_marker"
@@ -1147,6 +1200,11 @@ def recover_atomic(report_path: Path, mode: str = VV5_MODE) -> None:
         required_metadata["report_name"] = report.name
     if _registry_members(registry) != registry_members_before:
         raise PatcherError("VV5 Running issuance registry changed before replay publication")
+    _validate_recovery_siblings(report.parent, selected=report.name)
+    if _identity(report.parent) != report_parent_before or _inventory(report.parent, report) != report_record_before:
+        raise PatcherError("VV5 Running report/parent changed immediately before replay.")
+    if _inventory(report.parent, authority_path) != authority_record or _inventory(report.parent, issuance_path) != issuance_identity:
+        raise PatcherError("VV5 Running authority/issuance changed immediately before replay.")
     _strict_recover_atomic(
         report,
         recovery_prefix=".vv5run",
@@ -1180,6 +1238,7 @@ def recover_atomic(report_path: Path, mode: str = VV5_MODE) -> None:
 
 
 def install_atomic(source: Path, destination: Path, mode: str, *, companion_source: Path | None = None, companion_destination: Path | None = None) -> None:
+    _require_windows_identity_atomic()
     if mode != VV5_MODE:
         raise PatcherError("VV5 Running supports Collection Progression only.")
     if companion_source is None or companion_destination is None:
@@ -1211,6 +1270,7 @@ def install_atomic(source: Path, destination: Path, mode: str, *, companion_sour
 
 
 def remove_atomic(destination: Path, mode: str, *, companion_destination: Path | None = None, companion_restore_source: Path | None = None) -> None:
+    _require_windows_identity_atomic()
     if mode != VV5_MODE:
         raise PatcherError("VV5 Running supports Collection Progression only.")
     if companion_destination is None or companion_restore_source is None:
