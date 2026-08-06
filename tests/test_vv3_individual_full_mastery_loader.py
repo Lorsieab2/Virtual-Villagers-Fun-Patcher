@@ -449,6 +449,93 @@ class VV3IndividualFullMasteryLoaderTests(unittest.TestCase):
             self.assertEqual(report.read_bytes(), b"foreign-report")
             self.assertFalse(report.with_suffix(".tmp").exists())
 
+    def test_c288_refresh_pointer_race_preserves_old_report_and_foreign_pointer(self):
+        with tempfile.TemporaryDirectory(prefix="vv3-c288-refresh-race-") as td:
+            root = Path(td)
+            report, _destination, _companion = self._make_unresolved_report(root)
+            payload = json.loads(report.read_text(encoding="utf-8"))
+            root_name = next(item["path"] for item in payload["ownership_inventory"] if item["type"] == "directory")
+            recovery_root = root / root_name
+            pointer = loader._report_pointer_path(report)
+            real_link = loader.os.link
+            def race(src, dst):
+                if Path(dst) == pointer:
+                    pointer.write_bytes(b"foreign-pointer")
+                return real_link(src, dst)
+            with mock.patch.object(loader.os, "link", side_effect=race):
+                with self.assertRaises(vv_fun_patcher.PatcherError):
+                    loader._refresh_recovery_report(report, payload, root, recovery_root)
+            self.assertTrue(report.exists())
+            self.assertEqual(pointer.read_bytes(), b"foreign-pointer")
+            self.assertEqual(list(root.glob(f"{report.stem}.v*.json")), [])
+
+    def test_c288_emergency_marker_reconstructs_replays_and_cleans(self):
+        with tempfile.TemporaryDirectory(prefix="vv3-c288-emergency-replay-") as td:
+            root = Path(td)
+            report, destination, companion = self._make_unresolved_report(root)
+            payload = json.loads(report.read_text(encoding="utf-8"))
+            root_name = next(
+                item["path"]
+                for item in payload["ownership_inventory"]
+                if item["type"] == "directory"
+            )
+            recovery_root = root / root_name
+            details = dict(payload)
+            details.update({
+                "_report_prefix": ".vv3im",
+                "_recovery_root_name": recovery_root.name,
+                "_recovery_root_identity": loader._inventory_entry(root, recovery_root),
+                "_expected_ownership_inventory": payload["ownership_inventory"],
+            })
+            details.pop("report_relative", None)
+            original_report = loader._inventory_entry(root, report)
+            loader._remove_owned(report, expected=original_report)
+            marker = loader._write_emergency_marker(root, details, vv_fun_patcher.PatcherError("injected report failure"))
+            loader.recover_vv3_transaction(marker)
+            self.assertFalse(destination.exists())
+            self.assertFalse(companion.exists())
+            self.assertEqual(list(root.glob(".vv3im-*")), [])
+
+    def test_c288_emergency_root_escape_and_unknown_child_are_rejected(self):
+        with tempfile.TemporaryDirectory(prefix="vv3-c288-emergency-guards-") as td:
+            root = Path(td)
+            report, _destination, _companion = self._make_unresolved_report(root)
+            payload = json.loads(report.read_text(encoding="utf-8"))
+            root_name = next(item["path"] for item in payload["ownership_inventory"] if item["type"] == "directory")
+            recovery_root = root / root_name
+            details = dict(payload)
+            details.update({
+                "_report_prefix": ".vv3im",
+                "_recovery_root_name": recovery_root.name,
+                "_recovery_root_identity": loader._inventory_entry(root, recovery_root),
+                "_expected_ownership_inventory": payload["ownership_inventory"],
+            })
+            (recovery_root / "foreign-child").write_bytes(b"foreign")
+            with self.assertRaises(vv_fun_patcher.PatcherError):
+                loader._write_emergency_marker(root, details, vv_fun_patcher.PatcherError("injected"))
+            self.assertTrue((recovery_root / "foreign-child").exists())
+            details["_recovery_root_name"] = "..\\escape"
+            with self.assertRaises(vv_fun_patcher.PatcherError):
+                loader._write_emergency_marker(root, details, vv_fun_patcher.PatcherError("injected"))
+
+    def test_c288_final_delete_race_quarantines_foreign_material(self):
+        with tempfile.TemporaryDirectory(prefix="vv3-c288-tombstone-") as td:
+            root = Path(td)
+            target = root / "owned.bin"
+            target.write_bytes(b"owned")
+            expected = loader._inventory_entry(root, target)
+            original_rename = loader.os.rename
+            def race(src, dst):
+                if Path(src) == target:
+                    target.write_bytes(b"foreign")
+                return original_rename(src, dst)
+            with mock.patch.object(loader.os, "rename", side_effect=race):
+                with self.assertRaises(vv_fun_patcher.PatcherError):
+                    loader._remove_owned(target, expected=expected)
+            tombstones = list(root.glob(".owned.bin.vv3im-tombstone-*"))
+            self.assertEqual(len(tombstones), 1)
+            self.assertEqual(tombstones[0].read_bytes(), b"foreign")
+
 
 if __name__ == "__main__":
     unittest.main()
