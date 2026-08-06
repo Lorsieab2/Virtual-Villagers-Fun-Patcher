@@ -346,7 +346,9 @@ def recover_atomic(report_or_root: Path) -> None:
     if not isinstance(members, list) or len(members) != 2:
         raise PatcherError("VV3 individual Full Mastery recovery members are invalid.")
     paths = [Path(m["path"]) for m in members]
-    _validate_pair_parent(paths)
+    parent = _validate_pair_parent(paths)
+    if Path(os.path.abspath(payload.get("destination_parent", ""))) != parent:
+        raise PatcherError("VV3 individual Full Mastery recovery destination parent mismatch.")
     for m in members:
         p = Path(m["path"]); backup = Path(m["backup"]) if m.get("backup") else None
         pre_exists = bool(m["pre_exists"])
