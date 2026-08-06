@@ -1191,6 +1191,86 @@ class VV3IndividualFullMasteryLoaderTests(unittest.TestCase):
             self.assertTrue(journal.exists())
             self.assertEqual(loader._inventory_entry(root, journal), old_record)
 
+    def test_c318_emergency_marker_requires_embedded_security_bindings(self):
+        with tempfile.TemporaryDirectory(prefix="vv3-c318-emergency-bindings-") as td:
+            root = Path(td)
+            report, _destination, _companion = self._make_unresolved_report(root)
+            payload = json.loads(report.read_text(encoding="utf-8"))
+            recovery_root = root / next(item["path"] for item in payload["ownership_inventory"] if item["type"] == "directory")
+            details = dict(payload)
+            details.update({
+                "_report_prefix": ".vv3im",
+                "_recovery_root_name": recovery_root.name,
+                "_recovery_root_identity": loader._inventory_entry(root, recovery_root),
+                "_expected_ownership_inventory": payload["ownership_inventory"],
+            })
+            details.pop("report_parent_identity", None)
+            with self.assertRaises(vv_fun_patcher.PatcherError):
+                loader._write_emergency_marker(root, details, vv_fun_patcher.PatcherError("injected"))
+            self.assertFalse(list(root.glob(".vv3im-emergency-*.json")))
+
+    def test_c318_emergency_reader_rejects_synthesized_location_bindings(self):
+        with tempfile.TemporaryDirectory(prefix="vv3-c318-synthesized-location-") as td:
+            root = Path(td)
+            report, _destination, _companion = self._make_unresolved_report(root)
+            payload = json.loads(report.read_text(encoding="utf-8"))
+            recovery_root = root / next(item["path"] for item in payload["ownership_inventory"] if item["type"] == "directory")
+            details = dict(payload)
+            details.update({
+                "_report_prefix": ".vv3im",
+                "_recovery_root_name": recovery_root.name,
+                "_recovery_root_identity": loader._inventory_entry(root, recovery_root),
+                "_expected_ownership_inventory": payload["ownership_inventory"],
+            })
+            marker = loader._write_emergency_marker(root, details, vv_fun_patcher.PatcherError("injected"))
+            raw = json.loads(marker.read_text(encoding="utf-8"))
+            raw["recovery_payload"].pop("destination_parent_absolute", None)
+            marker.write_text(json.dumps(raw), encoding="utf-8")
+            with self.assertRaises(vv_fun_patcher.PatcherError):
+                loader._read_issuance_binding(loader._chain_manifest_path(marker))
+
+    def test_c318_vv3_report_rejects_vv5_registry_fields(self):
+        with tempfile.TemporaryDirectory(prefix="vv3-c318-cross-caller-") as td:
+            root = Path(td)
+            report, _destination, _companion = self._make_unresolved_report(root)
+            payload = json.loads(report.read_text(encoding="utf-8"))
+            payload["issuance_registry_relative"] = ".vv5run-issuance"
+            payload["issuance_registry_identity"] = {"st_dev": 1, "st_ino": 2}
+            allowed = {key for key in payload if key not in {"schema_version", "operation", "recovery_root", "destination_parent", "report_relative", "initial_precondition", "replay_guard", "members", "ownership_inventory", "failure_diagnostic"}}
+            with self.assertRaises(vv_fun_patcher.PatcherError):
+                loader._validate_recovery_payload(payload, root, allowed_metadata=allowed)
+
+    def test_c318_mutation_after_second_namespace_capture_fails_closed(self):
+        with tempfile.TemporaryDirectory(prefix="vv3-c318-second-capture-") as td:
+            root = Path(td)
+            report, _destination, _companion = self._make_unresolved_report(root)
+            original = loader._validate_vv3_hidden_namespace
+            injected = {"done": False}
+            def inject(parent, *, expected=None):
+                result = original(parent, expected=expected)
+                if expected and len(expected) == 1 and next(iter(expected)).startswith(".vv3im-journal-") and not injected["done"]:
+                    (root / ".vv3im-foreign-after-capture").write_bytes(b"foreign")
+                    injected["done"] = True
+                return result
+            with mock.patch.object(loader, "_validate_vv3_hidden_namespace", side_effect=inject):
+                with self.assertRaises(vv_fun_patcher.PatcherError):
+                    loader.recover_vv3_transaction(report)
+            self.assertTrue((root / ".vv3im-foreign-after-capture").exists())
+
+    def test_c318_final_authority_deletion_failure_retains_journal(self):
+        with tempfile.TemporaryDirectory(prefix="vv3-c318-finalization-replay-") as td:
+            root = Path(td)
+            report, _destination, _companion = self._make_unresolved_report(root)
+            original_delete = loader._delete_file_by_handle
+            def fail_authority(path, expected):
+                if Path(path).name.startswith(".vv3im-journal-"):
+                    raise vv_fun_patcher.PatcherError("injected final authority deletion failure")
+                return original_delete(path, expected)
+            with mock.patch.object(loader, "_delete_file_by_handle", side_effect=fail_authority):
+                with self.assertRaises(vv_fun_patcher.PatcherError):
+                    loader.recover_vv3_transaction(report)
+            self.assertTrue(list(root.glob(".vv3im-journal-*.json")))
+
 
 if __name__ == "__main__":
     unittest.main()

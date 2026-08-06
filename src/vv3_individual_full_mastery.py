@@ -38,6 +38,67 @@ OUTPUT_HASHES = {
 COMPANION_DLL_SHA256 = "9F866CB6F92C745CD2AA7009AEC4EB70FA5521EFF0C8F7BABE2058BB4D2F8533"
 COMPANION_PARENT_DLL_SHA256 = "35FB96199E745C7D8054FF6A12851B9E09225E3E41D0CE04012604E74968C0D5"
 
+# Recovery metadata is intentionally caller-specific.  The shared writer may
+# transport both callers, but it must never accept a permissive union of their
+# security bindings.  VV3 has an owned-root issuance; VV5 has an external
+# parent-registry issuance and its own schema marker.
+VV3_RECOVERY_METADATA_REQUIRED = {
+    "feature_owner", "mode", "parent_sha256", "candidate_sha256",
+    "destination_exe_basename", "companion_dll_basename", "member_roles",
+    "recovery_root_name", "recovery_root_identity", "report_name",
+    "report_parent_identity", "issuance_token", "issuance_name",
+    "issuance_identity", "destination_parent_absolute",
+    "destination_paths_absolute",
+}
+VV3_RECOVERY_METADATA_FORBIDDEN = {
+    "issuance_registry_relative", "issuance_registry_identity", "vv5_schema",
+}
+VV5_RECOVERY_METADATA_REQUIRED = {
+    "feature_owner", "mode", "parent_sha256", "candidate_sha256",
+    "destination_exe_basename", "companion_dll_basename", "member_roles",
+    "recovery_root_name", "recovery_root_identity", "report_name",
+    "report_parent_identity", "issuance_token", "issuance_name",
+    "issuance_registry_relative", "issuance_registry_identity",
+    "issuance_identity", "destination_parent_absolute",
+    "destination_paths_absolute", "vv5_schema",
+}
+
+
+def _validate_emergency_binding_payload(payload: dict[str, object], *, owner: str) -> None:
+    """Require durable embedded bindings; never infer them from marker path."""
+    if owner == "vv3_individual_full_mastery":
+        required = VV3_RECOVERY_METADATA_REQUIRED
+        forbidden = VV3_RECOVERY_METADATA_FORBIDDEN
+    elif owner == "vv5_individual_grant_running_candidate":
+        required = VV5_RECOVERY_METADATA_REQUIRED
+        forbidden = set()
+    else:
+        raise PatcherError("Current emergency marker feature owner is unsupported.")
+    base = {
+        "schema_version", "operation", "recovery_root", "destination_parent",
+        "report_relative", "initial_precondition", "replay_guard", "members",
+        "ownership_inventory", "failure_diagnostic",
+    }
+    missing = required - set(payload)
+    if missing or forbidden.intersection(payload) or set(payload) != base | required:
+        raise PatcherError("Current emergency marker lacks the exact caller binding schema.")
+    root_name = payload.get("recovery_root_name")
+    root_identity = payload.get("recovery_root_identity")
+    parent_identity = payload.get("report_parent_identity")
+    destination_parent = payload.get("destination_parent_absolute")
+    issuance_token = payload.get("issuance_token")
+    issuance_name = payload.get("issuance_name")
+    issuance_identity = payload.get("issuance_identity")
+    if (
+        not isinstance(root_name, str) or not isinstance(root_identity, dict)
+        or not isinstance(parent_identity, dict) or not isinstance(destination_parent, str)
+        or not isinstance(issuance_token, str) or not re.fullmatch(r"[0-9a-f]{32}", issuance_token)
+        or not isinstance(issuance_name, str) or not isinstance(issuance_identity, dict)
+        or not isinstance(payload.get("member_roles"), dict)
+        or not isinstance(payload.get("destination_paths_absolute"), list)
+    ):
+        raise PatcherError("Current emergency marker contains incomplete durable bindings.")
+
 
 def _require_windows_identity_atomic() -> None:
     if os.name != "nt" or struct.calcsize("P") != 8:
@@ -292,25 +353,32 @@ def _write_emergency_marker(parent: Path, details: dict[str, object], error: Bas
     marker = parent / f"{prefix}-emergency-{uuid.uuid4().hex}.json"
     root, root_record, inventory = _validate_emergency_root(parent, details)
     recovery_payload = {key: value for key, value in details.items() if not key.startswith("_")}
-    # Older internal callers may omit these fields; derive them once from the
-    # owned member list so every newly issued emergency marker has an explicit
-    # role/destination binding rather than an ambiguous empty projection.
-    if not isinstance(recovery_payload.get("member_roles"), dict):
-        recovery_payload["member_roles"] = {
-            str(member.get("destination_relative")): "recovery_member"
-            for member in (recovery_payload.get("members") or [])
-            if isinstance(member, dict) and isinstance(member.get("destination_relative"), str)
-        }
-    if not isinstance(recovery_payload.get("destination_paths_absolute"), list):
-        recovery_payload["destination_paths_absolute"] = [
-            str(member.get("destination_relative"))
-            for member in (recovery_payload.get("members") or [])
-            if isinstance(member, dict) and isinstance(member.get("destination_relative"), str)
-        ]
+    owner = recovery_payload.get("feature_owner")
+    if not isinstance(owner, str):
+        raise PatcherError("Current emergency marker feature owner is missing.")
+    # Marker creation is allowed to persist bindings captured by the failed
+    # transaction, but it may not invent role/path/security fields from the
+    # marker's current location.  Reconstruction later accepts only this
+    # embedded durable envelope.
+    recovery_payload["recovery_root_name"] = root.name
+    recovery_payload["recovery_root_identity"] = root_record
+    # When canonical publication failed before it could allocate a report,
+    # this marker is the issued report object.  Persist that exact name in the
+    # embedded envelope; recovery never derives it later from marker location.
+    recovery_payload.setdefault("report_name", marker.name)
+    # Structural report fields are persisted in the marker as a complete
+    # schema-v2 envelope even when canonical writer failed before assembling
+    # them.  These are not inferred security bindings.
+    recovery_payload.setdefault("schema_version", 2)
+    recovery_payload.setdefault("recovery_root", ".")
+    recovery_payload.setdefault("destination_parent", ".")
+    recovery_payload.setdefault("report_relative", marker.name)
+    recovery_payload.setdefault("failure_diagnostic", str(error))
+    _validate_emergency_binding_payload(recovery_payload, owner=owner)
     payload = {
         "schema_version": 1,
         "kind": "emergency_recovery_marker",
-        "feature_owner": details.get("feature_owner", "vv3_individual_full_mastery"),
+        "feature_owner": owner,
         "operation": details.get("operation"),
         "recovery_root_name": root.name,
         "recovery_root_identity": root_record,
@@ -354,12 +422,8 @@ def _write_recovery_impl(parent: Path, details: dict[str, object]) -> Path:
     # writer: each feature owner gets an explicit schema, and an unknown owner
     # cannot smuggle arbitrary fields through the shared report writer.
     metadata_schemas = {
-        "vv3_individual_full_mastery": {"feature_owner", "mode", "parent_sha256", "candidate_sha256", "destination_exe_basename", "companion_dll_basename", "member_roles", "recovery_root_name", "recovery_root_identity", "report_name", "report_parent_identity", "issuance_token", "issuance_name", "issuance_registry_relative", "issuance_registry_identity", "issuance_identity", "destination_parent_absolute", "destination_paths_absolute"},
-        # VV5 uses the same transport envelope but has a distinct caller
-        # contract marker and does not inherit VV3's unqualified metadata
-        # acceptance.  The root/report/registry fields are emitted by this
-        # writer and therefore remain explicitly enumerated here.
-        "vv5_individual_grant_running_candidate": {"feature_owner", "mode", "parent_sha256", "candidate_sha256", "destination_exe_basename", "companion_dll_basename", "member_roles", "recovery_root_name", "recovery_root_identity", "report_name", "report_parent_identity", "issuance_token", "issuance_name", "issuance_registry_relative", "issuance_registry_identity", "issuance_identity", "destination_parent_absolute", "destination_paths_absolute", "vv5_schema"},
+        "vv3_individual_full_mastery": set(VV3_RECOVERY_METADATA_REQUIRED),
+        "vv5_individual_grant_running_candidate": set(VV5_RECOVERY_METADATA_REQUIRED),
     }
     feature_owner = payload_details.get("feature_owner")
     metadata_keys = metadata_schemas.get(str(feature_owner), set())
@@ -379,6 +443,13 @@ def _write_recovery_impl(parent: Path, details: dict[str, object]) -> Path:
         payload["recovery_root_identity"] = root_identity
         payload["report_name"] = report.name
         payload["report_parent_identity"] = {"st_dev": int(parent_st.st_dev), "st_ino": int(parent_st.st_ino)}
+        # Preserve the exact captured bindings for a possible emergency
+        # marker.  Reconstruction must consume these fields verbatim and may
+        # never synthesize them from the marker's current parent.
+        details["recovery_root_name"] = root_name
+        details["recovery_root_identity"] = root_identity
+        details["report_name"] = report.name
+        details["report_parent_identity"] = payload["report_parent_identity"]
     # The writer adds report/root identity fields below even for the base VV3
     # transaction.  Admit only this fixed metadata schema; unknown fields are
     # still rejected by _validate_recovery_payload.
@@ -552,14 +623,19 @@ def _read_issuance_binding(manifest: Path) -> dict[str, object] | None:
         embedded = report_raw.get("recovery_payload")
         if not isinstance(embedded, dict):
             raise PatcherError("Current emergency recovery marker has no strict recovery payload.")
-        parent_stat = os.lstat(manifest.parent)
-        report_raw = {
-            **embedded,
-            "recovery_root_name": report_raw.get("recovery_root_name"),
-            "recovery_root_identity": report_raw.get("recovery_root_identity"),
-            "report_parent_identity": embedded.get("report_parent_identity") or {"st_dev": int(parent_stat.st_dev), "st_ino": int(parent_stat.st_ino)},
-            "destination_parent_absolute": embedded.get("destination_parent_absolute") or str(manifest.parent.absolute()).casefold(),
-        }
+        owner = embedded.get("feature_owner")
+        if not isinstance(owner, str):
+            raise PatcherError("Current emergency recovery marker feature owner is missing.")
+        _validate_emergency_binding_payload(embedded, owner=owner)
+        # Every security binding must come from the durable embedded payload.
+        # The marker's location is used only to locate the already-bound
+        # objects, never to fill a missing parent/root/issuance field.
+        if (
+            report_raw.get("recovery_root_name") != embedded.get("recovery_root_name")
+            or report_raw.get("recovery_root_identity") != embedded.get("recovery_root_identity")
+        ):
+            raise PatcherError("Current emergency recovery marker root binding differs from its embedded authority.")
+        report_raw = dict(embedded)
     token = report_raw.get("issuance_token")
     name = report_raw.get("issuance_name")
     identity = report_raw.get("issuance_identity")
@@ -1744,6 +1820,15 @@ def _validate_recovery_payload(payload: dict[str, object], root: Path, *, allowe
         raise PatcherError("VV5 Running metadata is not valid for this recovery caller.")
     if payload.get("feature_owner") not in {"vv3_individual_full_mastery", "vv5_individual_grant_running_candidate"}:
         raise PatcherError("Current recovery report has no strict feature owner.")
+    owner = payload["feature_owner"]
+    caller_required = VV3_RECOVERY_METADATA_REQUIRED if owner == "vv3_individual_full_mastery" else VV5_RECOVERY_METADATA_REQUIRED
+    caller_forbidden = VV3_RECOVERY_METADATA_FORBIDDEN if owner == "vv3_individual_full_mastery" else set()
+    if not caller_required.issubset(payload) or caller_forbidden.intersection(payload):
+        raise PatcherError("Current recovery report does not satisfy its exact caller schema.")
+    if allowed_metadata is not None and set(allowed_metadata) != (set(payload) - required):
+        raise PatcherError("Current recovery report metadata envelope is not exact for its caller.")
+    if owner == "vv5_individual_grant_running_candidate" and payload.get("vv5_schema") != "vv5_running_recovery_v2":
+        raise PatcherError("VV5 Running recovery caller schema is unsupported or ambiguous.")
     expected_parent = str(root.absolute()).casefold()
     if payload.get("destination_parent_absolute") != expected_parent:
         raise PatcherError("Current recovery report destination parent is missing or relocated.")
@@ -1909,7 +1994,7 @@ def _validate_vv3_hidden_namespace(parent: Path, *, expected: set[str] | None = 
     if expected is not None:
         actual = {entry.name for entry in os.scandir(parent) if "vv3im-" in entry.name}
         if actual != set(expected):
-            raise PatcherError("VV3 individual Full Mastery hidden namespace inventory changed or contains foreign residue.")
+            raise PatcherError(f"VV3 individual Full Mastery hidden namespace inventory changed or contains foreign residue: expected={sorted(expected)!r} actual={sorted(actual)!r}.")
         for name in actual:
             _inventory_entry(parent, parent / name)
         return
@@ -2368,6 +2453,19 @@ def _transaction(operation: str, destinations: list[Path], pre: dict[Path, tuple
     recovery_root = parent / f"{recovery_prefix}-recovery-{token}"
     recovery_metadata = dict(recovery_metadata or {})
     recovery_metadata.setdefault("feature_owner", "vv3_individual_full_mastery")
+    # Internal audit callers may invoke the transaction primitive directly.
+    # Give those reports a complete, explicitly bound VV3 envelope rather
+    # than reopening the old owner-only schema; production callers override
+    # these values with the certified mode/hash identities.
+    recovery_metadata.setdefault("mode", "internal")
+    recovery_metadata.setdefault("parent_sha256", _sha(pre[destinations[0]][1] or b""))
+    recovery_metadata.setdefault("candidate_sha256", _sha(published[destinations[0]]))
+    recovery_metadata.setdefault("destination_exe_basename", destinations[0].name)
+    recovery_metadata.setdefault("companion_dll_basename", destinations[1].name)
+    recovery_metadata.setdefault("member_roles", {destinations[0].name: "game_executable", destinations[1].name: "companion_dll"})
+    recovery_metadata.setdefault("destination_paths_absolute", [str(path.absolute()).casefold() for path in destinations])
+    parent_record = _inventory_entry(parent.parent, parent)
+    recovery_metadata.setdefault("report_parent_identity", {"st_dev": int(parent_record["st_dev"]), "st_ino": int(parent_record["st_ino"])})
     _safe_ancestor_chain(parent)
     if os.path.lexists(recovery_root):
         raise PatcherError("VV3 individual Full Mastery recovery-root collision.")
@@ -2571,6 +2669,15 @@ def _recover_from_emergency_marker(marker: Path, *, recovery_prefix: str, requir
     if not isinstance(marker_payload, dict) or set(marker_payload) != {"schema_version", "kind", "feature_owner", "operation", "recovery_root_name", "recovery_root_identity", "ownership_inventory", "expected_ownership_inventory", "recovery_payload", "failure", "canonical_report_target"} or marker_payload.get("schema_version") != 1 or marker_payload.get("kind") != "emergency_recovery_marker":
         raise PatcherError("VV3 individual Full Mastery emergency marker schema is unsupported.")
     details = dict(marker_payload.get("recovery_payload") or {})
+    marker_owner = marker_payload.get("feature_owner")
+    if marker_owner != details.get("feature_owner") or not isinstance(marker_owner, str):
+        raise PatcherError("VV3 individual Full Mastery emergency marker caller binding is inconsistent.")
+    _validate_emergency_binding_payload(details, owner=marker_owner)
+    if (
+        marker_payload.get("recovery_root_name") != details.get("recovery_root_name")
+        or marker_payload.get("recovery_root_identity") != details.get("recovery_root_identity")
+    ):
+        raise PatcherError("VV3 individual Full Mastery emergency marker root binding is inconsistent.")
     orphan_records: list[tuple[Path, dict[str, object]]] = []
     for orphan in orphan_manifests:
         orphan_raw = json.loads(_read_regular(orphan).decode("utf-8"))
@@ -2606,6 +2713,8 @@ def _recover_from_emergency_marker(marker: Path, *, recovery_prefix: str, requir
     _remove_owned(marker_manifest, expected=marker_manifest_record)
     for orphan, orphan_record in orphan_records:
         _remove_owned(orphan, expected=orphan_record)
+    _validate_vv3_hidden_namespace(marker.parent, expected=set())
+    _validate_vv3_hidden_namespace(marker.parent, expected=set())
 
 
 def _compatible_emergency_markers(markers: list[Path], payload: dict[str, object]) -> list[tuple[Path, dict[str, object]]]:
@@ -2690,6 +2799,14 @@ def recover_atomic(report_or_root: Path, *, recovery_prefix: str = ".vv3im", req
         report, pointer_canonical_record, pointer_record, _pointer_path = pointer_info
         pointer_canonical = canonical_report
     chain_manifest, chain_manifest_record, _chain_manifest_payload = _read_chain_manifest(report)
+    # Keep the current transaction authority as a finalization successor.  It
+    # must cover the interval after report/predecessor deletion through the
+    # complete post-deletion namespace proof; it is the last authority allowed
+    # to be retired.
+    final_authority_path = _discover_transaction_authority(chain_manifest)
+    final_authority_record = _inventory_entry(report.parent, final_authority_path)
+    if final_authority_record is None:
+        raise PatcherError("VV3 individual Full Mastery finalization authority is missing.")
     _safe_ancestor_chain(report.parent)
     report_st_before = os.lstat(report)
     _reject_entry(report, report_st_before, directory=False)
@@ -2923,7 +3040,7 @@ def recover_atomic(report_or_root: Path, *, recovery_prefix: str = ".vv3im", req
             closed_manifest_names.add(chain_manifest.name)
         _remove_owned(chain_manifest, expected=chain_manifest_record)
         chain_journal = _transaction_authority_path(chain_manifest)
-        if os.path.lexists(chain_journal):
+        if os.path.lexists(chain_journal) and chain_journal != final_authority_path:
             _delete_file_by_handle(chain_journal, _inventory_entry(root, chain_journal))
         for marker, marker_record in compatible_marker_records:
             if os.path.lexists(marker):
@@ -2933,11 +3050,13 @@ def recover_atomic(report_or_root: Path, *, recovery_prefix: str = ".vv3im", req
                 marker_manifest_record = _inventory_entry(root, marker_manifest)
                 _remove_owned(marker_manifest, expected=marker_manifest_record)
             marker_journal = _transaction_authority_path(marker_manifest)
-            if os.path.lexists(marker_journal):
+            if os.path.lexists(marker_journal) and marker_journal != final_authority_path:
                 _delete_file_by_handle(marker_journal, _inventory_entry(root, marker_journal))
         # Retire every journal that belongs to this closed chain, but reject
         # an unrelated or malformed journal rather than silently deleting it.
         for journal in sorted(root.glob(".vv3im-journal-*.json")):
+            if journal == final_authority_path:
+                continue
             journal_record = _inventory_entry(root, journal)
             journal_raw = json.loads(_read_regular(journal).decode("utf-8"))
             manifest_name = journal_raw.get("manifest_name") if isinstance(journal_raw, dict) else None
@@ -2949,6 +3068,65 @@ def recover_atomic(report_or_root: Path, *, recovery_prefix: str = ".vv3im", req
                 raise PatcherError("VV3 individual Full Mastery foreign transaction authority remains during cleanup.")
             _delete_file_by_handle(journal, journal_record)
         _fsync_dir(root)
+        # The final authority remains while every predecessor/member cleanup
+        # is complete.  Two full hidden-namespace captures plus an immediate
+        # identity recapture close the last mutation interval before its
+        # deletion; any insertion/substitution retains the authority and
+        # makes replay fail closed.
+        if not os.path.lexists(final_authority_path) or _inventory_entry(root, final_authority_path) != final_authority_record:
+            raise PatcherError("VV3 individual Full Mastery finalization authority changed before retirement.")
+        # A canonical report reconstructed from an emergency marker may still
+        # have that marker (and its bound manifest/journal) live until the
+        # outer recovery call retires it.  They are explicit predecessors,
+        # not an invitation to accept arbitrary hidden children.
+        expected_finalization = {final_authority_path.name}
+        for predecessor in (*sibling_reports, *sibling_successors, *sibling_markers):
+            if os.path.lexists(predecessor):
+                expected_finalization.add(predecessor.name)
+            predecessor_manifest = _chain_manifest_path(predecessor)
+            if os.path.lexists(predecessor_manifest):
+                expected_finalization.add(predecessor_manifest.name)
+                predecessor_journal = _transaction_authority_path(predecessor_manifest)
+                if os.path.lexists(predecessor_journal):
+                    expected_finalization.add(predecessor_journal.name)
+        # A report reconstructed from a marker can leave an older, bound
+        # chain manifest discoverable even though its report name is no longer
+        # a current sibling.  Admit only manifests whose complete transaction
+        # payload matches this report; any other chain-shaped child is foreign.
+        chain_shape = re.compile(r"\.chain-\.vv3im-(?:recovery|emergency)-[0-9a-f]{32}\.json\.json")
+        for entry in os.scandir(root):
+            if not chain_shape.fullmatch(entry.name) or entry.name in expected_finalization:
+                continue
+            candidate_manifest = Path(entry.path)
+            candidate_raw = json.loads(_read_regular(candidate_manifest).decode("utf-8"))
+            if (
+                not isinstance(candidate_raw, dict)
+                or candidate_raw.get("schema_version") != 3
+                or candidate_raw.get("kind") != "vv3_recovery_chain_manifest"
+                or candidate_raw.get("recovery_root_name") != payload.get("recovery_root_name")
+                or candidate_raw.get("recovery_root_record") != payload.get("recovery_root_identity")
+                or candidate_raw.get("members") != payload.get("members")
+                or candidate_raw.get("ownership_inventory") != payload.get("ownership_inventory")
+            ):
+                raise PatcherError("VV3 individual Full Mastery finalization found a foreign chain manifest.")
+            expected_finalization.update({
+                candidate_manifest.name,
+                _transaction_authority_path(candidate_manifest).name,
+            })
+        expected_finalization = {
+            name for name in expected_finalization
+            if "vv3im-" in name and os.path.lexists(root / name)
+        }
+        _validate_vv3_hidden_namespace(root, expected=expected_finalization)
+        _validate_vv3_hidden_namespace(root, expected=expected_finalization)
+        if _inventory_entry(root, final_authority_path) != final_authority_record:
+            raise PatcherError("VV3 individual Full Mastery finalization authority changed during namespace proof.")
+        _delete_file_by_handle(final_authority_path, final_authority_record)
+        if os.path.lexists(final_authority_path):
+            raise PatcherError("VV3 individual Full Mastery finalization authority deletion did not verify.")
+        _fsync_dir(root)
+        _validate_vv3_hidden_namespace(root, expected=expected_finalization - {final_authority_path.name})
+        _validate_vv3_hidden_namespace(root, expected=expected_finalization - {final_authority_path.name})
     except Exception:
         # Never consume backups or delete evidence on a failed replay.  Replay
         # stages are owned temporary material; remove them only after an
@@ -3011,7 +3189,22 @@ def install_atomic(source: Path, destination: Path, mode: str, *, companion_sour
     for p in destinations:
         if pre[p][0] and pre[p][1] != expected_preimage[p]:
             raise PatcherError("VV3 individual Full Mastery destination preimage mismatch.")
-    _transaction("install", destinations, pre, {destinations[0]: candidate, destinations[1]: companion_bytes}, expected_preimage=expected_preimage, parent=parent)
+    _transaction(
+        "install", destinations, pre,
+        {destinations[0]: candidate, destinations[1]: companion_bytes},
+        expected_preimage=expected_preimage,
+        parent=parent,
+        recovery_metadata={
+            "feature_owner": "vv3_individual_full_mastery",
+            "mode": mode,
+            "parent_sha256": PARENT_HASHES[mode],
+            "candidate_sha256": OUTPUT_HASHES[mode],
+            "destination_exe_basename": destinations[0].name,
+            "companion_dll_basename": destinations[1].name,
+            "member_roles": {destinations[0].name: "game_executable", destinations[1].name: "companion_dll"},
+            "destination_paths_absolute": [str(path.absolute()).casefold() for path in destinations],
+        },
+    )
 
 
 def remove_atomic(destination: Path, mode: str, *, companion_destination: Path | None = None, companion_restore_source: Path | None = None) -> None:
@@ -3028,4 +3221,19 @@ def remove_atomic(destination: Path, mode: str, *, companion_destination: Path |
     pre = {destinations[0]: (True, candidate), destinations[1]: (True, _read_regular(companion_destination))}
     if _sha(pre[destinations[1]][1] or b"") != COMPANION_DLL_SHA256:
         raise PatcherError("VV3 individual Full Mastery candidate companion preimage mismatch.")
-    _transaction("remove", destinations, pre, {destinations[0]: parent_bytes, destinations[1]: companion_parent}, expected_preimage={}, parent=parent)
+    _transaction(
+        "remove", destinations, pre,
+        {destinations[0]: parent_bytes, destinations[1]: companion_parent},
+        expected_preimage={},
+        parent=parent,
+        recovery_metadata={
+            "feature_owner": "vv3_individual_full_mastery",
+            "mode": mode,
+            "parent_sha256": PARENT_HASHES[mode],
+            "candidate_sha256": OUTPUT_HASHES[mode],
+            "destination_exe_basename": destinations[0].name,
+            "companion_dll_basename": destinations[1].name,
+            "member_roles": {destinations[0].name: "game_executable", destinations[1].name: "companion_dll"},
+            "destination_paths_absolute": [str(path.absolute()).casefold() for path in destinations],
+        },
+    )

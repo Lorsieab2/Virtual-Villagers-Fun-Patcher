@@ -1942,14 +1942,31 @@ def recover_atomic(report_path: Path, mode: str = VV5_MODE) -> None:
     if is_emergency:
         if not report.name.startswith(".vv5run-emergency-") or not isinstance(raw_loaded.get("recovery_payload"), dict):
             raise PatcherError("VV5 Running emergency marker owner is invalid.")
-        raw = dict(raw_loaded["recovery_payload"])
-        raw.update({
-            "recovery_root_name": raw_loaded.get("recovery_root_name"),
-            "recovery_root_identity": raw_loaded.get("recovery_root_identity"),
-            "ownership_inventory": raw_loaded.get("ownership_inventory"),
-            "report_name": report.name,
-            "report_parent_identity": _identity(report.parent),
-        })
+        embedded = dict(raw_loaded["recovery_payload"])
+        required_embedded = {
+            "schema_version", "operation", "recovery_root", "destination_parent",
+            "report_relative", "initial_precondition", "replay_guard", "members",
+            "ownership_inventory", "failure_diagnostic",
+            "feature_owner", "mode", "parent_sha256", "candidate_sha256",
+            "destination_exe_basename", "companion_dll_basename", "member_roles",
+            "recovery_root_name", "recovery_root_identity", "report_name",
+            "report_parent_identity", "issuance_token", "issuance_name",
+            "issuance_registry_relative", "issuance_registry_identity",
+            "issuance_identity", "destination_parent_absolute",
+            "destination_paths_absolute", "vv5_schema",
+        }
+        if set(embedded) != required_embedded or embedded.get("feature_owner") != VV5_FEATURE_OWNER or embedded.get("vv5_schema") != "vv5_running_recovery_v2":
+            raise PatcherError(f"VV5 Running emergency marker caller schema is unsupported or ambiguous: keys={sorted(embedded)!r}.")
+        if (
+            raw_loaded.get("recovery_root_name") != embedded.get("recovery_root_name")
+            or raw_loaded.get("recovery_root_identity") != embedded.get("recovery_root_identity")
+            or raw_loaded.get("ownership_inventory") != embedded.get("ownership_inventory")
+        ):
+            raise PatcherError("VV5 Running emergency marker embedded binding differs from marker envelope.")
+        # Every security field must be issued in the embedded payload.  The
+        # marker's current parent is only a lookup location, never a source
+        # from which a missing binding may be synthesized.
+        raw = embedded
     else:
         raw = raw_loaded
     if any(raw.get(k) != v for k, v in {
