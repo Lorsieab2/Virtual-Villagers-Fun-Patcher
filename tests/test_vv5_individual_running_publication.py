@@ -1151,6 +1151,145 @@ class VV5RunningPublicationTests(unittest.TestCase):
             self.assertFalse((root / preserved_name).exists())
             self.assertFalse(list(root.glob(".vv5run-cleanup-*.json")))
 
+    def test_c319_writer_produced_checkpoint_restarts_all_quarantine_substates(self) -> None:
+        """Restart journals emitted by the real writer, not hand-built fixtures."""
+        for target_state in ("intent", "tombstone_verified", "preserved_verified", "source_removed_verified"):
+            with self.subTest(target_state=target_state), tempfile.TemporaryDirectory() as td:
+                root = Path(td)
+                registry = root / ISSUANCE_REGISTRY_NAME
+                registry.mkdir()
+                rid = running._identity(registry)
+                authority_path, _token, authority = running._ensure_authority(registry, rid, True)
+                source = registry / ("a" * 32 + ".json")
+                running._write_issuance(source, {"schema_version": 2, "token": "a" * 32})
+                source_record = running._inventory(root, source)
+                original_update = running._update_cleanup_record
+                fired = {"value": False}
+
+                def update(path, expected, payload, **kwargs):
+                    result = original_update(path, expected, payload, **kwargs)
+                    pending = payload.get("transaction_binding", {}).get("pending")
+                    if (not fired["value"] and isinstance(pending, dict)
+                            and pending.get("substate") == target_state):
+                        fired["value"] = True
+                        raise PatcherError("injected writer checkpoint interruption")
+                    return result
+
+                with mock.patch.object(running, "_update_cleanup_record", side_effect=update):
+                    with self.assertRaises(PatcherError):
+                        running._cleanup_issuance_artifacts(
+                            registry,
+                            rid,
+                            [(source, source_record)],
+                            (authority_path, authority["record"]),
+                            remove_registry=True,
+                        )
+                self.assertTrue(fired["value"], target_state)
+                records = list(root.glob(".vv5run-cleanup-*.json"))
+                self.assertTrue(records, target_state)
+                latest = max(records, key=lambda p: int(running._validate_cleanup_record(p)[0]["record_version"]))
+                recover_cleanup_atomic(latest)
+                self.assertFalse(registry.exists(), target_state)
+                self.assertFalse(list(root.glob(".vv5run-cleanup-*.json")), target_state)
+
+    def test_c319_precheckpoint_preserved_collision_is_not_adopted(self) -> None:
+        """A same-name preserved file without durable identity remains foreign."""
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            registry = root / ISSUANCE_REGISTRY_NAME
+            registry.mkdir()
+            rid = running._identity(registry)
+            authority_path, _token, authority = running._ensure_authority(registry, rid, True)
+            source = registry / ("b" * 32 + ".json")
+            running._write_issuance(source, {"schema_version": 2, "token": "b" * 32})
+            source_record = running._inventory(root, source)
+            original_update = running._update_cleanup_record
+            captured = {"name": None, "record": None}
+
+            def update(path, expected, payload, **kwargs):
+                result = original_update(path, expected, payload, **kwargs)
+                pending = payload.get("transaction_binding", {}).get("pending")
+                if isinstance(pending, dict) and pending.get("substate") == "tombstone_verified" and captured["name"] is None:
+                    captured["name"] = pending["preserved_name"]
+                    captured["record"] = result[1]
+                    raise PatcherError("stop after tombstone checkpoint")
+                return result
+
+            with mock.patch.object(running, "_update_cleanup_record", side_effect=update):
+                with self.assertRaises(PatcherError):
+                    running._cleanup_issuance_artifacts(
+                        registry, rid, [(source, source_record)],
+                        (authority_path, authority["record"]),
+                        remove_registry=True,
+                    )
+            self.assertIsNotNone(captured["name"])
+            foreign = root / str(captured["name"])
+            foreign.write_bytes(b"foreign")
+            latest = max(root.glob(".vv5run-cleanup-*.json"), key=lambda p: int(running._validate_cleanup_record(p)[0]["record_version"]))
+            with self.assertRaises(PatcherError):
+                recover_cleanup_atomic(latest)
+            self.assertEqual(foreign.read_bytes(), b"foreign")
+            self.assertTrue(registry.exists())
+
+    def test_c319_mixed_path_basis_is_rejected(self) -> None:
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            registry = root / ISSUANCE_REGISTRY_NAME
+            registry.mkdir()
+            source = registry / "member.json"
+            source.write_bytes(b"owned")
+            record = running._inventory(registry, source)
+            record["path"] = "other-root/member.json"
+            with self.assertRaises(PatcherError):
+                running._rebase_registry_record(registry, source, record)
+
+    def test_c319_detached_finalization_replays_after_predecessor_interrupt(self) -> None:
+        """A retirement interruption leaves a successor independent of deleted predecessors."""
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            registry = root / ISSUANCE_REGISTRY_NAME
+            registry.mkdir()
+            rid = running._identity(registry)
+            authority_path, _token, authority = running._ensure_authority(registry, rid, True)
+            source = registry / ("c" * 32 + ".json")
+            running._write_issuance(source, {"schema_version": 2, "token": "c" * 32})
+            source_record = running._inventory(root, source)
+            original_update = running._update_cleanup_record
+            original_cleanup = running._cleanup
+            detached = {"path": None, "failed": False}
+
+            def update(path, expected, payload, **kwargs):
+                result = original_update(path, expected, payload, **kwargs)
+                if kwargs.get("detach_predecessor"):
+                    detached["path"] = result[0]
+                return result
+
+            def cleanup(path, *, expected=None):
+                if (detached["path"] is not None and not detached["failed"]
+                        and path.name.startswith(".vv5run-cleanup-")
+                        and path != detached["path"]):
+                    detached["failed"] = True
+                    raise PatcherError("injected predecessor retirement interruption")
+                return original_cleanup(path, expected=expected)
+
+            with mock.patch.object(running, "_update_cleanup_record", side_effect=update), \
+                 mock.patch.object(running, "_cleanup", side_effect=cleanup):
+                with self.assertRaises(PatcherError):
+                    running._cleanup_issuance_artifacts(
+                        registry, rid, [(source, source_record)],
+                        None,
+                        retain_authority=(authority_path, authority["record"]),
+                        remove_registry=False,
+                    )
+            self.assertTrue(detached["failed"])
+            self.assertIsNotNone(detached["path"])
+            final = Path(detached["path"])
+            self.assertTrue(final.exists())
+            recover_cleanup_atomic(final)
+            self.assertFalse(final.exists())
+            self.assertTrue(registry.exists())
+            self.assertFalse(list(root.glob(".vv5run-cleanup-*.json")))
+
     def test_c307_forged_cleanup_artifact_role_is_rejected_before_delete(self) -> None:
         with tempfile.TemporaryDirectory() as td:
             root = Path(td)

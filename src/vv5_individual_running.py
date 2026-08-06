@@ -40,6 +40,10 @@ ISSUANCE_SCHEMA_VERSION = 2
 ISSUANCE_REGISTRY_NAME = ".vv5run-issuance"
 AUTHORITY_NAME = ".authority"
 AUTHORITY_SCHEMA_VERSION = 1
+# All VV5 recovery source records use one basis: the destination parent that
+# owns the issuance registry.  The registry-relative component is added once
+# at record creation and is never rebased from an already-rebased record.
+SOURCE_RECORD_ROOT_BASIS = "destination_parent"
 
 
 def _require_windows_identity_atomic() -> None:
@@ -357,10 +361,32 @@ def _assert_registry_members(
             raise PatcherError("VV5 Running issuance registry member changed.")
 
 
+def _source_record_path(registry: Path, path: Path) -> str:
+    """Return the single canonical source-record path basis.
+
+    Records are rooted at the destination parent (the owner of the fixed
+    ``.vv5run-issuance`` directory), so a registry member is represented once
+    as ``.vv5run-issuance/<name>``.  This helper is deliberately the only
+    path-construction primitive used by writers, journals, and replay.
+    """
+    registry = Path(registry)
+    path = Path(path)
+    if path.parent != registry or path.name in {"", ".", ".."}:
+        raise PatcherError("VV5 Running source record path is not registry-owned.")
+    return _relative(registry.parent, path)
+
+
 def _rebase_registry_record(registry: Path, path: Path, record: dict[str, object]) -> dict[str, object]:
-    """Normalize a registry-relative helper record to its parent-root path."""
+    """Bind an inventory record to the destination-parent basis exactly once."""
     rebased = dict(record)
-    rebased["path"] = _relative(registry.parent, path)
+    canonical_path = _source_record_path(registry, path)
+    prior_path = rebased.get("path")
+    # ``_inventory(registry, member)`` is the one permitted intermediate
+    # representation used by the pointer reader; convert it exactly once to
+    # the destination-parent basis.  Any other path is a mixed/foreign basis.
+    if prior_path is not None and prior_path not in {path.name, canonical_path}:
+        raise PatcherError("VV5 Running source record mixes path bases.")
+    rebased["path"] = canonical_path
     return rebased
 
 
@@ -678,7 +704,13 @@ def _write_cleanup_record(owner_parent: Path, payload: dict[str, object]) -> tup
     return record_path, record
 
 
-def _update_cleanup_record(record_path: Path, expected: dict[str, object], payload: dict[str, object]) -> tuple[Path, dict[str, object]]:
+def _update_cleanup_record(
+    record_path: Path,
+    expected: dict[str, object],
+    payload: dict[str, object],
+    *,
+    detach_predecessor: bool = False,
+) -> tuple[Path, dict[str, object]]:
     """Version an owned cleanup authority with exclusive no-replace publication."""
     _require_windows_identity_atomic()
     current = _inventory(record_path.parent, record_path)
@@ -687,8 +719,17 @@ def _update_cleanup_record(record_path: Path, expected: dict[str, object], paylo
     if payload.get("record_version") is None:
         payload["record_version"] = 1
     payload["record_version"] = int(payload["record_version"]) + 1
-    payload["previous_record_name"] = record_path.name
-    payload["previous_record_identity"] = expected
+    if detach_predecessor:
+        # A finalization successor is an independent authority.  It is
+        # published while the predecessor still exists, then the predecessor
+        # can be retired without leaving the surviving record bound to deleted
+        # evidence.
+        payload["previous_record_name"] = None
+        payload["previous_record_identity"] = None
+        payload["state"] = "finalizing"
+    else:
+        payload["previous_record_name"] = record_path.name
+        payload["previous_record_identity"] = expected
     next_path = _cleanup_record_path(record_path.parent)
     tmp = next_path.with_suffix(".tmp")
     data = (json.dumps(payload, indent=2, sort_keys=True) + "\n").encode("utf-8")
@@ -733,6 +774,20 @@ def _cleanup_authority_chain(owner_parent: Path) -> list[tuple[Path, dict[str, o
     if len(by_name) != len(candidates):
         raise PatcherError("VV5 Running cleanup authority chain contains duplicate names.")
     latest = max(candidates, key=lambda item: int(item[1]["record_version"]))
+    # A detached finalization authority intentionally has no predecessor.  If
+    # a crash occurs while older generations are being retired, those older
+    # records are still discoverable evidence, but must not be re-bound into
+    # the surviving authority.  Return them as retirement work rather than
+    # rejecting the state as an orphaned competing chain.
+    if latest[1].get("state") == "finalizing" and latest[1].get("previous_record_name") is None:
+        for path, raw, _identity in candidates:
+            if path == latest[0]:
+                continue
+            if raw.get("feature_owner") != VV5_FEATURE_OWNER or raw.get("mode") != VV5_MODE or raw.get("operation") != "issuance_cleanup":
+                raise PatcherError("VV5 Running finalization chain contains foreign authority.")
+            if int(raw.get("record_version", 0)) >= int(latest[1]["record_version"]):
+                raise PatcherError("VV5 Running finalization chain has an invalid generation.")
+        return [latest] + sorted((item for item in candidates if item is not latest), key=lambda item: int(item[1]["record_version"]), reverse=True)
     seen: set[str] = set()
     chain: list[tuple[Path, dict[str, object], dict[str, object]]] = []
     current = latest
@@ -810,7 +865,7 @@ def _validate_cleanup_record(record_path: Path) -> tuple[dict[str, object], dict
         raise PatcherError("VV5 Running cleanup authority is missing.")
     raw = json.loads(_read(record_path).decode("utf-8"))
     required = {"schema_version", "kind", "feature_owner", "mode", "operation", "owner_parent_absolute", "registry_relative", "registry_identity", "remove_registry", "state", "record_version", "previous_record_name", "previous_record_identity", "authority_binding", "issuance_bindings", "transaction_binding", "artifacts"}
-    if not isinstance(raw, dict) or set(raw) != required or raw.get("schema_version") != 2 or raw.get("kind") != "vv5_running_cleanup_transaction" or raw.get("feature_owner") != VV5_FEATURE_OWNER or raw.get("mode") != VV5_MODE or raw.get("operation") != "issuance_cleanup" or raw.get("owner_parent_absolute") != str(record_path.parent.absolute()).casefold() or raw.get("registry_relative") != ISSUANCE_REGISTRY_NAME or raw.get("state") not in {"started", "quarantining", "cleaning"} or not isinstance(raw.get("record_version"), int) or raw.get("record_version") < 1 or not isinstance(raw.get("artifacts"), list) or not isinstance(raw.get("issuance_bindings"), list) or not isinstance(raw.get("transaction_binding"), dict):
+    if not isinstance(raw, dict) or set(raw) != required or raw.get("schema_version") != 2 or raw.get("kind") != "vv5_running_cleanup_transaction" or raw.get("feature_owner") != VV5_FEATURE_OWNER or raw.get("mode") != VV5_MODE or raw.get("operation") != "issuance_cleanup" or raw.get("owner_parent_absolute") != str(record_path.parent.absolute()).casefold() or raw.get("registry_relative") != ISSUANCE_REGISTRY_NAME or raw.get("state") not in {"started", "quarantining", "cleaning", "finalizing"} or not isinstance(raw.get("record_version"), int) or raw.get("record_version") < 1 or not isinstance(raw.get("artifacts"), list) or not isinstance(raw.get("issuance_bindings"), list) or not isinstance(raw.get("transaction_binding"), dict):
         raise PatcherError("VV5 Running cleanup authority schema is unsupported or ambiguous.")
     binding = raw.get("authority_binding")
     if binding is not None and (not isinstance(binding, dict) or set(binding) != {"name", "role", "record", "token", "registry_identity", "owner_parent_absolute", "feature_owner", "mode"} or binding.get("name") != AUTHORITY_NAME or binding.get("role") != "authority" or binding.get("registry_identity") != raw.get("registry_identity") or binding.get("owner_parent_absolute") != raw.get("owner_parent_absolute") or binding.get("feature_owner") != VV5_FEATURE_OWNER or binding.get("mode") != VV5_MODE or not isinstance(binding.get("token"), str) or not re.fullmatch(r"[0-9A-Fa-f]{32,128}", binding.get("token", "")) or not isinstance(binding.get("record"), dict) or binding["record"].get("path") != f"{ISSUANCE_REGISTRY_NAME}/{AUTHORITY_NAME}"):
@@ -940,7 +995,11 @@ def recover_cleanup_atomic(record_path: Path, mode: str = VV5_MODE) -> None:
                 raise PatcherError("VV5 Running cleanup authority disappeared with foreign registry members present.")
     elif raw.get("schema_version") == 2 and registry_present and _registry_members(registry):
         raise PatcherError("VV5 Running cleanup lacks an external authority binding.")
-    if raw.get("state") == "started":
+    # A writer can durably publish the pending intent while the outer
+    # transaction state is still ``quarantining``.  The pending substate is
+    # authoritative for restart; do not fall through to registry cleanup
+    # while its source member is still present.
+    if raw.get("state") == "started" or isinstance(raw.get("transaction_binding", {}).get("pending"), dict):
         if not registry_present:
             # The registry may already have been removed after a late
             # publication failure.  With no source member left to quarantine,
@@ -1109,6 +1168,11 @@ def recover_cleanup_atomic(record_path: Path, mode: str = VV5_MODE) -> None:
                     raise PatcherError("VV5 Running recovery quarantine lost its pending source binding.")
                 pending["substate"] = state
                 pending.update(details)
+                # _quarantine_owned inventories its source relative to the
+                # registry directory.  Journals are always rooted at the
+                # destination parent, so overwrite that one field with the
+                # canonical binding and reject any mixed basis.
+                pending["source_record"] = item["source_record"]
                 raw["state"] = "started" if state in {"intent", "tombstone_verified", "preserved_verified", "source_removed_verified"} else "quarantining"
                 record_path, record_identity = _update_cleanup_record(record_path, record_identity, raw)
 
@@ -1202,13 +1266,33 @@ def recover_cleanup_atomic(record_path: Path, mode: str = VV5_MODE) -> None:
     namespace_after_members = _cleanup_namespace(owner_parent)
     namespace_after_members_2 = _cleanup_namespace(owner_parent)
     allowed_after = {record_path.name} | {path.name for path, _identity in superseded_records}
+    if registry_present and not bool(raw.get("remove_registry")):
+        allowed_after.add(registry.name)
     if namespace_after_members != namespace_after_members_2 or set(namespace_after_members) != allowed_after:
         raise PatcherError("VV5 Running cleanup namespace changed before authority retirement.")
-    # Retire predecessors oldest-first.  The current record remains available
-    # until every older authority has been removed and the final namespace is
-    # recaptured.
-    remaining_authorities = set(allowed_after)
-    for prior_path, prior_identity in reversed(superseded_records):
+
+    # Publish a detached finalization authority before deleting any predecessor.
+    # The new record has no predecessor binding, so the surviving authority can
+    # be replayed even if retirement is interrupted between any two deletes.
+    if raw.get("state") == "finalizing" and raw.get("previous_record_name") is None:
+        # This is a genuine restart after detached-authority publication.
+        # Keep the existing finalization authority and retire only the older
+        # generations still present on disk.
+        final_record_path, final_record_identity = record_path, record_identity
+        retirement = superseded_records
+    else:
+        final_record_path, final_record_identity = _update_cleanup_record(
+            record_path,
+            record_identity,
+            dict(raw),
+            detach_predecessor=True,
+        )
+        _final_raw, final_record_identity = _validate_cleanup_record(final_record_path)
+        retirement = [(record_path, record_identity)] + superseded_records
+    remaining_authorities = {path.name for path, _identity in retirement} | {final_record_path.name}
+    if registry_present and not bool(raw.get("remove_registry")):
+        remaining_authorities.add(registry.name)
+    for prior_path, prior_identity in retirement:
         before_retire = _cleanup_namespace(owner_parent)
         before_retire_2 = _cleanup_namespace(owner_parent)
         if before_retire != before_retire_2 or set(before_retire) != remaining_authorities:
@@ -1223,12 +1307,17 @@ def recover_cleanup_atomic(record_path: Path, mode: str = VV5_MODE) -> None:
             raise PatcherError("VV5 Running cleanup namespace changed during authority retirement.")
     final_before = _cleanup_namespace(owner_parent)
     final_before_2 = _cleanup_namespace(owner_parent)
-    if final_before != final_before_2 or set(final_before) != {record_path.name}:
+    expected_final_names = {final_record_path.name}
+    if registry_present and not bool(raw.get("remove_registry")):
+        expected_final_names.add(registry.name)
+    if final_before != final_before_2 or set(final_before) != expected_final_names:
         raise PatcherError("VV5 Running final authority namespace is not stable.")
-    _cleanup(record_path, expected=record_identity)
-    if os.path.lexists(record_path):
+    _cleanup(final_record_path, expected=final_record_identity)
+    if os.path.lexists(final_record_path):
         raise PatcherError("VV5 Running cleanup authority remained after deletion.")
-    if _cleanup_namespace(owner_parent):
+    residue = _cleanup_namespace(owner_parent)
+    allowed_residue = {registry.name} if registry_present and not bool(raw.get("remove_registry")) else set()
+    if set(residue) != allowed_residue:
         raise PatcherError("VV5 Running cleanup namespace retained residue after finalization.")
 
 
@@ -1285,6 +1374,7 @@ def _cleanup_issuance_artifacts(
                     raise PatcherError("VV5 Running quarantine progress lost its pending source binding.")
                 pending["substate"] = state
                 pending.update(details)
+                pending["source_record"] = _rebase_registry_record(registry, path, record)
                 cleanup_payload["state"] = "started" if state in {"intent", "tombstone_verified", "preserved_verified", "source_removed_verified"} else "quarantining"
                 cleanup_record_path, cleanup_record_identity = _update_cleanup_record(cleanup_record_path, cleanup_record_identity, cleanup_payload)
 
@@ -1371,13 +1461,42 @@ def _cleanup_issuance_artifacts(
         # removed first; the latest record remains the final authority until
         # the namespace is stable.
         chain = _cleanup_authority_chain(registry.parent)
-        latest_path, _latest_raw, latest_identity = chain[0]
-        for prior_path, _prior_raw, prior_identity in reversed(chain[1:]):
+        latest_path, latest_raw, latest_identity = chain[0]
+        detached_path, detached_identity = _update_cleanup_record(
+            latest_path,
+            latest_identity,
+            dict(latest_raw),
+            detach_predecessor=True,
+        )
+        _validate_cleanup_record(detached_path)
+        retirement = [(latest_path, latest_identity)] + [
+            (prior_path, prior_identity) for prior_path, _prior_raw, prior_identity in chain[1:]
+        ]
+        remaining = {path.name for path, _identity in retirement} | {detached_path.name}
+        if not remove_registry:
+            # An existing externally-owned authority registry is intentionally
+            # retained by the caller; it is part of the stable namespace but
+            # is not cleanup evidence owned by this transaction.
+            remaining.add(ISSUANCE_REGISTRY_NAME)
+        for prior_path, prior_identity in retirement:
+            before = _cleanup_namespace(registry.parent)
+            before2 = _cleanup_namespace(registry.parent)
+            if before != before2 or set(before) != remaining:
+                raise PatcherError("VV5 Running cleanup predecessor namespace changed during retirement.")
             _cleanup(prior_path, expected=prior_identity)
             if os.path.lexists(prior_path):
                 raise PatcherError("VV5 Running cleanup predecessor remained during retirement.")
-            _cleanup_namespace(registry.parent)
-        _cleanup(latest_path, expected=latest_identity)
+            remaining.discard(prior_path.name)
+            after = _cleanup_namespace(registry.parent)
+            after2 = _cleanup_namespace(registry.parent)
+            if after != after2 or set(after) != remaining:
+                raise PatcherError("VV5 Running cleanup namespace changed during retirement.")
+        final = _cleanup_namespace(registry.parent)
+        final2 = _cleanup_namespace(registry.parent)
+        expected_final_names = {detached_path.name} | ({ISSUANCE_REGISTRY_NAME} if not remove_registry else set())
+        if final != final2 or set(final) != expected_final_names:
+            raise PatcherError("VV5 Running final authority namespace is not stable.")
+        _cleanup(detached_path, expected=detached_identity)
     except Exception:
         # Any remaining tombstone is deliberate durable authority evidence;
         # never claim zero residue after a raced or foreign cleanup.
