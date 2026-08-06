@@ -12,8 +12,13 @@ leave/enter transition with `ECX=engine`, `push bool`, and `ret 4`. The SDL
 getter is cdecl (`push SDL_Window*`, indirect call, `add esp,4`). The existing
 Full Mastery append page remains owned by Origins and must be removed before
 Origins truncation. The legacy Cure row is structurally removed from dialog
-201 (41 items remain; dialog 202 is unchanged), and command 5 is blocked at
-VV1 `0x456A88` / VV2 `0x4946A5` (`83 FB 06` to `83 FB 05`).
+201 (41 items remain; dialog 202 is unchanged). VV1 command 5 is rejected
+before the shared price/funds path by the original no-action continuation:
+`0x456A8D` changes `83 FB 08` to `83 FB 05`, and `0x456A90` changes
+`0F 87 2F FF FF FF` to `0F 84 2F FF FF FF` (target `0x4569C5`). This keeps
+commands 0-4 and command 7 on their certified paths and leaves the frozen
+legacy Cure/deduction payload unreachable. VV2 retains its independently
+audited `0x4946A5` (`83 FB 06` to `83 FB 05`) guard.
 
 Before an Origins menu creates a dialog, the companion-side contract captures
 `GetForegroundWindow`, validates `IsWindow` and same-process ownership, passes

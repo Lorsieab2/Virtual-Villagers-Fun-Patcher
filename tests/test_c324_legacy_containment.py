@@ -14,6 +14,7 @@ class C324LegacyContainmentTests(unittest.TestCase):
                 encoding="utf-8"
             )
         )
+        self.assertEqual(candidate["legacy_cure_containment"]["status"], "contained; command 5 is rejected before price/funds/legacy Cure, while commands 0-4 and command 7 remain bytewise on their certified paths")
         self.assertEqual(candidate["legacy_cure_containment"]["full_heal_status"], "pending; no replacement is enabled or catalog-visible")
         self.assertFalse(candidate["enabled"])
         self.assertFalse(candidate["catalog_enabled"])
@@ -35,6 +36,22 @@ class C324LegacyContainmentTests(unittest.TestCase):
         self.assertEqual(guard["va"], "0x456A88")
         self.assertEqual(guard["before"], "83FB06")
         self.assertEqual(guard["after"], "83FB05")
+
+    def test_vv1_command5_preprice_rejection_is_exact_and_preserves_command7(self) -> None:
+        candidate = json.loads(
+            (ROOT / "data/candidates/vv1_vv2_fullscreen_safe_candidate.json").read_text(
+                encoding="utf-8"
+            )
+        )
+        rejection = candidate["legacy_cure_containment"]["command5_preprice_rejection"]
+        self.assertEqual(rejection["compare"], {"va": "0x456A8D", "before": "83FB08", "after": "83FB05"})
+        self.assertEqual(rejection["branch"], {"va": "0x456A90", "before": "0F872FFFFFFF", "after": "0F842FFFFFFF"})
+        self.assertEqual(rejection["target"], "0x4569C5")
+        self.assertEqual(rejection["legacy_deductions"], ["0x456AD5", "0x456AB3"])
+        self.assertEqual(rejection["legacy_cure"], "0x456B9D")
+        # The first guard remains the certified command-0..4 split; command 7
+        # is not redirected by this containment metadata.
+        self.assertEqual(candidate["games"]["vv1"]["cure_guard"]["after"], "83FB05")
 
     def test_burial_detours_are_absent_and_stock_guards_remain(self) -> None:
         manifest = json.loads((ROOT / "data/statistics_features.json").read_text(encoding="utf-8"))

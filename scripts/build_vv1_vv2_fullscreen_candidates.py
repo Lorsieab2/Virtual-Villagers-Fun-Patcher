@@ -61,6 +61,15 @@ ORACLE = {
         "fm_hook_offset": 0xE,
         "fm_hook_after": bytes.fromhex("E8ED130000"),
         "cure_guard": (0x456A88, bytes.fromhex("83FB06"), bytes.fromhex("83FB05")),
+        # The legacy price gate alone still let command 5 fall into the
+        # shared 1,000,000-tech-point commands 5-8 path.  Keep commands 0-4
+        # and 6-8 byte-identical, but route exactly EBX==5 to the existing
+        # no-action continuation before the price/funds call.
+        "cure_preprice_guard": (
+            (0x456A8D, bytes.fromhex("83FB08"), bytes.fromhex("83FB05")),
+            (0x456A90, bytes.fromhex("0F872FFFFFFF"), bytes.fromhex("0F842FFFFFFF")),
+            0x4569C5,
+        ),
         "companion_name": "VVFP VV1 Fullscreen Safe Candidate.dll",
     },
     "vv2": {
@@ -197,6 +206,13 @@ def build_mode(game: str, mode: str) -> tuple[bytes, bytes, dict[str, object]]:
     if bytes(parent[cure_off:cure_off + len(cure_before)]) != cure_before:
         raise RuntimeError(f"{game} legacy Cure guard preimage mismatch")
     parent[cure_off:cure_off + len(cure_after)] = cure_after
+    preprice = cfg.get("cure_preprice_guard")
+    if preprice:
+        for va, before, after in preprice[:2]:
+            off = va - 0x400000
+            if bytes(parent[off:off + len(before)]) != before:
+                raise RuntimeError(f"{game} command-5 pre-price guard preimage mismatch at {va:#x}")
+            parent[off:off + len(after)] = after
     layout = fm["pe_append_transaction"]["layouts"][mode]
     page = bytearray(bytes.fromhex(layout["append_bytes"]))
     if len(page) != 0x2000 or bytes(page[cfg["fm_hook_offset"]:cfg["fm_hook_offset"] + 5]) != bytes.fromhex("E8ED000000"):
@@ -229,6 +245,7 @@ def emit(output_root: Path) -> None:
         companion = transform_companion(ORIGINS_DLL)
         for mode in ("collection_progression", "immediate_fixed"):
             output, page, hashes = build_mode(game, mode)
+            preprice = cfg.get("cure_preprice_guard")
             stem = f"vv{game[-1]}_fullscreen_safe_candidate"
             (output_root / f"{stem}_{mode}.exe").write_bytes(output)
             (output_root / f"{stem}_{mode}_page.bin").write_bytes(page)
@@ -254,7 +271,14 @@ def emit(output_root: Path) -> None:
                 },
                 "cure_guard": {"va": "0x%X" % cfg["cure_guard"][0], "before": cfg["cure_guard"][1].hex().upper(), "after": cfg["cure_guard"][2].hex().upper()},
                 "legacy_cure_containment": {
-                    "status": "contained; legacy command 5 and RT_DIALOG 201 row/button 1005 are unreachable",
+                    "status": "contained; command 5 is rejected before price/funds/legacy Cure, while commands 0-4 and command 7 remain bytewise on their certified paths",
+                    **({"command5_preprice_rejection": {
+                        "compare": {"va": "0x456A8D", "before": "83FB08", "after": "83FB05"},
+                        "branch": {"va": "0x456A90", "before": "0F872FFFFFFF", "after": "0F842FFFFFFF"},
+                        "target": "0x4569C5",
+                        "legacy_deductions": ["0x456AD5", "0x456AB3"],
+                        "legacy_cure": "0x456B9D",
+                    }} if preprice else {}),
                     "full_heal_status": "pending; no replacement is enabled or catalog-visible",
                     "resource_202_unchanged": True,
                 },

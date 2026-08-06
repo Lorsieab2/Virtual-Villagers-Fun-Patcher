@@ -51,8 +51,29 @@ class VV1VV2FullscreenCandidateTests(unittest.TestCase):
                         self.assertEqual(exe[va - 0x400000:va - 0x400000 + 5], after)
                     va, _, after = cfg["cure_guard"]
                     self.assertEqual(exe[va - 0x400000:va - 0x400000 + 3], after)
+                    if "cure_preprice_guard" in cfg:
+                        self.assertEqual(
+                            exe[0x56A88:0x56A96],
+                            bytes.fromhex("83FB05723583FB050F842FFFFFFF"),
+                        )
+                        for guard_va, _, guard_after in cfg["cure_preprice_guard"][:2]:
+                            self.assertEqual(
+                                exe[guard_va - 0x400000:guard_va - 0x400000 + len(guard_after)],
+                                guard_after,
+                            )
+                        # The exact relative displacement remains the
+                        # existing no-action continuation; the conditional
+                        # is reached before the price/funds call at +0x0E.
+                        branch_va, _, branch_after = cfg["cure_preprice_guard"][1]
+                        disp = int.from_bytes(branch_after[2:6], "little", signed=True)
+                        self.assertEqual(branch_va + len(branch_after) + disp, 0x4569C5)
+                        self.assertEqual(exe[0x56A96:0x56A9B], bytes.fromhex("E86E450300"))
                     self.assertEqual(page[cfg["fm_hook_offset"]:cfg["fm_hook_offset"] + 5], cfg["fm_hook_after"])
                     manifest = __import__("json").loads((first / f"{stem}.json").read_text())
+                    if "cure_preprice_guard" in cfg:
+                        rejection = manifest["legacy_cure_containment"]["command5_preprice_rejection"]
+                        self.assertEqual(rejection["target"], "0x4569C5")
+                        self.assertEqual(rejection["legacy_deductions"], ["0x456AD5", "0x456AB3"])
                     self.assertFalse(manifest["enabled"])
                     self.assertTrue(manifest["catalog_hidden"])
                     self.assertTrue(manifest["expanded_rejected"])
