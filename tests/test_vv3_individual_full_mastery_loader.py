@@ -810,13 +810,13 @@ class VV3IndividualFullMasteryLoaderTests(unittest.TestCase):
             root = Path(td)
             report, _destination, _companion = self._make_unresolved_report(root)
             manifest = loader._chain_manifest_path(report)
-            self.assertEqual(json.loads(manifest.read_text(encoding="utf-8"))["commit_state"], "canonical_published")
+            self.assertEqual(json.loads(manifest.read_text(encoding="utf-8"))["transaction_journal"]["state"], "canonical_published")
             payload = json.loads(report.read_text(encoding="utf-8"))
             recovery_root = root / next(item["path"] for item in payload["ownership_inventory"] if item["type"] == "directory")
             loader._refresh_recovery_report(report, payload, root, recovery_root)
             successor = next(root.glob(f"{report.stem}.v*.json"))
             successor_manifest = loader._chain_manifest_path(successor)
-            self.assertEqual(json.loads(successor_manifest.read_text(encoding="utf-8"))["commit_state"], "successor_pointer_manifest")
+            self.assertEqual(json.loads(successor_manifest.read_text(encoding="utf-8"))["transaction_journal"]["state"], "successor_pointer_manifest")
 
     def test_c300_vv3_mutation_fails_before_io_on_32bit_windows(self):
         with mock.patch.object(loader.os, "name", "nt"), \
@@ -843,9 +843,107 @@ class VV3IndividualFullMasteryLoaderTests(unittest.TestCase):
                 with self.assertRaises(vv_fun_patcher.PatcherError):
                     loader._quarantine_delete(target, expected, directory=False)
             preserved = list(root.glob(".owned.bin.vv3im-preserved-*.backup"))
-            self.assertEqual(len(preserved), 1)
-            self.assertEqual(preserved[0].read_bytes(), b"owned")
+            self.assertGreaterEqual(len(preserved), 2)
+            self.assertIn(b"owned", [item.read_bytes() for item in preserved])
             self.assertEqual(target.read_bytes(), b"foreign")
+
+    def test_c302_manifest_uses_one_bound_transaction_journal(self):
+        with tempfile.TemporaryDirectory(prefix="vv3-c302-journal-") as td:
+            root = Path(td)
+            report, _destination, _companion = self._make_unresolved_report(root)
+            manifest = loader._chain_manifest_path(report)
+            raw = json.loads(manifest.read_text(encoding="utf-8"))
+            self.assertNotIn("commit_state", raw)
+            self.assertEqual(raw["schema_version"], 3)
+            self.assertEqual(raw["transaction_journal"]["state"], "canonical_published")
+            self.assertEqual(raw["transaction_journal"]["authority"]["report"]["name"], report.name)
+
+            raw["transaction_journal"]["state"] = "emergency_marker"
+            manifest.write_text(json.dumps(raw), encoding="utf-8")
+            with self.assertRaises(vv_fun_patcher.PatcherError):
+                loader._read_chain_manifest(report)
+
+    def test_c302_journal_rejects_role_swap_and_duplicate_destination(self):
+        with tempfile.TemporaryDirectory(prefix="vv3-c302-roles-") as td:
+            root = Path(td)
+            report, _destination, _companion = self._make_unresolved_report(root)
+            manifest = loader._chain_manifest_path(report)
+            raw = json.loads(manifest.read_text(encoding="utf-8"))
+            roles = dict(raw["member_roles"])
+            keys = list(roles)
+            self.assertGreaterEqual(len(keys), 2)
+            roles[keys[0]] = "bogus_role"
+            raw["member_roles"] = roles
+            manifest.write_text(json.dumps(raw), encoding="utf-8")
+            with self.assertRaises(vv_fun_patcher.PatcherError):
+                loader._read_chain_manifest(report)
+
+    def test_c302_canonical_and_emergency_authorities_conflict_before_replay(self):
+        with tempfile.TemporaryDirectory(prefix="vv3-c302-conflict-") as td:
+            root = Path(td)
+            report, _destination, _companion = self._make_unresolved_report(root)
+            payload = json.loads(report.read_text(encoding="utf-8"))
+            root_name = next(item["path"] for item in payload["ownership_inventory"] if item["type"] == "directory")
+            recovery_root = root / root_name
+            details = dict(payload)
+            details.update({
+                "_report_prefix": ".vv3im",
+                "_recovery_root_name": recovery_root.name,
+                "_recovery_root_identity": loader._inventory_entry(root, recovery_root),
+                "_expected_ownership_inventory": payload["ownership_inventory"],
+            })
+            details.pop("report_relative", None)
+            marker = loader._write_emergency_marker(root, details, vv_fun_patcher.PatcherError("injected"))
+            with self.assertRaises(vv_fun_patcher.PatcherError):
+                loader.recover_vv3_transaction(marker)
+            self.assertTrue(report.exists())
+            self.assertTrue(marker.exists())
+
+    def test_c302_directory_cleanup_uses_identity_delete_not_path_rmdir(self):
+        with tempfile.TemporaryDirectory(prefix="vv3-c302-dir-delete-") as td:
+            root = Path(td)
+            target = root / "owned-dir"
+            target.mkdir()
+            expected = loader._inventory_entry(root, target)
+            calls = []
+
+            def move(source, destination):
+                source.rename(destination)
+
+            def delete_directory(path, identity):
+                calls.append((path, identity))
+                path.rmdir()
+
+            with mock.patch.object(loader, "_move_noreplace", side_effect=move), \
+                 mock.patch.object(loader, "_delete_directory_by_handle", side_effect=delete_directory):
+                loader._quarantine_delete(target, expected, directory=True)
+            self.assertEqual(len(calls), 1)
+            self.assertFalse(target.exists())
+
+    def test_c302_backup_replacement_after_tombstone_delete_retains_owned_guard(self):
+        with tempfile.TemporaryDirectory(prefix="vv3-c302-backup-race-") as td:
+            root = Path(td)
+            target = root / "owned.bin"
+            target.write_bytes(b"owned")
+            expected = loader._inventory_entry(root, target)
+            real_delete = loader._delete_file_by_handle
+            injected = {"done": False}
+
+            def delete(path, identity):
+                result = real_delete(path, identity)
+                if "vv3im-tombstone-" in path.name and not injected["done"]:
+                    preserved = next(item for item in root.glob(".owned.bin.vv3im-preserved-*.backup") if "preserved-guard-" not in item.name)
+                    preserved.unlink()
+                    preserved.write_bytes(b"foreign")
+                    injected["done"] = True
+                return result
+
+            with mock.patch.object(loader, "_delete_file_by_handle", side_effect=delete):
+                with self.assertRaises(vv_fun_patcher.PatcherError):
+                    loader._quarantine_delete(target, expected, directory=False)
+            backups = list(root.glob("*.backup"))
+            self.assertIn(b"foreign", [item.read_bytes() for item in backups])
+            self.assertIn(b"owned", [item.read_bytes() for item in backups])
 
 
 if __name__ == "__main__":
