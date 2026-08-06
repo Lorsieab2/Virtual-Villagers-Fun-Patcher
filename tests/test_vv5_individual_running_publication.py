@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import tempfile
 import unittest
+import json
 from unittest import mock
 from pathlib import Path
 
@@ -9,6 +10,63 @@ from src.vv5_individual_running import PatcherError, VV5_EXE_BASENAME, DLL_NAME,
 
 
 class VV5RunningPublicationTests(unittest.TestCase):
+    def test_all_public_vv5_running_apis_reject_unsupported_mode_before_io(self) -> None:
+        import src.vv_fun_patcher as patcher
+        missing = Path("missing-vv5-running.exe")
+        with mock.patch.object(patcher, "identify", side_effect=AssertionError("identify")), \
+             mock.patch.object(patcher, "validate_all_sources", side_effect=AssertionError("validate")), \
+             mock.patch.object(patcher, "load_builds", side_effect=AssertionError("catalog")), \
+             mock.patch.object(patcher, "get_fun_patch", side_effect=AssertionError("lookup")):
+            with self.assertRaises(patcher.PatcherError):
+                patcher.dry_run(missing, "immediate_fixed", ("vv5_individual_grant_running_candidate",))
+            with self.assertRaises(patcher.PatcherError):
+                patcher.apply_patch(missing, "expanded_256", False, ("vv5_individual_grant_running_candidate",))
+            with self.assertRaises(patcher.PatcherError):
+                patcher.dry_run_all({}, "immediate_fixed", ("vv5_individual_grant_running_candidate",))
+            with self.assertRaises(patcher.PatcherError):
+                patcher.apply_all({}, "expanded_256", False, ("vv5_individual_grant_running_candidate",))
+
+    def test_unresolved_report_is_bound_to_external_issuance(self) -> None:
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            exe, dll = root / VV5_EXE_BASENAME, root / DLL_NAME
+            exe.write_bytes(b"parent-exe")
+            dll.write_bytes(b"parent-dll")
+            pre = {exe: _state(exe), dll: _state(dll)}
+            published = {exe: b"candidate-exe", dll: b"candidate-dll"}
+            with mock.patch("vv3_individual_full_mastery._replace_verified", side_effect=OSError("replace")), \
+                 mock.patch("vv3_individual_full_mastery._restore_member", return_value=False):
+                with self.assertRaises(PatcherError):
+                    _publish("install", [exe, dll], pre, published, root)
+            reports = list(root.glob(".vv5run-recovery-*.json"))
+            issuances = list(root.glob(".vv5run-issuance-*.json"))
+            self.assertEqual(len(reports), 1)
+            self.assertEqual(len(issuances), 1)
+            report = json.loads(reports[0].read_text(encoding="utf-8"))
+            issuance = json.loads(issuances[0].read_text(encoding="utf-8"))
+            self.assertEqual(report["issuance_token"], issuance["token"])
+            self.assertEqual(issuance["report_name"], reports[0].name)
+            self.assertEqual(issuance["report_sha256"], __import__("hashlib").sha256(reports[0].read_bytes()).hexdigest().upper())
+
+    def test_recovery_rejects_nested_or_alternate_destination_paths(self) -> None:
+        from src.vv5_individual_running import _validate_report
+        member = {
+            "destination_relative": f"nested/{VV5_EXE_BASENAME}",
+            "destination_type": "regular_file", "pre_exists": False,
+            "pre_sha256": None, "pre_size": 0,
+            "published_sha256": "A" * 64, "published_size": 1,
+            "backup_relative": None, "stage_relative": None,
+            "backup_inventory": None, "stage_inventory": None,
+        }
+        payload = {
+            "schema_version": 2, "operation": "install_new", "recovery_root": ".",
+            "destination_parent": ".", "initial_precondition": {"kind": "absent", "members": []},
+            "replay_guard": "published_or_initial", "members": [member, {**member, "destination_relative": DLL_NAME}],
+            "ownership_inventory": [], "failure_diagnostic": "test",
+        }
+        with self.assertRaises(PatcherError):
+            _validate_report(payload, Path(tempfile.gettempdir()))
+
     def test_pair_publish_and_remove_style_restore_is_exact(self) -> None:
         with tempfile.TemporaryDirectory() as td:
             root = Path(td)

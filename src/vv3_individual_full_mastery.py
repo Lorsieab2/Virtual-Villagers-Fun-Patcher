@@ -263,7 +263,7 @@ def _write_recovery(parent: Path, details: dict[str, object]) -> Path:
     report = parent / f"{report_prefix}-recovery-{uuid.uuid4().hex}.json"
     tmp = report.with_suffix(".tmp")
     payload = {"schema_version": 2, "report_relative": report.name, **payload_details}
-    metadata_keys = {"feature_owner", "mode", "parent_sha256", "candidate_sha256", "destination_exe_basename", "companion_dll_basename", "member_roles", "recovery_root_name", "recovery_root_identity", "report_name", "report_parent_identity"}
+    metadata_keys = {"feature_owner", "mode", "parent_sha256", "candidate_sha256", "destination_exe_basename", "companion_dll_basename", "member_roles", "recovery_root_name", "recovery_root_identity", "report_name", "report_parent_identity", "issuance_token", "issuance_name"}
     if "feature_owner" in payload_details:
         root_name = details.get("_recovery_root_name")
         root_identity = details.get("_recovery_root_identity")
@@ -383,7 +383,7 @@ def _write_recovery_at(report: Path, payload: dict[str, object], root: Path) -> 
     refreshed["report_relative"] = report.name
     if "report_name" in refreshed:
         refreshed["report_name"] = report.name
-    allowed = {key for key in ("feature_owner", "mode", "parent_sha256", "candidate_sha256", "destination_exe_basename", "companion_dll_basename", "member_roles", "recovery_root_name", "recovery_root_identity", "report_name", "report_parent_identity") if key in refreshed}
+    allowed = {key for key in ("feature_owner", "mode", "parent_sha256", "candidate_sha256", "destination_exe_basename", "companion_dll_basename", "member_roles", "recovery_root_name", "recovery_root_identity", "report_name", "report_parent_identity", "issuance_token", "issuance_name") if key in refreshed}
     _validate_recovery_payload(refreshed, root, allowed_metadata=allowed)
     tmp = report.with_suffix(".tmp")
     if os.path.lexists(tmp) or os.path.lexists(report):
@@ -448,7 +448,29 @@ def _refresh_recovery_report(report: Path, payload: dict[str, object], root: Pat
             updated[field.replace("_relative", "_inventory")] = _inventory_member(root, owned)
         refreshed_members.append(updated)
     refreshed["members"] = refreshed_members
-    _validate_recovery_payload(refreshed, root, allowed_metadata={key for key in ("feature_owner", "mode", "parent_sha256", "candidate_sha256") if key in refreshed})
+    _validate_recovery_payload(
+        refreshed,
+        root,
+        allowed_metadata={
+            key
+            for key in (
+                "feature_owner",
+                "mode",
+                "parent_sha256",
+                "candidate_sha256",
+                "destination_exe_basename",
+                "companion_dll_basename",
+                "member_roles",
+                "recovery_root_name",
+                "recovery_root_identity",
+                "report_name",
+                "report_parent_identity",
+                "issuance_token",
+                "issuance_name",
+            )
+            if key in refreshed
+        },
+    )
     now = os.lstat(report)
     _reject_entry(report, now, directory=False)
     if (report_before.st_dev, report_before.st_ino, report_before.st_size) != (now.st_dev, now.st_ino, now.st_size):

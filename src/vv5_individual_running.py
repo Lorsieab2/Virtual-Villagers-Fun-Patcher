@@ -29,6 +29,7 @@ VV5_PARENT_EXE_SHA256 = "857E22D7C361B802508BF789C3CC486E42E76021F5AA579BB1D16CC
 VV5_CANDIDATE_EXE_SHA256 = "1E3FD6CE44E906BD8DDD7C937D68AB74671D8F197BC1D767A2B0622F1A0F7907"
 VV5_PARENT_DLL_SHA256 = DLL_SHA256
 VV5_CANDIDATE_DLL_SHA256 = DLL_SHA256
+ISSUANCE_SCHEMA_VERSION = 1
 
 
 def _sha(data: bytes) -> str:
@@ -164,6 +165,85 @@ def _inventory(root: Path, path: Path | None) -> dict[str, object] | None:
     return {"path": _relative(root, path), "type": "regular_file", "size": len(data), "sha256": _sha(data), "st_dev": int(getattr(st, "st_dev", 0)), "st_ino": int(getattr(st, "st_ino", 0))}
 
 
+def _identity(path: Path) -> dict[str, int]:
+    st = os.lstat(path)
+    return {"st_dev": int(getattr(st, "st_dev", 0)), "st_ino": int(getattr(st, "st_ino", 0))}
+
+
+def _write_issuance(path: Path, payload: dict[str, object]) -> None:
+    _safe_ancestors(path.parent)
+    if os.path.lexists(path):
+        raise PatcherError("VV5 Running issuance record collision.")
+    tmp = path.with_suffix(".tmp")
+    if os.path.lexists(tmp):
+        raise PatcherError("VV5 Running issuance temporary collision.")
+    try:
+        _write(tmp, (json.dumps(payload, indent=2, sort_keys=True) + "\n").encode("utf-8"))
+        if os.path.lexists(path):
+            raise PatcherError("VV5 Running issuance target raced.")
+        os.replace(tmp, path)
+    except Exception:
+        if os.path.lexists(tmp):
+            _cleanup(tmp)
+        raise
+
+
+def _replace_issuance(path: Path, before: dict[str, int], payload: dict[str, object]) -> None:
+    current = _identity(path)
+    if current != before:
+        raise PatcherError("VV5 Running issuance record was substituted before binding.")
+    tmp = path.with_suffix(".tmp")
+    if os.path.lexists(tmp):
+        raise PatcherError("VV5 Running issuance temporary collision.")
+    try:
+        _write(tmp, (json.dumps(payload, indent=2, sort_keys=True) + "\n").encode("utf-8"))
+        if _identity(path) != before:
+            raise PatcherError("VV5 Running issuance record raced during binding.")
+        os.replace(tmp, path)
+    except Exception:
+        if os.path.lexists(tmp):
+            _cleanup(tmp)
+        raise
+
+
+def _issuance_payload(token: str, operation: str, parent: Path, destinations: list[Path], pre: dict[Path, tuple[bool, bytes | None]], published: dict[Path, bytes]) -> dict[str, object]:
+    return {
+        "schema_version": ISSUANCE_SCHEMA_VERSION,
+        "token": token,
+        "feature_owner": VV5_FEATURE_OWNER,
+        "mode": VV5_MODE,
+        "operation": operation,
+        "parent_identity": _identity(parent),
+        "members": [
+            {
+                "destination": p.name,
+                "pre_exists": bool(pre[p][0]),
+                "pre_sha256": _sha(pre[p][1]) if pre[p][1] is not None else None,
+                "pre_size": len(pre[p][1]) if pre[p][1] is not None else 0,
+                "published_sha256": _sha(published[p]),
+                "published_size": len(published[p]),
+            }
+            for p in destinations
+        ],
+    }
+
+
+def _bind_issuance(path: Path, token: str, report: Path, report_payload: dict[str, object], before: dict[str, int]) -> None:
+    raw = json.loads(_read(path).decode("utf-8"))
+    if raw.get("schema_version") != ISSUANCE_SCHEMA_VERSION or raw.get("token") != token:
+        raise PatcherError("VV5 Running issuance record is invalid.")
+    bound = dict(raw)
+    bound.update({
+        "report_name": report.name,
+        "report_sha256": _sha(_read(report)),
+        "report_parent_identity": _identity(report.parent),
+        "recovery_root_name": report_payload.get("recovery_root_name"),
+        "recovery_root_identity": report_payload.get("recovery_root_identity"),
+        "report_members": report_payload.get("members"),
+    })
+    _replace_issuance(path, before, bound)
+
+
 def _validate_report(payload: dict[str, object], root: Path) -> None:
     required = {"schema_version", "operation", "recovery_root", "destination_parent", "initial_precondition", "replay_guard", "members", "ownership_inventory", "failure_diagnostic"}
     if not isinstance(payload, dict) or set(payload) != required or payload.get("schema_version") != 2 or payload.get("operation") not in {"install_new", "install_existing", "removal"}:
@@ -185,8 +265,9 @@ def _validate_report(payload: dict[str, object], root: Path) -> None:
     for member in members:
         if not isinstance(member, dict) or set(member) != keys or member["destination_type"] != "regular_file":
             raise PatcherError("VV5 Running recovery member schema is invalid")
-        rel = Path(str(member["destination_relative"])); key = rel.as_posix().casefold()
-        if rel.is_absolute() or not rel.parts or ".." in rel.parts or key in seen:
+        raw_rel = str(member["destination_relative"])
+        rel = Path(raw_rel); key = rel.as_posix().casefold()
+        if raw_rel not in {VV5_EXE_BASENAME, DLL_NAME} or rel.parts != (raw_rel,) or rel.is_absolute() or not rel.parts or ".." in rel.parts or key in seen:
             raise PatcherError("VV5 Running recovery destination path is unsafe")
         seen.add(key)
         for field in ("backup_relative", "stage_relative"):
@@ -194,6 +275,9 @@ def _validate_report(payload: dict[str, object], root: Path) -> None:
                 p = Path(str(member[field]))
                 if p.is_absolute() or ".." in p.parts or not p.parts:
                     raise PatcherError("VV5 Running recovery owned path is unsafe")
+    expected_names = [VV5_EXE_BASENAME, DLL_NAME]
+    if [str(item["destination_relative"]) for item in members] != expected_names:
+        raise PatcherError("VV5 Running recovery destination members are not canonical direct children")
     if not isinstance(payload["ownership_inventory"], list):
         raise PatcherError("VV5 Running recovery ownership inventory is invalid")
 
@@ -220,31 +304,63 @@ def _publish(operation: str, destinations: list[Path], pre: dict[Path, tuple[boo
         raise PatcherError("VV5 Running supports Collection Progression only.")
     if [Path(destination).name for destination in destinations] != [VV5_EXE_BASENAME, DLL_NAME]:
         raise PatcherError("VV5 Running destinations do not match the certified game/DLL names.")
-    # Reuse the independently hardened schema-v2 pair transaction.  This
-    # keeps VV5 recovery fail-closed on complete ownership inventories,
-    # no-follow/reparse checks, immutable preconditions, durable retry
-    # evidence, and exact pair verification rather than maintaining a weaker
-    # second implementation.
-    expected_preimage = {p: (pre[p][1] or b"") for p in destinations if pre[p][0]}
-    _strict_pair_transaction(
-        "remove" if operation == "remove" else "install",
-        destinations,
-        pre,
-        published,
-        expected_preimage=expected_preimage,
-        parent=parent,
-        recovery_prefix=".vv5run",
-        recovery_metadata={
-            "feature_owner": VV5_FEATURE_OWNER,
-            "mode": VV5_MODE,
-            "parent_sha256": VV5_PARENT_EXE_SHA256,
-            "candidate_sha256": VV5_CANDIDATE_EXE_SHA256,
-            "destination_exe_basename": VV5_EXE_BASENAME,
-            "companion_dll_basename": DLL_NAME,
-            "member_roles": {VV5_EXE_BASENAME: "game_executable", DLL_NAME: "companion_dll"},
-        },
-    )
-    return
+    issuance_token = uuid.uuid4().hex
+    issuance_path = parent / f".vv5run-issuance-{issuance_token}.json"
+    issuance_payload = _issuance_payload(issuance_token, operation, parent, destinations, pre, published)
+    _write_issuance(issuance_path, issuance_payload)
+    issuance_identity = _identity(issuance_path)
+    success = False
+    try:
+        # Reuse the independently hardened schema-v2 pair transaction.  This
+        # keeps VV5 recovery fail-closed on complete ownership inventories,
+        # no-follow/reparse checks, immutable preconditions, durable retry
+        # evidence, and exact pair verification rather than maintaining a weaker
+        # second implementation.
+        expected_preimage = {p: (pre[p][1] or b"") for p in destinations if pre[p][0]}
+        _strict_pair_transaction(
+            "remove" if operation == "remove" else "install",
+            destinations,
+            pre,
+            published,
+            expected_preimage=expected_preimage,
+            parent=parent,
+            recovery_prefix=".vv5run",
+            recovery_metadata={
+                "feature_owner": VV5_FEATURE_OWNER,
+                "mode": VV5_MODE,
+                "parent_sha256": VV5_PARENT_EXE_SHA256,
+                "candidate_sha256": VV5_CANDIDATE_EXE_SHA256,
+                "destination_exe_basename": VV5_EXE_BASENAME,
+                "companion_dll_basename": DLL_NAME,
+                "member_roles": {VV5_EXE_BASENAME: "game_executable", DLL_NAME: "companion_dll"},
+                "issuance_token": issuance_token,
+                "issuance_name": issuance_path.name,
+            },
+        )
+        success = True
+        return
+    except Exception as exc:
+        reports = []
+        for candidate in sorted(parent.glob(".vv5run-recovery-*.json"), key=lambda p: p.name):
+            try:
+                raw = json.loads(_read(candidate).decode("utf-8"))
+            except Exception:
+                continue
+            if raw.get("issuance_token") == issuance_token:
+                reports.append((candidate, raw))
+        if len(reports) == 1:
+            try:
+                _bind_issuance(issuance_path, issuance_token, reports[0][0], reports[0][1], issuance_identity)
+            except Exception as bind_exc:
+                raise PatcherError("VV5 Running recovery issuance binding failed; report and issuance retained.") from bind_exc
+        elif len(reports) > 1:
+            raise PatcherError("VV5 Running recovery issuance is ambiguous; evidence retained.") from exc
+        elif os.path.lexists(issuance_path):
+            _cleanup(issuance_path)
+        raise
+    finally:
+        if success and os.path.lexists(issuance_path):
+            _cleanup(issuance_path)
 
     # Legacy implementation retained below only as unreachable source
     # context; production publication is the strict transaction above.
@@ -309,6 +425,14 @@ def recover_atomic(report_path: Path, mode: str = VV5_MODE) -> None:
         "member_roles": {VV5_EXE_BASENAME: "game_executable", DLL_NAME: "companion_dll"},
     }.items()):
         raise PatcherError("VV5 Running recovery report identity mismatch.")
+    issuance_name = raw.get("issuance_name")
+    issuance_token = raw.get("issuance_token")
+    if not isinstance(issuance_name, str) or not isinstance(issuance_token, str) or issuance_name != f".vv5run-issuance-{issuance_token}.json":
+        raise PatcherError("VV5 Running recovery issuance binding is missing or malformed.")
+    issuance_path = report.parent / issuance_name
+    if issuance_path.parent != report.parent or issuance_path.name != issuance_name:
+        raise PatcherError("VV5 Running recovery issuance path is unsafe.")
+    issuance = json.loads(_read(issuance_path).decode("utf-8"))
     root_identity = raw.get("recovery_root_identity")
     report_parent_identity = raw.get("report_parent_identity")
     root_entry = next((item for item in raw.get("ownership_inventory", []) if item.get("type") == "directory" and "/" not in str(item.get("path", ""))), None)
@@ -318,8 +442,24 @@ def recover_atomic(report_path: Path, mode: str = VV5_MODE) -> None:
     parent_st = os.lstat(report.parent)
     if not isinstance(root_identity, dict) or not isinstance(report_parent_identity, dict) or report_parent_identity != {"st_dev": int(parent_st.st_dev), "st_ino": int(parent_st.st_ino)}:
         raise PatcherError("VV5 Running recovery report root identity mismatch.")
+    expected_issuance_operation = "remove" if raw.get("operation") == "removal" else "install"
+    if (
+        issuance.get("schema_version") != ISSUANCE_SCHEMA_VERSION
+        or issuance.get("token") != issuance_token
+        or issuance.get("feature_owner") != VV5_FEATURE_OWNER
+        or issuance.get("mode") != VV5_MODE
+        or issuance.get("operation") != expected_issuance_operation
+        or issuance.get("parent_identity") != report_parent_identity
+        or issuance.get("report_name") != report.name
+        or issuance.get("report_sha256") != report_sha256
+        or issuance.get("report_parent_identity") != report_parent_identity
+        or issuance.get("recovery_root_name") != raw.get("recovery_root_name")
+        or issuance.get("recovery_root_identity") != root_identity
+        or issuance.get("report_members") != raw.get("members")
+    ):
+        raise PatcherError("VV5 Running recovery issuance record does not bind this report.")
     members = raw.get("members")
-    if not isinstance(members, list) or [Path(str(item.get("destination_relative"))).name for item in members] != [VV5_EXE_BASENAME, DLL_NAME]:
+    if not isinstance(members, list) or [str(item.get("destination_relative")) for item in members] != [VV5_EXE_BASENAME, DLL_NAME]:
         raise PatcherError("VV5 Running recovery member names are not canonical.")
     expected_member_identity = {
         VV5_EXE_BASENAME: {
@@ -331,13 +471,26 @@ def recover_atomic(report_path: Path, mode: str = VV5_MODE) -> None:
         DLL_NAME: {"install": (DLL_SHA256, DLL_SIZE), "install_new": (DLL_SHA256, DLL_SIZE), "install_existing": (DLL_SHA256, DLL_SIZE), "removal": (DLL_SHA256, DLL_SIZE)},
     }
     for member in members:
-        name = Path(str(member["destination_relative"])).name
+        name = str(member["destination_relative"])
+        if Path(name).parts != (name,) or name not in expected_member_identity:
+            raise PatcherError("VV5 Running recovery destination must be a canonical direct child.")
         expected_sha, expected_size = expected_member_identity[name][str(raw.get("operation"))]
         if member.get("published_sha256") != expected_sha or member.get("published_size") != expected_size:
             raise PatcherError("VV5 Running recovery member hash/size identity mismatch.")
-        if member.get("pre_exists") and (member.get("pre_sha256") != (VV5_PARENT_EXE_SHA256 if name == VV5_EXE_BASENAME else DLL_SHA256) or member.get("pre_size") != (0xF4000 if name == VV5_EXE_BASENAME else DLL_SIZE)):
-            raise PatcherError("VV5 Running recovery member preimage identity mismatch.")
-    return _strict_recover_atomic(
+        if str(raw.get("operation")) == "install_new":
+            if member.get("pre_exists") or member.get("pre_sha256") is not None or member.get("pre_size") != 0:
+                raise PatcherError("VV5 Running install_new recovery preimage is not absent.")
+        elif str(raw.get("operation")) == "install_existing":
+            expected_pre = VV5_PARENT_EXE_SHA256 if name == VV5_EXE_BASENAME else VV5_PARENT_DLL_SHA256
+            expected_pre_size = 0xF4000 if name == VV5_EXE_BASENAME else DLL_SIZE
+            if not member.get("pre_exists") or member.get("pre_sha256") != expected_pre or member.get("pre_size") != expected_pre_size:
+                raise PatcherError("VV5 Running install_existing recovery preimage identity mismatch.")
+        elif str(raw.get("operation")) == "removal":
+            expected_pre = VV5_CANDIDATE_EXE_SHA256 if name == VV5_EXE_BASENAME else VV5_CANDIDATE_DLL_SHA256
+            expected_pre_size = 0xF6000 if name == VV5_EXE_BASENAME else DLL_SIZE
+            if not member.get("pre_exists") or member.get("pre_sha256") != expected_pre or member.get("pre_size") != expected_pre_size:
+                raise PatcherError("VV5 Running removal recovery preimage identity mismatch.")
+    _strict_recover_atomic(
         report,
         recovery_prefix=".vv5run",
         required_metadata={
@@ -352,9 +505,13 @@ def recover_atomic(report_path: Path, mode: str = VV5_MODE) -> None:
             "recovery_root_identity": root_identity,
             "report_name": report.name,
             "report_parent_identity": report_parent_identity,
+            "issuance_token": issuance_token,
+            "issuance_name": issuance_name,
         },
         expected_report_sha256=report_sha256,
     )
+    if os.path.lexists(issuance_path):
+        _cleanup(issuance_path)
 
     report_path = Path(report_path)
     parent = report_path.parent

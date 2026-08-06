@@ -4193,12 +4193,27 @@ def _result(
     }
 
 
+def _reject_vv5_running_unsupported_mode(
+    patch_mode: str, fun_patch_ids: tuple[str, ...] | list[str]
+) -> None:
+    """Reject VV5 Running before any source/catalog/filesystem work."""
+    if patch_mode != "collection_progression" and any(
+        str(patch_id) == "vv5_individual_grant_running_candidate"
+        for patch_id in fun_patch_ids
+    ):
+        raise PatcherError(
+            "VV5 individual Grant Running supports Collection Progression only; "
+            "Immediate and Expanded are fail-closed before input access."
+        )
+
+
 def dry_run(
     source: Path,
     patch_mode: str = DEFAULT_PATCH_MODE,
     fun_patch_ids: tuple[str, ...] | list[str] = (),
     output_root: Path | None = None,
 ) -> dict[str, Any]:
+    _reject_vv5_running_unsupported_mode(patch_mode, fun_patch_ids)
     build = identify(source)
     fun_patches = _selected_fun_patches(build, fun_patch_ids)
     patched, applied = render_patched_bytes(source, build, patch_mode, fun_patch_ids)
@@ -4213,6 +4228,7 @@ def dry_run_all(
     fun_patch_ids: tuple[str, ...] | list[str] = (),
     output_root: Path | None = None,
 ) -> list[dict[str, Any]]:
+    _reject_vv5_running_unsupported_mode(patch_mode, fun_patch_ids)
     validated = validate_all_sources(sources)
     results = []
     for build, source in validated:
@@ -5273,6 +5289,7 @@ def apply_patch(
     replace_modded_saves: bool = False,
     save_root: Path | None = None,
 ) -> tuple[Path, Path]:
+    _reject_vv5_running_unsupported_mode(patch_mode, fun_patch_ids)
     source = source.resolve()
     build = identify(source)
     fun_patches = _selected_fun_patches(build, fun_patch_ids)
@@ -5462,6 +5479,7 @@ def apply_all(
     replace_modded_saves: bool = False,
     save_root: Path | None = None,
 ) -> list[tuple[Path, Path]]:
+    _reject_vv5_running_unsupported_mode(patch_mode, fun_patch_ids)
     validated = validate_all_sources(sources)
     plans: list[
         tuple[Build, Path, bytearray, list[dict[str, str]], Path, Path]
