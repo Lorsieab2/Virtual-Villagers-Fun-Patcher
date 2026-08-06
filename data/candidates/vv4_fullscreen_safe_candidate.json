@@ -1,0 +1,96 @@
+{
+  "id": "vv4_fullscreen_safe_candidate",
+  "game_id": "vv4",
+  "name": "DISABLED VV4 Fullscreen-Safe Origins Dialog Wrapper",
+  "enabled": false,
+  "catalog_enabled": false,
+  "catalog_hidden": true,
+  "supported_modes": [
+    "collection_progression",
+    "immediate_fixed"
+  ],
+  "rejected_modes": [
+    "experimental_expanded_256",
+    "experimental_expanded_256_progression"
+  ],
+  "runtime_player_status": "pending",
+  "certification_status": "disabled candidate; independent emitted-byte audit pending",
+  "parent_hashes": {
+    "collection_progression": "0E26D7B6FEF660194297BA017419D6E9F4D70F01A80265830C8461341B9334E9",
+    "immediate_fixed": "043DA03EDEE4CDA82269F0584178E84D90D7DAC54ABD80873A3F59E3B4957388"
+  },
+  "companion_dll_sha256": "4E1A83683A875EFE6F67116CDD862927BE1ABCB17DB7AE18143E58E98EAD01E7",
+  "companion_install": {
+    "required": false,
+    "reason": "fullscreen-only wrapper; certified companion/resource bytes are not replaced",
+    "sha256_if_present": "4E1A83683A875EFE6F67116CDD862927BE1ABCB17DB7AE18143E58E98EAD01E7"
+  },
+  "fullscreen_contract": {
+    "stock": "research\\stock-executables\\Virtual Villagers - The Tree of Life.exe",
+    "getter": "0x408130",
+    "outer_global": null,
+    "leave": "0x409fa0",
+    "enter": "0x409fb0",
+    "get_module_handle_iat": "0x48a1d8",
+    "get_proc_address_iat": "0x48a1dc",
+    "tech": {
+      "va": "0x489381",
+      "raw": "0x89381",
+      "before": "E84D020000",
+      "target": "0x4895d3"
+    },
+    "detail": {
+      "va": "0x4895b6",
+      "raw": "0x895b6",
+      "before": "E8B8020000",
+      "target": "0x489873"
+    },
+    "section_header": {
+      "offset": "0x2e8",
+      "bytes": "2E7676346673000000100000001034000010000000500E0000000000000000000000000020000060"
+    },
+    "page_raw": "0xe5000",
+    "section_rva": "0x341000",
+    "section_va": "0x741000",
+    "page": {
+      "tech": {
+        "helper_length": 313,
+        "helper_sha256": "AE3415BA94BC943460D77858A0EF17B1489D33DF2D949A885724CDC5EDB2768F",
+        "instruction_count": 100,
+        "target": "0x4895D3",
+        "flags_mask": "0x1001",
+        "api_abi": "GetModuleHandleA/GetProcAddress stdcall with no caller cleanup; SDL_GetWindowFlags cdecl add esp,4",
+        "state_chain": "getter -> configured outer -> engine[outer] -> window +0x38/state +0x1E",
+        "failure": "leave/restore/identity/flag failure returns safely without entering the modal route or charging"
+      },
+      "detail": {
+        "helper_length": 313,
+        "helper_sha256": "B2142F986C69759DD47AF76D8D3D589ABF5BAA11626FD04DF2822C8E1F17F4DF",
+        "instruction_count": 100,
+        "target": "0x489873",
+        "flags_mask": "0x1001",
+        "api_abi": "GetModuleHandleA/GetProcAddress stdcall with no caller cleanup; SDL_GetWindowFlags cdecl add esp,4",
+        "state_chain": "getter -> configured outer -> engine[outer] -> window +0x38/state +0x1E",
+        "failure": "leave/restore/identity/flag failure returns safely without entering the modal route or charging"
+      },
+      "strings_offset": "0xE00",
+      "strings_sha256": "80CB76A676252BED6D4D61F829E6323F539108B16540B225723E82E312B52ADA",
+      "page_sha256": "7EF8E9E877D8E73B7C356034C21EFF6F59F25EEA811471ACEBF7599E467288F3"
+    },
+    "flags_mask": "0x1001",
+    "plain_return": true
+  },
+  "rendered_modes": {
+    "collection_progression": {
+      "parent_sha256": "0E26D7B6FEF660194297BA017419D6E9F4D70F01A80265830C8461341B9334E9",
+      "candidate_sha256": "1B94B9C2E5310214AF293429127B7EBBF2E6D8AA0C37DB5CF1C6594B332E7392",
+      "size": 942080
+    },
+    "immediate_fixed": {
+      "parent_sha256": "043DA03EDEE4CDA82269F0584178E84D90D7DAC54ABD80873A3F59E3B4957388",
+      "candidate_sha256": "952C483DBDF1637F6479443C2248E855409C5586B1FC321138707AACCB623D31",
+      "size": 942080
+    }
+  },
+  "uninstall": "restore exact parent bytes, section count/image/header/checksum, and five-byte hook guards"
+}
