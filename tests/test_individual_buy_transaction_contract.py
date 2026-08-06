@@ -104,9 +104,7 @@ class IndividualBuyTransactionContractTests(unittest.TestCase):
     def test_vv5_running_emitted_helper_snapshots_all_likes_and_deducts_once(self) -> None:
         raw = load("vv5_individual_running_candidate_map.json")
         helper = bytes.fromhex(raw["slot"]["running_helper_bytes"])
-        self.assertIn(bytes.fromhex("89 44 BD D8"), helper)
-        self.assertIn(bytes.fromhex("3B 45 D8"), helper)
-        self.assertIn(bytes.fromhex("3B 45 DC"), helper)
+        self.assertNotIn(bytes.fromhex("89 44 BD E0"), helper)
         self.assertIn(bytes.fromhex("3B 45 E0"), helper)
         self.assertEqual(helper.count(bytes.fromhex("68 C0 63 FF FF")), 1)
         # The revised helper snapshots and clears all three Dislike slots.
@@ -117,7 +115,7 @@ class IndividualBuyTransactionContractTests(unittest.TestCase):
     def test_vv5_running_stack_intervals_are_disjoint_and_initialized(self) -> None:
         raw = load("vv5_individual_running_candidate_map.json")
         slot = raw["slot"]
-        self.assertEqual(slot["running_stack_frame_size"], 0x40)
+        self.assertEqual(slot["running_stack_frame_size"], 0x48)
         self.assertLessEqual(slot["running_helper_length"], 0x800)
         self.assertEqual(slot["running_offset"], 0x1100)
         self.assertEqual(slot["running_confirm_offset"], 0x0E00)
@@ -126,7 +124,7 @@ class IndividualBuyTransactionContractTests(unittest.TestCase):
         intervals = list(locals_.items()) + list(saved.items())
         for i, (name, (start, end)) in enumerate(intervals):
             self.assertLessEqual(start, end, name)
-            self.assertGreaterEqual(start, -0x40, name)
+            self.assertGreaterEqual(start, -0x48, name)
             self.assertLessEqual(end, -1, name)
             for other, (other_start, other_end) in intervals[i + 1 :]:
                 self.assertTrue(end < other_start or other_end < start, f"{name} overlaps {other}")
@@ -135,11 +133,11 @@ class IndividualBuyTransactionContractTests(unittest.TestCase):
         self.assertEqual([locals_[f"dislikes_snapshot_{i}"] for i in range(3)], [[-0x34, -0x31], [-0x30, -0x2D], [-0x2C, -0x29]])
         self.assertIn("all three Like and all three Dislike", slot["running_snapshot_initialization"])
         helper = bytes.fromhex(slot["running_helper_bytes"])
-        self.assertIn(bytes.fromhex("83 EC 40"), helper)
+        self.assertIn(bytes.fromhex("83 EC 48"), helper)
         self.assertIn(bytes.fromhex("89 45 E8"), helper)  # record identity -0x18
-        self.assertGreaterEqual(helper.count(bytes.fromhex("89 44 BD D8")), 1)
+        self.assertIn(bytes.fromhex("83 4D BC 01"), helper)  # mutation ownership mask
         self.assertIn(bytes.fromhex("3B 45 E8"), helper)  # identity recheck
-        self.assertIn(bytes.fromhex("83 C4 40"), helper)
+        self.assertIn(bytes.fromhex("83 C4 48"), helper)
 
     def test_vv5_running_production_page_dispatch_and_composed_hook(self) -> None:
         raw = load("vv5_individual_running_candidate.json")
@@ -217,13 +215,13 @@ class IndividualBuyTransactionContractTests(unittest.TestCase):
         import hashlib
         manifest_path = ROOT / "data" / "candidates" / "vv5_individual_running_candidate.json"
         map_path = ROOT / "data" / "candidates" / "vv5_individual_running_candidate_map.json"
-        self.assertEqual(hashlib.sha256(manifest_path.read_bytes()).hexdigest().upper(), "833CF24DCE1B11D6A837AEDD70A94F448B496435ABBFA23992A9EDDB2EA470CA")
-        self.assertEqual(hashlib.sha256(map_path.read_bytes()).hexdigest().upper(), "7F349E6BC98036B9954E6020BAE7899C00CFCB46CDE03975EF91C114DA2ECF60")
+        self.assertEqual(hashlib.sha256(manifest_path.read_bytes()).hexdigest().upper(), "3F5B12432343F11D3AC0C774D799623679C65FF81C15556100DE60968E53BB21")
+        self.assertEqual(hashlib.sha256(map_path.read_bytes()).hexdigest().upper(), "1E2132F9A265CEB57F58898E4F4317E76E72C24DFD97F4182441F179FBD6F271")
         raw = json.loads(map_path.read_text(encoding="utf-8"))
         blob = bytes.fromhex(raw["slot"]["running_strings_blob"])
         self.assertEqual(hashlib.sha256(blob).hexdigest().upper(), "0BE4E54A34DA91228F4E333C6DCC8E18FB3BE4292004766B97649A8EE124DCE2")
-        self.assertEqual(raw["candidate"]["emitted"]["helper_sha256"], "0F3AE9C5F1998A6BF1FD65962E1565969B9FB08D1A003937B08BABB69E0598AF")
-        self.assertEqual(raw["candidate"]["emitted"]["page_sha256"], "8CE3015E5B7E3587C8997A36CA52BD0DE06537B09D76DAD3ED8ABF101352EF6C")
+        self.assertEqual(raw["candidate"]["emitted"]["helper_sha256"], "EDE0F78A0D98F0F4EA97389B49FC083160E7F82D18EBFEE85A80A60C6AC4CE07")
+        self.assertEqual(raw["candidate"]["emitted"]["page_sha256"], "BC1CF57C2DEB8B6EF72C431FB578A076B472FE89CACFD488ADA12C8970B1A2A3")
         self.assertEqual(raw["candidate"]["emitted"]["rendered_exe_size"], 0xF6000)
         self.assertEqual(raw["candidate"]["emitted"]["rendered_exe_sha256"], {"collection_progression": "511997D3BA57AA6844D390FFD9BD980A6E36D277BFFD56BFC9A2672CAEFC8125", "immediate_fixed": "390916F2BCE337FA89BC33A69569EDB89B5D361730DF0DB23067B2995F94AFA2"})
 

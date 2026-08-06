@@ -753,12 +753,14 @@ def build_running_helper(page_va: int, strings: dict[str, int]) -> bytes:
         # Locals: saved ESI -10, index -14, record -18, first empty -1C,
         # Like snapshots -28/-24/-20, Dislike snapshots -34/-30/-2C,
         # has_like -38, has_dislike -3C, MessageBox/result preflight -40.
-        sub esp, 0x40
+        sub esp, 0x48
         mov dword ptr [ebp-0x10], esi
         mov dword ptr [ebp-0x1C], -1
         mov dword ptr [ebp-0x38], 0
         mov dword ptr [ebp-0x3C], 0
         mov dword ptr [ebp-0x40], 0
+        # Mutation mask: bit 0 = inserted Like; bits 1..3 = cleared Dislikes.
+        mov dword ptr [ebp-0x44], 0
         push 0x{strings['user32']:X}
         call dword ptr [0x4951E0]
         test eax, eax
@@ -892,9 +894,38 @@ def build_running_helper(page_va: int, strings: dict[str, int]) -> bytes:
         cmp dword ptr [ebp-0x38], 1
         je clear_dislikes
         mov edi, dword ptr [ebp-0x1C]
+        # Reacquire identity/eligibility immediately before the Like store.
+        call 0x425950
+        test eax, eax
+        jz write_failed
+        mov eax, dword ptr [eax+0x17E24]
+        cmp eax, dword ptr [ebp-0x14]
+        jne write_failed
+        mov ecx, 0x554148
+        push eax
+        call 0x471840
+        test eax, eax
+        jz write_failed
+        mov ecx, 0x554148
+        push dword ptr [ebp-0x14]
+        call 0x46F950
+        test eax, eax
+        jz write_failed
+        cmp eax, dword ptr [ebp-0x18]
+        jne write_failed
+        mov esi, eax
+        cmp byte ptr [esi+0x1CD4], 0
+        je write_failed
+        cmp dword ptr [esi+0x1C40], 0
+        jle write_failed
+        cmp byte ptr [esi+0x1CE1], 0
+        jne write_failed
+        cmp byte ptr [esi+0x1CEC], 0
+        jne write_failed
         cmp dword ptr [esi+edi*4+0x1F5C], -1
         jne stale
         mov dword ptr [esi+edi*4+0x1F5C], 38
+        or dword ptr [ebp-0x44], 1
         cmp dword ptr [esi+edi*4+0x1F5C], 38
         jne write_failed
     clear_dislikes:
@@ -902,11 +933,44 @@ def build_running_helper(page_va: int, strings: dict[str, int]) -> bytes:
     clear_dislike_loop:
         cmp edi, 3
         jae commit_running
+        # Reacquire identity/eligibility before every Dislike mutation.
+        call 0x425950
+        test eax, eax
+        jz write_failed
+        mov eax, dword ptr [eax+0x17E24]
+        cmp eax, dword ptr [ebp-0x14]
+        jne write_failed
+        mov ecx, 0x554148
+        push eax
+        call 0x471840
+        test eax, eax
+        jz write_failed
+        mov ecx, 0x554148
+        push dword ptr [ebp-0x14]
+        call 0x46F950
+        test eax, eax
+        jz write_failed
+        cmp eax, dword ptr [ebp-0x18]
+        jne write_failed
+        mov esi, eax
+        cmp byte ptr [esi+0x1CD4], 0
+        je write_failed
+        cmp dword ptr [esi+0x1C40], 0
+        jle write_failed
+        cmp byte ptr [esi+0x1CE1], 0
+        jne write_failed
+        cmp byte ptr [esi+0x1CEC], 0
+        jne write_failed
         cmp dword ptr [esi+edi*4+0x1F68], 38
         jne clear_dislike_next
         mov dword ptr [esi+edi*4+0x1F68], -1
         cmp dword ptr [esi+edi*4+0x1F68], -1
         jne write_failed
+        mov eax, 1
+        mov ecx, edi
+        inc ecx
+        shl eax, cl
+        or dword ptr [ebp-0x44], eax
     clear_dislike_next:
         inc edi
         jmp clear_dislike_loop
@@ -1035,27 +1099,93 @@ def build_running_helper(page_va: int, strings: dict[str, int]) -> bytes:
         jne write_failed_result
         cmp byte ptr [esi+0x1CEC], 0
         jne write_failed_result
-        cmp dword ptr [ebp-0x38], 1
-        je rollback_dislikes
+        test dword ptr [ebp-0x44], 1
+        jz rollback_dislikes
         mov edi, dword ptr [ebp-0x1C]
+        # Reacquire and revalidate before rolling back the inserted Like.
+        call 0x425950
+        test eax, eax
+        jz write_failed_result
+        mov eax, dword ptr [eax+0x17E24]
+        cmp eax, dword ptr [ebp-0x14]
+        jne write_failed_result
+        mov ecx, 0x554148
+        push eax
+        call 0x471840
+        test eax, eax
+        jz write_failed_result
+        mov ecx, 0x554148
+        push dword ptr [ebp-0x14]
+        call 0x46F950
+        test eax, eax
+        jz write_failed_result
+        cmp eax, dword ptr [ebp-0x18]
+        jne write_failed_result
+        mov esi, eax
+        cmp byte ptr [esi+0x1CD4], 0
+        je write_failed_result
+        cmp dword ptr [esi+0x1C40], 0
+        jle write_failed_result
+        cmp byte ptr [esi+0x1CE1], 0
+        jne write_failed_result
+        cmp byte ptr [esi+0x1CEC], 0
+        jne write_failed_result
         cmp dword ptr [esi+edi*4+0x1F5C], 38
         jne write_failed_result
         mov dword ptr [esi+edi*4+0x1F5C], -1
         cmp dword ptr [esi+edi*4+0x1F5C], -1
         jne write_failed_result
-        jmp write_failed_result
+        and dword ptr [ebp-0x44], 0xFFFFFFFE
     rollback_dislikes:
         xor edi, edi
     rollback_dislike_loop:
         cmp edi, 3
         jae write_failed_result
+        mov eax, 1
+        mov ecx, edi
+        inc ecx
+        shl eax, cl
+        test dword ptr [ebp-0x44], eax
+        jz rollback_dislike_next
         cmp dword ptr [ebp+edi*4-0x34], 38
         jne rollback_dislike_next
+        # Reacquire and revalidate before each Dislike restoration.
+        call 0x425950
+        test eax, eax
+        jz write_failed_result
+        mov eax, dword ptr [eax+0x17E24]
+        cmp eax, dword ptr [ebp-0x14]
+        jne write_failed_result
+        mov ecx, 0x554148
+        push eax
+        call 0x471840
+        test eax, eax
+        jz write_failed_result
+        mov ecx, 0x554148
+        push dword ptr [ebp-0x14]
+        call 0x46F950
+        test eax, eax
+        jz write_failed_result
+        cmp eax, dword ptr [ebp-0x18]
+        jne write_failed_result
+        mov esi, eax
+        cmp byte ptr [esi+0x1CD4], 0
+        je write_failed_result
+        cmp dword ptr [esi+0x1C40], 0
+        jle write_failed_result
+        cmp byte ptr [esi+0x1CE1], 0
+        jne write_failed_result
+        cmp byte ptr [esi+0x1CEC], 0
+        jne write_failed_result
         cmp dword ptr [esi+edi*4+0x1F68], -1
         jne write_failed_result
         mov dword ptr [esi+edi*4+0x1F68], 38
         cmp dword ptr [esi+edi*4+0x1F68], 38
         jne write_failed_result
+        mov eax, 1
+        mov ecx, edi
+        shl eax, cl
+        xor dword ptr [ebp-0x44], eax
     rollback_dislike_next:
         inc edi
         jmp rollback_dislike_loop
@@ -1069,7 +1199,7 @@ def build_running_helper(page_va: int, strings: dict[str, int]) -> bytes:
         call 0x7B2210
     done:
         mov esi, dword ptr [ebp-0x10]
-        add esp, 0x40
+        add esp, 0x48
         pop edi
         pop esi
         pop ebx
@@ -1387,7 +1517,7 @@ def build_slot(page_va: int, installed: bool, include_running: bool = False) -> 
             "running_helper_sha256": sha(running_helper),
             "running_helper_bytes": running_helper.hex().upper(),
             "running_confirm_bytes": running_confirm.hex().upper(),
-            "running_stack_frame_size": 0x40,
+            "running_stack_frame_size": 0x48,
             "running_stack_locals": {
                 "saved_esi": [-0x10, -0x0D],
                 "selected_index": [-0x14, -0x11],
@@ -1402,6 +1532,7 @@ def build_slot(page_va: int, installed: bool, include_running: bool = False) -> 
                 "has_running_like": [-0x38, -0x35],
                 "has_running_dislike": [-0x3C, -0x39],
                 "message_box_pointer": [-0x40, -0x3D],
+                "mutation_mask": [-0x44, -0x41],
             },
             "running_saved_register_intervals": {
                 "saved_ebx": [-0x04, -0x01],
@@ -1409,7 +1540,7 @@ def build_slot(page_va: int, installed: bool, include_running: bool = False) -> 
                 "saved_edi": [-0x0C, -0x09],
             },
             "running_snapshot_initialization": "all three Like and all three Dislike DWORDs are stored before confirmation in disjoint slots; first-empty initializes to -1 and record identity is stored separately",
-            "running_rollback": "after failed readback reacquire same index and record pointer, verify active/living/status/faction and candidate-written values, restore only those values and verify; never deduct; no independent skeleton discriminator is claimed",
+            "running_rollback": "after any failed write/readback, reacquire the same index and record pointer before each slot restore, verify active/living/status/faction and the exact candidate-written value, restore every inserted Like and every cleared Running Dislike independently, and verify each restore; if any guard fails, disclose retained per-slot effects and never claim full rollback; never deduct; no independent skeleton discriminator is claimed",
             "running_strings_offset": RUNNING_STRINGS_OFFSET,
             "running_strings_blob": running_strings_blob().hex().upper(),
             "running_string_pointers": {
@@ -1852,7 +1983,7 @@ def main() -> None:
             "reacquire": "same selected index, record identity, eligibility, and exact six-slot snapshot before write",
             "record_identity": "initial and confirmed resolver pointers must match exactly; no cached physical-base walking",
             "funds_checks": ["complete dry-run before confirmation", "immediately before write"],
-            "rollback": "on failed write/readback, reacquire same index and record identity, require the supported active/living/status/faction predicate and candidate-written values, restore only those values and verify; no charge; no independent skeleton discriminator is claimed",
+            "rollback": "on failed write/readback, reacquire the same index and record identity before every direct store, require the supported active/living/status/faction predicate and exact candidate-written values, restore the inserted Like and every cleared Running Dislike independently and verify; if any restore is unsafe, report retained per-slot effects rather than claiming full rollback; no charge; no independent skeleton discriminator is claimed",
             "deduction": "ECX=0x51D5F8; push -40000; call 0x4237B0 exactly once",
             "dislike_slots": ["record+0x1F68", "record+0x1F6C", "record+0x1F70"],
             "allowed_writes": ["first physical empty Like = 38", "every Dislike = 38 -> -1"],

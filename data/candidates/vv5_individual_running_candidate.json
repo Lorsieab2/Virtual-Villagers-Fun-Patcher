@@ -155,7 +155,7 @@
       "complete dry-run before confirmation",
       "immediately before write"
     ],
-    "rollback": "on failed write/readback, reacquire same index and record identity, require the supported active/living/status/faction predicate and candidate-written values, restore only those values and verify; no charge; no independent skeleton discriminator is claimed",
+    "rollback": "on failed write/readback, reacquire the same index and record identity before every direct store, require the supported active/living/status/faction predicate and exact candidate-written values, restore the inserted Like and every cleared Running Dislike independently and verify; if any restore is unsafe, report retained per-slot effects rather than claiming full rollback; no charge; no independent skeleton discriminator is claimed",
     "deduction": "ECX=0x51D5F8; push -40000; call 0x4237B0 exactly once",
     "dislike_slots": [
       "record+0x1F68",
@@ -188,15 +188,15 @@
     }
   },
   "emitted": {
-    "page_sha256": "8CE3015E5B7E3587C8997A36CA52BD0DE06537B09D76DAD3ED8ABF101352EF6C",
+    "page_sha256": "BC1CF57C2DEB8B6EF72C431FB578A076B472FE89CACFD488ADA12C8970B1A2A3",
     "page_rva": "0x3CB000",
     "page_va": "0x7CB000",
     "append_offset": "0xF4000",
     "dispatcher_va": "0x7CB020",
     "dispatcher_sha256": "AA52DA90C08DDD0668926C93921B1D21683D006E05F1C00F7D8AB64550D8227C",
     "dispatcher_bytes": "83FB010F84D7ECFFFF83FB020F84CE100000E95977FEFF",
-    "helper_sha256": "0F3AE9C5F1998A6BF1FD65962E1565969B9FB08D1A003937B08BABB69E0598AF",
-    "helper_length": 1281,
+    "helper_sha256": "EDE0F78A0D98F0F4EA97389B49FC083160E7F82D18EBFEE85A80A60C6AC4CE07",
+    "helper_length": 1883,
     "rendered_exe_size": 1007616,
     "rendered_exe_sha256": {
       "collection_progression": "511997D3BA57AA6844D390FFD9BD980A6E36D277BFFD56BFC9A2672CAEFC8125",
