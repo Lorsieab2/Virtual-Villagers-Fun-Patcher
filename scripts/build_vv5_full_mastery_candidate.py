@@ -21,6 +21,9 @@ DOC_OUT = ROOT / "docs" / "vv5-full-mastery-stage-a-candidate.md"
 COMPANION = OUT_DIR / "VVFP VV5 Full Mastery Candidate.dll"
 CURE_PROJECTION = OUT_DIR / "VVFP VV5 Cure Containment Projection.dll"
 COMPANION_PARENT_SHA256 = "29927CECB448B64944E18E2BA11893DC84C91B39241FBB2549FC2A464E0BE2ED"
+CURE_PROJECTION_SHA256 = "A1C55063B548F195B9ECDA492E1799D35EBA5437862353D96BE780D9FCC2E1C8"
+ACTIVE_BASE_SHA256 = "797456C51CA86A7C802B7B6F2B0C8FCDFFF1C1E205923FA9A1F3E0A503FDB823"
+ACTIVE_BASE_SIZE = 34672
 PROVENANCE_ASSET = ROOT / "assets" / "candidates" / "vv5_full_mastery" / "provenance" / "btn_trophies.png"
 PROVENANCE_ASSET_SHA256 = "F39E94CBDF24776631D803D1218EFCCDE555081C9C8C644DD073B75EC7DD2095"
 
@@ -53,6 +56,7 @@ SDL_GET_MODULE_HANDLE_IAT = 0x4951D8
 NATIVE_FULLSCREEN_LEAVE_VA = 0x40A270
 NATIVE_FULLSCREEN_ENTER_VA = 0x40A280
 NATIVE_FULLSCREEN_GETTER_VA = 0x4080C0
+NATIVE_FULLSCREEN_OUTER_GLOBAL_VA = 0x4DB0E8
 NATIVE_FULLSCREEN_TRANSITION_VA = 0x404700
 CURE_OFFSET = 0x94EA0
 VILLAGE_PREFLIGHT_OFFSET = 0x94B37
@@ -187,43 +191,36 @@ def build_fullscreen_wrapper(common_va: int, sdl_string_va: int) -> bytes:
             push ebx
             push esi
             push edi
-            sub esp, 0x24
+            sub esp, 0x30
             mov dword ptr [ebp-0x10], eax
             mov dword ptr [ebp-0x14], ecx
             test ecx, ecx
             jz fail
             xor eax, eax
-            mov dword ptr [ebp-0x18], eax
-            mov dword ptr [ebp-0x1C], eax
-            mov dword ptr [ebp-0x20], eax
-            mov dword ptr [ebp-0x24], eax
-            mov dword ptr [ebp-0x28], eax
+            mov dword ptr [ebp-0x2C], eax
+            mov dword ptr [ebp-0x30], eax
             call 0x{NATIVE_FULLSCREEN_GETTER_VA:X}
             test eax, eax
             jz fail
-            mov esi, eax
-            mov edi, dword ptr [esi]
-            test edi, edi
-            jz fail
-            mov eax, dword ptr [edi+0x38]
+            call reacquire
             test eax, eax
             jz fail
-            mov dword ptr [ebp-0x18], eax
+            mov dword ptr [ebp-0x18], esi
+            mov dword ptr [ebp-0x20], eax
             movzx ebx, byte ptr [edi+0x1E]
-            mov dword ptr [ebp-0x1C], ebx
+            mov dword ptr [ebp-0x24], ebx
             push 0x{sdl_string_va:X}
             call dword ptr [0x{SDL_GET_MODULE_HANDLE_IAT:X}]
             test eax, eax
             jz fail
-            mov dword ptr [ebp-0x20], eax
             push 0x{sdl_string_va + len(b'SDL2.dll\\0'):X}
             push eax
             call dword ptr [0x{SDL_GET_WINDOW_FLAGS_IAT:X}]
             test eax, eax
             jz fail
-            mov dword ptr [ebp-0x24], eax
-            push dword ptr [ebp-0x18]
-            call eax
+            mov dword ptr [ebp-0x28], eax
+            push dword ptr [ebp-0x20]
+            call dword ptr [ebp-0x28]
             add esp, 4
             mov edx, eax
             and edx, 0x1001
@@ -233,70 +230,101 @@ def build_fullscreen_wrapper(common_va: int, sdl_string_va: int) -> bytes:
             je fullscreen
             jmp fail
         windowed:
-            cmp dword ptr [ebp-0x1C], 1
+            cmp dword ptr [ebp-0x24], 1
             jne fail
             jmp invoke_menu
         fullscreen:
-            cmp dword ptr [ebp-0x1C], 0
+            cmp dword ptr [ebp-0x24], 0
             jne fail
             mov ecx, esi
             call 0x{NATIVE_FULLSCREEN_LEAVE_VA:X}
-            test eax, eax
-            jz fail
-            call 0x{NATIVE_FULLSCREEN_GETTER_VA:X}
-            cmp eax, esi
-            jne fail
-            mov edx, dword ptr [eax]
-            cmp edx, edi
-            jne fail
-            cmp byte ptr [edx+0x1E], 1
-            jne fail
-            mov ecx, dword ptr [ebp-0x18]
-            call dword ptr [ebp-0x24]
+            mov dword ptr [ebp-0x30], 1
+            call reacquire
+            cmp esi, dword ptr [ebp-0x18]
+            jne post_leave_failed
+            cmp eax, dword ptr [ebp-0x20]
+            jne post_leave_failed
+            cmp byte ptr [edi+0x1E], 1
+            jne post_leave_failed
+            push dword ptr [ebp-0x20]
+            call dword ptr [ebp-0x28]
+            add esp, 4
             cmp eax, 0
-            jne fail
+            jne post_leave_failed
             jmp invoke_menu
         invoke_menu:
             mov ecx, dword ptr [ebp-0x14]
             call dword ptr [ebp-0x10]
-            mov dword ptr [ebp-0x28], eax
-            cmp dword ptr [ebp-0x1C], 0
-            jne done
+            mov dword ptr [ebp-0x2C], eax
+            cmp dword ptr [ebp-0x30], 0
+            je windowed_done
+        restore_start:
             call 0x{NATIVE_FULLSCREEN_GETTER_VA:X}
-            cmp eax, esi
-            jne fail_after_leave
-            mov edx, dword ptr [eax]
-            cmp edx, edi
-            jne fail_after_leave
-            mov esi, eax
-            mov edi, edx
+            test eax, eax
+            jz restore_failed
+            call reacquire
+            cmp esi, dword ptr [ebp-0x18]
+            jne restore_failed
+            cmp eax, dword ptr [ebp-0x20]
+            jne restore_failed
             mov ecx, esi
             call 0x{NATIVE_FULLSCREEN_ENTER_VA:X}
-            test eax, eax
-            jz fail_after_leave
             call 0x{NATIVE_FULLSCREEN_GETTER_VA:X}
-            cmp eax, esi
-            jne fail_after_leave
-            mov edx, dword ptr [eax]
-            cmp edx, edi
-            jne fail_after_leave
-            cmp byte ptr [edx+0x1E], 0
-            jne fail_after_leave
-            mov ecx, dword ptr [ebp-0x18]
-            call dword ptr [ebp-0x24]
+            test eax, eax
+            jz restore_failed
+            call reacquire
+            cmp esi, dword ptr [ebp-0x18]
+            jne restore_failed
+            cmp eax, dword ptr [ebp-0x20]
+            jne restore_failed
+            push dword ptr [ebp-0x20]
+            call dword ptr [ebp-0x28]
+            add esp, 4
+            test eax, eax
+            jz restore_failed
             mov edx, eax
             and edx, 0x1001
-            cmp edx, 0x1001
-            jne fail_after_leave
-            mov eax, dword ptr [ebp-0x28]
+            cmp byte ptr [edi+0x1E], 0
+            je restored_fullscreen
+            cmp byte ptr [edi+0x1E], 1
+            jne restore_failed
+            cmp edx, 0
+            jne restore_failed
+            xor eax, eax
             jmp done
-        fail_after_leave:
+        restored_fullscreen:
+            cmp edx, 0x1001
+            jne restore_failed
+            mov eax, dword ptr [ebp-0x2C]
+            jmp done
+        windowed_done:
+            mov eax, dword ptr [ebp-0x2C]
+            jmp done
+        reacquire:
+            mov esi, dword ptr [0x{NATIVE_FULLSCREEN_OUTER_GLOBAL_VA:X}]
+            test esi, esi
+            jz reacquire_fail
+            mov edi, dword ptr [esi]
+            test edi, edi
+            jz reacquire_fail
+            mov eax, dword ptr [edi+0x38]
+            test eax, eax
+            jz reacquire_fail
+            ret
+        reacquire_fail:
+            xor eax, eax
+            ret
+        post_leave_failed:
+            xor eax, eax
+            mov dword ptr [ebp-0x2C], eax
+            jmp restore_start
+        restore_failed:
             xor eax, eax
             jmp done
         fail:
             xor eax, eax
         done:
-            add esp, 0x24
+            add esp, 0x30
             pop edi
             pop esi
             pop ebx
@@ -427,6 +455,8 @@ def build_cure_projection() -> bytes:
     projection = strip_vv5_cure_rows(parent)
     if len(projection) != len(parent):
         raise RuntimeError("VV5 Cure projection changed companion size")
+    if sha(projection) != CURE_PROJECTION_SHA256:
+        raise RuntimeError("VV5 Cure projection hash is not the deterministic candidate identity")
     return projection
 
 
@@ -1214,11 +1244,13 @@ def main() -> None:
         raise RuntimeError("build the certified companion DLL first")
     if not PROVENANCE_ASSET.is_file() or sha(PROVENANCE_ASSET.read_bytes()) != PROVENANCE_ASSET_SHA256:
         raise RuntimeError("VV5 btn_trophies provenance asset fingerprint mismatch")
+    active_bytes = ACTIVE_BASE.read_bytes()
+    if len(active_bytes) != ACTIVE_BASE_SIZE or sha(active_bytes) != ACTIVE_BASE_SHA256:
+        raise RuntimeError("VV5 active Origins base is not the exact pinned input")
+    active = json.loads(active_bytes.decode("utf-8"))
     cure_projection = build_cure_projection()
     OUT_DIR.mkdir(parents=True, exist_ok=True)
     CURE_PROJECTION.write_bytes(cure_projection)
-
-    active = json.loads(ACTIVE_BASE.read_text(encoding="utf-8"))
     payload_patch = next(
         item for item in active["patches"] if int(item["offset"], 0) == PAYLOAD_OFFSET
     )
@@ -1252,13 +1284,23 @@ def main() -> None:
         "disabled C253 candidate; native 0x404700 fullscreen state chain is statically "
         "proven and independent emitted-byte recertification is pending; Expanded-256 fail-closed"
     )
+    base["active_base"] = {
+        "path": "data/vv5_origins_feature.json",
+        "size": ACTIVE_BASE_SIZE,
+        "sha256": ACTIVE_BASE_SHA256,
+    }
     base["dependencies"] = []
     base["expanded_shr_relocations"]["patches"] = []
     base["companion_files"] = [
         {
-            "source": "data/candidates/VVFP VV5 Full Mastery Candidate.dll",
+            "source": "data/candidates/VVFP VV5 Cure Containment Projection.dll",
             "destination": "VVFP Origins Icons.dll",
-            "sha256": sha(COMPANION.read_bytes()),
+            "sha256": CURE_PROJECTION_SHA256,
+            "size": len(cure_projection),
+            "preimage_sha256": COMPANION_PARENT_SHA256,
+            "restore_source": "data/candidates/VVFP VV5 Full Mastery Candidate.dll",
+            "restore_sha256": COMPANION_PARENT_SHA256,
+            "parent": "data/candidates/VVFP VV5 Full Mastery Candidate.dll",
         }
     ]
     base["patches"] = [
@@ -1318,7 +1360,11 @@ def main() -> None:
             "get_proc_address_iat": "0x4951DC",
             "get_window_flags_symbol": "SDL_GetWindowFlags",
             "fullscreen_flags": "0x1001",
+            "calls": 3,
+            "abi": "push SDL_Window*; indirect call; add esp,4 for each invocation",
         },
+        "native_transition_returns": "ignored; only freshly reacquired engine state and masked flags decide success",
+        "restore": "successful leave sets a local left flag; every modal exit attempts one fresh singleton/outer/engine/window restoration and post-verifies flags/state",
         "failure": (
             "missing dependency, singleton mismatch, unexpected flags, failed native leave, "
             "or failed native restore returns safely without entering/charging the modal menu"
@@ -1335,10 +1381,20 @@ def main() -> None:
         "router_guard": {"comparison": "EBX < 5", "legacy_target": "0x7B2461", "menu_loop": "0x7B22C0"},
         "resource_transform": "structurally remove the five-item legacy Cure row from RT_DIALOG 201 and 203; 202 byte-identical",
         "parent_dll_sha256": COMPANION_PARENT_SHA256,
+        "candidate_companion_sha256": CURE_PROJECTION_SHA256,
+        "restore_source": "data/candidates/VVFP VV5 Full Mastery Candidate.dll",
+        "restore_sha256": COMPANION_PARENT_SHA256,
+        "atomic_install_remove": True,
+        "asset_policy": {
+            "destination": "Images\\btn_trophies.png",
+            "sha256": PROVENANCE_ASSET_SHA256,
+            "operation": "preserve-and-verify-stock-asset",
+            "note": "The native cached PNG is never replaced or deleted; EXE/DLL atomic publication verifies it byte-for-byte.",
+        },
         "projection": {
             "path": "data/candidates/VVFP VV5 Cure Containment Projection.dll",
             "size": len(cure_projection),
-            "sha256": sha(cure_projection),
+            "sha256": CURE_PROJECTION_SHA256,
         },
         "status": "candidate-only; requires independent emitted DLL recertification before enablement",
     }
@@ -1545,6 +1601,7 @@ def main() -> None:
         "allowed_modes": ["collection_progression", "immediate_fixed"],
         "expanded_fail_closed": True,
         "source": {"size": len(stock), "sha256": expected_sha},
+        "active_base": base["active_base"],
         "ui_geometry_contract": {
             "asset": "Images\\btn_trophies.png",
             "provenance": "assets/candidates/vv5_full_mastery/provenance/btn_trophies.png",
@@ -1559,11 +1616,16 @@ def main() -> None:
         "base_stock_payload_sha256": sha(stock_payload),
         "fullscreen_dialog_contract": base["fullscreen_dialog_contract"],
         "cure_containment": base["cure_containment"],
+        "asset_policy": base["cure_containment"]["asset_policy"],
         "companion": {
-            "path": "data/candidates/VVFP VV5 Full Mastery Candidate.dll",
-            "size": COMPANION.stat().st_size,
-            "sha256": sha(COMPANION.read_bytes()),
-            "exports": export_map(COMPANION.read_bytes()),
+            "path": "data/candidates/VVFP VV5 Cure Containment Projection.dll",
+            "size": len(cure_projection),
+            "sha256": CURE_PROJECTION_SHA256,
+            "parent_sha256": COMPANION_PARENT_SHA256,
+            "preimage_sha256": COMPANION_PARENT_SHA256,
+            "restore_source": "data/candidates/VVFP VV5 Full Mastery Candidate.dll",
+            "restore_sha256": COMPANION_PARENT_SHA256,
+            "exports": export_map(cure_projection),
             "required_result": "ShowVV5FullMasteryResult stdcall(status,changed), ret 8",
         },
         "slot_layout": {

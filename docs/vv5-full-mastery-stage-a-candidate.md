@@ -2,12 +2,12 @@
 
 Generated from acceptance contract `48955b5f19da5d4279887a4c1b71250a63ac9ade`. The corrected constructor and Full Mastery paths passed the M2 live test, but the Upgrades controls require the proven native top-left layout. This disabled candidate uses cached `Images\btn_trophies.png`, resource 0x6A (96x39), at local (137,2) for both Tech and Detail, with event 13, sub_401BD0, and existing 0x40C680 ownership. It remains catalog-hidden pending independent emitted-byte recertification.
 
-- Companion SHA-256: `29927CECB448B64944E18E2BA11893DC84C91B39241FBB2549FC2A464E0BE2ED`
+- Companion SHA-256: `A1C55063B548F195B9ECDA492E1799D35EBA5437862353D96BE780D9FCC2E1C8`
 - Physical provenance asset `assets/candidates/vv5_full_mastery/provenance/btn_trophies.png` SHA-256: `F39E94CBDF24776631D803D1218EFCCDE555081C9C8C644DD073B75EC7DD2095`
 - Stock installed slot SHA-256: `00CB45CEFDD687FDBDAE5A75BF90E677315A92D2BEAC1E1C5D06C650F10F9A92`
 - Stock installed `.vv5fm` page SHA-256: `9B191EE433100638E2C45AD6BC14B65C73C05BFC02DF6553F892F570CD2FC586` (required in both stock modes).
-- Collection Progression render SHA-256: `FC25AED16918D99B23F311B11F459E2F91B483C81F61E7B4BD3100B9890A2A51`
-- Immediate Fixed render SHA-256: `7E7C91054117002535AB5D8B9E8D0C350C7FBF2AAAB3775BE21BEACEE12FAAA9`
+- Collection Progression render SHA-256: `4CC19EBE2684D0117E241BEE40042053001CAF6FBC309639C78F4A45814F08D2`
+- Immediate Fixed render SHA-256: `53DCACAC56E386E5291FAFF81ABA92858AA0E74255E87B974EB05D692C9275ED`
 - Expanded-256 render: rejected before artifact output (fail-closed).
 
 The loader requires the exact acceptance commit above before any output is

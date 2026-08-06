@@ -538,6 +538,7 @@ VV5_FULL_MASTERY_CANDIDATE_PATHS = {
     "feature": ROOT / "data" / "candidates" / "vv5_full_mastery_all_candidate.json",
     "map": ROOT / "data" / "candidates" / "vv5_full_mastery_all_candidate_map.json",
     "dll": ROOT / "data" / "candidates" / "VVFP VV5 Full Mastery Candidate.dll",
+    "cure_dll": ROOT / "data" / "candidates" / "VVFP VV5 Cure Containment Projection.dll",
     "provenance_asset": ROOT / "assets" / "candidates" / "vv5_full_mastery" / "provenance" / "btn_trophies.png",
 }
 VV5_FULL_MASTERY_ACCEPTANCE_COMMIT = "48955b5f19da5d4279887a4c1b71250a63ac9ade"
@@ -549,9 +550,10 @@ VV5_FULL_MASTERY_CERTIFIED_SHA256 = {
     "dll": "29927CECB448B64944E18E2BA11893DC84C91B39241FBB2549FC2A464E0BE2ED",
     "provenance_asset": "F39E94CBDF24776631D803D1218EFCCDE555081C9C8C644DD073B75EC7DD2095",
 }
+VV5_FULL_MASTERY_CURE_COMPANION_SHA256 = "A1C55063B548F195B9ECDA492E1799D35EBA5437862353D96BE780D9FCC2E1C8"
 VV5_FULL_MASTERY_RENDERED_SHA256 = {
-    "collection_progression": "FC25AED16918D99B23F311B11F459E2F91B483C81F61E7B4BD3100B9890A2A51",
-    "immediate_fixed": "7E7C91054117002535AB5D8B9E8D0C350C7FBF2AAAB3775BE21BEACEE12FAAA9",
+    "collection_progression": "4CC19EBE2684D0117E241BEE40042053001CAF6FBC309639C78F4A45814F08D2",
+    "immediate_fixed": "53DCACAC56E386E5291FAFF81ABA92858AA0E74255E87B974EB05D692C9275ED",
 }
 VV5_FULL_MASTERY_CONFIRMATION_SHA256 = {
     "individual_routine": "234E2D9320A75D6B95DED0A682F13087294AE5E48F126DF30269C6F37653C18F",
@@ -1421,6 +1423,11 @@ def _certified_vv5_full_mastery_records(
         or artifact.get("expanded_fail_closed") is not True
     ):
         raise PatcherError("VV5 Full Mastery catalog enablement metadata is not C99-certified.")
+    for mode in ("collection_progression", "immediate_fixed"):
+        if layouts[mode].get("installed_page_sha256") != VV5_FULL_MASTERY_CERTIFIED_SHA256["stock_page"]:
+            raise PatcherError(
+                f"VV5 Full Mastery {mode} stock page hash is not the certified identity."
+            )
     for mode in EXPANDED_PATCH_MODES:
         if rendered.get(mode) != {"rejected": True, "reason": "Expanded-256 fail-closed"}:
             raise PatcherError(
@@ -1433,11 +1440,6 @@ def _certified_vv5_full_mastery_records(
             )
     stock = layouts["collection_progression"]
     installed = stock.get("slot_map", {}).get("installed", {})
-    for mode in ("collection_progression", "immediate_fixed"):
-        if layouts[mode].get("installed_page_sha256") != VV5_FULL_MASTERY_CERTIFIED_SHA256["stock_page"]:
-            raise PatcherError(
-                f"VV5 Full Mastery {mode} stock page hash is not the certified identity."
-            )
     actual = {
         "stock_entry": installed.get("entry_sha256"),
         "stock_walker": installed.get("walker_sha256"),
@@ -1454,6 +1456,23 @@ def _certified_vv5_full_mastery_records(
                 f"Certified VV5 Full Mastery {label} artifact hash mismatch: "
                 f"expected {expected}, got {actual[label]}."
             )
+    expected_companion = {
+        "source": "data/candidates/VVFP VV5 Cure Containment Projection.dll",
+        "destination": "VVFP Origins Icons.dll",
+        "sha256": VV5_FULL_MASTERY_CURE_COMPANION_SHA256,
+        "size": 298496,
+        "preimage_sha256": VV5_FULL_MASTERY_CERTIFIED_SHA256["dll"],
+        "restore_source": "data/candidates/VVFP VV5 Full Mastery Candidate.dll",
+        "restore_sha256": VV5_FULL_MASTERY_CERTIFIED_SHA256["dll"],
+        "parent": "data/candidates/VVFP VV5 Full Mastery Candidate.dll",
+    }
+    if base.get("companion_files") != [expected_companion]:
+        raise PatcherError("VV5 candidate-owned Cure companion identity is not certified.")
+    if artifact.get("companion", {}).get("sha256") != VV5_FULL_MASTERY_CURE_COMPANION_SHA256:
+        raise PatcherError("VV5 map does not bind the candidate-owned Cure companion.")
+    cure_path = VV5_FULL_MASTERY_CANDIDATE_PATHS["cure_dll"]
+    if not cure_path.is_file() or hashlib.sha256(cure_path.read_bytes()).hexdigest().upper() != VV5_FULL_MASTERY_CURE_COMPANION_SHA256:
+        raise PatcherError("VV5 candidate-owned Cure companion is missing or corrupt.")
     if installed.get("village_confirmation_sha256") != VV5_FULL_MASTERY_CONFIRMATION_SHA256["village_routine"]:
         raise PatcherError("VV5 Full Mastery village-wide confirmation routine hash is not certified.")
     if installed.get("confirmation_string_sha256") != {

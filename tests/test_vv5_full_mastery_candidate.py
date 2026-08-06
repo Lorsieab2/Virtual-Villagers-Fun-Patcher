@@ -288,8 +288,8 @@ class VV5FullMasteryCandidateTests(unittest.TestCase):
 
     def test_c103_loader_accepts_both_certified_stock_modes(self):
         expected = {
-            "collection_progression": "FC25AED16918D99B23F311B11F459E2F91B483C81F61E7B4BD3100B9890A2A51",
-            "immediate_fixed": "7E7C91054117002535AB5D8B9E8D0C350C7FBF2AAAB3775BE21BEACEE12FAAA9",
+            "collection_progression": "4CC19EBE2684D0117E241BEE40042053001CAF6FBC309639C78F4A45814F08D2",
+            "immediate_fixed": "53DCACAC56E386E5291FAFF81ABA92858AA0E74255E87B974EB05D692C9275ED",
         }
         for mode, digest in expected.items():
             with self.subTest(mode=mode):
@@ -775,7 +775,7 @@ class VV5FullMasteryCandidateTests(unittest.TestCase):
         self.assertIn("call 0x{NATIVE_FULLSCREEN_GETTER_VA:X}", wrapper)
         enter_index = wrapper.index("call 0x{NATIVE_FULLSCREEN_ENTER_VA:X}")
         leave_index = wrapper.index("call 0x{NATIVE_FULLSCREEN_LEAVE_VA:X}")
-        self.assertLess(wrapper.find("call 0x{NATIVE_FULLSCREEN_GETTER_VA:X}", leave_index), enter_index)
+        self.assertLess(wrapper.find("call reacquire", leave_index), enter_index)
         self.assertNotEqual(wrapper.find("call 0x{NATIVE_FULLSCREEN_GETTER_VA:X}", enter_index), -1)
         self.assertNotIn("call dword ptr [0x{SDL_GET_MODULE_HANDLE_IAT:X}]\n            add esp", wrapper)
         self.assertNotIn("call dword ptr [0x{SDL_GET_WINDOW_FLAGS_IAT:X}]\n            add esp", wrapper)
@@ -808,18 +808,79 @@ class VV5FullMasteryCandidateTests(unittest.TestCase):
                 vv5_builder.PAYLOAD_VA + vv5_builder.FULLSCREEN_COMMON_OFFSET,
             )
         )
+        # The wrapper samples flags before leaving fullscreen and once after
+        # restoration.  There are exactly two masked flag tests; the three
+        # SDL calls are still asserted independently below.
         self.assertEqual(sum(1 for ins in instructions if ins.mnemonic == "and" and ins.op_str == "edx, 0x1001"), 2)
+        flags_calls = [
+            i for i, ins in enumerate(instructions)
+            if ins.mnemonic == "call" and ins.op_str == "dword ptr [ebp - 0x28]"
+        ]
+        self.assertEqual(len(flags_calls), 3)
+        for index in flags_calls:
+            self.assertEqual(instructions[index - 1].mnemonic, "push")
+            self.assertEqual(instructions[index - 1].op_str, "dword ptr [ebp - 0x20]")
+            self.assertEqual(instructions[index + 1].mnemonic, "add")
+            self.assertEqual(instructions[index + 1].op_str, "esp, 4")
         leave_index = next(i for i, ins in enumerate(instructions) if ins.mnemonic == "call" and f"0x{vv5_builder.NATIVE_FULLSCREEN_LEAVE_VA:x}" in ins.op_str)
         self.assertEqual(instructions[leave_index - 1].mnemonic, "mov")
         self.assertEqual(instructions[leave_index - 1].op_str, "ecx, esi")
         enter_index = next(i for i, ins in enumerate(instructions) if ins.mnemonic == "call" and f"0x{vv5_builder.NATIVE_FULLSCREEN_ENTER_VA:x}" in ins.op_str)
-        self.assertTrue(any(ins.mnemonic == "call" and f"0x{vv5_builder.NATIVE_FULLSCREEN_GETTER_VA:x}" in ins.op_str for ins in instructions[leave_index + 1 : enter_index]))
+        self.assertTrue(any(ins.mnemonic == "call" and f"0x{vv5_builder.NATIVE_FULLSCREEN_GETTER_VA:x}" in ins.op_str for ins in instructions[:leave_index]))
         self.assertTrue(any(ins.mnemonic == "call" and f"0x{vv5_builder.NATIVE_FULLSCREEN_GETTER_VA:x}" in ins.op_str for ins in instructions[enter_index + 1 :]))
         for i, ins in enumerate(instructions):
             if ins.mnemonic == "call" and ins.op_str in ("dword ptr [0x4951d8]", "dword ptr [0x4951dc]"):
                 self.assertFalse(i + 1 < len(instructions) and instructions[i + 1].mnemonic == "add")
+        for transition in (vv5_builder.NATIVE_FULLSCREEN_LEAVE_VA, vv5_builder.NATIVE_FULLSCREEN_ENTER_VA):
+            index = next(i for i, ins in enumerate(instructions) if ins.mnemonic == "call" and f"0x{transition:x}" in ins.op_str)
+            self.assertNotIn(instructions[index + 1].mnemonic, ("test", "cmp"))
+        wrapper_lo = vv5_builder.PAYLOAD_VA + vv5_builder.FULLSCREEN_COMMON_OFFSET
+        wrapper_hi = wrapper_lo + len(wrapper)
+        self.assertTrue(
+            any(
+                ins.mnemonic == "call"
+                and ins.op_str.startswith("0x")
+                and wrapper_lo <= int(ins.op_str, 16) < wrapper_hi
+                for ins in instructions
+            )
+        )
         self.assertEqual(instructions[-1].mnemonic, "ret")
         self.assertEqual(instructions[-1].op_str, "")
+
+    def test_d252_candidate_companion_is_projection_with_exact_restore_parent(self):
+        companion = self.base_raw["companion_files"]
+        self.assertEqual(companion, [{
+            "source": "data/candidates/VVFP VV5 Cure Containment Projection.dll",
+            "destination": "VVFP Origins Icons.dll",
+            "sha256": "A1C55063B548F195B9ECDA492E1799D35EBA5437862353D96BE780D9FCC2E1C8",
+            "size": 298496,
+            "preimage_sha256": "29927CECB448B64944E18E2BA11893DC84C91B39241FBB2549FC2A464E0BE2ED",
+            "restore_source": "data/candidates/VVFP VV5 Full Mastery Candidate.dll",
+            "restore_sha256": "29927CECB448B64944E18E2BA11893DC84C91B39241FBB2549FC2A464E0BE2ED",
+            "parent": "data/candidates/VVFP VV5 Full Mastery Candidate.dll",
+        }])
+        self.assertEqual(self.map["companion"]["sha256"], companion[0]["sha256"])
+        self.assertEqual(sha(CURE_PROJECTION.read_bytes()), companion[0]["sha256"])
+        self.assertEqual(sha(DLL.read_bytes()), companion[0]["preimage_sha256"])
+        self.assertTrue(self.base_raw["cure_containment"]["atomic_install_remove"])
+
+    def test_c256_active_base_pin_and_fullscreen_cdecl_contract(self):
+        active = ROOT / "data" / "vv5_origins_feature.json"
+        self.assertEqual(active.stat().st_size, 34672)
+        self.assertEqual(sha(active.read_bytes()), "797456C51CA86A7C802B7B6F2B0C8FCDFFF1C1E205923FA9A1F3E0A503FDB823")
+        self.assertEqual(
+            self.base_raw["active_base"],
+            {"path": "data/vv5_origins_feature.json", "size": 34672, "sha256": "797456C51CA86A7C802B7B6F2B0C8FCDFFF1C1E205923FA9A1F3E0A503FDB823"},
+        )
+        self.assertEqual(self.map["active_base"], self.base_raw["active_base"])
+        sdl = self.base_raw["fullscreen_dialog_contract"]["sdl"]
+        self.assertEqual(sdl["calls"], 3)
+        self.assertEqual(sdl["abi"], "push SDL_Window*; indirect call; add esp,4 for each invocation")
+        asset = self.base_raw["cure_containment"]["asset_policy"]
+        self.assertEqual(asset["destination"], "Images\\btn_trophies.png")
+        self.assertEqual(asset["sha256"], "F39E94CBDF24776631D803D1218EFCCDE555081C9C8C644DD073B75EC7DD2095")
+        self.assertEqual(asset["operation"], "preserve-and-verify-stock-asset")
+        self.assertEqual(self.map["asset_policy"], asset)
 
     def test_c37_audit_provenance_names_binary_and_documentation_commits(self):
         audit = ROOT / "outputs" / "vv5-c37-d40-audit"
