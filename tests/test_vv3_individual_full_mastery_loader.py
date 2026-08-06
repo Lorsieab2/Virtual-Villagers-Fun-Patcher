@@ -599,6 +599,76 @@ class VV3IndividualFullMasteryLoaderTests(unittest.TestCase):
             self.assertEqual(successors, [successor])
             self.assertEqual(markers, [])
 
+    def test_c292_publish_postlink_replacement_is_rejected_and_preserved(self):
+        with tempfile.TemporaryDirectory(prefix="vv3-c292-publish-race-") as td:
+            root = Path(td)
+            tmp = root / "report.tmp"
+            final = root / "report.json"
+            tmp.write_bytes(b"owned")
+            real_link = loader.os.link
+            def race(src, dst):
+                real_link(src, dst)
+                Path(dst).unlink()
+                Path(dst).write_bytes(b"foreign")
+            with mock.patch.object(loader.os, "link", side_effect=race):
+                with self.assertRaises(vv_fun_patcher.PatcherError):
+                    loader._publish_exclusive(tmp, final, root)
+            self.assertEqual(final.read_bytes(), b"foreign")
+            self.assertEqual(tmp.read_bytes(), b"owned")
+
+    def test_c292_file_substitution_after_tombstone_link_survives(self):
+        with tempfile.TemporaryDirectory(prefix="vv3-c292-file-tombstone-") as td:
+            root = Path(td)
+            target = root / "owned.bin"
+            target.write_bytes(b"owned")
+            expected = loader._inventory_entry(root, target)
+            real_link = loader.os.link
+            def race(src, dst):
+                real_link(src, dst)
+                target.unlink()
+                target.write_bytes(b"foreign")
+            with mock.patch.object(loader.os, "link", side_effect=race):
+                with self.assertRaises(vv_fun_patcher.PatcherError):
+                    loader._quarantine_delete(target, expected, directory=False)
+            self.assertEqual(target.read_bytes(), b"foreign")
+            tombstones = list(root.glob(".owned.bin.vv3im-tombstone-*"))
+            self.assertEqual(len(tombstones), 1)
+            self.assertEqual(tombstones[0].read_bytes(), b"owned")
+
+    def test_c292_directory_quarantine_without_noreplace_is_fail_closed(self):
+        with tempfile.TemporaryDirectory(prefix="vv3-c292-dir-tombstone-") as td:
+            root = Path(td)
+            target = root / "owned-dir"
+            target.mkdir()
+            (target / "member").write_bytes(b"owned")
+            expected = loader._inventory_entry(root, target)
+            with mock.patch.object(loader, "_move_noreplace", side_effect=vv_fun_patcher.PatcherError("race")):
+                with self.assertRaises(vv_fun_patcher.PatcherError):
+                    loader._quarantine_delete(target, expected, directory=True)
+            self.assertTrue(target.exists())
+            self.assertEqual((target / "member").read_bytes(), b"owned")
+
+    def test_c292_final_tombstone_substitution_is_not_deleted(self):
+        with tempfile.TemporaryDirectory(prefix="vv3-c292-final-tombstone-") as td:
+            root = Path(td)
+            target = root / "owned.bin"
+            target.write_bytes(b"owned")
+            expected = loader._inventory_entry(root, target)
+            real_delete = loader._delete_file_by_handle
+            def substitute(path, record):
+                if "tombstone" in path.name:
+                    path.unlink()
+                    path.write_bytes(b"foreign")
+                    raise vv_fun_patcher.PatcherError("tombstone substitution")
+                return real_delete(path, record)
+            with mock.patch.object(loader, "_delete_file_by_handle", side_effect=substitute):
+                with self.assertRaises(vv_fun_patcher.PatcherError):
+                    loader._quarantine_delete(target, expected, directory=False)
+            self.assertFalse(target.exists())
+            tombstones = list(root.glob(".owned.bin.vv3im-tombstone-*"))
+            self.assertEqual(len(tombstones), 1)
+            self.assertEqual(tombstones[0].read_bytes(), b"foreign")
+
 
 if __name__ == "__main__":
     unittest.main()
