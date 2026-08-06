@@ -274,7 +274,7 @@ def section_header(cfg: dict[str, object]) -> bytes:
     )
 
 
-def emit_game(game: str, cfg: dict[str, object], output_root: Path = OUT) -> dict[str, object]:
+def emit_game(game: str, cfg: dict[str, object], output_root: Path = OUT, emit_binaries: bool = False) -> dict[str, object]:
     stock = cfg["stock"].read_bytes()
     parents = cfg["parents"]
     if len(stock) > cfg["parent_size"]:
@@ -306,6 +306,7 @@ def emit_game(game: str, cfg: dict[str, object], output_root: Path = OUT) -> dic
     page[string_offset:string_offset + len(strings)] = strings
     page_meta = {"tech": tech_meta, "detail": detail_meta, "strings_offset": f"0x{string_offset:X}", "strings_sha256": sha(strings), "page_sha256": sha(bytes(page))}
     modes: dict[str, object] = {}
+    candidate_bytes: dict[str, bytes] = {}
     for mode, parent in parents_bytes.items():
         data = bytearray(parent)
         for key in ("tech", "detail"):
@@ -330,6 +331,7 @@ def emit_game(game: str, cfg: dict[str, object], output_root: Path = OUT) -> dic
         data[cfg["header"]:cfg["header"] + 40] = section_header(cfg)
         data.extend(page)
         pe_checksum(data)
+        candidate_bytes[mode] = bytes(data)
         modes[mode] = {"parent_sha256": sha(parent), "candidate_sha256": sha(bytes(data)), "size": len(data)}
     stem = f"vv{game[-1]}_fullscreen_safe_candidate"
     contract = {
@@ -378,6 +380,10 @@ def emit_game(game: str, cfg: dict[str, object], output_root: Path = OUT) -> dic
     map_bytes = json_bytes(artifact_map)
     (output_root / f"{stem}.json").write_bytes(manifest_bytes)
     (output_root / f"{stem}_map.json").write_bytes(map_bytes)
+    if emit_binaries:
+        (output_root / f"{stem}_fullscreen_page.bin").write_bytes(bytes(page))
+        for mode, candidate in candidate_bytes.items():
+            (output_root / f"{stem}_{mode}.exe").write_bytes(candidate)
     return {"manifest": sha(manifest_bytes), "map": sha(map_bytes), "page": page_meta, "modes": modes}
 
 
@@ -385,8 +391,10 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--output-root", type=Path, default=OUT,
                         help="directory for generated candidate evidence (default: tracked data/candidates)")
+    parser.add_argument("--emit-binaries", action="store_true",
+                        help="also write ignored candidate EXE/page projections under --output-root")
     args = parser.parse_args()
-    result = {game: emit_game(game, cfg, args.output_root) for game, cfg in CONFIG.items()}
+    result = {game: emit_game(game, cfg, args.output_root, args.emit_binaries) for game, cfg in CONFIG.items()}
     print(json.dumps(result, indent=2))
 
 

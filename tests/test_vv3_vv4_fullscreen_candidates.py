@@ -109,6 +109,15 @@ class VV3VV4FullscreenCandidateTests(unittest.TestCase):
             self.assertEqual(cfg["section_va"] % 0x1000, 0)
             self.assertTrue(cfg["dll"].isalnum() and len(cfg["dll"]) == 64)
 
+    def test_binary_projection_matches_recorded_hashes(self):
+        with tempfile.TemporaryDirectory() as root:
+            out = Path(root)
+            result = self.builder.emit_game("vv3", self.builder.CONFIG["vv3"], out, emit_binaries=True)
+            stem = "vv3_fullscreen_safe_candidate"
+            self.assertEqual(self.builder.sha((out / f"{stem}_fullscreen_page.bin").read_bytes()), result["page"]["page_sha256"])
+            for mode in ("collection_progression", "immediate_fixed"):
+                self.assertEqual(self.builder.sha((out / f"{stem}_{mode}.exe").read_bytes()), result["modes"][mode]["candidate_sha256"])
+
 
 if __name__ == "__main__":
     unittest.main()
