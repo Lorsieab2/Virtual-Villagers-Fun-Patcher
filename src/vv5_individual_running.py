@@ -93,6 +93,7 @@ def _write(path: Path, data: bytes) -> None:
         f.write(data)
         f.flush()
         os.fsync(f.fileno())
+    _safe_ancestors(path.parent)
 
 
 def _cleanup(path: Path) -> None:
@@ -101,6 +102,10 @@ def _cleanup(path: Path) -> None:
     st = os.lstat(path)
     if stat.S_ISLNK(st.st_mode) or _unsafe(st) or not stat.S_ISREG(st.st_mode):
         raise PatcherError(f"VV5 Running unsafe owned cleanup path: {path}")
+    before = _read(path)
+    after = os.lstat(path)
+    if after.st_size != len(before) or stat.S_ISLNK(after.st_mode) or _unsafe(after):
+        raise PatcherError(f"VV5 Running owned cleanup identity changed: {path}")
     path.unlink()
 
 
@@ -124,12 +129,73 @@ def _restore(path: Path, pre: tuple[bool, bytes | None], published: bytes, backu
         return False
 
 
+def _relative(root: Path, path: Path | None) -> str | None:
+    if path is None:
+        return None
+    try:
+        rel = Path(os.path.abspath(os.fspath(path))).relative_to(Path(os.path.abspath(os.fspath(root))))
+    except ValueError as exc:
+        raise PatcherError("VV5 Running recovery path escapes root") from exc
+    if rel.is_absolute() or not rel.parts or ".." in rel.parts:
+        raise PatcherError("VV5 Running recovery path is unsafe")
+    return rel.as_posix()
+
+
+def _inventory(root: Path, path: Path | None) -> dict[str, object] | None:
+    if path is None or not os.path.lexists(path):
+        return None
+    data = _read(path); st = os.lstat(path)
+    return {"path": _relative(root, path), "type": "regular_file", "size": len(data), "sha256": _sha(data), "st_dev": int(getattr(st, "st_dev", 0)), "st_ino": int(getattr(st, "st_ino", 0))}
+
+
+def _validate_report(payload: dict[str, object], root: Path) -> None:
+    required = {"schema_version", "operation", "recovery_root", "destination_parent", "initial_precondition", "replay_guard", "members", "ownership_inventory", "failure_diagnostic"}
+    if not isinstance(payload, dict) or set(payload) != required or payload.get("schema_version") != 2 or payload.get("operation") not in {"install_new", "install_existing", "removal"}:
+        raise PatcherError("VV5 Running recovery schema is unsupported or ambiguous")
+    if payload["recovery_root"] != "." or payload["destination_parent"] != ".":
+        raise PatcherError("VV5 Running recovery root contract is invalid")
+    initial = payload["initial_precondition"]
+    if not isinstance(initial, dict) or set(initial) != {"kind", "members"} or initial["kind"] not in {"absent", "pair"}:
+        raise PatcherError("VV5 Running recovery initial precondition is invalid")
+    if payload["operation"] == "install_new" and initial["kind"] != "absent":
+        raise PatcherError("VV5 install_new requires absent precondition")
+    if payload["operation"] != "install_new" and initial["kind"] != "pair":
+        raise PatcherError("VV5 recovery operation requires pair precondition")
+    keys = {"destination_relative", "destination_type", "pre_exists", "pre_sha256", "pre_size", "published_sha256", "published_size", "backup_relative", "stage_relative", "backup_inventory", "stage_inventory"}
+    seen: set[str] = set()
+    members = payload["members"]
+    if not isinstance(members, list) or len(members) != 2:
+        raise PatcherError("VV5 Running recovery requires two members")
+    for member in members:
+        if not isinstance(member, dict) or set(member) != keys or member["destination_type"] != "regular_file":
+            raise PatcherError("VV5 Running recovery member schema is invalid")
+        rel = Path(str(member["destination_relative"])); key = rel.as_posix().casefold()
+        if rel.is_absolute() or not rel.parts or ".." in rel.parts or key in seen:
+            raise PatcherError("VV5 Running recovery destination path is unsafe")
+        seen.add(key)
+        for field in ("backup_relative", "stage_relative"):
+            if member[field] is not None:
+                p = Path(str(member[field]))
+                if p.is_absolute() or ".." in p.parts or not p.parts:
+                    raise PatcherError("VV5 Running recovery owned path is unsafe")
+    if not isinstance(payload["ownership_inventory"], list):
+        raise PatcherError("VV5 Running recovery ownership inventory is invalid")
+
+
 def _report(parent: Path, operation: str, members: list[dict[str, object]], error: str) -> Path:
     report = parent / f".vv5run-recovery-{uuid.uuid4().hex}.json"
     tmp = report.with_suffix(".tmp")
-    payload = {"schema_version": 1, "operation": operation, "destination_parent": str(parent), "members": members, "error": error}
+    op = "removal" if operation == "remove" else ("install_existing" if any(m["pre_exists"] for m in members) else "install_new")
+    records = []
+    for m in members:
+        records.append({**m, "destination_relative": _relative(parent, Path(m["path"])), "destination_type": "regular_file", "backup_relative": _relative(parent, Path(m["backup"]) if m.get("backup") else None), "stage_relative": _relative(parent, Path(m["stage"]) if m.get("stage") else None), "backup_inventory": _inventory(parent, Path(m["backup"]) if m.get("backup") else None), "stage_inventory": _inventory(parent, Path(m["stage"]) if m.get("stage") else None)})
+        for k in ("path", "backup", "stage"):
+            records[-1].pop(k, None)
+    payload = {"schema_version": 2, "operation": op, "recovery_root": ".", "destination_parent": ".", "initial_precondition": {"kind": "absent" if op == "install_new" else "pair", "members": [{"path": r["destination_relative"], "exists": r["pre_exists"], "sha256": r["pre_sha256"], "size": r["pre_size"]} for r in records]}, "replay_guard": "published_or_initial", "members": records, "ownership_inventory": [v for r in records for v in (r["backup_inventory"], r["stage_inventory"]) if v is not None], "failure_diagnostic": error}
+    _validate_report(payload, parent)
     _write(tmp, (json.dumps(payload, indent=2, sort_keys=True) + "\n").encode("utf-8"))
     os.replace(tmp, report)
+    _validate_report(json.loads(_read(report).decode("utf-8")), parent)
     return report
 
 
@@ -160,7 +226,7 @@ def _publish(operation: str, destinations: list[Path], pre: dict[Path, tuple[boo
                 if os.path.lexists(p):
                     _cleanup(p)
             raise PatcherError(f"VV5 Running {operation} failed; pair restored") from exc
-        members = [{"path": str(p), "pre_exists": pre[p][0], "pre_sha256": _sha(pre[p][1]) if pre[p][1] is not None else None, "published_sha256": _sha(published[p]), "backup": str(backups[p]) if p in backups else None, "stage": str(stages[p])} for p in destinations]
+        members = [{"path": str(p), "pre_exists": pre[p][0], "pre_sha256": _sha(pre[p][1]) if pre[p][1] is not None else None, "pre_size": len(pre[p][1]) if pre[p][1] is not None else 0, "published_sha256": _sha(published[p]), "published_size": len(published[p]), "backup": str(backups[p]) if p in backups else None, "stage": str(stages[p])} for p in destinations]
         report = _report(parent, operation, members, str(exc))
         raise PatcherError(f"VV5 Running {operation} unresolved; recovery retained at {report}") from exc
     for p in (*stages.values(), *backups.values()):
@@ -180,53 +246,61 @@ def recover_atomic(report_path: Path) -> None:
     parent = report_path.parent
     _safe_ancestors(parent)
     raw = json.loads(_read(report_path).decode("utf-8"))
-    if raw.get("schema_version") != 1 or raw.get("operation") not in {"install", "remove"}:
-        raise PatcherError("VV5 Running recovery schema is unsupported.")
-    members = raw.get("members")
-    if not isinstance(members, list) or len(members) != 2:
-        raise PatcherError("VV5 Running recovery member inventory is incomplete.")
+    _validate_report(raw, parent)
+    members = raw["members"]
     token = uuid.uuid4().hex
-    stages: list[Path] = []
+    stages: list[tuple[dict[str, object], Path, Path]] = []
     try:
         for member in members:
             if not isinstance(member, dict):
                 raise PatcherError("VV5 Running recovery member is malformed.")
-            destination = Path(member["path"])
-            backup_name = member.get("backup")
+            destination = parent / str(member["destination_relative"])
+            backup_name = member.get("backup_relative")
             if not backup_name:
-                raise PatcherError("VV5 Running recovery backup is missing.")
-            backup = Path(backup_name)
-            if backup.parent != parent or destination.parent != parent:
+                if member["pre_exists"]:
+                    raise PatcherError("VV5 Running recovery backup is missing.")
+                backup = None
+            else:
+                backup = parent / str(backup_name)
+            if destination.parent != parent or (backup is not None and backup.parent != parent):
                 raise PatcherError("VV5 Running recovery path escapes its owned parent.")
             expected = member.get("pre_sha256")
             published = member.get("published_sha256")
             if not isinstance(expected, str) or not isinstance(published, str):
                 raise PatcherError("VV5 Running recovery hashes are incomplete.")
-            if not os.path.lexists(destination) or _sha(_read(destination)) != published:
+            if not os.path.lexists(destination) and member["pre_exists"]:
+                raise PatcherError("VV5 Running recovery destination unexpectedly absent.")
+            if os.path.lexists(destination) and _sha(_read(destination)) not in {published, expected}:
                 raise PatcherError("VV5 Running recovery destination precondition failed.")
-            backup_bytes = _read(backup)
-            if _sha(backup_bytes) != expected:
-                raise PatcherError("VV5 Running recovery backup hash mismatch.")
+            backup_bytes = _read(backup) if backup is not None else b""
+            if backup is not None and (_sha(backup_bytes) != expected or len(backup_bytes) != member["pre_size"]):
+                raise PatcherError("VV5 Running recovery backup hash/size mismatch.")
+            if backup is None and member["pre_exists"]:
+                raise PatcherError("VV5 Running recovery backup is required.")
             stage = parent / f".{destination.name}.vv5run-{token}.replay"
-            _write(stage, backup_bytes)
-            stages.append(stage)
+            if backup is not None:
+                _write(stage, backup_bytes)
+                stages.append((member, destination, stage))
         # No replacement occurs until both backups and both destinations pass preflight.
-        for member, stage in zip(members, stages):
-            destination = Path(member["path"])
+        for member, destination, stage in stages:
+            if _sha(_read(stage)) != member["pre_sha256"]:
+                raise PatcherError("VV5 Running replay stage changed.")
             os.replace(stage, destination)
         for member in members:
-            destination = Path(member["path"])
-            if _sha(_read(destination)) != member["pre_sha256"]:
+            destination = parent / str(member["destination_relative"])
+            if member["pre_exists"] and _sha(_read(destination)) != member["pre_sha256"]:
                 raise PatcherError("VV5 Running recovery postverify failed.")
+            if not member["pre_exists"] and os.path.lexists(destination):
+                _cleanup(destination)
     except Exception:
-        for stage in stages:
+        for _member, _destination, stage in stages:
             if os.path.lexists(stage):
                 # Keep any failed replay material for a later operator review.
                 pass
         raise
     for member in members:
-        backup = Path(member["backup"])
-        if os.path.lexists(backup):
+        backup = parent / str(member["backup_relative"]) if member["backup_relative"] else None
+        if backup is not None and os.path.lexists(backup):
             _cleanup(backup)
     _cleanup(report_path)
 

@@ -80,9 +80,12 @@ CONFIRM_OFFSET = 0x800
 VILLAGE_CONFIRM_OFFSET = 0x850
 INDIVIDUAL_OFFSET = 0xC00
 STRINGS_OFFSET = 0x1200
-RUNNING_OFFSET = 0x1100
-RUNNING_CONFIRM_OFFSET = 0x0E00
-RUNNING_STRINGS_OFFSET = 0x1C00
+# Running is appended to the certified Full Mastery page.  Keep the entire
+# Full Mastery slot/string region byte-identical and place Running after it.
+RUNNING_CONFIRM_OFFSET = 0x15D4
+RUNNING_OFFSET = 0x1620
+RUNNING_STRINGS_OFFSET = 0x1D80
+RUNNING_PAGE_SIZE = PAGE_SIZE
 # Individual Grant Running is an isolated extension layered over the
 # already-composed Full Mastery parent.  Keep it out of the certified
 # .vv5fm page so the enabled feature's bytes remain byte-identical.
@@ -1622,14 +1625,13 @@ def build_page(
     if slot_map and slot_map.get("running_helper_bytes"):
         helper = bytes.fromhex(str(slot_map["running_helper_bytes"]))
         confirm = bytes.fromhex(str(slot_map["running_confirm_bytes"]))
-        if RUNNING_CONFIRM_OFFSET + len(confirm) > RUNNING_STRINGS_OFFSET:
+        if RUNNING_CONFIRM_OFFSET < PAGE_SIZE and RUNNING_CONFIRM_OFFSET + len(confirm) > RUNNING_STRINGS_OFFSET:
             raise RuntimeError("VV5 Running confirmation overlaps strings")
-        if RUNNING_CONFIRM_OFFSET + len(confirm) > RUNNING_OFFSET:
+        if RUNNING_CONFIRM_OFFSET < PAGE_SIZE and RUNNING_CONFIRM_OFFSET + len(confirm) > RUNNING_OFFSET:
             raise RuntimeError("VV5 Running confirmation overlaps helper")
         if RUNNING_OFFSET + len(helper) > RUNNING_STRINGS_OFFSET:
             raise RuntimeError("VV5 Running helper overlaps strings")
         page[RUNNING_OFFSET : RUNNING_OFFSET + len(helper)] = helper
-        page[RUNNING_CONFIRM_OFFSET : RUNNING_CONFIRM_OFFSET + len(confirm)] = confirm
     cursor = STRINGS_OFFSET
     for value in (
         b"VVFP Origins Icons.dll\0",
@@ -1652,6 +1654,22 @@ def build_page(
     ):
         page[cursor : cursor + len(value)] = value
         cursor += len(value)
+    if slot_map and slot_map.get("running_helper_bytes"):
+        intervals = {
+            "dispatcher": (dispatcher_offset, dispatcher_offset + len(dispatcher)),
+            "slot": (0x100, 0x1100),
+            "full_mastery_strings": (STRINGS_OFFSET, cursor),
+            "running_helper": (RUNNING_OFFSET, RUNNING_OFFSET + len(helper)),
+            "running_strings": (RUNNING_STRINGS_OFFSET, RUNNING_STRINGS_OFFSET + len(running_strings_blob())),
+        }
+        if RUNNING_CONFIRM_OFFSET < PAGE_SIZE:
+            intervals["running_confirm"] = (RUNNING_CONFIRM_OFFSET, RUNNING_CONFIRM_OFFSET + len(confirm))
+        for name, (start, end) in intervals.items():
+            if start < 0 or end > PAGE_SIZE:
+                raise RuntimeError(f"VV5 Running {name} escapes page")
+            for other, (ostart, oend) in intervals.items():
+                if name != other and start < oend and ostart < end:
+                    raise RuntimeError(f"VV5 Running interval overlap: {name}/{other}")
     running_strings = (
         bytes.fromhex(str(slot_map["running_strings_blob"]))
         if slot_map and slot_map.get("running_strings_blob")
@@ -1659,8 +1677,20 @@ def build_page(
     )
     if slot_map and slot_map.get("running_helper_bytes") and RUNNING_STRINGS_OFFSET + len(running_strings) > len(page):
         raise RuntimeError("VV5 Running strings exceed page")
+    if slot_map and slot_map.get("running_helper_bytes") and RUNNING_CONFIRM_OFFSET < PAGE_SIZE:
+        page[RUNNING_CONFIRM_OFFSET : RUNNING_CONFIRM_OFFSET + len(confirm)] = confirm
     if slot_map and slot_map.get("running_helper_bytes"):
         page[RUNNING_STRINGS_OFFSET : RUNNING_STRINGS_OFFSET + len(running_strings)] = running_strings
+    return bytes(page)
+
+
+def build_running_page(base_page: bytes, confirm: bytes) -> bytes:
+    """Extend the certified Full Mastery page with an isolated confirm tail."""
+    if len(base_page) != PAGE_SIZE or RUNNING_CONFIRM_OFFSET + len(confirm) > RUNNING_PAGE_SIZE:
+        raise RuntimeError("VV5 Running extended page layout is invalid")
+    page = bytearray(RUNNING_PAGE_SIZE)
+    page[:PAGE_SIZE] = base_page
+    page[RUNNING_CONFIRM_OFFSET : RUNNING_CONFIRM_OFFSET + len(confirm)] = confirm
     return bytes(page)
 
 
@@ -1680,9 +1710,9 @@ def running_section_header(rva: int, raw_offset: int = RUNNING_APPEND_OFFSET) ->
     """Build the exact RX .vv5run section record at the derived append boundary."""
     return (
         b".vv5run\0"
-        + PAGE_SIZE.to_bytes(4, "little")
+        + RUNNING_PAGE_SIZE.to_bytes(4, "little")
         + rva.to_bytes(4, "little")
-        + PAGE_SIZE.to_bytes(4, "little")
+        + RUNNING_PAGE_SIZE.to_bytes(4, "little")
         + raw_offset.to_bytes(4, "little")
         + b"\0" * 12
         + (0x60000020).to_bytes(4, "little")
@@ -1890,12 +1920,16 @@ def main() -> None:
     # disabled projection until independent recertification.
     running_slot, running_map = build_slot(RUNNING_PAGE_VA, True, True)
     running_dispatcher = build_running_dispatcher(RUNNING_PAGE_VA)
-    running_page = build_page(
+    running_base_page = build_page(
         RUNNING_PAGE_VA,
         running_slot,
         running_dispatcher,
         running_map,
         dispatcher_offset=RUNNING_DISPATCHER_OFFSET,
+    )
+    running_page = build_running_page(
+        running_base_page,
+        bytes.fromhex(str(running_map["running_confirm_bytes"])),
     )
     running_section = running_section_header(RUNNING_PAGE_RVA)
     running_layouts = {
@@ -1903,7 +1937,7 @@ def main() -> None:
             "parent_sha256": parent_sha,
             "original_file_size": "0xF4000",
             "append_offset": "0xF4000",
-            "append_length": PAGE_SIZE,
+            "append_length": RUNNING_PAGE_SIZE,
             "append_source": "generated:vv5_individual_running_page",
             "rva": "0x3CB000",
             "va": "0x7CB000",
@@ -1962,7 +1996,7 @@ def main() -> None:
             "append_offset": f"0x{RUNNING_APPEND_OFFSET:X}",
             "rva": f"0x{RUNNING_PAGE_RVA:X}",
             "va": f"0x{RUNNING_PAGE_VA:X}",
-            "append_length": PAGE_SIZE,
+            "append_length": RUNNING_PAGE_SIZE,
             "section_characteristics": "RX",
             "dispatcher_offset": f"0x{RUNNING_DISPATCHER_OFFSET:X}",
             "dispatcher_va": f"0x{RUNNING_PAGE_VA + RUNNING_DISPATCHER_OFFSET:X}",
@@ -2014,8 +2048,8 @@ def main() -> None:
             "helper_length": running_map["running_helper_length"],
             "rendered_exe_size": 0xF6000,
             "rendered_exe_sha256": {
-                "collection_progression": "511997D3BA57AA6844D390FFD9BD980A6E36D277BFFD56BFC9A2672CAEFC8125",
-                "immediate_fixed": "390916F2BCE337FA89BC33A69569EDB89B5D361730DF0DB23067B2995F94AFA2",
+                "collection_progression": "CEE399896343055CB35AEC345A863F50E7CFF4989F71669912BC588E2F3D8B8C",
+                "immediate_fixed": None,
             },
         },
         "provenance": {"implementation_parent": "f1256fca68f2711974e93057e599f2642c77a2a4", "implementation_commit": None, "audit_commit": None, "acceptance_commit": None},
@@ -2167,7 +2201,7 @@ def main() -> None:
     base["pe_append_transaction"] = {
         "owner": base["id"],
         "section_name": ".vv5fm",
-        "append_length": PAGE_SIZE,
+            "append_length": RUNNING_PAGE_SIZE,
         "slot_offset": f"0x{SLOT_OFFSET:X}",
         "slot_length": f"0x{SLOT_SIZE:X}",
         "removal_policy": (

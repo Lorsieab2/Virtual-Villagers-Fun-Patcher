@@ -117,8 +117,8 @@ class IndividualBuyTransactionContractTests(unittest.TestCase):
         slot = raw["slot"]
         self.assertEqual(slot["running_stack_frame_size"], 0x48)
         self.assertLessEqual(slot["running_helper_length"], 0x800)
-        self.assertEqual(slot["running_offset"], 0x1100)
-        self.assertEqual(slot["running_confirm_offset"], 0x0E00)
+        self.assertEqual(slot["running_offset"], 0x1620)
+        self.assertEqual(slot["running_confirm_offset"], 0x15D4)
         locals_ = slot["running_stack_locals"]
         saved = slot["running_saved_register_intervals"]
         intervals = list(locals_.items()) + list(saved.items())
@@ -169,7 +169,7 @@ class IndividualBuyTransactionContractTests(unittest.TestCase):
             elif disp[i] == 0xE9:
                 rel = struct.unpack_from("<i", disp, i + 1)[0]
                 targets.append(0x7CB020 + i + 5 + rel)
-        self.assertEqual(set(targets), {0x7C9D00, 0x7CC100, 0x7B2790})
+        self.assertEqual(set(targets), {0x7C9D00, 0x7CC620, 0x7B2790})
         self.assertNotIn("83FB027525", json.dumps(raw))
 
     def test_vv5_running_emitted_ebp_edi_operands_are_disjoint(self) -> None:
@@ -215,15 +215,32 @@ class IndividualBuyTransactionContractTests(unittest.TestCase):
         import hashlib
         manifest_path = ROOT / "data" / "candidates" / "vv5_individual_running_candidate.json"
         map_path = ROOT / "data" / "candidates" / "vv5_individual_running_candidate_map.json"
-        self.assertEqual(hashlib.sha256(manifest_path.read_bytes()).hexdigest().upper(), "3F5B12432343F11D3AC0C774D799623679C65FF81C15556100DE60968E53BB21")
-        self.assertEqual(hashlib.sha256(map_path.read_bytes()).hexdigest().upper(), "1E2132F9A265CEB57F58898E4F4317E76E72C24DFD97F4182441F179FBD6F271")
+        self.assertEqual(hashlib.sha256(manifest_path.read_bytes()).hexdigest().upper(), "BBBCCF15DF3858ADD6BDF74E2E112FB20EC769FFDC77AD3985650AB30E2FB0F8")
+        self.assertEqual(hashlib.sha256(map_path.read_bytes()).hexdigest().upper(), "23117F33D46961A2B228A3E0B61B0EBF77705EA3B2B9C4E3147D710ED3942404")
         raw = json.loads(map_path.read_text(encoding="utf-8"))
         blob = bytes.fromhex(raw["slot"]["running_strings_blob"])
         self.assertEqual(hashlib.sha256(blob).hexdigest().upper(), "0BE4E54A34DA91228F4E333C6DCC8E18FB3BE4292004766B97649A8EE124DCE2")
-        self.assertEqual(raw["candidate"]["emitted"]["helper_sha256"], "EDE0F78A0D98F0F4EA97389B49FC083160E7F82D18EBFEE85A80A60C6AC4CE07")
-        self.assertEqual(raw["candidate"]["emitted"]["page_sha256"], "BC1CF57C2DEB8B6EF72C431FB578A076B472FE89CACFD488ADA12C8970B1A2A3")
+        self.assertEqual(raw["candidate"]["emitted"]["helper_sha256"], "B241577470F7FDA4E9B7B646A489C266F93B84638CC6BACA5D843C7CED423375")
+        self.assertEqual(raw["candidate"]["emitted"]["page_sha256"], "7C6576FD669261BD0C1D688280EAD8653C6B22FDA4BE92151387FE2A4E35B28C")
         self.assertEqual(raw["candidate"]["emitted"]["rendered_exe_size"], 0xF6000)
-        self.assertEqual(raw["candidate"]["emitted"]["rendered_exe_sha256"], {"collection_progression": "511997D3BA57AA6844D390FFD9BD980A6E36D277BFFD56BFC9A2672CAEFC8125", "immediate_fixed": "390916F2BCE337FA89BC33A69569EDB89B5D361730DF0DB23067B2995F94AFA2"})
+        self.assertEqual(raw["candidate"]["emitted"]["rendered_exe_sha256"], {"collection_progression": "CEE399896343055CB35AEC345A863F50E7CFF4989F71669912BC588E2F3D8B8C", "immediate_fixed": None})
+
+    def test_vv5_running_page_ownership_excludes_full_mastery_and_stale_output(self) -> None:
+        raw = load("vv5_individual_running_candidate_map.json")
+        slot = raw["slot"]
+        helper_start = slot["running_offset"]
+        helper_end = helper_start + slot["running_helper_length"]
+        confirm_start = slot["running_confirm_offset"]
+        confirm_end = confirm_start + len(bytes.fromhex(slot["running_confirm_bytes"]))
+        strings_start = slot["running_strings_offset"]
+        strings_end = strings_start + len(bytes.fromhex(slot["running_strings_blob"]))
+        intervals = [(0x100, 0x1100), (0x1200, 0x15D3), (confirm_start, confirm_end), (helper_start, helper_end), (strings_start, strings_end)]
+        for i, (start, end) in enumerate(intervals):
+            self.assertLessEqual(start, end)
+            self.assertLessEqual(end, 0x2000)
+            for other_start, other_end in intervals[i + 1 :]:
+                self.assertTrue(end <= other_start or other_end <= start)
+        self.assertNotIn("511997D3BA57AA6844D390FFD9BD980A6E36D277BFFD56BFC9A2672CAEFC8125", json.dumps(raw))
 
 
 if __name__ == "__main__":
