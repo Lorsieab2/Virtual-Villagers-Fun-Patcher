@@ -257,7 +257,51 @@ def _write_file(path: Path, data: bytes) -> None:
     _fsync_dir(path.parent)
 
 
-def _write_recovery(parent: Path, details: dict[str, object]) -> Path:
+def _write_emergency_marker(parent: Path, details: dict[str, object], error: BaseException) -> Path:
+    """Retain discoverable evidence when canonical report publication fails."""
+    prefix = str(details.get("_report_prefix", ".vv3im"))
+    marker = parent / f"{prefix}-emergency-{uuid.uuid4().hex}.json"
+    root_name = details.get("_recovery_root_name")
+    root = parent / str(root_name) if isinstance(root_name, str) else None
+    inventory: object = []
+    inventory_error: str | None = None
+    if root is not None and os.path.lexists(root):
+        try:
+            inventory = _inventory_tree(root)
+        except Exception as exc:
+            inventory_error = str(exc)
+    payload = {
+        "schema_version": 1,
+        "kind": "emergency_recovery_marker",
+        "feature_owner": details.get("feature_owner", "vv3_individual_full_mastery"),
+        "operation": details.get("operation"),
+        "recovery_root_name": root_name,
+        "recovery_root_identity": details.get("_recovery_root_identity"),
+        "ownership_inventory": inventory,
+        "inventory_error": inventory_error,
+        "failure": str(error),
+        "canonical_report_target": f"{prefix}-recovery-*.json",
+    }
+    tmp = marker.with_suffix(".tmp")
+    try:
+        _write_file(tmp, (json.dumps(payload, indent=2, sort_keys=True, default=str) + "\n").encode("utf-8"))
+        tmp_identity = _inventory_entry(parent, tmp)
+        if os.path.lexists(marker):
+            _remove_owned(tmp, expected=tmp_identity)
+            raise PatcherError("VV3 individual Full Mastery emergency marker target raced.")
+        os.replace(tmp, marker)
+        _fsync_dir(parent)
+        return marker
+    except Exception:
+        if os.path.lexists(tmp):
+            try:
+                _remove_owned(tmp, expected=locals().get("tmp_identity"))
+            except Exception:
+                pass
+        raise
+
+
+def _write_recovery_impl(parent: Path, details: dict[str, object]) -> Path:
     report_prefix = str(details.get("_report_prefix", ".vv3im"))
     payload_details = {key: value for key, value in details.items() if not key.startswith("_")}
     report = parent / f"{report_prefix}-recovery-{uuid.uuid4().hex}.json"
@@ -275,19 +319,30 @@ def _write_recovery(parent: Path, details: dict[str, object]) -> Path:
         payload["report_name"] = report.name
         payload["report_parent_identity"] = {"st_dev": int(parent_st.st_dev), "st_ino": int(parent_st.st_ino)}
     allowed_metadata = metadata_keys if "feature_owner" in payload_details else set()
+    expected_owned = details.get("_expected_ownership_inventory")
+    if isinstance(expected_owned, list) and isinstance(details.get("_recovery_root_name"), str):
+        recovery_root = parent / str(details["_recovery_root_name"])
+        if os.path.lexists(recovery_root):
+            current_owned = _inventory_tree(recovery_root)
+            for item in current_owned:
+                item["path"] = _relative_owned(parent, recovery_root / str(item["path"]))
+            root_st = os.lstat(recovery_root)
+            current_owned.insert(0, {"path": _relative_owned(parent, recovery_root), "type": "directory", "size": 0, "sha256": None, "st_dev": int(root_st.st_dev), "st_ino": int(root_st.st_ino)})
+            _require_inventory_subset(current_owned, expected_owned)
     _validate_recovery_payload(payload, parent, allowed_metadata=allowed_metadata)
     _write_file(tmp, (json.dumps(payload, indent=2, sort_keys=True) + "\n").encode("utf-8"))
+    tmp_identity = _inventory_entry(parent, tmp)
     if not os.path.lexists(tmp):
         raise PatcherError("VV3 individual Full Mastery recovery temporary report disappeared.")
     if os.path.lexists(report):
-        _remove_owned(tmp, expected=_inventory_member(parent, tmp))
+        _remove_owned(tmp, expected=tmp_identity)
         raise PatcherError("VV3 individual Full Mastery recovery report target already exists.")
     try:
-        os.replace(tmp, report)
+        _publish_exclusive(tmp, report, parent)
     except Exception:
         if os.path.lexists(tmp):
             try:
-                _remove_owned(tmp, expected=_inventory_member(parent, tmp))
+                _remove_owned(tmp, expected=tmp_identity)
             except Exception:
                 pass
         raise
@@ -296,6 +351,17 @@ def _write_recovery(parent: Path, details: dict[str, object]) -> Path:
     _reject_entry(report, report_st, directory=False)
     _validate_recovery_payload(json.loads(_read_regular(report).decode("utf-8")), parent, allowed_metadata=allowed_metadata)
     return report
+
+
+def _write_recovery(parent: Path, details: dict[str, object]) -> Path:
+    try:
+        return _write_recovery_impl(parent, details)
+    except Exception as exc:
+        try:
+            marker = _write_emergency_marker(parent, details, exc)
+        except Exception as marker_exc:
+            raise PatcherError("VV3 individual Full Mastery canonical recovery report failed and emergency marker creation also failed.") from marker_exc
+        raise PatcherError(f"VV3 individual Full Mastery canonical recovery report failed; emergency marker retained at {marker}") from exc
 
 
 def _relative_owned(root: Path, path: Path | None) -> str | None:
@@ -323,6 +389,36 @@ def _inventory_member(root: Path, path: Path | None) -> dict[str, object] | None
         "st_dev": int(getattr(st, "st_dev", 0)),
         "st_ino": int(getattr(st, "st_ino", 0)),
     }
+
+
+def _inventory_entry(root: Path, path: Path) -> dict[str, object]:
+    """Capture the exact deletion identity for a file or directory."""
+    st = os.lstat(path)
+    _reject_entry(path, st)
+    if stat.S_ISDIR(st.st_mode):
+        return {
+            "path": _relative_owned(root, path),
+            "type": "directory",
+            "size": 0,
+            "sha256": None,
+            "st_dev": int(st.st_dev),
+            "st_ino": int(st.st_ino),
+        }
+    record = _inventory_member(root, path)
+    if record is None:
+        raise PatcherError(f"VV3 individual Full Mastery deletion target disappeared: {path}")
+    return record
+
+
+def _publish_exclusive(tmp: Path, final: Path, root: Path) -> None:
+    """Publish a new report without replacing a raced final target."""
+    try:
+        os.link(tmp, final)
+    except OSError as exc:
+        raise PatcherError(f"VV3 individual Full Mastery exclusive report publication failed: {final}") from exc
+    tmp_identity = _inventory_entry(root, tmp)
+    _remove_owned(tmp, expected=tmp_identity)
+    _fsync_dir(root)
 
 
 def _inventory_tree(root: Path, *, exclude: set[str] | None = None) -> list[dict[str, object]]:
@@ -388,15 +484,18 @@ def _write_recovery_at(report: Path, payload: dict[str, object], root: Path) -> 
     tmp = report.with_suffix(".tmp")
     if os.path.lexists(tmp) or os.path.lexists(report):
         raise PatcherError("VV3 individual Full Mastery recovery report target collision.")
+    tmp_identity: dict[str, object] | None = None
     try:
         _write_file(tmp, (json.dumps(refreshed, indent=2, sort_keys=True) + "\n").encode("utf-8"))
+        tmp_identity = _inventory_entry(root, tmp)
         if os.path.lexists(report):
             raise PatcherError("VV3 individual Full Mastery recovery report target raced.")
-        os.replace(tmp, report)
+        _publish_exclusive(tmp, report, root)
     except Exception:
         if os.path.lexists(tmp):
             try:
-                _remove_owned(tmp, expected=_inventory_member(root, tmp))
+                if tmp_identity is not None:
+                    _remove_owned(tmp, expected=tmp_identity)
             except Exception:
                 pass
         raise
@@ -478,8 +577,10 @@ def _refresh_recovery_report(report: Path, payload: dict[str, object], root: Pat
     tmp = report.with_suffix(".tmp")
     if os.path.lexists(tmp):
         raise PatcherError("VV3 individual Full Mastery recovery report temporary collision.")
+    tmp_identity: dict[str, object] | None = None
     try:
         _write_file(tmp, (json.dumps(refreshed, indent=2, sort_keys=True) + "\n").encode("utf-8"))
+        tmp_identity = _inventory_entry(root, tmp)
         current = os.lstat(report)
         _reject_entry(report, current, directory=False)
         if (report_before.st_dev, report_before.st_ino, report_before.st_size) != (current.st_dev, current.st_ino, current.st_size):
@@ -488,7 +589,8 @@ def _refresh_recovery_report(report: Path, payload: dict[str, object], root: Pat
     except Exception:
         if os.path.lexists(tmp):
             try:
-                _remove_owned(tmp, expected=_inventory_member(root, tmp))
+                if tmp_identity is not None:
+                    _remove_owned(tmp, expected=tmp_identity)
             except Exception:
                 pass
         raise
@@ -586,6 +688,8 @@ def _validate_recovery_payload(payload: dict[str, object], root: Path, *, allowe
 def _remove_owned(path: Path, *, expected: dict[str, object] | None = None, expected_tree: list[dict[str, object]] | None = None) -> None:
     if not os.path.lexists(path):
         return
+    if expected is None and expected_tree is None:
+        raise PatcherError(f"VV3 individual Full Mastery deletion identity is missing: {path}")
     st = os.lstat(path)
     _reject_entry(path, st)
     if expected is not None:
@@ -687,7 +791,7 @@ def _restore_member(path: Path, existed: bool, original: bytes | None, published
             _replace_verified(stage, path, current, original or b"")
             return _state(path) == (True, original)
         if current[0] and current[1] == published:
-            _remove_owned(path)
+            _remove_owned(path, expected=_inventory_entry(path.parent, path))
         return not os.path.lexists(path)
     except (OSError, PatcherError):
         return False
@@ -711,13 +815,16 @@ def _transaction(operation: str, destinations: list[Path], pre: dict[Path, tuple
     _safe_ancestor_chain(parent)
     if os.path.lexists(recovery_root):
         raise PatcherError("VV3 individual Full Mastery recovery-root collision.")
+    recovery_root_identity: dict[str, object] | None = None
     try:
         recovery_root.mkdir()
+        recovery_root_identity = _inventory_entry(parent, recovery_root)
         _fsync_dir(parent)
     except Exception:
         if os.path.lexists(recovery_root):
             try:
-                _remove_owned(recovery_root)
+                if recovery_root_identity is not None:
+                    _remove_owned(recovery_root, expected=recovery_root_identity, expected_tree=[])
             except Exception:
                 pass
         raise
@@ -727,6 +834,7 @@ def _transaction(operation: str, destinations: list[Path], pre: dict[Path, tuple
         raise PatcherError("VV3 individual Full Mastery staging collision.")
     committed = False
     committed_cleanup_inventory: list[dict[str, object]] | None = None
+    transaction_inventory_baseline: list[dict[str, object]] | None = None
     try:
         for p in destinations:
             _write_file(stages[p], published[p])
@@ -734,6 +842,7 @@ def _transaction(operation: str, destinations: list[Path], pre: dict[Path, tuple
                 raise PatcherError("VV3 individual Full Mastery staged verification failed.")
         for p, b in backups.items():
             _copy_preserved(p, b, pre[p][1] or b"")
+        transaction_inventory_baseline = _inventory_tree(recovery_root)
         for p in destinations:
             if _state(p) != pre[p] or _read_regular(stages[p]) != published[p]:
                 raise PatcherError("VV3 individual Full Mastery pre-replace race.")
@@ -756,7 +865,7 @@ def _transaction(operation: str, destinations: list[Path], pre: dict[Path, tuple
             try:
                 if os.path.lexists(recovery_root):
                     rollback_inventory = _inventory_tree(recovery_root)
-                    _remove_owned(recovery_root, expected_tree=rollback_inventory)
+                    _remove_owned(recovery_root, expected=recovery_root_identity, expected_tree=rollback_inventory)
                 _fsync_dir(parent)
             except BaseException as cleanup_exc:
                 # Do not delete or adopt an injected descendant.  Fall
@@ -810,13 +919,17 @@ def _transaction(operation: str, destinations: list[Path], pre: dict[Path, tuple
                 "_report_prefix": recovery_prefix,
                 "_recovery_root_name": recovery_root.name,
                 "_recovery_root_identity": {"st_dev": int(os.lstat(recovery_root).st_dev), "st_ino": int(os.lstat(recovery_root).st_ino)},
+                "_expected_ownership_inventory": [
+                    {**item, "path": _relative_owned(parent, recovery_root / str(item["path"]))}
+                    for item in (transaction_inventory_baseline or [])
+                ] + ([{"path": _relative_owned(parent, recovery_root), "type": "directory", "size": 0, "sha256": None, "st_dev": int(recovery_root_identity["st_dev"]), "st_ino": int(recovery_root_identity["st_ino"])}] if recovery_root_identity is not None else []),
             })
             raise PatcherError(f"VV3 individual Full Mastery transaction failed; recovery retained at {report}") from exc
     finally:
         if committed:
             try:
                 if os.path.lexists(recovery_root):
-                    _remove_owned(recovery_root, expected_tree=committed_cleanup_inventory or [])
+                    _remove_owned(recovery_root, expected=recovery_root_identity, expected_tree=committed_cleanup_inventory or [])
                 _fsync_dir(parent)
             except Exception as cleanup_exc:
                 # Cleanup is part of the publication contract.  Retain a
@@ -842,6 +955,10 @@ def _transaction(operation: str, destinations: list[Path], pre: dict[Path, tuple
                             "_report_prefix": recovery_prefix,
                             "_recovery_root_name": recovery_root.name,
                             "_recovery_root_identity": {"st_dev": int(os.lstat(recovery_root).st_dev), "st_ino": int(os.lstat(recovery_root).st_ino)},
+                            "_expected_ownership_inventory": [
+                                {**item, "path": _relative_owned(parent, recovery_root / str(item["path"]))}
+                                for item in (committed_cleanup_inventory or [])
+                            ] + ([{"path": _relative_owned(parent, recovery_root), "type": "directory", "size": 0, "sha256": None, "st_dev": int(recovery_root_identity["st_dev"]), "st_ino": int(recovery_root_identity["st_ino"])}] if recovery_root_identity is not None else []),
                         })
                 finally:
                     raise PatcherError("VV3 individual Full Mastery cleanup failed; recovery evidence retained.") from cleanup_exc
@@ -945,8 +1062,10 @@ def recover_atomic(report_or_root: Path, *, recovery_prefix: str = ".vv3im", req
     # Stage every restore before replacing either member; backups remain intact.
     replay_payload = payload
     preserved_backup_paths: list[Path] = []
+    preserved_backup_records: dict[Path, dict[str, object]] = {}
     stages: list[tuple[dict[str, object], Path, Path]] = []
     replay_stage_paths: list[Path] = []
+    replay_stage_records: dict[Path, dict[str, object]] = {}
     try:
         for member, destination, backup in resolved:
             if not member["pre_exists"]:
@@ -957,6 +1076,7 @@ def recover_atomic(report_or_root: Path, *, recovery_prefix: str = ".vv3im", req
             replay_stage_paths.append(stage)
             if _sha(_read_regular(stage)) != member["pre_sha256"]:
                 raise PatcherError("VV3 individual Full Mastery replay stage mismatch.")
+            replay_stage_records[stage] = _inventory_entry(replay_root, stage)
             stages.append((member, destination, stage))
         for member, destination, backup in resolved:
             current = _state(destination)
@@ -973,7 +1093,7 @@ def recover_atomic(report_or_root: Path, *, recovery_prefix: str = ".vv3im", req
                 if _state(destination) != (True, _read_regular(backup)):
                     raise PatcherError("VV3 individual Full Mastery replay postverify failed.")
             elif os.path.lexists(destination):
-                _remove_owned(destination)
+                _remove_owned(destination, expected=_inventory_entry(root, destination))
         for member, destination, backup in resolved:
             if member["pre_exists"] and _state(destination)[1] != _read_regular(backup):
                 raise PatcherError("VV3 individual Full Mastery replay pair verification failed.")
@@ -987,6 +1107,7 @@ def recover_atomic(report_or_root: Path, *, recovery_prefix: str = ".vv3im", req
             preserved = replay_root / f".vv3im-preserved-{uuid.uuid4().hex}-{destination.name}.backup"
             _copy_preserved(backup, preserved, _read_regular(backup))
             preserved_backup_paths.append(preserved)
+            preserved_backup_records[preserved] = _inventory_entry(root, preserved)
             replay_member["backup_relative"] = _relative_owned(root, preserved)
             replay_member["backup_inventory"] = _inventory_member(root, preserved)
         replay_payload = dict(payload)
@@ -1003,7 +1124,7 @@ def recover_atomic(report_or_root: Path, *, recovery_prefix: str = ".vv3im", req
         replay_payload["ownership_inventory"] = replay_inventory
         for stage in replay_stage_paths:
             if os.path.lexists(stage):
-                _remove_owned(stage)
+                _remove_owned(stage, expected=replay_stage_records.get(stage))
         for member in members:
             original_stage = root / str(member["stage_relative"]) if member.get("stage_relative") else None
             if original_stage is not None and os.path.lexists(original_stage):
@@ -1013,7 +1134,8 @@ def recover_atomic(report_or_root: Path, *, recovery_prefix: str = ".vv3im", req
         # exception path recreates a complete report from retained copies.
         report_before_delete = os.lstat(report)
         _reject_entry(report, report_before_delete, directory=False)
-        _remove_owned(report)
+        report_record = _inventory_entry(root, report)
+        _remove_owned(report, expected=report_record)
         if os.path.lexists(report):
             raise PatcherError("VV3 individual Full Mastery recovery report deletion did not verify.")
         _fsync_dir(root)
@@ -1024,7 +1146,7 @@ def recover_atomic(report_or_root: Path, *, recovery_prefix: str = ".vv3im", req
                 _remove_owned(backup, expected=record)
         for preserved in preserved_backup_paths:
             if os.path.lexists(preserved):
-                _remove_owned(preserved)
+                _remove_owned(preserved, expected=preserved_backup_records[preserved])
         # A previous failed replay may have left an original backup that is
         # no longer referenced by the refreshed member list.  It is still
         # owned material, so remove it only through its recorded identity.
@@ -1041,7 +1163,7 @@ def recover_atomic(report_or_root: Path, *, recovery_prefix: str = ".vv3im", req
             if os.path.lexists(owned):
                 _remove_owned(owned, expected=record)
         if os.path.lexists(replay_root):
-            _remove_owned(replay_root, expected_tree=[])
+            _remove_owned(replay_root, expected=_inventory_entry(root, replay_root), expected_tree=[])
         _fsync_dir(root)
     except Exception:
         # Never consume backups or delete evidence on a failed replay.  Replay
@@ -1052,7 +1174,7 @@ def recover_atomic(report_or_root: Path, *, recovery_prefix: str = ".vv3im", req
         for stage in replay_stage_paths:
             if os.path.lexists(stage):
                 try:
-                    _remove_owned(stage)
+                    _remove_owned(stage, expected=replay_stage_records.get(stage))
                 except Exception as cleanup_exc:
                     cleanup_errors.append(cleanup_exc)
         refresh_error: BaseException | None = None
@@ -1062,16 +1184,20 @@ def recover_atomic(report_or_root: Path, *, recovery_prefix: str = ".vv3im", req
             except Exception as refresh_exc:
                 refresh_error = refresh_exc
         if refresh_error is not None:
-            # If the report was already deleted and a later cleanup race
-            # introduced an unknown child, restore the last verified payload
-            # at the original path.  Recovery will fail closed until the
-            # foreign child is removed; it is never adopted into ownership.
-            if not os.path.lexists(report) and os.path.lexists(replay_root):
-                try:
-                    _write_recovery_at(report, replay_payload, root)
-                except Exception:
-                    pass
-            raise PatcherError("VV3 individual Full Mastery replay report refresh failed; recovery evidence retained.") from refresh_error
+            # If the canonical report cannot be recreated, retain a separate
+            # identity-bound emergency marker.  Never swallow this failure or
+            # claim that unreported recovery material is safe.
+            emergency_details = dict(replay_payload)
+            emergency_details.update({
+                "_report_prefix": recovery_prefix,
+                "_recovery_root_name": replay_root.name,
+                "_recovery_root_identity": {"st_dev": int(os.lstat(replay_root).st_dev), "st_ino": int(os.lstat(replay_root).st_ino)} if os.path.lexists(replay_root) else None,
+            })
+            try:
+                marker = _write_emergency_marker(root, emergency_details, refresh_error)
+            except Exception as marker_exc:
+                raise PatcherError("VV3 individual Full Mastery replay report refresh and emergency evidence failed.") from marker_exc
+            raise PatcherError(f"VV3 individual Full Mastery replay report refresh failed; emergency marker retained at {marker}.") from refresh_error
         if cleanup_errors:
             raise PatcherError("VV3 individual Full Mastery replay cleanup failed; recovery evidence retained.") from cleanup_errors[0]
         raise

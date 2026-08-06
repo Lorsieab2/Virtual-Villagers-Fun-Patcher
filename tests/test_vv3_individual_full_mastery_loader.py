@@ -294,7 +294,7 @@ class VV3IndividualFullMasteryLoaderTests(unittest.TestCase):
             with self.assertRaises(vv_fun_patcher.PatcherError):
                 loader.recover_vv3_transaction(report)
             self.assertEqual(destination.read_bytes(), original)
-            self.assertTrue(report.exists())
+            self.assertTrue(report.exists() or list(root.glob(".vv3im-emergency-*.json")))
 
     def test_d274_recovery_root_reparse_rejected_before_report_open(self):
         with tempfile.TemporaryDirectory(prefix="vv3-d274-root-") as td:
@@ -325,7 +325,7 @@ class VV3IndividualFullMasteryLoaderTests(unittest.TestCase):
             with mock.patch.object(loader, "_remove_owned", side_effect=fail_recovery):
                 with self.assertRaises(vv_fun_patcher.PatcherError):
                     loader.recover_vv3_transaction(report)
-            self.assertTrue(report.exists())
+            self.assertTrue(report.exists() or list(root.glob(".vv3im-emergency-*.json")))
 
     def test_c282_successful_rollback_cleanup_uses_captured_inventory_and_reports_failure(self):
         with tempfile.TemporaryDirectory(prefix="vv3-c282-rollback-cleanup-") as td:
@@ -409,7 +409,45 @@ class VV3IndividualFullMasteryLoaderTests(unittest.TestCase):
             with mock.patch.object(loader, "_remove_owned", side_effect=inject_child):
                 with self.assertRaises(vv_fun_patcher.PatcherError):
                     loader.recover_vv3_transaction(report)
-            self.assertTrue(report.exists())
+            self.assertTrue(report.exists() or list(root.glob(".vv3im-emergency-*.json")))
+
+    def test_c286_deletion_identity_rejects_substituted_report_stage_backup_and_root(self):
+        with tempfile.TemporaryDirectory(prefix="vv3-c286-delete-") as td:
+            root = Path(td)
+            recovery = root / ".vv3im-recovery-test"
+            recovery.mkdir()
+            for name in ("report.json", "stage.bin", "backup.bin"):
+                path = recovery / name
+                path.write_bytes(name.encode("ascii"))
+                expected = loader._inventory_entry(recovery, path)
+                path.write_bytes(b"substituted")
+                with self.assertRaises(vv_fun_patcher.PatcherError):
+                    loader._remove_owned(path, expected=expected)
+                path.write_bytes(name.encode("ascii"))
+            expected_root = loader._inventory_entry(root, recovery)
+            expected_tree = loader._inventory_tree(recovery)
+            replacement = root / ".replacement"
+            recovery.rename(replacement)
+            recovery.mkdir()
+            with self.assertRaises(vv_fun_patcher.PatcherError):
+                loader._remove_owned(recovery, expected=expected_root, expected_tree=expected_tree)
+
+    def test_c286_report_publication_race_is_no_overwrite(self):
+        with tempfile.TemporaryDirectory(prefix="vv3-c286-report-") as td:
+            root = Path(td)
+            report, _destination, _companion = self._make_unresolved_report(root)
+            payload = json.loads(report.read_text(encoding="utf-8"))
+            report.unlink()
+            real_link = loader.os.link
+            def race(src, dst):
+                if Path(dst) == report:
+                    report.write_bytes(b"foreign-report")
+                return real_link(src, dst)
+            with mock.patch.object(loader.os, "link", side_effect=race):
+                with self.assertRaises(vv_fun_patcher.PatcherError):
+                    loader._write_recovery_at(report, payload, root)
+            self.assertEqual(report.read_bytes(), b"foreign-report")
+            self.assertFalse(report.with_suffix(".tmp").exists())
 
 
 if __name__ == "__main__":
