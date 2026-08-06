@@ -1066,6 +1066,82 @@ class VV3IndividualFullMasteryLoaderTests(unittest.TestCase):
             self.assertEqual(owned.read_bytes(), b"foreign")
             self.assertTrue(authority.exists())
 
+    def test_c308_cleanup_authority_is_schema2_bound_and_exact_namespace(self):
+        with tempfile.TemporaryDirectory(prefix="vv3-c308-authority-") as td:
+            root = Path(td)
+            owned = root / "owned.bin"
+            owned.write_bytes(b"owned")
+            record = loader._inventory_entry(root, owned)
+            with mock.patch.object(loader, "_require_windows_identity_atomic", return_value=None), \
+                 mock.patch.object(loader, "_delete_file_by_handle", side_effect=lambda path, expected: Path(path).unlink()):
+                authority, _ = loader._write_cleanup_authority(root, [{"name": owned.name, "role": "source", "record": record}])
+            raw = json.loads(authority.read_text(encoding="utf-8"))
+            self.assertEqual(raw["schema_version"], 2)
+            self.assertEqual(raw["authority_binding"]["owner"], "vv3_individual_full_mastery")
+            self.assertEqual(raw["transaction_binding"]["member_names"], [owned.name])
+            self.assertIn("namespace_inventory", raw)
+
+    def test_c308_forged_cleanup_target_is_rejected_before_delete(self):
+        with tempfile.TemporaryDirectory(prefix="vv3-c308-forged-") as td:
+            root = Path(td)
+            owned = root / "owned.bin"
+            foreign = root / "foreign.bin"
+            owned.write_bytes(b"owned")
+            foreign.write_bytes(b"foreign")
+            record = loader._inventory_entry(root, owned)
+            with mock.patch.object(loader, "_require_windows_identity_atomic", return_value=None), \
+                 mock.patch.object(loader, "_delete_file_by_handle", side_effect=lambda path, expected: Path(path).unlink()):
+                authority, _ = loader._write_cleanup_authority(root, [{"name": owned.name, "role": "source", "record": record}])
+            raw = json.loads(authority.read_text(encoding="utf-8"))
+            raw["members"][0]["name"] = foreign.name
+            authority.write_text(json.dumps(raw, sort_keys=True), encoding="utf-8", newline="\r\n")
+            with self.assertRaises(vv_fun_patcher.PatcherError):
+                loader.recover_cleanup_authority(authority)
+            self.assertEqual(owned.read_bytes(), b"owned")
+            self.assertEqual(foreign.read_bytes(), b"foreign")
+
+    def test_c308_hidden_namespace_rejects_arbitrary_valid_looking_member(self):
+        with tempfile.TemporaryDirectory(prefix="vv3-c308-hidden-") as td:
+            root = Path(td)
+            foreign = root / (".vv3im-preserved-" + "a" * 32 + ".backup")
+            foreign.write_bytes(b"foreign")
+            with self.assertRaises(vv_fun_patcher.PatcherError):
+                loader._validate_vv3_hidden_namespace(root, expected=set())
+
+    def test_c308_manifest_map_pins_are_canonical_and_current(self):
+        manifest = ROOT / "data" / "candidates" / "vv3_individual_full_mastery_candidate.json"
+        mapping = ROOT / "data" / "candidates" / "vv3_individual_full_mastery_candidate_map.json"
+        for path, expected in ((manifest, "943A8B1F04C34CB094ABF7CCC8863B2F17F4BAC179E5DA6A68E6FADD833E1884"), (mapping, "610D27014C8131C935BA4326D64FDB1D25285104567F060BD534653040562187")):
+            data = path.read_bytes()
+            self.assertFalse(data.startswith(b"\xef\xbb\xbf"))
+            self.assertFalse(any(data[i] == 0x0A and (i == 0 or data[i - 1] != 0x0D) for i in range(len(data))))
+            self.assertEqual(hashlib.sha256(data).hexdigest().upper(), expected)
+
+    def test_c308_authority_publish_failure_keeps_prior_valid_journal(self):
+        with tempfile.TemporaryDirectory(prefix="vv3-c308-journal-") as td:
+            root = Path(td)
+            manifest = root / ".chain-manifest.json"
+            manifest.write_bytes(b"manifest")
+            payload = {
+                "report_name": "report.json", "report_record": None,
+                "canonical_name": None, "canonical_record": None,
+                "pointer_name": None, "pointer_record": None,
+                "successor_name": None, "successor_record": None,
+                "marker_name": None, "marker_record": None,
+                "recovery_root_name": "recovery", "recovery_root_record": None,
+                "ownership_inventory": [], "members": [], "member_roles": {},
+                "destination_paths_absolute": [],
+                "transaction_journal": {"state": "prepared"},
+            }
+            with mock.patch.object(loader, "_require_windows_identity_atomic", return_value=None), \
+                 mock.patch.object(loader, "_delete_file_by_handle", side_effect=lambda path, expected: Path(path).unlink()):
+                journal, old_record = loader._write_transaction_authority(manifest, payload, loader._inventory_entry(root, manifest))
+                with mock.patch.object(loader, "_publish_exclusive", side_effect=vv_fun_patcher.PatcherError("publish race")):
+                    with self.assertRaises(vv_fun_patcher.PatcherError):
+                        loader._write_transaction_authority(manifest, payload, loader._inventory_entry(root, manifest))
+            self.assertTrue(journal.exists())
+            self.assertEqual(loader._inventory_entry(root, journal), old_record)
+
 
 if __name__ == "__main__":
     unittest.main()

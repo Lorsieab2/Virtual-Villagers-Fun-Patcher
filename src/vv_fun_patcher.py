@@ -59,8 +59,8 @@ VV3_INDIVIDUAL_FULL_MASTERY_CANDIDATE_PATHS = {
     "manifest": ROOT / "data" / "candidates" / "vv3_individual_full_mastery_candidate.json",
     "map": ROOT / "data" / "candidates" / "vv3_individual_full_mastery_candidate_map.json",
 }
-VV3_INDIVIDUAL_FULL_MASTERY_MANIFEST_SHA256 = "59B7B7ADD66AA7FB4F3291B84846E59A35AD348C4219A9B4032452B25555D60A"
-VV3_INDIVIDUAL_FULL_MASTERY_MAP_SHA256 = "9FD61F18F21C6044F037F22F56E5046C6A1CFDD41D579C44B6C93BE3A5A4EB57"
+VV3_INDIVIDUAL_FULL_MASTERY_MANIFEST_SHA256 = "943A8B1F04C34CB094ABF7CCC8863B2F17F4BAC179E5DA6A68E6FADD833E1884"
+VV3_INDIVIDUAL_FULL_MASTERY_MAP_SHA256 = "610D27014C8131C935BA4326D64FDB1D25285104567F060BD534653040562187"
 VV3_INDIVIDUAL_FULL_MASTERY_PAGE_SHA256 = "9391F157BD26BD35EB6BA058D20E8D13ED0E89FE65FE7AF87CD833279BBBDA78"
 VV3_INDIVIDUAL_FULL_MASTERY_PARENT_SHA256 = {
     "collection_progression": "8DD1CE07C885DDA3DD038D0B2F5C4F019D8C5BAC5DCA29F9799CE0C7909D2CEA",
@@ -886,6 +886,9 @@ def _validate_vv3_individual_full_mastery_candidate() -> dict[str, Any] | None:
         return None
     manifest_bytes = manifest_path.read_bytes()
     map_bytes = map_path.read_bytes()
+    for label, data in (("manifest", manifest_bytes), ("map", map_bytes)):
+        if data.startswith(b"\xef\xbb\xbf") or b"\r\r\n" in data or any(data[i] == 0x0A and (i == 0 or data[i - 1] != 0x0D) for i in range(len(data))):
+            raise PatcherError(f"VV3 individual Full Mastery {label} is not canonical UTF-8/no-BOM/all-CRLF.")
     if hashlib.sha256(manifest_bytes).hexdigest().upper() != VV3_INDIVIDUAL_FULL_MASTERY_MANIFEST_SHA256:
         raise PatcherError("VV3 individual Full Mastery manifest raw hash mismatch.")
     if hashlib.sha256(map_bytes).hexdigest().upper() != VV3_INDIVIDUAL_FULL_MASTERY_MAP_SHA256:
