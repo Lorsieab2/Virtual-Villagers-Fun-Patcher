@@ -159,6 +159,36 @@ class VV5FullMasteryCandidateTests(unittest.TestCase):
         self.assertNotIn("command 8", folded)
         self.assertNotIn("remove state", folded)
 
+    def test_d259_sdl_symbol_pointer_starts_after_module_nul(self):
+        source = GENERATOR.read_text(encoding="utf-8")
+        self.assertIn('sdl_string_va + len(b"SDL2.dll") + 1', source)
+        self.assertNotIn("len(b'SDL2.dll\\0')", source)
+        blob = vv5_builder.FULLSCREEN_STRING
+        module_end = blob.index(b"\0")
+        symbol_start = module_end + 1
+        self.assertEqual(blob[symbol_start : symbol_start + len(b"SDL_GetWindowFlags")], b"SDL_GetWindowFlags")
+        self.assertNotEqual(blob[symbol_start - 1 : symbol_start - 1 + len(b"DL_GetWindowFlags")], b"DL_GetWindowFlags")
+
+    def test_d259_emitted_pointer_byte_and_unrelated_hashes(self):
+        common = vv5_builder.build_fullscreen_wrapper(
+            vv5_builder.PAYLOAD_VA + vv5_builder.FULLSCREEN_COMMON_OFFSET,
+            vv5_builder.PAYLOAD_VA + vv5_builder.FULLSCREEN_STRING_OFFSET,
+        )
+        self.assertIn(bytes.fromhex("68632A7B00"), common)
+        self.assertNotIn(bytes.fromhex("68642A7B00"), common)
+        self.assertEqual(sha(common), "7520FC2B5524938005769DA34F6CE93FEC38FE64689F71CB0077F0F406F14727")
+
+    def test_d259_freezes_full_mastery_page_companion_and_transaction_bytes(self):
+        self.assertEqual(sha(DLL.read_bytes()), "29927CECB448B64944E18E2BA11893DC84C91B39241FBB2549FC2A464E0BE2ED")
+        self.assertEqual(sha(CURE_PROJECTION.read_bytes()), "A1C55063B548F195B9ECDA492E1799D35EBA5437862353D96BE780D9FCC2E1C8")
+        collection_layout = self.map["layouts"]["collection_progression"]
+        self.assertEqual(collection_layout["base_page_sha256"], "BB57A17F7EEA8EBCEAC1164E802494B66B7D4DFE8326AFE7A85E8DB79E942C8F")
+        self.assertEqual(collection_layout["installed_page_sha256"], "9B191EE433100638E2C45AD6BC14B65C73C05BFC02DF6553F892F570CD2FC586")
+        feature_patches = {int(item["offset"], 0): item for item in self.feature_raw["patches"]}
+        self.assertEqual(sha(bytes.fromhex(feature_patches[0xF2100]["after"])), "00CB45CEFDD687FDBDAE5A75BF90E677315A92D2BEAC1E1C5D06C650F10F9A92")
+        self.assertEqual(sha(bytes.fromhex(feature_patches[0xDB766]["after"])), "21DC81FEB317303F366D95380D2FBE5017453B7179540C6C6567B63D1B73B0B9")
+        self.assertEqual(self.feature_raw["transaction_contract"]["price"], 1_000_000)
+
     def _render_with_loader_mutation(self, mode: str, mutation: str):
         with tempfile.TemporaryDirectory(dir=ROOT) as temp_dir:
             temp = Path(temp_dir)
@@ -285,8 +315,8 @@ class VV5FullMasteryCandidateTests(unittest.TestCase):
 
     def test_c103_loader_accepts_both_certified_stock_modes(self):
         expected = {
-            "collection_progression": "4D8A13996094567B088D931AB826C76AB8034BFAB2D63957F1408C5199F9934F",
-            "immediate_fixed": "E920C6C6B9EA5367BB8380F0E37D0790BD7D18B74B67C4D9029CF63AF8C3FB4F",
+            "collection_progression": "857E22D7C361B802508BF789C3CC486E42E76021F5AA579BB1D16CC6E0D017A0",
+            "immediate_fixed": "E93822F752F730ECB751EBAA87021194C992984721B4370FF0015D5FC4BB2E9A",
         }
         for mode, digest in expected.items():
             with self.subTest(mode=mode):

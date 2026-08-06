@@ -209,7 +209,7 @@ def build_fullscreen_wrapper(common_va: int, sdl_string_va: int) -> bytes:
             call dword ptr [0x{SDL_GET_MODULE_HANDLE_IAT:X}]
             test eax, eax
             jz fail
-            push 0x{sdl_string_va + len(b'SDL2.dll\\0'):X}
+            push 0x{sdl_string_va + len(b"SDL2.dll") + 1:X}
             push eax
             call dword ptr [0x{SDL_GET_WINDOW_FLAGS_IAT:X}]
             test eax, eax
