@@ -67,6 +67,27 @@ def _safe_ancestors(path: Path) -> None:
             raise PatcherError(f"VV5 Running non-directory ancestor: {item}")
 
 
+def _validate_recovery_ancestors(path: Path) -> None:
+    """Validate directory ancestors before touching an untrusted report."""
+    if os.name != "nt":
+        raise PatcherError("VV5 Running recovery identity-atomic paths are certified only on 64-bit Windows.")
+    current = Path(os.path.abspath(os.fspath(path))).parent
+    chain: list[Path] = []
+    while True:
+        chain.append(current)
+        if current.parent == current:
+            break
+        current = current.parent
+    for item in reversed(chain):
+        if not os.path.lexists(item):
+            raise PatcherError(f"VV5 Running recovery ancestor is missing: {item}")
+        st = os.lstat(item)
+        if stat.S_ISLNK(st.st_mode) or _unsafe(st):
+            raise PatcherError(f"VV5 Running recovery reparse ancestor: {item}")
+        if not stat.S_ISDIR(st.st_mode):
+            raise PatcherError(f"VV5 Running recovery non-directory ancestor: {item}")
+
+
 def _read(path: Path) -> bytes:
     _safe_ancestors(path.parent)
     if not os.path.lexists(path):
@@ -224,6 +245,13 @@ def _registry_members(registry: Path) -> dict[str, dict[str, object]]:
                 raise PatcherError("VV5 Running issuance registry member became unsafe during enumeration.")
     if end_names != set(members):
         raise PatcherError("VV5 Running issuance registry membership changed during enumeration.")
+    final_registry = os.lstat(registry)
+    if stat.S_ISLNK(final_registry.st_mode) or _unsafe(final_registry) or not stat.S_ISDIR(final_registry.st_mode) or (int(final_registry.st_dev), int(final_registry.st_ino), int(final_registry.st_size)) != start_identity:
+        raise PatcherError("VV5 Running issuance registry changed during final recapture.")
+    for name, captured in members.items():
+        final = _inventory(registry.parent, registry / name)
+        if final != captured:
+            raise PatcherError("VV5 Running issuance registry member changed during final recapture.")
     return members
 
 
@@ -285,7 +313,13 @@ def _cleanup_registry(registry: Path, expected: dict[str, int]) -> None:
     if members:
         raise PatcherError("VV5 Running issuance registry is nonempty or contains foreign material.")
     record = _strict_inventory_entry(registry.parent, registry)
+    before_identity = _identity(registry)
+    before_members = _registry_members(registry)
+    if before_identity != expected or before_members:
+        raise PatcherError("VV5 Running issuance registry changed before directory removal.")
     _strict_quarantine_delete(registry, record, directory=True)
+    if os.path.lexists(registry):
+        raise PatcherError("VV5 Running issuance registry remained after directory removal.")
 
 
 def _authority_path(registry: Path) -> Path:
@@ -313,9 +347,10 @@ def _ensure_authority(registry: Path, registry_identity: dict[str, int], created
         ):
             raise PatcherError("VV5 Running issuance authority is malformed or bound to another registry.")
         record = _inventory(registry.parent, path)
-        if record != before:
+        record_final = _inventory(registry.parent, path)
+        if record != before or record_final != before or _identity(registry) != registry_identity:
             raise PatcherError("VV5 Running issuance authority changed during discovery.")
-        return path, raw["token"], {"record": record, "token": raw["token"], "registry_identity": registry_identity, "created": False}
+        return path, raw["token"], {"record": record_final, "token": raw["token"], "registry_identity": registry_identity, "created": False}
     if not created:
         raise PatcherError("VV5 Running issuance authority is missing from an existing registry.")
     token = (uuid.uuid4().hex + uuid.uuid4().hex)
@@ -331,7 +366,10 @@ def _ensure_authority(registry: Path, registry_identity: dict[str, int], created
     record = _inventory(registry.parent, path)
     if record is None:
         raise PatcherError("VV5 Running issuance authority identity could not be captured.")
-    return path, token, {"record": record, "token": token, "registry_identity": registry_identity, "created": True}
+    record_final = _inventory(registry.parent, path)
+    if record_final != record or _identity(registry) != registry_identity:
+        raise PatcherError("VV5 Running issuance authority changed during creation.")
+    return path, token, {"record": record_final, "token": token, "registry_identity": registry_identity, "created": True}
 
 
 def _quarantine_owned(path: Path, expected: dict[str, object], *, owner_parent: Path) -> tuple[Path, dict[str, object]]:
@@ -352,8 +390,19 @@ def _quarantine_owned(path: Path, expected: dict[str, object], *, owner_parent: 
     moved = _inventory(owner_parent, tombstone)
     if moved is None or any(moved.get(key) != actual.get(key) for key in ("type", "size", "sha256", "st_dev", "st_ino")):
         raise PatcherError("VV5 Running issuance tombstone identity changed.")
+    source_before_delete = _inventory(path.parent, path)
+    tombstone_before_delete = _inventory(owner_parent, tombstone)
+    if source_before_delete != actual or tombstone_before_delete != moved:
+        raise PatcherError("VV5 Running issuance tombstone/source changed before deletion.")
     if stat.S_ISREG(os.lstat(path).st_mode):
         _strict_delete_file_by_handle(path, actual)
+    elif os.path.lexists(path):
+        raise PatcherError("VV5 Running issuance directory source remained after quarantine.")
+    tombstone_after_delete = _inventory(owner_parent, tombstone)
+    if tombstone_after_delete != moved:
+        raise PatcherError("VV5 Running issuance tombstone changed after source deletion.")
+    if os.path.lexists(path):
+        raise PatcherError("VV5 Running issuance source was replaced during deletion.")
     return tombstone, moved
 
 
@@ -435,6 +484,13 @@ def _load_issuance_pointer(path: Path, before: dict[str, object]) -> tuple[Path,
     pointer = _issuance_pointer_path(path)
     if not os.path.lexists(pointer):
         return None
+    pointer_before = _inventory(path.parent, pointer)
+    # The canonical record in the report is rooted at the destination parent,
+    # whereas pointer/successor records are rooted at the registry.  Compare
+    # the canonical using its original parent root so the path field is not
+    # spuriously treated as an identity mutation.
+    if pointer_before is None or _inventory(path.parent.parent, path) != before:
+        raise PatcherError("VV5 Running issuance pointer/canonical record disappeared or changed.")
     raw = json.loads(_read(pointer).decode("utf-8"))
     required = {"schema_version", "kind", "canonical_name", "canonical_record", "successor_name", "successor_record", "registry_identity"}
     if not isinstance(raw, dict) or set(raw) != required or raw.get("schema_version") != 1 or raw.get("kind") != "vv5_issuance_pointer" or raw.get("canonical_name") != path.name or raw.get("canonical_record") != before:
@@ -447,9 +503,14 @@ def _load_issuance_pointer(path: Path, before: dict[str, object]) -> tuple[Path,
     pointer_record = _inventory(path.parent, pointer)
     if successor_record is None or pointer_record is None or successor_record != raw.get("successor_record"):
         raise PatcherError("VV5 Running issuance pointer identity changed.")
+    pointer_final = _inventory(path.parent, pointer)
+    successor_final = _inventory(path.parent, successor)
+    canonical_final = _inventory(path.parent.parent, path)
+    if pointer_final != pointer_before or successor_final != successor_record or canonical_final != before:
+        raise PatcherError("VV5 Running issuance pointer chain changed during final recapture.")
     if raw.get("registry_identity") != _identity(path.parent):
         raise PatcherError("VV5 Running issuance pointer registry changed.")
-    return successor, successor_record, pointer, pointer_record
+    return successor, successor_final, pointer, pointer_final
 
 
 def _replace_issuance(path: Path, before: dict[str, object], payload: dict[str, object]) -> dict[str, object]:
@@ -600,27 +661,63 @@ def _discover_reports(parent: Path, *, issuance_token: str | None = None) -> lis
     if parent_record.get("type") != "directory":
         raise PatcherError("VV5 Running recovery parent is unsafe")
     found: list[Path] = []
+    captured_records: dict[str, dict[str, object]] = {}
     canonical_re = re.compile(r"\.vv5run-(?:recovery|emergency)-[0-9a-f]{32}\.json")
+    successor_re = re.compile(r"\.vv5run-recovery-[0-9a-f]{32}\.v[0-9a-f]{32}\.json")
+    pointer_re = re.compile(r"\.vv5run-(?:recovery|emergency)-[0-9a-f]{32}\.json\.pointer")
     with os.scandir(parent) as entries:
         for entry in entries:
-            if not canonical_re.fullmatch(entry.name):
+            name = entry.name
+            if not name.startswith(".vv5run-"):
                 continue
             candidate = Path(entry.path)
             st = os.lstat(candidate)
+            if name == ISSUANCE_REGISTRY_NAME:
+                if stat.S_ISLNK(st.st_mode) or _unsafe(st) or not stat.S_ISDIR(st.st_mode):
+                    raise PatcherError("VV5 Running recovery discovery encountered an unsafe issuance registry")
+                continue
+            if re.fullmatch(r"\.vv5run-recovery-[0-9a-f]{32}", name):
+                if stat.S_ISLNK(st.st_mode) or _unsafe(st) or not stat.S_ISDIR(st.st_mode):
+                    raise PatcherError("VV5 Running recovery discovery encountered an unsafe recovery root")
+                continue
+            if not (canonical_re.fullmatch(name) or successor_re.fullmatch(name) or pointer_re.fullmatch(name)):
+                raise PatcherError(f"VV5 Running recovery discovery encountered unknown residue: {name}")
             if stat.S_ISLNK(st.st_mode) or _unsafe(st) or not stat.S_ISREG(st.st_mode):
                 raise PatcherError("VV5 Running recovery discovery encountered an unsafe member")
+            if not canonical_re.fullmatch(name):
+                continue
             candidate_record = _strict_inventory_entry(parent, candidate)
             raw = json.loads(_read(candidate).decode("utf-8"))
-            if _strict_inventory_entry(parent, candidate) != candidate_record:
+            candidate_final = _strict_inventory_entry(parent, candidate)
+            if candidate_final != candidate_record:
                 raise PatcherError("VV5 Running recovery report changed during discovery")
             if issuance_token is not None:
                 nested = raw.get("recovery_payload") if isinstance(raw, dict) else None
                 if not (isinstance(raw, dict) and raw.get("issuance_token") == issuance_token) and not (isinstance(nested, dict) and nested.get("issuance_token") == issuance_token):
                     continue
             found.append(candidate)
-    if _strict_inventory_entry(parent.parent, parent) != parent_record:
+            captured_records[candidate.name] = candidate_record
+    # A final complete scan prevents a same-content inode replacement or an
+    # unknown .vv5run residue appearing after the first enumeration.
+    parent_after = _strict_inventory_entry(parent.parent, parent)
+    if parent_after != parent_record:
         raise PatcherError("VV5 Running recovery parent changed during report discovery")
-    return sorted(found, key=lambda p: p.name)
+    with os.scandir(parent) as entries:
+        for entry in entries:
+            if entry.name.startswith(".vv5run-") and not (
+                entry.name == ISSUANCE_REGISTRY_NAME
+                or re.fullmatch(r"\.vv5run-recovery-[0-9a-f]{32}", entry.name)
+                or canonical_re.fullmatch(entry.name)
+                or successor_re.fullmatch(entry.name)
+                or pointer_re.fullmatch(entry.name)
+            ):
+                raise PatcherError(f"VV5 Running recovery discovery encountered unknown residue: {entry.name}")
+    found = sorted(found, key=lambda p: p.name)
+    for candidate in found:
+        final_record = _strict_inventory_entry(parent, candidate)
+        if final_record != captured_records.get(candidate.name):
+            raise PatcherError("VV5 Running recovery report changed during final recapture")
+    return found
 
 
 def _report(parent: Path, operation: str, members: list[dict[str, object]], error: str) -> Path:
@@ -824,6 +921,10 @@ def recover_atomic(report_path: Path, mode: str = VV5_MODE) -> None:
     if mode != VV5_MODE:
         raise PatcherError("VV5 Running supports Collection Progression only.")
     report = Path(report_path)
+    # Validate the complete ancestor chain before touching the caller-supplied
+    # report itself.  This prevents a reparse/junction parent from redirecting
+    # the first lexists/lstat or any subsequent recovery mutation.
+    _validate_recovery_ancestors(report)
     supplied_st = os.lstat(report) if os.path.lexists(report) else None
     if supplied_st is None:
         raise PatcherError("VV5 Running recovery report is missing.")

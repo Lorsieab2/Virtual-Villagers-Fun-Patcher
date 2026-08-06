@@ -4,10 +4,15 @@ import tempfile
 import unittest
 import json
 import shutil
+import os
 from unittest import mock
 from pathlib import Path
 
-from src.vv5_individual_running import PatcherError, VV5_EXE_BASENAME, DLL_NAME, VV5_MODE, ISSUANCE_REGISTRY_NAME, AUTHORITY_NAME, _parent, _publish, _state, install_atomic, remove_atomic, recover_atomic
+from src.vv5_individual_running import (
+    PatcherError, VV5_EXE_BASENAME, DLL_NAME, VV5_MODE, ISSUANCE_REGISTRY_NAME,
+    AUTHORITY_NAME, _parent, _publish, _state, install_atomic, remove_atomic,
+    recover_atomic, _registry_members, _discover_reports, _quarantine_owned,
+)
 
 
 class VV5RunningPublicationTests(unittest.TestCase):
@@ -612,6 +617,71 @@ class VV5RunningPublicationTests(unittest.TestCase):
             self.assertEqual(exe.read_bytes(), parent_exe)
             self.assertEqual(dll.read_bytes(), b"parent-dll")
             self.assertTrue((registry / "foreign").exists())
+
+    def test_c295_registry_final_recapture_rejects_same_content_inode_replacement(self) -> None:
+        import src.vv5_individual_running as running
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            registry = root / ISSUANCE_REGISTRY_NAME
+            registry.mkdir()
+            child = registry / "issuance.json"
+            child.write_bytes(b"same")
+            original = running._inventory
+            calls = {"child": 0}
+
+            def recapture(root_arg, path_arg):
+                record = original(root_arg, path_arg)
+                if path_arg == child:
+                    calls["child"] += 1
+                    if calls["child"] == 1:
+                        replacement = registry / "replacement.tmp"
+                        replacement.write_bytes(b"same")
+                        os.replace(replacement, child)
+                return record
+
+            with mock.patch.object(running, "_inventory", side_effect=recapture):
+                with self.assertRaises(PatcherError):
+                    _registry_members(registry)
+            self.assertEqual(child.read_bytes(), b"same")
+
+    def test_c295_discovery_rejects_unknown_vv5run_residue_before_report_use(self) -> None:
+        with tempfile.TemporaryDirectory() as td:
+            parent = Path(td)
+            (parent / ".vv5run-random.tmp").write_bytes(b"foreign")
+            with self.assertRaises(PatcherError):
+                _discover_reports(parent)
+            self.assertTrue((parent / ".vv5run-random.tmp").exists())
+
+    def test_c295_quarantine_predelete_substitution_preserves_foreign_source(self) -> None:
+        import src.vv5_individual_running as running
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            registry = root / ISSUANCE_REGISTRY_NAME
+            registry.mkdir()
+            source = registry / "issuance.json"
+            source.write_bytes(b"owned")
+            expected = running._inventory(root, source)
+            original_delete = running._strict_delete_file_by_handle
+
+            def substitute(path, identity):
+                if path == source:
+                    source.unlink()
+                    source.write_bytes(b"foreign")
+                return original_delete(path, identity)
+
+            with mock.patch.object(running, "_strict_delete_file_by_handle", side_effect=substitute):
+                with self.assertRaises(PatcherError):
+                    _quarantine_owned(source, expected, owner_parent=root)
+            self.assertEqual(source.read_bytes(), b"foreign")
+            self.assertEqual(len(list(root.glob(f".{ISSUANCE_REGISTRY_NAME}-*.vv5run-tombstone-*"))), 1)
+
+    def test_c295_recover_validates_ancestor_chain_before_report_probe(self) -> None:
+        import src.vv5_individual_running as running
+        report = Path("C:/untrusted-vv5run/recovery.json")
+        with mock.patch.object(running, "_validate_recovery_ancestors", side_effect=PatcherError("ancestor")), \
+             mock.patch.object(running.os.path, "lexists", side_effect=AssertionError("report probed")):
+            with self.assertRaisesRegex(PatcherError, "ancestor"):
+                recover_atomic(report)
 
 
 if __name__ == "__main__":
