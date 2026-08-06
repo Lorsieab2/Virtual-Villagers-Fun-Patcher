@@ -290,7 +290,9 @@ def recover_atomic(report_path: Path, mode: str = VV5_MODE) -> None:
     if not report.name.startswith(".vv5run-recovery-"):
         raise PatcherError("VV5 Running recovery report owner is invalid.")
     _safe_ancestors(report.parent)
-    raw = json.loads(_read(report).decode("utf-8"))
+    report_bytes = _read(report)
+    report_sha256 = _sha(report_bytes)
+    raw = json.loads(report_bytes.decode("utf-8"))
     if any(raw.get(k) != v for k, v in {
         "feature_owner": VV5_FEATURE_OWNER,
         "mode": VV5_MODE,
@@ -307,6 +309,7 @@ def recover_atomic(report_path: Path, mode: str = VV5_MODE) -> None:
             "parent_sha256": VV5_PARENT_EXE_SHA256,
             "candidate_sha256": VV5_CANDIDATE_EXE_SHA256,
         },
+        expected_report_sha256=report_sha256,
     )
 
     report_path = Path(report_path)

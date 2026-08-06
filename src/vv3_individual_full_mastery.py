@@ -695,7 +695,7 @@ def _transaction(operation: str, destinations: list[Path], pre: dict[Path, tuple
                     raise PatcherError("VV3 individual Full Mastery cleanup failed; recovery evidence retained.") from cleanup_exc
 
 
-def recover_atomic(report_or_root: Path, *, recovery_prefix: str = ".vv3im", required_metadata: dict[str, object] | None = None) -> None:
+def recover_atomic(report_or_root: Path, *, recovery_prefix: str = ".vv3im", required_metadata: dict[str, object] | None = None, expected_report_sha256: str | None = None) -> None:
     """Replay schema-v2 evidence with relative no-follow ownership checks."""
     report = Path(report_or_root)
     # Validate the supplied path before calling is_dir/scandir.  A symlink,
@@ -717,7 +717,10 @@ def recover_atomic(report_or_root: Path, *, recovery_prefix: str = ".vv3im", req
     _safe_ancestor_chain(report.parent)
     report_st_before = os.lstat(report)
     _reject_entry(report, report_st_before, directory=False)
-    payload = json.loads(_read_regular(report).decode("utf-8"))
+    report_bytes = _read_regular(report)
+    if expected_report_sha256 is not None and _sha(report_bytes) != expected_report_sha256:
+        raise PatcherError("VV3 individual Full Mastery recovery report changed before replay.")
+    payload = json.loads(report_bytes.decode("utf-8"))
     _validate_recovery_payload(payload, report.parent, allowed_metadata=set((required_metadata or {}).keys()))
     if required_metadata is not None:
         if any(payload.get(key) != value for key, value in required_metadata.items()):
