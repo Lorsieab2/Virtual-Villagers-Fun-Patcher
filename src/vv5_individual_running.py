@@ -117,7 +117,7 @@ def _validate_recovery_siblings(parent: Path, *, selected: str | None = None) ->
             if name == ISSUANCE_REGISTRY_NAME or re.fullmatch(r"\.vv5run-recovery-[0-9a-f]{32}", name):
                 if stat.S_ISLNK(st.st_mode) or _unsafe(st) or not stat.S_ISDIR(st.st_mode):
                     raise PatcherError(f"VV5 Running recovery sibling is unsafe: {name}")
-                captured[name] = {"type": "directory", "st_dev": int(st.st_dev), "st_ino": int(st.st_ino)}
+                captured[name] = {"type": "directory", "size": int(st.st_size), "sha256": None, "st_dev": int(st.st_dev), "st_ino": int(st.st_ino)}
                 continue
             if canonical_re.fullmatch(name) or emergency_re.fullmatch(name) or successor_re.fullmatch(name) or pointer_re.fullmatch(name):
                 if stat.S_ISLNK(st.st_mode) or _unsafe(st) or not stat.S_ISREG(st.st_mode):
@@ -140,20 +140,30 @@ def _validate_recovery_siblings(parent: Path, *, selected: str | None = None) ->
             raise PatcherError(f"VV5 Running recovery chain manifest is orphaned or foreign: {name}")
     if selected is not None and selected not in known_reports:
         raise PatcherError("VV5 Running selected recovery report is not an accepted chain member.")
+    # Recapture the complete hidden recovery namespace, not just the names we
+    # happened to select.  This closes the scan-to-use interval for a foreign
+    # child that is added, removed, or renamed between the two scans.
     with os.scandir(parent) as final_entries:
-        final_names = set()
+        final_names: set[str] = set()
         for entry in final_entries:
-            if entry.name not in captured:
+            name = entry.name
+            if not (name.startswith(".vv5run-") or name.startswith(".chain-")):
                 continue
-            final_names.add(entry.name)
+            final_names.add(name)
+            if name not in captured:
+                raise PatcherError(f"VV5 Running recovery sibling membership changed before use: {name}")
             path = Path(entry.path)
             st = os.lstat(path)
+            if stat.S_ISLNK(st.st_mode) or _unsafe(st):
+                raise PatcherError(f"VV5 Running recovery sibling became unsafe: {name}")
             if stat.S_ISDIR(st.st_mode):
-                final_record = {"type": "directory", "st_dev": int(st.st_dev), "st_ino": int(st.st_ino)}
-            else:
+                final_record = {"type": "directory", "size": int(st.st_size), "sha256": None, "st_dev": int(st.st_dev), "st_ino": int(st.st_ino)}
+            elif stat.S_ISREG(st.st_mode):
                 final_record = _inventory(parent, path)
-            if final_record != captured[entry.name]:
-                raise PatcherError(f"VV5 Running recovery sibling changed before use: {entry.name}")
+            else:
+                raise PatcherError(f"VV5 Running recovery sibling has unsafe type: {name}")
+            if final_record != captured[name]:
+                raise PatcherError(f"VV5 Running recovery sibling changed before use: {name}")
         if final_names != set(captured):
             raise PatcherError("VV5 Running recovery sibling membership changed before use.")
 
@@ -473,7 +483,43 @@ def _quarantine_owned(path: Path, expected: dict[str, object], *, owner_parent: 
     preserved = owner_parent / f".{path.name}.vv5run-preserved-{uuid.uuid4().hex}.backup"
     if os.path.lexists(preserved):
         raise PatcherError("VV5 Running issuance preserved backup target raced.")
-    _write(preserved, _read(path))
+    # Preserve a verified copy before consuming the original.  If the write
+    # fails after creating a partial file, remove only that exact owned partial
+    # (or retain it as explicit failure evidence); never delete a raced foreign
+    # replacement and never strand an unreported artifact.
+    source_bytes = _read(path)
+    try:
+        _write(preserved, source_bytes)
+    except Exception as exc:
+        if os.path.lexists(preserved):
+            try:
+                partial = _inventory(owner_parent, preserved)
+                if partial is not None and partial.get("type") == "file" and partial.get("size") == len(source_bytes) and partial.get("sha256") == hashlib.sha256(source_bytes).hexdigest():
+                    _cleanup(preserved, expected=partial)
+                else:
+                    # A partial or substituted file cannot be deleted merely
+                    # because it has our generated name.  Record its exact
+                    # identity in a durable, machine-readable marker so the
+                    # owner can decide whether/how to replay cleanup.
+                    marker = owner_parent / f".vv5-preserved-backup-failure-{uuid.uuid4().hex}.json"
+                    marker_payload = {
+                        "schema_version": 1,
+                        "kind": "vv5_preserved_backup_failure",
+                        "path": preserved.name,
+                        "record": partial,
+                        "expected_sha256": hashlib.sha256(source_bytes).hexdigest(),
+                        "expected_size": len(source_bytes),
+                    }
+                    try:
+                        _write(marker, (json.dumps(marker_payload, indent=2, sort_keys=True) + "\n").encode("utf-8"))
+                    except Exception as marker_exc:
+                        raise PatcherError(f"VV5 Running preserved backup failure left unrecorded residue: {preserved}") from marker_exc
+                    raise PatcherError(f"VV5 Running preserved backup residue recorded at {marker}: {preserved}")
+            except Exception as cleanup_exc:
+                if isinstance(cleanup_exc, PatcherError):
+                    raise cleanup_exc from exc
+                raise PatcherError(f"VV5 Running preserved backup cleanup failed; residue retained: {preserved}") from cleanup_exc
+        raise PatcherError("VV5 Running preserved backup creation failed; no unowned residue remains.") from exc
     preserved_record = _inventory(owner_parent, preserved)
     if preserved_record is None or preserved_record.get("sha256") != actual.get("sha256") or preserved_record.get("size") != actual.get("size"):
         raise PatcherError("VV5 Running issuance preserved backup verification failed.")
@@ -511,20 +557,40 @@ def _cleanup_issuance_artifacts(
     expected = {path.name: _rebase_registry_record(registry, path, record) for path, record in expected_members}
     _assert_registry_members(registry, registry_identity, expected)
     tombstones: list[tuple[Path, dict[str, object], Path]] = []
+    # Keep a second verified hard-link while the tombstone is retired.  If the
+    # preserved path is replaced in the tombstone-delete interval, this guard
+    # retains the last owned bytes and is left for deterministic retry.
+    guards: dict[str, tuple[Path, dict[str, object]]] = {}
     try:
         for path, record in owned:
             _assert_registry_members(registry, registry_identity, expected)
             tombstones.append(_quarantine_owned(path, record, owner_parent=registry.parent))
             expected.pop(path.name, None)
             _assert_registry_members(registry, registry_identity, expected)
-        if remove_registry:
-            _cleanup_registry(registry, registry_identity)
+        for _tombstone, record, preserved in tombstones:
+            guard = preserved.parent / f".{preserved.name}.vv5-preserved-guard-{uuid.uuid4().hex}.backup"
+            if os.path.lexists(guard):
+                raise PatcherError("VV5 Running preserved-backup guard target raced.")
+            os.link(preserved, guard)
+            guard_record = _inventory(guard.parent, guard)
+            if guard_record is None or guard_record.get("sha256") != record.get("sha256") or guard_record.get("size") != record.get("size"):
+                raise PatcherError("VV5 Running preserved-backup guard verification failed.")
+            guards[str(preserved)] = (guard, guard_record)
         for tombstone, record, preserved in tombstones:
             _cleanup(tombstone, expected=record)
             preserved_record = _inventory(preserved.parent, preserved)
             if preserved_record is None or preserved_record.get("sha256") != record.get("sha256") or preserved_record.get("size") != record.get("size"):
                 raise PatcherError("VV5 Running preserved backup changed before cleanup.")
             _cleanup(preserved, expected=preserved_record)
+            guard, guard_record = guards[str(preserved)]
+            _cleanup(guard, expected=guard_record)
+        # Keep the registry as durable authority until every tombstone and
+        # preserved backup has been verified and retired.  A registry cleanup
+        # failure therefore remains retryable and cannot discard the last
+        # ownership record prematurely.
+        if remove_registry:
+            _assert_registry_members(registry, registry_identity, {})
+            _cleanup_registry(registry, registry_identity)
     except Exception:
         # Any remaining tombstone is deliberate durable authority evidence;
         # never claim zero residue after a raced or foreign cleanup.

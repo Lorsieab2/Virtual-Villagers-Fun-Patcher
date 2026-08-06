@@ -65,6 +65,168 @@ class VV5RunningPublicationTests(unittest.TestCase):
             self.assertEqual(preserved[0].read_bytes(), b"owned")
             self.assertEqual(source.read_bytes(), b"foreign")
 
+    def test_c301_sibling_added_between_scans_is_rejected(self) -> None:
+        """A newly injected hidden child cannot be adopted by final recapture."""
+        with tempfile.TemporaryDirectory() as td:
+            parent = Path(td)
+            report = parent / (".vv5run-recovery-" + "a" * 32 + ".json")
+            report.write_bytes(b"report")
+            real_scandir = os.scandir
+            calls = {"n": 0}
+
+            class _Scan:
+                def __init__(self, entries):
+                    self.entries = entries
+                def __iter__(self):
+                    return iter(self.entries)
+                def __enter__(self):
+                    return self
+                def __exit__(self, *_args):
+                    return False
+
+            def scan(path):
+                calls["n"] += 1
+                if calls["n"] == 2:
+                    (parent / ".vv5run-foreign-child").write_bytes(b"foreign")
+                return _Scan(list(real_scandir(path)))
+
+            with mock.patch.object(running.os, "scandir", side_effect=scan):
+                with self.assertRaises(PatcherError):
+                    running._validate_recovery_siblings(parent, selected=report.name)
+            self.assertEqual((parent / ".vv5run-foreign-child").read_bytes(), b"foreign")
+
+    def test_c301_sibling_rename_between_scans_is_rejected(self) -> None:
+        """A report rename is a membership change, even when its bytes match."""
+        with tempfile.TemporaryDirectory() as td:
+            parent = Path(td)
+            report = parent / (".vv5run-recovery-" + "b" * 32 + ".json")
+            report.write_bytes(b"report")
+            renamed = parent / (".vv5run-recovery-" + "c" * 32 + ".json")
+            real_scandir = os.scandir
+            calls = {"n": 0}
+
+            class _Scan:
+                def __init__(self, entries):
+                    self.entries = entries
+                def __iter__(self):
+                    return iter(self.entries)
+                def __enter__(self):
+                    return self
+                def __exit__(self, *_args):
+                    return False
+
+            def scan(path):
+                calls["n"] += 1
+                if calls["n"] == 2:
+                    report.rename(renamed)
+                return _Scan(list(real_scandir(path)))
+
+            with mock.patch.object(running.os, "scandir", side_effect=scan):
+                with self.assertRaises(PatcherError):
+                    running._validate_recovery_siblings(parent, selected=report.name)
+            self.assertTrue(renamed.exists())
+
+    def test_c301_sibling_removed_between_scans_is_rejected(self) -> None:
+        """A captured member disappearing is a set change, not an empty success."""
+        with tempfile.TemporaryDirectory() as td:
+            parent = Path(td)
+            report = parent / (".vv5run-recovery-" + "d" * 32 + ".json")
+            report.write_bytes(b"report")
+            real_scandir = os.scandir
+            calls = {"n": 0}
+
+            class _Scan:
+                def __init__(self, entries):
+                    self.entries = entries
+                def __iter__(self):
+                    return iter(self.entries)
+                def __enter__(self):
+                    return self
+                def __exit__(self, *_args):
+                    return False
+
+            def scan(path):
+                calls["n"] += 1
+                if calls["n"] == 2:
+                    report.unlink()
+                return _Scan(list(real_scandir(path)))
+
+            with mock.patch.object(running.os, "scandir", side_effect=scan):
+                with self.assertRaises(PatcherError):
+                    running._validate_recovery_siblings(parent, selected=report.name)
+
+    def test_c301_backup_replacement_after_tombstone_cleanup_survives(self) -> None:
+        """A backup replaced after tombstone cleanup is foreign and is retained."""
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            registry = root / ISSUANCE_REGISTRY_NAME
+            registry.mkdir()
+            source = registry / "issuance.json"
+            source.write_bytes(b"owned")
+            record = running._inventory(root, source)
+            registry_identity = running._identity(registry)
+            real_cleanup = running._cleanup
+            injected = {"done": False}
+
+            def cleanup(path, *, expected=None):
+                result = real_cleanup(path, expected=expected)
+                if path.name.endswith(".vv5run-tombstone-*") or "vv5run-tombstone-" in path.name:
+                    backups = [item for item in root.glob("*.backup") if "vv5run-preserved-" in item.name and "vv5-preserved-guard-" not in item.name]
+                    if backups and not injected["done"]:
+                        backups[0].unlink()
+                        backups[0].write_bytes(b"foreign")
+                        injected["done"] = True
+                return result
+
+            with mock.patch.object(running, "_cleanup", side_effect=cleanup):
+                with self.assertRaises(PatcherError):
+                    running._cleanup_issuance_artifacts(registry, registry_identity, [(source, record)], None)
+            backups = list(root.glob("*.backup"))
+            self.assertIn(b"foreign", [path.read_bytes() for path in backups])
+            self.assertIn(b"owned", [path.read_bytes() for path in backups])
+            self.assertTrue(registry.exists())
+
+    def test_c301_partial_preserved_backup_failure_has_no_unowned_residue(self) -> None:
+        """A partial preserved-copy failure is cleaned only when its identity is owned."""
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            registry = root / ISSUANCE_REGISTRY_NAME
+            registry.mkdir()
+            source = registry / "issuance.json"
+            source.write_bytes(b"owned")
+            expected = running._inventory(root, source)
+            original_write = running._write
+
+            def fail_preserved(path, data):
+                if path.name.endswith(".backup"):
+                    path.write_bytes(data[:2])
+                    raise OSError("injected partial backup write")
+                return original_write(path, data)
+
+            with mock.patch.object(running, "_write", side_effect=fail_preserved):
+                with self.assertRaises(PatcherError):
+                    running._quarantine_owned(source, expected, owner_parent=root)
+            self.assertEqual(len(list(root.glob("*.backup"))), 1)
+            self.assertEqual(len(list(root.glob(".vv5-preserved-backup-failure-*.json"))), 1)
+            self.assertTrue(source.exists())
+            self.assertEqual(source.read_bytes(), b"owned")
+
+    def test_c301_registry_cleanup_failure_retains_durable_authority(self) -> None:
+        """Registry cleanup is last; an injected failure leaves retry authority."""
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            registry = root / ISSUANCE_REGISTRY_NAME
+            registry.mkdir()
+            source = registry / "issuance.json"
+            source.write_bytes(b"owned")
+            record = running._inventory(root, source)
+            registry_identity = running._identity(registry)
+            with mock.patch.object(running, "_cleanup_registry", side_effect=PatcherError("injected registry cleanup")):
+                with self.assertRaises(PatcherError):
+                    running._cleanup_issuance_artifacts(registry, registry_identity, [(source, record)], None)
+            self.assertTrue(registry.exists())
+            self.assertEqual(list(registry.iterdir()), [])
+
     def test_c299_32bit_windows_capability_fails_before_io(self) -> None:
         with mock.patch.object(running.os, "name", "nt"), \
              mock.patch.object(running.struct, "calcsize", return_value=4), \
@@ -359,7 +521,9 @@ class VV5RunningPublicationTests(unittest.TestCase):
                 with self.assertRaises(PatcherError):
                     _publish("install", [exe, dll], pre, published, root)
             self.assertEqual((root / ISSUANCE_REGISTRY_NAME / "foreign-child").read_bytes(), b"foreign")
-            self.assertTrue(list(root.glob(f".{ISSUANCE_REGISTRY_NAME}-*.vv5run-tombstone-*")))
+            # Tombstones/backups are retired before registry removal; the
+            # injected child keeps the registry as durable retry authority.
+            self.assertTrue((root / ISSUANCE_REGISTRY_NAME).exists())
 
     def test_c289_issuance_pointer_race_is_no_overwrite(self) -> None:
         import src.vv5_individual_running as running
