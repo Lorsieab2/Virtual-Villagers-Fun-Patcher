@@ -1051,6 +1051,67 @@ class VV5RunningPublicationTests(unittest.TestCase):
             with self.assertRaisesRegex(PatcherError, "ancestor"):
                 recover_atomic(report)
 
+    def test_c307_cleanup_record_binds_external_authority_and_issuance(self) -> None:
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            registry = root / ISSUANCE_REGISTRY_NAME
+            registry.mkdir()
+            registry_identity = running._identity(registry)
+            authority_path, _token, authority = running._ensure_authority(registry, registry_identity, True)
+            issuance = registry / ("a" * 32 + ".json")
+            running._write_issuance(issuance, {"schema_version": 2, "token": "a" * 32, "authority_token": authority["token"], "authority_record": authority["record"], "operation": "install", "destination_parent_absolute": str(root).lower(), "destination_paths_absolute": [], "members": []})
+            payload = running._cleanup_record_payload(root, registry, registry_identity, [(issuance, running._inventory(root, issuance)), (authority_path, authority["record"])], remove_registry=True, authority=(authority_path, authority["record"]))
+            self.assertEqual(payload["schema_version"], 2)
+            self.assertIsNotNone(payload["authority_binding"])
+            self.assertEqual(payload["issuance_bindings"][0]["name"], issuance.name)
+            self.assertEqual(payload["transaction_binding"]["registry_identity"], registry_identity)
+
+    def test_c307_dual_valid_cleanup_authorities_are_ambiguous(self) -> None:
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            registry = root / ISSUANCE_REGISTRY_NAME
+            registry.mkdir()
+            source = registry / "issuance.json"
+            source.write_bytes(b"owned")
+            payload = running._cleanup_record_payload(root, registry, running._identity(registry), [(source, running._inventory(root, source))], remove_registry=False)
+            first, _ = running._write_cleanup_record(root, payload)
+            second, _ = running._write_cleanup_record(root, payload)
+            with self.assertRaises(PatcherError):
+                recover_cleanup_atomic(first)
+            self.assertTrue(first.exists() and second.exists())
+
+    def test_c307_started_cleanup_state_replays_quarantine_and_finalization(self) -> None:
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            registry = root / ISSUANCE_REGISTRY_NAME
+            registry.mkdir()
+            registry_identity = running._identity(registry)
+            authority_path, _token, authority = running._ensure_authority(registry, registry_identity, True)
+            source = registry / ("b" * 32 + ".json")
+            running._write_issuance(source, {"schema_version": 2, "token": "b" * 32, "authority_token": authority["token"], "authority_record": authority["record"], "operation": "install", "destination_parent_absolute": str(root).lower(), "destination_paths_absolute": [], "members": []})
+            payload = running._cleanup_record_payload(root, registry, registry_identity, [(source, running._inventory(root, source)), (authority_path, authority["record"])], remove_registry=True, authority=(authority_path, authority["record"]))
+            record, _ = running._write_cleanup_record(root, payload)
+            recover_cleanup_atomic(record)
+            self.assertFalse(registry.exists())
+            self.assertFalse(list(root.glob(".vv5run-cleanup-*.json")))
+
+    def test_c307_forged_cleanup_artifact_role_is_rejected_before_delete(self) -> None:
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            registry = root / ISSUANCE_REGISTRY_NAME
+            registry.mkdir()
+            source = registry / "issuance.json"
+            sibling = registry / "unrelated-sibling.json"
+            source.write_bytes(b"owned")
+            sibling.write_bytes(b"keep")
+            payload = running._cleanup_record_payload(root, registry, running._identity(registry), [(source, running._inventory(root, source))], remove_registry=False)
+            payload["artifacts"][0]["name"] = sibling.name
+            record, _ = running._write_cleanup_record(root, payload)
+            with self.assertRaises(PatcherError):
+                recover_cleanup_atomic(record)
+            self.assertEqual(sibling.read_bytes(), b"keep")
+            self.assertEqual(source.read_bytes(), b"owned")
+
 
 if __name__ == "__main__":
     unittest.main()
