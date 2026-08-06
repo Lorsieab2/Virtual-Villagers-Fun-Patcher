@@ -8,6 +8,7 @@ import os
 import shutil
 import stat
 import struct
+import sys
 import tempfile
 import uuid
 from dataclasses import dataclass
@@ -602,6 +603,18 @@ def _reject_expanded_256_publication(patch_mode: str) -> None:
         raise PatcherError(
             "Expanded-256 publication is disabled; use dry-run or static rendering only."
         )
+
+
+_PUBLIC_PATCH_MODES = {"collection_progression", "immediate_fixed"}
+
+
+def _validate_public_patch_mode(patch_mode: str) -> None:
+    """Validate a public mode without loading catalogs or touching input paths."""
+    if not isinstance(patch_mode, str) or patch_mode not in (
+        _PUBLIC_PATCH_MODES | EXPANDED_PATCH_MODES
+    ):
+        raise PatcherError(f"Unknown patch mode: {patch_mode}")
+    _reject_expanded_256_publication(patch_mode)
 
 
 @dataclass(frozen=True)
@@ -5304,7 +5317,7 @@ def apply_patch(
     replace_modded_saves: bool = False,
     save_root: Path | None = None,
 ) -> tuple[Path, Path]:
-    _reject_expanded_256_publication(patch_mode)
+    _validate_public_patch_mode(patch_mode)
     _reject_vv5_running_unsupported_mode(patch_mode, fun_patch_ids)
     source = source.resolve()
     build = identify(source)
@@ -5495,7 +5508,7 @@ def apply_all(
     replace_modded_saves: bool = False,
     save_root: Path | None = None,
 ) -> list[tuple[Path, Path]]:
-    _reject_expanded_256_publication(patch_mode)
+    _validate_public_patch_mode(patch_mode)
     _reject_vv5_running_unsupported_mode(patch_mode, fun_patch_ids)
     validated = validate_all_sources(sources)
     plans: list[
@@ -5663,9 +5676,24 @@ def _parser() -> argparse.ArgumentParser:
     return parser
 
 
+def _preparse_publication_mode(argv: list[str] | None = None) -> None:
+    """Reject public mode errors before the catalog-backed argparse parser."""
+    tokens = list(sys.argv[1:] if argv is None else argv)
+    if not tokens or tokens[0] not in {"apply", "apply-all"}:
+        return
+    patch_mode = DEFAULT_PATCH_MODE
+    for index, token in enumerate(tokens[1:], start=1):
+        if token == "--patch-mode" and index + 1 < len(tokens):
+            patch_mode = tokens[index + 1]
+        elif token.startswith("--patch-mode="):
+            patch_mode = token.split("=", 1)[1]
+    _validate_public_patch_mode(patch_mode)
+
+
 def main() -> int:
-    args = _parser().parse_args()
     try:
+        _preparse_publication_mode()
+        args = _parser().parse_args()
         if (
             getattr(args, "replace_modded_saves", False)
             and not getattr(args, "copy_vanilla_saves", False)
@@ -5688,7 +5716,7 @@ def main() -> int:
                 )
             )
         elif args.command == "apply":
-            _reject_expanded_256_publication(args.patch_mode)
+            _validate_public_patch_mode(args.patch_mode)
             output, log = apply_patch(
                 args.exe,
                 args.patch_mode,
@@ -5713,7 +5741,7 @@ def main() -> int:
                 )
             )
         else:
-            _reject_expanded_256_publication(args.patch_mode)
+            _validate_public_patch_mode(args.patch_mode)
             results = apply_all(
                 _all_sources_from_args(args),
                 args.patch_mode,

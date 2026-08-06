@@ -35,6 +35,40 @@ class ExpandedPublicationGuardTests(unittest.TestCase):
                 with self.subTest(mode=mode), self.assertRaisesRegex(PatcherError, "Expanded-256 publication is disabled"):
                     vv_fun_patcher.apply_all({}, mode)
 
+    def test_public_apply_rejects_unknown_mode_before_source_or_output(self):
+        with mock.patch.object(vv_fun_patcher.Path, "resolve", side_effect=AssertionError("resolve")), \
+             mock.patch.object(vv_fun_patcher, "identify", side_effect=AssertionError("identify")):
+            with self.assertRaisesRegex(PatcherError, "Unknown patch mode"):
+                vv_fun_patcher.apply_patch(Path("unknown-source.exe"), "not-a-mode")
+            with self.assertRaisesRegex(PatcherError, "Unknown patch mode"):
+                vv_fun_patcher.apply_all({}, "not-a-mode")
+
+    def test_cli_expanded_preparse_skips_catalog_loaders(self):
+        for command in ("apply", "apply-all"):
+            with self.subTest(command=command):
+                with mock.patch.object(vv_fun_patcher, "load_patch_modes", side_effect=AssertionError("modes")), \
+                     mock.patch.object(vv_fun_patcher, "load_fun_patches", side_effect=AssertionError("catalog")), \
+                     mock.patch.object(vv_fun_patcher, "load_builds", side_effect=AssertionError("builds")), \
+                     mock.patch.object(sys, "argv", ["vv", command, "--patch-mode", "experimental_expanded_256"]):
+                    self.assertEqual(vv_fun_patcher.main(), 1)
+
+    def test_cli_unknown_preparse_skips_catalog_loaders(self):
+        for command in ("apply", "apply-all"):
+            with self.subTest(command=command):
+                with mock.patch.object(vv_fun_patcher, "load_patch_modes", side_effect=AssertionError("modes")), \
+                     mock.patch.object(vv_fun_patcher, "load_fun_patches", side_effect=AssertionError("catalog")), \
+                     mock.patch.object(vv_fun_patcher, "load_builds", side_effect=AssertionError("builds")), \
+                     mock.patch.object(sys, "argv", ["vv", command, "--patch-mode", "not-a-mode"]):
+                    self.assertEqual(vv_fun_patcher.main(), 1)
+
+    def test_public_normal_modes_reach_validation(self):
+        with mock.patch.object(vv_fun_patcher, "identify", side_effect=AssertionError("validated")):
+            with self.assertRaisesRegex(AssertionError, "validated"):
+                vv_fun_patcher.apply_patch(Path("unreadable.exe"), "collection_progression")
+        with mock.patch.object(vv_fun_patcher, "validate_all_sources", side_effect=AssertionError("validated-all")):
+            with self.assertRaisesRegex(AssertionError, "validated-all"):
+                vv_fun_patcher.apply_all({}, "immediate_fixed")
+
     def test_cli_apply_rejects_before_dispatch(self):
         with mock.patch.object(sys, "argv", ["vv", "apply", "missing.exe", "--patch-mode", "experimental_expanded_256"]), \
              mock.patch.object(vv_fun_patcher, "apply_patch", side_effect=AssertionError("dispatch")):
