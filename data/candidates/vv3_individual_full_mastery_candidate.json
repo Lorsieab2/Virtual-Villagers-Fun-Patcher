@@ -93,12 +93,12 @@
   "companion_files": [
     {
       "source": "data/candidates/VVFP VV3 Full Heal Candidate.dll",
-      "destination": "VVFP Origins Icons.dll",
+      "destination": "VVFP VV3 Full Mastery Candidate.dll",
       "sha256": "9F866CB6F92C745CD2AA7009AEC4EB70FA5521EFF0C8F7BABE2058BB4D2F8533",
       "size": 298496,
-      "preimage_sha256": "9F866CB6F92C745CD2AA7009AEC4EB70FA5521EFF0C8F7BABE2058BB4D2F8533",
-      "restore_source": "data/candidates/VVFP VV3 Full Heal Candidate.dll",
-      "restore_sha256": "9F866CB6F92C745CD2AA7009AEC4EB70FA5521EFF0C8F7BABE2058BB4D2F8533"
+      "preimage_sha256": "35FB96199E745C7D8054FF6A12851B9E09225E3E41D0CE04012604E74968C0D5",
+      "restore_source": "data/candidates/VVFP VV3 Full Mastery Candidate.dll",
+      "restore_sha256": "35FB96199E745C7D8054FF6A12851B9E09225E3E41D0CE04012604E74968C0D5"
     }
   ],
   "patches": [

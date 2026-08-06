@@ -59,8 +59,8 @@ VV3_INDIVIDUAL_FULL_MASTERY_CANDIDATE_PATHS = {
     "manifest": ROOT / "data" / "candidates" / "vv3_individual_full_mastery_candidate.json",
     "map": ROOT / "data" / "candidates" / "vv3_individual_full_mastery_candidate_map.json",
 }
-VV3_INDIVIDUAL_FULL_MASTERY_MANIFEST_SHA256 = "20810F8EE7139FF3BD5B2AD7C38190879B925C6D63BB3C6586447CB3714A9E49"
-VV3_INDIVIDUAL_FULL_MASTERY_MAP_SHA256 = "FFCC69CEEDE8F9070A03E652E15FDF54E6E185D0A0416AB55C22B2D3FA345D76"
+VV3_INDIVIDUAL_FULL_MASTERY_MANIFEST_SHA256 = "59B7B7ADD66AA7FB4F3291B84846E59A35AD348C4219A9B4032452B25555D60A"
+VV3_INDIVIDUAL_FULL_MASTERY_MAP_SHA256 = "9FD61F18F21C6044F037F22F56E5046C6A1CFDD41D579C44B6C93BE3A5A4EB57"
 VV3_INDIVIDUAL_FULL_MASTERY_PAGE_SHA256 = "9391F157BD26BD35EB6BA058D20E8D13ED0E89FE65FE7AF87CD833279BBBDA78"
 VV3_INDIVIDUAL_FULL_MASTERY_PARENT_SHA256 = {
     "collection_progression": "8DD1CE07C885DDA3DD038D0B2F5C4F019D8C5BAC5DCA29F9799CE0C7909D2CEA",
@@ -909,18 +909,21 @@ def _validate_vv3_individual_full_mastery_candidate() -> dict[str, Any] | None:
         raise PatcherError("VV3 individual Full Mastery MessageBox acceptance must be IDOK=1 only.")
     expected_companion = {
         "source": "data/candidates/VVFP VV3 Full Heal Candidate.dll",
-        "destination": "VVFP Origins Icons.dll",
+        "destination": "VVFP VV3 Full Mastery Candidate.dll",
         "sha256": "9F866CB6F92C745CD2AA7009AEC4EB70FA5521EFF0C8F7BABE2058BB4D2F8533",
         "size": 298496,
-        "preimage_sha256": "9F866CB6F92C745CD2AA7009AEC4EB70FA5521EFF0C8F7BABE2058BB4D2F8533",
-        "restore_source": "data/candidates/VVFP VV3 Full Heal Candidate.dll",
-        "restore_sha256": "9F866CB6F92C745CD2AA7009AEC4EB70FA5521EFF0C8F7BABE2058BB4D2F8533",
+        "preimage_sha256": "35FB96199E745C7D8054FF6A12851B9E09225E3E41D0CE04012604E74968C0D5",
+        "restore_source": "data/candidates/VVFP VV3 Full Mastery Candidate.dll",
+        "restore_sha256": "35FB96199E745C7D8054FF6A12851B9E09225E3E41D0CE04012604E74968C0D5",
     }
     if manifest.get("companion_files") != [expected_companion]:
         raise PatcherError("VV3 individual Full Mastery companion ownership is not certified.")
     companion_path = ROOT / expected_companion["source"]
     if not companion_path.is_file() or companion_path.stat().st_size != expected_companion["size"] or hashlib.sha256(companion_path.read_bytes()).hexdigest().upper() != expected_companion["sha256"]:
         raise PatcherError("VV3 individual Full Mastery companion source hash mismatch.")
+    restore_path = ROOT / expected_companion["restore_source"]
+    if not restore_path.is_file() or restore_path.stat().st_size != expected_companion["size"] or hashlib.sha256(restore_path.read_bytes()).hexdigest().upper() != expected_companion["restore_sha256"]:
+        raise PatcherError("VV3 individual Full Mastery companion parent hash mismatch.")
     chain = manifest.get("base_chain", {})
     if chain.get("collection_progression_parent_sha256") != VV3_INDIVIDUAL_FULL_MASTERY_PARENT_SHA256["collection_progression"] or chain.get("immediate_fixed_parent_sha256") != VV3_INDIVIDUAL_FULL_MASTERY_PARENT_SHA256["immediate_fixed"]:
         raise PatcherError("VV3 individual Full Mastery parent hashes are not certified.")

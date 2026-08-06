@@ -3,6 +3,8 @@ from __future__ import annotations
 import hashlib
 import tempfile
 import unittest
+from unittest import mock
+from types import SimpleNamespace
 from pathlib import Path
 
 import vv3_individual_full_mastery as loader
@@ -68,7 +70,8 @@ class VV3IndividualFullMasteryLoaderTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as td:
             destination = Path(td) / "candidate.exe"
             companion_source = ROOT / "data" / "candidates" / "VVFP VV3 Full Heal Candidate.dll"
-            companion_destination = Path(td) / "VVFP Origins Icons.dll"
+            companion_restore = ROOT / "data" / "candidates" / "VVFP VV3 Full Mastery Candidate.dll"
+            companion_destination = Path(td) / "VVFP VV3 Full Mastery Candidate.dll"
             loader.install_atomic(parent, destination, "collection_progression", companion_source=companion_source, companion_destination=companion_destination)
             self.assertTrue(destination.is_file())
             self.assertTrue(companion_destination.is_file())
@@ -76,9 +79,10 @@ class VV3IndividualFullMasteryLoaderTests(unittest.TestCase):
             with self.assertRaises(vv_fun_patcher.PatcherError):
                 loader.install_atomic(parent, destination, "collection_progression", companion_source=companion_source, companion_destination=companion_destination)
             self.assertEqual(destination.read_bytes(), before)
-            loader.remove_atomic(destination, "collection_progression", companion_destination=companion_destination, companion_restore_source=companion_source)
+            companion_before = companion_restore.read_bytes()
+            loader.remove_atomic(destination, "collection_progression", companion_destination=companion_destination, companion_restore_source=companion_restore)
             self.assertEqual(destination.read_bytes(), parent.read_bytes())
-            self.assertEqual(companion_destination.read_bytes(), companion_source.read_bytes())
+            self.assertEqual(companion_destination.read_bytes(), companion_before)
 
     def test_companion_is_mandatory_and_wrong_existing_preimage_is_rejected(self):
         parent = PARENTS / "vv3_fullscreen_safe_candidate_collection_progression.exe"
@@ -88,12 +92,86 @@ class VV3IndividualFullMasteryLoaderTests(unittest.TestCase):
             with self.assertRaises(vv_fun_patcher.PatcherError):
                 loader.install_atomic(parent, root / "candidate.exe", "collection_progression")
             destination = root / "candidate.exe"
-            companion_destination = root / "VVFP Origins Icons.dll"
+            companion_destination = root / "VVFP VV3 Full Mastery Candidate.dll"
             destination.write_bytes(b"foreign")
             with self.assertRaises(vv_fun_patcher.PatcherError):
                 loader.install_atomic(parent, destination, "collection_progression", companion_source=companion_source, companion_destination=companion_destination)
             self.assertEqual(destination.read_bytes(), b"foreign")
             self.assertFalse(companion_destination.exists())
+
+    def test_publication_requires_one_destination_parent(self):
+        parent = PARENTS / "vv3_fullscreen_safe_candidate_collection_progression.exe"
+        candidate_dll = ROOT / "data" / "candidates" / "VVFP VV3 Full Heal Candidate.dll"
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            with self.assertRaises(vv_fun_patcher.PatcherError):
+                loader.install_atomic(parent, root / "a" / "candidate.exe", "collection_progression", companion_source=candidate_dll, companion_destination=root / "b" / "VVFP VV3 Full Mastery Candidate.dll")
+
+    def test_second_member_replace_failure_rolls_back_both_without_mixed_pair(self):
+        parent = PARENTS / "vv3_fullscreen_safe_candidate_collection_progression.exe"
+        candidate_dll = ROOT / "data" / "candidates" / "VVFP VV3 Full Heal Candidate.dll"
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            destination = root / "candidate.exe"
+            companion_destination = root / "VVFP VV3 Full Mastery Candidate.dll"
+            real_replace = loader.os.replace
+            calls = {"publish": 0}
+            def fail_second(src, dst):
+                if str(src).endswith(".stage") and Path(dst) in {destination, companion_destination}:
+                    calls["publish"] += 1
+                    if calls["publish"] == 2:
+                        raise OSError("injected second-member replace failure")
+                return real_replace(src, dst)
+            with mock.patch.object(loader, "render_parent", return_value=b"CANDIDATE-EXE"):
+                with mock.patch.object(loader.os, "replace", side_effect=fail_second):
+                    with self.assertRaises(vv_fun_patcher.PatcherError):
+                        loader.install_atomic(parent, destination, "collection_progression", companion_source=candidate_dll, companion_destination=companion_destination)
+            self.assertFalse(destination.exists())
+            self.assertFalse(companion_destination.exists())
+            self.assertFalse(list(root.glob("*.stage")))
+
+    def test_reparse_ancestor_rejected_before_any_write(self):
+        parent = PARENTS / "vv3_fullscreen_safe_candidate_collection_progression.exe"
+        candidate_dll = ROOT / "data" / "candidates" / "VVFP VV3 Full Heal Candidate.dll"
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            real_lstat = loader.os.lstat
+            def fake_lstat(path):
+                st = real_lstat(path)
+                if Path(path) == root:
+                    return SimpleNamespace(st_mode=st.st_mode, st_file_attributes=0x400, st_dev=st.st_dev, st_ino=st.st_ino, st_size=st.st_size)
+                return st
+            with mock.patch.object(loader.os, "lstat", side_effect=fake_lstat):
+                with self.assertRaises(vv_fun_patcher.PatcherError):
+                    loader.install_atomic(parent, root / "candidate.exe", "collection_progression", companion_source=candidate_dll, companion_destination=root / "VVFP VV3 Full Mastery Candidate.dll")
+            self.assertEqual(list(root.iterdir()), [])
+
+    def test_unresolved_failure_retains_replayable_report(self):
+        parent = PARENTS / "vv3_fullscreen_safe_candidate_collection_progression.exe"
+        candidate_dll = ROOT / "data" / "candidates" / "VVFP VV3 Full Heal Candidate.dll"
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            destination = root / "candidate.exe"
+            companion_destination = root / "VVFP VV3 Full Mastery Candidate.dll"
+            real_replace = loader.os.replace
+            calls = {"publish": 0}
+            def fail_second(src, dst):
+                if str(src).endswith(".stage") and Path(dst) in {destination, companion_destination}:
+                    calls["publish"] += 1
+                    if calls["publish"] == 2:
+                        raise OSError("injected second-member replace failure")
+                return real_replace(src, dst)
+            with mock.patch.object(loader, "render_parent", return_value=b"CANDIDATE-EXE"):
+                with mock.patch.object(loader, "_restore_member", return_value=False):
+                    with mock.patch.object(loader.os, "replace", side_effect=fail_second):
+                        with self.assertRaises(vv_fun_patcher.PatcherError):
+                            loader.install_atomic(parent, destination, "collection_progression", companion_source=candidate_dll, companion_destination=companion_destination)
+            reports = list(root.glob(".vv3im-recovery-*.json"))
+            self.assertEqual(len(reports), 1)
+            loader.recover_vv3_transaction(reports[0])
+            self.assertFalse(destination.exists())
+            self.assertFalse(companion_destination.exists())
+            self.assertFalse(list(root.glob(".vv3im-*")))
 
 
 if __name__ == "__main__":
