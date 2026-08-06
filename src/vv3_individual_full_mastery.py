@@ -279,7 +279,18 @@ def _write_recovery(parent: Path, details: dict[str, object]) -> Path:
     _write_file(tmp, (json.dumps(payload, indent=2, sort_keys=True) + "\n").encode("utf-8"))
     if not os.path.lexists(tmp):
         raise PatcherError("VV3 individual Full Mastery recovery temporary report disappeared.")
-    os.replace(tmp, report)
+    if os.path.lexists(report):
+        _remove_owned(tmp, expected=_inventory_member(parent, tmp))
+        raise PatcherError("VV3 individual Full Mastery recovery report target already exists.")
+    try:
+        os.replace(tmp, report)
+    except Exception:
+        if os.path.lexists(tmp):
+            try:
+                _remove_owned(tmp, expected=_inventory_member(parent, tmp))
+            except Exception:
+                pass
+        raise
     _fsync_dir(parent)
     report_st = os.lstat(report)
     _reject_entry(report, report_st, directory=False)
@@ -367,8 +378,57 @@ def _verify_inventory(root: Path, expected: list[dict[str, object]], *, exclude:
         raise PatcherError("VV3 individual Full Mastery recovery ownership inventory changed.")
 
 
+def _write_recovery_at(report: Path, payload: dict[str, object], root: Path) -> None:
+    refreshed = dict(payload)
+    refreshed["report_relative"] = report.name
+    if "report_name" in refreshed:
+        refreshed["report_name"] = report.name
+    allowed = {key for key in ("feature_owner", "mode", "parent_sha256", "candidate_sha256", "destination_exe_basename", "companion_dll_basename", "member_roles", "recovery_root_name", "recovery_root_identity", "report_name", "report_parent_identity") if key in refreshed}
+    _validate_recovery_payload(refreshed, root, allowed_metadata=allowed)
+    tmp = report.with_suffix(".tmp")
+    if os.path.lexists(tmp) or os.path.lexists(report):
+        raise PatcherError("VV3 individual Full Mastery recovery report target collision.")
+    try:
+        _write_file(tmp, (json.dumps(refreshed, indent=2, sort_keys=True) + "\n").encode("utf-8"))
+        if os.path.lexists(report):
+            raise PatcherError("VV3 individual Full Mastery recovery report target raced.")
+        os.replace(tmp, report)
+    except Exception:
+        if os.path.lexists(tmp):
+            try:
+                _remove_owned(tmp, expected=_inventory_member(root, tmp))
+            except Exception:
+                pass
+        raise
+    _fsync_dir(root)
+
+
+def _require_inventory_subset(actual: list[dict[str, object]], expected: object) -> None:
+    """Reject foreign/changed descendants while allowing owned members already removed."""
+    if not isinstance(expected, list):
+        raise PatcherError("VV3 individual Full Mastery recovery inventory baseline is missing.")
+    by_path = {str(item.get("path", "")).casefold(): item for item in expected if isinstance(item, dict)}
+    for item in actual:
+        key = str(item.get("path", "")).casefold()
+        if key not in by_path or by_path[key] != item:
+            raise PatcherError("VV3 individual Full Mastery recovery ownership inventory adopted a foreign descendant.")
+
+
 def _refresh_recovery_report(report: Path, payload: dict[str, object], root: Path, replay_root: Path) -> None:
     """Persist the actual retained recovery inventory after a failed replay."""
+    if not os.path.lexists(report):
+        root_st = os.lstat(replay_root)
+        inventory = _inventory_tree(replay_root)
+        for item in inventory:
+            item["path"] = _relative_owned(root, replay_root / str(item["path"]))
+        inventory.insert(0, {"path": _relative_owned(root, replay_root), "type": "directory", "size": 0, "sha256": None, "st_dev": int(root_st.st_dev), "st_ino": int(root_st.st_ino)})
+        _require_inventory_subset(inventory, payload.get("ownership_inventory"))
+        refreshed = dict(payload)
+        refreshed["ownership_inventory"] = inventory
+        refreshed["report_relative"] = report.name
+        if "report_name" in refreshed:
+            refreshed["report_name"] = report.name
+        return _write_recovery_at(report, refreshed, root)
     report_before = os.lstat(report)
     _reject_entry(report, report_before, directory=False)
     inventory = _inventory_tree(replay_root)
@@ -376,6 +436,7 @@ def _refresh_recovery_report(report: Path, payload: dict[str, object], root: Pat
         item["path"] = _relative_owned(root, replay_root / str(item["path"]))
     root_st = os.lstat(replay_root)
     inventory.insert(0, {"path": _relative_owned(root, replay_root), "type": "directory", "size": 0, "sha256": None, "st_dev": int(root_st.st_dev), "st_ino": int(root_st.st_ino)})
+    _require_inventory_subset(inventory, payload.get("ownership_inventory"))
     refreshed = dict(payload)
     refreshed["ownership_inventory"] = inventory
     refreshed_members = []
@@ -395,8 +456,20 @@ def _refresh_recovery_report(report: Path, payload: dict[str, object], root: Pat
     tmp = report.with_suffix(".tmp")
     if os.path.lexists(tmp):
         raise PatcherError("VV3 individual Full Mastery recovery report temporary collision.")
-    _write_file(tmp, (json.dumps(refreshed, indent=2, sort_keys=True) + "\n").encode("utf-8"))
-    os.replace(tmp, report)
+    try:
+        _write_file(tmp, (json.dumps(refreshed, indent=2, sort_keys=True) + "\n").encode("utf-8"))
+        current = os.lstat(report)
+        _reject_entry(report, current, directory=False)
+        if (report_before.st_dev, report_before.st_ino, report_before.st_size) != (current.st_dev, current.st_ino, current.st_size):
+            raise PatcherError("VV3 individual Full Mastery recovery report race before replacement.")
+        os.replace(tmp, report)
+    except Exception:
+        if os.path.lexists(tmp):
+            try:
+                _remove_owned(tmp, expected=_inventory_member(root, tmp))
+            except Exception:
+                pass
+        raise
     _fsync_dir(root)
 
 
@@ -896,28 +969,57 @@ def recover_atomic(report_or_root: Path, *, recovery_prefix: str = ".vv3im", req
             replay_member["backup_inventory"] = _inventory_member(root, preserved)
         replay_payload = dict(payload)
         replay_payload["members"] = replay_members
-        for member, destination, backup in resolved:
-            if backup is not None and os.path.lexists(backup):
-                record = next((item for item in payload["ownership_inventory"] if item["path"] == member["backup_relative"]), None)
-                _remove_owned(backup, expected=record)
+        # Bind the full pre-cleanup recovery inventory, including any
+        # copy-preserved backups created for this replay.  Refreshes may only
+        # retain a subset of these verified members; foreign descendants are
+        # rejected rather than adopted.
+        replay_inventory = _inventory_tree(replay_root)
+        for item in replay_inventory:
+            item["path"] = _relative_owned(root, replay_root / str(item["path"]))
+        replay_root_current = os.lstat(replay_root)
+        replay_inventory.insert(0, {"path": _relative_owned(root, replay_root), "type": "directory", "size": 0, "sha256": None, "st_dev": int(replay_root_current.st_dev), "st_ino": int(replay_root_current.st_ino)})
+        replay_payload["ownership_inventory"] = replay_inventory
         for stage in replay_stage_paths:
             if os.path.lexists(stage):
                 _remove_owned(stage)
-        for preserved in preserved_backup_paths:
-            if os.path.lexists(preserved):
-                _remove_owned(preserved)
         for member in members:
             original_stage = root / str(member["stage_relative"]) if member.get("stage_relative") else None
             if original_stage is not None and os.path.lexists(original_stage):
                 _remove_owned(original_stage, expected=member.get("stage_inventory"))
-        if os.path.lexists(replay_root):
-            # At this point every backup and replay stage has been removed;
-            # an injected descendant is therefore never silently adopted as
-            # owned cleanup material.
-            _remove_owned(replay_root, expected_tree=[])
+        # The durable report must be proven absent before any preserved
+        # backup is consumed.  If backup cleanup fails afterward, the
+        # exception path recreates a complete report from retained copies.
         report_before_delete = os.lstat(report)
         _reject_entry(report, report_before_delete, directory=False)
         _remove_owned(report)
+        if os.path.lexists(report):
+            raise PatcherError("VV3 individual Full Mastery recovery report deletion did not verify.")
+        _fsync_dir(root)
+        for member in members:
+            backup = root / str(member["backup_relative"]) if member.get("backup_relative") else None
+            if backup is not None and os.path.lexists(backup):
+                record = next((item for item in payload["ownership_inventory"] if item["path"] == member["backup_relative"]), None)
+                _remove_owned(backup, expected=record)
+        for preserved in preserved_backup_paths:
+            if os.path.lexists(preserved):
+                _remove_owned(preserved)
+        # A previous failed replay may have left an original backup that is
+        # no longer referenced by the refreshed member list.  It is still
+        # owned material, so remove it only through its recorded identity.
+        inventory_by_path = {
+            str(item["path"]): item
+            for item in replay_payload.get("ownership_inventory", [])
+            if isinstance(item, dict) and item.get("type") == "regular_file"
+        }
+        replay_prefix = _relative_owned(root, replay_root).rstrip("/") + "/"
+        for rel, record in sorted(inventory_by_path.items()):
+            if not rel.startswith(replay_prefix):
+                continue
+            owned = root / rel
+            if os.path.lexists(owned):
+                _remove_owned(owned, expected=record)
+        if os.path.lexists(replay_root):
+            _remove_owned(replay_root, expected_tree=[])
         _fsync_dir(root)
     except Exception:
         # Never consume backups or delete evidence on a failed replay.  Replay
@@ -932,12 +1034,21 @@ def recover_atomic(report_or_root: Path, *, recovery_prefix: str = ".vv3im", req
                 except Exception as cleanup_exc:
                     cleanup_errors.append(cleanup_exc)
         refresh_error: BaseException | None = None
-        if os.path.lexists(replay_root) and os.path.lexists(report):
+        if os.path.lexists(replay_root):
             try:
                 _refresh_recovery_report(report, replay_payload, root, replay_root)
             except Exception as refresh_exc:
                 refresh_error = refresh_exc
         if refresh_error is not None:
+            # If the report was already deleted and a later cleanup race
+            # introduced an unknown child, restore the last verified payload
+            # at the original path.  Recovery will fail closed until the
+            # foreign child is removed; it is never adopted into ownership.
+            if not os.path.lexists(report) and os.path.lexists(replay_root):
+                try:
+                    _write_recovery_at(report, replay_payload, root)
+                except Exception:
+                    pass
             raise PatcherError("VV3 individual Full Mastery replay report refresh failed; recovery evidence retained.") from refresh_error
         if cleanup_errors:
             raise PatcherError("VV3 individual Full Mastery replay cleanup failed; recovery evidence retained.") from cleanup_errors[0]

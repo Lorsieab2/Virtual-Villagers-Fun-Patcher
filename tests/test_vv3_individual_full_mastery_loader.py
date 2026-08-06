@@ -358,6 +358,45 @@ class VV3IndividualFullMasteryLoaderTests(unittest.TestCase):
             self.assertTrue(payload["ownership_inventory"])
             self.assertTrue(any(root.joinpath(str(item["path"])).exists() for item in payload["ownership_inventory"]))
 
+    def test_c284_second_backup_cleanup_failure_replays_immediately(self):
+        with tempfile.TemporaryDirectory(prefix="vv3-c284-replay-") as td:
+            root = Path(td)
+            exe, dll = root / "candidate.exe", root / "candidate.dll"
+            exe.write_bytes(b"exe-parent")
+            dll.write_bytes(b"dll-parent")
+            destinations = [exe, dll]
+            pre = {path: loader._state(path) for path in destinations}
+            published = {exe: b"exe-candidate", dll: b"dll-candidate"}
+            real_replace = loader._replace_verified
+            calls = {"count": 0}
+            def fail_second(stage, destination, expected_destination, expected_stage):
+                calls["count"] += 1
+                if calls["count"] == 2:
+                    raise OSError("injected publication failure")
+                return real_replace(stage, destination, expected_destination, expected_stage)
+            with mock.patch.object(loader, "_replace_verified", side_effect=fail_second), mock.patch.object(loader, "_restore_member", return_value=False):
+                with self.assertRaises(vv_fun_patcher.PatcherError):
+                    loader._transaction("install", destinations, pre, published, expected_preimage={exe: b"exe-parent", dll: b"dll-parent"}, parent=root)
+            report = next(root.glob(".vv3im-recovery-*.json"))
+            real_remove = loader._remove_owned
+            removed = {"count": 0}
+            def fail_second_backup(path, **kwargs):
+                if ".vv3im-" in Path(path).name and Path(path).name.endswith(".backup"):
+                    removed["count"] += 1
+                    if removed["count"] == 2:
+                        raise vv_fun_patcher.PatcherError("injected second-backup cleanup failure")
+                return real_remove(path, **kwargs)
+            with mock.patch.object(loader, "_remove_owned", side_effect=fail_second_backup):
+                with self.assertRaises(vv_fun_patcher.PatcherError):
+                    loader.recover_atomic(report)
+            retry_report = next(root.glob(".vv3im-recovery-*.json"))
+            retry_payload = json.loads(retry_report.read_text(encoding="utf-8"))
+            self.assertTrue(any(item.get("backup_relative", "").find("preserved") >= 0 for item in retry_payload["members"]))
+            loader.recover_atomic(retry_report)
+            self.assertEqual(exe.read_bytes(), b"exe-parent")
+            self.assertEqual(dll.read_bytes(), b"dll-parent")
+            self.assertFalse(list(root.glob(".vv3im-*")))
+
     def test_c280_injected_cleanup_descendant_retains_report(self):
         with tempfile.TemporaryDirectory(prefix="vv3-c280-cleanup-child-") as td:
             root = Path(td)
