@@ -269,6 +269,21 @@ class VV3IndividualFullMasteryLoaderTests(unittest.TestCase):
             after = sorted((p.relative_to(root).as_posix(), p.read_bytes() if p.is_file() else None) for p in root.rglob("*") if p.is_file())
             self.assertEqual(after, before)
 
+    def test_c280_complete_game_directory_siblings_are_not_recovery_owned(self):
+        with tempfile.TemporaryDirectory(prefix="vv3-c280-game-dir-") as td:
+            root = Path(td)
+            stock = root / "stock-runtime.exe"
+            runtime = root / "runtime.dat"
+            stock.write_bytes(b"authenticated stock sibling")
+            runtime.write_bytes(b"runtime sibling")
+            report, destination, companion = self._make_unresolved_report(root)
+            before = {p.name: p.read_bytes() for p in (stock, runtime)}
+            loader.recover_vv3_transaction(report)
+            self.assertEqual({p.name: p.read_bytes() for p in (stock, runtime)}, before)
+            self.assertFalse(destination.exists())
+            self.assertFalse(companion.exists())
+            self.assertEqual(list(root.glob(".vv3im-*")), [])
+
     def test_d274_install_new_same_content_foreign_identity_rejected(self):
         with tempfile.TemporaryDirectory(prefix="vv3-d274-identity-") as td:
             root = Path(td)
@@ -308,6 +323,20 @@ class VV3IndividualFullMasteryLoaderTests(unittest.TestCase):
                     raise vv_fun_patcher.PatcherError("injected cleanup failure")
                 return real_remove(path, **kwargs)
             with mock.patch.object(loader, "_remove_owned", side_effect=fail_recovery):
+                with self.assertRaises(vv_fun_patcher.PatcherError):
+                    loader.recover_vv3_transaction(report)
+            self.assertTrue(report.exists())
+
+    def test_c280_injected_cleanup_descendant_retains_report(self):
+        with tempfile.TemporaryDirectory(prefix="vv3-c280-cleanup-child-") as td:
+            root = Path(td)
+            report, _destination, _companion = self._make_unresolved_report(root)
+            real_remove = loader._remove_owned
+            def inject_child(path, **kwargs):
+                if kwargs.get("expected_tree") == [] and Path(path).name.startswith(".vv3im-recovery-"):
+                    (Path(path) / "injected-child").write_bytes(b"foreign")
+                return real_remove(path, **kwargs)
+            with mock.patch.object(loader, "_remove_owned", side_effect=inject_child):
                 with self.assertRaises(vv_fun_patcher.PatcherError):
                     loader.recover_vv3_transaction(report)
             self.assertTrue(report.exists())

@@ -408,6 +408,16 @@ def _validate_recovery_payload(payload: dict[str, object], root: Path) -> None:
     member_paths = [Path(str(item["destination_relative"])) for item in members]
     if guard_paths != member_paths or any(p.is_absolute() or not p.parts or ".." in p.parts for p in guard_paths):
         raise PatcherError("VV3 individual Full Mastery replay guard members do not match destinations.")
+    initial_members = initial["members"]
+    if not isinstance(initial_members, list) or len(initial_members) != len(members):
+        raise PatcherError("VV3 individual Full Mastery initial precondition members are incomplete.")
+    for initial_member, member in zip(initial_members, members):
+        if not isinstance(initial_member, dict) or set(initial_member) != {"path", "exists", "sha256", "size"}:
+            raise PatcherError("VV3 individual Full Mastery initial precondition member schema is invalid.")
+        if str(initial_member["path"]).replace("\\", "/") != str(member["destination_relative"]).replace("\\", "/"):
+            raise PatcherError("VV3 individual Full Mastery initial precondition path mismatch.")
+        if initial_member["exists"] is not member["pre_exists"] or initial_member["sha256"] != member["pre_sha256"] or initial_member["size"] != member["pre_size"]:
+            raise PatcherError("VV3 individual Full Mastery initial precondition does not bind member prestate.")
     if payload["operation"] == "install_new" and any(bool(member["pre_exists"]) for member in members):
         raise PatcherError("VV3 individual Full Mastery install_new precondition is not immutable-absent.")
     inventory = payload["ownership_inventory"]
@@ -430,17 +440,41 @@ def _validate_recovery_payload(payload: dict[str, object], root: Path) -> None:
         seen_inventory.add(key)
 
 
-def _remove_owned(path: Path, *, expected: dict[str, object] | None = None) -> None:
+def _remove_owned(path: Path, *, expected: dict[str, object] | None = None, expected_tree: list[dict[str, object]] | None = None) -> None:
     if not os.path.lexists(path):
         return
     st = os.lstat(path)
     _reject_entry(path, st)
+    if expected is not None:
+        expected_type = expected.get("type")
+        actual_type = "directory" if stat.S_ISDIR(st.st_mode) else "regular_file" if stat.S_ISREG(st.st_mode) else "other"
+        if expected_type != actual_type:
+            raise PatcherError(f"VV3 individual Full Mastery owned cleanup type changed: {path}")
+        if int(expected.get("st_dev", st.st_dev)) != st.st_dev or int(expected.get("st_ino", st.st_ino)) != st.st_ino:
+            raise PatcherError(f"VV3 individual Full Mastery owned cleanup identity changed: {path}")
     if stat.S_ISDIR(st.st_mode):
-        _inventory_tree(path)
+        expected_by_path: dict[str, dict[str, object]] = {}
+        if expected_tree is not None:
+            actual_tree = _inventory_tree(path)
+            normalize = lambda rows: sorted(rows, key=lambda item: str(item["path"]).casefold())
+            if normalize(actual_tree) != normalize(expected_tree):
+                raise PatcherError(f"VV3 individual Full Mastery owned cleanup inventory changed: {path}")
+            expected_by_path = {str(item["path"]): item for item in expected_tree}
+        else:
+            _inventory_tree(path)
         with os.scandir(path) as scan:
             children = sorted([Path(item.path) for item in scan], key=lambda item: (item.name.casefold(), item.name))
         for child in children:
-            _remove_owned(child)
+            child_key = child.name.replace("\\", "/")
+            if expected_tree is not None and child_key not in expected_by_path:
+                raise PatcherError(f"VV3 individual Full Mastery owned cleanup child is unrecorded: {child}")
+            child_record = expected_by_path.get(child_key)
+            if child_record is not None and child_record.get("type") == "directory":
+                child_prefix = child_key + "/"
+                child_tree = [{**item, "path": str(item["path"])[len(child_prefix):]} for item in expected_tree or [] if str(item["path"]).startswith(child_prefix)]
+                _remove_owned(child, expected=child_record, expected_tree=child_tree)
+            else:
+                _remove_owned(child, expected=child_record)
         before = os.lstat(path)
         _reject_entry(path, before, directory=True)
         if (before.st_dev, before.st_ino) != (st.st_dev, st.st_ino):
@@ -548,6 +582,7 @@ def _transaction(operation: str, destinations: list[Path], pre: dict[Path, tuple
     if any(os.path.lexists(p) for p in (*stages.values(), *backups.values())):
         raise PatcherError("VV3 individual Full Mastery staging collision.")
     committed = False
+    committed_cleanup_inventory: list[dict[str, object]] | None = None
     try:
         for p in destinations:
             _write_file(stages[p], published[p])
@@ -564,6 +599,7 @@ def _transaction(operation: str, destinations: list[Path], pre: dict[Path, tuple
             _replace_verified(stages[p], p, pre[p], published[p])
         if any(_state(p) != (True, published[p]) for p in destinations):
             raise PatcherError("VV3 individual Full Mastery publication postverify failed.")
+        committed_cleanup_inventory = _inventory_tree(recovery_root)
         # Backups/stages become cleanup-eligible only after complete pair
         # postverification, never merely after the second replace call.
         committed = True
@@ -622,7 +658,7 @@ def _transaction(operation: str, destinations: list[Path], pre: dict[Path, tuple
         if committed:
             try:
                 if os.path.lexists(recovery_root):
-                    _remove_owned(recovery_root)
+                    _remove_owned(recovery_root, expected_tree=committed_cleanup_inventory or [])
                 _fsync_dir(parent)
             except Exception as cleanup_exc:
                 # Cleanup is part of the publication contract.  Retain a
@@ -681,12 +717,23 @@ def recover_atomic(report_or_root: Path) -> None:
         raise PatcherError("VV3 individual Full Mastery recovery root inventory is ambiguous.")
     replay_root = root / str(owned_dirs[0]["path"])
     _validate_recovery_root(replay_root)
-    # Compare all owned hidden recovery material before any destination or
-    # staging mutation.  Destination members are external and are validated
-    # separately below; every .vv3im-* sibling must be represented exactly.
+    # Compare only the owned hidden recovery root before touching either
+    # destination.  The report lives beside the destination pair, which may
+    # be a complete game directory containing arbitrary stock/runtime files;
+    # those siblings are not recovery-owned and must never be inventoried.
     expected_owned = payload["ownership_inventory"]
-    destination_exclusions = {str(member["destination_relative"]).replace("\\", "/") for member in payload["members"]}
-    actual_owned = _inventory_tree(root, exclude={report.name, *destination_exclusions})
+    actual_owned = _inventory_tree(replay_root)
+    for item in actual_owned:
+        item["path"] = _relative_owned(root, replay_root / str(item["path"]))
+    replay_root_st = os.lstat(replay_root)
+    actual_owned.insert(0, {
+        "path": _relative_owned(root, replay_root),
+        "type": "directory",
+        "size": 0,
+        "sha256": None,
+        "st_dev": int(replay_root_st.st_dev),
+        "st_ino": int(replay_root_st.st_ino),
+    })
     if sorted(actual_owned, key=lambda item: str(item["path"]).casefold()) != sorted(expected_owned, key=lambda item: str(item["path"]).casefold()):
         raise PatcherError("VV3 individual Full Mastery recovery ownership inventory changed.")
     for item in payload["ownership_inventory"]:
@@ -767,23 +814,33 @@ def recover_atomic(report_or_root: Path) -> None:
         for stage in replay_stage_paths:
             if os.path.lexists(stage):
                 _remove_owned(stage)
+        for member in members:
+            original_stage = root / str(member["stage_relative"]) if member.get("stage_relative") else None
+            if original_stage is not None and os.path.lexists(original_stage):
+                _remove_owned(original_stage, expected=member.get("stage_inventory"))
+        if os.path.lexists(replay_root):
+            # At this point every backup and replay stage has been removed;
+            # an injected descendant is therefore never silently adopted as
+            # owned cleanup material.
+            _remove_owned(replay_root, expected_tree=[])
         report_before_delete = os.lstat(report)
         _reject_entry(report, report_before_delete, directory=False)
         _remove_owned(report)
-        if os.path.lexists(replay_root):
-            _remove_owned(replay_root)
         _fsync_dir(root)
     except Exception:
         # Never consume backups or delete evidence on a failed replay.  Replay
         # stages are owned temporary material; remove them only after an
         # identity/hash check.  If cleanup itself fails the evidence remains,
         # and the caller receives the fail-closed error.
+        cleanup_errors: list[BaseException] = []
         for stage in replay_stage_paths:
             if os.path.lexists(stage):
                 try:
                     _remove_owned(stage)
-                except Exception:
-                    pass
+                except Exception as cleanup_exc:
+                    cleanup_errors.append(cleanup_exc)
+        if cleanup_errors:
+            raise PatcherError("VV3 individual Full Mastery replay cleanup failed; recovery evidence retained.") from cleanup_errors[0]
         raise
 
 
