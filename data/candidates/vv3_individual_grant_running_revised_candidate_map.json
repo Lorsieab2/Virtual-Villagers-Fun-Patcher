@@ -1,0 +1,13 @@
+{
+  "candidate_id": "vv3_individual_grant_running_revised_candidate",
+  "candidate_enabled": false,
+  "catalog_hidden": true,
+  "catalog_enabled": false,
+  "status": "STOP",
+  "reason": "No emitted bytes or output route are trusted until native preference-side-effect semantics and a composed dispatcher are independently proved.",
+  "allowed_modes": ["collection_progression", "immediate_fixed"],
+  "expanded_fail_closed": true,
+  "transaction_contract_source": "vv3_individual_grant_running_revised_candidate.json",
+  "emitted": false,
+  "provenance": {"design_source": "C271/D267", "implementation_commit": null, "audit_commit": null, "acceptance_commit": null}
+}

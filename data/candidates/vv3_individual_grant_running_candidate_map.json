@@ -1,11 +1,16 @@
 {
   "candidate_id": "vv3_individual_grant_running_candidate",
-  "candidate_enabled": true,
-  "catalog_hidden": false,
-  "catalog_enabled": true,
+  "candidate_enabled": false,
+  "catalog_hidden": true,
+  "catalog_enabled": false,
   "source_commit": "9574f488eefb97bd6320259f301beb87266072f8",
   "implementation_commit": "a35bee6ed91fb3f105424dca5e3283ce85e01894",
-  "acceptance_status": "D172 independent static GO; runtime/player validation pending",
+  "acceptance_status": "WITHDRAWN; historical Likes-only helper cannot inspect or clear Running Dislikes; revised candidate pending native recertification",
+  "revocation": {
+    "status": "withdrawn",
+    "reason": "Historical helper only inspects Likes (+0xFB4,+0xFB8,+0xFBC) and explicitly never inspects or clears Running Dislikes (+0xFC0,+0xFC4,+0xFC8); it cannot satisfy the current Grant Running contract.",
+    "superseded_by": "vv3_individual_grant_running_revised_candidate"
+  },
   "allowed_modes": [
     "collection_progression",
     "immediate_fixed"
@@ -23,7 +28,7 @@
     "full_mastery_base": "vv3_origins_full_mastery_base_candidate.json",
     "full_mastery_feature": "vv3_full_mastery_all_candidate.json"
   },
-  "manifest_sha256": "5A76F9BE8B7360B68F00ADA9E999E0FBA3F6A5254BB49E0CCBE3A5FF8604A130",
+  "manifest_sha256": "1FE903804E5C018AE2B54123F7B0A490BDA69C0B68C99C20754E4C41E8965852",
   "feature_owned_ranges": [
     {
       "file_offset": "0xA38C3",

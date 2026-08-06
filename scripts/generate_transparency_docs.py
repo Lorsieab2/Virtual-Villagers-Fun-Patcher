@@ -32,6 +32,10 @@ def build_document() -> str:
         if full_heal_path.is_file()
         else None
     )
+    vv3_running_path = ROOT / "data" / "candidates" / "vv3_individual_grant_running_candidate.json"
+    vv3_running_revised_path = ROOT / "data" / "candidates" / "vv3_individual_grant_running_revised_candidate.json"
+    vv3_running = json.loads(vv3_running_path.read_text(encoding="utf-8")) if vv3_running_path.is_file() else None
+    vv3_running_revised = json.loads(vv3_running_revised_path.read_text(encoding="utf-8")) if vv3_running_revised_path.is_file() else None
     by_game = {build.id: [p for p in patches if p.game_id == build.id] for build in load_builds()}
     lines = [
         "# Virtual Villagers Fun Patcher — Transparency Coverage",
@@ -118,6 +122,12 @@ def build_document() -> str:
         "The revised VV3 Full Heal / Cure All candidate is enabled and catalog-visible only for certified Collection Progression and Immediate Fixed; implementation is complete at `" + str(full_heal.get("provenance", {}).get("implementation_commit", "not recorded")) + "` with parent `" + str(full_heal.get("provenance", {}).get("implementation_parent_commit", "not recorded")) + "`. Independent static GO reports D209/C213 are recorded without inventing audit or acceptance commit identities; runtime/player validation remains pending. This generated disclosure is sourced from its authoritative candidate manifest.",
         "- Partial-write disclosure: "
         + (str(full_heal.get("partial_failure_limit", "not recorded")) if full_heal else "not recorded"),
+        "",
+        "## VV3 Grant Running containment",
+        "",
+        "The historical VV3 selected-villager Grant Running record is withdrawn and catalog-hidden. Its Likes-only helper never inspects or clears Running Dislikes (+0xFC0/+0xFC4/+0xFC8), so it is not exposed or composed; prior emitted bytes and packages remain immutable evidence.",
+        "",
+        "The revised six-slot candidate is disabled/catalog-hidden and emits no output. Its contract snapshots all Like and Dislike slots, preserves duplicate Likes, clears every Running Dislike, and writes only the first physical empty Like when no Running Like exists. Native preference side effects and a safe composed command-1/command-2 dispatcher remain unproved, so the candidate is STOP/runtime-pending. MessageBoxA accepts only EAX==1 (IDOK); EAX==2 and every other result are no-write/no-charge.",
         "",
         "### VV4 Full Heal / Cure All candidate (disabled)",
         "",

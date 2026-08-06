@@ -75,12 +75,12 @@ VV3_INDIVIDUAL_RUNNING_CANDIDATE_PATHS = {
     "manifest": ROOT / "data" / "candidates" / "vv3_individual_grant_running_candidate.json",
     "map": ROOT / "data" / "candidates" / "vv3_individual_grant_running_candidate_map.json",
 }
-VV3_INDIVIDUAL_RUNNING_MANIFEST_SHA256 = "5A76F9BE8B7360B68F00ADA9E999E0FBA3F6A5254BB49E0CCBE3A5FF8604A130"
-VV3_INDIVIDUAL_RUNNING_MAP_SHA256 = "4029ABBC80BFDB3D0CE584BB447100F26CCAF8D3B4725DA642830B77B29B2B0F"
+VV3_INDIVIDUAL_RUNNING_MANIFEST_SHA256 = "1FE903804E5C018AE2B54123F7B0A490BDA69C0B68C99C20754E4C41E8965852"
+VV3_INDIVIDUAL_RUNNING_MAP_SHA256 = "F85503124D2158949938CA4DE7D2E5F17BDF7B5484909F1F63CB4F134214EE24"
 VV3_INDIVIDUAL_RUNNING_SOURCE_COMMIT = "9574f488eefb97bd6320259f301beb87266072f8"
 VV3_INDIVIDUAL_RUNNING_IMPLEMENTATION_COMMIT = "a35bee6ed91fb3f105424dca5e3283ce85e01894"
 VV3_INDIVIDUAL_RUNNING_ACCEPTANCE_STATUS = (
-    "D172 independent static GO; runtime/player validation pending"
+    "WITHDRAWN; historical Likes-only helper cannot inspect or clear Running Dislikes; revised candidate pending native recertification"
 )
 VV3_INDIVIDUAL_RUNNING_RENDERED_SHA256 = {
     "collection_progression": "3644A56FE17F843DB67662E4309C3C2B41AE7ADD5FDD60EF2B6789DE2BA15FDC",
@@ -767,6 +767,35 @@ def _certified_vv3_individual_running_record(
     manifest = json.loads(manifest_bytes.decode("utf-8"))
     artifact_map = json.loads(map_bytes.decode("utf-8"))
     if not manifest.get("enabled", True):
+        # The historical candidate is retained only as immutable evidence.  Its
+        # Likes-only helper cannot satisfy the current six-slot Running
+        # contract, so the loader must reject it before catalog/composition.
+        revocation = manifest.get("revocation")
+        if (
+            manifest.get("id") != VV3_INDIVIDUAL_RUNNING_CANDIDATE_ID
+            or manifest.get("game_id") != "vv3"
+            or manifest.get("catalog_hidden") is not True
+            or manifest.get("catalog_enabled") is not False
+            or not isinstance(revocation, dict)
+            or revocation.get("status") != "withdrawn"
+            or revocation.get("superseded_by")
+            != "vv3_individual_grant_running_revised_candidate"
+            or not isinstance(revocation.get("reason"), str)
+            or "Dislikes" not in revocation["reason"]
+        ):
+            raise PatcherError(
+                "VV3 historical Grant Running revocation metadata is not fail-closed."
+            )
+        if (
+            artifact_map.get("candidate_id") != VV3_INDIVIDUAL_RUNNING_CANDIDATE_ID
+            or artifact_map.get("candidate_enabled") is not False
+            or artifact_map.get("catalog_hidden") is not True
+            or artifact_map.get("catalog_enabled") is not False
+            or artifact_map.get("acceptance_status", "").startswith("WITHDRAWN") is not True
+        ):
+            raise PatcherError(
+                "VV3 historical Grant Running map revocation metadata is not fail-closed."
+            )
         return None
     if (
         manifest.get("id") != VV3_INDIVIDUAL_RUNNING_CANDIDATE_ID
@@ -1673,7 +1702,16 @@ def _load_fun_patch_records() -> list[FunPatch]:
         vv3_full_heal_record = json.loads(
             vv3_full_heal_path.read_text(encoding="utf-8")
         )
-        if vv3_full_heal_record.get("enabled", True):
+        # Full Heal's certified composition requires an enabled, recertified
+        # selected-villager Running predecessor.  Once the historical
+        # Likes-only Running record is withdrawn, fail closed rather than
+        # exposing a partial/unsafe Full Heal menu entry.
+        running_manifest = json.loads(
+            VV3_INDIVIDUAL_RUNNING_CANDIDATE_PATHS["manifest"].read_text(
+                encoding="utf-8"
+            )
+        )
+        if vv3_full_heal_record.get("enabled", True) and running_manifest.get("enabled") is True:
             items.append(vv3_full_heal_record)
     # Validate the hidden VV3 individual-FM artifact for direct production
     # resolver use, but never add it to public catalog choices while disabled.

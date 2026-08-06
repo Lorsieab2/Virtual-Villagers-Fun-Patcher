@@ -324,6 +324,13 @@ class VV3FullMasteryCandidateTests(unittest.TestCase):
                 "vv3_full_heal_cure_all_candidate",
             }
         ]
+        # The all-current compatibility projection remains byte-identical to
+        # the historical certified parent even though the old Running record
+        # is withdrawn from production selection.
+        historical = json.loads(
+            (ROOT / "data/candidates/vv3_individual_grant_running_candidate.json").read_text(encoding="utf-8")
+        )
+        compatible.append(FunPatch(historical))
         for mode in STOCK_MODES:
             with self.subTest(mode=mode):
                 baseline, _ = render_patched_bytes(STOCK, self.build, mode)

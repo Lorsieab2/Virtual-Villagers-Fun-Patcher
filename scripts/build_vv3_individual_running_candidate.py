@@ -1,4 +1,4 @@
-"""Generate the enabled VV3 selected-villager Grant Running candidate.
+"""Regenerate the withdrawn historical VV3 selected-villager Grant Running evidence.
 
 The candidate is deliberately separate from the withdrawn command-6
 village-wide Running records.  It composes on the already-certified VV3 Full
@@ -407,13 +407,17 @@ def main() -> None:
         "id": "vv3_individual_grant_running_candidate",
         "game_id": "vv3",
         "name": "Grant Running to Selected Villager",
-        "enabled": True,
-        "catalog_hidden": False,
-        "catalog_enabled": True,
+        "enabled": False,
+        "catalog_hidden": True,
+        "catalog_enabled": False,
+        "revocation": {
+            "status": "withdrawn",
+            "reason": "Historical helper only inspects Likes (+0xFB4,+0xFB8,+0xFBC) and explicitly never inspects or clears Running Dislikes (+0xFC0,+0xFC4,+0xFC8); it cannot satisfy the current Grant Running contract.",
+            "superseded_by": "vv3_individual_grant_running_revised_candidate",
+        },
         "certification_status": (
-            "D172 independent static GO; stock Collection Progression and "
-            "Immediate Fixed catalog-enabled; runtime/player validation pending; "
-            "Expanded-256 fail-closed"
+            "WITHDRAWN: historical Likes-only helper is not valid for the current "
+            "six-slot Running contract; revised candidate disabled pending native recertification"
         ),
         "source_commit": SOURCE_BASE_COMMIT,
         "implementation_commit": IMPLEMENTATION_COMMIT,
@@ -429,10 +433,9 @@ def main() -> None:
             "full_mastery_feature": FULL_MASTERY_FEATURE.name,
         },
         "description": (
-            "Enabled/catalog-visible stock Collection Progression/Immediate Fixed-only "
-            "selected-villager Grant Running candidate composed after the certified "
-            "VV3 Full Mastery chain. The withdrawn village-wide command-6 Running "
-            "candidate is not reused or modified; runtime/player validation remains pending."
+            "Withdrawn historical stock-mode selected-villager Grant Running candidate. "
+            "Its emitted bytes and prior packages remain immutable evidence; no current "
+            "catalog or composition path may use it."
         ),
         "behavior_changes": [
             "Command-2 selected-villager Grant Running is an exact 40,000-tech-point Buy action, repeatable=true, ownership=null, remove=false.",
@@ -520,12 +523,17 @@ def main() -> None:
     renders = _render_map(candidate, owned_region, region_map)
     artifact = {
         "candidate_id": candidate["id"],
-        "candidate_enabled": True,
-        "catalog_hidden": False,
-        "catalog_enabled": True,
+        "candidate_enabled": False,
+        "catalog_hidden": True,
+        "catalog_enabled": False,
         "source_commit": SOURCE_BASE_COMMIT,
         "implementation_commit": IMPLEMENTATION_COMMIT,
-        "acceptance_status": "D172 independent static GO; runtime/player validation pending",
+        "acceptance_status": "WITHDRAWN; historical Likes-only helper cannot inspect or clear Running Dislikes; revised candidate pending native recertification",
+        "revocation": {
+            "status": "withdrawn",
+            "reason": "Historical helper only inspects Likes (+0xFB4,+0xFB8,+0xFBC) and explicitly never inspects or clears Running Dislikes (+0xFC0,+0xFC4,+0xFC8); it cannot satisfy the current Grant Running contract.",
+            "superseded_by": "vv3_individual_grant_running_revised_candidate",
+        },
         "allowed_modes": ["collection_progression", "immediate_fixed"],
         "expanded_fail_closed": True,
         "source": {"size": len(stock), "sha256": STOCK_SHA256},
@@ -578,11 +586,10 @@ def main() -> None:
     }
     MAP_OUT.write_text(json.dumps(artifact, indent=2) + "\n", encoding="utf-8")
     DOC_OUT.write_text(
-        "# VV3 individual Grant Running - enabled static candidate\n\n"
-        "This candidate is enabled and catalog-visible only for stock Collection "
-        "Progression and Immediate Fixed. It composes after the certified VV3 Full "
-        "Mastery chain; runtime/player validation remains pending, and it does not "
-        "reuse or modify the withdrawn village-wide command-6 Running candidate.\n\n"
+        "# VV3 individual Grant Running - withdrawn historical candidate\n\n"
+        "This historical candidate is disabled and catalog-hidden. Its Likes-only "
+        "helper never inspects or clears Running Dislikes, so no current catalog or "
+        "composition path may use it; prior bytes remain immutable evidence.\n\n"
         f"- Stock SHA-256: `{STOCK_SHA256}`; source baseline: `{SOURCE_BASE_COMMIT}`.\n"
         f"- Certified pre-Running identities: Collection `{PRE_RUNNING_SHA256['collection_progression']}`, "
         f"Immediate `{PRE_RUNNING_SHA256['immediate_fixed']}`; Full Mastery `.vv3fm` page `{FULL_MASTERY_PAGE_SHA256}`.\n"
@@ -601,12 +608,11 @@ def main() -> None:
     # legacy block above; this keeps the on-disk artifact free of stale claims
     # while the source diff remains limited to this candidate generator.
     DOC_OUT.write_text(
-        "# VV3 individual Grant Running - enabled static candidate\n\n"
-        "This stock-only candidate is enabled and catalog-visible only for Collection "
-        "Progression and Immediate Fixed after D172 independent static GO. Runtime/player "
-        "validation remains pending. It composes only after the "
-        "certified VV3 Full Mastery chain and does not reuse or modify the withdrawn "
-        "village-wide command-6 Running candidate.\n\n"
+        "# VV3 individual Grant Running - withdrawn historical candidate\n\n"
+        "This historical stock-mode candidate is disabled and catalog-hidden. Its "
+        "Likes-only helper never inspects or clears Running Dislikes, so it cannot "
+        "satisfy the current six-slot contract and must not be composed; prior bytes "
+        "remain immutable evidence.\n\n"
         f"- Stock SHA-256: `{STOCK_SHA256}`; source baseline: `{SOURCE_BASE_COMMIT}`.\n"
         f"- Certified pre-Running identities: Collection `{PRE_RUNNING_SHA256['collection_progression']}`, "
         f"Immediate `{PRE_RUNNING_SHA256['immediate_fixed']}`; Full Mastery `.vv3fm` page `{FULL_MASTERY_PAGE_SHA256}`; "

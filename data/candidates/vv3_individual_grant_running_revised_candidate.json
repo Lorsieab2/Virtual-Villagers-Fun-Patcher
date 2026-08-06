@@ -1,0 +1,33 @@
+{
+  "id": "vv3_individual_grant_running_revised_candidate",
+  "game_id": "vv3",
+  "name": "Grant Running to Selected Villager (revised six-slot contract)",
+  "enabled": false,
+  "catalog_hidden": true,
+  "catalog_enabled": false,
+  "runtime_player_status": "pending",
+  "certification_status": "STOP: disabled emitted design pending native preference-side-effect proof and independent recertification",
+  "dependencies": ["vv3_individual_full_mastery_candidate"],
+  "supported_modes": ["collection_progression", "immediate_fixed"],
+  "unsupported_patch_modes": ["experimental_expanded_256", "experimental_expanded_256_progression"],
+  "transaction_contract": {
+    "command": 2,
+    "price": 40000,
+    "action": "Buy",
+    "repeatable": true,
+    "ownership": null,
+    "remove": false,
+    "selection": {"manager_selected_offset": "0x12FC0", "bound_exclusive": 150, "validator": "sub_45EE60", "resolver": "sub_45C840", "resolver_ecx": "0x59E110"},
+    "eligibility": {"active_offset": "0xF10", "active_nonzero": true, "health_offset": "0xE78", "signed_health_gt": 0},
+    "likes": {"offsets": ["0xFB4", "0xFB8", "0xFBC"], "running": 38, "empty": -1},
+    "dislikes": {"offsets": ["0xFC0", "0xFC4", "0xFC8"], "running": 38},
+    "scan": "snapshot all six physical slots; preserve every Like including duplicates; clear every Running Dislike; otherwise write only first physical empty Like",
+    "transaction": ["complete dry run", "dependency/result preflight", "MB_OKCANCEL confirmation", "accept only EAX==1 (IDOK); EAX==2 and every other result cancel", "same-index/record/eligibility/all-six snapshot recheck", "funds recheck", "verified writes/postverify", "one native deduction"],
+    "message_box": {"caption": "Villager Upgrades", "flags": "MB_OKCANCEL", "accept_result": 1, "cancel_result": 2, "mutation_dominance": "cmp eax,1 equality must dominate every write"},
+    "no_deduction_suffix": "No tech points have been deducted.",
+    "rollback_limit": "conditional rollback only while the same record/index/slot identity and candidate-written values remain provable; native preference side effects remain unproved"
+  },
+  "emission": {"status": "not emitted", "reason": "Native preference side effects and a safe composed dispatcher/page are not yet independently proved; fail closed before output."},
+  "revocation_predecessor": "vv3_individual_grant_running_candidate",
+  "provenance": {"design_source": "C271/D267", "implementation_commit": null, "audit_commit": null, "acceptance_commit": null}
+}

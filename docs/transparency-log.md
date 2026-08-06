@@ -74,6 +74,12 @@ All five legacy `vvN_origins_village_wide_upgrades` records remain disabled and 
 The revised VV3 Full Heal / Cure All candidate is enabled and catalog-visible only for certified Collection Progression and Immediate Fixed; implementation is complete at `49595a75b65cd0561811593ba19825239ec97dde` with parent `38510cc21b7cd322a52fbabc936794dfc8601ccc`. Independent static GO reports D209/C213 are recorded without inventing audit or acceptance commit identities; runtime/player validation remains pending. This generated disclosure is sourced from its authoritative candidate manifest.
 - Partial-write disclosure: If native writes begin and a later write or postverification fails, earlier verified health, sickness, or People Cured effects may remain. No tech points are deducted on that failure, but complete rollback of native side effects is not claimed.
 
+## VV3 Grant Running containment
+
+The historical VV3 selected-villager Grant Running record is withdrawn and catalog-hidden. Its Likes-only helper never inspects or clears Running Dislikes (+0xFC0/+0xFC4/+0xFC8), so it is not exposed or composed; prior emitted bytes and packages remain immutable evidence.
+
+The revised six-slot candidate is disabled/catalog-hidden and emits no output. Its contract snapshots all Like and Dislike slots, preserves duplicate Likes, clears every Running Dislike, and writes only the first physical empty Like when no Running Like exists. Native preference side effects and a safe composed command-1/command-2 dispatcher remain unproved, so the candidate is STOP/runtime-pending. MessageBoxA accepts only EAX==1 (IDOK); EAX==2 and every other result are no-write/no-charge.
+
 ### VV4 Full Heal / Cure All candidate (disabled)
 
 The VV4 `Full Heal / Cure All` candidate is disabled and catalog-hidden. It is bound to stock SHA-256 `6D27A429FFCA5F1F71FDD7ECA761ED1BB67E85F976494BA178B3D7BE01F1B220` and the certified VV4 Full Mastery parents for Collection Progression and Immediate Fixed only. Production composition resolves the complete dependency-first chain `vv4_complete_scales_golden_fish` -> `vv4_enable_origins_exclusive_features` -> `vv4_full_mastery_all_stage_a_candidate` -> `vv4_write_village_statistics`; the resulting pre-Full-Heal executables are pinned to the certified Collection and Immediate hashes. Its contract enumerates physical indices 0..149 through the native resolver, counts overlapping eligible sickness and health 1..99 records, confirms both predicted counts for 30,000 tech points, rechecks state and funds, clears sickness, restores partial health through the native setter, postverifies exact health 100/sickness 0, and deducts once through ECX=0x4D6F88/call 0x41E300. The candidate-owned companion is `VVFP Origins Icons.dll`, a deterministic structural RT_DIALOG 201/203 repack (SHA-256 165F327783DFECAB4C42DB28D6F926BCA46397F725F036BFC367BB659384C0AC, 298,496 bytes); it clones parent items 20..24, inserts the native five-item command-5 row before item 25, adds the ID 1005 Buy control and real RT_ICON 46..49 / RT_GROUP_ICON 110 artwork, updates the resource-directory size to 0x33800, and preserves the `Origins Upgrades` caption, dialog 202, exports, code, and non-resource bytes. People Cured is the separate [0x4D6DF0] statistic. Every no-charge route includes `No tech points have been deducted.` Expanded-256 and unknown compositions reject before output. The exact VV4 command-5 detour and `.vv4hc` page remain pending independent disassembly; existing Full Mastery UI/runtime bytes and the withdrawn legacy Cure route are unchanged.
@@ -270,17 +276,6 @@ Inspired by the Virtual Villagers 1 mobile port where these exclusive Origins up
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending
 - Guarded executable edits: 9; every edit has an exact purpose and before/after guard in the manifest.
 
-#### Full Heal / Cure All (`vv3_full_heal_cure_all_candidate`)
-
-Enabled/catalog-visible VV3 Full Heal / Cure All command-5 Buy candidate for certified Collection Progression and Immediate Fixed compositions after Origins + Full Mastery + individual Grant Running; static evidence is GO from D209/C213 and runtime/player validation remains pending.
-
-- Behavior changes: Command 5 performs the certified Full Heal / Cure All transaction at 30,000 tech points.
-- Explicit non-changes/exclusions: Expanded-256 and unknown builds remain fail-closed; the withdrawn village-wide Running route is absent. The candidate is stock-mode only and does not add Remove or ownership behavior.
-- Partial-write disclosure: If native writes begin and a later write or postverification fails, earlier verified health, sickness, or People Cured effects may remain. No tech points are deducted on that failure, but complete rollback of native side effects is not claimed.
-- Dependencies: vv3_individual_grant_running_candidate
-- Evidence status: implementation generated at 49595a75b65cd0561811593ba19825239ec97dde; source/test state audited at e2f1a466b61392d161a0df2fbf8da94fc05ee4ca; independent static GO reports D209/C213; runtime/player validation pending
-- Guarded executable edits: 1; every edit has an exact purpose and before/after guard in the manifest.
-
 #### Grant Full Mastery to All Villagers (`vv3_full_mastery_all_stage_a_candidate`)
 
 Stock-only command-7 repeatable Buy candidate using fixed manager 0x0059E110, native resolver sub_45C840, native skill writer sub_455740, and Award evaluator sub_462500; commands 6/8 are absent.
@@ -290,16 +285,6 @@ Stock-only command-7 repeatable Buy candidate using fixed manager 0x0059E110, na
 - Dependencies: vv3_enable_origins_exclusive_features
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending
 - Guarded executable edits: 1; every edit has an exact purpose and before/after guard in the manifest.
-
-#### Grant Running to Selected Villager (`vv3_individual_grant_running_candidate`)
-
-Enabled/catalog-visible stock Collection Progression/Immediate Fixed-only selected-villager Grant Running candidate composed after the certified VV3 Full Mastery chain. The withdrawn village-wide command-6 Running candidate is not reused or modified; runtime/player validation remains pending.
-
-- Behavior changes: Command-2 selected-villager Grant Running is an exact 40,000-tech-point Buy action, repeatable=true, ownership=null, remove=false.
-- Explicit non-changes/exclusions: The GUI dependency closure selects the certified VV3 Full Mastery prerequisite; direct API/CLI selections containing only this ID fail closed and do not auto-expand. The withdrawn village-wide command-6 Running candidate remains absent and is not reused or modified.
-- Dependencies: vv3_full_mastery_all_stage_a_candidate
-- Evidence status: static source/manifest verification performed; runtime/player confirmation pending
-- Guarded executable edits: 2; every edit has an exact purpose and before/after guard in the manifest.
 
 #### Nature Level 1 Actually Replenishes Food Sources Faster (`vv3_nature_honey_refill`)
 

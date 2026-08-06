@@ -2,10 +2,15 @@
   "id": "vv3_individual_grant_running_candidate",
   "game_id": "vv3",
   "name": "Grant Running to Selected Villager",
-  "enabled": true,
-  "catalog_hidden": false,
-  "catalog_enabled": true,
-  "certification_status": "D172 independent static GO; stock Collection Progression and Immediate Fixed catalog-enabled; runtime/player validation pending; Expanded-256 fail-closed",
+  "enabled": false,
+  "catalog_hidden": true,
+  "catalog_enabled": false,
+  "revocation": {
+    "status": "withdrawn",
+    "reason": "Historical helper only inspects Likes (+0xFB4,+0xFB8,+0xFBC) and explicitly never inspects or clears Running Dislikes (+0xFC0,+0xFC4,+0xFC8); it cannot satisfy the current Grant Running contract.",
+    "superseded_by": "vv3_individual_grant_running_revised_candidate"
+  },
+  "certification_status": "WITHDRAWN: historical Likes-only helper is not valid for the current six-slot Running contract; revised candidate disabled pending native recertification",
   "source_commit": "9574f488eefb97bd6320259f301beb87266072f8",
   "implementation_commit": "a35bee6ed91fb3f105424dca5e3283ce85e01894",
   "runtime_player_status": "pending",
@@ -24,7 +29,7 @@
     "full_mastery_base": "vv3_origins_full_mastery_base_candidate.json",
     "full_mastery_feature": "vv3_full_mastery_all_candidate.json"
   },
-  "description": "Enabled/catalog-visible stock Collection Progression/Immediate Fixed-only selected-villager Grant Running candidate composed after the certified VV3 Full Mastery chain. The withdrawn village-wide command-6 Running candidate is not reused or modified; runtime/player validation remains pending.",
+  "description": "Withdrawn historical stock-mode selected-villager Grant Running candidate. Its emitted bytes and prior packages remain immutable evidence; no current catalog or composition path may use it.",
   "behavior_changes": [
     "Command-2 selected-villager Grant Running is an exact 40,000-tech-point Buy action, repeatable=true, ownership=null, remove=false."
   ],

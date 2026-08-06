@@ -790,6 +790,15 @@ def main() -> None:
             "vv3_full_heal_cure_all_candidate",
         }
     ]
+    # Preserve the historical all-current compatibility projection byte-for-
+    # byte without re-enabling the withdrawn Likes-only record in the loader or
+    # public catalog.  This is evidence generation only; production selection
+    # remains fail-closed on the revocation metadata.
+    withdrawn_running = ROOT / "data" / "candidates" / "vv3_individual_grant_running_candidate.json"
+    if withdrawn_running.is_file():
+        historical = json.loads(withdrawn_running.read_text(encoding="utf-8"))
+        if historical.get("revocation", {}).get("status") == "withdrawn":
+            compatible.append(FunPatch(historical))
     renders: dict[str, object] = {}
     for mode in STOCK_LAYOUTS:
         baseline, _ = render_patched_bytes(STOCK, build, mode)

@@ -1,6 +1,6 @@
-# VV3 individual Grant Running - enabled static candidate
+# VV3 individual Grant Running - withdrawn historical candidate
 
-This stock-only candidate is enabled and catalog-visible only for Collection Progression and Immediate Fixed after D172 independent static GO. Runtime/player validation remains pending. It composes only after the certified VV3 Full Mastery chain and does not reuse or modify the withdrawn village-wide command-6 Running candidate.
+This historical stock-mode candidate is disabled and catalog-hidden. Its Likes-only helper never inspects or clears Running Dislikes, so it cannot satisfy the current six-slot contract and must not be composed; prior bytes remain immutable evidence.
 
 - Stock SHA-256: `8BC5DB382D02BC5C21AD5F607580D60FF44A6519CC7EB133F03113BAACAE6503`; source baseline: `9574f488eefb97bd6320259f301beb87266072f8`.
 - Certified pre-Running identities: Collection `6B6FCF33C21B5ED9323F8BBE4C677EF12BA4653E775178DCDF8E77049B2F57A8`, Immediate `92C5EF70512F57CBD990301E6918DE1BE002823C31CFB4C638D4E0F141BE7514`; Full Mastery `.vv3fm` page `2DAE85AE4077C23C2C7C39F64B5BA944740F765AC8E24FBB097B0BF28A720DF6`; Origins payload `77BF4DB93204AF1212A6335AF624642068A8B8560F1D78D59E2E07FBF4751F69`.
