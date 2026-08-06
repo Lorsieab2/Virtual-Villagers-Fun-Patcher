@@ -736,8 +736,8 @@ def build_running_helper(page_va: int, strings: dict[str, int]) -> bytes:
         push esi
         push edi
         # Locals are deliberately disjoint from saved registers (-4..-0xC):
-        # saved ESI -0x10, selected index -0x14, first empty -0x18, and
-        # three independent Like snapshots -0x20/-0x24/-0x28.
+        # saved ESI -0x10, selected index -0x14, first empty -0x18, record
+        # identity -0x1C, and three independent Like snapshots -0x28/-0x24/-0x20.
         sub esp, 0x30
         mov dword ptr [ebp-0x10], esi
         call 0x425950
@@ -773,7 +773,7 @@ def build_running_helper(page_va: int, strings: dict[str, int]) -> bytes:
         cmp edi, 3
         jae scanned
         mov eax, dword ptr [esi+edi*4+0x1F5C]
-        mov dword ptr [ebp+edi*4-0x20], eax
+        mov dword ptr [ebp+edi*4-0x28], eax
         cmp eax, 38
         je already
         cmp eax, -1
@@ -820,13 +820,13 @@ def build_running_helper(page_va: int, strings: dict[str, int]) -> bytes:
         cmp byte ptr [esi+0x1CEC], 0
         jne stale
         mov eax, dword ptr [esi+0x1F5C]
-        cmp eax, dword ptr [ebp-0x20]
+        cmp eax, dword ptr [ebp-0x28]
         jne stale
         mov eax, dword ptr [esi+0x1F60]
         cmp eax, dword ptr [ebp-0x24]
         jne stale
         mov eax, dword ptr [esi+0x1F64]
-        cmp eax, dword ptr [ebp-0x28]
+        cmp eax, dword ptr [ebp-0x20]
         jne stale
         mov edi, dword ptr [ebp-0x18]
         cmp dword ptr [esi+edi*4+0x1F5C], -1
@@ -1235,17 +1235,17 @@ def build_slot(page_va: int, installed: bool, include_running: bool = False) -> 
                 "selected_index": [-0x14, -0x11],
                 "first_empty_slot": [-0x18, -0x15],
                 "record_identity": [-0x1C, -0x19],
-                "likes_snapshot_0": [-0x20, -0x1D],
+                "likes_snapshot_0": [-0x28, -0x25],
                 "likes_snapshot_1": [-0x24, -0x21],
-                "likes_snapshot_2": [-0x28, -0x25],
+                "likes_snapshot_2": [-0x20, -0x1D],
             },
             "running_saved_register_intervals": {
                 "saved_ebx": [-0x04, -0x01],
                 "saved_esi": [-0x08, -0x05],
                 "saved_edi": [-0x0C, -0x09],
             },
-            "running_snapshot_initialization": "all three Like DWORDs are stored before confirmation; first-empty initializes to -1",
-            "running_rollback": "after failed readback reacquire same index and record pointer, verify active/living/non-skeleton and slot==38, restore -1 and verify; never deduct",
+            "running_snapshot_initialization": "all three Like DWORDs are stored before confirmation in disjoint -0x28/-0x24/-0x20 slots; first-empty initializes to -1",
+            "running_rollback": "after failed readback reacquire same index and record pointer, verify active/living/status/faction and slot==38, restore -1 and verify; never deduct; no independent skeleton discriminator is claimed",
         })
     return bytes(slot), result
 
@@ -1358,7 +1358,7 @@ def build_page(
         b"This villager has no empty Like slot.\r\nNo tech points have been deducted.\0"
         b"Running was canceled.\r\nNo tech points have been deducted.\0"
         b"The selected villager changed during confirmation.\r\nNo tech points have been deducted.\0"
-        b"Running could not be verified.\r\nNo tech points have been deducted.\0"
+        b"Running could not be verified; a native change may remain.\r\nNo tech points have been deducted.\0"
         b"No valid living villager is selected.\r\nNo tech points have been deducted.\0"
         b"Not enough tech points.\r\nNo tech points have been deducted.\0"
     )
@@ -1636,14 +1636,14 @@ def main() -> None:
             "command": 2, "price": 40000, "action": "Buy", "repeatable": True,
             "ownership": None, "remove": False,
             "selected_index": "sub_425950()+0x17E24 signed 0..149",
-            "eligibility": ["byte record+0x1CD4 != 0", "signed dword record+0x1C40 > 0", "byte record+0x1CE1 == 0 (current Believer)", "byte record+0x1CEC == 0 (non-skeleton)"],
+            "eligibility": ["byte record+0x1CD4 != 0 (active)", "signed dword record+0x1C40 > 0 (living)", "byte record+0x1CE1 == 0 (Heathen-active/status guard)", "byte record+0x1CEC == 0 (current-Believer faction); no independent skeleton discriminator is claimed"],
             "likes": ["record+0x1F5C", "record+0x1F60", "record+0x1F64"],
             "running_value": 38, "empty_value": -1,
             "dry_run": "scan all Likes before confirmation; preserve duplicates; first physical -1 only",
             "reacquire": "same selected index and exact three-Like snapshot before write",
             "record_identity": "initial and confirmed resolver pointers must match exactly; no cached physical-base walking",
             "funds_checks": ["complete dry-run before confirmation", "immediately before write"],
-            "rollback": "on failed write/readback, reacquire same index and record identity, require target still helper-written 38, restore -1 and verify; no charge",
+            "rollback": "on failed write/readback, reacquire same index and record identity, require the supported active/living/status/faction predicate and target still helper-written 38, restore -1 and verify; no charge; no independent skeleton discriminator is claimed",
             "deduction": "ECX=0x51D5F8; push -40000; call 0x4237B0 exactly once",
             "forbidden_reads": ["Dislikes", "movement", "speed"],
             "confirmation": "Grant Running to this villager for 40,000 tech points?\\r\\nPress OK to confirm, or Cancel.",
@@ -1684,7 +1684,7 @@ def main() -> None:
         "its dispatcher is VA 0x7CB020 and replaces the composed-parent hook E995750100 with E9B5880100. "
         "EBX=1 remains the certified Full Mastery helper at 0x7C9D00, EBX=2 is Running, and all other commands continue at 0x7B2790.\n\n"
         "Every cancel, no-change, recheck, dependency, and failure result includes `No tech points have been deducted.` "
-        "The existing enabled VV5 Full Mastery bytes remain unchanged; this overlay is not catalog-visible.\n",
+        "Eligibility is the certified active/living/status-valid current-Believer predicate: +0x1CD4 active, signed +0x1C40 > 0, +0x1CE1 Heathen-active/status guard clear, and +0x1CEC current-Believer faction clear. No independent skeleton discriminator is claimed, so runtime certification remains pending. The existing enabled VV5 Full Mastery bytes remain unchanged; this overlay is not catalog-visible.\n",
         encoding="utf-8",
     )
 
@@ -1916,7 +1916,7 @@ def main() -> None:
                 "route_before": route_before.hex().upper(),
                 "price": INDIVIDUAL_PRICE,
                 "route_target": "EBX=1 helper; EBX=2 native Running preflight; all others legacy path",
-                "target": "selected current active/living non-skeleton Believer",
+                "target": "selected current active/living status-valid current-Believer; no independent skeleton discriminator is claimed",
                 "finite_float_range": [0.0, 100.0],
                 "native_writer": "0x475730 delta=100-current, once per changed skill",
                 "reacquire_same_index": True,

@@ -101,10 +101,10 @@ class IndividualBuyTransactionContractTests(unittest.TestCase):
     def test_vv5_running_emitted_helper_snapshots_all_likes_and_deducts_once(self) -> None:
         raw = load("vv5_individual_running_candidate_map.json")
         helper = bytes.fromhex(raw["slot"]["running_helper_bytes"])
-        self.assertIn(bytes.fromhex("89 44 BD E0"), helper)
-        self.assertIn(bytes.fromhex("3B 45 E0"), helper)
-        self.assertIn(bytes.fromhex("3B 45 DC"), helper)
+        self.assertIn(bytes.fromhex("89 44 BD D8"), helper)
         self.assertIn(bytes.fromhex("3B 45 D8"), helper)
+        self.assertIn(bytes.fromhex("3B 45 DC"), helper)
+        self.assertIn(bytes.fromhex("3B 45 E0"), helper)
         self.assertEqual(helper.count(bytes.fromhex("68 C0 63 FF FF")), 1)
         # Dislikes begin immediately after the three Likes DWORDs; neither
         # their little-endian displacement nor the following slots may occur.
@@ -129,12 +129,12 @@ class IndividualBuyTransactionContractTests(unittest.TestCase):
             for other, (other_start, other_end) in intervals[i + 1 :]:
                 self.assertTrue(end < other_start or other_end < start, f"{name} overlaps {other}")
         snapshots = [locals_[f"likes_snapshot_{i}"] for i in range(3)]
-        self.assertEqual(snapshots, [[-0x20, -0x1D], [-0x24, -0x21], [-0x28, -0x25]])
+        self.assertEqual(snapshots, [[-0x28, -0x25], [-0x24, -0x21], [-0x20, -0x1D]])
         self.assertIn("all three Like DWORDs are stored before confirmation", slot["running_snapshot_initialization"])
         helper = bytes.fromhex(slot["running_helper_bytes"])
         self.assertIn(bytes.fromhex("83 EC 30"), helper)
         self.assertIn(bytes.fromhex("89 45 E4"), helper)  # record identity -0x1C
-        self.assertGreaterEqual(helper.count(bytes.fromhex("89 44 BD E0")), 1)
+        self.assertGreaterEqual(helper.count(bytes.fromhex("89 44 BD D8")), 1)
         self.assertIn(bytes.fromhex("3B 45 E4"), helper)  # identity recheck
         self.assertIn(bytes.fromhex("83 C4 30"), helper)
 
@@ -170,6 +170,33 @@ class IndividualBuyTransactionContractTests(unittest.TestCase):
                 targets.append(0x7CB020 + i + 5 + rel)
         self.assertEqual(set(targets), {0x7C9D00, 0x7CC800, 0x7B2790})
         self.assertNotIn("83FB027525", json.dumps(raw))
+
+    def test_vv5_running_emitted_ebp_edi_operands_are_disjoint(self) -> None:
+        """Decode the actual helper and calculate each indexed EBP interval."""
+        import importlib.util
+        sys_path = str(ROOT / "scripts")
+        if sys_path not in __import__("sys").path:
+            __import__("sys").path.insert(0, sys_path)
+        spec = importlib.util.spec_from_file_location("vv5_running_builder", ROOT / "scripts" / "build_vv5_full_mastery_candidate.py")
+        module = importlib.util.module_from_spec(spec)
+        assert spec.loader is not None
+        spec.loader.exec_module(module)
+        from capstone import CS_ARCH_X86, CS_MODE_32, Cs
+        from capstone.x86_const import X86_REG_EBP, X86_REG_EDI
+        _, slot_map = module.build_slot(module.RUNNING_PAGE_VA, True, True)
+        helper = bytes.fromhex(slot_map["running_helper_bytes"])
+        md = Cs(CS_ARCH_X86, CS_MODE_32)
+        md.detail = True
+        indexed = []
+        for insn in md.disasm(helper, module.RUNNING_PAGE_VA + module.RUNNING_OFFSET):
+            for operand in insn.operands:
+                if operand.type == 3 and operand.mem.base == X86_REG_EBP and operand.mem.index == X86_REG_EDI:
+                    indexed.append(operand.mem.disp)
+        self.assertEqual(set(indexed), {-0x28})
+        self.assertNotIn(bytes.fromhex("89 44 BD E0"), helper)
+        self.assertEqual(slot_map["running_stack_locals"]["likes_snapshot_0"], [-0x28, -0x25])
+        self.assertEqual(slot_map["running_stack_locals"]["likes_snapshot_1"], [-0x24, -0x21])
+        self.assertEqual(slot_map["running_stack_locals"]["likes_snapshot_2"], [-0x20, -0x1D])
 
 
 if __name__ == "__main__":
