@@ -1634,6 +1634,8 @@ def _replace_issuance(path: Path, before: dict[str, object], payload: dict[str, 
 
 
 def _issuance_payload(token: str, authority_token: str, authority_record: dict[str, object], operation: str, parent: Path, destinations: list[Path], pre: dict[Path, tuple[bool, bytes | None]], published: dict[Path, bytes], registry: Path, registry_identity: dict[str, int]) -> dict[str, object]:
+    if operation not in {"install", "remove"}:
+        raise PatcherError("VV5 Running issuance operation is unsupported.")
     return {
         "schema_version": ISSUANCE_SCHEMA_VERSION,
         "token": token,
@@ -1665,13 +1667,20 @@ def _bind_issuance(path: Path, token: str, report: Path, report_payload: dict[st
     raw = json.loads(_read(path).decode("utf-8"))
     if raw.get("schema_version") != ISSUANCE_SCHEMA_VERSION or raw.get("token") != token or not isinstance(raw.get("authority_token"), str) or not isinstance(raw.get("authority_record"), dict):
         raise PatcherError("VV5 Running issuance record is invalid.")
+    issuance_meta = report_payload.get("issuance_identity")
+    if not isinstance(issuance_meta, dict) or set(issuance_meta) != {"record", "authority_token", "authority_record"}:
+        raise PatcherError("VV5 Running report issuance identity is missing or polluted.")
+    report_operation = report_payload.get("operation")
+    expected_operation = {"install_new": "install", "install_existing": "install", "removal": "remove"}.get(str(report_operation))
+    if expected_operation is None or raw.get("operation") != expected_operation:
+        raise PatcherError("VV5 Running issuance operation does not match the recovery report.")
     if (
         raw.get("destination_parent_absolute") != report_payload.get("destination_parent_absolute")
         or raw.get("destination_paths_absolute") != report_payload.get("destination_paths_absolute")
         or raw.get("registry_relative") != ISSUANCE_REGISTRY_NAME
         or raw.get("registry_identity") != report_payload.get("issuance_registry_identity")
-        or raw.get("authority_token") != (report_payload.get("issuance_identity") or {}).get("authority_token")
-        or raw.get("authority_record") != (report_payload.get("issuance_identity") or {}).get("authority_record")
+        or raw.get("authority_token") != issuance_meta.get("authority_token")
+        or raw.get("authority_record") != issuance_meta.get("authority_record")
     ):
         raise PatcherError("VV5 Running issuance destination/registry binding is invalid.")
     bound = dict(raw)
@@ -2170,7 +2179,11 @@ def recover_atomic(report_path: Path, mode: str = VV5_MODE) -> None:
         raise PatcherError("VV5 Running recovery destination parent/path binding mismatch.")
     if raw.get("issuance_registry_relative") != ISSUANCE_REGISTRY_NAME or registry_identity != _identity(registry):
         raise PatcherError("VV5 Running recovery issuance registry binding mismatch.")
-    expected_issuance_operation = "remove" if raw.get("operation") == "removal" else "install"
+    expected_issuance_operation = {"install_new": "install", "install_existing": "install", "removal": "remove"}.get(str(raw.get("operation")))
+    if expected_issuance_operation is None:
+        raise PatcherError("VV5 Running recovery operation is unsupported or ambiguous.")
+    if not isinstance(issuance_meta, dict) or issuance_meta.get("authority_token") != authority_token or issuance_meta.get("authority_record") != authority_record:
+        raise PatcherError("VV5 Running recovery issuance authority token/record differs from the report identity.")
     if (
         issuance.get("schema_version") != ISSUANCE_SCHEMA_VERSION
         or issuance.get("token") != issuance_token
@@ -2208,7 +2221,10 @@ def recover_atomic(report_path: Path, mode: str = VV5_MODE) -> None:
         name = str(member["destination_relative"])
         if Path(name).parts != (name,) or name not in expected_member_identity:
             raise PatcherError("VV5 Running recovery destination must be a canonical direct child.")
-        expected_sha, expected_size = expected_member_identity[name][str(raw.get("operation"))]
+        operation_key = str(raw.get("operation"))
+        if operation_key not in expected_member_identity[name]:
+            raise PatcherError("VV5 Running recovery operation has no certified member mapping.")
+        expected_sha, expected_size = expected_member_identity[name][operation_key]
         if member.get("published_sha256") != expected_sha or member.get("published_size") != expected_size:
             raise PatcherError("VV5 Running recovery member hash/size identity mismatch.")
         if str(raw.get("operation")) == "install_new":

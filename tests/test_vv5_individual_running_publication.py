@@ -1345,6 +1345,16 @@ class VV5RunningPublicationTests(unittest.TestCase):
                 recover_cleanup_atomic(record)
             self.assertTrue(record.exists())
 
+    def test_c325_issuance_operation_mapping_rejects_unknown_operation_before_io(self) -> None:
+        with self.assertRaises(PatcherError):
+            running._issuance_payload(
+                "a" * 32, "b" * 64, {}, "unexpected-operation", Path("."), [], {}, {}, Path("."), {}
+            )
+
+    def test_c325_report_operation_mapping_is_explicit(self) -> None:
+        source = Path(running.__file__).read_text(encoding="utf-8")
+        self.assertIn('{"install_new": "install", "install_existing": "install", "removal": "remove"}', source)
+
 
 if __name__ == "__main__":
     unittest.main()
