@@ -11,7 +11,7 @@ from pathlib import Path
 from src.vv5_individual_running import (
     PatcherError, VV5_EXE_BASENAME, DLL_NAME, VV5_MODE, ISSUANCE_REGISTRY_NAME,
     AUTHORITY_NAME, _parent, _publish, _state, install_atomic, remove_atomic,
-    recover_atomic, _registry_members, _discover_reports, _quarantine_owned,
+    recover_atomic, recover_cleanup_atomic, _registry_members, _discover_reports, _quarantine_owned,
 )
 import src.vv5_individual_running as running
 
@@ -226,6 +226,104 @@ class VV5RunningPublicationTests(unittest.TestCase):
                     running._cleanup_issuance_artifacts(registry, registry_identity, [(source, record)], None)
             self.assertTrue(registry.exists())
             self.assertEqual(list(registry.iterdir()), [])
+
+    def test_c303_complete_copy_after_write_exception_is_accepted(self) -> None:
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            registry = root / ISSUANCE_REGISTRY_NAME
+            registry.mkdir()
+            source = registry / "issuance.json"
+            source.write_bytes(b"owned")
+            expected = running._inventory(root, source)
+            original_write = running._write
+
+            def write_then_raise(path, data):
+                if path.name.endswith(".backup"):
+                    original_write(path, data)
+                    raise OSError("flush reported late")
+                return original_write(path, data)
+
+            with mock.patch.object(running, "_write", side_effect=write_then_raise):
+                _tombstone, _record, preserved = running._quarantine_owned(source, expected, owner_parent=root)
+            self.assertEqual(preserved.read_bytes(), b"owned")
+
+    def test_c303_cleanup_failure_writes_durable_record_and_replays(self) -> None:
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            registry = root / ISSUANCE_REGISTRY_NAME
+            registry.mkdir()
+            source = registry / "issuance.json"
+            source.write_bytes(b"owned")
+            record = running._inventory(root, source)
+            real_cleanup = running._cleanup
+            failed = {"done": False}
+
+            def fail_once(path, *, expected=None):
+                if "vv5run-tombstone-" in path.name and not failed["done"]:
+                    failed["done"] = True
+                    raise PatcherError("injected tombstone cleanup failure")
+                return real_cleanup(path, expected=expected)
+
+            with mock.patch.object(running, "_cleanup", side_effect=fail_once):
+                with self.assertRaises(PatcherError):
+                    running._cleanup_issuance_artifacts(registry, running._identity(registry), [(source, record)], None)
+            records = list(root.glob(".vv5run-cleanup-*.json"))
+            self.assertEqual(len(records), 1)
+            raw, _identity = running._validate_cleanup_record(records[0])
+            self.assertEqual(raw["feature_owner"], running.VV5_FEATURE_OWNER)
+            self.assertEqual(raw["artifacts"][0]["role"], "issuance_member")
+            self.assertIsNotNone(raw["artifacts"][0]["guard_record"])
+
+            recover_cleanup_atomic(records[0])
+            self.assertFalse(records[0].exists())
+            self.assertFalse(registry.exists())
+            self.assertEqual(list(root.glob(".vv5run-*")), [])
+
+    def test_c303_guard_link_failure_retains_authority(self) -> None:
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            registry = root / ISSUANCE_REGISTRY_NAME
+            registry.mkdir()
+            source = registry / "issuance.json"
+            source.write_bytes(b"owned")
+            record = running._inventory(root, source)
+            original_link = running.os.link
+
+            def fail_guard(src, dst):
+                if "vv5-preserved-guard-" in Path(dst).name:
+                    raise OSError("injected guard link failure")
+                return original_link(src, dst)
+
+            with mock.patch.object(running.os, "link", side_effect=fail_guard):
+                with self.assertRaises(PatcherError):
+                    running._cleanup_issuance_artifacts(registry, running._identity(registry), [(source, record)], None)
+            self.assertTrue(list(root.glob(".vv5run-cleanup-*.json")))
+            self.assertTrue(registry.exists())
+
+    def test_c303_guard_cleanup_failure_is_retryable(self) -> None:
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            registry = root / ISSUANCE_REGISTRY_NAME
+            registry.mkdir()
+            source = registry / "issuance.json"
+            source.write_bytes(b"owned")
+            record = running._inventory(root, source)
+            real_cleanup = running._cleanup
+            failed = {"done": False}
+
+            def fail_guard(path, *, expected=None):
+                if "vv5-preserved-guard-" in path.name and not failed["done"]:
+                    failed["done"] = True
+                    raise PatcherError("injected guard cleanup failure")
+                return real_cleanup(path, expected=expected)
+
+            with mock.patch.object(running, "_cleanup", side_effect=fail_guard):
+                with self.assertRaises(PatcherError):
+                    running._cleanup_issuance_artifacts(registry, running._identity(registry), [(source, record)], None)
+            cleanup_record = next(root.glob(".vv5run-cleanup-*.json"))
+            recover_cleanup_atomic(cleanup_record)
+            self.assertFalse(cleanup_record.exists())
+            self.assertFalse(registry.exists())
 
     def test_c299_32bit_windows_capability_fails_before_io(self) -> None:
         with mock.patch.object(running.os, "name", "nt"), \
