@@ -676,15 +676,18 @@ class VV3IndividualFullMasteryLoaderTests(unittest.TestCase):
         class FakeKernel:
             CreateFileW = FakeFunction()
             SetFileInformationByHandle = FakeFunction()
+            GetFileInformationByHandleEx = FakeFunction()
             CloseHandle = FakeFunction()
         from ctypes import wintypes
         fake = FakeKernel()
         loader._configure_windows_delete_api(fake, ctypes, wintypes)
         self.assertIs(fake.CreateFileW.restype, wintypes.HANDLE)
         self.assertIs(fake.SetFileInformationByHandle.restype, wintypes.BOOL)
+        self.assertIs(fake.GetFileInformationByHandleEx.restype, wintypes.BOOL)
         self.assertIs(fake.CloseHandle.restype, wintypes.BOOL)
         self.assertEqual(len(fake.CreateFileW.argtypes), 7)
         self.assertEqual(len(fake.SetFileInformationByHandle.argtypes), 4)
+        self.assertEqual(len(fake.GetFileInformationByHandleEx.argtypes), 4)
         self.assertEqual(len(fake.CloseHandle.argtypes), 1)
 
     def test_c294_non_windows_delete_path_fails_closed(self):
@@ -697,6 +700,77 @@ class VV3IndividualFullMasteryLoaderTests(unittest.TestCase):
                 with self.assertRaises(vv_fun_patcher.PatcherError):
                     loader._delete_file_by_handle(target, expected)
             self.assertEqual(target.read_bytes(), b"owned")
+
+    def test_c296_chain_member_same_content_inode_replacement_is_rejected(self):
+        with tempfile.TemporaryDirectory(prefix="vv3-c296-chain-race-") as td:
+            root = Path(td)
+            canonical = root / (".vv3im-recovery-" + "a" * 32 + ".json")
+            canonical.write_bytes(b"canonical")
+            original = loader._inventory_entry
+            calls = {"canonical": 0}
+
+            def recapture(base, path):
+                record = original(base, path)
+                if path == canonical:
+                    calls["canonical"] += 1
+                    if calls["canonical"] == 1:
+                        replacement = root / "replacement.tmp"
+                        replacement.write_bytes(b"canonical")
+                        replacement.replace(canonical)
+                return record
+
+            with mock.patch.object(loader, "_inventory_entry", side_effect=recapture):
+                with self.assertRaises(vv_fun_patcher.PatcherError):
+                    loader._report_chain_siblings(root, canonical, recovery_prefix=".vv3im")
+
+    def test_c296_directory_quarantine_source_substitution_fails_before_move(self):
+        with tempfile.TemporaryDirectory(prefix="vv3-c296-dir-race-") as td:
+            root = Path(td)
+            source = root / "owned-dir"
+            destination = root / "tombstone"
+            source.mkdir()
+            (source / "member").write_bytes(b"owned")
+            original = loader._inventory_entry
+            calls = {"source": 0}
+
+            def substitute(base, path):
+                record = original(base, path)
+                if path == source:
+                    calls["source"] += 1
+                    if calls["source"] == 1:
+                        source.rename(root / "foreign-dir")
+                        source.mkdir()
+                return record
+
+            with mock.patch.object(loader, "_inventory_entry", side_effect=substitute):
+                with self.assertRaises(vv_fun_patcher.PatcherError):
+                    loader._move_noreplace(source, destination)
+            self.assertTrue((root / "foreign-dir" / "member").exists())
+            self.assertTrue(source.exists())
+
+    def test_c296_foreign_emergency_chain_report_name_is_rejected(self):
+        with tempfile.TemporaryDirectory(prefix="vv3-c296-foreign-chain-") as td:
+            root = Path(td)
+            report, _destination, _companion = self._make_unresolved_report(root)
+            payload = json.loads(report.read_text(encoding="utf-8"))
+            root_name = next(item["path"] for item in payload["ownership_inventory"] if item["type"] == "directory")
+            recovery_root = root / root_name
+            details = dict(payload)
+            details.update({
+                "_report_prefix": ".vv3im",
+                "_recovery_root_name": recovery_root.name,
+                "_recovery_root_identity": loader._inventory_entry(root, recovery_root),
+                "_expected_ownership_inventory": payload["ownership_inventory"],
+            })
+            loader._remove_owned(report, expected=loader._inventory_entry(root, report))
+            marker = loader._write_emergency_marker(root, details, vv_fun_patcher.PatcherError("injected"))
+            manifest = loader._chain_manifest_path(marker)
+            raw = json.loads(manifest.read_text(encoding="utf-8"))
+            raw["report_name"] = ".vv3im-emergency-" + "f" * 32 + ".json"
+            manifest.write_text(json.dumps(raw), encoding="utf-8")
+            with self.assertRaises(vv_fun_patcher.PatcherError):
+                loader.recover_atomic(marker)
+            self.assertTrue(marker.exists())
 
 
 if __name__ == "__main__":
