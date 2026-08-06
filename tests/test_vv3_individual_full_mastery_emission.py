@@ -57,6 +57,41 @@ class VV3IndividualEmissionTests(unittest.TestCase):
         self.assertEqual(targets.count(0x455740), 5)
         self.assertEqual(targets.count(0x45C840), 3)
 
+    def test_callee_clean_validator_resolver_and_native_abi_operands(self):
+        # 0x45EE60/0x45C840 are ret-4 routines; the caller must not clean
+        # their argument.  This catches the historical double-clean sites.
+        for pos, insn in enumerate(self.insns):
+            if insn.mnemonic == "call" and insn.op_str in {"0x45ee60", "0x45c840"}:
+                following = self.insns[pos + 1] if pos + 1 < len(self.insns) else None
+                self.assertFalse(following and following.mnemonic == "add" and following.op_str.replace(" ", "") == "esp,4")
+
+        writers = [pos for pos, insn in enumerate(self.insns) if insn.mnemonic == "call" and insn.op_str == "0x455740"]
+        self.assertEqual(len(writers), 5)
+        for pos in writers:
+            self.assertGreaterEqual(pos, 3)
+            self.assertEqual(self.insns[pos - 1].mnemonic, "lea")
+            self.assertIn("ecx", self.insns[pos - 1].op_str)
+            self.assertIn("[esi+0xeac]", self.insns[pos - 1].op_str.replace(" ", "").lower())
+            self.assertEqual(self.insns[pos - 2].mnemonic, "push")
+            self.assertEqual(self.insns[pos - 3].mnemonic, "push")
+
+        evaluator_pos = next(pos for pos, insn in enumerate(self.insns) if insn.mnemonic == "call" and insn.op_str == "0x462500")
+        self.assertEqual(self.insns[evaluator_pos - 1].mnemonic, "push")
+        self.assertEqual(self.insns[evaluator_pos - 1].op_str, "esi")
+        self.assertFalse(any(i.mnemonic == "mov" and i.op_str.replace(" ", "") == "ecx,esi" for i in self.insns[: evaluator_pos + 1]))
+
+    def test_active_health_are_snapshotted_and_revalidated(self):
+        normalized = lambda i: i.op_str.replace(" ", "").lower()
+        stores = [i for i in self.insns if i.mnemonic == "mov" and "[ebp-0x38]" in normalized(i)]
+        health_stores = [i for i in self.insns if i.mnemonic == "mov" and "[ebp-0x3c]" in normalized(i)]
+        self.assertTrue(stores, "initial active snapshot missing")
+        self.assertTrue(health_stores, "initial health snapshot missing")
+        active_checks = [i for i in self.insns if i.mnemonic == "cmp" and "[ebp-0x38]" in normalized(i)]
+        health_checks = [i for i in self.insns if i.mnemonic == "cmp" and "[ebp-0x3c]" in normalized(i)]
+        self.assertGreaterEqual(len(active_checks), 2)
+        self.assertGreaterEqual(len(health_checks), 2)
+        self.assertNotIn("+ 0xec0]", " ".join(i.op_str.lower() for i in self.insns if i.mnemonic == "mov" and i.op_str.startswith("byte ptr [")))
+
     def test_confirmation_and_final_funds_precede_mutation_and_charge(self):
         addresses = {i.address: i for i in self.insns}
         writer_addrs = [i.address for i in self.insns if i.mnemonic == "call" and i.op_str == "0x455740"]

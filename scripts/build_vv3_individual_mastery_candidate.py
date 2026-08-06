@@ -78,11 +78,12 @@ def build_helper(strings: dict[str, int]) -> bytes:
         # Selected physical index from the manager singleton, hard bound <150.
         "call 0x428B60", "test eax, eax", "jz invalid", "mov edx, dword ptr [eax+0x12FC0]",
         "cmp edx, 0x96", "jae invalid", "mov dword ptr [ebp-0x1C], edx",
-        "mov ecx, 0x59E110", "push edx", "call 0x45EE60", "add esp, 4", "test eax, eax", "jz invalid",
-        "mov ecx, 0x59E110", "push dword ptr [ebp-0x1C]", "call 0x45C840", "add esp, 4", "test eax, eax", "jz invalid",
+        "mov ecx, 0x59E110", "push edx", "call 0x45EE60", "test eax, eax", "jz invalid",
+        "mov ecx, 0x59E110", "push dword ptr [ebp-0x1C]", "call 0x45C840", "test eax, eax", "jz invalid",
         "mov dword ptr [ebp-0x18], eax", "mov esi, eax",
         # Eligibility precedes every skill/preference read.
         "cmp byte ptr [esi+0xF10], 0", "je invalid", "cmp dword ptr [esi+0xE78], 0", "jle invalid",
+        "movzx eax, byte ptr [esi+0xF10]", "mov dword ptr [ebp-0x38], eax", "mov eax, dword ptr [esi+0xE78]", "mov dword ptr [ebp-0x3C], eax",
         "mov dword ptr [ebp-0x40], 0",
     ]
     for i, off in enumerate(SKILLS):
@@ -103,28 +104,28 @@ def build_helper(strings: dict[str, int]) -> bytes:
         "cmp eax, 2", "jne cancel",
         # Reacquire selected index and record and compare the complete snapshot.
         "call 0x428B60", "test eax, eax", "jz race", "mov edx, dword ptr [eax+0x12FC0]",
-        "cmp edx, dword ptr [ebp-0x1C]", "jne race", "mov ecx, 0x59E110", "push edx", "call 0x45EE60", "add esp, 4", "test eax, eax", "jz race",
-        "mov ecx, 0x59E110", "push dword ptr [ebp-0x1C]", "call 0x45C840", "add esp, 4", "test eax, eax", "jz race",
+        "cmp edx, dword ptr [ebp-0x1C]", "jne race", "mov ecx, 0x59E110", "push edx", "call 0x45EE60", "test eax, eax", "jz race",
+        "mov ecx, 0x59E110", "push dword ptr [ebp-0x1C]", "call 0x45C840", "test eax, eax", "jz race",
         "cmp eax, dword ptr [ebp-0x18]", "jne race", "mov esi, eax",
-        "cmp byte ptr [esi+0xF10], 0", "je race", "cmp dword ptr [esi+0xE78], 0", "jle race",
+        "cmp byte ptr [esi+0xF10], 0", "je race", "cmp dword ptr [esi+0xE78], 0", "jle race", "movzx eax, byte ptr [esi+0xF10]", "cmp eax, dword ptr [ebp-0x38]", "jne race", "mov eax, dword ptr [esi+0xE78]", "cmp eax, dword ptr [ebp-0x3C]", "jne race",
     ]
     for i, off in enumerate(SKILLS):
         slot = 0x20 + i * 4
         lines += [f"mov eax, dword ptr [esi+0x{off:X}]", f"cmp eax, dword ptr [ebp-0x{slot:X}]", "jne race"]
     lines += ["mov eax, dword ptr [esi+0xEC0]", "cmp eax, dword ptr [ebp-0x34]", "jne race", "cmp dword ptr [0x582644], 100000", "jb insufficient"]
     for i, off in enumerate(SKILLS):
-        lines += [f"mov esi, dword ptr [ebp-0x18]", f"mov eax, dword ptr [esi+0x{off:X}]", "cmp eax, 100", f"je write_{i}_done", "mov ebx, 100", "sub ebx, eax", f"push ebx", f"push {i}", f"lea ecx, [esi+0x{off:X}]", "call 0x455740", f"write_{i}_done:"]
+        lines += [f"mov esi, dword ptr [ebp-0x18]", f"mov eax, dword ptr [esi+0x{off:X}]", "cmp eax, 100", f"je write_{i}_done", "mov ebx, 100", "sub ebx, eax", f"push ebx", f"push {i}", "lea ecx, [esi+0xEAC]", "call 0x455740", f"write_{i}_done:"]
     lines += [
         "mov esi, dword ptr [ebp-0x18]",
     ]
     for off in SKILLS:
         lines += [f"cmp dword ptr [esi+0x{off:X}], 100", "jne failure"]
     lines += [
-        "mov ecx, esi", "call 0x462500",
+        "push esi", "call 0x462500",
         # Fresh final reacquisition, exact-100 and preference preservation.
         "call 0x428B60", "test eax, eax", "jz failure", "mov edx, dword ptr [eax+0x12FC0]", "cmp edx, dword ptr [ebp-0x1C]", "jne failure",
-        "mov ecx, 0x59E110", "push edx", "call 0x45C840", "add esp, 4", "test eax, eax", "jz failure", "cmp eax, dword ptr [ebp-0x18]", "jne failure", "mov esi, eax",
-        "cmp byte ptr [esi+0xF10], 0", "je failure", "cmp dword ptr [esi+0xE78], 0", "jle failure",
+        "mov ecx, 0x59E110", "push edx", "call 0x45C840", "test eax, eax", "jz failure", "cmp eax, dword ptr [ebp-0x18]", "jne failure", "mov esi, eax",
+        "cmp byte ptr [esi+0xF10], 0", "je failure", "cmp dword ptr [esi+0xE78], 0", "jle failure", "movzx eax, byte ptr [esi+0xF10]", "cmp eax, dword ptr [ebp-0x38]", "jne failure", "mov eax, dword ptr [esi+0xE78]", "cmp eax, dword ptr [ebp-0x3C]", "jne failure",
     ]
     for off in SKILLS:
         lines += [f"cmp dword ptr [esi+0x{off:X}], 100", "jne failure"]
@@ -153,7 +154,7 @@ def main() -> None:
     manifest = {
         "id": "vv3_individual_full_mastery_candidate", "game_id": "vv3", "name": "Grant Full Mastery to Selected Villager", "enabled": False, "catalog_hidden": True, "catalog_enabled": False, "runtime_player_status": "pending", "certification_status": "disabled emitted candidate; independent runtime and loader recertification pending", "dependencies": ["vv3_individual_grant_running_candidate"], "supported_modes": ["collection_progression", "immediate_fixed"], "unsupported_patch_modes": ["experimental_expanded_256", "experimental_expanded_256_progression"], "provenance": {"design_source": "D262/D263", "implementation_commit": None, "audit_commit": None, "acceptance_commit": None},
         "transaction": {"command": 1, "price": PRICE, "action": "Buy", "repeatable": True, "ownership": None, "remove": False, "confirmation": "Grant Full Mastery to this villager for 100,000 tech points?\r\nPress OK to confirm, or Cancel.", "caption": "Villager Upgrades", "accept": "IDOK only", "no_deduction_suffix": "No tech points have been deducted."},
-        "selection": {"manager_selected_offset": "0x12FC0", "bound": 150, "validator": "ECX=0x59E110; call 0x45EE60", "resolver": "ECX=0x59E110; push index; call 0x45C840; ret 4", "eligibility_before_skills": ["record nonnull", "+0xF10 != 0", "signed +0xE78 > 0"]},
+        "selection": {"manager_selected_offset": "0x12FC0", "bound": 150, "validator": "ECX=0x59E110; call 0x45EE60", "resolver": "ECX=0x59E110; push index; call 0x45C840; ret 4", "eligibility_before_skills": ["record nonnull", "+0xF10 != 0", "signed +0xE78 > 0"], "population_note": "VV3 has no independently proved Heathen/skeleton discriminator in this route; the supported predicate is active nonzero plus signed positive health, and the candidate remains disabled pending independent lifecycle proof."},
         "skills": {"order": list(SKILL_NAMES), "offsets": [f"0x{x:X}" for x in SKILLS], "range": "signed DWORD 0..100", "preferred_job": {"offset": "0xEC0", "access": "snapshot/revalidate only", "writes": False}, "writer": {"address": "0x455740", "abi": "ECX=record+offset; push delta; push skill index; ret 8"}, "evaluator": {"address": "0x462500", "calls": "exactly once after exact-100 postverify"}},
         "base_chain": {"stock_sha256": STOCK_SHA, **{f"{k}_parent_sha256": v for k, v in PARENTS.items()}, "dll_sha256": "9F866CB6F92C745CD2AA7009AEC4EB70FA5521EFF0C8F7BABE2058BB4D2F8533", "running_command2": "0x6DF900"},
         "patches": [{"offset": "0xA38C3", "before": HOOK_BEFORE.hex().upper(), "after": HOOK_AFTER.hex().upper(), "purpose": "guarded command-1 dispatcher composition"}],
@@ -163,11 +164,11 @@ def main() -> None:
         "explicit_non_changes": ["+0xEC0 is never written or normalized; stock naming/tie behavior remains authoritative, including Master Parent fallback", "command 2 remains Grant Running at 0x6DF900", "Full Heal/fullscreen/DLL/Expanded and existing certified bytes remain unchanged"],
     }
     tx_map = {**manifest["transaction"], "native_writer": "0x455740", "native_evaluator": "0x462500 exactly once globally after complete postverify", "preferred_job": "0xEC0 read-only snapshot"}
-    mapping = {"candidate_id": manifest["id"], "enabled": False, "catalog_hidden": True, "catalog_enabled": False, "supported_modes": manifest["supported_modes"], "rejected_modes": manifest["unsupported_patch_modes"], "dependencies": manifest["dependencies"], "base_chain": manifest["base_chain"], "dispatcher": {"raw_offset": "0xA38C3", "before": HOOK_BEFORE.hex().upper(), "after": HOOK_AFTER.hex().upper(), "target": "0x6E2000", "bytes": DISPATCHER.hex().upper()}, "section": manifest["pe_append_transaction"], "emitted": manifest["emitted"], "transaction": tx_map, "skill_order": list(SKILL_NAMES), "skill_offsets": [f"0x{x:X}" for x in SKILLS], "no_preference_write": True, "runtime_status": "pending", "provenance": manifest["provenance"], "stack_intervals": {"saved_ebx": [-4, -1], "saved_esi": [-8, -5], "saved_edi": [-12, -9], "messagebox": [-16, -13], "manager": [-20, -17], "record": [-24, -21], "selected_index": [-28, -25], "skill_snapshot_0": [-32, -29], "skill_snapshot_1": [-36, -33], "skill_snapshot_2": [-40, -37], "skill_snapshot_3": [-44, -41], "skill_snapshot_4": [-48, -45], "preferred_job": [-52, -49], "changed_mask": [-64, -61]}, "source": {"stock_sha256": STOCK_SHA, "helper_sha256": emitted["helper_sha256"], "page_sha256": emitted["page_sha256"]}}
+    mapping = {"candidate_id": manifest["id"], "enabled": False, "catalog_hidden": True, "catalog_enabled": False, "supported_modes": manifest["supported_modes"], "rejected_modes": manifest["unsupported_patch_modes"], "dependencies": manifest["dependencies"], "base_chain": manifest["base_chain"], "dispatcher": {"raw_offset": "0xA38C3", "before": HOOK_BEFORE.hex().upper(), "after": HOOK_AFTER.hex().upper(), "target": "0x6E2000", "bytes": DISPATCHER.hex().upper()}, "section": manifest["pe_append_transaction"], "emitted": manifest["emitted"], "transaction": tx_map, "skill_order": list(SKILL_NAMES), "skill_offsets": [f"0x{x:X}" for x in SKILLS], "no_preference_write": True, "runtime_status": "pending", "provenance": manifest["provenance"], "stack_intervals": {"saved_ebx": [-4, -1], "saved_esi": [-8, -5], "saved_edi": [-12, -9], "messagebox": [-16, -13], "manager": [-20, -17], "record": [-24, -21], "selected_index": [-28, -25], "skill_snapshot_0": [-32, -29], "skill_snapshot_1": [-36, -33], "skill_snapshot_2": [-40, -37], "skill_snapshot_3": [-44, -41], "skill_snapshot_4": [-48, -45], "preferred_job": [-52, -49], "active_snapshot": [-56, -53], "health_snapshot": [-60, -57], "changed_mask": [-64, -61]}, "source": {"stock_sha256": STOCK_SHA, "helper_sha256": emitted["helper_sha256"], "page_sha256": emitted["page_sha256"]}}
     OUT.mkdir(exist_ok=True)
     MANIFEST.write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
     MAP.write_text(json.dumps(mapping, indent=2) + "\n", encoding="utf-8")
-    DOC.write_text("# VV3 Individual Full Mastery Candidate\n\nDisabled/catalog-hidden emitted `.vv3im` candidate for Collection Progression and Immediate Fixed only; runtime/player validation and loader enablement remain pending. The command-1 dispatcher at raw `0xA38C3` uses the exact composed preimage `E938C02300` and routes command 1 to `0x6E2100`, command 2 to `0x6DF900`, and other commands to `0x4A38ED`. The page is raw `0xCE000`, RVA/VA `0x2E2000`/`0x6E2000`, size `0x1000`, RX.\n\nThe helper performs dependency preflight, eligibility before skill reads, a complete five-skill/+0xEC0 snapshot, confirmation, exact reacquisition, changed-only native writes, exact-100 postverify, one evaluator, final reacquisition, and one 100,000 deduction. It never writes or normalizes +0xEC0, and preserves stock naming/tie behavior including the no-preference Master Parent fallback. Expanded modes reject before output.\n", encoding="utf-8")
+    DOC.write_text("# VV3 Individual Full Mastery Candidate\n\nDisabled/catalog-hidden emitted `.vv3im` candidate for Collection Progression and Immediate Fixed only; runtime/player validation and loader enablement remain pending. The command-1 dispatcher at raw `0xA38C3` uses the exact composed preimage `E938C02300` and routes command 1 to `0x6E2100`, command 2 to `0x6DF900`, and other commands to `0x4A38ED`. The page is raw `0xCE000`, RVA/VA `0x2E2000`/`0x6E2000`, size `0x1000`, RX.\n\nThe supported VV3 lifecycle predicate is record non-null, active byte `+0xF10` nonzero, and signed health `+0xE78` positive, checked before any skill or preference read. VV3 has no independently proved Heathen/skeleton discriminator in this route; that limitation is explicit and keeps this candidate disabled pending lifecycle recertification.\n\nThe helper performs dependency preflight, eligibility before skill reads, a complete five-skill/+0xEC0/eligibility snapshot, confirmation, exact reacquisition, changed-only native writes, exact-100 postverify, one evaluator, final reacquisition, and one 100,000 deduction. It never writes or normalizes +0xEC0, and preserves stock naming/tie behavior including the no-preference Master Parent fallback. Expanded modes reject before output.\n", encoding="utf-8")
 
 
 if __name__ == "__main__":
