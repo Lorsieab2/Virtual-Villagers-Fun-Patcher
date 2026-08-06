@@ -5,6 +5,11 @@
   "catalog_enabled": false,
   "catalog_hidden": true,
   "runtime_player_status": "pending",
+  "legacy_cure_containment": {
+    "status": "contained; legacy command 5 and RT_DIALOG 201 row/button 1005 are unreachable",
+    "full_heal_status": "pending; no replacement is enabled or catalog-visible",
+    "resource_202_unchanged": true
+  },
   "supported_modes": ["collection_progression", "immediate_fixed"],
   "expanded_rejected": true,
   "shared_append_owner": "Origins; Full Mastery removal is required before Origins truncation",

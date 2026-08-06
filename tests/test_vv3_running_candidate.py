@@ -526,10 +526,10 @@ class VV3RunningCandidateTests(unittest.TestCase):
 
     def test_candidate_composes_with_every_other_current_vv3_patch(self) -> None:
         expected_hashes = {
-            "collection_progression": "D81FB967C9DDE2448C40744356AE08BBADFA78930ABA004CEE5BE4025C65FBD0",
-            "immediate_fixed": "1EBC276113221B90836BA4C3E13CEF683C41B08A716D80394D805ED645845B4C",
-            "experimental_expanded_256": "F1FA63CD9B87160F651D54756CC296EAD37435D233F51F3E17EF13012F3C7734",
-            "experimental_expanded_256_progression": "B9F6C541405C4578E7B7DECE1BE3762AC2CA81B4A2B8712886CA59B851510971",
+            "collection_progression": "C774634F16B18C74573BF872F77ED742907E17192CA78A49D90E71FD89EDBA4A",
+            "immediate_fixed": "CACA23DF89B81F5DCEC88A5539F10F3F3778B5FDDF46E24BC5B8370ECE6156D8",
+            "experimental_expanded_256": "7568B04EE4693BFE4CCCFA842730985B5B797EE6474EA0F0F7506946E2D20E74",
+            "experimental_expanded_256_progression": "17EE2E753C81304E0B8A76625AAAE1BFDEFAACD82E5C0CE924260F047D2624E3",
         }
         others = [
             item

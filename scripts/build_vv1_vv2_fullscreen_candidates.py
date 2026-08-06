@@ -161,13 +161,17 @@ def transform_companion(source: Path) -> bytes:
     off, size = leaves[201]
     dialog = bytes(data[off:off + size])
     spans = dialog_spans(dialog)
+    item_ids = [int.from_bytes(dialog[start + 20:start + 24], "little") for start, _, _ in spans]
     if len(spans) != 46 or [i for i, (_, _, t) in enumerate(spans) if t == "Cure all Villagers"] != [27]:
         raise RuntimeError("unexpected Cure row layout")
+    if item_ids.count(1005) != 1 or item_ids[29] != 1005:
+        raise RuntimeError("unexpected Cure Buy button identity")
     compact = dialog[:spans[25][0]] + dialog[spans[30][0]:]
     compact += bytes(size - len(compact))
     compact = bytearray(compact); compact[16:18] = (41).to_bytes(2, "little")
     after = dialog_spans(bytes(compact))
-    if len(after) != 41 or any(t == "Cure all Villagers" for _, _, t in after):
+    after_ids = [int.from_bytes(compact[start + 20:start + 24], "little") for start, _, _ in after]
+    if len(after) != 41 or any(t == "Cure all Villagers" for _, _, t in after) or 1005 in after_ids:
         raise RuntimeError("Cure row removal did not produce 41 strict items")
     data[off:off + size] = compact
     return bytes(data)
@@ -249,6 +253,11 @@ def emit(output_root: Path) -> None:
                     "install": "atomic candidate-owned replacement; exact parent restore on remove",
                 },
                 "cure_guard": {"va": "0x%X" % cfg["cure_guard"][0], "before": cfg["cure_guard"][1].hex().upper(), "after": cfg["cure_guard"][2].hex().upper()},
+                "legacy_cure_containment": {
+                    "status": "contained; legacy command 5 and RT_DIALOG 201 row/button 1005 are unreachable",
+                    "full_heal_status": "pending; no replacement is enabled or catalog-visible",
+                    "resource_202_unchanged": True,
+                },
                 "wrapper_sha256": [sha(w) for w in WRAPPERS[game]],
                 "hashes": hashes,
             }

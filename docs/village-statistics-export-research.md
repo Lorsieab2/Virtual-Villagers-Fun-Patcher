@@ -16,6 +16,14 @@ earliest successful skeleton pickup, regardless of later graveyard or
 mausoleum capacity, completion, occupancy, or burial success. Known delayed
 grave/removal/record-retirement sites are downstream and insufficient.
 
+The former VV3/VV4/VV5 burial detours at raw `0x5F45B`, `0x664DC`, and
+`0x6FF12` are withdrawn and absent from the statistics generators and
+manifests. Those exact stock guard bytes are preserved; no wrapper or payload
+owns them. Memorial migration and any replacement burial hook remain **ON
+HOLD** until an earliest-successful-pickup route and atomic save migration are
+proved. Oldest Villager exporters and unrelated food/conversion hooks remain
+active where independently certified.
+
 A retroactive retained-memorial count may initialize a one-time lower-bound
 baseline only with a dedicated, atomic, save-scoped initialized marker.
 Initialization stores the baseline and marker together; later successful

@@ -2276,7 +2276,7 @@ class StockIntegrationTests(unittest.TestCase):
                 "hook": 0x27D6C,
                 "cave": 0x7B464,
                 "cave_size": 0x200,
-                "counter_hooks": {
+                "restored_hooks": {
                     0x5F45B: "881EE9B8010000",
                 },
             },
@@ -2284,8 +2284,10 @@ class StockIntegrationTests(unittest.TestCase):
                 "hook": 0x1F13A,
                 "cave": 0x89173,
                 "cave_size": 0x200,
-                "counter_hooks": {
+                "patched_hooks": {
                     0x1D987: "01378B07790B",
+                },
+                "restored_hooks": {
                     0x664DC: "885EFD385EFD",
                 },
             },
@@ -2293,8 +2295,10 @@ class StockIntegrationTests(unittest.TestCase):
                 "hook": 0x245FA,
                 "cave": 0x94932,
                 "cave_size": 0x200,
-                "counter_hooks": {
+                "patched_hooks": {
                     0x1EBA7: "01378B07790B",
+                },
+                "restored_hooks": {
                     0x6FF12: "889ED41C0000",
                 },
             },
@@ -2316,9 +2320,15 @@ class StockIntegrationTests(unittest.TestCase):
                     )
                     self.assertIn(b"VVFP Statistics Export.dll\0", cave)
                     self.assertIn(b"WriteVillageStatistics\0", cave)
-                    for offset, stock_hex in details["counter_hooks"].items():
+                    for offset, stock_hex in details.get("patched_hooks", {}).items():
                         stock_bytes = bytes.fromhex(stock_hex)
                         self.assertNotEqual(
+                            bytes(rendered[offset : offset + len(stock_bytes)]),
+                            stock_bytes,
+                        )
+                    for offset, stock_hex in details.get("restored_hooks", {}).items():
+                        stock_bytes = bytes.fromhex(stock_hex)
+                        self.assertEqual(
                             bytes(rendered[offset : offset + len(stock_bytes)]),
                             stock_bytes,
                         )
