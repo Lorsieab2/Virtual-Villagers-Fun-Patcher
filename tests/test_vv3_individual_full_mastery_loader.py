@@ -524,17 +524,80 @@ class VV3IndividualFullMasteryLoaderTests(unittest.TestCase):
             target = root / "owned.bin"
             target.write_bytes(b"owned")
             expected = loader._inventory_entry(root, target)
-            original_rename = loader.os.rename
+            original_link = loader.os.link
             def race(src, dst):
                 if Path(src) == target:
                     target.write_bytes(b"foreign")
-                return original_rename(src, dst)
-            with mock.patch.object(loader.os, "rename", side_effect=race):
+                return original_link(src, dst)
+            with mock.patch.object(loader.os, "link", side_effect=race):
                 with self.assertRaises(vv_fun_patcher.PatcherError):
                     loader._remove_owned(target, expected=expected)
             tombstones = list(root.glob(".owned.bin.vv3im-tombstone-*"))
             self.assertEqual(len(tombstones), 1)
             self.assertEqual(tombstones[0].read_bytes(), b"foreign")
+
+    def test_c290_directory_form_canonical_and_pointer_chain(self):
+        with tempfile.TemporaryDirectory(prefix="vv3-c290-directory-chain-") as td:
+            root = Path(td)
+            report, _destination, _companion = self._make_unresolved_report(root)
+            payload = json.loads(report.read_text(encoding="utf-8"))
+            root_name = next(item["path"] for item in payload["ownership_inventory"] if item["type"] == "directory")
+            recovery_root = root / root_name
+            loader._refresh_recovery_report(report, payload, root, recovery_root)
+            loader.recover_atomic(root)
+            self.assertFalse(report.exists())
+            self.assertEqual(list(root.glob(".vv3im-*")), [])
+
+    def test_c290_directory_form_emergency_marker_chain(self):
+        with tempfile.TemporaryDirectory(prefix="vv3-c290-directory-emergency-") as td:
+            root = Path(td)
+            report, destination, companion = self._make_unresolved_report(root)
+            payload = json.loads(report.read_text(encoding="utf-8"))
+            root_name = next(item["path"] for item in payload["ownership_inventory"] if item["type"] == "directory")
+            recovery_root = root / root_name
+            details = dict(payload)
+            details.update({
+                "_report_prefix": ".vv3im",
+                "_recovery_root_name": recovery_root.name,
+                "_recovery_root_identity": loader._inventory_entry(root, recovery_root),
+                "_expected_ownership_inventory": payload["ownership_inventory"],
+            })
+            loader._remove_owned(report, expected=loader._inventory_entry(root, report))
+            loader._write_emergency_marker(root, details, vv_fun_patcher.PatcherError("injected"))
+            loader.recover_atomic(root)
+            self.assertFalse(destination.exists())
+            self.assertFalse(companion.exists())
+            self.assertEqual(list(root.glob(".vv3im-*")), [])
+
+    def test_c290_orphan_successor_and_missing_backup_fail_before_mutation(self):
+        with tempfile.TemporaryDirectory(prefix="vv3-c290-orphan-") as td:
+            root = Path(td)
+            report, destination, companion = self._make_unresolved_report(root)
+            successor = report.with_name(f"{report.stem}.v{'a' * 32}{report.suffix}")
+            successor.write_bytes(b"orphan")
+            before = destination.read_bytes() if destination.exists() else None
+            with self.assertRaises(vv_fun_patcher.PatcherError):
+                loader.recover_atomic(root)
+            self.assertEqual(destination.read_bytes() if destination.exists() else None, before)
+            successor.unlink()
+            payload = json.loads(report.read_text(encoding="utf-8"))
+            payload["ownership_inventory"] = payload["ownership_inventory"][1:]
+            report.write_text(json.dumps(payload), encoding="utf-8")
+            with self.assertRaises(vv_fun_patcher.PatcherError):
+                loader.recover_atomic(report)
+            self.assertTrue(report.exists())
+
+    def test_c290_directory_prefix_with_dot_v_keeps_canonical_discoverable(self):
+        with tempfile.TemporaryDirectory(prefix="vv3-c290-prefix-") as td:
+            root = Path(td)
+            canonical = root / ".vtest-recovery-0123456789abcdef0123456789abcdef.json"
+            successor = root / ".vtest-recovery-0123456789abcdef0123456789abcdef.vffffffffffffffffffffffffffffffff.json"
+            canonical.write_bytes(b"canonical")
+            successor.write_bytes(b"successor")
+            reports, successors, markers = loader._report_chain_siblings(root, canonical, recovery_prefix=".vtest")
+            self.assertEqual(reports, [canonical])
+            self.assertEqual(successors, [successor])
+            self.assertEqual(markers, [])
 
 
 if __name__ == "__main__":

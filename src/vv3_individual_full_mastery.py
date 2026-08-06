@@ -318,7 +318,7 @@ def _write_recovery_impl(parent: Path, details: dict[str, object]) -> Path:
     payload_details = {key: value for key, value in details.items() if not key.startswith("_")}
     report = parent / f"{report_prefix}-recovery-{uuid.uuid4().hex}.json"
     tmp = report.with_suffix(".tmp")
-    payload = {"schema_version": 2, "report_relative": report.name, **payload_details}
+    payload = {"schema_version": 2, **payload_details, "report_relative": report.name}
     metadata_keys = {"feature_owner", "mode", "parent_sha256", "candidate_sha256", "destination_exe_basename", "companion_dll_basename", "member_roles", "recovery_root_name", "recovery_root_identity", "report_name", "report_parent_identity", "issuance_token", "issuance_name", "issuance_registry_relative", "issuance_registry_identity", "issuance_identity", "destination_parent_absolute", "destination_paths_absolute"}
     if "feature_owner" in payload_details:
         root_name = details.get("_recovery_root_name")
@@ -550,6 +550,26 @@ def _load_report_pointer(report: Path, root: Path) -> tuple[Path, dict[str, obje
     return successor, raw["canonical_record"], pointer_record, pointer
 
 
+def _report_chain_siblings(parent: Path, report: Path, *, recovery_prefix: str) -> tuple[list[Path], list[Path], list[Path]]:
+    """Return canonical reports, exact successors, and emergency markers."""
+    canonical_re = re.compile(re.escape(recovery_prefix) + r"-recovery-[0-9a-f]{32}\.json")
+    successor_re = re.compile(re.escape(recovery_prefix) + r"-recovery-[0-9a-f]{32}\.v[0-9a-f]{32}\.json")
+    emergency_re = re.compile(re.escape(recovery_prefix) + r"-emergency-[0-9a-f]{32}\.json")
+    canonical: list[Path] = []
+    successors: list[Path] = []
+    markers: list[Path] = []
+    with os.scandir(parent) as scan:
+        for entry in scan:
+            candidate = Path(entry.path)
+            if canonical_re.fullmatch(entry.name):
+                canonical.append(candidate)
+            elif successor_re.fullmatch(entry.name):
+                successors.append(candidate)
+            elif emergency_re.fullmatch(entry.name):
+                markers.append(candidate)
+    return canonical, successors, markers
+
+
 def _refresh_recovery_report(report: Path, payload: dict[str, object], root: Path, replay_root: Path) -> None:
     """Persist the actual retained recovery inventory after a failed replay."""
     if not os.path.lexists(report):
@@ -581,7 +601,10 @@ def _refresh_recovery_report(report: Path, payload: dict[str, object], root: Pat
         for field in ("backup_relative", "stage_relative"):
             rel = updated.get(field)
             owned = root / str(rel) if rel else None
-            updated[field.replace("_relative", "_inventory")] = _inventory_member(root, owned)
+            inventory_key = field.replace("_relative", "_inventory")
+            updated[inventory_key] = _inventory_member(root, owned)
+            if field == "stage_relative" and updated[inventory_key] is None:
+                updated[field] = None
         refreshed_members.append(updated)
     refreshed["members"] = refreshed_members
     _validate_recovery_payload(
@@ -625,6 +648,20 @@ def _refresh_recovery_report(report: Path, payload: dict[str, object], root: Pat
     successor_record: dict[str, object] | None = None
     pointer_tmp_record: dict[str, object] | None = None
     try:
+        refreshed["report_relative"] = successor.name
+        if "report_name" in refreshed:
+            refreshed["report_name"] = successor.name
+        _validate_recovery_payload(
+            refreshed,
+            root,
+            allowed_metadata={
+                key
+                for key in (
+                    "feature_owner", "mode", "parent_sha256", "candidate_sha256", "destination_exe_basename", "companion_dll_basename", "member_roles", "recovery_root_name", "recovery_root_identity", "report_name", "report_parent_identity", "issuance_token", "issuance_name", "issuance_registry_relative", "issuance_registry_identity", "issuance_identity", "destination_parent_absolute", "destination_paths_absolute"
+                )
+                if key in refreshed
+            },
+        )
         _write_file(successor_tmp, (json.dumps(refreshed, indent=2, sort_keys=True) + "\n").encode("utf-8"))
         _publish_exclusive(successor_tmp, successor, root)
         successor_record = _inventory_entry(root, successor)
@@ -757,6 +794,8 @@ def _validate_recovery_payload(payload: dict[str, object], root: Path, *, allowe
 
 def _remove_owned(path: Path, *, expected: dict[str, object] | None = None, expected_tree: list[dict[str, object]] | None = None) -> None:
     if not os.path.lexists(path):
+        if expected is not None or expected_tree is not None:
+            raise PatcherError(f"VV3 individual Full Mastery cleanup target disappeared: {path}")
         return
     if expected is None and expected_tree is None:
         raise PatcherError(f"VV3 individual Full Mastery deletion identity is missing: {path}")
@@ -822,7 +861,10 @@ def _quarantine_delete(path: Path, expected: dict[str, object], *, directory: bo
     if any(before.get(key) != expected.get(key) for key in ("type", "size", "sha256", "st_dev", "st_ino")):
         raise PatcherError(f"VV3 individual Full Mastery deletion target changed: {path}")
     try:
-        os.rename(path, tombstone)
+        if directory:
+            os.rename(path, tombstone)
+        else:
+            os.link(path, tombstone)
     except OSError as exc:
         raise PatcherError(f"VV3 individual Full Mastery owned deletion could not quarantine: {path}") from exc
     moved = _inventory_entry(path.parent, tombstone)
@@ -836,6 +878,9 @@ def _quarantine_delete(path: Path, expected: dict[str, object], *, directory: bo
         check = _inventory_entry(path.parent, tombstone)
         if any(check.get(key) != before.get(key) for key in ("type", "size", "sha256", "st_dev", "st_ino")):
             raise PatcherError(f"VV3 individual Full Mastery tombstone identity changed: {tombstone}")
+        # The hard-link publication above is exclusive/no-replace.  Remove
+        # the original only after the tombstone content and identity match.
+        path.unlink()
         tombstone.unlink()
     if os.path.lexists(tombstone):
         raise PatcherError(f"VV3 individual Full Mastery tombstone cleanup did not verify: {tombstone}")
@@ -1082,11 +1127,11 @@ def _recover_from_emergency_marker(marker: Path, *, recovery_prefix: str, requir
     inner_metadata = dict(required_metadata or {})
     if required_metadata is not None:
         inner_metadata["report_name"] = report.name
-    recover_atomic(report, recovery_prefix=recovery_prefix, required_metadata=inner_metadata, expected_report_sha256=None)
+    recover_atomic(report, recovery_prefix=recovery_prefix, required_metadata=inner_metadata, expected_report_sha256=None, _from_emergency=True)
     _remove_owned(marker, expected=marker_record)
 
 
-def recover_atomic(report_or_root: Path, *, recovery_prefix: str = ".vv3im", required_metadata: dict[str, object] | None = None, expected_report_sha256: str | None = None) -> None:
+def recover_atomic(report_or_root: Path, *, recovery_prefix: str = ".vv3im", required_metadata: dict[str, object] | None = None, expected_report_sha256: str | None = None, _from_emergency: bool = False) -> None:
     """Replay schema-v2 evidence with relative no-follow ownership checks."""
     report = Path(report_or_root)
     # Validate the supplied path before calling is_dir/scandir.  A symlink,
@@ -1098,11 +1143,17 @@ def recover_atomic(report_or_root: Path, *, recovery_prefix: str = ".vv3im", req
     _reject_entry(supplied, supplied_st)
     if stat.S_ISDIR(supplied_st.st_mode):
         _validate_recovery_root(supplied)
-        with os.scandir(supplied) as scan:
-            reports = [Path(p.path) for p in scan if p.name.startswith(f"{recovery_prefix}-recovery-") and p.name.endswith(".json") and ".v" not in p.name]
-        if len(reports) != 1:
+        reports, successors, markers = _report_chain_siblings(supplied, supplied, recovery_prefix=recovery_prefix)
+        if successors and not reports:
+            raise PatcherError("VV3 individual Full Mastery versioned recovery successor is orphaned.")
+        if (markers and (reports or successors)) or len(markers) > 1:
+            raise PatcherError("VV3 individual Full Mastery recovery authority chain is ambiguous.")
+        if markers:
+            report = markers[0]
+        elif len(reports) == 1:
+            report = reports[0]
+        else:
             raise PatcherError("VV3 individual Full Mastery recovery report is ambiguous.")
-        report = reports[0]
     else:
         _reject_entry(supplied, supplied_st, directory=False)
         report = supplied
@@ -1119,7 +1170,15 @@ def recover_atomic(report_or_root: Path, *, recovery_prefix: str = ".vv3im", req
         if not report.name.startswith(f"{recovery_prefix}-emergency-"):
             raise PatcherError("VV3 individual Full Mastery emergency marker owner is invalid.")
         return _recover_from_emergency_marker(report, recovery_prefix=recovery_prefix, required_metadata=required_metadata, expected_report_sha256=expected_report_sha256)
+    sibling_reports, sibling_successors, sibling_markers = _report_chain_siblings(report.parent, report, recovery_prefix=recovery_prefix)
+    if not _from_emergency and (marker_candidate is None or not (isinstance(marker_candidate, dict) and marker_candidate.get("kind") == "emergency_recovery_marker")):
+        if sibling_markers:
+            raise PatcherError("VV3 individual Full Mastery recovery marker conflicts with canonical report.")
     pointer_info = _load_report_pointer(report, report.parent)
+    if pointer_info is None and sibling_successors:
+        raise PatcherError("VV3 individual Full Mastery versioned recovery successor is orphaned.")
+    if pointer_info is not None and set(p.name for p in sibling_successors) != {pointer_info[0].name}:
+        raise PatcherError("VV3 individual Full Mastery recovery successor chain is incomplete or ambiguous.")
     if pointer_info is not None:
         if expected_report_sha256 is not None:
             raise PatcherError("VV3 individual Full Mastery versioned report requires a fresh report hash.")
@@ -1130,6 +1189,7 @@ def recover_atomic(report_or_root: Path, *, recovery_prefix: str = ".vv3im", req
     report_st_before = os.lstat(report)
     _reject_entry(report, report_st_before, directory=False)
     report_bytes = _read_regular(report)
+    report_snapshot = _inventory_entry(report.parent, report)
     if expected_report_sha256 is not None and _sha(report_bytes) != expected_report_sha256:
         raise PatcherError("VV3 individual Full Mastery recovery report changed before replay.")
     payload = json.loads(report_bytes.decode("utf-8"))
@@ -1179,16 +1239,22 @@ def recover_atomic(report_or_root: Path, *, recovery_prefix: str = ".vv3im", req
                 raise PatcherError("VV3 individual Full Mastery recovery ownership file changed.")
     members = payload["members"]
     resolved: list[tuple[dict[str, object], Path, Path | None]] = []
+    destination_snapshots: dict[Path, dict[str, object] | None] = {}
     for member in members:
         destination = root / str(member["destination_relative"])
         backup = root / str(member["backup_relative"]) if member["backup_relative"] else None
         stage = root / str(member["stage_relative"]) if member["stage_relative"] else None
         _safe_ancestor_chain(destination.parent)
+        if member["pre_exists"] and backup is None:
+            raise PatcherError("VV3 individual Full Mastery recovery required backup is missing.")
         if backup is not None:
             _safe_ancestor_chain(backup.parent)
-            if not os.path.lexists(backup) or _sha(_read_regular(backup)) != member["pre_sha256"] or len(_read_regular(backup)) != member["pre_size"]:
+            if not os.path.lexists(backup) or member.get("backup_inventory") is None or _inventory_entry(root, backup) != member.get("backup_inventory") or _sha(_read_regular(backup)) != member["pre_sha256"] or len(_read_regular(backup)) != member["pre_size"]:
                 raise PatcherError("VV3 individual Full Mastery recovery backup mismatch.")
+        if stage is not None and os.path.lexists(stage) and member.get("stage_inventory") is not None and _inventory_entry(root, stage) != member.get("stage_inventory"):
+            raise PatcherError("VV3 individual Full Mastery recovery stage mismatch.")
         current = _state(destination)
+        destination_snapshots[destination] = _inventory_entry(root, destination) if current[0] else None
         pre_exists = bool(member["pre_exists"])
         # install_new has an immutable absent precondition.  A foreign tree
         # with byte-identical published content is still a race and is never
@@ -1202,6 +1268,18 @@ def recover_atomic(report_or_root: Path, *, recovery_prefix: str = ".vv3im", req
         if not current[0] and pre_exists:
             raise PatcherError("VV3 individual Full Mastery recovery destination is unexpectedly absent.")
         resolved.append((member, destination, backup))
+    # Revalidate the complete report chain, root, backups, and destination
+    # identities together immediately before creating or replacing any stage.
+    if pointer_canonical is not None:
+        _load_report_pointer(pointer_canonical, root)
+    if not os.path.lexists(report) or _inventory_entry(root, report) != report_snapshot:
+        raise PatcherError("VV3 individual Full Mastery recovery report changed before mutation.")
+    for member, destination, backup in resolved:
+        now = _inventory_entry(root, destination) if os.path.lexists(destination) else None
+        if now != destination_snapshots[destination]:
+            raise PatcherError("VV3 individual Full Mastery recovery destination changed before mutation.")
+        if member["pre_exists"] and (backup is None or _inventory_entry(root, backup) != member.get("backup_inventory")):
+            raise PatcherError("VV3 individual Full Mastery recovery backup changed before mutation.")
     # Stage every restore before replacing either member; backups remain intact.
     replay_payload = payload
     preserved_backup_paths: list[Path] = []
@@ -1226,6 +1304,9 @@ def recover_atomic(report_or_root: Path, *, recovery_prefix: str = ".vv3im", req
             if current[0] and _sha(current[1] or b"") not in {member["published_sha256"], member["pre_sha256"]}:
                 raise PatcherError("VV3 individual Full Mastery replay race detected.")
         for member, destination, stage in stages:
+            current_identity = _inventory_entry(root, destination) if os.path.lexists(destination) else None
+            if current_identity != destination_snapshots[destination]:
+                raise PatcherError("VV3 individual Full Mastery recovery destination changed before replacement.")
             if _state(destination)[0] and _sha(_read_regular(destination)) == member["pre_sha256"]:
                 continue
             if _sha(_read_regular(stage)) != member["pre_sha256"]:
