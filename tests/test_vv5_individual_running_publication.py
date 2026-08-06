@@ -216,12 +216,12 @@ class VV5RunningPublicationTests(unittest.TestCase):
             exe.write_bytes(b"parent-exe"); dll.write_bytes(b"parent-dll")
             pre = {exe: _state(exe), dll: _state(dll)}
             published = {exe: b"candidate-exe", dll: b"candidate-dll"}
-            real_rename = running.os.rename
+            real_link = running.os.link
             def substitute(src, dst):
                 if Path(src).parent.name == ISSUANCE_REGISTRY_NAME and Path(src).suffix == ".json":
                     Path(src).write_bytes(b"foreign")
-                return real_rename(src, dst)
-            with mock.patch.object(running.os, "rename", side_effect=substitute):
+                return real_link(src, dst)
+            with mock.patch.object(running.os, "link", side_effect=substitute):
                 with self.assertRaises(PatcherError):
                     _publish("install", [exe, dll], pre, published, root)
             self.assertEqual(exe.read_bytes(), b"candidate-exe")
@@ -325,12 +325,12 @@ class VV5RunningPublicationTests(unittest.TestCase):
             issuance = registry / "0123456789abcdef0123456789abcdef.json"
             running._write_issuance(issuance, {"schema_version": 2, "token": "t"})
             expected = running._inventory(root, issuance)
-            real_rename = running.os.rename
+            real_link = running.os.link
             def race(src, dst):
                 if Path(src) == issuance:
                     issuance.write_bytes(b"foreign")
-                return real_rename(src, dst)
-            with mock.patch.object(running.os, "rename", side_effect=race):
+                return real_link(src, dst)
+            with mock.patch.object(running.os, "link", side_effect=race):
                 with self.assertRaises(PatcherError):
                     running._quarantine_owned(issuance, expected, owner_parent=root)
             tombstones = list(root.glob(f".{ISSUANCE_REGISTRY_NAME}-*.vv5run-tombstone-*"))
@@ -473,6 +473,109 @@ class VV5RunningPublicationTests(unittest.TestCase):
             self.assertEqual(exe.read_bytes(), parent_exe)
             self.assertEqual(dll.read_bytes(), b"parent-dll")
             self.assertFalse((root / ISSUANCE_REGISTRY_NAME).exists())
+
+    def test_c293_registry_membership_substitution_is_detected_after_scan(self) -> None:
+        import src.vv5_individual_running as running
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            registry, registry_identity, created = running._registry(root)
+            running._ensure_authority(registry, registry_identity, created)
+            real_inventory = running._inventory
+            injected = {"done": False}
+            def inject(base, path):
+                result = real_inventory(base, path)
+                if path.name == AUTHORITY_NAME and not injected["done"]:
+                    (registry / "foreign-child").write_bytes(b"foreign")
+                    injected["done"] = True
+                return result
+            with mock.patch.object(running, "_inventory", side_effect=inject):
+                with self.assertRaises(PatcherError):
+                    running._registry_members(registry)
+            self.assertTrue((registry / "foreign-child").exists())
+
+    def test_c293_registry_reparse_attribute_is_rejected_without_symlink_privilege(self) -> None:
+        import src.vv5_individual_running as running
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            registry, registry_identity, created = running._registry(root)
+            running._ensure_authority(registry, registry_identity, created)
+            real_unsafe = running._unsafe
+            calls = {"count": 0}
+            def reparse(st):
+                calls["count"] += 1
+                if calls["count"] > 2:
+                    return True
+                return real_unsafe(st)
+            with mock.patch.object(running, "_unsafe", side_effect=reparse):
+                with self.assertRaises(PatcherError):
+                    running._registry_members(registry)
+
+    def test_c293_authority_substitution_after_read_is_rejected(self) -> None:
+        import src.vv5_individual_running as running
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            registry, registry_identity, created = running._registry(root)
+            authority_path, _token, _authority = running._ensure_authority(registry, registry_identity, created)
+            real_read = running._read
+            replaced = {"done": False}
+            def substitute(path):
+                data = real_read(path)
+                if path == authority_path and not replaced["done"]:
+                    path.write_bytes(b"foreign-authority")
+                    replaced["done"] = True
+                return data
+            with mock.patch.object(running, "_read", side_effect=substitute):
+                with self.assertRaises(PatcherError):
+                    running._ensure_authority(registry, registry_identity, created)
+            self.assertEqual(authority_path.read_bytes(), b"foreign-authority")
+
+    def test_c293_report_discovery_rejects_matching_directory_member(self) -> None:
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            bad = root / ".vv5run-recovery-0123456789abcdef0123456789abcdef.json"
+            bad.mkdir()
+            with self.assertRaises(PatcherError):
+                recover_atomic(root)
+            self.assertTrue(bad.is_dir())
+
+    def test_c293_postlink_same_content_replacement_is_rejected_by_file_id(self) -> None:
+        import src.vv5_individual_running as running
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            tmp = root / "issuance.tmp"
+            final = root / "issuance.json"
+            tmp.write_bytes(b"same-content")
+            real_link = running.os.link
+            def replace_same_content(src, dst):
+                real_link(src, dst)
+                Path(dst).unlink()
+                Path(dst).write_bytes(b"same-content")
+            with mock.patch.object(running.os, "link", side_effect=replace_same_content):
+                with self.assertRaises(PatcherError):
+                    running._publish_exclusive(tmp, final, root)
+            self.assertEqual(final.read_bytes(), b"same-content")
+            self.assertTrue(tmp.exists())
+
+    def test_c293_quarantine_substitution_after_link_preserves_foreign_source(self) -> None:
+        import src.vv5_individual_running as running
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            registry, registry_identity, created = running._registry(root)
+            issuance = registry / "0123456789abcdef0123456789abcdef.json"
+            running._write_issuance(issuance, {"schema_version": 2, "token": "t"})
+            expected = running._inventory(root, issuance)
+            real_link = running.os.link
+            def replace_after_link(src, dst):
+                real_link(src, dst)
+                if Path(src) == issuance:
+                    issuance.unlink()
+                    issuance.write_bytes(b"foreign")
+            with mock.patch.object(running.os, "link", side_effect=replace_after_link):
+                with self.assertRaises(PatcherError):
+                    running._quarantine_owned(issuance, expected, owner_parent=root)
+            self.assertEqual(issuance.read_bytes(), b"foreign")
+            tombstones = list(root.glob(f".{ISSUANCE_REGISTRY_NAME}-*.vv5run-tombstone-*"))
+            self.assertEqual(len(tombstones), 1)
 
     def test_c291_registry_substitution_during_replay_is_rejected_unchanged(self) -> None:
         import hashlib
