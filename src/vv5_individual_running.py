@@ -10,6 +10,7 @@ import json
 import os
 import re
 import stat
+import struct
 import uuid
 from pathlib import Path
 
@@ -42,7 +43,7 @@ AUTHORITY_SCHEMA_VERSION = 1
 
 
 def _require_windows_identity_atomic() -> None:
-    if os.name != "nt":
+    if os.name != "nt" or struct.calcsize("P") != 8:
         raise PatcherError("VV5 Running publication/recovery identity-atomic operations are certified only on 64-bit Windows.")
 
 
@@ -74,7 +75,7 @@ def _safe_ancestors(path: Path) -> None:
 
 def _validate_recovery_ancestors(path: Path) -> None:
     """Validate directory ancestors before touching an untrusted report."""
-    if os.name != "nt":
+    if os.name != "nt" or struct.calcsize("P") != 8:
         raise PatcherError("VV5 Running recovery identity-atomic paths are certified only on 64-bit Windows.")
     current = Path(os.path.abspath(os.fspath(path))).parent
     chain: list[Path] = []
@@ -101,6 +102,12 @@ def _validate_recovery_siblings(parent: Path, *, selected: str | None = None) ->
     pointer_re = re.compile(r"\.vv5run-(?:recovery|emergency)-[0-9a-f]{32}\.json\.pointer")
     known_reports: set[str] = set()
     chain_entries: list[tuple[str, Path, os.stat_result]] = []
+    captured: dict[str, dict[str, object]] = {}
+    def capture_file(path: Path, label: str) -> dict[str, object]:
+        record = _inventory(parent, path)
+        if record is None:
+            raise PatcherError(f"VV5 Running recovery sibling disappeared: {label}")
+        return record
     entries = list(os.scandir(parent))
     for entry in entries:
         name = entry.name
@@ -110,10 +117,12 @@ def _validate_recovery_siblings(parent: Path, *, selected: str | None = None) ->
             if name == ISSUANCE_REGISTRY_NAME or re.fullmatch(r"\.vv5run-recovery-[0-9a-f]{32}", name):
                 if stat.S_ISLNK(st.st_mode) or _unsafe(st) or not stat.S_ISDIR(st.st_mode):
                     raise PatcherError(f"VV5 Running recovery sibling is unsafe: {name}")
+                captured[name] = {"type": "directory", "st_dev": int(st.st_dev), "st_ino": int(st.st_ino)}
                 continue
             if canonical_re.fullmatch(name) or emergency_re.fullmatch(name) or successor_re.fullmatch(name) or pointer_re.fullmatch(name):
                 if stat.S_ISLNK(st.st_mode) or _unsafe(st) or not stat.S_ISREG(st.st_mode):
                     raise PatcherError(f"VV5 Running recovery sibling is unsafe: {name}")
+                captured[name] = capture_file(path, name)
                 if canonical_re.fullmatch(name) or emergency_re.fullmatch(name):
                     known_reports.add(name)
                 continue
@@ -124,12 +133,29 @@ def _validate_recovery_siblings(parent: Path, *, selected: str | None = None) ->
             if stat.S_ISLNK(st.st_mode) or _unsafe(st) or not stat.S_ISREG(st.st_mode) or not name.endswith(".json"):
                 raise PatcherError(f"VV5 Running recovery chain member is unsafe: {name}")
             chain_entries.append((name, path, st))
+            captured[name] = capture_file(path, name)
     for name, _path, _st in chain_entries:
         target = name[len(".chain-"):-len(".json")]
         if target not in known_reports:
             raise PatcherError(f"VV5 Running recovery chain manifest is orphaned or foreign: {name}")
     if selected is not None and selected not in known_reports:
         raise PatcherError("VV5 Running selected recovery report is not an accepted chain member.")
+    with os.scandir(parent) as final_entries:
+        final_names = set()
+        for entry in final_entries:
+            if entry.name not in captured:
+                continue
+            final_names.add(entry.name)
+            path = Path(entry.path)
+            st = os.lstat(path)
+            if stat.S_ISDIR(st.st_mode):
+                final_record = {"type": "directory", "st_dev": int(st.st_dev), "st_ino": int(st.st_ino)}
+            else:
+                final_record = _inventory(parent, path)
+            if final_record != captured[entry.name]:
+                raise PatcherError(f"VV5 Running recovery sibling changed before use: {entry.name}")
+        if final_names != set(captured):
+            raise PatcherError("VV5 Running recovery sibling membership changed before use.")
 
 
 def _read(path: Path) -> bytes:
@@ -179,6 +205,7 @@ def _parent(destinations: list[Path]) -> Path:
 
 
 def _write(path: Path, data: bytes) -> None:
+    _require_windows_identity_atomic()
     _safe_ancestors(path.parent)
     with open(path, "xb") as f:
         f.write(data)
@@ -188,6 +215,7 @@ def _write(path: Path, data: bytes) -> None:
 
 
 def _cleanup(path: Path, *, expected: dict[str, object] | None = None) -> None:
+    _require_windows_identity_atomic()
     if not os.path.lexists(path):
         if expected is not None:
             raise PatcherError(f"VV5 Running owned cleanup path disappeared: {path}")
@@ -207,6 +235,7 @@ def _cleanup(path: Path, *, expected: dict[str, object] | None = None) -> None:
 
 
 def _restore(path: Path, pre: tuple[bool, bytes | None], published: bytes, backup: Path | None) -> bool:
+    _require_windows_identity_atomic()
     try:
         current = _state(path)
         if current == pre:
@@ -328,6 +357,7 @@ def _canonical(path: Path) -> str:
 
 def _registry(parent: Path) -> tuple[Path, dict[str, int], bool]:
     """Return the fixed destination-parent-owned issuance registry."""
+    _require_windows_identity_atomic()
     _safe_ancestors(parent)
     registry = parent / ISSUANCE_REGISTRY_NAME
     created = False
@@ -346,6 +376,7 @@ def _registry(parent: Path) -> tuple[Path, dict[str, int], bool]:
 
 
 def _cleanup_registry(registry: Path, expected: dict[str, int]) -> None:
+    _require_windows_identity_atomic()
     if not os.path.lexists(registry):
         raise PatcherError("VV5 Running issuance registry disappeared before cleanup.")
     st = os.lstat(registry)
@@ -416,8 +447,9 @@ def _ensure_authority(registry: Path, registry_identity: dict[str, int], created
     return path, token, {"record": record_final, "token": token, "registry_identity": registry_identity, "created": True}
 
 
-def _quarantine_owned(path: Path, expected: dict[str, object], *, owner_parent: Path) -> tuple[Path, dict[str, object]]:
+def _quarantine_owned(path: Path, expected: dict[str, object], *, owner_parent: Path) -> tuple[Path, dict[str, object], Path]:
     """Move an owned registry member outside the registry without overwriting."""
+    _require_windows_identity_atomic()
     actual = _inventory(path.parent, path)
     if actual is None or any(actual.get(key) != expected.get(key) for key in ("type", "size", "sha256", "st_dev", "st_ino")):
         raise PatcherError(f"VV5 Running issuance cleanup identity changed: {path}")
@@ -438,6 +470,17 @@ def _quarantine_owned(path: Path, expected: dict[str, object], *, owner_parent: 
     tombstone_before_delete = _inventory(owner_parent, tombstone)
     if source_before_delete != actual or tombstone_before_delete != moved:
         raise PatcherError("VV5 Running issuance tombstone/source changed before deletion.")
+    preserved = owner_parent / f".{path.name}.vv5run-preserved-{uuid.uuid4().hex}.backup"
+    if os.path.lexists(preserved):
+        raise PatcherError("VV5 Running issuance preserved backup target raced.")
+    _write(preserved, _read(path))
+    preserved_record = _inventory(owner_parent, preserved)
+    if preserved_record is None or preserved_record.get("sha256") != actual.get("sha256") or preserved_record.get("size") != actual.get("size"):
+        raise PatcherError("VV5 Running issuance preserved backup verification failed.")
+    source_before_delete = _inventory(path.parent, path)
+    tombstone_before_delete = _inventory(owner_parent, tombstone)
+    if source_before_delete != actual or tombstone_before_delete != moved:
+        raise PatcherError("VV5 Running issuance tombstone/source changed before deletion.")
     if stat.S_ISREG(os.lstat(path).st_mode):
         _strict_delete_file_by_handle(path, actual)
     elif os.path.lexists(path):
@@ -447,7 +490,7 @@ def _quarantine_owned(path: Path, expected: dict[str, object], *, owner_parent: 
         raise PatcherError("VV5 Running issuance tombstone changed after source deletion.")
     if os.path.lexists(path):
         raise PatcherError("VV5 Running issuance source was replaced during deletion.")
-    return tombstone, moved
+    return tombstone, moved, preserved
 
 
 def _cleanup_issuance_artifacts(
@@ -460,13 +503,14 @@ def _cleanup_issuance_artifacts(
     remove_registry: bool = True,
 ) -> None:
     """Retire issuance members only through verified quarantine and cleanup."""
+    _require_windows_identity_atomic()
     if not os.path.lexists(registry) or _identity(registry) != registry_identity:
         raise PatcherError("VV5 Running issuance registry changed before cleanup.")
     owned = list(artifacts) + ([authority] if authority is not None else [])
     expected_members = owned + ([retain_authority] if retain_authority is not None else [])
     expected = {path.name: _rebase_registry_record(registry, path, record) for path, record in expected_members}
     _assert_registry_members(registry, registry_identity, expected)
-    tombstones: list[tuple[Path, dict[str, object]]] = []
+    tombstones: list[tuple[Path, dict[str, object], Path]] = []
     try:
         for path, record in owned:
             _assert_registry_members(registry, registry_identity, expected)
@@ -475,8 +519,12 @@ def _cleanup_issuance_artifacts(
             _assert_registry_members(registry, registry_identity, expected)
         if remove_registry:
             _cleanup_registry(registry, registry_identity)
-        for tombstone, record in tombstones:
+        for tombstone, record, preserved in tombstones:
             _cleanup(tombstone, expected=record)
+            preserved_record = _inventory(preserved.parent, preserved)
+            if preserved_record is None or preserved_record.get("sha256") != record.get("sha256") or preserved_record.get("size") != record.get("size"):
+                raise PatcherError("VV5 Running preserved backup changed before cleanup.")
+            _cleanup(preserved, expected=preserved_record)
     except Exception:
         # Any remaining tombstone is deliberate durable authority evidence;
         # never claim zero residue after a raced or foreign cleanup.
@@ -484,6 +532,7 @@ def _cleanup_issuance_artifacts(
 
 
 def _write_issuance(path: Path, payload: dict[str, object]) -> None:
+    _require_windows_identity_atomic()
     _safe_ancestors(path.parent)
     if os.path.lexists(path):
         raise PatcherError("VV5 Running issuance record collision.")
@@ -515,6 +564,7 @@ def _issuance_pointer_path(path: Path) -> Path:
 
 
 def _publish_exclusive(tmp: Path, final: Path, root: Path) -> dict[str, object]:
+    _require_windows_identity_atomic()
     try:
         _strict_publish_exclusive(tmp, final, root)
     except Exception as exc:
@@ -559,6 +609,7 @@ def _load_issuance_pointer(path: Path, before: dict[str, object]) -> tuple[Path,
 
 
 def _replace_issuance(path: Path, before: dict[str, object], payload: dict[str, object]) -> dict[str, object]:
+    _require_windows_identity_atomic()
     current = _inventory(path.parent, path)
     if current is None or any(current.get(key) != before.get(key) for key in ("type", "size", "sha256", "st_dev", "st_ino")):
         raise PatcherError("VV5 Running issuance record was substituted before binding.")

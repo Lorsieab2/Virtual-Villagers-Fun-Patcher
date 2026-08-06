@@ -41,6 +41,38 @@ class VV5RunningPublicationTests(unittest.TestCase):
             with self.assertRaises(PatcherError):
                 _publish("install", [Path(VV5_EXE_BASENAME), Path(DLL_NAME)], {}, {}, Path("."))
 
+    def test_c299_deletion_substitution_retains_verified_preserved_bytes(self) -> None:
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            registry = root / ISSUANCE_REGISTRY_NAME
+            registry.mkdir()
+            source = registry / "issuance.json"
+            source.write_bytes(b"owned")
+            expected = running._inventory(root, source)
+            original_delete = running._strict_delete_file_by_handle
+
+            def substitute(path, identity):
+                if path == source:
+                    source.unlink()
+                    source.write_bytes(b"foreign")
+                return original_delete(path, identity)
+
+            with mock.patch.object(running, "_strict_delete_file_by_handle", side_effect=substitute):
+                with self.assertRaises(PatcherError):
+                    running._quarantine_owned(source, expected, owner_parent=root)
+            preserved = list(root.glob(".issuance.json.vv5run-preserved-*.backup"))
+            self.assertEqual(len(preserved), 1)
+            self.assertEqual(preserved[0].read_bytes(), b"owned")
+            self.assertEqual(source.read_bytes(), b"foreign")
+
+    def test_c299_32bit_windows_capability_fails_before_io(self) -> None:
+        with mock.patch.object(running.os, "name", "nt"), \
+             mock.patch.object(running.struct, "calcsize", return_value=4), \
+             mock.patch.object(running.os, "lstat", side_effect=AssertionError("filesystem touched")):
+            with self.assertRaises(PatcherError):
+                install_atomic(Path("missing.exe"), Path(VV5_EXE_BASENAME), VV5_MODE,
+                               companion_source=Path("missing.dll"), companion_destination=Path(DLL_NAME))
+
     def test_all_public_vv5_running_apis_reject_unsupported_mode_before_io(self) -> None:
         import src.vv_fun_patcher as patcher
         missing = Path("missing-vv5-running.exe")
