@@ -546,18 +546,44 @@ def _read_issuance_binding(manifest: Path) -> dict[str, object] | None:
     if not isinstance(token, str) or not re.fullmatch(r"[0-9a-f]{32}", token) or not isinstance(name, str) or Path(name).is_absolute() or ".." in Path(name).parts or not isinstance(identity, dict):
         return None
     issuance = manifest.parent / name
+    # The issuance must be a member of the exact recovery root captured by
+    # the report, never an arbitrary sibling that happens to have the right
+    # basename.  Revalidate parent/root identities before reading it.
+    strict_vv3 = report_raw.get("feature_owner") == "vv3_individual_full_mastery"
+    root_name = report_raw.get("recovery_root_name")
+    root_identity = report_raw.get("recovery_root_identity")
+    if strict_vv3:
+        if not isinstance(root_name, str) or Path(root_name).name != root_name or Path(root_name).is_absolute() or ".." in Path(root_name).parts or not re.fullmatch(r"\.vv3im-(?:recovery|emergency)-[0-9a-f]{32}", root_name) or not isinstance(root_identity, dict):
+            return None
+        root = manifest.parent / root_name
+        actual_root = _inventory_entry(manifest.parent, root)
+        if actual_root.get("type") != "directory" or any(actual_root.get(key) != root_identity.get(key) for key in ("st_dev", "st_ino")):
+            raise PatcherError("VV3 individual Full Mastery issuance recovery root changed before binding.")
+        issuance_parts = Path(name).parts
+        if issuance_parts != (root_name, issuance_parts[-1] if issuance_parts else "") or not re.fullmatch(r"\.vv3im-issuance-[0-9a-f]{32}\.json", issuance_parts[-1] if issuance_parts else ""):
+            return None
+    report_parent_identity = report_raw.get("report_parent_identity")
+    actual_parent = _inventory_entry(manifest.parent.parent, manifest.parent)
+    if isinstance(report_parent_identity, dict) and any(actual_parent.get(key) != report_parent_identity.get(key) for key in ("st_dev", "st_ino")):
+        raise PatcherError("VV3 individual Full Mastery issuance report parent changed before binding.")
+    if report_raw.get("destination_parent_absolute") not in (None, str(manifest.parent.absolute()).casefold()):
+        return None
     try:
         issuance_record = _inventory_entry(manifest.parent, issuance)
     except (FileNotFoundError, PatcherError) as exc:
         raise PatcherError("VV3 individual Full Mastery issuance evidence is missing or unsafe.") from exc
     if issuance_record != identity.get("record"):
         raise PatcherError("VV3 individual Full Mastery issuance evidence changed before journal binding.")
+    if strict_vv3 and not issuance_record.get("path", "").replace("\\", "/").startswith(str(root_name) + "/"):
+        return None
     issuance_payload = json.loads(_read_regular(issuance).decode("utf-8"))
     # VV5 owns a separate parent-registry issuance schema.  The shared
     # authority journal must preserve and compare that external record, but
     # VV3's stricter transaction-start schema applies only to VV3 issuance.
     if report_raw.get("feature_owner") not in {None, "vv3_individual_full_mastery"}:
         return {"token": token, "name": name, "record": identity.get("record"), "owner": report_raw.get("feature_owner"), "operation": report_raw.get("operation"), "destination_paths_absolute": report_raw.get("destination_paths_absolute"), "member_roles": report_raw.get("member_roles")}
+    if report_raw.get("feature_owner") is None:
+        return {"token": token, "name": name, "record": identity.get("record"), "owner": None, "operation": report_raw.get("operation"), "destination_paths_absolute": report_raw.get("destination_paths_absolute"), "member_roles": report_raw.get("member_roles")}
     required = {"schema_version", "kind", "feature_owner", "operation", "transaction_id", "token", "owner_parent_absolute", "parent_identity", "recovery_root_name", "recovery_root_identity", "destination_paths_absolute", "member_roles", "member_digest", "members", "precondition"}
     if not isinstance(issuance_payload, dict) or set(issuance_payload) != required or issuance_payload.get("schema_version") != 1 or issuance_payload.get("kind") != "vv3_recovery_issuance":
         raise PatcherError("VV3 individual Full Mastery issuance evidence schema is unsupported or forged.")
@@ -565,12 +591,27 @@ def _read_issuance_binding(manifest: Path) -> dict[str, object] | None:
         raise PatcherError("VV3 individual Full Mastery issuance transaction identity is inconsistent.")
     if issuance_payload.get("feature_owner") != report_raw.get("feature_owner") or issuance_payload.get("operation") != report_raw.get("operation"):
         raise PatcherError("VV3 individual Full Mastery issuance owner/operation binding is inconsistent.")
+    issuance_root_identity = issuance_payload.get("recovery_root_identity")
+    root_identity_matches = isinstance(issuance_root_identity, dict) and isinstance(root_identity, dict) and all(issuance_root_identity.get(key) == root_identity.get(key) for key in ("st_dev", "st_ino"))
+    if issuance_payload.get("owner_parent_absolute") != str(manifest.parent.absolute()).casefold() or issuance_payload.get("recovery_root_name") != root_name or not root_identity_matches:
+        raise PatcherError("VV3 individual Full Mastery issuance parent/root binding is inconsistent.")
     report_roles = report_raw.get("member_roles") or {}
     issuance_roles = issuance_payload.get("member_roles") or {}
     normalized_issuance_roles = {Path(str(name)).name.casefold(): role for name, role in issuance_roles.items()}
     normalized_report_roles = {str(name).casefold(): role for name, role in report_roles.items()}
     if issuance_payload.get("destination_paths_absolute") != report_raw.get("destination_paths_absolute") or normalized_issuance_roles != normalized_report_roles:
         raise PatcherError("VV3 individual Full Mastery issuance destination/role binding is inconsistent.")
+    report_members = report_raw.get("members")
+    issuance_members = issuance_payload.get("members")
+    if not isinstance(report_members, list) or not isinstance(issuance_members, list) or len(report_members) != len(issuance_members):
+        raise PatcherError("VV3 individual Full Mastery issuance member binding is incomplete.")
+    expected_members = [
+        {"path": str((manifest.parent / str(item.get("destination_relative"))).absolute()).casefold(), "exists": bool(item.get("pre_exists")), "size": int(item.get("pre_size", 0)), "sha256": item.get("pre_sha256")}
+        for item in report_members
+        if isinstance(item, dict) and isinstance(item.get("destination_relative"), str)
+    ]
+    if len(expected_members) != len(report_members) or issuance_members != expected_members or issuance_payload.get("precondition") != {item["path"]: {"exists": item["exists"], "size": item["size"], "sha256": item["sha256"]} for item in expected_members}:
+        raise PatcherError("VV3 individual Full Mastery issuance precondition/member binding is inconsistent.")
     members_blob = json.dumps(issuance_payload.get("members"), sort_keys=True, separators=(",", ":")).encode("utf-8")
     if issuance_payload.get("member_digest") != _sha(members_blob):
         raise PatcherError("VV3 individual Full Mastery issuance member digest is inconsistent.")
