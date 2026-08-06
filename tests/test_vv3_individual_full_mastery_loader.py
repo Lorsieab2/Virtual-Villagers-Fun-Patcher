@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import hashlib
+import json
 import tempfile
 import unittest
 from unittest import mock
@@ -172,6 +173,66 @@ class VV3IndividualFullMasteryLoaderTests(unittest.TestCase):
             self.assertFalse(destination.exists())
             self.assertFalse(companion_destination.exists())
             self.assertFalse(list(root.glob(".vv3im-*")))
+
+    def test_recovery_schema_rejects_unknown_field_before_mutation(self):
+        parent = PARENTS / "vv3_fullscreen_safe_candidate_collection_progression.exe"
+        candidate_dll = ROOT / "data" / "candidates" / "VVFP VV3 Full Heal Candidate.dll"
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            destination = root / "candidate.exe"
+            companion_destination = root / "VVFP VV3 Full Mastery Candidate.dll"
+            real_replace = loader.os.replace
+            calls = {"publish": 0}
+            def fail_second(src, dst):
+                if str(src).endswith(".stage") and Path(dst) in {destination, companion_destination}:
+                    calls["publish"] += 1
+                    if calls["publish"] == 2:
+                        raise OSError("injected second-member replace failure")
+                return real_replace(src, dst)
+            with mock.patch.object(loader, "render_parent", return_value=b"CANDIDATE-EXE"):
+                with mock.patch.object(loader, "_restore_member", return_value=False):
+                    with mock.patch.object(loader.os, "replace", side_effect=fail_second):
+                        with self.assertRaises(vv_fun_patcher.PatcherError):
+                            loader.install_atomic(parent, destination, "collection_progression", companion_source=candidate_dll, companion_destination=companion_destination)
+            report = next(root.glob(".vv3im-recovery-*.json"))
+            payload = json.loads(report.read_text(encoding="utf-8"))
+            payload["unexpected_alias"] = True
+            report.write_text(json.dumps(payload), encoding="utf-8")
+            before = sorted(p.name for p in root.iterdir())
+            with self.assertRaises(vv_fun_patcher.PatcherError):
+                loader.recover_vv3_transaction(report)
+            self.assertEqual(sorted(p.name for p in root.iterdir()), before)
+
+    def test_recovery_schema_rejects_escape_and_duplicate_member_paths(self):
+        base = {
+            "schema_version": 2,
+            "operation": "install_new",
+            "recovery_root": ".",
+            "destination_parent": ".",
+            "initial_precondition": {"kind": "absent", "members": []},
+            "replay_guard": "published_or_initial",
+            "members": [],
+            "ownership_inventory": [],
+            "failure_diagnostic": "x",
+        }
+        for bad in ("../escape.exe", "same.exe"):
+            member = {
+                "destination_relative": bad,
+                "destination_type": "regular_file",
+                "pre_exists": False,
+                "pre_sha256": None,
+                "pre_size": 0,
+                "published_sha256": "A" * 64,
+                "published_size": 1,
+                "backup_relative": None,
+                "stage_relative": None,
+                "backup_inventory": None,
+                "stage_inventory": None,
+            }
+            payload = dict(base)
+            payload["members"] = [member, dict(member)]
+            with self.assertRaises(vv_fun_patcher.PatcherError):
+                loader._validate_recovery_payload(payload, Path(tempfile.gettempdir()))
 
 
 if __name__ == "__main__":
