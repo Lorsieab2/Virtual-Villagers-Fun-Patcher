@@ -86,7 +86,8 @@ class IndividualBuyTransactionContractTests(unittest.TestCase):
         self.assertEqual(tx["accept_result"], 1)
         self.assertIn(NO_DEDUCTION, tx["no_deduction"])
         self.assertEqual(raw["parent_hashes"]["collection_progression"], "857E22D7C361B802508BF789C3CC486E42E76021F5AA579BB1D16CC6E0D017A0")
-        self.assertEqual(raw["parent_hashes"]["immediate_fixed"], "E93822F752F730ECB751EBAA87021194C992984721B4370FF0015D5FC4BB2E9A")
+        self.assertNotIn("immediate_fixed", raw["parent_hashes"])
+        self.assertEqual(raw["allowed_modes"], ["collection_progression"])
         self.assertEqual(raw["pe_append_transaction"]["section"], ".vv5run")
         self.assertIsNone(raw["provenance"]["implementation_commit"])
 
@@ -111,6 +112,19 @@ class IndividualBuyTransactionContractTests(unittest.TestCase):
         self.assertIn(b"\x68\x1f", helper)
         self.assertIn(b"\x6c\x1f", helper)
         self.assertIn(b"\x70\x1f", helper)
+
+    def test_vv5_running_dislike_ownership_precedes_readback_and_rollback_increments(self) -> None:
+        raw = load("vv5_individual_running_candidate_map.json")
+        helper = bytes.fromhex(raw["slot"]["running_helper_bytes"])
+        claim = bytes.fromhex("B80100000089F941D3E00945BCC784")
+        # Ownership is claimed before each Dislike store/readback, so a
+        # failed readback still leaves a guarded rollback bit.
+        self.assertGreaterEqual(helper.count(claim), 1)
+        self.assertIn(bytes.fromhex("B80100000089F941D3E00945BC"), helper)
+        # The rollback clear uses the same index+1 mapping (inc ecx before
+        # the shift), rather than the historical bit-index omission.
+        self.assertIn(bytes.fromhex("B80100000089F941D3E00945BCC784"), helper)
+        self.assertNotIn(bytes.fromhex("B80100000089F941D3D0"), helper)
 
     def test_vv5_running_stack_intervals_are_disjoint_and_initialized(self) -> None:
         raw = load("vv5_individual_running_candidate_map.json")
@@ -152,7 +166,7 @@ class IndividualBuyTransactionContractTests(unittest.TestCase):
         self.assertEqual(append["va"], "0x7CB000")
         self.assertEqual(append["dispatcher_va"], "0x7CB020")
         self.assertEqual(append["append_length"], 0x2000)
-        self.assertEqual(set(append["layouts"]), {"collection_progression", "immediate_fixed"})
+        self.assertEqual(set(append["layouts"]), {"collection_progression"})
         for layout in append["layouts"].values():
             self.assertEqual(layout["hook_before"], "E995750100")
             self.assertEqual(layout["hook_after"], "E9B5880100")
@@ -215,15 +229,15 @@ class IndividualBuyTransactionContractTests(unittest.TestCase):
         import hashlib
         manifest_path = ROOT / "data" / "candidates" / "vv5_individual_running_candidate.json"
         map_path = ROOT / "data" / "candidates" / "vv5_individual_running_candidate_map.json"
-        self.assertEqual(hashlib.sha256(manifest_path.read_bytes()).hexdigest().upper(), "7AF7B821399DFFB12D34DFC43211D83EF6C6806400A712A618A746774F014336")
-        self.assertEqual(hashlib.sha256(map_path.read_bytes()).hexdigest().upper(), "D3C689645120CBB15C051D81687063A64F8E553EFA32E40E79EAC529A1F87A65")
+        self.assertEqual(hashlib.sha256(manifest_path.read_bytes()).hexdigest().upper(), "22FBF8D3AE9B2DC490067526AEC2628BCD6F17126EFD36D8B72BC5A9F813D2F5")
+        self.assertEqual(hashlib.sha256(map_path.read_bytes()).hexdigest().upper(), "7D8A30C80CF14EB84DAC62AC324ED476F60E92B543A0B9DA3870F5184339F358")
         raw = json.loads(map_path.read_text(encoding="utf-8"))
         blob = bytes.fromhex(raw["slot"]["running_strings_blob"])
         self.assertEqual(hashlib.sha256(blob).hexdigest().upper(), "0BE4E54A34DA91228F4E333C6DCC8E18FB3BE4292004766B97649A8EE124DCE2")
-        self.assertEqual(raw["candidate"]["emitted"]["helper_sha256"], "B241577470F7FDA4E9B7B646A489C266F93B84638CC6BACA5D843C7CED423375")
-        self.assertEqual(raw["candidate"]["emitted"]["page_sha256"], "7C6576FD669261BD0C1D688280EAD8653C6B22FDA4BE92151387FE2A4E35B28C")
+        self.assertEqual(raw["candidate"]["emitted"]["helper_sha256"], "9692B2C08FEB1F76AA70709C59539B9A76369FE46C5C2E5888A965DA2D562FCC")
+        self.assertEqual(raw["candidate"]["emitted"]["page_sha256"], "9DA0E15FA9AB09FF986CC5F132DDB9C7662F77C445634504DDEA9DFAACF1C3F2")
         self.assertEqual(raw["candidate"]["emitted"]["rendered_exe_size"], 0xF6000)
-        self.assertEqual(raw["candidate"]["emitted"]["rendered_exe_sha256"], {"collection_progression": "1FEB7B2338C79E85807EC0582652AF66736769A32500A5C9B2B43A7A1A5B283F", "immediate_fixed": None})
+        self.assertEqual(raw["candidate"]["emitted"]["rendered_exe_sha256"], {"collection_progression": "1E3FD6CE44E906BD8DDD7C937D68AB74671D8F197BC1D767A2B0622F1A0F7907"})
 
     def test_vv5_running_page_ownership_excludes_full_mastery_and_stale_output(self) -> None:
         raw = load("vv5_individual_running_candidate_map.json")
@@ -241,6 +255,14 @@ class IndividualBuyTransactionContractTests(unittest.TestCase):
             for other_start, other_end in intervals[i + 1 :]:
                 self.assertTrue(end <= other_start or other_end <= start)
         self.assertNotIn("511997D3BA57AA6844D390FFD9BD980A6E36D277BFFD56BFC9A2672CAEFC8125", json.dumps(raw))
+
+    def test_vv5_running_immediate_is_rejected_before_source_read(self) -> None:
+        from unittest import mock
+        from vv_fun_patcher import PatcherError, render_vv5_individual_running_parent
+        missing = ROOT / "outputs" / "c279-no-immediate-source.exe"
+        with mock.patch.object(Path, "read_bytes", side_effect=AssertionError("source read must not occur")):
+            with self.assertRaises(PatcherError):
+                render_vv5_individual_running_parent(missing, "immediate_fixed")
 
 
 if __name__ == "__main__":

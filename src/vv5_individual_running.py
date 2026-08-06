@@ -13,6 +13,10 @@ import uuid
 from pathlib import Path
 
 from vv_fun_patcher import PatcherError, render_vv5_individual_running_parent, remove_vv5_individual_running_parent
+from vv3_individual_full_mastery import (
+    _transaction as _strict_pair_transaction,
+    recover_atomic as _strict_recover_atomic,
+)
 
 ROOT = Path(__file__).resolve().parents[1]
 DLL_SHA256 = "29927CECB448B64944E18E2BA11893DC84C91B39241FBB2549FC2A464E0BE2ED"
@@ -200,6 +204,24 @@ def _report(parent: Path, operation: str, members: list[dict[str, object]], erro
 
 
 def _publish(operation: str, destinations: list[Path], pre: dict[Path, tuple[bool, bytes | None]], published: dict[Path, bytes], parent: Path) -> None:
+    # Reuse the independently hardened schema-v2 pair transaction.  This
+    # keeps VV5 recovery fail-closed on complete ownership inventories,
+    # no-follow/reparse checks, immutable preconditions, durable retry
+    # evidence, and exact pair verification rather than maintaining a weaker
+    # second implementation.
+    expected_preimage = {p: (pre[p][1] or b"") for p in destinations if pre[p][0]}
+    _strict_pair_transaction(
+        "remove" if operation == "remove" else "install",
+        destinations,
+        pre,
+        published,
+        expected_preimage=expected_preimage,
+        parent=parent,
+    )
+    return
+
+    # Legacy implementation retained below only as unreachable source
+    # context; production publication is the strict transaction above.
     token = uuid.uuid4().hex
     stages = {p: parent / f".{p.name}.vv5run-{token}.stage" for p in destinations}
     backups = {p: parent / f".{p.name}.vv5run-{token}.backup" for p in destinations if pre[p][0]}
@@ -242,6 +264,8 @@ def recover_atomic(report_path: Path) -> None:
     backups are copied to fresh sibling stages and retained until the complete
     pair verifies.  A failed replay leaves the report and backups intact.
     """
+    return _strict_recover_atomic(Path(report_path))
+
     report_path = Path(report_path)
     parent = report_path.parent
     _safe_ancestors(parent)

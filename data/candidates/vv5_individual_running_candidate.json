@@ -8,8 +8,7 @@
   "runtime_status": "pending",
   "certification_status": "disabled candidate; independent emitted-byte and runtime recertification pending",
   "allowed_modes": [
-    "collection_progression",
-    "immediate_fixed"
+    "collection_progression"
   ],
   "unsupported_patch_modes": [
     "experimental_expanded_256",
@@ -36,8 +35,7 @@
     }
   ],
   "parent_hashes": {
-    "collection_progression": "857E22D7C361B802508BF789C3CC486E42E76021F5AA579BB1D16CC6E0D017A0",
-    "immediate_fixed": "E93822F752F730ECB751EBAA87021194C992984721B4370FF0015D5FC4BB2E9A"
+    "collection_progression": "857E22D7C361B802508BF789C3CC486E42E76021F5AA579BB1D16CC6E0D017A0"
   },
   "pe_append_transaction": {
     "status": "disabled real production candidate; loader/install/remove recertification pending",
@@ -57,41 +55,6 @@
     "layouts": {
       "collection_progression": {
         "parent_sha256": "857E22D7C361B802508BF789C3CC486E42E76021F5AA579BB1D16CC6E0D017A0",
-        "original_file_size": "0xF4000",
-        "append_offset": "0xF4000",
-        "append_length": 8192,
-        "append_source": "generated:vv5_individual_running_page",
-        "rva": "0x3CB000",
-        "va": "0x7CB000",
-        "section_header_offset": "0x2E0",
-        "section_header_before": "00000000000000000000000000000000000000000000000000000000000000000000000000000000",
-        "section_header_after": "2E76763572756E000020000000B03C000020000000400F0000000000000000000000000020000060",
-        "header_patches": [
-          {
-            "offset": "0xFE",
-            "before": "0600",
-            "after": "0700",
-            "purpose": "add candidate-owned .vv5run section"
-          },
-          {
-            "offset": "0x148",
-            "before": "00B03C00",
-            "after": "00D03C00",
-            "purpose": "extend SizeOfImage for .vv5run"
-          },
-          {
-            "offset": "0x2E0",
-            "before": "00000000000000000000000000000000000000000000000000000000000000000000000000000000",
-            "after": "2E76763572756E000020000000B03C000020000000400F0000000000000000000000000020000060",
-            "purpose": "install guarded RX .vv5run section header"
-          }
-        ],
-        "hook_before": "E995750100",
-        "hook_after": "E9B5880100",
-        "purpose": "append the candidate-owned VV5 command-2 .vv5run RX page"
-      },
-      "immediate_fixed": {
-        "parent_sha256": "E93822F752F730ECB751EBAA87021194C992984721B4370FF0015D5FC4BB2E9A",
         "original_file_size": "0xF4000",
         "append_offset": "0xF4000",
         "append_length": 8192,
@@ -188,19 +151,18 @@
     }
   },
   "emitted": {
-    "page_sha256": "7C6576FD669261BD0C1D688280EAD8653C6B22FDA4BE92151387FE2A4E35B28C",
+    "page_sha256": "9DA0E15FA9AB09FF986CC5F132DDB9C7662F77C445634504DDEA9DFAACF1C3F2",
     "page_rva": "0x3CB000",
     "page_va": "0x7CB000",
     "append_offset": "0xF4000",
     "dispatcher_va": "0x7CB020",
     "dispatcher_sha256": "40069986457C21E8A6AF193A8480A17D161FDD772DE031E00E4E35BFE23C76FE",
     "dispatcher_bytes": "83FB010F84D7ECFFFF83FB020F84EE150000E95977FEFF",
-    "helper_sha256": "B241577470F7FDA4E9B7B646A489C266F93B84638CC6BACA5D843C7CED423375",
-    "helper_length": 1883,
+    "helper_sha256": "9692B2C08FEB1F76AA70709C59539B9A76369FE46C5C2E5888A965DA2D562FCC",
+    "helper_length": 1884,
     "rendered_exe_size": 1007616,
     "rendered_exe_sha256": {
-      "collection_progression": "1FEB7B2338C79E85807EC0582652AF66736769A32500A5C9B2B43A7A1A5B283F",
-      "immediate_fixed": null
+      "collection_progression": "1E3FD6CE44E906BD8DDD7C937D68AB74671D8F197BC1D767A2B0622F1A0F7907"
     }
   },
   "provenance": {

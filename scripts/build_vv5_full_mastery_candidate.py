@@ -966,14 +966,17 @@ def build_running_helper(page_va: int, strings: dict[str, int]) -> bytes:
         jne write_failed
         cmp dword ptr [esi+edi*4+0x1F68], 38
         jne clear_dislike_next
-        mov dword ptr [esi+edi*4+0x1F68], -1
-        cmp dword ptr [esi+edi*4+0x1F68], -1
-        jne write_failed
+        # Claim ownership before the native store/readback so a failed
+        # readback still leaves a precise candidate-written bit for guarded
+        # rollback.  Dislike slot i maps to bit i+1 (bits 1..3).
         mov eax, 1
         mov ecx, edi
         inc ecx
         shl eax, cl
         or dword ptr [ebp-0x44], eax
+        mov dword ptr [esi+edi*4+0x1F68], -1
+        cmp dword ptr [esi+edi*4+0x1F68], -1
+        jne write_failed
     clear_dislike_next:
         inc edi
         jmp clear_dislike_loop
@@ -1187,6 +1190,7 @@ def build_running_helper(page_va: int, strings: dict[str, int]) -> bytes:
         jne write_failed_result
         mov eax, 1
         mov ecx, edi
+        inc ecx
         shl eax, cl
         xor dword ptr [ebp-0x44], eax
     rollback_dislike_next:
@@ -1955,7 +1959,6 @@ def main() -> None:
         }
         for mode, parent_sha in {
             "collection_progression": "857E22D7C361B802508BF789C3CC486E42E76021F5AA579BB1D16CC6E0D017A0",
-            "immediate_fixed": "E93822F752F730ECB751EBAA87021194C992984721B4370FF0015D5FC4BB2E9A",
         }.items()
     }
     running_candidate = {
@@ -1967,7 +1970,7 @@ def main() -> None:
         "catalog_enabled": False,
         "runtime_status": "pending",
         "certification_status": "disabled candidate; independent emitted-byte and runtime recertification pending",
-        "allowed_modes": ["collection_progression", "immediate_fixed"],
+        "allowed_modes": ["collection_progression"],
         "unsupported_patch_modes": ["experimental_expanded_256", "experimental_expanded_256_progression"],
         "expanded_fail_closed": True,
         "dependencies": ["vv5_full_mastery_all_stage_a_candidate"],
@@ -1987,7 +1990,6 @@ def main() -> None:
         }],
         "parent_hashes": {
             "collection_progression": "857E22D7C361B802508BF789C3CC486E42E76021F5AA579BB1D16CC6E0D017A0",
-            "immediate_fixed": "E93822F752F730ECB751EBAA87021194C992984721B4370FF0015D5FC4BB2E9A",
         },
         "pe_append_transaction": {
             "status": "disabled real production candidate; loader/install/remove recertification pending",
@@ -2048,8 +2050,7 @@ def main() -> None:
             "helper_length": running_map["running_helper_length"],
             "rendered_exe_size": 0xF6000,
             "rendered_exe_sha256": {
-                "collection_progression": "1FEB7B2338C79E85807EC0582652AF66736769A32500A5C9B2B43A7A1A5B283F",
-                "immediate_fixed": None,
+                "collection_progression": "1E3FD6CE44E906BD8DDD7C937D68AB74671D8F197BC1D767A2B0622F1A0F7907",
             },
         },
         "provenance": {"implementation_parent": "f1256fca68f2711974e93057e599f2642c77a2a4", "implementation_commit": None, "audit_commit": None, "acceptance_commit": None},
@@ -2059,7 +2060,7 @@ def main() -> None:
     RUNNING_DOC_OUT.write_text(
         "# VV5 individual Grant Running candidate\n\n"
         "This candidate is disabled and catalog-hidden pending independent emitted-byte and runtime recertification. "
-        "It is restricted to Collection Progression and Immediate Fixed and rejects Expanded-256 before output.\n\n"
+        "It is restricted to Collection Progression; Immediate Fixed is unsupported until its exact parent is authenticated, and Expanded-256 rejects before output.\n\n"
         "The transaction is command 2, Buy-only, 40,000 tech points. It performs a complete selected-villager dry run, "
         "scans and snapshots Likes +0x1F5C/+0x1F60/+0x1F64 and Dislikes +0x1F68/+0x1F6C/+0x1F70, preserves duplicate Likes, "
         "writes Running only to the first exact -1 Like when needed, and clears every Running Dislike only when Running is or can be ensured as a Like. "

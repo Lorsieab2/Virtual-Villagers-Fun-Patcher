@@ -1,6 +1,6 @@
 # VV5 individual Grant Running candidate
 
-This candidate is disabled and catalog-hidden pending independent emitted-byte and runtime recertification. It is restricted to Collection Progression and Immediate Fixed and rejects Expanded-256 before output.
+This candidate is disabled and catalog-hidden pending independent emitted-byte and runtime recertification. It is restricted to Collection Progression; Immediate Fixed is unsupported until its exact parent is authenticated, and Expanded-256 rejects before output.
 
 The transaction is command 2, Buy-only, 40,000 tech points. It performs a complete selected-villager dry run, scans and snapshots Likes +0x1F5C/+0x1F60/+0x1F64 and Dislikes +0x1F68/+0x1F6C/+0x1F70, preserves duplicate Likes, writes Running only to the first exact -1 Like when needed, and clears every Running Dislike only when Running is or can be ensured as a Like. No empty Like means no writes/no charge even when Running is a Dislike. It reacquires and rechecks before mutation, verifies all six slots after writes, then performs one native deduction. Movement and speed are untouched.
 
