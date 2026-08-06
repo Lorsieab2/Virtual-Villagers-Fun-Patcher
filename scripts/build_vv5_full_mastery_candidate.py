@@ -2048,7 +2048,7 @@ def main() -> None:
             "helper_length": running_map["running_helper_length"],
             "rendered_exe_size": 0xF6000,
             "rendered_exe_sha256": {
-                "collection_progression": "CEE399896343055CB35AEC345A863F50E7CFF4989F71669912BC588E2F3D8B8C",
+                "collection_progression": "1FEB7B2338C79E85807EC0582652AF66736769A32500A5C9B2B43A7A1A5B283F",
                 "immediate_fixed": None,
             },
         },

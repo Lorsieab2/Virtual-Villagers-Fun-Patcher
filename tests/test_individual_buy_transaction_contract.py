@@ -215,15 +215,15 @@ class IndividualBuyTransactionContractTests(unittest.TestCase):
         import hashlib
         manifest_path = ROOT / "data" / "candidates" / "vv5_individual_running_candidate.json"
         map_path = ROOT / "data" / "candidates" / "vv5_individual_running_candidate_map.json"
-        self.assertEqual(hashlib.sha256(manifest_path.read_bytes()).hexdigest().upper(), "BBBCCF15DF3858ADD6BDF74E2E112FB20EC769FFDC77AD3985650AB30E2FB0F8")
-        self.assertEqual(hashlib.sha256(map_path.read_bytes()).hexdigest().upper(), "23117F33D46961A2B228A3E0B61B0EBF77705EA3B2B9C4E3147D710ED3942404")
+        self.assertEqual(hashlib.sha256(manifest_path.read_bytes()).hexdigest().upper(), "EA09C5E19A61D1F74F90A6CE59E3158A65DF29D74BF59B99C9B20F545DCDF24F")
+        self.assertEqual(hashlib.sha256(map_path.read_bytes()).hexdigest().upper(), "92A448001B09FCFCE77A16C6C3E11873E63B9361A8332225FF33BD5EA4470A70")
         raw = json.loads(map_path.read_text(encoding="utf-8"))
         blob = bytes.fromhex(raw["slot"]["running_strings_blob"])
         self.assertEqual(hashlib.sha256(blob).hexdigest().upper(), "0BE4E54A34DA91228F4E333C6DCC8E18FB3BE4292004766B97649A8EE124DCE2")
         self.assertEqual(raw["candidate"]["emitted"]["helper_sha256"], "B241577470F7FDA4E9B7B646A489C266F93B84638CC6BACA5D843C7CED423375")
         self.assertEqual(raw["candidate"]["emitted"]["page_sha256"], "7C6576FD669261BD0C1D688280EAD8653C6B22FDA4BE92151387FE2A4E35B28C")
         self.assertEqual(raw["candidate"]["emitted"]["rendered_exe_size"], 0xF6000)
-        self.assertEqual(raw["candidate"]["emitted"]["rendered_exe_sha256"], {"collection_progression": "CEE399896343055CB35AEC345A863F50E7CFF4989F71669912BC588E2F3D8B8C", "immediate_fixed": None})
+        self.assertEqual(raw["candidate"]["emitted"]["rendered_exe_sha256"], {"collection_progression": "1FEB7B2338C79E85807EC0582652AF66736769A32500A5C9B2B43A7A1A5B283F", "immediate_fixed": None})
 
     def test_vv5_running_page_ownership_excludes_full_mastery_and_stale_output(self) -> None:
         raw = load("vv5_individual_running_candidate_map.json")
