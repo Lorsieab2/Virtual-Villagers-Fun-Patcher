@@ -357,6 +357,39 @@ def _verify_inventory(root: Path, expected: list[dict[str, object]], *, exclude:
         raise PatcherError("VV3 individual Full Mastery recovery ownership inventory changed.")
 
 
+def _refresh_recovery_report(report: Path, payload: dict[str, object], root: Path, replay_root: Path) -> None:
+    """Persist the actual retained recovery inventory after a failed replay."""
+    report_before = os.lstat(report)
+    _reject_entry(report, report_before, directory=False)
+    inventory = _inventory_tree(replay_root)
+    for item in inventory:
+        item["path"] = _relative_owned(root, replay_root / str(item["path"]))
+    root_st = os.lstat(replay_root)
+    inventory.insert(0, {"path": _relative_owned(root, replay_root), "type": "directory", "size": 0, "sha256": None, "st_dev": int(root_st.st_dev), "st_ino": int(root_st.st_ino)})
+    refreshed = dict(payload)
+    refreshed["ownership_inventory"] = inventory
+    refreshed_members = []
+    for member in payload["members"]:
+        updated = dict(member)
+        for field in ("backup_relative", "stage_relative"):
+            rel = updated.get(field)
+            owned = root / str(rel) if rel else None
+            updated[field.replace("_relative", "_inventory")] = _inventory_member(root, owned)
+        refreshed_members.append(updated)
+    refreshed["members"] = refreshed_members
+    _validate_recovery_payload(refreshed, root, allowed_metadata={key for key in ("feature_owner", "mode", "parent_sha256", "candidate_sha256") if key in refreshed})
+    now = os.lstat(report)
+    _reject_entry(report, now, directory=False)
+    if (report_before.st_dev, report_before.st_ino, report_before.st_size) != (now.st_dev, now.st_ino, now.st_size):
+        raise PatcherError("VV3 individual Full Mastery recovery report race during refresh.")
+    tmp = report.with_suffix(".tmp")
+    if os.path.lexists(tmp):
+        raise PatcherError("VV3 individual Full Mastery recovery report temporary collision.")
+    _write_file(tmp, (json.dumps(refreshed, indent=2, sort_keys=True) + "\n").encode("utf-8"))
+    os.replace(tmp, report)
+    _fsync_dir(root)
+
+
 def _validate_recovery_payload(payload: dict[str, object], root: Path, *, allowed_metadata: set[str] | None = None) -> None:
     required = {"schema_version", "operation", "recovery_root", "destination_parent", "report_relative", "initial_precondition", "replay_guard", "members", "ownership_inventory", "failure_diagnostic"}
     optional = set(allowed_metadata or ())
@@ -613,12 +646,22 @@ def _transaction(operation: str, destinations: list[Path], pre: dict[Path, tuple
         restored = {}
         for p in destinations:
             restored[p] = _restore_member(p, *pre[p], published[p], backup=backups.get(p), staging_root=recovery_root)
+        cleanup_failed: BaseException | None = None
         if all(restored.values()) and all(_state(p) == pre[p] for p in destinations):
-            if os.path.lexists(recovery_root):
-                _remove_owned(recovery_root)
-            _fsync_dir(parent)
-            raise PatcherError(f"VV3 individual Full Mastery {operation} publication failed; pair restored") from exc
-        else:
+            try:
+                if os.path.lexists(recovery_root):
+                    rollback_inventory = _inventory_tree(recovery_root)
+                    _remove_owned(recovery_root, expected_tree=rollback_inventory)
+                _fsync_dir(parent)
+            except BaseException as cleanup_exc:
+                # Do not delete or adopt an injected descendant.  Fall
+                # through to durable report creation below.
+                cleanup_failed = cleanup_exc
+            if cleanup_failed is None:
+                raise PatcherError(f"VV3 individual Full Mastery {operation} publication failed; pair restored") from exc
+        if cleanup_failed is not None:
+            exc = cleanup_failed
+        if cleanup_failed is not None or not (all(restored.values()) and all(_state(p) == pre[p] for p in destinations)):
             report_operation = "removal" if operation == "remove" else ("install_existing" if any(pre[p][0] for p in destinations) else "install_new")
             member_records = []
             for p in destinations:
@@ -791,6 +834,8 @@ def recover_atomic(report_or_root: Path, *, recovery_prefix: str = ".vv3im", req
             raise PatcherError("VV3 individual Full Mastery recovery destination is unexpectedly absent.")
         resolved.append((member, destination, backup))
     # Stage every restore before replacing either member; backups remain intact.
+    replay_payload = payload
+    preserved_backup_paths: list[Path] = []
     stages: list[tuple[dict[str, object], Path, Path]] = []
     replay_stage_paths: list[Path] = []
     try:
@@ -823,6 +868,20 @@ def recover_atomic(report_or_root: Path, *, recovery_prefix: str = ".vv3im", req
         for member, destination, backup in resolved:
             if member["pre_exists"] and _state(destination)[1] != _read_regular(backup):
                 raise PatcherError("VV3 individual Full Mastery replay pair verification failed.")
+        # Keep copy-preserved backups until every cleanup member is verified;
+        # if cleanup is interrupted, the refreshed report points at these
+        # copies rather than at any backup that may already have been removed.
+        replay_members = [dict(member) for member in members]
+        for replay_member, (_member, destination, backup) in zip(replay_members, resolved):
+            if backup is None:
+                continue
+            preserved = replay_root / f".vv3im-preserved-{uuid.uuid4().hex}-{destination.name}.backup"
+            _copy_preserved(backup, preserved, _read_regular(backup))
+            preserved_backup_paths.append(preserved)
+            replay_member["backup_relative"] = _relative_owned(root, preserved)
+            replay_member["backup_inventory"] = _inventory_member(root, preserved)
+        replay_payload = dict(payload)
+        replay_payload["members"] = replay_members
         for member, destination, backup in resolved:
             if backup is not None and os.path.lexists(backup):
                 record = next((item for item in payload["ownership_inventory"] if item["path"] == member["backup_relative"]), None)
@@ -830,6 +889,9 @@ def recover_atomic(report_or_root: Path, *, recovery_prefix: str = ".vv3im", req
         for stage in replay_stage_paths:
             if os.path.lexists(stage):
                 _remove_owned(stage)
+        for preserved in preserved_backup_paths:
+            if os.path.lexists(preserved):
+                _remove_owned(preserved)
         for member in members:
             original_stage = root / str(member["stage_relative"]) if member.get("stage_relative") else None
             if original_stage is not None and os.path.lexists(original_stage):
@@ -855,6 +917,14 @@ def recover_atomic(report_or_root: Path, *, recovery_prefix: str = ".vv3im", req
                     _remove_owned(stage)
                 except Exception as cleanup_exc:
                     cleanup_errors.append(cleanup_exc)
+        refresh_error: BaseException | None = None
+        if os.path.lexists(replay_root) and os.path.lexists(report):
+            try:
+                _refresh_recovery_report(report, replay_payload, root, replay_root)
+            except Exception as refresh_exc:
+                refresh_error = refresh_exc
+        if refresh_error is not None:
+            raise PatcherError("VV3 individual Full Mastery replay report refresh failed; recovery evidence retained.") from refresh_error
         if cleanup_errors:
             raise PatcherError("VV3 individual Full Mastery replay cleanup failed; recovery evidence retained.") from cleanup_errors[0]
         raise

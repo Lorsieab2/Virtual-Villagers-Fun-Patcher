@@ -327,6 +327,37 @@ class VV3IndividualFullMasteryLoaderTests(unittest.TestCase):
                     loader.recover_vv3_transaction(report)
             self.assertTrue(report.exists())
 
+    def test_c282_successful_rollback_cleanup_uses_captured_inventory_and_reports_failure(self):
+        with tempfile.TemporaryDirectory(prefix="vv3-c282-rollback-cleanup-") as td:
+            root = Path(td)
+            exe, dll = root / "candidate.exe", root / "candidate.dll"
+            exe.write_bytes(b"exe-parent")
+            dll.write_bytes(b"dll-parent")
+            destinations = [exe, dll]
+            pre = {path: loader._state(path) for path in destinations}
+            published = {exe: b"exe-candidate", dll: b"dll-candidate"}
+            real_replace = loader._replace_verified
+            replace_calls = {"count": 0}
+            def fail_second(stage, destination, expected_destination, expected_stage):
+                replace_calls["count"] += 1
+                if replace_calls["count"] == 2:
+                    raise OSError("injected second publication failure")
+                return real_replace(stage, destination, expected_destination, expected_stage)
+            real_remove = loader._remove_owned
+            def fail_cleanup(path, **kwargs):
+                if kwargs.get("expected_tree") is not None and Path(path).name.startswith(".vv3im-recovery-"):
+                    raise vv_fun_patcher.PatcherError("injected rollback cleanup failure")
+                return real_remove(path, **kwargs)
+            with mock.patch.object(loader, "_replace_verified", side_effect=fail_second), mock.patch.object(loader, "_remove_owned", side_effect=fail_cleanup):
+                with self.assertRaises(vv_fun_patcher.PatcherError):
+                    loader._transaction("install", destinations, pre, published, expected_preimage={exe: b"exe-parent", dll: b"dll-parent"}, parent=root)
+            reports = list(root.glob(".vv3im-recovery-*.json"))
+            self.assertEqual(len(reports), 1)
+            payload = json.loads(reports[0].read_text(encoding="utf-8"))
+            self.assertEqual(payload["schema_version"], 2)
+            self.assertTrue(payload["ownership_inventory"])
+            self.assertTrue(any(root.joinpath(str(item["path"])).exists() for item in payload["ownership_inventory"]))
+
     def test_c280_injected_cleanup_descendant_retains_report(self):
         with tempfile.TemporaryDirectory(prefix="vv3-c280-cleanup-child-") as td:
             root = Path(td)
