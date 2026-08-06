@@ -1,0 +1,52 @@
+{
+  "id": "vv1_vv2_fullscreen_safe_candidate",
+  "status": "disabled evidence only",
+  "enabled": false,
+  "catalog_enabled": false,
+  "catalog_hidden": true,
+  "runtime_player_status": "pending",
+  "supported_modes": ["collection_progression", "immediate_fixed"],
+  "expanded_rejected": true,
+  "shared_append_owner": "Origins; Full Mastery removal is required before Origins truncation",
+  "owner_pid_centering": {
+    "required": true,
+    "status": "companion-side contract pending independent emitted/runtime recertification",
+    "rules": [
+      "Capture GetForegroundWindow before each outer menu creates a dialog",
+      "Validate non-null, IsWindow, and same-process owner",
+      "Use that owner for DialogBoxParamA and result MessageBoxA calls",
+      "Center/clamp in WM_INITDIALOG using the owner monitor work area",
+      "Never pass SDL_Window as HWND or reacquire foreground after dialog creation"
+    ]
+  },
+  "companion": {
+    "source": "assets/origins/VVFP Origins Icons.dll",
+    "parent_sha256": "2ED1100E7F2EA5B8E522C2DE11F6B00CA8A02B968319C251365E9EFD634BCAF9",
+    "candidate_sha256": "846BA4EDF29E52689883A6E20DBF5CB92244DBB52531D7573EDAFF6C9C91543D",
+    "size": 295936,
+    "resource_201_items": 41,
+    "resource_202_unchanged": true,
+    "install_remove": "candidate-owned atomic replacement with exact parent restoration"
+  },
+  "games": {
+    "vv1": {
+      "stock_sha256": "1EC790B927741081D5CE13A48FB76983A4FD4336EA08F89317872643760AF03D",
+      "origins_parent_sha256": "5434C71C342B830A5896AFFB610A76C670578760BD33C6145882FA280F6406A3",
+      "hooks": {"tech": "E8EBA60300", "detail": "E85BA40300", "full_mastery": "E8ED130000"},
+      "wrapper_vas": ["0x491000", "0x491200", "0x491400"],
+      "strings_va": "0x491F00",
+      "cure_guard": {"va": "0x456A88", "before": "83FB06", "after": "83FB05"}
+    },
+    "vv2": {
+      "stock_sha256": "46C1503C209255C9CDEFA941DB2F449C8CF8E2CDD5C7D13CD975326E377ED677",
+      "origins_parent_sha256": {
+        "collection_progression": "8C1F770F1A9603DB432410ED616DF2787F725C198C66BE8EE951AAE26AD56CF5",
+        "immediate_fixed": "8E0177D6B127225A913627F583C263B47773CA9328EDD199AD29054C77F861B0"
+      },
+      "hooks": {"tech": "E845000200", "detail": "E885010200", "full_mastery": "E8ED170000"},
+      "wrapper_vas": ["0x4B4400", "0x4B4600", "0x4B4800"],
+      "strings_va": "0x4B4F00",
+      "cure_guard": {"va": "0x4946A5", "before": "83FB06", "after": "83FB05"}
+    }
+  }
+}
