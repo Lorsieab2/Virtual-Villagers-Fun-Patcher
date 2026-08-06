@@ -11,6 +11,8 @@ import hashlib
 import importlib.util
 import os
 import struct
+import stat
+import json
 import uuid
 from pathlib import Path
 
@@ -29,8 +31,8 @@ PARENT_HASHES = {
     "immediate_fixed": "78758FD0003842AEFAC092A47874329C9C103F9AD46483E6ECA71291EFD3E382",
 }
 OUTPUT_HASHES = {
-    "collection_progression": "912C6D70518AE55CC7396E2AB3317356E814A4E7F4975150C3BD0263A4ECA174",
-    "immediate_fixed": "C18FEF7F5111B8A8B33940F73F2549E882C6BECDCF3FF4F8904AFC01F0204B4E",
+    "collection_progression": "BFFA0B5F54CD084138EABD68D3EA67F834CEFE915F7DB0000F81639F34BF90F1",
+    "immediate_fixed": "6550141AFFAEF3F7965E89F1B32A3F4CB929E8E217778C5BBCB512AAC499E59C",
 }
 COMPANION_DLL_SHA256 = "9F866CB6F92C745CD2AA7009AEC4EB70FA5521EFF0C8F7BABE2058BB4D2F8533"
 
@@ -114,73 +116,167 @@ def remove_candidate(candidate: bytes, mode: str) -> bytes:
     return bytes(work)
 
 
+def _read_regular(path: Path) -> bytes:
+    """Read only a non-reparse regular file; recovery never follows links."""
+    if not os.path.lexists(path) or path.is_symlink():
+        raise PatcherError(f"VV3 individual Full Mastery unsafe or missing file: {path}")
+    st = os.lstat(path)
+    if not stat.S_ISREG(st.st_mode):
+        raise PatcherError(f"VV3 individual Full Mastery non-regular file: {path}")
+    return path.read_bytes()
+
+
+def _state(path: Path) -> tuple[bool, bytes | None]:
+    if not os.path.lexists(path):
+        return False, None
+    return True, _read_regular(path)
+
+
+def _write_recovery(parent: Path, details: dict[str, object]) -> Path:
+    report = parent / f".vv3im-recovery-{uuid.uuid4().hex}.json"
+    tmp = report.with_suffix(".tmp")
+    tmp.write_text(json.dumps(details, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+    os.replace(tmp, report)
+    return report
+
+
+def _restore_member(path: Path, existed: bool, original: bytes | None, published: bytes) -> bool:
+    """Restore one member without touching a foreign race-created file."""
+    try:
+        if not os.path.lexists(path):
+            return not existed
+        current = _read_regular(path)
+        if existed:
+            if current == original:
+                return True
+            if current != published:
+                return False
+            path.write_bytes(original or b"")
+            return _read_regular(path) == (original or b"")
+        if current != published:
+            return False
+        path.unlink()
+        return not os.path.lexists(path)
+    except (OSError, PatcherError):
+        return False
+
+
 def install_atomic(source: Path, destination: Path, mode: str, *, companion_source: Path | None = None, companion_destination: Path | None = None) -> None:
-    """Install EXE and optional unchanged certified companion atomically."""
-    source_bytes = source.read_bytes()
+    """Install the EXE and mandatory companion as one guarded transaction."""
+    if companion_source is None or companion_destination is None:
+        raise PatcherError("VV3 individual Full Mastery companion is mandatory.")
+    source_bytes = _read_regular(source)
     candidate = render_parent(source_bytes, mode)
-    if (companion_source is None) != (companion_destination is None):
-        raise PatcherError("VV3 individual Full Mastery companion arguments must be paired.")
-    companion_bytes = None
-    if companion_source is not None:
-        companion_bytes = companion_source.read_bytes()
-        if len(companion_bytes) != 298496 or _sha(companion_bytes) != COMPANION_DLL_SHA256:
-            raise PatcherError("VV3 individual Full Mastery companion hash mismatch.")
-    destinations = [destination] + ([companion_destination] if companion_destination is not None else [])
-    if any(os.path.lexists(path) for path in destinations):
-        raise PatcherError("VV3 individual Full Mastery destination already exists.")
-    stage = destination.parent / f".{destination.name}.vv3im-{uuid.uuid4().hex}.stage"
-    if os.path.lexists(stage) or (companion_destination is not None and stage.parent != companion_destination.parent):
+    companion_bytes = _read_regular(companion_source)
+    if len(companion_bytes) != 298496 or _sha(companion_bytes) != COMPANION_DLL_SHA256:
+        raise PatcherError("VV3 individual Full Mastery companion hash mismatch.")
+    destinations = [destination, companion_destination]
+    if destination == companion_destination:
+        raise PatcherError("VV3 individual Full Mastery destinations must be distinct.")
+    for path in destinations:
+        if path.parent.is_symlink() or not path.parent.is_dir():
+            raise PatcherError("VV3 individual Full Mastery destination parent is unsafe.")
+    pre = {path: _state(path) for path in destinations}
+    expected_preimage = {destination: source_bytes, companion_destination: companion_bytes}
+    for path, (exists, data) in pre.items():
+        if exists and data != expected_preimage[path]:
+            raise PatcherError("VV3 individual Full Mastery destination preimage mismatch.")
+    token = uuid.uuid4().hex
+    stages = {destination: destination.parent / f".{destination.name}.vv3im-{token}.stage", companion_destination: companion_destination.parent / f".{companion_destination.name}.vv3im-{token}.stage"}
+    if any(os.path.lexists(p) for p in stages.values()):
         raise PatcherError("VV3 individual Full Mastery staging collision.")
+    backups = {path: path.parent / f".{path.name}.vv3im-{token}.backup" for path, (exists, _) in pre.items() if exists}
+    if any(os.path.lexists(p) for p in backups.values()):
+        raise PatcherError("VV3 individual Full Mastery backup collision.")
+    published = {destination: candidate, companion_destination: companion_bytes}
+    committed: list[Path] = []
     try:
-        stage.write_bytes(candidate)
-        if stage.read_bytes() != candidate:
+        stages[destination].write_bytes(candidate)
+        stages[companion_destination].write_bytes(companion_bytes)
+        for path, backup in backups.items():
+            backup.write_bytes(pre[path][1] or b"")
+            if _read_regular(backup) != pre[path][1]:
+                raise PatcherError("VV3 individual Full Mastery backup verification failed.")
+        if _read_regular(stages[destination]) != candidate or _read_regular(stages[companion_destination]) != companion_bytes:
             raise PatcherError("VV3 individual Full Mastery staged verification failed.")
-        companion_stage = None
-        if companion_destination is not None and companion_bytes is not None:
-            companion_stage = stage.with_name(stage.name + ".dll")
-            companion_stage.write_bytes(companion_bytes)
-            if companion_stage.read_bytes() != companion_bytes:
-                raise PatcherError("VV3 individual Full Mastery staged companion verification failed.")
-        os.replace(stage, destination)
-        if companion_destination is not None and companion_stage is not None:
-            os.replace(companion_stage, companion_destination)
-        if not destination.is_file() or destination.read_bytes() != candidate or (companion_destination is not None and (not companion_destination.is_file() or _sha(companion_destination.read_bytes()) != COMPANION_DLL_SHA256)):
+        for path in destinations:
+            current = _state(path)
+            if current != pre[path]:
+                raise PatcherError("VV3 individual Full Mastery destination race before publication.")
+        os.replace(stages[destination], destination); committed.append(destination)
+        if _state(companion_destination) != pre[companion_destination]:
+            raise PatcherError("VV3 individual Full Mastery companion race before publication.")
+        os.replace(stages[companion_destination], companion_destination); committed.append(companion_destination)
+        if _read_regular(destination) != candidate or _read_regular(companion_destination) != companion_bytes:
             raise PatcherError("VV3 individual Full Mastery publication verification failed.")
-    except Exception:
-        if stage.is_file():
-            stage.unlink()
-        if 'companion_stage' in locals() and companion_stage is not None and companion_stage.is_file():
-            companion_stage.unlink()
-        if destination.is_file() and destination.read_bytes() == candidate:
-            destination.unlink()
-        if companion_destination is not None and companion_destination.is_file() and _sha(companion_destination.read_bytes()) == COMPANION_DLL_SHA256:
-            companion_destination.unlink()
+    except Exception as exc:
+        restored = all(_restore_member(path, *pre[path], published[path]) for path in destinations)
+        for stage in stages.values():
+            if os.path.lexists(stage):
+                try: stage.unlink()
+                except OSError: pass
+        if not restored:
+            _write_recovery(destination.parent, {"operation": "install", "destinations": [str(p) for p in destinations], "error": str(exc), "preconditions": {str(p): {"exists": pre[p][0], "sha256": _sha(pre[p][1]) if pre[p][1] is not None else None} for p in destinations}, "backups": {str(p): str(b) for p, b in backups.items()}})
+        elif all(not os.path.lexists(p) or _read_regular(p) == pre[path][1] for path, p in backups.items()):
+            for backup in backups.values():
+                if os.path.lexists(backup): backup.unlink()
         raise
+    for stage in stages.values():
+        if os.path.lexists(stage): stage.unlink()
+    for backup in backups.values():
+        if os.path.lexists(backup): backup.unlink()
 
 
-def remove_atomic(destination: Path, mode: str) -> None:
-    """Replace a published candidate with its exact parent, fail-closed."""
-    candidate = destination.read_bytes()
+def remove_atomic(destination: Path, mode: str, *, companion_destination: Path | None = None, companion_restore_source: Path | None = None) -> None:
+    """Remove EXE and mandatory companion, restoring both exact parents."""
+    if companion_destination is None or companion_restore_source is None:
+        raise PatcherError("VV3 individual Full Mastery companion removal arguments are mandatory.")
+    candidate = _read_regular(destination)
     parent = remove_candidate(candidate, mode)
-    stage = destination.with_name(f".{destination.name}.vv3im-remove-{uuid.uuid4().hex}.stage")
-    backup = destination.with_name(f".{destination.name}.vv3im-remove-{uuid.uuid4().hex}.backup")
-    if os.path.lexists(stage) or os.path.lexists(backup):
+    companion_parent = _read_regular(companion_restore_source)
+    if len(companion_parent) != 298496 or _sha(companion_parent) != COMPANION_DLL_SHA256 or _sha(_read_regular(companion_destination)) != COMPANION_DLL_SHA256:
+        raise PatcherError("VV3 individual Full Mastery companion removal preimage mismatch.")
+    destinations = [destination, companion_destination]
+    for path in destinations:
+        if path.parent.is_symlink() or not path.parent.is_dir():
+            raise PatcherError("VV3 individual Full Mastery removal parent is unsafe.")
+    pre = {destination: (True, candidate), companion_destination: (True, _read_regular(companion_destination))}
+    published = {destination: parent, companion_destination: companion_parent}
+    token = uuid.uuid4().hex
+    stages = {destination: destination.parent / f".{destination.name}.vv3im-remove-{token}.stage", companion_destination: companion_destination.parent / f".{companion_destination.name}.vv3im-remove-{token}.stage"}
+    if any(os.path.lexists(p) for p in stages.values()):
         raise PatcherError("VV3 individual Full Mastery removal staging collision.")
+    backups = {path: path.parent / f".{path.name}.vv3im-remove-{token}.backup" for path in destinations}
+    if any(os.path.lexists(p) for p in backups.values()):
+        raise PatcherError("VV3 individual Full Mastery removal backup collision.")
     try:
-        stage.write_bytes(parent)
-        backup.write_bytes(candidate)
-        if stage.read_bytes() != parent or backup.read_bytes() != candidate:
+        stages[destination].write_bytes(parent)
+        stages[companion_destination].write_bytes(companion_parent)
+        for path, backup in backups.items():
+            backup.write_bytes(pre[path][1] or b"")
+            if _read_regular(backup) != pre[path][1]:
+                raise PatcherError("VV3 individual Full Mastery removal backup verification failed.")
+        if _read_regular(stages[destination]) != parent or _read_regular(stages[companion_destination]) != companion_parent:
             raise PatcherError("VV3 individual Full Mastery removal staging verification failed.")
-        os.replace(stage, destination)
-        if destination.read_bytes() != parent:
+        if any(_state(path) != pre[path] for path in destinations):
+            raise PatcherError("VV3 individual Full Mastery removal destination race.")
+        os.replace(stages[destination], destination)
+        if _state(companion_destination) != pre[companion_destination]:
+            raise PatcherError("VV3 individual Full Mastery companion removal race.")
+        os.replace(stages[companion_destination], companion_destination)
+        if _read_regular(destination) != parent or _read_regular(companion_destination) != companion_parent:
             raise PatcherError("VV3 individual Full Mastery removal postverify failed.")
-        backup.unlink()
-    except Exception:
-        if stage.is_file():
-            stage.unlink()
-        if backup.is_file():
-            try:
-                os.replace(backup, destination)
-            except OSError:
-                pass
+    except Exception as exc:
+        restored = all(_restore_member(path, True, pre[path][1], published[path]) for path in destinations)
+        for stage in stages.values():
+            if os.path.lexists(stage):
+                try: stage.unlink()
+                except OSError: pass
+        if not restored:
+            _write_recovery(destination.parent, {"operation": "remove", "destinations": [str(p) for p in destinations], "error": str(exc), "preconditions": {str(p): {"exists": True, "sha256": _sha(pre[p][1])} for p in destinations}, "backups": {str(p): str(b) for p, b in backups.items()}})
+        elif all(os.path.lexists(path) and _read_regular(path) == pre[path][1] for path in destinations):
+            for backup in backups.values():
+                if os.path.lexists(backup): backup.unlink()
         raise
+    for backup in backups.values():
+        if os.path.lexists(backup): backup.unlink()

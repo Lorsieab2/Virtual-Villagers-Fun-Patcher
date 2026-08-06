@@ -26,8 +26,8 @@ class VV3IndividualFullMasteryLoaderTests(unittest.TestCase):
 
     def test_render_and_remove_exact_both_parents(self):
         expected = {
-            "collection_progression": "912C6D70518AE55CC7396E2AB3317356E814A4E7F4975150C3BD0263A4ECA174",
-            "immediate_fixed": "C18FEF7F5111B8A8B33940F73F2549E882C6BECDCF3FF4F8904AFC01F0204B4E",
+            "collection_progression": "BFFA0B5F54CD084138EABD68D3EA67F834CEFE915F7DB0000F81639F34BF90F1",
+            "immediate_fixed": "6550141AFFAEF3F7965E89F1B32A3F4CB929E8E217778C5BBCB512AAC499E59C",
         }
         for mode, digest in expected.items():
             parent = self._parent(mode)
@@ -67,14 +67,33 @@ class VV3IndividualFullMasteryLoaderTests(unittest.TestCase):
         parent = PARENTS / "vv3_fullscreen_safe_candidate_collection_progression.exe"
         with tempfile.TemporaryDirectory() as td:
             destination = Path(td) / "candidate.exe"
-            loader.install_atomic(parent, destination, "collection_progression")
+            companion_source = ROOT / "data" / "candidates" / "VVFP VV3 Full Heal Candidate.dll"
+            companion_destination = Path(td) / "VVFP Origins Icons.dll"
+            loader.install_atomic(parent, destination, "collection_progression", companion_source=companion_source, companion_destination=companion_destination)
             self.assertTrue(destination.is_file())
+            self.assertTrue(companion_destination.is_file())
             before = destination.read_bytes()
             with self.assertRaises(vv_fun_patcher.PatcherError):
-                loader.install_atomic(parent, destination, "collection_progression")
+                loader.install_atomic(parent, destination, "collection_progression", companion_source=companion_source, companion_destination=companion_destination)
             self.assertEqual(destination.read_bytes(), before)
-            loader.remove_atomic(destination, "collection_progression")
+            loader.remove_atomic(destination, "collection_progression", companion_destination=companion_destination, companion_restore_source=companion_source)
             self.assertEqual(destination.read_bytes(), parent.read_bytes())
+            self.assertEqual(companion_destination.read_bytes(), companion_source.read_bytes())
+
+    def test_companion_is_mandatory_and_wrong_existing_preimage_is_rejected(self):
+        parent = PARENTS / "vv3_fullscreen_safe_candidate_collection_progression.exe"
+        companion_source = ROOT / "data" / "candidates" / "VVFP VV3 Full Heal Candidate.dll"
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            with self.assertRaises(vv_fun_patcher.PatcherError):
+                loader.install_atomic(parent, root / "candidate.exe", "collection_progression")
+            destination = root / "candidate.exe"
+            companion_destination = root / "VVFP Origins Icons.dll"
+            destination.write_bytes(b"foreign")
+            with self.assertRaises(vv_fun_patcher.PatcherError):
+                loader.install_atomic(parent, destination, "collection_progression", companion_source=companion_source, companion_destination=companion_destination)
+            self.assertEqual(destination.read_bytes(), b"foreign")
+            self.assertFalse(companion_destination.exists())
 
 
 if __name__ == "__main__":

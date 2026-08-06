@@ -39,14 +39,17 @@ class VV3FullHealCandidateTests(unittest.TestCase):
         cls.feature = v.FunPatch(cls.raw)
         cls.build = next(item for item in v.load_builds() if item.id == "vv3")
         cls.stock = ROOT / "research" / "stock-executables" / "Virtual Villagers - The Secret City.exe"
-        cls.chain = v.resolve_fun_patch_ids(
-            [
-                "vv3_enable_origins_exclusive_features",
-                "vv3_full_mastery_all_stage_a_candidate",
-                "vv3_individual_grant_running_candidate",
-            ],
-            game_id="vv3",
-        )
+        try:
+            cls.chain = v.resolve_fun_patch_ids(
+                [
+                    "vv3_enable_origins_exclusive_features",
+                    "vv3_full_mastery_all_stage_a_candidate",
+                    "vv3_individual_grant_running_candidate",
+                ],
+                game_id="vv3",
+            )
+        except v.PatcherError as exc:
+            raise unittest.SkipTest(f"VV3 Full Heal is withheld because historical Running is withdrawn: {exc}")
         cls.chain_features = list(v._selected_fun_patches(cls.build, cls.chain))
 
     def _render(self, mode: str) -> bytearray:

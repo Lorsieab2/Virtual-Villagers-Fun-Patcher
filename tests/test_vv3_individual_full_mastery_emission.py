@@ -97,7 +97,8 @@ class VV3IndividualEmissionTests(unittest.TestCase):
         writer_addrs = [i.address for i in self.insns if i.mnemonic == "call" and i.op_str == "0x455740"]
         evaluator = next(i.address for i in self.insns if i.mnemonic == "call" and i.op_str == "0x462500")
         deduction = next(i.address for i in self.insns if i.mnemonic == "call" and i.op_str == "0x427130")
-        self.assertTrue(any(i.mnemonic == "cmp" and i.op_str == "eax, 2" for i in self.insns))
+        self.assertTrue(any(i.mnemonic == "cmp" and i.op_str == "eax, 1" for i in self.insns))
+        self.assertFalse(any(i.mnemonic == "cmp" and i.op_str == "eax, 2" for i in self.insns))
         self.assertLess(min(i.address for i in self.insns if i.mnemonic == "cmp" and "0x582644" in i.op_str), min(writer_addrs))
         self.assertLess(evaluator, deduction)
         self.assertGreaterEqual(sum(1 for i in self.insns if i.mnemonic == "cmp" and "0x582644" in i.op_str), 3)
@@ -120,6 +121,14 @@ class VV3IndividualEmissionTests(unittest.TestCase):
         self.assertIn(b"Villager Upgrades\0", self.page)
         self.assertIn(b"Press OK to confirm, or Cancel.\0", self.page)
         self.assertIn(b"No tech points have been deducted.", self.page)
+        self.assertIn(b"Full Mastery dependencies are unavailable.", self.page)
+
+    def test_idok_one_dominates_first_writer_and_dependency_route_is_guarded(self):
+        cmp_positions = [i.address for i in self.insns if i.mnemonic == "cmp" and i.op_str == "eax, 1"]
+        writer_positions = [i.address for i in self.insns if i.mnemonic == "call" and i.op_str == "0x455740"]
+        self.assertEqual(len(cmp_positions), 1)
+        self.assertLess(cmp_positions[0], min(writer_positions))
+        self.assertTrue(any(i.mnemonic == "cmp" and "[ebp-0x10]" in i.op_str.replace(" ", "").lower() for i in self.insns))
 
 
 if __name__ == "__main__":

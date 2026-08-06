@@ -59,16 +59,16 @@ VV3_INDIVIDUAL_FULL_MASTERY_CANDIDATE_PATHS = {
     "manifest": ROOT / "data" / "candidates" / "vv3_individual_full_mastery_candidate.json",
     "map": ROOT / "data" / "candidates" / "vv3_individual_full_mastery_candidate_map.json",
 }
-VV3_INDIVIDUAL_FULL_MASTERY_MANIFEST_SHA256 = "88D0AE1F4600F6F881C1910F47FFA868E0B07FD4E5D94C62CDBE5703CE8E5524"
-VV3_INDIVIDUAL_FULL_MASTERY_MAP_SHA256 = "C9EE18D0D5B4AFFA358CB699B6DD33A7B64B8F627284DA99D56EA787D416155A"
-VV3_INDIVIDUAL_FULL_MASTERY_PAGE_SHA256 = "536D4AA73D1A1820A44D072732E41FD351609E0F7A2302EA9ABD7AA675959F12"
+VV3_INDIVIDUAL_FULL_MASTERY_MANIFEST_SHA256 = "20810F8EE7139FF3BD5B2AD7C38190879B925C6D63BB3C6586447CB3714A9E49"
+VV3_INDIVIDUAL_FULL_MASTERY_MAP_SHA256 = "FFCC69CEEDE8F9070A03E652E15FDF54E6E185D0A0416AB55C22B2D3FA345D76"
+VV3_INDIVIDUAL_FULL_MASTERY_PAGE_SHA256 = "9391F157BD26BD35EB6BA058D20E8D13ED0E89FE65FE7AF87CD833279BBBDA78"
 VV3_INDIVIDUAL_FULL_MASTERY_PARENT_SHA256 = {
     "collection_progression": "8DD1CE07C885DDA3DD038D0B2F5C4F019D8C5BAC5DCA29F9799CE0C7909D2CEA",
     "immediate_fixed": "78758FD0003842AEFAC092A47874329C9C103F9AD46483E6ECA71291EFD3E382",
 }
 VV3_INDIVIDUAL_FULL_MASTERY_OUTPUT_SHA256 = {
-    "collection_progression": "912C6D70518AE55CC7396E2AB3317356E814A4E7F4975150C3BD0263A4ECA174",
-    "immediate_fixed": "C18FEF7F5111B8A8B33940F73F2549E882C6BECDCF3FF4F8904AFC01F0204B4E",
+    "collection_progression": "BFFA0B5F54CD084138EABD68D3EA67F834CEFE915F7DB0000F81639F34BF90F1",
+    "immediate_fixed": "6550141AFFAEF3F7965E89F1B32A3F4CB929E8E217778C5BBCB512AAC499E59C",
 }
 VV3_INDIVIDUAL_RUNNING_CANDIDATE_ID = "vv3_individual_grant_running_candidate"
 VV3_INDIVIDUAL_RUNNING_CANDIDATE_PATHS = {
@@ -904,6 +904,23 @@ def _validate_vv3_individual_full_mastery_candidate() -> dict[str, Any] | None:
         or manifest.get("dependencies") != [VV3_INDIVIDUAL_RUNNING_CANDIDATE_ID]
     ):
         raise PatcherError("VV3 individual Full Mastery candidate metadata is not disabled/stock-only.")
+    tx_contract = manifest.get("transaction", {})
+    if tx_contract.get("accept_result") != 1 or tx_contract.get("cancel_results") != [0, 2]:
+        raise PatcherError("VV3 individual Full Mastery MessageBox acceptance must be IDOK=1 only.")
+    expected_companion = {
+        "source": "data/candidates/VVFP VV3 Full Heal Candidate.dll",
+        "destination": "VVFP Origins Icons.dll",
+        "sha256": "9F866CB6F92C745CD2AA7009AEC4EB70FA5521EFF0C8F7BABE2058BB4D2F8533",
+        "size": 298496,
+        "preimage_sha256": "9F866CB6F92C745CD2AA7009AEC4EB70FA5521EFF0C8F7BABE2058BB4D2F8533",
+        "restore_source": "data/candidates/VVFP VV3 Full Heal Candidate.dll",
+        "restore_sha256": "9F866CB6F92C745CD2AA7009AEC4EB70FA5521EFF0C8F7BABE2058BB4D2F8533",
+    }
+    if manifest.get("companion_files") != [expected_companion]:
+        raise PatcherError("VV3 individual Full Mastery companion ownership is not certified.")
+    companion_path = ROOT / expected_companion["source"]
+    if not companion_path.is_file() or companion_path.stat().st_size != expected_companion["size"] or hashlib.sha256(companion_path.read_bytes()).hexdigest().upper() != expected_companion["sha256"]:
+        raise PatcherError("VV3 individual Full Mastery companion source hash mismatch.")
     chain = manifest.get("base_chain", {})
     if chain.get("collection_progression_parent_sha256") != VV3_INDIVIDUAL_FULL_MASTERY_PARENT_SHA256["collection_progression"] or chain.get("immediate_fixed_parent_sha256") != VV3_INDIVIDUAL_FULL_MASTERY_PARENT_SHA256["immediate_fixed"]:
         raise PatcherError("VV3 individual Full Mastery parent hashes are not certified.")
