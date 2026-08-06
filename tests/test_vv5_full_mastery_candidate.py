@@ -128,18 +128,18 @@ class VV5FullMasteryCandidateTests(unittest.TestCase):
         cls.feature = FunPatch(cls.feature_raw)
         cls.build = next(item for item in load_builds() if item.id == "vv5")
 
-    def test_c254_metadata_disabled_and_command_seven_only(self):
+    def test_c260_metadata_enabled_for_stock_modes_and_command_seven_only(self):
         self.assertFalse(self.base_raw["enabled"])
         self.assertTrue(self.base_raw["catalog_hidden"])
-        self.assertFalse(self.feature_raw["enabled"])
-        self.assertTrue(self.feature_raw["catalog_hidden"])
+        self.assertTrue(self.feature_raw["enabled"])
+        self.assertFalse(self.feature_raw["catalog_hidden"])
         active = {item.id: item for item in load_fun_patches()}
         self.assertIn("vv5_enable_origins_exclusive_features", active)
         self.assertNotIn(self.feature_raw["id"], active)
-        self.assertIn("disabled candidate", self.feature_raw["certification_status"])
-        self.assertFalse(self.map["candidate_enabled"])
-        self.assertFalse(self.map["catalog_enabled"])
-        self.assertTrue(self.map["catalog_hidden"])
+        self.assertIn("C260 static enablement", self.feature_raw["certification_status"])
+        self.assertTrue(self.map["candidate_enabled"])
+        self.assertTrue(self.map["catalog_enabled"])
+        self.assertFalse(self.map["catalog_hidden"])
         self.assertEqual(self.map["allowed_modes"], ["collection_progression", "immediate_fixed"])
         self.assertTrue(self.map["expanded_fail_closed"])
         self.assertEqual(
@@ -170,16 +170,13 @@ class VV5FullMasteryCandidateTests(unittest.TestCase):
                 paths[key] = target
             for key in ("base", "feature", "map"):
                 data = json.loads(paths[key].read_text(encoding="utf-8"))
-                # The committed evidence is intentionally disabled/hidden. For
-                # field-mutation tests, construct an isolated enabled projection
-                # so the normal certified loader path reaches the immutable
-                # byte/UI validators instead of stopping at catalog visibility.
-                if key in ("base", "feature"):
+                # The base dependency remains an internal disabled record; the
+                # isolated mutation projection must satisfy the normal loader gate.
+                if key == "base":
                     data["enabled"] = True
                     data["catalog_hidden"] = False
-                else:
-                    data["candidate_enabled"] = True
-                    data["catalog_enabled"] = True
+                elif key == "feature":
+                    data["enabled"] = True
                     data["catalog_hidden"] = False
                 if mutation == "acceptance_commit" and key == "map":
                     data["acceptance_commit"] = "0000000000000000000000000000000000000000"
@@ -744,7 +741,7 @@ class VV5FullMasteryCandidateTests(unittest.TestCase):
     def test_c253_source_repair_is_explicitly_disabled_until_emitted_recertification(self):
         source = GENERATOR.read_text(encoding="utf-8")
         self.assertIn("NATIVE_FULLSCREEN_TRANSITION_VA = 0x404700", source)
-        self.assertIn("feature_enabled = False", source)
+        self.assertIn("feature_enabled = True", source)
         self.assertIn("FULLSCREEN_TECH_OFFSET = 0xB40", source)
         self.assertIn("FULLSCREEN_DETAIL_OFFSET = 0xB47", source)
         self.assertIn("FULLSCREEN_COMMON_OFFSET = 0xB4C", source)

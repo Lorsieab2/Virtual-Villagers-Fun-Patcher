@@ -1,8 +1,9 @@
 # VV3/VV4 fullscreen-safe Origins candidates
 
 The `vv3_fullscreen_safe_candidate` and `vv4_fullscreen_safe_candidate` records
-are disabled, catalog-hidden static candidates. They are not public patch choices
-and have not been player-validated.
+are enabled and catalog-visible for the certified Collection Progression and
+Immediate Fixed modes only. Runtime/player validation remains pending; the
+Expanded-256 modes remain rejected before output.
 
 Each candidate is bound to its exact certified Full Mastery parent pair and
 companion DLL. It owns only a dedicated RX append page and the two guarded

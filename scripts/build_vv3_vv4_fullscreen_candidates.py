@@ -543,13 +543,13 @@ def emit_game(game: str, cfg: dict[str, object], output_root: Path = OUT, emit_b
         "id": stem,
         "game_id": game,
         "name": f"DISABLED {game.upper()} Fullscreen-Safe Origins Dialog Wrapper",
-        "enabled": False,
-        "catalog_enabled": False,
-        "catalog_hidden": True,
+        "enabled": True,
+        "catalog_enabled": True,
+        "catalog_hidden": False,
         "supported_modes": ["collection_progression", "immediate_fixed"],
         "rejected_modes": ["experimental_expanded_256", "experimental_expanded_256_progression"],
         "runtime_player_status": "pending",
-        "certification_status": "disabled candidate; independent emitted-byte audit pending",
+        "certification_status": "static candidate enabled for Collection/Immediate; runtime/player validation pending",
         "parent_hashes": parents,
         "companion_dll_sha256": cfg["dll"],
         "companion_install": {
@@ -563,7 +563,7 @@ def emit_game(game: str, cfg: dict[str, object], output_root: Path = OUT, emit_b
         "rendered_modes": modes,
         "uninstall": "restore exact parent bytes, section count/image/header/checksum, and five-byte hook guards",
     }
-    artifact_map = {"candidate_id": stem, "enabled": False, "catalog_hidden": True, "catalog_enabled": False, "parents": parents, "page": page_meta, "rendered_modes": modes, "rejected_modes": manifest["rejected_modes"], "dll_sha256": cfg["dll"], "companion_install": manifest["companion_install"], "feature_ranges": [hex(cfg["tech"][0] - 0x400000), hex(cfg["detail"][0] - 0x400000), f"{hex(cfg['header'])}..{hex(cfg['header'] + 40)}", f"{hex(cfg['append_raw'])}..{hex(cfg['append_raw'] + 0x1000)}"]}
+    artifact_map = {"candidate_id": stem, "enabled": True, "catalog_hidden": False, "catalog_enabled": True, "parents": parents, "page": page_meta, "rendered_modes": modes, "rejected_modes": manifest["rejected_modes"], "dll_sha256": cfg["dll"], "companion_install": manifest["companion_install"], "feature_ranges": [hex(cfg["tech"][0] - 0x400000), hex(cfg["detail"][0] - 0x400000), f"{hex(cfg['header'])}..{hex(cfg['header'] + 40)}", f"{hex(cfg['append_raw'])}..{hex(cfg['append_raw'] + 0x1000)}"]}
     output_root.mkdir(parents=True, exist_ok=True)
     manifest_bytes = json_bytes(manifest)
     map_bytes = json_bytes(artifact_map)

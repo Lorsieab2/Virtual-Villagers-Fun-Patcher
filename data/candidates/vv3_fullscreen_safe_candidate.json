@@ -2,9 +2,9 @@
   "id": "vv3_fullscreen_safe_candidate",
   "game_id": "vv3",
   "name": "DISABLED VV3 Fullscreen-Safe Origins Dialog Wrapper",
-  "enabled": false,
-  "catalog_enabled": false,
-  "catalog_hidden": true,
+  "enabled": true,
+  "catalog_enabled": true,
+  "catalog_hidden": false,
   "supported_modes": [
     "collection_progression",
     "immediate_fixed"
@@ -14,7 +14,7 @@
     "experimental_expanded_256_progression"
   ],
   "runtime_player_status": "pending",
-  "certification_status": "disabled candidate; independent emitted-byte audit pending",
+  "certification_status": "static candidate enabled for Collection/Immediate; runtime/player validation pending",
   "parent_hashes": {
     "collection_progression": "15D58F10FEC11D1E3BE0066A9E7109B08EF3AAD2E8E20E0056E41597277ABEEB",
     "immediate_fixed": "3142012C853615F513E009E4D22AA544C14D72F6ADC960E51E676A8636A571C4"

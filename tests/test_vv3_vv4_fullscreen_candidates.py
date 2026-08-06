@@ -23,16 +23,16 @@ class VV3VV4FullscreenCandidateTests(unittest.TestCase):
     def setUpClass(cls):
         cls.builder = load_builder()
 
-    def test_candidates_are_disabled_and_not_public_catalog_entries(self):
+    def test_candidates_are_enabled_only_for_certified_stock_modes(self):
         for game in ("vv3", "vv4"):
             stem = f"vv{game[-1]}_fullscreen_safe_candidate"
             manifest = json.loads((ROOT / "data" / "candidates" / f"{stem}.json").read_text())
             mapping = json.loads((ROOT / "data" / "candidates" / f"{stem}_map.json").read_text())
-            self.assertFalse(manifest["enabled"])
-            self.assertFalse(manifest["catalog_enabled"])
-            self.assertTrue(manifest["catalog_hidden"])
-            self.assertFalse(mapping["enabled"])
-            self.assertTrue(mapping["catalog_hidden"])
+            self.assertTrue(manifest["enabled"])
+            self.assertTrue(manifest["catalog_enabled"])
+            self.assertFalse(manifest["catalog_hidden"])
+            self.assertTrue(mapping["enabled"])
+            self.assertFalse(mapping["catalog_hidden"])
             self.assertEqual(manifest["rejected_modes"], [
                 "experimental_expanded_256",
                 "experimental_expanded_256_progression",

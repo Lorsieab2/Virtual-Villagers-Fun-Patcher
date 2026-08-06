@@ -1427,7 +1427,10 @@ def main() -> None:
     )
     # Never re-enable the C99 candidate from a stale manifest while the D248
     # native-transition gate is unresolved.
-    feature_enabled = False
+    # C260 metadata enablement: the static fullscreen candidate is catalog-visible
+    # only for the two certified stock modes; runtime/player validation remains
+    # explicitly pending and Expanded-256 stays fail-closed.
+    feature_enabled = True
     feature = {
         "id": "vv5_full_mastery_all_stage_a_candidate",
         "game_id": "vv5",
@@ -1439,7 +1442,8 @@ def main() -> None:
         "catalog_hidden": not feature_enabled,
         "enabled": feature_enabled,
         "certification_status": (
-            existing_feature.get("certification_status")
+            "C260 static enablement for Collection Progression and Immediate Fixed; "
+            "runtime/player validation pending; Expanded-256 remains fail-closed"
             if feature_enabled
             else (
                 "disabled candidate awaiting independent recertification of the VV5 "

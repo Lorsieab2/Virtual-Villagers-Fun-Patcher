@@ -2,9 +2,9 @@
   "id": "vv4_fullscreen_safe_candidate",
   "game_id": "vv4",
   "name": "DISABLED VV4 Fullscreen-Safe Origins Dialog Wrapper",
-  "enabled": false,
-  "catalog_enabled": false,
-  "catalog_hidden": true,
+  "enabled": true,
+  "catalog_enabled": true,
+  "catalog_hidden": false,
   "supported_modes": [
     "collection_progression",
     "immediate_fixed"
@@ -14,7 +14,7 @@
     "experimental_expanded_256_progression"
   ],
   "runtime_player_status": "pending",
-  "certification_status": "disabled candidate; independent emitted-byte audit pending",
+  "certification_status": "static candidate enabled for Collection/Immediate; runtime/player validation pending",
   "parent_hashes": {
     "collection_progression": "0E26D7B6FEF660194297BA017419D6E9F4D70F01A80265830C8461341B9334E9",
     "immediate_fixed": "043DA03EDEE4CDA82269F0584178E84D90D7DAC54ABD80873A3F59E3B4957388"

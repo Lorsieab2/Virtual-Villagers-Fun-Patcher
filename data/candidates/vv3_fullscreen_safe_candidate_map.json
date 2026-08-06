@@ -1,8 +1,8 @@
 {
   "candidate_id": "vv3_fullscreen_safe_candidate",
-  "enabled": false,
-  "catalog_hidden": true,
-  "catalog_enabled": false,
+  "enabled": true,
+  "catalog_hidden": false,
+  "catalog_enabled": true,
   "parents": {
     "collection_progression": "15D58F10FEC11D1E3BE0066A9E7109B08EF3AAD2E8E20E0056E41597277ABEEB",
     "immediate_fixed": "3142012C853615F513E009E4D22AA544C14D72F6ADC960E51E676A8636A571C4"

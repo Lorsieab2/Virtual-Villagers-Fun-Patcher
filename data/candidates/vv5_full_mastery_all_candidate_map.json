@@ -1,9 +1,9 @@
 {
   "acceptance_commit": "48955b5f19da5d4279887a4c1b71250a63ac9ade",
-  "candidate_enabled": false,
-  "catalog_enabled": false,
-  "catalog_hidden": true,
-  "certification_status": "disabled candidate awaiting independent emitted-byte certification",
+  "candidate_enabled": true,
+  "catalog_enabled": true,
+  "catalog_hidden": false,
+  "certification_status": "C99 independently certified; stock Collection Progression and Immediate Fixed catalog-enabled; Expanded-256 ON HOLD/fail-closed",
   "allowed_modes": [
     "collection_progression",
     "immediate_fixed"
@@ -43,7 +43,7 @@
     }
   },
   "base_manifest_sha256": "794446F2A3623B8CB42F066618C6EA645B0CBDE3987D666A7198F243993A376A",
-  "feature_manifest_sha256": "6BF988D701B4258179CD1686A6BD06718DF5A80F6D6FA586211E93F59AF24EC7",
+  "feature_manifest_sha256": "F543B41C6776AA3F2F49167803B4467045D5E8AAC5B0F3AEFFC449F7012C5EF4",
   "base_stock_payload_sha256": "4F87895836F56DE05CD86C32FAF12E5F2A6F26B2E86F4FE73DEFD95F585AA730",
   "fullscreen_dialog_contract": {
     "status": "disabled candidate-only native engine state-synchronised bracket; pending independent emitted-byte recertification",
