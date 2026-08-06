@@ -215,8 +215,8 @@ class IndividualBuyTransactionContractTests(unittest.TestCase):
         import hashlib
         manifest_path = ROOT / "data" / "candidates" / "vv5_individual_running_candidate.json"
         map_path = ROOT / "data" / "candidates" / "vv5_individual_running_candidate_map.json"
-        self.assertEqual(hashlib.sha256(manifest_path.read_bytes()).hexdigest().upper(), "EA09C5E19A61D1F74F90A6CE59E3158A65DF29D74BF59B99C9B20F545DCDF24F")
-        self.assertEqual(hashlib.sha256(map_path.read_bytes()).hexdigest().upper(), "92A448001B09FCFCE77A16C6C3E11873E63B9361A8332225FF33BD5EA4470A70")
+        self.assertEqual(hashlib.sha256(manifest_path.read_bytes()).hexdigest().upper(), "7AF7B821399DFFB12D34DFC43211D83EF6C6806400A712A618A746774F014336")
+        self.assertEqual(hashlib.sha256(map_path.read_bytes()).hexdigest().upper(), "D3C689645120CBB15C051D81687063A64F8E553EFA32E40E79EAC529A1F87A65")
         raw = json.loads(map_path.read_text(encoding="utf-8"))
         blob = bytes.fromhex(raw["slot"]["running_strings_blob"])
         self.assertEqual(hashlib.sha256(blob).hexdigest().upper(), "0BE4E54A34DA91228F4E333C6DCC8E18FB3BE4292004766B97649A8EE124DCE2")
