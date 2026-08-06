@@ -271,7 +271,11 @@ def emit(output_root: Path) -> None:
                 },
                 "cure_guard": {"va": "0x%X" % cfg["cure_guard"][0], "before": cfg["cure_guard"][1].hex().upper(), "after": cfg["cure_guard"][2].hex().upper()},
                 "legacy_cure_containment": {
-                    "status": "contained; command 5 is rejected before price/funds/legacy Cure, while commands 0-4 and command 7 remain bytewise on their certified paths",
+                    "status": (
+                        "contained; command 5 is rejected before price/funds/legacy Cure, while commands 0-4 and command 7 remain bytewise on their certified paths"
+                        if preprice else
+                        "contained; Cure row is removed; command 5 remains withheld pending a dedicated pre-price rejection guard"
+                    ),
                     **({"command5_preprice_rejection": {
                         "compare": {"va": "0x456A8D", "before": "83FB08", "after": "83FB05"},
                         "branch": {"va": "0x456A90", "before": "0F872FFFFFFF", "after": "0F842FFFFFFF"},
