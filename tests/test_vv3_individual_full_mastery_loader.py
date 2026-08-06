@@ -5,6 +5,7 @@ import json
 import ctypes
 import tempfile
 import unittest
+import uuid
 from unittest import mock
 from types import SimpleNamespace
 from pathlib import Path
@@ -327,6 +328,54 @@ class VV3IndividualFullMasteryLoaderTests(unittest.TestCase):
                 with self.assertRaises(vv_fun_patcher.PatcherError):
                     loader.recover_vv3_transaction(report)
             self.assertTrue(report.exists() or list(root.glob(".vv3im-emergency-*.json")))
+
+    def test_c310_forged_self_issued_cleanup_binding_fails_closed(self):
+        with tempfile.TemporaryDirectory(prefix="vv3-c310-forged-issuance-") as td:
+            root = Path(td)
+            report, destination, companion = self._make_unresolved_report(root)
+            payload = json.loads(report.read_text(encoding="utf-8"))
+            payload["issuance_identity"]["record"]["sha256"] = "0" * 64
+            report.write_text(json.dumps(payload, sort_keys=True), encoding="utf-8", newline="\r\n")
+            before = {p.relative_to(root).as_posix(): p.read_bytes() for p in root.rglob("*") if p.is_file()}
+            with self.assertRaises(vv_fun_patcher.PatcherError):
+                loader.recover_vv3_transaction(report)
+            after = {p.relative_to(root).as_posix(): p.read_bytes() for p in root.rglob("*") if p.is_file()}
+            self.assertEqual(after, before)
+
+    def test_c310_same_content_authority_substitution_is_rejected(self):
+        with tempfile.TemporaryDirectory(prefix="vv3-c310-authority-race-") as td:
+            root = Path(td)
+            report, _destination, _companion = self._make_unresolved_report(root)
+            manifest = loader._chain_manifest_path(report)
+            data = manifest.read_bytes()
+            manifest.unlink()
+            manifest.write_bytes(data)
+            with self.assertRaises(vv_fun_patcher.PatcherError):
+                loader._read_chain_manifest(report)
+
+    def test_c310_three_generation_successor_chain_is_transitively_bound(self):
+        with tempfile.TemporaryDirectory(prefix="vv3-c310-chain-") as td:
+            root = Path(td)
+            manifest = root / "manifest.json"
+            canonical = loader._transaction_authority_path(manifest)
+            prior = {"path": "external", "type": "regular_file", "size": 1, "sha256": "a" * 64, "st_dev": 1, "st_ino": 1}
+            previous = prior
+            names = []
+            for _ in range(3):
+                successor = canonical.with_name(f"{canonical.stem}.v{uuid.uuid4().hex}.json")
+                successor.write_text(json.dumps({"previous_authority_record": previous}, sort_keys=True), encoding="utf-8")
+                previous = loader._inventory_entry(root, successor)
+                names.append(successor)
+            self.assertEqual(loader._discover_transaction_authority(manifest), names[-1])
+
+    def test_c310_canonical_metadata_has_explicit_raw_git_attributes(self):
+        attributes = (ROOT / ".gitattributes").read_text(encoding="utf-8")
+        self.assertIn("vv3_individual_full_mastery_candidate.json -text", attributes)
+        self.assertIn("vv3_individual_full_mastery_candidate_map.json -text", attributes)
+        for name in ("vv3_individual_full_mastery_candidate.json", "vv3_individual_full_mastery_candidate_map.json"):
+            data = (ROOT / "data" / "candidates" / name).read_bytes()
+            self.assertFalse(data.startswith(b"\xef\xbb\xbf"))
+            self.assertNotIn(b"\n", data.replace(b"\r\n", b""))
 
     def test_c282_successful_rollback_cleanup_uses_captured_inventory_and_reports_failure(self):
         with tempfile.TemporaryDirectory(prefix="vv3-c282-rollback-cleanup-") as td:

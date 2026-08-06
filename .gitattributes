@@ -1,0 +1,5 @@
+# Canonical VV3 candidate metadata is authenticated as exact UTF-8/no-BOM/
+# CRLF bytes.  Keep Git blobs and Windows checkouts byte-identical regardless
+# of core.autocrlf or clone configuration.
+/data/candidates/vv3_individual_full_mastery_candidate.json -text
+/data/candidates/vv3_individual_full_mastery_candidate_map.json -text

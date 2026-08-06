@@ -361,7 +361,7 @@ def _write_recovery_impl(parent: Path, details: dict[str, object]) -> Path:
         payload["recovery_root_identity"] = root_identity
         payload["report_name"] = report.name
         payload["report_parent_identity"] = {"st_dev": int(parent_st.st_dev), "st_ino": int(parent_st.st_ino)}
-    allowed_metadata = metadata_keys if {"feature_owner", "member_roles", "destination_paths_absolute"}.intersection(payload_details) else set()
+    allowed_metadata = metadata_keys.intersection(payload_details)
     expected_owned = details.get("_expected_ownership_inventory")
     if isinstance(expected_owned, list) and isinstance(details.get("_recovery_root_name"), str):
         recovery_root = parent / str(details["_recovery_root_name"])
@@ -508,32 +508,103 @@ def _transaction_authority_path(manifest: Path) -> Path:
     return manifest.with_name(f".vv3im-journal-{token}.json")
 
 
+def _read_issuance_binding(manifest: Path) -> dict[str, object] | None:
+    """Read the transaction-start issuance evidence bound into a report."""
+    report_name = None
+    try:
+        journal_payload = json.loads(_read_regular(manifest).decode("utf-8"))
+        report_name = journal_payload.get("report_name") if isinstance(journal_payload, dict) else None
+    except Exception:
+        return None
+    if not isinstance(report_name, str) or Path(report_name).name != report_name:
+        return None
+    report = manifest.parent / report_name
+    if not os.path.lexists(report):
+        return None
+    try:
+        report_raw = json.loads(_read_regular(report).decode("utf-8"))
+    except Exception:
+        return None
+    if not isinstance(report_raw, dict):
+        return None
+    token = report_raw.get("issuance_token")
+    name = report_raw.get("issuance_name")
+    identity = report_raw.get("issuance_identity")
+    if not isinstance(token, str) or not re.fullmatch(r"[0-9a-f]{32}", token) or not isinstance(name, str) or Path(name).is_absolute() or ".." in Path(name).parts or not isinstance(identity, dict):
+        return None
+    issuance = manifest.parent / name
+    try:
+        issuance_record = _inventory_entry(manifest.parent, issuance)
+    except (FileNotFoundError, PatcherError) as exc:
+        raise PatcherError("VV3 individual Full Mastery issuance evidence is missing or unsafe.") from exc
+    if issuance_record != identity.get("record"):
+        raise PatcherError("VV3 individual Full Mastery issuance evidence changed before journal binding.")
+    return {"token": token, "name": name, "record": identity.get("record"), "owner": report_raw.get("feature_owner"), "operation": report_raw.get("operation"), "destination_paths_absolute": report_raw.get("destination_paths_absolute")}
+
+
 def _discover_transaction_authority(manifest: Path) -> Path:
-    """Find the canonical journal or one unambiguous durable successor."""
+    """Find the last member of one complete, parent-bound authority chain.
+
+    A publication can be interrupted after any successor is durable.  Follow
+    the recorded predecessor identities transitively instead of assuming one
+    successor, and reject branches/orphans rather than selecting a convenient
+    same-name journal.
+    """
     canonical = _transaction_authority_path(manifest)
     token = canonical.stem
     successor_re = re.compile(re.escape(token) + r"\.v[0-9a-f]{32}\.json")
-    successors = sorted(
-        [Path(entry.path) for entry in os.scandir(manifest.parent) if successor_re.fullmatch(entry.name)],
-        key=lambda p: p.name,
-    )
-    if os.path.lexists(canonical) and successors:
-        if len(successors) != 1:
-            raise PatcherError("VV3 individual Full Mastery transaction authority successors are ambiguous.")
+    with os.scandir(manifest.parent) as entries:
+        successors = sorted(
+            [Path(entry.path) for entry in entries if successor_re.fullmatch(entry.name)],
+            key=lambda p: p.name,
+        )
+    paths: list[Path] = ([canonical] if os.path.lexists(canonical) else []) + successors
+    if not paths:
+        raise PatcherError("VV3 individual Full Mastery independent transaction authority is missing.")
+    records: dict[Path, dict[str, object]] = {}
+    for path in paths:
         try:
-            successor_raw = json.loads(_read_regular(successors[0]).decode("utf-8"))
+            raw = json.loads(_read_regular(path).decode("utf-8"))
         except Exception as exc:
             raise PatcherError("VV3 individual Full Mastery transaction authority successor is unreadable.") from exc
-        if not isinstance(successor_raw, dict) or successor_raw.get("previous_authority_record") != _inventory_entry(manifest.parent, canonical):
-            raise PatcherError("VV3 individual Full Mastery transaction authority successor is not bound to the prior journal.")
-        return successors[0]
+        if not isinstance(raw, dict):
+            raise PatcherError("VV3 individual Full Mastery transaction authority successor is malformed.")
+        record = _inventory_entry(manifest.parent, path)
+        if record is None:
+            raise PatcherError("VV3 individual Full Mastery transaction authority identity disappeared.")
+        records[path] = {"raw": raw, "record": record}
+
+    # A canonical journal is the only valid chain root when present.  Every
+    # successor must bind to the immediately preceding captured identity.
     if os.path.lexists(canonical):
-        return canonical
-    if len(successors) == 1:
-        return successors[0]
-    if successors:
-        raise PatcherError("VV3 individual Full Mastery transaction authority successors are ambiguous.")
-    raise PatcherError("VV3 individual Full Mastery independent transaction authority is missing.")
+        heads = [canonical]
+    else:
+        heads = [
+            path for path, entry in records.items()
+            if path != canonical and json.dumps(entry["raw"].get("previous_authority_record"), sort_keys=True) not in {
+                json.dumps(other["record"], sort_keys=True) for other_path, other in records.items() if other_path != path
+            }
+        ]
+        if len(heads) != 1:
+            raise PatcherError("VV3 individual Full Mastery transaction authority successor chain is missing or ambiguous.")
+
+    current = heads[0]
+    consumed = {current}
+    while True:
+        current_record = records[current]["record"]
+        next_paths = [
+            path for path, entry in records.items()
+            if path not in consumed and entry["raw"].get("previous_authority_record") == current_record
+        ]
+        if len(next_paths) > 1:
+            raise PatcherError("VV3 individual Full Mastery transaction authority successor chain branches.")
+        if not next_paths:
+            break
+        current = next_paths[0]
+        consumed.add(current)
+    if consumed != set(paths):
+        raise PatcherError("VV3 individual Full Mastery transaction authority successor chain contains an orphan.")
+    return current
 
 
 def _write_transaction_authority(manifest: Path, payload: dict[str, object], manifest_record: dict[str, object]) -> tuple[Path, dict[str, object]]:
@@ -548,7 +619,8 @@ def _write_transaction_authority(manifest: Path, payload: dict[str, object], man
         except Exception as exc:
             raise PatcherError("VV3 individual Full Mastery transaction authority target is foreign.") from exc
         required_previous = {"schema_version", "kind", "state", "manifest_name", "manifest_record", "report_name", "report_record", "canonical_name", "canonical_record", "pointer_name", "pointer_record", "successor_name", "successor_record", "marker_name", "marker_record", "recovery_root_name", "recovery_root_record", "ownership_inventory", "members", "member_roles", "destination_paths_absolute", "transaction_journal", "previous_authority_record"}
-        if not isinstance(previous_raw, dict) or set(previous_raw) != required_previous or previous_raw.get("schema_version") != 1 or previous_raw.get("kind") != "vv3_recovery_transaction_authority" or previous_raw.get("manifest_name") != manifest.name:
+        previous_keys = set(previous_raw) if isinstance(previous_raw, dict) else set()
+        if not isinstance(previous_raw, dict) or previous_keys not in (required_previous, required_previous | {"external_issuance"}) or previous_raw.get("schema_version") != 1 or previous_raw.get("kind") != "vv3_recovery_transaction_authority" or previous_raw.get("manifest_name") != manifest.name:
             raise PatcherError("VV3 individual Full Mastery transaction authority target is foreign.")
         if not isinstance(previous_raw.get("transaction_journal"), dict) or previous_raw["transaction_journal"].get("state") != previous_raw.get("state") or not isinstance(previous_raw.get("members"), list) or not isinstance(previous_raw.get("member_roles"), dict) or not isinstance(previous_raw.get("ownership_inventory"), list) or not isinstance(previous_raw.get("destination_paths_absolute"), list):
             raise PatcherError("VV3 individual Full Mastery transaction authority bindings are malformed.")
@@ -583,6 +655,9 @@ def _write_transaction_authority(manifest: Path, payload: dict[str, object], man
         "transaction_journal": payload.get("transaction_journal"),
         "previous_authority_record": previous,
     }
+    issuance_binding = _read_issuance_binding(manifest)
+    if issuance_binding is not None:
+        journal_payload["external_issuance"] = issuance_binding
     # When advancing an existing authority, publish a durable successor first.
     # The prior valid journal is never consumed before that successor has been
     # fully written and identity-verified.  A failure after successor
@@ -631,7 +706,8 @@ def _validate_transaction_authority(manifest: Path, payload: dict[str, object], 
         raise PatcherError("VV3 individual Full Mastery independent transaction authority is missing.")
     raw = json.loads(_read_regular(journal).decode("utf-8"))
     required = {"schema_version", "kind", "state", "manifest_name", "manifest_record", "report_name", "report_record", "canonical_name", "canonical_record", "pointer_name", "pointer_record", "successor_name", "successor_record", "marker_name", "marker_record", "recovery_root_name", "recovery_root_record", "ownership_inventory", "members", "member_roles", "destination_paths_absolute", "transaction_journal", "previous_authority_record"}
-    if not isinstance(raw, dict) or set(raw) != required or raw.get("schema_version") != 1 or raw.get("kind") != "vv3_recovery_transaction_authority" or raw.get("manifest_name") != manifest.name:
+    raw_keys = set(raw) if isinstance(raw, dict) else set()
+    if not isinstance(raw, dict) or raw_keys not in (required, required | {"external_issuance"}) or raw.get("schema_version") != 1 or raw.get("kind") != "vv3_recovery_transaction_authority" or raw.get("manifest_name") != manifest.name:
         raise PatcherError("VV3 individual Full Mastery independent transaction authority is malformed.")
     expected_manifest = manifest_record or _inventory_entry(manifest.parent, manifest)
     if raw.get("manifest_record") != expected_manifest:
@@ -643,6 +719,12 @@ def _validate_transaction_authority(manifest: Path, payload: dict[str, object], 
         raise PatcherError("VV3 individual Full Mastery independent transaction authority state is inconsistent.")
     if raw.get("previous_authority_record") is not None and not isinstance(raw.get("previous_authority_record"), dict):
         raise PatcherError("VV3 individual Full Mastery transaction authority predecessor binding is malformed.")
+    expected_issuance = _read_issuance_binding(manifest)
+    if expected_issuance is not None:
+        if raw.get("external_issuance") != expected_issuance:
+            raise PatcherError("VV3 individual Full Mastery transaction authority issuance binding is missing or stale.")
+    elif "external_issuance" in raw:
+        raise PatcherError("VV3 individual Full Mastery transaction authority issuance evidence is unavailable.")
     if _inventory_entry(manifest.parent, journal) != record:
         raise PatcherError("VV3 individual Full Mastery independent transaction authority changed before use.")
     return journal, record
@@ -1718,7 +1800,7 @@ def _validate_vv3_hidden_namespace(parent: Path, *, expected: set[str] | None = 
     def owned_name(name: str) -> bool:
         if name in {".vv3im-recovery-root", ".vv3im-recovery-test"}:
             return True
-        for marker in ("vv3im-recovery-", "vv3im-emergency-", "vv3im-journal-", "vv3im-tombstone-", "vv3im-preserved-guard-", "vv3im-preserved-", "vv3im-cleanup-", "vv3im-replay-", "vv3im-restore-"):
+        for marker in ("vv3im-recovery-", "vv3im-emergency-", "vv3im-journal-", "vv3im-issuance-", "vv3im-tombstone-", "vv3im-preserved-guard-", "vv3im-preserved-", "vv3im-cleanup-", "vv3im-replay-", "vv3im-restore-"):
             start = name.find(marker)
             if start < 0:
                 continue
@@ -1728,7 +1810,7 @@ def _validate_vv3_hidden_namespace(parent: Path, *, expected: set[str] | None = 
             tail = suffix[32:]
             if marker in ("vv3im-recovery-", "vv3im-emergency-") and tail and not tail.startswith((".json", ".v")):
                 continue
-            if marker in ("vv3im-journal-",) and tail != ".json":
+            if marker in ("vv3im-journal-", "vv3im-issuance-") and tail != ".json":
                 continue
             if marker in ("vv3im-tombstone-",) and tail:
                 continue
@@ -1764,6 +1846,41 @@ def _write_cleanup_authority(parent: Path, members: list[dict[str, object]]) -> 
         raise PatcherError("VV3 individual Full Mastery cleanup authority members are malformed.")
     member_blob = json.dumps(members, sort_keys=True, separators=(",", ":")).encode("utf-8")
     authority_token = uuid.uuid4().hex
+    # The cleanup journal must bind to evidence that existed before the
+    # journal itself.  Issue a separate transaction record first; a digest or
+    # token computed only inside the cleanup authority is not sufficient.
+    issuance = None
+    issuance_payload = None
+    retire_issuance = True
+    with os.scandir(parent) as entries:
+        for entry in entries:
+            if entry.name.startswith(".vv3im-issuance-") and entry.name.endswith(".json"):
+                candidate = Path(entry.path)
+                try:
+                    candidate_payload = json.loads(_read_regular(candidate).decode("utf-8"))
+                except Exception:
+                    continue
+                if isinstance(candidate_payload, dict) and candidate_payload.get("feature_owner") == "vv3_individual_full_mastery":
+                    issuance = candidate
+                    issuance_payload = candidate_payload
+                    retire_issuance = candidate_payload.get("kind") != "vv3_recovery_issuance"
+                    break
+    if issuance is None:
+        issuance = parent / f".vv3im-issuance-{uuid.uuid4().hex}.json"
+        issuance_payload = {
+            "schema_version": 1,
+            "kind": "vv3_cleanup_transaction_issuance",
+            "feature_owner": "vv3_individual_full_mastery",
+            "operation": "owned_deletion",
+            "owner_parent_identity": parent_identity,
+            "member_digest": _sha(member_blob),
+            "member_names": [item.get("name") for item in members],
+            "member_roles": {str(item.get("name")): item.get("role") for item in members},
+        }
+        _write_file(issuance, (json.dumps(issuance_payload, indent=2, sort_keys=True) + "\n").encode("utf-8"))
+    issuance_record = _inventory_entry(parent, issuance)
+    if issuance_record is None:
+        raise PatcherError("VV3 individual Full Mastery cleanup issuance was not captured.")
     namespace_inventory = [
         _inventory_entry(parent, Path(entry.path))
         for entry in os.scandir(parent)
@@ -1792,6 +1909,12 @@ def _write_cleanup_authority(parent: Path, members: list[dict[str, object]]) -> 
             "parent_identity": parent_identity,
             "member_names": [item.get("name") for item in members],
             "member_roles": {str(item.get("name")): item.get("role") for item in members},
+        },
+        "external_issuance": {
+            "name": issuance.name,
+            "record": issuance_record,
+            "payload": issuance_payload,
+            "retire_on_cleanup": retire_issuance,
         },
         "namespace_inventory": namespace_inventory,
         "members": members,
@@ -1829,8 +1952,11 @@ def recover_cleanup_authority(record_path: Path) -> None:
     """Replay retained VV3 guard cleanup without consuming foreign material."""
     _require_windows_identity_atomic()
     record_path = Path(record_path)
+    authority_record = _inventory_entry(record_path.parent, record_path)
+    if authority_record is None:
+        raise PatcherError("VV3 individual Full Mastery cleanup authority is missing.")
     raw = json.loads(_read_regular(record_path).decode("utf-8"))
-    required = {"schema_version", "kind", "feature_owner", "operation", "state", "record_version", "previous_record_name", "previous_record_identity", "parent_identity", "authority_binding", "transaction_binding", "namespace_inventory", "members"}
+    required = {"schema_version", "kind", "feature_owner", "operation", "state", "record_version", "previous_record_name", "previous_record_identity", "parent_identity", "authority_binding", "transaction_binding", "external_issuance", "namespace_inventory", "members"}
     if not isinstance(raw, dict) or set(raw) != required or raw.get("schema_version") != 2 or raw.get("kind") != "vv3_individual_full_mastery_cleanup_authority" or raw.get("feature_owner") != "vv3_individual_full_mastery" or raw.get("operation") != "owned_deletion" or raw.get("state") not in {"started", "cleaning"} or raw.get("record_version") != 1 or not isinstance(raw.get("members"), list):
         raise PatcherError("VV3 individual Full Mastery cleanup authority is malformed.")
     parent = record_path.parent
@@ -1842,6 +1968,23 @@ def recover_cleanup_authority(record_path: Path) -> None:
         raise PatcherError("VV3 individual Full Mastery cleanup authority binding is malformed.")
     if not isinstance(tx, dict) or set(tx) != {"owner", "operation", "parent_identity", "member_names", "member_roles"} or tx.get("owner") != raw.get("feature_owner") or tx.get("operation") != raw.get("operation") or tx.get("parent_identity") != raw.get("parent_identity"):
         raise PatcherError("VV3 individual Full Mastery cleanup transaction binding is malformed.")
+    external = raw.get("external_issuance")
+    if not isinstance(external, dict) or set(external) != {"name", "record", "payload", "retire_on_cleanup"} or not isinstance(external.get("name"), str) or Path(external["name"]).name != external["name"] or not isinstance(external.get("record"), dict) or not isinstance(external.get("payload"), dict) or not isinstance(external.get("retire_on_cleanup"), bool):
+        raise PatcherError("VV3 individual Full Mastery cleanup issuance binding is malformed.")
+    issuance_path = parent / external["name"]
+    if _inventory_entry(parent, issuance_path) != external["record"]:
+        raise PatcherError("VV3 individual Full Mastery cleanup issuance identity changed.")
+    issuance_payload = external["payload"]
+    if issuance_payload.get("schema_version") != 1 or issuance_payload.get("feature_owner") != raw.get("feature_owner"):
+        raise PatcherError("VV3 individual Full Mastery cleanup issuance payload is stale or forged.")
+    if issuance_payload.get("kind") == "vv3_cleanup_transaction_issuance":
+        if set(issuance_payload) != {"schema_version", "kind", "feature_owner", "operation", "owner_parent_identity", "member_digest", "member_names", "member_roles"} or issuance_payload.get("operation") != raw.get("operation") or issuance_payload.get("owner_parent_identity") != raw.get("parent_identity") or issuance_payload.get("member_digest") != binding.get("member_digest"):
+            raise PatcherError("VV3 individual Full Mastery cleanup issuance payload is stale or forged.")
+    elif issuance_payload.get("kind") == "vv3_recovery_issuance":
+        if set(issuance_payload) != {"schema_version", "kind", "feature_owner", "operation", "token", "owner_parent_absolute", "destination_paths_absolute", "precondition"} or issuance_payload.get("owner_parent_absolute") != str(parent.absolute()).casefold():
+            raise PatcherError("VV3 individual Full Mastery recovery issuance payload is stale or forged.")
+    else:
+        raise PatcherError("VV3 individual Full Mastery cleanup issuance kind is unsupported.")
     if not isinstance(raw.get("namespace_inventory"), list) or any(not isinstance(item, dict) or not isinstance(item.get("path"), str) for item in raw["namespace_inventory"]):
         raise PatcherError("VV3 individual Full Mastery cleanup namespace inventory is malformed.")
     member_blob = json.dumps(raw["members"], sort_keys=True, separators=(",", ":")).encode("utf-8")
@@ -1857,15 +2000,39 @@ def recover_cleanup_authority(record_path: Path) -> None:
             raise PatcherError("VV3 individual Full Mastery cleanup authority member is invalid.")
         target = parent / member["name"]
         if os.path.lexists(target):
+            if _inventory_entry(record_path.parent, record_path) != authority_record:
+                raise PatcherError("VV3 individual Full Mastery cleanup authority changed before member deletion.")
             if _inventory_entry(parent, target) != member["record"]:
                 raise PatcherError("VV3 individual Full Mastery cleanup authority member changed before deletion.")
             _delete_file_by_handle(target, member["record"])
             if os.path.lexists(target):
                 raise PatcherError("VV3 individual Full Mastery cleanup authority member deletion did not verify.")
+            if _inventory_entry(record_path.parent, record_path) != authority_record:
+                raise PatcherError("VV3 individual Full Mastery cleanup authority changed after member deletion.")
+    # The independently issued transaction record is retained until all
+    # cleanup members have verified absence; it is then retired by identity.
+    if _inventory_entry(record_path.parent, record_path) != authority_record:
+        raise PatcherError("VV3 individual Full Mastery cleanup authority changed before issuance cleanup.")
+    if _inventory_entry(parent, issuance_path) != external["record"]:
+        raise PatcherError("VV3 individual Full Mastery cleanup issuance changed before deletion.")
+    if external["retire_on_cleanup"]:
+        _delete_file_by_handle(issuance_path, external["record"])
+        if os.path.lexists(issuance_path):
+            raise PatcherError("VV3 individual Full Mastery cleanup issuance deletion did not verify.")
+    if _inventory_entry(record_path.parent, record_path) != authority_record:
+        raise PatcherError("VV3 individual Full Mastery cleanup authority changed after issuance cleanup.")
     expected_hidden = {record_path.name}
-    expected_hidden.update(str(item["path"]) for item in raw["namespace_inventory"] if "vv3im-" in str(item["path"]) and str(item["path"]) not in member_names)
+    expected_hidden.update(
+        str(item["path"])
+        for item in raw["namespace_inventory"]
+        if "vv3im-" in str(item["path"])
+        and str(item["path"]) not in member_names
+        and (str(item["path"]) != external["name"] or not external["retire_on_cleanup"])
+    )
     _validate_vv3_hidden_namespace(parent, expected=expected_hidden)
     expected_record = _inventory_entry(parent, record_path)
+    if expected_record != authority_record:
+        raise PatcherError("VV3 individual Full Mastery cleanup authority changed before final deletion.")
     # The authority file itself is the recovery journal; deleting it through
     # _remove_owned would recursively create another cleanup authority.
     _delete_file_by_handle(record_path, expected_record)
@@ -1957,7 +2124,8 @@ def _quarantine_delete(path: Path, expected: dict[str, object], *, directory: bo
         if any(preserved_before_guard_cleanup.get(key) != preserved_record.get(key) for key in ("type", "size", "sha256", "st_dev", "st_ino")):
             # Keep the still-verified guard as the recoverable owned copy.
             raise PatcherError(f"VV3 individual Full Mastery preserved backup changed before guard cleanup: {preserved}")
-        _validate_vv3_hidden_namespace(path.parent, expected=(baseline_hidden - {path.name}) | {preserved.name, guard.name, guard2.name, cleanup_authority.name})
+        issuance_names = {entry.name for entry in os.scandir(path.parent) if entry.name.startswith(".vv3im-issuance-")}
+        _validate_vv3_hidden_namespace(path.parent, expected=(baseline_hidden - {path.name}) | {preserved.name, guard.name, guard2.name, cleanup_authority.name} | issuance_names)
         if os.path.lexists(guard):
             _delete_file_by_handle(guard, guard_record)
         # Guard-final is retained while the primary preserved copy is
@@ -1972,6 +2140,23 @@ def _quarantine_delete(path: Path, expected: dict[str, object], *, directory: bo
             raise PatcherError(f"VV3 individual Full Mastery final preserved guard changed: {guard2}")
         if os.path.lexists(guard2):
             _delete_file_by_handle(guard2, guard2_record)
+        # Retire the independently issued cleanup evidence only after every
+        # owned copy and guard has been verified gone.
+        for entry in list(os.scandir(path.parent)):
+            if entry.name.startswith(".vv3im-issuance-"):
+                issuance_path = Path(entry.path)
+                try:
+                    issuance_kind = json.loads(_read_regular(issuance_path).decode("utf-8")).get("kind")
+                except Exception as exc:
+                    raise PatcherError(f"VV3 individual Full Mastery cleanup issuance is unreadable: {issuance_path}") from exc
+                if issuance_kind == "vv3_recovery_issuance":
+                    continue
+                issuance_record = _inventory_entry(path.parent, issuance_path)
+                if issuance_record is None:
+                    raise PatcherError(f"VV3 individual Full Mastery cleanup issuance disappeared: {issuance_path}")
+                _delete_file_by_handle(issuance_path, issuance_record)
+                if os.path.lexists(issuance_path):
+                    raise PatcherError(f"VV3 individual Full Mastery cleanup issuance deletion did not verify: {issuance_path}")
         if os.path.lexists(cleanup_authority):
             _delete_file_by_handle(cleanup_authority, cleanup_authority_record)
         _validate_vv3_hidden_namespace(path.parent, expected=baseline_hidden - {path.name})
@@ -2068,6 +2253,30 @@ def _transaction(operation: str, destinations: list[Path], pre: dict[Path, tuple
         raise
     stages = {p: recovery_root / f".{p.name}.{recovery_prefix.lstrip('.')}-{token}.stage" for p in destinations}
     backups = {p: recovery_root / f".{p.name}.{recovery_prefix.lstrip('.')}-{token}.backup" for p in destinations if pre[p][0]}
+    # Issue an independently captured transaction record before any pair
+    # mutation.  Recovery journals must bind to this pre-existing evidence;
+    # a token/digest computed only inside a cleanup report is not authority.
+    issuance_token = uuid.uuid4().hex
+    issuance_path = recovery_root / f".{recovery_prefix.lstrip('.')}-issuance-{issuance_token}.json"
+    issuance_payload = {
+        "schema_version": 1,
+        "kind": "vv3_recovery_issuance",
+        "feature_owner": recovery_metadata.get("feature_owner", "vv3_individual_full_mastery"),
+        "operation": operation,
+        "token": issuance_token,
+        "owner_parent_absolute": str(parent.absolute()).casefold(),
+        "destination_paths_absolute": [str(p.absolute()).casefold() for p in destinations],
+        "precondition": {str(p.absolute()).casefold(): {"exists": bool(pre[p][0]), "sha256": _sha(pre[p][1]) if pre[p][1] is not None else None, "size": len(pre[p][1]) if pre[p][1] is not None else 0} for p in destinations},
+    }
+    _write_file(issuance_path, (json.dumps(issuance_payload, indent=2, sort_keys=True) + "\n").encode("utf-8"))
+    issuance_record = _inventory_member(parent, issuance_path)
+    if issuance_record is None:
+        raise PatcherError("VV3 individual Full Mastery transaction issuance record was not captured.")
+    recovery_metadata.update({
+        "issuance_token": issuance_token,
+        "issuance_name": _relative_owned(parent, issuance_path),
+        "issuance_identity": {"record": issuance_record, "kind": "vv3_recovery_issuance", "owner_parent_absolute": str(parent.absolute()).casefold(), "operation": operation, "destination_paths_absolute": issuance_payload["destination_paths_absolute"]},
+    })
     if any(os.path.lexists(p) for p in (*stages.values(), *backups.values())):
         raise PatcherError("VV3 individual Full Mastery staging collision.")
     committed = False
@@ -2340,7 +2549,16 @@ def recover_atomic(report_or_root: Path, *, recovery_prefix: str = ".vv3im", req
     if expected_report_sha256 is not None and _sha(report_bytes) != expected_report_sha256:
         raise PatcherError("VV3 individual Full Mastery recovery report changed before replay.")
     payload = json.loads(report_bytes.decode("utf-8"))
-    _validate_recovery_payload(payload, report.parent, allowed_metadata=set((required_metadata or {}).keys()))
+    recovery_metadata_keys = {
+        "feature_owner", "mode", "parent_sha256", "candidate_sha256",
+        "destination_exe_basename", "companion_dll_basename", "member_roles",
+        "recovery_root_name", "recovery_root_identity", "report_name",
+        "report_parent_identity", "issuance_token", "issuance_name",
+        "issuance_registry_relative", "issuance_registry_identity",
+        "issuance_identity", "destination_parent_absolute",
+        "destination_paths_absolute",
+    }
+    _validate_recovery_payload(payload, report.parent, allowed_metadata=recovery_metadata_keys.intersection(payload))
     if sibling_markers and not _from_emergency:
         compatible_marker_records = [(marker, _inventory_entry(report.parent, marker)) for marker, _marker_payload in _compatible_emergency_markers(sibling_markers, payload)]
         if len(compatible_marker_records) != len(sibling_markers):
