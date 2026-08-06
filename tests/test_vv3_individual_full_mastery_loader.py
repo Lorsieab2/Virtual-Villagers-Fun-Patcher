@@ -878,6 +878,46 @@ class VV3IndividualFullMasteryLoaderTests(unittest.TestCase):
             with self.assertRaises(vv_fun_patcher.PatcherError):
                 loader._read_chain_manifest(report)
 
+    def test_c304_independent_authority_journal_binds_manifest_identity(self):
+        with tempfile.TemporaryDirectory(prefix="vv3-c304-independent-journal-") as td:
+            root = Path(td)
+            report, _destination, _companion = self._make_unresolved_report(root)
+            manifest = loader._chain_manifest_path(report)
+            journal = loader._transaction_authority_path(manifest)
+            self.assertTrue(journal.exists())
+            raw = json.loads(journal.read_text(encoding="utf-8"))
+            self.assertEqual(raw["kind"], "vv3_recovery_transaction_authority")
+            self.assertEqual(raw["manifest_name"], manifest.name)
+            raw["manifest_record"]["sha256"] = "0" * 64
+            journal.write_text(json.dumps(raw), encoding="utf-8")
+            with self.assertRaises(vv_fun_patcher.PatcherError):
+                loader._read_chain_manifest(report)
+
+    def test_c304_guard_failure_retains_owned_copy_and_replays(self):
+        with tempfile.TemporaryDirectory(prefix="vv3-c304-guard-replay-") as td:
+            root = Path(td)
+            target = root / "owned.bin"
+            target.write_bytes(b"owned")
+            expected = loader._inventory_entry(root, target)
+            real_delete = loader._delete_file_by_handle
+            failed = {"done": False}
+
+            def fail_guard(path, identity):
+                if "preserved-guard-" in path.name and not failed["done"]:
+                    failed["done"] = True
+                    raise vv_fun_patcher.PatcherError("injected final guard failure")
+                return real_delete(path, identity)
+
+            with mock.patch.object(loader, "_delete_file_by_handle", side_effect=fail_guard):
+                with self.assertRaises(vv_fun_patcher.PatcherError):
+                    loader._quarantine_delete(target, expected, directory=False)
+            authorities = list(root.glob(".vv3im-cleanup-*.json"))
+            self.assertEqual(len(authorities), 1)
+            self.assertTrue(any(item.read_bytes() == b"owned" for item in root.glob("*.backup")))
+            loader.recover_cleanup_authority(authorities[0])
+            self.assertEqual(list(root.glob(".vv3im-cleanup-*.json")), [])
+            self.assertEqual(list(root.glob("*.backup")), [])
+
     def test_c302_canonical_and_emergency_authorities_conflict_before_replay(self):
         with tempfile.TemporaryDirectory(prefix="vv3-c302-conflict-") as td:
             root = Path(td)
