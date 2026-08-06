@@ -772,6 +772,39 @@ class VV3IndividualFullMasteryLoaderTests(unittest.TestCase):
                 loader.recover_atomic(marker)
             self.assertTrue(marker.exists())
 
+    def test_c298_chain_manifest_roles_are_strictly_bound_before_mutation(self):
+        with tempfile.TemporaryDirectory(prefix="vv3-c298-chain-roles-") as td:
+            root = Path(td)
+            report, destination, _companion = self._make_unresolved_report(root)
+            manifest = loader._chain_manifest_path(report)
+            raw = json.loads(manifest.read_text(encoding="utf-8"))
+            raw["member_roles"] = {"foreign": "recovery_member"}
+            manifest.write_text(json.dumps(raw), encoding="utf-8")
+            before = destination.read_bytes() if destination.exists() else None
+            with self.assertRaises(vv_fun_patcher.PatcherError):
+                loader.recover_atomic(report)
+            self.assertEqual(destination.read_bytes() if destination.exists() else None, before)
+            self.assertTrue(manifest.exists())
+
+    def test_c298_orphan_chain_manifest_wrong_prefix_fails_closed(self):
+        with tempfile.TemporaryDirectory(prefix="vv3-c298-chain-prefix-") as td:
+            root = Path(td)
+            report, destination, _companion = self._make_unresolved_report(root)
+            orphan = root / (".chain-.other-recovery-" + "a" * 32 + ".json")
+            orphan.write_text("{}", encoding="utf-8")
+            before = destination.read_bytes() if destination.exists() else None
+            with self.assertRaises(vv_fun_patcher.PatcherError):
+                loader.recover_atomic(report)
+            self.assertEqual(destination.read_bytes() if destination.exists() else None, before)
+            self.assertTrue(orphan.exists())
+
+    def test_c298_missing_directory_quarantine_source_fails_closed(self):
+        with tempfile.TemporaryDirectory(prefix="vv3-c298-missing-source-") as td:
+            root = Path(td)
+            with self.assertRaises(vv_fun_patcher.PatcherError):
+                loader._move_noreplace(root / "missing", root / "tombstone")
+            self.assertFalse((root / "tombstone").exists())
+
 
 if __name__ == "__main__":
     unittest.main()

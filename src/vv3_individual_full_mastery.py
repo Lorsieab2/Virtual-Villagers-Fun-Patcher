@@ -511,6 +511,17 @@ def _write_chain_manifest(
     root_record = next((item for item in payload.get("ownership_inventory", []) if isinstance(item, dict) and item.get("type") == "directory" and "/" not in str(item.get("path", ""))), None)
     if not isinstance(root_record, dict):
         raise PatcherError("VV3 individual Full Mastery chain manifest root identity is missing.")
+    manifest_members = payload.get("members") or []
+    manifest_roles = payload.get("member_roles") or {
+        str(member.get("destination_relative")): "recovery_member"
+        for member in manifest_members
+        if isinstance(member, dict) and isinstance(member.get("destination_relative"), str)
+    }
+    manifest_destinations = payload.get("destination_paths_absolute") or [
+        str(member.get("destination_relative"))
+        for member in manifest_members
+        if isinstance(member, dict) and isinstance(member.get("destination_relative"), str)
+    ]
     manifest_payload = {
         "schema_version": 2,
         "kind": "vv3_recovery_chain_manifest",
@@ -528,9 +539,9 @@ def _write_chain_manifest(
         "recovery_root_name": payload.get("recovery_root_name") or str(root_record.get("path")),
         "recovery_root_record": root_record,
         "ownership_inventory": payload.get("ownership_inventory"),
-        "members": payload.get("members"),
-        "member_roles": payload.get("member_roles") or {},
-        "destination_paths_absolute": payload.get("destination_paths_absolute") or [],
+        "members": manifest_members,
+        "member_roles": manifest_roles,
+        "destination_paths_absolute": manifest_destinations,
     }
     tmp = manifest.with_suffix(".tmp")
     _write_file(tmp, (json.dumps(manifest_payload, indent=2, sort_keys=True) + "\n").encode("utf-8"))
@@ -588,7 +599,13 @@ def _read_chain_manifest(report: Path) -> tuple[Path, dict[str, object], dict[st
         effective = marker_payload.get("recovery_payload") if isinstance(marker_payload.get("recovery_payload"), dict) else {}
     if not isinstance(effective, dict):
         raise PatcherError("VV3 individual Full Mastery recovery chain report payload is malformed.")
-    if raw.get("members") != effective.get("members") or raw.get("ownership_inventory") != effective.get("ownership_inventory") or raw.get("destination_paths_absolute") != (effective.get("destination_paths_absolute") or []) or raw.get("member_roles") != (effective.get("member_roles") or {}):
+    effective_members = effective.get("members") if isinstance(effective, dict) else None
+    effective_roles = effective.get("member_roles") if isinstance(effective, dict) else None
+    effective_destinations = effective.get("destination_paths_absolute") if isinstance(effective, dict) else None
+    if isinstance(effective_members, list):
+        effective_roles = effective_roles or {str(member.get("destination_relative")): "recovery_member" for member in effective_members if isinstance(member, dict) and isinstance(member.get("destination_relative"), str)}
+        effective_destinations = effective_destinations or [str(member.get("destination_relative")) for member in effective_members if isinstance(member, dict) and isinstance(member.get("destination_relative"), str)]
+    if raw.get("members") != effective_members or raw.get("ownership_inventory") != effective.get("ownership_inventory") or raw.get("destination_paths_absolute") != (effective_destinations or []) or raw.get("member_roles") != (effective_roles or {}):
         raise PatcherError("VV3 individual Full Mastery recovery chain does not bind the active report.")
     if emergency_manifest and (not isinstance(effective.get("member_roles"), dict) or not isinstance(effective.get("destination_paths_absolute"), list) or len({str(item).casefold() for item in effective.get("destination_paths_absolute", [])}) != len(effective.get("destination_paths_absolute", []))):
         raise PatcherError("VV3 individual Full Mastery recovery chain member roles/destinations are ambiguous.")
@@ -620,12 +637,16 @@ def _read_chain_manifest(report: Path) -> tuple[Path, dict[str, object], dict[st
 
 def _move_noreplace(source: Path, destination: Path) -> None:
     """Move a directory to a fresh tombstone without replacing a raced target."""
+    if os.name != "nt":
+        raise PatcherError("VV3 individual Full Mastery directory quarantine is certified only on 64-bit Windows.")
+    if not os.path.lexists(source):
+        raise PatcherError(f"VV3 individual Full Mastery directory quarantine source disappeared: {source}")
     if os.path.lexists(destination):
         raise PatcherError(f"VV3 individual Full Mastery tombstone target raced: {destination}")
     source_record = _inventory_entry(source.parent, source)
     source_parent_record = _inventory_entry(source.parent.parent, source.parent)
     destination_parent_record = _inventory_entry(destination.parent.parent, destination.parent)
-    if source_record.get("type") != "directory" or source_parent_record != destination_parent_record:
+    if source_record is None or source_parent_record is None or destination_parent_record is None or source_record.get("type") != "directory" or source_parent_record != destination_parent_record:
         raise PatcherError("VV3 individual Full Mastery directory quarantine parent is unsafe.")
     # Revalidate source, both parents, and the empty tombstone target directly
     # adjacent to the destructive MoveFileExW call.
@@ -890,6 +911,8 @@ def _report_chain_siblings(parent: Path, report: Path, *, recovery_prefix: str) 
         target = pointer_name[1:-len(".pointer")]
         if target not in known_names:
             raise PatcherError("VV3 individual Full Mastery recovery pointer is orphaned or foreign.")
+    for chain_name in chain_names:
+        _validate_chain_manifest_binding(parent / chain_name, parent, recovery_prefix=recovery_prefix, known_names=known_names)
     # Every chain member is recaptured after complete discovery.  Names and
     # types alone cannot detect a same-content inode replacement or a bytes
     # substitution that occurred during the scan.
@@ -902,7 +925,7 @@ def _report_chain_siblings(parent: Path, report: Path, *, recovery_prefix: str) 
     return canonical, successors, markers
 
 
-def _orphan_chain_manifests(parent: Path, known_names: set[str]) -> list[Path]:
+def _orphan_chain_manifests(parent: Path, known_names: set[str], *, recovery_prefix: str = ".vv3im") -> list[Path]:
     """Return orphan chain manifests for emergency compatibility checking."""
     found: list[Path] = []
     with os.scandir(parent) as scan:
@@ -915,8 +938,78 @@ def _orphan_chain_manifests(parent: Path, known_names: set[str]) -> list[Path]:
                 st = os.lstat(candidate)
                 if not stat.S_ISREG(st.st_mode) or _reject_entry(candidate, st, directory=False):
                     raise PatcherError("VV3 individual Full Mastery orphan chain manifest is unsafe.")
+                _validate_chain_manifest_binding(candidate, parent, recovery_prefix=recovery_prefix, known_names=known_names)
                 found.append(candidate)
     return found
+
+
+def _validate_chain_manifest_binding(manifest: Path, parent: Path, *, recovery_prefix: str, known_names: set[str]) -> None:
+    """Validate one chain manifest as a closed, report-bound state record."""
+    name = manifest.name
+    if not re.fullmatch(r"\.chain-.+\.json", name):
+        raise PatcherError("VV3 individual Full Mastery chain manifest filename role is invalid.")
+    target = name[len(".chain-"):-len(".json")]
+    canonical_re = re.escape(recovery_prefix) + r"-recovery-[0-9a-f]{32}\.json"
+    successor_re = re.escape(recovery_prefix) + r"-recovery-[0-9a-f]{32}\.v[0-9a-f]{32}\.json"
+    emergency_re = re.escape(recovery_prefix) + r"-emergency-[0-9a-f]{32}\.json"
+    if not (re.fullmatch(canonical_re, target) or re.fullmatch(successor_re, target) or re.fullmatch(emergency_re, target)):
+        raise PatcherError("VV3 individual Full Mastery chain manifest prefix or report role is invalid.")
+    raw = json.loads(_read_regular(manifest).decode("utf-8"))
+    required = {"schema_version", "kind", "recovery_prefix", "report_name", "report_record", "canonical_name", "canonical_record", "pointer_name", "pointer_record", "successor_name", "successor_record", "marker_name", "marker_record", "recovery_root_name", "recovery_root_record", "ownership_inventory", "members", "member_roles", "destination_paths_absolute"}
+    if not isinstance(raw, dict) or set(raw) != required or raw.get("schema_version") != 2 or raw.get("kind") != "vv3_recovery_chain_manifest":
+        raise PatcherError("VV3 individual Full Mastery chain manifest schema is unsupported.")
+    if raw.get("recovery_prefix") != recovery_prefix or raw.get("report_name") != target:
+        raise PatcherError("VV3 individual Full Mastery chain manifest report binding is invalid.")
+    target_known = target in known_names
+    if target_known:
+        target_path = parent / target
+        target_record = _inventory_entry(parent, target_path)
+        if raw.get("report_record") != target_record:
+            raise PatcherError("VV3 individual Full Mastery chain manifest report identity changed.")
+        effective = json.loads(_read_regular(target_path).decode("utf-8"))
+        if isinstance(effective, dict) and effective.get("kind") == "emergency_recovery_marker":
+            effective = effective.get("recovery_payload")
+        effective_members = effective.get("members") if isinstance(effective, dict) else None
+        effective_roles = effective.get("member_roles") if isinstance(effective, dict) else None
+        effective_destinations = effective.get("destination_paths_absolute") if isinstance(effective, dict) else None
+        if isinstance(effective_members, list):
+            effective_roles = effective_roles or {
+                str(member.get("destination_relative")): "recovery_member"
+                for member in effective_members
+                if isinstance(member, dict) and isinstance(member.get("destination_relative"), str)
+            }
+            effective_destinations = effective_destinations or [
+                str(member.get("destination_relative"))
+                for member in effective_members
+                if isinstance(member, dict) and isinstance(member.get("destination_relative"), str)
+            ]
+        if not isinstance(effective, dict) or raw.get("members") != effective_members or raw.get("ownership_inventory") != effective.get("ownership_inventory") or raw.get("member_roles") != (effective_roles or {}) or raw.get("destination_paths_absolute") != (effective_destinations or []):
+            raise PatcherError("VV3 individual Full Mastery chain manifest does not bind its report payload.")
+    members = raw.get("members")
+    roles = raw.get("member_roles")
+    destinations = raw.get("destination_paths_absolute")
+    if not isinstance(members, list) or not isinstance(roles, dict) or not isinstance(destinations, list):
+        raise PatcherError("VV3 individual Full Mastery chain manifest ownership is incomplete.")
+    member_paths = [str(item.get("destination_relative")) for item in members if isinstance(item, dict) and isinstance(item.get("destination_relative"), str)]
+    if len(member_paths) != len(members) or len({p.casefold() for p in member_paths}) != len(member_paths) or set(roles) != set(member_paths) or len({str(p).casefold() for p in destinations}) != len(destinations):
+        raise PatcherError("VV3 individual Full Mastery chain manifest members/roles/destinations are ambiguous.")
+    ownership = raw.get("ownership_inventory")
+    if not isinstance(ownership, list):
+        raise PatcherError("VV3 individual Full Mastery chain manifest inventory is missing.")
+    inventory_paths = [str(item.get("path")) for item in ownership if isinstance(item, dict)]
+    if len(inventory_paths) != len(ownership) or len({p.casefold() for p in inventory_paths}) != len(inventory_paths) or any(Path(p).is_absolute() or not Path(p).parts or ".." in Path(p).parts for p in inventory_paths):
+        raise PatcherError("VV3 individual Full Mastery chain manifest inventory is unsafe or duplicated.")
+    for key, expected_name, expected_record in (("canonical_name", "canonical_record", raw.get("canonical_record")), ("pointer_name", "pointer_record", raw.get("pointer_record")), ("successor_name", "successor_record", raw.get("successor_record")), ("marker_name", "marker_record", raw.get("marker_record"))):
+        member_name = raw.get(key)
+        member_record = raw.get(expected_name)
+        if member_name is None:
+            if member_record is not None:
+                raise PatcherError("VV3 individual Full Mastery chain member presence is inconsistent.")
+            continue
+        if not isinstance(member_name, str) or Path(member_name).name != member_name or member_name == name or not isinstance(member_record, dict):
+            raise PatcherError("VV3 individual Full Mastery chain member identity is invalid.")
+        if target_known and _inventory_entry(parent, parent / member_name) != member_record:
+            raise PatcherError("VV3 individual Full Mastery chain member identity changed.")
 
 
 def _refresh_recovery_report(report: Path, payload: dict[str, object], root: Path, replay_root: Path) -> None:
@@ -1260,7 +1353,12 @@ def _quarantine_delete(path: Path, expected: dict[str, object], *, directory: bo
     if directory:
         if _inventory_tree(tombstone):
             raise PatcherError(f"VV3 individual Full Mastery tombstone directory is not empty: {tombstone}")
+        tombstone_before_remove = _inventory_entry(tombstone.parent, tombstone)
+        if tombstone_before_remove != moved or _inventory_entry(path.parent.parent, path.parent) != _inventory_entry(tombstone.parent.parent, tombstone.parent):
+            raise PatcherError(f"VV3 individual Full Mastery tombstone directory identity changed: {tombstone}")
         tombstone.rmdir()
+        if os.path.lexists(tombstone):
+            raise PatcherError(f"VV3 individual Full Mastery tombstone directory cleanup did not verify: {tombstone}")
     else:
         check = _inventory_entry(path.parent, tombstone)
         source_boundary = _inventory_entry(path.parent, path)
@@ -1503,7 +1601,7 @@ def _recover_from_emergency_marker(marker: Path, *, recovery_prefix: str, requir
     canonical, successors, markers = _report_chain_siblings(marker.parent, marker, recovery_prefix=recovery_prefix)
     if canonical or successors or len(markers) != 1 or markers[0] != marker:
         raise PatcherError("VV3 individual Full Mastery emergency marker conflicts with an existing recovery chain.")
-    orphan_manifests = _orphan_chain_manifests(marker.parent, {marker.name})
+    orphan_manifests = _orphan_chain_manifests(marker.parent, {marker.name}, recovery_prefix=recovery_prefix)
     marker_manifest, marker_manifest_record, _marker_manifest_payload = _read_chain_manifest(marker)
     marker_record = _inventory_entry(marker.parent, marker)
     marker_payload = json.loads(_read_regular(marker).decode("utf-8"))
