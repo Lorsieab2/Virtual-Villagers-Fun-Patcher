@@ -361,7 +361,10 @@ def _write_recovery_impl(parent: Path, details: dict[str, object]) -> Path:
         payload["recovery_root_identity"] = root_identity
         payload["report_name"] = report.name
         payload["report_parent_identity"] = {"st_dev": int(parent_st.st_dev), "st_ino": int(parent_st.st_ino)}
-    allowed_metadata = metadata_keys.intersection(payload_details)
+    # The writer adds report/root identity fields below even for the base VV3
+    # transaction.  Admit only this fixed metadata schema; unknown fields are
+    # still rejected by _validate_recovery_payload.
+    allowed_metadata = metadata_keys
     expected_owned = details.get("_expected_ownership_inventory")
     if isinstance(expected_owned, list) and isinstance(details.get("_recovery_root_name"), str):
         recovery_root = parent / str(details["_recovery_root_name"])
@@ -2272,11 +2275,13 @@ def _transaction(operation: str, destinations: list[Path], pre: dict[Path, tuple
     issuance_record = _inventory_member(parent, issuance_path)
     if issuance_record is None:
         raise PatcherError("VV3 individual Full Mastery transaction issuance record was not captured.")
-    recovery_metadata.update({
-        "issuance_token": issuance_token,
-        "issuance_name": _relative_owned(parent, issuance_path),
-        "issuance_identity": {"record": issuance_record, "kind": "vv3_recovery_issuance", "owner_parent_absolute": str(parent.absolute()).casefold(), "operation": operation, "destination_paths_absolute": issuance_payload["destination_paths_absolute"]},
-    })
+    # VV5 supplies an independently issued parent-registry binding.  Preserve
+    # that external authority in the report while still retaining the local
+    # transaction issuance record in the owned recovery root.  VV3 callers
+    # without an external binding continue to use the local record.
+    recovery_metadata.setdefault("issuance_token", issuance_token)
+    recovery_metadata.setdefault("issuance_name", _relative_owned(parent, issuance_path))
+    recovery_metadata.setdefault("issuance_identity", {"record": issuance_record, "kind": "vv3_recovery_issuance", "owner_parent_absolute": str(parent.absolute()).casefold(), "operation": operation, "destination_paths_absolute": issuance_payload["destination_paths_absolute"]})
     if any(os.path.lexists(p) for p in (*stages.values(), *backups.values())):
         raise PatcherError("VV3 individual Full Mastery staging collision.")
     committed = False

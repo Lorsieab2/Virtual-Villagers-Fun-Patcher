@@ -458,13 +458,24 @@ def _ensure_authority(registry: Path, registry_identity: dict[str, int], created
     return path, token, {"record": record_final, "token": token, "registry_identity": registry_identity, "created": True}
 
 
-def _quarantine_owned(path: Path, expected: dict[str, object], *, owner_parent: Path) -> tuple[Path, dict[str, object], Path]:
+def _quarantine_owned(
+    path: Path,
+    expected: dict[str, object],
+    *,
+    owner_parent: Path,
+    tombstone_name: str | None = None,
+    preserved_name: str | None = None,
+) -> tuple[Path, dict[str, object], Path]:
     """Move an owned registry member outside the registry without overwriting."""
     _require_windows_identity_atomic()
     actual = _inventory(path.parent, path)
     if actual is None or any(actual.get(key) != expected.get(key) for key in ("type", "size", "sha256", "st_dev", "st_ino")):
         raise PatcherError(f"VV5 Running issuance cleanup identity changed: {path}")
-    tombstone = owner_parent / f".{path.parent.name}-{path.name}.vv5run-tombstone-{uuid.uuid4().hex}"
+    tombstone_name = tombstone_name or f".{path.parent.name}-{path.name}.vv5run-tombstone-{uuid.uuid4().hex}"
+    preserved_name = preserved_name or f".{path.name}.vv5run-preserved-{uuid.uuid4().hex}.backup"
+    if Path(tombstone_name).name != tombstone_name or Path(preserved_name).name != preserved_name:
+        raise PatcherError("VV5 Running quarantine name is unsafe.")
+    tombstone = owner_parent / tombstone_name
     if os.path.lexists(tombstone):
         raise PatcherError("VV5 Running issuance tombstone target raced.")
     try:
@@ -481,7 +492,7 @@ def _quarantine_owned(path: Path, expected: dict[str, object], *, owner_parent: 
     tombstone_before_delete = _inventory(owner_parent, tombstone)
     if source_before_delete != actual or tombstone_before_delete != moved:
         raise PatcherError("VV5 Running issuance tombstone/source changed before deletion.")
-    preserved = owner_parent / f".{path.name}.vv5run-preserved-{uuid.uuid4().hex}.backup"
+    preserved = owner_parent / preserved_name
     if os.path.lexists(preserved):
         raise PatcherError("VV5 Running issuance preserved backup target raced.")
     # Preserve a verified copy before consuming the original.  If the write
@@ -924,13 +935,55 @@ def recover_cleanup_atomic(record_path: Path, mode: str = VV5_MODE) -> None:
             if item.get("tombstone_name") and item.get("preserved_name"):
                 continue
             source = registry / str(item["name"])
+            pending = raw.get("transaction_binding", {}).get("pending")
+            pending_for_item = pending if isinstance(pending, dict) and pending.get("name") == item.get("name") else None
+            if pending_for_item is not None and pending_for_item.get("source_record") != item.get("source_record"):
+                raise PatcherError("VV5 Running pending quarantine source binding is inconsistent.")
+            if pending_for_item is not None and not os.path.lexists(source):
+                # The source may have been removed after quarantine but before
+                # its successor record was published.  Adopt only the exact
+                # pre-journaled tombstone/preserved identities, then publish
+                # the successor; never infer names from arbitrary residue.
+                tombstone = owner_parent / str(pending_for_item.get("tombstone_name"))
+                preserved = owner_parent / str(pending_for_item.get("preserved_name"))
+                tombstone_record = pending_for_item.get("tombstone_record") or _inventory(owner_parent, tombstone)
+                preserved_record = pending_for_item.get("preserved_record") or _inventory(owner_parent, preserved)
+                source_binding = pending_for_item.get("source_record") or {}
+                if (
+                    tombstone_record is None
+                    or preserved_record is None
+                    or any(tombstone_record.get(key) != source_binding.get(key) for key in ("type", "size", "sha256"))
+                    or any(preserved_record.get(key) != source_binding.get(key) for key in ("type", "size", "sha256"))
+                ):
+                    raise PatcherError("VV5 Running started cleanup pending quarantine evidence is missing or changed.")
+                item["tombstone_name"] = tombstone.name
+                item["tombstone_record"] = tombstone_record
+                item["preserved_name"] = preserved.name
+                item["preserved_record"] = preserved_record
+                raw["transaction_binding"].pop("pending", None)
+                next_path, _next_identity = _update_cleanup_record(record_path, record_identity, raw)
+                return recover_cleanup_atomic(next_path, mode=mode)
             if not os.path.lexists(source):
                 raise PatcherError("VV5 Running started cleanup issuance member is missing.")
             source_record = _inventory(registry.parent, source)
             expected_source = item.get("source_record")
             if source_record is None or not isinstance(expected_source, dict) or any(source_record.get(key) != expected_source.get(key) for key in ("type", "size", "sha256", "st_dev", "st_ino")):
                 raise PatcherError("VV5 Running started cleanup issuance member changed.")
-            tombstone, tombstone_record, preserved = _quarantine_owned(source, source_record, owner_parent=owner_parent)
+            if pending_for_item is not None:
+                tombstone_name = pending_for_item.get("tombstone_name")
+                preserved_name = pending_for_item.get("preserved_name")
+                if not isinstance(tombstone_name, str) or not isinstance(preserved_name, str):
+                    raise PatcherError("VV5 Running pending quarantine names are malformed.")
+            else:
+                tombstone_name = f".{registry.name}-{source.name}.vv5run-tombstone-{uuid.uuid4().hex}"
+                preserved_name = f".{source.name}.vv5run-preserved-{uuid.uuid4().hex}.backup"
+            tombstone, tombstone_record, preserved = _quarantine_owned(
+                source,
+                source_record,
+                owner_parent=owner_parent,
+                tombstone_name=tombstone_name,
+                preserved_name=preserved_name,
+            )
             item["tombstone_name"] = tombstone.name
             item["tombstone_record"] = tombstone_record
             item["preserved_name"] = preserved.name
@@ -941,6 +994,7 @@ def recover_cleanup_atomic(record_path: Path, mode: str = VV5_MODE) -> None:
             # tombstone/preserved record.  This makes the successor replay
             # continue with the next member rather than skipping directly to
             # cleaning after the first checkpoint.
+            raw["transaction_binding"].pop("pending", None)
             raw["state"] = "started"
             next_path, _next_identity = _update_cleanup_record(record_path, record_identity, raw)
             return recover_cleanup_atomic(next_path, mode=mode)
@@ -974,6 +1028,13 @@ def recover_cleanup_atomic(record_path: Path, mode: str = VV5_MODE) -> None:
             if item["name"] in expected_names:
                 if _inventory(owner_parent, registry / item["name"]) != item.get("source_record"):
                     raise PatcherError("VV5 Running cleanup registry member changed before deletion.")
+        # Verify the preserved copy before touching the tombstone.  This keeps
+        # at least one independently hashed owned copy alive across every
+        # tombstone/guard boundary.
+        if preserved is not None and os.path.lexists(preserved):
+            preserved_expected = item.get("preserved_record")
+            if _inventory(owner_parent, preserved) != preserved_expected:
+                raise PatcherError("VV5 Running preserved copy changed before tombstone cleanup.")
         if tombstone is not None and os.path.lexists(tombstone):
             _cleanup(tombstone, expected=item.get("tombstone_record"))
             if os.path.lexists(tombstone):
@@ -1009,10 +1070,12 @@ def recover_cleanup_atomic(record_path: Path, mode: str = VV5_MODE) -> None:
     # Retire predecessors oldest-first.  The current record remains available
     # until every older authority has been removed and the final namespace is
     # recaptured.
-    for prior_path, prior_identity in superseded_records:
+    for prior_path, prior_identity in reversed(superseded_records):
         _cleanup(prior_path, expected=prior_identity)
         if os.path.lexists(prior_path):
             raise PatcherError("VV5 Running superseded cleanup authority remained after finalization.")
+        if not set(_cleanup_namespace(owner_parent)).issubset(allowed_after):
+            raise PatcherError("VV5 Running cleanup namespace changed during authority retirement.")
     _cleanup(record_path, expected=record_identity)
     if os.path.lexists(record_path):
         raise PatcherError("VV5 Running cleanup authority remained after deletion.")
@@ -1054,13 +1117,30 @@ def _cleanup_issuance_artifacts(
     try:
         for path, record in owned:
             _assert_registry_members(registry, registry_identity, expected)
-            quarantine = _quarantine_owned(path, record, owner_parent=registry.parent)
+            pending_tombstone = f".{registry.name}-{path.name}.vv5run-tombstone-{uuid.uuid4().hex}"
+            pending_preserved = f".{path.name}.vv5run-preserved-{uuid.uuid4().hex}.backup"
+            cleanup_payload["transaction_binding"]["pending"] = {
+                "name": path.name,
+                "source_record": _rebase_registry_record(registry, path, record),
+                "tombstone_name": pending_tombstone,
+                "preserved_name": pending_preserved,
+            }
+            cleanup_payload["state"] = "quarantining"
+            cleanup_record_path, cleanup_record_identity = _update_cleanup_record(cleanup_record_path, cleanup_record_identity, cleanup_payload)
+            quarantine = _quarantine_owned(
+                path,
+                record,
+                owner_parent=registry.parent,
+                tombstone_name=pending_tombstone,
+                preserved_name=pending_preserved,
+            )
             tombstones.append(quarantine)
             item = next(item for item in cleanup_payload["artifacts"] if item["name"] == path.name)
             item["tombstone_name"] = quarantine[0].name
             item["tombstone_record"] = quarantine[1]
             item["preserved_name"] = quarantine[2].name
             item["preserved_record"] = _inventory(registry.parent, quarantine[2])
+            cleanup_payload["transaction_binding"].pop("pending", None)
             cleanup_payload["state"] = "quarantining"
             cleanup_record_path, cleanup_record_identity = _update_cleanup_record(cleanup_record_path, cleanup_record_identity, cleanup_payload)
             expected.pop(path.name, None)
@@ -1130,8 +1210,11 @@ def _cleanup_issuance_artifacts(
         # the namespace is stable.
         chain = _cleanup_authority_chain(registry.parent)
         latest_path, _latest_raw, latest_identity = chain[0]
-        for prior_path, _prior_raw, prior_identity in chain[1:]:
+        for prior_path, _prior_raw, prior_identity in reversed(chain[1:]):
             _cleanup(prior_path, expected=prior_identity)
+            if os.path.lexists(prior_path):
+                raise PatcherError("VV5 Running cleanup predecessor remained during retirement.")
+            _cleanup_namespace(registry.parent)
         _cleanup(latest_path, expected=latest_identity)
     except Exception:
         # Any remaining tombstone is deliberate durable authority evidence;
