@@ -1,0 +1,89 @@
+{
+  "id": "vv5_individual_grant_running_candidate",
+  "game_id": "vv5",
+  "name": "DISABLED Candidate: Grant Running to Selected Villager",
+  "enabled": false,
+  "catalog_hidden": true,
+  "catalog_enabled": false,
+  "runtime_status": "pending",
+  "certification_status": "disabled candidate; independent emitted-byte and runtime recertification pending",
+  "allowed_modes": [
+    "collection_progression",
+    "immediate_fixed"
+  ],
+  "unsupported_patch_modes": [
+    "experimental_expanded_256",
+    "experimental_expanded_256_progression"
+  ],
+  "expanded_fail_closed": true,
+  "dependencies": [
+    "vv5_full_mastery_all_stage_a_candidate"
+  ],
+  "patches": [
+    {
+      "offset": "0xDB766",
+      "before": "83FB027525",
+      "after": "E9B5690100",
+      "purpose": "guarded command dispatcher: command 1 remains certified Full Mastery, command 2 enters Running helper, commands 0/3 continue legacy"
+    }
+  ],
+  "parent_hashes": {
+    "collection_progression": "857E22D7C361B802508BF789C3CC486E42E76021F5AA579BB1D16CC6E0D017A0",
+    "immediate_fixed": "E93822F752F730ECB751EBAA87021194C992984721B4370FF0015D5FC4BB2E9A"
+  },
+  "pe_append_transaction": {
+    "status": "disabled projection; dedicated .vv5run RX extension and production install/remove remain pending",
+    "section": ".vv5run",
+    "append_source": "generated:vv5_individual_running_page",
+    "append_length": 8192,
+    "hook_preimage": "83FB027525",
+    "hook_owner": "vv5_individual_grant_running_candidate",
+    "uninstall": "restore exact composed parent and truncate only candidate-owned append"
+  },
+  "transaction_contract": {
+    "command": 2,
+    "price": 40000,
+    "action": "Buy",
+    "repeatable": true,
+    "ownership": null,
+    "remove": false,
+    "selected_index": "sub_425950()+0x17E24 signed 0..149",
+    "likes": [
+      "record+0x1F5C",
+      "record+0x1F60",
+      "record+0x1F64"
+    ],
+    "running_value": 38,
+    "empty_value": -1,
+    "dry_run": "scan all Likes before confirmation; preserve duplicates; first physical -1 only",
+    "reacquire": "same selected index and exact three-Like snapshot before write",
+    "deduction": "ECX=0x51D5F8; push -40000; call 0x4237B0 exactly once",
+    "forbidden_reads": [
+      "Dislikes",
+      "movement",
+      "speed"
+    ],
+    "confirmation": "Grant Running to this villager for 40,000 tech points?\\r\\nPress OK to confirm, or Cancel.",
+    "no_deduction": "No tech points have been deducted.",
+    "result_messages": {
+      "already_running": "This villager already likes Running.\\r\\nNo tech points have been deducted.",
+      "no_empty_like": "This villager has no empty Like slot.\\r\\nNo tech points have been deducted.",
+      "invalid_selection": "No valid living villager is selected.\\r\\nNo tech points have been deducted.",
+      "canceled": "Grant Running was canceled.\\r\\nNo tech points have been deducted.",
+      "recheck": "The selected villager changed during confirmation.\\r\\nNo tech points have been deducted.",
+      "write_failure": "Running could not be verified.\\r\\nNo tech points have been deducted.",
+      "success": "Running was granted."
+    }
+  },
+  "emitted": {
+    "page_sha256": "4FC2362AB25D38FFA79B4EAA3B58390DBCDB7CC9FC4BAD49DD806315EABBFC66",
+    "helper_sha256": "FF759D04EAB5249C509060AFE243E66750B8D3038F491C03B092ECE32326DB55",
+    "helper_length": 508
+  },
+  "provenance": {
+    "implementation_parent": "f1256fca68f2711974e93057e599f2642c77a2a4",
+    "implementation_commit": null,
+    "audit_commit": null,
+    "acceptance_commit": null
+  }
+}

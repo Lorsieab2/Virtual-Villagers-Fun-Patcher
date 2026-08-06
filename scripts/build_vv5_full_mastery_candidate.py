@@ -17,6 +17,9 @@ OUT_DIR = ROOT / "data" / "candidates"
 BASE_OUT = OUT_DIR / "vv5_origins_full_mastery_base_candidate.json"
 FEATURE_OUT = OUT_DIR / "vv5_full_mastery_all_candidate.json"
 MAP_OUT = OUT_DIR / "vv5_full_mastery_all_candidate_map.json"
+RUNNING_OUT = OUT_DIR / "vv5_individual_running_candidate.json"
+RUNNING_MAP_OUT = OUT_DIR / "vv5_individual_running_candidate_map.json"
+RUNNING_DOC_OUT = ROOT / "docs" / "vv5-individual-running-candidate.md"
 DOC_OUT = ROOT / "docs" / "vv5-full-mastery-stage-a-candidate.md"
 COMPANION = OUT_DIR / "VVFP VV5 Full Mastery Candidate.dll"
 CURE_PROJECTION = OUT_DIR / "VVFP VV5 Cure Containment Projection.dll"
@@ -73,6 +76,9 @@ CONFIRM_OFFSET = 0x800
 VILLAGE_CONFIRM_OFFSET = 0x850
 INDIVIDUAL_OFFSET = 0xC00
 STRINGS_OFFSET = 0x1200
+RUNNING_OFFSET = 0x1800
+RUNNING_CONFIRM_OFFSET = 0x1700
+RUNNING_STRINGS_OFFSET = 0x1C00
 PRICE = 1_000_000
 INDIVIDUAL_PRICE = 100_000
 STRIDE = 0x2F44
@@ -459,14 +465,15 @@ def build_cure_projection() -> bytes:
     return projection
 
 
-def build_individual_helper(page_va: int, strings: dict[str, int]) -> bytes:
+def build_individual_helper(page_va: int, strings: dict[str, int], running_va: int | None = None) -> bytes:
     """Candidate-only command-1 transaction; native writer, no raw stores."""
     va = page_va + SLOT_OFFSET + INDIVIDUAL_OFFSET
+    running_target = running_va if running_va is not None else 0x7B276B
     return asm(f"""
         cmp ebx, 1
         je individual_body
         cmp ebx, 2
-        je 0x7B276B
+        je 0x{running_target:X}
         jmp 0x7B2790
     individual_body:
         push ebp
@@ -703,7 +710,154 @@ def build_confirmation(
     )
 
 
-def build_slot(page_va: int, installed: bool) -> tuple[bytes, dict[str, object]]:
+def build_running_helper(page_va: int, strings: dict[str, int]) -> bytes:
+    """Emit the disabled-candidate command-2 selected-villager transaction.
+
+    The helper deliberately owns only the three physical Likes DWORDs.  It
+    performs the complete dry-run/reacquire/funds sequence before the single
+    aligned Running write and native 40,000-point deduction; Dislikes and
+    movement/speed fields are never referenced.
+    """
+    va = page_va + RUNNING_OFFSET
+    return asm(f"""
+        push ebp
+        mov ebp, esp
+        push ebx
+        push esi
+        push edi
+        sub esp, 0x20
+        mov dword ptr [ebp-0x10], esi
+        call 0x425950
+        test eax, eax
+        jz fail
+        mov eax, dword ptr [eax+0x17E24]
+        cmp eax, 0x96
+        jae fail
+        mov dword ptr [ebp-0x14], eax
+        mov ecx, 0x554148
+        push eax
+        call 0x471840
+        test eax, eax
+        jz fail
+        mov ecx, 0x554148
+        push dword ptr [ebp-0x14]
+        call 0x46F950
+        test eax, eax
+        jz fail
+        mov esi, eax
+        cmp byte ptr [esi+0x1CD4], 0
+        je fail
+        cmp dword ptr [esi+0x1C40], 0
+        jle fail
+        cmp byte ptr [esi+0x1CEC], 0
+        jne fail
+        xor edi, edi
+        mov dword ptr [ebp-0x18], -1
+    scan:
+        cmp edi, 3
+        jae scanned
+        mov eax, dword ptr [esi+edi*4+0x1F5C]
+        mov dword ptr [ebp+edi*4-0x20], eax
+        cmp eax, 38
+        je already
+        cmp eax, -1
+        jne scan_next
+        cmp dword ptr [ebp-0x18], -1
+        jne scan_next
+        mov dword ptr [ebp-0x18], edi
+    scan_next:
+        inc edi
+        jmp scan
+    scanned:
+        cmp dword ptr [ebp-0x18], -1
+        je no_slot
+        cmp dword ptr [0x51D5F8], 40000
+        jb funds
+        call 0x{page_va + RUNNING_CONFIRM_OFFSET:X}
+        test eax, eax
+        jz cancel
+        call 0x425950
+        test eax, eax
+        jz stale
+        mov eax, dword ptr [eax+0x17E24]
+        cmp eax, dword ptr [ebp-0x14]
+        jne stale
+        mov ecx, 0x554148
+        push eax
+        call 0x471840
+        test eax, eax
+        jz stale
+        mov ecx, 0x554148
+        push dword ptr [ebp-0x14]
+        call 0x46F950
+        test eax, eax
+        jz stale
+        mov esi, eax
+        cmp byte ptr [esi+0x1CD4], 0
+        je stale
+        cmp dword ptr [esi+0x1C40], 0
+        jle stale
+        cmp byte ptr [esi+0x1CEC], 0
+        jne stale
+        mov eax, dword ptr [esi+0x1F5C]
+        cmp eax, dword ptr [ebp-0x20]
+        jne stale
+        mov eax, dword ptr [esi+0x1F60]
+        cmp eax, dword ptr [ebp-0x24]
+        jne stale
+        mov eax, dword ptr [esi+0x1F64]
+        cmp eax, dword ptr [ebp-0x28]
+        jne stale
+        mov edi, dword ptr [ebp-0x18]
+        cmp dword ptr [esi+edi*4+0x1F5C], -1
+        jne stale
+        cmp dword ptr [0x51D5F8], 40000
+        jb funds
+        mov dword ptr [esi+edi*4+0x1F5C], 38
+        cmp dword ptr [esi+edi*4+0x1F5C], 38
+        jne write_failed
+        push -40000
+        mov ecx, 0x51D5F8
+        call 0x4237B0
+        push 0x{strings['running_success']:X}
+        push 0x{strings['caption']:X}
+        call 0x7B2210
+        jmp done
+    already:
+        push 0x{strings['running_already']:X}
+        jmp result
+    no_slot:
+        push 0x{strings['running_no_slot']:X}
+        jmp result
+    funds:
+        push 0x{strings['running_insufficient']:X}
+        jmp result
+    cancel:
+        push 0x{strings['running_cancel']:X}
+        jmp result
+    stale:
+        push 0x{strings['running_recheck']:X}
+        jmp result
+    write_failed:
+        push 0x{strings['running_write_failed']:X}
+        jmp result
+    fail:
+        push 0x{strings['running_invalid']:X}
+    result:
+        push 0x{strings['caption']:X}
+        call 0x7B2210
+    done:
+        mov esi, dword ptr [ebp-0x10]
+        add esp, 0x20
+        pop edi
+        pop esi
+        pop ebx
+        pop ebp
+        ret
+    """, va)
+
+
+def build_slot(page_va: int, installed: bool, include_running: bool = False) -> tuple[bytes, dict[str, object]]:
     slot = bytearray(SLOT_SIZE)
     slot[0:8] = b"VVFMSLT\0"
     slot[8:12] = (1).to_bytes(4, "little")
@@ -753,6 +907,23 @@ def build_slot(page_va: int, installed: bool) -> tuple[bytes, dict[str, object]]
         cursor += len(value)
         if cursor > PAGE_SIZE:
             raise RuntimeError("page strings exceed reserved space")
+
+    if include_running:
+        _running_parts = (
+            ("running_confirm", b"Grant Running to this villager for 40,000 tech points?\r\nPress OK to confirm, or Cancel.\0"),
+            ("running_success", b"Running was granted.\0"),
+            ("running_already", b"This villager already likes Running.\r\nNo tech points have been deducted.\0"),
+            ("running_no_slot", b"This villager has no empty Like slot.\r\nNo tech points have been deducted.\0"),
+            ("running_cancel", b"Grant Running was canceled.\r\nNo tech points have been deducted.\0"),
+            ("running_recheck", b"The selected villager changed during confirmation.\r\nNo tech points have been deducted.\0"),
+            ("running_write_failed", b"Running could not be verified.\r\nNo tech points have been deducted.\0"),
+            ("running_invalid", b"No valid living villager is selected.\r\nNo tech points have been deducted.\0"),
+            ("running_insufficient", b"Not enough tech points.\r\nNo tech points have been deducted.\0"),
+        )
+        _running_cursor = RUNNING_STRINGS_OFFSET
+        for _key, _value in _running_parts:
+            strings[_key] = page_va + _running_cursor
+            _running_cursor += len(_value)
 
     walker_va = page_va + SLOT_OFFSET + WALKER_OFFSET
     confirm_va = page_va + SLOT_OFFSET + CONFIRM_OFFSET
@@ -942,7 +1113,17 @@ def build_slot(page_va: int, installed: bool) -> tuple[bytes, dict[str, object]]
         strings["caption"],
         strings["village_confirm"],
     )
-    individual = build_individual_helper(page_va, strings)
+    individual = build_individual_helper(page_va, strings, page_va + RUNNING_OFFSET if include_running else None)
+    running_confirm = b""
+    if include_running:
+        running_confirm = build_confirmation(
+            page_va + RUNNING_CONFIRM_OFFSET,
+            strings["user32"],
+            strings["message_box"],
+            strings["caption"],
+            strings["running_confirm"],
+        )
+    running_helper = build_running_helper(page_va, strings) if include_running else b""
     _put(slot, SLOT_ENTRY_OFFSET, WALKER_OFFSET - SLOT_ENTRY_OFFSET, entry, "entry")
     _put(slot, WALKER_OFFSET, CONFIRM_OFFSET - WALKER_OFFSET, walker, "walker")
     _put(
@@ -960,7 +1141,7 @@ def build_slot(page_va: int, installed: bool) -> tuple[bytes, dict[str, object]]
         "village-wide confirmation",
     )
     _put(slot, INDIVIDUAL_OFFSET, SLOT_SIZE - INDIVIDUAL_OFFSET, individual, "individual transaction")
-    return bytes(slot), {
+    result = {
         "entry_offset": SLOT_ENTRY_OFFSET,
         "entry_length": len(entry),
         "entry_sha256": sha(entry),
@@ -988,6 +1169,16 @@ def build_slot(page_va: int, installed: bool) -> tuple[bytes, dict[str, object]]
         "individual_sha256": sha(individual),
         "strings": {key: f"0x{value:X}" for key, value in strings.items()},
     }
+    if include_running:
+        result.update({
+            "running_offset": RUNNING_OFFSET,
+            "running_confirm_offset": RUNNING_CONFIRM_OFFSET,
+            "running_helper_length": len(running_helper),
+            "running_helper_sha256": sha(running_helper),
+            "running_helper_bytes": running_helper.hex().upper(),
+            "running_confirm_bytes": running_confirm.hex().upper(),
+        })
+    return bytes(slot), result
 
 
 def build_dispatcher(page_va: int, bound: int) -> bytes:
@@ -1025,7 +1216,7 @@ def build_dispatcher(page_va: int, bound: int) -> bytes:
     )
 
 
-def build_page(page_va: int, slot: bytes, dispatcher: bytes) -> bytes:
+def build_page(page_va: int, slot: bytes, dispatcher: bytes, slot_map: dict[str, object] | None = None) -> bytes:
     page = bytearray(PAGE_SIZE)
     page[0:8] = b"VFM5PG\0\0"
     page[8:12] = (1).to_bytes(4, "little")
@@ -1038,6 +1229,17 @@ def build_page(page_va: int, slot: bytes, dispatcher: bytes) -> bytes:
         raise RuntimeError("base dispatcher overlaps command-7 slot")
     page[0x40 : 0x40 + len(dispatcher)] = dispatcher
     page[SLOT_OFFSET : SLOT_OFFSET + SLOT_SIZE] = slot
+    if slot_map and slot_map.get("running_helper_bytes"):
+        helper = bytes.fromhex(str(slot_map["running_helper_bytes"]))
+        confirm = bytes.fromhex(str(slot_map["running_confirm_bytes"]))
+        if RUNNING_CONFIRM_OFFSET + len(confirm) > RUNNING_STRINGS_OFFSET:
+            raise RuntimeError("VV5 Running confirmation overlaps strings")
+        if RUNNING_CONFIRM_OFFSET + len(confirm) > RUNNING_OFFSET:
+            raise RuntimeError("VV5 Running confirmation overlaps helper")
+        if RUNNING_OFFSET + len(helper) > RUNNING_STRINGS_OFFSET:
+            raise RuntimeError("VV5 Running helper overlaps strings")
+        page[RUNNING_OFFSET : RUNNING_OFFSET + len(helper)] = helper
+        page[RUNNING_CONFIRM_OFFSET : RUNNING_CONFIRM_OFFSET + len(confirm)] = confirm
     cursor = STRINGS_OFFSET
     for value in (
         b"VVFP Origins Icons.dll\0",
@@ -1060,6 +1262,21 @@ def build_page(page_va: int, slot: bytes, dispatcher: bytes) -> bytes:
     ):
         page[cursor : cursor + len(value)] = value
         cursor += len(value)
+    running_strings = (
+        b"Grant Running to this villager for 40,000 tech points?\r\nPress OK to confirm, or Cancel.\0"
+        b"Running was granted.\0"
+        b"This villager already likes Running.\r\nNo tech points have been deducted.\0"
+        b"This villager has no empty Like slot.\r\nNo tech points have been deducted.\0"
+        b"Running was canceled.\r\nNo tech points have been deducted.\0"
+        b"The selected villager changed during confirmation.\r\nNo tech points have been deducted.\0"
+        b"Running could not be verified.\r\nNo tech points have been deducted.\0"
+        b"No valid living villager is selected.\r\nNo tech points have been deducted.\0"
+        b"Not enough tech points.\r\nNo tech points have been deducted.\0"
+    )
+    if slot_map and slot_map.get("running_helper_bytes") and RUNNING_STRINGS_OFFSET + len(running_strings) > len(page):
+        raise RuntimeError("VV5 Running strings exceed page")
+    if slot_map and slot_map.get("running_helper_bytes"):
+        page[RUNNING_STRINGS_OFFSET : RUNNING_STRINGS_OFFSET + len(running_strings)] = running_strings
     return bytes(page)
 
 
@@ -1267,9 +1484,88 @@ def main() -> None:
         noop_slots[mode] = noop
         installed_slots[mode] = installed
         dispatchers[mode] = dispatcher
-        pages[mode] = build_page(layout["page_va"], noop, dispatcher)
-        installed_pages[mode] = build_page(layout["page_va"], installed, dispatcher)
+        pages[mode] = build_page(layout["page_va"], noop, dispatcher, noop_map)
+        installed_pages[mode] = build_page(layout["page_va"], installed, dispatcher, installed_map)
         slot_maps[mode] = {"noop": noop_map, "installed": installed_map}
+
+    # Keep the new command-2 candidate isolated from the certified Full
+    # Mastery feature page.  Its bytes and metadata are emitted as a separate
+    # disabled projection until independent recertification.
+    running_slot, running_map = build_slot(LAYOUTS["collection_progression"]["page_va"], True, True)
+    running_page = build_page(
+        LAYOUTS["collection_progression"]["page_va"], running_slot,
+        build_dispatcher(LAYOUTS["collection_progression"]["page_va"], 150), running_map
+    )
+    running_candidate = {
+        "id": "vv5_individual_grant_running_candidate",
+        "game_id": "vv5",
+        "name": "DISABLED Candidate: Grant Running to Selected Villager",
+        "enabled": False,
+        "catalog_hidden": True,
+        "catalog_enabled": False,
+        "runtime_status": "pending",
+        "certification_status": "disabled candidate; independent emitted-byte and runtime recertification pending",
+        "allowed_modes": ["collection_progression", "immediate_fixed"],
+        "unsupported_patch_modes": ["experimental_expanded_256", "experimental_expanded_256_progression"],
+        "expanded_fail_closed": True,
+        "dependencies": ["vv5_full_mastery_all_stage_a_candidate"],
+        "patches": [{
+            "offset": f"0x{PAYLOAD_OFFSET + 0x766:X}",
+            "before": "83FB027525",
+            "after": asm(f"jmp 0x{LAYOUTS['collection_progression']['page_va'] + SLOT_OFFSET + SLOT_ENTRY_OFFSET:X}", PAYLOAD_VA + 0x766).hex().upper(),
+            "purpose": "guarded command dispatcher: command 1 remains certified Full Mastery, command 2 enters Running helper, commands 0/3 continue legacy",
+        }],
+        "parent_hashes": {
+            "collection_progression": "857E22D7C361B802508BF789C3CC486E42E76021F5AA579BB1D16CC6E0D017A0",
+            "immediate_fixed": "E93822F752F730ECB751EBAA87021194C992984721B4370FF0015D5FC4BB2E9A",
+        },
+        "pe_append_transaction": {
+            "status": "disabled projection; dedicated .vv5run RX extension and production install/remove remain pending",
+            "section": ".vv5run",
+            "append_source": "generated:vv5_individual_running_page",
+            "append_length": 0x2000,
+            "hook_preimage": "83FB027525",
+            "hook_owner": "vv5_individual_grant_running_candidate",
+            "uninstall": "restore exact composed parent and truncate only candidate-owned append",
+        },
+        "transaction_contract": {
+            "command": 2, "price": 40000, "action": "Buy", "repeatable": True,
+            "ownership": None, "remove": False,
+            "selected_index": "sub_425950()+0x17E24 signed 0..149",
+            "likes": ["record+0x1F5C", "record+0x1F60", "record+0x1F64"],
+            "running_value": 38, "empty_value": -1,
+            "dry_run": "scan all Likes before confirmation; preserve duplicates; first physical -1 only",
+            "reacquire": "same selected index and exact three-Like snapshot before write",
+            "deduction": "ECX=0x51D5F8; push -40000; call 0x4237B0 exactly once",
+            "forbidden_reads": ["Dislikes", "movement", "speed"],
+            "confirmation": "Grant Running to this villager for 40,000 tech points?\\r\\nPress OK to confirm, or Cancel.",
+            "no_deduction": "No tech points have been deducted.",
+            "result_messages": {
+                "already_running": "This villager already likes Running.\\r\\nNo tech points have been deducted.",
+                "no_empty_like": "This villager has no empty Like slot.\\r\\nNo tech points have been deducted.",
+                "invalid_selection": "No valid living villager is selected.\\r\\nNo tech points have been deducted.",
+                "canceled": "Grant Running was canceled.\\r\\nNo tech points have been deducted.",
+                "recheck": "The selected villager changed during confirmation.\\r\\nNo tech points have been deducted.",
+                "write_failure": "Running could not be verified.\\r\\nNo tech points have been deducted.",
+                "success": "Running was granted.",
+            },
+        },
+        "emitted": {"page_sha256": sha(running_page), "helper_sha256": running_map["running_helper_sha256"], "helper_length": running_map["running_helper_length"]},
+        "provenance": {"implementation_parent": "f1256fca68f2711974e93057e599f2642c77a2a4", "implementation_commit": None, "audit_commit": None, "acceptance_commit": None},
+    }
+    RUNNING_OUT.write_text(json.dumps(running_candidate, indent=2) + "\n", encoding="utf-8")
+    RUNNING_MAP_OUT.write_text(json.dumps({"candidate": running_candidate, "slot": running_map}, indent=2) + "\n", encoding="utf-8")
+    RUNNING_DOC_OUT.write_text(
+        "# VV5 individual Grant Running candidate\n\n"
+        "This candidate is disabled and catalog-hidden pending independent emitted-byte and runtime recertification. "
+        "It is restricted to Collection Progression and Immediate Fixed and rejects Expanded-256 before output.\n\n"
+        "The transaction is command 2, Buy-only, 40,000 tech points. It performs a complete selected-villager dry run, "
+        "scans only Likes +0x1F5C/+0x1F60/+0x1F64, preserves duplicates, writes only the first exact -1 slot, "
+        "reacquires and rechecks before mutation, verifies the write, then performs one native deduction. Dislikes, movement, and speed are untouched.\n\n"
+        "Every cancel, no-change, recheck, dependency, and failure result includes `No tech points have been deducted.` "
+        "The existing enabled VV5 Full Mastery bytes remain unchanged; this overlay is not catalog-visible.\n",
+        encoding="utf-8",
+    )
 
     stock_payload = build_base_payload(
         active_payload, LAYOUTS["collection_progression"]["page_va"]

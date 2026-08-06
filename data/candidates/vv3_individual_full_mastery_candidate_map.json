@@ -1,0 +1,40 @@
+{
+  "candidate_id": "vv3_individual_full_mastery_candidate",
+  "game_id": "vv3",
+  "enabled": false,
+  "catalog_hidden": true,
+  "catalog_enabled": false,
+  "runtime_player_status": "pending",
+  "dependencies": ["vv3_individual_grant_running_candidate"],
+  "supported_modes": ["collection_progression", "immediate_fixed"],
+  "rejected_modes": ["experimental_expanded_256", "experimental_expanded_256_progression"],
+  "protected_features": {
+    "full_mastery_command7": "vv3_full_mastery_all_stage_a_candidate unchanged",
+    "running_command2": "vv3_individual_grant_running_candidate unchanged",
+    "full_heal_command5": "vv3_full_heal_cure_all_candidate unchanged"
+  },
+  "route": {
+    "command": 1,
+    "owner": "vv3_individual_full_mastery_candidate",
+    "section": ".vv3im",
+    "status": "pending exact VV3 command-1 stock boundary proof",
+    "command2_target": "0x6DF900",
+    "legacy_commands": [0, 3]
+  },
+  "transaction": {
+    "price": 100000,
+    "native_writer": "0x455740",
+    "native_evaluator": "0x462500 exactly once globally after complete postverify",
+    "skills": ["0xEAC", "0xEB0", "0xEB4", "0xEB8", "0xEBC"],
+    "preferred_job": "0xEC0 read-only snapshot",
+    "record_bound": 150,
+    "no_deduction_suffix": "No tech points have been deducted."
+  },
+  "source_model": {
+    "path": "src/vv3_individual_mastery.py",
+    "helper_sha256": null,
+    "executable_sha256": null,
+    "reason": "No binary is emitted while command-1 boundary remains unproven"
+  },
+  "provenance": {"implementation_commit": null, "audit_commit": null, "acceptance_commit": null}
+}

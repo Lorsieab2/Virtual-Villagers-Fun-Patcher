@@ -1,0 +1,77 @@
+{
+  "id": "vv3_individual_full_mastery_candidate",
+  "game_id": "vv3",
+  "name": "Grant Full Mastery to Selected Villager",
+  "enabled": false,
+  "catalog_hidden": true,
+  "catalog_enabled": false,
+  "runtime_player_status": "pending",
+  "certification_status": "disabled candidate; command-1 executable boundary pending independent proof",
+  "dependencies": ["vv3_individual_grant_running_candidate"],
+  "supported_modes": ["collection_progression", "immediate_fixed"],
+  "unsupported_patch_modes": ["experimental_expanded_256", "experimental_expanded_256_progression"],
+  "provenance": {
+    "design_source": "D260",
+    "implementation_source": "src/vv3_individual_mastery.py",
+    "implementation_commit": null,
+    "audit_commit": null,
+    "acceptance_commit": null
+  },
+  "description": "Disabled stock-only selected-villager Full Mastery transaction. It is not catalog-visible and emits no executable mutation until the exact VV3 command-1 boundary and composed dispatcher are independently certified.",
+  "transaction": {
+    "command": 1,
+    "price": 100000,
+    "action": "Buy",
+    "repeatable": true,
+    "ownership": null,
+    "remove": false,
+    "confirmation": "Grant Full Mastery to this villager for 100,000 tech points?\r\nPress OK to confirm, or Cancel.",
+    "caption": "Villager Upgrades",
+    "accept": "IDOK only",
+    "no_deduction_suffix": "No tech points have been deducted."
+  },
+  "selection": {
+    "physical_index": "stable selected physical index 0..149",
+    "reacquire": "same physical index and record identity after confirmation",
+    "eligibility_before_action_reads": "current living believer; reject null/inactive/dead before skills",
+    "record_bounds": 150,
+    "stride": "0x1F8C"
+  },
+  "skills": {
+    "offsets": ["0xEAC", "0xEB0", "0xEB4", "0xEB8", "0xEBC"],
+    "target": 100,
+    "allowed_range": "signed DWORD 0..100",
+    "preferred_job": {"offset": "0xEC0", "access": "snapshot/revalidate only", "writes": false},
+    "writer": {"address": "0x455740", "abi": "ECX=record+0xEAC; push delta; push skill index 0..4"},
+    "evaluator": {"address": "0x462500", "calls": "exactly once after complete exact-100 postverify"}
+  },
+  "transaction_order": [
+    "preflight dependencies and result export",
+    "complete dry run and exact skill/preference snapshot",
+    "funds check and Villager Upgrades confirmation",
+    "reacquire same index/identity and repeat complete validation",
+    "recheck funds immediately before first native writer",
+    "changed-only native 0x455740 writes",
+    "postverify every skill is exactly 100",
+    "call native 0x462500 exactly once",
+    "fresh funds recheck and one 100000 deduction"
+  ],
+  "failure_policy": {
+    "cancel_noop_recheck_failure": "no writes and no charge; every result includes No tech points have been deducted.",
+    "partial_native_failure": "truthfully disclose native partial effects; no deduction; rollback is not claimed"
+  },
+  "implementation": {
+    "source_model": "src/vv3_individual_mastery.py",
+    "route": "new guarded command-1 dispatcher extension; command 2 remains vv3_individual_grant_running_candidate at 0x6DF900",
+    "command0_3": "preserve legacy routes",
+    "section": ".vv3im",
+    "emission": "disabled until exact command-1 hook boundary and append layout are independently proven"
+  },
+  "explicit_non_changes": [
+    "Existing VV3 Full Mastery command-7 page and helper bytes remain unchanged.",
+    "VV3 Grant Running command-2 route and bytes remain unchanged.",
+    "preferred-job +0xEC0 is never written or normalized; native naming/tie behavior remains authoritative, including Master Parent fallback.",
+    "Expanded-256, unknown, corrupt, and incomplete dependency chains reject before output."
+  ],
+  "patches": []
+}
