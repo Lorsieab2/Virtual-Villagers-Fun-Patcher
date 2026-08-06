@@ -1102,6 +1102,55 @@ class VV5RunningPublicationTests(unittest.TestCase):
             self.assertFalse(registry.exists())
             self.assertFalse(list(root.glob(".vv5run-cleanup-*.json")))
 
+    def test_c317_transaction_binding_rejects_schema_pollution(self) -> None:
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            registry = root / ISSUANCE_REGISTRY_NAME
+            registry.mkdir()
+            source = registry / ("e" * 32 + ".json")
+            source.write_bytes(b"owned")
+            payload = running._cleanup_record_payload(root, registry, running._identity(registry), [(source, running._inventory(root, source))], remove_registry=False)
+            record, _ = running._write_cleanup_record(root, payload)
+            raw = json.loads(record.read_text(encoding="utf-8"))
+            raw["transaction_binding"]["foreign_field"] = "reject"
+            record.write_text(json.dumps(raw, sort_keys=True), encoding="utf-8")
+            with self.assertRaises(PatcherError):
+                recover_cleanup_atomic(record)
+            self.assertEqual(source.read_bytes(), b"owned")
+
+    def test_c317_tombstone_verified_recreates_missing_preserved_copy(self) -> None:
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            registry = root / ISSUANCE_REGISTRY_NAME
+            registry.mkdir()
+            registry_identity = running._identity(registry)
+            authority_path, _token, authority = running._ensure_authority(registry, registry_identity, True)
+            source = registry / ("f" * 32 + ".json")
+            running._write_issuance(source, {"schema_version": 2, "token": "f" * 32, "authority_token": authority["token"], "authority_record": authority["record"], "operation": "install", "destination_parent_absolute": str(root).lower(), "destination_paths_absolute": [], "members": []})
+            payload = running._cleanup_record_payload(root, registry, registry_identity, [(source, running._inventory(root, source)), (authority_path, authority["record"])], remove_registry=True, authority=(authority_path, authority["record"]))
+            record, record_identity = running._write_cleanup_record(root, payload)
+            raw = json.loads(record.read_text(encoding="utf-8"))
+            item = next(item for item in raw["artifacts"] if item["name"] == source.name)
+            tombstone_name = f".{registry.name}-{source.name}.vv5run-tombstone-{'1' * 32}"
+            preserved_name = f".{source.name}.vv5run-preserved-{'2' * 32}.backup"
+            tombstone = root / tombstone_name
+            os.link(source, tombstone)
+            raw["state"] = "started"
+            raw["transaction_binding"]["pending"] = {
+                "name": source.name,
+                "source_record": item["source_record"],
+                "tombstone_name": tombstone_name,
+                "preserved_name": preserved_name,
+                "substate": "tombstone_verified",
+                "tombstone_record": running._inventory(root, tombstone),
+            }
+            record.write_text(json.dumps(raw, sort_keys=True), encoding="utf-8")
+            recover_cleanup_atomic(record)
+            self.assertFalse(registry.exists())
+            self.assertFalse(tombstone.exists())
+            self.assertFalse((root / preserved_name).exists())
+            self.assertFalse(list(root.glob(".vv5run-cleanup-*.json")))
+
     def test_c307_forged_cleanup_artifact_role_is_rejected_before_delete(self) -> None:
         with tempfile.TemporaryDirectory() as td:
             root = Path(td)

@@ -816,8 +816,21 @@ def _validate_cleanup_record(record_path: Path) -> tuple[dict[str, object], dict
     if binding is not None and (not isinstance(binding, dict) or set(binding) != {"name", "role", "record", "token", "registry_identity", "owner_parent_absolute", "feature_owner", "mode"} or binding.get("name") != AUTHORITY_NAME or binding.get("role") != "authority" or binding.get("registry_identity") != raw.get("registry_identity") or binding.get("owner_parent_absolute") != raw.get("owner_parent_absolute") or binding.get("feature_owner") != VV5_FEATURE_OWNER or binding.get("mode") != VV5_MODE or not isinstance(binding.get("token"), str) or not re.fullmatch(r"[0-9A-Fa-f]{32,128}", binding.get("token", "")) or not isinstance(binding.get("record"), dict) or binding["record"].get("path") != f"{ISSUANCE_REGISTRY_NAME}/{AUTHORITY_NAME}"):
         raise PatcherError("VV5 Running cleanup authority external binding is malformed.")
     transaction_binding = raw.get("transaction_binding")
+    transaction_keys = set(transaction_binding) if isinstance(transaction_binding, dict) else set()
+    transaction_required = {"owner_parent_absolute", "registry_relative", "registry_identity", "operation", "artifact_names", "artifact_roles", "remove_registry"}
+    if transaction_keys != transaction_required and transaction_keys != transaction_required | {"pending"}:
+        raise PatcherError("VV5 Running cleanup transaction binding schema is unsupported or ambiguous.")
     if transaction_binding.get("owner_parent_absolute") != raw.get("owner_parent_absolute") or transaction_binding.get("registry_relative") != raw.get("registry_relative") or transaction_binding.get("registry_identity") != raw.get("registry_identity") or transaction_binding.get("operation") != raw.get("operation") or transaction_binding.get("remove_registry") != raw.get("remove_registry"):
         raise PatcherError("VV5 Running cleanup transaction binding is inconsistent.")
+    pending = transaction_binding.get("pending")
+    if pending is not None:
+        pending_keys = set(pending) if isinstance(pending, dict) else set()
+        pending_required = {"name", "source_record", "tombstone_name", "preserved_name", "substate"}
+        pending_allowed = pending_required | {"tombstone_record", "preserved_record"}
+        if not pending_required.issubset(pending_keys) or not pending_keys.issubset(pending_allowed):
+            raise PatcherError("VV5 Running pending quarantine schema is unsupported or ambiguous.")
+        if pending.get("substate") not in {"intent", "tombstone_verified", "preserved_verified", "source_removed_verified"}:
+            raise PatcherError("VV5 Running pending quarantine substate is invalid.")
     if raw.get("previous_record_name") is not None and (not isinstance(raw.get("previous_record_name"), str) or Path(str(raw.get("previous_record_name"))).name != raw.get("previous_record_name") or not isinstance(raw.get("previous_record_identity"), dict)):
         raise PatcherError("VV5 Running cleanup predecessor binding is malformed.")
     if len({str(item.get("name", "")).casefold() for item in raw["artifacts"] if isinstance(item, dict)}) != len(raw["artifacts"]):
@@ -971,18 +984,45 @@ def recover_cleanup_atomic(record_path: Path, mode: str = VV5_MODE) -> None:
                 preserved_expected = pending_for_item.get("preserved_record")
                 tombstone_exists = os.path.lexists(tombstone)
                 preserved_exists = os.path.lexists(preserved)
+                if substate == "intent" and tombstone_exists and tombstone_expected is None:
+                    # The physical link may have completed immediately before
+                    # the intent successor was published.  Adopt it only when
+                    # the durable source identity and the current source
+                    # handle prove the exact same inode/bytes; otherwise the
+                    # target is an unowned collision and remains untouched.
+                    source_now = _inventory(registry.parent, source) if os.path.lexists(source) else None
+                    tombstone_now = _inventory(owner_parent, tombstone)
+                    if source_now != source_binding or tombstone_now != source_binding:
+                        raise PatcherError("VV5 Running uncheckpointed quarantine target cannot be adopted safely.")
+                    tombstone_expected = tombstone_now
+                    pending_for_item["tombstone_record"] = tombstone_expected
+                    if preserved_exists:
+                        preserved_now = _inventory(owner_parent, preserved)
+                        if preserved_now != source_binding:
+                            raise PatcherError("VV5 Running uncheckpointed preserved target cannot be adopted safely.")
+                        preserved_expected = preserved_now
+                        pending_for_item["preserved_record"] = preserved_expected
+                        pending_for_item["substate"] = "preserved_verified"
+                    else:
+                        pending_for_item["substate"] = "tombstone_verified"
+                    next_path, _next_identity = _update_cleanup_record(record_path, record_identity, raw)
+                    return recover_cleanup_atomic(next_path, mode=mode)
                 if tombstone_exists and not isinstance(tombstone_expected, dict):
                     raise PatcherError("VV5 Running pending tombstone exists without an immutable checkpoint.")
                 if preserved_exists and not isinstance(preserved_expected, dict):
                     raise PatcherError("VV5 Running pending preserved copy exists without an immutable checkpoint.")
-                if isinstance(tombstone_expected, dict) and _inventory(owner_parent, tombstone) != tombstone_expected:
-                    raise PatcherError("VV5 Running pending tombstone identity changed.")
-                if isinstance(preserved_expected, dict) and _inventory(owner_parent, preserved) != preserved_expected:
-                    raise PatcherError("VV5 Running pending preserved identity changed.")
-                if substate in {"tombstone_verified", "preserved_verified", "source_removed_verified"} and (not tombstone_exists or not preserved_exists):
-                    raise PatcherError("VV5 Running pending checkpoint targets are missing.")
+                if isinstance(tombstone_expected, dict):
+                    if not tombstone_exists or _inventory(owner_parent, tombstone) != tombstone_expected:
+                        raise PatcherError("VV5 Running pending tombstone identity changed or disappeared.")
+                elif tombstone_exists:
+                    raise PatcherError("VV5 Running pending tombstone exists without an immutable checkpoint.")
+                if isinstance(preserved_expected, dict):
+                    if not preserved_exists or _inventory(owner_parent, preserved) != preserved_expected:
+                        raise PatcherError("VV5 Running pending preserved identity changed or disappeared.")
+                elif preserved_exists:
+                    raise PatcherError("VV5 Running pending preserved target exists without an immutable checkpoint.")
                 if substate == "source_removed_verified":
-                    if os.path.lexists(source):
+                    if not tombstone_exists or not preserved_exists or os.path.lexists(source):
                         raise PatcherError("VV5 Running source reappeared after removal checkpoint.")
                     item["tombstone_name"] = tombstone.name
                     item["tombstone_record"] = tombstone_expected
@@ -991,27 +1031,44 @@ def recover_cleanup_atomic(record_path: Path, mode: str = VV5_MODE) -> None:
                     raw["transaction_binding"].pop("pending", None)
                     next_path, _next_identity = _update_cleanup_record(record_path, record_identity, raw)
                     return recover_cleanup_atomic(next_path, mode=mode)
-                if substate in {"tombstone_verified", "preserved_verified"} and os.path.lexists(source):
-                    source_record = _inventory(registry.parent, source)
-                    if source_record != source_binding:
-                        raise PatcherError("VV5 Running pending source identity changed before adoption.")
-                    if substate == "tombstone_verified":
-                        # A verified tombstone is not enough to recreate the
-                        # preserved target; its absence is a hard stop.
-                        if not preserved_exists:
-                            raise PatcherError("VV5 Running preserved target is missing after tombstone checkpoint.")
-                        pending_for_item["substate"] = "preserved_verified"
-                        next_path, _next_identity = _update_cleanup_record(record_path, record_identity, raw)
-                        return recover_cleanup_atomic(next_path, mode=mode)
-                    _strict_delete_file_by_handle(source, source_binding)
+                if substate == "tombstone_verified":
+                    # This checkpoint is intentionally before preserved-copy
+                    # creation.  Recreate exactly the journaled target from
+                    # the owned tombstone (or source if the hard-link still
+                    # exists), then publish the next checkpoint.  A target
+                    # that exists without a recorded identity is never
+                    # adopted, even when its bytes match.
+                    if not tombstone_exists:
+                        raise PatcherError("VV5 Running tombstone_verified checkpoint lost its tombstone.")
+                    if preserved_expected is None:
+                        preserved_bytes = _read(tombstone)
+                        _write(preserved, preserved_bytes)
+                        preserved_record = _inventory(owner_parent, preserved)
+                        if preserved_record is None or preserved_record.get("type") != "regular_file" or preserved_record.get("size") != len(preserved_bytes) or preserved_record.get("sha256") != _sha(preserved_bytes):
+                            raise PatcherError("VV5 Running preserved target adoption failed verification.")
+                        pending_for_item["preserved_record"] = preserved_record
+                    pending_for_item["substate"] = "preserved_verified"
+                    next_path, _next_identity = _update_cleanup_record(record_path, record_identity, raw)
+                    return recover_cleanup_atomic(next_path, mode=mode)
+                if substate == "preserved_verified":
+                    if not tombstone_exists or not preserved_exists:
+                        raise PatcherError("VV5 Running preserved_verified checkpoint targets are missing.")
                     if os.path.lexists(source):
-                        raise PatcherError("VV5 Running pending source removal did not verify.")
+                        source_record = _inventory(registry.parent, source)
+                        if source_record != source_binding:
+                            raise PatcherError("VV5 Running pending source identity changed before adoption.")
+                        _strict_delete_file_by_handle(source, source_binding)
+                        if os.path.lexists(source):
+                            raise PatcherError("VV5 Running pending source removal did not verify.")
+                    # A crash after source removal and before this checkpoint
+                    # is safely adoptable because tombstone and preserved
+                    # identities are both already durable and verified.
                     pending_for_item["substate"] = "source_removed_verified"
                     pending_for_item["source_record"] = source_binding
                     next_path, _next_identity = _update_cleanup_record(record_path, record_identity, raw)
                     return recover_cleanup_atomic(next_path, mode=mode)
                 if substate in {"tombstone_verified", "preserved_verified"}:
-                    raise PatcherError("VV5 Running pending source state is inconsistent with checkpoint.")
+                    raise PatcherError("VV5 Running pending quarantine state is inconsistent.")
                 if substate == "intent" and (tombstone_exists or preserved_exists):
                     raise PatcherError("VV5 Running uncheckpointed quarantine target cannot be adopted safely.")
             if not os.path.lexists(source):
@@ -1052,7 +1109,7 @@ def recover_cleanup_atomic(record_path: Path, mode: str = VV5_MODE) -> None:
                     raise PatcherError("VV5 Running recovery quarantine lost its pending source binding.")
                 pending["substate"] = state
                 pending.update(details)
-                raw["state"] = "quarantining"
+                raw["state"] = "started" if state in {"intent", "tombstone_verified", "preserved_verified", "source_removed_verified"} else "quarantining"
                 record_path, record_identity = _update_cleanup_record(record_path, record_identity, raw)
 
             tombstone, tombstone_record, preserved = _quarantine_owned(
@@ -1143,18 +1200,31 @@ def recover_cleanup_atomic(record_path: Path, mode: str = VV5_MODE) -> None:
     # authority.  In particular, an inserted/recreated hidden member keeps the
     # current authority durable and makes the operation fail closed.
     namespace_after_members = _cleanup_namespace(owner_parent)
+    namespace_after_members_2 = _cleanup_namespace(owner_parent)
     allowed_after = {record_path.name} | {path.name for path, _identity in superseded_records}
-    if not set(namespace_after_members).issubset(allowed_after):
+    if namespace_after_members != namespace_after_members_2 or set(namespace_after_members) != allowed_after:
         raise PatcherError("VV5 Running cleanup namespace changed before authority retirement.")
     # Retire predecessors oldest-first.  The current record remains available
     # until every older authority has been removed and the final namespace is
     # recaptured.
+    remaining_authorities = set(allowed_after)
     for prior_path, prior_identity in reversed(superseded_records):
+        before_retire = _cleanup_namespace(owner_parent)
+        before_retire_2 = _cleanup_namespace(owner_parent)
+        if before_retire != before_retire_2 or set(before_retire) != remaining_authorities:
+            raise PatcherError("VV5 Running cleanup predecessor namespace changed before retirement.")
         _cleanup(prior_path, expected=prior_identity)
         if os.path.lexists(prior_path):
             raise PatcherError("VV5 Running superseded cleanup authority remained after finalization.")
-        if not set(_cleanup_namespace(owner_parent)).issubset(allowed_after):
+        remaining_authorities.discard(prior_path.name)
+        after_retire = _cleanup_namespace(owner_parent)
+        after_retire_2 = _cleanup_namespace(owner_parent)
+        if after_retire != after_retire_2 or set(after_retire) != remaining_authorities:
             raise PatcherError("VV5 Running cleanup namespace changed during authority retirement.")
+    final_before = _cleanup_namespace(owner_parent)
+    final_before_2 = _cleanup_namespace(owner_parent)
+    if final_before != final_before_2 or set(final_before) != {record_path.name}:
+        raise PatcherError("VV5 Running final authority namespace is not stable.")
     _cleanup(record_path, expected=record_identity)
     if os.path.lexists(record_path):
         raise PatcherError("VV5 Running cleanup authority remained after deletion.")
@@ -1203,6 +1273,7 @@ def _cleanup_issuance_artifacts(
                 "source_record": _rebase_registry_record(registry, path, record),
                 "tombstone_name": pending_tombstone,
                 "preserved_name": pending_preserved,
+                "substate": "intent",
             }
             cleanup_payload["state"] = "quarantining"
             cleanup_record_path, cleanup_record_identity = _update_cleanup_record(cleanup_record_path, cleanup_record_identity, cleanup_payload)
@@ -1214,7 +1285,7 @@ def _cleanup_issuance_artifacts(
                     raise PatcherError("VV5 Running quarantine progress lost its pending source binding.")
                 pending["substate"] = state
                 pending.update(details)
-                cleanup_payload["state"] = "quarantining"
+                cleanup_payload["state"] = "started" if state in {"intent", "tombstone_verified", "preserved_verified", "source_removed_verified"} else "quarantining"
                 cleanup_record_path, cleanup_record_identity = _update_cleanup_record(cleanup_record_path, cleanup_record_identity, cleanup_payload)
 
             quarantine = _quarantine_owned(
