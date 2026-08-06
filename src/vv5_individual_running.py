@@ -182,6 +182,52 @@ def _identity(path: Path) -> dict[str, int]:
     return {"st_dev": int(getattr(st, "st_dev", 0)), "st_ino": int(getattr(st, "st_ino", 0))}
 
 
+def _registry_members(registry: Path) -> dict[str, dict[str, object]]:
+    """Capture the complete direct-child registry inventory without following links."""
+    if not os.path.lexists(registry):
+        raise PatcherError("VV5 Running issuance registry is missing.")
+    st = os.lstat(registry)
+    if stat.S_ISLNK(st.st_mode) or _unsafe(st) or not stat.S_ISDIR(st.st_mode):
+        raise PatcherError("VV5 Running issuance registry is unsafe.")
+    members: dict[str, dict[str, object]] = {}
+    with os.scandir(registry) as entries:
+        for entry in entries:
+            child = Path(entry.path)
+            if child.parent != registry or entry.name in {".", ".."} or "/" in entry.name or "\\" in entry.name:
+                raise PatcherError("VV5 Running issuance registry child path is unsafe.")
+            child_st = os.lstat(child)
+            if stat.S_ISLNK(child_st.st_mode) or _unsafe(child_st) or not stat.S_ISREG(child_st.st_mode):
+                raise PatcherError("VV5 Running issuance registry contains an unsafe child.")
+            record = _inventory(registry.parent, child)
+            if record is None:
+                raise PatcherError("VV5 Running issuance registry child disappeared.")
+            members[entry.name] = record
+    return members
+
+
+def _assert_registry_members(
+    registry: Path,
+    registry_identity: dict[str, int],
+    expected: dict[str, dict[str, object]],
+) -> None:
+    """Require the exact owned registry set and identities before a checkpoint."""
+    if _identity(registry) != registry_identity:
+        raise PatcherError("VV5 Running issuance registry identity changed.")
+    actual = _registry_members(registry)
+    if set(actual) != set(expected):
+        raise PatcherError("VV5 Running issuance registry contains foreign or concurrent material.")
+    for name, record in expected.items():
+        if actual.get(name) != record:
+            raise PatcherError("VV5 Running issuance registry member changed.")
+
+
+def _rebase_registry_record(registry: Path, path: Path, record: dict[str, object]) -> dict[str, object]:
+    """Normalize a registry-relative helper record to its parent-root path."""
+    rebased = dict(record)
+    rebased["path"] = _relative(registry.parent, path)
+    return rebased
+
+
 def _canonical(path: Path) -> str:
     return os.path.normcase(os.path.abspath(os.fspath(path)))
 
@@ -242,7 +288,7 @@ def _ensure_authority(registry: Path, registry_identity: dict[str, int], created
         record = _inventory(registry.parent, path)
         if record is None:
             raise PatcherError("VV5 Running issuance authority disappeared.")
-        return path, raw["token"], {"record": record, "token": raw["token"], "registry_identity": registry_identity}
+        return path, raw["token"], {"record": record, "token": raw["token"], "registry_identity": registry_identity, "created": False}
     if not created:
         raise PatcherError("VV5 Running issuance authority is missing from an existing registry.")
     token = (uuid.uuid4().hex + uuid.uuid4().hex)
@@ -258,7 +304,7 @@ def _ensure_authority(registry: Path, registry_identity: dict[str, int], created
     record = _inventory(registry.parent, path)
     if record is None:
         raise PatcherError("VV5 Running issuance authority identity could not be captured.")
-    return path, token, {"record": record, "token": token, "registry_identity": registry_identity}
+    return path, token, {"record": record, "token": token, "registry_identity": registry_identity, "created": True}
 
 
 def _quarantine_owned(path: Path, expected: dict[str, object], *, owner_parent: Path) -> tuple[Path, dict[str, object]]:
@@ -276,15 +322,28 @@ def _quarantine_owned(path: Path, expected: dict[str, object], *, owner_parent: 
     return tombstone, moved
 
 
-def _cleanup_issuance_artifacts(registry: Path, registry_identity: dict[str, int], artifacts: list[tuple[Path, dict[str, object]]], authority: tuple[Path, dict[str, object]]) -> None:
+def _cleanup_issuance_artifacts(
+    registry: Path,
+    registry_identity: dict[str, int],
+    artifacts: list[tuple[Path, dict[str, object]]],
+    authority: tuple[Path, dict[str, object]] | None,
+    *,
+    retain_authority: tuple[Path, dict[str, object]] | None = None,
+    remove_registry: bool = True,
+) -> None:
     """Retire issuance members only through verified quarantine and cleanup."""
     if not os.path.lexists(registry) or _identity(registry) != registry_identity:
         raise PatcherError("VV5 Running issuance registry changed before cleanup.")
+    owned = list(artifacts) + ([authority] if authority is not None else [])
+    expected_members = owned + ([retain_authority] if retain_authority is not None else [])
+    expected = {path.name: _rebase_registry_record(registry, path, record) for path, record in expected_members}
+    _assert_registry_members(registry, registry_identity, expected)
     tombstones: list[tuple[Path, dict[str, object]]] = []
     try:
-        for path, record in artifacts + [authority]:
+        for path, record in owned:
             tombstones.append(_quarantine_owned(path, record, owner_parent=registry.parent))
-        _cleanup_registry(registry, registry_identity)
+        if remove_registry:
+            _cleanup_registry(registry, registry_identity)
         for tombstone, record in tombstones:
             _cleanup(tombstone, expected=record)
     except Exception:
@@ -529,24 +588,81 @@ def _publish(operation: str, destinations: list[Path], pre: dict[Path, tuple[boo
         raise PatcherError("VV5 Running supports Collection Progression only.")
     if [Path(destination).name for destination in destinations] != [VV5_EXE_BASENAME, DLL_NAME]:
         raise PatcherError("VV5 Running destinations do not match the certified game/DLL names.")
+    parent_identity = _identity(parent)
     registry, registry_identity, registry_created = _registry(parent)
-    authority_path, authority_token, authority = _ensure_authority(registry, registry_identity, registry_created)
+    authority_path: Path | None = None
+    authority_token: str | None = None
+    authority: dict[str, object] | None = None
+    issuance_path: Path | None = None
     issuance_token = uuid.uuid4().hex
-    issuance_path = registry / f"{issuance_token}.json"
-    issuance_payload = _issuance_payload(issuance_token, authority_token, authority["record"], operation, parent, destinations, pre, published, registry, registry_identity)
     try:
-        _write_issuance(issuance_path, issuance_payload)
-    except Exception as issuance_exc:
-        if registry_created and os.path.lexists(registry):
+        # A registry is a single active-transaction lock.  Existing authority
+        # is valid only when it is the sole child; any issuance, pointer,
+        # successor, temporary, or foreign child rejects before publication.
+        existing = _registry_members(registry)
+        if registry_created:
+            if existing:
+                raise PatcherError("VV5 Running newly created issuance registry is not empty.")
+        elif set(existing) != {AUTHORITY_NAME}:
+            raise PatcherError("VV5 Running issuance registry already has an active or foreign transaction.")
+        authority_path, authority_token, authority = _ensure_authority(registry, registry_identity, registry_created)
+        authority_record = authority["record"]
+        _assert_registry_members(registry, registry_identity, {AUTHORITY_NAME: authority_record})
+        if _identity(parent) != parent_identity:
+            raise PatcherError("VV5 Running destination parent changed during issuance setup.")
+        issuance_path = registry / f"{issuance_token}.json"
+        issuance_payload = _issuance_payload(issuance_token, authority_token, authority_record, operation, parent, destinations, pre, published, registry, registry_identity)
+    except Exception:
+        # Setup is failure-owned: a registry created by this attempt may be
+        # removed only through its captured identities and only while empty.
+        if registry_created and authority_path is not None and authority is not None and os.path.lexists(authority_path):
             try:
                 _cleanup_issuance_artifacts(registry, registry_identity, [], (authority_path, authority["record"]))
             except Exception as cleanup_exc:
-                raise PatcherError("VV5 Running issuance authority cleanup failed; evidence retained.") from cleanup_exc
+                raise PatcherError("VV5 Running issuance setup failed; authority evidence retained.") from cleanup_exc
+        elif registry_created and os.path.lexists(registry):
+            try:
+                _cleanup_registry(registry, registry_identity)
+            except Exception as cleanup_exc:
+                raise PatcherError("VV5 Running issuance setup failed; registry evidence retained.") from cleanup_exc
         raise
-    issuance_identity = _inventory(parent, issuance_path)
-    if issuance_identity is None:
-        raise PatcherError("VV5 Running issuance identity could not be captured.")
+    assert authority_path is not None and authority_token is not None and authority is not None and issuance_path is not None
     try:
+        _write_issuance(issuance_path, issuance_payload)
+        issuance_identity = _inventory(parent, issuance_path)
+        if issuance_identity is None:
+            raise PatcherError("VV5 Running issuance identity could not be captured.")
+        _assert_registry_members(
+            registry,
+            registry_identity,
+            {AUTHORITY_NAME: authority["record"], issuance_path.name: issuance_identity},
+        )
+    except Exception:
+        if os.path.lexists(issuance_path):
+            try:
+                current_issuance = _inventory(parent, issuance_path)
+                if current_issuance is not None:
+                    _cleanup_issuance_artifacts(
+                        registry,
+                        registry_identity,
+                        [(issuance_path, current_issuance)],
+                        (authority_path, authority["record"]) if authority["created"] else None,
+                        retain_authority=(authority_path, authority["record"]) if not authority["created"] else None,
+                        remove_registry=bool(authority["created"]),
+                    )
+                elif registry_created and authority["created"]:
+                    raise PatcherError("VV5 Running issuance identity could not be captured safely.")
+            except Exception as cleanup_exc:
+                raise PatcherError("VV5 Running issuance setup failed; authority evidence retained.") from cleanup_exc
+        raise
+    try:
+        if _identity(parent) != parent_identity:
+            raise PatcherError("VV5 Running destination parent changed before publication.")
+        _assert_registry_members(
+            registry,
+            registry_identity,
+            {AUTHORITY_NAME: authority["record"], issuance_path.name: issuance_identity},
+        )
         # Reuse the independently hardened schema-v2 pair transaction.  This
         # keeps VV5 recovery fail-closed on complete ownership inventories,
         # no-follow/reparse checks, immutable preconditions, durable retry
@@ -579,6 +695,16 @@ def _publish(operation: str, destinations: list[Path], pre: dict[Path, tuple[boo
             },
         )
     except Exception as exc:
+        if _identity(parent) != parent_identity:
+            raise PatcherError("VV5 Running destination parent changed during publication; evidence retained.") from exc
+        try:
+            _assert_registry_members(
+                registry,
+                registry_identity,
+                {AUTHORITY_NAME: authority["record"], issuance_path.name: issuance_identity},
+            )
+        except Exception as registry_exc:
+            raise PatcherError("VV5 Running issuance registry changed during publication; evidence retained.") from registry_exc
         reports = []
         for candidate in sorted(parent.glob(".vv5run-*.json"), key=lambda p: p.name):
             try:
@@ -602,9 +728,14 @@ def _publish(operation: str, destinations: list[Path], pre: dict[Path, tuple[boo
         elif len(reports) > 1:
             raise PatcherError("VV5 Running recovery issuance is ambiguous; evidence retained.") from exc
         elif os.path.lexists(issuance_path):
-            _cleanup_issuance_artifacts(registry, registry_identity, [(issuance_path, issuance_identity)], (authority_path, authority["record"]))
-            if registry_created:
-                _cleanup_registry(registry, registry_identity)
+            _cleanup_issuance_artifacts(
+                registry,
+                registry_identity,
+                [(issuance_path, issuance_identity)],
+                (authority_path, authority["record"]) if authority["created"] else None,
+                retain_authority=(authority_path, authority["record"]) if not authority["created"] else None,
+                remove_registry=bool(authority["created"]),
+            )
         raise
     # The strict transaction is the sole production path.  Once it has
     # returned, bind no legacy replay implementation: verify and remove only
@@ -613,7 +744,19 @@ def _publish(operation: str, destinations: list[Path], pre: dict[Path, tuple[boo
     artifacts = [(issuance_path, issuance_identity)]
     if pointer_info is not None:
         artifacts.extend([(pointer_info[0], pointer_info[1]), (pointer_info[2], pointer_info[3])])
-    _cleanup_issuance_artifacts(registry, registry_identity, artifacts, (authority_path, authority["record"]))
+    _assert_registry_members(
+        registry,
+        registry_identity,
+        {authority_path.name: authority["record"], **{path.name: record for path, record in artifacts}},
+    )
+    _cleanup_issuance_artifacts(
+        registry,
+        registry_identity,
+        artifacts,
+        (authority_path, authority["record"]) if authority["created"] else None,
+        retain_authority=(authority_path, authority["record"]) if not authority["created"] else None,
+        remove_registry=bool(authority["created"]),
+    )
     return
 
 
@@ -628,9 +771,37 @@ def recover_atomic(report_path: Path, mode: str = VV5_MODE) -> None:
     if mode != VV5_MODE:
         raise PatcherError("VV5 Running supports Collection Progression only.")
     report = Path(report_path)
+    supplied_st = os.lstat(report) if os.path.lexists(report) else None
+    if supplied_st is None:
+        raise PatcherError("VV5 Running recovery report is missing.")
+    if stat.S_ISDIR(supplied_st.st_mode):
+        _safe_ancestors(report)
+        canonical = []
+        emergency = []
+        successor = []
+        with os.scandir(report) as entries:
+            for entry in entries:
+                name = entry.name
+                if re.fullmatch(r"\.vv5run-recovery-[0-9a-f]{32}\.json", name):
+                    canonical.append(Path(entry.path))
+                elif re.fullmatch(r"\.vv5run-recovery-[0-9a-f]{32}\.v[0-9a-f]{32}\.json", name):
+                    successor.append(Path(entry.path))
+                elif re.fullmatch(r"\.vv5run-emergency-[0-9a-f]{32}\.json", name):
+                    emergency.append(Path(entry.path))
+        if successor and not canonical:
+            raise PatcherError("VV5 Running versioned recovery successor is orphaned.")
+        if len(emergency) > 1 or (emergency and (canonical or successor)):
+            raise PatcherError("VV5 Running recovery authority chain is ambiguous.")
+        if emergency:
+            report = emergency[0]
+        elif len(canonical) == 1:
+            report = canonical[0]
+        else:
+            raise PatcherError("VV5 Running recovery report is ambiguous.")
     if not (report.name.startswith(".vv5run-recovery-") or report.name.startswith(".vv5run-emergency-")):
         raise PatcherError("VV5 Running recovery report owner is invalid.")
     _safe_ancestors(report.parent)
+    report_parent_before = _identity(report.parent)
     report_bytes = _read(report)
     report_sha256 = _sha(report_bytes)
     raw_loaded = json.loads(report_bytes.decode("utf-8"))
@@ -698,6 +869,14 @@ def recover_atomic(report_path: Path, mode: str = VV5_MODE) -> None:
     ):
         raise PatcherError("VV5 Running recovery authority secret is invalid.")
     issuance_pointer = _load_issuance_pointer(issuance_path, issuance_identity)
+    registry_identity = raw.get("issuance_registry_identity")
+    if not isinstance(registry_identity, dict):
+        raise PatcherError("VV5 Running recovery issuance registry identity is missing.")
+    expected_registry = {AUTHORITY_NAME: authority_record, issuance_path.name: issuance_identity}
+    if issuance_pointer is not None:
+        expected_registry[issuance_pointer[0].name] = _rebase_registry_record(registry, issuance_pointer[0], issuance_pointer[1])
+        expected_registry[issuance_pointer[2].name] = _rebase_registry_record(registry, issuance_pointer[2], issuance_pointer[3])
+    _assert_registry_members(registry, registry_identity, expected_registry)
     bound_issuance_path = issuance_pointer[0] if issuance_pointer is not None else issuance_path
     bound_issuance_identity = issuance_pointer[1] if issuance_pointer is not None else issuance_identity
     issuance = json.loads(_read(bound_issuance_path).decode("utf-8"))
@@ -713,7 +892,6 @@ def recover_atomic(report_path: Path, mode: str = VV5_MODE) -> None:
         raise PatcherError("VV5 Running recovery report root identity mismatch.")
     if raw.get("destination_parent_absolute") != _canonical(report.parent) or raw.get("destination_paths_absolute") != [_canonical(report.parent / VV5_EXE_BASENAME), _canonical(report.parent / DLL_NAME)]:
         raise PatcherError("VV5 Running recovery destination parent/path binding mismatch.")
-    registry_identity = raw.get("issuance_registry_identity")
     if raw.get("issuance_registry_relative") != ISSUANCE_REGISTRY_NAME or registry_identity != _identity(registry):
         raise PatcherError("VV5 Running recovery issuance registry binding mismatch.")
     expected_issuance_operation = "remove" if raw.get("operation") == "removal" else "install"
@@ -801,6 +979,8 @@ def recover_atomic(report_path: Path, mode: str = VV5_MODE) -> None:
     # return means the pair, report, and owned recovery tree have passed full
     # verification.  Only then may the originally captured issuance record be
     # removed; any substitution/race is a fail-closed error.
+    if _identity(report.parent) != report_parent_before:
+        raise PatcherError("VV5 Running destination parent changed during recovery.")
     if _inventory(report.parent, issuance_path) != issuance_identity or (issuance_pointer is not None and _load_issuance_pointer(issuance_path, issuance_identity) is None):
         raise PatcherError("VV5 Running issuance record changed during replay.")
     artifacts = [(issuance_path, issuance_identity)]
@@ -809,6 +989,14 @@ def recover_atomic(report_path: Path, mode: str = VV5_MODE) -> None:
         if current_pointer is None:
             raise PatcherError("VV5 Running issuance pointer disappeared during replay.")
         artifacts.extend([(current_pointer[0], current_pointer[1]), (current_pointer[2], current_pointer[3])])
+    _assert_registry_members(
+        registry,
+        registry_identity,
+        {
+            authority_path.name: _rebase_registry_record(registry, authority_path, authority_record),
+            **{path.name: _rebase_registry_record(registry, path, record) for path, record in artifacts},
+        },
+    )
     _cleanup_issuance_artifacts(registry, registry_identity, artifacts, (authority_path, authority_record))
     return
 

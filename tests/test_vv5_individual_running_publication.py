@@ -7,7 +7,7 @@ import shutil
 from unittest import mock
 from pathlib import Path
 
-from src.vv5_individual_running import PatcherError, VV5_EXE_BASENAME, DLL_NAME, VV5_MODE, ISSUANCE_REGISTRY_NAME, _parent, _publish, _state, install_atomic, remove_atomic, recover_atomic
+from src.vv5_individual_running import PatcherError, VV5_EXE_BASENAME, DLL_NAME, VV5_MODE, ISSUANCE_REGISTRY_NAME, AUTHORITY_NAME, _parent, _publish, _state, install_atomic, remove_atomic, recover_atomic
 
 
 class VV5RunningPublicationTests(unittest.TestCase):
@@ -383,6 +383,132 @@ class VV5RunningPublicationTests(unittest.TestCase):
             self.assertFalse(marker.exists())
             self.assertFalse((root / ISSUANCE_REGISTRY_NAME).exists())
             self.assertEqual(list(root.glob(".vv5run-*")), [])
+
+    def test_c291_registry_setup_failure_cleans_only_owned_authority(self) -> None:
+        import src.vv5_individual_running as running
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            exe, dll = root / VV5_EXE_BASENAME, root / DLL_NAME
+            exe.write_bytes(b"parent-exe"); dll.write_bytes(b"parent-dll")
+            pre = {exe: _state(exe), dll: _state(dll)}
+            with mock.patch.object(running, "_write_issuance", side_effect=PatcherError("authority setup")):
+                with self.assertRaises(PatcherError):
+                    _publish("install", [exe, dll], pre, {exe: b"candidate-exe", dll: b"candidate-dll"}, root)
+            self.assertEqual(exe.read_bytes(), b"parent-exe")
+            self.assertEqual(dll.read_bytes(), b"parent-dll")
+            self.assertFalse((root / ISSUANCE_REGISTRY_NAME).exists())
+
+    def test_c291_foreign_registry_child_is_rejected_before_pair_mutation(self) -> None:
+        import src.vv5_individual_running as running
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            registry, registry_identity, created = running._registry(root)
+            authority_path, _token, authority = running._ensure_authority(registry, registry_identity, created)
+            (registry / "foreign-child").write_bytes(b"foreign")
+            exe, dll = root / VV5_EXE_BASENAME, root / DLL_NAME
+            exe.write_bytes(b"parent-exe"); dll.write_bytes(b"parent-dll")
+            pre = {exe: _state(exe), dll: _state(dll)}
+            with self.assertRaises(PatcherError):
+                _publish("install", [exe, dll], pre, {exe: b"candidate-exe", dll: b"candidate-dll"}, root)
+            self.assertEqual(exe.read_bytes(), b"parent-exe")
+            self.assertEqual(dll.read_bytes(), b"parent-dll")
+            self.assertEqual((registry / "foreign-child").read_bytes(), b"foreign")
+            self.assertEqual((registry / AUTHORITY_NAME).read_bytes(), authority_path.read_bytes())
+
+    def test_c291_second_issuance_is_serialized_before_pair_mutation(self) -> None:
+        import src.vv5_individual_running as running
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            registry, registry_identity, created = running._registry(root)
+            authority_path, _token, authority = running._ensure_authority(registry, registry_identity, created)
+            running._write_issuance(registry / "busy.json", {"schema_version": 2, "token": "busy"})
+            exe, dll = root / VV5_EXE_BASENAME, root / DLL_NAME
+            exe.write_bytes(b"parent-exe"); dll.write_bytes(b"parent-dll")
+            pre = {exe: _state(exe), dll: _state(dll)}
+            with self.assertRaises(PatcherError):
+                _publish("install", [exe, dll], pre, {exe: b"candidate-exe", dll: b"candidate-dll"}, root)
+            self.assertEqual(exe.read_bytes(), b"parent-exe")
+            self.assertEqual(dll.read_bytes(), b"parent-dll")
+            self.assertTrue((registry / "busy.json").exists())
+            self.assertTrue((registry / AUTHORITY_NAME).exists())
+
+    def test_c291_existing_authority_is_retained_after_successful_transaction(self) -> None:
+        import src.vv5_individual_running as running
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            registry, registry_identity, created = running._registry(root)
+            authority_path, _token, _authority = running._ensure_authority(registry, registry_identity, created)
+            exe, dll = root / VV5_EXE_BASENAME, root / DLL_NAME
+            exe.write_bytes(b"parent-exe"); dll.write_bytes(b"parent-dll")
+            pre = {exe: _state(exe), dll: _state(dll)}
+            _publish("install", [exe, dll], pre, {exe: b"candidate-exe", dll: b"candidate-dll"}, root)
+            self.assertTrue((root / ISSUANCE_REGISTRY_NAME).is_dir())
+            self.assertTrue(authority_path.exists())
+
+    def test_c291_directory_form_replay_uses_complete_registry_chain(self) -> None:
+        import hashlib
+        import src.vv5_individual_running as running
+        parent_exe = b"P" * 0xF4000
+        candidate_exe = b"C" * 0xF6000
+        values = {
+            "VV5_PARENT_EXE_SHA256": hashlib.sha256(parent_exe).hexdigest().upper(),
+            "VV5_CANDIDATE_EXE_SHA256": hashlib.sha256(candidate_exe).hexdigest().upper(),
+            "VV5_PARENT_DLL_SHA256": hashlib.sha256(b"parent-dll").hexdigest().upper(),
+            "VV5_CANDIDATE_DLL_SHA256": hashlib.sha256(b"parent-dll").hexdigest().upper(),
+            "DLL_SHA256": hashlib.sha256(b"parent-dll").hexdigest().upper(),
+            "DLL_SIZE": len(b"parent-dll"),
+        }
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            exe, dll = root / VV5_EXE_BASENAME, root / DLL_NAME
+            exe.write_bytes(parent_exe); dll.write_bytes(b"parent-dll")
+            pre = {exe: _state(exe), dll: _state(dll)}
+            with mock.patch.multiple(running, **values), \
+                 mock.patch("vv3_individual_full_mastery._replace_verified", side_effect=OSError("replace")), \
+                 mock.patch("vv3_individual_full_mastery._restore_member", return_value=False):
+                with self.assertRaises(PatcherError):
+                    _publish("install", [exe, dll], pre, {exe: candidate_exe, dll: b"parent-dll"}, root)
+            with mock.patch.multiple(running, **values):
+                recover_atomic(root)
+            self.assertEqual(exe.read_bytes(), parent_exe)
+            self.assertEqual(dll.read_bytes(), b"parent-dll")
+            self.assertFalse((root / ISSUANCE_REGISTRY_NAME).exists())
+
+    def test_c291_registry_substitution_during_replay_is_rejected_unchanged(self) -> None:
+        import hashlib
+        import src.vv5_individual_running as running
+        parent_exe = b"P" * 0xF4000
+        candidate_exe = b"C" * 0xF6000
+        values = {
+            "VV5_PARENT_EXE_SHA256": hashlib.sha256(parent_exe).hexdigest().upper(),
+            "VV5_CANDIDATE_EXE_SHA256": hashlib.sha256(candidate_exe).hexdigest().upper(),
+            "VV5_PARENT_DLL_SHA256": hashlib.sha256(b"parent-dll").hexdigest().upper(),
+            "VV5_CANDIDATE_DLL_SHA256": hashlib.sha256(b"parent-dll").hexdigest().upper(),
+            "DLL_SHA256": hashlib.sha256(b"parent-dll").hexdigest().upper(),
+            "DLL_SIZE": len(b"parent-dll"),
+        }
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            exe, dll = root / VV5_EXE_BASENAME, root / DLL_NAME
+            exe.write_bytes(parent_exe); dll.write_bytes(b"parent-dll")
+            pre = {exe: _state(exe), dll: _state(dll)}
+            with mock.patch.multiple(running, **values), \
+                 mock.patch("vv3_individual_full_mastery._replace_verified", side_effect=OSError("replace")), \
+                 mock.patch("vv3_individual_full_mastery._restore_member", return_value=False):
+                with self.assertRaises(PatcherError):
+                    _publish("install", [exe, dll], pre, {exe: candidate_exe, dll: b"parent-dll"}, root)
+            report = next(root.glob(".vv5run-recovery-*.json"))
+            registry = root / ISSUANCE_REGISTRY_NAME
+            moved = root / ".vv5run-registry-original"
+            registry.rename(moved)
+            registry.mkdir()
+            (registry / "foreign").write_bytes(b"foreign")
+            with mock.patch.multiple(running, **values):
+                with self.assertRaises(PatcherError):
+                    recover_atomic(report)
+            self.assertEqual(exe.read_bytes(), parent_exe)
+            self.assertEqual(dll.read_bytes(), b"parent-dll")
+            self.assertTrue((registry / "foreign").exists())
 
 
 if __name__ == "__main__":
