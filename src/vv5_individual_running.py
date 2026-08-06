@@ -614,6 +614,7 @@ def _cleanup_record_payload(
             "owner_parent_absolute": _canonical(owner_parent),
             "registry_relative": registry.name,
             "registry_identity": registry_identity,
+            "operation": "issuance_cleanup",
             "artifact_names": [path.name for path, _record in owned],
             "artifact_roles": {path.name: "authority" if authority is not None and path == authority[0] else "issuance" for path, _record in owned},
             "remove_registry": bool(remove_registry),
@@ -685,10 +686,96 @@ def _update_cleanup_record(record_path: Path, expected: dict[str, object], paylo
     updated = _inventory(record_path.parent, next_path)
     if updated is None or updated.get("sha256") != _sha(data):
         raise PatcherError("VV5 Running cleanup authority update postverify failed.")
-    # Retire only the exact prior identity.  If this deletion fails, both
-    # records remain durable evidence and the caller fails closed.
-    _cleanup(record_path, expected=expected)
+    # Keep the predecessor as a durable chain member.  A replay can therefore
+    # recover from an interruption after any number of successor publications
+    # (including a three-version retirement) without guessing which record was
+    # the last authoritative state.  Finalization retires the chain in order,
+    # oldest first, after the latest record has passed its stable namespace
+    # check.
     return next_path, updated
+
+
+def _cleanup_authority_chain(owner_parent: Path) -> list[tuple[Path, dict[str, object], dict[str, object]]]:
+    """Capture and validate the complete transitive cleanup-authority chain."""
+    candidates: list[tuple[Path, dict[str, object], dict[str, object]]] = []
+    with os.scandir(owner_parent) as entries:
+        for entry in entries:
+            if not re.fullmatch(r"\.vv5run-cleanup-[0-9a-f]{32}\.json", entry.name):
+                continue
+            path = owner_parent / entry.name
+            raw, identity = _validate_cleanup_record(path)
+            candidates.append((path, raw, identity))
+    if not candidates:
+        raise PatcherError("VV5 Running cleanup authority chain is missing.")
+    by_name = {path.name: (path, raw, identity) for path, raw, identity in candidates}
+    if len(by_name) != len(candidates):
+        raise PatcherError("VV5 Running cleanup authority chain contains duplicate names.")
+    latest = max(candidates, key=lambda item: int(item[1]["record_version"]))
+    seen: set[str] = set()
+    chain: list[tuple[Path, dict[str, object], dict[str, object]]] = []
+    current = latest
+    expected_version = int(latest[1]["record_version"])
+    while True:
+        path, raw, identity = current
+        if path.name in seen:
+            raise PatcherError("VV5 Running cleanup authority chain contains a cycle.")
+        seen.add(path.name)
+        if int(raw["record_version"]) != expected_version:
+            raise PatcherError("VV5 Running cleanup authority chain versions are not contiguous.")
+        chain.append(current)
+        previous_name = raw.get("previous_record_name")
+        previous_identity = raw.get("previous_record_identity")
+        if previous_name is None:
+            if previous_identity is not None:
+                raise PatcherError("VV5 Running cleanup authority predecessor is ambiguous.")
+            break
+        if not isinstance(previous_name, str) or not isinstance(previous_identity, dict):
+            raise PatcherError("VV5 Running cleanup authority predecessor is malformed.")
+        previous = by_name.get(previous_name)
+        if previous is None or previous[2] != previous_identity:
+            raise PatcherError("VV5 Running cleanup authority predecessor identity is not bound.")
+        expected_version -= 1
+        current = previous
+    if seen != set(by_name):
+        raise PatcherError("VV5 Running cleanup authority chain has an orphan or competing branch.")
+    return chain
+
+
+def _cleanup_namespace(parent: Path) -> dict[str, dict[str, object]]:
+    """Stable no-follow inventory of every VV5 recovery-owned hidden member."""
+    result: dict[str, dict[str, object]] = {}
+    with os.scandir(parent) as entries:
+        for entry in entries:
+            if not (entry.name.startswith(".vv5run-") or entry.name.startswith(".vv5-preserved-")):
+                continue
+            path = parent / entry.name
+            st = os.lstat(path)
+            if stat.S_ISLNK(st.st_mode) or _unsafe(st):
+                raise PatcherError(f"VV5 Running hidden namespace contains unsafe member: {entry.name}")
+            if stat.S_ISREG(st.st_mode):
+                record = _inventory(parent, path)
+            elif stat.S_ISDIR(st.st_mode):
+                record = {"type": "directory", "size": int(st.st_size), "sha256": None, "st_dev": int(st.st_dev), "st_ino": int(st.st_ino)}
+            else:
+                raise PatcherError(f"VV5 Running hidden namespace contains unsupported member: {entry.name}")
+            if record is None:
+                raise PatcherError(f"VV5 Running hidden namespace member disappeared: {entry.name}")
+            result[entry.name] = record
+    with os.scandir(parent) as entries:
+        recaptured: dict[str, dict[str, object]] = {}
+        for entry in entries:
+            if entry.name in result:
+                path = parent / entry.name
+                st = os.lstat(path)
+                if stat.S_ISREG(st.st_mode):
+                    recaptured[entry.name] = _inventory(parent, path)
+                elif stat.S_ISDIR(st.st_mode):
+                    recaptured[entry.name] = {"type": "directory", "size": int(st.st_size), "sha256": None, "st_dev": int(st.st_dev), "st_ino": int(st.st_ino)}
+                else:
+                    raise PatcherError(f"VV5 Running hidden namespace member changed type: {entry.name}")
+        if recaptured != result:
+            raise PatcherError("VV5 Running hidden namespace changed during final recapture.")
+    return result
 
 
 def _validate_cleanup_record(record_path: Path) -> tuple[dict[str, object], dict[str, object]]:
@@ -704,11 +791,10 @@ def _validate_cleanup_record(record_path: Path) -> tuple[dict[str, object], dict
     if not isinstance(raw, dict) or set(raw) != required or raw.get("schema_version") != 2 or raw.get("kind") != "vv5_running_cleanup_transaction" or raw.get("feature_owner") != VV5_FEATURE_OWNER or raw.get("mode") != VV5_MODE or raw.get("operation") != "issuance_cleanup" or raw.get("owner_parent_absolute") != str(record_path.parent.absolute()).casefold() or raw.get("registry_relative") != ISSUANCE_REGISTRY_NAME or raw.get("state") not in {"started", "quarantining", "cleaning"} or not isinstance(raw.get("record_version"), int) or raw.get("record_version") < 1 or not isinstance(raw.get("artifacts"), list) or not isinstance(raw.get("issuance_bindings"), list) or not isinstance(raw.get("transaction_binding"), dict):
         raise PatcherError("VV5 Running cleanup authority schema is unsupported or ambiguous.")
     binding = raw.get("authority_binding")
-    if binding is not None:
-        if not isinstance(binding, dict) or set(binding) != {"name", "role", "record", "token", "registry_identity", "owner_parent_absolute", "feature_owner", "mode"} or binding.get("name") != AUTHORITY_NAME or binding.get("role") != "authority" or binding.get("registry_identity") != raw.get("registry_identity") or binding.get("owner_parent_absolute") != raw.get("owner_parent_absolute") or binding.get("feature_owner") != VV5_FEATURE_OWNER or binding.get("mode") != VV5_MODE or not isinstance(binding.get("token"), str) or not isinstance(binding.get("record"), dict) or binding["record"].get("path") != f"{ISSUANCE_REGISTRY_NAME}/{AUTHORITY_NAME}":
-            raise PatcherError("VV5 Running cleanup authority external binding is malformed.")
+    if binding is not None and (not isinstance(binding, dict) or set(binding) != {"name", "role", "record", "token", "registry_identity", "owner_parent_absolute", "feature_owner", "mode"} or binding.get("name") != AUTHORITY_NAME or binding.get("role") != "authority" or binding.get("registry_identity") != raw.get("registry_identity") or binding.get("owner_parent_absolute") != raw.get("owner_parent_absolute") or binding.get("feature_owner") != VV5_FEATURE_OWNER or binding.get("mode") != VV5_MODE or not isinstance(binding.get("token"), str) or not re.fullmatch(r"[0-9A-Fa-f]{32,128}", binding.get("token", "")) or not isinstance(binding.get("record"), dict) or binding["record"].get("path") != f"{ISSUANCE_REGISTRY_NAME}/{AUTHORITY_NAME}"):
+        raise PatcherError("VV5 Running cleanup authority external binding is malformed.")
     transaction_binding = raw.get("transaction_binding")
-    if transaction_binding.get("owner_parent_absolute") != raw.get("owner_parent_absolute") or transaction_binding.get("registry_relative") != raw.get("registry_relative") or transaction_binding.get("registry_identity") != raw.get("registry_identity") or transaction_binding.get("remove_registry") != raw.get("remove_registry"):
+    if transaction_binding.get("owner_parent_absolute") != raw.get("owner_parent_absolute") or transaction_binding.get("registry_relative") != raw.get("registry_relative") or transaction_binding.get("registry_identity") != raw.get("registry_identity") or transaction_binding.get("operation") != raw.get("operation") or transaction_binding.get("remove_registry") != raw.get("remove_registry"):
         raise PatcherError("VV5 Running cleanup transaction binding is inconsistent.")
     if raw.get("previous_record_name") is not None and (not isinstance(raw.get("previous_record_name"), str) or Path(str(raw.get("previous_record_name"))).name != raw.get("previous_record_name") or not isinstance(raw.get("previous_record_identity"), dict)):
         raise PatcherError("VV5 Running cleanup predecessor binding is malformed.")
@@ -732,9 +818,22 @@ def _validate_cleanup_record(record_path: Path) -> tuple[dict[str, object], dict
         if not isinstance(source_record, dict) or source_record.get("path") != f"{ISSUANCE_REGISTRY_NAME}/{item['name']}":
             raise PatcherError("VV5 Running cleanup authority source path is not registry-bound.")
     artifact_names = {str(item.get("name")) for item in raw["artifacts"] if isinstance(item, dict)}
+    bound_names = transaction_binding.get("artifact_names")
+    bound_roles = transaction_binding.get("artifact_roles")
+    if not isinstance(bound_names, list) or {str(name) for name in bound_names} != artifact_names or not isinstance(bound_roles, dict) or set(bound_roles) != artifact_names:
+        raise PatcherError("VV5 Running cleanup transaction artifact binding is incomplete.")
+    actual_roles = {str(item["name"]): ("authority" if item.get("role") == "authority" else "issuance") for item in raw["artifacts"]}
+    if bound_roles != actual_roles:
+        raise PatcherError("VV5 Running cleanup transaction artifact roles are inconsistent.")
+    authority_items = [item for item in raw["artifacts"] if isinstance(item, dict) and item.get("role") == "authority"]
+    if isinstance(binding, dict) and AUTHORITY_NAME in artifact_names and (len(authority_items) != 1 or authority_items[0].get("source_record") != binding.get("record")):
+        raise PatcherError("VV5 Running cleanup authority source is not externally bound.")
     for binding in raw["issuance_bindings"]:
         if not isinstance(binding, dict) or not isinstance(binding.get("name"), str) or binding.get("role") != "issuance" or binding.get("name") not in artifact_names or not isinstance(binding.get("record"), dict) or binding["record"].get("path") != f"{ISSUANCE_REGISTRY_NAME}/{binding['name']}":
             raise PatcherError("VV5 Running cleanup issuance binding is malformed.")
+    expected_issuance_names = {name for name in artifact_names if name != AUTHORITY_NAME}
+    if {str(item.get("name")) for item in raw["issuance_bindings"] if isinstance(item, dict)} != expected_issuance_names:
+        raise PatcherError("VV5 Running cleanup issuance binding set is incomplete.")
     return raw, record
 
 
@@ -745,32 +844,34 @@ def recover_cleanup_atomic(record_path: Path, mode: str = VV5_MODE) -> None:
     record_path = Path(record_path)
     raw, record_identity = _validate_cleanup_record(record_path)
     owner_parent = record_path.parent
-    superseded_records: list[tuple[Path, dict[str, object]]] = []
-    cleanup_candidates = sorted(owner_parent.glob(".vv5run-cleanup-*.json"), key=lambda p: p.name)
-    if len(cleanup_candidates) > 1:
-        validated = [(candidate, *_validate_cleanup_record(candidate)) for candidate in cleanup_candidates]
-        latest_path, latest_raw, latest_identity = max(validated, key=lambda item: int(item[1].get("record_version", 0)))
-        if latest_path != record_path:
-            record_path, raw, record_identity = latest_path, latest_raw, latest_identity
-        for candidate, candidate_raw, candidate_identity in validated:
-            if candidate == record_path:
-                continue
-            if raw.get("previous_record_name") != candidate.name or raw.get("previous_record_identity") != candidate_identity:
-                raise PatcherError("VV5 Running cleanup authorities are dual or ambiguously bound.")
-            superseded_records.append((candidate, candidate_identity))
-    cleanup_names = [
-        entry.name
-        for entry in os.scandir(owner_parent)
-        if re.fullmatch(r"\.vv5run-cleanup-[0-9a-f]{32}\.json", entry.name)
-    ]
-    if set(cleanup_names) != {path.name for path, _identity in superseded_records} | {record_path.name}:
-        raise PatcherError("VV5 Running cleanup authority namespace is ambiguous.")
+    chain = _cleanup_authority_chain(owner_parent)
+    latest_path, latest_raw, latest_identity = chain[0]
+    if latest_path != record_path:
+        # A caller may hand us an older predecessor after an interrupted
+        # retirement; the complete chain is authoritative and the newest
+        # record is the only replay head.
+        record_path, raw, record_identity = latest_path, latest_raw, latest_identity
+    superseded_records: list[tuple[Path, dict[str, object]]] = [(path, identity) for path, _item, identity in chain[1:]]
     registry = owner_parent / ISSUANCE_REGISTRY_NAME
     registry_identity = raw.get("registry_identity")
     registry_present = os.path.lexists(registry)
     if not isinstance(registry_identity, dict) or (registry_present and _identity(registry) != registry_identity) or (not registry_present and not bool(raw.get("remove_registry"))):
         raise PatcherError("VV5 Running cleanup registry identity changed.")
     authority_binding = raw.get("authority_binding")
+    # A cleanup record without external authority provenance may only be
+    # replayed while its original registry is still present.  Once the
+    # registry has been removed (including remove_registry=true), no
+    # self-described record is accepted as a destructive authority.
+    if authority_binding is None and not registry_present:
+        raise PatcherError("VV5 Running cleanup lacks externally authenticated authority for absent registry.")
+    if not registry_present:
+        # Once the registry is gone, replay is valid only when every owned
+        # member has already produced preserved recovery evidence.  Accepting
+        # a bare authority token or a self-described empty artifact set would
+        # turn an absent-registry record into a forgeable deletion authority.
+        for item in raw.get("artifacts", []):
+            if not isinstance(item, dict) or not item.get("tombstone_record") or not item.get("preserved_record"):
+                raise PatcherError("VV5 Running absent-registry replay lacks complete preserved evidence.")
     if authority_binding is not None:
         authority_path = registry / AUTHORITY_NAME
         if not registry_present and raw.get("state") != "cleaning":
@@ -803,8 +904,6 @@ def recover_cleanup_atomic(record_path: Path, mode: str = VV5_MODE) -> None:
             if not set(members_now).issubset(bound):
                 raise PatcherError("VV5 Running cleanup authority disappeared with foreign registry members present.")
     elif raw.get("schema_version") == 2 and registry_present and _registry_members(registry):
-        # Synthetic records without an external authority are never accepted
-        # against a live registry containing transaction material.
         raise PatcherError("VV5 Running cleanup lacks an external authority binding.")
     if raw.get("state") == "started":
         if not registry_present:
@@ -816,8 +915,13 @@ def recover_cleanup_atomic(record_path: Path, mode: str = VV5_MODE) -> None:
             next_path, _next_identity = _update_cleanup_record(record_path, record_identity, raw)
             return recover_cleanup_atomic(next_path, mode=mode)
         current_members = _registry_members(registry)
+        # Quarantine exactly one member and publish a successor before the
+        # next member.  Every partial started replay is therefore durable and
+        # retryable at a member boundary.
         for item in raw["artifacts"]:
             if item.get("role") not in {"issuance", "issuance_member", "authority"}:
+                continue
+            if item.get("tombstone_name") and item.get("preserved_name"):
                 continue
             source = registry / str(item["name"])
             if not os.path.lexists(source):
@@ -833,6 +937,13 @@ def recover_cleanup_atomic(record_path: Path, mode: str = VV5_MODE) -> None:
             item["preserved_record"] = _inventory(owner_parent, preserved)
             if item["preserved_record"] is None:
                 raise PatcherError("VV5 Running started cleanup preserved copy is missing.")
+            # Keep the state as started until every member has a durable
+            # tombstone/preserved record.  This makes the successor replay
+            # continue with the next member rather than skipping directly to
+            # cleaning after the first checkpoint.
+            raw["state"] = "started"
+            next_path, _next_identity = _update_cleanup_record(record_path, record_identity, raw)
+            return recover_cleanup_atomic(next_path, mode=mode)
         raw["state"] = "quarantining"
         next_path, _next_identity = _update_cleanup_record(record_path, record_identity, raw)
         return recover_cleanup_atomic(next_path, mode=mode)
@@ -842,10 +953,11 @@ def recover_cleanup_atomic(record_path: Path, mode: str = VV5_MODE) -> None:
         for key in ("name", "tombstone_name", "preserved_name", "guard_name"):
             if isinstance(item, dict) and isinstance(item.get(key), str):
                 allowed_hidden.add(item[key])
-    for entry in os.scandir(owner_parent):
-        if entry.name.startswith(".vv5run-") or entry.name.startswith(".vv5-preserved-"):
-            if entry.name not in allowed_hidden and entry.name != ISSUANCE_REGISTRY_NAME:
-                raise PatcherError("VV5 Running cleanup namespace contains unknown residue.")
+    with os.scandir(owner_parent) as namespace_entries:
+        for entry in namespace_entries:
+            if entry.name.startswith(".vv5run-") or entry.name.startswith(".vv5-preserved-"):
+                if entry.name not in allowed_hidden and entry.name != ISSUANCE_REGISTRY_NAME:
+                    raise PatcherError("VV5 Running cleanup namespace contains unknown residue.")
     for item in artifacts:
         if not isinstance(item, dict):
             raise PatcherError("VV5 Running cleanup authority member is malformed.")
@@ -887,17 +999,25 @@ def recover_cleanup_atomic(record_path: Path, mode: str = VV5_MODE) -> None:
         _cleanup_registry(registry, registry_identity)
         if os.path.lexists(registry):
             raise PatcherError("VV5 Running cleanup registry remained after deletion.")
-    for entry in os.scandir(owner_parent):
-        if entry.name.startswith(".vv5run-") or entry.name.startswith(".vv5-preserved-"):
-            if entry.name != record_path.name:
-                raise PatcherError("VV5 Running cleanup namespace retained unknown residue.")
-    _cleanup(record_path, expected=record_identity)
-    if os.path.lexists(record_path):
-        raise PatcherError("VV5 Running cleanup authority remained after deletion.")
+    # Stable namespace verification is performed before retiring any cleanup
+    # authority.  In particular, an inserted/recreated hidden member keeps the
+    # current authority durable and makes the operation fail closed.
+    namespace_after_members = _cleanup_namespace(owner_parent)
+    allowed_after = {record_path.name} | {path.name for path, _identity in superseded_records}
+    if not set(namespace_after_members).issubset(allowed_after):
+        raise PatcherError("VV5 Running cleanup namespace changed before authority retirement.")
+    # Retire predecessors oldest-first.  The current record remains available
+    # until every older authority has been removed and the final namespace is
+    # recaptured.
     for prior_path, prior_identity in superseded_records:
         _cleanup(prior_path, expected=prior_identity)
         if os.path.lexists(prior_path):
             raise PatcherError("VV5 Running superseded cleanup authority remained after finalization.")
+    _cleanup(record_path, expected=record_identity)
+    if os.path.lexists(record_path):
+        raise PatcherError("VV5 Running cleanup authority remained after deletion.")
+    if _cleanup_namespace(owner_parent):
+        raise PatcherError("VV5 Running cleanup namespace retained residue after finalization.")
 
 
 def _cleanup_issuance_artifacts(
@@ -966,24 +1086,37 @@ def _cleanup_issuance_artifacts(
             _assert_registry_members(registry, registry_identity, expected)
             _cleanup(tombstone, expected=record)
             _assert_registry_members(registry, registry_identity, expected)
+            guard, guard_record = guards[str(preserved)]
             preserved_record = _inventory(preserved.parent, preserved)
             if preserved_record is None or preserved_record.get("sha256") != record.get("sha256") or preserved_record.get("size") != record.get("size"):
                 raise PatcherError("VV5 Running preserved backup changed before cleanup.")
-            _assert_registry_members(registry, registry_identity, expected)
-            _cleanup(preserved, expected=preserved_record)
-            guard, guard_record = guards[str(preserved)]
             if _inventory(guard.parent, guard) != guard_record:
                 raise PatcherError("VV5 Running preserved-backup guard changed before cleanup.")
+            _assert_registry_members(registry, registry_identity, expected)
+            _cleanup(preserved, expected=preserved_record)
+            if os.path.lexists(preserved):
+                raise PatcherError("VV5 Running preserved backup remained after cleanup.")
+            # The guard is the last owned copy.  It is deleted only after the
+            # primary preserved copy has been proven and retired.
+            if _inventory(guard.parent, guard) != guard_record:
+                raise PatcherError("VV5 Running preserved-backup guard changed before final cleanup.")
             _assert_registry_members(registry, registry_identity, expected)
             _cleanup(guard, expected=guard_record)
             if os.path.lexists(guard):
                 raise PatcherError("VV5 Running preserved-backup guard remained after cleanup.")
             _assert_registry_members(registry, registry_identity, expected)
-        allowed_hidden = {cleanup_record_path.name, ISSUANCE_REGISTRY_NAME}
-        for entry in os.scandir(registry.parent):
-            if entry.name.startswith(".vv5run-") or entry.name.startswith(".vv5-preserved-"):
-                if entry.name not in allowed_hidden:
-                    raise PatcherError("VV5 Running cleanup namespace contains unknown residue.")
+        # Successor publication retains the complete cleanup-authority chain;
+        # all chain members are owned until final retirement.
+        allowed_hidden = {ISSUANCE_REGISTRY_NAME}
+        with os.scandir(registry.parent) as cleanup_entries:
+            for entry in cleanup_entries:
+                if re.fullmatch(r"\.vv5run-cleanup-[0-9a-f]{32}\.json", entry.name):
+                    allowed_hidden.add(entry.name)
+        with os.scandir(registry.parent) as namespace_entries:
+            for entry in namespace_entries:
+                if entry.name.startswith(".vv5run-") or entry.name.startswith(".vv5-preserved-"):
+                    if entry.name not in allowed_hidden:
+                        raise PatcherError("VV5 Running cleanup namespace contains unknown residue.")
         # Keep the registry as durable authority until every tombstone and
         # preserved backup has been verified and retired.  A registry cleanup
         # failure therefore remains retryable and cannot discard the last
@@ -991,7 +1124,15 @@ def _cleanup_issuance_artifacts(
         if remove_registry:
             _assert_registry_members(registry, registry_identity, {})
             _cleanup_registry(registry, registry_identity)
-        _cleanup(cleanup_record_path, expected=cleanup_record_identity)
+        # Retire the durable cleanup chain only after the registry and every
+        # preserved copy have passed postverification.  Older records are
+        # removed first; the latest record remains the final authority until
+        # the namespace is stable.
+        chain = _cleanup_authority_chain(registry.parent)
+        latest_path, _latest_raw, latest_identity = chain[0]
+        for prior_path, _prior_raw, prior_identity in chain[1:]:
+            _cleanup(prior_path, expected=prior_identity)
+        _cleanup(latest_path, expected=latest_identity)
     except Exception:
         # Any remaining tombstone is deliberate durable authority evidence;
         # never claim zero residue after a raced or foreign cleanup.

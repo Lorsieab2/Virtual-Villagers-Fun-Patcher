@@ -268,7 +268,10 @@ class VV5RunningPublicationTests(unittest.TestCase):
                 with self.assertRaises(PatcherError):
                     running._cleanup_issuance_artifacts(registry, running._identity(registry), [(source, record)], None)
             records = list(root.glob(".vv5run-cleanup-*.json"))
-            self.assertEqual(len(records), 1)
+            # Successor publication intentionally retains a transitive chain;
+            # every member remains recoverable until strict finalization.
+            self.assertGreaterEqual(len(records), 1)
+            records.sort(key=lambda path: int(running._validate_cleanup_record(path)[0]["record_version"]), reverse=True)
             raw, _identity = running._validate_cleanup_record(records[0])
             self.assertEqual(raw["feature_owner"], running.VV5_FEATURE_OWNER)
             self.assertEqual(raw["artifacts"][0]["role"], "issuance_member")
@@ -370,8 +373,12 @@ class VV5RunningPublicationTests(unittest.TestCase):
             record_path, _record = running._write_cleanup_record(root, payload)
             source.unlink()
             registry.rmdir()
-            recover_cleanup_atomic(record_path)
-            self.assertFalse(record_path.exists())
+            # A registry-absent record without an externally issued authority
+            # is a forged/ambiguous replay and must fail closed with evidence
+            # intact (C309 authority binding contract).
+            with self.assertRaises(PatcherError):
+                recover_cleanup_atomic(record_path)
+            self.assertTrue(record_path.exists())
             self.assertFalse(registry.exists())
 
     def test_c299_32bit_windows_capability_fails_before_io(self) -> None:
@@ -1111,6 +1118,44 @@ class VV5RunningPublicationTests(unittest.TestCase):
                 recover_cleanup_atomic(record)
             self.assertEqual(sibling.read_bytes(), b"keep")
             self.assertEqual(source.read_bytes(), b"owned")
+
+    def test_c309_three_version_cleanup_chain_is_transitively_bound(self) -> None:
+        """Every successor remains linked to the immutable predecessor chain."""
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            registry = root / ISSUANCE_REGISTRY_NAME
+            registry.mkdir()
+            rid = running._identity(registry)
+            authority_path, _token, authority = running._ensure_authority(registry, rid, True)
+            source = registry / ("c" * 32 + ".json")
+            running._write_issuance(source, {"schema_version": 2, "token": "c" * 32, "authority_token": authority["token"], "authority_record": authority["record"], "operation": "install", "destination_parent_absolute": str(root).lower(), "destination_paths_absolute": [], "members": []})
+            payload = running._cleanup_record_payload(root, registry, rid, [(source, running._inventory(root, source)), (authority_path, authority["record"])], remove_registry=True, authority=(authority_path, authority["record"]))
+            record, identity = running._write_cleanup_record(root, payload)
+            for _ in range(2):
+                raw, _ = running._validate_cleanup_record(record)
+                record, identity = running._update_cleanup_record(record, identity, raw)
+            chain = running._cleanup_authority_chain(root)
+            self.assertEqual([int(item[1]["record_version"]) for item in chain], [3, 2, 1])
+            self.assertEqual(len(chain), 3)
+
+    def test_c309_absent_registry_requires_preserved_externally_bound_evidence(self) -> None:
+        """A forged absent-registry record cannot become a deletion authority."""
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            registry = root / ISSUANCE_REGISTRY_NAME
+            registry.mkdir()
+            rid = running._identity(registry)
+            authority_path, _token, authority = running._ensure_authority(registry, rid, True)
+            source = registry / ("d" * 32 + ".json")
+            running._write_issuance(source, {"schema_version": 2, "token": "d" * 32, "authority_token": authority["token"], "authority_record": authority["record"], "operation": "install", "destination_parent_absolute": str(root).lower(), "destination_paths_absolute": [], "members": []})
+            payload = running._cleanup_record_payload(root, registry, rid, [(source, running._inventory(root, source)), (authority_path, authority["record"])], remove_registry=True, authority=(authority_path, authority["record"]))
+            record, _ = running._write_cleanup_record(root, payload)
+            for child in list(registry.iterdir()):
+                child.unlink()
+            registry.rmdir()
+            with self.assertRaises(PatcherError):
+                recover_cleanup_atomic(record)
+            self.assertTrue(record.exists())
 
 
 if __name__ == "__main__":
