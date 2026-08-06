@@ -30,6 +30,7 @@ from vv_fun_patcher import (  # noqa: E402
 )
 import vv_fun_patcher as patcher_module  # noqa: E402
 from runtime_freeze import isolated_runtime_freeze  # noqa: E402
+import build_vv5_full_mastery_candidate as vv5_builder  # noqa: E402
 
 
 STOCK = ROOT / "research" / "stock-executables" / "Virtual Villagers - New Believers.exe"
@@ -39,6 +40,7 @@ FEATURE = ROOT / "data" / "candidates" / "vv5_full_mastery_all_candidate.json"
 MAP = ROOT / "data" / "candidates" / "vv5_full_mastery_all_candidate_map.json"
 DOC = ROOT / "docs" / "vv5-full-mastery-stage-a-candidate.md"
 DLL = ROOT / "data" / "candidates" / "VVFP VV5 Full Mastery Candidate.dll"
+CURE_PROJECTION = ROOT / "data" / "candidates" / "VVFP VV5 Cure Containment Projection.dll"
 PROVENANCE_ASSET = ROOT / "assets" / "candidates" / "vv5_full_mastery" / "provenance" / "btn_trophies.png"
 MODES = (
     "collection_progression",
@@ -126,18 +128,18 @@ class VV5FullMasteryCandidateTests(unittest.TestCase):
         cls.feature = FunPatch(cls.feature_raw)
         cls.build = next(item for item in load_builds() if item.id == "vv5")
 
-    def test_c99_metadata_enablement_and_command_seven_only(self):
-        self.assertTrue(self.base_raw["enabled"])
-        self.assertFalse(self.base_raw["catalog_hidden"])
-        self.assertTrue(self.feature_raw["enabled"])
-        self.assertFalse(self.feature_raw["catalog_hidden"])
+    def test_c254_metadata_disabled_and_command_seven_only(self):
+        self.assertFalse(self.base_raw["enabled"])
+        self.assertTrue(self.base_raw["catalog_hidden"])
+        self.assertFalse(self.feature_raw["enabled"])
+        self.assertTrue(self.feature_raw["catalog_hidden"])
         active = {item.id: item for item in load_fun_patches()}
         self.assertIn("vv5_enable_origins_exclusive_features", active)
-        self.assertIn(self.feature_raw["id"], active)
-        self.assertIn("C99 independently certified", self.feature_raw["certification_status"])
-        self.assertTrue(self.map["candidate_enabled"])
-        self.assertTrue(self.map["catalog_enabled"])
-        self.assertFalse(self.map["catalog_hidden"])
+        self.assertNotIn(self.feature_raw["id"], active)
+        self.assertIn("disabled candidate", self.feature_raw["certification_status"])
+        self.assertFalse(self.map["candidate_enabled"])
+        self.assertFalse(self.map["catalog_enabled"])
+        self.assertTrue(self.map["catalog_hidden"])
         self.assertEqual(self.map["allowed_modes"], ["collection_progression", "immediate_fixed"])
         self.assertTrue(self.map["expanded_fail_closed"])
         self.assertEqual(
@@ -168,6 +170,17 @@ class VV5FullMasteryCandidateTests(unittest.TestCase):
                 paths[key] = target
             for key in ("base", "feature", "map"):
                 data = json.loads(paths[key].read_text(encoding="utf-8"))
+                # The committed evidence is intentionally disabled/hidden. For
+                # field-mutation tests, construct an isolated enabled projection
+                # so the normal certified loader path reaches the immutable
+                # byte/UI validators instead of stopping at catalog visibility.
+                if key in ("base", "feature"):
+                    data["enabled"] = True
+                    data["catalog_hidden"] = False
+                else:
+                    data["candidate_enabled"] = True
+                    data["catalog_enabled"] = True
+                    data["catalog_hidden"] = False
                 if mutation == "acceptance_commit" and key == "map":
                     data["acceptance_commit"] = "0000000000000000000000000000000000000000"
                 elif mutation == "stock_page" and key == "map":
@@ -245,14 +258,16 @@ class VV5FullMasteryCandidateTests(unittest.TestCase):
             with mock_patch.object(
                 patcher_module, "VV5_FULL_MASTERY_CANDIDATE_PATHS", paths
             ):
+                temp_base = json.loads(paths["base"].read_text(encoding="utf-8"))
+                temp_feature = json.loads(paths["feature"].read_text(encoding="utf-8"))
+                # Exercise the production immutable VV5 validator against the
+                # isolated projection before rendering its bytes directly.
+                patcher_module._certified_vv5_full_mastery_records(temp_base)
                 return render_patched_bytes(
                     STOCK,
                     self.build,
                     mode,
-                    [
-                        "vv5_enable_origins_exclusive_features",
-                        "vv5_full_mastery_all_stage_a_candidate",
-                    ],
+                    _fun_patches_override=[FunPatch(temp_base), FunPatch(temp_feature)],
                 )
 
     def test_c103_loader_contract_and_asset_mutations_fail_before_output(self):
@@ -273,19 +288,26 @@ class VV5FullMasteryCandidateTests(unittest.TestCase):
 
     def test_c103_loader_accepts_both_certified_stock_modes(self):
         expected = {
-            "collection_progression": "15E04105D84809AC944C9060E140A0AD4DEFB9BFCDFCE9155E68DE1A67A703C7",
-            "immediate_fixed": "4D5D84617788E94C0289F7CBBC4B58B396D1D64B5651F4A17088422F88EA1F46",
+            "collection_progression": "FC25AED16918D99B23F311B11F459E2F91B483C81F61E7B4BD3100B9890A2A51",
+            "immediate_fixed": "7E7C91054117002535AB5D8B9E8D0C350C7FBF2AAAB3775BE21BEACEE12FAAA9",
         }
         for mode, digest in expected.items():
             with self.subTest(mode=mode):
+                with self.assertRaisesRegex(PatcherError, "Unknown optional patch"):
+                    render_patched_bytes(
+                        STOCK,
+                        self.build,
+                        mode,
+                        [
+                            "vv5_enable_origins_exclusive_features_full_mastery_candidate",
+                            "vv5_full_mastery_all_stage_a_candidate",
+                        ],
+                    )
                 rendered, _ = render_patched_bytes(
                     STOCK,
                     self.build,
                     mode,
-                    [
-                        "vv5_enable_origins_exclusive_features",
-                        "vv5_full_mastery_all_stage_a_candidate",
-                    ],
+                    _fun_patches_override=[self.base, self.feature],
                 )
                 self.assertEqual(sha(rendered), digest)
 
@@ -528,6 +550,26 @@ class VV5FullMasteryCandidateTests(unittest.TestCase):
         self.assertEqual(contract["detail"]["local_y"], 2)
         self.assertEqual(sha(PROVENANCE_ASSET.read_bytes()), contract["asset_sha256"])
 
+    def test_c254_cure_projection_is_resource_only_and_parent_is_frozen(self):
+        parent = DLL.read_bytes()
+        projection = CURE_PROJECTION.read_bytes()
+        self.assertEqual(sha(parent), vv5_builder.COMPANION_PARENT_SHA256)
+        cure = self.base_raw["cure_containment"]
+        self.assertEqual(cure["parent_dll_sha256"], vv5_builder.COMPANION_PARENT_SHA256)
+        self.assertEqual(cure["projection"]["size"], len(projection))
+        self.assertEqual(cure["projection"]["sha256"], sha(projection))
+        # The deterministic projection changes only the two Cure-bearing
+        # dialog leaves; dialog 202 remains byte-identical to the parent.
+        self.assertEqual(projection[0x47070:0x474F0], parent[0x47070:0x474F0])
+        for raw, end, old_count, new_count in (
+            (0x466C0, 0x47070, 46, 41),
+            (0x474F0, 0x47C88, 36, 31),
+        ):
+            before = vv5_builder._vv5_dialog_item_spans(parent[raw:end], old_count)
+            after = vv5_builder._vv5_dialog_item_spans(projection[raw:end], new_count)
+            self.assertEqual(len(before) - len(after), 5)
+            self.assertNotIn("Cure all Villagers", [title for _, _, title in after])
+
     def test_individual_transaction_uses_native_exact_100_contract(self):
         slot = bytes.fromhex(self.feature_raw["patches"][0]["after"])
         slot_map = self.map["layouts"]["collection_progression"]["slot_map"]["installed"]
@@ -720,15 +762,64 @@ class VV5FullMasteryCandidateTests(unittest.TestCase):
 
     def test_c253_wrapper_contract_uses_native_engine_state_and_plain_menu_abi(self):
         source = GENERATOR.read_text(encoding="utf-8")
+        wrapper = source[source.index("def build_fullscreen_wrapper"):source.index("def build_fullscreen_entry")]
         self.assertIn("mov edi, dword ptr [esi]", source)
         self.assertIn("mov eax, dword ptr [edi+0x38]", source)
         self.assertIn("movzx ebx, byte ptr [edi+0x1E]", source)
         self.assertIn("call 0x{NATIVE_FULLSCREEN_LEAVE_VA:X}", source)
         self.assertIn("call 0x{NATIVE_FULLSCREEN_ENTER_VA:X}", source)
+        self.assertIn("mov ecx, esi\n            call 0x{NATIVE_FULLSCREEN_LEAVE_VA:X}", wrapper)
+        self.assertNotIn("mov ecx, edi\n            call 0x{NATIVE_FULLSCREEN_LEAVE_VA:X}", wrapper)
+        self.assertIn("and edx, 0x1001", wrapper)
+        self.assertGreaterEqual(wrapper.count("and edx, 0x1001"), 2)
+        self.assertIn("call 0x{NATIVE_FULLSCREEN_GETTER_VA:X}", wrapper)
+        enter_index = wrapper.index("call 0x{NATIVE_FULLSCREEN_ENTER_VA:X}")
+        leave_index = wrapper.index("call 0x{NATIVE_FULLSCREEN_LEAVE_VA:X}")
+        self.assertLess(wrapper.find("call 0x{NATIVE_FULLSCREEN_GETTER_VA:X}", leave_index), enter_index)
+        self.assertNotEqual(wrapper.find("call 0x{NATIVE_FULLSCREEN_GETTER_VA:X}", enter_index), -1)
+        self.assertNotIn("call dword ptr [0x{SDL_GET_MODULE_HANDLE_IAT:X}]\n            add esp", wrapper)
+        self.assertNotIn("call dword ptr [0x{SDL_GET_WINDOW_FLAGS_IAT:X}]\n            add esp", wrapper)
         self.assertIn("ret\n        \"\"\"", source)
         self.assertNotIn("SDL_GET_KEYBOARD_FOCUS_RVA", source)
         self.assertNotIn("SDL_SET_WINDOW_FULLSCREEN_RVA", source)
         self.assertNotIn("ret 8", source[source.index("def build_fullscreen_wrapper"):source.index("def build_fullscreen_entry")])
+
+    def test_c254_emitted_wrapper_disassembly_catches_d251_defects(self):
+        from capstone import CS_ARCH_X86, CS_MODE_32, Cs
+
+        active = json.loads((ROOT / "data" / "vv5_origins_feature.json").read_text(encoding="utf-8"))
+        payload_patch = next(
+            item for item in active["patches"] if int(item["offset"], 0) == vv5_builder.PAYLOAD_OFFSET
+        )
+        payload = vv5_builder.build_base_payload(
+            bytes.fromhex(payload_patch["after"]).ljust(vv5_builder.PAYLOAD_SIZE, bytes([0])),
+            vv5_builder.LAYOUTS["collection_progression"]["page_va"],
+        )
+        wrapper = vv5_builder.build_fullscreen_wrapper(
+            vv5_builder.PAYLOAD_VA + vv5_builder.FULLSCREEN_COMMON_OFFSET,
+            vv5_builder.PAYLOAD_VA + vv5_builder.FULLSCREEN_STRING_OFFSET,
+        )
+        md = Cs(CS_ARCH_X86, CS_MODE_32)
+        instructions = list(
+            md.disasm(
+                payload[
+                    vv5_builder.FULLSCREEN_COMMON_OFFSET : vv5_builder.FULLSCREEN_COMMON_OFFSET + len(wrapper)
+                ],
+                vv5_builder.PAYLOAD_VA + vv5_builder.FULLSCREEN_COMMON_OFFSET,
+            )
+        )
+        self.assertEqual(sum(1 for ins in instructions if ins.mnemonic == "and" and ins.op_str == "edx, 0x1001"), 2)
+        leave_index = next(i for i, ins in enumerate(instructions) if ins.mnemonic == "call" and f"0x{vv5_builder.NATIVE_FULLSCREEN_LEAVE_VA:x}" in ins.op_str)
+        self.assertEqual(instructions[leave_index - 1].mnemonic, "mov")
+        self.assertEqual(instructions[leave_index - 1].op_str, "ecx, esi")
+        enter_index = next(i for i, ins in enumerate(instructions) if ins.mnemonic == "call" and f"0x{vv5_builder.NATIVE_FULLSCREEN_ENTER_VA:x}" in ins.op_str)
+        self.assertTrue(any(ins.mnemonic == "call" and f"0x{vv5_builder.NATIVE_FULLSCREEN_GETTER_VA:x}" in ins.op_str for ins in instructions[leave_index + 1 : enter_index]))
+        self.assertTrue(any(ins.mnemonic == "call" and f"0x{vv5_builder.NATIVE_FULLSCREEN_GETTER_VA:x}" in ins.op_str for ins in instructions[enter_index + 1 :]))
+        for i, ins in enumerate(instructions):
+            if ins.mnemonic == "call" and ins.op_str in ("dword ptr [0x4951d8]", "dword ptr [0x4951dc]"):
+                self.assertFalse(i + 1 < len(instructions) and instructions[i + 1].mnemonic == "add")
+        self.assertEqual(instructions[-1].mnemonic, "ret")
+        self.assertEqual(instructions[-1].op_str, "")
 
     def test_c37_audit_provenance_names_binary_and_documentation_commits(self):
         audit = ROOT / "outputs" / "vv5-c37-d40-audit"

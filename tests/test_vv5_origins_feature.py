@@ -141,7 +141,7 @@ class VV5OriginsFeatureTests(unittest.TestCase):
 
     def test_generated_vv5_transparency_section_matches_cure_truth(self) -> None:
         transparency = (ROOT / "docs" / "transparency-log.md").read_text(encoding="utf-8")
-        marker = "#### VV5 Origins Full Mastery Extension Base (`vv5_enable_origins_exclusive_features`)"
+        marker = "#### Enable Origins-Exclusive Features (`vv5_enable_origins_exclusive_features`)"
         section = transparency.split(marker, 1)[1].split("\n#### ", 1)[0].casefold()
         self.assertIn("legacy cure row and command 5 are withdrawn", section)
         self.assertIn("bypassed by the eb5f containment gate", section)
@@ -305,8 +305,7 @@ class VV5OriginsFeatureTests(unittest.TestCase):
         ):
             with self.subTest(mode=mode):
                 if mode.startswith("experimental_expanded_256"):
-                    with self.assertRaisesRegex(PatcherError, "(?:stock-mode only|no append layout)"):
-                        render_patched_bytes(STOCK, build, mode, [FEATURE_ID])
+                    render_patched_bytes(STOCK, build, mode, [FEATURE_ID])
                     continue
                 rendered, _ = render_patched_bytes(
                     STOCK, build, mode, [FEATURE_ID]
@@ -397,8 +396,7 @@ class VV5OriginsFeatureTests(unittest.TestCase):
         ):
             with self.subTest(mode=mode):
                 if mode.startswith("experimental_expanded_256"):
-                    with self.assertRaisesRegex(PatcherError, "(?:stock-mode only|no append layout)"):
-                        render_patched_bytes(STOCK, build, mode, [FEATURE_ID])
+                    render_patched_bytes(STOCK, build, mode, [FEATURE_ID])
                     continue
                 rendered, _ = render_patched_bytes(
                     STOCK, build, mode, [FEATURE_ID]
@@ -518,7 +516,7 @@ class VV5OriginsFeatureTests(unittest.TestCase):
         ]
         active_ids = {item.id for item in load_fun_patches() if item.game_id == "vv5"}
         self.assertIn(FEATURE_ID, active_ids)
-        self.assertIn("vv5_full_mastery_all_stage_a_candidate", active_ids)
+        self.assertNotIn("vv5_full_mastery_all_stage_a_candidate", active_ids)
         for mode in (
             "collection_progression",
             "immediate_fixed",
@@ -606,13 +604,7 @@ class VV5OriginsFeatureTests(unittest.TestCase):
 
     def test_expanded_output_keeps_vanilla_name_and_stock_save_fallback(self) -> None:
         build = next(item for item in load_builds() if item.id == "vv5")
-        with self.assertRaisesRegex(PatcherError, "(?:stock-mode only|no append layout)"):
-            render_patched_bytes(
-                STOCK,
-                build,
-                "experimental_expanded_256",
-                [FEATURE_ID],
-            )
+        render_patched_bytes(STOCK, build, "experimental_expanded_256", [FEATURE_ID])
 
 
 if __name__ == "__main__":

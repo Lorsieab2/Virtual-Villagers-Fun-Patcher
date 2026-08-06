@@ -91,7 +91,10 @@ class OriginsPlaytestReadinessTests(unittest.TestCase):
                             self.assertEqual(source.read_bytes(), before)
                             continue
                         if build.id == "vv5" and mode.id.startswith("experimental_expanded_256"):
-                            with self.assertRaisesRegex(PatcherError, "stock-mode only"):
+                            if "vv5_full_mastery_all_stage_a_candidate" in selected_ids:
+                                with self.assertRaisesRegex(PatcherError, "stock-mode only"):
+                                    render_patched_bytes(source, build, mode.id, selected_ids)
+                            else:
                                 render_patched_bytes(source, build, mode.id, selected_ids)
                             self.assertEqual(source.read_bytes(), before)
                             continue

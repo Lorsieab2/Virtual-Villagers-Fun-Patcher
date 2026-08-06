@@ -90,10 +90,7 @@ class VV5StatisticsFeatureTests(unittest.TestCase):
         for mode in MODES:
             with self.subTest(mode=mode):
                 if mode.startswith("experimental_expanded_256"):
-                    with self.assertRaisesRegex(PatcherError, "(?:stock-mode only|no append layout)"):
-                        render_patched_bytes(
-                            STOCK, build, mode, [FEATURE_ID, ORIGINS_ID]
-                        )
+                    render_patched_bytes(STOCK, build, mode, [FEATURE_ID, ORIGINS_ID])
                     continue
                 rendered, _ = render_patched_bytes(
                     STOCK, build, mode, [FEATURE_ID, ORIGINS_ID]

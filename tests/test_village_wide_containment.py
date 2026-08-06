@@ -187,8 +187,7 @@ class VillageWideContainmentTests(unittest.TestCase):
                             render_patched_bytes(source, build, mode.id, game_ids)
                         continue
                     if build.id == "vv5" and mode.id.startswith("experimental_expanded_256"):
-                        with self.assertRaisesRegex(PatcherError, "(?:stock-mode only|no append layout)"):
-                            render_patched_bytes(source, build, mode.id, game_ids)
+                        render_patched_bytes(source, build, mode.id, game_ids)
                         continue
                     rendered, applied = render_patched_bytes(
                         source, build, mode.id, game_ids
@@ -232,10 +231,7 @@ class VillageWideContainmentTests(unittest.TestCase):
                         )
                     continue
                 if build.id == "vv5" and mode.id.startswith("experimental_expanded_256"):
-                    with self.assertRaisesRegex(PatcherError, "(?:stock-mode only|no append layout)"):
-                        render_patched_bytes(
-                            STOCK / build.input_name, build, mode.id, [base_id]
-                        )
+                    render_patched_bytes(STOCK / build.input_name, build, mode.id, [base_id])
                     continue
                 _, applied = render_patched_bytes(
                     STOCK / build.input_name, build, mode.id, [base_id]

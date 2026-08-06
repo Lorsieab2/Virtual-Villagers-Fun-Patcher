@@ -1,9 +1,9 @@
 {
   "acceptance_commit": "48955b5f19da5d4279887a4c1b71250a63ac9ade",
-  "candidate_enabled": true,
-  "catalog_enabled": true,
-  "catalog_hidden": false,
-  "certification_status": "C99 independently certified; stock Collection Progression and Immediate Fixed catalog-enabled; Expanded-256 ON HOLD/fail-closed",
+  "candidate_enabled": false,
+  "catalog_enabled": false,
+  "catalog_hidden": true,
+  "certification_status": "disabled candidate awaiting independent emitted-byte certification",
   "allowed_modes": [
     "collection_progression",
     "immediate_fixed"
@@ -37,9 +37,55 @@
       "ownership": "0x40C680"
     }
   },
-  "base_manifest_sha256": "8402BC9A183BC6C5EAEF75BD9ADA0C4641E4E28D56A285B696CAA29D0BC20E74",
-  "feature_manifest_sha256": "DC7AA7E678644D301A5BC104ED6DBA4972C4253465DFCF6F79FB2E15C25E3C8C",
-  "base_stock_payload_sha256": "624E8E6F377C435B80BBA5599FFE5C086DE231A942474880364A7D8161933281",
+  "base_manifest_sha256": "68FB2AEED609A68A395AD8F357AF220AAD5574D767477446975ACC8DA1F1C394",
+  "feature_manifest_sha256": "6BF988D701B4258179CD1686A6BD06718DF5A80F6D6FA586211E93F59AF24EC7",
+  "base_stock_payload_sha256": "9AF74A5DAB12338F76382B09116A2A379DC5D789E5FF65DE35981F5BE8112669",
+  "fullscreen_dialog_contract": {
+    "status": "disabled candidate-only native engine state-synchronised bracket; pending independent emitted-byte recertification",
+    "tech_call": {
+      "offset": "0xDB00E",
+      "before": "E8AD020000",
+      "target": "0x7B22C0",
+      "wrapper": "0x7B2B40"
+    },
+    "detail_call": {
+      "offset": "0xDB0CE",
+      "before": "E82D050000",
+      "target": "0x7B2600",
+      "wrapper": "0x7B2B47"
+    },
+    "common_wrapper": "0x7B2B4C",
+    "sdl": {
+      "module": "SDL2.dll",
+      "get_module_handle_iat": "0x4951D8",
+      "get_proc_address_iat": "0x4951DC",
+      "get_window_flags_symbol": "SDL_GetWindowFlags",
+      "fullscreen_flags": "0x1001"
+    },
+    "failure": "missing dependency, singleton mismatch, unexpected flags, failed native leave, or failed native restore returns safely without entering/charging the modal menu",
+    "native_engine_getter_va": "0x4080C0",
+    "native_engine_leave_va": "0x40A270",
+    "native_engine_enter_va": "0x40A280",
+    "native_engine_transition_va": "0x404700",
+    "native_engine_state_chain": "getter -> outer [0x4DB0E8] -> engine [outer] -> window +0x38, state +0x1E",
+    "native_engine_transition_proof": "stock exact-build chain statically proven; candidate remains disabled/catalog-hidden pending emitted recertification"
+  },
+  "cure_containment": {
+    "command": 5,
+    "router_guard": {
+      "comparison": "EBX < 5",
+      "legacy_target": "0x7B2461",
+      "menu_loop": "0x7B22C0"
+    },
+    "resource_transform": "structurally remove the five-item legacy Cure row from RT_DIALOG 201 and 203; 202 byte-identical",
+    "parent_dll_sha256": "29927CECB448B64944E18E2BA11893DC84C91B39241FBB2549FC2A464E0BE2ED",
+    "projection": {
+      "path": "data/candidates/VVFP VV5 Cure Containment Projection.dll",
+      "size": 298496,
+      "sha256": "A1C55063B548F195B9ECDA492E1799D35EBA5437862353D96BE780D9FCC2E1C8"
+    },
+    "status": "candidate-only; requires independent emitted DLL recertification before enablement"
+  },
   "companion": {
     "path": "data/candidates/VVFP VV5 Full Mastery Candidate.dll",
     "size": 298496,
@@ -223,6 +269,7 @@
   "references": {
     "absolute": [
       "0x51D5F8 unsigned Technology Points",
+      "0x4951D8 GetModuleHandleA IAT",
       "0x4951E0 LoadLibraryA IAT",
       "0x4951DC GetProcAddress IAT",
       "0x475730 native six-skill Float32 writer",
@@ -248,11 +295,11 @@
   "rendered_candidates": {
     "collection_progression": {
       "baseline_sha256": "8AD527D1930CF9501841E68308168A0B5ECA9D0E30AFFC846B4D7E74BEB6171B",
-      "base_only_sha256": "D85ACF6E0305ED18DE870058F9474C0900D90C9DCB515DFE9ADBC55D1D5ABF22",
-      "base_plus_mastery_sha256": "15E04105D84809AC944C9060E140A0AD4DEFB9BFCDFCE9155E68DE1A67A703C7",
-      "all_current_compatible_sha256": "A46A9F9B481BAEAF9EDC274461484737D76EECFAAE8E8AE7735908993AE50B1C",
+      "base_only_sha256": "40333134221515CC51886B665FF91BB5DD37AF1A5313F13F57DF42EFD64F5C23",
+      "base_plus_mastery_sha256": "FC25AED16918D99B23F311B11F459E2F91B483C81F61E7B4BD3100B9890A2A51",
+      "all_current_compatible_sha256": "96D71AA82504AEDD24899007157B5B4CC54DF3335156191B7068A533A4F38A41",
       "size": 999424,
-      "pe_checksum": "0x000F512E",
+      "pe_checksum": "0x000FCAA4",
       "owners": [
         "automatic:population",
         "automatic:safety",
@@ -273,11 +320,11 @@
     },
     "immediate_fixed": {
       "baseline_sha256": "CB55A3466A81A53E031297A668173E19BAEE68369F785E134E2736F8A5C1479D",
-      "base_only_sha256": "DFDF77D2E9D8657407F30EB6C3B7493E5257F2C0E101745B0F17892866F9995A",
-      "base_plus_mastery_sha256": "4D5D84617788E94C0289F7CBBC4B58B396D1D64B5651F4A17088422F88EA1F46",
-      "all_current_compatible_sha256": "A9A0ABA713EFDA5368B46E4170A735A78F5E85417EB1245F4B5AB73ADB26A016",
+      "base_only_sha256": "4665A8CA8549B83369760D13A58036170869910DEC7F852D0DC6BDA6ADBAE35E",
+      "base_plus_mastery_sha256": "7E7C91054117002535AB5D8B9E8D0C350C7FBF2AAAB3775BE21BEACEE12FAAA9",
+      "all_current_compatible_sha256": "22BB40085F37C5E52F916856F913150D1ED5893C8AC05363C34F90B2523E2408",
       "size": 999424,
-      "pe_checksum": "0x00100D3D",
+      "pe_checksum": "0x000F86B4",
       "owners": [
         "automatic:population",
         "automatic:safety",

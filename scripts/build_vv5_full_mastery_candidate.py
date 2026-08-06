@@ -19,6 +19,8 @@ FEATURE_OUT = OUT_DIR / "vv5_full_mastery_all_candidate.json"
 MAP_OUT = OUT_DIR / "vv5_full_mastery_all_candidate_map.json"
 DOC_OUT = ROOT / "docs" / "vv5-full-mastery-stage-a-candidate.md"
 COMPANION = OUT_DIR / "VVFP VV5 Full Mastery Candidate.dll"
+CURE_PROJECTION = OUT_DIR / "VVFP VV5 Cure Containment Projection.dll"
+COMPANION_PARENT_SHA256 = "29927CECB448B64944E18E2BA11893DC84C91B39241FBB2549FC2A464E0BE2ED"
 PROVENANCE_ASSET = ROOT / "assets" / "candidates" / "vv5_full_mastery" / "provenance" / "btn_trophies.png"
 PROVENANCE_ASSET_SHA256 = "F39E94CBDF24776631D803D1218EFCCDE555081C9C8C644DD073B75EC7DD2095"
 
@@ -211,23 +213,23 @@ def build_fullscreen_wrapper(common_va: int, sdl_string_va: int) -> bytes:
             mov dword ptr [ebp-0x1C], ebx
             push 0x{sdl_string_va:X}
             call dword ptr [0x{SDL_GET_MODULE_HANDLE_IAT:X}]
-            add esp, 4
             test eax, eax
             jz fail
             mov dword ptr [ebp-0x20], eax
             push 0x{sdl_string_va + len(b'SDL2.dll\\0'):X}
             push eax
             call dword ptr [0x{SDL_GET_WINDOW_FLAGS_IAT:X}]
-            add esp, 8
             test eax, eax
             jz fail
             mov dword ptr [ebp-0x24], eax
             push dword ptr [ebp-0x18]
             call eax
             add esp, 4
-            cmp eax, 0
+            mov edx, eax
+            and edx, 0x1001
+            cmp edx, 0
             je windowed
-            cmp eax, 0x1001
+            cmp edx, 0x1001
             je fullscreen
             jmp fail
         windowed:
@@ -237,7 +239,7 @@ def build_fullscreen_wrapper(common_va: int, sdl_string_va: int) -> bytes:
         fullscreen:
             cmp dword ptr [ebp-0x1C], 0
             jne fail
-            mov ecx, edi
+            mov ecx, esi
             call 0x{NATIVE_FULLSCREEN_LEAVE_VA:X}
             test eax, eax
             jz fail
@@ -260,6 +262,14 @@ def build_fullscreen_wrapper(common_va: int, sdl_string_va: int) -> bytes:
             mov dword ptr [ebp-0x28], eax
             cmp dword ptr [ebp-0x1C], 0
             jne done
+            call 0x{NATIVE_FULLSCREEN_GETTER_VA:X}
+            cmp eax, esi
+            jne fail_after_leave
+            mov edx, dword ptr [eax]
+            cmp edx, edi
+            jne fail_after_leave
+            mov esi, eax
+            mov edi, edx
             mov ecx, esi
             call 0x{NATIVE_FULLSCREEN_ENTER_VA:X}
             test eax, eax
@@ -274,7 +284,9 @@ def build_fullscreen_wrapper(common_va: int, sdl_string_va: int) -> bytes:
             jne fail_after_leave
             mov ecx, dword ptr [ebp-0x18]
             call dword ptr [ebp-0x24]
-            cmp eax, 0x1001
+            mov edx, eax
+            and edx, 0x1001
+            cmp edx, 0x1001
             jne fail_after_leave
             mov eax, dword ptr [ebp-0x28]
             jmp done
@@ -399,6 +411,23 @@ def strip_vv5_cure_rows(base: bytes) -> bytes:
             raise RuntimeError("VV5 Cure row remains after structural removal")
         output[raw:end] = compact
     return bytes(output)
+
+
+def build_cure_projection() -> bytes:
+    """Return the deterministic resource-only Cure containment projection.
+
+    The certified C99 companion remains the immutable Full Mastery parent. The
+    projection is a separate candidate-evidence binary used only to prove the
+    structural 201/203 row removal and 202 byte identity; it is never treated
+    as the parent DLL and never replaces the frozen C99 companion in-place.
+    """
+    parent = COMPANION.read_bytes()
+    if len(parent) != 298496 or sha(parent) != COMPANION_PARENT_SHA256:
+        raise RuntimeError("VV5 C99 companion parent is missing or hash-mismatched")
+    projection = strip_vv5_cure_rows(parent)
+    if len(projection) != len(parent):
+        raise RuntimeError("VV5 Cure projection changed companion size")
+    return projection
 
 
 def build_individual_helper(page_va: int, strings: dict[str, int]) -> bytes:
@@ -1185,6 +1214,9 @@ def main() -> None:
         raise RuntimeError("build the certified companion DLL first")
     if not PROVENANCE_ASSET.is_file() or sha(PROVENANCE_ASSET.read_bytes()) != PROVENANCE_ASSET_SHA256:
         raise RuntimeError("VV5 btn_trophies provenance asset fingerprint mismatch")
+    cure_projection = build_cure_projection()
+    OUT_DIR.mkdir(parents=True, exist_ok=True)
+    CURE_PROJECTION.write_bytes(cure_projection)
 
     active = json.loads(ACTIVE_BASE.read_text(encoding="utf-8"))
     payload_patch = next(
@@ -1302,6 +1334,12 @@ def main() -> None:
         "command": 5,
         "router_guard": {"comparison": "EBX < 5", "legacy_target": "0x7B2461", "menu_loop": "0x7B22C0"},
         "resource_transform": "structurally remove the five-item legacy Cure row from RT_DIALOG 201 and 203; 202 byte-identical",
+        "parent_dll_sha256": COMPANION_PARENT_SHA256,
+        "projection": {
+            "path": "data/candidates/VVFP VV5 Cure Containment Projection.dll",
+            "size": len(cure_projection),
+            "sha256": sha(cure_projection),
+        },
         "status": "candidate-only; requires independent emitted DLL recertification before enablement",
     }
     base["pe_append_transaction"] = {
