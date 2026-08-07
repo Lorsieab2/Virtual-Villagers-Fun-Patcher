@@ -21,6 +21,11 @@ Full Mastery-owned ranges remain unchanged parent-to-parent. The candidate's
 separate Full Heal hook overlay at `0x8960F..0x89613` is the explicit
 candidate-only exception within the surrounding protected range.
 
+The lineage convention is scoped explicitly: `protected_full_mastery_ranges.raw`
+uses inclusive endpoints under `protected_range_end_inclusive: true`. The
+separate `allowed_diff_ranges` records use inclusive `raw_start` and exclusive
+`raw_end_exclusive`; those ranges are not governed by the protected-range flag.
+
 The contract enumerates physical indices 0..149 through the native resolver
 (`ECX=0x50E568`, push index, call `0x466040`, `ret 4`). It applies the active,
 status, and positive-health gate before reading sickness or mutation fields.

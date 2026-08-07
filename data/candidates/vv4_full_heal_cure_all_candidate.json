@@ -37,7 +37,7 @@
       "collection_progression": {"old": "3B1B0F00", "new": "B2920E00"},
       "immediate_fixed": {"old": "64B40E00", "new": "DA2B0F00"}
     },
-    "range_end_inclusive": true,
+    "protected_range_end_inclusive": true,
     "protected_range_scope": "new_parent_vs_old_parent",
     "candidate_overlay_exception": "raw 0x8960F..0x89613 is the VV4 Full Heal hook and is excluded from candidate-vs-parent protected-range equality",
     "allowed_diff_ranges": [

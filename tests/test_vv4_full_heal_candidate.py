@@ -725,8 +725,10 @@ class VV4FullHealCandidateTests(unittest.TestCase):
             "collection_progression": {"old": "3B1B0F00", "new": "B2920E00"},
             "immediate_fixed": {"old": "64B40E00", "new": "DA2B0F00"},
         })
-        self.assertTrue(proof["range_end_inclusive"])
+        self.assertTrue(proof["protected_range_end_inclusive"])
+        self.assertNotIn("range_end_inclusive", proof)
         self.assertEqual(proof["protected_range_scope"], "new_parent_vs_old_parent")
+        self.assertTrue(all("raw_end_exclusive" in item for item in proof["allowed_diff_ranges"]))
         self.assertIn("0x8960F..0x89613", proof["candidate_overlay_exception"])
         self.assertEqual(proof["allowed_diff_ranges"], [
             {"raw_start": "0x158", "raw_end_exclusive": "0x15C", "purpose": "PE checksum"},

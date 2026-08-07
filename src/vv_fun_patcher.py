@@ -534,8 +534,9 @@ VV4_FULL_HEAL_PARENT_DEPENDENCIES = (
     "vv4_full_mastery_all_stage_a_candidate",
     "vv4_write_village_statistics",
 )
-VV4_FULL_HEAL_MANIFEST_SHA256 = "DF12695EE698E21D63824D8747DFE9F9AF09ACDE04FF7EE4B2A5E03A9228749A"
-VV4_FULL_HEAL_MAP_SHA256 = "D787BDE40B78F9B35A865FB2A1786D32FFCACE0D43E1A090344DE2B3737036C7"
+VV4_FULL_HEAL_MANIFEST_SHA256 = "02B4F62D2CDE2388E1D7CF159575A5868A754E11E77BFBBE96D49C4EC2E6663D"
+VV4_FULL_HEAL_MAP_SHA256 = "8F5C1D529792C3926A40DCF69167CF0F483DBF06C45C1AC0C1F91A32EE8253FC"
+VV4_FULL_HEAL_PROTECTED_RANGE_END_INCLUSIVE = True
 VV4_FULL_HEAL_ENUMERATION = (
     "resolve every index 0..149 through ECX=0x50E568; push index; "
     "call 0x466040; ret 4; never walk a cached base"
@@ -1367,6 +1368,15 @@ def _certified_vv4_full_heal_record(
         raise PatcherError("VV4 Full Heal candidate manifest/map raw bytes are not pinned.")
     manifest = json.loads(manifest_bytes.decode("utf-8-sig"))
     artifact_map = json.loads(map_bytes.decode("utf-8-sig"))
+    manifest_proof = manifest.get("lineage_proof", {})
+    map_proof = artifact_map.get("lineage_proof", {})
+    if (manifest_proof.get("protected_range_end_inclusive") is not VV4_FULL_HEAL_PROTECTED_RANGE_END_INCLUSIVE
+            or map_proof.get("protected_range_end_inclusive") is not VV4_FULL_HEAL_PROTECTED_RANGE_END_INCLUSIVE):
+        raise PatcherError("VV4 Full Heal protected-range endpoint convention is invalid.")
+    if any("raw_end_exclusive" not in item
+           for proof in (manifest_proof, map_proof)
+           for item in proof.get("allowed_diff_ranges", [])):
+        raise PatcherError("VV4 Full Heal allowed-difference endpoints must be exclusive.")
     if not manifest.get("enabled", False):
         return None
     if manifest.get("catalog_hidden") is not False or manifest.get("catalog_enabled") is not True:

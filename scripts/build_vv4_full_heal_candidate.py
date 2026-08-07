@@ -56,8 +56,9 @@ PARENT_DLL = ROOT / "data/candidates/VVFP VV4 Full Mastery Candidate.dll"
 PARENT_DLL_SHA256 = "4E1A83683A875EFE6F67116CDD862927BE1ABCB17DB7AE18143E58E98EAD01E7"
 PARENT_DLL_SIZE = 282624
 # Raw source-of-truth pins are checked before any candidate output is built.
-SOURCE_MANIFEST_SHA256 = "DF12695EE698E21D63824D8747DFE9F9AF09ACDE04FF7EE4B2A5E03A9228749A"
-SOURCE_MAP_SHA256 = "D787BDE40B78F9B35A865FB2A1786D32FFCACE0D43E1A090344DE2B3737036C7"
+SOURCE_MANIFEST_SHA256 = "02B4F62D2CDE2388E1D7CF159575A5868A754E11E77BFBBE96D49C4EC2E6663D"
+SOURCE_MAP_SHA256 = "8F5C1D529792C3926A40DCF69167CF0F483DBF06C45C1AC0C1F91A32EE8253FC"
+PROTECTED_RANGE_END_INCLUSIVE = True
 
 sys.path.insert(0, str(ROOT / ".tools" / "capstone"))
 sys.path.insert(0, str(ROOT / ".tools" / "keystone-runtime"))
@@ -1255,6 +1256,14 @@ def _generate_into(output_root: Path) -> dict[str, object]:
         raise RuntimeError("VV4 source manifest/map raw hash pin failed before output")
     manifest = json.loads(manifest_bytes.decode("utf-8-sig"))
     artifact_map = json.loads(map_bytes.decode("utf-8-sig"))
+    manifest_proof = manifest.get("lineage_proof", {})
+    map_proof = artifact_map.get("lineage_proof", {})
+    if (manifest_proof.get("protected_range_end_inclusive") is not PROTECTED_RANGE_END_INCLUSIVE
+            or map_proof.get("protected_range_end_inclusive") is not PROTECTED_RANGE_END_INCLUSIVE):
+        raise RuntimeError("VV4 lineage protected ranges must declare inclusive endpoints explicitly")
+    for proof in (manifest_proof, map_proof):
+        if any("raw_end_exclusive" not in item for item in proof.get("allowed_diff_ranges", [])):
+            raise RuntimeError("VV4 allowed-difference ranges must use explicit exclusive endpoints")
     if manifest["enabled"] or not manifest["catalog_hidden"] or manifest["catalog_enabled"]:
         raise RuntimeError("VV4 Full Heal must remain disabled and catalog-hidden")
     if manifest.get("dependencies") != PARENT_DEPENDENCIES or artifact_map.get("dependencies") != PARENT_DEPENDENCIES:
