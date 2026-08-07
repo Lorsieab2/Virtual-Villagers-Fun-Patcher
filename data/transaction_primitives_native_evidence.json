@@ -1,0 +1,439 @@
+{
+  "schema": "vvfp.transaction_primitives_native_evidence",
+  "version": 1,
+  "flags": {
+    "enabled": false,
+    "publication": false,
+    "native_emission": false,
+    "runtime_verified": false,
+    "player_verified": false
+  },
+  "action_families": [
+    "permanent_tech",
+    "youth",
+    "full_mastery",
+    "running",
+    "age_18",
+    "full_heal"
+  ],
+  "games": {
+    "vv3": {
+      "stock": {
+        "exe_name": "Virtual Villagers - The Secret City.exe",
+        "exe_size": 831488,
+        "exe_sha256": "8BC5DB382D02BC5C21AD5F607580D60FF44A6519CC7EB133F03113BAACAE6503"
+      },
+      "full_folder_sha256": null,
+      "full_folder_file_count": null,
+      "full_folder_verified": false,
+      "eligibility_required_order": [
+        "active",
+        "living",
+        "status"
+      ],
+      "primitives": {
+        "selected_record_identity": {
+          "status": "STOP",
+          "proof": {
+            "function_va": null,
+            "file_offset": null,
+            "guard_bytes": null,
+            "call_convention": null,
+            "registers": null,
+            "stack_cleanup": null,
+            "xrefs": null,
+            "full_folder_provenance": null,
+            "runtime_receipts": []
+          },
+          "direct_store_qualifies": false,
+          "adjacent_skill_writer_qualifies": false
+        },
+        "eligibility_order": {
+          "status": "STOP",
+          "proof": {
+            "function_va": null,
+            "file_offset": null,
+            "guard_bytes": null,
+            "call_convention": null,
+            "registers": null,
+            "stack_cleanup": null,
+            "xrefs": null,
+            "full_folder_provenance": null,
+            "runtime_receipts": []
+          },
+          "direct_store_qualifies": false,
+          "adjacent_skill_writer_qualifies": false
+        },
+        "funds_transaction": {
+          "status": "STOP",
+          "proof": {
+            "function_va": null,
+            "file_offset": null,
+            "guard_bytes": null,
+            "call_convention": null,
+            "registers": null,
+            "stack_cleanup": null,
+            "xrefs": null,
+            "full_folder_provenance": null,
+            "runtime_receipts": []
+          },
+          "direct_store_qualifies": false,
+          "adjacent_skill_writer_qualifies": false
+        },
+        "age_mutation": {
+          "status": "STOP",
+          "proof": {
+            "function_va": null,
+            "file_offset": null,
+            "guard_bytes": null,
+            "call_convention": null,
+            "registers": null,
+            "stack_cleanup": null,
+            "xrefs": null,
+            "full_folder_provenance": null,
+            "runtime_receipts": []
+          },
+          "direct_store_qualifies": false,
+          "adjacent_skill_writer_qualifies": false
+        },
+        "preference_mutation": {
+          "status": "STOP",
+          "proof": {
+            "function_va": null,
+            "file_offset": null,
+            "guard_bytes": null,
+            "call_convention": null,
+            "registers": null,
+            "stack_cleanup": null,
+            "xrefs": null,
+            "full_folder_provenance": null,
+            "runtime_receipts": []
+          },
+          "direct_store_qualifies": false,
+          "adjacent_skill_writer_qualifies": false
+        },
+        "confirmation_result_abi": {
+          "status": "STOP",
+          "proof": {
+            "function_va": null,
+            "file_offset": null,
+            "guard_bytes": null,
+            "call_convention": null,
+            "registers": null,
+            "stack_cleanup": null,
+            "xrefs": null,
+            "full_folder_provenance": null,
+            "runtime_receipts": []
+          },
+          "direct_store_qualifies": false,
+          "adjacent_skill_writer_qualifies": false
+        },
+        "postverify_partial_effect_boundary": {
+          "status": "STOP",
+          "proof": {
+            "function_va": null,
+            "file_offset": null,
+            "guard_bytes": null,
+            "call_convention": null,
+            "registers": null,
+            "stack_cleanup": null,
+            "xrefs": null,
+            "full_folder_provenance": null,
+            "runtime_receipts": []
+          },
+          "direct_store_qualifies": false,
+          "adjacent_skill_writer_qualifies": false
+        }
+      },
+      "semantic_requirements": {
+        "stable_selected_index_manager_record_identity": false,
+        "native_account_getter_deduction_setter_readback_notification": false,
+        "native_age_setter_companion_timer_catchup_oldest": false,
+        "native_like_dislike_setter_readback_queue_notification": false,
+        "native_confirmation_exact_result_abi": false,
+        "postverify_and_partial_effect_boundary": false
+      },
+      "runtime_receipts": [],
+      "status": "STOP"
+    },
+    "vv4": {
+      "stock": {
+        "exe_name": "Virtual Villagers - The Tree of Life.exe",
+        "exe_size": 929792,
+        "exe_sha256": "6D27A429FFCA5F1F71FDD7ECA761ED1BB67E85F976494BA178B3D7BE01F1B220"
+      },
+      "full_folder_sha256": null,
+      "full_folder_file_count": null,
+      "full_folder_verified": false,
+      "eligibility_required_order": [
+        "active",
+        "living",
+        "status"
+      ],
+      "primitives": {
+        "selected_record_identity": {
+          "status": "STOP",
+          "proof": {
+            "function_va": null,
+            "file_offset": null,
+            "guard_bytes": null,
+            "call_convention": null,
+            "registers": null,
+            "stack_cleanup": null,
+            "xrefs": null,
+            "full_folder_provenance": null,
+            "runtime_receipts": []
+          },
+          "direct_store_qualifies": false,
+          "adjacent_skill_writer_qualifies": false
+        },
+        "eligibility_order": {
+          "status": "STOP",
+          "proof": {
+            "function_va": null,
+            "file_offset": null,
+            "guard_bytes": null,
+            "call_convention": null,
+            "registers": null,
+            "stack_cleanup": null,
+            "xrefs": null,
+            "full_folder_provenance": null,
+            "runtime_receipts": []
+          },
+          "direct_store_qualifies": false,
+          "adjacent_skill_writer_qualifies": false
+        },
+        "funds_transaction": {
+          "status": "STOP",
+          "proof": {
+            "function_va": null,
+            "file_offset": null,
+            "guard_bytes": null,
+            "call_convention": null,
+            "registers": null,
+            "stack_cleanup": null,
+            "xrefs": null,
+            "full_folder_provenance": null,
+            "runtime_receipts": []
+          },
+          "direct_store_qualifies": false,
+          "adjacent_skill_writer_qualifies": false
+        },
+        "age_mutation": {
+          "status": "STOP",
+          "proof": {
+            "function_va": null,
+            "file_offset": null,
+            "guard_bytes": null,
+            "call_convention": null,
+            "registers": null,
+            "stack_cleanup": null,
+            "xrefs": null,
+            "full_folder_provenance": null,
+            "runtime_receipts": []
+          },
+          "direct_store_qualifies": false,
+          "adjacent_skill_writer_qualifies": false
+        },
+        "preference_mutation": {
+          "status": "STOP",
+          "proof": {
+            "function_va": null,
+            "file_offset": null,
+            "guard_bytes": null,
+            "call_convention": null,
+            "registers": null,
+            "stack_cleanup": null,
+            "xrefs": null,
+            "full_folder_provenance": null,
+            "runtime_receipts": []
+          },
+          "direct_store_qualifies": false,
+          "adjacent_skill_writer_qualifies": false
+        },
+        "confirmation_result_abi": {
+          "status": "STOP",
+          "proof": {
+            "function_va": null,
+            "file_offset": null,
+            "guard_bytes": null,
+            "call_convention": null,
+            "registers": null,
+            "stack_cleanup": null,
+            "xrefs": null,
+            "full_folder_provenance": null,
+            "runtime_receipts": []
+          },
+          "direct_store_qualifies": false,
+          "adjacent_skill_writer_qualifies": false
+        },
+        "postverify_partial_effect_boundary": {
+          "status": "STOP",
+          "proof": {
+            "function_va": null,
+            "file_offset": null,
+            "guard_bytes": null,
+            "call_convention": null,
+            "registers": null,
+            "stack_cleanup": null,
+            "xrefs": null,
+            "full_folder_provenance": null,
+            "runtime_receipts": []
+          },
+          "direct_store_qualifies": false,
+          "adjacent_skill_writer_qualifies": false
+        }
+      },
+      "semantic_requirements": {
+        "stable_selected_index_manager_record_identity": false,
+        "native_account_getter_deduction_setter_readback_notification": false,
+        "native_age_setter_companion_timer_catchup_oldest": false,
+        "native_like_dislike_setter_readback_queue_notification": false,
+        "native_confirmation_exact_result_abi": false,
+        "postverify_and_partial_effect_boundary": false
+      },
+      "runtime_receipts": [],
+      "status": "STOP"
+    },
+    "vv5": {
+      "stock": {
+        "exe_name": "Virtual Villagers - New Believers.exe",
+        "exe_size": 991232,
+        "exe_sha256": "92946781980220E9D1A2E6C573925519934608F5215F4A0F8CE3B90088C5C65D"
+      },
+      "full_folder_sha256": null,
+      "full_folder_file_count": null,
+      "full_folder_verified": false,
+      "eligibility_required_order": [
+        "faction:+0x1CEC",
+        "active",
+        "living",
+        "status"
+      ],
+      "primitives": {
+        "selected_record_identity": {
+          "status": "STOP",
+          "proof": {
+            "function_va": null,
+            "file_offset": null,
+            "guard_bytes": null,
+            "call_convention": null,
+            "registers": null,
+            "stack_cleanup": null,
+            "xrefs": null,
+            "full_folder_provenance": null,
+            "runtime_receipts": []
+          },
+          "direct_store_qualifies": false,
+          "adjacent_skill_writer_qualifies": false
+        },
+        "eligibility_order": {
+          "status": "STOP",
+          "proof": {
+            "function_va": null,
+            "file_offset": null,
+            "guard_bytes": null,
+            "call_convention": null,
+            "registers": null,
+            "stack_cleanup": null,
+            "xrefs": null,
+            "full_folder_provenance": null,
+            "runtime_receipts": []
+          },
+          "direct_store_qualifies": false,
+          "adjacent_skill_writer_qualifies": false
+        },
+        "funds_transaction": {
+          "status": "STOP",
+          "proof": {
+            "function_va": null,
+            "file_offset": null,
+            "guard_bytes": null,
+            "call_convention": null,
+            "registers": null,
+            "stack_cleanup": null,
+            "xrefs": null,
+            "full_folder_provenance": null,
+            "runtime_receipts": []
+          },
+          "direct_store_qualifies": false,
+          "adjacent_skill_writer_qualifies": false
+        },
+        "age_mutation": {
+          "status": "STOP",
+          "proof": {
+            "function_va": null,
+            "file_offset": null,
+            "guard_bytes": null,
+            "call_convention": null,
+            "registers": null,
+            "stack_cleanup": null,
+            "xrefs": null,
+            "full_folder_provenance": null,
+            "runtime_receipts": []
+          },
+          "direct_store_qualifies": false,
+          "adjacent_skill_writer_qualifies": false
+        },
+        "preference_mutation": {
+          "status": "STOP",
+          "proof": {
+            "function_va": null,
+            "file_offset": null,
+            "guard_bytes": null,
+            "call_convention": null,
+            "registers": null,
+            "stack_cleanup": null,
+            "xrefs": null,
+            "full_folder_provenance": null,
+            "runtime_receipts": []
+          },
+          "direct_store_qualifies": false,
+          "adjacent_skill_writer_qualifies": false
+        },
+        "confirmation_result_abi": {
+          "status": "STOP",
+          "proof": {
+            "function_va": null,
+            "file_offset": null,
+            "guard_bytes": null,
+            "call_convention": null,
+            "registers": null,
+            "stack_cleanup": null,
+            "xrefs": null,
+            "full_folder_provenance": null,
+            "runtime_receipts": []
+          },
+          "direct_store_qualifies": false,
+          "adjacent_skill_writer_qualifies": false
+        },
+        "postverify_partial_effect_boundary": {
+          "status": "STOP",
+          "proof": {
+            "function_va": null,
+            "file_offset": null,
+            "guard_bytes": null,
+            "call_convention": null,
+            "registers": null,
+            "stack_cleanup": null,
+            "xrefs": null,
+            "full_folder_provenance": null,
+            "runtime_receipts": []
+          },
+          "direct_store_qualifies": false,
+          "adjacent_skill_writer_qualifies": false
+        }
+      },
+      "semantic_requirements": {
+        "stable_selected_index_manager_record_identity": false,
+        "native_account_getter_deduction_setter_readback_notification": false,
+        "native_age_setter_companion_timer_catchup_oldest": false,
+        "native_like_dislike_setter_readback_queue_notification": false,
+        "native_confirmation_exact_result_abi": false,
+        "postverify_and_partial_effect_boundary": false
+      },
+      "runtime_receipts": [],
+      "status": "STOP"
+    }
+  }
+}
