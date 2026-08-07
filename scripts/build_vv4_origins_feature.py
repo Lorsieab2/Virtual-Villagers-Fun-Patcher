@@ -31,6 +31,8 @@ HEAL_CAVE_VA = 0x728004
 CURE_ENTRY_FILE_OFFSET = HEAL_CAVE_FILE_OFFSET
 CURE_ENTRY_VA = HEAL_CAVE_VA
 EXPANDED_HEAL_CAVE_VA = 0x85A004
+SHR_STOCK_VA = 0x728000
+SHR_EXPANDED_VA = 0x85A000
 VILLAGE_WIDE_SIGNATURE_VA = 0x728220
 VILLAGE_WIDE_ENTRY_VA = 0x728240
 VILLAGE_PREFLIGHT_FILE_OFFSET = 0xCC180
@@ -38,6 +40,16 @@ VILLAGE_PREFLIGHT_VA = 0x728180
 EXPANDED_VILLAGE_WIDE_ENTRY_VA = 0x85A240
 EXPANDED_VILLAGE_PREFLIGHT_VA = 0x85A180
 RUNNING_PREFERENCE_ID = 38  # exact-build preference-table evidence: 0xA0CD8
+
+# IDA Pro 9.4 decoded the four current-feature absolute operands that are not
+# owned by the generated payload/preflight helpers. They are explicit
+# operands, not results of a raw byte sweep.
+VV4_ALL_FEATURE_ABSOLUTE_RELOCATIONS = (
+    (0x89546, "20827200", 0x489544, 0x728220, 0x85A220),
+    (0xCC1AF, "34827200", 0x7281AD, 0x728234, 0x85A234),
+    (0xCC1B8, "38827200", 0x7281B6, 0x728238, 0x85A238),
+    (0xCC1C1, "3C827200", 0x7281BF, 0x72823C, 0x85A23C),
+)
 
 
 def assemble(source: str, address: int) -> bytes:
@@ -936,6 +948,18 @@ def main() -> None:
                 "purpose": "relocate VV4 Origins village-wide helper call for expanded 256 mode",
             }
         )
+    for offset, before, source_va, target_stock_va, target_expanded_va in VV4_ALL_FEATURE_ABSOLUTE_RELOCATIONS:
+        expanded_shr_relocations.append(
+            {
+                "offset": f"0x{offset:X}",
+                "before": before,
+                "kind": "absolute",
+                "source_virtual_address": f"0x{source_va:X}",
+                "target_stock_virtual_address": f"0x{target_stock_va:X}",
+                "target_expanded_virtual_address": f"0x{target_expanded_va:X}",
+                "purpose": "relocate VV4 current Origins all-feature .shr absolute operand for expanded 256 mode",
+            }
+        )
     patch(
         HEAL_CAVE_FILE_OFFSET,
         b"\0" * len(cure_code),
@@ -1053,8 +1077,8 @@ def main() -> None:
         },
         "patches": patches,
         "expanded_shr_relocations": {
-            "stock_virtual_address": f"0x{HEAL_CAVE_VA:X}",
-            "expanded_virtual_address": f"0x{EXPANDED_HEAL_CAVE_VA:X}",
+            "stock_virtual_address": f"0x{SHR_STOCK_VA:X}",
+            "expanded_virtual_address": f"0x{SHR_EXPANDED_VA:X}",
             "patches": expanded_shr_relocations,
         },
     }

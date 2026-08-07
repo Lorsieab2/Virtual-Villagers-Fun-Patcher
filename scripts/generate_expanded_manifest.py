@@ -10,6 +10,12 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 GAMES = ("vv3", "vv4", "vv5")
+VV4_CURRENT_ORIGINS_SHR_OPERANDS = {
+    "0x20902": {"before": "00807200", "after": "00A08500"},
+    "0x20916": {"before": "00807200", "after": "00A08500"},
+    "0x2092B": {"before": "00807200", "after": "00A08500"},
+    "0x2B036": {"before": "00807200", "after": "00A08500"},
+}
 STOCK_SAVE_COMPATIBILITY = {
     "vv3": [
         {
@@ -226,14 +232,25 @@ def main() -> int:
         for edit in edits:
             if edit["offset"] == checksum_offset:
                 continue
-            patches.append(
-                {
-                    "offset": f"0x{edit['offset']:X}",
-                    "before": struct.pack("<I", edit["old"]).hex().upper(),
-                    "after": struct.pack("<I", edit["new"]).hex().upper(),
-                    "purpose": edit["label"],
-                }
-            )
+            offset = f"0x{edit['offset']:X}"
+            patch = {
+                "offset": offset,
+                "before": struct.pack("<I", edit["old"]).hex().upper(),
+                "after": struct.pack("<I", edit["new"]).hex().upper(),
+                "purpose": edit["label"],
+            }
+            if game_id == "vv4" and offset in VV4_CURRENT_ORIGINS_SHR_OPERANDS:
+                expected = VV4_CURRENT_ORIGINS_SHR_OPERANDS[offset]
+                if patch["before"] != expected["before"] or patch["after"] != expected["after"]:
+                    raise RuntimeError(
+                        f"VV4 current-Origins .shr operand drift at {offset}: "
+                        f"{patch['before']} -> {patch['after']}"
+                    )
+                patch["purpose"] = (
+                    "relocate VV4 current-Origins .shr absolute operand "
+                    "for expanded 256 mode"
+                )
+            patches.append(patch)
         patches.extend(STOCK_SAVE_COMPATIBILITY[game_id])
         patches.extend(REVIEWED_RECORD_BOUNDS[game_id])
         payload["games"][game_id] = {

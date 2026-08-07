@@ -165,8 +165,8 @@
     }
   ],
   "expanded_shr_relocations": {
-    "stock_virtual_address": "0x728004",
-    "expanded_virtual_address": "0x85A004",
+    "stock_virtual_address": "0x728000",
+    "expanded_virtual_address": "0x85A000",
     "patches": [
       {
         "offset": "0x896CC",
@@ -205,6 +205,15 @@
         "purpose": "relocate VV4 Origins .shr helper call for expanded 256 mode"
       },
       {
+        "offset": "0x89546",
+        "before": "20827200",
+        "kind": "absolute",
+        "source_virtual_address": "0x489544",
+        "target_stock_virtual_address": "0x728220",
+        "target_expanded_virtual_address": "0x85A220",
+        "purpose": "relocate VV4 current Origins all-feature .shr absolute operand for expanded 256 mode"
+      },
+      {
         "offset": "0xCC182",
         "before": "20827200",
         "kind": "absolute",
@@ -239,6 +248,33 @@
         "target_stock_virtual_address": "0x728230",
         "target_expanded_virtual_address": "0x85A230",
         "purpose": "relocate VV4 Origins preflight header pointer for expanded 256 mode"
+      },
+      {
+        "offset": "0xCC1AF",
+        "before": "34827200",
+        "kind": "absolute",
+        "source_virtual_address": "0x7281AD",
+        "target_stock_virtual_address": "0x728234",
+        "target_expanded_virtual_address": "0x85A234",
+        "purpose": "relocate VV4 current Origins all-feature .shr absolute operand for expanded 256 mode"
+      },
+      {
+        "offset": "0xCC1B8",
+        "before": "38827200",
+        "kind": "absolute",
+        "source_virtual_address": "0x7281B6",
+        "target_stock_virtual_address": "0x728238",
+        "target_expanded_virtual_address": "0x85A238",
+        "purpose": "relocate VV4 current Origins all-feature .shr absolute operand for expanded 256 mode"
+      },
+      {
+        "offset": "0xCC1C1",
+        "before": "3C827200",
+        "kind": "absolute",
+        "source_virtual_address": "0x7281BF",
+        "target_stock_virtual_address": "0x72823C",
+        "target_expanded_virtual_address": "0x85A23C",
+        "purpose": "relocate VV4 current Origins all-feature .shr absolute operand for expanded 256 mode"
       },
       {
         "offset": "0xCC02A",

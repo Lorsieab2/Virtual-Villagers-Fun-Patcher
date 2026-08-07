@@ -17189,25 +17189,25 @@
           "offset": "0x20902",
           "before": "00807200",
           "after": "00A08500",
-          "purpose": "move absolute .shr reference"
+          "purpose": "relocate VV4 current-Origins .shr absolute operand for expanded 256 mode"
         },
         {
           "offset": "0x20916",
           "before": "00807200",
           "after": "00A08500",
-          "purpose": "move absolute .shr reference"
+          "purpose": "relocate VV4 current-Origins .shr absolute operand for expanded 256 mode"
         },
         {
           "offset": "0x2092B",
           "before": "00807200",
           "after": "00A08500",
-          "purpose": "move absolute .shr reference"
+          "purpose": "relocate VV4 current-Origins .shr absolute operand for expanded 256 mode"
         },
         {
           "offset": "0x2B036",
           "before": "00807200",
           "after": "00A08500",
-          "purpose": "move absolute .shr reference"
+          "purpose": "relocate VV4 current-Origins .shr absolute operand for expanded 256 mode"
         },
         {
           "offset": "0x250",

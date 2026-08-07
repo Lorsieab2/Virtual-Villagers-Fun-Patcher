@@ -1,0 +1,145 @@
+{
+  "schema_version": 1,
+  "game_id": "vv4",
+  "source_sha256": "6D27A429FFCA5F1F71FDD7ECA761ED1BB67E85F976494BA178B3D7BE01F1B220",
+  "status": "static exact-build contract; Expanded-256 publication remains disabled/fail-closed",
+  "publication": {
+    "enabled": false,
+    "modes": [
+      "experimental_expanded_256",
+      "experimental_expanded_256_progression"
+    ],
+    "reason": "No package, launch, save access, conversion/reload, catch-up, or player/runtime GO is asserted by this contract."
+  },
+  "stock_save_compatibility": {
+    "manifest": "data/expanded_256.json",
+    "loader_hook": {
+      "offset": "0x1FC19",
+      "before": "E8C23BFEFF",
+      "after": "E8EF940600",
+      "purpose": "route expanded save loading through a stock-layout compatibility fallback"
+    },
+    "conversion_cave": {
+      "offset": "0x8910D",
+      "length": 102,
+      "before": "00",
+      "required_sequences": [
+        "680C710100",
+        "81C7B8600100",
+        "81C608710100",
+        "B915040000",
+        "B9EA1A0000",
+        "C20C00"
+      ],
+      "purpose": "accept an exact stock VV4 save, move its saved-state tail, and zero the 106 inserted villager records"
+    },
+    "scope": {
+      "stock_payload_size": "0x1710C",
+      "expanded_payload_size": "guarded by the exact loader/prototype manifest",
+      "fallback_behavior": "failed expanded-size validation retries the exact stock payload size; successful stock import converts into the expanded in-memory layout before native validation/conversion continues",
+      "source_file": "not rewritten by a failed size check or fallback load",
+      "reload_and_conversion": "static contract only; save, reload, catch-up, conversion, and player confirmation remain runtime gates"
+    }
+  },
+  "current_origins_shr_absolute_operands": [
+    {
+      "offset": "0x20902",
+      "before": "00807200",
+      "after": "00A08500",
+      "stock_virtual_address": "0x728000",
+      "expanded_virtual_address": "0x85A000",
+      "purpose": "relocate VV4 current-Origins .shr absolute operand for expanded 256 mode"
+    },
+    {
+      "offset": "0x20916",
+      "before": "00807200",
+      "after": "00A08500",
+      "stock_virtual_address": "0x728000",
+      "expanded_virtual_address": "0x85A000",
+      "purpose": "relocate VV4 current-Origins .shr absolute operand for expanded 256 mode"
+    },
+    {
+      "offset": "0x2092B",
+      "before": "00807200",
+      "after": "00A08500",
+      "stock_virtual_address": "0x728000",
+      "expanded_virtual_address": "0x85A000",
+      "purpose": "relocate VV4 current-Origins .shr absolute operand for expanded 256 mode"
+    },
+    {
+      "offset": "0x2B036",
+      "before": "00807200",
+      "after": "00A08500",
+      "stock_virtual_address": "0x728000",
+      "expanded_virtual_address": "0x85A000",
+      "purpose": "relocate VV4 current-Origins .shr absolute operand for expanded 256 mode"
+    }
+  ],
+  "origins_payload_shr_absolute_operands": [
+    {
+      "offset": "0xCC182",
+      "before": "20827200",
+      "stock_virtual_address": "0x728220",
+      "expanded_virtual_address": "0x85A220"
+    },
+    {
+      "offset": "0xCC18E",
+      "before": "24827200",
+      "stock_virtual_address": "0x728224",
+      "expanded_virtual_address": "0x85A224"
+    },
+    {
+      "offset": "0xCC19A",
+      "before": "28827200",
+      "stock_virtual_address": "0x728228",
+      "expanded_virtual_address": "0x85A228"
+    },
+    {
+      "offset": "0xCC1A6",
+      "before": "30827200",
+      "stock_virtual_address": "0x728230",
+      "expanded_virtual_address": "0x85A230"
+    }
+  ],
+  "all_feature_stale_origins_shr_absolute_operands": [
+    {
+      "offset": "0x89546",
+      "before": "20827200",
+      "source_virtual_address": "0x489544",
+      "stock_virtual_address": "0x728220",
+      "expanded_virtual_address": "0x85A220",
+      "purpose": "relocate VV4 current Origins all-feature .shr absolute operand for expanded 256 mode"
+    },
+    {
+      "offset": "0xCC1AF",
+      "before": "34827200",
+      "source_virtual_address": "0x7281AD",
+      "stock_virtual_address": "0x728234",
+      "expanded_virtual_address": "0x85A234",
+      "purpose": "relocate VV4 current Origins all-feature .shr absolute operand for expanded 256 mode"
+    },
+    {
+      "offset": "0xCC1B8",
+      "before": "38827200",
+      "source_virtual_address": "0x7281B6",
+      "stock_virtual_address": "0x728238",
+      "expanded_virtual_address": "0x85A238",
+      "purpose": "relocate VV4 current Origins all-feature .shr absolute operand for expanded 256 mode"
+    },
+    {
+      "offset": "0xCC1C1",
+      "before": "3C827200",
+      "source_virtual_address": "0x7281BF",
+      "stock_virtual_address": "0x72823C",
+      "expanded_virtual_address": "0x85A23C",
+      "purpose": "relocate VV4 current Origins all-feature .shr absolute operand for expanded 256 mode"
+    }
+  ],
+  "runtime_gates": [
+    "fresh player-authorized stock-save import",
+    "expanded save write and reload",
+    "time catch-up and native live-record conversion",
+    "current Origins behavior after relocation",
+    "package and player/runtime confirmation"
+  ]
+}
