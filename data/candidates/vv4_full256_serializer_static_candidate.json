@@ -26,7 +26,16 @@
     "serializer": {"entry_va": 8851456, "preserves": ["EBX","EBP","ESI","EDI"], "return": "AL boolean; ret 4", "bound": 256, "singleton": {"function": "0x41FE70", "compact_base_offset": "0xC868", "null_result": "AL=0"}, "terminator": "write one zero record only when packed_count < 256", "tail_start": "0x1CC60", "instruction_model": ["save EBX EBP ESI EDI", "EBX=packed_count=0; EDI=compact_offset=0; ESI=live+0x44; EBP=256", "for each live record apply stock eligibility tests", "ECX=live; call 0x45EAA0", "call 0x41FE70; test EAX; null -> AL=0 epilogue", "compact=EAX+0xC868+EDI; push compact; ECX=live; call 0x45DB30", "packed_count++; compact_offset+=0x104; live+=0x2E3C", "after 256: if packed_count<256 call singleton, null -> AL=0, then zero 0x104-byte terminator at base+0xC868+packed_count*0x104", "AL=1; restore EDI ESI EBP EBX; ret 4"]},
     "deserializer": {"entry_va": 8851712, "preserves": ["EBX","ESI","EDI"], "return": "AL boolean; ret 4", "bound": 256, "singleton": {"function": "0x41FE70", "compact_base_offset": "0xC868", "null_result": "AL=0"}, "full_256_unterminated": "success without reading record 257 or tail", "instruction_model": ["save EBX ESI EDI", "EDI=live+0x44; EBX=0", "ECX=live; call 0x45D8A0", "call 0x41FE70; test EAX; null -> AL=0 epilogue", "while EBX<256: compact=EAX+0xC868+EBX*0x104", "if compact first byte is zero -> AL=1 epilogue", "push compact; ECX=live; call 0x45DBE0", "EBX++; live+=0x2E3C; repeat", "at EBX=256 return AL=1 without reading index 256 or tail", "restore EDI ESI EBX; ret 4"]}
   },
-  "uninstall": {"order": ["restore serializer hook", "restore deserializer hook", "remove .vv4x header", "truncate to parent size", "restore PE checksum"], "requires_exact_candidate_hash": true, "candidate_sha256": null, "checksum_before": null, "checksum_after": null},
-  "blocked_evidence": ["safe caller propagation of AL failure at 0x41F125 and every deserializer caller", "exact unused section-header preimage at raw 0x2C0", "repository-authenticated final assembled wrapper and section bytes", "candidate PE checksum and final SHA256"],
-  "final": {"serializer_bytes": null, "deserializer_bytes": null, "section_bytes": null, "candidate_sha256": null}
+  "writer_model": {
+    "status": "blocked_pending_d355",
+    "entry": {"ea": "0x4039B0", "raw": 14768, "before": "81EC04020000", "replacement_kind": "complete_entry_e9_rel32_plus_nop", "target": null, "after": null},
+    "placement": "same .vv4x composition page; bare parent only",
+    "atomic_contract": {"temp_create": "sibling CREATE_NEW | WRITE_THROUGH", "required_sequence": ["exact write", "flush", "close", "no-follow reopen", "verify exact header length bounds and tail", "close verified temp"], "final_exists": "ReplaceFileA flags=0", "final_absent": "MoveFileExA MOVEFILE_WRITE_THROUGH without MOVEFILE_REPLACE_EXISTING", "api_resolution": "dynamic", "failure_policy": "fatal process abandon until all callers prove checked failure handling"},
+    "resolver_bytes": null,
+    "page_bytes": null,
+    "final_sha256": null
+  },
+  "uninstall": {"order": ["restore writer hook", "restore serializer hook", "restore deserializer hook", "remove .vv4x header", "truncate to parent size", "restore PE checksum"], "requires_exact_candidate_hash": true, "candidate_sha256": null, "checksum_before": null, "checksum_after": null},
+  "blocked_evidence": ["safe caller propagation of AL failure at 0x41F125 and every deserializer caller", "writer caller failure handling before nonfatal return", "exact unused section-header preimage at raw 0x2C0", "D355 exact dynamic resolver and composed .vv4x page bytes", "repository-authenticated final assembled wrapper writer and section bytes", "candidate PE checksum and final SHA256"],
+  "final": {"serializer_bytes": null, "deserializer_bytes": null, "writer_bytes": null, "section_bytes": null, "candidate_sha256": null}
 }
