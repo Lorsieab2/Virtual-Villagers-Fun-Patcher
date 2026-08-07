@@ -16,6 +16,40 @@ def _items(values) -> list[str]:
     return [str(value).strip() for value in values if str(value).strip()]
 
 
+def _contain_running_claim(text: str) -> str:
+    """Keep generated summaries fail-closed without rewriting pinned candidates."""
+
+    replacements = (
+        (
+            "Grant Running only uses an available normal Likes slot, removes Running from the displayed villager's Dislikes, refuses without charging when all normal Like slots are occupied, and changes no movement-speed value, predicate, or other vanilla speed logic.",
+            "Grant Running is STOP/hidden contract evidence only; the historical helper is not native preference ABI proof and no selectable or runtime-ready Running action is exposed.",
+        ),
+        (
+            "Grant Running only uses an available normal Likes slot on the displayed villager and removes Running from that villager's Dislikes; it refuses without charging when all normal Like slots are occupied and does not alter any movement behavior or speed value.",
+            "Grant Running is STOP/hidden contract evidence only; the withdrawn helper and revised six-slot candidate are not catalog paths, native preference ABI proof, or runtime-ready behavior.",
+        ),
+        (
+            "Grant Running only adds Running to a free normal Like slot and removes it from Dislikes; it refuses without charging when Likes are full and never changes any movement or speed logic or value.",
+            "Grant Running is STOP/hidden contract evidence only; native preference reads/writes, dialog/UI integration, and charge behavior remain unproved, so no selectable or runtime-ready Running action is exposed.",
+        ),
+        (
+            "Grant Running only adds the build-specific Running preference ID (proven at table offset 0xAEF60) to a free normal Like slot and removes that same ID from Dislikes; it never changes movement or speed logic.",
+            "Grant Running is STOP/hidden contract evidence only; the legacy preference helper is not native ABI proof and no selectable or runtime-ready Running action is exposed.",
+        ),
+        (
+            "the certified command-5 Full Heal / Cure All transaction replaces it at 30,000 tech points.",
+            "The historical command-5 Full Heal / Cure All transaction remains candidate-only and blocked behind its withdrawn Running dependency; no public runtime action is exposed.",
+        ),
+        (
+            "Adds Villager Upgrades for Grant Youth, Grant Full Mastery, Grant Running, and Set Age to 18.",
+            "Historical Villager Upgrades labels include Grant Youth, Grant Full Mastery, Grant Running, and Set Age to 18; Grant Running is STOP/hidden provenance only and is not a selectable or runtime-ready action.",
+        ),
+    )
+    for old, new in replacements:
+        text = text.replace(old, new)
+    return text
+
+
 def build_document() -> str:
     patches = load_fun_patches()
     candidate_map_path = ROOT / "data" / "candidates" / "vv3_running_candidate_map.json"
@@ -99,7 +133,7 @@ def build_document() -> str:
         "",
         "Cross-game audit `0311443fbd078e3adcabaf7e693199989ddb9db8`, evidence clarification `a67e05247dc822306e1d5a514524cba388ab4d69`, and final preference matrix `f1555e295e828af2165ab0b7ea9f051ac9736418` place command 6 independently ON HOLD for VV1, VV2, VV4, and VV5 while fixing the logical arrays: VV1 four Like plus four Dislike signed DWORDs, VV2 62 plus 62, and VV3-VV5 three plus three. Signed -1 is empty but never an early terminator; readers scan the complete fixed bound. Running ID 38 was code-confirmed separately in each executable. PC VV2 Fastest Runner option 2 can naturally create duplicate Running Likes through 0x420D22, 0x420D2B, and 0x420D37. The disabled legacy helpers violate the required per-villager atomic order, and VV1/VV2 inspect too few slots. Any already-Running Like must skip the entire villager with zero preference writes, preserving duplicate Likes and every Dislike. Otherwise the first physical -1 must be proved before removing any Running Dislike; full Likes means no mutation; with a destination, insert once and clear every Running Dislike while preserving unrelated slots and ordering. VV5 must reject current faction +0x1CEC != 0 before any preference read/count, while +0x1CE1 is unsafe and unproved. Required future lines are exactly `Skipped over X villagers. Reason: already likes running` and `Removed running dislike from X villagers`; the proposed full-slot line remains future-only pending capacity proof. The main Official LDW Cheat Tables is the primary vanilla-name set; Official LDW Cheat Tables  (Backup!!) backs up Main for recovery/version comparison. Official LDW Cheat Tables - Copy is strong player-confirmed runtime evidence used with renamed/copied base-game executables whose filenames contain - Copy or a variation; translating its addresses still requires fingerprinting the underlying executable and accounting for process/module-name-dependent Cheat Engine scripts. Exact executable evidence controls.",
         "",
-        "VV3 resolution commits `531b0aca8d5bf051f87773e67d48b61c0ba02833` and `1d9a39da078806aa940e4774a9068956e88347bc` close exact ID 38, three Like plus three Dislike DWORD slots at +0xFB4..+0xFC8, sentinel -1, stride 0x1F8C, supplied 150/256 bounds, persistence, the write-only preference interval, atomic ordering, and dry-run/no-charge/final unsigned recheck requirements. Its finalized four future lines begin with `Granted Running to %u villagers`; the exact complete set is recorded below. At that audit stage +0xE94 semantics were still open. Commands 6/7/8 occupy one forbidden 944-byte atomic payload at file 0x7B820 with shared entry 0x7B840/VA 0x47B840; 0x582644 precharges and 0x7B7A0 is only a header check; the three-counter 128-byte ABI lacks granted; hooks 0x6547D/0x65640 and payload 0xA3180 mix unrelated Origins mechanics; command-6-only UI guards and a complete appended-section relocation/uninstall/all-patch ledger are absent.",
+        "VV3 resolution commits `531b0aca8d5bf051f87773e67d48b61c0ba02833` and `1d9a39da078806aa940e4774a9068956e88347bc` record historical static ID 38, three Like plus three Dislike DWORD slots at +0xFB4..+0xFC8, sentinel -1, stride 0x1F8C, supplied 150/256 bounds, and a proposed future transaction contract. These static facts and legacy emitted bytes do not prove native selected-index/resolver, preference read/write, notification, deduction, or rollback ABIs. Its result lines remain future-only. At that audit stage +0xE94 semantics were still open. Commands 6/7/8 occupy one forbidden 944-byte atomic payload at file 0x7B820 with shared entry 0x7B840/VA 0x47B840; the legacy precharge and three-counter ABI remain non-authoritative for the current six-slot contract.",
         "",
         "VV3 second resolution `d1cdeb67362487c1d577e3abae03c9424fd04fb9` specified every architecture item while leaving naturally nonzero +0xE94 as its then-open semantic gate. Exactly eight direct readers exist at 0x455993, 0x4568A3, 0x45C9AA, 0x468D4C, 0x469081, 0x46915C, 0x4692C8, and 0x4697EF; sole direct writer 0x45F2B1 writes zero during retirement/reset. Save/load/copy preserve it, no direct nonzero writer is found, and strong player-confirmed CE tables do not label it. The specified hooks 0x6547D/0x65640 use a Running-only seven-row state, maximum ID 1006, exact command==6 dispatch, 16-byte four-counter structure, and exact lines `Granted Running to %u villagers`, `Skipped over %u villagers. Reason: already likes running`, `Skipped over %u villagers. Reason: all like slots are occupied`, and `Removed running dislike from %u villagers`; at bound 256 they require at most 201 bytes including CRLF/NUL, fitting char[256]. Its former owned/removable transaction model is revoked; current corrective contract `0095e605b3b488129c0623efd642e9352d8586c0` requires repeatable Buy with no ownership-bit access. Stock PE is ImageBase 0x400000, alignments 0x1000/0x1000, five sections, SizeOfHeaders 0x1000, SizeOfImage 0x2DF000, checksum zero, file end 0xCB000, with one section-header slot; expanded moves .shr/.rsrc to 0x3A1000/0x3A2000 and SizeOfImage to 0x3B8000 across 1,263 guards.",
         "",
@@ -115,11 +149,11 @@ def build_document() -> str:
         "",
         "## Origins village-wide atomic-payload containment",
         "",
-        "All five legacy `vvN_origins_village_wide_upgrades` records remain disabled and absent from the catalog, GUI, CLI, Select All, dependency resolution, and rendered outputs because commands 6, 7, and 8 share one unsafe atomic payload. VV2's separate command-7 Full Mastery candidate is statically enabled and catalog-visible only for stock Collection Progression and Immediate Fixed; its runtime/player confirmation remains pending and Expanded-256 rejects before output. Commands 6/8, Remove, Cure, Gong, and Island Event routes remain absent from that candidate. VV3's village-wide command-6 Running remains withdrawn and absent; the separate selected-villager command-2 candidate is static-enabled only after the certified VV3 Full Mastery prerequisite and remains runtime-pending. VV4 audit `628e0d9217b92b9cd695655842b09d74689a0238` and VV5 audit `02581c8f518e27ebd5fc7d2972db5597ab08ed35` keep their mastery commands contained. Disabled legacy manifests retain diagnostic payload bytes but apply none; containment never alters save ownership or issues refunds.",
+        "All five legacy `vvN_origins_village_wide_upgrades` records remain disabled and absent from the catalog, GUI, CLI, Select All, dependency resolution, and rendered outputs because commands 6, 7, and 8 share one unsafe atomic payload. VV2's separate command-7 Full Mastery candidate remains separately scoped; its status does not enable any Running row. Commands 6/8, Remove, Cure, Gong, and Island Event routes remain absent from that candidate. VV3's village-wide command-6 Running remains withdrawn and absent; both the historical selected-villager command-2 candidate and revised six-slot binding are disabled/catalog-hidden and emit no output. VV4 audit `628e0d9217b92b9cd695655842b09d74689a0238` and VV5 audit `02581c8f518e27ebd5fc7d2972db5597ab08ed35` keep their mastery commands contained. Disabled legacy manifests retain diagnostic payload bytes but apply none; containment never alters save ownership or issues refunds.",
         "",
         "## VV3 Full Heal / Cure All candidate",
         "",
-        "The revised VV3 Full Heal / Cure All candidate is enabled and catalog-visible only for certified Collection Progression and Immediate Fixed; implementation is complete at `" + str(full_heal.get("provenance", {}).get("implementation_commit", "not recorded")) + "` with parent `" + str(full_heal.get("provenance", {}).get("implementation_parent_commit", "not recorded")) + "`. Independent static GO reports D209/C213 are recorded without inventing audit or acceptance commit identities; runtime/player validation remains pending. This generated disclosure is sourced from its authoritative candidate manifest.",
+        "The VV3 Full Heal / Cure All candidate is disabled, catalog-hidden, and blocked by its withdrawn historical Running dependency. Its implementation provenance is recorded at `" + str(full_heal.get("provenance", {}).get("implementation_commit", "not recorded")) + "` with parent `" + str(full_heal.get("provenance", {}).get("implementation_parent_commit", "not recorded")) + "`; independent static D209/C213 reports do not authorize catalog exposure or runtime-ready use. This generated disclosure is sourced from its authoritative candidate manifest.",
         "- Partial-write disclosure: "
         + (str(full_heal.get("partial_failure_limit", "not recorded")) if full_heal else "not recorded"),
         "",
@@ -167,12 +201,12 @@ def build_document() -> str:
             raw = patch.raw
             lines.append(f"#### {patch.name} (`{patch.id}`)")
             lines.append("")
-            description = patch.description
+            description = _contain_running_claim(patch.description)
             if patch.id.endswith("_enable_origins_exclusive_features"):
                 description += " Inspired by the Virtual Villagers 1 mobile port, where selected Origins-exclusive upgrades originated; this wording does not claim unsupported mobile parity."
             lines.append(description)
             lines.append("")
-            behavior = _items(raw.get("behavior_changes", [patch.description]))
+            behavior = [_contain_running_claim(item) for item in _items(raw.get("behavior_changes", [patch.description]))]
             exclusions = _items(raw.get("explicit_non_changes", raw.get("exclusions", [])))
             dependencies = _items(raw.get("dependencies", []))
             lines.append("- Behavior changes: " + (" ".join(behavior) or "none declared"))

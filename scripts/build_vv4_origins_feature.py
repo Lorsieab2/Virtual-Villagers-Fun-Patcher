@@ -1024,11 +1024,12 @@ def main() -> None:
             "withdrawn, unavailable, unreachable, and not part of this playtest; Full Heal/Cure "
             "All repair remains pending. The pending doubler contract stacks after exact-build "
             "collectible and Food Mastery adjustments, while Island Event outcomes remain native; "
-            "purchase is unavailable until those paths are proven. "
-            "Adds Villager Upgrades for Grant Youth, Grant Full Mastery, Grant Running, "
-            "and Set Age to 18. Grant Running only adds Running to a free normal Like "
-            "slot and removes it from Dislikes; it refuses without charging when Likes "
-            "are full and never changes any movement or speed logic or value."
+             "purchase is unavailable until those paths are proven. "
+             "Historical Villager Upgrades labels include Grant Youth, Grant Full Mastery, "
+             "Grant Running, and Set Age to 18; Grant Running is STOP/hidden "
+            "contract evidence only; native preference reads/writes, dialog/UI "
+            "integration, and charge behavior remain unproved, so no selectable or "
+            "runtime-ready Running action is exposed."
         ),
         "output_tag": "Origins Exclusive Features",
         "companion_files": [
