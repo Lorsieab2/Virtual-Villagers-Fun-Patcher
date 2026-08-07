@@ -33,7 +33,7 @@ def binding(*, enabled: bool = True) -> RunningBinding:
         enabled=enabled,
         preference_write_abi_proven=enabled,
         deduction_abi_proven=enabled,
-        eligibility_order_proven=enabled,
+        eligibility_order_declared=enabled,
     )
 
 
@@ -146,6 +146,47 @@ class GrantRunningTests(unittest.TestCase):
                 self.assertNotIn("likes", probe.reads)
                 self.assertNotIn("dislikes", probe.reads)
 
+    def test_preference_snapshots_reject_bool_float_and_numeric_string_values(self):
+        cases = (
+            ("likes-bool", "likes", [7, True, 8]),
+            ("likes-float", "likes", [7, -1.0, 8]),
+            ("likes-string", "likes", [7, "-1", 8]),
+            ("dislikes-bool", "dislikes", [38, True, 38]),
+            ("dislikes-float", "dislikes", [38, -1.0, 38]),
+            ("dislikes-string", "dislikes", [38, "-1", 38]),
+        )
+        for label, key, values in cases:
+            with self.subTest(case=label):
+                current = record((7, -1, 8), (38, 9, 38))
+                current[key] = values
+                self.assertFalse(scan_running(current, binding()).eligible)
+
+    def test_preference_readback_rejects_non_exact_ints_before_deduction(self):
+        cases = (
+            ("likes-bool", ([7, True, 8], [38, 9, 38])),
+            ("likes-float", ([7, 38.0, 8], [38, 9, 38])),
+            ("likes-string", ([7, "38", 8], [38, 9, 38])),
+            ("dislikes-bool", ([7, 38, 8], [38, True, 38])),
+            ("dislikes-float", ([7, 38, 8], [38, 9.0, 38])),
+            ("dislikes-string", ([7, 38, 8], [38, "-1", 38])),
+        )
+        for label, snapshot in cases:
+            with self.subTest(case=label):
+                current = record((7, -1, 8), (38, 9, 38))
+                plan = plan_transaction(current, 40_000, True, lambda: (current, 40_000), binding())
+                deductions = []
+                result = apply_plan(
+                    plan,
+                    lambda index, value: None,
+                    lambda index, value: None,
+                    lambda snapshot=snapshot: snapshot,
+                    lambda value: deductions.append(value),
+                )
+                self.assertFalse(result.charged)
+                self.assertEqual(result.charge_status, "not-attempted")
+                self.assertEqual(deductions, [])
+                self.assertIn("No tech points have been deducted.", result.message)
+
     def test_exhaustive_first_empty_slot_permutation_for_every_configured_count(self):
         expected_slots = {"vv1": 4, "vv2": 62, "vv3": 3, "vv4": 3, "vv5": 3}
         checked = 0
@@ -215,7 +256,7 @@ class GrantRunningTests(unittest.TestCase):
                 normalized = binding_from_manifest(raw)
                 self.assertEqual(normalized.game_id, game)
                 self.assertEqual(normalized.slot_count, slot_count)
-                self.assertTrue(normalized.eligibility_order_proven)
+                self.assertTrue(normalized.eligibility_order_declared)
                 self.assertFalse(normalized.commit_enabled)
                 self.assertEqual(raw["status"], "STOP")
                 self.assertFalse(raw["enabled"])

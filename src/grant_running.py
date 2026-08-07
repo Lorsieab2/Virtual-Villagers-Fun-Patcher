@@ -51,7 +51,7 @@ class RunningBinding:
     enabled: bool = False
     preference_write_abi_proven: bool = False
     deduction_abi_proven: bool = False
-    eligibility_order_proven: bool = False
+    eligibility_order_declared: bool = False
 
     def __post_init__(self) -> None:
         if not isinstance(self.game_id, str) or not self.game_id:
@@ -85,7 +85,7 @@ class RunningBinding:
             "enabled",
             "preference_write_abi_proven",
             "deduction_abi_proven",
-            "eligibility_order_proven",
+            "eligibility_order_declared",
         ):
             if type(getattr(self, name)) is not bool:
                 raise ValueError(f"Grant Running {name} must be a boolean")
@@ -100,7 +100,7 @@ class RunningBinding:
             self.enabled
             and self.preference_write_abi_proven
             and self.deduction_abi_proven
-            and self.eligibility_order_proven
+            and self.eligibility_order_declared
         )
 
 
@@ -149,8 +149,10 @@ def binding_from_manifest(raw: Mapping[str, Any]) -> RunningBinding:
         raise ValueError("STOP binding cannot be enabled")
     if raw.get("catalog_enabled") is True and raw.get("enabled") is not True:
         raise ValueError("catalog-enabled binding must also be enabled")
+    # This is ordering metadata only; it is not native selected-index,
+    # resolver, living/status, or VV5 current-believer proof.
     if raw.get("eligibility_gate_order") != "before_preference_access":
-        raise ValueError("binding manifest must prove eligibility before preference access")
+        raise ValueError("binding manifest must declare eligibility ordering before preference access")
     slots = raw.get("preference_slots") or raw.get("slots") or raw.get("preferences")
     if isinstance(slots, Mapping):
         like = slots.get("like") or slots.get("likes") or slots.get("like_slots")
@@ -239,7 +241,7 @@ def binding_from_manifest(raw: Mapping[str, Any]) -> RunningBinding:
             )
         ),
         deduction_abi_proven=native.get("deduction_abi_proven") is True,
-        eligibility_order_proven=raw.get("eligibility_gate_order") == "before_preference_access",
+        eligibility_order_declared=raw.get("eligibility_gate_order") == "before_preference_access",
     )
 
 
@@ -269,7 +271,7 @@ class RunningPlan:
 
 @dataclass(frozen=True)
 class DeductionOutcome:
-    """Explicit atomic result returned by a native deduction adapter."""
+    """Adapter assertion of an atomic deduction result, not independent proof."""
 
     status: str
 
@@ -287,16 +289,30 @@ class ApplyResult:
     charge_status: str = CHARGE_NOT_ATTEMPTED
 
 
-def _int_slots(record: Mapping[str, object], key: str, count: int) -> tuple[int, ...] | None:
-    raw = record.get(key)
+def _exact_slot_values(raw: object, count: int) -> tuple[int, ...] | None:
     if not isinstance(raw, Sequence) or isinstance(raw, (str, bytes, bytearray)):
         return None
     if len(raw) != count:
         return None
-    try:
-        return tuple(int(value) for value in raw)
-    except (TypeError, ValueError, OverflowError):
+    if any(type(value) is not int for value in raw):
         return None
+    return tuple(raw)
+
+
+def _int_slots(record: Mapping[str, object], key: str, count: int) -> tuple[int, ...] | None:
+    return _exact_slot_values(record.get(key), count)
+
+
+def _read_slot_snapshot(
+    read_slots: Callable[[], tuple[Sequence[int], Sequence[int]]],
+    count: int,
+) -> tuple[tuple[int, ...], tuple[int, ...]]:
+    likes, dislikes = read_slots()
+    exact_likes = _exact_slot_values(likes, count)
+    exact_dislikes = _exact_slot_values(dislikes, count)
+    if exact_likes is None or exact_dislikes is None:
+        raise ValueError("native preference readback must contain exact integer slots")
+    return exact_likes, exact_dislikes
 
 
 def _eligible(record: Mapping[str, object], binding: RunningBinding) -> bool:
@@ -430,10 +446,11 @@ def apply_plan(
 ) -> ApplyResult:
     """Apply a committed plan through callbacks with bounded rollback.
 
-    A deduction adapter must return an explicit ``DeductionOutcome``.  An
-    adapter that cannot do that may provide ``read_balance`` so an exception
-    can be classified from balance-before/after readback.  Unknown charge
-    state is never converted into a no-deduction claim.
+    A deduction adapter must return an explicit ``DeductionOutcome``.  This is
+    an adapter assertion; ``read_balance`` supplies independent
+    balance-before/after verification.  An adapter that cannot return an
+    outcome may provide ``read_balance`` so an exception can be classified.
+    Unknown charge state is never converted into a no-deduction claim.
     """
 
     if plan.status != "commit":
@@ -450,7 +467,7 @@ def apply_plan(
         # Dislikes still match the dry-run snapshot before clearing any one.
         likes_after_like = list(plan.before_likes)
         likes_after_like[plan.like_index] = plan.binding.running_id
-        likes, dislikes = read_slots()
+        likes, dislikes = _read_slot_snapshot(read_slots, plan.binding.slot_count)
         if tuple(likes) != tuple(likes_after_like) or tuple(dislikes) != plan.before_dislikes:
             return _rollback(plan, written, read_slots, restore_slot, "postverify-failed")
         for index in plan.dislike_indices:
@@ -460,7 +477,7 @@ def apply_plan(
         return _rollback(plan, written, read_slots, restore_slot, "write-failed")
 
     try:
-        likes, dislikes = read_slots()
+        likes, dislikes = _read_slot_snapshot(read_slots, plan.binding.slot_count)
         if tuple(likes) != plan.after_likes or tuple(dislikes) != plan.after_dislikes:
             return _rollback(plan, written, read_slots, restore_slot, "postverify-failed")
     except Exception:
@@ -582,7 +599,7 @@ def _rollback(
             charge_status=charge_status,
         )
     try:
-        likes, dislikes = read_slots()
+        likes, dislikes = _read_slot_snapshot(read_slots, plan.binding.slot_count)
         if tuple(likes) != plan.after_likes or tuple(dislikes) != plan.after_dislikes:
             return ApplyResult(
                 reason,
@@ -593,7 +610,7 @@ def _rollback(
             )
         for kind, index, value in reversed(written):
             restore_slot(kind, index, value)
-        final_likes, final_dislikes = read_slots()
+        final_likes, final_dislikes = _read_slot_snapshot(read_slots, plan.binding.slot_count)
         if tuple(final_likes) != plan.before_likes or tuple(final_dislikes) != plan.before_dislikes:
             return ApplyResult(
                 reason,
