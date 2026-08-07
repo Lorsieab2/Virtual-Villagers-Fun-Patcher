@@ -10,6 +10,12 @@ PARENTS=(
  ("experimental_expanded_256","657D321B2F1E9E6D6C223DB1FF0BBA38C2D761A97A6E7F21B98CE1826531A848"),
  ("experimental_expanded_256_progression","3A35745C00102A0964DF6E81B77707539C5BDC03501011F43FF1D2809015B211"),
 )
+WRITER_CALLSITES=(
+ ("actions_manager_null","actions","null","0x27C7D","0x427C7D","E8AEB8FDFF","E87E173900"),
+ ("config_village_manager_null","config-village","null","0x27C92","0x427C92","E899B8FDFF","E869173900"),
+ ("actions_manager_nonnull","actions","non-null","0x27D6C","0x427D6C","E8BFB7FDFF","E88F163900"),
+ ("config_village_manager_nonnull","config-village","non-null","0x27D81","0x427D81","E8AAB7FDFF","E87A163900"),
+)
 ABIS=(
  ("drain_record","0x455DD0","0x455E0A","26C8489FBAB307D110D1A8045368ECF16DD12F937F6EDE322097445BF2CEAAB1","thiscall ECX=live; no args; ret; no status"),
  ("manager_getter","0x428B60","0x428BCD","C5B6EE39E6DE419C32D141C5E42037261E26DE253ED38F874EC3FD9E3312E4A0","no args; EAX=singleton or null"),
@@ -42,12 +48,9 @@ def model()->dict[str,object]:
       "caller_failure_gate":{"load_caller_tests_al":True,"save_caller_tests_al":False,"save_caller_patch_raw":None,"save_caller_preimage":None,"save_caller_after":None,"recoverable_failure":False,"reason":"D353 proves save orchestration ignores serializer AL; no exact guarded caller branch dominates the writer."},
       "atomic_writer_plan":{
         "classification":"D354_disabled_plan_pending_D355","stock_writer":"0x403530","wrapper_va":"0x7B9400","wrapper_raw":"0xCC400",
-        "callsites":[
-          {"raw":"0x27C7D","preimage":None,"expected":"E87E173900","emitted":None},
-          {"raw":"0x27C92","preimage":None,"expected":"E869173900","emitted":None},
-          {"raw":"0x27D6C","preimage":None,"expected":"E88F163900","emitted":None},
-          {"raw":"0x27D81","preimage":None,"expected":"E87A163900","emitted":None}
-        ],
+        "callsites":[{"id":i,"action":a,"manager":m,"raw":r,"va":v,"preimage":b,"expected":e,
+                      "validated_parent_sha256":[p[1] for p in PARENTS],"emitted":None}
+                     for i,a,m,r,v,b,e in WRITER_CALLSITES],
         "transaction":["sibling temporary path without numeric save slot","CREATE_NEW plus WRITE_THROUGH","write exact expanded file","flush close and reopen no-follow","verify exact size and authenticated integrity","existing final uses ReplaceFileA flags 0","absent final uses MoveFileExA WRITE_THROUGH without replace-existing","fatal non-returning failure until every caller checks result"],
         "dynamic_api_resolver_bytes":None,"wrapper_bytes":None,"wrapper_sha256":None,"import_changes":None,"enabled":False,"native_output":False,
         "blocker":"D355 must close exact callsite preimages, dynamic API resolver, wrapper bytes, failure path, and caller propagation."
@@ -57,6 +60,12 @@ def model()->dict[str,object]:
     }
 
 def canonical_bytes(value:object)->bytes:return (json.dumps(value,sort_keys=True,separators=(",",":"),ensure_ascii=False)+"\n").encode()
+def validate_writer_callsites(value:dict[str,object])->bool:
+    rows=value["atomic_writer_plan"]["callsites"]
+    expected=[{"id":i,"action":a,"manager":m,"raw":r,"va":v,"preimage":b,"expected":e,
+               "validated_parent_sha256":[p[1] for p in PARENTS],"emitted":None}
+              for i,a,m,r,v,b,e in WRITER_CALLSITES]
+    return rows==expected
 def build()->dict[str,object]:
     value=model();value["canonical_sha256"]=hashlib.sha256(canonical_bytes(value)).hexdigest().upper();return value
 def main(argv=None)->int:

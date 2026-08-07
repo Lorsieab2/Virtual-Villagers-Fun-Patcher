@@ -39,7 +39,18 @@ class Full256StaticCandidateTests(unittest.TestCase):
     def test_d354_writer_plan_exact_and_disabled(self):
         w=self.value["atomic_writer_plan"];self.assertEqual(("0x403530","0x7B9400","0xCC400"),(w["stock_writer"],w["wrapper_va"],w["wrapper_raw"]));self.assertFalse(w["enabled"]);self.assertFalse(w["native_output"])
     def test_d354_calls_are_expectations_not_emission(self):
-        rows=self.value["atomic_writer_plan"]["callsites"];self.assertEqual([("0x27C7D","E87E173900"),("0x27C92","E869173900"),("0x27D6C","E88F163900"),("0x27D81","E87A163900")],[(x["raw"],x["expected"]) for x in rows]);self.assertTrue(all(x["preimage"] is None and x["emitted"] is None for x in rows))
+        rows=self.value["atomic_writer_plan"]["callsites"];self.assertEqual([("0x27C7D","E8AEB8FDFF","E87E173900"),("0x27C92","E899B8FDFF","E869173900"),("0x27D6C","E8BFB7FDFF","E88F163900"),("0x27D81","E8AAB7FDFF","E87A163900")],[(x["raw"],x["preimage"],x["expected"]) for x in rows]);self.assertTrue(all(x["emitted"] is None for x in rows))
+    def test_d356_actions_manager_semantics_and_both_parents(self):
+        rows=self.value["atomic_writer_plan"]["callsites"]
+        self.assertEqual([("actions","null"),("config-village","null"),("actions","non-null"),("config-village","non-null")],[(x["action"],x["manager"]) for x in rows])
+        parents=[p[1] for p in B.PARENTS]
+        self.assertTrue(all(x["validated_parent_sha256"]==parents for x in rows))
+        self.assertTrue(B.validate_writer_callsites(self.value))
+    def test_d356_each_preimage_mutation_fails_closed(self):
+        import copy
+        for index in range(4):
+            changed=copy.deepcopy(self.value);changed["atomic_writer_plan"]["callsites"][index]["preimage"]="00"*5
+            self.assertFalse(B.validate_writer_callsites(changed),index)
     def test_d354_resolver_and_wrapper_blocked(self):
         w=self.value["atomic_writer_plan"];self.assertIsNone(w["dynamic_api_resolver_bytes"]);self.assertIsNone(w["wrapper_bytes"]);self.assertIsNone(w["wrapper_sha256"]);self.assertIsNone(w["import_changes"]);self.assertIn("D355",w["blocker"])
     def test_atomic_contract_has_no_numeric_slot_or_replace_existing(self):
