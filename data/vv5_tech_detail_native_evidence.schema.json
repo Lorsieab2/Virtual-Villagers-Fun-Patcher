@@ -1,31 +1,85 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "vv5_tech_detail_native_evidence.schema.json",
-  "title": "Disabled VV5 Tech and Detail native evidence gate",
+  "title": "Disabled VV5 Tech and Detail authenticated offline evidence gate",
   "type": "object",
   "additionalProperties": false,
   "required": ["id", "game_id", "enabled", "catalog_hidden", "catalog_enabled", "publication_ready", "native_output", "status", "stock", "folder_evidence", "native_contract", "native_proof", "player_receipts", "composition"],
   "properties": {
-    "id": {"const": "vv5_tech_detail_native_evidence_gate"}, "game_id": {"const": "vv5"},
-    "enabled": {"const": false}, "catalog_hidden": {"const": true}, "catalog_enabled": {"const": false},
-    "publication_ready": {"const": false}, "native_output": {"const": false},
+    "id": {"const": "vv5_tech_detail_native_evidence_gate"},
+    "game_id": {"const": "vv5"},
+    "enabled": {"const": false},
+    "catalog_hidden": {"const": true},
+    "catalog_enabled": {"const": false},
+    "publication_ready": {"const": false},
+    "native_output": {"const": false},
     "status": {"const": "pending authenticated full-folder native evidence and player receipts"},
-    "stock": {"$ref": "#/$defs/stock"}, "folder_evidence": {"$ref": "#/$defs/folder"},
-    "native_contract": {"$ref": "#/$defs/contract"}, "native_proof": {"$ref": "#/$defs/proof"},
-    "player_receipts": {"$ref": "#/$defs/receipts"}, "composition": {"$ref": "#/$defs/composition"}
+    "stock": {"$ref": "#/$defs/stock"},
+    "folder_evidence": {"$ref": "#/$defs/folder"},
+    "native_contract": {"$ref": "#/$defs/contract"},
+    "native_proof": {"$ref": "#/$defs/proof"},
+    "player_receipts": {"$ref": "#/$defs/receipts"},
+    "composition": {"$ref": "#/$defs/composition"}
   },
   "$defs": {
     "sha": {"type": "string", "pattern": "^[0-9A-F]{64}$"},
     "nullableSha": {"anyOf": [{"$ref": "#/$defs/sha"}, {"type": "null"}]},
     "nullableHex": {"anyOf": [{"type": "string", "pattern": "^(?:[0-9A-F]{2})+$"}, {"type": "null"}]},
     "nullableVa": {"anyOf": [{"type": "string", "pattern": "^0x[0-9A-F]+$"}, {"type": "null"}]},
-    "stock": {"type": "object", "additionalProperties": false, "required": ["filename", "size", "sha256"], "properties": {"filename": {"const": "Virtual Villagers - New Believers.exe"}, "size": {"const": 991232}, "sha256": {"const": "92946781980220E9D1A2E6C573925519934608F5215F4A0F8CE3B90088C5C65D"}}},
-    "folder": {"type": "object", "additionalProperties": false, "required": ["authenticated", "complete_folder_verified", "inventory_schema", "file_count", "total_size", "unexpected_files", "manifest_sha256", "authentication_receipt_sha256"], "properties": {"authenticated": {"type": "boolean"}, "complete_folder_verified": {"type": "boolean"}, "inventory_schema": {"const": "vvfp.full-folder-inventory.v1"}, "file_count": {"anyOf": [{"type": "integer", "minimum": 1}, {"type": "null"}]}, "total_size": {"anyOf": [{"type": "integer", "minimum": 1}, {"type": "null"}]}, "unexpected_files": {"type": "array", "items": {"type": "string", "minLength": 1}}, "manifest_sha256": {"$ref": "#/$defs/nullableSha"}, "authentication_receipt_sha256": {"$ref": "#/$defs/nullableSha"}}},
-    "contract": {"type": "object", "additionalProperties": false, "required": ["resource", "dimensions", "local", "message", "event", "factory_va", "ownership_va", "tech_constructor_va", "tech_handler_va", "detail_draw_va", "detail_vtable_va", "detail_destructor_va", "detail_input_method_entry_va", "detail_input_method_entry_bytes", "detail_input_stack_locals", "detail_input_nonvolatile_saves", "detail_input_cleanup", "detail_event_method_va", "detail_event_method_entry_bytes", "detail_event_cleanup", "stock_xref_to_7B22C0", "stock_xref_to_7B2600", "candidate_route_va", "candidate_callsite_va", "rejected_candidate_window_flags_pointer_va", "authenticated_window_flags_string_va", "rejected_candidate_requested_symbol"], "properties": {"resource": {"const": "0x6A"}, "dimensions": {"const": [96, 39]}, "local": {"const": [137, 2]}, "message": {"const": 8}, "event": {"const": 13}, "factory_va": {"const": "0x401BD0"}, "ownership_va": {"const": "0x40C680"}, "tech_constructor_va": {"const": "0x4405F0"}, "tech_handler_va": {"const": "0x4415F0"}, "detail_draw_va": {"const": "0x44B250"}, "detail_vtable_va": {"const": "0x49A590"}, "detail_destructor_va": {"const": "0x44B9F0"}, "detail_input_method_entry_va": {"const": "0x44B560"}, "detail_input_method_entry_bytes": {"const": "83EC44535556BD7F03000057BF580300"}, "detail_input_stack_locals": {"const": "0x44"}, "detail_input_nonvolatile_saves": {"const": ["EBX", "EBP", "ESI", "EDI"]}, "detail_input_cleanup": {"const": "ret 0xC"}, "detail_event_method_va": {"const": "0x44BC20"}, "detail_event_method_entry_bytes": {"const": "83EC18A1A8974D00"}, "detail_event_cleanup": {"const": "ret 8"}, "stock_xref_to_7B22C0": {"const": false}, "stock_xref_to_7B2600": {"const": false}, "candidate_route_va": {"type": "null"}, "candidate_callsite_va": {"type": "null"}, "rejected_candidate_window_flags_pointer_va": {"const": "0x7B2A64"}, "authenticated_window_flags_string_va": {"const": "0x7B2A63"}, "rejected_candidate_requested_symbol": {"const": "DL_GetWindowFlags"}}},
-    "proof": {"type": "object", "additionalProperties": false, "required": ["folder_manifest_sha256", "disassembly_artifact_sha256", "instruction_map_sha256", "lifecycle_trace_sha256", "overlap_report_sha256", "constructor_stock_bytes", "constructor_continuation_va", "handler_stock_bytes", "handler_continuation_va", "candidate_executable_sha256", "candidate_folder_manifest_sha256", "candidate_machine_export_sha256", "instruction_boundaries_verified", "thiscall_receiver_verified", "message_abi_verified", "register_stack_preservation_verified", "child_ownership_verified", "child_destructor_verified", "range_overlap_verified", "method_entry_rejected_as_callsite", "event_method_rejected_as_callsite"], "properties": {"folder_manifest_sha256": {"$ref": "#/$defs/nullableSha"}, "disassembly_artifact_sha256": {"$ref": "#/$defs/nullableSha"}, "instruction_map_sha256": {"$ref": "#/$defs/nullableSha"}, "lifecycle_trace_sha256": {"$ref": "#/$defs/nullableSha"}, "overlap_report_sha256": {"$ref": "#/$defs/nullableSha"}, "constructor_stock_bytes": {"$ref": "#/$defs/nullableHex"}, "constructor_continuation_va": {"$ref": "#/$defs/nullableVa"}, "handler_stock_bytes": {"$ref": "#/$defs/nullableHex"}, "handler_continuation_va": {"$ref": "#/$defs/nullableVa"}, "candidate_executable_sha256": {"$ref": "#/$defs/nullableSha"}, "candidate_folder_manifest_sha256": {"$ref": "#/$defs/nullableSha"}, "candidate_machine_export_sha256": {"$ref": "#/$defs/nullableSha"}, "instruction_boundaries_verified": {"type": "boolean"}, "thiscall_receiver_verified": {"type": "boolean"}, "message_abi_verified": {"type": "boolean"}, "register_stack_preservation_verified": {"type": "boolean"}, "child_ownership_verified": {"type": "boolean"}, "child_destructor_verified": {"type": "boolean"}, "range_overlap_verified": {"type": "boolean"}, "method_entry_rejected_as_callsite": {"const": true}, "event_method_rejected_as_callsite": {"const": true}}},
-    "receipt": {"type": "object", "additionalProperties": false, "required": ["mode", "action", "stock_sha256", "folder_manifest_sha256", "click_reached", "dialog_visible", "owner_verified", "centered", "restore_verified", "receipt_sha256"], "properties": {"mode": {"enum": ["windowed", "fullscreen"]}, "action": {"enum": ["tech", "detail"]}, "stock_sha256": {"const": "92946781980220E9D1A2E6C573925519934608F5215F4A0F8CE3B90088C5C65D"}, "folder_manifest_sha256": {"$ref": "#/$defs/sha"}, "click_reached": {"const": true}, "dialog_visible": {"const": true}, "owner_verified": {"const": true}, "centered": {"const": true}, "restore_verified": {"const": true}, "receipt_sha256": {"$ref": "#/$defs/sha"}}},
+    "stock": {
+      "const": {"filename": "Virtual Villagers - New Believers.exe", "size": 991232, "sha256": "92946781980220E9D1A2E6C573925519934608F5215F4A0F8CE3B90088C5C65D"}
+    },
+    "contract": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["resource", "dimensions", "local", "message", "event", "factory_va", "ownership_va", "tech_constructor_va", "tech_handler_va", "detail_draw_va", "detail_vtable_va", "detail_destructor_va", "detail_input_method_entry_va", "detail_input_method_entry_bytes", "detail_input_stack_locals", "detail_input_nonvolatile_saves", "detail_input_cleanup", "detail_event_method_va", "detail_event_method_end_va", "detail_event_method_size", "detail_event_method_sha256", "detail_event_method_entry_bytes", "detail_event_cleanup", "detail_event_vtable_slot_va", "detail_event_message", "detail_event_control_id", "detail_stock_control_fields", "control_inner_id_offset", "control_inner_parent_offset", "detail_constructor_hook_raw", "detail_constructor_receiver", "detail_dispatcher_range", "detail_dispatcher_size", "detail_dispatcher_sha256", "detail_dispatcher_call_range", "detail_dispatch_vtable_offset", "detail_teardown_chain", "stock_xref_to_7B22C0", "stock_xref_to_7B2600", "candidate_route_va", "candidate_callsite_va", "candidate_callsite_raw", "candidate_hook_preimage", "candidate_hook_detour", "candidate_continuation_va", "candidate_guard_message", "candidate_guard_control_id", "candidate_fallback_replay", "offline_install_verified", "offline_uninstall_verified", "hot_uninstall_verified", "rejected_candidate_window_flags_pointer_va", "authenticated_window_flags_string_va", "rejected_candidate_requested_symbol"],
+      "properties": {
+        "resource": {"const": "0x6A"}, "dimensions": {"const": [96, 39]}, "local": {"const": [137, 2]}, "message": {"const": 8}, "event": {"const": 13},
+        "factory_va": {"const": "0x401BD0"}, "ownership_va": {"const": "0x40C680"}, "tech_constructor_va": {"const": "0x4405F0"}, "tech_handler_va": {"const": "0x4415F0"},
+        "detail_draw_va": {"const": "0x44B250"}, "detail_vtable_va": {"const": "0x49A590"}, "detail_destructor_va": {"const": "0x44B9F0"},
+        "detail_input_method_entry_va": {"const": "0x44B560"}, "detail_input_method_entry_bytes": {"const": "83EC44535556BD7F03000057BF580300"}, "detail_input_stack_locals": {"const": "0x44"}, "detail_input_nonvolatile_saves": {"const": ["EBX", "EBP", "ESI", "EDI"]}, "detail_input_cleanup": {"const": "ret 0xC"},
+        "detail_event_method_va": {"const": "0x44BC20"}, "detail_event_method_end_va": {"const": "0x44BD4C"}, "detail_event_method_size": {"const": 300}, "detail_event_method_sha256": {"const": "DE25D2B76DC7E6337F40F06CBF25FCDCEC411BD9D7F1E7DC78406C157501DC74"}, "detail_event_method_entry_bytes": {"const": "83EC18A1A8974D00"}, "detail_event_cleanup": {"const": "ret 8"}, "detail_event_vtable_slot_va": {"const": "0x49A5A0"}, "detail_event_message": {"const": 8}, "detail_event_control_id": {"const": 13},
+        "detail_stock_control_fields": {"const": {"id_1": "+0x58", "id_3": "+0x5C", "id_4": "+0x60"}}, "control_inner_id_offset": {"const": "+0x4"}, "control_inner_parent_offset": {"const": "+0x20"}, "detail_constructor_hook_raw": {"const": "0x4AF12"}, "detail_constructor_receiver": {"const": "ESI"},
+        "detail_dispatcher_range": {"const": "[0x4019B8,0x4019CF)"}, "detail_dispatcher_size": {"const": 23}, "detail_dispatcher_sha256": {"const": "F2EB107944977E8CBCE7CAD450EC6D1D046880727EBDE36A939CF5DC5DDC907F"}, "detail_dispatcher_call_range": {"const": "[0x4019CD,0x4019CF)"}, "detail_dispatch_vtable_offset": {"const": "+0x0C"}, "detail_teardown_chain": {"const": ["0x44B9F0", "0x44AF30", "0x40C7F0", "0x40C830"]},
+        "stock_xref_to_7B22C0": {"const": false}, "stock_xref_to_7B2600": {"const": false},
+        "candidate_route_va": {"const": "0x7B20C0"}, "candidate_callsite_va": {"const": "0x44BC20"}, "candidate_callsite_raw": {"const": "0x4BC20"}, "candidate_hook_preimage": {"const": "83EC18A1A8974D00"}, "candidate_hook_detour": {"const": "E99B643600909090"}, "candidate_continuation_va": {"const": "0x44BC28"}, "candidate_guard_message": {"const": 8}, "candidate_guard_control_id": {"const": 13}, "candidate_fallback_replay": {"const": "83EC18A1A8974D00"}, "offline_install_verified": {"const": true}, "offline_uninstall_verified": {"const": true}, "hot_uninstall_verified": {"const": false},
+        "rejected_candidate_window_flags_pointer_va": {"const": "0x7B2A64"}, "authenticated_window_flags_string_va": {"const": "0x7B2A63"}, "rejected_candidate_requested_symbol": {"const": "DL_GetWindowFlags"}
+      }
+    },
+    "folder": {
+      "type": "object", "additionalProperties": false,
+      "required": ["authenticated", "complete_folder_verified", "inventory_schema", "file_count", "total_size", "unexpected_files", "manifest_sha256", "authentication_receipt_sha256"],
+      "properties": {
+        "authenticated": {"type": "boolean"}, "complete_folder_verified": {"type": "boolean"}, "inventory_schema": {"const": "vvfp.full-folder-inventory.v1"},
+        "file_count": {"anyOf": [{"type": "integer", "minimum": 1}, {"type": "null"}]}, "total_size": {"anyOf": [{"type": "integer", "minimum": 1}, {"type": "null"}]},
+        "unexpected_files": {"type": "array", "items": {"type": "string", "minLength": 1}}, "manifest_sha256": {"$ref": "#/$defs/nullableSha"}, "authentication_receipt_sha256": {"$ref": "#/$defs/nullableSha"}
+      }
+    },
+    "proof": {
+      "type": "object", "additionalProperties": false,
+      "required": ["folder_manifest_sha256", "disassembly_artifact_sha256", "instruction_map_sha256", "lifecycle_trace_sha256", "overlap_report_sha256", "constructor_stock_bytes", "constructor_continuation_va", "handler_stock_bytes", "handler_continuation_va", "candidate_executable_sha256", "candidate_folder_manifest_sha256", "candidate_machine_export_sha256", "instruction_boundaries_verified", "thiscall_receiver_verified", "message_abi_verified", "register_stack_preservation_verified", "child_ownership_verified", "child_destructor_verified", "range_overlap_verified", "method_entry_rejected_as_callsite", "event_method_offline_detour_verified"],
+      "properties": {
+        "folder_manifest_sha256": {"$ref": "#/$defs/nullableSha"}, "disassembly_artifact_sha256": {"$ref": "#/$defs/nullableSha"}, "instruction_map_sha256": {"$ref": "#/$defs/nullableSha"}, "lifecycle_trace_sha256": {"$ref": "#/$defs/nullableSha"}, "overlap_report_sha256": {"$ref": "#/$defs/nullableSha"},
+        "constructor_stock_bytes": {"$ref": "#/$defs/nullableHex"}, "constructor_continuation_va": {"$ref": "#/$defs/nullableVa"}, "handler_stock_bytes": {"$ref": "#/$defs/nullableHex"}, "handler_continuation_va": {"$ref": "#/$defs/nullableVa"},
+        "candidate_executable_sha256": {"$ref": "#/$defs/nullableSha"}, "candidate_folder_manifest_sha256": {"$ref": "#/$defs/nullableSha"}, "candidate_machine_export_sha256": {"$ref": "#/$defs/nullableSha"},
+        "instruction_boundaries_verified": {"type": "boolean"}, "thiscall_receiver_verified": {"type": "boolean"}, "message_abi_verified": {"type": "boolean"}, "register_stack_preservation_verified": {"type": "boolean"}, "child_ownership_verified": {"const": true}, "child_destructor_verified": {"const": true}, "range_overlap_verified": {"type": "boolean"}, "method_entry_rejected_as_callsite": {"const": true}, "event_method_offline_detour_verified": {"const": true}
+      }
+    },
+    "receipt": {
+      "type": "object", "additionalProperties": false,
+      "required": ["mode", "action", "stock_sha256", "folder_manifest_sha256", "click_reached", "dialog_visible", "owner_verified", "centered", "restore_verified", "receipt_sha256"],
+      "properties": {
+        "mode": {"enum": ["windowed", "fullscreen"]}, "action": {"enum": ["tech", "detail"]}, "stock_sha256": {"const": "92946781980220E9D1A2E6C573925519934608F5215F4A0F8CE3B90088C5C65D"}, "folder_manifest_sha256": {"$ref": "#/$defs/sha"}, "click_reached": {"const": true}, "dialog_visible": {"const": true}, "owner_verified": {"const": true}, "centered": {"const": true}, "restore_verified": {"const": true}, "receipt_sha256": {"$ref": "#/$defs/sha"}
+      }
+    },
     "nullableReceipt": {"anyOf": [{"$ref": "#/$defs/receipt"}, {"type": "null"}]},
-    "receipts": {"type": "object", "additionalProperties": false, "required": ["tech_windowed", "tech_fullscreen", "detail_windowed", "detail_fullscreen"], "properties": {"tech_windowed": {"$ref": "#/$defs/nullableReceipt"}, "tech_fullscreen": {"$ref": "#/$defs/nullableReceipt"}, "detail_windowed": {"$ref": "#/$defs/nullableReceipt"}, "detail_fullscreen": {"$ref": "#/$defs/nullableReceipt"}}},
-    "composition": {"type": "object", "additionalProperties": false, "required": ["full_mastery_range", "running_range", "ui_ranges", "full_heal_ranges", "candidate_hooks", "candidate_caves", "patches"], "properties": {"full_mastery_range": {"const": "0xF2000-0xF4000"}, "running_range": {"const": "0xF4000-0xF6000"}, "ui_ranges": {"const": []}, "full_heal_ranges": {"const": []}, "candidate_hooks": {"const": []}, "candidate_caves": {"const": []}, "patches": {"const": []}}}
+    "receipts": {
+      "type": "object", "additionalProperties": false,
+      "required": ["tech_windowed", "tech_fullscreen", "detail_windowed", "detail_fullscreen"],
+      "properties": {"tech_windowed": {"$ref": "#/$defs/nullableReceipt"}, "tech_fullscreen": {"$ref": "#/$defs/nullableReceipt"}, "detail_windowed": {"$ref": "#/$defs/nullableReceipt"}, "detail_fullscreen": {"$ref": "#/$defs/nullableReceipt"}}
+    },
+    "composition": {
+      "const": {"full_mastery_range": "0xF2000-0xF4000", "running_range": "0xF4000-0xF6000", "ui_ranges": [], "full_heal_ranges": [], "candidate_hooks": [], "candidate_caves": [], "patches": []}
+    }
   }
 }

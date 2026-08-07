@@ -27,10 +27,26 @@ CONTRACT = {
     "detail_input_stack_locals": "0x44",
     "detail_input_nonvolatile_saves": ["EBX", "EBP", "ESI", "EDI"],
     "detail_input_cleanup": "ret 0xC", "detail_event_method_va": "0x44BC20",
+    "detail_event_method_end_va": "0x44BD4C", "detail_event_method_size": 300,
+    "detail_event_method_sha256": "DE25D2B76DC7E6337F40F06CBF25FCDCEC411BD9D7F1E7DC78406C157501DC74",
     "detail_event_method_entry_bytes": "83EC18A1A8974D00",
-    "detail_event_cleanup": "ret 8", "stock_xref_to_7B22C0": False,
-    "stock_xref_to_7B2600": False, "candidate_route_va": None,
-    "candidate_callsite_va": None,
+    "detail_event_cleanup": "ret 8", "detail_event_vtable_slot_va": "0x49A5A0",
+    "detail_event_message": 8, "detail_event_control_id": 13,
+    "detail_stock_control_fields": {"id_1": "+0x58", "id_3": "+0x5C", "id_4": "+0x60"},
+    "control_inner_id_offset": "+0x4", "control_inner_parent_offset": "+0x20",
+    "detail_constructor_hook_raw": "0x4AF12", "detail_constructor_receiver": "ESI",
+    "detail_dispatcher_range": "[0x4019B8,0x4019CF)", "detail_dispatcher_size": 23,
+    "detail_dispatcher_sha256": "F2EB107944977E8CBCE7CAD450EC6D1D046880727EBDE36A939CF5DC5DDC907F",
+    "detail_dispatcher_call_range": "[0x4019CD,0x4019CF)", "detail_dispatch_vtable_offset": "+0x0C",
+    "detail_teardown_chain": ["0x44B9F0", "0x44AF30", "0x40C7F0", "0x40C830"],
+    "stock_xref_to_7B22C0": False, "stock_xref_to_7B2600": False,
+    "candidate_route_va": "0x7B20C0", "candidate_callsite_va": "0x44BC20",
+    "candidate_callsite_raw": "0x4BC20", "candidate_hook_preimage": "83EC18A1A8974D00",
+    "candidate_hook_detour": "E99B643600909090", "candidate_continuation_va": "0x44BC28",
+    "candidate_guard_message": 8, "candidate_guard_control_id": 13,
+    "candidate_fallback_replay": "83EC18A1A8974D00",
+    "offline_install_verified": True, "offline_uninstall_verified": True,
+    "hot_uninstall_verified": False,
     "rejected_candidate_window_flags_pointer_va": "0x7B2A64",
     "authenticated_window_flags_string_va": "0x7B2A63",
     "rejected_candidate_requested_symbol": "DL_GetWindowFlags",
@@ -53,7 +69,7 @@ PROOF_KEYS = {
     "message_abi_verified", "register_stack_preservation_verified",
     "child_ownership_verified", "child_destructor_verified",
     "range_overlap_verified", "method_entry_rejected_as_callsite",
-    "event_method_rejected_as_callsite",
+    "event_method_offline_detour_verified",
 }
 RECEIPT_KEYS = {
     "mode", "action", "stock_sha256", "folder_manifest_sha256",
@@ -148,13 +164,15 @@ def validate_evidence(record: object) -> bool:
         "message_abi_verified", "register_stack_preservation_verified",
         "child_ownership_verified", "child_destructor_verified",
         "range_overlap_verified", "method_entry_rejected_as_callsite",
-        "event_method_rejected_as_callsite",
+        "event_method_offline_detour_verified",
     ]
     for key in flags:
         if type(proof[key]) is not bool:
             raise ValueError(f"native_proof.{key} must be exact bool")
-    if proof["method_entry_rejected_as_callsite"] is not True or proof["event_method_rejected_as_callsite"] is not True:
-        raise ValueError("0x44B560 and 0x44BC20 methods must be rejected as unproved candidate callsites")
+    if proof["method_entry_rejected_as_callsite"] is not True:
+        raise ValueError("0x44B560 must remain rejected as an event callsite")
+    if proof["event_method_offline_detour_verified"] is not True:
+        raise ValueError("the exact offline 0x44BC20 event detour must remain verified")
     candidate_complete = bool(all(candidate_hashes))
     proof_complete = bool(byte_complete and continuation_complete and candidate_complete and proof_folder_hash is not None and all(proof_hashes) and all(proof[k] for k in flags))
 
