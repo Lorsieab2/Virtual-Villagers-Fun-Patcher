@@ -1,0 +1,193 @@
+{
+  "schema_version": 1,
+  "id": "vv1_vv2_full_heal_evidence_gate",
+  "name": "VV1/VV2 Full Heal / Cure All Evidence Gate",
+  "status": "STOP",
+  "enabled": false,
+  "catalog_enabled": false,
+  "catalog_hidden": true,
+  "native_output": false,
+  "certification_status": "disabled; repository evidence contract only; no native output or catalog enablement",
+  "evidence_status": "required VV1/VV2 stock-folder, native, transaction, resource, and composition evidence is not present in this gate",
+  "public_choices": [],
+  "legacy_cure_policy": {
+    "label": "Cure all Villagers",
+    "status": "legacy-sickness-only",
+    "is_full_heal_replacement": false,
+    "replacement_catalog_enabled": false,
+    "replacement_native_output": false,
+    "must_be_dominated_before_replacement_price_lookup": true,
+    "must_not_be_described_as_full_heal": true
+  },
+  "replacement_contract": {
+    "label": "Full Heal / Cure All",
+    "command": 5,
+    "price": 30000,
+    "action": "Buy",
+    "repeatable": true,
+    "ownership": null,
+    "remove": false,
+    "overlap_counted_in_both": true,
+    "partial_health_range": "1..99",
+    "health_100_preserved": true,
+    "no_charge_on_failure": true,
+    "rollback_claim": "not claimed"
+  },
+  "wording": {
+    "label": "Full Heal / Cure All",
+    "no_deduction_suffix": "No tech points have been deducted.",
+    "plural_nouns": {
+      "eligible_villager": {
+        "zero": "eligible villagers",
+        "one": "eligible villager",
+        "other": "eligible villagers"
+      },
+      "partial_health_villager": {
+        "zero": "partial-health villagers",
+        "one": "partial-health villager",
+        "other": "partial-health villagers"
+      }
+    },
+    "confirmation": "Full Heal / Cure All will clear sickness from {sick_count} {eligible_villager_noun} and restore full health for {partial_count} {partial_health_villager_noun} for 30,000 tech points?\r\nPress OK to confirm, or Cancel.",
+    "success": "Full Heal / Cure All completed: sickness was cleared from {sick_count} {eligible_villager_noun} and full health was restored for {partial_count} {partial_health_villager_noun}.",
+    "no_change": "No eligible villager requires healing or sickness clearing.\r\nNo tech points have been deducted.",
+    "failure": "Full Heal / Cure All failed after clearing sickness from {sick_count} {eligible_villager_noun} and restoring full health for {partial_count} {partial_health_villager_noun}.\r\nNo tech points have been deducted.\r\nIf native writes begin and a later write or postverification fails, earlier verified health, sickness, or People Cured effects may remain. No tech points are deducted on that failure, but complete rollback of native side effects is not claimed."
+  },
+  "games": {
+    "vv1": {
+      "stock_executable": {
+        "filename": "Virtual Villagers - A New Home.exe",
+        "size": 581632,
+        "sha256": "1EC790B927741081D5CE13A48FB76983A4FD4336EA08F89317872643760AF03D"
+      }
+    },
+    "vv2": {
+      "stock_executable": {
+        "filename": "Virtual Villagers - The Lost Children.exe",
+        "size": 724992,
+        "sha256": "46C1503C209255C9CDEFA941DB2F449C8CF8E2CDD5C7D13CD975326E377ED677"
+      }
+    }
+  },
+  "candidate_schema": {
+    "required_paths": [
+      "schema_version",
+      "game_id",
+      "status",
+      "enabled",
+      "catalog_enabled",
+      "catalog_hidden",
+      "native_output",
+      "evidence_origin",
+      "source_artifacts",
+      "stock",
+      "folder_inventory",
+      "native.health_setter",
+      "native.sickness_people_cured",
+      "native.raw_health_write",
+      "native.postverify",
+      "fullscreen.owner_hwnd_capture",
+      "fullscreen.is_window_validated",
+      "fullscreen.same_process_validated",
+      "fullscreen.monitor_work_area",
+      "fullscreen.center_clamp",
+      "fullscreen.leave_fullscreen",
+      "fullscreen.dialog_message_owner",
+      "fullscreen.restore_window_state",
+      "fullscreen.lifetime_cleanup",
+      "fullscreen.failure_no_mutation",
+      "eligibility.active",
+      "eligibility.living",
+      "eligibility.believer",
+      "eligibility.golden_child",
+      "eligibility.health_positive",
+      "eligibility.partial_health_range",
+      "eligibility.health_100_preserved",
+      "eligibility.sickness_nonzero",
+      "eligibility.physical_enumeration",
+      "counters.predicted_sickness",
+      "counters.predicted_partial_health",
+      "counters.verified_sickness",
+      "counters.verified_partial_health",
+      "counters.overlap_counted_in_both",
+      "counters.prediction_before_deduction",
+      "counters.verified_before_deduction",
+      "transaction.confirmation",
+      "transaction.identity_reacquisition",
+      "transaction.funds_recheck",
+      "transaction.postverify_before_deduction",
+      "transaction.deduction",
+      "transaction.failure",
+      "wording",
+      "resource",
+      "ownership",
+      "legacy_cure_policy"
+    ],
+    "exact_values": {
+      "schema_version": 1,
+      "status": "STOP",
+      "enabled": false,
+      "catalog_enabled": false,
+      "catalog_hidden": true,
+      "native_output": false,
+      "replacement_label": "Full Heal / Cure All",
+      "price": 30000,
+      "command": 5,
+      "remove": false,
+      "partial_health_range": "1..99",
+      "overlap_counted_in_both": true,
+      "no_charge_on_failure": true,
+      "rollback_claim": "not claimed"
+    },
+    "folder_inventory": {
+      "scope": "full-game-folder",
+      "complete": true,
+      "all_dlls": true,
+      "dll_inventory_sha256": "64 uppercase hexadecimal characters",
+      "dll_entry": "relative .dll path, positive size, exact SHA-256"
+    },
+    "native": {
+      "health_setter": "proved native health-to-100 ABI, receiver/arguments, return contract, and side effects",
+      "sickness_people_cured": "proved sickness clear and People Cured increment route with verified timing",
+      "raw_health_write": false,
+      "postverify": "fresh identity-aware readback proves health 100 and sickness 0 before deduction"
+    },
+    "fullscreen": {
+      "owner_hwnd_capture": "captured owner HWND before fullscreen transition",
+      "is_window_validated": true,
+      "same_process_validated": true,
+      "monitor_work_area": "owner monitor work area",
+      "center_clamp": "centered and clamped within work area",
+      "leave_fullscreen": "recorded exact prior fullscreen/window state before dialog",
+      "dialog_message_owner": "dialog and messages owned by the validated game HWND",
+      "restore_window_state": "restored exact prior fullscreen/window state on close",
+      "lifetime_cleanup": "destructor and uninstall release owner state and restore safely",
+      "failure_no_mutation": true
+    },
+    "transaction": {
+      "confirmation": "IDOK-only ABI; Cancel and every non-IDOK result are no-write/no-charge",
+      "identity_reacquisition": "same selected villager and same world/manager identity reacquired after confirmation and before native writes",
+      "funds_recheck": "fresh funds check after confirmation and before exactly one deduction",
+      "postverify_before_deduction": true,
+      "deduction": "one 30,000-point native deduction only after complete postverification",
+      "failure": "no-charge reporting discloses earlier verified partial native effects and claims no complete rollback"
+    },
+    "resource": {
+      "replacement_label": "Full Heal / Cure All",
+      "legacy_label_absent": true,
+      "resource_202_unchanged": true,
+      "candidate_and_parent_hashes": "exact SHA-256 values"
+    },
+    "ownership": {
+      "hook_cave_composition_owner": "explicit owner, ranges, parent identity, removal identity, and collision-fail-closed composition",
+      "hook_preimage_sha256": "exact SHA-256 value",
+      "cave_sha256": "exact SHA-256 value",
+      "composition_order": "explicit dependency order",
+      "expanded_rejected": true,
+      "mode_fingerprint": "exact supported mode fingerprint",
+      "disjoint_ranges": true,
+      "gong_island_unchanged": true
+    }
+  },
+  "evidence_records": []
+}
