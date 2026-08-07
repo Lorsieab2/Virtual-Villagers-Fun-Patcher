@@ -206,6 +206,15 @@ Still missing:
    sparse holes, empty/dead records, pregnancy/birth, death/skeleton, Detail
    navigation, save/reload, and offline catch-up.
 
+The bounded static contract in `src/vv3_expanded_256_contract.py` and
+`tests/test_vv3_expanded_256_contract.py` now pins the reviewed VV3 loader
+bytes, exact stock/expanded save sizes, the 106-record zero gap, logical
+records 0 through 255, and four zero-only padding records. It is a byte-layout
+model and regression guard; it does not execute the native loader, inspect a
+player save, or close any of the runtime blockers above. Its stored-index
+audit deliberately remains `incomplete` with an `unresolved` native sentinel,
+so the public publication gate stays fail-closed.
+
 No Coding artifact may be enabled until the load hang is reduced to an exact
 instruction/call-state cause and the stored-index audit is closed.
 
