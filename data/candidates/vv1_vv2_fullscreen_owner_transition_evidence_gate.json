@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "id": "vv1_vv2_fullscreen_owner_transition_evidence_gate",
+  "name": "VV1/VV2 Fullscreen Owner Transition Evidence Gate",
+  "status": "STOP",
+  "enabled": false,
+  "catalog_enabled": false,
+  "catalog_hidden": true,
+  "publication": false,
+  "player_ready": false,
+  "runtime_certified": false,
+  "native_output": false,
+  "oracle_enablement_allowed": false,
+  "public_choices": [],
+  "evidence_records": [],
+  "schema_path": "data/candidates/vv1_vv2_fullscreen_owner_transition_evidence.schema.json",
+  "oracle": {
+    "path": "data/candidates/vv1_vv2_fullscreen_safe_candidate.json",
+    "sha256": "7BB3DC74824B71B52E9C868D8A1C68EB9BC5AFE3708530E8B2F8BBC7C308EBD2",
+    "status": "disabled-static-oracle-only",
+    "static_evidence": true,
+    "runtime_evidence": false,
+    "enablement_evidence": false,
+    "bytes_accepted_for_enablement": false
+  },
+  "games": {
+    "vv1": {"filename": "Virtual Villagers - A New Home.exe", "size": 581632, "sha256": "1EC790B927741081D5CE13A48FB76983A4FD4336EA08F89317872643760AF03D"},
+    "vv2": {"filename": "Virtual Villagers - The Lost Children.exe", "size": 724992, "sha256": "46C1503C209255C9CDEFA941DB2F449C8CF8E2CDD5C7D13CD975326E377ED677"}
+  },
+  "required_routes": ["tech", "detail", "isolated_full_mastery", "future_full_heal", "modal_result"],
+  "required_modes": ["windowed", "fullscreen"],
+  "required_results": ["cancel", "no_op", "success", "failure", "foreground_change", "restore_failure"],
+  "destination_dll": "VVFP Origins Icons.dll",
+  "ownership_policy": "Origins owns the shared append page; dependent Full Mastery and future modal compositions uninstall in reverse dependency order before Origins truncation",
+  "evidence_status": "empty; exact native, identity, ownership, and windowed/fullscreen runtime receipts remain missing",
+  "remaining_gaps": [
+    "complete stock-folder and DLL inventories",
+    "exact native SDL/Win32 owner and transition ABIs",
+    "fresh identity and return-preservation proof",
+    "TLS/POD cleanup and destructor proof",
+    "exact composition ranges and uninstall receipts",
+    "all windowed/fullscreen route-result receipts"
+  ]
+}
