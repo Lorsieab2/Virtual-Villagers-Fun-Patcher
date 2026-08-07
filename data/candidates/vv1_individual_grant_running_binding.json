@@ -1,0 +1,105 @@
+{
+  "schema_version": 1,
+  "id": "vv1_individual_grant_running_binding",
+  "game_id": "vv1",
+  "status": "STOP",
+  "enabled": false,
+  "catalog_enabled": false,
+  "catalog_hidden": true,
+  "catalog_status": "catalog-hidden and disabled",
+  "exact_build": {
+    "file_name": "Virtual Villagers - A New Home.exe",
+    "size": 581632,
+    "sha256": "1EC790B927741081D5CE13A48FB76983A4FD4336EA08F89317872643760AF03D",
+    "running_id": 38,
+    "preference_table_file_offset": "0x7B260"
+  },
+  "record_identity": {
+    "stride": "0x3D8",
+    "physical_bound": 256,
+    "selected_index_offset": "0xAD34",
+    "selected_index_bound": "0 <= index < 0x100",
+    "existing_record_base": "[detail_context+0x10] + selected_index * 0x3D8",
+    "identity": "selected index plus resolved record pointer",
+    "reacquire_requirement": "reacquire the same selected index and record identity before write and postverify",
+    "native_resolver_reacquire_abi": "unproved"
+  },
+  "slots": {
+    "value_type": "signed DWORD",
+    "empty_value": -1,
+    "likes": {
+      "base_offset": "0x398",
+      "offsets": ["0x398", "0x39C", "0x3A0", "0x3A4"],
+      "count": 4,
+      "scan": "scan all four physical Like slots; -1 is not an early terminator"
+    },
+    "dislikes": {
+      "base_offset": "0x3A8",
+      "offsets": ["0x3A8", "0x3AC", "0x3B0", "0x3B4"],
+      "count": 4,
+      "scan": "scan all four physical Dislike slots; -1 is not an early terminator"
+    }
+  },
+  "eligibility_gate": {
+    "selected_villager": "selected index is in 0..255 and resolves to the displayed record",
+    "active": "signed/byte record+0x28 != 0",
+    "living": "signed DWORD record+0x344 > 0",
+    "status_or_faction": "no additional VV1 status or faction discriminator is claimed",
+    "vv5_faction_gate": {
+      "applicable": false,
+      "required_if_vv5": "record+0x1CEC == 0 before any preference read or count"
+    }
+  },
+  "transaction_contract": {
+    "command": 2,
+    "action": "Buy",
+    "price": 40000,
+    "repeatable": true,
+    "ownership": null,
+    "remove": false,
+    "dry_run": "complete dry-run reads all four Likes and all four Dislikes before confirmation; it performs no writes and no charge",
+    "already_running": "any Running Like is a whole-record zero-write/no-charge skip; preserve duplicate Running Likes and every Dislike",
+    "destination": "otherwise prove the first physical -1 Like slot before any Dislike write",
+    "full_likes": "no empty Like slot is a zero-write/no-charge result and leaves all Dislikes unchanged",
+    "commit_writes": "after destination proof, write Running ID 38 once to the first physical -1 Like and clear every Running Dislike to -1; preserve unrelated slots and ordering",
+    "dislike_order": "every Running Dislike is cleared only after a destination Like is proven",
+    "confirmation": "confirm Grant Running for 40,000 tech points only after the dry-run and funds check",
+    "reacquire": "reacquire the selected index and record identity, eligibility, and the complete eight-slot snapshot before mutation",
+    "postverify": "postverify the complete eight-slot result and funds immediately before the deduction",
+    "one_charge": "one-charge phase: deduct exactly 40,000 tech points once, only after successful postverify",
+    "no_deduction_text": "No tech points have been deducted.",
+    "rollback_limit": "No complete rollback is claimed: without a proven native preference-write ABI and stable reacquire ABI, a failed write/readback must make no charge and disclose any retained per-slot effects rather than claiming restoration"
+  },
+  "native_abi_proof_status": {
+    "overall": "STOP",
+    "preference_write": {
+      "status": "UNPROVED",
+      "complete": false,
+      "existing_path": "current VV1 detail source uses direct DWORD stores and scans only three slots",
+      "native_preference_write_api": "not proven in the exact-build evidence",
+      "native_readback_api": "not proven in the exact-build evidence"
+    },
+    "tech_account": {
+      "status": "UNPROVED",
+      "account_field": "state+0xA2FC",
+      "known_native_positive_award_writer": "0x41D120",
+      "native_spending_or_deduction_api": "not proven in the exact-build evidence",
+      "direct_subtract_is_not_abi_proof": true
+    },
+    "selected_villager": {
+      "status": "PARTIAL_ONLY",
+      "known_path": "detail handler reads state+0xAD34 and computes [detail_context+0x10] + index * 0x3D8",
+      "stable_identity_reacquire_api": "not proven"
+    }
+  },
+  "evidence": {
+    "sources": [
+      "docs/origins-village-wide-upgrades.md",
+      "docs/origins-playtest-readiness.md",
+      "docs/transparency-log.md",
+      "data/vv1_origins_village_wide_upgrades.json",
+      "scripts/build_vv1_origins_feature.py"
+    ],
+    "audit_notes": "Cross-game preference-matrix evidence fixes VV1 at four Like plus four Dislike DWORDs; the existing VV1 helper is not a complete implementation of that contract."
+  }
+}
