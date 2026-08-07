@@ -17,6 +17,7 @@ from typing import Callable, Literal
 
 
 IDOK = 1
+CANCEL_RESULTS = (0, 2)
 RUNNING_PREFERENCE = 38
 EMPTY_PREFERENCE = -1
 NO_DEDUCTION = "No tech points have been deducted."
@@ -54,6 +55,41 @@ class VV5Villager:
     skills: tuple[float, ...] = (100.0, 100.0, 100.0, 100.0, 100.0, 100.0)
     likes: tuple[int, ...] = (EMPTY_PREFERENCE, EMPTY_PREFERENCE, EMPTY_PREFERENCE)
     dislikes: tuple[int, ...] = (EMPTY_PREFERENCE, EMPTY_PREFERENCE, EMPTY_PREFERENCE)
+
+    def __post_init__(self) -> None:
+        """Reject lossy/coercible reference states at the model boundary."""
+
+        exact_ints = {
+            "index": self.index,
+            "health": self.health,
+            "faction": self.faction,
+            "age": self.age,
+            "age_companion": self.age_companion,
+            "age_timer": self.age_timer,
+        }
+        for field, value in exact_ints.items():
+            if type(value) is not int:
+                raise TypeError(f"{field} must be an exact int")
+        for field, value in {
+            "active": self.active,
+            "heathen_active": self.heathen_active,
+        }.items():
+            if type(value) is not bool:
+                raise TypeError(f"{field} must be an exact bool")
+        for field, value in {"identity": self.identity, "record_pointer": self.record_pointer}.items():
+            if type(value) is not str or not value:
+                raise TypeError(f"{field} must be a non-empty identity string")
+        if type(self.skills) is not tuple or len(self.skills) != 6:
+            raise TypeError("skills must be an exact six-item tuple")
+        if any(type(value) is not float for value in self.skills):
+            raise TypeError("skills must contain exact Float32-like floats")
+        if any(not math.isfinite(value) for value in self.skills):
+            raise ValueError("skills must contain finite values")
+        for field, values in {"likes": self.likes, "dislikes": self.dislikes}.items():
+            if type(values) is not tuple or len(values) != 3:
+                raise TypeError(f"{field} must be an exact three-item tuple")
+            if any(type(value) is not int for value in values):
+                raise TypeError(f"{field} must contain exact ints")
 
 
 @dataclass(frozen=True)
@@ -106,9 +142,13 @@ def transaction_contracts() -> dict[Action, dict[str, object]]:
             "reference postverify only; native readback remains separately disabled",
             "verify one reference charge outcome and exact funds delta",
         ],
+        "confirmation_results": {"idok": IDOK, "cancel": list(CANCEL_RESULTS)},
         "record_reacquire": "same selected index and exact record pointer",
         "pre_confirmation_snapshot": "exact snapshot equality before any native write",
         "funds_reacquire": "post-confirmation funds must equal the pre-confirmation amount immediately before any write",
+        "required_callbacks": ["before_reacquire", "before_funds_reacquire"],
+        "before_reacquire": "mandatory callable returning the same-index, same-record-pointer snapshot",
+        "before_funds_reacquire": "mandatory callable returning the exact post-confirmation funds snapshot",
         "charge_verification": "reference charge outcome is verified and final funds equal original funds minus exact action price",
         "native_effects": "reference-only; no native write, native readback, or rollback is implemented or implied",
         "no_charge_suffix": NO_DEDUCTION,
@@ -185,6 +225,10 @@ def _eligible(villager: VV5Villager) -> bool:
 def dry_run(villager: VV5Villager, action: Action) -> DryRun:
     """Read and validate one selected villager without changing any field."""
 
+    if type(villager) is not VV5Villager:
+        raise TypeError("villager must be a VV5Villager")
+    if type(action) is not str or action not in _PRICES:
+        raise ValueError(f"unknown VV5 individual action: {action}")
     snapshot = _snapshot(villager)
     if not _eligible(villager):
         return DryRun(action, False, False, "invalid_selection", snapshot)
@@ -233,9 +277,6 @@ def dry_run(villager: VV5Villager, action: Action) -> DryRun:
     if action == "age_18":
         changed = villager.age != 360
         return DryRun(action, True, changed, "changed" if changed else "no_change", snapshot)
-
-    raise ValueError(f"unknown VV5 individual action: {action}")
-
 
 def _set_age(villager: VV5Villager, target: int) -> VV5Villager:
     delta = target - villager.age
@@ -300,18 +341,46 @@ def _postverify(before: VV5Villager, after: VV5Villager, plan: DryRun) -> bool:
     return False
 
 
+def _verify_reference_charge(before_funds: int, after_funds: int, price: int) -> bool:
+    """Verify arithmetic only; this is not a native charge/readback."""
+
+    return (
+        type(before_funds) is int
+        and type(after_funds) is int
+        and type(price) is int
+        and before_funds >= price
+        and before_funds - after_funds == price
+        and after_funds == before_funds - price
+    )
+
+
 def execute(
     villager: VV5Villager,
     funds: int,
     action: Action,
     confirm_result: int,
     *,
-    before_reacquire: Callable[[VV5Villager], VV5Villager] | None = None,
-    before_funds_reacquire: Callable[[int], int] | None = None,
+    before_reacquire: Callable[[VV5Villager], VV5Villager],
+    before_funds_reacquire: Callable[[int], int],
     force_postverify_failure: bool = False,
     force_charge_failure: bool = False,
 ) -> TransactionResult:
     """Run the complete transaction boundary without mutating the input."""
+
+    if type(villager) is not VV5Villager:
+        raise TypeError("villager must be a VV5Villager")
+    if type(funds) is not int:
+        raise TypeError("funds must be an exact int")
+    if type(confirm_result) is not int:
+        raise TypeError("confirm_result must be an exact int")
+    if confirm_result != IDOK and confirm_result not in CANCEL_RESULTS:
+        raise ValueError("confirm_result must be exact IDOK or Cancel/close")
+    if not callable(before_reacquire):
+        raise TypeError("before_reacquire is mandatory and must be callable")
+    if not callable(before_funds_reacquire):
+        raise TypeError("before_funds_reacquire is mandatory and must be callable")
+    if type(force_postverify_failure) is not bool or type(force_charge_failure) is not bool:
+        raise TypeError("force flags must be exact bools")
 
     plan = dry_run(villager, action)
     price = _PRICES[action]
@@ -337,7 +406,9 @@ def execute(
     if confirm_result != IDOK:
         return result("cancelled", villager, f"The upgrade was canceled.\r\n{NO_DEDUCTION}")
 
-    reacquired = before_reacquire(villager) if before_reacquire is not None else villager
+    reacquired = before_reacquire(villager)
+    if type(reacquired) is not VV5Villager:
+        raise TypeError("before_reacquire must return a VV5Villager")
     if reacquired.index != villager.index or reacquired.record_pointer != villager.record_pointer:
         return result("recheck_failed", reacquired, f"The selected villager changed during confirmation.\r\n{NO_DEDUCTION}")
     if _snapshot(reacquired) != plan.snapshot:
@@ -346,7 +417,9 @@ def execute(
     if not second_plan.valid or not second_plan.changed:
         return result("recheck_failed", reacquired, f"The selected villager changed during confirmation.\r\n{NO_DEDUCTION}")
 
-    confirmed_funds = before_funds_reacquire(funds) if before_funds_reacquire is not None else funds
+    confirmed_funds = before_funds_reacquire(funds)
+    if type(confirmed_funds) is not int:
+        raise TypeError("before_funds_reacquire must return an exact int")
     if confirmed_funds != funds or confirmed_funds < price:
         return result(
             "funds_recheck_failed",
@@ -363,11 +436,14 @@ def execute(
         return result("charge_failed", reacquired, f"The tech-point charge could not be verified.\r\n{NO_DEDUCTION}")
 
     # Reference arithmetic only: native charge/write/readback/rollback are not performed here.
+    charged_funds = confirmed_funds - price
+    if not _verify_reference_charge(confirmed_funds, charged_funds, price):
+        return result("charge_failed", reacquired, f"The tech-point charge could not be verified.\r\n{NO_DEDUCTION}")
     return TransactionResult(
         action,
         "committed",
         mutated,
-        confirmed_funds - price,
+        charged_funds,
         True,
         True,
         "Upgrade committed.",
