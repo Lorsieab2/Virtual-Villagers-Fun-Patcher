@@ -1,7 +1,12 @@
 from __future__ import annotations
 
 import copy
+import json
+from pathlib import Path
+import tempfile
 import unittest
+from types import SimpleNamespace
+from unittest import mock
 
 from vv3_expanded_256_contract import VV3_RECORD_BOUND_PATCHES, VV3_STOCK_SAVE_PATCHES
 from vv3_expanded_256_evidence import (
@@ -14,7 +19,10 @@ from vv3_expanded_256_evidence import (
     VV3_REQUIRED_PATCHES,
     VV3_SOURCE_SHA256,
     VV3_STOCK_SIZE,
+    canonical_json_bytes,
+    inventory_evidence_file,
     publication_ready_with_evidence,
+    validate_evidence_file,
     validate_vv3_evidence,
 )
 
@@ -156,6 +164,8 @@ def _bundle() -> dict:
                 "ambiguous": False,
                 "incomplete": True,
                 "kind": "unit-fixture",
+                "path": "captures/unit-capture.json",
+                "size": 1,
                 "sha256": "0" * 64,
             }
         ],
@@ -189,6 +199,14 @@ class VV3Expanded256EvidenceTests(unittest.TestCase):
         self.assertFalse(result.static_valid)
         self.assertTrue(any("duplicate claim" in error for error in result.errors))
         self.assertTrue(any("is duplicated" in error for error in result.errors))
+
+    def test_duplicate_xref_ea_fails_closed(self) -> None:
+        bundle = _bundle()
+        xrefs = bundle["coverage"]["loader_abi_branches"]["claims"][0]["observations"][0]["xrefs"]
+        xrefs.append(copy.deepcopy(xrefs[0]))
+        result = validate_vv3_evidence(bundle)
+        self.assertFalse(result.static_valid)
+        self.assertTrue(any("xrefs contains duplicate EA" in error for error in result.errors))
 
     def test_synthetic_ambiguous_and_incomplete_evidence_is_rejected(self) -> None:
         bundle = _bundle()
@@ -232,6 +250,102 @@ class VV3Expanded256EvidenceTests(unittest.TestCase):
 
     def test_contract_patch_sets_are_not_mutated_by_evidence_tooling(self) -> None:
         self.assertEqual(set(VV3_STOCK_SAVE_PATCHES) | set(VV3_RECORD_BOUND_PATCHES), set(VV3_REQUIRED_PATCHES))
+
+    def test_duplicate_json_keys_fail_before_canonical_validation(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "evidence.json"
+            path.write_bytes(b'{"schema":"vvfp.vv3_expanded_256_evidence","schema":"vvfp.vv3_expanded_256_evidence"}')
+            with self.assertRaisesRegex(ValueError, "duplicate JSON object key"):
+                from vv3_expanded_256_evidence import load_evidence
+
+                load_evidence(path)
+
+    def test_bool_values_cannot_coerce_into_integer_contract_fields(self) -> None:
+        bundle = _bundle()
+        bundle["schema_version"] = True
+        bundle["ida_export"]["decoded_instruction_heads"] = True
+        bundle["coverage"]["stored_index_width_sentinel_paths"]["claims"][0]["sentinel"] = {
+            "kind": "value",
+            "value": True,
+        }
+        result = validate_vv3_evidence(bundle)
+        self.assertFalse(result.static_valid)
+        self.assertTrue(any("schema_version must be an integer" in error for error in result.errors))
+        self.assertTrue(any("decoded_instruction_heads must be an integer" in error for error in result.errors))
+        self.assertTrue(any("sentinel.value must be an integer" in error for error in result.errors))
+
+    def test_catalog_paths_are_relative_canonical_and_non_reparse_like(self) -> None:
+        for invalid in ("../escape.json", "/absolute.json", "C:/absolute.json", "//?/C:/escape.json", "captures\\evidence.json"):
+            with self.subTest(invalid=invalid):
+                bundle = _bundle()
+                bundle["runtime_evidence"][0]["path"] = invalid
+                result = validate_vv3_evidence(bundle)
+                self.assertFalse(result.runtime_ready)
+                self.assertFalse(result.valid)
+                self.assertTrue(any("runtime_gates.evidence_catalog[0].path is invalid" in error for error in result.errors))
+
+    def test_extra_schema_keys_fail_closed_at_nested_boundaries(self) -> None:
+        bundle = _bundle()
+        bundle["ida_export"]["unexpected"] = "reject me"
+        bundle["coverage"]["loader_abi_branches"]["claims"][0]["abi"]["unexpected"] = "reject me"
+        bundle["runtime_evidence"][0]["unexpected"] = "reject me"
+        result = validate_vv3_evidence(bundle)
+        self.assertFalse(result.static_valid)
+        self.assertTrue(any("ida_export contains unknown keys" in error for error in result.errors))
+        self.assertTrue(any(".abi contains unknown keys" in error for error in result.errors))
+        self.assertTrue(any("evidence_catalog[0] contains unknown keys" in error for error in result.errors))
+
+    def test_one_artifact_hash_cannot_satisfy_multiple_runtime_gates(self) -> None:
+        bundle = _bundle()
+        for gate in bundle["runtime_gates"].values():
+            gate.update({"status": "verified", "incomplete": False, "evidence_ids": ["unit-capture"]})
+        result = validate_vv3_evidence(bundle)
+        self.assertFalse(result.runtime_ready)
+        self.assertTrue(any("reused across gates" in error for error in result.errors))
+
+    def test_reordered_json_is_not_accepted_as_canonical_evidence(self) -> None:
+        bundle = {"z": 1, "a": 2}
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "reordered.json"
+            path.write_text(json.dumps(bundle, separators=(",", ":")), encoding="utf-8")
+            with self.assertRaisesRegex(ValueError, "canonical key ordering"):
+                from vv3_expanded_256_evidence import load_evidence
+
+                load_evidence(path)
+            path.write_bytes(canonical_json_bytes(bundle))
+            from vv3_expanded_256_evidence import load_evidence
+
+            self.assertEqual(load_evidence(path), bundle)
+
+    def test_file_identity_mismatch_after_hash_read_fails_closed(self) -> None:
+        before = SimpleNamespace(st_mode=0o100644, st_dev=1, st_ino=2, st_size=3, st_mtime_ns=4, st_ctime_ns=5)
+        after = SimpleNamespace(st_mode=0o100644, st_dev=1, st_ino=99, st_size=3, st_mtime_ns=4, st_ctime_ns=5)
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            path = root / "capture.json"
+            path.write_bytes(b"abc")
+            with mock.patch("vv3_expanded_256_evidence.os.fstat", side_effect=[before, after]):
+                with self.assertRaisesRegex(ValueError, "changed during hash read"):
+                    inventory_evidence_file(Path("capture.json"), root=root)
+
+    def test_evidence_file_mutation_between_inventory_read_and_validation_fails_closed(self) -> None:
+        bundle = _bundle()
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "evidence.json"
+            path.write_bytes(canonical_json_bytes(bundle))
+            original_validate = validate_vv3_evidence
+
+            def mutate_after_read(value: dict) -> object:
+                result = original_validate(value)
+                mutated = copy.deepcopy(value)
+                mutated["ida_export"]["references"] = [{"mutation": True}]
+                path.write_bytes(canonical_json_bytes(mutated))
+                return result
+
+            with mock.patch("vv3_expanded_256_evidence.validate_vv3_evidence", side_effect=mutate_after_read):
+                result = validate_evidence_file(path)
+            self.assertFalse(result.valid)
+            self.assertTrue(any("changed between inventory, read, and validation" in error for error in result.errors))
 
 
 if __name__ == "__main__":

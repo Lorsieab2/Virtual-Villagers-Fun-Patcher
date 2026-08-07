@@ -48,15 +48,65 @@
         "imagebase": {"type": ["integer", "string"]}
       }
     },
-    "ida_export": {"type": "object"},
-    "reconcile": {"type": "object"},
-    "coverage": {"type": "object"},
+    "ida_export": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["decoded_instruction_heads", "executable_segment_bytes", "references", "constants"],
+      "properties": {
+        "decoded_instruction_heads": {"type": "integer", "minimum": 1},
+        "executable_segment_bytes": {"type": "integer", "minimum": 1},
+        "references": {"type": "array"},
+        "constants": {"type": "array"}
+      }
+    },
+    "reconcile": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["game_id", "manifest", "ida_export"],
+      "properties": {
+        "game_id": {"const": "vv3"},
+        "manifest": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["source_sha256", "prototype_sha256", "declared_patch_count", "actual_patch_count", "guard_errors", "overlaps"],
+          "properties": {
+            "source_sha256": {"type": "string", "pattern": "^[0-9A-Fa-f]{64}$"},
+            "prototype_sha256": {"type": "string", "pattern": "^[0-9A-Fa-f]{64}$"},
+            "declared_patch_count": {"type": "integer", "const": 1263},
+            "actual_patch_count": {"type": "integer", "const": 1263},
+            "guard_errors": {"const": []},
+            "overlaps": {"const": []}
+          }
+        },
+        "ida_export": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["unmatched_moving_references", "unpatched_population_sized_constants"],
+          "properties": {
+            "unmatched_moving_references": {"const": []},
+            "unpatched_population_sized_constants": {"const": []}
+          }
+        }
+      }
+    },
+    "coverage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["loader_abi_branches", "stored_index_width_sentinel_paths", "selectors_queues_callbacks_stats_serializer", "padding_reachability", "exact_stock_operands_xrefs"],
+      "properties": {
+        "loader_abi_branches": {"type": "object"},
+        "stored_index_width_sentinel_paths": {"type": "object"},
+        "selectors_queues_callbacks_stats_serializer": {"type": "object"},
+        "padding_reachability": {"type": "object"},
+        "exact_stock_operands_xrefs": {"type": "array"}
+      }
+    },
     "runtime_evidence": {
       "type": "array",
       "items": {
         "type": "object",
         "additionalProperties": false,
-        "required": ["id", "status", "synthetic", "ambiguous", "incomplete", "kind", "sha256"],
+        "required": ["id", "status", "synthetic", "ambiguous", "incomplete", "kind", "path", "size", "sha256"],
         "properties": {
           "id": {"type": "string", "minLength": 1},
           "status": {"const": "verified"},
@@ -64,10 +114,38 @@
           "ambiguous": {"const": false},
           "incomplete": {"const": false},
           "kind": {"type": "string", "minLength": 1},
+          "path": {"type": "string", "minLength": 1},
+          "size": {"type": "integer", "minimum": 0},
           "sha256": {"type": "string", "pattern": "^[0-9A-Fa-f]{64}$"}
         }
       }
     },
-    "runtime_gates": {"type": "object"}
+    "runtime_gates": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["load_hang_resolved", "stock_import_expanded_reload", "offline_catch_up", "failed_load_nonmutation", "late_record_matrix", "player_runtime_validation"],
+      "properties": {
+        "load_hang_resolved": {"$ref": "#/$defs/runtime_gate"},
+        "stock_import_expanded_reload": {"$ref": "#/$defs/runtime_gate"},
+        "offline_catch_up": {"$ref": "#/$defs/runtime_gate"},
+        "failed_load_nonmutation": {"$ref": "#/$defs/runtime_gate"},
+        "late_record_matrix": {"$ref": "#/$defs/runtime_gate"},
+        "player_runtime_validation": {"$ref": "#/$defs/runtime_gate"}
+      }
+    }
+  },
+  "$defs": {
+    "runtime_gate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "synthetic", "ambiguous", "incomplete", "evidence_ids"],
+      "properties": {
+        "status": {"const": "verified"},
+        "synthetic": {"const": false},
+        "ambiguous": {"const": false},
+        "incomplete": {"const": false},
+        "evidence_ids": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}}
+      }
+    }
   }
 }
