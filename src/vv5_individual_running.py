@@ -1696,21 +1696,63 @@ def _bind_issuance(path: Path, token: str, report: Path, report_payload: dict[st
         or raw.get("authority_record") != issuance_meta.get("authority_record")
     ):
         raise PatcherError("VV5 Running issuance destination/registry binding is invalid.")
-    report_bytes = _read(report)
+    # Capture the report identity before opening it.  The no-follow reader
+    # verifies the opened handle, but the pre/post inventory comparison here
+    # closes the scan-to-read interval as well.
     report_record = _inventory(report.parent, report)
+    if report_record is None:
+        raise PatcherError("VV5 Running recovery report disappeared before issuance binding.")
+    report_bytes = _read(report)
+    if report_record.get("size") != len(report_bytes) or report_record.get("sha256") != _sha(report_bytes):
+        raise PatcherError("VV5 Running recovery report changed while it was read.")
+    report_record_after = _inventory(report.parent, report)
+    if report_record_after != report_record:
+        raise PatcherError("VV5 Running recovery report identity raced during binding.")
     report_parent_record = _identity(report.parent)
     expected_report_parent = report_payload.get("report_parent_identity")
     if report_record is None or (expected_report_parent is not None and report_parent_record != expected_report_parent):
         raise PatcherError("VV5 Running recovery report changed before issuance binding.")
     bound = dict(raw)
+    report_raw = json.loads(report_bytes.decode("utf-8"))
+    if not isinstance(report_raw, dict):
+        raise PatcherError("VV5 Running recovery report is not an object.")
+    if report_raw != report_payload:
+        raise PatcherError("VV5 Running report bytes do not match the caller's validated payload.")
+    expected_member_keys = {"destination", "pre_exists", "pre_sha256", "pre_size", "published_sha256", "published_size"}
+    report_members = report_payload.get("members")
+    if not isinstance(report_members, list) or len(report_members) != 2:
+        raise PatcherError("VV5 Running issuance requires the complete two-member report schema.")
+    expected_operation = {"install_new": "install", "install_existing": "install", "removal": "remove"}[str(report_operation)]
+    expected_members = [
+        (VV5_EXE_BASENAME, VV5_CANDIDATE_EXE_SHA256, 0xF6000),
+        (DLL_NAME, DLL_SHA256, DLL_SIZE),
+    ]
+    raw_members = raw.get("members")
+    if not isinstance(raw_members, list) or [m.get("destination") for m in raw_members if isinstance(m, dict)] != [name for name, _sha256, _size in expected_members] or raw.get("operation") != expected_operation:
+        raise PatcherError("VV5 Running issuance member schema is incomplete or mismatched.")
+    if len(raw_members) != 2:
+        raise PatcherError("VV5 Running issuance member schema is incomplete.")
+    for member, (name, published_sha, published_size) in zip(raw_members, expected_members):
+        if not isinstance(member, dict) or set(member) != expected_member_keys or member.get("destination") != name:
+            raise PatcherError("VV5 Running issuance member schema is polluted.")
+        if member.get("published_sha256") != published_sha or member.get("published_size") != published_size:
+            raise PatcherError("VV5 Running issuance published member identity is not certified.")
+        if report_operation == "install_new" and (member.get("pre_exists") or member.get("pre_sha256") is not None or member.get("pre_size") != 0):
+            raise PatcherError("VV5 Running install_new issuance preimage is not absent.")
+        expected_pre_sha = VV5_PARENT_EXE_SHA256 if report_operation == "install_existing" and name == VV5_EXE_BASENAME else VV5_CANDIDATE_EXE_SHA256 if report_operation == "removal" and name == VV5_EXE_BASENAME else DLL_SHA256
+        expected_pre_size = 0xF4000 if report_operation == "install_existing" and name == VV5_EXE_BASENAME else 0xF6000 if report_operation == "removal" and name == VV5_EXE_BASENAME else DLL_SIZE
+        if report_operation != "install_new" and (not member.get("pre_exists") or member.get("pre_sha256") != expected_pre_sha or member.get("pre_size") != expected_pre_size):
+            raise PatcherError("VV5 Running issuance preimage is incomplete.")
+    if report_payload.get("members") != report_members:
+        raise PatcherError("VV5 Running report member binding is inconsistent.")
     bound.update({
         "report_name": report.name,
         "report_sha256": _sha(report_bytes),
         "report_parent_identity": report_parent_record,
         "recovery_root_name": report_payload.get("recovery_root_name"),
         "recovery_root_identity": report_payload.get("recovery_root_identity"),
-        "report_members": report_payload.get("members"),
-        "report_kind": json.loads(_read(report).decode("utf-8")).get("kind", "recovery_report"),
+        "report_members": report_members,
+        "report_kind": report_raw.get("kind", "recovery_report"),
     })
     if set(bound) != bound_keys:
         raise PatcherError("VV5 Running bound issuance schema is polluted or incomplete.")
@@ -1720,7 +1762,13 @@ def _bind_issuance(path: Path, token: str, report: Path, report_payload: dict[st
     latest_issuance = _inventory(path.parent.parent, path)
     if latest_report != report_record or latest_issuance != before:
         raise PatcherError("VV5 Running report or issuance identity raced before replacement.")
-    return _replace_issuance(path, latest_issuance, bound)
+    # Re-read the exact physical identities immediately adjacent to the
+    # successor publication; _replace_issuance repeats its own guard.
+    final_report = _inventory(report.parent, report)
+    final_issuance = _inventory(path.parent.parent, path)
+    if final_report != latest_report or final_issuance != latest_issuance:
+        raise PatcherError("VV5 Running report or issuance identity raced immediately before replacement.")
+    return _replace_issuance(path, final_issuance, bound)
 
 
 def _validate_report(payload: dict[str, object], root: Path) -> None:
@@ -2090,10 +2138,14 @@ def recover_atomic(report_path: Path, mode: str = VV5_MODE) -> None:
         raise PatcherError("VV5 Running recovery report owner is invalid.")
     _safe_ancestors(report.parent)
     report_parent_before = _identity(report.parent)
-    report_bytes = _read(report)
     report_record_before = _inventory(report.parent, report)
     if report_record_before is None:
-        raise PatcherError("VV5 Running recovery report disappeared during capture.")
+        raise PatcherError("VV5 Running recovery report disappeared before read.")
+    report_bytes = _read(report)
+    if report_record_before.get("size") != len(report_bytes) or report_record_before.get("sha256") != _sha(report_bytes):
+        raise PatcherError("VV5 Running recovery report changed while it was read.")
+    if _inventory(report.parent, report) != report_record_before:
+        raise PatcherError("VV5 Running recovery report identity raced during read.")
     report_sha256 = _sha(report_bytes)
     raw_loaded = json.loads(report_bytes.decode("utf-8"))
     is_emergency = isinstance(raw_loaded, dict) and raw_loaded.get("kind") == "emergency_recovery_marker"
@@ -2211,6 +2263,22 @@ def recover_atomic(report_path: Path, mode: str = VV5_MODE) -> None:
         raise PatcherError("VV5 Running recovery operation is unsupported or ambiguous.")
     if not isinstance(issuance_meta, dict) or issuance_meta.get("authority_token") != authority_token or issuance_meta.get("authority_record") != authority_record:
         raise PatcherError("VV5 Running recovery issuance authority token/record differs from the report identity.")
+    bound_report_name = raw.get("report_name") if is_emergency else report.name
+    report_sha_matches = issuance.get("report_sha256") == report_sha256
+    if is_emergency:
+        report_sha_matches = isinstance(bound_report_name, str) and issuance.get("report_name") == bound_report_name
+    base_issuance_keys = {
+        "schema_version", "token", "authority_token", "authority_record", "feature_owner", "mode", "operation",
+        "parent_identity", "destination_parent_absolute", "destination_paths_absolute", "registry_relative",
+        "registry_identity", "members",
+    }
+    bound_issuance_keys = base_issuance_keys | {
+        "report_name", "report_sha256", "report_parent_identity", "recovery_root_name",
+        "recovery_root_identity", "report_members", "report_kind",
+    }
+    allowed_issuance_schemas = (base_issuance_keys, bound_issuance_keys) if is_emergency else (bound_issuance_keys,)
+    if set(issuance) not in allowed_issuance_schemas:
+        raise PatcherError("VV5 Running recovery issuance schema is incomplete or polluted.")
     if (
         issuance.get("schema_version") != ISSUANCE_SCHEMA_VERSION
         or issuance.get("token") != issuance_token
@@ -2218,12 +2286,12 @@ def recover_atomic(report_path: Path, mode: str = VV5_MODE) -> None:
         or issuance.get("mode") != VV5_MODE
         or issuance.get("operation") != expected_issuance_operation
         or issuance.get("parent_identity") != report_parent_identity
-        or issuance.get("report_name") != report.name
-        or issuance.get("report_sha256") != report_sha256
-        or issuance.get("report_parent_identity") != report_parent_identity
-        or issuance.get("recovery_root_name") != raw.get("recovery_root_name")
-        or issuance.get("recovery_root_identity") != root_identity
-        or issuance.get("report_members") != raw.get("members")
+        or (not is_emergency and issuance.get("report_name") != bound_report_name)
+        or (not is_emergency and not report_sha_matches)
+        or (not is_emergency and issuance.get("report_parent_identity") != report_parent_identity)
+        or (not is_emergency and issuance.get("recovery_root_name") != raw.get("recovery_root_name"))
+        or (not is_emergency and issuance.get("recovery_root_identity") != root_identity)
+        or (not is_emergency and issuance.get("report_members") != raw.get("members"))
         or issuance.get("destination_parent_absolute") != _canonical(report.parent)
         or issuance.get("destination_paths_absolute") != [_canonical(report.parent / VV5_EXE_BASENAME), _canonical(report.parent / DLL_NAME)]
         or issuance.get("registry_relative") != ISSUANCE_REGISTRY_NAME

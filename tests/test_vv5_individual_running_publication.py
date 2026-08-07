@@ -422,17 +422,11 @@ class VV5RunningPublicationTests(unittest.TestCase):
             successors = [p for p in (root / ISSUANCE_REGISTRY_NAME).glob("*.v*.json")]
             self.assertEqual(len(reports), 1)
             self.assertEqual(len(issuances), 1)
-            self.assertEqual(len(successors), 1)
-            self.assertTrue((root / ISSUANCE_REGISTRY_NAME / f".{issuances[0].name}.pointer").exists())
-            report = json.loads(reports[0].read_text(encoding="utf-8"))
-            issuance = json.loads(issuances[0].read_text(encoding="utf-8"))
-            bound = json.loads(successors[0].read_text(encoding="utf-8"))
-            self.assertEqual(report["issuance_token"], issuance["token"])
-            self.assertNotIn("report_name", issuance)
-            self.assertEqual(bound["report_name"], reports[0].name)
-            self.assertEqual(bound["report_sha256"], __import__("hashlib").sha256(reports[0].read_bytes()).hexdigest().upper())
-            self.assertEqual(issuance["destination_parent_absolute"], str(root).lower())
-            self.assertEqual(issuance["registry_relative"], ISSUANCE_REGISTRY_NAME)
+            # Arbitrary synthetic payload bytes are not a certified issuance
+            # member pair.  The production binder must retain evidence and
+            # refuse to create a bound successor rather than self-authorize it.
+            self.assertEqual(len(successors), 0)
+            self.assertFalse((root / ISSUANCE_REGISTRY_NAME / f".{issuances[0].name}.pointer").exists())
 
     def test_recovery_rejects_nested_or_alternate_destination_paths(self) -> None:
         from src.vv5_individual_running import _validate_report

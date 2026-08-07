@@ -1067,14 +1067,22 @@ def _validate_transaction_authority(manifest: Path, payload: dict[str, object], 
     required = {"schema_version", "kind", "state", "manifest_name", "manifest_record", "report_name", "report_record", "canonical_name", "canonical_record", "pointer_name", "pointer_record", "successor_name", "successor_record", "marker_name", "marker_record", "recovery_root_name", "recovery_root_record", "ownership_inventory", "members", "member_roles", "destination_paths_absolute", "transaction_journal", "previous_authority_record"}
     raw_keys = set(raw) if isinstance(raw, dict) else set()
     validation_payload = dict(payload)
+    # A manifest reader may receive only the structural chain projection; in
+    # that case recover the caller binding from the actual production report,
+    # never from the marker location or a legacy default.  Missing/malformed
+    # report ownership remains fail-closed.
     if validation_payload.get("feature_owner") is None and isinstance(raw, dict) and isinstance(raw.get("report_name"), str):
         report_path = manifest.parent / str(raw["report_name"])
-        if os.path.lexists(report_path):
-            report_raw = json.loads(_read_regular(report_path).decode("utf-8"))
-            if isinstance(report_raw, dict) and report_raw.get("kind") == "emergency_recovery_marker":
-                report_raw = report_raw.get("recovery_payload") if isinstance(report_raw.get("recovery_payload"), dict) else report_raw
-            if isinstance(report_raw, dict):
-                validation_payload.update(report_raw)
+        if not os.path.lexists(report_path):
+            raise PatcherError("VV3 individual Full Mastery authority caller evidence is missing.")
+        report_raw = json.loads(_read_regular(report_path).decode("utf-8"))
+        if isinstance(report_raw, dict) and report_raw.get("kind") == "emergency_recovery_marker":
+            report_raw = report_raw.get("recovery_payload") if isinstance(report_raw.get("recovery_payload"), dict) else report_raw
+        if not isinstance(report_raw, dict) or report_raw.get("feature_owner") not in {"vv3_individual_full_mastery", "vv5_individual_grant_running_candidate"}:
+            raise PatcherError("VV3 individual Full Mastery authority caller evidence is missing or unsupported.")
+        validation_payload.update(report_raw)
+    if validation_payload.get("feature_owner") not in {"vv3_individual_full_mastery", "vv5_individual_grant_running_candidate"}:
+        raise PatcherError("VV3 individual Full Mastery authority caller is missing or unsupported.")
     strict_owner = validation_payload.get("feature_owner") in {"vv3_individual_full_mastery", "vv5_individual_grant_running_candidate"}
     strict_keys = {"feature_owner", "mode", "operation", "destination_parent_absolute", "report_parent_identity", "initial_precondition", "replay_guard", "finalization_state", "finalization_step"}
     strict_base = required | strict_keys
@@ -2369,6 +2377,61 @@ def _terminal_receipt_path(root: Path, authority_name: str, authority_record: di
     return root / f".vv3im-terminal-{token}.json"
 
 
+def _validate_terminal_authority_payload(authority_payload: object, transaction: dict[str, object]) -> dict[str, object]:
+    """Validate the parsed production authority, not a caller-supplied digest.
+
+    Terminal receipts are replay authorities.  They therefore carry the
+    canonical parsed bytes of the authority that was retired, and the
+    relationships below are checked before any evidence or destination is
+    touched.  Empty/synthetic envelopes are never valid production evidence.
+    """
+    if not isinstance(authority_payload, dict):
+        raise PatcherError("VV3 individual Full Mastery terminal authority payload is missing.")
+    allowed = {
+        "schema_version", "kind", "state", "manifest_name", "manifest_record", "report_name", "report_record",
+        "canonical_name", "canonical_record", "pointer_name", "pointer_record", "successor_name", "successor_record",
+        "marker_name", "marker_record", "recovery_root_name", "recovery_root_record", "ownership_inventory",
+        "members", "member_roles", "destination_paths_absolute", "transaction_journal", "previous_authority_record",
+        "feature_owner", "mode", "operation", "destination_parent_absolute", "report_parent_identity",
+        "initial_precondition", "replay_guard", "finalization_state", "finalization_step", "external_issuance",
+        "finalization_payload", "finalization_payload_digest",
+    }
+    if set(authority_payload) - allowed or authority_payload.get("schema_version") != 1 or authority_payload.get("kind") != "vv3_recovery_transaction_authority":
+        raise PatcherError("VV3 individual Full Mastery terminal authority schema is unknown or polluted.")
+    owner = authority_payload.get("feature_owner")
+    allowed_modes = {"collection_progression", "immediate_fixed"} if owner == "vv3_individual_full_mastery" else {"collection_progression"} if owner == "vv5_individual_grant_running_candidate" else set()
+    if owner not in {"vv3_individual_full_mastery", "vv5_individual_grant_running_candidate"} or authority_payload.get("mode") not in allowed_modes or authority_payload.get("operation") not in {"install_new", "install_existing", "removal"}:
+        raise PatcherError("VV3 individual Full Mastery terminal authority owner/mode/operation is invalid.")
+    members = authority_payload.get("members")
+    roles = authority_payload.get("member_roles")
+    destinations = authority_payload.get("destination_paths_absolute")
+    if not isinstance(members, list) or not members or not isinstance(roles, dict) or not roles or not isinstance(destinations, list) or not destinations:
+        raise PatcherError("VV3 individual Full Mastery terminal authority relationships are empty.")
+    if len(set(str(item).casefold() for item in destinations)) != len(destinations):
+        raise PatcherError("VV3 individual Full Mastery terminal authority destinations are duplicated.")
+    role_names = {Path(str(key)).name for key in roles}
+    member_names = {
+        str(item.get("name") if item.get("name") is not None else item.get("destination_relative"))
+        for item in members if isinstance(item, dict)
+    }
+    if len(members) != len(roles) or member_names != role_names:
+        raise PatcherError("VV3 individual Full Mastery terminal authority member roles do not match members.")
+    if any(not isinstance(item, dict) or not (isinstance(item.get("name"), str) or isinstance(item.get("destination_relative"), str)) or not isinstance(item.get("role", roles.get(str(item.get("name") or item.get("destination_relative")))), str) for item in members):
+        raise PatcherError("VV3 individual Full Mastery terminal authority member schema is malformed.")
+    if any(role not in {"game_executable", "companion_dll"} for role in roles.values()):
+        raise PatcherError("VV3 individual Full Mastery terminal authority contains an unknown member role.")
+    pre = authority_payload.get("initial_precondition")
+    guard = authority_payload.get("replay_guard")
+    if not isinstance(pre, dict) or not pre or not isinstance(guard, dict) or not guard:
+        raise PatcherError("VV3 individual Full Mastery terminal authority preconditions are incomplete.")
+    issuance = authority_payload.get("external_issuance")
+    if not isinstance(issuance, dict) or not issuance:
+        raise PatcherError("VV3 individual Full Mastery terminal authority lacks independent issuance evidence.")
+    if authority_payload.get("operation") != transaction.get("operation") or authority_payload.get("mode") != transaction.get("mode") or authority_payload.get("report_name") != transaction.get("report_name") or authority_payload.get("member_roles") != transaction.get("member_roles") or authority_payload.get("destination_paths_absolute") != transaction.get("destination_paths_absolute") or authority_payload.get("members") != transaction.get("members"):
+        raise PatcherError("VV3 individual Full Mastery terminal authority and transaction bindings differ.")
+    return authority_payload
+
+
 def _publish_terminal_receipt(
     root: Path,
     authority_path: Path,
@@ -2398,6 +2461,16 @@ def _publish_terminal_receipt(
         raise PatcherError("VV3 individual Full Mastery terminal receipt finalization transaction is incomplete.")
     if transaction.get("report_sha256") != (transaction.get("report_record") or {}).get("sha256") or transaction.get("manifest_sha256") != (transaction.get("manifest_record") or {}).get("sha256"):
         raise PatcherError("VV3 individual Full Mastery terminal receipt digest chain is inconsistent.")
+    authority_bytes = _read_regular(authority_path)
+    if authority_record.get("size") != len(authority_bytes) or authority_record.get("sha256") != _sha(authority_bytes):
+        raise PatcherError("VV3 individual Full Mastery finalization authority changed while read.")
+    try:
+        authority_payload = json.loads(authority_bytes.decode("utf-8"))
+    except Exception as exc:
+        raise PatcherError("VV3 individual Full Mastery finalization authority is not canonical JSON.") from exc
+    authority_payload = _validate_terminal_authority_payload(authority_payload, transaction)
+    if _inventory_entry(root, authority_path) != authority_record:
+        raise PatcherError("VV3 individual Full Mastery finalization authority raced after read.")
     receipt = _terminal_receipt_path(root, authority_path.name, authority_record)
     if os.path.lexists(receipt):
         raise PatcherError("VV3 individual Full Mastery terminal receipt target raced.")
@@ -2421,6 +2494,7 @@ def _publish_terminal_receipt(
             "st_dev": authority_record.get("st_dev"),
             "st_ino": authority_record.get("st_ino"),
         },
+        "authority_payload": authority_payload,
         "root_name": root.name,
         "root_record": root_record,
         "finalization_transaction": transaction,
@@ -2484,7 +2558,7 @@ def _recover_terminal_receipt(receipt: Path) -> None:
     _require_windows_identity_atomic()
     root = receipt.parent
     raw = json.loads(_read_regular(receipt).decode("utf-8"))
-    required = {"schema_version", "kind", "state", "feature_owner", "operation", "mode", "authority_name", "authority_record", "authority_content_sha256", "authority_identity", "root_name", "root_record", "finalization_transaction", "allowed_namespace", "receipt_name"}
+    required = {"schema_version", "kind", "state", "feature_owner", "operation", "mode", "authority_name", "authority_record", "authority_content_sha256", "authority_identity", "authority_payload", "root_name", "root_record", "finalization_transaction", "allowed_namespace", "receipt_name"}
     if not isinstance(raw, dict) or set(raw) != required or raw.get("schema_version") != 2 or raw.get("kind") != "vv3_recovery_terminal_receipt" or raw.get("state") != "completed" or raw.get("feature_owner") != "vv3_individual_full_mastery":
         raise PatcherError("VV3 individual Full Mastery terminal receipt is malformed.")
     if not isinstance(raw.get("authority_name"), str) or not re.fullmatch(r"\.vv3im-journal-[0-9a-f]{32}(?:\.v[0-9a-f]{32})?\.json", raw["authority_name"]):
@@ -2505,6 +2579,20 @@ def _recover_terminal_receipt(receipt: Path) -> None:
     required_transaction = {"operation", "mode", "report_name", "report_record", "report_sha256", "manifest_name", "manifest_record", "manifest_sha256", "report_parent_identity", "destination_parent_absolute", "issuance", "member_roles", "destination_paths_absolute", "members", "initial_precondition", "replay_guard", "authority_chain_digest"}
     if not isinstance(transaction, dict) or set(transaction) != required_transaction:
         raise PatcherError("VV3 individual Full Mastery terminal receipt finalization transaction is incomplete.")
+    authority_payload = _validate_terminal_authority_payload(raw.get("authority_payload"), transaction)
+    if raw.get("operation") != transaction.get("operation") or raw.get("mode") != transaction.get("mode"):
+        raise PatcherError("VV3 individual Full Mastery terminal receipt outer/embedded operation differs.")
+    authority = root / raw["authority_name"]
+    if os.path.lexists(authority):
+        authority_bytes = _read_regular(authority)
+        if _sha(authority_bytes) != authority_record.get("sha256") or len(authority_bytes) != authority_record.get("size"):
+            raise PatcherError("VV3 individual Full Mastery terminal authority bytes changed.")
+        try:
+            live_payload = json.loads(authority_bytes.decode("utf-8"))
+        except Exception as exc:
+            raise PatcherError("VV3 individual Full Mastery terminal authority bytes are not JSON.") from exc
+        if live_payload != authority_payload:
+            raise PatcherError("VV3 individual Full Mastery terminal authority substitution detected.")
     if not isinstance(transaction.get("operation"), str) or not isinstance(transaction.get("mode"), str) or not isinstance(transaction.get("report_name"), str) or Path(transaction["report_name"]).name != transaction["report_name"] or not isinstance(transaction.get("manifest_name"), str) or Path(transaction["manifest_name"]).name != transaction["manifest_name"] or transaction.get("report_sha256") != (transaction.get("report_record") or {}).get("sha256") or transaction.get("manifest_sha256") != (transaction.get("manifest_record") or {}).get("sha256") or not isinstance(transaction.get("report_parent_identity"), dict) or not isinstance(transaction.get("destination_parent_absolute"), str) or not isinstance(transaction.get("issuance"), dict) or not isinstance(transaction.get("member_roles"), dict) or not isinstance(transaction.get("destination_paths_absolute"), list) or not isinstance(transaction.get("members"), list) or not isinstance(transaction.get("initial_precondition"), dict) or not isinstance(transaction.get("replay_guard"), dict) or not isinstance(transaction.get("authority_chain_digest"), str):
         raise PatcherError("VV3 individual Full Mastery terminal receipt finalization transaction is malformed.")
     unsigned = dict(transaction)
@@ -2515,7 +2603,6 @@ def _recover_terminal_receipt(receipt: Path) -> None:
     receipt_record = _inventory_entry(root, receipt)
     if receipt_record is None:
         raise PatcherError("VV3 individual Full Mastery terminal receipt disappeared.")
-    authority = root / raw["authority_name"]
     if os.path.lexists(authority):
         authority_now = _inventory_entry(root, authority)
         if authority_now != authority_record:
@@ -2572,8 +2659,8 @@ def _recover_journal_only_authority(root: Path) -> bool:
         "initial_precondition", "replay_guard", "finalization_state", "finalization_step", "finalization_payload",
         "finalization_payload_digest",
     }
-    allowed_journal_keys = (strict_journal_base, strict_journal_base | {"external_issuance"})
-    if not isinstance(raw, dict) or set(raw) not in allowed_journal_keys or raw.get("kind") != "vv3_recovery_transaction_authority" or raw.get("schema_version") != 1:
+    allowed_journal_keys = (strict_journal_base | {"external_issuance"}, strict_journal_base | {"external_issuance", "finalization_payload", "finalization_payload_digest"})
+    if not isinstance(raw, dict) or set(raw) not in allowed_journal_keys or raw.get("kind") != "vv3_recovery_transaction_authority" or raw.get("schema_version") != 1 or not isinstance(raw.get("external_issuance"), dict):
         raise PatcherError("VV3 individual Full Mastery journal-only authority is malformed.")
     if raw.get("finalization_state") not in {"finalizing", "completed"} or not isinstance(raw.get("finalization_payload"), dict):
         raise PatcherError("VV3 individual Full Mastery journal-only authority is not a terminal state.")
@@ -2610,6 +2697,7 @@ def _recover_journal_only_authority(root: Path) -> bool:
         manifest_name=str(manifest_name),
         manifest_record=manifest_record,
     )
+    _validate_terminal_authority_payload(raw, transaction)
     receipt, receipt_record = _publish_terminal_receipt(root, journal, journal_record, payload, set(), transaction=transaction)
     expected = {journal.name, receipt.name}
     _validate_vv3_hidden_namespace(root, expected=expected)
@@ -3047,7 +3135,7 @@ def _transaction(operation: str, destinations: list[Path], pre: dict[Path, tuple
     # Give those reports a complete, explicitly bound VV3 envelope rather
     # than reopening the old owner-only schema; production callers override
     # these values with the certified mode/hash identities.
-    recovery_metadata.setdefault("mode", "internal")
+    recovery_metadata.setdefault("mode", "collection_progression")
     recovery_metadata.setdefault("parent_sha256", _sha(pre[destinations[0]][1] or b""))
     recovery_metadata.setdefault("candidate_sha256", _sha(published[destinations[0]]))
     recovery_metadata.setdefault("destination_exe_basename", destinations[0].name)
