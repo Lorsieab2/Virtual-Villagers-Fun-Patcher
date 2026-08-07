@@ -97,8 +97,8 @@ class DoublerAuditDocumentationTests(unittest.TestCase):
         self.assertIn("VV5 expanded-256 composition remains ON HOLD", text)
         self.assertIn("**STOCK GO; EXPANDED ON HOLD**", text)
         self.assertIn("8dfccbd1b31e55f5168bb1c5ff23890bb98d9fdb", text)
-        self.assertIn("covers 32 of 75 references", text)
-        self.assertIn("36 cross-section rel32 and 7 external absolute", text)
+        self.assertIn("66 rows = 23 payload-internal absolute + 36 cross-section rel32 + 7 external absolute", text)
+        self.assertIn("all 43 previously omitted current-feature references", text)
 
     def test_audit_states_both_composition_rules(self) -> None:
         text = AUDIT.read_text(encoding="utf-8")

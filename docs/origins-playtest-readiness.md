@@ -81,7 +81,7 @@ preserving unrelated slots and ordering. VV5 must reject
 current faction `+0x1CEC != 0` before any preference access or count;
 `+0x1CE1` is not a proved substitute. Four-counter bounded results,
 no-op/no-charge recheck and rollback, ordinary/status eligibility, and
-stock-plus-expanded composition remain open.
+stock-plus-expanded composition remains ON HOLD.
 
 VV3 resolution commits `531b0aca8d5bf051f87773e67d48b61c0ba02833`
 and `1d9a39da078806aa940e4774a9068956e88347bc` close ID 38, its three
@@ -153,7 +153,9 @@ positive health, current believer `+0x1CEC == 0`, and an unproved extra
 `+0x1CE1 == 0` exclusion. Its generic transaction charges no-op/already-18
 cases and returns zero results. Nursing timer and nursing/pregnancy state must
 never change, but the raw helper is not proved to satisfy that semantic rule.
-Expanded composition remains blocked by 43 missing relocations.
+Expanded composition remains ON HOLD; the 43 previously omitted current-feature
+relocations are declared in the static ledger, while runtime and player gates
+remain open.
 
 VV4 All Villagers are 18 audit
 `ab404b0c5e80cab4d327de9a51069e6e3529df27` covers the exact 929,792-byte
@@ -258,12 +260,13 @@ until their exact-build provenance gates are cleared. VV5 stock-layout Tech and
 Food Doublers support purchase, zero-cost/no-refund Remove, and full-price
 repurchase. In VV5 expanded-256 modes, both writer hooks are restored to native
 bytes and new doubler purchases remain unavailable; owned Remove remains
-available. Expanded composition is ON HOLD: the 75-row relocation ledger covers
-32 rows and leaves 43 references (36 cross-section rel32 and 7 external
-absolute `.shr` pointers) outside the certified set, per disassembly commit
-`8dfccbd1b31e55f5168bb1c5ff23890bb98d9fdb`. VV5 native Time Warp, Island Event,
-and Barrel rows remain unavailable because their Heathen-safe target paths are
-not yet proven.
+available. Expanded composition is ON HOLD. The cited static current-feature
+ledger is complete at 66 rows: 23 payload-internal absolute, 36 cross-section
+rel32, and 7 external absolute `.shr` rows, including all 43 previously omitted
+current-feature references, per disassembly commit
+`8dfccbd1b31e55f5168bb1c5ff23890bb98d9fdb`. This is not runtime, save, catch-up,
+or player evidence. VV5 native Time Warp, Island Event, and Barrel rows remain
+unavailable because their Heathen-safe target paths are not yet proven.
 
 VV3 Magic Level-1 audit `4c588ffd36765d750533fe9694f8fda5c8e82736`
 confirms that Magic level 1 or higher contributes a deterministic flat `+1`

@@ -813,7 +813,7 @@
     {
       "id": "experimental_expanded_256_progression",
       "name": "Experimental Expanded 256 - Collection Progression",
-      "description": "VV3-VV5 expand to 256 physical records while collections, and VV3 Magic Tech, retain their original bonuses and are required to reach 256. VV1-VV2 use their existing 256-record behavior."
+      "description": "VV3-VV5 target 256 logical villager records while collections, and VV3 Magic Tech, retain their original bonuses and are required to reach 256; VV3 also reserves four non-saveable padding records for grouped native reads. VV1-VV2 use their existing 256-record behavior."
     }
   ],
   "fun_patch_support": [
