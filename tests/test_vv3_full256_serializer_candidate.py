@@ -40,9 +40,18 @@ class Full256StaticCandidateTests(unittest.TestCase):
         w=self.value["atomic_writer_plan"];self.assertEqual(("0x403530","0x7B9400","0xCC400"),(w["stock_writer"],w["wrapper_va"],w["wrapper_raw"]));self.assertFalse(w["enabled"]);self.assertFalse(w["native_output"])
     def test_d354_calls_are_expectations_not_emission(self):
         rows=self.value["atomic_writer_plan"]["callsites"];self.assertEqual([("0x27C7D","E8AEB8FDFF","E87E173900"),("0x27C92","E899B8FDFF","E869173900"),("0x27D6C","E8BFB7FDFF","E88F163900"),("0x27D81","E8AAB7FDFF","E87A163900")],[(x["raw"],x["preimage"],x["expected"]) for x in rows]);self.assertTrue(all(x["emitted"] is None for x in rows))
-    def test_d356_actions_manager_semantics_and_both_parents(self):
+    def test_d356_reconciled_route_manager_semantics_and_both_parents(self):
         rows=self.value["atomic_writer_plan"]["callsites"]
-        self.assertEqual([("actions","null"),("config-village","null"),("actions","non-null"),("config-village","non-null")],[(x["action"],x["manager"]) for x in rows])
+        self.assertEqual(
+            [
+                ("settings-tail","EDI==0","ESI!=0","ESI+0x12F24","0x88","0"),
+                ("settings-tail","EDI==0","ESI==0","0","0x88","0"),
+                ("full-village","EDI!=0","ESI!=0","ESI+0x8","caller size: 0x12F1C stock or expanded size","nonzero"),
+                ("full-village","EDI!=0","ESI==0","0","caller full size: 0x12F1C stock or expanded size","nonzero"),
+            ],
+            [(x["route"],x["route_condition"],x["manager_condition"],x["body"],x["size"],x["save_id"]) for x in rows],
+        )
+        self.assertTrue(all("action" not in x and "manager" not in x for x in rows))
         parents=[p[1] for p in B.PARENTS]
         self.assertTrue(all(x["validated_parent_sha256"]==parents for x in rows))
         self.assertTrue(B.validate_writer_callsites(self.value))
