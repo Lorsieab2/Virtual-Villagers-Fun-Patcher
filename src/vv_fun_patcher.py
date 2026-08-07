@@ -19,6 +19,20 @@ from typing import Any
 from transparency import write_transparency_artifacts
 
 ROOT = Path(__file__).resolve().parents[1]
+SOURCE_TEXT_DIGEST_ALGORITHM = "vvfp.source-text.v1"
+
+
+def canonical_source_text_bytes(payload: bytes) -> bytes:
+    """Canonical UTF-8/no-BOM/LF bytes for authenticated tracked source text."""
+    try:
+        text = payload.decode("utf-8-sig")
+    except UnicodeDecodeError as exc:
+        raise PatcherError("Authenticated source text is not valid UTF-8.") from exc
+    return text.replace("\r\n", "\n").replace("\r", "\n").encode("utf-8")
+
+
+def source_text_sha256(payload: bytes) -> str:
+    return hashlib.sha256(canonical_source_text_bytes(payload)).hexdigest().upper()
 MANIFEST_PATH = ROOT / "data" / "builds.json"
 EXPANDED_MANIFEST_PATH = ROOT / "data" / "expanded_256.json"
 ORIGINS_FEATURE_PATHS = tuple(
@@ -35,9 +49,9 @@ VV3_RUNNING_CANDIDATE_PATHS = {
     "map": ROOT / "data" / "candidates" / "vv3_running_candidate_map.json",
 }
 VV3_RUNNING_CERTIFIED_SHA256 = {
-    "base": "10D1516956AD7FF71A569869B4D03255C4FEB9A168A2B4084D3D091BE723D270",
-    "running": "512FDBE807314B3371DCF10D7417EE42C8A104A1F87FB4165E04FCFBE6D9F49E",
-    "map": "B8A7671DCC7A304CE7D9FEB9DC19877BED6518E80E30B408FE88AD44CDA067CC",
+    "base": "65F1F5FA72F127986F71A69368E1CC7E013FD0D00B1E6640113B34032ACB9B21",
+    "running": "D6AC66D196D4765AB7DC6D719B3180082C15BBF2F267EBF36D614A14B45556A5",
+    "map": "63F3A1780A6A4A7300C8A2C1923203AEFA7E85A21B1A92D6E1CE47E9F924B2DC",
 }
 VV3_FULL_MASTERY_CANDIDATE_PATHS = {
     "base": ROOT / "data" / "candidates" / "vv3_origins_full_mastery_base_candidate.json",
@@ -46,9 +60,9 @@ VV3_FULL_MASTERY_CANDIDATE_PATHS = {
     "dll": ROOT / "data" / "candidates" / "VVFP VV3 Full Mastery Candidate.dll",
 }
 VV3_FULL_MASTERY_CERTIFIED_SHA256 = {
-    "base": "CFC662F6FD1405ABD4234B681A623D844B4FEA2A5B129CFE8BC1738C96A2D2A0",
-    "feature": "844A3CB7996793F51D741409C9EFAF675E07ED92122BCD2F91750766D7357783",
-    "map": "602499C640D6743F7BE9C1090C2724689107879AEEFAF6424C0F6D871A31C5F1",
+    "base": "DC8B73F904A535063CCA161AFA52190E0C2A9056B0B70F6CDDDD152161342DBE",
+    "feature": "D0FA9145AFECF0EE14A50D04F113E154C497DAC88C7A8AA0660A0FD338DBDF28",
+    "map": "4D0DDFBBC06AAABB3DBD66B0F5C5EE0256557FB332A4BB5170B45DBA8E3EA819",
     "dll": "35FB96199E745C7D8054FF6A12851B9E09225E3E41D0CE04012604E74968C0D5",
     "entry": "9685954F75E1DD26103507213FBEADBD9DED2705E62CB37D14080F6EBEC6EB23",
     "slot": "B1499EB3B10B7E4728746711E9F63B88211E4B80CA378742ADC5DC06782DAADA",
@@ -60,8 +74,8 @@ VV3_INDIVIDUAL_FULL_MASTERY_CANDIDATE_PATHS = {
     "manifest": ROOT / "data" / "candidates" / "vv3_individual_full_mastery_candidate.json",
     "map": ROOT / "data" / "candidates" / "vv3_individual_full_mastery_candidate_map.json",
 }
-VV3_INDIVIDUAL_FULL_MASTERY_MANIFEST_SHA256 = "943A8B1F04C34CB094ABF7CCC8863B2F17F4BAC179E5DA6A68E6FADD833E1884"
-VV3_INDIVIDUAL_FULL_MASTERY_MAP_SHA256 = "610D27014C8131C935BA4326D64FDB1D25285104567F060BD534653040562187"
+VV3_INDIVIDUAL_FULL_MASTERY_MANIFEST_SHA256 = "A16D8118C8DECAD09F9F4646F8243C156B366EC3A0C7E8428308A6D2F1D46882"
+VV3_INDIVIDUAL_FULL_MASTERY_MAP_SHA256 = "8318276149AA619EC10CD6F5FAFE2BE4739E05BFA97997202226E2167B9030C8"
 VV3_INDIVIDUAL_FULL_MASTERY_PAGE_SHA256 = "9391F157BD26BD35EB6BA058D20E8D13ED0E89FE65FE7AF87CD833279BBBDA78"
 VV3_INDIVIDUAL_FULL_MASTERY_PARENT_SHA256 = {
     "collection_progression": "8DD1CE07C885DDA3DD038D0B2F5C4F019D8C5BAC5DCA29F9799CE0C7909D2CEA",
@@ -76,8 +90,8 @@ VV3_INDIVIDUAL_RUNNING_CANDIDATE_PATHS = {
     "manifest": ROOT / "data" / "candidates" / "vv3_individual_grant_running_candidate.json",
     "map": ROOT / "data" / "candidates" / "vv3_individual_grant_running_candidate_map.json",
 }
-VV3_INDIVIDUAL_RUNNING_MANIFEST_SHA256 = "1FE903804E5C018AE2B54123F7B0A490BDA69C0B68C99C20754E4C41E8965852"
-VV3_INDIVIDUAL_RUNNING_MAP_SHA256 = "F85503124D2158949938CA4DE7D2E5F17BDF7B5484909F1F63CB4F134214EE24"
+VV3_INDIVIDUAL_RUNNING_MANIFEST_SHA256 = "A3C526AEEFD719B15F6C6CF1422EEF43D342F7B85D55F0C232675B3BE88483E4"
+VV3_INDIVIDUAL_RUNNING_MAP_SHA256 = "00C7B9C1DB59E6B36C945551CC40A347C4D302917A6677EE1EDE14F26142F362"
 VV3_INDIVIDUAL_RUNNING_SOURCE_COMMIT = "9574f488eefb97bd6320259f301beb87266072f8"
 VV3_INDIVIDUAL_RUNNING_IMPLEMENTATION_COMMIT = "a35bee6ed91fb3f105424dca5e3283ce85e01894"
 VV3_INDIVIDUAL_RUNNING_ACCEPTANCE_STATUS = (
@@ -215,8 +229,8 @@ VV3_FULL_HEAL_CANDIDATE_PATHS = {
     "manifest": ROOT / "data" / "candidates" / "vv3_full_heal_cure_all_candidate.json",
     "map": ROOT / "data" / "candidates" / "vv3_full_heal_cure_all_candidate_map.json",
 }
-VV3_FULL_HEAL_MANIFEST_SHA256 = "B0E923568EA024D3A47E7290EFAE80A1008BE29961C59727D601ADAB13256823"
-VV3_FULL_HEAL_MAP_SHA256 = "51F50278B6904DE0724029C3ABCC6058786AB6839FAA9D1822E95AB1E1119DF9"
+VV3_FULL_HEAL_MANIFEST_SHA256 = "82A5D685CB2C9DD98EBF2DE1683759DAB7A00E67F993263A4CBF778904B1724A"
+VV3_FULL_HEAL_MAP_SHA256 = "FFB5C9EBE68C227DB96857A4F897F20B68587CF77DEDCD8400FE5F717E425764"
 VV3_FULL_HEAL_STOCK_SHA256 = "8BC5DB382D02BC5C21AD5F607580D60FF44A6519CC7EB133F03113BAACAE6503"
 VV3_FULL_HEAL_BASE_DLL_PATH = ROOT / "data" / "candidates" / "VVFP VV3 Full Mastery Candidate.dll"
 VV3_FULL_HEAL_DLL_PATH = ROOT / "data" / "candidates" / "VVFP VV3 Full Heal Candidate.dll"
@@ -658,7 +672,7 @@ def _certified_vv3_running_records(
     records: dict[str, dict[str, Any]] = {}
     for label, path in VV3_RUNNING_CANDIDATE_PATHS.items():
         payload = path.read_bytes()
-        digest = hashlib.sha256(payload).hexdigest().upper()
+        digest = source_text_sha256(payload)
         if digest != VV3_RUNNING_CERTIFIED_SHA256[label]:
             raise PatcherError(
                 f"Certified VV3 Running {label} artifact hash mismatch: "
@@ -713,7 +727,7 @@ def _certified_vv3_full_mastery_records(
     records: dict[str, dict[str, Any]] = {}
     for label, path in VV3_FULL_MASTERY_CANDIDATE_PATHS.items():
         payload = path.read_bytes()
-        digest = hashlib.sha256(payload).hexdigest().upper()
+        digest = hashlib.sha256(payload).hexdigest().upper() if label == "dll" else source_text_sha256(payload)
         expected = VV3_FULL_MASTERY_CERTIFIED_SHA256[label]
         if digest != expected:
             raise PatcherError(
@@ -779,13 +793,13 @@ def _certified_vv3_individual_running_record(
     manifest_path = VV3_INDIVIDUAL_RUNNING_CANDIDATE_PATHS["manifest"]
     map_path = VV3_INDIVIDUAL_RUNNING_CANDIDATE_PATHS["map"]
     manifest_bytes = manifest_path.read_bytes()
-    manifest_digest = hashlib.sha256(manifest_bytes).hexdigest().upper()
+    manifest_digest = source_text_sha256(manifest_bytes)
     if manifest_digest != VV3_INDIVIDUAL_RUNNING_MANIFEST_SHA256:
         raise PatcherError(
             "VV3 individual Grant Running manifest bytes are not the certified record."
         )
     map_bytes = map_path.read_bytes()
-    map_digest = hashlib.sha256(map_bytes).hexdigest().upper()
+    map_digest = source_text_sha256(map_bytes)
     if map_digest != VV3_INDIVIDUAL_RUNNING_MAP_SHA256:
         raise PatcherError(
             "VV3 individual Grant Running map bytes are not the certified record."
@@ -912,13 +926,10 @@ def _validate_vv3_individual_full_mastery_candidate() -> dict[str, Any] | None:
         return None
     manifest_bytes = manifest_path.read_bytes()
     map_bytes = map_path.read_bytes()
-    for label, data in (("manifest", manifest_bytes), ("map", map_bytes)):
-        if data.startswith(b"\xef\xbb\xbf") or b"\r\r\n" in data or any(data[i] == 0x0A and (i == 0 or data[i - 1] != 0x0D) for i in range(len(data))):
-            raise PatcherError(f"VV3 individual Full Mastery {label} is not canonical UTF-8/no-BOM/all-CRLF.")
-    if hashlib.sha256(manifest_bytes).hexdigest().upper() != VV3_INDIVIDUAL_FULL_MASTERY_MANIFEST_SHA256:
-        raise PatcherError("VV3 individual Full Mastery manifest raw hash mismatch.")
-    if hashlib.sha256(map_bytes).hexdigest().upper() != VV3_INDIVIDUAL_FULL_MASTERY_MAP_SHA256:
-        raise PatcherError("VV3 individual Full Mastery map raw hash mismatch.")
+    if source_text_sha256(manifest_bytes) != VV3_INDIVIDUAL_FULL_MASTERY_MANIFEST_SHA256:
+        raise PatcherError("VV3 individual Full Mastery manifest source-text hash mismatch.")
+    if source_text_sha256(map_bytes) != VV3_INDIVIDUAL_FULL_MASTERY_MAP_SHA256:
+        raise PatcherError("VV3 individual Full Mastery map source-text hash mismatch.")
     manifest = json.loads(manifest_bytes.decode("utf-8"))
     artifact_map = json.loads(map_bytes.decode("utf-8"))
     if (
@@ -991,7 +1002,7 @@ def load_hidden_vv3_individual_full_mastery_candidate() -> FunPatch:
 
 def _certified_vv2_full_mastery_record() -> dict[str, Any] | None:
     manifest_bytes = VV2_FULL_MASTERY_CANDIDATE_PATHS["manifest"].read_bytes()
-    manifest_digest = hashlib.sha256(manifest_bytes).hexdigest().upper()
+    manifest_digest = source_text_sha256(manifest_bytes)
     if manifest_digest != VV2_FULL_MASTERY_MANIFEST_SHA256:
         raise PatcherError("VV2 Full Mastery manifest bytes are not the certified record.")
     manifest = json.loads(manifest_bytes.decode("utf-8"))
@@ -1014,7 +1025,7 @@ def _certified_vv2_full_mastery_record() -> dict[str, Any] | None:
     if static_acceptance != VV2_FULL_MASTERY_STATIC_ACCEPTANCE:
         raise PatcherError("VV2 Full Mastery static acceptance evidence is not certified.")
     map_bytes = VV2_FULL_MASTERY_CANDIDATE_PATHS["map"].read_bytes()
-    map_digest = hashlib.sha256(map_bytes).hexdigest().upper()
+    map_digest = source_text_sha256(map_bytes)
     if map_digest != VV2_FULL_MASTERY_MAP_SHA256:
         raise PatcherError("VV2 Full Mastery map bytes are not the certified record.")
     artifact_map = json.loads(map_bytes.decode("utf-8"))
@@ -1385,7 +1396,7 @@ def _certified_vv4_full_heal_record(
         return None
     if disabled_manifest != disabled_map:
         raise PatcherError("VV4 Full Heal disabled/catalog-hidden records disagree.")
-    if hashlib.sha256(manifest_bytes).hexdigest().upper() != VV4_FULL_HEAL_MANIFEST_SHA256 or hashlib.sha256(map_bytes).hexdigest().upper() != VV4_FULL_HEAL_MAP_SHA256:
+    if source_text_sha256(manifest_bytes) != VV4_FULL_HEAL_MANIFEST_SHA256 or source_text_sha256(map_bytes) != VV4_FULL_HEAL_MAP_SHA256:
         raise PatcherError("VV4 Full Heal enabled candidate manifest/map raw bytes are not pinned.")
     manifest_proof = manifest.get("lineage_proof", {})
     map_proof = artifact_map.get("lineage_proof", {})
@@ -1527,10 +1538,10 @@ def _validate_vv5_individual_running_candidate(
         raise PatcherError("VV5 revised Running Immediate Fixed is unsupported until its exact parent is authenticated.")
     manifest_bytes = VV5_INDIVIDUAL_RUNNING_CANDIDATE_PATHS["manifest"].read_bytes()
     map_bytes = VV5_INDIVIDUAL_RUNNING_CANDIDATE_PATHS["map"].read_bytes()
-    if hashlib.sha256(manifest_bytes).hexdigest().upper() != VV5_INDIVIDUAL_RUNNING_MANIFEST_SHA256:
-        raise PatcherError("VV5 revised Running manifest raw hash is not certified.")
-    if hashlib.sha256(map_bytes).hexdigest().upper() != VV5_INDIVIDUAL_RUNNING_MAP_SHA256:
-        raise PatcherError("VV5 revised Running map raw hash is not certified.")
+    if source_text_sha256(manifest_bytes) != VV5_INDIVIDUAL_RUNNING_MANIFEST_SHA256:
+        raise PatcherError("VV5 revised Running manifest source-text hash is not certified.")
+    if source_text_sha256(map_bytes) != VV5_INDIVIDUAL_RUNNING_MAP_SHA256:
+        raise PatcherError("VV5 revised Running map source-text hash is not certified.")
     raw = feature.raw
     if feature.id != VV5_INDIVIDUAL_RUNNING_CANDIDATE_ID:
         raise PatcherError("VV5 Running validator received an unexpected feature.")
@@ -2439,9 +2450,9 @@ def _validate_vv3_full_heal_candidate(
         map_bytes = VV3_FULL_HEAL_CANDIDATE_PATHS["map"].read_bytes()
     except OSError as exc:
         raise PatcherError("VV3 Full Heal candidate metadata is missing.") from exc
-    if hashlib.sha256(manifest_bytes).hexdigest().upper() != VV3_FULL_HEAL_MANIFEST_SHA256:
+    if source_text_sha256(manifest_bytes) != VV3_FULL_HEAL_MANIFEST_SHA256:
         raise PatcherError("VV3 Full Heal candidate manifest bytes are not certified.")
-    if hashlib.sha256(map_bytes).hexdigest().upper() != VV3_FULL_HEAL_MAP_SHA256:
+    if source_text_sha256(map_bytes) != VV3_FULL_HEAL_MAP_SHA256:
         raise PatcherError("VV3 Full Heal candidate map bytes are not certified.")
     try:
         canonical_manifest = json.loads(manifest_bytes.decode("utf-8"))
@@ -2967,8 +2978,8 @@ VV5_INDIVIDUAL_RUNNING_CANDIDATE_PATHS = {
 VV5_INDIVIDUAL_RUNNING_PARENT_SHA256 = {
     "collection_progression": "857E22D7C361B802508BF789C3CC486E42E76021F5AA579BB1D16CC6E0D017A0",
 }
-VV5_INDIVIDUAL_RUNNING_MANIFEST_SHA256 = "22FBF8D3AE9B2DC490067526AEC2628BCD6F17126EFD36D8B72BC5A9F813D2F5"
-VV5_INDIVIDUAL_RUNNING_MAP_SHA256 = "7D8A30C80CF14EB84DAC62AC324ED476F60E92B543A0B9DA3870F5184339F358"
+VV5_INDIVIDUAL_RUNNING_MANIFEST_SHA256 = "7869A3364F598B882E8C29F3A1957C5AF13A4654CF45EE0464DAA34545CB128B"
+VV5_INDIVIDUAL_RUNNING_MAP_SHA256 = "3FB4B979A98CC3C5FE76D7BD2D3851E5F918A8436141D4DF8A9C1969B6B11FAF"
 VV5_INDIVIDUAL_RUNNING_HELPER_SHA256 = "9692B2C08FEB1F76AA70709C59539B9A76369FE46C5C2E5888A965DA2D562FCC"
 VV5_INDIVIDUAL_RUNNING_PAGE_SHA256 = "9DA0E15FA9AB09FF986CC5F132DDB9C7662F77C445634504DDEA9DFAACF1C3F2"
 
