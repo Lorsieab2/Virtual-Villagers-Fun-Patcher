@@ -314,6 +314,43 @@ class VV3IndividualFullMasteryLoaderTests(unittest.TestCase):
             self.assertFalse(companion.exists())
             self.assertEqual(len(list(root.glob(".vv3im-terminal-*.json"))), 1)
 
+    def test_c333_genuine_writer_terminal_receipt_replays_idempotently(self):
+        with tempfile.TemporaryDirectory(prefix="vv3-c333-terminal-replay-") as td:
+            root = Path(td)
+            report, destination, companion = self._make_unresolved_report(root)
+            loader.recover_vv3_transaction(report)
+            receipts = list(root.glob(".vv3im-terminal-*.json"))
+            self.assertEqual(len(receipts), 1)
+            # The first recovery is writer-produced; the second call must use
+            # that durable receipt rather than treating the empty report state
+            # as ambiguous or recreating evidence from a filename.
+            loader.recover_atomic(root)
+            self.assertEqual(list(root.glob(".vv3im-terminal-*.json")), receipts)
+            self.assertFalse(destination.exists())
+            self.assertFalse(companion.exists())
+
+    def test_c333_genuine_receipt_rejects_late_namespace_insertion(self):
+        with tempfile.TemporaryDirectory(prefix="vv3-c333-terminal-late-race-") as td:
+            root = Path(td)
+            report, _destination, _companion = self._make_unresolved_report(root)
+            loader.recover_vv3_transaction(report)
+            receipt = next(root.glob(".vv3im-terminal-*.json"))
+            original_validate = loader._validate_vv3_hidden_namespace
+            calls = {"count": 0}
+
+            def insert_after_capture(parent, *, expected=None):
+                result = original_validate(parent, expected=expected)
+                calls["count"] += 1
+                if calls["count"] == 1:
+                    (root / ".vv3im-foreign-late.json").write_text("foreign", encoding="utf-8")
+                return result
+
+            with mock.patch.object(loader, "_validate_vv3_hidden_namespace", side_effect=insert_after_capture):
+                with self.assertRaises(vv_fun_patcher.PatcherError):
+                    loader.recover_atomic(root)
+            self.assertTrue(receipt.exists())
+            self.assertTrue((root / ".vv3im-foreign-late.json").exists())
+
     def test_d274_install_new_same_content_foreign_identity_rejected(self):
         with tempfile.TemporaryDirectory(prefix="vv3-d274-identity-") as td:
             root = Path(td)
