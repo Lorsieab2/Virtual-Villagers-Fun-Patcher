@@ -27,8 +27,8 @@ def model()->dict[str,object]:
       "parents":[{"mode":m,"sha256":h,"size":"0xCC000","sections":6,"size_of_image":"0x3B9000","result_sha256":None,"pe_checksum":None} for m,h in PARENTS],
       "section_plan":{"name":".vv3sv","header_raw":"0x2F0","raw_start":"0xCC000","raw_end":"0xCD000","rva":"0x3B9000","va":"0x7B9000","size":"0x1000","characteristics":"RX","header_bytes":None,"section_bytes":None,"final_bytes":None},
       "hooks":[
-        {"id":"deserializer","raw":"0x27D57","va":"0x427D57","preimage":"E824720300","target":"0x7B9000","expected":"E8A4123900","emitted":None,"sole_callsite":True},
-        {"id":"serializer","raw":"0x28A4C","va":"0x428A4C","preimage":"E80F3E0300","target":"0x7B9200","expected":"E8AF073900","emitted":None,"sole_callsite":True}
+        {"id":"serializer","stock_function":"0x45EF80","raw":"0x27D57","va":"0x427D57","preimage":"E824720300","target":"0x7B9000","expected":"E8A4123900","emitted":None,"sole_callsite":True},
+        {"id":"deserializer","stock_function":"0x45C860","raw":"0x28A4C","va":"0x428A4C","preimage":"E80F3E0300","target":"0x7B9200","expected":"E8AF073900","emitted":None,"sole_callsite":True}
       ],
       "abis":[{"id":i,"start":s,"end":e,"sha256":h,"contract":c} for i,s,e,h,c in ABIS],
       "wrapper_model":{
