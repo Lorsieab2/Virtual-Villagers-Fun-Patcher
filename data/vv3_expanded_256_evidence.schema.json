@@ -12,6 +12,7 @@
     "source_sha256",
     "prototype_sha256",
     "stock",
+    "exporter_manifest",
     "ida_export",
     "reconcile",
     "coverage",
@@ -25,7 +26,7 @@
     "provenance": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["producer", "input_kind", "status", "synthetic", "ambiguous", "incomplete", "reconciled"],
+      "required": ["producer", "input_kind", "status", "synthetic", "ambiguous", "incomplete", "reconciled", "run_id", "manifest_sha256", "manifest_file_sha256"],
       "properties": {
         "producer": {"type": "string", "minLength": 1},
         "input_kind": {"const": "exact_stock_executable"},
@@ -33,7 +34,10 @@
         "synthetic": {"const": false},
         "ambiguous": {"const": false},
         "incomplete": {"const": false},
-        "reconciled": {"const": true}
+        "reconciled": {"const": true},
+        "run_id": {"type": "string", "minLength": 1},
+        "manifest_sha256": {"type": "string", "pattern": "^[0-9A-F]{64}$"},
+        "manifest_file_sha256": {"type": "string", "pattern": "^[0-9A-F]{64}$"}
       }
     },
     "source_sha256": {"const": "8BC5DB382D02BC5C21AD5F607580D60FF44A6519CC7EB133F03113BAACAE6503"},
@@ -46,6 +50,16 @@
         "sha256": {"const": "8BC5DB382D02BC5C21AD5F607580D60FF44A6519CC7EB133F03113BAACAE6503"},
         "size": {"const": 831488},
         "imagebase": {"$ref": "#/$defs/hex_integer"}
+      }
+    },
+    "exporter_manifest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "size", "sha256"],
+      "properties": {
+        "path": {"$ref": "#/$defs/catalog_path"},
+        "size": {"type": "integer", "minimum": 1},
+        "sha256": {"type": "string", "pattern": "^[0-9A-F]{64}$"}
       }
     },
     "ida_export": {
@@ -114,14 +128,9 @@
           "ambiguous": {"const": false},
           "incomplete": {"const": false},
           "kind": {"type": "string", "minLength": 1},
-          "path": {
-            "type": "string",
-            "minLength": 1,
-            "pattern": "^[^\\\\/:*?\"<>|\\u0000-\\u001F]+(?:/[^\\\\/:*?\"<>|\\u0000-\\u001F]+)*$",
-            "not": {"pattern": "(^|/)(\\.|\\.\\.)(/|$)"}
-          },
+          "path": {"$ref": "#/$defs/catalog_path"},
           "size": {"type": "integer", "minimum": 0},
-          "sha256": {"type": "string", "pattern": "^[0-9A-Fa-f]{64}$"}
+          "sha256": {"type": "string", "pattern": "^[0-9A-F]{64}$"}
         }
       }
     },
@@ -140,6 +149,12 @@
     }
   },
   "$defs": {
+    "catalog_path": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^[^\\\\/:*?\"<>|\\u0000-\\u001F]+(?:/[^\\\\/:*?\"<>|\\u0000-\\u001F]+)*$",
+      "not": {"pattern": "(^|/)(\\.|\\.\\.)(/|$)"}
+    },
     "hex_integer": {
       "oneOf": [
         {"type": "integer", "minimum": 0},

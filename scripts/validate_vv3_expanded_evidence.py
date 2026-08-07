@@ -16,9 +16,15 @@ from vv3_expanded_256_evidence import validate_evidence_file  # noqa: E402
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("evidence_json", type=Path)
+    parser.add_argument(
+        "--catalog-root",
+        type=Path,
+        default=None,
+        help="root directory for the root-relative exporter manifest and runtime artifact catalog",
+    )
     args = parser.parse_args(argv)
     try:
-        result = validate_evidence_file(args.evidence_json)
+        result = validate_evidence_file(args.evidence_json, catalog_root=args.catalog_root)
     except (OSError, ValueError, json.JSONDecodeError) as exc:
         print(json.dumps({"valid": False, "error_count": 1, "errors": [str(exc)]}, indent=2))
         return 1

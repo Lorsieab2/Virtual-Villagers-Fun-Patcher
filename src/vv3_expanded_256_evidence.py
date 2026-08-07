@@ -1,9 +1,11 @@
 """Fail-closed validation for future VV3 Expanded-256 evidence bundles.
 
-This module consumes a JSON bundle assembled from the read-only IDA exporter
-and reconciler.  It validates provenance, exact-build identity, guarded stock
-operands, native coverage categories, and runtime-gate attestations.  It never
-opens a game executable, save, or game folder.
+This module consumes a canonical JSON bundle assembled from the read-only IDA
+exporter and reconciler.  File-bound validation additionally authenticates a
+root-relative exporter manifest and every runtime-gate artifact with stable
+no-follow inventories and re-reads.  It validates provenance, exact-build
+identity, guarded stock operands, native coverage categories, and runtime-gate
+attestations.  It never opens a game executable, save, or game folder.
 
 The existing static contract remains authoritative.  In particular,
 ``publication_ready()`` from :mod:`vv3_expanded_256_contract` is still false
@@ -17,6 +19,7 @@ import hashlib
 import json
 import os
 from pathlib import Path
+from pathlib import PurePosixPath
 from pathlib import PureWindowsPath
 import re
 import stat
@@ -32,6 +35,9 @@ from vv3_expanded_256_contract import (
 
 EVIDENCE_SCHEMA = "vvfp.vv3_expanded_256_evidence"
 EVIDENCE_SCHEMA_VERSION = 1
+EXPORTER_MANIFEST_SCHEMA = "vvfp.vv3_expanded_256_exporter_manifest"
+EXPORTER_MANIFEST_SCHEMA_VERSION = 1
+EXPORTER_PRODUCER = "vv3-ida-exporter"
 VV3_PROTOTYPE_SHA256 = (
     "6EE3361A7AC35F441763647C1E2FC9EC49569DE5EF372BDB41D243D03002D601"
 )
@@ -85,7 +91,7 @@ REQUIRED_RUNTIME_GATES = (
 )
 
 _HEX = re.compile(r"^(?:0x)?[0-9A-Fa-f]+$")
-_SHA256 = re.compile(r"^[0-9A-Fa-f]{64}$")
+_SHA256 = re.compile(r"^[0-9A-F]{64}$")
 _STATUS = "verified"
 _REPARSE_POINT = 0x0400
 
@@ -97,6 +103,7 @@ _BUNDLE_KEYS = {
     "source_sha256",
     "prototype_sha256",
     "stock",
+    "exporter_manifest",
     "ida_export",
     "reconcile",
     "coverage",
@@ -111,7 +118,30 @@ _PROVENANCE_KEYS = {
     "ambiguous",
     "incomplete",
     "reconciled",
+    "run_id",
+    "manifest_sha256",
+    "manifest_file_sha256",
 }
+_EXPORTER_MANIFEST_CATALOG_KEYS = {"path", "size", "sha256"}
+_EXPORTER_MANIFEST_KEYS = {
+    "schema",
+    "schema_version",
+    "producer",
+    "exporter_version",
+    "run_id",
+    "input_kind",
+    "status",
+    "synthetic",
+    "ambiguous",
+    "incomplete",
+    "reconciled",
+    "source_sha256",
+    "source_size",
+    "prototype_sha256",
+    "operand_expectations",
+    "manifest_sha256",
+}
+_OPERAND_EXPECTATION_KEYS = {"file_offset", "ea", "raw_bytes", "xrefs"}
 _STOCK_KEYS = {"sha256", "size", "imagebase"}
 _IDA_EXPORT_KEYS = {
     "decoded_instruction_heads",
@@ -298,6 +328,18 @@ def _file_signature(stat_result: os.stat_result) -> tuple[int, int, int, int]:
     )
 
 
+def _validated_catalog_root(root: Path) -> Path:
+    """Resolve a regular directory root without following a reparse root."""
+
+    root = Path(root)
+    root_stat = os.lstat(root)
+    if _is_reparse_like(root_stat):
+        raise ValueError("catalog root must not be a symlink or reparse point")
+    if not stat.S_ISDIR(root_stat.st_mode):
+        raise ValueError("catalog root must be a directory")
+    return root.resolve(strict=True)
+
+
 def _stable_file_read(path: Path, *, catalog_root: Path | None = None) -> tuple[bytes, EvidenceFileInventory]:
     """Read and hash a regular file while detecting replacement or mutation."""
 
@@ -305,7 +347,7 @@ def _stable_file_read(path: Path, *, catalog_root: Path | None = None) -> tuple[
     target = path
     if catalog_root is not None:
         relative_path = _canonical_catalog_path(str(path))
-        root = catalog_root.resolve(strict=True)
+        root = _validated_catalog_root(catalog_root)
         target = root.joinpath(*relative_path.split("/"))
         resolved = target.resolve(strict=True)
         try:
@@ -362,6 +404,84 @@ def inventory_evidence_file(path: Path, *, root: Path) -> EvidenceFileInventory:
     return inventory
 
 
+def _load_exporter_manifest(
+    bundle: Mapping[str, Any],
+    *,
+    catalog_root: Path,
+    errors: list[str],
+) -> tuple[Mapping[str, Any] | None, EvidenceFileInventory | None]:
+    catalog = _validate_exporter_manifest_catalog(bundle, errors)
+    if catalog is None:
+        return None, None
+    path, declared_size, declared_hash = catalog
+    try:
+        raw, inventory = _stable_file_read(PurePosixPath(path), catalog_root=catalog_root)
+    except (OSError, ValueError) as exc:
+        _error(errors, f"exporter manifest inventory failed for {path}: {exc}")
+        return None, None
+    if inventory.path != path:
+        _error(errors, "exporter manifest path does not match its canonical catalog path")
+    if inventory.size != declared_size:
+        _error(errors, f"exporter manifest size mismatch for {path}")
+    if inventory.sha256 != declared_hash:
+        _error(errors, f"exporter manifest SHA-256 mismatch for {path}")
+    try:
+        manifest_value = _parse_canonical_json(raw)
+    except ValueError as exc:
+        _error(errors, f"exporter manifest JSON is not canonical: {exc}")
+        return None, inventory
+    _validate_exporter_manifest(manifest_value, errors)
+    return manifest_value, inventory
+
+
+def _inventory_runtime_artifacts(
+    bundle: Mapping[str, Any],
+    *,
+    catalog_root: Path,
+    errors: list[str],
+) -> dict[str, EvidenceFileInventory]:
+    raw = bundle.get("runtime_evidence")
+    if not isinstance(raw, list):
+        return {}
+    inventories: dict[str, EvidenceFileInventory] = {}
+    for index, item in enumerate(raw):
+        field = f"runtime_artifacts[{index}]"
+        if not isinstance(item, Mapping):
+            continue
+        evidence_id = item.get("id")
+        path = _validate_catalog_path(item.get("path"), f"{field}.path", errors)
+        if not isinstance(evidence_id, str) or not evidence_id or path is None:
+            continue
+        try:
+            inventory = inventory_evidence_file(PurePosixPath(path), root=catalog_root)
+        except (OSError, ValueError) as exc:
+            _error(errors, f"{field} inventory failed for {path}: {exc}")
+            continue
+        declared_size = _strict_int(item.get("size"), f"{field}.size", errors, minimum=0)
+        declared_hash = _sha256(item.get("sha256"), f"{field}.sha256", errors)
+        if inventory.path != path:
+            _error(errors, f"{field} path does not match the canonical catalog path")
+        if declared_size is not None and inventory.size != declared_size:
+            _error(errors, f"{field} declared size does not match the inventory")
+        if declared_hash is not None and inventory.sha256 != declared_hash:
+            _error(errors, f"{field} declared SHA-256 does not match the inventory")
+        inventories[evidence_id] = inventory
+    return inventories
+
+
+def _compare_artifact_inventories(
+    first: Mapping[str, EvidenceFileInventory],
+    second: Mapping[str, EvidenceFileInventory],
+    errors: list[str],
+) -> None:
+    if set(first) != set(second):
+        _error(errors, "runtime artifact catalog changed between inventory reads")
+        return
+    for evidence_id in sorted(first):
+        if first[evidence_id] != second[evidence_id]:
+            _error(errors, f"runtime artifact {evidence_id} changed between inventory reads")
+
+
 def _reject_duplicate_json_keys(pairs: list[tuple[str, Any]]) -> dict[str, Any]:
     result: dict[str, Any] = {}
     for key, value in pairs:
@@ -384,6 +504,14 @@ def canonical_json_bytes(value: Mapping[str, Any]) -> bytes:
         ).encode("utf-8")
     except (TypeError, ValueError) as exc:
         raise ValueError(f"evidence JSON cannot be canonicalized: {exc}") from exc
+
+
+def canonical_exporter_manifest_bytes(manifest: Mapping[str, Any]) -> bytes:
+    """Serialize the exporter manifest body, excluding its self-digest."""
+
+    body = dict(manifest)
+    body.pop("manifest_sha256", None)
+    return canonical_json_bytes(body)
 
 
 def _parse_canonical_json(raw: bytes) -> Mapping[str, Any]:
@@ -415,9 +543,9 @@ def _hex_int(value: Any, field: str, errors: list[str]) -> int | None:
 
 def _sha256(value: Any, field: str, errors: list[str]) -> str | None:
     if not isinstance(value, str) or not _SHA256.fullmatch(value):
-        _error(errors, f"{field} must be a 64-hex SHA-256 digest")
+        _error(errors, f"{field} must be a canonical uppercase 64-hex SHA-256 digest")
         return None
-    return value.upper()
+    return value
 
 
 def _hex_bytes(value: Any, field: str, errors: list[str]) -> bytes | None:
@@ -445,7 +573,154 @@ def _require_nonempty_string(value: Any, field: str, errors: list[str]) -> str |
     return value
 
 
-def _validate_provenance(bundle: Mapping[str, Any], errors: list[str]) -> None:
+def _validate_exporter_manifest_catalog(
+    bundle: Mapping[str, Any],
+    errors: list[str],
+) -> tuple[str, int, str] | None:
+    catalog = _require_mapping(bundle.get("exporter_manifest"), "exporter_manifest", errors)
+    if catalog is None:
+        return None
+    _reject_extra_keys(catalog, _EXPORTER_MANIFEST_CATALOG_KEYS, "exporter_manifest", errors)
+    path = _validate_catalog_path(catalog.get("path"), "exporter_manifest.path", errors)
+    size = _strict_int(catalog.get("size"), "exporter_manifest.size", errors, minimum=1)
+    digest = _sha256(catalog.get("sha256"), "exporter_manifest.sha256", errors)
+    if path is None or size is None or digest is None:
+        return None
+    return path, size, digest
+
+
+def _validate_exporter_manifest(
+    manifest: Mapping[str, Any],
+    errors: list[str],
+) -> Mapping[str, Any]:
+    _reject_extra_keys(manifest, _EXPORTER_MANIFEST_KEYS, "exporter_manifest.file", errors)
+    if manifest.get("schema") != EXPORTER_MANIFEST_SCHEMA:
+        _error(errors, "exporter_manifest.file.schema is unsupported")
+    schema_version = _strict_int(
+        manifest.get("schema_version"),
+        "exporter_manifest.file.schema_version",
+        errors,
+    )
+    if schema_version is not None and schema_version != EXPORTER_MANIFEST_SCHEMA_VERSION:
+        _error(errors, "exporter_manifest.file.schema_version is unsupported")
+    if manifest.get("producer") != EXPORTER_PRODUCER:
+        _error(errors, f"exporter_manifest.file.producer must be {EXPORTER_PRODUCER}")
+    _require_nonempty_string(
+        manifest.get("exporter_version"),
+        "exporter_manifest.file.exporter_version",
+        errors,
+    )
+    _require_nonempty_string(manifest.get("run_id"), "exporter_manifest.file.run_id", errors)
+    if manifest.get("input_kind") != "exact_stock_executable":
+        _error(errors, "exporter_manifest.file.input_kind must be exact_stock_executable")
+    if manifest.get("status") != "complete":
+        _error(errors, "exporter_manifest.file.status must be complete")
+    for key in ("synthetic", "ambiguous", "incomplete"):
+        if manifest.get(key) is not False:
+            _error(errors, f"exporter_manifest.file.{key} must be false")
+    if manifest.get("reconciled") is not True:
+        _error(errors, "exporter_manifest.file.reconciled must be true")
+
+    source = _sha256(manifest.get("source_sha256"), "exporter_manifest.file.source_sha256", errors)
+    if source is not None and source != VV3_SOURCE_SHA256:
+        _error(errors, "exporter_manifest.file.source_sha256 does not match VV3")
+    source_size = _strict_int(
+        manifest.get("source_size"),
+        "exporter_manifest.file.source_size",
+        errors,
+        minimum=1,
+    )
+    if source_size is not None and source_size != VV3_STOCK_SIZE:
+        _error(errors, f"exporter_manifest.file.source_size must be {VV3_STOCK_SIZE}")
+    prototype = _sha256(
+        manifest.get("prototype_sha256"),
+        "exporter_manifest.file.prototype_sha256",
+        errors,
+    )
+    if prototype is not None and prototype != VV3_PROTOTYPE_SHA256:
+        _error(errors, "exporter_manifest.file.prototype_sha256 does not match VV3")
+
+    expectations = manifest.get("operand_expectations")
+    seen_offsets: set[int] = set()
+    previous_offset = -1
+    if not isinstance(expectations, list) or not expectations:
+        _error(errors, "exporter_manifest.file.operand_expectations must be a non-empty list")
+        expectations = []
+    for index, expectation in enumerate(expectations):
+        field = f"exporter_manifest.file.operand_expectations[{index}]"
+        item = _require_mapping(expectation, field, errors)
+        if item is None:
+            continue
+        _reject_extra_keys(item, _OPERAND_EXPECTATION_KEYS, field, errors)
+        offset = _hex_int(item.get("file_offset"), f"{field}.file_offset", errors)
+        ea = _hex_int(item.get("ea"), f"{field}.ea", errors)
+        raw_bytes = _hex_bytes(item.get("raw_bytes"), f"{field}.raw_bytes", errors)
+        if offset is not None:
+            if offset <= previous_offset:
+                _error(errors, f"{field}.file_offset entries must be in canonical order")
+            previous_offset = max(previous_offset, offset)
+            if offset in seen_offsets:
+                _error(errors, f"exporter manifest operand offset 0x{offset:X} is duplicated")
+            seen_offsets.add(offset)
+            expected_patch = VV3_REQUIRED_PATCHES.get(offset)
+            if expected_patch is None:
+                _error(errors, f"exporter manifest operand offset 0x{offset:X} is not reviewed")
+            elif raw_bytes is not None and raw_bytes != bytes.fromhex(expected_patch["before"]):
+                _error(errors, f"{field}.raw_bytes does not match the reviewed VV3 operand")
+        xrefs = item.get("xrefs")
+        if not isinstance(xrefs, list) or not xrefs:
+            _error(errors, f"{field}.xrefs must be a non-empty list")
+            continue
+        seen_xrefs: set[tuple[int, str]] = set()
+        seen_xref_eas: set[int] = set()
+        previous_xref: tuple[int, str] | None = None
+        for xref_index, xref in enumerate(xrefs):
+            xref_field = f"{field}.xrefs[{xref_index}]"
+            xref_map = _require_mapping(xref, xref_field, errors)
+            if xref_map is None:
+                continue
+            _reject_extra_keys(xref_map, _XREF_KEYS, xref_field, errors)
+            xref_ea = _hex_int(xref_map.get("ea"), f"{xref_field}.ea", errors)
+            kind = _require_nonempty_string(xref_map.get("kind"), f"{xref_field}.kind", errors)
+            if xref_ea is None or kind is None:
+                continue
+            key = (xref_ea, kind)
+            if previous_xref is not None and key <= previous_xref:
+                _error(errors, f"{field}.xrefs must be in canonical order")
+            previous_xref = key
+            if key in seen_xrefs or xref_ea in seen_xref_eas:
+                _error(errors, f"{field}.xrefs contains a duplicate expected EA")
+            seen_xrefs.add(key)
+            seen_xref_eas.add(xref_ea)
+        if ea is None:
+            continue
+
+    missing_offsets = sorted(set(VV3_REQUIRED_PATCHES) - seen_offsets)
+    if missing_offsets:
+        _error(errors, f"exporter manifest is missing reviewed operands: {missing_offsets}")
+    unexpected_offsets = sorted(seen_offsets - set(VV3_REQUIRED_PATCHES))
+    if unexpected_offsets:
+        _error(errors, f"exporter manifest contains unexpected operands: {unexpected_offsets}")
+
+    manifest_digest = _sha256(
+        manifest.get("manifest_sha256"),
+        "exporter_manifest.file.manifest_sha256",
+        errors,
+    )
+    if manifest_digest is not None:
+        calculated = hashlib.sha256(canonical_exporter_manifest_bytes(manifest)).hexdigest().upper()
+        if manifest_digest != calculated:
+            _error(errors, "exporter_manifest.file.manifest_sha256 does not match canonical manifest bytes")
+    return manifest
+
+
+def _validate_provenance(
+    bundle: Mapping[str, Any],
+    errors: list[str],
+    *,
+    exporter_manifest: Mapping[str, Any] | None = None,
+    manifest_file_sha256: str | None = None,
+) -> None:
     provenance = _require_mapping(bundle.get("provenance"), "provenance", errors)
     if provenance is None:
         return
@@ -460,6 +735,24 @@ def _validate_provenance(bundle: Mapping[str, Any], errors: list[str]) -> None:
     if provenance.get("input_kind") != "exact_stock_executable":
         _error(errors, "provenance.input_kind must be exact_stock_executable")
     _require_nonempty_string(provenance.get("producer"), "provenance.producer", errors)
+    _require_nonempty_string(provenance.get("run_id"), "provenance.run_id", errors)
+    manifest_digest = _sha256(provenance.get("manifest_sha256"), "provenance.manifest_sha256", errors)
+    manifest_file_digest = _sha256(
+        provenance.get("manifest_file_sha256"),
+        "provenance.manifest_file_sha256",
+        errors,
+    )
+    if exporter_manifest is None:
+        _error(errors, "provenance exporter manifest has not been authenticated from a file")
+        return
+    if provenance.get("producer") != exporter_manifest.get("producer"):
+        _error(errors, "provenance.producer does not match the authenticated exporter manifest")
+    if provenance.get("run_id") != exporter_manifest.get("run_id"):
+        _error(errors, "provenance.run_id does not match the authenticated exporter manifest")
+    if manifest_digest is not None and manifest_digest != exporter_manifest.get("manifest_sha256"):
+        _error(errors, "provenance.manifest_sha256 does not match the authenticated exporter manifest")
+    if manifest_file_digest is not None and manifest_file_digest != manifest_file_sha256:
+        _error(errors, "provenance.manifest_file_sha256 does not match the manifest file inventory")
 
 
 def _validate_fingerprint(bundle: Mapping[str, Any], errors: list[str]) -> None:
@@ -741,7 +1034,12 @@ def _validate_padding(coverage: Mapping[str, Any], errors: list[str]) -> None:
             _error(errors, f"{prefix}.padding_indices must be [256, 257, 258, 259]")
 
 
-def _validate_exact_operands(coverage: Mapping[str, Any], errors: list[str]) -> None:
+def _validate_exact_operands(
+    coverage: Mapping[str, Any],
+    errors: list[str],
+    *,
+    exporter_manifest: Mapping[str, Any] | None = None,
+) -> None:
     raw = coverage.get("exact_stock_operands_xrefs")
     if not isinstance(raw, list):
         _error(errors, "coverage.exact_stock_operands_xrefs must be a list")
@@ -771,6 +1069,58 @@ def _validate_exact_operands(coverage: Mapping[str, Any], errors: list[str]) -> 
     unexpected = sorted(set(by_offset) - set(VV3_REQUIRED_PATCHES))
     for offset in unexpected:
         _error(errors, f"exact stock operand 0x{offset:X} is not a reviewed VV3 operand")
+
+    if exporter_manifest is None:
+        _error(errors, "exact stock operands require an authenticated exporter manifest")
+        return
+    expectations = exporter_manifest.get("operand_expectations")
+    if not isinstance(expectations, list):
+        _error(errors, "authenticated exporter manifest operand expectations are missing")
+        return
+    expected_by_offset: dict[int, Mapping[str, Any]] = {}
+    for expectation in expectations:
+        if not isinstance(expectation, Mapping):
+            continue
+        offset = _hex_int(expectation.get("file_offset"), "exporter manifest operand file_offset", errors)
+        if offset is not None:
+            expected_by_offset[offset] = expectation
+    if set(expected_by_offset) != set(by_offset):
+        _error(errors, "exact stock operand offsets do not match the authenticated exporter manifest")
+    for offset, expected in expected_by_offset.items():
+        actual = by_offset.get(offset)
+        if actual is None:
+            continue
+        expected_ea = _hex_int(
+            expected.get("ea"),
+            f"authenticated exporter operand 0x{offset:X}.ea",
+            errors,
+        )
+        actual_ea = _hex_int(actual.get("ea"), f"exact stock operand 0x{offset:X}.ea", errors)
+        if expected_ea is not None and actual_ea is not None and expected_ea != actual_ea:
+            _error(errors, f"exact stock operand 0x{offset:X} EA does not match the authenticated exporter manifest")
+        expected_xrefs = expected.get("xrefs")
+        actual_xrefs = actual.get("xrefs")
+        if not isinstance(expected_xrefs, list) or not isinstance(actual_xrefs, list):
+            continue
+
+        def xref_tuple_list(value: list[Any], field: str) -> list[tuple[int, str]]:
+            tuples: list[tuple[int, str]] = []
+            for index, xref in enumerate(value):
+                if not isinstance(xref, Mapping):
+                    continue
+                xref_ea = _hex_int(xref.get("ea"), f"{field}[{index}].ea", errors)
+                kind = _require_nonempty_string(xref.get("kind"), f"{field}[{index}].kind", errors)
+                if xref_ea is not None and kind is not None:
+                    tuples.append((xref_ea, kind))
+            return tuples
+
+        expected_tuples = xref_tuple_list(
+            expected_xrefs,
+            f"authenticated exporter operand 0x{offset:X}.xrefs",
+        )
+        actual_tuples = xref_tuple_list(actual_xrefs, f"exact stock operand 0x{offset:X}.xrefs")
+        if actual_tuples != expected_tuples:
+            _error(errors, f"exact stock operand 0x{offset:X} xrefs do not match the authenticated exporter manifest")
 
 
 def _validate_runtime_gates(bundle: Mapping[str, Any], errors: list[str]) -> bool:
@@ -888,15 +1238,26 @@ def _validate_runtime_gates(bundle: Mapping[str, Any], errors: list[str]) -> boo
     return ready and catalog_valid
 
 
-def validate_vv3_evidence(bundle: Mapping[str, Any]) -> EvidenceValidation:
-    """Validate a future IDA/reconciler evidence bundle without game files."""
-
-    errors: list[str] = []
+def _validate_vv3_evidence(
+    bundle: Mapping[str, Any],
+    *,
+    exporter_manifest: Mapping[str, Any] | None,
+    manifest_file_sha256: str | None,
+    authenticated_catalog: bool,
+    authentication_errors: Sequence[str] = (),
+) -> EvidenceValidation:
+    errors: list[str] = list(authentication_errors)
     if not isinstance(bundle, Mapping):
         return EvidenceValidation(("evidence bundle must be an object",), False, False, False)
 
     _reject_extra_keys(bundle, _BUNDLE_KEYS, "evidence", errors)
-    _validate_provenance(bundle, errors)
+    _validate_exporter_manifest_catalog(bundle, errors)
+    _validate_provenance(
+        bundle,
+        errors,
+        exporter_manifest=exporter_manifest,
+        manifest_file_sha256=manifest_file_sha256,
+    )
     _validate_fingerprint(bundle, errors)
     _validate_reconcile(bundle, errors)
     _validate_export(bundle, errors)
@@ -907,15 +1268,26 @@ def validate_vv3_evidence(bundle: Mapping[str, Any]) -> EvidenceValidation:
         _validate_indices(coverage, errors)
         _validate_consumers(coverage, errors)
         _validate_padding(coverage, errors)
-        _validate_exact_operands(coverage, errors)
+        _validate_exact_operands(coverage, errors, exporter_manifest=exporter_manifest)
     runtime_ready = _validate_runtime_gates(bundle, errors)
-    static_valid = not errors or all(error.startswith("runtime_gates.") for error in errors)
-    # Static validity must not accidentally pass when a required runtime object
-    # is absent; the distinction is useful only for diagnostics.
-    if "runtime_gates" not in bundle:
+    structural_errors = [error for error in errors if not error.startswith("runtime_gates.")]
+    static_valid = authenticated_catalog and exporter_manifest is not None and not structural_errors
+    if "runtime_gates" not in bundle or not authenticated_catalog:
         static_valid = False
     publication = not errors and static_valid and runtime_ready and static_publication_ready()
     return EvidenceValidation(tuple(errors), static_valid, runtime_ready, publication)
+
+
+def validate_vv3_evidence(bundle: Mapping[str, Any]) -> EvidenceValidation:
+    """Validate structure only; direct mappings are never authenticated or static-valid."""
+
+    return _validate_vv3_evidence(
+        bundle,
+        exporter_manifest=None,
+        manifest_file_sha256=None,
+        authenticated_catalog=False,
+        authentication_errors=("authentication requires a canonical evidence file and exporter manifest",),
+    )
 
 
 def publication_ready_with_evidence(bundle: Mapping[str, Any]) -> bool:
@@ -932,16 +1304,50 @@ def load_evidence(path: Path) -> Mapping[str, Any]:
     return _parse_canonical_json(raw)
 
 
-def validate_evidence_file(path: Path) -> EvidenceValidation:
-    """Validate a canonical evidence file and detect mutation during validation."""
+def validate_evidence_file(path: Path, *, catalog_root: Path | None = None) -> EvidenceValidation:
+    """Authenticate a canonical evidence file and every referenced artifact."""
 
     try:
+        root = _validated_catalog_root(catalog_root or Path(path).parent)
         raw, initial = _stable_file_read(path)
         bundle = _parse_canonical_json(raw)
-        result = validate_vv3_evidence(bundle)
+        authentication_errors: list[str] = []
+        exporter_manifest, manifest_inventory = _load_exporter_manifest(
+            bundle,
+            catalog_root=root,
+            errors=authentication_errors,
+        )
+        initial_artifacts = _inventory_runtime_artifacts(
+            bundle,
+            catalog_root=root,
+            errors=authentication_errors,
+        )
+        result = _validate_vv3_evidence(
+            bundle,
+            exporter_manifest=exporter_manifest,
+            manifest_file_sha256=manifest_inventory.sha256 if manifest_inventory else None,
+            authenticated_catalog=not authentication_errors and manifest_inventory is not None,
+            authentication_errors=authentication_errors,
+        )
+        final_errors: list[str] = []
+        final_manifest, final_manifest_inventory = _load_exporter_manifest(
+            bundle,
+            catalog_root=root,
+            errors=final_errors,
+        )
+        final_artifacts = _inventory_runtime_artifacts(
+            bundle,
+            catalog_root=root,
+            errors=final_errors,
+        )
+        if manifest_inventory != final_manifest_inventory or exporter_manifest != final_manifest:
+            _error(final_errors, "exporter manifest changed between inventory reads")
+        _compare_artifact_inventories(initial_artifacts, final_artifacts, final_errors)
         _, final = _stable_file_read(path)
     except (OSError, ValueError) as exc:
         return EvidenceValidation((str(exc),), False, False, False)
+    if final_errors:
+        return EvidenceValidation((*result.errors, *final_errors), False, False, False)
     if initial != final:
         return EvidenceValidation(
             (*result.errors, "evidence file identity or bytes changed between inventory, read, and validation"),
