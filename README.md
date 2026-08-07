@@ -300,22 +300,15 @@ player runtime validation.
 
 ## VV3: Grant Running to Selected Villager
 
-The enabled/catalog-visible `vv3_individual_grant_running_candidate` is available
-only in stock Collection Progression and Immediate Fixed when the certified VV3
-Full Mastery chain is selected. It uses the existing Villager Upgrades command-2
-route, costs 40,000 tech points, and is Buy-only with no ownership or Remove
-route. The withdrawn village-wide command-6 Running row remains absent. Expanded-
-256, unknown builds, and corrupt metadata fail closed; static evidence is GO while
-runtime/player validation remains pending.
+`vv3_individual_grant_running_candidate` is disabled, catalog-hidden, and absent
+from GUI, CLI, and Select All. The withdrawn village-wide command-6 Running row
+is also absent. Its retained evidence is not publication authority.
 
 ## VV3: Full Heal / Cure All
 
-The enabled/catalog-visible `vv3_full_heal_cure_all_candidate` is available only
-for stock Collection Progression and Immediate Fixed when the certified Origins,
-Full Mastery, and selected-villager Running chain is selected. It is a repeatable
-Buy-only command 5 costing 30,000 tech points; no Remove or ownership route is
-added. Expanded-256, unknown builds, and corrupt metadata fail closed, and
-runtime/player confirmation remains pending.
+`vv3_full_heal_cure_all_candidate` is absent because its required selected-
+villager Running dependency is disabled and hidden. It must not appear in GUI,
+CLI, or Select All. Its retained evidence is not publication authority.
 
 ## VV4 breeding reference
 
@@ -549,9 +542,12 @@ VV5's former command-7-only Full Mastery package at commit `5e52be5` was
 withdrawn after an immediate startup auto-close. The corrected constructors
 were independently certified under `7970cd9`, and M2 passed startup and Full
 Mastery live testing. The disabled geometry candidate now uses cached
-`Images\\btn_trophies.png`, native resource `0x53` (96x39), at local `(137,2)`
+`Images\\btn_trophies.png`, native resource `0x6A` (96x39), at local `(137,2)`
 for both Tech and Detail, preserving event 13, `sub_401BD0`, and `0x40C680`
 ownership; independent emitted-byte recertification remains required.
+The VV5 Full Mastery and Running candidates remain disabled and catalog-hidden.
+The nonresponsive Tech/Detail click route remains STOP pending an exact
+`sub_44B560` hook guard, ABI/overlap proof, and click-to-dialog player receipt.
 The feature is inspired by the
 selected exclusive upgrades in the Virtual Villagers 1 mobile port. VV5
 excludes Heathens; all games leave movement speed, nursing/pregnancy timers,

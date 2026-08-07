@@ -1364,10 +1364,29 @@ def _certified_vv4_full_heal_record(
         return None
     manifest_bytes = manifest_path.read_bytes()
     map_bytes = map_path.read_bytes()
+    try:
+        manifest = json.loads(manifest_bytes.decode("utf-8-sig"))
+        artifact_map = json.loads(map_bytes.decode("utf-8-sig"))
+    except (UnicodeDecodeError, json.JSONDecodeError) as exc:
+        raise PatcherError("VV4 Full Heal candidate manifest/map is malformed.") from exc
+    disabled_manifest = (
+        manifest.get("id") == VV4_FULL_HEAL_CANDIDATE_ID
+        and manifest.get("enabled") is False
+        and manifest.get("catalog_hidden") is True
+        and manifest.get("catalog_enabled") is False
+    )
+    disabled_map = (
+        artifact_map.get("candidate_id") == VV4_FULL_HEAL_CANDIDATE_ID
+        and artifact_map.get("candidate_enabled") is False
+        and artifact_map.get("catalog_hidden") is True
+        and artifact_map.get("catalog_enabled") is False
+    )
+    if disabled_manifest and disabled_map:
+        return None
+    if disabled_manifest != disabled_map:
+        raise PatcherError("VV4 Full Heal disabled/catalog-hidden records disagree.")
     if hashlib.sha256(manifest_bytes).hexdigest().upper() != VV4_FULL_HEAL_MANIFEST_SHA256 or hashlib.sha256(map_bytes).hexdigest().upper() != VV4_FULL_HEAL_MAP_SHA256:
-        raise PatcherError("VV4 Full Heal candidate manifest/map raw bytes are not pinned.")
-    manifest = json.loads(manifest_bytes.decode("utf-8-sig"))
-    artifact_map = json.loads(map_bytes.decode("utf-8-sig"))
+        raise PatcherError("VV4 Full Heal enabled candidate manifest/map raw bytes are not pinned.")
     manifest_proof = manifest.get("lineage_proof", {})
     map_proof = artifact_map.get("lineage_proof", {})
     if (manifest_proof.get("protected_range_end_inclusive") is not VV4_FULL_HEAL_PROTECTED_RANGE_END_INCLUSIVE
@@ -1377,8 +1396,8 @@ def _certified_vv4_full_heal_record(
            for proof in (manifest_proof, map_proof)
            for item in proof.get("allowed_diff_ranges", [])):
         raise PatcherError("VV4 Full Heal allowed-difference endpoints must be exclusive.")
-    if not manifest.get("enabled", False):
-        return None
+    if manifest.get("enabled") is not True or artifact_map.get("candidate_enabled") is not True:
+        raise PatcherError("VV4 Full Heal candidate state is neither strictly disabled nor enabled.")
     if manifest.get("catalog_hidden") is not False or manifest.get("catalog_enabled") is not True:
         raise PatcherError("VV4 Full Heal candidate must be explicitly catalog-visible when enabled.")
     if manifest.get("id") != VV4_FULL_HEAL_CANDIDATE_ID or artifact_map.get("candidate_id") != VV4_FULL_HEAL_CANDIDATE_ID:
