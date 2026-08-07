@@ -300,6 +300,7 @@
   "expanded_shr_relocations": {
     "stock_virtual_address": "0x7B2000",
     "expanded_virtual_address": "0x8EB000",
+    "ledger_sha256": "A5DF4E109D32E2BC9FDE36E2BA3139230B6E6CD89DE4C3FF784846F4CE803740",
     "evidence": {
       "method": "IDA Pro 9.4 decoded instruction heads and operands; raw byte patterns are discovery-only and are not relocation proof",
       "exact_stock_sha256": "92946781980220E9D1A2E6C573925519934608F5215F4A0F8CE3B90088C5C65D",

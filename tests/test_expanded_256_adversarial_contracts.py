@@ -42,6 +42,35 @@ VV5_BUILD = next(item for item in load_builds() if item.id == "vv5")
 
 class Expanded256AdversarialContractTests(unittest.TestCase):
     @staticmethod
+    def _mutated_row_value(field: str, value: object) -> object:
+        if field == "kind":
+            return "absolute" if value == "rel32" else "rel32"
+        if field == "purpose":
+            return f"{value} [mutated]"
+        if field in {"before", "expanded_skip_before"}:
+            mutated = bytearray.fromhex(str(value))
+            mutated[-1] ^= 1
+            return mutated.hex().upper()
+        if field == "offset" or "virtual_address" in field:
+            return f"0x{int(str(value), 0) + 1:X}"
+        if isinstance(value, str):
+            return f"{value}-mutated"
+        return None if value is not None else "mutated"
+
+    @classmethod
+    def _mutate_relocation_row(
+        cls, feature: dict[str, object], offset: str, field: str
+    ) -> dict[str, object]:
+        broken = copy.deepcopy(feature)
+        rows = broken["expanded_shr_relocations"]["patches"]
+        row = next(item for item in rows if item["offset"] == offset)
+        if field not in row:
+            row[field] = cls._mutated_row_value(field, row.get("kind"))
+        else:
+            row[field] = cls._mutated_row_value(field, row[field])
+        return broken
+
+    @staticmethod
     def _vv4_buffer() -> bytearray:
         data = bytearray(0xCC300)
         for item in VV4_FEATURE["expanded_shr_relocations"]["patches"]:
@@ -133,6 +162,28 @@ class Expanded256AdversarialContractTests(unittest.TestCase):
                 with self.assertRaisesRegex(PatcherError, "identity or fail-closed"):
                     _validate_vv4_expanded_contract(VV4_EXPANDED["games"]["vv4"])
 
+    def test_vv4_every_relocation_row_field_is_exactly_pinned(self) -> None:
+        rows = VV4_FEATURE["expanded_shr_relocations"]["patches"]
+        for row in rows:
+            fields = set(row) | {"kind"}
+            for field in sorted(fields):
+                broken = self._mutate_relocation_row(
+                    VV4_FEATURE, row["offset"], field
+                )
+                with self.subTest(offset=row["offset"], field=field), self.assertRaises(
+                    PatcherError
+                ):
+                    _validate_vv4_origins_relocation_contract(
+                        FunPatch(broken), broken["expanded_shr_relocations"]
+                    )
+
+        broken_digest = copy.deepcopy(VV4_FEATURE)
+        broken_digest["expanded_shr_relocations"]["ledger_sha256"] = "0" * 64
+        with self.assertRaisesRegex(PatcherError, "ledger digest"):
+            _validate_vv4_origins_relocation_contract(
+                FunPatch(broken_digest), broken_digest["expanded_shr_relocations"]
+            )
+
     def test_vv4_stock_mode_and_failed_expanded_preflight_do_not_mutate(self) -> None:
         feature = FunPatch(VV4_FEATURE)
         stock_data = self._vv4_buffer()
@@ -220,6 +271,28 @@ class Expanded256AdversarialContractTests(unittest.TestCase):
                     FunPatch(wrong_partition),
                     wrong_partition["expanded_shr_relocations"],
                 )
+
+    def test_vv5_every_relocation_row_field_is_exactly_pinned(self) -> None:
+        rows = VV5_FEATURE["expanded_shr_relocations"]["patches"]
+        for row in rows:
+            fields = set(row) | {"kind"}
+            for field in sorted(fields):
+                broken = self._mutate_relocation_row(
+                    VV5_FEATURE, row["offset"], field
+                )
+                with self.subTest(offset=row["offset"], field=field), self.assertRaises(
+                    PatcherError
+                ):
+                    _validate_vv5_origins_relocation_contract(
+                        FunPatch(broken), broken["expanded_shr_relocations"]
+                    )
+
+        broken_digest = copy.deepcopy(VV5_FEATURE)
+        broken_digest["expanded_shr_relocations"]["ledger_sha256"] = "0" * 64
+        with self.assertRaisesRegex(PatcherError, "ledger digest"):
+            _validate_vv5_origins_relocation_contract(
+                FunPatch(broken_digest), broken_digest["expanded_shr_relocations"]
+            )
 
     def test_vv5_moved_and_unmoved_rel32_target_errors_fail_closed(self) -> None:
         delta = int("0x8EB000", 0) - int("0x7B2000", 0)

@@ -167,6 +167,7 @@
   "expanded_shr_relocations": {
     "stock_virtual_address": "0x728000",
     "expanded_virtual_address": "0x85A000",
+    "ledger_sha256": "CEE01F4AEC59CB1CEE0F42E3DDDB3A24615261E628ED0629C1BFAABF421A897D",
     "patches": [
       {
         "offset": "0x896CC",
