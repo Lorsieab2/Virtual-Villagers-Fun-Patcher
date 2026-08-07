@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "vvfp.fullscreen_owner_transition_evidence.schema.v1",
+  "type": "object",
+  "required": ["schema", "version", "flags", "games", "composition_regions"],
+  "properties": {
+    "schema": {"const": "vvfp.fullscreen_owner_transition_evidence"},
+    "version": {"const": 1},
+    "flags": {"type": "object"},
+    "games": {"type": "object", "required": ["vv3", "vv4", "vv5"]},
+    "composition_regions": {"type": "array", "maxItems": 0}
+  },
+  "additionalProperties": false
+}
