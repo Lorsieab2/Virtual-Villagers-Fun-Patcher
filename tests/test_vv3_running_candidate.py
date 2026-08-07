@@ -3,6 +3,7 @@ from __future__ import annotations
 import hashlib
 import itertools
 import json
+import os
 import shutil
 import struct
 import subprocess
@@ -149,17 +150,38 @@ class VV3RunningCandidateTests(unittest.TestCase):
         # Establish the producer's canonical map first. Other candidate tests
         # may exercise generators in-place; determinism compares two producer
         # passes, never a contaminated pre-test snapshot.
-        subprocess.run([str(PYTHON), str(GENERATOR)], cwd=ROOT, check=True)
-        before = {
-            path: hashlib.sha256(path.read_bytes()).hexdigest()
-            for path in (BASE_PATH, RUNNING_PATH, MAP_PATH, DOC_PATH)
-        }
-        subprocess.run([str(PYTHON), str(GENERATOR)], cwd=ROOT, check=True)
-        after = {
-            path: hashlib.sha256(path.read_bytes()).hexdigest()
-            for path in (BASE_PATH, RUNNING_PATH, MAP_PATH, DOC_PATH)
-        }
-        self.assertEqual(before, after)
+        repo_status = subprocess.check_output(
+            ["git", "status", "--porcelain", "--untracked-files=no"], cwd=ROOT
+        )
+        with tempfile.TemporaryDirectory() as raw_temp:
+            output_root = Path(raw_temp)
+            candidates = output_root / "data" / "candidates"
+            candidates.mkdir(parents=True)
+            (output_root / "docs").mkdir()
+            env = dict(os.environ, VVFP_GENERATOR_OUTPUT_ROOT=str(output_root))
+            generated = (
+                candidates / BASE_PATH.name,
+                candidates / RUNNING_PATH.name,
+                candidates / MAP_PATH.name,
+                output_root / "docs" / DOC_PATH.name,
+            )
+            subprocess.run([str(PYTHON), str(GENERATOR)], cwd=ROOT, env=env, check=True)
+            before = {
+                path.name: hashlib.sha256(path.read_bytes()).hexdigest()
+                for path in generated
+            }
+            subprocess.run([str(PYTHON), str(GENERATOR)], cwd=ROOT, env=env, check=True)
+            after = {
+                path.name: hashlib.sha256(path.read_bytes()).hexdigest()
+                for path in generated
+            }
+            self.assertEqual(before, after)
+        self.assertEqual(
+            subprocess.check_output(
+                ["git", "status", "--porcelain", "--untracked-files=no"], cwd=ROOT
+            ),
+            repo_status,
+        )
 
     def test_exact_slot_layout_and_artifact_hashes(self) -> None:
         item = self.running_raw["patches"][0]

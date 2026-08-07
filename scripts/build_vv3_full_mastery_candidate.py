@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
 import struct
 import sys
 from copy import deepcopy
@@ -11,13 +12,14 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
+OUTPUT_ROOT = Path(os.environ.get("VVFP_GENERATOR_OUTPUT_ROOT", ROOT))
 STOCK = ROOT / "research" / "stock-executables" / "Virtual Villagers - The Secret City.exe"
 ACTIVE_BASE = ROOT / "data" / "vv3_origins_feature.json"
-OUT_DIR = ROOT / "data" / "candidates"
+OUT_DIR = OUTPUT_ROOT / "data" / "candidates"
 BASE_OUT = OUT_DIR / "vv3_origins_full_mastery_base_candidate.json"
 FEATURE_OUT = OUT_DIR / "vv3_full_mastery_all_candidate.json"
 MAP_OUT = OUT_DIR / "vv3_full_mastery_all_candidate_map.json"
-DOC_OUT = ROOT / "docs" / "vv3-full-mastery-stage-a-candidate.md"
+DOC_OUT = OUTPUT_ROOT / "docs" / "vv3-full-mastery-stage-a-candidate.md"
 COMPANION = OUT_DIR / "VVFP VV3 Full Mastery Candidate.dll"
 
 sys.path.insert(0, str(ROOT / ".tools" / "keystone"))

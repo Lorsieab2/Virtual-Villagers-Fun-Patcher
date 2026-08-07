@@ -2,9 +2,12 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
+import shutil
 import struct
 import subprocess
 import sys
+import tempfile
 import unittest
 from copy import deepcopy
 from pathlib import Path
@@ -419,10 +422,35 @@ class VV3FullMasteryCandidateTests(unittest.TestCase):
                     _remove_feature_bytes(work, self.feature, mode)
                     with self.assertRaises(PatcherError):
                         _remove_feature_bytes(work, self.base, mode)
-        before = {path: sha(path.read_bytes()) for path in (BASE, FEATURE, MAP, DOC, DLL)}
-        subprocess.run([sys.executable, str(GENERATOR)], cwd=ROOT, check=True)
-        after = {path: sha(path.read_bytes()) for path in (BASE, FEATURE, MAP, DOC, DLL)}
-        self.assertEqual(before, after)
+        repo_status = subprocess.check_output(
+            ["git", "status", "--porcelain", "--untracked-files=no"], cwd=ROOT
+        )
+        with tempfile.TemporaryDirectory() as raw_temp:
+            output_root = Path(raw_temp)
+            candidates = output_root / "data" / "candidates"
+            candidates.mkdir(parents=True)
+            (output_root / "docs").mkdir()
+            temp_dll = candidates / DLL.name
+            shutil.copy2(DLL, temp_dll)
+            env = dict(os.environ, VVFP_GENERATOR_OUTPUT_ROOT=str(output_root))
+            generated = (
+                candidates / BASE.name,
+                candidates / FEATURE.name,
+                candidates / MAP.name,
+                output_root / "docs" / DOC.name,
+                temp_dll,
+            )
+            subprocess.run([sys.executable, str(GENERATOR)], cwd=ROOT, env=env, check=True)
+            before = {path.name: sha(path.read_bytes()) for path in generated}
+            subprocess.run([sys.executable, str(GENERATOR)], cwd=ROOT, env=env, check=True)
+            after = {path.name: sha(path.read_bytes()) for path in generated}
+            self.assertEqual(before, after)
+        self.assertEqual(
+            subprocess.check_output(
+                ["git", "status", "--porcelain", "--untracked-files=no"], cwd=ROOT
+            ),
+            repo_status,
+        )
 
 
 if __name__ == "__main__":

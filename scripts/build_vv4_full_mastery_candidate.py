@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
 import shutil
 import struct
 import sys
@@ -12,13 +13,14 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
+OUTPUT_ROOT = Path(os.environ.get("VVFP_GENERATOR_OUTPUT_ROOT", ROOT))
 STOCK = ROOT / "research" / "stock-executables" / "Virtual Villagers - The Tree of Life.exe"
 ACTIVE_BASE = ROOT / "data" / "vv4_origins_feature.json"
-OUT_DIR = ROOT / "data" / "candidates"
+OUT_DIR = OUTPUT_ROOT / "data" / "candidates"
 BASE_OUT = OUT_DIR / "vv4_origins_full_mastery_base_candidate.json"
 FEATURE_OUT = OUT_DIR / "vv4_full_mastery_all_candidate.json"
 MAP_OUT = OUT_DIR / "vv4_full_mastery_all_candidate_map.json"
-DOC_OUT = ROOT / "docs" / "vv4-full-mastery-stage-a-candidate.md"
+DOC_OUT = OUTPUT_ROOT / "docs" / "vv4-full-mastery-stage-a-candidate.md"
 COMPANION = OUT_DIR / "VVFP VV4 Full Mastery Candidate.dll"
 CANDIDATE_ROOT = ROOT / "assets" / "candidates" / "vv4_full_mastery"
 PROVENANCE_DIR = CANDIDATE_ROOT / "provenance"
@@ -1930,7 +1932,7 @@ def main() -> None:
         f"Cure: `{R3_CURE_SHA256}`.\n",
         encoding="utf-8",
     )
-    output_dir = ROOT / "outputs" / "vv4_full_mastery_candidate"
+    output_dir = OUTPUT_ROOT / "outputs" / "vv4_full_mastery_candidate"
     output_dir.mkdir(parents=True, exist_ok=True)
     for source_path in (BASE_OUT, FEATURE_OUT, MAP_OUT, DOC_OUT, COMPANION):
         shutil.copy2(source_path, output_dir / source_path.name)
@@ -1952,7 +1954,7 @@ def main() -> None:
         exe_path = output_dir / exe_name
         exe_path.write_bytes(feature_render)
         checksum_records["artifacts"][mode] = {
-            "exe": {"path": str(exe_path.relative_to(ROOT)), "sha256": sha(bytes(feature_render))},
+            "exe": {"path": str(exe_path.relative_to(OUTPUT_ROOT)), "sha256": sha(bytes(feature_render))},
         }
     (output_dir / "checksums.json").write_text(
         json.dumps(checksum_records, indent=2) + "\n", encoding="utf-8"
