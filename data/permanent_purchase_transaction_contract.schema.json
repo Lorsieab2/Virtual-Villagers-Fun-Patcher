@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "vvfp.permanent_purchase_transaction_contract.schema.v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema","schema_version","enabled","catalog_enabled","catalog_hidden","runtime_ready","player_verified","publication_allowed","action_definitions","games"],
+  "properties": {
+    "schema": {"const":"vvfp.permanent_purchase_transaction_contract"},
+    "schema_version": {"const":1},
+    "enabled": {"const":false}, "catalog_enabled": {"const":false},
+    "catalog_hidden": {"const":true}, "runtime_ready": {"const":false},
+    "player_verified": {"const":false}, "publication_allowed": {"const":false},
+    "action_definitions": {"type":"array","minItems":1},
+    "games": {"type":"object","additionalProperties":false,"required":["vv1","vv2","vv3","vv4","vv5"]}
+  }
+}
