@@ -34,8 +34,8 @@ PAYLOAD_OFFSET = 0xDB000
 PAYLOAD_SIZE = 0x1000
 TECH_EVENT = 13
 DETAIL_EVENT = 13
-DETAIL_NATIVE_HANDLER_VA = 0x44B560
-DETAIL_NATIVE_TARGET_VA = 0x7B2600
+DETAIL_INPUT_METHOD_VA = 0x44B560
+DETAIL_INPUT_METHOD_ENTRY_BYTES = "83EC44535556BD7F03000057BF580300"
 CURRENT_DETAIL_HOOK_VA = 0x44BC20
 CURRENT_DETAIL_HOOK_RAW_OFFSET = 0x4BC20
 CURRENT_DETAIL_HOOK_PREIMAGE = "83EC18A1A8974D00"
@@ -64,7 +64,11 @@ STOCK_FINGERPRINT_KEYS = {"filename", "size", "sha256", "source", "source_presen
 NATIVE_ROUTING_KEYS = {"message", "tech", "detail", "patches", "emitted_hooks", "call_convention"}
 ROUTE_KEYS = {"resource", "dimensions", "local", "event", "factory", "ownership", "status"}
 DETAIL_ROUTE_KEYS = ROUTE_KEYS | {
-    "native_handler", "native_target", "current_emitted_hook", "proposed_hook", "evidence",
+    "stock_input_method_entry", "stock_input_method_entry_bytes", "stock_input_stack_locals",
+    "stock_input_cleanup", "stock_vtable", "stock_destructor", "stock_draw",
+    "stock_event_method", "stock_event_cleanup", "stock_xref_to_7B22C0",
+    "stock_xref_to_7B2600", "candidate_route", "candidate_callsite",
+    "current_emitted_hook", "proposed_hook", "evidence",
     "candidate_caves", "candidate_hooks",
 }
 DETAIL_EVIDENCE_KEYS = {
@@ -382,10 +386,12 @@ def validate_native_route_contract(native: dict[str, object]) -> None:
         for field, value in expected.items():
             _strict_structure(route.get(field), value, f"native_routing.{name}.{field}")
         if name == "detail":
-            if route.get("native_handler") != f"0x{DETAIL_NATIVE_HANDLER_VA:X}":
-                raise ValueError("native_routing.detail must target native sub_44B560")
-            if route.get("native_target") != f"0x{DETAIL_NATIVE_TARGET_VA:X}":
-                raise ValueError("Detail continuation relationship must be 0x44B560 -> 0x7B2600")
+            if route.get("stock_input_method_entry") != f"0x{DETAIL_INPUT_METHOD_VA:X}":
+                raise ValueError("native_routing.detail must identify stock input method entry 0x44B560")
+            if route.get("stock_input_method_entry_bytes") != DETAIL_INPUT_METHOD_ENTRY_BYTES:
+                raise ValueError("native_routing.detail stock input method entry bytes are not exact")
+            if route.get("candidate_route") is not None or route.get("candidate_callsite") is not None:
+                raise ValueError("Detail candidate route/callsite must remain null pending candidate evidence")
             if route.get("current_emitted_hook") != f"0x{CURRENT_DETAIL_HOOK_VA:X}":
                 raise ValueError("native_routing.detail current helper binding is not exact")
             if route.get("status") != DETAIL_STATUS:
@@ -578,8 +584,8 @@ def validate_detail_enablement(manifest: dict[str, object]) -> None:
         _strict_structure(hooks, [], "native_routing.detail.candidate_hooks")
         return
 
-    if detail.get("native_handler") != f"0x{DETAIL_NATIVE_HANDLER_VA:X}":
-        raise ValueError("enabled Detail must target native sub_44B560")
+    if detail.get("candidate_route") is None or detail.get("candidate_callsite") is None:
+        raise ValueError("Detail enablement is blocked while candidate route/callsite are unknown")
     proposed = detail.get("proposed_hook")
     if not isinstance(proposed, dict):
         raise ValueError("enabled Detail requires a proposed guarded hook")
@@ -593,13 +599,11 @@ def validate_detail_enablement(manifest: dict[str, object]) -> None:
     hook_raw = _number(proposed.get("raw_offset"), "proposed_hook.raw_offset")
     if hook_va == CURRENT_DETAIL_HOOK_VA or hook_raw == CURRENT_DETAIL_HOOK_RAW_OFFSET:
         raise ValueError("0x44BC20 is the existing hook and cannot be reused")
-    if hook_va != DETAIL_NATIVE_HANDLER_VA:
-        raise ValueError("enabled Detail hook must bind the exact 0x44B560 entry")
+    if hook_va == DETAIL_INPUT_METHOD_VA:
+        raise ValueError("0x44B560 is a stock method entry, not a proven candidate callsite")
 
     if evidence.get("stock_sha256") != STOCK_SHA256:
         raise ValueError("Detail evidence must bind the exact stock build")
-    if _number(evidence.get("preimage_va"), "detail evidence.preimage_va") != DETAIL_NATIVE_HANDLER_VA:
-        raise ValueError("Detail preimage must be located at 0x44B560")
     preimage = evidence.get("preimage")
     continuation = evidence.get("continuation_bytes")
     if not isinstance(preimage, str) or not preimage or not isinstance(continuation, str) or not continuation:
@@ -617,8 +621,6 @@ def validate_detail_enablement(manifest: dict[str, object]) -> None:
     continuation_va = _number(evidence.get("continuation_va"), "detail evidence.continuation_va")
     if continuation_va == CURRENT_DETAIL_CONTINUATION_VA:
         raise ValueError("Detail cannot reuse the 0x44BC20 continuation")
-    if evidence.get("native_target_va") != f"0x{DETAIL_NATIVE_TARGET_VA:X}":
-        raise ValueError("Detail continuation relationship must be 0x44B560 -> 0x7B2600")
     for field in (
         "instruction_boundary_verified",
         "abi_verified",
@@ -769,8 +771,19 @@ def build_manifest() -> dict[str, object]:
                 "event": DETAIL_EVENT,
                 "factory": "0x401BD0",
                 "ownership": "0x40C680",
-                "native_handler": f"0x{DETAIL_NATIVE_HANDLER_VA:X}",
-                "native_target": f"0x{DETAIL_NATIVE_TARGET_VA:X}",
+                "stock_input_method_entry": f"0x{DETAIL_INPUT_METHOD_VA:X}",
+                "stock_input_method_entry_bytes": DETAIL_INPUT_METHOD_ENTRY_BYTES,
+                "stock_input_stack_locals": "0x44",
+                "stock_input_cleanup": "ret 0xC",
+                "stock_vtable": "0x49A590",
+                "stock_destructor": "0x44B9F0",
+                "stock_draw": "0x44B250",
+                "stock_event_method": "0x44BC20",
+                "stock_event_cleanup": "ret 8",
+                "stock_xref_to_7B22C0": False,
+                "stock_xref_to_7B2600": False,
+                "candidate_route": None,
+                "candidate_callsite": None,
                 "current_emitted_hook": f"0x{CURRENT_DETAIL_HOOK_VA:X}",
                 "status": DETAIL_STATUS,
                 "proposed_hook": None,

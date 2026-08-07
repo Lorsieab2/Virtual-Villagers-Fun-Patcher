@@ -18,14 +18,17 @@ parent metadata and owned ranges.
 
 The native UI contract independently guards message `8`, resource `0x6A`,
 dimensions `96x39`, local `(137,2)`, event `13`, factory `0x401BD0`, and
-ownership `0x40C680` for both Tech and Detail. The bound Detail path is
-`sub_44B560 -> 0x7B2600`. The current emitted helper still hooks `0x44BC20`;
-the candidate records that mismatch but emits no replacement until exact stock
-preimage and continuation bytes at `0x44B560` have verified instruction
-boundaries, ABI, ownership, and child-destructor evidence. The existing
-`0x44BC20` preimage/continuation cannot be reused. The candidate preserves
+ownership `0x40C680` for both Tech and Detail. Stock `sub_44B560` is an
+input/hit-test method entry (`0x44` locals, nonvolatile saves, `ret 0xC`), not a
+callsite and not a proven route to candidate-only `0x7B2600`. `0x44BC20` is a
+separate event method (`ret 8`). Both are rejected as candidate callsites until
+an authenticated candidate EXE, complete folder, and machine export establish
+the real route. The candidate preserves
 `ECX=EDI` before the native `0x44FA20` thiscall, the graphic-button factory,
 ownership registration, `ret 8`, and the original handler fallback prologues.
+The historical fullscreen wrapper's `0x7B2A64` pointer is also rejected: the
+authenticated string begins at `0x7B2A63`, so the wrapper asks for
+`DL_GetWindowFlags` and exits before either menu. No correction bytes are emitted.
 Any future enablement must also prove the proposed VA/raw range relationship;
 the disabled manifest records that relationship as unverified and cannot
 accept an arbitrary raw offset.

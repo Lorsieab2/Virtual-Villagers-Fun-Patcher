@@ -28,8 +28,8 @@ from build_vv5_ui_confirmation_candidate import (  # noqa: E402
     ACTIVE_PAYLOAD_SHA256,
     CURRENT_DETAIL_HOOK_VA,
     CURRENT_DETAIL_HOOK_PREIMAGE,
-    DETAIL_NATIVE_HANDLER_VA,
-    DETAIL_NATIVE_TARGET_VA,
+    DETAIL_INPUT_METHOD_VA,
+    DETAIL_INPUT_METHOD_ENTRY_BYTES,
     validate_candidate_manifest,
     validate_cave_hook_overlaps,
     validate_detail_enablement,
@@ -70,7 +70,7 @@ class VV5UIConfirmationCandidateTests(unittest.TestCase):
         self.assertEqual(original[0x0B], 13)  # Tech event.
         self.assertEqual(original[0xCB], 13)  # Detail handler event.
         self.assertEqual(original[0x128], 13)  # Detail constructor event.
-        self.assertEqual(DETAIL_NATIVE_HANDLER_VA, 0x44B560)
+        self.assertEqual(DETAIL_INPUT_METHOD_VA, 0x44B560)
         self.assertEqual(CURRENT_DETAIL_HOOK_VA, 0x44BC20)
         manifest = build_manifest()
         self.assertFalse(manifest["enabled"])
@@ -79,7 +79,11 @@ class VV5UIConfirmationCandidateTests(unittest.TestCase):
         self.assertEqual(detail["evidence"]["preimage"], None)
         self.assertEqual(detail["candidate_caves"], [])
         self.assertEqual(detail["candidate_hooks"], [])
-        self.assertEqual(detail["native_target"], "0x7B2600")
+        self.assertEqual(detail["stock_input_method_entry_bytes"], DETAIL_INPUT_METHOD_ENTRY_BYTES)
+        self.assertIsNone(detail["candidate_route"])
+        self.assertIsNone(detail["candidate_callsite"])
+        self.assertFalse(detail["stock_xref_to_7B22C0"])
+        self.assertFalse(detail["stock_xref_to_7B2600"])
         self.assertEqual(manifest["native_routing"]["patches"], [])
         self.assertEqual(manifest["native_routing"]["emitted_hooks"], [])
         self.assertEqual(manifest["source"]["active_payload_sha256"], ACTIVE_PAYLOAD_SHA256)
@@ -241,7 +245,7 @@ class VV5UIConfirmationCandidateTests(unittest.TestCase):
             "raw_offset": "0xB560",
             "length": 8,
         }
-        with self.assertRaisesRegex(ValueError, "preimage_va"):
+        with self.assertRaisesRegex(ValueError, "candidate route/callsite"):
             validate_detail_enablement(missing)
 
         legacy = copy.deepcopy(build_manifest())
@@ -252,7 +256,7 @@ class VV5UIConfirmationCandidateTests(unittest.TestCase):
             "length": 8,
             "preimage": CURRENT_DETAIL_HOOK_PREIMAGE,
         }
-        with self.assertRaisesRegex(ValueError, "0x44BC20"):
+        with self.assertRaisesRegex(ValueError, "candidate route/callsite"):
             validate_detail_enablement(legacy)
 
     def test_cave_and_hook_overlap_is_rejected(self) -> None:
@@ -464,8 +468,8 @@ class VV5UIConfirmationCandidateTests(unittest.TestCase):
             validate_candidate_manifest(binding)
 
         detail = copy.deepcopy(build_manifest())
-        detail["native_routing"]["detail"]["native_target"] = f"0x{DETAIL_NATIVE_TARGET_VA + 1:X}"
-        with self.assertRaisesRegex(ValueError, "0x44B560 -> 0x7B2600"):
+        detail["native_routing"]["detail"]["candidate_callsite"] = "0x44B560"
+        with self.assertRaisesRegex(ValueError, "candidate route/callsite"):
             validate_candidate_manifest(detail)
 
         payload = copy.deepcopy(build_manifest())
