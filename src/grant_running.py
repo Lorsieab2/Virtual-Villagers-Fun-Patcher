@@ -214,9 +214,13 @@ def _eligible(record: Mapping[str, object], binding: RunningBinding) -> bool:
 def scan_running(record: Mapping[str, object], binding: RunningBinding) -> RunningScan:
     """Read every configured slot and return a mutation-free scan."""
 
+    # Eligibility is a hard gate.  Do not touch preference storage for an
+    # inactive, unhealthy, or VV5-faction-ineligible record.
+    if not _eligible(record, binding):
+        return RunningScan(False)
     likes = _int_slots(record, "likes", binding.slot_count)
     dislikes = _int_slots(record, "dislikes", binding.slot_count)
-    if not _eligible(record, binding) or likes is None or dislikes is None:
+    if likes is None or dislikes is None:
         return RunningScan(False)
     already = binding.running_id in likes
     first_empty = None if already else next(
