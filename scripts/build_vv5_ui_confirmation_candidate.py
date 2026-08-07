@@ -8,7 +8,9 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
 from vv5_individual_transactions import transaction_contracts
+from validate_vv5_tech_detail_native_evidence import load_and_validate as load_native_evidence
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -54,8 +56,9 @@ MANIFEST_KEYS = {
     "id", "game_id", "name", "enabled", "catalog_hidden", "catalog_enabled",
     "runtime_status", "allowed_modes", "unsupported_patch_modes", "expanded_fail_closed",
     "dependencies", "source", "stock_fingerprint", "native_routing",
-    "native_transaction_bindings", "composition_guard", "individual_actions", "implementation",
+    "native_transaction_bindings", "native_evidence_gate", "composition_guard", "individual_actions", "implementation",
 }
+NATIVE_EVIDENCE_GATE_KEYS = {"path", "status", "evidence_complete", "publication_ready", "native_output"}
 SOURCE_KEYS = {"stock_sha256", "active_base", "active_payload_sha256", "bound_payload_sha256"}
 STOCK_FINGERPRINT_KEYS = {"filename", "size", "sha256", "source", "source_present", "source_bound", "status"}
 NATIVE_ROUTING_KEYS = {"message", "tech", "detail", "patches", "emitted_hooks", "call_convention"}
@@ -701,6 +704,18 @@ def validate_candidate_manifest(manifest: dict[str, object]) -> None:
     validate_composition_guard(composition)
     validate_cave_hook_overlaps(caves, hooks)
     validate_detail_enablement(manifest)
+    gate = _known_keys(manifest.get("native_evidence_gate"), NATIVE_EVIDENCE_GATE_KEYS, "native_evidence_gate")
+    expected_gate = {
+        "path": "data/vv5_tech_detail_native_evidence.json",
+        "status": "absent/pending authenticated evidence; no native output",
+        "evidence_complete": False,
+        "publication_ready": False,
+        "native_output": False,
+    }
+    _strict_structure(gate, expected_gate, "native_evidence_gate")
+    _, evidence_complete = load_native_evidence()
+    if evidence_complete:
+        raise ValueError("pending UI candidate cannot accept completed evidence without an independent enablement review")
     validate_transaction_contracts(manifest.get("individual_actions"))
     implementation = manifest.get("implementation")
     _known_keys(implementation, IMPLEMENTATION_KEYS, "implementation")
@@ -781,6 +796,13 @@ def build_manifest() -> dict[str, object]:
             "call_convention": EXPECTED_CALL_CONVENTION,
         },
         "native_transaction_bindings": NATIVE_TRANSACTION_BINDINGS,
+        "native_evidence_gate": {
+            "path": "data/vv5_tech_detail_native_evidence.json",
+            "status": "absent/pending authenticated evidence; no native output",
+            "evidence_complete": False,
+            "publication_ready": False,
+            "native_output": False,
+        },
         "composition_guard": {
             "stock_sha256": STOCK_SHA256,
             "base_parent": {

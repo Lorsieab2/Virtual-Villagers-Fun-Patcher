@@ -1,0 +1,80 @@
+{
+  "id": "vv5_tech_detail_native_evidence_gate",
+  "game_id": "vv5",
+  "enabled": false,
+  "catalog_hidden": true,
+  "catalog_enabled": false,
+  "publication_ready": false,
+  "native_output": false,
+  "status": "pending authenticated full-folder native evidence and player receipts",
+  "stock": {
+    "filename": "Virtual Villagers - New Believers.exe",
+    "size": 991232,
+    "sha256": "92946781980220E9D1A2E6C573925519934608F5215F4A0F8CE3B90088C5C65D"
+  },
+  "folder_evidence": {
+    "authenticated": false,
+    "complete_folder_verified": false,
+    "inventory_schema": "vvfp.full-folder-inventory.v1",
+    "file_count": null,
+    "total_size": null,
+    "unexpected_files": [],
+    "manifest_sha256": null,
+    "authentication_receipt_sha256": null
+  },
+  "native_contract": {
+    "resource": "0x6A",
+    "dimensions": [96, 39],
+    "local": [137, 2],
+    "message": 8,
+    "event": 13,
+    "factory_va": "0x401BD0",
+    "ownership_va": "0x40C680",
+    "tech_constructor_va": "0x4405F0",
+    "tech_handler_va": "0x4415F0",
+    "tech_dialog_target_va": "0x7B22C0",
+    "detail_draw_va": "0x44B250",
+    "detail_mouse_callsite_va": "0x44B560",
+    "detail_dialog_target_va": "0x7B2600",
+    "forbidden_old_hook_va": "0x44BC20",
+    "forbidden_old_hook_raw": "0x4BC20",
+    "forbidden_old_hook_preimage": "83EC18A1A8974D00",
+    "forbidden_old_hook_continuation_va": "0x44BC28"
+  },
+  "native_proof": {
+    "folder_manifest_sha256": null,
+    "disassembly_artifact_sha256": null,
+    "instruction_map_sha256": null,
+    "lifecycle_trace_sha256": null,
+    "overlap_report_sha256": null,
+    "constructor_stock_bytes": null,
+    "constructor_continuation_va": null,
+    "handler_stock_bytes": null,
+    "handler_continuation_va": null,
+    "detail_callsite_stock_bytes": null,
+    "detail_callsite_continuation_va": null,
+    "instruction_boundaries_verified": false,
+    "thiscall_receiver_verified": false,
+    "message_abi_verified": false,
+    "register_stack_preservation_verified": false,
+    "child_ownership_verified": false,
+    "child_destructor_verified": false,
+    "range_overlap_verified": false,
+    "forbidden_old_hook_rejected": true
+  },
+  "player_receipts": {
+    "tech_windowed": null,
+    "tech_fullscreen": null,
+    "detail_windowed": null,
+    "detail_fullscreen": null
+  },
+  "composition": {
+    "full_mastery_range": "0xF2000-0xF4000",
+    "running_range": "0xF4000-0xF6000",
+    "ui_ranges": [],
+    "full_heal_ranges": [],
+    "candidate_hooks": [],
+    "candidate_caves": [],
+    "patches": []
+  }
+}
