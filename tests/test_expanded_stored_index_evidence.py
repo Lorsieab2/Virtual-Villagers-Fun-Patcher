@@ -16,7 +16,7 @@ DOC = ROOT / "docs" / "expanded-256-stored-index-evidence.md"
 
 
 def _sha(path: Path) -> str:
-    return hashlib.sha256(path.read_bytes()).hexdigest().upper()
+    return MODULE.source_text_sha256(path)
 
 
 class ExpandedStoredIndexEvidenceTests(unittest.TestCase):

@@ -17,6 +17,11 @@ import sys
 from pathlib import Path, PurePosixPath
 from typing import Any, Mapping
 
+try:
+    from scripts.source_text_hash import source_text_sha256
+except ModuleNotFoundError:  # direct script execution
+    from source_text_hash import source_text_sha256
+
 
 ROOT = Path(__file__).resolve().parents[1]
 CONTRACT_PATH = ROOT / "data" / "expanded_256_runtime_evidence.json"
@@ -313,7 +318,7 @@ def validate_contract(document: Mapping[str, object], *, root: Path | None = Non
         relative = _safe_relative(record.get("path"), "source provenance path")
         path = _assert_no_symlink_components(root, relative)
         _require(path.is_file(), f"runtime source provenance file is missing: {relative}")
-        _require(_sha256(path) == _sha(record.get("sha256"), f"source provenance {relative}.sha256"), f"runtime source provenance hash mismatch: {relative}")
+        _require(source_text_sha256(path) == _sha(record.get("sha256"), f"source provenance {relative}.sha256"), f"runtime source provenance hash mismatch: {relative}")
     games = _mapping(document.get("games"), "games")
     _require(set(games) == {"vv4", "vv5"}, "runtime evidence must cover exactly VV4 and VV5")
     summaries: dict[str, object] = {}

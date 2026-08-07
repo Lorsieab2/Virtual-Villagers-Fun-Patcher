@@ -4,7 +4,7 @@
   "contract_status": "static_contract_only",
   "integrity": {
     "canonicalization": "UTF-8 JSON with sorted keys and compact separators; integrity.canonical_sha256 is excluded from its own digest",
-    "canonical_sha256": "C70F0BD0CDDFF921B215FA178D725A57EC2AEE380C575FFD1D56D8F282562B60"
+    "canonical_sha256": "3831DDFED59E5EA0B897D994C2CD203C7262C18FC06864622D83077460338792"
   },
   "publication": {
     "enabled": false,
@@ -47,7 +47,7 @@
     "source_files": [
       {
         "path": "data/expanded_256.json",
-        "sha256": "8B345C2C8A1C71A9EA5E1B9B05616A06793AF85436934BB406BD3AD820A50DB0"
+        "sha256": "5738EABD414DA0171C8A03316B9CCCE9C39CF8F080D63D2F209D9A5C7A5DEAB3"
       },
       {
         "path": "data/vv4_expanded_256_contract.json",
@@ -55,11 +55,11 @@
       },
       {
         "path": "data/vv4_origins_feature.json",
-        "sha256": "DE98F1424518CB310A58351FB012603CAD951C50F80B204695602A5AE2612FA6"
+        "sha256": "5A59BE484D22B1140DB532A520ADD9481D378159AF648803B3649A95590ECDFB"
       },
       {
         "path": "data/vv5_origins_feature.json",
-        "sha256": "B6C00CC09F7CC06ADCF72E967B682A6131B5FE618C24C1DCED9823B809AE08A8"
+        "sha256": "D55E1C8C95D604556586EDAD2255319B2A9440D7101C93F589E38F93DE98A47E"
       }
     ]
   },
