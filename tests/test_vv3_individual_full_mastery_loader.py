@@ -190,8 +190,18 @@ class VV3IndividualFullMasteryLoaderTests(unittest.TestCase):
             reports = list(root.glob(".vv3im-recovery-*.json"))
             self.assertEqual(len(reports), 1)
             loader.recover_vv3_transaction(reports[0])
+            # The terminal receipt is a durable completed marker: a second
+            # production recovery call must be idempotent, then reject any
+            # hidden namespace insertion without touching the receipt.
+            loader.recover_vv3_transaction(root)
             self.assertFalse(destination.exists())
             self.assertFalse(companion_destination.exists())
+            self.assertEqual(len(list(root.glob(".vv3im-terminal-*.json"))), 1)
+            foreign = root / (".vv3im-foreign-" + "f" * 32 + ".json")
+            foreign.write_bytes(b"foreign")
+            with self.assertRaises(vv_fun_patcher.PatcherError):
+                loader.recover_vv3_transaction(root)
+            self.assertTrue(foreign.exists())
             self.assertEqual(len(list(root.glob(".vv3im-terminal-*.json"))), 1)
 
     def test_recovery_schema_rejects_unknown_field_before_mutation(self):
@@ -1455,6 +1465,16 @@ class VV3IndividualFullMasteryLoaderTests(unittest.TestCase):
                 with self.assertRaises(vv_fun_patcher.PatcherError):
                     loader._publish_terminal_receipt(root, authority, authority_record, payload, set(), transaction=transaction)
             self.assertTrue(authority.exists())
+
+    def test_c331_terminal_issuance_requires_exact_schema_and_transaction_equality(self):
+        transaction = {"issuance": {"owner": "vv3_individual_full_mastery"}}
+        for malformed in (
+            {},
+            {"owner": "vv3_individual_full_mastery", "token": "0" * 32},
+            {"owner": "vv3_individual_full_mastery", "token": "0" * 32, "name": "x", "record": {}, "operation": "install", "destination_paths_absolute": [], "member_roles": {}, "member_digest": "0" * 64, "payload": {}, "unexpected": True},
+        ):
+            with self.assertRaises(vv_fun_patcher.PatcherError):
+                loader._validate_terminal_external_issuance(malformed, transaction)
 
 
 if __name__ == "__main__":

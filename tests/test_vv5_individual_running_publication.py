@@ -1393,6 +1393,111 @@ class VV5RunningPublicationTests(unittest.TestCase):
                 with self.assertRaises(PatcherError):
                     running._bind_issuance(path, base["token"], report, mismatch, before3)
 
+    def test_c331_report_replacement_during_identity_read_stops_before_successor(self) -> None:
+        with tempfile.TemporaryDirectory(prefix="vv5-c331-report-read-race-") as td:
+            root = Path(td)
+            registry = root / ISSUANCE_REGISTRY_NAME
+            registry.mkdir()
+            path = registry / ("a" * 32 + ".json")
+            registry_identity = running._identity(registry)
+            parent_identity = running._identity(root)
+            authority_record = {"type": "regular_file", "size": 1, "sha256": "A" * 64, "st_dev": 1, "st_ino": 2, "path": ".authority"}
+            members = [
+                {"destination": VV5_EXE_BASENAME, "pre_exists": False, "pre_sha256": None, "pre_size": 0, "published_sha256": running.VV5_CANDIDATE_EXE_SHA256, "published_size": 0xF6000},
+                {"destination": DLL_NAME, "pre_exists": False, "pre_sha256": None, "pre_size": 0, "published_sha256": running.DLL_SHA256, "published_size": running.DLL_SIZE},
+            ]
+            base = {"schema_version": 2, "token": "a" * 32, "authority_token": "b" * 64, "authority_record": authority_record, "feature_owner": running.VV5_FEATURE_OWNER, "mode": VV5_MODE, "operation": "install", "parent_identity": parent_identity, "destination_parent_absolute": str(root).lower(), "destination_paths_absolute": [str(root / VV5_EXE_BASENAME).lower(), str(root / DLL_NAME).lower()], "registry_relative": ISSUANCE_REGISTRY_NAME, "registry_identity": registry_identity, "members": members}
+            with mock.patch.object(running, "_require_windows_identity_atomic", return_value=None):
+                running._write_issuance(path, base)
+                before = running._inventory(root, path)
+                report = root / (".vv5run-recovery-" + "c" * 32 + ".json")
+                payload = {"operation": "install_new", "destination_parent_absolute": str(root).lower(), "destination_paths_absolute": base["destination_paths_absolute"], "issuance_registry_identity": registry_identity, "issuance_identity": {"record": before, "authority_token": base["authority_token"], "authority_record": authority_record}, "report_parent_identity": parent_identity, "recovery_root_name": root.name, "recovery_root_identity": parent_identity, "members": members}
+                report.write_text(json.dumps(payload, sort_keys=True), encoding="utf-8")
+                original_inventory = running._inventory
+                mutated = {"value": False}
+                def race_inventory(parent: Path, candidate: Path):
+                    record = original_inventory(parent, candidate)
+                    if candidate == report and not mutated["value"]:
+                        mutated["value"] = True
+                        data = report.read_bytes().replace(b'"mode"', b'"mode"')
+                        report.write_bytes(data + b" ")
+                    return record
+                with mock.patch.object(running, "_inventory", side_effect=race_inventory):
+                    with self.assertRaises(PatcherError):
+                        running._bind_issuance(path, base["token"], report, payload, before)
+            self.assertTrue(mutated["value"])
+            self.assertEqual(list(registry.glob("*.v*.json")), [])
+
+    def test_c331_report_replacement_immediately_before_successor_stops_publication(self) -> None:
+        with tempfile.TemporaryDirectory(prefix="vv5-c331-report-pre-replace-race-") as td:
+            root = Path(td)
+            registry = root / ISSUANCE_REGISTRY_NAME
+            registry.mkdir()
+            path = registry / ("d" * 32 + ".json")
+            registry_identity = running._identity(registry)
+            parent_identity = running._identity(root)
+            authority_record = {"type": "regular_file", "size": 1, "sha256": "A" * 64, "st_dev": 1, "st_ino": 2, "path": ".authority"}
+            members = [
+                {"destination": VV5_EXE_BASENAME, "pre_exists": False, "pre_sha256": None, "pre_size": 0, "published_sha256": running.VV5_CANDIDATE_EXE_SHA256, "published_size": 0xF6000},
+                {"destination": DLL_NAME, "pre_exists": False, "pre_sha256": None, "pre_size": 0, "published_sha256": running.DLL_SHA256, "published_size": running.DLL_SIZE},
+            ]
+            base = {"schema_version": 2, "token": "d" * 32, "authority_token": "b" * 64, "authority_record": authority_record, "feature_owner": running.VV5_FEATURE_OWNER, "mode": VV5_MODE, "operation": "install", "parent_identity": parent_identity, "destination_parent_absolute": str(root).lower(), "destination_paths_absolute": [str(root / VV5_EXE_BASENAME).lower(), str(root / DLL_NAME).lower()], "registry_relative": ISSUANCE_REGISTRY_NAME, "registry_identity": registry_identity, "members": members}
+            with mock.patch.object(running, "_require_windows_identity_atomic", return_value=None):
+                running._write_issuance(path, base)
+                before = running._inventory(root, path)
+                report = root / (".vv5run-recovery-" + "e" * 32 + ".json")
+                payload = {"operation": "install_new", "destination_parent_absolute": str(root).lower(), "destination_paths_absolute": base["destination_paths_absolute"], "issuance_registry_identity": registry_identity, "issuance_identity": {"record": before, "authority_token": base["authority_token"], "authority_record": authority_record}, "report_parent_identity": parent_identity, "recovery_root_name": root.name, "recovery_root_identity": parent_identity, "members": members}
+                report.write_text(json.dumps(payload, sort_keys=True), encoding="utf-8")
+                original_read = running._read
+                report_reads = {"count": 0}
+                def race_read(candidate: Path):
+                    data = original_read(candidate)
+                    if candidate == report:
+                        report_reads["count"] += 1
+                        if report_reads["count"] == 2:
+                            report.write_bytes(data + b" ")
+                    return data
+                with mock.patch.object(running, "_read", side_effect=race_read):
+                    with self.assertRaises(PatcherError):
+                        running._bind_issuance(path, base["token"], report, payload, before)
+            self.assertGreaterEqual(report_reads["count"], 2)
+            self.assertEqual(list(registry.glob("*.v*.json")), [])
+
+    def test_c331_issuance_replacement_immediately_before_successor_stops_publication(self) -> None:
+        with tempfile.TemporaryDirectory(prefix="vv5-c331-issuance-pre-replace-race-") as td:
+            root = Path(td)
+            registry = root / ISSUANCE_REGISTRY_NAME
+            registry.mkdir()
+            path = registry / ("f" * 32 + ".json")
+            registry_identity = running._identity(registry)
+            parent_identity = running._identity(root)
+            authority_record = {"type": "regular_file", "size": 1, "sha256": "A" * 64, "st_dev": 1, "st_ino": 2, "path": ".authority"}
+            members = [
+                {"destination": VV5_EXE_BASENAME, "pre_exists": False, "pre_sha256": None, "pre_size": 0, "published_sha256": running.VV5_CANDIDATE_EXE_SHA256, "published_size": 0xF6000},
+                {"destination": DLL_NAME, "pre_exists": False, "pre_sha256": None, "pre_size": 0, "published_sha256": running.DLL_SHA256, "published_size": running.DLL_SIZE},
+            ]
+            base = {"schema_version": 2, "token": "f" * 32, "authority_token": "b" * 64, "authority_record": authority_record, "feature_owner": running.VV5_FEATURE_OWNER, "mode": VV5_MODE, "operation": "install", "parent_identity": parent_identity, "destination_parent_absolute": str(root).lower(), "destination_paths_absolute": [str(root / VV5_EXE_BASENAME).lower(), str(root / DLL_NAME).lower()], "registry_relative": ISSUANCE_REGISTRY_NAME, "registry_identity": registry_identity, "members": members}
+            with mock.patch.object(running, "_require_windows_identity_atomic", return_value=None):
+                running._write_issuance(path, base)
+                before = running._inventory(root, path)
+                report = root / (".vv5run-recovery-" + "1" * 32 + ".json")
+                payload = {"operation": "install_new", "destination_parent_absolute": str(root).lower(), "destination_paths_absolute": base["destination_paths_absolute"], "issuance_registry_identity": registry_identity, "issuance_identity": {"record": before, "authority_token": base["authority_token"], "authority_record": authority_record}, "report_parent_identity": parent_identity, "recovery_root_name": root.name, "recovery_root_identity": parent_identity, "members": members}
+                report.write_text(json.dumps(payload, sort_keys=True), encoding="utf-8")
+                original_inventory = running._inventory
+                issuance_reads = {"count": 0}
+                def race_inventory(parent: Path, candidate: Path):
+                    record = original_inventory(parent, candidate)
+                    if candidate == path:
+                        issuance_reads["count"] += 1
+                        if issuance_reads["count"] == 3:
+                            path.write_bytes(path.read_bytes() + b" ")
+                    return record
+                with mock.patch.object(running, "_inventory", side_effect=race_inventory):
+                    with self.assertRaises(PatcherError):
+                        running._bind_issuance(path, base["token"], report, payload, before)
+            self.assertGreaterEqual(issuance_reads["count"], 3)
+            self.assertEqual(list(registry.glob("*.v*.json")), [])
+
 
 if __name__ == "__main__":
     unittest.main()

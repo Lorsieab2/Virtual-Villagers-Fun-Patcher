@@ -1582,11 +1582,20 @@ def _load_issuance_pointer(path: Path, before: dict[str, object]) -> tuple[Path,
     return successor, successor_final, pointer, pointer_final
 
 
-def _replace_issuance(path: Path, before: dict[str, object], payload: dict[str, object]) -> dict[str, object]:
+def _replace_issuance(
+    path: Path,
+    before: dict[str, object],
+    payload: dict[str, object],
+    *,
+    pre_replace_guards: tuple[tuple[Path, dict[str, object]], ...] = (),
+) -> dict[str, object]:
     _require_windows_identity_atomic()
     current = _inventory(path.parent, path)
     if current is None or any(current.get(key) != before.get(key) for key in ("type", "size", "sha256", "st_dev", "st_ino")):
         raise PatcherError("VV5 Running issuance record was substituted before binding.")
+    for guarded_path, guarded_record in pre_replace_guards:
+        if _inventory(guarded_path.parent, guarded_path) != guarded_record:
+            raise PatcherError("VV5 Running report or authority changed immediately before successor publication.")
     pointer = _issuance_pointer_path(path)
     if os.path.lexists(pointer):
         raise PatcherError("VV5 Running issuance pointer already exists.")
@@ -1768,7 +1777,20 @@ def _bind_issuance(path: Path, token: str, report: Path, report_payload: dict[st
     final_issuance = _inventory(path.parent.parent, path)
     if final_report != latest_report or final_issuance != latest_issuance:
         raise PatcherError("VV5 Running report or issuance identity raced immediately before replacement.")
-    return _replace_issuance(path, final_issuance, bound)
+    # One final no-follow read and recapture closes the report identity-to-read
+    # interval immediately before the successor publication guard.
+    final_report_bytes = _read(report)
+    if report_record.get("size") != len(final_report_bytes) or report_record.get("sha256") != _sha(final_report_bytes):
+        raise PatcherError("VV5 Running recovery report changed immediately before successor publication.")
+    final_report_after = _inventory(report.parent, report)
+    if final_report_after != report_record:
+        raise PatcherError("VV5 Running recovery report identity changed immediately before successor publication.")
+    return _replace_issuance(
+        path,
+        final_issuance,
+        bound,
+        pre_replace_guards=((report, final_report_after),),
+    )
 
 
 def _validate_report(payload: dict[str, object], root: Path) -> None:
