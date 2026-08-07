@@ -1,0 +1,87 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "vvfp.complete_all_collections_evidence",
+  "title": "Complete All Collections native evidence gate",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "schema_version", "feature", "enabled", "publication", "composition_features", "forbidden_routes", "games"],
+  "properties": {
+    "schema": {"const": "vvfp.complete_all_collections_evidence"},
+    "schema_version": {"const": 1},
+    "feature": {"const": "complete_all_collections"},
+    "enabled": {"const": false},
+    "publication": {"$ref": "#/$defs/publication"},
+    "composition_features": {"const": ["statistics_export", "origins", "expanded_256"]},
+    "forbidden_routes": {"type": "array", "minItems": 2, "items": {"$ref": "#/$defs/forbidden"}},
+    "games": {
+      "type": "object", "additionalProperties": false,
+      "required": ["vv3", "vv4", "vv5"],
+      "properties": {"vv3": {"$ref": "#/$defs/game"}, "vv4": {"$ref": "#/$defs/game"}, "vv5": {"$ref": "#/$defs/game"}}
+    }
+  },
+  "$defs": {
+    "hash": {"type": "string", "pattern": "^[0-9A-Fa-f]{64}$"},
+    "publication": {
+      "type": "object", "additionalProperties": false, "required": ["status", "reason"],
+      "properties": {"status": {"const": "disabled"}, "reason": {"type": "string", "minLength": 1}}
+    },
+    "game": {
+      "type": "object", "additionalProperties": false,
+      "required": ["stock", "policy", "requirements", "receipts"],
+      "properties": {
+        "stock": {"$ref": "#/$defs/stock"},
+        "policy": {
+          "type": "object", "additionalProperties": false,
+          "required": ["population_bonus_is_completion", "award_dispatcher_is_completion"],
+          "properties": {"population_bonus_is_completion": {"const": false}, "award_dispatcher_is_completion": {"const": false}}
+        },
+        "requirements": {"type": "array", "minItems": 10, "items": {"$ref": "#/$defs/requirement"}},
+        "receipts": {"type": "array", "items": {"$ref": "#/$defs/receipt"}}
+      }
+    },
+    "stock": {
+      "type": "object", "additionalProperties": false,
+      "required": ["exe_name", "size", "imagebase", "sha256", "full_folder"],
+      "properties": {
+        "exe_name": {"type": "string", "minLength": 1}, "size": {"type": "integer", "minimum": 1},
+        "imagebase": {"const": 4194304}, "sha256": {"$ref": "#/$defs/hash"},
+        "full_folder": {
+          "type": "object", "additionalProperties": false,
+          "required": ["status", "sha256", "file_count", "manifest_sha256"],
+          "properties": {
+            "status": {"enum": ["missing", "verified", "rejected"]},
+            "sha256": {"anyOf": [{"$ref": "#/$defs/hash"}, {"type": "null"}]},
+            "file_count": {"anyOf": [{"type": "integer", "minimum": 1}, {"type": "null"}]},
+            "manifest_sha256": {"anyOf": [{"$ref": "#/$defs/hash"}, {"type": "null"}]}
+          }
+        }
+      }
+    },
+    "requirement": {
+      "type": "object", "additionalProperties": false, "required": ["id", "status", "evidence_ids"],
+      "properties": {
+        "id": {"enum": ["stock_fingerprint", "collection_table_geometry", "missing_entry_predicate", "native_add_complete_writer", "completion_effects_separation", "duplicate_reward_trophy_stat_notification", "confirmation_reacquire_charge", "save_reload_catchup_idempotence", "hook_cave_composition", "runtime_player_evidence"]},
+        "status": {"enum": ["missing", "verified", "rejected"]},
+        "evidence_ids": {"type": "array", "items": {"type": "string", "minLength": 1}}
+      }
+    },
+    "receipt": {
+      "type": "object", "additionalProperties": false,
+      "required": ["id", "requirement", "status", "synthetic", "stale", "source_sha256", "proof", "regions"],
+      "properties": {
+        "id": {"type": "string", "minLength": 1}, "requirement": {"type": "string", "minLength": 1},
+        "status": {"enum": ["verified", "missing", "rejected"]}, "synthetic": {"type": "boolean"}, "stale": {"type": "boolean"},
+        "source_sha256": {"$ref": "#/$defs/hash"}, "proof": {"type": "object"},
+        "regions": {"type": "array", "items": {"$ref": "#/$defs/region"}}
+      }
+    },
+    "region": {
+      "type": "object", "additionalProperties": false, "required": ["kind", "start", "length"],
+      "properties": {"kind": {"type": "string", "minLength": 1}, "start": {"type": ["integer", "string"]}, "length": {"type": "integer", "minimum": 1}}
+    },
+    "forbidden": {
+      "type": "object", "additionalProperties": false, "required": ["id", "game_id", "kind", "value"],
+      "properties": {"id": {"type": "string", "minLength": 1}, "game_id": {"type": "string", "minLength": 1}, "kind": {"type": "string", "minLength": 1}, "value": {"type": ["integer", "string", "null"]}}
+    }
+  }
+}
