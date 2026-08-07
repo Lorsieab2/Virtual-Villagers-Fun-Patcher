@@ -300,7 +300,7 @@
   "expanded_shr_relocations": {
     "stock_virtual_address": "0x7B2000",
     "expanded_virtual_address": "0x8EB000",
-    "ledger_sha256": "A5DF4E109D32E2BC9FDE36E2BA3139230B6E6CD89DE4C3FF784846F4CE803740",
+    "ledger_sha256": "14E460773ADC065E053FA30921ED01D33A5F36AD49DC754CCD69127EA02C01B7",
     "evidence": {
       "method": "IDA Pro 9.4 decoded instruction heads and operands; raw byte patterns are discovery-only and are not relocation proof",
       "exact_stock_sha256": "92946781980220E9D1A2E6C573925519934608F5215F4A0F8CE3B90088C5C65D",
@@ -631,13 +631,13 @@
         "purpose": "relocate IDA-decoded VV5 current-feature cross-section rel32 operand for expanded 256 mode"
       },
       {
-        "offset": "0xDB1A0",
+        "offset": "0xDB1A4",
         "before": "7267C6FF",
         "kind": "rel32",
-        "source_virtual_address": "0x8EB19F",
-        "source_expanded_virtual_address": "0x8EB19F",
-        "target_stock_virtual_address": "0x418916",
-        "target_expanded_virtual_address": "0x418916",
+        "source_virtual_address": "0x8EB1A3",
+        "source_expanded_virtual_address": "0x8EB1A3",
+        "target_stock_virtual_address": "0x41891A",
+        "target_expanded_virtual_address": "0x41891A",
         "purpose": "relocate IDA-decoded VV5 current-feature cross-section rel32 operand for expanded 256 mode"
       },
       {

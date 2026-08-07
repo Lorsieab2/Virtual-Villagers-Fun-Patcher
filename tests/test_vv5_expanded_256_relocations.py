@@ -24,6 +24,28 @@ FEATURE = json.loads(
 
 
 class VV5Expanded256RelocationTests(unittest.TestCase):
+    def test_selector_tail_rel32_uses_exact_instruction_boundary_and_target(self) -> None:
+        row = next(
+            item for item in self.relocation["patches"] if item["offset"] == "0xDB1A4"
+        )
+        payload = bytes.fromhex(self.feature["selector_repair"]["body"]["after"])
+        payload_offset = int(self.feature["selector_repair"]["body"]["file_offset"], 0)
+        local = 0xDB1A3 - payload_offset
+        self.assertEqual(payload[local], 0xE9)
+        self.assertEqual(payload[local + 1 : local + 5].hex().upper(), "7267C6FF")
+        self.assertEqual(
+            payload[0xDB1A0 - payload_offset : 0xDB1A4 - payload_offset].hex().upper(),
+            "14C5FFE9",
+        )
+        self.assertEqual(row["source_virtual_address"], "0x8EB1A3")
+        self.assertEqual(row["target_stock_virtual_address"], "0x41891A")
+        self.assertEqual(row["target_expanded_virtual_address"], "0x41891A")
+        stock_rel = int.from_bytes(bytes.fromhex(row["before"]), "little", signed=True)
+        expanded_rel = int.from_bytes(bytes.fromhex("72D7B2FF"), "little", signed=True)
+        self.assertEqual(0x7B21A3 + 5 + stock_rel, 0x41891A)
+        self.assertEqual(0x8EB1A3 + 5 + expanded_rel, 0x41891A)
+        self.assertNotIn("expanded_skip_before", row)
+
     def setUp(self) -> None:
         self.feature = copy.deepcopy(FEATURE)
         self.build = next(item for item in load_builds() if item.id == "vv5")
@@ -67,7 +89,7 @@ class VV5Expanded256RelocationTests(unittest.TestCase):
         expected_rel32 = {
             "0x18910", "0x1EB70", "0x237B1", "0x40A25", "0x4AF13", "0x4BC21", "0x94FBF",
             "0xDB01C", "0xDB021", "0xDB043", "0xDB055", "0xDB06C", "0xDB08E", "0xDB096",
-            "0xDB0E1", "0xDB103", "0xDB115", "0xDB12C", "0xDB14E", "0xDB156", "0xDB1A0",
+            "0xDB0E1", "0xDB103", "0xDB115", "0xDB12C", "0xDB14E", "0xDB156", "0xDB1A4",
             "0xDB272", "0xDB283", "0xDB292", "0xDB38D", "0xDB3C3", "0xDB3ED", "0xDB415",
             "0xDB437", "0xDB45A", "0xDB462", "0xDB46C", "0xDB7AC", "0xDBA56", "0xDBB22", "0xDBB27",
         }

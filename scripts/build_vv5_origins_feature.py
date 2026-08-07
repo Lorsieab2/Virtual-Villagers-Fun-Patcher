@@ -96,7 +96,7 @@ VV5_IDA_CROSS_SECTION_REL32_RELOCATIONS = [
     ("0xDB12C", "A0FAC4FF", "0x8EB12B", "0x401BD0", None),
     ("0xDB14E", "7EF4C4FF", "0x8EB14D", "0x4015D0", None),
     ("0xDB156", "26A5C5FF", "0x8EB155", "0x40C680", None),
-    ("0xDB1A0", "7267C6FF", "0x8EB19F", "0x418916", None),
+    ("0xDB1A4", "7267C6FF", "0x8EB1A3", "0x41891A", None),
     ("0xDB272", "DA36C7FF", "0x8EB271", "0x425950", None),
     ("0xDB283", "B9F5CBFF", "0x8EB282", "0x471840", None),
     ("0xDB292", "BAD6CBFF", "0x8EB291", "0x46F950", None),
@@ -902,6 +902,12 @@ def main() -> None:
             }
         )
     for offset, before, source_va, target_va, skip_before in VV5_IDA_CROSS_SECTION_REL32_RELOCATIONS:
+        target_stock_va = int(target_va, 0)
+        target_expanded_va = (
+            target_stock_va + (EXPANDED_PAYLOAD_VA - PAYLOAD_VA)
+            if PAYLOAD_VA <= target_stock_va < PAYLOAD_VA + PAYLOAD_SIZE
+            else target_stock_va
+        )
         entry = {
             "offset": offset,
             "before": before,
@@ -909,7 +915,7 @@ def main() -> None:
             "source_virtual_address": source_va,
             "source_expanded_virtual_address": source_va,
             "target_stock_virtual_address": target_va,
-            "target_expanded_virtual_address": f"0x{int(target_va, 0) + (EXPANDED_PAYLOAD_VA - PAYLOAD_VA):X}",
+            "target_expanded_virtual_address": f"0x{target_expanded_va:X}",
             "purpose": "relocate IDA-decoded VV5 current-feature cross-section rel32 operand for expanded 256 mode",
         }
         if skip_before:
@@ -1197,6 +1203,16 @@ def main() -> None:
         offset = int(str(item["offset"]), 16)
         replacement = bytes.fromhex(str(item["after"]))
         rendered[offset : offset + len(replacement)] = replacement
+    for relocation in expanded_shr_relocations:
+        offset = int(relocation["offset"], 0)
+        expected_before = bytes.fromhex(relocation["before"])
+        actual = bytes(rendered[offset : offset + len(expected_before)])
+        if actual != expected_before:
+            raise RuntimeError(
+                "IDA relocation ledger guard drift at "
+                f"{relocation['offset']}: expected {expected_before.hex().upper()}, "
+                f"got {actual.hex().upper()}"
+            )
     OUT_EXE.write_bytes(rendered)
     OUT_JSON.write_text(json.dumps(patches, indent=2) + "\n", encoding="utf-8")
     manifest = {

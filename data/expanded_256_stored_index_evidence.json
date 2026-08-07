@@ -4,7 +4,7 @@
   "status": "static_partial_stop",
   "integrity": {
     "canonicalization": "UTF-8 JSON with sorted keys and compact separators; integrity.canonical_sha256 is excluded from its own digest",
-    "canonical_sha256": "8F40FE8D936F9412C7F595E1BD1B9D6B7E42FD8F6CBBC571DB128CE83E4F0D1C"
+    "canonical_sha256": "4A8C0554B495651ABF951E71D6DC481382929CBF8FA9A0EF9182CEA5C165B54D"
   },
   "publication": {
     "enabled": false,
@@ -59,10 +59,10 @@
     },
     "source_files": [
       {"path": "data/expanded_256.json", "sha256": "5738EABD414DA0171C8A03316B9CCCE9C39CF8F080D63D2F209D9A5C7A5DEAB3"},
-      {"path": "data/expanded_256_runtime_evidence.json", "sha256": "3717EE90AB7F7A375BE47C42F5BAEF55761BE85F52F2D92D55FEDFDC77860D12"},
+      {"path": "data/expanded_256_runtime_evidence.json", "sha256": "BB90E24579DB33A118779A2EACC939D96DDCD8392C9C759CB9B373B8DFEB4DF3"},
       {"path": "scripts/capture_expanded_runtime_evidence.py", "sha256": "719DAD95AC6AB2D2E1CC9F64DECF1BB894CC4A98B5B7662A3A84402B2C5CA321"},
       {"path": "data/vv4_origins_feature.json", "sha256": "5A59BE484D22B1140DB532A520ADD9481D378159AF648803B3649A95590ECDFB"},
-      {"path": "data/vv5_origins_feature.json", "sha256": "D55E1C8C95D604556586EDAD2255319B2A9440D7101C93F589E38F93DE98A47E"}
+      {"path": "data/vv5_origins_feature.json", "sha256": "A724796591D776700FB61A38171E4214A1042048E93042CD812B0441FA708865"}
     ]
   },
   "games": {
@@ -83,7 +83,7 @@
         "schema_version": "vvfp.expanded_256_runtime_capture.v1",
         "harness_path": "scripts/capture_expanded_runtime_evidence.py",
         "harness_sha256": "719DAD95AC6AB2D2E1CC9F64DECF1BB894CC4A98B5B7662A3A84402B2C5CA321",
-        "contract_canonical_sha256": "3831DDFED59E5EA0B897D994C2CD203C7262C18FC06864622D83077460338792",
+        "contract_canonical_sha256": "44006789E82B4C92C9940B8B33ED3AFDFCA45EB25DF774F22156AEF9FF7392E8",
         "status": "absent_stop",
         "capture_packet_sha256": null,
         "authenticated": false
@@ -154,7 +154,7 @@
         "schema_version": "vvfp.expanded_256_runtime_capture.v1",
         "harness_path": "scripts/capture_expanded_runtime_evidence.py",
         "harness_sha256": "719DAD95AC6AB2D2E1CC9F64DECF1BB894CC4A98B5B7662A3A84402B2C5CA321",
-        "contract_canonical_sha256": "3831DDFED59E5EA0B897D994C2CD203C7262C18FC06864622D83077460338792",
+        "contract_canonical_sha256": "44006789E82B4C92C9940B8B33ED3AFDFCA45EB25DF774F22156AEF9FF7392E8",
         "status": "absent_stop",
         "capture_packet_sha256": null,
         "authenticated": false
@@ -163,7 +163,7 @@
         "path": "data/vv5_origins_feature.json",
         "json_pointer": "/expanded_shr_relocations/patches",
         "count": 66,
-        "ledger_sha256": "A5DF4E109D32E2BC9FDE36E2BA3139230B6E6CD89DE4C3FF784846F4CE803740"
+        "ledger_sha256": "14E460773ADC065E053FA30921ED01D33A5F36AD49DC754CCD69127EA02C01B7"
       },
       "layout_boundary": {
         "logical_records": 256,

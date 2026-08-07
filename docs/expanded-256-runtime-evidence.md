@@ -22,7 +22,7 @@ The static current-Origins relocation ledgers are independently pinned:
 - VV4: exactly 13 rows, ledger SHA-256
   `CEE01F4AEC59CB1CEE0F42E3DDDB3A24615261E628ED0629C1BFAABF421A897D`.
 - VV5: exactly 66 rows, ledger SHA-256
-  `A5DF4E109D32E2BC9FDE36E2BA3139230B6E6CD89DE4C3FF784846F4CE803740`.
+  `14E460773ADC065E053FA30921ED01D33A5F36AD49DC754CCD69127EA02C01B7`.
 
 The validator recomputes each ledger digest from canonical sorted JSON rows and
 checks the source-file SHA-256 before accepting the static contract.

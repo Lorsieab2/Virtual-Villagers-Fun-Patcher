@@ -52,7 +52,7 @@ silently accepted; they do not close the stored-index audit.
 | Game | Exact stock identity | Stored-index/save candidate edits | Current Origins relocation binding |
 |---|---|---:|---:|
 | VV4 The Tree of Life | 929,792 bytes; `6D27A429FFCA5F1F71FDD7ECA761ED1BB67E85F976494BA178B3D7BE01F1B220` | 13 | 13 rows; `CEE01F4AEC59CB1CEE0F42E3DDDB3A24615261E628ED0629C1BFAABF421A897D` |
-| VV5 New Believers | 991,232 bytes; `92946781980220E9D1A2E6C573925519934608F5215F4A0F8CE3B90088C5C65D` | 15 | 66 rows; `A5DF4E109D32E2BC9FDE36E2BA3139230B6E6CD89DE4C3FF784846F4CE803740` |
+| VV5 New Believers | 991,232 bytes; `92946781980220E9D1A2E6C573925519934608F5215F4A0F8CE3B90088C5C65D` | 15 | 66 rows; `14E460773ADC065E053FA30921ED01D33A5F36AD49DC754CCD69127EA02C01B7` |
 
 The 13-row VV4 and 66-row VV5 relocation ledgers remain independently pinned
 and recomputed from their current Origins manifests. Relocation completeness
@@ -63,7 +63,7 @@ cannot complete a category until the no-follow capture harness supplies an
 exact nine-role artifact inventory, complete-folder canonical digest, and an
 independently authenticated runtime-capture packet bound to runtime contract
 digest
-`3831DDFED59E5EA0B897D994C2CD203C7262C18FC06864622D83077460338792`.
+`44006789E82B4C92C9940B8B33ED3AFDFCA45EB25DF774F22156AEF9FF7392E8`.
 Unsigned capture candidates remain evidence inputs only, never GO.
 
 ## VV4 boundary

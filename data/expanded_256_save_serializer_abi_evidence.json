@@ -4,7 +4,7 @@
   "status": "evidence_empty_stop",
   "integrity": {
     "canonicalization": "UTF-8 JSON with sorted keys and compact separators; integrity.canonical_sha256 is excluded from its own digest",
-    "canonical_sha256": "66D34AAB84CC3695BB093308897A52980AC6A7D488597C1E7641F51273EC31E2"
+    "canonical_sha256": "362B36C79014B8A8ABB156D105539BD9F2E095A20C208ED665B2345F30FCA8DE"
   },
   "publication": {"enabled": false, "runtime_go": false, "player_go": false, "eligible": false},
   "policy": {
@@ -17,8 +17,8 @@
   "bindings": {
     "implementation_base_commit": "9ffa0c21277df3b8dabee81fb0316e6953695ed3",
     "schema": {"path": "data/schemas/expanded_256_save_serializer_abi_evidence.schema.json", "file_sha256": "5FD0DB0E6E12AB723F762EA2B31FD9F313ABCDE4239A3F85142BC6E21AEB9C69"},
-    "stored_index_contract": {"path": "data/expanded_256_stored_index_evidence.json", "file_sha256": "DEFD25A657BF227AE854649ECE35E58A5A0BD3414C51CDAFE9EDBCAF25FC2009", "canonical_sha256": "8F40FE8D936F9412C7F595E1BD1B9D6B7E42FD8F6CBBC571DB128CE83E4F0D1C"},
-    "runtime_contract": {"path": "data/expanded_256_runtime_evidence.json", "file_sha256": "3717EE90AB7F7A375BE47C42F5BAEF55761BE85F52F2D92D55FEDFDC77860D12", "canonical_sha256": "3831DDFED59E5EA0B897D994C2CD203C7262C18FC06864622D83077460338792"},
+    "stored_index_contract": {"path": "data/expanded_256_stored_index_evidence.json", "file_sha256": "EF86594D3FCC6DFB4FA7599D770E634008C6975C8A45E9824FD26E87F198A4DC", "canonical_sha256": "4A8C0554B495651ABF951E71D6DC481382929CBF8FA9A0EF9182CEA5C165B54D"},
+    "runtime_contract": {"path": "data/expanded_256_runtime_evidence.json", "file_sha256": "BB90E24579DB33A118779A2EACC939D96DDCD8392C9C759CB9B373B8DFEB4DF3", "canonical_sha256": "44006789E82B4C92C9940B8B33ED3AFDFCA45EB25DF774F22156AEF9FF7392E8"},
     "runtime_harness": {"path": "scripts/capture_expanded_runtime_evidence.py", "file_sha256": "719DAD95AC6AB2D2E1CC9F64DECF1BB894CC4A98B5B7662A3A84402B2C5CA321", "schema_version": "vvfp.expanded_256_runtime_capture.v1"}
   },
   "required_requirements": [
@@ -51,7 +51,7 @@
     "vv5": {
       "stock_fingerprint": {"filename": "Virtual Villagers - New Believers.exe", "size": 991232, "sha256": "92946781980220E9D1A2E6C573925519934608F5215F4A0F8CE3B90088C5C65D"},
       "expanded_fingerprints": {"experimental_expanded_256": {"size": 991232, "sha256": "44042572653782B20A200799785F437D4D76B46F20384D597B8093F27CC88C89"}, "experimental_expanded_256_progression": {"size": 991232, "sha256": "6BF9E0EB9BC7D3C373E32C3A7377C9A7EA35C1FA889EEDBF9B2819A25BC43E86"}},
-      "relocation_ledger": {"path": "data/vv5_origins_feature.json", "file_sha256": "D55E1C8C95D604556586EDAD2255319B2A9440D7101C93F589E38F93DE98A47E", "count": 66, "ledger_sha256": "A5DF4E109D32E2BC9FDE36E2BA3139230B6E6CD89DE4C3FF784846F4CE803740"},
+      "relocation_ledger": {"path": "data/vv5_origins_feature.json", "file_sha256": "A724796591D776700FB61A38171E4214A1042048E93042CD812B0441FA708865", "count": 66, "ledger_sha256": "14E460773ADC065E053FA30921ED01D33A5F36AD49DC754CCD69127EA02C01B7"},
       "complete_folder": {"status": "absent_stop", "inventory_sha256": null, "authenticated": false},
       "save_layout": {"stock_size": null, "expanded_size": null, "stock_layout_sha256": null, "expanded_layout_sha256": null, "status": "unknown_stop"},
       "evidence_matrix": [
