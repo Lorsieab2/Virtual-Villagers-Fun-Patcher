@@ -511,7 +511,7 @@ class VV5FullMasteryCandidateTests(unittest.TestCase):
         )
         self.assertEqual(
             frozen["vv5_origins_feature.json"],
-            "9A6635544D8506033D28CA594491C40299242F6D9A24D8B529763C8160FC8566",
+            "0DD467627B8C8DCF69E0A800D1662B084FDFC7518D22353D3497F628037F6D67",
         )
 
     def test_exact_current_context_native_calls_and_nonvolatile_frame(self):
@@ -753,20 +753,17 @@ class VV5FullMasteryCandidateTests(unittest.TestCase):
                 _remove_feature_bytes(work, self.feature, "collection_progression")
                 with self.assertRaises(PatcherError):
                     _remove_feature_bytes(work, self.base, "collection_progression")
-        # The legacy generator intentionally targets tracked canonical files.
-        # Snapshot and restore them around this determinism probe so the test
-        # cannot leak a disabled/rewritten candidate into later tests.
+        # X45 changes the active Origins base.  The disabled Full Mastery
+        # generator remains pinned to its previously certified parent until a
+        # later final-tree rebind, and must fail before rewriting tracked files.
         tracked = (BASE, FEATURE, MAP, DOC, DLL)
         originals = {path: path.read_bytes() for path in tracked}
-        try:
-            subprocess.run([sys.executable, str(GENERATOR)], cwd=ROOT, check=True)
-            before = {path: sha(path.read_bytes()) for path in tracked}
-            subprocess.run([sys.executable, str(GENERATOR)], cwd=ROOT, check=True)
-            after = {path: sha(path.read_bytes()) for path in tracked}
-            self.assertEqual(before, after)
-        finally:
-            for path, content in originals.items():
-                path.write_bytes(content)
+        result = subprocess.run(
+            [sys.executable, str(GENERATOR)], cwd=ROOT, capture_output=True, text=True
+        )
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("active Origins base", result.stderr)
+        self.assertEqual(originals, {path: path.read_bytes() for path in tracked})
 
     def test_c253_source_repair_is_explicitly_disabled_until_emitted_recertification(self):
         source = GENERATOR.read_text(encoding="utf-8")
@@ -898,13 +895,15 @@ class VV5FullMasteryCandidateTests(unittest.TestCase):
 
     def test_c256_active_base_pin_and_fullscreen_cdecl_contract(self):
         active = ROOT / "data" / "vv5_origins_feature.json"
-        self.assertEqual(active.stat().st_size, 34672)
-        self.assertEqual(sha(active.read_bytes()), "797456C51CA86A7C802B7B6F2B0C8FCDFFF1C1E205923FA9A1F3E0A503FDB823")
-        self.assertEqual(
-            self.base_raw["active_base"],
-            {"path": "data/vv5_origins_feature.json", "size": 34672, "sha256": "797456C51CA86A7C802B7B6F2B0C8FCDFFF1C1E205923FA9A1F3E0A503FDB823"},
-        )
+        certified_parent = {
+            "path": "data/vv5_origins_feature.json",
+            "size": 34672,
+            "sha256": "797456C51CA86A7C802B7B6F2B0C8FCDFFF1C1E205923FA9A1F3E0A503FDB823",
+        }
+        self.assertEqual(self.base_raw["active_base"], certified_parent)
         self.assertEqual(self.map["active_base"], self.base_raw["active_base"])
+        self.assertNotEqual(active.stat().st_size, certified_parent["size"])
+        self.assertNotEqual(sha(active.read_bytes()), certified_parent["sha256"])
         sdl = self.base_raw["fullscreen_dialog_contract"]["sdl"]
         self.assertEqual(sdl["calls"], 3)
         self.assertEqual(sdl["abi"], "push SDL_Window*; indirect call; add esp,4 for each invocation")
