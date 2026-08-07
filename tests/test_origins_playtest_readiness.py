@@ -56,7 +56,7 @@ class OriginsPlaytestReadinessTests(unittest.TestCase):
                 base_id = f"{build.id}_enable_origins_exclusive_features"
                 wide_id = f"{build.id}_origins_village_wide_upgrades"
                 self.assertNotIn(wide_id, ids)
-                if build.id == "vv2":
+                if build.id in {"vv1", "vv2"}:
                     self.assertNotIn(base_id, ids)
                 else:
                     self.assertIn(base_id, ids)

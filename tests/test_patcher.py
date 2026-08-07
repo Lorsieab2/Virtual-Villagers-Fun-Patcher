@@ -602,6 +602,12 @@ class DoublerPurchaseSafetyTests(unittest.TestCase):
     def test_unproven_doublers_are_unavailable_but_owned_rows_remain_removable(self) -> None:
         for game_id in self.BLOCKED_GAMES:
             with self.subTest(game=game_id):
+                if game_id == "vv1":
+                    self.assertNotIn(
+                        "vv1_enable_origins_exclusive_features",
+                        {patch.id for patch in load_fun_patches()},
+                    )
+                    continue
                 feature = get_fun_patch(f"{game_id}_enable_origins_exclusive_features")
                 status = feature.raw["doubler_purchase_status"]
                 self.assertIn("temporarily unavailable", status["new_purchase"])
@@ -1420,13 +1426,17 @@ class StockIntegrationTests(unittest.TestCase):
         )
         self.assertTrue(rendered)
         self.assertGreater(len(applied), 5)
-        with self.assertRaisesRegex(PatcherError, "overlap"):
-            render_patched_bytes(
-                STOCK / build.input_name,
-                build,
-                DEFAULT_PATCH_MODE,
-                [*selected, "vv1_full_mastery_all_stage_a_candidate"],
-            )
+        composed, composed_applied = render_patched_bytes(
+            STOCK / build.input_name,
+            build,
+            DEFAULT_PATCH_MODE,
+            [*selected, "vv1_full_mastery_all_stage_a_candidate"],
+        )
+        self.assertTrue(composed)
+        self.assertTrue(any(
+            patch.get("owner") == "feature:vv1_full_mastery_all_stage_a_candidate"
+            for patch in composed_applied
+        ))
 
     def test_vv1_builder_action_fixes_preserve_other_scheduler_paths(self) -> None:
         patch = get_fun_patch("vv1_builder_action_fixes")

@@ -205,11 +205,11 @@ class VillageWideContainmentTests(unittest.TestCase):
                     for start, end in forbidden:
                         self.assertEqual(rendered[start:end], source_bytes[start:end])
 
-    def test_base_origins_remains_independently_composable_except_contained_vv2(self) -> None:
+    def test_base_origins_remains_independently_composable_except_contained_vv1_vv2(self) -> None:
         catalog_ids = {patch.id for patch in load_fun_patches()}
         for build in load_builds():
             base_id = f"{build.id}_enable_origins_exclusive_features"
-            if build.id == "vv2":
+            if build.id in {"vv1", "vv2"}:
                 self.assertNotIn(base_id, catalog_ids)
                 continue
             self.assertIn(base_id, catalog_ids)
