@@ -27,6 +27,9 @@ from vv3_expanded_256_evidence import (
 )
 
 
+ROOT = Path(__file__).resolve().parents[1]
+
+
 def _observation(offset: int, raw_bytes: str) -> dict:
     return {
         "status": "verified",
@@ -208,6 +211,14 @@ class VV3Expanded256EvidenceTests(unittest.TestCase):
         self.assertFalse(result.static_valid)
         self.assertTrue(any("xrefs contains duplicate EA" in error for error in result.errors))
 
+    def test_same_claim_duplicate_observation_fails_closed(self) -> None:
+        bundle = _bundle()
+        observations = bundle["coverage"]["selectors_queues_callbacks_stats_serializer"]["claims"][0]["observations"]
+        observations.append(copy.deepcopy(observations[0]))
+        result = validate_vv3_evidence(bundle)
+        self.assertFalse(result.static_valid)
+        self.assertTrue(any("contains duplicate observation at" in error for error in result.errors))
+
     def test_synthetic_ambiguous_and_incomplete_evidence_is_rejected(self) -> None:
         bundle = _bundle()
         bundle["provenance"]["synthetic"] = True
@@ -303,6 +314,38 @@ class VV3Expanded256EvidenceTests(unittest.TestCase):
         self.assertFalse(result.runtime_ready)
         self.assertTrue(any("reused across gates" in error for error in result.errors))
 
+    def test_duplicate_catalog_path_fails_closed(self) -> None:
+        bundle = _bundle()
+        duplicate = copy.deepcopy(bundle["runtime_evidence"][0])
+        duplicate.update({"id": "unit-capture-2", "sha256": "1" * 64})
+        bundle["runtime_evidence"].append(duplicate)
+        result = validate_vv3_evidence(bundle)
+        self.assertFalse(result.runtime_ready)
+        self.assertTrue(any("runtime evidence path captures/unit-capture.json is duplicated" in error for error in result.errors))
+
+    def test_duplicate_catalog_hash_fails_closed(self) -> None:
+        bundle = _bundle()
+        duplicate = copy.deepcopy(bundle["runtime_evidence"][0])
+        duplicate.update({"id": "unit-capture-2", "path": "captures/unit-capture-2.json"})
+        bundle["runtime_evidence"].append(duplicate)
+        result = validate_vv3_evidence(bundle)
+        self.assertFalse(result.runtime_ready)
+        self.assertTrue(any("runtime evidence artifact hash" in error and "reused by" in error for error in result.errors))
+
+    def test_declarative_schema_pins_shape_and_reviewed_fingerprints(self) -> None:
+        schema = json.loads(
+            (ROOT / "data" / "vv3_expanded_256_evidence.schema.json").read_text(encoding="utf-8")
+        )
+        self.assertEqual(schema["properties"]["source_sha256"]["const"], VV3_SOURCE_SHA256)
+        self.assertEqual(schema["properties"]["prototype_sha256"]["const"], VV3_PROTOTYPE_SHA256)
+        self.assertEqual(
+            schema["properties"]["coverage"]["properties"]["loader_abi_branches"]["$ref"],
+            "#/$defs/loader_section",
+        )
+        self.assertFalse(schema["$defs"]["loader_claim"]["additionalProperties"])
+        self.assertFalse(schema["$defs"]["observation"]["additionalProperties"])
+        self.assertIn("not", schema["properties"]["runtime_evidence"]["items"]["properties"]["path"])
+
     def test_reordered_json_is_not_accepted_as_canonical_evidence(self) -> None:
         bundle = {"z": 1, "a": 2}
         with tempfile.TemporaryDirectory() as directory:
@@ -327,6 +370,20 @@ class VV3Expanded256EvidenceTests(unittest.TestCase):
             with mock.patch("vv3_expanded_256_evidence.os.fstat", side_effect=[before, after]):
                 with self.assertRaisesRegex(ValueError, "changed during hash read"):
                     inventory_evidence_file(Path("capture.json"), root=root)
+
+    def test_real_symlink_is_rejected_when_platform_supports_creation(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            target = root / "target.json"
+            link = root / "link.json"
+            target.write_bytes(b"artifact")
+            try:
+                link.symlink_to(target)
+            except (OSError, NotImplementedError) as exc:
+                self.skipTest(f"platform does not permit symlink creation: {exc}")
+            self.assertTrue(link.is_symlink(), "symlink creation returned without a symlink")
+            with self.assertRaisesRegex(ValueError, "reparse|symlink"):
+                inventory_evidence_file(Path("link.json"), root=root)
 
     def test_evidence_file_mutation_between_inventory_read_and_validation_fails_closed(self) -> None:
         bundle = _bundle()

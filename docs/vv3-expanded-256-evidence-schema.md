@@ -34,8 +34,18 @@ values in integer fields fail closed. `load_evidence` accepts only canonical
 UTF-8 JSON (sorted keys, compact separators); `inventory_evidence_file` rejects
 reparse points and detects file identity or metadata changes during hashing.
 `validate_evidence_file` binds the inventory, read, and post-validation bytes so
-an evidence-file mutation cannot publish. Each gate must be independently
-verified and cite IDs from that catalog.
+an evidence-file mutation observed during that validation window cannot publish.
+It is not an ongoing file lock and cannot attest to mutations after the final
+verification read. Each gate must be independently verified and cite IDs from
+that catalog.
+
+The JSON Schema now mirrors the manually checked object shapes, strict scalar
+types, reviewed VV3 fingerprints, and conservative catalog-path syntax where
+JSON Schema can express them. Schema-only acceptance is not sufficient: JSON
+Schema cannot reject duplicate JSON object keys, enforce uniqueness by claim,
+xref, catalog path, or artifact hash across arrays/sections, canonicalize raw
+JSON bytes, or inspect filesystem identity, symlinks, junctions, and reparse
+points. The canonical loader and Python validator remain mandatory.
 
 The current static contract deliberately remains publication-false. Therefore
 even a future structurally valid bundle cannot return publication-ready until
