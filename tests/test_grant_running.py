@@ -41,14 +41,19 @@ def record(
     likes,
     dislikes,
     *,
-    identity="one",
-    active=True,
+    identity=1,
+    selected_index=0,
+    record_pointer=0x1000,
+    active=1,
     health=1,
     faction=0,
     heathen_active=0,
+    current_believer=None,
 ):
-    return {
+    result = {
         "identity": identity,
+        "selected_index": selected_index,
+        "record_pointer": record_pointer,
         "active": active,
         "health": health,
         "faction": faction,
@@ -56,6 +61,9 @@ def record(
         "likes": list(likes),
         "dislikes": list(dislikes),
     }
+    if current_believer is not None:
+        result["current_believer"] = current_believer
+    return result
 
 
 class ReadProbe(dict):
@@ -72,25 +80,26 @@ class GrantRunningTests(unittest.TestCase):
     def test_already_running_is_whole_record_noop_and_preserves_duplicates(self):
         current = record((38, 38, 7), (38, 8, 38))
         before = deepcopy(current)
-        plan = plan_transaction(current, 40_000, True, lambda: (current, 40_000), binding())
+        plan = plan_transaction(current, 40_000, 1, lambda: (current, 40_000), binding())
         self.assertEqual((plan.status, plan.message), ("no_change", ALREADY_MESSAGE))
         self.assertEqual(current, before)
         self.assertEqual(scan_running(current, binding()).running_dislikes, (0, 2))
 
     def test_first_empty_like_is_selected_and_all_running_dislikes_are_planned(self):
         current = record((7, -1, 8), (38, 9, 38))
-        plan = plan_transaction(current, 40_000, True, lambda: (current, 40_000), binding())
+        plan = plan_transaction(current, 40_000, 1, lambda: (current, 40_000), binding())
         self.assertEqual(plan.status, "commit")
         self.assertEqual(plan.like_index, 1)
         self.assertEqual(plan.dislike_indices, (0, 2))
         self.assertEqual(plan.after_likes, (7, 38, 8))
         self.assertEqual(plan.after_dislikes, (-1, 9, -1))
+        self.assertEqual(plan.record_identity, (1, 0, 0x1000))
         self.assertEqual(current["likes"], [7, -1, 8])
         self.assertEqual(current["dislikes"], [38, 9, 38])
 
     def test_no_empty_like_does_not_clear_dislikes(self):
         current = record((7, 8, 9), (38, 38, 6))
-        plan = plan_transaction(current, 40_000, True, lambda: (current, 40_000), binding())
+        plan = plan_transaction(current, 40_000, 1, lambda: (current, 40_000), binding())
         self.assertEqual((plan.status, plan.message), ("no_change", NO_SLOT_MESSAGE))
         self.assertEqual(plan.before_dislikes, (38, 38, 6))
         self.assertEqual(plan.after_dislikes, ())
@@ -98,27 +107,27 @@ class GrantRunningTests(unittest.TestCase):
     def test_cancel_and_reacquire_race_are_no_charge(self):
         current = record((7, -1, 8), (-1, 9, -1))
         self.assertEqual(
-            plan_transaction(current, 40_000, False, lambda: (current, 40_000), binding()).status,
+            plan_transaction(current, 40_000, 2, lambda: (current, 40_000), binding()).status,
             "cancel",
         )
-        changed = record((7, 5, 8), (-1, 9, -1), identity="two")
-        race = plan_transaction(current, 40_000, True, lambda: (changed, 40_000), binding())
+        changed = record((7, 5, 8), (-1, 9, -1), identity=2)
+        race = plan_transaction(current, 40_000, 1, lambda: (changed, 40_000), binding())
         self.assertEqual(race.status, "race")
 
     def test_reacquire_rejects_stale_identity_slot_and_funds(self):
         current = record((7, -1, 8), (-1, 9, -1))
-        stale_identity = record((7, -1, 8), (-1, 9, -1), identity="two")
+        stale_identity = record((7, -1, 8), (-1, 9, -1), identity=2)
         self.assertEqual(
-            plan_transaction(current, 40_000, True, lambda: (stale_identity, 40_000), binding()).status,
+            plan_transaction(current, 40_000, 1, lambda: (stale_identity, 40_000), binding()).status,
             "race",
         )
         stale_slot = record((7, 6, 8), (-1, 9, -1))
         self.assertEqual(
-            plan_transaction(current, 40_000, True, lambda: (stale_slot, 40_000), binding()).status,
+            plan_transaction(current, 40_000, 1, lambda: (stale_slot, 40_000), binding()).status,
             "race",
         )
         self.assertEqual(
-            plan_transaction(current, 40_000, True, lambda: (current, 39_999), binding()).status,
+            plan_transaction(current, 40_000, 1, lambda: (current, 39_999), binding()).status,
             "insufficient",
         )
 
@@ -145,6 +154,115 @@ class GrantRunningTests(unittest.TestCase):
                 self.assertFalse(scan_running(probe, current_binding).eligible)
                 self.assertNotIn("likes", probe.reads)
                 self.assertNotIn("dislikes", probe.reads)
+
+    def test_eligibility_and_identity_fields_reject_coercions_and_out_of_range_values(self):
+        vv1 = binding()
+        cases = (
+            ("active-bool", "active", True),
+            ("active-float", "active", 1.0),
+            ("active-string", "active", "1"),
+            ("active-out-of-range", "active", 2),
+            ("health-bool", "health", True),
+            ("health-float", "health", 1.0),
+            ("health-string", "health", "1"),
+            ("health-out-of-range", "health", 0x80000000),
+            ("identity-bool", "identity", True),
+            ("identity-zero", "identity", 0),
+            ("identity-string", "identity", "1"),
+            ("selected-index-bool", "selected_index", True),
+            ("selected-index-out-of-range", "selected_index", 256),
+            ("selected-index-string", "selected_index", "0"),
+            ("record-pointer-bool", "record_pointer", True),
+            ("record-pointer-zero", "record_pointer", 0),
+            ("record-pointer-string", "record_pointer", "4096"),
+        )
+        for label, key, value in cases:
+            with self.subTest(case=label):
+                candidate = ReadProbe(record((7, -1, 8), (38, 9, 38)))
+                candidate[key] = value
+                self.assertFalse(scan_running(candidate, vv1).eligible)
+                self.assertNotIn("likes", candidate.reads)
+                self.assertNotIn("dislikes", candidate.reads)
+
+    def test_vv5_faction_and_current_believer_fields_require_exact_binary_values(self):
+        vv5 = RunningBinding(
+            "vv5",
+            "B" * 64,
+            0x2F44,
+            (0x10, 0x14, 0x18),
+            (0x1C, 0x20, 0x24),
+            image_size=1,
+            record_count=150,
+        )
+        for label, key, value in (
+            ("faction-bool", "faction", False),
+            ("faction-float", "faction", 0.0),
+            ("faction-string", "faction", "0"),
+            ("heathen-active-bool", "heathen_active", False),
+            ("heathen-active-string", "heathen_active", "0"),
+            ("current-believer-bool", "current_believer", True),
+            ("current-believer-float", "current_believer", 1.0),
+            ("current-believer-string", "current_believer", "1"),
+        ):
+            with self.subTest(case=label):
+                candidate = ReadProbe(record((7, -1, 8), (38, 9, 38)))
+                candidate[key] = value
+                self.assertFalse(scan_running(candidate, vv5).eligible)
+                self.assertNotIn("likes", candidate.reads)
+                self.assertNotIn("dislikes", candidate.reads)
+        self.assertTrue(scan_running(record((7, -1, 8), (38, 9, 38), current_believer=1), vv5).eligible)
+        self.assertFalse(scan_running(record((7, -1, 8), (38, 9, 38), current_believer=0), vv5).eligible)
+
+    def test_confirmation_and_funds_accept_only_exact_results_and_ranges(self):
+        current = record((7, -1, 8), (-1, 9, -1))
+        for label, balance in (
+            ("bool", True),
+            ("float", 40_000.0),
+            ("string", "40000"),
+            ("negative", -1),
+            ("above-dword", 0x1_0000_0000),
+        ):
+            with self.subTest(case=f"funds-{label}"):
+                self.assertEqual(
+                    plan_transaction(current, balance, 1, lambda: (current, 40_000), binding()).status,
+                    "invalid-funds",
+                )
+        for result_value in (True, False, 1.0, "1", 3):
+            with self.subTest(case=f"confirmation-{result_value!r}"):
+                reacquired = []
+                result = plan_transaction(
+                    current,
+                    40_000,
+                    result_value,
+                    lambda: reacquired.append(True),
+                    binding(),
+                )
+                self.assertEqual(result.status, "invalid-confirmation")
+                self.assertEqual(reacquired, [])
+        self.assertEqual(
+            plan_transaction(current, 40_000, 0, lambda: (current, 40_000), binding()).status,
+            "cancel",
+        )
+        self.assertEqual(
+            plan_transaction(current, 40_000, 2, lambda: (current, 40_000), binding()).status,
+            "cancel",
+        )
+
+    def test_reacquire_exceptions_and_malformed_identity_are_structured_unknown(self):
+        current = record((7, -1, 8), (-1, 9, -1))
+        callbacks = (
+            (lambda: (_ for _ in ()).throw(RuntimeError("reacquire failed")), "reacquire-unknown"),
+            (lambda: [current, 40_000], "reacquire-unknown"),
+            (lambda: (current, True), "reacquire-unknown"),
+            (lambda: (record((7, -1, 8), (-1, 9, -1), record_pointer=0x1001), 40_000), "race"),
+            (lambda: (record((7, -1, 8), (-1, 9, -1), selected_index=256), 40_000), "reacquire-unknown"),
+        )
+        for callback, expected_status in callbacks:
+            with self.subTest(callback=repr(callback)):
+                result = plan_transaction(current, 40_000, 1, callback, binding())
+                self.assertEqual(result.status, expected_status)
+                if expected_status == "reacquire-unknown":
+                    self.assertIn("no tech points have been deducted", result.message.casefold())
 
     def test_preference_snapshots_reject_bool_float_and_numeric_string_values(self):
         cases = (
@@ -173,7 +291,7 @@ class GrantRunningTests(unittest.TestCase):
         for label, snapshot in cases:
             with self.subTest(case=label):
                 current = record((7, -1, 8), (38, 9, 38))
-                plan = plan_transaction(current, 40_000, True, lambda: (current, 40_000), binding())
+                plan = plan_transaction(current, 40_000, 1, lambda: (current, 40_000), binding())
                 deductions = []
                 result = apply_plan(
                     plan,
@@ -205,7 +323,7 @@ class GrantRunningTests(unittest.TestCase):
                     plan = plan_transaction(
                         current,
                         current_binding.price,
-                        True,
+                        1,
                         lambda current=current: (current, current_binding.price),
                         current_binding,
                     )
@@ -226,7 +344,7 @@ class GrantRunningTests(unittest.TestCase):
 
     def test_all_running_dislikes_are_cleared_and_unrelated_duplicates_remain(self):
         current = record((7, -1, 7), (38, 9, 38))
-        plan = plan_transaction(current, 40_000, True, lambda: (current, 40_000), binding())
+        plan = plan_transaction(current, 40_000, 1, lambda: (current, 40_000), binding())
         self.assertEqual(plan.dislike_indices, (0, 2))
         self.assertEqual(plan.after_likes, (7, 38, 7))
         self.assertEqual(plan.after_dislikes, (-1, 9, -1))
@@ -235,7 +353,7 @@ class GrantRunningTests(unittest.TestCase):
 
     def test_disabled_binding_never_calls_native_callbacks(self):
         current = record((7, -1, 8), (38, 9, 38))
-        plan = plan_transaction(current, 40_000, True, lambda: (current, 40_000), binding(enabled=False))
+        plan = plan_transaction(current, 40_000, 1, lambda: (current, 40_000), binding(enabled=False))
         calls = []
         result = apply_plan(
             plan,
@@ -249,6 +367,7 @@ class GrantRunningTests(unittest.TestCase):
 
     def test_current_game_binding_manifests_normalize_into_the_shared_model(self):
         expected_slots = {"vv1": 4, "vv2": 62, "vv3": 3, "vv4": 3, "vv5": 3}
+        expected_records = {"vv1": 256, "vv2": 256, "vv3": 150, "vv4": 150, "vv5": 150}
         for game, slot_count in expected_slots.items():
             with self.subTest(game=game):
                 path = ROOT / "data" / "candidates" / f"{game}_individual_grant_running_binding.json"
@@ -256,6 +375,7 @@ class GrantRunningTests(unittest.TestCase):
                 normalized = binding_from_manifest(raw)
                 self.assertEqual(normalized.game_id, game)
                 self.assertEqual(normalized.slot_count, slot_count)
+                self.assertEqual(normalized.record_count, expected_records[game])
                 self.assertTrue(normalized.eligibility_order_declared)
                 self.assertFalse(normalized.commit_enabled)
                 self.assertEqual(raw["status"], "STOP")
@@ -266,7 +386,7 @@ class GrantRunningTests(unittest.TestCase):
     def test_postverify_failure_rolls_back_only_when_expected_state_is_still_present(self):
         current = [[7, -1, 8], [38, 9, 38]]
         plan_record = record(*current)
-        plan = plan_transaction(plan_record, 40_000, True, lambda: (plan_record, 40_000), binding())
+        plan = plan_transaction(plan_record, 40_000, 1, lambda: (plan_record, 40_000), binding())
         calls = []
         observed = iter([
             ((7, 38, 8), (38, 9, 38)),
@@ -288,7 +408,7 @@ class GrantRunningTests(unittest.TestCase):
 
     def test_like_readback_precedes_every_dislike_callback(self):
         current = record((7, -1, 8), (38, 9, 38))
-        plan = plan_transaction(current, 40_000, True, lambda: (current, 40_000), binding())
+        plan = plan_transaction(current, 40_000, 1, lambda: (current, 40_000), binding())
         state = {"likes": [7, -1, 8], "dislikes": [38, 9, 38]}
         events = []
 
@@ -306,12 +426,19 @@ class GrantRunningTests(unittest.TestCase):
             events.append("read")
             return tuple(state["likes"]), tuple(state["dislikes"])
 
+        balance = [100_000]
+
+        def deduct(_value):
+            balance[0] -= 40_000
+            return DeductionOutcome("charged")
+
         result = apply_plan(
             plan,
             write_like,
             write_dislike,
             read_slots,
-            lambda _value: DeductionOutcome("charged"),
+            deduct,
+            read_balance=lambda: balance[0],
         )
         self.assertEqual(result.status, "committed")
         self.assertEqual(events[:3], ["write-like", "read", "write-dislike-0"])
@@ -322,7 +449,7 @@ class GrantRunningTests(unittest.TestCase):
         for failure in failures:
             with self.subTest(failure=failure):
                 current = record((7, -1, 8), (38, 9, 38))
-                plan = plan_transaction(current, 40_000, True, lambda: (current, 40_000), binding())
+                plan = plan_transaction(current, 40_000, 1, lambda: (current, 40_000), binding())
                 state = {"likes": [7, -1, 8], "dislikes": [38, 9, 38]}
                 dislike_calls = 0
                 deductions = []
@@ -364,6 +491,8 @@ class GrantRunningTests(unittest.TestCase):
                 self.assertFalse(result.charged)
                 self.assertIn("No tech points have been deducted.", result.message)
                 self.assertEqual(result.rollback, "complete" if failure == "deduct" else "unsafe")
+                if failure != "deduct":
+                    self.assertIn("retained per-slot effects may remain", result.message)
                 self.assertEqual(
                     result.charge_status,
                     "not-charged" if failure == "deduct" else "not-attempted",
@@ -373,7 +502,7 @@ class GrantRunningTests(unittest.TestCase):
 
     def test_rollback_failure_is_reported_as_partial_and_uncharged(self):
         current = record((7, -1, 8), (38, 9, 38))
-        plan = plan_transaction(current, 40_000, True, lambda: (current, 40_000), binding())
+        plan = plan_transaction(current, 40_000, 1, lambda: (current, 40_000), binding())
         state = {"likes": [7, -1, 8], "dislikes": [38, 9, 38]}
 
         def write_like(index, value):
@@ -402,10 +531,11 @@ class GrantRunningTests(unittest.TestCase):
         self.assertEqual(result.charge_status, "not-charged")
         self.assertFalse(result.charged)
         self.assertIn("No tech points have been deducted.", result.message)
+        self.assertIn("retained per-slot effects may remain", result.message)
 
     def test_deduction_exception_after_balance_debit_is_reported_as_charged(self):
         current = record((7, -1, 8), (38, 9, 38))
-        plan = plan_transaction(current, 40_000, True, lambda: (current, 40_000), binding())
+        plan = plan_transaction(current, 40_000, 1, lambda: (current, 40_000), binding())
         state = {"likes": [7, -1, 8], "dislikes": [38, 9, 38]}
         balance = [100_000]
 
@@ -436,7 +566,7 @@ class GrantRunningTests(unittest.TestCase):
 
     def test_deduction_without_outcome_or_balance_readback_is_unknown(self):
         current = record((7, -1, 8), (38, 9, 38))
-        plan = plan_transaction(current, 40_000, True, lambda: (current, 40_000), binding())
+        plan = plan_transaction(current, 40_000, 1, lambda: (current, 40_000), binding())
         state = {"likes": [7, -1, 8], "dislikes": [38, 9, 38]}
 
         def write_like(index, value):
@@ -458,6 +588,68 @@ class GrantRunningTests(unittest.TestCase):
         self.assertIsNone(result.charged)
         self.assertNotIn("No tech points have been deducted.", result.message)
 
+    def test_adapter_only_charged_outcome_cannot_claim_charge_without_balance_readback(self):
+        current = record((7, -1, 8), (38, 9, 38))
+        plan = plan_transaction(current, 40_000, 1, lambda: (current, 40_000), binding())
+        state = {"likes": [7, -1, 8], "dislikes": [38, 9, 38]}
+        deductions = []
+
+        def restore(kind, index, value):
+            state["likes" if kind == "like" else "dislikes"][index] = value
+
+        result = apply_plan(
+            plan,
+            lambda index, value: state["likes"].__setitem__(index, value),
+            lambda index, value: state["dislikes"].__setitem__(index, value),
+            lambda: (tuple(state["likes"]), tuple(state["dislikes"])),
+            lambda value: deductions.append(DeductionOutcome("charged")),
+            restore,
+        )
+        self.assertEqual(result.status, "charge-unknown")
+        self.assertEqual(result.charge_status, "unknown")
+        self.assertIsNone(result.charged)
+        self.assertEqual(deductions, [])
+        self.assertEqual(state, {"likes": [7, -1, 8], "dislikes": [38, 9, 38]})
+
+    def test_balance_readback_rejects_bool_float_and_numeric_string(self):
+        current = record((7, -1, 8), (38, 9, 38))
+        plan = plan_transaction(current, 40_000, 1, lambda: (current, 40_000), binding())
+        state = {"likes": [7, -1, 8], "dislikes": [38, 9, 38]}
+        for invalid in (True, 100_000.0, "100000", -1, 0x1_0000_0000):
+            with self.subTest(value=invalid):
+                deductions = []
+                result = apply_plan(
+                    plan,
+                    lambda index, value: state["likes"].__setitem__(index, value),
+                    lambda index, value: state["dislikes"].__setitem__(index, value),
+                    lambda: (tuple(state["likes"]), tuple(state["dislikes"])),
+                    lambda value: deductions.append(value),
+                    lambda kind, index, value: state["likes" if kind == "like" else "dislikes"].__setitem__(index, value),
+                    lambda invalid=invalid: invalid,
+                )
+                self.assertEqual(result.status, "charge-preflight-failed")
+                self.assertEqual(deductions, [])
+                state = {"likes": [7, -1, 8], "dislikes": [38, 9, 38]}
+
+    def test_balance_before_must_still_cover_the_price_before_deduction(self):
+        current = record((7, -1, 8), (38, 9, 38))
+        plan = plan_transaction(current, 40_000, 1, lambda: (current, 40_000), binding())
+        state = {"likes": [7, -1, 8], "dislikes": [38, 9, 38]}
+        deductions = []
+        result = apply_plan(
+            plan,
+            lambda index, value: state["likes"].__setitem__(index, value),
+            lambda index, value: state["dislikes"].__setitem__(index, value),
+            lambda: (tuple(state["likes"]), tuple(state["dislikes"])),
+            lambda value: deductions.append(value),
+            lambda kind, index, value: state["likes" if kind == "like" else "dislikes"].__setitem__(index, value),
+            lambda: 39_999,
+        )
+        self.assertEqual(result.status, "charge-preflight-failed")
+        self.assertEqual(result.charge_status, "not-attempted")
+        self.assertEqual(deductions, [])
+        self.assertEqual(state, {"likes": [7, -1, 8], "dislikes": [38, 9, 38]})
+
     def test_binding_validation_rejects_ambiguous_geometry_and_identity_types(self):
         path = ROOT / "data" / "candidates" / "vv2_individual_grant_running_binding.json"
         raw = json.loads(path.read_text(encoding="utf-8"))
@@ -465,6 +657,9 @@ class GrantRunningTests(unittest.TestCase):
             ("bad hash", lambda item: item["exact_build"].update(sha256="not-a-hash")),
             ("bad size type", lambda item: item["exact_build"].update(size="724992")),
             ("bad count type", lambda item: item["preference_slots"]["like_slots"].update(count="62")),
+            ("bad physical bound type", lambda item: item["record_identity"].update(physical_bound="256")),
+            ("zero physical bound", lambda item: item["record_identity"].update(physical_bound=0)),
+            ("oversized physical bound", lambda item: item["record_identity"].update(physical_bound=257)),
             ("duplicate offsets", lambda item: item["preference_slots"]["dislike_slots"].update(base_offset="0x5F0")),
             ("misaligned offset", lambda item: item["preference_slots"]["like_slots"].update(base_offset="0x5F1")),
             ("missing ordering proof", lambda item: item.pop("eligibility_gate_order")),

@@ -3,8 +3,11 @@
 The model is deliberately independent of any executable.  It scans the
 configured physical Like/Dislike slots without mutating them, plans only the
 first empty Like insertion, and exposes native callbacks for the eventual
-write and deduction.  A binding cannot be committed unless its complete
-native preference-write and deduction ABIs are certified and enabled.
+write and deduction.  Adapter records must provide exact integer identity,
+selected-index, resolved-record-pointer, eligibility, and balance fields;
+these are reference-contract requirements, not native proof.  A binding
+cannot be committed unless its complete native preference-write and
+deduction ABIs are certified and enabled.
 """
 
 from __future__ import annotations
@@ -23,6 +26,9 @@ INVALID_MESSAGE = f"No valid living villager is selected.\r\n{NO_DEDUCTION}"
 CANCELED_MESSAGE = f"Grant Running was canceled.\r\n{NO_DEDUCTION}"
 RACE_MESSAGE = f"The selected villager changed during confirmation.\r\n{NO_DEDUCTION}"
 WRITE_FAILURE_MESSAGE = f"Running could not be verified.\r\n{NO_DEDUCTION}"
+ROLLBACK_UNVERIFIED_MESSAGE = (
+    "Preference rollback could not be verified; retained per-slot effects may remain."
+)
 DISABLED_MESSAGE = f"Grant Running is unavailable for this build.\r\n{NO_DEDUCTION}"
 CHARGE_UNKNOWN_MESSAGE = (
     "Grant Running charge outcome could not be verified.\r\n"
@@ -33,6 +39,15 @@ CHARGE_NOT_ATTEMPTED = "not-attempted"
 CHARGE_NOT_CHARGED = "not-charged"
 CHARGE_CHARGED = "charged"
 CHARGE_UNKNOWN = "unknown"
+IDOK = 1
+IDCANCEL = 2
+IDCLOSE = 0
+CONFIRM_CANCEL_RESULTS = frozenset({IDCLOSE, IDCANCEL})
+UINT32_MAX = 0xFFFFFFFF
+INT32_MAX = 0x7FFFFFFF
+HEALTH_MAX = INT32_MAX
+RECORD_POINTER_MIN = 1
+RECORD_INDEX_MIN = 0
 
 
 @dataclass(frozen=True)
@@ -45,6 +60,7 @@ class RunningBinding:
     like_offsets: tuple[int, ...]
     dislike_offsets: tuple[int, ...]
     image_size: int = 0
+    record_count: int = 256
     running_id: int = RUNNING
     empty_id: int = EMPTY
     price: int = PRICE
@@ -66,6 +82,8 @@ class RunningBinding:
             raise ValueError("Grant Running binding fingerprint must be a 64-digit SHA-256")
         if type(self.image_size) is not int or self.image_size <= 0:
             raise ValueError("Grant Running binding image size must be a positive integer")
+        if type(self.record_count) is not int or not 1 <= self.record_count <= 256:
+            raise ValueError("Grant Running record count must be an exact integer in 1..256")
         if type(self.record_stride) is not int or self.record_stride <= 0 or self.record_stride % 4:
             raise ValueError("Grant Running record stride must be a positive DWORD-aligned integer")
         all_offsets = self.like_offsets + self.dislike_offsets
@@ -81,6 +99,8 @@ class RunningBinding:
             raise ValueError("Running and empty IDs must differ")
         if type(self.price) is not int or self.price <= 0:
             raise ValueError("Grant Running price must be positive")
+        if self.price > UINT32_MAX:
+            raise ValueError("Grant Running price must fit an unsigned DWORD")
         for name in (
             "enabled",
             "preference_write_abi_proven",
@@ -143,6 +163,17 @@ def binding_from_manifest(raw: Mapping[str, Any]) -> RunningBinding:
     )
     if record_stride <= 0 or record_stride % 4:
         raise ValueError("binding manifest record stride must be positive and DWORD-aligned")
+    record_count_value = layout.get(
+        "physical_bound",
+        layout.get("physical_record_count", layout.get("record_count")),
+    )
+    if record_count_value is None and isinstance(layout.get("selected_index"), Mapping):
+        record_count_value = layout["selected_index"].get(
+            "bound_exclusive",
+            layout["selected_index"].get("record_count"),
+        )
+    if type(record_count_value) is not int or not 1 <= record_count_value <= 256:
+        raise ValueError("binding manifest record count must be an exact integer in 1..256")
     if raw.get("status") not in {"STOP", "GO"}:
         raise ValueError("binding manifest status must be STOP or GO")
     if raw.get("status") == "STOP" and raw.get("enabled") is True:
@@ -214,6 +245,7 @@ def binding_from_manifest(raw: Mapping[str, Any]) -> RunningBinding:
         like_offsets=like_offsets,
         dislike_offsets=dislike_offsets,
         image_size=image_size,
+        record_count=record_count_value,
         running_id=_manifest_int(running_value, field="Running ID", allow_hex_string=False),
         empty_id=_manifest_int(
             (
@@ -267,6 +299,7 @@ class RunningPlan:
     after_likes: tuple[int, ...] = ()
     after_dislikes: tuple[int, ...] = ()
     deduction: int = 0
+    record_identity: tuple[int, int, int] | None = None
 
 
 @dataclass(frozen=True)
@@ -315,22 +348,79 @@ def _read_slot_snapshot(
     return exact_likes, exact_dislikes
 
 
+def _strict_field(value: object, *, field: str, minimum: int, maximum: int) -> int:
+    if type(value) is not int or not minimum <= value <= maximum:
+        raise ValueError(f"{field} must be an exact integer in {minimum}..{maximum}")
+    return value
+
+
+def _record_identity(
+    record: Mapping[str, object],
+    binding: RunningBinding,
+) -> tuple[int, int, int]:
+    if not isinstance(record, Mapping):
+        raise ValueError("selected record must be a mapping")
+    identity = _strict_field(
+        record.get("identity"),
+        field="record identity",
+        minimum=RECORD_POINTER_MIN,
+        maximum=UINT32_MAX,
+    )
+    selected_index = _strict_field(
+        record.get("selected_index"),
+        field="selected record index",
+        minimum=RECORD_INDEX_MIN,
+        maximum=binding.record_count - 1,
+    )
+    if "record_pointer" in record:
+        pointer_value = record.get("record_pointer")
+    elif "resolved_record_pointer" in record:
+        pointer_value = record.get("resolved_record_pointer")
+    else:
+        pointer_value = None
+    record_pointer = _strict_field(
+        pointer_value,
+        field="resolved record pointer",
+        minimum=RECORD_POINTER_MIN,
+        maximum=UINT32_MAX,
+    )
+    return identity, selected_index, record_pointer
+
+
 def _eligible(record: Mapping[str, object], binding: RunningBinding) -> bool:
-    if record.get("identity") is None:
-        return False
     try:
-        health = int(record.get("health", 0))
+        _record_identity(record, binding)
+        active = _strict_field(record.get("active"), field="active", minimum=0, maximum=1)
+        health = _strict_field(record.get("health"), field="health", minimum=0, maximum=HEALTH_MAX)
     except (TypeError, ValueError, OverflowError):
         return False
-    if not bool(record.get("active", False)) or health <= 0:
+    if active != 1 or health <= 0:
         return False
     if binding.game_id == "vv5":
         # The faction gate is the only supported current-believer predicate.
         # Missing fields fail closed; the unproved status-byte substitute is
         # intentionally not accepted here.
-        if record.get("faction") != 0:
+        try:
+            faction = _strict_field(record.get("faction"), field="VV5 faction", minimum=0, maximum=1)
+            heathen_active = _strict_field(
+                record.get("heathen_active"),
+                field="VV5 current-believer/heathen-active state",
+                minimum=0,
+                maximum=1,
+            )
+            current_believer = None
+            if "current_believer" in record:
+                current_believer = _strict_field(
+                    record.get("current_believer"),
+                    field="VV5 current-believer state",
+                    minimum=0,
+                    maximum=1,
+                )
+        except (TypeError, ValueError, OverflowError):
             return False
-        if record.get("heathen_active") != 0:
+        if faction != 0 or heathen_active != 0 or (
+            current_believer is not None and current_believer != 1
+        ):
             return False
     return True
 
@@ -393,7 +483,7 @@ def _plan_from_scan(scan: RunningScan, binding: RunningBinding) -> RunningPlan:
 def plan_transaction(
     record: Mapping[str, object],
     balance: int,
-    confirmed: bool,
+    confirmed: object,
     reacquire: Callable[[], tuple[Mapping[str, object], int]],
     binding: RunningBinding,
 ) -> RunningPlan:
@@ -404,17 +494,50 @@ def plan_transaction(
     receiving a ``commit`` plan from a certified binding.
     """
 
+    try:
+        initial_balance = _strict_balance(balance)
+    except (TypeError, ValueError, OverflowError):
+        return RunningPlan(
+            "invalid-funds",
+            f"No valid tech-point balance was provided.\r\n{NO_DEDUCTION}",
+            binding,
+        )
     initial = scan_running(record, binding)
     planned = _plan_from_scan(initial, binding)
     if planned.status != "candidate":
         return planned
-    if balance < binding.price:
+    if initial_balance < binding.price:
         return RunningPlan("insufficient", f"Not enough tech points.\r\n{NO_DEDUCTION}", binding)
-    if not confirmed:
+    if type(confirmed) is not int:
+        return RunningPlan(
+            "invalid-confirmation",
+            f"The confirmation result was not an exact dialog result.\r\n{NO_DEDUCTION}",
+            binding,
+        )
+    if confirmed in CONFIRM_CANCEL_RESULTS:
         return RunningPlan("cancel", CANCELED_MESSAGE, binding)
+    if confirmed != IDOK:
+        return RunningPlan(
+            "invalid-confirmation",
+            f"The confirmation result was not an accepted IDOK.\r\n{NO_DEDUCTION}",
+            binding,
+        )
 
-    current_record, current_balance = reacquire()
-    if record.get("identity") is None or current_record.get("identity") != record.get("identity"):
+    try:
+        initial_identity = _record_identity(record, binding)
+        reacquired = reacquire()
+        if not isinstance(reacquired, tuple) or len(reacquired) != 2:
+            raise ValueError("reacquire must return (record, balance)")
+        current_record, current_balance_raw = reacquired
+        current_balance = _strict_balance(current_balance_raw)
+        current_identity = _record_identity(current_record, binding)
+    except Exception:
+        return RunningPlan(
+            "reacquire-unknown",
+            f"The selected villager could not be revalidated.\r\n{NO_DEDUCTION}",
+            binding,
+        )
+    if current_identity != initial_identity:
         return RunningPlan("race", RACE_MESSAGE, binding)
     current = scan_running(current_record, binding)
     if current != initial:
@@ -432,6 +555,7 @@ def plan_transaction(
         after_likes=planned.after_likes,
         after_dislikes=planned.after_dislikes,
         deduction=binding.price,
+        record_identity=initial_identity,
     )
 
 
@@ -446,11 +570,10 @@ def apply_plan(
 ) -> ApplyResult:
     """Apply a committed plan through callbacks with bounded rollback.
 
-    A deduction adapter must return an explicit ``DeductionOutcome``.  This is
-    an adapter assertion; ``read_balance`` supplies independent
-    balance-before/after verification.  An adapter that cannot return an
-    outcome may provide ``read_balance`` so an exception can be classified.
-    Unknown charge state is never converted into a no-deduction claim.
+    ``DeductionOutcome`` is only an adapter assertion.  ``read_balance`` is
+    required and supplies independent exact balance-before/after verification;
+    an adapter-only outcome cannot establish a charge.  Unknown charge state
+    is never converted into a no-deduction claim.
     """
 
     if plan.status != "commit":
@@ -483,15 +606,26 @@ def apply_plan(
     except Exception:
         return _rollback(plan, written, read_slots, restore_slot, "postverify-failed")
 
-    balance_before: int | None = None
-    if read_balance is not None:
-        try:
-            balance_before = _strict_balance(read_balance())
-        except Exception:
-            return _rollback(plan, written, read_slots, restore_slot, "charge-preflight-failed")
+    if read_balance is None:
+        return _rollback(
+            plan,
+            written,
+            read_slots,
+            restore_slot,
+            "charge-unknown",
+            message=CHARGE_UNKNOWN_MESSAGE,
+            charged=None,
+            charge_status=CHARGE_UNKNOWN,
+        )
+    try:
+        balance_before = _strict_balance(read_balance())
+    except Exception:
+        return _rollback(plan, written, read_slots, restore_slot, "charge-preflight-failed")
+    if balance_before < plan.deduction:
+        return _rollback(plan, written, read_slots, restore_slot, "charge-preflight-failed")
 
     try:
-        outcome = deduct(plan.deduction)
+        deduct(plan.deduction)
     except Exception:
         charge_status = _readback_charge_status(balance_before, read_balance, plan.deduction)
         return _finish_charge(
@@ -503,10 +637,9 @@ def apply_plan(
             "deduction-failed",
         )
 
-    if isinstance(outcome, DeductionOutcome):
-        charge_status = outcome.status
-    else:
-        charge_status = _readback_charge_status(balance_before, read_balance, plan.deduction)
+    # DeductionOutcome is only an adapter assertion.  The balance transition
+    # is the sole source of truth for whether a charge actually occurred.
+    charge_status = _readback_charge_status(balance_before, read_balance, plan.deduction)
     return _finish_charge(
         plan,
         written,
@@ -518,8 +651,8 @@ def apply_plan(
 
 
 def _strict_balance(value: object) -> int:
-    if type(value) is not int:
-        raise ValueError("native balance readback must be an exact integer")
+    if type(value) is not int or not 0 <= value <= UINT32_MAX:
+        raise ValueError("native funds/balance must be an exact unsigned DWORD")
     return value
 
 
@@ -593,7 +726,7 @@ def _rollback(
     if restore_slot is None:
         return ApplyResult(
             reason,
-            message,
+            f"{message}\r\n{ROLLBACK_UNVERIFIED_MESSAGE}",
             charged=charged,
             rollback="unavailable",
             charge_status=charge_status,
@@ -603,7 +736,7 @@ def _rollback(
         if tuple(likes) != plan.after_likes or tuple(dislikes) != plan.after_dislikes:
             return ApplyResult(
                 reason,
-                message,
+                f"{message}\r\n{ROLLBACK_UNVERIFIED_MESSAGE}",
                 charged=charged,
                 rollback="unsafe",
                 charge_status=charge_status,
@@ -614,7 +747,7 @@ def _rollback(
         if tuple(final_likes) != plan.before_likes or tuple(final_dislikes) != plan.before_dislikes:
             return ApplyResult(
                 reason,
-                message,
+                f"{message}\r\n{ROLLBACK_UNVERIFIED_MESSAGE}",
                 charged=charged,
                 rollback="partial",
                 charge_status=charge_status,
@@ -622,7 +755,7 @@ def _rollback(
     except Exception:
         return ApplyResult(
             reason,
-            message,
+            f"{message}\r\n{ROLLBACK_UNVERIFIED_MESSAGE}",
             charged=charged,
             rollback="partial",
             charge_status=charge_status,
