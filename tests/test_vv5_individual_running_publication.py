@@ -1413,6 +1413,7 @@ class VV5RunningPublicationTests(unittest.TestCase):
                 report = root / (".vv5run-recovery-" + "c" * 32 + ".json")
                 payload = {"operation": "install_new", "destination_parent_absolute": str(root).lower(), "destination_paths_absolute": base["destination_paths_absolute"], "issuance_registry_identity": registry_identity, "issuance_identity": {"record": before, "authority_token": base["authority_token"], "authority_record": authority_record}, "report_parent_identity": parent_identity, "recovery_root_name": root.name, "recovery_root_identity": parent_identity, "members": members}
                 report.write_text(json.dumps(payload, sort_keys=True), encoding="utf-8")
+                report_bytes = report.read_bytes()
                 original_inventory = running._inventory
                 mutated = {"value": False}
                 def race_inventory(parent: Path, candidate: Path):
@@ -1425,8 +1426,13 @@ class VV5RunningPublicationTests(unittest.TestCase):
                 with mock.patch.object(running, "_inventory", side_effect=race_inventory):
                     with self.assertRaises(PatcherError):
                         running._bind_issuance(path, base["token"], report, payload, before)
+                self.assertEqual(list(registry.glob("*.v*.json")), [])
+                report.write_bytes(report_bytes)
+                restored = running._inventory(root, path)
+                payload["issuance_identity"]["record"] = restored
+                running._bind_issuance(path, base["token"], report, payload, restored)
             self.assertTrue(mutated["value"])
-            self.assertEqual(list(registry.glob("*.v*.json")), [])
+            self.assertEqual(len(list(registry.glob("*.v*.json"))), 1)
 
     def test_c331_report_replacement_immediately_before_successor_stops_publication(self) -> None:
         with tempfile.TemporaryDirectory(prefix="vv5-c331-report-pre-replace-race-") as td:
@@ -1448,6 +1454,7 @@ class VV5RunningPublicationTests(unittest.TestCase):
                 report = root / (".vv5run-recovery-" + "e" * 32 + ".json")
                 payload = {"operation": "install_new", "destination_parent_absolute": str(root).lower(), "destination_paths_absolute": base["destination_paths_absolute"], "issuance_registry_identity": registry_identity, "issuance_identity": {"record": before, "authority_token": base["authority_token"], "authority_record": authority_record}, "report_parent_identity": parent_identity, "recovery_root_name": root.name, "recovery_root_identity": parent_identity, "members": members}
                 report.write_text(json.dumps(payload, sort_keys=True), encoding="utf-8")
+                report_bytes = report.read_bytes()
                 original_read = running._read
                 report_reads = {"count": 0}
                 def race_read(candidate: Path):
@@ -1460,8 +1467,13 @@ class VV5RunningPublicationTests(unittest.TestCase):
                 with mock.patch.object(running, "_read", side_effect=race_read):
                     with self.assertRaises(PatcherError):
                         running._bind_issuance(path, base["token"], report, payload, before)
+                self.assertEqual(list(registry.glob("*.v*.json")), [])
+                report.write_bytes(report_bytes)
+                restored = running._inventory(root, path)
+                payload["issuance_identity"]["record"] = restored
+                running._bind_issuance(path, base["token"], report, payload, restored)
             self.assertGreaterEqual(report_reads["count"], 2)
-            self.assertEqual(list(registry.glob("*.v*.json")), [])
+            self.assertEqual(len(list(registry.glob("*.v*.json"))), 1)
 
     def test_c331_issuance_replacement_immediately_before_successor_stops_publication(self) -> None:
         with tempfile.TemporaryDirectory(prefix="vv5-c331-issuance-pre-replace-race-") as td:
@@ -1483,6 +1495,7 @@ class VV5RunningPublicationTests(unittest.TestCase):
                 report = root / (".vv5run-recovery-" + "1" * 32 + ".json")
                 payload = {"operation": "install_new", "destination_parent_absolute": str(root).lower(), "destination_paths_absolute": base["destination_paths_absolute"], "issuance_registry_identity": registry_identity, "issuance_identity": {"record": before, "authority_token": base["authority_token"], "authority_record": authority_record}, "report_parent_identity": parent_identity, "recovery_root_name": root.name, "recovery_root_identity": parent_identity, "members": members}
                 report.write_text(json.dumps(payload, sort_keys=True), encoding="utf-8")
+                issuance_bytes = path.read_bytes()
                 original_inventory = running._inventory
                 issuance_reads = {"count": 0}
                 def race_inventory(parent: Path, candidate: Path):
@@ -1495,8 +1508,13 @@ class VV5RunningPublicationTests(unittest.TestCase):
                 with mock.patch.object(running, "_inventory", side_effect=race_inventory):
                     with self.assertRaises(PatcherError):
                         running._bind_issuance(path, base["token"], report, payload, before)
+                self.assertEqual(list(registry.glob("*.v*.json")), [])
+                path.write_bytes(issuance_bytes)
+                restored = running._inventory(root, path)
+                payload["issuance_identity"]["record"] = restored
+                running._bind_issuance(path, base["token"], report, payload, restored)
             self.assertGreaterEqual(issuance_reads["count"], 3)
-            self.assertEqual(list(registry.glob("*.v*.json")), [])
+            self.assertEqual(len(list(registry.glob("*.v*.json"))), 1)
 
 
 if __name__ == "__main__":

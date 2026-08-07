@@ -27,7 +27,7 @@ class VV3IndividualFullMasteryLoaderTests(unittest.TestCase):
         """Create bound report/manifest records, then remove the evidence."""
         report = root / str(payload["report_name"])
         manifest = root / ".chain-terminal-test.json"
-        report.write_bytes(b"report-evidence")
+        report.write_bytes(loader._canonical_json_bytes(payload))
         manifest.write_bytes(b"manifest-evidence")
         report_record = loader._inventory_entry(root, report)
         manifest_record = loader._inventory_entry(root, manifest)
@@ -350,6 +350,62 @@ class VV3IndividualFullMasteryLoaderTests(unittest.TestCase):
                     loader.recover_atomic(root)
             self.assertTrue(receipt.exists())
             self.assertTrue((root / ".vv3im-foreign-late.json").exists())
+
+    def test_c335_genuine_writer_finalizing_journal_only_restart(self):
+        with tempfile.TemporaryDirectory(prefix="vv3-c335-finalizing-restart-") as td:
+            root = Path(td)
+            report, destination, companion = self._make_unresolved_report(root)
+            original_publish = loader._publish_terminal_receipt
+            with mock.patch.object(loader, "_publish_terminal_receipt", side_effect=vv_fun_patcher.PatcherError("injected before terminal receipt")):
+                with self.assertRaises(vv_fun_patcher.PatcherError):
+                    loader.recover_vv3_transaction(report)
+            self.assertFalse(list(root.glob(".vv3im-recovery-*.json")))
+            self.assertFalse(list(root.glob(".chain-*.json")))
+            self.assertEqual(len(list(root.glob(".vv3im-journal-*.json"))), 1)
+            with mock.patch.object(loader, "_publish_terminal_receipt", wraps=original_publish):
+                loader.recover_atomic(root)
+            receipts = list(root.glob(".vv3im-terminal-*.json"))
+            self.assertEqual(len(receipts), 1)
+            self.assertFalse(list(root.glob(".vv3im-journal-*.json")))
+            loader.recover_atomic(root)
+            self.assertEqual(list(root.glob(".vv3im-terminal-*.json")), receipts)
+            self.assertFalse(destination.exists())
+            self.assertFalse(companion.exists())
+
+    def test_c335_terminal_relationship_mutation_matrix_rejects(self):
+        with tempfile.TemporaryDirectory(prefix="vv3-c335-mutation-matrix-") as td:
+            root = Path(td)
+            report, _destination, _companion = self._make_unresolved_report(root)
+            loader.recover_vv3_transaction(report)
+            receipt = next(root.glob(".vv3im-terminal-*.json"))
+            original = receipt.read_bytes()
+            raw = json.loads(original.decode("utf-8"))
+            cases = (
+                ("owner", ("authority_payload", "feature_owner"), "foreign"),
+                ("operation", ("finalization_transaction", "report_payload", "operation"), "removal"),
+                ("mode", ("finalization_transaction", "report_payload", "mode"), "immediate_fixed"),
+                ("issuance-token", ("finalization_transaction", "issuance", "token"), "0" * 32),
+                ("root-name", ("finalization_transaction", "report_payload", "recovery_root_name"), "foreign-root"),
+                ("parent-path", ("finalization_transaction", "report_payload", "destination_parent_absolute"), "c:/foreign"),
+                ("report-name", ("finalization_transaction", "report_name"), ".vv3im-recovery-" + "0" * 32 + ".json"),
+                ("member-roles", ("finalization_transaction", "report_payload", "member_roles"), {}),
+                ("destinations", ("finalization_transaction", "report_payload", "destination_paths_absolute"), []),
+                ("members", ("finalization_transaction", "report_payload", "members"), []),
+                ("precondition", ("finalization_transaction", "report_payload", "initial_precondition"), {}),
+                ("replay-guard", ("finalization_transaction", "report_payload", "replay_guard"), {}),
+            )
+            for label, path, value in cases:
+                with self.subTest(label=label):
+                    mutated = json.loads(json.dumps(raw))
+                    target = mutated
+                    for key in path[:-1]:
+                        target = target[key]
+                    target[path[-1]] = value
+                    receipt.write_bytes(loader._canonical_json_bytes(mutated))
+                    with self.assertRaises(vv_fun_patcher.PatcherError):
+                        loader.recover_atomic(root)
+                    self.assertEqual(len(list(root.glob(".vv3im-terminal-*.json"))), 1)
+                    receipt.write_bytes(original)
 
     def test_d274_install_new_same_content_foreign_identity_rejected(self):
         with tempfile.TemporaryDirectory(prefix="vv3-d274-identity-") as td:
