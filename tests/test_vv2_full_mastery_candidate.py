@@ -306,8 +306,8 @@ class VV2FullMasteryCandidateTests(unittest.TestCase):
         self.assertEqual(before, {path: sha(path.read_bytes()) for path in (*tracked, DLL)})
 
     def test_loader_pins_manifest_map_bytes_and_composition_identities(self) -> None:
-        self.assertEqual(sha(MANIFEST.read_bytes()), patcher.VV2_FULL_MASTERY_MANIFEST_SHA256)
-        self.assertEqual(sha(MAP.read_bytes()), patcher.VV2_FULL_MASTERY_MAP_SHA256)
+        self.assertEqual(patcher.source_text_sha256(MANIFEST.read_bytes()), patcher.VV2_FULL_MASTERY_MANIFEST_SHA256)
+        self.assertEqual(patcher.source_text_sha256(MAP.read_bytes()), patcher.VV2_FULL_MASTERY_MAP_SHA256)
         self.assertEqual(
             self.map["static_acceptance"]["collection_composition_sha256"],
             "C7C0BEC312B6537B5F1DD692D2C90ED0D0963D6CE3A7F5271AF4A6C680B8ACBC",
