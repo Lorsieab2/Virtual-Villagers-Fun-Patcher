@@ -91,12 +91,13 @@ Building skill gains, and completion behavior. Villagers assigned to other
 jobs retain their stock high-food scheduling. The shared scheduler covers both
 ordinary play and elapsed-time catch-up.
 
-## VV1: Enable Origins-Exclusive Features
+## VV1 Origins containment
 
-Enable **Enable Origins-Exclusive Features (A New Home)** to add an
-**Upgrades** button to VV1's Tech screen. It ports the supplied
-Virtual Villagers: Origins APK's exclusive purchases to the supported desktop
-build:
+The legacy **Enable Origins-Exclusive Features (A New Home)** record is
+disabled, catalog-hidden, and absent from GUI, CLI, dependency resolution,
+Select All, and generated transparency output. The rows documented below are
+retained only as historical diagnostic evidence; they are not selectable or
+emitted:
 
 - **Time Warp** — 50,000 tech points; advances the village by exactly 3
   displayed villager years. The elapsed-clock shift scales with game speed;
@@ -129,18 +130,21 @@ build:
   temporary safety gate. Existing ownership can be removed for zero cost with
   no refund; repurchase is temporarily disabled for this build.
 
-The Tech screen presents its five village upgrades together, and the Villager
-Detail screen presents its four villager upgrades together, each with icons
-and individual Buy buttons. The final doubler contract applies after native
-collectible adjustments; no Food Mastery-like food transform or collection tech
-multiplier was found in this fingerprint. Ordinary Science still modifies
-research amounts before any future eligible hook. Golden Child and Island Event
-outcomes remain native. The two doublers are stored in
-otherwise-unused fields of the current saved village, so removing one affects
-only that save slot. **Bump Max Population** is deliberately omitted because
-the patcher's population modes handle population limits separately.
+The legacy Cure, Running, Time Warp, doubler, and selected-villager Origins
+paths remain **STOP**. Re-enablement requires rebuilding the resource with the
+exact label **Time Warp - Advances 3 Villager Years**, removing or replacing
+stale Cure resources, and proving confirmation, selected/world identity and
+funds reacquisition, native mutation and postverification, one deduction only
+after success, and truthful no-change/no-charge and partial-failure reporting.
+This containment changes no Golden Child or Island Event outcome.
 
-## VV2: Enable Origins-Exclusive Features
+The separate `vv1_full_mastery_all_stage_a_candidate` remains an isolated,
+command-7-only, catalog-visible static candidate for stock Collection
+Progression and Immediate Fixed. It is not the disabled Origins record;
+Expanded-256 rejects before output and runtime/player confirmation remains
+pending.
+
+## VV2 Origins containment
 
 **Containment notice:** VV2 Origins is currently disabled after a player
 reported that both Time Warp and Food Point Doubler crash immediately after
@@ -150,9 +154,8 @@ it does not infer whether the charge or action persisted. Both
 are contained pending root-cause repair. Unrelated VV2 patches remain
 available.
 
-Enable **Enable Origins-Exclusive Features (The Lost Children)** to add the
-same icon-based village and selected-villager upgrade menus to VV2. The
-supported desktop build receives:
+The rows formerly proposed by **Enable Origins-Exclusive Features (The Lost
+Children)** are retained only as historical diagnostic evidence:
 
 - **Time Warp**, **Island Event**, and the literal stock **Barrel of Babies**
   event;
@@ -161,25 +164,17 @@ supported desktop build receives:
 - **Grant Youth**, **Grant Full Mastery**, **Grant Running**, and **Set Age to
   18** for the selected villager.
 
-The prices and refusal rules match the A New Home port. Barrel of Babies calls
-VV2's native three-child event path and checks the game's comprehensive
-occupied-plus-reserved population count before charging. Grant Running uses
-only the three normal Like slots, removes Running from the selected villager's
-normal Dislike slots, and never edits movement speed.
+These legacy Cure, Running, Time Warp, doubler, and selected-villager Origins
+paths are not selectable or emitted. Re-enablement requires the crash root
+cause, the exact Time Warp resource rebuild, legacy Cure replacement, and the
+complete confirmation/reacquisition/postverification/one-deduction transaction
+gates. This containment changes no Gong of Wonder or Island Event outcome.
 
-Positive food and tech awards use VV2's central stock award routines. Native
-collectible adjustments are completed before the certified doubler calculation;
-Food Mastery is code-confirmed absent within the completely enumerated technology
-definitions, resource strings, direct writer calls, and food-source call chains.
-Farming gates and unlocks sources but does not multiply awards; Herb Mastery is
-unrelated. The exact-build static provenance audit excludes every positive Island Event and
-Gong of Wonder food/tech writer return (17 tech and 13 food direct calls;
-zero tail-jumps), while direct deductions, caps, resets, zero outcomes, and
-other bypass paths remain native. Thus the doublers do not affect deductions,
-Island Event awards, or Gong of Wonder awards. Runtime/player confirmation of
-this static proof remains pending. A paused village
-cannot purchase Time Warp because VV2's paused catch-up logic discards elapsed
-age. **Bump Max Population** remains omitted.
+The separate `vv2_full_mastery_all_stage_a_candidate` remains an isolated,
+command-7-only, catalog-visible static candidate for stock Collection
+Progression and Immediate Fixed. It excludes commands 6/8, Gong, Island Event,
+and withdrawn Origins; Expanded-256 rejects before output and runtime/player
+confirmation remains pending.
 
 ## VV3: Enable Origins-Exclusive Features
 
@@ -499,7 +494,7 @@ as `vv1_full_mastery_all_stage_a_candidate` for `collection_progression` and
 `immediate_fixed` only. Expanded-256 rejects before output; runtime/player
 confirmation remains pending.
 
-Pass `--patch-mode collection_progression`, `--patch-mode immediate_fixed`, `--patch-mode experimental_expanded_256`, or `--patch-mode experimental_expanded_256_progression` to `dry-run`, `apply`, `dry-run-all`, or `apply-all`. Optional features use repeatable `--fun-patch` arguments. The available IDs are `vv1_school_lessons_grant_skill`, `vv1_continue_research_at_max_technologies`, `vv1_f6_clothing_change_cheat`, `vv1_magic_fruit_alters_mortality`, `vv1_builder_action_fixes`, `vv1_enable_origins_exclusive_features`, `vv2_easier_healing_mastery`, `vv2_teaching_children_grants_skill`, `vv2_hospital_recovery_heals`, `vv2_birth_control`, `vv2_gong_of_wonder_coconuts_fix`, `vv2_full_mastery_all_stage_a_candidate`, `vv3_nature_honey_refill`, `vv3_nature_level_three_alters_mortality`, `vv3_rare_collectible_retry`, `vv3_enable_origins_exclusive_features`, `vv3_full_mastery_all_stage_a_candidate`, `vv3_full_heal_cure_all_candidate`, `vv4_complete_scales_golden_fish`, `vv4_enable_origins_exclusive_features`, `vv5_heathen_mommy_puzzle`, `vv5_easier_devotee_training`, `vv5_statue_polishing_or_honoring`, `vv5_vv4_nursery_divisor_parity`, and `vv5_enable_origins_exclusive_features`. The per-game Village Statistics IDs are `vv1_write_village_statistics`, `vv2_write_village_statistics`, `vv3_write_village_statistics`, `vv4_write_village_statistics`, and `vv5_write_village_statistics`. VV2 Full Mastery is stock-mode-only; both Expanded modes reject before output. The VV2 Origins IDs and the VV4 Origins/Full Mastery records remain intentionally omitted while contained; the VV4 C6 candidate is not selectable until fresh recertification.
+Pass `--patch-mode collection_progression`, `--patch-mode immediate_fixed`, `--patch-mode experimental_expanded_256`, or `--patch-mode experimental_expanded_256_progression` to `dry-run`, `apply`, `dry-run-all`, or `apply-all`. Optional features use repeatable `--fun-patch` arguments. The available IDs are `vv1_school_lessons_grant_skill`, `vv1_continue_research_at_max_technologies`, `vv1_f6_clothing_change_cheat`, `vv1_magic_fruit_alters_mortality`, `vv1_builder_action_fixes`, `vv1_full_mastery_all_stage_a_candidate`, `vv2_easier_healing_mastery`, `vv2_teaching_children_grants_skill`, `vv2_hospital_recovery_heals`, `vv2_birth_control`, `vv2_gong_of_wonder_coconuts_fix`, `vv2_full_mastery_all_stage_a_candidate`, `vv3_nature_honey_refill`, `vv3_nature_level_three_alters_mortality`, `vv3_rare_collectible_retry`, `vv3_enable_origins_exclusive_features`, `vv3_full_mastery_all_stage_a_candidate`, `vv3_full_heal_cure_all_candidate`, `vv4_complete_scales_golden_fish`, `vv4_enable_origins_exclusive_features`, `vv5_heathen_mommy_puzzle`, `vv5_easier_devotee_training`, `vv5_statue_polishing_or_honoring`, `vv5_vv4_nursery_divisor_parity`, and `vv5_enable_origins_exclusive_features`. The per-game Village Statistics IDs are `vv1_write_village_statistics`, `vv2_write_village_statistics`, `vv3_write_village_statistics`, `vv4_write_village_statistics`, and `vv5_write_village_statistics`. VV1 and VV2 Full Mastery are stock-mode-only; both Expanded modes reject before output. The VV1/VV2 Origins IDs and both dependent village-wide records remain intentionally omitted while contained; the VV4 Origins/Full Mastery records are also omitted pending fresh recertification.
 
 The statically certified VV2 command-7-only Full Mastery feature is catalog-visible
 only for stock Collection Progression and Immediate Fixed; runtime/player

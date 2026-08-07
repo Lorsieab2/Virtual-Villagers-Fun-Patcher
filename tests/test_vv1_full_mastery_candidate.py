@@ -420,7 +420,13 @@ class VV1FullMasteryCandidateTests(unittest.TestCase):
                 "vv1_full_mastery_all_stage_a_candidate",
             }
         ]
-        old_origins = next(item for item in load_fun_patches() if item.id == "vv1_enable_origins_exclusive_features")
+        old_origins = FunPatch(
+            json.loads(
+                (ROOT / "data" / "vv1_origins_feature.json").read_text(
+                    encoding="utf-8"
+                )
+            )
+        )
         for mode in MODES:
             with self.subTest(mode=mode):
                 baseline, _ = render_patched_bytes(STOCK, self.build, mode)
@@ -442,10 +448,13 @@ class VV1FullMasteryCandidateTests(unittest.TestCase):
                 with self.assertRaises(PatcherError):
                     render_patched_bytes(STOCK, self.build, mode, _fun_patches_override=[self.candidate, old_origins])
 
-    def test_active_origins_four_identity_uninstall_proof(self) -> None:
-        origins = next(
-            item for item in load_fun_patches()
-            if item.id == "vv1_enable_origins_exclusive_features"
+    def test_historical_origins_four_identity_uninstall_proof(self) -> None:
+        origins = FunPatch(
+            json.loads(
+                (ROOT / "data" / "vv1_origins_feature.json").read_text(
+                    encoding="utf-8"
+                )
+            )
         )
         base, _ = render_patched_bytes(
             STOCK, self.build, "collection_progression", _fun_patches_override=[origins]
