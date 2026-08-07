@@ -4,7 +4,7 @@
   "status": "static_partial_stop",
   "integrity": {
     "canonicalization": "UTF-8 JSON with sorted keys and compact separators; integrity.canonical_sha256 is excluded from its own digest",
-    "canonical_sha256": "4A8C0554B495651ABF951E71D6DC481382929CBF8FA9A0EF9182CEA5C165B54D"
+    "canonical_sha256": "13D4E2AF89EDACD7C20CAFDFD407ECC5D1C34DEE3C1BA53A7FE4121087698DFE"
   },
   "publication": {
     "enabled": false,
@@ -61,8 +61,8 @@
       {"path": "data/expanded_256.json", "sha256": "5738EABD414DA0171C8A03316B9CCCE9C39CF8F080D63D2F209D9A5C7A5DEAB3"},
       {"path": "data/expanded_256_runtime_evidence.json", "sha256": "BB90E24579DB33A118779A2EACC939D96DDCD8392C9C759CB9B373B8DFEB4DF3"},
       {"path": "scripts/capture_expanded_runtime_evidence.py", "sha256": "719DAD95AC6AB2D2E1CC9F64DECF1BB894CC4A98B5B7662A3A84402B2C5CA321"},
-      {"path": "data/vv4_origins_feature.json", "sha256": "5A59BE484D22B1140DB532A520ADD9481D378159AF648803B3649A95590ECDFB"},
-      {"path": "data/vv5_origins_feature.json", "sha256": "A724796591D776700FB61A38171E4214A1042048E93042CD812B0441FA708865"}
+      {"path": "data/vv4_origins_feature.json", "sha256": "A38F98973EB83F91D60FCA5C2A1BD28444622CEAC5434C295FB7E73D3A1BCB71"},
+      {"path": "data/vv5_origins_feature.json", "sha256": "6AFF1A8E69234C61CB2D1878C46FA91B0AAA721FC5F29C5B42A678F61BAB8528"}
     ]
   },
   "games": {
