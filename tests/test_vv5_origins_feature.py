@@ -168,6 +168,9 @@ class VV5OriginsFeatureTests(unittest.TestCase):
 
     def test_exact_vv5_cross_section_and_external_site_sets_are_frozen(self) -> None:
         relocation = self.feature["expanded_shr_relocations"]
+        delta = int(relocation["expanded_virtual_address"], 0) - int(
+            relocation["stock_virtual_address"], 0
+        )
         rel32 = {
             item["offset"]
             for item in relocation["patches"]
@@ -181,6 +184,10 @@ class VV5OriginsFeatureTests(unittest.TestCase):
             "0xDB437", "0xDB45A", "0xDB462", "0xDB46C", "0xDB7AC", "0xDBA56", "0xDBB22", "0xDBB27",
         }
         self.assertEqual(rel32, expected_rel32)
+        self.assertIn(
+            "if PAYLOAD_VA <= target_stock_va < PAYLOAD_VA + PAYLOAD_SIZE",
+            self.source,
+        )
         external_absolute = {
             item["offset"]
             for item in relocation["patches"]
@@ -200,7 +207,8 @@ class VV5OriginsFeatureTests(unittest.TestCase):
                 self.assertNotEqual(expected.hex().upper(), item["before"])
             else:
                 old = int.from_bytes(bytes.fromhex(item["before"]), "little")
-                new = int(item["target_expanded_virtual_address"], 0)
+                declared = item.get("target_expanded_virtual_address")
+                new = int(declared, 0) if declared is not None else old + delta
                 self.assertNotEqual(old, new)
 
     def test_time_warp_is_exactly_three_displayed_years(self) -> None:
@@ -556,7 +564,7 @@ class VV5OriginsFeatureTests(unittest.TestCase):
         ).hexdigest().upper()
         self.assertEqual(
             digest,
-            "9D7A1A5F3F87959F0C0DF2E884B09576A633E948CF084845E47120AB3623E117",
+            "8157514D353E7331C8B7827B61C741BA62EBA822E1830BFA70A343FEBB09DC2B",
         )
         self.assertEqual(
             self.feature["companion_files"][0]["sha256"],
@@ -635,14 +643,21 @@ class VV5OriginsFeatureTests(unittest.TestCase):
                     )
                     for item in relocation["patches"]:
                         payload_offset = int(item["offset"], 0) - 0xDB000
-                        if item.get("kind", "absolute") != "absolute":
-                            continue
                         if not 0 <= payload_offset <= len(expected_payload) - 4:
                             continue
-                        value = int.from_bytes(bytes.fromhex(item["before"]), "little")
-                        expected_payload[payload_offset : payload_offset + 4] = (
-                            value + delta
-                        ).to_bytes(4, "little")
+                        skipped = item.get("expanded_skip_before")
+                        if skipped and expected_payload[payload_offset : payload_offset + 4] == bytes.fromhex(skipped):
+                            continue
+                        if item.get("kind", "absolute") == "absolute":
+                            value = int.from_bytes(bytes.fromhex(item["before"]), "little")
+                            after = (value + delta).to_bytes(4, "little")
+                        else:
+                            source = int(item["source_expanded_virtual_address"], 0)
+                            target = int(item["target_stock_virtual_address"], 0)
+                            if 0x7B2000 <= target < 0x7B3000:
+                                target += delta
+                            after = (target - (source + 5)).to_bytes(4, "little", signed=True)
+                        expected_payload[payload_offset : payload_offset + 4] = after
                 self.assertEqual(
                     bytes(rendered[0xDB000 : 0xDB000 + len(self.payload)]),
                     bytes(expected_payload),

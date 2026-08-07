@@ -250,7 +250,7 @@ class ManifestTests(unittest.TestCase):
                     header_va + 0x20,
                 )
                 if game_id == "vv4":
-                    self.assertIn("expanded_shr_relocations", feature.raw)
+                    self.assertNotIn("expanded_shr_relocations", feature.raw)
                 if game_id == "vv5":
                     self.assertNotIn((0x1B8C + 0xAD0).to_bytes(4, "little"), payload)
 
