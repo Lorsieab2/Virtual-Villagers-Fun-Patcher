@@ -1,0 +1,80 @@
+{
+  "schema": "vvfp.complete_all_collections_evidence",
+  "schema_version": 1,
+  "feature": "complete_all_collections",
+  "enabled": false,
+  "publication": {
+    "status": "disabled",
+    "reason": "Exact native collection tables, completion writers, transaction effects, and runtime receipts are absent."
+  },
+  "composition_features": ["statistics_export", "origins", "expanded_256"],
+  "forbidden_routes": [
+    {"id": "collection_population_bonus_only", "game_id": "all", "kind": "semantic_role", "value": null},
+    {"id": "award_or_trophy_dispatcher_only", "game_id": "all", "kind": "semantic_role", "value": null}
+  ],
+  "games": {
+    "vv3": {
+      "stock": {
+        "exe_name": "Virtual Villagers - The Secret City.exe", "size": 831488, "imagebase": 4194304,
+        "sha256": "8BC5DB382D02BC5C21AD5F607580D60FF44A6519CC7EB133F03113BAACAE6503",
+        "full_folder": {"status": "missing", "sha256": null, "file_count": null, "manifest_sha256": null}
+      },
+      "policy": {"population_bonus_is_completion": false, "award_dispatcher_is_completion": false},
+      "requirements": [
+        {"id": "stock_fingerprint", "status": "missing", "evidence_ids": []},
+        {"id": "collection_table_geometry", "status": "missing", "evidence_ids": []},
+        {"id": "missing_entry_predicate", "status": "missing", "evidence_ids": []},
+        {"id": "native_add_complete_writer", "status": "missing", "evidence_ids": []},
+        {"id": "completion_effects_separation", "status": "missing", "evidence_ids": []},
+        {"id": "duplicate_reward_trophy_stat_notification", "status": "missing", "evidence_ids": []},
+        {"id": "confirmation_reacquire_charge", "status": "missing", "evidence_ids": []},
+        {"id": "save_reload_catchup_idempotence", "status": "missing", "evidence_ids": []},
+        {"id": "hook_cave_composition", "status": "missing", "evidence_ids": []},
+        {"id": "runtime_player_evidence", "status": "missing", "evidence_ids": []}
+      ],
+      "receipts": []
+    },
+    "vv4": {
+      "stock": {
+        "exe_name": "Virtual Villagers - The Tree of Life.exe", "size": 929792, "imagebase": 4194304,
+        "sha256": "6D27A429FFCA5F1F71FDD7ECA761ED1BB67E85F976494BA178B3D7BE01F1B220",
+        "full_folder": {"status": "missing", "sha256": null, "file_count": null, "manifest_sha256": null}
+      },
+      "policy": {"population_bonus_is_completion": false, "award_dispatcher_is_completion": false},
+      "requirements": [
+        {"id": "stock_fingerprint", "status": "missing", "evidence_ids": []},
+        {"id": "collection_table_geometry", "status": "missing", "evidence_ids": []},
+        {"id": "missing_entry_predicate", "status": "missing", "evidence_ids": []},
+        {"id": "native_add_complete_writer", "status": "missing", "evidence_ids": []},
+        {"id": "completion_effects_separation", "status": "missing", "evidence_ids": []},
+        {"id": "duplicate_reward_trophy_stat_notification", "status": "missing", "evidence_ids": []},
+        {"id": "confirmation_reacquire_charge", "status": "missing", "evidence_ids": []},
+        {"id": "save_reload_catchup_idempotence", "status": "missing", "evidence_ids": []},
+        {"id": "hook_cave_composition", "status": "missing", "evidence_ids": []},
+        {"id": "runtime_player_evidence", "status": "missing", "evidence_ids": []}
+      ],
+      "receipts": []
+    },
+    "vv5": {
+      "stock": {
+        "exe_name": "Virtual Villagers - New Believers.exe", "size": 991232, "imagebase": 4194304,
+        "sha256": "92946781980220E9D1A2E6C573925519934608F5215F4A0F8CE3B90088C5C65D",
+        "full_folder": {"status": "missing", "sha256": null, "file_count": null, "manifest_sha256": null}
+      },
+      "policy": {"population_bonus_is_completion": false, "award_dispatcher_is_completion": false},
+      "requirements": [
+        {"id": "stock_fingerprint", "status": "missing", "evidence_ids": []},
+        {"id": "collection_table_geometry", "status": "missing", "evidence_ids": []},
+        {"id": "missing_entry_predicate", "status": "missing", "evidence_ids": []},
+        {"id": "native_add_complete_writer", "status": "missing", "evidence_ids": []},
+        {"id": "completion_effects_separation", "status": "missing", "evidence_ids": []},
+        {"id": "duplicate_reward_trophy_stat_notification", "status": "missing", "evidence_ids": []},
+        {"id": "confirmation_reacquire_charge", "status": "missing", "evidence_ids": []},
+        {"id": "save_reload_catchup_idempotence", "status": "missing", "evidence_ids": []},
+        {"id": "hook_cave_composition", "status": "missing", "evidence_ids": []},
+        {"id": "runtime_player_evidence", "status": "missing", "evidence_ids": []}
+      ],
+      "receipts": []
+    }
+  }
+}
