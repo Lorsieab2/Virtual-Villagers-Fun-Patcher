@@ -1,0 +1,73 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "vvfp.vv3_expanded_256_evidence",
+  "title": "VV3 Expanded-256 evidence bundle",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "schema_version",
+    "game_id",
+    "provenance",
+    "source_sha256",
+    "prototype_sha256",
+    "stock",
+    "ida_export",
+    "reconcile",
+    "coverage",
+    "runtime_evidence",
+    "runtime_gates"
+  ],
+  "properties": {
+    "schema": {"const": "vvfp.vv3_expanded_256_evidence"},
+    "schema_version": {"const": 1},
+    "game_id": {"const": "vv3"},
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["producer", "input_kind", "status", "synthetic", "ambiguous", "incomplete", "reconciled"],
+      "properties": {
+        "producer": {"type": "string", "minLength": 1},
+        "input_kind": {"const": "exact_stock_executable"},
+        "status": {"const": "complete"},
+        "synthetic": {"const": false},
+        "ambiguous": {"const": false},
+        "incomplete": {"const": false},
+        "reconciled": {"const": true}
+      }
+    },
+    "source_sha256": {"type": "string", "pattern": "^[0-9A-Fa-f]{64}$"},
+    "prototype_sha256": {"type": "string", "pattern": "^[0-9A-Fa-f]{64}$"},
+    "stock": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["sha256", "size", "imagebase"],
+      "properties": {
+        "sha256": {"type": "string", "pattern": "^[0-9A-Fa-f]{64}$"},
+        "size": {"const": 831488},
+        "imagebase": {"type": ["integer", "string"]}
+      }
+    },
+    "ida_export": {"type": "object"},
+    "reconcile": {"type": "object"},
+    "coverage": {"type": "object"},
+    "runtime_evidence": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "status", "synthetic", "ambiguous", "incomplete", "kind", "sha256"],
+        "properties": {
+          "id": {"type": "string", "minLength": 1},
+          "status": {"const": "verified"},
+          "synthetic": {"const": false},
+          "ambiguous": {"const": false},
+          "incomplete": {"const": false},
+          "kind": {"type": "string", "minLength": 1},
+          "sha256": {"type": "string", "pattern": "^[0-9A-Fa-f]{64}$"}
+        }
+      }
+    },
+    "runtime_gates": {"type": "object"}
+  }
+}
