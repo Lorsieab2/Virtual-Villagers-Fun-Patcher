@@ -1664,8 +1664,19 @@ def _issuance_payload(token: str, authority_token: str, authority_record: dict[s
 
 
 def _bind_issuance(path: Path, token: str, report: Path, report_payload: dict[str, object], before: dict[str, object]) -> dict[str, object]:
+    base_keys = {
+        "schema_version", "token", "authority_token", "authority_record", "feature_owner", "mode",
+        "operation", "parent_identity", "destination_parent_absolute", "destination_paths_absolute",
+        "registry_relative", "registry_identity", "members",
+    }
+    bound_keys = base_keys | {
+        "report_name", "report_sha256", "report_parent_identity", "recovery_root_name",
+        "recovery_root_identity", "report_members", "report_kind",
+    }
+    if not isinstance(before, dict) or _inventory(path.parent.parent, path) != before:
+        raise PatcherError("VV5 Running issuance identity is not the captured pre-bind record.")
     raw = json.loads(_read(path).decode("utf-8"))
-    if raw.get("schema_version") != ISSUANCE_SCHEMA_VERSION or raw.get("token") != token or not isinstance(raw.get("authority_token"), str) or not isinstance(raw.get("authority_record"), dict):
+    if not isinstance(raw, dict) or set(raw) != base_keys or raw.get("schema_version") != ISSUANCE_SCHEMA_VERSION or raw.get("token") != token or not isinstance(raw.get("authority_token"), str) or not isinstance(raw.get("authority_record"), dict):
         raise PatcherError("VV5 Running issuance record is invalid.")
     issuance_meta = report_payload.get("issuance_identity")
     if not isinstance(issuance_meta, dict) or set(issuance_meta) != {"record", "authority_token", "authority_record"}:
@@ -1674,6 +1685,8 @@ def _bind_issuance(path: Path, token: str, report: Path, report_payload: dict[st
     expected_operation = {"install_new": "install", "install_existing": "install", "removal": "remove"}.get(str(report_operation))
     if expected_operation is None or raw.get("operation") != expected_operation:
         raise PatcherError("VV5 Running issuance operation does not match the recovery report.")
+    if issuance_meta.get("record") != before:
+        raise PatcherError("VV5 Running report issuance identity does not match the physical pre-bind record.")
     if (
         raw.get("destination_parent_absolute") != report_payload.get("destination_parent_absolute")
         or raw.get("destination_paths_absolute") != report_payload.get("destination_paths_absolute")
@@ -1683,17 +1696,31 @@ def _bind_issuance(path: Path, token: str, report: Path, report_payload: dict[st
         or raw.get("authority_record") != issuance_meta.get("authority_record")
     ):
         raise PatcherError("VV5 Running issuance destination/registry binding is invalid.")
+    report_bytes = _read(report)
+    report_record = _inventory(report.parent, report)
+    report_parent_record = _identity(report.parent)
+    expected_report_parent = report_payload.get("report_parent_identity")
+    if report_record is None or (expected_report_parent is not None and report_parent_record != expected_report_parent):
+        raise PatcherError("VV5 Running recovery report changed before issuance binding.")
     bound = dict(raw)
     bound.update({
         "report_name": report.name,
-        "report_sha256": _sha(_read(report)),
-        "report_parent_identity": _identity(report.parent),
+        "report_sha256": _sha(report_bytes),
+        "report_parent_identity": report_parent_record,
         "recovery_root_name": report_payload.get("recovery_root_name"),
         "recovery_root_identity": report_payload.get("recovery_root_identity"),
         "report_members": report_payload.get("members"),
         "report_kind": json.loads(_read(report).decode("utf-8")).get("kind", "recovery_report"),
     })
-    return _replace_issuance(path, before, bound)
+    if set(bound) != bound_keys:
+        raise PatcherError("VV5 Running bound issuance schema is polluted or incomplete.")
+    # Close the scan-to-replacement interval: neither the report nor the
+    # issuance record may change after their initial identity capture.
+    latest_report = _inventory(report.parent, report)
+    latest_issuance = _inventory(path.parent.parent, path)
+    if latest_report != report_record or latest_issuance != before:
+        raise PatcherError("VV5 Running report or issuance identity raced before replacement.")
+    return _replace_issuance(path, latest_issuance, bound)
 
 
 def _validate_report(payload: dict[str, object], root: Path) -> None:

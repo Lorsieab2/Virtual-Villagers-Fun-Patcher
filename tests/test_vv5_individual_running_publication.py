@@ -1355,6 +1355,50 @@ class VV5RunningPublicationTests(unittest.TestCase):
         source = Path(running.__file__).read_text(encoding="utf-8")
         self.assertIn('{"install_new": "install", "install_existing": "install", "removal": "remove"}', source)
 
+    def test_c327_bind_issuance_requires_physical_record_and_exact_start_schema(self) -> None:
+        with tempfile.TemporaryDirectory(prefix="vv5-c327-bind-") as td:
+            root = Path(td)
+            registry = root / ISSUANCE_REGISTRY_NAME
+            registry.mkdir()
+            path = registry / ("a" * 32 + ".json")
+            authority_record = {"type": "regular_file", "size": 1, "sha256": "A" * 64, "st_dev": 1, "st_ino": 2, "path": ".authority"}
+            registry_identity = running._identity(registry)
+            parent_identity = running._identity(root)
+            base = {
+                "schema_version": 2, "token": "a" * 32, "authority_token": "b" * 64,
+                "authority_record": authority_record, "feature_owner": running.VV5_FEATURE_OWNER,
+                "mode": VV5_MODE, "operation": "install", "parent_identity": parent_identity,
+                "destination_parent_absolute": str(root).lower(),
+                "destination_paths_absolute": [str(root / VV5_EXE_BASENAME).lower(), str(root / DLL_NAME).lower()],
+                "registry_relative": ISSUANCE_REGISTRY_NAME, "registry_identity": registry_identity, "members": [],
+            }
+            report = root / (".vv5run-recovery-" + "c" * 32 + ".json")
+            report.write_text("{}", encoding="utf-8")
+            with mock.patch.object(running, "_require_windows_identity_atomic", return_value=None):
+                running._write_issuance(path, base)
+                before = running._inventory(root, path)
+                payload = {
+                    "operation": "install_new", "destination_parent_absolute": str(root).lower(),
+                    "destination_paths_absolute": base["destination_paths_absolute"], "issuance_registry_identity": registry_identity,
+                    "issuance_identity": {"record": before, "authority_token": base["authority_token"], "authority_record": authority_record},
+                    "report_parent_identity": parent_identity, "recovery_root_name": "root", "recovery_root_identity": parent_identity,
+                    "members": [],
+                }
+                wrong = dict(payload); wrong["issuance_identity"] = {**payload["issuance_identity"], "record": {**before, "sha256": "0" * 64}}
+                with self.assertRaises(PatcherError):
+                    running._bind_issuance(path, base["token"], report, wrong, before)
+                polluted = dict(base); polluted["unexpected"] = True
+                path.unlink(); running._write_issuance(path, polluted)
+                before2 = running._inventory(root, path)
+                payload["issuance_identity"] = {"record": before2, "authority_token": base["authority_token"], "authority_record": authority_record}
+                with self.assertRaises(PatcherError):
+                    running._bind_issuance(path, base["token"], report, payload, before2)
+                path.unlink(); running._write_issuance(path, base)
+                before3 = running._inventory(root, path)
+                mismatch = dict(payload); mismatch["operation"] = "removal"; mismatch["issuance_identity"] = {"record": before3, "authority_token": base["authority_token"], "authority_record": authority_record}
+                with self.assertRaises(PatcherError):
+                    running._bind_issuance(path, base["token"], report, mismatch, before3)
+
 
 if __name__ == "__main__":
     unittest.main()

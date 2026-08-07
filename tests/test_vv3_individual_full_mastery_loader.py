@@ -23,6 +23,24 @@ class VV3IndividualFullMasteryLoaderTests(unittest.TestCase):
         name = f"vv3_fullscreen_safe_candidate_{mode}.exe"
         return (PARENTS / name).read_bytes()
 
+    def _terminal_transaction(self, root: Path, payload: dict[str, object]) -> dict[str, object]:
+        """Create bound report/manifest records, then remove the evidence."""
+        report = root / str(payload["report_name"])
+        manifest = root / ".chain-terminal-test.json"
+        report.write_bytes(b"report-evidence")
+        manifest.write_bytes(b"manifest-evidence")
+        report_record = loader._inventory_entry(root, report)
+        manifest_record = loader._inventory_entry(root, manifest)
+        report.unlink()
+        manifest.unlink()
+        return loader._terminal_transaction_from_payload(
+            payload,
+            report_name=report.name,
+            report_record=report_record,
+            manifest_name=manifest.name,
+            manifest_record=manifest_record,
+        )
+
     def test_hidden_registration_is_not_public_catalog(self):
         hidden = vv_fun_patcher.load_hidden_vv3_individual_full_mastery_candidate()
         self.assertFalse(hidden.raw["enabled"])
@@ -174,7 +192,7 @@ class VV3IndividualFullMasteryLoaderTests(unittest.TestCase):
             loader.recover_vv3_transaction(reports[0])
             self.assertFalse(destination.exists())
             self.assertFalse(companion_destination.exists())
-            self.assertFalse(list(root.glob(".vv3im-*")))
+            self.assertEqual(len(list(root.glob(".vv3im-terminal-*.json"))), 1)
 
     def test_recovery_schema_rejects_unknown_field_before_mutation(self):
         parent = PARENTS / "vv3_fullscreen_safe_candidate_collection_progression.exe"
@@ -284,7 +302,7 @@ class VV3IndividualFullMasteryLoaderTests(unittest.TestCase):
             self.assertEqual({p.name: p.read_bytes() for p in (stock, runtime)}, before)
             self.assertFalse(destination.exists())
             self.assertFalse(companion.exists())
-            self.assertEqual(list(root.glob(".vv3im-*")), [])
+            self.assertEqual(len(list(root.glob(".vv3im-terminal-*.json"))), 1)
 
     def test_d274_install_new_same_content_foreign_identity_rejected(self):
         with tempfile.TemporaryDirectory(prefix="vv3-d274-identity-") as td:
@@ -445,7 +463,7 @@ class VV3IndividualFullMasteryLoaderTests(unittest.TestCase):
             loader.recover_atomic(retry_report)
             self.assertEqual(exe.read_bytes(), b"exe-parent")
             self.assertEqual(dll.read_bytes(), b"dll-parent")
-            self.assertFalse(list(root.glob(".vv3im-*")))
+            self.assertEqual(len(list(root.glob(".vv3im-terminal-*.json"))), 1)
 
     def test_c280_injected_cleanup_descendant_retains_report(self):
         with tempfile.TemporaryDirectory(prefix="vv3-c280-cleanup-child-") as td:
@@ -544,7 +562,7 @@ class VV3IndividualFullMasteryLoaderTests(unittest.TestCase):
             loader.recover_vv3_transaction(marker)
             self.assertFalse(destination.exists())
             self.assertFalse(companion.exists())
-            self.assertEqual(list(root.glob(".vv3im-*")), [])
+            self.assertEqual(len(list(root.glob(".vv3im-terminal-*.json"))), 1)
 
     def test_c288_emergency_root_escape_and_unknown_child_are_rejected(self):
         with tempfile.TemporaryDirectory(prefix="vv3-c288-emergency-guards-") as td:
@@ -596,7 +614,7 @@ class VV3IndividualFullMasteryLoaderTests(unittest.TestCase):
             loader._refresh_recovery_report(report, payload, root, recovery_root)
             loader.recover_atomic(root)
             self.assertFalse(report.exists())
-            self.assertEqual(list(root.glob(".vv3im-*")), [])
+            self.assertEqual(len(list(root.glob(".vv3im-terminal-*.json"))), 1)
 
     def test_c290_directory_form_emergency_marker_chain(self):
         with tempfile.TemporaryDirectory(prefix="vv3-c290-directory-emergency-") as td:
@@ -617,7 +635,7 @@ class VV3IndividualFullMasteryLoaderTests(unittest.TestCase):
             loader.recover_atomic(root)
             self.assertFalse(destination.exists())
             self.assertFalse(companion.exists())
-            self.assertEqual(list(root.glob(".vv3im-*")), [])
+            self.assertEqual(len(list(root.glob(".vv3im-terminal-*.json"))), 1)
 
     def test_c290_orphan_successor_and_missing_backup_fail_before_mutation(self):
         with tempfile.TemporaryDirectory(prefix="vv3-c290-orphan-") as td:
@@ -1346,13 +1364,16 @@ class VV3IndividualFullMasteryLoaderTests(unittest.TestCase):
                 "issuance_name": ".vv3im-issuance-" + "c" * 32 + ".json",
                 "issuance_identity": {"record": {"path": "x"}, "authority_token": "d" * 64, "authority_record": {}},
                 "member_roles": {}, "destination_paths_absolute": [], "members": [],
+                "initial_precondition": {"kind": "absent", "members": []},
+                "replay_guard": {"kind": "absent", "members": []},
             }
             with mock.patch.object(loader, "_require_windows_identity_atomic", return_value=None), \
                  mock.patch.object(loader, "_delete_file_by_handle", side_effect=lambda path, expected: Path(path).unlink()):
-                receipt, receipt_record = loader._publish_terminal_receipt(root, authority, authority_record, payload, set())
-                authority.unlink()
+                transaction = self._terminal_transaction(root, payload)
+                receipt, receipt_record = loader._publish_terminal_receipt(root, authority, authority_record, payload, set(), transaction=transaction)
                 loader._recover_terminal_receipt(receipt)
-            self.assertFalse(receipt.exists())
+                loader.recover_atomic(root)
+            self.assertTrue(receipt.exists())
             self.assertFalse(authority.exists())
 
     def test_c325_journal_only_finalization_replays_after_report_and_manifest_removal(self):
@@ -1370,17 +1391,38 @@ class VV3IndividualFullMasteryLoaderTests(unittest.TestCase):
                 "issuance_name": ".vv3im-issuance-" + "1" * 32 + ".json",
                 "issuance_identity": {"record": {"path": "x"}, "authority_token": "2" * 64, "authority_record": {}},
                 "member_roles": {}, "destination_paths_absolute": [], "members": [],
+                "initial_precondition": {"kind": "absent", "members": []},
+                "replay_guard": {"kind": "absent", "members": []},
             }
+            report_path = root / payload["report_name"]
+            manifest_path = root / (".chain-" + payload["report_name"] + ".json")
+            report_path.write_bytes(b"report-evidence")
+            manifest_path.write_bytes(b"manifest-evidence")
+            report_record = loader._inventory_entry(root, report_path)
+            manifest_record = loader._inventory_entry(root, manifest_path)
+            report_path.unlink(); manifest_path.unlink()
+            manifest_name = ".chain-" + payload["report_name"] + ".json"
             authority.write_text(json.dumps({
-                "schema_version": 1, "kind": "vv3_recovery_transaction_authority",
-                "finalization_state": "finalizing", "finalization_payload": payload,
-                "report_name": payload["report_name"], "manifest_name": ".chain-" + payload["report_name"] + ".json",
+                "schema_version": 1, "kind": "vv3_recovery_transaction_authority", "state": "finalizing",
+                "manifest_name": manifest_name, "manifest_record": manifest_record,
+                "report_name": payload["report_name"], "report_record": report_record,
+                "canonical_name": payload["report_name"], "canonical_record": report_record,
+                "pointer_name": None, "pointer_record": None, "successor_name": None, "successor_record": None,
+                "marker_name": None, "marker_record": None, "recovery_root_name": root.name,
+                "recovery_root_record": loader._inventory_entry(root.parent, root), "ownership_inventory": [],
+                "members": [], "member_roles": {}, "destination_paths_absolute": [],
+                "transaction_journal": {"state": "finalizing"}, "previous_authority_record": None,
+                "feature_owner": "vv3_individual_full_mastery", "mode": payload["mode"], "operation": payload["operation"],
+                "destination_parent_absolute": payload["destination_parent_absolute"], "report_parent_identity": payload["report_parent_identity"],
+                "initial_precondition": payload["initial_precondition"], "replay_guard": payload["replay_guard"],
+                "finalization_state": "finalizing", "finalization_step": 0,
+                "finalization_payload": payload, "finalization_payload_digest": loader._canonical_digest(payload),
             }, sort_keys=True), encoding="utf-8")
             with mock.patch.object(loader, "_require_windows_identity_atomic", return_value=None), \
                  mock.patch.object(loader, "_delete_file_by_handle", side_effect=lambda path, expected: Path(path).unlink()):
                 loader.recover_atomic(root)
             self.assertFalse(authority.exists())
-            self.assertEqual(list(root.iterdir()), [])
+            self.assertEqual(len(list(root.glob(".vv3im-terminal-*.json"))), 1)
 
     def test_c325_terminal_receipt_rejects_extra_member_before_deletion(self):
         with tempfile.TemporaryDirectory(prefix="vv3-c325-terminal-foreign-") as td:
@@ -1388,9 +1430,10 @@ class VV3IndividualFullMasteryLoaderTests(unittest.TestCase):
             authority = root / (".vv3im-journal-" + "3" * 32 + ".json")
             authority.write_bytes(b"authority")
             authority_record = loader._inventory_entry(root, authority)
-            payload = {"feature_owner": "vv3_individual_full_mastery", "operation": "install_new", "mode": "collection_progression", "report_parent_identity": {"st_dev": root.stat().st_dev, "st_ino": root.stat().st_ino}, "destination_parent_absolute": str(root.absolute()).casefold(), "report_name": ".vv3im-recovery-" + "4" * 32 + ".json", "issuance_token": "5" * 32, "issuance_name": ".vv3im-issuance-" + "5" * 32 + ".json", "issuance_identity": {"record": {}, "authority_token": "6" * 64, "authority_record": {}}, "member_roles": {}, "destination_paths_absolute": [], "members": []}
+            payload = {"feature_owner": "vv3_individual_full_mastery", "operation": "install_new", "mode": "collection_progression", "report_parent_identity": {"st_dev": root.stat().st_dev, "st_ino": root.stat().st_ino}, "destination_parent_absolute": str(root.absolute()).casefold(), "report_name": ".vv3im-recovery-" + "4" * 32 + ".json", "issuance_token": "5" * 32, "issuance_name": ".vv3im-issuance-" + "5" * 32 + ".json", "issuance_identity": {"record": {}, "authority_token": "6" * 64, "authority_record": {}}, "member_roles": {}, "destination_paths_absolute": [], "members": [], "initial_precondition": {"kind": "absent", "members": []}, "replay_guard": {"kind": "absent", "members": []}}
             with mock.patch.object(loader, "_require_windows_identity_atomic", return_value=None), mock.patch.object(loader, "_delete_file_by_handle", side_effect=lambda path, expected: Path(path).unlink()):
-                receipt, _ = loader._publish_terminal_receipt(root, authority, authority_record, payload, set())
+                transaction = self._terminal_transaction(root, payload)
+                receipt, _ = loader._publish_terminal_receipt(root, authority, authority_record, payload, set(), transaction=transaction)
             authority.unlink()
             (root / ".vv3im-foreign-after-receipt").write_bytes(b"foreign")
             with mock.patch.object(loader, "_require_windows_identity_atomic", return_value=None), mock.patch.object(loader, "_delete_file_by_handle", side_effect=lambda path, expected: Path(path).unlink()):
@@ -1398,6 +1441,40 @@ class VV3IndividualFullMasteryLoaderTests(unittest.TestCase):
                     loader._recover_terminal_receipt(receipt)
             self.assertTrue(receipt.exists())
             self.assertTrue((root / ".vv3im-foreign-after-receipt").exists())
+
+    def test_c327_terminal_receipt_binds_filename_and_digest_before_cleanup(self):
+        with tempfile.TemporaryDirectory(prefix="vv3-c327-terminal-binding-") as td:
+            root = Path(td)
+            authority = root / (".vv3im-journal-" + "7" * 32 + ".json")
+            authority.write_bytes(b"authority")
+            authority_record = loader._inventory_entry(root, authority)
+            payload = {
+                "feature_owner": "vv3_individual_full_mastery", "operation": "install_new", "mode": "collection_progression",
+                "report_parent_identity": {"st_dev": root.stat().st_dev, "st_ino": root.stat().st_ino},
+                "destination_parent_absolute": str(root.absolute()).casefold(),
+                "report_name": ".vv3im-recovery-" + "8" * 32 + ".json", "issuance_token": "9" * 32,
+                "issuance_name": ".vv3im-issuance-" + "9" * 32 + ".json",
+                "issuance_identity": {"record": {"path": "x"}, "authority_token": "a" * 64, "authority_record": {}},
+                "member_roles": {}, "destination_paths_absolute": [], "members": [],
+                "initial_precondition": {"kind": "absent", "members": []}, "replay_guard": {"kind": "absent", "members": []},
+            }
+            with mock.patch.object(loader, "_require_windows_identity_atomic", return_value=None):
+                transaction = self._terminal_transaction(root, payload)
+                receipt, _ = loader._publish_terminal_receipt(root, authority, authority_record, payload, set(), transaction=transaction)
+            authority.unlink()
+            renamed = root / (".vv3im-terminal-" + "0" * 32 + ".json")
+            receipt.rename(renamed)
+            with mock.patch.object(loader, "_require_windows_identity_atomic", return_value=None):
+                with self.assertRaises(vv_fun_patcher.PatcherError):
+                    loader.recover_atomic(root)
+            renamed.rename(receipt)
+            raw = json.loads(receipt.read_text(encoding="utf-8"))
+            raw["finalization_transaction"]["members"] = [{"foreign": True}]
+            receipt.write_text(json.dumps(raw, sort_keys=True), encoding="utf-8")
+            with mock.patch.object(loader, "_require_windows_identity_atomic", return_value=None):
+                with self.assertRaises(vv_fun_patcher.PatcherError):
+                    loader.recover_atomic(root)
+            self.assertTrue(receipt.exists())
 
 
 if __name__ == "__main__":
