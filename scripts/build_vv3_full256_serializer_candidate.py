@@ -40,6 +40,18 @@ def model()->dict[str,object]:
         "wrapper_bytes":None,"wrapper_sha256":None
       },
       "caller_failure_gate":{"load_caller_tests_al":True,"save_caller_tests_al":False,"save_caller_patch_raw":None,"save_caller_preimage":None,"save_caller_after":None,"recoverable_failure":False,"reason":"D353 proves save orchestration ignores serializer AL; no exact guarded caller branch dominates the writer."},
+      "atomic_writer_plan":{
+        "classification":"D354_disabled_plan_pending_D355","stock_writer":"0x403530","wrapper_va":"0x7B9400","wrapper_raw":"0xCC400",
+        "callsites":[
+          {"raw":"0x27C7D","preimage":None,"expected":"E87E173900","emitted":None},
+          {"raw":"0x27C92","preimage":None,"expected":"E869173900","emitted":None},
+          {"raw":"0x27D6C","preimage":None,"expected":"E88F163900","emitted":None},
+          {"raw":"0x27D81","preimage":None,"expected":"E87A163900","emitted":None}
+        ],
+        "transaction":["sibling temporary path without numeric save slot","CREATE_NEW plus WRITE_THROUGH","write exact expanded file","flush close and reopen no-follow","verify exact size and authenticated integrity","existing final uses ReplaceFileA flags 0","absent final uses MoveFileExA WRITE_THROUGH without replace-existing","fatal non-returning failure until every caller checks result"],
+        "dynamic_api_resolver_bytes":None,"wrapper_bytes":None,"wrapper_sha256":None,"import_changes":None,"enabled":False,"native_output":False,
+        "blocker":"D355 must close exact callsite preimages, dynamic API resolver, wrapper bytes, failure path, and caller propagation."
+      },
       "uninstall_ledger":{"restore_hooks":[{"raw":"0x27D57","bytes":"E824720300"},{"raw":"0x28A4C","bytes":"E80F3E0300"}],"restore_section_header":None,"truncate_to":"0xCC000","checksum_restore":None,"order":["restore and verify both hook preimages","restore and verify original section header bytes","truncate only candidate-owned 0xCC000..0xCD000","restore and verify parent checksum"]},
       "decision":{"static_layout_go":True,"native_output":False,"enabled":False,"runtime_go":False,"player_go":False,"publication_ready":False,"status":"STOP"},
     }

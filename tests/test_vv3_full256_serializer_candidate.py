@@ -27,6 +27,14 @@ class Full256StaticCandidateTests(unittest.TestCase):
     def test_wrapper_bytes_absent(self):self.assertIsNone(self.value["wrapper_model"]["wrapper_bytes"]);self.assertIsNone(self.value["wrapper_model"]["wrapper_sha256"])
     def test_caller_blocker(self):
         g=self.value["caller_failure_gate"];self.assertTrue(g["load_caller_tests_al"]);self.assertFalse(g["save_caller_tests_al"]);self.assertFalse(g["recoverable_failure"]);self.assertIsNone(g["save_caller_after"])
+    def test_d354_writer_plan_exact_and_disabled(self):
+        w=self.value["atomic_writer_plan"];self.assertEqual(("0x403530","0x7B9400","0xCC400"),(w["stock_writer"],w["wrapper_va"],w["wrapper_raw"]));self.assertFalse(w["enabled"]);self.assertFalse(w["native_output"])
+    def test_d354_calls_are_expectations_not_emission(self):
+        rows=self.value["atomic_writer_plan"]["callsites"];self.assertEqual([("0x27C7D","E87E173900"),("0x27C92","E869173900"),("0x27D6C","E88F163900"),("0x27D81","E87A163900")],[(x["raw"],x["expected"]) for x in rows]);self.assertTrue(all(x["preimage"] is None and x["emitted"] is None for x in rows))
+    def test_d354_resolver_and_wrapper_blocked(self):
+        w=self.value["atomic_writer_plan"];self.assertIsNone(w["dynamic_api_resolver_bytes"]);self.assertIsNone(w["wrapper_bytes"]);self.assertIsNone(w["wrapper_sha256"]);self.assertIsNone(w["import_changes"]);self.assertIn("D355",w["blocker"])
+    def test_atomic_contract_has_no_numeric_slot_or_replace_existing(self):
+        tx=self.value["atomic_writer_plan"]["transaction"];self.assertIn("sibling temporary path without numeric save slot",tx);self.assertIn("existing final uses ReplaceFileA flags 0",tx);self.assertIn("absent final uses MoveFileExA WRITE_THROUGH without replace-existing",tx)
     def test_uninstall_restores_hooks_before_truncate(self):
         order=self.value["uninstall_ledger"]["order"];self.assertLess(order.index("restore and verify both hook preimages"),order.index("truncate only candidate-owned 0xCC000..0xCD000"))
     def test_check_rejects_stale_model(self):
