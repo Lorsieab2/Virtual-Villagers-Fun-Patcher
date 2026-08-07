@@ -1,0 +1,20 @@
+{
+  "schema_version": 1,
+  "id": "vv1_vv2_authenticated_native_queries",
+  "games": ["vv1", "vv2"],
+  "required_topics": {
+    "selected_world_resolver": ["selected_index_getter", "selected_record_resolver", "world_singleton", "villager_pool_bounds", "fresh_identity_readback"],
+    "funds": ["funds_getter", "funds_setter_or_native_deduction", "funds_notification", "funds_postverify"],
+    "age_and_statistics": ["age_setter", "age_companion_side_effects", "oldest_villager_update", "oldest_villager_loader", "oldest_villager_serializer", "village_elders_field"],
+    "preferences": ["preference_getter", "preference_setter", "preference_readback", "notification_queue", "stored_selected_index"],
+    "confirmation": ["dialogbox_or_messagebox_call", "idok_guard", "cancel_no_mutation_path", "same_record_reacquisition"],
+    "full_heal": ["health_getter", "health_to_100_setter", "health_side_effects", "sickness_getter", "sickness_clear_route", "people_cured_increment", "eligibility_enumerator", "postverify"],
+    "fullscreen": ["sdl_window_resolver", "hwnd_resolver", "owner_capture", "iswindow_check", "same_process_check", "sdl_get_window_flags", "leave_fullscreen", "enter_fullscreen", "fullscreen_state_byte", "owner_lifecycle_cleanup", "return_preservation"],
+    "persistence": ["stored_indices", "save_loader", "save_serializer", "field_defaults", "version_or_size_guards"]
+  },
+  "required_function_fields": ["query_id", "topic", "status", "function_name", "start_ea", "end_ea", "start_file_offset", "end_file_offset", "raw_bytes_sha256", "raw_bytes_hex", "instructions", "callers", "callees", "xrefs", "register_contract", "stack_cleanup", "return_contract", "side_effects", "source_binding"],
+  "required_instruction_fields": ["ea", "file_offset", "raw_bytes", "mnemonic", "operands"],
+  "allowed_status": ["resolved", "absent-proved"],
+  "manual_exports_allowed": false,
+  "partial_exports_allowed": false
+}
