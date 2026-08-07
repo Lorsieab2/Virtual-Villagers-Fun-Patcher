@@ -269,8 +269,13 @@ The Detail message handler uses numeric control IDs (its stock constructor
 assigns IDs 1, 3, and 4), and the bound native Detail path is `sub_44B560`.
 The current emitted helper targets `0x7B2600`, but its candidate hook is still
 at `0x44BC20`; the disabled UI/confirmation candidate therefore records the
-new native binding and remains fail-closed until an exact guarded preimage for
-`0x44B560` is available.
+new native binding and remains fail-closed until an exact guarded preimage and
+continuation for `0x44B560` are available. Enablement also requires verified
+instruction boundaries, wrapper ABI/register and stack preservation, child
+ownership/destructor behavior, exact resource/factory/ownership/message
+binding, and a non-overlapping owned cave/hook range. The existing
+`0x44BC20` bytes and continuation are explicitly ineligible for reuse; no
+native output is emitted by this candidate.
 
 ## Payload and composition
 

@@ -1,9 +1,12 @@
 """Fail-closed VV5 selected-villager transaction reference model.
 
 The model mirrors the disabled native candidate's transaction boundary.  It is
-deliberately save-free: callers provide an immutable villager snapshot and get
-back a new state only after the complete dry-run, confirmation, re-acquire,
-mutation, postverification, and single-charge sequence succeeds.
+deliberately save-free and reference-only: callers provide an immutable
+villager snapshot and get back a new reference state only after the complete
+dry-run, confirmation, re-acquire, funds recheck, mutation, postverification,
+and single-charge arithmetic sequence succeeds.  This module performs no
+native write, native readback, or rollback and must not be treated as runtime
+evidence for any of those operations.
 """
 
 from __future__ import annotations
@@ -28,7 +31,9 @@ Status = Literal[
     "insufficient_funds",
     "cancelled",
     "recheck_failed",
+    "funds_recheck_failed",
     "postverify_failed",
+    "charge_failed",
 ]
 
 
@@ -43,6 +48,7 @@ class VV5Villager:
     heathen_active: bool
     faction: int
     age: int
+    record_pointer: str
     age_companion: int = 0
     age_timer: int = 0
     skills: tuple[float, ...] = (100.0, 100.0, 100.0, 100.0, 100.0, 100.0)
@@ -70,8 +76,12 @@ class TransactionResult:
     villager: VV5Villager
     funds: int
     charged: bool
+    charge_verified: bool
     message: str
     dry_run: DryRun
+    native_write_performed: bool = False
+    native_readback_verified: bool = False
+    rollback_performed: bool = False
 
 
 _PRICES: dict[Action, int] = {
@@ -89,12 +99,18 @@ def transaction_contracts() -> dict[Action, dict[str, object]]:
         "sequence": [
             "complete dry-run",
             "explicit IDOK/Cancel confirmation",
-            "reacquire same selected index and record identity",
-            "recheck exact action snapshot and eligibility",
-            "mutate only the changed native fields",
-            "postverify action-specific native result",
-            "one native charge after successful postverify",
+            "reacquire same selected index and exact record pointer",
+            "recheck exact pre-confirmation snapshot and eligibility",
+            "reacquire and require exact pre-confirmation funds before any write",
+            "reference-model mutation only; native writer remains separately disabled",
+            "reference postverify only; native readback remains separately disabled",
+            "verify one reference charge outcome and exact funds delta",
         ],
+        "record_reacquire": "same selected index and exact record pointer",
+        "pre_confirmation_snapshot": "exact snapshot equality before any native write",
+        "funds_reacquire": "post-confirmation funds must equal the pre-confirmation amount immediately before any write",
+        "charge_verification": "reference charge outcome is verified and final funds equal original funds minus exact action price",
+        "native_effects": "reference-only; no native write, native readback, or rollback is implemented or implied",
         "no_charge_suffix": NO_DEDUCTION,
         "no_charge_results": [
             "invalid_selection",
@@ -104,7 +120,9 @@ def transaction_contracts() -> dict[Action, dict[str, object]]:
             "insufficient_funds",
             "cancelled",
             "recheck_failed",
+            "funds_recheck_failed",
             "postverify_failed",
+            "charge_failed",
         ],
     }
     return {
@@ -112,7 +130,7 @@ def transaction_contracts() -> dict[Action, dict[str, object]]:
             **common,
             "price": _PRICES["youth"],
             "dry_run": "snapshot displayed age and both native age companions; no write",
-            "postverify": "displayed age is exactly 100 and each changed companion equals its native delta",
+            "postverify": "displayed age is exactly 100 and age, companion, and timer deltas match the reference transition",
         },
         "full_mastery": {
             **common,
@@ -125,12 +143,13 @@ def transaction_contracts() -> dict[Action, dict[str, object]]:
             "price": _PRICES["running"],
             "dry_run": "snapshot all three Likes and all three Dislikes; preserve duplicates; choose first physical -1 Like",
             "postverify": "Running is present in the planned Like slot and every Running Dislike is -1",
+            "existing_running_cleanup": "binding requires clearing every Running Dislike even when Running is already in Likes; this is a changed, charged action",
         },
         "age_18": {
             **common,
             "price": _PRICES["age_18"],
             "dry_run": "snapshot displayed age and both native age companions; no write",
-            "postverify": "displayed age is exactly 360 and each changed companion equals its native delta",
+            "postverify": "displayed age is exactly 360 and age, companion, and timer deltas match the reference transition",
         },
     }
 
@@ -139,6 +158,7 @@ def _snapshot(villager: VV5Villager) -> tuple[object, ...]:
     return (
         villager.index,
         villager.identity,
+        villager.record_pointer,
         villager.active,
         villager.health,
         villager.heathen_active,
@@ -250,10 +270,26 @@ def _mutate(villager: VV5Villager, plan: DryRun) -> VV5Villager:
 def _postverify(before: VV5Villager, after: VV5Villager, plan: DryRun) -> bool:
     if not _eligible(after):
         return False
+    # Reference-only exactness guard: no unrelated field may change. A native
+    # readback/rollback implementation is deliberately outside this module.
+    if after != _mutate(before, plan):
+        return False
     if plan.action == "youth":
-        return after.age == 100 and after.age_companion - before.age_companion == 100 - before.age
+        expected_delta = 100 - before.age
+        expected_timer = before.age_timer + expected_delta if before.age_timer != 0 else before.age_timer
+        return (
+            after.age == 100
+            and after.age_companion - before.age_companion == expected_delta
+            and after.age_timer == expected_timer
+        )
     if plan.action == "age_18":
-        return after.age == 360 and after.age_companion - before.age_companion == 360 - before.age
+        expected_delta = 360 - before.age
+        expected_timer = before.age_timer + expected_delta if before.age_timer != 0 else before.age_timer
+        return (
+            after.age == 360
+            and after.age_companion - before.age_companion == expected_delta
+            and after.age_timer == expected_timer
+        )
     if plan.action == "full_mastery":
         return len(after.skills) == 6 and all(value == 100.0 for value in after.skills)
     if plan.action == "running":
@@ -271,15 +307,22 @@ def execute(
     confirm_result: int,
     *,
     before_reacquire: Callable[[VV5Villager], VV5Villager] | None = None,
+    before_funds_reacquire: Callable[[int], int] | None = None,
     force_postverify_failure: bool = False,
+    force_charge_failure: bool = False,
 ) -> TransactionResult:
     """Run the complete transaction boundary without mutating the input."""
 
     plan = dry_run(villager, action)
     price = _PRICES[action]
 
-    def result(status: Status, state: VV5Villager, message: str) -> TransactionResult:
-        return TransactionResult(action, status, state, funds, False, message, plan)
+    def result(
+        status: Status,
+        state: VV5Villager,
+        message: str,
+        available_funds: int = funds,
+    ) -> TransactionResult:
+        return TransactionResult(action, status, state, available_funds, False, False, message, plan)
 
     if plan.reason == "invalid_skill":
         return result("invalid_skill", villager, f"The selected villager has an invalid skill.\r\n{NO_DEDUCTION}")
@@ -295,22 +338,37 @@ def execute(
         return result("cancelled", villager, f"The upgrade was canceled.\r\n{NO_DEDUCTION}")
 
     reacquired = before_reacquire(villager) if before_reacquire is not None else villager
+    if reacquired.index != villager.index or reacquired.record_pointer != villager.record_pointer:
+        return result("recheck_failed", reacquired, f"The selected villager changed during confirmation.\r\n{NO_DEDUCTION}")
     if _snapshot(reacquired) != plan.snapshot:
         return result("recheck_failed", reacquired, f"The selected villager changed during confirmation.\r\n{NO_DEDUCTION}")
     second_plan = dry_run(reacquired, action)
     if not second_plan.valid or not second_plan.changed:
         return result("recheck_failed", reacquired, f"The selected villager changed during confirmation.\r\n{NO_DEDUCTION}")
 
+    confirmed_funds = before_funds_reacquire(funds) if before_funds_reacquire is not None else funds
+    if confirmed_funds != funds or confirmed_funds < price:
+        return result(
+            "funds_recheck_failed",
+            reacquired,
+            f"Tech points changed during confirmation.\r\n{NO_DEDUCTION}",
+            confirmed_funds,
+        )
+
     mutated = _mutate(reacquired, second_plan)
     if force_postverify_failure or not _postverify(reacquired, mutated, second_plan):
         return result("postverify_failed", reacquired, f"The upgrade could not be verified.\r\n{NO_DEDUCTION}")
 
-    # The one and only charge is deliberately after mutation and postverify.
+    if force_charge_failure:
+        return result("charge_failed", reacquired, f"The tech-point charge could not be verified.\r\n{NO_DEDUCTION}")
+
+    # Reference arithmetic only: native charge/write/readback/rollback are not performed here.
     return TransactionResult(
         action,
         "committed",
         mutated,
-        funds - price,
+        confirmed_funds - price,
+        True,
         True,
         "Upgrade committed.",
         plan,
