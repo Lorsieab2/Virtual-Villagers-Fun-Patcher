@@ -25,6 +25,9 @@ NO_SLOT_MESSAGE = f"This villager has no empty Like slot.\r\n{NO_DEDUCTION}"
 INVALID_MESSAGE = f"No valid living villager is selected.\r\n{NO_DEDUCTION}"
 CANCELED_MESSAGE = f"Grant Running was canceled.\r\n{NO_DEDUCTION}"
 RACE_MESSAGE = f"The selected villager changed during confirmation.\r\n{NO_DEDUCTION}"
+IDENTITY_UNKNOWN_MESSAGE = (
+    f"The selected villager or tech account could not be revalidated.\r\n{NO_DEDUCTION}"
+)
 WRITE_FAILURE_MESSAGE = f"Running could not be verified.\r\n{NO_DEDUCTION}"
 ROLLBACK_UNVERIFIED_MESSAGE = (
     "Preference rollback could not be verified; retained per-slot effects may remain."
@@ -300,6 +303,7 @@ class RunningPlan:
     after_dislikes: tuple[int, ...] = ()
     deduction: int = 0
     record_identity: tuple[int, int, int] | None = None
+    account_identity: int | None = None
 
 
 @dataclass(frozen=True)
@@ -387,6 +391,33 @@ def _record_identity(
     return identity, selected_index, record_pointer
 
 
+def _callback_record_identity(raw: object, binding: RunningBinding) -> tuple[int, int, int]:
+    if not isinstance(raw, tuple) or len(raw) != 3:
+        raise ValueError("selection identity callback must return an exact three-item tuple")
+    identity = _strict_field(
+        raw[0], field="record identity", minimum=RECORD_POINTER_MIN, maximum=UINT32_MAX
+    )
+    selected_index = _strict_field(
+        raw[1], field="selected record index", minimum=RECORD_INDEX_MIN,
+        maximum=binding.record_count - 1,
+    )
+    record_pointer = _strict_field(
+        raw[2], field="resolved record pointer", minimum=RECORD_POINTER_MIN,
+        maximum=UINT32_MAX,
+    )
+    return identity, selected_index, record_pointer
+
+
+def _account_snapshot(raw: object) -> tuple[int, int]:
+    if not isinstance(raw, tuple) or len(raw) != 2:
+        raise ValueError("account callback must return an exact two-item tuple")
+    account_identity = _strict_field(
+        raw[0], field="tech account identity", minimum=RECORD_POINTER_MIN,
+        maximum=UINT32_MAX,
+    )
+    return account_identity, _strict_balance(raw[1])
+
+
 def _eligible(record: Mapping[str, object], binding: RunningBinding) -> bool:
     try:
         _record_identity(record, binding)
@@ -397,30 +428,13 @@ def _eligible(record: Mapping[str, object], binding: RunningBinding) -> bool:
     if active != 1 or health <= 0:
         return False
     if binding.game_id == "vv5":
-        # The faction gate is the only supported current-believer predicate.
-        # Missing fields fail closed; the unproved status-byte substitute is
-        # intentionally not accepted here.
+        # Current faction +0x1CEC == 0 is the only supported VV5
+        # current-believer predicate.  No +0x1CE1/status substitute is used.
         try:
             faction = _strict_field(record.get("faction"), field="VV5 faction", minimum=0, maximum=1)
-            heathen_active = _strict_field(
-                record.get("heathen_active"),
-                field="VV5 current-believer/heathen-active state",
-                minimum=0,
-                maximum=1,
-            )
-            current_believer = None
-            if "current_believer" in record:
-                current_believer = _strict_field(
-                    record.get("current_believer"),
-                    field="VV5 current-believer state",
-                    minimum=0,
-                    maximum=1,
-                )
         except (TypeError, ValueError, OverflowError):
             return False
-        if faction != 0 or heathen_active != 0 or (
-            current_believer is not None and current_believer != 1
-        ):
+        if faction != 0:
             return False
     return True
 
@@ -484,8 +498,10 @@ def plan_transaction(
     record: Mapping[str, object],
     balance: int,
     confirmed: object,
-    reacquire: Callable[[], tuple[Mapping[str, object], int]],
+    reacquire: Callable[[], tuple[Mapping[str, object], int, int]],
     binding: RunningBinding,
+    *,
+    account_identity: object,
 ) -> RunningPlan:
     """Perform dry-run, confirmation, reacquisition, and final recheck.
 
@@ -500,6 +516,19 @@ def plan_transaction(
         return RunningPlan(
             "invalid-funds",
             f"No valid tech-point balance was provided.\r\n{NO_DEDUCTION}",
+            binding,
+        )
+    try:
+        initial_account_identity = _strict_field(
+            account_identity,
+            field="tech account identity",
+            minimum=RECORD_POINTER_MIN,
+            maximum=UINT32_MAX,
+        )
+    except (TypeError, ValueError, OverflowError):
+        return RunningPlan(
+            "invalid-account",
+            f"No valid tech account identity was provided.\r\n{NO_DEDUCTION}",
             binding,
         )
     initial = scan_running(record, binding)
@@ -526,10 +555,16 @@ def plan_transaction(
     try:
         initial_identity = _record_identity(record, binding)
         reacquired = reacquire()
-        if not isinstance(reacquired, tuple) or len(reacquired) != 2:
-            raise ValueError("reacquire must return (record, balance)")
-        current_record, current_balance_raw = reacquired
+        if not isinstance(reacquired, tuple) or len(reacquired) != 3:
+            raise ValueError("reacquire must return (record, balance, account identity)")
+        current_record, current_balance_raw, current_account_raw = reacquired
         current_balance = _strict_balance(current_balance_raw)
+        current_account_identity = _strict_field(
+            current_account_raw,
+            field="tech account identity",
+            minimum=RECORD_POINTER_MIN,
+            maximum=UINT32_MAX,
+        )
         current_identity = _record_identity(current_record, binding)
     except Exception:
         return RunningPlan(
@@ -539,6 +574,8 @@ def plan_transaction(
         )
     if current_identity != initial_identity:
         return RunningPlan("race", RACE_MESSAGE, binding)
+    if current_account_identity != initial_account_identity:
+        return RunningPlan("account-race", RACE_MESSAGE, binding)
     current = scan_running(current_record, binding)
     if current != initial:
         return RunningPlan("race", RACE_MESSAGE, binding)
@@ -556,6 +593,7 @@ def plan_transaction(
         after_dislikes=planned.after_dislikes,
         deduction=binding.price,
         record_identity=initial_identity,
+        account_identity=initial_account_identity,
     )
 
 
@@ -564,23 +602,37 @@ def apply_plan(
     write_like: Callable[[int, int], None],
     write_dislike: Callable[[int, int], None],
     read_slots: Callable[[], tuple[Sequence[int], Sequence[int]]],
-    deduct: Callable[[int], DeductionOutcome],
+    deduct: Callable[[int, int], DeductionOutcome],
+    reacquire_identity: Callable[[], tuple[int, int, int]],
+    read_account: Callable[[], tuple[int, int]],
     restore_slot: Callable[[str, int, int], None] | None = None,
-    read_balance: Callable[[], int] | None = None,
 ) -> ApplyResult:
     """Apply a committed plan through callbacks with bounded rollback.
 
-    ``DeductionOutcome`` is only an adapter assertion.  ``read_balance`` is
-    required and supplies independent exact balance-before/after verification;
-    an adapter-only outcome cannot establish a charge.  Unknown charge state
-    is never converted into a no-deduction claim.
+    ``DeductionOutcome`` is only an adapter assertion.  Exact selection and
+    account callbacks are mandatory at every mutation boundary.  Account-bound
+    balance-before/after readback supplies charge verification; an adapter-only
+    outcome cannot establish a charge.  Unknown charge state is never converted
+    into a no-deduction claim.
     """
 
     if plan.status != "commit":
         return ApplyResult(plan.status, plan.message)
     if not plan.binding.commit_enabled:
         return ApplyResult("disabled", DISABLED_MESSAGE)
+    if plan.record_identity is None or plan.account_identity is None:
+        return ApplyResult("invalid-plan", IDENTITY_UNKNOWN_MESSAGE)
     assert plan.like_index is not None
+    boundary_status, boundary_balance = _transaction_boundary(
+        plan, reacquire_identity, read_account
+    )
+    if boundary_status is not None:
+        return ApplyResult(boundary_status, IDENTITY_UNKNOWN_MESSAGE)
+    if boundary_balance is None or boundary_balance < plan.deduction:
+        return ApplyResult(
+            "charge-preflight-failed",
+            f"Not enough tech points.\r\n{NO_DEDUCTION}",
+        )
     written: list[tuple[str, int, int]] = []
     try:
         write_like(plan.like_index, plan.binding.running_id)
@@ -590,64 +642,102 @@ def apply_plan(
         # Dislikes still match the dry-run snapshot before clearing any one.
         likes_after_like = list(plan.before_likes)
         likes_after_like[plan.like_index] = plan.binding.running_id
+        boundary_status, _ = _transaction_boundary(plan, reacquire_identity, read_account)
+        if boundary_status is not None:
+            return _rollback(
+                plan, written, read_slots, restore_slot, reacquire_identity,
+                read_account, boundary_status,
+            )
         likes, dislikes = _read_slot_snapshot(read_slots, plan.binding.slot_count)
         if tuple(likes) != tuple(likes_after_like) or tuple(dislikes) != plan.before_dislikes:
-            return _rollback(plan, written, read_slots, restore_slot, "postverify-failed")
+            return _rollback(
+                plan, written, read_slots, restore_slot, reacquire_identity,
+                read_account, "postverify-failed",
+            )
         for index in plan.dislike_indices:
             write_dislike(index, plan.binding.empty_id)
             written.append(("dislike", index, plan.before_dislikes[index]))
     except Exception:
-        return _rollback(plan, written, read_slots, restore_slot, "write-failed")
+        return _rollback(
+            plan, written, read_slots, restore_slot, reacquire_identity,
+            read_account, "write-failed",
+        )
 
     try:
+        boundary_status, _ = _transaction_boundary(plan, reacquire_identity, read_account)
+        if boundary_status is not None:
+            return _rollback(
+                plan, written, read_slots, restore_slot, reacquire_identity,
+                read_account, boundary_status,
+            )
         likes, dislikes = _read_slot_snapshot(read_slots, plan.binding.slot_count)
         if tuple(likes) != plan.after_likes or tuple(dislikes) != plan.after_dislikes:
-            return _rollback(plan, written, read_slots, restore_slot, "postverify-failed")
+            return _rollback(
+                plan, written, read_slots, restore_slot, reacquire_identity,
+                read_account, "postverify-failed",
+            )
     except Exception:
-        return _rollback(plan, written, read_slots, restore_slot, "postverify-failed")
-
-    if read_balance is None:
         return _rollback(
-            plan,
-            written,
-            read_slots,
-            restore_slot,
-            "charge-unknown",
-            message=CHARGE_UNKNOWN_MESSAGE,
-            charged=None,
-            charge_status=CHARGE_UNKNOWN,
+            plan, written, read_slots, restore_slot, reacquire_identity,
+            read_account, "postverify-failed",
         )
-    try:
-        balance_before = _strict_balance(read_balance())
-    except Exception:
-        return _rollback(plan, written, read_slots, restore_slot, "charge-preflight-failed")
+
+    boundary_status, balance_before = _transaction_boundary(
+        plan, reacquire_identity, read_account
+    )
+    if boundary_status is not None or balance_before is None:
+        return _rollback(
+            plan, written, read_slots, restore_slot, reacquire_identity,
+            read_account, boundary_status or "charge-preflight-unknown",
+        )
     if balance_before < plan.deduction:
-        return _rollback(plan, written, read_slots, restore_slot, "charge-preflight-failed")
+        return _rollback(
+            plan, written, read_slots, restore_slot, reacquire_identity,
+            read_account, "charge-preflight-failed",
+        )
 
     try:
-        deduct(plan.deduction)
+        deduct(plan.account_identity, plan.deduction)
     except Exception:
-        charge_status = _readback_charge_status(balance_before, read_balance, plan.deduction)
+        charge_status = _readback_charge_status(
+            plan.account_identity, balance_before, read_account, plan.deduction
+        )
         return _finish_charge(
-            plan,
-            written,
-            read_slots,
-            restore_slot,
-            charge_status,
-            "deduction-failed",
+            plan, written, read_slots, restore_slot, reacquire_identity,
+            read_account, charge_status, "deduction-failed",
         )
 
     # DeductionOutcome is only an adapter assertion.  The balance transition
     # is the sole source of truth for whether a charge actually occurred.
-    charge_status = _readback_charge_status(balance_before, read_balance, plan.deduction)
-    return _finish_charge(
-        plan,
-        written,
-        read_slots,
-        restore_slot,
-        charge_status,
-        "deduction-failed",
+    charge_status = _readback_charge_status(
+        plan.account_identity, balance_before, read_account, plan.deduction
     )
+    return _finish_charge(
+        plan, written, read_slots, restore_slot, reacquire_identity,
+        read_account, charge_status, "deduction-failed",
+    )
+
+
+def _transaction_boundary(
+    plan: RunningPlan,
+    reacquire_identity: Callable[[], tuple[int, int, int]],
+    read_account: Callable[[], tuple[int, int]],
+) -> tuple[str | None, int | None]:
+    try:
+        current_identity = _callback_record_identity(
+            reacquire_identity(), plan.binding
+        )
+    except Exception:
+        return "identity-unknown", None
+    if current_identity != plan.record_identity:
+        return "identity-race", None
+    try:
+        account_identity, balance = _account_snapshot(read_account())
+    except Exception:
+        return "account-unknown", None
+    if account_identity != plan.account_identity:
+        return "account-race", None
+    return None, balance
 
 
 def _strict_balance(value: object) -> int:
@@ -657,15 +747,16 @@ def _strict_balance(value: object) -> int:
 
 
 def _readback_charge_status(
-    before: int | None,
-    read_balance: Callable[[], int] | None,
+    expected_account_identity: int,
+    before: int,
+    read_account: Callable[[], tuple[int, int]],
     price: int,
 ) -> str:
-    if before is None or read_balance is None:
-        return CHARGE_UNKNOWN
     try:
-        after = _strict_balance(read_balance())
+        account_identity, after = _account_snapshot(read_account())
     except Exception:
+        return CHARGE_UNKNOWN
+    if account_identity != expected_account_identity:
         return CHARGE_UNKNOWN
     if after == before:
         return CHARGE_NOT_CHARGED
@@ -679,6 +770,8 @@ def _finish_charge(
     written: list[tuple[str, int, int]],
     read_slots: Callable[[], tuple[Sequence[int], Sequence[int]]],
     restore_slot: Callable[[str, int, int], None] | None,
+    reacquire_identity: Callable[[], tuple[int, int, int]],
+    read_account: Callable[[], tuple[int, int]],
     charge_status: str,
     reason: str,
 ) -> ApplyResult:
@@ -695,6 +788,8 @@ def _finish_charge(
             written,
             read_slots,
             restore_slot,
+            reacquire_identity,
+            read_account,
             reason,
             message=WRITE_FAILURE_MESSAGE,
             charged=False,
@@ -705,6 +800,8 @@ def _finish_charge(
         written,
         read_slots,
         restore_slot,
+        reacquire_identity,
+        read_account,
         "charge-unknown",
         message=CHARGE_UNKNOWN_MESSAGE,
         charged=None,
@@ -717,6 +814,8 @@ def _rollback(
     written: list[tuple[str, int, int]],
     read_slots: Callable[[], tuple[Sequence[int], Sequence[int]]],
     restore_slot: Callable[[str, int, int], None] | None,
+    reacquire_identity: Callable[[], tuple[int, int, int]],
+    read_account: Callable[[], tuple[int, int]],
     reason: str,
     *,
     message: str = WRITE_FAILURE_MESSAGE,
@@ -732,8 +831,24 @@ def _rollback(
             charge_status=charge_status,
         )
     try:
+        boundary_status, _ = _transaction_boundary(plan, reacquire_identity, read_account)
+        if boundary_status is not None:
+            return ApplyResult(
+                reason,
+                f"{message}\r\n{ROLLBACK_UNVERIFIED_MESSAGE}",
+                charged=charged,
+                rollback="unsafe",
+                charge_status=charge_status,
+            )
+        expected_likes = list(plan.before_likes)
+        expected_dislikes = list(plan.before_dislikes)
+        for kind, index, _value in written:
+            if kind == "like":
+                expected_likes[index] = plan.binding.running_id
+            else:
+                expected_dislikes[index] = plan.binding.empty_id
         likes, dislikes = _read_slot_snapshot(read_slots, plan.binding.slot_count)
-        if tuple(likes) != plan.after_likes or tuple(dislikes) != plan.after_dislikes:
+        if tuple(likes) != tuple(expected_likes) or tuple(dislikes) != tuple(expected_dislikes):
             return ApplyResult(
                 reason,
                 f"{message}\r\n{ROLLBACK_UNVERIFIED_MESSAGE}",
@@ -742,7 +857,40 @@ def _rollback(
                 charge_status=charge_status,
             )
         for kind, index, value in reversed(written):
+            boundary_status, _ = _transaction_boundary(
+                plan, reacquire_identity, read_account
+            )
+            if boundary_status is not None:
+                return ApplyResult(
+                    reason,
+                    f"{message}\r\n{ROLLBACK_UNVERIFIED_MESSAGE}",
+                    charged=charged,
+                    rollback="partial",
+                    charge_status=charge_status,
+                )
+            likes, dislikes = _read_slot_snapshot(read_slots, plan.binding.slot_count)
+            if tuple(likes) != tuple(expected_likes) or tuple(dislikes) != tuple(expected_dislikes):
+                return ApplyResult(
+                    reason,
+                    f"{message}\r\n{ROLLBACK_UNVERIFIED_MESSAGE}",
+                    charged=charged,
+                    rollback="partial",
+                    charge_status=charge_status,
+                )
             restore_slot(kind, index, value)
+            if kind == "like":
+                expected_likes[index] = value
+            else:
+                expected_dislikes[index] = value
+        boundary_status, _ = _transaction_boundary(plan, reacquire_identity, read_account)
+        if boundary_status is not None:
+            return ApplyResult(
+                reason,
+                f"{message}\r\n{ROLLBACK_UNVERIFIED_MESSAGE}",
+                charged=charged,
+                rollback="partial",
+                charge_status=charge_status,
+            )
         final_likes, final_dislikes = _read_slot_snapshot(read_slots, plan.binding.slot_count)
         if tuple(final_likes) != plan.before_likes or tuple(final_dislikes) != plan.before_dislikes:
             return ApplyResult(

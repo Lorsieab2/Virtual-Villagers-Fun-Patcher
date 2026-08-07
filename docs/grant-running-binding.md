@@ -24,15 +24,18 @@ slot, not an early terminator. The transaction rules are:
    Dislike only after the destination is proven. Unrelated slots and ordering
    remain unchanged.
 4. Complete a read-only dry run, confirm with IDOK-only semantics, reacquire
-   the same identity and full slot snapshot, postverify the exact result, then
-   perform one native deduction.
+   the same selected index, resolved record pointer, account identity, funds,
+   and full slot snapshot, postverify the exact result, then perform one native
+   deduction.
 
 The reference adapter contract is strict about values and identity. Health is
 an exact non-boolean signed-DWORD integer in `0..0x7FFFFFFF` and must be
-positive; active is an exact non-boolean `0` or `1`; identity and resolved
-record pointer are exact non-boolean unsigned-DWORD values; selected index is
-an exact non-boolean integer within the manifest's physical bound. VV5 faction,
-heathen-active/current-believer flags are exact non-boolean `0`/`1` values.
+positive; active is an exact non-boolean `0` or `1`; identity, resolved record
+pointer, and tech-account identity are exact non-boolean unsigned-DWORD values;
+selected index is an exact non-boolean integer within the manifest's physical
+bound. VV5 current faction is an exact non-boolean `0`/`1` value and must be
+`0`, matching current faction `+0x1CEC == 0`. No `+0x1CE1`, `heathen_active`,
+status-byte, or separate synthetic current-believer predicate is accepted.
 Eligibility gates run before either preference array is read. These reference
 types and bounds make adapter input failures fail closed; they do not establish
 that any native field, selected-index resolver, or record-pointer ABI is proven.
@@ -44,23 +47,35 @@ are exact unsigned-DWORD integers. A charge requires an exact before/after
 balance transition of precisely 40,000. `DeductionOutcome` remains only an
 adapter assertion: a `charged` outcome without balance readback is reported as
 unknown, and the deduction callback is not invoked when the before-balance
-readback is unavailable.
+readback is unavailable. Even an exact account-bound delta is reference-model
+evidence, not proof that a future native deduction is isolated or atomic; an
+unverified or changed account identity is reported as unknown.
 
 The shared model in `src/grant_running.py` exposes adapter callbacks rather than
 raw field stores. The adversarial callback tests use only in-memory synthetic
 bindings and do not prove a native ABI. Reacquire exceptions or malformed
 identity/balance results are structured as an unknown revalidation outcome
 without propagating the callback exception. Exceptions after deduction are
-classified only by the exact balance transition. Failed postverification is
-no-charge; rollback is attempted only while the same identity and
-candidate-written values remain provable. If rollback is unavailable, unsafe,
-or partial, the result explicitly discloses that retained per-slot effects may
-remain; it never claims complete restoration. A binding is not committable
-unless eligibility ordering is declared and both complete native ABI gates are
-certified.
+classified only by the same-account exact balance transition. The adapter must
+reacquire the exact selected index, resolved pointer, record identity, and tech
+account before the first write, before Like/full-slot postverification, and
+before deduction. Rollback reacquires those identities and verifies the current
+candidate-written snapshot before every individual restore. Callback exceptions
+and malformed values are structured fail-closed results. If rollback is
+unavailable, unsafe, or partial, the result explicitly discloses that retained
+per-slot effects may remain; it never claims complete restoration. A binding is
+not committable unless eligibility ordering is declared and both complete native
+ABI gates are certified.
 The manifest `eligibility_gate_order` field is only an ordering declaration; it
 does not prove a native selected-index/resolver path, VV4 status predicate, or
 VV5 current-believer discriminator. `DeductionOutcome` is likewise an adapter
 assertion unless balance readback independently verifies it.
+
+The five Running binding manifests are parsed semantically and have regression
+coverage for both LF clean-archive bytes and CRLF Windows checkout bytes. A
+separate repository-wide blocker remains outside this Running-owned scope:
+other historical candidate loaders pin raw JSON bytes without complete
+line-ending protection. Their hashes must be normalized or protected during
+integration before clean-archive certification; this change does not repin them.
 The per-game evidence and STOP gates are stored under
 `data/candidates/*_individual_grant_running_binding.json`.

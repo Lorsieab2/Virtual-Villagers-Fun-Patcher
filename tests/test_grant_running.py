@@ -14,11 +14,56 @@ from grant_running import (  # noqa: E402
     DeductionOutcome,
     NO_SLOT_MESSAGE,
     RunningBinding,
-    apply_plan,
+    apply_plan as strict_apply_plan,
     binding_from_manifest,
-    plan_transaction,
+    plan_transaction as strict_plan_transaction,
     scan_running,
 )
+
+ACCOUNT_ID = 0x2000
+
+
+def plan_transaction(record_value, balance, confirmed, reacquire, current_binding, *, account_identity=ACCOUNT_ID):
+    def strict_reacquire():
+        result = reacquire()
+        if isinstance(result, tuple) and len(result) == 2:
+            return result[0], result[1], account_identity
+        return result
+
+    return strict_plan_transaction(
+        record_value,
+        balance,
+        confirmed,
+        strict_reacquire,
+        current_binding,
+        account_identity=account_identity,
+    )
+
+
+def apply_plan(
+    plan,
+    write_like,
+    write_dislike,
+    read_slots,
+    deduct,
+    restore_slot=None,
+    read_balance=None,
+):
+    def strict_deduct(account_identity, amount):
+        if account_identity != ACCOUNT_ID:
+            raise AssertionError("deduction received the wrong account identity")
+        return deduct(amount)
+
+    return strict_apply_plan(
+        plan,
+        write_like,
+        write_dislike,
+        read_slots,
+        strict_deduct,
+        lambda: plan.record_identity,
+        lambda: (ACCOUNT_ID, 100_000 if read_balance is None else read_balance()),
+        restore_slot,
+    )
 
 
 def binding(*, enabled: bool = True) -> RunningBinding:
@@ -47,8 +92,6 @@ def record(
     active=1,
     health=1,
     faction=0,
-    heathen_active=0,
-    current_believer=None,
 ):
     result = {
         "identity": identity,
@@ -57,12 +100,9 @@ def record(
         "active": active,
         "health": health,
         "faction": faction,
-        "heathen_active": heathen_active,
         "likes": list(likes),
         "dislikes": list(dislikes),
     }
-    if current_believer is not None:
-        result["current_believer"] = current_believer
     return result
 
 
@@ -140,11 +180,10 @@ class GrantRunningTests(unittest.TestCase):
         vv1 = binding()
         vv5 = RunningBinding("vv5", "B" * 64, 0x2F44, (0x10, 0x14, 0x18), (0x1C, 0x20, 0x24), image_size=1)
         cases = (
-            (vv1, {"identity": None, "active": True, "health": 1, "faction": 0, "heathen_active": 0}),
-            (vv1, {"active": False, "health": 1, "faction": 0, "heathen_active": 0}),
-            (vv1, {"active": True, "health": 0, "faction": 0, "heathen_active": 0}),
-            (vv5, {"active": True, "health": 1, "faction": 1, "heathen_active": 0}),
-            (vv5, {"active": True, "health": 1, "faction": 0, "heathen_active": 1}),
+            (vv1, {"identity": None, "active": True, "health": 1, "faction": 0}),
+            (vv1, {"active": False, "health": 1, "faction": 0}),
+            (vv1, {"active": True, "health": 0, "faction": 0}),
+            (vv5, {"active": True, "health": 1, "faction": 1}),
         )
         for current_binding, gates in cases:
             with self.subTest(game=current_binding.game_id, gates=gates):
@@ -184,7 +223,7 @@ class GrantRunningTests(unittest.TestCase):
                 self.assertNotIn("likes", candidate.reads)
                 self.assertNotIn("dislikes", candidate.reads)
 
-    def test_vv5_faction_and_current_believer_fields_require_exact_binary_values(self):
+    def test_vv5_current_faction_is_the_only_current_believer_gate(self):
         vv5 = RunningBinding(
             "vv5",
             "B" * 64,
@@ -198,11 +237,6 @@ class GrantRunningTests(unittest.TestCase):
             ("faction-bool", "faction", False),
             ("faction-float", "faction", 0.0),
             ("faction-string", "faction", "0"),
-            ("heathen-active-bool", "heathen_active", False),
-            ("heathen-active-string", "heathen_active", "0"),
-            ("current-believer-bool", "current_believer", True),
-            ("current-believer-float", "current_believer", 1.0),
-            ("current-believer-string", "current_believer", "1"),
         ):
             with self.subTest(case=label):
                 candidate = ReadProbe(record((7, -1, 8), (38, 9, 38)))
@@ -210,8 +244,10 @@ class GrantRunningTests(unittest.TestCase):
                 self.assertFalse(scan_running(candidate, vv5).eligible)
                 self.assertNotIn("likes", candidate.reads)
                 self.assertNotIn("dislikes", candidate.reads)
-        self.assertTrue(scan_running(record((7, -1, 8), (38, 9, 38), current_believer=1), vv5).eligible)
-        self.assertFalse(scan_running(record((7, -1, 8), (38, 9, 38), current_believer=0), vv5).eligible)
+        candidate = record((7, -1, 8), (38, 9, 38))
+        candidate["heathen_active"] = 1
+        candidate["current_believer"] = 0
+        self.assertTrue(scan_running(candidate, vv5).eligible)
 
     def test_confirmation_and_funds_accept_only_exact_results_and_ranges(self):
         current = record((7, -1, 8), (-1, 9, -1))
@@ -246,6 +282,28 @@ class GrantRunningTests(unittest.TestCase):
         self.assertEqual(
             plan_transaction(current, 40_000, 2, lambda: (current, 40_000), binding()).status,
             "cancel",
+        )
+        for invalid_account in (True, 0, 1.0, "8192", 0x1_0000_0000):
+            with self.subTest(account=invalid_account):
+                result = strict_plan_transaction(
+                    current,
+                    40_000,
+                    1,
+                    lambda: (current, 40_000, ACCOUNT_ID),
+                    binding(),
+                    account_identity=invalid_account,
+                )
+                self.assertEqual(result.status, "invalid-account")
+        self.assertEqual(
+            strict_plan_transaction(
+                current,
+                40_000,
+                1,
+                lambda: (current, 40_000, ACCOUNT_ID + 1),
+                binding(),
+                account_identity=ACCOUNT_ID,
+            ).status,
+            "account-race",
         )
 
     def test_reacquire_exceptions_and_malformed_identity_are_structured_unknown(self):
@@ -383,28 +441,44 @@ class GrantRunningTests(unittest.TestCase):
                 self.assertFalse(raw["catalog_enabled"])
                 self.assertTrue(raw["catalog_hidden"])
 
+    def test_running_binding_manifests_are_clean_archive_line_ending_independent(self):
+        for game in ("vv1", "vv2", "vv3", "vv4", "vv5"):
+            with self.subTest(game=game):
+                path = ROOT / "data" / "candidates" / f"{game}_individual_grant_running_binding.json"
+                source = path.read_bytes().replace(b"\r\n", b"\n")
+                archive_binding = binding_from_manifest(json.loads(source.decode("utf-8")))
+                windows_binding = binding_from_manifest(
+                    json.loads(source.replace(b"\n", b"\r\n").decode("utf-8"))
+                )
+                self.assertEqual(archive_binding, windows_binding)
+                self.assertFalse(archive_binding.commit_enabled)
+
     def test_postverify_failure_rolls_back_only_when_expected_state_is_still_present(self):
-        current = [[7, -1, 8], [38, 9, 38]]
-        plan_record = record(*current)
+        state = {"likes": [7, -1, 8], "dislikes": [38, 9, 38]}
+        plan_record = record(state["likes"], state["dislikes"])
         plan = plan_transaction(plan_record, 40_000, 1, lambda: (plan_record, 40_000), binding())
         calls = []
-        observed = iter([
-            ((7, 38, 8), (38, 9, 38)),
-            ((7, 38, 8), (-1, 9, 38)),
-            ((7, 38, 8), (-1, 9, -1)),
-            ((7, -1, 8), (38, 9, 38)),
-        ])
+        reads = 0
+
+        def read_slots():
+            nonlocal reads
+            reads += 1
+            if reads == 2:
+                return tuple(state["likes"]), (-1, 9, 38)
+            return tuple(state["likes"]), tuple(state["dislikes"])
+
         result = apply_plan(
             plan,
-            lambda kind, value: calls.append(("like", kind, value)),
-            lambda kind, value: calls.append(("dislike", kind, value)),
-            lambda: next(observed),
+            lambda index, value: state["likes"].__setitem__(index, value),
+            lambda index, value: state["dislikes"].__setitem__(index, value),
+            read_slots,
             lambda *_: calls.append(("deduct",)),
-            lambda kind, index, value: calls.append(("restore", kind, index, value)),
+            lambda kind, index, value: state["likes" if kind == "like" else "dislikes"].__setitem__(index, value),
         )
         self.assertEqual(result.rollback, "complete")
         self.assertFalse(result.charged)
         self.assertNotIn(("deduct",), calls)
+        self.assertEqual(state, {"likes": [7, -1, 8], "dislikes": [38, 9, 38]})
 
     def test_like_readback_precedes_every_dislike_callback(self):
         current = record((7, -1, 8), (38, 9, 38))
@@ -490,9 +564,7 @@ class GrantRunningTests(unittest.TestCase):
                 self.assertEqual(result.status, expected_status)
                 self.assertFalse(result.charged)
                 self.assertIn("No tech points have been deducted.", result.message)
-                self.assertEqual(result.rollback, "complete" if failure == "deduct" else "unsafe")
-                if failure != "deduct":
-                    self.assertIn("retained per-slot effects may remain", result.message)
+                self.assertEqual(result.rollback, "complete")
                 self.assertEqual(
                     result.charge_status,
                     "not-charged" if failure == "deduct" else "not-attempted",
@@ -564,7 +636,7 @@ class GrantRunningTests(unittest.TestCase):
         self.assertEqual(balance[0], 60_000)
         self.assertNotIn("No tech points have been deducted.", result.message)
 
-    def test_deduction_without_outcome_or_balance_readback_is_unknown(self):
+    def test_deduction_without_balance_change_is_verified_not_charged(self):
         current = record((7, -1, 8), (38, 9, 38))
         plan = plan_transaction(current, 40_000, 1, lambda: (current, 40_000), binding())
         state = {"likes": [7, -1, 8], "dislikes": [38, 9, 38]}
@@ -583,12 +655,12 @@ class GrantRunningTests(unittest.TestCase):
             lambda _value: None,
             lambda kind, index, value: state["likes" if kind == "like" else "dislikes"].__setitem__(index, value),
         )
-        self.assertEqual(result.status, "charge-unknown")
-        self.assertEqual(result.charge_status, "unknown")
-        self.assertIsNone(result.charged)
-        self.assertNotIn("No tech points have been deducted.", result.message)
+        self.assertEqual(result.status, "deduction-failed")
+        self.assertEqual(result.charge_status, "not-charged")
+        self.assertFalse(result.charged)
+        self.assertIn("No tech points have been deducted.", result.message)
 
-    def test_adapter_only_charged_outcome_cannot_claim_charge_without_balance_readback(self):
+    def test_adapter_only_charged_outcome_cannot_override_unchanged_account_balance(self):
         current = record((7, -1, 8), (38, 9, 38))
         plan = plan_transaction(current, 40_000, 1, lambda: (current, 40_000), binding())
         state = {"likes": [7, -1, 8], "dislikes": [38, 9, 38]}
@@ -605,10 +677,10 @@ class GrantRunningTests(unittest.TestCase):
             lambda value: deductions.append(DeductionOutcome("charged")),
             restore,
         )
-        self.assertEqual(result.status, "charge-unknown")
-        self.assertEqual(result.charge_status, "unknown")
-        self.assertIsNone(result.charged)
-        self.assertEqual(deductions, [])
+        self.assertEqual(result.status, "deduction-failed")
+        self.assertEqual(result.charge_status, "not-charged")
+        self.assertFalse(result.charged)
+        self.assertEqual(len(deductions), 1)
         self.assertEqual(state, {"likes": [7, -1, 8], "dislikes": [38, 9, 38]})
 
     def test_balance_readback_rejects_bool_float_and_numeric_string(self):
@@ -627,7 +699,7 @@ class GrantRunningTests(unittest.TestCase):
                     lambda kind, index, value: state["likes" if kind == "like" else "dislikes"].__setitem__(index, value),
                     lambda invalid=invalid: invalid,
                 )
-                self.assertEqual(result.status, "charge-preflight-failed")
+                self.assertEqual(result.status, "account-unknown")
                 self.assertEqual(deductions, [])
                 state = {"likes": [7, -1, 8], "dislikes": [38, 9, 38]}
 
@@ -649,6 +721,183 @@ class GrantRunningTests(unittest.TestCase):
         self.assertEqual(result.charge_status, "not-attempted")
         self.assertEqual(deductions, [])
         self.assertEqual(state, {"likes": [7, -1, 8], "dislikes": [38, 9, 38]})
+
+    def test_identity_and_account_changes_fail_closed_at_every_apply_boundary(self):
+        for boundary_call in (1, 2, 3, 4):
+            for field in ("selected-index", "record-pointer", "account"):
+                with self.subTest(boundary=boundary_call, field=field):
+                    current = record((7, -1, 8), (38, 9, 38))
+                    plan = strict_plan_transaction(
+                        current,
+                        100_000,
+                        1,
+                        lambda: (current, 100_000, ACCOUNT_ID),
+                        binding(),
+                        account_identity=ACCOUNT_ID,
+                    )
+                    state = {"likes": [7, -1, 8], "dislikes": [38, 9, 38]}
+                    identity_calls = 0
+                    account_calls = 0
+                    deductions = []
+
+                    def identity_callback():
+                        nonlocal identity_calls
+                        identity_calls += 1
+                        if field == "selected-index" and identity_calls == boundary_call:
+                            return 1, 1, 0x1000
+                        if field == "record-pointer" and identity_calls == boundary_call:
+                            return 1, 0, 0x1001
+                        return 1, 0, 0x1000
+
+                    def account_callback():
+                        nonlocal account_calls
+                        account_calls += 1
+                        identity = ACCOUNT_ID + 1 if field == "account" and account_calls == boundary_call else ACCOUNT_ID
+                        return identity, 100_000
+
+                    result = strict_apply_plan(
+                        plan,
+                        lambda index, value: state["likes"].__setitem__(index, value),
+                        lambda index, value: state["dislikes"].__setitem__(index, value),
+                        lambda: (tuple(state["likes"]), tuple(state["dislikes"])),
+                        lambda account, amount: deductions.append((account, amount)),
+                        identity_callback,
+                        account_callback,
+                        lambda kind, index, value: state["likes" if kind == "like" else "dislikes"].__setitem__(index, value),
+                    )
+                    self.assertIn(result.status, {"identity-race", "account-race"})
+                    self.assertEqual(deductions, [])
+                    self.assertEqual(state, {"likes": [7, -1, 8], "dislikes": [38, 9, 38]})
+
+    def test_account_change_after_deduction_is_unknown_not_verified_charge(self):
+        current = record((7, -1, 8), (38, 9, 38))
+        plan = strict_plan_transaction(
+            current,
+            100_000,
+            1,
+            lambda: (current, 100_000, ACCOUNT_ID),
+            binding(),
+            account_identity=ACCOUNT_ID,
+        )
+        state = {"likes": [7, -1, 8], "dislikes": [38, 9, 38]}
+        balance = [100_000]
+        account_calls = 0
+
+        def read_account():
+            nonlocal account_calls
+            account_calls += 1
+            return (ACCOUNT_ID + 1 if account_calls == 5 else ACCOUNT_ID), balance[0]
+
+        def deduct(account, amount):
+            self.assertEqual(account, ACCOUNT_ID)
+            balance[0] -= amount
+            return DeductionOutcome("charged")
+
+        result = strict_apply_plan(
+            plan,
+            lambda index, value: state["likes"].__setitem__(index, value),
+            lambda index, value: state["dislikes"].__setitem__(index, value),
+            lambda: (tuple(state["likes"]), tuple(state["dislikes"])),
+            deduct,
+            lambda: (1, 0, 0x1000),
+            read_account,
+            lambda kind, index, value: state["likes" if kind == "like" else "dislikes"].__setitem__(index, value),
+        )
+        self.assertEqual(result.status, "charge-unknown")
+        self.assertEqual(result.charge_status, "unknown")
+        self.assertIsNone(result.charged)
+        self.assertNotIn("No tech points have been deducted", result.message)
+
+    def test_each_rollback_restore_reacquires_selection_pointer_and_account(self):
+        cases = tuple(
+            (field, restore_index)
+            for field in ("selected-index", "record-pointer", "account")
+            for restore_index in range(3)
+        )
+        for field, restore_index in cases:
+            with self.subTest(field=field, restore_index=restore_index):
+                current = record((7, -1, 8), (38, 9, 38))
+                plan = strict_plan_transaction(
+                    current,
+                    100_000,
+                    1,
+                    lambda: (current, 100_000, ACCOUNT_ID),
+                    binding(),
+                    account_identity=ACCOUNT_ID,
+                )
+                state = {"likes": [7, -1, 8], "dislikes": [38, 9, 38]}
+                identity_calls = 0
+                account_calls = 0
+                target_identity_call = 6 + restore_index
+                target_account_call = 7 + restore_index
+
+                def identity_callback():
+                    nonlocal identity_calls
+                    identity_calls += 1
+                    if field == "selected-index" and identity_calls == target_identity_call:
+                        return 1, 1, 0x1000
+                    if field == "record-pointer" and identity_calls == target_identity_call:
+                        return 1, 0, 0x1001
+                    return 1, 0, 0x1000
+
+                def account_callback():
+                    nonlocal account_calls
+                    account_calls += 1
+                    identity = ACCOUNT_ID + 1 if field == "account" and account_calls == target_account_call else ACCOUNT_ID
+                    return identity, 100_000
+
+                result = strict_apply_plan(
+                    plan,
+                    lambda index, value: state["likes"].__setitem__(index, value),
+                    lambda index, value: state["dislikes"].__setitem__(index, value),
+                    lambda: (tuple(state["likes"]), tuple(state["dislikes"])),
+                    lambda _account, _amount: DeductionOutcome("not-charged"),
+                    identity_callback,
+                    account_callback,
+                    lambda kind, index, value: state["likes" if kind == "like" else "dislikes"].__setitem__(index, value),
+                )
+                self.assertEqual(result.status, "deduction-failed")
+                self.assertEqual(result.rollback, "partial")
+                self.assertIn("retained per-slot effects may remain", result.message)
+
+    def test_identity_and_account_callback_exceptions_are_structured(self):
+        current = record((7, -1, 8), (38, 9, 38))
+        plan = strict_plan_transaction(
+            current,
+            100_000,
+            1,
+            lambda: (current, 100_000, ACCOUNT_ID),
+            binding(),
+            account_identity=ACCOUNT_ID,
+        )
+        for label, identity_callback, account_callback, expected in (
+            (
+                "identity",
+                lambda: (_ for _ in ()).throw(RuntimeError("identity failure")),
+                lambda: (ACCOUNT_ID, 100_000),
+                "identity-unknown",
+            ),
+            (
+                "account",
+                lambda: (1, 0, 0x1000),
+                lambda: (_ for _ in ()).throw(RuntimeError("account failure")),
+                "account-unknown",
+            ),
+        ):
+            with self.subTest(callback=label):
+                writes = []
+                result = strict_apply_plan(
+                    plan,
+                    lambda *_: writes.append("like"),
+                    lambda *_: writes.append("dislike"),
+                    lambda: ((7, -1, 8), (38, 9, 38)),
+                    lambda *_: writes.append("deduct"),
+                    identity_callback,
+                    account_callback,
+                )
+                self.assertEqual(result.status, expected)
+                self.assertEqual(writes, [])
+                self.assertIn("No tech points have been deducted", result.message)
 
     def test_binding_validation_rejects_ambiguous_geometry_and_identity_types(self):
         path = ROOT / "data" / "candidates" / "vv2_individual_grant_running_binding.json"

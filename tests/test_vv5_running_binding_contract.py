@@ -41,7 +41,8 @@ class VV5RunningBindingContractTests(unittest.TestCase):
             "test": "== 0",
             "meaning": "current believer",
         })
-        self.assertTrue(gate["current_heathen_rejects_before_like_dislike_reads"])
+        self.assertTrue(gate["current_faction_is_only_vv5_specific_gate"])
+        self.assertIn("+0x1CE1", gate["excluded_unproved_gates"])
 
     def test_preference_mutation_cases_are_zero_write_safe_and_ordered(self) -> None:
         tx = self.raw["transaction_contract"]
