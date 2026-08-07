@@ -34,7 +34,11 @@ explicit atomic outcome, or provide exact balance-before/after readback;
 exceptions with an unverifiable charge state are reported as unknown rather
 than as no-charge. Failed postverification is no-charge; rollback is attempted
 only while the same identity and candidate-written values remain provable. A
-binding is not committable unless eligibility ordering and both complete native
-ABI gates are certified.
+binding is not committable unless eligibility ordering is declared and both
+complete native ABI gates are certified.
+The manifest `eligibility_gate_order` field is only an ordering declaration; it
+does not prove a native selected-index/resolver path, VV4 status predicate, or
+VV5 current-believer discriminator. `DeductionOutcome` is likewise an adapter
+assertion unless balance readback independently verifies it.
 The per-game evidence and STOP gates are stored under
 `data/candidates/*_individual_grant_running_binding.json`.
