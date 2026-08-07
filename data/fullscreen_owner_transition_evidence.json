@@ -1,0 +1,622 @@
+{
+  "schema": "vvfp.fullscreen_owner_transition_evidence",
+  "version": 1,
+  "flags": {
+    "enabled": false,
+    "publication": false,
+    "native_emission": false,
+    "runtime_verified": false,
+    "player_verified": false
+  },
+  "games": {
+    "vv3": {
+      "stock_full_folder": {
+        "exe_name": "Virtual Villagers - The Secret City.exe",
+        "exe_size": 831488,
+        "exe_sha256": "8BC5DB382D02BC5C21AD5F607580D60FF44A6519CC7EB133F03113BAACAE6503",
+        "full_folder_sha256": null,
+        "file_count": null,
+        "verified": false
+      },
+      "static_wrapper_candidates": {
+        "tech": "923F8CC4F371B20D92DE276B3D7176DAEDDA305D77C799164D9FCB8D3BA27F82",
+        "detail": "D14CBD322AE2661FCECBA6FAB306CB4029B988118C244A191A1225ECDD6559FB",
+        "page": "D76FD21C6630FCCDE5AB840616217F51A775A86C827A83E5512B68B8D2990011"
+      },
+      "routes": [
+        {
+          "id": "tech",
+          "status": "pending",
+          "requirements": {
+            "sdl_window_not_hwnd": false,
+            "same_process_hwnd_captured_before_modal": false,
+            "same_hwnd_reused_for_dialogbox_messagebox": false,
+            "monitor_work_area_centering_clamping": false,
+            "sdl_get_window_flags_exact_abi_mask": false,
+            "leave_enter_exact_callee_abi_state_byte": false,
+            "fresh_singleton_outer_engine_window_reacquisition": false,
+            "original_target_return_preserved": false,
+            "one_guarded_restore_after_successful_leave": false,
+            "destructor_tls_cleanup": false,
+            "composition_ranges_proved": false
+          },
+          "required_receipt_scenarios": {
+            "windowed": [
+              "cancel",
+              "no_op",
+              "success",
+              "failure",
+              "foreground_change",
+              "restore_failure"
+            ],
+            "fullscreen": [
+              "cancel",
+              "no_op",
+              "success",
+              "failure",
+              "foreground_change",
+              "restore_failure"
+            ]
+          },
+          "receipts": [],
+          "ranges": []
+        },
+        {
+          "id": "detail",
+          "status": "pending",
+          "requirements": {
+            "sdl_window_not_hwnd": false,
+            "same_process_hwnd_captured_before_modal": false,
+            "same_hwnd_reused_for_dialogbox_messagebox": false,
+            "monitor_work_area_centering_clamping": false,
+            "sdl_get_window_flags_exact_abi_mask": false,
+            "leave_enter_exact_callee_abi_state_byte": false,
+            "fresh_singleton_outer_engine_window_reacquisition": false,
+            "original_target_return_preserved": false,
+            "one_guarded_restore_after_successful_leave": false,
+            "destructor_tls_cleanup": false,
+            "composition_ranges_proved": false
+          },
+          "required_receipt_scenarios": {
+            "windowed": [
+              "cancel",
+              "no_op",
+              "success",
+              "failure",
+              "foreground_change",
+              "restore_failure"
+            ],
+            "fullscreen": [
+              "cancel",
+              "no_op",
+              "success",
+              "failure",
+              "foreground_change",
+              "restore_failure"
+            ]
+          },
+          "receipts": [],
+          "ranges": []
+        },
+        {
+          "id": "full_mastery",
+          "status": "pending",
+          "requirements": {
+            "sdl_window_not_hwnd": false,
+            "same_process_hwnd_captured_before_modal": false,
+            "same_hwnd_reused_for_dialogbox_messagebox": false,
+            "monitor_work_area_centering_clamping": false,
+            "sdl_get_window_flags_exact_abi_mask": false,
+            "leave_enter_exact_callee_abi_state_byte": false,
+            "fresh_singleton_outer_engine_window_reacquisition": false,
+            "original_target_return_preserved": false,
+            "one_guarded_restore_after_successful_leave": false,
+            "destructor_tls_cleanup": false,
+            "composition_ranges_proved": false
+          },
+          "required_receipt_scenarios": {
+            "windowed": [
+              "cancel",
+              "no_op",
+              "success",
+              "failure",
+              "foreground_change",
+              "restore_failure"
+            ],
+            "fullscreen": [
+              "cancel",
+              "no_op",
+              "success",
+              "failure",
+              "foreground_change",
+              "restore_failure"
+            ]
+          },
+          "receipts": [],
+          "ranges": []
+        },
+        {
+          "id": "full_heal",
+          "status": "pending",
+          "requirements": {
+            "sdl_window_not_hwnd": false,
+            "same_process_hwnd_captured_before_modal": false,
+            "same_hwnd_reused_for_dialogbox_messagebox": false,
+            "monitor_work_area_centering_clamping": false,
+            "sdl_get_window_flags_exact_abi_mask": false,
+            "leave_enter_exact_callee_abi_state_byte": false,
+            "fresh_singleton_outer_engine_window_reacquisition": false,
+            "original_target_return_preserved": false,
+            "one_guarded_restore_after_successful_leave": false,
+            "destructor_tls_cleanup": false,
+            "composition_ranges_proved": false
+          },
+          "required_receipt_scenarios": {
+            "windowed": [
+              "cancel",
+              "no_op",
+              "success",
+              "failure",
+              "foreground_change",
+              "restore_failure"
+            ],
+            "fullscreen": [
+              "cancel",
+              "no_op",
+              "success",
+              "failure",
+              "foreground_change",
+              "restore_failure"
+            ]
+          },
+          "receipts": [],
+          "ranges": []
+        },
+        {
+          "id": "active_modal_upgrades",
+          "status": "pending",
+          "requirements": {
+            "sdl_window_not_hwnd": false,
+            "same_process_hwnd_captured_before_modal": false,
+            "same_hwnd_reused_for_dialogbox_messagebox": false,
+            "monitor_work_area_centering_clamping": false,
+            "sdl_get_window_flags_exact_abi_mask": false,
+            "leave_enter_exact_callee_abi_state_byte": false,
+            "fresh_singleton_outer_engine_window_reacquisition": false,
+            "original_target_return_preserved": false,
+            "one_guarded_restore_after_successful_leave": false,
+            "destructor_tls_cleanup": false,
+            "composition_ranges_proved": false
+          },
+          "required_receipt_scenarios": {
+            "windowed": [
+              "cancel",
+              "no_op",
+              "success",
+              "failure",
+              "foreground_change",
+              "restore_failure"
+            ],
+            "fullscreen": [
+              "cancel",
+              "no_op",
+              "success",
+              "failure",
+              "foreground_change",
+              "restore_failure"
+            ]
+          },
+          "receipts": [],
+          "ranges": []
+        }
+      ],
+      "evidence_receipts": [],
+      "gap_status": "STOP"
+    },
+    "vv4": {
+      "stock_full_folder": {
+        "exe_name": "Virtual Villagers - The Tree of Life.exe",
+        "exe_size": 929792,
+        "exe_sha256": "6D27A429FFCA5F1F71FDD7ECA761ED1BB67E85F976494BA178B3D7BE01F1B220",
+        "full_folder_sha256": null,
+        "file_count": null,
+        "verified": false
+      },
+      "static_wrapper_candidates": {
+        "tech": "6434441BC49F81C0B9A9C80DE7433FE9C48475500F318CF24C3A1B3E399E1336",
+        "detail": "78E1C51CE00E1080AE3B9DA6FDFECDFD53A65DC03432E0AE489FD2A52584E858",
+        "page": "2A722F2867BECFAA35CC46EE2B4B7D50056063142E983B11F447221E1AD13512"
+      },
+      "routes": [
+        {
+          "id": "tech",
+          "status": "pending",
+          "requirements": {
+            "sdl_window_not_hwnd": false,
+            "same_process_hwnd_captured_before_modal": false,
+            "same_hwnd_reused_for_dialogbox_messagebox": false,
+            "monitor_work_area_centering_clamping": false,
+            "sdl_get_window_flags_exact_abi_mask": false,
+            "leave_enter_exact_callee_abi_state_byte": false,
+            "fresh_singleton_outer_engine_window_reacquisition": false,
+            "original_target_return_preserved": false,
+            "one_guarded_restore_after_successful_leave": false,
+            "destructor_tls_cleanup": false,
+            "composition_ranges_proved": false
+          },
+          "required_receipt_scenarios": {
+            "windowed": [
+              "cancel",
+              "no_op",
+              "success",
+              "failure",
+              "foreground_change",
+              "restore_failure"
+            ],
+            "fullscreen": [
+              "cancel",
+              "no_op",
+              "success",
+              "failure",
+              "foreground_change",
+              "restore_failure"
+            ]
+          },
+          "receipts": [],
+          "ranges": []
+        },
+        {
+          "id": "detail",
+          "status": "pending",
+          "requirements": {
+            "sdl_window_not_hwnd": false,
+            "same_process_hwnd_captured_before_modal": false,
+            "same_hwnd_reused_for_dialogbox_messagebox": false,
+            "monitor_work_area_centering_clamping": false,
+            "sdl_get_window_flags_exact_abi_mask": false,
+            "leave_enter_exact_callee_abi_state_byte": false,
+            "fresh_singleton_outer_engine_window_reacquisition": false,
+            "original_target_return_preserved": false,
+            "one_guarded_restore_after_successful_leave": false,
+            "destructor_tls_cleanup": false,
+            "composition_ranges_proved": false
+          },
+          "required_receipt_scenarios": {
+            "windowed": [
+              "cancel",
+              "no_op",
+              "success",
+              "failure",
+              "foreground_change",
+              "restore_failure"
+            ],
+            "fullscreen": [
+              "cancel",
+              "no_op",
+              "success",
+              "failure",
+              "foreground_change",
+              "restore_failure"
+            ]
+          },
+          "receipts": [],
+          "ranges": []
+        },
+        {
+          "id": "full_mastery",
+          "status": "pending",
+          "requirements": {
+            "sdl_window_not_hwnd": false,
+            "same_process_hwnd_captured_before_modal": false,
+            "same_hwnd_reused_for_dialogbox_messagebox": false,
+            "monitor_work_area_centering_clamping": false,
+            "sdl_get_window_flags_exact_abi_mask": false,
+            "leave_enter_exact_callee_abi_state_byte": false,
+            "fresh_singleton_outer_engine_window_reacquisition": false,
+            "original_target_return_preserved": false,
+            "one_guarded_restore_after_successful_leave": false,
+            "destructor_tls_cleanup": false,
+            "composition_ranges_proved": false
+          },
+          "required_receipt_scenarios": {
+            "windowed": [
+              "cancel",
+              "no_op",
+              "success",
+              "failure",
+              "foreground_change",
+              "restore_failure"
+            ],
+            "fullscreen": [
+              "cancel",
+              "no_op",
+              "success",
+              "failure",
+              "foreground_change",
+              "restore_failure"
+            ]
+          },
+          "receipts": [],
+          "ranges": []
+        },
+        {
+          "id": "full_heal",
+          "status": "pending",
+          "requirements": {
+            "sdl_window_not_hwnd": false,
+            "same_process_hwnd_captured_before_modal": false,
+            "same_hwnd_reused_for_dialogbox_messagebox": false,
+            "monitor_work_area_centering_clamping": false,
+            "sdl_get_window_flags_exact_abi_mask": false,
+            "leave_enter_exact_callee_abi_state_byte": false,
+            "fresh_singleton_outer_engine_window_reacquisition": false,
+            "original_target_return_preserved": false,
+            "one_guarded_restore_after_successful_leave": false,
+            "destructor_tls_cleanup": false,
+            "composition_ranges_proved": false
+          },
+          "required_receipt_scenarios": {
+            "windowed": [
+              "cancel",
+              "no_op",
+              "success",
+              "failure",
+              "foreground_change",
+              "restore_failure"
+            ],
+            "fullscreen": [
+              "cancel",
+              "no_op",
+              "success",
+              "failure",
+              "foreground_change",
+              "restore_failure"
+            ]
+          },
+          "receipts": [],
+          "ranges": []
+        },
+        {
+          "id": "active_modal_upgrades",
+          "status": "pending",
+          "requirements": {
+            "sdl_window_not_hwnd": false,
+            "same_process_hwnd_captured_before_modal": false,
+            "same_hwnd_reused_for_dialogbox_messagebox": false,
+            "monitor_work_area_centering_clamping": false,
+            "sdl_get_window_flags_exact_abi_mask": false,
+            "leave_enter_exact_callee_abi_state_byte": false,
+            "fresh_singleton_outer_engine_window_reacquisition": false,
+            "original_target_return_preserved": false,
+            "one_guarded_restore_after_successful_leave": false,
+            "destructor_tls_cleanup": false,
+            "composition_ranges_proved": false
+          },
+          "required_receipt_scenarios": {
+            "windowed": [
+              "cancel",
+              "no_op",
+              "success",
+              "failure",
+              "foreground_change",
+              "restore_failure"
+            ],
+            "fullscreen": [
+              "cancel",
+              "no_op",
+              "success",
+              "failure",
+              "foreground_change",
+              "restore_failure"
+            ]
+          },
+          "receipts": [],
+          "ranges": []
+        }
+      ],
+      "evidence_receipts": [],
+      "gap_status": "STOP"
+    },
+    "vv5": {
+      "stock_full_folder": {
+        "exe_name": "Virtual Villagers - New Believers.exe",
+        "exe_size": 991232,
+        "exe_sha256": "92946781980220E9D1A2E6C573925519934608F5215F4A0F8CE3B90088C5C65D",
+        "full_folder_sha256": null,
+        "file_count": null,
+        "verified": false
+      },
+      "static_wrapper_candidates": {},
+      "routes": [
+        {
+          "id": "tech",
+          "status": "pending",
+          "requirements": {
+            "sdl_window_not_hwnd": false,
+            "same_process_hwnd_captured_before_modal": false,
+            "same_hwnd_reused_for_dialogbox_messagebox": false,
+            "monitor_work_area_centering_clamping": false,
+            "sdl_get_window_flags_exact_abi_mask": false,
+            "leave_enter_exact_callee_abi_state_byte": false,
+            "fresh_singleton_outer_engine_window_reacquisition": false,
+            "original_target_return_preserved": false,
+            "one_guarded_restore_after_successful_leave": false,
+            "destructor_tls_cleanup": false,
+            "composition_ranges_proved": false
+          },
+          "required_receipt_scenarios": {
+            "windowed": [
+              "cancel",
+              "no_op",
+              "success",
+              "failure",
+              "foreground_change",
+              "restore_failure"
+            ],
+            "fullscreen": [
+              "cancel",
+              "no_op",
+              "success",
+              "failure",
+              "foreground_change",
+              "restore_failure"
+            ]
+          },
+          "receipts": [],
+          "ranges": []
+        },
+        {
+          "id": "detail",
+          "status": "pending",
+          "requirements": {
+            "sdl_window_not_hwnd": false,
+            "same_process_hwnd_captured_before_modal": false,
+            "same_hwnd_reused_for_dialogbox_messagebox": false,
+            "monitor_work_area_centering_clamping": false,
+            "sdl_get_window_flags_exact_abi_mask": false,
+            "leave_enter_exact_callee_abi_state_byte": false,
+            "fresh_singleton_outer_engine_window_reacquisition": false,
+            "original_target_return_preserved": false,
+            "one_guarded_restore_after_successful_leave": false,
+            "destructor_tls_cleanup": false,
+            "composition_ranges_proved": false
+          },
+          "required_receipt_scenarios": {
+            "windowed": [
+              "cancel",
+              "no_op",
+              "success",
+              "failure",
+              "foreground_change",
+              "restore_failure"
+            ],
+            "fullscreen": [
+              "cancel",
+              "no_op",
+              "success",
+              "failure",
+              "foreground_change",
+              "restore_failure"
+            ]
+          },
+          "receipts": [],
+          "ranges": []
+        },
+        {
+          "id": "full_mastery",
+          "status": "pending",
+          "requirements": {
+            "sdl_window_not_hwnd": false,
+            "same_process_hwnd_captured_before_modal": false,
+            "same_hwnd_reused_for_dialogbox_messagebox": false,
+            "monitor_work_area_centering_clamping": false,
+            "sdl_get_window_flags_exact_abi_mask": false,
+            "leave_enter_exact_callee_abi_state_byte": false,
+            "fresh_singleton_outer_engine_window_reacquisition": false,
+            "original_target_return_preserved": false,
+            "one_guarded_restore_after_successful_leave": false,
+            "destructor_tls_cleanup": false,
+            "composition_ranges_proved": false
+          },
+          "required_receipt_scenarios": {
+            "windowed": [
+              "cancel",
+              "no_op",
+              "success",
+              "failure",
+              "foreground_change",
+              "restore_failure"
+            ],
+            "fullscreen": [
+              "cancel",
+              "no_op",
+              "success",
+              "failure",
+              "foreground_change",
+              "restore_failure"
+            ]
+          },
+          "receipts": [],
+          "ranges": []
+        },
+        {
+          "id": "full_heal",
+          "status": "pending",
+          "requirements": {
+            "sdl_window_not_hwnd": false,
+            "same_process_hwnd_captured_before_modal": false,
+            "same_hwnd_reused_for_dialogbox_messagebox": false,
+            "monitor_work_area_centering_clamping": false,
+            "sdl_get_window_flags_exact_abi_mask": false,
+            "leave_enter_exact_callee_abi_state_byte": false,
+            "fresh_singleton_outer_engine_window_reacquisition": false,
+            "original_target_return_preserved": false,
+            "one_guarded_restore_after_successful_leave": false,
+            "destructor_tls_cleanup": false,
+            "composition_ranges_proved": false
+          },
+          "required_receipt_scenarios": {
+            "windowed": [
+              "cancel",
+              "no_op",
+              "success",
+              "failure",
+              "foreground_change",
+              "restore_failure"
+            ],
+            "fullscreen": [
+              "cancel",
+              "no_op",
+              "success",
+              "failure",
+              "foreground_change",
+              "restore_failure"
+            ]
+          },
+          "receipts": [],
+          "ranges": []
+        },
+        {
+          "id": "active_modal_upgrades",
+          "status": "pending",
+          "requirements": {
+            "sdl_window_not_hwnd": false,
+            "same_process_hwnd_captured_before_modal": false,
+            "same_hwnd_reused_for_dialogbox_messagebox": false,
+            "monitor_work_area_centering_clamping": false,
+            "sdl_get_window_flags_exact_abi_mask": false,
+            "leave_enter_exact_callee_abi_state_byte": false,
+            "fresh_singleton_outer_engine_window_reacquisition": false,
+            "original_target_return_preserved": false,
+            "one_guarded_restore_after_successful_leave": false,
+            "destructor_tls_cleanup": false,
+            "composition_ranges_proved": false
+          },
+          "required_receipt_scenarios": {
+            "windowed": [
+              "cancel",
+              "no_op",
+              "success",
+              "failure",
+              "foreground_change",
+              "restore_failure"
+            ],
+            "fullscreen": [
+              "cancel",
+              "no_op",
+              "success",
+              "failure",
+              "foreground_change",
+              "restore_failure"
+            ]
+          },
+          "receipts": [],
+          "ranges": []
+        }
+      ],
+      "evidence_receipts": [],
+      "gap_status": "STOP"
+    }
+  },
+  "composition_regions": []
+}
