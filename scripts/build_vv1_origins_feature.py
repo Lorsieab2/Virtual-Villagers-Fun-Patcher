@@ -980,13 +980,12 @@ def main() -> None:
             "result `Cured X villagers`. "
             "The doubler contract stacks after exact-build collectible adjustments; no Food Mastery-like food transform or collection tech multiplier was found in this fingerprint. Ordinary Science still modifies research amounts before any future eligible doubler hook. Golden Child and Island Event outcomes remain native; purchase is unavailable until safe hook and all-producer provenance are proven. The effect is stored in the current save rather than a global INI. Adds "
             "an icon-based Villager Upgrades screen containing Grant Youth, Grant Full "
-            "Mastery, Grant Running, and Set Age to 18 for the displayed villager. Grant "
-            "Full Mastery preserves a checked job preference and chooses Farming when "
-            "none is checked so VV1 does not show the incomplete title Master. Grant Running adds running to an "
-            "available Likes slot on the displayed villager, removes running from that "
-            "villager's Dislikes slots, and refuses without charging when no Like slot is "
-            "available; it does not alter movement speed, movement initialization, or any "
-            "custom running flag."
+            "Mastery, the historical Grant Running label, and Set Age to 18 for the "
+            "displayed villager. Grant Full Mastery preserves a checked job preference "
+            "and chooses Farming when none is checked so VV1 does not show the incomplete "
+            "title Master. Grant Running is STOP/hidden contract evidence only: its "
+            "legacy bytes are not native preference ABI proof and no selectable or "
+            "runtime-ready Running action is exposed."
         ),
         "output_tag": "Origins Exclusive Features",
         "companion_files": [

@@ -41,16 +41,12 @@ save-recognition, and complete 256-villager save/reload testing.
    "Nature Level 1 Actually Replenishes Food Sources Faster" and/or
    "Nature Level 3 Actually Alters Mortality" and/or
    "Pointing Out a Rare Collectible Always Works" and/or
-   "Enable Origins-Exclusive Features" and/or
-   "Grant Running to Selected Villager". The VV3 selected-villager Running
-   candidate is stock Collection Progression/Immediate Fixed-only, costs 40,000,
-   remains runtime/player pending, and never exposes the withdrawn village-wide
-   command-6 row.
-   "Full Heal / Cure All" is enabled/catalog-visible only after the certified
-   Origins + Full Mastery + selected-villager Running chain for stock Collection
-   Progression and Immediate Fixed. It is a repeatable Buy command 5 costing
-   30,000 tech points; runtime/player confirmation remains pending and Expanded
-   modes reject before output.
+   "Enable Origins-Exclusive Features". Grant Running to Selected Villager is
+   STOP/hidden contract evidence, not a selectable catalog item; its historical
+   candidate is withdrawn and its revised six-slot binding emits no output.
+   "Full Heal / Cure All" is also candidate-only, disabled, and blocked because
+   its historical selected-villager Running dependency is unavailable. No
+   Running or Full Heal runtime-ready claim is made.
 6. Optional for The Tree of Life: check
    "Complete Fish Scales = Golden Fish in Nets" and/or "Enable Origins-Exclusive
    Features". VV4 remains the untouched vanilla Breeding and Embracing
@@ -310,7 +306,7 @@ The contained row labels include Grant Full Mastery to All Villagers.
 The disabled manifests remain as diagnostic evidence, but their bytes are not
 applied. Existing save fields are not cleared, changed, or refunded.
 
-VV3 All Villagers Like Running is enabled for replacement runtime playtesting
-after final static certification c62fba9214de7c6092365e99c72bd81a59d3888c.
-Its corrected repeatable-Buy implementation contains command 6 only and does
-not expose Full Mastery or Age 18. Gameplay validation remains pending.
+VV3 All Villagers Like Running remains hard-withdrawn, disabled, and
+catalog-hidden after the replacement runtime crash audit. Its historical
+command-6 bytes are retained for provenance only; no replacement runtime
+playtesting or gameplay-ready claim is authorized.

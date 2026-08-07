@@ -293,7 +293,14 @@ class ManifestTests(unittest.TestCase):
             [patch.id for patch in load_fun_patches()],
         )
 
-    def test_grant_running_checks_exactly_three_normal_like_slots(self) -> None:
+    def test_legacy_grant_running_helpers_are_historical_three_slot_evidence_only(self) -> None:
+        """Keep legacy byte provenance separate from native ABI certification.
+
+        The generated Origins helpers are disabled legacy evidence.  Their
+        three-slot loop shape must not be read as proof for the new per-game
+        bindings, whose exact configured slot counts live in separate STOP
+        manifests and whose native preference ABIs remain unproved.
+        """
         for game_id in ("vv1", "vv2", "vv3", "vv4", "vv5"):
             with self.subTest(game=game_id):
                 source = next(

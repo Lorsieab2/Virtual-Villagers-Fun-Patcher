@@ -112,13 +112,11 @@ build:
   selected living villager to the APK's mastery value of 90. It preserves the
   selected job, or chooses Farming when none is selected, so VV1 does not show
   the incomplete title **Master**.
-- **Grant Running** — 40,000 tech points; permanently gives the selected
-  living villager the Running like when a Like slot is available and removes
-  Running from that villager's Dislikes. It refuses without charging when all
-  three Like slots are occupied and Running is not already a Like. This
-  upgrade does not write movement speed, movement initialization, or a custom
-  Running flag, and it does not alter any stock movement predicate. All
-  per-villager speed values and vanilla speed decisions remain untouched.
+- **Grant Running** — STOP / unavailable. The exact-build six-slot contract is
+  retained as disabled, catalog-hidden evidence only; native preference writes,
+  selected-villager resolution, notification, deduction, and rollback remain
+  unproved. It is not a selectable public upgrade and no runtime-ready claim is
+  made.
 - **Set Age to 18** — 50,000 tech points; sets the selected living villager's
   age to 18.
 - **Tech Point Doubler** — displayed at 500,000 tech points but temporarily
@@ -158,14 +156,16 @@ supported desktop build receives:
   event;
 - removable **Tech Point Doubler** and **Food Point Doubler** purchases stored
   only in the current saved village;
-- **Grant Youth**, **Grant Full Mastery**, **Grant Running**, and **Set Age to
-  18** for the selected villager.
+- **Grant Youth**, **Grant Full Mastery**, and **Set Age to 18** for the selected
+  villager. Grant Running remains STOP/hidden contract evidence and is not
+  selectable or catalog-visible.
 
-The prices and refusal rules match the A New Home port. Barrel of Babies calls
+The prices and refusal rules for the enabled rows match the A New Home port. Barrel of Babies calls
 VV2's native three-child event path and checks the game's comprehensive
 occupied-plus-reserved population count before charging. Grant Running uses
-only the three normal Like slots, removes Running from the selected villager's
-normal Dislike slots, and never edits movement speed.
+only the three normal Like slots in its historical disabled helper; that helper
+is not native ABI proof and the new six-slot binding remains STOP/hidden. No
+Grant Running preference read/write or charge is exposed.
 
 Positive food and tech awards use VV2's central stock award routines. Native
 collectible adjustments are completed before the certified doubler calculation;
@@ -298,29 +298,26 @@ upgrades used by the other Origins ports. Existing doubler ownership can be
 removed for zero cost with no refund; repurchase remains disabled pending the
 exact post-Food-Mastery provenance gate. The final contract stacks after native
 collectible and Food Mastery adjustments and excludes Island Event outcomes.
-Grant Running only uses a free normal Like
-slot, removes Running from Dislikes, and never changes movement speed. The
-feature is exact-build guarded, but its native dialog and upgrade UI still need
-player runtime validation.
+Grant Running remains STOP/hidden contract evidence only. Its native
+preference read/write ABI, dialog/UI integration, and charge/rollback behavior
+are unproved; no selectable or runtime-ready Grant Running feature is exposed.
 
-## VV3: Grant Running to Selected Villager
+## VV3: Grant Running to Selected Villager (STOP / hidden)
 
-The enabled/catalog-visible `vv3_individual_grant_running_candidate` is available
-only in stock Collection Progression and Immediate Fixed when the certified VV3
-Full Mastery chain is selected. It uses the existing Villager Upgrades command-2
-route, costs 40,000 tech points, and is Buy-only with no ownership or Remove
-route. The withdrawn village-wide command-6 Running row remains absent. Expanded-
-256, unknown builds, and corrupt metadata fail closed; static evidence is GO while
-runtime/player validation remains pending.
+The historical `vv3_individual_grant_running_candidate` is withdrawn,
+disabled, catalog-hidden, and absent from the catalog and dependency resolver.
+The revised six-slot contract is also disabled/catalog-hidden and emits no
+output. Native preference side effects, selected-villager resolution,
+notification, deduction, rollback, and runtime/player behavior remain STOP.
+The withdrawn village-wide command-6 Running row remains absent.
 
-## VV3: Full Heal / Cure All
+## VV3: Full Heal / Cure All (candidate-only / blocked)
 
-The enabled/catalog-visible `vv3_full_heal_cure_all_candidate` is available only
-for stock Collection Progression and Immediate Fixed when the certified Origins,
-Full Mastery, and selected-villager Running chain is selected. It is a repeatable
-Buy-only command 5 costing 30,000 tech points; no Remove or ownership route is
-added. Expanded-256, unknown builds, and corrupt metadata fail closed, and
-runtime/player confirmation remains pending.
+The `vv3_full_heal_cure_all_candidate` remains candidate-only, disabled,
+catalog-hidden, and blocked because its historical Running dependency is
+withdrawn. Its static implementation provenance is retained for audit only;
+no public catalog or dependency path exposes it until a replacement Running
+binding is independently proven and integrated.
 
 ## VV4 breeding reference
 
@@ -542,11 +539,12 @@ diagnostic IDs are `vv1_origins_village_wide_upgrades` through
 `vv5_origins_village_wide_upgrades`. Their payload bytes are retained for
 evidence but are not applied. Each historically depends on that game's
 `enable_origins_exclusive_features` prerequisite and adds the three
-1,000,000-tech-point rows: All Villagers Like Running, Grant Full Mastery to All
+1,000,000-tech-point historical rows: All Villagers Like Running, Grant Full Mastery to All
 Villagers, and All Villagers are 18. VV3's corrected command-6-only
 `vv3_all_villagers_like_running` feature is HARD WITHDRAWN and catalog-hidden
 after the intermittent Run2 status-2 crash; runtime fault capture remains
-required and commands 7/8 remain absent. VV4's
+required and commands 7/8 remain absent. None of these historical rows is a
+public selectable upgrade. VV4's
 independent command-7-only Full Mastery implementation is emitted-byte
 certified under `91a01eba0dc561b1244184301837b7199868c490` and enabled without
 exposing commands 6/8 or the legacy atomic village-wide record.

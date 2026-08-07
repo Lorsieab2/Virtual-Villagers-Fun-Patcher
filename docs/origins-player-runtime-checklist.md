@@ -342,9 +342,10 @@ dead/inactive records and VV5 current Heathens remain byte-identical.
 
 - Grant Youth costs 50,000 and removes 35 years, clamped at displayed age 5.
 - Grant Full Mastery costs 100,000 and changes only the proved skill fields.
-- Grant Running costs 40,000, uses only a free normal Like slot, removes the
-  Running Dislike, never changes speed, and refuses with no charge when Likes
-  are full.
+- Grant Running costs 40,000 historically, but is STOP/hidden contract evidence only. Its
+  price and slot rules are not a selectable or runtime-ready feature; native
+  preference reads/writes, resolution, deduction, notification, and rollback
+  remain unproved.
 - Set Age to 18 costs 50,000 and must not change nursing or pregnancy state.
 
 Every selected-villager action must revalidate identity, active/living status,

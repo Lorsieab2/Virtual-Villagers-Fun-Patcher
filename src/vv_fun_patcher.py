@@ -215,8 +215,8 @@ VV3_FULL_HEAL_CANDIDATE_PATHS = {
     "manifest": ROOT / "data" / "candidates" / "vv3_full_heal_cure_all_candidate.json",
     "map": ROOT / "data" / "candidates" / "vv3_full_heal_cure_all_candidate_map.json",
 }
-VV3_FULL_HEAL_MANIFEST_SHA256 = "B0E923568EA024D3A47E7290EFAE80A1008BE29961C59727D601ADAB13256823"
-VV3_FULL_HEAL_MAP_SHA256 = "51F50278B6904DE0724029C3ABCC6058786AB6839FAA9D1822E95AB1E1119DF9"
+VV3_FULL_HEAL_MANIFEST_SHA256 = "6CC7C727639E69AD677E03C4CADE14DA49DFAEBAF4CEC3DFAFE9F7D3B1360DD0"
+VV3_FULL_HEAL_MAP_SHA256 = "76B29ACE3763254B8C2BBA225EC363405A72E7D3910B71309B51C82490ED093A"
 VV3_FULL_HEAL_STOCK_SHA256 = "8BC5DB382D02BC5C21AD5F607580D60FF44A6519CC7EB133F03113BAACAE6503"
 VV3_FULL_HEAL_BASE_DLL_PATH = ROOT / "data" / "candidates" / "VVFP VV3 Full Mastery Candidate.dll"
 VV3_FULL_HEAL_DLL_PATH = ROOT / "data" / "candidates" / "VVFP VV3 Full Heal Candidate.dll"
@@ -422,8 +422,8 @@ VV2_FULL_MASTERY_CANDIDATE_PATHS = {
     "map": ROOT / "data" / "candidates" / "vv2_full_mastery_all_candidate_map.json",
     "dll": ROOT / "data" / "candidates" / "VVFP VV2 Full Mastery Candidate.dll",
 }
-VV2_FULL_MASTERY_MANIFEST_SHA256 = "55BFE0DCB70A3AD81ED9398A64C6E0B51A60F23E974CDFA4300629FA99DD9753"
-VV2_FULL_MASTERY_MAP_SHA256 = "5D5FDF47D70430E1D7866A833852AFD333BE136291AC51959ACF0FE715DC540A"
+VV2_FULL_MASTERY_MANIFEST_SHA256 = "8EEFEDEAB98802FABA405F7C3AA1872EA2BDE767206CCF42AC6BF7B0A65909BA"
+VV2_FULL_MASTERY_MAP_SHA256 = "88F48B134BA3AB67FE2E9F0E86754F8D92624783D1B437D47834C700F29171B1"
 VV2_FULL_MASTERY_CERTIFIED_SHA256 = {
     "source": "46C1503C209255C9CDEFA941DB2F449C8CF8E2CDD5C7D13CD975326E377ED677",
     "section": "D84DA1DF60C9AC160312C5AC0943663CA16DA909935A96FA3E1B9D723462B9A1",
@@ -1363,12 +1363,15 @@ def _certified_vv4_full_heal_record(
         return None
     manifest_bytes = manifest_path.read_bytes()
     map_bytes = map_path.read_bytes()
-    if hashlib.sha256(manifest_bytes).hexdigest().upper() != VV4_FULL_HEAL_MANIFEST_SHA256 or hashlib.sha256(map_bytes).hexdigest().upper() != VV4_FULL_HEAL_MAP_SHA256:
-        raise PatcherError("VV4 Full Heal candidate manifest/map raw bytes are not pinned.")
     manifest = json.loads(manifest_bytes.decode("utf-8-sig"))
     artifact_map = json.loads(map_bytes.decode("utf-8-sig"))
+    # A disabled candidate is provenance only.  Do not let stale or withdrawn
+    # raw-byte pins prevent the public catalog from loading; enabled candidates
+    # still pass the complete exact-byte gate below.
     if not manifest.get("enabled", False):
         return None
+    if hashlib.sha256(manifest_bytes).hexdigest().upper() != VV4_FULL_HEAL_MANIFEST_SHA256 or hashlib.sha256(map_bytes).hexdigest().upper() != VV4_FULL_HEAL_MAP_SHA256:
+        raise PatcherError("VV4 Full Heal candidate manifest/map raw bytes are not pinned.")
     if manifest.get("catalog_hidden") is not False or manifest.get("catalog_enabled") is not True:
         raise PatcherError("VV4 Full Heal candidate must be explicitly catalog-visible when enabled.")
     if manifest.get("id") != VV4_FULL_HEAL_CANDIDATE_ID or artifact_map.get("candidate_id") != VV4_FULL_HEAL_CANDIDATE_ID:

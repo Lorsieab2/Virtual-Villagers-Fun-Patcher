@@ -85,14 +85,14 @@ STOCK_ZERO_PREIMAGE_LEGACY_RANGE_SHA256 = "06EA118EDADD836A02B202C05BC7E47356B57
 SOURCE_COMMIT = "64c1266503c49ba1456f6294683a1f6773eba5d6"
 IMPLEMENTATION_PARENT_COMMIT = "38510cc21b7cd322a52fbabc936794dfc8601ccc"
 IMPLEMENTATION_COMMIT = "49595a75b65cd0561811593ba19825239ec97dde"
-IMPLEMENTATION_STATUS = "enabled/catalog-visible for certified stock modes; D209/C213 independent static GO; runtime/player validation pending"
+IMPLEMENTATION_STATUS = "STOP: disabled/catalog-hidden candidate-only provenance; historical Running dependency withdrawn; D209/C213 static evidence does not authorize catalog exposure"
 PROVENANCE = {
     "design_source_commit": SOURCE_COMMIT,
     "implementation_parent_commit": IMPLEMENTATION_PARENT_COMMIT,
     "implementation_commit": IMPLEMENTATION_COMMIT,
     "metadata_commit": None,
     "audit_source_test_commit": "e2f1a466b61392d161a0df2fbf8da94fc05ee4ca",
-    "metadata_status": "enabled/catalog-visible for certified stock modes; D209/C213 independent static GO; runtime/player validation pending",
+    "metadata_status": "STOP: disabled/catalog-hidden candidate-only provenance; historical Running dependency withdrawn; D209/C213 static evidence does not authorize catalog exposure",
 }
 RENDERED_SHA256 = {
     "collection_progression": "15D58F10FEC11D1E3BE0066A9E7109B08EF3AAD2E8E20E0056E41597277ABEEB",
@@ -806,9 +806,9 @@ def main() -> None:
         "id": "vv3_full_heal_cure_all_candidate",
         "game_id": "vv3",
         "name": "Full Heal / Cure All",
-        "enabled": True,
-        "catalog_hidden": False,
-        "catalog_enabled": True,
+        "enabled": False,
+        "catalog_hidden": True,
+        "catalog_enabled": False,
         "audit_commit": None,
         "acceptance_commit": None,
         "dependencies": ["vv3_individual_grant_running_candidate"],
@@ -818,7 +818,7 @@ def main() -> None:
         "static_acceptance": STATIC_ACCEPTANCE,
         "implementation_status": IMPLEMENTATION_STATUS,
         "runtime_player_status": "pending",
-        "description": "Enabled/catalog-visible VV3 Full Heal / Cure All command-5 Buy candidate for certified Collection Progression and Immediate Fixed compositions after Origins + Full Mastery + individual Grant Running; static evidence is GO from D209/C213 and runtime/player validation remains pending.",
+        "description": "STOP: candidate-only VV3 Full Heal / Cure All provenance. Disabled and catalog-hidden because its historical individual Grant Running dependency is withdrawn; D209/C213 static evidence does not authorize catalog exposure or runtime-ready use.",
         "behavior_changes": [
             "Command 5 performs the certified Full Heal / Cure All transaction at 30,000 tech points.",
         ],
@@ -826,7 +826,7 @@ def main() -> None:
             "Expanded-256 and unknown builds remain fail-closed; the withdrawn village-wide Running route is absent.",
             "The candidate is stock-mode only and does not add Remove or ownership behavior.",
         ],
-        "evidence_status": "implementation generated at 49595a75b65cd0561811593ba19825239ec97dde; source/test state audited at e2f1a466b61392d161a0df2fbf8da94fc05ee4ca; independent static GO reports D209/C213; runtime/player validation pending",
+        "evidence_status": "implementation bytes retained as candidate provenance at 49595a75b65cd0561811593ba19825239ec97dde; source/test state audited at e2f1a466b61392d161a0df2fbf8da94fc05ee4ca; independent static reports D209/C213 do not override the STOP dependency gate",
         "price": PRICE,
         "transaction": {"command": 5, "price": PRICE, "action": "Buy", "repeatable": True, "ownership": None, "remove": False},
         "base_chain": {
@@ -952,9 +952,9 @@ def main() -> None:
     manifest["base_manifest_sha256"] = sha(BASE_MANIFEST.read_bytes())
     artifact_map = {
         "candidate_id": manifest["id"],
-        "candidate_enabled": True,
-        "catalog_hidden": False,
-        "catalog_enabled": True,
+        "candidate_enabled": False,
+        "catalog_hidden": True,
+        "catalog_enabled": False,
         "audit_commit": None,
         "acceptance_commit": None,
         "provenance": PROVENANCE,
@@ -987,10 +987,9 @@ def main() -> None:
     MANIFEST_OUT.write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
     MAP_OUT.write_text(json.dumps(artifact_map, indent=2) + "\n", encoding="utf-8")
     DOC_OUT.write_text(
-        "# VV3 Full Heal / Cure All (enabled static candidate; runtime pending)\n\n"
-        "This stock-only candidate is enabled and catalog-visible only for certified Collection Progression and Immediate Fixed. Its implementation is bound to commit `49595a75b65cd0561811593ba19825239ec97dde` with parent `38510cc21b7cd322a52fbabc936794dfc8601ccc`; independent static GO is recorded by D209/C213, while runtime/player validation remains pending. "
-        "It composes only after the certified VV3 Origins + Full Mastery + individual Grant Running chain in "
-        "Collection Progression or Immediate Fixed. Expanded-256 is rejected before output.\n\n"
+        "# VV3 Full Heal / Cure All (candidate-only / blocked / catalog-hidden)\n\n"
+        "This stock-only candidate is disabled, catalog-hidden, and blocked. Its implementation is retained as static provenance only and is bound to commit `49595a75b65cd0561811593ba19825239ec97dde` with parent `38510cc21b7cd322a52fbabc936794dfc8601ccc`; D209/C213 static reports do not make it selectable or runtime-ready. "
+        "Its historical composition depends on the withdrawn `vv3_individual_grant_running_candidate`, so no public catalog or dependency path may expose it until a replacement Running binding is independently proven and integrated. Expanded-256 is rejected before output.\n\n"
         f"Provenance is non-circular: design/source lineage `{SOURCE_COMMIT}`, implementation parent `{IMPLEMENTATION_PARENT_COMMIT}`, current implementation `{IMPLEMENTATION_COMMIT}`, and metadata commit is intentionally null until a later audit. The legacy preserved range `0x{LEGACY_CURE_START:X}..0x{LEGACY_CURE_END:X}` is `{LEGACY_PRESERVED_RANGE_SHA256}` in both composed parents; the stock-zero preimage is separately `{STOCK_ZERO_PREIMAGE_LEGACY_RANGE_SHA256}`.\n\n"
         f"The command-5 detour is `{HOOK_BEFORE.hex().upper()}` -> `{HOOK_AFTER.hex().upper()}` at raw `0x{HOOK_OFFSET:X}`. The dedicated `.vv3hc` RX page is raw `0x{APPEND_OFFSET:X}` / VA `0x{SECTION_VA:X}` with a guarded header at `0x{SECTION_HEADER_OFFSET:X}`; the old Cure cave remains zero and legacy bytes `0x{LEGACY_CURE_START:X}..0x{LEGACY_CURE_END:X}` remain byte-identical.\n\n"
         f"The transaction scans exactly 150 records in physical order. Dry-run Count A is sick eligible villagers, Count B is eligible health 1..99 villagers, and overlap is counted in both. Confirmation formats both predicted counts and the 30,000 cost into a dedicated 512-byte buffer; success and failure format verified sickness clears and verified health restores. It resolves record zero through 0x45C840 with ECX=0x59E110 before the dry run and again after confirmation, resolves USER32.dll/MessageBoxA/wsprintfA before any dialog, uses native health setter 0x462670 with ECX=record+0xE6C and pushes -1/100, acquires a fresh manager before clearing sickness at +0xE89, and increments fresh manager People Cured +0x4FC only after each verified sick clear. It postverifies and deducts once through 0x427130. Every no-charge route ends with `No tech points have been deducted.` {PARTIAL_FAILURE_DISCLOSURE}\n",

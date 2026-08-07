@@ -41,6 +41,15 @@ class VillageWideContainmentTests(unittest.TestCase):
                 current = raw_record(game_id)
                 self.assertIs(current["enabled"], False)
                 self.assertTrue(current["patches"])
+                base_path = f"data/{game_id}_origins_feature.json"
+                base_current = json.loads(
+                    (ROOT / base_path).read_text(encoding="utf-8")
+                )
+                base_prior = json.loads(
+                    subprocess.check_output(
+                        ["git", "show", f"{BASELINE}:{base_path}"], text=True
+                    )
+                )
                 prior = json.loads(
                     subprocess.check_output(
                         [
@@ -56,16 +65,12 @@ class VillageWideContainmentTests(unittest.TestCase):
                 prior_without_gate = dict(prior)
                 current_without_gate.pop("enabled", None)
                 prior_without_gate.pop("enabled", None)
+                # The public description is intentionally contained; the
+                # binary payload and all patch records remain frozen.
+                self.assertIn("disabled diagnostic record", current["description"])
+                current_without_gate.pop("description", None)
+                prior_without_gate.pop("description", None)
                 self.assertEqual(current_without_gate, prior_without_gate)
-                base_path = f"data/{game_id}_origins_feature.json"
-                base_current = json.loads(
-                    (ROOT / base_path).read_text(encoding="utf-8")
-                )
-                base_prior = json.loads(
-                    subprocess.check_output(
-                        ["git", "show", f"{BASELINE}:{base_path}"], text=True
-                    )
-                )
                 if game_id != "vv5":
                     if game_id == "vv3":
                         # C219 changed only descriptive prose for the

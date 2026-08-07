@@ -2,9 +2,9 @@
   "id": "vv3_full_heal_cure_all_candidate",
   "game_id": "vv3",
   "name": "Full Heal / Cure All",
-  "enabled": true,
-  "catalog_hidden": false,
-  "catalog_enabled": true,
+  "enabled": false,
+  "catalog_hidden": true,
+  "catalog_enabled": false,
   "audit_commit": null,
   "acceptance_commit": null,
   "dependencies": [
@@ -24,7 +24,7 @@
     "implementation_commit": "49595a75b65cd0561811593ba19825239ec97dde",
     "metadata_commit": null,
     "audit_source_test_commit": "e2f1a466b61392d161a0df2fbf8da94fc05ee4ca",
-    "metadata_status": "enabled/catalog-visible for certified stock modes; D209/C213 independent static GO; runtime/player validation pending"
+    "metadata_status": "STOP: disabled/catalog-hidden candidate-only provenance; historical Running dependency withdrawn; D209/C213 static evidence does not authorize catalog exposure"
   },
   "static_acceptance": {
     "commit": null,
@@ -36,9 +36,9 @@
     "audit_commit": null,
     "acceptance_commit": null
   },
-  "implementation_status": "enabled/catalog-visible for certified stock modes; D209/C213 independent static GO; runtime/player validation pending",
+  "implementation_status": "STOP: disabled/catalog-hidden candidate-only provenance; historical Running dependency withdrawn; D209/C213 static evidence does not authorize catalog exposure",
   "runtime_player_status": "pending",
-  "description": "Enabled/catalog-visible VV3 Full Heal / Cure All command-5 Buy candidate for certified Collection Progression and Immediate Fixed compositions after Origins + Full Mastery + individual Grant Running; static evidence is GO from D209/C213 and runtime/player validation remains pending.",
+  "description": "STOP: candidate-only VV3 Full Heal / Cure All provenance. Disabled and catalog-hidden because its historical individual Grant Running dependency is withdrawn; D209/C213 static evidence does not authorize catalog exposure or runtime-ready use.",
   "behavior_changes": [
     "Command 5 performs the certified Full Heal / Cure All transaction at 30,000 tech points."
   ],

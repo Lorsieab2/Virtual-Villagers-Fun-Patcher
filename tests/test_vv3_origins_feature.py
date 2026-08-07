@@ -63,7 +63,6 @@ class VV3OriginsFeatureTests(unittest.TestCase):
         contained = (
             "preserved byte-for-byte for provenance",
             "dominated before dispatch and unreachable in this composition",
-            "certified command-5 Full Heal / Cure All transaction replaces it",
         )
         for path in (
             ROOT / "data" / "vv3_origins_feature.json",
@@ -75,6 +74,18 @@ class VV3OriginsFeatureTests(unittest.TestCase):
                 self.assertNotIn(phrase, text, path)
             for phrase in contained:
                 self.assertIn(phrase, text, path)
+            if path.name == "vv3_origins_feature.json":
+                self.assertIn(
+                    "historical command-5 Full Heal / Cure All transaction remains candidate-only and blocked behind its withdrawn Running dependency",
+                    text,
+                    path,
+                )
+            else:
+                self.assertIn(
+                    "certified command-5 Full Heal / Cure All transaction replaces it",
+                    text,
+                    path,
+                )
 
     def test_package_source_provenance_contract_is_pinned(self) -> None:
         text = (ROOT / "scripts" / "build_vv3_full_heal_candidate.py").read_text(

@@ -1027,12 +1027,11 @@ def main() -> None:
             "zero/negative and side-effect paths. The exact-build static provenance audit covers every "
             "positive Island Event and Gong food/tech writer callsite, including "
             "direct resource writes that bypass the wrappers. Runtime/player "
-            "confirmation remains pending. Adds Villager Upgrades for "
-            "Grant Youth, Grant Full Mastery, Grant Running, and Set Age to 18. "
-            "Grant Running uses an available normal Likes slot, removes Running from "
-            "the displayed villager's Dislikes, refuses without charging when all "
-            "normal Like slots are occupied, and changes no movement-speed value, "
-            "predicate, or other vanilla speed logic."
+            "confirmation remains pending. Historical Villager Upgrades labels include "
+            "Grant Youth, Grant Full Mastery, Grant Running, and Set Age to 18; "
+            "Grant Running is STOP/hidden contract evidence only; "
+            "the legacy helper is not native preference ABI proof and no selectable "
+            "or runtime-ready Running action is exposed."
         ),
         "output_tag": "Origins Exclusive Features",
         "companion_files": [
