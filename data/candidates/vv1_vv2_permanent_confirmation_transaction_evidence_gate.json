@@ -1,0 +1,43 @@
+{
+  "schema_version": 1,
+  "id": "vv1_vv2_permanent_confirmation_transaction_evidence_gate",
+  "name": "VV1/VV2 Permanent Confirmation Transaction Evidence Gate",
+  "status": "STOP",
+  "enabled": false,
+  "catalog_enabled": false,
+  "catalog_hidden": true,
+  "publication": false,
+  "player_ready": false,
+  "runtime_certified": false,
+  "native_output": false,
+  "public_choices": [],
+  "evidence_records": [],
+  "games": {
+    "vv1": {"filename": "Virtual Villagers - A New Home.exe", "size": 581632, "sha256": "1EC790B927741081D5CE13A48FB76983A4FD4336EA08F89317872643760AF03D"},
+    "vv2": {"filename": "Virtual Villagers - The Lost Children.exe", "size": 724992, "sha256": "46C1503C209255C9CDEFA941DB2F449C8CF8E2CDD5C7D13CD975326E377ED677"}
+  },
+  "routes": [
+    {"id": "tech_time_warp", "surface": "tech", "command": 0, "label": "Time Warp - Advances 3 Villager Years", "legacy_label": "Time Warp", "price": 50000, "action": "Buy", "remove": false, "abi": null, "receipts": null},
+    {"id": "tech_island_event", "surface": "tech", "command": 1, "label": "Island Event", "legacy_label": "Island Event", "price": 30000, "action": "Buy", "remove": false, "abi": null, "receipts": null},
+    {"id": "tech_barrel_of_babies", "surface": "tech", "command": 2, "label": "Barrel of Babies", "legacy_label": "Barrel of Babies", "price": 75000, "action": "Buy", "remove": false, "abi": null, "receipts": null},
+    {"id": "tech_legacy_cure", "surface": "tech", "command": 5, "label": "Cure all Villagers", "legacy_label": "Cure all Villagers", "price": 30000, "action": "Buy", "remove": false, "abi": null, "receipts": null},
+    {"id": "selected_grant_youth", "surface": "selected_villager", "command": 0, "label": "Grant Youth", "legacy_label": "Grant Youth", "price": 50000, "action": "Buy", "remove": false, "abi": null, "receipts": null},
+    {"id": "selected_full_mastery", "surface": "selected_villager", "command": 1, "label": "Grant Full Mastery", "legacy_label": "Grant Full Mastery", "price": 100000, "action": "Buy", "remove": false, "abi": null, "receipts": null},
+    {"id": "selected_running", "surface": "selected_villager", "command": 2, "label": "Grant Running", "legacy_label": "Grant Running", "price": 40000, "action": "Buy", "remove": false, "abi": null, "receipts": null},
+    {"id": "selected_age_18", "surface": "selected_villager", "command": 3, "label": "Set Age to 18", "legacy_label": "Set Age to 18", "price": 50000, "action": "Buy", "remove": false, "abi": null, "receipts": null}
+  ],
+  "excluded_removable_routes": ["Tech Point Doubler", "Food Point Doubler"],
+  "required_transaction": ["complete_exact_dry_run", "owner_bound_idok_only", "fresh_world_selected_record_account_identity", "fresh_funds_recheck", "native_setter_and_side_effects", "native_readback", "complete_postverify_before_deduction", "exactly_one_native_deduction_after_success", "tri_state_charge_certainty", "fullscreen_owner_lifecycle"],
+  "charge_states": ["not_charged", "charged_once", "unknown"],
+  "wording": {
+    "zero": "No villagers were changed.",
+    "one": "1 villager was changed.",
+    "many": "{count} villagers were changed.",
+    "no_charge_suffix": "No tech points have been deducted.",
+    "unknown_charge": "The action did not complete, and whether tech points were deducted could not be verified. Check your current tech-point balance before trying again. Native changes may remain.",
+    "partial": "The action did not complete after {count_phrase} Native changes may remain, and complete rollback is not claimed. {charge_sentence}"
+  },
+  "rejected_evidence": ["existing precharge route", "direct record or account store", "legacy result route", "withdrawn diagnostic payload", "manual or synthetic observation"],
+  "unknown_evidence": {"native_abis": null, "folder_inventories": null, "runtime_receipts": null, "fullscreen_receipts": null},
+  "evidence_status": "empty; all exact native ABIs, prices, complete-folder fingerprints, and transaction/fullscreen receipts remain STOP"
+}
