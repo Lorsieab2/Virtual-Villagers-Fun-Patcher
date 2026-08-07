@@ -40,6 +40,9 @@ VILLAGE_WIDE_ENTRY_VA = IMAGE_BASE + 0x94C40
 VILLAGE_PREFLIGHT_FILE_OFFSET = 0x94B37
 VILLAGE_PREFLIGHT_VA = IMAGE_BASE + VILLAGE_PREFLIGHT_FILE_OFFSET
 RUNNING_PREFERENCE_ID = 38  # exact-build preference-table evidence: 0xAEF60
+TECH_BUTTON_EVENT = 13
+DETAIL_BUTTON_EVENT = 13  # native VV5 Detail constructor/handler event
+DETAIL_NATIVE_HANDLER_VA = 0x44B560
 
 # This is the reviewed VV5 all-current-feature relocation ledger exported from
 # IDA Pro 9.4.  The operand heads, source/target VAs, and stock preimages are
@@ -252,7 +255,7 @@ def main() -> None:
         f"""
             cmp dword ptr [esp + 4], 8
             jne original
-            cmp dword ptr [esp + 8], 13
+            cmp dword ptr [esp + 8], {TECH_BUTTON_EVENT}
             jne original
             call 0x{entry['tech_menu']:X}
             xor eax, eax
@@ -281,7 +284,7 @@ def main() -> None:
             push 722
             push 180
             push eax
-            push 13
+            push {TECH_BUTTON_EVENT}
             mov ecx, edi
             call 0x401BD0
             mov edi, eax
@@ -313,7 +316,7 @@ def main() -> None:
         f"""
             cmp dword ptr [esp + 4], 8
             jne original
-            cmp dword ptr [esp + 8], 13
+            cmp dword ptr [esp + 8], {DETAIL_BUTTON_EVENT}
             jne original
             call 0x{entry['detail_menu']:X}
             xor eax, eax
@@ -341,7 +344,7 @@ def main() -> None:
             push 700
             push 180
             push eax
-            push 13
+            push {DETAIL_BUTTON_EVENT}
             mov ecx, edi
             call 0x401BD0
             mov edi, eax

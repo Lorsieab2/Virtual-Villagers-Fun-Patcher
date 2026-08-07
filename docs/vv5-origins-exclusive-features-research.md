@@ -264,10 +264,13 @@ only ID 13 and delegates every other message to the original routine.
 - Detail draw routine: `sub_44B250`
 - Detail mouse routine: `sub_44B560`
 
-The Detail constructor appends the same stock graphic control with ID 13. The
-Detail message handler uses numeric control IDs (its stock constructor assigns
-IDs 1, 3, and 4), so the detour consumes ID 13 and delegates all other
-messages.
+The Detail constructor appends the stock graphic control with native event 13.
+The Detail message handler uses numeric control IDs (its stock constructor
+assigns IDs 1, 3, and 4), and the bound native Detail path is `sub_44B560`.
+The current emitted helper targets `0x7B2600`, but its candidate hook is still
+at `0x44BC20`; the disabled UI/confirmation candidate therefore records the
+new native binding and remains fail-closed until an exact guarded preimage for
+`0x44B560` is available.
 
 ## Payload and composition
 
