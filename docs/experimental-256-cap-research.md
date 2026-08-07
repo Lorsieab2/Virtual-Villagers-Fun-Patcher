@@ -1,9 +1,10 @@
 # Experimental 256-villager expansion for VV3-VV5
 
 > **ON HOLD — do not package or release:** current exact-build reanalysis found
-> unresolved save/runtime failures in VV3 and VV4, four stale all-feature
-> `.shr` pointers in VV4, and 36 stale cross-section branches plus seven stale
-> external `.shr` pointers in VV5. Passing renderer and PE-readback checks does
+> unresolved save/runtime failures in VV3 and VV4. The previously stale VV4
+> all-feature `.shr` pointers and the 36 VV5 cross-section branches plus seven
+> external `.shr` pointers now have explicit owner ledgers, but passing renderer
+> and PE-readback checks does
 > not establish relocation completeness or runtime safety. See the exact
 > [VV3-VV5 implementation-gate report](vv3-vv5-expanded-256-implementation-gates.md).
 
@@ -179,8 +180,10 @@ nursing-baby reservations.
   player-observed validation found VV3 spinning non-responsive during load and
   VV4 failing to accept a stock-sized village slot.
 - Exact current-feature relocation analysis found four stale absolute `.shr`
-  operands in VV4 and 43 moved references in VV5. These are implementation
-  blockers, not merely pending player validation.
+  operands in VV4 and 43 moved references in VV5; their current owner
+  manifests now declare all of those sites with exact guards. Runtime/save
+  behavior and independent recertification remain implementation blockers, not
+  merely pending player validation.
 - Historical prototype hashes predate nine later guarded corrections per game
   and are not current certification artifacts.
 

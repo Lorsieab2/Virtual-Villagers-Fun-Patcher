@@ -288,10 +288,26 @@ consumption, and unknown callers remain native because unknown callers cannot
 match that return. The stock-layout correction is implemented and statically
 validated. Expanded-256 restores the native writer hooks and keeps new
 purchases unavailable; it does not claim expanded doubler runtime support. The
-expanded relocation audit is placement PASS but composition ON HOLD: its
-75-row ledger covers 32 rows and leaves 43 references (36 cross-section rel32
-and 7 external absolute `.shr` pointers) outside the certified set. See
-disassembly commit `8dfccbd1b31e55f5168bb1c5ff23890bb98d9fdb`.
+The VV5 expanded relocation ledger is now explicit and exhaustive for this
+current feature. It owns 66 rows: 23 payload-internal absolute `.shr`
+operands already covered by the original payload contract, plus all 43
+current-feature omissions identified by the IDA review—36 cross-section
+`rel32` operands and seven external absolute `.shr` operands. Each row has an
+exact stock preimage, source/target virtual addresses where applicable, and a
+guarded expanded target. The two expanded doubler hook rows additionally
+require the exact native-hook override preimage and are preserved without a
+rewrite when that override is active. The evidence method is IDA Pro 9.4
+decoded instruction heads/operands; raw byte patterns are not relocation
+proof. See disassembly commit `8dfccbd1b31e55f5168bb1c5ff23890bb98d9fdb` and
+`data/vv5_origins_feature.json`.
+
+This repairs the static VV5 ownership ledger only. Expanded-256 publication
+remains disabled/fail-closed, and no package, launch, save access, or runtime
+claim is made. Stock import, expanded save/reload, catch-up, Heathen/corpse/
+nursing-reservation behavior, and player validation remain open gates.
+Stock-mode rendering does not apply any expanded relocation row. In expanded
+mode the two doubler hook rows accept only their exact native override
+preimages; an unknown preimage fails closed rather than being rewritten.
 
 Time Warp advances exactly three displayed villager years. With the confirmed
 VV5 relation of two real hours per displayed year at normal speed, its clock
@@ -317,6 +333,11 @@ Pause (`999`) refuses without charging.
 - age floor, age-18 value, and companion-field writes;
 - Grant Running's Likes/Dislikes-only behavior with no movement or speed
   writes;
+- the explicit IDA-owned 66-row relocation ledger: 23 payload-internal
+  absolute rows, 36 cross-section `rel32` rows, and seven external absolute
+  rows;
+- stock-mode relocation no-op, exact native doubler-hook override guards, and
+  fail-closed Expanded-256 publication;
 - composition with all VV5 features in all four modes;
 - the expanded loader's vanilla `%s%d.ldw` naming and exact stock-save
   compatibility fallback.

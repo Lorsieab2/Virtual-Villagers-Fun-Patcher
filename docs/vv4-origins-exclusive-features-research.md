@@ -79,3 +79,28 @@ fit pass. The doubler remains STOP pending safe hook placement and complete
 Island Event provenance. UI, native Barrel presentation, Running behavior,
 age-state behavior, and all-mode runtime checks remain explicit
 player-validation items.
+
+## Expanded-256 VV4 save and current-Origins relocation contract
+
+The VV4 Expanded-256 static contract is
+`data/vv4_expanded_256_contract.json`. It is bound to the exact stock
+fingerprint above and remains publication-disabled/fail-closed. The guarded
+loader hook at raw `0x1FC19` retries the exact stock payload size when the
+expanded-size request is rejected. Its raw `0x8910D` conversion cave accepts
+that stock layout, moves the saved-state tail, and clears the 106 inserted
+compact villager records before native validation/conversion continues. The
+four current-Origins absolute `.shr` operands at raw `0x20902`, `0x20916`,
+`0x2092B`, and `0x2B036` are explicitly guarded from `0x728000` to
+`0x85A000`; they are not established by a raw byte sweep.
+
+The four absolute operands inside the existing current Origins payload are
+separately guarded at `0xCC182`, `0xCC18E`, `0xCC19A`, and `0xCC1A6`, targeting
+the expanded header addresses `0x85A220`, `0x85A224`, `0x85A228`, and
+`0x85A230`. The four previously stale all-feature operands are separately
+owned and guarded at `0x89546`, `0xCC1AF`, `0xCC1B8`, and `0xCC1C1`, targeting
+`0x85A220`, `0x85A234`, `0x85A238`, and `0x85A23C`. Static tests cover exact
+guards, explicit relocation application, stock-mode no-op behavior, malformed
+guards, and fail-closed publication metadata.
+Fresh player-authorized stock import, expanded save/reload, catch-up,
+conversion continuity, current-Origins behavior after relocation, packaging,
+and runtime/player confirmation remain unresolved gates.

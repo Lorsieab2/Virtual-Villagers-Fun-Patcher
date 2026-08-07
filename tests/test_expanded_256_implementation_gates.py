@@ -42,9 +42,9 @@ class Expanded256ImplementationGateTests(unittest.TestCase):
         readme = README.read_text(encoding="utf-8")
 
         self.assertIn("**VV3: ON HOLD. VV4: ON HOLD. VV5: ON HOLD.**", report)
-        self.assertIn("Four real decoded absolute operands remain", report)
-        self.assertIn("**Thirty-six cross-section branches remain", report)
-        self.assertIn("All 43 omissions must be repaired atomically", report)
+        self.assertIn("The four operands previously left", report)
+        self.assertIn("The relocation ledger now declares the 36", report)
+        self.assertIn("All 43 previously omitted current-feature references are now declared", report)
         self.assertIn("ON HOLD — do not package or release", overview)
         self.assertIn("Expanded-256 release status", readme)
         self.assertNotIn(

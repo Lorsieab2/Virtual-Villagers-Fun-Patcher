@@ -56,6 +56,13 @@ class VillageWideContainmentTests(unittest.TestCase):
                 prior_without_gate = dict(prior)
                 current_without_gate.pop("enabled", None)
                 prior_without_gate.pop("enabled", None)
+                if game_id == "vv4":
+                    # VV4's four stale all-feature .shr operands moved from
+                    # the disabled village-wide owner into the enabled base
+                    # Origins relocation contract. The disabled payload bytes
+                    # remain otherwise frozen.
+                    current_without_gate.pop("expanded_shr_relocations", None)
+                    prior_without_gate.pop("expanded_shr_relocations", None)
                 self.assertEqual(current_without_gate, prior_without_gate)
                 base_path = f"data/{game_id}_origins_feature.json"
                 base_current = json.loads(
@@ -95,10 +102,31 @@ class VillageWideContainmentTests(unittest.TestCase):
                         base_current.get("patch_mode_overrides"),
                         base_prior.get("patch_mode_overrides"),
                     )
-                    self.assertEqual(
-                        base_current.get("expanded_shr_relocations"),
-                        base_prior.get("expanded_shr_relocations"),
-                    )
+                    if game_id != "vv4":
+                        self.assertEqual(
+                            base_current.get("expanded_shr_relocations"),
+                            base_prior.get("expanded_shr_relocations"),
+                        )
+                    else:
+                        relocation = base_current["expanded_shr_relocations"]
+                        self.assertEqual(len(relocation["patches"]), 13)
+                        self.assertEqual(
+                            {
+                                item["offset"]
+                                for item in relocation["patches"]
+                                if item.get("kind", "absolute") == "absolute"
+                            },
+                            {
+                                "0x89546",
+                                "0xCC182",
+                                "0xCC18E",
+                                "0xCC19A",
+                                "0xCC1A6",
+                                "0xCC1AF",
+                                "0xCC1B8",
+                                "0xCC1C1",
+                            },
+                        )
                 self.assertEqual(
                     base_current["companion_files"][0]["source"],
                     base_prior["companion_files"][0]["source"],

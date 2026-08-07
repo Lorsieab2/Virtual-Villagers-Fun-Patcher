@@ -19,6 +19,7 @@ FILES = [
     "assets/statistics/VVFP Statistics Export.dll",
     "data/builds.json",
     "data/expanded_256.json",
+    "data/vv4_expanded_256_contract.json",
     "data/vv1_origins_feature.json",
     "data/vv2_origins_feature.json",
     "data/vv3_origins_feature.json",

@@ -21,6 +21,7 @@ from transparency import write_transparency_artifacts
 ROOT = Path(__file__).resolve().parents[1]
 MANIFEST_PATH = ROOT / "data" / "builds.json"
 EXPANDED_MANIFEST_PATH = ROOT / "data" / "expanded_256.json"
+VV4_EXPANDED_CONTRACT_PATH = ROOT / "data" / "vv4_expanded_256_contract.json"
 ORIGINS_FEATURE_PATHS = tuple(
     ROOT / "data" / f"vv{game_number}_origins_feature.json"
     for game_number in range(1, 6)
@@ -3225,6 +3226,113 @@ def _fun_patch_support(
     return patches
 
 
+def _vv4_expanded_contract() -> dict[str, Any]:
+    try:
+        contract = json.loads(VV4_EXPANDED_CONTRACT_PATH.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as exc:
+        raise PatcherError("VV4 Expanded-256 contract is unavailable or invalid.") from exc
+    if (
+        contract.get("schema_version") != 1
+        or contract.get("game_id") != "vv4"
+        or contract.get("source_sha256")
+        != "6D27A429FFCA5F1F71FDD7ECA761ED1BB67E85F976494BA178B3D7BE01F1B220"
+        or contract.get("publication", {}).get("enabled") is not False
+    ):
+        raise PatcherError("VV4 Expanded-256 contract identity or fail-closed status is invalid.")
+    return contract
+
+
+def _validate_vv4_expanded_contract(
+    game: dict[str, Any],
+) -> dict[str, Any]:
+    contract = _vv4_expanded_contract()
+    if game.get("source_sha256") != contract["source_sha256"]:
+        raise PatcherError("VV4 Expanded-256 contract source fingerprint is not bound to the guarded manifest.")
+    by_offset = {item.get("offset"): item for item in game.get("patches", [])}
+    for expected in contract["current_origins_shr_absolute_operands"]:
+        actual = by_offset.get(expected["offset"])
+        if not isinstance(actual, dict) or any(
+            actual.get(key) != expected[key]
+            for key in ("before", "after", "purpose")
+        ):
+            raise PatcherError(
+                f"VV4 current-Origins .shr guard drift at {expected['offset']}."
+            )
+    compatibility = contract["stock_save_compatibility"]
+    for expected in (
+        compatibility["loader_hook"],
+        compatibility["conversion_cave"],
+    ):
+        actual = by_offset.get(expected["offset"])
+        if not isinstance(actual, dict):
+            raise PatcherError(
+                f"VV4 stock-save compatibility guard is missing at {expected['offset']}."
+            )
+        if expected["offset"] == compatibility["loader_hook"]["offset"]:
+            if any(actual.get(key) != expected[key] for key in ("before", "after", "purpose")):
+                raise PatcherError("VV4 stock-save loader fallback guard drifted.")
+        else:
+            try:
+                cave_before = bytes.fromhex(actual.get("before", ""))
+                cave_after = bytes.fromhex(actual.get("after", ""))
+            except (TypeError, ValueError) as exc:
+                raise PatcherError("VV4 stock-save conversion cave guard is malformed.") from exc
+            if (
+                actual.get("purpose") != expected["purpose"]
+                or len(cave_before) != expected["length"]
+                or len(cave_after) != expected["length"]
+                or any(bytes.fromhex(sequence) not in cave_after for sequence in expected["required_sequences"])
+            ):
+                raise PatcherError("VV4 stock-save conversion cave guard drifted.")
+    return contract
+
+
+def _validate_vv4_origins_relocation_contract(
+    feature: FunPatch,
+    relocation: dict[str, Any],
+) -> None:
+    if feature.id != "vv4_enable_origins_exclusive_features":
+        return
+    contract = _vv4_expanded_contract()
+    expected_groups = (
+        contract["origins_payload_shr_absolute_operands"],
+        contract["all_feature_stale_origins_shr_absolute_operands"],
+    )
+    expected = [item for group in expected_groups for item in group]
+    if (
+        relocation.get("stock_virtual_address") != "0x728000"
+        or relocation.get("expanded_virtual_address") != "0x85A000"
+    ):
+        raise PatcherError("VV4 Origins payload .shr relocation range is not the certified range.")
+    by_offset = {item.get("offset"): item for item in relocation.get("patches", [])}
+    absolute = [
+        item for item in relocation.get("patches", [])
+        if item.get("kind", "absolute") == "absolute"
+    ]
+    if len(absolute) != len(expected):
+        raise PatcherError("VV4 current Origins payload must contain exactly eight absolute .shr operands.")
+    for expected_item in expected:
+        actual = by_offset.get(expected_item["offset"])
+        if (
+            not isinstance(actual, dict)
+            or actual.get("kind", "absolute") != "absolute"
+            or actual.get("before") != expected_item["before"]
+            or actual.get("target_stock_virtual_address") != expected_item["stock_virtual_address"]
+            or actual.get("target_expanded_virtual_address") != expected_item["expanded_virtual_address"]
+            or (
+                "source_virtual_address" in expected_item
+                and actual.get("source_virtual_address") != expected_item["source_virtual_address"]
+            )
+            or (
+                "purpose" in expected_item
+                and actual.get("purpose") != expected_item["purpose"]
+            )
+        ):
+            raise PatcherError(
+                f"VV4 current Origins payload absolute .shr guard drift at {expected_item['offset']}."
+            )
+
+
 def _relocate_expanded_shr_fun_patches(
     build: Build,
     patch_mode: str,
@@ -3250,6 +3358,7 @@ def _relocate_expanded_shr_fun_patches(
             raise PatcherError(
                 f"{feature.name} declares an expanded .shr relocation but is not a VV4/VV5 feature."
             )
+        _validate_vv4_origins_relocation_contract(feature, relocation)
         stock_va = int(relocation["stock_virtual_address"], 0)
         expanded_va = int(relocation["expanded_virtual_address"], 0)
         delta = expanded_va - stock_va
@@ -3264,6 +3373,28 @@ def _relocate_expanded_shr_fun_patches(
                 )
             actual = bytes(data[offset : offset + 4])
             if actual != before:
+                # VV5's expanded-mode overrides deliberately restore the two
+                # stock doubler hooks.  Their relocation rows remain in the
+                # complete IDA ledger, but a native preimage is a guarded
+                # no-op rather than permission to rewrite an unrelated stock
+                # instruction.
+                skipped = patch.get("expanded_skip_before")
+                if skipped and actual == bytes.fromhex(skipped):
+                    applied.append(
+                        {
+                            "offset": patch["offset"],
+                            "before": actual.hex().upper(),
+                            "after": actual.hex().upper(),
+                            "purpose": patch.get(
+                                "purpose",
+                                "preserve native expanded-mode override",
+                            ),
+                            "owner": f"feature:{feature.id}",
+                            "virtual_address": _virtual_address_for_offset(bytes(data), offset),
+                            "relocation_status": "native_override_preserved",
+                        }
+                    )
+                    continue
                 raise PatcherError(
                     f"Expanded .shr relocation guard failed at {patch['offset']}: "
                     f"expected {before.hex().upper()}, found {actual.hex().upper()}"
@@ -3275,20 +3406,40 @@ def _relocate_expanded_shr_fun_patches(
                     raise PatcherError(
                         f"Expanded .shr relocation at {patch['offset']} points outside stock .shr."
                     )
+                declared_stock = patch.get("target_stock_virtual_address")
+                if declared_stock is not None and int(declared_stock, 0) != value:
+                    raise PatcherError(
+                        f"Expanded .shr relocation at {patch['offset']} has an inconsistent stock target."
+                    )
                 after = (value + delta).to_bytes(4, "little")
+                declared_expanded = patch.get("target_expanded_virtual_address")
+                if declared_expanded is not None and int(declared_expanded, 0) != value + delta:
+                    raise PatcherError(
+                        f"Expanded .shr relocation at {patch['offset']} has an inconsistent expanded target."
+                    )
             elif kind == "rel32":
                 try:
-                    source_va = int(patch["source_virtual_address"], 0)
+                    source_va = int(
+                        patch.get(
+                            "source_expanded_virtual_address",
+                            patch["source_virtual_address"],
+                        ),
+                        0,
+                    )
                     target_stock_va = int(patch["target_stock_virtual_address"], 0)
                 except (KeyError, TypeError, ValueError) as exc:
                     raise PatcherError(
                         f"Internal expanded .shr rel32 relocation at {patch['offset']} is missing source/target metadata."
                     ) from exc
-                if not stock_va <= target_stock_va < stock_va + 0x1000:
+                target_in_shr = stock_va <= target_stock_va < stock_va + 0x1000
+                target_expanded_va = (
+                    target_stock_va + delta if target_in_shr else target_stock_va
+                )
+                declared_target = patch.get("target_expanded_virtual_address")
+                if declared_target is not None and int(declared_target, 0) != target_expanded_va:
                     raise PatcherError(
-                        f"Expanded .shr rel32 relocation at {patch['offset']} points outside stock .shr."
+                        f"Expanded .shr rel32 relocation at {patch['offset']} has an inconsistent expanded target."
                     )
-                target_expanded_va = target_stock_va + delta
                 rel32 = target_expanded_va - (source_va + 5)
                 try:
                     after = rel32.to_bytes(4, "little", signed=True)
@@ -3331,6 +3482,8 @@ def _expanded_patches(build: Build, variant: dict[str, Any]) -> list[dict[str, s
         raise PatcherError(
             f"Experimental 256 data does not match {build.title}'s supported build."
         )
+    if build.id == "vv4":
+        _validate_vv4_expanded_contract(game)
     return game["patches"]
 
 

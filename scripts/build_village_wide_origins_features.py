@@ -504,22 +504,6 @@ def main() -> None:
                     "eligibility": "active != 0, heathen-active guard == 0, faction == believer (0), health > 0",
                 }
             )
-        if game_id == "vv4":
-            # The VV4 base payload lives in the stock .shr section.  Its
-            # optional-signature absolute pointer must follow that section in
-            # expanded mode; this relocation is intentionally owned by the
-            # optional feature because the base-only output has no such read.
-            feature["expanded_shr_relocations"] = {
-                "stock_virtual_address": "0x728000",
-                "expanded_virtual_address": "0x85A000",
-                "patches": [
-                    {
-                        "offset": "0x89546",
-                        "before": "20827200",
-                        "purpose": "relocate VV4 base Origins optional-signature pointer after the .shr section moves for expanded 256 mode",
-                    }
-                ],
-            }
         manifest_path = ROOT / "data" / f"{feature_id}.json"
         manifest_path.write_text(json.dumps(feature, indent=2) + "\n", encoding="utf-8")
         print(f"{game_id}: {len(payload):#x} bytes -> {manifest_path}")

@@ -10,11 +10,12 @@ substantial structural expansion, but none of the three exact builds has a
 complete implementation-grade gate:
 
 - VV3 became non-responsive while loading an expanded test build.
-- VV4 failed to import a stock-sized village save, and the current
-  all-feature expanded render leaves four decoded absolute Origins references
-  pointing at the old `.shr` address.
-- VV5's current all-feature expanded render leaves 36 cross-section relative
-  branches and seven decoded external absolute `.shr` references stale.
+- VV4 failed to import a stock-sized village save. The four decoded absolute
+  Origins references previously left stale are now owned by the exact VV4
+  current-Origins relocation contract.
+- VV5's current-feature relocation ledger now owns all 36 cross-section
+  relative branches and seven decoded external absolute `.shr` references
+  previously left outside the certified set.
 
 Passing patch-range, hash, and PE-readback checks only proves that the declared
 edits can be rendered without colliding. It does not prove that every required
@@ -229,10 +230,11 @@ Runtime blocker:
 - The tested expanded executable did not accept a stock-sized village save.
   There is no successful conversion/save/reload proof.
 
-All-feature relocation blocker:
+All-feature relocation contract (static repair):
 
-The moved `.shr` delta is `0x132000`. Four real decoded absolute operands remain
-at the old `.shr` address in the current all-feature expanded render:
+The moved `.shr` delta is `0x132000`. The four operands previously left at the
+old `.shr` address are now declared by the VV4 owner manifest and guarded by
+`data/vv4_expanded_256_contract.json`:
 
 | Operand file offset | Instruction VA/item | Old value | Required value | Current bytes | Required bytes |
 |---:|---:|---:|---:|---|---|
@@ -246,22 +248,19 @@ three are operands of decoded `.shr` comparisons with zero. Two other raw
 four-byte failures were classified as false candidates: the windows began on
 the `E8` opcode of calls at raw `0x71FB1` and `0x7A34A`.
 
-The base Origins feature already relocates four different absolute `.shr`
-values (`0x728220`, `0x728224`, `0x728228`, and `0x728230`) but does not own all
-four operands above. Patching only one optional village-wide copy is not an
-all-current solution.
+The base Origins feature separately relocates four existing absolute `.shr`
+values (`0x728220`, `0x728224`, `0x728228`, and `0x728230`) and now owns all
+four operands above. The disabled village-wide record no longer claims
+ownership of the current-Origins operand.
 
 Still missing:
 
-1. Atomically relocate all four operands in the owner that introduces or
-   consumes them, with exact stock/base-feature/expanded guards and uninstall
-   ordering.
-2. Diagnose the stock-save import failure and prove conversion plus expanded
+1. Diagnose the stock-save import failure and prove conversion plus expanded
    save/reload/catch-up.
-3. Complete the stored-index and record-255 audit across sorting/Detail,
+2. Complete the stored-index and record-255 audit across sorting/Detail,
    planner/action, pairing/pregnancy, birth, death/skeleton/memorial,
    Event/puzzle, statistics, and callback paths.
-4. Exercise sparse and late records 149, 150, 254, and 255 in both expanded
+3. Exercise sparse and late records 149, 150, 254, and 255 in both expanded
    population modes and all current-feature compositions.
 
 ### VV5 - New Believers
@@ -283,15 +282,15 @@ Proved statically:
   Statue action selection, Nursery divisor parity, base Origins, and Village
   Statistics without a declared byte-range collision.
 
-All-feature relocation blocker:
+All-feature relocation contract (static repair):
 
 The moved `.shr` delta is `0x139000`. Of 167 direct relative branches with a
 source or target in `.shr`, 131 internal `.shr` branches remain correct because
-source and target move together. **Thirty-six cross-section branches remain
-stale:** seven `.text -> .shr` branches and 29 moved `.shr -> .text` returns,
-calls, or jumps.
+source and target move together. The relocation ledger now declares the 36
+cross-section branches previously left stale: seven `.text -> .shr` branches
+and 29 moved `.shr -> .text` returns, calls, or jumps.
 
-The seven stale external relative operands are:
+The seven previously stale external relative operands are:
 
 | Operand file offset | Instruction VA | Old target | Required target | Current rel32 bytes | Required rel32 bytes |
 |---:|---:|---:|---:|---|---|
@@ -309,7 +308,7 @@ does not repair the surrounding Origins payload. Five of the 36 stale
 cross-section branches are the two doubler hooks and three wrapper returns;
 the other 31 remain independent blockers.
 
-The remaining 29 stale relative operands originate in the moved `.shr` payload
+The remaining 29 previously stale relative operands originate in the moved `.shr` payload
 and target unmoved `.text`. Their exact expanded instruction VAs, targets, and
 required displacements are:
 
@@ -346,8 +345,8 @@ required displacements are:
 | `0xDBB27` | `0x8EBB26` | `0x41EBA7` | `7CC0C6FF` | `7C30B3FF` |
 
 Of 34 raw four-byte values in the old `.shr` range, 23 payload-internal
-absolute references move correctly. Seven decoded external pushes remain
-stale:
+absolute references move correctly. The seven decoded external pushes that
+were previously stale are now declared in the same owner ledger:
 
 | Operand file offset | Old address | Required address | Current bytes | Required bytes | Referenced value |
 |---:|---:|---:|---|---|---|
@@ -359,19 +358,17 @@ stale:
 | `0x94EE5` | `0x7B2EF0` | `0x8EBEF0` | `F02E7B00` | `F0BE8E00` | `ShowOriginsVillageWideResult` |
 | `0x94FBA` | `0x7B2D09` | `0x8EBD09` | `092D7B00` | `09BD8E00` | `Origins Upgrades` |
 
-All 43 omissions must be repaired atomically with the base Origins ownership
-and uninstall model. Relocating only the doubler references is forbidden.
+All 43 previously omitted current-feature references are now declared
+atomically with the base Origins ownership and uninstall model. Relocating
+only the doubler references remains forbidden.
 
 Still missing:
 
-1. Exact replacement bytes/displacements for all 36 cross-section relative
-   operands and seven absolute operands, plus guards for stock, both expanded
-   modes, and every supported feature composition.
-2. Re-certification of the Island Event selector detour and its safe
+1. Re-certification of the Island Event selector detour and its safe
    continuation in the relocated payload.
-3. A complete external stored-index/cache audit despite the proven DWORD
+2. A complete external stored-index/cache audit despite the proven DWORD
    selected-index path.
-4. A 256-record live/save/catch-up matrix covering believers, Heathens,
+3. A 256-record live/save/catch-up matrix covering believers, Heathens,
    nursing reservations, corpses, sparse holes, records 149/150/254/255,
    pairing/birth, death/memorial, Events/puzzles, statistics, and Detail
    navigation.
