@@ -21,8 +21,8 @@ The reference scan walks physical indices `0..149` at stride `0x2F44`.
 For each present record it reads active `+0x1CD4`, then current faction
 `+0x1CEC`. Only an active record with current faction `0` proceeds to the
 positive-health read at `+0x1C40`; only positive health proceeds to the
-logical sickness-state read supplied by the reference callback. No current
-Heathen is inspected for health or sickness, dead/non-positive records are
+logical sickness-state read supplied by the reference callback. Nonzero-faction
+records are excluded before health or sickness, dead/non-positive records are
 never revived, and the unproved `+0x1CE1` field is not part of this schema or
 read order. No native VV5 sickness offset or sickness ABI is claimed.
 
@@ -35,27 +35,30 @@ villagers were restored to exactly 100`.
 
 The complete 150-record dry run occurs before confirmation. Confirmation
 accepts exact `IDOK=1`; exact Cancel/close results are `0` and `2`. After OK,
-the model requires a fresh all-record snapshot with identical physical index,
-identity, pointer, eligibility fields, health/sickness values, and predicted
-counts. It then requires a fresh funds value equal to the pre-confirmation
-amount and at least 30,000 tech points before any mutation callback.
+the model requires an independently supplied snapshot binding the selected
+index, resolved selected pointer, all 150 ordered records and their relevant
+state, funds, People Cured, and predicted counts. The complete before snapshot
+must exactly equal the pre-confirmation state before any mutation callback.
 
 Health setting, sickness clearing, People Cured updating, and deduction are
 represented only by strict `success`/`failure`/`unknown` callback contracts.
 No VV5 native setter, readback, rollback, or deduction ABI is implemented or
-claimed. Each callback result is postverified through the reference resolver;
-the final sick and partial counts must be zero and equal the confirmed counts.
-Exactly one deduction callback is permitted, and only after complete
-postverification. Final reference funds must equal the original amount minus
-30,000 before a verified charge is reported.
+claimed. Callback return values alone prove neither success nor failure. The
+complete predicted and actual 150-record snapshots and People Cured readback
+must match. Exactly one deduction callback is permitted, and only after complete
+postverification. Only an exact after-balance equal to the before-balance minus
+30,000 proves a charge; every missing or mismatched readback is charge-unknown.
 
-Callback failure or unknown outcomes disclose partial effects honestly. The
-model does not claim rollback; after callback effects, rollback status is
-unknown. A failed or unknown deduction never claims a verified charge. All
-no-charge exits include `No tech points have been deducted.` where no
-deduction was verified.
+Callback exceptions, failure, or unknown outcomes disclose that effects may
+have occurred. The model does not claim rollback; after callbacks, rollback
+status is unknown. It never claims no charge after a deduction attempt without
+an exact unchanged balance readback.
 
-Player-facing success wording is singular/plural-safe and retains the exact
+Repository-owned source contracts use one checkout-independent hash rule:
+decode strict UTF-8, normalize CRLF and lone CR to LF, then report uppercase
+SHA-256. Binary manifests and payloads retain their existing raw-byte hashes.
+
+Reference message-template wording is singular/plural-safe and retains the exact
 terms:
 
 `Full Heal / Cure All completed: X sick villagers were cured; Y partial-health villagers were restored to exactly 100.`

@@ -19,12 +19,14 @@ from build_vv5_full_heal_contract import (  # noqa: E402
     validate_manifest,
 )
 from build_vv5_ui_confirmation_candidate import build_manifest as build_ui_manifest  # noqa: E402
+from canonical_source_hash import CANONICAL_SOURCE_HASH_RULE, canonical_source_bytes  # noqa: E402
 from vv5_full_heal import (  # noqa: E402
     CANCEL_RESULTS,
     IDOK,
     NO_DEDUCTION,
     PRICE,
     FullHealDryRun,
+    FullHealSnapshot,
     FullHealSlot,
     dry_run,
     execute,
@@ -56,7 +58,7 @@ def resolver_for(store: list[dict[str, object] | None]):
     return lambda index: store[index]
 
 
-def callbacks(store: list[dict[str, object] | None], funds: list[int], events: list[str], *, health_outcome="success", clear_outcome="success", stat_outcome="success", deduct_outcome="success", final_funds=None):
+def callbacks(store: list[dict[str, object] | None], funds: list[int], people: list[int], events: list[str], *, health_outcome="success", clear_outcome="success", stat_outcome="success", deduct_outcome="success"):
     def health(index: int, pointer: str, target: int):
         events.append("health")
         if health_outcome != "success":
@@ -77,6 +79,8 @@ def callbacks(store: list[dict[str, object] | None], funds: list[int], events: l
 
     def stat(index: int, pointer: str):
         events.append("stat")
+        if stat_outcome == "success":
+            people[0] += 1
         return stat_outcome
 
     def deduct(price: int):
@@ -85,11 +89,13 @@ def callbacks(store: list[dict[str, object] | None], funds: list[int], events: l
             funds[0] -= price
         return deduct_outcome
 
-    def after_funds(_: int):
-        events.append("after_funds")
-        return funds[0] if final_funds is None else final_funds
+    return health, clear, stat, deduct
 
-    return health, clear, stat, deduct, after_funds
+
+def snapshot(store, funds, people, *, selected_index=0, selected_pointer="ptr-0"):
+    return FullHealSnapshot(
+        selected_index, selected_pointer, dry_run(resolver_for(store)), funds[0], people[0]
+    )
 
 
 class ReadLog(dict[str, object]):
@@ -103,6 +109,17 @@ class ReadLog(dict[str, object]):
 
 
 class VV5FullHealContractTests(unittest.TestCase):
+    def test_source_hash_rule_is_checkout_independent(self) -> None:
+        lf = b"alpha\nbeta\n"
+        self.assertEqual(canonical_source_bytes(lf), canonical_source_bytes(lf.replace(b"\n", b"\r\n")))
+        self.assertEqual(canonical_source_bytes(lf), canonical_source_bytes(lf.replace(b"\n", b"\r")))
+        self.assertIn("normalized to LF", CANONICAL_SOURCE_HASH_RULE)
+        self.assertNotEqual(canonical_source_bytes(lf), canonical_source_bytes(lf.rstrip(b"\n")))
+        with self.assertRaises(UnicodeDecodeError):
+            canonical_source_bytes(b"\xff")
+        with self.assertRaises(ValueError):
+            canonical_source_bytes(b"\xef\xbb\xbftext\n")
+
     def test_record_gate_is_faction_first_and_never_reads_unproved_field(self) -> None:
         reads: list[str] = []
         believer = ReadLog(make_record(0, health=50, sick=True), reads=reads)
@@ -155,15 +172,17 @@ class VV5FullHealContractTests(unittest.TestCase):
         records[1] = make_record(1, health=100, sick=True)
         records[2] = make_record(2, health=20, sick=False)
         funds = [100_000]
+        people = [40]
         events: list[str] = []
-        health, clear, stat, deduct, after_funds = callbacks(records, funds, events)
+        health, clear, stat, deduct = callbacks(records, funds, people, events)
         result = execute(
             resolver_for(records),
             100_000,
             IDOK,
-            before_reacquire=lambda: dry_run(resolver_for(records)),
-            before_funds_reacquire=lambda current: current,
-            after_funds_reacquire=after_funds,
+            selected_index=0, selected_pointer="ptr-0", people_cured=40,
+            before_snapshot=lambda: snapshot(records, [100_000], [40]),
+            postverify_snapshot=lambda: snapshot(records, funds, people),
+            after_snapshot=lambda: snapshot(records, funds, people),
             health_setter=health,
             sickness_clearer=clear,
             people_cured_incrementer=stat,
@@ -176,7 +195,6 @@ class VV5FullHealContractTests(unittest.TestCase):
         self.assertTrue(result.charged)
         self.assertTrue(result.charge_verified)
         self.assertEqual(events.count("deduct"), 1)
-        self.assertLess(events.index("deduct"), events.index("after_funds"))
         self.assertEqual(records[0]["health"], 100)
         self.assertFalse(records[0]["sick"])
         self.assertFalse(records[1]["sick"])
@@ -185,6 +203,8 @@ class VV5FullHealContractTests(unittest.TestCase):
     def test_cancel_noop_and_insufficient_are_no_charge(self) -> None:
         records = make_store()
         records[0] = make_record(0, health=50, sick=True)
+        funds = [100_000]
+        people = [0]
         calls = {"deduct": 0}
 
         def forbidden(*args):
@@ -192,9 +212,10 @@ class VV5FullHealContractTests(unittest.TestCase):
             return "success"
 
         common = dict(
-            before_reacquire=lambda: dry_run(resolver_for(records)),
-            before_funds_reacquire=lambda current: current,
-            after_funds_reacquire=lambda current: current - PRICE,
+            selected_index=0, selected_pointer="ptr-0", people_cured=0,
+            before_snapshot=lambda: snapshot(records, funds, people),
+            postverify_snapshot=lambda: snapshot(records, funds, people),
+            after_snapshot=lambda: snapshot(records, funds, people),
             health_setter=lambda *args: "success",
             sickness_clearer=lambda *args: "success",
             people_cured_incrementer=lambda *args: "success",
@@ -220,58 +241,133 @@ class VV5FullHealContractTests(unittest.TestCase):
         stale_slots[0] = replace(stale_slots[0], record_pointer="ptr-replaced")
         stale = FullHealDryRun(initial.sick_count, initial.partial_count, tuple(stale_slots))
         common = dict(
-            before_funds_reacquire=lambda current: current,
-            after_funds_reacquire=lambda current: current - PRICE,
+            selected_index=0, selected_pointer="ptr-0", people_cured=0,
+            postverify_snapshot=lambda: FullHealSnapshot(0, "ptr-0", stale, 100_000, 1),
+            after_snapshot=lambda: FullHealSnapshot(0, "ptr-0", stale, 70_000, 1),
             health_setter=lambda *args: "success",
             sickness_clearer=lambda *args: "success",
             people_cured_incrementer=lambda *args: "success",
             deduct=lambda price: "success",
         )
-        result = execute(resolver_for(records), 100_000, IDOK, before_reacquire=lambda: stale, **common)
+        result = execute(resolver_for(records), 100_000, IDOK, before_snapshot=lambda: FullHealSnapshot(0, "ptr-replaced", stale, 100_000, 0), **common)
         self.assertEqual(result.status, "recheck_failed")
         self.assertFalse(result.charge_attempted)
         with self.assertRaises(TypeError):
-            execute(resolver_for(records), 100_000, True, before_reacquire=lambda: initial, **common)
+            execute(resolver_for(records), 100_000, True, before_snapshot=lambda: FullHealSnapshot(0, "ptr-0", initial, 100_000, 0), **common)
         with self.assertRaises(TypeError):
-            execute(resolver_for(records), 100_000, IDOK, before_reacquire=lambda: initial, before_funds_reacquire=lambda _: True, **{key: value for key, value in common.items() if key != "before_funds_reacquire"})
+            FullHealSnapshot(0, "ptr-0", initial, True, 0)
 
     def test_partial_and_unknown_paths_disclose_effects_and_never_retry_charge(self) -> None:
         records = make_store()
         records[0] = make_record(0, health=50, sick=True)
         funds = [100_000]
+        people = [0]
         events: list[str] = []
-        health, clear, stat, deduct, after_funds = callbacks(records, funds, events, health_outcome="unknown")
+        health, clear, stat, deduct = callbacks(records, funds, people, events, health_outcome="unknown")
         unknown = execute(
             resolver_for(records), 100_000, IDOK,
-            before_reacquire=lambda: dry_run(resolver_for(records)),
-            before_funds_reacquire=lambda current: current,
-            after_funds_reacquire=after_funds,
+            selected_index=0, selected_pointer="ptr-0", people_cured=0,
+            before_snapshot=lambda: snapshot(records, funds, people),
+            postverify_snapshot=lambda: snapshot(records, funds, people),
+            after_snapshot=lambda: snapshot(records, funds, people),
             health_setter=health, sickness_clearer=clear,
             people_cured_incrementer=stat, deduct=deduct,
         )
         self.assertEqual(unknown.status, "partial_unknown")
         self.assertFalse(unknown.charge_attempted)
         self.assertIn("Rollback status is unknown", unknown.message)
-        self.assertIn(NO_DEDUCTION, unknown.message)
+        self.assertNotIn(NO_DEDUCTION, unknown.message)
 
         records[0]["health"] = 100
         records[0]["sick"] = False
         funds = [100_000]
+        people = [0]
         events = []
-        health, clear, stat, deduct, after_funds = callbacks(records, funds, events, deduct_outcome="unknown")
+        health, clear, stat, deduct = callbacks(records, funds, people, events, deduct_outcome="unknown")
         records[1] = make_record(1, health=50, sick=False)
         charge_unknown = execute(
             resolver_for(records), 100_000, IDOK,
-            before_reacquire=lambda: dry_run(resolver_for(records)),
-            before_funds_reacquire=lambda current: current,
-            after_funds_reacquire=after_funds,
+            selected_index=0, selected_pointer="ptr-0", people_cured=0,
+            before_snapshot=lambda: snapshot(records, [100_000], [0]),
+            postverify_snapshot=lambda: snapshot(records, funds, people),
+            after_snapshot=lambda: snapshot(records, funds, people),
             health_setter=health, sickness_clearer=clear,
             people_cured_incrementer=stat, deduct=deduct,
         )
         self.assertEqual(charge_unknown.status, "charge_unknown")
         self.assertTrue(charge_unknown.charge_attempted)
         self.assertFalse(charge_unknown.charge_verified)
-        self.assertIn("no verified charge is claimed", charge_unknown.message)
+        self.assertIn("charge is unknown", charge_unknown.message)
+
+    def test_strict_snapshot_schema_and_complete_postverify(self) -> None:
+        records = make_store()
+        records[0] = make_record(0, health=50, sick=True)
+        initial = dry_run(resolver_for(records))
+        with self.assertRaises(TypeError):
+            FullHealSnapshot(True, "ptr-0", initial, 100_000, 0)
+        with self.assertRaises(ValueError):
+            FullHealSnapshot(150, "ptr-0", initial, 100_000, 0)
+        with self.assertRaises(ValueError):
+            FullHealDryRun(99, 1, initial.slots)
+        with self.assertRaises(ValueError):
+            FullHealSlot(0, None, None, 1, 0, None, None)
+
+        funds, people, events = [100_000], [0], []
+        health, clear, stat, deduct = callbacks(records, funds, people, events)
+        result = execute(
+            resolver_for(records), 100_000, IDOK,
+            selected_index=0, selected_pointer="ptr-0", people_cured=0,
+            before_snapshot=lambda: snapshot(records, [100_000], [0]),
+            postverify_snapshot=lambda: snapshot(records, funds, people),
+            after_snapshot=lambda: FullHealSnapshot(0, "ptr-0", dry_run(resolver_for(records)), funds[0], people[0] - 1),
+            health_setter=health, sickness_clearer=clear,
+            people_cured_incrementer=stat, deduct=deduct,
+        )
+        self.assertEqual(result.status, "charge_unknown")
+        self.assertFalse(result.charge_verified)
+        self.assertNotIn(NO_DEDUCTION, result.message)
+
+    def test_callback_exception_and_deduction_truth_are_readback_only(self) -> None:
+        records = make_store()
+        records[0] = make_record(0, health=50, sick=False)
+        funds, people = [100_000], [0]
+
+        def mutates_then_raises(index, pointer, target):
+            records[index]["health"] = target
+            raise RuntimeError("unproven callback failure")
+
+        common = dict(
+            selected_index=0, selected_pointer="ptr-0", people_cured=0,
+            before_snapshot=lambda: snapshot(records, [100_000], [0]),
+            postverify_snapshot=lambda: snapshot(records, funds, people),
+            after_snapshot=lambda: snapshot(records, funds, people),
+            sickness_clearer=lambda *_: "success",
+            people_cured_incrementer=lambda *_: "success",
+            deduct=lambda _: "failure",
+        )
+        partial = execute(resolver_for(records), 100_000, IDOK, health_setter=mutates_then_raises, **common)
+        self.assertEqual(partial.status, "partial_unknown")
+        self.assertEqual(partial.native_effects, "may_have_occurred")
+        self.assertNotIn(NO_DEDUCTION, partial.message)
+
+        records[0] = make_record(0, health=50, sick=False)
+        funds[0] = 100_000
+        def deduct_reports_failure(price):
+            funds[0] -= price
+            return "failure"
+        committed = execute(
+            resolver_for(records), 100_000, IDOK,
+            selected_index=0, selected_pointer="ptr-0", people_cured=0,
+            before_snapshot=lambda: snapshot(records, [100_000], [0]),
+            postverify_snapshot=lambda: snapshot(records, funds, people),
+            after_snapshot=lambda: snapshot(records, funds, people),
+            health_setter=lambda index, pointer, target: records[index].__setitem__("health", target) or "success",
+            sickness_clearer=lambda *_: "success",
+            people_cured_incrementer=lambda *_: "success",
+            deduct=deduct_reports_failure,
+        )
+        self.assertEqual(committed.status, "committed")
+        self.assertTrue(committed.charge_verified)
 
     def test_manifest_is_strict_disabled_and_composes_ui_chain_without_native_output(self) -> None:
         manifest = build_manifest()
@@ -286,6 +382,7 @@ class VV5FullHealContractTests(unittest.TestCase):
         self.assertEqual(manifest["source"]["active_base_sha256"], ACTIVE_BASE_SHA256)
         self.assertEqual(manifest["source"]["active_payload_sha256"], ACTIVE_PAYLOAD_SHA256)
         self.assertEqual(manifest["source"]["model_sha256"], FULL_HEAL_MODEL_SHA256)
+        self.assertEqual(manifest["source"]["source_hash_rule"], CANONICAL_SOURCE_HASH_RULE)
         self.assertEqual(build_ui_manifest()["individual_actions"].keys(), {"youth", "full_mastery", "running", "age_18"})
 
         for field, value in (("enabled", True), ("catalog_hidden", False), ("catalog_enabled", True), ("expanded_fail_closed", False)):
