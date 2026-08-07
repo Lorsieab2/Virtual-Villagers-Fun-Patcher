@@ -57,7 +57,7 @@
     "repeatable": true,
     "ownership": null,
     "remove": false,
-    "selection": "selected index 0..149; revalidate the same index and record",
+    "selection": "mandatory exact selected index 0..149, resolved pointer/record identity, and same tech-account identity callbacks at every mutation boundary; native callbacks remain unproved",
     "semantics": {
       "already_running": {
         "condition": "any configured Like equals Running ID",
@@ -88,11 +88,11 @@
     "steps": [
       "complete dry-run and result preflight",
       "confirm with MB_OKCANCEL; only EAX == 1 permits mutation",
-      "reacquire the same index, record, eligibility, all six slots, and funds",
-      "postverify every candidate-written value before deduction",
-      "charge exactly once through the native deduction"
+      "reacquire exact selected index, resolved pointer/record identity, same account identity, eligibility, all six slots, and funds before first write",
+      "reacquire exact selection/pointer/account identity and postverify the complete six-slot result before deduction",
+      "make one charge attempt by deducting exactly once; verify charge only from exact before/after balance readback for the same account identity, otherwise report unknown"
     ],
-    "transaction_text": "Dry-run first; confirm only IDOK; reacquire and postverify the same record and six-slot snapshot; make one charge only after successful commit; no-charge paths state No tech points have been deducted.",
+    "transaction_text": "Dry-run first; confirm only exact IDOK; mandatory identity callbacks fail closed on exceptions or mismatch; reacquire before first write, full postverify, deduction, and each rollback restore; same-account balance readback alone may verify the exact deduction, otherwise charge is unknown.",
     "message_box": {
       "flags": "MB_OKCANCEL",
       "accept_result": 1,
@@ -100,7 +100,7 @@
       "mutation_dominance": "cmp eax,1 equality must dominate every write"
     }
   },
-  "rollback_limit": "Conditional rollback only while the same record/index/slot identity and candidate-written values remain provable; native preference side effects remain unproved.",
+  "rollback_limit": "Before each restore reacquire exact selection/pointer/account identity and verify candidate-written state; callback failure or mismatch fails closed and retained effects or unknown charge are disclosed. Native rollback remains unproved.",
   "native_abi": {
     "status": "unproved",
     "complete_preference_write_abi_proved": false,

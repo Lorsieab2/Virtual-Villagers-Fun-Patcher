@@ -17,7 +17,7 @@
   "record_layout": {
     "stride": "0x2F44",
     "physical_bound": 150,
-    "identity": "same selected physical index and record pointer must survive dry-run, confirmation, reacquire, writes, and postverify"
+    "identity": "the same selected physical index and record pointer plus record/account identities must be reacquired by mandatory exact callbacks at every mutation boundary"
   },
   "like_slots": {
     "offsets": ["0x1F5C", "0x1F60", "0x1F64"],
@@ -43,15 +43,16 @@
       {"name": "living", "offset": "0x1C40", "test": "signed > 0"},
       {"name": "current_faction", "offset": "0x1CEC", "test": "== 0", "meaning": "current believer"}
     ],
-    "current_heathen_rejects_before_like_dislike_reads": true
+    "current_faction_is_only_vv5_specific_gate": true,
+    "excluded_unproved_gates": "+0x1CE1, status flags, and synthetic heathen/current-believer fields"
   },
   "transaction_contract": {
     "price": 40000,
     "dry_run": "scan the complete configured physical Like and Dislike arrays before confirmation; -1 is empty and never an early terminator",
     "confirm": "require explicit confirmation after the complete dry-run and accept only the confirmed transaction result",
-    "reacquire": "reacquire the same physical index and record identity, recheck eligibility, funds, and the exact six-slot snapshot before any write",
-    "postverify": "verify the exact Like and Dislike result before charging",
-    "one_charge": "perform one native deduction exactly once, only after successful postverify",
+    "reacquire": "reacquire exact selected index, resolved pointer/record identity, same account identity, eligibility, funds, and exact six-slot snapshot before first write",
+    "postverify": "reacquire exact selection/pointer/account identity and verify the complete Like and Dislike result before deduction",
+    "one_charge": "perform one native deduction attempt exactly once after postverify; verify charge only from exact before/after balance readback for the same account identity, otherwise report unknown",
     "cases": [
       {
         "name": "running_like_present",
@@ -83,9 +84,9 @@
     },
     "preservation": "preserve unrelated Like slots, unrelated Dislike slots, duplicate Running Likes, and all Dislikes on whole-record skips",
     "no_charge_text": "No tech points have been deducted.",
-    "rollback_limit": "conditional rollback only while the same record/index/slot identity and candidate-written values remain provable; native preference side effects remain unproved"
+    "rollback_limit": "before each restore reacquire exact selection/pointer/account identity and verify candidate-written state; callback failure or mismatch fails closed and retained effects or unknown charge are disclosed; native rollback remains unproved"
   },
-  "rollback_limit": "conditional rollback only while the same record/index/slot identity and candidate-written values remain provable; native preference side effects remain unproved",
+  "rollback_limit": "before each restore reacquire exact selection/pointer/account identity and verify candidate-written state; callback failure or mismatch fails closed and retained effects or unknown charge are disclosed; native rollback remains unproved",
   "native_abi_proof": {
     "status": "unproved",
     "fail_closed": true,
