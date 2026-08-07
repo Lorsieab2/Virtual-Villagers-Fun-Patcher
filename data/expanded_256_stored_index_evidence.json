@@ -1,0 +1,219 @@
+{
+  "schema_version": "vvfp.expanded_256_stored_index_evidence.v1",
+  "contract_id": "x45-vv4-vv5-expanded-256-stored-index-evidence",
+  "status": "static_partial_stop",
+  "integrity": {
+    "canonicalization": "UTF-8 JSON with sorted keys and compact separators; integrity.canonical_sha256 is excluded from its own digest",
+    "canonical_sha256": "C606ACF950ED6C193F921D06F738CE0854AD7A3F390524E5C0B333600788E275"
+  },
+  "publication": {
+    "enabled": false,
+    "runtime_go": false,
+    "player_go": false,
+    "eligible": false,
+    "reason": "No complete VV4/VV5 stored-index path ledger, full-folder fingerprint, authenticated runtime capture, or proof that every path accepts record 255 while excluding indices 256-259 is present."
+  },
+  "evidence_policy": {
+    "required_categories": [
+      "selection",
+      "roster",
+      "detail",
+      "queue_actions",
+      "pairing_pregnancy",
+      "birth_death",
+      "skeleton_memorial",
+      "events_puzzles",
+      "statistics",
+      "callbacks",
+      "serializer_load_catchup"
+    ],
+    "required_observed_row_fields": [
+      "path_id",
+      "category",
+      "function_name",
+      "function_ea",
+      "instruction_ea",
+      "operand_file_offset",
+      "operand_width_bits",
+      "storage_width_bits",
+      "sentinel",
+      "xrefs",
+      "record_255",
+      "indices_256_259",
+      "runtime_receipt_refs",
+      "source",
+      "synthetic"
+    ],
+    "completion_rule": "Every required category must be observed_complete with one or more exact evidence rows, an observed exact full-folder fingerprint, an authenticated runtime-capture receipt, record 255 accepted, and indices 256-259 unreachable and non-saveable. Any unknown or partial path is STOP.",
+    "byte_ff_rule": "A byte-sized 0xFF value is ambiguous when record 255 is valid. An 8-bit stored record index using 0xFF as no-record is STOP until widened or proven not to store a record index.",
+    "synthetic_evidence": "forbidden",
+    "manual_field_injection": "forbidden",
+    "vv5_generalization": "The cited VV5 DWORD/-1 fragments apply only to their named paths and may not be projected onto VV4 or any unenumerated VV5 path."
+  },
+  "source_provenance": {
+    "design_assignment": "X45-STORED-INDEX-EVIDENCE-GATE",
+    "implementation_base_commit": "03bbfe4957edf6fbf995a251ff395d1ff6d5f374",
+    "schema": {
+      "path": "data/schemas/expanded_256_stored_index_evidence.schema.json",
+      "sha256": "130E687C3C93FEFE2E33DCAFE4FFF2B8EECBB253EC28AA89D479127432010981"
+    },
+    "source_files": [
+      {"path": "data/expanded_256.json", "sha256": "8B345C2C8A1C71A9EA5E1B9B05616A06793AF85436934BB406BD3AD820A50DB0"},
+      {"path": "data/expanded_256_runtime_evidence.json", "sha256": "6E34396B15C7931B0C6FCC0EEDE16001B3D3C52E34C5C77A920FCD3E6788D083"},
+      {"path": "scripts/capture_expanded_runtime_evidence.py", "sha256": "719DAD95AC6AB2D2E1CC9F64DECF1BB894CC4A98B5B7662A3A84402B2C5CA321"},
+      {"path": "data/vv4_origins_feature.json", "sha256": "DE98F1424518CB310A58351FB012603CAD951C50F80B204695602A5AE2612FA6"},
+      {"path": "data/vv5_origins_feature.json", "sha256": "B6C00CC09F7CC06ADCF72E967B682A6131B5FE618C24C1DCED9823B809AE08A8"}
+    ]
+  },
+  "games": {
+    "vv4": {
+      "stock_fingerprint": {
+        "filename": "Virtual Villagers - The Tree of Life.exe",
+        "size": 929792,
+        "sha256": "6D27A429FFCA5F1F71FDD7ECA761ED1BB67E85F976494BA178B3D7BE01F1B220"
+      },
+      "full_folder_fingerprint": {
+        "status": "absent_stop",
+        "inventory_schema": "vvfp.runtime_capture_folder_inventory.v1",
+        "required_role_count": 9,
+        "canonical_inventory_sha256": null,
+        "runtime_receipt_sha256": null
+      },
+      "runtime_capture_binding": {
+        "schema_version": "vvfp.expanded_256_runtime_capture.v1",
+        "harness_path": "scripts/capture_expanded_runtime_evidence.py",
+        "harness_sha256": "719DAD95AC6AB2D2E1CC9F64DECF1BB894CC4A98B5B7662A3A84402B2C5CA321",
+        "contract_canonical_sha256": "C70F0BD0CDDFF921B215FA178D725A57EC2AEE380C575FFD1D56D8F282562B60",
+        "status": "absent_stop",
+        "capture_packet_sha256": null,
+        "authenticated": false
+      },
+      "relocation_ledger": {
+        "path": "data/vv4_origins_feature.json",
+        "json_pointer": "/expanded_shr_relocations/patches",
+        "count": 13,
+        "ledger_sha256": "CEE01F4AEC59CB1CEE0F42E3DDDB3A24615261E628ED0629C1BFAABF421A897D"
+      },
+      "layout_boundary": {
+        "logical_records": 256,
+        "physical_records": 256,
+        "padding_records": 0,
+        "record_255": {"layout_state": "allocated", "path_acceptance_proof": "partial_static_stop"},
+        "indices_256_259": {"layout_state": "outside_record_pool", "unreachable_proof": "absent_stop", "non_saveable_proof": "absent_stop"}
+      },
+      "index_model": {
+        "status": "unknown_stop",
+        "storage_width_bits": null,
+        "sentinel": null,
+        "cited_static_fragments": [],
+        "generalizable_from_vv5": false
+      },
+      "candidate_static_edits": [
+        {"id": "vv4-edit-0x66045", "category": "selection", "manifest_offset": "0x66045", "manifest_row_sha256": "CFD28D400289D3907419C7848B815B195E3A864A36343CEDDE0FF14B6AEEE465", "qualifying_evidence": false},
+        {"id": "vv4-edit-0x6683f", "category": "selection", "manifest_offset": "0x6683F", "manifest_row_sha256": "1EAACEAD79AA90339815D1FBA556716ADB8C830DB67A1CEDFFB8AD0DBED63946", "qualifying_evidence": false},
+        {"id": "vv4-edit-0x66845", "category": "selection", "manifest_offset": "0x66845", "manifest_row_sha256": "3D32E24B66D575F6A663EE7A26C76C2E71A09C2682E6CBE694DE4C9954CC112B", "qualifying_evidence": false},
+        {"id": "vv4-edit-0x66a0f", "category": "selection", "manifest_offset": "0x66A0F", "manifest_row_sha256": "9BFCDF51C425954EF7C2BB36BC59D83A24C52040A83F43AE0E8B04E4ACBB2BB3", "qualifying_evidence": false},
+        {"id": "vv4-edit-0x66a15", "category": "selection", "manifest_offset": "0x66A15", "manifest_row_sha256": "23B99BAF9F7F782EF056D62155B9EA37E94F2679A59DF54DEC29AF8ED87857C9", "qualifying_evidence": false},
+        {"id": "vv4-edit-0x66ae0", "category": "selection", "manifest_offset": "0x66AE0", "manifest_row_sha256": "7F2A48DBB9B4F8C4C96999EDFBBD415995B1D82904A8A10CB5D3BD102BB11858", "qualifying_evidence": false},
+        {"id": "vv4-edit-0x66ae6", "category": "selection", "manifest_offset": "0x66AE6", "manifest_row_sha256": "B3B2CDC29C488B12D5A6FD3BC3C600D734EFB47652DE5DD7A579CFCD3B1C3FBF", "qualifying_evidence": false},
+        {"id": "vv4-edit-0x669cc", "category": "selection", "manifest_offset": "0x669CC", "manifest_row_sha256": "35A10F153A8D8FEF154F1851A19044A49C204C224B4EAB0F6DF638DA775D4A9D", "qualifying_evidence": false},
+        {"id": "vv4-edit-0x66e6f", "category": "selection", "manifest_offset": "0x66E6F", "manifest_row_sha256": "C9D392B640873B1E26A035D08F60557A17AE89D68542D7BF3737818DA2E7A710", "qualifying_evidence": false},
+        {"id": "vv4-edit-0x66f11", "category": "selection", "manifest_offset": "0x66F11", "manifest_row_sha256": "94EAF736E97EA9D62724FAAACCE063D71B5820B51D11EB5CFDCEE36F0820929D", "qualifying_evidence": false},
+        {"id": "vv4-edit-0x66c9c", "category": "selection", "manifest_offset": "0x66C9C", "manifest_row_sha256": "75A1C9F1B9CC8065D2E9FC95069B343B0F4D281420E677822B5735F9D26834DC", "qualifying_evidence": false},
+        {"id": "vv4-edit-0x1fc19", "category": "serializer_load_catchup", "manifest_offset": "0x1FC19", "manifest_row_sha256": "948EFA9931C3E1C9D8F70DA1365A523B1D13FF77C234D2F3159E5182CD8412A3", "qualifying_evidence": false},
+        {"id": "vv4-edit-0x8910d", "category": "serializer_load_catchup", "manifest_offset": "0x8910D", "manifest_row_sha256": "B48FAC5E6A32C2DFB78A2FB63F6C9834CB8706612A32DC46B63593E8CB724E30", "qualifying_evidence": false}
+      ],
+      "path_categories": [
+        {"category": "selection", "status": "partial_static_stop", "candidate_edit_refs": ["vv4-edit-0x66045", "vv4-edit-0x6683f", "vv4-edit-0x66845", "vv4-edit-0x66a0f", "vv4-edit-0x66a15", "vv4-edit-0x66ae0", "vv4-edit-0x66ae6", "vv4-edit-0x669cc", "vv4-edit-0x66e6f", "vv4-edit-0x66f11", "vv4-edit-0x66c9c"], "expected_path_count": null, "path_ledger_sha256": null, "evidence_rows": [], "missing_evidence": ["exact function/instruction/operand-width/sentinel/xref ledger", "authenticated late-record and rejection receipts"]},
+        {"category": "roster", "status": "unknown_stop", "candidate_edit_refs": [], "expected_path_count": null, "path_ledger_sha256": null, "evidence_rows": [], "missing_evidence": ["complete exact path ledger and runtime receipts"]},
+        {"category": "detail", "status": "unknown_stop", "candidate_edit_refs": [], "expected_path_count": null, "path_ledger_sha256": null, "evidence_rows": [], "missing_evidence": ["complete exact path ledger and runtime receipts"]},
+        {"category": "queue_actions", "status": "unknown_stop", "candidate_edit_refs": [], "expected_path_count": null, "path_ledger_sha256": null, "evidence_rows": [], "missing_evidence": ["complete exact path ledger and runtime receipts"]},
+        {"category": "pairing_pregnancy", "status": "unknown_stop", "candidate_edit_refs": [], "expected_path_count": null, "path_ledger_sha256": null, "evidence_rows": [], "missing_evidence": ["complete exact path ledger and runtime receipts"]},
+        {"category": "birth_death", "status": "unknown_stop", "candidate_edit_refs": [], "expected_path_count": null, "path_ledger_sha256": null, "evidence_rows": [], "missing_evidence": ["complete exact path ledger and runtime receipts"]},
+        {"category": "skeleton_memorial", "status": "unknown_stop", "candidate_edit_refs": [], "expected_path_count": null, "path_ledger_sha256": null, "evidence_rows": [], "missing_evidence": ["complete exact path ledger and runtime receipts"]},
+        {"category": "events_puzzles", "status": "unknown_stop", "candidate_edit_refs": [], "expected_path_count": null, "path_ledger_sha256": null, "evidence_rows": [], "missing_evidence": ["complete exact path ledger and runtime receipts"]},
+        {"category": "statistics", "status": "unknown_stop", "candidate_edit_refs": [], "expected_path_count": null, "path_ledger_sha256": null, "evidence_rows": [], "missing_evidence": ["complete exact path ledger and runtime receipts"]},
+        {"category": "callbacks", "status": "unknown_stop", "candidate_edit_refs": [], "expected_path_count": null, "path_ledger_sha256": null, "evidence_rows": [], "missing_evidence": ["complete exact path ledger and runtime receipts"]},
+        {"category": "serializer_load_catchup", "status": "partial_static_stop", "candidate_edit_refs": ["vv4-edit-0x1fc19", "vv4-edit-0x8910d"], "expected_path_count": null, "path_ledger_sha256": null, "evidence_rows": [], "missing_evidence": ["exact serializer/load/catch-up function and xref ledger", "stock import, expanded save/reload, failed-load nonmutation, and catch-up receipts"]}
+      ]
+    },
+    "vv5": {
+      "stock_fingerprint": {
+        "filename": "Virtual Villagers - New Believers.exe",
+        "size": 991232,
+        "sha256": "92946781980220E9D1A2E6C573925519934608F5215F4A0F8CE3B90088C5C65D"
+      },
+      "full_folder_fingerprint": {
+        "status": "absent_stop",
+        "inventory_schema": "vvfp.runtime_capture_folder_inventory.v1",
+        "required_role_count": 9,
+        "canonical_inventory_sha256": null,
+        "runtime_receipt_sha256": null
+      },
+      "runtime_capture_binding": {
+        "schema_version": "vvfp.expanded_256_runtime_capture.v1",
+        "harness_path": "scripts/capture_expanded_runtime_evidence.py",
+        "harness_sha256": "719DAD95AC6AB2D2E1CC9F64DECF1BB894CC4A98B5B7662A3A84402B2C5CA321",
+        "contract_canonical_sha256": "C70F0BD0CDDFF921B215FA178D725A57EC2AEE380C575FFD1D56D8F282562B60",
+        "status": "absent_stop",
+        "capture_packet_sha256": null,
+        "authenticated": false
+      },
+      "relocation_ledger": {
+        "path": "data/vv5_origins_feature.json",
+        "json_pointer": "/expanded_shr_relocations/patches",
+        "count": 66,
+        "ledger_sha256": "A5DF4E109D32E2BC9FDE36E2BA3139230B6E6CD89DE4C3FF784846F4CE803740"
+      },
+      "layout_boundary": {
+        "logical_records": 256,
+        "physical_records": 256,
+        "padding_records": 0,
+        "record_255": {"layout_state": "allocated", "path_acceptance_proof": "partial_static_stop"},
+        "indices_256_259": {"layout_state": "outside_record_pool", "unreachable_proof": "absent_stop", "non_saveable_proof": "absent_stop"}
+      },
+      "index_model": {
+        "status": "partial_static_stop",
+        "storage_width_bits": 32,
+        "sentinel": {"width_bits": 32, "encoding": "twos_complement", "unsigned_value": 4294967295, "meaning": "no_record"},
+        "cited_static_fragments": [
+          {"path_id": "record_lookup", "function_name": "sub_46F950", "function_ea": "0x46F950", "claim": "unsigned index accepts 0..255 after the candidate bound edit; exact instruction/xrefs remain required"},
+          {"path_id": "selected_villager", "function_name": "sub_4708F0", "function_ea": "0x4708F0", "claim": "DWORD 0xFFFFFFFF is no-selection and 255 is a candidate-valid index; exact instruction/xrefs and runtime receipt remain required"},
+          {"path_id": "pending_record_list", "function_name": null, "function_ea": null, "claim": "cited as DWORD storage only; exact function, instruction, sentinel, and xrefs remain unknown"}
+        ],
+        "generalizable_to_other_paths": false,
+        "generalizable_to_vv4": false
+      },
+      "candidate_static_edits": [
+        {"id": "vv5-edit-0x6f955", "category": "selection", "manifest_offset": "0x6F955", "manifest_row_sha256": "B9FAB0E8E232E323FA44AD59F6644BCF915118C97D61BB6BB6668482EE58F07E", "qualifying_evidence": false},
+        {"id": "vv5-edit-0x70280", "category": "selection", "manifest_offset": "0x70280", "manifest_row_sha256": "4CFE43116281737C3B944445B88376353D29D6100B7F2CFBF3DFE4C9AEFCA725", "qualifying_evidence": false},
+        {"id": "vv5-edit-0x70291", "category": "selection", "manifest_offset": "0x70291", "manifest_row_sha256": "A5F7E3998FC796637F16AF4F1AD6B2FC139BC953AA42F947DD0543509882DB8F", "qualifying_evidence": false},
+        {"id": "vv5-edit-0x70381", "category": "selection", "manifest_offset": "0x70381", "manifest_row_sha256": "EA57542B08884C7DAC289C26B2450D24535B0D49D6BEB88F7D6BE39507ED85EB", "qualifying_evidence": false},
+        {"id": "vv5-edit-0x704f6", "category": "selection", "manifest_offset": "0x704F6", "manifest_row_sha256": "F11E2F4C47088BD65A11F5586C16E399131B6C2BF141A0A3D4EC54D08DD41905", "qualifying_evidence": false},
+        {"id": "vv5-edit-0x7058c", "category": "selection", "manifest_offset": "0x7058C", "manifest_row_sha256": "A250EDAB4C1F0A0A3883ADA4588387C867F19BDADCBDBBFA5733123A2036B636", "qualifying_evidence": false},
+        {"id": "vv5-edit-0x705df", "category": "selection", "manifest_offset": "0x705DF", "manifest_row_sha256": "345547CA16F430240C7487862C87B76C3CEF8B673D34A391ED5726CDB5D136A0", "qualifying_evidence": false},
+        {"id": "vv5-edit-0x70700", "category": "selection", "manifest_offset": "0x70700", "manifest_row_sha256": "D5071009A535DFB3D22139848C33D4F635A7888CFB2CA9AE59D1D9EF0A8A53D1", "qualifying_evidence": false},
+        {"id": "vv5-edit-0x708fc", "category": "selection", "manifest_offset": "0x708FC", "manifest_row_sha256": "7B0CD03C92B059CBA33D3AAC34F2EABB447D90F20461F551909A897ACFB2BC51", "qualifying_evidence": false},
+        {"id": "vv5-edit-0x70afc", "category": "selection", "manifest_offset": "0x70AFC", "manifest_row_sha256": "5373F6B77297C3B764E9D9C5341493AAADEFED33ACDA85EF8F59BF75E12A98B2", "qualifying_evidence": false},
+        {"id": "vv5-edit-0x70bb6", "category": "selection", "manifest_offset": "0x70BB6", "manifest_row_sha256": "F18A2A29867600A8F3E6C8903F1C979E893DF675DCE469D8C5F845E9E29E3E6E", "qualifying_evidence": false},
+        {"id": "vv5-edit-0x71d77", "category": "selection", "manifest_offset": "0x71D77", "manifest_row_sha256": "A258EBDFB616091902ECA63CFECA85BBCED1CA56CF5723F78B8E8FAF08CA5457", "qualifying_evidence": false},
+        {"id": "vv5-edit-0x25709", "category": "serializer_load_catchup", "manifest_offset": "0x25709", "manifest_row_sha256": "6009EDD6EDABB8594C13AA6AF551973CE44F4CADEC8DC17BC9D383BA1F1D241C", "qualifying_evidence": false},
+        {"id": "vv5-edit-0x9466c", "category": "serializer_load_catchup", "manifest_offset": "0x9466C", "manifest_row_sha256": "B8123F338E5DDB18C18C7341F67502E944B00D0FD4AEE5CA5B062FCD8E3E0728", "qualifying_evidence": false},
+        {"id": "vv5-edit-0x6fa75", "category": "serializer_load_catchup", "manifest_offset": "0x6FA75", "manifest_row_sha256": "37F5DC5019395FDE5EFD245125FD25B523E1908DDB838DF042AD34E7892D5964", "qualifying_evidence": false}
+      ],
+      "path_categories": [
+        {"category": "selection", "status": "partial_static_stop", "candidate_edit_refs": ["vv5-edit-0x6f955", "vv5-edit-0x70280", "vv5-edit-0x70291", "vv5-edit-0x70381", "vv5-edit-0x704f6", "vv5-edit-0x7058c", "vv5-edit-0x705df", "vv5-edit-0x70700", "vv5-edit-0x708fc", "vv5-edit-0x70afc", "vv5-edit-0x70bb6", "vv5-edit-0x71d77"], "expected_path_count": null, "path_ledger_sha256": null, "evidence_rows": [], "missing_evidence": ["exact per-path function/instruction/operand-width/sentinel/xref ledger", "authenticated late-record and rejection receipts"]},
+        {"category": "roster", "status": "unknown_stop", "candidate_edit_refs": [], "expected_path_count": null, "path_ledger_sha256": null, "evidence_rows": [], "missing_evidence": ["complete exact path ledger and runtime receipts"]},
+        {"category": "detail", "status": "unknown_stop", "candidate_edit_refs": [], "expected_path_count": null, "path_ledger_sha256": null, "evidence_rows": [], "missing_evidence": ["complete exact path ledger and runtime receipts"]},
+        {"category": "queue_actions", "status": "unknown_stop", "candidate_edit_refs": [], "expected_path_count": null, "path_ledger_sha256": null, "evidence_rows": [], "missing_evidence": ["complete exact path ledger and runtime receipts"]},
+        {"category": "pairing_pregnancy", "status": "unknown_stop", "candidate_edit_refs": [], "expected_path_count": null, "path_ledger_sha256": null, "evidence_rows": [], "missing_evidence": ["complete exact path ledger and runtime receipts"]},
+        {"category": "birth_death", "status": "unknown_stop", "candidate_edit_refs": [], "expected_path_count": null, "path_ledger_sha256": null, "evidence_rows": [], "missing_evidence": ["complete exact path ledger and runtime receipts"]},
+        {"category": "skeleton_memorial", "status": "unknown_stop", "candidate_edit_refs": [], "expected_path_count": null, "path_ledger_sha256": null, "evidence_rows": [], "missing_evidence": ["complete exact path ledger and runtime receipts"]},
+        {"category": "events_puzzles", "status": "unknown_stop", "candidate_edit_refs": [], "expected_path_count": null, "path_ledger_sha256": null, "evidence_rows": [], "missing_evidence": ["complete exact path ledger and runtime receipts"]},
+        {"category": "statistics", "status": "unknown_stop", "candidate_edit_refs": [], "expected_path_count": null, "path_ledger_sha256": null, "evidence_rows": [], "missing_evidence": ["complete exact path ledger and runtime receipts"]},
+        {"category": "callbacks", "status": "unknown_stop", "candidate_edit_refs": [], "expected_path_count": null, "path_ledger_sha256": null, "evidence_rows": [], "missing_evidence": ["complete exact path ledger and runtime receipts"]},
+        {"category": "serializer_load_catchup", "status": "partial_static_stop", "candidate_edit_refs": ["vv5-edit-0x25709", "vv5-edit-0x9466c", "vv5-edit-0x6fa75"], "expected_path_count": null, "path_ledger_sha256": null, "evidence_rows": [], "missing_evidence": ["exact serializer/load/catch-up function and xref ledger", "stock import, expanded save/reload, failed-load nonmutation, and catch-up receipts"]}
+      ]
+    }
+  }
+}
