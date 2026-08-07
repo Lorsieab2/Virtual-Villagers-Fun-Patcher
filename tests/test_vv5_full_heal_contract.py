@@ -115,7 +115,7 @@ class VV5FullHealContractTests(unittest.TestCase):
         self.assertEqual(canonical_source_bytes(lf), canonical_source_bytes(lf.replace(b"\n", b"\r")))
         self.assertIn("normalized to LF", CANONICAL_SOURCE_HASH_RULE)
         self.assertNotEqual(canonical_source_bytes(lf), canonical_source_bytes(lf.rstrip(b"\n")))
-        with self.assertRaises(UnicodeDecodeError):
+        with self.assertRaises(ValueError):
             canonical_source_bytes(b"\xff")
         self.assertEqual(canonical_source_bytes(b"text\n"), canonical_source_bytes(b"\xef\xbb\xbftext\n"))
 

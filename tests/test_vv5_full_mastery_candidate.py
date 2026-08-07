@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import shutil
 import struct
 import subprocess
 import sys
@@ -753,16 +754,27 @@ class VV5FullMasteryCandidateTests(unittest.TestCase):
                 _remove_feature_bytes(work, self.feature, "collection_progression")
                 with self.assertRaises(PatcherError):
                     _remove_feature_bytes(work, self.base, "collection_progression")
-        # X45 changes the active Origins base.  The disabled Full Mastery
-        # generator remains pinned to its previously certified parent until a
-        # later final-tree rebind, and must fail before rewriting tracked files.
+        # The final-tree rebind makes generation deterministic again. Run it in
+        # a disposable repository copy so discovery cannot rewrite tracked
+        # authenticated manifests in this checkout.
         tracked = (BASE, FEATURE, MAP, DOC, DLL)
         originals = {path: path.read_bytes() for path in tracked}
-        result = subprocess.run(
-            [sys.executable, str(GENERATOR)], cwd=ROOT, capture_output=True, text=True
-        )
-        self.assertNotEqual(result.returncode, 0)
-        self.assertIn("active Origins base", result.stderr)
+        with tempfile.TemporaryDirectory(dir=ROOT) as temp_dir:
+            replica = Path(temp_dir) / "repo"
+            shutil.copytree(
+                ROOT,
+                replica,
+                ignore=shutil.ignore_patterns(
+                    ".git", ".tools", "outputs", "build", "__pycache__", ".tmp*", "tmp*"
+                ),
+            )
+            result = subprocess.run(
+                [sys.executable, str(replica / "scripts" / GENERATOR.name)],
+                cwd=replica,
+                capture_output=True,
+                text=True,
+            )
+            self.assertEqual(result.returncode, 0, result.stderr)
         self.assertEqual(originals, {path: path.read_bytes() for path in tracked})
 
     def test_c253_source_repair_is_explicitly_disabled_until_emitted_recertification(self):
@@ -897,13 +909,17 @@ class VV5FullMasteryCandidateTests(unittest.TestCase):
         active = ROOT / "data" / "vv5_origins_feature.json"
         certified_parent = {
             "path": "data/vv5_origins_feature.json",
-            "size": 34672,
-            "sha256": "797456C51CA86A7C802B7B6F2B0C8FCDFFF1C1E205923FA9A1F3E0A503FDB823",
+            "size": 53747,
+            "sha256": "F9643E2B7D115B6ECDDD4D8AD4BFFC73F2FF6937995E40E991041B6AF6463D44",
         }
         self.assertEqual(self.base_raw["active_base"], certified_parent)
-        self.assertEqual(self.map["active_base"], self.base_raw["active_base"])
-        self.assertNotEqual(active.stat().st_size, certified_parent["size"])
-        self.assertNotEqual(sha(active.read_bytes()), certified_parent["sha256"])
+        self.assertEqual(self.map["active_base"], certified_parent)
+        self.assertEqual(active.stat().st_size, certified_parent["size"])
+        self.assertEqual(sha(active.read_bytes()), certified_parent["sha256"])
+        self.assertEqual(
+            self.map["base_manifest_sha256"],
+            sha(BASE.read_bytes()),
+        )
         sdl = self.base_raw["fullscreen_dialog_contract"]["sdl"]
         self.assertEqual(sdl["calls"], 3)
         self.assertEqual(sdl["abi"], "push SDL_Window*; indirect call; add esp,4 for each invocation")

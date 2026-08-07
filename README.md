@@ -546,8 +546,11 @@ Mastery live testing. The disabled geometry candidate now uses cached
 for both Tech and Detail, preserving event 13, `sub_401BD0`, and `0x40C680`
 ownership; independent emitted-byte recertification remains required.
 The VV5 Full Mastery and Running candidates remain disabled and catalog-hidden.
-The nonresponsive Tech/Detail click route remains STOP pending an exact
-`sub_44B560` hook guard, ABI/overlap proof, and click-to-dialog player receipt.
+The stock `sub_44B560` routine is the Detail input/hit-test method and is
+forbidden for event 13 routing. Authenticated historical C99/C260 evidence
+mechanically proves the offline `0x44BC20` event detour and ownership chain,
+but hot uninstall, current composition, runtime, player, and publication
+remain STOP.
 The feature is inspired by the
 selected exclusive upgrades in the Virtual Villagers 1 mobile port. VV5
 excludes Heathens; all games leave movement speed, nursing/pregnancy timers,

@@ -262,20 +262,22 @@ only ID 13 and delegates every other message to the original routine.
 ## Detail-screen route
 
 - Detail draw routine: `sub_44B250`
-- Detail mouse routine: `sub_44B560`
+- Detail input/hit-test routine: `sub_44B560` (forbidden for event 13)
 
 The Detail constructor appends the stock graphic control with native event 13.
-The Detail message handler uses numeric control IDs (its stock constructor
-assigns IDs 1, 3, and 4), and the bound native Detail path is `sub_44B560`.
-The current emitted helper targets `0x7B2600`, but its candidate hook is still
-at `0x44BC20`; the disabled UI/confirmation candidate therefore records the
-new native binding and remains fail-closed until an exact guarded preimage and
-continuation for `0x44B560` are available. Enablement also requires verified
-instruction boundaries, wrapper ABI/register and stack preservation, child
-ownership/destructor behavior, exact resource/factory/ownership/message
-binding, and a non-overlapping owned cave/hook range. The existing
-`0x44BC20` bytes and continuation are explicitly ineligible for reuse; no
-native output is emitted by this candidate.
+The stock input/hit-test method at `0x44B560` accepts only messages 1 and 2 and
+must never be used for event 13. Authenticated historical C99/C260 evidence
+instead proves the offline event detour at VA/raw `0x44BC20`/`0x4BC20`: exact
+preimage and fallback `83EC18A1A8974D00`, detour
+`E99B643600909090` to `0x7B20C0`, continuation `0x44BC28`, and exact
+message/control guard `(8, 13)`. The `0x401BD0`/`0x40C680` ownership path,
+dispatcher `0x4019B8..0x4019CF`, vtable slot `0x49A5A0`, and teardown chain
+`0x44B9F0 -> 0x44AF30 -> 0x40C7F0 -> 0x40C830` are mechanically proven for
+offline install/uninstall. Hot uninstall, current Full Mastery/Running
+composition, runtime/player receipts, and publication remain STOP. The C260
+wrapper still pushes `0x7B2A64` while `SDL_GetWindowFlags` begins at
+`0x7B2A63`, so it exits before opening either menu. No native output is emitted
+by this candidate.
 
 ## Payload and composition
 

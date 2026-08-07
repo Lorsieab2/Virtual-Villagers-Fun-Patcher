@@ -8,7 +8,7 @@
     "entry_name": "running"
   },
   "name": "DISABLED Candidate: VV5 Origins Full Mastery Extension Base",
-  "description": "Inspired by the Virtual Villagers 1 mobile port where these exclusive Origins upgrades originated, this selected-upgrades port adds icon-based Origins Upgrades. The native Time Warp (the stock route advances exactly 3 displayed villager years), Island Event, and Barrel of Babies rows are retained but disabled until their Heathen-safe target paths are proved; selecting one reports that it is unavailable. The stock-layout Tech Point and Food Point Doublers are available for their configured 500,000-tech-point purchases; each existing owned doubler remains removable at zero cost with zero refund, and each removed doubler can be repurchased at the full configured price in stock layout. Expanded-256 keeps both new purchases unavailable while preserving owned Remove. The legacy Cure row and command 5 are withdrawn, unavailable, bypassed by the EB5F containment gate, unreachable, and not part of this candidate; Full Heal/Cure All repair remains pending. Villager Upgrades include Grant Youth (floor age 5), six-skill Full Mastery, Set Age to 18, and Grant Running. Grant Running only adds the build-specific Running preference ID (proven at table offset 0xAEF60) to a free normal Like slot and removes that same ID from Dislikes; it never changes movement or speed logic. VV5 Food Mastery is technology ID 4: the upgrade from level 1 to 2 costs 3,000 tech points and the upgrade from level 2 to 3 costs 40,000 tech points; central food writer 0x41EB40 applies positive A as A, A+floor(A/2), or 2A before food storage, statistics, and other downstream channels; zero and negative inputs bypass mastery. Ordinary collection return 0x414970 is eligible: base 6/35 becomes 6/35, 9/52, or 12/70 by mastery level. The Food Point Doubler runs after mastery and doubles the final positive eligible delta once. Island Event, startup, consumption, and unknown callers remain native. The stock Tech wrapper at 0x4237B0 is the exact six-return positive whitelist to .shr 0x7B2A00; 0x419EA3 clothing refunds remain native. The stock Food wrapper is the exact positive whitelist at 0x41EB6F to .shr 0x7B2B00. Expanded-256 restores both native five-byte hooks and keeps new doubler purchases unavailable. The current-feature relocation ledger is statically complete at 66 rows (23 payload-internal absolute + 36 cross-section rel32 + 7 external absolute), including 43 formerly omitted references; Island Event, composition, runtime, save, catch-up, and player gates remain ON HOLD.",
+  "description": "Inspired by the Virtual Villagers 1 mobile port where these exclusive Origins upgrades originated, this selected-upgrades port adds icon-based Origins Upgrades. The native Time Warp (the stock route advances exactly 3 displayed villager years), Island Event, and Barrel of Babies rows are retained but disabled until their Heathen-safe target paths are proved; selecting one reports that it is unavailable. The stock-layout Tech Point and Food Point Doublers are available for their configured 500,000-tech-point purchases; each existing owned doubler remains removable at zero cost with zero refund, and each removed doubler can be repurchased at the full configured price in stock layout. Expanded-256 keeps both new purchases unavailable while preserving owned Remove. The legacy Cure row and command 5 are withdrawn, unavailable, bypassed by the EB5F containment gate, unreachable, and not part of this candidate; Full Heal/Cure All repair remains pending. Villager Upgrades retain the historical Grant Youth, six-skill Full Mastery, Set Age to 18, and Grant Running labels. Grant Running is STOP/hidden contract evidence only; the legacy preference helper is not native ABI proof and no selectable or runtime-ready Running action is exposed. VV5 Food Mastery is technology ID 4: the upgrade from level 1 to 2 costs 3,000 tech points and the upgrade from level 2 to 3 costs 40,000 tech points; central food writer 0x41EB40 applies positive A as A, A+floor(A/2), or 2A before food storage, statistics, and other downstream channels; zero and negative inputs bypass mastery. Ordinary collection return 0x414970 is eligible: base 6/35 becomes 6/35, 9/52, or 12/70 by mastery level. The Food Point Doubler runs after mastery and doubles the final positive eligible delta once. Island Event, startup, consumption, and unknown callers remain native. The stock Tech wrapper at 0x4237B0 is the exact six-return positive whitelist to .shr 0x7B2A00; 0x419EA3 clothing refunds remain native. The stock Food wrapper is the exact positive whitelist at 0x41EB6F to .shr 0x7B2B00. Expanded-256 restores both native five-byte hooks and keeps new doubler purchases unavailable. The current-feature relocation ledger is statically complete at 66 rows (23 payload-internal absolute + 36 cross-section rel32 + 7 external absolute), including 43 formerly omitted references; Island Event, composition, runtime, save, catch-up, and player gates remain ON HOLD.",
   "output_tag": "Origins Exclusive Features",
   "companion_files": [
     {
@@ -270,6 +270,18 @@
   "expanded_shr_relocations": {
     "stock_virtual_address": "0x7B2000",
     "expanded_virtual_address": "0x8EB000",
+    "ledger_sha256": "14E460773ADC065E053FA30921ED01D33A5F36AD49DC754CCD69127EA02C01B7",
+    "evidence": {
+      "method": "IDA Pro 9.4 decoded instruction heads and operands; raw byte patterns are discovery-only and are not relocation proof",
+      "exact_stock_sha256": "92946781980220E9D1A2E6C573925519934608F5215F4A0F8CE3B90088C5C65D",
+      "disassembly_commit": "8dfccbd1b31e55f5168bb1c5ff23890bb98d9fdb",
+      "current_feature_sites": 66,
+      "payload_internal_absolute_sites": 23,
+      "cross_section_rel32_sites": 36,
+      "external_absolute_sites": 7,
+      "expanded_mode_native_override_sites": 2,
+      "complete_current_feature_relocation_sites": 43
+    },
     "patches": []
   },
   "enabled": false,
@@ -277,8 +289,8 @@
   "certification_status": "disabled C253 candidate; native 0x404700 fullscreen state chain is statically proven and independent emitted-byte recertification is pending; Expanded-256 fail-closed",
   "active_base": {
     "path": "data/vv5_origins_feature.json",
-    "size": 34672,
-    "sha256": "797456C51CA86A7C802B7B6F2B0C8FCDFFF1C1E205923FA9A1F3E0A503FDB823"
+    "size": 53747,
+    "sha256": "F9643E2B7D115B6ECDDD4D8AD4BFFC73F2FF6937995E40E991041B6AF6463D44"
   },
   "dependencies": [],
   "ui_geometry_contract": {
