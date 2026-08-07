@@ -171,7 +171,12 @@ def _hash_repo_file(relative: str, root: Path) -> str:
     path = root.joinpath(*PurePosixPath(relative).parts)
     result = os.lstat(path)
     _require(not _is_reparse(result) and stat.S_ISREG(result.st_mode), f"source provenance path is not a regular no-follow file: {relative}")
-    return hashlib.sha256(path.read_bytes()).hexdigest().upper()
+    try:
+        text = path.read_bytes().decode("utf-8-sig")
+    except UnicodeDecodeError as exc:
+        raise StoredIndexGateError(f"source provenance path is not valid UTF-8: {relative}") from exc
+    canonical = text.replace("\r\n", "\n").replace("\r", "\n").encode("utf-8")
+    return hashlib.sha256(canonical).hexdigest().upper()
 
 
 def authenticate_candidate_anchor(evidence_path: Path, catalog_root: Path) -> dict[str, object]:

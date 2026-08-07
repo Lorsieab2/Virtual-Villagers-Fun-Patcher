@@ -125,6 +125,25 @@ def _candidate(contract: dict[str, object], anchor: dict[str, object]) -> dict[s
 
 
 class VV3StoredIndexEvidenceGateTests(unittest.TestCase):
+    def test_source_provenance_hash_uses_vvfp_source_text_v1(self) -> None:
+        expected = GATE.hashlib.sha256(b"alpha\nbeta\n").hexdigest().upper()
+        variants = (
+            b"alpha\nbeta\n",
+            b"alpha\r\nbeta\r\n",
+            b"alpha\rbeta\r",
+            b"\xef\xbb\xbfalpha\r\nbeta\r\n",
+        )
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            source = root / "source.txt"
+            for content in variants:
+                with self.subTest(content=content):
+                    source.write_bytes(content)
+                    self.assertEqual(GATE._hash_repo_file("source.txt", root), expected)
+            source.write_bytes(b"\xff\xfeinvalid")
+            with self.assertRaisesRegex(GATE.StoredIndexGateError, "not valid UTF-8"):
+                GATE._hash_repo_file("source.txt", root)
+
     def setUp(self) -> None:
         self.contract = copy.deepcopy(GATE.load_contract())
         self.anchor = {
