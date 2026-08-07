@@ -1,0 +1,177 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "vvfp.native_statistics_mutation_evidence",
+  "title": "VV3-VV5 native statistics mutation evidence gate",
+  "description": "Evidence-only, disabled contract. It cannot enable a native patch.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "schema_version",
+    "feature",
+    "enabled",
+    "publication",
+    "games",
+    "withdrawn_hooks",
+    "protected_fields"
+  ],
+  "properties": {
+    "schema": {"const": "vvfp.native_statistics_mutation_evidence"},
+    "schema_version": {"const": 1},
+    "feature": {"const": "native_statistics_mutation"},
+    "enabled": {"const": false},
+    "publication": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "reason"],
+      "properties": {
+        "status": {"const": "disabled"},
+        "reason": {"type": "string", "minLength": 1}
+      }
+    },
+    "games": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["vv3", "vv4", "vv5"],
+      "properties": {
+        "vv3": {"$ref": "#/$defs/game"},
+        "vv4": {"$ref": "#/$defs/game"},
+        "vv5": {"$ref": "#/$defs/game"}
+      }
+    },
+    "withdrawn_hooks": {
+      "type": "array",
+      "minItems": 3,
+      "items": {"$ref": "#/$defs/withdrawn_hook"}
+    },
+    "protected_fields": {
+      "type": "array",
+      "minItems": 3,
+      "items": {"$ref": "#/$defs/protected_field"}
+    }
+  },
+  "$defs": {
+    "hash": {"type": "string", "pattern": "^[0-9A-Fa-f]{64}$"},
+    "nullable_hash": {
+      "anyOf": [
+        {"$ref": "#/$defs/hash"},
+        {"type": "null"}
+      ]
+    },
+    "game": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["stock", "requirements", "receipts"],
+      "properties": {
+        "stock": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["exe_name", "size", "imagebase", "sha256", "full_folder"],
+          "properties": {
+            "exe_name": {"type": "string", "minLength": 1},
+            "size": {"type": "integer", "minimum": 1},
+            "imagebase": {"const": 4194304},
+            "sha256": {"$ref": "#/$defs/hash"},
+            "full_folder": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["status", "sha256", "file_count", "manifest_sha256"],
+              "properties": {
+                "status": {"enum": ["missing", "verified", "rejected"]},
+                "sha256": {"$ref": "#/$defs/nullable_hash"},
+                "file_count": {
+                  "anyOf": [
+                    {"type": "integer", "minimum": 1},
+                    {"type": "null"}
+                  ]
+                },
+                "manifest_sha256": {"$ref": "#/$defs/nullable_hash"}
+              }
+            }
+          }
+        },
+        "requirements": {
+          "type": "array",
+          "minItems": 11,
+          "items": {"$ref": "#/$defs/requirement"}
+        },
+        "receipts": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/receipt"}
+        }
+      }
+    },
+    "requirement": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "status", "evidence_ids"],
+      "properties": {
+        "id": {"type": "string", "minLength": 1},
+        "status": {"enum": ["missing", "verified", "rejected"]},
+        "evidence_ids": {
+          "type": "array",
+          "items": {"type": "string", "minLength": 1}
+        }
+      }
+    },
+    "receipt": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "requirement",
+        "status",
+        "synthetic",
+        "stale",
+        "source_sha256",
+        "proof",
+        "regions"
+      ],
+      "properties": {
+        "id": {"type": "string", "minLength": 1},
+        "requirement": {"type": "string", "minLength": 1},
+        "status": {"enum": ["verified", "missing", "rejected"]},
+        "synthetic": {"type": "boolean"},
+        "stale": {"type": "boolean"},
+        "source_sha256": {"$ref": "#/$defs/hash"},
+        "proof": {"type": "object"},
+        "regions": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/region"}
+        }
+      }
+    },
+    "region": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "start", "length"],
+      "properties": {
+        "kind": {"type": "string", "minLength": 1},
+        "start": {"type": ["integer", "string"]},
+        "length": {"type": "integer", "minimum": 1}
+      }
+    },
+    "withdrawn_hook": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["game_id", "offset", "guard", "reason"],
+      "properties": {
+        "game_id": {"enum": ["vv3", "vv4", "vv5"]},
+        "offset": {"type": ["integer", "string"]},
+        "guard": {"type": "string", "pattern": "^[0-9A-Fa-f]+$"},
+        "reason": {"type": "string", "minLength": 1}
+      }
+    },
+    "protected_field": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["game_id", "address", "owner", "reason"],
+      "properties": {
+        "game_id": {"enum": ["vv3", "vv4", "vv5"]},
+        "address": {"type": ["integer", "string"]},
+        "owner": {"type": "string", "minLength": 1},
+        "reason": {"type": "string", "minLength": 1}
+      }
+    }
+  }
+}

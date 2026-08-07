@@ -1,0 +1,92 @@
+{
+  "schema": "vvfp.native_statistics_mutation_evidence",
+  "schema_version": 1,
+  "feature": "native_statistics_mutation",
+  "enabled": false,
+  "publication": {
+    "status": "disabled",
+    "reason": "Native mutation evidence is incomplete; the existing statistics feature remains export-only."
+  },
+  "games": {
+    "vv3": {
+      "stock": {
+        "exe_name": "Virtual Villagers - The Secret City.exe",
+        "size": 831488,
+        "imagebase": 4194304,
+        "sha256": "8BC5DB382D02BC5C21AD5F607580D60FF44A6519CC7EB133F03113BAACAE6503",
+        "full_folder": {"status": "missing", "sha256": null, "file_count": null, "manifest_sha256": null}
+      },
+      "requirements": [
+        {"id": "stock_fingerprint", "status": "missing", "evidence_ids": []},
+        {"id": "earliest_successful_skeleton_pickup_abi", "status": "missing", "evidence_ids": []},
+        {"id": "buried_exactly_once", "status": "missing", "evidence_ids": []},
+        {"id": "oldest_lifetime_max_updater", "status": "missing", "evidence_ids": []},
+        {"id": "memorial_storage_ownership", "status": "missing", "evidence_ids": []},
+        {"id": "atomic_save_load_serializer", "status": "missing", "evidence_ids": []},
+        {"id": "reload_offline_catchup_idempotence", "status": "missing", "evidence_ids": []},
+        {"id": "failed_load_nonmutation", "status": "missing", "evidence_ids": []},
+        {"id": "expanded_256_compatibility", "status": "missing", "evidence_ids": []},
+        {"id": "hook_cave_composition", "status": "missing", "evidence_ids": []},
+        {"id": "runtime_player_evidence", "status": "missing", "evidence_ids": []}
+      ],
+      "receipts": []
+    },
+    "vv4": {
+      "stock": {
+        "exe_name": "Virtual Villagers - The Tree of Life.exe",
+        "size": 929792,
+        "imagebase": 4194304,
+        "sha256": "6D27A429FFCA5F1F71FDD7ECA761ED1BB67E85F976494BA178B3D7BE01F1B220",
+        "full_folder": {"status": "missing", "sha256": null, "file_count": null, "manifest_sha256": null}
+      },
+      "requirements": [
+        {"id": "stock_fingerprint", "status": "missing", "evidence_ids": []},
+        {"id": "earliest_successful_skeleton_pickup_abi", "status": "missing", "evidence_ids": []},
+        {"id": "buried_exactly_once", "status": "missing", "evidence_ids": []},
+        {"id": "oldest_lifetime_max_updater", "status": "missing", "evidence_ids": []},
+        {"id": "memorial_storage_ownership", "status": "missing", "evidence_ids": []},
+        {"id": "atomic_save_load_serializer", "status": "missing", "evidence_ids": []},
+        {"id": "reload_offline_catchup_idempotence", "status": "missing", "evidence_ids": []},
+        {"id": "failed_load_nonmutation", "status": "missing", "evidence_ids": []},
+        {"id": "expanded_256_compatibility", "status": "missing", "evidence_ids": []},
+        {"id": "hook_cave_composition", "status": "missing", "evidence_ids": []},
+        {"id": "runtime_player_evidence", "status": "missing", "evidence_ids": []}
+      ],
+      "receipts": []
+    },
+    "vv5": {
+      "stock": {
+        "exe_name": "Virtual Villagers - New Believers.exe",
+        "size": 991232,
+        "imagebase": 4194304,
+        "sha256": "92946781980220E9D1A2E6C573925519934608F5215F4A0F8CE3B90088C5C65D",
+        "full_folder": {"status": "missing", "sha256": null, "file_count": null, "manifest_sha256": null}
+      },
+      "requirements": [
+        {"id": "stock_fingerprint", "status": "missing", "evidence_ids": []},
+        {"id": "earliest_successful_skeleton_pickup_abi", "status": "missing", "evidence_ids": []},
+        {"id": "buried_exactly_once", "status": "missing", "evidence_ids": []},
+        {"id": "oldest_lifetime_max_updater", "status": "missing", "evidence_ids": []},
+        {"id": "memorial_storage_ownership", "status": "missing", "evidence_ids": []},
+        {"id": "atomic_save_load_serializer", "status": "missing", "evidence_ids": []},
+        {"id": "reload_offline_catchup_idempotence", "status": "missing", "evidence_ids": []},
+        {"id": "failed_load_nonmutation", "status": "missing", "evidence_ids": []},
+        {"id": "expanded_256_compatibility", "status": "missing", "evidence_ids": []},
+        {"id": "hook_cave_composition", "status": "missing", "evidence_ids": []},
+        {"id": "runtime_player_evidence", "status": "missing", "evidence_ids": []}
+      ],
+      "receipts": []
+    }
+  },
+  "withdrawn_hooks": [
+    {"game_id": "vv3", "offset": "0x5F45B", "guard": "881EE9B8010000", "reason": "Delayed corpse-record retirement; not earliest successful skeleton pickup."},
+    {"game_id": "vv4", "offset": "0x664DC", "guard": "885EFD385EFD", "reason": "Delayed corpse-record retirement; not earliest successful skeleton pickup."},
+    {"game_id": "vv5", "offset": "0x6FF12", "guard": "889ED41C0000", "reason": "Delayed corpse-record retirement; not earliest successful skeleton pickup."}
+  ],
+  "protected_fields": [
+    {"game_id": "vv3", "address": "0x5824D0", "owner": "Origins", "reason": "Origins-owned first reserve dword; unavailable to memorial migration."},
+    {"game_id": "vv4", "address": "0x4D6E10", "owner": "Origins", "reason": "Origins-owned first reserve dword; unavailable to memorial migration."},
+    {"game_id": "vv5", "address": "0x51D388", "owner": "Origins", "reason": "Origins-owned first reserve dword; unavailable to memorial migration."},
+    {"game_id": "vv5", "address": "0x51D38C", "owner": "Heathens Converted", "reason": "Existing statistics field; unavailable to memorial migration."}
+  ]
+}
