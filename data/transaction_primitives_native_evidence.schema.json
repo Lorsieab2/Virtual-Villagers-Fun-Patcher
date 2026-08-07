@@ -1,0 +1,14 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "vvfp.transaction_primitives_native_evidence.schema.v1",
+  "type": "object",
+  "required": ["schema", "version", "flags", "action_families", "games"],
+  "properties": {
+    "schema": {"const": "vvfp.transaction_primitives_native_evidence"},
+    "version": {"const": 1},
+    "flags": {"type": "object"},
+    "action_families": {"type": "array", "minItems": 6, "maxItems": 6, "uniqueItems": true},
+    "games": {"type": "object", "required": ["vv3", "vv4", "vv5"]}
+  },
+  "additionalProperties": false
+}
