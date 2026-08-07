@@ -1,0 +1,45 @@
+{
+  "schema":"vvfp.vv3_expanded_256_full_capacity_save_contract","schema_version":1,
+  "contract_id":"x3-vv3-expanded-256-full-capacity-save-semantics","status":"evidence_reference_stop","enabled":false,
+  "bindings":{
+    "source_sha256":"8BC5DB382D02BC5C21AD5F607580D60FF44A6519CC7EB133F03113BAACAE6503",
+    "prototype_sha256":"6EE3361A7AC35F441763647C1E2FC9EC49569DE5EF372BDB41D243D03002D601",
+    "c342_dependency":"28c5fa8ef87212fe79ce3d3e5daee51b0e3ad488",
+    "stored_index_gate_sha256":"FE66D22010BC42302136C2B4EFD8100AF2D5938802CA52156313E235BCC56D0C",
+    "save_abi_gate_sha256":"C61D5B3DFCCC0B849509F28BFB3B406A46AE56E6B7AE3EB9F7B797201908F277",
+    "runtime_receipt_schema_sha256":"52F8B12D1FFBB87A5D25381DD6D8172B118467015F17C805C10F5604E6FAAB52"
+  },
+  "reference_findings":{
+    "classification":"D350_D351_unverified_reference_only",
+    "serializer_ea":"0x45EF80","deserializer_ea":"0x45C860","save_count_ea":"0x428810","writer_helper_ea":"0x45C8D0",
+    "record_size":"0x11C","records_offset":"0x7864","logical_first":0,"logical_last":255,
+    "padding_indices":[256,257,258,259],"tail_offset":"0x19464","expanded_body_size":"0x1A4B4","expanded_file_size":"0x1A4C0",
+    "observed_risk":"An unconditional terminator after 256 packed records would target tail offset 0x19464; repository-owned authenticated bytes and bounded-reader proof are absent."
+  },
+  "required_semantics":{
+    "writer":["serialize exactly logical records 0 through count-1","require count between 0 and 256","write terminator only when count is less than 256","never serialize padding 256 through 259","preserve bytes from tail offset 0x19464 through body end","return explicit success or failure"],
+    "reader":["accept a terminator before record 256","stop successfully after exactly 256 records without reading tail","reject a 257th record","never construct or expose padding 256 through 259","preserve manager and pool identity on failure","return explicit success or failure"],
+    "caller":["check serializer and writer result","do not report success on any failed stage","do not mutate live save state after failed load"],
+    "atomic_writer":["create sibling temporary file","write complete 0x1A4C0 file","flush and close","reopen without following reparse points","verify exact size and authenticated integrity transform","atomically replace destination only after verification","preserve prior destination on every failure","clean only the owned temporary artifact"]
+  },
+  "native_evidence":{
+    "stock_functions":[
+      {"id":"serializer","ea":"0x45EF80","function_bounds":null,"raw_bytes":null,"complete_xrefs":null,"artifact_refs":[]},
+      {"id":"deserializer","ea":"0x45C860","function_bounds":null,"raw_bytes":null,"complete_xrefs":null,"artifact_refs":[]},
+      {"id":"save_count","ea":"0x428810","function_bounds":null,"raw_bytes":null,"complete_xrefs":null,"artifact_refs":[]},
+      {"id":"writer_helper","ea":"0x45C8D0","function_bounds":null,"raw_bytes":null,"complete_xrefs":null,"artifact_refs":[]}
+    ],
+    "save_callers":[],"candidate_section_bytes":null,"candidate_hook_bytes":null,"candidate_final_bytes":null,
+    "authenticated_full_folder":false,"status":"evidence_absent"
+  },
+  "runtime_fault_matrix":[
+    {"id":"counts_0_149_150_254_255","status":"pending"},{"id":"count_256_no_terminator_tail_untouched","status":"pending"},
+    {"id":"reader_exact_256_no_tail_read","status":"pending"},{"id":"reader_257th_record_rejected","status":"pending"},
+    {"id":"padding_256_259_unreachable_non_saveable","status":"pending"},{"id":"premature_missing_or_malformed_terminator","status":"pending"},
+    {"id":"tail_sentinel_preservation","status":"pending"},{"id":"temporary_write_failure","status":"pending"},
+    {"id":"flush_close_failure","status":"pending"},{"id":"verification_failure","status":"pending"},
+    {"id":"atomic_replace_failure","status":"pending"},{"id":"failed_load_nonmutation","status":"pending"}
+  ],
+  "decision":{"native_bytes_emitted":false,"enabled":false,"runtime_go":false,"player_go":false,"publication_ready":false,"status":"STOP"},
+  "integrity":{"canonical_sha256":"B27A9AA6AA496B3759D2A075B1C0D7FAA9E40C3408598E58BEB504E00420F1C0"}
+}
