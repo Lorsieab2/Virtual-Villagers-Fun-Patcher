@@ -69,6 +69,27 @@ VV3 Running is catalog-hidden and VV3Run2 is hard-withdrawn from playtesting und
 
 All five legacy `vvN_origins_village_wide_upgrades` records remain disabled and absent from the catalog, GUI, CLI, Select All, dependency resolution, and rendered outputs because commands 6, 7, and 8 share one unsafe atomic payload. VV2's separate command-7 Full Mastery candidate is statically enabled and catalog-visible only for stock Collection Progression and Immediate Fixed; its runtime/player confirmation remains pending and Expanded-256 rejects before output. Commands 6/8, Remove, Cure, Gong, and Island Event routes remain absent from that candidate. VV3's village-wide command-6 Running remains withdrawn and absent; the separate selected-villager command-2 candidate is static-enabled only after the certified VV3 Full Mastery prerequisite and remains runtime-pending. VV4 audit `628e0d9217b92b9cd695655842b09d74689a0238` and VV5 audit `02581c8f518e27ebd5fc7d2972db5597ab08ed35` keep their mastery commands contained. Disabled legacy manifests retain diagnostic payload bytes but apply none; containment never alters save ownership or issues refunds.
 
+## VV1/VV2 Origins containment
+
+The VV1 and VV2 Origins feature records and both dependent village-wide
+records are disabled and absent from the catalog, GUI, CLI, dependency
+resolution, Select All, and generated per-feature output. Their legacy Time
+Warp, Cure, Running, doubler, and selected-villager actions are historical/STOP
+evidence only and are not emitted. VV1 still requires the exact
+`Time Warp - Advances 3 Villager Years` resource replacement/rebuild, stale
+Cure removal or separately proved replacement, and complete confirmation,
+identity/funds reacquisition, native mutation, postverification, one-deduction,
+no-change/no-charge, and partial-failure contracts. VV2 has the same gates plus
+root-cause repair after reported Time Warp and Food Point Doubler crashes
+immediately after their purchased/success dialog. This records the trigger only
+and does not infer whether the charge or action persisted. The VV2 crash audit
+also found `.shr` raw-offset versus virtual-address confusion, displacing
+helper/header references by `0x2000`; this is a hard re-enable blocker but not
+certified as the complete explanation. Golden Child, Gong of Wonder, and Island
+Event outcomes remain native. Unrelated VV1/VV2 optional features remain
+available. Their separate isolated command-7 Full Mastery candidates remain
+catalog-visible static candidates for stock modes and runtime/player-pending.
+
 ## VV3 Full Heal / Cure All candidate
 
 The revised VV3 Full Heal / Cure All candidate is enabled and catalog-visible only for certified Collection Progression and Immediate Fixed; implementation is complete at `49595a75b65cd0561811593ba19825239ec97dde` with parent `38510cc21b7cd322a52fbabc936794dfc8601ccc`. Independent static GO reports D209/C213 are recorded without inventing audit or acceptance commit identities; runtime/player validation remains pending. This generated disclosure is sourced from its authoritative candidate manifest.
@@ -111,20 +132,6 @@ Researchers keep choosing the stock research action and earning tech points afte
 - Dependencies: none
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending
 - Guarded executable edits: 1; every edit has an exact purpose and before/after guard in the manifest.
-
-#### Enable Origins-Exclusive Features (`vv1_enable_origins_exclusive_features`)
-
-Inspired by the Virtual Villagers 1 mobile port where these exclusive Origins upgrades originated, this selected-upgrades port adds an icon-based Upgrades screen containing a Time Warp that advances exactly three displayed villager years, Island Event, the native Barrel of Babies event with a three-space capacity guard, and the displayed-but-currently-unavailable 500,000-tech-point Tech Point Doubler and Food Point Doubler. Existing owned doublers remain removable at zero cost with no refund; repurchase is temporarily disabled pending exact-build verification, plus Cure all Villagers for 30,000 tech points. Cure all Villagers clears sickness from eligible active living records without changing health and increments People Cured once per sickness cleared, then displays the exact result `Cured X villagers`. The doubler contract stacks after exact-build collectible adjustments; no Food Mastery-like food transform or collection tech multiplier was found in this fingerprint. Ordinary Science still modifies research amounts before any future eligible doubler hook. Golden Child and Island Event outcomes remain native; purchase is unavailable until safe hook and all-producer provenance are proven. The effect is stored in the current save rather than a global INI. Adds an icon-based Villager Upgrades screen containing Grant Youth, Grant Full Mastery, Grant Running, and Set Age to 18 for the displayed villager. Grant Full Mastery preserves a checked job preference and chooses Farming when none is checked so VV1 does not show the incomplete title Master. Grant Running adds running to an available Likes slot on the displayed villager, removes running from that villager's Dislikes slots, and refuses without charging when no Like slot is available; it does not alter movement speed, movement initialization, or any custom running flag. Inspired by the Virtual Villagers 1 mobile port, where selected Origins-exclusive upgrades originated; this wording does not claim unsupported mobile parity.
-
-- Behavior changes: Inspired by the Virtual Villagers 1 mobile port where these exclusive Origins upgrades originated, this selected-upgrades port adds an icon-based Upgrades screen containing a Time Warp that advances exactly three displayed villager years, Island Event, the native Barrel of Babies event with a three-space capacity guard, and the displayed-but-currently-unavailable 500,000-tech-point Tech Point Doubler and Food Point Doubler. Existing owned doublers remain removable at zero cost with no refund; repurchase is temporarily disabled pending exact-build verification, plus Cure all Villagers for 30,000 tech points. Cure all Villagers clears sickness from eligible active living records without changing health and increments People Cured once per sickness cleared, then displays the exact result `Cured X villagers`. The doubler contract stacks after exact-build collectible adjustments; no Food Mastery-like food transform or collection tech multiplier was found in this fingerprint. Ordinary Science still modifies research amounts before any future eligible doubler hook. Golden Child and Island Event outcomes remain native; purchase is unavailable until safe hook and all-producer provenance are proven. The effect is stored in the current save rather than a global INI. Adds an icon-based Villager Upgrades screen containing Grant Youth, Grant Full Mastery, Grant Running, and Set Age to 18 for the displayed villager. Grant Full Mastery preserves a checked job preference and chooses Farming when none is checked so VV1 does not show the incomplete title Master. Grant Running adds running to an available Likes slot on the displayed villager, removes running from that villager's Dislikes slots, and refuses without charging when no Like slot is available; it does not alter movement speed, movement initialization, or any custom running flag.
-- Explicit non-changes/exclusions: none declared
-- Dependencies: none
-- Build-specific Running preference ID: 38; evidence source: exact stock executable embedded preference table at table offset 0x7B260.
-- Doubler evidence matrix: {'positive_tech_writer': '0x41D120', 'positive_food_writer': '0x41D140', 'collection_adjustment': 'not independently recorded; no exact callsite claim', 'island_event_producers': ['0x428194 tech', '0x4281DA food'], 'hook_status': 'STOP: no safe executable cave/section and arbitrary computed or indirect producer provenance is not proven'}
-- Doubler composition contract: {'stacking': ['every exact-build collectible/collection effect that increases tech-point gain'], 'exclusions': ['Golden Child behavior', 'Island Event outcomes'], 'food_mastery_status': 'confirmed absent for this fingerprint; no Food Mastery-like food transform', 'status': 'STOP: no safe executable cave/section and arbitrary computed or indirect producer provenance is not proven'}
-- Doubler purchase status: {'new_purchase': 'temporarily unavailable pending exact-build provenance verification', 'existing_owned': 'removable at zero cost with zero refund', 'repurchase': 'temporarily disabled pending exact-build provenance verification'}
-- Evidence status: static source/manifest verification performed; runtime/player confirmation pending
-- Guarded executable edits: 12; every edit has an exact purpose and before/after guard in the manifest.
 
 #### Grant Full Mastery to All Villagers (`vv1_full_mastery_all_stage_a_candidate`)
 

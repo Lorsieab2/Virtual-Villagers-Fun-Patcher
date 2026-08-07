@@ -1007,32 +1007,26 @@ def main() -> None:
     manifest = {
         "id": "vv2_enable_origins_exclusive_features",
         "enabled": False,
+        "catalog_enabled": False,
+        "catalog_hidden": True,
         "game_id": "vv2",
         "running_preference_id": RUNNING_PREFERENCE_ID,
         "running_preference_evidence": {"source": "exact stock executable embedded preference table", "table_file_offset": "0x8B808", "entry_name": "running"},
         "name": "Enable Origins-Exclusive Features",
         "description": (
-            "Inspired by the Virtual Villagers 1 mobile port where these exclusive "
-            "Origins upgrades originated, this selected-upgrades port adds the icon-based "
-            "Origins Upgrades screen with a Time Warp that "
-            "advances exactly three displayed villager years, Island "
-            "Event, the native Barrel of Babies event with a three-space reserved-"
-            "population guard, and removable 500,000-tech-point Tech Point and Food "
-            "Point Doublers, plus Cure all Villagers for 30,000 tech points. Cure all "
-            "Villagers clears sickness from eligible active living records without changing "
-            "health and increments People Cured once per sickness cleared, then displays the "
-            "exact result `Cured X villagers`. Doubler ownership is confined to the current save. "
-            "The certified composition applies after native collectible adjustments; Food Mastery is code-confirmed absent "
-            "within the completely enumerated technology definitions, resource strings, direct writer calls, and food-source call chains. Farming gates and unlocks sources but does not multiply awards; Herb Mastery is unrelated. Island Event and Gong of Wonder outcomes remain native, including "
-            "zero/negative and side-effect paths. The exact-build static provenance audit covers every "
-            "positive Island Event and Gong food/tech writer callsite, including "
-            "direct resource writes that bypass the wrappers. Runtime/player "
-            "confirmation remains pending. Adds Villager Upgrades for "
-            "Grant Youth, Grant Full Mastery, Grant Running, and Set Age to 18. "
-            "Grant Running uses an available normal Likes slot, removes Running from "
-            "the displayed villager's Dislikes, refuses without charging when all "
-            "normal Like slots are occupied, and changes no movement-speed value, "
-            "predicate, or other vanilla speed logic."
+            "Historical/STOP VV2 Origins evidence retained for audit only. The legacy "
+            "Time Warp, Cure all Villagers, village-wide Running, doublers, and "
+            "selected-villager Origins actions are disabled, catalog-hidden, not "
+            "selectable, and not emitted after reported Time Warp and Food Point Doubler "
+            "crashes. Existing diagnostic patches and stale resource references do not "
+            "authorize runtime use. Re-enablement requires root-cause repair plus the "
+            "exact Time Warp resource replacement/rebuild, removal or replacement of "
+            "legacy Cure resources, action-specific confirmation, selected/world identity "
+            "and funds reacquisition, native mutation and postverification, one deduction "
+            "only after success, and truthful no-change/no-charge and partial-failure "
+            "reporting. Gong of Wonder and Island Event outcomes remain native. The "
+            "separate isolated command-7 Full Mastery candidate is not this Origins "
+            "record and retains its own static-only, runtime/player-pending status."
         ),
         "output_tag": "Origins Exclusive Features",
         "companion_files": [

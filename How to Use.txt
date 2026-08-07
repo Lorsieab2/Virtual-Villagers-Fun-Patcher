@@ -25,15 +25,19 @@ save-recognition, and complete 256-villager save/reload testing.
 3. Optional for A New Home: check "School Lessons Grant Skill",
    "Continue Research at Max Technologies", and/or
    "Reenable F6 Clothing Change Cheat", and/or
-   "Magic Fruit of Life Alters Mortality", "Builder Action Fixes", and/or
-   "Enable Origins-Exclusive Features".
+   "Magic Fruit of Life Alters Mortality" and/or "Builder Action Fixes".
+   VV1 Origins is disabled, catalog-hidden, and unavailable. Its legacy Time
+   Warp, Cure, Running, doubler, and selected-villager actions are historical
+   evidence only and are not emitted. The separate stock-mode command-7 Full
+   Mastery candidate remains static-only and runtime/player pending.
 4. Optional for The Lost Children: check "Easier Healing Mastery",
    "Teaching Children Grants Skill", "Birth Control",
    "Gong of Wonder Coconuts Fix", and/or "Hospital Recovery Heals".
-   VV2 Origins is temporarily unavailable: Time Warp and Food Point Doubler
+   VV2 Origins is disabled and catalog-hidden: Time Warp and Food Point Doubler
    were reported to crash after the purchased/success dialog; this does not
-   infer whether the charge or action persisted. Unrelated VV2 features remain
-   available.
+   infer whether the charge or action persisted. Legacy Cure, Running, doubler,
+   and selected-villager Origins actions are historical evidence only and are
+   not emitted. Unrelated VV2 features remain available.
    "Grant Full Mastery to All Villagers" is available as the separate static
    command-7 candidate for stock Collection Progression and Immediate Fixed;
    runtime/player confirmation remains pending and both Expanded modes reject.

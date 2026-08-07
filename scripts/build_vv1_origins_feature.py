@@ -238,12 +238,12 @@ def main() -> None:
             mov eax, dword ptr [esi + 0x0C]
             cmp dword ptr [eax + 0xAD48], 0
             je tech_not_owned_for_menu
-            or edi, 1
+            or edi, 8
         tech_not_owned_for_menu:
             mov eax, dword ptr [esi + 0x0C]
             cmp dword ptr [eax + 0xAD4C], 0
             je food_not_owned_for_menu
-            or edi, 2
+            or edi, 16
         food_not_owned_for_menu:
             or edi, 0x1800
             push edi
@@ -961,32 +961,26 @@ def main() -> None:
     rendered_json = json.dumps(patches, indent=2) + "\n"
     manifest = {
         "id": "vv1_enable_origins_exclusive_features",
+        "enabled": False,
+        "catalog_enabled": False,
+        "catalog_hidden": True,
         "game_id": "vv1",
         "running_preference_id": RUNNING_PREFERENCE_ID,
         "running_preference_evidence": {"source": "exact stock executable embedded preference table", "table_file_offset": "0x7B260", "entry_name": "running"},
         "name": "Enable Origins-Exclusive Features",
         "description": (
-            "Inspired by the Virtual Villagers 1 mobile port where these exclusive "
-            "Origins upgrades originated, this selected-upgrades port adds an icon-based "
-            "Upgrades screen containing a Time Warp that advances "
-            "exactly three displayed villager years, Island Event, the "
-            "native Barrel of Babies event with a three-space capacity guard, "
-            "and the displayed-but-currently-unavailable 500,000-tech-point Tech Point "
-            "Doubler and Food Point Doubler. Existing owned doublers remain removable at "
-            "zero cost with no refund; repurchase is temporarily disabled pending exact-build "
-            "verification, plus Cure all Villagers for 30,000 tech points. Cure all Villagers clears "
-            "sickness from eligible active living records without changing health and "
-            "increments People Cured once per sickness cleared, then displays the exact "
-            "result `Cured X villagers`. "
-            "The doubler contract stacks after exact-build collectible adjustments; no Food Mastery-like food transform or collection tech multiplier was found in this fingerprint. Ordinary Science still modifies research amounts before any future eligible doubler hook. Golden Child and Island Event outcomes remain native; purchase is unavailable until safe hook and all-producer provenance are proven. The effect is stored in the current save rather than a global INI. Adds "
-            "an icon-based Villager Upgrades screen containing Grant Youth, Grant Full "
-            "Mastery, Grant Running, and Set Age to 18 for the displayed villager. Grant "
-            "Full Mastery preserves a checked job preference and chooses Farming when "
-            "none is checked so VV1 does not show the incomplete title Master. Grant Running adds running to an "
-            "available Likes slot on the displayed villager, removes running from that "
-            "villager's Dislikes slots, and refuses without charging when no Like slot is "
-            "available; it does not alter movement speed, movement initialization, or any "
-            "custom running flag."
+            "Historical/STOP VV1 Origins evidence retained for audit only. The legacy "
+            "Time Warp, Cure all Villagers, village-wide Running, doublers, and "
+            "selected-villager Origins actions are disabled, catalog-hidden, not "
+            "selectable, and not emitted. Existing diagnostic patches and stale resource "
+            "references do not authorize runtime use. Re-enablement requires the exact "
+            "Time Warp resource replacement/rebuild, removal or replacement of legacy "
+            "Cure resources, action-specific confirmation, selected/world identity and "
+            "funds reacquisition, native mutation and postverification, one deduction "
+            "only after success, and truthful no-change/no-charge and partial-failure "
+            "reporting. Golden Child and Island Event outcomes remain native. The "
+            "separate isolated command-7 Full Mastery candidate is not this Origins "
+            "record and retains its own static-only, runtime/player-pending status."
         ),
         "output_tag": "Origins Exclusive Features",
         "companion_files": [

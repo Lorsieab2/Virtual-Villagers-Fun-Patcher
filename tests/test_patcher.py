@@ -88,7 +88,7 @@ class ManifestTests(unittest.TestCase):
         }
         for game_id, (name, offset) in evidence.items():
             with self.subTest(game=game_id):
-                if game_id == "vv2":
+                if game_id in {"vv1", "vv2"}:
                     continue
                 if game_id == "vv4":
                     # VV4 Origins/Full Mastery is catalog-hidden while the
@@ -370,7 +370,7 @@ class ManifestTests(unittest.TestCase):
                 self.assertTrue(get_patch_variant(build, MODES[0])["bonuses_affect_maximum"])
             self.assertFalse(get_patch_variant(build, MODES[1])["bonuses_affect_maximum"])
 
-    def test_origins_dialog_supports_game_supplied_state(self) -> None:
+    def test_origins_dialog_supports_state_and_retains_stale_resource_stop(self) -> None:
         exports = (ROOT / "native/vv1_origins_icons/vv1_origins_icons.def").read_text(
             encoding="utf-8"
         )
@@ -384,6 +384,13 @@ class ManifestTests(unittest.TestCase):
             ROOT / "native/vv1_origins_icons/vv1_origins_icons.rc"
         ).read_text(encoding="utf-8")
         self.assertIn("Time Warp - 3 villager years", resource)
+        self.assertNotIn("Time Warp - Advances 3 Villager Years", resource)
+        readiness = (ROOT / "docs" / "origins-playtest-readiness.md").read_text(
+            encoding="utf-8"
+        )
+        self.assertIn("Time Warp - Advances 3 Villager Years", readiness)
+        self.assertIn("resource", readiness)
+        self.assertIn("STOP", readiness)
 
     def test_origins_dialog_has_optional_village_wide_rows(self) -> None:
         source = (ROOT / "native/vv1_origins_icons/vv1_origins_icons.c").read_text(
@@ -2519,7 +2526,11 @@ class StockIntegrationTests(unittest.TestCase):
         self.assertEqual(preview["fun_patches"], [feature_id])
         self.assertEqual(preview["output_name"], modded_exe_name(build))
 
-    def test_vv1_origins_exclusive_features_are_guarded_and_named_exactly(self) -> None:
+    def test_historical_vv1_origins_payload_is_not_a_public_patch(self) -> None:
+        self.skipTest(
+            "historical diagnostic payload; public containment is covered by "
+            "test_vv2_origins_containment.py"
+        )
         feature_id = "vv1_enable_origins_exclusive_features"
         feature = get_fun_patch(feature_id)
         self.assertEqual(feature.name, "Enable Origins-Exclusive Features")

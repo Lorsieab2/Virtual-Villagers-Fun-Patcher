@@ -20,6 +20,28 @@ This is static composition/readiness only. It does not prove player-visible
 runtime behavior, and runtime/player confirmation remains pending. The test
 never launches a game and does not authorize packaging by itself.
 
+## VV1/VV2 Origins containment
+
+The VV1 and VV2 Origins feature records and both dependent village-wide
+records are disabled and absent from catalog, GUI, CLI, dependency resolution,
+Select All, and generated per-feature transparency. Their legacy Time Warp,
+Cure, Running, doubler, and selected-villager actions are historical/STOP
+evidence only and must not be launched, purchased, packaged, or emitted.
+
+VV1 re-enablement requires rebuilding the companion resource with the exact
+label `Time Warp - Advances 3 Villager Years`, removing or replacing stale Cure
+resources, and proving confirmation, selected/world identity and funds
+reacquisition, native mutation and postverification, one deduction only after
+success, and truthful no-change/no-charge and partial-failure reporting. VV2
+has the same gates plus root-cause repair for the reported Time Warp and Food
+Point Doubler crashes after the purchased/success dialog. Golden Child, Gong
+of Wonder, and Island Event outcomes remain native.
+
+The isolated VV1 and VV2 command-7 Full Mastery candidates are separate from
+these contained Origins records. They remain catalog-visible static candidates
+for stock Collection Progression and Immediate Fixed, reject Expanded-256, and
+remain runtime/player-confirmation pending.
+
 ## Village-wide Origins containment
 
 All five legacy `vvN_origins_village_wide_upgrades` records are disabled and absent
