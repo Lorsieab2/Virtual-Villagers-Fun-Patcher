@@ -63,6 +63,12 @@ VV5_ORIGINS_NATIVE_OVERRIDE_PREIMAGES = {
     "0x1EB70": ("8C3F3900", "F67E3456"),
     "0x237B1": ("4BF23800", "8B742408"),
 }
+VV4_ORIGINS_RELOCATION_LEDGER_SHA256 = (
+    "CEE01F4AEC59CB1CEE0F42E3DDDB3A24615261E628ED0629C1BFAABF421A897D"
+)
+VV5_ORIGINS_RELOCATION_LEDGER_SHA256 = (
+    "A5DF4E109D32E2BC9FDE36E2BA3139230B6E6CD89DE4C3FF784846F4CE803740"
+)
 ORIGINS_FEATURE_PATHS = tuple(
     ROOT / "data" / f"vv{game_number}_origins_feature.json"
     for game_number in range(1, 6)
@@ -3293,6 +3299,16 @@ def _fun_patch_support(
     return patches
 
 
+def _relocation_ledger_sha256(patches: list[dict[str, Any]]) -> str:
+    canonical = json.dumps(
+        patches,
+        ensure_ascii=True,
+        sort_keys=True,
+        separators=(",", ":"),
+    ).encode("utf-8")
+    return hashlib.sha256(canonical).hexdigest().upper()
+
+
 def _vv4_expanded_contract() -> dict[str, Any]:
     try:
         contract = json.loads(VV4_EXPANDED_CONTRACT_PATH.read_text(encoding="utf-8"))
@@ -3403,6 +3419,10 @@ def _validate_vv4_origins_relocation_contract(
             raise PatcherError(
                 f"VV4 current Origins payload absolute .shr guard drift at {expected_item['offset']}."
             )
+    if relocation.get("ledger_sha256") != VV4_ORIGINS_RELOCATION_LEDGER_SHA256:
+        raise PatcherError("VV4 current Origins relocation ledger digest drifted.")
+    if _relocation_ledger_sha256(patches) != VV4_ORIGINS_RELOCATION_LEDGER_SHA256:
+        raise PatcherError("VV4 current Origins relocation row identity drifted.")
 
 
 def _validate_vv5_origins_relocation_contract(
@@ -3497,6 +3517,10 @@ def _validate_vv5_origins_relocation_contract(
             raise PatcherError(f"VV5 relocation partition is undefined at {offset}.")
     if actual_override_offsets != override_offsets:
         raise PatcherError("VV5 native override partition is incomplete.")
+    if relocation.get("ledger_sha256") != VV5_ORIGINS_RELOCATION_LEDGER_SHA256:
+        raise PatcherError("VV5 Origins relocation ledger digest drifted.")
+    if _relocation_ledger_sha256(patches) != VV5_ORIGINS_RELOCATION_LEDGER_SHA256:
+        raise PatcherError("VV5 Origins relocation row identity drifted.")
 
 
 def _relocate_expanded_shr_fun_patches(
