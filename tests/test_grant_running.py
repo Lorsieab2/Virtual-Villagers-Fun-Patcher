@@ -11,6 +11,7 @@ sys.path.insert(0, str(ROOT / "src"))
 
 from grant_running import (  # noqa: E402
     ALREADY_MESSAGE,
+    DeductionOutcome,
     NO_SLOT_MESSAGE,
     RunningBinding,
     apply_plan,
@@ -21,15 +22,18 @@ from grant_running import (  # noqa: E402
 
 
 def binding(*, enabled: bool = True) -> RunningBinding:
+    """Synthetic model harness; this is not native ABI evidence."""
     return RunningBinding(
         "test",
         "A" * 64,
         0x100,
         (0x10, 0x14, 0x18),
         (0x1C, 0x20, 0x24),
+        image_size=1,
         enabled=enabled,
         preference_write_abi_proven=enabled,
         deduction_abi_proven=enabled,
+        eligibility_order_proven=enabled,
     )
 
 
@@ -119,14 +123,15 @@ class GrantRunningTests(unittest.TestCase):
         )
 
     def test_vv5_faction_gate_fails_closed_before_preference_scan(self):
-        vv5 = RunningBinding("vv5", "B" * 64, 0x2F44, (1, 2, 3), (4, 5, 6))
+        vv5 = RunningBinding("vv5", "B" * 64, 0x2F44, (0x10, 0x14, 0x18), (0x1C, 0x20, 0x24), image_size=1)
         heathen = record((38, -1, 7), (38, 8, -1), faction=1)
         self.assertFalse(scan_running(heathen, vv5).eligible)
 
     def test_health_and_faction_gates_precede_all_preference_reads(self):
         vv1 = binding()
-        vv5 = RunningBinding("vv5", "B" * 64, 0x2F44, (1, 2, 3), (4, 5, 6))
+        vv5 = RunningBinding("vv5", "B" * 64, 0x2F44, (0x10, 0x14, 0x18), (0x1C, 0x20, 0x24), image_size=1)
         cases = (
+            (vv1, {"identity": None, "active": True, "health": 1, "faction": 0, "heathen_active": 0}),
             (vv1, {"active": False, "health": 1, "faction": 0, "heathen_active": 0}),
             (vv1, {"active": True, "health": 0, "faction": 0, "heathen_active": 0}),
             (vv5, {"active": True, "health": 1, "faction": 1, "heathen_active": 0}),
@@ -210,6 +215,7 @@ class GrantRunningTests(unittest.TestCase):
                 normalized = binding_from_manifest(raw)
                 self.assertEqual(normalized.game_id, game)
                 self.assertEqual(normalized.slot_count, slot_count)
+                self.assertTrue(normalized.eligibility_order_proven)
                 self.assertFalse(normalized.commit_enabled)
                 self.assertEqual(raw["status"], "STOP")
                 self.assertFalse(raw["enabled"])
@@ -222,7 +228,8 @@ class GrantRunningTests(unittest.TestCase):
         plan = plan_transaction(plan_record, 40_000, True, lambda: (plan_record, 40_000), binding())
         calls = []
         observed = iter([
-            ((7, 38, 8), (38, 9, -1)),
+            ((7, 38, 8), (38, 9, 38)),
+            ((7, 38, 8), (-1, 9, 38)),
             ((7, 38, 8), (-1, 9, -1)),
             ((7, -1, 8), (38, 9, 38)),
         ])
@@ -237,6 +244,37 @@ class GrantRunningTests(unittest.TestCase):
         self.assertEqual(result.rollback, "complete")
         self.assertFalse(result.charged)
         self.assertNotIn(("deduct",), calls)
+
+    def test_like_readback_precedes_every_dislike_callback(self):
+        current = record((7, -1, 8), (38, 9, 38))
+        plan = plan_transaction(current, 40_000, True, lambda: (current, 40_000), binding())
+        state = {"likes": [7, -1, 8], "dislikes": [38, 9, 38]}
+        events = []
+
+        def write_like(index, value):
+            events.append("write-like")
+            state["likes"][index] = value
+
+        def write_dislike(index, value):
+            self.assertEqual(state["likes"], [7, 38, 8])
+            self.assertEqual(state["dislikes"], [38, 9, 38] if index == 0 else [-1, 9, 38])
+            events.append(f"write-dislike-{index}")
+            state["dislikes"][index] = value
+
+        def read_slots():
+            events.append("read")
+            return tuple(state["likes"]), tuple(state["dislikes"])
+
+        result = apply_plan(
+            plan,
+            write_like,
+            write_dislike,
+            read_slots,
+            lambda _value: DeductionOutcome("charged"),
+        )
+        self.assertEqual(result.status, "committed")
+        self.assertEqual(events[:3], ["write-like", "read", "write-dislike-0"])
+        self.assertEqual(result.charge_status, "charged")
 
     def test_each_native_callback_failure_is_uncharged_and_disclosed(self):
         failures = ("like", "dislike-0", "dislike-2", "deduct")
@@ -266,7 +304,7 @@ class GrantRunningTests(unittest.TestCase):
                 def deduct(value):
                     if failure == "deduct":
                         raise RuntimeError("deduction callback failure")
-                    deductions.append(value)
+                    deductions.append((value, DeductionOutcome("charged")))
 
                 def restore_slot(kind, index, value):
                     state["likes" if kind == "like" else "dislikes"][index] = value
@@ -278,12 +316,17 @@ class GrantRunningTests(unittest.TestCase):
                     read_slots,
                     deduct,
                     restore_slot,
+                    lambda: 100_000,
                 )
                 expected_status = "deduction-failed" if failure == "deduct" else "write-failed"
                 self.assertEqual(result.status, expected_status)
                 self.assertFalse(result.charged)
                 self.assertIn("No tech points have been deducted.", result.message)
                 self.assertEqual(result.rollback, "complete" if failure == "deduct" else "unsafe")
+                self.assertEqual(
+                    result.charge_status,
+                    "not-charged" if failure == "deduct" else "not-attempted",
+                )
                 self.assertEqual(deductions, [])
                 self.assertEqual(dislike_calls, 0 if failure == "like" else (1 if failure == "dislike-0" else 2))
 
@@ -311,11 +354,100 @@ class GrantRunningTests(unittest.TestCase):
             lambda: (tuple(state["likes"]), tuple(state["dislikes"])),
             deduct,
             restore_slot,
+            lambda: 100_000,
         )
         self.assertEqual(result.status, "deduction-failed")
         self.assertEqual(result.rollback, "partial")
+        self.assertEqual(result.charge_status, "not-charged")
         self.assertFalse(result.charged)
         self.assertIn("No tech points have been deducted.", result.message)
+
+    def test_deduction_exception_after_balance_debit_is_reported_as_charged(self):
+        current = record((7, -1, 8), (38, 9, 38))
+        plan = plan_transaction(current, 40_000, True, lambda: (current, 40_000), binding())
+        state = {"likes": [7, -1, 8], "dislikes": [38, 9, 38]}
+        balance = [100_000]
+
+        def write_like(index, value):
+            state["likes"][index] = value
+
+        def write_dislike(index, value):
+            state["dislikes"][index] = value
+
+        def deduct(_value):
+            balance[0] -= 40_000
+            raise RuntimeError("deduction callback raised after charging")
+
+        result = apply_plan(
+            plan,
+            write_like,
+            write_dislike,
+            lambda: (tuple(state["likes"]), tuple(state["dislikes"])),
+            deduct,
+            lambda *_: (_ for _ in ()).throw(RuntimeError("must not rollback committed preference state")),
+            lambda: balance[0],
+        )
+        self.assertEqual(result.status, "committed")
+        self.assertEqual(result.charge_status, "charged")
+        self.assertTrue(result.charged)
+        self.assertEqual(balance[0], 60_000)
+        self.assertNotIn("No tech points have been deducted.", result.message)
+
+    def test_deduction_without_outcome_or_balance_readback_is_unknown(self):
+        current = record((7, -1, 8), (38, 9, 38))
+        plan = plan_transaction(current, 40_000, True, lambda: (current, 40_000), binding())
+        state = {"likes": [7, -1, 8], "dislikes": [38, 9, 38]}
+
+        def write_like(index, value):
+            state["likes"][index] = value
+
+        def write_dislike(index, value):
+            state["dislikes"][index] = value
+
+        result = apply_plan(
+            plan,
+            write_like,
+            write_dislike,
+            lambda: (tuple(state["likes"]), tuple(state["dislikes"])),
+            lambda _value: None,
+            lambda kind, index, value: state["likes" if kind == "like" else "dislikes"].__setitem__(index, value),
+        )
+        self.assertEqual(result.status, "charge-unknown")
+        self.assertEqual(result.charge_status, "unknown")
+        self.assertIsNone(result.charged)
+        self.assertNotIn("No tech points have been deducted.", result.message)
+
+    def test_binding_validation_rejects_ambiguous_geometry_and_identity_types(self):
+        path = ROOT / "data" / "candidates" / "vv2_individual_grant_running_binding.json"
+        raw = json.loads(path.read_text(encoding="utf-8"))
+        cases = (
+            ("bad hash", lambda item: item["exact_build"].update(sha256="not-a-hash")),
+            ("bad size type", lambda item: item["exact_build"].update(size="724992")),
+            ("bad count type", lambda item: item["preference_slots"]["like_slots"].update(count="62")),
+            ("duplicate offsets", lambda item: item["preference_slots"]["dislike_slots"].update(base_offset="0x5F0")),
+            ("misaligned offset", lambda item: item["preference_slots"]["like_slots"].update(base_offset="0x5F1")),
+            ("missing ordering proof", lambda item: item.pop("eligibility_gate_order")),
+        )
+        for label, mutate in cases:
+            with self.subTest(case=label):
+                candidate = deepcopy(raw)
+                mutate(candidate)
+                with self.assertRaises(ValueError):
+                    binding_from_manifest(candidate)
+
+    def test_binding_validation_rejects_nonpositive_stride_and_overlapping_direct_offsets(self):
+        path = ROOT / "data" / "candidates" / "vv3_individual_grant_running_binding.json"
+        raw = json.loads(path.read_text(encoding="utf-8"))
+        for label, mutate in (
+            ("zero stride", lambda item: item["record_identity"].update(stride=0)),
+            ("overlap", lambda item: item["preference_slots"]["dislike"].update(offsets=["0xFB4", "0xFC4", "0xFC8"])),
+            ("count mismatch", lambda item: item["preference_slots"]["like"].update(count=2)),
+        ):
+            with self.subTest(case=label):
+                candidate = deepcopy(raw)
+                mutate(candidate)
+                with self.assertRaises(ValueError):
+                    binding_from_manifest(candidate)
 
 
 if __name__ == "__main__":

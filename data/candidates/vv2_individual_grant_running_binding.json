@@ -1,5 +1,6 @@
 {
   "id": "vv2_individual_grant_running_binding",
+  "eligibility_gate_order": "before_preference_access",
   "game_id": "vv2",
   "exact_build": {
     "filename": "Virtual Villagers - The Lost Children.exe",

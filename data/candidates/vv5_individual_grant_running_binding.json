@@ -2,6 +2,7 @@
   "id": "vv5_individual_grant_running_binding",
   "game_id": "vv5",
   "status": "STOP",
+  "eligibility_gate_order": "before_preference_access",
   "enabled": false,
   "catalog_enabled": false,
   "catalog_hidden": true,

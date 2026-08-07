@@ -27,9 +27,14 @@ slot, not an early terminator. The transaction rules are:
    the same identity and full slot snapshot, postverify the exact result, then
    perform one native deduction.
 
-The shared model in `src/grant_running.py` exposes native callbacks rather than
-raw field stores. Failed postverification is no-charge; rollback is attempted
+The shared model in `src/grant_running.py` exposes adapter callbacks rather than
+raw field stores. The adversarial callback tests use only in-memory synthetic
+bindings and do not prove a native ABI. A deduction adapter must return an
+explicit atomic outcome, or provide exact balance-before/after readback;
+exceptions with an unverifiable charge state are reported as unknown rather
+than as no-charge. Failed postverification is no-charge; rollback is attempted
 only while the same identity and candidate-written values remain provable. A
-binding is not committable unless both complete native ABI gates are certified.
+binding is not committable unless eligibility ordering and both complete native
+ABI gates are certified.
 The per-game evidence and STOP gates are stored under
 `data/candidates/*_individual_grant_running_binding.json`.

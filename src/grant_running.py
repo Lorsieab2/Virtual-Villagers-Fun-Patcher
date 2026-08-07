@@ -24,7 +24,15 @@ CANCELED_MESSAGE = f"Grant Running was canceled.\r\n{NO_DEDUCTION}"
 RACE_MESSAGE = f"The selected villager changed during confirmation.\r\n{NO_DEDUCTION}"
 WRITE_FAILURE_MESSAGE = f"Running could not be verified.\r\n{NO_DEDUCTION}"
 DISABLED_MESSAGE = f"Grant Running is unavailable for this build.\r\n{NO_DEDUCTION}"
+CHARGE_UNKNOWN_MESSAGE = (
+    "Grant Running charge outcome could not be verified.\r\n"
+    "The tech-point deduction state is unknown; no no-charge claim is made."
+)
 SUCCESS_MESSAGE = "Running was granted."
+CHARGE_NOT_ATTEMPTED = "not-attempted"
+CHARGE_NOT_CHARGED = "not-charged"
+CHARGE_CHARGED = "charged"
+CHARGE_UNKNOWN = "unknown"
 
 
 @dataclass(frozen=True)
@@ -36,22 +44,51 @@ class RunningBinding:
     record_stride: int
     like_offsets: tuple[int, ...]
     dislike_offsets: tuple[int, ...]
+    image_size: int = 0
     running_id: int = RUNNING
     empty_id: int = EMPTY
     price: int = PRICE
     enabled: bool = False
     preference_write_abi_proven: bool = False
     deduction_abi_proven: bool = False
+    eligibility_order_proven: bool = False
 
     def __post_init__(self) -> None:
-        if not self.game_id or len(self.fingerprint) != 64:
+        if not isinstance(self.game_id, str) or not self.game_id:
             raise ValueError("Grant Running binding identity is incomplete")
         if not self.like_offsets or len(self.like_offsets) != len(self.dislike_offsets):
             raise ValueError("Like/Dislike slot bounds must match")
+        if (
+            not isinstance(self.fingerprint, str)
+            or len(self.fingerprint) != 64
+            or any(character not in "0123456789abcdefABCDEF" for character in self.fingerprint)
+        ):
+            raise ValueError("Grant Running binding fingerprint must be a 64-digit SHA-256")
+        if type(self.image_size) is not int or self.image_size <= 0:
+            raise ValueError("Grant Running binding image size must be a positive integer")
+        if type(self.record_stride) is not int or self.record_stride <= 0 or self.record_stride % 4:
+            raise ValueError("Grant Running record stride must be a positive DWORD-aligned integer")
+        all_offsets = self.like_offsets + self.dislike_offsets
+        if any(type(offset) is not int for offset in all_offsets):
+            raise ValueError("Grant Running slot offsets must be exact integers")
+        if len(set(all_offsets)) != len(all_offsets):
+            raise ValueError("Grant Running slot offsets must be unique")
+        if any(offset < 0 or offset % 4 or offset + 4 > self.record_stride for offset in all_offsets):
+            raise ValueError("Grant Running slot offsets must be aligned and in-record")
+        if type(self.running_id) is not int or type(self.empty_id) is not int:
+            raise ValueError("Grant Running IDs must be exact integers")
         if self.running_id == self.empty_id:
             raise ValueError("Running and empty IDs must differ")
-        if self.price <= 0:
+        if type(self.price) is not int or self.price <= 0:
             raise ValueError("Grant Running price must be positive")
+        for name in (
+            "enabled",
+            "preference_write_abi_proven",
+            "deduction_abi_proven",
+            "eligibility_order_proven",
+        ):
+            if type(getattr(self, name)) is not bool:
+                raise ValueError(f"Grant Running {name} must be a boolean")
 
     @property
     def slot_count(self) -> int:
@@ -59,17 +96,28 @@ class RunningBinding:
 
     @property
     def commit_enabled(self) -> bool:
-        return self.enabled and self.preference_write_abi_proven and self.deduction_abi_proven
+        return (
+            self.enabled
+            and self.preference_write_abi_proven
+            and self.deduction_abi_proven
+            and self.eligibility_order_proven
+        )
 
 
-def _manifest_int(value: object) -> int:
+def _manifest_int(value: object, *, field: str, allow_hex_string: bool = True) -> int:
     if isinstance(value, bool):
-        raise ValueError("boolean is not a numeric binding value")
+        raise ValueError(f"{field} must not be boolean")
     if isinstance(value, int):
         return value
-    if isinstance(value, str):
-        return int(value, 0)
-    raise ValueError("binding value is not an integer")
+    if (
+        allow_hex_string
+        and isinstance(value, str)
+        and len(value) > 2
+        and value.startswith("0x")
+        and all(character in "0123456789abcdefABCDEF" for character in value[2:])
+    ):
+        return int(value, 16)
+    raise ValueError(f"{field} must be an exact integer or canonical hexadecimal address string")
 
 
 def binding_from_manifest(raw: Mapping[str, Any]) -> RunningBinding:
@@ -79,6 +127,30 @@ def binding_from_manifest(raw: Mapping[str, Any]) -> RunningBinding:
     layout = raw.get("record_identity") or raw.get("record_layout")
     if not isinstance(exact, Mapping) or not isinstance(layout, Mapping):
         raise ValueError("binding manifest is missing exact-build identity or record layout")
+    if type(raw.get("game_id")) is not str or not raw["game_id"]:
+        raise ValueError("binding manifest game_id must be a non-empty string")
+    fingerprint = exact.get("sha256")
+    if not isinstance(fingerprint, str) or len(fingerprint) != 64 or any(
+        character not in "0123456789abcdefABCDEF" for character in fingerprint
+    ):
+        raise ValueError("binding manifest fingerprint must be a 64-digit SHA-256")
+    image_size = _manifest_int(exact.get("size"), field="exact-build size", allow_hex_string=False)
+    if image_size <= 0:
+        raise ValueError("binding manifest exact-build size must be positive")
+    record_stride = _manifest_int(
+        layout.get("stride", layout.get("record_stride")),
+        field="record stride",
+    )
+    if record_stride <= 0 or record_stride % 4:
+        raise ValueError("binding manifest record stride must be positive and DWORD-aligned")
+    if raw.get("status") not in {"STOP", "GO"}:
+        raise ValueError("binding manifest status must be STOP or GO")
+    if raw.get("status") == "STOP" and raw.get("enabled") is True:
+        raise ValueError("STOP binding cannot be enabled")
+    if raw.get("catalog_enabled") is True and raw.get("enabled") is not True:
+        raise ValueError("catalog-enabled binding must also be enabled")
+    if raw.get("eligibility_gate_order") != "before_preference_access":
+        raise ValueError("binding manifest must prove eligibility before preference access")
     slots = raw.get("preference_slots") or raw.get("slots") or raw.get("preferences")
     if isinstance(slots, Mapping):
         like = slots.get("like") or slots.get("likes") or slots.get("like_slots")
@@ -91,15 +163,29 @@ def binding_from_manifest(raw: Mapping[str, Any]) -> RunningBinding:
     def offsets(section: Mapping[str, Any]) -> tuple[int, ...]:
         raw_offsets = section.get("offsets")
         if isinstance(raw_offsets, Sequence) and not isinstance(raw_offsets, (str, bytes, bytearray)):
-            return tuple(_manifest_int(item) for item in raw_offsets)
+            count = section.get("count")
+            if type(count) is not int or count <= 0 or count != len(raw_offsets):
+                raise ValueError("binding manifest slot count must be an exact positive integer matching offsets")
+            result = tuple(
+                _manifest_int(item, field="slot offset")
+                for item in raw_offsets
+            )
+            if len(set(result)) != len(result):
+                raise ValueError("binding manifest slot offsets must be unique")
+            return result
         base = section.get("base_offset")
         count = section.get("count")
         stride = section.get("slot_stride", 4)
         if base is None or count is None:
             return ()
+        if type(count) is not int or count <= 0:
+            raise ValueError("binding manifest slot count must be an exact positive integer")
+        slot_stride = _manifest_int(stride, field="slot stride")
+        if slot_stride != 4:
+            raise ValueError("Grant Running preference slots must be DWORD-spaced")
         return tuple(
-            _manifest_int(base) + _manifest_int(stride) * index
-            for index in range(_manifest_int(count))
+            _manifest_int(base, field="slot base") + slot_stride * index
+            for index in range(count)
         )
 
     like_offsets = offsets(like)
@@ -120,12 +206,13 @@ def binding_from_manifest(raw: Mapping[str, Any]) -> RunningBinding:
     if running_value is None:
         running_value = RUNNING
     return RunningBinding(
-        game_id=str(raw["game_id"]),
-        fingerprint=str(exact["sha256"]),
-        record_stride=_manifest_int(layout.get("stride", layout.get("record_stride"))),
+        game_id=raw["game_id"],
+        fingerprint=fingerprint,
+        record_stride=record_stride,
         like_offsets=like_offsets,
         dislike_offsets=dislike_offsets,
-        running_id=_manifest_int(running_value),
+        image_size=image_size,
+        running_id=_manifest_int(running_value, field="Running ID", allow_hex_string=False),
         empty_id=_manifest_int(
             (
                 slots.get(
@@ -134,9 +221,15 @@ def binding_from_manifest(raw: Mapping[str, Any]) -> RunningBinding:
                 )
                 if isinstance(slots, Mapping)
                 else like.get("empty", EMPTY)
-            )
+            ),
+            field="empty ID",
+            allow_hex_string=False,
         ),
-        price=_manifest_int((raw.get("transaction_contract") or {}).get("price", PRICE)),
+        price=_manifest_int(
+            (raw.get("transaction_contract") or {}).get("price", PRICE),
+            field="transaction price",
+            allow_hex_string=False,
+        ),
         enabled=raw.get("enabled") is True,
         preference_write_abi_proven=(
             native.get("complete_preference_write_abi_proved") is True
@@ -146,6 +239,7 @@ def binding_from_manifest(raw: Mapping[str, Any]) -> RunningBinding:
             )
         ),
         deduction_abi_proven=native.get("deduction_abi_proven") is True,
+        eligibility_order_proven=raw.get("eligibility_gate_order") == "before_preference_access",
     )
 
 
@@ -174,11 +268,23 @@ class RunningPlan:
 
 
 @dataclass(frozen=True)
+class DeductionOutcome:
+    """Explicit atomic result returned by a native deduction adapter."""
+
+    status: str
+
+    def __post_init__(self) -> None:
+        if self.status not in {CHARGE_CHARGED, CHARGE_NOT_CHARGED, CHARGE_UNKNOWN}:
+            raise ValueError("deduction outcome must be charged, not-charged, or unknown")
+
+
+@dataclass(frozen=True)
 class ApplyResult:
     status: str
     message: str
-    charged: bool = False
+    charged: bool | None = False
     rollback: str = "not-needed"
+    charge_status: str = CHARGE_NOT_ATTEMPTED
 
 
 def _int_slots(record: Mapping[str, object], key: str, count: int) -> tuple[int, ...] | None:
@@ -194,6 +300,8 @@ def _int_slots(record: Mapping[str, object], key: str, count: int) -> tuple[int,
 
 
 def _eligible(record: Mapping[str, object], binding: RunningBinding) -> bool:
+    if record.get("identity") is None:
+        return False
     try:
         health = int(record.get("health", 0))
     except (TypeError, ValueError, OverflowError):
@@ -316,10 +424,17 @@ def apply_plan(
     write_like: Callable[[int, int], None],
     write_dislike: Callable[[int, int], None],
     read_slots: Callable[[], tuple[Sequence[int], Sequence[int]]],
-    deduct: Callable[[int], None],
+    deduct: Callable[[int], DeductionOutcome],
     restore_slot: Callable[[str, int, int], None] | None = None,
+    read_balance: Callable[[], int] | None = None,
 ) -> ApplyResult:
-    """Apply a committed plan through native callbacks with bounded rollback."""
+    """Apply a committed plan through callbacks with bounded rollback.
+
+    A deduction adapter must return an explicit ``DeductionOutcome``.  An
+    adapter that cannot do that may provide ``read_balance`` so an exception
+    can be classified from balance-before/after readback.  Unknown charge
+    state is never converted into a no-deduction claim.
+    """
 
     if plan.status != "commit":
         return ApplyResult(plan.status, plan.message)
@@ -330,6 +445,14 @@ def apply_plan(
     try:
         write_like(plan.like_index, plan.binding.running_id)
         written.append(("like", plan.like_index, plan.before_likes[plan.like_index]))
+        # A successful Like callback is not proof that the destination is
+        # readable in the selected record.  Prove the Like readback while all
+        # Dislikes still match the dry-run snapshot before clearing any one.
+        likes_after_like = list(plan.before_likes)
+        likes_after_like[plan.like_index] = plan.binding.running_id
+        likes, dislikes = read_slots()
+        if tuple(likes) != tuple(likes_after_like) or tuple(dislikes) != plan.before_dislikes:
+            return _rollback(plan, written, read_slots, restore_slot, "postverify-failed")
         for index in plan.dislike_indices:
             write_dislike(index, plan.binding.empty_id)
             written.append(("dislike", index, plan.before_dislikes[index]))
@@ -340,10 +463,103 @@ def apply_plan(
         likes, dislikes = read_slots()
         if tuple(likes) != plan.after_likes or tuple(dislikes) != plan.after_dislikes:
             return _rollback(plan, written, read_slots, restore_slot, "postverify-failed")
-        deduct(plan.deduction)
     except Exception:
-        return _rollback(plan, written, read_slots, restore_slot, "deduction-failed")
-    return ApplyResult("committed", SUCCESS_MESSAGE, charged=True)
+        return _rollback(plan, written, read_slots, restore_slot, "postverify-failed")
+
+    balance_before: int | None = None
+    if read_balance is not None:
+        try:
+            balance_before = _strict_balance(read_balance())
+        except Exception:
+            return _rollback(plan, written, read_slots, restore_slot, "charge-preflight-failed")
+
+    try:
+        outcome = deduct(plan.deduction)
+    except Exception:
+        charge_status = _readback_charge_status(balance_before, read_balance, plan.deduction)
+        return _finish_charge(
+            plan,
+            written,
+            read_slots,
+            restore_slot,
+            charge_status,
+            "deduction-failed",
+        )
+
+    if isinstance(outcome, DeductionOutcome):
+        charge_status = outcome.status
+    else:
+        charge_status = _readback_charge_status(balance_before, read_balance, plan.deduction)
+    return _finish_charge(
+        plan,
+        written,
+        read_slots,
+        restore_slot,
+        charge_status,
+        "deduction-failed",
+    )
+
+
+def _strict_balance(value: object) -> int:
+    if type(value) is not int:
+        raise ValueError("native balance readback must be an exact integer")
+    return value
+
+
+def _readback_charge_status(
+    before: int | None,
+    read_balance: Callable[[], int] | None,
+    price: int,
+) -> str:
+    if before is None or read_balance is None:
+        return CHARGE_UNKNOWN
+    try:
+        after = _strict_balance(read_balance())
+    except Exception:
+        return CHARGE_UNKNOWN
+    if after == before:
+        return CHARGE_NOT_CHARGED
+    if after == before - price:
+        return CHARGE_CHARGED
+    return CHARGE_UNKNOWN
+
+
+def _finish_charge(
+    plan: RunningPlan,
+    written: list[tuple[str, int, int]],
+    read_slots: Callable[[], tuple[Sequence[int], Sequence[int]]],
+    restore_slot: Callable[[str, int, int], None] | None,
+    charge_status: str,
+    reason: str,
+) -> ApplyResult:
+    if charge_status == CHARGE_CHARGED:
+        return ApplyResult(
+            "committed",
+            SUCCESS_MESSAGE,
+            charged=True,
+            charge_status=CHARGE_CHARGED,
+        )
+    if charge_status == CHARGE_NOT_CHARGED:
+        return _rollback(
+            plan,
+            written,
+            read_slots,
+            restore_slot,
+            reason,
+            message=WRITE_FAILURE_MESSAGE,
+            charged=False,
+            charge_status=CHARGE_NOT_CHARGED,
+        )
+    return _rollback(
+        plan,
+        written,
+        read_slots,
+        restore_slot,
+        "charge-unknown",
+        message=CHARGE_UNKNOWN_MESSAGE,
+        charged=None,
+        charge_status=CHARGE_UNKNOWN,
+    )
 
 
 def _rollback(
@@ -352,18 +568,52 @@ def _rollback(
     read_slots: Callable[[], tuple[Sequence[int], Sequence[int]]],
     restore_slot: Callable[[str, int, int], None] | None,
     reason: str,
+    *,
+    message: str = WRITE_FAILURE_MESSAGE,
+    charged: bool | None = False,
+    charge_status: str = CHARGE_NOT_ATTEMPTED,
 ) -> ApplyResult:
     if restore_slot is None:
-        return ApplyResult(reason, WRITE_FAILURE_MESSAGE, rollback="unavailable")
+        return ApplyResult(
+            reason,
+            message,
+            charged=charged,
+            rollback="unavailable",
+            charge_status=charge_status,
+        )
     try:
         likes, dislikes = read_slots()
         if tuple(likes) != plan.after_likes or tuple(dislikes) != plan.after_dislikes:
-            return ApplyResult(reason, WRITE_FAILURE_MESSAGE, rollback="unsafe")
+            return ApplyResult(
+                reason,
+                message,
+                charged=charged,
+                rollback="unsafe",
+                charge_status=charge_status,
+            )
         for kind, index, value in reversed(written):
             restore_slot(kind, index, value)
         final_likes, final_dislikes = read_slots()
         if tuple(final_likes) != plan.before_likes or tuple(final_dislikes) != plan.before_dislikes:
-            return ApplyResult(reason, WRITE_FAILURE_MESSAGE, rollback="partial")
+            return ApplyResult(
+                reason,
+                message,
+                charged=charged,
+                rollback="partial",
+                charge_status=charge_status,
+            )
     except Exception:
-        return ApplyResult(reason, WRITE_FAILURE_MESSAGE, rollback="partial")
-    return ApplyResult(reason, WRITE_FAILURE_MESSAGE, rollback="complete")
+        return ApplyResult(
+            reason,
+            message,
+            charged=charged,
+            rollback="partial",
+            charge_status=charge_status,
+        )
+    return ApplyResult(
+        reason,
+        message,
+        charged=charged,
+        rollback="complete",
+        charge_status=charge_status,
+    )
