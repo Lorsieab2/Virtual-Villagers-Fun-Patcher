@@ -47,10 +47,11 @@ static INT_PTR CALLBACK upgrade_dialog(
             if ((lparam & (1 << row)) != 0) {
                 ShowWindow(GetDlgItem(window, ID_CHECK_FIRST + row), SW_SHOW);
                 if (villager_menu) {
-                    SetDlgItemTextA(window, ID_BUY_FIRST + row, "Done");
                     EnableWindow(GetDlgItem(window, ID_BUY_FIRST + row), FALSE);
-                } else {
+                } else if (row == 3 || row == 4) {
                     SetDlgItemTextA(window, ID_BUY_FIRST + row, "Remove");
+                } else {
+                    EnableWindow(GetDlgItem(window, ID_BUY_FIRST + row), FALSE);
                 }
             } else if ((lparam & (1 << (8 + row))) != 0) {
                 SetDlgItemTextA(window, ID_BUY_FIRST + row, "Unavailable");
