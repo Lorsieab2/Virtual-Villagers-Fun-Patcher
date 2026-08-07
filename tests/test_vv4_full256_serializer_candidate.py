@@ -15,7 +15,7 @@ class CandidateTests(unittest.TestCase):
  def test_native_output_rejected(self): self.bad(lambda d:d.update(native_output=True))
  def test_composed_parent_rejected(self): self.bad(lambda d:d["parent"].update(sha256="0"*64))
  def test_section_overlap_rejected(self): self.bad(lambda d:d["section"].update(raw_start=0xE2FFF))
- def test_header_claim_rejected(self): self.bad(lambda d:d["section"].update(header_guard="00"*40))
+ def test_header_guard_rejected(self): self.bad(lambda d:d["section"].update(header_guard="00"*39+"01"))
  def test_hook_preimage_rejected(self): self.bad(lambda d:d["hooks"][0].update(before="90"*5))
  def test_hook_target_rejected(self): self.bad(lambda d:d["hooks"][1].update(target=0x871101))
  def test_d353_helper_hash_rejected(self): self.bad(lambda d:d["d353_helpers"]["decode"].update(sha256="0"*64))
@@ -29,6 +29,12 @@ class CandidateTests(unittest.TestCase):
  def test_writer_resolver_placeholder_rejected(self): self.bad(lambda d:d["writer_model"].update(resolver_bytes="90"))
  def test_replace_existing_weakening_rejected(self): self.bad(lambda d:d["writer_model"]["atomic_contract"].update(final_absent="MoveFileExA replace existing"))
  def test_nonfatal_writer_failure_rejected(self): self.bad(lambda d:d["writer_model"]["atomic_contract"].update(failure_policy="return false and continue"))
+ def test_record_sized_terminator_rejected(self): self.bad(lambda d:d["wrapper_model"]["serializer"].update(terminator="write zero 0x104 record"))
+ def test_clear_reset_order_rejected(self): self.bad(lambda d:d["wrapper_model"]["deserializer"].update(clear_before_reset="reset then clear"))
+ def test_unchecked_close_rejected(self): self.bad(lambda d:d["writer_model"]["atomic_contract"]["required_sequence"].remove("checked CloseHandle verification handle"))
+ def test_identity_check_rejected(self): self.bad(lambda d:d["writer_model"]["atomic_contract"]["required_sequence"].remove("verify volume serial and FileId identity"))
+ def test_replace_tuple_rejected(self): self.bad(lambda d:d["writer_model"]["atomic_contract"].update(final_exists="ReplaceFileA flags0"))
+ def test_caller_ledger_rejected(self): self.bad(lambda d:d["writer_model"]["caller_ledger"]["sites"].pop())
  def test_cli_requires_dry_run(self):
   r=subprocess.run([sys.executable,str(ROOT/"scripts/build_vv4_full256_serializer_candidate.py")],capture_output=True,text=True); self.assertNotEqual(r.returncode,0)
  def test_cli_dry_run(self):

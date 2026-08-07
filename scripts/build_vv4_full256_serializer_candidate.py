@@ -19,7 +19,7 @@ def validate(path=MODEL):
     require(d["rejected_composed_parents"]==["full_mastery","full_heal","fullscreen","running"],"composed-parent rejection")
     require(d["ledger_bindings"]["vv4"]=={"count":13,"digest":"CEE01F4AEC59CB1CEE0F42E3DDDB3A24615261E628ED0629C1BFAABF421A897D"},"VV4 ledger")
     s=d["section"]; require(s["name"]==".vv4x" and (s["raw_start"],s["raw_end"],s["rva"],s["va"],s["header_raw"])==(0xE3000,0xE4000,0x471000,0x871000,0x2C0),"section layout")
-    require(s["characteristics"]=="RX" and s["header_guard"] is None and s["final_header_bytes"] is None,"unproved header must remain null")
+    require(s["characteristics"]=="RX" and s["header_guard"]=="00"*40 and s["final_header_bytes"] is None,"section header guard")
     expected=[("serializer",0x4660A0,0x660A0,"5355565733",0x871000,"E95BAF4000"),("deserializer",0x466110,0x66110,"5356578D79",0x871100,"E9EBAF4000")]
     for row,e in zip(d["hooks"],expected):
         name,va,raw,before,target,after=e
@@ -31,14 +31,19 @@ def validate(path=MODEL):
         w=d["wrapper_model"][name]; require(w["preserves"]==regs and w["bound"]==256 and w["return"]=="AL boolean; ret 4","ABI model")
         require(w["singleton"]=={"function":"0x41FE70","compact_base_offset":"0xC868","null_result":"AL=0"},"singleton model")
         require(len(w["instruction_model"])>=9,"complete instruction model")
-    require(d["wrapper_model"]["serializer"]["terminator"]=="write one zero record only when packed_count < 256","terminator")
+    require(d["wrapper_model"]["serializer"]["terminator"]=="write exactly one zero byte only when packed_count < 256","terminator")
     require(d["wrapper_model"]["deserializer"]["full_256_unterminated"]=="success without reading record 257 or tail","reader bound")
+    require(d["wrapper_model"]["deserializer"]["clear_before_reset"]=="clear all 256 live records before resetting load index","clear/reset order")
     writer=d["writer_model"]
     require(writer["status"]=="blocked_pending_d355" and writer["entry"]=={"ea":"0x4039B0","raw":0x39B0,"before":"81EC04020000","replacement_kind":"complete_entry_e9_rel32_plus_nop","target":None,"after":None},"writer entry guard")
     atomic=writer["atomic_contract"]
-    require(atomic["temp_create"]=="sibling CREATE_NEW | WRITE_THROUGH" and atomic["final_exists"]=="ReplaceFileA flags=0" and atomic["final_absent"]=="MoveFileExA MOVEFILE_WRITE_THROUGH without MOVEFILE_REPLACE_EXISTING","atomic replacement contract")
+    require(atomic["temp_create"]=="sibling CREATE_NEW | WRITE_THROUGH" and atomic["final_exists"]=="ReplaceFileA(final,temp,backup,0,NULL,NULL)","atomic replacement contract")
+    require(atomic["required_sequence"]==["exact write","flush","checked CloseHandle write handle","no-follow reopen","reject reparse point","verify volume serial and FileId identity","GetFileSizeEx equals 24 plus body","compare complete 24-byte header and complete body","checked CloseHandle verification handle"],"verification sequence")
+    require("without MOVEFILE_REPLACE_EXISTING" in atomic["final_absent"] and "leave it untouched and fail fatally" in atomic["final_absent"],"raced final policy")
+    require(atomic["temp_cleanup"]=="delete only identity-verified owned temp" and atomic["directory_entry_power_loss_durability"]=="unsupported and unproved on Windows API contract","cleanup/durability policy")
     require(atomic["api_resolution"]=="dynamic" and atomic["failure_policy"]=="fatal process abandon until all callers prove checked failure handling","writer safety policy")
     require(writer["resolver_bytes"] is None and writer["page_bytes"] is None and writer["final_sha256"] is None,"D355 placeholders must remain null")
+    require(writer["caller_ledger"]=={"status":"complete_addresses_unproved_handling_stop","sites":["0x41F04D","0x41F060","0x41F13A","0x41F14F","0x41F160","0x41E4C0"],"nonreturn_primitive":None},"writer caller ledger")
     require(len(d["blocked_evidence"])==6,"blocker inventory")
     require(all(v is None for v in d["final"].values()),"final bytes/hashes must remain null")
     require(d["uninstall"]["candidate_sha256"] is None and d["uninstall"]["checksum_before"] is None and d["uninstall"]["checksum_after"] is None,"uninstall proof absent")
