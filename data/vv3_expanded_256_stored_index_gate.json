@@ -1,0 +1,214 @@
+{
+  "schema": "vvfp.vv3_expanded_256_stored_index_gate",
+  "schema_version": 1,
+  "contract_id": "x3-vv3-expanded-256-stored-index-padding-gate",
+  "contract_status": "static_contract_only",
+  "integrity": {
+    "canonicalization": "SHA-256 of canonical sorted compact UTF-8 JSON after removing integrity.canonical_sha256",
+    "canonical_sha256": "53276829DC4075B1C10F8DCCE1D3B09715135D60A9253BFA4566A4A921FAB4BF"
+  },
+  "publication": {
+    "enabled": false,
+    "runtime_go": false,
+    "player_go": false,
+    "eligible": false,
+    "reason": "Exact reviewed VV3 widths, sentinels, EAs, complete xref sets, record-255 receipts, padding proofs, serializer receipts, and player/runtime evidence are absent."
+  },
+  "source_provenance": {
+    "authenticated_evidence_commit": "8444df9c314f8ee9a6a29930a9d1be1e70e6adb7",
+    "runtime_receipt_commit": "0940bb5328217aee7a08963ce22c7dddc3ca4503",
+    "source_sha256": "8BC5DB382D02BC5C21AD5F607580D60FF44A6519CC7EB133F03113BAACAE6503",
+    "prototype_sha256": "6EE3361A7AC35F441763647C1E2FC9EC49569DE5EF372BDB41D243D03002D601",
+    "receipt_schema": "vvfp.vv3_expanded_256_runtime_capture_receipt",
+    "required_receipt_stage_ids": [
+      "padding_unreachable_records",
+      "stored_index_sentinel_paths"
+    ],
+    "source_files": [
+      {
+        "path": "data/vv3_expanded_256_evidence.schema.json",
+        "sha256": "A4B7558835F29E4A38764CC35B2963EDA4948A74E20DE6078DDA89B2F36589FB"
+      },
+      {
+        "path": "data/vv3_expanded_256_exporter_manifest.schema.json",
+        "sha256": "EE94B02D964DFCE7729BE610DC6AAD1553E88B65ADF31CD9E763CB84A15767BE"
+      },
+      {
+        "path": "data/vv3_expanded_256_runtime_receipt.schema.json",
+        "sha256": "52F8B12D1FFBB87A5D25381DD6D8172B118467015F17C805C10F5604E6FAAB52"
+      },
+      {
+        "path": "data/vv3_expanded_256_stored_index_evidence.schema.json",
+        "sha256": "6FDBA12F2CB6744824B9CFDE0F536BCB19A48A900734B2FF77D5EB200D99E590"
+      },
+      {
+        "path": "data/vv3_expanded_256_stored_index_gate.schema.json",
+        "sha256": "86E7996490D756E76819EAA10ECA0E6F00E72EC0B50838BC87B1B8A0CB8471C4"
+      },
+      {
+        "path": "src/vv3_expanded_256_evidence.py",
+        "sha256": "4434A1EE443E5F7571D389E3E7FB0A013597ED8FE4AFBABBD3FB4258D7B261F2"
+      },
+      {
+        "path": "src/vv3_expanded_256_runtime_capture.py",
+        "sha256": "6560F895919813FC6427A54559B00867AC1D03AB1D24AEA6EA482F19315EB178"
+      }
+    ]
+  },
+  "evidence_policy": {
+    "game_id": "vv3",
+    "required_evidence_class": "authenticated_vv3_native_observation",
+    "forbidden_assumptions": [
+      "byte_0xFF_sentinel_inference",
+      "vv5_dword_minus_one_borrowing",
+      "cross_game_width_or_sentinel_borrowing"
+    ],
+    "require_complete_xref_sets": true,
+    "require_authenticated_exporter_provenance": true
+  },
+  "reviewed_expectations": {
+    "status": "absent",
+    "reason": "Repository-owned evidence does not yet pin exact VV3 width, sentinel, EA, or complete xref expectations for these paths.",
+    "widths": null,
+    "sentinels": null,
+    "exact_eas": null,
+    "complete_xrefs": null
+  },
+  "paths": [
+    {
+      "ordinal": 1,
+      "id": "selection",
+      "status": "evidence_absent",
+      "expected_width_bits": null,
+      "expected_sentinel": null,
+      "expected_observation_eas": [],
+      "expected_complete_xrefs": [],
+      "record_255": {"status": "unproven", "accepted": null, "saveable": null, "observation_refs": []},
+      "evidence_refs": []
+    },
+    {
+      "ordinal": 2,
+      "id": "sorted_roster",
+      "status": "evidence_absent",
+      "expected_width_bits": null,
+      "expected_sentinel": null,
+      "expected_observation_eas": [],
+      "expected_complete_xrefs": [],
+      "record_255": {"status": "unproven", "accepted": null, "saveable": null, "observation_refs": []},
+      "evidence_refs": []
+    },
+    {
+      "ordinal": 3,
+      "id": "detail_navigation",
+      "status": "evidence_absent",
+      "expected_width_bits": null,
+      "expected_sentinel": null,
+      "expected_observation_eas": [],
+      "expected_complete_xrefs": [],
+      "record_255": {"status": "unproven", "accepted": null, "saveable": null, "observation_refs": []},
+      "evidence_refs": []
+    },
+    {
+      "ordinal": 4,
+      "id": "planner_action_queue",
+      "status": "evidence_absent",
+      "expected_width_bits": null,
+      "expected_sentinel": null,
+      "expected_observation_eas": [],
+      "expected_complete_xrefs": [],
+      "record_255": {"status": "unproven", "accepted": null, "saveable": null, "observation_refs": []},
+      "evidence_refs": []
+    },
+    {
+      "ordinal": 5,
+      "id": "pairing_pregnancy",
+      "status": "evidence_absent",
+      "expected_width_bits": null,
+      "expected_sentinel": null,
+      "expected_observation_eas": [],
+      "expected_complete_xrefs": [],
+      "record_255": {"status": "unproven", "accepted": null, "saveable": null, "observation_refs": []},
+      "evidence_refs": []
+    },
+    {
+      "ordinal": 6,
+      "id": "birth_death",
+      "status": "evidence_absent",
+      "expected_width_bits": null,
+      "expected_sentinel": null,
+      "expected_observation_eas": [],
+      "expected_complete_xrefs": [],
+      "record_255": {"status": "unproven", "accepted": null, "saveable": null, "observation_refs": []},
+      "evidence_refs": []
+    },
+    {
+      "ordinal": 7,
+      "id": "skeleton_memorial",
+      "status": "evidence_absent",
+      "expected_width_bits": null,
+      "expected_sentinel": null,
+      "expected_observation_eas": [],
+      "expected_complete_xrefs": [],
+      "record_255": {"status": "unproven", "accepted": null, "saveable": null, "observation_refs": []},
+      "evidence_refs": []
+    },
+    {
+      "ordinal": 8,
+      "id": "event_puzzle",
+      "status": "evidence_absent",
+      "expected_width_bits": null,
+      "expected_sentinel": null,
+      "expected_observation_eas": [],
+      "expected_complete_xrefs": [],
+      "record_255": {"status": "unproven", "accepted": null, "saveable": null, "observation_refs": []},
+      "evidence_refs": []
+    },
+    {
+      "ordinal": 9,
+      "id": "statistics",
+      "status": "evidence_absent",
+      "expected_width_bits": null,
+      "expected_sentinel": null,
+      "expected_observation_eas": [],
+      "expected_complete_xrefs": [],
+      "record_255": {"status": "unproven", "accepted": null, "saveable": null, "observation_refs": []},
+      "evidence_refs": []
+    },
+    {
+      "ordinal": 10,
+      "id": "callbacks",
+      "status": "evidence_absent",
+      "expected_width_bits": null,
+      "expected_sentinel": null,
+      "expected_observation_eas": [],
+      "expected_complete_xrefs": [],
+      "record_255": {"status": "unproven", "accepted": null, "saveable": null, "observation_refs": []},
+      "evidence_refs": []
+    }
+  ],
+  "serializer_binding": {
+    "id": "serializer",
+    "status": "evidence_absent",
+    "record_255_saved": null,
+    "padding_saved": null,
+    "expected_observation_eas": [],
+    "expected_complete_xrefs": [],
+    "evidence_refs": []
+  },
+  "padding_contract": {
+    "logical_max_index": 255,
+    "indices": [256, 257, 258, 259],
+    "status": "evidence_absent",
+    "reachable": null,
+    "saveable": null,
+    "required_paths": ["construction", "selection", "serialization", "population_counting", "statistics"],
+    "observation_refs": []
+  },
+  "runtime_evidence": {
+    "status": "absent",
+    "candidate": null,
+    "authenticated_source": false,
+    "structural_valid": false,
+    "gate_ready": false
+  }
+}
