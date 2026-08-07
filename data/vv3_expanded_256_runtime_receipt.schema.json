@@ -1,0 +1,183 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "vvfp.vv3_expanded_256_runtime_capture_receipt",
+  "title": "VV3 Expanded-256 unsigned pending runtime-capture checklist",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "schema_version",
+    "receipt_id",
+    "receipt_status",
+    "evidence_class",
+    "template_only",
+    "generated_at",
+    "authorization",
+    "authenticated_static_anchor",
+    "folder_preflight",
+    "modded_save_root_preflight",
+    "stages",
+    "integrity",
+    "decision"
+  ],
+  "properties": {
+    "schema": {"const": "vvfp.vv3_expanded_256_runtime_capture_receipt"},
+    "schema_version": {"const": 1},
+    "receipt_id": {"type": "null"},
+    "receipt_status": {"const": "pending"},
+    "evidence_class": {"const": "staged_checklist_only"},
+    "template_only": {"const": true},
+    "generated_at": {"type": "null"},
+    "authorization": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["dry_run", "launch_permitted", "save_content_access_permitted", "auto_discovery_permitted"],
+      "properties": {
+        "dry_run": {"const": true},
+        "launch_permitted": {"const": false},
+        "save_content_access_permitted": {"const": false},
+        "auto_discovery_permitted": {"const": false}
+      }
+    },
+    "authenticated_static_anchor": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "evidence_sha256",
+        "exporter_manifest_path",
+        "exporter_manifest_sha256",
+        "exporter_manifest_file_sha256",
+        "exporter_producer",
+        "exporter_run_id",
+        "source_sha256",
+        "prototype_sha256"
+      ],
+      "properties": {
+        "evidence_sha256": {"$ref": "#/$defs/sha256"},
+        "exporter_manifest_path": {"type": "string", "minLength": 1},
+        "exporter_manifest_sha256": {"$ref": "#/$defs/sha256"},
+        "exporter_manifest_file_sha256": {"$ref": "#/$defs/sha256"},
+        "exporter_producer": {"const": "vv3-ida-exporter"},
+        "exporter_run_id": {"type": "string", "minLength": 1},
+        "source_sha256": {"const": "8BC5DB382D02BC5C21AD5F607580D60FF44A6519CC7EB133F03113BAACAE6503"},
+        "prototype_sha256": {"const": "6EE3361A7AC35F441763647C1E2FC9EC49569DE5EF372BDB41D243D03002D601"}
+      }
+    },
+    "folder_preflight": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "complete", "folder_name", "physical_files", "role_counts", "entry_executable", "entry_sha256", "no_follow", "re_read_verified", "inventory_sha256"],
+      "properties": {
+        "status": {"const": "verified_inventory_only"},
+        "complete": {"const": true},
+        "folder_name": {"const": "Virtual Villagers - The Secret City - Modded 256"},
+        "physical_files": {"const": 419},
+        "role_counts": {"$ref": "#/$defs/role_counts"},
+        "entry_executable": {"const": "Virtual Villagers - The Secret City - Modded 256.exe"},
+        "entry_sha256": {"$ref": "#/$defs/sha256"},
+        "no_follow": {"const": true},
+        "re_read_verified": {"const": true},
+        "inventory_sha256": {"$ref": "#/$defs/sha256"}
+      }
+    },
+    "modded_save_root_preflight": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "explicitly_supplied", "folder_name", "path", "contents_accessed", "reparse_free"],
+      "properties": {
+        "status": {"const": "path_preflight_only"},
+        "explicitly_supplied": {"const": true},
+        "folder_name": {"const": "Virtual Villagers - The Secret City - Modded 256"},
+        "path": {"type": "string", "minLength": 1},
+        "contents_accessed": {"const": false},
+        "reparse_free": {"const": true}
+      }
+    },
+    "stages": {
+      "type": "array",
+      "minItems": 11,
+      "maxItems": 11,
+      "prefixItems": [
+        {"$ref": "#/$defs/stage_loader"},
+        {"$ref": "#/$defs/stage_stock_import"},
+        {"$ref": "#/$defs/stage_expanded_reload"},
+        {"$ref": "#/$defs/stage_offline"},
+        {"$ref": "#/$defs/stage_failed_load"},
+        {"$ref": "#/$defs/stage_rotation"},
+        {"$ref": "#/$defs/stage_late_records"},
+        {"$ref": "#/$defs/stage_padding"},
+        {"$ref": "#/$defs/stage_indices"},
+        {"$ref": "#/$defs/stage_origins"},
+        {"$ref": "#/$defs/stage_player"}
+      ],
+      "items": false
+    },
+    "integrity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["signed", "canonical_sha256", "signature"],
+      "properties": {
+        "signed": {"const": false},
+        "canonical_sha256": {"type": "null"},
+        "signature": {"type": "null"}
+      }
+    },
+    "decision": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["runtime_go", "player_go", "publication_ready", "status", "reason"],
+      "properties": {
+        "runtime_go": {"const": false},
+        "player_go": {"const": false},
+        "publication_ready": {"const": false},
+        "status": {"const": "STOP"},
+        "reason": {"type": "string", "minLength": 1}
+      }
+    }
+  },
+  "$defs": {
+    "sha256": {"type": "string", "pattern": "^[0-9A-F]{64}$"},
+    "role_counts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["stock_executable", "retained_game_asset", "entry_executable", "companion_dll", "patch_log", "transparency_log", "player_readme", "runtime_inventory", "checksum_list"],
+      "properties": {
+        "stock_executable": {"const": 1},
+        "retained_game_asset": {"const": 411},
+        "entry_executable": {"const": 1},
+        "companion_dll": {"const": 1},
+        "patch_log": {"const": 1},
+        "transparency_log": {"const": 1},
+        "player_readme": {"const": 1},
+        "runtime_inventory": {"const": 1},
+        "checksum_list": {"const": 1}
+      }
+    },
+    "stage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["ordinal", "id", "status", "required_assertions", "observation_refs", "artifact_refs", "operator_notes", "player_confirmed"],
+      "properties": {
+        "ordinal": {"type": "integer", "minimum": 1, "maximum": 11},
+        "id": {"type": "string"},
+        "status": {"const": "pending"},
+        "required_assertions": {"type": "array", "minItems": 2, "items": {"type": "string", "minLength": 1}},
+        "observation_refs": {"const": []},
+        "artifact_refs": {"const": []},
+        "operator_notes": {"type": "null"},
+        "player_confirmed": {"const": false}
+      }
+    },
+    "stage_loader": {"allOf": [{"$ref": "#/$defs/stage"}, {"properties": {"ordinal": {"const": 1}, "id": {"const": "loader_hang_instruction_call_state"}}}]},
+    "stage_stock_import": {"allOf": [{"$ref": "#/$defs/stage"}, {"properties": {"ordinal": {"const": 2}, "id": {"const": "stock_import"}}}]},
+    "stage_expanded_reload": {"allOf": [{"$ref": "#/$defs/stage"}, {"properties": {"ordinal": {"const": 3}, "id": {"const": "expanded_save_reload"}}}]},
+    "stage_offline": {"allOf": [{"$ref": "#/$defs/stage"}, {"properties": {"ordinal": {"const": 4}, "id": {"const": "offline_catch_up"}}}]},
+    "stage_failed_load": {"allOf": [{"$ref": "#/$defs/stage"}, {"properties": {"ordinal": {"const": 5}, "id": {"const": "failed_load_nonmutation"}}}]},
+    "stage_rotation": {"allOf": [{"$ref": "#/$defs/stage"}, {"properties": {"ordinal": {"const": 6}, "id": {"const": "save_rotation"}}}]},
+    "stage_late_records": {"allOf": [{"$ref": "#/$defs/stage"}, {"properties": {"ordinal": {"const": 7}, "id": {"const": "late_record_boundaries"}}}]},
+    "stage_padding": {"allOf": [{"$ref": "#/$defs/stage"}, {"properties": {"ordinal": {"const": 8}, "id": {"const": "padding_unreachable_records"}}}]},
+    "stage_indices": {"allOf": [{"$ref": "#/$defs/stage"}, {"properties": {"ordinal": {"const": 9}, "id": {"const": "stored_index_sentinel_paths"}}}]},
+    "stage_origins": {"allOf": [{"$ref": "#/$defs/stage"}, {"properties": {"ordinal": {"const": 10}, "id": {"const": "current_origins_behavior"}}}]},
+    "stage_player": {"allOf": [{"$ref": "#/$defs/stage"}, {"properties": {"ordinal": {"const": 11}, "id": {"const": "explicit_player_validation"}}}]}
+  }
+}
