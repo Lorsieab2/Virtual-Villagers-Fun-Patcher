@@ -19,6 +19,15 @@ class Full256StaticCandidateTests(unittest.TestCase):
         s=self.value["section_plan"];self.assertIsNone(s["header_bytes"]);self.assertIsNone(s["section_bytes"]);self.assertIsNone(s["final_bytes"])
     def test_hooks_exact_but_not_emitted(self):
         self.assertEqual([("0x27D57","E824720300","E8A4123900","0x7B9000"),("0x28A4C","E80F3E0300","E8AF073900","0x7B9200")],[(x["raw"],x["preimage"],x["expected"],x["target"]) for x in self.value["hooks"]]);self.assertTrue(all(x["emitted"] is None for x in self.value["hooks"]))
+    def test_hook_roles_bind_stock_functions_callsites_and_targets(self):
+        self.assertEqual(
+            [("serializer","0x45EF80","0x27D57","0x427D57","0x7B9000"),("deserializer","0x45C860","0x28A4C","0x428A4C","0x7B9200")],
+            [(x["id"],x["stock_function"],x["raw"],x["va"],x["target"]) for x in self.value["hooks"]],
+        )
+    def test_serializer_and_deserializer_roles_cannot_swap(self):
+        hooks={x["id"]:x for x in self.value["hooks"]}
+        self.assertEqual(("0x45EF80","0x27D57","0x7B9000"),tuple(hooks["serializer"][k] for k in ("stock_function","raw","target")))
+        self.assertEqual(("0x45C860","0x28A4C","0x7B9200"),tuple(hooks["deserializer"][k] for k in ("stock_function","raw","target")))
     def test_abis_exact(self):self.assertEqual(B.ABIS,tuple((x["id"],x["start"],x["end"],x["sha256"],x["contract"]) for x in self.value["abis"]))
     def test_compact_base_uses_singleton(self):self.assertIn("0x428B60",self.value["wrapper_model"]["compact_base"]);self.assertIn("0x786C",self.value["wrapper_model"]["compact_base"])
     def test_padding_forbidden(self):self.assertEqual("256..259 forbidden",self.value["wrapper_model"]["padding"])
