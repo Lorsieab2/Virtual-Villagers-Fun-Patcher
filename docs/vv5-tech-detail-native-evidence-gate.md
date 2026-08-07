@@ -28,9 +28,21 @@ continuations for the constructor and handler; an authenticated candidate EXE,
 complete-folder manifest, and machine export identifying the real route/callsite; decoded
 instruction boundaries; the `thiscall` receiver; message ABI; register/stack
 preservation; child ownership and destructor path; and final-tree range-overlap
-proof. Neither stock method entry `0x44B560` nor event method `0x44BC20` may be
-relabeled as a proven candidate callsite. The actual candidate route and callsite
-remain null/unknown.
+proof. Stock input method `0x44B560` may never be used as the event-13 route.
+The authenticated offline route instead hooks the distinct Detail event method
+at VA/raw `0x44BC20/0x4BC20`: preimage `83EC18A1A8974D00`, detour
+`E99B643600909090` to `0x7B20C0`, exact `(8,13)` guard, fallback replay, and
+continuation `0x44BC28`. Offline install/uninstall is mechanically verified;
+hot uninstall is not.
+
+The event method is exactly half-open `[0x44BC20,0x44BD4C)`, 300 bytes, SHA-256
+`DE25D2B76DC7E6337F40F06CBF25FCDCEC411BD9D7F1E7DC78406C157501DC74`.
+The inner dispatcher is `[0x4019B8,0x4019CF)`, 23 bytes, SHA-256
+`F2EB107944977E8CBCE7CAD450EC6D1D046880727EBDE36A939CF5DC5DDC907F`;
+its final `FF D0` occupies `[0x4019CD,0x4019CF)`. It loads parent `+0x20`, ID
+`+0x4`, and calls parent vtable slot `+0x0C` synchronously. C99 constructor raw
+`0x4AF12` creates ID 13 with receiver `ESI` and registers it through `0x40C680`.
+The owning teardown is `0x44B9F0 -> 0x44AF30 -> 0x40C7F0 -> 0x40C830`.
 
 Authenticated historical C260 evidence records a separate dependency failure:
 the wrapper pushes `0x7B2A64`, one byte after the `SDL_GetWindowFlags` string at
@@ -42,8 +54,9 @@ and fullscreen C260 `4D8A13996094567B088D931AB826C76AB8034BFAB2D63957F1408C5199F
 Historical patches include constructor raw `0x40A24 -> 0x7B2040` and
 `0x4AF12 -> 0x7B2100`, Tech raw `0x415F0 -> 0x7B2000`, and Detail raw
 `0x4BC20 -> 0x7B20C0`; payload menu calls occur at raw `0xDB00E` and `0xDB0CE`.
-These facts explain prior candidates but do not certify current Detail input
-ownership, receiver/stack ABI, destructor/HWND behavior, or final-tree composition.
+These facts certify the historical offline event detour and child ownership;
+they do not certify hot uninstall, HWND ownership, final-tree composition, or
+runtime/player behavior.
 
 Four independently authenticated player receipts are mandatory: Tech windowed,
 Tech fullscreen, Detail windowed, and Detail fullscreen. Each receipt must prove

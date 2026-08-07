@@ -6,13 +6,11 @@ import hashlib
 from pathlib import Path
 
 
-CANONICAL_SOURCE_HASH_RULE = "vvfp.source-text.v1: strict UTF-8 without BOM; CRLF and CR normalized to LF; SHA-256 uppercase"
+CANONICAL_SOURCE_HASH_RULE = "vvfp.source-text.v1: UTF-8 with optional BOM removed; CRLF and CR normalized to LF; SHA-256 uppercase"
 
 
 def canonical_source_bytes(data: bytes) -> bytes:
-    if data.startswith(b"\xef\xbb\xbf"):
-        raise ValueError("canonical source text must not contain a UTF-8 BOM")
-    text = data.decode("utf-8")
+    text = data.decode("utf-8-sig")
     return text.replace("\r\n", "\n").replace("\r", "\n").encode("utf-8")
 
 

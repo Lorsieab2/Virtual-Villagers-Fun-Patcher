@@ -24,6 +24,12 @@ class VV5TechDetailNativeEvidenceTests(unittest.TestCase):
         _, complete = load_and_validate()
         self.assertFalse(complete)
         self.assertTrue(SCHEMA_PATH.is_file())
+        schema = json.loads(SCHEMA_PATH.read_text(encoding="utf-8"))
+        contract_schema = schema["$defs"]["contract"]
+        self.assertFalse(contract_schema["additionalProperties"])
+        self.assertEqual(set(contract_schema["required"]), set(self.record["native_contract"]))
+        for key, value in self.record["native_contract"].items():
+            self.assertEqual(contract_schema["properties"][key]["const"], value)
         for key, value in (("enabled", False), ("catalog_hidden", True), ("catalog_enabled", False), ("publication_ready", False), ("native_output", False)):
             self.assertIs(self.record[key], value)
         manifest = build_manifest()
@@ -48,8 +54,14 @@ class VV5TechDetailNativeEvidenceTests(unittest.TestCase):
         self.assertEqual(contract["detail_input_nonvolatile_saves"], ["EBX", "EBP", "ESI", "EDI"])
         self.assertEqual((contract["detail_input_stack_locals"], contract["detail_input_cleanup"]), ("0x44", "ret 0xC"))
         self.assertEqual((contract["detail_vtable_va"], contract["detail_destructor_va"], contract["detail_event_method_va"]), ("0x49A590", "0x44B9F0", "0x44BC20"))
-        self.assertIsNone(contract["candidate_route_va"])
-        self.assertIsNone(contract["candidate_callsite_va"])
+        self.assertEqual((contract["candidate_callsite_va"], contract["candidate_callsite_raw"], contract["candidate_route_va"]), ("0x44BC20", "0x4BC20", "0x7B20C0"))
+        self.assertEqual((contract["candidate_hook_preimage"], contract["candidate_hook_detour"], contract["candidate_continuation_va"]), ("83EC18A1A8974D00", "E99B643600909090", "0x44BC28"))
+        self.assertEqual((contract["candidate_guard_message"], contract["candidate_guard_control_id"]), (8, 13))
+        self.assertTrue(contract["offline_install_verified"])
+        self.assertTrue(contract["offline_uninstall_verified"])
+        self.assertFalse(contract["hot_uninstall_verified"])
+        self.assertEqual(contract["detail_event_method_sha256"], "DE25D2B76DC7E6337F40F06CBF25FCDCEC411BD9D7F1E7DC78406C157501DC74")
+        self.assertEqual((contract["detail_dispatcher_range"], contract["detail_dispatcher_size"], contract["detail_dispatcher_sha256"]), ("[0x4019B8,0x4019CF)", 23, "F2EB107944977E8CBCE7CAD450EC6D1D046880727EBDE36A939CF5DC5DDC907F"))
         self.assertFalse(contract["stock_xref_to_7B22C0"])
         self.assertFalse(contract["stock_xref_to_7B2600"])
         self.assertEqual((contract["rejected_candidate_window_flags_pointer_va"], contract["authenticated_window_flags_string_va"], contract["rejected_candidate_requested_symbol"]), ("0x7B2A64", "0x7B2A63", "DL_GetWindowFlags"))
@@ -68,6 +80,9 @@ class VV5TechDetailNativeEvidenceTests(unittest.TestCase):
         item = copy.deepcopy(self.record); item["composition"]["candidate_hooks"] = [{"va": "0x44B560"}]; mutations.append(item)
         item = copy.deepcopy(self.record); item["native_proof"]["method_entry_rejected_as_callsite"] = False; item["native_proof"]["constructor_stock_bytes"] = "AA"; mutations.append(item)
         item = copy.deepcopy(self.record); item["native_contract"]["rejected_candidate_window_flags_pointer_va"] = "0x7B2A63"; mutations.append(item)
+        item = copy.deepcopy(self.record); item["native_contract"]["candidate_callsite_va"] = "0x44B560"; mutations.append(item)
+        item = copy.deepcopy(self.record); item["native_contract"]["hot_uninstall_verified"] = True; mutations.append(item)
+        item = copy.deepcopy(self.record); item["native_contract"]["candidate_guard_control_id"] = 12; mutations.append(item)
         for mutated in mutations:
             with self.assertRaises(ValueError):
                 validate_evidence(mutated)
@@ -94,6 +109,7 @@ class VV5TechDetailNativeEvidenceTests(unittest.TestCase):
         for key in proof:
             if key.endswith("_verified") or key.endswith("_rejected_as_callsite"):
                 proof[key] = True
+        proof["event_method_offline_detour_verified"] = True
         for key, mode, action in (
             ("tech_windowed", "windowed", "tech"), ("tech_fullscreen", "fullscreen", "tech"),
             ("detail_windowed", "windowed", "detail"), ("detail_fullscreen", "fullscreen", "detail"),

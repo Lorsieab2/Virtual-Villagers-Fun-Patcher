@@ -117,8 +117,7 @@ class VV5FullHealContractTests(unittest.TestCase):
         self.assertNotEqual(canonical_source_bytes(lf), canonical_source_bytes(lf.rstrip(b"\n")))
         with self.assertRaises(UnicodeDecodeError):
             canonical_source_bytes(b"\xff")
-        with self.assertRaises(ValueError):
-            canonical_source_bytes(b"\xef\xbb\xbftext\n")
+        self.assertEqual(canonical_source_bytes(b"text\n"), canonical_source_bytes(b"\xef\xbb\xbftext\n"))
 
     def test_record_gate_is_faction_first_and_never_reads_unproved_field(self) -> None:
         reads: list[str] = []

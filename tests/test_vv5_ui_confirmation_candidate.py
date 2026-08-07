@@ -80,8 +80,10 @@ class VV5UIConfirmationCandidateTests(unittest.TestCase):
         self.assertEqual(detail["candidate_caves"], [])
         self.assertEqual(detail["candidate_hooks"], [])
         self.assertEqual(detail["stock_input_method_entry_bytes"], DETAIL_INPUT_METHOD_ENTRY_BYTES)
-        self.assertIsNone(detail["candidate_route"])
-        self.assertIsNone(detail["candidate_callsite"])
+        self.assertEqual((detail["candidate_callsite"], detail["candidate_route"]), ("0x44BC20", "0x7B20C0"))
+        self.assertEqual(detail["candidate_hook_detour"], "E99B643600909090")
+        self.assertEqual(detail["candidate_guard"], {"message": 8, "control_id": 13})
+        self.assertFalse(detail["hot_uninstall_verified"])
         self.assertFalse(detail["stock_xref_to_7B22C0"])
         self.assertFalse(detail["stock_xref_to_7B2600"])
         self.assertEqual(manifest["native_routing"]["patches"], [])
@@ -245,7 +247,7 @@ class VV5UIConfirmationCandidateTests(unittest.TestCase):
             "raw_offset": "0xB560",
             "length": 8,
         }
-        with self.assertRaisesRegex(ValueError, "candidate route/callsite"):
+        with self.assertRaisesRegex(ValueError, "exact offline 0x44BC20"):
             validate_detail_enablement(missing)
 
         legacy = copy.deepcopy(build_manifest())
@@ -256,7 +258,7 @@ class VV5UIConfirmationCandidateTests(unittest.TestCase):
             "length": 8,
             "preimage": CURRENT_DETAIL_HOOK_PREIMAGE,
         }
-        with self.assertRaisesRegex(ValueError, "candidate route/callsite"):
+        with self.assertRaisesRegex(ValueError, "preimage and continuation"):
             validate_detail_enablement(legacy)
 
     def test_cave_and_hook_overlap_is_rejected(self) -> None:
@@ -469,7 +471,7 @@ class VV5UIConfirmationCandidateTests(unittest.TestCase):
 
         detail = copy.deepcopy(build_manifest())
         detail["native_routing"]["detail"]["candidate_callsite"] = "0x44B560"
-        with self.assertRaisesRegex(ValueError, "candidate route/callsite"):
+        with self.assertRaisesRegex(ValueError, "candidate_callsite"):
             validate_candidate_manifest(detail)
 
         payload = copy.deepcopy(build_manifest())
