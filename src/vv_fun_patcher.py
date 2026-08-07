@@ -22,6 +22,33 @@ ROOT = Path(__file__).resolve().parents[1]
 MANIFEST_PATH = ROOT / "data" / "builds.json"
 EXPANDED_MANIFEST_PATH = ROOT / "data" / "expanded_256.json"
 VV4_EXPANDED_CONTRACT_PATH = ROOT / "data" / "vv4_expanded_256_contract.json"
+VV5_ORIGINS_STOCK_SHA256 = "92946781980220E9D1A2E6C573925519934608F5215F4A0F8CE3B90088C5C65D"
+VV5_ORIGINS_RELOCATION_PARTITIONS = {
+    "payload_internal_absolute": frozenset(
+        {
+            "0xDB087", "0xDB147", "0xDB1C3", "0xDB1D2", "0xDB21B", "0xDB22A",
+            "0xDB354", "0xDB383", "0xDB399", "0xDB3B4", "0xDB3D5", "0xDB41E",
+            "0xDB48E", "0xDB4C4", "0xDB4CB", "0xDB4D2", "0xDB4D8", "0xDB787",
+            "0xDB793", "0xDB865", "0xDB88E", "0xDB895", "0xDB89B",
+        }
+    ),
+    "cross_section_rel32": frozenset(
+        {
+            "0x18910", "0x1EB70", "0x237B1", "0x40A25", "0x4AF13", "0x4BC21", "0x94FBF",
+            "0xDB01C", "0xDB021", "0xDB043", "0xDB055", "0xDB06C", "0xDB08E", "0xDB096",
+            "0xDB0E1", "0xDB103", "0xDB115", "0xDB12C", "0xDB14E", "0xDB156", "0xDB1A0",
+            "0xDB272", "0xDB283", "0xDB292", "0xDB38D", "0xDB3C3", "0xDB3ED", "0xDB415",
+            "0xDB437", "0xDB45A", "0xDB462", "0xDB46C", "0xDB7AC", "0xDBA56", "0xDBB22", "0xDBB27",
+        }
+    ),
+    "external_absolute": frozenset(
+        {"0x94B80", "0x94B85", "0x94B94", "0x94ED1", "0x94ED6", "0x94EE5", "0x94FBA"}
+    ),
+}
+VV5_ORIGINS_NATIVE_OVERRIDE_PREIMAGES = {
+    "0x1EB70": ("8C3F3900", "F67E3456"),
+    "0x237B1": ("4BF23800", "8B742408"),
+}
 ORIGINS_FEATURE_PATHS = tuple(
     ROOT / "data" / f"vv{game_number}_origins_feature.json"
     for game_number in range(1, 6)
@@ -3304,9 +3331,14 @@ def _validate_vv4_origins_relocation_contract(
         or relocation.get("expanded_virtual_address") != "0x85A000"
     ):
         raise PatcherError("VV4 Origins payload .shr relocation range is not the certified range.")
-    by_offset = {item.get("offset"): item for item in relocation.get("patches", [])}
+    patches = relocation.get("patches")
+    if not isinstance(patches, list) or len(patches) != 13:
+        raise PatcherError("VV4 current Origins relocation ledger must contain exactly thirteen rows.")
+    by_offset = {item.get("offset"): item for item in patches}
+    if len(by_offset) != len(patches):
+        raise PatcherError("VV4 current Origins relocation ledger contains duplicate offsets.")
     absolute = [
-        item for item in relocation.get("patches", [])
+        item for item in patches
         if item.get("kind", "absolute") == "absolute"
     ]
     if len(absolute) != len(expected):
@@ -3333,6 +3365,100 @@ def _validate_vv4_origins_relocation_contract(
             )
 
 
+def _validate_vv5_origins_relocation_contract(
+    feature: FunPatch,
+    relocation: dict[str, Any],
+) -> None:
+    if feature.id != "vv5_enable_origins_exclusive_features":
+        return
+    if (
+        relocation.get("stock_virtual_address") != "0x7B2000"
+        or relocation.get("expanded_virtual_address") != "0x8EB000"
+    ):
+        raise PatcherError("VV5 Origins relocation range is not the certified range.")
+    evidence = relocation.get("evidence")
+    expected_evidence = {
+        "exact_stock_sha256": VV5_ORIGINS_STOCK_SHA256,
+        "current_feature_sites": 66,
+        "payload_internal_absolute_sites": 23,
+        "cross_section_rel32_sites": 36,
+        "external_absolute_sites": 7,
+        "expanded_mode_native_override_sites": 2,
+        "complete_current_feature_relocation_sites": 43,
+    }
+    if not isinstance(evidence, dict) or any(
+        evidence.get(key) != value for key, value in expected_evidence.items()
+    ):
+        raise PatcherError("VV5 Origins relocation evidence or exact stock hash drifted.")
+    patches = relocation.get("patches")
+    if not isinstance(patches, list) or len(patches) != 66:
+        raise PatcherError("VV5 Origins relocation ledger must contain exactly 66 rows.")
+    by_offset: dict[str, dict[str, Any]] = {}
+    for patch in patches:
+        offset = patch.get("offset") if isinstance(patch, dict) else None
+        if not isinstance(offset, str) or offset in by_offset:
+            raise PatcherError("VV5 Origins relocation ledger contains duplicate or malformed offsets.")
+        by_offset[offset] = patch
+    partitions = VV5_ORIGINS_RELOCATION_PARTITIONS
+    expected_offsets = set().union(*partitions.values())
+    if set(by_offset) != expected_offsets:
+        raise PatcherError("VV5 Origins relocation ledger has missing or unexpected rows.")
+    stock_va = int(relocation["stock_virtual_address"], 0)
+    expanded_va = int(relocation["expanded_virtual_address"], 0)
+    delta = expanded_va - stock_va
+    if delta <= 0:
+        raise PatcherError("VV5 Origins relocation range has a non-positive delta.")
+    override_offsets = set(VV5_ORIGINS_NATIVE_OVERRIDE_PREIMAGES)
+    actual_override_offsets: set[str] = set()
+    for offset, patch in by_offset.items():
+        kind = patch.get("kind", "absolute")
+        before_hex = patch.get("before")
+        try:
+            before = bytes.fromhex(before_hex)
+        except (TypeError, ValueError) as exc:
+            raise PatcherError(f"VV5 Origins relocation preimage is malformed at {offset}.") from exc
+        if len(before) != 4:
+            raise PatcherError(f"VV5 Origins relocation preimage is not a DWORD at {offset}.")
+        if offset in partitions["cross_section_rel32"]:
+            if kind != "rel32":
+                raise PatcherError(f"VV5 rel32 relocation class drifted at {offset}.")
+            try:
+                source_expanded = int(patch["source_expanded_virtual_address"], 0)
+                target_stock = int(patch["target_stock_virtual_address"], 0)
+                target_expanded = int(patch["target_expanded_virtual_address"], 0)
+            except (KeyError, TypeError, ValueError) as exc:
+                raise PatcherError(f"VV5 rel32 relocation metadata is incomplete at {offset}.") from exc
+            target_in_shr = stock_va <= target_stock < stock_va + 0x1000
+            expected_target = target_stock + delta if target_in_shr else target_stock
+            if target_expanded != expected_target:
+                raise PatcherError(f"VV5 rel32 moved/unmoved target drifted at {offset}.")
+            if offset in override_offsets:
+                expected_before, expected_skip = VV5_ORIGINS_NATIVE_OVERRIDE_PREIMAGES[offset]
+                if before_hex != expected_before or patch.get("expanded_skip_before") != expected_skip:
+                    raise PatcherError(f"VV5 native override guard drifted at {offset}.")
+                actual_override_offsets.add(offset)
+            elif patch.get("expanded_skip_before") is not None:
+                raise PatcherError(f"VV5 unexpected native override guard at {offset}.")
+        elif offset in partitions["payload_internal_absolute"] or offset in partitions["external_absolute"]:
+            if kind != "absolute":
+                raise PatcherError(f"VV5 absolute relocation class drifted at {offset}.")
+            value = int.from_bytes(before, "little")
+            if not stock_va <= value < stock_va + 0x1000:
+                raise PatcherError(f"VV5 absolute relocation points outside stock .shr at {offset}.")
+            if offset in partitions["external_absolute"]:
+                if (
+                    patch.get("target_stock_virtual_address") != f"0x{value:X}"
+                    or patch.get("target_expanded_virtual_address") != f"0x{value + delta:X}"
+                ):
+                    raise PatcherError(f"VV5 external absolute target drifted at {offset}.")
+            elif patch.get("expanded_skip_before") is not None:
+                raise PatcherError(f"VV5 unexpected native override guard at {offset}.")
+        else:
+            raise PatcherError(f"VV5 relocation partition is undefined at {offset}.")
+    if actual_override_offsets != override_offsets:
+        raise PatcherError("VV5 native override partition is incomplete.")
+
+
 def _relocate_expanded_shr_fun_patches(
     build: Build,
     patch_mode: str,
@@ -3349,7 +3475,8 @@ def _relocate_expanded_shr_fun_patches(
     if patch_mode not in EXPANDED_PATCH_MODES:
         return []
 
-    applied: list[dict[str, str]] = []
+    planned: list[dict[str, Any]] = []
+    occupied: dict[int, str] = {}
     for feature in fun_patches:
         relocation = feature.raw.get("expanded_shr_relocations")
         if not relocation:
@@ -3359,19 +3486,33 @@ def _relocate_expanded_shr_fun_patches(
                 f"{feature.name} declares an expanded .shr relocation but is not a VV4/VV5 feature."
             )
         _validate_vv4_origins_relocation_contract(feature, relocation)
-        stock_va = int(relocation["stock_virtual_address"], 0)
-        expanded_va = int(relocation["expanded_virtual_address"], 0)
+        _validate_vv5_origins_relocation_contract(feature, relocation)
+        try:
+            stock_va = int(relocation["stock_virtual_address"], 0)
+            expanded_va = int(relocation["expanded_virtual_address"], 0)
+        except (KeyError, TypeError, ValueError) as exc:
+            raise PatcherError("Internal expanded .shr relocation range is malformed.") from exc
         delta = expanded_va - stock_va
         if delta <= 0:
             raise PatcherError("Internal expanded .shr relocation has a non-positive delta.")
         for patch in relocation.get("patches", []):
-            offset = int(patch["offset"], 0)
-            before = bytes.fromhex(patch["before"])
+            if not isinstance(patch, dict):
+                raise PatcherError("Internal expanded .shr relocation row is malformed.")
+            try:
+                offset = int(patch["offset"], 0)
+                before = bytes.fromhex(patch["before"])
+            except (KeyError, TypeError, ValueError) as exc:
+                raise PatcherError("Internal expanded .shr relocation row is malformed.") from exc
+            if offset < 0 or offset + 4 > len(data):
+                raise PatcherError(
+                    f"Expanded .shr relocation at {patch.get('offset')} is outside the input buffer."
+                )
             if len(before) != 4:
                 raise PatcherError(
                     f"Internal expanded .shr relocation at {patch['offset']} is not a DWORD."
                 )
             actual = bytes(data[offset : offset + 4])
+            relocation_status = None
             if actual != before:
                 # VV5's expanded-mode overrides deliberately restore the two
                 # stock doubler hooks.  Their relocation rows remain in the
@@ -3379,92 +3520,140 @@ def _relocate_expanded_shr_fun_patches(
                 # no-op rather than permission to rewrite an unrelated stock
                 # instruction.
                 skipped = patch.get("expanded_skip_before")
-                if skipped and actual == bytes.fromhex(skipped):
-                    applied.append(
-                        {
-                            "offset": patch["offset"],
-                            "before": actual.hex().upper(),
-                            "after": actual.hex().upper(),
-                            "purpose": patch.get(
-                                "purpose",
-                                "preserve native expanded-mode override",
-                            ),
-                            "owner": f"feature:{feature.id}",
-                            "virtual_address": _virtual_address_for_offset(bytes(data), offset),
-                            "relocation_status": "native_override_preserved",
-                        }
-                    )
-                    continue
-                raise PatcherError(
-                    f"Expanded .shr relocation guard failed at {patch['offset']}: "
-                    f"expected {before.hex().upper()}, found {actual.hex().upper()}"
-                )
-            kind = patch.get("kind", "absolute")
-            if kind == "absolute":
-                value = int.from_bytes(before, "little")
-                if not stock_va <= value < stock_va + 0x1000:
+                if skipped:
+                    try:
+                        skipped_bytes = bytes.fromhex(skipped)
+                    except (TypeError, ValueError) as exc:
+                        raise PatcherError(
+                            f"Expanded .shr relocation override guard is malformed at {patch['offset']}."
+                        ) from exc
+                    if len(skipped_bytes) != 4:
+                        raise PatcherError(
+                            f"Expanded .shr relocation override guard is not a DWORD at {patch['offset']}."
+                        )
+                    if actual == skipped_bytes:
+                        after = actual
+                        relocation_status = "native_override_preserved"
+                    else:
+                        raise PatcherError(
+                            f"Expanded .shr relocation guard failed at {patch['offset']}: "
+                            f"expected {before.hex().upper()}, found {actual.hex().upper()}"
+                        )
+                else:
                     raise PatcherError(
-                        f"Expanded .shr relocation at {patch['offset']} points outside stock .shr."
+                        f"Expanded .shr relocation guard failed at {patch['offset']}: "
+                        f"expected {before.hex().upper()}, found {actual.hex().upper()}"
                     )
-                declared_stock = patch.get("target_stock_virtual_address")
-                if declared_stock is not None and int(declared_stock, 0) != value:
-                    raise PatcherError(
-                        f"Expanded .shr relocation at {patch['offset']} has an inconsistent stock target."
-                    )
-                after = (value + delta).to_bytes(4, "little")
-                declared_expanded = patch.get("target_expanded_virtual_address")
-                if declared_expanded is not None and int(declared_expanded, 0) != value + delta:
-                    raise PatcherError(
-                        f"Expanded .shr relocation at {patch['offset']} has an inconsistent expanded target."
-                    )
-            elif kind == "rel32":
-                try:
-                    source_va = int(
-                        patch.get(
-                            "source_expanded_virtual_address",
-                            patch["source_virtual_address"],
-                        ),
-                        0,
-                    )
-                    target_stock_va = int(patch["target_stock_virtual_address"], 0)
-                except (KeyError, TypeError, ValueError) as exc:
-                    raise PatcherError(
-                        f"Internal expanded .shr rel32 relocation at {patch['offset']} is missing source/target metadata."
-                    ) from exc
-                target_in_shr = stock_va <= target_stock_va < stock_va + 0x1000
-                target_expanded_va = (
-                    target_stock_va + delta if target_in_shr else target_stock_va
-                )
-                declared_target = patch.get("target_expanded_virtual_address")
-                if declared_target is not None and int(declared_target, 0) != target_expanded_va:
-                    raise PatcherError(
-                        f"Expanded .shr rel32 relocation at {patch['offset']} has an inconsistent expanded target."
-                    )
-                rel32 = target_expanded_va - (source_va + 5)
-                try:
-                    after = rel32.to_bytes(4, "little", signed=True)
-                except OverflowError as exc:
-                    raise PatcherError(
-                        f"Expanded .shr rel32 relocation at {patch['offset']} is out of range."
-                    ) from exc
             else:
-                raise PatcherError(
-                    f"Internal expanded .shr relocation at {patch['offset']} has unknown kind {kind!r}."
-                )
-            data[offset : offset + 4] = after
-            applied.append(
+                kind = patch.get("kind", "absolute")
+                if kind == "absolute":
+                    value = int.from_bytes(before, "little")
+                    if not stock_va <= value < stock_va + 0x1000:
+                        raise PatcherError(
+                            f"Expanded .shr relocation at {patch['offset']} points outside stock .shr."
+                        )
+                    declared_stock = patch.get("target_stock_virtual_address")
+                    if declared_stock is not None:
+                        try:
+                            declared_stock_value = int(declared_stock, 0)
+                        except (TypeError, ValueError) as exc:
+                            raise PatcherError(
+                                f"Expanded .shr relocation at {patch['offset']} has a malformed stock target."
+                            ) from exc
+                        if declared_stock_value != value:
+                            raise PatcherError(
+                                f"Expanded .shr relocation at {patch['offset']} has an inconsistent stock target."
+                            )
+                    after = (value + delta).to_bytes(4, "little")
+                    declared_expanded = patch.get("target_expanded_virtual_address")
+                    if declared_expanded is not None:
+                        try:
+                            declared_expanded_value = int(declared_expanded, 0)
+                        except (TypeError, ValueError) as exc:
+                            raise PatcherError(
+                                f"Expanded .shr relocation at {patch['offset']} has a malformed expanded target."
+                            ) from exc
+                        if declared_expanded_value != value + delta:
+                            raise PatcherError(
+                                f"Expanded .shr relocation at {patch['offset']} has an inconsistent expanded target."
+                            )
+                elif kind == "rel32":
+                    try:
+                        source_value = patch.get("source_expanded_virtual_address")
+                        if source_value is None:
+                            source_value = patch["source_virtual_address"]
+                        source_va = int(source_value, 0)
+                        target_stock_va = int(patch["target_stock_virtual_address"], 0)
+                    except (KeyError, TypeError, ValueError) as exc:
+                        raise PatcherError(
+                            f"Internal expanded .shr rel32 relocation at {patch['offset']} is missing source/target metadata."
+                        ) from exc
+                    target_in_shr = stock_va <= target_stock_va < stock_va + 0x1000
+                    target_expanded_va = (
+                        target_stock_va + delta if target_in_shr else target_stock_va
+                    )
+                    declared_target = patch.get("target_expanded_virtual_address")
+                    if declared_target is not None:
+                        try:
+                            declared_target_value = int(declared_target, 0)
+                        except (TypeError, ValueError) as exc:
+                            raise PatcherError(
+                                f"Expanded .shr rel32 relocation at {patch['offset']} has a malformed expanded target."
+                            ) from exc
+                        if declared_target_value != target_expanded_va:
+                            raise PatcherError(
+                                f"Expanded .shr rel32 relocation at {patch['offset']} has an inconsistent expanded target."
+                            )
+                    rel32 = target_expanded_va - (source_va + 5)
+                    try:
+                        after = rel32.to_bytes(4, "little", signed=True)
+                    except OverflowError as exc:
+                        raise PatcherError(
+                            f"Expanded .shr rel32 relocation at {patch['offset']} is out of range."
+                        ) from exc
+                else:
+                    raise PatcherError(
+                        f"Internal expanded .shr relocation at {patch['offset']} has unknown kind {kind!r}."
+                    )
+            for write_offset in range(offset, offset + 4):
+                prior_offset = occupied.get(write_offset)
+                if prior_offset is not None:
+                    raise PatcherError(
+                        f"Expanded .shr relocation writes overlap at {patch['offset']} and {prior_offset}."
+                    )
+            for write_offset in range(offset, offset + 4):
+                occupied[write_offset] = patch["offset"]
+            planned.append(
                 {
-                    "offset": patch["offset"],
-                    "before": before.hex().upper(),
-                    "after": after.hex().upper(),
-                    "purpose": patch.get(
-                        "purpose",
-                        "relocate fun-patch .shr pointer for expanded 256 mode",
-                    ),
-                    "owner": f"feature:{feature.id}",
-                    "virtual_address": _virtual_address_for_offset(bytes(data), offset),
+                    "feature": feature,
+                    "patch": patch,
+                    "offset": offset,
+                    "before": actual,
+                    "after": after,
+                    "relocation_status": relocation_status,
                 }
             )
+    for item in planned:
+        offset = item["offset"]
+        data[offset : offset + 4] = item["after"]
+    applied: list[dict[str, str]] = []
+    for item in planned:
+        feature = item["feature"]
+        patch = item["patch"]
+        record = {
+            "offset": patch["offset"],
+            "before": item["before"].hex().upper(),
+            "after": item["after"].hex().upper(),
+            "purpose": patch.get(
+                "purpose",
+                "relocate fun-patch .shr pointer for expanded 256 mode",
+            ),
+            "owner": f"feature:{feature.id}",
+            "virtual_address": _virtual_address_for_offset(bytes(data), item["offset"]),
+        }
+        if item["relocation_status"] is not None:
+            record["relocation_status"] = item["relocation_status"]
+        applied.append(record)
     return applied
 
 

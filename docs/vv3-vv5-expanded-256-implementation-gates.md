@@ -373,6 +373,20 @@ Still missing:
    pairing/birth, death/memorial, Events/puzzles, statistics, and Detail
    navigation.
 
+## Adversarial static validation
+
+The self-contained Expanded-256 adversarial suite validates the disabled
+contracts without requiring either absent stock executable. It rejects wrong
+hashes or publication enablement, missing or duplicate VV4 current-Origins
+operands and eight-row payload relocations, and VV5 ledger mutations outside
+the exact 23 absolute / 36 `rel32` / 7 external partition. It also rejects
+wrong relocation classes, moved-versus-unmoved `rel32` targets, stale
+preimages, malformed override guards, and overlapping writes. Relocation
+preflight is transactional: a later failed guard leaves every earlier byte
+unchanged, and stock modes remain byte-for-byte no-ops. These are static
+fail-closed checks only; they do not close save, launch, runtime, or player
+acceptance gates.
+
 ## Current-render composition ledger
 
 These ignored audit renders are reproducible static evidence. A `PASS` here

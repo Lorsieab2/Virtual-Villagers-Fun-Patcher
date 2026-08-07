@@ -1,0 +1,300 @@
+from __future__ import annotations
+
+import copy
+import json
+import sys
+import tempfile
+import unittest
+from pathlib import Path
+from unittest.mock import patch
+
+
+ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / "src"))
+
+import vv_fun_patcher  # noqa: E402
+from vv_fun_patcher import (  # noqa: E402
+    FunPatch,
+    PatcherError,
+    _relocate_expanded_shr_fun_patches,
+    _validate_vv4_expanded_contract,
+    _validate_vv4_origins_relocation_contract,
+    _validate_vv5_origins_relocation_contract,
+    load_builds,
+)
+
+
+VV4_CONTRACT = json.loads(
+    (ROOT / "data" / "vv4_expanded_256_contract.json").read_text(encoding="utf-8")
+)
+VV4_EXPANDED = json.loads(
+    (ROOT / "data" / "expanded_256.json").read_text(encoding="utf-8")
+)
+VV4_FEATURE = json.loads(
+    (ROOT / "data" / "vv4_origins_feature.json").read_text(encoding="utf-8")
+)
+VV5_FEATURE = json.loads(
+    (ROOT / "data" / "vv5_origins_feature.json").read_text(encoding="utf-8")
+)
+VV4_BUILD = next(item for item in load_builds() if item.id == "vv4")
+VV5_BUILD = next(item for item in load_builds() if item.id == "vv5")
+
+
+class Expanded256AdversarialContractTests(unittest.TestCase):
+    @staticmethod
+    def _vv4_buffer() -> bytearray:
+        data = bytearray(0xCC300)
+        for item in VV4_FEATURE["expanded_shr_relocations"]["patches"]:
+            offset = int(item["offset"], 0)
+            data[offset : offset + 4] = bytes.fromhex(item["before"])
+        return data
+
+    @staticmethod
+    def _vv5_buffer() -> bytearray:
+        data = bytearray(0xDC000)
+        for item in VV5_FEATURE["expanded_shr_relocations"]["patches"]:
+            offset = int(item["offset"], 0)
+            data[offset : offset + 4] = bytes.fromhex(item["before"])
+        return data
+
+    def test_vv4_missing_all_four_shared_operands_fails_closed(self) -> None:
+        for expected in VV4_CONTRACT["current_origins_shr_absolute_operands"]:
+            broken = copy.deepcopy(VV4_EXPANDED["games"]["vv4"])
+            broken["patches"] = [
+                item for item in broken["patches"] if item["offset"] != expected["offset"]
+            ]
+            with self.subTest(offset=expected["offset"]), self.assertRaisesRegex(
+                PatcherError, "current-Origins"
+            ):
+                _validate_vv4_expanded_contract(broken)
+
+    def test_vv4_missing_or_duplicate_each_of_eight_payload_rows_fails_closed(self) -> None:
+        expected_offsets = {
+            item["offset"]
+            for group in (
+                VV4_CONTRACT["origins_payload_shr_absolute_operands"],
+                VV4_CONTRACT["all_feature_stale_origins_shr_absolute_operands"],
+            )
+            for item in group
+        }
+        self.assertEqual(len(expected_offsets), 8)
+        for offset in expected_offsets:
+            broken = copy.deepcopy(VV4_FEATURE)
+            broken["expanded_shr_relocations"]["patches"] = [
+                item
+                for item in broken["expanded_shr_relocations"]["patches"]
+                if item["offset"] != offset
+            ]
+            with self.subTest(kind="missing", offset=offset), self.assertRaisesRegex(
+                PatcherError, "exactly thirteen|guard drift"
+            ):
+                _validate_vv4_origins_relocation_contract(
+                    FunPatch(broken), broken["expanded_shr_relocations"]
+                )
+
+            duplicate = copy.deepcopy(VV4_FEATURE)
+            duplicate["expanded_shr_relocations"]["patches"].append(
+                next(
+                    item
+                    for item in duplicate["expanded_shr_relocations"]["patches"]
+                    if item["offset"] == offset
+                )
+            )
+            with self.subTest(kind="duplicate", offset=offset), self.assertRaisesRegex(
+                PatcherError, "exactly thirteen|duplicate"
+            ):
+                _validate_vv4_origins_relocation_contract(
+                    FunPatch(duplicate), duplicate["expanded_shr_relocations"]
+                )
+
+    def test_vv4_wrong_relocation_class_hash_and_publication_fail_closed(self) -> None:
+        wrong_class = copy.deepcopy(VV4_FEATURE)
+        next(
+            item
+            for item in wrong_class["expanded_shr_relocations"]["patches"]
+            if item["offset"] == "0xCC182"
+        )["kind"] = "rel32"
+        with self.assertRaisesRegex(PatcherError, "exactly eight|guard drift"):
+            _validate_vv4_origins_relocation_contract(
+                FunPatch(wrong_class), wrong_class["expanded_shr_relocations"]
+            )
+
+        wrong_hash = copy.deepcopy(VV4_EXPANDED["games"]["vv4"])
+        wrong_hash["source_sha256"] = "0" * 64
+        with self.assertRaisesRegex(PatcherError, "fingerprint"):
+            _validate_vv4_expanded_contract(wrong_hash)
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+            contract_path = Path(temp_dir) / "vv4-contract.json"
+            broken_contract = copy.deepcopy(VV4_CONTRACT)
+            broken_contract["publication"]["enabled"] = True
+            contract_path.write_text(json.dumps(broken_contract), encoding="utf-8")
+            with patch.object(vv_fun_patcher, "VV4_EXPANDED_CONTRACT_PATH", contract_path):
+                with self.assertRaisesRegex(PatcherError, "identity or fail-closed"):
+                    _validate_vv4_expanded_contract(VV4_EXPANDED["games"]["vv4"])
+
+    def test_vv4_stock_mode_and_failed_expanded_preflight_do_not_mutate(self) -> None:
+        feature = FunPatch(VV4_FEATURE)
+        stock_data = self._vv4_buffer()
+        stock_before = bytes(stock_data)
+        self.assertEqual(
+            _relocate_expanded_shr_fun_patches(
+                VV4_BUILD, "collection_progression", [feature], stock_data
+            ),
+            [],
+        )
+        self.assertEqual(bytes(stock_data), stock_before)
+
+        broken_data = self._vv4_buffer()
+        broken_data[int("0xCC02A", 0)] ^= 1
+        broken_before = bytes(broken_data)
+        with self.assertRaisesRegex(PatcherError, "guard failed"):
+            _relocate_expanded_shr_fun_patches(
+                VV4_BUILD, "experimental_expanded_256", [feature], broken_data
+            )
+        self.assertEqual(bytes(broken_data), broken_before)
+
+    def test_vv5_exact_partition_hash_and_row_integrity_are_validated(self) -> None:
+        self.assertEqual(
+            sum(
+                item.get("kind", "absolute") == "absolute"
+                and "external" not in item.get("purpose", "")
+                for item in VV5_FEATURE["expanded_shr_relocations"]["patches"]
+            ),
+            23,
+        )
+        self.assertEqual(
+            sum(
+                item.get("kind", "absolute") == "rel32"
+                for item in VV5_FEATURE["expanded_shr_relocations"]["patches"]
+            ),
+            36,
+        )
+        self.assertEqual(
+            sum("external" in item.get("purpose", "") for item in VV5_FEATURE["expanded_shr_relocations"]["patches"]),
+            7,
+        )
+        _validate_vv5_origins_relocation_contract(
+            FunPatch(VV5_FEATURE), VV5_FEATURE["expanded_shr_relocations"]
+        )
+
+        for mutation in ("duplicate", "missing", "wrong_class", "wrong_hash"):
+            broken = copy.deepcopy(VV5_FEATURE)
+            patches = broken["expanded_shr_relocations"]["patches"]
+            if mutation == "duplicate":
+                patches.append(copy.deepcopy(patches[0]))
+            elif mutation == "missing":
+                del patches[0]
+            elif mutation == "wrong_class":
+                next(item for item in patches if item["offset"] == "0x18910")["kind"] = "absolute"
+            else:
+                broken["expanded_shr_relocations"]["evidence"]["exact_stock_sha256"] = "0" * 64
+            with self.subTest(mutation=mutation), self.assertRaises(PatcherError):
+                _validate_vv5_origins_relocation_contract(
+                    FunPatch(broken), broken["expanded_shr_relocations"]
+                )
+
+        wrong_absolute_class = copy.deepcopy(VV5_FEATURE)
+        next(
+            item
+            for item in wrong_absolute_class["expanded_shr_relocations"]["patches"]
+            if item["offset"] == "0xDB087"
+        )["kind"] = "rel32"
+        with self.assertRaisesRegex(PatcherError, "absolute relocation class"):
+            _validate_vv5_origins_relocation_contract(
+                FunPatch(wrong_absolute_class),
+                wrong_absolute_class["expanded_shr_relocations"],
+            )
+
+        for key in (
+            "payload_internal_absolute_sites",
+            "cross_section_rel32_sites",
+            "external_absolute_sites",
+        ):
+            wrong_partition = copy.deepcopy(VV5_FEATURE)
+            wrong_partition["expanded_shr_relocations"]["evidence"][key] += 1
+            with self.subTest(evidence=key), self.assertRaisesRegex(
+                PatcherError, "evidence"
+            ):
+                _validate_vv5_origins_relocation_contract(
+                    FunPatch(wrong_partition),
+                    wrong_partition["expanded_shr_relocations"],
+                )
+
+    def test_vv5_moved_and_unmoved_rel32_target_errors_fail_closed(self) -> None:
+        delta = int("0x8EB000", 0) - int("0x7B2000", 0)
+        for offset, target in (("0x18910", "0x7B2180"), ("0xDB01C", "0x450D40")):
+            broken = copy.deepcopy(VV5_FEATURE)
+            row = next(
+                item
+                for item in broken["expanded_shr_relocations"]["patches"]
+                if item["offset"] == offset
+            )
+            row["target_expanded_virtual_address"] = (
+                target if offset == "0x18910" else f"0x{int(target, 0) + delta:X}"
+            )
+            with self.subTest(offset=offset), self.assertRaisesRegex(
+                PatcherError, "moved/unmoved target"
+            ):
+                _validate_vv5_origins_relocation_contract(
+                    FunPatch(broken), broken["expanded_shr_relocations"]
+                )
+
+    def test_vv5_stale_preimage_is_transactional_and_stock_mode_is_noop(self) -> None:
+        feature = FunPatch(VV5_FEATURE)
+        stock_data = self._vv5_buffer()
+        stock_before = bytes(stock_data)
+        self.assertEqual(
+            _relocate_expanded_shr_fun_patches(
+                VV5_BUILD, "collection_progression", [feature], stock_data
+            ),
+            [],
+        )
+        self.assertEqual(bytes(stock_data), stock_before)
+
+        stale_data = self._vv5_buffer()
+        stale_data[int("0xDB087", 0)] ^= 1
+        stale_before = bytes(stale_data)
+        with self.assertRaisesRegex(PatcherError, "guard failed"):
+            _relocate_expanded_shr_fun_patches(
+                VV5_BUILD, "experimental_expanded_256", [feature], stale_data
+            )
+        self.assertEqual(bytes(stale_data), stale_before)
+
+        partial_data = self._vv5_buffer()
+        partial_data[int("0xDBB27", 0)] ^= 1
+        partial_before = bytes(partial_data)
+        with self.assertRaisesRegex(PatcherError, "guard failed"):
+            _relocate_expanded_shr_fun_patches(
+                VV5_BUILD, "experimental_expanded_256", [feature], partial_data
+            )
+        self.assertEqual(bytes(partial_data), partial_before)
+
+    def test_overlapping_writes_are_rejected_before_any_mutation(self) -> None:
+        before = "00207B00"
+        feature = FunPatch(
+            {
+                "id": "adversarial_overlap",
+                "name": "Adversarial overlap",
+                "expanded_shr_relocations": {
+                    "stock_virtual_address": "0x7B2000",
+                    "expanded_virtual_address": "0x8EB000",
+                    "patches": [
+                        {"offset": "0x20", "before": before},
+                        {"offset": "0x20", "before": before},
+                    ],
+                },
+            }
+        )
+        data = bytearray(0x100)
+        data[0x20 : 0x24] = bytes.fromhex(before)
+        snapshot = bytes(data)
+        with self.assertRaisesRegex(PatcherError, "overlap"):
+            _relocate_expanded_shr_fun_patches(
+                VV5_BUILD, "experimental_expanded_256", [feature], data
+            )
+        self.assertEqual(bytes(data), snapshot)
+
+
+if __name__ == "__main__":
+    unittest.main()
