@@ -36,18 +36,24 @@ class VV5TechDetailNativeEvidenceTests(unittest.TestCase):
             with self.assertRaises(ValueError):
                 validate_candidate_manifest(mutated)
 
-    def test_exact_native_route_and_forbidden_old_hook_are_pinned(self) -> None:
+    def test_exact_stock_methods_and_unknown_candidate_route_are_pinned(self) -> None:
         contract = self.record["native_contract"]
         self.assertEqual((contract["resource"], contract["dimensions"], contract["local"]), ("0x6A", [96, 39], [137, 2]))
         self.assertEqual((contract["message"], contract["event"]), (8, 13))
         self.assertEqual(contract["tech_constructor_va"], "0x4405F0")
         self.assertEqual(contract["tech_handler_va"], "0x4415F0")
         self.assertEqual(contract["detail_draw_va"], "0x44B250")
-        self.assertEqual(contract["detail_mouse_callsite_va"], "0x44B560")
-        self.assertEqual(contract["detail_dialog_target_va"], "0x7B2600")
-        self.assertEqual(contract["forbidden_old_hook_va"], "0x44BC20")
-        self.assertEqual((contract["forbidden_old_hook_raw"], contract["forbidden_old_hook_preimage"], contract["forbidden_old_hook_continuation_va"]), ("0x4BC20", "83EC18A1A8974D00", "0x44BC28"))
-        for field in ("factory_va", "ownership_va", "tech_dialog_target_va"):
+        self.assertEqual(contract["detail_input_method_entry_va"], "0x44B560")
+        self.assertEqual(contract["detail_input_method_entry_bytes"], "83EC44535556BD7F03000057BF580300")
+        self.assertEqual(contract["detail_input_nonvolatile_saves"], ["EBX", "EBP", "ESI", "EDI"])
+        self.assertEqual((contract["detail_input_stack_locals"], contract["detail_input_cleanup"]), ("0x44", "ret 0xC"))
+        self.assertEqual((contract["detail_vtable_va"], contract["detail_destructor_va"], contract["detail_event_method_va"]), ("0x49A590", "0x44B9F0", "0x44BC20"))
+        self.assertIsNone(contract["candidate_route_va"])
+        self.assertIsNone(contract["candidate_callsite_va"])
+        self.assertFalse(contract["stock_xref_to_7B22C0"])
+        self.assertFalse(contract["stock_xref_to_7B2600"])
+        self.assertEqual((contract["rejected_candidate_window_flags_pointer_va"], contract["authenticated_window_flags_string_va"], contract["rejected_candidate_requested_symbol"]), ("0x7B2A64", "0x7B2A63", "DL_GetWindowFlags"))
+        for field in ("factory_va", "ownership_va", "detail_input_method_entry_va"):
             mutated = copy.deepcopy(self.record)
             mutated["native_contract"][field] = "0x0"
             with self.assertRaises(ValueError):
@@ -60,7 +66,8 @@ class VV5TechDetailNativeEvidenceTests(unittest.TestCase):
         item = copy.deepcopy(self.record); item["unexpected"] = True; mutations.append(item)
         item = copy.deepcopy(self.record); item["folder_evidence"]["authenticated"] = 1; mutations.append(item)
         item = copy.deepcopy(self.record); item["composition"]["candidate_hooks"] = [{"va": "0x44B560"}]; mutations.append(item)
-        item = copy.deepcopy(self.record); item["native_proof"]["forbidden_old_hook_rejected"] = False; item["native_proof"]["constructor_stock_bytes"] = "AA"; mutations.append(item)
+        item = copy.deepcopy(self.record); item["native_proof"]["method_entry_rejected_as_callsite"] = False; item["native_proof"]["constructor_stock_bytes"] = "AA"; mutations.append(item)
+        item = copy.deepcopy(self.record); item["native_contract"]["rejected_candidate_window_flags_pointer_va"] = "0x7B2A63"; mutations.append(item)
         for mutated in mutations:
             with self.assertRaises(ValueError):
                 validate_evidence(mutated)
@@ -78,12 +85,14 @@ class VV5TechDetailNativeEvidenceTests(unittest.TestCase):
         proof["folder_manifest_sha256"] = folder_hash
         for key in ("disassembly_artifact_sha256", "instruction_map_sha256", "lifecycle_trace_sha256", "overlap_report_sha256"):
             proof[key] = "D" * 64
-        for key in ("constructor_stock_bytes", "handler_stock_bytes", "detail_callsite_stock_bytes"):
+        for key in ("constructor_stock_bytes", "handler_stock_bytes"):
             proof[key] = "90"
-        for key in ("constructor_continuation_va", "handler_continuation_va", "detail_callsite_continuation_va"):
+        for key in ("constructor_continuation_va", "handler_continuation_va"):
             proof[key] = "0x401000"
+        for key in ("candidate_executable_sha256", "candidate_folder_manifest_sha256", "candidate_machine_export_sha256"):
+            proof[key] = "E" * 64
         for key in proof:
-            if key.endswith("_verified") or key == "forbidden_old_hook_rejected":
+            if key.endswith("_verified") or key.endswith("_rejected_as_callsite"):
                 proof[key] = True
         for key, mode, action in (
             ("tech_windowed", "windowed", "tech"), ("tech_fullscreen", "fullscreen", "tech"),

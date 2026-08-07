@@ -20,12 +20,20 @@ CONTRACT = {
     "resource": "0x6A", "dimensions": [96, 39], "local": [137, 2],
     "message": 8, "event": 13, "factory_va": "0x401BD0",
     "ownership_va": "0x40C680", "tech_constructor_va": "0x4405F0",
-    "tech_handler_va": "0x4415F0", "tech_dialog_target_va": "0x7B22C0",
-    "detail_draw_va": "0x44B250", "detail_mouse_callsite_va": "0x44B560",
-    "detail_dialog_target_va": "0x7B2600", "forbidden_old_hook_va": "0x44BC20",
-    "forbidden_old_hook_raw": "0x4BC20",
-    "forbidden_old_hook_preimage": "83EC18A1A8974D00",
-    "forbidden_old_hook_continuation_va": "0x44BC28",
+    "tech_handler_va": "0x4415F0", "detail_draw_va": "0x44B250",
+    "detail_vtable_va": "0x49A590", "detail_destructor_va": "0x44B9F0",
+    "detail_input_method_entry_va": "0x44B560",
+    "detail_input_method_entry_bytes": "83EC44535556BD7F03000057BF580300",
+    "detail_input_stack_locals": "0x44",
+    "detail_input_nonvolatile_saves": ["EBX", "EBP", "ESI", "EDI"],
+    "detail_input_cleanup": "ret 0xC", "detail_event_method_va": "0x44BC20",
+    "detail_event_method_entry_bytes": "83EC18A1A8974D00",
+    "detail_event_cleanup": "ret 8", "stock_xref_to_7B22C0": False,
+    "stock_xref_to_7B2600": False, "candidate_route_va": None,
+    "candidate_callsite_va": None,
+    "rejected_candidate_window_flags_pointer_va": "0x7B2A64",
+    "authenticated_window_flags_string_va": "0x7B2A63",
+    "rejected_candidate_requested_symbol": "DL_GetWindowFlags",
 }
 TOP_KEYS = {
     "id", "game_id", "enabled", "catalog_hidden", "catalog_enabled",
@@ -39,11 +47,13 @@ PROOF_KEYS = {
     "lifecycle_trace_sha256", "overlap_report_sha256",
     "constructor_stock_bytes", "constructor_continuation_va",
     "handler_stock_bytes", "handler_continuation_va",
-    "detail_callsite_stock_bytes", "detail_callsite_continuation_va",
+    "candidate_executable_sha256", "candidate_folder_manifest_sha256",
+    "candidate_machine_export_sha256",
     "instruction_boundaries_verified", "thiscall_receiver_verified",
     "message_abi_verified", "register_stack_preservation_verified",
     "child_ownership_verified", "child_destructor_verified",
-    "range_overlap_verified", "forbidden_old_hook_rejected",
+    "range_overlap_verified", "method_entry_rejected_as_callsite",
+    "event_method_rejected_as_callsite",
 }
 RECEIPT_KEYS = {
     "mode", "action", "stock_sha256", "folder_manifest_sha256",
@@ -126,22 +136,27 @@ def validate_evidence(record: object) -> bool:
     proof_folder_hash = _sha(proof["folder_manifest_sha256"], "native_proof.folder_manifest_sha256", optional=True)
     if proof_folder_hash is not None and proof_folder_hash != folder_manifest:
         raise ValueError("native proof is not bound to the authenticated folder manifest")
-    byte_values = [_bytes(proof[k], k) for k in ("constructor_stock_bytes", "handler_stock_bytes", "detail_callsite_stock_bytes")]
-    continuation_values = [_va(proof[k], k) for k in ("constructor_continuation_va", "handler_continuation_va", "detail_callsite_continuation_va")]
+    byte_values = [_bytes(proof[k], k) for k in ("constructor_stock_bytes", "handler_stock_bytes")]
+    continuation_values = [_va(proof[k], k) for k in ("constructor_continuation_va", "handler_continuation_va")]
+    candidate_hashes = [_sha(proof[k], f"native_proof.{k}", optional=True) for k in (
+        "candidate_executable_sha256", "candidate_folder_manifest_sha256", "candidate_machine_export_sha256"
+    )]
     byte_complete = all(byte_values)
     continuation_complete = all(continuation_values)
     flags = [
         "instruction_boundaries_verified", "thiscall_receiver_verified",
         "message_abi_verified", "register_stack_preservation_verified",
         "child_ownership_verified", "child_destructor_verified",
-        "range_overlap_verified", "forbidden_old_hook_rejected",
+        "range_overlap_verified", "method_entry_rejected_as_callsite",
+        "event_method_rejected_as_callsite",
     ]
     for key in flags:
         if type(proof[key]) is not bool:
             raise ValueError(f"native_proof.{key} must be exact bool")
-    if proof["forbidden_old_hook_rejected"] is not True:
-        raise ValueError("old/current 0x44BC20 must be explicitly rejected")
-    proof_complete = bool(byte_complete and continuation_complete and proof_folder_hash is not None and all(proof_hashes) and all(proof[k] for k in flags))
+    if proof["method_entry_rejected_as_callsite"] is not True or proof["event_method_rejected_as_callsite"] is not True:
+        raise ValueError("0x44B560 and 0x44BC20 methods must be rejected as unproved candidate callsites")
+    candidate_complete = bool(all(candidate_hashes))
+    proof_complete = bool(byte_complete and continuation_complete and candidate_complete and proof_folder_hash is not None and all(proof_hashes) and all(proof[k] for k in flags))
 
     receipts = _keys(item["player_receipts"], {"tech_windowed", "tech_fullscreen", "detail_windowed", "detail_fullscreen"}, "player_receipts")
     receipt_complete = True
