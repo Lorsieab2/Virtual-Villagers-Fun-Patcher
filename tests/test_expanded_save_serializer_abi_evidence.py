@@ -26,6 +26,8 @@ class SaveSerializerAbiEvidenceTests(unittest.TestCase):
  def test_relocations_exact(self):
   self.fails(lambda d:d["games"]["vv4"]["relocation_ledger"].__setitem__("count",12),"relocation ledger"); self.fails(lambda d:d["games"]["vv5"]["relocation_ledger"].__setitem__("file_sha256","0"*64),"relocation artifact")
  def test_contract_and_harness_bindings_exact(self):
+  self.assertEqual(self.contract["bindings"]["runtime_contract"], {"path":"data/expanded_256_runtime_evidence.json","file_sha256":"5A3BAEB25B958460243DD0E91DE94667CB304F22282EA721A2CE43B758C03F85","canonical_sha256":"54A0B95547ED52DBA6A7144E6610C5CB25097AADD5629697F2608FD5B447266A"})
+  self.assertEqual(self.contract["bindings"]["stored_index_contract"], {"path":"data/expanded_256_stored_index_evidence.json","file_sha256":"02C0957E2A6ED5F702955821F68CE7A8A751C4C807FE5C34665DCA6FF00E786A","canonical_sha256":"EFE728FCBBD55E28B1D410E72D5BE701B4514951DCD261F0AE0474AC7B511274"})
   for k in ("stored_index_contract","runtime_contract","runtime_harness"):
    with self.subTest(k=k): self.fails(lambda d,key=k:d["bindings"][key].__setitem__("file_sha256","0"*64),"binding is stale")
  def test_schema_is_strict_and_digest_bound(self):

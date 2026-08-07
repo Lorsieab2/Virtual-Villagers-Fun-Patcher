@@ -63,7 +63,7 @@ cannot complete a category until the no-follow capture harness supplies an
 exact nine-role artifact inventory, complete-folder canonical digest, and an
 independently authenticated runtime-capture packet bound to runtime contract
 digest
-`44006789E82B4C92C9940B8B33ED3AFDFCA45EB25DF774F22156AEF9FF7392E8`.
+`54A0B95547ED52DBA6A7144E6610C5CB25097AADD5629697F2608FD5B447266A`.
 Unsigned capture candidates remain evidence inputs only, never GO.
 
 ## VV4 boundary

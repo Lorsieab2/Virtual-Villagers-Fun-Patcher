@@ -4,7 +4,7 @@
   "status": "static_partial_stop",
   "integrity": {
     "canonicalization": "UTF-8 JSON with sorted keys and compact separators; integrity.canonical_sha256 is excluded from its own digest",
-    "canonical_sha256": "13D4E2AF89EDACD7C20CAFDFD407ECC5D1C34DEE3C1BA53A7FE4121087698DFE"
+    "canonical_sha256": "EFE728FCBBD55E28B1D410E72D5BE701B4514951DCD261F0AE0474AC7B511274"
   },
   "publication": {
     "enabled": false,
@@ -59,7 +59,7 @@
     },
     "source_files": [
       {"path": "data/expanded_256.json", "sha256": "5738EABD414DA0171C8A03316B9CCCE9C39CF8F080D63D2F209D9A5C7A5DEAB3"},
-      {"path": "data/expanded_256_runtime_evidence.json", "sha256": "BB90E24579DB33A118779A2EACC939D96DDCD8392C9C759CB9B373B8DFEB4DF3"},
+      {"path": "data/expanded_256_runtime_evidence.json", "sha256": "5A3BAEB25B958460243DD0E91DE94667CB304F22282EA721A2CE43B758C03F85"},
       {"path": "scripts/capture_expanded_runtime_evidence.py", "sha256": "719DAD95AC6AB2D2E1CC9F64DECF1BB894CC4A98B5B7662A3A84402B2C5CA321"},
       {"path": "data/vv4_origins_feature.json", "sha256": "A38F98973EB83F91D60FCA5C2A1BD28444622CEAC5434C295FB7E73D3A1BCB71"},
       {"path": "data/vv5_origins_feature.json", "sha256": "6AFF1A8E69234C61CB2D1878C46FA91B0AAA721FC5F29C5B42A678F61BAB8528"}
@@ -83,7 +83,7 @@
         "schema_version": "vvfp.expanded_256_runtime_capture.v1",
         "harness_path": "scripts/capture_expanded_runtime_evidence.py",
         "harness_sha256": "719DAD95AC6AB2D2E1CC9F64DECF1BB894CC4A98B5B7662A3A84402B2C5CA321",
-        "contract_canonical_sha256": "44006789E82B4C92C9940B8B33ED3AFDFCA45EB25DF774F22156AEF9FF7392E8",
+        "contract_canonical_sha256": "54A0B95547ED52DBA6A7144E6610C5CB25097AADD5629697F2608FD5B447266A",
         "status": "absent_stop",
         "capture_packet_sha256": null,
         "authenticated": false
@@ -154,7 +154,7 @@
         "schema_version": "vvfp.expanded_256_runtime_capture.v1",
         "harness_path": "scripts/capture_expanded_runtime_evidence.py",
         "harness_sha256": "719DAD95AC6AB2D2E1CC9F64DECF1BB894CC4A98B5B7662A3A84402B2C5CA321",
-        "contract_canonical_sha256": "44006789E82B4C92C9940B8B33ED3AFDFCA45EB25DF774F22156AEF9FF7392E8",
+        "contract_canonical_sha256": "54A0B95547ED52DBA6A7144E6610C5CB25097AADD5629697F2608FD5B447266A",
         "status": "absent_stop",
         "capture_packet_sha256": null,
         "authenticated": false

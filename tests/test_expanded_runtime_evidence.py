@@ -41,6 +41,18 @@ class ExpandedRuntimeEvidenceTests(unittest.TestCase):
         self.assertFalse(self.contract["publication"]["enabled"])
 
     def test_contract_pins_exact_stock_and_static_expanded_fingerprints(self) -> None:
+        source_hashes = {
+            item["path"]: item["sha256"]
+            for item in self.contract["source_provenance"]["source_files"]
+        }
+        self.assertEqual(
+            source_hashes["data/vv4_origins_feature.json"],
+            "A38F98973EB83F91D60FCA5C2A1BD28444622CEAC5434C295FB7E73D3A1BCB71",
+        )
+        self.assertEqual(
+            source_hashes["data/vv5_origins_feature.json"],
+            "6AFF1A8E69234C61CB2D1878C46FA91B0AAA721FC5F29C5B42A678F61BAB8528",
+        )
         for game_id, expected in {
             "vv4": (929792, "6D27A429FFCA5F1F71FDD7ECA761ED1BB67E85F976494BA178B3D7BE01F1B220"),
             "vv5": (991232, "92946781980220E9D1A2E6C573925519934608F5215F4A0F8CE3B90088C5C65D"),
