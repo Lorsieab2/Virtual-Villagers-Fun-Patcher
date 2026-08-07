@@ -25,8 +25,17 @@ missing xrefs, and reconciler omissions all fail closed. Runtime gates are a
 separate required section: load-hang resolution, stock-import/expanded-save
 reload, offline catch-up, failed-load nonmutation, late-record coverage, and
 player runtime validation. The runtime-evidence catalog must contain each
-cited ID as a non-synthetic, non-ambiguous, complete, hashed capture. Each
-gate must be independently verified and cite IDs from that catalog.
+cited ID as a non-synthetic, non-ambiguous, complete, hashed capture with a
+portable relative path and byte size. Catalog paths reject absolute, traversal,
+drive/stream, reserved, separator-ambiguous, and reparse-like forms. Catalog
+artifact paths and SHA-256 values are unique, and one artifact hash cannot be
+reused by multiple gates. Unknown keys, duplicate JSON object keys, and boolean
+values in integer fields fail closed. `load_evidence` accepts only canonical
+UTF-8 JSON (sorted keys, compact separators); `inventory_evidence_file` rejects
+reparse points and detects file identity or metadata changes during hashing.
+`validate_evidence_file` binds the inventory, read, and post-validation bytes so
+an evidence-file mutation cannot publish. Each gate must be independently
+verified and cite IDs from that catalog.
 
 The current static contract deliberately remains publication-false. Therefore
 even a future structurally valid bundle cannot return publication-ready until
@@ -39,5 +48,5 @@ The command exits nonzero for incomplete evidence and prints a JSON result:
 python scripts/validate_vv3_expanded_evidence.py path\to\evidence.json
 ```
 
-Unit tests use only in-memory JSON objects and contract bytes; they never need
-the stock executable.
+Unit tests use only in-memory JSON objects, temporary evidence fixtures, and
+contract bytes; they never need the stock executable, saves, or a game folder.
