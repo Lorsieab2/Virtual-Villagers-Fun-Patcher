@@ -4,7 +4,11 @@ This additive contract is evidence-only and permanently disabled in its checked-
 
 Each game is pinned to its exact stock executable. Full-folder fingerprints, native header/body writers, slot-result and late-load-failure ABIs, and exact header/body/record/tail/padding shapes are currently unknown and therefore `null`. Null is STOP, never a wildcard.
 
-Publication requires authenticated proof of a sibling-directory temporary write; checked header, body, flush and close results; reopen and exact validation; an atomic replacement that preserves the prior final file on every failure; directory durability where the platform supports it; explicit slot 0/current/backup outcomes; fatal non-return after a late load failure has mutated state; record-bound, tail and padding correctness; and complete fault-injection, runtime and player receipts.
+Publication requires authenticated proof of a same-directory, exclusive `CREATE_NEW` temporary file opened with `FILE_FLAG_WRITE_THROUGH`; exact `WriteFile` counts; checked `FlushFileBuffers` and `CloseHandle`; and a no-follow reopen with `GetFileSizeEx`, identity checks and exact content validation. All identity and commit APIs must be dynamically resolved.
+
+When the final exists, the only accepted commit is `ReplaceFileA(final,temp,backup,0,NULL,NULL)`. `REPLACEFILE_WRITE_THROUGH` is unsupported and rejected. When the final is absent, the only accepted commit is `MoveFileExA(temp,final,MOVEFILE_WRITE_THROUGH)` without `MOVEFILE_REPLACE_EXISTING`; if another final races into existence, the operation must fail. Numeric `slot + 40`, delete-then-move, and overwrite-on-race paths are rejected. The protocol must preserve the prior final on every failure and explicitly handle slot 0/current/backup outcomes and fatal non-return after late load mutation.
+
+Windows does not provide the directory-handle flush primitive needed to prove directory-entry durability across power loss here. That limitation is explicit and must not be upgraded to a guarantee by runtime success receipts.
 
 Stock backup rotation is not atomicity evidence. Serializer arithmetic without the native writer, filesystem protocol, failure boundaries and observed receipts is also nonqualifying. Direct `wb` truncation, ignored rotation results and ignored close results must be established from authenticated native evidence rather than assumed from this contract.
 

@@ -24,6 +24,15 @@ NATIVE_KEYS = ("header_writer", "body_writer", "slot_result_handler", "late_load
 SHAPE_KEYS = ("header_size", "body_size", "final_size", "record_count", "record_size", "tail_size", "padding_policy")
 DEFECT_KEYS = ("direct_wb_truncation", "ignored_rotation_result", "ignored_close_result")
 HASH = re.compile(r"^[0-9A-F]{64}$")
+WINDOWS_COMMIT_PROTOCOL = {
+    "temp_create": {"same_directory": True, "creation_disposition": "CREATE_NEW", "flags": ["FILE_FLAG_WRITE_THROUGH"], "exclusive": True},
+    "write_verify": {"exact_writefile_counts": True, "flush_file_buffers": True, "checked_close_handle": True, "reopen_no_follow": True, "get_file_size_ex": True, "exact_content_validation": True},
+    "existing_final": {"api": "ReplaceFileA", "arguments": ["final", "temp", "backup", 0, None, None], "flags": 0},
+    "absent_final": {"api": "MoveFileExA", "arguments": ["temp", "final", "MOVEFILE_WRITE_THROUGH"], "flags": ["MOVEFILE_WRITE_THROUGH"], "replace_existing": False, "raced_new_final": "fail"},
+    "dynamic_resolution": ["ReplaceFileA", "MoveFileExA", "GetFileSizeEx", "no_follow_identity_apis"],
+    "forbidden": ["REPLACEFILE_WRITE_THROUGH", "MOVEFILE_REPLACE_EXISTING", "numeric_slot_plus_40", "delete_then_move"],
+    "directory_entry_power_loss_durability": "unsupported_limitation",
+}
 
 @dataclass(frozen=True)
 class Result:
@@ -52,13 +61,15 @@ def _receipt_ok(item: Any, game: str, kind: str, errors: list[str]) -> bool:
 def validate(data: Mapping[str, Any]) -> Result:
     errors: list[str] = []
     flags = ("enabled", "native_emission", "runtime_certified", "player_certified", "publication")
-    if data.get("schema") != "vvfp.native_atomic_save_publication_evidence" or data.get("schema_version") != 1:
+    if data.get("schema") != "vvfp.native_atomic_save_publication_evidence" or data.get("schema_version") != 2:
         errors.append("schema identity/version mismatch")
     if data.get("feature") != "native_atomic_save_publication": errors.append("feature mismatch")
     for flag in flags:
         if data.get(flag) is not False: errors.append(f"{flag} must remain false")
     if data.get("nonqualifying_proofs") != ["stock_backup_rotation", "serializer_arithmetic_only"]:
         errors.append("nonqualifying proof rejection set mismatch")
+    if data.get("windows_commit_protocol") != WINDOWS_COMMIT_PROTOCOL:
+        errors.append("Windows commit protocol mismatch")
     games = data.get("games")
     if not isinstance(games, Mapping) or set(games) != set(GAMES):
         return Result(False, False, False, tuple(errors + ["games must be exactly vv3-vv5"]))

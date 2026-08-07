@@ -1,12 +1,21 @@
 {
   "schema": "vvfp.native_atomic_save_publication_evidence",
-  "schema_version": 1,
+  "schema_version": 2,
   "feature": "native_atomic_save_publication",
   "enabled": false,
   "native_emission": false,
   "runtime_certified": false,
   "player_certified": false,
   "publication": false,
+  "windows_commit_protocol": {
+    "temp_create": {"same_directory": true, "creation_disposition": "CREATE_NEW", "flags": ["FILE_FLAG_WRITE_THROUGH"], "exclusive": true},
+    "write_verify": {"exact_writefile_counts": true, "flush_file_buffers": true, "checked_close_handle": true, "reopen_no_follow": true, "get_file_size_ex": true, "exact_content_validation": true},
+    "existing_final": {"api": "ReplaceFileA", "arguments": ["final", "temp", "backup", 0, null, null], "flags": 0},
+    "absent_final": {"api": "MoveFileExA", "arguments": ["temp", "final", "MOVEFILE_WRITE_THROUGH"], "flags": ["MOVEFILE_WRITE_THROUGH"], "replace_existing": false, "raced_new_final": "fail"},
+    "dynamic_resolution": ["ReplaceFileA", "MoveFileExA", "GetFileSizeEx", "no_follow_identity_apis"],
+    "forbidden": ["REPLACEFILE_WRITE_THROUGH", "MOVEFILE_REPLACE_EXISTING", "numeric_slot_plus_40", "delete_then_move"],
+    "directory_entry_power_loss_durability": "unsupported_limitation"
+  },
   "games": {
     "vv3": {
       "stock": {"exe_name": "Virtual Villagers - The Secret City.exe", "size": 831488, "imagebase": 4194304, "sha256": "8BC5DB382D02BC5C21AD5F607580D60FF44A6519CC7EB133F03113BAACAE6503", "full_folder_sha256": null, "full_folder_manifest_sha256": null, "full_folder_file_count": null},
