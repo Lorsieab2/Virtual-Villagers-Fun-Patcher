@@ -327,7 +327,7 @@ class VillageWideContainmentTests(unittest.TestCase):
             "+0x1CEC",
             "no-op/already-18",
             "Nursing timer",
-            "43 missing relocations",
+            "previously omitted current-feature references",
             "ab404b0c5e80cab4d327de9a51069e6e3529df27",
             "929,792-byte",
             "6D27A429FFCA5F1F71FDD7ECA761ED1BB67E85F976494BA178B3D7BE01F1B220",

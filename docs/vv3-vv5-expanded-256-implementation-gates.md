@@ -86,11 +86,14 @@ with five-record unrolling can read the final logical group containing indices
 | VV4 | 260 | 106 | 27,560 |
 | VV5 | 280 | 106 | 29,680 |
 
-Each experimental loader first tries the expanded size, then the exact stock
-size. On an exact stock-size success, it moves the compact-state tail upward
-and zeroes only the inserted 106-record interval before normal validation and
-live conversion. The source save is read-only during this import. A later save
-uses the expanded layout.
+The static candidate contract describes each experimental loader first trying
+the expanded size, then the exact stock size. On an exact stock-size success, it
+would move the compact-state tail upward and zero only the inserted 106-record
+interval before normal validation and live conversion. The source save is
+specified as read-only during this candidate import, and a later save is
+specified to use the expanded layout. These are static route claims, not runtime
+proof; import, expanded save, reload, catch-up, failed-load nonmutation, and
+player gates remain ON HOLD.
 
 The current fallback hooks and movers are:
 
@@ -149,8 +152,8 @@ its exact semantics are proved or widened.
 
 ## Current-manifest decoded coverage
 
-The stock IDA reconciliation found no unmatched decoded absolute operand into
-the moving live-data tail:
+The cited stock IDA reconciliation reports no unmatched decoded absolute
+operand into the moving live-data tail:
 
 | Game | Decoded moving-tail operands matched | Stock `.shr` absolute operands matched |
 |---|---:|---:|
@@ -158,9 +161,10 @@ the moving live-data tail:
 | VV4 | 999 / 999 | 4 / 4 |
 | VV5 | 1,168 / 1,168 | 4 / 4 |
 
-These counts apply to the exact stock image and the population manifest. They
-do not include references introduced later by optional features. That second
-composition layer is where VV4 and VV5 fail.
+These are static, cited-source candidate counts for the exact stock image and
+population manifest, not runtime or player evidence. They do not include
+references introduced later by optional features. That second composition
+layer is where VV4 and VV5 remain on hold.
 
 ## Per-game implementation gates
 
@@ -483,10 +487,10 @@ The next admissible artifacts are disabled candidates only:
 
 1. regenerate from the current manifest rather than any historical prototype;
 2. close the VV3 load hang before any additional feature work;
-3. add the four VV4 Origins absolute operands to one exact ownership/uninstall
-   contract;
-4. relocate all 43 VV5 Origins references atomically, not only the doubler
-   subset;
+3. retain and independently validate the four VV4 Origins absolute operands in
+   one exact ownership/uninstall contract;
+4. retain and independently validate all 43 declared VV5 current-feature
+   references atomically, not only the doubler subset;
 5. return deterministic stock/both-expanded/all-current renders for independent
    byte certification;
 6. keep gameplay launch and packaging blocked until the per-game runtime/save
