@@ -12,9 +12,11 @@ sys.path.insert(0, str(ROOT / "src"))
 sys.path.insert(0, str(ROOT / "scripts"))
 
 from vv5_individual_transactions import (  # noqa: E402
+    CANCEL_RESULTS,
     NO_DEDUCTION,
     VV5Villager,
     _postverify,
+    _verify_reference_charge,
     dry_run,
     execute,
     transaction_contracts,
@@ -23,9 +25,11 @@ from build_vv5_ui_confirmation_candidate import (  # noqa: E402
     active_payload,
     bound_payload,
     build_manifest,
+    ACTIVE_PAYLOAD_SHA256,
     CURRENT_DETAIL_HOOK_VA,
     CURRENT_DETAIL_HOOK_PREIMAGE,
     DETAIL_NATIVE_HANDLER_VA,
+    DETAIL_NATIVE_TARGET_VA,
     validate_candidate_manifest,
     validate_cave_hook_overlaps,
     validate_detail_enablement,
@@ -51,6 +55,12 @@ def villager(**changes: object) -> VV5Villager:
     return replace(base, **changes)
 
 
+def reference_execute(v: VV5Villager, funds: int, action: str, confirm: int, **kwargs: object):
+    kwargs.setdefault("before_reacquire", lambda current: current)
+    kwargs.setdefault("before_funds_reacquire", lambda current: current)
+    return execute(v, funds, action, confirm, **kwargs)
+
+
 class VV5UIConfirmationCandidateTests(unittest.TestCase):
     def test_candidate_is_disabled_and_native_routing_binding_is_exact(self) -> None:
         original = active_payload()
@@ -69,6 +79,10 @@ class VV5UIConfirmationCandidateTests(unittest.TestCase):
         self.assertEqual(detail["evidence"]["preimage"], None)
         self.assertEqual(detail["candidate_caves"], [])
         self.assertEqual(detail["candidate_hooks"], [])
+        self.assertEqual(detail["native_target"], "0x7B2600")
+        self.assertEqual(manifest["native_routing"]["patches"], [])
+        self.assertEqual(manifest["native_routing"]["emitted_hooks"], [])
+        self.assertEqual(manifest["source"]["active_payload_sha256"], ACTIVE_PAYLOAD_SHA256)
         self.assertEqual(manifest["native_routing"]["tech"]["resource"], "0x6A")
         self.assertEqual(manifest["native_routing"]["detail"]["resource"], "0x6A")
 
@@ -93,6 +107,10 @@ class VV5UIConfirmationCandidateTests(unittest.TestCase):
                 self.assertEqual(contract["record_reacquire"], "same selected index and exact record pointer")
                 self.assertEqual(contract["pre_confirmation_snapshot"], "exact snapshot equality before any native write")
                 self.assertEqual(contract["funds_reacquire"], "post-confirmation funds must equal the pre-confirmation amount immediately before any write")
+                self.assertEqual(contract["required_callbacks"], ["before_reacquire", "before_funds_reacquire"])
+                self.assertEqual(contract["confirmation_results"], {"idok": 1, "cancel": list(CANCEL_RESULTS)})
+                self.assertIn("mandatory callable", contract["before_reacquire"])
+                self.assertIn("mandatory callable", contract["before_funds_reacquire"])
                 self.assertIn("final funds equal", contract["charge_verification"])
                 self.assertIn("no native write", contract["native_effects"])
                 self.assertEqual(contract["no_charge_suffix"], NO_DEDUCTION)
@@ -103,7 +121,7 @@ class VV5UIConfirmationCandidateTests(unittest.TestCase):
                 self.assertIn("charge_failed", contract["no_charge_results"])
 
     def test_youth_and_age18_charge_only_after_native_postverify(self) -> None:
-        youth = execute(villager(), 100_000, "youth", 1)
+        youth = reference_execute(villager(), 100_000, "youth", 1)
         self.assertEqual(youth.status, "committed")
         self.assertTrue(youth.charged)
         self.assertTrue(youth.charge_verified)
@@ -116,7 +134,7 @@ class VV5UIConfirmationCandidateTests(unittest.TestCase):
         # The native writer adjusts a non-zero timer by the same age delta.
         self.assertEqual(youth.villager.age_timer, -117)
 
-        age18 = execute(villager(), 100_000, "age_18", 1)
+        age18 = reference_execute(villager(), 100_000, "age_18", 1)
         self.assertEqual(age18.status, "committed")
         self.assertTrue(age18.charged)
         self.assertTrue(age18.charge_verified)
@@ -124,45 +142,45 @@ class VV5UIConfirmationCandidateTests(unittest.TestCase):
         self.assertEqual(age18.villager.age, 360)
         self.assertEqual(age18.villager.age_companion, 152)
 
-        zero_timer_youth = execute(villager(age_timer=0), 100_000, "youth", 1)
+        zero_timer_youth = reference_execute(villager(age_timer=0), 100_000, "youth", 1)
         self.assertEqual(zero_timer_youth.status, "committed")
         self.assertEqual(zero_timer_youth.villager.age_timer, 0)
-        zero_timer_age18 = execute(villager(age_timer=0), 100_000, "age_18", 1)
+        zero_timer_age18 = reference_execute(villager(age_timer=0), 100_000, "age_18", 1)
         self.assertEqual(zero_timer_age18.status, "committed")
         self.assertEqual(zero_timer_age18.villager.age_timer, 0)
 
-        no_op = execute(villager(age=100), 100_000, "youth", 1)
+        no_op = reference_execute(villager(age=100), 100_000, "youth", 1)
         self.assertEqual(no_op.status, "no_change")
         self.assertFalse(no_op.charged)
         self.assertEqual(no_op.funds, 100_000)
         self.assertIn(NO_DEDUCTION, no_op.message)
 
-        cancelled = execute(villager(age=220), 100_000, "age_18", 0)
+        cancelled = reference_execute(villager(age=220), 100_000, "age_18", 0)
         self.assertEqual(cancelled.status, "cancelled")
         self.assertFalse(cancelled.charged)
         self.assertEqual(cancelled.villager, villager(age=220))
 
     def test_full_mastery_has_six_skill_postverify_and_no_charge_exits(self) -> None:
-        committed = execute(villager(), 200_000, "full_mastery", 1)
+        committed = reference_execute(villager(), 200_000, "full_mastery", 1)
         self.assertEqual(committed.status, "committed")
         self.assertTrue(committed.charged)
         self.assertTrue(committed.charge_verified)
         self.assertEqual(committed.funds, 100_000)
         self.assertEqual(committed.villager.skills, (100.0,) * 6)
 
-        invalid = execute(villager(skills=(101.0, 100.0, 100.0, 100.0, 100.0, 100.0)), 200_000, "full_mastery", 1)
+        invalid = reference_execute(villager(skills=(101.0, 100.0, 100.0, 100.0, 100.0, 100.0)), 200_000, "full_mastery", 1)
         self.assertEqual(invalid.status, "invalid_skill")
         self.assertFalse(invalid.charged)
         self.assertIn(NO_DEDUCTION, invalid.message)
 
-        failed = execute(villager(), 200_000, "full_mastery", 1, force_postverify_failure=True)
+        failed = reference_execute(villager(), 200_000, "full_mastery", 1, force_postverify_failure=True)
         self.assertEqual(failed.status, "postverify_failed")
         self.assertFalse(failed.charged)
         self.assertEqual(failed.funds, 200_000)
         self.assertEqual(failed.villager.skills, villager().skills)
 
     def test_running_snapshots_all_slots_preserves_duplicates_and_clears_dislikes(self) -> None:
-        committed = execute(villager(), 100_000, "running", 1)
+        committed = reference_execute(villager(), 100_000, "running", 1)
         self.assertEqual(committed.status, "committed")
         self.assertTrue(committed.charged)
         self.assertTrue(committed.charge_verified)
@@ -170,7 +188,7 @@ class VV5UIConfirmationCandidateTests(unittest.TestCase):
         self.assertEqual(committed.villager.likes, (11, 38, 11))
         self.assertEqual(committed.villager.dislikes, (-1, 12, -1))
 
-        existing_like_cleanup = execute(
+        existing_like_cleanup = reference_execute(
             villager(likes=(38, 11, 12), dislikes=(38, 13, 14)),
             100_000,
             "running",
@@ -181,17 +199,17 @@ class VV5UIConfirmationCandidateTests(unittest.TestCase):
         self.assertEqual(existing_like_cleanup.villager.likes, (38, 11, 12))
         self.assertEqual(existing_like_cleanup.villager.dislikes, (-1, 13, 14))
 
-        no_slot = execute(villager(likes=(11, 12, 13)), 100_000, "running", 1)
+        no_slot = reference_execute(villager(likes=(11, 12, 13)), 100_000, "running", 1)
         self.assertEqual(no_slot.status, "no_empty_like")
         self.assertFalse(no_slot.charged)
         self.assertIn(NO_DEDUCTION, no_slot.message)
 
-        already_clean = execute(villager(likes=(38, 12, 38), dislikes=(11, 12, 13)), 100_000, "running", 1)
+        already_clean = reference_execute(villager(likes=(38, 12, 38), dislikes=(11, 12, 13)), 100_000, "running", 1)
         self.assertEqual(already_clean.status, "no_change")
         self.assertFalse(already_clean.charged)
 
     def test_reacquire_snapshot_mismatch_and_cancel_never_charge_or_mutate_candidate_fields(self) -> None:
-        changed = execute(
+        changed = reference_execute(
             villager(),
             100_000,
             "full_mastery",
@@ -204,13 +222,13 @@ class VV5UIConfirmationCandidateTests(unittest.TestCase):
         self.assertEqual(changed.villager.skills[0], 81.0)
         self.assertIn(NO_DEDUCTION, changed.message)
 
-        cancelled = execute(villager(), 100_000, "full_mastery", 0)
+        cancelled = reference_execute(villager(), 100_000, "full_mastery", 0)
         self.assertEqual(cancelled.status, "cancelled")
         self.assertFalse(cancelled.charged)
         self.assertEqual(cancelled.villager, villager())
         self.assertIn(NO_DEDUCTION, cancelled.message)
 
-        insufficient = execute(villager(), 99_999, "full_mastery", 1)
+        insufficient = reference_execute(villager(), 99_999, "full_mastery", 1)
         self.assertEqual(insufficient.status, "insufficient_funds")
         self.assertFalse(insufficient.charged)
         self.assertIn(NO_DEDUCTION, insufficient.message)
@@ -277,7 +295,7 @@ class VV5UIConfirmationCandidateTests(unittest.TestCase):
 
         stock_drift = copy.deepcopy(build_manifest())
         stock_drift["native_transaction_bindings"]["writers"]["skill"]["va"] = "0x475731"
-        with self.assertRaisesRegex(ValueError, "writer/charge ABI"):
+        with self.assertRaisesRegex(ValueError, "not exact"):
             validate_candidate_manifest(stock_drift)
 
         source_drift = copy.deepcopy(build_manifest())
@@ -285,8 +303,22 @@ class VV5UIConfirmationCandidateTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "presence and binding"):
             validate_candidate_manifest(source_drift)
 
+        for path in (
+            ("composition_guard", "full_mastery", "map_sha256"),
+            ("composition_guard", "running", "map_sha256"),
+            ("composition_guard", "running", "parent_hash"),
+        ):
+            with self.subTest(composition_field=path):
+                composition_drift = copy.deepcopy(build_manifest())
+                target = composition_drift
+                for key in path[:-1]:
+                    target = target[key]
+                target[path[-1]] = "0" * 64
+                with self.assertRaises(ValueError):
+                    validate_candidate_manifest(composition_drift)
+
     def test_transaction_rechecks_pointer_funds_and_timer_without_native_effects(self) -> None:
-        pointer_changed = execute(
+        pointer_changed = reference_execute(
             villager(),
             100_000,
             "full_mastery",
@@ -297,7 +329,7 @@ class VV5UIConfirmationCandidateTests(unittest.TestCase):
         self.assertFalse(pointer_changed.charged)
         self.assertFalse(pointer_changed.native_write_performed)
 
-        funds_changed = execute(
+        funds_changed = reference_execute(
             villager(),
             100_000,
             "youth",
@@ -314,12 +346,147 @@ class VV5UIConfirmationCandidateTests(unittest.TestCase):
         wrong_timer = replace(villager(), age=100, age_companion=-108, age_timer=3)
         self.assertFalse(_postverify(villager(), wrong_timer, plan))
 
-        charge_failed = execute(villager(), 100_000, "youth", 1, force_charge_failure=True)
+        charge_failed = reference_execute(villager(), 100_000, "youth", 1, force_charge_failure=True)
         self.assertEqual(charge_failed.status, "charge_failed")
         self.assertFalse(charge_failed.charged)
         self.assertFalse(charge_failed.charge_verified)
         self.assertEqual(charge_failed.funds, 100_000)
         self.assertIn(NO_DEDUCTION, charge_failed.message)
+
+    def test_transaction_callbacks_are_mandatory_and_strict(self) -> None:
+        with self.assertRaises(TypeError):
+            execute(villager(), 100_000, "youth", 1)
+        with self.assertRaises(TypeError):
+            reference_execute(villager(), 100_000, "youth", 1, before_reacquire=None)
+        with self.assertRaises(TypeError):
+            reference_execute(villager(), 100_000, "youth", 1, before_funds_reacquire=None)
+        with self.assertRaises(TypeError):
+            reference_execute(villager(), 100_000.0, "youth", 1)
+        with self.assertRaises(TypeError):
+            reference_execute(villager(), True, "youth", 1)
+        with self.assertRaises(TypeError):
+            reference_execute(villager(), 100_000, "youth", 1.0)
+        with self.assertRaises(ValueError):
+            reference_execute(villager(), 100_000, "youth", 3)
+        with self.assertRaises(TypeError):
+            reference_execute(villager(), 100_000, "youth", 1, before_reacquire=lambda current: None)
+        with self.assertRaises(TypeError):
+            reference_execute(villager(), 100_000, "youth", 1, before_funds_reacquire=lambda current: 100_000.0)
+        with self.assertRaises(TypeError):
+            reference_execute(villager(), 100_000, "youth", 1, before_funds_reacquire=lambda current: True)
+
+    def test_reference_state_rejects_coercible_types_and_missing_identity(self) -> None:
+        with self.assertRaises(TypeError):
+            replace(villager(), index=7.0)
+        with self.assertRaises(TypeError):
+            replace(villager(), identity="")
+        with self.assertRaises(TypeError):
+            replace(villager(), record_pointer=None)
+        with self.assertRaises(TypeError):
+            replace(villager(), skills=(80, 100.0, 50.0, 100.0, 100.0, 90.0))
+        with self.assertRaises(TypeError):
+            replace(villager(), skills=(True, 100.0, 50.0, 100.0, 100.0, 90.0))
+        with self.assertRaises(TypeError):
+            replace(villager(), likes=(11.0, -1, 11))
+
+    def test_reference_charge_verification_is_exact_arithmetic_only(self) -> None:
+        self.assertTrue(_verify_reference_charge(100_000, 50_000, 50_000))
+        self.assertFalse(_verify_reference_charge(100_000, 49_999, 50_000))
+        self.assertFalse(_verify_reference_charge(True, 0, 1))
+
+    def test_manifest_rejects_disabled_invariant_mutations_and_unknown_schema_keys(self) -> None:
+        mutations = {
+            "enabled": True,
+            "catalog_hidden": False,
+            "catalog_enabled": True,
+            "expanded_fail_closed": False,
+            "runtime_status": "runtime-ready",
+            "native_patches": [{"offset": "0x44B560"}],
+            "native_emitted_hooks": ["0x44B560"],
+            "detail_native_target": "0x7B2601",
+            "detail_target_evidence": "0x7B2601",
+            "detail_status": "changed",
+            "stock_status": "changed",
+            "call_convention": ["changed ABI"],
+        }
+        for name, value in mutations.items():
+            with self.subTest(mutation=name):
+                mutated = copy.deepcopy(build_manifest())
+                if name == "native_patches":
+                    mutated["native_routing"]["patches"] = value
+                elif name == "native_emitted_hooks":
+                    mutated["native_routing"]["emitted_hooks"] = value
+                elif name == "detail_native_target":
+                    mutated["native_routing"]["detail"]["native_target"] = value
+                elif name == "detail_target_evidence":
+                    mutated["native_routing"]["detail"]["evidence"]["native_target_va"] = value
+                elif name == "detail_status":
+                    mutated["native_routing"]["detail"]["status"] = value
+                elif name == "stock_status":
+                    mutated["stock_fingerprint"]["status"] = value
+                elif name == "call_convention":
+                    mutated["native_routing"]["call_convention"] = value
+                else:
+                    mutated[name] = value
+                with self.assertRaises(ValueError):
+                    validate_candidate_manifest(mutated)
+
+        unknown = copy.deepcopy(build_manifest())
+        unknown["unexpected"] = True
+        with self.assertRaisesRegex(ValueError, "schema mismatch"):
+            validate_candidate_manifest(unknown)
+        for path in (
+            ("native_routing", "detail"),
+            ("native_transaction_bindings",),
+            ("composition_guard",),
+            ("individual_actions", "youth"),
+        ):
+            with self.subTest(nested_schema=path):
+                nested = copy.deepcopy(build_manifest())
+                target = nested
+                for key in path:
+                    target = target[key]
+                target["unexpected"] = True
+                with self.assertRaises(ValueError):
+                    validate_candidate_manifest(nested)
+
+    def test_manifest_rejects_hash_abi_and_detail_target_drift(self) -> None:
+        for field in ("active_base", "active_payload_sha256", "bound_payload_sha256"):
+            with self.subTest(field=field):
+                mutated = copy.deepcopy(build_manifest())
+                mutated["source"][field] = "0" * 64
+                with self.assertRaises(ValueError):
+                    validate_candidate_manifest(mutated)
+
+        binding = copy.deepcopy(build_manifest())
+        binding["native_transaction_bindings"]["selected_index"]["manager_getter_va"] = "0x425951"
+        with self.assertRaises(ValueError):
+            validate_candidate_manifest(binding)
+
+        detail = copy.deepcopy(build_manifest())
+        detail["native_routing"]["detail"]["native_target"] = f"0x{DETAIL_NATIVE_TARGET_VA + 1:X}"
+        with self.assertRaisesRegex(ValueError, "0x44B560 -> 0x7B2600"):
+            validate_candidate_manifest(detail)
+
+        payload = copy.deepcopy(build_manifest())
+        self.assertEqual(payload["source"]["active_payload_sha256"], ACTIVE_PAYLOAD_SHA256)
+        payload["source"]["active_payload_sha256"] = ACTIVE_PAYLOAD_SHA256.lower()
+        with self.assertRaises(ValueError):
+            validate_candidate_manifest(payload)
+
+    def test_ranges_reject_bad_types_bounds_alignment_and_address_space(self) -> None:
+        bad_entries = [
+            {"name": "float", "start": 1.5, "end": 2},
+            {"name": "bool", "start": True, "end": 2},
+            {"name": "negative", "start": -1, "end": 2},
+            {"name": "reversed", "start": 2, "end": 1},
+            {"name": "unaligned", "start": 3, "end": 5, "alignment": 4},
+            {"name": "space", "start": 3, "end": 5, "address_space": "image"},
+        ]
+        for entry in bad_entries:
+            with self.subTest(entry=entry):
+                with self.assertRaises(ValueError):
+                    validate_cave_hook_overlaps([entry], [], ())
 
 
 if __name__ == "__main__":
