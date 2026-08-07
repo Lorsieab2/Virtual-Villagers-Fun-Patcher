@@ -56,6 +56,13 @@ class VillageWideContainmentTests(unittest.TestCase):
                 prior_without_gate = dict(prior)
                 current_without_gate.pop("enabled", None)
                 prior_without_gate.pop("enabled", None)
+                # Running containment deliberately replaces public descriptive
+                # claims while preserving every disabled diagnostic byte.
+                description = current_without_gate.pop("description")
+                self.assertIn("disabled diagnostic record only", description)
+                self.assertIn("not native ABI proof", description)
+                self.assertIn("No public Running row or runtime-ready claim", description)
+                prior_without_gate.pop("description", None)
                 if game_id == "vv4":
                     # VV4's four stale all-feature .shr operands moved from
                     # the disabled village-wide owner into the enabled base
