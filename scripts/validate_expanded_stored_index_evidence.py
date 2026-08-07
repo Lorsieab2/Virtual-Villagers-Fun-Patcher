@@ -17,6 +17,11 @@ import sys
 from pathlib import Path, PurePosixPath
 from typing import Mapping
 
+try:
+    from scripts.source_text_hash import authenticated_file_sha256, source_text_sha256
+except ModuleNotFoundError:  # direct script execution
+    from source_text_hash import authenticated_file_sha256, source_text_sha256
+
 
 ROOT = Path(__file__).resolve().parents[1]
 CONTRACT_PATH = ROOT / "data" / "expanded_256_stored_index_evidence.json"
@@ -96,7 +101,7 @@ EXPECTED_CANDIDATE_OFFSETS = {
         "serializer_load_catchup": {"0x25709", "0x9466C", "0x6FA75"},
     },
 }
-RUNTIME_CONTRACT_SHA256 = "C70F0BD0CDDFF921B215FA178D725A57EC2AEE380C575FFD1D56D8F282562B60"
+RUNTIME_CONTRACT_SHA256 = "3831DDFED59E5EA0B897D994C2CD203C7262C18FC06864622D83077460338792"
 HARNESS_SHA256 = "719DAD95AC6AB2D2E1CC9F64DECF1BB894CC4A98B5B7662A3A84402B2C5CA321"
 
 
@@ -197,7 +202,7 @@ def _validate_source_provenance(document: Mapping[str, object], root: Path) -> N
     _require(COMMIT_RE.fullmatch(str(provenance.get("implementation_base_commit"))) is not None, "implementation base commit is not full-length")
     schema = _mapping(provenance.get("schema"), "source_provenance.schema")
     schema_path = _source_path(root, schema.get("path"), "schema path")
-    _require(_sha256(schema_path) == _sha(schema.get("sha256"), "schema SHA-256"), "stored-index schema hash is stale")
+    _require(source_text_sha256(schema_path) == _sha(schema.get("sha256"), "schema SHA-256"), "stored-index schema hash is stale")
     schema_json = json.loads(schema_path.read_text(encoding="utf-8"))
     _require(schema_json.get("$id") == document.get("schema_version"), "stored-index schema id is stale")
     source_files = provenance.get("source_files")
@@ -209,7 +214,7 @@ def _validate_source_provenance(document: Mapping[str, object], root: Path) -> N
         _require(relative not in seen, f"duplicate source provenance path: {relative}")
         seen.add(relative)
         path = _source_path(root, relative, "source provenance path")
-        _require(_sha256(path) == _sha(record.get("sha256"), f"source provenance hash {relative}"), f"source provenance hash is stale: {relative}")
+        _require(source_text_sha256(path) == _sha(record.get("sha256"), f"source provenance hash {relative}"), f"source provenance hash is stale: {relative}")
 
 
 def _validate_relocation(game_id: str, game: Mapping[str, object], root: Path) -> None:
@@ -310,7 +315,7 @@ def _validate_evidence_row(
     source = _mapping(row.get("source"), f"evidence source: {path_id}")
     _require(source.get("provenance") == "exact_ida_plus_player_runtime_receipt", f"evidence provenance is not exact/player-observed: {path_id}")
     artifact = _source_path(root, source.get("artifact"), f"evidence source artifact: {path_id}")
-    _require(_sha256(artifact) == _sha(source.get("sha256"), f"evidence source hash: {path_id}"), f"evidence source hash is stale: {path_id}")
+    _require(authenticated_file_sha256(artifact) == _sha(source.get("sha256"), f"evidence source hash: {path_id}"), f"evidence source hash is stale: {path_id}")
     _require(evidence_row_sha256(row) == _sha(source.get("row_sha256"), f"evidence row digest: {path_id}"), f"evidence row digest is stale: {path_id}")
     return path_id
 

@@ -8,6 +8,11 @@ import json
 from pathlib import Path
 from typing import Any
 
+try:
+    from scripts.source_text_hash import authenticated_file_sha256
+except ModuleNotFoundError:  # direct script execution
+    from source_text_hash import authenticated_file_sha256
+
 ROOT = Path(__file__).resolve().parents[1]
 CONTRACT = ROOT / "data" / "expanded_256_save_serializer_abi_evidence.json"
 SCHEMA_VERSION = "vvfp.expanded_256_save_serializer_abi_evidence.v1"
@@ -32,7 +37,7 @@ def contract_sha(doc: dict[str, Any]) -> str:
     return sha(copy)
 
 def file_sha(path: Path) -> str:
-    return hashlib.sha256(path.read_bytes()).hexdigest().upper()
+    return authenticated_file_sha256(path)
 
 def fail(condition: bool, message: str) -> None:
     if condition: raise SaveSerializerEvidenceError(message)
