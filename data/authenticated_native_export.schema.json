@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "vvfp.authenticated-native-export.v1",
+  "type": "object",
+  "required": ["schema", "generated_by", "synthetic", "manual", "game", "inventory_sha256", "functions", "artifact_sha256"],
+  "properties": {
+    "schema": {"const": "vvfp.authenticated-native-export.v1"},
+    "generated_by": {"enum": ["ida_python", "ghidra"]},
+    "synthetic": {"const": false},
+    "manual": {"const": false},
+    "game": {"enum": ["vv3", "vv4", "vv5"]},
+    "inventory_sha256": {"pattern": "^[0-9A-F]{64}$"},
+    "functions": {"type": "array", "minItems": 10, "maxItems": 10},
+    "artifact_sha256": {"pattern": "^[0-9A-F]{64}$"}
+  },
+  "additionalProperties": false
+}

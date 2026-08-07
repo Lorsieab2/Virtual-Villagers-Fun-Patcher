@@ -1,0 +1,11 @@
+{
+  "schema": "vvfp.native-evidence-test-fixtures.v1",
+  "rejected_cases": [
+    "synthetic_true",
+    "manual_true",
+    "partial_query_rows",
+    "stale_raw_bytes",
+    "missing_register_evidence",
+    "wrong_inventory_binding"
+  ]
+}
