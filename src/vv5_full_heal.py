@@ -47,9 +47,7 @@ RECORD_KEYS = frozenset(
 )
 
 Resolve = Callable[[int], Mapping[str, object] | None]
-BeforeReacquire = Callable[[], "FullHealDryRun"]
-BeforeFundsReacquire = Callable[[int], int]
-AfterFundsReacquire = Callable[[int], int | None]
+SnapshotReacquire = Callable[[], "FullHealSnapshot"]
 HealthSetter = Callable[[int, str, int], NativeOutcome]
 SicknessClearer = Callable[[int, str], NativeOutcome]
 PeopleCuredIncrementer = Callable[[int, str], NativeOutcome]
@@ -99,12 +97,18 @@ class FullHealSlot:
     sick: bool | None
 
     def __post_init__(self) -> None:
-        _exact_int(self.index, "slot.index")
+        index = _exact_int(self.index, "slot.index")
+        if not 0 <= index < RECORD_COUNT:
+            raise ValueError("slot.index must be in exact range 0..149")
         _exact_int(self.active, "slot.active")
         _exact_int(self.faction, "slot.faction")
+        if not 0 <= self.active <= 0xFF or not 0 <= self.faction <= 0xFF:
+            raise ValueError("slot active and faction must be exact byte values")
         if self.identity is None or self.record_pointer is None:
             if self.identity is not None or self.record_pointer is not None:
                 raise TypeError("absent slot identity and pointer must both be None")
+            if self.active != 0 or self.faction != 0 or self.health is not None or self.sick is not None:
+                raise ValueError("absent slots must contain only zero gate values")
         else:
             _exact_identity(self.identity, "slot.identity")
             _exact_identity(self.record_pointer, "slot.record_pointer")
@@ -133,6 +137,41 @@ class FullHealDryRun:
             raise TypeError("dry_run.slots must contain exactly 150 physical records")
         if any(type(slot) is not FullHealSlot for slot in self.slots):
             raise TypeError("dry_run.slots must contain exact FullHealSlot values")
+        if tuple(slot.index for slot in self.slots) != tuple(range(RECORD_COUNT)):
+            raise ValueError("dry_run slots must be unique and ordered by physical index")
+        expected_sick = sum(slot.sick is True for slot in self.slots if _eligible(slot))
+        expected_partial = sum(
+            slot.health is not None and 0 < slot.health < 100
+            for slot in self.slots if _eligible(slot)
+        )
+        if (self.sick_count, self.partial_count) != (expected_sick, expected_partial):
+            raise ValueError("dry-run counts must exactly equal the 150-slot snapshot")
+
+
+@dataclass(frozen=True)
+class FullHealSnapshot:
+    """One independently acquired transaction boundary snapshot."""
+
+    selected_index: int
+    selected_pointer: str
+    records: FullHealDryRun
+    funds: int
+    people_cured: int
+
+    def __post_init__(self) -> None:
+        selected_index = _exact_int(self.selected_index, "snapshot.selected_index")
+        if not 0 <= selected_index < RECORD_COUNT:
+            raise ValueError("snapshot.selected_index must be in exact range 0..149")
+        _exact_identity(self.selected_pointer, "snapshot.selected_pointer")
+        if type(self.records) is not FullHealDryRun:
+            raise TypeError("snapshot.records must be an exact FullHealDryRun")
+        _exact_int(self.funds, "snapshot.funds")
+        people_cured = _exact_int(self.people_cured, "snapshot.people_cured")
+        if people_cured < 0:
+            raise ValueError("snapshot.people_cured cannot be negative")
+        selected = self.records.slots[selected_index]
+        if selected.record_pointer != self.selected_pointer:
+            raise ValueError("snapshot selected pointer must equal the resolved selected record pointer")
 
 
 @dataclass(frozen=True)
@@ -151,6 +190,29 @@ class TransactionResult:
     rollback_status: Literal["not_attempted", "unknown"] = "not_attempted"
     dry_run: FullHealDryRun | None = None
 
+    def __post_init__(self) -> None:
+        if type(self.status) is not str or self.status not in Status.__args__:
+            raise TypeError("result.status is not exact")
+        _exact_identity(self.message, "result.message")
+        for name in ("predicted_sick", "predicted_partial", "actual_sick", "actual_partial", "funds"):
+            value = _exact_int(getattr(self, name), f"result.{name}")
+            if value < 0:
+                raise ValueError(f"result.{name} cannot be negative")
+        for name in ("charged", "charge_verified", "charge_attempted"):
+            _exact_bool(getattr(self, name), f"result.{name}")
+        if self.native_effects not in {"none", "may_have_occurred"}:
+            raise TypeError("result.native_effects is not exact")
+        if self.rollback_status not in {"not_attempted", "unknown"}:
+            raise TypeError("result.rollback_status is not exact")
+        if self.dry_run is not None and type(self.dry_run) is not FullHealDryRun:
+            raise TypeError("result.dry_run must be an exact FullHealDryRun or None")
+        if self.charge_verified and not (self.charge_attempted and self.charged):
+            raise ValueError("verified charge requires one attempted and charged outcome")
+        if self.charged and not self.charge_verified:
+            raise ValueError("charged cannot be true without exact balance verification")
+        if self.status == "committed" and not self.charge_verified:
+            raise ValueError("committed requires exact charge verification")
+
 
 def transaction_contract() -> dict[str, object]:
     """Return the strict disabled candidate contract consumed by the builder."""
@@ -159,23 +221,21 @@ def transaction_contract() -> dict[str, object]:
         "sequence": [
             "complete 150-record dry-run",
             "explicit IDOK/Cancel confirmation",
-            "reacquire every physical index and exact record pointer",
-            "require exact full snapshot and predicted-count equality",
-            "reacquire and require exact pre-confirmation funds before any callback",
+            "independently reacquire selected index, resolved pointer, all 150 records, funds, and People Cured",
+            "require exact pre-confirmation snapshot and predicted-count equality",
             "invoke only abstract unproven health/sickness/statistic callbacks",
-            "postverify each callback result and final zero sick/partial counts",
-            "require actual sick/partial counts to equal confirmed counts",
+            "postverify complete predicted/actual 150-record and People Cured equality",
             "invoke exactly one abstract deduction callback after complete verification",
-            "reacquire final reference funds and verify one exact 30,000 deduction",
+            "independently reacquire the complete after snapshot and prove one exact 30,000 deduction by balance readback",
         ],
         "confirmation_results": {"idok": IDOK, "cancel": list(CANCEL_RESULTS)},
-        "record_reacquire": "same physical index and exact record pointer for all 150 slots",
-        "pre_confirmation_snapshot": "exact full 150-slot snapshot and predicted-count equality",
-        "funds_reacquire": "pre-confirmation funds must be reacquired equal before any callback; final funds must equal minus 30,000",
+        "record_reacquire": "independent snapshots bind selected index, resolved selected pointer, and all 150 ordered physical slots",
+        "pre_confirmation_snapshot": "exact selected record, full 150-slot state, funds, People Cured, and predicted-count equality",
+        "funds_reacquire": "before and after independent snapshots contain exact funds; charge truth comes only from exact balance readback",
         "required_callbacks": [
-            "before_reacquire",
-            "before_funds_reacquire",
-            "after_funds_reacquire",
+            "before_snapshot",
+            "postverify_snapshot",
+            "after_snapshot",
             "health_setter",
             "sickness_clearer",
             "people_cured_incrementer",
@@ -184,11 +244,11 @@ def transaction_contract() -> dict[str, object]:
         "native_callbacks": "unproven callback signatures only; no native implementation or output is emitted",
         "no_revive": "health <= 0 is excluded and never written",
         "counting": "sick and partial-health counts are separate; one overlapping record increments both",
-        "postverify": "partial health is exactly 100 and sickness is exactly false; final counts are zero and actual counts equal predicted counts",
-        "charge_verification": "one deduction callback only after postverify; final reference funds equal original funds minus 30,000",
+        "postverify": "complete predicted and actual 150-record snapshots, counts, and People Cured readback must be exactly equal",
+        "charge_verification": "one deduction callback only after postverify; charge is true only when exact after-balance equals before-balance minus 30,000",
         "native_effects": "callbacks may have native effects; this reference model supplies no rollback implementation",
         "rollback_disclosure": UNKNOWN_ROLLBACK,
-        "charge_disclosure": "failure or unknown deduction outcome never claims a verified charge",
+        "charge_disclosure": "callback return values never prove charge or no-charge; exact balance readback is authoritative, otherwise charge is unknown",
         "no_charge_suffix": NO_DEDUCTION,
         "no_charge_results": [
             "invalid_state",
@@ -197,10 +257,6 @@ def transaction_contract() -> dict[str, object]:
             "insufficient_funds",
             "recheck_failed",
             "funds_recheck_failed",
-            "partial",
-            "partial_unknown",
-            "charge_failed",
-            "charge_unknown",
         ],
         "price": PRICE,
     }
@@ -388,9 +444,12 @@ def execute(
     funds: int,
     confirm_result: int,
     *,
-    before_reacquire: BeforeReacquire,
-    before_funds_reacquire: BeforeFundsReacquire,
-    after_funds_reacquire: AfterFundsReacquire,
+    selected_index: int,
+    selected_pointer: str,
+    people_cured: int,
+    before_snapshot: SnapshotReacquire,
+    postverify_snapshot: SnapshotReacquire,
+    after_snapshot: SnapshotReacquire,
     health_setter: HealthSetter,
     sickness_clearer: SicknessClearer,
     people_cured_incrementer: PeopleCuredIncrementer,
@@ -402,10 +461,17 @@ def execute(
     _exact_int(confirm_result, "confirm_result")
     if confirm_result != IDOK and confirm_result not in CANCEL_RESULTS:
         raise ValueError("confirm_result must be exact IDOK or Cancel/close")
+    selected_index = _exact_int(selected_index, "selected_index")
+    if not 0 <= selected_index < RECORD_COUNT:
+        raise ValueError("selected_index must be in exact range 0..149")
+    selected_pointer = _exact_identity(selected_pointer, "selected_pointer")
+    people_cured = _exact_int(people_cured, "people_cured")
+    if funds < 0 or people_cured < 0:
+        raise ValueError("funds and people_cured cannot be negative")
     callbacks = {
-        "before_reacquire": before_reacquire,
-        "before_funds_reacquire": before_funds_reacquire,
-        "after_funds_reacquire": after_funds_reacquire,
+        "before_snapshot": before_snapshot,
+        "postverify_snapshot": postverify_snapshot,
+        "after_snapshot": after_snapshot,
         "health_setter": health_setter,
         "sickness_clearer": sickness_clearer,
         "people_cured_incrementer": people_cured_incrementer,
@@ -456,27 +522,31 @@ def execute(
     if confirm_result != IDOK:
         return result("cancelled", _failure_message("Full Heal / Cure All was canceled."))
 
-    reacquired = before_reacquire()
-    if type(reacquired) is not FullHealDryRun:
-        raise TypeError("before_reacquire must return an exact FullHealDryRun")
-    if not _same_snapshot(initial, reacquired):
+    try:
+        before = before_snapshot()
+    except Exception:
+        return result("recheck_failed", _failure_message("The independent pre-mutation snapshot could not be reacquired."))
+    if type(before) is not FullHealSnapshot:
+        raise TypeError("before_snapshot must return an exact FullHealSnapshot")
+    if (
+        before.selected_index != selected_index
+        or before.selected_pointer != selected_pointer
+        or before.funds != funds
+        or before.people_cured != people_cured
+        or not _same_snapshot(initial, before.records)
+    ):
         return result("recheck_failed", _failure_message("The Full Heal / Cure All villager snapshot changed during confirmation."))
-
-    confirmed_funds = before_funds_reacquire(funds)
-    if type(confirmed_funds) is not int:
-        raise TypeError("before_funds_reacquire must return an exact int")
-    if confirmed_funds != funds or confirmed_funds < PRICE:
-        return result("funds_recheck_failed", _failure_message("Tech points changed during Full Heal / Cure All confirmation."), available_funds=confirmed_funds)
+    confirmed_funds = before.funds
 
     actual_sick = 0
     actual_partial = 0
 
     def partial_failure(status: Literal["partial", "partial_unknown"], reason: str) -> TransactionResult:
-        effects = "may_have_occurred" if actual_sick or actual_partial else "none"
-        rollback = "unknown" if effects == "may_have_occurred" else "not_attempted"
+        effects = "may_have_occurred"
+        rollback = "unknown"
         return result(
             status,
-            _partial_message(actual_sick, actual_partial, reason),
+            f"Full Heal / Cure All stopped: {reason}. Callback effects may have occurred. {UNKNOWN_ROLLBACK}",
             actual_sick=actual_sick,
             actual_partial=actual_partial,
             available_funds=confirmed_funds,
@@ -502,10 +572,10 @@ def execute(
         assert current.health is not None
 
         if current.health < 100:
-            outcome = _outcome(
-                health_setter(current.index, current.record_pointer, 100),
-                "health_setter",
-            )
+            try:
+                outcome = _outcome(health_setter(current.index, current.record_pointer, 100), "health_setter")
+            except Exception:
+                return partial_failure("partial_unknown", "the health callback raised after possible mutation")
             if outcome == "unknown":
                 return partial_failure("partial_unknown", "the native health setter outcome is unknown")
             if outcome == "failure":
@@ -534,10 +604,10 @@ def execute(
                 or before_clear.sick is not True
             ):
                 return partial_failure("partial", "sickness preverification did not prove the same live believer record")
-            outcome = _outcome(
-                sickness_clearer(current.index, current.record_pointer),
-                "sickness_clearer",
-            )
+            try:
+                outcome = _outcome(sickness_clearer(current.index, current.record_pointer), "sickness_clearer")
+            except Exception:
+                return partial_failure("partial_unknown", "the sickness callback raised after possible mutation")
             if outcome == "unknown":
                 return partial_failure("partial_unknown", "the native sickness-clear outcome is unknown")
             if outcome == "failure":
@@ -553,10 +623,10 @@ def execute(
             ):
                 return partial_failure("partial", "sickness postverification did not prove exact clear")
             actual_sick += 1
-            stat_outcome = _outcome(
-                people_cured_incrementer(current.index, current.record_pointer),
-                "people_cured_incrementer",
-            )
+            try:
+                stat_outcome = _outcome(people_cured_incrementer(current.index, current.record_pointer), "people_cured_incrementer")
+            except Exception:
+                return partial_failure("partial_unknown", "the People Cured callback raised after possible mutation")
             if stat_outcome == "unknown":
                 return partial_failure("partial_unknown", "the People Cured update outcome is unknown")
             if stat_outcome == "failure":
@@ -566,16 +636,47 @@ def execute(
         final = dry_run(resolve)
     except (TypeError, ValueError, KeyError, IndexError):
         return partial_failure("partial_unknown", "final postverification could not read an exact snapshot")
-    if final.sick_count != 0 or final.partial_count != 0:
-        return partial_failure("partial", "final postverification still found sick or partial-health villagers")
+    expected_slots = tuple(
+        FullHealSlot(
+            slot.index, slot.identity, slot.record_pointer, slot.active, slot.faction,
+            100 if _eligible(slot) and slot.health is not None and 0 < slot.health < 100 else slot.health,
+            False if _eligible(slot) and slot.sick is True else slot.sick,
+        )
+        for slot in initial.slots
+    )
+    expected_final = FullHealDryRun(0, 0, expected_slots)
+    if final != expected_final:
+        return partial_failure("partial", "final postverification did not equal the complete predicted 150-record snapshot")
     if actual_sick != initial.sick_count or actual_partial != initial.partial_count:
         return partial_failure("partial", "verified counts did not match the confirmed counts")
 
-    deduction_outcome = _outcome(deduct(PRICE), "deduct")
-    if deduction_outcome == "unknown":
+    try:
+        verified = postverify_snapshot()
+    except Exception:
+        return partial_failure("partial_unknown", "the complete post-mutation snapshot could not be reacquired")
+    if type(verified) is not FullHealSnapshot:
+        raise TypeError("postverify_snapshot must return an exact FullHealSnapshot")
+    if (
+        verified.selected_index != selected_index
+        or verified.selected_pointer != selected_pointer
+        or verified.records != expected_final
+        or verified.funds != confirmed_funds
+        or verified.people_cured != people_cured + initial.sick_count
+    ):
+        return partial_failure("partial", "postverification did not equal the complete predicted records, funds, and People Cured snapshot")
+
+    try:
+        deduction_outcome = _outcome(deduct(PRICE), "deduct")
+    except Exception:
+        deduction_outcome = "unknown"
+    try:
+        after = after_snapshot()
+    except Exception:
+        after = None
+    if type(after) is not FullHealSnapshot:
         return result(
             "charge_unknown",
-            f"{success_message(actual_sick, actual_partial)} Native deduction outcome is unknown; no verified charge is claimed. {UNKNOWN_ROLLBACK}",
+            f"{success_message(actual_sick, actual_partial)} Final snapshot is unavailable; charge and callback effects are unknown. {UNKNOWN_ROLLBACK}",
             actual_sick=actual_sick,
             actual_partial=actual_partial,
             available_funds=confirmed_funds,
@@ -583,38 +684,26 @@ def execute(
             native_effects="may_have_occurred",
             rollback_status="unknown",
         )
-    if deduction_outcome == "failure":
-        return result(
-            "charge_failed",
-            f"{success_message(actual_sick, actual_partial)} Native deduction reported failure. {NO_DEDUCTION}",
-            actual_sick=actual_sick,
-            actual_partial=actual_partial,
-            available_funds=confirmed_funds,
-            charge_attempted=True,
-            native_effects="may_have_occurred",
-            rollback_status="unknown",
-        )
-    final_funds = after_funds_reacquire(confirmed_funds)
-    if final_funds is None:
+    if (
+        after.selected_index != selected_index
+        or after.selected_pointer != selected_pointer
+        or after.records != expected_final
+        or after.people_cured != verified.people_cured
+    ):
         return result(
             "charge_unknown",
-            f"{success_message(actual_sick, actual_partial)} Final funds reacquisition is unknown; no verified charge is claimed. {UNKNOWN_ROLLBACK}",
-            actual_sick=actual_sick,
-            actual_partial=actual_partial,
-            available_funds=confirmed_funds,
-            charge_attempted=True,
-            native_effects="may_have_occurred",
-            rollback_status="unknown",
+            f"{success_message(actual_sick, actual_partial)} Final record/statistic snapshot did not exactly match the prediction; charge is unknown. {UNKNOWN_ROLLBACK}",
+            actual_sick=actual_sick, actual_partial=actual_partial,
+            available_funds=after.funds, charge_attempted=True,
+            native_effects="may_have_occurred", rollback_status="unknown",
         )
-    if type(final_funds) is not int:
-        raise TypeError("after_funds_reacquire must return an exact int or None for unknown")
-    if final_funds != confirmed_funds - PRICE:
+    if after.funds != confirmed_funds - PRICE:
         return result(
-            "charge_failed",
-            f"{success_message(actual_sick, actual_partial)} Final funds did not verify one exact 30,000 deduction. {UNKNOWN_ROLLBACK}",
+            "charge_unknown",
+            f"{success_message(actual_sick, actual_partial)} Exact balance readback did not prove one 30,000-point charge; charge is unknown. {UNKNOWN_ROLLBACK}",
             actual_sick=actual_sick,
             actual_partial=actual_partial,
-            available_funds=final_funds,
+            available_funds=after.funds,
             charge_attempted=True,
             native_effects="may_have_occurred",
             rollback_status="unknown",
@@ -624,7 +713,7 @@ def execute(
         success_message(actual_sick, actual_partial),
         actual_sick=actual_sick,
         actual_partial=actual_partial,
-        available_funds=final_funds,
+        available_funds=after.funds,
         charged=True,
         charge_verified=True,
         charge_attempted=True,

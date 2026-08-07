@@ -41,6 +41,10 @@ from build_vv5_ui_confirmation_candidate import (  # noqa: E402
     sha,
     validate_cave_hook_overlaps,
 )
+from canonical_source_hash import (  # noqa: E402
+    CANONICAL_SOURCE_HASH_RULE,
+    canonical_source_sha256,
+)
 
 
 OUTPUT = ROOT / "outputs" / "vv5-full-heal-contract"
@@ -51,9 +55,9 @@ STOCK_SOURCE = "research/stock-executables/Virtual Villagers - New Believers.exe
 UI_BUILDER_PATH = ROOT / "scripts" / "build_vv5_ui_confirmation_candidate.py"
 UI_MODEL_PATH = ROOT / "src" / "vv5_individual_transactions.py"
 FULL_HEAL_MODEL_PATH = ROOT / "src" / "vv5_full_heal.py"
-UI_BUILDER_SHA256 = "F6982FACB1BDFA52A4A28C07BFA7C1AA62C7B07D45865183F1A2B7FE68FB5DC1"
-UI_MODEL_SHA256 = "742D39CE7E42AAAED6FDF4565AF1FD060C741E801CC81890595CA2B5867E4415"
-FULL_HEAL_MODEL_SHA256 = "C05A964F0528CD6310F404ED13DA83F2C4AABC4B93B8FE0F62F429ED742DA76B"
+UI_BUILDER_SHA256 = "D95164C8CC72E34E36342E3EDAE49C9DA64DDE4A7191C3437DD8734E6906C16B"
+UI_MODEL_SHA256 = "D78FE2E5B36E3B3FB0AD72C21A0D46343E83A2A854DA09DB0E6003353708209C"
+FULL_HEAL_MODEL_SHA256 = "B395B2342F805189A2C34C7C76529663CC173BD590B50731AD6F4407DFBE99BF"
 
 MANIFEST_KEYS = {
     "id", "game_id", "name", "enabled", "catalog_hidden", "catalog_enabled",
@@ -62,7 +66,7 @@ MANIFEST_KEYS = {
     "native_callbacks", "native_routing", "composition_guard", "transaction",
     "messages", "implementation",
 }
-SOURCE_KEYS = {"stock_sha256", "active_base", "active_base_sha256", "active_payload_sha256", "model_sha256"}
+SOURCE_KEYS = {"stock_sha256", "active_base", "active_base_sha256", "active_payload_sha256", "source_hash_rule", "model_sha256"}
 STOCK_KEYS = {"filename", "size", "sha256", "source", "source_present", "source_bound", "status"}
 NATIVE_KEYS = {"patches", "emitted_hooks", "candidate_caves", "candidate_hooks", "status"}
 COMPOSITION_KEYS = {"stock_sha256", "base_parent", "ui_chain", "full_mastery", "running", "full_heal", "ranges"}
@@ -118,8 +122,9 @@ def _exact_int(value: object, label: str) -> None:
         raise ValueError(f"{label} must be an exact int")
 
 
-def _validate_hash(path: Path, expected: str, label: str) -> None:
-    if not path.is_file() or sha(path.read_bytes()) != expected:
+def _validate_hash(path: Path, expected: str, label: str, *, source_text: bool = False) -> None:
+    actual = canonical_source_sha256(path) if source_text and path.is_file() else (sha(path.read_bytes()) if path.is_file() else None)
+    if actual != expected:
         raise ValueError(f"{label} hash is not exact")
 
 
@@ -158,13 +163,14 @@ def validate_manifest(manifest: dict[str, object]) -> None:
         "active_base": "data/vv5_origins_feature.json",
         "active_base_sha256": ACTIVE_BASE_SHA256,
         "active_payload_sha256": ACTIVE_PAYLOAD_SHA256,
+        "source_hash_rule": CANONICAL_SOURCE_HASH_RULE,
         "model_sha256": FULL_HEAL_MODEL_SHA256,
     }, "source")
     source = manifest["source"]
     _validate_hash(ACTIVE_BASE, ACTIVE_BASE_SHA256, "active base")
     if sha(ACTIVE_BASE.read_bytes()) != source["active_base_sha256"]:
         raise ValueError("active base source hash is not exact")
-    _validate_hash(FULL_HEAL_MODEL_PATH, FULL_HEAL_MODEL_SHA256, "Full Heal model")
+    _validate_hash(FULL_HEAL_MODEL_PATH, FULL_HEAL_MODEL_SHA256, "Full Heal model", source_text=True)
     _strict_structure(manifest["stock_fingerprint"], STOCK_FINGERPRINT, "stock_fingerprint")
     _known_keys(manifest["record_contract"], set(record_contract()), "record_contract")
     _strict_structure(manifest["record_contract"], record_contract(), "record_contract")
@@ -221,8 +227,8 @@ def validate_manifest(manifest: dict[str, object]) -> None:
     if composition["stock_sha256"] != STOCK_SHA256:
         raise ValueError("composition stock hash is not exact")
     _validate_ranges(composition["ranges"])
-    _validate_hash(UI_BUILDER_PATH, UI_BUILDER_SHA256, "UI builder")
-    _validate_hash(UI_MODEL_PATH, UI_MODEL_SHA256, "UI transaction model")
+    _validate_hash(UI_BUILDER_PATH, UI_BUILDER_SHA256, "UI builder", source_text=True)
+    _validate_hash(UI_MODEL_PATH, UI_MODEL_SHA256, "UI transaction model", source_text=True)
     _validate_hash(FULL_MASTERY_MAP_PATH, FULL_MASTERY_MAP_SHA256, "Full Mastery map")
     _validate_hash(FULL_MASTERY_FEATURE_PATH, FULL_MASTERY_FEATURE_SHA256, "Full Mastery feature")
     _validate_hash(RUNNING_MAP_PATH, RUNNING_MAP_SHA256, "Running map")
@@ -258,6 +264,7 @@ def build_manifest() -> dict[str, object]:
             "active_base": "data/vv5_origins_feature.json",
             "active_base_sha256": ACTIVE_BASE_SHA256,
             "active_payload_sha256": ACTIVE_PAYLOAD_SHA256,
+            "source_hash_rule": CANONICAL_SOURCE_HASH_RULE,
             "model_sha256": FULL_HEAL_MODEL_SHA256,
         },
         "stock_fingerprint": STOCK_FINGERPRINT,
