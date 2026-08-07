@@ -24,6 +24,11 @@ class CandidateTests(unittest.TestCase):
  def test_tail_semantics_rejected(self): self.bad(lambda d:d["wrapper_model"]["deserializer"].update(full_256_unterminated="read tail"))
  def test_final_bytes_rejected(self): self.bad(lambda d:d["final"].update(serializer_bytes="90"))
  def test_checksum_claim_rejected(self): self.bad(lambda d:d["uninstall"].update(checksum_after=1))
+ def test_writer_guard_rejected(self): self.bad(lambda d:d["writer_model"]["entry"].update(before="90"*6))
+ def test_writer_target_placeholder_rejected(self): self.bad(lambda d:d["writer_model"]["entry"].update(target=0x871200))
+ def test_writer_resolver_placeholder_rejected(self): self.bad(lambda d:d["writer_model"].update(resolver_bytes="90"))
+ def test_replace_existing_weakening_rejected(self): self.bad(lambda d:d["writer_model"]["atomic_contract"].update(final_absent="MoveFileExA replace existing"))
+ def test_nonfatal_writer_failure_rejected(self): self.bad(lambda d:d["writer_model"]["atomic_contract"].update(failure_policy="return false and continue"))
  def test_cli_requires_dry_run(self):
   r=subprocess.run([sys.executable,str(ROOT/"scripts/build_vv4_full256_serializer_candidate.py")],capture_output=True,text=True); self.assertNotEqual(r.returncode,0)
  def test_cli_dry_run(self):

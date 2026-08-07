@@ -10,6 +10,8 @@ The algorithm model requires register preservation, `ret 4`, singleton `0x41FE70
 
 D353 pins the exact ranges, hashes, and ABIs for `0x45EAA0`, `0x41FE70`, `0x45DB30`, `0x45D8A0`, and `0x45DBE0`; the model records complete serializer and deserializer instruction algorithms around those calls. Native output nevertheless remains false because safe AL-failure propagation through every caller is not proved, and the section-header preimage plus final assembled wrapper/checksum bytes are not repository-authenticated. The builder therefore supports validation-only `--dry-run`; it cannot write an executable.
 
+D354 adds the stock writer entry guard `0x4039B0: 81EC04020000` and models a complete-entry `E9 rel32 + 90` replacement in the same `.vv4x` page. Its atomic contract requires a sibling `CREATE_NEW | WRITE_THROUGH` temporary file, checked exact writes, flush/close, no-follow reopen and verification, then `ReplaceFileA(..., flags=0)` when the final exists or `MoveFileExA(..., MOVEFILE_WRITE_THROUGH)` without replace-existing when it does not. Any failure is process-fatal until callers are proved to handle it. The writer target, jump bytes, dynamic resolver, and composed page bytes remain null pending D355.
+
 ```powershell
 python scripts/build_vv4_full256_serializer_candidate.py --dry-run
 python -m unittest tests.test_vv4_full256_serializer_candidate

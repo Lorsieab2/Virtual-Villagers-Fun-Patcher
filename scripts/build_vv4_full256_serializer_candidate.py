@@ -33,7 +33,13 @@ def validate(path=MODEL):
         require(len(w["instruction_model"])>=9,"complete instruction model")
     require(d["wrapper_model"]["serializer"]["terminator"]=="write one zero record only when packed_count < 256","terminator")
     require(d["wrapper_model"]["deserializer"]["full_256_unterminated"]=="success without reading record 257 or tail","reader bound")
-    require(len(d["blocked_evidence"])==4,"blocker inventory")
+    writer=d["writer_model"]
+    require(writer["status"]=="blocked_pending_d355" and writer["entry"]=={"ea":"0x4039B0","raw":0x39B0,"before":"81EC04020000","replacement_kind":"complete_entry_e9_rel32_plus_nop","target":None,"after":None},"writer entry guard")
+    atomic=writer["atomic_contract"]
+    require(atomic["temp_create"]=="sibling CREATE_NEW | WRITE_THROUGH" and atomic["final_exists"]=="ReplaceFileA flags=0" and atomic["final_absent"]=="MoveFileExA MOVEFILE_WRITE_THROUGH without MOVEFILE_REPLACE_EXISTING","atomic replacement contract")
+    require(atomic["api_resolution"]=="dynamic" and atomic["failure_policy"]=="fatal process abandon until all callers prove checked failure handling","writer safety policy")
+    require(writer["resolver_bytes"] is None and writer["page_bytes"] is None and writer["final_sha256"] is None,"D355 placeholders must remain null")
+    require(len(d["blocked_evidence"])==6,"blocker inventory")
     require(all(v is None for v in d["final"].values()),"final bytes/hashes must remain null")
     require(d["uninstall"]["candidate_sha256"] is None and d["uninstall"]["checksum_before"] is None and d["uninstall"]["checksum_after"] is None,"uninstall proof absent")
     return d
