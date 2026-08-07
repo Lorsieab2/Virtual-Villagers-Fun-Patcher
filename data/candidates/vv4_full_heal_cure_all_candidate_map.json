@@ -4,16 +4,25 @@
   "catalog_hidden": true,
   "catalog_enabled": false,
   "dependencies": ["vv4_complete_scales_golden_fish", "vv4_enable_origins_exclusive_features", "vv4_full_mastery_all_stage_a_candidate", "vv4_write_village_statistics"],
-  "parent_composition": {"ids": ["vv4_complete_scales_golden_fish", "vv4_enable_origins_exclusive_features", "vv4_full_mastery_all_stage_a_candidate", "vv4_write_village_statistics"], "order": ["vv4_complete_scales_golden_fish", "vv4_enable_origins_exclusive_features", "vv4_full_mastery_all_stage_a_candidate", "vv4_write_village_statistics"], "collection_sha256": "CEBF0BC813059A13131CF75E4ECE11C8CCEE460CC98FB16BD87B03F5C20DB86B", "immediate_sha256": "6070D3244567815E8880168AEDCB9FF0E43F6720095AE67628089D492DA40133"},
-  "rendered_modes": {"collection_progression": {"parent_sha256": "CEBF0BC813059A13131CF75E4ECE11C8CCEE460CC98FB16BD87B03F5C20DB86B", "candidate_sha256": "0DD83962514449D8A0F513B5DDAF85277E2C3B1C39AB16CB2A266AB39C8D504C", "size": 942080}, "immediate_fixed": {"parent_sha256": "6070D3244567815E8880168AEDCB9FF0E43F6720095AE67628089D492DA40133", "candidate_sha256": "6448E049F2C5CFE51F536950D1ABFE6A767534F0FCE43C08511E1E1922881C3D", "size": 942080}},
+  "parent_composition": {"ids": ["vv4_complete_scales_golden_fish", "vv4_enable_origins_exclusive_features", "vv4_full_mastery_all_stage_a_candidate", "vv4_write_village_statistics"], "order": ["vv4_complete_scales_golden_fish", "vv4_enable_origins_exclusive_features", "vv4_full_mastery_all_stage_a_candidate", "vv4_write_village_statistics"], "collection_sha256": "D0F90C4666A1E2189044B6F093692E4B56C8F379BC6A4953BBB9B74D997A8092", "immediate_sha256": "F803918BE5B356F4A3C6D12A5098594E904CDE00C87E1D14901F9CCE5107AECD"},
+  "rendered_modes": {"collection_progression": {"parent_sha256": "D0F90C4666A1E2189044B6F093692E4B56C8F379BC6A4953BBB9B74D997A8092", "candidate_sha256": "26E82AF29118312978A94225B3D3094511B1765C44185F416F600272A7DB80B9", "size": 942080}, "immediate_fixed": {"parent_sha256": "F803918BE5B356F4A3C6D12A5098594E904CDE00C87E1D14901F9CCE5107AECD", "candidate_sha256": "6220D3B9572809A713C9D6274364844AB486834419FCE4AA9DDDABC3AAED1274", "size": 942080}},
+  "lineage_proof": {
+    "source": "D322 repository-only production resolver",
+    "old_parents": {"collection_progression": "CEBF0BC813059A13131CF75E4ECE11C8CCEE460CC98FB16BD87B03F5C20DB86B", "immediate_fixed": "6070D3244567815E8880168AEDCB9FF0E43F6720095AE67628089D492DA40133"},
+    "new_parents": {"collection_progression": "D0F90C4666A1E2189044B6F093692E4B56C8F379BC6A4953BBB9B74D997A8092", "immediate_fixed": "F803918BE5B356F4A3C6D12A5098594E904CDE00C87E1D14901F9CCE5107AECD"},
+    "checksums": {"collection_progression": {"old": "3B1B0F00", "new": "B2920E00"}, "immediate_fixed": {"old": "64B40E00", "new": "DA2B0F00"}}, "range_end_inclusive": true, "protected_range_scope": "new_parent_vs_old_parent", "candidate_overlay_exception": "raw 0x8960F..0x89613 is the VV4 Full Heal hook and is excluded from candidate-vs-parent protected-range equality",
+    "allowed_diff_ranges": [{"raw_start": "0x158", "raw_end_exclusive": "0x15C", "purpose": "PE checksum"}, {"raw_start": "0x664DC", "raw_end_exclusive": "0x664E2", "before": "E9A22D020090", "after": "885EFD385EFD", "purpose": "burial detour withdrawal"}, {"raw_start": "0x89283", "raw_end_exclusive": "0x89288", "after": "0000000000", "purpose": "owned burial wrapper withdrawal"}, {"raw_start": "0x89289", "raw_end_exclusive": "0x89294", "after": "0000000000000000000000", "purpose": "owned burial wrapper withdrawal"}],
+    "unchanged_boundary": {"raw": "0x89288", "description": "byte at the owned wrapper boundary remains unchanged"},
+    "protected_full_mastery_ranges": [{"raw": "0x757..0x797", "sha256": "98CE42DEEF51D40269D542F5314BEF2C7468D401AD5D85168BFAB4C0108F75F7"}, {"raw": "0x48610..0x48616", "sha256": "462C9FE85273BC280BB82E0F04E3FCFF1117FF11E08814043E1EC17DFFA880A1"}, {"raw": "0x89373..0x89FFF", "sha256": "DB803A81280A38F156BF24EB51135935D71CBE0E6C2BE2BE81D0A08BD5190B7C33D"}, {"raw": "0x899D6..0x899DC", "sha256": "917252A96454DE46047F5BC1FF7DE85F1C89A109BD2BD92F0E3ABFE8AE686879"}, {"raw": "0xE3000..0xE4FFF", "sha256": "FD72C661B533117BF38D69E7EB855250A93927C831C265226930794C1EFDDB62"}]
+  },
   "allowed_modes": ["collection_progression", "immediate_fixed"],
   "rejected_modes": ["experimental_expanded_256", "experimental_expanded_256_progression"],
   "source": {"sha256": "6D27A429FFCA5F1F71FDD7ECA761ED1BB67E85F976494BA178B3D7BE01F1B220", "size": 929792},
   "parents": {
     "vv4fm_page_sha256": "FD72C661B533117BF38D69E7EB855250A93927C831C265226930794C1EFDDB62",
     "dll_sha256": "4E1A83683A875EFE6F67116CDD862927BE1ABCB17DB7AE18143E58E98EAD01E7",
-    "collection_sha256": "CEBF0BC813059A13131CF75E4ECE11C8CCEE460CC98FB16BD87B03F5C20DB86B",
-    "immediate_sha256": "6070D3244567815E8880168AEDCB9FF0E43F6720095AE67628089D492DA40133"
+    "collection_sha256": "D0F90C4666A1E2189044B6F093692E4B56C8F379BC6A4953BBB9B74D997A8092",
+    "immediate_sha256": "F803918BE5B356F4A3C6D12A5098594E904CDE00C87E1D14901F9CCE5107AECD"
   },
   "transaction": {
     "command": 5,
@@ -52,8 +61,8 @@
     "exe_hook": {"raw": "0x8960F", "length": 5, "preimage": "E941FEFFFF", "candidate": "E9EC792B00", "preserved_suffix": "724C", "non_command5_continuation": "0x489455", "command5_continuation": "0x4895D9"},
     "page": {"raw": "0xE5000", "length": 4096, "preimage_sha256": "zero-filled 0x1000", "candidate_sha256": "EC7E987845C3081C435CED913CCEE951CC67B0E766FAAB363D313D0B5874A739"},
     "companion": {"destination": "VVFP Origins Icons.dll", "source": "generated:vv4_full_heal_companion", "preimage_sha256": "4E1A83683A875EFE6F67116CDD862927BE1ABCB17DB7AE18143E58E98EAD01E7", "candidate_sha256": "165F327783DFECAB4C42DB28D6F926BCA46397F725F036BFC367BB659384C0AC", "restore_source": "data/candidates/VVFP VV4 Full Mastery Candidate.dll", "restore_sha256": "4E1A83683A875EFE6F67116CDD862927BE1ABCB17DB7AE18143E58E98EAD01E7"},
-    "parent_collection_sha256": "CEBF0BC813059A13131CF75E4ECE11C8CCEE460CC98FB16BD87B03F5C20DB86B",
-    "parent_immediate_sha256": "6070D3244567815E8880168AEDCB9FF0E43F6720095AE67628089D492DA40133"
+    "parent_collection_sha256": "D0F90C4666A1E2189044B6F093692E4B56C8F379BC6A4953BBB9B74D997A8092",
+    "parent_immediate_sha256": "F803918BE5B356F4A3C6D12A5098594E904CDE00C87E1D14901F9CCE5107AECD"
   },
   "companion_resource_directory_size": "0x33800",
   "runtime_status": "pending independent static and player recertification",

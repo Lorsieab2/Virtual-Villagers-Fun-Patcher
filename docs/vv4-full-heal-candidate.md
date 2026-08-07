@@ -8,9 +8,18 @@ Normal production composition resolves the complete current loader chain in
 dependency-first order: `vv4_complete_scales_golden_fish` ->
 `vv4_enable_origins_exclusive_features` ->
 `vv4_full_mastery_all_stage_a_candidate` -> `vv4_write_village_statistics`.
-The resulting pre-Full-Heal executable identities are pinned to Collection
-`CEBF0BC813059A13131CF75E4ECE11C8CCEE460CC98FB16BD87B03F5C20DB86B` and
-Immediate `6070D3244567815E8880168AEDCB9FF0E43F6720095AE67628089D492DA40133`.
+The D322 repository-only production resolver now reproduces the burial-free
+parents in dependency order. Their exact identities are Collection
+`D0F90C4666A1E2189044B6F093692E4B56C8F379BC6A4953BBB9B74D997A8092` and
+Immediate `F803918BE5B356F4A3C6D12A5098594E904CDE00C87E1D14901F9CCE5107AECD`.
+The old parents were `CEBF0BC813059A13131CF75E4ECE11C8CCEE460CC98FB16BD87B03F5C20DB86B`
+and `6070D3244567815E8880168AEDCB9FF0E43F6720095AE67628089D492DA40133`.
+The controlled byte proof permits only the PE checksum, the raw
+`0x664DC..0x664E1` burial detour withdrawal, and the owned wrapper spans
+`0x89283..0x89287` and `0x89289..0x89293`; boundary byte `0x89288` and all
+Full Mastery-owned ranges remain unchanged parent-to-parent. The candidate's
+separate Full Heal hook overlay at `0x8960F..0x89613` is the explicit
+candidate-only exception within the surrounding protected range.
 
 The contract enumerates physical indices 0..149 through the native resolver
 (`ECX=0x50E568`, push index, call `0x466040`, `ret 4`). It applies the active,

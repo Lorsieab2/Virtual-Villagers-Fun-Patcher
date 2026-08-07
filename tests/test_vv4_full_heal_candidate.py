@@ -705,8 +705,91 @@ class VV4FullHealCandidateTests(unittest.TestCase):
         self.assertEqual(parent[builder.HOOK_RAW + 5:builder.HOOK_RAW + 7], b"\x72\x4C")
         self.assertEqual(candidate[builder.HOOK_RAW:builder.HOOK_RAW + 5], bytes.fromhex("E9EC792B00"))
         self.assertEqual(candidate[builder.HOOK_RAW + 5:builder.HOOK_RAW + 7], b"\x72\x4C")
-        self.assertEqual(builder.sha(parent), "CEBF0BC813059A13131CF75E4ECE11C8CCEE460CC98FB16BD87B03F5C20DB86B")
-        self.assertEqual(builder.sha(candidate), "0DD83962514449D8A0F513B5DDAF85277E2C3B1C39AB16CB2A266AB39C8D504C")
+        self.assertEqual(builder.sha(parent), "D0F90C4666A1E2189044B6F093692E4B56C8F379BC6A4953BBB9B74D997A8092")
+        self.assertEqual(builder.sha(candidate), "26E82AF29118312978A94225B3D3094511B1765C44185F416F600272A7DB80B9")
+
+    def test_d322_lineage_proof_is_exact_and_full_mastery_boundary_is_frozen(self):
+        manifest = json.loads(MANIFEST.read_text(encoding="utf-8"))
+        proof = manifest["lineage_proof"]
+        self.assertEqual(proof["source"], "D322 repository-only production resolver")
+        self.assertEqual(proof["old_parents"], {
+            "collection_progression": "CEBF0BC813059A13131CF75E4ECE11C8CCEE460CC98FB16BD87B03F5C20DB86B",
+            "immediate_fixed": "6070D3244567815E8880168AEDCB9FF0E43F6720095AE67628089D492DA40133",
+        })
+        self.assertEqual(proof["new_parents"], {
+            "collection_progression": "D0F90C4666A1E2189044B6F093692E4B56C8F379BC6A4953BBB9B74D997A8092",
+            "immediate_fixed": "F803918BE5B356F4A3C6D12A5098594E904CDE00C87E1D14901F9CCE5107AECD",
+        })
+        self.assertEqual(proof["unchanged_boundary"]["raw"], "0x89288")
+        self.assertEqual(proof["checksums"], {
+            "collection_progression": {"old": "3B1B0F00", "new": "B2920E00"},
+            "immediate_fixed": {"old": "64B40E00", "new": "DA2B0F00"},
+        })
+        self.assertTrue(proof["range_end_inclusive"])
+        self.assertEqual(proof["protected_range_scope"], "new_parent_vs_old_parent")
+        self.assertIn("0x8960F..0x89613", proof["candidate_overlay_exception"])
+        self.assertEqual(proof["allowed_diff_ranges"], [
+            {"raw_start": "0x158", "raw_end_exclusive": "0x15C", "purpose": "PE checksum"},
+            {"raw_start": "0x664DC", "raw_end_exclusive": "0x664E2", "before": "E9A22D020090", "after": "885EFD385EFD", "purpose": "burial detour withdrawal"},
+            {"raw_start": "0x89283", "raw_end_exclusive": "0x89288", "after": "0000000000", "purpose": "owned burial wrapper withdrawal"},
+            {"raw_start": "0x89289", "raw_end_exclusive": "0x89294", "after": "0000000000000000000000", "purpose": "owned burial wrapper withdrawal"},
+        ])
+        self.assertIn({"raw": "0x89373..0x89FFF", "sha256": "DB803A81280A38F156BF24EB51135935D71CBE0E6C2BE2BE81D0A08BD5190B7C33D"}, proof["protected_full_mastery_ranges"])
+
+    def test_d322_old_parent_hashes_reconstruct_from_only_allowed_deltas(self):
+        import hashlib
+        import importlib.util
+        import vv_fun_patcher as patcher
+        spec = importlib.util.spec_from_file_location(
+            "vv4hc_builder_d322_reconstruct", ROOT / "scripts" / "build_vv4_full_heal_candidate.py"
+        )
+        builder = importlib.util.module_from_spec(spec)
+        assert spec.loader is not None
+        spec.loader.exec_module(builder)
+        stock = ROOT / "research/stock-executables/Virtual Villagers - The Tree of Life.exe"
+        build = patcher.identify(stock)
+        records = patcher.load_fun_patches()
+        by_name = {record.name: record.id for record in records if record.game_id == "vv4"}
+        ids = [by_name[name] for name in (
+            "Complete Fish Scales = Golden Fish in Nets",
+            "Enable Origins-Exclusive Features",
+            "Grant Full Mastery to All Villagers",
+            "Write Village Statistics to Text File",
+        )]
+        proof = json.loads(MANIFEST.read_text(encoding="utf-8"))["lineage_proof"]
+        for mode, expected_old in proof["old_parents"].items():
+            rendered, _ = patcher.render_patched_bytes(stock, build, mode, ids)
+            reconstructed = bytearray(rendered)
+            reconstructed[0x158:0x15C] = bytes.fromhex(proof["checksums"][mode]["old"])
+            reconstructed[0x664DC:0x664E2] = bytes.fromhex("E9A22D020090")
+            reconstructed[0x89283:0x89288] = bytes.fromhex("FF05FC6D4D")
+            reconstructed[0x89289:0x89294] = bytes.fromhex("885EFD385EFDE94ED2FDFF")
+            self.assertEqual(hashlib.sha256(reconstructed).hexdigest().upper(), expected_old)
+
+    def test_d322_parent_outputs_match_production_resolver_when_available(self):
+        import hashlib
+        import tempfile
+        import vv_fun_patcher as patcher
+        import importlib.util
+        spec = importlib.util.spec_from_file_location(
+            "vv4hc_builder_d322", ROOT / "scripts" / "build_vv4_full_heal_candidate.py"
+        )
+        builder = importlib.util.module_from_spec(spec)
+        assert spec.loader is not None
+        spec.loader.exec_module(builder)
+        stock = ROOT / "research/stock-executables/Virtual Villagers - The Tree of Life.exe"
+        build = patcher.identify(stock)
+        records = patcher.load_fun_patches()
+        by_name = {record.name: record.id for record in records if record.game_id == "vv4"}
+        ids = [by_name[name] for name in (
+            "Complete Fish Scales = Golden Fish in Nets",
+            "Enable Origins-Exclusive Features",
+            "Grant Full Mastery to All Villagers",
+            "Write Village Statistics to Text File",
+        )]
+        for mode, expected in builder.PARENT_HASHES.items():
+            rendered, _ = patcher.render_patched_bytes(stock, build, mode, ids)
+            self.assertEqual(hashlib.sha256(bytes(rendered)).hexdigest().upper(), expected)
 
     def test_classifier_reloads_health_and_dependency_message_uses_stdcall(self):
         import importlib.util
