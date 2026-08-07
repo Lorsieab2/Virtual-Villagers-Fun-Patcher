@@ -1,0 +1,83 @@
+{
+  "schema_version": 1,
+  "id": "vv1_vv2_catalog_runtime_coverage_gate",
+  "status": "STOP",
+  "enabled": false,
+  "catalog_enabled": false,
+  "catalog_hidden": true,
+  "publication_allowed": false,
+  "runtime_ready": false,
+  "player_verified": false,
+  "native_output": false,
+  "source_binding": {
+    "catalog_commit": "e43464eb21667aba619d63272a808b0540ccf015",
+    "catalog_commit_sha256": null
+  },
+  "authenticated_inputs": {
+    "vv1": {"complete_folder_inventory": null, "stock_executable_sha256": null, "required_dlls": []},
+    "vv2": {"complete_folder_inventory": null, "stock_executable_sha256": null, "required_dlls": []}
+  },
+  "required_dimensions": {
+    "display_modes": ["windowed", "fullscreen"],
+    "save_states": ["new_game", "existing_save", "save_reload", "offline_catchup"],
+    "outcomes": ["success", "no_op", "failure"],
+    "installation": ["standalone", "uninstall"],
+    "composition": ["supported_mode", "select_all", "coinstalled_catalog_patch"]
+  },
+  "public_modes": ["collection_progression", "immediate_fixed", "experimental_expanded_256", "experimental_expanded_256_progression"],
+  "stock_only_patch_ids": ["vv1_full_mastery_all_stage_a_candidate", "vv2_full_mastery_all_stage_a_candidate"],
+  "catalog_snapshot": [
+    {"game_id":"vv1","patch_id":"vv1_school_lessons_grant_skill","interaction":"automatic","fullscreen_modal":false},
+    {"game_id":"vv1","patch_id":"vv1_continue_research_at_max_technologies","interaction":"automatic","fullscreen_modal":false},
+    {"game_id":"vv1","patch_id":"vv1_f6_clothing_change_cheat","interaction":"hotkey","fullscreen_modal":false},
+    {"game_id":"vv1","patch_id":"vv1_magic_fruit_alters_mortality","interaction":"automatic_and_task","fullscreen_modal":false},
+    {"game_id":"vv1","patch_id":"vv1_builder_action_fixes","interaction":"automatic","fullscreen_modal":false},
+    {"game_id":"vv1","patch_id":"vv1_full_mastery_all_stage_a_candidate","interaction":"modal_purchase","fullscreen_modal":true},
+    {"game_id":"vv1","patch_id":"vv1_write_village_statistics","interaction":"save_hook","fullscreen_modal":false},
+    {"game_id":"vv2","patch_id":"vv2_easier_healing_mastery","interaction":"automatic","fullscreen_modal":false},
+    {"game_id":"vv2","patch_id":"vv2_teaching_children_grants_skill","interaction":"automatic","fullscreen_modal":false},
+    {"game_id":"vv2","patch_id":"vv2_hospital_recovery_heals","interaction":"automatic","fullscreen_modal":false},
+    {"game_id":"vv2","patch_id":"vv2_birth_control","interaction":"automatic_and_catchup","fullscreen_modal":false},
+    {"game_id":"vv2","patch_id":"vv2_gong_of_wonder_coconuts_fix","interaction":"native_event","fullscreen_modal":false},
+    {"game_id":"vv2","patch_id":"vv2_full_mastery_all_stage_a_candidate","interaction":"modal_purchase","fullscreen_modal":true},
+    {"game_id":"vv2","patch_id":"vv2_write_village_statistics","interaction":"save_hook","fullscreen_modal":false}
+  ],
+  "patch_specific_scenarios": {
+    "vv1_school_lessons_grant_skill":["zero_one_many_attendees","interrupted_lesson","rng_7_to_9","skill_cap"],
+    "vv1_continue_research_at_max_technologies":["technology_below_max","all_technologies_exactly_max","ordinary_research","offline_research"],
+    "vv1_f6_clothing_change_cheat":["no_selection","dead_or_invalid_selection","funds_below_exact_above_5000","outfit_19_wrap","repeated_key"],
+    "vv1_magic_fruit_alters_mortality":["puzzle_incomplete_complete","sick_healthy_partial_health","repeated_fruit","ordinary_and_offline_mortality"],
+    "vv1_builder_action_fixes":["each_builder_route","unavailable_target","interruption_reassignment","scheduler_fallback"],
+    "vv1_full_mastery_all_stage_a_candidate":["cancel","insufficient_funds","no_eligible_change","success","partial_native_write_failure","postverify_failure","single_deduction","golden_child_excluded","title_and_preference_unchanged","fullscreen_restore"],
+    "vv1_write_village_statistics":["save_slots_1_to_5","primary_save_success_failure","export_write_failure","stale_file_replace","exact_text","native_save_return_preserved"],
+    "vv2_easier_healing_mastery":["sick_target_present_absent","healer_and_healing_preference","plant_available_unavailable","ordinary_and_offline_queue"],
+    "vv2_teaching_children_grants_skill":["zero_one_many_attendees","interrupted_lesson","rng_7_to_9","skill_cap","shared_callback_composition"],
+    "vv2_hospital_recovery_heals":["health_99_100","interrupted_completed_recovery","callback_exactly_once","reload_during_queue","shared_callback_composition"],
+    "vv2_birth_control":["age_below_at_above_1000","autonomous_and_stew15","manual_pairing_unchanged","love_note_gong_mirror_events_unchanged","pending_delivery_unchanged"],
+    "vv2_gong_of_wonder_coconuts_fix":["both_native_outcome_branches","coconuts_zero_positive_cap","statistics_unchanged","other_gong_outcomes_unchanged"],
+    "vv2_full_mastery_all_stage_a_candidate":["cancel","insufficient_funds","no_eligible_change","success","partial_native_write_failure","postverify_failure","single_deduction","elder_and_50_totem_behavior","fullscreen_restore"],
+    "vv2_write_village_statistics":["save_slots_1_to_5","primary_save_success_failure","export_write_failure","stale_file_replace","exact_text","native_save_return_preserved"]
+  },
+  "receipt_contract": {
+    "provenance": "authenticated_player_runtime_capture",
+    "synthetic": false,
+    "manual_or_reconstructed": false,
+    "required_assertions": [
+      "exact_input_inventory_matches",
+      "process_did_not_crash",
+      "no_visual_or_input_glitch_observed",
+      "save_tree_hashes_captured_before_and_after",
+      "save_reloads_successfully",
+      "expected_mutation_only",
+      "failure_and_no_op_do_not_mutate_or_charge",
+      "uninstall_restores_exact_parent_files",
+      "composition_preserves_each_patch_contract"
+    ],
+    "receipts": []
+  },
+  "known_contradictions": [
+    "Every catalog record says runtime/player confirmation pending; no aggregate per-patch player matrix exists.",
+    "The Origins player checklist is not a receipt for the isolated VV1/VV2 catalog snapshot.",
+    "Static emitted-byte or source verification does not prove crash, fullscreen, save, reload, offline, uninstall, or composition behavior."
+  ]
+}
