@@ -16,6 +16,15 @@ EXPECTED_TOPICS = {
     "complete_collections": {"collection_table_base","collection_table_layout","collection_count_getter","collection_completion_predicate","collection_completion_setter","collection_setter_side_effects","collection_dispatch_route","notification_route","trophy_route","statistics_route","save_loader_field","save_serializer_field","transaction_confirmation","selected_world_identity_reacquisition","funds_getter","native_deduction","postverify"},
     "shared": {"world_singleton","manager_pool_identity","fresh_record_resolver","record_count_and_stride","dialog_or_messagebox_abi","idok_guard","cancel_no_mutation","fullscreen_owner_hwnd","fullscreen_leave_enter","fullscreen_restore_cleanup"},
 }
+EXPECTED_FUNCTION_FIELDS = (
+    "query_id", "topic", "status", "function_name", "start_ea", "end_ea",
+    "start_file_offset", "end_file_offset", "raw_bytes_sha256", "raw_bytes_hex",
+    "instructions", "callers", "callees", "xrefs", "register_contract",
+    "stack_cleanup", "return_contract", "side_effects", "source_binding",
+)
+EXPECTED_INSTRUCTION_FIELDS = ("ea", "file_offset", "raw_bytes", "mnemonic", "operands")
+EXPECTED_ALLOWED_STATUS = ("resolved", "absent-proved")
+EXPECTED_DLL_IDENTITY_STATUS = "missing; do not infer a DLL name or hash"
 
 class ReadinessError(ValueError):
     pass
@@ -34,6 +43,14 @@ def validate_manifest(manifest: dict) -> None:
         raise ReadinessError("complete no-follow folder inventory is required")
     if folder.get("inventory_sha256") is not None or folder.get("dll_inventory_sha256") is not None or folder.get("known_dlls") != []:
         raise ReadinessError("unknown folder/DLL evidence must remain null/empty until authenticated")
+    if folder.get("dll_identity_status") != EXPECTED_DLL_IDENTITY_STATUS:
+        raise ReadinessError("DLL identity status must remain the exact missing-evidence declaration")
+    if tuple(manifest.get("required_function_fields", ())) != EXPECTED_FUNCTION_FIELDS:
+        raise ReadinessError("required native function fields are not the exact declared contract")
+    if tuple(manifest.get("required_instruction_fields", ())) != EXPECTED_INSTRUCTION_FIELDS:
+        raise ReadinessError("required instruction fields are not the exact declared contract")
+    if tuple(manifest.get("allowed_status", ())) != EXPECTED_ALLOWED_STATUS:
+        raise ReadinessError("allowed native evidence statuses are not the exact declared contract")
     topics = manifest.get("required_topics", {})
     for topic, expected in EXPECTED_TOPICS.items():
         if set(topics.get(topic, [])) != expected:

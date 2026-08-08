@@ -33,6 +33,18 @@ class FullHealCollectionsReadinessTests(unittest.TestCase):
             bad = copy.deepcopy(self.manifest); bad["folder_requirements"][field] = value
             with self.assertRaises(ReadinessError): validate_manifest(bad)
 
+    def test_declared_native_field_contracts_fail_closed(self):
+        for field in ("required_function_fields", "required_instruction_fields", "allowed_status"):
+            with self.subTest(field=field):
+                bad = copy.deepcopy(self.manifest)
+                bad[field] = []
+                with self.assertRaises(ReadinessError): validate_manifest(bad)
+
+    def test_dll_identity_wording_fails_closed(self):
+        bad = copy.deepcopy(self.manifest)
+        bad["folder_requirements"]["dll_identity_status"] = "unknown"
+        with self.assertRaises(ReadinessError): validate_manifest(bad)
+
     def test_legacy_cure_cannot_be_recast(self):
         bad = copy.deepcopy(self.manifest); bad["legacy_cure_policy"]["full_heal"] = True
         with self.assertRaises(ReadinessError): validate_manifest(bad)
