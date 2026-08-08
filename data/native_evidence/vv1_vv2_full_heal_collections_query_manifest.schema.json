@@ -1,0 +1,20 @@
+{
+  "$schema":"https://json-schema.org/draft/2020-12/schema",
+  "type":"object",
+  "required":["schema_version","id","status","enabled","publication_allowed","native_output","games","stock_executables","folder_requirements","required_topics","required_function_fields","required_instruction_fields","allowed_status","manual_exports_allowed","partial_exports_allowed","legacy_cure_policy","evidence_records"],
+  "properties":{
+    "schema_version":{"const":1},"id":{"const":"vv1_vv2_full_heal_collections_native_readiness"},"status":{"const":"STOP"},"enabled":{"const":false},"publication_allowed":{"const":false},"native_output":{"const":false},
+    "games":{"const":["vv1","vv2"]},
+    "stock_executables":{"type":"object","required":["vv1","vv2"],"additionalProperties":false,"properties":{"vv1":{"$ref":"#/$defs/stock"},"vv2":{"$ref":"#/$defs/stock"}}},
+    "folder_requirements":{"type":"object","required":["scope","no_follow_inventory_required","inventory_sha256","dll_inventory_sha256","known_dlls","dll_identity_status"],"additionalProperties":false,"properties":{"scope":{"const":"complete-game-folder"},"no_follow_inventory_required":{"const":true},"inventory_sha256":{"type":"null"},"dll_inventory_sha256":{"type":"null"},"known_dlls":{"const":[]},"dll_identity_status":{"const":"missing; do not infer a DLL name or hash"}}},
+    "required_topics":{"type":"object","required":["full_heal","complete_collections","shared"],"additionalProperties":false,"properties":{"full_heal":{"$ref":"#/$defs/query_list"},"complete_collections":{"$ref":"#/$defs/query_list"},"shared":{"$ref":"#/$defs/query_list"}}},
+    "required_function_fields":{"type":"array","minItems":19,"uniqueItems":true,"items":{"type":"string"}},"required_instruction_fields":{"const":["ea","file_offset","raw_bytes","mnemonic","operands"]},"allowed_status":{"const":["resolved","absent-proved"]},"manual_exports_allowed":{"const":false},"partial_exports_allowed":{"const":false},
+    "legacy_cure_policy":{"const":{"label":"Cure all Villagers","status":"legacy-sickness-only","full_heal":false,"catalog_enabled":false,"native_output":false}},
+    "evidence_records":{"const":[]}
+  },
+  "$defs":{
+    "stock":{"type":"object","required":["filename","size","sha256"],"additionalProperties":false,"properties":{"filename":{"type":"string"},"size":{"type":"integer","exclusiveMinimum":0},"sha256":{"pattern":"^[0-9A-F]{64}$"}}},
+    "query_list":{"type":"array","minItems":1,"uniqueItems":true,"items":{"type":"string"}}
+  },
+  "additionalProperties":false
+}
