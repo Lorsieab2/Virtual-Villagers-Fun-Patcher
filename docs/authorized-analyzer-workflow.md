@@ -15,6 +15,23 @@ pending an authorized session bound to the exact executable hash, an automated
 unedited EA map/export, and source-binding hashes. Historical research IDA
 databases and static audit JSONs are not treated as certified exports here.
 
+## Expected export artifact names
+
+The generic VV3-VV5 exporter validation command names these source-bound JSON
+artifacts explicitly:
+
+| Game | Expected artifact | Current state |
+| --- | --- | --- |
+| VV2 | **Not defined yet** | STOP: the authoritative dedicated 50-query manifest is missing, so its export path cannot be inferred. |
+| VV3 | `inputs/vv3-export.json` | Absent; no authorized machine export has been written. |
+| VV4 | `inputs/vv4-export.json` | Absent; no authorized machine export has been written. |
+| VV5 | `inputs/vv5-export.json` | Absent; no authorized machine export has been written. |
+
+For VV2, `export.json` and `inventory.json` in the legacy validator example
+are command-line placeholders, not canonical filenames. Do not create or
+rename an export until the missing 50-query manifest supplies its authoritative
+path and query IDs.
+
 No game is launched, no save is accessed, and no native output or route
 enablement is produced. All workflow, catalog, runtime, player, and publication
 gates remain disabled/fail-closed.
