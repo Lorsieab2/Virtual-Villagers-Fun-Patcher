@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "vvfp.vv3_expanded_256_stabilization_gate",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "schema_version", "status", "bindings", "geometry", "evidence_gates", "relocation_invariants", "decision", "integrity"],
+  "properties": {
+    "schema": {"const": "vvfp.vv3_expanded_256_stabilization_gate"},
+    "schema_version": {"const": 1},
+    "status": {"const": "static_stabilization_contract_only"},
+    "bindings": {"type": "object"},
+    "geometry": {"type": "object"},
+    "evidence_gates": {"type": "array", "minItems": 5},
+    "relocation_invariants": {"type": "object"},
+    "decision": {"type": "object"},
+    "integrity": {"type": "object", "required": ["canonical_sha256"]}
+  }
+}

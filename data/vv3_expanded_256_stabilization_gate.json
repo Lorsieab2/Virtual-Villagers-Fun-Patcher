@@ -1,0 +1,91 @@
+{
+  "schema": "vvfp.vv3_expanded_256_stabilization_gate",
+  "schema_version": 1,
+  "status": "static_stabilization_contract_only",
+  "bindings": {
+    "source_sha256": "8BC5DB382D02BC5C21AD5F607580D60FF44A6519CC7EB133F03113BAACAE6503",
+    "prototype_sha256": "6EE3361A7AC35F441763647C1E2FC9EC49569DE5EF372BDB41D243D03002D601",
+    "manifest": {
+      "path": "data/expanded_256.json",
+      "sha256": "99C00713D7E908EC0019D526598FCA4E23C4A864D57CC877BAE0F1A93AF6138C",
+      "game": "vv3",
+      "declared_patch_count": 1263,
+      "actual_patch_count": 1263
+    },
+    "contracts": [
+      {"path": "data/vv3_expanded_256_stored_index_gate.json", "sha256": "FE66D22010BC42302136C2B4EFD8100AF2D5938802CA52156313E235BCC56D0C"},
+      {"path": "data/vv3_expanded_256_full_capacity_save_contract.json", "sha256": "56CA6ABA5C3BA6529C0E5C62130316193E21A3BC9C3A3BCF1D27C692CF2A857C"},
+      {"path": "data/vv3_expanded_256_save_serializer_abi_gate.json", "sha256": "C61D5B3DFCCC0B849509F28BFB3B406A46AE56E6B7AE3EB9F7B797201908F277"},
+      {"path": "data/vv3_expanded_256_runtime_receipt.schema.json", "sha256": "52F8B12D1FFBB87A5D25381DD6D8172B118467015F17C805C10F5604E6FAAB52"}
+    ],
+    "validator_inputs": [
+      {"path": "scripts/validate_vv3_stored_index_evidence_gate.py", "sha256": "28567C3B9581E66F766AC8A80034441E6CE929E5892E1125A31B1569442ABD8B"},
+      {"path": "scripts/validate_vv3_full_capacity_save_contract.py", "sha256": "BC359AF66549D53CBE2EB5B27457F7A7E396799C694193BAAD114F8A380A9ED0"},
+      {"path": "scripts/validate_vv3_save_serializer_abi_gate.py", "sha256": "1BF1B018B43185842BB3664965AAD0CA1AEB6E8BA35C142959E9F854B4C092CE"},
+      {"path": "src/vv3_expanded_256_runtime_capture.py", "sha256": "6560F895919813FC6427A54559B00867AC1D03AB1D24AEA6EA482F19315EB178"}
+    ]
+  },
+  "geometry": {
+    "record_size": "0x11C",
+    "records_offset": "0x7864",
+    "logical_first": 0,
+    "logical_last": 255,
+    "padding_indices": [256, 257, 258, 259],
+    "tail_offset": "0x19464",
+    "expanded_body_size": "0x1A4B4",
+    "expanded_file_size": "0x1A4C0",
+    "status": "reference_bound_stop"
+  },
+  "evidence_gates": [
+    {"id": "stored_index_width_sentinel_paths", "source_contract": "data/vv3_expanded_256_stored_index_gate.json", "status": "evidence_absent"},
+    {"id": "serializer_reader_abi", "source_contract": "data/vv3_expanded_256_save_serializer_abi_gate.json", "status": "evidence_absent"},
+    {"id": "full_capacity_save_semantics", "source_contract": "data/vv3_expanded_256_full_capacity_save_contract.json", "status": "evidence_absent"},
+    {"id": "runtime_capture", "source_contract": "data/vv3_expanded_256_runtime_receipt.schema.json", "status": "receipt_absent"},
+    {"id": "relocation_proof", "source_contract": "data/expanded_256.json", "status": "decoded_reference_and_runtime_proof_absent"}
+  ],
+  "relocation_invariants": {
+    "vv3": {
+      "manifest_patch_count": 1263,
+      "status": "manifest_only_stop",
+      "decoded_reference_audit": null,
+      "complete_folder_receipt": null,
+      "runtime_receipt": null
+    },
+    "foreign_preservation": {
+      "status": "pending_containment_integration",
+      "source_ref": "origin/codex/vv4-playtest3-containment@121c7e259674cfd05e81409bc3d358b108cb251f",
+      "vv4": {
+        "path": "data/vv4_origins_feature.json",
+        "count": 13,
+        "ledger_sha256": "CEE01F4AEC59CB1CEE0F42E3DDDB3A24615261E628ED0629C1BFAABF421A897D"
+      },
+      "vv5": {
+        "path": "data/vv5_origins_feature.json",
+        "count": 66,
+        "ledger_sha256": "14E460773ADC065E053FA30921ED01D33A5F36AD49DC754CCD69127EA02C01B7"
+      },
+      "vv5_db1a4": {
+        "offset": "0xDB1A4",
+        "before": "7267C6FF",
+        "kind": "rel32",
+        "source_virtual_address": "0x8EB1A3",
+        "source_expanded_virtual_address": "0x8EB1A3",
+        "target_stock_virtual_address": "0x41891A",
+        "target_expanded_virtual_address": "0x41891A",
+        "purpose": "relocate IDA-decoded VV5 current-feature cross-section rel32 operand for expanded 256 mode"
+      }
+    }
+  },
+  "decision": {
+    "native_output": false,
+    "enabled": false,
+    "runtime_go": false,
+    "player_go": false,
+    "publication_ready": false,
+    "status": "STOP",
+    "reason": "Static contracts and manifest geometry are bound, but authenticated native rows, complete folder inventory, runtime receipts, stored-index observations, serializer/save proof, and decoded relocation proof are absent."
+  },
+  "integrity": {
+    "canonical_sha256": "A263329AF78FE022E881E790A2275B90643E612C57893C4EEBD23AAC3C7F7769"
+  }
+}
