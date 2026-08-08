@@ -210,7 +210,7 @@ def _patcher_module():
     return vv_fun_patcher
 
 
-def _assert_playtest_ready(game_id: str, feature_id: str) -> dict[str, Any]:
+def _assert_playtest_ready(game_id: str, feature_id: str, patch_mode: str = "collection_progression") -> dict[str, Any]:
     patcher = _patcher_module()
     try:
         patch = patcher.get_fun_patch(feature_id)
@@ -233,15 +233,73 @@ def _assert_playtest_ready(game_id: str, feature_id: str) -> dict[str, Any]:
         status = str(raw.get("runtime_player_status", raw.get("runtime_status", ""))).strip().casefold()
         if status not in RUNTIME_STATUS_OK:
             raise BundleError(f"feature {feature_id} has pending runtime/player evidence")
+    expected_hashes = _authenticated_modded_exe_hashes(raw, feature_id, patch_mode)
+    if not expected_hashes:
+        raise BundleError(f"feature {feature_id} has no authenticated modded executable hash")
     return {
         "id": feature_id,
         "name": raw.get("name"),
         "game_id": game_id,
         "status": "playtest-ready",
+        "patch_mode": patch_mode,
+        "runtime_player_status": "verified",
+        "expected_modded_exe_sha256": sorted(expected_hashes),
     }
 
 
-def _assert_feature_ids(game_id: str, feature_ids: list[str]) -> list[dict[str, Any]]:
+def _authenticated_modded_exe_hashes(raw: dict[str, Any], feature_id: str, patch_mode: str) -> set[str]:
+    """Return only hashes explicitly bound to this feature and patch mode.
+
+    The candidate manifest is the source of truth for package authentication.
+    Do not accept a caller-supplied hash, a stock hash, or a generic arbitrary
+    ``sha256`` field.  The supported records intentionally use one of the
+    rendered-candidate spellings below, so malformed values fail closed.
+    """
+
+    del feature_id  # retained in the signature for an actionable caller error
+    hashes: set[str] = set()
+
+    def add(value: Any) -> None:
+        if isinstance(value, str) and len(value) == 64:
+            normalized = value.upper()
+            if all(character in "0123456789ABCDEF" for character in normalized):
+                hashes.add(normalized)
+
+    def collect_mode(container: Any) -> None:
+        if not isinstance(container, dict):
+            return
+        for map_key in ("rendered_candidates", "rendered_modes", "rendered_exe_sha256"):
+            mode_map = container.get(map_key)
+            if not isinstance(mode_map, dict):
+                continue
+            row = mode_map.get(patch_mode)
+            if isinstance(row, dict):
+                for key in (
+                    "candidate_sha256",
+                    "candidate_exe_sha256",
+                    "candidate_executable_sha256",
+                    "rendered_exe_sha256",
+                    "all_current_compatible_sha256",
+                    "all_current_sha256",
+                    "all_current_vv2_sha256",
+                ):
+                    add(row.get(key))
+            else:
+                add(row)
+
+    collect_mode(raw)
+    collect_mode(raw.get("static_acceptance"))
+    candidate = raw.get("candidate")
+    if isinstance(candidate, dict):
+        collect_mode(candidate)
+        collect_mode(candidate.get("emitted"))
+    emitted = raw.get("emitted")
+    if isinstance(emitted, dict):
+        collect_mode(emitted)
+    return hashes
+
+
+def _assert_feature_ids(game_id: str, feature_ids: list[str], patch_mode: str = "collection_progression") -> list[dict[str, Any]]:
     if not feature_ids:
         raise BundleError("at least one feature ID is required for a playtest bundle")
     seen: set[str] = set()
@@ -250,7 +308,7 @@ def _assert_feature_ids(game_id: str, feature_ids: list[str]) -> list[dict[str, 
         if feature_id in seen:
             raise BundleError(f"duplicate feature ID: {feature_id}")
         seen.add(feature_id)
-        records.append(_assert_playtest_ready(game_id, feature_id))
+        records.append(_assert_playtest_ready(game_id, feature_id, patch_mode))
     return records
 
 
@@ -258,7 +316,7 @@ def dry_run(game_id: str, source_folder: Path, output_root: Path, feature_ids: l
     output = _resolve_output_root(output_root)
     stock = verify_stock_folder(game_id, source_folder)
     _assert_separate(Path(stock["source_folder"]), output)
-    features = _assert_feature_ids(game_id, feature_ids)
+    features = _assert_feature_ids(game_id, feature_ids, patch_mode)
     return {
         "schema": "vvfp.playtest-bundle-plan.v1",
         "status": "READY_FOR_BUILD",
@@ -275,14 +333,17 @@ def dry_run(game_id: str, source_folder: Path, output_root: Path, feature_ids: l
 
 def _package_manifest(folder: Path, game_id: str, feature_ids: list[str], patch_mode: str, stock: dict[str, Any]) -> dict[str, Any]:
     files = _inventory(folder, reject_saves=True)
+    stock_manifest = dict(stock)
+    if stock_manifest.get("source_folder"):
+        stock_manifest["source_folder"] = Path(str(stock_manifest["source_folder"])).name
     return {
         "schema": "vvfp.playtest-bundle-manifest.v1",
         "game_id": game_id,
         "title": GAME_SPECS[game_id]["title"],
         "patch_mode": patch_mode,
         "features": feature_ids,
-        "folder": str(folder),
-        "stock": stock,
+        "folder": folder.name,
+        "stock": stock_manifest,
         "output_inventory": files,
         "zip_sha256": None,
         "launch": False,
@@ -292,7 +353,7 @@ def _package_manifest(folder: Path, game_id: str, feature_ids: list[str], patch_
 
 
 def package_folder(game_id: str, folder: Path, output_root: Path, feature_ids: list[str], patch_mode: str, stock: dict[str, Any] | None = None) -> dict[str, Any]:
-    _assert_feature_ids(game_id, feature_ids)
+    feature_records = _assert_feature_ids(game_id, feature_ids, patch_mode)
     root = _resolve_output_root(output_root)
     game_folder = folder.expanduser().resolve()
     _assert_output_not_inside(game_folder, root)
@@ -307,6 +368,17 @@ def package_folder(game_id: str, folder: Path, output_root: Path, feature_ids: l
     modded_exe = game_folder / spec["exe"].replace(".exe", " - Modded.exe")
     if not modded_exe.is_file() or _is_reparse(modded_exe):
         raise BundleError(f"modded executable is missing: {modded_exe}")
+    expected_modded_hashes = {
+        digest
+        for record in feature_records
+        for digest in record.get("expected_modded_exe_sha256", [])
+    }
+    modded_digest = _sha256_file(modded_exe)
+    if modded_digest not in expected_modded_hashes:
+        raise BundleError(
+            "authenticated modded executable fingerprint mismatch: "
+            f"sha256={modded_digest}"
+        )
     if stock is None:
         stock = {"game_id": game_id, "stock_sha256": spec["sha256"], "stock_size": spec["size"]}
     manifest = _package_manifest(game_folder, game_id, feature_ids, patch_mode, stock)
@@ -321,14 +393,31 @@ def package_folder(game_id: str, folder: Path, output_root: Path, feature_ids: l
         try:
             with zipfile.ZipFile(zip_path, "x", compression=zipfile.ZIP_DEFLATED, compresslevel=9) as archive:
                 manifest_name = f"{game_folder.name}/PLAYTEST-BUNDLE-MANIFEST.json"
-                archive.write(manifest_path, manifest_name)
+                manifest_info = zipfile.ZipInfo(manifest_name, date_time=(1980, 1, 1, 0, 0, 0))
+                manifest_info.create_system = 3
+                manifest_info.external_attr = 0o100644 << 16
+                archive.writestr(
+                    manifest_info,
+                    manifest_path.read_bytes(),
+                    compress_type=zipfile.ZIP_DEFLATED,
+                    compresslevel=9,
+                )
                 entries.append(manifest_name)
-                for path, _ in _walk_no_follow(game_folder):
+                files = sorted(_walk_no_follow(game_folder), key=lambda item: _relative(item[0], game_folder))
+                for path, _ in files:
                     relative = _relative(path, game_folder)
                     if _looks_like_save(relative):
                         raise BundleError(f"save-like output file is forbidden: {relative}")
                     name = f"{game_folder.name}/{relative}"
-                    archive.write(path, name)
+                    info = zipfile.ZipInfo(name, date_time=(1980, 1, 1, 0, 0, 0))
+                    info.create_system = 3
+                    info.external_attr = 0o100644 << 16
+                    archive.writestr(
+                        info,
+                        path.read_bytes(),
+                        compress_type=zipfile.ZIP_DEFLATED,
+                        compresslevel=9,
+                    )
                     entries.append(name)
         except Exception:
             zip_path.unlink(missing_ok=True)

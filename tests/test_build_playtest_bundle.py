@@ -3,6 +3,7 @@ from __future__ import annotations
 import hashlib
 import importlib.util
 import json
+import os
 import tempfile
 import unittest
 import zipfile
@@ -51,6 +52,18 @@ class PlaytestBundleTests(unittest.TestCase):
             },
             clear=True,
         )
+
+    def _ready_feature(self, modded_digest: str) -> list[dict[str, object]]:
+        return [
+            {
+                "id": "feature",
+                "name": "Feature",
+                "game_id": "vv2",
+                "status": "playtest-ready",
+                "runtime_player_status": "verified",
+                "expected_modded_exe_sha256": [modded_digest],
+            }
+        ]
 
     def test_exact_stock_inventory_and_reparse_guard(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
@@ -109,10 +122,12 @@ class PlaytestBundleTests(unittest.TestCase):
             game = root / "Virtual Villagers - The Lost Children - Modded"
             game.mkdir()
             (game / "Virtual Villagers - The Lost Children.exe").write_bytes((source / "Virtual Villagers - The Lost Children.exe").read_bytes())
-            (game / "Virtual Villagers - The Lost Children - Modded.exe").write_bytes(b"modded")
+            modded_payload = b"authenticated-modded"
+            modded_digest = hashlib.sha256(modded_payload).hexdigest().upper()
+            (game / "Virtual Villagers - The Lost Children - Modded.exe").write_bytes(modded_payload)
             (game / "Readme.txt").write_text("playtest", encoding="utf-8")
             output_root = root / "outputs"
-            with self._spec_patch(digest), mock.patch.object(self.bundle, "OUTPUTS_ROOT", output_root.resolve()), mock.patch.object(self.bundle, "_assert_feature_ids", return_value=[]):
+            with self._spec_patch(digest), mock.patch.object(self.bundle, "OUTPUTS_ROOT", output_root.resolve()), mock.patch.object(self.bundle, "_assert_feature_ids", return_value=self._ready_feature(modded_digest)):
                 result = self.bundle.package_folder("vv2", game, output_root, ["feature"], "collection_progression")
             zip_path = Path(result["zip"])
             self.assertTrue(zip_path.is_file())
@@ -125,6 +140,41 @@ class PlaytestBundleTests(unittest.TestCase):
             self.assertEqual(external["zip_sha256"], result["zip_sha256"])
             self.assertEqual(external["zip_entries"], result["zip_entries"])
 
+    def test_package_rejects_arbitrary_modded_executable(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            source, digest = self._fixture(root)
+            game = root / "Virtual Villagers - The Lost Children - Modded"
+            game.mkdir()
+            (game / "Virtual Villagers - The Lost Children.exe").write_bytes((source / "Virtual Villagers - The Lost Children.exe").read_bytes())
+            expected = hashlib.sha256(b"authenticated-modded").hexdigest().upper()
+            (game / "Virtual Villagers - The Lost Children - Modded.exe").write_bytes(b"arbitrary")
+            output_root = root / "outputs"
+            with self._spec_patch(digest), mock.patch.object(self.bundle, "OUTPUTS_ROOT", output_root.resolve()), mock.patch.object(self.bundle, "_assert_feature_ids", return_value=self._ready_feature(expected)):
+                with self.assertRaisesRegex(self.bundle.BundleError, "authenticated modded executable fingerprint mismatch"):
+                    self.bundle.package_folder("vv2", game, output_root, ["feature"], "collection_progression")
+            self.assertFalse(output_root.exists())
+
+    def test_identical_content_produces_identical_zip_bytes(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            source, digest = self._fixture(root)
+            game = root / "Virtual Villagers - The Lost Children - Modded"
+            game.mkdir()
+            (game / "Virtual Villagers - The Lost Children.exe").write_bytes((source / "Virtual Villagers - The Lost Children.exe").read_bytes())
+            modded_payload = b"authenticated-modded"
+            modded_digest = hashlib.sha256(modded_payload).hexdigest().upper()
+            (game / "Virtual Villagers - The Lost Children - Modded.exe").write_bytes(modded_payload)
+            (game / "Readme.txt").write_text("playtest", encoding="utf-8")
+            output_root = root / "outputs"
+            ready = self._ready_feature(modded_digest)
+            with self._spec_patch(digest), mock.patch.object(self.bundle, "OUTPUTS_ROOT", output_root.resolve()), mock.patch.object(self.bundle, "_assert_feature_ids", return_value=ready):
+                first = self.bundle.package_folder("vv2", game, output_root / "one", ["feature"], "collection_progression")
+                os.utime(game / "Readme.txt", (1, 1))
+                second = self.bundle.package_folder("vv2", game, output_root / "two", ["feature"], "collection_progression")
+            self.assertEqual(first["zip_sha256"], second["zip_sha256"])
+            self.assertEqual(Path(first["zip"]).read_bytes(), Path(second["zip"]).read_bytes())
+
     def test_package_rejects_save_like_output(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
@@ -132,10 +182,12 @@ class PlaytestBundleTests(unittest.TestCase):
             game = root / "Virtual Villagers - The Lost Children - Modded"
             game.mkdir()
             (game / "Virtual Villagers - The Lost Children.exe").write_bytes((source / "Virtual Villagers - The Lost Children.exe").read_bytes())
-            (game / "Virtual Villagers - The Lost Children - Modded.exe").write_bytes(b"modded")
+            modded_payload = b"authenticated-modded"
+            modded_digest = hashlib.sha256(modded_payload).hexdigest().upper()
+            (game / "Virtual Villagers - The Lost Children - Modded.exe").write_bytes(modded_payload)
             (game / "Village0.ldw").write_bytes(b"save")
             output_root = root / "outputs"
-            with self._spec_patch(digest), mock.patch.object(self.bundle, "OUTPUTS_ROOT", output_root.resolve()), mock.patch.object(self.bundle, "_assert_feature_ids", return_value=[]):
+            with self._spec_patch(digest), mock.patch.object(self.bundle, "OUTPUTS_ROOT", output_root.resolve()), mock.patch.object(self.bundle, "_assert_feature_ids", return_value=self._ready_feature(modded_digest)):
                 with self.assertRaisesRegex(self.bundle.BundleError, "save-like"):
                     self.bundle.package_folder("vv2", game, output_root, ["feature"], "collection_progression")
 
