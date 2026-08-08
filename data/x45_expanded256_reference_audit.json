@@ -1,0 +1,15 @@
+{
+  "schema_version": "vvfp.x45_expanded256_reference_audit.v1",
+  "status": "audit_stop",
+  "scope": "VV4/VV5 Expanded-256 stale-reference, relocation, serializer, save, and runtime evidence audit",
+  "publication": {"enabled": false, "runtime_go": false, "player_go": false, "eligible": false},
+  "canonical_text": {"rule": "UTF-8 text, optional BOM removed, CRLF/lone CR normalized to LF, sorted compact JSON for JSON artifacts", "raw_binary_hashes_are_not_normalized": true},
+  "games": {
+    "vv4": {"ledger": {"path": "data/vv4_origins_feature.json", "count": 13, "digest": "CEE01F4AEC59CB1CEE0F42E3DDDB3A24615261E628ED0629C1BFAABF421A897D", "raw_sha256": "DE98F1424518CB310A58351FB012603CAD951C50F80B204695602A5AE2612FA6", "canonical_json_sha256": "F6B439684C94942D139C4B855050DE404AEED8618B17692DDC957CE082CE8310"}, "rel32_policy": {"shr_stock_start": "0x728000", "shr_stock_end": "0x7282C0", "shr_expanded_start": "0x85A000", "delta": "0x132000", "external_targets_must_not_move": true}, "known_metadata_gap": {"offset": "0xCC02A", "kind": "rel32", "derived_target_stock": "0x728240", "derived_target_expanded": "0x85A240", "status": "ledger_field_missing_stop"}},
+    "vv5": {"ledger": {"path": "data/vv5_origins_feature.json", "count": 66, "current_digest": "A5DF4E109D32E2BC9FDE36E2BA3139230B6E6CD89DE4C3FF784846F4CE803740", "integration_digest": "14E460773ADC065E053FA30921ED01D33A5F36AD49DC754CCD69127EA02C01B7", "raw_sha256": "B6C00CC09F7CC06ADCF72E967B682A6131B5FE618C24C1DCED9823B809AE08A8", "canonical_json_sha256": "EFC2936EA8BB44830A6C908E00E4E58CEC1755E0C6522D1DAD2CCE12C8A02F97"}, "rel32_policy": {"shr_stock_start": "0x7B2000", "shr_stock_end": "0x7B2F00", "shr_expanded_start": "0x8EB000", "delta": "0x139000", "external_targets_must_not_move": true}, "known_metadata_gap": null}
+  },
+  "legacy_stale_references": [{"path": "data/expanded_256_save_serializer_abi_evidence.json", "game": "vv4", "field": "games.vv4.relocation_ledger.file_sha256", "legacy": "5A59BE484D22B1140DB532A520ADD9481D378159AF648803B3649A95590ECDFB", "current": "DE98F1424518CB310A58351FB012603CAD951C50F80B204695602A5AE2612FA6", "classification": "stale_raw_file_pin_stop"}, {"path": "data/expanded_256_save_serializer_abi_evidence.json", "game": "vv5", "field": "games.vv5.relocation_ledger.file_sha256", "legacy": "D55E1C8C95D604556586EDAD2255319B2A9440D7101C93F589E38F93DE98A47E", "current": "B6C00CC09F7CC06ADCF72E967B682A6131B5FE618C24C1DCED9823B809AE08A8", "classification": "stale_raw_file_pin_stop"}],
+  "gates": {"native_bytes": "unknown_stop", "stock_import": "unknown_stop", "expanded_save_reload": "unknown_stop", "offline_catchup": "unknown_stop", "failed_load_nonmutation": "unknown_stop", "atomic_rotation": "unknown_stop", "stored_index": "unknown_stop", "serializer_abi": "unknown_stop", "runtime_receipts": "absent_stop", "player_receipts": "absent_stop"},
+  "ledger_changes_allowed": false,
+  "evidence": []
+}
