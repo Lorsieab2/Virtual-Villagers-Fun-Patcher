@@ -11,6 +11,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
 from native_absent_feature_evidence import (  # noqa: E402
+    GAME_IDS,
     EXPECTED_JOB_ORDER,
     EXPECTED_STOCK,
     FEATURE_SPECS,
@@ -20,6 +21,7 @@ from native_absent_feature_evidence import (  # noqa: E402
 
 CONTRACT_PATHS = {
     "complete_all_collections": ROOT / "data" / "complete_all_collections_evidence.json",
+    "reset_all_collections": ROOT / "data" / "reset_all_collections_evidence.json",
     "equal_division": ROOT / "data" / "equal_division_evidence.json",
 }
 
@@ -104,11 +106,14 @@ def _common_proof(game: str, requirement: str, feature: str) -> dict:
                 "completion_route_proved": True,
                 "population_bonus_not_completion": True,
                 "award_dispatcher_not_completion": True,
+                "rewards_triggered": True,
+                "goals_triggered": True,
                 "per_game_effects_enumerated": True,
             },
             "duplicate_reward_trophy_stat_notification": {
                 "duplicate_noop": True,
                 "reward_once": True,
+                "goal_once": True,
                 "trophy_once": True,
                 "stat_once": True,
                 "notification_once": True,
@@ -120,6 +125,56 @@ def _common_proof(game: str, requirement: str, feature: str) -> dict:
                 "identity_reacquire": True,
                 "postverify": True,
                 "charge_semantics": "zero_cost",
+                "charge_once_or_zero": True,
+                "no_charge_on_noop": True,
+                "no_charge_on_failure": True,
+            },
+        }[requirement]
+    if feature == "reset_all_collections":
+        return {
+            "collection_table_geometry": {
+                "table_address": "0x700000",
+                "entry_count": 3,
+                "entry_stride": 8,
+                "entry_ids_in_order": [0, 1, 2],
+                "table_bounds_verified": True,
+            },
+            "present_entry_predicate": {
+                "routine_va": "0x700100",
+                "call_convention": "__thiscall(manager, entry_id) -> bool",
+                "return_abi": "AL true means present",
+                "present_semantics": "exact present flag",
+                "absent_semantics": "already absent is false",
+                "all_entries_tested": True,
+            },
+            "native_reset_writer": {
+                "routine_va": "0x700200",
+                "call_convention": "__thiscall(manager, entry_id)",
+                "return_abi": "AL success",
+                "writer_kind": "native collection entry reset",
+                "native_postreadback": True,
+            },
+            "reset_effects_separation": {
+                "reset_route_proved": True,
+                "population_bonus_not_reset": True,
+                "award_dispatcher_not_reset": True,
+                "per_game_effects_enumerated": True,
+            },
+            "duplicate_reset_reward_goal_notification": {
+                "duplicate_noop": True,
+                "reward_reset_once": True,
+                "goal_reset_once": True,
+                "trophy_reset_once": True,
+                "stat_once": True,
+                "notification_once": True,
+                "dispatch_order": ["entry", "collection", "reward", "goal", "notification"],
+            },
+            "confirmation_reacquire_charge": {
+                "dry_run": True,
+                "confirmation_idok": True,
+                "identity_reacquire": True,
+                "postverify": True,
+                "charge_semantics": "one_charge",
                 "charge_once_or_zero": True,
                 "no_charge_on_noop": True,
                 "no_charge_on_failure": True,
@@ -192,7 +247,7 @@ def _common_proof(game: str, requirement: str, feature: str) -> dict:
 
 def _complete(feature: str) -> dict:
     data = _load(feature)
-    for game in ("vv3", "vv4", "vv5"):
+    for game in FEATURE_SPECS[feature].get("game_ids", GAME_IDS):
         game_record = data["games"][game]
         game_record["stock"]["full_folder"] = {
             "status": "verified",
@@ -230,7 +285,8 @@ class CollectionsLaborEvidenceTests(unittest.TestCase):
 
     def test_exact_stock_fingerprints_and_job_orders_are_pinned(self) -> None:
         labor = _load("equal_division")
-        for game, expected in EXPECTED_STOCK.items():
+        for game in GAME_IDS:
+            expected = EXPECTED_STOCK[game]
             self.assertEqual(labor["games"][game]["stock"]["sha256"], expected["sha256"])
             jobs = [(item["id"], item["name"]) for item in labor["games"][game]["policy"]["reviewed_preference_order"]]
             self.assertEqual(tuple(jobs), EXPECTED_JOB_ORDER[game])
@@ -275,6 +331,17 @@ class CollectionsLaborEvidenceTests(unittest.TestCase):
         result = validate_contract(broken, "complete_all_collections")
         self.assertTrue(any("charge semantics must be one_charge or zero_cost" in error for error in result.errors))
 
+    def test_reset_requires_goal_and_reward_reset_proof(self) -> None:
+        broken = _complete("reset_all_collections")
+        receipt = next(item for item in broken["games"]["vv5"]["receipts"] if item["requirement"] == "reset_effects_separation")
+        receipt["proof"]["reset_route_proved"] = False
+        result = validate_contract(broken, "reset_all_collections")
+        self.assertTrue(any("reset_route_proved" in error for error in result.errors))
+        duplicate = next(item for item in broken["games"]["vv5"]["receipts"] if item["requirement"] == "duplicate_reset_reward_goal_notification")
+        duplicate["proof"]["goal_reset_once"] = False
+        result = validate_contract(broken, "reset_all_collections")
+        self.assertTrue(any("goal_reset_once" in error for error in result.errors))
+
     def test_vv5_faction_must_be_first_and_1ce1_is_forbidden(self) -> None:
         broken = _complete("equal_division")
         receipt = next(item for item in broken["games"]["vv5"]["receipts"] if item["requirement"] == "eligibility_predicate")
@@ -307,18 +374,23 @@ class CollectionsLaborEvidenceTests(unittest.TestCase):
     def test_no_catalog_or_patcher_enablement_exists(self) -> None:
         statistics = (ROOT / "data" / "statistics_features.json").read_text(encoding="utf-8")
         patcher = (ROOT / "src" / "vv_fun_patcher.py").read_text(encoding="utf-8")
-        for feature in ("complete_all_collections", "equal_division"):
+        for feature in ("complete_all_collections", "reset_all_collections", "equal_division"):
             self.assertNotIn(feature, statistics)
             self.assertNotIn(feature, patcher)
 
     def test_schemas_are_disabled_and_feature_specific(self) -> None:
         for feature, filename in (
             ("complete_all_collections", "complete_all_collections_evidence.schema.json"),
+            ("reset_all_collections", "reset_all_collections_evidence.schema.json"),
             ("equal_division", "equal_division_evidence.schema.json"),
         ):
             schema = json.loads((ROOT / "data" / filename).read_text(encoding="utf-8"))
             self.assertEqual(schema["properties"]["feature"]["const"], feature)
             self.assertFalse(schema["properties"]["enabled"]["const"])
+            if feature in ("complete_all_collections", "reset_all_collections"):
+                expected_label = "Complete All Collectibles" if feature == "complete_all_collections" else "Reset Collectibles"
+                self.assertEqual(schema["properties"]["label"]["const"], expected_label)
+                self.assertEqual(schema["properties"]["price_tech_points"]["const"], 1000000)
 
 
 if __name__ == "__main__":

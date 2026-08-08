@@ -1,10 +1,26 @@
-# Complete All Collections and Equal Division evidence gates
+# Reset/Complete Collectibles and Equal Division evidence gates
 
 Both contracts are disabled evidence-only records for absent VV3/VV4/VV5
 features. They do not add catalog entries, emit native bytes, package files,
 launch games, or access saves. `publication_allowed` always remains false.
 
-## Complete All Collections
+## Reset Collectibles
+
+`Reset Collectibles` is a planned VV2–VV5 village-wide Buy-only action priced
+at exactly 1,000,000 tech points. It is disabled, absent from the catalog, and
+has no native output. The future gate must prove the complete collection table,
+the present-entry predicate, a native clear/reset writer, and the associated
+reward, goal, trophy, statistic, and notification reset semantics. Duplicate
+use, no-op behavior, confirmation/reacquisition, save/reload/offline catch-up,
+composition, and runtime/player receipts are separate requirements.
+
+## Complete All Collectibles
+
+`Complete All Collectibles` is the matching planned VV2–VV5 village-wide
+Buy-only action priced at exactly 1,000,000 tech points. It is also disabled,
+absent from the catalog, and has no native output. The future gate must prove
+the complete collection table, missing-entry predicate, native add/complete
+writer, and every associated reward/goal/trophy/statistic/notification effect.
 
 The gate requires an exact per-game collection table, entry count and order,
 missing-entry predicate, and native add/complete writer. It separately proves
@@ -40,6 +56,7 @@ Run the validators with the bundled Python runtime:
 
 ```text
 python -B scripts/validate_complete_all_collections_evidence.py
+python -B scripts/validate_reset_all_collections_evidence.py
 python -B scripts/validate_equal_division_evidence.py
 ```
 

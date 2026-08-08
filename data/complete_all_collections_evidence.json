@@ -3,6 +3,11 @@
   "schema_version": 1,
   "feature": "complete_all_collections",
   "enabled": false,
+  "label": "Complete All Collectibles",
+  "price_tech_points": 1000000,
+  "screen": "village_wide",
+  "button_policy": "buy_only",
+  "repeatability": "repeatable",
   "publication": {
     "status": "disabled",
     "reason": "Exact native collection tables, completion writers, transaction effects, and runtime receipts are absent."
@@ -13,6 +18,27 @@
     {"id": "award_or_trophy_dispatcher_only", "game_id": "all", "kind": "semantic_role", "value": null}
   ],
   "games": {
+    "vv2": {
+      "stock": {
+        "exe_name": "Virtual Villagers - The Lost Children.exe", "size": 724992, "imagebase": 4194304,
+        "sha256": "46C1503C209255C9CDEFA941DB2F449C8CF8E2CDD5C7D13CD975326E377ED677",
+        "full_folder": {"status": "missing", "sha256": null, "file_count": null, "manifest_sha256": null}
+      },
+      "policy": {"population_bonus_is_completion": false, "award_dispatcher_is_completion": false},
+      "requirements": [
+        {"id": "stock_fingerprint", "status": "missing", "evidence_ids": []},
+        {"id": "collection_table_geometry", "status": "missing", "evidence_ids": []},
+        {"id": "missing_entry_predicate", "status": "missing", "evidence_ids": []},
+        {"id": "native_add_complete_writer", "status": "missing", "evidence_ids": []},
+        {"id": "completion_effects_separation", "status": "missing", "evidence_ids": []},
+        {"id": "duplicate_reward_trophy_stat_notification", "status": "missing", "evidence_ids": []},
+        {"id": "confirmation_reacquire_charge", "status": "missing", "evidence_ids": []},
+        {"id": "save_reload_catchup_idempotence", "status": "missing", "evidence_ids": []},
+        {"id": "hook_cave_composition", "status": "missing", "evidence_ids": []},
+        {"id": "runtime_player_evidence", "status": "missing", "evidence_ids": []}
+      ],
+      "receipts": []
+    },
     "vv3": {
       "stock": {
         "exe_name": "Virtual Villagers - The Secret City.exe", "size": 831488, "imagebase": 4194304,

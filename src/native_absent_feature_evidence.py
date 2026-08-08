@@ -14,9 +14,16 @@ from typing import Any, Mapping
 
 
 GAME_IDS = ("vv3", "vv4", "vv5")
+COLLECTION_GAME_IDS = ("vv2", "vv3", "vv4", "vv5")
 HASH_RE = re.compile(r"^[0-9A-Fa-f]{64}$")
 
 EXPECTED_STOCK: dict[str, dict[str, Any]] = {
+    "vv2": {
+        "exe_name": "Virtual Villagers - The Lost Children.exe",
+        "size": 724992,
+        "imagebase": 0x400000,
+        "sha256": "46C1503C209255C9CDEFA941DB2F449C8CF8E2CDD5C7D13CD975326E377ED677",
+    },
     "vv3": {
         "exe_name": "Virtual Villagers - The Secret City.exe",
         "size": 831488,
@@ -50,6 +57,19 @@ COLLECTIONS_REQUIREMENTS = (
     "runtime_player_evidence",
 )
 
+RESET_COLLECTIONS_REQUIREMENTS = (
+    "stock_fingerprint",
+    "collection_table_geometry",
+    "present_entry_predicate",
+    "native_reset_writer",
+    "reset_effects_separation",
+    "duplicate_reset_reward_goal_notification",
+    "confirmation_reacquire_charge",
+    "save_reload_catchup_idempotence",
+    "hook_cave_composition",
+    "runtime_player_evidence",
+)
+
 LABOR_REQUIREMENTS = (
     "stock_fingerprint",
     "villager_record_geometry",
@@ -69,6 +89,33 @@ FEATURE_SPECS: dict[str, dict[str, Any]] = {
         "schema": "vvfp.complete_all_collections_evidence",
         "requirements": COLLECTIONS_REQUIREMENTS,
         "composition": ("statistics_export", "origins", "expanded_256"),
+        "game_ids": COLLECTION_GAME_IDS,
+        "required_root": ("label", "price_tech_points", "screen", "button_policy", "repeatability"),
+        "metadata": {
+            "label": "Complete All Collectibles",
+            "price_tech_points": 1_000_000,
+            "screen": "village_wide",
+            "button_policy": "buy_only",
+            "repeatability": "repeatable",
+        },
+        "forbidden": {
+            "collection_population_bonus_only": ("all", "semantic_role", None),
+            "award_or_trophy_dispatcher_only": ("all", "semantic_role", None),
+        },
+    },
+    "reset_all_collections": {
+        "schema": "vvfp.reset_all_collections_evidence",
+        "requirements": RESET_COLLECTIONS_REQUIREMENTS,
+        "composition": ("statistics_export", "origins", "expanded_256"),
+        "game_ids": COLLECTION_GAME_IDS,
+        "required_root": ("label", "price_tech_points", "screen", "button_policy", "repeatability"),
+        "metadata": {
+            "label": "Reset Collectibles",
+            "price_tech_points": 1_000_000,
+            "screen": "village_wide",
+            "button_policy": "buy_only",
+            "repeatability": "repeatable",
+        },
         "forbidden": {
             "collection_population_bonus_only": ("all", "semantic_role", None),
             "award_or_trophy_dispatcher_only": ("all", "semantic_role", None),
@@ -78,6 +125,7 @@ FEATURE_SPECS: dict[str, dict[str, Any]] = {
         "schema": "vvfp.equal_division_evidence",
         "requirements": LABOR_REQUIREMENTS,
         "composition": ("full_mastery", "grant_running", "full_heal"),
+        "game_ids": GAME_IDS,
         "forbidden": {
             "vv5_nursery_divisor_parity": ("vv5", "code_address", 0x425FDF),
             "vv5_unproved_heathen_active_byte": ("vv5", "field_offset", 0x1CE1),
@@ -125,17 +173,34 @@ PROOF_FIELDS: dict[str, tuple[str, ...]] = {
         "routine_va", "call_convention", "return_abi", "missing_semantics",
         "present_semantics", "all_entries_tested",
     ),
+    "present_entry_predicate": (
+        "routine_va", "call_convention", "return_abi", "present_semantics",
+        "absent_semantics", "all_entries_tested",
+    ),
     "native_add_complete_writer": (
+        "routine_va", "call_convention", "return_abi", "writer_kind",
+        "native_postreadback",
+    ),
+    "native_reset_writer": (
         "routine_va", "call_convention", "return_abi", "writer_kind",
         "native_postreadback",
     ),
     "completion_effects_separation": (
         "completion_route_proved", "population_bonus_not_completion",
-        "award_dispatcher_not_completion", "per_game_effects_enumerated",
+        "award_dispatcher_not_completion", "rewards_triggered", "goals_triggered",
+        "per_game_effects_enumerated",
+    ),
+    "reset_effects_separation": (
+        "reset_route_proved", "population_bonus_not_reset",
+        "award_dispatcher_not_reset", "per_game_effects_enumerated",
     ),
     "duplicate_reward_trophy_stat_notification": (
-        "duplicate_noop", "reward_once", "trophy_once", "stat_once",
+        "duplicate_noop", "reward_once", "goal_once", "trophy_once", "stat_once",
         "notification_once", "dispatch_order",
+    ),
+    "duplicate_reset_reward_goal_notification": (
+        "duplicate_noop", "reward_reset_once", "goal_reset_once",
+        "trophy_reset_once", "stat_once", "notification_once", "dispatch_order",
     ),
     "confirmation_reacquire_charge": (
         "dry_run", "confirmation_idok", "identity_reacquire", "postverify",
@@ -190,8 +255,11 @@ TRUE_PROOF_FIELDS = {
     "full_folder_complete", "table_bounds_verified", "all_entries_tested",
     "native_postreadback", "completion_route_proved",
     "population_bonus_not_completion", "award_dispatcher_not_completion",
-    "per_game_effects_enumerated", "duplicate_noop", "reward_once",
-    "trophy_once", "stat_once", "notification_once", "dry_run",
+    "rewards_triggered", "goals_triggered", "per_game_effects_enumerated",
+    "duplicate_noop", "reward_once", "goal_once", "trophy_once", "stat_once",
+    "notification_once", "dry_run",
+    "reset_route_proved", "population_bonus_not_reset", "award_dispatcher_not_reset",
+    "reward_reset_once", "goal_reset_once", "trophy_reset_once",
     "confirmation_idok", "identity_reacquire", "postverify",
     "charge_once_or_zero", "no_charge_on_noop", "no_charge_on_failure",
     "encoding_complete", "unproved_1ce1_excluded",
@@ -279,6 +347,7 @@ def _shape_errors(data: Any, feature: str) -> list[str]:
         "schema", "schema_version", "feature", "enabled", "publication",
         "games", "forbidden_routes", "composition_features",
     }
+    required.update(FEATURE_SPECS[feature].get("required_root", ()))
     errors = [f"root missing {key}" for key in sorted(required - set(data))]
     errors.extend(f"root has unexpected key {key}" for key in sorted(set(data) - required))
     if errors:
@@ -292,14 +361,18 @@ def _shape_errors(data: Any, feature: str) -> list[str]:
         errors.append("feature identifier is wrong")
     if data.get("enabled") is not False:
         errors.append("evidence contract must remain disabled")
+    for key, expected in FEATURE_SPECS[feature].get("metadata", {}).items():
+        if data.get(key) != expected:
+            errors.append(f"{feature} metadata {key} is not exact")
     publication = data.get("publication")
     if not _mapping(publication) or publication.get("status") != "disabled":
         errors.append("publication must remain disabled")
     elif not isinstance(publication.get("reason"), str) or not publication["reason"].strip():
         errors.append("publication disabled reason is required")
     games = data.get("games")
-    if not _mapping(games) or set(games) != set(GAME_IDS):
-        errors.append("games must contain exactly vv3, vv4, and vv5")
+    expected_games = FEATURE_SPECS[feature].get("game_ids", GAME_IDS)
+    if not _mapping(games) or set(games) != set(expected_games):
+        errors.append(f"games must contain exactly {', '.join(expected_games)}")
     if not isinstance(data.get("forbidden_routes"), list):
         errors.append("forbidden_routes must be an array")
     if tuple(data.get("composition_features", ())) != spec["composition"]:
@@ -360,13 +433,18 @@ def _validate_policy(game: str, policy: Any, feature: str) -> list[str]:
     if not _mapping(policy):
         return [f"{game}.policy must be an object"]
     errors: list[str] = []
-    if feature == "complete_all_collections":
+    if feature in ("complete_all_collections", "reset_all_collections"):
         expected = {
             "population_bonus_is_completion": False,
             "award_dispatcher_is_completion": False,
         }
+        if feature == "reset_all_collections":
+            expected = {
+                "population_bonus_is_reset": False,
+                "award_dispatcher_is_reset": False,
+            }
         if dict(policy) != expected:
-            errors.append(f"{game} collections separation policy is not exact")
+            errors.append(f"{game} {feature} separation policy is not exact")
     else:
         jobs = policy.get("reviewed_preference_order")
         expected_jobs = [
@@ -414,6 +492,17 @@ def _validate_proof(game: str, requirement: str, proof: Any, feature: str) -> li
             errors.append(f"{game} collection entry count is invalid")
         if not isinstance(proof["entry_ids_in_order"], list) or len(proof["entry_ids_in_order"]) != proof["entry_count"]:
             errors.append(f"{game} collection table count/order is inconsistent")
+    elif requirement == "present_entry_predicate":
+        if proof["present_semantics"] == proof["absent_semantics"]:
+            errors.append(f"{game} present/absent collection semantics are not distinct")
+    elif requirement == "reset_effects_separation":
+        for key in ("reset_route_proved", "population_bonus_not_reset", "award_dispatcher_not_reset", "per_game_effects_enumerated"):
+            if proof[key] is not True:
+                errors.append(f"{game} reset effects proof does not prove {key}")
+    elif requirement == "duplicate_reset_reward_goal_notification":
+        for key in ("duplicate_noop", "reward_reset_once", "goal_reset_once", "trophy_reset_once", "stat_once", "notification_once"):
+            if proof[key] is not True:
+                errors.append(f"{game} reset effect proof does not prove {key}")
     elif requirement == "confirmation_reacquire_charge":
         if proof["charge_semantics"] not in ("one_charge", "zero_cost"):
             errors.append(f"{game} collections charge semantics must be one_charge or zero_cost")
@@ -570,7 +659,7 @@ def validate_contract(data: Mapping[str, Any], feature: str) -> ValidationResult
     if shape_errors:
         return ValidationResult(False, False, False, tuple(shape_errors))
     errors = _validate_forbidden_routes(data, feature)
-    for game in GAME_IDS:
+    for game in FEATURE_SPECS[feature].get("game_ids", GAME_IDS):
         errors.extend(_validate_game(game, data["games"][game], feature))
     evidence_complete = not errors
     return ValidationResult(True, evidence_complete, False, tuple(errors))

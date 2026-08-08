@@ -1,16 +1,16 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "vvfp.complete_all_collections_evidence",
-  "title": "Complete All Collections native evidence gate",
+  "$id": "vvfp.reset_all_collections_evidence",
+  "title": "Reset Collectibles native evidence gate",
   "type": "object",
   "additionalProperties": false,
-  "required": ["schema", "schema_version", "feature", "enabled", "publication", "label", "price_tech_points", "screen", "button_policy", "repeatability", "composition_features", "forbidden_routes", "games"],
+  "required": ["schema", "schema_version", "feature", "enabled", "label", "price_tech_points", "screen", "button_policy", "repeatability", "publication", "composition_features", "forbidden_routes", "games"],
   "properties": {
-    "schema": {"const": "vvfp.complete_all_collections_evidence"},
+    "schema": {"const": "vvfp.reset_all_collections_evidence"},
     "schema_version": {"const": 1},
-    "feature": {"const": "complete_all_collections"},
+    "feature": {"const": "reset_all_collections"},
     "enabled": {"const": false},
-    "label": {"const": "Complete All Collectibles"},
+    "label": {"const": "Reset Collectibles"},
     "price_tech_points": {"const": 1000000},
     "screen": {"const": "village_wide"},
     "button_policy": {"const": "buy_only"},
@@ -37,8 +37,8 @@
         "stock": {"$ref": "#/$defs/stock"},
         "policy": {
           "type": "object", "additionalProperties": false,
-          "required": ["population_bonus_is_completion", "award_dispatcher_is_completion"],
-          "properties": {"population_bonus_is_completion": {"const": false}, "award_dispatcher_is_completion": {"const": false}}
+          "required": ["population_bonus_is_reset", "award_dispatcher_is_reset"],
+          "properties": {"population_bonus_is_reset": {"const": false}, "award_dispatcher_is_reset": {"const": false}}
         },
         "requirements": {"type": "array", "minItems": 10, "items": {"$ref": "#/$defs/requirement"}},
         "receipts": {"type": "array", "items": {"$ref": "#/$defs/receipt"}}
@@ -65,7 +65,7 @@
     "requirement": {
       "type": "object", "additionalProperties": false, "required": ["id", "status", "evidence_ids"],
       "properties": {
-        "id": {"enum": ["stock_fingerprint", "collection_table_geometry", "missing_entry_predicate", "native_add_complete_writer", "completion_effects_separation", "duplicate_reward_trophy_stat_notification", "confirmation_reacquire_charge", "save_reload_catchup_idempotence", "hook_cave_composition", "runtime_player_evidence"]},
+        "id": {"enum": ["stock_fingerprint", "collection_table_geometry", "present_entry_predicate", "native_reset_writer", "reset_effects_separation", "duplicate_reset_reward_goal_notification", "confirmation_reacquire_charge", "save_reload_catchup_idempotence", "hook_cave_composition", "runtime_player_evidence"]},
         "status": {"enum": ["missing", "verified", "rejected"]},
         "evidence_ids": {"type": "array", "items": {"type": "string", "minLength": 1}}
       }

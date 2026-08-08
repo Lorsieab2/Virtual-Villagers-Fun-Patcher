@@ -4,10 +4,11 @@ This is a disabled, reference-only evidence gate. It emits no bytes, owns no
 hooks or resources, and is not loaded by the public catalog.
 
 The inventory covers the shared Tech rows, four selected-villager rows, three
-village-wide rows, Complete All Collections, Equal Division, VV1's omitted
+village-wide rows, Reset Collectibles, Complete All Collectibles, Equal Division, VV1's omitted
 mobile Bump Max Population action, and VV5 Food Mastery levels 2 and 3.
-Unknown Complete Collections and Equal Division placement, price,
-repeatability, and button policy remain explicitly unproven.
+Reset Collectibles and Complete All Collectibles are planned VV2–VV5
+village-wide actions at exactly 1,000,000 tech points each. Their native
+placement and implementation remain explicitly unproven.
 
 Every game/action pair currently has all fourteen evidence gates open:
 dry-run; natural zero/one/many prompt; exact IDOK; world/index/pointer/snapshot
@@ -26,14 +27,14 @@ cannot prevent unrelated catalog loading.
 
 | Game | Inventory | Result |
 |---|---:|---|
-| VV1 | 18 actions | STOP: unsafe legacy routes, no universal transaction |
-| VV2 | 18 actions | STOP: Origins contained; static evidence incomplete |
-| VV3 | 18 actions | STOP: partial candidates only; native/player gates open |
-| VV4 | 18 actions | STOP: partial candidates only; native/player gates open |
-| VV5 | 18 actions | STOP: UI/native/player and lifecycle gates open |
+| VV1 | 19 actions | STOP: unsafe legacy routes, collectibles actions not applicable |
+| VV2 | 19 actions | STOP: Origins contained; collectibles actions proposed but absent |
+| VV3 | 19 actions | STOP: partial candidates only; collectibles actions proposed but absent |
+| VV4 | 19 actions | STOP: partial candidates only; collectibles actions proposed but absent |
+| VV5 | 19 actions | STOP: UI/native/player and lifecycle gates open |
 
 The machine-readable matrix reports the same exact fourteen missing evidence
-classes for every one of the 90 game/action bindings. The most reusable native
+classes for every one of the 95 game/action bindings. The most reusable native
 gaps are the game-specific selected/world resolver with stable identity, the
 native funds account/readback/deduction route, and native age and preference
 setters with readback. Direct stores and adjacent-game ABIs do not satisfy

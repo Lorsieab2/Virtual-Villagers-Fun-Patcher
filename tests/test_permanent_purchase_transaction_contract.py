@@ -19,7 +19,7 @@ class PermanentPurchaseContractTests(unittest.TestCase):
         result = contract.validate_contract(self.raw)
         self.assertTrue(result.schema_valid, result.errors)
         self.assertFalse(result.publication_allowed)
-        self.assertEqual(len(result.actions), 5 * 18)
+        self.assertEqual(len(result.actions), 5 * 19)
         self.assertTrue(all(not action.evidence_complete for action in result.actions))
         self.assertTrue(all(action.missing == contract.REQUIREMENTS for action in result.actions))
 
@@ -39,15 +39,27 @@ class PermanentPurchaseContractTests(unittest.TestCase):
             "all_running": ("All Villagers Like Running", 1000000, "buy_only"),
             "all_full_mastery": ("Grant Full Mastery to All Villagers", 1000000, "buy_only"),
             "all_age_18": ("All Villagers Are 18", 1000000, "buy_only"),
+            "complete_all_collections": ("Complete All Collectibles", 1000000, "buy_only"),
+            "reset_all_collections": ("Reset Collectibles", 1000000, "buy_only"),
         }
         for action_id, values in expected.items():
             self.assertEqual((actions[action_id]["label"], actions[action_id]["price"], actions[action_id]["button_policy"]), values)
-        self.assertIsNone(actions["complete_collections"]["price"])
+        self.assertEqual(actions["complete_all_collections"]["repeatability"], "repeatable")
+        self.assertEqual(actions["reset_all_collections"]["repeatability"], "repeatable")
         self.assertIsNone(actions["equal_division"]["price"])
 
     def test_only_doublers_allow_remove(self):
         removable = [row["id"] for row in self.raw["action_definitions"] if row["button_policy"] == "buy_or_owned_remove"]
         self.assertEqual(removable, ["tech_point_doubler", "food_point_doubler"])
+
+    def test_collectibles_scope_is_vv2_through_vv5_and_hidden(self):
+        for game in ("vv2", "vv3", "vv4", "vv5"):
+            bindings = {row["id"]: row for row in self.raw["games"][game]}
+            self.assertEqual(bindings["complete_all_collections"]["availability"], "absent_proposed")
+            self.assertEqual(bindings["reset_all_collections"]["availability"], "absent_proposed")
+        for row in self.raw["games"]["vv1"]:
+            if row["id"] in {"complete_all_collections", "reset_all_collections"}:
+                self.assertEqual(row["availability"], "not_applicable")
 
     def test_strict_root_and_action_schema_rejects_pollution(self):
         for mutate in (
