@@ -37,10 +37,14 @@ class VV5ProtectedTestRuntimeTests(unittest.TestCase):
             )
             test_path = root / "candidate_test.py"
             test_path.write_text(
-                "import capstone\nimport keystone\nimport unittest\n"
+                "import capstone\nimport keystone\nimport subprocess\nimport sys\nimport unittest\n"
                 "class CandidateTest(unittest.TestCase):\n"
                 "    def test_local_dependencies(self):\n"
-                "        self.assertTrue(capstone.loaded and keystone.loaded)\n",
+                "        self.assertTrue(capstone.loaded and keystone.loaded)\n"
+                "    def test_nested_process_sees_prepared_runtime(self):\n"
+                "        result = subprocess.run([sys.executable, '-c', 'import capstone, keystone; print(capstone.loaded and keystone.loaded)'], capture_output=True, text=True)\n"
+                "        self.assertEqual(result.returncode, 0, result.stderr)\n"
+                "        self.assertEqual(result.stdout.strip(), 'True')\n",
                 encoding="utf-8",
             )
 

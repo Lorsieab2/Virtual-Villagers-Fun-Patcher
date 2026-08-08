@@ -371,7 +371,11 @@ def run_vv5_candidate_validation(
         for wheel in wheels.values():
             _safe_extract(wheel, runtime_root)
         environment = os.environ.copy()
-        environment.pop("PYTHONPATH", None)
+        # The outer runner uses -I and receives runtime_root through its
+        # bootstrap argv.  Candidate tests may start ordinary nested Python
+        # processes with sys.executable; pass only the prepared local runtime
+        # to those children so they resolve the same wheel bytes.
+        environment["PYTHONPATH"] = str(runtime_root)
         environment["PYTHONNOUSERSITE"] = "1"
         environment["PYTHONDONTWRITEBYTECODE"] = "1"
         completed = subprocess.run(
