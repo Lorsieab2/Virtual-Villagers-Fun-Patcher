@@ -1,0 +1,10 @@
+{
+  "schema_version": "vvfp.c342_expanded256_export_preflight.v1",
+  "status": "preflight_stop_until_c342_tree_and_exports",
+  "inputs": {"vv4": {"path": "inputs/vv4-stock-copy", "physical_file_count": 556}, "vv5": {"path": "inputs/vv5-stock-copy", "physical_file_count": 639}},
+  "stock_executables": {"vv4": {"name": "Virtual Villagers - The Tree of Life.exe", "sha256": "6D27A429FFCA5F1F71FDD7ECA761ED1BB67E85F976494BA178B3D7BE01F1B220"}, "vv5": {"name": "Virtual Villagers - New Believers.exe", "sha256": "92946781980220E9D1A2E6C573925519934608F5215F4A0F8CE3B90088C5C65D"}},
+  "expanded_executables": {"vv4": {"sha256": "602824F514BFAB80883805B16C01D1E572752261A155262778CF8D535C41D887"}, "vv5": {"sha256": "44042572653782B20A200799785F437D4D76B46F20384D597B8093F27CC88C89"}},
+  "c342_rebind": {"vv4": {"ledger_path": "data/vv4_origins_feature.json", "ledger_count": 13, "ledger_sha256": "CEE01F4AEC59CB1CEE0F42E3DDDB3A24615261E628ED0629C1BFAABF421A897D", "source_text_sha256": "A38F98973EB83F91D60FCA5C2A1BD28444622CEAC5434C295FB7E73D3A1BCB71"}, "vv5": {"ledger_path": "data/vv5_origins_feature.json", "ledger_count": 66, "ledger_sha256": "14E460773ADC065E053FA30921ED01D33A5F36AD49DC754CCD69127EA02C01B7", "source_text_sha256": "6AFF1A8E69234C61CB2D1878C46FA91B0AAA721FC5F29C5B42A678F61BAB8528"}},
+  "required_machine_export": {"filename": "c342-native-export.json", "required_fields": ["schema_version", "producer", "producer_version", "source_executable_sha256", "source_folder_inventory_sha256", "rows", "re_read_sha256"], "status_required": "authenticated_static_export", "synthetic": false, "manual_injection": false},
+  "gates": {"enabled": false, "catalog": false, "native_output": false, "runtime_go": false, "player_go": false, "publication": false, "evidence": []}
+}
