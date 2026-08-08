@@ -11,14 +11,22 @@
       "full_mastery": "public",
       "running": "disabled_hidden",
       "full_heal": "disabled_by_hidden_running_dependency",
-      "legacy_origins_village_wide": "disabled_hidden"
+      "legacy_origins_village_wide": "disabled_hidden",
+      "collectibles": {
+        "reset_all_collections": "disabled_hidden",
+        "complete_all_collections": "disabled_hidden"
+      }
     },
     "vv4": {
       "origins": "public",
       "full_mastery": "public",
       "running": "disabled_hidden",
       "full_heal": "disabled_hidden",
-      "legacy_origins_village_wide": "disabled_hidden"
+      "legacy_origins_village_wide": "disabled_hidden",
+      "collectibles": {
+        "reset_all_collections": "disabled_hidden",
+        "complete_all_collections": "disabled_hidden"
+      }
     },
     "vv5": {
       "origins": "public",
@@ -26,7 +34,17 @@
       "running": "disabled_hidden",
       "full_heal": "absent",
       "legacy_origins_village_wide": "disabled_hidden",
-      "tech_detail_click_route": "stop_unproved"
+      "tech_detail_click_route": "stop_unproved",
+      "collectibles": {
+        "reset_all_collections": "disabled_hidden",
+        "complete_all_collections": "disabled_hidden"
+      }
+    },
+    "vv2": {
+      "collectibles": {
+        "reset_all_collections": "disabled_hidden",
+        "complete_all_collections": "disabled_hidden"
+      }
     }
   }
 }

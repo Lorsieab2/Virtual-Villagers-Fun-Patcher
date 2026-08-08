@@ -25,6 +25,25 @@ class PublicUiContractTests(unittest.TestCase):
         self.assertEqual(status["games"]["vv5"]["full_mastery"], "disabled_hidden")
         self.assertEqual(status["games"]["vv5"]["tech_detail_click_route"], "stop_unproved")
 
+    def test_collectibles_are_explicitly_hidden_without_catalog_entries(self):
+        status = json.loads((ROOT / "data/public-ui-status.json").read_text(encoding="utf-8"))
+        for game in ("vv2", "vv3", "vv4", "vv5"):
+            self.assertEqual(
+                status["games"][game]["collectibles"],
+                {
+                    "reset_all_collections": "disabled_hidden",
+                    "complete_all_collections": "disabled_hidden",
+                },
+            )
+
+        # The status table is metadata only: neither planned action is a
+        # resolver/catalog entry or a native output route.
+        patcher_source = (ROOT / "src/vv_fun_patcher.py").read_text(encoding="utf-8")
+        builds_source = (ROOT / "data/builds.json").read_text(encoding="utf-8")
+        for action_id in ("reset_all_collections", "complete_all_collections"):
+            self.assertNotIn(action_id, patcher_source)
+            self.assertNotIn(action_id, builds_source)
+
     def test_vv3_vv4_composed_sources_use_only_exact_time_warp_caption(self):
         old = "Time Warp - 3 villager years"
         exact = "Time Warp - Advances 3 Villager Years"
