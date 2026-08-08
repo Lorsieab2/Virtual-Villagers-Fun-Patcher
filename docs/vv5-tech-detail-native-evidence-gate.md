@@ -10,7 +10,11 @@ The stock fingerprint is the 991,232-byte `Virtual Villagers - New
 Believers.exe` with SHA-256
 `92946781980220E9D1A2E6C573925519934608F5215F4A0F8CE3B90088C5C65D`.
 An executable alone is insufficient: evidence must be bound to an authenticated
-complete-folder manifest and authentication receipt.
+complete-folder manifest and authentication receipt. A candidate machine export
+must additionally declare schema `vvfp.authenticated-native-export.v1` and the
+exact copied-input inventory SHA-256
+`9B9773905E5DA8D7A5B67FB8FD58E70093870429C60853C0023F5FFFEF3BF977`; a machine
+export hash without both bindings is rejected.
 
 Known stock facts are pinned without inventing a route: resource `0x6A`, size
 `96x39`, local position `(137,2)`, message `8`, event `13`, factory `0x401BD0`,

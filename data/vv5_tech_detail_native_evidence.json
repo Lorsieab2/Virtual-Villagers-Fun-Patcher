@@ -91,6 +91,8 @@
     "candidate_executable_sha256": null,
     "candidate_folder_manifest_sha256": null,
     "candidate_machine_export_sha256": null,
+    "candidate_machine_export_schema": null,
+    "candidate_machine_export_inventory_sha256": null,
     "instruction_boundaries_verified": false,
     "thiscall_receiver_verified": false,
     "message_abi_verified": false,

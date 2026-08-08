@@ -12,7 +12,8 @@ sys.path.insert(0, str(ROOT / "scripts"))
 
 from build_vv5_ui_confirmation_candidate import build_manifest, validate_candidate_manifest  # noqa: E402
 from validate_vv5_tech_detail_native_evidence import (  # noqa: E402
-    EVIDENCE_PATH, SCHEMA_PATH, STOCK_SHA256, load_and_validate, validate_evidence,
+    AUTHENTICATED_EXPORT_SCHEMA, EVIDENCE_PATH, INPUT_INVENTORY_SHA256, SCHEMA_PATH, STOCK_SHA256,
+    load_and_validate, validate_evidence,
 )
 
 
@@ -106,6 +107,8 @@ class VV5TechDetailNativeEvidenceTests(unittest.TestCase):
             proof[key] = "0x401000"
         for key in ("candidate_executable_sha256", "candidate_folder_manifest_sha256", "candidate_machine_export_sha256"):
             proof[key] = "E" * 64
+        proof["candidate_machine_export_schema"] = AUTHENTICATED_EXPORT_SCHEMA
+        proof["candidate_machine_export_inventory_sha256"] = INPUT_INVENTORY_SHA256
         for key in proof:
             if key.endswith("_verified") or key.endswith("_rejected_as_callsite"):
                 proof[key] = True
@@ -125,6 +128,25 @@ class VV5TechDetailNativeEvidenceTests(unittest.TestCase):
             mutated = copy.deepcopy(complete); mutated["player_receipts"][receipt] = None
             self.assertFalse(validate_evidence(mutated))
         mutated = copy.deepcopy(complete); mutated["player_receipts"]["detail_fullscreen"]["restore_verified"] = False
+        with self.assertRaises(ValueError):
+            validate_evidence(mutated)
+
+    def test_candidate_machine_export_requires_exact_schema_and_input_binding(self) -> None:
+        for field, value in (
+            ("candidate_machine_export_schema", AUTHENTICATED_EXPORT_SCHEMA),
+            ("candidate_machine_export_inventory_sha256", INPUT_INVENTORY_SHA256),
+        ):
+            mutated = copy.deepcopy(self.record)
+            mutated["native_proof"]["candidate_machine_export_sha256"] = "E" * 64
+            mutated["native_proof"][field] = value
+            with self.assertRaises(ValueError):
+                validate_evidence(mutated)
+        mutated = copy.deepcopy(self.record)
+        mutated["native_proof"]["candidate_machine_export_schema"] = "vvfp.other-export.v1"
+        with self.assertRaises(ValueError):
+            validate_evidence(mutated)
+        mutated = copy.deepcopy(self.record)
+        mutated["native_proof"]["candidate_machine_export_inventory_sha256"] = "F" * 64
         with self.assertRaises(ValueError):
             validate_evidence(mutated)
 

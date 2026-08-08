@@ -11,6 +11,8 @@ ROOT = Path(__file__).resolve().parents[1]
 EVIDENCE_PATH = ROOT / "data" / "vv5_tech_detail_native_evidence.json"
 SCHEMA_PATH = ROOT / "data" / "vv5_tech_detail_native_evidence.schema.json"
 STOCK_SHA256 = "92946781980220E9D1A2E6C573925519934608F5215F4A0F8CE3B90088C5C65D"
+INPUT_INVENTORY_SHA256 = "9B9773905E5DA8D7A5B67FB8FD58E70093870429C60853C0023F5FFFEF3BF977"
+AUTHENTICATED_EXPORT_SCHEMA = "vvfp.authenticated-native-export.v1"
 STOCK = {
     "filename": "Virtual Villagers - New Believers.exe",
     "size": 991232,
@@ -64,7 +66,8 @@ PROOF_KEYS = {
     "constructor_stock_bytes", "constructor_continuation_va",
     "handler_stock_bytes", "handler_continuation_va",
     "candidate_executable_sha256", "candidate_folder_manifest_sha256",
-    "candidate_machine_export_sha256",
+    "candidate_machine_export_sha256", "candidate_machine_export_schema",
+    "candidate_machine_export_inventory_sha256",
     "instruction_boundaries_verified", "thiscall_receiver_verified",
     "message_abi_verified", "register_stack_preservation_verified",
     "child_ownership_verified", "child_destructor_verified",
@@ -157,6 +160,15 @@ def validate_evidence(record: object) -> bool:
     candidate_hashes = [_sha(proof[k], f"native_proof.{k}", optional=True) for k in (
         "candidate_executable_sha256", "candidate_folder_manifest_sha256", "candidate_machine_export_sha256"
     )]
+    export_schema = proof["candidate_machine_export_schema"]
+    if export_schema is not None and export_schema != AUTHENTICATED_EXPORT_SCHEMA:
+        raise ValueError("candidate machine export schema is not authenticated-native-export.v1")
+    export_inventory = _sha(proof["candidate_machine_export_inventory_sha256"], "candidate machine export inventory", optional=True)
+    if export_inventory is not None and export_inventory != INPUT_INVENTORY_SHA256:
+        raise ValueError("candidate machine export is not bound to the verified copied-input inventory")
+    binding_values = (candidate_hashes[2], export_schema, export_inventory)
+    if not (all(value is None for value in binding_values) or all(value is not None for value in binding_values)):
+        raise ValueError("candidate machine export hash/schema/inventory binding is incomplete")
     byte_complete = all(byte_values)
     continuation_complete = all(continuation_values)
     flags = [
@@ -173,7 +185,7 @@ def validate_evidence(record: object) -> bool:
         raise ValueError("0x44B560 must remain rejected as an event callsite")
     if proof["event_method_offline_detour_verified"] is not True:
         raise ValueError("the exact offline 0x44BC20 event detour must remain verified")
-    candidate_complete = bool(all(candidate_hashes))
+    candidate_complete = bool(all(candidate_hashes) and export_schema == AUTHENTICATED_EXPORT_SCHEMA and export_inventory == INPUT_INVENTORY_SHA256)
     proof_complete = bool(byte_complete and continuation_complete and candidate_complete and proof_folder_hash is not None and all(proof_hashes) and all(proof[k] for k in flags))
 
     receipts = _keys(item["player_receipts"], {"tech_windowed", "tech_fullscreen", "detail_windowed", "detail_fullscreen"}, "player_receipts")
