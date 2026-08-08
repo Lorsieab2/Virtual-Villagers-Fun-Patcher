@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "vvfp.authorized_analyzer_workflow.v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "status", "workflow", "vv2_manifest_reconciliation", "game_bindings", "prerequisites", "gates"],
+  "properties": {
+    "schema_version": {"const": "vvfp.authorized_analyzer_workflow.v1"},
+    "status": {"const": "STOP"},
+    "workflow": {"type": "object", "additionalProperties": false, "required": ["read_only", "dry_run", "launches_performed", "saves_accessed", "exports_written", "native_output", "publication_ready", "runtime_go", "player_go"], "properties": {"read_only": {"const": true}, "dry_run": {"const": true}, "launches_performed": {"const": 0}, "saves_accessed": {"const": 0}, "exports_written": {"const": 0}, "native_output": {"const": false}, "publication_ready": {"const": false}, "runtime_go": {"const": false}, "player_go": {"const": false}}},
+    "vv2_manifest_reconciliation": {"type": "object", "additionalProperties": false, "required": ["status", "available_manifest", "dedicated_manifest", "unresolved_query_count", "unresolved_query_ids", "invented_rows"], "properties": {"status": {"const": "STOP_MISSING_DEDICATED_MANIFEST"}, "available_manifest": {"type": "object"}, "dedicated_manifest": {"type": "object"}, "unresolved_query_count": {"const": 2}, "unresolved_query_ids": {"type": ["null", "array"]}, "invented_rows": {"const": []}}},
+    "game_bindings": {"type": "object", "required": ["vv3", "vv4", "vv5"], "additionalProperties": false, "properties": {"vv3": {"$ref": "#/$defs/game"}, "vv4": {"$ref": "#/$defs/game"}, "vv5": {"$ref": "#/$defs/game"}}},
+    "prerequisites": {"type": "array", "minItems": 1, "items": {"type": "string"}},
+    "gates": {"type": "object", "additionalProperties": false, "required": ["enabled", "catalog_enabled", "catalog_hidden", "native_output", "runtime_go", "player_go", "publication_ready"], "properties": {"enabled": {"const": false}, "catalog_enabled": {"const": false}, "catalog_hidden": {"const": true}, "native_output": {"const": false}, "runtime_go": {"const": false}, "player_go": {"const": false}, "publication_ready": {"const": false}}}
+  },
+  "$defs": {
+    "game": {"type": "object", "additionalProperties": false, "required": ["folder", "file_count", "dll_count", "inventory_sha256", "executable", "query_plan", "collectibles_plan", "export"], "properties": {"folder": {"type": "string"}, "file_count": {"type": "integer", "minimum": 1}, "dll_count": {"const": 7}, "inventory_sha256": {"type": "string", "pattern": "^[0-9A-F]{64}$"}, "executable": {"type": "object"}, "query_plan": {"type": "object"}, "collectibles_plan": {"type": "object"}, "export": {"type": "object", "required": ["status", "artifact_path", "artifact_sha256", "resolved_rows"], "properties": {"status": {"const": "PENDING_AUTHORIZED_MACHINE_SESSION"}, "artifact_path": {"type": "null"}, "artifact_sha256": {"type": "null"}, "resolved_rows": {"const": 0}}}}}
+  }
+}

@@ -1,0 +1,91 @@
+{
+  "schema_version": "vvfp.authorized_analyzer_workflow.v1",
+  "status": "STOP",
+  "workflow": {
+    "read_only": true,
+    "dry_run": true,
+    "launches_performed": 0,
+    "saves_accessed": 0,
+    "exports_written": 0,
+    "native_output": false,
+    "publication_ready": false,
+    "runtime_go": false,
+    "player_go": false
+  },
+  "vv2_manifest_reconciliation": {
+    "status": "STOP_MISSING_DEDICATED_MANIFEST",
+    "available_manifest": {
+      "path": "data/native_evidence/vv1_vv2_native_query_manifest.json",
+      "sha256": "A53C6D01B0AD58124EFDA7F2C2C8FC6ABC537DE5104C46F3C29F4C43B9305F42",
+      "games": ["vv1", "vv2"],
+      "query_count": 48,
+      "query_ids": [
+        "selected_index_getter", "selected_record_resolver", "world_singleton", "villager_pool_bounds", "fresh_identity_readback",
+        "funds_getter", "funds_setter_or_native_deduction", "funds_notification", "funds_postverify",
+        "age_setter", "age_companion_side_effects", "oldest_villager_update", "oldest_villager_loader", "oldest_villager_serializer", "village_elders_field",
+        "preference_getter", "preference_setter", "preference_readback", "notification_queue", "stored_selected_index",
+        "dialogbox_or_messagebox_call", "idok_guard", "cancel_no_mutation_path", "same_record_reacquisition",
+        "health_getter", "health_to_100_setter", "health_side_effects", "sickness_getter", "sickness_clear_route", "people_cured_increment", "eligibility_enumerator", "postverify",
+        "sdl_window_resolver", "hwnd_resolver", "owner_capture", "iswindow_check", "same_process_check", "sdl_get_window_flags", "leave_fullscreen", "enter_fullscreen", "fullscreen_state_byte", "owner_lifecycle_cleanup", "return_preservation",
+        "stored_indices", "save_loader", "save_serializer", "field_defaults", "version_or_size_guards"
+      ]
+    },
+    "dedicated_manifest": {
+      "expected_query_count": 50,
+      "path": null,
+      "sha256": null,
+      "query_ids": null
+    },
+    "unresolved_query_count": 2,
+    "unresolved_query_ids": null,
+    "invented_rows": []
+  },
+  "game_bindings": {
+    "vv3": {
+      "folder": "inputs/vv3-stock-copy",
+      "file_count": 415,
+      "dll_count": 7,
+      "inventory_sha256": "1B348AC2FA05E1D723F92AFBBB2E98507F624F7EDBC39B237D8C2B722955A1E6",
+      "executable": {"path": "Virtual Villagers - The Secret City.exe", "size": 831488, "sha256": "8BC5DB382D02BC5C21AD5F607580D60FF44A6519CC7EB133F03113BAACAE6503"},
+      "query_plan": {"path": "data/native_evidence_queries.json", "sha256": "FED6AE17FAB8FB173DD56AC20FA6FED7C80BE62EE9D53202FE705BDCC1B55087", "query_count": 10},
+      "collectibles_plan": {"path": "data/vv2_vv5_collectibles_expanded256_disassembly_plan.json", "sha256": "D5D2DB8B63B4BF5FE7E05AF677EAFF74907C8D9E0D1ECB66C676616AAE06E98E", "query_count": 10},
+      "export": {"status": "PENDING_AUTHORIZED_MACHINE_SESSION", "artifact_path": null, "artifact_sha256": null, "resolved_rows": 0}
+    },
+    "vv4": {
+      "folder": "inputs/vv4-stock-copy",
+      "file_count": 556,
+      "dll_count": 7,
+      "inventory_sha256": "DDA63528390D271F356E1A359AD991DB6A759E118F1EAD8F58813FD00103E155",
+      "executable": {"path": "Virtual Villagers - The Tree of Life.exe", "size": 929792, "sha256": "6D27A429FFCA5F1F71FDD7ECA761ED1BB67E85F976494BA178B3D7BE01F1B220"},
+      "query_plan": {"path": "data/native_evidence_queries.json", "sha256": "FED6AE17FAB8FB173DD56AC20FA6FED7C80BE62EE9D53202FE705BDCC1B55087", "query_count": 10},
+      "collectibles_plan": {"path": "data/vv2_vv5_collectibles_expanded256_disassembly_plan.json", "sha256": "D5D2DB8B63B4BF5FE7E05AF677EAFF74907C8D9E0D1ECB66C676616AAE06E98E", "query_count": 10},
+      "export": {"status": "PENDING_AUTHORIZED_MACHINE_SESSION", "artifact_path": null, "artifact_sha256": null, "resolved_rows": 0}
+    },
+    "vv5": {
+      "folder": "inputs/vv5-stock-copy",
+      "file_count": 639,
+      "dll_count": 7,
+      "inventory_sha256": "9B9773905E5DA8D7A5B67FB8FD58E70093870429C60853C0023F5FFFEF3BF977",
+      "executable": {"path": "Virtual Villagers - New Believers.exe", "size": 991232, "sha256": "92946781980220E9D1A2E6C573925519934608F5215F4A0F8CE3B90088C5C65D"},
+      "query_plan": {"path": "data/native_evidence_queries.json", "sha256": "FED6AE17FAB8FB173DD56AC20FA6FED7C80BE62EE9D53202FE705BDCC1B55087", "query_count": 10},
+      "collectibles_plan": {"path": "data/vv2_vv5_collectibles_expanded256_disassembly_plan.json", "sha256": "D5D2DB8B63B4BF5FE7E05AF677EAFF74907C8D9E0D1ECB66C676616AAE06E98E", "query_count": 10},
+      "export": {"status": "PENDING_AUTHORIZED_MACHINE_SESSION", "artifact_path": null, "artifact_sha256": null, "resolved_rows": 0}
+    }
+  },
+  "prerequisites": [
+    "authorized IDA or Ghidra session bound to the exact executable hash",
+    "automated unedited ten-query export with complete function, instruction, ABI, register, stack, caller, callee, and xref rows",
+    "source-binding artifact hash equal to the no-follow inventory and exporter identity/version",
+    "VV2 dedicated 50-query manifest or an authoritative explanation of its two additional query IDs",
+    "independent runtime/player receipts before any enablement or publication review"
+  ],
+  "gates": {
+    "enabled": false,
+    "catalog_enabled": false,
+    "catalog_hidden": true,
+    "native_output": false,
+    "runtime_go": false,
+    "player_go": false,
+    "publication_ready": false
+  }
+}
