@@ -1,0 +1,66 @@
+{
+  "schema": "vvfp.native-evidence-queries.v1",
+  "games": ["vv3", "vv4", "vv5"],
+  "queries": [
+    {
+      "id": "selected_index_and_world_resolver",
+      "required": true,
+      "search": {"symbols": [], "strings": [], "constants": [], "xrefs": true},
+      "output": ["function_bounds", "ea", "file_offset", "raw_bytes", "instructions", "callers", "xrefs", "registers", "stack_cleanup", "call_convention"]
+    },
+    {
+      "id": "funds_getter",
+      "required": true,
+      "search": {"symbols": [], "strings": [], "constants": [], "xrefs": true},
+      "output": ["function_bounds", "ea", "file_offset", "raw_bytes", "instructions", "callers", "xrefs", "registers", "stack_cleanup", "call_convention"]
+    },
+    {
+      "id": "funds_deduction_setter",
+      "required": true,
+      "search": {"symbols": [], "strings": [], "constants": [], "xrefs": true},
+      "output": ["function_bounds", "ea", "file_offset", "raw_bytes", "instructions", "callers", "xrefs", "registers", "stack_cleanup", "call_convention"]
+    },
+    {
+      "id": "age_setter_companions_oldest",
+      "required": true,
+      "search": {"symbols": [], "strings": [], "constants": [], "xrefs": true},
+      "output": ["function_bounds", "ea", "file_offset", "raw_bytes", "instructions", "callers", "xrefs", "registers", "stack_cleanup", "call_convention"]
+    },
+    {
+      "id": "preference_setter_readback_queue",
+      "required": true,
+      "search": {"symbols": [], "strings": [], "constants": [], "xrefs": true},
+      "output": ["function_bounds", "ea", "file_offset", "raw_bytes", "instructions", "callers", "xrefs", "registers", "stack_cleanup", "call_convention"]
+    },
+    {
+      "id": "confirmation_result_abi",
+      "required": true,
+      "search": {"symbols": [], "strings": [], "constants": [], "xrefs": true},
+      "output": ["function_bounds", "ea", "file_offset", "raw_bytes", "instructions", "callers", "xrefs", "registers", "stack_cleanup", "call_convention"]
+    },
+    {
+      "id": "postverify_fault_boundary",
+      "required": true,
+      "search": {"symbols": [], "strings": [], "constants": [], "xrefs": true},
+      "output": ["function_bounds", "ea", "file_offset", "raw_bytes", "instructions", "callers", "xrefs", "registers", "stack_cleanup", "call_convention"]
+    },
+    {
+      "id": "fullscreen_leave_enter_owner",
+      "required": true,
+      "search": {"symbols": [], "strings": [], "constants": [], "xrefs": true},
+      "output": ["function_bounds", "ea", "file_offset", "raw_bytes", "instructions", "callers", "xrefs", "registers", "stack_cleanup", "call_convention"]
+    },
+    {
+      "id": "stored_indices",
+      "required": true,
+      "search": {"symbols": [], "strings": [], "constants": [], "xrefs": true},
+      "output": ["function_bounds", "ea", "file_offset", "raw_bytes", "instructions", "callers", "xrefs", "registers", "stack_cleanup", "call_convention"]
+    },
+    {
+      "id": "save_loader_serializer",
+      "required": true,
+      "search": {"symbols": [], "strings": [], "constants": [], "xrefs": true},
+      "output": ["function_bounds", "ea", "file_offset", "raw_bytes", "instructions", "callers", "xrefs", "registers", "stack_cleanup", "call_convention"]
+    }
+  ]
+}
