@@ -14,10 +14,11 @@ ProductVersion: 9.4.260610.6c3b13fe
 ```
 
 The adjacent `idat.exe` is an unversioned 16,896-byte launcher in this
-installation. A disposable `cmd.exe` invocation with an explicit PATH returned
-exit code `2` without stdout, stderr, or a database-status line. Use the GUI
-launcher for an attended review; do not treat the failed text launcher as
-native evidence.
+installation. The current disposable `cmd.exe` invocation with an explicit
+PATH and `-A -S` successfully opens copied source-bound VV3/VV5 databases and
+emits machine-only function snapshots. Those snapshots are diagnostic status,
+not authenticated query rows or native evidence. The GUI launcher remains the
+attended review path.
 
 ## Prepare a disposable exact-input folder
 
@@ -50,6 +51,23 @@ set "IDAUSR=<workspace-root>\idausr"
 start "" "C:\Program Files\IDA Professional 9.4\ida.exe" "<workspace-root>\Virtual Villagers - The Secret City.exe.i64"
 endlocal
 ```
+
+For the reproducible machine-only capability probe, use the same disposable
+environment with `idat.exe` and a probe that reports only database
+load/version/function-count status:
+
+```bat
+@echo off
+setlocal
+set "PATH=C:\Program Files\IDA Professional 9.4;C:\Windows\System32;C:\Windows"
+set "IDAUSR=<workspace-root>\idausr"
+"C:\Program Files\IDA Professional 9.4\idat.exe" -A "-S<workspace-root>\diagnostic-probe.py" "<workspace-root>\Virtual Villagers - The Secret City.exe.i64"
+endlocal
+```
+
+The probe must not resolve EAs, infer ABIs, emit query rows, or write an
+export. A successful snapshot only proves that the disposable database opened
+and that the diagnostic script ran.
 
 Open one game/database at a time. Confirm the visible IDA window title and
 input path identify the intended VV3, VV4, or VV5 disposable database before
