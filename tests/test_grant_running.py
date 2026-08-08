@@ -21,6 +21,7 @@ from grant_running import (  # noqa: E402
 )
 
 ACCOUNT_ID = 0x2000
+WORLD_ID = 0x3000
 
 
 def plan_transaction(record_value, balance, confirmed, reacquire, current_binding, *, account_identity=ACCOUNT_ID):
@@ -49,7 +50,9 @@ def apply_plan(
     restore_slot=None,
     read_balance=None,
 ):
-    def strict_deduct(account_identity, amount):
+    def strict_deduct(world_identity, account_identity, amount):
+        if world_identity != WORLD_ID:
+            raise AssertionError("deduction received the wrong world identity")
         if account_identity != ACCOUNT_ID:
             raise AssertionError("deduction received the wrong account identity")
         return deduct(amount)
@@ -61,7 +64,7 @@ def apply_plan(
         read_slots,
         strict_deduct,
         lambda: plan.record_identity,
-        lambda: (ACCOUNT_ID, 100_000 if read_balance is None else read_balance()),
+        lambda: (WORLD_ID, ACCOUNT_ID, 100_000 if read_balance is None else read_balance()),
         restore_slot,
     )
 
@@ -92,8 +95,10 @@ def record(
     active=1,
     health=1,
     faction=0,
+    world_identity=WORLD_ID,
 ):
     result = {
+        "world_identity": world_identity,
         "identity": identity,
         "selected_index": selected_index,
         "record_pointer": record_pointer,
@@ -133,7 +138,7 @@ class GrantRunningTests(unittest.TestCase):
         self.assertEqual(plan.dislike_indices, (0, 2))
         self.assertEqual(plan.after_likes, (7, 38, 8))
         self.assertEqual(plan.after_dislikes, (-1, 9, -1))
-        self.assertEqual(plan.record_identity, (1, 0, 0x1000))
+        self.assertEqual(plan.record_identity, (WORLD_ID, 1, 0, 0x1000))
         self.assertEqual(current["likes"], [7, -1, 8])
         self.assertEqual(current["dislikes"], [38, 9, 38])
 
@@ -214,6 +219,9 @@ class GrantRunningTests(unittest.TestCase):
             ("record-pointer-bool", "record_pointer", True),
             ("record-pointer-zero", "record_pointer", 0),
             ("record-pointer-string", "record_pointer", "4096"),
+            ("world-bool", "world_identity", True),
+            ("world-zero", "world_identity", 0),
+            ("world-string", "world_identity", "12288"),
         )
         for label, key, value in cases:
             with self.subTest(case=label):
@@ -724,7 +732,7 @@ class GrantRunningTests(unittest.TestCase):
 
     def test_identity_and_account_changes_fail_closed_at_every_apply_boundary(self):
         for boundary_call in (1, 2, 3, 4):
-            for field in ("selected-index", "record-pointer", "account"):
+            for field in ("world", "selected-index", "record-pointer", "account"):
                 with self.subTest(boundary=boundary_call, field=field):
                     current = record((7, -1, 8), (38, 9, 38))
                     plan = strict_plan_transaction(
@@ -743,29 +751,31 @@ class GrantRunningTests(unittest.TestCase):
                     def identity_callback():
                         nonlocal identity_calls
                         identity_calls += 1
+                        if field == "world" and identity_calls == boundary_call:
+                            return WORLD_ID + 1, 1, 0, 0x1000
                         if field == "selected-index" and identity_calls == boundary_call:
-                            return 1, 1, 0x1000
+                            return WORLD_ID, 1, 1, 0x1000
                         if field == "record-pointer" and identity_calls == boundary_call:
-                            return 1, 0, 0x1001
-                        return 1, 0, 0x1000
+                            return WORLD_ID, 1, 0, 0x1001
+                        return WORLD_ID, 1, 0, 0x1000
 
                     def account_callback():
                         nonlocal account_calls
                         account_calls += 1
                         identity = ACCOUNT_ID + 1 if field == "account" and account_calls == boundary_call else ACCOUNT_ID
-                        return identity, 100_000
+                        return WORLD_ID, identity, 100_000
 
                     result = strict_apply_plan(
                         plan,
                         lambda index, value: state["likes"].__setitem__(index, value),
                         lambda index, value: state["dislikes"].__setitem__(index, value),
                         lambda: (tuple(state["likes"]), tuple(state["dislikes"])),
-                        lambda account, amount: deductions.append((account, amount)),
+                        lambda world, account, amount: deductions.append((world, account, amount)),
                         identity_callback,
                         account_callback,
                         lambda kind, index, value: state["likes" if kind == "like" else "dislikes"].__setitem__(index, value),
                     )
-                    self.assertIn(result.status, {"identity-race", "account-race"})
+                    self.assertIn(result.status, {"world-race", "identity-race", "account-race"})
                     self.assertEqual(deductions, [])
                     self.assertEqual(state, {"likes": [7, -1, 8], "dislikes": [38, 9, 38]})
 
@@ -786,9 +796,10 @@ class GrantRunningTests(unittest.TestCase):
         def read_account():
             nonlocal account_calls
             account_calls += 1
-            return (ACCOUNT_ID + 1 if account_calls == 5 else ACCOUNT_ID), balance[0]
+            return WORLD_ID, (ACCOUNT_ID + 1 if account_calls == 5 else ACCOUNT_ID), balance[0]
 
-        def deduct(account, amount):
+        def deduct(world, account, amount):
+            self.assertEqual(world, WORLD_ID)
             self.assertEqual(account, ACCOUNT_ID)
             balance[0] -= amount
             return DeductionOutcome("charged")
@@ -799,7 +810,7 @@ class GrantRunningTests(unittest.TestCase):
             lambda index, value: state["dislikes"].__setitem__(index, value),
             lambda: (tuple(state["likes"]), tuple(state["dislikes"])),
             deduct,
-            lambda: (1, 0, 0x1000),
+            lambda: (WORLD_ID, 1, 0, 0x1000),
             read_account,
             lambda kind, index, value: state["likes" if kind == "like" else "dislikes"].__setitem__(index, value),
         )
@@ -808,10 +819,48 @@ class GrantRunningTests(unittest.TestCase):
         self.assertIsNone(result.charged)
         self.assertNotIn("No tech points have been deducted", result.message)
 
+    def test_world_change_after_deduction_is_unknown_not_verified_charge(self):
+        current = record((7, -1, 8), (38, 9, 38))
+        plan = strict_plan_transaction(
+            current,
+            100_000,
+            1,
+            lambda: (current, 100_000, ACCOUNT_ID),
+            binding(),
+            account_identity=ACCOUNT_ID,
+        )
+        state = {"likes": [7, -1, 8], "dislikes": [38, 9, 38]}
+        balance = [100_000]
+        account_calls = 0
+
+        def read_account():
+            nonlocal account_calls
+            account_calls += 1
+            return (WORLD_ID + 1 if account_calls == 5 else WORLD_ID), ACCOUNT_ID, balance[0]
+
+        def deduct(world, account, amount):
+            self.assertEqual((world, account), (WORLD_ID, ACCOUNT_ID))
+            balance[0] -= amount
+            return DeductionOutcome("charged")
+
+        result = strict_apply_plan(
+            plan,
+            lambda index, value: state["likes"].__setitem__(index, value),
+            lambda index, value: state["dislikes"].__setitem__(index, value),
+            lambda: (tuple(state["likes"]), tuple(state["dislikes"])),
+            deduct,
+            lambda: (WORLD_ID, 1, 0, 0x1000),
+            read_account,
+            lambda kind, index, value: state["likes" if kind == "like" else "dislikes"].__setitem__(index, value),
+        )
+        self.assertEqual(result.status, "charge-unknown")
+        self.assertEqual(result.charge_status, "unknown")
+        self.assertIsNone(result.charged)
+
     def test_each_rollback_restore_reacquires_selection_pointer_and_account(self):
         cases = tuple(
             (field, restore_index)
-            for field in ("selected-index", "record-pointer", "account")
+            for field in ("world", "selected-index", "record-pointer", "account")
             for restore_index in range(3)
         )
         for field, restore_index in cases:
@@ -834,24 +883,26 @@ class GrantRunningTests(unittest.TestCase):
                 def identity_callback():
                     nonlocal identity_calls
                     identity_calls += 1
+                    if field == "world" and identity_calls == target_identity_call:
+                        return WORLD_ID + 1, 1, 0, 0x1000
                     if field == "selected-index" and identity_calls == target_identity_call:
-                        return 1, 1, 0x1000
+                        return WORLD_ID, 1, 1, 0x1000
                     if field == "record-pointer" and identity_calls == target_identity_call:
-                        return 1, 0, 0x1001
-                    return 1, 0, 0x1000
+                        return WORLD_ID, 1, 0, 0x1001
+                    return WORLD_ID, 1, 0, 0x1000
 
                 def account_callback():
                     nonlocal account_calls
                     account_calls += 1
                     identity = ACCOUNT_ID + 1 if field == "account" and account_calls == target_account_call else ACCOUNT_ID
-                    return identity, 100_000
+                    return WORLD_ID, identity, 100_000
 
                 result = strict_apply_plan(
                     plan,
                     lambda index, value: state["likes"].__setitem__(index, value),
                     lambda index, value: state["dislikes"].__setitem__(index, value),
                     lambda: (tuple(state["likes"]), tuple(state["dislikes"])),
-                    lambda _account, _amount: DeductionOutcome("not-charged"),
+                    lambda _world, _account, _amount: DeductionOutcome("not-charged"),
                     identity_callback,
                     account_callback,
                     lambda kind, index, value: state["likes" if kind == "like" else "dislikes"].__setitem__(index, value),
@@ -874,12 +925,18 @@ class GrantRunningTests(unittest.TestCase):
             (
                 "identity",
                 lambda: (_ for _ in ()).throw(RuntimeError("identity failure")),
-                lambda: (ACCOUNT_ID, 100_000),
+                lambda: (WORLD_ID, ACCOUNT_ID, 100_000),
+                "identity-unknown",
+            ),
+            (
+                "malformed-world",
+                lambda: (True, 1, 0, 0x1000),
+                lambda: (WORLD_ID, ACCOUNT_ID, 100_000),
                 "identity-unknown",
             ),
             (
                 "account",
-                lambda: (1, 0, 0x1000),
+                lambda: (WORLD_ID, 1, 0, 0x1000),
                 lambda: (_ for _ in ()).throw(RuntimeError("account failure")),
                 "account-unknown",
             ),

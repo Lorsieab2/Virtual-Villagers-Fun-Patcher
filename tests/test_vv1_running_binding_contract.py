@@ -50,7 +50,7 @@ class VV1RunningBindingContractTests(unittest.TestCase):
         self.assertEqual(b["exact_build"]["sha256"], "1EC790B927741081D5CE13A48FB76983A4FD4336EA08F89317872643760AF03D")
         self.assertEqual(b["record_identity"]["stride"], "0x3D8")
         self.assertEqual(b["record_identity"]["selected_index_offset"], "0xAD34")
-        self.assertIn("same selected index and record identity", b["record_identity"]["reacquire_requirement"])
+        self.assertIn("world identity, selected index, record identity", b["record_identity"]["reacquire_requirement"])
         self.assertEqual(b["exact_build"]["running_id"], 38)
         self.assertEqual(b["slots"]["likes"]["count"], 4)
         self.assertEqual(b["slots"]["dislikes"]["count"], 4)

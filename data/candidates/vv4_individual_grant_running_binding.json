@@ -20,7 +20,7 @@
     "physical_index_range": "0..149",
     "record_count": 150,
     "stride": "0x2E3C",
-    "reacquire": "mandatory exact selected index, resolver pointer/record identity, and same account identity at every mutation boundary; no cached record walking"
+    "reacquire": "mandatory exact world, selected index, resolver pointer/record identity, and same account identity at every mutation boundary; no cached record walking"
   },
   "preferences": {
     "running_id": 38,
@@ -91,11 +91,11 @@
       "preserve_unrelated_slots": true
     },
     "confirmation": "Grant Running to this villager for 40,000 tech points?\r\nPress OK to confirm, or Cancel.",
-    "reacquire": "After confirm, reacquire exact selected index, resolved pointer/record identity, same account identity, eligibility, funds, and exact six-slot snapshot before first write.",
-    "postverify": "Reacquire exact selection/pointer/account identity and postverify the complete six-slot result before deduction.",
-    "charge": "one charge attempt and one deduction only after postverify; verify charge only from exact before/after balance readback for the same account identity, otherwise report unknown; the VV4 Running deduction ABI is unproved",
+    "reacquire": "After confirm, reacquire exact world, selected index, resolved pointer/record identity, same account identity, eligibility, funds, and exact six-slot snapshot before first write.",
+    "postverify": "Reacquire exact world/selection/pointer/account identity and postverify the complete six-slot result before deduction.",
+    "charge": "one charge attempt and one deduction only after postverify, bound to the same world and account; verify charge only from exact before/after balance readback, otherwise report unknown; the VV4 Running deduction ABI is unproved",
     "no_charge": "No tech points have been deducted.",
-    "rollback_limit": "Rollback limit: before each restore reacquire exact selection/pointer/account identity and verify candidate-written state; callback failure or mismatch fails closed and retained effects or unknown charge are disclosed. Native rollback remains unproved."
+    "rollback_limit": "Rollback limit: before each restore reacquire exact world/selection/pointer/account identity and verify candidate-written state; callback failure or mismatch fails closed and retained effects or unknown charge are disclosed. Native rollback remains unproved."
   },
   "native_abi_proof": {
     "status": "UNPROVEN",

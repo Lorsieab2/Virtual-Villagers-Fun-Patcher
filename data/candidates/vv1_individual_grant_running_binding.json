@@ -22,7 +22,7 @@
     "selected_index_bound": "0 <= index < 0x100",
     "existing_record_base": "[detail_context+0x10] + selected_index * 0x3D8",
     "identity": "selected index plus resolved record pointer",
-    "reacquire_requirement": "reacquire the same selected index and record identity through mandatory exact selected-index, resolved-pointer, and same-account callbacks before first write, full postverify, deduction, and each rollback restore; callback failure or mismatch fails closed",
+    "reacquire_requirement": "reacquire the same world identity, selected index, record identity, and resolved pointer through mandatory exact selection/account callbacks before first write, full postverify, deduction, and each rollback restore; callback failure or mismatch fails closed",
     "native_resolver_reacquire_abi": "unproved"
   },
   "slots": {
@@ -65,11 +65,11 @@
     "commit_writes": "after destination proof, write Running ID 38 once to the first physical -1 Like and clear every Running Dislike to -1; preserve unrelated slots and ordering",
     "dislike_order": "every Running Dislike is cleared only after a destination Like is proven",
     "confirmation": "confirm Grant Running for 40,000 tech points only after the dry-run and funds check",
-    "reacquire": "reacquire exact selected index, resolved pointer/record identity, same tech-account identity, eligibility, funds, and complete eight-slot snapshot before first write",
-    "postverify": "reacquire exact selection/pointer/account identity and postverify the complete eight-slot result immediately before deduction",
-    "one_charge": "deduct exactly 40,000 once only after successful full postverify; verify charge only from exact before/after balance readback for the same account identity, otherwise report unknown",
+    "reacquire": "reacquire exact world, selected index, resolved pointer/record identity, same tech-account identity, eligibility, funds, and complete eight-slot snapshot before first write",
+    "postverify": "reacquire exact world/selection/pointer/account identity and postverify the complete eight-slot result immediately before deduction",
+    "one_charge": "deduct exactly 40,000 once only after successful full postverify, bound to the same world and account; verify charge only from exact before/after balance readback, otherwise report unknown",
     "no_deduction_text": "No tech points have been deducted.",
-    "rollback_limit": "Before each restore reacquire exact selection/pointer/account identity and verify the candidate-written state; callback failure or mismatch fails closed and retained effects or unknown charge are disclosed. Native rollback remains unproved."
+    "rollback_limit": "Before each restore reacquire exact world/selection/pointer/account identity and verify the candidate-written state; callback failure or mismatch fails closed and retained effects or unknown charge are disclosed. Native rollback remains unproved."
   },
   "native_abi_proof_status": {
     "overall": "STOP",

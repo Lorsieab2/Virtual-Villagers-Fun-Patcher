@@ -112,14 +112,14 @@
     "running_value": 38,
     "empty_value": -1,
     "dry_run": "scan all three Likes and all three Dislikes before confirmation; preserve Like duplicates; first physical -1 Like only; clear every Running Dislike",
-    "reacquire": "same selected index, record identity, eligibility, and exact six-slot snapshot before write",
-    "record_identity": "initial and confirmed resolver pointers must match exactly; no cached physical-base walking",
+    "reacquire": "same world, selected index, record identity, eligibility, and exact six-slot snapshot before write",
+    "record_identity": "initial and confirmed world identity, resolver pointers, and selected index must match exactly; no cached physical-base walking",
     "funds_checks": [
       "complete dry-run before confirmation",
       "immediately before write"
     ],
-    "rollback": "on failed write/readback, reacquire the same index and record identity before every direct store, require the supported active/living/status/faction predicate and exact candidate-written values, restore the inserted Like and every cleared Running Dislike independently and verify; if any restore is unsafe, report retained per-slot effects rather than claiming full rollback; no charge; no independent skeleton discriminator is claimed",
-    "deduction": "ECX=0x51D5F8; push -40000; call 0x4237B0 exactly once",
+    "rollback": "on failed write/readback, reacquire the same world, index, and record identity plus account before every direct store, require the supported active/living/status/faction predicate and exact candidate-written values, restore the inserted Like and every cleared Running Dislike independently and verify; if any restore is unsafe, report retained per-slot effects rather than claiming full rollback; no charge; no independent skeleton discriminator is claimed",
+    "deduction": "bind the one deduction attempt to the reacquired world/account and verify only by exact before/after balance readback; otherwise report unknown; native call evidence remains STOP",
     "dislike_slots": [
       "record+0x1F68",
       "record+0x1F6C",

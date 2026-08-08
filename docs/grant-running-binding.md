@@ -24,16 +24,17 @@ slot, not an early terminator. The transaction rules are:
    Dislike only after the destination is proven. Unrelated slots and ordering
    remain unchanged.
 4. Complete a read-only dry run, confirm with IDOK-only semantics, reacquire
-   the same selected index, resolved record pointer, account identity, funds,
-   and full slot snapshot, postverify the exact result, then perform one native
-   deduction.
+   the same world identity, selected index, record identity, resolved record
+   pointer, account identity, funds, and full slot snapshot, postverify the
+   exact result, then perform one native deduction bound to that world/account.
 
 The reference adapter contract is strict about values and identity. Health is
 an exact non-boolean signed-DWORD integer in `0..0x7FFFFFFF` and must be
-positive; active is an exact non-boolean `0` or `1`; identity, resolved record
-pointer, and tech-account identity are exact non-boolean unsigned-DWORD values;
-selected index is an exact non-boolean integer within the manifest's physical
-bound. VV5 current faction is an exact non-boolean `0`/`1` value and must be
+positive; active is an exact non-boolean `0` or `1`; world identity, record
+identity, resolved record pointer, and tech-account identity are exact
+non-boolean unsigned-DWORD values; selected index is an exact non-boolean
+integer within the manifest's physical bound. VV5 current faction is an exact
+non-boolean `0`/`1` value and must be
 `0`, matching current faction `+0x1CEC == 0`. No `+0x1CE1`, `heathen_active`,
 status-byte, or separate synthetic current-believer predicate is accepted.
 Eligibility gates run before either preference array is read. These reference
@@ -56,10 +57,14 @@ raw field stores. The adversarial callback tests use only in-memory synthetic
 bindings and do not prove a native ABI. Reacquire exceptions or malformed
 identity/balance results are structured as an unknown revalidation outcome
 without propagating the callback exception. Exceptions after deduction are
-classified only by the same-account exact balance transition. The adapter must
-reacquire the exact selected index, resolved pointer, record identity, and tech
-account before the first write, before Like/full-slot postverification, and
-before deduction. Rollback reacquires those identities and verifies the current
+classified only by the same-world, same-account exact balance transition. The
+selection callback returns `(world identity, record identity, selected index,
+resolved record pointer)` and the account callback returns `(world identity,
+account identity, balance)`. The deduction callback receives the same world
+identity and account identity. The adapter must reacquire the exact world,
+selected index, resolved pointer, record identity, and tech account before the
+first write, before Like/full-slot postverification, and before deduction.
+Rollback reacquires those identities and verifies the current
 candidate-written snapshot before every individual restore. Callback exceptions
 and malformed values are structured fail-closed results. If rollback is
 unavailable, unsafe, or partial, the result explicitly discloses that retained

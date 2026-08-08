@@ -4,7 +4,7 @@ The model is deliberately independent of any executable.  It scans the
 configured physical Like/Dislike slots without mutating them, plans only the
 first empty Like insertion, and exposes native callbacks for the eventual
 write and deduction.  Adapter records must provide exact integer identity,
-selected-index, resolved-record-pointer, eligibility, and balance fields;
+selected-index, resolved-record-pointer, world, eligibility, and balance fields;
 these are reference-contract requirements, not native proof.  A binding
 cannot be committed unless its complete native preference-write and
 deduction ABIs are certified and enabled.
@@ -51,6 +51,7 @@ INT32_MAX = 0x7FFFFFFF
 HEALTH_MAX = INT32_MAX
 RECORD_POINTER_MIN = 1
 RECORD_INDEX_MIN = 0
+WORLD_ID_MIN = 1
 
 
 @dataclass(frozen=True)
@@ -302,7 +303,8 @@ class RunningPlan:
     after_likes: tuple[int, ...] = ()
     after_dislikes: tuple[int, ...] = ()
     deduction: int = 0
-    record_identity: tuple[int, int, int] | None = None
+    # (world identity, record identity, selected physical index, resolved pointer).
+    record_identity: tuple[int, int, int, int] | None = None
     account_identity: int | None = None
 
 
@@ -361,9 +363,15 @@ def _strict_field(value: object, *, field: str, minimum: int, maximum: int) -> i
 def _record_identity(
     record: Mapping[str, object],
     binding: RunningBinding,
-) -> tuple[int, int, int]:
+) -> tuple[int, int, int, int]:
     if not isinstance(record, Mapping):
         raise ValueError("selected record must be a mapping")
+    world_identity = _strict_field(
+        record.get("world_identity"),
+        field="world identity",
+        minimum=WORLD_ID_MIN,
+        maximum=UINT32_MAX,
+    )
     identity = _strict_field(
         record.get("identity"),
         field="record identity",
@@ -388,34 +396,45 @@ def _record_identity(
         minimum=RECORD_POINTER_MIN,
         maximum=UINT32_MAX,
     )
-    return identity, selected_index, record_pointer
+    return world_identity, identity, selected_index, record_pointer
 
 
-def _callback_record_identity(raw: object, binding: RunningBinding) -> tuple[int, int, int]:
-    if not isinstance(raw, tuple) or len(raw) != 3:
-        raise ValueError("selection identity callback must return an exact three-item tuple")
+def _callback_record_identity(raw: object, binding: RunningBinding) -> tuple[int, int, int, int]:
+    if not isinstance(raw, tuple) or len(raw) != 4:
+        raise ValueError(
+            "selection identity callback must return "
+            "(world identity, record identity, selected index, record pointer)"
+        )
+    world_identity = _strict_field(
+        raw[0], field="world identity", minimum=WORLD_ID_MIN, maximum=UINT32_MAX
+    )
     identity = _strict_field(
-        raw[0], field="record identity", minimum=RECORD_POINTER_MIN, maximum=UINT32_MAX
+        raw[1], field="record identity", minimum=RECORD_POINTER_MIN, maximum=UINT32_MAX
     )
     selected_index = _strict_field(
-        raw[1], field="selected record index", minimum=RECORD_INDEX_MIN,
+        raw[2], field="selected record index", minimum=RECORD_INDEX_MIN,
         maximum=binding.record_count - 1,
     )
     record_pointer = _strict_field(
-        raw[2], field="resolved record pointer", minimum=RECORD_POINTER_MIN,
+        raw[3], field="resolved record pointer", minimum=RECORD_POINTER_MIN,
         maximum=UINT32_MAX,
     )
-    return identity, selected_index, record_pointer
+    return world_identity, identity, selected_index, record_pointer
 
 
-def _account_snapshot(raw: object) -> tuple[int, int]:
-    if not isinstance(raw, tuple) or len(raw) != 2:
-        raise ValueError("account callback must return an exact two-item tuple")
+def _account_snapshot(raw: object) -> tuple[int, int, int]:
+    if not isinstance(raw, tuple) or len(raw) != 3:
+        raise ValueError(
+            "account callback must return (world identity, account identity, balance)"
+        )
+    world_identity = _strict_field(
+        raw[0], field="world identity", minimum=WORLD_ID_MIN, maximum=UINT32_MAX
+    )
     account_identity = _strict_field(
-        raw[0], field="tech account identity", minimum=RECORD_POINTER_MIN,
+        raw[1], field="tech account identity", minimum=RECORD_POINTER_MIN,
         maximum=UINT32_MAX,
     )
-    return account_identity, _strict_balance(raw[1])
+    return world_identity, account_identity, _strict_balance(raw[2])
 
 
 def _eligible(record: Mapping[str, object], binding: RunningBinding) -> bool:
@@ -602,18 +621,18 @@ def apply_plan(
     write_like: Callable[[int, int], None],
     write_dislike: Callable[[int, int], None],
     read_slots: Callable[[], tuple[Sequence[int], Sequence[int]]],
-    deduct: Callable[[int, int], DeductionOutcome],
-    reacquire_identity: Callable[[], tuple[int, int, int]],
-    read_account: Callable[[], tuple[int, int]],
+    deduct: Callable[[int, int, int], DeductionOutcome],
+    reacquire_identity: Callable[[], tuple[int, int, int, int]],
+    read_account: Callable[[], tuple[int, int, int]],
     restore_slot: Callable[[str, int, int], None] | None = None,
 ) -> ApplyResult:
     """Apply a committed plan through callbacks with bounded rollback.
 
-    ``DeductionOutcome`` is only an adapter assertion.  Exact selection and
-    account callbacks are mandatory at every mutation boundary.  Account-bound
-    balance-before/after readback supplies charge verification; an adapter-only
-    outcome cannot establish a charge.  Unknown charge state is never converted
-    into a no-deduction claim.
+    ``DeductionOutcome`` is only an adapter assertion.  Exact world/selection
+    and account callbacks are mandatory at every mutation boundary.  Account-
+    and world-bound balance-before/after readback supplies charge verification;
+    an adapter-only outcome cannot establish a charge.  Unknown charge state is
+    never converted into a no-deduction claim.
     """
 
     if plan.status != "commit":
@@ -697,10 +716,11 @@ def apply_plan(
         )
 
     try:
-        deduct(plan.account_identity, plan.deduction)
+        deduct(plan.record_identity[0], plan.account_identity, plan.deduction)
     except Exception:
         charge_status = _readback_charge_status(
-            plan.account_identity, balance_before, read_account, plan.deduction
+            plan.account_identity, plan.record_identity[0], balance_before,
+            read_account, plan.deduction
         )
         return _finish_charge(
             plan, written, read_slots, restore_slot, reacquire_identity,
@@ -710,7 +730,8 @@ def apply_plan(
     # DeductionOutcome is only an adapter assertion.  The balance transition
     # is the sole source of truth for whether a charge actually occurred.
     charge_status = _readback_charge_status(
-        plan.account_identity, balance_before, read_account, plan.deduction
+        plan.account_identity, plan.record_identity[0], balance_before,
+        read_account, plan.deduction
     )
     return _finish_charge(
         plan, written, read_slots, restore_slot, reacquire_identity,
@@ -720,8 +741,8 @@ def apply_plan(
 
 def _transaction_boundary(
     plan: RunningPlan,
-    reacquire_identity: Callable[[], tuple[int, int, int]],
-    read_account: Callable[[], tuple[int, int]],
+    reacquire_identity: Callable[[], tuple[int, int, int, int]],
+    read_account: Callable[[], tuple[int, int, int]],
 ) -> tuple[str | None, int | None]:
     try:
         current_identity = _callback_record_identity(
@@ -729,12 +750,16 @@ def _transaction_boundary(
         )
     except Exception:
         return "identity-unknown", None
-    if current_identity != plan.record_identity:
+    if current_identity[0] != plan.record_identity[0]:
+        return "world-race", None
+    if current_identity[1:] != plan.record_identity[1:]:
         return "identity-race", None
     try:
-        account_identity, balance = _account_snapshot(read_account())
+        world_identity, account_identity, balance = _account_snapshot(read_account())
     except Exception:
         return "account-unknown", None
+    if world_identity != plan.record_identity[0]:
+        return "world-race", None
     if account_identity != plan.account_identity:
         return "account-race", None
     return None, balance
@@ -748,13 +773,16 @@ def _strict_balance(value: object) -> int:
 
 def _readback_charge_status(
     expected_account_identity: int,
+    expected_world_identity: int,
     before: int,
-    read_account: Callable[[], tuple[int, int]],
+    read_account: Callable[[], tuple[int, int, int]],
     price: int,
 ) -> str:
     try:
-        account_identity, after = _account_snapshot(read_account())
+        world_identity, account_identity, after = _account_snapshot(read_account())
     except Exception:
+        return CHARGE_UNKNOWN
+    if world_identity != expected_world_identity:
         return CHARGE_UNKNOWN
     if account_identity != expected_account_identity:
         return CHARGE_UNKNOWN
@@ -770,8 +798,8 @@ def _finish_charge(
     written: list[tuple[str, int, int]],
     read_slots: Callable[[], tuple[Sequence[int], Sequence[int]]],
     restore_slot: Callable[[str, int, int], None] | None,
-    reacquire_identity: Callable[[], tuple[int, int, int]],
-    read_account: Callable[[], tuple[int, int]],
+    reacquire_identity: Callable[[], tuple[int, int, int, int]],
+    read_account: Callable[[], tuple[int, int, int]],
     charge_status: str,
     reason: str,
 ) -> ApplyResult:
@@ -814,8 +842,8 @@ def _rollback(
     written: list[tuple[str, int, int]],
     read_slots: Callable[[], tuple[Sequence[int], Sequence[int]]],
     restore_slot: Callable[[str, int, int], None] | None,
-    reacquire_identity: Callable[[], tuple[int, int, int]],
-    read_account: Callable[[], tuple[int, int]],
+    reacquire_identity: Callable[[], tuple[int, int, int, int]],
+    read_account: Callable[[], tuple[int, int, int]],
     reason: str,
     *,
     message: str = WRITE_FAILURE_MESSAGE,
