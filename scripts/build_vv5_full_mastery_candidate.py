@@ -2227,12 +2227,11 @@ def main() -> None:
         if FEATURE_OUT.is_file()
         else {}
     )
-    # Never re-enable the C99 candidate from a stale manifest while the D248
-    # native-transition gate is unresolved.
-    # C260 metadata enablement: the static fullscreen candidate is catalog-visible
-    # only for the two certified stock modes; runtime/player validation remains
-    # explicitly pending and Expanded-256 stays fail-closed.
-    feature_enabled = True
+    # Never re-enable the dependent C99 candidate while its base parent remains
+    # disabled by the unresolved D248 native-transition gate. Rendering still
+    # produces the stock-mode bytes and hashes as static evidence, but the
+    # dependent metadata must follow the parent fail-closed.
+    feature_enabled = base.get("enabled") is True
     feature = {
         "id": "vv5_full_mastery_all_stage_a_candidate",
         "game_id": "vv5",
@@ -2248,8 +2247,8 @@ def main() -> None:
             "runtime/player validation pending; Expanded-256 remains fail-closed"
             if feature_enabled
             else (
-                "disabled candidate awaiting independent recertification of the VV5 "
-                "native btn_trophies resource and exact-100 individual transaction"
+                "disabled candidate; base parent is disabled pending independent "
+                "emitted-byte and native-transition recertification"
             )
         ),
         "dependencies": [base["id"]],
@@ -2401,7 +2400,10 @@ def main() -> None:
         "certification_status": (
             "C99 independently certified; stock Collection Progression and Immediate Fixed catalog-enabled; Expanded-256 ON HOLD/fail-closed"
             if feature_enabled
-            else "disabled candidate awaiting independent emitted-byte certification"
+            else (
+                "disabled candidate; base parent is disabled pending independent "
+                "emitted-byte and native-transition recertification"
+            )
         ),
         "allowed_modes": ["collection_progression", "immediate_fixed"],
         "expanded_fail_closed": True,
@@ -2507,12 +2509,12 @@ def main() -> None:
             "safe menu return and its public row is removed by the candidate-owned "
             "resource transform.\n\n"
             if feature_enabled
-            else "The corrected constructor and Full Mastery paths passed the M2 live "
-            "test, but the Upgrades controls require the proven native top-left layout. "
-            "This disabled candidate uses cached `Images\\btn_trophies.png`, resource "
+            else "The corrected constructor and Full Mastery paths remain static evidence, "
+            "but this dependent feature is disabled and catalog-hidden while its base "
+            "parent remains disabled pending independent emitted-byte and native-transition "
+            "recertification. The candidate uses cached `Images\\btn_trophies.png`, resource "
             "0x6A (96x39), at local (137,2) for both Tech and Detail, with event 13, "
-            "sub_401BD0, and existing 0x40C680 ownership. It remains catalog-hidden "
-            "pending independent emitted-byte recertification.\n\n"
+            "sub_401BD0, and existing 0x40C680 ownership.\n\n"
         )
         + f"- Companion SHA-256: `{artifact['companion']['sha256']}`\n"
         f"- Physical provenance asset `assets/candidates/vv5_full_mastery/provenance/btn_trophies.png` SHA-256: `{PROVENANCE_ASSET_SHA256}`\n"

@@ -1,10 +1,10 @@
 {
   "id": "vv5_full_mastery_all_stage_a_candidate",
   "game_id": "vv5",
-  "name": "Grant Full Mastery to All Villagers",
-  "catalog_hidden": false,
-  "enabled": true,
-  "certification_status": "C260 static enablement for Collection Progression and Immediate Fixed; runtime/player validation pending; Expanded-256 remains fail-closed",
+  "name": "DISABLED Candidate: Grant Full Mastery to All Villagers",
+  "catalog_hidden": true,
+  "enabled": false,
+  "certification_status": "disabled candidate; base parent is disabled pending independent emitted-byte and native-transition recertification",
   "dependencies": [
     "vv5_enable_origins_exclusive_features_full_mastery_candidate"
   ],

@@ -129,18 +129,19 @@ class VV5FullMasteryCandidateTests(unittest.TestCase):
         cls.feature = FunPatch(cls.feature_raw)
         cls.build = next(item for item in load_builds() if item.id == "vv5")
 
-    def test_c260_metadata_enabled_for_stock_modes_and_command_seven_only(self):
+    def test_dependent_metadata_follows_disabled_base_and_command_seven_stays_static(self):
         self.assertFalse(self.base_raw["enabled"])
         self.assertTrue(self.base_raw["catalog_hidden"])
-        self.assertTrue(self.feature_raw["enabled"])
-        self.assertFalse(self.feature_raw["catalog_hidden"])
+        self.assertFalse(self.feature_raw["enabled"])
+        self.assertTrue(self.feature_raw["catalog_hidden"])
         active = {item.id: item for item in load_fun_patches()}
         self.assertIn("vv5_enable_origins_exclusive_features", active)
+        self.assertNotIn(self.base_raw["id"], active)
         self.assertNotIn(self.feature_raw["id"], active)
-        self.assertIn("C260 static enablement", self.feature_raw["certification_status"])
-        self.assertTrue(self.map["candidate_enabled"])
-        self.assertTrue(self.map["catalog_enabled"])
-        self.assertFalse(self.map["catalog_hidden"])
+        self.assertIn("base parent is disabled", self.feature_raw["certification_status"])
+        self.assertFalse(self.map["candidate_enabled"])
+        self.assertFalse(self.map["catalog_enabled"])
+        self.assertTrue(self.map["catalog_hidden"])
         self.assertEqual(self.map["allowed_modes"], ["collection_progression", "immediate_fixed"])
         self.assertTrue(self.map["expanded_fail_closed"])
         self.assertEqual(
@@ -152,6 +153,8 @@ class VV5FullMasteryCandidateTests(unittest.TestCase):
             "56BC07733ED0F93F211BA0D1887502F8A45E03A4187B8C17067F32FF87117D46",
         )
         self.assertEqual(self.feature_raw["dependencies"], [self.base_raw["id"]])
+        builder_source = (ROOT / "scripts" / "build_vv5_full_mastery_candidate.py").read_text(encoding="utf-8")
+        self.assertIn('feature_enabled = base.get("enabled") is True', builder_source)
         contract = self.feature_raw["transaction_contract"]
         self.assertEqual((contract["command"], contract["price"]), (7, 1_000_000))
         self.assertIsNone(contract["ownership"])
@@ -919,6 +922,10 @@ class VV5FullMasteryCandidateTests(unittest.TestCase):
         self.assertEqual(
             self.map["base_manifest_sha256"],
             sha(BASE.read_bytes()),
+        )
+        self.assertEqual(
+            self.map["feature_manifest_sha256"],
+            sha(FEATURE.read_bytes()),
         )
         sdl = self.base_raw["fullscreen_dialog_contract"]["sdl"]
         self.assertEqual(sdl["calls"], 3)

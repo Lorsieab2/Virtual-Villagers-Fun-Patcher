@@ -1,6 +1,6 @@
-# VV5 Full Mastery certified playtest feature
+# VV5 Full Mastery native top-left geometry corrective candidate
 
-Generated from acceptance contract `48955b5f19da5d4279887a4c1b71250a63ac9ade`. C99 independently certified the emitted bytes and C101 enables this candidate only for stock Collection Progression and Immediate Fixed. Expanded-256 remains fail-closed; legacy Cure command 5 is routed to a safe menu return and its public row is removed by the candidate-owned resource transform.
+Generated from acceptance contract `48955b5f19da5d4279887a4c1b71250a63ac9ade`. The emitted stock-mode bytes and hashes remain retained as static evidence, but this dependent feature is disabled and catalog-hidden while its base parent remains disabled pending independent emitted-byte and native-transition recertification. Expanded-256 remains fail-closed; no runtime, player, or publication GO is claimed.
 
 - Companion SHA-256: `A1C55063B548F195B9ECDA492E1799D35EBA5437862353D96BE780D9FCC2E1C8`
 - Physical provenance asset `assets/candidates/vv5_full_mastery/provenance/btn_trophies.png` SHA-256: `F39E94CBDF24776631D803D1218EFCCDE555081C9C8C644DD073B75EC7DD2095`
