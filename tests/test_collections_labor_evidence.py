@@ -392,6 +392,15 @@ class CollectionsLaborEvidenceTests(unittest.TestCase):
                 self.assertEqual(schema["properties"]["label"]["const"], expected_label)
                 self.assertEqual(schema["properties"]["price_tech_points"]["const"], 1000000)
 
+    def test_collectibles_composition_preserves_vv2_layout_boundary(self) -> None:
+        for feature in ("complete_all_collections", "reset_all_collections"):
+            data = _load(feature)
+            vv2_policy = data["games"]["vv2"]["policy"]
+            self.assertEqual(vv2_policy["expanded_256_policy"], "existing_256_no_relocation")
+            for game in ("vv3", "vv4", "vv5"):
+                policy = data["games"][game]["policy"]
+                self.assertEqual(policy["expanded_256_policy"], "expanded_256_relocation_evidence_required")
+
 
 if __name__ == "__main__":
     unittest.main()

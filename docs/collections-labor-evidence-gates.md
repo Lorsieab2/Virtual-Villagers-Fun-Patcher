@@ -1,7 +1,8 @@
 # Reset/Complete Collectibles and Equal Division evidence gates
 
-Both contracts are disabled evidence-only records for absent VV3/VV4/VV5
-features. They do not add catalog entries, emit native bytes, package files,
+Reset and Complete contracts are disabled evidence-only records for absent
+VV2-VV5 features. Equal Division remains a VV3-VV5 evidence gate. They do not
+add catalog entries, emit native bytes, package files,
 launch games, or access saves. `publication_allowed` always remains false.
 
 ## Reset Collectibles
@@ -31,6 +32,11 @@ must be idempotent, and hook/cave regions must compose without overlap.
 
 A population bonus or an award/trophy dispatcher is not a collection
 completion route. Evidence that proves only either role is rejected.
+
+Composition is explicit per game: VV2 retains its existing 256-record save
+layout and requires no Expanded-256 relocation; VV3-VV5 require their separate
+Expanded-256 relocation/composition evidence. This policy is metadata only and
+does not authorize output in either scope.
 
 ## Equal Division
 

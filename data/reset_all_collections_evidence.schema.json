@@ -37,8 +37,8 @@
         "stock": {"$ref": "#/$defs/stock"},
         "policy": {
           "type": "object", "additionalProperties": false,
-          "required": ["population_bonus_is_reset", "award_dispatcher_is_reset"],
-          "properties": {"population_bonus_is_reset": {"const": false}, "award_dispatcher_is_reset": {"const": false}}
+          "required": ["population_bonus_is_reset", "award_dispatcher_is_reset", "expanded_256_policy"],
+          "properties": {"population_bonus_is_reset": {"const": false}, "award_dispatcher_is_reset": {"const": false}, "expanded_256_policy": {"enum": ["existing_256_no_relocation", "expanded_256_relocation_evidence_required"]}}
         },
         "requirements": {"type": "array", "minItems": 10, "items": {"$ref": "#/$defs/requirement"}},
         "receipts": {"type": "array", "items": {"$ref": "#/$defs/receipt"}}

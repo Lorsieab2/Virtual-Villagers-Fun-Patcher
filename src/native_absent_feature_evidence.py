@@ -1,4 +1,4 @@
-"""Disabled evidence gates for absent VV3/VV4/VV5 native features.
+"""Disabled evidence gates for absent VV2-VV5 native features.
 
 The contracts validated here are evidence metadata only.  They cannot emit a
 patch, publish a catalog feature, launch a game, or access a save.
@@ -443,6 +443,10 @@ def _validate_policy(game: str, policy: Any, feature: str) -> list[str]:
                 "population_bonus_is_reset": False,
                 "award_dispatcher_is_reset": False,
             }
+        expected["expanded_256_policy"] = (
+            "existing_256_no_relocation" if game == "vv2"
+            else "expanded_256_relocation_evidence_required"
+        )
         if dict(policy) != expected:
             errors.append(f"{game} {feature} separation policy is not exact")
     else:
