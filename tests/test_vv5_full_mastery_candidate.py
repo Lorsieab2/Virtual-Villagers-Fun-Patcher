@@ -212,6 +212,13 @@ class VV5FullMasteryCandidateTests(unittest.TestCase):
                 elif key == "feature":
                     data["enabled"] = True
                     data["catalog_hidden"] = False
+                elif key == "map":
+                    # This is an isolated positive projection for mutation
+                    # coverage only; production metadata remains disabled by
+                    # the base-parent gate.
+                    data["candidate_enabled"] = True
+                    data["catalog_enabled"] = True
+                    data["catalog_hidden"] = False
                 if mutation == "acceptance_commit" and key == "map":
                     data["acceptance_commit"] = "0000000000000000000000000000000000000000"
                 elif mutation == "stock_page" and key == "map":
@@ -783,7 +790,7 @@ class VV5FullMasteryCandidateTests(unittest.TestCase):
     def test_c253_source_repair_is_explicitly_disabled_until_emitted_recertification(self):
         source = GENERATOR.read_text(encoding="utf-8")
         self.assertIn("NATIVE_FULLSCREEN_TRANSITION_VA = 0x404700", source)
-        self.assertIn("feature_enabled = True", source)
+        self.assertIn('feature_enabled = base.get("enabled") is True', source)
         self.assertIn("FULLSCREEN_TECH_OFFSET = 0xB40", source)
         self.assertIn("FULLSCREEN_DETAIL_OFFSET = 0xB47", source)
         self.assertIn("FULLSCREEN_COMMON_OFFSET = 0xB4C", source)
