@@ -1,9 +1,62 @@
-import copy, importlib.util, json, tempfile, unittest
+import copy, importlib.util, json, re, tempfile, unittest
 from pathlib import Path
 
 ROOT=Path(__file__).resolve().parents[1]
 SPEC=importlib.util.spec_from_file_location("full256",ROOT/"scripts"/"validate_vv3_full_capacity_save_contract.py")
 GATE=importlib.util.module_from_spec(SPEC);SPEC.loader.exec_module(GATE)
+
+
+def _resolve(schema, root):
+    reference = schema.get("$ref")
+    if reference is None:
+        return schema
+    current = root
+    for part in reference.removeprefix("#/").split("/"):
+        current = current[part]
+    return current
+
+
+def _matches_type(value, expected):
+    return {
+        "null": value is None,
+        "object": isinstance(value, dict),
+        "array": isinstance(value, list),
+        "string": isinstance(value, str),
+        "integer": type(value) is int,
+        "boolean": type(value) is bool,
+    }.get(expected, False)
+
+
+def _validate_schema(value, schema, root):
+    schema = _resolve(schema, root)
+    if "const" in schema and value != schema["const"]:
+        raise ValueError("const mismatch")
+    expected_type = schema.get("type")
+    if isinstance(expected_type, list):
+        if not any(_matches_type(value, item) for item in expected_type):
+            raise ValueError("type mismatch")
+    elif expected_type is not None and not _matches_type(value, expected_type):
+        raise ValueError("type mismatch")
+    if expected_type == "object":
+        required = set(schema.get("required", []))
+        if not required.issubset(value):
+            raise ValueError("required field missing")
+        properties = schema.get("properties", {})
+        if schema.get("additionalProperties") is False and set(value) - set(properties):
+            raise ValueError("extra field")
+        for key, child in properties.items():
+            if key in value:
+                _validate_schema(value[key], child, root)
+    elif expected_type == "array":
+        if len(value) < schema.get("minItems", 0) or len(value) > schema.get("maxItems", len(value)):
+            raise ValueError("array length mismatch")
+        for item in value:
+            _validate_schema(item, schema["items"], root)
+    elif expected_type == "string":
+        if len(value) < schema.get("minLength", 0):
+            raise ValueError("string too short")
+        if "pattern" in schema and re.fullmatch(schema["pattern"], value) is None:
+            raise ValueError("pattern mismatch")
 
 class FullCapacitySaveContractTests(unittest.TestCase):
     def setUp(self):self.doc=copy.deepcopy(GATE.load())
@@ -47,7 +100,46 @@ class FullCapacitySaveContractTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as t:
             p=Path(t)/"x.json";p.write_text('{"a":1,"a":2}',encoding="utf-8")
             with self.assertRaises(GATE.ContractError):GATE.load(p)
-    def test_schema_parses(self):json.loads((ROOT/"data"/"vv3_expanded_256_full_capacity_save_contract.schema.json").read_text(encoding="utf-8"))
+    def test_schema_parses_and_accepts_checked_in_contract(self):
+        schema=json.loads((ROOT/"data"/"vv3_expanded_256_full_capacity_save_contract.schema.json").read_text(encoding="utf-8"))
+        _validate_schema(self.doc, schema, schema)
+
+    def test_schema_rejects_each_required_nested_field_removal(self):
+        schema=json.loads((ROOT/"data"/"vv3_expanded_256_full_capacity_save_contract.schema.json").read_text(encoding="utf-8"))
+        locations=[
+            (("reference_findings",), schema["$defs"]["reference_findings"]),
+            (("required_semantics",), schema["$defs"]["required_semantics"]),
+            (("native_evidence",), schema["$defs"]["native_evidence"]),
+            (("native_evidence", "stock_functions", 0), schema["$defs"]["native_function"]),
+        ]
+        for path, definition in locations:
+            for key in definition["required"]:
+                altered=copy.deepcopy(self.doc)
+                target=altered
+                for part in path:
+                    target=target[part]
+                del target[key]
+                with self.assertRaises(ValueError, msg=f"missing {path}.{key}"):
+                    _validate_schema(altered, schema, schema)
+            self.assertIs(False, definition["additionalProperties"], path)
+
+    def test_schema_rejects_extra_key_at_each_nested_boundary(self):
+        schema=json.loads((ROOT/"data"/"vv3_expanded_256_full_capacity_save_contract.schema.json").read_text(encoding="utf-8"))
+        locations=[
+            ((), schema),
+            (("reference_findings",), schema["$defs"]["reference_findings"]),
+            (("required_semantics",), schema["$defs"]["required_semantics"]),
+            (("native_evidence",), schema["$defs"]["native_evidence"]),
+            (("native_evidence", "stock_functions", 0), schema["$defs"]["native_function"]),
+        ]
+        for path, _definition in locations:
+            altered=copy.deepcopy(self.doc)
+            target=altered
+            for part in path:
+                target=target[part]
+            target["__unexpected__"]=True
+            with self.assertRaises(ValueError, msg=f"extra key at {path}"):
+                _validate_schema(altered, schema, schema)
     def test_no_native_or_runtime_operations(self):
         s=(ROOT/"scripts"/"validate_vv3_full_capacity_save_contract.py").read_text(encoding="utf-8")
         for token in ("subprocess","Popen(","CreateProcess","emit_bytes","Savegame"):

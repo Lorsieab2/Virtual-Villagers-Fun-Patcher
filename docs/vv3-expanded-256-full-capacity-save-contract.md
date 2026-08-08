@@ -8,6 +8,13 @@ Required writer semantics are: count is 0–256; serialize only logical records;
 
 Atomic publication is a separate gate: create an owned sibling temporary file, write exactly `0x1A4C0`, flush/close, reopen no-follow, verify size and the authenticated integrity transform, atomically replace only after verification, preserve the prior destination on every failure, and clean only the owned temporary artifact. The runtime fault matrix keeps all twelve success/failure scenarios pending.
 
-Checked-in function references are `0x45EF80`, `0x45C860`, `0x428810`, and `0x45C8D0`. Their bounds, bytes, xrefs, caller rows, emitted section, hook, and final bytes are all null/empty. JSON Schema acceptance alone is not evidence; the manual validator pins dependencies, canonical digest, exact geometry, empty native rows, required semantics, and every STOP flag.
+Checked-in function references are `0x45EF80`, `0x45C860`, `0x428810`, and `0x45C8D0`. Their bounds, bytes, xrefs, caller rows, emitted section, hook, and final bytes are all null/empty.
+
+The declarative schema now closes the reference-findings, required-semantics,
+native-evidence, and native-function objects with required fields and
+`additionalProperties: false`. Schema acceptance alone is not evidence; the
+manual validator remains authoritative for dependency hashes, canonical
+digest, exact geometry, semantic content, empty native rows, and every STOP
+flag.
 
 Run `python scripts/validate_vv3_full_capacity_save_contract.py`. A successful invocation validates only the disabled contract and prints `status: STOP`.
