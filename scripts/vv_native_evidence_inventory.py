@@ -57,7 +57,7 @@ def inventory(folder: Path) -> dict:
 
 def plan(game: str, folder: Path, manifest: Path) -> dict:
     inv=inventory(folder); m=json.loads(_inside(manifest).read_text(encoding="utf-8"))
-    return {"schema_version":1,"dry_run":True,"game_id":game,"input_inventory_sha256":inv["inventory_sha256"],"manifest_sha256":sha256(manifest),"queries":[{"topic":topic,"query_id":qid,"action":"resolve-or-prove-absent"} for topic,qids in m["required_topics"].items() for qid in qids],"launches_performed":0,"exports_written":0}
+    return {"schema_version":1,"dry_run":True,"game_id":game,"file_count":inv["file_count"],"dll_count":inv["dll_count"],"input_inventory_sha256":inv["inventory_sha256"],"manifest_sha256":sha256(manifest),"queries":[{"topic":topic,"query_id":qid,"action":"resolve-or-prove-absent"} for topic,qids in m["required_topics"].items() for qid in qids],"launches_performed":0,"exports_written":0}
 
 def main():
     ap=argparse.ArgumentParser(); ap.add_argument("folder",type=Path); ap.add_argument("--game",choices=("vv1","vv2")); ap.add_argument("--manifest",type=Path,default=REPO/"data/native_evidence/vv1_vv2_native_query_manifest.json"); ap.add_argument("--dry-run",action="store_true")

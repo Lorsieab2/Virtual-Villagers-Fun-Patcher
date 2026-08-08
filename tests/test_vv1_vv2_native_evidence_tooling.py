@@ -29,8 +29,8 @@ class Tests(unittest.TestCase):
 
     def test_dry_run_has_no_exports(self):
         with tempfile.TemporaryDirectory(dir=ROOT) as td:
-            root=Path(td)/"game"; root.mkdir(); (root/"game.exe").write_bytes(b"MZ")
-            p=inv.plan("vv1",root,ROOT/"data/native_evidence/vv1_vv2_native_query_manifest.json"); self.assertTrue(p["dry_run"]); self.assertEqual(p["launches_performed"],0); self.assertEqual(p["exports_written"],0)
+            root=Path(td)/"game"; root.mkdir(); (root/"game.exe").write_bytes(b"MZ"); (root/"SDL2.dll").write_bytes(b"dll")
+            p=inv.plan("vv1",root,ROOT/"data/native_evidence/vv1_vv2_native_query_manifest.json"); self.assertTrue(p["dry_run"]); self.assertEqual(p["file_count"],2); self.assertEqual(p["dll_count"],1); self.assertEqual(p["launches_performed"],0); self.assertEqual(p["exports_written"],0)
 
     def test_valid_and_adversarial_exports(self):
         manifest=json.loads((ROOT/"tests/fixtures/native_evidence/minimal_manifest.json").read_text()); inventory={"inventory_sha256":H,"files":[{"path":"game.exe","size":2,"sha256":H}]}; base=good(manifest,inventory); self.assertTrue(val.validate(base,manifest,inventory))
