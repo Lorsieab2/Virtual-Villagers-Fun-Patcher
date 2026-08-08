@@ -35,3 +35,20 @@ path and query IDs.
 No game is launched, no save is accessed, and no native output or route
 enablement is produced. All workflow, catalog, runtime, player, and publication
 gates remain disabled/fail-closed.
+
+## Read-only query discovery
+
+The repository also provides a metadata-only discovery helper:
+
+```powershell
+& 'C:\Users\Owner\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe' scripts\discover_vv345_native_evidence.py
+```
+
+It prints the ordered ten-query metadata for VV3, VV4, and VV5 together with
+their current source-binding records. It does not open a game folder, IDA
+database, save, or executable, and it never writes an export. Unresolved EA,
+file-offset, raw-byte, register, stack-cleanup, and calling-convention fields
+are emitted as `null`. The report remains `STOP` when the workflow has no
+reviewed artifact; a future workflow declaration without independently
+validated packet rows is reported as `DECLARED_BUT_UNVERIFIED` and also
+remains `STOP`.
