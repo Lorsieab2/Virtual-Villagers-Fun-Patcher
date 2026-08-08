@@ -15,6 +15,10 @@ EXPECTED = {
 MANIFEST_SHA = "A53C6D01B0AD58124EFDA7F2C2C8FC6ABC537DE5104C46F3C29F4C43B9305F42"
 QUERY_PLAN_SHA = "FED6AE17FAB8FB173DD56AC20FA6FED7C80BE62EE9D53202FE705BDCC1B55087"
 COLLECTIBLES_PLAN_SHA = "D5D2DB8B63B4BF5FE7E05AF677EAFF74907C8D9E0D1ECB66C676616AAE06E98E"
+GAME_BINDING_KEYS = {
+    "folder", "file_count", "dll_count", "inventory_sha256", "executable",
+    "query_plan", "collectibles_plan", "export",
+}
 
 
 def sha256(path: Path) -> str:
@@ -33,6 +37,7 @@ def validate(document: dict) -> None:
     assert recon["unresolved_query_count"] == 2 and recon["unresolved_query_ids"] is None and recon["invented_rows"] == []
     for game, (count, inventory_sha, exe_name, exe_size, exe_sha) in EXPECTED.items():
         binding = document["game_bindings"][game]
+        assert set(binding) == GAME_BINDING_KEYS, f"{game} binding contains an unnamespaced digest or unknown field"
         folder = ROOT / binding["folder"]
         assert folder.is_dir()
         files = [p for p in folder.rglob("*") if p.is_file()]

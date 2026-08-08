@@ -33,6 +33,14 @@ class AuthorizedAnalyzerWorkflowTests(unittest.TestCase):
         with self.assertRaises(AssertionError):
             validate(bad)
 
+    def test_alternate_inventory_digest_namespaces_fail_closed(self):
+        for field in ("canonical_inventory_sha256", "dll_inventory_sha256"):
+            with self.subTest(field=field):
+                bad = copy.deepcopy(self.document)
+                bad["game_bindings"]["vv4"][field] = "A" * 64
+                with self.assertRaises(AssertionError):
+                    validate(bad)
+
     def test_export_population_fails_closed(self):
         bad = copy.deepcopy(self.document)
         bad["game_bindings"]["vv3"]["export"]["resolved_rows"] = 1
