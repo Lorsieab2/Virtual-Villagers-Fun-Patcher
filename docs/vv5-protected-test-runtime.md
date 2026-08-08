@@ -31,6 +31,23 @@ imports both dependencies before the VV5 test module can insert its legacy
 `.tools` paths, and blocks network connection calls. The temporary directory is
 removed when the run completes.
 
+## Windows ACL-safe local staging
+
+The runner consumes wheel files; it does not consume an already extracted
+`keystone` or `capstone` package directory. If a checkout contains protected
+or account-owned `.tools` directories, copy the existing local wheel files into
+a repository-local, ignored directory that the current account can open, such
+as `.tools\protected-wheels-readable`, and pass that directory with
+`--wheel-root` (or pass the two explicit wheel paths). Verify that both wheel
+files can be opened before running the helper. Do not use an inaccessible
+`keystone-runtime`, `local-python-packages`, or `test-deps` directory as
+dependency evidence, and do not repair its ACL as part of this test workflow.
+
+The protected VV5 Full Mastery candidate suite requires only Keystone and
+Capstone. It does not import `pefile`; other candidate suites that do import
+`pefile` require a separately readable, repository-local copy and are outside
+this helper's receipt.
+
 ## VV5 candidate validation
 
 The default test is the repository's existing static VV5 candidate suite:
