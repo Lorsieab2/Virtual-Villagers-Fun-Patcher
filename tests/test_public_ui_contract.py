@@ -100,6 +100,37 @@ class PublicUiContractTests(unittest.TestCase):
         ids = {record.id for record in records}
         self.assertNotIn(patcher.VV4_FULL_HEAL_CANDIDATE_ID, ids)
 
+    def test_hidden_vv3_full_heal_cannot_enter_catalog_when_stale_enabled(self):
+        stale_hidden = {
+            "id": patcher.VV3_FULL_HEAL_CANDIDATE_ID,
+            "game_id": "vv3",
+            "name": "Full Heal / Cure All",
+            "enabled": True,
+            "catalog_hidden": True,
+            "catalog_enabled": False,
+            "patches": [],
+            "patch_mode_overrides": {},
+        }
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            candidate = root / "vv3-full-heal.json"
+            running = root / "vv3-running.json"
+            candidate.write_text(json.dumps(stale_hidden), encoding="utf-8")
+            running.write_text(json.dumps({"enabled": True}), encoding="utf-8")
+            with (
+                patch.dict(patcher.VV3_FULL_HEAL_CANDIDATE_PATHS, {"manifest": candidate}),
+                patch.dict(patcher.VV3_INDIVIDUAL_RUNNING_CANDIDATE_PATHS, {"manifest": running}),
+                patch.object(patcher, "_manifest", return_value={"fun_patches": []}),
+                patch.object(patcher, "ORIGINS_FEATURE_PATHS", []),
+                patch.object(patcher, "ORIGINS_VILLAGE_WIDE_FEATURE_PATHS", []),
+                patch.object(patcher, "STATISTICS_FEATURES_PATH", root / "missing-statistics.json"),
+                patch.object(patcher, "_validate_vv3_individual_full_mastery_candidate", return_value=None),
+                patch.object(patcher, "_certified_vv1_full_mastery_record", return_value=None),
+                patch.object(patcher, "_certified_vv2_full_mastery_record", return_value=None),
+            ):
+                records = patcher._load_fun_patch_records()
+            self.assertNotIn(patcher.VV3_FULL_HEAL_CANDIDATE_ID, {record.id for record in records})
+
 
 if __name__ == "__main__":
     unittest.main()

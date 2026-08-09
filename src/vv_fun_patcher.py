@@ -1913,7 +1913,12 @@ def _load_fun_patch_records() -> list[FunPatch]:
                 encoding="utf-8"
             )
         )
-        if vv3_full_heal_record.get("enabled", True) and running_manifest.get("enabled") is True:
+        if (
+            vv3_full_heal_record.get("enabled") is True
+            and vv3_full_heal_record.get("catalog_hidden") is False
+            and vv3_full_heal_record.get("catalog_enabled") is True
+            and running_manifest.get("enabled") is True
+        ):
             items.append(vv3_full_heal_record)
     # Validate the hidden VV3 individual-FM artifact for direct production
     # resolver use, but never add it to public catalog choices while disabled.
