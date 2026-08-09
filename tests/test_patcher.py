@@ -397,6 +397,11 @@ class ManifestTests(unittest.TestCase):
             for cave_offset, continuation_offset in caves.items():
                 with self.subTest(game_id=game_id, cave=hex(cave_offset)):
                     after = bytes.fromhex(patches[cave_offset]["after"])
+                    if game_id == "vv2":
+                        branch_index = after.index(b"\x0f\x83")
+                        branch_relative = struct.unpack_from("<i", after, branch_index + 2)[0]
+                        branch_target = cave_offset + branch_index + 6 + branch_relative
+                        self.assertEqual(branch_target, 0x4BAD8)
                     jump_index = after.rindex(b"\xE9")
                     self.assertEqual(jump_index + 5, len(after))
                     relative = struct.unpack_from("<i", after, jump_index + 1)[0]
