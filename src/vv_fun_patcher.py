@@ -3398,6 +3398,59 @@ def _validate_vv4_origins_relocation_contract(
     by_offset = {item.get("offset"): item for item in patches}
     if len(by_offset) != len(patches):
         raise PatcherError("VV4 current Origins relocation ledger contains duplicate offsets.")
+    # The eight absolute rows are not the whole ledger.  Keep the four
+    # external helper calls and the moved-source call at CC02A under the same
+    # exact-build contract: a rel32 row's stock preimage must encode the
+    # declared stock source/target, and its expanded target must account for
+    # the moved .shr section.  Previously these rows were counted but their
+    # arithmetic was not checked, so a malformed rel32 byte could pass the
+    # ledger hash gate and still be emitted by the renderer.
+    expected_rel32_offsets = {
+        "0x896CC",
+        "0x89734",
+        "0x8973C",
+        "0x89746",
+        "0xCC02A",
+    }
+    actual_rel32_offsets = {
+        item.get("offset")
+        for item in patches
+        if isinstance(item, dict) and item.get("kind") == "rel32"
+    }
+    if actual_rel32_offsets != expected_rel32_offsets:
+        raise PatcherError(
+            "VV4 current Origins relocation partition drifted: expected exactly "
+            "eight absolute and five rel32 rows."
+        )
+    stock_va = int(relocation["stock_virtual_address"], 0)
+    expanded_va = int(relocation["expanded_virtual_address"], 0)
+    delta = expanded_va - stock_va
+    if delta <= 0:
+        raise PatcherError("VV4 current Origins relocation range has a non-positive delta.")
+    for offset in sorted(expected_rel32_offsets):
+        row = by_offset[offset]
+        if not isinstance(row, dict):
+            raise PatcherError(f"VV4 rel32 relocation row is malformed at {offset}.")
+        try:
+            source_stock = int(row["source_virtual_address"], 0)
+            target_stock = int(row["target_stock_virtual_address"], 0)
+            before = bytes.fromhex(row["before"])
+        except (KeyError, TypeError, ValueError) as exc:
+            raise PatcherError(f"VV4 rel32 relocation metadata is incomplete at {offset}.") from exc
+        if len(before) != 4:
+            raise PatcherError(f"VV4 rel32 relocation preimage is not a DWORD at {offset}.")
+        target_in_shr = stock_va <= target_stock < stock_va + 0x1000
+        expected_target = target_stock + delta if target_in_shr else target_stock
+        declared_target = row.get("target_expanded_virtual_address")
+        if declared_target is not None:
+            try:
+                if int(declared_target, 0) != expected_target:
+                    raise PatcherError(f"VV4 rel32 moved/unmoved target drifted at {offset}.")
+            except (TypeError, ValueError) as exc:
+                raise PatcherError(f"VV4 rel32 expanded target is malformed at {offset}.") from exc
+        expected_before = (target_stock - (source_stock + 5)).to_bytes(4, "little", signed=True)
+        if before != expected_before:
+            raise PatcherError(f"VV4 rel32 stock preimage drifted at {offset}.")
     absolute = [
         item for item in patches
         if item.get("kind", "absolute") == "absolute"
@@ -3493,6 +3546,16 @@ def _validate_vv5_origins_relocation_contract(
                 target_expanded = int(patch["target_expanded_virtual_address"], 0)
             except (KeyError, TypeError, ValueError) as exc:
                 raise PatcherError(f"VV5 rel32 relocation metadata is incomplete at {offset}.") from exc
+            source_stock = (
+                source_expanded - delta
+                if expanded_va <= source_expanded < expanded_va + 0x1000
+                else source_expanded
+            )
+            expected_before = (target_stock - (source_stock + 5)).to_bytes(
+                4, "little", signed=True
+            )
+            if before != expected_before:
+                raise PatcherError(f"VV5 rel32 stock preimage drifted at {offset}.")
             target_in_shr = stock_va <= target_stock < stock_va + 0x1000
             expected_target = target_stock + delta if target_in_shr else target_stock
             if target_expanded != expected_target:

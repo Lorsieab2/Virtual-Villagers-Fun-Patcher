@@ -184,6 +184,28 @@ class Expanded256AdversarialContractTests(unittest.TestCase):
                 FunPatch(broken_digest), broken_digest["expanded_shr_relocations"]
             )
 
+    def test_vv4_rel32_rows_pin_stock_preimage_and_partition(self) -> None:
+        expected = {"0x896CC", "0x89734", "0x8973C", "0x89746", "0xCC02A"}
+        rows = VV4_FEATURE["expanded_shr_relocations"]["patches"]
+        self.assertEqual(
+            {row["offset"] for row in rows if row.get("kind") == "rel32"},
+            expected,
+        )
+        for offset in sorted(expected):
+            broken = copy.deepcopy(VV4_FEATURE)
+            row = next(
+                item
+                for item in broken["expanded_shr_relocations"]["patches"]
+                if item["offset"] == offset
+            )
+            row["before"] = "00000000"
+            with self.subTest(offset=offset), self.assertRaisesRegex(
+                PatcherError, "stock preimage"
+            ):
+                _validate_vv4_origins_relocation_contract(
+                    FunPatch(broken), broken["expanded_shr_relocations"]
+                )
+
     def test_vv4_stock_mode_and_failed_expanded_preflight_do_not_mutate(self) -> None:
         feature = FunPatch(VV4_FEATURE)
         stock_data = self._vv4_buffer()
@@ -308,6 +330,24 @@ class Expanded256AdversarialContractTests(unittest.TestCase):
             )
             with self.subTest(offset=offset), self.assertRaisesRegex(
                 PatcherError, "moved/unmoved target"
+            ):
+                _validate_vv5_origins_relocation_contract(
+                    FunPatch(broken), broken["expanded_shr_relocations"]
+                )
+
+    def test_vv5_rel32_rows_pin_stock_preimages(self) -> None:
+        for row in VV5_FEATURE["expanded_shr_relocations"]["patches"]:
+            if row.get("kind") != "rel32":
+                continue
+            broken = copy.deepcopy(VV5_FEATURE)
+            broken_row = next(
+                item
+                for item in broken["expanded_shr_relocations"]["patches"]
+                if item["offset"] == row["offset"]
+            )
+            broken_row["before"] = "00000000"
+            with self.subTest(offset=row["offset"]), self.assertRaisesRegex(
+                PatcherError, "stock preimage"
             ):
                 _validate_vv5_origins_relocation_contract(
                     FunPatch(broken), broken["expanded_shr_relocations"]
