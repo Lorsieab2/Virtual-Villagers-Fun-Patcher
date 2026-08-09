@@ -401,7 +401,9 @@ def main() -> None:
         maybe_barrel:
             cmp ebx, 2
             jne charge
-            mov ecx, edi
+            # The stock population helper expects the village-record object
+            # ([this + 0x10]), not the account/tech-state object in EDI.
+            mov ecx, dword ptr [esi + 0x10]
             call 0x425860
             cmp eax, 253
             jbe charge

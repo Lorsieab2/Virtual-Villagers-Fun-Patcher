@@ -59,7 +59,7 @@ class VV2OriginsPlaytestFeatureTests(unittest.TestCase):
         self.assertEqual(self.source.read_bytes(), before)
         self.assertEqual(
             hashlib.sha256(rendered).hexdigest().upper(),
-            "371058CEE9428CF787E09252AF086013E7FBAE1B2503091AA096BF8F8A26FE59",
+            "8B8375AFB25C81320975603917936060B099571278D9BC02FB4BEEB12112FFBA",
         )
         self.assertIn(
             f"feature:{VV2_PLAYTEST_DISABLED_FEATURE_ID}",
@@ -85,6 +85,11 @@ class VV2OriginsPlaytestFeatureTests(unittest.TestCase):
         self.assertIn("80C14900", by_offset["0x9A009"]["after"])
         self.assertNotIn("80A14900", by_offset["0x9A009"]["after"])
         self.assertEqual(by_offset["0x9A004"]["after"], "E927050000")
+        source = (ROOT / "scripts" / "build_vv2_origins_feature.py").read_text(
+            encoding="utf-8"
+        )
+        self.assertIn("mov ecx, dword ptr [esi + 0x10]", source)
+        self.assertNotIn("mov ecx, edi\n            call 0x425860", source)
 
     def test_dry_run_marks_separate_playtest_output(self) -> None:
         result = dry_run(
