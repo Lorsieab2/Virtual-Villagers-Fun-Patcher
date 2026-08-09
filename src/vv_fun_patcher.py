@@ -3657,6 +3657,16 @@ def _relocate_expanded_shr_fun_patches(
                         raise PatcherError(
                             f"Internal expanded .shr rel32 relocation at {patch['offset']} is missing source/target metadata."
                         ) from exc
+                    # A rel32 operand can itself live inside the moved .shr
+                    # payload.  VV4's 0xCC02A row predates the explicit
+                    # source_expanded_virtual_address field used by VV5, so
+                    # infer the moved source from the certified source range
+                    # rather than relocating only its target.
+                    if (
+                        patch.get("source_expanded_virtual_address") is None
+                        and stock_va <= source_va < stock_va + 0x1000
+                    ):
+                        source_va += delta
                     target_in_shr = stock_va <= target_stock_va < stock_va + 0x1000
                     target_expanded_va = (
                         target_stock_va + delta if target_in_shr else target_stock_va

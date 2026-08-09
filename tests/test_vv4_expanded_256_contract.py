@@ -134,6 +134,43 @@ class VV4Expanded256ContractTests(unittest.TestCase):
             expected = int(item["stock_virtual_address"], 0) + delta
             self.assertEqual(int.from_bytes(data[offset : offset + 4], "little"), expected)
 
+    def test_expanded_rel32_rows_relocate_moved_sources_and_targets(self) -> None:
+        feature = FunPatch(ORIGINS)
+        build = next(item for item in load_builds() if item.id == "vv4")
+        data = self._guarded_relocation_buffer()
+        applied = _relocate_expanded_shr_fun_patches(
+            build,
+            "experimental_expanded_256",
+            [feature],
+            data,
+        )
+        by_offset = {item["offset"]: item for item in applied}
+        relocation = ORIGINS["expanded_shr_relocations"]
+        stock_va = int(relocation["stock_virtual_address"], 0)
+        expanded_va = int(relocation["expanded_virtual_address"], 0)
+        delta = expanded_va - stock_va
+        for row in relocation["patches"]:
+            if row.get("kind") != "rel32":
+                continue
+            source_va = int(row["source_virtual_address"], 0)
+            if stock_va <= source_va < stock_va + 0x1000:
+                source_va += delta
+            target_stock = int(row["target_stock_virtual_address"], 0)
+            target_expanded_value = row.get("target_expanded_virtual_address")
+            target_expanded = (
+                int(target_expanded_value, 0)
+                if isinstance(target_expanded_value, str)
+                else target_stock + delta
+                if stock_va <= target_stock < stock_va + 0x1000
+                else target_stock
+            )
+            expected = (target_expanded - (source_va + 5)).to_bytes(
+                4, "little", signed=True
+            ).hex().upper()
+            with self.subTest(offset=row["offset"]):
+                self.assertEqual(by_offset[row["offset"]]["after"], expected)
+        self.assertEqual(by_offset["0xCC02A"]["after"], "12020000")
+
     def test_stock_mode_does_not_relocate_and_negative_guards_fail_closed(self) -> None:
         feature = FunPatch(ORIGINS)
         build = next(item for item in load_builds() if item.id == "vv4")
