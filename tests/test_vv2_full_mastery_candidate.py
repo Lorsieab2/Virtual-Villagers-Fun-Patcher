@@ -43,7 +43,6 @@ VILLAGE_WIDE_DOC = ROOT / "docs" / "origins-village-wide-upgrades.md"
 TRANSPARENCY_GENERATOR = ROOT / "scripts" / "generate_transparency_docs.py"
 DLL = ROOT / "data" / "candidates" / "VVFP VV2 Full Mastery Candidate.dll"
 IMPLEMENTATION_COMMIT = "895340333d55273e599f2dce5ab0db42cbc6d0ab"
-AUDIT = ROOT / "outputs" / "vv2-c138-native-audit"
 MODES = (
     "collection_progression",
     "immediate_fixed",
@@ -296,11 +295,15 @@ class VV2FullMasteryCandidateTests(unittest.TestCase):
                 self.assertEqual(record["static_acceptance"]["evidence_commit"], "13f4341201fa7757d23f77c5c17602bbe7bbf21d")
             self.assertEqual(
                 sha((output_root / "audit" / "collection_progression.exe").read_bytes()),
-                sha((AUDIT / "collection_progression.exe").read_bytes()),
+                self.raw["static_acceptance"]["rendered_candidates"][
+                    "collection_progression"
+                ]["candidate_sha256"],
             )
             self.assertEqual(
                 sha((output_root / "audit" / "immediate_fixed.exe").read_bytes()),
-                sha((AUDIT / "immediate_fixed.exe").read_bytes()),
+                self.raw["static_acceptance"]["rendered_candidates"][
+                    "immediate_fixed"
+                ]["candidate_sha256"],
             )
             self.assertEqual(before, {path: sha(path.read_bytes()) for path in (*tracked, DLL)})
         self.assertEqual(before, {path: sha(path.read_bytes()) for path in (*tracked, DLL)})

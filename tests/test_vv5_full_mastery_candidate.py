@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
 import shutil
 import struct
 import subprocess
@@ -778,9 +779,33 @@ class VV5FullMasteryCandidateTests(unittest.TestCase):
                     ".git", ".tools", "outputs", "build", "__pycache__", ".tmp*", "tmp*"
                 ),
             )
+            inherited_paths = [
+                (
+                    str((ROOT / item).resolve())
+                    if item and not Path(item).is_absolute()
+                    else item
+                )
+                for item in os.environ.get("PYTHONPATH", "").split(os.pathsep)
+                if item
+            ]
+            for fallback in (
+                ROOT / ".tools" / "keystone-runtime",
+                ROOT / ".tools" / "keystone",
+            ):
+                resolved = str(fallback.resolve())
+                if resolved not in inherited_paths:
+                    inherited_paths.append(resolved)
+            replica_environment = {
+                **os.environ,
+                # The disposable replica intentionally excludes .tools.
+                # Normalize inherited relative dependency paths against the
+                # source checkout before changing cwd to that replica.
+                "PYTHONPATH": os.pathsep.join(inherited_paths),
+            }
             result = subprocess.run(
                 [sys.executable, str(replica / "scripts" / GENERATOR.name)],
                 cwd=replica,
+                env=replica_environment,
                 capture_output=True,
                 text=True,
             )
