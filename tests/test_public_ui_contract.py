@@ -100,6 +100,12 @@ class PublicUiContractTests(unittest.TestCase):
         ids = {record.id for record in records}
         self.assertNotIn(patcher.VV4_FULL_HEAL_CANDIDATE_ID, ids)
 
+    def test_disabled_vv3_full_heal_is_not_documented_as_available_cli_id(self):
+        readme_lines = (ROOT / "README.md").read_text(encoding="utf-8").splitlines()
+        available_line = next(line for line in readme_lines if "The available IDs are" in line)
+        self.assertNotIn(patcher.VV3_FULL_HEAL_CANDIDATE_ID, available_line)
+        self.assertIn("not a CLI or catalog ID", "\n".join(readme_lines))
+
     def test_hidden_vv3_full_heal_cannot_enter_catalog_when_stale_enabled(self):
         stale_hidden = {
             "id": patcher.VV3_FULL_HEAL_CANDIDATE_ID,
