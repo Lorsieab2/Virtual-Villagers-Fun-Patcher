@@ -111,7 +111,17 @@ class VillageWideContainmentTests(unittest.TestCase):
                             # Compare every diagnostic patch except that
                             # deliberately repaired payload and assert that
                             # the old indirect result callback is gone.
-                            repaired_offsets = {"0x9A009", "0x9A530", "0x943A8"}
+                            repaired_offsets = {
+                                "0x9A009",
+                                "0x9A530",
+                                "0x943A8",
+                                # The playtest payloads are only mapped after
+                                # correcting the stock PE section metadata.
+                                "0x218",
+                                "0x234",
+                                "0x268",
+                                "0x284",
+                            }
                             current_patches = [
                                 item for item in base_current["patches"]
                                 if item["offset"] not in repaired_offsets

@@ -257,8 +257,11 @@ Unrelated VV2 optional features remain independently selectable.
 
 The crash audit also found that the VV2 Origins builder confused `.shr` raw
 offsets with virtual addresses, displacing several helper/header references by
-`0x2000`. This is a hard re-enable blocker, but it is not certified as the
-complete explanation for both crashes; no repair is attempted here.
+`0x2000`. The isolated VV2 stress-test builder now corrects those runtime VAs,
+extends the `.shr` virtual size/execute flags, and maps the payload's `.rdata`
+tail as executable code. Static render and protected regression checks pass;
+runtime/player confirmation remains required before re-enablement, so this
+does not change the disabled catalog state.
 
 VV2 Full Mastery command 7 is statically enabled and catalog-visible only for
 stock Collection Progression and Immediate Fixed under independent emitted-byte

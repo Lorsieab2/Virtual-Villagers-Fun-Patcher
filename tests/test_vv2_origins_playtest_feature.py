@@ -59,12 +59,32 @@ class VV2OriginsPlaytestFeatureTests(unittest.TestCase):
         self.assertEqual(self.source.read_bytes(), before)
         self.assertEqual(
             hashlib.sha256(rendered).hexdigest().upper(),
-            "CCB86F151D112E831AE9250084311963A3AD6C609AC9C097BCCA0D435EE7B1F6",
+            "371058CEE9428CF787E09252AF086013E7FBAE1B2503091AA096BF8F8A26FE59",
         )
         self.assertIn(
             f"feature:{VV2_PLAYTEST_DISABLED_FEATURE_ID}",
             {item["owner"] for item in applied},
         )
+
+    def test_payload_sections_are_mapped_and_runtime_vas_use_shr_rva(self) -> None:
+        manifest = json.loads(
+            (ROOT / "data" / "vv2_origins_feature.json").read_text(encoding="utf-8")
+        )
+        by_offset = {patch["offset"]: patch for patch in manifest["patches"]}
+        self.assertEqual(by_offset["0x218"]["before"], "A8030200")
+        self.assertEqual(by_offset["0x218"]["after"], "00100200")
+        self.assertEqual(by_offset["0x234"]["before"], "40000040")
+        self.assertEqual(by_offset["0x234"]["after"], "20000060")
+        self.assertEqual(by_offset["0x268"]["before"], "04000000")
+        self.assertEqual(by_offset["0x268"]["after"], "00100000")
+        self.assertEqual(by_offset["0x284"]["before"], "400000D0")
+        self.assertEqual(by_offset["0x284"]["after"], "600000F0")
+
+        # Raw .shr offsets 0x9A009/0x9A530 map to VAs 0x49C009/0x49C530,
+        # not IMAGE_BASE + raw_offset (the old 0x2000-displaced addresses).
+        self.assertIn("80C14900", by_offset["0x9A009"]["after"])
+        self.assertNotIn("80A14900", by_offset["0x9A009"]["after"])
+        self.assertEqual(by_offset["0x9A004"]["after"], "E927050000")
 
     def test_dry_run_marks_separate_playtest_output(self) -> None:
         result = dry_run(

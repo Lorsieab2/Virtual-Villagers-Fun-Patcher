@@ -27,18 +27,27 @@ from keystone import KS_ARCH_X86, KS_MODE_32, Ks  # noqa: E402
 
 IMAGE_BASE = 0x400000
 PAYLOAD_FILE_OFFSET = 0x943A8
+# The Origins payload occupies the final 0xC58 bytes of .rdata.  Its raw
+# offset and RVA are equal, but the stock .rdata VirtualSize stops exactly at
+# this payload start; the PE-header patches below extend that mapped range and
+# mark it executable.
 PAYLOAD_VA = IMAGE_BASE + PAYLOAD_FILE_OFFSET
 PAYLOAD_SIZE = 0xC58
 STRINGS_OFFSET = 0xA00
 STRINGS_VA = PAYLOAD_VA + STRINGS_OFFSET
+# .shr is stored at raw 0x9A000 but is mapped at RVA 0x9C000.  Never derive a
+# runtime VA by adding IMAGE_BASE to a raw file offset: that was the cause of
+# the Tech-screen preflight access violation at raw 0x9A009.
+SHR_FILE_OFFSET = 0x9A000
+SHR_RVA = 0x9C000
 HEAL_CAVE_FILE_OFFSET = 0x9A004
 CURE_ENTRY_FILE_OFFSET = 0x9A530
-CURE_ENTRY_VA = IMAGE_BASE + CURE_ENTRY_FILE_OFFSET
+CURE_ENTRY_VA = IMAGE_BASE + SHR_RVA + (CURE_ENTRY_FILE_OFFSET - SHR_FILE_OFFSET)
 HEAL_CAVE_VA = CURE_ENTRY_VA
-VILLAGE_WIDE_SIGNATURE_VA = IMAGE_BASE + 0x9A180
-VILLAGE_WIDE_ENTRY_VA = IMAGE_BASE + 0x9A1A0
+VILLAGE_WIDE_SIGNATURE_VA = IMAGE_BASE + SHR_RVA + 0x180
+VILLAGE_WIDE_ENTRY_VA = IMAGE_BASE + SHR_RVA + 0x1A0
 VILLAGE_PREFLIGHT_FILE_OFFSET = 0x9A009
-VILLAGE_PREFLIGHT_VA = IMAGE_BASE + VILLAGE_PREFLIGHT_FILE_OFFSET
+VILLAGE_PREFLIGHT_VA = IMAGE_BASE + SHR_RVA + (VILLAGE_PREFLIGHT_FILE_OFFSET - SHR_FILE_OFFSET)
 RUNNING_PREFERENCE_ID = 38  # exact-build preference-table evidence: 0x8B808
 
 # Exact caller-return addresses proven by the VV2 stock executable audit.  The
@@ -985,7 +994,10 @@ def main() -> None:
     patch(
         HEAL_CAVE_FILE_OFFSET,
         b"\0" * 5,
-        rel32_jump(IMAGE_BASE + HEAL_CAVE_FILE_OFFSET, CURE_ENTRY_VA),
+        rel32_jump(
+            IMAGE_BASE + SHR_RVA + (HEAL_CAVE_FILE_OFFSET - SHR_FILE_OFFSET),
+            CURE_ENTRY_VA,
+        ),
         "redirect the shared VV2 Cure/village-wide dispatch stub to its certified helper after the optional Origins reserve",
     )
     patch(
@@ -1002,10 +1014,28 @@ def main() -> None:
     )
 
     patch(
+        0x218,
+        bytes.fromhex("A8030200"),
+        bytes.fromhex("00100200"),
+        "extend the mapped .rdata VirtualSize to cover the Origins payload at its raw end",
+    )
+    patch(
         0x234,
         bytes.fromhex("40000040"),
-        bytes.fromhex("40000060"),
-        "make the mapped read-only padding executable for the Origins payload",
+        bytes.fromhex("20000060"),
+        "make the mapped .rdata Origins payload executable code",
+    )
+    patch(
+        0x268,
+        bytes.fromhex("04000000"),
+        bytes.fromhex("00100000"),
+        "extend the mapped .shr VirtualSize to cover the preflight and Cure helpers",
+    )
+    patch(
+        0x284,
+        bytes.fromhex("400000D0"),
+        bytes.fromhex("600000F0"),
+        "make the mapped .shr preflight and Cure helpers executable code",
     )
     patch(
         0x26290,

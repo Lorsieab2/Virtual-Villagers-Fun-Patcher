@@ -180,7 +180,28 @@ class OriginsPlayerRuntimeChecklistTests(unittest.TestCase):
                 cwd=ROOT, check=True, capture_output=True, text=True,
             ).stdout)
             if path.name != "vv5_origins_feature.json":
-                self.assertEqual(current["patches"], previous["patches"], path.name)
+                if path.name == "vv2_origins_feature.json":
+                    # The isolated VV2 stress path now owns a corrected
+                    # raw-offset/VA mapping and PE section-header repair.  Its
+                    # changed payload/header rows are validated directly by
+                    # the VV2 feature tests; all other Origins rows remain
+                    # byte-identical to the prior record.
+                    repaired_offsets = {
+                        "0x9A009",
+                        "0x9A530",
+                        "0x943A8",
+                        "0x218",
+                        "0x234",
+                        "0x268",
+                        "0x284",
+                    }
+                    self.assertEqual(
+                        [item for item in current["patches"] if item["offset"] not in repaired_offsets],
+                        [item for item in previous["patches"] if item["offset"] not in repaired_offsets],
+                        path.name,
+                    )
+                else:
+                    self.assertEqual(current["patches"], previous["patches"], path.name)
             else:
                 # VV5's stock Food Doubler hook/menu is the authorized
                 # runtime change; all other base Origins manifests remain
