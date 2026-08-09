@@ -104,7 +104,32 @@ class VillageWideContainmentTests(unittest.TestCase):
                             "route only Tech message 8 / free command-15 event through the guarded Origins handler",
                         )
                     else:
-                        self.assertEqual(base_current["patches"], base_prior["patches"])
+                        if game_id == "vv2":
+                            # The disabled VV2 record keeps its containment
+                            # metadata, but the explicit player-stress path
+                            # now owns a corrected command-6 implementation.
+                            # Compare every diagnostic patch except that
+                            # deliberately repaired payload and assert that
+                            # the old indirect result callback is gone.
+                            repaired_offsets = {"0x9A009", "0x9A530", "0x943A8"}
+                            current_patches = [
+                                item for item in base_current["patches"]
+                                if item["offset"] not in repaired_offsets
+                            ]
+                            prior_patches = [
+                                item for item in base_prior["patches"]
+                                if item["offset"] not in repaired_offsets
+                            ]
+                            self.assertEqual(current_patches, prior_patches)
+                            running_payload = next(
+                                item["after"]
+                                for item in base_current["patches"]
+                                if item["offset"] == "0x9A530"
+                            )
+                            self.assertNotIn("FFD0", running_payload)
+                            self.assertIn("833F26", running_payload)
+                        else:
+                            self.assertEqual(base_current["patches"], base_prior["patches"])
                     self.assertEqual(
                         base_current.get("patch_mode_overrides"),
                         base_prior.get("patch_mode_overrides"),

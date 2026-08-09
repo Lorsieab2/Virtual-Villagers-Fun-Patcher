@@ -111,6 +111,8 @@ def main() -> None:
             "The village population is already at maximum capacity.",
         ),
         ("running_unavailable", "Running cannot be added."),
+        ("running_granted", "All villagers like running."),
+        ("running_no_change", "No eligible villagers were changed."),
         ("icons_dll", "VVFP Origins Icons.dll"),
         ("show_dialog_export", "ShowOriginsUpgradeMenuState"),
         ("show_result_export", "ShowOriginsVillageWideResult"),
@@ -400,8 +402,8 @@ def main() -> None:
         charge:
             cmp ebx, 6
             jb legacy_charge
-            cmp ebx, 8
-            ja menu_loop
+            cmp ebx, 6
+            jne unsupported_village_command
             call 0x{VILLAGE_PREFLIGHT_VA:X}
             test eax, eax
             jz menu_loop
@@ -409,6 +411,9 @@ def main() -> None:
             jb insufficient
             sub dword ptr [edi + 0x2EADC], 1000000
             jmp do_village_wide
+        unsupported_village_command:
+            mov eax, 0x{s['running_unavailable']:X}
+            jmp show_status
         legacy_charge:
             mov eax, dword ptr [0x{s['tech_costs']:X} + ebx*4]
             cmp dword ptr [edi + 0x2EADC], eax
@@ -434,7 +439,7 @@ def main() -> None:
 
         do_village_wide:
             call 0x{HEAL_CAVE_VA:X}
-            jmp success
+            jmp menu_loop
 
         do_time_warp:
             mov eax, dword ptr [edi + 0x2EB08]
@@ -772,39 +777,94 @@ def main() -> None:
             cmp ebx, 5
             je cure_all
             cmp ebx, 6
-            jae village_wide
+            je running_village
+            cmp ebx, 6
+            jae unsupported_village
             or dword ptr [edi + 0x2EAE8], 2
             ret
-        village_wide:
+        unsupported_village:
+            mov eax, 0x{s['running_unavailable']:X}
+            push eax
+            push 0x{s['tech_title']:X}
+            call 0x{show_message:X}
+            ret
+        running_village:
             push ebx
             push ebp
             push ecx
             push edx
             push esi
             push edi
-            mov eax, ebx
-            mov ecx, dword ptr [esi + 0x10]
-            mov edx, 256
-            call 0x{VILLAGE_WIDE_ENTRY_VA:X}
-            mov ebp, eax
-            mov edi, edx
-            mov esi, ecx
-            push 0x{s['show_result_export']:X}
-            push 0x{s['icons_dll']:X}
-            call dword ptr [0x474010]
-            test eax, eax
-            je village_result_done
-            push 0x{s['show_result_export']:X}
+            sub esp, 8
+            mov dword ptr [esp], 0
+            mov dword ptr [esp + 4], 0
+            mov edx, dword ptr [esi + 0x10]
+            mov ecx, 256
+        running_record:
+            cmp byte ptr [edx + 0x30], 0
+            je running_next_record
+            cmp dword ptr [edx + 0x52C], 0
+            jle running_next_record
+            xor ebp, ebp
+            lea edi, [edx + 0x5F0]
+            mov ebx, 62
+        running_scan_likes:
+            cmp dword ptr [edi], {RUNNING_PREFERENCE_ID}
+            jne running_scan_like_empty
+            or ebp, 1
+        running_scan_like_empty:
+            cmp dword ptr [edi], -1
+            jne running_scan_like_next
+            or ebp, 2
+        running_scan_like_next:
+            add edi, 4
+            dec ebx
+            jne running_scan_likes
+            test ebp, 1
+            jnz running_skip_record
+            test ebp, 2
+            jz running_skip_record
+            lea edi, [edx + 0x5F0]
+            mov ebx, 62
+        running_find_like:
+            cmp dword ptr [edi], -1
+            je running_store_like
+            add edi, 4
+            dec ebx
+            jne running_find_like
+            jmp running_skip_record
+        running_store_like:
+            mov dword ptr [edi], {RUNNING_PREFERENCE_ID}
+            lea edi, [edx + 0x6E8]
+            mov ebx, 62
+        running_clear_dislikes:
+            cmp dword ptr [edi], {RUNNING_PREFERENCE_ID}
+            jne running_next_dislike
+            mov dword ptr [edi], -1
+        running_next_dislike:
+            add edi, 4
+            dec ebx
+            jne running_clear_dislikes
+            inc dword ptr [esp]
+            jmp running_next_record
+        running_skip_record:
+            inc dword ptr [esp + 4]
+        running_next_record:
+            add edx, 0xE48C
+            dec ecx
+            jne running_record
+            cmp dword ptr [esp], 0
+            je running_no_change_message
+            mov eax, 0x{s['running_granted']:X}
+            jmp running_show_message
+        running_no_change_message:
+            mov eax, 0x{s['running_no_change']:X}
+        running_show_message:
             push eax
-            call dword ptr [0x4740D4]
-            test eax, eax
-            je village_result_done
-            push esi
-            push edi
-            push ebp
-            push ebx
-            call eax
-        village_result_done:
+            push 0x{s['tech_title']:X}
+            call 0x{show_message:X}
+            add esp, 8
+            add esp, 8
             pop edi
             pop esi
             pop edx

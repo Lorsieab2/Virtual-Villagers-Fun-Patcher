@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import hashlib
+import json
 import sys
 import tempfile
 import unittest
@@ -34,6 +35,19 @@ class VV2OriginsPlaytestFeatureTests(unittest.TestCase):
             {patch.id for patch in load_fun_patches()},
         )
 
+    def test_running_playtest_uses_direct_bounded_loop_not_old_result_callback(self) -> None:
+        manifest = json.loads(
+            (ROOT / "data" / "vv2_origins_feature.json").read_text(encoding="utf-8")
+        )
+        cure_patch = next(
+            patch for patch in manifest["patches"] if patch["offset"] == "0x9A530"
+        )
+        payload = bytes.fromhex(cure_patch["after"])
+        self.assertNotIn(b"\xFF\xD0", payload)
+        self.assertIn(b"\x83\x3F\x26", payload)
+        self.assertIn(b"\x3E\x00\x00\x00", payload)
+        self.assertIn("running_village", (ROOT / "scripts" / "build_vv2_origins_feature.py").read_text(encoding="utf-8"))
+
     def test_explicit_playtest_render_is_marked_and_source_is_unchanged(self) -> None:
         before = self.source.read_bytes()
         rendered, applied = render_patched_bytes(
@@ -45,7 +59,7 @@ class VV2OriginsPlaytestFeatureTests(unittest.TestCase):
         self.assertEqual(self.source.read_bytes(), before)
         self.assertEqual(
             hashlib.sha256(rendered).hexdigest().upper(),
-            "66B642366BBEA817896CFBED950445D9F9895B39C05AD93B8DC75695EFF3B7A8",
+            "CCB86F151D112E831AE9250084311963A3AD6C609AC9C097BCCA0D435EE7B1F6",
         )
         self.assertIn(
             f"feature:{VV2_PLAYTEST_DISABLED_FEATURE_ID}",

@@ -16,3 +16,9 @@ The player should verify launch, Time Warp, both Upgrades menus, normal births,
 save/reload, and ordinary play before any publication decision. Do not copy
 saves into this handoff and do not treat a successful launch as proof that the
 underlying native routes are certified.
+
+The current playtest payload gives command 6 (All villagers like running) its
+own bounded loop over 256 active records and all 62 Like/62 Dislike slots. It
+does not call the older `ShowOriginsVillageWideResult@20` callback, which had
+the wrong result-buffer contract and caused a crash on this route. Commands 7
+and 8 are refused without a charge; they are not part of this stress target.
