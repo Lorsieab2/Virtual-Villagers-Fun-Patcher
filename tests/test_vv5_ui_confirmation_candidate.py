@@ -86,6 +86,8 @@ class VV5UIConfirmationCandidateTests(unittest.TestCase):
         self.assertFalse(detail["hot_uninstall_verified"])
         self.assertFalse(detail["stock_xref_to_7B22C0"])
         self.assertFalse(detail["stock_xref_to_7B2600"])
+        self.assertEqual(detail["status"], "mechanical offline evidence only; runtime and player receipt STOP")
+        self.assertNotIn("pending exact guarded preimage", detail["status"])
         self.assertEqual(manifest["native_routing"]["patches"], [])
         self.assertEqual(manifest["native_routing"]["emitted_hooks"], [])
         self.assertEqual(manifest["source"]["active_payload_sha256"], ACTIVE_PAYLOAD_SHA256)
