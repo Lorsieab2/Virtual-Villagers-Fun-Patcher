@@ -4,6 +4,7 @@ import tempfile
 import unittest
 from pathlib import Path
 import sys
+from unittest import mock
 import zipfile
 
 
@@ -61,6 +62,40 @@ class VV5ProtectedTestRuntimeTests(unittest.TestCase):
             self.assertEqual(receipt["writes"], [])
             self.assertEqual(set(receipt["wheels"]), {"capstone", "keystone"})
 
+    def test_runner_imports_optional_local_pefile_when_required(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            wheel_root = root / "wheels"
+            wheel_root.mkdir()
+            self._write_fake_wheel(
+                wheel_root, "keystone_engine-0.0.0-py3-none-any.whl", "keystone"
+            )
+            self._write_fake_wheel(
+                wheel_root, "capstone-0.0.0-py3-none-any.whl", "capstone"
+            )
+            self._write_fake_wheel(
+                wheel_root, "pefile-0.0.0-py3-none-any.whl", "pefile"
+            )
+            test_path = root / "candidate_test.py"
+            test_path.write_text(
+                "import capstone\nimport keystone\nimport pefile\nimport unittest\n"
+                "class CandidateTest(unittest.TestCase):\n"
+                "    def test_all_local_dependencies(self):\n"
+                "        self.assertTrue(capstone.loaded and keystone.loaded and pefile.loaded)\n",
+                encoding="utf-8",
+            )
+
+            receipt = runtime.run_vv5_candidate_validation(
+                root,
+                wheel_roots=[wheel_root],
+                test_path=test_path,
+                python_executable=Path(sys.executable),
+                require_pefile=True,
+            )
+
+            self.assertEqual(receipt["status"], "PASS")
+            self.assertEqual(set(receipt["wheels"]), {"capstone", "keystone", "pefile"})
+
     def test_missing_dependency_fails_closed_without_network(self):
         with tempfile.TemporaryDirectory() as temp_dir:
             root = Path(temp_dir)
@@ -93,8 +128,28 @@ class VV5ProtectedTestRuntimeTests(unittest.TestCase):
                 {
                     "keystone": (wheel_root / "keystone_engine-0.9.2-cp311-none-win_amd64.whl",),
                     "capstone": (wheel_root / "capstone-5.0.1-cp311-none-win_amd64.whl",),
+                    "pefile": (),
                 },
             )
+
+    def test_acl_blocked_local_wheel_fails_closed_without_network(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            wheel_root = root / "wheels"
+            wheel_root.mkdir()
+            self._write_fake_wheel(
+                wheel_root, "keystone_engine-0.0.0-py3-none-any.whl", "keystone"
+            )
+            self._write_fake_wheel(
+                wheel_root, "capstone-0.0.0-py3-none-any.whl", "capstone"
+            )
+
+            with mock.patch.object(Path, "open", side_effect=PermissionError("ACL denied")):
+                with self.assertRaises(runtime.ProtectedRuntimeError) as raised:
+                    runtime.resolve_local_wheels(root, [wheel_root])
+
+            self.assertIn("local wheel is not readable", str(raised.exception))
+            self.assertIn("No network access was attempted", str(raised.exception))
 
     def test_wheel_extraction_rejects_path_traversal(self):
         with tempfile.TemporaryDirectory() as temp_dir:

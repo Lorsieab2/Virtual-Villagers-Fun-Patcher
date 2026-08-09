@@ -44,9 +44,10 @@ files can be opened before running the helper. Do not use an inaccessible
 dependency evidence, and do not repair its ACL as part of this test workflow.
 
 The protected VV5 Full Mastery candidate suite requires only Keystone and
-Capstone. It does not import `pefile`; other candidate suites that do import
-`pefile` require a separately readable, repository-local copy and are outside
-this helper's receipt.
+Capstone. A validator that imports `pefile` may add a repository-local
+`--pefile-wheel` and `--require-pefile`; the child then imports all three from
+the selected temporary runtime. Missing or unreadable wheels stop cleanly with
+`network_access: false`; no installer or ACL repair is attempted.
 
 ## VV5 candidate validation
 

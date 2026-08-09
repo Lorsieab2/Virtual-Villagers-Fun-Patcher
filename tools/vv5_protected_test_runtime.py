@@ -31,7 +31,9 @@ WHEEL_SUFFIX = ".whl"
 REQUIRED_DISTRIBUTIONS = {
     "keystone": frozenset({"keystone", "keystone-engine", "keystoneengine"}),
     "capstone": frozenset({"capstone"}),
+    "pefile": frozenset({"pefile"}),
 }
+REQUIRED_RUNTIME_MODULES = frozenset({"keystone", "capstone"})
 SKIP_DIRECTORIES = frozenset(
     {
         ".git",
@@ -187,14 +189,24 @@ def discover_local_wheels(
 
 
 def _sha256_file(path: Path) -> tuple[int, str]:
-    before = path.stat()
+    try:
+        before = path.stat()
+    except OSError as exc:
+        raise ProtectedRuntimeError(
+            f"local wheel is not readable: {path}. No network access was attempted."
+        ) from exc
     digest = hashlib.sha256()
     size = 0
-    with path.open("rb") as handle:
-        for block in iter(lambda: handle.read(1024 * 1024), b""):
-            digest.update(block)
-            size += len(block)
-    after = path.stat()
+    try:
+        with path.open("rb") as handle:
+            for block in iter(lambda: handle.read(1024 * 1024), b""):
+                digest.update(block)
+                size += len(block)
+        after = path.stat()
+    except OSError as exc:
+        raise ProtectedRuntimeError(
+            f"local wheel is not readable: {path}. No network access was attempted."
+        ) from exc
     if (before.st_size, before.st_mtime_ns) != (after.st_size, after.st_mtime_ns):
         raise ProtectedRuntimeError(f"local wheel changed while hashing: {path}")
     if size != before.st_size:
@@ -225,13 +237,16 @@ def resolve_local_wheels(
     *,
     keystone_wheel: Path | None = None,
     capstone_wheel: Path | None = None,
+    pefile_wheel: Path | None = None,
+    require_pefile: bool = False,
 ) -> dict[str, LocalWheel]:
-    """Resolve exactly one local wheel for each protected runtime dependency."""
+    """Resolve local wheels, requiring Keystone/Capstone and optionally pefile."""
 
     root = _validated_root(repo_root)
     explicit = {
         "keystone": _explicit_wheel("keystone", keystone_wheel, root),
         "capstone": _explicit_wheel("capstone", capstone_wheel, root),
+        "pefile": _explicit_wheel("pefile", pefile_wheel, root),
     }
     discovered = discover_local_wheels(root, wheel_roots)
     resolved: dict[str, LocalWheel] = {}
@@ -243,7 +258,8 @@ def resolve_local_wheels(
             continue
         candidates = discovered[distribution]
         if not candidates:
-            missing.append(distribution)
+            if distribution in REQUIRED_RUNTIME_MODULES or (distribution == "pefile" and require_pefile):
+                missing.append(distribution)
             continue
         if len(candidates) != 1:
             ambiguous.append(
@@ -324,8 +340,9 @@ _CHILD_RUNNER = textwrap.dedent(
     socket.create_connection = _deny_network
     # Import before loading the candidate module.  The VV5 builder inserts its
     # legacy .tools paths itself; cached modules keep the selected wheel bound.
-    import keystone  # noqa: F401
-    import capstone  # noqa: F401
+    for module_name in sys.argv[3].split(","):
+        if module_name:
+            __import__(module_name)
 
     spec = importlib.util.spec_from_file_location("vv5_candidate_validation", test_path)
     if spec is None or spec.loader is None:
@@ -349,6 +366,8 @@ def run_vv5_candidate_validation(
     timeout_seconds: int = 600,
     keystone_wheel: Path | None = None,
     capstone_wheel: Path | None = None,
+    pefile_wheel: Path | None = None,
+    require_pefile: bool = False,
 ) -> dict[str, object]:
     """Run one VV5 candidate test module in an isolated local-wheel runtime."""
 
@@ -363,6 +382,8 @@ def run_vv5_candidate_validation(
         wheel_roots,
         keystone_wheel=keystone_wheel,
         capstone_wheel=capstone_wheel,
+        pefile_wheel=pefile_wheel,
+        require_pefile=require_pefile,
     )
     interpreter = Path(python_executable or sys.executable).resolve(strict=True)
     with tempfile.TemporaryDirectory(prefix="vv5-protected-runtime-") as temp_dir:
@@ -379,7 +400,16 @@ def run_vv5_candidate_validation(
         environment["PYTHONNOUSERSITE"] = "1"
         environment["PYTHONDONTWRITEBYTECODE"] = "1"
         completed = subprocess.run(
-            [str(interpreter), "-I", "-B", "-c", _CHILD_RUNNER, str(runtime_root), str(target_test)],
+            [
+                str(interpreter),
+                "-I",
+                "-B",
+                "-c",
+                _CHILD_RUNNER,
+                str(runtime_root),
+                str(target_test),
+                ",".join(sorted(wheels)),
+            ],
             cwd=root,
             env=environment,
             capture_output=True,
@@ -417,6 +447,12 @@ def _parser() -> argparse.ArgumentParser:
     )
     parser.add_argument("--keystone-wheel", type=Path)
     parser.add_argument("--capstone-wheel", type=Path)
+    parser.add_argument("--pefile-wheel", type=Path)
+    parser.add_argument(
+        "--require-pefile",
+        action="store_true",
+        help="Require and import a repository-local pefile wheel for this test.",
+    )
     parser.add_argument("--test-path", type=Path, default=DEFAULT_TEST)
     parser.add_argument("--python", dest="python_executable", type=Path)
     parser.add_argument("--timeout-seconds", type=int, default=600)
@@ -434,6 +470,8 @@ def main(argv: Sequence[str] | None = None) -> int:
             timeout_seconds=args.timeout_seconds,
             keystone_wheel=args.keystone_wheel,
             capstone_wheel=args.capstone_wheel,
+            pefile_wheel=args.pefile_wheel,
+            require_pefile=args.require_pefile,
         )
     except (OSError, ValueError, zipfile.BadZipFile, ProtectedRuntimeError) as exc:
         result = {
