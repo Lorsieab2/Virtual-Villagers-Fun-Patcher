@@ -18,6 +18,13 @@ CONTRACT = ROOT / "data" / "expanded_256_save_serializer_abi_evidence.json"
 SCHEMA_VERSION = "vvfp.expanded_256_save_serializer_abi_evidence.v1"
 REQUIREMENTS = ["save_layout_sizes", "loader_abi", "stock_import_conversion", "writer_record_count_tail", "serializer_bounds", "deserializer_bounds", "padding_non_saveability", "integrity_transform", "slot_rotation_atomicity", "failed_load_nonmutation", "offline_catchup_ordering", "manager_pool_identity_reload", "current_origins_behavior", "complete_folder_runtime_player_receipts"]
 NATIVE_FIELDS = {"row_id", "requirement", "function_name", "function_ea", "instruction_ea", "file_offset", "preimage", "calling_convention", "return_semantics", "failure_semantics", "xrefs", "artifact", "runtime_receipt_refs", "player_receipt_refs", "synthetic"}
+REQUIRED_NATIVE_FIELDS = ["row_id", "requirement", "function_name", "function_ea", "instruction_ea", "file_offset", "preimage", "calling_convention", "return_semantics", "failure_semantics", "xrefs", "artifact", "runtime_receipt_refs", "player_receipt_refs", "synthetic"]
+TOP_LEVEL_KEYS = {"schema_version", "contract_id", "status", "integrity", "publication", "policy", "bindings", "required_requirements", "games"}
+GAME_KEYS = {"stock_fingerprint", "expanded_fingerprints", "relocation_ledger", "complete_folder", "save_layout", "evidence_matrix"}
+POLICY_KEYS = {"qualifying_evidence_class", "forbidden_evidence_classes", "required_native_fields", "completion_rule", "native_emission"}
+CONTRACT_ID = "x45-vv4-vv5-expanded-256-save-serializer-abi-evidence"
+QUALIFYING_EVIDENCE_CLASS = "authenticated_native_and_player_runtime_receipt"
+FORBIDDEN_EVIDENCE_CLASSES = ["synthetic", "manual_injection", "static_description", "inferred"]
 GAME_PINS = {
     "vv4": {"stock": ("Virtual Villagers - The Tree of Life.exe", 929792, "6D27A429FFCA5F1F71FDD7ECA761ED1BB67E85F976494BA178B3D7BE01F1B220"), "expanded": ((929792, "602824F514BFAB80883805B16C01D1E572752261A155262778CF8D535C41D887"), (929792, "AC430442DE23406236903CAA6FC9A992D52DCF3269A95ED345A9EF6F18B9C30A")), "relocation": (13, "CEE01F4AEC59CB1CEE0F42E3DDDB3A24615261E628ED0629C1BFAABF421A897D")},
     "vv5": {"stock": ("Virtual Villagers - New Believers.exe", 991232, "92946781980220E9D1A2E6C573925519934608F5215F4A0F8CE3B90088C5C65D"), "expanded": ((991232, "44042572653782B20A200799785F437D4D76B46F20384D597B8093F27CC88C89"), (991232, "6BF9E0EB9BC7D3C373E32C3A7377C9A7EA35C1FA889EEDBF9B2819A25BC43E86")), "relocation": (66, "14E460773ADC065E053FA30921ED01D33A5F36AD49DC754CCD69127EA02C01B7")},
@@ -42,12 +49,24 @@ def file_sha(path: Path) -> str:
 def fail(condition: bool, message: str) -> None:
     if condition: raise SaveSerializerEvidenceError(message)
 
+def exact_keys(value: Any, expected: set[str], label: str) -> None:
+    fail(not isinstance(value, dict), f"{label} must be an object")
+    actual = set(value)
+    fail(actual != expected, f"{label} keys are incomplete or injected")
+
 def validate_contract(doc: dict[str, Any], root: Path = ROOT) -> dict[str, Any]:
+    exact_keys(doc, TOP_LEVEL_KEYS, "contract")
     fail(doc.get("schema_version") != SCHEMA_VERSION, "schema version mismatch")
+    fail(doc.get("contract_id") != CONTRACT_ID, "contract id mismatch")
     fail(doc.get("status") not in {"evidence_empty_stop", "partial_stop", "observed_complete_stop"}, "invalid contract status")
     pub = doc.get("publication", {})
     fail(any(pub.get(k) is not False for k in ("enabled", "runtime_go", "player_go", "eligible")), "publication must remain false")
-    fail(doc.get("policy", {}).get("native_emission") is not False, "native emission must remain disabled")
+    policy = doc.get("policy", {})
+    exact_keys(policy, POLICY_KEYS, "policy")
+    fail(policy.get("qualifying_evidence_class") != QUALIFYING_EVIDENCE_CLASS, "qualifying evidence class is stale")
+    fail(policy.get("forbidden_evidence_classes") != FORBIDDEN_EVIDENCE_CLASSES, "forbidden evidence classes are stale")
+    fail(policy.get("required_native_fields") != REQUIRED_NATIVE_FIELDS, "required native fields are stale")
+    fail(policy.get("native_emission") is not False, "native emission must remain disabled")
     fail(doc.get("required_requirements") != REQUIREMENTS, "required requirement set/order mismatch")
     fail(doc.get("integrity", {}).get("canonical_sha256") != contract_sha(doc), "canonical contract digest is stale")
     bindings = doc.get("bindings", {})
@@ -58,10 +77,13 @@ def validate_contract(doc: dict[str, Any], root: Path = ROOT) -> dict[str, Any]:
     runtime = json.loads((root / bindings["runtime_contract"]["path"]).read_text(encoding="utf-8"))
     fail(stored["integrity"]["canonical_sha256"] != bindings["stored_index_contract"]["canonical_sha256"], "stored-index canonical binding is stale")
     fail(runtime["integrity"]["canonical_sha256"] != bindings["runtime_contract"]["canonical_sha256"], "runtime canonical binding is stale")
+    games = doc.get("games", {})
+    exact_keys(games, {"vv4", "vv5"}, "games")
     summary = {}
     all_complete = True
     for game, pins in GAME_PINS.items():
-        value = doc.get("games", {}).get(game, {})
+        value = games.get(game, {})
+        exact_keys(value, GAME_KEYS, f"{game} game")
         stock = value.get("stock_fingerprint", {})
         fail((stock.get("filename"), stock.get("size"), stock.get("sha256")) != pins["stock"], f"{game} stock fingerprint mismatch")
         expanded = value.get("expanded_fingerprints", {})

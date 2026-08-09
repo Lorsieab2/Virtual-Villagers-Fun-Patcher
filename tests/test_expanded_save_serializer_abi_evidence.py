@@ -21,6 +21,17 @@ class SaveSerializerAbiEvidenceTests(unittest.TestCase):
   r=MODULE.validate_contract(self.contract,ROOT); self.assertFalse(r["publication_eligible"]); self.assertEqual((r["games"]["vv4"]["requirements_complete"],r["games"]["vv5"]["requirements_complete"]),(0,0))
  def test_publication_and_native_emission_disabled(self):
   self.fails(lambda d:d["publication"].__setitem__("enabled",True),"publication"); self.fails(lambda d:d["policy"].__setitem__("native_emission",True),"native emission")
+ def test_required_schema_fields_and_closed_key_sets(self):
+  required = ("schema_version", "contract_id", "status", "integrity", "publication", "policy", "bindings", "required_requirements", "games")
+  for field in required:
+   with self.subTest(field=field):
+    d=copy.deepcopy(self.contract); d.pop(field)
+    if "integrity" in d: self.recanon(d)
+    with self.assertRaisesRegex(MODULE.SaveSerializerEvidenceError, "contract keys"):
+     MODULE.validate_contract(d,ROOT)
+  self.fails(lambda d:d["games"].__setitem__("vv6",copy.deepcopy(d["games"]["vv4"])),"games keys")
+  self.fails(lambda d:d["games"]["vv4"].__setitem__("extra",None),"game keys")
+  self.fails(lambda d:d["policy"].__setitem__("extra",None),"policy keys")
  def test_fingerprints_exact(self):
   self.fails(lambda d:d["games"]["vv4"]["stock_fingerprint"].__setitem__("sha256","0"*64),"stock fingerprint"); self.fails(lambda d:d["games"]["vv5"]["expanded_fingerprints"]["experimental_expanded_256"].__setitem__("size",1),"expanded fingerprints")
  def test_relocations_exact(self):
