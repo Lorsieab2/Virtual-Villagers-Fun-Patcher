@@ -61,13 +61,14 @@ load/version/function-count status:
 setlocal
 set "PATH=C:\Program Files\IDA Professional 9.4;C:\Windows\System32;C:\Windows"
 set "IDAUSR=<workspace-root>\idausr"
-"C:\Program Files\IDA Professional 9.4\idat.exe" -A "-S<workspace-root>\diagnostic-probe.py" "<workspace-root>\Virtual Villagers - The Secret City.exe.i64"
+"C:\Program Files\IDA Professional 9.4\idat.exe" -A "-S<workspace-root>\scripts\ida_diagnostic_probe.py" "<workspace-root>\Virtual Villagers - The Secret City.exe.i64"
 endlocal
 ```
 
-The probe must not resolve EAs, infer ABIs, emit query rows, or write an
-export. A successful snapshot only proves that the disposable database opened
-and that the diagnostic script ran.
+The tracked `scripts/ida_diagnostic_probe.py` probe must not resolve EAs, infer
+ABIs, emit query rows, or write an export. It prints a single
+`VVFP_IDA_DIAGNOSTIC` status line to stdout. A successful snapshot only proves
+that the disposable database opened and that the diagnostic script ran.
 
 Open one game/database at a time. Confirm the visible IDA window title and
 input path identify the intended VV3, VV4, or VV5 disposable database before
