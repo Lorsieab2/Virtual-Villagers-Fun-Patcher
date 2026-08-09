@@ -377,6 +377,32 @@ class ManifestTests(unittest.TestCase):
                 self.assertTrue(get_patch_variant(build, MODES[0])["bonuses_affect_maximum"])
             self.assertFalse(get_patch_variant(build, MODES[1])["bonuses_affect_maximum"])
 
+    def test_vv1_vv2_safety_caves_return_to_instruction_boundaries(self) -> None:
+        builds = {build.id: build for build in load_builds()}
+        expected = {
+            "vv1": {
+                0x56580: 0x3BC58,
+                0x565B0: 0x3BC96,
+            },
+            "vv2": {
+                0x73C40: 0x4BA8C,
+                0x73C70: 0x4BAC0,
+            },
+        }
+        for game_id, caves in expected.items():
+            patches = {
+                int(patch["offset"], 0): patch
+                for patch in builds[game_id].safety_patches
+            }
+            for cave_offset, continuation_offset in caves.items():
+                with self.subTest(game_id=game_id, cave=hex(cave_offset)):
+                    after = bytes.fromhex(patches[cave_offset]["after"])
+                    jump_index = after.rindex(b"\xE9")
+                    self.assertEqual(jump_index + 5, len(after))
+                    relative = struct.unpack_from("<i", after, jump_index + 1)[0]
+                    actual = cave_offset + jump_index + 5 + relative
+                    self.assertEqual(actual, continuation_offset)
+
     def test_origins_dialog_supports_state_and_retains_stale_resource_stop(self) -> None:
         exports = (ROOT / "native/vv1_origins_icons/vv1_origins_icons.def").read_text(
             encoding="utf-8"
