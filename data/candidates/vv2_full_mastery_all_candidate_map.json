@@ -92,15 +92,15 @@
     ],
     "rendered_candidates": {
       "collection_progression": {
-        "candidate_sha256": "EC9AA5F8A1A8D7AC7CAE5B9C8B41027C7E2FF98A240D06725E7C406028EBFBDB",
-        "baseline_sha256": "AD7D6F85A363510732B1D647516389326878E5FA8756A42F4526AACDFAF0C523",
-        "uninstall_target_sha256": "AD7D6F85A363510732B1D647516389326878E5FA8756A42F4526AACDFAF0C523",
+        "candidate_sha256": "08F12344A5DE16832E5EFA22270300A1066EB94970359F432CEC723723055194",
+        "baseline_sha256": "E87B41564B057598BBCB369BEDC9BB93016CC32F0D223AEE7C877FC6EBC5ADBA",
+        "uninstall_target_sha256": "E87B41564B057598BBCB369BEDC9BB93016CC32F0D223AEE7C877FC6EBC5ADBA",
         "size": 733184
       },
       "immediate_fixed": {
-        "candidate_sha256": "61CF93212009F9719F1A0D104AAC14EC5B80F7B25C1BC2D2951189844515516C",
-        "baseline_sha256": "9EA03791F24CA5F9005AB33C09E5C8930E30BEB55E05FD2B8463894F48C50C00",
-        "uninstall_target_sha256": "9EA03791F24CA5F9005AB33C09E5C8930E30BEB55E05FD2B8463894F48C50C00",
+        "candidate_sha256": "21B927806BDB06942F8426BC68E89AB1B10E2E60CEEFC39FEEFDCC125886BE7C",
+        "baseline_sha256": "9139A22A85D652878783EAEBCDD6275447B8C8AFA2B344862C25EF6DEBE36560",
+        "uninstall_target_sha256": "9139A22A85D652878783EAEBCDD6275447B8C8AFA2B344862C25EF6DEBE36560",
         "size": 733184
       }
     }
@@ -194,16 +194,16 @@
   ],
   "rendered_candidates": {
     "collection_progression": {
-      "baseline_sha256": "AD7D6F85A363510732B1D647516389326878E5FA8756A42F4526AACDFAF0C523",
-      "candidate_sha256": "EC9AA5F8A1A8D7AC7CAE5B9C8B41027C7E2FF98A240D06725E7C406028EBFBDB",
+      "baseline_sha256": "E87B41564B057598BBCB369BEDC9BB93016CC32F0D223AEE7C877FC6EBC5ADBA",
+      "candidate_sha256": "08F12344A5DE16832E5EFA22270300A1066EB94970359F432CEC723723055194",
       "size": 733184,
-      "pe_checksum": "0x000BF94A",
+      "pe_checksum": "0x000B77C9",
       "owners": [
         "automatic:population",
         "automatic:safety",
         "feature:vv2_full_mastery_all_stage_a_candidate"
       ],
-      "all_current_vv2_sha256": "C7C0BEC312B6537B5F1DD692D2C90ED0D0963D6CE3A7F5271AF4A6C680B8ACBC",
+      "all_current_vv2_sha256": "BF7B08AAC61A731525903DABFDA016A8C5316E9F77B8C546C70AF22CEB81F945",
       "all_current_vv2_owners": [
         "automatic:compatibility",
         "automatic:population",
@@ -217,19 +217,19 @@
         "feature:vv2_write_village_statistics"
       ],
       "collision_status": "PASS",
-      "uninstall_target_sha256": "AD7D6F85A363510732B1D647516389326878E5FA8756A42F4526AACDFAF0C523"
+      "uninstall_target_sha256": "E87B41564B057598BBCB369BEDC9BB93016CC32F0D223AEE7C877FC6EBC5ADBA"
     },
     "immediate_fixed": {
-      "baseline_sha256": "9EA03791F24CA5F9005AB33C09E5C8930E30BEB55E05FD2B8463894F48C50C00",
-      "candidate_sha256": "61CF93212009F9719F1A0D104AAC14EC5B80F7B25C1BC2D2951189844515516C",
+      "baseline_sha256": "9139A22A85D652878783EAEBCDD6275447B8C8AFA2B344862C25EF6DEBE36560",
+      "candidate_sha256": "21B927806BDB06942F8426BC68E89AB1B10E2E60CEEFC39FEEFDCC125886BE7C",
       "size": 733184,
-      "pe_checksum": "0x000BE43A",
+      "pe_checksum": "0x000B62B9",
       "owners": [
         "automatic:population",
         "automatic:safety",
         "feature:vv2_full_mastery_all_stage_a_candidate"
       ],
-      "all_current_vv2_sha256": "6AEE09C69C3E7C1AD12284EA5B5A188AF05DA3D87AD6149545CEE65D896E6774",
+      "all_current_vv2_sha256": "0D99E18B4CBEE9A4C138FECA4B6E8B4CDEDCF17EC7C1D6965BAA799805802583",
       "all_current_vv2_owners": [
         "automatic:compatibility",
         "automatic:population",
@@ -243,7 +243,7 @@
         "feature:vv2_write_village_statistics"
       ],
       "collision_status": "PASS",
-      "uninstall_target_sha256": "9EA03791F24CA5F9005AB33C09E5C8930E30BEB55E05FD2B8463894F48C50C00"
+      "uninstall_target_sha256": "9139A22A85D652878783EAEBCDD6275447B8C8AFA2B344862C25EF6DEBE36560"
     }
   }
 }

@@ -50,11 +50,11 @@
     },
     {
       "path": "data/candidates/vv2_full_mastery_all_candidate.json",
-      "sha256": "55BFE0DCB70A3AD81ED9398A64C6E0B51A60F23E974CDFA4300629FA99DD9753"
+      "sha256": "41CC8B5ADEAF702B1ACC38C832EADEEBF9B7FB23DA23A8A6E6328690F121A53C"
     },
     {
       "path": "data/candidates/vv2_full_mastery_all_candidate_map.json",
-      "sha256": "5D5FDF47D70430E1D7866A833852AFD333BE136291AC51959ACF0FE715DC540A"
+      "sha256": "F93FC7C11D2306A3AA5DCC44EAC26785BC26BD86D46FCFAE51252E6E13FEE8C8"
     },
     {
       "path": "data/candidates/vv4_full_heal_cure_all_candidate.json",

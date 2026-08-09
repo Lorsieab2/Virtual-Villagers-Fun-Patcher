@@ -76,7 +76,7 @@ ORACLE = {
         "stock": ROOT / "research/stock-executables/Virtual Villagers - The Lost Children.exe",
         "origins": ROOT / "data/vv2_origins_feature.json",
         "fm": ROOT / "data/candidates/vv2_full_mastery_all_candidate.json",
-        "base_sha256": {"collection_progression": "8C1F770F1A9603DB432410ED616DF2787F725C198C66BE8EE951AAE26AD56CF5", "immediate_fixed": "8E0177D6B127225A913627F583C263B47773CA9328EDD199AD29054C77F861B0"},
+        "base_sha256": {"collection_progression": "F58F9DAFBE0C6B9B08AA3C491D1731F474DBC80D0DA50A0BF9AA8BFFBE2331AA", "immediate_fixed": "66B642366BBEA817896CFBED950445D9F9895B39C05AD93B8DC75695EFF3B7A8"},
         "parent_size": 0xB1000,
         "append_raw": 0xB1000,
         "section_va": 0x4B3000,
