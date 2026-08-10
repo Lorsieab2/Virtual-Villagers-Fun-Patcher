@@ -102,6 +102,19 @@ class ManifestTests(unittest.TestCase):
             "            jmp show_status",
             source,
         )
+        self.assertIn(
+            "push 10\n"
+            "            push 21\n"
+            "            call 0x433600\n"
+            "            ret 8",
+            source,
+        )
+        self.assertNotIn(
+            "push 10\n"
+            "            push 12\n"
+            "            call 0x433600",
+            source,
+        )
 
     def test_running_preference_id_matches_each_stock_table(self) -> None:
         evidence = {
@@ -1014,7 +1027,8 @@ class StockIntegrationTests(unittest.TestCase):
             ),
             "vv2": (
                 0x73D00,
-                "51E85A1BFBFF3D00010000597D05E96DB8FDFFB8FFFFFFFFC21400",
+                "518B8DA450000085C9741B83B9A4050300007412E8471BFBFF"
+                "3D00010000597306E95AB8FDFF59B8FFFFFFFFC21400",
                 [0x34102, 0x341A2, 0x341C3, 0x34262, 0x34283, 0x342A4,
                  0x34467, 0x344A3],
             ),
