@@ -120,6 +120,41 @@ class VV2OriginsPlaytestFeatureTests(unittest.TestCase):
         self.assertEqual(payload.count(bytes.fromhex("682C1A4B7F6A0289E9E82D01FAFF")), 1)
         self.assertEqual(payload.count(bytes.fromhex("6A0A6A15E805E9F9FFC20800")), 1)
 
+    def test_detail_upgrades_button_is_nudged_right_without_behavior_changes(self) -> None:
+        source = (ROOT / "scripts" / "build_vv2_origins_feature.py").read_text(
+            encoding="utf-8"
+        )
+        detail = source[
+            source.index("        detail_constructor,") :
+            source.index("        show_dialog,")
+        ]
+        self.assertIn(
+            "            push 0\n"
+            "            push esi\n"
+            "            push 563\n"
+            "            push 136\n"
+            "            push 0x4763E8\n"
+            "            push 6\n"
+            "            mov ecx, eax\n"
+            "            call 0x4019D0",
+            detail,
+        )
+        self.assertNotIn("            push 120\n", detail)
+        self.assertIn("            call 0x40B560", detail)
+        manifest = json.loads(
+            (ROOT / "data" / "vv2_origins_feature.json").read_text(encoding="utf-8")
+        )
+        payload = bytes.fromhex(
+            next(patch for patch in manifest["patches"] if patch["offset"] == "0x943A8")[
+                "after"
+            ]
+        )
+        self.assertEqual(
+            payload.count(bytes.fromhex("6A00566833020000688800000068E86347006A06")),
+            1,
+        )
+        self.assertNotIn(bytes.fromhex("6A005668330200006A7868E86347006A06"), payload)
+
     def test_dry_run_marks_separate_playtest_output(self) -> None:
         result = dry_run(
             self.source,
