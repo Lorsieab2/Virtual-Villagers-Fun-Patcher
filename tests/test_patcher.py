@@ -83,11 +83,23 @@ class ManifestTests(unittest.TestCase):
             encoding="utf-8"
         )
         self.assertIn(
-            "mov ecx, dword ptr [edi + 0x50A4]\n            call 0x425860",
+            "mov ecx, dword ptr [edi + 0x50A4]\n"
+            "            test ecx, ecx\n"
+            "            jz barrel_capacity_unavailable\n"
+            "            cmp dword ptr [ecx + 0x305A4], 0\n"
+            "            jz barrel_capacity_unavailable\n"
+            "            call 0x425860",
             source,
         )
         self.assertNotIn(
             "mov ecx, edi\n            call 0x425860",
+            source,
+        )
+        self.assertIn(
+            "barrel_capacity_unavailable:\n"
+            "            add esp, 0x50D8\n"
+            "            mov eax, 0x{s['population_capacity']:X}\n"
+            "            jmp show_status",
             source,
         )
 

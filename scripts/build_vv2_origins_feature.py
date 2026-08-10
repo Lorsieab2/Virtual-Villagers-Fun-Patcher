@@ -505,11 +505,15 @@ def main() -> None:
             push 2
             mov ecx, ebp
             call 0x4348E0
-            # Stock caller 0x4347D8 passes the helper's owning context from
-            # [EDI+0x50A4], not EDI itself. sub_425860 immediately reads
-            # [ECX+0x305A4], so passing the screen/village wrapper directly
-            # reaches a null-derived +0x30 path in the complete-folder build.
+            # Match the stock caller at 0x4347D8: sub_425860 receives the
+            # village/tech object's owner from [EDI+0x50A4].  Its first
+            # dereference is [ECX+0x305A4], so reject an uninitialized chain
+            # before the helper can turn it into the observed [0x30] fault.
             mov ecx, dword ptr [edi + 0x50A4]
+            test ecx, ecx
+            jz barrel_capacity_unavailable
+            cmp dword ptr [ecx + 0x305A4], 0
+            jz barrel_capacity_unavailable
             call 0x425860
             cmp eax, 254
             jae barrel_capacity_low
@@ -532,6 +536,10 @@ def main() -> None:
         barrel_insufficient:
             add esp, 0x50D8
             mov eax, 0x{s['not_enough']:X}
+            jmp show_status
+        barrel_capacity_unavailable:
+            add esp, 0x50D8
+            mov eax, 0x{s['population_capacity']:X}
             jmp show_status
 
         do_cure:
