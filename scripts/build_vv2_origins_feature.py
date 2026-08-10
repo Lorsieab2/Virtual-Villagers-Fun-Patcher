@@ -117,7 +117,11 @@ def main() -> None:
         ("paused", "Time Warp is unavailable while the game is paused."),
         (
             "population_capacity",
-            "The village population is already at maximum capacity.",
+            "The village population is already close to its max. No tech points have been deducted.",
+        ),
+        (
+            "permanent_warning",
+            "This upgrade makes permanent changes to your village. Are you sure you want to continue?",
         ),
         ("running_unavailable", "Running cannot be added."),
         ("running_granted", "All villagers like running."),
@@ -151,7 +155,9 @@ def main() -> None:
     detail_constructor = PAYLOAD_VA + 0x0F0
     show_dialog = PAYLOAD_VA + 0x180
     show_message = PAYLOAD_VA + 0x1D0
-    tech_menu = PAYLOAD_VA + 0x240
+    confirm_dialog = PAYLOAD_VA + 0x210
+    # Keep a full gap after the confirmation helper (0x210..0x251).
+    tech_menu = PAYLOAD_VA + 0x260
     detail_menu = PAYLOAD_VA + 0x500
     tech_increment = PAYLOAD_VA + 0x800
     food_increment = PAYLOAD_VA + 0x880
@@ -348,6 +354,38 @@ def main() -> None:
     )
 
     put(
+        confirm_dialog,
+        f"""
+            push ebx
+            push esi
+            push 0x{s['user32_dll']:X}
+            call dword ptr [0x474010]
+            test eax, eax
+            je confirm_done
+            push 0x{s['message_box_export']:X}
+            push eax
+            call dword ptr [0x4740D4]
+            test eax, eax
+            je confirm_done
+            push 1
+            push 0x{s['tech_title']:X}
+            push 0x{s['permanent_warning']:X}
+            push 0
+            call eax
+            cmp eax, 1
+            sete al
+            movzx eax, al
+            jmp confirm_return
+        confirm_done:
+            xor eax, eax
+        confirm_return:
+            pop esi
+            pop ebx
+            ret
+        """,
+    )
+
+    put(
         tech_menu,
         f"""
             push ebx
@@ -372,6 +410,22 @@ def main() -> None:
             cmp eax, -1
             je menu_done
             mov ebx, eax
+
+            cmp ebx, 0
+            je confirm_tech_purchase
+            cmp ebx, 1
+            je confirm_tech_purchase
+            cmp ebx, 2
+            je confirm_tech_purchase
+            cmp ebx, 5
+            je confirm_tech_purchase
+            cmp ebx, 6
+            jne tech_purchase_ready
+        confirm_tech_purchase:
+            call 0x{confirm_dialog:X}
+            test eax, eax
+            jz menu_loop
+        tech_purchase_ready:
 
             cmp ebx, 3
             jb preflight
@@ -401,12 +455,7 @@ def main() -> None:
         maybe_barrel:
             cmp ebx, 2
             jne charge
-            # Barrel's native event route already passes every allocation
-            # through the VV2 256-slot guards installed in the stock event
-            # call sites.  Do not duplicate that check here: the Tech-screen
-            # object is not the population-helper context, and dereferencing
-            # its guessed pointer crashes before the native allocator runs.
-            jmp charge
+            jmp barrel_capacity_preflight
 
         charge:
             cmp ebx, 6
@@ -425,6 +474,8 @@ def main() -> None:
             jmp show_status
         legacy_charge:
             mov eax, dword ptr [0x{s['tech_costs']:X} + ebx*4]
+            cmp ebx, 2
+            je barrel_capacity_preflight
             cmp dword ptr [edi + 0x2EADC], eax
             jb insufficient
             sub dword ptr [edi + 0x2EADC], eax
@@ -433,7 +484,7 @@ def main() -> None:
             cmp ebx, 1
             je do_island_event
             cmp ebx, 2
-            je do_barrel
+            je barrel_capacity_preflight
             cmp ebx, 3
             je do_tech_doubler
             cmp ebx, 5
@@ -441,6 +492,40 @@ def main() -> None:
             call 0x{HEAL_CAVE_VA:X}
             nop
             jmp success
+
+        barrel_capacity_preflight:
+            sub esp, 0x50D8
+            mov ebp, esp
+            push 0x7F4B1A2C
+            push 2
+            mov ecx, ebp
+            call 0x4348E0
+            # The native event object owns the verified population context.
+            # Use event+0x50A4, never a guessed Tech-screen field.
+            mov ecx, dword ptr [ebp + 0x50A4]
+            call 0x425860
+            cmp eax, 254
+            jae barrel_capacity_low
+            mov eax, dword ptr [0x{s['tech_costs']:X} + ebx*4]
+            cmp dword ptr [edi + 0x2EADC], eax
+            jb barrel_insufficient
+            sub dword ptr [edi + 0x2EADC], eax
+            push 0
+            push esi
+            mov ecx, ebp
+            call 0x401AD0
+            mov ecx, ebp
+            call 0x433190
+            add esp, 0x50D8
+            jmp success
+        barrel_capacity_low:
+            add esp, 0x50D8
+            mov eax, 0x{s['population_capacity']:X}
+            jmp show_status
+        barrel_insufficient:
+            add esp, 0x50D8
+            mov eax, 0x{s['not_enough']:X}
+            jmp show_status
 
         do_cure:
             call 0x{HEAL_CAVE_VA:X}
@@ -464,22 +549,6 @@ def main() -> None:
 
         do_island_event:
             mov dword ptr [edi + 0x2EAE0], 0
-            jmp success
-
-        do_barrel:
-            sub esp, 0x50D8
-            mov ebp, esp
-            push 0x7F4B1A2C
-            push 2
-            mov ecx, ebp
-            call 0x4348E0
-            push 0
-            push esi
-            mov ecx, ebp
-            call 0x401AD0
-            mov ecx, ebp
-            call 0x433190
-            add esp, 0x50D8
             jmp success
 
         do_tech_doubler:
@@ -589,6 +658,13 @@ def main() -> None:
             cmp eax, -1
             je detail_done
             mov ebx, eax
+
+            cmp ebx, 3
+            ja detail_purchase_ready
+            call 0x{confirm_dialog:X}
+            test eax, eax
+            jz detail_loop
+        detail_purchase_ready:
 
             mov edi, dword ptr [esi + 0x0C]
             mov ecx, dword ptr [edi + 0x304F0]
