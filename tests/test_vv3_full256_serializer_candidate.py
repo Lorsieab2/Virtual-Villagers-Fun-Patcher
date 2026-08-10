@@ -1,79 +1,250 @@
-import importlib.util,json,tempfile,unittest
+import copy
+import hashlib
+import importlib.util
+import json
+import struct
+import subprocess
+import sys
+import tempfile
+import unittest
 from pathlib import Path
 
-ROOT=Path(__file__).resolve().parents[1]
-SPEC=importlib.util.spec_from_file_location("builder",ROOT/"scripts"/"build_vv3_full256_serializer_candidate.py")
-B=importlib.util.module_from_spec(SPEC);SPEC.loader.exec_module(B)
+
+ROOT = Path(__file__).resolve().parents[1]
+SPEC = importlib.util.spec_from_file_location(
+    "builder", ROOT / "scripts" / "build_vv3_full256_serializer_candidate.py"
+)
+B = importlib.util.module_from_spec(SPEC)
+SPEC.loader.exec_module(B)
+
 
 class Full256StaticCandidateTests(unittest.TestCase):
-    def setUp(self):self.value=B.build()
-    def test_checked_in_model_is_deterministic(self):self.assertEqual(B.canonical_bytes(self.value),B.OUTPUT.read_bytes().replace(b"\r\n",b"\n"))
-    def test_disabled_everywhere(self):
-        self.assertFalse(self.value["enabled"]);self.assertFalse(self.value["catalog_visible"]);self.assertFalse(self.value["native_output"]);self.assertEqual("STOP",self.value["decision"]["status"])
-    def test_exact_parents(self):self.assertEqual(B.PARENTS,tuple((x["mode"],x["sha256"]) for x in self.value["parents"]))
-    def test_parent_layout(self):self.assertTrue(all(x["size"]=="0xCC000" and x["sections"]==6 and x["size_of_image"]=="0x3B9000" for x in self.value["parents"]))
-    def test_results_unknown(self):self.assertTrue(all(x["result_sha256"] is None and x["pe_checksum"] is None for x in self.value["parents"]))
-    def test_section_plan_exact_rx(self):
-        s=self.value["section_plan"];self.assertEqual((".vv3sv","0x2F0","0xCC000","0xCD000","0x3B9000","0x7B9000","RX"),(s["name"],s["header_raw"],s["raw_start"],s["raw_end"],s["rva"],s["va"],s["characteristics"]))
-    def test_section_bytes_absent(self):
-        s=self.value["section_plan"];self.assertIsNone(s["header_bytes"]);self.assertIsNone(s["section_bytes"]);self.assertIsNone(s["final_bytes"])
-    def test_hooks_exact_but_not_emitted(self):
-        self.assertEqual([("0x27D57","E824720300","E8A4123900","0x7B9000"),("0x28A4C","E80F3E0300","E8AF073900","0x7B9200")],[(x["raw"],x["preimage"],x["expected"],x["target"]) for x in self.value["hooks"]]);self.assertTrue(all(x["emitted"] is None for x in self.value["hooks"]))
-    def test_hook_roles_bind_stock_functions_callsites_and_targets(self):
-        self.assertEqual(
-            [("serializer","0x45EF80","0x27D57","0x427D57","0x7B9000"),("deserializer","0x45C860","0x28A4C","0x428A4C","0x7B9200")],
-            [(x["id"],x["stock_function"],x["raw"],x["va"],x["target"]) for x in self.value["hooks"]],
-        )
-    def test_serializer_and_deserializer_roles_cannot_swap(self):
-        hooks={x["id"]:x for x in self.value["hooks"]}
-        self.assertEqual(("0x45EF80","0x27D57","0x7B9000"),tuple(hooks["serializer"][k] for k in ("stock_function","raw","target")))
-        self.assertEqual(("0x45C860","0x28A4C","0x7B9200"),tuple(hooks["deserializer"][k] for k in ("stock_function","raw","target")))
-    def test_abis_exact(self):self.assertEqual(B.ABIS,tuple((x["id"],x["start"],x["end"],x["sha256"],x["contract"]) for x in self.value["abis"]))
-    def test_compact_base_uses_singleton(self):self.assertIn("0x428B60",self.value["wrapper_model"]["compact_base"]);self.assertIn("0x786C",self.value["wrapper_model"]["compact_base"])
-    def test_padding_forbidden(self):self.assertEqual("256..259 forbidden",self.value["wrapper_model"]["padding"])
-    def test_conditional_terminator(self):self.assertIn("terminator only when count<256",self.value["wrapper_model"]["serializer"])
-    def test_reader_hard_bound(self):self.assertIn("read no more than 256 compact records",self.value["wrapper_model"]["deserializer"])
-    def test_wrapper_bytes_absent(self):self.assertIsNone(self.value["wrapper_model"]["wrapper_bytes"]);self.assertIsNone(self.value["wrapper_model"]["wrapper_sha256"])
-    def test_caller_blocker(self):
-        g=self.value["caller_failure_gate"];self.assertTrue(g["load_caller_tests_al"]);self.assertFalse(g["save_caller_tests_al"]);self.assertFalse(g["recoverable_failure"]);self.assertIsNone(g["save_caller_after"])
-    def test_d354_writer_plan_exact_and_disabled(self):
-        w=self.value["atomic_writer_plan"];self.assertEqual(("0x403530","0x7B9400","0xCC400"),(w["stock_writer"],w["wrapper_va"],w["wrapper_raw"]));self.assertFalse(w["enabled"]);self.assertFalse(w["native_output"])
-    def test_d354_calls_are_expectations_not_emission(self):
-        rows=self.value["atomic_writer_plan"]["callsites"];self.assertEqual([("0x27C7D","E8AEB8FDFF","E87E173900"),("0x27C92","E899B8FDFF","E869173900"),("0x27D6C","E8BFB7FDFF","E88F163900"),("0x27D81","E8AAB7FDFF","E87A163900")],[(x["raw"],x["preimage"],x["expected"]) for x in rows]);self.assertTrue(all(x["emitted"] is None for x in rows))
-    def test_d356_reconciled_route_manager_semantics_and_both_parents(self):
-        rows=self.value["atomic_writer_plan"]["callsites"]
-        self.assertEqual(
-            [
-                ("settings-tail","EDI==0","ESI!=0","ESI+0x12F24","0x88","0"),
-                ("settings-tail","EDI==0","ESI==0","0","0x88","0"),
-                ("full-village","EDI!=0","ESI!=0","ESI+0x8","caller size: 0x12F1C stock or expanded size","nonzero"),
-                ("full-village","EDI!=0","ESI==0","0","caller full size: 0x12F1C stock or expanded size","nonzero"),
-            ],
-            [(x["route"],x["route_condition"],x["manager_condition"],x["body"],x["size"],x["save_id"]) for x in rows],
-        )
-        self.assertTrue(all("action" not in x and "manager" not in x for x in rows))
-        parents=[p[1] for p in B.PARENTS]
-        self.assertTrue(all(x["validated_parent_sha256"]==parents for x in rows))
-        self.assertTrue(B.validate_writer_callsites(self.value))
-    def test_d356_each_preimage_mutation_fails_closed(self):
-        import copy
-        for index in range(4):
-            changed=copy.deepcopy(self.value);changed["atomic_writer_plan"]["callsites"][index]["preimage"]="00"*5
-            self.assertFalse(B.validate_writer_callsites(changed),index)
-    def test_d354_resolver_and_wrapper_blocked(self):
-        w=self.value["atomic_writer_plan"];self.assertIsNone(w["dynamic_api_resolver_bytes"]);self.assertIsNone(w["wrapper_bytes"]);self.assertIsNone(w["wrapper_sha256"]);self.assertIsNone(w["import_changes"]);self.assertIn("D355",w["blocker"])
-    def test_atomic_contract_has_no_numeric_slot_or_replace_existing(self):
-        tx=self.value["atomic_writer_plan"]["transaction"];self.assertIn("sibling temporary path without numeric save slot",tx);self.assertIn("existing final uses ReplaceFileA flags 0",tx);self.assertIn("absent final uses MoveFileExA WRITE_THROUGH without replace-existing",tx)
-    def test_uninstall_restores_hooks_before_truncate(self):
-        order=self.value["uninstall_ledger"]["order"];self.assertLess(order.index("restore and verify both hook preimages"),order.index("truncate only candidate-owned 0xCC000..0xCD000"))
-    def test_check_rejects_stale_model(self):
-        with tempfile.TemporaryDirectory() as t:
-            p=Path(t)/"x.json";p.write_text("{}",encoding="utf-8")
-            with self.assertRaises(SystemExit):B.main(["--check","--output",str(p)])
-    def test_builder_has_no_native_input_or_emission(self):
-        source=(ROOT/"scripts"/"build_vv3_full256_serializer_candidate.py").read_text(encoding="utf-8")
-        for token in ("pefile","lief","keystone","capstone","stock-executables","subprocess"):
-            self.assertNotIn(token,source.lower())
-    def test_json_parses(self):json.loads(B.OUTPUT.read_text(encoding="utf-8"))
+    def setUp(self) -> None:
+        self.value = B.build()
 
-if __name__=="__main__":unittest.main()
+    def bad(self, mutate) -> None:
+        value = copy.deepcopy(self.value)
+        mutate(value)
+        with self.assertRaises(ValueError):
+            B.validate(value)
+
+    def test_checked_in_model_is_deterministic(self) -> None:
+        self.assertEqual(
+            self.value,
+            json.loads(B.OUTPUT.read_text(encoding="utf-8")),
+        )
+        self.assertEqual(B.validate(), self.value)
+
+    def test_disabled_everywhere(self) -> None:
+        self.assertFalse(self.value["enabled"])
+        self.assertFalse(self.value["catalog_visible"])
+        self.assertFalse(self.value["native_output"])
+        self.assertEqual(self.value["decision"]["status"], "STOP")
+        self.assertFalse(self.value["decision"]["atomic_writer_go"])
+        self.assertFalse(self.value["decision"]["whole_load_rollback_go"])
+
+    def test_exact_parents_and_results(self) -> None:
+        self.assertEqual(
+            [(row["mode"], row["sha256"], row["pe_checksum_before"], row["pe_checksum_after"], row["result_sha256"]) for row in self.value["parents"]],
+            [(mode, parent, before, after, result) for mode, parent, before, after, result in B.PARENTS],
+        )
+        self.assertTrue(
+            all(
+                row["size"] == "0xCC000"
+                and row["sections"] == 6
+                and row["size_of_image"] == "0x3B9000"
+                and row["result_size"] == "0xCD000"
+                and row["result_sections"] == 7
+                and row["result_size_of_image"] == "0x3BA000"
+                for row in self.value["parents"]
+            )
+        )
+
+    def test_manifest_binding_preserves_1263_rows(self) -> None:
+        self.assertEqual(
+            self.value["expanded_manifest"],
+            {"path": "data/expanded_256.json", "row_count": 1263, "rows_sha256": B.MANIFEST_ROWS_SHA256},
+        )
+
+    def test_section_plan_and_header_are_exact(self) -> None:
+        section = self.value["section_plan"]
+        self.assertEqual(
+            (section["name"], section["header_raw"], section["raw_start"], section["raw_end"], section["rva"], section["va"], section["characteristics"]),
+            (".vv3sv", "0x2F0", "0xCC000", "0xCD000", "0x3B9000", "0x7B9000", "RX"),
+        )
+        self.assertEqual(bytes.fromhex(section["header_bytes"]), B.SECTION_HEADER)
+        self.assertEqual(section["section_sha256"], B.PAGE_SHA256)
+
+    def test_section_page_layout_and_digest(self) -> None:
+        page = B.section_page()
+        self.assertEqual(len(page), 0x1000)
+        self.assertEqual(hashlib.sha256(page).hexdigest().upper(), B.PAGE_SHA256)
+        self.assertEqual(page[: len(B.SERIALIZER)], B.SERIALIZER)
+        self.assertEqual(page[0x200 : 0x200 + len(B.READER)], B.READER)
+        self.assertEqual(page[0x3C0 : 0x3C0 + len(B.GATE)], B.GATE)
+
+    def test_exact_hook_calls(self) -> None:
+        self.assertEqual(B.rel32(0x427D57, 0x7B93C0), "E864163900")
+        self.assertEqual(B.rel32(0x428A4C, 0x7B9200), "E8AF073900")
+        self.assertEqual(
+            [(row["raw"], row["preimage"], row["after"], row["target"]) for row in self.value["hooks"]],
+            [
+                ("0x27D57", "E824720300", "E864163900", "0x7B93C0"),
+                ("0x28A4C", "E80F3E0300", "E8AF073900", "0x7B9200"),
+            ],
+        )
+
+    def test_exact_routine_lengths_and_hashes(self) -> None:
+        routines = self.value["exact_routines"]
+        for name, payload in (("serializer", B.SERIALIZER), ("deserializer", B.READER), ("serializer_failure_gate", B.GATE)):
+            self.assertEqual(routines[name]["length"], len(payload))
+            self.assertEqual(bytes.fromhex(routines[name]["bytes"]), payload)
+            self.assertEqual(routines[name]["sha256"], hashlib.sha256(payload).hexdigest().upper())
+
+    def test_exact_direct_call_targets(self) -> None:
+        def target(payload: bytes, va: int, offset: int) -> int:
+            self.assertEqual(payload[offset], 0xE8)
+            return va + offset + 5 + struct.unpack_from("<i", payload, offset + 1)[0]
+
+        self.assertEqual(target(B.SERIALIZER, 0x7B9000, 0x0A), 0x428B60)
+        self.assertEqual(target(B.SERIALIZER, 0x7B9000, 0x2B), 0x455DD0)
+        self.assertEqual(target(B.SERIALIZER, 0x7B9000, 0x3D), 0x455460)
+        self.assertEqual(target(B.READER, 0x7B9200, 0x0A), 0x428B60)
+        self.assertEqual(target(B.READER, 0x7B9200, 0x42), 0x456000)
+        self.assertEqual(target(B.READER, 0x7B9200, 0x6D), 0x456830)
+        self.assertEqual(target(B.GATE, 0x7B93C0, 0x04), 0x7B9000)
+
+    def test_abis_exact(self) -> None:
+        self.assertEqual(
+            B.ABIS,
+            tuple((row["id"], row["start"], row["end"], row["sha256"], row["contract"]) for row in self.value["abis"]),
+        )
+
+    def test_wrapper_semantics_are_bounded(self) -> None:
+        wrapper = self.value["wrapper_model"]
+        self.assertEqual(wrapper["logical_indices"], "0..255")
+        self.assertEqual(wrapper["padding"], "256..259 forbidden")
+        self.assertIn("count==256 returns AL=1 without tail write", wrapper["serializer"])
+        self.assertIn("record 257 and tail are never read or written", wrapper["deserializer"])
+
+    def test_save_failure_gate_is_exact(self) -> None:
+        gate = self.value["caller_failure_gate"]
+        self.assertTrue(gate["load_caller_tests_al"])
+        self.assertTrue(gate["save_caller_tests_al"])
+        self.assertTrue(gate["recoverable_failure"])
+        self.assertEqual(gate["save_caller_patch_raw"], "0x27D57")
+        self.assertEqual(gate["save_caller_after"], "E864163900")
+
+    def test_atomic_writer_remains_null_and_disabled(self) -> None:
+        writer = self.value["atomic_writer_plan"]
+        self.assertFalse(writer["enabled"])
+        self.assertFalse(writer["native_output"])
+        self.assertEqual(writer["stock_writer"], "0x403530")
+        self.assertIsNone(writer["dynamic_api_resolver_bytes"])
+        self.assertIsNone(writer["wrapper_bytes"])
+        self.assertIsNone(writer["wrapper_sha256"])
+        self.assertIsNone(writer["import_changes"])
+
+    def test_writer_callsites_remain_expectations_not_emission(self) -> None:
+        rows = self.value["atomic_writer_plan"]["callsites"]
+        self.assertTrue(B.validate_writer_callsites(self.value))
+        self.assertTrue(all(row["emitted"] is None for row in rows))
+        self.assertEqual(
+            [(row["raw"], row["preimage"], row["expected"]) for row in rows],
+            [
+                ("0x27C7D", "E8AEB8FDFF", "E87E173900"),
+                ("0x27C92", "E899B8FDFF", "E869173900"),
+                ("0x27D6C", "E8BFB7FDFF", "E88F163900"),
+                ("0x27D81", "E8AAB7FDFF", "E87A163900"),
+            ],
+        )
+
+    def test_whole_load_rollback_remains_null_stop(self) -> None:
+        rollback = self.value["whole_load_rollback"]
+        self.assertEqual(rollback["status"], "STOP")
+        self.assertTrue(all(value is None for key, value in rollback.items() if key != "status"))
+
+    def test_each_writer_preimage_mutation_fails_closed(self) -> None:
+        for index in range(4):
+            changed = copy.deepcopy(self.value)
+            changed["atomic_writer_plan"]["callsites"][index]["preimage"] = "00" * 5
+            self.assertFalse(B.validate_writer_callsites(changed), index)
+            with self.assertRaises(ValueError):
+                B.validate(changed)
+
+    def test_static_page_mutation_fails_closed(self) -> None:
+        self.bad(lambda value: value["exact_routines"]["serializer"].update(bytes="90"))
+
+    def test_parent_rebind_fails_closed(self) -> None:
+        self.bad(lambda value: value["parents"][0].update(sha256="0" * 64))
+
+    def test_manifest_rebind_fails_closed(self) -> None:
+        self.bad(lambda value: value["expanded_manifest"].update(row_count=1262))
+
+    def test_atomic_writer_claim_fails_closed(self) -> None:
+        self.bad(lambda value: value["atomic_writer_plan"].update(enabled=True))
+
+    def test_whole_load_rollback_claim_fails_closed(self) -> None:
+        self.bad(lambda value: value["whole_load_rollback"].update(status="GO"))
+
+    def test_wrong_parent_rejected(self) -> None:
+        with self.assertRaisesRegex(ValueError, "wrong parent"):
+            B.render_candidate(bytes(0xCC000), B.PARENTS[0][0])
+
+    def _render_exact_parents(self) -> list[tuple[str, bytes]]:
+        stock = ROOT / "research" / "stock-executables" / "Virtual Villagers - The Secret City.exe"
+        if not stock.is_file():
+            self.skipTest("exact VV3 stock executable is not present")
+        sys.path.insert(0, str(ROOT / "src"))
+        from vv_fun_patcher import FunPatch, load_builds, render_patched_bytes
+
+        build = next(item for item in load_builds() if item.id == "vv3")
+        features = [
+            FunPatch(json.loads((ROOT / "data" / "candidates" / "vv3_origins_running_base_candidate.json").read_text(encoding="utf-8"))),
+            FunPatch(json.loads((ROOT / "data" / "candidates" / "vv3_all_villagers_like_running_candidate.json").read_text(encoding="utf-8"))),
+        ]
+        return [
+            (mode, bytes(render_patched_bytes(stock, build, mode, _fun_patches_override=features)[0]))
+            for mode, *_ in B.PARENTS
+        ]
+
+    def test_source_bound_renderer_matches_both_exact_results(self) -> None:
+        expected = {row["mode"]: row for row in self.value["parents"]}
+        for mode, parent in self._render_exact_parents():
+            with self.subTest(mode=mode):
+                rendered = B.render_candidate(parent, mode)
+                self.assertEqual(len(rendered), 0xCD000)
+                self.assertEqual(hashlib.sha256(rendered).hexdigest().upper(), expected[mode]["result_sha256"])
+                self.assertEqual(rendered[0xCC000:0xCD000], B.section_page())
+                self.assertEqual(rendered[0x27D57:0x27D5C].hex().upper(), "E864163900")
+                self.assertEqual(rendered[0x28A4C:0x28A51].hex().upper(), "E8AF073900")
+
+    def test_check_rejects_stale_model(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "candidate.json"
+            path.write_text("{}", encoding="utf-8")
+            with self.assertRaises(ValueError):
+                B.main(["--check", "--output", str(path)])
+
+    def test_cli_check_and_dry_run(self) -> None:
+        checked = subprocess.run(
+            [sys.executable, str(ROOT / "scripts" / "build_vv3_full256_serializer_candidate.py"), "--check"],
+            capture_output=True,
+            text=True,
+        )
+        self.assertEqual(checked.returncode, 0, checked.stderr)
+        dry = subprocess.run(
+            [sys.executable, str(ROOT / "scripts" / "build_vv3_full256_serializer_candidate.py"), "--dry-run"],
+            capture_output=True,
+            text=True,
+        )
+        self.assertEqual(dry.returncode, 0, dry.stderr)
+        self.assertIn("STOP", dry.stdout)
+        self.assertIn("whole-load rollback", dry.stdout)
+
+    def test_json_parses(self) -> None:
+        json.loads(B.OUTPUT.read_text(encoding="utf-8"))
+
+
+if __name__ == "__main__":
+    unittest.main()
