@@ -83,6 +83,7 @@ class VV2OriginsPlaytestFeatureTests(unittest.TestCase):
             encoding="utf-8"
         )
         self.assertIn("mov ecx, edi", source)
+        self.assertIn("mov edi, dword ptr [esi + 0x0C]", source)
         self.assertIn("call 0x425860", source)
         self.assertIn("cmp eax, 254", source)
         self.assertIn("push 10\n            push 21\n            call 0x433600", source)

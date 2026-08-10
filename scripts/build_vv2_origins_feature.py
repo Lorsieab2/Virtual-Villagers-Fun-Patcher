@@ -426,6 +426,11 @@ def main() -> None:
             test eax, eax
             jz menu_loop
         tech_purchase_ready:
+            # The menu/confirmation helpers may use EDI internally.  The
+            # stock handler reacquires its village object from [ESI+0x0C]
+            # before each native read/write; do the same before any command
+            # reaches the capacity, charge, or removal paths.
+            mov edi, dword ptr [esi + 0x0C]
 
             cmp ebx, 3
             jb preflight
