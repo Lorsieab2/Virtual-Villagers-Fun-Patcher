@@ -18,12 +18,11 @@ def validate(path=MODEL):
     require(d["parent"]=={"mode":"experimental_expanded_256","size":0xE3000,"sha256":PARENT_SHA,"exclusive":True},"exclusive parent")
     require(d["rejected_composed_parents"]==["full_mastery","full_heal","fullscreen","running"],"composed-parent rejection")
     require(d["ledger_bindings"]["vv4"]=={"count":13,"digest":"CEE01F4AEC59CB1CEE0F42E3DDDB3A24615261E628ED0629C1BFAABF421A897D"},"VV4 ledger")
-    s=d["section"]; require(s["name"]==".vv4x" and (s["raw_start"],s["raw_end"],s["rva"],s["va"],s["header_raw"])==(0xE3000,0xE4000,0x471000,0x871000,0x2C0),"section layout")
-    require(s["characteristics"]=="RX" and s["header_guard"]=="00"*40 and s["final_header_bytes"] is None,"section header guard")
-    expected=[("serializer",0x4660A0,0x660A0,"5355565733",0x871000,"E95BAF4000"),("deserializer",0x466110,0x66110,"5356578D79",0x871100,"E9EBAF4000")]
+    s=d["section"]; require(s=={"name":".vv4x","header_raw":0x2C0,"raw_start":0xE3000,"raw_end":0xE4000,"raw_size":0x1000,"rva":0x471000,"va":0x871000,"virtual_size":0x1000,"characteristics":"RX","old_size_of_image":0x471000,"new_size_of_image":0x472000,"header_guard":"00"*40,"final_header_bytes":None},"section layout")
+    expected=[("serializer",0x4660A0,0x660A0,"5355565733",0x871000,"E95BAF4000",0xE3000),("deserializer",0x466110,0x66110,"5356578D79",0x871100,"E9EBAF4000",0xE3100)]
     for row,e in zip(d["hooks"],expected):
-        name,va,raw,before,target,after=e
-        require((row["name"],row["va"],row["raw"],row["before"],row["target"],row["after"])==e,"hook pin")
+        name,va,raw,before,target,after,wrapper_raw=e
+        require((row["name"],row["va"],row["raw"],row["before"],row["target"],row["after"],row["wrapper_raw"])==e,"hook pin")
         require(rel32(va,target)==after,"rel32 mismatch")
     helpers={"drain":("0x45EAA0","0x45EAD9","13BBB3D0FB0BE6970B5EB454B706229CF536487C9C5481527FE64F8EE17B5E75"),"singleton":("0x41FE70","0x41FEEA","CFD2040568A260D38E125A6973C4B849FBBA0440553A2A301DDA79C0317BBE08"),"encode":("0x45DB30","0x45DBD1","EB2932E1BAED9F12AD14928677DC1A3248DF9A0615A7C67A400A1604474844E3"),"reset":("0x45D8A0","0x45D9AC","BA84FBE6CC322E112B7CF8956EC433516E5623E36767FD35578CB2691A0FE469"),"decode":("0x45DBE0","0x45DCD0","68A1C70F2CE2F3EA627FF17F55A5D6A22C2182CE248B664440BB36EDD9358A07")}
     for name,pin in helpers.items(): require(tuple(d["d353_helpers"][name][k] for k in ("ea","end","sha256"))==pin,"D353 helper pin")

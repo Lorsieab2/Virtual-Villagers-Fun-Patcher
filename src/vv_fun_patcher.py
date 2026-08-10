@@ -36,6 +36,26 @@ def source_text_sha256(payload: bytes) -> str:
 MANIFEST_PATH = ROOT / "data" / "builds.json"
 EXPANDED_MANIFEST_PATH = ROOT / "data" / "expanded_256.json"
 VV4_EXPANDED_CONTRACT_PATH = ROOT / "data" / "vv4_expanded_256_contract.json"
+EXPANDED_MANIFEST_IDENTITIES = {
+    "vv3": {
+        "source_sha256": "8BC5DB382D02BC5C21AD5F607580D60FF44A6519CC7EB133F03113BAACAE6503",
+        "prototype_sha256": "6EE3361A7AC35F441763647C1E2FC9EC49569DE5EF372BDB41D243D03002D601",
+        "patch_count": 1263,
+        "patches_sha256": "04B93127BC4D5C6787AB013DE9205813D44947DBC16A370DBC234C06588AC3FB",
+    },
+    "vv4": {
+        "source_sha256": "6D27A429FFCA5F1F71FDD7ECA761ED1BB67E85F976494BA178B3D7BE01F1B220",
+        "prototype_sha256": "3697317341C23B107F8C06F6D4164BC4602BF5CB90DFB56A6B68EB7EA3C43EE1",
+        "patch_count": 1771,
+        "patches_sha256": "99ABB42FF46A05B92DA96D7EB80F86A8BA5B165CC83795209C652044A683ED71",
+    },
+    "vv5": {
+        "source_sha256": "92946781980220E9D1A2E6C573925519934608F5215F4A0F8CE3B90088C5C65D",
+        "prototype_sha256": "1C825CB6AC3C7E1368D3EFD9C81E844A336AB31C7EBA0971674601F25E3E8F0B",
+        "patch_count": 1951,
+        "patches_sha256": "D0E899B112C106AF136D6D2F91C68C97CF6B431DB6F5457CBD6211852BA01431",
+    },
+}
 VV5_ORIGINS_STOCK_SHA256 = "92946781980220E9D1A2E6C573925519934608F5215F4A0F8CE3B90088C5C65D"
 VV5_ORIGINS_RELOCATION_PARTITIONS = {
     "payload_internal_absolute": frozenset(
@@ -3619,6 +3639,15 @@ def _relocate_expanded_shr_fun_patches(
             raise PatcherError(
                 f"{feature.name} declares an expanded .shr relocation but is not a VV4/VV5 feature."
             )
+        expected_identity = EXPANDED_MANIFEST_IDENTITIES[build.id]
+        if feature.raw.get("game_id") != build.id:
+            raise PatcherError(
+                f"{feature.name} expanded .shr relocation game identity does not match {build.id}."
+            )
+        if build.sha256 != expected_identity["source_sha256"]:
+            raise PatcherError(
+                f"{feature.name} expanded .shr relocation requires the exact {build.id} stock fingerprint."
+            )
         _validate_vv4_origins_relocation_contract(feature, relocation)
         _validate_vv5_origins_relocation_contract(feature, relocation)
         try:
@@ -3801,6 +3830,59 @@ def _relocate_expanded_shr_fun_patches(
     return applied
 
 
+def _validate_expanded_manifest_identity(
+    build: Build,
+    game: dict[str, Any],
+) -> None:
+    expected = EXPANDED_MANIFEST_IDENTITIES.get(build.id)
+    if expected is None:
+        raise PatcherError(f"Expanded-256 manifest has no exact identity for {build.id}.")
+    if build.sha256 != expected["source_sha256"] or game.get("source_sha256") != expected["source_sha256"]:
+        raise PatcherError(
+            f"Expanded-256 manifest source fingerprint is not the exact {build.id} build."
+        )
+    if game.get("prototype_sha256") != expected["prototype_sha256"]:
+        raise PatcherError(
+            f"Expanded-256 {build.id} prototype fingerprint drifted."
+        )
+    patches = game.get("patches")
+    if not isinstance(patches, list) or game.get("patch_count") != expected["patch_count"]:
+        raise PatcherError(
+            f"Expanded-256 {build.id} manifest patch count drifted."
+        )
+    if len(patches) != expected["patch_count"]:
+        raise PatcherError(
+            f"Expanded-256 {build.id} manifest is incomplete."
+        )
+    offsets: set[int] = set()
+    for patch in patches:
+        if not isinstance(patch, dict):
+            raise PatcherError(f"Expanded-256 {build.id} manifest row is malformed.")
+        offset_text = patch.get("offset")
+        try:
+            offset = int(offset_text, 0)
+            before = bytes.fromhex(str(patch["before"]))
+            after = bytes.fromhex(str(patch["after"]))
+        except (KeyError, TypeError, ValueError) as exc:
+            raise PatcherError(
+                f"Expanded-256 {build.id} manifest row is malformed."
+            ) from exc
+        if not isinstance(offset_text, str) or offset in offsets:
+            raise PatcherError(
+                f"Expanded-256 {build.id} manifest contains duplicate or malformed offsets."
+            )
+        if offset < 0 or not before or len(before) != len(after) or offset + len(before) > build.size:
+            raise PatcherError(
+                f"Expanded-256 {build.id} manifest row bounds or lengths are invalid."
+            )
+        offsets.add(offset)
+    actual_digest = _relocation_ledger_sha256(patches)
+    if actual_digest != expected["patches_sha256"]:
+        raise PatcherError(
+            f"Expanded-256 {build.id} manifest row identity drifted."
+        )
+
+
 def _expanded_patches(build: Build, variant: dict[str, Any]) -> list[dict[str, str]]:
     if not variant.get("expanded_records", False):
         return []
@@ -3811,10 +3893,7 @@ def _expanded_patches(build: Build, variant: dict[str, Any]) -> list[dict[str, s
         raise PatcherError(
             f"Experimental 256 data is missing for {build.title}."
         ) from exc
-    if game["source_sha256"] != build.sha256:
-        raise PatcherError(
-            f"Experimental 256 data does not match {build.title}'s supported build."
-        )
+    _validate_expanded_manifest_identity(build, game)
     if build.id == "vv4":
         _validate_vv4_expanded_contract(game)
     return game["patches"]

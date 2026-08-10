@@ -6,12 +6,17 @@ ROOT = Path(__file__).resolve().parents[1]
 DATA = ROOT / "data/vv4_full256_serializer_evidence.json"
 VV4_DIGEST = "CEE01F4AEC59CB1CEE0F42E3DDDB3A24615261E628ED0629C1BFAABF421A897D"
 VV5_C342_DIGEST = "14E460773ADC065E053FA30921ED01D33A5F36AD49DC754CCD69127EA02C01B7"
+SERIALIZER_ROWS_SHA256 = "76C0C67381AD1DBDB630929E8CC4B599D410DCB4E6A66FABD9D79D9A4BF84F8A"
+DESERIALIZER_ROWS_SHA256 = "02A4012A602D27538B1C7DA56FA5917EBCD6BA12C32D641CD35AE9486563814A"
 
 def fail(ok, msg):
     if not ok: raise ValueError(msg)
 
 def ledger_digest(doc):
     rows = doc["expanded_shr_relocations"]["patches"]
+    return hashlib.sha256(json.dumps(rows, sort_keys=True, separators=(",", ":")).encode()).hexdigest().upper()
+
+def row_digest(rows):
     return hashlib.sha256(json.dumps(rows, sort_keys=True, separators=(",", ":")).encode()).hexdigest().upper()
 
 def validate(path=DATA, root=ROOT):
@@ -24,8 +29,8 @@ def validate(path=DATA, root=ROOT):
     fail(d["bindings"]["c342_vv5_relocation_ledger"]=={"path":"data/vv5_origins_feature.json","count":66,"digest":VV5_C342_DIGEST,"integration_only":True},"C342 VV5 binding")
     fail(d["geometry"]=={"stock_body":94476,"table_start":51296,"stock_tail_start":90296,"record_stride":260,"added_records":106,"expanded_tail_start":117856,"expanded_body":122036,"expanded_file":122060,"header":24},"geometry")
     s=d["stock_functions"]["serializer"]; r=d["stock_functions"]["deserializer"]
-    fail(len(s["rows"])==24 and s["rows"][21]==["0x4660FE","C6841868C8000000","unconditional terminator"],"serializer exact rows")
-    fail(len(r["rows"])==16 and r["unresolved_exact_rows"]==["0x466132 acquire compact base call","0x466151 call 45DBE0","0x46616C next-zero instruction"],"deserializer exact/unknown rows")
+    fail(len(s["rows"])==24 and row_digest(s["rows"]) == SERIALIZER_ROWS_SHA256 and s["rows"][21]==["0x4660FE","C6841868C8000000","unconditional terminator"],"serializer exact rows")
+    fail(len(r["rows"])==16 and row_digest(r["rows"]) == DESERIALIZER_ROWS_SHA256 and r["unresolved_exact_rows"]==["0x466132 acquire compact base call","0x466151 call 45DBE0","0x46616C next-zero instruction"],"deserializer exact/unknown rows")
     fail(s["hook_guard"]=={"raw":417952,"bytes":"5355565733"} and r["hook_guard"]=={"raw":418064,"bytes":"5356578D79"},"hook guards")
     fail(d["required_semantics"]=={"writer_bound":256,"terminator_predicate":"packed_count < 256","full_256_terminator":False,"reader_hard_bound":256,"full_unterminated_256_success":True,"tail_start":"0x1CC60","tail_preserved":True},"required semantics")
     fail(d["current_candidate"]["status"]=="insufficient_stop" and len(d["current_candidate"]["immediate_edits"])==2,"candidate insufficiency")

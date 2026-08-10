@@ -20,6 +20,7 @@ from vv_fun_patcher import (  # noqa: E402
     _validate_vv4_expanded_contract,
     _validate_vv4_origins_relocation_contract,
     _validate_vv5_origins_relocation_contract,
+    _expanded_patches,
     load_builds,
 )
 
@@ -36,11 +37,51 @@ VV4_FEATURE = json.loads(
 VV5_FEATURE = json.loads(
     (ROOT / "data" / "vv5_origins_feature.json").read_text(encoding="utf-8")
 )
+EXPANDED_MANIFEST = json.loads(
+    (ROOT / "data" / "expanded_256.json").read_text(encoding="utf-8")
+)
 VV4_BUILD = next(item for item in load_builds() if item.id == "vv4")
 VV5_BUILD = next(item for item in load_builds() if item.id == "vv5")
 
 
 class Expanded256AdversarialContractTests(unittest.TestCase):
+    def test_expanded_manifest_identity_is_complete_for_vv4_and_vv5(self) -> None:
+        for build in (VV4_BUILD, VV5_BUILD):
+            with self.subTest(game=build.id):
+                patches = _expanded_patches(build, {"expanded_records": True})
+                self.assertEqual(
+                    len(patches), EXPANDED_MANIFEST["games"][build.id]["patch_count"]
+                )
+
+    def test_expanded_manifest_identity_mutations_fail_closed(self) -> None:
+        for game_id, build in (("vv4", VV4_BUILD), ("vv5", VV5_BUILD)):
+            for mutation in ("prototype", "count", "missing", "duplicate", "row"):
+                broken = copy.deepcopy(EXPANDED_MANIFEST)
+                game = broken["games"][game_id]
+                if mutation == "prototype":
+                    game["prototype_sha256"] = "0" * 64
+                elif mutation == "count":
+                    game["patch_count"] -= 1
+                elif mutation == "missing":
+                    game["patches"].pop()
+                elif mutation == "duplicate":
+                    game["patches"].append(copy.deepcopy(game["patches"][0]))
+                else:
+                    game["patches"][0]["after"] = "00" * (len(bytes.fromhex(game["patches"][0]["after"])))
+                with tempfile.TemporaryDirectory() as temp_dir, self.subTest(game=game_id, mutation=mutation):
+                    manifest_path = Path(temp_dir) / "expanded.json"
+                    manifest_path.write_text(json.dumps(broken), encoding="utf-8")
+                    with patch.object(vv_fun_patcher, "EXPANDED_MANIFEST_PATH", manifest_path):
+                        with self.assertRaises(PatcherError):
+                            _expanded_patches(build, {"expanded_records": True})
+
+    def test_relocation_helper_rejects_cross_game_feature_identity(self) -> None:
+        feature = FunPatch(VV4_FEATURE)
+        data = self._vv4_buffer()
+        with self.assertRaisesRegex(PatcherError, "game identity"):
+            _relocate_expanded_shr_fun_patches(
+                VV5_BUILD, "experimental_expanded_256", [feature], data
+            )
     @staticmethod
     def _mutated_row_value(field: str, value: object) -> object:
         if field == "kind":

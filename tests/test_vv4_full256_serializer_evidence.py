@@ -13,6 +13,8 @@ class ContractTests(unittest.TestCase):
     def test_publication_rejected(self): self.check_bad(lambda d:d["publication"].update(enabled=True))
     def test_wrong_geometry_rejected(self): self.check_bad(lambda d:d["geometry"].update(expanded_file=122059))
     def test_terminator_row_rejected(self): self.check_bad(lambda d:d["stock_functions"]["serializer"]["rows"][21].__setitem__(1,"90"))
+    def test_nonterminator_serializer_row_rejected(self): self.check_bad(lambda d:d["stock_functions"]["serializer"]["rows"][0].__setitem__(1,"90"))
+    def test_nonterminator_deserializer_row_rejected(self): self.check_bad(lambda d:d["stock_functions"]["deserializer"]["rows"][0].__setitem__(1,"90"))
     def test_reader_unknown_row_removed_rejected(self): self.check_bad(lambda d:d["stock_functions"]["deserializer"].update(unresolved_exact_rows=[]))
     def test_one_immediate_overclaim_rejected(self): self.check_bad(lambda d:d["current_candidate"].update(status="complete"))
     def test_nonnull_hook_rejected(self): self.check_bad(lambda d:d["replacement"].update(serializer_hook_target="0x1234"))
