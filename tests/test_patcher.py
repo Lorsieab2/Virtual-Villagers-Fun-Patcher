@@ -1040,6 +1040,24 @@ class StockIntegrationTests(unittest.TestCase):
                 )
                 self.assertEqual(destination, wrapper_offset)
 
+    def test_vv2_saturation_cave_metadata_uses_authenticated_fdff_tails(self) -> None:
+        vv2 = next(build for build in load_builds() if build.id == "vv2")
+        safety = {
+            int(patch["offset"], 0): patch for patch in vv2.safety_patches
+        }
+        expected_tails = {
+            0x73C40: "E9277EFDFF",
+            0x73C70: "E92B7EFDFF",
+        }
+        for offset, expected_tail in expected_tails.items():
+            with self.subTest(offset=hex(offset)):
+                patch = safety[offset]
+                before = bytes.fromhex(patch["before"])
+                after = bytes.fromhex(patch["after"])
+                self.assertEqual(before, b"\0" * len(before))
+                self.assertEqual(len(after), len(before))
+                self.assertEqual(patch["after"][-10:], expected_tail)
+
     def test_vv4_vv5_abandoned_infants_are_clamped_to_remaining_slots(self) -> None:
         checks = {
             "vv4": (
