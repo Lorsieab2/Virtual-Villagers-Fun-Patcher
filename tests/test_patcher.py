@@ -147,6 +147,155 @@ class ManifestTests(unittest.TestCase):
         self.assertNotIn("call 0x401AD0", barrel_block)
         self.assertNotIn("call 0x433190", barrel_block)
 
+    def test_vv2_doublers_confirm_before_any_bit_change(self) -> None:
+        source = (ROOT / "scripts" / "build_vv2_origins_feature.py").read_text(
+            encoding="utf-8"
+        )
+        confirmation = source[
+            source.index("            cmp ebx, 0\n            je confirm_tech_purchase") :
+            source.index("        tech_purchase_ready:")
+        ]
+        self.assertIn("cmp ebx, 3\n            je confirm_tech_purchase", confirmation)
+        self.assertIn("cmp ebx, 4\n            je confirm_tech_purchase", confirmation)
+        self.assertIn("call 0x{confirm_dialog:X}", confirmation)
+        for write in (
+            "or dword ptr [edi + 0x2EAE8], 1",
+            "or dword ptr [edi + 0x2EAE8], 2",
+            "and dword ptr [edi + 0x2EAE8], 0xFFFFFFFE",
+            "and dword ptr [edi + 0x2EAE8], 0xFFFFFFFD",
+        ):
+            self.assertGreater(source.index(write), source.index("tech_purchase_ready:"))
+
+    def test_vv2_cure_and_running_dry_scan_before_single_charge(self) -> None:
+        source = (ROOT / "scripts" / "build_vv2_origins_feature.py").read_text(
+            encoding="utf-8"
+        )
+        charge_block = source[
+            source.index("        charge:") :
+            source.index("        barrel_capacity_preflight:")
+        ]
+        running_preflight = charge_block.index("call 0x{VILLAGE_PREFLIGHT_VA:X}")
+        running_no_change = charge_block.index("cmp eax, 2", running_preflight)
+        running_deduction = charge_block.index(
+            "sub dword ptr [edi + 0x2EADC], 1000000", running_no_change
+        )
+        cure_preflight = charge_block.index("call 0x{CURE_PREFLIGHT_VA:X}")
+        legacy_deduction = charge_block.index(
+            "sub dword ptr [edi + 0x2EADC], eax", cure_preflight
+        )
+        self.assertLess(running_preflight, running_no_change)
+        self.assertLess(running_no_change, running_deduction)
+        self.assertLess(cure_preflight, legacy_deduction)
+        self.assertIn(
+            '"No changes were needed. No tech points have been deducted."', source
+        )
+
+        preflight = source[
+            source.index("    preflight_code = assemble(") :
+            source.index("    cure_preflight_code = assemble(")
+        ]
+        self.assertIn("mov ecx, 256", preflight)
+        self.assertEqual(preflight.count("mov ebx, 62"), 2)
+        self.assertIn("mov eax, 2\n            ret", preflight)
+        cure_preflight_source = source[
+            source.index("    cure_preflight_code = assemble(") :
+            source.index("    detail_preflight_code = assemble(")
+        ]
+        for check in (
+            "mov ecx, 256",
+            "cmp byte ptr [edx + 0x30], 0",
+            "cmp dword ptr [edx + 0x52C], 0",
+            "cmp dword ptr [edx + 0x53C], 0",
+        ):
+            self.assertIn(check, cure_preflight_source)
+
+        running_apply = source[
+            source.index("        running_record:") : source.index("        cure_all:")
+        ]
+        self.assertEqual(running_apply.count("mov ebx, 62"), 2)
+        clear_dislikes = running_apply.index("        running_clear_dislikes:")
+        existing_like = running_apply.index("            test ebp, 1", clear_dislikes)
+        store_like = running_apply.index(
+            f"            mov dword ptr [esi], {{RUNNING_PREFERENCE_ID}}",
+            existing_like,
+        )
+        self.assertLess(clear_dislikes, existing_like)
+        self.assertLess(existing_like, store_like)
+
+    def test_vv2_detail_actions_recheck_and_noop_before_charge(self) -> None:
+        source = (ROOT / "scripts" / "build_vv2_origins_feature.py").read_text(
+            encoding="utf-8"
+        )
+        detail = source[
+            source.index("        detail_purchase_ready:") :
+            source.index("        detail_youth:")
+        ]
+        active_recheck = detail.index("cmp byte ptr [edx + 0x30], 0")
+        preflight = detail.index("call 0x{DETAIL_PREFLIGHT_VA:X}", active_recheck)
+        no_change = detail.index("mov eax, 0x{s['running_no_change']:X}", preflight)
+        deduction = detail.index("sub dword ptr [edi + 0x2EADC], eax", no_change)
+        self.assertLess(active_recheck, preflight)
+        self.assertLess(preflight, no_change)
+        self.assertLess(no_change, deduction)
+
+        helper = source[
+            source.index("    detail_preflight_code = assemble(") :
+            source.index("    patch(\n        HEAL_CAVE_FILE_OFFSET")
+        ]
+        self.assertEqual(helper.count("mov ecx, 62"), 2)
+        for exact_target in (
+            "cmp dword ptr [edx + 0x7E4], 90",
+            "cmp dword ptr [edx + 0x7F4], 90",
+            "cmp dword ptr [edx + 0x530], 360",
+            "cmp dword ptr [edx + 0x534], 360",
+            "cmp eax, 318",
+        ):
+            self.assertIn(exact_target, helper)
+
+        running = source[
+            source.index("        detail_running:") :
+            source.index("        detail_success:")
+        ]
+        self.assertEqual(running.count("mov eax, 62"), 2)
+        self.assertIn("or ebp, 1", running)
+        self.assertIn("mov dword ptr [ecx], -1", running)
+        self.assertIn("mov dword ptr [edi], {RUNNING_PREFERENCE_ID}", running)
+
+    def test_vv2_transaction_helpers_are_emitted_without_frozen_route_drift(self) -> None:
+        manifest = json.loads(
+            (ROOT / "data" / "vv2_origins_feature.json").read_text(encoding="utf-8")
+        )
+        rows = {int(row["offset"], 0): row for row in manifest["patches"]}
+        self.assertEqual(len(rows), 20)
+        self.assertIn("dry-scan all 256", rows[0x9A300]["purpose"])
+        self.assertIn("selected active record", rows[0x9A380]["purpose"])
+        self.assertIn("all 62 Like and Dislike", rows[0x9A009]["purpose"])
+        shr_ranges = sorted(
+            (
+                offset,
+                offset + len(bytes.fromhex(row["after"])),
+            )
+            for offset, row in rows.items()
+            if 0x9A000 <= offset < 0x9B000
+        )
+        for prior, current in zip(shr_ranges, shr_ranges[1:]):
+            self.assertLessEqual(prior[1], current[0])
+        self.assertEqual(rows[0x34570]["after"], "E973070600")
+        self.assertEqual(rows[0x9A700]["after"], "00")
+        self.assertEqual(
+            rows[0x9A710]["after"],
+            "8B4E146A4BE8F628FAFF6A008BCEE8CDF0F6FF8B460C"
+            "C7807004030001000000803D00C74900007436C60500C7490000"
+            "81ECD8500000682C1A4B7F6A028D4C2408E88A81F9FF"
+            "6A00568D4C2408E86E53F6FF89E1E8276AF9FF"
+            "81C4D8500000E98670FAFF",
+        )
+        source = (ROOT / "scripts" / "build_vv2_origins_feature.py").read_text(
+            encoding="utf-8"
+        )
+        self.assertIn("push 10\n            push 21\n            call 0x433600", source)
+        self.assertIn("push 563\n            push 136", source)
+
     def test_running_preference_id_matches_each_stock_table(self) -> None:
         evidence = {
             "vv1": ("Virtual Villagers - A New Home.exe", 0x7B260),

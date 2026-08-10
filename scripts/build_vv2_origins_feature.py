@@ -41,6 +41,14 @@ STRINGS_VA = PAYLOAD_VA + STRINGS_OFFSET
 SHR_FILE_OFFSET = 0x9A000
 SHR_RVA = 0x9C000
 HEAL_CAVE_FILE_OFFSET = 0x9A004
+CURE_PREFLIGHT_FILE_OFFSET = 0x9A300
+CURE_PREFLIGHT_VA = IMAGE_BASE + SHR_RVA + (
+    CURE_PREFLIGHT_FILE_OFFSET - SHR_FILE_OFFSET
+)
+DETAIL_PREFLIGHT_FILE_OFFSET = 0x9A380
+DETAIL_PREFLIGHT_VA = IMAGE_BASE + SHR_RVA + (
+    DETAIL_PREFLIGHT_FILE_OFFSET - SHR_FILE_OFFSET
+)
 CURE_ENTRY_FILE_OFFSET = 0x9A530
 CURE_ENTRY_VA = IMAGE_BASE + SHR_RVA + (CURE_ENTRY_FILE_OFFSET - SHR_FILE_OFFSET)
 HEAL_CAVE_VA = CURE_ENTRY_VA
@@ -138,13 +146,15 @@ def main() -> None:
         ),
         ("running_unavailable", "Running cannot be added."),
         ("running_granted", "All villagers like running."),
-        ("running_no_change", "No eligible villagers were changed."),
+        (
+            "running_no_change",
+            "No changes were needed. No tech points have been deducted.",
+        ),
         ("icons_dll", "VVFP Origins Icons.dll"),
         ("show_dialog_export", "ShowOriginsUpgradeMenuState"),
         ("show_result_export", "ShowOriginsVillageWideResult"),
         ("user32_dll", "USER32.dll"),
         ("message_box_export", "MessageBoxA"),
-        ("cure_all", "Cure all Villagers"),
     ):
         add_c_string(strings, s, name, value)
 
@@ -430,6 +440,10 @@ def main() -> None:
             je confirm_tech_purchase
             cmp ebx, 2
             je confirm_tech_purchase
+            cmp ebx, 3
+            je confirm_tech_purchase
+            cmp ebx, 4
+            je confirm_tech_purchase
             cmp ebx, 5
             je confirm_tech_purchase
             cmp ebx, 6
@@ -481,16 +495,29 @@ def main() -> None:
             cmp ebx, 6
             jne unsupported_village_command
             call 0x{VILLAGE_PREFLIGHT_VA:X}
-            test eax, eax
-            jz menu_loop
+            cmp eax, 2
+            je village_no_change
+            cmp eax, 1
+            jne menu_loop
             cmp dword ptr [edi + 0x2EADC], 1000000
             jb insufficient
             sub dword ptr [edi + 0x2EADC], 1000000
             jmp do_village_wide
+        village_no_change:
+            mov eax, 0x{s['running_no_change']:X}
+            jmp show_status
         unsupported_village_command:
             mov eax, 0x{s['running_unavailable']:X}
             jmp show_status
         legacy_charge:
+            cmp ebx, 5
+            jne legacy_charge_ready
+            call 0x{CURE_PREFLIGHT_VA:X}
+            test eax, eax
+            jnz legacy_charge_ready
+            mov eax, 0x{s['running_no_change']:X}
+            jmp show_status
+        legacy_charge_ready:
             mov eax, dword ptr [0x{s['tech_costs']:X} + ebx*4]
             cmp ebx, 2
             je barrel_capacity_preflight
@@ -698,19 +725,12 @@ def main() -> None:
             imul ecx, ecx, 0xE48C
             mov edx, dword ptr [esi + 0x10]
             add edx, ecx
-            cmp ebx, 2
-            jne detail_charge
-            lea eax, [edx + 0x5F0]
-            mov ecx, 3
-        running_preflight:
-            cmp dword ptr [eax], {RUNNING_PREFERENCE_ID}
-            je detail_charge
-            cmp dword ptr [eax], -1
-            je detail_charge
-            add eax, 4
-            dec ecx
-            jne running_preflight
-            mov eax, 0x{s['running_unavailable']:X}
+            cmp byte ptr [edx + 0x30], 0
+            je detail_done
+            call 0x{DETAIL_PREFLIGHT_VA:X}
+            test eax, eax
+            jnz detail_charge
+            mov eax, 0x{s['running_no_change']:X}
             jmp detail_status
 
         detail_charge:
@@ -759,23 +779,27 @@ def main() -> None:
             jmp detail_success
 
         detail_running:
+            xor ebp, ebp
+            xor edi, edi
             lea ecx, [edx + 0x5F0]
-            mov eax, 3
+            mov eax, 62
         running_find_like:
             cmp dword ptr [ecx], {RUNNING_PREFERENCE_ID}
-            je running_remove_dislikes
+            jne running_check_empty
+            or ebp, 1
+        running_check_empty:
             cmp dword ptr [ecx], -1
-            je running_store_like
+            jne running_next_like
+            test edi, edi
+            jnz running_next_like
+            mov edi, ecx
+        running_next_like:
             add ecx, 4
             dec eax
             jne running_find_like
-            mov eax, 0x{s['running_unavailable']:X}
-            jmp detail_status
-        running_store_like:
-            mov dword ptr [ecx], {RUNNING_PREFERENCE_ID}
         running_remove_dislikes:
             lea ecx, [edx + 0x6E8]
-            mov eax, 3
+            mov eax, 62
         running_dislike_loop:
             cmp dword ptr [ecx], {RUNNING_PREFERENCE_ID}
             jne running_next_dislike
@@ -784,6 +808,11 @@ def main() -> None:
             add ecx, 4
             dec eax
             jne running_dislike_loop
+            test ebp, 1
+            jnz detail_success
+            test edi, edi
+            jz detail_success
+            mov dword ptr [edi], {RUNNING_PREFERENCE_ID}
         detail_success:
             mov eax, 0x{s['purchased']:X}
             jmp detail_status
@@ -916,6 +945,7 @@ def main() -> None:
             cmp dword ptr [edx + 0x52C], 0
             jle running_next_record
             xor ebp, ebp
+            xor esi, esi
             lea edi, [edx + 0x5F0]
             mov ebx, 62
         running_scan_likes:
@@ -925,36 +955,33 @@ def main() -> None:
         running_scan_like_empty:
             cmp dword ptr [edi], -1
             jne running_scan_like_next
-            or ebp, 2
+            test esi, esi
+            jnz running_scan_like_next
+            mov esi, edi
         running_scan_like_next:
             add edi, 4
             dec ebx
             jne running_scan_likes
-            test ebp, 1
-            jnz running_skip_record
-            test ebp, 2
-            jz running_skip_record
-            lea edi, [edx + 0x5F0]
-            mov ebx, 62
-        running_find_like:
-            cmp dword ptr [edi], -1
-            je running_store_like
-            add edi, 4
-            dec ebx
-            jne running_find_like
-            jmp running_skip_record
-        running_store_like:
-            mov dword ptr [edi], {RUNNING_PREFERENCE_ID}
             lea edi, [edx + 0x6E8]
             mov ebx, 62
         running_clear_dislikes:
             cmp dword ptr [edi], {RUNNING_PREFERENCE_ID}
             jne running_next_dislike
             mov dword ptr [edi], -1
+            or ebp, 4
         running_next_dislike:
             add edi, 4
             dec ebx
             jne running_clear_dislikes
+            test ebp, 1
+            jnz running_record_done
+            test esi, esi
+            jz running_record_done
+            mov dword ptr [esi], {RUNNING_PREFERENCE_ID}
+            or ebp, 4
+        running_record_done:
+            test ebp, 4
+            jz running_skip_record
             inc dword ptr [esp]
             jmp running_next_record
         running_skip_record:
@@ -1084,6 +1111,62 @@ def main() -> None:
             call dword ptr [0x4740D4]
             test eax, eax
             je preflight_invalid
+            push ebx
+            push ebp
+            push ecx
+            push edx
+            push edi
+            mov edx, dword ptr [esi + 0x10]
+            mov ecx, 256
+        preflight_record:
+            cmp byte ptr [edx + 0x30], 0
+            je preflight_next_record
+            cmp dword ptr [edx + 0x52C], 0
+            jle preflight_next_record
+            xor ebp, ebp
+            lea edi, [edx + 0x5F0]
+            mov ebx, 62
+        preflight_likes:
+            cmp dword ptr [edi], {RUNNING_PREFERENCE_ID}
+            jne preflight_like_empty
+            or ebp, 1
+        preflight_like_empty:
+            cmp dword ptr [edi], -1
+            jne preflight_like_next
+            or ebp, 2
+        preflight_like_next:
+            add edi, 4
+            dec ebx
+            jne preflight_likes
+            lea edi, [edx + 0x6E8]
+            mov ebx, 62
+        preflight_dislikes:
+            cmp dword ptr [edi], {RUNNING_PREFERENCE_ID}
+            je preflight_change
+            add edi, 4
+            dec ebx
+            jne preflight_dislikes
+            test ebp, 1
+            jnz preflight_next_record
+            test ebp, 2
+            jnz preflight_change
+        preflight_next_record:
+            add edx, 0xE48C
+            dec ecx
+            jne preflight_record
+            pop edi
+            pop edx
+            pop ecx
+            pop ebp
+            pop ebx
+            mov eax, 2
+            ret
+        preflight_change:
+            pop edi
+            pop edx
+            pop ecx
+            pop ebp
+            pop ebx
             mov eax, 1
             ret
         preflight_invalid:
@@ -1091,6 +1174,145 @@ def main() -> None:
             ret
         """,
         VILLAGE_PREFLIGHT_VA,
+    )
+    cure_preflight_code = assemble(
+        """
+            push ecx
+            push edx
+            mov edx, dword ptr [esi + 0x10]
+            mov ecx, 256
+        cure_preflight_record:
+            cmp byte ptr [edx + 0x30], 0
+            je cure_preflight_next
+            cmp dword ptr [edx + 0x52C], 0
+            jle cure_preflight_next
+            cmp dword ptr [edx + 0x53C], 0
+            jne cure_preflight_change
+        cure_preflight_next:
+            add edx, 0xE48C
+            dec ecx
+            jne cure_preflight_record
+            pop edx
+            pop ecx
+            xor eax, eax
+            ret
+        cure_preflight_change:
+            pop edx
+            pop ecx
+            mov eax, 1
+            ret
+        """,
+        CURE_PREFLIGHT_VA,
+    )
+    detail_preflight_code = assemble(
+        f"""
+            push ecx
+            push edx
+            push edi
+            push ebp
+            cmp ebx, 0
+            je detail_preflight_youth
+            cmp ebx, 1
+            je detail_preflight_mastery
+            cmp ebx, 2
+            je detail_preflight_running
+            cmp ebx, 3
+            je detail_preflight_age
+            jmp detail_preflight_no_change
+
+        detail_preflight_youth:
+            mov ecx, dword ptr [edx + 0x530]
+            mov eax, ecx
+            sub eax, 700
+            cmp eax, 100
+            jge detail_preflight_youth_target
+            mov eax, 100
+        detail_preflight_youth_target:
+            cmp ecx, eax
+            jne detail_preflight_change
+            cmp dword ptr [edx + 0x540], 0
+            jne detail_preflight_youth_pregnant
+            cmp dword ptr [edx + 0x534], eax
+            jne detail_preflight_change
+            jmp detail_preflight_no_change
+        detail_preflight_youth_pregnant:
+            lea ecx, [eax - 1]
+            cmp dword ptr [edx + 0x534], ecx
+            jne detail_preflight_change
+            sub eax, 42
+            cmp dword ptr [edx + 0x540], eax
+            jne detail_preflight_change
+            jmp detail_preflight_no_change
+
+        detail_preflight_mastery:
+            cmp dword ptr [edx + 0x7E4], 90
+            jne detail_preflight_change
+            cmp dword ptr [edx + 0x7E8], 90
+            jne detail_preflight_change
+            cmp dword ptr [edx + 0x7EC], 90
+            jne detail_preflight_change
+            cmp dword ptr [edx + 0x7F0], 90
+            jne detail_preflight_change
+            cmp dword ptr [edx + 0x7F4], 90
+            jne detail_preflight_change
+            jmp detail_preflight_no_change
+
+        detail_preflight_running:
+            xor ebp, ebp
+            lea edi, [edx + 0x5F0]
+            mov ecx, 62
+        detail_preflight_likes:
+            cmp dword ptr [edi], {RUNNING_PREFERENCE_ID}
+            jne detail_preflight_like_empty
+            or ebp, 1
+        detail_preflight_like_empty:
+            cmp dword ptr [edi], -1
+            jne detail_preflight_like_next
+            or ebp, 2
+        detail_preflight_like_next:
+            add edi, 4
+            dec ecx
+            jne detail_preflight_likes
+            lea edi, [edx + 0x6E8]
+            mov ecx, 62
+        detail_preflight_dislikes:
+            cmp dword ptr [edi], {RUNNING_PREFERENCE_ID}
+            je detail_preflight_change
+            add edi, 4
+            dec ecx
+            jne detail_preflight_dislikes
+            test ebp, 1
+            jnz detail_preflight_no_change
+            test ebp, 2
+            jnz detail_preflight_change
+            jmp detail_preflight_no_change
+
+        detail_preflight_age:
+            cmp dword ptr [edx + 0x530], 360
+            jne detail_preflight_change
+            cmp dword ptr [edx + 0x534], 360
+            jne detail_preflight_change
+            mov eax, dword ptr [edx + 0x540]
+            test eax, eax
+            je detail_preflight_no_change
+            cmp eax, 318
+            jne detail_preflight_change
+        detail_preflight_no_change:
+            pop ebp
+            pop edi
+            pop edx
+            pop ecx
+            xor eax, eax
+            ret
+        detail_preflight_change:
+            pop ebp
+            pop edi
+            pop edx
+            pop ecx
+            mov eax, 1
+            ret
+        """,
+        DETAIL_PREFLIGHT_VA,
     )
     patch(
         HEAL_CAVE_FILE_OFFSET,
@@ -1111,7 +1333,19 @@ def main() -> None:
         VILLAGE_PREFLIGHT_FILE_OFFSET,
         b"\0" * len(preflight_code),
         preflight_code,
-        "validate the complete optional Origins header and result-export dependency before any village-wide charge",
+        "validate the optional Origins dependency and dry-scan all 62 Like and Dislike slots before any village-wide Running charge",
+    )
+    patch(
+        CURE_PREFLIGHT_FILE_OFFSET,
+        b"\0" * len(cure_preflight_code),
+        cure_preflight_code,
+        "dry-scan all 256 active living records for sickness before any Cure charge",
+    )
+    patch(
+        DETAIL_PREFLIGHT_FILE_OFFSET,
+        b"\0" * len(detail_preflight_code),
+        detail_preflight_code,
+        "recheck the selected active record and exact target state before any Villager Detail charge",
     )
     patch(
         BARREL_PENDING_FILE_OFFSET,
