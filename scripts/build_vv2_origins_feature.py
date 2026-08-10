@@ -501,10 +501,6 @@ def main() -> None:
         barrel_capacity_preflight:
             sub esp, 0x50D8
             mov ebp, esp
-            push 0x7F4B1A2C
-            push 2
-            mov ecx, ebp
-            call 0x4348E0
             # Match the stock caller at 0x4347D8: sub_425860 receives the
             # village/tech object's owner from [EDI+0x50A4].  Its first
             # dereference is [ECX+0x305A4], so reject an uninitialized chain
@@ -521,6 +517,10 @@ def main() -> None:
             cmp dword ptr [edi + 0x2EADC], eax
             jb barrel_insufficient
             sub dword ptr [edi + 0x2EADC], eax
+            push 0x7F4B1A2C
+            push 2
+            mov ecx, ebp
+            call 0x4348E0
             push 0
             push esi
             mov ecx, ebp

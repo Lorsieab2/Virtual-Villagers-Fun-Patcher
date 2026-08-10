@@ -92,6 +92,34 @@ class VV2OriginsPlaytestFeatureTests(unittest.TestCase):
         self.assertIn("The village population is already close to its max.", source)
         self.assertNotIn("[edi + 0x50AC]", source)
 
+    def test_barrel_native_event_is_constructed_only_after_checks_and_deduction(self) -> None:
+        manifest = json.loads(
+            (ROOT / "data" / "vv2_origins_feature.json").read_text(encoding="utf-8")
+        )
+        payload = bytes.fromhex(
+            next(patch for patch in manifest["patches"] if patch["offset"] == "0x943A8")[
+                "after"
+            ]
+        )
+        block = payload.index(bytes.fromhex("81ECD850000089E5"))
+        helper = payload.index(bytes.fromhex("E8D710F9FF"), block)
+        threshold = payload.index(bytes.fromhex("3DFE000000"), helper)
+        funds = payload.index(bytes.fromhex("3987DCEA0200"), threshold)
+        deduction = payload.index(bytes.fromhex("2987DCEA0200"), funds)
+        constructor = payload.index(
+            bytes.fromhex("682C1A4B7F6A0289E9E82D01FAFF"), deduction
+        )
+        presenter = payload.index(bytes.fromhex("6A005689E9E813D3F6FF"), constructor)
+        destructor = payload.index(bytes.fromhex("89E9E8CCE9F9FF"), presenter)
+        self.assertLess(helper, threshold)
+        self.assertLess(threshold, funds)
+        self.assertLess(funds, deduction)
+        self.assertLess(deduction, constructor)
+        self.assertLess(constructor, presenter)
+        self.assertLess(presenter, destructor)
+        self.assertEqual(payload.count(bytes.fromhex("682C1A4B7F6A0289E9E82D01FAFF")), 1)
+        self.assertEqual(payload.count(bytes.fromhex("6A0A6A15E805E9F9FFC20800")), 1)
+
     def test_dry_run_marks_separate_playtest_output(self) -> None:
         result = dry_run(
             self.source,

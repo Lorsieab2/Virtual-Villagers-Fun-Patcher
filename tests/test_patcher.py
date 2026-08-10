@@ -115,6 +115,24 @@ class ManifestTests(unittest.TestCase):
             "            call 0x433600",
             source,
         )
+        barrel_block = source[
+            source.index("        barrel_capacity_preflight:") :
+            source.index("        barrel_capacity_low:")
+        ]
+        helper_call = barrel_block.index("            call 0x425860")
+        funds_check = barrel_block.index("            cmp dword ptr [edi + 0x2EADC], eax")
+        deduction = barrel_block.index("            sub dword ptr [edi + 0x2EADC], eax")
+        constructor = barrel_block.index(
+            "            push 0x7F4B1A2C\n"
+            "            push 2\n"
+            "            mov ecx, ebp\n"
+            "            call 0x4348E0"
+        )
+        result_path = barrel_block.index("            call 0x401AD0")
+        self.assertLess(helper_call, funds_check)
+        self.assertLess(funds_check, deduction)
+        self.assertLess(deduction, constructor)
+        self.assertLess(constructor, result_path)
 
     def test_running_preference_id_matches_each_stock_table(self) -> None:
         evidence = {
