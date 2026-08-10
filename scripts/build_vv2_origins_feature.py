@@ -401,9 +401,11 @@ def main() -> None:
         maybe_barrel:
             cmp ebx, 2
             jne charge
-            # The stock population helper expects the village-record object
-            # ([this + 0x10]), not the account/tech-state object in EDI.
-            mov ecx, dword ptr [esi + 0x10]
+            # The Tech screen owns the village root in EDI.  The stock event
+            # path resolves its population state through root+0x50AC before
+            # calling sub_425860; passing the Tech object or the root itself
+            # dereferences the wrong object and crashes before the allocator.
+            mov ecx, dword ptr [edi + 0x50AC]
             call 0x425860
             cmp eax, 253
             jbe charge
