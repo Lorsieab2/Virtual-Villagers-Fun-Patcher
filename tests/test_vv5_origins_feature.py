@@ -75,6 +75,32 @@ class VV5OriginsFeatureTests(unittest.TestCase):
         )
         self.assertEqual(self.payload.count(bytes.fromhex("89F96A48")), 2)
 
+    def test_detail_event_route_is_not_the_input_method_entry(self) -> None:
+        self.assertIn("DETAIL_INPUT_METHOD_ENTRY_VA = 0x44B560", self.source)
+        self.assertIn("DETAIL_EVENT_METHOD_VA = 0x44BC20", self.source)
+        self.assertNotIn("DETAIL_NATIVE_HANDLER_VA", self.source)
+        self.assertIn(
+            'patch(DETAIL_EVENT_METHOD_VA, bytes.fromhex("83EC18A1A8974D00")',
+            self.source,
+        )
+
+    def test_get_record_fails_closed_before_manager_context_dereference(self) -> None:
+        self.assertIn(
+            "call 0x425950\n            jmp 0x{entry['get_record_guard']:X}\n            nop",
+            self.source,
+        )
+        expected_record = bytes.fromhex(
+            "53E8DA36C7FFE9850900009053B948415500E8B9F5CBFF"
+            "84C0740D53B948415500E8BAD6CBFF5BC331C05BC3"
+        )
+        slot = self.payload[0x270 : 0x270 + 0x50]
+        self.assertEqual(slot[: len(expected_record)], expected_record)
+        self.assertEqual(slot[len(expected_record) :], b"\0" * (0x50 - len(expected_record)))
+        self.assertEqual(
+            self.payload[0xC00 : 0xC00 + 22],
+            bytes.fromhex("85C0740B8B98247E0100E96DF6FFFF31C0E982F6FFFF"),
+        )
+
     def test_grant_youth_label_explains_age_floor(self) -> None:
         label = "Grant Youth (-35 years, min age 5)"
         self.assertIn(label.encode("utf-16le"), COMPANION.read_bytes())
@@ -564,7 +590,7 @@ class VV5OriginsFeatureTests(unittest.TestCase):
         ).hexdigest().upper()
         self.assertEqual(
             digest,
-            "8157514D353E7331C8B7827B61C741BA62EBA822E1830BFA70A343FEBB09DC2B",
+            "3EB032D05EB3056CB99F2D30E98BAE140FD4389580493F831307CF152A67F88A",
         )
         self.assertEqual(
             self.feature["companion_files"][0]["sha256"],
