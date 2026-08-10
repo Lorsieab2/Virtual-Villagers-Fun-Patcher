@@ -210,9 +210,8 @@ class Full256StaticCandidateTests(unittest.TestCase):
 
     def test_source_bound_renderer_matches_both_exact_results(self) -> None:
         expected = {row["mode"]: row for row in self.value["parents"]}
-        for mode, parent in self._render_exact_parents():
+        for mode, rendered in self._render_exact_parents():
             with self.subTest(mode=mode):
-                rendered = B.render_candidate(parent, mode)
                 self.assertEqual(len(rendered), 0xCD000)
                 self.assertEqual(hashlib.sha256(rendered).hexdigest().upper(), expected[mode]["result_sha256"])
                 self.assertEqual(rendered[0xCC000:0xCD000], B.section_page())

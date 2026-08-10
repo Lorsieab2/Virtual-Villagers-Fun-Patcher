@@ -36,6 +36,15 @@ def source_text_sha256(payload: bytes) -> str:
 MANIFEST_PATH = ROOT / "data" / "builds.json"
 EXPANDED_MANIFEST_PATH = ROOT / "data" / "expanded_256.json"
 VV4_EXPANDED_CONTRACT_PATH = ROOT / "data" / "vv4_expanded_256_contract.json"
+EXPANDED_STATIC_REPAIR_INTEGRATION_PATH = (
+    ROOT / "data" / "expanded_256_static_repair_integration.json"
+)
+EXPANDED_STATIC_REPAIR_INTEGRATION_SCHEMA_PATH = (
+    ROOT / "data" / "schemas" / "expanded_256_static_repair_integration.schema.json"
+)
+EXPANDED_STATIC_REPAIR_INTEGRATION_SHA256 = (
+    "93AE2305D23F5FCBE1BB1726BC563E5CAF20E85E926AD26D3AB84D9BB3985195"
+)
 EXPANDED_MANIFEST_IDENTITIES = {
     "vv3": {
         "source_sha256": "8BC5DB382D02BC5C21AD5F607580D60FF44A6519CC7EB133F03113BAACAE6503",
@@ -4398,6 +4407,423 @@ def _vv4_full_heal_overlay_allowed(
     return composed_sha256.upper() == expected
 
 
+def _expanded_static_repair_integration() -> dict[str, Any]:
+    """Load the closed, fail-closed contract for real Expanded render repairs."""
+    try:
+        source = EXPANDED_STATIC_REPAIR_INTEGRATION_PATH.read_bytes()
+        if source_text_sha256(source) != EXPANDED_STATIC_REPAIR_INTEGRATION_SHA256:
+            raise PatcherError("Expanded static-repair integration source hash mismatch.")
+        payload = json.loads(source.decode("utf-8-sig"))
+    except (OSError, UnicodeDecodeError, json.JSONDecodeError) as exc:
+        raise PatcherError("Expanded static-repair integration contract is unavailable.") from exc
+    if set(payload) != {
+        "schema", "status", "native_output", "runtime_go", "player_go",
+        "publication_ready", "games",
+    }:
+        raise PatcherError("Expanded static-repair integration contract is not closed.")
+    if (
+        payload.get("schema") != "vvfp.expanded_256_static_repair_integration.v1"
+        or payload.get("status") != "active_in_expanded_render_runtime_stop"
+        or payload.get("native_output") is not True
+        or payload.get("runtime_go") is not False
+        or payload.get("player_go") is not False
+        or payload.get("publication_ready") is not False
+    ):
+        raise PatcherError("Expanded static-repair integration gates are not exact.")
+    games = payload.get("games")
+    if not isinstance(games, dict) or set(games) != {"vv3", "vv4", "vv5"}:
+        raise PatcherError("Expanded static-repair integration game set is not exact.")
+    expected_paths = {
+        "vv3": "data/candidates/vv3_full256_serializer_candidate.json",
+        "vv4": "data/candidates/vv4_full256_serializer_static_candidate.json",
+        "vv5": "data/candidates/vv5_post_prototype_overlay.json",
+    }
+    expected_stages = {
+        "vv3": "post_feature_relocation",
+        "vv4": "post_manifest",
+        "vv5": "post_manifest",
+    }
+    expected_repair_ids = {
+        "vv3": "vv3_full256_serializer_reader_gate",
+        "vv4": "vv4_full256_serializer_reader_gate",
+        "vv5": "vv5_post_prototype_operand_overlay",
+    }
+    expected_features = {
+        "vv3": [
+            "vv3_enable_origins_exclusive_features_running_candidate",
+            "vv3_all_villagers_like_running_candidate",
+        ],
+        "vv4": [],
+        "vv5": [],
+    }
+    for game_id, game in games.items():
+        exact_fields = {
+            "repair_id", "stage", "candidate_path", "candidate_source_text_sha256",
+            "stock_sha256", "manifest_rows_sha256", "required_feature_ids", "modes",
+        }
+        if game_id == "vv4":
+            exact_fields.add("helper_lineage")
+        if not isinstance(game, dict) or set(game) != exact_fields:
+            raise PatcherError(f"{game_id} static-repair integration record is not closed.")
+        if game.get("candidate_path") != expected_paths[game_id]:
+            raise PatcherError(f"{game_id} static-repair candidate path is not exact.")
+        if game.get("repair_id") != expected_repair_ids[game_id]:
+            raise PatcherError(f"{game_id} static-repair ID is not exact.")
+        if game.get("stage") != expected_stages[game_id]:
+            raise PatcherError(f"{game_id} static-repair stage is not exact.")
+        if game.get("required_feature_ids") != expected_features[game_id]:
+            raise PatcherError(f"{game_id} static-repair feature binding is not exact.")
+        if game.get("stock_sha256") != EXPANDED_MANIFEST_IDENTITIES[game_id]["source_sha256"]:
+            raise PatcherError(f"{game_id} static-repair stock binding is stale.")
+        if game.get("manifest_rows_sha256") != EXPANDED_MANIFEST_IDENTITIES[game_id]["patches_sha256"]:
+            raise PatcherError(f"{game_id} static-repair manifest binding is stale.")
+        modes = game.get("modes")
+        if not isinstance(modes, dict) or set(modes) != EXPANDED_PATCH_MODES:
+            raise PatcherError(f"{game_id} static-repair mode set is not exact.")
+        candidate_path = (ROOT / game["candidate_path"]).resolve()
+        try:
+            candidate_path.relative_to(ROOT.resolve())
+        except ValueError as exc:
+            raise PatcherError(f"{game_id} static-repair candidate escapes the workspace.") from exc
+        try:
+            candidate_bytes = candidate_path.read_bytes()
+        except OSError as exc:
+            raise PatcherError(f"{game_id} static-repair candidate is unavailable.") from exc
+        if source_text_sha256(candidate_bytes) != game.get("candidate_source_text_sha256"):
+            raise PatcherError(f"{game_id} static-repair candidate source hash mismatch.")
+        if game_id == "vv4":
+            helper = game.get("helper_lineage")
+            if not isinstance(helper, dict) or set(helper) != {
+                "id", "raw_start", "raw_end", "stock_sha256",
+                "current_parent_sha256", "manifest_row_raw", "manifest_before",
+                "manifest_after", "abi_control_flow_unchanged",
+            }:
+                raise PatcherError("VV4 static-repair helper lineage is not closed.")
+            if (
+                helper.get("id") != "singleton"
+                or helper.get("raw_start") != "0x1FE70"
+                or helper.get("raw_end") != "0x1FEEA"
+                or helper.get("manifest_row_raw") != "0x1FE9B"
+                or helper.get("manifest_before") != "C8710100"
+                or helper.get("manifest_after") != "70DD0100"
+                or helper.get("abi_control_flow_unchanged") is not True
+            ):
+                raise PatcherError("VV4 static-repair helper lineage is not exact.")
+        for mode_id, mode in modes.items():
+            allowed = {
+                "parent_size", "parent_sha256", "parent_checksum",
+                "result_size", "result_sha256", "result_checksum",
+            }
+            if game_id in {"vv4", "vv5"}:
+                allowed.update({"final_no_fun_sha256", "final_no_fun_checksum"})
+            if not isinstance(mode, dict) or set(mode) != allowed:
+                raise PatcherError(
+                    f"{game_id} {mode_id} static-repair identity record is not closed."
+                )
+            for key in ("parent_sha256", "result_sha256"):
+                value = mode.get(key)
+                if not isinstance(value, str) or len(value) != 64:
+                    raise PatcherError(f"{game_id} {mode_id} {key} is malformed.")
+            for key in ("parent_checksum", "result_checksum"):
+                value = mode.get(key)
+                if not isinstance(value, str) or len(value) != 8:
+                    raise PatcherError(f"{game_id} {mode_id} {key} is malformed.")
+    return payload
+
+
+def _expanded_static_repair_candidate(game: dict[str, Any]) -> dict[str, Any]:
+    try:
+        return json.loads((ROOT / game["candidate_path"]).read_text(encoding="utf-8"))
+    except (OSError, UnicodeDecodeError, json.JSONDecodeError) as exc:
+        raise PatcherError("Expanded static-repair candidate cannot be decoded.") from exc
+
+
+def _canonicalize_pe_checksum(data: bytearray) -> tuple[int, bytes, bytes]:
+    checksum_offset, _ = _pe_checksum_layout(data)
+    before = bytes(data[checksum_offset : checksum_offset + 4])
+    struct.pack_into("<I", data, checksum_offset, 0)
+    struct.pack_into("<I", data, checksum_offset, pe_checksum(data))
+    return checksum_offset, before, bytes(data[checksum_offset : checksum_offset + 4])
+
+
+def _static_repair_page(candidate: dict[str, Any], game_id: str) -> bytes:
+    if game_id == "vv3":
+        section = candidate.get("section_plan", {})
+        page_hash = section.get("section_sha256")
+    else:
+        section = candidate.get("section", {})
+        page_hash = section.get("page_sha256")
+    raw_start_value = section.get("raw_start", 0)
+    raw_size_value = section.get("size", section.get("raw_size", 0))
+    raw_start = int(raw_start_value, 0) if isinstance(raw_start_value, str) else int(raw_start_value)
+    raw_size = int(raw_size_value, 0) if isinstance(raw_size_value, str) else int(raw_size_value)
+    if raw_size != 0x1000:
+        raise PatcherError(f"{game_id} static-repair page size is not 0x1000.")
+    page = bytearray(raw_size)
+    occupied: list[tuple[int, int]] = []
+    routines = candidate.get("exact_routines")
+    if not isinstance(routines, dict) or set(routines) != {
+        "serializer", "deserializer", "serializer_failure_gate"
+    }:
+        raise PatcherError(f"{game_id} static-repair routine set is not exact.")
+    for name, routine in routines.items():
+        try:
+            raw = int(routine["raw"], 0) if isinstance(routine["raw"], str) else int(routine["raw"])
+            blob = bytes.fromhex(routine["bytes"])
+            length = int(routine["length"])
+        except (KeyError, TypeError, ValueError) as exc:
+            raise PatcherError(f"{game_id} {name} routine metadata is malformed.") from exc
+        start = raw - raw_start
+        end = start + len(blob)
+        if len(blob) != length or not (0 <= start < end <= raw_size):
+            raise PatcherError(f"{game_id} {name} routine bounds are invalid.")
+        if hashlib.sha256(blob).hexdigest().upper() != routine.get("sha256"):
+            raise PatcherError(f"{game_id} {name} routine hash mismatch.")
+        if any(start < prior_end and prior_start < end for prior_start, prior_end in occupied):
+            raise PatcherError(f"{game_id} static-repair routines overlap.")
+        occupied.append((start, end))
+        page[start:end] = blob
+    if hashlib.sha256(page).hexdigest().upper() != page_hash:
+        raise PatcherError(f"{game_id} static-repair page hash mismatch.")
+    return bytes(page)
+
+
+def _apply_reviewed_expanded_static_repair(
+    data: bytearray,
+    build: Build,
+    patch_mode: str,
+    stage: str,
+    selected_fun_ids: set[str],
+) -> tuple[list[dict[str, str]], list[tuple[int, int, str]]]:
+    """Apply one reviewed repair transaction only at its exact guarded stage."""
+    if patch_mode not in EXPANDED_PATCH_MODES or build.id not in {"vv3", "vv4", "vv5"}:
+        return [], []
+    integration = _expanded_static_repair_integration()
+    game = integration["games"][build.id]
+    if game["stage"] != stage:
+        return [], []
+    required = set(game["required_feature_ids"])
+    if required and not required.issubset(selected_fun_ids):
+        return [], []
+    candidate = _expanded_static_repair_candidate(game)
+    if build.id == "vv3":
+        decision = candidate.get("decision", {})
+        if (
+            candidate.get("enabled") is not False
+            or candidate.get("catalog_visible") is not False
+            or candidate.get("native_output") is not False
+            or decision.get("runtime_go") is not False
+            or decision.get("player_go") is not False
+            or decision.get("publication_ready") is not False
+        ):
+            raise PatcherError("VV3 static-repair candidate gates are not fail-closed.")
+    else:
+        if (
+            candidate.get("enabled") is not False
+            or candidate.get("catalog_visible") is not False
+            or candidate.get("native_output") is not False
+            or candidate.get("runtime_go") is not False
+            or candidate.get("player_go") is not False
+            or (
+                candidate.get(
+                    "publication_ready",
+                    candidate.get("publication_eligible"),
+                )
+                is not False
+            )
+        ):
+            raise PatcherError(f"{build.id} static-repair candidate gates are not fail-closed.")
+    if build.id == "vv5":
+        ledger = candidate.get("bindings", {}).get("c342_relocation_ledger", {})
+        if (
+            ledger.get("count") != 66
+            or ledger.get("rows_sha256") != VV5_ORIGINS_RELOCATION_LEDGER_SHA256
+            or ledger.get("source_text_sha256")
+            != "6AFF1A8E69234C61CB2D1878C46FA91B0AAA721FC5F29C5B42A678F61BAB8528"
+        ):
+            raise PatcherError("VV5 static-repair C342 binding mismatch.")
+    if build.id == "vv4":
+        helper = game["helper_lineage"]
+        candidate_helper = candidate.get("d353_helpers", {}).get("singleton", {})
+        if candidate_helper.get("sha256") != helper["stock_sha256"]:
+            raise PatcherError("VV4 stock singleton helper evidence binding mismatch.")
+    mode = game["modes"][patch_mode]
+    work = bytearray(data)
+    checksum_offset, checksum_before, checksum_parent = _canonicalize_pe_checksum(work)
+    parent_sha256 = hashlib.sha256(work).hexdigest().upper()
+    if len(work) != mode["parent_size"] or parent_sha256 != mode["parent_sha256"]:
+        raise PatcherError(
+            f"{build.id} static-repair parent guard failed: expected "
+            f"{mode['parent_size']} / {mode['parent_sha256']}, found "
+            f"{len(work)} / {parent_sha256}."
+        )
+    if checksum_parent.hex().upper() != mode["parent_checksum"]:
+        raise PatcherError(f"{build.id} static-repair parent checksum mismatch.")
+    if build.id == "vv4":
+        helper = game["helper_lineage"]
+        helper_start = int(helper["raw_start"], 0)
+        helper_end = int(helper["raw_end"], 0)
+        helper_sha256 = hashlib.sha256(work[helper_start:helper_end]).hexdigest().upper()
+        if helper_sha256 != helper["current_parent_sha256"]:
+            raise PatcherError("VV4 current-parent singleton helper hash mismatch.")
+        row_offset = int(helper["manifest_row_raw"], 0)
+        if bytes(work[row_offset : row_offset + 4]).hex().upper() != helper["manifest_after"]:
+            raise PatcherError("VV4 current-parent singleton manifest row mismatch.")
+    writes: list[tuple[int, bytes, bytes, str]] = []
+    append: bytes | None = None
+    if build.id == "vv3":
+        pe = candidate["pe_guards"]
+        section = candidate["section_plan"]
+        writes.extend(
+            [
+                (int(pe["section_count_raw"], 0), bytes.fromhex(pe["section_count_before"]), bytes.fromhex(pe["section_count_after"]), "add reviewed .vv3sv section count"),
+                (int(pe["size_of_image_raw"], 0), bytes.fromhex(pe["size_of_image_before"]), bytes.fromhex(pe["size_of_image_after"]), "extend reviewed VV3 SizeOfImage"),
+                (int(section["header_raw"], 0), bytes.fromhex(section["header_guard"]), bytes.fromhex(section["header_bytes"]), "add reviewed .vv3sv section header"),
+            ]
+        )
+        for hook in candidate["hooks"]:
+            writes.append((int(hook["raw"], 0), bytes.fromhex(hook["preimage"]), bytes.fromhex(hook["after"]), f"route VV3 {hook['id']} through reviewed static repair"))
+        append = _static_repair_page(candidate, build.id)
+    elif build.id == "vv4":
+        pe = candidate["pe_guards"]
+        section = candidate["section"]
+        writes.extend(
+            [
+                (int(pe["section_count_offset"]), int(pe["section_count_before"]).to_bytes(2, "little"), int(pe["section_count_after"]).to_bytes(2, "little"), "add reviewed .vv4x section count"),
+                (int(pe["size_of_image_offset"]), int(section["old_size_of_image"]).to_bytes(4, "little"), int(section["new_size_of_image"]).to_bytes(4, "little"), "extend reviewed VV4 SizeOfImage"),
+                (int(section["header_raw"]), bytes.fromhex(section["header_guard"]), bytes.fromhex(section["final_header_bytes"]), "add reviewed .vv4x section header"),
+            ]
+        )
+        for hook in candidate["hooks"]:
+            writes.append((int(hook["raw"]), bytes.fromhex(hook["before"]), bytes.fromhex(hook["after"]), f"route VV4 {hook['name']} through reviewed static repair"))
+        append = _static_repair_page(candidate, build.id)
+    else:
+        overlay = candidate.get("overlay", {})
+        rows = overlay.get("rows")
+        if not isinstance(rows, list) or len(rows) != 16 or overlay.get("row_count") != 16:
+            raise PatcherError("VV5 static-repair overlay row count mismatch.")
+        for row in rows:
+            before = bytes.fromhex(row["before"])
+            after = bytes.fromhex(row["after"])
+            if len(before) != len(after) or len(before) != row.get("width"):
+                raise PatcherError(f"VV5 static-repair row {row.get('id')} width mismatch.")
+            writes.append((int(row["write_raw"], 0), before, after, f"apply reviewed VV5 {row['id']} operand repair"))
+    owner = f"automatic:expanded-static-repair:{game['repair_id']}"
+    occupied: list[tuple[int, int, str]] = []
+    records: list[dict[str, str]] = []
+    if checksum_before != checksum_parent:
+        records.append(
+            {
+                "offset": f"0x{checksum_offset:X}",
+                "before": checksum_before.hex().upper(),
+                "after": checksum_parent.hex().upper(),
+                "purpose": f"canonicalize {build.id} static-repair parent checksum",
+                "owner": owner,
+                "virtual_address": _virtual_address_for_offset(work, checksum_offset),
+                "repair_id": game["repair_id"],
+                "repair_stage": stage,
+                "stage_parent_sha256": parent_sha256,
+            }
+        )
+        occupied.append((checksum_offset, checksum_offset + 4, owner))
+    for offset, before, after, purpose in writes:
+        if len(before) != len(after):
+            raise PatcherError(f"{build.id} static-repair write changes length at 0x{offset:X}.")
+        actual = bytes(work[offset : offset + len(before)])
+        if actual != before:
+            raise PatcherError(
+                f"{build.id} static-repair byte guard failed at 0x{offset:X}: "
+                f"expected {before.hex().upper()}, found {actual.hex().upper()}."
+            )
+        work[offset : offset + len(after)] = after
+        occupied.append((offset, offset + len(after), owner))
+        records.append(
+            {
+                "offset": f"0x{offset:X}",
+                "before": before.hex().upper(),
+                "after": after.hex().upper(),
+                "purpose": purpose,
+                "owner": owner,
+                "virtual_address": _virtual_address_for_offset(work, offset),
+                "repair_id": game["repair_id"],
+                "repair_stage": stage,
+                "stage_parent_sha256": parent_sha256,
+            }
+        )
+    if append is not None:
+        if len(work) != mode["parent_size"]:
+            raise PatcherError(f"{build.id} static-repair append offset is not exact.")
+        append_offset = len(work)
+        work.extend(append)
+        occupied.append((append_offset, append_offset + len(append), owner))
+        records.append(
+            {
+                "offset": f"0x{append_offset:X}",
+                "before": "",
+                "after": append.hex().upper(),
+                "purpose": f"append reviewed {build.id} static serializer/reader page",
+                "owner": owner,
+                "virtual_address": None,
+                "repair_id": game["repair_id"],
+                "repair_stage": stage,
+                "stage_parent_sha256": parent_sha256,
+            }
+        )
+    result_checksum_offset, result_checksum_before, result_checksum_after = _canonicalize_pe_checksum(work)
+    result_sha256 = hashlib.sha256(work).hexdigest().upper()
+    if len(work) != mode["result_size"] or result_sha256 != mode["result_sha256"]:
+        raise PatcherError(
+            f"{build.id} static-repair result guard failed: expected "
+            f"{mode['result_size']} / {mode['result_sha256']}, found "
+            f"{len(work)} / {result_sha256}."
+        )
+    if result_checksum_after.hex().upper() != mode["result_checksum"]:
+        raise PatcherError(f"{build.id} static-repair result checksum mismatch.")
+    if result_checksum_before != result_checksum_after:
+        occupied.append((result_checksum_offset, result_checksum_offset + 4, owner))
+        records.append(
+            {
+                "offset": f"0x{result_checksum_offset:X}",
+                "before": result_checksum_before.hex().upper(),
+                "after": result_checksum_after.hex().upper(),
+                "purpose": f"bind {build.id} static-repair result checksum",
+                "owner": owner,
+                "virtual_address": _virtual_address_for_offset(work, result_checksum_offset),
+                "repair_id": game["repair_id"],
+                "repair_stage": stage,
+                "stage_parent_sha256": parent_sha256,
+            }
+        )
+    for record in records:
+        record["stage_result_sha256"] = result_sha256
+    data[:] = work
+    return records, occupied
+
+
+def _expanded_static_repair_summary(
+    applied: list[dict[str, str]], final_sha256: str
+) -> list[dict[str, str]]:
+    summaries: dict[str, dict[str, str]] = {}
+    for record in applied:
+        repair_id = record.get("repair_id")
+        if not repair_id:
+            continue
+        summaries.setdefault(
+            repair_id,
+            {
+                "repair_id": repair_id,
+                "stage": record["repair_stage"],
+                "stage_parent_sha256": record["stage_parent_sha256"],
+                "stage_result_sha256": record["stage_result_sha256"],
+                "final_sha256": final_sha256,
+                "runtime_go": False,
+                "player_go": False,
+                "publication_ready": False,
+            },
+        )
+    return list(summaries.values())
+
+
 def render_patched_bytes(
     source: Path,
     build: Build,
@@ -4618,9 +5044,19 @@ def render_patched_bytes(
         candidate_preimage_checked = True
         candidate_preimage_checksum = bytes(parent_bytes[0x160:0x164])
     for phase_index, phase in enumerate(
-        ([*expanded, *safety, *population, *support], fun_bytes)
+        (expanded, [*safety, *population, *support], fun_bytes)
     ):
         if phase_index == 1:
+            repair_records, repair_ranges = _apply_reviewed_expanded_static_repair(
+                data,
+                build,
+                patch_mode,
+                "post_manifest",
+                selected_fun_ids,
+            )
+            applied.extend(repair_records)
+            applied_ranges.extend(repair_ranges)
+        if phase_index == 2:
             applied.extend(
                 _apply_pe_append_transactions(data, fun_patches, patch_mode)
             )
@@ -4763,9 +5199,43 @@ def render_patched_bytes(
             build, patch_mode, fun_patches, data
         )
     )
+    repair_records, repair_ranges = _apply_reviewed_expanded_static_repair(
+        data,
+        build,
+        patch_mode,
+        "post_feature_relocation",
+        selected_fun_ids,
+    )
+    applied.extend(repair_records)
+    applied_ranges.extend(repair_ranges)
     checksum_offset, _ = _pe_checksum_layout(data)
     checksum = pe_checksum(data)
     struct.pack_into("<I", data, checksum_offset, checksum)
+    if (
+        build.id in {"vv4", "vv5"}
+        and patch_mode in EXPANDED_PATCH_MODES
+        and not fun_patches
+    ):
+        integration = _expanded_static_repair_integration()
+        expected_final = integration["games"][build.id]["modes"][patch_mode][
+            "final_no_fun_sha256"
+        ]
+        actual_final = hashlib.sha256(data).hexdigest().upper()
+        if actual_final != expected_final:
+            raise PatcherError(
+                f"{build.id} final Expanded static-repair identity mismatch: "
+                f"expected {expected_final}, found {actual_final}."
+            )
+        checksum_offset, _ = _pe_checksum_layout(data)
+        actual_final_checksum = bytes(data[checksum_offset : checksum_offset + 4]).hex().upper()
+        expected_final_checksum = integration["games"][build.id]["modes"][patch_mode][
+            "final_no_fun_checksum"
+        ]
+        if actual_final_checksum != expected_final_checksum:
+            raise PatcherError(
+                f"{build.id} final Expanded static-repair checksum mismatch: "
+                f"expected {expected_final_checksum}, found {actual_final_checksum}."
+            )
     if any(feature.id == VV3_FULL_HEAL_CANDIDATE_ID for feature in fun_patches):
         expected_rendered = VV3_FULL_HEAL_RENDERED_SHA256.get(patch_mode)
         expected_transition = VV3_FULL_HEAL_CHECKSUM_TRANSITIONS.get(patch_mode)
@@ -4848,6 +5318,7 @@ def _result(
     output_folder = output_folder_for(
         source, build, patch_mode, fun_patches, output_root
     )
+    result_sha256 = hashlib.sha256(patched).hexdigest().upper()
     return {
         "game": build.title,
         "source": str(source.resolve()),
@@ -4881,7 +5352,10 @@ def _result(
         "island_event_capacity": "population-adding Island Events are blocked or reduced only as required to fit the remaining physical villager slots",
         "bonuses_affect_maximum": variant["bonuses_affect_maximum"],
         "patches": applied,
-        "result_sha256": hashlib.sha256(patched).hexdigest().upper(),
+        "expanded_static_repairs": _expanded_static_repair_summary(
+            applied, result_sha256
+        ),
+        "result_sha256": result_sha256,
     }
 
 
@@ -5052,6 +5526,9 @@ def _log_data(
         "source_sha256": build.sha256,
         "output_path": str(output),
         "output_sha256": output_hash,
+        "expanded_static_repairs": _expanded_static_repair_summary(
+            applied, output_hash
+        ),
         "patches": applied,
     }
 

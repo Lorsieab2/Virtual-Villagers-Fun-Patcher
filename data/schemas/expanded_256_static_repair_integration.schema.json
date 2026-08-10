@@ -1,0 +1,55 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "vvfp.expanded_256_static_repair_integration.v1",
+  "type": "object",
+  "required": ["schema", "status", "native_output", "runtime_go", "player_go", "publication_ready", "games"],
+  "additionalProperties": false,
+  "properties": {
+    "schema": {"const": "vvfp.expanded_256_static_repair_integration.v1"},
+    "status": {"const": "active_in_expanded_render_runtime_stop"},
+    "native_output": {"const": true},
+    "runtime_go": {"const": false},
+    "player_go": {"const": false},
+    "publication_ready": {"const": false},
+    "games": {
+      "type": "object",
+      "required": ["vv3", "vv4", "vv5"],
+      "additionalProperties": false,
+      "properties": {"vv3": {"$ref": "#/$defs/game"}, "vv4": {"$ref": "#/$defs/game"}, "vv5": {"$ref": "#/$defs/game"}}
+    }
+  },
+  "$defs": {
+    "game": {
+      "type": "object",
+      "required": ["repair_id", "stage", "candidate_path", "candidate_source_text_sha256", "stock_sha256", "manifest_rows_sha256", "required_feature_ids", "modes"],
+      "additionalProperties": false,
+      "properties": {
+        "repair_id": {"type": "string"},
+        "stage": {"enum": ["post_manifest", "post_feature_relocation"]},
+        "candidate_path": {"type": "string"},
+        "candidate_source_text_sha256": {"type": "string", "pattern": "^[0-9A-F]{64}$"},
+        "stock_sha256": {"type": "string", "pattern": "^[0-9A-F]{64}$"},
+        "manifest_rows_sha256": {"type": "string", "pattern": "^[0-9A-F]{64}$"},
+        "required_feature_ids": {"type": "array", "uniqueItems": true, "items": {"type": "string"}},
+        "helper_lineage": {"$ref": "#/$defs/helperLineage"},
+        "modes": {"type": "object", "required": ["experimental_expanded_256", "experimental_expanded_256_progression"], "additionalProperties": false, "properties": {"experimental_expanded_256": {"$ref": "#/$defs/mode"}, "experimental_expanded_256_progression": {"$ref": "#/$defs/mode"}}}
+      }
+    },
+    "helperLineage": {
+      "type": "object",
+      "required": ["id", "raw_start", "raw_end", "stock_sha256", "current_parent_sha256", "manifest_row_raw", "manifest_before", "manifest_after", "abi_control_flow_unchanged"],
+      "additionalProperties": false,
+      "properties": {
+        "id": {"const": "singleton"}, "raw_start": {"const": "0x1FE70"}, "raw_end": {"const": "0x1FEEA"}, "stock_sha256": {"type": "string", "pattern": "^[0-9A-F]{64}$"}, "current_parent_sha256": {"type": "string", "pattern": "^[0-9A-F]{64}$"}, "manifest_row_raw": {"const": "0x1FE9B"}, "manifest_before": {"const": "C8710100"}, "manifest_after": {"const": "70DD0100"}, "abi_control_flow_unchanged": {"const": true}
+      }
+    },
+    "mode": {
+      "type": "object",
+      "required": ["parent_size", "parent_sha256", "parent_checksum", "result_size", "result_sha256", "result_checksum"],
+      "additionalProperties": false,
+      "properties": {
+        "parent_size": {"type": "integer"}, "parent_sha256": {"type": "string", "pattern": "^[0-9A-F]{64}$"}, "parent_checksum": {"type": "string", "pattern": "^[0-9A-F]{8}$"}, "result_size": {"type": "integer"}, "result_sha256": {"type": "string", "pattern": "^[0-9A-F]{64}$"}, "result_checksum": {"type": "string", "pattern": "^[0-9A-F]{8}$"}, "final_no_fun_sha256": {"type": "string", "pattern": "^[0-9A-F]{64}$"}, "final_no_fun_checksum": {"type": "string", "pattern": "^[0-9A-F]{8}$"}
+      }
+    }
+  }
+}
