@@ -92,38 +92,50 @@ class VV2OriginsPlaytestFeatureTests(unittest.TestCase):
         self.assertIn("The village population is already close to its max.", source)
         self.assertNotIn("[edi + 0x50AC]", source)
 
-    def test_barrel_native_event_is_constructed_only_after_checks_and_deduction(self) -> None:
+    def test_barrel_purchase_defers_native_event_until_tech_close(self) -> None:
         manifest = json.loads(
             (ROOT / "data" / "vv2_origins_feature.json").read_text(encoding="utf-8")
         )
+        by_offset = {patch["offset"]: patch for patch in manifest["patches"]}
         payload = bytes.fromhex(
-            next(patch for patch in manifest["patches"] if patch["offset"] == "0x943A8")[
-                "after"
-            ]
+            by_offset["0x943A8"]["after"]
         )
-        block = payload.index(bytes.fromhex("81ECD850000089E5"))
-        state = payload.index(bytes.fromhex("89F985C9"), block)
+        pending = payload.index(bytes.fromhex("803D00C7490000"))
+        reservation = payload.index(bytes.fromhex("81ECD8500000"), pending)
+        state = payload.index(bytes.fromhex("89F985C9"), reservation)
         nested_pool = payload.index(bytes.fromhex("83B9A405030000"), state)
-        helper = payload.index(bytes.fromhex("E8DB10F9FF"), nested_pool)
+        helper = payload.index(bytes.fromhex("E8CE10F9FF"), nested_pool)
         threshold = payload.index(bytes.fromhex("3DFE000000"), helper)
         funds = payload.index(bytes.fromhex("3987DCEA0200"), threshold)
         deduction = payload.index(bytes.fromhex("2987DCEA0200"), funds)
-        constructor = payload.index(
-            bytes.fromhex("682C1A4B7F6A0289E9E83101FAFF"), deduction
-        )
-        presenter = payload.index(bytes.fromhex("6A005689E9E817D3F6FF"), constructor)
-        destructor = payload.index(bytes.fromhex("89E9E8D0E9F9FF"), presenter)
+        cleanup = payload.index(bytes.fromhex("81C4D8500000"), deduction)
+        purchased = payload.index(bytes.fromhex("B8D44D49005068B14D4900"), cleanup)
+        token_store = payload.index(bytes.fromhex("C60500C7490001"), purchased)
+        self.assertLess(pending, reservation)
+        self.assertLess(reservation, state)
         self.assertLess(state, nested_pool)
         self.assertLess(nested_pool, helper)
         self.assertLess(helper, threshold)
         self.assertLess(threshold, funds)
         self.assertLess(funds, deduction)
-        self.assertLess(deduction, constructor)
-        self.assertLess(constructor, presenter)
-        self.assertLess(presenter, destructor)
-        self.assertNotIn(bytes.fromhex("8B8FA4500000"), payload[block:helper])
-        self.assertEqual(payload.count(bytes.fromhex("682C1A4B7F6A0289E9E83101FAFF")), 1)
+        self.assertLess(deduction, cleanup)
+        self.assertLess(cleanup, purchased)
+        self.assertLess(purchased, token_store)
+        self.assertNotIn(bytes.fromhex("8B8FA4500000"), payload[pending:helper])
+        self.assertNotIn(bytes.fromhex("682C1A4B7F6A02"), payload[pending:0x500])
         self.assertEqual(payload.count(bytes.fromhex("6A0A6A15E805E9F9FFC20800")), 1)
+        self.assertEqual(by_offset["0x9A700"]["before"], "00")
+        self.assertEqual(by_offset["0x9A700"]["after"], "00")
+        self.assertEqual(
+            by_offset["0x9A710"]["after"],
+            "8B4E146A4BE8F628FAFF6A008BCEE8CDF0F6FF8B460C"
+            "C7807004030001000000803D00C74900007436C60500C7490000"
+            "81ECD8500000682C1A4B7F6A028D4C2408E88A81F9FF"
+            "6A00568D4C2408E86E53F6FF89E1E8276AF9FF"
+            "81C4D8500000E98670FAFF",
+        )
+        self.assertEqual(by_offset["0x437DA"]["before"], "8B4E146A4B")
+        self.assertEqual(by_offset["0x437DA"]["after"], "E9318F0500")
 
     def test_detail_upgrades_button_is_nudged_right_without_behavior_changes(self) -> None:
         source = (ROOT / "scripts" / "build_vv2_origins_feature.py").read_text(

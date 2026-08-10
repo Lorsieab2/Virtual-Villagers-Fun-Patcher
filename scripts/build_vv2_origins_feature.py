@@ -48,6 +48,19 @@ VILLAGE_WIDE_SIGNATURE_VA = IMAGE_BASE + SHR_RVA + 0x180
 VILLAGE_WIDE_ENTRY_VA = IMAGE_BASE + SHR_RVA + 0x1A0
 VILLAGE_PREFLIGHT_FILE_OFFSET = 0x9A009
 VILLAGE_PREFLIGHT_VA = IMAGE_BASE + SHR_RVA + (VILLAGE_PREFLIGHT_FILE_OFFSET - SHR_FILE_OFFSET)
+BARREL_PENDING_FILE_OFFSET = 0x9A700
+BARREL_PENDING_VA = IMAGE_BASE + SHR_RVA + (BARREL_PENDING_FILE_OFFSET - SHR_FILE_OFFSET)
+BARREL_CLOSE_HELPER_FILE_OFFSET = 0x9A710
+BARREL_CLOSE_HELPER_VA = IMAGE_BASE + SHR_RVA + (
+    BARREL_CLOSE_HELPER_FILE_OFFSET - SHR_FILE_OFFSET
+)
+BARREL_CLOSE_HELPER_CODE = bytes.fromhex(
+    "8B4E146A4BE8F628FAFF6A008BCEE8CDF0F6FF8B460C"
+    "C7807004030001000000803D00C74900007436C60500C7490000"
+    "81ECD8500000682C1A4B7F6A028D4C2408E88A81F9FF"
+    "6A00568D4C2408E86E53F6FF89E1E8276AF9FF"
+    "81C4D8500000E98670FAFF"
+)
 RUNNING_PREFERENCE_ID = 38  # exact-build preference-table evidence: 0x8B808
 
 # Exact caller-return addresses proven by the VV2 stock executable audit.  The
@@ -499,6 +512,8 @@ def main() -> None:
             jmp success
 
         barrel_capacity_preflight:
+            cmp byte ptr [0x{BARREL_PENDING_VA:X}], 0
+            jne menu_done
             sub esp, 0x50D8
             mov ebp, esp
             # The Tech menu's EDI is already the VV2 state object loaded from
@@ -517,18 +532,13 @@ def main() -> None:
             cmp dword ptr [edi + 0x2EADC], eax
             jb barrel_insufficient
             sub dword ptr [edi + 0x2EADC], eax
-            push 0x7F4B1A2C
-            push 2
-            mov ecx, ebp
-            call 0x4348E0
-            push 0
-            push esi
-            mov ecx, ebp
-            call 0x401AD0
-            mov ecx, ebp
-            call 0x433190
             add esp, 0x50D8
-            jmp success
+            mov eax, 0x{s['purchased']:X}
+            push eax
+            push 0x{s['tech_title']:X}
+            call 0x{show_message:X}
+            mov byte ptr [0x{BARREL_PENDING_VA:X}], 1
+            jmp menu_done
         barrel_capacity_low:
             add esp, 0x50D8
             mov eax, 0x{s['population_capacity']:X}
@@ -1103,6 +1113,18 @@ def main() -> None:
         preflight_code,
         "validate the complete optional Origins header and result-export dependency before any village-wide charge",
     )
+    patch(
+        BARREL_PENDING_FILE_OFFSET,
+        b"\0",
+        b"\0",
+        "reserve the process-local one-shot VV2 Barrel event token",
+    )
+    patch(
+        BARREL_CLOSE_HELPER_FILE_OFFSET,
+        b"\0" * len(BARREL_CLOSE_HELPER_CODE),
+        BARREL_CLOSE_HELPER_CODE,
+        "consume the one-shot Barrel token only after the stock Technologies screen closes",
+    )
 
     patch(
         0x218,
@@ -1157,6 +1179,12 @@ def main() -> None:
         bytes.fromhex("837C240408"),
         rel32_jump(0x4437C0, tech_handler),
         "route Tech-screen messages through the guarded Origins Upgrades handler",
+    )
+    patch(
+        0x437DA,
+        bytes.fromhex("8B4E146A4B"),
+        rel32_jump(0x4437DA, BARREL_CLOSE_HELPER_VA),
+        "consume a purchased Barrel only after the stock Technologies screen closes",
     )
     patch(
         0x67624,

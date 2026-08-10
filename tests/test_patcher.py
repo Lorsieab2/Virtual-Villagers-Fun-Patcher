@@ -119,20 +119,33 @@ class ManifestTests(unittest.TestCase):
             source.index("        barrel_capacity_preflight:") :
             source.index("        barrel_capacity_low:")
         ]
+        pending_guard = barrel_block.index(
+            "            cmp byte ptr [0x{BARREL_PENDING_VA:X}], 0"
+        )
+        reservation = barrel_block.index("            sub esp, 0x50D8")
         helper_call = barrel_block.index("            call 0x425860")
         funds_check = barrel_block.index("            cmp dword ptr [edi + 0x2EADC], eax")
         deduction = barrel_block.index("            sub dword ptr [edi + 0x2EADC], eax")
-        constructor = barrel_block.index(
-            "            push 0x7F4B1A2C\n"
-            "            push 2\n"
-            "            mov ecx, ebp\n"
-            "            call 0x4348E0"
+        cleanup = barrel_block.index("            add esp, 0x50D8", deduction)
+        purchased = barrel_block.index(
+            "            mov eax, 0x{s['purchased']:X}\n"
+            "            push eax\n"
+            "            push 0x{s['tech_title']:X}\n"
+            "            call 0x{show_message:X}",
+            cleanup,
         )
-        result_path = barrel_block.index("            call 0x401AD0")
+        token_store = barrel_block.index(
+            "            mov byte ptr [0x{BARREL_PENDING_VA:X}], 1", purchased
+        )
+        self.assertLess(pending_guard, reservation)
         self.assertLess(helper_call, funds_check)
         self.assertLess(funds_check, deduction)
-        self.assertLess(deduction, constructor)
-        self.assertLess(constructor, result_path)
+        self.assertLess(deduction, cleanup)
+        self.assertLess(cleanup, purchased)
+        self.assertLess(purchased, token_store)
+        self.assertNotIn("call 0x4348E0", barrel_block)
+        self.assertNotIn("call 0x401AD0", barrel_block)
+        self.assertNotIn("call 0x433190", barrel_block)
 
     def test_running_preference_id_matches_each_stock_table(self) -> None:
         evidence = {
