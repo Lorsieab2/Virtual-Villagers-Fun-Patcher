@@ -24,6 +24,7 @@ from vv5_full_heal import (  # noqa: E402
     CANCEL_RESULTS,
     IDOK,
     NO_DEDUCTION,
+    UNKNOWN_CHARGE,
     PRICE,
     FullHealDryRun,
     FullHealSnapshot,
@@ -193,6 +194,7 @@ class VV5FullHealContractTests(unittest.TestCase):
         self.assertEqual(result.funds, 70_000)
         self.assertTrue(result.charged)
         self.assertTrue(result.charge_verified)
+        self.assertEqual(result.charge_truth, "verified")
         self.assertEqual(events.count("deduct"), 1)
         self.assertEqual(records[0]["health"], 100)
         self.assertFalse(records[0]["sick"])
@@ -274,6 +276,7 @@ class VV5FullHealContractTests(unittest.TestCase):
         )
         self.assertEqual(unknown.status, "partial_unknown")
         self.assertFalse(unknown.charge_attempted)
+        self.assertEqual(unknown.charge_truth, "unknown")
         self.assertIn("Rollback status is unknown", unknown.message)
         self.assertNotIn(NO_DEDUCTION, unknown.message)
 
@@ -296,6 +299,7 @@ class VV5FullHealContractTests(unittest.TestCase):
         self.assertEqual(charge_unknown.status, "charge_unknown")
         self.assertTrue(charge_unknown.charge_attempted)
         self.assertFalse(charge_unknown.charge_verified)
+        self.assertEqual(charge_unknown.charge_truth, "unknown")
         self.assertIn("charge is unknown", charge_unknown.message)
 
     def test_strict_snapshot_schema_and_complete_postverify(self) -> None:
@@ -347,6 +351,7 @@ class VV5FullHealContractTests(unittest.TestCase):
         partial = execute(resolver_for(records), 100_000, IDOK, health_setter=mutates_then_raises, **common)
         self.assertEqual(partial.status, "partial_unknown")
         self.assertEqual(partial.native_effects, "may_have_occurred")
+        self.assertEqual(partial.charge_truth, "unknown")
         self.assertNotIn(NO_DEDUCTION, partial.message)
 
         records[0] = make_record(0, health=50, sick=False)
@@ -367,6 +372,51 @@ class VV5FullHealContractTests(unittest.TestCase):
         )
         self.assertEqual(committed.status, "committed")
         self.assertTrue(committed.charge_verified)
+        self.assertEqual(committed.charge_truth, "verified")
+
+    def test_null_and_raising_snapshot_or_resolver_callbacks_fail_closed(self) -> None:
+        records = make_store()
+        records[0] = make_record(0, health=50, sick=False)
+        funds, people = [100_000], [0]
+        health, clear, stat, deduct = callbacks(records, funds, people, [])
+        common = dict(
+            selected_index=0, selected_pointer="ptr-0", people_cured=0,
+            postverify_snapshot=lambda: snapshot(records, funds, people),
+            after_snapshot=lambda: snapshot(records, funds, people),
+            health_setter=health, sickness_clearer=clear,
+            people_cured_incrementer=stat, deduct=deduct,
+        )
+        null_before = execute(
+            resolver_for(records), 100_000, IDOK,
+            before_snapshot=lambda: None,
+            **common,
+        )
+        self.assertEqual(null_before.status, "recheck_failed")
+        self.assertEqual(null_before.charge_truth, "unknown")
+        self.assertEqual(null_before.native_effects, "may_have_occurred")
+        self.assertNotIn(NO_DEDUCTION, null_before.message)
+
+        null_postverify = execute(
+            resolver_for(records), 100_000, IDOK,
+            before_snapshot=lambda: snapshot(records, [100_000], [0]),
+            postverify_snapshot=lambda: None,
+            **{key: value for key, value in common.items() if key != "postverify_snapshot"},
+        )
+        self.assertEqual(null_postverify.status, "partial_unknown")
+        self.assertEqual(null_postverify.charge_truth, "unknown")
+        self.assertNotIn(NO_DEDUCTION, null_postverify.message)
+
+        def exploding_resolver(index: int):
+            raise RuntimeError("resolver")
+
+        invalid = execute(
+            exploding_resolver, 100_000, IDOK,
+            before_snapshot=lambda: None,
+            **common,
+        )
+        self.assertEqual(invalid.status, "invalid_state")
+        self.assertEqual(invalid.charge_truth, "unknown")
+        self.assertNotIn(NO_DEDUCTION, invalid.message)
 
     def test_manifest_is_strict_disabled_and_composes_ui_chain_without_native_output(self) -> None:
         manifest = build_manifest()

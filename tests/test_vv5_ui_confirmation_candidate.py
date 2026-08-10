@@ -14,6 +14,7 @@ sys.path.insert(0, str(ROOT / "scripts"))
 from vv5_individual_transactions import (  # noqa: E402
     CANCEL_RESULTS,
     NO_DEDUCTION,
+    UNKNOWN_CHARGE,
     VV5Villager,
     _postverify,
     _verify_reference_charge,
@@ -45,7 +46,6 @@ def villager(**changes: object) -> VV5Villager:
         identity="record-7",
         active=True,
         health=100,
-        heathen_active=False,
         faction=0,
         age=220,
         record_pointer="ptr-7",
@@ -125,6 +125,8 @@ class VV5UIConfirmationCandidateTests(unittest.TestCase):
                 self.assertEqual(contract["confirmation_results"], {"idok": 1, "cancel": list(CANCEL_RESULTS)})
                 self.assertIn("mandatory callable", contract["before_reacquire"])
                 self.assertIn("mandatory callable", contract["before_funds_reacquire"])
+                self.assertIn("possible-effects disclosure", contract["callback_exception_policy"])
+                self.assertEqual(contract["unknown_charge_text"], UNKNOWN_CHARGE)
                 self.assertIn("final funds equal", contract["charge_verification"])
                 self.assertIn("no native write", contract["native_effects"])
                 self.assertEqual(contract["no_charge_suffix"], NO_DEDUCTION)
@@ -133,12 +135,14 @@ class VV5UIConfirmationCandidateTests(unittest.TestCase):
                 self.assertIn("funds_recheck_failed", contract["no_charge_results"])
                 self.assertIn("postverify_failed", contract["no_charge_results"])
                 self.assertIn("charge_failed", contract["no_charge_results"])
+        self.assertIn("existing Running Like skips the entire record", contracts["running"]["native_preference_abi"])
 
     def test_youth_and_age18_charge_only_after_native_postverify(self) -> None:
         youth = reference_execute(villager(), 100_000, "youth", 1)
         self.assertEqual(youth.status, "committed")
         self.assertTrue(youth.charged)
         self.assertTrue(youth.charge_verified)
+        self.assertEqual(youth.charge_truth, "verified")
         self.assertFalse(youth.native_write_performed)
         self.assertFalse(youth.native_readback_verified)
         self.assertFalse(youth.rollback_performed)
@@ -154,7 +158,14 @@ class VV5UIConfirmationCandidateTests(unittest.TestCase):
         self.assertTrue(age18.charge_verified)
         self.assertEqual(age18.funds, 50_000)
         self.assertEqual(age18.villager.age, 360)
-        self.assertEqual(age18.villager.age_companion, 152)
+        self.assertEqual(age18.villager.age_companion, 12)
+        self.assertEqual(age18.villager.age_timer, 3)
+
+        high_age_youth = reference_execute(villager(age=900), 100_000, "youth", 1)
+        self.assertEqual(high_age_youth.status, "committed")
+        self.assertEqual(high_age_youth.villager.age, 200)
+        self.assertEqual(high_age_youth.villager.age_companion, -688)
+        self.assertEqual(high_age_youth.villager.age_timer, -697)
 
         zero_timer_youth = reference_execute(villager(age_timer=0), 100_000, "youth", 1)
         self.assertEqual(zero_timer_youth.status, "committed")
@@ -179,6 +190,7 @@ class VV5UIConfirmationCandidateTests(unittest.TestCase):
         self.assertEqual(committed.status, "committed")
         self.assertTrue(committed.charged)
         self.assertTrue(committed.charge_verified)
+        self.assertEqual(committed.charge_truth, "verified")
         self.assertEqual(committed.funds, 100_000)
         self.assertEqual(committed.villager.skills, (100.0,) * 6)
 
@@ -193,7 +205,7 @@ class VV5UIConfirmationCandidateTests(unittest.TestCase):
         self.assertEqual(failed.funds, 200_000)
         self.assertEqual(failed.villager.skills, villager().skills)
 
-    def test_running_snapshots_all_slots_preserves_duplicates_and_clears_dislikes(self) -> None:
+    def test_running_uses_exact_three_slot_abi_and_existing_like_is_whole_record_skip(self) -> None:
         committed = reference_execute(villager(), 100_000, "running", 1)
         self.assertEqual(committed.status, "committed")
         self.assertTrue(committed.charged)
@@ -202,16 +214,18 @@ class VV5UIConfirmationCandidateTests(unittest.TestCase):
         self.assertEqual(committed.villager.likes, (11, 38, 11))
         self.assertEqual(committed.villager.dislikes, (-1, 12, -1))
 
-        existing_like_cleanup = reference_execute(
+        existing_like_skip = reference_execute(
             villager(likes=(38, 11, 12), dislikes=(38, 13, 14)),
             100_000,
             "running",
             1,
         )
-        self.assertEqual(existing_like_cleanup.status, "committed")
-        self.assertTrue(existing_like_cleanup.charged)
-        self.assertEqual(existing_like_cleanup.villager.likes, (38, 11, 12))
-        self.assertEqual(existing_like_cleanup.villager.dislikes, (-1, 13, 14))
+        self.assertEqual(existing_like_skip.status, "no_change")
+        self.assertFalse(existing_like_skip.charged)
+        self.assertEqual(existing_like_skip.funds, 100_000)
+        self.assertEqual(existing_like_skip.villager.likes, (38, 11, 12))
+        self.assertEqual(existing_like_skip.villager.dislikes, (38, 13, 14))
+        self.assertIn(NO_DEDUCTION, existing_like_skip.message)
 
         no_slot = reference_execute(villager(likes=(11, 12, 13)), 100_000, "running", 1)
         self.assertEqual(no_slot.status, "no_empty_like")
@@ -312,6 +326,11 @@ class VV5UIConfirmationCandidateTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "not exact"):
             validate_candidate_manifest(stock_drift)
 
+        preference_drift = copy.deepcopy(build_manifest())
+        preference_drift["native_transaction_bindings"]["writers"]["preference"]["slot_count"] = 62
+        with self.assertRaisesRegex(ValueError, "not exact"):
+            validate_candidate_manifest(preference_drift)
+
         source_drift = copy.deepcopy(build_manifest())
         source_drift["stock_fingerprint"]["source_bound"] = True
         with self.assertRaisesRegex(ValueError, "presence and binding"):
@@ -382,14 +401,26 @@ class VV5UIConfirmationCandidateTests(unittest.TestCase):
             reference_execute(villager(), 100_000, "youth", 1.0)
         with self.assertRaises(ValueError):
             reference_execute(villager(), 100_000, "youth", 3)
-        with self.assertRaises(TypeError):
-            reference_execute(villager(), 100_000, "youth", 1, before_reacquire=lambda current: None)
-        with self.assertRaises(TypeError):
-            reference_execute(villager(), 100_000, "youth", 1, before_funds_reacquire=lambda current: 100_000.0)
-        with self.assertRaises(TypeError):
-            reference_execute(villager(), 100_000, "youth", 1, before_funds_reacquire=lambda current: True)
+        invalid_record = reference_execute(villager(), 100_000, "youth", 1, before_reacquire=lambda current: None)
+        self.assertEqual(invalid_record.status, "callback_failed")
+        self.assertTrue(invalid_record.effects_may_have_occurred)
+        self.assertFalse(invalid_record.funds_known)
+        self.assertEqual(invalid_record.charge_truth, "unknown")
+        self.assertNotIn(NO_DEDUCTION, invalid_record.message)
+        invalid_funds = reference_execute(villager(), 100_000, "youth", 1, before_funds_reacquire=lambda current: 100_000.0)
+        self.assertEqual(invalid_funds.status, "callback_failed")
+        self.assertEqual(invalid_funds.charge_truth, "unknown")
+        invalid_bool = reference_execute(villager(), 100_000, "youth", 1, before_funds_reacquire=lambda current: True)
+        self.assertEqual(invalid_bool.status, "callback_failed")
+        raised = reference_execute(
+            villager(), 100_000, "youth", 1,
+            before_reacquire=lambda current: (_ for _ in ()).throw(RuntimeError("callback")),
+        )
+        self.assertEqual(raised.status, "callback_failed")
+        self.assertIn(UNKNOWN_CHARGE, raised.message)
 
     def test_reference_state_rejects_coercible_types_and_missing_identity(self) -> None:
+        self.assertNotIn("heathen_active", VV5Villager.__dataclass_fields__)
         with self.assertRaises(TypeError):
             replace(villager(), index=7.0)
         with self.assertRaises(TypeError):
@@ -465,6 +496,22 @@ class VV5UIConfirmationCandidateTests(unittest.TestCase):
                     validate_candidate_manifest(nested)
 
     def test_manifest_rejects_hash_abi_and_detail_target_drift(self) -> None:
+        manifest = build_manifest()
+        bindings = manifest["native_transaction_bindings"]
+        self.assertNotIn("heathen_active", bindings["record_offsets"])
+        self.assertNotIn("0x1CE1", repr(bindings))
+        self.assertEqual(bindings["record_offsets"]["likes"], ["0x1F5C", "0x1F60", "0x1F64"])
+        self.assertEqual(bindings["record_offsets"]["dislikes"], ["0x1F68", "0x1F6C", "0x1F70"])
+        self.assertEqual(
+            bindings["writers"]["preference"],
+            {
+                "insert_va": "0x464AD0",
+                "remove_va": "0x4649E0",
+                "contains_va": "0x464F90",
+                "slot_count": 3,
+                "abi": "ECX=first DWORD of an exact three-slot array; push signed preference ID; insertion uses first -1, removal clears first match, membership returns AL",
+            },
+        )
         for field in ("active_base", "active_payload_sha256", "bound_payload_sha256"):
             with self.subTest(field=field):
                 mutated = copy.deepcopy(build_manifest())

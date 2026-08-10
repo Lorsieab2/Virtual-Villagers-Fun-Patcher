@@ -85,9 +85,10 @@ DETAIL_EVIDENCE_KEYS = {
 }
 NATIVE_BINDING_KEYS = {"stock_sha256", "selected_index", "record_offsets", "writers", "status"}
 SELECTED_INDEX_KEYS = {"manager_getter_va", "selected_index_offset", "index_validator_va", "record_resolver_va", "record_base_va", "abi"}
-RECORD_OFFSET_KEYS = {"active", "health", "heathen_active", "faction", "age", "age_companion", "age_timer", "skills", "likes", "dislikes"}
-WRITER_KEYS = {"skill", "tech_charge"}
+RECORD_OFFSET_KEYS = {"active", "health", "faction", "age", "age_companion", "age_timer", "skills", "likes", "dislikes"}
+WRITER_KEYS = {"skill", "preference", "tech_charge"}
 SKILL_WRITER_KEYS = {"va", "abi"}
+PREFERENCE_WRITER_KEYS = {"insert_va", "remove_va", "contains_va", "slot_count", "abi"}
 CHARGE_WRITER_KEYS = {"funds_va", "va", "abi"}
 COMPOSITION_KEYS = {"stock_sha256", "base_parent", "full_mastery", "running", "full_heal", "ranges"}
 BASE_PARENT_KEYS = {"feature", "manifest", "manifest_sha256"}
@@ -99,13 +100,13 @@ CANDIDATE_RANGE_KEYS = RANGE_KEYS | {"va", "raw_offset", "length", "preimage"}
 IMPLEMENTATION_KEYS = {"transaction_engine", "native_writer_policy", "save_policy"}
 CONTRACT_COMMON_KEYS = {
     "sequence", "confirmation_results", "record_reacquire", "pre_confirmation_snapshot", "funds_reacquire",
-    "required_callbacks", "before_reacquire", "before_funds_reacquire", "charge_verification",
-    "native_effects", "no_charge_suffix", "no_charge_results", "price", "dry_run", "postverify",
+    "required_callbacks", "before_reacquire", "before_funds_reacquire", "callback_exception_policy", "charge_verification",
+    "native_effects", "no_charge_suffix", "unknown_charge_text", "no_charge_results", "price", "dry_run", "postverify",
 }
 CONTRACT_ACTION_KEYS = {
     "youth": CONTRACT_COMMON_KEYS,
     "full_mastery": CONTRACT_COMMON_KEYS,
-    "running": CONTRACT_COMMON_KEYS | {"existing_running_cleanup"},
+    "running": CONTRACT_COMMON_KEYS | {"native_preference_abi"},
     "age_18": CONTRACT_COMMON_KEYS,
 }
 
@@ -122,7 +123,6 @@ NATIVE_TRANSACTION_BINDINGS = {
     "record_offsets": {
         "active": "0x1CD4",
         "health": "0x1C40",
-        "heathen_active": "0x1CE1",
         "faction": "0x1CEC",
         "age": "0x1B8C",
         "age_companion": "0x1C3C",
@@ -135,6 +135,13 @@ NATIVE_TRANSACTION_BINDINGS = {
         "skill": {
             "va": "0x475730",
             "abi": "ECX=record+0x1C5C; push Float32 delta; push skill index; call native writer",
+        },
+        "preference": {
+            "insert_va": "0x464AD0",
+            "remove_va": "0x4649E0",
+            "contains_va": "0x464F90",
+            "slot_count": 3,
+            "abi": "ECX=first DWORD of an exact three-slot array; push signed preference ID; insertion uses first -1, removal clears first match, membership returns AL",
         },
         "tech_charge": {
             "funds_va": "0x51D5F8",
@@ -433,6 +440,7 @@ def validate_native_transaction_bindings(bindings: dict[str, object]) -> None:
     _known_keys(bindings["record_offsets"], RECORD_OFFSET_KEYS, "native_transaction_bindings.record_offsets")
     _known_keys(bindings["writers"], WRITER_KEYS, "native_transaction_bindings.writers")
     _known_keys(bindings["writers"]["skill"], SKILL_WRITER_KEYS, "native_transaction_bindings.writers.skill")
+    _known_keys(bindings["writers"]["preference"], PREFERENCE_WRITER_KEYS, "native_transaction_bindings.writers.preference")
     _known_keys(bindings["writers"]["tech_charge"], CHARGE_WRITER_KEYS, "native_transaction_bindings.writers.tech_charge")
     _strict_structure(bindings, NATIVE_TRANSACTION_BINDINGS, "native_transaction_bindings")
 

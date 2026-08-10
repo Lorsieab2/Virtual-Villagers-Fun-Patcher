@@ -21,6 +21,7 @@ CANCEL_RESULTS = (0, 2)
 RUNNING_PREFERENCE = 38
 EMPTY_PREFERENCE = -1
 NO_DEDUCTION = "No tech points have been deducted."
+UNKNOWN_CHARGE = "The tech-point charge outcome is unknown; no no-charge claim is permitted without exact balance readback."
 
 Action = Literal["youth", "full_mastery", "running", "age_18"]
 Status = Literal[
@@ -33,6 +34,7 @@ Status = Literal[
     "cancelled",
     "recheck_failed",
     "funds_recheck_failed",
+    "callback_failed",
     "postverify_failed",
     "charge_failed",
 ]
@@ -46,7 +48,6 @@ class VV5Villager:
     identity: str
     active: bool
     health: int
-    heathen_active: bool
     faction: int
     age: int
     record_pointer: str
@@ -70,10 +71,7 @@ class VV5Villager:
         for field, value in exact_ints.items():
             if type(value) is not int:
                 raise TypeError(f"{field} must be an exact int")
-        for field, value in {
-            "active": self.active,
-            "heathen_active": self.heathen_active,
-        }.items():
+        for field, value in {"active": self.active}.items():
             if type(value) is not bool:
                 raise TypeError(f"{field} must be an exact bool")
         for field, value in {"identity": self.identity, "record_pointer": self.record_pointer}.items():
@@ -118,6 +116,9 @@ class TransactionResult:
     native_write_performed: bool = False
     native_readback_verified: bool = False
     rollback_performed: bool = False
+    effects_may_have_occurred: bool = False
+    funds_known: bool = True
+    charge_truth: Literal["not_attempted", "verified", "unknown"] = "not_attempted"
 
 
 _PRICES: dict[Action, int] = {
@@ -149,9 +150,11 @@ def transaction_contracts() -> dict[Action, dict[str, object]]:
         "required_callbacks": ["before_reacquire", "before_funds_reacquire"],
         "before_reacquire": "mandatory callable returning the same-index, same-record-pointer snapshot",
         "before_funds_reacquire": "mandatory callable returning the exact post-confirmation funds snapshot",
+        "callback_exception_policy": "callback exception or malformed callback return yields structured possible-effects disclosure and unknown charge; no no-charge claim is made without exact balance readback",
         "charge_verification": "reference charge outcome is verified and final funds equal original funds minus exact action price",
         "native_effects": "reference-only; no native write, native readback, or rollback is implemented or implied",
         "no_charge_suffix": NO_DEDUCTION,
+        "unknown_charge_text": UNKNOWN_CHARGE,
         "no_charge_results": [
             "invalid_selection",
             "invalid_skill",
@@ -170,7 +173,7 @@ def transaction_contracts() -> dict[Action, dict[str, object]]:
             **common,
             "price": _PRICES["youth"],
             "dry_run": "snapshot displayed age and both native age companions; no write",
-            "postverify": "displayed age is exactly 100 and age, companion, and timer deltas match the reference transition",
+            "postverify": "displayed age is exactly max(raw age - 700, 100) and age, companion, and nonzero timer deltas match the reference transition",
         },
         "full_mastery": {
             **common,
@@ -183,13 +186,13 @@ def transaction_contracts() -> dict[Action, dict[str, object]]:
             "price": _PRICES["running"],
             "dry_run": "snapshot all three Likes and all three Dislikes; preserve duplicates; choose first physical -1 Like",
             "postverify": "Running is present in the planned Like slot and every Running Dislike is -1",
-            "existing_running_cleanup": "binding requires clearing every Running Dislike even when Running is already in Likes; this is a changed, charged action",
+            "native_preference_abi": "stock 3+3 preference ABI only: membership 0x464F90; insertion 0x464AD0 uses the first -1 Like; repeated removal 0x4649E0 clears each Running Dislike; an existing Running Like skips the entire record without confirmation, cleanup, or charge",
         },
         "age_18": {
             **common,
             "price": _PRICES["age_18"],
-            "dry_run": "snapshot displayed age and both native age companions; no write",
-            "postverify": "displayed age is exactly 360 and age, companion, and timer deltas match the reference transition",
+            "dry_run": "snapshot displayed age and preserve unproved companion fields; no write",
+            "postverify": "displayed age is exactly 360; no unproved companion write is modeled",
         },
     }
 
@@ -201,7 +204,6 @@ def _snapshot(villager: VV5Villager) -> tuple[object, ...]:
         villager.record_pointer,
         villager.active,
         villager.health,
-        villager.heathen_active,
         villager.faction,
         villager.age,
         villager.age_companion,
@@ -217,7 +219,6 @@ def _eligible(villager: VV5Villager) -> bool:
         0 <= villager.index < 150
         and villager.active
         and villager.health > 0
-        and not villager.heathen_active
         and villager.faction == 0
     )
 
@@ -255,6 +256,13 @@ def dry_run(villager: VV5Villager, action: Action) -> DryRun:
         running_dislikes = tuple(
             index for index, value in enumerate(villager.dislikes) if value == RUNNING_PREFERENCE
         )
+        if has_like:
+            return DryRun(
+                action, True, False, "no_change", snapshot,
+                first_empty_like=first_empty,
+                has_running_like=True,
+                running_dislike_indices=running_dislikes,
+            )
         if not has_like and first_empty is None:
             return DryRun(
                 action, True, False, "no_empty_like", snapshot,
@@ -262,23 +270,27 @@ def dry_run(villager: VV5Villager, action: Action) -> DryRun:
                 has_running_like=False,
                 running_dislike_indices=running_dislikes,
             )
-        changed = not has_like or bool(running_dislikes)
         return DryRun(
-            action, True, changed, "changed" if changed else "no_change", snapshot,
+            action, True, True, "changed", snapshot,
             first_empty_like=first_empty,
-            has_running_like=has_like,
+            has_running_like=False,
             running_dislike_indices=running_dislikes,
         )
 
     if action == "youth":
-        changed = villager.age > 100
+        changed = villager.age != _youth_target(villager.age)
         return DryRun(action, True, changed, "changed" if changed else "no_change", snapshot)
 
     if action == "age_18":
         changed = villager.age != 360
         return DryRun(action, True, changed, "changed" if changed else "no_change", snapshot)
 
-def _set_age(villager: VV5Villager, target: int) -> VV5Villager:
+def _youth_target(raw_age: int) -> int:
+    return max(raw_age - 700, 100)
+
+
+def _apply_youth(villager: VV5Villager) -> VV5Villager:
+    target = _youth_target(villager.age)
     delta = target - villager.age
     companion = villager.age_companion + delta
     timer = villager.age_timer + delta if villager.age_timer != 0 else villager.age_timer
@@ -287,9 +299,9 @@ def _set_age(villager: VV5Villager, target: int) -> VV5Villager:
 
 def _mutate(villager: VV5Villager, plan: DryRun) -> VV5Villager:
     if plan.action == "youth":
-        return _set_age(villager, 100)
+        return _apply_youth(villager)
     if plan.action == "age_18":
-        return _set_age(villager, 360)
+        return replace(villager, age=360)
     if plan.action == "full_mastery":
         skills = list(villager.skills)
         for index in plan.changed_skill_indices:
@@ -316,20 +328,19 @@ def _postverify(before: VV5Villager, after: VV5Villager, plan: DryRun) -> bool:
     if after != _mutate(before, plan):
         return False
     if plan.action == "youth":
-        expected_delta = 100 - before.age
+        target = _youth_target(before.age)
+        expected_delta = target - before.age
         expected_timer = before.age_timer + expected_delta if before.age_timer != 0 else before.age_timer
         return (
-            after.age == 100
+            after.age == target
             and after.age_companion - before.age_companion == expected_delta
             and after.age_timer == expected_timer
         )
     if plan.action == "age_18":
-        expected_delta = 360 - before.age
-        expected_timer = before.age_timer + expected_delta if before.age_timer != 0 else before.age_timer
         return (
             after.age == 360
-            and after.age_companion - before.age_companion == expected_delta
-            and after.age_timer == expected_timer
+            and after.age_companion == before.age_companion
+            and after.age_timer == before.age_timer
         )
     if plan.action == "full_mastery":
         return len(after.skills) == 6 and all(value == 100.0 for value in after.skills)
@@ -390,8 +401,17 @@ def execute(
         state: VV5Villager,
         message: str,
         available_funds: int = funds,
+        *,
+        effects_may_have_occurred: bool = False,
+        funds_known: bool = True,
+        charge_truth: Literal["not_attempted", "verified", "unknown"] = "not_attempted",
     ) -> TransactionResult:
-        return TransactionResult(action, status, state, available_funds, False, False, message, plan)
+        return TransactionResult(
+            action, status, state, available_funds, False, False, message, plan,
+            effects_may_have_occurred=effects_may_have_occurred,
+            funds_known=funds_known,
+            charge_truth=charge_truth,
+        )
 
     if plan.reason == "invalid_skill":
         return result("invalid_skill", villager, f"The selected villager has an invalid skill.\r\n{NO_DEDUCTION}")
@@ -406,9 +426,26 @@ def execute(
     if confirm_result != IDOK:
         return result("cancelled", villager, f"The upgrade was canceled.\r\n{NO_DEDUCTION}")
 
-    reacquired = before_reacquire(villager)
+    try:
+        reacquired = before_reacquire(villager)
+    except Exception:
+        return result(
+            "callback_failed",
+            villager,
+            f"The pre-mutation record callback failed. Callback effects may have occurred; rollback is not claimed. {UNKNOWN_CHARGE}",
+            effects_may_have_occurred=True,
+            funds_known=False,
+            charge_truth="unknown",
+        )
     if type(reacquired) is not VV5Villager:
-        raise TypeError("before_reacquire must return a VV5Villager")
+        return result(
+            "callback_failed",
+            villager,
+            f"The pre-mutation record callback returned an invalid snapshot. Callback effects may have occurred; rollback is not claimed. {UNKNOWN_CHARGE}",
+            effects_may_have_occurred=True,
+            funds_known=False,
+            charge_truth="unknown",
+        )
     if reacquired.index != villager.index or reacquired.record_pointer != villager.record_pointer:
         return result("recheck_failed", reacquired, f"The selected villager changed during confirmation.\r\n{NO_DEDUCTION}")
     if _snapshot(reacquired) != plan.snapshot:
@@ -417,9 +454,26 @@ def execute(
     if not second_plan.valid or not second_plan.changed:
         return result("recheck_failed", reacquired, f"The selected villager changed during confirmation.\r\n{NO_DEDUCTION}")
 
-    confirmed_funds = before_funds_reacquire(funds)
+    try:
+        confirmed_funds = before_funds_reacquire(funds)
+    except Exception:
+        return result(
+            "callback_failed",
+            reacquired,
+            f"The pre-mutation funds callback failed. Callback effects may have occurred; rollback is not claimed. {UNKNOWN_CHARGE}",
+            effects_may_have_occurred=True,
+            funds_known=False,
+            charge_truth="unknown",
+        )
     if type(confirmed_funds) is not int:
-        raise TypeError("before_funds_reacquire must return an exact int")
+        return result(
+            "callback_failed",
+            reacquired,
+            f"The pre-mutation funds callback returned an invalid snapshot. Callback effects may have occurred; rollback is not claimed. {UNKNOWN_CHARGE}",
+            effects_may_have_occurred=True,
+            funds_known=False,
+            charge_truth="unknown",
+        )
     if confirmed_funds != funds or confirmed_funds < price:
         return result(
             "funds_recheck_failed",
@@ -448,4 +502,5 @@ def execute(
         True,
         "Upgrade committed.",
         plan,
+        charge_truth="verified",
     )

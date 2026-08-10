@@ -26,6 +26,7 @@ HEALTH_OFFSET = 0x1C40
 FORBIDDEN_UNPROVEN_OFFSET = 0x1CE1
 NO_DEDUCTION = "No tech points have been deducted."
 UNKNOWN_ROLLBACK = "Rollback status is unknown; complete rollback is not claimed."
+UNKNOWN_CHARGE = "The tech-point charge outcome is unknown; no no-charge claim is permitted without exact balance readback."
 
 NativeOutcome = Literal["success", "failure", "unknown"]
 Status = Literal[
@@ -188,6 +189,7 @@ class TransactionResult:
     charge_attempted: bool = False
     native_effects: Literal["none", "may_have_occurred"] = "none"
     rollback_status: Literal["not_attempted", "unknown"] = "not_attempted"
+    charge_truth: Literal["not_attempted", "verified", "unknown"] = "not_attempted"
     dry_run: FullHealDryRun | None = None
 
     def __post_init__(self) -> None:
@@ -204,12 +206,18 @@ class TransactionResult:
             raise TypeError("result.native_effects is not exact")
         if self.rollback_status not in {"not_attempted", "unknown"}:
             raise TypeError("result.rollback_status is not exact")
+        if self.charge_truth not in {"not_attempted", "verified", "unknown"}:
+            raise TypeError("result.charge_truth is not exact")
         if self.dry_run is not None and type(self.dry_run) is not FullHealDryRun:
             raise TypeError("result.dry_run must be an exact FullHealDryRun or None")
         if self.charge_verified and not (self.charge_attempted and self.charged):
             raise ValueError("verified charge requires one attempted and charged outcome")
         if self.charged and not self.charge_verified:
             raise ValueError("charged cannot be true without exact balance verification")
+        if self.charge_verified and self.charge_truth != "verified":
+            raise ValueError("verified charge requires verified charge truth")
+        if self.charge_truth == "unknown" and self.charge_verified:
+            raise ValueError("unknown charge truth cannot be verified")
         if self.status == "committed" and not self.charge_verified:
             raise ValueError("committed requires exact charge verification")
 
@@ -249,6 +257,7 @@ def transaction_contract() -> dict[str, object]:
         "native_effects": "callbacks may have native effects; this reference model supplies no rollback implementation",
         "rollback_disclosure": UNKNOWN_ROLLBACK,
         "charge_disclosure": "callback return values never prove charge or no-charge; exact balance readback is authoritative, otherwise charge is unknown",
+        "unknown_charge_text": UNKNOWN_CHARGE,
         "no_charge_suffix": NO_DEDUCTION,
         "no_charge_results": [
             "invalid_state",
@@ -483,8 +492,15 @@ def execute(
 
     try:
         initial = dry_run(resolve)
-    except (TypeError, ValueError, KeyError, IndexError):
-        return TransactionResult("invalid_state", _failure_message("Full Heal / Cure All could not read an exact villager snapshot."), funds=funds)
+    except Exception:
+        return TransactionResult(
+            "invalid_state",
+            f"Full Heal / Cure All could not read an exact villager snapshot. Callback effects may have occurred; {UNKNOWN_ROLLBACK} {UNKNOWN_CHARGE}",
+            funds=funds,
+            native_effects="may_have_occurred",
+            rollback_status="unknown",
+            charge_truth="unknown",
+        )
 
     def result(
         status: Status,
@@ -498,6 +514,7 @@ def execute(
         charge_attempted: bool = False,
         native_effects: Literal["none", "may_have_occurred"] = "none",
         rollback_status: Literal["not_attempted", "unknown"] = "not_attempted",
+        charge_truth: Literal["not_attempted", "verified", "unknown"] = "not_attempted",
     ) -> TransactionResult:
         return TransactionResult(
             status,
@@ -512,6 +529,7 @@ def execute(
             charge_attempted,
             native_effects,
             rollback_status,
+            charge_truth,
             initial,
         )
 
@@ -525,9 +543,21 @@ def execute(
     try:
         before = before_snapshot()
     except Exception:
-        return result("recheck_failed", _failure_message("The independent pre-mutation snapshot could not be reacquired."))
+        return result(
+            "recheck_failed",
+            f"The independent pre-mutation snapshot callback failed. Callback effects may have occurred; {UNKNOWN_ROLLBACK} {UNKNOWN_CHARGE}",
+            native_effects="may_have_occurred",
+            rollback_status="unknown",
+            charge_truth="unknown",
+        )
     if type(before) is not FullHealSnapshot:
-        raise TypeError("before_snapshot must return an exact FullHealSnapshot")
+        return result(
+            "recheck_failed",
+            f"The independent pre-mutation snapshot callback returned an invalid value. Callback effects may have occurred; {UNKNOWN_ROLLBACK} {UNKNOWN_CHARGE}",
+            native_effects="may_have_occurred",
+            rollback_status="unknown",
+            charge_truth="unknown",
+        )
     if (
         before.selected_index != selected_index
         or before.selected_pointer != selected_pointer
@@ -552,13 +582,17 @@ def execute(
             available_funds=confirmed_funds,
             native_effects=effects,
             rollback_status=rollback,
+            charge_truth="unknown",
         )
 
     for expected in initial.slots:
         if not _eligible(expected):
             continue
         assert expected.identity is not None and expected.record_pointer is not None
-        current = _slot_from_record(expected.index, resolve(expected.index))
+        try:
+            current = _slot_from_record(expected.index, resolve(expected.index))
+        except Exception:
+            return partial_failure("partial_unknown", "the record resolver callback failed before mutation")
         if current != expected:
             return result(
                 "recheck_failed" if not (actual_sick or actual_partial) else "partial",
@@ -568,6 +602,7 @@ def execute(
                 available_funds=confirmed_funds,
                 native_effects="may_have_occurred" if actual_sick or actual_partial else "none",
                 rollback_status="unknown" if actual_sick or actual_partial else "not_attempted",
+                charge_truth="unknown" if actual_sick or actual_partial else "not_attempted",
             )
         assert current.health is not None
 
@@ -580,7 +615,10 @@ def execute(
                 return partial_failure("partial_unknown", "the native health setter outcome is unknown")
             if outcome == "failure":
                 return partial_failure("partial", "the native health setter reported failure")
-            after_health = _slot_from_record(current.index, resolve(current.index))
+            try:
+                after_health = _slot_from_record(current.index, resolve(current.index))
+            except Exception:
+                return partial_failure("partial_unknown", "the health postverification resolver callback failed")
             if (
                 after_health.identity != current.identity
                 or after_health.record_pointer != current.record_pointer
@@ -593,7 +631,10 @@ def execute(
             actual_partial += 1
 
         if current.sick is True:
-            before_clear = _slot_from_record(current.index, resolve(current.index))
+            try:
+                before_clear = _slot_from_record(current.index, resolve(current.index))
+            except Exception:
+                return partial_failure("partial_unknown", "the sickness preverification resolver callback failed")
             expected_health = 100 if current.health < 100 else current.health
             if (
                 before_clear.identity != current.identity
@@ -612,7 +653,10 @@ def execute(
                 return partial_failure("partial_unknown", "the native sickness-clear outcome is unknown")
             if outcome == "failure":
                 return partial_failure("partial", "the native sickness-clear callback reported failure")
-            after_clear = _slot_from_record(current.index, resolve(current.index))
+            try:
+                after_clear = _slot_from_record(current.index, resolve(current.index))
+            except Exception:
+                return partial_failure("partial_unknown", "the sickness postverification resolver callback failed")
             if (
                 after_clear.identity != current.identity
                 or after_clear.record_pointer != current.record_pointer
@@ -634,7 +678,7 @@ def execute(
 
     try:
         final = dry_run(resolve)
-    except (TypeError, ValueError, KeyError, IndexError):
+    except Exception:
         return partial_failure("partial_unknown", "final postverification could not read an exact snapshot")
     expected_slots = tuple(
         FullHealSlot(
@@ -655,7 +699,7 @@ def execute(
     except Exception:
         return partial_failure("partial_unknown", "the complete post-mutation snapshot could not be reacquired")
     if type(verified) is not FullHealSnapshot:
-        raise TypeError("postverify_snapshot must return an exact FullHealSnapshot")
+        return partial_failure("partial_unknown", "the postverification callback returned an invalid snapshot")
     if (
         verified.selected_index != selected_index
         or verified.selected_pointer != selected_pointer
@@ -683,6 +727,7 @@ def execute(
             charge_attempted=True,
             native_effects="may_have_occurred",
             rollback_status="unknown",
+            charge_truth="unknown",
         )
     if (
         after.selected_index != selected_index
@@ -695,7 +740,7 @@ def execute(
             f"{success_message(actual_sick, actual_partial)} Final record/statistic snapshot did not exactly match the prediction; charge is unknown. {UNKNOWN_ROLLBACK}",
             actual_sick=actual_sick, actual_partial=actual_partial,
             available_funds=after.funds, charge_attempted=True,
-            native_effects="may_have_occurred", rollback_status="unknown",
+            native_effects="may_have_occurred", rollback_status="unknown", charge_truth="unknown",
         )
     if after.funds != confirmed_funds - PRICE:
         return result(
@@ -707,6 +752,7 @@ def execute(
             charge_attempted=True,
             native_effects="may_have_occurred",
             rollback_status="unknown",
+            charge_truth="unknown",
         )
     return result(
         "committed",
@@ -719,4 +765,5 @@ def execute(
         charge_attempted=True,
         native_effects="may_have_occurred",
         rollback_status="unknown",
+        charge_truth="verified",
     )
