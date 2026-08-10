@@ -523,7 +523,7 @@ class VV5FullMasteryCandidateTests(unittest.TestCase):
         )
         self.assertEqual(
             frozen["vv5_origins_feature.json"],
-            "91F854084C230D415995697FD94A89AC30D18E98E1A8AEBCC995E15FD176DC8B",
+            "0DD467627B8C8DCF69E0A800D1662B084FDFC7518D22353D3497F628037F6D67",
         )
 
     def test_exact_current_context_native_calls_and_nonvolatile_frame(self):
@@ -944,8 +944,8 @@ class VV5FullMasteryCandidateTests(unittest.TestCase):
         active = ROOT / "data" / "vv5_origins_feature.json"
         certified_parent = {
             "path": "data/vv5_origins_feature.json",
-            "size": 52896,
-            "sha256": "E10F02BECC4BEB586EACA18150F46BC46BB464FD3D0DF7794DB3E67630D1F0F7",
+            "size": 53747,
+            "sha256": "F9643E2B7D115B6ECDDD4D8AD4BFFC73F2FF6937995E40E991041B6AF6463D44",
         }
         self.assertEqual(self.base_raw["active_base"], certified_parent)
         self.assertEqual(self.map["active_base"], certified_parent)

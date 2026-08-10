@@ -41,12 +41,8 @@ VILLAGE_PREFLIGHT_FILE_OFFSET = 0x94B37
 VILLAGE_PREFLIGHT_VA = IMAGE_BASE + VILLAGE_PREFLIGHT_FILE_OFFSET
 RUNNING_PREFERENCE_ID = 38  # exact-build preference-table evidence: 0xAEF60
 TECH_BUTTON_EVENT = 13
-DETAIL_BUTTON_EVENT = 13
-# 0x44B560 is the stock Detail input/hit-test method entry; it is not the
-# event-13 receiver.  The registered control dispatches through the separate
-# ret-8 event method at 0x44BC20.
-DETAIL_INPUT_METHOD_ENTRY_VA = 0x44B560
-DETAIL_EVENT_METHOD_VA = 0x44BC20
+DETAIL_BUTTON_EVENT = 13  # native VV5 Detail constructor/handler event
+DETAIL_NATIVE_HANDLER_VA = 0x44B560
 
 # This is the reviewed VV5 all-current-feature relocation ledger exported from
 # IDA Pro 9.4.  The operand heads, source/target VAs, and stock preimages are
@@ -234,7 +230,6 @@ def main() -> None:
         "show_dialog": PAYLOAD_VA + 0x1C0,
         "show_message": PAYLOAD_VA + 0x210,
         "get_record": PAYLOAD_VA + 0x270,
-        "get_record_guard": PAYLOAD_VA + 0xC00,
         "tech_menu": PAYLOAD_VA + 0x2C0,
         "detail_menu": PAYLOAD_VA + 0x600,
         "tech_increment": PAYLOAD_VA + 0xA00,
@@ -452,11 +447,10 @@ def main() -> None:
     )
     put(
         "get_record",
-        f"""
+        """
             push ebx
             call 0x425950
-            jmp 0x{entry['get_record_guard']:X}
-            nop
+            mov ebx, dword ptr [eax + 0x17E24]
             push ebx
             mov ecx, 0x554148
             call 0x471840
@@ -471,18 +465,6 @@ def main() -> None:
             xor eax, eax
             pop ebx
             ret
-        """,
-    )
-    put(
-        "get_record_guard",
-        f"""
-            test eax, eax
-            je no_context
-            mov ebx, dword ptr [eax + 0x17E24]
-            jmp 0x{entry['get_record'] + 0x0C:X}
-        no_context:
-            xor eax, eax
-            jmp 0x{entry['get_record'] + 0x28:X}
         """,
     )
     put(
@@ -1177,8 +1159,8 @@ def main() -> None:
     patch(0x4AF12, bytes.fromhex("8BC68B4C2424"),
           rel32_jump(0x44AF12, entry["detail_ctor"], 6),
           "append the stock-styled Upgrades control to Villager Detail")
-    patch(DETAIL_EVENT_METHOD_VA, bytes.fromhex("83EC18A1A8974D00"),
-          rel32_jump(DETAIL_EVENT_METHOD_VA, entry["detail_handler"], 8),
+    patch(0x4BC20, bytes.fromhex("83EC18A1A8974D00"),
+          rel32_jump(0x44BC20, entry["detail_handler"], 8),
           "route the added Detail control through the villager-upgrade menu")
     if bytes(payload[0x180:0x1A8]) != BARREL_SELECTOR_BODY_REPAIRED:
         raise RuntimeError(

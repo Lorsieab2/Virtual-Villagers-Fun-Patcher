@@ -289,8 +289,8 @@
   "certification_status": "disabled C253 candidate; native 0x404700 fullscreen state chain is statically proven and independent emitted-byte recertification is pending; Expanded-256 fail-closed",
   "active_base": {
     "path": "data/vv5_origins_feature.json",
-    "size": 52896,
-    "sha256": "E10F02BECC4BEB586EACA18150F46BC46BB464FD3D0DF7794DB3E67630D1F0F7"
+    "size": 53747,
+    "sha256": "F9643E2B7D115B6ECDDD4D8AD4BFFC73F2FF6937995E40E991041B6AF6463D44"
   },
   "dependencies": [],
   "ui_geometry_contract": {
