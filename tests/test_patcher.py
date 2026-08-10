@@ -78,12 +78,12 @@ def village_wide_record(game_id: str) -> SimpleNamespace:
 
 
 class ManifestTests(unittest.TestCase):
-    def test_vv2_barrel_capacity_helper_uses_stock_owner_context(self) -> None:
+    def test_vv2_barrel_capacity_helper_uses_tech_state_context(self) -> None:
         source = (ROOT / "scripts" / "build_vv2_origins_feature.py").read_text(
             encoding="utf-8"
         )
         self.assertIn(
-            "mov ecx, dword ptr [edi + 0x50A4]\n"
+            "mov ecx, edi\n"
             "            test ecx, ecx\n"
             "            jz barrel_capacity_unavailable\n"
             "            cmp dword ptr [ecx + 0x305A4], 0\n"
@@ -92,7 +92,7 @@ class ManifestTests(unittest.TestCase):
             source,
         )
         self.assertNotIn(
-            "mov ecx, edi\n            call 0x425860",
+            "mov ecx, dword ptr [edi + 0x50A4]",
             source,
         )
         self.assertIn(

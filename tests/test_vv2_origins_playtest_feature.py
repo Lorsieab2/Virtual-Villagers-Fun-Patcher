@@ -102,22 +102,27 @@ class VV2OriginsPlaytestFeatureTests(unittest.TestCase):
             ]
         )
         block = payload.index(bytes.fromhex("81ECD850000089E5"))
-        helper = payload.index(bytes.fromhex("E8D710F9FF"), block)
+        state = payload.index(bytes.fromhex("89F985C9"), block)
+        nested_pool = payload.index(bytes.fromhex("83B9A405030000"), state)
+        helper = payload.index(bytes.fromhex("E8DB10F9FF"), nested_pool)
         threshold = payload.index(bytes.fromhex("3DFE000000"), helper)
         funds = payload.index(bytes.fromhex("3987DCEA0200"), threshold)
         deduction = payload.index(bytes.fromhex("2987DCEA0200"), funds)
         constructor = payload.index(
-            bytes.fromhex("682C1A4B7F6A0289E9E82D01FAFF"), deduction
+            bytes.fromhex("682C1A4B7F6A0289E9E83101FAFF"), deduction
         )
-        presenter = payload.index(bytes.fromhex("6A005689E9E813D3F6FF"), constructor)
-        destructor = payload.index(bytes.fromhex("89E9E8CCE9F9FF"), presenter)
+        presenter = payload.index(bytes.fromhex("6A005689E9E817D3F6FF"), constructor)
+        destructor = payload.index(bytes.fromhex("89E9E8D0E9F9FF"), presenter)
+        self.assertLess(state, nested_pool)
+        self.assertLess(nested_pool, helper)
         self.assertLess(helper, threshold)
         self.assertLess(threshold, funds)
         self.assertLess(funds, deduction)
         self.assertLess(deduction, constructor)
         self.assertLess(constructor, presenter)
         self.assertLess(presenter, destructor)
-        self.assertEqual(payload.count(bytes.fromhex("682C1A4B7F6A0289E9E82D01FAFF")), 1)
+        self.assertNotIn(bytes.fromhex("8B8FA4500000"), payload[block:helper])
+        self.assertEqual(payload.count(bytes.fromhex("682C1A4B7F6A0289E9E83101FAFF")), 1)
         self.assertEqual(payload.count(bytes.fromhex("6A0A6A15E805E9F9FFC20800")), 1)
 
     def test_detail_upgrades_button_is_nudged_right_without_behavior_changes(self) -> None:

@@ -501,11 +501,11 @@ def main() -> None:
         barrel_capacity_preflight:
             sub esp, 0x50D8
             mov ebp, esp
-            # Match the stock caller at 0x4347D8: sub_425860 receives the
-            # village/tech object's owner from [EDI+0x50A4].  Its first
-            # dereference is [ECX+0x305A4], so reject an uninitialized chain
-            # before the helper can turn it into the observed [0x30] fault.
-            mov ecx, dword ptr [edi + 0x50A4]
+            # The Tech menu's EDI is already the VV2 state object loaded from
+            # [ESI+0x0C], matching stock state-local callers of sub_425860.
+            # Its first dereference is [ECX+0x305A4], so reject an
+            # uninitialized record-pool chain before calling the helper.
+            mov ecx, edi
             test ecx, ecx
             jz barrel_capacity_unavailable
             cmp dword ptr [ecx + 0x305A4], 0
