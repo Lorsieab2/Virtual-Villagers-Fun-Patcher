@@ -30,6 +30,9 @@ from build_vv5_ui_confirmation_candidate import (  # noqa: E402
     CURRENT_DETAIL_HOOK_PREIMAGE,
     DETAIL_INPUT_METHOD_VA,
     DETAIL_INPUT_METHOD_ENTRY_BYTES,
+    FULL_MASTERY_MAP_PATH,
+    FULL_MASTERY_MAP_SHA256,
+    sha,
     validate_candidate_manifest,
     validate_cave_hook_overlaps,
     validate_detail_enablement,
@@ -62,6 +65,9 @@ def reference_execute(v: VV5Villager, funds: int, action: str, confirm: int, **k
 
 
 class VV5UIConfirmationCandidateTests(unittest.TestCase):
+    def test_full_mastery_map_pin_matches_checked_in_source(self) -> None:
+        self.assertEqual(sha(FULL_MASTERY_MAP_PATH.read_bytes()), FULL_MASTERY_MAP_SHA256)
+
     def test_candidate_is_disabled_and_native_routing_binding_is_exact(self) -> None:
         original = active_payload()
         bound, changes = bound_payload()
