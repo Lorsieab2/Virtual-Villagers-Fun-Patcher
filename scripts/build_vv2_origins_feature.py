@@ -500,9 +500,10 @@ def main() -> None:
             push 2
             mov ecx, ebp
             call 0x4348E0
-            # The native event object owns the verified population context.
-            # Use event+0x50A4, never a guessed Tech-screen field.
-            mov ecx, dword ptr [ebp + 0x50A4]
+            # The Tech screen's village object is the native helper context.
+            # Do not dereference an event-local field here; the stock helper
+            # expects the village object that owns +0x305A4.
+            mov ecx, edi
             call 0x425860
             cmp eax, 254
             jae barrel_capacity_low

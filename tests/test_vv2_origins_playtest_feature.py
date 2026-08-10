@@ -82,7 +82,7 @@ class VV2OriginsPlaytestFeatureTests(unittest.TestCase):
         source = (ROOT / "scripts" / "build_vv2_origins_feature.py").read_text(
             encoding="utf-8"
         )
-        self.assertIn("mov ecx, dword ptr [ebp + 0x50A4]", source)
+        self.assertIn("mov ecx, edi", source)
         self.assertIn("call 0x425860", source)
         self.assertIn("cmp eax, 254", source)
         self.assertIn("push 10\n            push 21\n            call 0x433600", source)
