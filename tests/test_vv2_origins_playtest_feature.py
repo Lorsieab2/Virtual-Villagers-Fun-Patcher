@@ -18,6 +18,7 @@ from vv_fun_patcher import (  # noqa: E402
     load_fun_patches,
     load_builds,
     render_patched_bytes,
+    _validate_playtest_output_request,
 )
 
 
@@ -119,6 +120,28 @@ class VV2OriginsPlaytestFeatureTests(unittest.TestCase):
                 ["vv2_birth_control"],
                 playtest_disabled_feature_ids=[VV2_PLAYTEST_DISABLED_FEATURE_ID],
             )
+
+    def test_mixed_playtest_selection_requires_distinct_absolute_root(self) -> None:
+        with self.assertRaisesRegex(PatcherError, "distinct explicit playtest output root"):
+            _validate_playtest_output_request(
+                fun_patch_ids=["vv2_birth_control"],
+                playtest_disabled_feature_ids=[VV2_PLAYTEST_DISABLED_FEATURE_ID],
+                output_root=None,
+                playtest_output_root=None,
+            )
+        with self.assertRaisesRegex(PatcherError, "absolute path"):
+            _validate_playtest_output_request(
+                fun_patch_ids=["vv2_birth_control"],
+                playtest_disabled_feature_ids=[VV2_PLAYTEST_DISABLED_FEATURE_ID],
+                output_root=None,
+                playtest_output_root=Path("relative-playtest-root"),
+            )
+        _validate_playtest_output_request(
+            fun_patch_ids=["vv2_birth_control"],
+            playtest_disabled_feature_ids=[VV2_PLAYTEST_DISABLED_FEATURE_ID],
+            output_root=None,
+            playtest_output_root=Path("C:/Users/Owner/Downloads/vv2-stress"),
+        )
 
     def test_apply_requires_explicit_output_root_and_rejects_save_copy(self) -> None:
         with self.assertRaisesRegex(PatcherError, "explicit output root"):

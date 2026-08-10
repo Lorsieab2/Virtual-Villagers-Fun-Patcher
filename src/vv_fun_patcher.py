@@ -4406,6 +4406,7 @@ def render_patched_bytes(
     *,
     _fun_patches_override: list[FunPatch] | None = None,
     playtest_disabled_feature_ids: tuple[str, ...] | list[str] = (),
+    playtest_output_root: Path | None = None,
 ) -> tuple[bytearray, list[dict[str, str]]]:
     # VV5 Running is Collection-only.  Keep this guard ahead of variant,
     # catalog, manifest, and source access in the generic production path.
@@ -4421,9 +4422,14 @@ def render_patched_bytes(
         raise PatcherError(
             "Playtest-disabled features cannot be combined with an internal patch override."
         )
-    if fun_patch_ids and playtest_disabled_feature_ids:
+    if (
+        fun_patch_ids
+        and playtest_disabled_feature_ids
+        and playtest_output_root is None
+    ):
         raise PatcherError(
-            "Playtest-disabled features cannot be combined with catalog fun patches."
+            "Playtest-disabled features cannot be combined with catalog fun patches "
+            "without a distinct explicit playtest output root."
         )
     variant = get_patch_variant(build, patch_mode)
     fun_patches = (
@@ -4893,18 +4899,58 @@ def _reject_vv5_running_unsupported_mode(
         )
 
 
+def _validate_playtest_output_request(
+    *,
+    fun_patch_ids: tuple[str, ...] | list[str],
+    playtest_disabled_feature_ids: tuple[str, ...] | list[str],
+    output_root: Path | None,
+    playtest_output_root: Path | None,
+    copy_saves: bool = False,
+    replace_modded_saves: bool = False,
+    save_root: Path | None = None,
+) -> None:
+    """Keep mixed catalog/withdrawn selections in a separate save-free root."""
+    feature_ids = tuple(playtest_disabled_feature_ids)
+    if playtest_output_root is not None:
+        if not feature_ids:
+            raise PatcherError(
+                "--playtest-output-root requires --playtest-disabled-feature."
+            )
+        if output_root is not None:
+            raise PatcherError(
+                "--playtest-output-root cannot be combined with --output-root."
+            )
+        if not Path(playtest_output_root).expanduser().is_absolute():
+            raise PatcherError("--playtest-output-root must be an absolute path.")
+    elif feature_ids and fun_patch_ids:
+        raise PatcherError(
+            "Playtest-disabled features cannot be combined with catalog fun patches "
+            "without a distinct explicit playtest output root."
+        )
+    elif feature_ids and output_root is None:
+        raise PatcherError("Playtest-disabled features require an explicit output root.")
+    if feature_ids and (copy_saves or replace_modded_saves or save_root is not None):
+        raise PatcherError(
+            "Playtest-disabled features cannot copy or replace saves or use a save root."
+        )
+
+
 def dry_run(
     source: Path,
     patch_mode: str = DEFAULT_PATCH_MODE,
     fun_patch_ids: tuple[str, ...] | list[str] = (),
     output_root: Path | None = None,
     playtest_disabled_feature_ids: tuple[str, ...] | list[str] = (),
+    *,
+    playtest_output_root: Path | None = None,
 ) -> dict[str, Any]:
     _reject_vv5_running_unsupported_mode(patch_mode, fun_patch_ids)
-    if playtest_disabled_feature_ids and fun_patch_ids:
-        raise PatcherError(
-            "Playtest-disabled features cannot be combined with catalog fun patches."
-        )
+    _validate_playtest_output_request(
+        fun_patch_ids=fun_patch_ids,
+        playtest_disabled_feature_ids=playtest_disabled_feature_ids,
+        output_root=output_root,
+        playtest_output_root=playtest_output_root,
+    )
     build = identify(source)
     fun_patches = _selected_fun_patches(build, fun_patch_ids)
     fun_patches.extend(_selected_playtest_disabled_fun_patches(build, playtest_disabled_feature_ids))
@@ -4914,9 +4960,16 @@ def dry_run(
         patch_mode,
         fun_patch_ids,
         playtest_disabled_feature_ids=playtest_disabled_feature_ids,
+        playtest_output_root=playtest_output_root,
     )
     return _result(
-        build, source, patch_mode, patched, applied, fun_patches, output_root
+        build,
+        source,
+        patch_mode,
+        patched,
+        applied,
+        fun_patches,
+        playtest_output_root if playtest_output_root is not None else output_root,
     )
 
 
@@ -5998,31 +6051,32 @@ def apply_patch(
     replace_modded_saves: bool = False,
     save_root: Path | None = None,
     playtest_disabled_feature_ids: tuple[str, ...] | list[str] = (),
+    *,
+    playtest_output_root: Path | None = None,
 ) -> tuple[Path, Path]:
     _validate_public_patch_mode(patch_mode)
     _reject_vv5_running_unsupported_mode(patch_mode, fun_patch_ids)
-    if playtest_disabled_feature_ids:
-        if output_root is None:
-            raise PatcherError(
-                "Playtest-disabled features require an explicit output root."
-            )
-        if copy_saves or replace_modded_saves:
-            raise PatcherError(
-                "Playtest-disabled features cannot copy or replace saves."
-            )
-        if fun_patch_ids:
-            raise PatcherError(
-                "Playtest-disabled features cannot be combined with catalog fun patches."
-            )
+    _validate_playtest_output_request(
+        fun_patch_ids=fun_patch_ids,
+        playtest_disabled_feature_ids=playtest_disabled_feature_ids,
+        output_root=output_root,
+        playtest_output_root=playtest_output_root,
+        copy_saves=copy_saves,
+        replace_modded_saves=replace_modded_saves,
+        save_root=save_root,
+    )
     source = source.resolve()
     build = identify(source)
     fun_patches = _selected_fun_patches(build, fun_patch_ids)
     fun_patches.extend(
         _selected_playtest_disabled_fun_patches(build, playtest_disabled_feature_ids)
     )
+    selected_output_root = (
+        playtest_output_root if playtest_output_root is not None else output_root
+    )
     output_name = _output_name(build, patch_mode, fun_patches)
     output_folder = output_folder_for(
-        source, build, patch_mode, fun_patches, output_root
+        source, build, patch_mode, fun_patches, selected_output_root
     )
     output = output_folder / output_name
     if output_folder.exists() and not overwrite:
@@ -6034,6 +6088,7 @@ def apply_patch(
         patch_mode,
         fun_patch_ids,
         playtest_disabled_feature_ids=playtest_disabled_feature_ids,
+        playtest_output_root=playtest_output_root,
     )
     output_parent = output_folder.parent
     if os.path.lexists(output_folder) and not overwrite:
@@ -6041,7 +6096,7 @@ def apply_patch(
     staging_folder = output_parent / f".{output_folder.name}.staging-{uuid.uuid4().hex}"
     if os.path.lexists(staging_folder):
         raise PatcherError(f"Staging destination already exists: {staging_folder}")
-    _copy_game_folder_direct(source.parent, staging_folder, False, output_root)
+    _copy_game_folder_direct(source.parent, staging_folder, False, selected_output_root)
     staged_output = staging_folder / output_name
     companions: list[dict[str, str]] = []
     log_path = staged_output.with_suffix(".patch-log.json")
@@ -6304,6 +6359,12 @@ def _add_playtest_feature_arg(parser: argparse.ArgumentParser) -> None:
             "player stress-test output; never catalog/publication evidence"
         ),
     )
+    parser.add_argument(
+        "--playtest-output-root",
+        type=Path,
+        default=None,
+        help=argparse.SUPPRESS,
+    )
 
 
 def _add_output_root_arg(parser: argparse.ArgumentParser) -> None:
@@ -6431,6 +6492,7 @@ def main() -> int:
                         args.fun_patch,
                         output_root=args.output_root,
                         playtest_disabled_feature_ids=args.playtest_disabled_feature,
+                        playtest_output_root=args.playtest_output_root,
                     ),
                     indent=2,
                 )
@@ -6446,6 +6508,7 @@ def main() -> int:
                 copy_saves=args.copy_vanilla_saves,
                 replace_modded_saves=args.replace_modded_saves,
                 playtest_disabled_feature_ids=args.playtest_disabled_feature,
+                playtest_output_root=args.playtest_output_root,
             )
             print(f"Created: {output}")
             print(f"Log: {log}")
