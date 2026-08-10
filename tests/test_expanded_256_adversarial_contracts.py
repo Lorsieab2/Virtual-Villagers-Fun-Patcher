@@ -21,6 +21,7 @@ from vv_fun_patcher import (  # noqa: E402
     _validate_vv4_origins_relocation_contract,
     _validate_vv5_origins_relocation_contract,
     _expanded_patches,
+    _apply_pe_append_transactions,
     load_builds,
 )
 
@@ -82,6 +83,64 @@ class Expanded256AdversarialContractTests(unittest.TestCase):
             _relocate_expanded_shr_fun_patches(
                 VV5_BUILD, "experimental_expanded_256", [feature], data
             )
+
+    def test_generic_rel32_inconsistent_stock_preimage_is_rejected(self) -> None:
+        feature = FunPatch(
+            {
+                "id": "adversarial_rel32",
+                "game_id": "vv5",
+                "expanded_shr_relocations": {
+                    "stock_virtual_address": "0x7B2000",
+                    "expanded_virtual_address": "0x8EB000",
+                    "patches": [
+                        {
+                            "offset": "0x20",
+                            "before": "00000000",
+                            "kind": "rel32",
+                            "source_virtual_address": "0x401000",
+                            "target_stock_virtual_address": "0x450000",
+                        }
+                    ],
+                },
+            }
+        )
+        data = bytearray(0x100)
+        snapshot = bytes(data)
+        with self.assertRaisesRegex(PatcherError, "stock preimage"):
+            _relocate_expanded_shr_fun_patches(
+                VV5_BUILD, "experimental_expanded_256", [feature], data
+            )
+        self.assertEqual(bytes(data), snapshot)
+
+    def test_append_header_guards_are_transactional(self) -> None:
+        feature = FunPatch(
+            {
+                "id": "adversarial_append",
+                "name": "Adversarial append",
+                "game_id": "vv5",
+                "pe_append_transaction": {
+                    "layouts": {
+                        "experimental_expanded_256": {
+                            "original_file_size": "0x4",
+                            "append_offset": "0x4",
+                            "append_bytes": "00" * 0x1000,
+                            "purpose": "adversarial append",
+                            "header_patches": [
+                                {"offset": "0x0", "before": "AA", "after": "BB", "purpose": "first"},
+                                {"offset": "0x1", "before": "FF", "after": "CC", "purpose": "second"},
+                            ],
+                        }
+                    }
+                },
+            }
+        )
+        data = bytearray.fromhex("AA00CCDD")
+        snapshot = bytes(data)
+        with self.assertRaisesRegex(PatcherError, "append header guard failed"):
+            _apply_pe_append_transactions(
+                data, [feature], "experimental_expanded_256"
+            )
+        self.assertEqual(bytes(data), snapshot)
     @staticmethod
     def _mutated_row_value(field: str, value: object) -> object:
         if field == "kind":

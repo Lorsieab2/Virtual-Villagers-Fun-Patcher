@@ -2792,6 +2792,7 @@ def _apply_pe_append_transactions(
     patch_mode: str,
 ) -> list[dict[str, str]]:
     """Apply exact guarded PE appends before ordinary feature byte patches."""
+    work = bytearray(data)
     applied: list[dict[str, str]] = []
     for feature in fun_patches:
         layout = _append_layout(feature, patch_mode)
@@ -2807,7 +2808,7 @@ def _apply_pe_append_transactions(
             raise PatcherError(
                 f"{feature.name} ({feature.id}) has a malformed append layout."
             ) from exc
-        if original_size != append_offset or len(data) != original_size:
+        if original_size != append_offset or len(work) != original_size:
             raise PatcherError(
                 f"{feature.name} append guard failed: expected file size "
                 f"0x{original_size:X}, found 0x{len(data):X}."
@@ -2824,13 +2825,13 @@ def _apply_pe_append_transactions(
                 raise PatcherError(
                     f"{feature.name} append header changes length at {item['offset']}."
                 )
-            actual = bytes(data[offset : offset + len(before)])
+            actual = bytes(work[offset : offset + len(before)])
             if actual != before:
                 raise PatcherError(
                     f"{feature.name} append header guard failed at {item['offset']}: "
                     f"expected {before.hex().upper()}, found {actual.hex().upper()}"
                 )
-            data[offset : offset + len(after)] = after
+            work[offset : offset + len(after)] = after
             applied.append(
                 {
                     "offset": item["offset"],
@@ -2841,7 +2842,7 @@ def _apply_pe_append_transactions(
                     "virtual_address": None,
                 }
             )
-        data.extend(append_bytes)
+        work.extend(append_bytes)
         applied.append(
             {
                 "offset": f"0x{append_offset:X}",
@@ -2852,6 +2853,7 @@ def _apply_pe_append_transactions(
                 "virtual_address": layout.get("virtual_address"),
             }
         )
+    data[:] = work
     return applied
 
 
@@ -3751,6 +3753,19 @@ def _relocate_expanded_shr_fun_patches(
                         raise PatcherError(
                             f"Internal expanded .shr rel32 relocation at {patch['offset']} is missing source/target metadata."
                         ) from exc
+                    source_stock_va = (
+                        source_va - delta
+                        if expanded_va <= source_va < expanded_va + 0x1000
+                        else source_va
+                    )
+                    expected_before = (target_stock_va - (source_stock_va + 5)).to_bytes(
+                        4, "little", signed=True
+                    )
+                    if actual != expected_before:
+                        raise PatcherError(
+                            f"Expanded .shr rel32 stock preimage guard failed at {patch['offset']}: "
+                            f"expected {expected_before.hex().upper()}, found {actual.hex().upper()}"
+                        )
                     # A rel32 operand can itself live inside the moved .shr
                     # payload.  VV4's 0xCC02A row predates the explicit
                     # source_expanded_virtual_address field used by VV5, so
