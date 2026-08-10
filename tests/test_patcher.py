@@ -78,6 +78,19 @@ def village_wide_record(game_id: str) -> SimpleNamespace:
 
 
 class ManifestTests(unittest.TestCase):
+    def test_vv2_barrel_capacity_helper_uses_stock_owner_context(self) -> None:
+        source = (ROOT / "scripts" / "build_vv2_origins_feature.py").read_text(
+            encoding="utf-8"
+        )
+        self.assertIn(
+            "mov ecx, dword ptr [edi + 0x50A4]\n            call 0x425860",
+            source,
+        )
+        self.assertNotIn(
+            "mov ecx, edi\n            call 0x425860",
+            source,
+        )
+
     def test_running_preference_id_matches_each_stock_table(self) -> None:
         evidence = {
             "vv1": ("Virtual Villagers - A New Home.exe", 0x7B260),

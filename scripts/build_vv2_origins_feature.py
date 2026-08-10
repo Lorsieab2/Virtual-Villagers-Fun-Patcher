@@ -505,10 +505,11 @@ def main() -> None:
             push 2
             mov ecx, ebp
             call 0x4348E0
-            # The Tech screen's village object is the native helper context.
-            # Do not dereference an event-local field here; the stock helper
-            # expects the village object that owns +0x305A4.
-            mov ecx, edi
+            # Stock caller 0x4347D8 passes the helper's owning context from
+            # [EDI+0x50A4], not EDI itself. sub_425860 immediately reads
+            # [ECX+0x305A4], so passing the screen/village wrapper directly
+            # reaches a null-derived +0x30 path in the complete-folder build.
+            mov ecx, dword ptr [edi + 0x50A4]
             call 0x425860
             cmp eax, 254
             jae barrel_capacity_low
