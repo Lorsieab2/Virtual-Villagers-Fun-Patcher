@@ -1,6 +1,6 @@
 {
   "schema_version": "vvfp.vv4_full256_serializer_static_candidate.v1",
-  "status": "blocked_static_model",
+  "status": "static_serializer_reader_go_writer_stop",
   "enabled": false,
   "catalog_visible": false,
   "native_output": false,
@@ -10,11 +10,17 @@
   "parent": {"mode": "experimental_expanded_256", "size": 929792, "sha256": "3697317341C23B107F8C06F6D4164BC4602BF5CB90DFB56A6B68EB7EA3C43EE1", "exclusive": true},
   "rejected_composed_parents": ["full_mastery", "full_heal", "fullscreen", "running"],
   "ledger_bindings": {"vv4": {"count": 13, "digest": "CEE01F4AEC59CB1CEE0F42E3DDDB3A24615261E628ED0629C1BFAABF421A897D"}, "vv5": {"count": 66, "digest": "14E460773ADC065E053FA30921ED01D33A5F36AD49DC754CCD69127EA02C01B7"}},
-  "section": {"name": ".vv4x", "header_raw": 704, "raw_start": 929792, "raw_end": 933888, "raw_size": 4096, "rva": 4657152, "va": 8851456, "virtual_size": 4096, "characteristics": "RX", "old_size_of_image": 4657152, "new_size_of_image": 4661248, "header_guard": "00000000000000000000000000000000000000000000000000000000000000000000000000000000", "final_header_bytes": null},
+  "section": {"name": ".vv4x", "header_raw": 704, "raw_start": 929792, "raw_end": 933888, "raw_size": 4096, "rva": 4657152, "va": 8851456, "virtual_size": 4096, "characteristics": "RX", "characteristics_value": "0x60000020", "old_size_of_image": 4657152, "new_size_of_image": 4661248, "header_guard": "00000000000000000000000000000000000000000000000000000000000000000000000000000000", "final_header_bytes": "2E7676347800000000100000001047000010000000300E0000000000000000000000000020000060", "page_sha256": "F33DEFF4EF943EB4371AFD3AC80F3F35BC1DB21865ADCC5F115BDF2E20A37D45"},
+  "pe_guards": {"e_lfanew": 256, "machine": "0x014C", "optional_magic": "0x010B", "optional_size": 224, "image_base": "0x00400000", "section_alignment": "0x1000", "file_alignment": "0x1000", "size_of_headers": "0x1000", "section_count_offset": 262, "section_count_before": 5, "section_count_after": 6, "size_of_image_offset": 336, "checksum_offset": 344, "checksum_before": "F6A80E00", "checksum_after": "4FDF0E00"},
   "hooks": [
-    {"name": "serializer", "raw": 417952, "va": 4612256, "before": "5355565733", "after": "E95BAF4000", "target": 8851456, "wrapper_raw": 929792},
-    {"name": "deserializer", "raw": 418064, "va": 4612368, "before": "5356578D79", "after": "E9EBAF4000", "target": 8851712, "wrapper_raw": 930048}
+    {"name": "serializer_failure_gate", "raw": 127269, "va": 4321573, "before": "E8766F0400", "after": "E856204500", "target": 8851840, "wrapper_raw": 930176},
+    {"name": "deserializer_reader", "raw": 130356, "va": 4324660, "before": "E8D7630400", "after": "E8C7134500", "target": 8851712, "wrapper_raw": 930048}
   ],
+  "exact_routines": {
+    "serializer": {"va": 8851456, "raw": 929792, "length": 119, "bytes": "5355565731DB31FF8D7144BD0001000080BEC41C000000742F80BEC71C000000752689F1E877DABEFFE842EEBAFF85C0743C8D843868C800005089F1E8EFCABEFF4381C70401000081C63C2E00004D75BF81FB000100007311E812EEBAFF85C0740CC6843868C8000000B001EB0231C05F5E5D5BC20400", "sha256": "66EDFABF000302C9AD13D1794D3A6C5738DB0A78162A6FDC23406339D6187FE4"},
+    "deserializer": {"va": 8851712, "raw": 930048, "length": 102, "bytes": "5356578D794489FEBB0001000089F1E88CC7BEFF81C63C2E00004B75F031DB81FB000100007333E844EDBAFF85C0742E89DE69F60401000080BC3068C800000074188D843068C800005089F9E88FCABEFF4381C73C2E0000EBC5B001EB0231C05F5E5BC20400", "sha256": "DDCEE8650898E484FE569C28C0473D4377FF93739C9CA45E3A3238D95975C596"},
+    "serializer_failure_gate": {"va": 8851840, "raw": 930176, "length": 26, "bytes": "FF742404E877FEFFFF84C07403C2040083C40831C05F5EC20400", "sha256": "7C73BF244E95BD0C0AD7FDB2D8F6CD47854F2C64A5FA2E1A3FE660E6BADFA4A1"}
+  },
   "d353_helpers": {
     "drain": {"ea": "0x45EAA0", "end": "0x45EAD9", "sha256": "13BBB3D0FB0BE6970B5EB454B706229CF536487C9C5481527FE64F8EE17B5E75", "abi": "thiscall ECX=live; no args; return ignored; no failure"},
     "singleton": {"ea": "0x41FE70", "end": "0x41FEEA", "sha256": "CFD2040568A260D38E125A6973C4B849FBBA0440553A2A301DDA79C0317BBE08", "abi": "no args; EAX singleton or zero"},
@@ -36,7 +42,7 @@
     "page_bytes": null,
     "final_sha256": null
   },
-  "uninstall": {"order": ["restore writer hook", "restore serializer hook", "restore deserializer hook", "remove .vv4x header", "truncate to parent size", "restore PE checksum"], "requires_exact_candidate_hash": true, "candidate_sha256": null, "checksum_before": null, "checksum_after": null},
-  "blocked_evidence": ["safe caller propagation of AL failure at 0x41F125 and every deserializer caller", "proved checked failure handling at all six writer caller sites or an authenticated nonreturn primitive", "D355 exact dynamic resolver and composed .vv4x page bytes", "repository-authenticated final assembled wrapper writer and section bytes", "candidate PE checksum and final SHA256", "directory-entry power-loss durability is unsupported and unproved"],
-  "final": {"serializer_bytes": null, "deserializer_bytes": null, "writer_bytes": null, "section_bytes": null, "candidate_sha256": null}
+  "uninstall": {"order": ["restore writer hook if a future writer is separately proved", "restore serializer caller", "restore deserializer caller", "restore section count and SizeOfImage", "remove .vv4x header", "truncate to parent size", "restore PE checksum"], "requires_exact_candidate_hash": true, "candidate_sha256": "364E35167E4DA8D9407030E42D41306A78FB50B73C7532B2D5166729EA447C43", "checksum_before": "F6A80E00", "checksum_after": "4FDF0E00"},
+  "blocked_evidence": ["proved checked failure handling at all six writer caller sites or an authenticated nonreturn primitive", "D355 exact dynamic resolver and atomic writer bytes", "runtime save/load/reload and full-256 fault receipts", "directory-entry power-loss durability is unsupported and unproved"],
+  "final": {"serializer_bytes": "5355565731DB31FF8D7144BD0001000080BEC41C000000742F80BEC71C000000752689F1E877DABEFFE842EEBAFF85C0743C8D843868C800005089F1E8EFCABEFF4381C70401000081C63C2E00004D75BF81FB000100007311E812EEBAFF85C0740CC6843868C8000000B001EB0231C05F5E5D5BC20400", "deserializer_bytes": "5356578D794489FEBB0001000089F1E88CC7BEFF81C63C2E00004B75F031DB81FB000100007333E844EDBAFF85C0742E89DE69F60401000080BC3068C800000074188D843068C800005089F9E88FCABEFF4381C73C2E0000EBC5B001EB0231C05F5E5BC20400", "gate_bytes": "FF742404E877FEFFFF84C07403C2040083C40831C05F5EC20400", "section_sha256": "F33DEFF4EF943EB4371AFD3AC80F3F35BC1DB21865ADCC5F115BDF2E20A37D45", "candidate_size": 933888, "candidate_sha256": "364E35167E4DA8D9407030E42D41306A78FB50B73C7532B2D5166729EA447C43"}
 }

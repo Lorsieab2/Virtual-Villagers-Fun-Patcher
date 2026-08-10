@@ -34,7 +34,24 @@ def validate(path=DATA, root=ROOT):
     fail(s["hook_guard"]=={"raw":417952,"bytes":"5355565733"} and r["hook_guard"]=={"raw":418064,"bytes":"5356578D79"},"hook guards")
     fail(d["required_semantics"]=={"writer_bound":256,"terminator_predicate":"packed_count < 256","full_256_terminator":False,"reader_hard_bound":256,"full_unterminated_256_success":True,"tail_start":"0x1CC60","tail_preserved":True},"required semantics")
     fail(d["current_candidate"]["status"]=="insufficient_stop" and len(d["current_candidate"]["immediate_edits"])==2,"candidate insufficiency")
-    fail(d["replacement"]["status"]=="unknown_stop" and all(v is None for k,v in d["replacement"].items() if k!="status"),"unknown replacement fields must be null")
+    fail(d["replacement"]=={
+        "status":"static_serializer_reader_go_writer_stop",
+        "parent_sha256":"3697317341C23B107F8C06F6D4164BC4602BF5CB90DFB56A6B68EB7EA3C43EE1",
+        "new_section":".vv4x",
+        "section_raw":"0xE3000",
+        "section_rva":"0x471000",
+        "section_va":"0x871000",
+        "section_sha256":"F33DEFF4EF943EB4371AFD3AC80F3F35BC1DB21865ADCC5F115BDF2E20A37D45",
+        "serializer_hook_raw":"0x1F125",
+        "serializer_hook_target":"0x871180",
+        "deserializer_hook_raw":"0x1FD34",
+        "deserializer_hook_target":"0x871100",
+        "serializer_final_sha256":"66EDFABF000302C9AD13D1794D3A6C5738DB0A78162A6FDC23406339D6187FE4",
+        "deserializer_final_sha256":"DDCEE8650898E484FE569C28C0473D4377FF93739C9CA45E3A3238D95975C596",
+        "gate_final_sha256":"7C73BF244E95BD0C0AD7FDB2D8F6CD47854F2C64A5FA2E1A3FE660E6BADFA4A1",
+        "candidate_sha256":"364E35167E4DA8D9407030E42D41306A78FB50B73C7532B2D5166729EA447C43",
+        "atomic_writer_status":"STOP",
+    },"exact static replacement pins")
     fail(d["atomic_writer"]["status"]=="unknown_stop" and len(d["atomic_writer"]["gates"])==6 and d["atomic_writer"]["completed"]==[],"atomic writer STOP")
     fail(d["runtime_fault_matrix"]["status"]=="absent_stop" and len(d["runtime_fault_matrix"]["cases"])==21 and d["runtime_fault_matrix"]["receipts"]==[],"runtime matrix STOP")
     fail(d["evidence"]==[],"checked-in evidence must be empty")
