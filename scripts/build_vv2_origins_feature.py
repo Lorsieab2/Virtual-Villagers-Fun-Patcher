@@ -401,16 +401,12 @@ def main() -> None:
         maybe_barrel:
             cmp ebx, 2
             jne charge
-            # The Tech screen owns the village root in EDI.  The stock event
-            # path resolves its population state through root+0x50AC before
-            # calling sub_425860; passing the Tech object or the root itself
-            # dereferences the wrong object and crashes before the allocator.
-            mov ecx, dword ptr [edi + 0x50AC]
-            call 0x425860
-            cmp eax, 253
-            jbe charge
-            mov eax, 0x{s['population_capacity']:X}
-            jmp show_status
+            # Barrel's native event route already passes every allocation
+            # through the VV2 256-slot guards installed in the stock event
+            # call sites.  Do not duplicate that check here: the Tech-screen
+            # object is not the population-helper context, and dereferencing
+            # its guessed pointer crashes before the native allocator runs.
+            jmp charge
 
         charge:
             cmp ebx, 6
