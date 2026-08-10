@@ -15,6 +15,10 @@ from typing import Any, Mapping, Sequence
 VV3_SOURCE_SHA256 = (
     "8BC5DB382D02BC5C21AD5F607580D60FF44A6519CC7EB133F03113BAACAE6503"
 )
+VV3_PROTOTYPE_SHA256 = (
+    "6EE3361A7AC35F441763647C1E2FC9EC49569DE5EF372BDB41D243D03002D601"
+)
+VV3_PATCH_COUNT = 1263
 
 
 @dataclass(frozen=True)
@@ -76,6 +80,59 @@ VV3_RECORD_BOUND_PATCHES: Mapping[int, Mapping[str, str]] = {
     0x35A5A: {"before": "96000000", "after": "00010000"},
     0x5EE69: {"before": "96000000", "after": "00010000"},
 }
+
+
+VV3_PHYSICAL_POOL_PATCHES: Mapping[int, Mapping[str, str]] = {
+    # 0x2FC340 - 0x223518 == (260 - 150) * 0x1F8C.
+    0x258: {"before": "18352200", "after": "40C32F00"},
+}
+
+
+VV3_REVIEWED_PURPOSE_COUNTS: Mapping[str, int] = {
+    "expand candidate-array stack frame": 12,
+    "move expanded candidate-array stack reference": 44,
+    "restore expanded candidate-array stack frame": 20,
+    "expand saved-state tail offset": 416,
+    "relocate absolute .data tail reference": 638,
+    "relocate manager-relative tail reference": 32,
+    "relocate decoded absolute .data tail reference": 18,
+    "expand record loop bound": 57,
+    "move absolute .shr reference": 4,
+    "expand .data virtual size": 1,
+    "move .shr RVA": 1,
+    "move .rsrc RVA": 1,
+    "expand SizeOfImage": 1,
+    "move resource directory RVA": 1,
+    "move resource data RVA": 8,
+}
+
+
+VV3_BOUND_OR_INDEX_PURPOSES = frozenset(
+    {
+        "expand record loop bound",
+        "expand the VV3 main-world villager hit-test reverse scan through record 255",
+        "expand the serialized villager-index validator from 150 to 256 records",
+        "expand the active-record lookup validator from 150 to 256 records",
+    }
+)
+
+
+VV3_REVERSE_ENDPOINT_PURPOSES = frozenset(
+    {
+        "move the VV3 main-world villager hit-test endpoint from record 149 to record 255",
+        "move the VV3 mating spatial scan endpoint from record 149 to record 255",
+        "move the VV3 nearby-villager helper endpoint from record 149 to record 255",
+    }
+)
+
+
+VV3_CANDIDATE_ARRAY_PURPOSES = frozenset(
+    {
+        "expand candidate-array stack frame",
+        "move expanded candidate-array stack reference",
+        "restore expanded candidate-array stack frame",
+    }
+)
 
 
 # No VV3 native sentinel or complete stored-index width audit is certified.
@@ -208,11 +265,21 @@ def validate_vv3_manifest(manifest: Mapping[str, Any]) -> tuple[str, ...]:
         return ("expanded manifest has no vv3 game record",)
     if game.get("source_sha256") != VV3_SOURCE_SHA256:
         errors.append("vv3 source hash is not the exact reviewed build")
+    if game.get("prototype_sha256") != VV3_PROTOTYPE_SHA256:
+        errors.append("vv3 prototype hash is not the exact reviewed source")
     patches = game.get("patches", ())
-    if game.get("patch_count") != len(patches):
-        errors.append("vv3 patch_count does not match the manifest")
+    if not isinstance(patches, Sequence) or isinstance(patches, (str, bytes)):
+        return (*errors, "vv3 patches are not a sequence")
+    if game.get("patch_count") != VV3_PATCH_COUNT or len(patches) != VV3_PATCH_COUNT:
+        errors.append("vv3 patch_count is not the exact reviewed count")
     by_offset = _patch_map(game)
-    for offset, expected in {**VV3_STOCK_SAVE_PATCHES, **VV3_RECORD_BOUND_PATCHES}.items():
+    if len(by_offset) != len(patches):
+        errors.append("vv3 manifest offsets are malformed or not unique")
+    for offset, expected in {
+        **VV3_STOCK_SAVE_PATCHES,
+        **VV3_RECORD_BOUND_PATCHES,
+        **VV3_PHYSICAL_POOL_PATCHES,
+    }.items():
         matches = by_offset.get(offset, ())
         if len(matches) != 1:
             errors.append(f"vv3 manifest offset {offset:#x} is not unique")
@@ -228,6 +295,67 @@ def validate_vv3_manifest(manifest: Mapping[str, Any]) -> tuple[str, ...]:
         errors.append("vv3 loader zero count does not match the inserted save gap")
     if VV3_LAYOUT.tail_dword_count * 4 != VV3_LAYOUT.tail_bytes:
         errors.append("vv3 loader tail count is not aligned to the reviewed tail")
+    physical_pool = by_offset.get(0x258, ())
+    if len(physical_pool) == 1:
+        try:
+            before_size = int.from_bytes(
+                bytes.fromhex(str(physical_pool[0]["before"])), "little"
+            )
+            after_size = int.from_bytes(
+                bytes.fromhex(str(physical_pool[0]["after"])), "little"
+            )
+        except (KeyError, TypeError, ValueError):
+            errors.append("vv3 physical pool size patch is malformed")
+        else:
+            expected_growth = (
+                VV3_LAYOUT.physical_record_count - VV3_LAYOUT.stock_record_count
+            ) * VV3_LAYOUT.live_record_stride
+            if after_size - before_size != expected_growth:
+                errors.append("vv3 physical pool does not reserve exactly 260 records")
+
+    purposes = [
+        patch.get("purpose") if isinstance(patch, Mapping) else None
+        for patch in patches
+    ]
+    for purpose, expected_count in VV3_REVIEWED_PURPOSE_COUNTS.items():
+        if purposes.count(purpose) != expected_count:
+            errors.append(
+                f"vv3 {purpose!r} count is not the reviewed {expected_count}"
+            )
+    if sum(purpose in VV3_BOUND_OR_INDEX_PURPOSES for purpose in purposes) != 60:
+        errors.append("vv3 bound/index operand count is not the reviewed 60")
+    if sum(purpose in VV3_REVERSE_ENDPOINT_PURPOSES for purpose in purposes) != 3:
+        errors.append("vv3 reverse endpoint count is not the reviewed 3")
+
+    candidate_rows = [
+        patch
+        for patch in patches
+        if isinstance(patch, Mapping)
+        and patch.get("purpose") in VV3_CANDIDATE_ARRAY_PURPOSES
+    ]
+    frame_positions = [
+        index
+        for index, patch in enumerate(candidate_rows)
+        if patch.get("purpose") == "expand candidate-array stack frame"
+    ]
+    if len(frame_positions) == 12:
+        for group_index, start in enumerate(frame_positions):
+            end = (
+                frame_positions[group_index + 1]
+                if group_index + 1 < len(frame_positions)
+                else len(candidate_rows)
+            )
+            group_purposes = [patch.get("purpose") for patch in candidate_rows[start:end]]
+            if (
+                group_purposes.count("expand candidate-array stack frame") != 1
+                or "move expanded candidate-array stack reference" not in group_purposes
+                or "restore expanded candidate-array stack frame" not in group_purposes
+            ):
+                errors.append(
+                    f"vv3 candidate-array group {group_index + 1} is not atomic"
+                )
+    else:
+        errors.append("vv3 candidate-array frame count is not the reviewed 12")
     return tuple(errors)
 
 

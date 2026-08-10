@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import copy
 import json
 import unittest
 from pathlib import Path
@@ -26,6 +27,47 @@ class VV3Expanded256ContractTests(unittest.TestCase):
             (ROOT / "data" / "expanded_256.json").read_text(encoding="utf-8")
         )
         self.assertEqual(validate_vv3_manifest(manifest), ())
+
+    def test_reviewed_manifest_partitions_fail_closed(self) -> None:
+        manifest = json.loads(
+            (ROOT / "data" / "expanded_256.json").read_text(encoding="utf-8")
+        )
+        mutations = {
+            "physical pool": lambda patches: patches.__setitem__(
+                next(i for i, row in enumerate(patches) if row["offset"] == "0x258"),
+                {
+                    **next(row for row in patches if row["offset"] == "0x258"),
+                    "after": "18352200",
+                },
+            ),
+            "bound operand": lambda patches: next(
+                row for row in patches if row["purpose"] == "expand record loop bound"
+            ).__setitem__("purpose", "unreviewed bound"),
+            "reverse endpoint": lambda patches: next(
+                row
+                for row in patches
+                if row["purpose"]
+                == "move the VV3 mating spatial scan endpoint from record 149 to record 255"
+            ).__setitem__("purpose", "unreviewed endpoint"),
+            "candidate restore": lambda patches: next(
+                row
+                for row in patches
+                if row["purpose"] == "restore expanded candidate-array stack frame"
+            ).__setitem__("purpose", "unreviewed restore"),
+            "tail relocation": lambda patches: next(
+                row
+                for row in patches
+                if row["purpose"] == "relocate absolute .data tail reference"
+            ).__setitem__("purpose", "unreviewed tail relocation"),
+            ".shr relocation": lambda patches: next(
+                row for row in patches if row["purpose"] == "move absolute .shr reference"
+            ).__setitem__("purpose", "unreviewed .shr relocation"),
+        }
+        for label, mutate in mutations.items():
+            broken = copy.deepcopy(manifest)
+            mutate(broken["games"]["vv3"]["patches"])
+            with self.subTest(label=label):
+                self.assertTrue(validate_vv3_manifest(broken))
 
     def test_stock_import_expanded_save_and_reload_are_byte_stable(self) -> None:
         stock = bytes(
