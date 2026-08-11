@@ -104,7 +104,7 @@ class VV2OriginsPlaytestFeatureTests(unittest.TestCase):
         reservation = payload.index(bytes.fromhex("81ECD8500000"), pending)
         state = payload.index(bytes.fromhex("89F985C9"), reservation)
         nested_pool = payload.index(bytes.fromhex("83B9A405030000"), state)
-        helper = payload.index(bytes.fromhex("E8CE10F9FF"), nested_pool)
+        helper = payload.index(bytes.fromhex("E89C10F9FF"), nested_pool)
         threshold = payload.index(bytes.fromhex("3DFE000000"), helper)
         funds = payload.index(bytes.fromhex("3987DCEA0200"), threshold)
         deduction = payload.index(bytes.fromhex("2987DCEA0200"), funds)
@@ -128,16 +128,20 @@ class VV2OriginsPlaytestFeatureTests(unittest.TestCase):
         self.assertEqual(by_offset["0x9A700"]["after"], "00")
         self.assertEqual(
             by_offset["0x9A710"]["after"],
-            "8B4E146A4BE8F628FAFF6A008BCEE8CDF0F6FF8B460C"
-            "C7807004030001000000803D00C74900007436C60500C7490000"
-            "81ECD8500000682C1A4B7F6A028D4C2408E88A81F9FF"
-            "6A00568D4C2408E86E53F6FF89E1E8276AF9FF"
-            "81C4D8500000E98670FAFF",
+            "8B4E146A4BE8F628FAFF6A0089F1E8CDF0F6FF8B460C"
+            "C7807004030001000000803D00C74900017507C60500C7490002"
+            "E9B570FAFF",
+        )
+        self.assertEqual(
+            by_offset["0x9A780"]["after"],
+            "803D00C74900027536C60500C749000081ECD8500000682C1A4B7F"
+            "6A028D4C2408E83A81F9FF6A00568D4C2408E81E53F6FF89E1E8"
+            "D769F9FF81C4D850000089F9E83A6AF6FFE92A22F9FF",
         )
         self.assertEqual(by_offset["0x437DA"]["before"], "8B4E146A4B")
         self.assertEqual(by_offset["0x437DA"]["after"], "E9318F0500")
 
-    def test_detail_upgrades_button_is_nudged_right_without_behavior_changes(self) -> None:
+    def test_detail_upgrades_button_is_aligned_to_divider_without_behavior_changes(self) -> None:
         source = (ROOT / "scripts" / "build_vv2_origins_feature.py").read_text(
             encoding="utf-8"
         )
@@ -149,7 +153,7 @@ class VV2OriginsPlaytestFeatureTests(unittest.TestCase):
             "            push 0\n"
             "            push esi\n"
             "            push 563\n"
-            "            push 136\n"
+            "            push 144\n"
             "            push 0x4763E8\n"
             "            push 6\n"
             "            mov ecx, eax\n"
@@ -157,6 +161,8 @@ class VV2OriginsPlaytestFeatureTests(unittest.TestCase):
             detail,
         )
         self.assertNotIn("            push 120\n", detail)
+        self.assertNotIn("            push 136\n", detail)
+        self.assertNotIn("            push 152\n", detail)
         self.assertIn("            call 0x40B560", detail)
         manifest = json.loads(
             (ROOT / "data" / "vv2_origins_feature.json").read_text(encoding="utf-8")
@@ -166,10 +172,19 @@ class VV2OriginsPlaytestFeatureTests(unittest.TestCase):
                 "after"
             ]
         )
+        coordinate_offset = 0x944AF - 0x943A8
+        self.assertEqual(payload[coordinate_offset], 0x90)
+        previous = bytearray(payload)
+        previous[coordinate_offset] = 0x98
         self.assertEqual(
-            payload.count(bytes.fromhex("6A00566833020000688800000068E86347006A06")),
+            hashlib.sha256(previous).hexdigest().upper(),
+            "A599977F2C9A692E375F0B15651CC09A41D864CE0732E136C5879FE8A3A571AB",
+        )
+        self.assertEqual(
+            payload.count(bytes.fromhex("6A00566833020000689000000068E86347006A06")),
             1,
         )
+        self.assertNotIn(bytes.fromhex("6A00566833020000689800000068E86347006A06"), payload)
         self.assertNotIn(bytes.fromhex("6A005668330200006A7868E86347006A06"), payload)
 
     def test_dry_run_marks_separate_playtest_output(self) -> None:

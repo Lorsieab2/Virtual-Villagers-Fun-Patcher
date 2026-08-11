@@ -301,7 +301,8 @@ class ManifestTests(unittest.TestCase):
             encoding="utf-8"
         )
         self.assertIn("push 10\n            push 21\n            call 0x433600", source)
-        self.assertIn("push 563\n            push 152", source)
+        self.assertIn("push 563\n            push 144", source)
+        self.assertNotIn("push 563\n            push 152", source)
         self.assertNotIn("push 563\n            push 136", source)
 
     def test_running_preference_id_matches_each_stock_table(self) -> None:
