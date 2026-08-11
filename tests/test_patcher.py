@@ -562,20 +562,17 @@ class ManifestTests(unittest.TestCase):
             self.assertEqual(builds[game_id].villager_slots, 150)
             self.assertEqual(builds[game_id].absolute_maximum, 150)
 
-    def test_expanded_256_modes_are_available_with_experimental_warning(self) -> None:
+    def test_expanded_256_modes_are_static_only_outside_hidden_playtests(self) -> None:
         self.assertEqual(
             [mode.id for mode in load_patch_modes()], list(MODES + EXPANDED_MODES)
         )
         source = STOCK / load_builds()[2].input_name
         for mode in EXPANDED_MODES:
             with self.subTest(mode=mode):
-                preview = dry_run(source, mode)
-                self.assertTrue(preview["experimental_expanded_records"])
-                self.assertEqual(preview["output_name"], expanded_exe_name(load_builds()[2]))
-                self.assertEqual(
-                    Path(preview["output_folder"]).name,
-                    f"{load_builds()[2].title} - Modded 256",
-                )
+                variant = get_patch_variant(load_builds()[2], mode)
+                self.assertTrue(variant["expanded_records"])
+                with self.assertRaisesRegex(PatcherError, "publication is disabled"):
+                    dry_run(source, mode)
 
     def test_modes_names_targets_and_safety_guards(self) -> None:
         builds = load_builds()
@@ -1384,7 +1381,7 @@ class StockIntegrationTests(unittest.TestCase):
                 continue
             source = STOCK / build.input_name
             original = source.read_bytes()
-            rendered, _ = render_patched_bytes(
+            rendered, applied = render_patched_bytes(
                 source, build, "experimental_expanded_256"
             )
             self.assertEqual(
@@ -1401,9 +1398,7 @@ class StockIntegrationTests(unittest.TestCase):
                 bytes.fromhex("96000000"),
                 b"".join(
                     bytes.fromhex(patch["after"])
-                    for patch in dry_run(
-                        source, "experimental_expanded_256"
-                    )["patches"]
+                    for patch in applied
                     if "slot" in patch["purpose"]
                 ),
             )
@@ -1754,15 +1749,17 @@ class StockIntegrationTests(unittest.TestCase):
             rendered, _ = render_patched_bytes(
                 source, build, "experimental_expanded_256_progression"
             )
-            preview = dry_run(source, "experimental_expanded_256_progression")
-            self.assertEqual(preview["villager_slots"], 256)
-            self.assertEqual(preview["absolute_maximum"], 256)
+            variant = get_patch_variant(
+                build, "experimental_expanded_256_progression"
+            )
+            self.assertEqual(variant["villager_slots"], 256)
+            self.assertEqual(variant["absolute_maximum"], 256)
             if build.id in progression_bases:
                 self.assertEqual(
                     progression_bases[build.id] + build.stock_bonus_ceiling,
                     256,
                 )
-                self.assertTrue(preview["bonuses_affect_maximum"])
+                self.assertTrue(variant["bonuses_affect_maximum"])
             if build.id == "vv3":
                 self.assertEqual(
                     bytes(rendered[0x7B320:0x7B32D]),

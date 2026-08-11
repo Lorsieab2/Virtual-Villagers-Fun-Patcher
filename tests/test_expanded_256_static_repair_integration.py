@@ -160,19 +160,30 @@ class ExpandedStaticRepairIntegrationTests(unittest.TestCase):
             )
         self.assertEqual(bytes(stage), snapshot)
 
-    def test_dry_run_reports_repair_and_exact_final_hash(self) -> None:
+    def test_static_render_reports_repair_while_public_dry_run_stays_closed(self) -> None:
         source = self._source("vv4")
-        result = P.dry_run(source, "experimental_expanded_256")
+        mode = "experimental_expanded_256"
+        with self.assertRaisesRegex(P.PatcherError, "publication is disabled"):
+            P.dry_run(source, mode)
+        build = P.identify(source)
+        patched, applied = P.render_patched_bytes(source, build, mode)
+        result_sha256 = hashlib.sha256(patched).hexdigest().upper()
         self.assertEqual(
-            result["result_sha256"],
-            self.atomic_contract["games"]["vv4"]["modes"]["experimental_expanded_256"]["result_sha256"],
+            result_sha256,
+            self.atomic_contract["games"]["vv4"]["modes"][mode]["result_sha256"],
         )
         self.assertEqual(
-            [item["repair_id"] for item in result["expanded_static_repairs"]],
+            [
+                item["repair_id"]
+                for item in P._expanded_static_repair_summary(applied, result_sha256)
+            ],
             ["vv4_full256_serializer_reader_gate"],
         )
         self.assertEqual(
-            [item["atomic_writer_id"] for item in result["expanded_atomic_writers"]],
+            [
+                item["atomic_writer_id"]
+                for item in P._expanded_atomic_writer_summary(applied, result_sha256)
+            ],
             ["vv4_expanded_atomic_writer"],
         )
 

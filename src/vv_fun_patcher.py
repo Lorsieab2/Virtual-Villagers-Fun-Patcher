@@ -4641,20 +4641,51 @@ def _validate_expanded_time_warp_selection(
 def _selected_playtest_disabled_fun_patches(
     build: Build,
     feature_ids: tuple[str, ...] | list[str],
+    patch_mode: str,
 ) -> list[FunPatch]:
     """Resolve an explicitly requested disabled feature for a player stress test.
 
     This path is deliberately outside the normal catalog.  It is limited to
-    the exact VV2 Origins record requested for the current stress test, keeps
-    the tracked manifest disabled/hidden, and requires an explicit output root
-    at the publication boundary.
+    the exact VV2 Origins record or the one game-matched Expanded Time Warp
+    record requested for the current stress test.  The authenticated catalog
+    records remain unchanged; only returned copies receive playtest metadata.
     """
     requested = tuple(feature_ids)
     if not requested:
         return []
+    time_warp_ids = frozenset(EXPANDED_TIME_WARP_IDS.values())
+    if len(requested) == 1 and requested[0] in time_warp_ids:
+        expected = EXPANDED_TIME_WARP_IDS.get(build.id)
+        if requested[0] != expected:
+            raise PatcherError(
+                "Expanded Time Warp playtest feature must match the identified source game."
+            )
+        if patch_mode not in EXPANDED_PATCH_MODES:
+            raise PatcherError(
+                "Expanded Time Warp playtests require an experimental Expanded-256 mode."
+            )
+        authenticated = next(
+            (
+                record
+                for record in _certified_expanded_time_warp_records()
+                if record.get("id") == expected
+            ),
+            None,
+        )
+        if authenticated is None:
+            raise PatcherError(
+                f"Authenticated {build.id.upper()} Expanded Time Warp record is unavailable."
+            )
+        enriched = dict(authenticated)
+        enriched["playtest_only"] = True
+        enriched["playtest_status"] = (
+            "runtime/player stress test; not catalog/publication evidence"
+        )
+        return [FunPatch(enriched)]
     if build.id != "vv2" or requested != (VV2_PLAYTEST_DISABLED_FEATURE_ID,):
         raise PatcherError(
-            "Only the disabled VV2 Origins feature may be selected for a playtest."
+            "Only the disabled VV2 Origins feature or one game-matched Expanded "
+            "Time Warp feature may be selected for a playtest."
         )
     try:
         raw = json.loads(VV2_PLAYTEST_DISABLED_FEATURE_PATH.read_text(encoding="utf-8"))
@@ -6047,7 +6078,7 @@ def render_patched_bytes(
     if _fun_patches_override is None:
         fun_patches.extend(
             _selected_playtest_disabled_fun_patches(
-                build, playtest_disabled_feature_ids
+                build, playtest_disabled_feature_ids, patch_mode
             )
         )
     selected_fun_ids = {patch.id for patch in fun_patches}
@@ -6696,6 +6727,25 @@ def _validate_playtest_output_request(
 ) -> None:
     """Keep mixed catalog/withdrawn selections in a separate save-free root."""
     feature_ids = tuple(playtest_disabled_feature_ids)
+    time_warp_ids = frozenset(EXPANDED_TIME_WARP_IDS.values())
+    selected_time_warp_ids = tuple(
+        feature_id for feature_id in feature_ids if feature_id in time_warp_ids
+    )
+    if selected_time_warp_ids:
+        if len(feature_ids) != 1 or len(selected_time_warp_ids) != 1:
+            raise PatcherError(
+                "Expanded Time Warp playtests require exactly one hidden Time Warp feature ID."
+            )
+        if playtest_output_root is None:
+            raise PatcherError(
+                "Expanded Time Warp playtests require --playtest-output-root."
+            )
+        if output_root is not None:
+            raise PatcherError(
+                "Expanded Time Warp playtests cannot use --output-root."
+            )
+        if not Path(playtest_output_root).expanduser().is_absolute():
+            raise PatcherError("--playtest-output-root must be an absolute path.")
     if playtest_output_root is not None:
         if not feature_ids:
             raise PatcherError(
@@ -6720,6 +6770,59 @@ def _validate_playtest_output_request(
         )
 
 
+def _validate_playtest_feature_channels(
+    fun_patch_ids: tuple[str, ...] | list[str],
+    playtest_disabled_feature_ids: tuple[str, ...] | list[str],
+) -> None:
+    """Keep hidden Time Warp IDs out of the ordinary API selection channel."""
+    time_warp_ids = frozenset(EXPANDED_TIME_WARP_IDS.values())
+    ordinary = set(fun_patch_ids) & time_warp_ids
+    hidden = set(playtest_disabled_feature_ids) & time_warp_ids
+    overlap = ordinary & hidden
+    if overlap:
+        raise PatcherError(
+            "Expanded Time Warp cannot be selected through both normal and hidden "
+            "playtest arguments."
+        )
+    if ordinary:
+        raise PatcherError(
+            "Expanded Time Warp is unavailable through normal fun-patch selection; "
+            "use exactly one hidden playtest feature argument."
+        )
+
+
+def _validate_single_playtest_patch_mode(
+    patch_mode: str,
+    *,
+    playtest_disabled_feature_ids: tuple[str, ...] | list[str],
+    output_root: Path | None,
+    playtest_output_root: Path | None,
+    copy_saves: bool = False,
+    replace_modded_saves: bool = False,
+    save_root: Path | None = None,
+) -> None:
+    """Keep the public gate closed except for one exact Time Warp playtest."""
+    if not isinstance(patch_mode, str) or patch_mode not in (
+        _PUBLIC_PATCH_MODES | EXPANDED_PATCH_MODES
+    ):
+        raise PatcherError(f"Unknown patch mode: {patch_mode}")
+    if patch_mode not in EXPANDED_PATCH_MODES or EXPANDED_256_PUBLICATION_ENABLED:
+        return
+    requested = tuple(playtest_disabled_feature_ids)
+    if (
+        len(requested) == 1
+        and requested[0] in frozenset(EXPANDED_TIME_WARP_IDS.values())
+        and output_root is None
+        and playtest_output_root is not None
+        and Path(playtest_output_root).expanduser().is_absolute()
+        and not copy_saves
+        and not replace_modded_saves
+        and save_root is None
+    ):
+        return
+    _reject_expanded_256_publication(patch_mode)
+
+
 def dry_run(
     source: Path,
     patch_mode: str = DEFAULT_PATCH_MODE,
@@ -6730,15 +6833,28 @@ def dry_run(
     playtest_output_root: Path | None = None,
 ) -> dict[str, Any]:
     _reject_vv5_running_unsupported_mode(patch_mode, fun_patch_ids)
+    _validate_playtest_feature_channels(
+        fun_patch_ids, playtest_disabled_feature_ids
+    )
     _validate_playtest_output_request(
         fun_patch_ids=fun_patch_ids,
         playtest_disabled_feature_ids=playtest_disabled_feature_ids,
         output_root=output_root,
         playtest_output_root=playtest_output_root,
     )
+    _validate_single_playtest_patch_mode(
+        patch_mode,
+        playtest_disabled_feature_ids=playtest_disabled_feature_ids,
+        output_root=output_root,
+        playtest_output_root=playtest_output_root,
+    )
     build = identify(source)
     fun_patches = _selected_fun_patches(build, fun_patch_ids)
-    fun_patches.extend(_selected_playtest_disabled_fun_patches(build, playtest_disabled_feature_ids))
+    fun_patches.extend(
+        _selected_playtest_disabled_fun_patches(
+            build, playtest_disabled_feature_ids, patch_mode
+        )
+    )
     patched, applied = render_patched_bytes(
         source,
         build,
@@ -6764,6 +6880,7 @@ def dry_run_all(
     fun_patch_ids: tuple[str, ...] | list[str] = (),
     output_root: Path | None = None,
 ) -> list[dict[str, Any]]:
+    _validate_public_patch_mode(patch_mode)
     _reject_vv5_running_unsupported_mode(patch_mode, fun_patch_ids)
     validated = validate_all_sources(sources)
     results = []
@@ -7200,6 +7317,31 @@ def _capture_tree_snapshot(root: Path) -> dict[str, Any]:
 
     walk(root)
     return {"exists": True, "entries": entries}
+
+
+_PLAYTEST_SAVE_SUFFIXES = {".ldw", ".sav", ".save", ".savegame"}
+_PLAYTEST_SAVE_PARTS = {"save", "saves", "savegames", "savedgames"}
+
+
+def _validate_time_warp_playtest_source_tree(source_folder: Path) -> None:
+    """Reject save-like or reparse content before hidden playtest staging."""
+    snapshot = _capture_tree_snapshot(source_folder)
+    if not snapshot.get("exists"):
+        raise PatcherError("Expanded Time Warp playtest source folder is unavailable.")
+    for entry in snapshot.get("entries", []):
+        relative = str(entry.get("relative_path", ""))
+        path = Path(relative)
+        parts = {part.casefold() for part in path.parts}
+        if (
+            parts & _PLAYTEST_SAVE_PARTS
+            or (
+                entry.get("type") == "file"
+                and path.suffix.casefold() in _PLAYTEST_SAVE_SUFFIXES
+            )
+        ):
+            raise PatcherError(
+                f"Expanded Time Warp playtest source contains save-like content: {relative}"
+            )
 
 
 def _tree_snapshot_matches(root: Path, snapshot: dict[str, Any]) -> bool:
@@ -7845,10 +7987,21 @@ def apply_patch(
     *,
     playtest_output_root: Path | None = None,
 ) -> tuple[Path, Path]:
-    _validate_public_patch_mode(patch_mode)
     _reject_vv5_running_unsupported_mode(patch_mode, fun_patch_ids)
+    _validate_playtest_feature_channels(
+        fun_patch_ids, playtest_disabled_feature_ids
+    )
     _validate_playtest_output_request(
         fun_patch_ids=fun_patch_ids,
+        playtest_disabled_feature_ids=playtest_disabled_feature_ids,
+        output_root=output_root,
+        playtest_output_root=playtest_output_root,
+        copy_saves=copy_saves,
+        replace_modded_saves=replace_modded_saves,
+        save_root=save_root,
+    )
+    _validate_single_playtest_patch_mode(
+        patch_mode,
         playtest_disabled_feature_ids=playtest_disabled_feature_ids,
         output_root=output_root,
         playtest_output_root=playtest_output_root,
@@ -7860,8 +8013,16 @@ def apply_patch(
     build = identify(source)
     fun_patches = _selected_fun_patches(build, fun_patch_ids)
     fun_patches.extend(
-        _selected_playtest_disabled_fun_patches(build, playtest_disabled_feature_ids)
+        _selected_playtest_disabled_fun_patches(
+            build, playtest_disabled_feature_ids, patch_mode
+        )
     )
+    if any(
+        patch.id in EXPANDED_TIME_WARP_IDS.values()
+        and patch.raw.get("playtest_only") is True
+        for patch in fun_patches
+    ):
+        _validate_time_warp_playtest_source_tree(source.parent)
     selected_output_root = (
         playtest_output_root if playtest_output_root is not None else output_root
     )
@@ -8143,11 +8304,15 @@ def _add_playtest_feature_arg(parser: argparse.ArgumentParser) -> None:
     parser.add_argument(
         "--playtest-disabled-feature",
         action="append",
-        choices=[VV2_PLAYTEST_DISABLED_FEATURE_ID],
+        choices=[
+            VV2_PLAYTEST_DISABLED_FEATURE_ID,
+            *EXPANDED_TIME_WARP_IDS.values(),
+        ],
         default=[],
         help=(
-            "explicitly include the disabled VV2 Origins feature in a separate "
-            "player stress-test output; never catalog/publication evidence"
+            "explicitly include the disabled VV2 Origins feature or one "
+            "game-matched Expanded Time Warp feature in a separate player "
+            "stress-test output; never catalog/publication evidence"
         ),
     )
     parser.add_argument(
@@ -8205,20 +8370,28 @@ def _all_sources_from_args(args: argparse.Namespace) -> dict[str, Path]:
 
 
 def _parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(prog="Virtual Villagers Fun Patcher")
+    parser = argparse.ArgumentParser(
+        prog="Virtual Villagers Fun Patcher", allow_abbrev=False
+    )
     sub = parser.add_subparsers(dest="command", required=True)
 
-    identify_cmd = sub.add_parser("identify", help="identify an exact supported stock EXE")
+    identify_cmd = sub.add_parser(
+        "identify", help="identify an exact supported stock EXE", allow_abbrev=False
+    )
     identify_cmd.add_argument("exe", type=Path)
 
-    dry_cmd = sub.add_parser("dry-run", help="verify and preview without writing output")
+    dry_cmd = sub.add_parser(
+        "dry-run", help="verify and preview without writing output", allow_abbrev=False
+    )
     dry_cmd.add_argument("exe", type=Path)
     _add_patch_mode_arg(dry_cmd)
     _add_fun_patch_args(dry_cmd)
     _add_playtest_feature_arg(dry_cmd)
     _add_output_root_arg(dry_cmd)
 
-    apply_cmd = sub.add_parser("apply", help="create one modified copy")
+    apply_cmd = sub.add_parser(
+        "apply", help="create one modified copy", allow_abbrev=False
+    )
     apply_cmd.add_argument("exe", type=Path)
     apply_cmd.add_argument("--overwrite", action="store_true")
     _add_patch_mode_arg(apply_cmd)
@@ -8228,7 +8401,9 @@ def _parser() -> argparse.ArgumentParser:
     _add_save_copy_args(apply_cmd)
 
     dry_all_cmd = sub.add_parser(
-        "dry-run-all", help="verify all five games without writing output"
+        "dry-run-all",
+        help="verify all five games without writing output",
+        allow_abbrev=False,
     )
     _add_all_source_args(dry_all_cmd)
     _add_patch_mode_arg(dry_all_cmd)
@@ -8236,7 +8411,7 @@ def _parser() -> argparse.ArgumentParser:
     _add_output_root_arg(dry_all_cmd)
 
     apply_all_cmd = sub.add_parser(
-        "apply-all", help="create all five modified copies together"
+        "apply-all", help="create all five modified copies together", allow_abbrev=False
     )
     apply_all_cmd.add_argument("--overwrite", action="store_true")
     _add_all_source_args(apply_all_cmd)
@@ -8250,7 +8425,9 @@ def _parser() -> argparse.ArgumentParser:
 def _preparse_publication_mode(argv: list[str] | None = None) -> None:
     """Reject public mode errors before the catalog-backed argparse parser."""
     tokens = list(sys.argv[1:] if argv is None else argv)
-    if not tokens or tokens[0] not in {"apply", "apply-all"}:
+    if not tokens or tokens[0] not in {
+        "dry-run", "apply", "dry-run-all", "apply-all"
+    }:
         return
     patch_mode = DEFAULT_PATCH_MODE
     for index, token in enumerate(tokens[1:], start=1):
@@ -8258,6 +8435,37 @@ def _preparse_publication_mode(argv: list[str] | None = None) -> None:
             patch_mode = tokens[index + 1]
         elif token.startswith("--patch-mode="):
             patch_mode = token.split("=", 1)[1]
+    if patch_mode in EXPANDED_PATCH_MODES and tokens[0] in {"dry-run", "apply"}:
+        feature_ids: list[str] = []
+        playtest_roots: list[str] = []
+        for index, token in enumerate(tokens[1:], start=1):
+            if token == "--playtest-disabled-feature" and index + 1 < len(tokens):
+                feature_ids.append(tokens[index + 1])
+            elif token.startswith("--playtest-disabled-feature="):
+                feature_ids.append(token.split("=", 1)[1])
+            elif token == "--playtest-output-root" and index + 1 < len(tokens):
+                playtest_roots.append(tokens[index + 1])
+            elif token.startswith("--playtest-output-root="):
+                playtest_roots.append(token.split("=", 1)[1])
+        forbidden = {
+            "--output-root",
+            "--copy-vanilla-saves",
+            "--replace-modded-saves",
+            "--save-root",
+        }
+        has_forbidden = any(
+            token in forbidden
+            or any(token.startswith(option + "=") for option in forbidden)
+            for token in tokens[1:]
+        )
+        if (
+            len(feature_ids) == 1
+            and feature_ids[0] in frozenset(EXPANDED_TIME_WARP_IDS.values())
+            and len(playtest_roots) == 1
+            and Path(playtest_roots[0]).expanduser().is_absolute()
+            and not has_forbidden
+        ):
+            return
     _validate_public_patch_mode(patch_mode)
 
 
@@ -8289,7 +8497,6 @@ def main() -> int:
                 )
             )
         elif args.command == "apply":
-            _validate_public_patch_mode(args.patch_mode)
             output, log = apply_patch(
                 args.exe,
                 args.patch_mode,
