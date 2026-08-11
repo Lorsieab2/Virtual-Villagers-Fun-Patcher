@@ -566,6 +566,31 @@ VV2_FULL_MASTERY_STATIC_ACCEPTANCE = {
         },
     },
 }
+VV2_INDIVIDUAL_FULL_MASTERY_CANDIDATE_ID = "vv2_individual_full_mastery_candidate"
+VV2_INDIVIDUAL_FULL_MASTERY_CANDIDATE_PATHS = {
+    "manifest": ROOT / "data" / "candidates" / "vv2_individual_full_mastery_candidate.json",
+    "map": ROOT / "data" / "candidates" / "vv2_individual_full_mastery_candidate_map.json",
+}
+VV2_INDIVIDUAL_FULL_MASTERY_MANIFEST_SHA256 = "D074D849160948C30BF063F71EF72381F9CD9CA249ADFE5CD18AB8074B6DAAF2"
+VV2_INDIVIDUAL_FULL_MASTERY_MAP_SHA256 = "36362D1CE8AE0EE7DAAFBC491D11893302838F0930A22E8BC0C827D80CC77547"
+VV2_INDIVIDUAL_FULL_MASTERY_EMITTED_SHA256 = {
+    "detail_handler": "00C4EC217FB9A0483C797DBF9FEABAF210A3031DFE07610FBBA0ABBBC6E1EF37",
+    "detail_constructor": "288A62BF9829CC5A013F31A2DE169629F9BD802BD61E17C4C8C2CE8A5CFA87F9",
+    "helper": "D5403EC7BC9D1659C0A64E90E942B7183E5D2F72285B173F4DFFDA1ADB4A6E28",
+    "strings": "6BCA29ACED630E8E82AB7E6D16A4C1D627FA91062390BC73C6C941474549946E",
+}
+VV2_INDIVIDUAL_FULL_MASTERY_CURRENT_PARENT_SHA256 = {
+    "collection_progression": "1EF8F9A9D8C6336706943D37649D897C227408715940EE19CDBB8C6F4AFD63C3",
+    "immediate_fixed": "A2F8F9B4DD2454A583096EE653E731235B17B608905E7808CFA15EF027B97042",
+}
+VV2_INDIVIDUAL_FULL_MASTERY_CURRENT_BASELINE_SHA256 = {
+    "collection_progression": "B6A37FF5ECC60358988F222EB952E6710A1B351F175F178DECE74799428CB5E6",
+    "immediate_fixed": "71BE2C0563159144C8D410AD11D14FC8F23FD767CB799C7C1763BEE534A8B0E3",
+}
+VV2_INDIVIDUAL_FULL_MASTERY_OUTPUT_SHA256 = {
+    "collection_progression": "D8BEBC6BE0A31863FE88C4394DBB756B713B09B82695F41A928CAE381F63BA18",
+    "immediate_fixed": "C6CD6F3E1F068708D9ACFB4FC51B94B5AE2F6C448C1183B34E70B5B97D4B8BE7",
+}
 VV1_FULL_MASTERY_CANDIDATE_PATHS = {
     "manifest": ROOT / "data" / "candidates" / "vv1_full_mastery_all_candidate.json",
     "map": ROOT / "data" / "candidates" / "vv1_full_mastery_all_candidate_map.json",
@@ -1404,6 +1429,160 @@ def _certified_vv2_full_mastery_record() -> dict[str, Any] | None:
         raise PatcherError("VV2 Full Mastery Buy contract is not certified.")
     if contract.get("ownership") is not None or "remove" in contract:
         raise PatcherError("VV2 Full Mastery must remain Buy-only with no Remove.")
+    return manifest
+
+
+def _certified_vv2_individual_full_mastery_record() -> dict[str, Any] | None:
+    """Validate the public stock-only selected-villager overlay fail closed."""
+    manifest_path = VV2_INDIVIDUAL_FULL_MASTERY_CANDIDATE_PATHS["manifest"]
+    map_path = VV2_INDIVIDUAL_FULL_MASTERY_CANDIDATE_PATHS["map"]
+    manifest_bytes = manifest_path.read_bytes()
+    map_bytes = map_path.read_bytes()
+    if source_text_sha256(manifest_bytes) != VV2_INDIVIDUAL_FULL_MASTERY_MANIFEST_SHA256:
+        raise PatcherError("VV2 selected Full Mastery manifest bytes are not certified.")
+    if source_text_sha256(map_bytes) != VV2_INDIVIDUAL_FULL_MASTERY_MAP_SHA256:
+        raise PatcherError("VV2 selected Full Mastery map bytes are not certified.")
+    manifest = json.loads(manifest_bytes.decode("utf-8"))
+    artifact_map = json.loads(map_bytes.decode("utf-8"))
+    if not manifest.get("enabled", False):
+        return None
+    if (
+        manifest.get("id") != VV2_INDIVIDUAL_FULL_MASTERY_CANDIDATE_ID
+        or manifest.get("game_id") != "vv2"
+        or manifest.get("catalog_hidden") is not False
+        or manifest.get("catalog_enabled") is not True
+        or manifest.get("runtime_player_status") != "pending"
+        or manifest.get("dependencies") != ["vv2_full_mastery_all_stage_a_candidate"]
+        or manifest.get("companion_files") != []
+        or manifest.get("supported_modes") != ["collection_progression", "immediate_fixed"]
+        or set(manifest.get("rejected_modes", ())) != EXPANDED_PATCH_MODES
+    ):
+        raise PatcherError("VV2 selected Full Mastery catalog/mode metadata is invalid.")
+    contract = manifest.get("transaction_contract", {})
+    if (
+        contract.get("detail_event") != 8
+        or contract.get("button_id") != 6
+        or contract.get("price") != 100_000
+        or contract.get("target") != 100
+        or contract.get("ownership") is not None
+        or contract.get("eligibility_before_skills")
+        != ["byte +0x30 != 0", "signed dword +0x52C > 0", "byte +0x558 == 0"]
+        or "sub_445430" not in str(contract.get("native_skill_writer"))
+        or "sub_44D4C0" not in str(contract.get("native_evaluator"))
+        or "sub_426290" not in str(contract.get("native_tech_writer"))
+    ):
+        raise PatcherError("VV2 selected Full Mastery transaction contract is invalid.")
+    parent_chain = manifest.get("parent_chain", {})
+    if (
+        parent_chain.get("stock_sha256") != VV2_FULL_MASTERY_CERTIFIED_SHA256["source"]
+        or parent_chain.get("parent_manifest_source_text_sha256") != VV2_FULL_MASTERY_MANIFEST_SHA256
+        or parent_chain.get("parent_map_source_text_sha256") != VV2_FULL_MASTERY_MAP_SHA256
+        or parent_chain.get("parent_dll_sha256") != VV2_FULL_MASTERY_CERTIFIED_SHA256["dll"]
+        or parent_chain.get("parent_current_rendered_sha256")
+        != VV2_INDIVIDUAL_FULL_MASTERY_CURRENT_PARENT_SHA256
+        or parent_chain.get("current_baseline_sha256")
+        != VV2_INDIVIDUAL_FULL_MASTERY_CURRENT_BASELINE_SHA256
+        or parent_chain.get("parent_static_acceptance_sha256")
+        != {
+            mode: details["candidate_sha256"]
+            for mode, details in VV2_FULL_MASTERY_STATIC_ACCEPTANCE["rendered_candidates"].items()
+        }
+    ):
+        raise PatcherError("VV2 selected Full Mastery parent chain is invalid.")
+    parent_drift = parent_chain.get("parent_render_drift", {})
+    if parent_drift != {
+        "classification": "one automatic:safety cave replacement plus the deterministic PE checksum; no parent-owned hook, command-7, section, or DLL byte changed",
+        "commit": "f9e5fd90bc998361b58c9c4849800dbd8cda6764",
+        "commit_subject": "Fix VV2 event allocation context",
+        "owner": "automatic:safety",
+        "raw_offset": "0x73D00",
+        "current_length": 47,
+        "accepted_payload_length": 27,
+        "accepted_payload_hex": "51E85A1BFBFF3D00010000597D05E96DB8FDFFB8FFFFFFFFC21400",
+        "accepted_zero_tail_length": 20,
+        "current_payload_hex": "518B8DA450000085C9741B83B9A4050300007412E8471BFBFF3D00010000597306E95AB8FDFF59B8FFFFFFFFC21400",
+        "checksum_raw_offset": "0x148",
+        "accepted_checksums": {
+            "collection_progression": "0x000B77C9",
+            "immediate_fixed": "0x000B62B9",
+        },
+        "current_checksums": {
+            "collection_progression": "0x000BA721",
+            "immediate_fixed": "0x000B9211",
+        },
+        "reconstruction": "replace the 47-byte current cave with the 27-byte accepted payload plus 20 zeros, then recompute the PE checksum; both frozen parent hashes reproduce exactly",
+    }:
+        raise PatcherError("VV2 selected Full Mastery parent render drift classification is invalid.")
+    patches = manifest.get("patches")
+    expected_patches = (
+        (0x67624, "8B4C242088", "E917CC0400", 5),
+        (0x67720, "837C240408", "E9DBCA0400", 5),
+        (0xB2200, None, None, 34),
+        (0xB2240, None, None, 110),
+        (0xB2300, None, None, 1552),
+        (0xB2D00, None, None, 762),
+    )
+    if not isinstance(patches, list) or len(patches) != len(expected_patches):
+        raise PatcherError("VV2 selected Full Mastery patch count is invalid.")
+    emitted = manifest.get("emitted", {})
+    labels = ("detail_handler", "detail_constructor", "helper", "strings")
+    for index, (offset, exact_before, exact_after, length) in enumerate(expected_patches):
+        patch = patches[index]
+        try:
+            before = bytes.fromhex(patch["before"])
+            after = bytes.fromhex(patch["after"])
+        except (KeyError, TypeError, ValueError) as exc:
+            raise PatcherError("VV2 selected Full Mastery patch bytes are malformed.") from exc
+        if (
+            int(patch.get("offset", "-1"), 0) != offset
+            or len(before) != length
+            or len(after) != length
+            or (exact_before is not None and patch.get("before") != exact_before)
+            or (exact_after is not None and patch.get("after") != exact_after)
+            or (index >= 2 and any(before))
+        ):
+            raise PatcherError(f"VV2 selected Full Mastery patch 0x{offset:X} is invalid.")
+        if index >= 2:
+            label = labels[index - 2]
+            item = emitted.get(label, {})
+            if (
+                item.get("raw") != f"0x{offset:X}"
+                or item.get("length") != length
+                or item.get("sha256") != VV2_INDIVIDUAL_FULL_MASTERY_EMITTED_SHA256[label]
+                or hashlib.sha256(after).hexdigest().upper()
+                != VV2_INDIVIDUAL_FULL_MASTERY_EMITTED_SHA256[label]
+            ):
+                raise PatcherError(f"VV2 selected Full Mastery {label} bytes are invalid.")
+    rendered_modes = manifest.get("rendered_modes", {})
+    for mode in ("collection_progression", "immediate_fixed"):
+        rendered = rendered_modes.get(mode, {})
+        if (
+            rendered.get("current_baseline_sha256")
+            != VV2_INDIVIDUAL_FULL_MASTERY_CURRENT_BASELINE_SHA256[mode]
+            or rendered.get("uninstall_target_sha256")
+            != VV2_INDIVIDUAL_FULL_MASTERY_CURRENT_PARENT_SHA256[mode]
+            or rendered.get("parent_uninstall_target_sha256")
+            != VV2_INDIVIDUAL_FULL_MASTERY_CURRENT_BASELINE_SHA256[mode]
+            or rendered.get("parent_sha256")
+            != VV2_INDIVIDUAL_FULL_MASTERY_CURRENT_PARENT_SHA256[mode]
+            or rendered.get("candidate_sha256")
+            != VV2_INDIVIDUAL_FULL_MASTERY_OUTPUT_SHA256[mode]
+            or rendered.get("size") != 733_184
+        ):
+            raise PatcherError(f"VV2 selected Full Mastery {mode} identity is invalid.")
+    if (
+        artifact_map.get("candidate_id") != VV2_INDIVIDUAL_FULL_MASTERY_CANDIDATE_ID
+        or artifact_map.get("enabled") is not True
+        or artifact_map.get("catalog_hidden") is not False
+        or artifact_map.get("catalog_enabled") is not True
+        or artifact_map.get("dependencies") != ["vv2_full_mastery_all_stage_a_candidate"]
+        or artifact_map.get("parent_chain") != parent_chain
+        or artifact_map.get("static_evidence") != manifest.get("static_evidence")
+        or artifact_map.get("emitted") != emitted
+        or artifact_map.get("transaction_contract") != contract
+        or artifact_map.get("rendered_modes") != rendered_modes
+    ):
+        raise PatcherError("VV2 selected Full Mastery map is not bound to the manifest.")
     return manifest
 
 
@@ -2677,6 +2856,9 @@ def _load_fun_patch_records(
     vv2_full_mastery = _certified_vv2_full_mastery_record()
     if vv2_full_mastery is not None:
         items.append(vv2_full_mastery)
+        vv2_individual_full_mastery = _certified_vv2_individual_full_mastery_record()
+        if vv2_individual_full_mastery is not None:
+            items.append(vv2_individual_full_mastery)
     if STATISTICS_FEATURES_PATH.is_file():
         statistics = json.loads(
             STATISTICS_FEATURES_PATH.read_text(encoding="utf-8")
@@ -6672,6 +6854,26 @@ def render_patched_bytes(
     playtest_disabled_feature_ids: tuple[str, ...] | list[str] = (),
     playtest_output_root: Path | None = None,
 ) -> tuple[bytearray, list[dict[str, str]]]:
+    # The VV2 selected-villager transaction is source-bound to the stock
+    # 256-record Detail/manager layout.  Reject Expanded before variant,
+    # catalog, manifest, or source access in this renderer.
+    vv2_individual_mastery_selected = (
+        VV2_INDIVIDUAL_FULL_MASTERY_CANDIDATE_ID in set(fun_patch_ids)
+    )
+    if _fun_patches_override is not None:
+        vv2_individual_mastery_selected = vv2_individual_mastery_selected or any(
+            patch.id == VV2_INDIVIDUAL_FULL_MASTERY_CANDIDATE_ID
+            for patch in _fun_patches_override
+        )
+    if (
+        build.id == "vv2"
+        and vv2_individual_mastery_selected
+        and patch_mode in EXPANDED_PATCH_MODES
+    ):
+        raise PatcherError(
+            "VV2 selected Full Mastery supports stock modes only; "
+            "Expanded-256 remains ON HOLD/fail-closed."
+        )
     # VV5 Running is Collection-only.  Keep this guard ahead of variant,
     # catalog, manifest, and source access in the generic production path.
     vv5_running_selected = VV5_INDIVIDUAL_RUNNING_CANDIDATE_ID in set(fun_patch_ids)

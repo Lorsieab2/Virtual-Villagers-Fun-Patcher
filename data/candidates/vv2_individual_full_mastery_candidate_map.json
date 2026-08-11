@@ -1,0 +1,201 @@
+{
+  "candidate_id": "vv2_individual_full_mastery_candidate",
+  "enabled": true,
+  "catalog_hidden": false,
+  "catalog_enabled": true,
+  "runtime_player_status": "pending",
+  "supported_modes": [
+    "collection_progression",
+    "immediate_fixed"
+  ],
+  "rejected_modes": [
+    "experimental_expanded_256",
+    "experimental_expanded_256_progression"
+  ],
+  "dependencies": [
+    "vv2_full_mastery_all_stage_a_candidate"
+  ],
+  "parent_chain": {
+    "stock_sha256": "46C1503C209255C9CDEFA941DB2F449C8CF8E2CDD5C7D13CD975326E377ED677",
+    "parent_manifest_source_text_sha256": "41CC8B5ADEAF702B1ACC38C832EADEEBF9B7FB23DA23A8A6E6328690F121A53C",
+    "parent_map_source_text_sha256": "F93FC7C11D2306A3AA5DCC44EAC26785BC26BD86D46FCFAE51252E6E13FEE8C8",
+    "parent_dll_sha256": "1324EDFB83ABA755AFF6410D71DD668F4860127CD67A952722FDE5DD2FDC92C2",
+    "parent_static_acceptance_sha256": {
+      "collection_progression": "08F12344A5DE16832E5EFA22270300A1066EB94970359F432CEC723723055194",
+      "immediate_fixed": "21B927806BDB06942F8426BC68E89AB1B10E2E60CEEFC39FEEFDCC125886BE7C"
+    },
+    "parent_current_rendered_sha256": {
+      "collection_progression": "1EF8F9A9D8C6336706943D37649D897C227408715940EE19CDBB8C6F4AFD63C3",
+      "immediate_fixed": "A2F8F9B4DD2454A583096EE653E731235B17B608905E7808CFA15EF027B97042"
+    },
+    "parent_section_raw": "0xB1000",
+    "parent_section_va": "0x4B3000",
+    "owned_zero_preimage": "parent .vv2fm +0x1200..+0x1FFF",
+    "current_baseline_sha256": {
+      "collection_progression": "B6A37FF5ECC60358988F222EB952E6710A1B351F175F178DECE74799428CB5E6",
+      "immediate_fixed": "71BE2C0563159144C8D410AD11D14FC8F23FD767CB799C7C1763BEE534A8B0E3"
+    },
+    "parent_render_drift": {
+      "classification": "one automatic:safety cave replacement plus the deterministic PE checksum; no parent-owned hook, command-7, section, or DLL byte changed",
+      "commit": "f9e5fd90bc998361b58c9c4849800dbd8cda6764",
+      "commit_subject": "Fix VV2 event allocation context",
+      "owner": "automatic:safety",
+      "raw_offset": "0x73D00",
+      "current_length": 47,
+      "accepted_payload_length": 27,
+      "accepted_payload_hex": "51E85A1BFBFF3D00010000597D05E96DB8FDFFB8FFFFFFFFC21400",
+      "accepted_zero_tail_length": 20,
+      "current_payload_hex": "518B8DA450000085C9741B83B9A4050300007412E8471BFBFF3D00010000597306E95AB8FDFF59B8FFFFFFFFC21400",
+      "checksum_raw_offset": "0x148",
+      "accepted_checksums": {
+        "collection_progression": "0x000B77C9",
+        "immediate_fixed": "0x000B62B9"
+      },
+      "current_checksums": {
+        "collection_progression": "0x000BA721",
+        "immediate_fixed": "0x000B9211"
+      },
+      "reconstruction": "replace the 47-byte current cave with the 27-byte accepted payload plus 20 zeros, then recompute the PE checksum; both frozen parent hashes reproduce exactly"
+    }
+  },
+  "static_evidence": {
+    "stock_detail_ida": {
+      "path": "research/ida-batch/vv2-coconut.json",
+      "sha256": "A070824C5A67FFD0C4D40ECE1EB03FA693CEAA284A0675DEE5C9230E9C8254AF",
+      "function": "sub_467720",
+      "facts": "stock Detail reads state at this+0x0C, selected physical index at state+197872 (0x304F0), record pool at this+0x10, and stride 58508 (0xE48C)"
+    },
+    "selected_binding": {
+      "path": "data/candidates/vv2_individual_grant_running_binding.json",
+      "sha256": "FC8165A0A04BD6094477B1DBD86785A2F5733637861E12A371BA7DFDE1EB2C09",
+      "facts": "existing selected Detail path, 256 bound, active/living eligibility, and exact selection/account reacquisition requirement"
+    },
+    "native_parent_map": {
+      "path": "data/candidates/vv2_full_mastery_all_candidate_map.json",
+      "source_text_sha256": "F93FC7C11D2306A3AA5DCC44EAC26785BC26BD86D46FCFAE51252E6E13FEE8C8",
+      "facts": "sub_44F4E0 manager and manager+0x52C record pool, sub_445430 skill writer, sub_44D4C0 evaluator, sub_426290 tech writer"
+    },
+    "detail_alignment": {
+      "source_path": "scripts/build_vv2_origins_feature.py",
+      "sha256": "FA0FB729A7906694F339D6B64E68571723A14BE32129CEBCAB1707F490F31CD6",
+      "commits": [
+        "17fdb89",
+        "c968b6a"
+      ],
+      "placement": "X=140/Y=563"
+    },
+    "player_runtime": "pending; no gameplay claim"
+  },
+  "detail_hooks": {
+    "constructor": {
+      "raw": "0x67624",
+      "before": "8B4C242088",
+      "after": "E917CC0400",
+      "target": "0x4B4240"
+    },
+    "handler": {
+      "raw": "0x67720",
+      "before": "837C240408",
+      "after": "E9DBCA0400",
+      "target": "0x4B4200"
+    }
+  },
+  "emitted": {
+    "detail_handler": {
+      "raw": "0xB2200",
+      "va": "0x4B4200",
+      "length": 34,
+      "sha256": "00C4EC217FB9A0483C797DBF9FEABAF210A3031DFE07610FBBA0ABBBC6E1EF37"
+    },
+    "detail_constructor": {
+      "raw": "0xB2240",
+      "va": "0x4B4240",
+      "length": 110,
+      "sha256": "288A62BF9829CC5A013F31A2DE169629F9BD802BD61E17C4C8C2CE8A5CFA87F9"
+    },
+    "helper": {
+      "raw": "0xB2300",
+      "va": "0x4B4300",
+      "length": 1552,
+      "sha256": "D5403EC7BC9D1659C0A64E90E942B7183E5D2F72285B173F4DFFDA1ADB4A6E28"
+    },
+    "strings": {
+      "raw": "0xB2D00",
+      "va": "0x4B4D00",
+      "length": 762,
+      "sha256": "6BCA29ACED630E8E82AB7E6D16A4C1D627FA91062390BC73C6C941474549946E"
+    }
+  },
+  "transaction_contract": {
+    "detail_event": 8,
+    "button_id": 6,
+    "price": 100000,
+    "target": 100,
+    "action": "Buy",
+    "repeatable": true,
+    "ownership": null,
+    "confirmation": "IDOK (1) only; Cancel, close, or any other return is no-change/no-charge",
+    "selection": {
+      "state": "[detail+0x0C]",
+      "selected_index": "[state+0x304F0] unsigned < 256",
+      "detail_record_pool": "[detail+0x10]",
+      "manager_record_pool": "sub_44F4E0 return + 0x52C",
+      "identity_guard": "same Detail owner, state, selected index, detail pool, manager, and derived record pointer; complete active/health/totem/skills/job snapshot before writes"
+    },
+    "eligibility_before_skills": [
+      "byte +0x30 != 0",
+      "signed dword +0x52C > 0",
+      "byte +0x558 == 0"
+    ],
+    "skills": {
+      "farming": "+0x7E4 -> native skill 3",
+      "building": "+0x7E8 -> native skill 2",
+      "research": "+0x7EC -> native skill 1",
+      "healing": "+0x7F0 -> native skill 5",
+      "parenting": "+0x7F4 -> native skill 4"
+    },
+    "native_manager_getter": "sub_44F4E0 no arguments; exact manager/pool/record identity re-acquired at every boundary",
+    "native_skill_writer": "sub_445430 thiscall ECX=manager+0x52C; push delta, skill id, physical selected index; changed skills only",
+    "native_evaluator": "sub_44D4C0 thiscall ECX=manager; exactly once after complete exact-100 postverify; semantically required for native Elder/totem effects",
+    "native_tech_writer": "sub_426290 thiscall ECX=fresh state; push signed -100000; exactly once after final funds recheck",
+    "transaction_order": [
+      "MessageBox dependency preflight",
+      "complete read-only selected-villager dry run",
+      "no-change before funds and confirmation",
+      "unsigned initial funds check",
+      "explicit IDOK-only confirmation",
+      "same selection/identity/manager/account/exact funds and complete snapshot reacquisition",
+      "changed-only native skill writes",
+      "complete exact-100 pre-evaluator postverify",
+      "one native Elder evaluator",
+      "fresh same selection/identity/manager/account reacquisition and exact-100 postverify",
+      "fresh unsigned funds >= 100000 recheck",
+      "one native -100000 deduction"
+    ],
+    "rollback_limit": "native skill/evaluator changes are not rolled back after a post-write failure; all such failures are no-charge and explicitly reported"
+  },
+  "rendered_modes": {
+    "collection_progression": {
+      "current_baseline_sha256": "B6A37FF5ECC60358988F222EB952E6710A1B351F175F178DECE74799428CB5E6",
+      "parent_sha256": "1EF8F9A9D8C6336706943D37649D897C227408715940EE19CDBB8C6F4AFD63C3",
+      "candidate_sha256": "D8BEBC6BE0A31863FE88C4394DBB756B713B09B82695F41A928CAE381F63BA18",
+      "uninstall_target_sha256": "1EF8F9A9D8C6336706943D37649D897C227408715940EE19CDBB8C6F4AFD63C3",
+      "parent_uninstall_target_sha256": "B6A37FF5ECC60358988F222EB952E6710A1B351F175F178DECE74799428CB5E6",
+      "size": 733184
+    },
+    "immediate_fixed": {
+      "current_baseline_sha256": "71BE2C0563159144C8D410AD11D14FC8F23FD767CB799C7C1763BEE534A8B0E3",
+      "parent_sha256": "A2F8F9B4DD2454A583096EE653E731235B17B608905E7808CFA15EF027B97042",
+      "candidate_sha256": "C6CD6F3E1F068708D9ACFB4FC51B94B5AE2F6C448C1183B34E70B5B97D4B8BE7",
+      "uninstall_target_sha256": "A2F8F9B4DD2454A583096EE653E731235B17B608905E7808CFA15EF027B97042",
+      "parent_uninstall_target_sha256": "71BE2C0563159144C8D410AD11D14FC8F23FD767CB799C7C1763BEE534A8B0E3",
+      "size": 733184
+    }
+  },
+  "preserved_parent": {
+    "tech_constructor_hook_raw": "0x435EF",
+    "tech_handler_hook_raw": "0x437C0",
+    "command7_and_parent_section_range": "0xB1000..0xB21FF",
+    "parent_dll_sha256": "1324EDFB83ABA755AFF6410D71DD668F4860127CD67A952722FDE5DD2FDC92C2"
+  }
+}

@@ -162,7 +162,11 @@ class VV1VV2OriginsContainmentTests(unittest.TestCase):
             patch.id
             for patch in catalog
             if patch.game_id == "vv2"
-            and patch.id != "vv2_full_mastery_all_stage_a_candidate"
+            and patch.id
+            not in {
+                "vv2_full_mastery_all_stage_a_candidate",
+                "vv2_individual_full_mastery_candidate",
+            }
         ]
         self.assertEqual(set(remaining), REMAINING)
         disabled_offsets = set()

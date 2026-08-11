@@ -1049,7 +1049,7 @@ class StockIntegrationTests(unittest.TestCase):
                         )
                     continue
                 if build.id == "vv2" and "vv2_full_mastery_all_stage_a_candidate" in patches_by_game[build.id]:
-                    with self.assertRaisesRegex(PatcherError, "has no append layout"):
+                    with self.assertRaisesRegex(PatcherError, "stock modes only"):
                         render_patched_bytes(
                             STOCK / build.input_name,
                             build,
@@ -3165,12 +3165,13 @@ class StockIntegrationTests(unittest.TestCase):
                 "vv2_gong_of_wonder_coconuts_fix",
                 "vv2_write_village_statistics",
                 "vv2_full_mastery_all_stage_a_candidate",
+                "vv2_individual_full_mastery_candidate",
             },
         )
         for mode in MODES + EXPANDED_MODES:
             with self.subTest(mode=mode):
                 if mode in EXPANDED_MODES:
-                    with self.assertRaisesRegex(PatcherError, "has no append layout"):
+                    with self.assertRaisesRegex(PatcherError, "stock modes only"):
                         render_patched_bytes(source, build, mode, all_vv2_features)
                     continue
                 rendered, applied = render_patched_bytes(
