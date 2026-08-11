@@ -855,6 +855,92 @@ class VV5FullMasteryCandidateTests(unittest.TestCase):
         self.assertNotIn("SDL_SET_WINDOW_FULLSCREEN_RVA", source)
         self.assertNotIn("ret 8", source[source.index("def build_fullscreen_wrapper"):source.index("def build_fullscreen_entry")])
 
+    def test_c255_statue_selectors_disassemble_with_balanced_stack(self):
+        from capstone import CS_ARCH_X86, CS_MODE_32, Cs
+
+        manifest = json.loads((ROOT / "data" / "builds.json").read_text(encoding="utf-8"))
+        feature = next(
+            item
+            for item in manifest["fun_patches"]
+            if item["id"] == "vv5_statue_polishing_or_honoring"
+        )
+        selectors = {
+            0x94740: {"stack_writes": 0},
+            0x947B0: {"stack_writes": 3},
+            0x94840: {"stack_writes": 0},
+        }
+        patches = {int(item["offset"], 0): item for item in feature["patches"]}
+        md = Cs(CS_ARCH_X86, CS_MODE_32)
+
+        for offset, expected in selectors.items():
+            payload = bytes.fromhex(patches[offset]["after"])
+            self.assertEqual(payload[-2:], b"\x90\x90")
+            body = payload[:-2]
+            base = 0x400000 + offset
+            instructions = list(md.disasm(body, base))
+            self.assertEqual(sum(item.size for item in instructions), len(body))
+            self.assertNotIn("xor", {item.mnemonic for item in instructions})
+            self.assertEqual(
+                [item.op_str for item in instructions if item.mnemonic == "cmp"],
+                [
+                    "dword ptr [ecx + 0x1c70], 0",
+                    "dword ptr [ecx + 0x1c54], 0",
+                ],
+            )
+            calls = [
+                (index, item)
+                for index, item in enumerate(instructions)
+                if item.mnemonic == "call"
+            ]
+            self.assertEqual(len(calls), 1)
+            call_index, call = calls[0]
+            self.assertEqual(call.op_str, "0x403660")
+            self.assertEqual(instructions[call_index - 1].mnemonic, "push")
+            self.assertEqual(instructions[call_index - 1].op_str, "2")
+            self.assertEqual(instructions[call_index + 1].mnemonic, "add")
+            self.assertEqual(instructions[call_index + 1].op_str, "esp, 4")
+            self.assertEqual(
+                sum(
+                    item.mnemonic == "mov"
+                    and item.op_str == "dword ptr [esp + 0xc], 0x66"
+                    for item in instructions
+                ),
+                expected["stack_writes"],
+            )
+
+            by_address = {item.address: item for item in instructions}
+            pending = [(base, -4)]  # the call instruction has pushed its return address
+            visited = set()
+            return_deltas = []
+            while pending:
+                address, delta = pending.pop()
+                state = (address, delta)
+                if state in visited:
+                    continue
+                visited.add(state)
+                item = by_address[address]
+                if item.mnemonic == "push":
+                    delta -= 4
+                elif item.mnemonic == "pop":
+                    delta += 4
+                elif item.mnemonic == "add" and item.op_str == "esp, 4":
+                    delta += 4
+                elif item.mnemonic == "ret":
+                    return_deltas.append(delta + 4)
+                    continue
+
+                fallthrough = item.address + item.size
+                if item.mnemonic == "jle":
+                    branch = int(item.op_str, 16)
+                    self.assertIn(branch, by_address)
+                    pending.append((branch, delta))
+                    pending.append((fallthrough, delta))
+                else:
+                    self.assertIn(fallthrough, by_address)
+                    pending.append((fallthrough, delta))
+
+            self.assertEqual(sorted(return_deltas), [-4, -4, -4])
+
     def test_c254_emitted_wrapper_disassembly_catches_d251_defects(self):
         from capstone import CS_ARCH_X86, CS_MODE_32, Cs
 
