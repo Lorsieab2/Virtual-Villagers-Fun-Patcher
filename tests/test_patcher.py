@@ -1468,7 +1468,7 @@ class StockIntegrationTests(unittest.TestCase):
             "vv3": [
                 (0x60D4C, "687B1F00"),
                 (0x5F975, "6C7B1F00"),
-                (0x5FA46, "807B1F00"),
+                (0x5FA46, "886C1F00"),
             ],
             "vv4": [
                 (0x66845, "CF2A2E00"),
@@ -1501,7 +1501,7 @@ class StockIntegrationTests(unittest.TestCase):
                 0x60D46: "FF000000",  # main-world hit-test bound
                 0x60D4C: "687B1F00",  # main-world hit-test endpoint
                 0x5F975: "6C7B1F00",  # player-to-player endpoint
-                0x5FA46: "807B1F00",  # nearby-villager endpoint
+                0x5FA46: "886C1F00",  # nearby sick-villager endpoint
                 0x5EE69: "00010000",  # active-record validator
                 0x35A5A: "00010000",  # serialized index validator
             },
@@ -1548,6 +1548,39 @@ class StockIntegrationTests(unittest.TestCase):
                             bytes(rendered[offset : offset + 4]),
                             bytes.fromhex(value),
                         )
+
+    def test_vv3_expanded_healer_endpoint_uses_exact_record_255_geometry(self) -> None:
+        build = next(build for build in load_builds() if build.id == "vv3")
+        source = STOCK / build.input_name
+        stock = source.read_bytes()
+        endpoint = 255 * 0x1F8C + 0x14
+        self.assertEqual(endpoint, 0x1F6C88)
+        self.assertEqual(bytes(stock[0x5FA46:0x5FA4A]), bytes.fromhex("905C1200"))
+
+        for mode in EXPANDED_MODES:
+            with self.subTest(mode=mode):
+                rendered, applied = render_patched_bytes(source, build, mode)
+                self.assertEqual(
+                    int.from_bytes(rendered[0x5FA46:0x5FA4A], "little"),
+                    endpoint,
+                )
+                transitions = [
+                    (row["before"], row["after"])
+                    for row in applied
+                    if int(row["offset"], 0) == 0x5FA46
+                ]
+                self.assertEqual(
+                    transitions,
+                    [("905C1200", "807B1F00"), ("807B1F00", "886C1F00")],
+                )
+
+        for mode in ("collection_progression", "immediate_fixed"):
+            with self.subTest(stock_mode=mode):
+                rendered, _ = render_patched_bytes(source, build, mode)
+                self.assertEqual(
+                    bytes(rendered[0x5FA46:0x5FA4A]),
+                    bytes(stock[0x5FA46:0x5FA4A]),
+                )
 
     def test_expanded_modes_leave_required_slot_zero_loaders_stock(self) -> None:
         slot_zero_calls = {

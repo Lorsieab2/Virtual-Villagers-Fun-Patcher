@@ -753,6 +753,41 @@ EXPANDED_PATCH_MODES = {
     "experimental_expanded_256",
     "experimental_expanded_256_progression",
 }
+VV3_EXPANDED_HEALER_ENDPOINT_REPAIR = {
+    "offset": "0x5FA46",
+    "before": "807B1F00",
+    "after": "886C1F00",
+    "purpose": (
+        "correct the VV3 nearby sick-villager picker endpoint to "
+        "record 255 plus the native 0x14 record offset"
+    ),
+}
+VV3_EXPANDED_HEALER_TIME_WARP_RESULTS = {
+    "experimental_expanded_256": {
+        "atomic_result": {
+            "size": 843776,
+            "sha256": "7009B60EB434DDA830B0E702563A572ED48E2BBBF6340D1C8C04F04094885EA4",
+            "checksum": "9D900D00",
+        },
+        "statistics_result": {
+            "size": 843776,
+            "sha256": "2C7354F4778AA8652839F51A711A69A5AA85C303894DE4DA13700451156FA9A8",
+            "checksum": "0E870D00",
+        },
+    },
+    "experimental_expanded_256_progression": {
+        "atomic_result": {
+            "size": 843776,
+            "sha256": "75661039771ADAABD9C6B3F7C9575E3A22C8AC4595563293D2326C98C3F241F3",
+            "checksum": "A80B0D00",
+        },
+        "statistics_result": {
+            "size": 843776,
+            "sha256": "3043EE3595194E10B607762D60C6DB789B9AA2855264156435891417AA6594C8",
+            "checksum": "19020D00",
+        },
+    },
+}
 # Expanded-256 rendering/audit helpers remain available, but public
 # publication is an explicit fail-closed gate until the mode is independently
 # certified.  Keep this literal false rather than deriving it from metadata.
@@ -4574,6 +4609,34 @@ def _safety_patches(build: Build, patch_mode: str) -> list[dict[str, str]]:
     return patches
 
 
+def _apply_vv3_expanded_healer_endpoint_repair(
+    data: bytearray,
+    build: Build,
+    patch_mode: str,
+) -> list[dict[str, str]]:
+    if build.id != "vv3" or patch_mode not in EXPANDED_PATCH_MODES:
+        return []
+    patch = VV3_EXPANDED_HEALER_ENDPOINT_REPAIR
+    offset = int(patch["offset"], 0)
+    before = bytes.fromhex(patch["before"])
+    after = bytes.fromhex(patch["after"])
+    actual = bytes(data[offset : offset + len(before)])
+    if actual != before:
+        raise PatcherError(
+            "VV3 Expanded healer endpoint repair guard failed at 0x5FA46: "
+            f"expected {before.hex().upper()}, found {actual.hex().upper()}"
+        )
+    data[offset : offset + len(after)] = after
+    return [{
+        "offset": patch["offset"],
+        "before": patch["before"],
+        "after": patch["after"],
+        "purpose": patch["purpose"],
+        "owner": "automatic:vv3-expanded-healer-endpoint",
+        "virtual_address": _virtual_address_for_offset(bytes(data), offset),
+    }]
+
+
 def get_fun_patch(patch_id: str) -> FunPatch:
     for patch in load_fun_patches(include_expanded_time_warp=True):
         if patch.id == patch_id:
@@ -6550,6 +6613,9 @@ def render_patched_bytes(
         )
         applied.extend(repair_records)
         applied_ranges.extend(repair_ranges)
+    applied.extend(
+        _apply_vv3_expanded_healer_endpoint_repair(data, build, patch_mode)
+    )
     checksum_offset, _ = _pe_checksum_layout(data)
     checksum = pe_checksum(data)
     struct.pack_into("<I", data, checksum_offset, checksum)
@@ -6559,13 +6625,12 @@ def render_patched_bytes(
             EXPANDED_STATISTICS_FEATURE_IDS["vv3"],
         }
         if selected_fun_ids <= exact_profile_ids:
-            chain = _vv3_expanded_time_warp_core()["modes"][patch_mode]
             stage = (
                 "statistics_result"
                 if EXPANDED_STATISTICS_FEATURE_IDS["vv3"] in selected_fun_ids
                 else "atomic_result"
             )
-            expected = chain[stage]
+            expected = VV3_EXPANDED_HEALER_TIME_WARP_RESULTS[patch_mode][stage]
             if (
                 len(data) != expected["size"]
                 or hashlib.sha256(data).hexdigest().upper() != expected["sha256"]

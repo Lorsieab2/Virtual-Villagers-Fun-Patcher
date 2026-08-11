@@ -109,6 +109,10 @@ class ExpandedStaticRepairIntegrationTests(unittest.TestCase):
             P.FunPatch(json.loads((ROOT / "data" / "candidates" / "vv3_all_villagers_like_running_candidate.json").read_text(encoding="utf-8"))),
         ]
         game = self.contract["games"]["vv3"]
+        final_with_healer_repair = {
+            "experimental_expanded_256": "262666ED6579CE3D0D4233016371BEEB3C7E96D3DC48DEFD7A0A510C47B8CDB0",
+            "experimental_expanded_256_progression": "B473606420A19C79CD1246C9B6E3BBD35070C396A3A55D28E186D6B7A05BBD02",
+        }
         for mode_id, identity in game["modes"].items():
             with self.subTest(mode=mode_id):
                 rendered, applied = P.render_patched_bytes(
@@ -120,7 +124,14 @@ class ExpandedStaticRepairIntegrationTests(unittest.TestCase):
                 final_sha = hashlib.sha256(rendered).hexdigest().upper()
                 atomic_identity = self.atomic_contract["games"]["vv3"]["modes"][mode_id]
                 self.assertEqual(len(rendered), atomic_identity["result_size"])
-                self.assertEqual(final_sha, atomic_identity["result_sha256"])
+                self.assertEqual(final_sha, final_with_healer_repair[mode_id])
+                before_healer_repair = bytearray(rendered)
+                before_healer_repair[0x5FA46:0x5FA4A] = bytes.fromhex("807B1F00")
+                P._canonicalize_pe_checksum(before_healer_repair)
+                self.assertEqual(
+                    hashlib.sha256(before_healer_repair).hexdigest().upper(),
+                    atomic_identity["result_sha256"],
+                )
                 repairs = P._expanded_static_repair_summary(applied, final_sha)
                 self.assertEqual([item["repair_id"] for item in repairs], [game["repair_id"]])
                 self.assertEqual(repairs[0]["stage_result_sha256"], identity["result_sha256"])

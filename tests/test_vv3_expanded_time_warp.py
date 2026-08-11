@@ -234,9 +234,20 @@ class VV3ExpandedTimeWarpRendererTests(unittest.TestCase):
             statistics = self.render(
                 mode, [builder.FEATURE_ID, "vv3_write_village_statistics"]
             )
-            self.assertEqual(digest(parent), chain["expanded_parent"]["sha256"])
-            self.assertEqual(digest(installed), chain["atomic_result"]["sha256"])
-            self.assertEqual(digest(statistics), chain["statistics_result"]["sha256"])
+            parent_before_healer_repair = bytearray(parent)
+            parent_before_healer_repair[0x5FA46:0x5FA4A] = bytes.fromhex(
+                patcher.VV3_EXPANDED_HEALER_ENDPOINT_REPAIR["before"]
+            )
+            patcher._canonicalize_pe_checksum(parent_before_healer_repair)
+            self.assertEqual(
+                digest(parent_before_healer_repair),
+                chain["expanded_parent"]["sha256"],
+            )
+            repaired = patcher.VV3_EXPANDED_HEALER_TIME_WARP_RESULTS[mode]
+            self.assertEqual(digest(installed), repaired["atomic_result"]["sha256"])
+            self.assertEqual(
+                digest(statistics), repaired["statistics_result"]["sha256"]
+            )
             self.assertEqual(len(installed), 0xCE000)
             self.assertEqual(installed[0x2C8:0x2F0], builder.HEADER)
             self.assertEqual(installed[0x2F0:0x318], bytes.fromhex("2E767633737600000010000000903B000010000000C00C0000000000000000000000000020000060"))
@@ -246,7 +257,7 @@ class VV3ExpandedTimeWarpRendererTests(unittest.TestCase):
             checksum_raw, _ = patcher._pe_checksum_layout(installed)
             self.assertEqual(
                 installed[checksum_raw : checksum_raw + 4].hex().upper(),
-                chain["atomic_result"]["checksum"],
+                repaired["atomic_result"]["checksum"],
             )
 
     def test_origins_running_profile_is_mutually_exclusive(self) -> None:

@@ -71,6 +71,8 @@ class ExpandedAtomicWriterIntegrationTests(unittest.TestCase):
             P, "_apply_reviewed_expanded_atomic_writer", return_value=([], [])
         ), mock.patch.object(
             P, "_expanded_atomic_writer_integration", return_value=static_contract
+        ), mock.patch.object(
+            P, "_apply_vv3_expanded_healer_endpoint_repair", return_value=[]
         ):
             return P.render_patched_bytes(source, build, mode, **kwargs)
 

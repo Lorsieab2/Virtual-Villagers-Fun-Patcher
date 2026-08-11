@@ -8,6 +8,7 @@ import sys
 import tempfile
 import unittest
 from pathlib import Path
+from unittest import mock
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -203,10 +204,14 @@ class Full256StaticCandidateTests(unittest.TestCase):
             FunPatch(json.loads((ROOT / "data" / "candidates" / "vv3_origins_running_base_candidate.json").read_text(encoding="utf-8"))),
             FunPatch(json.loads((ROOT / "data" / "candidates" / "vv3_all_villagers_like_running_candidate.json").read_text(encoding="utf-8"))),
         ]
-        return [
-            (mode, bytes(render_patched_bytes(stock, build, mode, _fun_patches_override=features)[0]))
-            for mode, *_ in B.PARENTS
-        ]
+        with mock.patch(
+            "vv_fun_patcher._apply_vv3_expanded_healer_endpoint_repair",
+            return_value=[],
+        ):
+            return [
+                (mode, bytes(render_patched_bytes(stock, build, mode, _fun_patches_override=features)[0]))
+                for mode, *_ in B.PARENTS
+            ]
 
     def test_source_bound_renderer_matches_both_exact_results(self) -> None:
         expected = {row["mode"]: row for row in self.value["parents"]}
