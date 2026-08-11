@@ -153,7 +153,7 @@ class VV2OriginsPlaytestFeatureTests(unittest.TestCase):
             "            push 0\n"
             "            push esi\n"
             "            push 563\n"
-            "            push 144\n"
+            "            push 140\n"
             "            push 0x4763E8\n"
             "            push 6\n"
             "            mov ecx, eax\n"
@@ -162,6 +162,7 @@ class VV2OriginsPlaytestFeatureTests(unittest.TestCase):
         )
         self.assertNotIn("            push 120\n", detail)
         self.assertNotIn("            push 136\n", detail)
+        self.assertNotIn("            push 144\n", detail)
         self.assertNotIn("            push 152\n", detail)
         self.assertIn("            call 0x40B560", detail)
         manifest = json.loads(
@@ -173,17 +174,18 @@ class VV2OriginsPlaytestFeatureTests(unittest.TestCase):
             ]
         )
         coordinate_offset = 0x944AF - 0x943A8
-        self.assertEqual(payload[coordinate_offset], 0x90)
+        self.assertEqual(payload[coordinate_offset], 0x8C)
         previous = bytearray(payload)
-        previous[coordinate_offset] = 0x98
+        previous[coordinate_offset] = 0x90
         self.assertEqual(
             hashlib.sha256(previous).hexdigest().upper(),
-            "A599977F2C9A692E375F0B15651CC09A41D864CE0732E136C5879FE8A3A571AB",
+            "3F56872FA4AFA286FB38BDA79F2D7863246ED8C1FDE793A7F4BB05B6FA95AE9D",
         )
         self.assertEqual(
-            payload.count(bytes.fromhex("6A00566833020000689000000068E86347006A06")),
+            payload.count(bytes.fromhex("6A00566833020000688C00000068E86347006A06")),
             1,
         )
+        self.assertNotIn(bytes.fromhex("6A00566833020000689000000068E86347006A06"), payload)
         self.assertNotIn(bytes.fromhex("6A00566833020000689800000068E86347006A06"), payload)
         self.assertNotIn(bytes.fromhex("6A005668330200006A7868E86347006A06"), payload)
 

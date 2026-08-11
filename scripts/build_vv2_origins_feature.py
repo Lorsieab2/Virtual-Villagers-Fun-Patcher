@@ -292,7 +292,7 @@ def main() -> None:
             push 0
             push esi
             push 563
-            push 144
+            push 140
             push 0x4763E8
             push 6
             mov ecx, eax
