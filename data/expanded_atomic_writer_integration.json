@@ -1,0 +1,103 @@
+{
+  "schema": "vvfp.expanded_atomic_writer_integration.v1",
+  "status": "active_in_expanded_render_runtime_stop",
+  "native_output": true,
+  "runtime_go": false,
+  "player_go": false,
+  "publication_ready": false,
+  "generator": {
+    "path": "src/expanded_atomic_writer.py",
+    "source_text_sha256": "0424B3B56CB4093176A8B429472FCDF04043CBFC22424EBBDE37058EA1A8F72E",
+    "failure_policy": "fatal_nonreturn_on_uncertain_failure",
+    "commit_protocol": "same-directory CREATE_NEW sibling; verified ReplaceFileA with canonical slot+0x14 backup or MoveFileExA without replace-existing"
+  },
+  "games": {
+    "vv3": {
+      "writer_va": "0x7B9400",
+      "writer_raw": "0xCC400",
+      "writer_length": 1467,
+      "writer_sha256": "CEE9E08759B1504C798E4BBE3AD39799358E2A93C8537DBECBE294D53D251154",
+      "header_va": "0x4A420C",
+      "header_size": 12,
+      "header_size_offset": 8,
+      "backup_policy": "manager_slot_plus_0x14_for_positive_slot_else_null",
+      "import_page_sha256": "291FA68AE4F320C92226DFE735BD4559CE79BCDC949BECC2F4AFF7D6FC1E2A50",
+      "modes": {
+        "experimental_expanded_256": {
+          "parent_size": 839680,
+          "parent_sha256": "585EC60285F20A55658B5CB77E8A81D5B6A632B3A399058F01EB732B4777976B",
+          "parent_checksum": "27F40C00",
+          "result_size": 843776,
+          "result_sha256": "C94876E091FF0ADD2BC908C70A77ADD1C77B5A1E4A3B690E6B634223066F2A92",
+          "result_checksum": "392B0D00"
+        },
+        "experimental_expanded_256_progression": {
+          "parent_size": 839680,
+          "parent_sha256": "3B93CFDD98112D54F4457AA4E84838F98E577DF0AF1B9C20903E1C4CC8F276A8",
+          "parent_checksum": "316F0D00",
+          "result_size": 843776,
+          "result_sha256": "04E161A39C274054DF25240A8BA38DF1409057A351AEF64433CAC2ECE21B5183",
+          "result_checksum": "43A60D00"
+        }
+      }
+    },
+    "vv4": {
+      "writer_va": "0x871200",
+      "writer_raw": "0xE3200",
+      "writer_length": 1467,
+      "writer_sha256": "C41F67460DB4554C5E40BDFA15A4232EADACBC1D66C1C7E81809E8FAD1C25F50",
+      "header_va": "0x4B8228",
+      "header_size": 24,
+      "header_size_offset": 16,
+      "backup_policy": "manager_slot_plus_0x14_for_positive_slot_else_null",
+      "import_page_sha256": "6635B445C7ED82230AEF02BA0DD012268582B61BE31E976C6C72864AE933ADAD",
+      "modes": {
+        "experimental_expanded_256": {
+          "parent_size": 933888,
+          "parent_sha256": "ABD0E6E5B9334755040C0CB8F68405ED0F71E8D58558830FCC3BBC7D15BD352D",
+          "parent_checksum": "1D4E0E00",
+          "result_size": 937984,
+          "result_sha256": "755DB820866F2D3129DE08D211BCEE9A5BD180D26CD4FF81D93B937E70A84B7D",
+          "result_checksum": "6A0E0F00"
+        },
+        "experimental_expanded_256_progression": {
+          "parent_size": 933888,
+          "parent_sha256": "6FB38D40C72EDA0A7E50A4ECC25ABF19379CF249E917181BCA6D7925A45F750D",
+          "parent_checksum": "80EE0E00",
+          "result_size": 937984,
+          "result_sha256": "1A0ECC680FECADC3077104D1A247B3C9DD56DD4D9434005F1DCF541781ECC03F",
+          "result_checksum": "CEAE0E00"
+        }
+      }
+    },
+    "vv5": {
+      "writer_va": "0x902000",
+      "writer_raw": "0xF2000",
+      "writer_length": 1467,
+      "writer_sha256": "3F4FB87BC14E97F5B2C9B1842DCFEA6FE55E1AD27003DEAE0CE7F2C1559178C9",
+      "header_va": "0x4C6248",
+      "header_size": 24,
+      "header_size_offset": 16,
+      "backup_policy": "manager_slot_plus_0x14_for_positive_slot_else_null",
+      "import_page_sha256": "47D78D31AF0AD9CF212232CEA5624C4BC698F3CC1F641BB91E548D26DD6201E4",
+      "modes": {
+        "experimental_expanded_256": {
+          "parent_size": 991232,
+          "parent_sha256": "22E86DCA66E9E25624FBE2A56AD7C489C5FA328001E09A845EBF3C59291EEA37",
+          "parent_checksum": "E6F20F00",
+          "result_size": 999424,
+          "result_sha256": "B76F7731A615F3256366956580B9A4057C2276282A75911198C2750F3B013255",
+          "result_checksum": "C8211000"
+        },
+        "experimental_expanded_256_progression": {
+          "parent_size": 991232,
+          "parent_sha256": "DCD190A149A06579A2765AB182C9169BF41ED8ED3B8798E18A2FA2774728261B",
+          "parent_checksum": "40CD0F00",
+          "result_size": 999424,
+          "result_sha256": "0878EB516519016A0BA5165ADA9799C493859500EC44553A3732A37B1A6001B9",
+          "result_checksum": "22FC0F00"
+        }
+      }
+    }
+  }
+}
