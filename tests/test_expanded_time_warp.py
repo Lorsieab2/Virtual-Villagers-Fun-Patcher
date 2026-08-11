@@ -131,7 +131,7 @@ class ExpandedTimeWarpArtifactTests(unittest.TestCase):
         self.assertNotIn("origins_owner = GetForegroundWindow", native)
 
     def test_vv4_exact_cave_hooks_fallback_ctor_and_transaction(self) -> None:
-        payload, layout = builder.build_vv4_payload()
+        payload, layout = builder.build_vv4_payload(MODES[0])
         patch_rows = self.vv4["patch_mode_overrides"][MODES[0]]
         self.assertEqual(len(payload), 0xC8D)
         self.assertEqual(bytes.fromhex(patch_rows[0]["after"]), payload)
@@ -207,7 +207,7 @@ class ExpandedTimeWarpArtifactTests(unittest.TestCase):
         self.assertEqual(base[0x3400:0x7000], rendered[0x3400:0x7000])
 
     def test_confirmation_cancel_pause_insufficient_and_recheck_precede_charge(self) -> None:
-        vv4_payload, vv4_layout = builder.build_vv4_payload()
+        vv4_payload, vv4_layout = builder.build_vv4_payload(MODES[0])
         vv4_tx = vv4_payload[0x260 : 0x260 + vv4_layout["transaction_length"]]
         vv5_patches, vv5_layout = builder.build_vv5_overlay()
         vv5_tx = bytes.fromhex(vv5_patches[2]["after"])[: vv5_layout["dispatcher_length"]]
@@ -236,13 +236,17 @@ class ExpandedTimeWarpArtifactTests(unittest.TestCase):
             self.assertNotIn(b"No tech points have been deducted", charge_message.split(b"\0", 1)[0])
 
     def test_exact_native_math_and_forbidden_record_fields(self) -> None:
-        vv4_payload, vv4_layout = builder.build_vv4_payload()
+        vv4_payload, vv4_layout = builder.build_vv4_payload(MODES[0])
         vv4_tx = vv4_payload[0x260 : 0x260 + vv4_layout["transaction_length"]]
         vv5_patches, vv5_layout = builder.build_vv5_overlay()
         vv5_tx = bytes.fromhex(vv5_patches[2]["after"])[: vv5_layout["dispatcher_length"]]
         self.assertEqual(rel32_calls(vv4_tx, 0x4895D3, 0x41FE70), [0x83, 0xEE])
         self.assertEqual(rel32_calls(vv4_tx, 0x4895D3, 0x41E300), [0x164])
-        self.assertIn((0x17110).to_bytes(4, "little"), vv4_tx)
+        expanded_speed_read = bytes.fromhex("8B80B8DC0100")
+        self.assertEqual(vv4_tx.count(expanded_speed_read), 2)
+        self.assertNotIn(
+            builder.VV4_STOCK_SPEED_OFFSET.to_bytes(4, "little"), vv4_tx
+        )
         self.assertIn((3600).to_bytes(4, "little"), vv4_tx)
         self.assertIn((0x4B8230).to_bytes(4, "little"), vv4_tx)
         self.assertEqual(rel32_calls(vv5_tx, 0x905000, 0x425950), [0x73, 0xDC])
@@ -297,8 +301,8 @@ class ExpandedTimeWarpRendererTests(unittest.TestCase):
 
     def test_all_four_expanded_renders_have_only_owned_time_warp_deltas(self) -> None:
         expected = {
-            ("vv4", MODES[0]): "A9008B5135CF36BEC9792FB5A5E67986FD619396B522DDC89C104E16CF0C0C8A",
-            ("vv4", MODES[1]): "B7E46D20596C6B335372FCAEF202BA7A25D7816A11078F4F0C27A308740A6622",
+            ("vv4", MODES[0]): "13109DFD12B9458CCBFB92F9D5122A29C2A9CE63DEE256AFB9C0355CE8AA7B7C",
+            ("vv4", MODES[1]): "91889DCD1D94EB0E4FCE5988FFECCF464FCF989F286CA50343E70ABB07DC1DDD",
             ("vv5", MODES[0]): "65D81A31B9BA44AFA8E69E0A0B787ED680DFB0FC832B66FA8D11C899D2B80A5D",
             ("vv5", MODES[1]): "B6AD620FA4B1D339B18130BA737EDC17CB0C40E326D0D461AA43166B79ABAA88",
         }
@@ -317,6 +321,15 @@ class ExpandedTimeWarpRendererTests(unittest.TestCase):
                         allowed |= set(range(0x89373, 0x8A000))
                         allowed |= set(range(0x3E165, 0x3E16B))
                         allowed |= set(range(0x3E9F0, 0x3E9F8))
+                        payload = installed[0x89373:0x8A000]
+                        expanded_speed_read = bytes.fromhex("8B80B8DC0100")
+                        self.assertEqual(payload.count(expanded_speed_read), 2)
+                        self.assertNotIn(
+                            builder.VV4_STOCK_SPEED_OFFSET.to_bytes(4, "little"),
+                            payload,
+                        )
+                        self.assertEqual(installed[0x89666:0x8966C], expanded_speed_read)
+                        self.assertEqual(installed[0x896CF:0x896D5], expanded_speed_read)
                     else:
                         allowed |= set(range(0xF4806, 0xF4810))
                         allowed |= set(range(0xF486B, 0xF4874))

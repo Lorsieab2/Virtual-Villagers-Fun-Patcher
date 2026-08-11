@@ -29,6 +29,13 @@ EXPANDED_MODES = (
     "experimental_expanded_256",
     "experimental_expanded_256_progression",
 )
+VV4_STOCK_SPEED_OFFSET = 0x17110
+VV4_EXPANDED_SPEED_OFFSET = 0x1DCB8
+VV4_SPEED_OFFSET_BY_MODE = {
+    "collection_progression": VV4_STOCK_SPEED_OFFSET,
+    "immediate_fixed": VV4_STOCK_SPEED_OFFSET,
+    **{mode: VV4_EXPANDED_SPEED_OFFSET for mode in EXPANDED_MODES},
+}
 
 sys.path.insert(0, str(ROOT / ".tools/keystone-runtime"))
 sys.path.insert(1, str(ROOT / ".tools/keystone"))
@@ -82,7 +89,12 @@ def add_string(
     return cursor + len(encoded)
 
 
-def build_vv4_payload() -> tuple[bytes, dict[str, object]]:
+def build_vv4_payload(
+    mode: str = EXPANDED_MODES[0],
+) -> tuple[bytes, dict[str, object]]:
+    if mode not in EXPANDED_MODES:
+        raise ValueError(f"VV4 Expanded Time Warp does not support mode {mode!r}")
+    speed_offset = VV4_SPEED_OFFSET_BY_MODE[mode]
     base_va = 0x489373
     size = 0xC8D
     strings_offset = 0xA00
@@ -294,7 +306,7 @@ def build_vv4_payload() -> tuple[bytes, dict[str, object]]:
             test eax, eax
             jz unavailable
             mov dword ptr [ebp-0x18], eax
-            mov eax, dword ptr [eax+0x17110]
+            mov eax, dword ptr [eax+0x{speed_offset:X}]
             cmp eax, 999
             je paused
             cmp eax, 3
@@ -320,7 +332,7 @@ def build_vv4_payload() -> tuple[bytes, dict[str, object]]:
             call 0x41FE70
             cmp eax, dword ptr [ebp-0x18]
             jne recheck
-            mov eax, dword ptr [eax+0x17110]
+            mov eax, dword ptr [eax+0x{speed_offset:X}]
             cmp eax, 999
             je recheck
             cmp eax, 3
@@ -756,7 +768,10 @@ def feature_common(game_id: str, feature_id: str, name: str) -> dict[str, object
 
 
 def main() -> None:
-    vv4_payload, vv4_map = build_vv4_payload()
+    vv4_payloads = {
+        mode: build_vv4_payload(mode)[0] for mode in EXPANDED_MODES
+    }
+    vv4_payload, vv4_map = build_vv4_payload(EXPANDED_MODES[0])
     vv5_patches, vv5_map = build_vv5_overlay()
     bindings = {
         "builder": {
@@ -795,8 +810,8 @@ def main() -> None:
                     {
                         "offset": "0x89373",
                         "before_fill": "00",
-                        "length": len(vv4_payload),
-                        "after": vv4_payload.hex().upper(),
+                        "length": len(vv4_payloads[mode]),
+                        "after": vv4_payloads[mode].hex().upper(),
                         "purpose": "install standalone Time Warp handler, constructor, owner-safe UI helpers, transaction, and strings in the reviewed zero RX cave",
                     },
                     {
@@ -820,7 +835,8 @@ def main() -> None:
                 "permanent_warning": "This upgrade makes permanent changes to your village. Are you sure you want to continue?",
                 "confirmation": "MessageBoxA IDOK only through captured same-process Task9 companion owner",
                 "manager": "0x41FE70",
-                "speed": "[manager+0x17110]; paused=999; 3 and 10 accepted, all other values normalize to 6",
+                "speed": "Expanded modes read [manager+0x1DCB8]; paused=999; 3 and 10 accepted, all other values normalize to 6",
+                "stock_speed_reference": "[manager+0x17110] remains stock-only; stock modes are byte-frozen and rejected by this feature",
                 "delta": "normalized speed * 3600",
                 "clock": "0x4B8230/0x4B8234 sub/sbb and exact readback",
                 "funds": "0x4D6F88; one -50000 call to 0x41E300 and exact readback before clock mutation",
@@ -859,6 +875,12 @@ def main() -> None:
         "payload_va": "0x489373",
         "payload_size": len(vv4_payload),
         "payload_sha256": sha(vv4_payload),
+        "payload_sha256_by_mode": {
+            mode: sha(payload) for mode, payload in vv4_payloads.items()
+        },
+        "speed_offset_by_mode": {
+            mode: f"0x{VV4_SPEED_OFFSET_BY_MODE[mode]:X}" for mode in EXPANDED_MODES
+        },
         "layout": vv4_map,
         "hooks": vv4["patch_mode_overrides"][EXPANDED_MODES[0]][1:],
         "forbidden_mutations": ["PE sections", "imports", ".shr", "13-row ledger", "stock modes", "VV3"],
@@ -867,8 +889,8 @@ def main() -> None:
             "immediate_fixed": "EB0CDD4F7F5E41F7A03734D51F9417A126C3BE9D214B484A848DB688545CF5FB",
         },
         "expanded_rendered_sha256": {
-            "experimental_expanded_256": "A9008B5135CF36BEC9792FB5A5E67986FD619396B522DDC89C104E16CF0C0C8A",
-            "experimental_expanded_256_progression": "B7E46D20596C6B335372FCAEF202BA7A25D7816A11078F4F0C27A308740A6622",
+            "experimental_expanded_256": "13109DFD12B9458CCBFB92F9D5122A29C2A9CE63DEE256AFB9C0355CE8AA7B7C",
+            "experimental_expanded_256_progression": "91889DCD1D94EB0E4FCE5988FFECCF464FCF989F286CA50343E70ABB07DC1DDD",
         },
     }
     vv5_map_out = {
