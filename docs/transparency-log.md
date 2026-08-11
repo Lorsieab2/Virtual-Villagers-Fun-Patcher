@@ -262,6 +262,17 @@ Inspired by the Virtual Villagers 1 mobile port where these exclusive Origins up
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending
 - Guarded executable edits: 9; every edit has an exact purpose and before/after guard in the manifest.
 
+#### Everyone Tries On the Robe (`vv3_everyone_tries_on_robe`)
+
+Dropping an active, living, non-nursing villager on the robe keeps that villager's complete stock try-on or Tribal Chief result, then sends every other active, living, non-nursing villager through the stock failed-fit Trying on the robe action. Followers use the native status, walk, gestures, and temporary try-on appearance but never receive the successful fit, persistent Chief clothing, or Chief state.
+
+- Behavior changes: After the stock callback reports a handled robe drop and leaves the eligible initiator in action 120 or 121, every other eligible VV3 villager is sent through the stock failed-fit action 121 robe sequence. The runtime loop accepts only the authenticated stock bound 150 or Expanded-256 bound 256.
+- Explicit non-changes/exclusions: Dead, inactive, and nursing villagers are skipped. The dropped initiator keeps the complete stock action 120 or action 121 result and remains the only villager eligible to become Tribal Chief. Followers never receive success action 120, persistent Chief clothing, or Chief state, and the wrapper does not read or write candidate fields +0xE80/+0xE88 or change the puzzle, pregnancy/nursing state, health, age, skills, preferences, or saved record layout.
+- Dependencies: none
+- Evidence status: independently reviewed exact-build static implementation; install/uninstall and stock/Expanded composition are automated, while player runtime confirmation remains pending
+- Guarded executable edits: 2; every edit has an exact purpose and before/after guard in the manifest.
+- Mode-specific guarded edits: collection_progression=1, immediate_fixed=1, experimental_expanded_256=1, experimental_expanded_256_progression=1; these rows are selected only for the named population mode.
+
 #### Grant Full Mastery to All Villagers (`vv3_full_mastery_all_stage_a_candidate`)
 
 Stock-only command-7 repeatable Buy candidate using fixed manager 0x0059E110, native resolver sub_45C840, native skill writer sub_455740, and Award evaluator sub_462500; commands 6/8 are absent.
@@ -343,6 +354,7 @@ Inspired by the Virtual Villagers 1 mobile port where these exclusive Origins up
 - Doubler purchase status: {'new_purchase': 'temporarily unavailable pending exact-build provenance verification', 'existing_owned': 'removable at zero cost with zero refund', 'repurchase': 'temporarily disabled pending exact-build provenance verification'}
 - Evidence status: D33/C28 GO on exact repaired payload commit 1f5b84535cd8c3c6566b18e9e1ed3a767cedc956; D19 payload and D21 metadata evidence retained; Playtest 3 withdrawal remains historical evidence
 - Guarded executable edits: 12; every edit has an exact purpose and before/after guard in the manifest.
+- Mode-specific guarded edits: experimental_expanded_256=2, experimental_expanded_256_progression=2; these rows are selected only for the named population mode.
 
 #### Grant Full Mastery to All Villagers (`vv4_full_mastery_all_stage_a_candidate`)
 
@@ -353,6 +365,7 @@ Stock-mode command-7 repeatable Buy plus command-1 individual candidate using na
 - Dependencies: vv4_enable_origins_exclusive_features
 - Evidence status: D33/C28 GO on exact repaired payload commit 1f5b84535cd8c3c6566b18e9e1ed3a767cedc956; D19 payload and D21 metadata evidence retained; prior Playtest 3 crash evidence retained
 - Guarded executable edits: 2; every edit has an exact purpose and before/after guard in the manifest.
+- Mode-specific guarded edits: experimental_expanded_256=2, experimental_expanded_256_progression=2; these rows are selected only for the named population mode.
 
 #### Write Village Statistics to Text File (`vv4_write_village_statistics`)
 
@@ -396,6 +409,7 @@ Inspired by the Virtual Villagers 1 mobile port where these exclusive Origins up
 - Native event safety: {'disabled_rows': ['Time Warp', 'Island Event', 'Barrel of Babies'], 'reason': 'VV5 native time/event paths are not yet proven to avoid current Heathen record targeting.', 'evidence_status': 'STOP; no charge or native call is made for these rows'}
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending
 - Guarded executable edits: 12; every edit has an exact purpose and before/after guard in the manifest.
+- Mode-specific guarded edits: experimental_expanded_256=7, experimental_expanded_256_progression=7; these rows are selected only for the named population mode.
 
 #### Heathen Mommy Puzzle Restoration (`vv5_heathen_mommy_puzzle`)
 

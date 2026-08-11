@@ -42,6 +42,7 @@ save-recognition, and complete 256-villager save/reload testing.
    command-7 candidate for stock Collection Progression and Immediate Fixed;
    runtime/player confirmation remains pending and both Expanded modes reject.
 5. Optional for The Secret City: check
+   "Everyone Tries On the Robe" and/or
    "Nature Level 1 Actually Replenishes Food Sources Faster" and/or
    "Nature Level 3 Actually Alters Mortality" and/or
    "Pointing Out a Rare Collectible Always Works" and/or
@@ -232,6 +233,31 @@ Enable "Write Village Statistics to Text File" for a game to refresh
 through 5. The export is per save and written beside that modified game's
 executable. It does not depend on a Statistics screen and never changes the
 save result if the text export itself fails.
+
+VV3 EVERYONE TRIES ON THE ROBE
+
+Drop one active, living, non-nursing villager on the robe. If the original
+callback puts that villager into either the stock failed-fit Trying on the robe
+action or the successful Tribal Chief action, every other active, living,
+non-nursing villager is sent to the robe area with the stock failed-fit Trying
+on the robe action.
+
+The dropped villager keeps the complete normal result and remains the only
+villager who can become Tribal Chief. Followers receive the native status,
+walk, gestures, and temporary try-on appearance, but never the successful fit,
+persistent Chief clothing, or Chief state. Dead, inactive, and nursing
+villagers are skipped. Fanout requires the original callback to report a
+handled drop and leave the initiator in robe action 120 or 121.
+
+This optional checkbox starts unchecked and supports both ordinary and both
+Expanded-256 population modes. Static install, composition, and uninstall
+checks pass; player runtime confirmation is still pending.
+The broadcast feature itself never reads or writes candidate fields +0xE80 or
++0xE88. In both Expanded modes, the patcher separately and automatically
+applies the guarded Chief-candidate assignment repair; it composes disjointly
+and is not a selectable feature dependency. If the fields are still zero
+before automatic assignment, or no eligible candidate exists, the game's
+native failed-fit action 121 is broadcast without granting Chief state.
 
 VV3 NATURE LEVEL 1 ACTUALLY REPLENISHES FOOD SOURCES FASTER
 

@@ -246,6 +246,16 @@ def build_document() -> str:
             lines.append(
                 f"- Guarded executable edits: {len(raw.get('patches', []))}; every edit has an exact purpose and before/after guard in the manifest."
             )
+            mode_overrides = raw.get("patch_mode_overrides", {})
+            if mode_overrides:
+                lines.append(
+                    "- Mode-specific guarded edits: "
+                    + ", ".join(
+                        f"{mode}={len(rows)}"
+                        for mode, rows in mode_overrides.items()
+                    )
+                    + "; these rows are selected only for the named population mode."
+                )
             lines.append("")
     lines.extend(
         [

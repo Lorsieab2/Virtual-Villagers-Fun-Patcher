@@ -20,7 +20,9 @@ sys.path.insert(0, str(ROOT / "src"))
 from vv_fun_patcher import (  # noqa: E402
     FunPatch,
     PatcherError,
+    VV3_EXPANDED_CHIEF_CANDIDATE_ASSIGNMENT_REPAIR,
     apply_patch,
+    _canonicalize_pe_checksum,
     _pe_checksum_layout,
     _remove_feature_bytes,
     _remove_feature_with_dependency_guard,
@@ -48,6 +50,12 @@ MODES = (
     "experimental_expanded_256",
     "experimental_expanded_256_progression",
 )
+CURRENT_EXPANDED_RUNNING_RESULTS = {
+    "experimental_expanded_256":
+        "99443591BE92F1F44222DF336C0D8911C2C2F5D1DBC76F6ED9692CD4737F4ECE",
+    "experimental_expanded_256_progression":
+        "EBE60C76439A3A33A25AEA3510172AD34F6E91E68168D3A3303AA82802413831",
+}
 
 
 def mutate_record(
@@ -527,8 +535,22 @@ class VV3RunningCandidateTests(unittest.TestCase):
                 expected = self.artifact_map["rendered_candidates"][mode]
                 self.assertEqual(
                     hashlib.sha256(rendered).hexdigest().upper(),
-                    expected["base_plus_running_sha256"],
+                    CURRENT_EXPANDED_RUNNING_RESULTS.get(
+                        mode, expected["base_plus_running_sha256"]
+                    ),
                 )
+                if mode in CURRENT_EXPANDED_RUNNING_RESULTS:
+                    historical = bytearray(rendered)
+                    repair = VV3_EXPANDED_CHIEF_CANDIDATE_ASSIGNMENT_REPAIR
+                    offset = int(repair["offset"], 0)
+                    historical[offset : offset + 4] = bytes.fromhex(
+                        repair["before"]
+                    )
+                    _canonicalize_pe_checksum(historical)
+                    self.assertEqual(
+                        hashlib.sha256(historical).hexdigest().upper(),
+                        expected["base_plus_running_sha256"],
+                    )
                 owners = {item["owner"] for item in applied}
                 self.assertIn(f"feature:{self.base.id}", owners)
                 self.assertIn(f"feature:{self.running.id}", owners)
@@ -554,8 +576,8 @@ class VV3RunningCandidateTests(unittest.TestCase):
         expected_hashes = {
             "collection_progression": "C774634F16B18C74573BF872F77ED742907E17192CA78A49D90E71FD89EDBA4A",
             "immediate_fixed": "CACA23DF89B81F5DCEC88A5539F10F3F3778B5FDDF46E24BC5B8370ECE6156D8",
-            "experimental_expanded_256": "2499C0B64063D95106EF43105C6D8E29A3E559B0AAE5EF9DCBB3B1E968582E9B",
-            "experimental_expanded_256_progression": "C2AA254CD87E046EEE81E444EDF42CC4E292984214E3F7296ADF7F0C872B5C25",
+            "experimental_expanded_256": "A3F49494D7C986D14F2BEB76EC089ED02676F4861EBAC6DBCE5CBBAE81E92B7F",
+            "experimental_expanded_256_progression": "A88F4456F2F0AF85BB644BD7A13CEEC73C7F1D10487C4ABF6550F6403E7722FB",
         }
         others = [
             item
@@ -568,6 +590,9 @@ class VV3RunningCandidateTests(unittest.TestCase):
                 "vv3_full_mastery_all_stage_a_candidate",
                 "vv3_individual_grant_running_candidate",
                 "vv3_full_heal_cure_all_candidate",
+                # Keep the historical candidate-composition pins immutable;
+                # the later robe feature tests disjoint composition itself.
+                "vv3_everyone_tries_on_robe",
             }
         ]
         for mode in MODES:

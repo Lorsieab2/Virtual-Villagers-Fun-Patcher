@@ -790,6 +790,10 @@ def main() -> None:
             "vv3_all_villagers_like_running",
             "vv3_full_mastery_all_stage_a_candidate",
             "vv3_full_heal_cure_all_candidate",
+            # Preserve the already-certified historical composition identity.
+            # The later robe feature proves its Full Mastery composition in
+            # its own feature-owned test without rewriting this candidate map.
+            "vv3_everyone_tries_on_robe",
         }
     ]
     # Preserve the historical all-current compatibility projection byte-for-

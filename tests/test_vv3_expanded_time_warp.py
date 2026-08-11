@@ -252,6 +252,11 @@ class VV3ExpandedTimeWarpRendererTests(unittest.TestCase):
                 parent_before_healer_repair[offset : offset + 4] = before.to_bytes(
                     4, "little"
                 )
+            chief_repair = patcher.VV3_EXPANDED_CHIEF_CANDIDATE_ASSIGNMENT_REPAIR
+            chief_offset = int(chief_repair["offset"], 0)
+            parent_before_healer_repair[
+                chief_offset : chief_offset + 4
+            ] = bytes.fromhex(chief_repair["before"])
             patcher._canonicalize_pe_checksum(parent_before_healer_repair)
             self.assertEqual(
                 digest(parent_before_healer_repair),

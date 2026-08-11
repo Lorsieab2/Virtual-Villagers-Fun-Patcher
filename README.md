@@ -330,6 +330,34 @@ Complete carrier-only/no-male-ceiling coverage still requires the planner and
 action-9 commit paths to be proved together; catch-up, direct event births, and
 pending delivery remain native.
 
+## VV3: Everyone Tries On the Robe
+
+Enable **Everyone Tries On the Robe (The Secret City)** to make one handled
+robe drop call the whole eligible village to the robe area. The dropped
+initiator keeps the complete stock result and is still the only villager who
+can receive the successful Tribal Chief action. Every other active, living,
+non-nursing villager receives only the game's native failed-fit **Trying on the
+robe** action, including its status, walk, gestures, and temporary try-on
+appearance.
+
+Followers never receive the successful-fit action, persistent Chief clothing,
+or Chief state. Dead, inactive, and nursing villagers are skipped. The patch
+does not read or write the robe candidate fields, and does not change the Chief
+puzzle, pregnancy or nursing state, health, age, skills, preferences, or save
+records. Fanout requires the original callback to report a handled drop and to
+leave the initiator in its native success or failed-fit robe action.
+
+This checkbox is optional and starts unchecked. It supports both ordinary
+population modes and both Expanded-256 modes. The implementation is exact-
+build guarded and statically verified; player runtime confirmation remains
+pending. The robe feature itself never reads or writes candidate fields
+`+0xE80` or `+0xE88`. In both Expanded modes, the patcher separately and
+automatically applies the guarded Chief-candidate assignment repair; it
+composes disjointly and is not a selectable feature dependency. If those
+fields are still zero before automatic assignment, or no eligible candidate
+exists, the native callback and robe fanout use failed-fit action 121 without
+granting Chief state.
+
 ## VV3: Nature Level 1 Actually Replenishes Food Sources Faster
 
 Enable **Nature Level 1 Actually Replenishes Food Sources Faster (The Secret City)** to make the technology description literal. At Nature level 1 or higher, fruit trees become refill-eligible after 2 hours 15 minutes instead of 3 hours, and honey becomes refill-eligible after 45 minutes instead of 1 hour.

@@ -1434,6 +1434,78 @@
       ]
     },
     {
+      "id": "vv3_everyone_tries_on_robe",
+      "game_id": "vv3",
+      "name": "Everyone Tries On the Robe",
+      "description": "Dropping an active, living, non-nursing villager on the robe keeps that villager's complete stock try-on or Tribal Chief result, then sends every other active, living, non-nursing villager through the stock failed-fit Trying on the robe action. Followers use the native status, walk, gestures, and temporary try-on appearance but never receive the successful fit, persistent Chief clothing, or Chief state.",
+      "output_tag": "Everyone Tries On the Robe",
+      "enabled": true,
+      "catalog_enabled": true,
+      "catalog_hidden": false,
+      "default_selected": false,
+      "supported_modes": [
+        "collection_progression",
+        "immediate_fixed",
+        "experimental_expanded_256",
+        "experimental_expanded_256_progression"
+      ],
+      "behavior_changes": [
+        "After the stock callback reports a handled robe drop and leaves the eligible initiator in action 120 or 121, every other eligible VV3 villager is sent through the stock failed-fit action 121 robe sequence. The runtime loop accepts only the authenticated stock bound 150 or Expanded-256 bound 256."
+      ],
+      "explicit_non_changes": [
+        "Dead, inactive, and nursing villagers are skipped. The dropped initiator keeps the complete stock action 120 or action 121 result and remains the only villager eligible to become Tribal Chief. Followers never receive success action 120, persistent Chief clothing, or Chief state, and the wrapper does not read or write candidate fields +0xE80/+0xE88 or change the puzzle, pregnancy/nursing state, health, age, skills, preferences, or saved record layout."
+      ],
+      "evidence_status": "independently reviewed exact-build static implementation; install/uninstall and stock/Expanded composition are automated, while player runtime confirmation remains pending",
+      "patches": [
+        {
+          "offset": "0x280",
+          "before": "04000000",
+          "after": "00100000",
+          "purpose": "map the existing zero-filled .shr raw page so the guarded robe wrapper at section offset 0x100 is executable without changing raw size, file size, or SizeOfImage"
+        },
+        {
+          "offset": "0xB4100",
+          "before": "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "after": "5589E553565783EC048B750856B860194200FFD083C40488C384C00F84C000000080BE100F0000000F84B300000083BE780E0000000F8EA600000083BE8C0E0000000F85990000008B86240F000083F878740983F8790F85850000008B0D3A88420081F996000000740881F900010000756FBF24E1590039F7745D80BF100F000000745483BF780E0000007E4B83BF8C0E0000007542516A006A646A05B8D0324000FFD083C4040561020000506A05B8D0324000FFD083C40405E80100005089F9B8B0114600FFD08D45F0506A7989F9B870554500FFD05981C78C1F000049759688D88D65F45F5E5B5DC3",
+          "purpose": "install the reviewed 235-byte robe callback wrapper that preserves the initiator's stock result and schedules only native failed-fit action 121 for other active living non-nursing villagers"
+        }
+      ],
+      "patch_mode_overrides": {
+        "collection_progression": [
+          {
+            "offset": "0x22B2A",
+            "before": "60194200",
+            "after": "00816C00",
+            "purpose": "replace the stock robe callback pointer with the wrapper at stock .shr VA 0x6C8100"
+          }
+        ],
+        "immediate_fixed": [
+          {
+            "offset": "0x22B2A",
+            "before": "60194200",
+            "after": "00816C00",
+            "purpose": "replace the stock robe callback pointer with the wrapper at stock .shr VA 0x6C8100"
+          }
+        ],
+        "experimental_expanded_256": [
+          {
+            "offset": "0x22B2A",
+            "before": "60194200",
+            "after": "00117A00",
+            "purpose": "replace the stock robe callback pointer with the same wrapper at relocated Expanded-256 .shr VA 0x7A1100"
+          }
+        ],
+        "experimental_expanded_256_progression": [
+          {
+            "offset": "0x22B2A",
+            "before": "60194200",
+            "after": "00117A00",
+            "purpose": "replace the stock robe callback pointer with the same wrapper at relocated Expanded-256 .shr VA 0x7A1100"
+          }
+        ]
+      }
+    },
+    {
       "id": "vv4_birth_control",
       "game_id": "vv4",
       "name": "Birth Control",

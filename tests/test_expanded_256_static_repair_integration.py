@@ -110,8 +110,8 @@ class ExpandedStaticRepairIntegrationTests(unittest.TestCase):
         ]
         game = self.contract["games"]["vv3"]
         final_with_post_repairs = {
-            "experimental_expanded_256": "2F2D3929779038B09FD85ABF510320E68402E16BE3F968072A7E311EB7DA6070",
-            "experimental_expanded_256_progression": "1876DFC25744F3ED62C68AE2EC5D3D1B48C16864E11FFF954FC45E78A84C5838",
+            "experimental_expanded_256": "99443591BE92F1F44222DF336C0D8911C2C2F5D1DBC76F6ED9692CD4737F4ECE",
+            "experimental_expanded_256_progression": "EBE60C76439A3A33A25AEA3510172AD34F6E91E68168D3A3303AA82802413831",
         }
         for mode_id, identity in game["modes"].items():
             with self.subTest(mode=mode_id):
@@ -145,6 +145,11 @@ class ExpandedStaticRepairIntegrationTests(unittest.TestCase):
                     before_healer_repair[offset : offset + 4] = before.to_bytes(
                         4, "little"
                     )
+                chief_repair = P.VV3_EXPANDED_CHIEF_CANDIDATE_ASSIGNMENT_REPAIR
+                chief_offset = int(chief_repair["offset"], 0)
+                before_healer_repair[
+                    chief_offset : chief_offset + 4
+                ] = bytes.fromhex(chief_repair["before"])
                 P._canonicalize_pe_checksum(before_healer_repair)
                 self.assertEqual(
                     hashlib.sha256(before_healer_repair).hexdigest().upper(),

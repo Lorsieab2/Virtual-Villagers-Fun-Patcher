@@ -325,6 +325,10 @@ class VV3FullMasteryCandidateTests(unittest.TestCase):
                 "vv3_all_villagers_like_running",
                 "vv3_full_mastery_all_stage_a_candidate",
                 "vv3_full_heal_cure_all_candidate",
+                # This candidate map is an immutable certified historical
+                # projection. The later robe feature owns its composition
+                # pins and round-trip coverage in its dedicated test.
+                "vv3_everyone_tries_on_robe",
             }
         ]
         # The all-current compatibility projection remains byte-identical to

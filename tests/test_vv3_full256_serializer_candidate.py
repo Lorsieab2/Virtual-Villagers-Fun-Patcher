@@ -213,6 +213,9 @@ class Full256StaticCandidateTests(unittest.TestCase):
         ), mock.patch(
             "vv_fun_patcher._apply_vv3_expanded_detail_roster_layout",
             return_value=[],
+        ), mock.patch(
+            "vv_fun_patcher._apply_vv3_expanded_chief_candidate_assignment_repair",
+            return_value=[],
         ):
             return [
                 (mode, bytes(render_patched_bytes(stock, build, mode, _fun_patches_override=features)[0]))

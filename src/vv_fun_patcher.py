@@ -794,6 +794,15 @@ VV3_EXPANDED_CAPACITY_CORRECTIONS = (
         "purpose": "reserve two free physical slots before a two-child birth",
     },
 )
+VV3_EXPANDED_CHIEF_CANDIDATE_ASSIGNMENT_REPAIR = {
+    "offset": "0x5FB9C",
+    "before": "94130000",
+    "after": "9C0E0000",
+    "purpose": (
+        "restore the native record-relative 0xE9C displacement used to write "
+        "the VV3 Tribal Chief candidate flag at record offset 0xE88"
+    ),
+}
 VV3_EXPANDED_DETAIL_ROSTER_CLASS_SIZE = {
     "offset": "0x27A39",
     "before": "3C030000",
@@ -894,25 +903,25 @@ VV3_EXPANDED_FINAL_TIME_WARP_RESULTS = {
     "experimental_expanded_256": {
         "atomic_result": {
             "size": 843776,
-            "sha256": "E650C489ADF03C46F004F73754EE8DC33D7B5FF1C17F5FE95E29D02EC58D10D3",
-            "checksum": "1C1B0D00",
+            "sha256": "B49CC315AB750D535F3C547BC6E5FC40D63FAE8AEA1ACECE91C1E8D066E9C3E5",
+            "checksum": "24160D00",
         },
         "statistics_result": {
             "size": 843776,
-            "sha256": "2E9A0D996CF1049343F529B0D95E784C5CCE568DE528164B63003368247634A1",
-            "checksum": "8D110D00",
+            "sha256": "F95E797E9C25081F2FDF6F21063FAD09CCAFF322129423C9C7784D3E09321E15",
+            "checksum": "950C0D00",
         },
     },
     "experimental_expanded_256_progression": {
         "atomic_result": {
             "size": 843776,
-            "sha256": "47803F97343B750BF91C6B555D9E2DF3AD5D562F2703AC433208EB17B1B0CFC4",
-            "checksum": "26960D00",
+            "sha256": "78479CDEE2C45123E11CC63AFCC260E336935982774CA923B7CCFD4DF0652F49",
+            "checksum": "2E910D00",
         },
         "statistics_result": {
             "size": 843776,
-            "sha256": "5463BC1804FBBB8863D8649B10B09A9B84973C7B1255B34CFFB08946F81A3DA2",
-            "checksum": "978C0D00",
+            "sha256": "1CE1E7B794433EA60F99FE31BC5397AD02C2995CDCABFE67D7C901D516B27E77",
+            "checksum": "9F870D00",
         },
     },
 }
@@ -5046,6 +5055,45 @@ def _apply_vv3_expanded_capacity_corrections(
     return records
 
 
+def _apply_vv3_expanded_chief_candidate_assignment_repair(
+    data: bytearray,
+    build: Build,
+    patch_mode: str,
+) -> list[dict[str, str]]:
+    """Undo the one invalid manager-relative relocation in the VV3 manifest.
+
+    The immutable prototype manifest widens the surrounding stack frame but
+    incorrectly relocates the displacement in ``mov [ecx+esi+disp32], al``.
+    That instruction is record-relative: ESI is record minus 0x14 and the
+    native 0xE9C displacement therefore writes record+0xE88.  The manifest's
+    0x1394 displacement instead writes record+0x1380.  Apply this final,
+    guarded overlay only after the Expanded manifest has produced the known
+    broken preimage.
+    """
+    if build.id != "vv3" or patch_mode not in EXPANDED_PATCH_MODES:
+        return []
+    patch = VV3_EXPANDED_CHIEF_CANDIDATE_ASSIGNMENT_REPAIR
+    offset = int(patch["offset"], 0)
+    before = bytes.fromhex(patch["before"])
+    after = bytes.fromhex(patch["after"])
+    actual = bytes(data[offset : offset + len(before)])
+    if actual != before:
+        raise PatcherError(
+            "VV3 Expanded Chief-candidate assignment repair guard failed at "
+            f"{patch['offset']}: expected {before.hex().upper()}, "
+            f"found {actual.hex().upper()}"
+        )
+    data[offset : offset + len(after)] = after
+    return [{
+        "offset": patch["offset"],
+        "before": patch["before"],
+        "after": patch["after"],
+        "purpose": patch["purpose"],
+        "owner": "automatic:vv3-expanded-chief-candidate-assignment",
+        "virtual_address": _virtual_address_for_offset(bytes(data), offset),
+    }]
+
+
 def _apply_vv3_expanded_detail_roster_layout(
     data: bytearray,
     build: Build,
@@ -7137,6 +7185,11 @@ def render_patched_bytes(
     applied.extend(
         _apply_vv3_expanded_detail_roster_layout(
             data, build, patch_mode, selected_fun_ids
+        )
+    )
+    applied.extend(
+        _apply_vv3_expanded_chief_candidate_assignment_repair(
+            data, build, patch_mode
         )
     )
     checksum_offset, _ = _pe_checksum_layout(data)
