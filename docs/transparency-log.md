@@ -94,13 +94,13 @@ Supported stock identity is the exact `Virtual Villagers - A New Home.exe` build
 
 #### Builder Action Fixes (`vv1_builder_action_fixes`)
 
-Villagers whose selected job is Building try the stock construction dispatcher at every food level, making them autonomously build and repair more reliably during ordinary play and time catch-up.
+Villagers whose selected job is Building try the stock construction dispatcher at every food level, while autonomous construction project IDs 9, 10, and 11 are eligible only after their signed progress is greater than zero; the other project gates and manual, existing-work, and repair routes remain stock.
 
-- Behavior changes: Villagers whose selected job is Building try the stock construction dispatcher at every food level, making them autonomously build and repair more reliably during ordinary play and time catch-up.
+- Behavior changes: Villagers whose selected job is Building try the stock construction dispatcher at every food level, while autonomous construction project IDs 9, 10, and 11 are eligible only after their signed progress is greater than zero; the other project gates and manual, existing-work, and repair routes remain stock.
 - Explicit non-changes/exclusions: none declared
 - Dependencies: none
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending
-- Guarded executable edits: 2; every edit has an exact purpose and before/after guard in the manifest.
+- Guarded executable edits: 6; every edit has an exact purpose and before/after guard in the manifest.
 
 #### Continue Research at Max Technologies (`vv1_continue_research_at_max_technologies`)
 
@@ -382,7 +382,7 @@ Villagers with positive Devotion skill can spontaneously use the stock Honoring 
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending
 - Guarded executable edits: 3; every edit has an exact purpose and before/after guard in the manifest.
 
-#### Enable Origins-Exclusive Features (`vv5_enable_origins_exclusive_features`)
+#### Enable Origins-Exclusive Features (Task9 native actions) (`vv5_enable_origins_exclusive_features`)
 
 Inspired by the Virtual Villagers 1 mobile port where these exclusive Origins upgrades originated, this selected-upgrades port adds icon-based Origins Upgrades. The native Time Warp (the stock route advances exactly 3 displayed villager years), Island Event, and Barrel of Babies rows are retained but disabled until their Heathen-safe target paths are proved; selecting one reports that it is unavailable. The stock-layout Tech Point and Food Point Doublers are available for their configured 500,000-tech-point purchases; each existing owned doubler remains removable at zero cost with zero refund, and each removed doubler can be repurchased at the full configured price in stock layout. Expanded-256 keeps both new purchases unavailable while preserving owned Remove. The legacy Cure row and command 5 are withdrawn, unavailable, bypassed by the EB5F containment gate, unreachable, and not part of this candidate; Full Heal/Cure All repair remains pending. Villager Upgrades retain the historical Grant Youth, six-skill Full Mastery, Set Age to 18, and Grant Running labels. Grant Running is STOP/hidden contract evidence only; the legacy preference helper is not native ABI proof and no selectable or runtime-ready Running action is exposed. VV5 Food Mastery is technology ID 4: the upgrade from level 1 to 2 costs 3,000 tech points and the upgrade from level 2 to 3 costs 40,000 tech points; central food writer 0x41EB40 applies positive A as A, A+floor(A/2), or 2A before food storage, statistics, and other downstream channels; zero and negative inputs bypass mastery. Ordinary collection return 0x414970 is eligible: base 6/35 becomes 6/35, 9/52, or 12/70 by mastery level. The Food Point Doubler runs after mastery and doubles the final positive eligible delta once. Island Event, startup, consumption, and unknown callers remain native. The stock Tech wrapper at 0x4237B0 is the exact six-return positive whitelist to .shr 0x7B2A00; 0x419EA3 clothing refunds remain native. The stock Food wrapper is the exact positive whitelist at 0x41EB6F to .shr 0x7B2B00. Expanded-256 restores both native five-byte hooks and keeps new doubler purchases unavailable. The current-feature relocation ledger is statically complete at 66 rows (23 payload-internal absolute + 36 cross-section rel32 + 7 external absolute), including 43 formerly omitted references; Island Event, composition, runtime, save, catch-up, and player gates remain ON HOLD. Inspired by the Virtual Villagers 1 mobile port, where selected Origins-exclusive upgrades originated; this wording does not claim unsupported mobile parity.
 

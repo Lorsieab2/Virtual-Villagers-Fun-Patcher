@@ -1052,7 +1052,7 @@
       "id": "vv1_builder_action_fixes",
       "game_id": "vv1",
       "name": "Builder Action Fixes",
-      "description": "Villagers whose selected job is Building try the stock construction dispatcher at every food level, making them autonomously build and repair more reliably during ordinary play and time catch-up.",
+      "description": "Villagers whose selected job is Building try the stock construction dispatcher at every food level, while autonomous construction project IDs 9, 10, and 11 are eligible only after their signed progress is greater than zero; the other project gates and manual, existing-work, and repair routes remain stock.",
       "output_tag": "Builder Action Fixes",
       "patches": [
         {
@@ -1065,7 +1065,31 @@
           "offset": "0x568A0",
           "before": "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
           "after": "81BDECA20000900100000F8C921AFFFF89F869C0D803000083BC30D0030000010F847C1AFFFFE9A41AFFFF",
-          "purpose": "preserve the stock low-food path, let Building-job villagers try construction first at high food, and preserve every other job's high-food behavior"
+          "purpose": "preserve the stock low-food path, let Building-job villagers try construction first at high food subject to the positive-progress project guards, and preserve every other job's high-food behavior"
+        },
+        {
+          "offset": "0x4753C",
+          "before": "E84FABFFFF",
+          "after": "E88FF30000",
+          "purpose": "route autonomous construction project ID 9 through the shared signed-positive progress guard"
+        },
+        {
+          "offset": "0x47568",
+          "before": "E823ABFFFF",
+          "after": "E863F30000",
+          "purpose": "route autonomous construction project ID 10 through the shared signed-positive progress guard"
+        },
+        {
+          "offset": "0x4759A",
+          "before": "E8F1AAFFFF",
+          "after": "E831F30000",
+          "purpose": "route autonomous construction project ID 11 through the shared signed-positive progress guard"
+        },
+        {
+          "offset": "0x568D0",
+          "before": "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "after": "8B8110E003008B5424088D14D59C9F0000833C10007F158B0424837C24080B750383C02983C00983C410FFE0E98FB7FEFF",
+          "purpose": "allow autonomous construction project IDs 9, 10, and 11 to enter the stock gate only when signed progress is greater than zero, otherwise resume their reviewed no-project continuations with the original stack contract"
         }
       ]
     },

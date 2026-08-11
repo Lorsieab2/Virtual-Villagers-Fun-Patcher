@@ -1719,14 +1719,38 @@ class StockIntegrationTests(unittest.TestCase):
     def test_vv1_builder_action_fixes_preserve_other_scheduler_paths(self) -> None:
         patch = get_fun_patch("vv1_builder_action_fixes")
         self.assertIn("selected job is Building", patch.description)
-        self.assertIn("ordinary play and time catch-up", patch.description)
+        self.assertIn("signed progress is greater than zero", patch.description)
+        self.assertIn("manual, existing-work, and repair routes remain stock", patch.description)
         build = next(build for build in load_builds() if build.id == "vv1")
+        source = STOCK / build.input_name
+        baseline, _ = render_patched_bytes(
+            source,
+            build,
+            DEFAULT_PATCH_MODE,
+            [],
+        )
         rendered, _ = render_patched_bytes(
-            STOCK / build.input_name,
+            source,
             build,
             DEFAULT_PATCH_MODE,
             [patch.id],
         )
+        rows = {int(row["offset"], 0): row for row in patch.patches}
+        self.assertEqual(set(rows), {0x48336, 0x568A0, 0x4753C, 0x47568, 0x4759A, 0x568D0})
+        ordered_ranges = sorted(
+            (offset, offset + len(bytes.fromhex(row["after"])))
+            for offset, row in rows.items()
+        )
+        for (_, prior_end), (next_start, _) in zip(ordered_ranges, ordered_ranges[1:]):
+            self.assertLessEqual(prior_end, next_start)
+        for offset, row in rows.items():
+            before = bytes.fromhex(row["before"])
+            after = bytes.fromhex(row["after"])
+            self.assertEqual(len(before), len(after))
+            self.assertEqual(bytes(baseline[offset : offset + len(before)]), before)
+            self.assertEqual(bytes(rendered[offset : offset + len(after)]), after)
+
+        # The player-confirmed scheduler hook and original 43-byte cave remain frozen.
         self.assertEqual(
             bytes(rendered[0x48336:0x48342]),
             bytes.fromhex("E965E5000090909090909090"),
@@ -1741,6 +1765,79 @@ class StockIntegrationTests(unittest.TestCase):
             ),
         )
         self.assertIn(bytes.fromhex("83BC30D003000001"), cave)
+
+        wrapper = bytes(rendered[0x568D0:0x56901])
+        self.assertEqual(
+            wrapper,
+            bytes.fromhex(
+                "8B8110E003008B5424088D14D59C9F0000833C10007F15"
+                "8B0424837C24080B750383C02983C00983C410FFE0E98FB7FEFF"
+            ),
+        )
+        hooks = {9: 0x4753C, 10: 0x47568, 11: 0x4759A}
+        continuations = {9: 0x4754A, 10: 0x47576, 11: 0x475D1}
+        self.assertEqual(wrapper[17:23], bytes.fromhex("833C10007F15"))
+        self.assertEqual(
+            wrapper[23:44],
+            bytes.fromhex("8B0424837C24080B750383C02983C00983C410FFE0"),
+        )
+
+        def modeled_target(project_id: int, raw_progress: int) -> int:
+            signed_progress = (
+                raw_progress - 2**32
+                if raw_progress & 0x80000000
+                else raw_progress
+            )
+            if signed_progress > 0:
+                return 0x42090
+            caller_return = hooks[project_id] + 5
+            return caller_return + 9 + (0x29 if project_id == 11 else 0)
+
+        for project_id, offset in hooks.items():
+            call = bytes(rendered[offset : offset + 5])
+            self.assertEqual(call[0], 0xE8)
+            self.assertEqual(
+                offset + 5 + struct.unpack_from("<i", call, 1)[0],
+                0x568D0,
+            )
+            for raw_progress in (0, 0xFFFFFFFF, 0x80000000):
+                with self.subTest(project_id=project_id, progress=hex(raw_progress)):
+                    self.assertEqual(
+                        modeled_target(project_id, raw_progress),
+                        continuations[project_id],
+                    )
+            for raw_progress in (1, 0x7FFFFFFF):
+                with self.subTest(project_id=project_id, progress=hex(raw_progress)):
+                    self.assertEqual(modeled_target(project_id, raw_progress), 0x42090)
+        self.assertEqual(set(range(3, 9)) & set(hooks), set())
+        self.assertEqual(
+            0x568FC + 5 + struct.unpack_from("<i", wrapper, 45)[0],
+            0x42090,
+        )
+
+        # The other shared stock gate users cover manual/existing and repair paths.
+        unchanged_shared_calls = {
+            0x24825: "E866D80100",
+            0x24898: "E8F3D70100",
+            0x248EE: "E89DD70100",
+            0x24948: "E843D70100",
+            0x47F4C: "E83FA1FFFF",
+            0x47F89: "E802A1FFFF",
+            0x47FC6: "E8C5A0FFFF",
+        }
+        for offset, expected in unchanged_shared_calls.items():
+            self.assertEqual(bytes(rendered[offset : offset + 5]), bytes.fromhex(expected))
+            self.assertEqual(bytes(rendered[offset : offset + 5]), bytes(baseline[offset : offset + 5]))
+
+        # No non-owned executable byte moves except the required PE checksum.
+        outside_before = bytearray(baseline)
+        outside_after = bytearray(rendered)
+        checksum_offset = struct.unpack_from("<I", baseline, 0x3C)[0] + 24 + 64
+        outside_before[checksum_offset : checksum_offset + 4] = b"\0" * 4
+        outside_after[checksum_offset : checksum_offset + 4] = b"\0" * 4
+        for start, end in ordered_ranges:
+            outside_before[start:end] = outside_after[start:end]
+        self.assertEqual(outside_after, outside_before)
 
     def test_expanded_collection_progression_reaches_256(self) -> None:
         progression_bases = {"vv2": 231, "vv3": 221, "vv4": 231, "vv5": 241}
