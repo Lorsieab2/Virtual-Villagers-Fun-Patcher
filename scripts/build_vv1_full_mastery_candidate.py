@@ -38,6 +38,8 @@ CONFIRM_OFFSET = 0x580
 SHOW_MENU_OFFSET = 0x640
 SHOW_RESULT_OFFSET = 0x6C0
 STRINGS_OFFSET = 0x900
+BUTTON_LABEL = b"Upgrades"
+BUTTON_STORAGE_SIZE = len(b"Origins Upgrades\0")
 PRICE = 1_000_000
 BOUND = 256
 STRIDE = 0x3D8
@@ -52,7 +54,7 @@ REJECTED_MODES = (
 )
 RECERT_SOURCE_COMMIT = "2f22a8b435918bf01b95aa4b9a6e6f4287d0ac94"
 RECERT_BUNDLE = "outputs/vv1-full-mastery-c76-recert"
-RECERT_ISOLATED_SHA256 = "3DB0D70ED5512D6A38765AA71B90DE4D9C3BD5BE30CD528C17A351413B28D06F"
+RECERT_ISOLATED_SHA256 = "C2C6070B11E56BD6B8BD183C9694E88DC6D576758926D18ACEFCD093CCF364B0"
 RECERT_COMBINED_SHA256 = "9B5CA9671558DE0A8CACB6E62AD98BA6C692522D253374DA74E52984B53FF230"
 RECERT_ACTIVE_ORIGINS_SHA256 = "5434C71C342B830A5896AFFB610A76C670578760BD33C6145882FA280F6406A3"
 
@@ -165,7 +167,10 @@ def build_section() -> tuple[bytes, dict[str, object]]:
     cursor = STRINGS_OFFSET
     strings: dict[str, int] = {}
     for key, value in (
-        ("button", b"Origins Upgrades"),
+        (
+            "button",
+            BUTTON_LABEL + b"\0" * (BUTTON_STORAGE_SIZE - len(BUTTON_LABEL)),
+        ),
         ("candidate_dll", b"VVFP VV1 Full Mastery Candidate.dll"),
         ("menu_export", b"ShowVV1FullMasteryMenu"),
         ("result_export", b"ShowVV1FullMasteryResult"),
@@ -799,7 +804,7 @@ def build() -> tuple[dict[str, object], dict[str, object]]:
                 "offset": "0x358DC",
                 "before": "8B4C24205F",
                 "after": constructor_after.hex().upper(),
-                "purpose": "append the isolated command-7 Origins Upgrades button",
+                "purpose": "append the isolated command-7 Upgrades button",
             },
             {
                 "offset": "0x35AB0",

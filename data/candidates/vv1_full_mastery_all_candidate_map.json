@@ -1,5 +1,5 @@
 {
-  "section_sha256": "85DE335D905D0AF99FBDD0388A004D69C393AA7C0771DFB36B15A4A94062BA92",
+  "section_sha256": "F0EFEDF743A375F9A62FC1199809A0F2A5CF05CC749CE5A5DA5EA24BC28EABE7",
   "entry_sha256": "DB742B8C696A5D197D4985E49DE636C4E3E584BBC1B7E65132611E2FC4B42A31",
   "walker_sha256": "948C1B9E968FB5A8F957E33F6C344A1FF0DC25805BB97DB2D959129A4E2B8C9E",
   "confirmation_sha256": "39FBB3CA5B2C32C5566EA918C249D77718F2872AF871511EA23147C48AE6E779",
@@ -102,7 +102,7 @@
     ],
     "expanded_rejected": true,
     "active_origins_base_sha256": "5434C71C342B830A5896AFFB610A76C670578760BD33C6145882FA280F6406A3",
-    "isolated_candidate_sha256": "3DB0D70ED5512D6A38765AA71B90DE4D9C3BD5BE30CD528C17A351413B28D06F",
+    "isolated_candidate_sha256": "C2C6070B11E56BD6B8BD183C9694E88DC6D576758926D18ACEFCD093CCF364B0",
     "combined_origins_full_mastery_sha256": "9B5CA9671558DE0A8CACB6E62AD98BA6C692522D253374DA74E52984B53FF230",
     "uninstalled_sha256": "5434C71C342B830A5896AFFB610A76C670578760BD33C6145882FA280F6406A3",
     "uninstall_equals_active_origins_base": true
@@ -192,15 +192,15 @@
   "rendered_candidates": {
     "collection_progression": {
       "baseline_sha256": "0F54C22C531FCE276EFBF5F0B4418C48B66CE314AA21872A9B2C5D459232EC7A",
-      "candidate_sha256": "3DB0D70ED5512D6A38765AA71B90DE4D9C3BD5BE30CD528C17A351413B28D06F",
+      "candidate_sha256": "C2C6070B11E56BD6B8BD183C9694E88DC6D576758926D18ACEFCD093CCF364B0",
       "size": 589824,
-      "pe_checksum": "0x0009D3FD",
+      "pe_checksum": "0x00096B68",
       "owners": [
         "automatic:population",
         "automatic:safety",
         "feature:vv1_full_mastery_all_stage_a_candidate"
       ],
-      "all_current_vv1_sha256": "473F7234B84A7A8560F757962F2DB17CA45E25813F0E6314F2F3E646233D1706",
+      "all_current_vv1_sha256": "C8E65AC90DC68CE4579FD86C81BE55AD16F6132D1390E302E7098EC9571AD8B0",
       "all_current_vv1_owners": [
         "automatic:population",
         "automatic:safety",
@@ -217,15 +217,15 @@
     },
     "immediate_fixed": {
       "baseline_sha256": "0F54C22C531FCE276EFBF5F0B4418C48B66CE314AA21872A9B2C5D459232EC7A",
-      "candidate_sha256": "3DB0D70ED5512D6A38765AA71B90DE4D9C3BD5BE30CD528C17A351413B28D06F",
+      "candidate_sha256": "C2C6070B11E56BD6B8BD183C9694E88DC6D576758926D18ACEFCD093CCF364B0",
       "size": 589824,
-      "pe_checksum": "0x0009D3FD",
+      "pe_checksum": "0x00096B68",
       "owners": [
         "automatic:population",
         "automatic:safety",
         "feature:vv1_full_mastery_all_stage_a_candidate"
       ],
-      "all_current_vv1_sha256": "473F7234B84A7A8560F757962F2DB17CA45E25813F0E6314F2F3E646233D1706",
+      "all_current_vv1_sha256": "C8E65AC90DC68CE4579FD86C81BE55AD16F6132D1390E302E7098EC9571AD8B0",
       "all_current_vv1_owners": [
         "automatic:population",
         "automatic:safety",

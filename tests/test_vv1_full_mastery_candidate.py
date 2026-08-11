@@ -165,7 +165,7 @@ class VV1FullMasteryCandidateTests(unittest.TestCase):
         self.assertEqual(self.raw["acceptance"]["source_commit"], "2f22a8b435918bf01b95aa4b9a6e6f4287d0ac94")
         self.assertEqual(self.raw["acceptance"]["allowed_modes"], list(MODES))
         self.assertTrue(self.raw["acceptance"]["expanded_rejected"])
-        self.assertEqual(self.raw["acceptance"]["isolated_candidate_sha256"], "3DB0D70ED5512D6A38765AA71B90DE4D9C3BD5BE30CD528C17A351413B28D06F")
+        self.assertEqual(self.raw["acceptance"]["isolated_candidate_sha256"], "C2C6070B11E56BD6B8BD183C9694E88DC6D576758926D18ACEFCD093CCF364B0")
         self.assertEqual(self.raw["acceptance"]["uninstalled_sha256"], "5434C71C342B830A5896AFFB610A76C670578760BD33C6145882FA280F6406A3")
         contract = self.raw["transaction_contract"]
         self.assertEqual((contract["command"], contract["price"]), (7, 1_000_000))
@@ -193,6 +193,36 @@ class VV1FullMasteryCandidateTests(unittest.TestCase):
         self.assertEqual(self.map["section"]["va"], "0x490000")
         self.assertIn("0x437230 native skill writer", self.map["absolute_references"])
         self.assertEqual(self.map["base_relocations"], [])
+
+    def test_visible_button_label_only_and_mechanics_remain_frozen(self) -> None:
+        page = bytes.fromhex(
+            self.raw["pe_append_transaction"]["layouts"]["collection_progression"]["append_bytes"]
+        )
+        button_offset = int(self.map["strings"]["button"], 0) - 0x490000
+        candidate_dll_offset = int(self.map["strings"]["candidate_dll"], 0) - 0x490000
+        caption_offset = int(self.map["strings"]["caption"], 0) - 0x490000
+        self.assertEqual((button_offset, candidate_dll_offset), (0x900, 0x911))
+        self.assertEqual(
+            page[button_offset:candidate_dll_offset],
+            b"Upgrades\0" + b"\0" * 8,
+        )
+        self.assertEqual(page[caption_offset:caption_offset + 17], b"Origins Upgrades\0")
+        self.assertEqual(
+            {
+                "entry": self.map["entry_sha256"],
+                "walker": self.map["walker_sha256"],
+                "confirmation": self.map["confirmation_sha256"],
+                "menu_resolver": self.map["menu_resolver_sha256"],
+                "result_resolver": self.map["result_resolver_sha256"],
+            },
+            {
+                "entry": "DB742B8C696A5D197D4985E49DE636C4E3E584BBC1B7E65132611E2FC4B42A31",
+                "walker": "948C1B9E968FB5A8F957E33F6C344A1FF0DC25805BB97DB2D959129A4E2B8C9E",
+                "confirmation": "39FBB3CA5B2C32C5566EA918C249D77718F2872AF871511EA23147C48AE6E779",
+                "menu_resolver": "66A089D58C80B15DD4BB47DAC3B3ABC1DD5CF8969B9863D90BD084B462496C98",
+                "result_resolver": "2945F92280B7A6E59E6F0B91F25A1FBD3C1D49789460D4C4CC094DCE873FA8E8",
+            },
+        )
 
     def test_thiscall_transport_modal_and_result_abis(self) -> None:
         page = bytes.fromhex(
