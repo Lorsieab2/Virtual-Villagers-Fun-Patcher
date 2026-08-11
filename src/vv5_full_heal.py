@@ -23,7 +23,6 @@ RECORD_STRIDE = 0x2F44
 ACTIVE_OFFSET = 0x1CD4
 FACTION_OFFSET = 0x1CEC
 HEALTH_OFFSET = 0x1C40
-FORBIDDEN_UNPROVEN_OFFSET = 0x1CE1
 NO_DEDUCTION = "No tech points have been deducted."
 UNKNOWN_ROLLBACK = "Rollback status is unknown; complete rollback is not claimed."
 UNKNOWN_CHARGE = "The tech-point charge outcome is unknown; no no-charge claim is permitted without exact balance readback."
@@ -85,8 +84,8 @@ class FullHealSlot:
 
     Health and sickness are intentionally ``None`` when the active/faction
     gate excludes a record, or when non-positive health excludes it before a
-    sickness read.  This models the required read order and avoids claiming
-    the unproved ``+0x1CE1`` field.
+    sickness read. This models the required read order without claiming a
+    withdrawn synthetic eligibility field.
     """
 
     index: int
@@ -355,7 +354,7 @@ def _slot_from_record(index: int, record: Mapping[str, object] | None) -> FullHe
         raise ValueError("resolver record schema must exclude unknown and unproved fields")
 
     # Deliberate order: active and current faction are read before health or
-    # sickness.  +0x1CE1 is not present in RECORD_KEYS and is never read.
+    # sickness. No withdrawn synthetic eligibility field is present or read.
     identity = _exact_identity(record["identity"], "record.identity")
     pointer = _exact_identity(record["record_pointer"], "record.record_pointer")
     active = _exact_int(record["active"], "record.active")

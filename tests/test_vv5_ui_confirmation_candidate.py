@@ -134,7 +134,7 @@ class VV5UIConfirmationCandidateTests(unittest.TestCase):
                 self.assertIn("recheck_failed", contract["no_charge_results"])
                 self.assertIn("funds_recheck_failed", contract["no_charge_results"])
                 self.assertIn("postverify_failed", contract["no_charge_results"])
-                self.assertIn("charge_failed", contract["no_charge_results"])
+                self.assertNotIn("charge_failed", contract["no_charge_results"])
         self.assertIn("existing Running Like skips the entire record", contracts["running"]["native_preference_abi"])
 
     def test_youth_and_age18_charge_only_after_native_postverify(self) -> None:
@@ -158,8 +158,8 @@ class VV5UIConfirmationCandidateTests(unittest.TestCase):
         self.assertTrue(age18.charge_verified)
         self.assertEqual(age18.funds, 50_000)
         self.assertEqual(age18.villager.age, 360)
-        self.assertEqual(age18.villager.age_companion, 12)
-        self.assertEqual(age18.villager.age_timer, 3)
+        self.assertEqual(age18.villager.age_companion, 152)
+        self.assertEqual(age18.villager.age_timer, 143)
 
         high_age_youth = reference_execute(villager(age=900), 100_000, "youth", 1)
         self.assertEqual(high_age_youth.status, "committed")
@@ -203,7 +203,9 @@ class VV5UIConfirmationCandidateTests(unittest.TestCase):
         self.assertEqual(failed.status, "postverify_failed")
         self.assertFalse(failed.charged)
         self.assertEqual(failed.funds, 200_000)
-        self.assertEqual(failed.villager.skills, villager().skills)
+        self.assertEqual(failed.villager.skills, (100.0,) * 6)
+        self.assertTrue(failed.effects_may_have_occurred)
+        self.assertEqual(failed.charge_truth, "not_attempted")
 
     def test_running_uses_exact_three_slot_abi_and_existing_like_is_whole_record_skip(self) -> None:
         committed = reference_execute(villager(), 100_000, "running", 1)
@@ -384,7 +386,11 @@ class VV5UIConfirmationCandidateTests(unittest.TestCase):
         self.assertFalse(charge_failed.charged)
         self.assertFalse(charge_failed.charge_verified)
         self.assertEqual(charge_failed.funds, 100_000)
-        self.assertIn(NO_DEDUCTION, charge_failed.message)
+        self.assertFalse(charge_failed.funds_known)
+        self.assertTrue(charge_failed.effects_may_have_occurred)
+        self.assertEqual(charge_failed.charge_truth, "unknown")
+        self.assertIn(UNKNOWN_CHARGE, charge_failed.message)
+        self.assertNotIn(NO_DEDUCTION, charge_failed.message)
 
     def test_transaction_callbacks_are_mandatory_and_strict(self) -> None:
         with self.assertRaises(TypeError):

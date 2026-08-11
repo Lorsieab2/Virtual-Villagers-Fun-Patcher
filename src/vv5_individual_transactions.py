@@ -165,7 +165,6 @@ def transaction_contracts() -> dict[Action, dict[str, object]]:
             "recheck_failed",
             "funds_recheck_failed",
             "postverify_failed",
-            "charge_failed",
         ],
     }
     return {
@@ -191,8 +190,8 @@ def transaction_contracts() -> dict[Action, dict[str, object]]:
         "age_18": {
             **common,
             "price": _PRICES["age_18"],
-            "dry_run": "snapshot displayed age and preserve unproved companion fields; no write",
-            "postverify": "displayed age is exactly 360; no unproved companion write is modeled",
+            "dry_run": "snapshot raw age and both native age companions; no write",
+            "postverify": "raw age is exactly 360 and age, companion, and nonzero timer deltas match the reference transition",
         },
     }
 
@@ -297,11 +296,18 @@ def _apply_youth(villager: VV5Villager) -> VV5Villager:
     return replace(villager, age=target, age_companion=companion, age_timer=timer)
 
 
+def _apply_age_target(villager: VV5Villager, target: int) -> VV5Villager:
+    delta = target - villager.age
+    companion = villager.age_companion + delta
+    timer = villager.age_timer + delta if villager.age_timer != 0 else villager.age_timer
+    return replace(villager, age=target, age_companion=companion, age_timer=timer)
+
+
 def _mutate(villager: VV5Villager, plan: DryRun) -> VV5Villager:
     if plan.action == "youth":
         return _apply_youth(villager)
     if plan.action == "age_18":
-        return replace(villager, age=360)
+        return _apply_age_target(villager, 360)
     if plan.action == "full_mastery":
         skills = list(villager.skills)
         for index in plan.changed_skill_indices:
@@ -337,10 +343,12 @@ def _postverify(before: VV5Villager, after: VV5Villager, plan: DryRun) -> bool:
             and after.age_timer == expected_timer
         )
     if plan.action == "age_18":
+        expected_delta = 360 - before.age
+        expected_timer = before.age_timer + expected_delta if before.age_timer != 0 else before.age_timer
         return (
             after.age == 360
-            and after.age_companion == before.age_companion
-            and after.age_timer == before.age_timer
+            and after.age_companion - before.age_companion == expected_delta
+            and after.age_timer == expected_timer
         )
     if plan.action == "full_mastery":
         return len(after.skills) == 6 and all(value == 100.0 for value in after.skills)
@@ -484,15 +492,35 @@ def execute(
 
     mutated = _mutate(reacquired, second_plan)
     if force_postverify_failure or not _postverify(reacquired, mutated, second_plan):
-        return result("postverify_failed", reacquired, f"The upgrade could not be verified.\r\n{NO_DEDUCTION}")
+        return result(
+            "postverify_failed",
+            mutated,
+            "The upgrade could not be verified after mutation. Earlier effects may remain.\r\n"
+            f"{NO_DEDUCTION}",
+            effects_may_have_occurred=True,
+        )
 
     if force_charge_failure:
-        return result("charge_failed", reacquired, f"The tech-point charge could not be verified.\r\n{NO_DEDUCTION}")
+        return result(
+            "charge_failed",
+            mutated,
+            UNKNOWN_CHARGE,
+            effects_may_have_occurred=True,
+            funds_known=False,
+            charge_truth="unknown",
+        )
 
     # Reference arithmetic only: native charge/write/readback/rollback are not performed here.
     charged_funds = confirmed_funds - price
     if not _verify_reference_charge(confirmed_funds, charged_funds, price):
-        return result("charge_failed", reacquired, f"The tech-point charge could not be verified.\r\n{NO_DEDUCTION}")
+        return result(
+            "charge_failed",
+            mutated,
+            UNKNOWN_CHARGE,
+            effects_may_have_occurred=True,
+            funds_known=False,
+            charge_truth="unknown",
+        )
     return TransactionResult(
         action,
         "committed",

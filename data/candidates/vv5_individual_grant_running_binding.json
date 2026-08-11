@@ -44,7 +44,7 @@
       {"name": "current_faction", "offset": "0x1CEC", "test": "== 0", "meaning": "current believer"}
     ],
     "current_faction_is_only_vv5_specific_gate": true,
-    "excluded_unproved_gates": "+0x1CE1, status flags, and synthetic heathen/current-believer fields"
+    "excluded_unproved_gates": "status flags and synthetic heathen/current-believer fields"
   },
   "transaction_contract": {
     "price": 40000,

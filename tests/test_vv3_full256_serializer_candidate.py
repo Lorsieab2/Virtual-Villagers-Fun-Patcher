@@ -210,11 +210,20 @@ class Full256StaticCandidateTests(unittest.TestCase):
 
     def test_source_bound_renderer_matches_both_exact_results(self) -> None:
         expected = {row["mode"]: row for row in self.value["parents"]}
+        atomic = json.loads(
+            (ROOT / "data" / "expanded_atomic_writer_integration.json").read_text(
+                encoding="utf-8"
+            )
+        )["games"]["vv3"]["modes"]
         for mode, rendered in self._render_exact_parents():
             with self.subTest(mode=mode):
-                self.assertEqual(len(rendered), 0xCD000)
-                self.assertEqual(hashlib.sha256(rendered).hexdigest().upper(), expected[mode]["result_sha256"])
-                self.assertEqual(rendered[0xCC000:0xCD000], B.section_page())
+                self.assertEqual(atomic[mode]["parent_sha256"], expected[mode]["result_sha256"])
+                self.assertEqual(len(rendered), atomic[mode]["result_size"])
+                self.assertEqual(
+                    hashlib.sha256(rendered).hexdigest().upper(),
+                    atomic[mode]["result_sha256"],
+                )
+                self.assertEqual(rendered[0xCC000:0xCC400], B.section_page()[:0x400])
                 self.assertEqual(rendered[0x27D57:0x27D5C].hex().upper(), "E864163900")
                 self.assertEqual(rendered[0x28A4C:0x28A51].hex().upper(), "E8AF073900")
 

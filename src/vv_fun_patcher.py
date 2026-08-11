@@ -42,8 +42,17 @@ EXPANDED_STATIC_REPAIR_INTEGRATION_PATH = (
 EXPANDED_STATIC_REPAIR_INTEGRATION_SCHEMA_PATH = (
     ROOT / "data" / "schemas" / "expanded_256_static_repair_integration.schema.json"
 )
+EXPANDED_ATOMIC_WRITER_INTEGRATION_PATH = (
+    ROOT / "data" / "expanded_atomic_writer_integration.json"
+)
+EXPANDED_ATOMIC_WRITER_INTEGRATION_SCHEMA_PATH = (
+    ROOT / "data" / "schemas" / "expanded_atomic_writer_integration.schema.json"
+)
 EXPANDED_STATIC_REPAIR_INTEGRATION_SHA256 = (
     "93AE2305D23F5FCBE1BB1726BC563E5CAF20E85E926AD26D3AB84D9BB3985195"
+)
+EXPANDED_ATOMIC_WRITER_INTEGRATION_SHA256 = (
+    "1B7068D0679CA896706AA201D27726AF612FD167C0406C5D509774E40728F6A6"
 )
 EXPANDED_MANIFEST_IDENTITIES = {
     "vv3": {
@@ -657,6 +666,44 @@ VV5_FULL_MASTERY_CONFIRMATION_SHA256 = {
     "village_routine": "2C392F952854EB485091199AC96AAC0B1C5683B7061D9267650411868926D763",
     "individual_string": "60C9A875AFC93174041B78B3A185B4E1BAE468404F20C3AFC1CF1F127802FD3C",
     "village_string": "56BC07733ED0F93F211BA0D1887502F8A45E03A4187B8C17067F32FF87117D46",
+}
+VV5_TASK9_PATHS = {
+    "manifest": ROOT / "data" / "vv5_task9_native_actions.json",
+    "map": ROOT / "data" / "candidates" / "vv5_task9_native_actions_map.json",
+    "dll": ROOT / "data" / "candidates" / "VVFP VV5 Task9 Origins Icons.dll",
+}
+VV5_TASK9_SOURCE_TEXT_SHA256 = {
+    "manifest": "7F6566405FABCBE8F4719F680E43003141B5722DB384E385A4DE3812A61F1748",
+    "map": "27F708D172E9AA0726193A16E945B91BDCFF312EB0FEDE25F559C5F7FFC4C78B",
+}
+VV5_TASK9_DLL_SHA256 = "B402ED8316CD6EB2C43B056848E622DC0924188C81C683F5E2813466AF8045D0"
+VV5_TASK9_PAGE_SHA256 = {
+    "collection_progression": "7AF8A408C1092B66349F2FBB1FA5EA2916D7A5338ECED0A4A1666A0A8DD6A15B",
+    "immediate_fixed": "7AF8A408C1092B66349F2FBB1FA5EA2916D7A5338ECED0A4A1666A0A8DD6A15B",
+    "experimental_expanded_256": "AE6DE6BD6D1D322F88FE41E4B636726C9645356EA2EA43C6EBE48E19B8F4F32B",
+    "experimental_expanded_256_progression": "AE6DE6BD6D1D322F88FE41E4B636726C9645356EA2EA43C6EBE48E19B8F4F32B",
+}
+VV5_TASK9_ACTIVE_SOURCE_TEXT_SHA256 = "6AFF1A8E69234C61CB2D1878C46FA91B0AAA721FC5F29C5B42A678F61BAB8528"
+VV5_TASK9_TASK8_SOURCE_TEXT_SHA256 = "090ED9CA074F02F9321B2F8E0C470FD0AF18B235231DA94B6D38293360BC9510"
+VV5_TASK9_ATOMIC_CORE_COMMIT = "c4e5fe76d1de258d5d4baeac77cbea842b206cd7"
+VV5_TASK9_ATOMIC_SOURCE_TEXT_SHA256 = {
+    "atomic_generator": "0424B3B56CB4093176A8B429472FCDF04043CBFC22424EBBDE37058EA1A8F72E",
+    "atomic_contract": "1B7068D0679CA896706AA201D27726AF612FD167C0406C5D509774E40728F6A6",
+}
+VV5_TASK9_EXPANDED_HOOK = {
+    "offset": "0x415F0",
+    "before": "E90B0A3700909090",
+    "after": "E90B9A4A00909090",
+    "purpose": "post-relocation: bind the Task9 Tech-screen command-13 hook to relocated Expanded .shr without changing C342",
+}
+VV5_TASK9_CROSS_SECTION_HOOKS = {
+    "0x1890F": {"stock_target": "0x7B2180", "expanded_target": "0x8EB180", "expanded_policy": "frozen_c342"},
+    "0x1EB6F": {"stock_target": "0x7B2B00", "expanded_target": "0x8EBB00", "expanded_policy": "native_override_preserved"},
+    "0x237B0": {"stock_target": "0x7B2A00", "expanded_target": "0x8EBA00", "expanded_policy": "native_override_preserved"},
+    "0x40A24": {"stock_target": "0x7B2040", "expanded_target": "0x8EB040", "expanded_policy": "frozen_c342"},
+    "0x415F0": {"stock_target": "0x7B2000", "expanded_target": "0x8EB000", "expanded_policy": "task9_post_relocation"},
+    "0x4AF12": {"stock_target": "0x7B2100", "expanded_target": "0x8EB100", "expanded_policy": "frozen_c342"},
+    "0x4BC20": {"stock_target": "0x7B20C0", "expanded_target": "0x8EB0C0", "expanded_policy": "frozen_c342"},
 }
 STATISTICS_FEATURES_PATH = ROOT / "data" / "statistics_features.json"
 DEFAULT_PATCH_MODE = "collection_progression"
@@ -1673,6 +1720,243 @@ def _validate_vv5_individual_running_candidate(
         raise PatcherError("VV5 revised Running rendered output identities are not certified.")
 
 
+def _certified_vv5_task9_record(active_base: dict[str, Any]) -> dict[str, Any]:
+    """Return the one source-generated Task9 owner of the active VV5 actions.
+
+    The historical Full Mastery/Running candidates remain readable evidence,
+    but they no longer own the production fallback for these action IDs.
+    """
+    manifest_bytes = VV5_TASK9_PATHS["manifest"].read_bytes()
+    map_bytes = VV5_TASK9_PATHS["map"].read_bytes()
+    if source_text_sha256(manifest_bytes) != VV5_TASK9_SOURCE_TEXT_SHA256["manifest"]:
+        raise PatcherError("VV5 Task9 manifest source identity mismatch.")
+    if source_text_sha256(map_bytes) != VV5_TASK9_SOURCE_TEXT_SHA256["map"]:
+        raise PatcherError("VV5 Task9 map source identity mismatch.")
+    record = json.loads(manifest_bytes.decode("utf-8"))
+    artifact = json.loads(map_bytes.decode("utf-8"))
+    if (
+        record.get("schema") != "vvfp.vv5_task9_native_actions.v1"
+        or record.get("id") != active_base.get("id")
+        or record.get("enabled") is not True
+        or record.get("catalog_enabled") is not True
+        or record.get("catalog_hidden") is not False
+        or record.get("supported_modes")
+        != [
+            "collection_progression",
+            "immediate_fixed",
+            "experimental_expanded_256",
+            "experimental_expanded_256_progression",
+        ]
+    ):
+        raise PatcherError("VV5 Task9 catalog/mode ownership is not fail-closed.")
+    active_source = (ROOT / "data" / "vv5_origins_feature.json").read_bytes()
+    if source_text_sha256(active_source) != VV5_TASK9_ACTIVE_SOURCE_TEXT_SHA256:
+        raise PatcherError("VV5 Task9 pinned active Origins source drifted.")
+    if (
+        record.get("base_source_text_sha256") != VV5_TASK9_ACTIVE_SOURCE_TEXT_SHA256
+        or record.get("task8_overlay_source_text_sha256") != VV5_TASK9_TASK8_SOURCE_TEXT_SHA256
+        or source_text_sha256((ROOT / "data/candidates/vv5_post_prototype_overlay.json").read_bytes())
+        != VV5_TASK9_TASK8_SOURCE_TEXT_SHA256
+    ):
+        raise PatcherError("VV5 Task9 Task8/active-base binding mismatch.")
+    expected_atomic_core = {
+        "commit": VV5_TASK9_ATOMIC_CORE_COMMIT,
+        "generator_source_text_sha256": VV5_TASK9_ATOMIC_SOURCE_TEXT_SHA256[
+            "atomic_generator"
+        ],
+        "contract_source_text_sha256": VV5_TASK9_ATOMIC_SOURCE_TEXT_SHA256[
+            "atomic_contract"
+        ],
+    }
+    if (
+        record.get("atomic_core") != expected_atomic_core
+        or artifact.get("atomic_core") != expected_atomic_core
+    ):
+        raise PatcherError("VV5 Task9 atomic-core commit/source binding mismatch.")
+    expected_source_paths = {
+        "task9_builder": "scripts/build_vv5_task9_native_actions.py",
+        "companion_c": "native/vv5_task9_origins/vv5_task9_origins.c",
+        "companion_def": "native/vv5_task9_origins/vv5_task9_origins.def",
+        "companion_rc": "native/vv5_task9_origins/vv5_task9_origins.rc",
+        "companion_builder": "scripts/build_vv5_task9_origins_dll.ps1",
+        "individual_reference": "src/vv5_individual_transactions.py",
+        "full_heal_reference": "src/vv5_full_heal.py",
+        "active_base": "data/vv5_origins_feature.json",
+        "task8_overlay": "data/candidates/vv5_post_prototype_overlay.json",
+        "atomic_generator": "src/expanded_atomic_writer.py",
+        "atomic_contract": "data/expanded_atomic_writer_integration.json",
+    }
+    source_bindings = record.get("source_bindings")
+    if (
+        not isinstance(source_bindings, dict)
+        or set(source_bindings) != set(expected_source_paths)
+        or artifact.get("source_bindings") != source_bindings
+    ):
+        raise PatcherError("VV5 Task9 source binding set is not closed.")
+    for name, expected_path in expected_source_paths.items():
+        binding = source_bindings.get(name)
+        if (
+            not isinstance(binding, dict)
+            or set(binding) != {"path", "source_text_sha256"}
+            or binding.get("path") != expected_path
+        ):
+            raise PatcherError(f"VV5 Task9 {name} source binding is malformed.")
+        try:
+            bound_source = (ROOT / expected_path).read_bytes()
+        except OSError as exc:
+            raise PatcherError(f"VV5 Task9 {name} source is unavailable.") from exc
+        if source_text_sha256(bound_source) != binding.get("source_text_sha256"):
+            raise PatcherError(f"VV5 Task9 {name} source identity mismatch.")
+        if (
+            name in VV5_TASK9_ATOMIC_SOURCE_TEXT_SHA256
+            and binding.get("source_text_sha256")
+            != VV5_TASK9_ATOMIC_SOURCE_TEXT_SHA256[name]
+        ):
+            raise PatcherError(f"VV5 Task9 pinned {name} identity mismatch.")
+    active_relocation = active_base.get("expanded_shr_relocations", {}).get("patches")
+    task9_relocation = record.get("expanded_shr_relocations", {}).get("patches")
+    relocation_digest = hashlib.sha256(
+        json.dumps(task9_relocation, sort_keys=True, separators=(",", ":")).encode("ascii")
+    ).hexdigest().upper()
+    if (
+        not isinstance(task9_relocation, list)
+        or task9_relocation != active_relocation
+        or len(task9_relocation) != 66
+        or relocation_digest != VV5_ORIGINS_RELOCATION_LEDGER_SHA256
+        or record.get("frozen_c342")
+        != {"count": 66, "rows_sha256": VV5_ORIGINS_RELOCATION_LEDGER_SHA256, "unchanged": True}
+    ):
+        raise PatcherError("VV5 Task9 changed the frozen C342 relocation ledger.")
+    active_patches = active_base.get("patches")
+    patches = record.get("patches")
+    if not isinstance(active_patches, list) or not isinstance(patches, list) or len(patches) != len(active_patches):
+        raise PatcherError("VV5 Task9 active-base patch shape mismatch.")
+    for before, after in zip(active_patches, patches):
+        if after.get("offset") != before.get("offset") or after.get("before") != before.get("before"):
+            raise PatcherError("VV5 Task9 changed an active-base offset/preimage guard.")
+    payload_row = next((item for item in patches if int(item.get("offset", "-1"), 0) == 0xDB000), None)
+    if payload_row is None:
+        raise PatcherError("VV5 Task9 generated payload row is missing.")
+    payload = bytes.fromhex(payload_row.get("after", ""))
+    if (
+        len(payload) != 0xF60
+        or payload.count(bytes.fromhex("89F96A6A")) != 2
+        or payload[0x2C0:0x2C7] != bytes.fromhex("B800917C00FFE0")
+        or payload[0x600:0x607] != bytes.fromhex("B820917C00FFE0")
+        or bytes.fromhex("E11C0000") in payload
+    ):
+        raise PatcherError("VV5 Task9 resource, entry, or withdrawn-gate payload bytes drifted.")
+    if any(bytes.fromhex("E11C0000") in bytes.fromhex(item.get("after", "")) for item in patches):
+        raise PatcherError("VV5 Task9 patch set retains a withdrawn eligibility read.")
+    expected_companion = {
+        "source": "data/candidates/VVFP VV5 Task9 Origins Icons.dll",
+        "destination": "VVFP Origins Icons.dll",
+        "sha256": VV5_TASK9_DLL_SHA256,
+        "size": 297472,
+    }
+    if record.get("companion_files") != [expected_companion]:
+        raise PatcherError("VV5 Task9 companion ownership metadata drifted.")
+    companion = VV5_TASK9_PATHS["dll"].read_bytes()
+    if len(companion) != expected_companion["size"] or hashlib.sha256(companion).hexdigest().upper() != VV5_TASK9_DLL_SHA256:
+        raise PatcherError("VV5 Task9 companion identity mismatch.")
+    for export in (
+        b"BeginOriginsOwner\0",
+        b"GetOriginsOwner\0",
+        b"EndOriginsOwner\0",
+        b"ShowOriginsUpgradeMenuState\0",
+        b"ConfirmVV5Task9Action\0",
+        b"ShowVV5Task9Result\0",
+    ):
+        if companion.count(export) != 1:
+            raise PatcherError("VV5 Task9 companion export surface drifted.")
+    transaction = record.get("pe_append_transaction", {})
+    layouts = transaction.get("layouts")
+    if transaction.get("section") != ".vv5t9" or not isinstance(layouts, dict) or set(layouts) != set(VV5_TASK9_PAGE_SHA256):
+        raise PatcherError("VV5 Task9 append transaction shape drifted.")
+    expected_layout = {
+        "collection_progression": (0xF2000, 0x7C9000, "0500", "0600", "00903C00", "00103D00", 0x2B8),
+        "immediate_fixed": (0xF2000, 0x7C9000, "0500", "0600", "00903C00", "00103D00", 0x2B8),
+        "experimental_expanded_256": (0xF4000, 0x904000, "0700", "0800", "00405000", "00C05000", 0x308),
+        "experimental_expanded_256_progression": (0xF4000, 0x904000, "0700", "0800", "00405000", "00C05000", 0x308),
+    }
+    for mode, (append_offset, page_va, count_before, count_after, image_before, image_after, header_offset) in expected_layout.items():
+        layout = layouts.get(mode, {})
+        page = bytes.fromhex(layout.get("append_bytes", ""))
+        headers = layout.get("header_patches", [])
+        if (
+            int(layout.get("original_file_size", "-1"), 0) != append_offset
+            or int(layout.get("append_offset", "-1"), 0) != append_offset
+            or layout.get("append_length") != 0x8000
+            or int(layout.get("page_virtual_address", "-1"), 0) != page_va
+            or len(page) != 0x8000
+            or hashlib.sha256(page).hexdigest().upper() != VV5_TASK9_PAGE_SHA256[mode]
+            or layout.get("page_sha256") != VV5_TASK9_PAGE_SHA256[mode]
+            or len(headers) != 3
+            or headers[0].get("before") != count_before
+            or headers[0].get("after") != count_after
+            or headers[1].get("before") != image_before
+            or headers[1].get("after") != image_after
+            or int(headers[2].get("offset", "-1"), 0) != header_offset
+            or headers[2].get("before") != "00" * 40
+        ):
+            raise PatcherError(f"VV5 Task9 {mode} append/header guard drifted.")
+    nonoverlap = artifact.get("nonoverlap", {})
+    if nonoverlap != {
+        "task8_dbxxx_range": ["0xDB000", "0xDC000"],
+        "task9_stock_append_range": ["0xF2000", "0xFA000"],
+        "task9_expanded_append_range": ["0xF4000", "0xFC000"],
+        "c342_new_row_count": 0,
+        "absolute_entry_stubs_require_c342_relocation": False,
+    }:
+        raise PatcherError("VV5 Task9 Task8/C342 nonoverlap contract drifted.")
+    if artifact.get("resolver_contract") != {
+        "record_pointer_resolver": "0x46F950",
+        "forbidden_transitive_helpers": ["0x466170", "0x471840"],
+        "eligibility_order": [
+            "+0x1CD4 != 0",
+            "+0x1C40 signed > 0",
+            "+0x1CEC == 0",
+        ],
+    }:
+        raise PatcherError("VV5 Task9 direct record-resolver contract drifted.")
+    for mode, layout in layouts.items():
+        page = bytes.fromhex(layout["append_bytes"])
+        page_va = int(layout["page_virtual_address"], 0)
+        targets: list[int] = []
+        for relative in range(len(page) - 4):
+            if page[relative] != 0xE8:
+                continue
+            target = page_va + relative + 5 + int.from_bytes(
+                page[relative + 1 : relative + 5], "little", signed=True
+            )
+            targets.append(target)
+        if 0x466170 in targets or 0x471840 in targets or targets.count(0x46F950) != 2:
+            raise PatcherError(
+                f"VV5 Task9 {mode} retained a forbidden transitive resolver route."
+            )
+    expected_post_relocation = {
+        mode: [VV5_TASK9_EXPANDED_HOOK]
+        for mode in (
+            "experimental_expanded_256",
+            "experimental_expanded_256_progression",
+        )
+    }
+    if record.get("task9_expanded_post_relocation_patches") != expected_post_relocation:
+        raise PatcherError("VV5 Task9 Expanded post-relocation hook contract drifted.")
+    if artifact.get("expanded_cross_section_hook_audit") != {
+        "hook_count": 7,
+        "hooks": VV5_TASK9_CROSS_SECTION_HOOKS,
+        "frozen_c342_operand_offsets": [
+            "0x18910", "0x1EB70", "0x237B1", "0x40A25", "0x4AF13", "0x4BC21"
+        ],
+        "task9_post_relocation_hook_offset": "0x415F0",
+        "task9_post_relocation_operand_offset": "0x415F1",
+        "c342_changed": False,
+    }:
+        raise PatcherError("VV5 Task9 cross-section hook audit drifted.")
+    return record
+
+
 def _certified_vv5_full_mastery_records(
     active_base: dict[str, Any],
 ) -> tuple[dict[str, Any], dict[str, Any]] | None:
@@ -1923,11 +2207,10 @@ def _load_fun_patch_records() -> list[FunPatch]:
                         if full_heal is not None:
                             items.append(full_heal)
                 elif record.get("id") == "vv5_enable_origins_exclusive_features":
-                    mastery = _certified_vv5_full_mastery_records(record)
-                    if mastery is None:
-                        items.append(record)
-                    else:
-                        items.extend(mastery)
+                    # Task9 is the sole production owner of the VV5 action
+                    # IDs. Historical Full Mastery/Running candidates remain
+                    # withdrawn evidence and are never a legacy fallback.
+                    items.append(_certified_vv5_task9_record(record))
                 else:
                     items.append(record)
     vv3_full_heal_path = VV3_FULL_HEAL_CANDIDATE_PATHS["manifest"]
@@ -3854,6 +4137,59 @@ def _relocate_expanded_shr_fun_patches(
     return applied
 
 
+def _apply_vv5_task9_post_relocation_hook(
+    data: bytearray,
+    build: Build,
+    patch_mode: str,
+    fun_patches: list[FunPatch],
+) -> list[dict[str, str]]:
+    """Bind the one Task9 cross-section hook omitted by frozen C342.
+
+    This exact Task9-owned guard intentionally runs only after the immutable
+    66-row relocation pass. It does not add, remove, or reinterpret a C342
+    row and is a stock-mode no-op.
+    """
+    if build.id != "vv5" or patch_mode not in EXPANDED_PATCH_MODES:
+        return []
+    owners = [
+        feature
+        for feature in fun_patches
+        if feature.id == "vv5_enable_origins_exclusive_features"
+        and "task9_expanded_post_relocation_patches" in feature.raw
+    ]
+    if not owners:
+        return []
+    if len(owners) != 1:
+        raise PatcherError("VV5 Task9 post-relocation hook owner is not unique.")
+    rows_by_mode = owners[0].raw.get("task9_expanded_post_relocation_patches")
+    if not isinstance(rows_by_mode, dict) or set(rows_by_mode) != EXPANDED_PATCH_MODES:
+        raise PatcherError("VV5 Task9 post-relocation hook modes drifted.")
+    rows = rows_by_mode.get(patch_mode)
+    if rows != [VV5_TASK9_EXPANDED_HOOK]:
+        raise PatcherError("VV5 Task9 post-relocation hook row drifted.")
+    offset = int(VV5_TASK9_EXPANDED_HOOK["offset"], 0)
+    before = bytes.fromhex(VV5_TASK9_EXPANDED_HOOK["before"])
+    after = bytes.fromhex(VV5_TASK9_EXPANDED_HOOK["after"])
+    actual = bytes(data[offset : offset + len(before)])
+    if actual != before:
+        raise PatcherError(
+            "VV5 Task9 Expanded post-relocation hook guard failed at 0x415F0: "
+            f"expected {before.hex().upper()}, found {actual.hex().upper()}"
+        )
+    data[offset : offset + len(after)] = after
+    return [
+        {
+            "offset": VV5_TASK9_EXPANDED_HOOK["offset"],
+            "before": before.hex().upper(),
+            "after": after.hex().upper(),
+            "purpose": VV5_TASK9_EXPANDED_HOOK["purpose"],
+            "owner": "feature:vv5_enable_origins_exclusive_features",
+            "virtual_address": _virtual_address_for_offset(bytes(data), offset),
+            "relocation_status": "task9_post_relocation_hook",
+        }
+    ]
+
+
 def _validate_expanded_manifest_identity(
     build: Build,
     game: dict[str, Any],
@@ -4824,6 +5160,340 @@ def _expanded_static_repair_summary(
     return list(summaries.values())
 
 
+def _expanded_atomic_writer_integration() -> dict[str, Any]:
+    """Load the closed exact-build contract for real Expanded save writers."""
+    try:
+        source = EXPANDED_ATOMIC_WRITER_INTEGRATION_PATH.read_bytes()
+        if source_text_sha256(source) != EXPANDED_ATOMIC_WRITER_INTEGRATION_SHA256:
+            raise PatcherError("Expanded atomic-writer integration source hash mismatch.")
+        payload = json.loads(source.decode("utf-8-sig"))
+    except (OSError, UnicodeDecodeError, json.JSONDecodeError) as exc:
+        raise PatcherError("Expanded atomic-writer integration contract is unavailable.") from exc
+    if set(payload) != {
+        "schema", "status", "native_output", "runtime_go", "player_go",
+        "publication_ready", "generator", "games",
+    }:
+        raise PatcherError("Expanded atomic-writer integration contract is not closed.")
+    if (
+        payload.get("schema") != "vvfp.expanded_atomic_writer_integration.v1"
+        or payload.get("status") != "active_in_expanded_render_runtime_stop"
+        or payload.get("native_output") is not True
+        or payload.get("runtime_go") is not False
+        or payload.get("player_go") is not False
+        or payload.get("publication_ready") is not False
+    ):
+        raise PatcherError("Expanded atomic-writer integration gates are not exact.")
+    generator = payload.get("generator")
+    if not isinstance(generator, dict) or set(generator) != {
+        "path", "source_text_sha256", "failure_policy", "commit_protocol",
+    }:
+        raise PatcherError("Expanded atomic-writer generator binding is not closed.")
+    if (
+        generator.get("path") != "src/expanded_atomic_writer.py"
+        or generator.get("failure_policy") != "fatal_nonreturn_on_uncertain_failure"
+    ):
+        raise PatcherError("Expanded atomic-writer generator binding is not exact.")
+    generator_path = ROOT / generator["path"]
+    try:
+        generator_source = generator_path.read_bytes()
+    except OSError as exc:
+        raise PatcherError("Expanded atomic-writer generator is unavailable.") from exc
+    if source_text_sha256(generator_source) != generator.get("source_text_sha256"):
+        raise PatcherError("Expanded atomic-writer generator hash mismatch.")
+    games = payload.get("games")
+    if not isinstance(games, dict) or set(games) != {"vv3", "vv4", "vv5"}:
+        raise PatcherError("Expanded atomic-writer game set is not exact.")
+    from expanded_atomic_writer import CONFIGS
+    for game_id, game in games.items():
+        if not isinstance(game, dict) or set(game) != {
+            "writer_va", "writer_raw", "writer_length", "writer_sha256",
+            "header_va", "header_size", "header_size_offset", "backup_policy",
+            "import_page_sha256", "modes",
+        }:
+            raise PatcherError(f"{game_id} atomic-writer record is not closed.")
+        config = CONFIGS[game_id]
+        if (
+            game.get("writer_va") != f"0x{config.writer_va:X}"
+            or game.get("writer_raw") != f"0x{config.writer_raw:X}"
+            or game.get("header_va") != f"0x{config.header_va:X}"
+            or game.get("header_size") != config.header_size
+            or game.get("header_size_offset") != config.header_size_offset
+            or game.get("backup_policy")
+            != "manager_slot_plus_0x14_for_positive_slot_else_null"
+            or game.get("import_page_sha256") != config.import_page_sha256
+        ):
+            raise PatcherError(f"{game_id} atomic-writer placement binding is stale.")
+        modes = game.get("modes")
+        if not isinstance(modes, dict) or set(modes) != EXPANDED_PATCH_MODES:
+            raise PatcherError(f"{game_id} atomic-writer mode set is not exact.")
+        for mode_id, identity in modes.items():
+            if not isinstance(identity, dict) or set(identity) != {
+                "parent_size", "parent_sha256", "parent_checksum",
+                "result_size", "result_sha256", "result_checksum",
+            }:
+                raise PatcherError(
+                    f"{game_id} {mode_id} atomic-writer identity is not closed."
+                )
+            for key in ("parent_sha256", "result_sha256"):
+                value = identity.get(key)
+                if not isinstance(value, str) or len(value) != 64:
+                    raise PatcherError(
+                        f"{game_id} {mode_id} atomic-writer {key} is malformed."
+                    )
+            for key in ("parent_checksum", "result_checksum"):
+                value = identity.get(key)
+                if not isinstance(value, str) or len(value) != 8:
+                    raise PatcherError(
+                        f"{game_id} {mode_id} atomic-writer {key} is malformed."
+                    )
+    return payload
+
+
+def _apply_reviewed_expanded_atomic_writer(
+    data: bytearray,
+    build: Build,
+    patch_mode: str,
+) -> tuple[list[dict[str, Any]], list[tuple[int, int, str]]]:
+    """Install the deterministic writer transactionally on an exact parent."""
+    if patch_mode not in EXPANDED_PATCH_MODES or build.id not in {"vv3", "vv4", "vv5"}:
+        return [], []
+    contract = _expanded_atomic_writer_integration()
+    game = contract["games"][build.id]
+    mode = game["modes"][patch_mode]
+    work = bytearray(data)
+    checksum_offset, checksum_before, checksum_parent = _canonicalize_pe_checksum(work)
+    parent_sha256 = hashlib.sha256(work).hexdigest().upper()
+    if len(work) != mode["parent_size"] or parent_sha256 != mode["parent_sha256"]:
+        raise PatcherError(
+            f"{build.id} atomic-writer parent guard failed: expected "
+            f"{mode['parent_size']} / {mode['parent_sha256']}, found "
+            f"{len(work)} / {parent_sha256}."
+        )
+    if checksum_parent.hex().upper() != mode["parent_checksum"]:
+        raise PatcherError(f"{build.id} atomic-writer parent checksum mismatch.")
+    try:
+        from expanded_atomic_writer import apply_atomic_writer_bytes
+        work, generated, metadata = apply_atomic_writer_bytes(work, build.id)
+    except (ImportError, OSError, TypeError, ValueError) as exc:
+        raise PatcherError(f"{build.id} atomic-writer generation failed: {exc}") from exc
+    if (
+        metadata.get("writer_length") != game["writer_length"]
+        or metadata.get("writer_sha256") != game["writer_sha256"]
+        or metadata.get("import_page_sha256") != game["import_page_sha256"]
+        or metadata.get("runtime_go") is not False
+        or metadata.get("player_go") is not False
+        or metadata.get("publication_ready") is not False
+    ):
+        raise PatcherError(f"{build.id} atomic-writer emitted metadata mismatch.")
+    result_checksum_offset, result_checksum_before, result_checksum_after = _canonicalize_pe_checksum(work)
+    result_sha256 = hashlib.sha256(work).hexdigest().upper()
+    if len(work) != mode["result_size"] or result_sha256 != mode["result_sha256"]:
+        raise PatcherError(
+            f"{build.id} atomic-writer result guard failed: expected "
+            f"{mode['result_size']} / {mode['result_sha256']}, found "
+            f"{len(work)} / {result_sha256}."
+        )
+    if result_checksum_after.hex().upper() != mode["result_checksum"]:
+        raise PatcherError(f"{build.id} atomic-writer result checksum mismatch.")
+    owner = f"automatic:expanded-atomic-writer:{build.id}"
+    records: list[dict[str, Any]] = []
+    occupied: list[tuple[int, int, str]] = []
+    if checksum_before != checksum_parent:
+        records.append(
+            {
+                "offset": f"0x{checksum_offset:X}",
+                "before": checksum_before.hex().upper(),
+                "after": checksum_parent.hex().upper(),
+                "purpose": f"canonicalize {build.id} atomic-writer parent checksum",
+                "owner": owner,
+            }
+        )
+        occupied.append((checksum_offset, checksum_offset + 4, owner))
+    for generated_record in generated:
+        record = dict(generated_record)
+        offset = int(record["offset"], 0)
+        after = bytes.fromhex(record["after"])
+        record.update(
+            {
+                "owner": owner,
+                "virtual_address": _virtual_address_for_offset(work, offset),
+            }
+        )
+        records.append(record)
+        occupied.append((offset, offset + len(after), owner))
+    if result_checksum_before != result_checksum_after:
+        records.append(
+            {
+                "offset": f"0x{result_checksum_offset:X}",
+                "before": result_checksum_before.hex().upper(),
+                "after": result_checksum_after.hex().upper(),
+                "purpose": f"bind {build.id} atomic-writer result checksum",
+                "owner": owner,
+                "virtual_address": _virtual_address_for_offset(work, result_checksum_offset),
+            }
+        )
+        occupied.append((result_checksum_offset, result_checksum_offset + 4, owner))
+    for record in records:
+        record.update(
+            {
+                "atomic_writer_id": f"{build.id}_expanded_atomic_writer",
+                "stage_parent_sha256": parent_sha256,
+                "stage_result_sha256": result_sha256,
+                "writer_sha256": metadata["writer_sha256"],
+                "runtime_go": False,
+                "player_go": False,
+                "publication_ready": False,
+            }
+        )
+    data[:] = work
+    return records, occupied
+
+
+def _expanded_atomic_writer_summary(
+    applied: list[dict[str, Any]], final_sha256: str
+) -> list[dict[str, Any]]:
+    summaries: dict[str, dict[str, Any]] = {}
+    for record in applied:
+        writer_id = record.get("atomic_writer_id")
+        if not writer_id:
+            continue
+        summaries.setdefault(
+            writer_id,
+            {
+                "atomic_writer_id": writer_id,
+                "stage_parent_sha256": record["stage_parent_sha256"],
+                "stage_result_sha256": record["stage_result_sha256"],
+                "final_sha256": final_sha256,
+                "writer_sha256": record["writer_sha256"],
+                "failure_policy": "fatal_nonreturn_on_uncertain_failure",
+                "runtime_go": False,
+                "player_go": False,
+                "publication_ready": False,
+            },
+        )
+    return list(summaries.values())
+
+
+EXPANDED_STATISTICS_FEATURE_IDS = {
+    "vv3": "vv3_write_village_statistics",
+    "vv4": "vv4_write_village_statistics",
+    "vv5": "vv5_write_village_statistics",
+}
+EXPANDED_VV3_ATOMIC_CORE_IDS = frozenset(
+    {
+        "vv3_enable_origins_exclusive_features_running_candidate",
+        "vv3_all_villagers_like_running_candidate",
+    }
+)
+
+
+def _compose_expanded_statistics_after_atomic(
+    data: bytes | bytearray,
+    build: Build,
+    patch_mode: str,
+    fun_bytes: list[dict[str, Any]],
+) -> list[dict[str, Any]]:
+    """Replay the exact Statistics wrapper over the reviewed atomic writer.
+
+    The Statistics feature is the one supported optional owner of the primary
+    save callsite also owned by the atomic core.  Its outer detour remains the
+    final callsite owner, while the wrapper's one exact inner stock-writer call
+    is rebound to the atomic writer.  Every stock and atomic preimage remains
+    independently guarded before either composition edit is accepted.
+    """
+    if patch_mode not in EXPANDED_PATCH_MODES or build.id not in EXPANDED_STATISTICS_FEATURE_IDS:
+        return fun_bytes
+    feature_id = EXPANDED_STATISTICS_FEATURE_IDS[build.id]
+    owner = f"feature:{feature_id}"
+    owned = [patch for patch in fun_bytes if patch.get("_owner") == owner]
+    if not owned:
+        return fun_bytes
+    selected_owners = {
+        str(patch.get("_owner", "")).removeprefix("feature:")
+        for patch in fun_bytes
+    }
+    if (
+        build.id == "vv3"
+        and not EXPANDED_VV3_ATOMIC_CORE_IDS.issubset(selected_owners)
+    ):
+        return fun_bytes
+    try:
+        from expanded_atomic_writer import CONFIGS
+        config = CONFIGS[build.id]
+    except (ImportError, KeyError) as exc:
+        raise PatcherError(f"{build.id} Statistics/atomic composition is unavailable.") from exc
+    callsite_rows = {
+        raw: (before, after) for raw, before, after in config.callsites
+    }
+    outer = [
+        patch
+        for patch in owned
+        if int(patch["offset"], 0) in callsite_rows
+    ]
+    wrappers = [
+        patch
+        for patch in owned
+        if len(_patch_bytes(patch, "after")) == 0x200
+        and _patch_bytes(patch, "before") == bytes(0x200)
+    ]
+    if len(outer) != 1 or len(wrappers) != 1:
+        raise PatcherError(f"{build.id} Statistics/atomic composition shape drifted.")
+    outer_raw = int(outer[0]["offset"], 0)
+    atomic_before, atomic_after = callsite_rows[outer_raw]
+    if _patch_bytes(outer[0], "before") != atomic_before:
+        raise PatcherError(f"{build.id} Statistics stock-writer preimage drifted.")
+    wrapper_raw = int(wrappers[0]["offset"], 0)
+    wrapper_after = bytearray(_patch_bytes(wrappers[0], "after"))
+    stock_calls: list[int] = []
+    for relative in range(len(wrapper_after) - 4):
+        if wrapper_after[relative] != 0xE8:
+            continue
+        source_va_text = _virtual_address_for_offset(data, wrapper_raw + relative)
+        if source_va_text is None:
+            raise PatcherError(f"{build.id} Statistics wrapper VA is unmapped.")
+        source_va = int(source_va_text, 0)
+        target = source_va + 5 + int.from_bytes(
+            wrapper_after[relative + 1 : relative + 5], "little", signed=True
+        )
+        if target == config.stock_writer_va:
+            stock_calls.append(relative)
+    if len(stock_calls) != 1:
+        raise PatcherError(
+            f"{build.id} Statistics wrapper stock-writer call count is not one."
+        )
+    relative = stock_calls[0]
+    source_va_text = _virtual_address_for_offset(data, wrapper_raw + relative)
+    if source_va_text is None:
+        raise PatcherError(f"{build.id} Statistics wrapper VA is unmapped.")
+    source_va = int(source_va_text, 0)
+    displacement = config.writer_va - (source_va + 5)
+    if not -(1 << 31) <= displacement < (1 << 31):
+        raise PatcherError(f"{build.id} Statistics/atomic rel32 is out of range.")
+    wrapper_after[relative + 1 : relative + 5] = displacement.to_bytes(
+        4, "little", signed=True
+    )
+    composed: list[dict[str, Any]] = []
+    for patch in fun_bytes:
+        replacement = dict(patch)
+        if patch is outer[0]:
+            replacement["before"] = atomic_after.hex().upper()
+            replacement["purpose"] = (
+                str(patch["purpose"])
+                + "; replay the exact Statistics outer wrapper after the atomic core"
+            )
+            replacement["_atomic_statistics_overlay"] = True
+        elif patch is wrappers[0]:
+            replacement["after"] = bytes(wrapper_after).hex().upper()
+            replacement.pop("after_base64", None)
+            replacement["purpose"] = (
+                str(patch["purpose"])
+                + "; route its one guarded inner save through the atomic writer"
+            )
+            replacement["_atomic_statistics_wrapper"] = True
+        composed.append(replacement)
+    return composed
+
+
 def render_patched_bytes(
     source: Path,
     build: Build,
@@ -5001,6 +5671,45 @@ def render_patched_bytes(
         if overrides:
             for patch in overrides.get(patch_mode, []):
                 fun_bytes.append(dict(patch, _owner=f"feature:{feature.id}"))
+    fun_bytes = _compose_expanded_statistics_after_atomic(
+        original_data, build, patch_mode, fun_bytes
+    )
+    vv3_atomic_core_ids = set(EXPANDED_VV3_ATOMIC_CORE_IDS)
+    vv3_atomic_core = (
+        build.id == "vv3"
+        and patch_mode in EXPANDED_PATCH_MODES
+        and vv3_atomic_core_ids.issubset(selected_fun_ids)
+    )
+    vv3_core_features = (
+        [feature for feature in fun_patches if feature.id in vv3_atomic_core_ids]
+        if vv3_atomic_core
+        else []
+    )
+    later_fun_features = (
+        [feature for feature in fun_patches if feature.id not in vv3_atomic_core_ids]
+        if vv3_atomic_core
+        else fun_patches
+    )
+    vv3_core_fun_bytes = (
+        [
+            patch
+            for patch in fun_bytes
+            if patch.get("_owner", "").removeprefix("feature:")
+            in vv3_atomic_core_ids
+        ]
+        if vv3_atomic_core
+        else []
+    )
+    later_fun_bytes = (
+        [
+            patch
+            for patch in fun_bytes
+            if patch.get("_owner", "").removeprefix("feature:")
+            not in vv3_atomic_core_ids
+        ]
+        if vv3_atomic_core
+        else fun_bytes
+    )
     candidate_preimage_checked = False
     candidate_preimage_checksum: bytes | None = None
     vv4_composed_parent_sha256: str | None = None
@@ -5043,10 +5752,15 @@ def render_patched_bytes(
             raise PatcherError("VV3 Full Heal legacy Cure cave must remain zero.")
         candidate_preimage_checked = True
         candidate_preimage_checksum = bytes(parent_bytes[0x160:0x164])
-    for phase_index, phase in enumerate(
-        (expanded, [*safety, *population, *support], fun_bytes)
-    ):
-        if phase_index == 1:
+    phases: list[tuple[str, list[dict[str, Any]]]] = [
+        ("expanded", expanded),
+        ("automatic", [*safety, *population]),
+    ]
+    if vv3_atomic_core:
+        phases.append(("vv3_atomic_core", vv3_core_fun_bytes))
+    phases.extend((("support", support), ("optional_fun", later_fun_bytes)))
+    for phase_name, phase in phases:
+        if phase_name == "automatic":
             repair_records, repair_ranges = _apply_reviewed_expanded_static_repair(
                 data,
                 build,
@@ -5056,9 +5770,43 @@ def render_patched_bytes(
             )
             applied.extend(repair_records)
             applied_ranges.extend(repair_ranges)
-        if phase_index == 2:
+        if phase_name == "vv3_atomic_core":
             applied.extend(
-                _apply_pe_append_transactions(data, fun_patches, patch_mode)
+                _apply_pe_append_transactions(data, vv3_core_features, patch_mode)
+            )
+        if phase_name == "support":
+            if vv3_atomic_core:
+                applied.extend(
+                    _relocate_expanded_shr_fun_patches(
+                        build, patch_mode, vv3_core_features, data
+                    )
+                )
+                repair_records, repair_ranges = _apply_reviewed_expanded_static_repair(
+                    data,
+                    build,
+                    patch_mode,
+                    "post_feature_relocation",
+                    selected_fun_ids,
+                )
+                applied.extend(repair_records)
+                applied_ranges.extend(repair_ranges)
+                atomic_records, atomic_ranges = _apply_reviewed_expanded_atomic_writer(
+                    data, build, patch_mode
+                )
+                applied.extend(atomic_records)
+                applied_ranges.extend(atomic_ranges)
+            elif (
+                build.id in {"vv4", "vv5"}
+                and patch_mode in EXPANDED_PATCH_MODES
+            ):
+                atomic_records, atomic_ranges = _apply_reviewed_expanded_atomic_writer(
+                    data, build, patch_mode
+                )
+                applied.extend(atomic_records)
+                applied_ranges.extend(atomic_ranges)
+        if phase_name == "optional_fun":
+            applied.extend(
+                _apply_pe_append_transactions(data, later_fun_features, patch_mode)
             )
         for patch in phase:
             offset = int(patch["offset"], 0)
@@ -5164,6 +5912,15 @@ def render_patched_bytes(
                         before=before,
                         composed_sha256=vv4_composed_parent_sha256 or "",
                     )
+                    allowed_atomic_statistics_overlay = (
+                        patch.get("_atomic_statistics_overlay") is True
+                        and owner
+                        == f"feature:{EXPANDED_STATISTICS_FEATURE_IDS.get(build.id, '')}"
+                        and prior_owner
+                        == f"automatic:expanded-atomic-writer:{build.id}"
+                        and prior_start == offset
+                        and prior_end == end
+                    )
                     if (
                         allowed_vv1_composition_overlay
                         or allowed_vv5_individual_overlay
@@ -5172,6 +5929,7 @@ def render_patched_bytes(
                         or allowed_vv3_full_heal_overlay
                         or allowed_vv3_full_heal_cave_overlay
                         or allowed_vv4_full_heal_overlay
+                        or allowed_atomic_statistics_overlay
                     ):
                         continue
                     raise PatcherError(
@@ -5196,46 +5954,33 @@ def render_patched_bytes(
             )
     applied.extend(
         _relocate_expanded_shr_fun_patches(
-            build, patch_mode, fun_patches, data
+            build, patch_mode, later_fun_features, data
         )
     )
-    repair_records, repair_ranges = _apply_reviewed_expanded_static_repair(
-        data,
-        build,
-        patch_mode,
-        "post_feature_relocation",
-        selected_fun_ids,
+    task9_post_relocation = _apply_vv5_task9_post_relocation_hook(
+        data, build, patch_mode, later_fun_features
     )
-    applied.extend(repair_records)
-    applied_ranges.extend(repair_ranges)
+    applied.extend(task9_post_relocation)
+    for record in task9_post_relocation:
+        start = int(record["offset"], 0)
+        applied_ranges.append((
+            start,
+            start + len(bytes.fromhex(record["after"])),
+            record["owner"],
+        ))
+    if not vv3_atomic_core:
+        repair_records, repair_ranges = _apply_reviewed_expanded_static_repair(
+            data,
+            build,
+            patch_mode,
+            "post_feature_relocation",
+            selected_fun_ids,
+        )
+        applied.extend(repair_records)
+        applied_ranges.extend(repair_ranges)
     checksum_offset, _ = _pe_checksum_layout(data)
     checksum = pe_checksum(data)
     struct.pack_into("<I", data, checksum_offset, checksum)
-    if (
-        build.id in {"vv4", "vv5"}
-        and patch_mode in EXPANDED_PATCH_MODES
-        and not fun_patches
-    ):
-        integration = _expanded_static_repair_integration()
-        expected_final = integration["games"][build.id]["modes"][patch_mode][
-            "final_no_fun_sha256"
-        ]
-        actual_final = hashlib.sha256(data).hexdigest().upper()
-        if actual_final != expected_final:
-            raise PatcherError(
-                f"{build.id} final Expanded static-repair identity mismatch: "
-                f"expected {expected_final}, found {actual_final}."
-            )
-        checksum_offset, _ = _pe_checksum_layout(data)
-        actual_final_checksum = bytes(data[checksum_offset : checksum_offset + 4]).hex().upper()
-        expected_final_checksum = integration["games"][build.id]["modes"][patch_mode][
-            "final_no_fun_checksum"
-        ]
-        if actual_final_checksum != expected_final_checksum:
-            raise PatcherError(
-                f"{build.id} final Expanded static-repair checksum mismatch: "
-                f"expected {expected_final_checksum}, found {actual_final_checksum}."
-            )
     if any(feature.id == VV3_FULL_HEAL_CANDIDATE_ID for feature in fun_patches):
         expected_rendered = VV3_FULL_HEAL_RENDERED_SHA256.get(patch_mode)
         expected_transition = VV3_FULL_HEAL_CHECKSUM_TRANSITIONS.get(patch_mode)
@@ -5353,6 +6098,9 @@ def _result(
         "bonuses_affect_maximum": variant["bonuses_affect_maximum"],
         "patches": applied,
         "expanded_static_repairs": _expanded_static_repair_summary(
+            applied, result_sha256
+        ),
+        "expanded_atomic_writers": _expanded_atomic_writer_summary(
             applied, result_sha256
         ),
         "result_sha256": result_sha256,
@@ -5527,6 +6275,9 @@ def _log_data(
         "output_path": str(output),
         "output_sha256": output_hash,
         "expanded_static_repairs": _expanded_static_repair_summary(
+            applied, output_hash
+        ),
+        "expanded_atomic_writers": _expanded_atomic_writer_summary(
             applied, output_hash
         ),
         "patches": applied,

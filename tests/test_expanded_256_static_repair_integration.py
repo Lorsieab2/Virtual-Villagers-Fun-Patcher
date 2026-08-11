@@ -23,6 +23,9 @@ SCHEMA_PATH = ROOT / "data" / "schemas" / "expanded_256_static_repair_integratio
 class ExpandedStaticRepairIntegrationTests(unittest.TestCase):
     def setUp(self) -> None:
         self.contract = json.loads(CONTRACT_PATH.read_text(encoding="utf-8"))
+        self.atomic_contract = json.loads(
+            P.EXPANDED_ATOMIC_WRITER_INTEGRATION_PATH.read_text(encoding="utf-8")
+        )
 
     def test_contract_is_closed_and_runtime_fail_closed(self) -> None:
         self.assertEqual(
@@ -87,7 +90,8 @@ class ExpandedStaticRepairIntegrationTests(unittest.TestCase):
                 with self.subTest(game=game_id, mode=mode_id):
                     rendered, applied = P.render_patched_bytes(source, build, mode_id)
                     final_sha = hashlib.sha256(rendered).hexdigest().upper()
-                    self.assertEqual(final_sha, identity["final_no_fun_sha256"])
+                    atomic_identity = self.atomic_contract["games"][game_id]["modes"][mode_id]
+                    self.assertEqual(final_sha, atomic_identity["result_sha256"])
                     repairs = P._expanded_static_repair_summary(applied, final_sha)
                     self.assertEqual(len(repairs), 1)
                     self.assertEqual(repairs[0]["repair_id"], game["repair_id"])
@@ -114,10 +118,12 @@ class ExpandedStaticRepairIntegrationTests(unittest.TestCase):
                     _fun_patches_override=features,
                 )
                 final_sha = hashlib.sha256(rendered).hexdigest().upper()
-                self.assertEqual(len(rendered), identity["result_size"])
-                self.assertEqual(final_sha, identity["result_sha256"])
+                atomic_identity = self.atomic_contract["games"]["vv3"]["modes"][mode_id]
+                self.assertEqual(len(rendered), atomic_identity["result_size"])
+                self.assertEqual(final_sha, atomic_identity["result_sha256"])
                 repairs = P._expanded_static_repair_summary(applied, final_sha)
                 self.assertEqual([item["repair_id"] for item in repairs], [game["repair_id"]])
+                self.assertEqual(repairs[0]["stage_result_sha256"], identity["result_sha256"])
 
     def test_stock_modes_never_apply_expanded_repairs(self) -> None:
         for game_id in ("vv3", "vv4", "vv5"):
@@ -159,11 +165,15 @@ class ExpandedStaticRepairIntegrationTests(unittest.TestCase):
         result = P.dry_run(source, "experimental_expanded_256")
         self.assertEqual(
             result["result_sha256"],
-            self.contract["games"]["vv4"]["modes"]["experimental_expanded_256"]["final_no_fun_sha256"],
+            self.atomic_contract["games"]["vv4"]["modes"]["experimental_expanded_256"]["result_sha256"],
         )
         self.assertEqual(
             [item["repair_id"] for item in result["expanded_static_repairs"]],
             ["vv4_full256_serializer_reader_gate"],
+        )
+        self.assertEqual(
+            [item["atomic_writer_id"] for item in result["expanded_atomic_writers"]],
+            ["vv4_expanded_atomic_writer"],
         )
 
     def test_c342_and_manifest_pins_remain_exact(self) -> None:
