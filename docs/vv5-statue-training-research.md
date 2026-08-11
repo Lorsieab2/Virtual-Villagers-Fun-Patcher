@@ -82,6 +82,17 @@ with two unreachable terminal NOPs. Protected disassembly tests now require all
 three return paths to leave exactly one selected behavior DWORD on the caller's
 stack.
 
+The first repaired player test started successfully but reproduced the same
+`0xC0000005` dispatcher fault at `0x00452BD4` after loading a save. Its dump
+showed the dispatcher again receiving a caller stack-local address instead of
+a behavior ID. IDA confirmed that four Polishing/Honoring calls targeted
+`0x004944A7` and the Confused/Honoring call targeted `0x00494480`, while both
+addresses still contained NOP padding that fell through into the unrelated
+population-count helper at `0x004944C0`. The trampoline now has explicit jumps
+from `0x00494460`, `0x00494480`, and `0x004944A7` to the Building, Confused,
+and Polishing selectors respectively. Protected tests bind every patched call
+site to its intended trampoline entry and every entry to its selector body.
+
 ## Preserved behavior
 
 - Statue-state eligibility remains controlled by the original drop handlers.

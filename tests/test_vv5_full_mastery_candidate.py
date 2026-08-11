@@ -872,6 +872,35 @@ class VV5FullMasteryCandidateTests(unittest.TestCase):
         patches = {int(item["offset"], 0): item for item in feature["patches"]}
         md = Cs(CS_ARCH_X86, CS_MODE_32)
 
+        trampoline_entries = {
+            0x94460: 0x494740,
+            0x94480: 0x4947B0,
+            0x944A7: 0x494840,
+        }
+        trampoline = bytes.fromhex(patches[0x94460]["after"])
+        self.assertEqual(len(trampoline), 0x60)
+        for offset, expected_target in trampoline_entries.items():
+            relative = offset - 0x94460
+            self.assertEqual(trampoline[relative], 0xE9)
+            displacement = struct.unpack_from("<i", trampoline, relative + 1)[0]
+            self.assertEqual(0x400000 + offset + 5 + displacement, expected_target)
+
+        call_targets = {
+            0x6BF60: 0x494460,
+            0x6CC39: 0x494460,
+            0x796B3: 0x494460,
+            0x79726: 0x494480,
+            0x6C45D: 0x4944A7,
+            0x6CDED: 0x4944A7,
+            0x6BF9A: 0x4944A7,
+            0x796EB: 0x4944A7,
+        }
+        for offset, expected_target in call_targets.items():
+            payload = bytes.fromhex(patches[offset]["after"])
+            self.assertEqual(payload[0], 0xE8)
+            displacement = struct.unpack_from("<i", payload, 1)[0]
+            self.assertEqual(0x400000 + offset + 5 + displacement, expected_target)
+
         for offset, expected in selectors.items():
             payload = bytes.fromhex(patches[offset]["after"])
             self.assertEqual(payload[-2:], b"\x90\x90")
