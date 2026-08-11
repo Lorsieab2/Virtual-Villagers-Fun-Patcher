@@ -63,11 +63,18 @@ BARREL_CLOSE_HELPER_VA = IMAGE_BASE + SHR_RVA + (
     BARREL_CLOSE_HELPER_FILE_OFFSET - SHR_FILE_OFFSET
 )
 BARREL_CLOSE_HELPER_CODE = bytes.fromhex(
-    "8B4E146A4BE8F628FAFF6A008BCEE8CDF0F6FF8B460C"
-    "C7807004030001000000803D00C74900007436C60500C7490000"
-    "81ECD8500000682C1A4B7F6A028D4C2408E88A81F9FF"
-    "6A00568D4C2408E86E53F6FF89E1E8276AF9FF"
-    "81C4D8500000E98670FAFF"
+    "8B4E146A4BE8F628FAFF6A0089F1E8CDF0F6FF8B460C"
+    "C7807004030001000000803D00C74900017507C60500C7490002"
+    "E9B570FAFF"
+)
+BARREL_MAIN_HELPER_FILE_OFFSET = 0x9A780
+BARREL_MAIN_HELPER_VA = IMAGE_BASE + SHR_RVA + (
+    BARREL_MAIN_HELPER_FILE_OFFSET - SHR_FILE_OFFSET
+)
+BARREL_MAIN_HELPER_CODE = bytes.fromhex(
+    "803D00C74900027536C60500C749000081ECD8500000682C1A4B7F"
+    "6A028D4C2408E83A81F9FF6A00568D4C2408E81E53F6FF89E1E8"
+    "D769F9FF81C4D850000089F9E83A6AF6FFE92A22F9FF"
 )
 RUNNING_PREFERENCE_ID = 38  # exact-build preference-table evidence: 0x8B808
 
@@ -285,7 +292,7 @@ def main() -> None:
             push 0
             push esi
             push 563
-            push 136
+            push 152
             push 0x4763E8
             push 6
             mov ecx, eax
@@ -1357,7 +1364,13 @@ def main() -> None:
         BARREL_CLOSE_HELPER_FILE_OFFSET,
         b"\0" * len(BARREL_CLOSE_HELPER_CODE),
         BARREL_CLOSE_HELPER_CODE,
-        "consume the one-shot Barrel token only after the stock Technologies screen closes",
+        "advance the purchased Barrel token only after the stock Technologies screen closes",
+    )
+    patch(
+        BARREL_MAIN_HELPER_FILE_OFFSET,
+        b"\0" * len(BARREL_MAIN_HELPER_CODE),
+        BARREL_MAIN_HELPER_CODE,
+        "consume the closed-screen Barrel token with the stock main-village modal owner",
     )
 
     patch(
@@ -1418,7 +1431,13 @@ def main() -> None:
         0x437DA,
         bytes.fromhex("8B4E146A4B"),
         rel32_jump(0x4437DA, BARREL_CLOSE_HELPER_VA),
-        "consume a purchased Barrel only after the stock Technologies screen closes",
+        "advance a purchased Barrel only after the stock Technologies screen closes",
+    )
+    patch(
+        0x2E9F0,
+        bytes.fromhex("E80B48FDFF"),
+        rel32_jump(0x42E9F0, BARREL_MAIN_HELPER_VA),
+        "present the pending native Barrel event from the stock main-village update owner",
     )
     patch(
         0x67624,

@@ -266,7 +266,7 @@ class ManifestTests(unittest.TestCase):
             (ROOT / "data" / "vv2_origins_feature.json").read_text(encoding="utf-8")
         )
         rows = {int(row["offset"], 0): row for row in manifest["patches"]}
-        self.assertEqual(len(rows), 20)
+        self.assertEqual(len(rows), 22)
         self.assertIn("dry-scan all 256", rows[0x9A300]["purpose"])
         self.assertIn("selected active record", rows[0x9A380]["purpose"])
         self.assertIn("all 62 Like and Dislike", rows[0x9A009]["purpose"])
@@ -284,17 +284,25 @@ class ManifestTests(unittest.TestCase):
         self.assertEqual(rows[0x9A700]["after"], "00")
         self.assertEqual(
             rows[0x9A710]["after"],
-            "8B4E146A4BE8F628FAFF6A008BCEE8CDF0F6FF8B460C"
-            "C7807004030001000000803D00C74900007436C60500C7490000"
-            "81ECD8500000682C1A4B7F6A028D4C2408E88A81F9FF"
-            "6A00568D4C2408E86E53F6FF89E1E8276AF9FF"
-            "81C4D8500000E98670FAFF",
+            "8B4E146A4BE8F628FAFF6A0089F1E8CDF0F6FF8B460C"
+            "C7807004030001000000803D00C74900017507C60500C7490002"
+            "E9B570FAFF",
         )
+        self.assertEqual(
+            rows[0x9A780]["after"],
+            "803D00C74900027536C60500C749000081ECD8500000682C1A4B7F"
+            "6A028D4C2408E83A81F9FF6A00568D4C2408E81E53F6FF89E1E8"
+            "D769F9FF81C4D850000089F9E83A6AF6FFE92A22F9FF",
+        )
+        self.assertEqual(rows[0x2E9F0]["before"], "E80B48FDFF")
+        self.assertEqual(rows[0x2E9F0]["after"], "E98BDD0600")
+        self.assertEqual(rows[0x437DA]["after"], "E9318F0500")
         source = (ROOT / "scripts" / "build_vv2_origins_feature.py").read_text(
             encoding="utf-8"
         )
         self.assertIn("push 10\n            push 21\n            call 0x433600", source)
-        self.assertIn("push 563\n            push 136", source)
+        self.assertIn("push 563\n            push 152", source)
+        self.assertNotIn("push 563\n            push 136", source)
 
     def test_running_preference_id_matches_each_stock_table(self) -> None:
         evidence = {
