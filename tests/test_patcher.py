@@ -38,6 +38,10 @@ from vv_fun_patcher import (  # noqa: E402
     vanilla_save_folder_for,
 )
 from vv_fun_patcher_gui import group_fun_patches  # noqa: E402
+from vv3_expanded_256_contract import (  # noqa: E402
+    VV3_LAYOUT,
+    build_physical_record_pool,
+)
 
 STOCK = ROOT / "research" / "stock-executables"
 MODES = (
@@ -1581,6 +1585,77 @@ class StockIntegrationTests(unittest.TestCase):
                     bytes(rendered[0x5FA46:0x5FA4A]),
                     bytes(stock[0x5FA46:0x5FA4A]),
                 )
+
+    def test_vv3_expanded_capacity_corrections_cover_256_logical_plus_padding(self) -> None:
+        build = next(build for build in load_builds() if build.id == "vv3")
+        source = STOCK / build.input_name
+        stock = source.read_bytes()
+        expected = {
+            0x5E8F8: ("BA0F000000", "BA1A000000", "BA0F000000"),
+            0x5EA9C: ("BF0F000000", "BF1A000000", "BF0F000000"),
+            0x5D7D6: ("BA0F000000", "BA1A000000", "BA0F000000"),
+            0x7B266: ("00000000", "FD000000", "93000000"),
+            0x7B286: ("00000000", "FE000000", "94000000"),
+        }
+        self.assertEqual(26 * 10, 260)
+        self.assertEqual(VV3_LAYOUT.physical_record_count, 260)
+        pool = build_physical_record_pool(
+            [bytes([index & 0xFF]) * VV3_LAYOUT.live_record_stride
+             for index in range(VV3_LAYOUT.logical_record_count)]
+        )
+        padding_start = 256 * VV3_LAYOUT.live_record_stride
+        self.assertEqual(
+            pool[padding_start:],
+            b"\0" * (4 * VV3_LAYOUT.live_record_stride),
+        )
+        expected_sha256 = {
+            "experimental_expanded_256":
+                "28DC72B33C200E1A29B1D5CF5BBDD381CC805C9E137DA30CE665A98A6FBB79AC",
+            "experimental_expanded_256_progression":
+                "AA2E0D8EF68044CADDF9EB8E30D02CF5A5EA34C8ED15959465D4DB061E78C16E",
+        }
+        for mode in EXPANDED_MODES:
+            with self.subTest(mode=mode):
+                rendered, applied = render_patched_bytes(source, build, mode)
+                self.assertEqual(
+                    hashlib.sha256(rendered).hexdigest().upper(),
+                    expected_sha256[mode],
+                )
+                for offset, (stock_hex, final_hex, _) in expected.items():
+                    self.assertEqual(
+                        bytes(stock[offset : offset + len(bytes.fromhex(stock_hex))]),
+                        bytes.fromhex(stock_hex),
+                    )
+                    self.assertEqual(
+                        bytes(rendered[offset : offset + len(bytes.fromhex(final_hex))]),
+                        bytes.fromhex(final_hex),
+                    )
+                corrections = [
+                    row
+                    for row in applied
+                    if row.get("owner")
+                    == "automatic:vv3-expanded-capacity-corrections"
+                ]
+                self.assertEqual(
+                    [(int(row["offset"], 0), row["before"], row["after"])
+                     for row in corrections],
+                    [
+                        (0x5E8F8, "BA0F000000", "BA1A000000"),
+                        (0x5EA9C, "BF0F000000", "BF1A000000"),
+                        (0x5D7D6, "BA0F000000", "BA1A000000"),
+                        (0x7B266, "93000000", "FD000000"),
+                        (0x7B286, "94000000", "FE000000"),
+                    ],
+                )
+
+        for mode in ("collection_progression", "immediate_fixed"):
+            with self.subTest(stock_mode=mode):
+                rendered, _ = render_patched_bytes(source, build, mode)
+                for offset, (_, _, stock_mode_hex) in expected.items():
+                    self.assertEqual(
+                        bytes(rendered[offset : offset + len(bytes.fromhex(stock_mode_hex))]),
+                        bytes.fromhex(stock_mode_hex),
+                    )
 
     def test_expanded_modes_leave_required_slot_zero_loaders_stock(self) -> None:
         slot_zero_calls = {

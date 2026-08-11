@@ -238,12 +238,17 @@ class VV3ExpandedTimeWarpRendererTests(unittest.TestCase):
             parent_before_healer_repair[0x5FA46:0x5FA4A] = bytes.fromhex(
                 patcher.VV3_EXPANDED_HEALER_ENDPOINT_REPAIR["before"]
             )
+            for patch in patcher.VV3_EXPANDED_CAPACITY_CORRECTIONS:
+                offset = int(patch["offset"], 0)
+                parent_before_healer_repair[
+                    offset : offset + len(bytes.fromhex(patch["before"]))
+                ] = bytes.fromhex(patch["before"])
             patcher._canonicalize_pe_checksum(parent_before_healer_repair)
             self.assertEqual(
                 digest(parent_before_healer_repair),
                 chain["expanded_parent"]["sha256"],
             )
-            repaired = patcher.VV3_EXPANDED_HEALER_TIME_WARP_RESULTS[mode]
+            repaired = patcher.VV3_EXPANDED_FINAL_TIME_WARP_RESULTS[mode]
             self.assertEqual(digest(installed), repaired["atomic_result"]["sha256"])
             self.assertEqual(
                 digest(statistics), repaired["statistics_result"]["sha256"]

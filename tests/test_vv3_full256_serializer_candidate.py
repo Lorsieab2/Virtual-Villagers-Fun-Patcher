@@ -207,6 +207,9 @@ class Full256StaticCandidateTests(unittest.TestCase):
         with mock.patch(
             "vv_fun_patcher._apply_vv3_expanded_healer_endpoint_repair",
             return_value=[],
+        ), mock.patch(
+            "vv_fun_patcher._apply_vv3_expanded_capacity_corrections",
+            return_value=[],
         ):
             return [
                 (mode, bytes(render_patched_bytes(stock, build, mode, _fun_patches_override=features)[0]))

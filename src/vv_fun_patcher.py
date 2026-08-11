@@ -762,29 +762,61 @@ VV3_EXPANDED_HEALER_ENDPOINT_REPAIR = {
         "record 255 plus the native 0x14 record offset"
     ),
 }
-VV3_EXPANDED_HEALER_TIME_WARP_RESULTS = {
+VV3_EXPANDED_CAPACITY_CORRECTIONS = (
+    {
+        "offset": "0x5E8F8",
+        "before": "BA0F000000",
+        "after": "BA1A000000",
+        "purpose": "scan 26 ten-record groups when counting the current population",
+    },
+    {
+        "offset": "0x5EA9C",
+        "before": "BF0F000000",
+        "after": "BF1A000000",
+        "purpose": "scan 26 ten-record groups in the population and gender helper",
+    },
+    {
+        "offset": "0x5D7D6",
+        "before": "BA0F000000",
+        "after": "BA1A000000",
+        "purpose": "scan 26 ten-record groups when resetting all villager records",
+    },
+    {
+        "offset": "0x7B266",
+        "before": "93000000",
+        "after": "FD000000",
+        "purpose": "reserve three free physical slots before a three-child birth",
+    },
+    {
+        "offset": "0x7B286",
+        "before": "94000000",
+        "after": "FE000000",
+        "purpose": "reserve two free physical slots before a two-child birth",
+    },
+)
+VV3_EXPANDED_FINAL_TIME_WARP_RESULTS = {
     "experimental_expanded_256": {
         "atomic_result": {
             "size": 843776,
-            "sha256": "7009B60EB434DDA830B0E702563A572ED48E2BBBF6340D1C8C04F04094885EA4",
-            "checksum": "9D900D00",
+            "sha256": "CD8F14DEBA45612B8E947DD479B199A98FAFDF37981300860AA0997C86FA3612",
+            "checksum": "71B20D00",
         },
         "statistics_result": {
             "size": 843776,
-            "sha256": "2C7354F4778AA8652839F51A711A69A5AA85C303894DE4DA13700451156FA9A8",
-            "checksum": "0E870D00",
+            "sha256": "A7E7F9444987E73D0356C2009656DA9A2B95B58ACCD380E47E24E6DA945C948C",
+            "checksum": "E2A80D00",
         },
     },
     "experimental_expanded_256_progression": {
         "atomic_result": {
             "size": 843776,
-            "sha256": "75661039771ADAABD9C6B3F7C9575E3A22C8AC4595563293D2326C98C3F241F3",
-            "checksum": "A80B0D00",
+            "sha256": "161C5A139A8EEA60CE42C18A4E2DA2CC8B85F1A61D6CF73F6D8DC55A93EABA7D",
+            "checksum": "7C2D0D00",
         },
         "statistics_result": {
             "size": 843776,
-            "sha256": "3043EE3595194E10B607762D60C6DB789B9AA2855264156435891417AA6594C8",
-            "checksum": "19020D00",
+            "sha256": "232C99F19D5D846764784C6E99746EDE8F3F9916EAA81D1153ACB6F4B3C6012E",
+            "checksum": "ED230D00",
         },
     },
 }
@@ -4637,6 +4669,40 @@ def _apply_vv3_expanded_healer_endpoint_repair(
     }]
 
 
+def _apply_vv3_expanded_capacity_corrections(
+    data: bytearray,
+    build: Build,
+    patch_mode: str,
+) -> list[dict[str, str]]:
+    if build.id != "vv3" or patch_mode not in EXPANDED_PATCH_MODES:
+        return []
+    checked: list[tuple[dict[str, str], int, bytes, bytes]] = []
+    for patch in VV3_EXPANDED_CAPACITY_CORRECTIONS:
+        offset = int(patch["offset"], 0)
+        before = bytes.fromhex(patch["before"])
+        after = bytes.fromhex(patch["after"])
+        actual = bytes(data[offset : offset + len(before)])
+        if actual != before:
+            raise PatcherError(
+                "VV3 Expanded capacity correction guard failed at "
+                f"{patch['offset']}: expected {before.hex().upper()}, "
+                f"found {actual.hex().upper()}"
+            )
+        checked.append((patch, offset, before, after))
+    records = []
+    for patch, offset, before, after in checked:
+        data[offset : offset + len(after)] = after
+        records.append({
+            "offset": patch["offset"],
+            "before": patch["before"],
+            "after": patch["after"],
+            "purpose": patch["purpose"],
+            "owner": "automatic:vv3-expanded-capacity-corrections",
+            "virtual_address": _virtual_address_for_offset(bytes(data), offset),
+        })
+    return records
+
+
 def get_fun_patch(patch_id: str) -> FunPatch:
     for patch in load_fun_patches(include_expanded_time_warp=True):
         if patch.id == patch_id:
@@ -6616,6 +6682,9 @@ def render_patched_bytes(
     applied.extend(
         _apply_vv3_expanded_healer_endpoint_repair(data, build, patch_mode)
     )
+    applied.extend(
+        _apply_vv3_expanded_capacity_corrections(data, build, patch_mode)
+    )
     checksum_offset, _ = _pe_checksum_layout(data)
     checksum = pe_checksum(data)
     struct.pack_into("<I", data, checksum_offset, checksum)
@@ -6630,7 +6699,7 @@ def render_patched_bytes(
                 if EXPANDED_STATISTICS_FEATURE_IDS["vv3"] in selected_fun_ids
                 else "atomic_result"
             )
-            expected = VV3_EXPANDED_HEALER_TIME_WARP_RESULTS[patch_mode][stage]
+            expected = VV3_EXPANDED_FINAL_TIME_WARP_RESULTS[patch_mode][stage]
             if (
                 len(data) != expected["size"]
                 or hashlib.sha256(data).hexdigest().upper() != expected["sha256"]
