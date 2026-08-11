@@ -1,0 +1,173 @@
+{
+  "id": "vv3_expanded_256_time_warp",
+  "game_id": "vv3",
+  "name": "Enable Time Warp (Expanded-256)",
+  "description": "Adds only the reviewed Time Warp purchase to VV3 experimental Expanded-256 without installing the Origins or Running mechanics.",
+  "output_tag": "Expanded Time Warp",
+  "enabled": true,
+  "catalog_enabled": false,
+  "catalog_hidden": true,
+  "experimental_explicit_selection": true,
+  "supported_modes": [
+    "experimental_expanded_256",
+    "experimental_expanded_256_progression"
+  ],
+  "rejected_modes": [
+    "collection_progression",
+    "immediate_fixed"
+  ],
+  "conflicts": [
+    "vv3_enable_origins_exclusive_features_running_candidate",
+    "vv3_all_villagers_like_running_candidate",
+    "vv3_enable_origins_exclusive_features",
+    "vv3_full_mastery_all_stage_a_candidate"
+  ],
+  "companion_files": [
+    {
+      "source": "data/candidates/VVFP VV5 Task9 Origins Icons.dll",
+      "destination": "VVFP Origins Icons.dll",
+      "sha256": "B402ED8316CD6EB2C43B056848E622DC0924188C81C683F5E2813466AF8045D0",
+      "size": 297472
+    }
+  ],
+  "patches": [],
+  "patch_mode_overrides": {
+    "experimental_expanded_256": [
+      {
+        "offset": "0x6547D",
+        "before": "8B4C243C5F",
+        "after": "E9FE2B3500",
+        "purpose": "route the Tech constructor through isolated Expanded Time Warp"
+      },
+      {
+        "offset": "0x65640",
+        "before": "6AFF64A100000000",
+        "after": "E9FB293500909090",
+        "purpose": "route only Tech message 8 / event 15 through isolated Expanded Time Warp"
+      }
+    ],
+    "experimental_expanded_256_progression": [
+      {
+        "offset": "0x6547D",
+        "before": "8B4C243C5F",
+        "after": "E9FE2B3500",
+        "purpose": "route the Tech constructor through isolated Expanded Time Warp"
+      },
+      {
+        "offset": "0x65640",
+        "before": "6AFF64A100000000",
+        "after": "E9FB293500909090",
+        "purpose": "route only Tech message 8 / event 15 through isolated Expanded Time Warp"
+      }
+    ]
+  },
+  "pe_append_transaction": {
+    "owner": "vv3_expanded_256_time_warp",
+    "section_name": ".vv3tw",
+    "append_length": 4096,
+    "removal_policy": "automatic .vv3i and .vv3sv pages must be removed first, then the exact Time Warp page is restored and truncated",
+    "layouts": {
+      "experimental_expanded_256": {
+        "original_file_size": "0xCB000",
+        "append_offset": "0xCB000",
+        "append_source": "generated:vv3_expanded_time_warp_page",
+        "page_sha256": "D169B49C63731970FBE832256C8975806301EE16FC872C6F1B608C6E1FB73C92",
+        "virtual_address": "0x7B8000",
+        "purpose": "append the isolated reviewed VV3 Expanded Time Warp page",
+        "header_patches": [
+          {
+            "offset": "0x10E",
+            "before": "0500",
+            "after": "0600",
+            "purpose": "add the .vv3tw section"
+          },
+          {
+            "offset": "0x158",
+            "before": "00803B00",
+            "after": "00903B00",
+            "purpose": "extend SizeOfImage through .vv3tw"
+          },
+          {
+            "offset": "0x2C8",
+            "before": "00000000000000000000000000000000000000000000000000000000000000000000000000000000",
+            "after": "2E767633747700000010000000803B000010000000B00C0000000000000000000000000020000060",
+            "purpose": "install the exact RX .vv3tw section header"
+          }
+        ]
+      },
+      "experimental_expanded_256_progression": {
+        "original_file_size": "0xCB000",
+        "append_offset": "0xCB000",
+        "append_source": "generated:vv3_expanded_time_warp_page",
+        "page_sha256": "D169B49C63731970FBE832256C8975806301EE16FC872C6F1B608C6E1FB73C92",
+        "virtual_address": "0x7B8000",
+        "purpose": "append the isolated reviewed VV3 Expanded Time Warp page",
+        "header_patches": [
+          {
+            "offset": "0x10E",
+            "before": "0500",
+            "after": "0600",
+            "purpose": "add the .vv3tw section"
+          },
+          {
+            "offset": "0x158",
+            "before": "00803B00",
+            "after": "00903B00",
+            "purpose": "extend SizeOfImage through .vv3tw"
+          },
+          {
+            "offset": "0x2C8",
+            "before": "00000000000000000000000000000000000000000000000000000000000000000000000000000000",
+            "after": "2E767633747700000010000000803B000010000000B00C0000000000000000000000000020000060",
+            "purpose": "install the exact RX .vv3tw section header"
+          }
+        ]
+      }
+    }
+  },
+  "source_bindings": {
+    "builder": {
+      "path": "scripts/build_vv3_expanded_time_warp.py",
+      "source_text_sha256": "58C3586D773D0EF8E30562B54F01A262228C6154C32CCEF0D5FEF44347D72913"
+    },
+    "static_candidate": {
+      "path": "data/candidates/vv3_full256_serializer_candidate.json",
+      "source_text_sha256": "4C2186DA89A5F1D561DF730A35FA884815F2DB588E82D05536011DD25000222A"
+    },
+    "atomic_generator": {
+      "path": "src/expanded_atomic_writer.py",
+      "source_text_sha256": "0424B3B56CB4093176A8B429472FCDF04043CBFC22424EBBDE37058EA1A8F72E"
+    },
+    "task9_companion_c": {
+      "path": "native/vv5_task9_origins/vv5_task9_origins.c",
+      "source_text_sha256": "7CE6ABD30BDCDAED2599AD98346F3594E16D8C9E2AD894BD09EA8113FBE1316A"
+    },
+    "task9_companion_def": {
+      "path": "native/vv5_task9_origins/vv5_task9_origins.def",
+      "source_text_sha256": "0D5C23F01ADEA1881489EDCCAE973F18794BD0E02D36B7BE16D502BCDA515705"
+    },
+    "task9_companion_rc": {
+      "path": "native/vv5_task9_origins/vv5_task9_origins.rc",
+      "source_text_sha256": "1132A37D0EB693ED08933B26AA0F70A37455E251C5733A64871588CF0B229B8A"
+    }
+  },
+  "native_contract": {
+    "dialog_state": "0x3E00; row 0 enabled and rows 1..5 unavailable",
+    "owner": "BeginOriginsOwner/GetOriginsOwner/EndOriginsOwner captured same-process window; every dialog uses that owner",
+    "confirmation": "exact permanent-change warning; IDOK only",
+    "manager": "0x428B60 nonnull",
+    "expanded_offset": "EBP=0x7598 iff dword [0x42883A] == 0x100, otherwise EBP=0",
+    "speed": "[EDI+EBP+0x12F20]; paused=999; 3 and 10 accepted, all other values normalize to 6",
+    "delta": "normalized speed * 3600",
+    "clock": "0x4A4210/0x4A4214 sub/sbb and exact readback",
+    "funds": "0x582644 direct one exact -50000 mutation and exact readback before clock mutation"
+  },
+  "behavior_changes": [
+    "Enables only Time Warp in VV3 experimental Expanded-256 for 50,000 tech points."
+  ],
+  "explicit_non_changes": [
+    "Stock modes, Origins, Running, villager records, .rdata execute permissions, and the old A3180 payload are unchanged."
+  ],
+  "evidence_status": "static implementation awaiting independent Disassembler review; runtime/player confirmation pending",
+  "runtime_player_status": "pending"
+}

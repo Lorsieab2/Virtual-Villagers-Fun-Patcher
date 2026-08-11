@@ -1,0 +1,289 @@
+{
+  "id": "vv3_expanded_256_time_warp",
+  "status": "static implementation awaiting independent Disassembler review; runtime/player pending",
+  "source_bindings": {
+    "builder": {
+      "path": "scripts/build_vv3_expanded_time_warp.py",
+      "source_text_sha256": "58C3586D773D0EF8E30562B54F01A262228C6154C32CCEF0D5FEF44347D72913"
+    },
+    "static_candidate": {
+      "path": "data/candidates/vv3_full256_serializer_candidate.json",
+      "source_text_sha256": "4C2186DA89A5F1D561DF730A35FA884815F2DB588E82D05536011DD25000222A"
+    },
+    "atomic_generator": {
+      "path": "src/expanded_atomic_writer.py",
+      "source_text_sha256": "0424B3B56CB4093176A8B429472FCDF04043CBFC22424EBBDE37058EA1A8F72E"
+    },
+    "task9_companion_c": {
+      "path": "native/vv5_task9_origins/vv5_task9_origins.c",
+      "source_text_sha256": "7CE6ABD30BDCDAED2599AD98346F3594E16D8C9E2AD894BD09EA8113FBE1316A"
+    },
+    "task9_companion_def": {
+      "path": "native/vv5_task9_origins/vv5_task9_origins.def",
+      "source_text_sha256": "0D5C23F01ADEA1881489EDCCAE973F18794BD0E02D36B7BE16D502BCDA515705"
+    },
+    "task9_companion_rc": {
+      "path": "native/vv5_task9_origins/vv5_task9_origins.rc",
+      "source_text_sha256": "1132A37D0EB693ED08933B26AA0F70A37455E251C5733A64871588CF0B229B8A"
+    }
+  },
+  "companion": {
+    "source": "data/candidates/VVFP VV5 Task9 Origins Icons.dll",
+    "destination": "VVFP Origins Icons.dll",
+    "sha256": "B402ED8316CD6EB2C43B056848E622DC0924188C81C683F5E2813466AF8045D0",
+    "size": 297472
+  },
+  "section_header_raw": "0x2C8",
+  "section_header": "2E767633747700000010000000803B000010000000B00C0000000000000000000000000020000060",
+  "layout": {
+    "page_raw": "0xCB000",
+    "page_rva": "0x3B8000",
+    "page_va": "0x7B8000",
+    "page_size": 4096,
+    "page_sha256": "D169B49C63731970FBE832256C8975806301EE16FC872C6F1B608C6E1FB73C92",
+    "routines": {
+      "handler": {
+        "offset": "0x40",
+        "va": "0x7B8040",
+        "length": 37,
+        "sha256": "381A04A9958FE4A1224767EBDFCE38F25562502C43FB5E08123FAD1E29073ACF"
+      },
+      "constructor": {
+        "offset": "0x80",
+        "va": "0x7B8080",
+        "length": 113,
+        "sha256": "F28FBA3F2DCCB970432C4135B7829D61AC41A0426206BFE4DF34F89AA5936F0C"
+      },
+      "show_menu": {
+        "offset": "0x180",
+        "va": "0x7B8180",
+        "length": 53,
+        "sha256": "49C8D96AA812C092C204DBD01A972F6A042A05ADF86B9AC097B1FB42B2B6F030"
+      },
+      "show_message": {
+        "offset": "0x200",
+        "va": "0x7B8200",
+        "length": 96,
+        "sha256": "2D0D1358A40F3F01B4E9E502D1528C309584441E666A78A7C99201B81DEF3E4C"
+      },
+      "transaction": {
+        "offset": "0x300",
+        "va": "0x7B8300",
+        "length": 568,
+        "sha256": "CAF1D020C787AF9AE80C3415B340D027C75570617A426AD94CFD87D46EB88B9C"
+      }
+    },
+    "strings_offset": "0xC00",
+    "strings_length": 883,
+    "strings_sha256": "15BC5B889BB272E620FFE12C575A584BCB6464DAF6D5892792E6D245D7B1A214",
+    "strings": {
+      "button": "0x7B8C00",
+      "dll": "0x7B8C09",
+      "begin": "0x7B8C20",
+      "get": "0x7B8C32",
+      "end": "0x7B8C42",
+      "menu": "0x7B8C52",
+      "user32": "0x7B8C6E",
+      "messagebox": "0x7B8C79",
+      "title": "0x7B8C85",
+      "warning": "0x7B8C96",
+      "paused": "0x7B8CEF",
+      "insufficient": "0x7B8D46",
+      "cancelled": "0x7B8D82",
+      "recheck": "0x7B8DBE",
+      "unavailable": "0x7B8E34",
+      "success": "0x7B8E72",
+      "charge_unknown": "0x7B8E87",
+      "clock_unknown": "0x7B8F16"
+    }
+  },
+  "hooks": [
+    {
+      "offset": "0x6547D",
+      "before": "8B4C243C5F",
+      "after": "E9FE2B3500",
+      "purpose": "route the Tech constructor through isolated Expanded Time Warp"
+    },
+    {
+      "offset": "0x65640",
+      "before": "6AFF64A100000000",
+      "after": "E9FB293500909090",
+      "purpose": "route only Tech message 8 / event 15 through isolated Expanded Time Warp"
+    }
+  ],
+  "core": {
+    "schema": "vvfp.vv3_expanded_time_warp_core.v1",
+    "feature_id": "vv3_expanded_256_time_warp",
+    "status": "static implementation awaiting independent Disassembler review",
+    "runtime_go": false,
+    "player_go": false,
+    "publication_ready": false,
+    "source_bindings": {
+      "builder": {
+        "path": "scripts/build_vv3_expanded_time_warp.py",
+        "source_text_sha256": "58C3586D773D0EF8E30562B54F01A262228C6154C32CCEF0D5FEF44347D72913"
+      },
+      "static_candidate": {
+        "path": "data/candidates/vv3_full256_serializer_candidate.json",
+        "source_text_sha256": "4C2186DA89A5F1D561DF730A35FA884815F2DB588E82D05536011DD25000222A"
+      },
+      "atomic_generator": {
+        "path": "src/expanded_atomic_writer.py",
+        "source_text_sha256": "0424B3B56CB4093176A8B429472FCDF04043CBFC22424EBBDE37058EA1A8F72E"
+      },
+      "task9_companion_c": {
+        "path": "native/vv5_task9_origins/vv5_task9_origins.c",
+        "source_text_sha256": "7CE6ABD30BDCDAED2599AD98346F3594E16D8C9E2AD894BD09EA8113FBE1316A"
+      },
+      "task9_companion_def": {
+        "path": "native/vv5_task9_origins/vv5_task9_origins.def",
+        "source_text_sha256": "0D5C23F01ADEA1881489EDCCAE973F18794BD0E02D36B7BE16D502BCDA515705"
+      },
+      "task9_companion_rc": {
+        "path": "native/vv5_task9_origins/vv5_task9_origins.rc",
+        "source_text_sha256": "1132A37D0EB693ED08933B26AA0F70A37455E251C5733A64871588CF0B229B8A"
+      }
+    },
+    "page": {
+      "page_raw": "0xCB000",
+      "page_rva": "0x3B8000",
+      "page_va": "0x7B8000",
+      "page_size": 4096,
+      "page_sha256": "D169B49C63731970FBE832256C8975806301EE16FC872C6F1B608C6E1FB73C92",
+      "routines": {
+        "handler": {
+          "offset": "0x40",
+          "va": "0x7B8040",
+          "length": 37,
+          "sha256": "381A04A9958FE4A1224767EBDFCE38F25562502C43FB5E08123FAD1E29073ACF"
+        },
+        "constructor": {
+          "offset": "0x80",
+          "va": "0x7B8080",
+          "length": 113,
+          "sha256": "F28FBA3F2DCCB970432C4135B7829D61AC41A0426206BFE4DF34F89AA5936F0C"
+        },
+        "show_menu": {
+          "offset": "0x180",
+          "va": "0x7B8180",
+          "length": 53,
+          "sha256": "49C8D96AA812C092C204DBD01A972F6A042A05ADF86B9AC097B1FB42B2B6F030"
+        },
+        "show_message": {
+          "offset": "0x200",
+          "va": "0x7B8200",
+          "length": 96,
+          "sha256": "2D0D1358A40F3F01B4E9E502D1528C309584441E666A78A7C99201B81DEF3E4C"
+        },
+        "transaction": {
+          "offset": "0x300",
+          "va": "0x7B8300",
+          "length": 568,
+          "sha256": "CAF1D020C787AF9AE80C3415B340D027C75570617A426AD94CFD87D46EB88B9C"
+        }
+      },
+      "strings_offset": "0xC00",
+      "strings_length": 883,
+      "strings_sha256": "15BC5B889BB272E620FFE12C575A584BCB6464DAF6D5892792E6D245D7B1A214",
+      "strings": {
+        "button": "0x7B8C00",
+        "dll": "0x7B8C09",
+        "begin": "0x7B8C20",
+        "get": "0x7B8C32",
+        "end": "0x7B8C42",
+        "menu": "0x7B8C52",
+        "user32": "0x7B8C6E",
+        "messagebox": "0x7B8C79",
+        "title": "0x7B8C85",
+        "warning": "0x7B8C96",
+        "paused": "0x7B8CEF",
+        "insufficient": "0x7B8D46",
+        "cancelled": "0x7B8D82",
+        "recheck": "0x7B8DBE",
+        "unavailable": "0x7B8E34",
+        "success": "0x7B8E72",
+        "charge_unknown": "0x7B8E87",
+        "clock_unknown": "0x7B8F16"
+      }
+    },
+    "static": {
+      "page_raw": "0xCC000",
+      "page_rva": "0x3B9000",
+      "page_va": "0x7B9000",
+      "page_sha256": "9F82D59D1436B17ACA69CD637AB40D44DF35323DA46600AAA5FD07315C249B64"
+    },
+    "atomic": {
+      "writer_raw": "0xCC400",
+      "writer_va": "0x7B9400",
+      "writer_sha256": "CEE9E08759B1504C798E4BBE3AD39799358E2A93C8537DBECBE294D53D251154",
+      "import_raw": "0xCD000",
+      "import_rva": "0x3BA000",
+      "import_va": "0x7BA000",
+      "import_sha256": "291FA68AE4F320C92226DFE735BD4559CE79BCDC949BECC2F4AFF7D6FC1E2A50"
+    },
+    "modes": {
+      "experimental_expanded_256": {
+        "expanded_parent": {
+          "size": 831488,
+          "sha256": "90D66177FFED851A868623202B895CB4CEDAED19C39538641BBDB52383E864A0",
+          "checksum": "77280D00"
+        },
+        "time_warp_result": {
+          "size": 835584,
+          "sha256": "45F1E5E89F2B3979B9F31B685CB39D7DE760BE7FB5309064AFC5FE03796D6653",
+          "checksum": "8E9E0D00"
+        },
+        "static_result": {
+          "size": 839680,
+          "sha256": "CB405AA98B27FB841F496202FC9E6A123E9F6B951F380338098DF5659992B37A",
+          "checksum": "83680D00"
+        },
+        "atomic_result": {
+          "size": 843776,
+          "sha256": "036ED93775A7399651AD83D851A672E1F331A7F653F4EBF5E9F0E9359B26A891",
+          "checksum": "959F0D00"
+        },
+        "statistics_result": {
+          "size": 843776,
+          "sha256": "4557DCC45DF163AEE0D8B65217F272C5511B5A0D3A995614FC95E9D76D2BAB23",
+          "checksum": "06960D00"
+        }
+      },
+      "experimental_expanded_256_progression": {
+        "expanded_parent": {
+          "size": 831488,
+          "sha256": "2C08DE9A236D0841DEF24B9488CCE5B007EDC32161C1FA5351D04F2DA59ED0CF",
+          "checksum": "81A30D00"
+        },
+        "time_warp_result": {
+          "size": 835584,
+          "sha256": "B0F09116C7DB9BFD54AECD90FA9E9982C129FF87AD48F6CAC7F0B51A3B172D02",
+          "checksum": "99190D00"
+        },
+        "static_result": {
+          "size": 839680,
+          "sha256": "7C319AD0A2374B8EACA42AFBC389329B1FC2B5F2BD355755167D7FFEA8FCDBD2",
+          "checksum": "8EE30C00"
+        },
+        "atomic_result": {
+          "size": 843776,
+          "sha256": "BD4D9B0A684960DB9ACC90A664597D235B90101B149D0EFB52FF9C95ADFC20E3",
+          "checksum": "A01A0D00"
+        },
+        "statistics_result": {
+          "size": 843776,
+          "sha256": "412F789C350E37D62D2F0C1672BE01CC7A8838F1F3C7CFC4535D334C15C2BE03",
+          "checksum": "11110D00"
+        }
+      }
+    }
+  },
+  "forbidden_mutations": [
+    "stock modes",
+    "old A3180 .rdata payload",
+    "Origins mechanics",
+    "Running mechanics",
+    ".shr",
+    "existing Origins/Running static or atomic bindings"
+  ]
+}

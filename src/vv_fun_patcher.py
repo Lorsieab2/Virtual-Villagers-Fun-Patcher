@@ -48,6 +48,9 @@ EXPANDED_ATOMIC_WRITER_INTEGRATION_PATH = (
 EXPANDED_ATOMIC_WRITER_INTEGRATION_SCHEMA_PATH = (
     ROOT / "data" / "schemas" / "expanded_atomic_writer_integration.schema.json"
 )
+VV3_EXPANDED_TIME_WARP_CORE_PATH = (
+    ROOT / "data" / "vv3_expanded_time_warp_core.json"
+)
 EXPANDED_STATIC_REPAIR_INTEGRATION_SHA256 = (
     "93AE2305D23F5FCBE1BB1726BC563E5CAF20E85E926AD26D3AB84D9BB3985195"
 )
@@ -691,10 +694,15 @@ VV5_TASK9_ATOMIC_SOURCE_TEXT_SHA256 = {
     "atomic_contract": "1B7068D0679CA896706AA201D27726AF612FD167C0406C5D509774E40728F6A6",
 }
 EXPANDED_TIME_WARP_IDS = {
+    "vv3": "vv3_expanded_256_time_warp",
     "vv4": "vv4_expanded_256_time_warp",
     "vv5": "vv5_expanded_256_time_warp",
 }
 EXPANDED_TIME_WARP_PATHS = {
+    "vv3": {
+        "manifest": ROOT / "data" / "vv3_expanded_time_warp.json",
+        "map": ROOT / "data" / "candidates" / "vv3_expanded_time_warp_map.json",
+    },
     "vv4": {
         "manifest": ROOT / "data" / "vv4_expanded_time_warp.json",
         "map": ROOT / "data" / "candidates" / "vv4_expanded_time_warp_map.json",
@@ -705,10 +713,16 @@ EXPANDED_TIME_WARP_PATHS = {
     },
 }
 EXPANDED_TIME_WARP_SOURCE_TEXT_SHA256 = {
+    "vv3_builder": "58C3586D773D0EF8E30562B54F01A262228C6154C32CCEF0D5FEF44347D72913",
     "builder": "D6F7C3109F941387C7CE4F953FA5681659717A50DF23C03D918EA556A040617F",
     "task9_builder": "38E8937982AF42990960E113C099CBC890D50A6E3BDE5371E8D60115828C6798",
 }
 EXPANDED_TIME_WARP_ARTIFACT_SHA256 = {
+    "vv3": {
+        "manifest": "4859537CF25D14076D670CDD60FC0F2A1C939225174EB1A373AB9400991D7E02",
+        "map": "BA2443FF8755C20715921354188F2A7A6C18ABF8F307D51045DA382A3AE1418E",
+        "core": "6658B41980D5829CC0607AEFBC3AECBE92E0D7ECED2023C9B20C9962CF282356",
+    },
     "vv4": {
         "manifest": "8C80B09D70806674591B8BDF8441470CF9DB19FE9042B5407DF1352605E062CA",
         "map": "4B789AFE57137B21B45A0FA83438AA88948812FCF396DF2BC934779C2EC420F4",
@@ -2189,7 +2203,7 @@ def _certified_vv5_full_mastery_records(
 
 
 def _certified_expanded_time_warp_records() -> list[dict[str, Any]]:
-    """Load the two exact Expanded-only Time Warp records fail closed."""
+    """Load the three exact Expanded-only Time Warp records fail closed."""
 
     records: list[dict[str, Any]] = []
     expected_modes = [
@@ -2202,14 +2216,22 @@ def _certified_expanded_time_warp_records() -> list[dict[str, Any]]:
         "sha256": VV5_TASK9_DLL_SHA256,
         "size": 297472,
     }
-    expected_bindings = {
+    shared_bindings = {
         "builder": "scripts/build_expanded_time_warp.py",
         "task9_builder": "scripts/build_vv5_task9_native_actions.py",
         "task9_companion_c": "native/vv5_task9_origins/vv5_task9_origins.c",
         "task9_companion_def": "native/vv5_task9_origins/vv5_task9_origins.def",
         "task9_companion_rc": "native/vv5_task9_origins/vv5_task9_origins.rc",
     }
-    for game_id in ("vv4", "vv5"):
+    vv3_bindings = {
+        "builder": "scripts/build_vv3_expanded_time_warp.py",
+        "static_candidate": "data/candidates/vv3_full256_serializer_candidate.json",
+        "atomic_generator": "src/expanded_atomic_writer.py",
+        "task9_companion_c": "native/vv5_task9_origins/vv5_task9_origins.c",
+        "task9_companion_def": "native/vv5_task9_origins/vv5_task9_origins.def",
+        "task9_companion_rc": "native/vv5_task9_origins/vv5_task9_origins.rc",
+    }
+    for game_id in ("vv3", "vv4", "vv5"):
         paths = EXPANDED_TIME_WARP_PATHS[game_id]
         try:
             manifest_bytes = paths["manifest"].read_bytes()
@@ -2247,6 +2269,7 @@ def _certified_expanded_time_warp_records() -> list[dict[str, Any]]:
             raise PatcherError(
                 f"Certified {game_id.upper()} Expanded Time Warp catalog contract drifted."
             )
+        expected_bindings = vv3_bindings if game_id == "vv3" else shared_bindings
         bindings = record.get("source_bindings")
         if (
             not isinstance(bindings, dict)
@@ -2276,7 +2299,8 @@ def _certified_expanded_time_warp_records() -> list[dict[str, Any]]:
                 raise PatcherError(
                     f"Certified {game_id.upper()} Expanded Time Warp {name} source identity mismatch."
                 )
-            pinned = EXPANDED_TIME_WARP_SOURCE_TEXT_SHA256.get(name)
+            pin_name = "vv3_builder" if game_id == "vv3" and name == "builder" else name
+            pinned = EXPANDED_TIME_WARP_SOURCE_TEXT_SHA256.get(pin_name)
             if pinned is not None and actual != pinned:
                 raise PatcherError(
                     f"Certified {game_id.upper()} Expanded Time Warp {name} pin drifted."
@@ -2291,7 +2315,40 @@ def _certified_expanded_time_warp_records() -> list[dict[str, Any]]:
             raise PatcherError(
                 f"Certified {game_id.upper()} Expanded Time Warp mode bytes diverged."
             )
-        if game_id == "vv4":
+        if game_id == "vv3":
+            try:
+                core_bytes = VV3_EXPANDED_TIME_WARP_CORE_PATH.read_bytes()
+                core_record = json.loads(core_bytes.decode("utf-8-sig"))
+            except (OSError, UnicodeError, json.JSONDecodeError) as exc:
+                raise PatcherError(
+                    "Certified VV3 Expanded Time Warp core artifact is unavailable."
+                ) from exc
+            if (
+                source_text_sha256(core_bytes)
+                != EXPANDED_TIME_WARP_ARTIFACT_SHA256["vv3"]["core"]
+                or core_record.get("source_bindings") != bindings
+                or artifact.get("core") != core_record
+                or record.get("companion_files") != [expected_companion]
+                or record.get("dependencies") not in (None, [])
+                or record.get("conflicts") != [
+                    "vv3_enable_origins_exclusive_features_running_candidate",
+                    "vv3_all_villagers_like_running_candidate",
+                    "vv3_enable_origins_exclusive_features",
+                    "vv3_full_mastery_all_stage_a_candidate",
+                ]
+                or len(first) != 2
+                or first[0].get("offset") != "0x6547D"
+                or first[0].get("before") != "8B4C243C5F"
+                or first[0].get("after") != "E9FE2B3500"
+                or first[1].get("offset") != "0x65640"
+                or first[1].get("before") != "6AFF64A100000000"
+                or first[1].get("after") != "E9FB293500909090"
+                or record.get("pe_append_transaction", {}).get("section_name") != ".vv3tw"
+                or artifact.get("layout", {}).get("page_sha256")
+                != record.get("pe_append_transaction", {}).get("layouts", {}).get(expected_modes[0], {}).get("page_sha256")
+            ):
+                raise PatcherError("Certified VV3 Expanded Time Warp emitted bytes drifted.")
+        elif game_id == "vv4":
             if (
                 record.get("companion_files") != [expected_companion]
                 or record.get("dependencies") not in (None, [])
@@ -2558,6 +2615,7 @@ def validate_fun_patch_catalog(
                         "generated:vv4_full_heal_page",
                         "generated:vv3_individual_full_mastery_page",
                         "generated:vv5_individual_running_page",
+                        "generated:vv3_expanded_time_warp_page",
                         }
                     )
                     or (append_bytes and len(append_bytes) % 0x1000)
@@ -2570,6 +2628,8 @@ def validate_fun_patch_catalog(
                     raise PatcherError("VV3 individual Full Mastery generated append source is owner-bound.")
                 if append_source == "generated:vv5_individual_running_page" and patch.id != VV5_INDIVIDUAL_RUNNING_CANDIDATE_ID:
                     raise PatcherError("VV5 individual Running generated append source is owner-bound.")
+                if append_source == "generated:vv3_expanded_time_warp_page" and patch.id != EXPANDED_TIME_WARP_IDS["vv3"]:
+                    raise PatcherError("VV3 Expanded Time Warp generated append source is owner-bound.")
                 for item in header_patches:
                     if not isinstance(item, dict):
                         raise PatcherError(
@@ -3367,6 +3427,32 @@ def _resolve_append_bytes(feature: FunPatch, layout: dict[str, Any]) -> bytes:
     """
     if "append_bytes" in layout:
         return bytes.fromhex(layout["append_bytes"])
+    if layout.get("append_source") == "generated:vv3_expanded_time_warp_page":
+        if feature.id != EXPANDED_TIME_WARP_IDS["vv3"]:
+            raise PatcherError("VV3 Expanded Time Warp append source owner mismatch.")
+        import importlib.util
+        builder_path = ROOT / "scripts" / "build_vv3_expanded_time_warp.py"
+        spec = importlib.util.spec_from_file_location(
+            "vv3_expanded_time_warp_builder_runtime", builder_path
+        )
+        if spec is None or spec.loader is None:
+            raise PatcherError("VV3 Expanded Time Warp page builder is unavailable.")
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        append_bytes, details = module.build_page()
+        expected = str(layout.get("page_sha256", "")).upper()
+        actual = hashlib.sha256(append_bytes).hexdigest().upper()
+        if (
+            len(append_bytes) != 0x1000
+            or not expected
+            or actual != expected
+            or details.get("page_sha256") != expected
+        ):
+            raise PatcherError(
+                "Generated VV3 Expanded Time Warp page identity mismatch: "
+                f"expected {expected}, got {actual}."
+            )
+        return bytes(append_bytes)
     if layout.get("append_source") == "generated:vv3_individual_full_mastery_page":
         if feature.id != VV3_INDIVIDUAL_FULL_MASTERY_CANDIDATE_ID:
             raise PatcherError("VV3 individual Full Mastery append source owner mismatch.")
@@ -4527,7 +4613,15 @@ def _validate_expanded_time_warp_selection(
         "experimental_expanded_256_progression",
     ]:
         raise PatcherError("Expanded Time Warp supported-mode metadata drifted.")
-    if build.id == "vv4":
+    if build.id == "vv3":
+        conflicts = set(feature.raw.get("conflicts", ()))
+        selected_conflicts = conflicts & selected_ids
+        if selected_conflicts:
+            raise PatcherError(
+                "VV3 standalone Expanded Time Warp conflicts with the Origins/Running "
+                "core: " + ", ".join(sorted(selected_conflicts))
+            )
+    elif build.id == "vv4":
         conflicts = set(feature.raw.get("conflicts", ()))
         selected_conflicts = conflicts & selected_ids
         if selected_conflicts:
@@ -5504,13 +5598,15 @@ def _apply_reviewed_expanded_atomic_writer(
     data: bytearray,
     build: Build,
     patch_mode: str,
+    *,
+    identity_override: dict[str, Any] | None = None,
 ) -> tuple[list[dict[str, Any]], list[tuple[int, int, str]]]:
     """Install the deterministic writer transactionally on an exact parent."""
     if patch_mode not in EXPANDED_PATCH_MODES or build.id not in {"vv3", "vv4", "vv5"}:
         return [], []
     contract = _expanded_atomic_writer_integration()
     game = contract["games"][build.id]
-    mode = game["modes"][patch_mode]
+    mode = identity_override or game["modes"][patch_mode]
     work = bytearray(data)
     checksum_offset, checksum_before, checksum_parent = _canonicalize_pe_checksum(work)
     parent_sha256 = hashlib.sha256(work).hexdigest().upper()
@@ -5625,6 +5721,167 @@ def _expanded_atomic_writer_summary(
     return list(summaries.values())
 
 
+def _vv3_expanded_time_warp_core() -> dict[str, Any]:
+    """Load the closed alternate VV3 static+atomic profile."""
+    try:
+        source = VV3_EXPANDED_TIME_WARP_CORE_PATH.read_bytes()
+        expected_hash = EXPANDED_TIME_WARP_ARTIFACT_SHA256["vv3"]["core"]
+        if source_text_sha256(source) != expected_hash:
+            raise PatcherError("VV3 Time Warp core source identity mismatch.")
+        core = json.loads(source.decode("utf-8-sig"))
+    except (OSError, UnicodeError, json.JSONDecodeError) as exc:
+        raise PatcherError("VV3 Time Warp core contract is unavailable.") from exc
+    if set(core) != {
+        "schema", "feature_id", "status", "runtime_go", "player_go",
+        "publication_ready", "source_bindings", "page", "static", "atomic", "modes",
+    }:
+        raise PatcherError("VV3 Time Warp core contract is not closed.")
+    if (
+        core.get("schema") != "vvfp.vv3_expanded_time_warp_core.v1"
+        or core.get("feature_id") != EXPANDED_TIME_WARP_IDS["vv3"]
+        or core.get("status")
+        != "static implementation awaiting independent Disassembler review"
+        or core.get("runtime_go") is not False
+        or core.get("player_go") is not False
+        or core.get("publication_ready") is not False
+    ):
+        raise PatcherError("VV3 Time Warp core gates are not exact.")
+    page = core.get("page")
+    if (
+        not isinstance(page, dict)
+        or page.get("page_raw") != "0xCB000"
+        or page.get("page_rva") != "0x3B8000"
+        or page.get("page_va") != "0x7B8000"
+        or page.get("page_size") != 0x1000
+    ):
+        raise PatcherError("VV3 Time Warp page placement drifted.")
+    static = core.get("static")
+    if static != {
+        "page_raw": "0xCC000",
+        "page_rva": "0x3B9000",
+        "page_va": "0x7B9000",
+        "page_sha256": "9F82D59D1436B17ACA69CD637AB40D44DF35323DA46600AAA5FD07315C249B64",
+    }:
+        raise PatcherError("VV3 Time Warp static-page binding drifted.")
+    atomic = core.get("atomic")
+    if atomic != {
+        "writer_raw": "0xCC400",
+        "writer_va": "0x7B9400",
+        "writer_sha256": "CEE9E08759B1504C798E4BBE3AD39799358E2A93C8537DBECBE294D53D251154",
+        "import_raw": "0xCD000",
+        "import_rva": "0x3BA000",
+        "import_va": "0x7BA000",
+        "import_sha256": "291FA68AE4F320C92226DFE735BD4559CE79BCDC949BECC2F4AFF7D6FC1E2A50",
+    }:
+        raise PatcherError("VV3 Time Warp atomic-page binding drifted.")
+    modes = core.get("modes")
+    if not isinstance(modes, dict) or set(modes) != EXPANDED_PATCH_MODES:
+        raise PatcherError("VV3 Time Warp core modes are not exact.")
+    for mode_id, mode in modes.items():
+        if not isinstance(mode, dict) or set(mode) != {
+            "expanded_parent", "time_warp_result", "static_result",
+            "atomic_result", "statistics_result",
+        }:
+            raise PatcherError(f"VV3 Time Warp {mode_id} identity chain is not closed.")
+        for stage in mode.values():
+            if (
+                not isinstance(stage, dict)
+                or set(stage) != {"size", "sha256", "checksum"}
+                or not isinstance(stage.get("size"), int)
+                or len(str(stage.get("sha256", ""))) != 64
+                or len(str(stage.get("checksum", ""))) != 8
+            ):
+                raise PatcherError(f"VV3 Time Warp {mode_id} stage identity is malformed.")
+    return core
+
+
+def _apply_reviewed_vv3_time_warp_static_repair(
+    data: bytearray,
+    build: Build,
+    patch_mode: str,
+) -> tuple[list[dict[str, Any]], list[tuple[int, int, str]]]:
+    """Append the existing certified serializer page on the alternate profile."""
+    if build.id != "vv3" or patch_mode not in EXPANDED_PATCH_MODES:
+        return [], []
+    core = _vv3_expanded_time_warp_core()
+    identity = core["modes"][patch_mode]
+    work = bytearray(data)
+    checksum_raw, checksum_before, checksum_parent = _canonicalize_pe_checksum(work)
+    parent = identity["time_warp_result"]
+    if (
+        len(work) != parent["size"]
+        or hashlib.sha256(work).hexdigest().upper() != parent["sha256"]
+        or checksum_parent.hex().upper() != parent["checksum"]
+    ):
+        raise PatcherError("VV3 Time Warp static-repair parent guard failed.")
+    integration = _expanded_static_repair_integration()["games"]["vv3"]
+    candidate = _expanded_static_repair_candidate(integration)
+    page = _static_repair_page(candidate, "vv3")
+    section = candidate["section_plan"]
+    pe = candidate["pe_guards"]
+    writes: list[tuple[int, bytes, bytes, str]] = [
+        (int(pe["section_count_raw"], 0), bytes.fromhex(pe["section_count_before"]), bytes.fromhex(pe["section_count_after"]), "add reviewed .vv3sv section count after .vv3tw"),
+        (int(pe["size_of_image_raw"], 0), bytes.fromhex(pe["size_of_image_before"]), bytes.fromhex(pe["size_of_image_after"]), "extend reviewed VV3 SizeOfImage through .vv3sv"),
+        (int(section["header_raw"], 0), bytes.fromhex(section["header_guard"]), bytes.fromhex(section["header_bytes"]), "add reviewed .vv3sv section header after .vv3tw"),
+    ]
+    for hook in candidate["hooks"]:
+        writes.append((int(hook["raw"], 0), bytes.fromhex(hook["preimage"]), bytes.fromhex(hook["after"]), f"route VV3 {hook['id']} through reviewed static repair"))
+    owner = "automatic:expanded-static-repair:vv3_time_warp_profile"
+    records: list[dict[str, Any]] = []
+    ranges: list[tuple[int, int, str]] = []
+    if checksum_before != checksum_parent:
+        records.append({"offset": f"0x{checksum_raw:X}", "before": checksum_before.hex().upper(), "after": checksum_parent.hex().upper(), "purpose": "canonicalize VV3 Time Warp static parent checksum", "owner": owner})
+        ranges.append((checksum_raw, checksum_raw + 4, owner))
+    for raw, before, after, purpose in writes:
+        actual = bytes(work[raw : raw + len(before)])
+        if actual != before:
+            raise PatcherError(f"VV3 Time Warp static-repair preimage mismatch at 0x{raw:X}.")
+        work[raw : raw + len(after)] = after
+        records.append({"offset": f"0x{raw:X}", "before": before.hex().upper(), "after": after.hex().upper(), "purpose": purpose, "owner": owner})
+        ranges.append((raw, raw + len(after), owner))
+    append_raw = int(section["raw_start"], 0)
+    if len(work) != append_raw:
+        raise PatcherError("VV3 Time Warp .vv3sv append boundary drifted.")
+    work.extend(page)
+    records.append({"offset": f"0x{append_raw:X}", "before": "", "after": page.hex().upper(), "purpose": "append byte-identical reviewed .vv3sv page", "owner": owner, "virtual_address": section["va"]})
+    ranges.append((append_raw, append_raw + len(page), owner))
+    result_raw, result_before, result_after = _canonicalize_pe_checksum(work)
+    result = identity["static_result"]
+    if (
+        len(work) != result["size"]
+        or hashlib.sha256(work).hexdigest().upper() != result["sha256"]
+        or result_after.hex().upper() != result["checksum"]
+    ):
+        raise PatcherError("VV3 Time Warp static-repair result guard failed.")
+    if result_before != result_after:
+        records.append({"offset": f"0x{result_raw:X}", "before": result_before.hex().upper(), "after": result_after.hex().upper(), "purpose": "bind VV3 Time Warp static result checksum", "owner": owner})
+        ranges.append((result_raw, result_raw + 4, owner))
+    data[:] = work
+    return records, ranges
+
+
+def _apply_reviewed_vv3_time_warp_atomic_writer(
+    data: bytearray,
+    build: Build,
+    patch_mode: str,
+) -> tuple[list[dict[str, Any]], list[tuple[int, int, str]]]:
+    core = _vv3_expanded_time_warp_core()
+    chain = core["modes"][patch_mode]
+    parent = chain["static_result"]
+    result = chain["atomic_result"]
+    identity = {
+        "parent_size": parent["size"],
+        "parent_sha256": parent["sha256"],
+        "parent_checksum": parent["checksum"],
+        "result_size": result["size"],
+        "result_sha256": result["sha256"],
+        "result_checksum": result["checksum"],
+    }
+    return _apply_reviewed_expanded_atomic_writer(
+        data, build, patch_mode, identity_override=identity
+    )
+
+
 EXPANDED_STATISTICS_FEATURE_IDS = {
     "vv3": "vv3_write_village_statistics",
     "vv4": "vv4_write_village_statistics",
@@ -5636,6 +5893,7 @@ EXPANDED_VV3_ATOMIC_CORE_IDS = frozenset(
         "vv3_all_villagers_like_running_candidate",
     }
 )
+EXPANDED_VV3_TIME_WARP_CORE_ID = EXPANDED_TIME_WARP_IDS["vv3"]
 
 
 def _compose_expanded_statistics_after_atomic(
@@ -5663,11 +5921,13 @@ def _compose_expanded_statistics_after_atomic(
         str(patch.get("_owner", "")).removeprefix("feature:")
         for patch in fun_bytes
     }
-    if (
-        build.id == "vv3"
-        and not EXPANDED_VV3_ATOMIC_CORE_IDS.issubset(selected_owners)
-    ):
-        return fun_bytes
+    if build.id == "vv3":
+        old_core = EXPANDED_VV3_ATOMIC_CORE_IDS.issubset(selected_owners)
+        time_warp_core = EXPANDED_VV3_TIME_WARP_CORE_ID in selected_owners
+        if not old_core and not time_warp_core:
+            return fun_bytes
+        if old_core and time_warp_core:
+            raise PatcherError("VV3 atomic core profiles are mutually exclusive.")
     try:
         from expanded_atomic_writer import CONFIGS
         config = CONFIGS[build.id]
@@ -5932,11 +6192,24 @@ def render_patched_bytes(
     fun_bytes = _compose_expanded_statistics_after_atomic(
         original_data, build, patch_mode, fun_bytes
     )
-    vv3_atomic_core_ids = set(EXPANDED_VV3_ATOMIC_CORE_IDS)
-    vv3_atomic_core = (
+    vv3_legacy_atomic_core_ids = set(EXPANDED_VV3_ATOMIC_CORE_IDS)
+    vv3_legacy_atomic_core = (
         build.id == "vv3"
         and patch_mode in EXPANDED_PATCH_MODES
-        and vv3_atomic_core_ids.issubset(selected_fun_ids)
+        and vv3_legacy_atomic_core_ids.issubset(selected_fun_ids)
+    )
+    vv3_time_warp_atomic_core = (
+        build.id == "vv3"
+        and patch_mode in EXPANDED_PATCH_MODES
+        and EXPANDED_VV3_TIME_WARP_CORE_ID in selected_fun_ids
+    )
+    if vv3_legacy_atomic_core and vv3_time_warp_atomic_core:
+        raise PatcherError("VV3 Origins/Running and Time Warp core profiles are mutually exclusive.")
+    vv3_atomic_core = vv3_legacy_atomic_core or vv3_time_warp_atomic_core
+    vv3_atomic_core_ids = (
+        {EXPANDED_VV3_TIME_WARP_CORE_ID}
+        if vv3_time_warp_atomic_core
+        else vv3_legacy_atomic_core_ids
     )
     vv3_core_features = (
         [feature for feature in fun_patches if feature.id in vv3_atomic_core_ids]
@@ -6039,18 +6312,28 @@ def render_patched_bytes(
                         build, patch_mode, vv3_core_features, data
                     )
                 )
-                repair_records, repair_ranges = _apply_reviewed_expanded_static_repair(
-                    data,
-                    build,
-                    patch_mode,
-                    "post_feature_relocation",
-                    selected_fun_ids,
-                )
+                if vv3_time_warp_atomic_core:
+                    repair_records, repair_ranges = _apply_reviewed_vv3_time_warp_static_repair(
+                        data, build, patch_mode
+                    )
+                else:
+                    repair_records, repair_ranges = _apply_reviewed_expanded_static_repair(
+                        data,
+                        build,
+                        patch_mode,
+                        "post_feature_relocation",
+                        selected_fun_ids,
+                    )
                 applied.extend(repair_records)
                 applied_ranges.extend(repair_ranges)
-                atomic_records, atomic_ranges = _apply_reviewed_expanded_atomic_writer(
-                    data, build, patch_mode
-                )
+                if vv3_time_warp_atomic_core:
+                    atomic_records, atomic_ranges = _apply_reviewed_vv3_time_warp_atomic_writer(
+                        data, build, patch_mode
+                    )
+                else:
+                    atomic_records, atomic_ranges = _apply_reviewed_expanded_atomic_writer(
+                        data, build, patch_mode
+                    )
                 applied.extend(atomic_records)
                 applied_ranges.extend(atomic_ranges)
             elif (
@@ -6239,6 +6522,28 @@ def render_patched_bytes(
     checksum_offset, _ = _pe_checksum_layout(data)
     checksum = pe_checksum(data)
     struct.pack_into("<I", data, checksum_offset, checksum)
+    if vv3_time_warp_atomic_core:
+        exact_profile_ids = {
+            EXPANDED_VV3_TIME_WARP_CORE_ID,
+            EXPANDED_STATISTICS_FEATURE_IDS["vv3"],
+        }
+        if selected_fun_ids <= exact_profile_ids:
+            chain = _vv3_expanded_time_warp_core()["modes"][patch_mode]
+            stage = (
+                "statistics_result"
+                if EXPANDED_STATISTICS_FEATURE_IDS["vv3"] in selected_fun_ids
+                else "atomic_result"
+            )
+            expected = chain[stage]
+            if (
+                len(data) != expected["size"]
+                or hashlib.sha256(data).hexdigest().upper() != expected["sha256"]
+                or bytes(data[checksum_offset : checksum_offset + 4]).hex().upper()
+                != expected["checksum"]
+            ):
+                raise PatcherError(
+                    f"VV3 Time Warp {stage} final identity mismatch."
+                )
     if any(feature.id == VV3_FULL_HEAL_CANDIDATE_ID for feature in fun_patches):
         expected_rendered = VV3_FULL_HEAL_RENDERED_SHA256.get(patch_mode)
         expected_transition = VV3_FULL_HEAL_CHECKSUM_TRANSITIONS.get(patch_mode)
