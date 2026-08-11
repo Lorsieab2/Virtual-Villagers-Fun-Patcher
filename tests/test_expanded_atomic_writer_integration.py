@@ -75,6 +75,8 @@ class ExpandedAtomicWriterIntegrationTests(unittest.TestCase):
             P, "_apply_vv3_expanded_healer_endpoint_repair", return_value=[]
         ), mock.patch.object(
             P, "_apply_vv3_expanded_capacity_corrections", return_value=[]
+        ), mock.patch.object(
+            P, "_apply_vv3_expanded_detail_roster_layout", return_value=[]
         ):
             return P.render_patched_bytes(source, build, mode, **kwargs)
 

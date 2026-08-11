@@ -794,29 +794,125 @@ VV3_EXPANDED_CAPACITY_CORRECTIONS = (
         "purpose": "reserve two free physical slots before a two-child birth",
     },
 )
+VV3_EXPANDED_DETAIL_ROSTER_CLASS_SIZE = {
+    "offset": "0x27A39",
+    "before": "3C030000",
+    "after": "E4040000",
+}
+VV3_EXPANDED_DETAIL_ROSTER_DISPLACEMENT_DELTA = 0x1A8
+# Exact reviewed operands in the native VV3 Details-screen class.  The 150
+# displacement sites move the original 0x260..0x338 tail behind the expanded
+# 256-entry roster.  Keeping the complete table here makes every preimage
+# independently guarded instead of applying a broad byte-pattern rewrite.
+VV3_EXPANDED_DETAIL_ROSTER_DISPLACEMENTS = (
+    (0x6CB03, 0x2BC, 0x464), (0x6CB22, 0x260, 0x408),
+    (0x6CB81, 0x26C, 0x414), (0x6CB87, 0x270, 0x418),
+    (0x6CB8D, 0x274, 0x41C), (0x6CB93, 0x278, 0x420),
+    (0x6CB99, 0x27C, 0x424), (0x6CB9F, 0x280, 0x428),
+    (0x6CBA5, 0x284, 0x42C), (0x6CBAB, 0x288, 0x430),
+    (0x6CBB1, 0x28C, 0x434), (0x6CBB7, 0x290, 0x438),
+    (0x6CBBD, 0x294, 0x43C), (0x6CBC3, 0x298, 0x440),
+    (0x6CBC9, 0x29C, 0x444), (0x6CBCF, 0x2A0, 0x448),
+    (0x6CBD5, 0x2A4, 0x44C), (0x6CBDB, 0x2A8, 0x450),
+    (0x6CBE1, 0x2AC, 0x454), (0x6CBE7, 0x2B0, 0x458),
+    (0x6CBED, 0x2B4, 0x45C), (0x6CBF3, 0x2B8, 0x460),
+    (0x6CC03, 0x270, 0x418), (0x6CC09, 0x278, 0x420),
+    (0x6CC0F, 0x280, 0x428), (0x6CC15, 0x288, 0x430),
+    (0x6CC1B, 0x290, 0x438), (0x6CC21, 0x298, 0x440),
+    (0x6CC37, 0x2BC, 0x464), (0x6CC41, 0x2C0, 0x468),
+    (0x6CC4B, 0x2C4, 0x46C), (0x6CC55, 0x26C, 0x414),
+    (0x6CC5F, 0x274, 0x41C), (0x6CC69, 0x27C, 0x424),
+    (0x6CC73, 0x284, 0x42C), (0x6CC7D, 0x28C, 0x434),
+    (0x6CC87, 0x294, 0x43C), (0x6CC91, 0x2AC, 0x454),
+    (0x6CC9B, 0x2B0, 0x458), (0x6CCA1, 0x2B4, 0x45C),
+    (0x6CCAB, 0x2B8, 0x460), (0x6CCB1, 0x29C, 0x444),
+    (0x6CCB7, 0x2A0, 0x448), (0x6CCBD, 0x2A4, 0x44C),
+    (0x6CCC7, 0x2A8, 0x450), (0x6CD16, 0x2D4, 0x47C),
+    (0x6CD35, 0x2D4, 0x47C), (0x6CD8E, 0x2D8, 0x480),
+    (0x6CDAD, 0x2D8, 0x480), (0x6CDF2, 0x2BC, 0x464),
+    (0x6CE05, 0x2C8, 0x470), (0x6CE35, 0x2C8, 0x470),
+    (0x6CE41, 0x2C8, 0x470), (0x6CE80, 0x2C4, 0x46C),
+    (0x6CE99, 0x2D0, 0x478), (0x6CED4, 0x2C0, 0x468),
+    (0x6CEEE, 0x2CC, 0x474), (0x6CF44, 0x2DC, 0x484),
+    (0x6CF63, 0x2DC, 0x484), (0x6CFBB, 0x2E0, 0x488),
+    (0x6CFDA, 0x2E0, 0x488), (0x6D032, 0x2E4, 0x48C),
+    (0x6D051, 0x2E4, 0x48C), (0x6D0B0, 0x2E8, 0x490),
+    (0x6D0CF, 0x2E8, 0x490), (0x6D122, 0x2EC, 0x494),
+    (0x6D141, 0x2EC, 0x494), (0x6D19A, 0x2F0, 0x498),
+    (0x6D1B9, 0x2F0, 0x498), (0x6D212, 0x2F4, 0x49C),
+    (0x6D231, 0x2F4, 0x49C), (0x6D28A, 0x2F8, 0x4A0),
+    (0x6D2A9, 0x2F8, 0x4A0), (0x6D302, 0x2FC, 0x4A4),
+    (0x6D321, 0x2FC, 0x4A4), (0x6D37A, 0x300, 0x4A8),
+    (0x6D399, 0x300, 0x4A8), (0x6D3F2, 0x304, 0x4AC),
+    (0x6D411, 0x304, 0x4AC), (0x6D464, 0x308, 0x4B0),
+    (0x6D483, 0x308, 0x4B0), (0x6D491, 0x308, 0x4B0),
+    (0x6D4A0, 0x308, 0x4B0), (0x6D4F6, 0x30C, 0x4B4),
+    (0x6D515, 0x30C, 0x4B4), (0x6D568, 0x310, 0x4B8),
+    (0x6D587, 0x310, 0x4B8), (0x6D5E0, 0x314, 0x4BC),
+    (0x6D5FF, 0x314, 0x4BC), (0x6D652, 0x318, 0x4C0),
+    (0x6D671, 0x318, 0x4C0), (0x6D6CA, 0x31C, 0x4C4),
+    (0x6D6E9, 0x31C, 0x4C4), (0x6D73C, 0x320, 0x4C8),
+    (0x6D75B, 0x320, 0x4C8), (0x6D7B4, 0x324, 0x4CC),
+    (0x6D7D3, 0x324, 0x4CC), (0x6D826, 0x328, 0x4D0),
+    (0x6D845, 0x328, 0x4D0), (0x6D89E, 0x32C, 0x4D4),
+    (0x6D8BD, 0x32C, 0x4D4), (0x6D910, 0x330, 0x4D8),
+    (0x6D92F, 0x330, 0x4D8), (0x6D98F, 0x334, 0x4DC),
+    (0x6D9AE, 0x334, 0x4DC), (0x6DA01, 0x338, 0x4E0),
+    (0x6DA20, 0x338, 0x4E0), (0x6DA33, 0x264, 0x40C),
+    (0x6DA39, 0x268, 0x410), (0x6DAEC, 0x310, 0x4B8),
+    (0x6DB1C, 0x318, 0x4C0), (0x6DB74, 0x320, 0x4C8),
+    (0x6DB8B, 0x328, 0x4D0), (0x6DBA2, 0x330, 0x4D8),
+    (0x6DC44, 0x338, 0x4E0), (0x6DC83, 0x334, 0x4DC),
+    (0x6DE7E, 0x264, 0x40C), (0x6DEA4, 0x264, 0x40C),
+    (0x6DECE, 0x264, 0x40C), (0x6DEFF, 0x2EC, 0x494),
+    (0x6E0E8, 0x26C, 0x414), (0x6E0F0, 0x274, 0x41C),
+    (0x6E0F8, 0x270, 0x418), (0x6E100, 0x278, 0x420),
+    (0x6E117, 0x264, 0x40C), (0x6E12A, 0x27C, 0x424),
+    (0x6E132, 0x284, 0x42C), (0x6E13A, 0x280, 0x428),
+    (0x6E142, 0x288, 0x430), (0x6E159, 0x264, 0x40C),
+    (0x6E16E, 0x28C, 0x434), (0x6E190, 0x264, 0x40C),
+    (0x6E1D9, 0x29C, 0x444), (0x6E237, 0x2AC, 0x454),
+    (0x6E286, 0x260, 0x408), (0x6E2B1, 0x260, 0x408),
+    (0x6E2BB, 0x260, 0x408), (0x6E2FA, 0x264, 0x40C),
+    (0x6E362, 0x268, 0x410), (0x6E399, 0x260, 0x408),
+    (0x6E3EE, 0x260, 0x408), (0x6E43F, 0x308, 0x4B0),
+    (0x6E499, 0x308, 0x4B0), (0x6E50C, 0x308, 0x4B0),
+    (0x6E549, 0x2BC, 0x464), (0x6E57B, 0x308, 0x4B0),
+    (0x6E5C0, 0x2C4, 0x46C), (0x6E5F6, 0x260, 0x408),
+    (0x6E614, 0x2C0, 0x468), (0x6E64D, 0x260, 0x408),
+)
+VV3_EXPANDED_DETAIL_ORIGINS_REPLAY_DISPLACEMENTS = (
+    (0xA3335, 0x264, 0x40C),
+    (0xA333B, 0x268, 0x410),
+)
+VV3_EXPANDED_DETAIL_ORIGINS_FEATURE_IDS = frozenset({
+    "vv3_enable_origins_exclusive_features",
+    "vv3_enable_origins_exclusive_features_full_mastery_candidate",
+    "vv3_enable_origins_exclusive_features_running_candidate",
+})
 VV3_EXPANDED_FINAL_TIME_WARP_RESULTS = {
     "experimental_expanded_256": {
         "atomic_result": {
             "size": 843776,
-            "sha256": "CD8F14DEBA45612B8E947DD479B199A98FAFDF37981300860AA0997C86FA3612",
-            "checksum": "71B20D00",
+            "sha256": "E650C489ADF03C46F004F73754EE8DC33D7B5FF1C17F5FE95E29D02EC58D10D3",
+            "checksum": "1C1B0D00",
         },
         "statistics_result": {
             "size": 843776,
-            "sha256": "A7E7F9444987E73D0356C2009656DA9A2B95B58ACCD380E47E24E6DA945C948C",
-            "checksum": "E2A80D00",
+            "sha256": "2E9A0D996CF1049343F529B0D95E784C5CCE568DE528164B63003368247634A1",
+            "checksum": "8D110D00",
         },
     },
     "experimental_expanded_256_progression": {
         "atomic_result": {
             "size": 843776,
-            "sha256": "161C5A139A8EEA60CE42C18A4E2DA2CC8B85F1A61D6CF73F6D8DC55A93EABA7D",
-            "checksum": "7C2D0D00",
+            "sha256": "47803F97343B750BF91C6B555D9E2DF3AD5D562F2703AC433208EB17B1B0CFC4",
+            "checksum": "26960D00",
         },
         "statistics_result": {
             "size": 843776,
-            "sha256": "232C99F19D5D846764784C6E99746EDE8F3F9916EAA81D1153ACB6F4B3C6012E",
-            "checksum": "ED230D00",
+            "sha256": "5463BC1804FBBB8863D8649B10B09A9B84973C7B1255B34CFFB08946F81A3DA2",
+            "checksum": "978C0D00",
         },
     },
 }
@@ -3585,6 +3681,243 @@ def _resolve_append_bytes(feature: FunPatch, layout: dict[str, Any]) -> bytes:
     return bytes(append_bytes)
 
 
+def _prepare_vv3_expanded_origins_automatic_removal(
+    work: bytearray,
+    feature: FunPatch,
+    patch_mode: str,
+) -> list[dict[str, str]]:
+    """Unwind exact static/atomic dependents before removing their VV3 core.
+
+    The serializer/reader and atomic-writer layers are automatic children of
+    the complete withdrawn Origins+Running core.  A base-only render ends at
+    its own append page and needs no special handling.  A complete core ends
+    with the two exact automatic pages; those pages and their guarded writes
+    must be removed first so the base append once again owns the file tail.
+    """
+    if (
+        patch_mode not in EXPANDED_PATCH_MODES
+        or feature.id not in VV3_EXPANDED_DETAIL_ORIGINS_FEATURE_IDS
+    ):
+        return []
+    layout = _append_layout(feature, patch_mode)
+    if layout is None:
+        return []
+    base_end = int(layout["append_offset"], 0) + len(
+        _resolve_append_bytes(feature, layout)
+    )
+    if len(work) == base_end:
+        return []
+
+    try:
+        from expanded_atomic_writer import (
+            CONFIGS,
+            FORMAT_BYTES,
+            build_import_page,
+            build_writer_page,
+        )
+        config = CONFIGS["vv3"]
+    except (ImportError, KeyError) as exc:
+        raise PatcherError("VV3 Expanded automatic removal is unavailable.") from exc
+    expected_final_size = config.import_page_raw + config.append_size
+    if len(work) != expected_final_size:
+        raise PatcherError(
+            f"{feature.name} cannot be removed: appended file length is not owned."
+        )
+
+    original_imports = bytes(
+        work[config.original_import_raw : config.original_import_raw + 220]
+    )
+    import_page = build_import_page(config, original_imports)
+    if bytes(work[config.import_page_raw:]) != import_page:
+        raise PatcherError(
+            f"Removal guard failed for {feature.id}: VV3 atomic import page differs."
+        )
+    writer_page, writer = build_writer_page(config)
+    if writer_page[: len(writer)] != writer:
+        raise PatcherError("VV3 atomic writer regeneration drifted.")
+    atomic_writes: list[tuple[int, bytes, bytes, str]] = [
+        (
+            config.section_count_raw,
+            config.sections_before.to_bytes(2, "little"),
+            config.sections_after.to_bytes(2, "little"),
+            "remove VV3 atomic section count",
+        ),
+        (
+            config.size_of_image_raw,
+            config.size_of_image_before.to_bytes(4, "little"),
+            config.size_of_image_after.to_bytes(4, "little"),
+            "remove VV3 atomic SizeOfImage extension",
+        ),
+    ]
+    atomic_writes.extend(
+        (raw, bytes(40), header, "remove VV3 atomic section header")
+        for raw, header in config.section_headers
+    )
+    atomic_writes.append((
+        config.import_directory_raw,
+        config.import_directory_before,
+        config.import_directory_after,
+        "restore the VV3 pre-atomic import directory",
+    ))
+    atomic_writes.extend(
+        (raw, before, after, "restore a VV3 pre-atomic save call")
+        for raw, before, after in config.callsites
+    )
+    atomic_writes.extend((
+        (
+            config.writer_raw,
+            bytes(len(writer)),
+            writer,
+            "remove the VV3 atomic writer",
+        ),
+        (
+            config.writer_raw + 0xA00,
+            bytes(len(FORMAT_BYTES)),
+            FORMAT_BYTES,
+            "remove the VV3 atomic sibling-path format",
+        ),
+    ))
+    for offset, before, after, _purpose in atomic_writes:
+        actual = bytes(work[offset : offset + len(after)])
+        if actual != after:
+            raise PatcherError(
+                f"Removal guard failed for {feature.id} at 0x{offset:X}: "
+                f"expected {after.hex().upper()}, found {actual.hex().upper()}"
+            )
+
+    integration = _expanded_static_repair_integration()["games"]["vv3"]
+    candidate = _expanded_static_repair_candidate(integration)
+    static_page = _static_repair_page(candidate, "vv3")
+    pe = candidate["pe_guards"]
+    section = candidate["section_plan"]
+    static_writes: list[tuple[int, bytes, bytes, str]] = [
+        (
+            int(pe["section_count_raw"], 0),
+            bytes.fromhex(pe["section_count_before"]),
+            bytes.fromhex(pe["section_count_after"]),
+            "remove the VV3 serializer section count",
+        ),
+        (
+            int(pe["size_of_image_raw"], 0),
+            bytes.fromhex(pe["size_of_image_before"]),
+            bytes.fromhex(pe["size_of_image_after"]),
+            "remove the VV3 serializer SizeOfImage extension",
+        ),
+        (
+            int(section["header_raw"], 0),
+            bytes.fromhex(section["header_guard"]),
+            bytes.fromhex(section["header_bytes"]),
+            "remove the VV3 serializer section header",
+        ),
+    ]
+    static_writes.extend(
+        (
+            int(hook["raw"], 0),
+            bytes.fromhex(hook["preimage"]),
+            bytes.fromhex(hook["after"]),
+            f"restore the VV3 {hook['id']} preimage",
+        )
+        for hook in candidate["hooks"]
+    )
+
+    owner = "automatic:vv3-expanded-dependent-removal"
+    records: list[dict[str, str]] = []
+    del work[config.import_page_raw:]
+    records.append({
+        "offset": f"0x{config.import_page_raw:X}",
+        "before": import_page.hex().upper(),
+        "after": "",
+        "purpose": "truncate the owned VV3 atomic import page",
+        "owner": owner,
+    })
+    for offset, before, after, purpose in reversed(atomic_writes):
+        work[offset : offset + len(before)] = before
+        records.append({
+            "offset": f"0x{offset:X}",
+            "before": after.hex().upper(),
+            "after": before.hex().upper(),
+            "purpose": purpose,
+            "owner": owner,
+        })
+    static_raw = int(section["raw_start"], 0)
+    if len(work) != static_raw + len(static_page) or bytes(work[static_raw:]) != static_page:
+        raise PatcherError(
+            f"Removal guard failed for {feature.id}: VV3 serializer page differs."
+        )
+    for offset, _before, after, _purpose in static_writes:
+        actual = bytes(work[offset : offset + len(after)])
+        if actual != after:
+            raise PatcherError(
+                f"Removal guard failed for {feature.id} at 0x{offset:X}: "
+                f"expected {after.hex().upper()}, found {actual.hex().upper()}"
+            )
+    del work[static_raw:]
+    records.append({
+        "offset": f"0x{static_raw:X}",
+        "before": static_page.hex().upper(),
+        "after": "",
+        "purpose": "truncate the owned VV3 serializer page",
+        "owner": owner,
+    })
+    for offset, before, after, purpose in reversed(static_writes):
+        work[offset : offset + len(before)] = before
+        records.append({
+            "offset": f"0x{offset:X}",
+            "before": after.hex().upper(),
+            "after": before.hex().upper(),
+            "purpose": purpose,
+            "owner": owner,
+        })
+    if len(work) != base_end:
+        raise PatcherError("VV3 Expanded dependent removal did not restore the base tail.")
+    return records
+
+
+def _prepare_vv3_expanded_detail_origins_removal(
+    work: bytearray,
+    feature: FunPatch,
+    patch_mode: str,
+) -> list[dict[str, str]]:
+    """Restore feature-owned constructor operands before Origins removal.
+
+    Expanded rendering moves the two copied constructor stores only after all
+    feature payloads have been composed.  Removal must therefore reverse that
+    final overlay inside its private transaction before it can authenticate the
+    original feature payload.  The feature reversal then restores zero stock
+    bytes, so the layout overlay must not be reapplied.
+    """
+    if (
+        patch_mode not in EXPANDED_PATCH_MODES
+        or feature.id not in VV3_EXPANDED_DETAIL_ORIGINS_FEATURE_IDS
+    ):
+        return []
+    checked: list[tuple[int, bytes, bytes]] = []
+    for offset, before_value, after_value in VV3_EXPANDED_DETAIL_ORIGINS_REPLAY_DISPLACEMENTS:
+        before = before_value.to_bytes(4, "little")
+        after = after_value.to_bytes(4, "little")
+        actual = bytes(work[offset : offset + 4])
+        if actual != after:
+            raise PatcherError(
+                f"Removal guard failed for {feature.id} at 0x{offset:X}: "
+                f"expected {after.hex().upper()}, found {actual.hex().upper()}"
+            )
+        checked.append((offset, after, before))
+    records: list[dict[str, str]] = []
+    for offset, before, after in checked:
+        work[offset : offset + 4] = after
+        records.append({
+            "offset": f"0x{offset:X}",
+            "before": before.hex().upper(),
+            "after": after.hex().upper(),
+            "purpose": (
+                "remove the final VV3 Expanded Details constructor-field overlay "
+                f"before removing {feature.id}"
+            ),
+            "owner": "automatic:vv3-expanded-detail-roster-layout",
+        })
+    return records
+
+
 def _remove_feature_bytes(
     data: bytearray,
     feature: FunPatch,
@@ -3595,6 +3928,16 @@ def _remove_feature_bytes(
     original_data = bytes(data)
     work = bytearray(original_data)
     removed: list[dict[str, str]] = []
+    removed.extend(
+        _prepare_vv3_expanded_origins_automatic_removal(
+            work, feature, patch_mode
+        )
+    )
+    removed.extend(
+        _prepare_vv3_expanded_detail_origins_removal(
+            work, feature, patch_mode
+        )
+    )
     patches = list(feature.patches)
     patches.extend(feature.raw.get("patch_mode_overrides", {}).get(patch_mode, []))
     for patch in reversed(patches):
@@ -4698,6 +5041,112 @@ def _apply_vv3_expanded_capacity_corrections(
             "after": patch["after"],
             "purpose": patch["purpose"],
             "owner": "automatic:vv3-expanded-capacity-corrections",
+            "virtual_address": _virtual_address_for_offset(bytes(data), offset),
+        })
+    return records
+
+
+def _apply_vv3_expanded_detail_roster_layout(
+    data: bytearray,
+    build: Build,
+    patch_mode: str,
+    selected_fun_ids: set[str],
+) -> list[dict[str, str]]:
+    """Move the VV3 Details UI tail behind all 256 roster entries.
+
+    The complete native table is checked before the first byte is changed.  An
+    Origins composition can replay two constructor stores after the native
+    relocation, so those two copied operands join the same transaction only
+    when the selected payload is present.
+    """
+    if build.id != "vv3" or patch_mode not in EXPANDED_PATCH_MODES:
+        return []
+    if (
+        len(VV3_EXPANDED_DETAIL_ROSTER_DISPLACEMENTS) != 150
+        or len({row[0] for row in VV3_EXPANDED_DETAIL_ROSTER_DISPLACEMENTS}) != 150
+        or any(
+            after - before != VV3_EXPANDED_DETAIL_ROSTER_DISPLACEMENT_DELTA
+            for _, before, after in VV3_EXPANDED_DETAIL_ROSTER_DISPLACEMENTS
+        )
+    ):
+        raise PatcherError("VV3 Expanded Details roster displacement table drifted.")
+
+    writes: list[tuple[int, bytes, bytes, str]] = []
+    class_size = VV3_EXPANDED_DETAIL_ROSTER_CLASS_SIZE
+    writes.append((
+        int(class_size["offset"], 0),
+        bytes.fromhex(class_size["before"]),
+        bytes.fromhex(class_size["after"]),
+        "expand the VV3 Details-screen class for 256 roster entries",
+    ))
+    for offset, before_value, after_value in VV3_EXPANDED_DETAIL_ROSTER_DISPLACEMENTS:
+        writes.append((
+            offset,
+            before_value.to_bytes(4, "little"),
+            after_value.to_bytes(4, "little"),
+            "move a VV3 Details-screen UI-tail field behind the 256-entry roster",
+        ))
+
+    selected_origins = VV3_EXPANDED_DETAIL_ORIGINS_FEATURE_IDS.intersection(
+        selected_fun_ids
+    )
+    replay_state = []
+    for offset, before_value, after_value in VV3_EXPANDED_DETAIL_ORIGINS_REPLAY_DISPLACEMENTS:
+        before = before_value.to_bytes(4, "little")
+        after = after_value.to_bytes(4, "little")
+        replay_state.append((offset, before, after, bytes(data[offset : offset + 4])))
+    replay_is_present = all(actual == before for _, before, _, actual in replay_state)
+    replay_is_absent = all(actual == b"\0\0\0\0" for _, _, _, actual in replay_state)
+    if selected_origins:
+        if not replay_is_present:
+            found = ", ".join(
+                f"0x{offset:X}={actual.hex().upper()}"
+                for offset, _, _, actual in replay_state
+            )
+            raise PatcherError(
+                "VV3 Expanded Origins Details replay guard failed: " + found
+            )
+        for offset, before, after, _ in replay_state:
+            writes.append((
+                offset,
+                before,
+                after,
+                "move an Origins-replayed Details constructor field behind the expanded roster",
+            ))
+    elif not replay_is_absent:
+        found = ", ".join(
+            f"0x{offset:X}={actual.hex().upper()}"
+            for offset, _, _, actual in replay_state
+        )
+        raise PatcherError(
+            "VV3 Expanded Details found an unowned Origins replay payload: " + found
+        )
+
+    # The Details roster loop itself is already widened by the immutable base
+    # Expanded manifest.  This final overlay only repairs the surrounding class
+    # layout and must never change that loop bound.
+    if bytes(data[0x6E2C2:0x6E2C6]) != bytes.fromhex("00010000"):
+        raise PatcherError("VV3 Expanded Details roster bound is not 256.")
+
+    for offset, before, _, _ in writes:
+        actual = bytes(data[offset : offset + len(before)])
+        if actual != before:
+            raise PatcherError(
+                "VV3 Expanded Details roster layout guard failed at "
+                f"0x{offset:X}: expected {before.hex().upper()}, "
+                f"found {actual.hex().upper()}"
+            )
+
+    owner = "automatic:vv3-expanded-detail-roster-layout"
+    records: list[dict[str, str]] = []
+    for offset, before, after, purpose in writes:
+        data[offset : offset + len(after)] = after
+        records.append({
+            "offset": f"0x{offset:X}",
+            "before": before.hex().upper(),
+            "after": after.hex().upper(),
+            "purpose": purpose,
+            "owner": owner,
             "virtual_address": _virtual_address_for_offset(bytes(data), offset),
         })
     return records
@@ -6684,6 +7133,11 @@ def render_patched_bytes(
     )
     applied.extend(
         _apply_vv3_expanded_capacity_corrections(data, build, patch_mode)
+    )
+    applied.extend(
+        _apply_vv3_expanded_detail_roster_layout(
+            data, build, patch_mode, selected_fun_ids
+        )
     )
     checksum_offset, _ = _pe_checksum_layout(data)
     checksum = pe_checksum(data)

@@ -1611,9 +1611,9 @@ class StockIntegrationTests(unittest.TestCase):
         )
         expected_sha256 = {
             "experimental_expanded_256":
-                "28DC72B33C200E1A29B1D5CF5BBDD381CC805C9E137DA30CE665A98A6FBB79AC",
+                "13D8F8AFA2B8510C5371A33AE63B6D810432A08125899452BBE29F1A5627A936",
             "experimental_expanded_256_progression":
-                "AA2E0D8EF68044CADDF9EB8E30D02CF5A5EA34C8ED15959465D4DB061E78C16E",
+                "CF1765D589F78827F721DEEBD269B88A1E4285CE68DCB0B89D05B2645A021502",
         }
         for mode in EXPANDED_MODES:
             with self.subTest(mode=mode):

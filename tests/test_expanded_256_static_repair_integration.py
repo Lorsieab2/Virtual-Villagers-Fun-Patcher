@@ -110,8 +110,8 @@ class ExpandedStaticRepairIntegrationTests(unittest.TestCase):
         ]
         game = self.contract["games"]["vv3"]
         final_with_post_repairs = {
-            "experimental_expanded_256": "AAD29CC8A55ABA7F20087A8FDE595BB84405813B9D544A9674B9D6C8E293EF71",
-            "experimental_expanded_256_progression": "3483E19B58074B41F73EA5472FDC5385B05E5517D33EF8A6B304C49F0B160A47",
+            "experimental_expanded_256": "2F2D3929779038B09FD85ABF510320E68402E16BE3F968072A7E311EB7DA6070",
+            "experimental_expanded_256_progression": "1876DFC25744F3ED62C68AE2EC5D3D1B48C16864E11FFF954FC45E78A84C5838",
         }
         for mode_id, identity in game["modes"].items():
             with self.subTest(mode=mode_id):
@@ -132,6 +132,19 @@ class ExpandedStaticRepairIntegrationTests(unittest.TestCase):
                     before_healer_repair[
                         offset : offset + len(bytes.fromhex(patch["before"]))
                     ] = bytes.fromhex(patch["before"])
+                detail_size = P.VV3_EXPANDED_DETAIL_ROSTER_CLASS_SIZE
+                detail_size_offset = int(detail_size["offset"], 0)
+                before_healer_repair[
+                    detail_size_offset : detail_size_offset + 4
+                ] = bytes.fromhex(detail_size["before"])
+                for offset, before, _after in P.VV3_EXPANDED_DETAIL_ROSTER_DISPLACEMENTS:
+                    before_healer_repair[offset : offset + 4] = before.to_bytes(
+                        4, "little"
+                    )
+                for offset, before, _after in P.VV3_EXPANDED_DETAIL_ORIGINS_REPLAY_DISPLACEMENTS:
+                    before_healer_repair[offset : offset + 4] = before.to_bytes(
+                        4, "little"
+                    )
                 P._canonicalize_pe_checksum(before_healer_repair)
                 self.assertEqual(
                     hashlib.sha256(before_healer_repair).hexdigest().upper(),

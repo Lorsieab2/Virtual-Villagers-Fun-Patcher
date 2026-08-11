@@ -243,6 +243,15 @@ class VV3ExpandedTimeWarpRendererTests(unittest.TestCase):
                 parent_before_healer_repair[
                     offset : offset + len(bytes.fromhex(patch["before"]))
                 ] = bytes.fromhex(patch["before"])
+            detail_size = patcher.VV3_EXPANDED_DETAIL_ROSTER_CLASS_SIZE
+            detail_size_offset = int(detail_size["offset"], 0)
+            parent_before_healer_repair[
+                detail_size_offset : detail_size_offset + 4
+            ] = bytes.fromhex(detail_size["before"])
+            for offset, before, _after in patcher.VV3_EXPANDED_DETAIL_ROSTER_DISPLACEMENTS:
+                parent_before_healer_repair[offset : offset + 4] = before.to_bytes(
+                    4, "little"
+                )
             patcher._canonicalize_pe_checksum(parent_before_healer_repair)
             self.assertEqual(
                 digest(parent_before_healer_repair),

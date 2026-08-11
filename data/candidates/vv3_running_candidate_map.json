@@ -294,18 +294,18 @@
       "owned_edit_count": 23
     },
     "experimental_expanded_256": {
-      "base_only_sha256": "0E008F9CA648A9700AB63B39E1F5686642619E4EC177ACA521954BA776C42422",
-      "base_plus_running_sha256": "657D321B2F1E9E6D6C223DB1FF0BBA38C2D761A97A6E7F21B98CE1826531A848",
-      "base_plus_running_size": 835584,
-      "pe_checksum": "0x000D2A32",
-      "owned_edit_count": 1287
+      "base_only_sha256": "FD76474E26C3672E470E3F8CC655F437D1C7B4C1685B4F656A0A5966E5CB7554",
+      "base_plus_running_sha256": "2F2D3929779038B09FD85ABF510320E68402E16BE3F968072A7E311EB7DA6070",
+      "base_plus_running_size": 843776,
+      "pe_checksum": "0x000CF6C3",
+      "owned_edit_count": 1466
     },
     "experimental_expanded_256_progression": {
-      "base_only_sha256": "41424AB08027DBB3B817E89A907F3616DB2654F962B709F5F939990485A25021",
-      "base_plus_running_sha256": "3A35745C00102A0964DF6E81B77707539C5BDC03501011F43FF1D2809015B211",
-      "base_plus_running_size": 835584,
-      "pe_checksum": "0x000DA53C",
-      "owned_edit_count": 1288
+      "base_only_sha256": "752DA5E17ED0B996DE366158FAA7C2B8BE66257D404FDEEA683B661DD9905BC6",
+      "base_plus_running_sha256": "1876DFC25744F3ED62C68AE2EC5D3D1B48C16864E11FFF954FC45E78A84C5838",
+      "base_plus_running_size": 843776,
+      "pe_checksum": "0x000D71CD",
+      "owned_edit_count": 1467
     }
   }
 }

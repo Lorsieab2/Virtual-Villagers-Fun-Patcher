@@ -493,10 +493,14 @@ class VV3RunningCandidateTests(unittest.TestCase):
                     mode,
                     _fun_patches_override=[self.base, self.running],
                 )
-                self.assertEqual(len(rendered), 0xCC000)
-                self.assertEqual(struct.unpack_from("<H", rendered, 0x10E)[0], 6)
+                expanded = mode.startswith("experimental_expanded_256")
+                self.assertEqual(len(rendered), 0xCE000 if expanded else 0xCC000)
+                self.assertEqual(
+                    struct.unpack_from("<H", rendered, 0x10E)[0],
+                    8 if expanded else 6,
+                )
                 expected_rva = (
-                    0x3B8000 if mode.startswith("experimental_expanded_256") else 0x2DF000
+                    0x3B8000 if expanded else 0x2DF000
                 )
                 self.assertEqual(struct.unpack_from("<I", rendered, 0x2D4)[0], expected_rva)
                 self.assertEqual(bytes(rendered[0xCB100:0xCB800]), bytes.fromhex(
@@ -550,8 +554,8 @@ class VV3RunningCandidateTests(unittest.TestCase):
         expected_hashes = {
             "collection_progression": "C774634F16B18C74573BF872F77ED742907E17192CA78A49D90E71FD89EDBA4A",
             "immediate_fixed": "CACA23DF89B81F5DCEC88A5539F10F3F3778B5FDDF46E24BC5B8370ECE6156D8",
-            "experimental_expanded_256": "7568B04EE4693BFE4CCCFA842730985B5B797EE6474EA0F0F7506946E2D20E74",
-            "experimental_expanded_256_progression": "17EE2E753C81304E0B8A76625AAAE1BFDEFAACD82E5C0CE924260F047D2624E3",
+            "experimental_expanded_256": "2499C0B64063D95106EF43105C6D8E29A3E559B0AAE5EF9DCBB3B1E968582E9B",
+            "experimental_expanded_256_progression": "C2AA254CD87E046EEE81E444EDF42CC4E292984214E3F7296ADF7F0C872B5C25",
         }
         others = [
             item
@@ -574,7 +578,12 @@ class VV3RunningCandidateTests(unittest.TestCase):
                     mode,
                     _fun_patches_override=[self.base, self.running, *others],
                 )
-                self.assertEqual(len(rendered), 0xCC000)
+                self.assertEqual(
+                    len(rendered),
+                    0xCE000
+                    if mode.startswith("experimental_expanded_256")
+                    else 0xCC000,
+                )
                 self.assertEqual(
                     hashlib.sha256(rendered).hexdigest().upper(),
                     expected_hashes[mode],
