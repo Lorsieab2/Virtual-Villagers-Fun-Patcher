@@ -119,6 +119,7 @@ LAYOUTS = {
 }
 
 OFF = {
+    "constructor_resource": 0x40,
     "tech_entry": 0x100,
     "detail_entry": 0x120,
     "modal_common": 0x140,
@@ -139,6 +140,7 @@ OFF = {
 }
 
 SIZES = {
+    "constructor_resource": 0x20,
     "tech_entry": 0x20,
     "detail_entry": 0x20,
     "modal_common": 0x440,
@@ -401,6 +403,13 @@ def build_modal(page: bytearray, page_va: int, s: dict[str, int]) -> dict[str, b
 
 def build_helpers(page: bytearray, page_va: int, s: dict[str, int]) -> dict[str, bytes]:
     result: dict[str, bytes] = {}
+    result["constructor_resource"] = put(page, page_va, "constructor_resource", """
+        call 0x44FBB0
+        mov ecx, eax
+        pop edx
+        push 0x6A
+        jmp edx
+    """)
     result["resolve_current"] = put(page, page_va, "resolve_current", f"""
         push ebx
         call 0x425950
@@ -1615,12 +1624,27 @@ def patch_payload(active: dict[str, object], stock_page_va: int) -> tuple[bytes,
             if ctor.count(before) != 1:
                 raise RuntimeError(f"{label} geometry preimage drift: {before.hex().upper()}")
             ctor = ctor.replace(before, after)
-        receiver = ctor.find(bytes.fromhex("89F96A6A"))
+        receiver = ctor.find(bytes.fromhex("89C789F96A6AE8"))
         if receiver < 0:
-            raise RuntimeError(f"{label} constructor receiver/resource ABI drift")
+            raise RuntimeError(f"{label} constructor allocation/resource ABI drift")
+        native_lookup = bytes(ctor[receiver + 6 : receiver + 11])
+        if len(native_lookup) != 5 or native_lookup[0] != 0xE8:
+            raise RuntimeError(f"{label} native resource lookup call drift")
+        bridge = asm(
+            f"xchg eax, edi; call 0x{stock_page_va + OFF['constructor_resource']:X}",
+            PAYLOAD_VA + start + receiver,
+        )
+        if len(bridge) != 6:
+            raise RuntimeError(f"{label} constructor resource bridge length drift")
+        ctor[receiver : receiver + 11] = bridge + native_lookup
         payload[start:end] = ctor
         geometry[label] = {
-            "receiver_resource_bytes": "89F96A6A",
+            "allocation_bridge_bytes": (bridge + native_lookup).hex().upper(),
+            "allocation_bridge_operand_offset": f"0x{PAYLOAD_OFFSET + start + receiver + 2:X}",
+            "resource_manager": "0x44FBB0",
+            "resource_lookup": "0x44FA20",
+            "resource_lookup_receiver": "EAX returned by 0x44FBB0 copied to ECX",
+            "control_constructor_receiver": "EDI allocation preserved by xchg EAX,EDI before constructor_resource helper",
             "resource_id": "0x6A",
             "dimensions": "96x39",
             "local_x": "137",
@@ -1792,6 +1816,18 @@ def main() -> None:
             "purpose": "bind the preserved legacy resolver entry to its Expanded null-guard continuation without changing any C342 row",
         },
     ]
+    for label in ("tech", "detail"):
+        operand_offset = int(payload_map["geometry"][label]["allocation_bridge_operand_offset"], 0)
+        stock_opcode_va = PAYLOAD_VA + (operand_offset - PAYLOAD_OFFSET) - 1
+        expanded_opcode_va = EXPANDED_PAYLOAD_VA + (operand_offset - PAYLOAD_OFFSET) - 1
+        stock_target = LAYOUTS["collection_progression"]["page_va"] + OFF["constructor_resource"]
+        expanded_target = LAYOUTS["experimental_expanded_256"]["page_va"] + OFF["constructor_resource"]
+        expanded_overrides.append({
+            "offset": f"0x{operand_offset:X}",
+            "before": (stock_target - (stock_opcode_va + 5)).to_bytes(4, "little", signed=True).hex().upper(),
+            "after": (expanded_target - (expanded_opcode_va + 5)).to_bytes(4, "little", signed=True).hex().upper(),
+            "purpose": f"bind the relocated .shr {label} constructor resource-manager bridge to the Expanded Task9 page",
+        })
     for mode in ("experimental_expanded_256", "experimental_expanded_256_progression"):
         result["patch_mode_overrides"].setdefault(mode, []).extend(deepcopy(expanded_overrides))
     if any(bytes.fromhex("E11C0000") in bytes.fromhex(str(item["after"])) for item in result["patches"]):

@@ -56,6 +56,15 @@ def rel32_at(blob: bytes, blob_va: int, target: int) -> int:
     return count
 
 
+def call_target(blob: bytes, blob_va: int, opcode_offset: int) -> int:
+    if blob[opcode_offset] != 0xE8:
+        raise AssertionError(f"no rel32 call at {opcode_offset:#x}")
+    displacement = int.from_bytes(
+        blob[opcode_offset + 1 : opcode_offset + 5], "little", signed=True
+    )
+    return blob_va + opcode_offset + 5 + displacement
+
+
 class Task9ArtifactTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
@@ -83,15 +92,74 @@ class Task9ArtifactTests(unittest.TestCase):
             self.assertEqual(digest(page), self.map["layouts"][mode]["page_sha256"])
             self.assertEqual(len(page), 0x8000)
 
-    def test_resource_geometry_and_constructor_receiver_are_exact(self) -> None:
+    def test_resource_geometry_and_constructor_manager_abi_are_exact(self) -> None:
         payload = bytes.fromhex(next(
             row["after"] for row in self.manifest["patches"]
             if int(row["offset"], 0) == builder.PAYLOAD_OFFSET
         ))
-        self.assertEqual(payload.count(bytes.fromhex("89F96A6A")), 2)
+        self.assertNotIn(bytes.fromhex("89F96A6A"), payload[0x40:0x180])
         self.assertEqual(payload.count(bytes.fromhex("6802000000")), 2)
         self.assertEqual(payload.count(bytes.fromhex("6889000000")), 2)
         self.assertNotIn(bytes.fromhex("6A48"), payload[0x40:0x180])
+        stock = builder.STOCK.read_bytes()
+        native_ctor = bytes.fromhex("B802000000506A6A8BCFE8")
+        native_sequence = stock.find(native_ctor, 0x44920, 0x44960)
+        self.assertEqual(native_sequence, 0x44946)
+        self.assertEqual(call_target(stock, builder.IMAGE_BASE, 0x44950), 0x44FA20)
+
+        build = next(item for item in patcher.load_builds() if item.id == "vv5")
+        feature = next(
+            item for item in patcher.load_fun_patches()
+            if item.id == "vv5_enable_origins_exclusive_features"
+        )
+        source = ROOT / "research/stock-executables" / build.input_name
+        for mode in MODES:
+            rendered, _ = patcher.render_patched_bytes(source, build, mode, [feature.id])
+            expanded = mode.startswith("experimental_expanded_256")
+            payload_va = builder.EXPANDED_PAYLOAD_VA if expanded else builder.PAYLOAD_VA
+            page_va = builder.LAYOUTS[mode]["page_va"]
+            page_raw = builder.LAYOUTS[mode]["append_offset"]
+            helper_raw = page_raw + builder.OFF["constructor_resource"]
+            helper = rendered[helper_raw : helper_raw + builder.SIZES["constructor_resource"]]
+            self.assertEqual(helper[0], 0xE8)
+            self.assertEqual(call_target(helper, page_va + builder.OFF["constructor_resource"], 0), 0x44FBB0)
+            self.assertEqual(helper[5:12], bytes.fromhex("89C15A6A6AFFE2"))
+            for label, ctor_offset in (("tech", 0x40), ("detail", 0x100)):
+                with self.subTest(mode=mode, constructor=label):
+                    bridge_operand = int(
+                        self.map["payload"]["geometry"][label]["allocation_bridge_operand_offset"],
+                        0,
+                    )
+                    bridge_opcode = bridge_operand - 1
+                    self.assertEqual(rendered[bridge_opcode - 1], 0x97)
+                    self.assertEqual(
+                        call_target(
+                            rendered,
+                            payload_va - builder.PAYLOAD_OFFSET,
+                            bridge_opcode,
+                        ),
+                        page_va + builder.OFF["constructor_resource"],
+                    )
+                    lookup_opcode = builder.PAYLOAD_OFFSET + ctor_offset + 0x14
+                    self.assertEqual(lookup_opcode, bridge_opcode + 5)
+                    self.assertEqual(
+                        call_target(
+                            rendered,
+                            payload_va - builder.PAYLOAD_OFFSET,
+                            lookup_opcode,
+                        ),
+                        0x44FA20,
+                    )
+                    ctor = rendered[
+                        builder.PAYLOAD_OFFSET + ctor_offset :
+                        builder.PAYLOAD_OFFSET + ctor_offset + 0x80
+                    ]
+                    factory = ctor.find(bytes.fromhex("6A0D89F9E8"))
+                    self.assertGreaterEqual(factory, 0)
+                    self.assertEqual(
+                        call_target(ctor, payload_va + ctor_offset, factory + 4),
+                        0x401BD0,
+                    )
 
     def test_resolver_guard_precedes_dereference_without_changing_c342_rows(self) -> None:
         payload = bytes.fromhex(next(

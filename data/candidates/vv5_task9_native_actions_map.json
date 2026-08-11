@@ -18,7 +18,7 @@
   "source_bindings": {
     "task9_builder": {
       "path": "scripts/build_vv5_task9_native_actions.py",
-      "source_text_sha256": "986967E3EBC52D6509FCD33F8698A9E986FBB34AFEF200DFF540FCF3855BF703"
+      "source_text_sha256": "A3BBBD01E19B0C7D3DCD925CA2D7C792B2B57A8AC30BE53F0B095EA7B6D5F668"
     },
     "companion_c": {
       "path": "native/vv5_task9_origins/vv5_task9_origins.c",
@@ -71,17 +71,27 @@
     "sha256": "B402ED8316CD6EB2C43B056848E622DC0924188C81C683F5E2813466AF8045D0"
   },
   "payload": {
-    "sha256": "E2C93D802833ED8FB8AA230FB152E650FA0C7A897592F0A10FF69874D1270A60",
+    "sha256": "B81F70CD707141A0348A3E03E75A8DB2DAC1C249E983629151830E4DD84A31D8",
     "geometry": {
       "tech": {
-        "receiver_resource_bytes": "89F96A6A",
+        "allocation_bridge_bytes": "97E8EC6F0100E8C7D9C9FF",
+        "allocation_bridge_operand_offset": "0xDB050",
+        "resource_manager": "0x44FBB0",
+        "resource_lookup": "0x44FA20",
+        "resource_lookup_receiver": "EAX returned by 0x44FBB0 copied to ECX",
+        "control_constructor_receiver": "EDI allocation preserved by xchg EAX,EDI before constructor_resource helper",
         "resource_id": "0x6A",
         "dimensions": "96x39",
         "local_x": "137",
         "local_y": "2"
       },
       "detail": {
-        "receiver_resource_bytes": "89F96A6A",
+        "allocation_bridge_bytes": "97E82C6F0100E807D9C9FF",
+        "allocation_bridge_operand_offset": "0xDB110",
+        "resource_manager": "0x44FBB0",
+        "resource_lookup": "0x44FA20",
+        "resource_lookup_receiver": "EAX returned by 0x44FBB0 copied to ECX",
+        "control_constructor_receiver": "EDI allocation preserved by xchg EAX,EDI before constructor_resource helper",
         "resource_id": "0x6A",
         "dimensions": "96x39",
         "local_x": "137",
@@ -97,11 +107,12 @@
   },
   "layouts": {
     "collection_progression": {
-      "page_sha256": "7AF8A408C1092B66349F2FBB1FA5EA2916D7A5338ECED0A4A1666A0A8DD6A15B",
+      "page_sha256": "AB9C95497042A4846093DBA7D1A875D3BAA8963EF3E5C036FD2E746EA3B5785D",
       "routine_sha256": {
         "tech_entry": "9A87BC2836E9669A373400AB7848C42AE243304EE312E0C6A0E8EBB20E9F0E97",
         "detail_entry": "3A94AE81F703450D2196B5D94C778A9EE959AA40C06D7D627CA53A0C00D6C817",
         "modal_common": "60AC1BCD73C6C40735D1963B742174847C2B5EDD0FE9A1BDD7D2BFE0FDE185D4",
+        "constructor_resource": "71AE6A82ADFA6D070748B3D214F5FF619D7826AB51D96F1910BAE8B95F18C94A",
         "resolve_current": "28A4CF2E80D5295C00531CAB1DDAA982F68C14BCF3849E0F371C7DF3112C2085",
         "resolve_index": "51EE4F6A70D806C57F2555C72EA0EF28601E304755B1C0075283B4B61167D80D",
         "resolve_manager": "9DD4F6EDEC231143351DE3B9B2BAFDA67B1E0D330D499CF1CB7C21EB88AD2126",
@@ -120,6 +131,7 @@
         "tech_entry": 7,
         "detail_entry": 7,
         "modal_common": 460,
+        "constructor_resource": 12,
         "resolve_current": 40,
         "resolve_index": 73,
         "resolve_manager": 66,
@@ -156,11 +168,12 @@
       "page_virtual_address": "0x7C9000"
     },
     "immediate_fixed": {
-      "page_sha256": "7AF8A408C1092B66349F2FBB1FA5EA2916D7A5338ECED0A4A1666A0A8DD6A15B",
+      "page_sha256": "AB9C95497042A4846093DBA7D1A875D3BAA8963EF3E5C036FD2E746EA3B5785D",
       "routine_sha256": {
         "tech_entry": "9A87BC2836E9669A373400AB7848C42AE243304EE312E0C6A0E8EBB20E9F0E97",
         "detail_entry": "3A94AE81F703450D2196B5D94C778A9EE959AA40C06D7D627CA53A0C00D6C817",
         "modal_common": "60AC1BCD73C6C40735D1963B742174847C2B5EDD0FE9A1BDD7D2BFE0FDE185D4",
+        "constructor_resource": "71AE6A82ADFA6D070748B3D214F5FF619D7826AB51D96F1910BAE8B95F18C94A",
         "resolve_current": "28A4CF2E80D5295C00531CAB1DDAA982F68C14BCF3849E0F371C7DF3112C2085",
         "resolve_index": "51EE4F6A70D806C57F2555C72EA0EF28601E304755B1C0075283B4B61167D80D",
         "resolve_manager": "9DD4F6EDEC231143351DE3B9B2BAFDA67B1E0D330D499CF1CB7C21EB88AD2126",
@@ -179,6 +192,7 @@
         "tech_entry": 7,
         "detail_entry": 7,
         "modal_common": 460,
+        "constructor_resource": 12,
         "resolve_current": 40,
         "resolve_index": 73,
         "resolve_manager": 66,
@@ -215,11 +229,12 @@
       "page_virtual_address": "0x7C9000"
     },
     "experimental_expanded_256": {
-      "page_sha256": "AE6DE6BD6D1D322F88FE41E4B636726C9645356EA2EA43C6EBE48E19B8F4F32B",
+      "page_sha256": "82FD9F2383D95E01B4165319347AC69A4FAE020A9D6E60BABCD5AAA28BA2E850",
       "routine_sha256": {
         "tech_entry": "7935927323902CAF7FFA5B0994674049C40FA3C269134ACF24D0C4222D6698AA",
         "detail_entry": "CEB7DE02C3B17F0C8C6E8D6DC939233AFBE9BF4084562EA64AC2E2C822B3FBF0",
         "modal_common": "B6817EA43BE9117EE5FE43A0C646A6F9A9A05A25F3EAF5215D701F5BA27675A4",
+        "constructor_resource": "37610853256B38A22C1CD3816E4590FC9491B1FBE3F1578975957F980EAD27A0",
         "resolve_current": "73E125CA83CE45D3CE6B60ECB16930524197629E8CF990845D4A8DC8BBF21CC7",
         "resolve_index": "6A6AF270840589A9BCD54C9E1AC3CD2CD8F7DFD06177A2D9666B3FC7718AE531",
         "resolve_manager": "174D34FC82A3AFDEF89A85868AB3C96FEDB2531A8253342BBEDBFF76FB3D738A",
@@ -238,6 +253,7 @@
         "tech_entry": 7,
         "detail_entry": 7,
         "modal_common": 460,
+        "constructor_resource": 12,
         "resolve_current": 40,
         "resolve_index": 73,
         "resolve_manager": 66,
@@ -274,11 +290,12 @@
       "page_virtual_address": "0x904000"
     },
     "experimental_expanded_256_progression": {
-      "page_sha256": "AE6DE6BD6D1D322F88FE41E4B636726C9645356EA2EA43C6EBE48E19B8F4F32B",
+      "page_sha256": "82FD9F2383D95E01B4165319347AC69A4FAE020A9D6E60BABCD5AAA28BA2E850",
       "routine_sha256": {
         "tech_entry": "7935927323902CAF7FFA5B0994674049C40FA3C269134ACF24D0C4222D6698AA",
         "detail_entry": "CEB7DE02C3B17F0C8C6E8D6DC939233AFBE9BF4084562EA64AC2E2C822B3FBF0",
         "modal_common": "B6817EA43BE9117EE5FE43A0C646A6F9A9A05A25F3EAF5215D701F5BA27675A4",
+        "constructor_resource": "37610853256B38A22C1CD3816E4590FC9491B1FBE3F1578975957F980EAD27A0",
         "resolve_current": "73E125CA83CE45D3CE6B60ECB16930524197629E8CF990845D4A8DC8BBF21CC7",
         "resolve_index": "6A6AF270840589A9BCD54C9E1AC3CD2CD8F7DFD06177A2D9666B3FC7718AE531",
         "resolve_manager": "174D34FC82A3AFDEF89A85868AB3C96FEDB2531A8253342BBEDBFF76FB3D738A",
@@ -297,6 +314,7 @@
         "tech_entry": 7,
         "detail_entry": 7,
         "modal_common": 460,
+        "constructor_resource": 12,
         "resolve_current": 40,
         "resolve_index": 73,
         "resolve_manager": 66,

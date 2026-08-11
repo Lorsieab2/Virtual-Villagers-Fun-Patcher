@@ -673,15 +673,15 @@ VV5_TASK9_PATHS = {
     "dll": ROOT / "data" / "candidates" / "VVFP VV5 Task9 Origins Icons.dll",
 }
 VV5_TASK9_SOURCE_TEXT_SHA256 = {
-    "manifest": "7F6566405FABCBE8F4719F680E43003141B5722DB384E385A4DE3812A61F1748",
-    "map": "27F708D172E9AA0726193A16E945B91BDCFF312EB0FEDE25F559C5F7FFC4C78B",
+    "manifest": "027C8BE32DDE8614BF0924BA38EF21F04F88E049E29F5F0D26E6DD9D06B8DECF",
+    "map": "ABD037D036117E867064FB3B7999FC488F031417E73AD5F66A8363748E81260C",
 }
 VV5_TASK9_DLL_SHA256 = "B402ED8316CD6EB2C43B056848E622DC0924188C81C683F5E2813466AF8045D0"
 VV5_TASK9_PAGE_SHA256 = {
-    "collection_progression": "7AF8A408C1092B66349F2FBB1FA5EA2916D7A5338ECED0A4A1666A0A8DD6A15B",
-    "immediate_fixed": "7AF8A408C1092B66349F2FBB1FA5EA2916D7A5338ECED0A4A1666A0A8DD6A15B",
-    "experimental_expanded_256": "AE6DE6BD6D1D322F88FE41E4B636726C9645356EA2EA43C6EBE48E19B8F4F32B",
-    "experimental_expanded_256_progression": "AE6DE6BD6D1D322F88FE41E4B636726C9645356EA2EA43C6EBE48E19B8F4F32B",
+    "collection_progression": "AB9C95497042A4846093DBA7D1A875D3BAA8963EF3E5C036FD2E746EA3B5785D",
+    "immediate_fixed": "AB9C95497042A4846093DBA7D1A875D3BAA8963EF3E5C036FD2E746EA3B5785D",
+    "experimental_expanded_256": "82FD9F2383D95E01B4165319347AC69A4FAE020A9D6E60BABCD5AAA28BA2E850",
+    "experimental_expanded_256_progression": "82FD9F2383D95E01B4165319347AC69A4FAE020A9D6E60BABCD5AAA28BA2E850",
 }
 VV5_TASK9_ACTIVE_SOURCE_TEXT_SHA256 = "6AFF1A8E69234C61CB2D1878C46FA91B0AAA721FC5F29C5B42A678F61BAB8528"
 VV5_TASK9_TASK8_SOURCE_TEXT_SHA256 = "090ED9CA074F02F9321B2F8E0C470FD0AF18B235231DA94B6D38293360BC9510"
@@ -1840,7 +1840,15 @@ def _certified_vv5_task9_record(active_base: dict[str, Any]) -> dict[str, Any]:
     payload = bytes.fromhex(payload_row.get("after", ""))
     if (
         len(payload) != 0xF60
-        or payload.count(bytes.fromhex("89F96A6A")) != 2
+        or bytes.fromhex("89F96A6A") in payload[0x40:0x180]
+        or payload[0x4E:0x59] != bytes.fromhex("97E8EC6F0100E8C7D9C9FF")
+        or payload[0x10E:0x119] != bytes.fromhex("97E82C6F0100E807D9C9FF")
+        or payload[0x55:0x59] != bytes.fromhex("C7D9C9FF")
+        or payload[0x115:0x119] != bytes.fromhex("07D9C9FF")
+        or payload[0x40:0xC0].count(bytes.fromhex("6802000000")) != 1
+        or payload[0x100:0x180].count(bytes.fromhex("6802000000")) != 1
+        or payload[0x40:0xC0].count(bytes.fromhex("6889000000")) != 1
+        or payload[0x100:0x180].count(bytes.fromhex("6889000000")) != 1
         or payload[0x2C0:0x2C7] != bytes.fromhex("B800917C00FFE0")
         or payload[0x600:0x607] != bytes.fromhex("B820917C00FFE0")
         or bytes.fromhex("E11C0000") in payload
@@ -1922,6 +1930,18 @@ def _certified_vv5_task9_record(active_base: dict[str, Any]) -> dict[str, Any]:
     for mode, layout in layouts.items():
         page = bytes.fromhex(layout["append_bytes"])
         page_va = int(layout["page_virtual_address"], 0)
+        helper = page[0x40:0x60]
+        helper_target = page_va + 0x45 + int.from_bytes(
+            helper[1:5], "little", signed=True
+        )
+        if (
+            helper[0] != 0xE8
+            or helper_target != 0x44FBB0
+            or helper[5:12] != bytes.fromhex("89C15A6A6AFFE2")
+        ):
+            raise PatcherError(
+                f"VV5 Task9 {mode} constructor resource-manager ABI drifted."
+            )
         targets: list[int] = []
         for relative in range(len(page) - 4):
             if page[relative] != 0xE8:
