@@ -673,8 +673,8 @@ VV5_TASK9_PATHS = {
     "dll": ROOT / "data" / "candidates" / "VVFP VV5 Task9 Origins Icons.dll",
 }
 VV5_TASK9_SOURCE_TEXT_SHA256 = {
-    "manifest": "027C8BE32DDE8614BF0924BA38EF21F04F88E049E29F5F0D26E6DD9D06B8DECF",
-    "map": "ABD037D036117E867064FB3B7999FC488F031417E73AD5F66A8363748E81260C",
+    "manifest": "CD84D887F926088037E3F61CD93DFD1AFF620437601076274D809B01C837B902",
+    "map": "2C3542E26A47268453377741B8E29BA78F44509BD296A71F3B18D47CD0DD9F2C",
 }
 VV5_TASK9_DLL_SHA256 = "B402ED8316CD6EB2C43B056848E622DC0924188C81C683F5E2813466AF8045D0"
 VV5_TASK9_PAGE_SHA256 = {
@@ -689,6 +689,34 @@ VV5_TASK9_ATOMIC_CORE_COMMIT = "c4e5fe76d1de258d5d4baeac77cbea842b206cd7"
 VV5_TASK9_ATOMIC_SOURCE_TEXT_SHA256 = {
     "atomic_generator": "0424B3B56CB4093176A8B429472FCDF04043CBFC22424EBBDE37058EA1A8F72E",
     "atomic_contract": "1B7068D0679CA896706AA201D27726AF612FD167C0406C5D509774E40728F6A6",
+}
+EXPANDED_TIME_WARP_IDS = {
+    "vv4": "vv4_expanded_256_time_warp",
+    "vv5": "vv5_expanded_256_time_warp",
+}
+EXPANDED_TIME_WARP_PATHS = {
+    "vv4": {
+        "manifest": ROOT / "data" / "vv4_expanded_time_warp.json",
+        "map": ROOT / "data" / "candidates" / "vv4_expanded_time_warp_map.json",
+    },
+    "vv5": {
+        "manifest": ROOT / "data" / "vv5_expanded_time_warp.json",
+        "map": ROOT / "data" / "candidates" / "vv5_expanded_time_warp_map.json",
+    },
+}
+EXPANDED_TIME_WARP_SOURCE_TEXT_SHA256 = {
+    "builder": "D6F7C3109F941387C7CE4F953FA5681659717A50DF23C03D918EA556A040617F",
+    "task9_builder": "38E8937982AF42990960E113C099CBC890D50A6E3BDE5371E8D60115828C6798",
+}
+EXPANDED_TIME_WARP_ARTIFACT_SHA256 = {
+    "vv4": {
+        "manifest": "8C80B09D70806674591B8BDF8441470CF9DB19FE9042B5407DF1352605E062CA",
+        "map": "4B789AFE57137B21B45A0FA83438AA88948812FCF396DF2BC934779C2EC420F4",
+    },
+    "vv5": {
+        "manifest": "137259FB1AAB61455D7CA62F961A48E2ECC95BBB8E5856BFF4BA5487A983E7A6",
+        "map": "584EAD05246B15ED9442108D574B7D0AF429958FAAF2E51B8B6A76359C5DFB18",
+    },
 }
 VV5_TASK9_EXPANDED_HOOK = {
     "offset": "0x415F0",
@@ -2160,7 +2188,159 @@ def _certified_vv5_full_mastery_records(
     return base, feature
 
 
-def _load_fun_patch_records() -> list[FunPatch]:
+def _certified_expanded_time_warp_records() -> list[dict[str, Any]]:
+    """Load the two exact Expanded-only Time Warp records fail closed."""
+
+    records: list[dict[str, Any]] = []
+    expected_modes = [
+        "experimental_expanded_256",
+        "experimental_expanded_256_progression",
+    ]
+    expected_companion = {
+        "source": "data/candidates/VVFP VV5 Task9 Origins Icons.dll",
+        "destination": "VVFP Origins Icons.dll",
+        "sha256": VV5_TASK9_DLL_SHA256,
+        "size": 297472,
+    }
+    expected_bindings = {
+        "builder": "scripts/build_expanded_time_warp.py",
+        "task9_builder": "scripts/build_vv5_task9_native_actions.py",
+        "task9_companion_c": "native/vv5_task9_origins/vv5_task9_origins.c",
+        "task9_companion_def": "native/vv5_task9_origins/vv5_task9_origins.def",
+        "task9_companion_rc": "native/vv5_task9_origins/vv5_task9_origins.rc",
+    }
+    for game_id in ("vv4", "vv5"):
+        paths = EXPANDED_TIME_WARP_PATHS[game_id]
+        try:
+            manifest_bytes = paths["manifest"].read_bytes()
+            map_bytes = paths["map"].read_bytes()
+            record = json.loads(manifest_bytes.decode("utf-8-sig"))
+            artifact = json.loads(map_bytes.decode("utf-8-sig"))
+        except (OSError, UnicodeError, json.JSONDecodeError) as exc:
+            raise PatcherError(
+                f"Certified {game_id.upper()} Expanded Time Warp artifacts are unavailable."
+            ) from exc
+        if (
+            source_text_sha256(manifest_bytes)
+            != EXPANDED_TIME_WARP_ARTIFACT_SHA256[game_id]["manifest"]
+            or source_text_sha256(map_bytes)
+            != EXPANDED_TIME_WARP_ARTIFACT_SHA256[game_id]["map"]
+        ):
+            raise PatcherError(
+                f"Certified {game_id.upper()} Expanded Time Warp artifact identity mismatch."
+            )
+        if (
+            record.get("id") != EXPANDED_TIME_WARP_IDS[game_id]
+            or record.get("game_id") != game_id
+            or record.get("enabled") is not True
+            or record.get("catalog_enabled") is not False
+            or record.get("catalog_hidden") is not True
+            or record.get("experimental_explicit_selection") is not True
+            or record.get("supported_modes") != expected_modes
+            or record.get("rejected_modes") != [
+                "collection_progression",
+                "immediate_fixed",
+            ]
+            or record.get("patches") != []
+            or artifact.get("id") != record.get("id")
+        ):
+            raise PatcherError(
+                f"Certified {game_id.upper()} Expanded Time Warp catalog contract drifted."
+            )
+        bindings = record.get("source_bindings")
+        if (
+            not isinstance(bindings, dict)
+            or set(bindings) != set(expected_bindings)
+            or artifact.get("source_bindings") != bindings
+        ):
+            raise PatcherError(
+                f"Certified {game_id.upper()} Expanded Time Warp source binding set drifted."
+            )
+        for name, expected_path in expected_bindings.items():
+            binding = bindings.get(name)
+            if (
+                not isinstance(binding, dict)
+                or binding.get("path") != expected_path
+                or set(binding) != {"path", "source_text_sha256"}
+            ):
+                raise PatcherError(
+                    f"Certified {game_id.upper()} Expanded Time Warp {name} binding is malformed."
+                )
+            try:
+                actual = source_text_sha256((ROOT / expected_path).read_bytes())
+            except OSError as exc:
+                raise PatcherError(
+                    f"Certified {game_id.upper()} Expanded Time Warp {name} source is unavailable."
+                ) from exc
+            if actual != binding.get("source_text_sha256"):
+                raise PatcherError(
+                    f"Certified {game_id.upper()} Expanded Time Warp {name} source identity mismatch."
+                )
+            pinned = EXPANDED_TIME_WARP_SOURCE_TEXT_SHA256.get(name)
+            if pinned is not None and actual != pinned:
+                raise PatcherError(
+                    f"Certified {game_id.upper()} Expanded Time Warp {name} pin drifted."
+                )
+        overrides = record.get("patch_mode_overrides")
+        if not isinstance(overrides, dict) or list(overrides) != expected_modes:
+            raise PatcherError(
+                f"Certified {game_id.upper()} Expanded Time Warp mode overlays drifted."
+            )
+        first = overrides[expected_modes[0]]
+        if overrides[expected_modes[1]] != first:
+            raise PatcherError(
+                f"Certified {game_id.upper()} Expanded Time Warp mode bytes diverged."
+            )
+        if game_id == "vv4":
+            if (
+                record.get("companion_files") != [expected_companion]
+                or record.get("dependencies") not in (None, [])
+                or record.get("conflicts") != [
+                    "vv4_enable_origins_exclusive_features",
+                    "vv4_enable_origins_exclusive_features_full_mastery_candidate",
+                    "vv4_full_mastery_all_stage_a_candidate",
+                ]
+                or len(first) != 3
+                or first[0].get("offset") != "0x89373"
+                or first[0].get("before_fill") != "00"
+                or first[0].get("length") != 0xC8D
+                or first[1].get("offset") != "0x3E165"
+                or first[1].get("before") != "8BC68B4C244C"
+                or first[1].get("after") != "E949B2040090"
+                or first[2].get("offset") != "0x3E9F0"
+                or first[2].get("before") != "578BF9E828F00000"
+                or first[2].get("after") != "E97EA90400909090"
+                or artifact.get("payload_sha256")
+                != hashlib.sha256(bytes.fromhex(first[0].get("after", ""))).hexdigest().upper()
+            ):
+                raise PatcherError("Certified VV4 Expanded Time Warp emitted bytes drifted.")
+        else:
+            if (
+                record.get("dependencies") != ["vv5_enable_origins_exclusive_features"]
+                or record.get("companion_files") not in (None, [])
+                or record.get("companion_contract") != expected_companion
+                or len(first) != 4
+                or [item.get("offset") for item in first]
+                != ["0xF4806", "0xF486B", "0xF5000", "0xFB09A"]
+                or first[0].get("before") != "B800070000F70588D351"
+                or first[0].get("after") != "B8001E0000E93F000000"
+                or first[1].get("before") != "83FB030F82B0000000"
+                or first[1].get("after") != "83FB050F828C070000"
+                or first[2].get("before_fill") != "00"
+                or first[2].get("length") != 0x500
+                or artifact.get("layout", {}).get("stock_page_sha256")
+                != VV5_TASK9_PAGE_SHA256["collection_progression"]
+                or artifact.get("layout", {}).get("expanded_baseline_page_sha256")
+                != VV5_TASK9_PAGE_SHA256["experimental_expanded_256"]
+            ):
+                raise PatcherError("Certified VV5 Expanded Time Warp emitted bytes drifted.")
+        records.append(record)
+    return records
+
+
+def _load_fun_patch_records(
+    *, include_expanded_time_warp: bool = False
+) -> list[FunPatch]:
     items = [
         item
         for item in _manifest().get("fun_patches", [])
@@ -2273,6 +2453,8 @@ def _load_fun_patch_records() -> list[FunPatch]:
             STATISTICS_FEATURES_PATH.read_text(encoding="utf-8")
         )
         items.extend(statistics.get("features", []))
+    if include_expanded_time_warp:
+        items.extend(_certified_expanded_time_warp_records())
     enriched: list[FunPatch] = []
     for item in items:
         # Keep machine-readable transparency coverage available to the
@@ -2291,8 +2473,12 @@ def _load_fun_patch_records() -> list[FunPatch]:
     return enriched
 
 
-def load_fun_patches() -> list[FunPatch]:
-    patches = _load_fun_patch_records()
+def load_fun_patches(
+    *, include_expanded_time_warp: bool = False
+) -> list[FunPatch]:
+    patches = _load_fun_patch_records(
+        include_expanded_time_warp=include_expanded_time_warp
+    )
     validate_fun_patch_catalog(patches)
     from transparency import validate_feature_transparency_metadata
 
@@ -2465,7 +2651,11 @@ def resolve_fun_patch_ids(
     ``patch_ids``.  The GUI supplies the prerequisites automatically; rejecting
     an incomplete API/CLI selection prevents a partial output from being made.
     """
-    catalog = list(load_fun_patches()) if patches is None else list(patches)
+    catalog = (
+        list(load_fun_patches(include_expanded_time_warp=True))
+        if patches is None
+        else list(patches)
+    )
     validate_fun_patch_catalog(catalog)
     by_id = {patch.id: patch for patch in catalog}
     requested: list[str] = []
@@ -4299,7 +4489,7 @@ def _safety_patches(build: Build, patch_mode: str) -> list[dict[str, str]]:
 
 
 def get_fun_patch(patch_id: str) -> FunPatch:
-    for patch in load_fun_patches():
+    for patch in load_fun_patches(include_expanded_time_warp=True):
         if patch.id == patch_id:
             return patch
     raise PatcherError(f"Unknown fun patch: {patch_id}")
@@ -4309,8 +4499,49 @@ def _selected_fun_patches(
     build: Build, patch_ids: tuple[str, ...] | list[str]
 ) -> list[FunPatch]:
     ordered_ids = resolve_fun_patch_ids(patch_ids, game_id=build.id)
-    by_id = {patch.id: patch for patch in load_fun_patches()}
+    by_id = {
+        patch.id: patch
+        for patch in load_fun_patches(include_expanded_time_warp=True)
+    }
     return [by_id[patch_id] for patch_id in ordered_ids]
+
+
+def _validate_expanded_time_warp_selection(
+    build: Build,
+    feature: FunPatch,
+    selected_ids: set[str],
+    patch_mode: str,
+) -> None:
+    """Keep both reviewed Time Warp records out of every stock composition."""
+
+    expected_id = EXPANDED_TIME_WARP_IDS.get(build.id)
+    if expected_id is None or feature.id != expected_id:
+        raise PatcherError("Expanded Time Warp feature/game identity mismatch.")
+    if patch_mode not in EXPANDED_PATCH_MODES:
+        raise PatcherError(
+            f"{build.title} Time Warp is available only in experimental Expanded-256; "
+            "stock modes are byte-frozen."
+        )
+    if feature.raw.get("supported_modes") != [
+        "experimental_expanded_256",
+        "experimental_expanded_256_progression",
+    ]:
+        raise PatcherError("Expanded Time Warp supported-mode metadata drifted.")
+    if build.id == "vv4":
+        conflicts = set(feature.raw.get("conflicts", ()))
+        selected_conflicts = conflicts & selected_ids
+        if selected_conflicts:
+            raise PatcherError(
+                "VV4 standalone Expanded Time Warp conflicts with full Origins/Full "
+                "Mastery: " + ", ".join(sorted(selected_conflicts))
+            )
+    elif (
+        feature.raw.get("dependencies") != ["vv5_enable_origins_exclusive_features"]
+        or "vv5_enable_origins_exclusive_features" not in selected_ids
+    ):
+        raise PatcherError(
+            "VV5 Expanded Time Warp requires the exact Task9 native-actions page."
+        )
 
 
 def _selected_playtest_disabled_fun_patches(
@@ -5561,6 +5792,13 @@ def render_patched_bytes(
         )
     selected_fun_ids = {patch.id for patch in fun_patches}
     for feature in fun_patches:
+        if feature.id in EXPANDED_TIME_WARP_IDS.values():
+            _validate_expanded_time_warp_selection(
+                build,
+                feature,
+                selected_fun_ids,
+                patch_mode,
+            )
         if feature.id == VV3_INDIVIDUAL_RUNNING_CANDIDATE_ID:
             _validate_vv3_individual_running_candidate(
                 feature,

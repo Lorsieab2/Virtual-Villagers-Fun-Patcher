@@ -1,0 +1,97 @@
+{
+  "id": "vv4_expanded_256_time_warp",
+  "status": "independent static Disassembler GO; runtime/player pending",
+  "source_bindings": {
+    "builder": {
+      "path": "scripts/build_expanded_time_warp.py",
+      "source_text_sha256": "D6F7C3109F941387C7CE4F953FA5681659717A50DF23C03D918EA556A040617F"
+    },
+    "task9_builder": {
+      "path": "scripts/build_vv5_task9_native_actions.py",
+      "source_text_sha256": "38E8937982AF42990960E113C099CBC890D50A6E3BDE5371E8D60115828C6798"
+    },
+    "task9_companion_c": {
+      "path": "native/vv5_task9_origins/vv5_task9_origins.c",
+      "source_text_sha256": "7CE6ABD30BDCDAED2599AD98346F3594E16D8C9E2AD894BD09EA8113FBE1316A"
+    },
+    "task9_companion_def": {
+      "path": "native/vv5_task9_origins/vv5_task9_origins.def",
+      "source_text_sha256": "0D5C23F01ADEA1881489EDCCAE973F18794BD0E02D36B7BE16D502BCDA515705"
+    },
+    "task9_companion_rc": {
+      "path": "native/vv5_task9_origins/vv5_task9_origins.rc",
+      "source_text_sha256": "1132A37D0EB693ED08933B26AA0F70A37455E251C5733A64871588CF0B229B8A"
+    }
+  },
+  "companion": {
+    "source": "data/candidates/VVFP VV5 Task9 Origins Icons.dll",
+    "destination": "VVFP Origins Icons.dll",
+    "sha256": "B402ED8316CD6EB2C43B056848E622DC0924188C81C683F5E2813466AF8045D0",
+    "size": 297472
+  },
+  "payload_file_offset": "0x89373",
+  "payload_va": "0x489373",
+  "payload_size": 3213,
+  "payload_sha256": "688245E0AA79FF5A464422046C66AEC51ED83D59490324B871F4B5BFDA05F8F2",
+  "layout": {
+    "handler_length": 37,
+    "constructor_length": 65,
+    "show_menu_length": 53,
+    "show_message_length": 96,
+    "transaction_length": 566,
+    "handler_sha256": "31803CD2E3E3952CDA1B8146132DC5360933385BB6E8F4CCA0323E8F06FC1A7A",
+    "constructor_sha256": "E7B4B5D67902C73D8E185172D2DD654FD9D90221E01BB477F17C19966D8357F1",
+    "show_menu_sha256": "A323460132FCC229A3BB0C2404AD80106B006D9170F533D8C349B357B969F50D",
+    "show_message_sha256": "4AA00C7037A171BA72F8D55D594E8BE8AA5ADDA0EA514548179AD2FD4217BC67",
+    "transaction_sha256": "C7576F9A6F54AE7295216DD2DB415DD9283E06EDE00416F19CAE4EF6F16051CB",
+    "strings_used": 614,
+    "strings": {
+      "button": "0x489D73",
+      "dll": "0x489D7C",
+      "begin": "0x489D93",
+      "get": "0x489DA5",
+      "end": "0x489DB5",
+      "menu": "0x489DC5",
+      "user32": "0x489DE1",
+      "messagebox": "0x489DEC",
+      "title": "0x489DF8",
+      "warning": "0x489E09",
+      "paused": "0x489E62",
+      "insufficient": "0x489EB9",
+      "stopped": "0x489EF5",
+      "success": "0x489F2C",
+      "charge_unknown": "0x489F41",
+      "clock_unknown": "0x489F8D"
+    }
+  },
+  "hooks": [
+    {
+      "offset": "0x3E165",
+      "before": "8BC68B4C244C",
+      "after": "E949B2040090",
+      "purpose": "route the Tech-screen constructor through the standalone Time Warp constructor"
+    },
+    {
+      "offset": "0x3E9F0",
+      "before": "578BF9E828F00000",
+      "after": "E97EA90400909090",
+      "purpose": "route Tech command 13 through the standalone Time Warp handler"
+    }
+  ],
+  "forbidden_mutations": [
+    "PE sections",
+    "imports",
+    ".shr",
+    "13-row ledger",
+    "stock modes",
+    "VV3"
+  ],
+  "stock_no_mutation_sha256": {
+    "collection_progression": "132516F4A5F7D2E9B539B14300207AEA5872FDCC0D34F13768435D9F4B6F76D4",
+    "immediate_fixed": "EB0CDD4F7F5E41F7A03734D51F9417A126C3BE9D214B484A848DB688545CF5FB"
+  },
+  "expanded_rendered_sha256": {
+    "experimental_expanded_256": "A9008B5135CF36BEC9792FB5A5E67986FD619396B522DDC89C104E16CF0C0C8A",
+    "experimental_expanded_256_progression": "B7E46D20596C6B335372FCAEF202BA7A25D7816A11078F4F0C27A308740A6622"
+  }
+}
