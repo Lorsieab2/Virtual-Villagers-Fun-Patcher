@@ -755,20 +755,14 @@ class VV3FullHealCandidateTests(unittest.TestCase):
         # transition and must not be accepted as the replacement companion.
         with tempfile.TemporaryDirectory() as temp:
             path = Path(temp) / "malformed.dll"
-            # Locate the historical artifact from Playtest 9 if present;
-            # otherwise use the tracked pre-C220 bytes as a deterministic fixture.
-            package = Path(r"C:\Users\Owner\Downloads\VV3 Full Heal Collection Playtest 9 - Modded\VVFP VV3 Full Mastery Candidate.dll")
-            if package.is_file():
-                path.write_bytes(package.read_bytes())
-            else:
-                malformed = bytearray(v.VV3_FULL_HEAL_BASE_DLL_PATH.read_bytes())
-                old = "Cure all Villagers".encode("utf-16le") + b"\0\0"
-                new = "Full Heal / Cure All".encode("utf-16le") + b"\0\0"
-                for offset in (0x46C60, 0x47A78):
-                    self.assertEqual(malformed[offset : offset + len(old)], old)
-                    malformed[offset : offset + len(new)] = new
-                self.assertEqual(sha(bytes(malformed)), "A1C58D5DD34252C532C288F87210363FE4C85E355E76946276954F907FAA88FC")
-                path.write_bytes(malformed)
+            malformed = bytearray(v.VV3_FULL_HEAL_BASE_DLL_PATH.read_bytes())
+            old = "Cure all Villagers".encode("utf-16le") + b"\0\0"
+            new = "Full Heal / Cure All".encode("utf-16le") + b"\0\0"
+            for offset in (0x46C60, 0x47A78):
+                self.assertEqual(malformed[offset : offset + len(old)], old)
+                malformed[offset : offset + len(new)] = new
+            self.assertEqual(sha(bytes(malformed)), "A1C58D5DD34252C532C288F87210363FE4C85E355E76946276954F907FAA88FC")
+            path.write_bytes(malformed)
             with patch.object(v, "VV3_FULL_HEAL_DLL_PATH", path):
                 with self.assertRaises(v.PatcherError):
                     v._validate_vv3_full_heal_companion_transform()

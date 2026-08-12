@@ -41,7 +41,7 @@ gates remain disabled/fail-closed.
 The repository also provides a metadata-only discovery helper:
 
 ```powershell
-& 'C:\Users\Owner\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe' scripts\discover_vv345_native_evidence.py
+python scripts\discover_vv345_native_evidence.py
 ```
 
 It prints the ordered ten-query metadata for VV3, VV4, and VV5 together with

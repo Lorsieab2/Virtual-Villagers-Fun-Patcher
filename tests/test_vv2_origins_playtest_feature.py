@@ -195,7 +195,7 @@ class VV2OriginsPlaytestFeatureTests(unittest.TestCase):
             self.source,
             "immediate_fixed",
             playtest_disabled_feature_ids=[VV2_PLAYTEST_DISABLED_FEATURE_ID],
-            output_root=Path("C:/Users/Owner/Downloads"),
+            output_root=Path(tempfile.gettempdir()),
         )
         self.assertTrue(result["playtest_only"])
         self.assertEqual(result["fun_patches"], [VV2_PLAYTEST_DISABLED_FEATURE_ID])
@@ -238,7 +238,7 @@ class VV2OriginsPlaytestFeatureTests(unittest.TestCase):
             fun_patch_ids=["vv2_birth_control"],
             playtest_disabled_feature_ids=[VV2_PLAYTEST_DISABLED_FEATURE_ID],
             output_root=None,
-            playtest_output_root=Path("C:/Users/Owner/Downloads/vv2-stress"),
+            playtest_output_root=Path(tempfile.gettempdir()) / "vv2-stress",
         )
 
     def test_apply_requires_explicit_output_root_and_rejects_save_copy(self) -> None:

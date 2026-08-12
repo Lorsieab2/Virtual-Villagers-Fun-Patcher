@@ -11,11 +11,8 @@ import ida_pro
 import idautils
 
 
-OUTPUT = Path(
-    r"C:\Users\Owner\Documents\Codex\Misc LDW Game Projects"
-    r"\Virtual-Villagers-Fun-Patcher\research\vv1-origins-apk"
-    r"\desktop-resource-accesses.txt"
-)
+ROOT = Path(__file__).resolve().parents[1]
+OUTPUT = ROOT / "research" / "vv1-origins-apk" / "vv1-resource-accesses.txt"
 DISPLACEMENTS = (0xA2EC, 0xA2FC)
 
 
