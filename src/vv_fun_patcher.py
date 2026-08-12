@@ -2954,41 +2954,10 @@ def _load_fun_patch_records(
                     # catalog records.
                     items.append(record)
                 elif record.get("id") == "vv4_enable_origins_exclusive_features":
-                    mastery = _certified_vv4_full_mastery_records(record)
-                    if mastery is None:
-                        # A present VV4 Full Mastery candidate owns the VV4
-                        # Origins payload.  While that candidate is disabled
-                        # or awaiting fresh recertification, do not fall back
-                        # to the legacy active record: it contains the
-                        # withdrawn Cure route and would re-expose command 5.
-                        candidate_base = json.loads(
-                            VV4_FULL_MASTERY_CANDIDATE_PATHS["base"].read_text(
-                                encoding="utf-8"
-                            )
-                        )
-                        candidate_feature = json.loads(
-                            VV4_FULL_MASTERY_CANDIDATE_PATHS["feature"].read_text(
-                                encoding="utf-8"
-                            )
-                        )
-                        candidate_map = json.loads(
-                            VV4_FULL_MASTERY_CANDIDATE_PATHS["map"].read_text(
-                                encoding="utf-8"
-                            )
-                        )
-                        gate_status = candidate_map.get("ui_asset_gate", {}).get("status")
-                        if (
-                            not candidate_base.get("enabled", True)
-                            or not candidate_feature.get("enabled", True)
-                            or gate_status != "independent metadata recertification GO"
-                        ):
-                            continue
-                        items.append(record)
-                    else:
-                        items.extend(mastery)
-                        full_heal = _certified_vv4_full_heal_record(record, mastery[1])
-                        if full_heal is not None:
-                            items.append(full_heal)
+                    # The current VV4 base owns the complete Origins-style
+                    # menu.  Standalone Full Mastery and Full Heal candidates
+                    # remain historical evidence and are never selectable.
+                    items.append(record)
                 elif record.get("id") == "vv5_enable_origins_exclusive_features":
                     # Task9 is the sole production owner of the VV5 action
                     # IDs. Historical Full Mastery/Running candidates remain

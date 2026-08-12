@@ -455,8 +455,15 @@ class ManifestTests(unittest.TestCase):
                 ]
                 self.assertEqual(len(starts), 3)
                 for start in starts:
-                    ret = payload.index(b"\xC3", start)
-                    self.assertEqual(payload[ret - len(epilogue) + 1 : ret + 1], epilogue)
+                    # A rel32 call operand may legitimately contain C3 as
+                    # data.  Locate the complete epilogue rather than the
+                    # first byte that happens to decode as RET.
+                    ends = [
+                        index
+                        for index in range(start, len(payload) - len(epilogue) + 1)
+                        if payload[index : index + len(epilogue)] == epilogue
+                    ]
+                    self.assertTrue(ends)
 
     def test_origins_village_wide_exact_header_and_safe_field_targets(self) -> None:
         expected_headers = {

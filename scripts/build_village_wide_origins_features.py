@@ -131,6 +131,15 @@ CONFIG = {
         "health": 0x1C40,
         "age": 0x1B8C,
         "skills": (0x1C5C, 0x1C60, 0x1C64, 0x1C68, 0x1C6C),
+        # VV4 stores skills as Float32 values.  sub_46AD80 is the native
+        # writer: push (100.0 - current), push skill ordinal, ECX = the
+        # record's first-skill field; the callee returns with ret 8.
+        "native_skill_writer": 0x46AD80,
+        "native_skill_writer_uses_physical_index": False,
+        "native_skill_writer_float": True,
+        "skill_codes": (0, 1, 2, 3, 4),
+        "code_size": 0x500,
+        "age_code_offset": 0x450,
         "likes": 0x1E60,
         "dislikes": 0x1E6C,
         "slot_count": 3,
@@ -433,7 +442,7 @@ def build_payload(config: dict) -> tuple[bytes, dict[str, int]]:
             else "inc edi"
         )
         mastery_postverify = "\n".join(
-            f"cmp dword ptr [esi + {_hex_word(offset)}], 100\n            jne mastery_failure"
+            f"cmp dword ptr [esi + {_hex_word(offset)}], {_hex_word(config.get('master_value', 100))}\n            jne mastery_failure"
             for offset in config["skills"]
         )
         if config.get("native_mastery_evaluator") and not config.get(
@@ -462,11 +471,13 @@ def build_payload(config: dict) -> tuple[bytes, dict[str, int]]:
             """
         skill_writes = "\n".join(
             f"""
-            cmp dword ptr [esi + {_hex_word(offset)}], 100
+            cmp dword ptr [esi + {_hex_word(offset)}], {_hex_word(config.get('master_value', 100))}
             je mastery_skill_next_{index}
-            mov eax, 100
-            sub eax, dword ptr [esi + {_hex_word(offset)}]
-            push eax
+            {
+                f"push {_hex_word(config.get('master_value', 100))}\n            fld dword ptr [esp]\n            fsub dword ptr [esi + {_hex_word(offset)}]\n            fstp dword ptr [esp]"
+                if config.get('native_skill_writer_float')
+                else f"mov eax, 100\n            sub eax, dword ptr [esi + {_hex_word(offset)}]\n            push eax"
+            }
             {
                 f"push {_hex_word(index)}"
                 if not config.get("native_skill_writer_uses_physical_index", True)
@@ -655,6 +666,15 @@ def main() -> None:
             record_fields["native_evaluator_scope"] = "once per changed villager after exact-100 postverification"
         if config.get("native_skill_writer_uses_physical_index") is False:
             record_fields["native_skill_writer_index"] = "skill ordinal 0..4"
+        if config.get("native_skill_writer_float"):
+            record_fields["mastery_target"] = "Float32 100.0"
+            record_fields["native_skill_writer_value"] = "Float32 delta: 100.0-current"
+        mastery_behavior = (
+            "Grant Full Mastery to All Villagers uses the native Float32 skill writer "
+            "for each changed skill and postverifies exact 100.0 values."
+            if config.get("native_skill_writer_float")
+            else "Grant Full Mastery to All Villagers writes native mastery values and runs the native award evaluator for each changed eligible villager."
+        )
         feature = {
             "id": feature_id,
             "game_id": game_id,
@@ -691,7 +711,7 @@ def main() -> None:
                 "Adds rows 6-8 to the Origins Tech-screen Upgrades dialog only when this optional feature is installed.",
                 "Charges exactly 1,000,000 tech points once per selected village-wide purchase in the current save.",
                 f"Running scans exactly {config['slot_count']} physical Like and Dislike slots, adds Running only to the first free Like slot, removes Running Dislikes only after that insertion, and leaves already-Running or full-like villagers unchanged.",
-                "Grant Full Mastery to All Villagers writes native mastery values and runs the native award evaluator for each changed eligible villager.",
+                mastery_behavior,
                 "All Villagers are 18 writes only the verified displayed-age field to 360 age units.",
             ],
             "running_preference_id": config["running_preference_id"],

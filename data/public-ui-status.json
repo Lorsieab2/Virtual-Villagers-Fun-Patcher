@@ -19,7 +19,7 @@
     },
     "vv4": {
       "origins": "public",
-      "full_mastery": "public",
+      "full_mastery": "menu_owned",
       "running": "disabled_hidden",
       "full_heal": "disabled_hidden",
       "legacy_origins_village_wide": "disabled_hidden",

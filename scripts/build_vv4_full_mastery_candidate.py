@@ -202,7 +202,9 @@ def validate_native_asset_provenance() -> dict[str, object]:
     }
 
 
-def build_ui_payload(active_payload: bytes) -> tuple[bytes, dict[str, object]]:
+def build_ui_payload(
+    active_payload: bytes, *, repair_result_helper: bool = True
+) -> tuple[bytes, dict[str, object]]:
     """Replace only the candidate UI blocks; preserve all other active bytes."""
     payload = bytearray(active_payload.ljust(PAYLOAD_SIZE, b"\0"))
     if len(payload) != PAYLOAD_SIZE:
@@ -216,21 +218,22 @@ def build_ui_payload(active_payload: bytes) -> tuple[bytes, dict[str, object]]:
     if any(payload[DETAIL_HANDLER_RELOC_OFFSET : DETAIL_HANDLER_RELOC_OFFSET + 0x2B]):
         raise RuntimeError("Detail handler relocation cave is not zero")
     result_call_repairs = []
-    if len(D25_RESULT_HELPER_BYTES) != 54:
-        raise RuntimeError("D25 result helper length mismatch")
-    if sha(D25_RESULT_HELPER_BYTES) != D25_RESULT_HELPER_SHA256:
-        raise RuntimeError("D25 result helper hash mismatch")
-    if any(payload[D25_RESULT_HELPER_OFFSET : D25_RESULT_HELPER_OFFSET + 64]):
-        raise RuntimeError("D25 result helper cave is not zero")
-    payload[D25_RESULT_HELPER_OFFSET : D25_RESULT_HELPER_OFFSET + len(D25_RESULT_HELPER_BYTES)] = D25_RESULT_HELPER_BYTES
-    for call_va in (0x4897CA, 0x489ABB):
-        offset = call_va - PAYLOAD_VA
-        before = rel32_call(call_va, 0x489573)
-        after = rel32_call(call_va, D25_RESULT_HELPER_VA)
-        if payload[offset : offset + 5] != before:
-            raise RuntimeError(f"result helper call guard mismatch at 0x{call_va:X}")
-        payload[offset : offset + 5] = after
-        result_call_repairs.append({"call_va": f"0x{call_va:X}", "before_target": "0x489573", "after_target": f"0x{D25_RESULT_HELPER_VA:X}", "before": before.hex().upper(), "after": after.hex().upper()})
+    if repair_result_helper:
+        if len(D25_RESULT_HELPER_BYTES) != 54:
+            raise RuntimeError("D25 result helper length mismatch")
+        if sha(D25_RESULT_HELPER_BYTES) != D25_RESULT_HELPER_SHA256:
+            raise RuntimeError("D25 result helper hash mismatch")
+        if any(payload[D25_RESULT_HELPER_OFFSET : D25_RESULT_HELPER_OFFSET + 64]):
+            raise RuntimeError("D25 result helper cave is not zero")
+        payload[D25_RESULT_HELPER_OFFSET : D25_RESULT_HELPER_OFFSET + len(D25_RESULT_HELPER_BYTES)] = D25_RESULT_HELPER_BYTES
+        for call_va in (0x4897CA, 0x489ABB):
+            offset = call_va - PAYLOAD_VA
+            before = rel32_call(call_va, 0x489573)
+            after = rel32_call(call_va, D25_RESULT_HELPER_VA)
+            if payload[offset : offset + 5] != before:
+                raise RuntimeError(f"result helper call guard mismatch at 0x{call_va:X}")
+            payload[offset : offset + 5] = after
+            result_call_repairs.append({"call_va": f"0x{call_va:X}", "before_target": "0x489573", "after_target": f"0x{D25_RESULT_HELPER_VA:X}", "before": before.hex().upper(), "after": after.hex().upper()})
     factory_va = PAYLOAD_VA + UI_FACTORY_OFFSET
     text_va = PAYLOAD_VA + UPGRADES_TEXT_OFFSET
     if any(payload[UI_FACTORY_OFFSET : PAYLOAD_SIZE]):

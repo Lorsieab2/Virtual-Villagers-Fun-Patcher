@@ -31,6 +31,12 @@ class ReleaseManifestTests(unittest.TestCase):
             "data/candidates/vv3_individual_full_mastery_candidate.json",
             "data/candidates/vv3_individual_grant_running_candidate.json",
             "data/candidates/vv3_full_heal_cure_all_candidate.json",
+            "data/candidates/vv4_origins_full_mastery_base_candidate.json",
+            "data/candidates/vv4_full_mastery_all_candidate.json",
+            "data/candidates/vv4_full_mastery_all_candidate_map.json",
+            "data/candidates/VVFP VV4 Full Mastery Candidate.dll",
+            "data/candidates/vv4_full_heal_cure_all_candidate.json",
+            "data/candidates/vv4_full_heal_cure_all_candidate_map.json",
         ):
             self.assertNotIn(historical, release.FILES)
 

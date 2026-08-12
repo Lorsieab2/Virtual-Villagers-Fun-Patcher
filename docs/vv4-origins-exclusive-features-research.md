@@ -7,6 +7,26 @@ The exact-build assembler and manifest are now present. This report still
 marks the feature as runtime-validation pending; no claim is made that every
 native dialog and upgrade interaction has been player-tested.
 
+## Current Origins menu route
+
+The public VV4 route is the combined Origins-style Village-Wide Upgrades
+patch. It owns both the Tech-screen Village-Wide menu and the Villager Details
+upgrades menu; standalone Full Mastery and Full Heal records are historical
+evidence only and are not catalog or release entries.
+
+- Village-Wide and Details Full Mastery use the exact VV4 native skill writer
+  at `0x46AD80`, passing a Float32 delta to exact `100.0` and the skill ordinal
+  `0..4`, with postverification.
+- Grant Running follows the shared fixed-array rule: an existing Running Like
+  is a no-write/no-charge skip; otherwise the first physical empty Like is
+  required before inserting Running once and clearing matching Dislikes.
+- Full Heal/Cure All processes active living records, raises health below `80`
+  to exact `100` through `0x46AF00`, clears sickness, and increments the
+  VV4 People Cured statistic only after the sickness clear.
+- The native VV4 UI factory/destructor and relocated Details handler are used;
+  non-intercepted Tech and Details events fall through to `0x43E9F8` and
+  `0x448618`. Runtime/player confirmation remains pending.
+
 ## Current shipping gate
 
 The doubler audit is **STOP** for this exact build. New purchase and repurchase
@@ -71,8 +91,8 @@ static tests. Runtime/player validation remains pending.
 The `.text` zero run begins at file/VA `0x89173` / `0x489173`, immediately
 after the Experimental-256 stock-save loader. The shared statistics feature
 uses `0x89173..0x89372`; the Origins payload begins at file `0x89373` and
-fits within its validated `0xC8D`-byte cave without overlapping the expanded
-VV4 patches.
+uses the validated `0xA00`-byte cave without overlapping the current
+stock-mode payload boundaries.
 
 The manifest is emitted only after the exact supported stock guards and payload
 fit pass. The doubler remains STOP pending safe hook placement and complete

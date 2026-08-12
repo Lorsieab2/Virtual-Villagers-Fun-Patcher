@@ -8,7 +8,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 OUTPUTS = ROOT / "outputs"
-VERSION = "v1.34.7-rc17"
+VERSION = "v1.34.7-rc18"
 NAME = f"Virtual-Villagers-Fun-Patcher-{VERSION}.zip"
 FILES = [
     "README.md",
@@ -21,18 +21,11 @@ FILES = [
     "assets/statistics/VVFP Statistics Export.dll",
     "data/builds.json",
     "data/expanded_256.json",
-    "data/vv4_expanded_256_contract.json",
     "data/vv1_origins_feature.json",
     "data/vv2_origins_feature.json",
     "data/vv3_origins_feature.json",
     "data/vv4_origins_feature.json",
     "data/vv5_origins_feature.json",
-    "data/candidates/vv4_origins_full_mastery_base_candidate.json",
-    "data/candidates/vv4_full_mastery_all_candidate.json",
-    "data/candidates/vv4_full_mastery_all_candidate_map.json",
-    "data/candidates/VVFP VV4 Full Mastery Candidate.dll",
-    "data/candidates/vv4_full_heal_cure_all_candidate.json",
-    "data/candidates/vv4_full_heal_cure_all_candidate_map.json",
     "data/candidates/vv5_post_prototype_overlay.json",
     "data/candidates/vv5_task9_native_actions_map.json",
     "data/candidates/VVFP VV5 Task9 Origins Icons.dll",
