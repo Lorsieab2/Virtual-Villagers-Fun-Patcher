@@ -3139,6 +3139,7 @@ def validate_fun_patch_catalog(
                         "generated:vv3_individual_full_mastery_page",
                         "generated:vv5_individual_running_page",
                         "generated:vv3_expanded_time_warp_page",
+                        "generated:vv1_birth_control_page",
                         }
                     )
                     or (append_bytes and len(append_bytes) % 0x1000)
@@ -3153,6 +3154,8 @@ def validate_fun_patch_catalog(
                     raise PatcherError("VV5 individual Running generated append source is owner-bound.")
                 if append_source == "generated:vv3_expanded_time_warp_page" and patch.id != EXPANDED_TIME_WARP_IDS["vv3"]:
                     raise PatcherError("VV3 Expanded Time Warp generated append source is owner-bound.")
+                if append_source == "generated:vv1_birth_control_page" and patch.id != "vv1_birth_control":
+                    raise PatcherError("VV1 Birth Control generated append source is owner-bound.")
                 for item in header_patches:
                     if not isinstance(item, dict):
                         raise PatcherError(
@@ -3986,6 +3989,32 @@ def _resolve_append_bytes(feature: FunPatch, layout: dict[str, Any]) -> bytes:
     """
     if "append_bytes" in layout:
         return bytes.fromhex(layout["append_bytes"])
+    if layout.get("append_source") == "generated:vv1_birth_control_page":
+        if feature.id != "vv1_birth_control":
+            raise PatcherError("VV1 Birth Control append source owner mismatch.")
+        import importlib.util
+        builder_path = ROOT / "scripts" / "build_vv1_birth_control_page.py"
+        spec = importlib.util.spec_from_file_location(
+            "vv1_birth_control_builder_runtime", builder_path
+        )
+        if spec is None or spec.loader is None:
+            raise PatcherError("VV1 Birth Control page builder is unavailable.")
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        append_bytes, details = module.build_page()
+        expected = str(layout.get("page_sha256", "")).upper()
+        actual = hashlib.sha256(append_bytes).hexdigest().upper()
+        if (
+            len(append_bytes) != 0x1000
+            or not expected
+            or actual != expected
+            or details.get("page_sha256") != expected
+        ):
+            raise PatcherError(
+                "Generated VV1 Birth Control page identity mismatch: "
+                f"expected {expected}, got {actual}."
+            )
+        return bytes(append_bytes)
     if layout.get("append_source") == "generated:vv3_expanded_time_warp_page":
         if feature.id != EXPANDED_TIME_WARP_IDS["vv3"]:
             raise PatcherError("VV3 Expanded Time Warp append source owner mismatch.")

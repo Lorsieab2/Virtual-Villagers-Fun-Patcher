@@ -394,8 +394,11 @@ class ManifestTests(unittest.TestCase):
         resolved = resolve_fun_patch_ids(feature_ids, game_id="vv1")
         self.assertEqual(resolved, feature_ids)
         build = next(build for build in load_builds() if build.id == "vv1")
+        source = STOCK / build.input_name
+        if not source.exists():
+            self.skipTest("stock executable is not present in this isolated source worktree")
         rendered, _ = render_patched_bytes(
-            STOCK / build.input_name,
+            source,
             build,
             DEFAULT_PATCH_MODE,
             feature_ids,
@@ -601,11 +604,10 @@ class ManifestTests(unittest.TestCase):
             [patch.id for patch in load_fun_patches()],
         )
 
-    def test_unverified_birth_control_is_not_exposed_as_a_patch(self) -> None:
-        self.assertNotIn(
-            "vv1_birth_control",
-            [patch.id for patch in load_fun_patches()],
-        )
+    def test_vv1_and_vv3_birth_control_are_exposed_as_independent_patches(self) -> None:
+        ids = {patch.id for patch in load_fun_patches()}
+        self.assertIn("vv1_birth_control", ids)
+        self.assertIn("vv3_birth_control", ids)
 
     def test_legacy_grant_running_helpers_keep_exact_configured_slot_counts(self) -> None:
         """Keep legacy byte provenance separate from native ABI certification.

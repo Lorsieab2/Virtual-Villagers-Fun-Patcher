@@ -248,6 +248,19 @@ grants, Silver Mirror cloning, already-pending delivery, and other direct
 event/Gong outcomes behave exactly as stock. Do not interpret a special
 outcome bypassing Birth Control as a defect; that bypass is required.
 
+For `vv1_birth_control`, test manual pairing with a category-2 carrier below
+and at/above displayed age 50, then test ordinary autonomous/catch-up pairing
+with scanned candidates below and at/above that boundary. Separately test an
+older initiating villager to confirm the patch does not add an initiator upper
+ceiling. Verify direct event-created births and pending delivery remain native.
+
+For `vv3_birth_control`, test ordinary action-13 autonomous/catch-up pairing
+with scanned candidates below and at/above displayed age 50, including an
+older initiating villager. Verify the native manual carrier/female gate is
+unchanged, and that direct event births, pending delivery, clone paths, and
+other special producers remain native. These VV1/VV3 checks are runtime/player
+pending; static rendering is not player confirmation.
+
 ## VV1/VV2 Origins runtime warning
 
 VV1 and VV2 Origins and both dependent village-wide records are exposed in the
