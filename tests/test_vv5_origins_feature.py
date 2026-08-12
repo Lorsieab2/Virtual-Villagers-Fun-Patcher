@@ -245,7 +245,7 @@ class VV5OriginsFeatureTests(unittest.TestCase):
 
     def test_generated_vv5_transparency_section_matches_cure_truth(self) -> None:
         transparency = (ROOT / "docs" / "transparency-log.md").read_text(encoding="utf-8")
-        marker = "#### Enable Origins-Exclusive Features (`vv5_enable_origins_exclusive_features`)"
+        marker = "#### Enable Origins-Exclusive Features (Task9 native actions) (`vv5_enable_origins_exclusive_features`)"
         section = transparency.split(marker, 1)[1].split("\n#### ", 1)[0].casefold()
         self.assertIn("legacy cure row and command 5 are withdrawn", section)
         self.assertIn("bypassed by the eb5f containment gate", section)
@@ -404,13 +404,8 @@ class VV5OriginsFeatureTests(unittest.TestCase):
         for mode, expected_hook, expected_marker in (
             ("collection_progression", "E94BF23800", "96000000"),
             ("immediate_fixed", "E94BF23800", "96000000"),
-            ("experimental_expanded_256", "568B742408", "00010000"),
-            ("experimental_expanded_256_progression", "568B742408", "00010000"),
         ):
             with self.subTest(mode=mode):
-                if mode.startswith("experimental_expanded_256"):
-                    render_patched_bytes(STOCK, build, mode, [FEATURE_ID])
-                    continue
                 rendered, _ = render_patched_bytes(
                     STOCK, build, mode, [FEATURE_ID]
                 )
@@ -495,13 +490,8 @@ class VV5OriginsFeatureTests(unittest.TestCase):
         for mode, expected_hook, expected_marker in (
             ("collection_progression", "E98C3F3900", "96000000"),
             ("immediate_fixed", "E98C3F3900", "96000000"),
-            ("experimental_expanded_256", "85F67E3456", "00010000"),
-            ("experimental_expanded_256_progression", "85F67E3456", "00010000"),
         ):
             with self.subTest(mode=mode):
-                if mode.startswith("experimental_expanded_256"):
-                    render_patched_bytes(STOCK, build, mode, [FEATURE_ID])
-                    continue
                 rendered, _ = render_patched_bytes(
                     STOCK, build, mode, [FEATURE_ID]
                 )
@@ -574,7 +564,7 @@ class VV5OriginsFeatureTests(unittest.TestCase):
     def test_six_float_skills_and_age_companions_are_written(self) -> None:
         for offset in (7260, 7264, 7268, 7272, 7276, 7280):
             self.assertIn(
-                f"mov dword ptr [edx + {offset}], 0x42B40000", self.source
+                f"mov dword ptr [edx + {offset}], 0x42C80000", self.source
             )
         self.assertIn("cmp eax, 100", self.source)
         self.assertIn("mov eax, 100", self.source)
@@ -606,7 +596,7 @@ class VV5OriginsFeatureTests(unittest.TestCase):
             self.assertGreaterEqual(detail.count(check), 2)
         self.assertNotIn("mov byte ptr [edx + 0x1CEC]", detail)
 
-    def test_composes_with_every_vv5_feature_in_all_four_modes(self) -> None:
+    def test_composes_with_every_vv5_feature_in_public_modes(self) -> None:
         build = next(item for item in load_builds() if item.id == "vv5")
         all_vv5 = [
             item
@@ -621,12 +611,7 @@ class VV5OriginsFeatureTests(unittest.TestCase):
         active_ids = {item.id for item in load_fun_patches() if item.game_id == "vv5"}
         self.assertIn(FEATURE_ID, active_ids)
         self.assertNotIn("vv5_full_mastery_all_stage_a_candidate", active_ids)
-        for mode in (
-            "collection_progression",
-            "immediate_fixed",
-            "experimental_expanded_256",
-            "experimental_expanded_256_progression",
-        ):
+        for mode in ("collection_progression", "immediate_fixed"):
             with self.subTest(mode=mode):
                 rendered, applied = render_patched_bytes(
                     STOCK,
@@ -636,33 +621,12 @@ class VV5OriginsFeatureTests(unittest.TestCase):
                 )
                 self.assertGreater(len(applied), len(self.feature["patches"]))
                 expected_payload = bytearray(self.payload)
-                relocation = self.feature.get("expanded_shr_relocations")
-                if mode.startswith("experimental_expanded_256") and relocation:
-                    delta = int(relocation["expanded_virtual_address"], 0) - int(
-                        relocation["stock_virtual_address"], 0
-                    )
-                    for item in relocation["patches"]:
-                        payload_offset = int(item["offset"], 0) - 0xDB000
-                        if not 0 <= payload_offset <= len(expected_payload) - 4:
-                            continue
-                        skipped = item.get("expanded_skip_before")
-                        if skipped and expected_payload[payload_offset : payload_offset + 4] == bytes.fromhex(skipped):
-                            continue
-                        if item.get("kind", "absolute") == "absolute":
-                            value = int.from_bytes(bytes.fromhex(item["before"]), "little")
-                            after = (value + delta).to_bytes(4, "little")
-                        else:
-                            source = int(item["source_expanded_virtual_address"], 0)
-                            target = int(item["target_stock_virtual_address"], 0)
-                            if 0x7B2000 <= target < 0x7B3000:
-                                target += delta
-                            after = (target - (source + 5)).to_bytes(4, "little", signed=True)
-                        expected_payload[payload_offset : payload_offset + 4] = after
                 self.assertEqual(
                     bytes(rendered[0xDB000 : 0xDB000 + len(self.payload)]),
                     bytes(expected_payload),
                 )
 
+    @unittest.skip("Expanded-256 modes were removed from the public patcher.")
     def test_expanded_mode_relocates_all_origins_shr_pointers(self) -> None:
         build = next(item for item in load_builds() if item.id == "vv5")
         rendered, applied = render_patched_bytes(
@@ -730,6 +694,7 @@ class VV5OriginsFeatureTests(unittest.TestCase):
                 rendered[offset : offset + 4], bytes.fromhex(item["before"])
             )
 
+    @unittest.skip("Expanded-256 modes were removed from the public patcher.")
     def test_expanded_output_keeps_vanilla_name_and_stock_save_fallback(self) -> None:
         build = next(item for item in load_builds() if item.id == "vv5")
         render_patched_bytes(STOCK, build, "experimental_expanded_256", [FEATURE_ID])

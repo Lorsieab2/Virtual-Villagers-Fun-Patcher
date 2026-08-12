@@ -358,11 +358,10 @@ class ManifestTests(unittest.TestCase):
                 feature.raw["dependencies"],
                 [f"vv{game}_enable_origins_exclusive_features"],
             )
-            self.assertIn("All Villagers Like Running", feature.description)
-            self.assertIn("Grant Full Mastery to All Villagers", feature.description)
-            self.assertIn("All Villagers are 18", feature.description)
-            self.assertIn("1,000,000", feature.description)
-            self.assertIn("playtest", feature.description.casefold())
+            self.assertIn("Running", feature.description)
+            self.assertIn("Full Mastery", feature.description)
+            self.assertIn("Set Age to 18", feature.description)
+            self.assertIn("Runtime/player confirmation pending", feature.description)
 
             self.assertEqual(feature.raw.get("running_preference_id"), 38)
             self.assertIn("removed Running dislike", feature.raw["extension_abi"]["calling_convention"])
@@ -487,6 +486,31 @@ class ManifestTests(unittest.TestCase):
                 if game_id == "vv5":
                     self.assertNotIn((0x1B8C + 0xAD0).to_bytes(4, "little"), payload)
 
+    def test_current_origins_routes_render_in_stock_mode(self) -> None:
+        sources = {
+            "vv1": ROOT / "inputs/vv1-stock-copy/Virtual Villagers - A New Home.exe",
+            "vv2": ROOT / "inputs/vv2-stock-copy/Virtual Villagers - The Lost Children.exe",
+            "vv3": ROOT / "inputs/vv3-stock-copy/Virtual Villagers - The Secret City.exe",
+            "vv4": ROOT / "inputs/vv4-stock-copy/Virtual Villagers - The Tree of Life.exe",
+            "vv5": ROOT / "inputs/vv5-stock-copy/Virtual Villagers - New Believers.exe",
+        }
+        for game_id, source in sources.items():
+            with self.subTest(game=game_id):
+                rendered, applied = render_patched_bytes(
+                    source,
+                    identify(source),
+                    "stock",
+                    [f"{game_id}_origins_village_wide_upgrades"],
+                )
+                self.assertGreater(len(rendered), 0)
+                self.assertTrue(
+                    any(
+                        row.get("owner")
+                        == f"feature:{game_id}_enable_origins_exclusive_features"
+                        for row in applied
+                    )
+                )
+
     def test_village_wide_running_result_dialog_uses_exact_three_lines(self) -> None:
         source = (ROOT / "native" / "vv1_origins_icons" / "vv1_origins_icons.c").read_text(encoding="utf-8")
         self.assertIn("Skipped over %d villagers. Reason: Already 3 likes.", source)
@@ -496,7 +520,7 @@ class ManifestTests(unittest.TestCase):
 
     def test_village_wide_running_clears_dislikes_even_for_full_like_records(self) -> None:
         source = (ROOT / "scripts" / "build_village_wide_origins_features.py").read_text(encoding="utf-8")
-        full_like = source.split("running_not_running:", 1)[1].split("running_store_like:", 1)[0]
+        full_like = source.split("running_full_like:", 1)[1].split("running_existing:", 1)[0]
         self.assertIn("jmp running_remove_dislikes", full_like)
 
     def test_vv5_village_wide_payload_uses_authoritative_believer_predicate(self) -> None:
@@ -852,7 +876,7 @@ class GuiSourceTests(unittest.TestCase):
 
 
 class DoublerPurchaseSafetyTests(unittest.TestCase):
-    BLOCKED_GAMES = ("vv1", "vv3", "vv4")
+    BLOCKED_GAMES = ("vv3", "vv4")
 
     def test_mode_override_overlap_is_rejected_across_feature_owners(self) -> None:
         build = next(item for item in load_builds() if item.id == "vv5")
@@ -895,12 +919,6 @@ class DoublerPurchaseSafetyTests(unittest.TestCase):
     def test_unproven_doublers_are_unavailable_but_owned_rows_remain_removable(self) -> None:
         for game_id in self.BLOCKED_GAMES:
             with self.subTest(game=game_id):
-                if game_id == "vv1":
-                    self.assertNotIn(
-                        "vv1_enable_origins_exclusive_features",
-                        {patch.id for patch in load_fun_patches()},
-                    )
-                    continue
                 feature = get_fun_patch(f"{game_id}_enable_origins_exclusive_features")
                 status = feature.raw["doubler_purchase_status"]
                 self.assertIn("temporarily unavailable", status["new_purchase"])

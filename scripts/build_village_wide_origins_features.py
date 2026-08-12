@@ -46,7 +46,7 @@ CONFIG = {
         "running_preference_id": 38,
         "bound": "edx",
         "heathen": False,
-        "master_value": 90,
+        "master_value": 100,
     },
     "vv2": {
         "title": "Virtual Villagers - The Lost Children",
@@ -70,7 +70,7 @@ CONFIG = {
         "running_preference_id": 38,
         "bound": "edx",
         "heathen": False,
-        "master_value": 90,
+        "master_value": 100,
     },
     "vv3": {
         "title": "Virtual Villagers - The Secret City",
@@ -91,7 +91,7 @@ CONFIG = {
         "running_preference_id": 38,
         "bound": "edx",
         "heathen": False,
-        "master_value": 90,
+        "master_value": 100,
     },
     "vv4": {
         "title": "Virtual Villagers - The Tree of Life",
@@ -113,7 +113,7 @@ CONFIG = {
         "running_preference_id": 38,
         "bound": "edx",
         "heathen": False,
-        "master_value": 0x42B40000,
+        "master_value": 0x42C80000,
     },
     "vv5": {
         "title": "Virtual Villagers - New Believers",
@@ -139,7 +139,11 @@ CONFIG = {
         "running_preference_id": 38,
         "bound": "edx",
         "heathen": True,
-        "master_value": 0x42B40000,
+        "master_value": 0x42C80000,
+        "native_running": 0x464F90,
+        "native_running_insert": 0x464AD0,
+        "native_running_remove": 0x4649E0,
+        "native_mastery": 0x475730,
     },
 }
 
@@ -175,19 +179,22 @@ def _eligibility(config: dict, label: str) -> str:
                 f"jne {label}",
             ]
         )
-    result.extend(
-        [
-        f"cmp dword ptr [esi + {_hex_word(health)}], 0",
-        f"jle {label}",
-        ]
-    )
     if config["heathen"]:
         result.extend(
             [
                 f"cmp byte ptr [esi + {_hex_word(config['heathen_active_guard'])}], 0",
                 f"jne {label}",
+                f"cmp dword ptr [esi + {_hex_word(health)}], 0",
+                f"jle {label}",
                 f"cmp byte ptr [esi + {_hex_word(config['faction'])}], 0",
                 f"jne {label}",
+            ]
+        )
+    else:
+        result.extend(
+            [
+                f"cmp dword ptr [esi + {_hex_word(health)}], 0",
+                f"jle {label}",
             ]
         )
     return "\n".join(result)
@@ -231,9 +238,79 @@ def build_payload(config: dict) -> tuple[bytes, dict[str, int]]:
         """,
     )
 
-    put(
-        running_va,
-        f"""
+    if config.get("native_running"):
+        running_source = f"""
+            push ebp
+            push ebx
+            push esi
+            push edi
+            mov ebx, edx
+            {_record_setup(config)}
+            xor edi, edi
+            xor ebp, ebp
+            push 0
+        running_loop:
+            test ebx, ebx
+            jz running_done
+            {_eligibility(config, 'running_next')}
+            push {_hex_word(config['running_preference_id'])}
+            lea ecx, [esi + {_hex_word(config['likes'])}]
+            call {_hex_word(config['native_running'])}
+            test al, al
+            jnz running_existing
+            mov edx, -1
+            xor eax, eax
+        running_scan:
+            cmp dword ptr [esi+eax*4+{_hex_word(config['likes'])}], -1
+            jne running_like_next
+            cmp edx, -1
+            jne running_like_next
+            mov edx, eax
+        running_like_next:
+            inc eax
+            cmp eax, 3
+            jb running_scan
+            cmp edx, -1
+            jne running_insert
+            inc edi
+            jmp running_remove_dislikes
+        running_existing:
+            inc ebp
+            jmp running_remove_dislikes
+        running_insert:
+            push {_hex_word(config['running_preference_id'])}
+            lea ecx, [esi + {_hex_word(config['likes'])}]
+            call {_hex_word(config['native_running_insert'])}
+        running_remove_dislikes:
+            xor eax, eax
+        running_dislike_check:
+            cmp dword ptr [esi+eax*4+{_hex_word(config['dislikes'])}], {_hex_word(config['running_preference_id'])}
+            jne running_dislike_next
+            push {_hex_word(config['running_preference_id'])}
+            lea ecx, [esi + {_hex_word(config['dislikes'])}]
+            call {_hex_word(config['native_running_remove'])}
+            inc dword ptr [esp]
+        running_dislike_next:
+            inc eax
+            cmp eax, 3
+            jb running_dislike_check
+        running_next:
+            add esi, {_hex_word(config['stride'])}
+            dec ebx
+            jmp running_loop
+        running_done:
+            mov ecx, dword ptr [esp]
+            add esp, 4
+            mov eax, edi
+            mov edx, ebp
+            pop edi
+            pop esi
+            pop ebx
+            pop ebp
+            ret
+        """
+    else:
+        running_source = f"""
             push ebp
             push ebx
             push esi
@@ -247,43 +324,39 @@ def build_payload(config: dict) -> tuple[bytes, dict[str, int]]:
             test ebx, ebx
             jz running_done
             {_eligibility(config, 'running_next')}
-            lea edx, [esi + {_hex_word(config['likes'])}]
+            xor edx, edx
             mov ecx, 3
         running_scan:
-            cmp dword ptr [edx], {_hex_word(config['running_preference_id'])}
-            jne running_not_running
-            inc ebp
+            cmp dword ptr [esi+edx*4+{_hex_word(config['likes'])}], {_hex_word(config['running_preference_id'])}
+            je running_existing
+            cmp dword ptr [esi+edx*4+{_hex_word(config['likes'])}], -1
+            jne running_like_next
+            cmp ecx, 3
+            jne running_like_next
+            mov ecx, edx
+        running_like_next:
+            inc edx
+            cmp edx, 3
+            jb running_scan
+            cmp ecx, 3
+            je running_full_like
+            mov dword ptr [esi+ecx*4+{_hex_word(config['likes'])}], {_hex_word(config['running_preference_id'])}
             jmp running_remove_dislikes
-        running_not_running:
-            cmp dword ptr [edx], -1
-            je running_store_like
-            add edx, 4
-            dec ecx
-            jne running_scan
+        running_full_like:
             inc edi
             jmp running_remove_dislikes
-        running_store_like:
-            mov dword ptr [edx], {_hex_word(config['running_preference_id'])}
+        running_existing:
+            inc ebp
         running_remove_dislikes:
-            lea edx, [esi + {_hex_word(config['dislikes'])}]
-            mov ecx, 3
-        running_dislike_check:
-            cmp dword ptr [edx], {_hex_word(config['running_preference_id'])}
-            je running_has_dislike
-            add edx, 4
-            dec ecx
-            jne running_dislike_check
-            jmp running_next
-        running_has_dislike:
-            inc eax
-            lea edx, [esi + {_hex_word(config['dislikes'])}]
+            xor edx, edx
             mov ecx, 3
         running_dislike_scan:
-            cmp dword ptr [edx], {_hex_word(config['running_preference_id'])}
+            cmp dword ptr [esi+edx*4+{_hex_word(config['dislikes'])}], {_hex_word(config['running_preference_id'])}
             jne running_dislike_next
-            mov dword ptr [edx], -1
+            mov dword ptr [esi+edx*4+{_hex_word(config['dislikes'])}], -1
+            inc eax
         running_dislike_next:
-            add edx, 4
+            inc edx
             dec ecx
             jne running_dislike_scan
         running_next:
@@ -299,13 +372,34 @@ def build_payload(config: dict) -> tuple[bytes, dict[str, int]]:
             pop ebx
             pop ebp
             ret
-        """,
-    )
+        """
+    put(running_va, running_source)
 
-    skill_writes = "\n".join(
-        f"mov dword ptr [esi + {_hex_word(offset)}], {_hex_word(config['master_value'])}"
-        for offset in config["skills"]
-    )
+    if config.get("native_mastery"):
+        skill_writes = f"""
+            xor edi, edi
+        mastery_skill_loop:
+            cmp edi, {len(config['skills'])}
+            jae mastery_skills_done
+            cmp dword ptr [esi+edi*4+{_hex_word(config['skills'][0])}], {_hex_word(config['master_value'])}
+            je mastery_skill_next
+            push {_hex_word(config['master_value'])}
+            fld dword ptr [esp]
+            fsub dword ptr [esi+edi*4+{_hex_word(config['skills'][0])}]
+            fstp dword ptr [esp]
+            push edi
+            lea ecx, [esi+edi*4+{_hex_word(config['skills'][0])}]
+            call {_hex_word(config['native_mastery'])}
+        mastery_skill_next:
+            inc edi
+            jmp mastery_skill_loop
+        mastery_skills_done:
+        """
+    else:
+        skill_writes = "\n".join(
+            f"mov dword ptr [esi + {_hex_word(offset)}], {_hex_word(config['master_value'])}"
+            for offset in config["skills"]
+        )
     put(
         mastery_va,
         f"""

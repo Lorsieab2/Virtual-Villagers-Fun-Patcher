@@ -34,7 +34,7 @@ ACTIVE = ROOT / "data/vv5_origins_feature.json"
 NATIVE = ROOT / "native/vv5_task9_origins/vv5_task9_origins.c"
 DEF = ROOT / "native/vv5_task9_origins/vv5_task9_origins.def"
 RC = ROOT / "native/vv5_task9_origins/vv5_task9_origins.rc"
-MODES = tuple(builder.LAYOUTS)
+MODES = ("collection_progression", "immediate_fixed")
 
 
 def digest(data: bytes) -> str:
@@ -187,6 +187,7 @@ class Task9ArtifactTests(unittest.TestCase):
                 "forbidden_transitive_helpers": ["0x466170", "0x471840"],
                 "eligibility_order": [
                     "+0x1CD4 != 0",
+                    "+0x1CE1 == 0",
                     "+0x1C40 signed > 0",
                     "+0x1CEC == 0",
                 ],
@@ -212,10 +213,12 @@ class Task9ArtifactTests(unittest.TestCase):
                         builder.OFF[name] : builder.OFF[name] + builder.SIZES[name]
                     ]
                     active = routine.find(bytes.fromhex("80B8D41C000000"))
+                    mask = routine.find(bytes.fromhex("80B8E11C000000"))
                     health = routine.find(bytes.fromhex("83B8401C000000"))
                     faction = routine.find(bytes.fromhex("80B8EC1C000000"))
                     self.assertGreaterEqual(active, 0)
-                    self.assertLess(active, health)
+                    self.assertLess(active, mask)
+                    self.assertLess(mask, health)
                     self.assertLess(health, faction)
 
     def test_unsigned_detail_command_bound_is_before_any_action_resolution(self) -> None:
@@ -225,7 +228,6 @@ class Task9ArtifactTests(unittest.TestCase):
         unsigned_above = routine.find(bytes.fromhex("77"), bound + 3)
         self.assertGreaterEqual(bound, 0)
         self.assertEqual(unsigned_above, bound + 3)
-        self.assertNotIn(bytes.fromhex("E11C0000"), page)
 
     def test_exact_native_writer_and_single_charge_call_sites(self) -> None:
         layout = builder.LAYOUTS["collection_progression"]
@@ -347,18 +349,31 @@ class Task9ArtifactTests(unittest.TestCase):
 
     def test_heal_type12_and_withdrawn_gate_are_fail_closed_in_emitted_bytes(self) -> None:
         serialized = json.dumps(self.manifest, sort_keys=True).upper()
-        self.assertNotIn("1CE1", serialized)
-        self.assertNotIn("E11C0000", serialized)
+        self.assertIn("1CE1", serialized)
         self.assertEqual(
             self.manifest["task9_contract"]["actions"]["full_heal"]["unsupported_type"],
-            "+0x1CFC == 12 when sick",
+            "+0x1CFC == 12 when sick on an otherwise eligible Believer",
         )
         page = bytes.fromhex(
             self.manifest["pe_append_transaction"]["layouts"]["collection_progression"]["append_bytes"]
         )
         heal = page[builder.OFF["heal"] : builder.OFF["heal"] + builder.SIZES["heal"]]
         self.assertEqual(heal.count(bytes.fromhex("837F100C")), 1)
+        self.assertIn(bytes.fromhex("0FB686E11C0000"), heal)
         self.assertIn(bytes.fromhex("C686481C00000080BE481C000000"), heal)
+        source = (ROOT / "scripts/build_vv5_task9_native_actions.py").read_text(
+            encoding="utf-8"
+        )
+        fresh = source[source.index("fresh_loop:") : source.index("fresh_next:")]
+        write = source[source.index("write_loop:") : source.index("write_next:")]
+        self.assertLess(
+            fresh.index("cmp dword ptr [edi+20], 0"),
+            fresh.index("movzx eax, byte ptr [esi+0x1CEC]"),
+        )
+        self.assertLess(
+            write.index("cmp dword ptr [edi+20], 0"),
+            write.index("cmp dword ptr [edi+4], 0"),
+        )
 
     def test_running_rollback_requires_an_exact_evolving_reacquire(self) -> None:
         source = (ROOT / "scripts/build_vv5_task9_native_actions.py").read_text(encoding="utf-8")
@@ -442,10 +457,7 @@ class Task9RendererMatrixTests(unittest.TestCase):
         legacy = patcher.FunPatch(json.loads(ACTIVE.read_text(encoding="utf-8")))
         self.assertEqual(legacy.id, "vv5_enable_origins_exclusive_features")
         self.assertNotIn("task9_expanded_post_relocation_patches", legacy.raw)
-        for mode in (
-            "experimental_expanded_256",
-            "experimental_expanded_256_progression",
-        ):
+        for mode in MODES:
             with self.subTest(mode=mode):
                 rendered, applied = patcher.render_patched_bytes(
                     source,
@@ -485,7 +497,7 @@ class Task9RendererMatrixTests(unittest.TestCase):
                     self.assertEqual(ranges, [])
                     self.assertEqual(bytes(data), before)
 
-    def test_stock_and_expanded_final_layouts(self) -> None:
+    def test_public_final_layouts(self) -> None:
         build = next(item for item in patcher.load_builds() if item.id == "vv5")
         feature = next(
             item for item in patcher.load_fun_patches()
@@ -495,8 +507,6 @@ class Task9RendererMatrixTests(unittest.TestCase):
         expected = {
             "collection_progression": (0xFA000, 6, 0x3D1000),
             "immediate_fixed": (0xFA000, 6, 0x3D1000),
-            "experimental_expanded_256": (0xFC000, 8, 0x50C000),
-            "experimental_expanded_256_progression": (0xFC000, 8, 0x50C000),
         }
         for mode in MODES:
             rendered, _ = patcher.render_patched_bytes(source, build, mode, [feature.id])
@@ -507,8 +517,6 @@ class Task9RendererMatrixTests(unittest.TestCase):
             append = int(self.manifest_layout(mode)["append_offset"], 0)
             page = bytes.fromhex(self.manifest_layout(mode)["append_bytes"])
             self.assertEqual(bytes(rendered[append : append + len(page)]), page)
-            if mode.startswith("experimental"):
-                self.assertEqual(bytes(rendered[0xF2000:0xF4000]), self.atomic_parent(mode))
 
     def test_final_pe_cross_section_hooks_are_all_relocated_or_explicitly_preserved(self) -> None:
         build = next(item for item in patcher.load_builds() if item.id == "vv5")
@@ -517,26 +525,18 @@ class Task9RendererMatrixTests(unittest.TestCase):
             if item.id == "vv5_enable_origins_exclusive_features"
         )
         source = ROOT / "research/stock-executables" / build.input_name
-        native_overrides = {
-            0x1EB6F: bytes.fromhex("85F67E3456"),
-            0x237B0: bytes.fromhex("568B742408"),
-        }
         for mode in MODES:
             rendered, applied = patcher.render_patched_bytes(
                 source, build, mode, [feature.id]
             )
-            expanded = mode.startswith("experimental_expanded_256")
             post = [
                 row for row in applied
                 if row.get("relocation_status") == "task9_post_relocation_hook"
             ]
-            self.assertEqual(len(post), 1 if expanded else 0)
+            self.assertEqual(len(post), 0)
             for raw_text, contract in builder.TASK9_CROSS_SECTION_HOOKS.items():
                 raw = int(raw_text, 0)
                 with self.subTest(mode=mode, hook=raw_text):
-                    if expanded and contract["expanded_policy"] == "native_override_preserved":
-                        self.assertEqual(rendered[raw : raw + 5], native_overrides[raw])
-                        continue
                     self.assertEqual(rendered[raw], 0xE9)
                     source_va = int(
                         patcher._virtual_address_for_offset(rendered, raw), 0
@@ -548,12 +548,13 @@ class Task9RendererMatrixTests(unittest.TestCase):
                         target,
                         int(
                             contract[
-                                "expanded_target" if expanded else "stock_target"
+                                "stock_target"
                             ],
                             0,
                         ),
                     )
 
+    @unittest.skip("Expanded-256 modes were removed from the public patcher.")
     def test_six_expanded_optional_statistics_compositions_keep_atomic_inner_writer(self) -> None:
         sources = {
             "vv3": ROOT / "research/stock-executables/Virtual Villagers - The Secret City.exe",

@@ -516,34 +516,14 @@ Technical evidence is in `docs/max-population-research.md`,
 `docs/experimental-256-cap-research.md`, and the game-specific reports under
 `docs/`.
 
-The five legacy Origins village-wide feature records are catalog-visible in
-this requested static/playtest package. Each depends on that game's
-`enable_origins_exclusive_features` prerequisite and adds the three
-1,000,000-tech-point rows: All Villagers Like Running, Grant Full Mastery to All
-Villagers, and All Villagers are 18. This exposure does not provide a complete
-runtime/player GO gate for the atomic bundle. VV3's corrected command-6-only
-`vv3_all_villagers_like_running` feature is HARD WITHDRAWN and catalog-hidden
-after the intermittent Run2 status-2 crash; runtime fault capture remains
-required. The atomic village-wide record remains a separate static payload for
-targeted composition, and commands 7/8 are not claimed runtime-safe. VV4's
-independent command-7-only Full Mastery implementation is emitted-byte
-certified under `91a01eba0dc561b1244184301837b7199868c490` and enabled without
-exposing commands 6/8 in that isolated candidate; the legacy atomic
-village-wide record is separately exposed by this package.
-VV5's former command-7-only Full Mastery package at commit `5e52be5` was
-withdrawn after an immediate startup auto-close. The corrected constructors
-were independently certified under `7970cd9`, and M2 passed startup and Full
-Mastery live testing. The disabled geometry candidate now uses cached
-`Images\\btn_trophies.png`, native resource `0x6A` (96x39), at local `(137,2)`
-for both Tech and Detail, preserving event 13, `sub_401BD0`, and `0x40C680`
-ownership; independent emitted-byte recertification remains required.
-The VV5 Full Mastery and Running candidates remain disabled and catalog-hidden.
-The stock `sub_44B560` routine is the Detail input/hit-test method and is
-forbidden for event 13 routing. Authenticated historical C99/C260 evidence
-mechanically proves the offline `0x44BC20` event detour and ownership chain,
-but hot uninstall, current composition, runtime, player, and publication
-remain STOP.
-The feature is inspired by the
-selected exclusive upgrades in the Virtual Villagers 1 mobile port. VV5
-excludes Heathens; all games leave movement speed, nursing/pregnancy timers,
-and unrelated Like slots untouched.
+The public patcher exposes only the five current Origins-style village-wide
+upgrades-menu routes, one per game. Each route depends on that game's Origins
+menu prerequisite and includes the latest menu implementation rather than
+separate Full Mastery or duplicate Origins records. VV5's native Tech and
+Villager Upgrades menus provide Full Mastery, Running, Set Age to 18, and Full
+Heal / Cure All for active living Believers only. VV5 records with the Heathen
+mask/status set, including the sick-Heathen puzzle record, are skipped before
+action-specific reads or writes. Full Heal raises only health below 80 to 100
+and clears sickness; health from 80 through 100 is preserved. Native writers,
+statistics, and other stock handlers remain in the call path. Runtime/player
+confirmation is still pending.

@@ -664,17 +664,17 @@ def main() -> None:
             ja youth_open
             or edi, 1
         youth_open:
-            cmp dword ptr [edx + 7260], 0x42B40000
+            cmp dword ptr [edx + 7260], 0x42C80000
             jb mastery_open
-            cmp dword ptr [edx + 7264], 0x42B40000
+            cmp dword ptr [edx + 7264], 0x42C80000
             jb mastery_open
-            cmp dword ptr [edx + 7268], 0x42B40000
+            cmp dword ptr [edx + 7268], 0x42C80000
             jb mastery_open
-            cmp dword ptr [edx + 7272], 0x42B40000
+            cmp dword ptr [edx + 7272], 0x42C80000
             jb mastery_open
-            cmp dword ptr [edx + 7276], 0x42B40000
+            cmp dword ptr [edx + 7276], 0x42C80000
             jb mastery_open
-            cmp dword ptr [edx + 7280], 0x42B40000
+            cmp dword ptr [edx + 7280], 0x42C80000
             jb mastery_open
             or edi, 2
         mastery_open:
@@ -782,12 +782,12 @@ def main() -> None:
             add dword ptr [edx + 7244], ecx
             jmp detail_success
         mastery:
-            mov dword ptr [edx + 7260], 0x42B40000
-            mov dword ptr [edx + 7264], 0x42B40000
-            mov dword ptr [edx + 7268], 0x42B40000
-            mov dword ptr [edx + 7272], 0x42B40000
-            mov dword ptr [edx + 7276], 0x42B40000
-            mov dword ptr [edx + 7280], 0x42B40000
+            mov dword ptr [edx + 7260], 0x42C80000
+            mov dword ptr [edx + 7264], 0x42C80000
+            mov dword ptr [edx + 7268], 0x42C80000
+            mov dword ptr [edx + 7272], 0x42C80000
+            mov dword ptr [edx + 7276], 0x42C80000
+            mov dword ptr [edx + 7280], 0x42C80000
             jmp detail_success
         running:
             lea ecx, [edx + 8028]

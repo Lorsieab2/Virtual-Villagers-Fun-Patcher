@@ -744,15 +744,15 @@ VV5_TASK9_PATHS = {
     "dll": ROOT / "data" / "candidates" / "VVFP VV5 Task9 Origins Icons.dll",
 }
 VV5_TASK9_SOURCE_TEXT_SHA256 = {
-    "manifest": "CD84D887F926088037E3F61CD93DFD1AFF620437601076274D809B01C837B902",
-    "map": "2C3542E26A47268453377741B8E29BA78F44509BD296A71F3B18D47CD0DD9F2C",
+    "manifest": "7905AEA18C289B47CE6B8CB1D6DA1729800387D479EDE575ADC6ED3A44C95339",
+    "map": "547E2BDB73C85F4759027ECA84BA4303774E73A23485BCA2F84C327C92348389",
 }
 VV5_TASK9_DLL_SHA256 = "B402ED8316CD6EB2C43B056848E622DC0924188C81C683F5E2813466AF8045D0"
 VV5_TASK9_PAGE_SHA256 = {
-    "collection_progression": "AB9C95497042A4846093DBA7D1A875D3BAA8963EF3E5C036FD2E746EA3B5785D",
-    "immediate_fixed": "AB9C95497042A4846093DBA7D1A875D3BAA8963EF3E5C036FD2E746EA3B5785D",
-    "experimental_expanded_256": "82FD9F2383D95E01B4165319347AC69A4FAE020A9D6E60BABCD5AAA28BA2E850",
-    "experimental_expanded_256_progression": "82FD9F2383D95E01B4165319347AC69A4FAE020A9D6E60BABCD5AAA28BA2E850",
+    "collection_progression": "55C545AC22C96864A956A0B709522FDADA079B44F7B757C280BCA712027BBE8C",
+    "immediate_fixed": "55C545AC22C96864A956A0B709522FDADA079B44F7B757C280BCA712027BBE8C",
+    "experimental_expanded_256": "A18F1FC2ED54F336D86FCF96B0024D4B8FA4DC6EB257063228F8942A0AE263C7",
+    "experimental_expanded_256_progression": "A18F1FC2ED54F336D86FCF96B0024D4B8FA4DC6EB257063228F8942A0AE263C7",
 }
 VV5_TASK9_ACTIVE_SOURCE_TEXT_SHA256 = "6AFF1A8E69234C61CB2D1878C46FA91B0AAA721FC5F29C5B42A678F61BAB8528"
 VV5_TASK9_TASK8_SOURCE_TEXT_SHA256 = "090ED9CA074F02F9321B2F8E0C470FD0AF18B235231DA94B6D38293360BC9510"
@@ -2499,6 +2499,7 @@ def _certified_vv5_task9_record(active_base: dict[str, Any]) -> dict[str, Any]:
         "forbidden_transitive_helpers": ["0x466170", "0x471840"],
         "eligibility_order": [
             "+0x1CD4 != 0",
+            "+0x1CE1 == 0",
             "+0x1C40 signed > 0",
             "+0x1CEC == 0",
         ],
@@ -3910,7 +3911,13 @@ def _append_layout(feature: FunPatch, patch_mode: str) -> dict[str, Any] | None:
         raise PatcherError(
             f"{feature.name} ({feature.id}) append transaction is missing layouts."
         )
-    layout = layouts.get(patch_mode)
+    layout_mode = patch_mode
+    if patch_mode == "stock" and feature.id in INTERNAL_ORIGINS_BASE_FEATURE_ID_SET:
+        # The current Origins menu prerequisites do not alter population
+        # behavior.  Stock mode therefore uses the same append geometry as
+        # Collection Progression while leaving the population variant stock.
+        layout_mode = "collection_progression"
+    layout = layouts.get(layout_mode)
     if not isinstance(layout, dict):
         raise PatcherError(
             f"{feature.name} ({feature.id}) has no append layout for {patch_mode}."

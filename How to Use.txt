@@ -292,30 +292,23 @@ Polishing the Statue for eligible upgradeable and completed statues.
 It does not change autonomous work, skill gain amounts, statue upgrades, or
 Retired Chief activities.
 
-VV5 ORIGINS FULL MASTERY EXTENSION
+VV5 ORIGINS ACTIONS
 
-The VV5 Full Mastery extension base and Grant Full Mastery candidate are
-disabled, catalog-hidden, and unavailable. Their retained records are evidence
-only. The Tech/Detail click route remains STOP pending an exact sub_44B560 hook
-guard and a click-to-dialog player receipt.
-
-The selected current living Believer receives the native exact-100 Full Mastery
-transaction. Cure row/command 5 is withdrawn, unavailable, bypassed, and
-unreachable; do not purchase Cure and no 30,000-point Cure behavior is included.
-Other VV5 actions and unrelated features remain native.
+The latest VV5 Origins-style Tech and Villager Upgrades menus are enabled by
+the current Origins-Exclusive Features route. Full Mastery sets all six skills
+to 100. Grant Running adds Running to the first free Like slot exactly once
+when needed and clears Running Dislikes. Full Heal / Cure All raises only
+health below 80 to 100 and clears sickness. These actions process active living
+Believers only; masked Heathens, including the sick-Heathen puzzle record, are
+skipped before action-specific reads or writes. Native writers and statistics
+remain in the call path. Runtime/player confirmation is pending.
 
 ORIGINS VILLAGE-WIDE UPGRADES
 
-All five legacy village-wide Origins records are available for requested
-static/source playtesting. Select the matching game's base "Enable
-Origins-Exclusive Features" record together with "Enable Origins Village-Wide
-Upgrades" so dependency resolution applies the Tech-screen button/menu and the
-three village-wide rows: All Villagers Like Running, Grant Full Mastery to All
-Villagers, and All Villagers are 18. Each row costs 1,000,000 tech points in
-the current save.
-
-This package exposes the records but does not claim runtime/player safety or
-successful transactions. VV1/VV2 retain their reported crash warnings. For
-VV3, VV4, and VV5 use Collection Progression or Immediate Fixed; the certified
-Origins append layouts do not include stock. Existing save fields are not
-cleared, changed, or refunded by static patch generation.
+The patcher exposes one latest feature-complete Origins-style village-wide
+upgrades-menu route for each game. Select the matching row; its Origins menu
+prerequisite is resolved automatically. The route enables the Tech-screen
+button/menu and its functional village-wide upgrades. No individual Full
+Mastery record or duplicate Origins-exclusive record is exposed. Existing save
+fields are changed only when the selected in-game upgrade runs. Runtime/player
+confirmation remains pending.

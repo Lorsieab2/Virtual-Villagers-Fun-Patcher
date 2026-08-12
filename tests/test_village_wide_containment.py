@@ -58,10 +58,10 @@ class VillageWidePlaytestCatalogTests(unittest.TestCase):
                     [base_id],
                 )
                 for label in (
-                    "All Villagers Like Running",
-                    "Grant Full Mastery to All Villagers",
-                    "All Villagers are 18",
-                    "1,000,000",
+                    "Running",
+                    "Full Mastery",
+                    "Set Age to 18",
+                    "Runtime/player confirmation pending",
                 ):
                     self.assertIn(label, wide["description"])
 
@@ -94,9 +94,7 @@ class VillageWidePlaytestCatalogTests(unittest.TestCase):
             wide_id = f"{build.id}_origins_village_wide_upgrades"
             selected = resolve_fun_patch_ids([base_id, wide_id], game_id=build.id)
             expected_owner_names = {f"feature:{base_id}", f"feature:{wide_id}"}
-            modes = ["collection_progression", "immediate_fixed"]
-            if build.id in {"vv1", "vv2"}:
-                modes.insert(0, "stock")
+            modes = ["stock", "collection_progression", "immediate_fixed"]
             for mode in modes:
                 with self.subTest(game=build.id, mode=mode):
                     rendered, applied = render_patched_bytes(
@@ -118,11 +116,6 @@ class VillageWidePlaytestCatalogTests(unittest.TestCase):
                             for item in applied
                         )
                     )
-
-            if build.id in {"vv3", "vv4", "vv5"}:
-                with self.subTest(game=build.id, mode="stock"):
-                    with self.assertRaisesRegex(PatcherError, "has no append layout"):
-                        render_patched_bytes(source, build, "stock", selected)
 
     def test_base_origins_is_still_independently_composable(self) -> None:
         for build in load_builds():

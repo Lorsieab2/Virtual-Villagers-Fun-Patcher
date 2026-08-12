@@ -125,17 +125,17 @@ OFF = {
     "modal_common": 0x140,
     "resolve_current": 0x580,
     "resolve_index": 0x5C0,
-    "eligible": 0x610,
-    "show_menu": 0x640,
-    "confirm": 0x6A0,
-    "status": 0x710,
-    "resolve_manager": 0x760,
-    "tech_menu": 0x800,
-    "detail_menu": 0xB00,
-    "age": 0xD00,
-    "time_warp": 0x1000,
-    "mastery": 0x1500,
-    "running": 0x2200,
+    "eligible": 0x620,
+    "show_menu": 0x670,
+    "confirm": 0x6D0,
+    "status": 0x740,
+    "resolve_manager": 0x7A0,
+    "tech_menu": 0x840,
+    "detail_menu": 0xB40,
+    "age": 0xD40,
+    "time_warp": 0x1040,
+    "mastery": 0x1540,
+    "running": 0x2240,
     "heal": 0x3400,
     "strings": 0x7000,
 }
@@ -146,8 +146,8 @@ SIZES = {
     "detail_entry": 0x20,
     "modal_common": 0x440,
     "resolve_current": 0x40,
-    "resolve_index": 0x50,
-    "eligible": 0x30,
+    "resolve_index": 0x60,
+    "eligible": 0x40,
     "show_menu": 0x60,
     "confirm": 0x70,
     "status": 0x50,
@@ -157,7 +157,7 @@ SIZES = {
     "age": 0x300,
     "time_warp": 0x500,
     "mastery": 0xD00,
-    "running": 0x1200,
+    "running": 0x11C0,
     "heal": 0x3C00,
 }
 
@@ -445,6 +445,8 @@ def build_helpers(page: bytearray, page_va: int, s: dict[str, int]) -> dict[str,
         jz invalid
         cmp byte ptr [eax+0x1CD4], 0
         je invalid
+        cmp byte ptr [eax+0x1CE1], 0
+        jne invalid
         cmp dword ptr [eax+0x1C40], 0
         jle invalid
         cmp byte ptr [eax+0x1CEC], 0
@@ -473,6 +475,8 @@ def build_helpers(page: bytearray, page_va: int, s: dict[str, int]) -> dict[str,
         jz invalid
         cmp byte ptr [eax+0x1CD4], 0
         je invalid
+        cmp byte ptr [eax+0x1CE1], 0
+        jne invalid
         cmp dword ptr [eax+0x1C40], 0
         jle invalid
         cmp byte ptr [eax+0x1CEC], 0
@@ -491,6 +495,8 @@ def build_helpers(page: bytearray, page_va: int, s: dict[str, int]) -> dict[str,
         jz done
         cmp byte ptr [edx+0x1CD4], 0
         je done
+        cmp byte ptr [edx+0x1CE1], 0
+        jne done
         cmp dword ptr [edx+0x1C40], 0
         jle done
         cmp byte ptr [edx+0x1CEC], 0
@@ -1307,7 +1313,7 @@ def build_heal(page: bytearray, page_va: int) -> bytes:
         push ebx
         push esi
         push edi
-        sub esp, 0xC40
+        sub esp, 0x1000
         mov dword ptr [ebp-0x18], 0
         mov dword ptr [ebp-0x1C], 0
         mov dword ptr [ebp-0x20], 0
@@ -1317,21 +1323,25 @@ def build_heal(page: bytearray, page_va: int) -> bytes:
         mov eax, dword ptr [0x51D368]
         mov dword ptr [ebp-0x14], eax
         mov esi, 0x554190
-        lea edi, [ebp-0xC20]
+        lea edi, [ebp-0xF00]
         mov ebx, {BOUND}
     dry_loop:
         movzx eax, byte ptr [esi+0x1CD4]
         mov dword ptr [edi], eax
-        mov eax, dword ptr [esi+0x1C40]
-        mov dword ptr [edi+4], eax
+        movzx eax, byte ptr [esi+0x1CE1]
+        mov dword ptr [edi+20], eax
+        cmp dword ptr [edi], 0
+        je dry_next
+        cmp dword ptr [edi+20], 0
+        jne dry_next
         movzx eax, byte ptr [esi+0x1CEC]
         mov dword ptr [edi+8], eax
+        mov eax, dword ptr [esi+0x1C40]
+        mov dword ptr [edi+4], eax
         movzx eax, byte ptr [esi+0x1C48]
         mov dword ptr [edi+12], eax
         mov eax, dword ptr [esi+0x1CFC]
         mov dword ptr [edi+16], eax
-        cmp dword ptr [edi], 0
-        je dry_next
         cmp dword ptr [edi+4], 0
         jle dry_next
         cmp dword ptr [edi+8], 0
@@ -1342,12 +1352,12 @@ def build_heal(page: bytearray, page_va: int) -> bytes:
         je unsupported
         inc dword ptr [ebp-0x18]
     dry_health:
-        cmp dword ptr [edi+4], 100
-        je dry_next
+        cmp dword ptr [edi+4], 80
+        jae dry_next
         inc dword ptr [ebp-0x1C]
     dry_next:
         add esi, {STRIDE}
-        add edi, 20
+        add edi, 24
         dec ebx
         jne dry_loop
         mov eax, dword ptr [ebp-0x18]
@@ -1368,17 +1378,24 @@ def build_heal(page: bytearray, page_va: int) -> bytes:
         cmp eax, dword ptr [ebp-0x14]
         jne recheck
         mov esi, 0x554190
-        lea edi, [ebp-0xC20]
+        lea edi, [ebp-0xF00]
         mov ebx, {BOUND}
     fresh_loop:
+        cmp dword ptr [edi], 0
+        je fresh_next
+        cmp dword ptr [edi+20], 0
+        jne fresh_next
         movzx eax, byte ptr [esi+0x1CD4]
         cmp eax, dword ptr [edi]
         jne recheck
-        mov eax, dword ptr [esi+0x1C40]
-        cmp eax, dword ptr [edi+4]
+        movzx eax, byte ptr [esi+0x1CE1]
+        cmp eax, dword ptr [edi+20]
         jne recheck
         movzx eax, byte ptr [esi+0x1CEC]
         cmp eax, dword ptr [edi+8]
+        jne recheck
+        mov eax, dword ptr [esi+0x1C40]
+        cmp eax, dword ptr [edi+4]
         jne recheck
         movzx eax, byte ptr [esi+0x1C48]
         cmp eax, dword ptr [edi+12]
@@ -1386,22 +1403,25 @@ def build_heal(page: bytearray, page_va: int) -> bytes:
         mov eax, dword ptr [esi+0x1CFC]
         cmp eax, dword ptr [edi+16]
         jne recheck
+    fresh_next:
         add esi, {STRIDE}
-        add edi, 20
+        add edi, 24
         dec ebx
         jne fresh_loop
         mov esi, 0x554190
-        lea edi, [ebp-0xC20]
+        lea edi, [ebp-0xF00]
         mov ebx, {BOUND}
     write_loop:
         cmp dword ptr [edi], 0
         je write_next
+        cmp dword ptr [edi+20], 0
+        jne write_next
         cmp dword ptr [edi+4], 0
         jle write_next
         cmp dword ptr [edi+8], 0
         jne write_next
-        cmp dword ptr [edi+4], 100
-        je sickness_write
+        cmp dword ptr [edi+4], 80
+        jae sickness_write
         call heal_record_guard
         test eax, eax
         jz retained
@@ -1440,18 +1460,26 @@ def build_heal(page: bytearray, page_va: int) -> bytes:
         push 54
         mov ecx, 0x4DB358
         call 0x413450
+        jmp write_next
     write_next:
         add esi, {STRIDE}
-        add edi, 20
+        add edi, 24
         dec ebx
         jne write_loop
         mov esi, 0x554190
-        lea edi, [ebp-0xC20]
+        lea edi, [ebp-0xF00]
         mov ebx, {BOUND}
     post_loop:
         movzx eax, byte ptr [esi+0x1CD4]
         cmp eax, dword ptr [edi]
         jne retained
+        movzx eax, byte ptr [esi+0x1CE1]
+        cmp eax, dword ptr [edi+20]
+        jne retained
+        cmp dword ptr [edi+20], 0
+        jne post_next
+        cmp dword ptr [edi], 0
+        je post_next
         movzx eax, byte ptr [esi+0x1CEC]
         cmp eax, dword ptr [edi+8]
         jne retained
@@ -1464,8 +1492,16 @@ def build_heal(page: bytearray, page_va: int) -> bytes:
         jle post_ineligible
         cmp dword ptr [edi+8], 0
         jne post_ineligible
+        cmp dword ptr [edi+4], 80
+        jae post_health_unchanged
         cmp dword ptr [esi+0x1C40], 100
         jne retained
+        jmp post_health_done
+    post_health_unchanged:
+        mov eax, dword ptr [esi+0x1C40]
+        cmp eax, dword ptr [edi+4]
+        jne retained
+    post_health_done:
         cmp byte ptr [esi+0x1C48], 0
         jne retained
         jmp post_next
@@ -1478,7 +1514,7 @@ def build_heal(page: bytearray, page_va: int) -> bytes:
         jne retained
     post_next:
         add esi, {STRIDE}
-        add edi, 20
+        add edi, 24
         dec ebx
         jne post_loop
         mov eax, dword ptr [ebp-0x14]
@@ -1501,6 +1537,9 @@ def build_heal(page: bytearray, page_va: int) -> bytes:
         movzx eax, byte ptr [esi+0x1CD4]
         cmp eax, dword ptr [edi]
         jne heal_guard_fail
+        movzx eax, byte ptr [esi+0x1CE1]
+        cmp eax, dword ptr [edi+20]
+        jne heal_guard_fail
         mov eax, dword ptr [esi+0x1C40]
         cmp eax, dword ptr [edi+4]
         jne heal_guard_fail
@@ -1509,9 +1548,12 @@ def build_heal(page: bytearray, page_va: int) -> bytes:
         movzx eax, byte ptr [esi+0x1CD4]
         cmp eax, dword ptr [edi]
         jne heal_guard_fail
+        movzx eax, byte ptr [esi+0x1CE1]
+        cmp eax, dword ptr [edi+20]
+        jne heal_guard_fail
         mov eax, dword ptr [edi+4]
-        cmp eax, 100
-        je heal_guard_health_original
+        cmp eax, 80
+        jae heal_guard_health_original
         mov eax, 100
     heal_guard_health_original:
         cmp dword ptr [esi+0x1C40], eax
@@ -1519,6 +1561,9 @@ def build_heal(page: bytearray, page_va: int) -> bytes:
     heal_guard_common:
         movzx eax, byte ptr [esi+0x1CEC]
         cmp eax, dword ptr [edi+8]
+        jne heal_guard_fail
+        movzx eax, byte ptr [esi+0x1CE1]
+        cmp eax, dword ptr [edi+20]
         jne heal_guard_fail
         movzx eax, byte ptr [esi+0x1C48]
         cmp eax, dword ptr [edi+12]
@@ -1564,7 +1609,7 @@ def build_heal(page: bytearray, page_va: int) -> bytes:
     charge_unknown:
         {status_call(page_va, '4', 7, 'dword ptr [ebp-0x18]', 'dword ptr [ebp-0x1C]')}
     done:
-        add esp, 0xC40
+        add esp, 0x1000
         pop edi
         pop esi
         pop ebx
@@ -1742,6 +1787,7 @@ def main() -> None:
         "schema": "vvfp.vv5_task9_native_actions.v1",
         "id": "vv5_enable_origins_exclusive_features",
         "name": "Enable Origins-Exclusive Features (Task9 native actions)",
+        "description": "Enables the VV5 Origins-style Tech and Villager Upgrades menus. The native action page provides Full Mastery, Grant Running, Set Age to 18, and Full Heal / Cure All for active living Believers only; records with the VV5 Heathen mask/status byte set are skipped before any action-specific read or write. Time Warp, Island Event, and Barrel of Babies remain unavailable until their native target paths are proven Heathen-safe.",
         "enabled": True,
         "catalog_hidden": False,
         "catalog_enabled": True,
@@ -1761,14 +1807,14 @@ def main() -> None:
             "owner": "BeginOriginsOwner/GetOriginsOwner/EndOriginsOwner; same-process HWND only; capture before fullscreen leave; no foreground fallback; centralized restore then End",
             "sequence": "complete dry-run -> IDOK -> fresh identity/snapshot/funds -> mutation -> postverify -> one native charge -> exact balance readback",
             "selection": "resolver 0x425950 null-guarded before +0x17E24; unsigned command 0..3 before resolver or price access",
-            "eligibility": "active +0x1CD4, signed living health +0x1C40 > 0, sole Believer gate +0x1CEC == 0",
-            "eligibility_schema": "the current-faction byte is the sole Believer gate; no historical synthetic gate is read or modeled",
+            "eligibility": "active +0x1CD4, Heathen mask/status +0x1CE1 == 0, signed living health +0x1C40 > 0, current-Believer faction +0x1CEC == 0",
+            "eligibility_schema": "both the VV5 Heathen mask/status byte and current faction must identify an active living Believer; masked records are rejected before action-specific reads or writes",
             "actions": {
                 "youth": {"price": 50000, "target": "max(raw_age-700,100)", "writer": "0x46F7F0 ECX=record+0x1B8C signed delta", "companions": ["+0x1C3C same delta", "+0x1C4C same delta only when nonzero"]},
                 "age18": {"price": 50000, "target": 360, "writer": "0x46F7F0 ECX=record+0x1B8C signed delta", "companions": ["+0x1C3C same delta", "+0x1C4C same delta only when nonzero"]},
                 "full_mastery": {"price": 100000, "fields": ["0x1C5C", "0x1C60", "0x1C64", "0x1C68", "0x1C6C", "0x1C70"], "writer": "0x475730 ECX=record+0x1C5C push Float32 delta then push index", "target_bits": "0x42C80000"},
                 "running": {"price": 40000, "preference_id": 38, "likes": ["0x1F5C", "0x1F60", "0x1F64"], "dislikes": ["0x1F68", "0x1F6C", "0x1F70"], "native": {"membership": "0x464F90", "insertion": "0x464AD0", "first_removal": "0x4649E0"}},
-                "full_heal": {"price": 30000, "health_writer": "0x4758B0 ECX=record+0x1C34 push -1 then push 100", "sickness": "+0x1C48 byte", "unsupported_type": "+0x1CFC == 12 when sick", "people_cured": "0x51D368", "statistic_writer": "0x413450 ECX=0x4DB358 IDs 52/53/54 amount 1"},
+                "full_heal": {"price": 30000, "health_rule": "only health < 80 is raised to exactly 100; health 80-100 is preserved", "health_writer": "0x4758B0 ECX=record+0x1C34 push -1 then push 100", "sickness": "+0x1C48 byte", "masked_heathen_policy": "skip before sickness/type reads; includes the sick Heathen puzzle record", "unsupported_type": "+0x1CFC == 12 when sick on an otherwise eligible Believer", "people_cured": "0x51D368", "statistic_writer": "0x413450 ECX=0x4DB358 IDs 52/53/54 amount 1"},
             },
         },
         "companion_files": [{
@@ -1859,7 +1905,7 @@ def main() -> None:
         "resolver_contract": {
             "record_pointer_resolver": "0x46F950",
             "forbidden_transitive_helpers": ["0x466170", "0x471840"],
-            "eligibility_order": ["+0x1CD4 != 0", "+0x1C40 signed > 0", "+0x1CEC == 0"],
+            "eligibility_order": ["+0x1CD4 != 0", "+0x1CE1 == 0", "+0x1C40 signed > 0", "+0x1CEC == 0"],
         },
         "expanded_cross_section_hook_audit": {
             "hook_count": len(TASK9_CROSS_SECTION_HOOKS),
