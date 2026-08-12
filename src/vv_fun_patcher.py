@@ -93,7 +93,7 @@ VV5_ORIGINS_RELOCATION_PARTITIONS = {
             "0xDB01C", "0xDB021", "0xDB043", "0xDB055", "0xDB06C", "0xDB08E", "0xDB096",
             "0xDB0E1", "0xDB103", "0xDB115", "0xDB12C", "0xDB14E", "0xDB156", "0xDB1A4",
             "0xDB272", "0xDB283", "0xDB292", "0xDB38D", "0xDB3C3", "0xDB3ED", "0xDB415",
-            "0xDB437", "0xDB45A", "0xDB462", "0xDB46C", "0xDB7AC", "0xDBA56", "0xDBB22", "0xDBB27",
+            "0xDB437", "0xDB45A", "0xDB462", "0xDB46C", "0xDB7AC", "0xDBA3B", "0xDBB22", "0xDBB27",
         }
     ),
     "external_absolute": frozenset(
@@ -108,7 +108,7 @@ VV4_ORIGINS_RELOCATION_LEDGER_SHA256 = (
     "CEE01F4AEC59CB1CEE0F42E3DDDB3A24615261E628ED0629C1BFAABF421A897D"
 )
 VV5_ORIGINS_RELOCATION_LEDGER_SHA256 = (
-    "14E460773ADC065E053FA30921ED01D33A5F36AD49DC754CCD69127EA02C01B7"
+    "7A95D8CCC6477777E9A3AA4C3EFEB30D8AF0D50434C910C1ADE9A645C7DBDDCA"
 )
 ORIGINS_FEATURE_PATHS = tuple(
     ROOT / "data" / f"vv{game_number}_origins_feature.json"
@@ -744,8 +744,8 @@ VV5_TASK9_PATHS = {
     "dll": ROOT / "data" / "candidates" / "VVFP VV5 Task9 Origins Icons.dll",
 }
 VV5_TASK9_SOURCE_TEXT_SHA256 = {
-    "manifest": "7905AEA18C289B47CE6B8CB1D6DA1729800387D479EDE575ADC6ED3A44C95339",
-    "map": "547E2BDB73C85F4759027ECA84BA4303774E73A23485BCA2F84C327C92348389",
+    "manifest": "02BAEFD7EF82A4506509ED642876DC310A60988CAEFD4CB2E0A989216A62A1D6",
+    "map": "3EB76242B93B3A5009A912972CE0FF3F373C0D1026638176878998FD31BF3CBD",
 }
 VV5_TASK9_DLL_SHA256 = "B402ED8316CD6EB2C43B056848E622DC0924188C81C683F5E2813466AF8045D0"
 VV5_TASK9_PAGE_SHA256 = {
@@ -754,7 +754,7 @@ VV5_TASK9_PAGE_SHA256 = {
     "experimental_expanded_256": "A18F1FC2ED54F336D86FCF96B0024D4B8FA4DC6EB257063228F8942A0AE263C7",
     "experimental_expanded_256_progression": "A18F1FC2ED54F336D86FCF96B0024D4B8FA4DC6EB257063228F8942A0AE263C7",
 }
-VV5_TASK9_ACTIVE_SOURCE_TEXT_SHA256 = "6AFF1A8E69234C61CB2D1878C46FA91B0AAA721FC5F29C5B42A678F61BAB8528"
+VV5_TASK9_ACTIVE_SOURCE_TEXT_SHA256 = "622F7DE40313ED393315001FD34E2D5F792162DABE2F1184D7ED8E6EBAC6101C"
 VV5_TASK9_TASK8_SOURCE_TEXT_SHA256 = "090ED9CA074F02F9321B2F8E0C470FD0AF18B235231DA94B6D38293360BC9510"
 VV5_TASK9_ATOMIC_CORE_COMMIT = "c4e5fe76d1de258d5d4baeac77cbea842b206cd7"
 VV5_TASK9_ATOMIC_SOURCE_TEXT_SHA256 = {
@@ -2961,11 +2961,6 @@ def _load_fun_patch_records(
                         )
                         if individual_running is not None:
                             items.append(individual_running)
-                        individual_full_mastery = (
-                            _validate_vv3_individual_full_mastery_candidate()
-                        )
-                        if individual_full_mastery is not None:
-                            items.append(individual_full_mastery)
                     if running is not None and mastery is None:
                         items.append(running)
                 elif record.get("id") == "vv4_enable_origins_exclusive_features":
@@ -3035,9 +3030,6 @@ def _load_fun_patch_records(
     vv1_full_mastery = _certified_vv1_full_mastery_record()
     if vv1_full_mastery is not None:
         items.append(vv1_full_mastery)
-        vv1_individual_full_mastery = _certified_vv1_individual_full_mastery_record()
-        if vv1_individual_full_mastery is not None:
-            items.append(vv1_individual_full_mastery)
     for feature_path in ORIGINS_VILLAGE_WIDE_FEATURE_PATHS:
         if feature_path.is_file():
             record = json.loads(feature_path.read_text(encoding="utf-8"))
@@ -3046,9 +3038,6 @@ def _load_fun_patch_records(
     vv2_full_mastery = _certified_vv2_full_mastery_record()
     if vv2_full_mastery is not None:
         items.append(vv2_full_mastery)
-        vv2_individual_full_mastery = _certified_vv2_individual_full_mastery_record()
-        if vv2_individual_full_mastery is not None:
-            items.append(vv2_individual_full_mastery)
     if STATISTICS_FEATURES_PATH.is_file():
         statistics = json.loads(
             STATISTICS_FEATURES_PATH.read_text(encoding="utf-8")

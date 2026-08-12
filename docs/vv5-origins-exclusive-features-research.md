@@ -56,12 +56,16 @@ five-byte hook and does not claim expanded Food Doubler runtime support.
 
 The central Tech writer is `0x4237B0` (file `0x237B0`). Its stock hook bytes
 `568B742408` are replaced only in stock layout by `E94BF23800`, targeting the
-90-byte wrapper at `.shr` `0x7B2A00` (file `0xDBA00`). The wrapper doubles the
+63-byte wrapper at `.shr` `0x7B2A00` (file `0xDBA00`). The wrapper doubles the
 positive stack delta exactly once only when ownership bit `0x1` is set and the
-immediate caller return is one of:
+immediate caller return is one of the three eligible action-19 research
+channels:
 
-- `0x4147BE`, `0x4147DD`, `0x4147F9` — ordinary collection awards;
-- `0x46DE4D`, `0x46DE7C`, `0x46DEA5` — the three action-19 research channels.
+- `0x46DE4D`, `0x46DE7C`, `0x46DEA5`.
+
+The duplicate-collectible returns `0x4147BE`, `0x4147DD`, and `0x4147F9`
+remain native, as do Island Events, deductions, zero/negative deltas, and
+unknown callers.
 
 Return `0x419EA3` is the +5,000 clothing-dialog refund paired with the
 action-90 deduction and is deliberately native. Expanded-256 restores the

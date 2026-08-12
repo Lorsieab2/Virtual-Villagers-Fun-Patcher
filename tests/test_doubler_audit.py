@@ -89,7 +89,7 @@ class DoublerAuditDocumentationTests(unittest.TestCase):
             self.assertIn(title, text)
         self.assertIn("**STOP**", text)
         self.assertIn("tail-jump", text)
-        self.assertIn("collection-adjusted positive delta", text)
+        self.assertIn("positive source", text)
         self.assertIn("Food Mastery status by exact build", text)
         self.assertIn("VV1, VV2, and VV3 are code-confirmed absent", text)
         self.assertIn("code-confirmed for VV4 and VV5", text)
@@ -102,28 +102,37 @@ class DoublerAuditDocumentationTests(unittest.TestCase):
 
     def test_audit_states_both_composition_rules(self) -> None:
         text = AUDIT.read_text(encoding="utf-8")
-        self.assertIn("Island Event results are never doubled", text)
-        self.assertIn("every proven collection effect that increases tech gain", text)
-        self.assertIn("Food Mastery only where that exact build proves the", text)
-        self.assertIn("Golden Child is a VV1-only exclusion", text)
-        self.assertIn("Gong of Wonder is a VV2-only", text)
-        self.assertIn("twice the exact native", text)
-        self.assertIn("positive, zero", text)
-        self.assertIn("or negative", text)
-        self.assertIn("collection plus doubler", text)
+        self.assertIn("positive earned tech deltas only", text)
+        self.assertIn("positive food-source deltas only", text)
+        self.assertIn("Golden Child tech-point gain", text)
+        self.assertIn("Gong of Wonder tech-point gain", text)
+        self.assertIn("Duplicate Collectibles tech-point gain", text)
+        self.assertIn("native writers still perform storage/statistics updates", text)
+        self.assertIn("zero and negative deltas remain native", text)
 
     def test_all_origins_manifests_declare_composition_contract(self) -> None:
         for path in ORIGINS_MANIFESTS:
             with self.subTest(manifest=path.name):
                 contract = json.loads(path.read_text(encoding="utf-8"))["doubler_composition_contract"]
-                self.assertTrue(any("collectible" in item for item in contract["stacking"]))
+                self.assertEqual(
+                    contract["stacking"],
+                    ["positive earned tech deltas only", "positive food-source deltas only"],
+                )
                 game = path.stem[2]
                 expected_exclusions = {
-                    "1": ("Golden Child behavior", "Island Event outcomes"),
-                    "2": ("Island Event outcomes", "Gong of Wonder outcomes"),
-                    "3": ("Island Event outcomes",),
-                    "4": ("Island Event outcomes",),
-                    "5": ("Island Event outcomes",),
+                    "1": (
+                        "Golden Child tech-point gain",
+                        "Island Event tech-point gain",
+                        "Duplicate Collectibles tech-point gain",
+                    ),
+                    "2": (
+                        "Island Event tech-point gain",
+                        "Gong of Wonder tech-point gain",
+                        "Duplicate Collectibles tech-point gain",
+                    ),
+                    "3": ("Island Event tech-point gain", "Duplicate Collectibles tech-point gain"),
+                    "4": ("Island Event tech-point gain", "Duplicate Collectibles tech-point gain"),
+                    "5": ("Island Event tech-point gain", "Duplicate Collectibles tech-point gain"),
                 }[game]
                 self.assertEqual(tuple(contract["exclusions"]), expected_exclusions)
                 expected_food_status = {
@@ -208,8 +217,8 @@ class DoublerAuditDocumentationTests(unittest.TestCase):
             "0x4593DC",
             "B + (Q ? floor(B/4) : 0) + M + T + G",
             "deterministic flat `+1`",
-            "Collection duplicates and Island Events are separate producers",
-            "provenance-safe post-sum hook or source tag",
+            "explicit Tech Doubler exclusions",
+            "provenance-safe source boundary",
         ):
             self.assertIn(required, combined)
 
@@ -217,7 +226,7 @@ class DoublerAuditDocumentationTests(unittest.TestCase):
         self.assertIn("no research speed", folded)
         self.assertIn("rng probability", folded)
         self.assertIn("research-skill gain", folded)
-        self.assertIn("double the complete eligible positive native", folded)
+        self.assertIn("must double only an eligible positive earned-tech source", folded)
         self.assertIn("vv3 tech doubler remains unavailable", folded)
         self.assertNotIn("magic increases research speed", folded)
         self.assertNotIn("magic increases research skill", folded)
@@ -249,7 +258,16 @@ class DoublerAuditDocumentationTests(unittest.TestCase):
         self.assertIn("GO", evidence["hook_status"])
         self.assertEqual(
             tuple(evidence["tech_blacklist_returns"]),
-            ("0x4205AC", "0x434351", "0x44EA32", "0x44ED52", "0x44F202"),
+            (
+                "0x4205AC",
+                "0x434351",
+                "0x44EA32",
+                "0x44ED52",
+                "0x44F202",
+                "0x463461",
+                "0x46346D",
+                "0x463479",
+            ),
         )
         self.assertEqual(
             tuple(evidence["food_blacklist_returns"]),
@@ -275,7 +293,7 @@ class DoublerAuditDocumentationTests(unittest.TestCase):
             hashlib.sha256(
                 json.dumps(runtime, sort_keys=True, separators=(",", ":")).encode()
             ).hexdigest().upper(),
-            "966C1B25B30BC5D20E892B3BA0940BC8170FE2171179355279AB65CA1656D3DC",
+            "02749857595270C51A927238BD2C45D1037AA94EFE6705C113398E95B1D94C09",
         )
         self.assertEqual(
             manifest["companion_files"][0]["sha256"],
@@ -319,7 +337,16 @@ class DoublerAuditDocumentationTests(unittest.TestCase):
             self.assertIn(ownership, wrapper)
 
     def test_vv2_doubler_reference_model_matrix(self) -> None:
-        tech_excluded = {0x4205AC, 0x434351, 0x44EA32, 0x44ED52, 0x44F202}
+        tech_excluded = {
+            0x4205AC,
+            0x434351,
+            0x44EA32,
+            0x44ED52,
+            0x44F202,
+            0x463461,
+            0x46346D,
+            0x463479,
+        }
         food_excluded = {0x420AE9, 0x433FC6, 0x44E9C3, 0x44EDB9, 0x44F0D9}
 
         def result(delta: int, caller: int, owned: bool, excluded: set[int]) -> int:

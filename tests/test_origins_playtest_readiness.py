@@ -11,7 +11,6 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
 from vv_fun_patcher import (  # noqa: E402
-    PatcherError,
     _pe_checksum_layout,
     load_builds,
     load_fun_patches,
@@ -69,8 +68,11 @@ class OriginsPlaytestReadinessTests(unittest.TestCase):
                         self.assertNotEqual(stored, 0)
                         self.assertEqual(stored, pe_checksum(rendered))
                 if build.id in {"vv3", "vv4", "vv5"}:
-                    with self.assertRaisesRegex(PatcherError, "has no append layout"):
-                        render_patched_bytes(source, build, "stock", selected_ids)
+                    rendered, _ = render_patched_bytes(source, build, "stock", selected_ids)
+                    checksum_offset, _ = _pe_checksum_layout(rendered)
+                    stored = struct.unpack_from("<I", rendered, checksum_offset)[0]
+                    self.assertNotEqual(stored, 0)
+                    self.assertEqual(stored, pe_checksum(rendered))
 
     def test_readiness_document_states_static_only_boundary(self) -> None:
         text = READINESS_DOC.read_text(encoding="utf-8")
@@ -113,8 +115,8 @@ class OriginsPlaytestReadinessTests(unittest.TestCase):
         self.assertIn("4c588ffd36765d750533fe9694f8fda5c8e82736", text)
         self.assertIn("deterministic flat `+1`", text)
         self.assertIn("changes no research speed", text)
-        self.assertIn("Collection duplicates and Island Events are separate producers", text)
-        self.assertIn("provenance-safe post-sum hook or source tag", text)
+        self.assertIn("Collection duplicates and Island Events are explicit Tech Doubler", text)
+        self.assertIn("provenance-safe source boundary", text)
 
 
 if __name__ == "__main__":

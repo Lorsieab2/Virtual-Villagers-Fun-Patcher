@@ -79,15 +79,18 @@ BARREL_MAIN_HELPER_CODE = bytes.fromhex(
 RUNNING_PREFERENCE_ID = 38  # exact-build preference-table evidence: 0x8B808
 
 # Exact caller-return addresses proven by the VV2 stock executable audit.  The
-# wrappers compare the immediate caller return address so Island Event and Gong
-# outcomes remain byte-for-byte native while ordinary positive awards can still
-# use the save-scoped doubler.
+# wrappers compare the immediate caller return address so Island Event, Gong,
+# and duplicate-collectible tech awards remain byte-for-byte native while
+# ordinary positive awards can still use the save-scoped doubler.
 TECH_DOUBLER_EXCLUDED_RETURNS = (
     0x4205AC,
     0x434351,
     0x44EA32,
     0x44ED52,
     0x44F202,
+    0x463461,
+    0x46346D,
+    0x463479,
 )
 FOOD_DOUBLER_EXCLUDED_RETURNS = (
     0x420AE9,
@@ -1401,13 +1404,13 @@ def main() -> None:
         0x26290,
         bytes.fromhex("8B44240401"),
         rel32_jump(0x426290, tech_increment),
-        "double positive non-Island-Event tech awards when the current save owns the doubler",
+        "double eligible positive earned tech deltas",
     )
     patch(
         0x262B0,
         bytes.fromhex("8B44240401"),
         rel32_jump(0x4262B0, food_increment),
-        "double positive non-Island-Event food awards when the current save owns the doubler",
+        "double eligible positive food-source deltas",
     )
     patch(
         0x34570,
@@ -1525,8 +1528,14 @@ def main() -> None:
                 "food_returns": ["0x44E9C3", "0x44EDB9", "0x44F0D9"],
                 "direct_resource_paths": ["negative tech and reset/zero outcomes bypass positive writers"],
             },
+            "duplicate_collectibles": {
+                "function": "0x463426",
+                "tech_returns": ["0x463461", "0x46346D", "0x463479"],
+                "behavior": "an already-completed collectible routes to the tech writer",
+            },
             "tech_blacklist_returns": [
-                "0x4205AC", "0x434351", "0x44EA32", "0x44ED52", "0x44F202"
+                "0x4205AC", "0x434351", "0x44EA32", "0x44ED52", "0x44F202",
+                "0x463461", "0x46346D", "0x463479"
             ],
             "food_blacklist_returns": [
                 "0x420AE9", "0x433FC6", "0x44E9C3", "0x44EDB9", "0x44F0D9"
@@ -1549,16 +1558,20 @@ def main() -> None:
                 ],
                 "e9_tail_jumps_to_writers": 0,
             },
-            "hook_status": "GO: exact-build static provenance proof complete for all positive Island Event and Gong writer callsites; runtime/player confirmation pending",
+            "hook_status": "GO: exact-build static provenance proof covers the positive writer callsites and excludes Island Event, Gong, and duplicate-collectible tech awards; runtime/player confirmation pending",
         },
         "doubler_composition_contract": {
             "stacking": [
-                "every exact-build collectible/collection effect that increases tech-point gain",
-                "native Food Mastery technology adjustment",
+                "positive earned tech deltas only",
+                "positive food-source deltas only",
             ],
-            "exclusions": ["Island Event outcomes", "Gong of Wonder outcomes"],
+            "exclusions": [
+                "Island Event tech-point gain",
+                "Gong of Wonder tech-point gain",
+                "Duplicate Collectibles tech-point gain",
+            ],
             "food_mastery_status": "confirmed absent in exact-build audit: enumerated technology definitions, resource strings, direct writer calls, and food-source call chains; Farming gates/unlocks sources only; Herb Mastery is unrelated",
-            "status": "GO: exact-build static provenance covers the certified positive writer paths; runtime/player confirmation pending",
+            "status": "GO: exact-build static provenance covers the certified positive delta boundaries; native writers still perform storage/statistics updates for the doubled amount; runtime/player confirmation pending",
         },
         "patches": patches,
     }

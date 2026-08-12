@@ -643,6 +643,9 @@ def main() -> None:
         """,
     )
     tech_exclusions = (
+        0x414477,
+        0x414493,
+        0x4144AF,
         0x414A2D,
         0x4156FD,
         0x415874,
@@ -978,9 +981,9 @@ def main() -> None:
     patch(0x14D50, bytes.fromhex("B968E55000"), rel32_jump(0x414D50, barrel_eligibility),
           "temporarily admit the explicitly purchased native Barrel of Babies event")
     patch(0x1D94F, bytes.fromhex("85F67E3456"), rel32_jump(0x41D94F, food_increment),
-          "double post-mastery positive non-Island-Event food awards for the current save")
+          "double eligible positive food-source deltas")
     patch(0x1E300, bytes.fromhex("568B742408"), rel32_jump(0x41E300, tech_increment),
-          "double positive non-Island-Event tech awards for the current save")
+          "double eligible positive earned tech deltas")
     patch(0x3E165, bytes.fromhex("8BC68B4C244C"),
           rel32_jump(0x43E165, tech_constructor) + b"\x90",
           "append the stock-styled Upgrades control to the Tech screen")
@@ -1056,20 +1059,25 @@ def main() -> None:
                 "tech": ["0x414477", "0x414493", "0x4144AF", "0x431A9B"],
                 "food": ["0x414660", "0x436F15"],
             },
+            "duplicate_collectibles": {
+                "function": "sub_414410",
+                "tech_returns": ["0x414477", "0x414493", "0x4144AF"],
+                "behavior": "an already-completed collectible routes to the tech writer",
+            },
             "island_event_positive_sites": {
                 "tech": ["0x414A28", "0x4156F8", "0x415862", "0x415A81", "0x415B46", "0x415D8C", "0x416722", "0x464E58", "0x464E82", "0x464EAB"],
                 "food": ["0x414949", "0x41520E", "0x4643E6", "0x464433", "0x464492", "0x46450B", "0x464573", "0x4645B0", "0x4645FB"],
             },
-            "hook_status": "STOP: inventory is complete, but no safe post-Food-Mastery doubler hook has been implemented; return-address-only exclusion is invalid for the listed E9 tails",
+            "hook_status": "STOP: duplicate-collectible and Island Event direct returns are excluded, but no safe post-Food-Mastery hook has been implemented; return-address-only exclusion is invalid for the listed E9 tails",
         },
         "doubler_composition_contract": {
             "stacking": [
-                "every exact-build collectible/collection effect that increases tech-point gain",
-                "native Food Mastery technology adjustment",
+                "positive earned tech deltas only",
+                "positive food-source deltas only",
             ],
-            "exclusions": ["Island Event outcomes"],
+            "exclusions": ["Island Event tech-point gain", "Duplicate Collectibles tech-point gain"],
             "food_mastery_status": "confirmed in exact-build disassembly; native transform documented in doubler evidence",
-            "status": "STOP: no safe post-Food-Mastery hook/section and incomplete dynamic/computed Island Event provenance",
+            "status": "STOP: direct duplicate-collectible exclusion is encoded, but no safe post-Food-Mastery hook/section and incomplete dynamic/computed Island Event provenance remain",
         },
         "doubler_purchase_status": {
             "new_purchase": "temporarily unavailable pending exact-build provenance verification",

@@ -56,12 +56,12 @@ before Magic. Native calls occur in this order:
 `B + (Q ? floor(B/4) : 0) + M + T + G`
 
 Here `M` is the flat Magic `+1`; `G` is the independent `RNG(100) < 10`
-addition. Collection duplicates and Island Events are separate producers. A
-future Tech Doubler must double the complete eligible positive native research
-sum once after all additions, while excluding Island Events. Because case 26
-emits those components separately and the shared writer mixes other producers,
-the Tech Doubler remains unavailable pending a provenance-safe post-sum hook or
-source tag.
+addition. Collection duplicates and Island Events are explicit Tech Doubler
+exclusions. The Tech Doubler may double only an eligible positive earned-tech
+source delta; it must not replace the native component order with a post-sum
+operation. Because case 26 emits those components separately and the shared
+writer mixes other producers, the Tech Doubler remains unavailable pending a
+provenance-safe source boundary.
 
 ## Intended VV2-parity behavior
 

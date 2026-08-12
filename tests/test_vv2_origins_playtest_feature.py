@@ -179,7 +179,7 @@ class VV2OriginsPlaytestFeatureTests(unittest.TestCase):
         previous[coordinate_offset] = 0x90
         self.assertEqual(
             hashlib.sha256(previous).hexdigest().upper(),
-            "3F56872FA4AFA286FB38BDA79F2D7863246ED8C1FDE793A7F4BB05B6FA95AE9D",
+            "79C3210E83DC494BD1D12C5F26B166E106368572D857A0C569AA835CFE2271EB",
         )
         self.assertEqual(
             payload.count(bytes.fromhex("6A00566833020000688C00000068E86347006A06")),

@@ -305,11 +305,12 @@ tech point to each completed research callback. It changes no research speed,
 duration, base award, RNG probability/amount, or Research-skill gain. The
 native order is base, optional quarter-base, Magic `+1`, timed `+1`, then an
 independent RNG `+1`; ordinary and special/catch-up paths converge before
-Magic. Collection duplicates and Island Events are separate producers. A
-future Tech Doubler must double the complete eligible positive native sum once
-after those additions and exclude Island Events. VV3 Tech Doubler purchase
-remains unavailable because case 26 emits separate writer calls and no
-provenance-safe post-sum hook or source tag is certified.
+Magic. Collection duplicates and Island Events are explicit Tech Doubler
+exclusions. The Tech Doubler must change only an eligible positive earned-tech
+source delta, not a post-sum aggregate. VV3 Tech Doubler purchase remains
+unavailable because case 26 emits separate writer calls and no provenance-safe
+source boundary is certified.
+provenance-safe source boundary remains the governing requirement.
 
 The matrix is intentionally catalog-driven rather than a hard-coded feature
 list, so newly enabled game-scoped patches cannot silently escape the

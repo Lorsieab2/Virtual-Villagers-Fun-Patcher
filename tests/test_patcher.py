@@ -1855,7 +1855,6 @@ class StockIntegrationTests(unittest.TestCase):
             and patch.id
             not in {
                 "vv1_full_mastery_all_stage_a_candidate",
-                "vv1_individual_full_mastery_candidate",
                 "vv1_enable_origins_exclusive_features",
                 "vv1_origins_village_wide_upgrades",
             }
@@ -1875,16 +1874,11 @@ class StockIntegrationTests(unittest.TestCase):
             [
                 *selected,
                 "vv1_full_mastery_all_stage_a_candidate",
-                "vv1_individual_full_mastery_candidate",
             ],
         )
         self.assertTrue(composed)
         self.assertTrue(any(
             patch.get("owner") == "feature:vv1_full_mastery_all_stage_a_candidate"
-            for patch in composed_applied
-        ))
-        self.assertTrue(any(
-            patch.get("owner") == "feature:vv1_individual_full_mastery_candidate"
             for patch in composed_applied
         ))
 

@@ -739,6 +739,8 @@ def main() -> None:
             mov eax, dword ptr [esp + 4]
             test eax, eax
             jle apply
+            cmp dword ptr [esp], 0x42DF79
+            je apply
             cmp dword ptr [esp], 0x458DB0
             jb check_owned
             cmp dword ptr [esp], 0x45943F
@@ -977,13 +979,13 @@ def main() -> None:
         0x263F0,
         bytes.fromhex("8B44240456"),
         rel32_jump(0x4263F0, food_increment),
-        "double positive non-Island-Event food awards when this save owns the doubler",
+        "double eligible positive food-source deltas",
     )
     patch(
         0x27130,
         bytes.fromhex("8B4424048B11"),
         rel32_jump(0x427130, tech_increment, 6),
-        "double positive non-Island-Event tech awards when this save owns the doubler",
+        "double eligible positive earned tech deltas",
     )
     patch(
         0x6547D,
@@ -1077,6 +1079,11 @@ def main() -> None:
                 },
                 "caller_status": "IDA has no resolved caller to sub_42DEB0; computed/indirect reachability remains unresolved",
             },
+            "duplicate_collectibles": {
+                "dispatcher": "sub_42DEB0",
+                "tech_return": "0x42DF79",
+                "behavior": "an already-completed collectible routes to the tech writer",
+            },
             "island_event_producers": {
                 "dispatcher": "0x458DB0-0x45943F",
                 "inventory": "complete positive/zero/negative/bypass inventory including tail calls; mixed-source writers have no source tag",
@@ -1084,16 +1091,16 @@ def main() -> None:
             },
             "writer_inventory": {"food": {"rows": 33, "calls": 29, "e9_tails": 4}, "tech": {"rows": 16, "calls": 13, "e9_tails": 3}},
             "tail_sites": {"food": ["0x415EF1", "0x416983", "0x416BAB", "0x417A3A"], "tech": ["0x415D44", "0x41673E", "0x418452"]},
-            "hook_status": "STOP: no safe final-delta/source-aware hook, transient marker, or certified new section/cave; computed/indirect collection reachability remains unresolved",
+            "hook_status": "STOP: direct duplicate-collectible exclusion is encoded, but computed/indirect collection reachability and a safe final-delta/source-aware hook remain unresolved",
         },
         "doubler_composition_contract": {
             "stacking": [
-                "every exact-build collectible/collection effect that increases tech-point gain",
-                "native Food Mastery technology adjustment",
+                "positive earned tech deltas only",
+                "positive food-source deltas only",
             ],
-            "exclusions": ["Island Event outcomes"],
+            "exclusions": ["Island Event tech-point gain", "Duplicate Collectibles tech-point gain"],
             "food_mastery_status": "confirmed absent in the exact-build writer, strings, and bounded caller corpus",
-            "status": "STOP: no safe final-delta/source-aware hook, transient marker, or certified new section/cave; Island Event mixed-source provenance and collection dispatcher caller remain unresolved",
+            "status": "STOP: direct duplicate-collectible exclusion is encoded, but Island Event mixed-source provenance and collection dispatcher reachability remain unresolved",
         },
         "doubler_purchase_status": {
             "new_purchase": "temporarily unavailable pending exact-build provenance verification",

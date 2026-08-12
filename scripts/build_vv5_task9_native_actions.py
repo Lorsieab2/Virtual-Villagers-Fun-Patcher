@@ -41,10 +41,10 @@ ATOMIC_SOURCE_TEXT_SHA256 = {
 }
 
 STOCK_SHA256 = "92946781980220E9D1A2E6C573925519934608F5215F4A0F8CE3B90088C5C65D"
-ACTIVE_SHA256 = "F9643E2B7D115B6ECDDD4D8AD4BFFC73F2FF6937995E40E991041B6AF6463D44"
-ACTIVE_SOURCE_TEXT_SHA256 = "6AFF1A8E69234C61CB2D1878C46FA91B0AAA721FC5F29C5B42A678F61BAB8528"
+ACTIVE_SHA256 = "E2B851340581141443CD567C88FBCEBDC7A291974EBA2428EB0BF332BD08D91A"
+ACTIVE_SOURCE_TEXT_SHA256 = "622F7DE40313ED393315001FD34E2D5F792162DABE2F1184D7ED8E6EBAC6101C"
 C342_COUNT = 66
-C342_ROWS_SHA256 = "14E460773ADC065E053FA30921ED01D33A5F36AD49DC754CCD69127EA02C01B7"
+C342_ROWS_SHA256 = "7A95D8CCC6477777E9A3AA4C3EFEB30D8AF0D50434C910C1ADE9A645C7DBDDCA"
 TASK8_SOURCE_TEXT_SHA256 = "090ED9CA074F02F9321B2F8E0C470FD0AF18B235231DA94B6D38293360BC9510"
 
 sys.path.insert(0, str(ROOT / ".tools/keystone-runtime"))
@@ -1787,7 +1787,7 @@ def main() -> None:
         "schema": "vvfp.vv5_task9_native_actions.v1",
         "id": "vv5_enable_origins_exclusive_features",
         "name": "Enable Origins-Exclusive Features (Task9 native actions)",
-        "description": "Enables the VV5 Origins-style Tech and Villager Upgrades menus. The native action page provides Full Mastery, Grant Running, Set Age to 18, and Full Heal / Cure All for active living Believers only; records with the VV5 Heathen mask/status byte set are skipped before any action-specific read or write. Time Warp, Island Event, and Barrel of Babies remain unavailable until their native target paths are proven Heathen-safe.",
+        "description": "Enables the VV5 Origins-style Tech and Villager Upgrades menus. The native action page provides Full Mastery, Grant Running, Set Age to 18, and Full Heal / Cure All for active living Believers only; records with the VV5 Heathen mask/status byte set are skipped before any action-specific read or write. Time Warp, Island Event, and Barrel of Babies remain unavailable until their native target paths are proven Heathen-safe. The legacy Cure row and command 5 are withdrawn, unavailable, bypassed by the EB5F containment gate, unreachable, and not part of this candidate.",
         "enabled": True,
         "catalog_hidden": False,
         "catalog_enabled": True,

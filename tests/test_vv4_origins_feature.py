@@ -12,9 +12,9 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
 from vv_fun_patcher import (  # noqa: E402
-    PatcherError,
     _pe_checksum_layout,
     load_builds,
+    load_patch_modes,
     load_fun_patches,
     render_patched_bytes,
 )
@@ -29,8 +29,6 @@ FEATURE_ID = "vv4_enable_origins_exclusive_features"
 MODES = (
     "collection_progression",
     "immediate_fixed",
-    "experimental_expanded_256",
-    "experimental_expanded_256_progression",
 )
 
 
@@ -89,15 +87,16 @@ class VV4OriginsFeatureTests(unittest.TestCase):
         self.assertIn("vv4_full_mastery_all_stage_a_candidate", patch_ids)
         for mode in MODES:
             with self.subTest(mode=mode):
-                if mode.startswith("experimental_expanded_256"):
-                    with self.assertRaisesRegex(PatcherError, "ON HOLD"):
-                        render_patched_bytes(STOCK, self.build, mode, patch_ids)
-                    continue
                 rendered, applied = render_patched_bytes(STOCK, self.build, mode, patch_ids)
                 self.assertTrue(applied)
                 checksum_offset, _ = _pe_checksum_layout(rendered)
                 self.assertNotEqual(struct.unpack_from("<I", rendered, checksum_offset)[0], 0)
                 self.assertNotEqual(bytes(rendered[0x89373 : 0x89373 + 4]), b"\0\0\0\0")
+
+    def test_expanded_256_modes_are_removed(self) -> None:
+        mode_ids = {mode.id for mode in load_patch_modes()}
+        self.assertNotIn("experimental_expanded_256", mode_ids)
+        self.assertNotIn("experimental_expanded_256_progression", mode_ids)
 
 
 if __name__ == "__main__":

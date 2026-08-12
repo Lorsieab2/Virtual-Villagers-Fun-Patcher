@@ -925,13 +925,13 @@ def main() -> None:
         0x1D120,
         original[0x1D120 : 0x1D125],
         rel32_jump(0x41D120, tech_increment),
-        "double positive non-Island-Event tech-point awards after the current save owns the Tech Point Doubler",
+        "double eligible positive earned tech deltas",
     )
     patch(
         0x1D140,
         original[0x1D140 : 0x1D145],
         rel32_jump(0x41D140, food_increment),
-        "double positive non-Island-Event food awards after the current save owns the Food Point Doubler",
+        "double eligible positive food-source deltas",
     )
     patch(
         0x28470,
@@ -991,13 +991,23 @@ def main() -> None:
             "positive_food_writer": "0x41D140",
             "collection_adjustment": "not independently recorded; no exact callsite claim",
             "island_event_producers": ["0x428194 tech", "0x4281DA food"],
+            "tech_exclusions": [
+                "Golden Child tech-point gain (no tech award route in this exact build)",
+                "Duplicate Collectibles tech-point gain (no duplicate-collectible tech writer route in this exact build)",
+                "Island Event tech-point gain (return 0x428194)",
+            ],
             "hook_status": "STOP: no safe executable cave/section and arbitrary computed or indirect producer provenance is not proven",
         },
         "doubler_composition_contract": {
             "stacking": [
-                "every exact-build collectible/collection effect that increases tech-point gain",
+                "positive earned tech deltas only",
+                "positive food-source deltas only",
             ],
-            "exclusions": ["Golden Child behavior", "Island Event outcomes"],
+            "exclusions": [
+                "Golden Child tech-point gain",
+                "Island Event tech-point gain",
+                "Duplicate Collectibles tech-point gain",
+            ],
             "food_mastery_status": "confirmed absent for this fingerprint; no Food Mastery-like food transform",
             "status": "STOP: no safe executable cave/section and arbitrary computed or indirect producer provenance is not proven",
         },

@@ -200,7 +200,7 @@
         "automatic:safety",
         "feature:vv1_full_mastery_all_stage_a_candidate"
       ],
-      "all_current_vv1_sha256": "6D739A4477E151D499D4D487B546569094DB67F2E8B5B0DD35CDCDBA6248C928",
+      "all_current_vv1_sha256": "21B82BA923443D0B02E5856D5D8B6C96740FCE2A204FEFE008A3B484BA201651",
       "all_current_vv1_owners": [
         "automatic:population",
         "automatic:safety",
@@ -209,6 +209,7 @@
         "feature:vv1_f6_clothing_change_cheat",
         "feature:vv1_full_mastery_all_stage_a_candidate",
         "feature:vv1_magic_fruit_alters_mortality",
+        "feature:vv1_origins_village_wide_upgrades",
         "feature:vv1_school_lessons_grant_skill",
         "feature:vv1_write_village_statistics"
       ],
@@ -225,7 +226,7 @@
         "automatic:safety",
         "feature:vv1_full_mastery_all_stage_a_candidate"
       ],
-      "all_current_vv1_sha256": "6D739A4477E151D499D4D487B546569094DB67F2E8B5B0DD35CDCDBA6248C928",
+      "all_current_vv1_sha256": "21B82BA923443D0B02E5856D5D8B6C96740FCE2A204FEFE008A3B484BA201651",
       "all_current_vv1_owners": [
         "automatic:population",
         "automatic:safety",
@@ -234,6 +235,7 @@
         "feature:vv1_f6_clothing_change_cheat",
         "feature:vv1_full_mastery_all_stage_a_candidate",
         "feature:vv1_magic_fruit_alters_mortality",
+        "feature:vv1_origins_village_wide_upgrades",
         "feature:vv1_school_lessons_grant_skill",
         "feature:vv1_write_village_statistics"
       ],

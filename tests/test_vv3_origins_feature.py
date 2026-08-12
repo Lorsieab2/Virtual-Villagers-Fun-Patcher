@@ -15,6 +15,7 @@ from vv_fun_patcher import (  # noqa: E402
     _pe_checksum_layout,
     PatcherError,
     load_builds,
+    load_patch_modes,
     load_fun_patches,
     render_patched_bytes,
 )
@@ -197,28 +198,12 @@ class VV3OriginsFeatureTests(unittest.TestCase):
                 f"expanded patch overlaps Origins payload at {start:#x}",
             )
 
-    def test_expanded_save_loader_uses_dword_tail_copy_and_vanilla_names(self) -> None:
-        save_format_offsets = {"vv3": 0x7C5C0, "vv4": 0x8A77C, "vv5": 0x95794}
-        cave_offsets = {"vv3": 0x7B3B1, "vv4": 0x8910D, "vv5": 0x9466C}
-        for build in load_builds():
-            if build.id not in cave_offsets:
-                continue
-            with self.subTest(game=build.id):
-                rendered, _ = render_patched_bytes(
-                    STOCK.parent / build.input_name,
-                    build,
-                    "experimental_expanded_256",
-                )
-                cave = bytes(
-                    rendered[cave_offsets[build.id] : cave_offsets[build.id] + 102]
-                )
-                self.assertIn(
-                    bytes.fromhex("FDF3A5FC"),
-                    cave,
-                    "stock-save tail must be copied backward as dwords",
-                )
-                offset = save_format_offsets[build.id]
-                self.assertEqual(bytes(rendered[offset : offset + 9]), b"%s%d.ldw\0")
+    def test_expanded_256_modes_are_removed(self) -> None:
+        self.assertNotIn("experimental_expanded_256", {mode.id for mode in load_patch_modes()})
+        self.assertNotIn(
+            "experimental_expanded_256_progression",
+            {mode.id for mode in load_patch_modes()},
+        )
 
     def test_dynamic_capacity_detector_is_expanded_loop_immediate(self) -> None:
         stock = STOCK.read_bytes()
@@ -293,7 +278,7 @@ class VV3OriginsFeatureTests(unittest.TestCase):
         )
         self.assertEqual(
             hashlib.sha256(payload).hexdigest().upper(),
-            "91EE43DC2CCD93B9AB807DC9E2C15EEF88B9BFFA8F7A528C6785B29518D96CC6",
+            "38F4D2D8AEB8358BC720A86CFE75AD13900AF9179CBE356C48344CDE5F45A8DD",
         )
         self.assertEqual(
             bytes.fromhex(

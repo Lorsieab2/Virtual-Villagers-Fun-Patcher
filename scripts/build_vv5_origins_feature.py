@@ -112,7 +112,7 @@ VV5_IDA_CROSS_SECTION_REL32_RELOCATIONS = [
     ("0xDB462", "3A2ACEFF", "0x8EB461", "0x494EA0", None),
     ("0xDB46C", "302ACEFF", "0x8EB46B", "0x494EA0", None),
     ("0xDB7AC", "0010C7FF", "0x8EB7AB", "0x4237B0", None),
-    ("0xDBA56", "5D0DC7FF", "0x8EBA55", "0x4237B7", None),
+    ("0xDBA3B", "780DC7FF", "0x8EBA3A", "0x4237B7", None),
     ("0xDBB22", "4EC0C6FF", "0x8EBB21", "0x41EB74", None),
     ("0xDBB27", "7CC0C6FF", "0x8EBB26", "0x41EBA7", None),
 ]
@@ -834,10 +834,9 @@ def main() -> None:
         """,
     )
     tech_wrapper_expected = bytes.fromhex(
-        "8B44240485C07E46F70588D3510001000000743A"
-        "813C24BE474100742D813C24DD4741007424813C24F9474100741B"
+        "8B44240485C07E2BF70588D3510001000000741F"
         "813C244DDE46007412813C247CDE46007409813C24A5DE46007504"
-        "D1642404568B7424080131E95D0DC7FF"
+        "D1642404568B7424080131E9780DC7FF"
     )
     put(
         "tech_increment",
@@ -847,12 +846,6 @@ def main() -> None:
             jle native
             test dword ptr [0x51D388], 1
             jz native
-            cmp dword ptr [esp], 0x4147BE
-            je matched
-            cmp dword ptr [esp], 0x4147DD
-            je matched
-            cmp dword ptr [esp], 0x4147F9
-            je matched
             cmp dword ptr [esp], 0x46DE4D
             je matched
             cmp dword ptr [esp], 0x46DE7C
@@ -911,7 +904,7 @@ def main() -> None:
             if PAYLOAD_VA <= target_stock_va < PAYLOAD_VA + PAYLOAD_SIZE
             else target_stock_va
         )
-        entry = {
+        relocation_entry = {
             "offset": offset,
             "before": before,
             "kind": "rel32",
@@ -922,9 +915,9 @@ def main() -> None:
             "purpose": "relocate IDA-decoded VV5 current-feature cross-section rel32 operand for expanded 256 mode",
         }
         if skip_before:
-            entry["expanded_skip_before"] = skip_before
-            entry["purpose"] += "; preserve the exact expanded native-hook override"
-        expanded_shr_relocations.append(entry)
+            relocation_entry["expanded_skip_before"] = skip_before
+            relocation_entry["purpose"] += "; preserve the exact expanded native-hook override"
+        expanded_shr_relocations.append(relocation_entry)
     for offset, before, referenced_value in VV5_IDA_EXTERNAL_ABSOLUTE_RELOCATIONS:
         expanded_shr_relocations.append(
             {
@@ -1146,10 +1139,10 @@ def main() -> None:
     detoured_tech_hook = rel32_jump(0x4237B0, entry["tech_increment"])
     patch(0x1EB6F, stock_food_hook,
           detoured_food_hook,
-          "double positive non-Island-Event food after stock mastery adjustments")
+          "double eligible positive food-source deltas")
     patch(0x237B0, stock_tech_hook,
           detoured_tech_hook,
-          "double six exact positive-whitelist tech awards for the current save")
+          "double three exact positive-whitelist tech awards for the current save")
     patch(0x40A24, bytes.fromhex("8BC68B4C244C"),
           rel32_jump(0x440A24, entry["tech_ctor"], 6),
           "append the stock-styled Upgrades control to the Tech screen")
@@ -1242,7 +1235,7 @@ def main() -> None:
             "Mastery, Set Age to 18, and the historical Grant Running label. Grant "
             "Running is STOP/hidden contract evidence only; the legacy preference "
             "helper is not native ABI proof and no selectable or runtime-ready "
-            "Running action is exposed. VV5 Food Mastery is technology ID 4: the upgrade from level 1 to 2 costs 3,000 tech points and the upgrade from level 2 to 3 costs 40,000 tech points; central food writer 0x41EB40 applies positive A as A, A+floor(A/2), or 2A before food storage, statistics, and other downstream channels; zero and negative inputs bypass mastery. Ordinary collection return 0x414970 is eligible: base 6/35 becomes 6/35, 9/52, or 12/70 by mastery level. The Food Point Doubler runs after mastery and doubles the final positive eligible delta once. Island Event, startup, consumption, and unknown callers remain native. The stock Tech wrapper at 0x4237B0 is the exact six-return positive whitelist to .shr 0x7B2A00; 0x419EA3 clothing refunds remain native. The stock Food wrapper is the exact positive whitelist at 0x41EB6F to .shr 0x7B2B00. Expanded-256 restores both native five-byte hooks and keeps new doubler purchases unavailable pending complete rel32 relocation proof."
+            "Running action is exposed. VV5 Food Mastery is technology ID 4: native food-source adjustment happens before the Food Doubler, which doubles only the final positive source delta. Duplicate-collectible tech returns 0x4147BE, 0x4147DD, and 0x4147F9 plus the 0x419EA3 clothing refund remain native. The stock Tech wrapper at 0x4237B0 is the exact three-return positive whitelist to .shr 0x7B2A00. The stock Food wrapper is the exact positive whitelist at 0x41EB6F to .shr 0x7B2B00. Expanded-256 restores both native five-byte hooks and keeps new doubler purchases unavailable pending complete rel32 relocation proof."
         ),
         "output_tag": "Origins Exclusive Features",
         "companion_files": [
@@ -1259,10 +1252,11 @@ def main() -> None:
                 "sha256": "92946781980220E9D1A2E6C573925519934608F5215F4A0F8CE3B90088C5C65D",
             },
             "positive_tech_writer": "0x4237B0",
-            "tech_positive_returns": ["0x4147BE", "0x4147DD", "0x4147F9", "0x46DE4D", "0x46DE7C", "0x46DEA5"],
+            "tech_positive_returns": ["0x46DE4D", "0x46DE7C", "0x46DEA5"],
             "tech_excluded_refund_return": "0x419EA3",
             "tech_exclusions": [
                 "all 16 Island Event outcomes",
+                "Duplicate Collectibles (returns 0x4147BE, 0x4147DD, and 0x4147F9)",
                 "all eight writer tail paths",
                 "technology purchase/spending/deduction paths",
                 "zero and negative deltas",
@@ -1277,7 +1271,7 @@ def main() -> None:
                 "collection_return": "0x414970",
                 "collection_base_to_native": {"6": [6, 9, 12], "35": [35, 52, 70]},
             },
-            "collection_adjustment": "Ordinary collection return 0x414970 supplies base 6/35; native Food Mastery produces 6/35, 9/52, or 12/70 after the level 1 to 2 (3,000 tech points) and level 2 to 3 (40,000 tech points) upgrades. The Food Point Doubler must follow this transform and double the final positive eligible delta once.",
+            "collection_adjustment": "Food-source return 0x414970 supplies the base delta; native Food Mastery completes before the Food Point Doubler doubles the final positive source delta once.",
             "island_event_producers": ["Island Event, startup, consumption, and unknown callers remain native; unknown callers cannot match return 0x414970"],
             "tech_writer_hook": {
                 "virtual_address": "0x4237B0",
@@ -1286,10 +1280,10 @@ def main() -> None:
                 "after": "E94BF23800",
                 "wrapper_virtual_address": "0x7B2A00",
                 "wrapper_file_offset": "0xDBA00",
-                "wrapper_bytes": "8B44240485C07E46F70588D3510001000000743A813C24BE474100742D813C24DD4741007424813C24F9474100741B813C244DDE46007412813C247CDE46007409813C24A5DE46007504D1642404568B7424080131E95D0DC7FF",
+                "wrapper_bytes": "8B44240485C07E2BF70588D3510001000000741F813C244DDE46007412813C247CDE46007409813C24A5DE46007504D1642404568B7424080131E9780DC7FF",
                 "ownership_address": "0x51D388",
                 "ownership_mask": "0x1",
-                "eligible_returns": ["0x4147BE", "0x4147DD", "0x4147F9", "0x46DE4D", "0x46DE7C", "0x46DEA5"],
+                "eligible_returns": ["0x46DE4D", "0x46DE7C", "0x46DEA5"],
                 "excluded_refund_return": "0x419EA3",
                 "branch_destinations": ["0x7B2A4A", "0x7B2A4E", "0x4237B7"]
             },
@@ -1306,16 +1300,16 @@ def main() -> None:
                 "eligible_return": "0x414970",
                 "branch_destinations": ["0x41EB74", "0x41EBA7"]
             },
-            "hook_status": "stock-layout implemented: exact Tech six-return and Food positive-whitelist wrappers; expanded-256 restores both exact stock hooks and remains native for doubler runtime.",
+            "hook_status": "stock-layout implemented: exact Tech three-return and Food positive-whitelist wrappers; expanded-256 restores both exact stock hooks and remains native for doubler runtime.",
         },
         "doubler_composition_contract": {
             "stacking": [
-                "every exact-build collectible/collection effect that increases tech-point gain",
-                "native Food Mastery technology adjustment",
+                "positive earned tech deltas only",
+                "positive food-source deltas only",
             ],
-            "exclusions": ["Island Event outcomes"],
+            "exclusions": ["Island Event tech-point gain", "Duplicate Collectibles tech-point gain"],
             "food_mastery_status": "confirmed in exact-build disassembly; technology ID 4 and separate level 1 to 2 / level 2 to 3 native transforms documented",
-            "status": "stock-layout implemented: Tech and Food Doublers run after their native adjustments; expanded-256 keeps both native writers and disables only new doubler purchases.",
+            "status": "stock-layout implemented: only eligible earned/source deltas are doubled once; native writers continue storage/statistics updates for the doubled amount; expanded-256 keeps both native writers and disables only new doubler purchases.",
         },
         "doubler_purchase_status": {
             "status": "stock-layout Tech and Food Doubler purchase/remove/repurchase implemented; expanded-256 new purchases are marker-gated unavailable",
@@ -1388,6 +1382,14 @@ def main() -> None:
                     + len(VV5_IDA_EXTERNAL_ABSOLUTE_RELOCATIONS)
                 ),
             },
+            "ledger_sha256": hashlib.sha256(
+                json.dumps(
+                    expanded_shr_relocations,
+                    ensure_ascii=True,
+                    sort_keys=True,
+                    separators=(",", ":"),
+                ).encode("utf-8")
+            ).hexdigest().upper(),
             "patches": expanded_shr_relocations,
         },
     }

@@ -181,7 +181,7 @@ class VV5OriginsFeatureTests(unittest.TestCase):
             "0xDB01C", "0xDB021", "0xDB043", "0xDB055", "0xDB06C", "0xDB08E", "0xDB096",
             "0xDB0E1", "0xDB103", "0xDB115", "0xDB12C", "0xDB14E", "0xDB156", "0xDB1A4",
             "0xDB272", "0xDB283", "0xDB292", "0xDB38D", "0xDB3C3", "0xDB3ED", "0xDB415",
-            "0xDB437", "0xDB45A", "0xDB462", "0xDB46C", "0xDB7AC", "0xDBA56", "0xDBB22", "0xDBB27",
+            "0xDB437", "0xDB45A", "0xDB462", "0xDB46C", "0xDB7AC", "0xDBA3B", "0xDBB22", "0xDBB27",
         }
         self.assertEqual(rel32, expected_rel32)
         self.assertIn(
@@ -332,7 +332,10 @@ class VV5OriginsFeatureTests(unittest.TestCase):
         contract = manifest["doubler_composition_contract"]
         self.assertIn("stock-layout implemented", evidence["hook_status"])
         self.assertIn("expanded-256", contract["status"])
-        self.assertEqual(contract["exclusions"], ["Island Event outcomes"])
+        self.assertEqual(
+            contract["exclusions"],
+            ["Island Event tech-point gain", "Duplicate Collectibles tech-point gain"],
+        )
         self.assertEqual(
             manifest["doubler_purchase_status"]["new_purchase"],
             "Tech and Food available in stock layout at 500,000 tech points after their exact positive-whitelist wrappers; both unavailable in expanded-256",
@@ -342,7 +345,7 @@ class VV5OriginsFeatureTests(unittest.TestCase):
             "full-price repurchase after zero-cost/no-refund removal in stock layout for both doublers; expanded-256 remains unavailable for new purchases",
         )
 
-    def test_tech_wrapper_exact_stock_bytes_and_six_return_whitelist(self) -> None:
+    def test_tech_wrapper_exact_stock_bytes_and_three_return_whitelist(self) -> None:
         evidence = self.feature["doubler_evidence"]["tech_writer_hook"]
         self.assertEqual(evidence["virtual_address"], "0x4237B0")
         self.assertEqual(evidence["file_offset"], "0x237B0")
@@ -351,18 +354,17 @@ class VV5OriginsFeatureTests(unittest.TestCase):
         self.assertEqual(evidence["wrapper_virtual_address"], "0x7B2A00")
         self.assertEqual(evidence["wrapper_file_offset"], "0xDBA00")
         expected = (
-            "8B44240485C07E46F70588D3510001000000743A"
-            "813C24BE474100742D813C24DD4741007424813C24F9474100741B"
+            "8B44240485C07E2BF70588D3510001000000741F"
             "813C244DDE46007412813C247CDE46007409813C24A5DE46007504"
-            "D1642404568B7424080131E95D0DC7FF"
+            "D1642404568B7424080131E9780DC7FF"
         )
         wrapper = bytes.fromhex(evidence["wrapper_bytes"])
         self.assertEqual(wrapper.hex().upper(), expected)
-        self.assertEqual(len(wrapper), 90)
+        self.assertEqual(len(wrapper), 63)
         self.assertEqual(evidence["ownership_mask"], "0x1")
         self.assertEqual(
             evidence["eligible_returns"],
-            ["0x4147BE", "0x4147DD", "0x4147F9", "0x46DE4D", "0x46DE7C", "0x46DEA5"],
+            ["0x46DE4D", "0x46DE7C", "0x46DEA5"],
         )
         self.assertEqual(evidence["excluded_refund_return"], "0x419EA3")
         self.assertEqual(evidence["branch_destinations"], ["0x7B2A4A", "0x7B2A4E", "0x4237B7"])
@@ -370,6 +372,7 @@ class VV5OriginsFeatureTests(unittest.TestCase):
             self.feature["doubler_evidence"]["tech_exclusions"],
             [
                 "all 16 Island Event outcomes",
+                "Duplicate Collectibles (returns 0x4147BE, 0x4147DD, and 0x4147F9)",
                 "all eight writer tail paths",
                 "technology purchase/spending/deduction paths",
                 "zero and negative deltas",
@@ -377,7 +380,7 @@ class VV5OriginsFeatureTests(unittest.TestCase):
             ],
         )
         payload_offset = 0xDB000 + (0x7B2A00 - 0x7B2000)
-        self.assertEqual(self.payload[payload_offset - 0xDB000 : payload_offset - 0xDB000 + 90], wrapper)
+        self.assertEqual(self.payload[payload_offset - 0xDB000 : payload_offset - 0xDB000 + 63], wrapper)
 
     def test_tech_mode_marker_and_purchase_matrix(self) -> None:
         self.assertIn("tech_owned_remove", self.source)
@@ -413,8 +416,8 @@ class VV5OriginsFeatureTests(unittest.TestCase):
                 self.assertEqual(bytes(rendered[0x1F1E6 : 0x1F1EA]).hex().upper(), expected_marker)
 
     def test_tech_positive_whitelist_reference_matrix(self) -> None:
-        eligible = {0x4147BE, 0x4147DD, 0x4147F9, 0x46DE4D, 0x46DE7C, 0x46DEA5}
-        excluded = {0x419EA3, 0x420000, 0x46CED1}
+        eligible = {0x46DE4D, 0x46DE7C, 0x46DEA5}
+        excluded = {0x4147BE, 0x4147DD, 0x4147F9, 0x419EA3, 0x420000, 0x46CED1}
 
         def adjusted(owner: bool, return_va: int, delta: int) -> int:
             if not owner or delta <= 0 or return_va not in eligible:
@@ -431,7 +434,7 @@ class VV5OriginsFeatureTests(unittest.TestCase):
         for delta in (0, -1, -500000):
             self.assertEqual(adjusted(True, 0x4147BE, delta), delta)
         # The wrapper receives the final positive delta and doubles only once.
-        self.assertEqual(adjusted(True, 0x4147BE, 5), 10)
+        self.assertEqual(adjusted(True, 0x46DE4D, 5), 10)
 
     def test_food_wrapper_exact_stock_bytes_and_whitelist(self) -> None:
         evidence = self.feature["doubler_evidence"]["stock_hook"]
@@ -554,7 +557,7 @@ class VV5OriginsFeatureTests(unittest.TestCase):
         ).hexdigest().upper()
         self.assertEqual(
             digest,
-            "8157514D353E7331C8B7827B61C741BA62EBA822E1830BFA70A343FEBB09DC2B",
+            "E9FD02012CC3B0A78F26B2A4D491B48EF4599E8E0AB05300458FEDB8494F1F31",
         )
         self.assertEqual(
             self.feature["companion_files"][0]["sha256"],
