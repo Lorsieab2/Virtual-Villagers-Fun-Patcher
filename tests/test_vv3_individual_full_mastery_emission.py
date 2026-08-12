@@ -29,20 +29,22 @@ class VV3IndividualEmissionTests(unittest.TestCase):
         cls.builder = load_builder()
         cls.page, cls.details = cls.builder.build_page()
         cls.helper = cls.page[0x100 : 0x100 + cls.details["helper_length"]]
-        cls.insns = list(Cs(CS_ARCH_X86, CS_MODE_32).disasm(cls.helper, 0x6E2100))
+        cls.insns = list(Cs(CS_ARCH_X86, CS_MODE_32).disasm(cls.helper, 0x6E0100))
 
-    def test_dispatcher_and_metadata_are_exact_disabled_composition(self):
+    def test_dispatcher_and_metadata_are_exact_public_composition(self):
         b = self.builder
-        self.assertEqual(b.DISPATCHER.hex().upper(), "83FB010F84F700000083FB020F84EED8FFFFE9D618DCFF")
-        self.assertEqual(b.HOOK_BEFORE, bytes.fromhex("E938C02300"))
-        self.assertEqual(b.HOOK_AFTER, bytes.fromhex("E938E72300"))
+        self.assertEqual(b.DISPATCHER.hex().upper(), "83FB010F85E539DCFFE8F2000000E9C337DCFF")
+        self.assertEqual(b.HOOK_BEFORE, bytes.fromhex("E926010000"))
+        self.assertEqual(b.HOOK_AFTER, bytes.fromhex("E938C72300"))
         manifest = json.loads(MANIFEST.read_text(encoding="utf-8"))
         mapping = json.loads(MAP.read_text(encoding="utf-8"))
-        self.assertFalse(manifest["enabled"])
-        self.assertTrue(manifest["catalog_hidden"])
-        self.assertEqual(manifest["dependencies"], ["vv3_individual_grant_running_candidate"])
-        self.assertEqual(manifest["base_chain"]["collection_progression_parent_sha256"], "8DD1CE07C885DDA3DD038D0B2F5C4F019D8C5BAC5DCA29F9799CE0C7909D2CEA")
-        self.assertEqual(manifest["base_chain"]["immediate_fixed_parent_sha256"], "78758FD0003842AEFAC092A47874329C9C103F9AD46483E6ECA71291EFD3E382")
+        self.assertTrue(manifest["enabled"])
+        self.assertFalse(manifest["catalog_hidden"])
+        self.assertEqual(manifest["dependencies"], ["vv3_full_mastery_all_stage_a_candidate"])
+        self.assertEqual(manifest["base_chain"]["collection_progression_parent_sha256"], "22456EEE7525066A1125EE7FA92E4EFC71CAACD81056D290EC357226889031A3")
+        self.assertEqual(manifest["base_chain"]["immediate_fixed_parent_sha256"], "1FC6CEFF644928B6EFB4802E8E26D2FE2098AAEA2233D2F00AB59E9113BB9225")
+        self.assertNotIn("running_command2", manifest["base_chain"])
+        self.assertEqual(mapping["dispatcher"]["abi"], "cmp ebx,1; jne 0x4A39EE; call 0x6E0100; jmp 0x4A37D6")
         self.assertEqual(mapping["skill_order"], ["Farming", "Building", "Research", "Healing", "Parenting"])
 
     def test_helper_decodes_contiguously_and_has_native_targets(self):
@@ -122,6 +124,14 @@ class VV3IndividualEmissionTests(unittest.TestCase):
         self.assertIn(b"Press OK to confirm, or Cancel.\0", self.page)
         self.assertIn(b"No tech points have been deducted.", self.page)
         self.assertIn(b"Full Mastery dependencies are unavailable.", self.page)
+
+    def test_exact_stock_native_sources_and_public_parents_are_authenticated(self):
+        parents, regions = self.builder.verify_source_and_parents()
+        self.assertEqual(
+            {mode: self.builder.sha(data) for mode, data in parents.items()},
+            self.builder.PARENTS,
+        )
+        self.assertEqual(set(regions), set(self.builder.SOURCE_REGION_SHA256))
 
     def test_idok_one_dominates_first_writer_and_dependency_route_is_guarded(self):
         cmp_positions = [i.address for i in self.insns if i.mnemonic == "cmp" and i.op_str == "eax, 1"]

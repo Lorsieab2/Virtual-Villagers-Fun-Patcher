@@ -20,7 +20,7 @@ BASE_OUT = OUT_DIR / "vv3_origins_full_mastery_base_candidate.json"
 FEATURE_OUT = OUT_DIR / "vv3_full_mastery_all_candidate.json"
 MAP_OUT = OUT_DIR / "vv3_full_mastery_all_candidate_map.json"
 DOC_OUT = OUTPUT_ROOT / "docs" / "vv3-full-mastery-stage-a-candidate.md"
-COMPANION = OUT_DIR / "VVFP VV3 Full Mastery Candidate.dll"
+COMPANION = OUT_DIR / "VVFP VV3 Safe Upgrade Foundation.dll"
 
 sys.path.insert(0, str(ROOT / ".tools" / "keystone"))
 sys.path.insert(0, str(ROOT / ".tools" / "keystone-runtime"))
@@ -37,6 +37,15 @@ SHOW_DIALOG_SIZE = 0x60
 TECH_MENU_OFFSET = 0x340
 TECH_MENU_SIZE = 0x310
 CURE_OFFSET = 0x7B664
+TECH_COMMAND_HOOK_OFFSET = 0xA35EF
+TECH_COMMAND_HOOK_VA = IMAGE_BASE + TECH_COMMAND_HOOK_OFFSET
+TECH_COMMAND_HOOK_BEFORE = bytes.fromhex("8B049D543F4A00")
+TECH_COMMAND_GUARD_OFFSET = 0x7B721
+TECH_COMMAND_GUARD_VA = IMAGE_BASE + TECH_COMMAND_GUARD_OFFSET
+TECH_COMMAND_GUARD_SIZE = 0x20
+DETAIL_COMMAND_HOOK_OFFSET = 0xA38C3
+DETAIL_COMMAND_HOOK_VA = IMAGE_BASE + DETAIL_COMMAND_HOOK_OFFSET
+DETAIL_COMMAND_HOOK_BEFORE = bytes.fromhex("83FB027525")
 APPEND_OFFSET = 0xCB000
 PAGE_SIZE = 0x1000
 SLOT_OFFSET = 0x100
@@ -634,6 +643,33 @@ def build_base_payload(active_payload: bytes, page_va: int) -> bytes:
     return bytes(payload)
 
 
+def build_tech_command_guard() -> tuple[bytes, bytes]:
+    """Reject legacy command 5 before its price load and preserve all others."""
+    hook = asm(f"jmp 0x{TECH_COMMAND_GUARD_VA:X}", TECH_COMMAND_HOOK_VA).ljust(
+        len(TECH_COMMAND_HOOK_BEFORE), b"\x90"
+    )
+    guard = asm(
+        f"""
+            cmp ebx, 5
+            je 0x4A34C6
+            mov eax, dword ptr [ebx*4 + 0x4A3F54]
+            jmp 0x4A35F6
+        """,
+        TECH_COMMAND_GUARD_VA,
+    )
+    if len(hook) != len(TECH_COMMAND_HOOK_BEFORE) or len(guard) > TECH_COMMAND_GUARD_SIZE:
+        raise RuntimeError("VV3 Tech command-5 containment does not fit its exact caves")
+    return hook, guard.ljust(TECH_COMMAND_GUARD_SIZE, b"\0")
+
+
+def build_detail_command_guard() -> bytes:
+    """Reject every legacy Detail command before its price load in phase 1."""
+    guard = asm("jmp 0x4A39EE", DETAIL_COMMAND_HOOK_VA)
+    if len(guard) != len(DETAIL_COMMAND_HOOK_BEFORE):
+        raise RuntimeError("VV3 Detail command containment does not fit its exact hook")
+    return guard
+
+
 def main() -> None:
     stock = STOCK.read_bytes()
     expected_sha = "8BC5DB382D02BC5C21AD5F607580D60FF44A6519CC7EB133F03113BAACAE6503"
@@ -667,6 +703,8 @@ def main() -> None:
     stock_payload = build_base_payload(
         active_payload, STOCK_LAYOUTS["collection_progression"]["page_va"]
     )
+    tech_hook, tech_guard = build_tech_command_guard()
+    detail_guard = build_detail_command_guard()
     base = deepcopy(active)
     base["id"] = "vv3_enable_origins_exclusive_features_full_mastery_candidate"
     base["name"] = "DISABLED Candidate: VV3 Origins Full Mastery Extension Base"
@@ -674,12 +712,27 @@ def main() -> None:
     base["certification_status"] = (
         "disabled Stage-A command-7 extension base awaiting Sol emitted-byte certification"
     )
+    base["description"] = (
+        "Stock-only VV3 Origins Upgrades containment phase 1. Time Warp, Island Event, "
+        "Barrel of Babies, displayed-but-currently-unavailable Tech/Food doubler behavior, "
+        "and the separately certified "
+        "village-wide command 7 bytes are preserved. Origins-only Tech resources expose "
+        "commands 0-4; doubler repurchase is temporarily disabled. The dependent "
+        "village-Full-Mastery resource also exposes command 7. "
+        "Legacy Cure command 5 is absent from both Tech resources and the raw 0xA35EF "
+        "gate routes through raw 0x7B721 to reject it before price, deduction, or mutation. "
+        "The Villager Detail Upgrades button is retained; the parent foundation resource has "
+        "background+Cancel only and raw 0xA38C3 exits before every legacy price/deduction/"
+        "mutation path. The public selected-villager Full Mastery child overlays command 1 "
+        "and replaces that guard only when the child is selected."
+    )
     base["dependencies"] = []
     base["companion_files"] = [
         {
-            "source": "data/candidates/VVFP VV3 Full Mastery Candidate.dll",
+            "source": "data/candidates/VVFP VV3 Safe Upgrade Foundation.dll",
             "destination": "VVFP VV3 Full Mastery Candidate.dll",
             "sha256": sha(COMPANION.read_bytes()),
+            "size": COMPANION.stat().st_size,
         }
     ]
     base["patches"] = [
@@ -700,6 +753,40 @@ def main() -> None:
     payload_item["purpose"] = (
         "install the base Origins core with a guarded command-7 no-op extension slot"
     )
+    # Apply these after the broad payload record so both install and reversed
+    # uninstall retain exact guards for the two containment sites.
+    base["patches"].extend(
+        [
+            {
+                "offset": f"0x{TECH_COMMAND_HOOK_OFFSET:X}",
+                "before": TECH_COMMAND_HOOK_BEFORE.hex().upper(),
+                "after": tech_hook.hex().upper(),
+                "purpose": "route every Tech command through the command-5 pre-price containment gate",
+            },
+            {
+                "offset": f"0x{TECH_COMMAND_GUARD_OFFSET:X}",
+                "before": "00" * TECH_COMMAND_GUARD_SIZE,
+                "after": tech_guard.hex().upper(),
+                "purpose": "reject legacy Tech command 5 before price, deduction, or mutation and resume commands 0-4 unchanged",
+            },
+            {
+                "offset": f"0x{DETAIL_COMMAND_HOOK_OFFSET:X}",
+                "before": DETAIL_COMMAND_HOOK_BEFORE.hex().upper(),
+                "after": detail_guard.hex().upper(),
+                "purpose": "phase-1 reject every legacy Detail command before price, deduction, or mutation",
+            },
+        ]
+    )
+    base["upgrade_surface_contract"] = {
+        "tech_origins_only_commands": [0, 1, 2, 3, 4],
+        "tech_with_village_full_mastery_commands": [0, 1, 2, 3, 4, 7],
+        "tech_rejected_command": 5,
+        "tech_hook_raw": "0xA35EF",
+        "tech_guard_raw": "0x7B721",
+        "detail_base_commands": [],
+        "detail_with_individual_full_mastery_commands": [1],
+        "detail_hook_raw": "0xA38C3",
+    }
     base.pop("patch_mode_overrides", None)
     base["unsupported_patch_modes"] = list(EXPANDED_MODES)
     base["pe_append_transaction"] = {
@@ -775,61 +862,41 @@ def main() -> None:
         PatcherError,
         _pe_checksum_layout,
         load_builds,
-        load_fun_patches,
         render_patched_bytes,
     )
 
     build = next(item for item in load_builds() if item.id == "vv3")
-    compatible = [
-        item
-        for item in load_fun_patches()
-        if item.game_id == "vv3"
-        and item.id
-        not in {
-            "vv3_enable_origins_exclusive_features",
-            "vv3_all_villagers_like_running",
-            "vv3_full_mastery_all_stage_a_candidate",
-            "vv3_full_heal_cure_all_candidate",
-            # Preserve the already-certified historical composition identity.
-            # The later robe feature proves its Full Mastery composition in
-            # its own feature-owned test without rewriting this candidate map.
-            "vv3_everyone_tries_on_robe",
-        }
-    ]
-    # Preserve the historical all-current compatibility projection byte-for-
-    # byte without re-enabling the withdrawn Likes-only record in the loader or
-    # public catalog.  This is evidence generation only; production selection
-    # remains fail-closed on the revocation metadata.
-    withdrawn_running = ROOT / "data" / "candidates" / "vv3_individual_grant_running_candidate.json"
-    if withdrawn_running.is_file():
-        historical = json.loads(withdrawn_running.read_text(encoding="utf-8"))
-        if historical.get("revocation", {}).get("status") == "withdrawn":
-            compatible.append(FunPatch(historical))
+    statistics_bundle = json.loads(
+        (ROOT / "data" / "statistics_features.json").read_text(encoding="utf-8")
+    )
+    statistics = FunPatch(
+        next(item for item in statistics_bundle["features"] if item["id"] == "vv3_write_village_statistics")
+    )
     renders: dict[str, object] = {}
     for mode in STOCK_LAYOUTS:
-        baseline, _ = render_patched_bytes(STOCK, build, mode)
+        baseline, _ = render_patched_bytes(STOCK, build, mode, _fun_patches_override=[])
         base_render, _ = render_patched_bytes(
             STOCK, build, mode, _fun_patches_override=[FunPatch(base)]
         )
         feature_render, applied = render_patched_bytes(
             STOCK, build, mode, _fun_patches_override=[FunPatch(base), FunPatch(feature)]
         )
-        all_render, all_applied = render_patched_bytes(
+        statistics_render, statistics_applied = render_patched_bytes(
             STOCK,
             build,
             mode,
-            _fun_patches_override=[FunPatch(base), FunPatch(feature), *compatible],
+            _fun_patches_override=[FunPatch(base), FunPatch(feature), statistics],
         )
         checksum_offset, _ = _pe_checksum_layout(feature_render)
         renders[mode] = {
             "baseline_sha256": sha(bytes(baseline)),
             "base_only_sha256": sha(bytes(base_render)),
             "base_plus_mastery_sha256": sha(bytes(feature_render)),
-            "all_current_compatible_sha256": sha(bytes(all_render)),
+            "statistics_composition_sha256": sha(bytes(statistics_render)),
             "size": len(feature_render),
             "pe_checksum": f"0x{struct.unpack_from('<I', feature_render, checksum_offset)[0]:08X}",
             "owners": sorted({item["owner"] for item in applied}),
-            "all_current_owners": sorted({item["owner"] for item in all_applied}),
+            "statistics_owners": sorted({item["owner"] for item in statistics_applied}),
         }
     rejected_modes: dict[str, str] = {}
     for mode in EXPANDED_MODES:
@@ -847,12 +914,17 @@ def main() -> None:
 
     artifact = {
         "acceptance_commit": ACCEPTANCE_COMMIT,
+        "containment_status": (
+            "foundation received independent static GO; selected-villager command 1 "
+            "is owned by the separate public stock-only child"
+        ),
+        "upgrade_surface_contract": base["upgrade_surface_contract"],
         "source": {"size": len(stock), "sha256": expected_sha},
         "base_manifest_sha256": sha(BASE_OUT.read_bytes()),
         "feature_manifest_sha256": sha(FEATURE_OUT.read_bytes()),
         "base_stock_payload_sha256": sha(stock_payload),
         "companion": {
-            "path": "data/candidates/VVFP VV3 Full Mastery Candidate.dll",
+            "path": "data/candidates/VVFP VV3 Safe Upgrade Foundation.dll",
             "size": COMPANION.stat().st_size,
             "sha256": sha(COMPANION.read_bytes()),
             "exports": export_map(COMPANION.read_bytes()),
@@ -925,18 +997,22 @@ def main() -> None:
     }
     MAP_OUT.write_text(json.dumps(artifact, indent=2) + "\n", encoding="utf-8")
     DOC_OUT.write_text(
-        "# VV3 Full Mastery disabled Stage-A candidate\n\n"
-        "Generated from stock reacquisition acceptance contract "
-        f"`{ACCEPTANCE_COMMIT}`. Both the base-extension and dependent command-7 "
-        "records remain `enabled:false` and catalog-hidden pending independent "
-        "Sol emitted-byte certification.\n\n"
+        "# VV3 safe upgrade surfaces: containment phase 1\n\n"
+        "The existing command-7 implementation remains generated from stock "
+        f"reacquisition acceptance contract `{ACCEPTANCE_COMMIT}`. The new resource "
+        "projection and command-containment composition await independent review.\n\n"
         f"- Companion SHA-256: `{artifact['companion']['sha256']}`\n"
         f"- Stock installed slot SHA-256: `{artifact['layouts']['collection_progression']['installed_slot_sha256']}`\n"
         f"- Stock base+mastery render SHA-256: `{renders['collection_progression']['base_plus_mastery_sha256']}`\n"
         f"- Corrected entry SHA-256: `{CORRECTED_ENTRY_SHA256}`\n\n"
-        "The candidate exposes command 7 only inside its disabled base dependency. "
-        "Commands 6/8, withdrawn Running bytes, the old 944-byte payload, direct "
-        "skill stores, ownership, Remove, and save-format changes are absent. "
+        "Origins-only Tech exposes commands 0-4; the dependent village-Full-Mastery "
+        "screen adds certified command 7. Cure command 5 is absent from resources and "
+        "rejected before its price load at raw 0xA35EF through raw 0x7B721. The Detail "
+        "button remains; its foundation dialog has background+Cancel only and raw 0xA38C3 "
+        "rejects all legacy Detail commands before price/deduction/mutation. The public "
+        "selected-villager child overlays command 1 only when selected. Commands "
+        "6/8, withdrawn Running bytes, direct skill stores, ownership, Remove, and "
+        "save-format changes are absent. "
         "Both expanded-256 modes reject this stock-only candidate and emit no "
         "Full Mastery page, slot, UI, or walker bytes.\n",
         encoding="utf-8",

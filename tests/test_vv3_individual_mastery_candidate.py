@@ -40,13 +40,13 @@ def record(values=(99, 100, 100, 100, 100), *, identity="v0", preference=4):
 
 
 class VV3IndividualMasteryCandidateTests(unittest.TestCase):
-    def test_disabled_metadata_and_exact_contract(self):
+    def test_public_metadata_and_exact_contract(self):
         manifest = json.loads(MANIFEST.read_text(encoding="utf-8"))
         mapping = json.loads(MAP.read_text(encoding="utf-8"))
-        self.assertFalse(manifest["enabled"])
-        self.assertTrue(manifest["catalog_hidden"])
-        self.assertFalse(manifest["catalog_enabled"])
-        self.assertEqual(manifest["dependencies"], ["vv3_individual_grant_running_candidate"])
+        self.assertTrue(manifest["enabled"])
+        self.assertFalse(manifest["catalog_hidden"])
+        self.assertTrue(manifest["catalog_enabled"])
+        self.assertEqual(manifest["dependencies"], ["vv3_full_mastery_all_stage_a_candidate"])
         self.assertEqual(manifest["transaction"]["command"], 1)
         self.assertEqual(manifest["transaction"]["price"], PRICE)
         self.assertEqual(mapping["transaction"]["native_writer"], "0x455740")

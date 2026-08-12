@@ -2,13 +2,14 @@
   "id": "vv3_individual_full_mastery_candidate",
   "game_id": "vv3",
   "name": "Grant Full Mastery to Selected Villager",
-  "enabled": false,
-  "catalog_hidden": true,
-  "catalog_enabled": false,
-  "runtime_player_status": "pending",
-  "certification_status": "disabled emitted candidate; independent runtime and loader recertification pending",
+  "description": "Stock-only command-1 transaction for the selected current living villager. It raises only below-100 skills through the native writer, postverifies exact 100 values, runs the native evaluator once, and deducts 100,000 tech points once only after final identity, snapshot, and funds reacquisition.",
+  "enabled": true,
+  "catalog_hidden": false,
+  "catalog_enabled": true,
+  "runtime_player_status": "pending live player confirmation",
+  "certification_status": "public stock-only emitted implementation; independent static re-review and runtime/player confirmation pending",
   "dependencies": [
-    "vv3_individual_grant_running_candidate"
+    "vv3_full_mastery_all_stage_a_candidate"
   ],
   "supported_modes": [
     "collection_progression",
@@ -19,7 +20,7 @@
     "experimental_expanded_256_progression"
   ],
   "provenance": {
-    "design_source": "D262/D263",
+    "design_source": "D262/D263 exact-100 native transaction",
     "implementation_commit": null,
     "audit_commit": null,
     "acceptance_commit": null
@@ -51,7 +52,7 @@
       "+0xF10 != 0",
       "signed +0xE78 > 0"
     ],
-    "population_note": "VV3 has no independently proved Heathen/skeleton discriminator in this route; the supported predicate is active nonzero plus signed positive health, and the candidate remains disabled pending independent lifecycle proof."
+    "population_note": "The selected current living villager is the exact current physical index 0..149 whose active byte is nonzero and signed health is positive."
   },
   "skills": {
     "order": [
@@ -85,28 +86,29 @@
   },
   "base_chain": {
     "stock_sha256": "8BC5DB382D02BC5C21AD5F607580D60FF44A6519CC7EB133F03113BAACAE6503",
-    "collection_progression_parent_sha256": "8DD1CE07C885DDA3DD038D0B2F5C4F019D8C5BAC5DCA29F9799CE0C7909D2CEA",
-    "immediate_fixed_parent_sha256": "78758FD0003842AEFAC092A47874329C9C103F9AD46483E6ECA71291EFD3E382",
-    "dll_sha256": "9F866CB6F92C745CD2AA7009AEC4EB70FA5521EFF0C8F7BABE2058BB4D2F8533",
-    "running_command2": "0x6DF900"
+    "collection_progression_parent_sha256": "22456EEE7525066A1125EE7FA92E4EFC71CAACD81056D290EC357226889031A3",
+    "immediate_fixed_parent_sha256": "1FC6CEFF644928B6EFB4802E8E26D2FE2098AAEA2233D2F00AB59E9113BB9225",
+    "direct_dependency": "vv3_full_mastery_all_stage_a_candidate",
+    "foundation_dll_sha256": "A99584788F1726AF2DFDAE83BC9F42DE82DBD2DBA6E1ECD56222D2BDACB47681",
+    "dll_sha256": "8DB27C9208C0060046513078DF53A4DC8D7347AF5A9FD27177803E9388648BEE"
   },
   "companion_files": [
     {
-      "source": "data/candidates/VVFP VV3 Full Heal Candidate.dll",
+      "source": "data/candidates/VVFP VV3 Safe Upgrades.dll",
       "destination": "VVFP VV3 Full Mastery Candidate.dll",
-      "sha256": "9F866CB6F92C745CD2AA7009AEC4EB70FA5521EFF0C8F7BABE2058BB4D2F8533",
+      "sha256": "8DB27C9208C0060046513078DF53A4DC8D7347AF5A9FD27177803E9388648BEE",
       "size": 298496,
-      "preimage_sha256": "35FB96199E745C7D8054FF6A12851B9E09225E3E41D0CE04012604E74968C0D5",
-      "restore_source": "data/candidates/VVFP VV3 Full Mastery Candidate.dll",
-      "restore_sha256": "35FB96199E745C7D8054FF6A12851B9E09225E3E41D0CE04012604E74968C0D5"
+      "preimage_sha256": "A99584788F1726AF2DFDAE83BC9F42DE82DBD2DBA6E1ECD56222D2BDACB47681",
+      "restore_source": "data/candidates/VVFP VV3 Safe Upgrade Foundation.dll",
+      "restore_sha256": "A99584788F1726AF2DFDAE83BC9F42DE82DBD2DBA6E1ECD56222D2BDACB47681"
     }
   ],
   "patches": [
     {
       "offset": "0xA38C3",
-      "before": "E938C02300",
-      "after": "E938E72300",
-      "purpose": "guarded command-1 dispatcher composition"
+      "before": "E926010000",
+      "after": "E938C72300",
+      "purpose": "replace the phase-1 reject-all guard with the command-1-only dispatcher"
     }
   ],
   "pe_append_transaction": {
@@ -114,141 +116,160 @@
     "section_name": ".vv3im",
     "append_source": "generated:vv3_individual_full_mastery_page",
     "append_length": 4096,
-    "section_rva": "0x2E2000",
-    "section_va": "0x6E2000",
+    "section_rva": "0x2E0000",
+    "section_va": "0x6E0000",
     "section_characteristics": "0x60000020",
-    "header_offset": "0x340",
-    "section_count_before": 8,
-    "section_count_after": 9,
-    "size_of_image_before": "0x2E2000",
-    "size_of_image_after": "0x2E3000",
-    "original_file_size": "0xCE000",
-    "append_offset": "0xCE000",
-    "page_sha256": "9391F157BD26BD35EB6BA058D20E8D13ED0E89FE65FE7AF87CD833279BBBDA78",
+    "header_offset": "0x2F0",
+    "section_count_before": 6,
+    "section_count_after": 7,
+    "size_of_image_before": "0x2E0000",
+    "size_of_image_after": "0x2E1000",
+    "original_file_size": "0xCC000",
+    "append_offset": "0xCC000",
+    "page_sha256": "9E18B5501456663F7328B23FDFA3E81CE2DA21BE04F1EFD8FCEFAB88EA5C5EBA",
     "header_patches": [
       {
         "offset": "0x10E",
-        "before": "0800",
-        "after": "0900",
+        "before": "0600",
+        "after": "0700",
         "purpose": "add owned .vv3im section"
       },
       {
         "offset": "0x158",
-        "before": "00202E00",
-        "after": "00302E00",
+        "before": "00002E00",
+        "after": "00102E00",
         "purpose": "extend SizeOfImage for .vv3im"
       },
       {
-        "offset": "0x340",
+        "offset": "0x2F0",
         "before": "00000000000000000000000000000000000000000000000000000000000000000000000000000000",
-        "after": "2E767633696D00000010000000202E000010000000E00C0000000000000000000000000020000060",
+        "after": "2E767633696D00000010000000002E000010000000C00C0000000000000000000000000020000060",
         "purpose": "write owned .vv3im section header"
       }
     ],
     "parent_hashes": {
-      "collection_progression": "8DD1CE07C885DDA3DD038D0B2F5C4F019D8C5BAC5DCA29F9799CE0C7909D2CEA",
-      "immediate_fixed": "78758FD0003842AEFAC092A47874329C9C103F9AD46483E6ECA71291EFD3E382"
+      "collection_progression": "22456EEE7525066A1125EE7FA92E4EFC71CAACD81056D290EC357226889031A3",
+      "immediate_fixed": "1FC6CEFF644928B6EFB4802E8E26D2FE2098AAEA2233D2F00AB59E9113BB9225"
     },
     "layouts": {
       "collection_progression": {
-        "original_file_size": "0xCE000",
-        "append_offset": "0xCE000",
+        "original_file_size": "0xCC000",
+        "append_offset": "0xCC000",
         "append_source": "generated:vv3_individual_full_mastery_page",
         "append_length": "0x1000",
-        "virtual_address": "0x6E2000",
-        "section_rva": "0x2E2000",
+        "virtual_address": "0x6E0000",
+        "section_rva": "0x2E0000",
         "section_name": ".vv3im",
         "section_characteristics": "0x60000020",
         "header_patches": [
           {
             "offset": "0x10E",
-            "before": "0800",
-            "after": "0900",
+            "before": "0600",
+            "after": "0700",
             "purpose": "add owned .vv3im section"
           },
           {
             "offset": "0x158",
-            "before": "00202E00",
-            "after": "00302E00",
+            "before": "00002E00",
+            "after": "00102E00",
             "purpose": "extend SizeOfImage for .vv3im"
           },
           {
-            "offset": "0x340",
+            "offset": "0x2F0",
             "before": "00000000000000000000000000000000000000000000000000000000000000000000000000000000",
-            "after": "2E767633696D00000010000000202E000010000000E00C0000000000000000000000000020000060",
+            "after": "2E767633696D00000010000000002E000010000000C00C0000000000000000000000000020000060",
             "purpose": "write owned .vv3im section header"
           }
         ],
-        "page_sha256": "9391F157BD26BD35EB6BA058D20E8D13ED0E89FE65FE7AF87CD833279BBBDA78",
+        "page_sha256": "9E18B5501456663F7328B23FDFA3E81CE2DA21BE04F1EFD8FCEFAB88EA5C5EBA",
         "purpose": "append guarded VV3 individual Full Mastery .vv3im page"
       },
       "immediate_fixed": {
-        "original_file_size": "0xCE000",
-        "append_offset": "0xCE000",
+        "original_file_size": "0xCC000",
+        "append_offset": "0xCC000",
         "append_source": "generated:vv3_individual_full_mastery_page",
         "append_length": "0x1000",
-        "virtual_address": "0x6E2000",
-        "section_rva": "0x2E2000",
+        "virtual_address": "0x6E0000",
+        "section_rva": "0x2E0000",
         "section_name": ".vv3im",
         "section_characteristics": "0x60000020",
         "header_patches": [
           {
             "offset": "0x10E",
-            "before": "0800",
-            "after": "0900",
+            "before": "0600",
+            "after": "0700",
             "purpose": "add owned .vv3im section"
           },
           {
             "offset": "0x158",
-            "before": "00202E00",
-            "after": "00302E00",
+            "before": "00002E00",
+            "after": "00102E00",
             "purpose": "extend SizeOfImage for .vv3im"
           },
           {
-            "offset": "0x340",
+            "offset": "0x2F0",
             "before": "00000000000000000000000000000000000000000000000000000000000000000000000000000000",
-            "after": "2E767633696D00000010000000202E000010000000E00C0000000000000000000000000020000060",
+            "after": "2E767633696D00000010000000002E000010000000C00C0000000000000000000000000020000060",
             "purpose": "write owned .vv3im section header"
           }
         ],
-        "page_sha256": "9391F157BD26BD35EB6BA058D20E8D13ED0E89FE65FE7AF87CD833279BBBDA78",
+        "page_sha256": "9E18B5501456663F7328B23FDFA3E81CE2DA21BE04F1EFD8FCEFAB88EA5C5EBA",
         "purpose": "append guarded VV3 individual Full Mastery .vv3im page"
       }
     }
   },
   "emitted": {
-    "dispatcher_va": "0x6E2000",
-    "dispatcher_hex": "83FB010F84F700000083FB020F84EED8FFFFE9D618DCFF",
-    "dispatcher_sha256": "76FD63552391C6731CC11C2F5D4C8C5877832E8740A68FC67821C918E04B9FE5",
-    "helper_va": "0x6E2100",
+    "dispatcher_va": "0x6E0000",
+    "dispatcher_hex": "83FB010F85E539DCFFE8F2000000E9C337DCFF",
+    "dispatcher_sha256": "4175A462CFBC9AF57173C176C30C3AB37A7812DB24F7D6D8FFB196E49144673E",
+    "helper_va": "0x6E0100",
     "helper_length": 1215,
-    "helper_sha256": "AED9EF87F7A13879411DD7B5500D2223A60C7B3D4F2A98E2CB9791DE7E403A7A",
+    "helper_sha256": "F9E4E62FCC231E40D4804F036427FAFCF45361AE762B70AF645C89507034A45A",
     "strings_length": 701,
     "strings_sha256": "B9B66CC020E73989E5E3F869A17872858E116FB2B464878F8A74681EFE85B3EB",
     "strings_hex": "5553455233322E646C6C004D657373616765426F78410056696C6C61676572205570677261646573004772616E742046756C6C204D61737465727920746F20746869732076696C6C6167657220666F72203130302C303030207465636820706F696E74733F0D0A5072657373204F4B20746F20636F6E6669726D2C206F722043616E63656C2E0046756C6C204D61737465727920776173206772616E7465642E00546869732076696C6C6167657220697320616C72656164792066756C6C79206D617374657265642E0D0A4E6F207465636820706F696E74732068617665206265656E2064656475637465642E0046756C6C204D617374657279207761732063616E63656C65642E0D0A4E6F207465636820706F696E74732068617665206265656E2064656475637465642E004E6F2076616C6964206C6976696E672076696C6C616765722069732073656C65637465642E0D0A4E6F207465636820706F696E74732068617665206265656E2064656475637465642E004E6F7420656E6F756768207465636820706F696E74732E0D0A4E6F207465636820706F696E74732068617665206265656E2064656475637465642E005468652073656C65637465642076696C6C61676572206368616E67656420647572696E6720636F6E6669726D6174696F6E2E0D0A4E6F207465636820706F696E74732068617665206265656E2064656475637465642E0046756C6C204D61737465727920636F756C64206E6F7420626520636F6D706C657465643B206E6174697665206368616E676573206D61792072656D61696E2E0D0A4E6F207465636820706F696E74732068617665206265656E2064656475637465642E0046756C6C204D61737465727920646570656E64656E636965732061726520756E617661696C61626C652E0D0A4E6F207465636820706F696E74732068617665206265656E2064656475637465642E00",
-    "page_sha256": "9391F157BD26BD35EB6BA058D20E8D13ED0E89FE65FE7AF87CD833279BBBDA78"
+    "page_sha256": "9E18B5501456663F7328B23FDFA3E81CE2DA21BE04F1EFD8FCEFAB88EA5C5EBA"
   },
   "rendered_modes": {
     "collection_progression": {
-      "parent_sha256": "8DD1CE07C885DDA3DD038D0B2F5C4F019D8C5BAC5DCA29F9799CE0C7909D2CEA",
-      "candidate_sha256": "BFFA0B5F54CD084138EABD68D3EA67F834CEFE915F7DB0000F81639F34BF90F1",
-      "size": 847872,
-      "checksum": "9D3A0D00"
+      "parent_sha256": "22456EEE7525066A1125EE7FA92E4EFC71CAACD81056D290EC357226889031A3",
+      "candidate_sha256": "41557E64785F68A4D209C863FF6C973D4266F48726F8886A99604052474B8CB1",
+      "size": 839680,
+      "checksum": "B54B0D00",
+      "statistics_candidate_sha256": "9F3274D8CDBF3D94B0562FB4F84060EED69BBC7AB5EF145E2E27E797D1CC6033"
     },
     "immediate_fixed": {
-      "parent_sha256": "78758FD0003842AEFAC092A47874329C9C103F9AD46483E6ECA71291EFD3E382",
-      "candidate_sha256": "6550141AFFAEF3F7965E89F1B32A3F4CB929E8E217778C5BBCB512AAC499E59C",
-      "size": 847872,
-      "checksum": "9B7C0D00"
+      "parent_sha256": "1FC6CEFF644928B6EFB4802E8E26D2FE2098AAEA2233D2F00AB59E9113BB9225",
+      "candidate_sha256": "D824FF8AA33A56C14451B9C27FD7475994DB52CED3B7D0EF77E4A74042DAB8CC",
+      "size": 839680,
+      "checksum": "B38D0D00",
+      "statistics_candidate_sha256": "E8DEE825C058F8BB03AA32FFB41AED2886DCA866385D14BA2FCCDD9CAF94EF7F"
+    }
+  },
+  "source_verification": {
+    "status": "complete for exact stock SHA and complete public parent images",
+    "region_length": "0x40",
+    "native_region_sha256": {
+      "manager": "F420823E509F92909A9012AA8AA66C419D42226AAF2A19D52C7E20217606CB10",
+      "validator": "32FD827946A7C5B1BD56280BD2699A35F3888888B129A926B79B0BB0885B46C7",
+      "resolver": "804C22CD210BABB2045BC44BF8A56CBE1292DC9900BEE807348E80F8A0998250",
+      "skill_writer": "1E35D1B81AA0C7F38AEAB95117CD632C123AD0BFBB279B6F2A7AE6264C003514",
+      "award_evaluator": "28D9A914DE63D0912F1A5BD219462DF3C2B149FBF40844BB195ED2B8F2959B32",
+      "tech_writer": "D3ED48511BAAD72CC1BD0F50D7DE60989B0A79DAD754C477672DCE3F3892DE63"
     }
   },
   "failure_policy": {
     "cancel_noop_recheck_failure": "no writes/no charge; No tech points have been deducted.",
     "partial_native_failure": "native partial effects may remain; no deduction; rollback is not claimed"
   },
+  "behavior_changes": [
+    "Adds only selected-villager command 1 to the Detail Upgrades dialog and executes the exact-100 native transaction for 100,000 tech points."
+  ],
   "explicit_non_changes": [
     "+0xEC0 is never written or normalized; stock naming/tie behavior remains authoritative, including Master Parent fallback",
-    "command 2 remains Grant Running at 0x6DF900",
-    "Full Heal/fullscreen/DLL/Expanded and existing certified bytes remain unchanged"
-  ]
+    "legacy Detail commands 0, 2, and 3 remain absent and are rejected before price or mutation",
+    "Tech commands and certified village command 7 bytes remain unchanged",
+    "Expanded modes remain fail-closed before artifact access"
+  ],
+  "evidence_status": "exact stock-source regions, emitted page, parent composition, resource projection, and final bytes are statically verified; runtime/player confirmation pending"
 }

@@ -1,8 +1,8 @@
 """Production VV3 individual Full Mastery PE append/install helpers.
 
-This module owns only the disabled/catalog-hidden ``.vv3im`` candidate.  It
-operates on the already-composed Fullscreen Collection/Immediate parents and
-derives the final section/header/checksum bytes from their exact 0xCE000 PE
+This module owns the public stock-only ``.vv3im`` child.  It operates on the
+already-composed Origins+village-FM Collection/Immediate parents and derives
+the final section/header/checksum bytes from their exact 0xCC000 PE
 layout.  Unknown parents and malformed candidate metadata fail closed.
 """
 from __future__ import annotations
@@ -22,21 +22,21 @@ from vv_fun_patcher import PatcherError, _pe_checksum_layout, pe_checksum, _vali
 ROOT = Path(__file__).resolve().parents[1]
 BUILDER = ROOT / "scripts" / "build_vv3_individual_mastery_candidate.py"
 HOOK_OFFSET = 0xA38C3
-HOOK_BEFORE = bytes.fromhex("E938C02300")
-HOOK_AFTER = bytes.fromhex("E938E72300")
-APPEND_OFFSET = 0xCE000
+HOOK_BEFORE = bytes.fromhex("E926010000")
+HOOK_AFTER = bytes.fromhex("E938C72300")
+APPEND_OFFSET = 0xCC000
 APPEND_SIZE = 0x1000
-SECTION_HEADER_OFFSET = 0x340
+SECTION_HEADER_OFFSET = 0x2F0
 PARENT_HASHES = {
-    "collection_progression": "8DD1CE07C885DDA3DD038D0B2F5C4F019D8C5BAC5DCA29F9799CE0C7909D2CEA",
-    "immediate_fixed": "78758FD0003842AEFAC092A47874329C9C103F9AD46483E6ECA71291EFD3E382",
+    "collection_progression": "22456EEE7525066A1125EE7FA92E4EFC71CAACD81056D290EC357226889031A3",
+    "immediate_fixed": "1FC6CEFF644928B6EFB4802E8E26D2FE2098AAEA2233D2F00AB59E9113BB9225",
 }
 OUTPUT_HASHES = {
-    "collection_progression": "BFFA0B5F54CD084138EABD68D3EA67F834CEFE915F7DB0000F81639F34BF90F1",
-    "immediate_fixed": "6550141AFFAEF3F7965E89F1B32A3F4CB929E8E217778C5BBCB512AAC499E59C",
+    "collection_progression": "41557E64785F68A4D209C863FF6C973D4266F48726F8886A99604052474B8CB1",
+    "immediate_fixed": "D824FF8AA33A56C14451B9C27FD7475994DB52CED3B7D0EF77E4A74042DAB8CC",
 }
-COMPANION_DLL_SHA256 = "9F866CB6F92C745CD2AA7009AEC4EB70FA5521EFF0C8F7BABE2058BB4D2F8533"
-COMPANION_PARENT_DLL_SHA256 = "35FB96199E745C7D8054FF6A12851B9E09225E3E41D0CE04012604E74968C0D5"
+COMPANION_DLL_SHA256 = "8DB27C9208C0060046513078DF53A4DC8D7347AF5A9FD27177803E9388648BEE"
+COMPANION_PARENT_DLL_SHA256 = "A99584788F1726AF2DFDAE83BC9F42DE82DBD2DBA6E1ECD56222D2BDACB47681"
 
 # Recovery metadata is intentionally caller-specific.  The shared writer may
 # transport both callers, but it must never accept a permissive union of their
@@ -143,12 +143,12 @@ def _page() -> bytes:
 
 def _header_patches() -> list[tuple[int, bytes, bytes]]:
     return [
-        (0x10E, bytes.fromhex("0800"), bytes.fromhex("0900")),
-        (0x158, bytes.fromhex("00202E00"), bytes.fromhex("00302E00")),
+        (0x10E, bytes.fromhex("0600"), bytes.fromhex("0700")),
+        (0x158, bytes.fromhex("00002E00"), bytes.fromhex("00102E00")),
         (
             SECTION_HEADER_OFFSET,
             bytes(40),
-            bytes.fromhex("2E767633696D00000010000000202E000010000000E00C0000000000000000000000000020000060"),
+            bytes.fromhex("2E767633696D00000010000000002E000010000000C00C0000000000000000000000000020000060"),
         ),
     ]
 
@@ -4244,7 +4244,7 @@ def install_atomic(source: Path, destination: Path, mode: str, *, companion_sour
     companion_bytes = _read_regular(companion_source)
     if len(companion_bytes) != 298496 or _sha(companion_bytes) != COMPANION_DLL_SHA256:
         raise PatcherError("VV3 individual Full Mastery companion hash mismatch.")
-    companion_parent_path = ROOT / "data" / "candidates" / "VVFP VV3 Full Mastery Candidate.dll"
+    companion_parent_path = ROOT / "data" / "candidates" / "VVFP VV3 Safe Upgrade Foundation.dll"
     companion_parent = _read_regular(companion_parent_path)
     if len(companion_parent) != 298496 or _sha(companion_parent) != COMPANION_PARENT_DLL_SHA256:
         raise PatcherError("VV3 individual Full Mastery companion parent source mismatch.")

@@ -134,13 +134,13 @@ VV3_FULL_MASTERY_CANDIDATE_PATHS = {
     "base": ROOT / "data" / "candidates" / "vv3_origins_full_mastery_base_candidate.json",
     "feature": ROOT / "data" / "candidates" / "vv3_full_mastery_all_candidate.json",
     "map": ROOT / "data" / "candidates" / "vv3_full_mastery_all_candidate_map.json",
-    "dll": ROOT / "data" / "candidates" / "VVFP VV3 Full Mastery Candidate.dll",
+    "dll": ROOT / "data" / "candidates" / "VVFP VV3 Safe Upgrade Foundation.dll",
 }
 VV3_FULL_MASTERY_CERTIFIED_SHA256 = {
-    "base": "DC8B73F904A535063CCA161AFA52190E0C2A9056B0B70F6CDDDD152161342DBE",
+    "base": "71AEE1460B9B39974D42465EE17A81F04B74916623F636ADC83D5F5DE8B5DE3D",
     "feature": "D0FA9145AFECF0EE14A50D04F113E154C497DAC88C7A8AA0660A0FD338DBDF28",
-    "map": "4D0DDFBBC06AAABB3DBD66B0F5C5EE0256557FB332A4BB5170B45DBA8E3EA819",
-    "dll": "35FB96199E745C7D8054FF6A12851B9E09225E3E41D0CE04012604E74968C0D5",
+    "map": "1CAADD292CE24941EE2EA39B44E758C4BF764A1E2E761C2259C37DD8A1EF0AC8",
+    "dll": "A99584788F1726AF2DFDAE83BC9F42DE82DBD2DBA6E1ECD56222D2BDACB47681",
     "entry": "9685954F75E1DD26103507213FBEADBD9DED2705E62CB37D14080F6EBEC6EB23",
     "slot": "B1499EB3B10B7E4728746711E9F63B88211E4B80CA378742ADC5DC06782DAADA",
     "page": "2DAE85AE4077C23C2C7C39F64B5BA944740F765AC8E24FBB097B0BF28A720DF6",
@@ -151,17 +151,25 @@ VV3_INDIVIDUAL_FULL_MASTERY_CANDIDATE_PATHS = {
     "manifest": ROOT / "data" / "candidates" / "vv3_individual_full_mastery_candidate.json",
     "map": ROOT / "data" / "candidates" / "vv3_individual_full_mastery_candidate_map.json",
 }
-VV3_INDIVIDUAL_FULL_MASTERY_MANIFEST_SHA256 = "A16D8118C8DECAD09F9F4646F8243C156B366EC3A0C7E8428308A6D2F1D46882"
-VV3_INDIVIDUAL_FULL_MASTERY_MAP_SHA256 = "8318276149AA619EC10CD6F5FAFE2BE4739E05BFA97997202226E2167B9030C8"
-VV3_INDIVIDUAL_FULL_MASTERY_PAGE_SHA256 = "9391F157BD26BD35EB6BA058D20E8D13ED0E89FE65FE7AF87CD833279BBBDA78"
+VV3_INDIVIDUAL_FULL_MASTERY_MANIFEST_SHA256 = "770C623A22102A65EB2265ADC6E3847E7625D92C0066C02C69E0B1EA306484E5"
+VV3_INDIVIDUAL_FULL_MASTERY_MAP_SHA256 = "40AB5DA0DFBE46EE3D49C022F9FF8C89C906AEFF59EC8A977B162516F043202E"
+VV3_INDIVIDUAL_FULL_MASTERY_PAGE_SHA256 = "9E18B5501456663F7328B23FDFA3E81CE2DA21BE04F1EFD8FCEFAB88EA5C5EBA"
 VV3_INDIVIDUAL_FULL_MASTERY_PARENT_SHA256 = {
-    "collection_progression": "8DD1CE07C885DDA3DD038D0B2F5C4F019D8C5BAC5DCA29F9799CE0C7909D2CEA",
-    "immediate_fixed": "78758FD0003842AEFAC092A47874329C9C103F9AD46483E6ECA71291EFD3E382",
+    "collection_progression": "22456EEE7525066A1125EE7FA92E4EFC71CAACD81056D290EC357226889031A3",
+    "immediate_fixed": "1FC6CEFF644928B6EFB4802E8E26D2FE2098AAEA2233D2F00AB59E9113BB9225",
 }
 VV3_INDIVIDUAL_FULL_MASTERY_OUTPUT_SHA256 = {
-    "collection_progression": "BFFA0B5F54CD084138EABD68D3EA67F834CEFE915F7DB0000F81639F34BF90F1",
-    "immediate_fixed": "6550141AFFAEF3F7965E89F1B32A3F4CB929E8E217778C5BBCB512AAC499E59C",
+    "collection_progression": "41557E64785F68A4D209C863FF6C973D4266F48726F8886A99604052474B8CB1",
+    "immediate_fixed": "D824FF8AA33A56C14451B9C27FD7475994DB52CED3B7D0EF77E4A74042DAB8CC",
 }
+VV3_STOCK_ONLY_UPGRADE_IDS = frozenset(
+    {
+        "vv3_enable_origins_exclusive_features",
+        "vv3_enable_origins_exclusive_features_full_mastery_candidate",
+        "vv3_full_mastery_all_stage_a_candidate",
+        VV3_INDIVIDUAL_FULL_MASTERY_CANDIDATE_ID,
+    }
+)
 VV3_INDIVIDUAL_RUNNING_CANDIDATE_ID = "vv3_individual_grant_running_candidate"
 VV3_INDIVIDUAL_RUNNING_CANDIDATE_PATHS = {
     "manifest": ROOT / "data" / "candidates" / "vv3_individual_grant_running_candidate.json",
@@ -1114,8 +1122,8 @@ def _certified_vv3_full_mastery_records(
             "name": active_base["name"],
             "enabled": True,
             "certification_status": (
-                "FINAL CERTIFIED GO under disassembly commit "
-                "1e6ad7fd610d2fe9d80416fb218366ccd7d0656b"
+                "Existing command-7 bytes retain their prior certification; "
+                "the command-5/resource containment composition awaits independent review"
             ),
         }
     )
@@ -1127,8 +1135,8 @@ def _certified_vv3_full_mastery_records(
             "enabled": True,
             "dependencies": [active_base["id"]],
             "certification_status": (
-                "FINAL CERTIFIED GO under disassembly commit "
-                "1e6ad7fd610d2fe9d80416fb218366ccd7d0656b; stock modes only"
+                "Existing command-7 bytes retain their prior certification; "
+                "stock modes only; containment composition awaits independent review"
             ),
         }
     )
@@ -1265,12 +1273,7 @@ def _certified_vv3_individual_running_record(
 
 
 def _validate_vv3_individual_full_mastery_candidate() -> dict[str, Any] | None:
-    """Validate the disabled VV3 individual-FM record without catalog exposure.
-
-    The public catalog intentionally excludes this record while its exact raw
-    manifest/map and generated page remain available to the production append
-    resolver for an explicitly selected, independently reviewed candidate.
-    """
+    """Validate the public stock-only VV3 selected-villager Full Mastery record."""
     manifest_path = VV3_INDIVIDUAL_FULL_MASTERY_CANDIDATE_PATHS["manifest"]
     map_path = VV3_INDIVIDUAL_FULL_MASTERY_CANDIDATE_PATHS["map"]
     if not manifest_path.is_file() or not map_path.is_file():
@@ -1286,26 +1289,26 @@ def _validate_vv3_individual_full_mastery_candidate() -> dict[str, Any] | None:
     if (
         manifest.get("id") != VV3_INDIVIDUAL_FULL_MASTERY_CANDIDATE_ID
         or manifest.get("game_id") != "vv3"
-        or manifest.get("enabled") is not False
-        or manifest.get("catalog_hidden") is not True
-        or manifest.get("catalog_enabled") is not False
-        or manifest.get("runtime_player_status") != "pending"
+        or manifest.get("enabled") is not True
+        or manifest.get("catalog_hidden") is not False
+        or manifest.get("catalog_enabled") is not True
+        or manifest.get("runtime_player_status") != "pending live player confirmation"
         or manifest.get("supported_modes") != ["collection_progression", "immediate_fixed"]
         or set(manifest.get("unsupported_patch_modes", ())) != EXPANDED_PATCH_MODES
-        or manifest.get("dependencies") != [VV3_INDIVIDUAL_RUNNING_CANDIDATE_ID]
+        or manifest.get("dependencies") != ["vv3_full_mastery_all_stage_a_candidate"]
     ):
-        raise PatcherError("VV3 individual Full Mastery candidate metadata is not disabled/stock-only.")
+        raise PatcherError("VV3 individual Full Mastery metadata is not public/stock-only.")
     tx_contract = manifest.get("transaction", {})
     if tx_contract.get("accept_result") != 1 or tx_contract.get("cancel_results") != [0, 2]:
         raise PatcherError("VV3 individual Full Mastery MessageBox acceptance must be IDOK=1 only.")
     expected_companion = {
-        "source": "data/candidates/VVFP VV3 Full Heal Candidate.dll",
+        "source": "data/candidates/VVFP VV3 Safe Upgrades.dll",
         "destination": "VVFP VV3 Full Mastery Candidate.dll",
-        "sha256": "9F866CB6F92C745CD2AA7009AEC4EB70FA5521EFF0C8F7BABE2058BB4D2F8533",
+        "sha256": "8DB27C9208C0060046513078DF53A4DC8D7347AF5A9FD27177803E9388648BEE",
         "size": 298496,
-        "preimage_sha256": "35FB96199E745C7D8054FF6A12851B9E09225E3E41D0CE04012604E74968C0D5",
-        "restore_source": "data/candidates/VVFP VV3 Full Mastery Candidate.dll",
-        "restore_sha256": "35FB96199E745C7D8054FF6A12851B9E09225E3E41D0CE04012604E74968C0D5",
+        "preimage_sha256": "A99584788F1726AF2DFDAE83BC9F42DE82DBD2DBA6E1ECD56222D2BDACB47681",
+        "restore_source": "data/candidates/VVFP VV3 Safe Upgrade Foundation.dll",
+        "restore_sha256": "A99584788F1726AF2DFDAE83BC9F42DE82DBD2DBA6E1ECD56222D2BDACB47681",
     }
     if manifest.get("companion_files") != [expected_companion]:
         raise PatcherError("VV3 individual Full Mastery companion ownership is not certified.")
@@ -1319,32 +1322,28 @@ def _validate_vv3_individual_full_mastery_candidate() -> dict[str, Any] | None:
     if chain.get("collection_progression_parent_sha256") != VV3_INDIVIDUAL_FULL_MASTERY_PARENT_SHA256["collection_progression"] or chain.get("immediate_fixed_parent_sha256") != VV3_INDIVIDUAL_FULL_MASTERY_PARENT_SHA256["immediate_fixed"]:
         raise PatcherError("VV3 individual Full Mastery parent hashes are not certified.")
     patches = manifest.get("patches")
-    if not isinstance(patches, list) or len(patches) != 1 or patches[0].get("offset") != "0xA38C3" or patches[0].get("before") != "E938C02300" or patches[0].get("after") != "E938E72300":
+    if not isinstance(patches, list) or len(patches) != 1 or patches[0].get("offset") != "0xA38C3" or patches[0].get("before") != "E926010000" or patches[0].get("after") != "E938C72300":
         raise PatcherError("VV3 individual Full Mastery command dispatcher guard is not certified.")
     tx = manifest.get("pe_append_transaction", {})
     layouts = tx.get("layouts")
     if tx.get("append_source") != "generated:vv3_individual_full_mastery_page" or tx.get("page_sha256") != VV3_INDIVIDUAL_FULL_MASTERY_PAGE_SHA256 or not isinstance(layouts, dict) or set(layouts) != {"collection_progression", "immediate_fixed"}:
         raise PatcherError("VV3 individual Full Mastery append source/layout metadata is not certified.")
     for mode, layout in layouts.items():
-        if not isinstance(layout, dict) or int(layout.get("original_file_size", "-1"), 0) != 0xCE000 or int(layout.get("append_offset", "-1"), 0) != 0xCE000 or layout.get("append_source") != "generated:vv3_individual_full_mastery_page" or int(layout.get("append_length", "-1"), 0) != 0x1000 or layout.get("page_sha256") != VV3_INDIVIDUAL_FULL_MASTERY_PAGE_SHA256 or len(layout.get("header_patches", [])) != 3:
+        if not isinstance(layout, dict) or int(layout.get("original_file_size", "-1"), 0) != 0xCC000 or int(layout.get("append_offset", "-1"), 0) != 0xCC000 or layout.get("append_source") != "generated:vv3_individual_full_mastery_page" or int(layout.get("append_length", "-1"), 0) != 0x1000 or layout.get("page_sha256") != VV3_INDIVIDUAL_FULL_MASTERY_PAGE_SHA256 or len(layout.get("header_patches", [])) != 3:
             raise PatcherError(f"VV3 individual Full Mastery {mode} append layout is not certified.")
         rendered = manifest.get("rendered_modes", {}).get(mode, {})
-        if rendered.get("candidate_sha256") != VV3_INDIVIDUAL_FULL_MASTERY_OUTPUT_SHA256[mode] or rendered.get("size") != 0xCF000:
+        if rendered.get("candidate_sha256") != VV3_INDIVIDUAL_FULL_MASTERY_OUTPUT_SHA256[mode] or rendered.get("size") != 0xCD000:
             raise PatcherError(f"VV3 individual Full Mastery {mode} rendered identity is not certified.")
         patches = layout.get("header_patches")
-        if patches[0].get("offset") != "0x10E" or patches[0].get("before") != "0800" or patches[0].get("after") != "0900" or patches[1].get("offset") != "0x158" or patches[1].get("before") != "00202E00" or patches[1].get("after") != "00302E00" or patches[2].get("offset") != "0x340" or len(bytes.fromhex(patches[2].get("before", ""))) != 40 or len(bytes.fromhex(patches[2].get("after", ""))) != 40:
+        if patches[0].get("offset") != "0x10E" or patches[0].get("before") != "0600" or patches[0].get("after") != "0700" or patches[1].get("offset") != "0x158" or patches[1].get("before") != "00002E00" or patches[1].get("after") != "00102E00" or patches[2].get("offset") != "0x2F0" or len(bytes.fromhex(patches[2].get("before", ""))) != 40 or len(bytes.fromhex(patches[2].get("after", ""))) != 40:
             raise PatcherError("VV3 individual Full Mastery section/header guards are not certified.")
-    if artifact_map.get("candidate_id") != VV3_INDIVIDUAL_FULL_MASTERY_CANDIDATE_ID or artifact_map.get("enabled") is not False or artifact_map.get("catalog_hidden") is not True or artifact_map.get("rendered_modes") != manifest.get("rendered_modes"):
-        raise PatcherError("VV3 individual Full Mastery map enablement is not fail-closed.")
+    if artifact_map.get("candidate_id") != VV3_INDIVIDUAL_FULL_MASTERY_CANDIDATE_ID or artifact_map.get("enabled") is not True or artifact_map.get("catalog_hidden") is not False or artifact_map.get("catalog_enabled") is not True or artifact_map.get("rendered_modes") != manifest.get("rendered_modes") or artifact_map.get("dispatcher", {}).get("abi") != "cmp ebx,1; jne 0x4A39EE; call 0x6E0100; jmp 0x4A37D6":
+        raise PatcherError("VV3 individual Full Mastery map publication/dispatcher metadata drifted.")
     return manifest
 
 
 def load_hidden_vv3_individual_full_mastery_candidate() -> FunPatch:
-    """Return the disabled VV3 candidate for an explicit internal render only.
-
-    This is deliberately separate from ``load_fun_patches`` and public catalog
-    resolution; callers must supply the certified composed parent themselves.
-    """
+    """Compatibility accessor for the now-public certified VV3 child record."""
     manifest = _validate_vv3_individual_full_mastery_candidate()
     if manifest is None:
         raise PatcherError("VV3 individual Full Mastery candidate metadata is unavailable.")
@@ -2776,6 +2775,11 @@ def _load_fun_patch_records(
                         )
                         if individual_running is not None:
                             items.append(individual_running)
+                        individual_full_mastery = (
+                            _validate_vv3_individual_full_mastery_candidate()
+                        )
+                        if individual_full_mastery is not None:
+                            items.append(individual_full_mastery)
                     if running is not None and mastery is None:
                         items.append(running)
                 elif record.get("id") == "vv4_enable_origins_exclusive_features":
@@ -2842,9 +2846,6 @@ def _load_fun_patch_records(
             and running_manifest.get("enabled") is True
         ):
             items.append(vv3_full_heal_record)
-    # Validate the hidden VV3 individual-FM artifact for direct production
-    # resolver use, but never add it to public catalog choices while disabled.
-    _validate_vv3_individual_full_mastery_candidate()
     vv1_full_mastery = _certified_vv1_full_mastery_record()
     if vv1_full_mastery is not None:
         items.append(vv1_full_mastery)
@@ -6854,6 +6855,21 @@ def render_patched_bytes(
     playtest_disabled_feature_ids: tuple[str, ...] | list[str] = (),
     playtest_output_root: Path | None = None,
 ) -> tuple[bytearray, list[dict[str, str]]]:
+    # The public/candidate VV3 upgrade surfaces are bound to the stock Detail
+    # and Tech layouts.  Reject their IDs before variant, catalog, companion,
+    # manifest, or executable source access in both public and override paths.
+    requested_ids = set(fun_patch_ids)
+    if _fun_patches_override is not None:
+        requested_ids.update(patch.id for patch in _fun_patches_override)
+    if (
+        build.id == "vv3"
+        and patch_mode in EXPANDED_PATCH_MODES
+        and VV3_STOCK_ONLY_UPGRADE_IDS.intersection(requested_ids)
+    ):
+        raise PatcherError(
+            "VV3 Origins upgrade surfaces support stock modes only; "
+            "Expanded-256 remains fail-closed."
+        )
     # The VV2 selected-villager transaction is source-bound to the stock
     # 256-record Detail/manager layout.  Reject Expanded before variant,
     # catalog, manifest, or source access in this renderer.
@@ -7281,6 +7297,18 @@ def render_patched_bytes(
                         and offset == 0xA38C3
                         and before == bytes.fromhex("83FB027525")
                     )
+                    allowed_vv3_individual_full_mastery_overlay = (
+                        owner
+                        == f"feature:{VV3_INDIVIDUAL_FULL_MASTERY_CANDIDATE_ID}"
+                        and prior_owner
+                        in {
+                            "feature:vv3_enable_origins_exclusive_features",
+                            "feature:vv3_enable_origins_exclusive_features_full_mastery_candidate",
+                        }
+                        and offset == 0xA38C3
+                        and before == bytes.fromhex("E926010000")
+                        and after == bytes.fromhex("E938C72300")
+                    )
                     allowed_vv3_full_heal_overlay = (
                         owner == f"feature:{VV3_FULL_HEAL_CANDIDATE_ID}"
                         and prior_owner
@@ -7326,6 +7354,7 @@ def render_patched_bytes(
                         or allowed_vv5_individual_overlay
                         or allowed_vv5_running_overlay
                         or allowed_vv3_individual_running_overlay
+                        or allowed_vv3_individual_full_mastery_overlay
                         or allowed_vv3_full_heal_overlay
                         or allowed_vv3_full_heal_cave_overlay
                         or allowed_vv4_full_heal_overlay

@@ -15,13 +15,31 @@ import vv_fun_patcher
 
 
 ROOT = Path(__file__).resolve().parents[1]
-PARENTS = ROOT / "outputs" / "vv3-vv4-c257-determinism-a"
+STOCK = ROOT / "research" / "stock-executables" / "Virtual Villagers - The Secret City.exe"
+PARENTS: Path
 
 
 class VV3IndividualFullMasteryLoaderTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls) -> None:
+        cls._parents_temp = tempfile.TemporaryDirectory(prefix="vv3im-current-parents-")
+        global PARENTS
+        PARENTS = Path(cls._parents_temp.name)
+        build = next(item for item in vv_fun_patcher.load_builds() if item.id == "vv3")
+        base = vv_fun_patcher.FunPatch(json.loads((ROOT / "data" / "candidates" / "vv3_origins_full_mastery_base_candidate.json").read_text(encoding="utf-8")))
+        village = vv_fun_patcher.FunPatch(json.loads((ROOT / "data" / "candidates" / "vv3_full_mastery_all_candidate.json").read_text(encoding="utf-8")))
+        for mode in ("collection_progression", "immediate_fixed"):
+            rendered, _ = vv_fun_patcher.render_patched_bytes(
+                STOCK, build, mode, _fun_patches_override=[base, village]
+            )
+            (PARENTS / f"vv3_fullscreen_safe_candidate_{mode}.exe").write_bytes(rendered)
+
+    @classmethod
+    def tearDownClass(cls) -> None:
+        cls._parents_temp.cleanup()
+
     def _parent(self, mode: str) -> bytes:
-        name = f"vv3_fullscreen_safe_candidate_{mode}.exe"
-        return (PARENTS / name).read_bytes()
+        return (PARENTS / f"vv3_fullscreen_safe_candidate_{mode}.exe").read_bytes()
 
     def _terminal_transaction(self, root: Path, payload: dict[str, object]) -> dict[str, object]:
         """Create bound report/manifest records, then remove the evidence."""
@@ -41,31 +59,32 @@ class VV3IndividualFullMasteryLoaderTests(unittest.TestCase):
             manifest_record=manifest_record,
         )
 
-    def test_hidden_registration_is_not_public_catalog(self):
-        hidden = vv_fun_patcher.load_hidden_vv3_individual_full_mastery_candidate()
-        self.assertFalse(hidden.raw["enabled"])
-        self.assertTrue(hidden.raw["catalog_hidden"])
-        self.assertNotIn(hidden.id, {p.id for p in vv_fun_patcher.load_fun_patches()})
+    def test_public_registration_and_direct_dependency(self):
+        feature = vv_fun_patcher.load_hidden_vv3_individual_full_mastery_candidate()
+        self.assertTrue(feature.raw["enabled"])
+        self.assertFalse(feature.raw["catalog_hidden"])
+        self.assertEqual(feature.raw["dependencies"], ["vv3_full_mastery_all_stage_a_candidate"])
+        self.assertIn(feature.id, {p.id for p in vv_fun_patcher.load_fun_patches()})
 
     def test_render_and_remove_exact_both_parents(self):
         expected = {
-            "collection_progression": "BFFA0B5F54CD084138EABD68D3EA67F834CEFE915F7DB0000F81639F34BF90F1",
-            "immediate_fixed": "6550141AFFAEF3F7965E89F1B32A3F4CB929E8E217778C5BBCB512AAC499E59C",
+            "collection_progression": "41557E64785F68A4D209C863FF6C973D4266F48726F8886A99604052474B8CB1",
+            "immediate_fixed": "D824FF8AA33A56C14451B9C27FD7475994DB52CED3B7D0EF77E4A74042DAB8CC",
         }
         for mode, digest in expected.items():
             parent = self._parent(mode)
             candidate = loader.render_parent(parent, mode)
-            self.assertEqual(len(candidate), 0xCF000)
+            self.assertEqual(len(candidate), 0xCD000)
             self.assertEqual(hashlib.sha256(candidate).hexdigest().upper(), digest)
             self.assertEqual(loader.remove_candidate(candidate, mode), parent)
 
     def test_pe_section_and_dispatcher_guards(self):
         candidate = loader.render_parent(self._parent("collection_progression"), "collection_progression")
-        self.assertEqual(candidate[0x10E:0x110], bytes.fromhex("0900"))
-        self.assertEqual(candidate[0x158:0x15C], bytes.fromhex("00302E00"))
-        self.assertEqual(candidate[0x340:0x348], b".vv3im\0\0")
+        self.assertEqual(candidate[0x10E:0x110], bytes.fromhex("0700"))
+        self.assertEqual(candidate[0x158:0x15C], bytes.fromhex("00102E00"))
+        self.assertEqual(candidate[0x2F0:0x2F8], b".vv3im\0\0")
         self.assertEqual(candidate[0xA38C3:0xA38C8], loader.HOOK_AFTER)
-        self.assertEqual(candidate[0xCE000:0xCE000 + 4], bytes.fromhex("83FB010F"))
+        self.assertEqual(candidate[0xCC000:0xCC000 + 4], bytes.fromhex("83FB010F"))
 
     def test_patcher_append_resolver_uses_generated_page(self):
         feature = vv_fun_patcher.load_hidden_vv3_individual_full_mastery_candidate()
@@ -75,8 +94,8 @@ class VV3IndividualFullMasteryLoaderTests(unittest.TestCase):
         self.assertEqual(hashlib.sha256(page).hexdigest().upper(), loader._sha(page))
         work = bytearray(self._parent("collection_progression"))
         vv_fun_patcher._apply_pe_append_transactions(work, [feature], "collection_progression")
-        self.assertEqual(len(work), 0xCF000)
-        self.assertEqual(bytes(work[0xCE000:]), page)
+        self.assertEqual(len(work), 0xCD000)
+        self.assertEqual(bytes(work[0xCC000:]), page)
 
     def test_unknown_or_corrupt_parent_fails_before_output(self):
         parent = bytearray(self._parent("collection_progression"))
@@ -90,8 +109,8 @@ class VV3IndividualFullMasteryLoaderTests(unittest.TestCase):
         parent = PARENTS / "vv3_fullscreen_safe_candidate_collection_progression.exe"
         with tempfile.TemporaryDirectory() as td:
             destination = Path(td) / "candidate.exe"
-            companion_source = ROOT / "data" / "candidates" / "VVFP VV3 Full Heal Candidate.dll"
-            companion_restore = ROOT / "data" / "candidates" / "VVFP VV3 Full Mastery Candidate.dll"
+            companion_source = ROOT / "data" / "candidates" / "VVFP VV3 Safe Upgrades.dll"
+            companion_restore = ROOT / "data" / "candidates" / "VVFP VV3 Safe Upgrade Foundation.dll"
             companion_destination = Path(td) / "VVFP VV3 Full Mastery Candidate.dll"
             loader.install_atomic(parent, destination, "collection_progression", companion_source=companion_source, companion_destination=companion_destination)
             self.assertTrue(destination.is_file())
@@ -107,7 +126,7 @@ class VV3IndividualFullMasteryLoaderTests(unittest.TestCase):
 
     def test_companion_is_mandatory_and_wrong_existing_preimage_is_rejected(self):
         parent = PARENTS / "vv3_fullscreen_safe_candidate_collection_progression.exe"
-        companion_source = ROOT / "data" / "candidates" / "VVFP VV3 Full Heal Candidate.dll"
+        companion_source = ROOT / "data" / "candidates" / "VVFP VV3 Safe Upgrades.dll"
         with tempfile.TemporaryDirectory() as td:
             root = Path(td)
             with self.assertRaises(vv_fun_patcher.PatcherError):
@@ -122,7 +141,7 @@ class VV3IndividualFullMasteryLoaderTests(unittest.TestCase):
 
     def test_publication_requires_one_destination_parent(self):
         parent = PARENTS / "vv3_fullscreen_safe_candidate_collection_progression.exe"
-        candidate_dll = ROOT / "data" / "candidates" / "VVFP VV3 Full Heal Candidate.dll"
+        candidate_dll = ROOT / "data" / "candidates" / "VVFP VV3 Safe Upgrades.dll"
         with tempfile.TemporaryDirectory() as td:
             root = Path(td)
             with self.assertRaises(vv_fun_patcher.PatcherError):
@@ -130,7 +149,7 @@ class VV3IndividualFullMasteryLoaderTests(unittest.TestCase):
 
     def test_second_member_replace_failure_rolls_back_both_without_mixed_pair(self):
         parent = PARENTS / "vv3_fullscreen_safe_candidate_collection_progression.exe"
-        candidate_dll = ROOT / "data" / "candidates" / "VVFP VV3 Full Heal Candidate.dll"
+        candidate_dll = ROOT / "data" / "candidates" / "VVFP VV3 Safe Upgrades.dll"
         with tempfile.TemporaryDirectory() as td:
             root = Path(td)
             destination = root / "candidate.exe"
@@ -153,7 +172,7 @@ class VV3IndividualFullMasteryLoaderTests(unittest.TestCase):
 
     def test_reparse_ancestor_rejected_before_any_write(self):
         parent = PARENTS / "vv3_fullscreen_safe_candidate_collection_progression.exe"
-        candidate_dll = ROOT / "data" / "candidates" / "VVFP VV3 Full Heal Candidate.dll"
+        candidate_dll = ROOT / "data" / "candidates" / "VVFP VV3 Safe Upgrades.dll"
         with tempfile.TemporaryDirectory() as td:
             root = Path(td)
             real_lstat = loader.os.lstat
@@ -169,7 +188,7 @@ class VV3IndividualFullMasteryLoaderTests(unittest.TestCase):
 
     def test_unresolved_failure_retains_replayable_report(self):
         parent = PARENTS / "vv3_fullscreen_safe_candidate_collection_progression.exe"
-        candidate_dll = ROOT / "data" / "candidates" / "VVFP VV3 Full Heal Candidate.dll"
+        candidate_dll = ROOT / "data" / "candidates" / "VVFP VV3 Safe Upgrades.dll"
         with tempfile.TemporaryDirectory() as td:
             root = Path(td)
             destination = root / "candidate.exe"
@@ -206,7 +225,7 @@ class VV3IndividualFullMasteryLoaderTests(unittest.TestCase):
 
     def test_recovery_schema_rejects_unknown_field_before_mutation(self):
         parent = PARENTS / "vv3_fullscreen_safe_candidate_collection_progression.exe"
-        candidate_dll = ROOT / "data" / "candidates" / "VVFP VV3 Full Heal Candidate.dll"
+        candidate_dll = ROOT / "data" / "candidates" / "VVFP VV3 Safe Upgrades.dll"
         with tempfile.TemporaryDirectory() as td:
             root = Path(td)
             destination = root / "candidate.exe"
@@ -268,7 +287,7 @@ class VV3IndividualFullMasteryLoaderTests(unittest.TestCase):
 
     def _make_unresolved_report(self, root: Path):
         parent = PARENTS / "vv3_fullscreen_safe_candidate_collection_progression.exe"
-        candidate_dll = ROOT / "data" / "candidates" / "VVFP VV3 Full Heal Candidate.dll"
+        candidate_dll = ROOT / "data" / "candidates" / "VVFP VV3 Safe Upgrades.dll"
         destination = root / "candidate.exe"
         companion_destination = root / "VVFP VV3 Full Mastery Candidate.dll"
         real_replace = loader.os.replace
@@ -489,14 +508,16 @@ class VV3IndividualFullMasteryLoaderTests(unittest.TestCase):
                 names.append(successor)
             self.assertEqual(loader._discover_transaction_authority(manifest), names[-1])
 
-    def test_c310_canonical_metadata_has_explicit_raw_git_attributes(self):
+    def test_c310_canonical_metadata_has_explicit_lf_git_attributes(self):
         attributes = (ROOT / ".gitattributes").read_text(encoding="utf-8")
-        self.assertIn("vv3_individual_full_mastery_candidate.json -text", attributes)
-        self.assertIn("vv3_individual_full_mastery_candidate_map.json -text", attributes)
+        self.assertIn("vv3_individual_full_mastery_candidate.json text eol=lf", attributes)
+        self.assertIn("vv3_individual_full_mastery_candidate_map.json text eol=lf", attributes)
         for name in ("vv3_individual_full_mastery_candidate.json", "vv3_individual_full_mastery_candidate_map.json"):
             data = (ROOT / "data" / "candidates" / name).read_bytes()
             self.assertFalse(data.startswith(b"\xef\xbb\xbf"))
-            self.assertNotIn(b"\n", data.replace(b"\r\n", b""))
+            self.assertNotIn(b"\r", data)
+            self.assertTrue(data.endswith(b"\n"))
+            self.assertFalse(any(line.rstrip() != line for line in data.splitlines()))
 
     def test_c282_successful_rollback_cleanup_uses_captured_inventory_and_reports_failure(self):
         with tempfile.TemporaryDirectory(prefix="vv3-c282-rollback-cleanup-") as td:
@@ -1281,10 +1302,12 @@ class VV3IndividualFullMasteryLoaderTests(unittest.TestCase):
     def test_c308_manifest_map_pins_are_canonical_and_current(self):
         manifest = ROOT / "data" / "candidates" / "vv3_individual_full_mastery_candidate.json"
         mapping = ROOT / "data" / "candidates" / "vv3_individual_full_mastery_candidate_map.json"
-        for path, expected in ((manifest, "943A8B1F04C34CB094ABF7CCC8863B2F17F4BAC179E5DA6A68E6FADD833E1884"), (mapping, "610D27014C8131C935BA4326D64FDB1D25285104567F060BD534653040562187")):
+        for path, expected in ((manifest, "770C623A22102A65EB2265ADC6E3847E7625D92C0066C02C69E0B1EA306484E5"), (mapping, "40AB5DA0DFBE46EE3D49C022F9FF8C89C906AEFF59EC8A977B162516F043202E")):
             data = path.read_bytes()
             self.assertFalse(data.startswith(b"\xef\xbb\xbf"))
-            self.assertFalse(any(data[i] == 0x0A and (i == 0 or data[i - 1] != 0x0D) for i in range(len(data))))
+            self.assertNotIn(b"\r", data)
+            self.assertTrue(data.endswith(b"\n"))
+            self.assertFalse(any(line.rstrip() != line for line in data.splitlines()))
             self.assertEqual(hashlib.sha256(data).hexdigest().upper(), expected)
 
     def test_c308_authority_publish_failure_keeps_prior_valid_journal(self):

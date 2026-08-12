@@ -72,14 +72,19 @@ class VV3OriginsFeatureTests(unittest.TestCase):
             text = path.read_text(encoding="utf-8")
             for phrase in stale:
                 self.assertNotIn(phrase, text, path)
-            for phrase in contained:
-                self.assertIn(phrase, text, path)
+            if path.name != "vv3_origins_full_mastery_base_candidate.json":
+                for phrase in contained:
+                    self.assertIn(phrase, text, path)
             if path.name == "vv3_origins_feature.json":
                 self.assertIn(
                     "historical command-5 Full Heal / Cure All transaction remains candidate-only and blocked behind its withdrawn Running dependency",
                     text,
                     path,
                 )
+            elif path.name == "vv3_origins_full_mastery_base_candidate.json":
+                self.assertIn("Legacy Cure command 5 is absent from both Tech resources", text, path)
+                self.assertIn("raw 0xA35EF", text, path)
+                self.assertIn("raw 0x7B721", text, path)
             else:
                 self.assertIn(
                     "certified command-5 Full Heal / Cure All transaction replaces it",
@@ -155,7 +160,7 @@ class VV3OriginsFeatureTests(unittest.TestCase):
         for mode in MODES:
             with self.subTest(mode=mode):
                 if mode.startswith("experimental_expanded_256"):
-                    with self.assertRaisesRegex(PatcherError, "(?:has no append layout|stock-mode only)"):
+                    with self.assertRaisesRegex(PatcherError, "stock modes only"):
                         render_patched_bytes(STOCK, self.build, mode, patch_ids)
                     continue
                 rendered, applied = render_patched_bytes(

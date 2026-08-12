@@ -1,16 +1,42 @@
 {
   "acceptance_commit": "46211180c877cc635e494e37a66d1b8c49f7c65c",
+  "containment_status": "foundation received independent static GO; selected-villager command 1 is owned by the separate public stock-only child",
+  "upgrade_surface_contract": {
+    "tech_origins_only_commands": [
+      0,
+      1,
+      2,
+      3,
+      4
+    ],
+    "tech_with_village_full_mastery_commands": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      7
+    ],
+    "tech_rejected_command": 5,
+    "tech_hook_raw": "0xA35EF",
+    "tech_guard_raw": "0x7B721",
+    "detail_base_commands": [],
+    "detail_with_individual_full_mastery_commands": [
+      1
+    ],
+    "detail_hook_raw": "0xA38C3"
+  },
   "source": {
     "size": 831488,
     "sha256": "8BC5DB382D02BC5C21AD5F607580D60FF44A6519CC7EB133F03113BAACAE6503"
   },
-  "base_manifest_sha256": "CFC662F6FD1405ABD4234B681A623D844B4FEA2A5B129CFE8BC1738C96A2D2A0",
+  "base_manifest_sha256": "A84AF49B3981A62BB19E2D1A7406322E12B40EF30780651DF5342BD969A78FE5",
   "feature_manifest_sha256": "844A3CB7996793F51D741409C9EFAF675E07ED92122BCD2F91750766D7357783",
   "base_stock_payload_sha256": "77BF4DB93204AF1212A6335AF624642068A8B8560F1D78D59E2E07FBF4751F69",
   "companion": {
-    "path": "data/candidates/VVFP VV3 Full Mastery Candidate.dll",
+    "path": "data/candidates/VVFP VV3 Safe Upgrade Foundation.dll",
     "size": 298496,
-    "sha256": "35FB96199E745C7D8054FF6A12851B9E09225E3E41D0CE04012604E74968C0D5",
+    "sha256": "A99584788F1726AF2DFDAE83BC9F42DE82DBD2DBA6E1ECD56222D2BDACB47681",
     "exports": {
       "ShowOriginsFullMasteryResult": {
         "ordinal": 1,
@@ -141,8 +167,8 @@
     }
   },
   "rejected_patch_modes": {
-    "experimental_expanded_256": "DISABLED Candidate: VV3 Origins Full Mastery Extension Base (vv3_enable_origins_exclusive_features_full_mastery_candidate) has no append layout for experimental_expanded_256.",
-    "experimental_expanded_256_progression": "DISABLED Candidate: VV3 Origins Full Mastery Extension Base (vv3_enable_origins_exclusive_features_full_mastery_candidate) has no append layout for experimental_expanded_256_progression."
+    "experimental_expanded_256": "VV3 Origins upgrade surfaces support stock modes only; Expanded-256 remains fail-closed.",
+    "experimental_expanded_256_progression": "VV3 Origins upgrade surfaces support stock modes only; Expanded-256 remains fail-closed."
   },
   "entry_replacement": {
     "raw_offset": "0xCB120",
@@ -192,51 +218,43 @@
   "rendered_candidates": {
     "collection_progression": {
       "baseline_sha256": "D83FF587DB844C29515ECEDAE0E8C390038BA44854A4DF83DE16F3186F0AD27F",
-      "base_only_sha256": "D1A3AD05B8A7AB1B211F90DC649D63110BEC5EE87B6BFA82B83A7DD04187E2BE",
-      "base_plus_mastery_sha256": "6B6FCF33C21B5ED9323F8BBE4C677EF12BA4653E775178DCDF8E77049B2F57A8",
-      "all_current_compatible_sha256": "93AE9E6951D95BB287C3FC4198A7104EEF3039476E137A38AB212942F84EEC97",
+      "base_only_sha256": "F0681D92DCEA8A7A5436E6195E618DAACDF31247D7936FD388F21E36EF31CB36",
+      "base_plus_mastery_sha256": "22456EEE7525066A1125EE7FA92E4EFC71CAACD81056D290EC357226889031A3",
+      "statistics_composition_sha256": "2409F4A7452C87DC647BA46CC28C56AF2D95E5F77AE4671236CE8C92BF86804F",
       "size": 835584,
-      "pe_checksum": "0x000DACE9",
+      "pe_checksum": "0x000D148E",
       "owners": [
         "automatic:population",
         "automatic:safety",
         "feature:vv3_enable_origins_exclusive_features_full_mastery_candidate",
         "feature:vv3_full_mastery_all_stage_a_candidate"
       ],
-      "all_current_owners": [
+      "statistics_owners": [
         "automatic:population",
         "automatic:safety",
         "feature:vv3_enable_origins_exclusive_features_full_mastery_candidate",
         "feature:vv3_full_mastery_all_stage_a_candidate",
-        "feature:vv3_individual_grant_running_candidate",
-        "feature:vv3_nature_honey_refill",
-        "feature:vv3_nature_level_three_alters_mortality",
-        "feature:vv3_rare_collectible_retry",
         "feature:vv3_write_village_statistics"
       ]
     },
     "immediate_fixed": {
       "baseline_sha256": "BB87E3ECFACCB1290860028FFC9444B8D15AF19392FE8D1448FDC6FC672378C1",
-      "base_only_sha256": "F5D823263D103C871F5F3C4AB84CE198780D74E5286D28F0522A196918197579",
-      "base_plus_mastery_sha256": "92C5EF70512F57CBD990301E6918DE1BE002823C31CFB4C638D4E0F141BE7514",
-      "all_current_compatible_sha256": "BF302A2337C5615EE3D5283984FA7D97F4BC57E1F91FC1F7AAB6F62DA02DF89A",
+      "base_only_sha256": "EEC7122740BB6338599916F1E9FC249200A7B2215FE3385D78A9FE73CA279B19",
+      "base_plus_mastery_sha256": "1FC6CEFF644928B6EFB4802E8E26D2FE2098AAEA2233D2F00AB59E9113BB9225",
+      "statistics_composition_sha256": "56D8C8D6904D11E1B31333DA0132E284DF220B619BDAB80DF7DD2526E24497D3",
       "size": 835584,
-      "pe_checksum": "0x000CEEE8",
+      "pe_checksum": "0x000D568C",
       "owners": [
         "automatic:population",
         "automatic:safety",
         "feature:vv3_enable_origins_exclusive_features_full_mastery_candidate",
         "feature:vv3_full_mastery_all_stage_a_candidate"
       ],
-      "all_current_owners": [
+      "statistics_owners": [
         "automatic:population",
         "automatic:safety",
         "feature:vv3_enable_origins_exclusive_features_full_mastery_candidate",
         "feature:vv3_full_mastery_all_stage_a_candidate",
-        "feature:vv3_individual_grant_running_candidate",
-        "feature:vv3_nature_honey_refill",
-        "feature:vv3_nature_level_three_alters_mortality",
-        "feature:vv3_rare_collectible_retry",
         "feature:vv3_write_village_statistics"
       ]
     }

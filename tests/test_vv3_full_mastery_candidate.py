@@ -34,7 +34,7 @@ BASE = ROOT / "data" / "candidates" / "vv3_origins_full_mastery_base_candidate.j
 FEATURE = ROOT / "data" / "candidates" / "vv3_full_mastery_all_candidate.json"
 MAP = ROOT / "data" / "candidates" / "vv3_full_mastery_all_candidate_map.json"
 DOC = ROOT / "docs" / "vv3-full-mastery-stage-a-candidate.md"
-DLL = ROOT / "data" / "candidates" / "VVFP VV3 Full Mastery Candidate.dll"
+DLL = ROOT / "data" / "candidates" / "VVFP VV3 Safe Upgrade Foundation.dll"
 STOCK_MODES = (
     "collection_progression",
     "immediate_fixed",
@@ -122,10 +122,8 @@ class VV3FullMasteryCandidateTests(unittest.TestCase):
         self.assertEqual(
             runtime.raw["dependencies"], ["vv3_enable_origins_exclusive_features"]
         )
-        self.assertIn(
-            "1e6ad7fd610d2fe9d80416fb218366ccd7d0656b",
-            runtime.raw["certification_status"],
-        )
+        self.assertIn("prior certification", runtime.raw["certification_status"])
+        self.assertIn("awaits independent review", runtime.raw["certification_status"])
         self.assertEqual(self.feature_raw["dependencies"], [self.base_raw["id"]])
         contract = self.feature_raw["transaction_contract"]
         self.assertEqual((contract["command"], contract["price"]), (7, 1_000_000))
@@ -141,10 +139,10 @@ class VV3FullMasteryCandidateTests(unittest.TestCase):
             self.base_raw["unsupported_patch_modes"], list(EXPANDED_MODES)
         )
         frozen = {
-            BASE: "CFC662F6FD1405ABD4234B681A623D844B4FEA2A5B129CFE8BC1738C96A2D2A0",
+            BASE: "A84AF49B3981A62BB19E2D1A7406322E12B40EF30780651DF5342BD969A78FE5",
             FEATURE: "844A3CB7996793F51D741409C9EFAF675E07ED92122BCD2F91750766D7357783",
-            MAP: "602499C640D6743F7BE9C1090C2724689107879AEEFAF6424C0F6D871A31C5F1",
-            DLL: "35FB96199E745C7D8054FF6A12851B9E09225E3E41D0CE04012604E74968C0D5",
+            MAP: "F92E6E7A2C9F4D0800816BCA935C584916C862078DEDCFF55331E8091070FE13",
+            DLL: "A99584788F1726AF2DFDAE83BC9F42DE82DBD2DBA6E1ECD56222D2BDACB47681",
         }
         for path, expected in frozen.items():
             self.assertEqual(sha(path.read_bytes()), expected)
@@ -316,35 +314,24 @@ class VV3FullMasteryCandidateTests(unittest.TestCase):
         self.assertNotIn('1008,', isolated)
 
     def test_stock_modes_render_checksum_composition_and_uninstall(self):
-        compatible = [
-            item for item in load_fun_patches()
-            if item.game_id == "vv3"
-            and item.id
-            not in {
-                "vv3_enable_origins_exclusive_features",
-                "vv3_all_villagers_like_running",
-                "vv3_full_mastery_all_stage_a_candidate",
-                "vv3_full_heal_cure_all_candidate",
-                # This candidate map is an immutable certified historical
-                # projection. The later robe feature owns its composition
-                # pins and round-trip coverage in its dedicated test.
-                "vv3_everyone_tries_on_robe",
-            }
-        ]
-        # The all-current compatibility projection remains byte-identical to
-        # the historical certified parent even though the old Running record
-        # is withdrawn from production selection.
-        historical = json.loads(
-            (ROOT / "data/candidates/vv3_individual_grant_running_candidate.json").read_text(encoding="utf-8")
+        statistics = next(
+            item for item in load_fun_patches() if item.id == "vv3_write_village_statistics"
         )
-        compatible.append(FunPatch(historical))
         for mode in STOCK_MODES:
             with self.subTest(mode=mode):
                 baseline, _ = render_patched_bytes(STOCK, self.build, mode)
                 base_render, _ = render_patched_bytes(STOCK, self.build, mode, _fun_patches_override=[self.base])
-                rendered, applied = render_patched_bytes(STOCK, self.build, mode, _fun_patches_override=[self.base, self.feature, *compatible])
+                rendered, applied = render_patched_bytes(
+                    STOCK,
+                    self.build,
+                    mode,
+                    _fun_patches_override=[self.base, self.feature, statistics],
+                )
                 self.assertEqual(len(rendered), 0xCC000)
-                self.assertEqual(sha(rendered), self.map["rendered_candidates"][mode]["all_current_compatible_sha256"])
+                self.assertEqual(
+                    sha(rendered),
+                    self.map["rendered_candidates"][mode]["statistics_composition_sha256"],
+                )
                 checksum_offset, _ = _pe_checksum_layout(rendered)
                 stored = struct.unpack_from("<I", rendered, checksum_offset)[0]
                 copy = bytearray(rendered)
@@ -375,7 +362,7 @@ class VV3FullMasteryCandidateTests(unittest.TestCase):
         for mode in EXPANDED_MODES:
             with self.subTest(mode=mode):
                 self.assertIn(mode, self.map["rejected_patch_modes"])
-                with self.assertRaisesRegex(PatcherError, "has no append layout"):
+                with self.assertRaisesRegex(PatcherError, "stock modes only"):
                     render_patched_bytes(
                         STOCK,
                         self.build,

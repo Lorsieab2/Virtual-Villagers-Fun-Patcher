@@ -1007,7 +1007,7 @@ class StockIntegrationTests(unittest.TestCase):
                         "vv3_full_mastery_all_stage_a_candidate",
                         patches_by_game[build.id],
                     )
-                    with self.assertRaisesRegex(PatcherError, "(?:has no append layout|stock-mode only)"):
+                    with self.assertRaisesRegex(PatcherError, "stock modes only"):
                         render_patched_bytes(
                             STOCK / build.input_name,
                             build,
