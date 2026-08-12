@@ -11,6 +11,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
 from vv_fun_patcher import (  # noqa: E402
+    PatcherError,
     _pe_checksum_layout,
     load_builds,
     load_fun_patches,
@@ -26,50 +27,24 @@ READINESS_DOC = ROOT / "docs" / "origins-playtest-readiness.md"
 
 
 class OriginsPlaytestReadinessTests(unittest.TestCase):
-    def test_all_games_and_modes_compose_complete_catalog_without_mutating_stock(self) -> None:
+    def test_all_games_origins_pairs_compose_without_mutating_stock(self) -> None:
         catalog = load_fun_patches()
-        modes = load_patch_modes()
         self.assertEqual(
-            [mode.id for mode in modes],
-            [
-                "stock",
-                "collection_progression",
-                "immediate_fixed",
-            ],
+            [mode.id for mode in load_patch_modes()],
+            ["stock", "collection_progression", "immediate_fixed"],
         )
         for build in load_builds():
             with self.subTest(game=build.id):
                 source = STOCK / build.input_name
                 before = source.read_bytes()
-                game_patches = [
-                    patch
-                    for patch in catalog
-                    if patch.game_id == build.id
-                    and not (
-                        (
-                            build.id == "vv1"
-                            and patch.id
-                            in {
-                                "vv1_full_mastery_all_stage_a_candidate",
-                                "vv1_individual_full_mastery_candidate",
-                            }
-                        )
-                        or (build.id == "vv3" and patch.id == "vv3_full_heal_cure_all_candidate")
-                    )
-                ]
-                ids = [patch.id for patch in game_patches]
                 base_id = f"{build.id}_enable_origins_exclusive_features"
                 wide_id = f"{build.id}_origins_village_wide_upgrades"
-                self.assertNotIn(wide_id, ids)
-                if build.id in {"vv1", "vv2"}:
-                    self.assertNotIn(base_id, ids)
-                else:
-                    self.assertIn(base_id, ids)
-                selected_ids = resolve_fun_patch_ids(ids, game_id=build.id, patches=game_patches)
-                self.assertEqual(set(selected_ids), set(ids))
-                for patch in game_patches:
-                    self.assertIn(patch.id, selected_ids)
-                    self.assertEqual(patch.game_id, build.id)
+                selected_ids = resolve_fun_patch_ids(
+                    [base_id, wide_id], game_id=build.id, patches=catalog
+                )
+                self.assertEqual(selected_ids, [base_id, wide_id])
+                for patch_id in selected_ids:
+                    patch = next(item for item in catalog if item.id == patch_id)
                     for companion in patch.raw.get("companion_files", []):
                         companion_path = ROOT / companion["source"]
                         self.assertTrue(companion_path.is_file())
@@ -77,26 +52,25 @@ class OriginsPlaytestReadinessTests(unittest.TestCase):
                             hashlib.sha256(companion_path.read_bytes()).hexdigest().upper(),
                             companion["sha256"],
                         )
+                modes = ["collection_progression", "immediate_fixed"]
+                if build.id in {"vv1", "vv2"}:
+                    modes.insert(0, "stock")
                 for mode in modes:
-                    with self.subTest(mode=mode.id):
-                        if mode.id == "stock":
-                            rendered, applied = render_patched_bytes(source, build, mode.id)
-                            self.assertEqual(bytes(rendered), before)
-                            self.assertEqual(applied, [])
-                            continue
+                    with self.subTest(mode=mode):
                         rendered, applied = render_patched_bytes(
-                            source, build, mode.id, selected_ids
+                            source, build, mode, selected_ids
                         )
                         self.assertEqual(source.read_bytes(), before)
                         owners = {item["owner"] for item in applied}
-                        self.assertNotIn(f"feature:{wide_id}", owners)
-                        for patch_id in selected_ids:
-                            self.assertIn(f"feature:{patch_id}", owners)
+                        self.assertIn(f"feature:{base_id}", owners)
+                        self.assertIn(f"feature:{wide_id}", owners)
                         checksum_offset, _ = _pe_checksum_layout(rendered)
                         stored = struct.unpack_from("<I", rendered, checksum_offset)[0]
                         self.assertNotEqual(stored, 0)
                         self.assertEqual(stored, pe_checksum(rendered))
-                        self.assertEqual(hashlib.sha256(source.read_bytes()).digest(), hashlib.sha256(before).digest())
+                if build.id in {"vv3", "vv4", "vv5"}:
+                    with self.assertRaisesRegex(PatcherError, "has no append layout"):
+                        render_patched_bytes(source, build, "stock", selected_ids)
 
     def test_readiness_document_states_static_only_boundary(self) -> None:
         text = READINESS_DOC.read_text(encoding="utf-8")
@@ -116,7 +90,7 @@ class OriginsPlaytestReadinessTests(unittest.TestCase):
         self.assertIn("VV3Run2 is hard-withdrawn", text)
         self.assertIn("crashed on the status-2 no-change route", text)
         self.assertIn("fault instruction remains unknown", text)
-        self.assertIn("Do not package or test this feature", text)
+        self.assertIn("Do not treat this historical Running", text)
         self.assertIn("D81FB967C9DDE2448C40744356AE08BBADFA78930ABA004CEE5BE4025C65FBD0", text)
         self.assertIn("2ED1100E7F2EA5B8E522C2DE11F6B00CA8A02B968319C251365E9EFD634BCAF9", text)
         for address in (

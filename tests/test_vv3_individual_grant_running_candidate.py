@@ -180,7 +180,7 @@ class VV3IndividualGrantRunningCandidateTests(unittest.TestCase):
         self.assertIn("vv3_enable_origins_exclusive_features", by_id)
         self.assertIn("vv3_full_mastery_all_stage_a_candidate", by_id)
         self.assertNotIn("vv3_all_villagers_like_running", by_id)
-        self.assertNotIn("vv3_origins_village_wide_upgrades", by_id)
+        self.assertIn("vv3_origins_village_wide_upgrades", by_id)
         with self.assertRaisesRegex(PatcherError, "Unknown optional patch"):
             resolve_fun_patch_ids(
                 ["vv3_individual_grant_running_candidate"],
@@ -189,8 +189,6 @@ class VV3IndividualGrantRunningCandidateTests(unittest.TestCase):
             )
         with self.assertRaisesRegex(PatcherError, "Unknown optional patch"):
             resolve_fun_patch_ids(["vv3_all_villagers_like_running"], patches=patches)
-        with self.assertRaisesRegex(PatcherError, "Unknown optional patch"):
-            resolve_fun_patch_ids(["vv3_origins_village_wide_upgrades"], patches=patches)
         self.assertEqual(self.raw["revocation"]["superseded_by"], "vv3_individual_grant_running_revised_candidate")
 
     def test_buy_contract_mutations_fail_before_source_read(self) -> None:

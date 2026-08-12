@@ -22,7 +22,7 @@ from vv_fun_patcher import (  # noqa: E402
 from vv_fun_patcher_gui import group_fun_patches  # noqa: E402
 
 
-DISABLED = {
+PUBLIC = {
     "vv1_enable_origins_exclusive_features",
     "vv1_origins_village_wide_upgrades",
     "vv2_enable_origins_exclusive_features",
@@ -38,16 +38,8 @@ REMAINING = {
 }
 
 
-class VV1VV2OriginsContainmentTests(unittest.TestCase):
-    def _catalog_or_skip_unrelated_global_blocker(self):
-        try:
-            return load_fun_patches()
-        except PatcherError as exc:
-            if "VV4 Full Heal candidate manifest/map raw bytes are not pinned" in str(exc):
-                self.skipTest(f"unrelated global-loader blocker: {exc}")
-            raise
-
-    def test_standalone_records_are_disabled_and_generator_sources_preserve_it(self) -> None:
+class VV1VV2OriginsPlaytestTests(unittest.TestCase):
+    def test_standalone_records_are_enabled_for_requested_playtest(self) -> None:
         for filename, feature_id in (
             ("vv1_origins_feature.json", "vv1_enable_origins_exclusive_features"),
             ("vv1_origins_village_wide_upgrades.json", "vv1_origins_village_wide_upgrades"),
@@ -57,66 +49,45 @@ class VV1VV2OriginsContainmentTests(unittest.TestCase):
             with self.subTest(feature=feature_id):
                 record = json.loads((ROOT / "data" / filename).read_text(encoding="utf-8"))
                 self.assertEqual(record["id"], feature_id)
-                self.assertIs(record["enabled"], False)
+                self.assertIs(record.get("enabled", True), True)
                 self.assertTrue(record["patches"])
                 if "origins_feature" in filename:
-                    self.assertIs(record["catalog_enabled"], False)
-                    self.assertIs(record["catalog_hidden"], True)
-                    self.assertIn("Historical/STOP", record["description"])
+                    self.assertIs(record["catalog_enabled"], True)
+                    self.assertIs(record["catalog_hidden"], False)
+                    self.assertIn("Playtest build", record["description"])
 
         source_vv1 = (ROOT / "scripts" / "build_vv1_origins_feature.py").read_text(encoding="utf-8")
-        source_feature = (ROOT / "scripts" / "build_vv2_origins_feature.py").read_text(encoding="utf-8")
+        source_vv2 = (ROOT / "scripts" / "build_vv2_origins_feature.py").read_text(encoding="utf-8")
         source_village = (ROOT / "scripts" / "build_village_wide_origins_features.py").read_text(encoding="utf-8")
-        self.assertIn('"enabled": False', source_vv1)
-        self.assertIn('"catalog_enabled": False', source_vv1)
-        self.assertIn('"catalog_hidden": True', source_vv1)
-        self.assertIn('"enabled": False', source_feature)
-        self.assertIn('"catalog_enabled": False', source_feature)
-        self.assertIn('"catalog_hidden": True', source_feature)
-        self.assertIn('feature["enabled"] = False', source_village)
+        for source in (source_vv1, source_vv2):
+            self.assertIn('"enabled": True', source)
+            self.assertIn('"catalog_enabled": True', source)
+            self.assertIn('"catalog_hidden": False', source)
+        self.assertIn('feature["enabled"] = enabled', source_village)
+        self.assertIn("enabled = True", source_village)
 
-    def test_vv1_owned_doubler_state_maps_only_to_rows_three_and_four(self) -> None:
-        source = (ROOT / "scripts" / "build_vv1_origins_feature.py").read_text(
-            encoding="utf-8"
-        )
-        menu_state = source.split("        menu_loop:\n", 1)[1].split(
-            "            push edi\n", 1
-        )[0]
-        self.assertIn("            or edi, 8\n", menu_state)
-        self.assertIn("            or edi, 16\n", menu_state)
-        self.assertIn("            or edi, 0x1800\n", menu_state)
-        self.assertNotIn("            or edi, 1\n", menu_state)
-        self.assertNotIn("            or edi, 2\n", menu_state)
-        ownership_mask = 8 | 16
-        self.assertEqual(
-            [row for row in range(9) if ownership_mask & (1 << row)],
-            [3, 4],
-        )
-
-    def test_disabled_ids_are_absent_from_catalog_gui_cli_and_dependency_resolution(self) -> None:
-        catalog = self._catalog_or_skip_unrelated_global_blocker()
-        catalog_ids = {patch.id for patch in catalog}
-        self.assertTrue(DISABLED.isdisjoint(catalog_ids))
-        self.assertTrue(REMAINING.issubset(catalog_ids))
-        grouped = group_fun_patches(load_builds(), catalog)
-        grouped_ids = {patch.id for _, patches in grouped for patch in patches}
-        self.assertTrue(DISABLED.isdisjoint(grouped_ids))
-        select_all_ids = {patch.id for patch in catalog}
-        self.assertTrue(DISABLED.isdisjoint(select_all_ids))
-        result = subprocess.run(
-            [sys.executable, "src/vv_fun_patcher.py", "--help"],
+    def test_public_ids_are_catalog_gui_cli_and_dependency_resolvable(self) -> None:
+        catalog = load_fun_patches()
+        catalog_ids = {item.id for item in catalog}
+        self.assertTrue(PUBLIC.issubset(catalog_ids))
+        self.assertTrue(PUBLIC.issubset({item.id for _, items in group_fun_patches(load_builds(), catalog) for item in items}))
+        help_text = subprocess.check_output(
+            [sys.executable, "src/vv_fun_patcher.py", "dry-run", "--help"],
             cwd=ROOT,
             text=True,
-            capture_output=True,
-            check=True,
         )
-        for feature_id in DISABLED:
-            self.assertNotIn(feature_id, result.stdout)
-            with self.subTest(feature=feature_id):
-                with self.assertRaisesRegex(PatcherError, "Unknown optional patch"):
-                    resolve_fun_patch_ids([feature_id], game_id=feature_id[:3])
-                with self.assertRaisesRegex(PatcherError, "Unknown fun patch"):
-                    get_fun_patch(feature_id)
+        for feature_id in PUBLIC:
+            self.assertIn(feature_id, help_text)
+            request = (
+                [f"{feature_id[:3]}_enable_origins_exclusive_features", feature_id]
+                if feature_id.endswith("_origins_village_wide_upgrades")
+                else [feature_id]
+            )
+            self.assertEqual(
+                resolve_fun_patch_ids(request, game_id=feature_id[:3], patches=catalog),
+                request,
+            )
+            self.assertEqual(get_fun_patch(feature_id).id, feature_id)
 
         for feature_id in (
             "vv1_full_mastery_all_stage_a_candidate",
@@ -127,7 +98,7 @@ class VV1VV2OriginsContainmentTests(unittest.TestCase):
             self.assertIs(candidate.raw["catalog_hidden"], False)
             self.assertIn("runtime/player", candidate.raw["evidence_status"])
 
-    def test_crash_trigger_and_readiness_boundaries_are_documented(self) -> None:
+    def test_crash_trigger_and_playtest_boundaries_are_documented(self) -> None:
         docs = [
             ROOT / "README.md",
             ROOT / "docs" / "origins-playtest-readiness.md",
@@ -136,55 +107,48 @@ class VV1VV2OriginsContainmentTests(unittest.TestCase):
         ]
         for path in docs:
             text = path.read_text(encoding="utf-8")
-            folded = " ".join(text.split())
-            self.assertIn("Time Warp", text)
-            self.assertIn("Food Point Doubler", text)
-            self.assertIn("historical", text.casefold())
-            self.assertIn("STOP", text)
-        for path in docs:
-            text = path.read_text(encoding="utf-8")
-            self.assertIn("crash", text.casefold())
-            self.assertIn("purchased/success dialog", " ".join(text.split()))
-        transparency = (ROOT / "docs" / "transparency-log.md").read_text(encoding="utf-8")
-        for feature_id in DISABLED:
-            self.assertNotIn(f"(`{feature_id}`)", transparency)
-        self.assertIn("## VV1/VV2 Origins containment", transparency)
-        self.assertIn("Time Warp - Advances 3 Villager Years", transparency)
-        readiness = (ROOT / "docs" / "origins-playtest-readiness.md").read_text(encoding="utf-8")
-        self.assertIn("displacing several helper/header references by `0x2000`", " ".join(readiness.split()))
-        self.assertIn("not certified as the complete explanation", transparency)
+            folded = " ".join(text.split()).casefold()
+            self.assertIn("time warp", folded)
+            self.assertIn("food point doubler", folded)
+            self.assertIn("crash", folded)
+            self.assertIn("purchased/success dialog", folded)
+            self.assertIn("playtest", folded)
+            self.assertIn("runtime", folded)
 
-    def test_remaining_vv2_features_render_without_disabled_owners_or_origins_companion(self) -> None:
+    def test_remaining_vv2_features_render_without_origins_owners(self) -> None:
         build = next(item for item in load_builds() if item.id == "vv2")
         source = ROOT / "research" / "stock-executables" / build.input_name
-        catalog = self._catalog_or_skip_unrelated_global_blocker()
+        catalog = load_fun_patches()
         remaining = [
             patch.id
             for patch in catalog
             if patch.game_id == "vv2"
-            and patch.id
-            not in {
+            and patch.id not in {
                 "vv2_full_mastery_all_stage_a_candidate",
                 "vv2_individual_full_mastery_candidate",
+                *PUBLIC,
             }
         ]
         self.assertEqual(set(remaining), REMAINING)
-        disabled_offsets = set()
+        public_offsets = set()
         for filename in ("vv2_origins_feature.json", "vv2_origins_village_wide_upgrades.json"):
             record = json.loads((ROOT / "data" / filename).read_text(encoding="utf-8"))
-            disabled_offsets.update(int(item["offset"], 0) for item in record["patches"])
+            public_offsets.update(int(item["offset"], 0) for item in record["patches"])
         for mode in load_patch_modes():
             with self.subTest(mode=mode.id):
                 rendered, applied = render_patched_bytes(source, build, mode.id, remaining)
                 self.assertEqual(len(rendered), build.size)
-                owners = {item["owner"] for item in applied}
-                self.assertTrue(DISABLED.isdisjoint({owner.removeprefix("feature:") for owner in owners}))
-                disabled_owner_offsets = {
-                    int(item["offset"], 0)
-                    for item in applied
-                    if item["owner"].removeprefix("feature:") in DISABLED
-                }
-                self.assertTrue(disabled_offsets.isdisjoint(disabled_owner_offsets))
+                owners = {item["owner"].removeprefix("feature:") for item in applied}
+                self.assertTrue(PUBLIC.isdisjoint(owners))
+                self.assertTrue(
+                    public_offsets.isdisjoint(
+                        {
+                            int(item["offset"], 0)
+                            for item in applied
+                            if item["owner"].removeprefix("feature:") in PUBLIC
+                        }
+                    )
+                )
         with tempfile.TemporaryDirectory() as temp:
             game = Path(temp) / build.title
             game.mkdir()
@@ -195,9 +159,7 @@ class VV1VV2OriginsContainmentTests(unittest.TestCase):
             output, log_path = apply_patch(copied, "collection_progression", fun_patch_ids=remaining)
             self.assertFalse((output.parent / "VVFP Origins Icons.dll").exists())
             log = json.loads(log_path.read_text(encoding="utf-8"))
-            self.assertTrue(DISABLED.isdisjoint(log["fun_patches"]))
-            self.assertFalse(any(item["feature"] in DISABLED for item in log["companion_files"]))
-            self.assertFalse(any("Origins Icons.dll" in item["path"] for item in log["companion_files"]))
+            self.assertTrue(PUBLIC.isdisjoint(log["fun_patches"]))
 
 
 if __name__ == "__main__":

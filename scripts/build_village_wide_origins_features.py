@@ -55,7 +55,10 @@ CONFIG = {
         "sha256": "46C1503C209255C9CDEFA941DB2F449C8CF8E2CDD5C7D13CD975326E377ED677",
         "cave_offset": 0x9A004,
         "cave_va": 0x49C004,
-        "payload_offset": 0x9A180,
+        # The VV2 base Origins UI uses 0x9A180-0x9A7CB for its preflight and
+        # event helpers. Keep this optional village-wide payload after that
+        # occupied range inside the same executable .shr reserve.
+        "payload_offset": 0x9A800,
         "stride": 0xE48C,
         "first": "ecx",
         "active": 0x30,
@@ -404,16 +407,24 @@ def main() -> None:
         out_exe.write_bytes(rendered)
         feature_id = f"{game_id}_origins_village_wide_upgrades"
         feature_name = "Enable Origins Village-Wide Upgrades"
+        enabled = True
         description = (
-            "Retains the historical Origins rows from the Virtual Villagers 1 mobile port "
-            "as disabled diagnostic provenance rather than public Tech-screen upgrades: "
+            (
+                "Requested static/playtest package: enables the existing Origins Tech-screen "
+                "Upgrades button and menu, then "
+                "adds the village-wide rows from the Virtual Villagers 1 mobile port: "
+            )
+            if enabled
+            else (
+                "Retains the historical Origins rows from the Virtual Villagers 1 mobile port "
+                "as disabled diagnostic provenance rather than public Tech-screen upgrades: "
+            )
+        ) + (
             "All Villagers Like Running, Grant Full Mastery to All Villagers, and All "
-            "Villagers are 18. Each historical row is priced at "
-            "1,000,000 tech points in the retained record, and none is a "
-            "public catalog item. The legacy Running helper and its preference-table "
-            "facts are not native ABI proof. Mastery writes only the native skill fields. "
-            "Age changes only the displayed age to 18 and does not change nursing or "
-            "pregnancy timers."
+            "Villagers are 18. Each row costs 1,000,000 tech points in the current save. "
+            "The legacy Running helper and its preference-table facts are not native ABI "
+            "proof. Mastery writes only the native skill fields. Age changes only the "
+            "displayed age to 18 and does not change nursing or pregnancy timers."
         )
         if game_id == "vv5":
             description += " Only eligible living believers are processed; Heathens are excluded and remain untouched."
@@ -492,9 +503,10 @@ def main() -> None:
                 }
             ],
         }
-        # Commands 6/7/8 are one atomic payload. Keep every game fail-closed
-        # until that game's complete village-wide payload receives a GO gate.
-        feature["enabled"] = False
+        # This user-requested package exposes the complete five-game set as
+        # static/runtime-playtest options. It does not claim player or runtime
+        # GO, and the package documentation preserves the reported crash gates.
+        feature["enabled"] = enabled
         if game_id == "vv5":
             feature["record_fields"].update(
                 {

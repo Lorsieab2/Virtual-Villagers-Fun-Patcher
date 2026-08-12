@@ -1,14 +1,14 @@
 # Origins village-wide upgrades
 
-## Current atomic-payload safety containment
+## Current static/playtest package boundary
 
-All five legacy `vvN_origins_village_wide_upgrades` records are fail-closed and are
-not offered by the catalog, GUI, CLI, or Select All. Commands 6, 7, and 8 share
-one atomic payload, so the complete feature remains unavailable until each
-game receives a full-payload GO gate. VV3's independent command-6 source does
-not expose commands 7/8, but its VV3Run2 playtest is hard-withdrawn under
-crash audit `36f14702b938a6235230a3fd3e0c34328d3ac745`; it must not be
-packaged or treated as runtime-ready. The VV4 audit
+All five `vvN_origins_village_wide_upgrades` records are catalog-visible in
+the requested static/playtest package and are offered by the GUI, CLI, and
+Select All. Commands 6, 7, and 8 share one atomic payload, so this exposure is
+not a complete per-game runtime/player GO gate. VV3's independent command-6
+source does not replace the atomic record, and its VV3Run2 playtest remains
+hard-withdrawn under crash audit `36f14702b938a6235230a3fd3e0c34328d3ac745`.
+The VV4 audit
 `628e0d9217b92b9cd695655842b09d74689a0238` proves that command 7's direct
 `90.0` mastery stores bypass eight native mutations. The VV5 audit
 `02581c8f518e27ebd5fc7d2972db5597ab08ed35` records unresolved native-counter,
@@ -16,11 +16,12 @@ eligibility, no-change, inheritance, and expanded-layout requirements. VV3 is
 ON HOLD under exact-build audit
 `089957227c0db6a4c3128045519ffa27b201a00e`; VV1 is not certified.
 
-The legacy manifests below remain as disabled diagnostic evidence; their payload
-bytes are not applied. Containment does not clear or rewrite existing save
-fields, issue a refund, or copy a companion DLL. Base Origins remains
-independently selectable for VV1, VV3, VV4, and VV5; VV2's complete Origins
-pair remains separately contained after its reported crashes.
+The manifests below are selectable diagnostic/playtest payloads. Static patch
+generation does not clear or rewrite existing save fields, issue a refund, or
+copy a companion DLL. Each base Origins record owns the Tech-screen button and
+menu; its dependent village-wide record owns the three optional rows. VV1/VV2
+retain their reported crash warnings, and runtime/player confirmation remains
+pending for all five games.
 
 The five historical bundled features are separate, game-scoped manifests:
 
@@ -36,10 +37,11 @@ shared companion DLL. The optional manifest owns only its exact-build,
 zero-filled extension reserve and its signed ABI header/payload; it does not
 rewrite base Origins payload bytes or copy another companion DLL.
 
-The VV2 record is additionally covered by the complete VV2 Origins
-containment after player-reported crashes in Time Warp and Food Point Doubler.
-Its historical payload remains in the data file for diagnosis, but it is not
-applied or copied; unrelated VV2 features remain available.
+The VV2 record is additionally covered by the VV2 Origins playtest warning
+after player-reported crashes in Time Warp and Food Point Doubler. Its payload
+is exposed for targeted static/playtest work, but that exposure is not a crash
+fix or a player/runtime validation result; unrelated VV2 features remain
+available.
 
 The optional ABI exposes three commands to the dormant base-payload extension
 hook. The base passes `EAX=6/7/8`, `ECX=first physical record pointer`, and
@@ -58,13 +60,13 @@ and `ESP`.
 These selected upgrades are inspired by the exclusive upgrades in the Virtual
 Villagers 1 mobile port. They are current-save-only purchases. Running removes
 Running from Dislikes and writes Running only to a free normal Like slot. The
-historical helper/result wording is retained only as rejected diagnostic
+historical helper/result wording is retained as diagnostic contract
 evidence; the exact future atomic contract is specified below. The charge
 contract is one million tech points for the village-wide purchase, not per
 villager. VV3Run2 is withdrawn after an intermittent status-2 no-change
 crash; static ABI/pointer checks pass, no saved overwrite was found, and the
-fault instruction remains unknown. Every other village-wide command remains
-unavailable. The implementation is tailored to each
+fault instruction remains unknown. The three rows are exposed as a static
+payload, but none is claimed runtime-safe. The implementation is tailored to each
 supported executable: it independently reads the numeric Running ID certified
 in that game's exact stock preference table. All five current tables happen to
 resolve Running to ID 38, but that is not a blanket cross-game assumption. The

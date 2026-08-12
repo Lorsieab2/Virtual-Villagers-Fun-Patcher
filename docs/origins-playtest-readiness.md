@@ -9,24 +9,28 @@ insufficient. Retroactive memorial initialization and expanded-256 walker
 coverage remain ON HOLD.
 
 This document records the patcher's five-game composition matrix for the
-current Origins catalog. For each supported game, the test selects every
-enabled game-scoped optional patch, resolves prerequisites in dependency-first
-order, and renders all four population modes against the exact stock
-executable. It verifies every byte guard, feature owner, PE checksum, and
-shared Origins companion hash while proving that the stock executable remains
-byte-identical.
+current Origins catalog. For each supported game, the test selects the base
+Origins record and its dependent Village-Wide record, resolves prerequisites in
+dependency-first order, and renders the supported Origins compositions against
+the exact stock executable. It verifies every byte guard, feature owner, PE
+checksum, and shared Origins companion hash while proving that the stock
+executable remains byte-identical. VV3-VV5 Origins compositions use Collection
+Progression or Immediate Fixed; their certified append layouts do not include
+stock.
 
 This is static composition/readiness only. It does not prove player-visible
 runtime behavior, and runtime/player confirmation remains pending. The test
 never launches a game and does not authorize packaging by itself.
 
-## VV1/VV2 Origins containment
+## VV1/VV2 Origins playtest boundary
 
-The VV1 and VV2 Origins feature records and both dependent village-wide
-records are disabled and absent from catalog, GUI, CLI, dependency resolution,
-Select All, and generated per-feature transparency. Their legacy Time Warp,
-Cure, Running, doubler, and selected-villager actions are historical/STOP
-evidence only and must not be launched, purchased, packaged, or emitted.
+The requested package exposes the VV1 and VV2 Origins feature records and both
+dependent village-wide records in the catalog, GUI, CLI, dependency
+resolution, Select All, and generated per-feature transparency. Their legacy
+Time Warp, Cure, Running, doubler, and selected-villager actions remain
+historical/STOP evidence for runtime purposes; the package is static/source
+verified only and must not be interpreted as player validation. VV2 retains
+the reported Time Warp and Food Point Doubler crash warning.
 
 VV1 re-enablement requires rebuilding the companion resource with the exact
 label `Time Warp - Advances 3 Villager Years`, removing or replacing stale Cure
@@ -42,19 +46,20 @@ these contained Origins records. They remain catalog-visible static candidates
 for stock Collection Progression and Immediate Fixed, reject Expanded-256, and
 remain runtime/player-confirmation pending.
 
-## Village-wide Origins containment
+## Village-wide Origins playtest boundary
 
-All five legacy `vvN_origins_village_wide_upgrades` records are disabled and absent
-from the catalog. Their commands 6/7/8 are bundled in one atomic payload, so
-Running, Full Mastery, and Age 18 remain unavailable together until each
-game's complete payload receives a GO gate. VV3's separately generated
+All five legacy `vvN_origins_village_wide_upgrades` records are exposed in the
+requested static/playtest catalog. Their commands 6/7/8 are bundled in one
+atomic payload, so catalog exposure is not a runtime/player GO gate. VV3's separately generated
 command-6-only All Villagers Like Running source remains preserved but catalog-hidden, and
 VV3Run2 is hard-withdrawn from playtesting under crash audit
 `36f14702b938a6235230a3fd3e0c34328d3ac745`. The exact tested EXE/DLL pair
 crashed on the status-2 no-change route. Static ABI and pointer checks pass,
 the save snapshot and rotations show no saved preference overwrite, and the
-fault instruction remains unknown. Do not package or test this feature until
-a fresh crash/no-change gate is certified. It does not expose commands 7/8.
+fault instruction remains unknown. Do not treat this historical Running
+candidate as runtime-safe until a fresh crash/no-change gate is certified. The
+separate atomic village-wide record is exposed for static composition and
+contains the documented rows 6/7/8.
 The exact withdrawn pair is EXE
 `D81FB967C9DDE2448C40744356AE08BBADFA78930ABA004CEE5BE4025C65FBD0`
 and DLL
@@ -239,20 +244,21 @@ cached `Images\\btn_trophies.png`, the proven native resource `0x6A` (96x39), at
 `0x40C680` ownership; independent emitted-byte recertification remains
 required.
 
-The disabled diagnostic payload bytes are retained in their manifests but are
-not rendered into stock or expanded outputs. This catalog containment does not
-touch existing save ownership or fields, force-clear anything, or issue a
-refund. Base Origins remains independently composable for VV1, VV3, VV4, and
-VV5; VV2 base Origins remains separately contained.
+The requested package exposes the five base Origins records and their five
+dependent village-wide payloads in static composition. This catalog exposure
+does not touch existing save ownership or fields, force-clear anything, or
+issue a refund. Base Origins remains independently composable when selected
+without its dependent rows; the matching pair is the supported static
+Village-Wide composition.
 
-## VV2 Origins containment
+## VV2 Origins playtest warning
 
-VV2 Origins is currently unavailable and must not be selected. A player
+VV2 Origins is available for requested static/targeted playtesting. A player
 reported that both Time Warp and Food Point Doubler crash immediately after
 their purchased/success dialog is displayed. This records the observed trigger
 only; it does not infer whether the charge or action persisted. Both
 `vv2_enable_origins_exclusive_features` and dependent
-`vv2_origins_village_wide_upgrades` are disabled pending root-cause repair.
+`vv2_origins_village_wide_upgrades` remain runtime/player validation pending.
 Unrelated VV2 optional features remain independently selectable.
 
 The crash audit also found that the VV2 Origins builder confused `.shr` raw
@@ -260,8 +266,8 @@ offsets with virtual addresses, displacing several helper/header references by
 `0x2000`. The isolated VV2 stress-test builder now corrects those runtime VAs,
 extends the `.shr` virtual size/execute flags, and maps the payload's `.rdata`
 tail as executable code. Static render and protected regression checks pass;
-runtime/player confirmation remains required before re-enablement, so this
-does not change the disabled catalog state.
+runtime/player confirmation remains required before any runtime-safe claim; this
+does not change the static playtest catalog exposure.
 
 VV2 Full Mastery command 7 is statically enabled and catalog-visible only for
 stock Collection Progression and Immediate Fixed under independent emitted-byte

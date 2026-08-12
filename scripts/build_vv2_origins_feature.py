@@ -1468,27 +1468,21 @@ def main() -> None:
 
     manifest = {
         "id": "vv2_enable_origins_exclusive_features",
-        "enabled": False,
-        "catalog_enabled": False,
-        "catalog_hidden": True,
+        "enabled": True,
+        "catalog_enabled": True,
+        "catalog_hidden": False,
         "game_id": "vv2",
         "running_preference_id": RUNNING_PREFERENCE_ID,
         "running_preference_evidence": {"source": "exact stock executable embedded preference table", "table_file_offset": "0x8B808", "entry_name": "running"},
         "name": "Enable Origins-Exclusive Features",
         "description": (
-            "Historical/STOP VV2 Origins evidence retained for audit only. The legacy "
-            "Time Warp, Cure all Villagers, village-wide Running, doublers, and "
-            "selected-villager Origins actions are disabled, catalog-hidden, not "
-            "selectable, and not emitted after reported Time Warp and Food Point Doubler "
-            "crashes. Existing diagnostic patches and stale resource references do not "
-            "authorize runtime use. Re-enablement requires root-cause repair plus the "
-            "exact Time Warp resource replacement/rebuild, removal or replacement of "
-            "legacy Cure resources, action-specific confirmation, selected/world identity "
-            "and funds reacquisition, native mutation and postverification, one deduction "
-            "only after success, and truthful no-change/no-charge and partial-failure "
-            "reporting. Gong of Wonder and Island Event outcomes remain native. The "
-            "separate isolated command-7 Full Mastery candidate is not this Origins "
-            "record and retains its own static-only, runtime/player-pending status."
+            "Playtest build: enables the exact-build Origins Tech and Villager Detail "
+            "Upgrades menus, including the historical Time Warp, Cure, doubler, and "
+            "selected-villager rows. The dependent Village-Wide record supplies the "
+            "three village-wide rows. This package is static/source verified only; "
+            "reported Time Warp and Food Point Doubler crashes and complete player "
+            "transaction validation remain pending. Gong of Wonder and Island Event "
+            "outcomes remain native."
         ),
         "output_tag": "Origins Exclusive Features",
         "companion_files": [

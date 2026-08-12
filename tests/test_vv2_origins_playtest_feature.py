@@ -30,8 +30,8 @@ class VV2OriginsPlaytestFeatureTests(unittest.TestCase):
         self.build = next(build for build in load_builds() if build.id == "vv2")
         self.source = STOCK / self.build.input_name
 
-    def test_disabled_feature_is_not_in_normal_catalog(self) -> None:
-        self.assertNotIn(
+    def test_feature_is_in_normal_catalog(self) -> None:
+        self.assertIn(
             VV2_PLAYTEST_DISABLED_FEATURE_ID,
             {patch.id for patch in load_fun_patches()},
         )
@@ -202,7 +202,7 @@ class VV2OriginsPlaytestFeatureTests(unittest.TestCase):
         self.assertEqual(result["absolute_maximum"], 256)
 
     def test_unknown_or_mixed_playtest_selection_is_rejected(self) -> None:
-        with self.assertRaisesRegex(PatcherError, "Only the disabled VV2 Origins"):
+        with self.assertRaisesRegex(PatcherError, "Only the VV2 Origins"):
             render_patched_bytes(
                 self.source,
                 self.build,

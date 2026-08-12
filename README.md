@@ -77,13 +77,14 @@ Building skill gains, and completion behavior. Villagers assigned to other
 jobs retain their stock high-food scheduling. The shared scheduler covers both
 ordinary play and elapsed-time catch-up.
 
-## VV1 Origins containment
+## VV1 Origins playtest package
 
-The legacy **Enable Origins-Exclusive Features (A New Home)** record is
-disabled, catalog-hidden, and absent from GUI, CLI, dependency resolution,
-Select All, and generated transparency output. The rows documented below are
-retained only as historical diagnostic evidence; they are not selectable or
-emitted:
+The requested playtest package exposes **Enable Origins-Exclusive Features (A
+New Home)** and its dependent **Enable Origins Village-Wide Upgrades** record
+in the GUI, CLI, dependency resolution, Select All, and generated
+transparency output. This is static/source-verified package exposure only;
+reported runtime crashes and complete player transaction validation remain
+pending. The rows documented below are the historical menu contract:
 
 - **Time Warp** — 50,000 tech points; advances the village by exactly 3
   displayed villager years. The elapsed-clock shift scales with game speed;
@@ -129,18 +130,18 @@ command-7-only, catalog-visible static candidate for stock Collection
 Progression and Immediate Fixed. It is not the disabled Origins record;
 runtime/player confirmation remains pending.
 
-## VV2 Origins containment
+## VV2 Origins playtest package
 
-**Containment notice:** VV2 Origins is currently disabled after a player
-reported that both Time Warp and Food Point Doubler crash immediately after
-their purchased/success dialog is displayed. This records the trigger only;
-it does not infer whether the charge or action persisted. Both
+**Playtest warning:** VV2 Origins is exposed in this requested package after a
+player reported that both Time Warp and Food Point Doubler crash immediately
+after their purchased/success dialog is displayed. This records the trigger
+only; it does not infer whether the charge or action persisted. Both
 `vv2_enable_origins_exclusive_features` and its dependent village-wide upgrade
-are contained pending root-cause repair. Unrelated VV2 patches remain
-available.
+are selectable for targeted static/playtest work, but remain runtime/player
+validation pending. Unrelated VV2 patches remain available.
 
-The rows formerly proposed by **Enable Origins-Exclusive Features (The Lost
-Children)** are retained only as historical diagnostic evidence:
+The rows provided by **Enable Origins-Exclusive Features (The Lost Children)**
+remain the historical diagnostic menu contract:
 
 - **Time Warp**, **Island Event**, and the literal stock **Barrel of Babies**
   event;
@@ -149,11 +150,12 @@ Children)** are retained only as historical diagnostic evidence:
 - **Grant Youth**, **Grant Full Mastery**, **Grant Running**, and **Set Age to
   18** for the selected villager.
 
-These legacy Cure, Running, Time Warp, doubler, and selected-villager Origins
-paths are not selectable or emitted. Re-enablement requires the crash root
-cause, the exact Time Warp resource rebuild, legacy Cure replacement, and the
-complete confirmation/reacquisition/postverification/one-deduction transaction
-gates. This containment changes no Gong of Wonder or Island Event outcome.
+The package does not claim that these legacy Cure, Running, Time Warp, doubler,
+or selected-villager paths are runtime-safe. Re-enablement of runtime/player
+behavior requires the crash root cause, the exact Time Warp resource rebuild,
+legacy Cure replacement, and the complete
+confirmation/reacquisition/postverification/one-deduction transaction gates.
+This package changes no Gong of Wonder or Island Event outcome.
 
 The separate `vv2_full_mastery_all_stage_a_candidate` remains an isolated,
 command-7-only, catalog-visible static candidate for stock Collection
@@ -480,7 +482,7 @@ The independently recertified VV1 stock-only Full Mastery candidate is exposed
 as `vv1_full_mastery_all_stage_a_candidate` for `collection_progression` and
 `immediate_fixed` only. Runtime/player confirmation remains pending.
 
-Pass `--patch-mode stock`, `--patch-mode collection_progression`, or `--patch-mode immediate_fixed` to `dry-run`, `apply`, `dry-run-all`, or `apply-all`. Optional features use repeatable `--fun-patch` arguments. The available IDs are `vv1_school_lessons_grant_skill`, `vv1_continue_research_at_max_technologies`, `vv1_f6_clothing_change_cheat`, `vv1_magic_fruit_alters_mortality`, `vv1_builder_action_fixes`, `vv1_full_mastery_all_stage_a_candidate`, `vv2_easier_healing_mastery`, `vv2_teaching_children_grants_skill`, `vv2_hospital_recovery_heals`, `vv2_birth_control`, `vv2_gong_of_wonder_coconuts_fix`, `vv2_full_mastery_all_stage_a_candidate`, `vv3_nature_honey_refill`, `vv3_nature_level_three_alters_mortality`, `vv3_rare_collectible_retry`, `vv3_enable_origins_exclusive_features`, `vv3_full_mastery_all_stage_a_candidate`, `vv4_complete_scales_golden_fish`, `vv4_enable_origins_exclusive_features`, `vv5_heathen_mommy_puzzle`, `vv5_easier_devotee_training`, `vv5_statue_polishing_or_honoring`, `vv5_vv4_nursery_divisor_parity`, and `vv5_enable_origins_exclusive_features`. The disabled VV3 Full Heal / Cure All candidate is not a CLI or catalog ID. The per-game Village Statistics IDs are `vv1_write_village_statistics`, `vv2_write_village_statistics`, `vv3_write_village_statistics`, `vv4_write_village_statistics`, and `vv5_write_village_statistics`. The VV1/VV2 Origins IDs and both dependent village-wide records remain intentionally omitted while contained; the VV4 Origins/Full Mastery records are also omitted pending fresh recertification.
+Pass `--patch-mode stock`, `--patch-mode collection_progression`, or `--patch-mode immediate_fixed` to `dry-run`, `apply`, `dry-run-all`, or `apply-all`. Optional features use repeatable `--fun-patch` arguments. The available IDs include each game's Origins pair: `vv1_enable_origins_exclusive_features`, `vv1_origins_village_wide_upgrades`, `vv2_enable_origins_exclusive_features`, `vv2_origins_village_wide_upgrades`, `vv3_enable_origins_exclusive_features`, `vv3_origins_village_wide_upgrades`, `vv4_enable_origins_exclusive_features`, `vv4_origins_village_wide_upgrades`, `vv5_enable_origins_exclusive_features`, and `vv5_origins_village_wide_upgrades`, together with the other IDs listed by the chooser. The Origins pair is a requested static/playtest package; runtime/player confirmation remains pending. Use `collection_progression` or `immediate_fixed` for the VV3-VV5 Origins pair because their certified append layouts do not include `stock`. The disabled VV3 Full Heal / Cure All candidate is not a CLI or catalog ID. The per-game Village Statistics IDs are `vv1_write_village_statistics`, `vv2_write_village_statistics`, `vv3_write_village_statistics`, `vv4_write_village_statistics`, and `vv5_write_village_statistics`.
 
 The statically certified VV2 command-7-only Full Mastery feature is catalog-visible
 only for stock Collection Progression and Immediate Fixed; runtime/player
@@ -514,21 +516,20 @@ Technical evidence is in `docs/max-population-research.md`,
 `docs/experimental-256-cap-research.md`, and the game-specific reports under
 `docs/`.
 
-The five legacy Origins village-wide feature records are currently fail-closed and
-absent from the catalog because commands 6/7/8 share one atomic payload whose
-Full Mastery path has not received a complete GO gate as an atomic bundle. The disabled
-diagnostic IDs are `vv1_origins_village_wide_upgrades` through
-`vv5_origins_village_wide_upgrades`. Their payload bytes are retained for
-evidence but are not applied. Each historically depends on that game's
+The five legacy Origins village-wide feature records are catalog-visible in
+this requested static/playtest package. Each depends on that game's
 `enable_origins_exclusive_features` prerequisite and adds the three
 1,000,000-tech-point rows: All Villagers Like Running, Grant Full Mastery to All
-Villagers, and All Villagers are 18. VV3's corrected command-6-only
+Villagers, and All Villagers are 18. This exposure does not provide a complete
+runtime/player GO gate for the atomic bundle. VV3's corrected command-6-only
 `vv3_all_villagers_like_running` feature is HARD WITHDRAWN and catalog-hidden
 after the intermittent Run2 status-2 crash; runtime fault capture remains
-required and commands 7/8 remain absent. VV4's
+required. The atomic village-wide record remains a separate static payload for
+targeted composition, and commands 7/8 are not claimed runtime-safe. VV4's
 independent command-7-only Full Mastery implementation is emitted-byte
 certified under `91a01eba0dc561b1244184301837b7199868c490` and enabled without
-exposing commands 6/8 or the legacy atomic village-wide record.
+exposing commands 6/8 in that isolated candidate; the legacy atomic
+village-wide record is separately exposed by this package.
 VV5's former command-7-only Full Mastery package at commit `5e52be5` was
 withdrawn after an immediate startup auto-close. The corrected constructors
 were independently certified under `7970cd9`, and M2 passed startup and Full

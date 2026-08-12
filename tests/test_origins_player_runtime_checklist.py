@@ -27,7 +27,7 @@ class OriginsPlayerRuntimeChecklistTests(unittest.TestCase):
             "Barrel of Babies | 75,000 tech points",
             "Tech Point Doubler | 500,000 tech points",
             "Food Point Doubler | 500,000 tech points",
-            "Historical sickness-only row; VV1/VV2 must not expose or run it",
+            "Historical sickness-only row; VV1/VV2 runtime/player validation remains pending",
             "1,000,000 tech points",
             "Grant Youth costs 50,000",
             "Grant Full Mastery costs 100,000",
@@ -42,8 +42,8 @@ class OriginsPlayerRuntimeChecklistTests(unittest.TestCase):
             "Not enough tech points.",
             "No current VV5 Heathen may be targeted or charged",
             "No game is launched",
-            "VV1 and VV2 Origins and both dependent village-wide records are disabled",
-            "VV2 Time Warp and both doublers are not purchasable, removable, repurchasable",
+            "VV1 and VV2 Origins and both dependent village-wide records are exposed",
+            "VV2 Time Warp and both doublers remain runtime/player validation pending",
             "The enabled static VV2 Full Mastery candidate targets its five native skill fields",
             "13f4341201fa7757d23f77c5c17602bbe7bbf21d",
             "sub_44D4C0",
@@ -99,16 +99,16 @@ class OriginsPlayerRuntimeChecklistTests(unittest.TestCase):
                 )
             elif game in (1, 2):
                 self.assertNotIn("30,000", origins["description"])
-                self.assertIn("Historical/STOP", origins["description"])
-                self.assertIs(origins["enabled"], False)
-                self.assertIs(origins["catalog_enabled"], False)
-                self.assertIs(origins["catalog_hidden"], True)
+                self.assertIn("Playtest build", origins["description"])
+                self.assertIs(origins["enabled"], True)
+                self.assertIs(origins["catalog_enabled"], True)
+                self.assertIs(origins["catalog_hidden"], False)
             else:
                 self.assertIn("30,000", origins["description"])
             self.assertIn("1,000,000", wide["description"])
         self.assertIn("VV3Run2 is hard-withdrawn", text)
         self.assertIn("36f14702b938a6235230a3fd3e0c34328d3ac745", text)
-        self.assertIn("package or continue runtime testing", text)
+        self.assertIn("packaged for requested static/targeted playtesting", text)
         self.assertNotIn("permits runtime playtesting", text)
         self.assertIn("f1555e295e828af2165ab0b7ea9f051ac9736418", text)
         self.assertIn("`-1` means empty but never terminates the scan", text)
@@ -198,6 +198,15 @@ class OriginsPlayerRuntimeChecklistTests(unittest.TestCase):
                     self.assertEqual(
                         [item for item in current["patches"] if item["offset"] not in repaired_offsets],
                         [item for item in previous["patches"] if item["offset"] not in repaired_offsets],
+                        path.name,
+                    )
+                elif path.name == "vv1_origins_feature.json":
+                    # The public menu build now emits the corrected owned-row
+                    # mask at 0x56900; the prior hidden manifest carried the
+                    # stale mask and is not an authoritative byte baseline.
+                    self.assertEqual(
+                        [item for item in current["patches"] if item["offset"] != "0x56900"],
+                        [item for item in previous["patches"] if item["offset"] != "0x56900"],
                         path.name,
                     )
                 else:

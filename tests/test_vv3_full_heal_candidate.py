@@ -109,7 +109,7 @@ class VV3FullHealCandidateTests(unittest.TestCase):
         ids = {item.id for item in patches}
         self.assertIn(v.VV3_FULL_HEAL_CANDIDATE_ID, ids)
         self.assertNotIn("vv3_all_villagers_like_running", ids)
-        self.assertNotIn("vv3_origins_village_wide_upgrades", ids)
+        self.assertIn("vv3_origins_village_wide_upgrades", ids)
         full_chain = [
             "vv3_enable_origins_exclusive_features",
             "vv3_full_mastery_all_stage_a_candidate",

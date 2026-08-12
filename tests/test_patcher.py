@@ -350,10 +350,10 @@ class ManifestTests(unittest.TestCase):
             for patch in load_fun_patches()
             if "origins_village_wide_upgrades" in patch.id
         }
-        self.assertEqual(features, {})
+        self.assertEqual(set(features), {f"vv{game}_origins_village_wide_upgrades" for game in range(1, 6)})
         for game in range(1, 6):
             feature = village_wide_record(f"vv{game}")
-            self.assertIs(feature.raw["enabled"], False)
+            self.assertIs(feature.raw["enabled"], True)
             self.assertEqual(
                 feature.raw["dependencies"],
                 [f"vv{game}_enable_origins_exclusive_features"],
@@ -362,7 +362,7 @@ class ManifestTests(unittest.TestCase):
             self.assertIn("Grant Full Mastery to All Villagers", feature.description)
             self.assertIn("All Villagers are 18", feature.description)
             self.assertIn("1,000,000", feature.description)
-            self.assertIn("inspired", feature.description.casefold())
+            self.assertIn("playtest", feature.description.casefold())
 
             self.assertEqual(feature.raw.get("running_preference_id"), 38)
             self.assertIn("removed Running dislike", feature.raw["extension_abi"]["calling_convention"])
@@ -464,7 +464,7 @@ class ManifestTests(unittest.TestCase):
     def test_origins_village_wide_exact_header_and_safe_field_targets(self) -> None:
         expected_headers = {
             "vv1": 0x48D180,
-            "vv2": 0x49C180,
+            "vv2": 0x49C800,
             "vv3": 0x47B820,
             "vv4": 0x728220,
             "vv5": 0x494C20,
@@ -529,7 +529,7 @@ class ManifestTests(unittest.TestCase):
     def test_legacy_grant_running_helpers_keep_exact_configured_slot_counts(self) -> None:
         """Keep legacy byte provenance separate from native ABI certification.
 
-        The generated Origins helpers are disabled legacy evidence.  Their
+        The generated Origins helpers are legacy evidence.  Their
         configured loop counts must not be read as proof for the new per-game
         bindings, whose native preference ABIs remain unproved.  VV2's
         historical helper scans 62 Like and 62 Dislike slots; the other
@@ -955,14 +955,15 @@ class DoublerPurchaseSafetyTests(unittest.TestCase):
                         self.assertEqual(after, owned)
                         self.assertEqual(charge, 0)
 
-    def test_vv2_origins_containment_is_explicit(self) -> None:
+    def test_vv2_origins_playtest_pair_is_resolvable(self) -> None:
         for feature_id in (
             "vv2_enable_origins_exclusive_features",
             "vv2_origins_village_wide_upgrades",
         ):
             with self.subTest(feature=feature_id):
-                with self.assertRaisesRegex(PatcherError, "Unknown fun patch"):
-                    get_fun_patch(feature_id)
+                feature = get_fun_patch(feature_id)
+                self.assertEqual(feature.id, feature_id)
+                self.assertIs(feature.raw.get("enabled", True), True)
 
 
 class StockIntegrationTests(unittest.TestCase):
@@ -1837,6 +1838,8 @@ class StockIntegrationTests(unittest.TestCase):
             not in {
                 "vv1_full_mastery_all_stage_a_candidate",
                 "vv1_individual_full_mastery_candidate",
+                "vv1_enable_origins_exclusive_features",
+                "vv1_origins_village_wide_upgrades",
             }
         ]
         rendered, applied = render_patched_bytes(
@@ -3182,13 +3185,18 @@ class StockIntegrationTests(unittest.TestCase):
                 feature.raw["companion_files"][0]["sha256"],
             )
 
-    def test_vv2_origins_containment_leaves_unrelated_features_renderable(self) -> None:
+    def test_vv2_origins_playtest_pair_composes_with_unrelated_features(self) -> None:
         build = next(build for build in load_builds() if build.id == "vv2")
         source = STOCK / build.input_name
         all_vv2_features = [
             patch.id
             for patch in load_fun_patches()
             if patch.game_id == "vv2"
+            and patch.id
+            not in {
+                "vv2_full_mastery_all_stage_a_candidate",
+                "vv2_individual_full_mastery_candidate",
+            }
         ]
         self.assertEqual(
             set(all_vv2_features),
@@ -3199,8 +3207,8 @@ class StockIntegrationTests(unittest.TestCase):
                 "vv2_hospital_recovery_heals",
                 "vv2_gong_of_wonder_coconuts_fix",
                 "vv2_write_village_statistics",
-                "vv2_full_mastery_all_stage_a_candidate",
-                "vv2_individual_full_mastery_candidate",
+                "vv2_enable_origins_exclusive_features",
+                "vv2_origins_village_wide_upgrades",
             },
         )
         for mode in MODES:
@@ -3211,10 +3219,10 @@ class StockIntegrationTests(unittest.TestCase):
                     mode,
                     all_vv2_features,
                 )
-                self.assertEqual(bytes(rendered[0x234:0x238]), source.read_bytes()[0x234:0x238])
+                self.assertEqual(bytes(rendered[0x234:0x238]), bytes.fromhex("20000060"))
                 owners = {item["owner"] for item in applied}
-                self.assertNotIn("feature:vv2_enable_origins_exclusive_features", owners)
-                self.assertNotIn("feature:vv2_origins_village_wide_upgrades", owners)
+                self.assertIn("feature:vv2_enable_origins_exclusive_features", owners)
+                self.assertIn("feature:vv2_origins_village_wide_upgrades", owners)
         with tempfile.TemporaryDirectory() as temp:
             folder = Path(temp) / build.title
             folder.mkdir()
@@ -3226,10 +3234,10 @@ class StockIntegrationTests(unittest.TestCase):
                 fun_patch_ids=all_vv2_features,
             )
             companion = output.parent / "VVFP Origins Icons.dll"
-            self.assertFalse(companion.exists())
+            self.assertTrue(companion.exists())
             log = json.loads(log_path.read_text(encoding="utf-8"))
-            self.assertNotIn("vv2_enable_origins_exclusive_features", log["fun_patches"])
-            self.assertNotIn("vv2_origins_village_wide_upgrades", log["fun_patches"])
+            self.assertIn("vv2_enable_origins_exclusive_features", log["fun_patches"])
+            self.assertIn("vv2_origins_village_wide_upgrades", log["fun_patches"])
 
     def test_bulk_feature_applies_only_to_its_game(self) -> None:
         feature_id = "vv2_easier_healing_mastery"

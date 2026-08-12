@@ -5631,12 +5631,13 @@ def _selected_playtest_disabled_fun_patches(
     feature_ids: tuple[str, ...] | list[str],
     patch_mode: str,
 ) -> list[FunPatch]:
-    """Resolve an explicitly requested disabled feature for a player stress test.
+    """Resolve an explicitly requested Origins feature for a separate stress test.
 
-    This path is deliberately outside the normal catalog.  It is limited to
-    the exact VV2 Origins record or the one game-matched Expanded Time Warp
-    record requested for the current stress test.  The authenticated catalog
-    records remain unchanged; only returned copies receive playtest metadata.
+    This path is deliberately separate from ordinary catalog composition.  It
+    is limited to the exact VV2 Origins record or the one game-matched
+    Expanded Time Warp record requested for the current stress test. The
+    authenticated catalog record remains unchanged; only returned copies
+    receive playtest metadata.
     """
     requested = tuple(feature_ids)
     if not requested:
@@ -5672,7 +5673,7 @@ def _selected_playtest_disabled_fun_patches(
         return [FunPatch(enriched)]
     if build.id != "vv2" or requested != (VV2_PLAYTEST_DISABLED_FEATURE_ID,):
         raise PatcherError(
-            "Only the disabled VV2 Origins feature or one game-matched Expanded "
+            "Only the VV2 Origins feature or one game-matched Expanded "
             "Time Warp feature may be selected for a playtest."
         )
     try:
@@ -5682,12 +5683,12 @@ def _selected_playtest_disabled_fun_patches(
     if (
         raw.get("id") != VV2_PLAYTEST_DISABLED_FEATURE_ID
         or raw.get("game_id") != "vv2"
-        or raw.get("enabled") is not False
-        or raw.get("catalog_hidden") is not True
-        or raw.get("catalog_enabled") is not False
+        or raw.get("enabled") is not True
+        or raw.get("catalog_hidden") is not False
+        or raw.get("catalog_enabled") is not True
     ):
         raise PatcherError(
-            "VV2 Origins playtest feature must remain disabled and catalog-hidden."
+            "VV2 Origins playtest feature must remain enabled and catalog-visible."
         )
     patches = raw.get("patches")
     if not isinstance(patches, list) or not patches:

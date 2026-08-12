@@ -121,7 +121,7 @@ class VV3RunningCandidateTests(unittest.TestCase):
         self.assertNotIn(self.base.id, active)
         self.assertNotIn("vv3_all_villagers_like_running", active)
         self.assertIn("vv3_enable_origins_exclusive_features", active)
-        self.assertNotIn("vv3_origins_village_wide_upgrades", active)
+        self.assertIn("vv3_origins_village_wide_upgrades", active)
         validate_fun_patch_catalog([self.base, self.running])
 
     def test_withdrawn_running_is_rejected_by_catalog_resolution(self) -> None:

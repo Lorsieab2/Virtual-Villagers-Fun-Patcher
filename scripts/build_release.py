@@ -8,7 +8,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 OUTPUTS = ROOT / "outputs"
-VERSION = "v1.34.7-rc11"
+VERSION = "v1.34.7-rc14"
 NAME = f"Virtual-Villagers-Fun-Patcher-{VERSION}.zip"
 FILES = [
     "README.md",
@@ -72,6 +72,9 @@ FILES = [
     "src/vv_fun_patcher.py",
     "src/vv_fun_patcher_gui.py",
     "src/transparency.py",
+    "scripts/build_vv1_origins_feature.py",
+    "scripts/build_vv2_origins_feature.py",
+    "scripts/build_village_wide_origins_features.py",
     "scripts/generate_transparency_docs.py",
 ]
 

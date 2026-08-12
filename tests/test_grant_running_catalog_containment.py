@@ -27,10 +27,6 @@ class GrantRunningCatalogContainmentTests(unittest.TestCase):
         ROOT / "data" / "candidates" / "vv5_individual_running_candidate.json",
         ROOT / "data" / "candidates" / "vv3_full_heal_cure_all_candidate.json",
     )
-    VILLAGE_WIDE = tuple(
-        ROOT / "data" / f"vv{game}_origins_village_wide_upgrades.json"
-        for game in range(1, 6)
-    )
     PUBLIC_TEXT = (
         ROOT / "README.md",
         ROOT / "How to Use.txt",
@@ -64,7 +60,7 @@ class GrantRunningCatalogContainmentTests(unittest.TestCase):
     def test_withdrawn_running_and_dependent_candidates_are_disabled_and_absent(self) -> None:
         catalog = load_fun_patches()
         catalog_ids = {item.id for item in catalog}
-        for path in (*self.WITHDRAWN_CANDIDATES, *self.VILLAGE_WIDE):
+        for path in self.WITHDRAWN_CANDIDATES:
             with self.subTest(path=path.name):
                 raw = json.loads(path.read_text(encoding="utf-8"))
                 self.assertFalse(raw.get("enabled", False))
