@@ -54,12 +54,12 @@ class VV3OriginsFeatureTests(unittest.TestCase):
             companion["sha256"],
             hashlib.sha256(COMPANION.read_bytes()).hexdigest().upper(),
         )
-        self.assertIn("Origins-style Upgrades", self.manifest["description"])
+        self.assertIn("Origins-style upgrade", self.manifest["description"])
 
     def test_description_is_concise_and_keeps_the_base_dependency_internal(self) -> None:
         description = self.manifest["description"]
         self.assertIn("Tech and Villager Details", description)
-        self.assertIn("young-adult age", description)
+        self.assertIn("Make Villagers Young Adults", description)
         self.assertNotIn("candidate-only", description)
         self.assertNotIn("500,000-tech-point", description)
 

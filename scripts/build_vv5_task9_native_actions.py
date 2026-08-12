@@ -41,8 +41,8 @@ ATOMIC_SOURCE_TEXT_SHA256 = {
 }
 
 STOCK_SHA256 = "92946781980220E9D1A2E6C573925519934608F5215F4A0F8CE3B90088C5C65D"
-ACTIVE_SHA256 = "FF114B801A20A368638B2A9FA20D0E6ECB93DA478D24C008733AD7AA44ADE6D7"
-ACTIVE_SOURCE_TEXT_SHA256 = "4CBED87267DA210205A7DACA8EB3F1CC5DAE15A5996E48BFF7A44F9620FF5201"
+ACTIVE_SHA256 = "C9BEAB408C35ADA00A4D331B687F9F199C5B3BB528AFE960C76A1CA8B7D04EDB"
+ACTIVE_SOURCE_TEXT_SHA256 = "A3B456A33D29BC280A50ED95DBCC14A5DE2224DD0267F0274D2250BF3BA1992C"
 C342_COUNT = 66
 C342_ROWS_SHA256 = "7A95D8CCC6477777E9A3AA4C3EFEB30D8AF0D50434C910C1ADE9A645C7DBDDCA"
 TASK8_SOURCE_TEXT_SHA256 = "090ED9CA074F02F9321B2F8E0C470FD0AF18B235231DA94B6D38293360BC9510"
@@ -1794,7 +1794,7 @@ def main() -> None:
         "schema": "vvfp.vv5_task9_native_actions.v1",
         "id": "vv5_enable_origins_exclusive_features",
         "name": "Enable Origins-Exclusive Features (Task9 native actions)",
-        "description": "Adds Origins-style Upgrades menus to Tech and Villager Details. The menus offer Full Mastery, Running, a young-adult age option, and Full Heal/Cure All for Believers; Heathens are skipped. Time Warp, Island Event, and Barrel of Babies remain unavailable.",
+        "description": "Adds Origins-style upgrade menus to Tech and Villager Details. The menus offer Full Mastery, Running, Make Villagers Young Adults, and Full Heal/Cure All for Believers; Heathens are skipped. Time Warp, Island Event, and Barrel of Babies remain unavailable.",
         "enabled": True,
         "catalog_hidden": False,
         "catalog_enabled": True,

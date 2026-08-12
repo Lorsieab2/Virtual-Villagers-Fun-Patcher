@@ -639,17 +639,17 @@
     {
       "id": "stock",
       "name": "No Population Increase",
-      "description": "Preserve each game's stock population cap and progression behavior; no population-cap or saturation bytes are changed."
+      "description": "Keeps the game's normal population limit and collection progress."
     },
     {
       "id": "collection_progression",
       "name": "Collection Progression Max Pop",
-      "description": "Collections keep raising the cap; all population bonuses are needed to reach the absolute slot maximum."
+      "description": "Collections gradually unlock the higher population limit."
     },
     {
       "id": "immediate_fixed",
       "name": "Immediate Fixed Max Pop",
-      "description": "The absolute slot maximum is available immediately; collection bonuses no longer affect it."
+      "description": "The higher population limit is available right away."
     }
   ],
   "fun_patch_support": [
@@ -888,7 +888,7 @@
       "id": "vv1_builder_action_fixes",
       "game_id": "vv1",
       "name": "Builder Action Fixes",
-      "description": "Building villagers keep trying valid construction jobs across food levels.",
+      "description": "Builders keep working when food supplies are low.",
       "output_tag": "Builder Action Fixes",
       "patches": [
         {

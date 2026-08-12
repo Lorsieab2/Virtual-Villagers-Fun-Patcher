@@ -8,7 +8,7 @@
     "entry_name": "running"
   },
   "name": "Enable Origins-Exclusive Features (Task9 native actions)",
-  "description": "Adds Origins-style Upgrades menus to Tech and Villager Details. The menus offer Full Mastery, Running, a young-adult age option, and Full Heal/Cure All for Believers; Heathens are skipped. Time Warp, Island Event, and Barrel of Babies remain unavailable.",
+  "description": "Adds Origins-style upgrade menus to Tech and Villager Details. The menus offer Full Mastery, Running, Make Villagers Young Adults, and Full Heal/Cure All for Believers; Heathens are skipped. Time Warp, Island Event, and Barrel of Babies remain unavailable.",
   "output_tag": "Origins Exclusive Features",
   "companion_files": [
     {
@@ -946,8 +946,8 @@
     "experimental_expanded_256_progression"
   ],
   "runtime_player_status": "pending",
-  "base_source_text_sha256": "4CBED87267DA210205A7DACA8EB3F1CC5DAE15A5996E48BFF7A44F9620FF5201",
-  "base_file_sha256": "FF114B801A20A368638B2A9FA20D0E6ECB93DA478D24C008733AD7AA44ADE6D7",
+  "base_source_text_sha256": "A3B456A33D29BC280A50ED95DBCC14A5DE2224DD0267F0274D2250BF3BA1992C",
+  "base_file_sha256": "C9BEAB408C35ADA00A4D331B687F9F199C5B3BB528AFE960C76A1CA8B7D04EDB",
   "task8_overlay_source_text_sha256": "090ED9CA074F02F9321B2F8E0C470FD0AF18B235231DA94B6D38293360BC9510",
   "atomic_core": {
     "commit": "c4e5fe76d1de258d5d4baeac77cbea842b206cd7",
@@ -957,7 +957,7 @@
   "source_bindings": {
     "task9_builder": {
       "path": "scripts/build_vv5_task9_native_actions.py",
-      "source_text_sha256": "21CBF71F74A12DB61A178E9CEA3B6317820B602AAFDA0BB3CC95002139AF62D6"
+      "source_text_sha256": "A6F77127838129C66F094740F4F81CE2E484C0E0BBD24891576FBDCC8493ED79"
     },
     "companion_c": {
       "path": "native/vv5_task9_origins/vv5_task9_origins.c",
@@ -985,7 +985,7 @@
     },
     "active_base": {
       "path": "data/vv5_origins_feature.json",
-      "source_text_sha256": "4CBED87267DA210205A7DACA8EB3F1CC5DAE15A5996E48BFF7A44F9620FF5201"
+      "source_text_sha256": "A3B456A33D29BC280A50ED95DBCC14A5DE2224DD0267F0274D2250BF3BA1992C"
     },
     "task8_overlay": {
       "path": "data/candidates/vv5_post_prototype_overlay.json",
@@ -1218,5 +1218,5 @@
       }
     ]
   },
-  "task9_map_canonical_sha256": "0F556B1139CA619B8CFB3F12F057A597799C7FC63FB4E043F29C3B8C09690E8A"
+  "task9_map_canonical_sha256": "5F8929B77145377AD7B20BCBBD7CE492F34F3ED24BA56853678EF9419FB3009C"
 }

@@ -92,7 +92,7 @@ class OriginsPlayerRuntimeChecklistTests(unittest.TestCase):
                     self.assertNotIn("runtime/player", description.casefold())
                     self.assertNotRegex(description, r"\b\d[\d,]*\b")
             self.assertIn("Tech screen", wide["description"])
-            self.assertIn("young-adult age", wide["description"])
+            self.assertIn("Make Villagers Young Adults", wide["description"])
             self.assertIs(origins.get("enabled", True), True)
             self.assertIs(origins.get("catalog_enabled", True), True)
             self.assertIs(origins.get("catalog_hidden", False), False)

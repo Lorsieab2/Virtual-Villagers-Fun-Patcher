@@ -363,7 +363,7 @@ class ManifestTests(unittest.TestCase):
             )
             self.assertIn("Running", feature.description)
             self.assertIn("Full Mastery", feature.description)
-            self.assertIn("young-adult age", feature.description)
+            self.assertIn("Make Villagers Young Adults", feature.description)
             self.assertIn("Tech screen", feature.description)
             self.assertNotIn("Runtime/player confirmation pending", feature.description)
 
@@ -643,6 +643,18 @@ class ManifestTests(unittest.TestCase):
         for game_id in ("vv3", "vv4", "vv5"):
             self.assertEqual(builds[game_id].villager_slots, 150)
             self.assertEqual(builds[game_id].absolute_maximum, 150)
+
+    def test_gui_descriptions_are_simple_and_gameplay_focused(self) -> None:
+        rows = [*load_patch_modes(), *load_fun_patches()]
+        forbidden = ("bytes", "offset", "native", "runtime", "slot", "saturation", "0x")
+        for row in rows:
+            with self.subTest(row=row.id):
+                description = row.description.casefold()
+                self.assertFalse(
+                    any(term in description for term in forbidden),
+                    row.description,
+                )
+                self.assertNotRegex(row.description, r"\b\d[\d,]*\b")
 
     def test_expanded_256_modes_are_removed(self) -> None:
         self.assertEqual(

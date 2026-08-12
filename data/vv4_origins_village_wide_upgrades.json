@@ -8,7 +8,7 @@
     "entry_name": "running"
   },
   "name": "Enable Origins Village-Wide Upgrades",
-  "description": "Adds the Origins Upgrades button to the Tech screen. The Village-Wide menu offers Running, Full Mastery, and a young-adult age option.",
+  "description": "Adds the Origins Upgrades button to the Tech screen. The Village-Wide menu offers Running, Full Mastery, and Make Villagers Young Adults.",
   "output_tag": "Origins Village-Wide Upgrades",
   "dependencies": [
     "vv4_enable_origins_exclusive_features"

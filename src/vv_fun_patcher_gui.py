@@ -397,25 +397,13 @@ class App(tk.Tk):
             self.patch_mode_var.set(DEFAULT_PATCH_MODE)
             mode = get_patch_mode(DEFAULT_PATCH_MODE)
         if mode.id == "stock":
-            detail = (
-                "Keep the stock population cap and progression behavior. No population-cap, "
-                "multiple-birth, or population-adding event bytes are changed."
-            )
+            detail = "Keeps the game's normal population limit and collection progress."
         elif mode.id == "collection_progression":
-            detail = (
-                "Collections still raise the cap and are needed to reach the absolute maximum. "
-                "In The Secret City, level-3 magic also remains part of the bonus."
-            )
+            detail = "Collections gradually unlock the higher population limit."
         elif mode.id == "immediate_fixed":
-            detail = (
-                "The absolute maximum is available immediately. Collections no longer change it; "
-                "in The Secret City, magic tech no longer changes it either."
-            )
+            detail = "The higher population limit is available right away."
         else:
-            detail = (
-                "Collections still raise the cap and are needed to reach the absolute maximum. "
-                "In The Secret City, level-3 magic also remains part of the bonus."
-            )
+            detail = "Collections gradually unlock the higher population limit."
         self.mode_detail_var.set(detail)
         self.status_var.set(f"Selected: {mode.name}. {detail}")
         if save:

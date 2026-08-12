@@ -636,7 +636,7 @@ def main() -> None:
         enabled = True
         description = (
             "Adds the Origins Upgrades button to the Tech screen. The Village-Wide "
-            "menu offers Running, Full Mastery, and a young-adult age option."
+            "menu offers Running, Full Mastery, and Make Villagers Young Adults."
         )
         if game_id == "vv5":
             description += " Believers are processed; Heathens are skipped."

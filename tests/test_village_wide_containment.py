@@ -62,7 +62,7 @@ class VillageWidePlaytestCatalogTests(unittest.TestCase):
                     "Full Mastery",
                 ):
                     self.assertIn(label, wide["description"])
-                self.assertIn("young-adult age", wide["description"])
+                self.assertIn("Make Villagers Young Adults", wide["description"])
                 self.assertIn("Tech screen", wide["description"])
                 self.assertNotIn("Runtime/player confirmation pending", wide["description"])
 
