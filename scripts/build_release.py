@@ -8,7 +8,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 OUTPUTS = ROOT / "outputs"
-VERSION = "v1.34.7-rc14"
+VERSION = "v1.34.7-rc15"
 NAME = f"Virtual-Villagers-Fun-Patcher-{VERSION}.zip"
 FILES = [
     "README.md",
@@ -28,6 +28,35 @@ FILES = [
     "data/candidates/vv3_origins_running_base_candidate.json",
     "data/candidates/vv3_all_villagers_like_running_candidate.json",
     "data/candidates/vv3_running_candidate_map.json",
+    "data/candidates/vv3_origins_full_mastery_base_candidate.json",
+    "data/candidates/vv3_full_mastery_all_candidate.json",
+    "data/candidates/vv3_full_mastery_all_candidate_map.json",
+    "data/candidates/VVFP VV3 Safe Upgrade Foundation.dll",
+    "data/candidates/VVFP VV3 Safe Upgrades.dll",
+    "data/candidates/vv3_individual_full_mastery_candidate.json",
+    "data/candidates/vv3_individual_full_mastery_candidate_map.json",
+    "data/candidates/vv3_individual_grant_running_candidate.json",
+    "data/candidates/vv3_individual_grant_running_candidate_map.json",
+    "data/candidates/vv3_full_heal_cure_all_candidate.json",
+    "data/candidates/vv1_full_mastery_all_candidate.json",
+    "data/candidates/vv1_full_mastery_all_candidate_map.json",
+    "data/candidates/VVFP VV1 Full Mastery Candidate.dll",
+    "data/candidates/vv1_individual_full_mastery_candidate.json",
+    "data/candidates/vv1_individual_full_mastery_candidate_map.json",
+    "data/candidates/vv2_full_mastery_all_candidate.json",
+    "data/candidates/vv2_full_mastery_all_candidate_map.json",
+    "data/candidates/VVFP VV2 Full Mastery Candidate.dll",
+    "data/candidates/vv2_individual_full_mastery_candidate.json",
+    "data/candidates/vv2_individual_full_mastery_candidate_map.json",
+    "data/candidates/vv4_origins_full_mastery_base_candidate.json",
+    "data/candidates/vv4_full_mastery_all_candidate.json",
+    "data/candidates/vv4_full_mastery_all_candidate_map.json",
+    "data/candidates/VVFP VV4 Full Mastery Candidate.dll",
+    "data/candidates/vv4_full_heal_cure_all_candidate.json",
+    "data/candidates/vv4_full_heal_cure_all_candidate_map.json",
+    "data/candidates/vv5_post_prototype_overlay.json",
+    "data/candidates/vv5_task9_native_actions_map.json",
+    "data/candidates/VVFP VV5 Task9 Origins Icons.dll",
     "data/candidates/vv1_full_mastery_origins_composition.json",
     "data/candidates/vv1_full_mastery_origins_composition_map.json",
     "data/vv1_origins_village_wide_upgrades.json",
@@ -36,6 +65,8 @@ FILES = [
     "data/vv4_origins_village_wide_upgrades.json",
     "data/vv5_origins_village_wide_upgrades.json",
     "data/statistics_features.json",
+    "data/expanded_atomic_writer_integration.json",
+    "data/vv5_task9_native_actions.json",
     "docs/max-population-research.md",
     "docs/island-event-population-research.md",
     "docs/experimental-256-cap-research.md",
@@ -72,10 +103,18 @@ FILES = [
     "src/vv_fun_patcher.py",
     "src/vv_fun_patcher_gui.py",
     "src/transparency.py",
+    "src/expanded_atomic_writer.py",
+    "src/vv5_full_heal.py",
+    "src/vv5_individual_transactions.py",
     "scripts/build_vv1_origins_feature.py",
     "scripts/build_vv2_origins_feature.py",
     "scripts/build_village_wide_origins_features.py",
     "scripts/generate_transparency_docs.py",
+    "scripts/build_vv5_task9_native_actions.py",
+    "scripts/build_vv5_task9_origins_dll.ps1",
+    "native/vv5_task9_origins/vv5_task9_origins.c",
+    "native/vv5_task9_origins/vv5_task9_origins.def",
+    "native/vv5_task9_origins/vv5_task9_origins.rc",
 ]
 
 def main() -> int:
