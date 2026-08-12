@@ -100,13 +100,15 @@ class PublicUiContractTests(unittest.TestCase):
         ids = {record.id for record in records}
         self.assertNotIn(patcher.VV4_FULL_HEAL_CANDIDATE_ID, ids)
 
-    def test_public_fun_patch_catalog_is_only_the_five_current_origins_menus(self):
+    def test_public_fun_patch_catalog_exposes_all_current_user_patches(self):
         expected = [
-            f"vv{game}_origins_village_wide_upgrades"
-            for game in range(1, 6)
+            patch.id
+            for patch in patcher.load_fun_patches()
+            if patch.id not in patcher.INTERNAL_ORIGINS_BASE_FEATURE_ID_SET
         ]
         public = patcher.load_public_fun_patches()
         self.assertEqual([patch.id for patch in public], expected)
+        self.assertTrue(any("origins_village_wide_upgrades" in patch.id for patch in public))
         self.assertTrue(all("full_mastery" not in patch.id for patch in public))
         self.assertTrue(
             all("enable_origins_exclusive_features" not in patch.id for patch in public)

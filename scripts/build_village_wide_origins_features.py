@@ -635,11 +635,19 @@ def main() -> None:
         feature_name = "Enable Origins Village-Wide Upgrades"
         enabled = True
         description = (
-            "Adds the Origins Upgrades button to the Tech screen. The Village-Wide "
+            "Adds the Origins Upgrades button to the Tech screen. Food and Tech "
+            "Point Doublers each cost 500,000 tech points, double eligible "
+            "positive gains, and can be removed for no refund. The Village-Wide "
             "menu offers Running, Full Mastery, and Make Villagers Young Adults."
         )
-        if game_id == "vv5":
-            description += " Believers are processed; Heathens are skipped."
+        if game_id == "vv1":
+            description += " Island Events, Duplicate Collectibles, and Golden Child tech gains are excluded."
+        elif game_id == "vv2":
+            description += " Island Events, Duplicate Collectibles, and Gong of Wonder tech gains are excluded."
+        elif game_id in {"vv3", "vv4"}:
+            description += " Island Events and Duplicate Collectibles are excluded."
+        else:
+            description += " Island Events and Duplicate Collectibles are excluded; only Believers are processed and Heathens are skipped."
         record_fields = {
             "stride": f"0x{config['stride']:X}",
             "first_record_argument": "ECX",

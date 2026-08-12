@@ -8,7 +8,7 @@
     "entry_name": "running"
   },
   "name": "Enable Origins Village-Wide Upgrades",
-  "description": "Adds the Origins Upgrades button to the Tech screen. The menu can double food from food sources and eligible tech gains, and offers Running, Full Mastery, and Make Villagers Young Adults.",
+  "description": "Adds the Origins Upgrades button to the Tech screen. Food and Tech Point Doublers each cost 500,000 tech points, double eligible positive gains, and can be removed for no refund. The Village-Wide menu offers Running, Full Mastery, and Make Villagers Young Adults. Island Events and Duplicate Collectibles are excluded.",
   "output_tag": "Origins Village-Wide Upgrades",
   "dependencies": [
     "vv3_enable_origins_exclusive_features"

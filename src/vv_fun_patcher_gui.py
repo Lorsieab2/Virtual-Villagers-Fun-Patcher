@@ -396,14 +396,7 @@ class App(tk.Tk):
         except PatcherError:
             self.patch_mode_var.set(DEFAULT_PATCH_MODE)
             mode = get_patch_mode(DEFAULT_PATCH_MODE)
-        if mode.id == "stock":
-            detail = "Keeps the game's normal population limit and collection progress."
-        elif mode.id == "collection_progression":
-            detail = "Collections gradually unlock the higher population limit."
-        elif mode.id == "immediate_fixed":
-            detail = "The higher population limit is available right away."
-        else:
-            detail = "Collections gradually unlock the higher population limit."
+        detail = mode.description
         self.mode_detail_var.set(detail)
         self.status_var.set(f"Selected: {mode.name}. {detail}")
         if save:

@@ -3015,7 +3015,13 @@ def load_fun_patches(
 
 
 def load_public_fun_patches() -> list[FunPatch]:
-    """Return only the five current Origins-style upgrades-menu routes."""
+    """Return every user-selectable current per-game patch.
+
+    The Origins base records remain internal prerequisites.  The public chooser
+    exposes the five village-wide menu records alongside the ordinary
+    per-game patches, while withdrawn standalone Full Mastery and duplicate
+    Origins records remain absent from the catalog.
+    """
 
     catalog = {patch.id: patch for patch in load_fun_patches()}
     missing = [
@@ -3028,7 +3034,11 @@ def load_public_fun_patches() -> list[FunPatch]:
             "Current Origins-style upgrades-menu records are unavailable: "
             + ", ".join(missing)
         )
-    return [catalog[patch_id] for patch_id in PUBLIC_ORIGINS_VILLAGE_WIDE_PATCH_IDS]
+    return [
+        patch
+        for patch in load_fun_patches()
+        if patch.id not in INTERNAL_ORIGINS_BASE_FEATURE_ID_SET
+    ]
 
 
 def _dependency_ids(patch: FunPatch) -> tuple[str, ...]:

@@ -94,9 +94,9 @@ Supported stock identity is the exact `Virtual Villagers - A New Home.exe` build
 
 #### Builder Action Fixes (`vv1_builder_action_fixes`)
 
-Builders keep working when food supplies are low.
+Villagers whose selected job is Building try the stock construction dispatcher at every food level, while autonomous construction project IDs 9, 10, and 11 are eligible only after their signed progress is greater than zero; the other project gates and manual, existing-work, and repair routes remain stock.
 
-- Behavior changes: Builders keep working when food supplies are low.
+- Behavior changes: Villagers whose selected job is Building try the stock construction dispatcher at every food level, while autonomous construction project IDs 9, 10, and 11 are eligible only after their signed progress is greater than zero; the other project gates and manual, existing-work, and repair routes remain stock.
 - Explicit non-changes/exclusions: none declared
 - Dependencies: none
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending
@@ -104,9 +104,9 @@ Builders keep working when food supplies are low.
 
 #### Continue Research at Max Technologies (`vv1_continue_research_at_max_technologies`)
 
-Researchers can keep earning tech points after all technologies are complete.
+Researchers keep choosing the stock research action and earning tech points after all six technologies reach level 3.
 
-- Behavior changes: Researchers can keep earning tech points after all technologies are complete.
+- Behavior changes: Researchers keep choosing the stock research action and earning tech points after all six technologies reach level 3.
 - Explicit non-changes/exclusions: none declared
 - Dependencies: none
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending
@@ -114,7 +114,7 @@ Researchers can keep earning tech points after all technologies are complete.
 
 #### Enable Origins Village-Wide Upgrades (`vv1_origins_village_wide_upgrades`)
 
-Adds the Origins Upgrades button to the Tech screen. The menu can double food from food sources and eligible tech gains, and offers Running, Full Mastery, and Make Villagers Young Adults.
+Adds the Origins Upgrades button to the Tech screen. Food and Tech Point Doublers each cost 500,000 tech points, double eligible positive gains, and can be removed for no refund. The Village-Wide menu offers Running, Full Mastery, and Make Villagers Young Adults. Island Events, Duplicate Collectibles, and Golden Child tech gains are excluded.
 
 - Behavior changes: Adds rows 6-8 to the Origins Tech-screen Upgrades dialog only when this optional feature is installed. Charges exactly 1,000,000 tech points once per selected village-wide purchase in the current save. Running scans exactly 4 physical Like and Dislike slots, adds Running only to the first free Like slot, removes Running Dislikes only after that insertion, and leaves already-Running or full-like villagers unchanged. Grant Full Mastery to All Villagers writes native mastery values and runs the native award evaluator for each changed eligible villager. All Villagers are 18 writes only the verified displayed-age field to 360 age units.
 - Explicit non-changes/exclusions: No unrelated Like is replaced or removed. No movement speed, movement initialization, nursing timer, pregnancy timer, or pregnancy state is written. The upgrades are save-scoped and do not set a global ownership bit.
@@ -125,9 +125,9 @@ Adds the Origins Upgrades button to the Tech screen. The menu can double food fr
 
 #### Enable Origins-Exclusive Features (`vv1_enable_origins_exclusive_features`)
 
-Adds Origins-style upgrade buttons to the Tech and Villager Details screens. The Tech menu doubles food from food sources and eligible tech gains. The Villager menu offers Running, Full Mastery, and Make Villagers Young Adults. Inspired by the Virtual Villagers 1 mobile port, where selected Origins-exclusive upgrades originated; this wording does not claim unsupported mobile parity.
+Adds Origins-style Upgrades buttons to the Tech and Villager Details screens. The Tech menu offers Food and Tech Point Doublers for 500,000 tech points each; eligible positive gains are doubled, while Island Events, Duplicate Collectibles, and Golden Child tech gains remain unchanged. The Village-Wide menu adds Running, Full Mastery, and Make Villagers Young Adults. Inspired by the Virtual Villagers 1 mobile port, where selected Origins-exclusive upgrades originated; this wording does not claim unsupported mobile parity.
 
-- Behavior changes: Adds Origins-style upgrade buttons to the Tech and Villager Details screens. The Tech menu doubles food from food sources and eligible tech gains. The Villager menu offers Running, Full Mastery, and Make Villagers Young Adults.
+- Behavior changes: Adds Origins-style Upgrades buttons to the Tech and Villager Details screens. The Tech menu offers Food and Tech Point Doublers for 500,000 tech points each; eligible positive gains are doubled, while Island Events, Duplicate Collectibles, and Golden Child tech gains remain unchanged. The Village-Wide menu adds Running, Full Mastery, and Make Villagers Young Adults.
 - Explicit non-changes/exclusions: none declared
 - Dependencies: none
 - Build-specific Running preference ID: 38; evidence source: exact stock executable embedded preference table at table offset 0x7B260.
@@ -139,9 +139,9 @@ Adds Origins-style upgrade buttons to the Tech and Villager Details screens. The
 
 #### Magic Fruit of Life Alters Mortality (`vv1_magic_fruit_alters_mortality`)
 
-Completing the Magic Fruit puzzle delays ordinary aging. Eating the fruit also cures the eater.
+Completing the Magic Fruit of Life puzzle globally shifts every ordinary villager's mortality curve seven displayed years later, including during time catch-up. Finishing Enjoying magic fruit also clears that villager's sickness and restores health to 100. Eating the fruit remains reusable and stores nothing in villager likes or dislikes.
 
-- Behavior changes: Completing the Magic Fruit puzzle delays ordinary aging. Eating the fruit also cures the eater.
+- Behavior changes: Completing the Magic Fruit of Life puzzle globally shifts every ordinary villager's mortality curve seven displayed years later, including during time catch-up. Finishing Enjoying magic fruit also clears that villager's sickness and restores health to 100. Eating the fruit remains reusable and stores nothing in villager likes or dislikes.
 - Explicit non-changes/exclusions: none declared
 - Dependencies: none
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending
@@ -149,9 +149,9 @@ Completing the Magic Fruit puzzle delays ordinary aging. Eating the fruit also c
 
 #### Reenable F6 Clothing Change Cheat (`vv1_f6_clothing_change_cheat`)
 
-The clothing shortcut cycles the selected villager through the available outfits when enough tech points are available.
+The clothing shortcut cycles the selected active villager through the stock outfits: pressing F6 spends 5,000 tech points to advance to the next outfit, wrapping from outfit 19 back to outfit 0. With fewer than 5,000 tech points, F6 does nothing and charges nothing.
 
-- Behavior changes: The clothing shortcut cycles the selected villager through the available outfits when enough tech points are available.
+- Behavior changes: The clothing shortcut cycles the selected active villager through the stock outfits: pressing F6 spends 5,000 tech points to advance to the next outfit, wrapping from outfit 19 back to outfit 0. With fewer than 5,000 tech points, F6 does nothing and charges nothing.
 - Explicit non-changes/exclusions: none declared
 - Dependencies: none
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending
@@ -159,9 +159,9 @@ The clothing shortcut cycles the selected villager through the available outfits
 
 #### School Lessons Grant Skill (`vv1_school_lessons_grant_skill`)
 
-Children who finish school gain a random skill boost.
+Each child who finishes the unlocked Going to school activity gains 7 to 9 points in one equally random skill, matching the VV3 Tribal Chief lesson award.
 
-- Behavior changes: Children who finish school gain a random skill boost.
+- Behavior changes: Each child who finishes the unlocked Going to school activity gains 7 to 9 points in one equally random skill, matching the VV3 Tribal Chief lesson award.
 - Explicit non-changes/exclusions: none declared
 - Dependencies: none
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending
@@ -187,7 +187,7 @@ Supported stock identity is the exact `Virtual Villagers - The Lost Children.exe
 
 #### Birth Control (`vv2_birth_control`)
 
-Prevents some older villagers from being chosen for automatic pairing. Manual pairing is unchanged.
+Limits only the two writer-reaching opcode-12 candidate scans used by ordinary autonomous/catch-up pairing and stew recipe 15: a candidate whose already-loaded internal age in EAX is 1000 or greater is rejected while candidate sex remains preserved in EDX. The stock manual carrier/female-only age gate remains unchanged and no male upper-age gate is added.
 
 - Behavior changes: The writer-reaching opcode-12 candidate scans at file offsets 0x6488D and 0x64A8F reject candidates whose already-loaded internal age in EAX is at least 1000. Both complete 40-byte guarded blocks are one atomic VV2-only optional feature.
 - Explicit non-changes/exclusions: The stock manual carrier/female-only age<1000 gate is unchanged, and no male upper-age gate is added. Chooser scoring, token 43 exact string work, willingness token 39 learning, planner logic, pregnancy writer, delivery, save format, RNG, food, fertility, capacity, messages, and statistics are unchanged. Love Note event, Gong grant, Silver Mirror clone, direct/event births, and every path outside the two writer-reaching opcode-12 candidate scans remain native.
@@ -197,9 +197,9 @@ Prevents some older villagers from being chosen for automatic pairing. Manual pa
 
 #### Easier Healing Mastery (`vv2_easier_healing_mastery`)
 
-Healers can keep studying plants when no villager needs treatment.
+Healers and villagers who prefer Healing study plants when no sick villager needs treatment, including during catch-up.
 
-- Behavior changes: Healers can keep studying plants when no villager needs treatment.
+- Behavior changes: Healers and villagers who prefer Healing study plants when no sick villager needs treatment, including during catch-up.
 - Explicit non-changes/exclusions: none declared
 - Dependencies: none
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending
@@ -207,7 +207,7 @@ Healers can keep studying plants when no villager needs treatment.
 
 #### Enable Origins Village-Wide Upgrades (`vv2_origins_village_wide_upgrades`)
 
-Adds the Origins Upgrades button to the Tech screen. The menu can double food from food sources and eligible tech gains, and offers Running, Full Mastery, and Make Villagers Young Adults.
+Adds the Origins Upgrades button to the Tech screen. Food and Tech Point Doublers each cost 500,000 tech points, double eligible positive gains, and can be removed for no refund. The Village-Wide menu offers Running, Full Mastery, and Make Villagers Young Adults. Island Events, Duplicate Collectibles, and Gong of Wonder tech gains are excluded.
 
 - Behavior changes: Adds rows 6-8 to the Origins Tech-screen Upgrades dialog only when this optional feature is installed. Charges exactly 1,000,000 tech points once per selected village-wide purchase in the current save. Running scans exactly 62 physical Like and Dislike slots, adds Running only to the first free Like slot, removes Running Dislikes only after that insertion, and leaves already-Running or full-like villagers unchanged. Grant Full Mastery to All Villagers writes native mastery values and runs the native award evaluator for each changed eligible villager. All Villagers are 18 writes only the verified displayed-age field to 360 age units.
 - Explicit non-changes/exclusions: No unrelated Like is replaced or removed. No movement speed, movement initialization, nursing timer, pregnancy timer, or pregnancy state is written. The upgrades are save-scoped and do not set a global ownership bit.
@@ -218,9 +218,9 @@ Adds the Origins Upgrades button to the Tech screen. The menu can double food fr
 
 #### Enable Origins-Exclusive Features (`vv2_enable_origins_exclusive_features`)
 
-Adds Origins-style upgrade buttons to the Tech and Villager Details screens. The Tech menu doubles food from food sources and eligible tech gains. The Villager menu offers Running, Full Mastery, and Make Villagers Young Adults. Inspired by the Virtual Villagers 1 mobile port, where selected Origins-exclusive upgrades originated; this wording does not claim unsupported mobile parity.
+Adds Origins-style Upgrades buttons to the Tech and Villager Details screens. The Tech menu offers Food and Tech Point Doublers for 500,000 tech points each; eligible positive gains are doubled, while Island Events, Duplicate Collectibles, and Gong of Wonder tech gains remain unchanged. The Village-Wide menu adds Running, Full Mastery, and Make Villagers Young Adults. Inspired by the Virtual Villagers 1 mobile port, where selected Origins-exclusive upgrades originated; this wording does not claim unsupported mobile parity.
 
-- Behavior changes: Adds Origins-style upgrade buttons to the Tech and Villager Details screens. The Tech menu doubles food from food sources and eligible tech gains. The Villager menu offers Running, Full Mastery, and Make Villagers Young Adults.
+- Behavior changes: Adds Origins-style Upgrades buttons to the Tech and Villager Details screens. The Tech menu offers Food and Tech Point Doublers for 500,000 tech points each; eligible positive gains are doubled, while Island Events, Duplicate Collectibles, and Gong of Wonder tech gains remain unchanged. The Village-Wide menu adds Running, Full Mastery, and Make Villagers Young Adults.
 - Explicit non-changes/exclusions: none declared
 - Dependencies: none
 - Build-specific Running preference ID: 38; evidence source: exact stock executable embedded preference table at table offset 0x8B808.
@@ -232,9 +232,9 @@ Adds Origins-style upgrade buttons to the Tech and Villager Details screens. The
 
 #### Gong of Wonder Coconuts Fix (`vv2_gong_of_wonder_coconuts_fix`)
 
-Gong of Wonder coconut rewards add to the existing coconut supply.
+When the Gong of Wonder grants coconuts, adds 30 to the coconut trees instead of replacing their current amount with 30. Both normal and alternate outcome paths are corrected.
 
-- Behavior changes: Gong of Wonder coconut rewards add to the existing coconut supply.
+- Behavior changes: When the Gong of Wonder grants coconuts, adds 30 to the coconut trees instead of replacing their current amount with 30. Both normal and alternate outcome paths are corrected.
 - Explicit non-changes/exclusions: none declared
 - Dependencies: none
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending
@@ -242,9 +242,9 @@ Gong of Wonder coconut rewards add to the existing coconut supply.
 
 #### Hospital Recovery Heals (`vv2_hospital_recovery_heals`)
 
-Villagers who recover at the hospital regain a small amount of health.
+A villager who completes Recovering at the hospital gains exactly 1 health point, capped at 100. Stock VV2's hospital recovery action does not change health.
 
-- Behavior changes: Villagers who recover at the hospital regain a small amount of health.
+- Behavior changes: A villager who completes Recovering at the hospital gains exactly 1 health point, capped at 100. Stock VV2's hospital recovery action does not change health.
 - Explicit non-changes/exclusions: none declared
 - Dependencies: none
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending
@@ -252,9 +252,9 @@ Villagers who recover at the hospital regain a small amount of health.
 
 #### Teaching Children Grants Skill (`vv2_teaching_children_grants_skill`)
 
-Children who finish a Teaching Children lesson gain a random skill boost.
+Each child who finishes a Teaching Children lesson gains 7 to 9 points in one equally random skill, matching the VV3 Tribal Chief lesson award.
 
-- Behavior changes: Children who finish a Teaching Children lesson gain a random skill boost.
+- Behavior changes: Each child who finishes a Teaching Children lesson gains 7 to 9 points in one equally random skill, matching the VV3 Tribal Chief lesson award.
 - Explicit non-changes/exclusions: none declared
 - Dependencies: none
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending
@@ -280,7 +280,7 @@ Supported stock identity is the exact `Virtual Villagers - The Secret City.exe` 
 
 #### Enable Origins Village-Wide Upgrades (`vv3_origins_village_wide_upgrades`)
 
-Adds the Origins Upgrades button to the Tech screen. The menu can double food from food sources and eligible tech gains, and offers Running, Full Mastery, and Make Villagers Young Adults.
+Adds the Origins Upgrades button to the Tech screen. Food and Tech Point Doublers each cost 500,000 tech points, double eligible positive gains, and can be removed for no refund. The Village-Wide menu offers Running, Full Mastery, and Make Villagers Young Adults. Island Events and Duplicate Collectibles are excluded.
 
 - Behavior changes: Adds rows 6-8 to the Origins Tech-screen Upgrades dialog only when this optional feature is installed. Charges exactly 1,000,000 tech points once per selected village-wide purchase in the current save. Running scans exactly 3 physical Like and Dislike slots, adds Running only to the first free Like slot, removes Running Dislikes only after that insertion, and leaves already-Running or full-like villagers unchanged. Grant Full Mastery to All Villagers writes native mastery values and runs the native award evaluator for each changed eligible villager. All Villagers are 18 writes only the verified displayed-age field to 360 age units.
 - Explicit non-changes/exclusions: No unrelated Like is replaced or removed. No movement speed, movement initialization, nursing timer, pregnancy timer, or pregnancy state is written. The upgrades are save-scoped and do not set a global ownership bit.
@@ -291,9 +291,9 @@ Adds the Origins Upgrades button to the Tech screen. The menu can double food fr
 
 #### Enable Origins-Exclusive Features (`vv3_enable_origins_exclusive_features`)
 
-Adds Origins-style upgrade buttons to the Tech and Villager Details screens. The Tech menu doubles food from food sources and eligible tech gains. The Villager menu offers Running, Full Mastery, and Make Villagers Young Adults. Inspired by the Virtual Villagers 1 mobile port, where selected Origins-exclusive upgrades originated; this wording does not claim unsupported mobile parity.
+Adds Origins-style Upgrades buttons to the Tech and Villager Details screens. The Tech menu offers Food and Tech Point Doublers for 500,000 tech points each; eligible positive gains are doubled, while Island Events and Duplicate Collectibles remain unchanged. The Village-Wide menu adds Running, Full Mastery, and Make Villagers Young Adults. Inspired by the Virtual Villagers 1 mobile port, where selected Origins-exclusive upgrades originated; this wording does not claim unsupported mobile parity.
 
-- Behavior changes: Adds Origins-style upgrade buttons to the Tech and Villager Details screens. The Tech menu doubles food from food sources and eligible tech gains. The Villager menu offers Running, Full Mastery, and Make Villagers Young Adults.
+- Behavior changes: Adds Origins-style Upgrades buttons to the Tech and Villager Details screens. The Tech menu offers Food and Tech Point Doublers for 500,000 tech points each; eligible positive gains are doubled, while Island Events and Duplicate Collectibles remain unchanged. The Village-Wide menu adds Running, Full Mastery, and Make Villagers Young Adults.
 - Explicit non-changes/exclusions: none declared
 - Dependencies: none
 - Build-specific Running preference ID: 38; evidence source: exact stock executable embedded preference table at table offset 0x97488.
@@ -305,7 +305,7 @@ Adds Origins-style upgrade buttons to the Tech and Villager Details screens. The
 
 #### Everyone Tries On the Robe (`vv3_everyone_tries_on_robe`)
 
-After a successful robe try-on, other villagers receive the normal failed-fit result.
+Dropping an active, living, non-nursing villager on the robe keeps that villager's complete stock try-on or Tribal Chief result, then sends every other active, living, non-nursing villager through the stock failed-fit Trying on the robe action. Followers use the native status, walk, gestures, and temporary try-on appearance but never receive the successful fit, persistent Chief clothing, or Chief state.
 
 - Behavior changes: After the stock callback reports a handled robe drop and leaves the eligible initiator in action 120 or 121, every other eligible VV3 villager is sent through the stock failed-fit action 121 robe sequence. The runtime loop accepts only the authenticated stock bound 150.
 - Explicit non-changes/exclusions: Dead, inactive, and nursing villagers are skipped. The dropped initiator keeps the complete stock action 120 or action 121 result and remains the only villager eligible to become Tribal Chief. Followers never receive success action 120, persistent Chief clothing, or Chief state, and the wrapper does not read or write candidate fields +0xE80/+0xE88 or change the puzzle, pregnancy/nursing state, health, age, skills, preferences, or saved record layout.
@@ -316,9 +316,9 @@ After a successful robe try-on, other villagers receive the normal failed-fit re
 
 #### Nature Level 1 Actually Replenishes Food Sources Faster (`vv3_nature_honey_refill`)
 
-Nature upgrades make fruit trees and honey refill sooner.
+Nature level 1 or higher reduces fruit-tree refills from 3 hours to 2 hours 15 minutes and honey refills from 1 hour to 45 minutes. Fruit trees retain their stock Nature quantity bonus, while honey gains the same proportional quantity bonus.
 
-- Behavior changes: Nature upgrades make fruit trees and honey refill sooner.
+- Behavior changes: Nature level 1 or higher reduces fruit-tree refills from 3 hours to 2 hours 15 minutes and honey refills from 1 hour to 45 minutes. Fruit trees retain their stock Nature quantity bonus, while honey gains the same proportional quantity bonus.
 - Explicit non-changes/exclusions: none declared
 - Dependencies: none
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending
@@ -326,9 +326,9 @@ Nature upgrades make fruit trees and honey refill sooner.
 
 #### Nature Level 3 Actually Alters Mortality (`vv3_nature_level_three_alters_mortality`)
 
-Nature level three delays ordinary villager aging.
+Nature level 3 shifts every ordinary villager's complete mortality curve seven displayed years later. The stock Medicine threshold is calculated first, so the benefits stack, and the shared aging loop applies the change during ordinary play and time catch-up.
 
-- Behavior changes: Nature level three delays ordinary villager aging.
+- Behavior changes: Nature level 3 shifts every ordinary villager's complete mortality curve seven displayed years later. The stock Medicine threshold is calculated first, so the benefits stack, and the shared aging loop applies the change during ordinary play and time catch-up.
 - Explicit non-changes/exclusions: none declared
 - Dependencies: none
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending
@@ -336,9 +336,9 @@ Nature level three delays ordinary villager aging.
 
 #### Pointing Out a Rare Collectible Always Works (`vv3_rare_collectible_retry`)
 
-Pointing out a rare collectible keeps trying until an eligible collectible is found.
+When the Tribal Chief completes Pointing out a rare collectible, rejected random choices are rerolled until the stock game finds an eligible rare collectible. This prevents the full stock cooldown from being spent without a collectible appearing while preserving the original rare categories, collectible IDs, collection rules, and placement logic.
 
-- Behavior changes: Pointing out a rare collectible keeps trying until an eligible collectible is found.
+- Behavior changes: When the Tribal Chief completes Pointing out a rare collectible, rejected random choices are rerolled until the stock game finds an eligible rare collectible. This prevents the full stock cooldown from being spent without a collectible appearing while preserving the original rare categories, collectible IDs, collection rules, and placement logic.
 - Explicit non-changes/exclusions: none declared
 - Dependencies: none
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending
@@ -364,9 +364,9 @@ Supported stock identity is the exact `Virtual Villagers - The Tree of Life.exe`
 
 #### Complete Fish Scales = Golden Fish in Nets (`vv4_complete_scales_golden_fish`)
 
-Golden Fish can appear in the nets after the Fish Scales collection is complete.
+Golden Fish become eligible in the fishing nets only after all 12 Fish Scales are collected. This changes the stock partial-collection threshold while preserving the completed collection's original 25% Golden Fish chance and every other fishing outcome.
 
-- Behavior changes: Golden Fish can appear in the nets after the Fish Scales collection is complete.
+- Behavior changes: Golden Fish become eligible in the fishing nets only after all 12 Fish Scales are collected. This changes the stock partial-collection threshold while preserving the completed collection's original 25% Golden Fish chance and every other fishing outcome.
 - Explicit non-changes/exclusions: none declared
 - Dependencies: none
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending
@@ -374,7 +374,7 @@ Golden Fish can appear in the nets after the Fish Scales collection is complete.
 
 #### Enable Origins Village-Wide Upgrades (`vv4_origins_village_wide_upgrades`)
 
-Adds the Origins Upgrades button to the Tech screen. The menu can double food from food sources and eligible tech gains, and offers Running, Full Mastery, and Make Villagers Young Adults.
+Adds the Origins Upgrades button to the Tech screen. Food and Tech Point Doublers each cost 500,000 tech points, double eligible positive gains, and can be removed for no refund. The Village-Wide menu offers Running, Full Mastery, and Make Villagers Young Adults. Island Events and Duplicate Collectibles are excluded.
 
 - Behavior changes: Adds rows 6-8 to the Origins Tech-screen Upgrades dialog only when this optional feature is installed. Charges exactly 1,000,000 tech points once per selected village-wide purchase in the current save. Running scans exactly 3 physical Like and Dislike slots, adds Running only to the first free Like slot, removes Running Dislikes only after that insertion, and leaves already-Running or full-like villagers unchanged. Grant Full Mastery to All Villagers uses the native Float32 skill writer for each changed skill and postverifies exact 100.0 values. All Villagers are 18 writes only the verified displayed-age field to 360 age units.
 - Explicit non-changes/exclusions: No unrelated Like is replaced or removed. No movement speed, movement initialization, nursing timer, pregnancy timer, or pregnancy state is written. The upgrades are save-scoped and do not set a global ownership bit.
@@ -385,9 +385,9 @@ Adds the Origins Upgrades button to the Tech screen. The menu can double food fr
 
 #### Enable Origins-Exclusive Features (`vv4_enable_origins_exclusive_features`)
 
-Adds Origins-style upgrade buttons to the Tech and Villager Details screens. The Tech menu doubles food from food sources and eligible tech gains. The Villager menu offers Running, Full Mastery, and Make Villagers Young Adults. Inspired by the Virtual Villagers 1 mobile port, where selected Origins-exclusive upgrades originated; this wording does not claim unsupported mobile parity.
+Adds Origins-style Upgrades buttons to the Tech and Villager Details screens. The Tech menu offers Food and Tech Point Doublers for 500,000 tech points each; eligible positive gains are doubled after native Food Mastery, while Island Events and Duplicate Collectibles remain unchanged. The Village-Wide menu adds Running, Full Mastery, and Make Villagers Young Adults. Inspired by the Virtual Villagers 1 mobile port, where selected Origins-exclusive upgrades originated; this wording does not claim unsupported mobile parity.
 
-- Behavior changes: Adds Origins-style upgrade buttons to the Tech and Villager Details screens. The Tech menu doubles food from food sources and eligible tech gains. The Villager menu offers Running, Full Mastery, and Make Villagers Young Adults.
+- Behavior changes: Adds Origins-style Upgrades buttons to the Tech and Villager Details screens. The Tech menu offers Food and Tech Point Doublers for 500,000 tech points each; eligible positive gains are doubled after native Food Mastery, while Island Events and Duplicate Collectibles remain unchanged. The Village-Wide menu adds Running, Full Mastery, and Make Villagers Young Adults.
 - Explicit non-changes/exclusions: none declared
 - Dependencies: none
 - Build-specific Running preference ID: 38; evidence source: exact stock executable embedded preference table at table offset 0xA0CD8.
@@ -417,9 +417,9 @@ Supported stock identity is the exact `Virtual Villagers - New Believers.exe` bu
 
 #### Easier Devotee Training (`vv5_easier_devotee_training`)
 
-Villagers with Devotion can choose Honoring on their own.
+Villagers with positive Devotion skill can spontaneously use the stock Honoring action. Statue-drop Honoring remains available for training beginners, while villagers with no Devotion skill do not autonomously Honor.
 
-- Behavior changes: Villagers with Devotion can choose Honoring on their own.
+- Behavior changes: Villagers with positive Devotion skill can spontaneously use the stock Honoring action. Statue-drop Honoring remains available for training beginners, while villagers with no Devotion skill do not autonomously Honor.
 - Explicit non-changes/exclusions: none declared
 - Dependencies: none
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending
@@ -427,7 +427,7 @@ Villagers with Devotion can choose Honoring on their own.
 
 #### Enable Origins Village-Wide Upgrades (`vv5_origins_village_wide_upgrades`)
 
-Adds the Origins Upgrades button to the Tech screen. The menu can double food from food sources and eligible tech gains, and offers Full Heal/Cure All, Running, Full Mastery, and Make Villagers Young Adults for Believers; Heathens are skipped.
+Adds the Origins Upgrades button to the Tech screen. Food and Tech Point Doublers each cost 500,000 tech points, double eligible positive gains, and can be removed for no refund. The Village-Wide menu offers Running, Full Mastery, and Make Villagers Young Adults. Island Events and Duplicate Collectibles are excluded; only Believers are processed and Heathens are skipped.
 
 - Behavior changes: Adds rows 6-8 to the Origins Tech-screen Upgrades dialog only when this optional feature is installed. Charges exactly 1,000,000 tech points once per selected village-wide purchase in the current save. Running scans exactly 3 physical Like and Dislike slots, adds Running only to the first free Like slot, removes Running Dislikes only after that insertion, and leaves already-Running or full-like villagers unchanged. Grant Full Mastery to All Villagers writes native mastery values and runs the native award evaluator for each changed eligible villager. All Villagers are 18 writes only the verified displayed-age field to 360 age units.
 - Explicit non-changes/exclusions: No unrelated Like is replaced or removed. No movement speed, movement initialization, nursing timer, pregnancy timer, or pregnancy state is written. The upgrades are save-scoped and do not set a global ownership bit. VV5 Heathens are excluded from all three village-wide operations.
@@ -454,9 +454,9 @@ Adds Origins-style upgrade menus to Tech and Villager Details. The menus offer F
 
 #### Heathen Mommy Puzzle Restoration (`vv5_heathen_mommy_puzzle`)
 
-Restores the Heathen Mommy and her puzzle artwork in newly created villages.
+Restores the natural Heathen Mommy to newly created villages as a tag-17 Heathen mother with one nursing baby, using two physical slots, and restores the hidden 17th Heathen Parent graphic and full-tile rollover messages to the Puzzles screen. Existing saves are not retroactively given a new mother.
 
-- Behavior changes: Restores the Heathen Mommy and her puzzle artwork in newly created villages.
+- Behavior changes: Restores the natural Heathen Mommy to newly created villages as a tag-17 Heathen mother with one nursing baby, using two physical slots, and restores the hidden 17th Heathen Parent graphic and full-tile rollover messages to the Puzzles screen. Existing saves are not retroactively given a new mother.
 - Explicit non-changes/exclusions: none declared
 - Dependencies: none
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending
@@ -464,9 +464,9 @@ Restores the Heathen Mommy and her puzzle artwork in newly created villages.
 
 #### Statue Drops: Normal Action or Honoring (`vv5_statue_polishing_or_honoring`)
 
-Statue drops choose Honoring, Building, or Polishing according to the villager's skills.
+Statue drops use skill-aware choices: Honoring is available only to villagers with positive Devotion, while Building a statue and Polishing the Statue require positive Building skill. When both outcomes are eligible, the choice is 50/50; otherwise the eligible normal action is kept.
 
-- Behavior changes: Statue drops choose Honoring, Building, or Polishing according to the villager's skills.
+- Behavior changes: Statue drops use skill-aware choices: Honoring is available only to villagers with positive Devotion, while Building a statue and Polishing the Statue require positive Building skill. When both outcomes are eligible, the choice is 50/50; otherwise the eligible normal action is kept.
 - Explicit non-changes/exclusions: none declared
 - Dependencies: none
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending
@@ -474,9 +474,9 @@ Statue drops choose Honoring, Building, or Polishing according to the villager's
 
 #### VV4 Nursery School Divisor Parity (`vv5_vv4_nursery_divisor_parity`)
 
-Nursery lessons distribute progress evenly across all skills.
+For parity with Virtual Villagers 4, changes VV5's six-skill spread lesson divisor from five to six. VV5 normally distributes one-fifth of a lesson to each of six skills, an arithmetic inconsistency that awards six-fifths in total; this patch distributes exactly one-sixth to each skill without claiming whether the original inconsistency was intentional.
 
-- Behavior changes: Nursery lessons distribute progress evenly across all skills.
+- Behavior changes: For parity with Virtual Villagers 4, changes VV5's six-skill spread lesson divisor from five to six. VV5 normally distributes one-fifth of a lesson to each of six skills, an arithmetic inconsistency that awards six-fifths in total; this patch distributes exactly one-sixth to each skill without claiming whether the original inconsistency was intentional.
 - Explicit non-changes/exclusions: none declared
 - Dependencies: none
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending

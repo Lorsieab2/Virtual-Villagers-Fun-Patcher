@@ -655,17 +655,17 @@ class ManifestTests(unittest.TestCase):
             self.assertEqual(builds[game_id].villager_slots, 150)
             self.assertEqual(builds[game_id].absolute_maximum, 150)
 
-    def test_gui_descriptions_are_simple_and_gameplay_focused(self) -> None:
+    def test_gui_descriptions_retain_specific_gameplay_effects(self) -> None:
         rows = [*load_patch_modes(), *load_fun_patches()]
-        forbidden = ("bytes", "offset", "native", "runtime", "slot", "saturation", "0x")
-        for row in rows:
-            with self.subTest(row=row.id):
-                description = row.description.casefold()
-                self.assertFalse(
-                    any(term in description for term in forbidden),
-                    row.description,
-                )
-                self.assertNotRegex(row.description, r"\b\d[\d,]*\b")
+        descriptions = {row.id: row.description for row in rows}
+        self.assertIn("VV3 reaches 150", descriptions["collection_progression"])
+        self.assertIn("10 points from Magic Level 3", descriptions["collection_progression"])
+        self.assertIn("7 to 9 points", descriptions["vv1_school_lessons_grant_skill"])
+        self.assertIn("5,000 tech points", descriptions["vv1_f6_clothing_change_cheat"])
+        self.assertIn("3 hours to 2 hours 15 minutes", descriptions["vv3_nature_honey_refill"])
+        self.assertIn("all 12 Fish Scales", descriptions["vv4_complete_scales_golden_fish"])
+        self.assertIn("50/50", descriptions["vv5_statue_polishing_or_honoring"])
+        self.assertIn("one-sixth", descriptions["vv5_vv4_nursery_divisor_parity"])
 
     def test_expanded_256_modes_are_removed(self) -> None:
         self.assertEqual(
@@ -1870,8 +1870,8 @@ class StockIntegrationTests(unittest.TestCase):
 
     def test_vv1_magic_fruit_uses_global_puzzle_state_and_safe_fields(self) -> None:
         patch = get_fun_patch("vv1_magic_fruit_alters_mortality")
-        self.assertIn("delays ordinary aging", patch.description)
-        self.assertIn("cures the eater", patch.description)
+        self.assertIn("seven displayed years later", patch.description)
+        self.assertIn("restores health to 100", patch.description)
         build = next(build for build in load_builds() if build.id == "vv1")
         rendered, _ = render_patched_bytes(
             STOCK / build.input_name,
@@ -1918,7 +1918,8 @@ class StockIntegrationTests(unittest.TestCase):
 
     def test_vv1_builder_action_fixes_preserve_other_scheduler_paths(self) -> None:
         patch = get_fun_patch("vv1_builder_action_fixes")
-        self.assertEqual(patch.description, "Builders keep working when food supplies are low.")
+        self.assertIn("construction dispatcher at every food level", patch.description)
+        self.assertIn("project IDs 9, 10, and 11", patch.description)
         build = next(build for build in load_builds() if build.id == "vv1")
         source = STOCK / build.input_name
         baseline, _ = render_patched_bytes(
@@ -2746,7 +2747,7 @@ class StockIntegrationTests(unittest.TestCase):
     def test_vv3_nature_level_three_alters_mortality_by_seven_years(self) -> None:
         feature_id = "vv3_nature_level_three_alters_mortality"
         feature = get_fun_patch(feature_id)
-        self.assertIn("delays ordinary villager aging", feature.description)
+        self.assertIn("seven displayed years later", feature.description)
         build = next(build for build in load_builds() if build.id == "vv3")
         source = STOCK / build.input_name
         selected = ["vv3_nature_honey_refill", feature_id]
@@ -2772,8 +2773,8 @@ class StockIntegrationTests(unittest.TestCase):
     def test_vv3_rare_collectible_retries_rejected_random_choices(self) -> None:
         feature_id = "vv3_rare_collectible_retry"
         feature = get_fun_patch(feature_id)
-        self.assertIn("keeps trying", feature.description)
-        self.assertIn("eligible collectible", feature.description)
+        self.assertIn("rerolled until", feature.description)
+        self.assertIn("eligible rare collectible", feature.description)
         build = next(build for build in load_builds() if build.id == "vv3")
         source = STOCK / build.input_name
         stock = source.read_bytes()
