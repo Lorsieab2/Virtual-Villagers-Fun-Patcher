@@ -817,6 +817,17 @@ VV5_TASK9_CROSS_SECTION_HOOKS = {
 }
 STATISTICS_FEATURES_PATH = ROOT / "data" / "statistics_features.json"
 DEFAULT_PATCH_MODE = "collection_progression"
+PUBLIC_ORIGINS_VILLAGE_WIDE_PATCH_IDS = tuple(
+    f"vv{game_number}_origins_village_wide_upgrades"
+    for game_number in range(1, 6)
+)
+PUBLIC_ORIGINS_VILLAGE_WIDE_PATCH_ID_SET = frozenset(
+    PUBLIC_ORIGINS_VILLAGE_WIDE_PATCH_IDS
+)
+INTERNAL_ORIGINS_BASE_FEATURE_ID_SET = frozenset(
+    f"vv{game_number}_enable_origins_exclusive_features"
+    for game_number in range(1, 6)
+)
 # Expanded-256 population modes were removed from the active manifest.  Keep
 # their IDs only for validating retained historical evidence records; they are
 # not returned by load_patch_modes() and are not accepted by public APIs.
@@ -3075,6 +3086,23 @@ def load_fun_patches(
     return patches
 
 
+def load_public_fun_patches() -> list[FunPatch]:
+    """Return only the five current Origins-style upgrades-menu routes."""
+
+    catalog = {patch.id: patch for patch in load_fun_patches()}
+    missing = [
+        patch_id
+        for patch_id in PUBLIC_ORIGINS_VILLAGE_WIDE_PATCH_IDS
+        if patch_id not in catalog
+    ]
+    if missing:
+        raise PatcherError(
+            "Current Origins-style upgrades-menu records are unavailable: "
+            + ", ".join(missing)
+        )
+    return [catalog[patch_id] for patch_id in PUBLIC_ORIGINS_VILLAGE_WIDE_PATCH_IDS]
+
+
 def _dependency_ids(patch: FunPatch) -> tuple[str, ...]:
     """Return a normalized, deterministic dependency list for a feature."""
     raw = patch.raw.get("dependencies", ())
@@ -3261,6 +3289,20 @@ def resolve_fun_patch_ids(
         seen.add(patch_id)
         requested.append(patch_id)
     requested_set = set(requested)
+    # The public Origins-style menu route owns its legacy Origins base as an
+    # internal prerequisite.  It is intentionally not a second user-facing
+    # checkbox or CLI choice.
+    for patch_id in tuple(requested):
+        if patch_id not in PUBLIC_ORIGINS_VILLAGE_WIDE_PATCH_ID_SET:
+            continue
+        for dependency_id in _dependency_ids(by_id[patch_id]):
+            if (
+                dependency_id in INTERNAL_ORIGINS_BASE_FEATURE_ID_SET
+                and dependency_id in by_id
+                and dependency_id not in requested_set
+            ):
+                requested.append(dependency_id)
+                requested_set.add(dependency_id)
     for patch_id in requested:
         missing = [
             dependency_id
@@ -9392,7 +9434,7 @@ def _add_fun_patch_args(parser: argparse.ArgumentParser) -> None:
     parser.add_argument(
         "--fun-patch",
         action="append",
-        choices=[patch.id for patch in load_fun_patches()],
+        choices=[patch.id for patch in load_public_fun_patches()],
         default=[],
         help="optional game-specific patch; may be supplied more than once",
     )
@@ -9406,10 +9448,7 @@ def _add_playtest_feature_arg(parser: argparse.ArgumentParser) -> None:
             VV2_PLAYTEST_DISABLED_FEATURE_ID,
         ],
         default=[],
-        help=(
-            "explicitly include the disabled VV2 Origins feature in a separate "
-            "player stress-test output; never catalog/publication evidence"
-        ),
+        help=argparse.SUPPRESS,
     )
     parser.add_argument(
         "--playtest-output-root",

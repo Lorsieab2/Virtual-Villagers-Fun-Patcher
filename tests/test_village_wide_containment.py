@@ -65,7 +65,7 @@ class VillageWidePlaytestCatalogTests(unittest.TestCase):
                 ):
                     self.assertIn(label, wide["description"])
 
-    def test_catalog_gui_cli_and_dependency_resolution_exposes_all_records(self) -> None:
+    def test_catalog_gui_cli_and_dependency_resolution_exposes_current_menu_records(self) -> None:
         catalog = load_fun_patches()
         catalog_ids = {patch.id for patch in catalog}
         grouped = group_fun_patches(load_builds(), catalog)
@@ -79,8 +79,8 @@ class VillageWidePlaytestCatalogTests(unittest.TestCase):
         for game_id in GAME_IDS:
             base_id = f"{game_id}_enable_origins_exclusive_features"
             wide_id = f"{game_id}_origins_village_wide_upgrades"
-            self.assertIn(base_id, help_text)
             self.assertIn(wide_id, help_text)
+            self.assertNotIn(base_id, help_text)
             selected = resolve_fun_patch_ids(
                 [base_id, wide_id], game_id=game_id, patches=catalog
             )

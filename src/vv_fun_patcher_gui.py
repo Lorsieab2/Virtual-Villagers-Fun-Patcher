@@ -20,7 +20,7 @@ from vv_fun_patcher import (
     get_patch_variant,
     identify,
     load_builds,
-    load_fun_patches,
+    load_public_fun_patches,
     load_patch_modes,
     resolve_fun_patch_ids,
     validate_all_sources,
@@ -84,7 +84,7 @@ class App(tk.Tk):
         self.iconphoto(True, self.island_titlebar)
         self.builds = load_builds()
         self.patch_modes = load_patch_modes()
-        self.fun_patches = load_fun_patches()
+        self.fun_patches = load_public_fun_patches()
         self.fun_patch_vars = {
             patch.id: tk.BooleanVar(value=False) for patch in self.fun_patches
         }

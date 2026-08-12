@@ -8,7 +8,7 @@
     "entry_name": "running"
   },
   "name": "Enable Origins Village-Wide Upgrades",
-  "description": "Requested static/playtest package: enables the existing Origins Tech-screen Upgrades button and menu, then adds the village-wide rows from the Virtual Villagers 1 mobile port: All Villagers Like Running, Grant Full Mastery to All Villagers, and All Villagers are 18. Each row costs 1,000,000 tech points in the current save. The legacy Running helper and its preference-table facts are not native ABI proof. Mastery writes only the native skill fields. Age changes only the displayed age to 18 and does not change nursing or pregnancy timers. Only eligible living believers are processed; Heathens are excluded and remain untouched.",
+  "description": "Enables the Origins-style Upgrades menu: All Villagers Like Running, Grant Full Mastery to All Villagers, and All Villagers are 18. Each costs 1,000,000 tech points. Living Believers only; Heathens are unaffected.",
   "output_tag": "Origins Village-Wide Upgrades",
   "dependencies": [
     "vv5_enable_origins_exclusive_features"

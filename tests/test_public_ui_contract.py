@@ -93,12 +93,34 @@ class PublicUiContractTests(unittest.TestCase):
         source = (ROOT / "src/vv_fun_patcher.py").read_text(encoding="utf-8")
         gui = (ROOT / "src/vv_fun_patcher_gui.py").read_text(encoding="utf-8")
         self.assertIn("load_fun_patches()", source)
-        self.assertIn("load_fun_patches()", gui)
+        self.assertIn("load_public_fun_patches()", gui)
         # The VV2 stale-pin lane is unrelated to this VV3-VV5 containment test.
         with patch.object(patcher, "_certified_vv2_full_mastery_record", return_value=None):
             records = patcher.load_fun_patches()
         ids = {record.id for record in records}
         self.assertNotIn(patcher.VV4_FULL_HEAL_CANDIDATE_ID, ids)
+
+    def test_public_fun_patch_catalog_is_only_the_five_current_origins_menus(self):
+        expected = [
+            f"vv{game}_origins_village_wide_upgrades"
+            for game in range(1, 6)
+        ]
+        public = patcher.load_public_fun_patches()
+        self.assertEqual([patch.id for patch in public], expected)
+        self.assertTrue(all("full_mastery" not in patch.id for patch in public))
+        self.assertTrue(
+            all("enable_origins_exclusive_features" not in patch.id for patch in public)
+        )
+
+    def test_public_origins_menu_selection_adds_only_internal_base_prerequisite(self):
+        for game in range(1, 6):
+            game_id = f"vv{game}"
+            wide_id = f"{game_id}_origins_village_wide_upgrades"
+            base_id = f"{game_id}_enable_origins_exclusive_features"
+            self.assertEqual(
+                patcher.resolve_fun_patch_ids([wide_id], game_id=game_id),
+                [base_id, wide_id],
+            )
 
     def test_disabled_vv3_full_heal_is_not_documented_as_available_cli_id(self):
         readme_lines = (ROOT / "README.md").read_text(encoding="utf-8").splitlines()
