@@ -244,18 +244,23 @@ def _eligibility(config: dict, label: str) -> str:
 def build_payload(config: dict) -> tuple[bytes, dict[str, int]]:
     cave_va = config["cave_va"]
     payload_va = config["cave_va"] + (config["payload_offset"] - config["cave_offset"])
+    # The first 0x20 bytes are the fixed VVFPOWU header.  Assemble the code
+    # relative to the byte immediately after that header; the previous
+    # generator assembled against payload_va and then prepended the header,
+    # shifting every entry and native call target by +0x20 at runtime.
+    code_va = payload_va + 0x20
     # Entry is deliberately at a stable offset from the signature.  The base
     # Origins payload can check the signature and call this entry without
     # knowing the optional implementation's internal layout.
-    entry_va = payload_va + 0x20
-    running_va = payload_va + 0x70
-    mastery_va = payload_va + config.get("mastery_code_offset", 0x190)
-    age_va = payload_va + config.get("age_code_offset", 0x250)
+    entry_va = code_va
+    running_va = code_va + 0x50
+    mastery_va = code_va + config.get("mastery_code_offset", 0x190) - 0x20
+    age_va = code_va + config.get("age_code_offset", 0x250) - 0x20
     code = bytearray(b"\0" * config.get("code_size", 0x390))
 
     def put(va: int, source: str) -> None:
         payload = assemble(source, va)
-        start = va - payload_va
+        start = va - code_va
         end = start + len(payload)
         if start < 0 or end > len(code):
             raise RuntimeError(f"optional payload exceeds reserve at {va:#x}")

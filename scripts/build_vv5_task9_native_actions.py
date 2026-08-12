@@ -447,10 +447,10 @@ def build_helpers(page: bytearray, page_va: int, s: dict[str, int]) -> dict[str,
         je invalid
         cmp byte ptr [eax+0x1CE1], 0
         jne invalid
-        cmp dword ptr [eax+0x1C40], 0
-        jle invalid
         cmp byte ptr [eax+0x1CEC], 0
         jne invalid
+        cmp dword ptr [eax+0x1C40], 0
+        jle invalid
         mov edx, ebx
         pop ebx
         pop ebp
@@ -477,10 +477,10 @@ def build_helpers(page: bytearray, page_va: int, s: dict[str, int]) -> dict[str,
         je invalid
         cmp byte ptr [eax+0x1CE1], 0
         jne invalid
-        cmp dword ptr [eax+0x1C40], 0
-        jle invalid
         cmp byte ptr [eax+0x1CEC], 0
         jne invalid
+        cmp dword ptr [eax+0x1C40], 0
+        jle invalid
         pop ebx
         ret
     invalid:
@@ -497,10 +497,10 @@ def build_helpers(page: bytearray, page_va: int, s: dict[str, int]) -> dict[str,
         je done
         cmp byte ptr [edx+0x1CE1], 0
         jne done
-        cmp dword ptr [edx+0x1C40], 0
-        jle done
         cmp byte ptr [edx+0x1CEC], 0
         jne done
+        cmp dword ptr [edx+0x1C40], 0
+        jle done
         inc eax
     done:
         ret 4
@@ -1336,16 +1336,16 @@ def build_heal(page: bytearray, page_va: int) -> bytes:
         jne dry_next
         movzx eax, byte ptr [esi+0x1CEC]
         mov dword ptr [edi+8], eax
+        cmp dword ptr [edi+8], 0
+        jne dry_next
         mov eax, dword ptr [esi+0x1C40]
         mov dword ptr [edi+4], eax
+        cmp dword ptr [edi+4], 0
+        jle dry_next
         movzx eax, byte ptr [esi+0x1C48]
         mov dword ptr [edi+12], eax
         mov eax, dword ptr [esi+0x1CFC]
         mov dword ptr [edi+16], eax
-        cmp dword ptr [edi+4], 0
-        jle dry_next
-        cmp dword ptr [edi+8], 0
-        jne dry_next
         cmp dword ptr [edi+12], 0
         je dry_health
         cmp dword ptr [edi+16], 12
@@ -1416,10 +1416,11 @@ def build_heal(page: bytearray, page_va: int) -> bytes:
         je write_next
         cmp dword ptr [edi+20], 0
         jne write_next
+        movzx eax, byte ptr [esi+0x1CEC]
+        cmp eax, dword ptr [edi+8]
+        jne write_next
         cmp dword ptr [edi+4], 0
         jle write_next
-        cmp dword ptr [edi+8], 0
-        jne write_next
         cmp dword ptr [edi+4], 80
         jae sickness_write
         call heal_record_guard
@@ -1540,6 +1541,9 @@ def build_heal(page: bytearray, page_va: int) -> bytes:
         movzx eax, byte ptr [esi+0x1CE1]
         cmp eax, dword ptr [edi+20]
         jne heal_guard_fail
+        movzx eax, byte ptr [esi+0x1CEC]
+        cmp eax, dword ptr [edi+8]
+        jne heal_guard_fail
         mov eax, dword ptr [esi+0x1C40]
         cmp eax, dword ptr [edi+4]
         jne heal_guard_fail
@@ -1550,6 +1554,9 @@ def build_heal(page: bytearray, page_va: int) -> bytes:
         jne heal_guard_fail
         movzx eax, byte ptr [esi+0x1CE1]
         cmp eax, dword ptr [edi+20]
+        jne heal_guard_fail
+        movzx eax, byte ptr [esi+0x1CEC]
+        cmp eax, dword ptr [edi+8]
         jne heal_guard_fail
         mov eax, dword ptr [edi+4]
         cmp eax, 80
@@ -1807,7 +1814,7 @@ def main() -> None:
             "owner": "BeginOriginsOwner/GetOriginsOwner/EndOriginsOwner; same-process HWND only; capture before fullscreen leave; no foreground fallback; centralized restore then End",
             "sequence": "complete dry-run -> IDOK -> fresh identity/snapshot/funds -> mutation -> postverify -> one native charge -> exact balance readback",
             "selection": "resolver 0x425950 null-guarded before +0x17E24; unsigned command 0..3 before resolver or price access",
-            "eligibility": "active +0x1CD4, Heathen mask/status +0x1CE1 == 0, signed living health +0x1C40 > 0, current-Believer faction +0x1CEC == 0",
+            "eligibility": "active +0x1CD4, Heathen mask/status +0x1CE1 == 0, current-Believer faction +0x1CEC == 0, signed living health +0x1C40 > 0",
             "eligibility_schema": "both the VV5 Heathen mask/status byte and current faction must identify an active living Believer; masked records are rejected before action-specific reads or writes",
             "actions": {
                 "youth": {"price": 50000, "target": "max(raw_age-700,100)", "writer": "0x46F7F0 ECX=record+0x1B8C signed delta", "companions": ["+0x1C3C same delta", "+0x1C4C same delta only when nonzero"]},
@@ -1905,7 +1912,7 @@ def main() -> None:
         "resolver_contract": {
             "record_pointer_resolver": "0x46F950",
             "forbidden_transitive_helpers": ["0x466170", "0x471840"],
-            "eligibility_order": ["+0x1CD4 != 0", "+0x1CE1 == 0", "+0x1C40 signed > 0", "+0x1CEC == 0"],
+            "eligibility_order": ["+0x1CD4 != 0", "+0x1CE1 == 0", "+0x1CEC == 0", "+0x1C40 signed > 0"],
         },
         "expanded_cross_section_hook_audit": {
             "hook_count": len(TASK9_CROSS_SECTION_HOOKS),

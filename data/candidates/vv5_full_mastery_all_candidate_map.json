@@ -15,8 +15,8 @@
   },
   "active_base": {
     "path": "data/vv5_origins_feature.json",
-    "size": 53747,
-    "sha256": "F9643E2B7D115B6ECDDD4D8AD4BFFC73F2FF6937995E40E991041B6AF6463D44"
+    "size": 54626,
+    "sha256": "E2B851340581141443CD567C88FBCEBDC7A291974EBA2428EB0BF332BD08D91A"
   },
   "ui_geometry_contract": {
     "asset": "Images\\btn_trophies.png",
@@ -43,7 +43,7 @@
     }
   },
   "base_manifest_sha256": "ABD51E6C89A740BF349897587722DB15954A63B2DED1EC5DA741CCB2E2FCCE6A",
-  "feature_manifest_sha256": "B4E02B3249B64E8D1B09DF1BE35C6A7B1E1318AA77E60DF8D931BAFC935E6A00",
+  "feature_manifest_sha256": "F7AA12A5D11C5AC735EB4E7A356C4A8E180A0332ED678FABDAA6EED4F9DAFF8D",
   "base_stock_payload_sha256": "1EC8A5DA70EE1AC4D3D399B9C578731C97155ADB23AA0E2D4E90D3BB7B6FA2D0",
   "fullscreen_dialog_contract": {
     "status": "disabled candidate-only native engine state-synchronised bracket; pending independent emitted-byte recertification",

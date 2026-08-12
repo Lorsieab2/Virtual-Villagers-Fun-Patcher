@@ -188,8 +188,8 @@ class Task9ArtifactTests(unittest.TestCase):
                 "eligibility_order": [
                     "+0x1CD4 != 0",
                     "+0x1CE1 == 0",
-                    "+0x1C40 signed > 0",
                     "+0x1CEC == 0",
+                    "+0x1C40 signed > 0",
                 ],
             },
         )
@@ -218,8 +218,8 @@ class Task9ArtifactTests(unittest.TestCase):
                     faction = routine.find(bytes.fromhex("80B8EC1C000000"))
                     self.assertGreaterEqual(active, 0)
                     self.assertLess(active, mask)
-                    self.assertLess(mask, health)
-                    self.assertLess(health, faction)
+                    self.assertLess(mask, faction)
+                    self.assertLess(faction, health)
 
     def test_unsigned_detail_command_bound_is_before_any_action_resolution(self) -> None:
         page = bytes.fromhex(self.manifest["pe_append_transaction"]["layouts"]["collection_progression"]["append_bytes"])

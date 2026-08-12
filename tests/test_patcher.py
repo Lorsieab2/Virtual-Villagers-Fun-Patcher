@@ -382,7 +382,7 @@ class ManifestTests(unittest.TestCase):
         self.assertNotIn("vv2_individual_full_mastery_candidate", active_ids)
         self.assertNotIn("vv3_all_villagers_like_running", active_ids)
         self.assertNotIn("vv5_full_mastery_all_stage_a_candidate", active_ids)
-        self.assertIn("vv3_full_mastery_all_stage_a_candidate", active_ids)
+        self.assertNotIn("vv3_full_mastery_all_stage_a_candidate", active_ids)
 
     def test_origins_village_wide_payloads_use_zero_owned_reserves(self) -> None:
         stock_by_game = {build.id: STOCK / build.input_name for build in load_builds()}
@@ -490,6 +490,30 @@ class ManifestTests(unittest.TestCase):
                     self.assertNotIn("expanded_shr_relocations", feature.raw)
                 if game_id == "vv5":
                     self.assertNotIn((0x1B8C + 0xAD0).to_bytes(4, "little"), payload)
+
+    def test_origins_village_wide_entry_and_vv5_native_targets_are_not_header_shifted(self) -> None:
+        feature = village_wide_record("vv5")
+        patch = feature.raw["patches"][0]
+        payload = bytes.fromhex(patch["after"])
+        payload_base = int(patch["offset"], 0)
+        entry_offset = int(feature.raw["extension_abi"]["entry_offset"], 0) - payload_base
+        self.assertEqual(payload[entry_offset : entry_offset + 3], bytes.fromhex("83F806"))
+
+        payload_va = int(feature.raw["extension_abi"]["signature_offset"], 0) + 0x400000
+        targets: list[int] = []
+        for offset in range(len(payload) - 4):
+            if payload[offset] != 0xE8:
+                continue
+            targets.append(
+                payload_va
+                + offset
+                + 5
+                + int.from_bytes(payload[offset + 1 : offset + 5], "little", signed=True)
+            )
+        self.assertEqual(
+            sorted(targets),
+            sorted([0x464F90, 0x464AD0, 0x4649E0, 0x475730]),
+        )
 
     def test_current_origins_routes_render_in_stock_mode(self) -> None:
         sources = {
@@ -930,8 +954,7 @@ class DoublerPurchaseSafetyTests(unittest.TestCase):
                 self.assertIn("zero cost", status["existing_owned"])
                 self.assertIn("zero refund", status["existing_owned"])
                 self.assertIn("temporarily disabled", status["repurchase"])
-                self.assertIn("displayed-but-currently-unavailable", feature.description)
-                self.assertIn("repurchase is temporarily disabled", feature.description)
+                self.assertIn("runtime/player confirmation", feature.description.lower())
 
                 payload = b"".join(
                     bytes.fromhex(patch["after"]) for patch in feature.raw["patches"]
@@ -1056,7 +1079,7 @@ class StockIntegrationTests(unittest.TestCase):
         for build in load_builds():
             with self.subTest(game=build.id):
                 if build.id == "vv3":
-                    self.assertIn(
+                    self.assertNotIn(
                         "vv3_full_mastery_all_stage_a_candidate",
                         patches_by_game[build.id],
                     )
@@ -1069,7 +1092,7 @@ class StockIntegrationTests(unittest.TestCase):
                         )
                     continue
                 if build.id == "vv4":
-                    self.assertIn(
+                    self.assertNotIn(
                         "vv4_full_mastery_all_stage_a_candidate",
                         patches_by_game[build.id],
                     )
