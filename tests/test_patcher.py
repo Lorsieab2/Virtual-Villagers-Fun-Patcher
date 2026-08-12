@@ -2030,7 +2030,7 @@ class StockIntegrationTests(unittest.TestCase):
                     self.assertEqual(modeled_target(project_id, raw_progress), 0x42090)
         self.assertEqual(set(range(3, 9)) & set(hooks), set())
         self.assertEqual(
-            0x568F9 + 5 + struct.unpack_from("<i", wrapper, 41)[0],
+            0x568F9 + 5 + struct.unpack_from("<i", wrapper, 42)[0],
             0x42090,
         )
 
