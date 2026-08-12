@@ -30,9 +30,9 @@ VV2 exact-build feature `vv2_birth_control` is limited to the two complete 40-by
 
 ## VV1/VV2 Origins playtest boundary
 
-The VV1 and VV2 Origins feature records and both dependent village-wide records are exposed in the requested static/playtest package through the catalog, GUI, CLI, dependency resolution, Select All, and generated per-feature output. Their legacy Time Warp, Cure, Running, doubler, and selected-villager actions remain historical/STOP evidence for runtime purposes; no player/runtime GO is claimed. VV1 still requires the exact `Time Warp - Advances 3 Villager Years` resource replacement/rebuild, stale Cure removal or separately proved replacement, and complete confirmation, identity/funds reacquisition, native mutation, postverification, one-deduction, no-change/no-charge, and partial-failure contracts. VV2 has the same gates plus root-cause repair after reported Time Warp and Food Point Doubler crashes immediately after their purchased/success dialog. This records the trigger only and does not infer whether the charge or action persisted. The VV2 crash audit also found `.shr` raw-offset versus virtual-address confusion, displacing helper/header references by `0x2000`; this remains a hard runtime re-enable blocker but is not certified as the complete explanation. Golden Child, Gong of Wonder, and Island Event outcomes remain native. Unrelated VV1/VV2 optional features remain available.
+The current selectable VV1/VV2 Origins records are the complete Tech and Villager Detail menus plus their dependent Village-Wide menus. Historical standalone Full Mastery records are retained as evidence only: they are not catalog-selectable and are excluded from release packaging. Static verification is complete; runtime/player confirmation remains pending. Native unrelated handlers, including Golden Child, Gong of Wonder, and Island Events, remain outside the custom routes.
 
-VV2 Grant Full Mastery to All Villagers is catalog-visible only for stock Collection Progression and Immediate Fixed modes after static emitted-byte GO evidence recorded by `13f4341201fa7757d23f77c5c17602bbe7bbf21d`, with binary implementation/source bound to `895340333d55273e599f2dce5ab0db42cbc6d0ab`. The isolated command-7-only feature scans active +0x30, positive signed health +0x52C, non-totem +0x558 records; writes only below-100 native skill DWORDs +0x7E4..+0x7F4 to 100; then native sub_44D4C0 runs exactly once globally after complete exact-100 postverification. It is a repeatable 1,000,000-point Buy action with complete dry-run, exact no-change/no-charge result, universal OK/Cancel confirmation, final unsigned funds and eligibility recheck, one deduction, and one commit. After the global evaluator, the transaction reacquires fresh manager/state, derives fresh telemetry, rechecks unsigned funds, and performs the single native deduction. Telemetry reports changed villagers, newly native-marked Elders, and changed villagers left unmarked at the native 50-totem cap. Commands 6/8, ownership, Remove, withdrawn `.shr`, Gong, Island Events, and unrelated record fields are absent. Expanded-256 modes reject before output. Runtime/player confirmation remains pending.
+Historical VV2 standalone Full Mastery records are retained as evidence only and are not selectable. The current VV2 Origins menus own both Village-Wide and Detail-screen Full Mastery, target exact skill value 100, skip inactive/dead/totem records, and use the verified native skill writer where applicable. The native mastery evaluator address remains unclaimed pending proof. The reported VV2 Time Warp and Food Point Doubler crash occurred immediately after the purchased/success dialog; runtime/player confirmation remains pending.
 
 Superseded historical evidence (withdrawn; not current behavior): VV1 Full Mastery audit `e0bed87ce17dca5331afed1abc2d753ec3d8f0aa` confirms five contiguous signed DWORD skills at +0x3BC..+0x3CC, job preference +0x3D0, Master threshold 90, native cap 100, and persistent 32-record save packing at stride 0x3D8. The former candidate iterated occupied +0x28 and positive signed health +0x344, wrote 90 through raw stores, returned no changed count, and used state+0xA2FC for a one-million-point transaction without preflight, commit recheck, no-charge no-op result, or rollback. Those 90-point/raw-store semantics and unresolved-route findings are withdrawn and do not describe the current enabled candidate.
 
@@ -67,7 +67,7 @@ VV3 Running is catalog-hidden and VV3Run2 is hard-withdrawn from playtesting und
 
 ## Origins village-wide atomic-payload playtest boundary
 
-All five legacy `vvN_origins_village_wide_upgrades` records are exposed in the requested static/playtest catalog, GUI, CLI, Select All, dependency resolution, and rendered outputs. Commands 6, 7, and 8 share one atomic payload, so catalog exposure is not a complete runtime/player GO gate. Each record provides the three documented 1,000,000-tech-point rows after its matching base Origins dependency. VV2's separate command-7 Full Mastery candidate remains separately scoped; its status does not enable any Running row. Commands 6/8, Remove, Cure, Gong, and Island Event routes remain absent from that candidate. VV3's separate village-wide command-6 Running candidate remains withdrawn; the atomic record is exposed separately for static composition. VV4 audit `628e0d9217b92b9cd695655842b09d74689a0238` and VV5 audit `02581c8f518e27ebd5fc7d2972db5597ab08ed35` keep their isolated mastery commands separately scoped. Static generation never alters save ownership or issues refunds.
+The five current `vvN_origins_village_wide_upgrades` records are the sole selectable Village-Wide menu routes. Commands 6, 7, and 8 share one guarded payload after each matching base Origins dependency. Each row is a 1,000,000-tech-point buy action; static generation never alters save ownership or issues refunds. Historical standalone Full Mastery and individual Full Mastery records are not selectable and are not released.
 
 ## VV3 Full Heal / Cure All candidate
 
@@ -114,9 +114,9 @@ Researchers keep choosing the stock research action and earning tech points afte
 
 #### Enable Origins Village-Wide Upgrades (`vv1_origins_village_wide_upgrades`)
 
-Enables the Origins Tech-screen Upgrades button/menu for Virtual Villagers - A New Home and adds Running, Full Mastery, and Set Age to 18. Each row costs 1,000,000 tech points. Runtime/player confirmation pending.
+Enables the Origins Tech-screen Upgrades button/menu for Virtual Villagers - A New Home and adds Running, Grant Full Mastery to All Villagers, and Set Age to 18. Each row costs 1,000,000 tech points. Runtime/player confirmation pending.
 
-- Behavior changes: Adds rows 6-8 to the Origins Tech-screen Upgrades dialog only when this optional feature is installed. Charges exactly 1,000,000 tech points once per selected village-wide purchase in the current save. Running scans exactly 4 physical Like and Dislike slots, adds Running only to the first free Like slot, and removes Running Dislikes only after a successful or already-present Running state. Grant Full Mastery to All Villagers writes the native five- or six-skill mastery fields for eligible living villagers. All Villagers are 18 writes only the verified displayed-age field to 360 age units.
+- Behavior changes: Adds rows 6-8 to the Origins Tech-screen Upgrades dialog only when this optional feature is installed. Charges exactly 1,000,000 tech points once per selected village-wide purchase in the current save. Running scans exactly 4 physical Like and Dislike slots, adds Running only to the first free Like slot, removes Running Dislikes only after that insertion, and leaves already-Running or full-like villagers unchanged. Grant Full Mastery to All Villagers writes the native five- or six-skill mastery fields for eligible living villagers. All Villagers are 18 writes only the verified displayed-age field to 360 age units.
 - Explicit non-changes/exclusions: No unrelated Like is replaced or removed. No movement speed, movement initialization, nursing timer, pregnancy timer, or pregnancy state is written. The upgrades are save-scoped and do not set a global ownership bit.
 - Dependencies: vv1_enable_origins_exclusive_features
 - Build-specific Running preference ID: 38; evidence source: exact stock executable embedded preference table at table offset 0x7B260.
@@ -125,9 +125,9 @@ Enables the Origins Tech-screen Upgrades button/menu for Virtual Villagers - A N
 
 #### Enable Origins-Exclusive Features (`vv1_enable_origins_exclusive_features`)
 
-Playtest build: enables the exact-build Origins Tech and Villager Detail Upgrades menus, including the historical Time Warp, Cure, doubler, and selected-villager rows. The dependent Village-Wide record supplies the three village-wide rows. This package is static/source verified only; reported runtime crashes and complete player transaction validation remain pending. Golden Child and Island Event outcomes remain native. Inspired by the Virtual Villagers 1 mobile port, where selected Origins-exclusive upgrades originated; this wording does not claim unsupported mobile parity.
+Enables the exact-build Origins Tech and Villager Detail Upgrades menus for Virtual Villagers - A New Home. The dependent Village-Wide record supplies Running, Full Mastery, and Set Age to 18. Runtime/player confirmation pending. Inspired by the Virtual Villagers 1 mobile port, where selected Origins-exclusive upgrades originated; this wording does not claim unsupported mobile parity.
 
-- Behavior changes: Playtest build: enables the exact-build Origins Tech and Villager Detail Upgrades menus, including the historical Time Warp, Cure, doubler, and selected-villager rows. The dependent Village-Wide record supplies the three village-wide rows. This package is static/source verified only; reported runtime crashes and complete player transaction validation remain pending. Golden Child and Island Event outcomes remain native.
+- Behavior changes: Enables the exact-build Origins Tech and Villager Detail Upgrades menus for Virtual Villagers - A New Home. The dependent Village-Wide record supplies Running, Full Mastery, and Set Age to 18. Runtime/player confirmation pending.
 - Explicit non-changes/exclusions: none declared
 - Dependencies: none
 - Build-specific Running preference ID: 38; evidence source: exact stock executable embedded preference table at table offset 0x7B260.
@@ -207,9 +207,9 @@ Healers and villagers who prefer Healing study plants when no sick villager need
 
 #### Enable Origins Village-Wide Upgrades (`vv2_origins_village_wide_upgrades`)
 
-Enables the Origins Tech-screen Upgrades button/menu for Virtual Villagers - The Lost Children and adds Running, Full Mastery, and Set Age to 18. Each row costs 1,000,000 tech points. Runtime/player confirmation pending.
+Enables the Origins Tech-screen Upgrades button/menu for Virtual Villagers - The Lost Children and adds Running, Grant Full Mastery to All Villagers, and Set Age to 18. Each row costs 1,000,000 tech points. Runtime/player confirmation pending.
 
-- Behavior changes: Adds rows 6-8 to the Origins Tech-screen Upgrades dialog only when this optional feature is installed. Charges exactly 1,000,000 tech points once per selected village-wide purchase in the current save. Running scans exactly 3 physical Like and Dislike slots, adds Running only to the first free Like slot, and removes Running Dislikes only after a successful or already-present Running state. Grant Full Mastery to All Villagers writes the native five- or six-skill mastery fields for eligible living villagers. All Villagers are 18 writes only the verified displayed-age field to 360 age units.
+- Behavior changes: Adds rows 6-8 to the Origins Tech-screen Upgrades dialog only when this optional feature is installed. Charges exactly 1,000,000 tech points once per selected village-wide purchase in the current save. Running scans exactly 62 physical Like and Dislike slots, adds Running only to the first free Like slot, removes Running Dislikes only after that insertion, and leaves already-Running or full-like villagers unchanged. Grant Full Mastery to All Villagers writes the native five- or six-skill mastery fields for eligible living villagers. All Villagers are 18 writes only the verified displayed-age field to 360 age units.
 - Explicit non-changes/exclusions: No unrelated Like is replaced or removed. No movement speed, movement initialization, nursing timer, pregnancy timer, or pregnancy state is written. The upgrades are save-scoped and do not set a global ownership bit.
 - Dependencies: vv2_enable_origins_exclusive_features
 - Build-specific Running preference ID: 38; evidence source: exact stock executable embedded preference table at table offset 0x8B808.
@@ -218,9 +218,9 @@ Enables the Origins Tech-screen Upgrades button/menu for Virtual Villagers - The
 
 #### Enable Origins-Exclusive Features (`vv2_enable_origins_exclusive_features`)
 
-Playtest build: enables the exact-build Origins Tech and Villager Detail Upgrades menus, including the historical Time Warp, Cure, doubler, and selected-villager rows. The dependent Village-Wide record supplies the three village-wide rows. This package is static/source verified only; reported Time Warp and Food Point Doubler crashes and complete player transaction validation remain pending. Gong of Wonder and Island Event outcomes remain native. Inspired by the Virtual Villagers 1 mobile port, where selected Origins-exclusive upgrades originated; this wording does not claim unsupported mobile parity.
+Enables the exact-build Origins Tech and Villager Detail Upgrades menus for Virtual Villagers - The Lost Children. The dependent Village-Wide record supplies Running, Full Mastery, and Set Age to 18. Native skill, Elder, Gong, Island Event, and statistics handlers remain in the call paths. Runtime/player confirmation pending. Inspired by the Virtual Villagers 1 mobile port, where selected Origins-exclusive upgrades originated; this wording does not claim unsupported mobile parity.
 
-- Behavior changes: Playtest build: enables the exact-build Origins Tech and Villager Detail Upgrades menus, including the historical Time Warp, Cure, doubler, and selected-villager rows. The dependent Village-Wide record supplies the three village-wide rows. This package is static/source verified only; reported Time Warp and Food Point Doubler crashes and complete player transaction validation remain pending. Gong of Wonder and Island Event outcomes remain native.
+- Behavior changes: Enables the exact-build Origins Tech and Villager Detail Upgrades menus for Virtual Villagers - The Lost Children. The dependent Village-Wide record supplies Running, Full Mastery, and Set Age to 18. Native skill, Elder, Gong, Island Event, and statistics handlers remain in the call paths. Runtime/player confirmation pending.
 - Explicit non-changes/exclusions: none declared
 - Dependencies: none
 - Build-specific Running preference ID: 38; evidence source: exact stock executable embedded preference table at table offset 0x8B808.
@@ -234,16 +234,6 @@ Playtest build: enables the exact-build Origins Tech and Villager Detail Upgrade
 When the Gong of Wonder grants coconuts, adds 30 to the coconut trees instead of replacing their current amount with 30. Both normal and alternate outcome paths are corrected.
 
 - Behavior changes: When the Gong of Wonder grants coconuts, adds 30 to the coconut trees instead of replacing their current amount with 30. Both normal and alternate outcome paths are corrected.
-- Explicit non-changes/exclusions: none declared
-- Dependencies: none
-- Evidence status: static source/manifest verification performed; runtime/player confirmation pending
-- Guarded executable edits: 2; every edit has an exact purpose and before/after guard in the manifest.
-
-#### Grant Full Mastery to All Villagers (`vv2_full_mastery_all_stage_a_candidate`)
-
-Enabled command-7-only stock candidate for stock Collection Progression and Immediate Fixed modes. Runtime/player confirmation remains pending. The repaired transaction uses the native manager getter, changed-only native skill writer, native Elder evaluator, and native tech-point writer; no raw skill stores, precharge, .shr transport, Gong, or Island Event paths are emitted. Expanded-256 modes are rejected before output.
-
-- Behavior changes: Enabled command-7-only stock candidate for stock Collection Progression and Immediate Fixed modes. Runtime/player confirmation remains pending. The repaired transaction uses the native manager getter, changed-only native skill writer, native Elder evaluator, and native tech-point writer; no raw skill stores, precharge, .shr transport, Gong, or Island Event paths are emitted. Expanded-256 modes are rejected before output.
 - Explicit non-changes/exclusions: none declared
 - Dependencies: none
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending
@@ -289,9 +279,9 @@ Supported stock identity is the exact `Virtual Villagers - The Secret City.exe` 
 
 #### Enable Origins Village-Wide Upgrades (`vv3_origins_village_wide_upgrades`)
 
-Enables the Origins Tech-screen Upgrades button/menu for Virtual Villagers - The Secret City and adds Running, Full Mastery, and Set Age to 18. Each row costs 1,000,000 tech points. Runtime/player confirmation pending.
+Enables the Origins Tech-screen Upgrades button/menu for Virtual Villagers - The Secret City and adds Running, Grant Full Mastery to All Villagers, and Set Age to 18. Each row costs 1,000,000 tech points. Runtime/player confirmation pending.
 
-- Behavior changes: Adds rows 6-8 to the Origins Tech-screen Upgrades dialog only when this optional feature is installed. Charges exactly 1,000,000 tech points once per selected village-wide purchase in the current save. Running scans exactly 3 physical Like and Dislike slots, adds Running only to the first free Like slot, and removes Running Dislikes only after a successful or already-present Running state. Grant Full Mastery to All Villagers writes the native five- or six-skill mastery fields for eligible living villagers. All Villagers are 18 writes only the verified displayed-age field to 360 age units.
+- Behavior changes: Adds rows 6-8 to the Origins Tech-screen Upgrades dialog only when this optional feature is installed. Charges exactly 1,000,000 tech points once per selected village-wide purchase in the current save. Running scans exactly 3 physical Like and Dislike slots, adds Running only to the first free Like slot, removes Running Dislikes only after that insertion, and leaves already-Running or full-like villagers unchanged. Grant Full Mastery to All Villagers writes the native five- or six-skill mastery fields for eligible living villagers. All Villagers are 18 writes only the verified displayed-age field to 360 age units.
 - Explicit non-changes/exclusions: No unrelated Like is replaced or removed. No movement speed, movement initialization, nursing timer, pregnancy timer, or pregnancy state is written. The upgrades are save-scoped and do not set a global ownership bit.
 - Dependencies: vv3_enable_origins_exclusive_features
 - Build-specific Running preference ID: 38; evidence source: exact stock executable embedded preference table at table offset 0x97488.
@@ -393,9 +383,9 @@ Golden Fish become eligible in the fishing nets only after all 12 Fish Scales ar
 
 #### Enable Origins Village-Wide Upgrades (`vv4_origins_village_wide_upgrades`)
 
-Enables the Origins Tech-screen Upgrades button/menu for Virtual Villagers - The Tree of Life and adds Running, Full Mastery, and Set Age to 18. Each row costs 1,000,000 tech points. Runtime/player confirmation pending.
+Enables the Origins Tech-screen Upgrades button/menu for Virtual Villagers - The Tree of Life and adds Running, Grant Full Mastery to All Villagers, and Set Age to 18. Each row costs 1,000,000 tech points. Runtime/player confirmation pending.
 
-- Behavior changes: Adds rows 6-8 to the Origins Tech-screen Upgrades dialog only when this optional feature is installed. Charges exactly 1,000,000 tech points once per selected village-wide purchase in the current save. Running scans exactly 3 physical Like and Dislike slots, adds Running only to the first free Like slot, and removes Running Dislikes only after a successful or already-present Running state. Grant Full Mastery to All Villagers writes the native five- or six-skill mastery fields for eligible living villagers. All Villagers are 18 writes only the verified displayed-age field to 360 age units.
+- Behavior changes: Adds rows 6-8 to the Origins Tech-screen Upgrades dialog only when this optional feature is installed. Charges exactly 1,000,000 tech points once per selected village-wide purchase in the current save. Running scans exactly 3 physical Like and Dislike slots, adds Running only to the first free Like slot, removes Running Dislikes only after that insertion, and leaves already-Running or full-like villagers unchanged. Grant Full Mastery to All Villagers writes the native five- or six-skill mastery fields for eligible living villagers. All Villagers are 18 writes only the verified displayed-age field to 360 age units.
 - Explicit non-changes/exclusions: No unrelated Like is replaced or removed. No movement speed, movement initialization, nursing timer, pregnancy timer, or pregnancy state is written. The upgrades are save-scoped and do not set a global ownership bit.
 - Dependencies: vv4_enable_origins_exclusive_features
 - Build-specific Running preference ID: 38; evidence source: exact stock executable embedded preference table at table offset 0xA0CD8.
@@ -458,9 +448,9 @@ Villagers with positive Devotion skill can spontaneously use the stock Honoring 
 
 #### Enable Origins Village-Wide Upgrades (`vv5_origins_village_wide_upgrades`)
 
-Enables the Origins Tech-screen Upgrades button/menu for Virtual Villagers - New Believers and adds Running, Full Mastery, and Set Age to 18. Each row costs 1,000,000 tech points. Runtime/player confirmation pending. Only eligible living believers are processed; Heathens are excluded and remain untouched.
+Enables the Origins Tech-screen Upgrades button/menu for Virtual Villagers - New Believers and adds Running, Grant Full Mastery to All Villagers, and Set Age to 18. Each row costs 1,000,000 tech points. Runtime/player confirmation pending. Only eligible living believers are processed; Heathens are excluded and remain untouched.
 
-- Behavior changes: Adds rows 6-8 to the Origins Tech-screen Upgrades dialog only when this optional feature is installed. Charges exactly 1,000,000 tech points once per selected village-wide purchase in the current save. Running scans exactly 3 physical Like and Dislike slots, adds Running only to the first free Like slot, and removes Running Dislikes only after a successful or already-present Running state. Grant Full Mastery to All Villagers writes the native five- or six-skill mastery fields for eligible living villagers. All Villagers are 18 writes only the verified displayed-age field to 360 age units.
+- Behavior changes: Adds rows 6-8 to the Origins Tech-screen Upgrades dialog only when this optional feature is installed. Charges exactly 1,000,000 tech points once per selected village-wide purchase in the current save. Running scans exactly 3 physical Like and Dislike slots, adds Running only to the first free Like slot, removes Running Dislikes only after that insertion, and leaves already-Running or full-like villagers unchanged. Grant Full Mastery to All Villagers writes the native five- or six-skill mastery fields for eligible living villagers. All Villagers are 18 writes only the verified displayed-age field to 360 age units.
 - Explicit non-changes/exclusions: No unrelated Like is replaced or removed. No movement speed, movement initialization, nursing timer, pregnancy timer, or pregnancy state is written. The upgrades are save-scoped and do not set a global ownership bit. VV5 Heathens are excluded from all three village-wide operations.
 - Dependencies: vv5_enable_origins_exclusive_features
 - Build-specific Running preference ID: 38; evidence source: exact stock executable embedded preference table at table offset 0xAEF60.

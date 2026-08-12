@@ -33,7 +33,7 @@ PAYLOAD_FILE_OFFSET = 0x943A8
 # mark it executable.
 PAYLOAD_VA = IMAGE_BASE + PAYLOAD_FILE_OFFSET
 PAYLOAD_SIZE = 0xC58
-STRINGS_OFFSET = 0xA00
+STRINGS_OFFSET = 0x9E0
 STRINGS_VA = PAYLOAD_VA + STRINGS_OFFSET
 # .shr is stored at raw 0x9A000 but is mapped at RVA 0x9C000.  Never derive a
 # runtime VA by adding IMAGE_BASE to a raw file offset: that was the cause of
@@ -52,8 +52,11 @@ DETAIL_PREFLIGHT_VA = IMAGE_BASE + SHR_RVA + (
 CURE_ENTRY_FILE_OFFSET = 0x9A530
 CURE_ENTRY_VA = IMAGE_BASE + SHR_RVA + (CURE_ENTRY_FILE_OFFSET - SHR_FILE_OFFSET)
 HEAL_CAVE_VA = CURE_ENTRY_VA
-VILLAGE_WIDE_SIGNATURE_VA = IMAGE_BASE + SHR_RVA + 0x180
-VILLAGE_WIDE_ENTRY_VA = IMAGE_BASE + SHR_RVA + 0x1A0
+# The optional village-wide payload follows the base VV2 Origins helpers in
+# the .shr reserve at raw 0x9A800.  Its runtime address must use the mapped
+# .shr RVA, not IMAGE_BASE + raw file offset.
+VILLAGE_WIDE_SIGNATURE_VA = IMAGE_BASE + SHR_RVA + 0x800
+VILLAGE_WIDE_ENTRY_VA = IMAGE_BASE + SHR_RVA + 0x820
 VILLAGE_PREFLIGHT_FILE_OFFSET = 0x9A009
 VILLAGE_PREFLIGHT_VA = IMAGE_BASE + SHR_RVA + (VILLAGE_PREFLIGHT_FILE_OFFSET - SHR_FILE_OFFSET)
 BARREL_PENDING_FILE_OFFSET = 0x9A700
@@ -145,6 +148,7 @@ def main() -> None:
         ("purchased", "Purchased."),
         ("removed", "Removed."),
         ("not_enough", "Not enough tech points."),
+        ("mastery_failed", "Full Mastery could not be completed."),
         ("paused", "Time Warp is unavailable while the game is paused."),
         (
             "population_capacity",
@@ -160,7 +164,7 @@ def main() -> None:
             "running_no_change",
             "No changes were needed. No tech points have been deducted.",
         ),
-        ("icons_dll", "VVFP Origins Icons.dll"),
+        ("icons_dll", "VVFP VV2 Origins Icons.dll"),
         ("show_dialog_export", "ShowOriginsUpgradeMenuState"),
         ("show_result_export", "ShowOriginsVillageWideResult"),
         ("user32_dll", "USER32.dll"),
@@ -175,6 +179,9 @@ def main() -> None:
         strings.extend(value.to_bytes(4, "little"))
     s["detail_costs"] = STRINGS_VA + len(strings)
     for value in (50000, 100000, 40000, 50000):
+        strings.extend(value.to_bytes(4, "little"))
+    s["vv2_skill_codes"] = STRINGS_VA + len(strings)
+    for value in (2, 5, 1, 3, 4):
         strings.extend(value.to_bytes(4, "little"))
     if len(strings) > PAYLOAD_SIZE - STRINGS_OFFSET:
         raise RuntimeError(
@@ -342,7 +349,7 @@ def main() -> None:
             je unavailable
             cmp dword ptr [0x{VILLAGE_WIDE_SIGNATURE_VA:X}], 0x50465656
             jne no_village_wide
-            or dword ptr [esp + 0x10], 0x20000
+            or dword ptr [esp + 0x10], 0xA01C0
         no_village_wide:
             push dword ptr [esp + 0x10]
             push dword ptr [esp + 0x10]
@@ -502,8 +509,8 @@ def main() -> None:
         charge:
             cmp ebx, 6
             jb legacy_charge
-            cmp ebx, 6
-            jne unsupported_village_command
+            cmp ebx, 8
+            ja unsupported_village_command
             call 0x{VILLAGE_PREFLIGHT_VA:X}
             cmp eax, 2
             je village_no_change
@@ -657,21 +664,21 @@ def main() -> None:
             ja youth_not_done
             or edi, 1
         youth_not_done:
-            cmp dword ptr [edx + 0x7E4], 90
-            jl mastery_not_done
-            cmp dword ptr [edx + 0x7E8], 90
-            jl mastery_not_done
-            cmp dword ptr [edx + 0x7EC], 90
-            jl mastery_not_done
-            cmp dword ptr [edx + 0x7F0], 90
-            jl mastery_not_done
-            cmp dword ptr [edx + 0x7F4], 90
-            jl mastery_not_done
+            cmp dword ptr [edx + 0x7E4], 100
+            jne mastery_not_done
+            cmp dword ptr [edx + 0x7E8], 100
+            jne mastery_not_done
+            cmp dword ptr [edx + 0x7EC], 100
+            jne mastery_not_done
+            cmp dword ptr [edx + 0x7F0], 100
+            jne mastery_not_done
+            cmp dword ptr [edx + 0x7F4], 100
+            jne mastery_not_done
             or edi, 2
         mastery_not_done:
             xor ebp, ebp
             lea eax, [edx + 0x5F0]
-            mov ecx, 3
+            mov ecx, 62
         running_like_scan:
             cmp dword ptr [eax], {RUNNING_PREFERENCE_ID}
             je running_like_found
@@ -690,7 +697,7 @@ def main() -> None:
             or ebp, 2
         running_state_done:
             lea eax, [edx + 0x6E8]
-            mov ecx, 3
+            mov ecx, 62
         running_dislike_scan:
             cmp dword ptr [eax], {RUNNING_PREFERENCE_ID}
             jne running_dislike_next
@@ -781,12 +788,46 @@ def main() -> None:
             jmp detail_success
 
         detail_mastery:
-            mov dword ptr [edx + 0x7E4], 90
-            mov dword ptr [edx + 0x7E8], 90
-            mov dword ptr [edx + 0x7EC], 90
-            mov dword ptr [edx + 0x7F0], 90
-            mov dword ptr [edx + 0x7F4], 90
+            mov ebx, edx
+            mov eax, dword ptr [esi + 0x10]
+            call 0x44F4E0
+            test eax, eax
+            jz detail_mastery_failed
+            mov ebp, eax
+            lea ecx, [ebp + 0x52C]
+            cmp ecx, dword ptr [esi + 0x10]
+            jne detail_mastery_failed
+            mov esi, ebx
+            xor ebx, ebx
+        detail_mastery_loop:
+            cmp dword ptr [esi + ebx*4 + 0x7E4], 100
+            je detail_mastery_next
+            mov eax, 100
+            sub eax, dword ptr [esi + ebx*4 + 0x7E4]
+            push eax
+            mov eax, dword ptr [0x{s['vv2_skill_codes']:X} + ebx*4]
+            push eax
+            push dword ptr [edi + 0x304F0]
+            lea ecx, [ebp + 0x52C]
+            call 0x445430
+        detail_mastery_next:
+            inc ebx
+            cmp ebx, 5
+            jb detail_mastery_loop
+            cmp dword ptr [esi + 0x7E4], 100
+            jne detail_mastery_failed
+            cmp dword ptr [esi + 0x7E8], 100
+            jne detail_mastery_failed
+            cmp dword ptr [esi + 0x7EC], 100
+            jne detail_mastery_failed
+            cmp dword ptr [esi + 0x7F0], 100
+            jne detail_mastery_failed
+            cmp dword ptr [esi + 0x7F4], 100
+            jne detail_mastery_failed
             jmp detail_success
+        detail_mastery_failed:
+            mov eax, 0x{s['mastery_failed']:X}
+            jmp detail_status
 
         detail_running:
             xor ebp, ebp
@@ -807,6 +848,11 @@ def main() -> None:
             add ecx, 4
             dec eax
             jne running_find_like
+            test ebp, 1
+            jnz detail_success
+            test edi, edi
+            jz detail_success
+            mov dword ptr [edi], {RUNNING_PREFERENCE_ID}
         running_remove_dislikes:
             lea ecx, [edx + 0x6E8]
             mov eax, 62
@@ -818,11 +864,6 @@ def main() -> None:
             add ecx, 4
             dec eax
             jne running_dislike_loop
-            test ebp, 1
-            jnz detail_success
-            test edi, edi
-            jz detail_success
-            mov dword ptr [edi], {RUNNING_PREFERENCE_ID}
         detail_success:
             mov eax, 0x{s['purchased']:X}
             jmp detail_status
@@ -927,8 +968,8 @@ def main() -> None:
             je cure_all
             cmp ebx, 6
             je running_village
-            cmp ebx, 6
-            jae unsupported_village
+            cmp ebx, 8
+            ja unsupported_village
             or dword ptr [edi + 0x2EAE8], 2
             ret
         unsupported_village:
@@ -944,74 +985,37 @@ def main() -> None:
             push edx
             push esi
             push edi
-            sub esp, 8
-            mov dword ptr [esp], 0
-            mov dword ptr [esp + 4], 0
-            mov edx, dword ptr [esi + 0x10]
-            mov ecx, 256
-        running_record:
-            cmp byte ptr [edx + 0x30], 0
-            je running_next_record
-            cmp dword ptr [edx + 0x52C], 0
-            jle running_next_record
-            xor ebp, ebp
-            xor esi, esi
-            lea edi, [edx + 0x5F0]
-            mov ebx, 62
-        running_scan_likes:
-            cmp dword ptr [edi], {RUNNING_PREFERENCE_ID}
-            jne running_scan_like_empty
-            or ebp, 1
-        running_scan_like_empty:
-            cmp dword ptr [edi], -1
-            jne running_scan_like_next
-            test esi, esi
-            jnz running_scan_like_next
-            mov esi, edi
-        running_scan_like_next:
-            add edi, 4
-            dec ebx
-            jne running_scan_likes
-            lea edi, [edx + 0x6E8]
-            mov ebx, 62
-        running_clear_dislikes:
-            cmp dword ptr [edi], {RUNNING_PREFERENCE_ID}
-            jne running_next_dislike
-            mov dword ptr [edi], -1
-            or ebp, 4
-        running_next_dislike:
-            add edi, 4
-            dec ebx
-            jne running_clear_dislikes
-            test ebp, 1
-            jnz running_record_done
-            test esi, esi
-            jz running_record_done
-            mov dword ptr [esi], {RUNNING_PREFERENCE_ID}
-            or ebp, 4
-        running_record_done:
-            test ebp, 4
-            jz running_skip_record
-            inc dword ptr [esp]
-            jmp running_next_record
-        running_skip_record:
-            inc dword ptr [esp + 4]
-        running_next_record:
-            add edx, 0xE48C
-            dec ecx
-            jne running_record
-            cmp dword ptr [esp], 0
-            je running_no_change_message
-            mov eax, 0x{s['running_granted']:X}
-            jmp running_show_message
-        running_no_change_message:
-            mov eax, 0x{s['running_no_change']:X}
-        running_show_message:
+            mov eax, ebx
+            mov ecx, dword ptr [esi + 0x10]
+            mov edx, 256
+            call 0x{VILLAGE_WIDE_ENTRY_VA:X}
+            mov ebp, eax
+            mov edi, edx
+            mov esi, ecx
+            cmp ebx, 6
+            jne village_wide_status
+            push 0x{s['show_result_export']:X}
+            push 0x{s['icons_dll']:X}
+            call dword ptr [0x474010]
+            test eax, eax
+            je village_wide_status
+            push 0x{s['show_result_export']:X}
+            push eax
+            call dword ptr [0x4740D4]
+            test eax, eax
+            je village_wide_status
+            push esi
+            push edi
+            push ebp
+            push ebx
+            call eax
+            jmp village_wide_done
+        village_wide_status:
+            mov eax, 0x{s['purchased']:X}
             push eax
             push 0x{s['tech_title']:X}
             call 0x{show_message:X}
-            add esp, 8
-            add esp, 8
+        village_wide_done:
             pop edi
             pop esi
             pop edx
@@ -1034,10 +1038,22 @@ def main() -> None:
             je cure_next
             cmp dword ptr [edx + 0x52C], 0
             jle cure_next
+            cmp byte ptr [edx + 0x558], 0
+            jne cure_next
+            xor ebx, ebx
+            cmp dword ptr [edx + 0x52C], 80
+            jge cure_health_done
+            mov dword ptr [edx + 0x52C], 100
+            mov ebx, 1
+        cure_health_done:
             cmp dword ptr [edx + 0x53C], 0
-            je cure_next
+            je cure_changed_check
             mov dword ptr [edx + 0x53C], 0
             inc dword ptr [edi + 0x2E508]
+            mov ebx, 1
+        cure_changed_check:
+            test ebx, ebx
+            jz cure_next
             inc eax
         cure_next:
             add edx, 0xE48C
@@ -1121,6 +1137,10 @@ def main() -> None:
             call dword ptr [0x4740D4]
             test eax, eax
             je preflight_invalid
+            cmp ebx, 7
+            je preflight_mastery
+            cmp ebx, 8
+            je preflight_age
             push ebx
             push ebp
             push ecx
@@ -1133,6 +1153,8 @@ def main() -> None:
             je preflight_next_record
             cmp dword ptr [edx + 0x52C], 0
             jle preflight_next_record
+            cmp byte ptr [edx + 0x558], 0
+            jne preflight_next_record
             xor ebp, ebp
             lea edi, [edx + 0x5F0]
             mov ebx, 62
@@ -1150,16 +1172,64 @@ def main() -> None:
             jne preflight_likes
             lea edi, [edx + 0x6E8]
             mov ebx, 62
-        preflight_dislikes:
+            test ebp, 1
+            jnz preflight_dislike_scan
+            test ebp, 2
+            jz preflight_next_record
+        preflight_dislike_scan:
             cmp dword ptr [edi], {RUNNING_PREFERENCE_ID}
             je preflight_change
             add edi, 4
             dec ebx
-            jne preflight_dislikes
+            jne preflight_dislike_scan
             test ebp, 1
             jnz preflight_next_record
             test ebp, 2
             jnz preflight_change
+        preflight_mastery:
+            mov edx, dword ptr [esi + 0x10]
+            mov ecx, 256
+        preflight_mastery_record:
+            cmp byte ptr [edx + 0x30], 0
+            je preflight_mastery_next
+            cmp dword ptr [edx + 0x52C], 0
+            jle preflight_mastery_next
+            cmp byte ptr [edx + 0x558], 0
+            jne preflight_mastery_next
+            cmp dword ptr [edx + 0x7E4], 100
+            jne preflight_change
+            cmp dword ptr [edx + 0x7E8], 100
+            jne preflight_change
+            cmp dword ptr [edx + 0x7EC], 100
+            jne preflight_change
+            cmp dword ptr [edx + 0x7F0], 100
+            jne preflight_change
+            cmp dword ptr [edx + 0x7F4], 100
+            jne preflight_change
+        preflight_mastery_next:
+            add edx, 0xE48C
+            dec ecx
+            jne preflight_mastery_record
+            mov eax, 2
+            ret
+        preflight_age:
+            mov edx, dword ptr [esi + 0x10]
+            mov ecx, 256
+        preflight_age_record:
+            cmp byte ptr [edx + 0x30], 0
+            je preflight_age_next
+            cmp dword ptr [edx + 0x52C], 0
+            jle preflight_age_next
+            cmp byte ptr [edx + 0x558], 0
+            jne preflight_age_next
+            cmp dword ptr [edx + 0x530], 360
+            jne preflight_change
+        preflight_age_next:
+            add edx, 0xE48C
+            dec ecx
+            jne preflight_age_record
+            mov eax, 2
+            ret
         preflight_next_record:
             add edx, 0xE48C
             dec ecx
@@ -1196,6 +1266,10 @@ def main() -> None:
             je cure_preflight_next
             cmp dword ptr [edx + 0x52C], 0
             jle cure_preflight_next
+            cmp byte ptr [edx + 0x558], 0
+            jne cure_preflight_next
+            cmp dword ptr [edx + 0x52C], 80
+            jl cure_preflight_change
             cmp dword ptr [edx + 0x53C], 0
             jne cure_preflight_change
         cure_preflight_next:
@@ -1255,15 +1329,19 @@ def main() -> None:
             jmp detail_preflight_no_change
 
         detail_preflight_mastery:
-            cmp dword ptr [edx + 0x7E4], 90
+            cmp dword ptr [edx + 0x52C], 0
+            jle detail_preflight_no_change
+            cmp byte ptr [edx + 0x558], 0
+            jne detail_preflight_no_change
+            cmp dword ptr [edx + 0x7E4], 100
             jne detail_preflight_change
-            cmp dword ptr [edx + 0x7E8], 90
+            cmp dword ptr [edx + 0x7E8], 100
             jne detail_preflight_change
-            cmp dword ptr [edx + 0x7EC], 90
+            cmp dword ptr [edx + 0x7EC], 100
             jne detail_preflight_change
-            cmp dword ptr [edx + 0x7F0], 90
+            cmp dword ptr [edx + 0x7F0], 100
             jne detail_preflight_change
-            cmp dword ptr [edx + 0x7F4], 90
+            cmp dword ptr [edx + 0x7F4], 100
             jne detail_preflight_change
             jmp detail_preflight_no_change
 
@@ -1283,19 +1361,19 @@ def main() -> None:
             add edi, 4
             dec ecx
             jne detail_preflight_likes
+            test ebp, 1
+            jnz detail_preflight_no_change
+            test ebp, 2
+            jz detail_preflight_no_change
             lea edi, [edx + 0x6E8]
             mov ecx, 62
-        detail_preflight_dislikes:
+        detail_preflight_dislike_scan:
             cmp dword ptr [edi], {RUNNING_PREFERENCE_ID}
             je detail_preflight_change
             add edi, 4
             dec ecx
-            jne detail_preflight_dislikes
-            test ebp, 1
-            jnz detail_preflight_no_change
-            test ebp, 2
-            jnz detail_preflight_change
-            jmp detail_preflight_no_change
+            jne detail_preflight_dislike_scan
+            jmp detail_preflight_change
 
         detail_preflight_age:
             cmp dword ptr [edx + 0x530], 360
@@ -1337,19 +1415,19 @@ def main() -> None:
         CURE_ENTRY_FILE_OFFSET,
         b"\0" * len(cure_code),
         cure_code,
-        "cure active VV2 villagers without changing health and increment People Cured",
+        "restore active living VV2 villagers below 80 health to 100, clear sickness, and increment People Cured when sickness is removed",
     )
     patch(
         VILLAGE_PREFLIGHT_FILE_OFFSET,
         b"\0" * len(preflight_code),
         preflight_code,
-        "validate the optional Origins dependency and dry-scan all 62 Like and Dislike slots before any village-wide Running charge",
+        "validate the optional Origins dependency and dry-scan all 256 living records and all 62 Like and Dislike slots before any village-wide Running charge",
     )
     patch(
         CURE_PREFLIGHT_FILE_OFFSET,
         b"\0" * len(cure_preflight_code),
         cure_preflight_code,
-        "dry-scan all 256 active living records for sickness before any Cure charge",
+        "dry-scan all 256 active living records for low health or sickness before any Cure charge",
     )
     patch(
         DETAIL_PREFLIGHT_FILE_OFFSET,
@@ -1479,21 +1557,19 @@ def main() -> None:
         "running_preference_evidence": {"source": "exact stock executable embedded preference table", "table_file_offset": "0x8B808", "entry_name": "running"},
         "name": "Enable Origins-Exclusive Features",
         "description": (
-            "Playtest build: enables the exact-build Origins Tech and Villager Detail "
-            "Upgrades menus, including the historical Time Warp, Cure, doubler, and "
-            "selected-villager rows. The dependent Village-Wide record supplies the "
-            "three village-wide rows. This package is static/source verified only; "
-            "reported Time Warp and Food Point Doubler crashes and complete player "
-            "transaction validation remain pending. Gong of Wonder and Island Event "
-            "outcomes remain native."
+            "Enables the exact-build Origins Tech and Villager Detail Upgrades menus "
+            "for Virtual Villagers - The Lost Children. The dependent Village-Wide "
+            "record supplies Running, Full Mastery, and Set Age to 18. Native skill, "
+            "Elder, Gong, Island Event, and statistics handlers remain in the call "
+            "paths. Runtime/player confirmation pending."
         ),
         "output_tag": "Origins Exclusive Features",
         "companion_files": [
             {
-                "source": "assets/origins/VVFP Origins Icons.dll",
-                "destination": "VVFP Origins Icons.dll",
+                "source": "assets/origins/VVFP VV2 Origins Icons.dll",
+                "destination": "VVFP VV2 Origins Icons.dll",
                 "sha256": hashlib.sha256(
-                    (ROOT / "assets" / "origins" / "VVFP Origins Icons.dll").read_bytes()
+                    (ROOT / "assets" / "origins" / "VVFP VV2 Origins Icons.dll").read_bytes()
                 ).hexdigest().upper(),
             }
         ],

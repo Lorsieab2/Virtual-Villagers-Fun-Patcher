@@ -214,18 +214,21 @@ class ManifestTests(unittest.TestCase):
         ):
             self.assertIn(check, cure_preflight_source)
 
-        running_apply = source[
-            source.index("        running_record:") : source.index("        cure_all:")
-        ]
-        self.assertEqual(running_apply.count("mov ebx, 62"), 2)
-        clear_dislikes = running_apply.index("        running_clear_dislikes:")
-        existing_like = running_apply.index("            test ebp, 1", clear_dislikes)
-        store_like = running_apply.index(
-            f"            mov dword ptr [esi], {{RUNNING_PREFERENCE_ID}}",
-            existing_like,
+        generic = (ROOT / "scripts" / "build_village_wide_origins_features.py").read_text(
+            encoding="utf-8"
         )
-        self.assertLess(clear_dislikes, existing_like)
-        self.assertLess(existing_like, store_like)
+        running_apply = generic[
+            generic.rfind('        slot_count = config["slot_count"]') : generic.index(
+                "    mastery_record_setup = _record_setup(config)"
+            )
+        ]
+        self.assertIn("cmp edx, {slot_count}", running_apply)
+        self.assertIn("jmp running_next", running_apply.split("running_full_like:", 1)[1])
+        existing_like = running_apply.index("running_existing:")
+        self.assertIn("jmp running_next", running_apply[existing_like:])
+        store_like = running_apply.index("mov dword ptr [esi+ecx*4")
+        clear_dislikes = running_apply.index("running_remove_dislikes:")
+        self.assertLess(store_like, clear_dislikes)
 
     def test_vv2_detail_actions_recheck_and_noop_before_charge(self) -> None:
         source = (ROOT / "scripts" / "build_vv2_origins_feature.py").read_text(
@@ -249,8 +252,8 @@ class ManifestTests(unittest.TestCase):
         ]
         self.assertEqual(helper.count("mov ecx, 62"), 2)
         for exact_target in (
-            "cmp dword ptr [edx + 0x7E4], 90",
-            "cmp dword ptr [edx + 0x7F4], 90",
+            "cmp dword ptr [edx + 0x7E4], 100",
+            "cmp dword ptr [edx + 0x7F4], 100",
             "cmp dword ptr [edx + 0x530], 360",
             "cmp dword ptr [edx + 0x534], 360",
             "cmp eax, 318",
@@ -375,14 +378,11 @@ class ManifestTests(unittest.TestCase):
         active_ids = {feature.id for feature in load_fun_patches()}
         self.assertTrue(active_ids)
         self.assertNotIn("vv1_full_mastery_all_stage_a_candidate", active_ids)
+        self.assertNotIn("vv2_full_mastery_all_stage_a_candidate", active_ids)
+        self.assertNotIn("vv2_individual_full_mastery_candidate", active_ids)
         self.assertNotIn("vv3_all_villagers_like_running", active_ids)
         self.assertNotIn("vv5_full_mastery_all_stage_a_candidate", active_ids)
         self.assertIn("vv3_full_mastery_all_stage_a_candidate", active_ids)
-        self.assertIn("vv2_full_mastery_all_stage_a_candidate", active_ids)
-        self.assertEqual(
-            sum(item.id == "vv2_full_mastery_all_stage_a_candidate" for item in load_fun_patches()),
-            1,
-        )
 
     def test_origins_village_wide_payloads_use_zero_owned_reserves(self) -> None:
         stock_by_game = {build.id: STOCK / build.input_name for build in load_builds()}
@@ -511,7 +511,7 @@ class ManifestTests(unittest.TestCase):
 
     def test_village_wide_running_result_dialog_uses_exact_three_lines(self) -> None:
         source = (ROOT / "native" / "vv1_origins_icons" / "vv1_origins_icons.c").read_text(encoding="utf-8")
-        self.assertIn("Skipped over %d villagers. Reason: Already 4 likes.", source)
+        self.assertIn('VV_ALREADY_LIKES_TEXT "Already 4 likes."', source)
         self.assertIn("skipped over %d villagers. Reason: already likes running", source)
         self.assertIn("Removed running dislike from %d villagers", source)
         self.assertIn("removed_running_dislike", source)
@@ -1094,15 +1094,6 @@ class StockIntegrationTests(unittest.TestCase):
                             patches_by_game[build.id],
                         )
                     continue
-                if build.id == "vv2" and "vv2_full_mastery_all_stage_a_candidate" in patches_by_game[build.id]:
-                    with self.assertRaisesRegex(PatcherError, "stock modes only"):
-                        render_patched_bytes(
-                            STOCK / build.input_name,
-                            build,
-                            "experimental_expanded_256",
-                            patches_by_game[build.id],
-                        )
-                    continue
                 rendered, applied = render_patched_bytes(
                     STOCK / build.input_name,
                     build,
@@ -1116,12 +1107,6 @@ class StockIntegrationTests(unittest.TestCase):
                 expected_size = build.size + (
                     0x1000 if build.id == "vv3" and running_enabled else 0
                 )
-                if (
-                    build.id == "vv2"
-                    and "vv2_full_mastery_all_stage_a_candidate"
-                    in patches_by_game[build.id]
-                ):
-                    expected_size += 0x2000
                 if (
                     build.id == "vv4"
                     and "vv4_full_mastery_all_stage_a_candidate"
@@ -3232,7 +3217,7 @@ class StockIntegrationTests(unittest.TestCase):
                 DEFAULT_PATCH_MODE,
                 fun_patch_ids=all_vv2_features,
             )
-            companion = output.parent / "VVFP Origins Icons.dll"
+            companion = output.parent / "VVFP VV2 Origins Icons.dll"
             self.assertTrue(companion.exists())
             log = json.loads(log_path.read_text(encoding="utf-8"))
             self.assertIn("vv2_enable_origins_exclusive_features", log["fun_patches"])

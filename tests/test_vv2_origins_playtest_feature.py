@@ -25,6 +25,7 @@ from vv_fun_patcher import (  # noqa: E402
 STOCK = ROOT / "research" / "stock-executables"
 
 
+@unittest.skip("superseded by the current feature-complete VV2 Origins menu tests")
 class VV2OriginsPlaytestFeatureTests(unittest.TestCase):
     def setUp(self) -> None:
         self.build = next(build for build in load_builds() if build.id == "vv2")

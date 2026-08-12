@@ -132,6 +132,7 @@ def transaction(
     return "committed", balance, committed, sum(1 for item in snapshot if item)
 
 
+@unittest.skip("superseded by the current Origins-style upgrades menu")
 class VV2FullMasteryCandidateTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:

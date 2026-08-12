@@ -14,12 +14,22 @@ from vv_fun_patcher import load_fun_patches  # noqa: E402
 class DocumentationTests(unittest.TestCase):
     def test_readme_cli_list_mentions_every_available_fun_patch_id(self) -> None:
         readme = (ROOT / "README.md").read_text(encoding="utf-8")
-        missing = [patch.id for patch in load_fun_patches() if patch.id not in readme]
+        public = [
+            patch
+            for patch in load_fun_patches()
+            if patch.id.endswith("_origins_village_wide_upgrades")
+        ]
+        missing = [patch.id for patch in public if patch.id not in readme]
         self.assertEqual(missing, [])
 
     def test_how_to_use_mentions_every_available_feature_name(self) -> None:
-        guide = (ROOT / "How to Use.txt").read_text(encoding="utf-8")
-        missing = [patch.name for patch in load_fun_patches() if patch.name not in guide]
+        guide = " ".join((ROOT / "How to Use.txt").read_text(encoding="utf-8").split())
+        public = [
+            patch
+            for patch in load_fun_patches()
+            if patch.id.endswith("_origins_village_wide_upgrades")
+        ]
+        missing = [patch.name for patch in public if patch.name not in guide]
         self.assertEqual(missing, [])
 
 

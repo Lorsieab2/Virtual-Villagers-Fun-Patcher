@@ -54,7 +54,7 @@ class VV1VV2OriginsPlaytestTests(unittest.TestCase):
                 if "origins_feature" in filename:
                     self.assertIs(record["catalog_enabled"], True)
                     self.assertIs(record["catalog_hidden"], False)
-                    self.assertIn("Playtest build", record["description"])
+                    self.assertIn("confirmation pending", record["description"])
 
         source_vv1 = (ROOT / "scripts" / "build_vv1_origins_feature.py").read_text(encoding="utf-8")
         source_vv2 = (ROOT / "scripts" / "build_vv2_origins_feature.py").read_text(encoding="utf-8")
@@ -77,7 +77,10 @@ class VV1VV2OriginsPlaytestTests(unittest.TestCase):
             text=True,
         )
         for feature_id in PUBLIC:
-            self.assertIn(feature_id, help_text)
+            if feature_id.endswith("_origins_village_wide_upgrades"):
+                self.assertIn(feature_id, help_text)
+            else:
+                self.assertNotIn(feature_id, help_text)
             request = (
                 [f"{feature_id[:3]}_enable_origins_exclusive_features", feature_id]
                 if feature_id.endswith("_origins_village_wide_upgrades")
@@ -92,11 +95,12 @@ class VV1VV2OriginsPlaytestTests(unittest.TestCase):
         for feature_id in (
             "vv1_full_mastery_all_stage_a_candidate",
             "vv2_full_mastery_all_stage_a_candidate",
+            "vv2_individual_full_mastery_candidate",
         ):
-            candidate = get_fun_patch(feature_id)
-            self.assertIs(candidate.raw["enabled"], True)
-            self.assertIs(candidate.raw["catalog_hidden"], False)
-            self.assertIn("runtime/player", candidate.raw["evidence_status"])
+            with self.subTest(feature=feature_id):
+                self.assertNotIn(feature_id, catalog_ids)
+                with self.assertRaises(PatcherError):
+                    get_fun_patch(feature_id)
 
     def test_crash_trigger_and_playtest_boundaries_are_documented(self) -> None:
         docs = [
@@ -157,6 +161,7 @@ class VV1VV2OriginsPlaytestTests(unittest.TestCase):
             from vv_fun_patcher import apply_patch  # noqa: PLC0415
 
             output, log_path = apply_patch(copied, "collection_progression", fun_patch_ids=remaining)
+            self.assertFalse((output.parent / "VVFP VV2 Origins Icons.dll").exists())
             self.assertFalse((output.parent / "VVFP Origins Icons.dll").exists())
             log = json.loads(log_path.read_text(encoding="utf-8"))
             self.assertTrue(PUBLIC.isdisjoint(log["fun_patches"]))

@@ -77,6 +77,7 @@ def transaction_model(
     return "committed", balance - 100_000, changed
 
 
+@unittest.skip("superseded by the current Origins-style upgrades menu")
 class VV2IndividualFullMasteryCandidateTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:

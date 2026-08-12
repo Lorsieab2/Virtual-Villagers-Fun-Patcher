@@ -69,9 +69,15 @@ CONFIG = {
         "health": 0x52C,
         "age": 0x530,
         "skills": (0x7E4, 0x7E8, 0x7EC, 0x7F0, 0x7F4),
+        "native_skill_writer": 0x445430,
+        "skill_codes": (2, 5, 1, 3, 4),
+        "native_mastery_manager": 0x44F4E0,
+        "totem": 0x558,
+        "code_size": 0x500,
+        "age_code_offset": 0x360,
         "likes": 0x5F0,
         "dislikes": 0x6E8,
-        "slot_count": 3,
+        "slot_count": 62,
         "running_preference_id": 38,
         "bound": "edx",
         "heathen": False,
@@ -187,6 +193,13 @@ def _eligibility(config: dict, label: str) -> str:
                 f"jne {label}",
             ]
         )
+    if config.get("totem") is not None:
+        result.extend(
+            [
+                f"cmp byte ptr [esi + {_hex_word(config['totem'])}], 0",
+                f"jne {label}",
+            ]
+        )
     if config["heathen"]:
         result.extend(
             [
@@ -282,10 +295,10 @@ def build_payload(config: dict) -> tuple[bytes, dict[str, int]]:
             cmp edx, -1
             jne running_insert
             inc edi
-            jmp running_remove_dislikes
-        running_existing:
-            inc ebp
-            jmp running_remove_dislikes
+            jmp running_next
+            running_existing:
+                inc ebp
+                jmp running_next
         running_insert:
             push {_hex_word(config['running_preference_id'])}
             lea ecx, [esi + {_hex_word(config['likes'])}]
@@ -301,7 +314,7 @@ def build_payload(config: dict) -> tuple[bytes, dict[str, int]]:
             inc dword ptr [esp]
         running_dislike_next:
             inc eax
-            cmp eax, 3
+            cmp eax, {slot_count}
             jb running_dislike_check
         running_next:
             add esi, {_hex_word(config['stride'])}
@@ -357,6 +370,7 @@ def build_payload(config: dict) -> tuple[bytes, dict[str, int]]:
             jmp running_next
         running_existing:
             inc ebp
+            jmp running_next
         running_remove_dislikes:
             xor edx, edx
             mov ecx, {slot_count}
@@ -387,9 +401,33 @@ def build_payload(config: dict) -> tuple[bytes, dict[str, int]]:
 
     mastery_record_setup = _record_setup(config)
     mastery_advance = ""
+    mastery_changed_setup = ""
+    mastery_changed_increment = ""
+    mastery_postverify = ""
+    mastery_completion = ""
     if config.get("native_skill_writer"):
-        mastery_record_setup += "\n            mov ebp, ecx\n            xor edi, edi"
+        if config.get("native_mastery_manager"):
+            mastery_record_setup += f"\n            call {_hex_word(config['native_mastery_manager'])}\n            test eax, eax\n            jz mastery_failure\n            lea ebp, [eax + 0x52C]\n            xor edi, edi"
+        else:
+            mastery_record_setup += "\n            mov ebp, ecx\n            xor edi, edi"
         mastery_advance = "inc edi"
+        mastery_postverify = "\n".join(
+            f"cmp dword ptr [esi + {_hex_word(offset)}], 100\n            jne mastery_failure"
+            for offset in config["skills"]
+        )
+        if config.get("native_mastery_evaluator"):
+            mastery_record_setup += "\n            xor eax, eax"
+            mastery_changed_increment = "inc eax"
+            mastery_completion = f"""
+            test eax, eax
+            jz mastery_return
+            call {_hex_word(config['native_mastery_manager'])}
+            test eax, eax
+            jz mastery_return
+            mov ecx, eax
+            call {_hex_word(config['native_mastery_evaluator'])}
+        mastery_return:
+        """
         skill_writes = "\n".join(
             f"""
             cmp dword ptr [esi + {_hex_word(offset)}], 100
@@ -401,6 +439,7 @@ def build_payload(config: dict) -> tuple[bytes, dict[str, int]]:
             push edi
             mov ecx, ebp
             call {_hex_word(config['native_skill_writer'])}
+            {mastery_changed_increment}
         mastery_skill_next_{index}:
             """
             for index, (offset, code) in enumerate(
@@ -446,12 +485,15 @@ def build_payload(config: dict) -> tuple[bytes, dict[str, int]]:
             jz mastery_done
             {_eligibility(config, 'mastery_next')}
             {skill_writes}
+            {mastery_postverify}
         mastery_next:
             add esi, {_hex_word(config['stride'])}
             {mastery_advance}
             dec ebx
             jmp mastery_loop
         mastery_done:
+            {mastery_completion}
+        mastery_failure:
             xor eax, eax
             xor edx, edx
             xor ecx, ecx
@@ -537,11 +579,36 @@ def main() -> None:
         enabled = True
         description = (
             f"Enables the Origins Tech-screen Upgrades button/menu for {config['title']} "
-            "and adds Running, Full Mastery, and Set Age to 18. "
+            "and adds Running, Grant Full Mastery to All Villagers, and Set Age to 18. "
             "Each row costs 1,000,000 tech points. Runtime/player confirmation pending."
         )
         if game_id == "vv5":
             description += " Only eligible living believers are processed; Heathens are excluded and remain untouched."
+        record_fields = {
+            "stride": f"0x{config['stride']:X}",
+            "first_record_argument": "ECX",
+            "active_offset": f"0x{config['active']:X}",
+            "health_offset": f"0x{config['health']:X}",
+            "age_offset": f"0x{config['age']:X}",
+            "likes_offset": f"0x{config['likes']:X}",
+            "dislikes_offset": f"0x{config['dislikes']:X}",
+            "like_slot_count": config["slot_count"],
+            "dislike_slot_count": config["slot_count"],
+            "running_preference_id": config["running_preference_id"],
+            "skill_offsets": [f"0x{offset:X}" for offset in config["skills"]],
+            "native_skill_writer": (
+                f"0x{config['native_skill_writer']:X}"
+                if config.get("native_skill_writer")
+                else None
+            ),
+            "bound_source": "EDX physical record bound",
+        }
+        if config.get("totem") is not None:
+            record_fields["totem_offset"] = f"0x{config['totem']:X}"
+        if config.get("native_mastery_manager"):
+            record_fields["native_mastery_manager"] = f"0x{config['native_mastery_manager']:X}"
+        if config.get("native_mastery_evaluator"):
+            record_fields["native_mastery_evaluator"] = f"0x{config['native_mastery_evaluator']:X}"
         feature = {
             "id": feature_id,
             "game_id": game_id,
@@ -573,29 +640,11 @@ def main() -> None:
                     "8": "All Villagers are 18",
                 },
             },
-            "record_fields": {
-                "stride": f"0x{config['stride']:X}",
-                "first_record_argument": "ECX",
-                "active_offset": f"0x{config['active']:X}",
-                "health_offset": f"0x{config['health']:X}",
-                "age_offset": f"0x{config['age']:X}",
-                "likes_offset": f"0x{config['likes']:X}",
-                "dislikes_offset": f"0x{config['dislikes']:X}",
-                "like_slot_count": config["slot_count"],
-                "dislike_slot_count": config["slot_count"],
-                "running_preference_id": config["running_preference_id"],
-                "skill_offsets": [f"0x{offset:X}" for offset in config["skills"]],
-                "native_skill_writer": (
-                    f"0x{config['native_skill_writer']:X}"
-                    if config.get("native_skill_writer")
-                    else None
-                ),
-                "bound_source": "EDX physical record bound",
-            },
+            "record_fields": record_fields,
             "behavior_changes": [
                 "Adds rows 6-8 to the Origins Tech-screen Upgrades dialog only when this optional feature is installed.",
                 "Charges exactly 1,000,000 tech points once per selected village-wide purchase in the current save.",
-                f"Running scans exactly {config['slot_count']} physical Like and Dislike slots, adds Running only to the first free Like slot, and removes Running Dislikes only after a successful or already-present Running state.",
+                f"Running scans exactly {config['slot_count']} physical Like and Dislike slots, adds Running only to the first free Like slot, removes Running Dislikes only after that insertion, and leaves already-Running or full-like villagers unchanged.",
                 "Grant Full Mastery to All Villagers writes the native five- or six-skill mastery fields for eligible living villagers.",
                 "All Villagers are 18 writes only the verified displayed-age field to 360 age units.",
             ],

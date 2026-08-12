@@ -127,8 +127,6 @@ class VillageWidePlaytestCatalogTests(unittest.TestCase):
             self.assertIn(f"feature:{base_id}", {item["owner"] for item in applied})
 
     def test_companion_hash_and_payload_contract_remain_exact(self) -> None:
-        companion = ROOT / "assets" / "origins" / "VVFP Origins Icons.dll"
-        expected_hash = hashlib.sha256(companion.read_bytes()).hexdigest().upper()
         for game_id in GAME_IDS:
             with self.subTest(game=game_id):
                 base = json.loads(
@@ -137,6 +135,8 @@ class VillageWidePlaytestCatalogTests(unittest.TestCase):
                     )
                 )
                 wide = raw_record(game_id)
+                companion = ROOT / base["companion_files"][0]["source"]
+                expected_hash = hashlib.sha256(companion.read_bytes()).hexdigest().upper()
                 self.assertEqual(base["companion_files"][0]["sha256"], expected_hash)
                 self.assertEqual(wide["patches"][0]["purpose"].startswith("install the optional"), True)
                 self.assertEqual(

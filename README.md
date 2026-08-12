@@ -478,15 +478,9 @@ Expanded-256 population modes are removed from the active patcher.
 
 ## Command line
 
-The independently recertified VV1 stock-only Full Mastery candidate is exposed
-as `vv1_full_mastery_all_stage_a_candidate` for `collection_progression` and
-`immediate_fixed` only. Runtime/player confirmation remains pending.
-
 Pass `--patch-mode stock`, `--patch-mode collection_progression`, or `--patch-mode immediate_fixed` to `dry-run`, `apply`, `dry-run-all`, or `apply-all`. The available IDs are only the five current Origins-style upgrades-menu routes: `vv1_origins_village_wide_upgrades`, `vv2_origins_village_wide_upgrades`, `vv3_origins_village_wide_upgrades`, `vv4_origins_village_wide_upgrades`, and `vv5_origins_village_wide_upgrades`. Each route automatically adds its internal Origins base prerequisite; the duplicate base entries, individual Full Mastery entries, and other historical optional features are not public CLI or chooser options. Runtime/player confirmation remains pending. Use `collection_progression` or `immediate_fixed` for these Origins-style routes because their certified append layouts do not include `stock` for VV3-VV5. The disabled VV3 Full Heal / Cure All candidate is not a CLI or catalog ID. The per-game Village Statistics IDs are `vv1_write_village_statistics`, `vv2_write_village_statistics`, `vv3_write_village_statistics`, `vv4_write_village_statistics`, and `vv5_write_village_statistics`.
-
-The statically certified VV2 command-7-only Full Mastery feature is catalog-visible
-only for stock Collection Progression and Immediate Fixed; runtime/player
-confirmation remains pending. The corrected VV4
+Historical standalone Full Mastery and individual Full Mastery records are kept
+only as evidence and are not selectable or included in releases. The corrected VV4
 `vv4_full_mastery_all_stage_a_candidate` is catalog-hidden and disabled pending
 fresh independent recertification after the C6 startup-crash correction. Its
 candidate-only UI uses the canonical mockup crop baked into a deterministic

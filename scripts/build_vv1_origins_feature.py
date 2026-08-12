@@ -978,12 +978,10 @@ def main() -> None:
         "running_preference_evidence": {"source": "exact stock executable embedded preference table", "table_file_offset": "0x7B260", "entry_name": "running"},
         "name": "Enable Origins-Exclusive Features",
         "description": (
-            "Playtest build: enables the exact-build Origins Tech and Villager Detail "
-            "Upgrades menus, including the historical Time Warp, Cure, doubler, and "
-            "selected-villager rows. The dependent Village-Wide record supplies the "
-            "three village-wide rows. This package is static/source verified only; "
-            "reported runtime crashes and complete player transaction validation remain "
-            "pending. Golden Child and Island Event outcomes remain native."
+            "Enables the exact-build Origins Tech and Villager Detail Upgrades menus "
+            "for Virtual Villagers - A New Home. The dependent Village-Wide record "
+            "supplies Running, Full Mastery, and Set Age to 18. Runtime/player "
+            "confirmation pending."
         ),
         "output_tag": "Origins Exclusive Features",
         "companion_files": [

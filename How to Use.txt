@@ -23,10 +23,8 @@ Expanded-256 population modes have been removed from the patcher.
    "Magic Fruit of Life Alters Mortality" and/or "Builder Action Fixes".
    VV1 Origins is available as a requested static/playtest pair: select
    "Enable Origins-Exclusive Features" and "Enable Origins Village-Wide
-   Upgrades" together. The historical Time Warp, Cure, Running, doubler, and
-   selected-villager rows remain runtime/player pending; no gameplay validation
-   is implied. The separate stock-mode command-7 Full Mastery candidate remains
-   static-only and runtime/player pending.
+   Upgrades" together. The current Origins menus own the Detail-screen and
+   Village-Wide upgrades. Runtime/player confirmation remains pending.
 4. Optional for The Lost Children: check "Easier Healing Mastery",
    "Teaching Children Grants Skill", "Birth Control",
    "Gong of Wonder Coconuts Fix", and/or "Hospital Recovery Heals".
@@ -37,9 +35,8 @@ Expanded-256 population modes have been removed from the patcher.
    or action persisted. Legacy Cure, Running, doubler, and selected-villager
    actions remain runtime/player pending. Unrelated VV2 features remain
    available.
-   "Grant Full Mastery to All Villagers" is available as the separate static
-   command-7 candidate for stock Collection Progression and Immediate Fixed;
-   runtime/player confirmation remains pending.
+   Grant Full Mastery to All Villagers is part of the current Origins menus; the historical standalone
+   Full Mastery candidate is not selectable.
 5. Optional for The Secret City: check
    "Everyone Tries On the Robe" and/or
    "Nature Level 1 Actually Replenishes Food Sources Faster" and/or

@@ -3035,9 +3035,6 @@ def _load_fun_patch_records(
             record = json.loads(feature_path.read_text(encoding="utf-8"))
             if record.get("enabled", True):
                 items.append(record)
-    vv2_full_mastery = _certified_vv2_full_mastery_record()
-    if vv2_full_mastery is not None:
-        items.append(vv2_full_mastery)
     if STATISTICS_FEATURES_PATH.is_file():
         statistics = json.loads(
             STATISTICS_FEATURES_PATH.read_text(encoding="utf-8")

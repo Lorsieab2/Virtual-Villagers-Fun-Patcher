@@ -70,7 +70,7 @@ class VV1RequiredFixTests(unittest.TestCase):
         native = (ROOT / "native" / "vv1_origins_icons" / "vv1_origins_icons.c").read_text(
             encoding="utf-8"
         )
-        self.assertIn("for (row = 0; row < 4; ++row)", native)
+        self.assertIn("#define VV_LIKE_SLOT_COUNT 4", native)
         self.assertIn("Already 4 likes.", native)
 
     def test_release_excludes_vv1_standalone_mastery_artifacts(self) -> None:

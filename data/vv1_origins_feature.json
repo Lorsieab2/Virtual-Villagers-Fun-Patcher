@@ -11,13 +11,13 @@
     "entry_name": "running"
   },
   "name": "Enable Origins-Exclusive Features",
-  "description": "Playtest build: enables the exact-build Origins Tech and Villager Detail Upgrades menus, including the historical Time Warp, Cure, doubler, and selected-villager rows. The dependent Village-Wide record supplies the three village-wide rows. This package is static/source verified only; reported runtime crashes and complete player transaction validation remain pending. Golden Child and Island Event outcomes remain native.",
+  "description": "Enables the exact-build Origins Tech and Villager Detail Upgrades menus for Virtual Villagers - A New Home. The dependent Village-Wide record supplies Running, Full Mastery, and Set Age to 18. Runtime/player confirmation pending.",
   "output_tag": "Origins Exclusive Features",
   "companion_files": [
     {
       "source": "assets/origins/VVFP VV1 Origins Icons.dll",
       "destination": "VVFP VV1 Origins Icons.dll",
-      "sha256": "EF1EFE96C59FFC6FB80C71201CC95F83657CEAAE6CF28784548A9B4A6B73A53F"
+      "sha256": "247C811F8D020D74476322D3743D3EDC930AC379DB36B46EBBE99615ED3553C0"
     }
   ],
   "doubler_evidence": {
