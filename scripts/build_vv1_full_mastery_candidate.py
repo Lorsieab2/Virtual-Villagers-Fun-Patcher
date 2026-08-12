@@ -965,7 +965,15 @@ def main() -> None:
         item
         for item in load_fun_patches()
         if item.game_id == "vv1"
-        and item.id not in {manifest["id"], "vv1_enable_origins_exclusive_features"}
+        and item.id
+        not in {
+            manifest["id"],
+            "vv1_enable_origins_exclusive_features",
+            # This parent generator authenticates its own frozen composition.
+            # Selected-villager Full Mastery is a separately pinned child and
+            # must not rewrite the prerequisite's historical all-current row.
+            "vv1_individual_full_mastery_candidate",
+        }
     ]
     rendered: dict[str, object] = {}
     for mode in requested_modes:

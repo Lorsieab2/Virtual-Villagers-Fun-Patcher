@@ -48,7 +48,14 @@ class OriginsPlaytestReadinessTests(unittest.TestCase):
                     for patch in catalog
                     if patch.game_id == build.id
                     and not (
-                        (build.id == "vv1" and patch.id == "vv1_full_mastery_all_stage_a_candidate")
+                        (
+                            build.id == "vv1"
+                            and patch.id
+                            in {
+                                "vv1_full_mastery_all_stage_a_candidate",
+                                "vv1_individual_full_mastery_candidate",
+                            }
+                        )
                         or (build.id == "vv3" and patch.id == "vv3_full_heal_cure_all_candidate")
                     )
                 ]

@@ -1804,7 +1804,11 @@ class StockIntegrationTests(unittest.TestCase):
             patch.id
             for patch in load_fun_patches()
             if patch.game_id == "vv1"
-            and patch.id != "vv1_full_mastery_all_stage_a_candidate"
+            and patch.id
+            not in {
+                "vv1_full_mastery_all_stage_a_candidate",
+                "vv1_individual_full_mastery_candidate",
+            }
         ]
         rendered, applied = render_patched_bytes(
             STOCK / build.input_name,
@@ -1818,11 +1822,19 @@ class StockIntegrationTests(unittest.TestCase):
             STOCK / build.input_name,
             build,
             DEFAULT_PATCH_MODE,
-            [*selected, "vv1_full_mastery_all_stage_a_candidate"],
+            [
+                *selected,
+                "vv1_full_mastery_all_stage_a_candidate",
+                "vv1_individual_full_mastery_candidate",
+            ],
         )
         self.assertTrue(composed)
         self.assertTrue(any(
             patch.get("owner") == "feature:vv1_full_mastery_all_stage_a_candidate"
+            for patch in composed_applied
+        ))
+        self.assertTrue(any(
+            patch.get("owner") == "feature:vv1_individual_full_mastery_candidate"
             for patch in composed_applied
         ))
 

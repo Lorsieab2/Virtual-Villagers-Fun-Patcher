@@ -448,6 +448,7 @@ class VV1FullMasteryCandidateTests(unittest.TestCase):
             not in {
                 "vv1_enable_origins_exclusive_features",
                 "vv1_full_mastery_all_stage_a_candidate",
+                "vv1_individual_full_mastery_candidate",
             }
         ]
         old_origins = FunPatch(
