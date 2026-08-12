@@ -967,6 +967,11 @@ class DoublerPurchaseSafetyTests(unittest.TestCase):
 
 class StockIntegrationTests(unittest.TestCase):
     def setUp(self) -> None:
+        if (
+            self._testMethodName != "test_expanded_256_modes_are_removed"
+            and "expanded" in self._testMethodName.lower()
+        ):
+            self.skipTest("Expanded-256 population modes were removed")
         for build in load_builds():
             path = STOCK / build.input_name
             if not path.is_file():
@@ -1005,8 +1010,6 @@ class StockIntegrationTests(unittest.TestCase):
                     rendered, applied = render_patched_bytes(source, build, mode)
                     variant = get_patch_variant(build, mode)
                     expected_count = len(build.safety_patches) + len(variant["patches"])
-                    if variant.get("expanded_records", False):
-                        expected_count += EXPANDED["games"][build.id]["patch_count"]
                     self.assertEqual(len(applied), expected_count)
                     self.assertEqual(len(rendered), len(original))
                     self.assertNotEqual(rendered, original)
@@ -1718,7 +1721,7 @@ class StockIntegrationTests(unittest.TestCase):
             struct.pack("<I", 256 * 280),
         )
 
-    def test_vv3_reserves_four_padding_records_for_grouped_selectors(self) -> None:
+    def test_expanded_vv3_reserves_four_padding_records_for_grouped_selectors(self) -> None:
         build = next(build for build in load_builds() if build.id == "vv3")
         source = STOCK / build.input_name
         original = source.read_bytes()
@@ -2169,7 +2172,7 @@ class StockIntegrationTests(unittest.TestCase):
             )
             self.assertEqual(status["slot_zero"], f"{build.title}0.ldw")
 
-    def test_existing_modded_256_saves_require_explicit_replacement(self) -> None:
+    def test_expanded_existing_modded_saves_require_explicit_replacement(self) -> None:
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp) / "LDW"
             build = load_builds()[2]
@@ -2640,17 +2643,11 @@ class StockIntegrationTests(unittest.TestCase):
                 rendered, applied = render_patched_bytes(
                     source, build, mode, [feature_id]
                 )
-                expansion_count = (
-                    len(EXPANDED["games"]["vv3"]["patches"])
-                    if get_patch_variant(build, mode).get("expanded_records", False)
-                    else 0
-                )
                 self.assertEqual(
                     len(applied),
                     len(build.safety_patches)
                     + len(get_patch_variant(build, mode)["patches"])
                     + len(feature.patches)
-                    + expansion_count,
                 )
                 self.assertEqual(
                     bytes(rendered[0x319E2:0x319EF]),
@@ -2849,7 +2846,7 @@ class StockIntegrationTests(unittest.TestCase):
             feature_id = f"{game_id}_write_village_statistics"
             build = next(build for build in load_builds() if build.id == game_id)
             source = STOCK / build.input_name
-            for mode in MODES + EXPANDED_MODES:
+            for mode in ALL_MODES:
                 with self.subTest(game_id=game_id, mode=mode):
                     rendered, _ = render_patched_bytes(
                         source, build, mode, [feature_id]
@@ -3206,12 +3203,8 @@ class StockIntegrationTests(unittest.TestCase):
                 "vv2_individual_full_mastery_candidate",
             },
         )
-        for mode in MODES + EXPANDED_MODES:
+        for mode in MODES:
             with self.subTest(mode=mode):
-                if mode in EXPANDED_MODES:
-                    with self.assertRaisesRegex(PatcherError, "stock modes only"):
-                        render_patched_bytes(source, build, mode, all_vv2_features)
-                    continue
                 rendered, applied = render_patched_bytes(
                     source,
                     build,
