@@ -36,7 +36,10 @@ HEAL_CAVE_FILE_OFFSET = 0x7B664
 HEAL_CAVE_VA = IMAGE_BASE + HEAL_CAVE_FILE_OFFSET
 VILLAGE_WIDE_SIGNATURE_VA = IMAGE_BASE + 0x7B820
 VILLAGE_WIDE_ENTRY_VA = IMAGE_BASE + 0x7B840
-VILLAGE_PREFLIGHT_FILE_OFFSET = 0x7B7A0
+# Keep the village-wide dependency check inside the owned A3180 payload.  The
+# legacy Cure reserve begins at 0x7B664 and is now large enough for the native
+# health-setter transaction, so the old 0x7B7A0 zero cave is no longer safe.
+VILLAGE_PREFLIGHT_FILE_OFFSET = PAYLOAD_FILE_OFFSET + 0xB80
 VILLAGE_PREFLIGHT_VA = IMAGE_BASE + VILLAGE_PREFLIGHT_FILE_OFFSET
 RUNNING_PREFERENCE_ID = 38  # exact-build preference-table evidence: 0x97488
 DETAIL_BUTTON_PTR = PAYLOAD_VA + 0xBF0
@@ -89,6 +92,7 @@ def main() -> None:
         ("tech_title", "Origins Upgrades"),
         ("detail_title", "Villager Upgrades"),
         ("purchased", "Purchased."),
+        ("mastery_failed", "Full Mastery could not be completed."),
         ("removed", "Removed."),
         ("not_enough", "Not enough tech points."),
         (
@@ -302,7 +306,9 @@ def main() -> None:
             je unavailable
             cmp dword ptr [0x{VILLAGE_WIDE_SIGNATURE_VA:X}], 0x50465656
             jne no_village_wide
-            or dword ptr [esp + 0x10], 0x20000
+            # Rows 6-8 are optional village-wide Buy rows.  The companion
+            # dialog otherwise renders enabled rows as Remove controls.
+            or dword ptr [esp + 0x10], 0xA01C0
         no_village_wide:
             push dword ptr [esp + 0x10]
             push dword ptr [esp + 0x10]
@@ -567,16 +573,16 @@ def main() -> None:
             ja youth_not_done
             or edi, 1
         youth_not_done:
-            cmp dword ptr [edx + 0xEAC], 90
-            jl mastery_not_done
-            cmp dword ptr [edx + 0xEB0], 90
-            jl mastery_not_done
-            cmp dword ptr [edx + 0xEB4], 90
-            jl mastery_not_done
-            cmp dword ptr [edx + 0xEB8], 90
-            jl mastery_not_done
-            cmp dword ptr [edx + 0xEBC], 90
-            jl mastery_not_done
+            cmp dword ptr [edx + 0xEAC], 100
+            jne mastery_not_done
+            cmp dword ptr [edx + 0xEB0], 100
+            jne mastery_not_done
+            cmp dword ptr [edx + 0xEB4], 100
+            jne mastery_not_done
+            cmp dword ptr [edx + 0xEB8], 100
+            jne mastery_not_done
+            cmp dword ptr [edx + 0xEBC], 100
+            jne mastery_not_done
             or edi, 2
         mastery_not_done:
             xor ebp, ebp
@@ -611,8 +617,9 @@ def main() -> None:
             jne running_dislike_scan
             test ebp, 2
             jz running_no_like
-            test ebp, 4
-            jnz running_check_done
+            # An existing Running Like is already complete.  Do not expose
+            # a second purchase merely because a stale Running Dislike also
+            # exists; the transaction is a no-op in that state.
             or edi, 4
             jmp running_check_done
         running_no_like:
@@ -641,12 +648,16 @@ def main() -> None:
             mov ecx, 3
         running_preflight:
             cmp dword ptr [eax], {RUNNING_PREFERENCE_ID}
-            je detail_charge
+            je running_already
             cmp dword ptr [eax], -1
             je detail_charge
             add eax, 4
             dec ecx
             jne running_preflight
+            mov eax, 0x{s['running_unavailable']:X}
+            jmp detail_status
+
+        running_already:
             mov eax, 0x{s['running_unavailable']:X}
             jmp detail_status
 
@@ -681,19 +692,88 @@ def main() -> None:
             jmp detail_success
 
         detail_mastery:
-            mov dword ptr [edx + 0xEAC], 90
-            mov dword ptr [edx + 0xEB0], 90
-            mov dword ptr [edx + 0xEB4], 90
-            mov dword ptr [edx + 0xEB8], 90
-            mov dword ptr [edx + 0xEBC], 90
+            mov esi, edx
+            xor edi, edi
+            mov eax, dword ptr [esi + 0xEAC]
+            cmp eax, 100
+            je detail_mastery_skill_1
+            mov ecx, 100
+            sub ecx, eax
+            push ecx
+            push 0
+            lea ecx, [esi + 0xEAC]
+            call 0x455740
+            inc edi
+        detail_mastery_skill_1:
+            mov eax, dword ptr [esi + 0xEB0]
+            cmp eax, 100
+            je detail_mastery_skill_2
+            mov ecx, 100
+            sub ecx, eax
+            push ecx
+            push 1
+            lea ecx, [esi + 0xEAC]
+            call 0x455740
+            inc edi
+        detail_mastery_skill_2:
+            mov eax, dword ptr [esi + 0xEB4]
+            cmp eax, 100
+            je detail_mastery_skill_3
+            mov ecx, 100
+            sub ecx, eax
+            push ecx
+            push 2
+            lea ecx, [esi + 0xEAC]
+            call 0x455740
+            inc edi
+        detail_mastery_skill_3:
+            mov eax, dword ptr [esi + 0xEB8]
+            cmp eax, 100
+            je detail_mastery_skill_4
+            mov ecx, 100
+            sub ecx, eax
+            push ecx
+            push 3
+            lea ecx, [esi + 0xEAC]
+            call 0x455740
+            inc edi
+        detail_mastery_skill_4:
+            mov eax, dword ptr [esi + 0xEBC]
+            cmp eax, 100
+            je detail_mastery_verify
+            mov ecx, 100
+            sub ecx, eax
+            push ecx
+            push 4
+            lea ecx, [esi + 0xEAC]
+            call 0x455740
+            inc edi
+        detail_mastery_verify:
+            cmp dword ptr [esi + 0xEAC], 100
+            jne detail_mastery_failed
+            cmp dword ptr [esi + 0xEB0], 100
+            jne detail_mastery_failed
+            cmp dword ptr [esi + 0xEB4], 100
+            jne detail_mastery_failed
+            cmp dword ptr [esi + 0xEB8], 100
+            jne detail_mastery_failed
+            cmp dword ptr [esi + 0xEBC], 100
+            jne detail_mastery_failed
+            test edi, edi
+            jz detail_success
+            push esi
+            call 0x462500
             jmp detail_success
+        detail_mastery_failed:
+            mov eax, 0x{s['mastery_failed']:X}
+            jmp detail_status
 
         detail_running:
             lea ecx, [edx + 0xFB4]
             mov eax, 3
         running_find_like:
             cmp dword ptr [ecx], {RUNNING_PREFERENCE_ID}
-            je running_remove_dislikes
+            je running_already
             cmp dword ptr [ecx], -1
             je running_store_like
             add ecx, 4
@@ -777,10 +857,6 @@ def main() -> None:
         """,
     )
 
-    payload = code + strings
-    if len(payload) > PAYLOAD_SIZE:
-        raise RuntimeError(f"payload too large: {len(payload):#x}/{PAYLOAD_SIZE:#x}")
-
     patches: list[dict[str, str]] = []
 
     def patch(offset: int, before: bytes, after: bytes, purpose: str) -> None:
@@ -853,24 +929,46 @@ def main() -> None:
             push edx
             push esi
             push edi
-            xor eax, eax
+            xor ebp, ebp
+            mov ecx, 0x59E110
+            call 0x428B60
+            test eax, eax
+            je cure_format
+            mov edi, eax
             mov edx, 0x59E124
             mov ecx, dword ptr [0x42883A]
         cure_loop:
-            cmp byte ptr [edx + 0xF10], 0
+            mov esi, edx
+            cmp byte ptr [esi + 0xF10], 0
             je cure_next
-            cmp dword ptr [edx + 0xE78], 0
+            cmp dword ptr [esi + 0xE78], 0
             jle cure_next
-            cmp byte ptr [edx + 0xE89], 0
+            cmp dword ptr [esi + 0xE78], 80
+            jge cure_health_done
+            push ecx
+            push ebp
+            lea eax, [esi + 0xE6C]
+            mov ecx, eax
+            push -1
+            push 100
+            call 0x462670
+            pop ebp
+            pop ecx
+            cmp dword ptr [esi + 0xE78], 100
+            jne cure_next
+        cure_health_done:
+            cmp byte ptr [esi + 0xE89], 0
             je cure_next
-            mov byte ptr [edx + 0xE89], 0
+            mov byte ptr [esi + 0xE89], 0
             inc dword ptr [edi + 0x4FC]
-            inc eax
+            inc ebp
         cure_next:
+            mov edx, esi
             add edx, 0x1F8C
             dec ecx
             jne cure_loop
-            mov ebp, eax
+        cure_format:
+            mov eax, ebp
             sub esp, 40
             mov dword ptr [esp], 0x65727543
             mov word ptr [esp + 4], 0x2064
@@ -922,8 +1020,7 @@ def main() -> None:
         """,
         HEAL_CAVE_VA,
     )
-    preflight_code = assemble(
-        f"""
+    preflight_source = f"""
             cmp dword ptr [0x{VILLAGE_WIDE_SIGNATURE_VA:X}], 0x50465656
             jne preflight_invalid
             cmp dword ptr [0x{VILLAGE_WIDE_SIGNATURE_VA + 4:X}], 0x0055574F
@@ -953,22 +1050,23 @@ def main() -> None:
         preflight_invalid:
             xor eax, eax
             ret
-        """,
+        """
+    preflight_code = assemble(
+        preflight_source,
         VILLAGE_PREFLIGHT_VA,
     )
+    put(VILLAGE_PREFLIGHT_VA, preflight_source)
+
+    payload = code + strings
+    if len(payload) > PAYLOAD_SIZE:
+        raise RuntimeError(f"payload too large: {len(payload):#x}/{PAYLOAD_SIZE:#x}")
+
     patch(
         HEAL_CAVE_FILE_OFFSET,
         b"\0" * len(cure_code),
         cure_code,
-        "cure active VV3 villagers without changing health and increment People Cured",
+        "restore health below 80 to 100, clear sickness, and increment People Cured",
     )
-    patch(
-        VILLAGE_PREFLIGHT_FILE_OFFSET,
-        b"\0" * len(preflight_code),
-        preflight_code,
-        "validate the complete optional Origins header and result-export dependency before any village-wide charge",
-    )
-
     patch(
         0x24C,
         bytes.fromhex("40000040"),
@@ -1034,28 +1132,13 @@ def main() -> None:
         "running_preference_evidence": {"source": "exact stock executable embedded preference table", "table_file_offset": "0x97488", "entry_name": "running"},
         "name": "Enable Origins-Exclusive Features",
         "description": (
-            "Inspired by the Virtual Villagers 1 mobile port where these exclusive "
-            "Origins upgrades originated, this selected-upgrades port adds the icon-based "
-            "Origins Upgrades screen with Time Warp, Island "
-            "Event, the native Another One of Those Barrels event with a dynamic "
-            "three-space 150/256-record guard, and displayed-but-currently-unavailable "
-            "500,000-tech-point Tech Point and Food Point Doublers. Existing owned "
-            "doublers remain removable at zero cost with zero refund; repurchase is "
-            "temporarily disabled pending exact-build verification. The legacy "
-            "sickness-only Origins Cure route is preserved byte-for-byte for provenance "
-             "but is dominated before dispatch and unreachable in this composition; the "
-             "historical command-5 Full Heal / Cure All transaction remains candidate-only "
-             "and blocked behind its withdrawn Running dependency; its historical "
-             "30,000-tech-point price is provenance only and no public runtime action "
-             "is exposed. Time Warp advances every villager "
-            "by exactly 3 displayed years at every active game speed; the required "
-            "wall-clock shift is 3 hours at half speed, 6 hours at normal speed, "
-            "and 10 hours at double speed. Doubler ownership is confined to the "
-             "current save. The doubler contract would stack after the exact collectible/collection adjustment, but this build's collection dispatcher has unresolved computed/indirect reachability and no safe final-delta hook. Food Mastery-like award transforms are confirmed absent in the writer, strings, and bounded caller corpus. Island Event outcomes remain native; new purchase and repurchase are unavailable under the exact-build STOP gate. Historical Villager Upgrades labels include "
-             "Grant Youth, Grant Full Mastery, Grant Running, and Set Age to 18. Grant Running is STOP/hidden "
-            "contract evidence only; the withdrawn helper and revised six-slot "
-            "candidate are not catalog paths, native preference ABI proof, or "
-            "runtime-ready behavior."
+            "Enables the stock Origins Tech and Villager Details upgrade screens "
+            "for VV3. This base record is an internal dependency of the current "
+            "feature-complete Village-Wide Upgrades route; its stock Origins event "
+            "handlers remain available, and unrelated Tech/Details events fall "
+            "through to the native handlers. The public chooser exposes only the "
+            "latest combined Origins-style menu patch. Runtime/player confirmation "
+            "is pending."
         ),
         "output_tag": "Origins Exclusive Features",
         "companion_files": [

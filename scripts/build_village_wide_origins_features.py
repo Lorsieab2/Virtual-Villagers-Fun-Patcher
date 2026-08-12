@@ -97,6 +97,17 @@ CONFIG = {
         "health": 0xE78,
         "age": 0xDC4,
         "skills": (0xEAC, 0xEB0, 0xEB4, 0xEB8, 0xEBC),
+        "code_size": 0x500,
+        "age_code_offset": 0x330,
+        # VV3's native mastery writer takes the skill ordinal (0..4), not
+        # the VV2-style physical-record index.  The native award evaluator is
+        # record-scoped and must run once after each changed villager has
+        # been post-verified at exactly 100.
+        "native_skill_writer": 0x455740,
+        "skill_codes": (0, 1, 2, 3, 4),
+        "native_mastery_evaluator": 0x462500,
+        "native_evaluator_per_record": True,
+        "native_skill_writer_uses_physical_index": False,
         "likes": 0xFB4,
         "dislikes": 0xFC0,
         "slot_count": 3,
@@ -405,17 +416,29 @@ def build_payload(config: dict) -> tuple[bytes, dict[str, int]]:
     mastery_changed_increment = ""
     mastery_postverify = ""
     mastery_completion = ""
+    mastery_per_record_completion = ""
     if config.get("native_skill_writer"):
         if config.get("native_mastery_manager"):
             mastery_record_setup += f"\n            call {_hex_word(config['native_mastery_manager'])}\n            test eax, eax\n            jz mastery_failure\n            lea ebp, [eax + 0x52C]\n            xor edi, edi"
+        elif config.get("native_evaluator_per_record"):
+            # This ABI writes directly through the villager's skill array and
+            # does not need a manager-backed record pointer or a physical
+            # index.  EDI is a per-record changed flag below.
+            mastery_record_setup += "\n            xor edi, edi"
         else:
             mastery_record_setup += "\n            mov ebp, ecx\n            xor edi, edi"
-        mastery_advance = "inc edi"
+        mastery_advance = (
+            ""
+            if config.get("native_evaluator_per_record")
+            else "inc edi"
+        )
         mastery_postverify = "\n".join(
             f"cmp dword ptr [esi + {_hex_word(offset)}], 100\n            jne mastery_failure"
             for offset in config["skills"]
         )
-        if config.get("native_mastery_evaluator"):
+        if config.get("native_mastery_evaluator") and not config.get(
+            "native_evaluator_per_record"
+        ):
             mastery_record_setup += "\n            xor eax, eax"
             mastery_changed_increment = "inc eax"
             mastery_completion = f"""
@@ -428,6 +451,15 @@ def build_payload(config: dict) -> tuple[bytes, dict[str, int]]:
             call {_hex_word(config['native_mastery_evaluator'])}
         mastery_return:
         """
+        if config.get("native_evaluator_per_record"):
+            mastery_changed_setup = "xor edi, edi"
+            mastery_changed_increment = "inc edi"
+            mastery_per_record_completion = f"""
+            test edi, edi
+            jz mastery_next
+            push esi
+            call {_hex_word(config['native_mastery_evaluator'])}
+            """
         skill_writes = "\n".join(
             f"""
             cmp dword ptr [esi + {_hex_word(offset)}], 100
@@ -435,9 +467,16 @@ def build_payload(config: dict) -> tuple[bytes, dict[str, int]]:
             mov eax, 100
             sub eax, dword ptr [esi + {_hex_word(offset)}]
             push eax
-            push {_hex_word(code)}
-            push edi
-            mov ecx, ebp
+            {
+                f"push {_hex_word(index)}"
+                if not config.get("native_skill_writer_uses_physical_index", True)
+                else f"push {_hex_word(code)}\n            push edi"
+            }
+            {
+                f"lea ecx, [esi + {_hex_word(config['skills'][0])}]"
+                if not config.get("native_skill_writer_uses_physical_index", True)
+                else "mov ecx, ebp"
+            }
             call {_hex_word(config['native_skill_writer'])}
             {mastery_changed_increment}
         mastery_skill_next_{index}:
@@ -484,8 +523,10 @@ def build_payload(config: dict) -> tuple[bytes, dict[str, int]]:
             test ebx, ebx
             jz mastery_done
             {_eligibility(config, 'mastery_next')}
+            {mastery_changed_setup}
             {skill_writes}
             {mastery_postverify}
+            {mastery_per_record_completion}
         mastery_next:
             add esi, {_hex_word(config['stride'])}
             {mastery_advance}
@@ -580,7 +621,8 @@ def main() -> None:
         description = (
             f"Enables the Origins Tech-screen Upgrades button/menu for {config['title']} "
             "and adds Running, Grant Full Mastery to All Villagers, and Set Age to 18. "
-            "Each row costs 1,000,000 tech points. Runtime/player confirmation pending."
+            "Each menu row costs 1,000,000 tech points; native transaction hooks "
+            "preserve the game's normal handlers. Runtime/player confirmation pending."
         )
         if game_id == "vv5":
             description += " Only eligible living believers are processed; Heathens are excluded and remain untouched."
@@ -609,6 +651,10 @@ def main() -> None:
             record_fields["native_mastery_manager"] = f"0x{config['native_mastery_manager']:X}"
         if config.get("native_mastery_evaluator"):
             record_fields["native_mastery_evaluator"] = f"0x{config['native_mastery_evaluator']:X}"
+        if config.get("native_evaluator_per_record"):
+            record_fields["native_evaluator_scope"] = "once per changed villager after exact-100 postverification"
+        if config.get("native_skill_writer_uses_physical_index") is False:
+            record_fields["native_skill_writer_index"] = "skill ordinal 0..4"
         feature = {
             "id": feature_id,
             "game_id": game_id,
@@ -645,7 +691,7 @@ def main() -> None:
                 "Adds rows 6-8 to the Origins Tech-screen Upgrades dialog only when this optional feature is installed.",
                 "Charges exactly 1,000,000 tech points once per selected village-wide purchase in the current save.",
                 f"Running scans exactly {config['slot_count']} physical Like and Dislike slots, adds Running only to the first free Like slot, removes Running Dislikes only after that insertion, and leaves already-Running or full-like villagers unchanged.",
-                "Grant Full Mastery to All Villagers writes the native five- or six-skill mastery fields for eligible living villagers.",
+                "Grant Full Mastery to All Villagers writes native mastery values and runs the native award evaluator for each changed eligible villager.",
                 "All Villagers are 18 writes only the verified displayed-age field to 360 age units.",
             ],
             "running_preference_id": config["running_preference_id"],

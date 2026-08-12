@@ -6,6 +6,19 @@ Villagers - The Secret City*. The feature is implemented by
 `scripts/build_vv3_origins_feature.py`; its generated, fingerprint-bound patch
 manifest is `data/vv3_origins_feature.json`.
 
+## Current implementation status
+
+The active public route is the complete `vv3_origins_village_wide_upgrades`
+menu patch; standalone Full Mastery, Running, and Full Heal candidates are
+historical evidence only. The current Village-Wide and Details Full Mastery
+routes set all five skills to exactly 100 through native writer `0x455740`
+and call native evaluator `0x462500` once per changed villager. Running uses
+the three stock Like/Dislike slots, inserts ID 38 into the first free Like,
+and removes Running Dislikes only after insertion. Full Heal/Cure All restores
+health below 80 through native setter `0x462670` (`ECX = record + 0xE6C`,
+push `-1`/`100`), clears sickness, and updates People Cured. Static
+verification passes; runtime/player confirmation remains pending.
+
 ## Supported executable
 
 - File: `Virtual Villagers - The Secret City.exe`

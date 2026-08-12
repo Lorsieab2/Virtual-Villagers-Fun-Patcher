@@ -8,7 +8,7 @@
     "entry_name": "running"
   },
   "name": "Enable Origins Village-Wide Upgrades",
-  "description": "Enables the Origins Tech-screen Upgrades button/menu for Virtual Villagers - A New Home and adds Running, Grant Full Mastery to All Villagers, and Set Age to 18. Each row costs 1,000,000 tech points. Runtime/player confirmation pending.",
+  "description": "Enables the Origins Tech-screen Upgrades button/menu for Virtual Villagers - A New Home and adds Running, Grant Full Mastery to All Villagers, and Set Age to 18. Each menu row costs 1,000,000 tech points; native transaction hooks preserve the game's normal handlers. Runtime/player confirmation pending.",
   "output_tag": "Origins Village-Wide Upgrades",
   "dependencies": [
     "vv1_enable_origins_exclusive_features"
@@ -50,7 +50,7 @@
     "Adds rows 6-8 to the Origins Tech-screen Upgrades dialog only when this optional feature is installed.",
     "Charges exactly 1,000,000 tech points once per selected village-wide purchase in the current save.",
     "Running scans exactly 4 physical Like and Dislike slots, adds Running only to the first free Like slot, removes Running Dislikes only after that insertion, and leaves already-Running or full-like villagers unchanged.",
-    "Grant Full Mastery to All Villagers writes the native five- or six-skill mastery fields for eligible living villagers.",
+    "Grant Full Mastery to All Villagers writes native mastery values and runs the native award evaluator for each changed eligible villager.",
     "All Villagers are 18 writes only the verified displayed-age field to 360 age units."
   ],
   "explicit_non_changes": [

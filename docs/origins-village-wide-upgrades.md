@@ -13,8 +13,9 @@ The VV4 audit
 `90.0` mastery stores bypass eight native mutations. The VV5 audit
 `02581c8f518e27ebd5fc7d2972db5597ab08ed35` records unresolved native-counter,
 eligibility, no-change, inheritance, and expanded-layout requirements. VV3 is
-ON HOLD under exact-build audit
-`089957227c0db6a4c3128045519ffa27b201a00e`; VV1 is not certified.
+now emitted from the feature-complete route described below; static verification
+is complete, while runtime/player confirmation remains pending. VV1 is not
+certified here.
 
 The manifests below are selectable diagnostic/playtest payloads. Static patch
 generation does not clear or rewrite existing save fields, issue a refund, or
@@ -173,11 +174,14 @@ The transaction must dry-run, refuse and charge nothing when `granted == 0`,
 perform a final unsigned funds recheck immediately before commit, apply only
 the proved deterministic stores, and deduct exactly once.
 
-VV3 remains ON HOLD, but `+0xE94` is no longer an unresolved eligibility
-field. Commands 6/7/8 share one 944-byte atomic payload at file `0x7B820` and entry
-file/VA `0x7B840/0x47B840`. The existing path precharges at `0x582644`;
-header check `0x7B7A0` proves only signature/result-export presence. Its
-three-counter 128-byte result ABI cannot return `granted`. Base hooks
+The current VV3 route is emitted from the feature-complete menu payload at
+file `0x7B820` with entry `0x7B840`/VA `0x47B840`. Its village-wide rows are
+Buy rows, while Details Full Mastery uses native skill/evaluator calls and
+Running uses the exact three-slot contract. The legacy Cure transaction uses
+the native health setter at `0x462670` for health below 80 and clears sickness
+through the verified record field. Static verification is complete; runtime,
+save roundtrip, and native preference-notification confirmation remain pending.
+Base hooks
 `0x6547D`/`0x65640` and payload `0xA3180` mix unrelated Origins mechanics;
 there are no command-6-only UI guards. No complete appended-section
 relocation, uninstall, absolute-reference, or all-patch stock/expanded ledger
@@ -266,18 +270,25 @@ initialization, unrelated preferences, or other record fields.
 
 ### VV3 Full Mastery exact-build boundary
 
-Disassembly commit `089957227c0db6a4c3128045519ffa27b201a00e`
-confirms five signed DWORD skill fields at record offsets `+0xEAC`,
-`+0xEB0`, `+0xEB4`, `+0xEB8`, and `+0xEBC`. Native mastery begins at 88,
-the native maximum is 100, and stock code performs an all-five evaluation
-whose award identifier is 4. The contained command-7 candidate writes 90
-directly. That is neither full 100 mastery nor native-equivalent: its direct
-stores bypass the post-write all-five evaluation.
+The current route confirms five signed DWORD skill fields at record offsets
+`+0xEAC`, `+0xEB0`, `+0xEB4`, `+0xEB8`, and `+0xEBC`. Village-Wide and Details
+Full Mastery use the exact-build native skill writer at `0x455740` with skill
+ordinals `0..4`, post-verify every field at exactly `100`, and call the native
+award evaluator at `0x462500` once per changed villager. Already-complete
+villagers do not receive a second evaluator call.
 
-VV3 remains ON HOLD. A future implementation must resolve the exact target
-value and native evaluation/counter policy, define a zero-change/no-charge
-result, prove creation and inheritance behavior, and provide safe composable
-placement. None of those open items is inferred from the disabled payload.
+The VV3 Running route scans exactly three Like and three Dislike slots, inserts
+ID `38` into the first free Like slot, and clears Running Dislikes only after a
+successful insertion. Already-Running and full-Like villagers are no-ops.
+The native preference-write ABI is not independently proven, so these exact
+three-slot stores remain a static implementation boundary pending player proof.
+
+Full Heal/Cure All scans the 150 stock records, uses native health setter
+`0x462670` with `ECX = record + 0xE6C` and pushes `-1`/`100` when health is
+below `80`, then clears sickness at `+0xE89` and increments People Cured at
+`+0x4FC` for each verified sickness clear. Runtime/player confirmation remains
+pending; standalone VV3 Full Mastery, Running, and Full Heal candidates are not
+active catalog routes.
 
 ### VV2 Full Mastery exact-build boundary
 

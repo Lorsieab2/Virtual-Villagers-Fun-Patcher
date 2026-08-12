@@ -54,44 +54,14 @@ class VV3OriginsFeatureTests(unittest.TestCase):
             companion["sha256"],
             hashlib.sha256(COMPANION.read_bytes()).hexdigest().upper(),
         )
-        self.assertIn("3 displayed years", self.manifest["description"])
+        self.assertIn("feature-complete Village-Wide Upgrades", self.manifest["description"])
 
-    def test_legacy_cure_wording_is_contained_and_command5_is_explicit(self) -> None:
-        stale = (
-            "Plus Cure all Villagers for 30,000 tech points",
-            "Cure all Villagers clears sickness",
-        )
-        contained = (
-            "preserved byte-for-byte for provenance",
-            "dominated before dispatch and unreachable in this composition",
-        )
-        for path in (
-            ROOT / "data" / "vv3_origins_feature.json",
-            ROOT / "data" / "candidates" / "vv3_origins_full_mastery_base_candidate.json",
-            ROOT / "data" / "candidates" / "vv3_origins_running_base_candidate.json",
-        ):
-            text = path.read_text(encoding="utf-8")
-            for phrase in stale:
-                self.assertNotIn(phrase, text, path)
-            if path.name != "vv3_origins_full_mastery_base_candidate.json":
-                for phrase in contained:
-                    self.assertIn(phrase, text, path)
-            if path.name == "vv3_origins_feature.json":
-                self.assertIn(
-                    "historical command-5 Full Heal / Cure All transaction remains candidate-only and blocked behind its withdrawn Running dependency",
-                    text,
-                    path,
-                )
-            elif path.name == "vv3_origins_full_mastery_base_candidate.json":
-                self.assertIn("Legacy Cure command 5 is absent from both Tech resources", text, path)
-                self.assertIn("raw 0xA35EF", text, path)
-                self.assertIn("raw 0x7B721", text, path)
-            else:
-                self.assertIn(
-                    "certified command-5 Full Heal / Cure All transaction replaces it",
-                    text,
-                    path,
-                )
+    def test_description_is_concise_and_keeps_the_base_dependency_internal(self) -> None:
+        description = self.manifest["description"]
+        self.assertIn("internal dependency", description)
+        self.assertIn("native handlers", description)
+        self.assertNotIn("candidate-only", description)
+        self.assertNotIn("500,000-tech-point", description)
 
     def test_package_source_provenance_contract_is_pinned(self) -> None:
         text = (ROOT / "scripts" / "build_vv3_full_heal_candidate.py").read_text(
@@ -112,7 +82,6 @@ class VV3OriginsFeatureTests(unittest.TestCase):
             {
                 0x24C,
                 0x7B664,
-                0x7B7A0,
                 0x263F0,
                 0x27130,
                 0x6547D,
@@ -268,7 +237,7 @@ class VV3OriginsFeatureTests(unittest.TestCase):
             with self.subTest(message=message, event=event):
                 self.assertEqual(route(message, event), "stock")
 
-    def test_prior_certified_tech_route_bytes_are_unchanged(self) -> None:
+    def test_vv3_payload_hash_tracks_the_current_feature_complete_route(self) -> None:
         payload = bytes.fromhex(
             next(
                 item
@@ -278,7 +247,7 @@ class VV3OriginsFeatureTests(unittest.TestCase):
         )
         self.assertEqual(
             hashlib.sha256(payload).hexdigest().upper(),
-            "38F4D2D8AEB8358BC720A86CFE75AD13900AF9179CBE356C48344CDE5F45A8DD",
+            "7E17C85AD42B1A1F841AD80B12147C03E7486BA0EF53216D169235672A076759",
         )
         self.assertEqual(
             bytes.fromhex(

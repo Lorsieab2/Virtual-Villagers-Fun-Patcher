@@ -145,7 +145,10 @@ VV3_FULL_MASTERY_CERTIFIED_SHA256 = {
     "slot": "B1499EB3B10B7E4728746711E9F63B88211E4B80CA378742ADC5DC06782DAADA",
     "page": "2DAE85AE4077C23C2C7C39F64B5BA944740F765AC8E24FBB097B0BF28A720DF6",
 }
-VV3_FULL_MASTERY_ENABLED = True
+# The current public VV3 route is the complete Origins-style upgrades menu.
+# Standalone Full Mastery artifacts remain in the repository only as
+# historical evidence and are never admitted to the active catalog.
+VV3_FULL_MASTERY_ENABLED = False
 VV3_INDIVIDUAL_FULL_MASTERY_CANDIDATE_ID = "vv3_individual_full_mastery_candidate"
 VV3_INDIVIDUAL_FULL_MASTERY_CANDIDATE_PATHS = {
     "manifest": ROOT / "data" / "candidates" / "vv3_individual_full_mastery_candidate.json",
@@ -2944,25 +2947,12 @@ def _load_fun_patch_records(
             record = json.loads(feature_path.read_text(encoding="utf-8"))
             if record.get("enabled", True):
                 if record.get("id") == "vv3_enable_origins_exclusive_features":
-                    certified_base, running = _certified_vv3_running_records(record)
-                    mastery = _certified_vv3_full_mastery_records(certified_base)
-                    if mastery is None:
-                        items.append(certified_base)
-                    elif running is not None:
-                        raise PatcherError(
-                            "VV3 Running and Full Mastery cannot own the same "
-                            "base Origins extension simultaneously."
-                        )
-                    else:
-                        items.extend(mastery)
-                        individual_running = _certified_vv3_individual_running_record(
-                            certified_base,
-                            mastery[1],
-                        )
-                        if individual_running is not None:
-                            items.append(individual_running)
-                    if running is not None and mastery is None:
-                        items.append(running)
+                    # The latest feature-complete VV3 Origins menu owns the
+                    # public upgrade actions.  Keep only the base Origins
+                    # dependency here; standalone Full Mastery/Running
+                    # candidates are historical evidence, not selectable
+                    # catalog records.
+                    items.append(record)
                 elif record.get("id") == "vv4_enable_origins_exclusive_features":
                     mastery = _certified_vv4_full_mastery_records(record)
                     if mastery is None:
@@ -3006,27 +2996,9 @@ def _load_fun_patch_records(
                     items.append(_certified_vv5_task9_record(record))
                 else:
                     items.append(record)
-    vv3_full_heal_path = VV3_FULL_HEAL_CANDIDATE_PATHS["manifest"]
-    if vv3_full_heal_path.is_file():
-        vv3_full_heal_record = json.loads(
-            vv3_full_heal_path.read_text(encoding="utf-8")
-        )
-        # Full Heal's certified composition requires an enabled, recertified
-        # selected-villager Running predecessor.  Once the historical
-        # Likes-only Running record is withdrawn, fail closed rather than
-        # exposing a partial/unsafe Full Heal menu entry.
-        running_manifest = json.loads(
-            VV3_INDIVIDUAL_RUNNING_CANDIDATE_PATHS["manifest"].read_text(
-                encoding="utf-8"
-            )
-        )
-        if (
-            vv3_full_heal_record.get("enabled") is True
-            and vv3_full_heal_record.get("catalog_hidden") is False
-            and vv3_full_heal_record.get("catalog_enabled") is True
-            and running_manifest.get("enabled") is True
-        ):
-            items.append(vv3_full_heal_record)
+    # Full Heal/Cure All is implemented by the current VV3 Origins menu
+    # payload, so its old standalone candidate must never be loaded as a
+    # duplicate route.
     # The current public catalog owns the complete Origins-style upgrades
     # menu.  The former standalone VV1 Full Mastery candidate is retained as
     # historical evidence only and must not reappear as a selectable patch.

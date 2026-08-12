@@ -25,13 +25,14 @@ class ReleaseManifestTests(unittest.TestCase):
             f"data/vv{game}_origins_feature.json" for game in range(1, 6)
         }
         self.assertTrue(expected.issubset(set(release.FILES)))
-        self.assertTrue(
-            {
-                "data/candidates/vv3_origins_running_base_candidate.json",
-                "data/candidates/vv3_all_villagers_like_running_candidate.json",
-                "data/candidates/vv3_running_candidate_map.json",
-            }.issubset(set(release.FILES))
-        )
+        self.assertIn("data/vv3_origins_village_wide_upgrades.json", release.FILES)
+        for historical in (
+            "data/candidates/vv3_full_mastery_all_candidate.json",
+            "data/candidates/vv3_individual_full_mastery_candidate.json",
+            "data/candidates/vv3_individual_grant_running_candidate.json",
+            "data/candidates/vv3_full_heal_cure_all_candidate.json",
+        ):
+            self.assertNotIn(historical, release.FILES)
 
     def test_release_manifest_contains_current_breeding_research_note(self) -> None:
         release = load_release_module()
