@@ -13,6 +13,13 @@
       "stock_bonus_ceiling": 0,
       "absolute_maximum": 256,
       "variants": {
+        "stock": {
+          "output_name": "Virtual Villagers - A New Home - Modded.exe",
+          "absolute_maximum": 90,
+          "bonuses_affect_maximum": true,
+          "population_increase": false,
+          "patches": []
+        },
         "collection_progression": {
           "output_name": "Virtual Villagers - A New Home - Modded.exe",
           "bonuses_affect_maximum": false,
@@ -34,46 +41,6 @@
         "immediate_fixed": {
           "output_name": "Virtual Villagers - A New Home - Modded.exe",
           "bonuses_affect_maximum": false,
-          "patches": [
-            {
-              "offset": "0x3A1AE",
-              "before": "83F85A",
-              "after": "EB7690",
-              "purpose": "jump to 256-person comparison"
-            },
-            {
-              "offset": "0x3A226",
-              "before": "90909090909090909090",
-              "after": "3D00010000EB84909090",
-              "purpose": "compare population with 256, then return to original housing branch"
-            }
-          ]
-        },
-        "experimental_expanded_256": {
-          "output_name": "Virtual Villagers - A New Home - Modded.exe",
-          "bonuses_affect_maximum": false,
-          "villager_slots": 256,
-          "absolute_maximum": 256,
-          "patches": [
-            {
-              "offset": "0x3A1AE",
-              "before": "83F85A",
-              "after": "EB7690",
-              "purpose": "jump to 256-person comparison"
-            },
-            {
-              "offset": "0x3A226",
-              "before": "90909090909090909090",
-              "after": "3D00010000EB84909090",
-              "purpose": "compare population with 256, then return to original housing branch"
-            }
-          ]
-        },
-        "experimental_expanded_256_progression": {
-          "output_name": "Virtual Villagers - A New Home - Modded.exe",
-          "bonuses_affect_maximum": false,
-          "villager_slots": 256,
-          "absolute_maximum": 256,
           "patches": [
             {
               "offset": "0x3A1AE",
@@ -206,6 +173,13 @@
       "stock_bonus_ceiling": 25,
       "absolute_maximum": 256,
       "variants": {
+        "stock": {
+          "output_name": "Virtual Villagers - The Lost Children - Modded.exe",
+          "absolute_maximum": 115,
+          "bonuses_affect_maximum": true,
+          "population_increase": false,
+          "patches": []
+        },
         "collection_progression": {
           "output_name": "Virtual Villagers - The Lost Children - Modded.exe",
           "bonuses_affect_maximum": true,
@@ -233,40 +207,6 @@
               "before": "83FF147505BF19000000",
               "after": "BFA60000009090909090",
               "purpose": "replace every collection-bonus result with fixed arithmetic for a 256 maximum"
-            }
-          ]
-        },
-        "experimental_expanded_256": {
-          "output_name": "Virtual Villagers - The Lost Children - Modded.exe",
-          "bonuses_affect_maximum": false,
-          "villager_slots": 256,
-          "absolute_maximum": 256,
-          "patches": [
-            {
-              "offset": "0x4B378",
-              "before": "83FF147505BF19000000",
-              "after": "BFA60000009090909090",
-              "purpose": "replace every collection-bonus result with fixed arithmetic for a 256 maximum"
-            }
-          ]
-        },
-        "experimental_expanded_256_progression": {
-          "output_name": "Virtual Villagers - The Lost Children - Modded.exe",
-          "bonuses_affect_maximum": true,
-          "villager_slots": 256,
-          "absolute_maximum": 256,
-          "patches": [
-            {
-              "offset": "0x4B3AD",
-              "before": "83C75A",
-              "after": "EB4390",
-              "purpose": "jump to expanded base-cap arithmetic"
-            },
-            {
-              "offset": "0x4B3F2",
-              "before": "9090909090909090909090909090",
-              "after": "81C7E70000003BEFEBB690909090",
-              "purpose": "use base 231 plus the original maximum 25 collection bonus"
             }
           ]
         }
@@ -363,6 +303,13 @@
       "stock_bonus_ceiling": 35,
       "absolute_maximum": 150,
       "variants": {
+        "stock": {
+          "output_name": "Virtual Villagers - The Secret City - Modded.exe",
+          "absolute_maximum": 125,
+          "bonuses_affect_maximum": true,
+          "population_increase": false,
+          "patches": []
+        },
         "collection_progression": {
           "output_name": "Virtual Villagers - The Secret City - Modded.exe",
           "bonuses_affect_maximum": true,
@@ -384,42 +331,6 @@
               "before": "83F8037C0383C60A",
               "after": "BE3C000000909090",
               "purpose": "replace collection and magic-tech bonus result with fixed arithmetic for a 150 maximum"
-            }
-          ]
-        },
-        "experimental_expanded_256": {
-          "output_name": "Virtual Villagers - The Secret City - Modded.exe",
-          "bonuses_affect_maximum": false,
-          "villager_slots": 256,
-          "absolute_maximum": 256,
-          "expanded_records": true,
-          "patches": [
-            {
-              "offset": "0x5FEA2",
-              "before": "83F8037C0383C60A",
-              "after": "BEA6000000909090",
-              "purpose": "replace collection and magic-tech bonus result with fixed arithmetic for a 256 maximum"
-            }
-          ]
-        },
-        "experimental_expanded_256_progression": {
-          "output_name": "Virtual Villagers - The Secret City - Modded.exe",
-          "bonuses_affect_maximum": true,
-          "villager_slots": 256,
-          "absolute_maximum": 256,
-          "expanded_records": true,
-          "patches": [
-            {
-              "offset": "0x5FEE1",
-              "before": "83C65A3BDE",
-              "after": "E93AB40100",
-              "purpose": "route the cap comparison through 221-base expanded progression arithmetic"
-            },
-            {
-              "offset": "0x7B320",
-              "before": "00000000000000000000000000",
-              "after": "81C6DD0000003BDEE9B94BFEFF",
-              "purpose": "add base 221 to the original 0-25 collection and 0-or-10 Magic Tech bonuses, then resume the stock housing gates"
             }
           ]
         }
@@ -486,6 +397,13 @@
       "stock_bonus_ceiling": 25,
       "absolute_maximum": 150,
       "variants": {
+        "stock": {
+          "output_name": "Virtual Villagers - The Tree of Life - Modded.exe",
+          "absolute_maximum": 115,
+          "bonuses_affect_maximum": true,
+          "population_increase": false,
+          "patches": []
+        },
         "collection_progression": {
           "output_name": "Virtual Villagers - The Tree of Life - Modded.exe",
           "bonuses_affect_maximum": true,
@@ -507,42 +425,6 @@
               "before": "83FE147505BE19000000",
               "after": "BE3C0000009090909090",
               "purpose": "replace every collection-bonus result with fixed arithmetic for a 150 maximum"
-            }
-          ]
-        },
-        "experimental_expanded_256": {
-          "output_name": "Virtual Villagers - The Tree of Life - Modded.exe",
-          "bonuses_affect_maximum": false,
-          "villager_slots": 256,
-          "absolute_maximum": 256,
-          "expanded_records": true,
-          "patches": [
-            {
-              "offset": "0x683AA",
-              "before": "83FE147505BE19000000",
-              "after": "BEA60000009090909090",
-              "purpose": "replace every collection-bonus result with fixed arithmetic for a 256 maximum"
-            }
-          ]
-        },
-        "experimental_expanded_256_progression": {
-          "output_name": "Virtual Villagers - The Tree of Life - Modded.exe",
-          "bonuses_affect_maximum": true,
-          "villager_slots": 256,
-          "absolute_maximum": 256,
-          "expanded_records": true,
-          "patches": [
-            {
-              "offset": "0x683EF",
-              "before": "83C65A3BDE",
-              "after": "E90C0D0200",
-              "purpose": "route the cap comparison through 231-base expanded progression arithmetic"
-            },
-            {
-              "offset": "0x89100",
-              "before": "00000000000000000000000000",
-              "after": "81C6E70000003BDEE9E7F2FDFF",
-              "purpose": "add base 231 to the original 0-25 collection bonus, then resume the stock housing gates"
             }
           ]
         }
@@ -621,6 +503,13 @@
       "stock_bonus_ceiling": 15,
       "absolute_maximum": 150,
       "variants": {
+        "stock": {
+          "output_name": "Virtual Villagers - New Believers - Modded.exe",
+          "absolute_maximum": 105,
+          "bonuses_affect_maximum": true,
+          "population_increase": false,
+          "patches": []
+        },
         "collection_progression": {
           "output_name": "Virtual Villagers - New Believers - Modded.exe",
           "bonuses_affect_maximum": true,
@@ -660,54 +549,6 @@
               "before": "000000000000000000000000000000000000000000000000",
               "after": "81C65A000000E8B5FFFFFF3BC60F8D3DE7FDFFE93EE7FDFF",
               "purpose": "complete the fixed 150 calculation, compare total slot demand, and resume the stock housing gates"
-            }
-          ]
-        },
-        "experimental_expanded_256": {
-          "output_name": "Virtual Villagers - New Believers - Modded.exe",
-          "bonuses_affect_maximum": false,
-          "villager_slots": 256,
-          "absolute_maximum": 256,
-          "expanded_records": true,
-          "patches": [
-            {
-              "offset": "0x72C04",
-              "before": "83FE0A7505BE0F000000",
-              "after": "BEA60000009090909090",
-              "purpose": "replace every collection-bonus result with fixed arithmetic for a 256 maximum"
-            },
-            {
-              "offset": "0x72C49",
-              "before": "83C65A3BDE7C06",
-              "after": "E9B21802009090",
-              "purpose": "route the fixed cap comparison through the total occupied-or-reserved slot counter"
-            },
-            {
-              "offset": "0x94500",
-              "before": "000000000000000000000000000000000000000000000000",
-              "after": "81C65A000000E8B5FFFFFF3BC60F8D3DE7FDFFE93EE7FDFF",
-              "purpose": "add the stock 90 housing component to fixed 166, compare 256 total occupied-or-reserved slots, and resume the stock housing gates"
-            }
-          ]
-        },
-        "experimental_expanded_256_progression": {
-          "output_name": "Virtual Villagers - New Believers - Modded.exe",
-          "bonuses_affect_maximum": true,
-          "villager_slots": 256,
-          "absolute_maximum": 256,
-          "expanded_records": true,
-          "patches": [
-            {
-              "offset": "0x72C49",
-              "before": "83C65A3BDE7C06",
-              "after": "E9B21802009090",
-              "purpose": "route the cap comparison through a true 241-base calculation that counts every occupied or reserved villager slot"
-            },
-            {
-              "offset": "0x94500",
-              "before": "000000000000000000000000000000000000000000000000",
-              "after": "81C6F1000000E8B5FFFFFF3BC60F8D3DE7FDFFE93EE7FDFF",
-              "purpose": "add base 241 with a 32-bit immediate, preserve the 0-15 collection bonus, compare total slot demand, and resume the stock housing gates"
             }
           ]
         }
@@ -796,6 +637,11 @@
   ],
   "patch_modes": [
     {
+      "id": "stock",
+      "name": "No Population Increase",
+      "description": "Preserve each game's stock population cap and progression behavior; no population-cap or saturation bytes are changed."
+    },
+    {
       "id": "collection_progression",
       "name": "Collection Progression Max Pop",
       "description": "Collections keep raising the cap; all population bonuses are needed to reach the absolute slot maximum."
@@ -804,16 +650,6 @@
       "id": "immediate_fixed",
       "name": "Immediate Fixed Max Pop",
       "description": "The absolute slot maximum is available immediately; collection bonuses no longer affect it."
-    },
-    {
-      "id": "experimental_expanded_256",
-      "name": "Experimental Expanded 256 Villagers",
-      "description": "VV3-VV5 expand their physical villager record and save capacity from 150 to 256; VV1-VV2 use their existing 256 slots. The 256 maximum is immediate and collections no longer alter it."
-    },
-    {
-      "id": "experimental_expanded_256_progression",
-      "name": "Experimental Expanded 256 - Collection Progression",
-      "description": "VV3-VV5 target 256 logical villager records while collections, and VV3 Magic Tech, retain their original bonuses and are required to reach 256; VV3 also reserves four non-saveable padding records for grouped native reads. VV1-VV2 use their existing 256-record behavior."
     }
   ],
   "fun_patch_support": [
@@ -1444,13 +1280,12 @@
       "catalog_hidden": false,
       "default_selected": false,
       "supported_modes": [
+        "stock",
         "collection_progression",
-        "immediate_fixed",
-        "experimental_expanded_256",
-        "experimental_expanded_256_progression"
+        "immediate_fixed"
       ],
       "behavior_changes": [
-        "After the stock callback reports a handled robe drop and leaves the eligible initiator in action 120 or 121, every other eligible VV3 villager is sent through the stock failed-fit action 121 robe sequence. The runtime loop accepts only the authenticated stock bound 150 or Expanded-256 bound 256."
+        "After the stock callback reports a handled robe drop and leaves the eligible initiator in action 120 or 121, every other eligible VV3 villager is sent through the stock failed-fit action 121 robe sequence. The runtime loop accepts only the authenticated stock bound 150."
       ],
       "explicit_non_changes": [
         "Dead, inactive, and nursing villagers are skipped. The dropped initiator keeps the complete stock action 120 or action 121 result and remains the only villager eligible to become Tribal Chief. Followers never receive success action 120, persistent Chief clothing, or Chief state, and the wrapper does not read or write candidate fields +0xE80/+0xE88 or change the puzzle, pregnancy/nursing state, health, age, skills, preferences, or saved record layout."
@@ -1485,22 +1320,6 @@
             "before": "60194200",
             "after": "00816C00",
             "purpose": "replace the stock robe callback pointer with the wrapper at stock .shr VA 0x6C8100"
-          }
-        ],
-        "experimental_expanded_256": [
-          {
-            "offset": "0x22B2A",
-            "before": "60194200",
-            "after": "00117A00",
-            "purpose": "replace the stock robe callback pointer with the same wrapper at relocated Expanded-256 .shr VA 0x7A1100"
-          }
-        ],
-        "experimental_expanded_256_progression": [
-          {
-            "offset": "0x22B2A",
-            "before": "60194200",
-            "after": "00117A00",
-            "purpose": "replace the stock robe callback pointer with the same wrapper at relocated Expanded-256 .shr VA 0x7A1100"
           }
         ]
       }

@@ -817,10 +817,15 @@ VV5_TASK9_CROSS_SECTION_HOOKS = {
 }
 STATISTICS_FEATURES_PATH = ROOT / "data" / "statistics_features.json"
 DEFAULT_PATCH_MODE = "collection_progression"
-EXPANDED_PATCH_MODES = {
-    "experimental_expanded_256",
-    "experimental_expanded_256_progression",
-}
+# Expanded-256 population modes were removed from the active manifest.  Keep
+# their IDs only for validating retained historical evidence records; they are
+# not returned by load_patch_modes() and are not accepted by public APIs.
+EXPANDED_PATCH_MODES: frozenset[str] = frozenset(
+    {
+        "experimental_expanded_256",
+        "experimental_expanded_256_progression",
+    }
+)
 VV3_EXPANDED_HEALER_ENDPOINT_REPAIR = {
     "offset": "0x5FA46",
     "before": "807B1F00",
@@ -993,9 +998,8 @@ VV3_EXPANDED_FINAL_TIME_WARP_RESULTS = {
         },
     },
 }
-# Expanded-256 rendering/audit helpers remain available, but public
-# publication is an explicit fail-closed gate until the mode is independently
-# certified.  Keep this literal false rather than deriving it from metadata.
+# Kept for compatibility with archival validators; there are no active
+# Expanded-256 modes for this flag to enable.
 EXPANDED_256_PUBLICATION_ENABLED = False
 VV1_ORIGINS_COMPOSITION_ID = "vv1_full_mastery_origins_composition"
 VV1_ORIGINS_COMPOSITION_BASE_SHA256 = "5434C71C342B830A5896AFFB610A76C670578760BD33C6145882FA280F6406A3"
@@ -1014,16 +1018,13 @@ def _reject_expanded_256_publication(patch_mode: str) -> None:
         )
 
 
-_PUBLIC_PATCH_MODES = {"collection_progression", "immediate_fixed"}
+_PUBLIC_PATCH_MODES = {"stock", "collection_progression", "immediate_fixed"}
 
 
 def _validate_public_patch_mode(patch_mode: str) -> None:
     """Validate a public mode without loading catalogs or touching input paths."""
-    if not isinstance(patch_mode, str) or patch_mode not in (
-        _PUBLIC_PATCH_MODES | EXPANDED_PATCH_MODES
-    ):
+    if not isinstance(patch_mode, str) or patch_mode not in _PUBLIC_PATCH_MODES:
         raise PatcherError(f"Unknown patch mode: {patch_mode}")
-    _reject_expanded_256_publication(patch_mode)
 
 
 @dataclass(frozen=True)
@@ -5334,6 +5335,8 @@ def _expanded_patches(build: Build, variant: dict[str, Any]) -> list[dict[str, s
 
 
 def _safety_patches(build: Build, patch_mode: str) -> list[dict[str, str]]:
+    if patch_mode == "stock":
+        return []
     if (
         patch_mode
         not in {
@@ -7635,9 +7638,10 @@ def render_patched_bytes(
             data, build, patch_mode
         )
     )
-    checksum_offset, _ = _pe_checksum_layout(data)
-    checksum = pe_checksum(data)
-    struct.pack_into("<I", data, checksum_offset, checksum)
+    if applied:
+        checksum_offset, _ = _pe_checksum_layout(data)
+        checksum = pe_checksum(data)
+        struct.pack_into("<I", data, checksum_offset, checksum)
     if vv3_time_warp_atomic_core:
         exact_profile_ids = {
             EXPANDED_VV3_TIME_WARP_CORE_ID,
@@ -7742,6 +7746,20 @@ def _result(
         source, build, patch_mode, fun_patches, output_root
     )
     result_sha256 = hashlib.sha256(patched).hexdigest().upper()
+    if patch_mode == "stock":
+        multiple_birth_saturation = (
+            "stock multiple-birth behavior is preserved; no population-cap saturation guard is applied"
+        )
+        island_event_capacity = (
+            "stock population-adding Island Event behavior is preserved; no population-cap guard is applied"
+        )
+    else:
+        multiple_birth_saturation = (
+            "multiples are reduced only when required to fit the remaining villager slots"
+        )
+        island_event_capacity = (
+            "population-adding Island Events are blocked or reduced only as required to fit the remaining physical villager slots"
+        )
     return {
         "game": build.title,
         "source": str(source.resolve()),
@@ -7771,8 +7789,9 @@ def _result(
             if variant.get("expanded_records", False)
             else "stock save layout"
         ),
-        "multiple_birth_saturation": "multiples are reduced only when required to fit the remaining villager slots",
-        "island_event_capacity": "population-adding Island Events are blocked or reduced only as required to fit the remaining physical villager slots",
+        "population_increase": variant.get("population_increase", True),
+        "multiple_birth_saturation": multiple_birth_saturation,
+        "island_event_capacity": island_event_capacity,
         "bonuses_affect_maximum": variant["bonuses_affect_maximum"],
         "patches": applied,
         "expanded_static_repairs": _expanded_static_repair_summary(
@@ -7886,25 +7905,8 @@ def _validate_single_playtest_patch_mode(
     save_root: Path | None = None,
 ) -> None:
     """Keep the public gate closed except for one exact Time Warp playtest."""
-    if not isinstance(patch_mode, str) or patch_mode not in (
-        _PUBLIC_PATCH_MODES | EXPANDED_PATCH_MODES
-    ):
+    if not isinstance(patch_mode, str) or patch_mode not in _PUBLIC_PATCH_MODES:
         raise PatcherError(f"Unknown patch mode: {patch_mode}")
-    if patch_mode not in EXPANDED_PATCH_MODES or EXPANDED_256_PUBLICATION_ENABLED:
-        return
-    requested = tuple(playtest_disabled_feature_ids)
-    if (
-        len(requested) == 1
-        and requested[0] in frozenset(EXPANDED_TIME_WARP_IDS.values())
-        and output_root is None
-        and playtest_output_root is not None
-        and Path(playtest_output_root).expanduser().is_absolute()
-        and not copy_saves
-        and not replace_modded_saves
-        and save_root is None
-    ):
-        return
-    _reject_expanded_256_publication(patch_mode)
 
 
 def dry_run(
@@ -8003,6 +8005,20 @@ def _log_data(
     variant = get_patch_variant(build, patch_mode)
     villager_slots = variant.get("villager_slots", build.villager_slots)
     absolute_maximum = variant.get("absolute_maximum", build.absolute_maximum)
+    if patch_mode == "stock":
+        multiple_birth_saturation = (
+            "stock multiple-birth behavior is preserved; no population-cap saturation guard is applied"
+        )
+        island_event_capacity = (
+            "stock population-adding Island Event behavior is preserved; no population-cap guard is applied"
+        )
+    else:
+        multiple_birth_saturation = (
+            "multiples are reduced only when required to fit the remaining villager slots"
+        )
+        island_event_capacity = (
+            "population-adding Island Events are blocked or reduced only as required to fit the remaining physical villager slots"
+        )
     return {
         "patcher": "Virtual Villagers Fun Patcher",
         "patch": mode.name,
@@ -8031,8 +8047,9 @@ def _log_data(
             if variant.get("expanded_records", False)
             else "stock save layout"
         ),
-        "multiple_birth_saturation": "multiples are reduced only when required to fit the remaining villager slots",
-        "island_event_capacity": "population-adding Island Events are blocked or reduced only as required to fit the remaining physical villager slots",
+        "population_increase": variant.get("population_increase", True),
+        "multiple_birth_saturation": multiple_birth_saturation,
+        "island_event_capacity": island_event_capacity,
         "bonuses_affect_maximum": variant["bonuses_affect_maximum"],
         "source_path": str(source.resolve()),
         "source_sha256": build.sha256,
@@ -9390,13 +9407,11 @@ def _add_playtest_feature_arg(parser: argparse.ArgumentParser) -> None:
         action="append",
         choices=[
             VV2_PLAYTEST_DISABLED_FEATURE_ID,
-            *EXPANDED_TIME_WARP_IDS.values(),
         ],
         default=[],
         help=(
-            "explicitly include the disabled VV2 Origins feature or one "
-            "game-matched Expanded Time Warp feature in a separate player "
-            "stress-test output; never catalog/publication evidence"
+            "explicitly include the disabled VV2 Origins feature in a separate "
+            "player stress-test output; never catalog/publication evidence"
         ),
     )
     parser.add_argument(
@@ -9413,28 +9428,8 @@ def _add_output_root_arg(parser: argparse.ArgumentParser) -> None:
         type=Path,
         default=None,
         help=(
-            "parent folder for short '(Game name) - Modded' or "
-            "'(Game name) - Modded 256' outputs; "
+            "parent folder for short '(Game name) - Modded' outputs; "
             "defaults to the original game's parent folder"
-        ),
-    )
-
-
-def _add_save_copy_args(parser: argparse.ArgumentParser) -> None:
-    parser.add_argument(
-        "--copy-vanilla-saves",
-        action="store_true",
-        help=(
-            "copy the exact vanilla numbered saves and required slot-zero file "
-            "into the separate Modded 256 save folder"
-        ),
-    )
-    parser.add_argument(
-        "--replace-modded-saves",
-        action="store_true",
-        help=(
-            "replace existing Modded 256 .ldw files with verified vanilla "
-            "copies; requires --copy-vanilla-saves"
         ),
     )
 
@@ -9482,7 +9477,6 @@ def _parser() -> argparse.ArgumentParser:
     _add_fun_patch_args(apply_cmd)
     _add_playtest_feature_arg(apply_cmd)
     _add_output_root_arg(apply_cmd)
-    _add_save_copy_args(apply_cmd)
 
     dry_all_cmd = sub.add_parser(
         "dry-run-all",
@@ -9502,7 +9496,6 @@ def _parser() -> argparse.ArgumentParser:
     _add_patch_mode_arg(apply_all_cmd)
     _add_fun_patch_args(apply_all_cmd)
     _add_output_root_arg(apply_all_cmd)
-    _add_save_copy_args(apply_all_cmd)
     return parser
 
 
@@ -9557,13 +9550,6 @@ def main() -> int:
     try:
         _preparse_publication_mode()
         args = _parser().parse_args()
-        if (
-            getattr(args, "replace_modded_saves", False)
-            and not getattr(args, "copy_vanilla_saves", False)
-        ):
-            raise PatcherError(
-                "--replace-modded-saves requires --copy-vanilla-saves"
-            )
         if args.command == "identify":
             print(json.dumps(identify(args.exe).raw, indent=2))
         elif args.command == "dry-run":
@@ -9587,8 +9573,6 @@ def main() -> int:
                 args.overwrite,
                 args.fun_patch,
                 output_root=args.output_root,
-                copy_saves=args.copy_vanilla_saves,
-                replace_modded_saves=args.replace_modded_saves,
                 playtest_disabled_feature_ids=args.playtest_disabled_feature,
                 playtest_output_root=args.playtest_output_root,
             )
@@ -9614,8 +9598,6 @@ def main() -> int:
                 args.overwrite,
                 args.fun_patch,
                 output_root=args.output_root,
-                copy_saves=args.copy_vanilla_saves,
-                replace_modded_saves=args.replace_modded_saves,
             )
             for output, log in results:
                 print(f"Created: {output}")

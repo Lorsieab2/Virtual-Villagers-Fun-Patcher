@@ -4,9 +4,9 @@ This document is generated from the patch manifests. It is the project-level des
 
 ## Automatic changes (every output)
 
-Every output applies the selected population mode and the game's guarded population-safety edits. The collection-progression mode preserves the supported game's collection/bonus behavior while changing its declared maximum according to the manifest. The immediate-fixed mode keeps the fixed maximum. Experimental expanded-256 modes additionally apply the documented stock-save import/conversion route and physical-record expansion for VV3–VV5; VV1/VV2 already have 256 physical slots. Multiples and population-adding Island Events are saturated at the physical slot bound. No game is launched by the patcher, so runtime/player confirmation remains pending.
+Every output applies the selected population mode. No Population Increase preserves the stock cap, progression, and population-allocation behavior. The collection-progression mode preserves the supported game's collection/bonus behavior while changing its declared maximum according to the manifest. The immediate-fixed mode keeps the fixed maximum and applies the guarded population-safety edits. No game is launched by the patcher, so runtime/player confirmation remains pending.
 
-Available population modes: Collection Progression Max Pop, Immediate Fixed Max Pop, Experimental Expanded 256 Villagers, Experimental Expanded 256 - Collection Progression.
+Available population modes: No Population Increase, Collection Progression Max Pop, Immediate Fixed Max Pop.
 
 ## Optional-patch chooser catalog
 
@@ -122,6 +122,16 @@ enabled/catalog-visible stock-only command-7 Full Mastery candidate. Commands 6/
 - Evidence status: C76/D82/C83 GO against exact source commit 2f22a8b435918bf01b95aa4b9a6e6f4287d0ac94; rendered payload and exact uninstall identities are hash-bound below; runtime/player confirmation remains pending
 - Guarded executable edits: 2; every edit has an exact purpose and before/after guard in the manifest.
 
+#### Grant Full Mastery to Selected Villager (`vv1_individual_full_mastery_candidate`)
+
+Adds a stock-styled Villager Detail action that grants exact Full Mastery to the selected living non-Golden-Child villager for 100,000 tech points through VV1's native changed-only skill writer. Stock Collection Progression and Immediate Fixed only.
+
+- Behavior changes: Detail event 8/button 6 opens an explicit 100,000-tech-point Full Mastery confirmation for the selected eligible villager. Changed skills are raised to exactly 100 through native sub_437230 and completely postverified before one charge.
+- Explicit non-changes/exclusions: The prerequisite village-wide command-7 Tech hooks, implementation, price, and companion DLL remain unchanged. No legacy Origins owner is enabled or reused; those records explicitly conflict. Preference +0x3D0, positive award writer sub_41D120, and lifetime field state+0x9E20 are never written. Expanded-256 modes remain rejected before variant, catalog, manifest, or source access.
+- Dependencies: vv1_full_mastery_all_stage_a_candidate
+- Evidence status: source/static emitted-byte verification; runtime/player confirmation pending
+- Guarded executable edits: 6; every edit has an exact purpose and before/after guard in the manifest.
+
 #### Magic Fruit of Life Alters Mortality (`vv1_magic_fruit_alters_mortality`)
 
 Completing the Magic Fruit of Life puzzle globally shifts every ordinary villager's mortality curve seven displayed years later, including during time catch-up. Finishing Enjoying magic fruit also clears that villager's sickness and restores health to 100. Eating the fruit remains reusable and stores nothing in villager likes or dislikes.
@@ -210,6 +220,16 @@ Enabled command-7-only stock candidate for stock Collection Progression and Imme
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending
 - Guarded executable edits: 2; every edit has an exact purpose and before/after guard in the manifest.
 
+#### Grant Full Mastery to Selected Villager (`vv2_individual_full_mastery_candidate`)
+
+Adds one stock-styled Villager Detail action for the currently selected living non-totem villager. It grants exact Full Mastery for 100,000 tech points through VV2's native manager, changed-only skill writer, Elder evaluator, and tech writer. Stock Collection Progression and Immediate Fixed only.
+
+- Behavior changes: Detail event 8/button 6 opens an explicit 100,000-tech-point Full Mastery confirmation for the current selected eligible villager. Changed skills are raised to exactly 100 by native deltas; the native Elder evaluator runs once only after complete exact-100 postverification.
+- Explicit non-changes/exclusions: The prerequisite village-wide command-7 bytes, Tech hooks, price, behavior, rendered identities, and companion DLL remain unchanged when this feature is not selected. VV2 Barrel code and X=140/Y=563 Detail alignment are unchanged. No Origins-exclusive feature is enabled or required. Expanded-256 modes remain rejected before output.
+- Dependencies: vv2_full_mastery_all_stage_a_candidate
+- Evidence status: source/static emitted-byte verification; runtime/player confirmation pending
+- Guarded executable edits: 6; every edit has an exact purpose and before/after guard in the manifest.
+
 #### Hospital Recovery Heals (`vv2_hospital_recovery_heals`)
 
 A villager who completes Recovering at the hospital gains exactly 1 health point, capped at 100. Stock VV2's hospital recovery action does not change health.
@@ -250,9 +270,9 @@ Supported stock identity is the exact `Virtual Villagers - The Secret City.exe` 
 
 #### Enable Origins-Exclusive Features (`vv3_enable_origins_exclusive_features`)
 
-Inspired by the Virtual Villagers 1 mobile port where these exclusive Origins upgrades originated, this selected-upgrades port adds the icon-based Origins Upgrades screen with Time Warp, Island Event, the native Another One of Those Barrels event with a dynamic three-space 150/256-record guard, and displayed-but-currently-unavailable 500,000-tech-point Tech Point and Food Point Doublers. Existing owned doublers remain removable at zero cost with zero refund; repurchase is temporarily disabled pending exact-build verification. The legacy sickness-only Origins Cure route is preserved byte-for-byte for provenance but is dominated before dispatch and unreachable in this composition; The historical command-5 Full Heal / Cure All transaction remains candidate-only and blocked behind its withdrawn Running dependency; no public runtime action is exposed. Time Warp advances every villager by exactly 3 displayed years at every active game speed; the required wall-clock shift is 3 hours at half speed, 6 hours at normal speed, and 10 hours at double speed. Doubler ownership is confined to the current save. The doubler contract would stack after the exact collectible/collection adjustment, but this build's collection dispatcher has unresolved computed/indirect reachability and no safe final-delta hook. Food Mastery-like award transforms are confirmed absent in the writer, strings, and bounded caller corpus. Island Event outcomes remain native; new purchase and repurchase are unavailable under the exact-build STOP gate. Historical Villager Upgrades labels include Grant Youth, Grant Full Mastery, Grant Running, and Set Age to 18; Grant Running is STOP/hidden provenance only and is not a selectable or runtime-ready action. Grant Running is STOP/hidden contract evidence only; the withdrawn helper and revised six-slot candidate are not catalog paths, native preference ABI proof, or runtime-ready behavior. Inspired by the Virtual Villagers 1 mobile port, where selected Origins-exclusive upgrades originated; this wording does not claim unsupported mobile parity.
+Stock-only VV3 Origins Upgrades containment phase 1. Time Warp, Island Event, Barrel of Babies, displayed-but-currently-unavailable Tech/Food doubler behavior, and the separately certified village-wide command 7 bytes are preserved. Origins-only Tech resources expose commands 0-4; doubler repurchase is temporarily disabled. The dependent village-Full-Mastery resource also exposes command 7. Legacy Cure command 5 is absent from both Tech resources and the raw 0xA35EF gate routes through raw 0x7B721 to reject it before price, deduction, or mutation. The Villager Detail Upgrades button is retained; the parent foundation resource has background+Cancel only and raw 0xA38C3 exits before every legacy price/deduction/mutation path. The public selected-villager Full Mastery child overlays command 1 and replaces that guard only when the child is selected. Inspired by the Virtual Villagers 1 mobile port, where selected Origins-exclusive upgrades originated; this wording does not claim unsupported mobile parity.
 
-- Behavior changes: Inspired by the Virtual Villagers 1 mobile port where these exclusive Origins upgrades originated, this selected-upgrades port adds the icon-based Origins Upgrades screen with Time Warp, Island Event, the native Another One of Those Barrels event with a dynamic three-space 150/256-record guard, and displayed-but-currently-unavailable 500,000-tech-point Tech Point and Food Point Doublers. Existing owned doublers remain removable at zero cost with zero refund; repurchase is temporarily disabled pending exact-build verification. The legacy sickness-only Origins Cure route is preserved byte-for-byte for provenance but is dominated before dispatch and unreachable in this composition; The historical command-5 Full Heal / Cure All transaction remains candidate-only and blocked behind its withdrawn Running dependency; no public runtime action is exposed. Time Warp advances every villager by exactly 3 displayed years at every active game speed; the required wall-clock shift is 3 hours at half speed, 6 hours at normal speed, and 10 hours at double speed. Doubler ownership is confined to the current save. The doubler contract would stack after the exact collectible/collection adjustment, but this build's collection dispatcher has unresolved computed/indirect reachability and no safe final-delta hook. Food Mastery-like award transforms are confirmed absent in the writer, strings, and bounded caller corpus. Island Event outcomes remain native; new purchase and repurchase are unavailable under the exact-build STOP gate. Historical Villager Upgrades labels include Grant Youth, Grant Full Mastery, Grant Running, and Set Age to 18; Grant Running is STOP/hidden provenance only and is not a selectable or runtime-ready action. Grant Running is STOP/hidden contract evidence only; the withdrawn helper and revised six-slot candidate are not catalog paths, native preference ABI proof, or runtime-ready behavior.
+- Behavior changes: Stock-only VV3 Origins Upgrades containment phase 1. Time Warp, Island Event, Barrel of Babies, displayed-but-currently-unavailable Tech/Food doubler behavior, and the separately certified village-wide command 7 bytes are preserved. Origins-only Tech resources expose commands 0-4; doubler repurchase is temporarily disabled. The dependent village-Full-Mastery resource also exposes command 7. Legacy Cure command 5 is absent from both Tech resources and the raw 0xA35EF gate routes through raw 0x7B721 to reject it before price, deduction, or mutation. The Villager Detail Upgrades button is retained; the parent foundation resource has background+Cancel only and raw 0xA38C3 exits before every legacy price/deduction/mutation path. The public selected-villager Full Mastery child overlays command 1 and replaces that guard only when the child is selected.
 - Explicit non-changes/exclusions: none declared
 - Dependencies: none
 - Build-specific Running preference ID: 38; evidence source: exact stock executable embedded preference table at table offset 0x97488.
@@ -260,18 +280,18 @@ Inspired by the Virtual Villagers 1 mobile port where these exclusive Origins up
 - Doubler composition contract: {'stacking': ['every exact-build collectible/collection effect that increases tech-point gain', 'native Food Mastery technology adjustment'], 'exclusions': ['Island Event outcomes'], 'food_mastery_status': 'confirmed absent in the exact-build writer, strings, and bounded caller corpus', 'status': 'STOP: no safe final-delta/source-aware hook, transient marker, or certified new section/cave; Island Event mixed-source provenance and collection dispatcher caller remain unresolved'}
 - Doubler purchase status: {'new_purchase': 'temporarily unavailable pending exact-build provenance verification', 'existing_owned': 'removable at zero cost with zero refund', 'repurchase': 'temporarily disabled pending exact-build provenance verification'}
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending
-- Guarded executable edits: 9; every edit has an exact purpose and before/after guard in the manifest.
+- Guarded executable edits: 12; every edit has an exact purpose and before/after guard in the manifest.
 
 #### Everyone Tries On the Robe (`vv3_everyone_tries_on_robe`)
 
 Dropping an active, living, non-nursing villager on the robe keeps that villager's complete stock try-on or Tribal Chief result, then sends every other active, living, non-nursing villager through the stock failed-fit Trying on the robe action. Followers use the native status, walk, gestures, and temporary try-on appearance but never receive the successful fit, persistent Chief clothing, or Chief state.
 
-- Behavior changes: After the stock callback reports a handled robe drop and leaves the eligible initiator in action 120 or 121, every other eligible VV3 villager is sent through the stock failed-fit action 121 robe sequence. The runtime loop accepts only the authenticated stock bound 150 or Expanded-256 bound 256.
+- Behavior changes: After the stock callback reports a handled robe drop and leaves the eligible initiator in action 120 or 121, every other eligible VV3 villager is sent through the stock failed-fit action 121 robe sequence. The runtime loop accepts only the authenticated stock bound 150.
 - Explicit non-changes/exclusions: Dead, inactive, and nursing villagers are skipped. The dropped initiator keeps the complete stock action 120 or action 121 result and remains the only villager eligible to become Tribal Chief. Followers never receive success action 120, persistent Chief clothing, or Chief state, and the wrapper does not read or write candidate fields +0xE80/+0xE88 or change the puzzle, pregnancy/nursing state, health, age, skills, preferences, or saved record layout.
 - Dependencies: none
 - Evidence status: independently reviewed exact-build static implementation; install/uninstall and stock/Expanded composition are automated, while player runtime confirmation remains pending
 - Guarded executable edits: 2; every edit has an exact purpose and before/after guard in the manifest.
-- Mode-specific guarded edits: collection_progression=1, immediate_fixed=1, experimental_expanded_256=1, experimental_expanded_256_progression=1; these rows are selected only for the named population mode.
+- Mode-specific guarded edits: collection_progression=1, immediate_fixed=1; these rows are selected only for the named population mode.
 
 #### Grant Full Mastery to All Villagers (`vv3_full_mastery_all_stage_a_candidate`)
 
@@ -281,6 +301,16 @@ Stock-only command-7 repeatable Buy candidate using fixed manager 0x0059E110, na
 - Explicit non-changes/exclusions: none declared
 - Dependencies: vv3_enable_origins_exclusive_features
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending
+- Guarded executable edits: 1; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Grant Full Mastery to Selected Villager (`vv3_individual_full_mastery_candidate`)
+
+Stock-only command-1 transaction for the selected current living villager. It raises only below-100 skills through the native writer, postverifies exact 100 values, runs the native evaluator once, and deducts 100,000 tech points once only after final identity, snapshot, and funds reacquisition.
+
+- Behavior changes: Adds only selected-villager command 1 to the Detail Upgrades dialog and executes the exact-100 native transaction for 100,000 tech points.
+- Explicit non-changes/exclusions: +0xEC0 is never written or normalized; stock naming/tie behavior remains authoritative, including Master Parent fallback legacy Detail commands 0, 2, and 3 remain absent and are rejected before price or mutation Tech commands and certified village command 7 bytes remain unchanged Expanded modes remain fail-closed before artifact access
+- Dependencies: vv3_full_mastery_all_stage_a_candidate
+- Evidence status: exact stock-source regions, emitted page, parent composition, resource projection, and final bytes are statically verified; runtime/player confirmation pending
 - Guarded executable edits: 1; every edit has an exact purpose and before/after guard in the manifest.
 
 #### Nature Level 1 Actually Replenishes Food Sources Faster (`vv3_nature_honey_refill`)

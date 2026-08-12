@@ -19,33 +19,19 @@ prerequisite are rejected before any copied game folder or EXE is written.
 
 Its max-population modes use every verified built-in villager slot: 256 slots in A New Home and The Lost Children, and 150 slots in The Secret City, The Tree of Life, and New Believers.
 
-## Two patch styles
+## Three population modes
 
-Choose the style in the patcher; the choice and all paths are remembered.
+Choose the population mode in the patcher; the choice and all paths are remembered.
 
-| Style | Collection behavior | Output EXE |
+| Mode | Collection/progression behavior | Output EXE |
 |---|---|---|
+| No Population Increase | The stock population cap, collection behavior, and progression gates are preserved. No population-cap or saturation bytes are changed. | `(Game name) - Modded.exe` |
 | Collection Progression Max Pop | The original population bonuses remain active and are required to reach the slot maximum. The Secret City also retains its level-3 magic bonus. | `(Game name) - Modded.exe` |
 | Immediate Fixed Max Pop | The slot maximum is available immediately. Collections no longer change it; The Secret City's magic tech no longer changes it either. | `(Game name) - Modded.exe` |
-| Experimental Expanded 256 Villagers | VV3–VV5 expand their physical records and save layout to 256 immediately; collections no longer affect that expanded ceiling. | `(Game name) - Modded 256.exe` |
-| Experimental Expanded 256 - Collection Progression | VV3–VV5 expand to 256 while their original collection and Magic Tech bonuses remain required to reach 256. | `(Game name) - Modded 256.exe` |
 
-> **Expanded-256 release status:** both experimental 256 modes are ON HOLD for
-> VV3-VV5. Exact-build reanalysis found unresolved runtime/save failures and
-> incomplete optional-feature relocation coverage. Renderer success is not a
-> release certification. See
-> [the exact implementation gates](docs/vv3-vv5-expanded-256-implementation-gates.md).
-
-Ordinary modes and optional-patch combinations use the stable short `- Modded`
-name. Experimental 256 modes use the separate short `- Modded 256` name. The
-selected mode, optional patches, hashes, and applied edits remain identified in
-the adjacent `.patch-log.json`.
-
-The **Experimental Expanded 256 Villagers** and **Experimental Expanded 256 -
-Collection Progression** modes are available for VV3–VV5. They expand the
-logical record and save layout from 150 to 256 and include guarded loading of
-the original stock save layout. They remain experimental and are awaiting
-player startup, save-recognition, and complete playthrough validation.
+All three modes use the stable short `- Modded` name. The selected mode,
+optional patches, hashes, and applied edits remain identified in the adjacent
+`.patch-log.json`.
 
 ## VV2: Easier Healing Mastery
 
@@ -141,8 +127,7 @@ This containment changes no Golden Child or Island Event outcome.
 The separate `vv1_full_mastery_all_stage_a_candidate` remains an isolated,
 command-7-only, catalog-visible static candidate for stock Collection
 Progression and Immediate Fixed. It is not the disabled Origins record;
-Expanded-256 rejects before output and runtime/player confirmation remains
-pending.
+runtime/player confirmation remains pending.
 
 ## VV2 Origins containment
 
@@ -173,8 +158,7 @@ gates. This containment changes no Gong of Wonder or Island Event outcome.
 The separate `vv2_full_mastery_all_stage_a_candidate` remains an isolated,
 command-7-only, catalog-visible static candidate for stock Collection
 Progression and Immediate Fixed. It excludes commands 6/8, Gong, Island Event,
-and withdrawn Origins; Expanded-256 rejects before output and runtime/player
-confirmation remains pending.
+and withdrawn Origins; runtime/player confirmation remains pending.
 
 ## VV3: Enable Origins-Exclusive Features
 
@@ -267,8 +251,7 @@ Villagers** (`vv5_full_mastery_all_stage_a_candidate`) are enabled only for
 the exact stock Collection Progression and Immediate Fixed builds. Their
 acceptance is bound to the C99 rendered hashes, the authoritative Origins DLL,
 the native `btn_trophies` resource, the certified confirmation routines and
-strings, and the recorded hook/map guards. Expanded-256 is rejected before any
-output is written and remains ON HOLD.
+strings, and the recorded hook/map guards.
 
 The VV5 Upgrades UI and native village-wide Full Mastery route are preserved;
 the individual route targets the selected current living Believer and performs
@@ -347,13 +330,11 @@ puzzle, pregnancy or nursing state, health, age, skills, preferences, or save
 records. Fanout requires the original callback to report a handled drop and to
 leave the initiator in its native success or failed-fit robe action.
 
-This checkbox is optional and starts unchecked. It supports both ordinary
-population modes and both Expanded-256 modes. The implementation is exact-
+This checkbox is optional and starts unchecked. It supports the two
+population-increase modes. The implementation is exact-
 build guarded and statically verified; player runtime confirmation remains
 pending. The robe feature itself never reads or writes candidate fields
-`+0xE80` or `+0xE88`. In both Expanded modes, the patcher separately and
-automatically applies the guarded Chief-candidate assignment repair; it
-composes disjointly and is not a selectable feature dependency. If those
+`+0xE80` or `+0xE88`. If those
 fields are still zero before automatic assignment, or no eligible candidate
 exists, the native callback and robe fanout use failed-fit action 121 without
 granting Chief state.
@@ -409,13 +390,13 @@ Enable **VV4 Nursery School Divisor Parity (New Believers)** to change only the 
 
 For parity with Virtual Villagers 4, this optional patch gives each of VV5's six skills one-sixth of the spread lesson. It does not change focused strongest-skill lessons, teacher qualification, teacher selection, teacher skill totals, the under-14 eligibility rule, the approximately-50 skill ceiling, or offline catch-up. The arithmetic inconsistency is code-confirmed; whether it was intentional cannot be determined from the executable alone.
 
-| Game | Stock final maximum | Collection Progression maximum | Immediate Fixed maximum | Experimental immediate | Experimental progression |
-|---|---:|---:|---:|---:|---:|
-| A New Home | 90 | 256 | 256 | 256 | 256 |
-| The Lost Children | 115 | 231 to 256 | 256 | 256 | 231 to 256 |
-| The Secret City | 125 | 115 to 150 | 150 | 256 | 221 to 256 |
-| The Tree of Life | 115 | 125 to 150 | 150 | 256 | 231 to 256 |
-| New Believers | 105 | 135 to 150 | 150 | 256 | 241 to 256 |
+| Game | Stock final maximum | No Population Increase | Collection Progression maximum | Immediate Fixed maximum |
+|---|---:|---:|---:|---:|
+| A New Home | 90 | 90 | 256 | 256 |
+| The Lost Children | 115 | 115 | 231 to 256 | 256 |
+| The Secret City | 125 | 125 | 115 to 150 | 150 |
+| The Tree of Life | 115 | 115 | 125 to 150 | 150 |
+| New Believers | 105 | 105 | 135 to 150 | 150 |
 
 Housing gates remain in place.
 
@@ -429,7 +410,9 @@ This means births can temporarily stop below 150 displayed believers while Heath
 
 All five stock games test the population limit once before choosing a singleton, twins, or triplets. Without an additional guard, a multiple birth at maximum minus one can report maximum plus one or maximum plus two, even though no corresponding villager records remain.
 
-Both patch styles add a slot-saturation guard at the selected mode's physical boundary:
+The two population-increase modes add a slot-saturation guard at the selected
+mode's physical boundary. No Population Increase leaves the stock behavior
+untouched:
 
 - Three or more slots left: singleton, twin, and triplet rolls are unchanged.
 - Two slots left: a rolled triplet safely becomes twins.
@@ -446,7 +429,7 @@ All five games also contain Island Events that add villagers. The patcher guards
 
 1. Extract the latest release ZIP.
 2. Double-click `Launch Virtual Villagers Fun Patcher.bat`.
-3. Select a patch style.
+3. Select a population mode.
 4. Choose **One Game** or **All 5 Games**.
 5. For one game, select its original EXE. For all five, select one folder per game.
 6. Optionally choose a **Modded output location**. This is the parent folder that
@@ -461,35 +444,18 @@ The One Game tab includes clickable **Open Vanilla EXE Folder** and **Open Modif
 The **Additional fun patches** section is grouped in game order, with each
 game's patches sorted by patch name. It includes **Select All Patches** and
 **Deselect All Patches** buttons. They change every optional fun-patch checkbox
-at once without changing the selected population patch style, and the
+at once without changing the selected population mode, and the
 selection is remembered normally.
 
-For every selected game, ordinary modes create **`(Game name) - Modded`**
-containing **`(Game name) - Modded.exe`**. Experimental 256 modes instead create
-**`(Game name) - Modded 256`** containing
-**`(Game name) - Modded 256.exe`**. By default the selected folder is beside the
+For every selected game, all three modes create **`(Game name) - Modded`**
+containing **`(Game name) - Modded.exe`**. By default the selected folder is beside the
 supplied original; the GUI's **Modded output location** chooser can place all
 selected games under another parent folder. It copies every file and subfolder
 from the original game folder, verifies the copied files by SHA-256, keeps the
 stock EXE in the copy, and adds the modified EXE plus its `.patch-log.json`. The
 original folder and original EXE are never edited, renamed, replaced, or
-deleted. Applying another patch style refreshes that mode's same short folder
+deleted. Applying another population mode refreshes that mode's same short folder
 after confirmation.
-
-For an experimental 256 mode, the GUI also checks the matching vanilla save
-folder. The required slot-zero control file and every numbered `.ldw` save are
-copied together into the separate `(Game name) - Modded 256` save folder. If
-that destination already contains saves, the patcher asks before replacing
-them; declining preserves the existing Modded 256 saves. The vanilla saves are
-never edited. Command-line users can request the same behavior with
-`--copy-vanilla-saves`; replacing an existing Modded 256 save set additionally
-requires the explicit `--replace-modded-saves` flag.
-
-The expanded-mode confirmation now reports the actual state for VV3–VV5:
-whether a vanilla slot-zero save was found, whether an existing Modded 256
-slot-zero save is already ready, or whether no valid slot-zero save was found.
-If no valid save exists, launch the matching Modded 256 executable once and
-create a save before copying numbered files into the path shown by the prompt.
 
 ## Exact-build safety
 
@@ -506,20 +472,19 @@ Stock game executables, saves, and generated playtest outputs are never committe
 The disabled VV4 Full Mastery C6 candidate carries its exact mockup provenance
 and baked PNG source asset under `assets/candidates/vv4_full_mastery/`; its
 constructor bytes require fresh independent recertification, and all
-Expanded-256 variants remain ON HOLD/fail-closed.
+Expanded-256 population modes are removed from the active patcher.
 
 ## Command line
 
 The independently recertified VV1 stock-only Full Mastery candidate is exposed
 as `vv1_full_mastery_all_stage_a_candidate` for `collection_progression` and
-`immediate_fixed` only. Expanded-256 rejects before output; runtime/player
-confirmation remains pending.
+`immediate_fixed` only. Runtime/player confirmation remains pending.
 
-Pass `--patch-mode collection_progression`, `--patch-mode immediate_fixed`, `--patch-mode experimental_expanded_256`, or `--patch-mode experimental_expanded_256_progression` to `dry-run`, `apply`, `dry-run-all`, or `apply-all`. Optional features use repeatable `--fun-patch` arguments. The available IDs are `vv1_school_lessons_grant_skill`, `vv1_continue_research_at_max_technologies`, `vv1_f6_clothing_change_cheat`, `vv1_magic_fruit_alters_mortality`, `vv1_builder_action_fixes`, `vv1_full_mastery_all_stage_a_candidate`, `vv2_easier_healing_mastery`, `vv2_teaching_children_grants_skill`, `vv2_hospital_recovery_heals`, `vv2_birth_control`, `vv2_gong_of_wonder_coconuts_fix`, `vv2_full_mastery_all_stage_a_candidate`, `vv3_nature_honey_refill`, `vv3_nature_level_three_alters_mortality`, `vv3_rare_collectible_retry`, `vv3_enable_origins_exclusive_features`, `vv3_full_mastery_all_stage_a_candidate`, `vv4_complete_scales_golden_fish`, `vv4_enable_origins_exclusive_features`, `vv5_heathen_mommy_puzzle`, `vv5_easier_devotee_training`, `vv5_statue_polishing_or_honoring`, `vv5_vv4_nursery_divisor_parity`, and `vv5_enable_origins_exclusive_features`. The disabled VV3 Full Heal / Cure All candidate is not a CLI or catalog ID. The per-game Village Statistics IDs are `vv1_write_village_statistics`, `vv2_write_village_statistics`, `vv3_write_village_statistics`, `vv4_write_village_statistics`, and `vv5_write_village_statistics`. VV1 and VV2 Full Mastery are stock-mode-only; both Expanded modes reject before output. The VV1/VV2 Origins IDs and both dependent village-wide records remain intentionally omitted while contained; the VV4 Origins/Full Mastery records are also omitted pending fresh recertification.
+Pass `--patch-mode stock`, `--patch-mode collection_progression`, or `--patch-mode immediate_fixed` to `dry-run`, `apply`, `dry-run-all`, or `apply-all`. Optional features use repeatable `--fun-patch` arguments. The available IDs are `vv1_school_lessons_grant_skill`, `vv1_continue_research_at_max_technologies`, `vv1_f6_clothing_change_cheat`, `vv1_magic_fruit_alters_mortality`, `vv1_builder_action_fixes`, `vv1_full_mastery_all_stage_a_candidate`, `vv2_easier_healing_mastery`, `vv2_teaching_children_grants_skill`, `vv2_hospital_recovery_heals`, `vv2_birth_control`, `vv2_gong_of_wonder_coconuts_fix`, `vv2_full_mastery_all_stage_a_candidate`, `vv3_nature_honey_refill`, `vv3_nature_level_three_alters_mortality`, `vv3_rare_collectible_retry`, `vv3_enable_origins_exclusive_features`, `vv3_full_mastery_all_stage_a_candidate`, `vv4_complete_scales_golden_fish`, `vv4_enable_origins_exclusive_features`, `vv5_heathen_mommy_puzzle`, `vv5_easier_devotee_training`, `vv5_statue_polishing_or_honoring`, `vv5_vv4_nursery_divisor_parity`, and `vv5_enable_origins_exclusive_features`. The disabled VV3 Full Heal / Cure All candidate is not a CLI or catalog ID. The per-game Village Statistics IDs are `vv1_write_village_statistics`, `vv2_write_village_statistics`, `vv3_write_village_statistics`, `vv4_write_village_statistics`, and `vv5_write_village_statistics`. The VV1/VV2 Origins IDs and both dependent village-wide records remain intentionally omitted while contained; the VV4 Origins/Full Mastery records are also omitted pending fresh recertification.
 
 The statically certified VV2 command-7-only Full Mastery feature is catalog-visible
 only for stock Collection Progression and Immediate Fixed; runtime/player
-confirmation remains pending and Expanded-256 rejects before output. The corrected VV4
+confirmation remains pending. The corrected VV4
 `vv4_full_mastery_all_stage_a_candidate` is catalog-hidden and disabled pending
 fresh independent recertification after the C6 startup-crash correction. Its
 candidate-only UI uses the canonical mockup crop baked into a deterministic
@@ -528,21 +493,19 @@ through `sub_401C20` at local 72,4 with Tech event 13 and Detail event 2;
 the unchanged helper/Cure/command-7/PNG/DLL bytes and the new constructor hashes
 are recorded in the candidate map. The withdrawn Cure row is rendered
 unavailable and command 5 is rejected before charge/0x728004 dispatch. Commands
-6 and 8 remain absent, the legacy atomic village-wide records remain contained,
-and Expanded-256 remains ON HOLD/fail-closed.
+6 and 8 remain absent, and the legacy atomic village-wide records remain contained.
 
 VV3's independent stock-only command-7 Full Mastery implementation is
 emitted-byte certified under disassembly commit
 `1e6ad7fd610d2fe9d80416fb218366ccd7d0656b` and available as
 `vv3_full_mastery_all_stage_a_candidate`. It reacquires the fixed current-save
 manager before both dry runs, uses the native skill writer and Award evaluator,
-and supports only `collection_progression` and `immediate_fixed`. Both
-expanded-256 modes reject the feature and remain ON HOLD. Commands 6 and 8,
+and supports only `collection_progression` and `immediate_fixed`. Commands 6 and 8,
 ownership/Remove, raw skill stores, and save-format changes remain absent.
 
 ```text
 python src/vv_fun_patcher.py dry-run "path\game.exe" --patch-mode immediate_fixed --output-root "path\chosen output parent"
-python src/vv_fun_patcher.py apply "path\game.exe" --patch-mode experimental_expanded_256_progression --copy-vanilla-saves --output-root "path\chosen output parent"
+python src/vv_fun_patcher.py dry-run "path\game.exe" --patch-mode stock --output-root "path\chosen output parent"
 python src/vv_fun_patcher.py apply-all --vv1 "path\vv1 folder" --vv2 "path\vv2 folder" --vv3 "path\vv3 folder" --vv4 "path\vv4 folder" --vv5 "path\vv5 folder" --patch-mode immediate_fixed --output-root "path\chosen output parent"
 ```
 

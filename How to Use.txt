@@ -4,24 +4,19 @@ PHYSICAL POPULATION LIMITS
 
 A New Home and The Lost Children have 256 stock villager records.
 The Secret City, The Tree of Life, and New Believers have 150 stock records.
-The Experimental Expanded 256 modes expand VV3-VV5's physical records and
-save layout from 150 to 256. They remain experimental and await player startup,
-save-recognition, and complete 256-villager save/reload testing.
+Expanded-256 population modes have been removed from the patcher.
 
 1. Double-click "Launch Virtual Villagers Fun Patcher.bat".
-2. Choose one of the two patch styles:
+2. Choose one of the three population modes:
+   - No Population Increase:
+     Preserve the stock population cap, progression behavior, and population
+     allocation behavior. No population-cap or saturation bytes are changed.
    - Collection Progression Max Pop:
      Collections still raise the cap and are needed to reach the absolute
      maximum. The Secret City also retains its level-3 magic bonus.
    - Immediate Fixed Max Pop:
      The absolute maximum is available immediately. Collections no longer
      affect it, and The Secret City's magic tech no longer affects it.
-   - Experimental Expanded 256 Villagers:
-     VV3-VV5 expand their physical records and save layout to 256 immediately.
-   - Experimental Expanded 256 - Collection Progression:
-     VV3-VV5 expand to 256 while their original collection and Magic Tech
-     bonuses remain required to reach 256. Both expanded modes are experimental
-     and require the complete copied game folder.
 3. Optional for A New Home: check "School Lessons Grant Skill",
    "Continue Research at Max Technologies", and/or
    "Reenable F6 Clothing Change Cheat", and/or
@@ -40,7 +35,7 @@ save-recognition, and complete 256-villager save/reload testing.
    not emitted. Unrelated VV2 features remain available.
    "Grant Full Mastery to All Villagers" is available as the separate static
    command-7 candidate for stock Collection Progression and Immediate Fixed;
-   runtime/player confirmation remains pending and both Expanded modes reject.
+   runtime/player confirmation remains pending.
 5. Optional for The Secret City: check
    "Everyone Tries On the Robe" and/or
    "Nature Level 1 Actually Replenishes Food Sources Faster" and/or
@@ -96,7 +91,7 @@ OPTIONAL PATCH SELECTION
 
 Use "Select All Patches" to turn on every optional fun patch at once. Use
 "Deselect All Patches" to turn them all off. These buttons do not change the
-selected population patch style. Optional patches are grouped under the five
+selected population mode. Optional patches are grouped under the five
 game-title headers, in order: Virtual Villagers - A New Home, The Lost
 Children, The Secret City, The Tree of Life, and New Believers. Shared/all-games
 patches appear afterward only when present. A dependent checkbox automatically
@@ -106,15 +101,10 @@ requests that omit a prerequisite are refused before output is written.
 
 OUTPUTS
 
-Ordinary modes and optional-patch combinations use:
+All three modes and optional-patch combinations use:
 
 (name of game) - Modded\
 (name of game) - Modded.exe
-
-Experimental 256 modes use their own separate short names:
-
-(name of game) - Modded 256\
-(name of game) - Modded 256.exe
 
 Mode and optional-patch details are recorded in the modified EXE's adjacent
 .patch-log.json file instead of being added to the EXE or save-folder name.
@@ -122,28 +112,19 @@ Mode and optional-patch details are recorded in the modified EXE's adjacent
 For each game, the patcher creates one complete copy named
 "(Game name) - Modded". The copied folder keeps every original file and
 subfolder, including the stock EXE, and adds "(Game name) - Modded.exe" and its
-verification log. Applying another style refreshes the same short Modded
+verification log. Applying another population mode refreshes the same short Modded
 folder in place after confirmation. If a Modded output location was selected,
 these folders are created beneath that chosen parent instead of beside the
 original. The patcher does not create temporary
 game copies or replacement-backup folders.
 Original folders and EXEs are never changed, renamed, replaced, or deleted. The
-patcher remembers the selected style, output parent, single-game EXE path, and
+patcher remembers the selected population mode, output parent, single-game EXE path, and
 all five folder paths. Vanilla and Modded links open their respective folders.
-
-EXPERIMENTAL 256 SAVES
-
-VV3, VV4, and VV5 need their slot-zero control file together with their
-numbered saves. When an Experimental 256 mode is applied, the patcher checks
-the exact vanilla save folder and copies slot 0 plus every numbered .ldw file
-as one set into the separate "(Game name) - Modded 256" save folder. If that
-folder already has saves, the patcher asks before replacing them. Choosing No
-keeps the existing Modded 256 saves. Vanilla saves are never edited.
 
 SAFE MULTIPLE BIRTHS
 
 All five games normally check the cap before deciding singleton/twins/triplets.
-Both styles prevent overflow at the selected mode's slot ceiling:
+The two population-increase modes prevent overflow at the selected mode's slot ceiling. The No Population Increase mode preserves the stock behavior:
 - 3+ spaces: multiples work normally.
 - 2 spaces: a rolled triplet becomes twins.
 - 1 space: a rolled twin or triplet becomes a singleton.
@@ -249,13 +230,11 @@ persistent Chief clothing, or Chief state. Dead, inactive, and nursing
 villagers are skipped. Fanout requires the original callback to report a
 handled drop and leave the initiator in robe action 120 or 121.
 
-This optional checkbox starts unchecked and supports both ordinary and both
-Expanded-256 population modes. Static install, composition, and uninstall
-checks pass; player runtime confirmation is still pending.
-The broadcast feature itself never reads or writes candidate fields +0xE80 or
-+0xE88. In both Expanded modes, the patcher separately and automatically
-applies the guarded Chief-candidate assignment repair; it composes disjointly
-and is not a selectable feature dependency. If the fields are still zero
+This optional checkbox starts unchecked and supports the two
+population-increase modes. Static install, composition, and uninstall checks
+pass; player runtime confirmation is still pending. The broadcast feature
+itself never reads or writes candidate fields +0xE80 or +0xE88. If the fields
+are still zero
 before automatic assignment, or no eligible candidate exists, the game's
 native failed-fit action 121 is broadcast without granting Chief state.
 

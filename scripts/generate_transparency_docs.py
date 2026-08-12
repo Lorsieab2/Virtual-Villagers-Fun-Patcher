@@ -78,7 +78,7 @@ def build_document() -> str:
         "",
         "## Automatic changes (every output)",
         "",
-        "Every output applies the selected population mode and the game's guarded population-safety edits. The collection-progression mode preserves the supported game's collection/bonus behavior while changing its declared maximum according to the manifest. The immediate-fixed mode keeps the fixed maximum. Experimental expanded-256 modes additionally apply the documented stock-save import/conversion route and physical-record expansion for VV3–VV5; VV1/VV2 already have 256 physical slots. Multiples and population-adding Island Events are saturated at the physical slot bound. No game is launched by the patcher, so runtime/player confirmation remains pending.",
+        "Every output applies the selected population mode. No Population Increase preserves the stock cap, progression, and population-allocation behavior. The collection-progression mode preserves the supported game's collection/bonus behavior while changing its declared maximum according to the manifest. The immediate-fixed mode keeps the fixed maximum and applies the guarded population-safety edits. No game is launched by the patcher, so runtime/player confirmation remains pending.",
         "",
         "Available population modes: "
         + ", ".join(mode.name for mode in load_patch_modes())

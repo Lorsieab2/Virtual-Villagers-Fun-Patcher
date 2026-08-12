@@ -48,6 +48,7 @@ MODES = (
     "collection_progression",
     "immediate_fixed",
 )
+ALL_MODES = ("stock",) + MODES
 EXPANDED_MODES = (
     "experimental_expanded_256",
     "experimental_expanded_256_progression",
@@ -525,14 +526,22 @@ class ManifestTests(unittest.TestCase):
             [patch.id for patch in load_fun_patches()],
         )
 
-    def test_legacy_grant_running_helpers_are_historical_three_slot_evidence_only(self) -> None:
+    def test_legacy_grant_running_helpers_keep_exact_configured_slot_counts(self) -> None:
         """Keep legacy byte provenance separate from native ABI certification.
 
         The generated Origins helpers are disabled legacy evidence.  Their
-        three-slot loop shape must not be read as proof for the new per-game
-        bindings, whose exact configured slot counts live in separate STOP
-        manifests and whose native preference ABIs remain unproved.
+        configured loop counts must not be read as proof for the new per-game
+        bindings, whose native preference ABIs remain unproved.  VV2's
+        historical helper scans 62 Like and 62 Dislike slots; the other
+        retained legacy helpers scan three slots.
         """
+        expected_slot_counts = {
+            "vv1": 3,
+            "vv2": 62,
+            "vv3": 3,
+            "vv4": 3,
+            "vv5": 3,
+        }
         for game_id in ("vv1", "vv2", "vv3", "vv4", "vv5"):
             with self.subTest(game=game_id):
                 source = next(
@@ -555,7 +564,7 @@ class ManifestTests(unittest.TestCase):
                     if value >= 0
                 ]
                 section = source[start : min(ends) if ends else len(source)]
-                self.assertIn("mov eax, 3", section)
+                self.assertIn(f"mov eax, {expected_slot_counts[game_id]}", section)
                 self.assertIn("cmp dword ptr [ecx], -1", section)
                 self.assertIn("dec eax", section)
                 self.assertIn("jne", section)
@@ -568,27 +577,30 @@ class ManifestTests(unittest.TestCase):
             self.assertEqual(builds[game_id].villager_slots, 150)
             self.assertEqual(builds[game_id].absolute_maximum, 150)
 
-    def test_expanded_256_modes_are_static_only_outside_hidden_playtests(self) -> None:
+    def test_expanded_256_modes_are_removed(self) -> None:
         self.assertEqual(
-            [mode.id for mode in load_patch_modes()], list(MODES + EXPANDED_MODES)
+            [mode.id for mode in load_patch_modes()], list(ALL_MODES)
         )
         source = STOCK / load_builds()[2].input_name
         for mode in EXPANDED_MODES:
             with self.subTest(mode=mode):
-                variant = get_patch_variant(load_builds()[2], mode)
-                self.assertTrue(variant["expanded_records"])
-                with self.assertRaisesRegex(PatcherError, "publication is disabled"):
+                with self.assertRaisesRegex(PatcherError, "Unknown patch mode"):
                     dry_run(source, mode)
 
     def test_modes_names_targets_and_safety_guards(self) -> None:
         builds = load_builds()
         self.assertEqual([build.id for build in builds], ["vv1", "vv2", "vv3", "vv4", "vv5"])
         self.assertEqual(
-            [mode.id for mode in load_patch_modes()], list(MODES + EXPANDED_MODES)
+            [mode.id for mode in load_patch_modes()], list(ALL_MODES)
         )
         self.assertEqual(DEFAULT_PATCH_MODE, "collection_progression")
         for build in builds:
             self.assertEqual(build.absolute_maximum, build.villager_slots)
+            stock = get_patch_variant(build, "stock")
+            self.assertEqual(stock["absolute_maximum"], build.stock_final_cap)
+            self.assertFalse(stock["population_increase"])
+            self.assertTrue(stock["bonuses_affect_maximum"])
+            self.assertEqual(stock["patches"], [])
             expected_safety_counts = {
                 "vv1": 17,
                 "vv2": 13,
@@ -605,6 +617,20 @@ class ManifestTests(unittest.TestCase):
             else:
                 self.assertTrue(get_patch_variant(build, MODES[0])["bonuses_affect_maximum"])
             self.assertFalse(get_patch_variant(build, MODES[1])["bonuses_affect_maximum"])
+
+    def test_stock_mode_is_byte_identical_and_reports_stock_cap(self) -> None:
+        for build in load_builds():
+            source = STOCK / build.input_name
+            original = source.read_bytes()
+            with self.subTest(game=build.id):
+                rendered, applied = render_patched_bytes(source, build, "stock")
+                self.assertEqual(bytes(rendered), original)
+                self.assertEqual(applied, [])
+                preview = dry_run(source, "stock")
+                self.assertEqual(preview["absolute_maximum"], build.stock_final_cap)
+                self.assertFalse(preview["population_increase"])
+                self.assertIn("stock", preview["multiple_birth_saturation"])
+                self.assertIn("stock", preview["island_event_capacity"])
 
     def test_vv1_vv2_safety_caves_return_to_instruction_boundaries(self) -> None:
         builds = {build.id: build for build in load_builds()}

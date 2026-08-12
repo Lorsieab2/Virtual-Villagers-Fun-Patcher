@@ -12,7 +12,6 @@ sys.path.insert(0, str(ROOT / "src"))
 
 from vv_fun_patcher import (  # noqa: E402
     _pe_checksum_layout,
-    PatcherError,
     load_builds,
     load_fun_patches,
     load_patch_modes,
@@ -33,10 +32,9 @@ class OriginsPlaytestReadinessTests(unittest.TestCase):
         self.assertEqual(
             [mode.id for mode in modes],
             [
+                "stock",
                 "collection_progression",
                 "immediate_fixed",
-                "experimental_expanded_256",
-                "experimental_expanded_256_progression",
             ],
         )
         for build in load_builds():
@@ -81,34 +79,10 @@ class OriginsPlaytestReadinessTests(unittest.TestCase):
                         )
                 for mode in modes:
                     with self.subTest(mode=mode.id):
-                        if build.id == "vv3" and mode.id.startswith(
-                            "experimental_expanded_256"
-                        ):
-                            with self.assertRaisesRegex(
-                                PatcherError, "(?:has no append layout|stock-mode only)"
-                            ):
-                                render_patched_bytes(
-                                    source, build, mode.id, selected_ids
-                                )
-                            self.assertEqual(source.read_bytes(), before)
-                            continue
-                        if build.id == "vv4" and mode.id.startswith("experimental_expanded_256"):
-                            with self.assertRaisesRegex(PatcherError, "ON HOLD"):
-                                render_patched_bytes(source, build, mode.id, selected_ids)
-                            self.assertEqual(source.read_bytes(), before)
-                            continue
-                        if build.id == "vv5" and mode.id.startswith("experimental_expanded_256"):
-                            if "vv5_full_mastery_all_stage_a_candidate" in selected_ids:
-                                with self.assertRaisesRegex(PatcherError, "stock-mode only"):
-                                    render_patched_bytes(source, build, mode.id, selected_ids)
-                            else:
-                                render_patched_bytes(source, build, mode.id, selected_ids)
-                            self.assertEqual(source.read_bytes(), before)
-                            continue
-                        if build.id == "vv2" and mode.id.startswith("experimental_expanded_256"):
-                            with self.assertRaisesRegex(PatcherError, "has no append layout"):
-                                render_patched_bytes(source, build, mode.id, selected_ids)
-                            self.assertEqual(source.read_bytes(), before)
+                        if mode.id == "stock":
+                            rendered, applied = render_patched_bytes(source, build, mode.id)
+                            self.assertEqual(bytes(rendered), before)
+                            self.assertEqual(applied, [])
                             continue
                         rendered, applied = render_patched_bytes(
                             source, build, mode.id, selected_ids
