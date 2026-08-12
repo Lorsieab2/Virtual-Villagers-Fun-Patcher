@@ -25,14 +25,14 @@ class ExpandedPublicationGuardTests(unittest.TestCase):
              mock.patch.object(vv_fun_patcher, "identify", side_effect=AssertionError("identify")), \
              mock.patch.object(vv_fun_patcher, "load_fun_patches", side_effect=AssertionError("catalog")):
             for mode in sorted(vv_fun_patcher.EXPANDED_PATCH_MODES):
-                with self.subTest(mode=mode), self.assertRaisesRegex(PatcherError, "Expanded-256 publication is disabled"):
+                with self.subTest(mode=mode), self.assertRaisesRegex(PatcherError, "Unknown patch mode"):
                     vv_fun_patcher.apply_patch(source, mode)
 
     def test_apply_all_rejects_before_validation_or_filesystem_io(self):
         with mock.patch.object(vv_fun_patcher, "validate_all_sources", side_effect=AssertionError("validate")), \
              mock.patch.object(vv_fun_patcher, "load_builds", side_effect=AssertionError("builds")):
             for mode in sorted(vv_fun_patcher.EXPANDED_PATCH_MODES):
-                with self.subTest(mode=mode), self.assertRaisesRegex(PatcherError, "Expanded-256 publication is disabled"):
+                with self.subTest(mode=mode), self.assertRaisesRegex(PatcherError, "Unknown patch mode"):
                     vv_fun_patcher.apply_all({}, mode)
 
     def test_public_apply_rejects_unknown_mode_before_source_or_output(self):
@@ -68,6 +68,17 @@ class ExpandedPublicationGuardTests(unittest.TestCase):
         with mock.patch.object(vv_fun_patcher, "validate_all_sources", side_effect=AssertionError("validated-all")):
             with self.assertRaisesRegex(AssertionError, "validated-all"):
                 vv_fun_patcher.apply_all({}, "immediate_fixed")
+
+    def test_public_catalog_resolution_does_not_load_retired_expanded_records(self):
+        with mock.patch.object(
+            vv_fun_patcher,
+            "_certified_expanded_time_warp_records",
+            side_effect=AssertionError("retired Expanded-256 catalog loaded"),
+        ):
+            self.assertEqual(
+                vv_fun_patcher.resolve_fun_patch_ids([], game_id="vv1"),
+                [],
+            )
 
     def test_cli_apply_rejects_before_dispatch(self):
         with mock.patch.object(sys, "argv", ["vv", "apply", "missing.exe", "--patch-mode", "experimental_expanded_256"]), \

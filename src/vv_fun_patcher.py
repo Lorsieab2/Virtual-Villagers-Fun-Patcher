@@ -3243,11 +3243,7 @@ def resolve_fun_patch_ids(
     ``patch_ids``.  The GUI supplies the prerequisites automatically; rejecting
     an incomplete API/CLI selection prevents a partial output from being made.
     """
-    catalog = (
-        list(load_fun_patches(include_expanded_time_warp=True))
-        if patches is None
-        else list(patches)
-    )
+    catalog = list(load_fun_patches()) if patches is None else list(patches)
     validate_fun_patch_catalog(catalog)
     by_id = {patch.id: patch for patch in catalog}
     requested: list[str] = []
@@ -5563,7 +5559,7 @@ def _apply_vv3_expanded_detail_roster_layout(
 
 
 def get_fun_patch(patch_id: str) -> FunPatch:
-    for patch in load_fun_patches(include_expanded_time_warp=True):
+    for patch in load_fun_patches():
         if patch.id == patch_id:
             return patch
     raise PatcherError(f"Unknown fun patch: {patch_id}")
@@ -5575,7 +5571,7 @@ def _selected_fun_patches(
     ordered_ids = resolve_fun_patch_ids(patch_ids, game_id=build.id)
     by_id = {
         patch.id: patch
-        for patch in load_fun_patches(include_expanded_time_warp=True)
+        for patch in load_fun_patches()
     }
     return [by_id[patch_id] for patch_id in ordered_ids]
 
