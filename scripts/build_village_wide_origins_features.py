@@ -635,13 +635,11 @@ def main() -> None:
         feature_name = "Enable Origins Village-Wide Upgrades"
         enabled = True
         description = (
-            f"Enables the Origins Tech-screen Upgrades button/menu for {config['title']} "
-            "and adds Running, Grant Full Mastery to All Villagers, and Set Age to 18. "
-            "Each menu row costs 1,000,000 tech points; native transaction hooks "
-            "preserve the game's normal handlers. Runtime/player confirmation pending."
+            "Adds the Origins Upgrades button to the Tech screen. The Village-Wide "
+            "menu offers Running, Full Mastery, and a young-adult age option."
         )
         if game_id == "vv5":
-            description += " Only eligible living believers are processed; Heathens are excluded and remain untouched."
+            description += " Believers are processed; Heathens are skipped."
         record_fields = {
             "stride": f"0x{config['stride']:X}",
             "first_record_argument": "ECX",

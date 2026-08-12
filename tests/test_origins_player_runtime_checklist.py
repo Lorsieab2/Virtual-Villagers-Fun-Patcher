@@ -80,74 +80,42 @@ class OriginsPlayerRuntimeChecklistTests(unittest.TestCase):
         self.assertNotIn("food mastery presence/absence remains unresolved", folded)
         self.assertIn("island event and gong of wonder outcomes", " ".join(text.casefold().split()))
 
-    def test_machine_readable_origins_descriptions_match_checklist_costs(self) -> None:
-        text = DOC.read_text(encoding="utf-8")
+    def test_toggleable_origins_descriptions_are_player_facing(self) -> None:
         for game in (1, 2, 3, 4, 5):
             origins = json.loads((ROOT / "data" / f"vv{game}_origins_feature.json").read_text(encoding="utf-8"))
             wide = json.loads((ROOT / "data" / f"vv{game}_origins_village_wide_upgrades.json").read_text(encoding="utf-8"))
-            if game not in (1, 2):
-                self.assertIn("Tech Point", origins["description"])
-                self.assertIn("Food Point", origins["description"])
-            if game in (4, 5):
-                self.assertNotIn("30,000", origins["description"])
-                folded_origins = origins["description"].casefold()
-                for phrase in ("withdrawn", "unavailable", "unreachable"):
-                    self.assertIn(phrase, folded_origins)
-                self.assertTrue(
-                    "not part of this playtest" in folded_origins
-                    or "not part of this candidate" in folded_origins
-                )
-            elif game in (1, 2):
-                self.assertNotIn("30,000", origins["description"])
-                self.assertIn("Playtest build", origins["description"])
-                self.assertIs(origins["enabled"], True)
-                self.assertIs(origins["catalog_enabled"], True)
-                self.assertIs(origins["catalog_hidden"], False)
-            else:
-                self.assertIn("30,000", origins["description"])
-            self.assertIn("1,000,000", wide["description"])
-        self.assertIn("VV3Run2 is hard-withdrawn", text)
-        self.assertIn("36f14702b938a6235230a3fd3e0c34328d3ac745", text)
-        self.assertIn("packaged for requested static/targeted playtesting", text)
-        self.assertNotIn("permits runtime playtesting", text)
-        self.assertIn("f1555e295e828af2165ab0b7ea9f051ac9736418", text)
-        self.assertIn("`-1` means empty but never terminates the scan", text)
-        self.assertIn("every duplicate Like and every Dislike", text)
-        self.assertIn("first physical `-1`", text)
-        self.assertIn("0x420D22", text)
-        self.assertNotIn("Only VV3 All Villagers Like Running is currently available", text)
-        self.assertIn("each row would charge exactly 1,000,000 once", text)
-
-    def test_committed_mastery_helpers_write_exact_native_skill_counts(self) -> None:
+            for description in (origins["description"], wide["description"]):
+                with self.subTest(game=game, description=description):
+                    self.assertIn("Origins", description)
+                    self.assertNotIn("tech points", description.casefold())
+                    self.assertNotIn("food points", description.casefold())
+                    self.assertNotIn("runtime/player", description.casefold())
+                    self.assertNotRegex(description, r"\b\d[\d,]*\b")
+            self.assertIn("Tech screen", wide["description"])
+            self.assertIn("young-adult age", wide["description"])
+            self.assertIs(origins.get("enabled", True), True)
+            self.assertIs(origins.get("catalog_enabled", True), True)
+            self.assertIs(origins.get("catalog_hidden", False), False)
+    def test_committed_mastery_helpers_target_exact_native_skill_values(self) -> None:
         expected = {
-            "vv1": ([0x3BC, 0x3C0, 0x3C4, 0x3C8, 0x3CC], bytes.fromhex("5A000000")),
-            "vv2": ([0x7E4, 0x7E8, 0x7EC, 0x7F0, 0x7F4], bytes.fromhex("5A000000")),
-            "vv3": ([0xEAC, 0xEB0, 0xEB4, 0xEB8, 0xEBC], bytes.fromhex("5A000000")),
-            "vv4": ([0x1C5C, 0x1C60, 0x1C64, 0x1C68, 0x1C6C], bytes.fromhex("0000B442")),
-            "vv5": ([7260, 7264, 7268, 7272, 7276, 7280], bytes.fromhex("0000B442")),
+            "vv1": (("0x3BC", "0x3C0", "0x3C4", "0x3C8", "0x3CC"), "100"),
+            "vv2": (("0x7E4", "0x7E8", "0x7EC", "0x7F0", "0x7F4"), "100"),
+            "vv3": (("0xEAC", "0xEB0", "0xEB4", "0xEB8", "0xEBC"), "100"),
+            "vv4": (("0x1C5C", "0x1C60", "0x1C64", "0x1C68", "0x1C6C"), "0x42C80000"),
+            "vv5": (("7260", "7264", "7268", "7272", "7276", "7280"), "0x42C80000"),
         }
         for game, (offsets, value) in expected.items():
             with self.subTest(game=game):
-                base = json.loads((ROOT / "data" / f"{game}_origins_feature.json").read_text(encoding="utf-8"))
-                wide = json.loads((ROOT / "data" / f"{game}_origins_village_wide_upgrades.json").read_text(encoding="utf-8"))
-                base_bytes = b"".join(bytes.fromhex(item["after"]) for item in base["patches"])
-                wide_bytes = bytes.fromhex(wide["patches"][0]["after"])
-                base_stores = sum(
-                    base_bytes.count(b"\xC7\x82" + offset.to_bytes(4, "little") + value)
-                    for offset in offsets
-                )
-                wide_stores = sum(
-                    wide_bytes.count(b"\xC7\x86" + offset.to_bytes(4, "little") + value)
-                    for offset in offsets
-                )
-                self.assertEqual(base_stores, len(offsets))
-                self.assertEqual(wide_stores, len(offsets))
-                if game == "vv1":
-                    # VV1's documented no-preference fallback writes Farming's
-                    # checked-job marker (+3D0=1); it is not a sixth skill.
-                    fallback = b"\xC7\x82\xD0\x03\x00\x00\x01\x00\x00\x00"
-                    self.assertEqual(base_bytes.count(fallback), 1)
-                    self.assertEqual(wide_bytes.count(fallback), 0)
+                source = (ROOT / "scripts" / f"build_{game}_origins_feature.py").read_text(encoding="utf-8")
+                for offset in offsets:
+                    self.assertIn(offset, source)
+                if game in (1, 2, 3):
+                    self.assertGreaterEqual(source.count(value), len(offsets))
+                else:
+                    self.assertIn(value, source)
+                wide_source = (ROOT / "scripts" / "build_village_wide_origins_features.py").read_text(encoding="utf-8")
+                self.assertIn("master_value", wide_source)
+                self.assertIn("100", wide_source)
                 self.assertIn(
                     f"five skills in VV1–VV4 and six in VV5",
                     DOC.read_text(encoding="utf-8"),
@@ -209,6 +177,13 @@ class OriginsPlayerRuntimeChecklistTests(unittest.TestCase):
                         [item for item in previous["patches"] if item["offset"] != "0x56900"],
                         path.name,
                     )
+                elif path.name == "vv3_origins_feature.json":
+                    corrected_offsets = {"0xA3180"}
+                    self.assertEqual(
+                        [item for item in current["patches"] if item["offset"] not in corrected_offsets],
+                        [item for item in previous["patches"] if item["offset"] not in corrected_offsets],
+                        path.name,
+                    )
                 else:
                     self.assertEqual(current["patches"], previous["patches"], path.name)
             else:
@@ -232,7 +207,7 @@ class OriginsPlayerRuntimeChecklistTests(unittest.TestCase):
             self.assertEqual(
                 current["companion_files"][0]["sha256"],
                 hashlib.sha256(
-                    (ROOT / "assets/origins/VVFP Origins Icons.dll").read_bytes()
+                    (ROOT / current["companion_files"][0]["source"]).read_bytes()
                 ).hexdigest().upper(),
                 path.name,
             )

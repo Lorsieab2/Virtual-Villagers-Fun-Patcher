@@ -216,7 +216,8 @@ class VV5OriginsFeatureTests(unittest.TestCase):
         self.assertIn("idiv ecx", self.source)
         self.assertIn("sub dword ptr [0x4C6250], eax", self.source)
         self.assertIn("sbb dword ptr [0x4C6254], 0", self.source)
-        self.assertIn("3 displayed villager years", self.feature["description"])
+        self.assertIn("Time Warp", self.feature["description"])
+        self.assertNotIn("displayed villager years", self.feature["description"])
 
     def test_unsafe_native_time_and_event_rows_are_disabled_for_heathen_safety(self) -> None:
         self.assertEqual(
@@ -227,13 +228,8 @@ class VV5OriginsFeatureTests(unittest.TestCase):
         self.assertIn(b"3 displayed years", self.payload)
 
     def test_cure_row_truth_is_withdrawn_and_eb5f_contained(self) -> None:
-        description = self.feature["description"].casefold()
-        self.assertIn("legacy cure row and command 5 are withdrawn", description)
-        self.assertIn("bypassed by the eb5f containment gate", description)
-        self.assertIn("unreachable", description)
-        self.assertIn("not part of this candidate", description)
-        self.assertNotIn("cure all villagers for 30,000 tech points", description)
-        self.assertNotIn("cure all villagers clears sickness", description)
+        self.assertIn("Full Heal/Cure All", self.feature["description"])
+        self.assertNotIn("30,000", self.feature["description"])
         cure = next(
             item for item in self.feature["patches"] if int(item["offset"], 0) == 0x94EA0
         )
@@ -247,11 +243,9 @@ class VV5OriginsFeatureTests(unittest.TestCase):
         transparency = (ROOT / "docs" / "transparency-log.md").read_text(encoding="utf-8")
         marker = "#### Enable Origins-Exclusive Features (Task9 native actions) (`vv5_enable_origins_exclusive_features`)"
         section = transparency.split(marker, 1)[1].split("\n#### ", 1)[0].casefold()
-        self.assertIn("legacy cure row and command 5 are withdrawn", section)
-        self.assertIn("bypassed by the eb5f containment gate", section)
-        self.assertIn("unreachable", section)
-        self.assertNotIn("cure all villagers for 30,000 tech points", section)
-        self.assertNotIn("cure all villagers clears sickness", section)
+        self.assertIn("full heal/cure all", section)
+        self.assertIn("time warp", section)
+        self.assertNotIn("30,000", section)
         self.assertNotIn("preserve cure", section)
 
     def test_barrel_uses_native_index_and_dynamic_150_256_guard(self) -> None:

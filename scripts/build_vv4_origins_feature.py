@@ -1115,13 +1115,7 @@ def main() -> None:
         "running_preference_id": RUNNING_PREFERENCE_ID,
         "running_preference_evidence": {"source": "exact stock executable embedded preference table", "table_file_offset": "0xA0CD8", "entry_name": "running"},
         "name": "Enable Origins-Exclusive Features",
-        "description": (
-            "Enables the stock Origins Tech and Villager Details upgrade screens for VV4. "
-            "This base record is an internal dependency of the current feature-complete "
-            "Village-Wide Upgrades route. Its native UI construction, stock event fall-through, "
-            "exact-100 Float32 mastery writer, Running slot rules, and Cure health threshold "
-            "are bound to the exact VV4 build; runtime/player confirmation remains pending."
-        ),
+        "description": "Adds Origins-style Upgrades buttons to the Tech and Villager Details screens. The Village-Wide menu adds Running, Full Mastery, and a young-adult age option.",
         "output_tag": "Origins Exclusive Features",
         "ui_contract": ui_metadata,
         "native_handlers": {

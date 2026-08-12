@@ -680,7 +680,7 @@
       "id": "vv2_easier_healing_mastery",
       "game_id": "vv2",
       "name": "Easier Healing Mastery",
-      "description": "Healers and villagers who prefer Healing study plants when no sick villager needs treatment, including during catch-up.",
+      "description": "Healers can keep studying plants when no villager needs treatment.",
       "output_tag": "Easier Healing",
       "patches": [
         {
@@ -701,7 +701,7 @@
       "id": "vv2_teaching_children_grants_skill",
       "game_id": "vv2",
       "name": "Teaching Children Grants Skill",
-      "description": "Each child who finishes a Teaching Children lesson gains 7 to 9 points in one equally random skill, matching the VV3 Tribal Chief lesson award.",
+      "description": "Children who finish a Teaching Children lesson gain a random skill boost.",
       "output_tag": "Teaching Grants Skill",
       "patches": [
         {
@@ -722,7 +722,7 @@
       "id": "vv2_hospital_recovery_heals",
       "game_id": "vv2",
       "name": "Hospital Recovery Heals",
-      "description": "A villager who completes Recovering at the hospital gains exactly 1 health point, capped at 100. Stock VV2's hospital recovery action does not change health.",
+      "description": "Villagers who recover at the hospital regain a small amount of health.",
       "output_tag": "Hospital Recovery Heals",
       "patches": [
         {
@@ -743,7 +743,7 @@
       "id": "vv2_birth_control",
       "game_id": "vv2",
       "name": "Birth Control",
-      "description": "Limits only the two writer-reaching opcode-12 candidate scans used by ordinary autonomous/catch-up pairing and stew recipe 15: a candidate whose already-loaded internal age in EAX is 1000 or greater is rejected while candidate sex remains preserved in EDX. The stock manual carrier/female-only age gate remains unchanged and no male upper-age gate is added.",
+      "description": "Prevents some older villagers from being chosen for automatic pairing. Manual pairing is unchanged.",
       "output_tag": "Birth Control",
       "behavior_changes": [
         "The writer-reaching opcode-12 candidate scans at file offsets 0x6488D and 0x64A8F reject candidates whose already-loaded internal age in EAX is at least 1000.",
@@ -774,7 +774,7 @@
       "id": "vv1_school_lessons_grant_skill",
       "game_id": "vv1",
       "name": "School Lessons Grant Skill",
-      "description": "Each child who finishes the unlocked Going to school activity gains 7 to 9 points in one equally random skill, matching the VV3 Tribal Chief lesson award.",
+      "description": "Children who finish school gain a random skill boost.",
       "output_tag": "School Grants Skill",
       "patches": [
         {
@@ -807,7 +807,7 @@
       "id": "vv1_continue_research_at_max_technologies",
       "game_id": "vv1",
       "name": "Continue Research at Max Technologies",
-      "description": "Researchers keep choosing the stock research action and earning tech points after all six technologies reach level 3.",
+      "description": "Researchers can keep earning tech points after all technologies are complete.",
       "output_tag": "Continue Max-Tech Research",
       "patches": [
         {
@@ -822,7 +822,7 @@
       "id": "vv1_f6_clothing_change_cheat",
       "game_id": "vv1",
       "name": "Reenable F6 Clothing Change Cheat",
-      "description": "Pressing F6 spends 5,000 tech points to cycle the selected active villager to the next stock outfit, wrapping from outfit 19 back to outfit 0. With fewer than 5,000 tech points, F6 does nothing and charges nothing.",
+      "description": "The clothing shortcut cycles the selected villager through the available outfits when enough tech points are available.",
       "output_tag": "F6 Clothing Cheat",
       "patches": [
         {
@@ -849,7 +849,7 @@
       "id": "vv1_magic_fruit_alters_mortality",
       "game_id": "vv1",
       "name": "Magic Fruit of Life Alters Mortality",
-      "description": "Completing the Magic Fruit of Life puzzle globally shifts every ordinary villager's mortality curve seven displayed years later, including during time catch-up. Finishing Enjoying magic fruit also clears that villager's sickness and restores health to 100. Eating the fruit remains reusable and stores nothing in villager likes or dislikes.",
+      "description": "Completing the Magic Fruit puzzle delays ordinary aging. Eating the fruit also cures the eater.",
       "output_tag": "Magic Fruit Life and Health",
       "patches": [
         {
@@ -888,7 +888,7 @@
       "id": "vv1_builder_action_fixes",
       "game_id": "vv1",
       "name": "Builder Action Fixes",
-      "description": "Villagers whose selected job is Building try the stock construction dispatcher at every food level, while autonomous construction project IDs 9, 10, and 11 are eligible only after their signed progress is greater than zero; the other project gates and manual, existing-work, and repair routes remain stock.",
+      "description": "Building villagers keep trying valid construction jobs across food levels.",
       "output_tag": "Builder Action Fixes",
       "patches": [
         {
@@ -933,7 +933,7 @@
       "id": "vv3_nature_honey_refill",
       "game_id": "vv3",
       "name": "Nature Level 1 Actually Replenishes Food Sources Faster",
-      "description": "Nature level 1 or higher reduces fruit-tree refills from 3 hours to 2 hours 15 minutes and honey refills from 1 hour to 45 minutes. Fruit trees retain their stock Nature quantity bonus, while honey gains the same proportional quantity bonus.",
+      "description": "Nature upgrades make fruit trees and honey refill sooner.",
       "output_tag": "Nature Faster Food Refill",
       "patches": [
         {
@@ -984,7 +984,7 @@
       "id": "vv3_nature_level_three_alters_mortality",
       "game_id": "vv3",
       "name": "Nature Level 3 Actually Alters Mortality",
-      "description": "Nature level 3 shifts every ordinary villager's complete mortality curve seven displayed years later. The stock Medicine threshold is calculated first, so the benefits stack, and the shared aging loop applies the change during ordinary play and time catch-up.",
+      "description": "Nature level three delays ordinary villager aging.",
       "output_tag": "Nature 3 Mortality",
       "patches": [
         {
@@ -1005,7 +1005,7 @@
       "id": "vv3_rare_collectible_retry",
       "game_id": "vv3",
       "name": "Pointing Out a Rare Collectible Always Works",
-      "description": "When the Tribal Chief completes Pointing out a rare collectible, rejected random choices are rerolled until the stock game finds an eligible rare collectible. This prevents the full stock cooldown from being spent without a collectible appearing while preserving the original rare categories, collectible IDs, collection rules, and placement logic.",
+      "description": "Pointing out a rare collectible keeps trying until an eligible collectible is found.",
       "output_tag": "Reliable Rare Collectible",
       "patches": [
         {
@@ -1032,7 +1032,7 @@
       "id": "vv4_complete_scales_golden_fish",
       "game_id": "vv4",
       "name": "Complete Fish Scales = Golden Fish in Nets",
-      "description": "Golden Fish become eligible in the fishing nets only after all 12 Fish Scales are collected. This changes the stock partial-collection threshold while preserving the completed collection's original 25% Golden Fish chance and every other fishing outcome.",
+      "description": "Golden Fish can appear in the nets after the Fish Scales collection is complete.",
       "output_tag": "Complete Scales Golden Fish",
       "patches": [
         {
@@ -1047,7 +1047,7 @@
       "id": "vv5_heathen_mommy_puzzle",
       "game_id": "vv5",
       "name": "Heathen Mommy Puzzle Restoration",
-      "description": "Restores the natural Heathen Mommy to newly created villages as a tag-17 Heathen mother with one nursing baby, using two physical slots, and restores the hidden 17th Heathen Parent graphic and full-tile rollover messages to the Puzzles screen. Existing saves are not retroactively given a new mother.",
+      "description": "Restores the Heathen Mommy and her puzzle artwork in newly created villages.",
       "output_tag": "Heathen Mommy",
       "patches": [
         {
@@ -1122,7 +1122,7 @@
       "id": "vv5_easier_devotee_training",
       "game_id": "vv5",
       "name": "Easier Devotee Training",
-        "description": "Villagers with positive Devotion skill can spontaneously use the stock Honoring action. Statue-drop Honoring remains available for training beginners, while villagers with no Devotion skill do not autonomously Honor.",
+      "description": "Villagers with Devotion can choose Honoring on their own.",
       "output_tag": "Easier Devotee",
       "patches": [
         {
@@ -1149,7 +1149,7 @@
       "id": "vv5_statue_polishing_or_honoring",
       "game_id": "vv5",
       "name": "Statue Drops: Normal Action or Honoring",
-      "description": "Statue drops use skill-aware choices: Honoring is available only to villagers with positive Devotion, while Building a statue and Polishing the Statue require positive Building skill. When both outcomes are eligible, the choice is 50/50; otherwise the eligible normal action is kept.",
+      "description": "Statue drops choose Honoring, Building, or Polishing according to the villager's skills.",
       "output_tag": "Random Statue Training",
       "patches": [
         {
@@ -1231,7 +1231,7 @@
       "id": "vv5_vv4_nursery_divisor_parity",
       "game_id": "vv5",
       "name": "VV4 Nursery School Divisor Parity",
-      "description": "For parity with Virtual Villagers 4, changes VV5's six-skill spread lesson divisor from five to six. VV5 normally distributes one-fifth of a lesson to each of six skills, an arithmetic inconsistency that awards six-fifths in total; this patch distributes exactly one-sixth to each skill without claiming whether the original inconsistency was intentional.",
+      "description": "Nursery lessons distribute progress evenly across all skills.",
       "output_tag": "VV4 Nursery Divisor Parity",
       "patches": [
         {
@@ -1252,7 +1252,7 @@
       "id": "vv2_gong_of_wonder_coconuts_fix",
       "game_id": "vv2",
       "name": "Gong of Wonder Coconuts Fix",
-      "description": "When the Gong of Wonder grants coconuts, adds 30 to the coconut trees instead of replacing their current amount with 30. Both normal and alternate outcome paths are corrected.",
+      "description": "Gong of Wonder coconut rewards add to the existing coconut supply.",
       "output_tag": "Gong Coconuts Fix",
       "patches": [
         {
@@ -1273,7 +1273,7 @@
       "id": "vv3_everyone_tries_on_robe",
       "game_id": "vv3",
       "name": "Everyone Tries On the Robe",
-      "description": "Dropping an active, living, non-nursing villager on the robe keeps that villager's complete stock try-on or Tribal Chief result, then sends every other active, living, non-nursing villager through the stock failed-fit Trying on the robe action. Followers use the native status, walk, gestures, and temporary try-on appearance but never receive the successful fit, persistent Chief clothing, or Chief state.",
+      "description": "After a successful robe try-on, other villagers receive the normal failed-fit result.",
       "output_tag": "Everyone Tries On the Robe",
       "enabled": true,
       "catalog_enabled": true,

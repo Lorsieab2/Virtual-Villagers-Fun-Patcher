@@ -60,10 +60,11 @@ class VillageWidePlaytestCatalogTests(unittest.TestCase):
                 for label in (
                     "Running",
                     "Full Mastery",
-                    "Set Age to 18",
-                    "Runtime/player confirmation pending",
                 ):
                     self.assertIn(label, wide["description"])
+                self.assertIn("young-adult age", wide["description"])
+                self.assertIn("Tech screen", wide["description"])
+                self.assertNotIn("Runtime/player confirmation pending", wide["description"])
 
     def test_catalog_gui_cli_and_dependency_resolution_exposes_current_menu_records(self) -> None:
         catalog = load_fun_patches()

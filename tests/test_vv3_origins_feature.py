@@ -54,12 +54,12 @@ class VV3OriginsFeatureTests(unittest.TestCase):
             companion["sha256"],
             hashlib.sha256(COMPANION.read_bytes()).hexdigest().upper(),
         )
-        self.assertIn("feature-complete Village-Wide Upgrades", self.manifest["description"])
+        self.assertIn("Origins-style Upgrades", self.manifest["description"])
 
     def test_description_is_concise_and_keeps_the_base_dependency_internal(self) -> None:
         description = self.manifest["description"]
-        self.assertIn("internal dependency", description)
-        self.assertIn("native handlers", description)
+        self.assertIn("Tech and Villager Details", description)
+        self.assertIn("young-adult age", description)
         self.assertNotIn("candidate-only", description)
         self.assertNotIn("500,000-tech-point", description)
 
@@ -247,7 +247,7 @@ class VV3OriginsFeatureTests(unittest.TestCase):
         )
         self.assertEqual(
             hashlib.sha256(payload).hexdigest().upper(),
-            "7E17C85AD42B1A1F841AD80B12147C03E7486BA0EF53216D169235672A076759",
+            "2CEA2EA737F271D4B2C5D2FBE3FDC9B39887E626867D1613A7F74CCCA16050F9",
         )
         self.assertEqual(
             bytes.fromhex(

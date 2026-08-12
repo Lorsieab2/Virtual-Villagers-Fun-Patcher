@@ -179,8 +179,8 @@ class DoublerAuditDocumentationTests(unittest.TestCase):
             if patch.id == "vv1_f6_clothing_change_cheat"
         )
         description = patch.description.lower()
-        self.assertIn("5,000", patch.description)
-        self.assertIn("fewer than 5,000", description)
+        self.assertIn("clothing shortcut cycles", description)
+        self.assertIn("outfits", description)
         self.assertIn("5,000 tech points", README.read_text(encoding="utf-8"))
         self.assertIn("5,000 tech points", HOW_TO_USE.read_text(encoding="utf-8"))
 

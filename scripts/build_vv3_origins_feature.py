@@ -1131,15 +1131,7 @@ def main() -> None:
         "running_preference_id": RUNNING_PREFERENCE_ID,
         "running_preference_evidence": {"source": "exact stock executable embedded preference table", "table_file_offset": "0x97488", "entry_name": "running"},
         "name": "Enable Origins-Exclusive Features",
-        "description": (
-            "Enables the stock Origins Tech and Villager Details upgrade screens "
-            "for VV3. This base record is an internal dependency of the current "
-            "feature-complete Village-Wide Upgrades route; its stock Origins event "
-            "handlers remain available, and unrelated Tech/Details events fall "
-            "through to the native handlers. The public chooser exposes only the "
-            "latest combined Origins-style menu patch. Runtime/player confirmation "
-            "is pending."
-        ),
+        "description": "Adds Origins-style Upgrades buttons to the Tech and Villager Details screens. The Village-Wide menu adds Running, Full Mastery, and a young-adult age option.",
         "output_tag": "Origins Exclusive Features",
         "companion_files": [
             {

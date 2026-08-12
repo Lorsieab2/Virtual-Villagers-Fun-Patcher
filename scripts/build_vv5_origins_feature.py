@@ -1217,26 +1217,7 @@ def main() -> None:
         "running_preference_id": RUNNING_PREFERENCE_ID,
         "running_preference_evidence": {"source": "exact stock executable embedded preference table", "table_file_offset": "0xAEF60", "entry_name": "running"},
         "name": "Enable Origins-Exclusive Features",
-        "description": (
-            "Inspired by the Virtual Villagers 1 mobile port where these exclusive "
-            "Origins upgrades originated, this selected-upgrades port adds icon-based "
-            "Origins Upgrades. The native Time Warp (the stock route advances exactly 3 "
-            "displayed villager years), Island Event, and Barrel of Babies "
-            "rows are retained but disabled until their Heathen-safe target paths are "
-            "proved; selecting one reports that it is unavailable. The stock-layout Tech "
-            "Point and Food Point Doublers are available for their configured 500,000-tech-point "
-            "purchases; each existing owned doubler remains removable at zero cost with zero "
-            "refund, and each removed doubler can be repurchased at the full configured price "
-            "in stock layout. Expanded-256 keeps both new purchases unavailable while preserving "
-            "owned Remove. The legacy Cure row and command 5 are withdrawn, unavailable, "
-            "bypassed by the EB5F containment gate, unreachable, and not part of this candidate; "
-            "Full Heal/Cure All repair remains pending. "
-            "Villager Upgrades include Grant Youth (floor age 5), six-skill Full "
-            "Mastery, Set Age to 18, and the historical Grant Running label. Grant "
-            "Running is STOP/hidden contract evidence only; the legacy preference "
-            "helper is not native ABI proof and no selectable or runtime-ready "
-            "Running action is exposed. VV5 Food Mastery is technology ID 4: native food-source adjustment happens before the Food Doubler, which doubles only the final positive source delta. Duplicate-collectible tech returns 0x4147BE, 0x4147DD, and 0x4147F9 plus the 0x419EA3 clothing refund remain native. The stock Tech wrapper at 0x4237B0 is the exact three-return positive whitelist to .shr 0x7B2A00. The stock Food wrapper is the exact positive whitelist at 0x41EB6F to .shr 0x7B2B00. Expanded-256 restores both native five-byte hooks and keeps new doubler purchases unavailable pending complete rel32 relocation proof."
-        ),
+        "description": "Adds Origins-style Upgrades menus to Tech and Villager Details. The menus offer Full Mastery, Running, a young-adult age option, and Full Heal/Cure All for Believers; Heathens are skipped. Time Warp, Island Event, and Barrel of Babies remain unavailable.",
         "output_tag": "Origins Exclusive Features",
         "companion_files": [
             {

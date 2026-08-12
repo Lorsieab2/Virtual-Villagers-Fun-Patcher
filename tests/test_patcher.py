@@ -363,8 +363,9 @@ class ManifestTests(unittest.TestCase):
             )
             self.assertIn("Running", feature.description)
             self.assertIn("Full Mastery", feature.description)
-            self.assertIn("Set Age to 18", feature.description)
-            self.assertIn("Runtime/player confirmation pending", feature.description)
+            self.assertIn("young-adult age", feature.description)
+            self.assertIn("Tech screen", feature.description)
+            self.assertNotIn("Runtime/player confirmation pending", feature.description)
 
             self.assertEqual(feature.raw.get("running_preference_id"), 38)
             self.assertIn("removed Running dislike", feature.raw["extension_abi"]["calling_convention"])
@@ -622,6 +623,19 @@ class ManifestTests(unittest.TestCase):
                 self.assertIn("dec eax", section)
                 self.assertIn("jne", section)
 
+    def test_active_origins_manifests_preserve_stock_like_dislike_slot_counts(self) -> None:
+        expected = {"vv1": 4, "vv2": 62, "vv3": 3, "vv4": 3, "vv5": 3}
+        for game_id, slot_count in expected.items():
+            with self.subTest(game=game_id):
+                record = json.loads(
+                    (ROOT / "data" / f"{game_id}_origins_village_wide_upgrades.json").read_text(
+                        encoding="utf-8"
+                    )
+                )
+                fields = record["record_fields"]
+                self.assertEqual(fields["like_slot_count"], slot_count)
+                self.assertEqual(fields["dislike_slot_count"], slot_count)
+
     def test_stock_record_capacities_are_explicit(self) -> None:
         builds = {build.id: build for build in load_builds()}
         self.assertEqual(builds["vv1"].villager_slots, 256)
@@ -786,7 +800,8 @@ class ManifestTests(unittest.TestCase):
         }
         self.assertEqual(set(features), {"vv1", "vv2", "vv3", "vv4", "vv5"})
         for feature in features.values():
-            self.assertIn("local lifetime statistics", feature.description)
+            self.assertIn("lifetime statistics", feature.description)
+            self.assertNotIn("runtime", feature.description.casefold())
             self.assertEqual(len(feature.raw["companion_files"]), 1)
 
     def test_statistics_exporter_recovers_completed_vv5_bonus_puzzle_from_save(self) -> None:
@@ -796,7 +811,7 @@ class ManifestTests(unittest.TestCase):
         self.assertIn("count_vv5_puzzles", source)
         self.assertIn("0x16D20u + 17u * 8u", source)
         self.assertIn("bonus_progress >= 3", source)
-        self.assertIn("Puzzle totals are read from the current save state", " ".join(
+        self.assertIn("current puzzle totals", " ".join(
             patch.description
             for patch in load_fun_patches()
             if patch.name == "Write Village Statistics to Text File"

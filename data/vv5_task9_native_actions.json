@@ -8,7 +8,7 @@
     "entry_name": "running"
   },
   "name": "Enable Origins-Exclusive Features (Task9 native actions)",
-  "description": "Enables the VV5 Origins-style Tech and Villager Upgrades menus. The native action page provides Full Mastery, Grant Running, Set Age to 18, and Full Heal / Cure All for active living Believers only; records with the VV5 Heathen mask/status byte set are skipped before any action-specific read or write. Time Warp, Island Event, and Barrel of Babies remain unavailable until their native target paths are proven Heathen-safe. The legacy Cure row and command 5 are withdrawn, unavailable, bypassed by the EB5F containment gate, unreachable, and not part of this candidate.",
+  "description": "Adds Origins-style Upgrades menus to Tech and Villager Details. The menus offer Full Mastery, Running, a young-adult age option, and Full Heal/Cure All for Believers; Heathens are skipped. Time Warp, Island Event, and Barrel of Babies remain unavailable.",
   "output_tag": "Origins Exclusive Features",
   "companion_files": [
     {
@@ -946,8 +946,8 @@
     "experimental_expanded_256_progression"
   ],
   "runtime_player_status": "pending",
-  "base_source_text_sha256": "622F7DE40313ED393315001FD34E2D5F792162DABE2F1184D7ED8E6EBAC6101C",
-  "base_file_sha256": "E2B851340581141443CD567C88FBCEBDC7A291974EBA2428EB0BF332BD08D91A",
+  "base_source_text_sha256": "4CBED87267DA210205A7DACA8EB3F1CC5DAE15A5996E48BFF7A44F9620FF5201",
+  "base_file_sha256": "FF114B801A20A368638B2A9FA20D0E6ECB93DA478D24C008733AD7AA44ADE6D7",
   "task8_overlay_source_text_sha256": "090ED9CA074F02F9321B2F8E0C470FD0AF18B235231DA94B6D38293360BC9510",
   "atomic_core": {
     "commit": "c4e5fe76d1de258d5d4baeac77cbea842b206cd7",
@@ -957,7 +957,7 @@
   "source_bindings": {
     "task9_builder": {
       "path": "scripts/build_vv5_task9_native_actions.py",
-      "source_text_sha256": "EBE0A3B18AEAF890911A4D2F372105080E2523A30342A304FF1A8A6967D2F598"
+      "source_text_sha256": "21CBF71F74A12DB61A178E9CEA3B6317820B602AAFDA0BB3CC95002139AF62D6"
     },
     "companion_c": {
       "path": "native/vv5_task9_origins/vv5_task9_origins.c",
@@ -985,7 +985,7 @@
     },
     "active_base": {
       "path": "data/vv5_origins_feature.json",
-      "source_text_sha256": "622F7DE40313ED393315001FD34E2D5F792162DABE2F1184D7ED8E6EBAC6101C"
+      "source_text_sha256": "4CBED87267DA210205A7DACA8EB3F1CC5DAE15A5996E48BFF7A44F9620FF5201"
     },
     "task8_overlay": {
       "path": "data/candidates/vv5_post_prototype_overlay.json",
@@ -1218,5 +1218,5 @@
       }
     ]
   },
-  "task9_map_canonical_sha256": "C5C0285DC8AE26AB779CAF0106136E01D17574EA653D42318683537B812B2B74"
+  "task9_map_canonical_sha256": "0F556B1139CA619B8CFB3F12F057A597799C7FC63FB4E043F29C3B8C09690E8A"
 }

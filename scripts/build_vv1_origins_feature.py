@@ -977,12 +977,7 @@ def main() -> None:
         "running_preference_id": RUNNING_PREFERENCE_ID,
         "running_preference_evidence": {"source": "exact stock executable embedded preference table", "table_file_offset": "0x7B260", "entry_name": "running"},
         "name": "Enable Origins-Exclusive Features",
-        "description": (
-            "Enables the exact-build Origins Tech and Villager Detail Upgrades menus "
-            "for Virtual Villagers - A New Home. The dependent Village-Wide record "
-            "supplies Running, Full Mastery, and Set Age to 18. Runtime/player "
-            "confirmation pending."
-        ),
+        "description": "Adds Origins-style Upgrades buttons to the Tech and Villager Details screens. The Village-Wide menu adds Running, Full Mastery, and a young-adult age option.",
         "output_tag": "Origins Exclusive Features",
         "companion_files": [
             {
