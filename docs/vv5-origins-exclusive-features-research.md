@@ -27,10 +27,11 @@ executable.
 ## Current shipping gate
 
 The stock-layout Tech and Food Point Doubler corrections are implemented and
-statically validated. Tech doubles only the six positive returns
-`0x4147BE`, `0x4147DD`, `0x4147F9`, `0x46DE4D`, `0x46DE7C`, and `0x46DEA5`;
-the `0x419EA3` clothing-dialog refund, action-90 deduction, Island Events,
-tail paths, purchases, zero/negative values, and unknown callers remain native.
+statically validated. Tech doubles only the three certified positive research
+returns `0x46DE4D`, `0x46DE7C`, and `0x46DEA5`; the duplicate-collectible
+returns `0x4147BE`, `0x4147DD`, and `0x4147F9`, the `0x419EA3`
+clothing-dialog refund, action-90 deduction, Island Events, tail paths,
+purchases, zero/negative values, and unknown callers remain native.
 Food's exact positive whitelist runs after Food Mastery. Both purchases and
 full-price repurchases are available in stock layout; removal is zero cost with
 zero refund and clears only the selected ownership bit. Expanded-256 restores
