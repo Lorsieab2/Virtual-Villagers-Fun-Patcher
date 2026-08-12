@@ -178,7 +178,23 @@ class OriginsPlayerRuntimeChecklistTests(unittest.TestCase):
                         path.name,
                     )
                 elif path.name == "vv3_origins_feature.json":
-                    corrected_offsets = {"0xA3180"}
+                    corrected_offsets = {
+                        "0x7B664", "0x7B7C0", "0x7B7D0",
+                        "0x15EF1", "0x16983", "0x16BAB", "0x17A3A",
+                        "0x15D44", "0x1673E", "0x18452", "0xA3180",
+                    }
+                    self.assertEqual(
+                        [item for item in current["patches"] if item["offset"] not in corrected_offsets],
+                        [item for item in previous["patches"] if item["offset"] not in corrected_offsets],
+                        path.name,
+                    )
+                elif path.name == "vv4_origins_feature.json":
+                    corrected_offsets = {
+                        "0xCC004", "0xCC160", "0xCC170",
+                        "0x156F8", "0x15862", "0x1586F", "0x15A81",
+                        "0x15B46", "0x15D8C", "0x16722", "0x16735",
+                        "0x1520E", "0x89373", "0xCC180",
+                    }
                     self.assertEqual(
                         [item for item in current["patches"] if item["offset"] not in corrected_offsets],
                         [item for item in previous["patches"] if item["offset"] not in corrected_offsets],

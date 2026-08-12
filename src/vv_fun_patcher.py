@@ -3054,6 +3054,31 @@ def _dependency_ids(patch: FunPatch) -> tuple[str, ...]:
     return tuple(result)
 
 
+def _conflict_ids(patch: FunPatch) -> tuple[str, ...]:
+    """Return normalized optional-patch conflict IDs."""
+    raw = patch.raw.get("conflicts", ())
+    if isinstance(raw, str):
+        raw = (raw,)
+    if not isinstance(raw, (list, tuple)):
+        raise PatcherError(
+            f"Invalid conflicts for {patch.id}: expected a list of feature IDs."
+        )
+    result: list[str] = []
+    seen: set[str] = set()
+    for conflict in raw:
+        if not isinstance(conflict, str) or not conflict.strip():
+            raise PatcherError(
+                f"Invalid conflict on {patch.id}: feature IDs must be non-empty strings."
+            )
+        conflict = conflict.strip()
+        if conflict == patch.id:
+            raise PatcherError(f"Optional patch {patch.id} cannot conflict with itself.")
+        if conflict not in seen:
+            seen.add(conflict)
+            result.append(conflict)
+    return tuple(result)
+
+
 def validate_fun_patch_catalog(
     patches: list[FunPatch] | tuple[FunPatch, ...] | None = None,
 ) -> None:
@@ -3166,6 +3191,17 @@ def validate_fun_patch_catalog(
                     f"{patch.name} ({patch.id}) cannot depend on {dependency_id}: "
                     "prerequisites must target the same game."
                 )
+        for conflict_id in _conflict_ids(patch):
+            conflict = by_id.get(conflict_id)
+            if conflict is None:
+                raise PatcherError(
+                    f"{patch.name} ({patch.id}) declares missing conflict {conflict_id}."
+                )
+            if conflict.game_id != patch.game_id:
+                raise PatcherError(
+                    f"{patch.name} ({patch.id}) cannot conflict with {conflict_id}: "
+                    "conflicts must target the same game."
+                )
     # A complete DFS catches cycles while retaining a useful feature path.
     visiting: set[str] = set()
     visited: set[str] = set()
@@ -3251,6 +3287,15 @@ def resolve_fun_patch_ids(
                 f"{by_id[patch_id].name} requires prerequisite(s): "
                 + ", ".join(missing)
                 + ". Select the prerequisite before creating output."
+            )
+    for patch_id in sorted(requested_set):
+        conflicts = sorted(set(_conflict_ids(by_id[patch_id])) & requested_set)
+        if conflicts:
+            conflict_names = ", ".join(
+                f"{by_id[item].name} ({item})" for item in conflicts
+            )
+            raise PatcherError(
+                f"{by_id[patch_id].name} ({patch_id}) conflicts with {conflict_names}."
             )
     ordered: list[str] = []
     emitted: set[str] = set()

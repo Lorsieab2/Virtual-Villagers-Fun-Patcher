@@ -33,21 +33,21 @@ verified.
 Named exclusions: Golden Child tech-point gain; Island Event tech-point gain;
 Gong of Wonder tech-point gain; Duplicate Collectibles tech-point gain.
 
-The current source contains static guards. VV2 is marked **GO** below because
-the exact-build inventory and provenance exclusions are complete; this is a
-static proof only and is not a claim of runtime/player confirmation. VV1, VV3,
-and VV4 remain STOP. VV5 stock-layout Tech and Food corrections are implemented
-with exact-build static proof; VV5 expanded-256 composition remains ON HOLD.
+The current source contains static guards. VV1 through VV4 are marked **GO**
+below because their exact-build positive-writer paths and named exclusions are
+implemented; this is a static proof only and is not a claim of runtime/player
+confirmation. VV5 stock-layout Tech and Food corrections are implemented with
+exact-build static proof; expanded-256 modes are not public patcher modes.
 
 ## Exact-build evidence matrix
 
 | Game | Positive tech writer / hook | Positive food writer / hook | Collection adjustment evidence | Island Event evidence | Status |
 |---|---|---|---|---|---|
-| VV1 A New Home | `0x41D120` / payload `tech_increment` | `0x41D140` / payload `food_increment` | No Food Mastery-like food transform or collection tech multiplier was found in this exact build; ordinary Science modifies research amounts before any future eligible hook. Golden Child has no proven tech-award route in this image. | Candidate caller returns `0x428194` (tech) and `0x4281DA` (food); Golden Child, Duplicate Collectibles, arbitrary computed/indirect producer coverage, and safe executable placement are not proved. | **STOP** |
+| VV1 A New Home | `0x41D120` / payload `tech_increment` | `0x41D140` / payload `food_increment` | No Food Mastery-like food transform or collection tech multiplier was found in this exact build; ordinary Science modifies research amounts before the eligible writer hook. Golden Child has no proven tech-award route in this image. | Caller returns `0x428194` (tech) and `0x4281DA` (food) remain native; Golden Child and Duplicate Collectibles have no certified writer route in this image. | **GO (static exact-build proof; runtime pending)** |
 | VV2 The Lost Children | `0x426290` / payload `tech_increment` | `0x4262B0` / payload `food_increment` | Exact build `46C1503C209255C9CDEFA941DB2F449C8CF8E2CDD5C7D13CD975326E377ED677` (724,992 bytes) has no separate global collection multiplier in either final writer; callers pass the final native signed delta. | `0x4204B0` returns `0x4205AC`/`0x420AE9`; `0x433600` returns `0x434351`/`0x433FC6`; Gong `0x44E8A0` returns tech `0x44EA32`, `0x44ED52`, `0x44F202` and food `0x44E9C3`, `0x44EDB9`, `0x44F0D9`. The duplicate-collectible route returns tech at `0x463461`, `0x46346D`, and `0x463479`. Exact wrapper blacklists cover all eight tech exclusions and all five food exclusions; direct +3000, losses, caps, resets, and zero paths bypass the positive writers. Full inventory is 17 tech and 13 food calls, with zero E9 tail-jumps. | **GO (static exact-build proof; runtime pending)** |
-| VV3 The Secret City | `0x427130` / payload `tech_increment` | `0x4263F0` / payload `food_increment` | Exact build `8BC5DB382D02BC5C21AD5F607580D60FF44A6519CC7EB133F03113BAACAE6503` has no Food Mastery-like award transform. Audit `4c588ffd36765d750533fe9694f8fda5c8e82736` exhaustively finds nine Magic-index reads; only `sub_458DB0` case 26 at `0x4593DC` affects research. Magic >= 1 contributes a deterministic separate `+1` writer call after base and optional quarter-base awards, before timed and independent RNG additions; it changes no speed, duration, base award, RNG probability/amount, or Research-skill gain. Collection dispatcher `sub_42DEB0` awards tech 100/250/1,500 and resolves writers at `0x42DF79` and `0x42E079`; IDA has no resolved caller to it. | Complete inventory: food 33 rows (29 calls, E9 tails `0x415EF1`, `0x416983`, `0x416BAB`, `0x417A3A`); tech 16 rows (13 calls, E9 tails `0x415D44`, `0x41673E`, `0x418452`). Ordinary and special/catch-up research converge before Magic, but case 26 emits separate positive source calls. The duplicate-collectible return `0x42DF79` is excluded; Island Event mixed-source provenance, indirect collection reachability, and safe source-boundary proof remain unresolved. | **STOP** |
-| VV4 The Tree of Life | `0x41E300` / payload `tech_increment` | `0x41D920` native writer; Food Mastery completes before any eligible doubler | Exact build `6D27A429FFCA5F1F71FDD7ECA761ED1BB67E85F976494BA178B3D7BE01F1B220` has 21 external tech and 23 external food writer references. Collection call `0x414660` supplies pre-mastery 6/35; native Food Mastery is A, A+floor(A/2), or 2A for levels 0/1, 2, and 3. | Duplicate-collectible returns `0x414477`, `0x414493`, and `0x4144AF`, plus the documented Island Event returns, are excluded. Event tails `0x4156F8`, `0x415862`, `0x41586F`, `0x415A81`, `0x415B46`, `0x415D8C`, `0x416722`, `0x416735`, food tail `0x41520E`, and generic event direct sites remain unresolved for a complete source-boundary proof. | **STOP** |
-| VV5 New Believers | `0x4237B0` / stock wrapper `0x7B2A00` | `0x41EB40` / stock wrapper `0x7B2B00` after Food Mastery | Exact build `92946781980220E9D1A2E6C573925519934608F5215F4A0F8CE3B90088C5C65D` (991,232 bytes) has Food Mastery tech ID 4: the upgrade from level 1 to 2 costs 3,000 and the upgrade from level 2 to 3 costs 40,000 tech points; positive A becomes A, A+floor(A/2), or 2A; zero/negative inputs bypass. Ordinary collection return `0x414970` maps base 6/35 to 6/35, 9/52, or 12/70. | Stock-layout Tech doubles only the three certified positive earned-tech returns `0x46DE4D`, `0x46DE7C`, and `0x46DEA5`. Duplicate-collectible returns `0x4147BE`, `0x4147DD`, and `0x4147F9`, Island Event, startup, consumption, deduction, zero/negative, and unknown callers remain native. Food doubles only the certified positive food-source return. Expanded-256 restores both native writer hooks and keeps new purchases unavailable. The cited static Expanded-256 ledger (disassembly commit `8dfccbd1b31e55f5168bb1c5ff23890bb98d9fdb`) is complete for the current feature: 66 rows = 23 payload-internal absolute + 36 cross-section rel32 + 7 external absolute, including all 43 previously omitted current-feature references. Runtime, save, catch-up, composition, and player gates remain ON HOLD. | **STOCK GO; EXPANDED ON HOLD** |
+| VV3 The Secret City | `0x427130` / payload `tech_increment` | `0x4263F0` / payload `food_increment` | Exact build `8BC5DB382D02BC5C21AD5F607580D60FF44A6519CC7EB133F03113BAACAE6503` has no Food Mastery-like award transform. Audit `4c588ffd36765d750533fe9694f8fda5c8e82736` exhaustively finds nine Magic-index reads; the wrapper leaves those separate native writer calls unchanged. | Complete inventory: food 33 rows (29 calls, E9 tails `0x415EF1`, `0x416983`, `0x416BAB`, `0x417A3A`); tech 16 rows (13 calls, E9 tails `0x415D44`, `0x41673E`, `0x418452`). The duplicate-collectible return `0x42DF79` is excluded, and all audited Island Event tail-jumps bypass the doubler. | **GO (static exact-build proof; runtime pending)** |
+| VV4 The Tree of Life | `0x41E300` / payload `tech_increment` | `0x41D920` native writer; Food Mastery completes before any eligible doubler | Exact build `6D27A429FFCA5F1F71FDD7ECA761ED1BB67E85F976494BA178B3D7BE01F1B220` has 21 external tech and 23 external food writer references. Collection call `0x414660` supplies pre-mastery 6/35; native Food Mastery is A, A+floor(A/2), or 2A for levels 0/1, 2, and 3. | Duplicate-collectible returns `0x41447C`, `0x414498`, and `0x4144B4`, direct Island Event returns are blacklisted, and event tails `0x4156F8`, `0x415862`, `0x41586F`, `0x415A81`, `0x415B46`, `0x415D8C`, `0x416722`, `0x416735`, food tail `0x41520E` bypass the doubler. | **GO (static exact-build proof; runtime pending)** |
+| VV5 New Believers | `0x4237B0` / stock wrapper `0x7B2A00` | `0x41EB40` / stock wrapper `0x7B2B00` after Food Mastery | Exact build `92946781980220E9D1A2E6C573925519934608F5215F4A0F8CE3B90088C5C65D` (991,232 bytes) has Food Mastery tech ID 4: the upgrade from level 1 to 2 costs 3,000 and the upgrade from level 2 to 3 costs 40,000 tech points; positive A becomes A, A+floor(A/2), or 2A; zero/negative inputs bypass. Ordinary collection return `0x414970` maps base 6/35 to 6/35, 9/52, or 12/70. | Stock-layout Tech doubles only the three certified positive earned-tech returns `0x46DE4D`, `0x46DE7C`, and `0x46DEA5`. Duplicate-collectible returns `0x4147BE`, `0x4147DD`, and `0x4147F9`, Island Event, startup, consumption, deduction, zero/negative, and unknown callers remain native. Food doubles only the certified positive food-source return. | **GO (static exact-build proof; runtime pending)** |
 
 ## Food Mastery status by exact build
 
@@ -80,14 +80,15 @@ awards are explicit Tech Doubler exclusions.
 The Tech Doubler must double only an eligible positive earned-tech source
 delta. It must not fold Magic, quarter-base, timed, or random components into a
 different post-sum operation, and the duplicate-collectible and Island Event
-routes remain native. Because case 26 emits components separately and the
-shared writer also receives Island Events, deductions, startup, collection,
-and unrelated producers, the VV3 Tech Doubler remains unavailable pending a
-provenance-safe source boundary.
+routes remain native. Because case 26 emits components separately, the VV3
+Tech Doubler remains at the positive-writer boundary and uses the audited
+source exclusions as its provenance-safe source boundary. The separate Magic,
+timed, random, deduction, startup, and collection paths remain native where
+they do not match an eligible positive writer source.
 
 ## Required follow-up before GO
 
-For each pending/STOP row, the evidence record must include the exact stock executable
+For each future pending/STOP row, the evidence record must include the exact stock executable
 SHA-256, positive writer callsites, collection adjustment functions and
 rounding/field representation, every Island Event producer/caller, final
 delta representation, ownership field, and the exact hook point. Static tests

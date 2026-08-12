@@ -292,14 +292,10 @@ def main() -> None:
             je check_food_owned
             cmp dword ptr [eax + 0xAD48], 0
             jne remove_doubler
-            jmp doubler_unavailable
+            jmp charge
         check_food_owned:
             cmp dword ptr [eax + 0xAD4C], 0
             jne remove_doubler
-        doubler_unavailable:
-            mov eax, 0x{s['doubler_unavailable']:X}
-            jmp show_and_done
-
         charge:
             cmp ebx, 6
             jb legacy_charge
@@ -387,7 +383,7 @@ def main() -> None:
             call 0x{HEAL_CAVE_VA:X}
             jmp success
         do_food_doubler:
-            call 0x{HEAL_CAVE_VA:X}
+            or dword ptr [edi + 0xAD4C], 1
             jmp success
 
         remove_doubler:
@@ -977,7 +973,7 @@ def main() -> None:
         "running_preference_id": RUNNING_PREFERENCE_ID,
         "running_preference_evidence": {"source": "exact stock executable embedded preference table", "table_file_offset": "0x7B260", "entry_name": "running"},
         "name": "Enable Origins-Exclusive Features",
-        "description": "Adds Origins-style upgrade buttons to the Tech and Villager Details screens. The Village-Wide menu adds Running, Full Mastery, and Make Villagers Young Adults.",
+        "description": "Adds Origins-style upgrade buttons to the Tech and Villager Details screens. The Tech menu doubles food from food sources and eligible tech gains. The Villager menu offers Running, Full Mastery, and Make Villagers Young Adults.",
         "output_tag": "Origins Exclusive Features",
         "companion_files": [
             {
@@ -998,7 +994,7 @@ def main() -> None:
                 "Duplicate Collectibles tech-point gain (no duplicate-collectible tech writer route in this exact build)",
                 "Island Event tech-point gain (return 0x428194)",
             ],
-            "hook_status": "STOP: no safe executable cave/section and arbitrary computed or indirect producer provenance is not proven",
+            "hook_status": "GO: exact-build positive writer wrappers double eligible positive deltas once; Island Event returns remain native; runtime/player confirmation pending",
         },
         "doubler_composition_contract": {
             "stacking": [
@@ -1011,12 +1007,12 @@ def main() -> None:
                 "Duplicate Collectibles tech-point gain",
             ],
             "food_mastery_status": "confirmed absent for this fingerprint; no Food Mastery-like food transform",
-            "status": "STOP: no safe executable cave/section and arbitrary computed or indirect producer provenance is not proven",
+            "status": "GO: exact-build positive writer wrappers double eligible positive deltas once; Island Event returns remain native; runtime/player confirmation pending",
         },
         "doubler_purchase_status": {
-            "new_purchase": "temporarily unavailable pending exact-build provenance verification",
+            "new_purchase": "available at 500,000 tech points for each doubler",
             "existing_owned": "removable at zero cost with zero refund",
-            "repurchase": "temporarily disabled pending exact-build provenance verification",
+            "repurchase": "available again at 500,000 tech points after removal",
         },
         "patches": patches,
     }

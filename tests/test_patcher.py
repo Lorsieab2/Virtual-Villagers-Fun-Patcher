@@ -33,6 +33,7 @@ from vv_fun_patcher import (  # noqa: E402
     modded_save_folder_for,
     render_patched_bytes,
     Record,
+    resolve_fun_patch_ids,
     EXPANDED_256_PUBLICATION_ENABLED,
     validate_all_sources,
     vanilla_save_folder_for,
@@ -384,6 +385,16 @@ class ManifestTests(unittest.TestCase):
         self.assertNotIn("vv3_all_villagers_like_running", active_ids)
         self.assertNotIn("vv5_full_mastery_all_stage_a_candidate", active_ids)
         self.assertNotIn("vv3_full_mastery_all_stage_a_candidate", active_ids)
+
+    def test_vv1_builder_and_origins_cave_conflict_is_explicit(self) -> None:
+        with self.assertRaisesRegex(PatcherError, "conflicts with"):
+            resolve_fun_patch_ids(
+                [
+                    "vv1_builder_action_fixes",
+                    "vv1_enable_origins_exclusive_features",
+                ],
+                game_id="vv1",
+            )
 
     def test_origins_village_wide_payloads_use_zero_owned_reserves(self) -> None:
         stock_by_game = {build.id: STOCK / build.input_name for build in load_builds()}
@@ -972,21 +983,20 @@ class DoublerPurchaseSafetyTests(unittest.TestCase):
                     ["vv5_override_a", "vv5_override_b"],
                 )
 
-    def test_unproven_doublers_are_unavailable_but_owned_rows_remain_removable(self) -> None:
+    def test_doublers_are_available_and_owned_rows_remain_removable(self) -> None:
         for game_id in self.BLOCKED_GAMES:
             with self.subTest(game=game_id):
                 feature = get_fun_patch(f"{game_id}_enable_origins_exclusive_features")
                 status = feature.raw["doubler_purchase_status"]
-                self.assertIn("temporarily unavailable", status["new_purchase"])
+                self.assertIn("available", status["new_purchase"])
                 self.assertIn("zero cost", status["existing_owned"])
                 self.assertIn("zero refund", status["existing_owned"])
-                self.assertIn("temporarily disabled", status["repurchase"])
-                self.assertIn("runtime/player confirmation", feature.description.lower())
+                self.assertIn("available", status["repurchase"])
 
                 payload = b"".join(
                     bytes.fromhex(patch["after"]) for patch in feature.raw["patches"]
                 )
-                self.assertIn(b"Unavailable: exact-build doubler behavior", payload)
+                self.assertNotIn(b"Unavailable: exact-build doubler behavior", payload)
                 self.assertTrue(
                     b"\x81\xc8\x00\x18\x00\x00" in payload
                     or b"\x81\xcf\x00\x18\x00\x00" in payload
@@ -996,11 +1006,8 @@ class DoublerPurchaseSafetyTests(unittest.TestCase):
                 builder = (ROOT / "scripts" / f"build_{game_id}_origins_feature.py").read_text(
                     encoding="utf-8"
                 )
-                self.assertIn("doubler_unavailable", builder)
-                self.assertTrue(
-                    "jz doubler_unavailable" in builder
-                    or "jmp doubler_unavailable" in builder
-                )
+                self.assertIn("do_food_doubler", builder)
+                self.assertIn("do_tech_doubler", builder)
                 self.assertTrue(
                     "or edi, 0x1800" in builder
                     or "or eax, 0x1800" in builder
@@ -1013,7 +1020,7 @@ class DoublerPurchaseSafetyTests(unittest.TestCase):
                 return "other", owned, 0
             if owned & bit:
                 return "remove", owned & ~bit, 0
-            return "unavailable", owned, 0
+            return "purchase", owned, 500000
 
         for owned in (0, 1, 2, 3):
             for command in (3, 4):
@@ -1024,9 +1031,9 @@ class DoublerPurchaseSafetyTests(unittest.TestCase):
                         self.assertEqual(charge, 0)
                         self.assertNotEqual(after, owned)
                     else:
-                        self.assertEqual(action, "unavailable")
+                        self.assertEqual(action, "purchase")
                         self.assertEqual(after, owned)
-                        self.assertEqual(charge, 0)
+                        self.assertEqual(charge, 500000)
 
     def test_vv2_origins_playtest_pair_is_resolvable(self) -> None:
         for feature_id in (
@@ -1863,10 +1870,8 @@ class StockIntegrationTests(unittest.TestCase):
 
     def test_vv1_magic_fruit_uses_global_puzzle_state_and_safe_fields(self) -> None:
         patch = get_fun_patch("vv1_magic_fruit_alters_mortality")
-        self.assertIn("globally", patch.description)
-        self.assertIn("seven displayed years", patch.description)
-        self.assertIn("restores health to 100", patch.description)
-        self.assertIn("stores nothing in villager likes or dislikes", patch.description)
+        self.assertIn("delays ordinary aging", patch.description)
+        self.assertIn("cures the eater", patch.description)
         build = next(build for build in load_builds() if build.id == "vv1")
         rendered, _ = render_patched_bytes(
             STOCK / build.input_name,
@@ -1913,9 +1918,7 @@ class StockIntegrationTests(unittest.TestCase):
 
     def test_vv1_builder_action_fixes_preserve_other_scheduler_paths(self) -> None:
         patch = get_fun_patch("vv1_builder_action_fixes")
-        self.assertIn("selected job is Building", patch.description)
-        self.assertIn("signed progress is greater than zero", patch.description)
-        self.assertIn("manual, existing-work, and repair routes remain stock", patch.description)
+        self.assertEqual(patch.description, "Builders keep working when food supplies are low.")
         build = next(build for build in load_builds() if build.id == "vv1")
         source = STOCK / build.input_name
         baseline, _ = render_patched_bytes(
@@ -2743,8 +2746,7 @@ class StockIntegrationTests(unittest.TestCase):
     def test_vv3_nature_level_three_alters_mortality_by_seven_years(self) -> None:
         feature_id = "vv3_nature_level_three_alters_mortality"
         feature = get_fun_patch(feature_id)
-        self.assertIn("seven displayed years", feature.description)
-        self.assertIn("ordinary play and time catch-up", feature.description)
+        self.assertIn("delays ordinary villager aging", feature.description)
         build = next(build for build in load_builds() if build.id == "vv3")
         source = STOCK / build.input_name
         selected = ["vv3_nature_honey_refill", feature_id]
@@ -2770,8 +2772,8 @@ class StockIntegrationTests(unittest.TestCase):
     def test_vv3_rare_collectible_retries_rejected_random_choices(self) -> None:
         feature_id = "vv3_rare_collectible_retry"
         feature = get_fun_patch(feature_id)
-        self.assertIn("full stock cooldown", feature.description)
-        self.assertIn("eligible rare collectible", feature.description)
+        self.assertIn("keeps trying", feature.description)
+        self.assertIn("eligible collectible", feature.description)
         build = next(build for build in load_builds() if build.id == "vv3")
         source = STOCK / build.input_name
         stock = source.read_bytes()

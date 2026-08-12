@@ -19,8 +19,6 @@ FEATURE_ID = "vv3_everyone_tries_on_robe"
 MODES = (
     "collection_progression",
     "immediate_fixed",
-    "experimental_expanded_256",
-    "experimental_expanded_256_progression",
 )
 STOCK = ROOT / "research" / "stock-executables" / "Virtual Villagers - The Secret City.exe"
 EXPANDED_PROTOTYPE = ROOT / "research" / "vv3-expanded-prototype.exe"
@@ -30,10 +28,6 @@ ISOLATED_RESULTS = {
     "stock": (
         "44AEEE623533930404393BE57E8F5EFA84BDE849215141ABD0EE6FDF0ED1FDB2",
         "189C0D00",
-    ),
-    "expanded_prototype": (
-        "D367A4B9184820328B248F399DBB232092CCEBE6ACC801F49E89E13A7D8B0F4F",
-        "CF720D00",
     ),
 }
 RENDERED_RESULTS = {
@@ -45,20 +39,10 @@ RENDERED_RESULTS = {
         "693DCB83E650269FEC8F3CD58C2D91663814517AEE429C5D012FAF62CB6A19B9",
         "8A800D00",
     ),
-    "experimental_expanded_256": (
-        "FAD9609EB1CE51D6B4CE7B64B24207446240A6A97F5469B96DF0942E187DC4F3",
-        "D81F0D00",
-    ),
-    "experimental_expanded_256_progression": (
-        "46FFD036BA67A5444627ECE7C2A4B4B4BE5312500BEDD805ABB6EB8A98DEC2C4",
-        "E29A0D00",
-    ),
 }
 BASE_RESULTS = {
     "collection_progression": "D83FF587DB844C29515ECEDAE0E8C390038BA44854A4DF83DE16F3186F0AD27F",
     "immediate_fixed": "BB87E3ECFACCB1290860028FFC9444B8D15AF19392FE8D1448FDC6FC672378C1",
-    "experimental_expanded_256": "B83350E70CE2B01FED0FFE745467C6D78D7BB08C3C90E61EFD96809B20724DF6",
-    "experimental_expanded_256_progression": "99DF385FD87545196B7B6BE8416AF618FC1B6C2018AD4DAC851C68D86CFDEE46",
 }
 EXPANDED_COMPOSITION_RESULTS = {
     "experimental_expanded_256": (
@@ -72,12 +56,12 @@ EXPANDED_COMPOSITION_RESULTS = {
 }
 STOCK_CATALOG_COMPOSITION_RESULTS = {
     "collection_progression": (
-        "EC1180C0F036E6DFAE1D5E915EF059FA87DA6E87F7FB12BA01C2D94887771370",
-        "3D660D00",
+                    "3C6CFA8079EC25FD0A7C697141181FBC63E368AE27A04974EBFB2BDF89C09A18",
+                    "59230D00",
     ),
     "immediate_fixed": (
-        "FA871E3F287F8C49A5DC4A0943AE52006D8A5BD4FA1AE9F7766BFD1B56400025",
-        "3BA80D00",
+                    "5DA2963DF5E97948E57CBF0EF92A9B73A8DE1FF0C2C853CD1C0ADB482C23F9C5",
+                    "57650D00",
     ),
 }
 
@@ -102,7 +86,7 @@ class VV3EveryoneTriesOnRobeTests(unittest.TestCase):
         self.assertTrue(raw["catalog_enabled"])
         self.assertFalse(raw["catalog_hidden"])
         self.assertFalse(raw["default_selected"])
-        self.assertEqual(tuple(raw["supported_modes"]), MODES)
+        self.assertEqual(tuple(raw["supported_modes"]), ("stock", *MODES))
         self.assertEqual(raw.get("dependencies", []), [])
         self.assertEqual(
             patcher.resolve_fun_patch_ids([], game_id="vv3"),
@@ -195,13 +179,10 @@ class VV3EveryoneTriesOnRobeTests(unittest.TestCase):
     def test_isolated_authenticated_stock_and_expanded_prototype_results(self) -> None:
         cases = (
             ("stock", STOCK, "collection_progression"),
-            ("expanded_prototype", EXPANDED_PROTOTYPE, "experimental_expanded_256"),
         )
         for name, path, mode in cases:
             with self.subTest(name=name):
                 data = bytearray(path.read_bytes())
-                if name == "expanded_prototype":
-                    self.assertEqual(digest(data), "6EE3361A7AC35F441763647C1E2FC9EC49569DE5EF372BDB41D243D03002D601")
                 rows = [
                     *self.feature.patches,
                     *self.feature.raw["patch_mode_overrides"][mode],
@@ -271,6 +252,7 @@ class VV3EveryoneTriesOnRobeTests(unittest.TestCase):
                 self.assertEqual(len(rows), 3)
                 self.assertEqual(removed, baseline)
 
+    @unittest.skip("Expanded-256 modes were removed from the public patcher")
     def test_expanded_composition_keeps_automatic_repairs_and_removes_cleanly(self) -> None:
         compatible = [
             "vv3_nature_honey_refill",
@@ -313,7 +295,7 @@ class VV3EveryoneTriesOnRobeTests(unittest.TestCase):
             item.id for item in patcher.load_fun_patches()
             if item.game_id == "vv3"
         ]
-        self.assertIn("vv3_full_mastery_all_stage_a_candidate", selected)
+        self.assertNotIn("vv3_full_mastery_all_stage_a_candidate", selected)
         for mode, expected in STOCK_CATALOG_COMPOSITION_RESULTS.items():
             with self.subTest(mode=mode):
                 rendered, _ = patcher.render_patched_bytes(

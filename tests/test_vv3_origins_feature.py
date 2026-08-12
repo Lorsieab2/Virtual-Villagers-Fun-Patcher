@@ -82,6 +82,15 @@ class VV3OriginsFeatureTests(unittest.TestCase):
             {
                 0x24C,
                 0x7B664,
+                0x7B7C0,
+                0x7B7D0,
+                0x15EF1,
+                0x16983,
+                0x16BAB,
+                0x17A3A,
+                0x15D44,
+                0x1673E,
+                0x18452,
                 0x263F0,
                 0x27130,
                 0x6547D,
@@ -247,7 +256,7 @@ class VV3OriginsFeatureTests(unittest.TestCase):
         )
         self.assertEqual(
             hashlib.sha256(payload).hexdigest().upper(),
-            "2CEA2EA737F271D4B2C5D2FBE3FDC9B39887E626867D1613A7F74CCCA16050F9",
+            "BDC99CB657133DA69D34DE58EDADFE4B66268B15C7EA51386C4A2E285C6D4B47",
         )
         self.assertEqual(
             bytes.fromhex(

@@ -87,18 +87,17 @@ class DoublerAuditDocumentationTests(unittest.TestCase):
             "VV5 New Believers",
         ):
             self.assertIn(title, text)
-        self.assertIn("**STOP**", text)
+        self.assertIn("STOP", text)
         self.assertIn("tail-jump", text)
         self.assertIn("positive source", text)
         self.assertIn("Food Mastery status by exact build", text)
         self.assertIn("VV1, VV2, and VV3 are code-confirmed absent", text)
         self.assertIn("code-confirmed for VV4 and VV5", text)
         self.assertIn("VV5 stock-layout Tech and Food corrections are implemented", text)
-        self.assertIn("VV5 expanded-256 composition remains ON HOLD", text)
-        self.assertIn("**STOCK GO; EXPANDED ON HOLD**", text)
-        self.assertIn("8dfccbd1b31e55f5168bb1c5ff23890bb98d9fdb", text)
-        self.assertIn("66 rows = 23 payload-internal absolute + 36 cross-section rel32 + 7 external absolute", text)
-        self.assertIn("all 43 previously omitted current-feature references", text)
+        self.assertIn("expanded-256 modes are not public patcher modes", text)
+        self.assertIn("VV5 New Believers", text)
+        self.assertNotIn("8dfccbd1b31e55f5168bb1c5ff23890bb98d9fdb", text)
+        self.assertNotIn("Expanded-256", text)
 
     def test_audit_states_both_composition_rules(self) -> None:
         text = AUDIT.read_text(encoding="utf-8")
@@ -154,10 +153,10 @@ class DoublerAuditDocumentationTests(unittest.TestCase):
 
     def test_origins_status_tiers_match_evidence_and_purchase_gate(self) -> None:
         expected = {
-            "1": "stop",
+            "1": "go",
             "2": "go",
-            "3": "stop",
-            "4": "stop",
+            "3": "go",
+            "4": "go",
             "5": "stock-layout implemented",
         }
         for path in ORIGINS_MANIFESTS:
@@ -168,10 +167,9 @@ class DoublerAuditDocumentationTests(unittest.TestCase):
             tier = expected[game]
             self.assertIn(tier, evidence)
             self.assertIn(tier, contract)
-            if game in {"1", "3", "4"}:
-                purchase = manifest["doubler_purchase_status"]
-                self.assertIn("unavailable", purchase["new_purchase"])
-                self.assertIn("disabled", purchase["repurchase"])
+            purchase = manifest["doubler_purchase_status"]
+            self.assertIn("available", purchase["new_purchase"])
+            self.assertIn("available", purchase["repurchase"])
 
     def test_vv1_f6_documentation_matches_exact_manifest_behavior(self) -> None:
         patch = next(
@@ -184,7 +182,7 @@ class DoublerAuditDocumentationTests(unittest.TestCase):
         self.assertIn("5,000 tech points", README.read_text(encoding="utf-8"))
         self.assertIn("5,000 tech points", HOW_TO_USE.read_text(encoding="utf-8"))
 
-    def test_vv3_exact_build_doubler_stop_inventory(self) -> None:
+    def test_vv3_exact_build_doubler_inventory_and_purchase(self) -> None:
         manifest = json.loads((ROOT / "data" / "vv3_origins_feature.json").read_text(encoding="utf-8"))
         evidence = manifest["doubler_evidence"]
         self.assertEqual(evidence["positive_tech_writer"], "0x427130")
@@ -196,12 +194,19 @@ class DoublerAuditDocumentationTests(unittest.TestCase):
         self.assertEqual(evidence["collection_adjustment"]["tech_writer"], "0x42DF79")
         self.assertEqual(evidence["collection_adjustment"]["food_writer"], "0x42E079")
         self.assertIn("no resolved caller", evidence["collection_adjustment"]["caller_status"])
-        self.assertIn("STOP", evidence["hook_status"])
+        self.assertIn("GO", evidence["hook_status"])
+        self.assertEqual(
+            evidence["tail_bypass_sites"],
+            {
+                "food": ["0x415EF1", "0x416983", "0x416BAB", "0x417A3A"],
+                "tech": ["0x415D44", "0x41673E", "0x418452"],
+            },
+        )
         contract = manifest["doubler_composition_contract"]
         self.assertIn("confirmed absent", contract["food_mastery_status"])
-        self.assertIn("STOP", contract["status"])
-        self.assertIn("unavailable", manifest["doubler_purchase_status"]["new_purchase"])
-        self.assertIn("disabled", manifest["doubler_purchase_status"]["repurchase"])
+        self.assertIn("GO", contract["status"])
+        self.assertIn("available", manifest["doubler_purchase_status"]["new_purchase"])
+        self.assertIn("available", manifest["doubler_purchase_status"]["repurchase"])
 
     def test_vv3_magic_level_one_composition_is_exact_and_still_on_hold(self) -> None:
         audit = AUDIT.read_text(encoding="utf-8")
@@ -227,11 +232,12 @@ class DoublerAuditDocumentationTests(unittest.TestCase):
         self.assertIn("rng probability", folded)
         self.assertIn("research-skill gain", folded)
         self.assertIn("must double only an eligible positive earned-tech source", folded)
-        self.assertIn("vv3 tech doubler remains unavailable", folded)
+        self.assertIn("vv3 tech doubler", folded)
+        self.assertIn("positive writer", folded)
         self.assertNotIn("magic increases research speed", folded)
         self.assertNotIn("magic increases research skill", folded)
 
-    def test_vv4_provenance_inventory_is_explicit_but_not_marked_go(self) -> None:
+    def test_vv4_provenance_inventory_and_native_event_bypasses_are_explicit(self) -> None:
         manifest = json.loads((ROOT / "data" / "vv4_origins_feature.json").read_text(encoding="utf-8"))
         evidence = manifest["doubler_evidence"]
         self.assertEqual(evidence["build"]["size"], 929792)
@@ -243,7 +249,9 @@ class DoublerAuditDocumentationTests(unittest.TestCase):
         self.assertIn("0x4156F8", evidence["tail_jump_sites"])
         self.assertIn("0x41520E", evidence["tail_jump_sites"])
         self.assertIn("0x414660", evidence["ordinary_positive_sites"]["food"])
-        self.assertIn("STOP", evidence["hook_status"])
+        self.assertIn("GO", evidence["hook_status"])
+        self.assertEqual(len(evidence["tail_bypass_sites"]["tech"]), 8)
+        self.assertEqual(evidence["tail_bypass_sites"]["food"], ["0x41520E"])
         self.assertIn("Food Mastery", evidence["collection_adjustment"])
 
     def test_vv2_exact_build_inventory_and_provenance_are_go(self) -> None:
@@ -293,7 +301,7 @@ class DoublerAuditDocumentationTests(unittest.TestCase):
             hashlib.sha256(
                 json.dumps(runtime, sort_keys=True, separators=(",", ":")).encode()
             ).hexdigest().upper(),
-            "94791BFEEC0AF9D245E9BAFEC1751736D60641643C37F15F4EF0A5E5B4A0CE52",
+            "B55C69913D750FAEFB8CC4D7839F5B56657B98A7C2774BECF4034477981B110C",
         )
         self.assertEqual(
             manifest["companion_files"][0]["sha256"],

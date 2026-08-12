@@ -8,7 +8,7 @@
     "entry_name": "running"
   },
   "name": "Enable Origins Village-Wide Upgrades",
-  "description": "Adds the Origins Upgrades button to the Tech screen. The Village-Wide menu offers Running, Full Mastery, and Make Villagers Young Adults. Believers are processed; Heathens are skipped.",
+  "description": "Adds the Origins Upgrades button to the Tech screen. The menu can double food from food sources and eligible tech gains, and offers Full Heal/Cure All, Running, Full Mastery, and Make Villagers Young Adults for Believers; Heathens are skipped.",
   "output_tag": "Origins Village-Wide Upgrades",
   "dependencies": [
     "vv5_enable_origins_exclusive_features"

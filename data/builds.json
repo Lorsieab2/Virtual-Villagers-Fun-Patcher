@@ -890,6 +890,7 @@
       "name": "Builder Action Fixes",
       "description": "Builders keep working when food supplies are low.",
       "output_tag": "Builder Action Fixes",
+      "conflicts": ["vv1_enable_origins_exclusive_features"],
       "patches": [
         {
           "offset": "0x48336",

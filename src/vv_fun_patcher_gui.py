@@ -416,7 +416,15 @@ class App(tk.Tk):
             if self.fun_patch_vars[patch.id].get()
             and (game_id is None or patch.game_id == game_id)
         ]
-        return resolve_fun_patch_ids(selected, game_id=game_id)
+        self._selection_error = None
+        try:
+            return resolve_fun_patch_ids(selected, game_id=game_id)
+        except PatcherError as exc:
+            # Keep settings and mode changes usable while an incompatible
+            # checkbox combination is selected; patch/dry-run still rejects it
+            # through the strict resolver with the actionable conflict text.
+            self._selection_error = str(exc)
+            return selected
 
     def _patch_dependency_map(self) -> dict[str, tuple[str, ...]]:
         dependencies: dict[str, tuple[str, ...]] = {}
@@ -466,14 +474,18 @@ class App(tk.Tk):
 
     def _fun_patch_changed(self) -> None:
         self._apply_gui_dependency_selection()
+        self._selected_fun_patch_ids()
         selected = [
             patch.name
             for patch in self.fun_patches
             if self.fun_patch_vars[patch.id].get()
         ]
-        self.status_var.set(
-            "Additional patches: " + (", ".join(selected) if selected else "none")
-        )
+        if self._selection_error:
+            self.status_var.set("Selection error: " + self._selection_error)
+        else:
+            self.status_var.set(
+                "Additional patches: " + (", ".join(selected) if selected else "none")
+            )
         self._save_settings()
 
     def _select_all_fun_patches(self) -> None:

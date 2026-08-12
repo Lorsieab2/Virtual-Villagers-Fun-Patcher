@@ -34,6 +34,10 @@ STRINGS_OFFSET = 0xC00
 STRINGS_VA = PAYLOAD_VA + STRINGS_OFFSET
 HEAL_CAVE_FILE_OFFSET = 0x7B664
 HEAL_CAVE_VA = IMAGE_BASE + HEAL_CAVE_FILE_OFFSET
+NATIVE_FOOD_TAIL_FILE_OFFSET = 0x7B7C0
+NATIVE_FOOD_TAIL_VA = IMAGE_BASE + NATIVE_FOOD_TAIL_FILE_OFFSET
+NATIVE_TECH_TAIL_FILE_OFFSET = 0x7B7D0
+NATIVE_TECH_TAIL_VA = IMAGE_BASE + NATIVE_TECH_TAIL_FILE_OFFSET
 VILLAGE_WIDE_SIGNATURE_VA = IMAGE_BASE + 0x7B820
 VILLAGE_WIDE_ENTRY_VA = IMAGE_BASE + 0x7B840
 # Keep the village-wide dependency check inside the owned A3180 payload.  The
@@ -95,10 +99,6 @@ def main() -> None:
         ("mastery_failed", "Full Mastery could not be completed."),
         ("removed", "Removed."),
         ("not_enough", "Not enough tech points."),
-        (
-            "doubler_unavailable",
-            "Unavailable: exact-build doubler behavior is not yet fully verified.",
-        ),
         ("paused", "Time Warp is unavailable while the game is paused."),
         (
             "time_warp_done",
@@ -413,13 +413,13 @@ def main() -> None:
             cmp ebx, 4
             je maybe_remove_food
             test dword ptr [0x5824D0], 1
-            jz doubler_unavailable
+            jz preflight
             and dword ptr [0x5824D0], 0xFFFFFFFE
             mov eax, 0x{s['removed']:X}
             jmp show_status
         maybe_remove_food:
             test dword ptr [0x5824D0], 2
-            jz doubler_unavailable
+            jz preflight
             and dword ptr [0x5824D0], 0xFFFFFFFD
             mov eax, 0x{s['removed']:X}
             jmp show_status
@@ -478,6 +478,8 @@ def main() -> None:
             je do_barrel
             cmp ebx, 3
             je do_tech_doubler
+            cmp ebx, 4
+            je do_food_doubler
             cmp ebx, 5
             je do_cure
             call 0x{HEAL_CAVE_VA:X}
@@ -533,14 +535,15 @@ def main() -> None:
 
         do_tech_doubler:
             or dword ptr [0x5824D0], 1
+            jmp success
+        do_food_doubler:
+            or dword ptr [0x5824D0], 2
         success:
             mov eax, 0x{s['purchased']:X}
             jmp show_status
         insufficient:
             mov eax, 0x{s['not_enough']:X}
             jmp show_status
-        doubler_unavailable:
-            mov eax, 0x{s['doubler_unavailable']:X}
         show_status:
             push eax
             push 0x{s['tech_title']:X}
@@ -1057,6 +1060,23 @@ def main() -> None:
     )
     put(VILLAGE_PREFLIGHT_VA, preflight_source)
 
+    native_food_tail = assemble(
+        """
+            mov eax, dword ptr [esp + 4]
+            push esi
+            jmp 0x4263F5
+        """,
+        NATIVE_FOOD_TAIL_VA,
+    )
+    native_tech_tail = assemble(
+        """
+            mov eax, dword ptr [esp + 4]
+            mov edx, dword ptr [ecx]
+            jmp 0x427136
+        """,
+        NATIVE_TECH_TAIL_VA,
+    )
+
     payload = code + strings
     if len(payload) > PAYLOAD_SIZE:
         raise RuntimeError(f"payload too large: {len(payload):#x}/{PAYLOAD_SIZE:#x}")
@@ -1067,6 +1087,32 @@ def main() -> None:
         cure_code,
         "restore health below 80 to 100, clear sickness, and increment People Cured",
     )
+    patch(
+        NATIVE_FOOD_TAIL_FILE_OFFSET,
+        b"\0" * len(native_food_tail),
+        native_food_tail,
+        "keep Island Event food rewards on the native food path",
+    )
+    patch(
+        NATIVE_TECH_TAIL_FILE_OFFSET,
+        b"\0" * len(native_tech_tail),
+        native_tech_tail,
+        "keep Island Event tech rewards on the native tech path",
+    )
+    for offset in (0x415EF1, 0x416983, 0x416BAB, 0x417A3A):
+        patch(
+            offset - IMAGE_BASE,
+            original[offset - IMAGE_BASE : offset - IMAGE_BASE + 5],
+            rel32_jump(offset, NATIVE_FOOD_TAIL_VA),
+            "bypass the Food Doubler for an Island Event tail-jump",
+        )
+    for offset in (0x415D44, 0x41673E, 0x418452):
+        patch(
+            offset - IMAGE_BASE,
+            original[offset - IMAGE_BASE : offset - IMAGE_BASE + 5],
+            rel32_jump(offset, NATIVE_TECH_TAIL_VA),
+            "bypass the Tech Doubler for an Island Event tail-jump",
+        )
     patch(
         0x24C,
         bytes.fromhex("40000040"),
@@ -1131,7 +1177,7 @@ def main() -> None:
         "running_preference_id": RUNNING_PREFERENCE_ID,
         "running_preference_evidence": {"source": "exact stock executable embedded preference table", "table_file_offset": "0x97488", "entry_name": "running"},
         "name": "Enable Origins-Exclusive Features",
-        "description": "Adds Origins-style upgrade buttons to the Tech and Villager Details screens. The Village-Wide menu adds Running, Full Mastery, and Make Villagers Young Adults.",
+        "description": "Adds Origins-style upgrade buttons to the Tech and Villager Details screens. The Tech menu doubles food from food sources and eligible tech gains. The Villager menu offers Running, Full Mastery, and Make Villagers Young Adults.",
         "output_tag": "Origins Exclusive Features",
         "companion_files": [
             {
@@ -1166,7 +1212,11 @@ def main() -> None:
             },
             "writer_inventory": {"food": {"rows": 33, "calls": 29, "e9_tails": 4}, "tech": {"rows": 16, "calls": 13, "e9_tails": 3}},
             "tail_sites": {"food": ["0x415EF1", "0x416983", "0x416BAB", "0x417A3A"], "tech": ["0x415D44", "0x41673E", "0x418452"]},
-            "hook_status": "STOP: direct duplicate-collectible exclusion is encoded, but computed/indirect collection reachability and a safe final-delta/source-aware hook remain unresolved",
+            "tail_bypass_sites": {
+                "food": ["0x415EF1", "0x416983", "0x416BAB", "0x417A3A"],
+                "tech": ["0x415D44", "0x41673E", "0x418452"],
+            },
+            "hook_status": "GO: positive writer wrappers double eligible positive deltas once; duplicate collectibles and audited Island Event calls remain native; runtime/player confirmation pending",
         },
         "doubler_composition_contract": {
             "stacking": [
@@ -1175,12 +1225,12 @@ def main() -> None:
             ],
             "exclusions": ["Island Event tech-point gain", "Duplicate Collectibles tech-point gain"],
             "food_mastery_status": "confirmed absent in the exact-build writer, strings, and bounded caller corpus",
-            "status": "STOP: direct duplicate-collectible exclusion is encoded, but Island Event mixed-source provenance and collection dispatcher reachability remain unresolved",
+            "status": "GO: positive writer wrappers double eligible positive deltas once; duplicate collectibles and audited Island Event calls remain native; runtime/player confirmation pending",
         },
         "doubler_purchase_status": {
-            "new_purchase": "temporarily unavailable pending exact-build provenance verification",
+            "new_purchase": "available at 500,000 tech points for each doubler",
             "existing_owned": "removable at zero cost with zero refund",
-            "repurchase": "temporarily disabled pending exact-build provenance verification",
+            "repurchase": "available again at 500,000 tech points after removal",
         },
         "patches": patches,
     }

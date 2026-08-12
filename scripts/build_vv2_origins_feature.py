@@ -549,6 +549,8 @@ def main() -> None:
             je barrel_capacity_preflight
             cmp ebx, 3
             je do_tech_doubler
+            cmp ebx, 4
+            je do_food_doubler
             cmp ebx, 5
             je do_cure
             call 0x{HEAL_CAVE_VA:X}
@@ -622,6 +624,9 @@ def main() -> None:
 
         do_tech_doubler:
             or dword ptr [edi + 0x2EAE8], 1
+            jmp success
+        do_food_doubler:
+            or dword ptr [edi + 0x2EAE8], 2
         success:
             mov eax, 0x{s['purchased']:X}
             jmp show_status
@@ -1556,7 +1561,7 @@ def main() -> None:
         "running_preference_id": RUNNING_PREFERENCE_ID,
         "running_preference_evidence": {"source": "exact stock executable embedded preference table", "table_file_offset": "0x8B808", "entry_name": "running"},
         "name": "Enable Origins-Exclusive Features",
-        "description": "Adds Origins-style upgrade buttons to the Tech and Villager Details screens. The Village-Wide menu adds Running, Full Mastery, and Make Villagers Young Adults.",
+        "description": "Adds Origins-style upgrade buttons to the Tech and Villager Details screens. The Tech menu doubles food from food sources and eligible tech gains. The Villager menu offers Running, Full Mastery, and Make Villagers Young Adults.",
         "output_tag": "Origins Exclusive Features",
         "companion_files": [
             {
@@ -1642,6 +1647,12 @@ def main() -> None:
             ],
             "food_mastery_status": "confirmed absent in exact-build audit: enumerated technology definitions, resource strings, direct writer calls, and food-source call chains; Farming gates/unlocks sources only; Herb Mastery is unrelated",
             "status": "GO: exact-build static provenance covers the certified positive delta boundaries; native writers still perform storage/statistics updates for the doubled amount; runtime/player confirmation pending",
+        },
+        "doubler_purchase_status": {
+            "status": "Tech and Food Doublers are available at 500,000 tech points; owned upgrades can be removed for no refund and bought again.",
+            "new_purchase": "available at 500,000 tech points for each doubler",
+            "existing_owned": "removable at zero cost with zero refund",
+            "repurchase": "available again at 500,000 tech points after removal",
         },
         "patches": patches,
     }
