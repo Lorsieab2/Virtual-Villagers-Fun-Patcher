@@ -8,7 +8,7 @@
     "entry_name": "running"
   },
   "name": "Enable Origins Village-Wide Upgrades",
-  "description": "Enables the Origins Tech-screen Upgrades button/menu and the latest village-wide upgrades: Running, Full Mastery, and Set Age to 18. Processes active living Believers only; masked Heathens, including the sick-Heathen puzzle record, are skipped before action-specific reads or writes. Runtime/player confirmation pending.",
+  "description": "Enables the Origins Tech-screen Upgrades button/menu for Virtual Villagers - New Believers and adds Running, Full Mastery, and Set Age to 18. Each row costs 1,000,000 tech points. Runtime/player confirmation pending. Only eligible living believers are processed; Heathens are excluded and remain untouched.",
   "output_tag": "Origins Village-Wide Upgrades",
   "dependencies": [
     "vv5_enable_origins_exclusive_features"
@@ -18,7 +18,7 @@
     "signature_offset": "0x94C20",
     "entry_offset": "0x94C40",
     "entry_virtual_address": "0x494C40",
-    "calling_convention": "near call with EAX=command 6/7/8, ECX=first physical record pointer, EDX=physical record bound; command 6 returns full-Like skips in EAX, already-Running (already-running) skips in EDX, and villagers with a removed Running dislike in ECX; commands 7/8 return zero counts; invalid commands return EAX=-1 and EDX/ECX=0; preserves EBX/ESI/EDI/EBP/ESP",
+    "calling_convention": "near call with EAX=command 6/7/8, ECX=first physical record pointer, EDX=physical record bound; command 6 returns full-Like skips in EAX, already-Running (already-running) skips in EDX, and villagers with a removed Running dislike in ECX; full Like records receive no preference writes; commands 7/8 return zero counts; invalid commands return EAX=-1 and EDX/ECX=0; preserves EBX/ESI/EDI/EBP/ESP",
     "commands": {
       "6": "All Villagers Like Running",
       "7": "Grant Full Mastery to All Villagers",
@@ -33,6 +33,8 @@
     "age_offset": "0x1B8C",
     "likes_offset": "0x1F5C",
     "dislikes_offset": "0x1F68",
+    "like_slot_count": 3,
+    "dislike_slot_count": 3,
     "running_preference_id": 38,
     "skill_offsets": [
       "0x1C5C",
@@ -42,6 +44,7 @@
       "0x1C6C",
       "0x1C70"
     ],
+    "native_skill_writer": null,
     "bound_source": "EDX physical record bound",
     "heathen_active_guard_offset": "0x1CE1",
     "faction_offset": "0x1CEC",
@@ -50,7 +53,7 @@
   "behavior_changes": [
     "Adds rows 6-8 to the Origins Tech-screen Upgrades dialog only when this optional feature is installed.",
     "Charges exactly 1,000,000 tech points once per selected village-wide purchase in the current save.",
-    "Running scans exactly three normal Like and Dislike slots, reports full-Like and already-Running counts, and reports villagers whose Running dislike was removed; duplicate Running Dislikes are all cleared but count once per villager.",
+    "Running scans exactly 3 physical Like and Dislike slots, adds Running only to the first free Like slot, and removes Running Dislikes only after a successful or already-present Running state.",
     "Grant Full Mastery to All Villagers writes the native five- or six-skill mastery fields for eligible living villagers.",
     "All Villagers are 18 writes only the verified displayed-age field to 360 age units."
   ],

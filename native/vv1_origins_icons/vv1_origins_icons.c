@@ -114,7 +114,7 @@ __declspec(dllexport) int __stdcall ShowOriginsUpgradeMenu(
                 && *(int *)(villager + 0x3CC) >= 90) {
                 dialog_state |= 1 << 1;
             }
-            for (row = 0; row < 3; ++row) {
+            for (row = 0; row < 4; ++row) {
                 int like = *(int *)(villager + 0x398 + row * 4);
                 if (like == 38) {
                     running_like = 1;
@@ -155,7 +155,7 @@ __declspec(dllexport) int __stdcall ShowOriginsVillageWideResult(
     if (command == 6) {
         wsprintfA(
             message,
-            "Skipped over %d villagers. Reason: Already 3 likes.\r\nskipped over %d villagers. Reason: already likes running",
+            "Skipped over %d villagers. Reason: Already 4 likes.\r\nskipped over %d villagers. Reason: already likes running",
             full_like_skipped,
             already_running_skipped
         );

@@ -3027,9 +3027,9 @@ def _load_fun_patch_records(
             and running_manifest.get("enabled") is True
         ):
             items.append(vv3_full_heal_record)
-    vv1_full_mastery = _certified_vv1_full_mastery_record()
-    if vv1_full_mastery is not None:
-        items.append(vv1_full_mastery)
+    # The current public catalog owns the complete Origins-style upgrades
+    # menu.  The former standalone VV1 Full Mastery candidate is retained as
+    # historical evidence only and must not reappear as a selectable patch.
     for feature_path in ORIGINS_VILLAGE_WIDE_FEATURE_PATHS:
         if feature_path.is_file():
             record = json.loads(feature_path.read_text(encoding="utf-8"))

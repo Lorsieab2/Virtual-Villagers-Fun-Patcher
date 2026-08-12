@@ -38,6 +38,14 @@ VILLAGE_WIDE_ENTRY_VA = IMAGE_BASE + 0x8B1A0
 VILLAGE_PREFLIGHT_FILE_OFFSET = 0x8B009
 VILLAGE_PREFLIGHT_VA = IMAGE_BASE + VILLAGE_PREFLIGHT_FILE_OFFSET
 RUNNING_PREFERENCE_ID = 38  # exact-build preference-table evidence: 0x7B260
+VV1_NATIVE_SKILL_WRITER_VA = 0x437230
+VV1_SKILL_FIELDS = (
+    (0x3BC, 2),  # Parenting
+    (0x3C0, 4),  # Building
+    (0x3C4, 1),  # Farming
+    (0x3C8, 5),  # Healing
+    (0x3CC, 3),  # Research
+)
 
 
 def assemble(source: str, address: int) -> bytes:
@@ -106,7 +114,7 @@ def main() -> None:
     add_c_string(strings, s, "already_owned", "This doubler is already owned.")
     add_c_string(strings, s, "save_failed", "Could not save the doubler.")
     add_c_string(strings, s, "running_unavailable", "Running cannot be added.")
-    add_c_string(strings, s, "icons_dll", "VVFP Origins Icons.dll")
+    add_c_string(strings, s, "icons_dll", "VVFP VV1 Origins Icons.dll")
     add_c_string(strings, s, "show_icon_dialog", "ShowOriginsUpgradeMenu")
     add_c_string(strings, s, "show_result_export", "ShowOriginsVillageWideResult")
 
@@ -598,7 +606,7 @@ def main() -> None:
             cmp ebx, 2
             jne detail_charge
             lea eax, [edx + 0x398]
-            mov ecx, 3
+            mov ecx, 4
         running_preflight:
             cmp dword ptr [eax], {RUNNING_PREFERENCE_ID}
             je detail_charge
@@ -620,7 +628,7 @@ def main() -> None:
             cmp ebx, 2
             jne detail_age_18
             lea ecx, [edx + 0x398]
-            mov eax, 3
+            mov eax, 4
         running_find_like_slot:
             cmp dword ptr [ecx], {RUNNING_PREFERENCE_ID}
             je running_remove_dislikes
@@ -634,7 +642,7 @@ def main() -> None:
             mov dword ptr [ecx], {RUNNING_PREFERENCE_ID}
         running_remove_dislikes:
             lea ecx, [edx + 0x3A8]
-            mov eax, 3
+            mov eax, 4
         running_dislike_loop:
             cmp dword ptr [ecx], {RUNNING_PREFERENCE_ID}
             jne running_next_dislike
@@ -673,14 +681,11 @@ def main() -> None:
             jmp detail_success
 
         detail_mastery:
-            mov dword ptr [edx + 0x3BC], 90
-            mov dword ptr [edx + 0x3C0], 90
-            mov dword ptr [edx + 0x3C4], 90
-            mov dword ptr [edx + 0x3C8], 90
-            mov dword ptr [edx + 0x3CC], 90
-            cmp dword ptr [edx + 0x3D0], 0
-            jne detail_success
-            mov dword ptr [edx + 0x3D0], 1
+            mov dword ptr [edx + 0x3BC], 100
+            mov dword ptr [edx + 0x3C0], 100
+            mov dword ptr [edx + 0x3C4], 100
+            mov dword ptr [edx + 0x3C8], 100
+            mov dword ptr [edx + 0x3CC], 100
         detail_success:
             mov eax, 0x{s['purchase_complete']:X}
             jmp detail_show
@@ -783,6 +788,10 @@ def main() -> None:
             je cure_next
             cmp dword ptr [edx + 0x344], 0
             jle cure_next
+            cmp dword ptr [edx + 0x344], 80
+            jge cure_health_done
+            mov dword ptr [edx + 0x344], 100
+        cure_health_done:
             cmp byte ptr [edx + 0x354], 0
             je cure_next
             mov byte ptr [edx + 0x354], 0
@@ -979,10 +988,10 @@ def main() -> None:
         "output_tag": "Origins Exclusive Features",
         "companion_files": [
             {
-                "source": "assets/origins/VVFP Origins Icons.dll",
-                "destination": "VVFP Origins Icons.dll",
+                "source": "assets/origins/VVFP VV1 Origins Icons.dll",
+                "destination": "VVFP VV1 Origins Icons.dll",
                 "sha256": hashlib.sha256(
-                    (ROOT / "assets" / "origins" / "VVFP Origins Icons.dll").read_bytes()
+                    (ROOT / "assets" / "origins" / "VVFP VV1 Origins Icons.dll").read_bytes()
                 ).hexdigest().upper(),
             }
         ],

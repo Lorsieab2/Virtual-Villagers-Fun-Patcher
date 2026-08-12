@@ -41,8 +41,12 @@ CONFIG = {
         "health": 0x344,
         "age": 0x348,
         "skills": (0x3BC, 0x3C0, 0x3C4, 0x3C8, 0x3CC),
+        "native_skill_writer": 0x437230,
+        "skill_codes": (2, 4, 1, 5, 3),
+        "age_code_offset": 0x300,
         "likes": 0x398,
         "dislikes": 0x3A8,
+        "slot_count": 4,
         "running_preference_id": 38,
         "bound": "edx",
         "heathen": False,
@@ -67,6 +71,7 @@ CONFIG = {
         "skills": (0x7E4, 0x7E8, 0x7EC, 0x7F0, 0x7F4),
         "likes": 0x5F0,
         "dislikes": 0x6E8,
+        "slot_count": 3,
         "running_preference_id": 38,
         "bound": "edx",
         "heathen": False,
@@ -88,6 +93,7 @@ CONFIG = {
         "skills": (0xEAC, 0xEB0, 0xEB4, 0xEB8, 0xEBC),
         "likes": 0xFB4,
         "dislikes": 0xFC0,
+        "slot_count": 3,
         "running_preference_id": 38,
         "bound": "edx",
         "heathen": False,
@@ -110,6 +116,7 @@ CONFIG = {
         "skills": (0x1C5C, 0x1C60, 0x1C64, 0x1C68, 0x1C6C),
         "likes": 0x1E60,
         "dislikes": 0x1E6C,
+        "slot_count": 3,
         "running_preference_id": 38,
         "bound": "edx",
         "heathen": False,
@@ -136,6 +143,7 @@ CONFIG = {
         "skills": (7260, 7264, 7268, 7272, 7276, 7280),
         "likes": 8028,
         "dislikes": 8040,
+        "slot_count": 3,
         "running_preference_id": 38,
         "bound": "edx",
         "heathen": True,
@@ -239,6 +247,7 @@ def build_payload(config: dict) -> tuple[bytes, dict[str, int]]:
     )
 
     if config.get("native_running"):
+        slot_count = config["slot_count"]
         running_source = f"""
             push ebp
             push ebx
@@ -268,7 +277,7 @@ def build_payload(config: dict) -> tuple[bytes, dict[str, int]]:
             mov edx, eax
         running_like_next:
             inc eax
-            cmp eax, 3
+            cmp eax, {slot_count}
             jb running_scan
             cmp edx, -1
             jne running_insert
@@ -310,6 +319,7 @@ def build_payload(config: dict) -> tuple[bytes, dict[str, int]]:
             ret
         """
     else:
+        slot_count = config["slot_count"]
         running_source = f"""
             push ebp
             push ebx
@@ -325,31 +335,31 @@ def build_payload(config: dict) -> tuple[bytes, dict[str, int]]:
             jz running_done
             {_eligibility(config, 'running_next')}
             xor edx, edx
-            mov ecx, 3
+            mov ecx, {slot_count}
         running_scan:
             cmp dword ptr [esi+edx*4+{_hex_word(config['likes'])}], {_hex_word(config['running_preference_id'])}
             je running_existing
             cmp dword ptr [esi+edx*4+{_hex_word(config['likes'])}], -1
             jne running_like_next
-            cmp ecx, 3
+            cmp ecx, {slot_count}
             jne running_like_next
             mov ecx, edx
         running_like_next:
             inc edx
-            cmp edx, 3
+            cmp edx, {slot_count}
             jb running_scan
-            cmp ecx, 3
+            cmp ecx, {slot_count}
             je running_full_like
             mov dword ptr [esi+ecx*4+{_hex_word(config['likes'])}], {_hex_word(config['running_preference_id'])}
             jmp running_remove_dislikes
         running_full_like:
             inc edi
-            jmp running_remove_dislikes
+            jmp running_next
         running_existing:
             inc ebp
         running_remove_dislikes:
             xor edx, edx
-            mov ecx, 3
+            mov ecx, {slot_count}
         running_dislike_scan:
             cmp dword ptr [esi+edx*4+{_hex_word(config['dislikes'])}], {_hex_word(config['running_preference_id'])}
             jne running_dislike_next
@@ -375,7 +385,29 @@ def build_payload(config: dict) -> tuple[bytes, dict[str, int]]:
         """
     put(running_va, running_source)
 
-    if config.get("native_mastery"):
+    mastery_record_setup = _record_setup(config)
+    mastery_advance = ""
+    if config.get("native_skill_writer"):
+        mastery_record_setup += "\n            mov ebp, ecx\n            xor edi, edi"
+        mastery_advance = "inc edi"
+        skill_writes = "\n".join(
+            f"""
+            cmp dword ptr [esi + {_hex_word(offset)}], 100
+            je mastery_skill_next_{index}
+            mov eax, 100
+            sub eax, dword ptr [esi + {_hex_word(offset)}]
+            push eax
+            push {_hex_word(code)}
+            push edi
+            mov ecx, ebp
+            call {_hex_word(config['native_skill_writer'])}
+        mastery_skill_next_{index}:
+            """
+            for index, (offset, code) in enumerate(
+                zip(config["skills"], config["skill_codes"])
+            )
+        )
+    elif config.get("native_mastery"):
         skill_writes = f"""
             xor edi, edi
         mastery_skill_loop:
@@ -408,7 +440,7 @@ def build_payload(config: dict) -> tuple[bytes, dict[str, int]]:
             push esi
             push edi
             mov ebx, edx
-            {_record_setup(config)}
+            {mastery_record_setup}
         mastery_loop:
             test ebx, ebx
             jz mastery_done
@@ -416,6 +448,7 @@ def build_payload(config: dict) -> tuple[bytes, dict[str, int]]:
             {skill_writes}
         mastery_next:
             add esi, {_hex_word(config['stride'])}
+            {mastery_advance}
             dec ebx
             jmp mastery_loop
         mastery_done:
@@ -503,22 +536,9 @@ def main() -> None:
         feature_name = "Enable Origins Village-Wide Upgrades"
         enabled = True
         description = (
-            (
-                "Requested static/playtest package: enables the existing Origins Tech-screen "
-                "Upgrades button and menu, then "
-                "adds the village-wide rows from the Virtual Villagers 1 mobile port: "
-            )
-            if enabled
-            else (
-                "Retains the historical Origins rows from the Virtual Villagers 1 mobile port "
-                "as disabled diagnostic provenance rather than public Tech-screen upgrades: "
-            )
-        ) + (
-            "All Villagers Like Running, Grant Full Mastery to All Villagers, and All "
-            "Villagers are 18. Each row costs 1,000,000 tech points in the current save. "
-            "The legacy Running helper and its preference-table facts are not native ABI "
-            "proof. Mastery writes only the native skill fields. Age changes only the "
-            "displayed age to 18 and does not change nursing or pregnancy timers."
+            f"Enables the Origins Tech-screen Upgrades button/menu for {config['title']} "
+            "and adds Running, Full Mastery, and Set Age to 18. "
+            "Each row costs 1,000,000 tech points. Runtime/player confirmation pending."
         )
         if game_id == "vv5":
             description += " Only eligible living believers are processed; Heathens are excluded and remain untouched."
@@ -546,7 +566,7 @@ def main() -> None:
                 "signature_offset": f"0x{entries['signature_offset']:X}",
                 "entry_offset": f"0x{entries['entry_offset']:X}",
                 "entry_virtual_address": f"0x{config['cave_va'] + (entries['entry_offset'] - config['cave_offset']):X}",
-                "calling_convention": "near call with EAX=command 6/7/8, ECX=first physical record pointer, EDX=physical record bound; command 6 returns full-Like skips in EAX, already-Running (already-running) skips in EDX, and villagers with a removed Running dislike in ECX; commands 7/8 return zero counts; invalid commands return EAX=-1 and EDX/ECX=0; preserves EBX/ESI/EDI/EBP/ESP",
+                "calling_convention": "near call with EAX=command 6/7/8, ECX=first physical record pointer, EDX=physical record bound; command 6 returns full-Like skips in EAX, already-Running (already-running) skips in EDX, and villagers with a removed Running dislike in ECX; full Like records receive no preference writes; commands 7/8 return zero counts; invalid commands return EAX=-1 and EDX/ECX=0; preserves EBX/ESI/EDI/EBP/ESP",
                 "commands": {
                     "6": "All Villagers Like Running",
                     "7": "Grant Full Mastery to All Villagers",
@@ -561,14 +581,21 @@ def main() -> None:
                 "age_offset": f"0x{config['age']:X}",
                 "likes_offset": f"0x{config['likes']:X}",
                 "dislikes_offset": f"0x{config['dislikes']:X}",
+                "like_slot_count": config["slot_count"],
+                "dislike_slot_count": config["slot_count"],
                 "running_preference_id": config["running_preference_id"],
                 "skill_offsets": [f"0x{offset:X}" for offset in config["skills"]],
+                "native_skill_writer": (
+                    f"0x{config['native_skill_writer']:X}"
+                    if config.get("native_skill_writer")
+                    else None
+                ),
                 "bound_source": "EDX physical record bound",
             },
             "behavior_changes": [
                 "Adds rows 6-8 to the Origins Tech-screen Upgrades dialog only when this optional feature is installed.",
                 "Charges exactly 1,000,000 tech points once per selected village-wide purchase in the current save.",
-                "Running scans exactly three normal Like and Dislike slots, reports full-Like and already-Running counts, and reports villagers whose Running dislike was removed; duplicate Running Dislikes are all cleared but count once per villager.",
+                f"Running scans exactly {config['slot_count']} physical Like and Dislike slots, adds Running only to the first free Like slot, and removes Running Dislikes only after a successful or already-present Running state.",
                 "Grant Full Mastery to All Villagers writes the native five- or six-skill mastery fields for eligible living villagers.",
                 "All Villagers are 18 writes only the verified displayed-age field to 360 age units.",
             ],
@@ -577,7 +604,6 @@ def main() -> None:
                 "No unrelated Like is replaced or removed.",
                 "No movement speed, movement initialization, nursing timer, pregnancy timer, or pregnancy state is written.",
                 "The upgrades are save-scoped and do not set a global ownership bit.",
-                "VV5 Heathens are excluded from all three village-wide operations.",
             ],
             "evidence_status": "static exact-build payload and field-map verification performed; runtime/player confirmation pending",
             "cave": {
@@ -602,6 +628,9 @@ def main() -> None:
         # GO, and the package documentation preserves the reported crash gates.
         feature["enabled"] = enabled
         if game_id == "vv5":
+            feature["explicit_non_changes"].append(
+                "VV5 Heathens are excluded from all three village-wide operations."
+            )
             feature["record_fields"].update(
                 {
                     "heathen_active_guard_offset": f"0x{config['heathen_active_guard']:X}",

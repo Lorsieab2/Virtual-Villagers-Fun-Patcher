@@ -374,9 +374,7 @@ class ManifestTests(unittest.TestCase):
     def test_withdrawn_candidates_are_absent_and_catalog_loads(self) -> None:
         active_ids = {feature.id for feature in load_fun_patches()}
         self.assertTrue(active_ids)
-        self.assertTrue(
-            "vv1_full_mastery_all_stage_a_candidate" in active_ids
-        )
+        self.assertNotIn("vv1_full_mastery_all_stage_a_candidate", active_ids)
         self.assertNotIn("vv3_all_villagers_like_running", active_ids)
         self.assertNotIn("vv5_full_mastery_all_stage_a_candidate", active_ids)
         self.assertIn("vv3_full_mastery_all_stage_a_candidate", active_ids)
@@ -513,15 +511,15 @@ class ManifestTests(unittest.TestCase):
 
     def test_village_wide_running_result_dialog_uses_exact_three_lines(self) -> None:
         source = (ROOT / "native" / "vv1_origins_icons" / "vv1_origins_icons.c").read_text(encoding="utf-8")
-        self.assertIn("Skipped over %d villagers. Reason: Already 3 likes.", source)
+        self.assertIn("Skipped over %d villagers. Reason: Already 4 likes.", source)
         self.assertIn("skipped over %d villagers. Reason: already likes running", source)
         self.assertIn("Removed running dislike from %d villagers", source)
         self.assertIn("removed_running_dislike", source)
 
-    def test_village_wide_running_clears_dislikes_even_for_full_like_records(self) -> None:
+    def test_village_wide_running_requires_a_free_like_slot(self) -> None:
         source = (ROOT / "scripts" / "build_village_wide_origins_features.py").read_text(encoding="utf-8")
         full_like = source.split("running_full_like:", 1)[1].split("running_existing:", 1)[0]
-        self.assertIn("jmp running_remove_dislikes", full_like)
+        self.assertIn("jmp running_next", full_like)
 
     def test_vv5_village_wide_payload_uses_authoritative_believer_predicate(self) -> None:
         feature = village_wide_record("vv5")
@@ -560,7 +558,7 @@ class ManifestTests(unittest.TestCase):
         retained legacy helpers scan three slots.
         """
         expected_slot_counts = {
-            "vv1": 3,
+            "vv1": 4,
             "vv2": 62,
             "vv3": 3,
             "vv4": 3,
@@ -1846,7 +1844,7 @@ class StockIntegrationTests(unittest.TestCase):
         self.assertIn(bytes.fromhex("80B998A0000000"), mortality_cave)
         self.assertIn(bytes.fromhex("83C56483C528"), mortality_cave)
 
-    def test_vv1_magic_fruit_combines_with_every_vv1_patch(self) -> None:
+    def test_vv1_magic_fruit_combines_with_current_vv1_patches(self) -> None:
         build = next(build for build in load_builds() if build.id == "vv1")
         selected = [
             patch.id
@@ -1854,7 +1852,6 @@ class StockIntegrationTests(unittest.TestCase):
             if patch.game_id == "vv1"
             and patch.id
             not in {
-                "vv1_full_mastery_all_stage_a_candidate",
                 "vv1_enable_origins_exclusive_features",
                 "vv1_origins_village_wide_upgrades",
             }
@@ -1867,20 +1864,10 @@ class StockIntegrationTests(unittest.TestCase):
         )
         self.assertTrue(rendered)
         self.assertGreater(len(applied), 5)
-        composed, composed_applied = render_patched_bytes(
-            STOCK / build.input_name,
-            build,
-            DEFAULT_PATCH_MODE,
-            [
-                *selected,
-                "vv1_full_mastery_all_stage_a_candidate",
-            ],
+        self.assertNotIn(
+            "vv1_individual_full_mastery_candidate",
+            {patch.id for patch in load_fun_patches()},
         )
-        self.assertTrue(composed)
-        self.assertTrue(any(
-            patch.get("owner") == "feature:vv1_full_mastery_all_stage_a_candidate"
-            for patch in composed_applied
-        ))
 
     def test_vv1_builder_action_fixes_preserve_other_scheduler_paths(self) -> None:
         patch = get_fun_patch("vv1_builder_action_fixes")
