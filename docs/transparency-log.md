@@ -20,11 +20,12 @@ VV3 Magic Level-1 audit `4c588ffd36765d750533fe9694f8fda5c8e82736` exhaustively 
 
 ## Birth Control scope
 
-The exact-build VV4/VV5 breeding audit confirms that both games already provide the requested VV4-style Birth Control/Breeding behavior natively. VV4 and VV5 are untouched no-patch references; no Birth Control runtime bytes are offered, applied, or reserved for either game. VV1 and VV3 remain ON HOLD pending separate exact-build evidence.
+The exact-build VV4/VV5 breeding audit confirms that both games already provide the requested VV4-style Birth Control/Breeding behavior natively. VV4 and VV5 are untouched no-patch references; no Birth Control runtime bytes are offered, applied, or reserved for either game. VV1, VV2, and VV3 now have separate exact-build records with static verification complete and runtime/player confirmation pending.
 
 Every current or future Birth Control, pregnancy, or Embracing patch is limited to the exact ordinary manual, autonomous, or catch-up route named by its game-specific evidence. All Island Event pregnancy, birth, and child outcomes remain completely native and bypass patched age, sex, preference, eligibility, conception, pregnancy, delivery, capacity, RNG, messages, statistics, and state writes. Every VV2 Gong of Wonder outcome has the same complete exclusion. These are control-flow/provenance exclusions, not result- or amount-based exceptions.
 
-VV1 exact-build audit `c8d268d` rejects its former byte proposal: `0x3DBBE` is the stock food>=400 gate rather than an age predicate, `0x458D0` and `0x45930` are live instruction interiors, and `0x56740` is uncertified. Stock manual pairing has no age ceiling; the requested reference would be sex/category-2 carrier-only with no male ceiling. Complete coverage requires planner scan `0x4477AF` plus action-9 writer-reaching scans `0x446E70` and `0x447070`; catch-up reuses that path, while direct event births and pending delivery remain native. The disabled historical `vv1_birth_control` entry has no executable patches and remains ON HOLD.
+VV1 exact-build audit `c8d268d` rejects its former byte proposal: `0x3DBBE` is the stock food>=400 gate rather than an age predicate, `0x458D0` and `0x45930` are live instruction interiors, and `0x56740` is uncertified. The active `vv1_birth_control` record instead owns a `.vv1bc` executable page at raw `0x8E000` / VA `0x490000`, hooks the manual route at `0x3DD03`, the action-9 writer-reaching scans at `0x46E96` and `0x47084`, and the planner at `0x477FA`, and preserves the stock lower bounds while adding only candidate upper bounds. Catch-up reuses that route; direct event births and pending delivery remain native.
+VV3 exact-build feature `vv3_birth_control` changes only the five repeated initiator-age blocks at `0x5CE74`, `0x5CF35`, `0x5CFFC`, `0x5D0C0`, and `0x5D187`. Each native candidate `360..999` check remains; only the ordinary action-13 selector's duplicate initiator upper rejection is removed. The native manual handler at VA `0x4584B0`, direct event births, pending delivery, clone paths, and other special producers remain native.
 
 VV2 exact-build feature `vv2_birth_control` is limited to the two complete 40-byte writer-reaching opcode-12 candidate scans at file offsets `0x6488D` and `0x64A8F`, based on disassembly commit `74778bd6a7d3a17dd990636cf6d4e769466800c6`. It preserves candidate sex in EDX and rejects an already-loaded candidate age in EAX at 1000 or above. The stock manual carrier/female-only gate and lack of a male upper-age gate remain unchanged. Love Note call `0x22006`, Gong life-grant call `0x4EB3E`, Silver Mirror clone call `0x217F9`, pregnancy writer `0x4B980`, pending-delivery path, chooser scoring, planner, saves, RNG, resources, statistics, and all direct event/Gong routes remain native. This does not claim broader breeding parity.
 
@@ -91,6 +92,16 @@ The VV4 `Full Heal / Cure All` candidate is disabled and catalog-hidden. It is b
 Supported stock identity is the exact `Virtual Villagers - A New Home.exe` build recorded in `data/builds.json`. The automatic edits are the selected population mode plus 17 guarded safety edits. The modified output retains the untouched stock executable beside the modified executable. Stock modes preserve vanilla save format; expanded modes use the documented guarded compatibility/conversion path.
 
 ### Optional features
+
+#### Birth Control (`vv1_birth_control`)
+
+Applies the requested VV4-style ordinary-route boundary to the exact VV1 build. Manual pairing rejects only a category-2 carrier at internal age>=1000; the two action-9 writer-reaching scans and the planner reject only scanned candidates at internal age>=1000; initiator males and older autonomous initiators retain no upper-age ceiling. Direct event births and pending delivery remain native.
+
+- Behavior changes: The manual pairing hook at file offset 0x3DD03 routes through an owned .vv1bc page and rejects only the category-2 carrier participant at internal age>=1000. The action-9 writer-reaching scans at 0x46E96 and 0x47084 retain their stock candidate and initiator lower bounds while adding only a candidate upper bound. The planner scan at 0x477FA adds only a candidate upper bound before the stock initiator lower-bound check.
+- Explicit non-changes/exclusions: No male upper-age gate is added. The existing candidate sex/category checks, writer calls, chooser, planner action dispatch, pregnancy writer, delivery, save format, RNG, fertility, capacity, messages, and statistics remain native. Direct event-created births, pending delivery, and every route outside the named ordinary manual/planner/action-9 boundaries remain native.
+- Dependencies: none
+- Evidence status: implemented from exact-build disassembly; static verification complete, runtime/player confirmation pending
+- Guarded executable edits: 4; every edit has an exact purpose and before/after guard in the manifest.
 
 #### Builder Action Fixes (`vv1_builder_action_fixes`)
 
@@ -277,6 +288,16 @@ After a successful save, writes the village's lifetime statistics to a Village S
 Supported stock identity is the exact `Virtual Villagers - The Secret City.exe` build recorded in `data/builds.json`. The automatic edits are the selected population mode plus 8 guarded safety edits. The modified output retains the untouched stock executable beside the modified executable. Stock modes preserve vanilla save format; expanded modes use the documented guarded compatibility/conversion path.
 
 ### Optional features
+
+#### Birth Control (`vv3_birth_control`)
+
+Limits only the ordinary autonomous/catch-up mate selector used by action 13: the scanned candidate remains in the stock internal-age 360..999 range, while the initiating villager no longer receives an extra upper-age rejection. VV3's native manual category-1 age gate remains unchanged and no male upper-age gate is added.
+
+- Behavior changes: The five repeated candidate-selector blocks at file offsets 0x5CE74, 0x5CF35, 0x5CFFC, 0x5D0C0, and 0x5D187 retain each candidate's stock age<1000 check while removing only the initiator's duplicate age<1000 check. The ordinary action-13 autonomous/catch-up route therefore follows the VV4 reference boundary: the scanned candidate is capped at internal age 999, but the initiating villager has no male or female upper-age ceiling in this selector.
+- Explicit non-changes/exclusions: The native VV3 manual pairing handler at VA 0x4584B0 retains its category-1 carrier/female-only internal-age-1000 rejection for both participants. Action selection, preference scoring, the conception writer, pending delivery, save format, RNG, health, fertility, capacity, messages, and statistics are unchanged. Direct event-created births, Island Events, clone paths, and every route outside the ordinary action-13 mate selector remain native.
+- Dependencies: none
+- Evidence status: implemented from exact-build disassembly; static verification complete, runtime/player confirmation pending
+- Guarded executable edits: 5; every edit has an exact purpose and before/after guard in the manifest.
 
 #### Enable Origins Village-Wide Upgrades (`vv3_origins_village_wide_upgrades`)
 

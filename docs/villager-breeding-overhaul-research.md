@@ -118,12 +118,12 @@ and autonomous selection mechanics, older-mother behavior, and lack of a male
 upper-age gate must remain unchanged. No VV4 executable edits are shipped or
 selectable.
 
-The remaining overhaul entries for VV1, VV2, and VV3 are independent ON HOLD
-tasks. They require exact-build coverage rather than a shared copied predicate.
-VV5 is also a native no-patch reference: its exact-build audit matches VV4's
-requested Birth Control/Breeding behavior.
+VV1, VV2, and VV3 now have independent exact-build records. Their static
+coverage is separate rather than a shared copied predicate; runtime/player
+confirmation remains pending. VV5 is also a native no-patch reference: its
+exact-build audit matches VV4's requested Birth Control/Breeding behavior.
 
-### VV1 exact-build rejected proposal (`c8d268d`)
+### VV1 exact-build implementation
 
 The 581,632-byte VV1 build has no manual-pairing age ceiling. Exact-build audit
 commit `c8d268d` rejects the prior patch proposal:
@@ -135,25 +135,39 @@ commit `c8d268d` rejects the prior patch proposal:
   reference is sex/category-2 carrier-only at internal age `>=1000` and has no
   male upper-age ceiling.
 
-Complete VV1 coverage requires the planner scan at `0x4477AF` plus the
-action-9 writer-reaching commit scans at `0x446E70` and `0x447070`. Catch-up
-reuses the chooser/action-9 path. Direct event-created births and pending
-delivery remain native. VV1 therefore remains ON HOLD until a complete exact
-safe hook and placement are proved; no replacement bytes are proposed here.
-Its future GO must also enumerate all Island Event pregnancy/birth/child
-producers and prove that none can observe the ordinary-route changes described
-above.
+The implemented VV1 feature uses an owned executable `.vv1bc` section at raw
+`0x8E000` / VA `0x490000`; it does not consume the historical `.text` gaps or
+the Origins `.shr`/code-patch ranges. The manual hook at `0x3DD03` rejects only
+the category-2 carrier at internal age `>=1000`. The two action-9
+writer-reaching scans at `0x46E96` and `0x47084` add candidate-only upper
+bounds while preserving both stock `>=360` checks. The planner hook at
+`0x477FA` likewise adds only the candidate upper bound before the stock
+initiator check. This corresponds to the audited planner scan at VA `0x4477AF`
+and raw `0x477AF`. Catch-up reuses the chooser/action-9 route. Direct
+event-created births and pending delivery remain native. Static verification is
+complete; runtime/player confirmation remains pending.
 
-For VV2 and VV3, the documented stock age comparisons and call chains must be
-rechecked against the current manifest before any replacement is written.
+The former rejection evidence remains relevant as a negative boundary: the
+historical `0x3DBBE` food gate, live instruction interiors, and uncertified
+`0x56740` cave are not used by the implementation.
 
-### VV3 future-GO special-outcome boundary
+VV2 retains its independent two-site implementation described below. VV3's
+ordinary action-13 selector is covered by the implementation in the next
+section; its native manual and special routes remain unchanged.
 
-VV3 remains ON HOLD. Any future provenance mechanism for its shared live
-autonomous path must be confined to that proved ordinary route, clear on every
-exit, and remain invisible to Island Event pregnancy/birth/child outcomes,
-direct constructors, clone paths, saved pending delivery, and every other
-special producer. No VV3 implementation is claimed by this requirement.
+### VV3 exact-build implementation and special-outcome boundary
+
+The implemented VV3 feature changes only the five repeated initiator-age
+comparisons in the exact ordinary action-13 mate selector at file offsets
+`0x5CE74`, `0x5CF35`, `0x5CFFC`, `0x5D0C0`, and `0x5D187`. Each candidate's
+native `360..999` test remains intact; only the duplicate initiating-villager
+`>=1000` rejection is removed. The native manual handler at VA `0x4584B0`
+retains its category-1 carrier/female-only internal-age-1000 rejection for
+both participants. The selector is reached by the ordinary autonomous and
+catch-up action path; direct constructors, clone paths, saved pending delivery,
+Island Event pregnancy/birth/child outcomes, and every other special producer
+remain native. Static verification is complete; runtime/player confirmation
+remains pending.
 
 ### VV5 exact-build audit: native no-patch reference
 
@@ -173,13 +187,12 @@ reserved.
 
 ## Implementation status
 
-VV1 and VV3 remain research-only until their exact before-bytes,
-non-overlapping placement, return paths, and tests are verified for each
-supported SHA-256 build. VV1's rejected historical patch list is empty; no
-invalid food-gate or live-code edit is offered. VV2 implements only the two
-certified writer-reaching opcode-12 candidate scans described below. VV4 and
-VV5 are native no-patch references; no Birth Control runtime patch is offered,
-applied, or reserved for either game.
+VV1, VV2, and VV3 have independent exact-build Birth Control records. VV1's
+owned helper page and four guarded code hooks, plus VV3's five complete
+initiator-check removals, are statically verified against their recorded stock
+hashes. Runtime/player confirmation remains pending. VV1/VV2/VV3 records do
+not claim to alter special event births, pending delivery, or unrelated
+writers. VV4 and VV5 remain native no-patch references.
 
 ### VV2 exact-build implementation (`74778bd6a7d3a17dd990636cf6d4e769466800c6`)
 

@@ -890,7 +890,6 @@
       "name": "Builder Action Fixes",
       "description": "Villagers whose selected job is Building try the stock construction dispatcher at every food level, while autonomous construction project IDs 9, 10, and 11 are eligible only after their signed progress is greater than zero; the other project gates and manual, existing-work, and repair routes remain stock.",
       "output_tag": "Builder Action Fixes",
-      "conflicts": ["vv1_enable_origins_exclusive_features"],
       "patches": [
         {
           "offset": "0x48336",
@@ -924,8 +923,8 @@
         },
         {
           "offset": "0x568D0",
-          "before": "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
-          "after": "8B8110E003008B5424088D14D59C9F0000833C10007F158B0424837C24080B750383C02983C00983C410FFE0E98FB7FEFF",
+          "before": "000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "after": "8B8110E003008B5424088D14D59C9F0000833C10007F128B0424837C24080B750383C03283C410FFE0E992B7FEFF0000",
           "purpose": "allow autonomous construction project IDs 9, 10, and 11 to enter the stock gate only when signed progress is greater than zero, otherwise resume their reviewed no-project continuations with the original stack contract"
         }
       ]
@@ -1326,6 +1325,55 @@
       }
     },
     {
+      "id": "vv3_birth_control",
+      "game_id": "vv3",
+      "name": "Birth Control",
+      "description": "Limits only the ordinary autonomous/catch-up mate selector used by action 13: the scanned candidate remains in the stock internal-age 360..999 range, while the initiating villager no longer receives an extra upper-age rejection. VV3's native manual category-1 age gate remains unchanged and no male upper-age gate is added.",
+      "output_tag": "Birth Control",
+      "behavior_changes": [
+        "The five repeated candidate-selector blocks at file offsets 0x5CE74, 0x5CF35, 0x5CFFC, 0x5D0C0, and 0x5D187 retain each candidate's stock age<1000 check while removing only the initiator's duplicate age<1000 check.",
+        "The ordinary action-13 autonomous/catch-up route therefore follows the VV4 reference boundary: the scanned candidate is capped at internal age 999, but the initiating villager has no male or female upper-age ceiling in this selector."
+      ],
+      "explicit_non_changes": [
+        "The native VV3 manual pairing handler at VA 0x4584B0 retains its category-1 carrier/female-only internal-age-1000 rejection for both participants.",
+        "Action selection, preference scoring, the conception writer, pending delivery, save format, RNG, health, fertility, capacity, messages, and statistics are unchanged.",
+        "Direct event-created births, Island Events, clone paths, and every route outside the ordinary action-13 mate selector remain native."
+      ],
+      "evidence_status": "implemented from exact-build disassembly; static verification complete, runtime/player confirmation pending",
+      "patches": [
+        {
+          "offset": "0x5CE74",
+          "before": "81FAE80300007D5A",
+          "after": "9090909090909090",
+          "purpose": "remove only the first action-13 selector block's duplicate initiator age>=1000 rejection"
+        },
+        {
+          "offset": "0x5CF35",
+          "before": "81FAE80300007D60",
+          "after": "9090909090909090",
+          "purpose": "remove only the second action-13 selector block's duplicate initiator age>=1000 rejection"
+        },
+        {
+          "offset": "0x5CFFC",
+          "before": "81FAE80300007D5D",
+          "after": "9090909090909090",
+          "purpose": "remove only the third action-13 selector block's duplicate initiator age>=1000 rejection"
+        },
+        {
+          "offset": "0x5D0C0",
+          "before": "81FAE80300007D60",
+          "after": "9090909090909090",
+          "purpose": "remove only the fourth action-13 selector block's duplicate initiator age>=1000 rejection"
+        },
+        {
+          "offset": "0x5D187",
+          "before": "81FAE80300007D60",
+          "after": "9090909090909090",
+          "purpose": "remove only the fifth action-13 selector block's duplicate initiator age>=1000 rejection"
+        }
+      ]
+    },
+    {
       "id": "vv4_birth_control",
       "game_id": "vv4",
       "name": "Birth Control",
@@ -1339,11 +1387,107 @@
       "id": "vv1_birth_control",
       "game_id": "vv1",
       "name": "Birth Control",
-      "enabled": false,
-      "status": "research-only; rejected exact-build proposal; implementation ON HOLD (disassembly c8d268d)",
-      "description": "Historical research only. Exact-build audit c8d268d rejects the prior byte proposal: 0x3DBBE is the stock food>=400 gate, 0x458D0 and 0x45930 are live instruction interiors, and 0x56740 is not a certified cave. Stock VV1 manual pairing has no age ceiling, and the old proposal incorrectly rejected both sexes. The requested VV4 reference would be sex/category-2 carrier-only at internal age>=1000 with no male ceiling. Complete coverage still requires the planner scan at 0x4477AF plus action-9 writer-reaching commit scans at 0x446E70 and 0x447070. Catch-up reuses the chooser/action-9 path; direct event births and pending delivery remain native. No exact safe hook or placement is certified, so VV1 remains ON HOLD.",
       "output_tag": "Birth Control",
-      "patches": []
+      "status": "implemented exact-build ordinary-route patch; static verification complete, runtime/player confirmation pending",
+      "description": "Applies the requested VV4-style ordinary-route boundary to the exact VV1 build. Manual pairing rejects only a category-2 carrier at internal age>=1000; the two action-9 writer-reaching scans and the planner reject only scanned candidates at internal age>=1000; initiator males and older autonomous initiators retain no upper-age ceiling. Direct event births and pending delivery remain native.",
+      "behavior_changes": [
+        "The manual pairing hook at file offset 0x3DD03 routes through an owned .vv1bc page and rejects only the category-2 carrier participant at internal age>=1000.",
+        "The action-9 writer-reaching scans at 0x46E96 and 0x47084 retain their stock candidate and initiator lower bounds while adding only a candidate upper bound.",
+        "The planner scan at 0x477FA adds only a candidate upper bound before the stock initiator lower-bound check."
+      ],
+      "explicit_non_changes": [
+        "No male upper-age gate is added. The existing candidate sex/category checks, writer calls, chooser, planner action dispatch, pregnancy writer, delivery, save format, RNG, fertility, capacity, messages, and statistics remain native.",
+        "Direct event-created births, pending delivery, and every route outside the named ordinary manual/planner/action-9 boundaries remain native."
+      ],
+      "evidence_status": "implemented from exact-build disassembly; static verification complete, runtime/player confirmation pending",
+      "pe_append_transaction": {
+        "section": ".vv1bc",
+        "layouts": {
+          "stock": {
+            "original_file_size": "0x8E000",
+            "append_offset": "0x8E000",
+            "append_length": 4096,
+            "append_source": "generated:vv1_birth_control_page",
+            "page_virtual_address": "0x490000",
+            "page_sha256": "B6215BCA91392E66BB32DBF5766725413E317810A3773CF7E4987FA4C0197A09",
+            "purpose": "append the owned VV1 Birth Control executable helper page",
+            "header_patches": [
+              {
+                "offset": "0xFE",
+                "before": "0500",
+                "after": "0600",
+                "purpose": "add the owned .vv1bc executable section"
+              },
+              {
+                "offset": "0x148",
+                "before": "00000900",
+                "after": "00100900",
+                "purpose": "extend SizeOfImage for the owned .vv1bc section"
+              },
+              {
+                "offset": "0x2B8",
+                "before": "00000000000000000000000000000000000000000000000000000000000000000000000000000000",
+                "after": "2E7676316263000000100000000009000010000000E0080000000000000000000000000020000060",
+                "purpose": "write the owned .vv1bc PE section header"
+              }
+            ]
+          },
+          "collection_progression": {
+            "original_file_size": "0x8E000",
+            "append_offset": "0x8E000",
+            "append_length": 4096,
+            "append_source": "generated:vv1_birth_control_page",
+            "page_virtual_address": "0x490000",
+            "page_sha256": "B6215BCA91392E66BB32DBF5766725413E317810A3773CF7E4987FA4C0197A09",
+            "purpose": "append the owned VV1 Birth Control executable helper page",
+            "header_patches": [
+              {"offset": "0xFE", "before": "0500", "after": "0600", "purpose": "add the owned .vv1bc executable section"},
+              {"offset": "0x148", "before": "00000900", "after": "00100900", "purpose": "extend SizeOfImage for the owned .vv1bc section"},
+              {"offset": "0x2B8", "before": "00000000000000000000000000000000000000000000000000000000000000000000000000000000", "after": "2E7676316263000000100000000009000010000000E0080000000000000000000000000020000060", "purpose": "write the owned .vv1bc PE section header"}
+            ]
+          },
+          "immediate_fixed": {
+            "original_file_size": "0x8E000",
+            "append_offset": "0x8E000",
+            "append_length": 4096,
+            "append_source": "generated:vv1_birth_control_page",
+            "page_virtual_address": "0x490000",
+            "page_sha256": "B6215BCA91392E66BB32DBF5766725413E317810A3773CF7E4987FA4C0197A09",
+            "purpose": "append the owned VV1 Birth Control executable helper page",
+            "header_patches": [
+              {"offset": "0xFE", "before": "0500", "after": "0600", "purpose": "add the owned .vv1bc executable section"},
+              {"offset": "0x148", "before": "00000900", "after": "00100900", "purpose": "extend SizeOfImage for the owned .vv1bc section"},
+              {"offset": "0x2B8", "before": "00000000000000000000000000000000000000000000000000000000000000000000000000000000", "after": "2E7676316263000000100000000009000010000000E0080000000000000000000000000020000060", "purpose": "write the owned .vv1bc PE section header"}
+            ]
+          }
+        }
+      },
+      "patches": [
+        {
+          "offset": "0x3DD03",
+          "before": "83BD5003000002",
+          "after": "E9F82205009090",
+          "purpose": "route the stock manual category-2 carrier branch through the exact age-1000 helper"
+        },
+        {
+          "offset": "0x46E96",
+          "before": "813868010000",
+          "after": "E9A591040090",
+          "purpose": "add a candidate-only internal-age-1000 upper bound to the first action-9 writer-reaching scan"
+        },
+        {
+          "offset": "0x47084",
+          "before": "813968010000",
+          "after": "E9F78F040090",
+          "purpose": "add a candidate-only internal-age-1000 upper bound to the second action-9 writer-reaching scan"
+        },
+        {
+          "offset": "0x477FA",
+          "before": "3950F47C2A",
+          "after": "E9C1880400",
+          "purpose": "add a candidate-only internal-age-1000 upper bound to the planner scan while preserving the stock initiator check"
+        }
+      ]
     }
   ]
 }
