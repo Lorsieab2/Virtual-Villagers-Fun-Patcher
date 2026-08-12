@@ -386,15 +386,31 @@ class ManifestTests(unittest.TestCase):
         self.assertNotIn("vv5_full_mastery_all_stage_a_candidate", active_ids)
         self.assertNotIn("vv3_full_mastery_all_stage_a_candidate", active_ids)
 
-    def test_vv1_builder_and_origins_cave_conflict_is_explicit(self) -> None:
-        with self.assertRaisesRegex(PatcherError, "conflicts with"):
-            resolve_fun_patch_ids(
-                [
-                    "vv1_builder_action_fixes",
-                    "vv1_enable_origins_exclusive_features",
-                ],
-                game_id="vv1",
-            )
+    def test_vv1_builder_and_origins_caves_compose_without_overlap(self) -> None:
+        feature_ids = [
+            "vv1_builder_action_fixes",
+            "vv1_enable_origins_exclusive_features",
+        ]
+        resolved = resolve_fun_patch_ids(feature_ids, game_id="vv1")
+        self.assertEqual(resolved, feature_ids)
+        build = next(build for build in load_builds() if build.id == "vv1")
+        rendered, _ = render_patched_bytes(
+            STOCK / build.input_name,
+            build,
+            DEFAULT_PATCH_MODE,
+            feature_ids,
+        )
+        self.assertEqual(
+            bytes(rendered[0x568D0:0x56900]),
+            bytes.fromhex(
+                "8B8110E003008B5424088D14D59C9F0000833C10007F12"
+                "8B0424837C24080B750383C03283C410FFE0E992B7FEFF0000"
+            ),
+        )
+        self.assertEqual(
+            bytes(rendered[0x56900:0x56904]),
+            bytes.fromhex("837C2404"),
+        )
 
     def test_origins_village_wide_payloads_use_zero_owned_reserves(self) -> None:
         stock_by_game = {build.id: STOCK / build.input_name for build in load_builds()}
@@ -1965,21 +1981,23 @@ class StockIntegrationTests(unittest.TestCase):
         )
         self.assertIn(bytes.fromhex("83BC30D003000001"), cave)
 
-        wrapper = bytes(rendered[0x568D0:0x56901])
+        wrapper = bytes(rendered[0x568D0:0x56900])
         self.assertEqual(
             wrapper,
             bytes.fromhex(
-                "8B8110E003008B5424088D14D59C9F0000833C10007F15"
-                "8B0424837C24080B750383C02983C00983C410FFE0E98FB7FEFF"
+                "8B8110E003008B5424088D14D59C9F0000833C10007F12"
+                "8B0424837C24080B750383C03283C410FFE0E992B7FEFF0000"
             ),
         )
         hooks = {9: 0x4753C, 10: 0x47568, 11: 0x4759A}
         continuations = {9: 0x4754A, 10: 0x47576, 11: 0x475D1}
-        self.assertEqual(wrapper[17:23], bytes.fromhex("833C10007F15"))
+        self.assertEqual(wrapper[17:23], bytes.fromhex("833C10007F12"))
         self.assertEqual(
-            wrapper[23:44],
-            bytes.fromhex("8B0424837C24080B750383C02983C00983C410FFE0"),
+            wrapper[23:41],
+            bytes.fromhex("8B0424837C24080B750383C03283C410FFE0"),
         )
+        self.assertEqual(wrapper[41:46], bytes.fromhex("E992B7FEFF"))
+        self.assertEqual(wrapper[46:], b"\0\0")
 
         def modeled_target(project_id: int, raw_progress: int) -> int:
             signed_progress = (
@@ -2010,7 +2028,7 @@ class StockIntegrationTests(unittest.TestCase):
                     self.assertEqual(modeled_target(project_id, raw_progress), 0x42090)
         self.assertEqual(set(range(3, 9)) & set(hooks), set())
         self.assertEqual(
-            0x568FC + 5 + struct.unpack_from("<i", wrapper, 45)[0],
+            0x568F9 + 5 + struct.unpack_from("<i", wrapper, 41)[0],
             0x42090,
         )
 

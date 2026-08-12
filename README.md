@@ -318,28 +318,22 @@ pending delivery remain native.
 ## VV3: Everyone Tries On the Robe
 
 Enable **Everyone Tries On the Robe (The Secret City)** to make one handled
-robe drop call the whole eligible village to the robe area. The dropped
-initiator keeps the complete stock result and is still the only villager who
-can receive the successful Tribal Chief action. Every other active, living,
-non-nursing villager receives only the game's native failed-fit **Trying on the
-robe** action, including its status, walk, gestures, and temporary try-on
-appearance.
+robe drop call the unchanged stock robe callback for the whole eligible
+village. Every active, living, non-nursing villager receives the base game's
+complete native success or failed-fit result, and the base game decides who
+becomes Tribal Chief.
 
-Followers never receive the successful-fit action, persistent Chief clothing,
-or Chief state. Dead, inactive, and nursing villagers are skipped. The patch
-does not read or write the robe candidate fields, and does not change the Chief
-puzzle, pregnancy or nursing state, health, age, skills, preferences, or save
-records. Fanout requires the original callback to report a handled drop and to
-leave the initiator in its native success or failed-fit robe action.
+Dead, inactive, and nursing villagers are skipped. The patch does not force
+either robe action, assign Chief clothing or state, or change the Chief puzzle,
+pregnancy or nursing state, health, age, skills, preferences, or save records.
+Fanout requires the original callback to report a handled drop.
 
 This checkbox is optional and starts unchecked. It supports the two
 population-increase modes. The implementation is exact-
 build guarded and statically verified; player runtime confirmation remains
 pending. The robe feature itself never reads or writes candidate fields
-`+0xE80` or `+0xE88`. If those
-fields are still zero before automatic assignment, or no eligible candidate
-exists, the native callback and robe fanout use failed-fit action 121 without
-granting Chief state.
+`+0xE80` or `+0xE88`; the unchanged stock callback remains responsible for
+candidate selection and all robe outcomes.
 
 ## VV3: Nature Level 1 Actually Replenishes Food Sources Faster
 

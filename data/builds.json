@@ -890,7 +890,6 @@
       "name": "Builder Action Fixes",
       "description": "Villagers whose selected job is Building try the stock construction dispatcher at every food level, while autonomous construction project IDs 9, 10, and 11 are eligible only after their signed progress is greater than zero; the other project gates and manual, existing-work, and repair routes remain stock.",
       "output_tag": "Builder Action Fixes",
-      "conflicts": ["vv1_enable_origins_exclusive_features"],
       "patches": [
         {
           "offset": "0x48336",
@@ -924,8 +923,8 @@
         },
         {
           "offset": "0x568D0",
-          "before": "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
-          "after": "8B8110E003008B5424088D14D59C9F0000833C10007F158B0424837C24080B750383C02983C00983C410FFE0E98FB7FEFF",
+          "before": "000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "after": "8B8110E003008B5424088D14D59C9F0000833C10007F128B0424837C24080B750383C03283C410FFE0E992B7FEFF0000",
           "purpose": "allow autonomous construction project IDs 9, 10, and 11 to enter the stock gate only when signed progress is greater than zero, otherwise resume their reviewed no-project continuations with the original stack contract"
         }
       ]
@@ -1274,7 +1273,7 @@
       "id": "vv3_everyone_tries_on_robe",
       "game_id": "vv3",
       "name": "Everyone Tries On the Robe",
-      "description": "Dropping an active, living, non-nursing villager on the robe keeps that villager's complete stock try-on or Tribal Chief result, then sends every other active, living, non-nursing villager through the stock failed-fit Trying on the robe action. Followers use the native status, walk, gestures, and temporary try-on appearance but never receive the successful fit, persistent Chief clothing, or Chief state.",
+      "description": "Dropping an active, living, non-nursing villager on the robe sends every other active, living, non-nursing villager through the unchanged stock robe callback too. Each villager receives the complete base-game success or failed-fit result, and the base game decides who becomes Tribal Chief.",
       "output_tag": "Everyone Tries On the Robe",
       "enabled": true,
       "catalog_enabled": true,
@@ -1286,12 +1285,12 @@
         "immediate_fixed"
       ],
       "behavior_changes": [
-        "After the stock callback reports a handled robe drop and leaves the eligible initiator in action 120 or 121, every other eligible VV3 villager is sent through the stock failed-fit action 121 robe sequence. The runtime loop accepts only the authenticated stock bound 150."
+        "After the stock callback handles the dropped villager, every other active, living, non-nursing VV3 villager is sent through that same unchanged stock robe callback. The runtime loop accepts only the authenticated stock bound 150."
       ],
       "explicit_non_changes": [
-        "Dead, inactive, and nursing villagers are skipped. The dropped initiator keeps the complete stock action 120 or action 121 result and remains the only villager eligible to become Tribal Chief. Followers never receive success action 120, persistent Chief clothing, or Chief state, and the wrapper does not read or write candidate fields +0xE80/+0xE88 or change the puzzle, pregnancy/nursing state, health, age, skills, preferences, or saved record layout."
+        "Dead, inactive, and nursing villagers are skipped. The unchanged stock callback remains responsible for success/failure, Chief clothing, Chief state, puzzle mutation, and candidate selection for every villager. The wrapper does not read or write candidate fields +0xE80/+0xE88 or change pregnancy/nursing state, health, age, skills, preferences, or saved record layout."
       ],
-      "evidence_status": "independently reviewed exact-build static implementation; install/uninstall and stock/Expanded composition are automated, while player runtime confirmation remains pending",
+      "evidence_status": "independently reviewed exact-build static implementation; install/uninstall and current-mode composition are automated, while player runtime confirmation remains pending",
       "patches": [
         {
           "offset": "0x280",
@@ -1302,8 +1301,8 @@
         {
           "offset": "0xB4100",
           "before": "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
-          "after": "5589E553565783EC048B750856B860194200FFD083C40488C384C00F84C000000080BE100F0000000F84B300000083BE780E0000000F8EA600000083BE8C0E0000000F85990000008B86240F000083F878740983F8790F85850000008B0D3A88420081F996000000740881F900010000756FBF24E1590039F7745D80BF100F000000745483BF780E0000007E4B83BF8C0E0000007542516A006A646A05B8D0324000FFD083C4040561020000506A05B8D0324000FFD083C40405E80100005089F9B8B0114600FFD08D45F0506A7989F9B870554500FFD05981C78C1F000049759688D88D65F45F5E5B5DC3",
-          "purpose": "install the reviewed 235-byte robe callback wrapper that preserves the initiator's stock result and schedules only native failed-fit action 121 for other active living non-nursing villagers"
+          "after": "5589E553565783EC048B750856B860194200FFD083C40488C384C0747B83BE100F000000747283BE780E0000007E6983BE8C0E00000075608B86240F000083F878740583F87975508B0D3A88420081F996000000740881F900010000753ABF24E1590039F7742883BF100F000000741F83BF780E0000007E1683BF8C0E000000750D5157B860194200FFD083C4045981C78C1F00004975CB88D88D65F45F5E5B5DC390909090909090909090909090909090909090909090909090909090909090909090909090909090909090909090909090909090909090909090909090909090909090909090909090",
+          "purpose": "install the reviewed 235-byte robe callback wrapper that calls the unchanged native robe handler once for the dropped villager and once for every other eligible active living non-nursing villager"
         }
       ],
       "patch_mode_overrides": {

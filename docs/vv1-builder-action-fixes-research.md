@@ -44,7 +44,7 @@ The cave reconstructs the original comparison and:
 3. preserves the original high-food jump for every other selected job.
 
 The guarded calls at raw offsets `0x4753C`, `0x47568`, and `0x4759A` route only
-autonomous construction project IDs 9, 10, and 11 through a common 49-byte
+autonomous construction project IDs 9, 10, and 11 through a common 48-byte
 wrapper at raw offset `0x568D0`. The wrapper reads the project's signed progress
 and:
 

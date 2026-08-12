@@ -22,22 +22,22 @@ MODES = (
 )
 STOCK = ROOT / "research" / "stock-executables" / "Virtual Villagers - The Secret City.exe"
 EXPANDED_PROTOTYPE = ROOT / "research" / "vv3-expanded-prototype.exe"
-PAYLOAD_SHA256 = "CC885281A83022F53BD690FF830AC2F779E06E903C2E163508B4C48D64EA4C46"
+PAYLOAD_SHA256 = "0E9B56C94BAB762CD8690668CD2C96F36D5E7F4D9C3545C0EBD7A3C3726EE84E"
 ZERO_CAVE_SHA256 = "22B94C6893BFC091BE2A9F454A045184DF6C0398CFFA2B4E90C0065DD6EEB1B0"
 ISOLATED_RESULTS = {
     "stock": (
-        "44AEEE623533930404393BE57E8F5EFA84BDE849215141ABD0EE6FDF0ED1FDB2",
-        "189C0D00",
+        "C7BB4A105063575EC3034770092E8275C9EEC2042FE0D8CFD48615EBFE964154",
+        "2EA00D00",
     ),
 }
 RENDERED_RESULTS = {
     "collection_progression": (
-        "862E35DE1081688EDB50CE5DE2C94C94518BD1A390432AC91E9D182F88BE8497",
-        "8C3E0D00",
+        "7F8363124B740DB6F94B68198A4AAB3873B9DDC3CC51CE3E65055D94E9113521",
+        "A2420D00",
     ),
     "immediate_fixed": (
-        "693DCB83E650269FEC8F3CD58C2D91663814517AEE429C5D012FAF62CB6A19B9",
-        "8A800D00",
+        "FD382B172958FD6B2AA7EB721A85AB77A4FF53A3337AB84D54A4C7BDF5900418",
+        "A0840D00",
     ),
 }
 BASE_RESULTS = {
@@ -56,12 +56,12 @@ EXPANDED_COMPOSITION_RESULTS = {
 }
 STOCK_CATALOG_COMPOSITION_RESULTS = {
     "collection_progression": (
-                    "3C6CFA8079EC25FD0A7C697141181FBC63E368AE27A04974EBFB2BDF89C09A18",
-                    "59230D00",
+                    "7590A271DA68BB805DD8D304D9C96F461344E4B18517FFD86572D970632C7234",
+                    "6F270D00",
     ),
     "immediate_fixed": (
-                    "5DA2963DF5E97948E57CBF0EF92A9B73A8DE1FF0C2C853CD1C0ADB482C23F9C5",
-                    "57650D00",
+                    "F9FCD90E4EDCBA1636014EF42EFAE0E6D99C61BF72641D99D30F2FC5422516DB",
+                    "6D690D00",
     ),
 }
 
@@ -100,7 +100,7 @@ class VV3EveryoneTriesOnRobeTests(unittest.TestCase):
     def test_exact_reviewed_payload_and_three_owned_ranges(self) -> None:
         self.assertEqual(len(self.payload), 235)
         self.assertEqual(digest(self.payload), PAYLOAD_SHA256)
-        self.assertEqual(self.payload[0xCD], 0x79)
+        self.assertEqual(self.payload[0xCD], 0x90)
         zero_cave = bytes.fromhex(self.payload_row["before"])
         self.assertEqual(len(zero_cave), 235)
         self.assertEqual(digest(zero_cave), ZERO_CAVE_SHA256)
@@ -117,41 +117,41 @@ class VV3EveryoneTriesOnRobeTests(unittest.TestCase):
             expected = "00117A00" if mode.startswith("experimental_") else "00816C00"
             self.assertEqual(rows[0]["after"], expected)
 
-    def test_original_handled_action_gate_and_zero_candidate_fields_use_failed_fit(self) -> None:
+    def test_original_callback_gate_and_native_callback_fanout(self) -> None:
         # The wrapper first calls the unchanged stock callback and requires AL=1,
         # then requires its initiator to be active, living, non-nursing, and in
-        # action 120 or 121. The observed all-zero E80/E88 state takes the stock
-        # failed-fit action 121, which passes this gate and is also assigned to
-        # followers. This feature deliberately does not read or write E80/E88;
-        # candidate-selection repair remains a separate disjoint task.
-        original_call = bytes.fromhex("56B860194200FFD083C40488C384C00F84C0000000")
+        # action 120 or 121. Every other eligible record is sent through that
+        # same native callback, so stock success/failure and Chief selection stay
+        # authoritative for every villager.
+        original_call = bytes.fromhex("56B860194200FFD083C40488C384C0747B")
         initiator_gate = bytes.fromhex(
-            "80BE100F0000000F84B3000000"
-            "83BE780E0000000F8EA6000000"
-            "83BE8C0E0000000F8599000000"
-            "8B86240F000083F878740983F8790F8585000000"
+            "83BE100F0000007472"
+            "83BE780E0000007E69"
+            "83BE8C0E0000007560"
+            "8B86240F000083F878740583F8797550"
         )
         self.assertEqual(self.payload.index(original_call), 12)
-        self.assertEqual(self.payload.index(initiator_gate), 33)
+        self.assertEqual(self.payload.index(initiator_gate), 29)
         self.assertLess(self.payload.index(initiator_gate), self.payload.index(bytes.fromhex("BF24E15900")))
         self.assertNotIn(bytes.fromhex("800E0000"), self.payload)
         self.assertNotIn(bytes.fromhex("880E0000"), self.payload)
 
-        self.assertIn(bytes.fromhex("81F996000000740881F900010000756F"), self.payload)
+        self.assertIn(bytes.fromhex("81F996000000740881F900010000753A"), self.payload)
         self.assertIn(bytes.fromhex("BF24E15900"), self.payload)
         self.assertIn(bytes.fromhex("81C78C1F0000"), self.payload)
-        self.assertIn(bytes.fromhex("80BF100F0000007454"), self.payload)
-        self.assertIn(bytes.fromhex("83BF780E0000007E4B"), self.payload)
-        self.assertIn(bytes.fromhex("83BF8C0E0000007542"), self.payload)
+        self.assertIn(bytes.fromhex("83BF100F000000741F"), self.payload)
+        self.assertIn(bytes.fromhex("83BF780E0000007E16"), self.payload)
+        self.assertIn(bytes.fromhex("83BF8C0E000000750D"), self.payload)
 
-        # Followers receive only native failed-fit action 121. Success action
-        # 120 is inspected only on the initiator and is never assigned.
-        self.assertEqual(self.payload.count(bytes.fromhex("6A79")), 1)
+        self.assertEqual(self.payload.count(bytes.fromhex("B860194200FFD0")), 2)
+        self.assertNotIn(bytes.fromhex("6A79"), self.payload)
         self.assertNotIn(bytes.fromhex("6A78"), self.payload)
-        self.assertIn(bytes.fromhex("B8B0114600FFD0"), self.payload)
-        self.assertIn(bytes.fromhex("B870554500FFD0"), self.payload)
+        self.assertNotIn(bytes.fromhex("B8B0114600FFD0"), self.payload)
+        self.assertNotIn(bytes.fromhex("B870554500FFD0"), self.payload)
         self.assertNotIn(bytes.fromhex("B8301C4500FFD0"), self.payload)
-        self.assertTrue(self.payload.endswith(bytes.fromhex("88D88D65F45F5E5B5DC3")))
+        self.assertNotIn(bytes.fromhex("6A006A646A05"), self.payload)
+        self.assertIn(bytes.fromhex("5157B860194200FFD083C40459"), self.payload)
+        self.assertIn(bytes.fromhex("88D88D65F45F5E5B5DC3"), self.payload)
 
     def test_authenticated_stock_preimages_and_native_action_registrations(self) -> None:
         source = STOCK.read_bytes()
@@ -200,7 +200,7 @@ class VV3EveryoneTriesOnRobeTests(unittest.TestCase):
                 self.assertEqual(digest(data), expected_hash)
                 self.assertEqual(data[checksum_offset : checksum_offset + 4].hex().upper(), expected_checksum)
 
-    def test_all_four_renderer_modes_and_exact_uninstall_roundtrip(self) -> None:
+    def test_current_renderer_modes_and_exact_uninstall_roundtrip(self) -> None:
         for mode in MODES:
             with self.subTest(mode=mode):
                 rendered, applied = patcher.render_patched_bytes(
