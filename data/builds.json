@@ -1389,14 +1389,15 @@
       "name": "Birth Control",
       "output_tag": "Birth Control",
       "status": "implemented exact-build ordinary-route patch; static verification complete, runtime/player confirmation pending",
-      "description": "Applies the requested VV4-style ordinary-route boundary to the exact VV1 build. Manual pairing rejects only a category-2 carrier at internal age>=1000; the two action-9 writer-reaching scans and the planner reject only scanned candidates at internal age>=1000; initiator males and older autonomous initiators retain no upper-age ceiling. Direct event births and pending delivery remain native.",
+      "description": "Applies the requested VV4-style ordinary-route boundary and chooser behavior to the exact VV1 build. Manual pairing rejects only a category-2 carrier at internal age>=1000; the two action-9 writer-reaching scans and the planner reject only scanned candidates at internal age>=1000; the autonomous chooser uses the VV4 score floor and preference fallback; initiator males and older autonomous initiators retain no upper-age ceiling. Direct event births and pending delivery remain native.",
       "behavior_changes": [
         "The manual pairing hook at file offset 0x3DD03 routes through an owned .vv1bc page and rejects only the category-2 carrier participant at internal age>=1000.",
         "The action-9 writer-reaching scans at 0x46E96 and 0x47084 retain their stock candidate and initiator lower bounds while adding only a candidate upper bound.",
-        "The planner scan at 0x477FA adds only a candidate upper bound before the stock initiator lower-bound check."
+        "The planner scan at 0x477FA adds only a candidate upper bound before the stock initiator lower-bound check.",
+        "The chooser's final score floor at 0x39C80 is raised from 1 to 5, and the tail at 0x39C83 applies the VV4/VV2/VV3 25% non-preference fallback for category 2."
       ],
       "explicit_non_changes": [
-        "No male upper-age gate is added. The existing candidate sex/category checks, writer calls, chooser, planner action dispatch, pregnancy writer, delivery, save format, RNG, fertility, capacity, messages, and statistics remain native.",
+        "No male upper-age gate is added. The existing candidate sex/category checks, writer calls, planner action dispatch, pregnancy writer, delivery, save format, fertility, capacity, messages, and statistics remain native; only the named chooser tail is redirected.",
         "Direct event-created births, pending delivery, and every route outside the named ordinary manual/planner/action-9 boundaries remain native."
       ],
       "evidence_status": "implemented from exact-build disassembly; static verification complete, runtime/player confirmation pending",
@@ -1409,7 +1410,7 @@
             "append_length": 4096,
             "append_source": "generated:vv1_birth_control_page",
             "page_virtual_address": "0x490000",
-            "page_sha256": "B6215BCA91392E66BB32DBF5766725413E317810A3773CF7E4987FA4C0197A09",
+            "page_sha256": "E57E3FE69130016983BAC737A894C0BB62D62288A15023B01D52C2F946958AE8",
             "purpose": "append the owned VV1 Birth Control executable helper page",
             "header_patches": [
               {
@@ -1438,7 +1439,7 @@
             "append_length": 4096,
             "append_source": "generated:vv1_birth_control_page",
             "page_virtual_address": "0x490000",
-            "page_sha256": "B6215BCA91392E66BB32DBF5766725413E317810A3773CF7E4987FA4C0197A09",
+            "page_sha256": "E57E3FE69130016983BAC737A894C0BB62D62288A15023B01D52C2F946958AE8",
             "purpose": "append the owned VV1 Birth Control executable helper page",
             "header_patches": [
               {"offset": "0xFE", "before": "0500", "after": "0600", "purpose": "add the owned .vv1bc executable section"},
@@ -1452,7 +1453,7 @@
             "append_length": 4096,
             "append_source": "generated:vv1_birth_control_page",
             "page_virtual_address": "0x490000",
-            "page_sha256": "B6215BCA91392E66BB32DBF5766725413E317810A3773CF7E4987FA4C0197A09",
+            "page_sha256": "E57E3FE69130016983BAC737A894C0BB62D62288A15023B01D52C2F946958AE8",
             "purpose": "append the owned VV1 Birth Control executable helper page",
             "header_patches": [
               {"offset": "0xFE", "before": "0500", "after": "0600", "purpose": "add the owned .vv1bc executable section"},
@@ -1486,6 +1487,18 @@
           "before": "3950F47C2A",
           "after": "E9C1880400",
           "purpose": "add a candidate-only internal-age-1000 upper bound to the planner scan while preserving the stock initiator check"
+        },
+        {
+          "offset": "0x39C80",
+          "before": "83FE01",
+          "after": "83FE05",
+          "purpose": "raise the VV1 embracing chooser's final score floor to the VV4/VV2/VV3 score floor"
+        },
+        {
+          "offset": "0x39C83",
+          "before": "0F8E99FEFFFF",
+          "after": "E97864050090",
+          "purpose": "route the VV1 embracing chooser tail through the owned page for the native score roll and preference fallback"
         }
       ]
     }

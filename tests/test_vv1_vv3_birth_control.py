@@ -15,7 +15,7 @@ from vv_fun_patcher import load_fun_patches  # noqa: E402
 
 VV1_SHA256 = "1EC790B927741081D5CE13A48FB76983A4FD4336EA08F89317872643760AF03D"
 VV3_SHA256 = "8BC5DB382D02BC5C21AD5F607580D60FF44A6519CC7EB133F03113BAACAE6503"
-VV1_PAGE_SHA256 = "B6215BCA91392E66BB32DBF5766725413E317810A3773CF7E4987FA4C0197A09"
+VV1_PAGE_SHA256 = "E57E3FE69130016983BAC737A894C0BB62D62288A15023B01D52C2F946958AE8"
 VV1_REJECTED_OFFSETS = {0x3DBBE, 0x458D0, 0x447840, 0x45930, 0x56740}
 
 
@@ -31,15 +31,17 @@ class VV1VV3BirthControlTests(unittest.TestCase):
         self.assertEqual(by_id["vv1"]["sha256"], VV1_SHA256)
         self.assertEqual(by_id["vv3"]["sha256"], VV3_SHA256)
 
-    def test_vv1_has_four_guarded_hooks_and_owned_page_in_every_layout(self) -> None:
+    def test_vv1_has_six_guarded_hooks_and_owned_page_in_every_layout(self) -> None:
         patches = _patches("vv1_birth_control")
         expected = {
             0x3DD03: ("83BD5003000002", "E9F82205009090"),
             0x46E96: ("813868010000", "E9A591040090"),
             0x47084: ("813968010000", "E9F78F040090"),
             0x477FA: ("3950F47C2A", "E9C1880400"),
+            0x39C80: ("83FE01", "83FE05"),
+            0x39C83: ("0F8E99FEFFFF", "E97864050090"),
         }
-        self.assertEqual(len(patches), 4)
+        self.assertEqual(len(patches), 6)
         for patch in patches:
             offset = int(patch["offset"], 0)
             with self.subTest(offset=hex(offset)):
@@ -67,6 +69,8 @@ class VV1VV3BirthControlTests(unittest.TestCase):
         self.assertEqual(page[0x040:0x046], bytes.fromhex("813868010000"))
         self.assertEqual(page[0x080:0x086], bytes.fromhex("813968010000"))
         self.assertEqual(page[0x0C0:0x0C7], bytes.fromhex("8178F468010000"))
+        self.assertEqual(page[0x100:0x106], bytes.fromhex("0F8E3E000000"))
+        self.assertIn(bytes.fromhex("817FD003000002"), page)
         self.assertNotIn(bytes.fromhex("E900000000"), page)
 
     def test_vv3_removes_only_the_five_initiator_upper_checks(self) -> None:
