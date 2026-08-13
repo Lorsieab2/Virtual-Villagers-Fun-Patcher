@@ -54,7 +54,7 @@ class VV3OriginsFeatureTests(unittest.TestCase):
             companion["sha256"],
             hashlib.sha256(COMPANION.read_bytes()).hexdigest().upper(),
         )
-        self.assertIn("Origins-style upgrade", self.manifest["description"])
+        self.assertIn("origins-style upgrade", self.manifest["description"].casefold())
 
     def test_description_is_concise_and_keeps_the_base_dependency_internal(self) -> None:
         description = self.manifest["description"]

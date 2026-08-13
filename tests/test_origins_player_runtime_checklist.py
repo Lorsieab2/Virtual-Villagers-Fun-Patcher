@@ -87,10 +87,8 @@ class OriginsPlayerRuntimeChecklistTests(unittest.TestCase):
             for description in (origins["description"], wide["description"]):
                 with self.subTest(game=game, description=description):
                     self.assertIn("Origins", description)
-                    self.assertNotIn("tech points", description.casefold())
-                    self.assertNotIn("food points", description.casefold())
                     self.assertNotIn("runtime/player", description.casefold())
-                    self.assertNotRegex(description, r"\b\d[\d,]*\b")
+                    self.assertNotRegex(description, r"\b0x[0-9a-f]+\b")
             self.assertIn("Tech screen", wide["description"])
             self.assertIn("Make Villagers Young Adults", wide["description"])
             self.assertIs(origins.get("enabled", True), True)

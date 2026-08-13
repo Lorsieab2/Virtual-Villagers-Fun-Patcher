@@ -473,6 +473,7 @@ Expanded-256 population modes are removed from the active patcher.
 ## Command line
 
 Pass `--patch-mode stock`, `--patch-mode collection_progression`, or `--patch-mode immediate_fixed` to `dry-run`, `apply`, `dry-run-all`, or `apply-all`. The available IDs are all current user-selectable per-game patches, including the five Origins-style Village-Wide menu routes and the ordinary VV1-VV5 patches. Each Origins Village-Wide route automatically adds its internal Origins base prerequisite; duplicate base entries, individual Full Mastery entries, and other withdrawn historical records remain hidden. Runtime/player confirmation remains pending. Use `collection_progression` or `immediate_fixed` for Origins-style routes because their certified append layouts do not include `stock` for VV3-VV5. The disabled VV3 Full Heal / Cure All candidate is not a CLI or catalog ID. The per-game Village Statistics IDs are `vv1_write_village_statistics`, `vv2_write_village_statistics`, `vv3_write_village_statistics`, `vv4_write_village_statistics`, and `vv5_write_village_statistics`.
+The five current Origins Village-Wide route IDs are `vv1_origins_village_wide_upgrades`, `vv2_origins_village_wide_upgrades`, `vv3_origins_village_wide_upgrades`, `vv4_origins_village_wide_upgrades`, and `vv5_origins_village_wide_upgrades`.
 Historical standalone Full Mastery and individual Full Mastery records are kept
 only as evidence and are not selectable or included in releases. The corrected VV4
 `vv4_full_mastery_all_stage_a_candidate` is catalog-hidden and disabled pending
