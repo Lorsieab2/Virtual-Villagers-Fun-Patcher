@@ -781,7 +781,7 @@ class App(tk.Tk):
                 output_root=self._output_root(),
             )
             existing = []
-            for (build, source), preview in zip(validated, previews):
+            for (build, source), preview in zip(validated, previews, strict=True):
                 output_folder = Path(preview["output_folder"])
                 if output_folder.exists():
                     existing.append(output_folder)
@@ -805,7 +805,7 @@ class App(tk.Tk):
             self.last_output_dir = results[0][0].parent
             self.last_modified_paths = {
                 build.id: output
-                for (build, _), (output, _) in zip(validated, results)
+                for (build, _), (output, _) in zip(validated, results, strict=True)
             }
             self.open_button.configure(text="Open First Game Folder", state="normal")
             self.status_var.set("Success. Created all five modified game folders.")
@@ -814,10 +814,10 @@ class App(tk.Tk):
                 "All five modified games created",
                 [
                     (build.title, source.parent, output.parent)
-                    for (build, source), (output, _) in zip(validated, results)
+                    for (build, source), (output, _) in zip(validated, results, strict=True)
                 ],
             )
-        except (PatcherError, OSError) as exc:
+        except (PatcherError, OSError, ValueError) as exc:
             self.status_var.set(str(exc))
             messagebox.showerror("Batch patch failed", str(exc))
 

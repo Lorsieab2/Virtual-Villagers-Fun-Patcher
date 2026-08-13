@@ -514,7 +514,7 @@ def _strict_manifest_value_equal(actual: Any, expected: Any) -> bool:
     if isinstance(expected, list):
         return len(actual) == len(expected) and all(
             _strict_manifest_value_equal(left, right)
-            for left, right in zip(actual, expected)
+            for left, right in zip(actual, expected, strict=True)
         )
     return actual == expected
 
@@ -2411,7 +2411,7 @@ def _certified_vv5_task9_record(active_base: dict[str, Any]) -> dict[str, Any]:
     patches = record.get("patches")
     if not isinstance(active_patches, list) or not isinstance(patches, list) or len(patches) != len(active_patches):
         raise PatcherError("VV5 Task9 active-base patch shape mismatch.")
-    for before, after in zip(active_patches, patches):
+    for before, after in zip(active_patches, patches, strict=True):
         if after.get("offset") != before.get("offset") or after.get("before") != before.get("before"):
             raise PatcherError("VV5 Task9 changed an active-base offset/preimage guard.")
     payload_row = next((item for item in patches if int(item.get("offset", "-1"), 0) == 0xDB000), None)
@@ -2613,7 +2613,7 @@ def _certified_vv5_full_mastery_records(
             )
         if isinstance(expected, list):
             return len(actual) == len(expected) and all(
-                exact_tree(value, wanted) for value, wanted in zip(actual, expected)
+                exact_tree(value, wanted) for value, wanted in zip(actual, expected, strict=True)
             )
         return actual == expected
 
