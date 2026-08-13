@@ -180,6 +180,8 @@ class OriginsPlayerRuntimeChecklistTests(unittest.TestCase):
                         "0x8B009",
                         "0x8B530",
                         "0x8B710",
+                        "0x35ACA",
+                        "0x8B900",
                     }
                     self.assertEqual(
                         [item for item in current["patches"] if item["offset"] not in repaired_offsets],

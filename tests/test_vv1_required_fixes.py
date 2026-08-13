@@ -3,11 +3,18 @@ import sys
 import unittest
 from pathlib import Path
 
+import pytest
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
+STOCK = ROOT / "research" / "stock-executables"
 
-from vv_fun_patcher import get_fun_patch, load_fun_patches  # noqa: E402
+from vv_fun_patcher import (  # noqa: E402
+    get_fun_patch,
+    identify,
+    load_fun_patches,
+    render_patched_bytes,
+)
 
 
 class VV1RequiredFixTests(unittest.TestCase):
@@ -113,6 +120,91 @@ class VV1RequiredFixTests(unittest.TestCase):
         self.assertNotIn('"data/candidates/vv1_full_mastery_all_candidate.json"', release)
         self.assertNotIn('"data/candidates/vv1_individual_full_mastery_candidate.json"', release)
         self.assertNotIn('"data/candidates/vv1_full_mastery_origins_composition.json"', release)
+
+    def test_vv1_barrel_event_only_fires_after_tech_screen_closes(self) -> None:
+        """Regression test for a real reported crash: buying Barrel of
+        Babies used to fire the native event's own nested modal dialog the
+        instant the token was set, while the Tech-screen Upgrades dialog
+        (whose own "Buy" click just set that token) was still open and
+        running its own modal loop. VV2's exact-build equivalent avoids
+        this with a two-stage token advanced only from the Tech screen's
+        own close branch; this checks VV1 now has the same second stage,
+        by disassembling the real rendered exe rather than trusting the
+        manifest's purpose strings.
+        """
+        capstone = pytest.importorskip("capstone")
+        source = STOCK / "Virtual Villagers - A New Home.exe"
+        if not source.is_file():
+            self.skipTest(f"stock executable not available: {source}")
+        build = identify(source)
+        rendered, _ = render_patched_bytes(
+            source, build, "collection_progression",
+            ["vv1_enable_origins_exclusive_features"],
+        )
+
+        IMAGE_BASE = 0x400000
+        SHR_FILE_OFFSET = 0x8B000
+        SHR_RVA = 0x8D000
+
+        def to_va(file_offset: int) -> int:
+            return IMAGE_BASE + SHR_RVA + (file_offset - SHR_FILE_OFFSET)
+
+        md = capstone.Cs(capstone.CS_ARCH_X86, capstone.CS_MODE_32)
+
+        # The original close branch at 0x435ACA must now redirect (jmp) into
+        # the .shr cave rather than run the original two instructions
+        # in place -- otherwise nothing was actually changed.
+        close_branch = list(md.disasm(rendered[0x35AC2:0x35AD5], 0x435AC2))
+        redirect = next(
+            (i for i in close_branch if i.mnemonic == "jmp"), None
+        )
+        self.assertIsNotNone(
+            redirect, "close branch no longer redirects into a helper"
+        )
+        helper_va = int(redirect.op_str, 16)
+        helper_offset = helper_va - IMAGE_BASE - SHR_RVA + SHR_FILE_OFFSET
+
+        # The helper must replay the exact original close sequence (sound,
+        # stop-modal-loop call, screen-closed flag) -- this proves the fix
+        # doesn't drop or alter any original behavior -- then advance the
+        # token from 1 to 2, then return to the exact original shared exit
+        # (0x435DCD). Compare mnemonic + operands rather than raw bytes:
+        # the two CALLs below encode a position-relative rel32, which
+        # necessarily differs now that the call site itself moved into the
+        # .shr cave even though the absolute call targets are unchanged.
+        helper_insns = list(md.disasm(rendered[helper_offset : helper_offset + 60], helper_va))
+        actual = [(i.mnemonic, i.op_str) for i in helper_insns]
+        expected_prefix = [
+            ("mov", "ecx, dword ptr [esi + 0x14]"),
+            ("push", "0x45"),
+            ("call", "0x431470"),
+            ("push", "0"),
+            ("mov", "ecx, esi"),
+            ("call", "0x40ae10"),
+            ("mov", "eax, dword ptr [esi + 0xc]"),
+            ("mov", "dword ptr [eax + 0xacb4], 1"),
+        ]
+        self.assertEqual(
+            actual[: len(expected_prefix)],
+            expected_prefix,
+            "close helper does not replay the exact original close sequence",
+        )
+        tail = [(i.mnemonic, i.op_str) for i in helper_insns[len(expected_prefix) :]]
+        self.assertIn(("cmp", "byte ptr [0x48d700], 1"), tail)
+        self.assertIn(("mov", "byte ptr [0x48d700], 2"), tail)
+        final_jmp = next(i for i in helper_insns if i.mnemonic == "jmp")
+        self.assertEqual(int(final_jmp.op_str, 16), 0x435DCD)
+
+        # The main-village-update owner must now require the fully-advanced
+        # state (2), not merely "non-zero" -- so it never fires while the
+        # Tech screen (which only ever sets state 1) is still open.
+        main_helper_off = 0x8B710
+        main_helper_va = to_va(main_helper_off)
+        main_code = list(
+            md.disasm(rendered[main_helper_off : main_helper_off + 0x12], main_helper_va)
+        )
+        cmp_insn = next(i for i in main_code if i.mnemonic == "cmp")
+        self.assertEqual(cmp_insn.op_str, "byte ptr [0x48d700], 2")
 
 
 if __name__ == "__main__":

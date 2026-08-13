@@ -52,6 +52,18 @@ BARREL_MAIN_HELPER_FILE_OFFSET = 0x8B710
 BARREL_MAIN_HELPER_VA = IMAGE_BASE + SHR_RVA + (
     BARREL_MAIN_HELPER_FILE_OFFSET - SHR_FILE_OFFSET
 )
+# D166 fix: VV1 previously fired the native Barrel of Babies event the
+# instant the token was set, with no check that the Tech-screen Upgrades
+# dialog (whose own "Buy" click just set that token) had actually closed.
+# That let the native event's own modal loop start while the Upgrades
+# dialog's modal loop was still live on the stack -- exact-build VV2 avoids
+# this with a two-stage token advanced only from the Tech screen's own
+# close branch (0x437DA there); VV1 had no equivalent second stage. This
+# adds one, hooked into the exact-build close branch it corresponds to.
+BARREL_CLOSE_HELPER_FILE_OFFSET = 0x8B900
+BARREL_CLOSE_HELPER_VA = IMAGE_BASE + SHR_RVA + (
+    BARREL_CLOSE_HELPER_FILE_OFFSET - SHR_FILE_OFFSET
+)
 RUNNING_PREFERENCE_ID = 38  # exact-build preference-table evidence: 0x7B260
 VV1_NATIVE_SKILL_WRITER_VA = 0x437230
 VV1_SKILL_FIELDS = (
@@ -902,8 +914,8 @@ def main() -> None:
     barrel_main_helper_code = assemble(
         f"""
             call 0x448600
-            cmp byte ptr [0x{BARREL_PENDING_VA:X}], 0
-            je barrel_main_done
+            cmp byte ptr [0x{BARREL_PENDING_VA:X}], 2
+            jne barrel_main_done
             pushad
             mov esi, dword ptr [esp + 4]
             push 0x50F0
@@ -930,6 +942,24 @@ def main() -> None:
             jmp 0x424044
         """,
         BARREL_MAIN_HELPER_VA,
+    )
+    barrel_close_helper_code = assemble(
+        f"""
+            mov ecx, dword ptr [esi + 0x14]
+            push 0x45
+            call 0x431470
+            push 0
+            mov ecx, esi
+            call 0x40AE10
+            mov eax, dword ptr [esi + 0x0C]
+            mov dword ptr [eax + 0xACB4], 1
+            cmp byte ptr [0x{BARREL_PENDING_VA:X}], 1
+            jne barrel_close_done
+            mov byte ptr [0x{BARREL_PENDING_VA:X}], 2
+        barrel_close_done:
+            jmp 0x435DCD
+        """,
+        BARREL_CLOSE_HELPER_VA,
     )
     patch(
         HEAL_CAVE_FILE_OFFSET,
@@ -960,6 +990,18 @@ def main() -> None:
         b"\0" * len(barrel_main_helper_code),
         barrel_main_helper_code,
         "consume the deferred VV1 Barrel token from the stock main-village update owner",
+    )
+    patch(
+        BARREL_CLOSE_HELPER_FILE_OFFSET,
+        b"\0" * len(barrel_close_helper_code),
+        barrel_close_helper_code,
+        "advance the purchased Barrel token only after the stock Technologies screen closes",
+    )
+    patch(
+        0x35ACA,
+        bytes.fromhex("8B4E146A45"),
+        rel32_jump(0x435ACA, BARREL_CLOSE_HELPER_VA),
+        "route the stock Technologies-screen close branch through the Barrel token advance helper",
     )
     patch(
         0x220,

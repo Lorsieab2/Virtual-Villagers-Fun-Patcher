@@ -291,6 +291,7 @@ class AppearanceUpgradeRequirementsTests(unittest.TestCase):
                 "data/vv1_origins_feature.json": {
                     "0x270", "0x28C", "0x28470", "0x56900",
                     "0x85D30", "0x8B009", "0x8B530", "0x8B710",
+                    "0x35ACA", "0x8B900",
                 },
                 "data/vv2_origins_feature.json": {
                     "0x943A8", "0x9A009", "0x9A300", "0x9A530",
