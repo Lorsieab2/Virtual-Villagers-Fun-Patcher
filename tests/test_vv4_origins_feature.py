@@ -99,7 +99,15 @@ class VV4OriginsFeatureTests(unittest.TestCase):
         self.assertEqual(
             fields["native_skill_writer_value"], "Float32 delta: 100.0-current"
         )
-        self.assertIn("native Float32 skill writer", record["behavior_changes"][3])
+        changes = record["behavior_changes"]
+        self.assertTrue(
+            any("native Float32 skill writer" in change for change in changes),
+            "village-wide Full Mastery behavior change is missing",
+        )
+        self.assertTrue(
+            any("first free Like slot" in change for change in changes),
+            "village-wide Running behavior change is missing",
+        )
 
         ui = self.manifest["ui_contract"]
         self.assertEqual(ui["forbidden_helpers"], ["sub_40D8A0"])
