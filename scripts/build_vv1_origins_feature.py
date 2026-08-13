@@ -932,9 +932,8 @@ def main() -> None:
             push esi
             mov ecx, ebx
             call 0x401AB0
-            push 1
             mov ecx, ebx
-            call 0x42AB60
+            call 0x427620
             mov byte ptr [0x{BARREL_PENDING_VA:X}], 0
         barrel_main_restore:
             popad

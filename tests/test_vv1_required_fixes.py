@@ -206,6 +206,68 @@ class VV1RequiredFixTests(unittest.TestCase):
         cmp_insn = next(i for i in main_code if i.mnemonic == "cmp")
         self.assertEqual(cmp_insn.op_str, "byte ptr [0x48d700], 2")
 
+    def test_vv1_barrel_event_object_is_torn_down_with_its_matching_destructor(
+        self,
+    ) -> None:
+        """Regression test for a real reported crash: buying Barrel of
+        Babies, closing the Tech screen, and clicking OK on the resulting
+        Island Event used to crash immediately, and left the save in a
+        state that crashed again on the next launch. Decompiling the stock
+        binary with IDA showed the helper constructed its temporary message
+        object with sub_4286B0 (vtable off_459AE4) but tore it down with
+        sub_42AB60 -- an unrelated method on a *different* class/vtable
+        that itself calls sub_42A6A0 (the destructor for a different
+        constructor, sub_42D0E0) under a flag check. That walks the wrong
+        vtable and frees fields at the wrong offsets, corrupting the heap.
+        The only destructor that matches sub_4286B0's own vtable is
+        sub_427620. This disassembles the real rendered exe rather than
+        trusting the manifest's purpose strings.
+        """
+        capstone = pytest.importorskip("capstone")
+        source = STOCK / "Virtual Villagers - A New Home.exe"
+        if not source.is_file():
+            self.skipTest(f"stock executable not available: {source}")
+        build = identify(source)
+        rendered, _ = render_patched_bytes(
+            source, build, "collection_progression",
+            ["vv1_enable_origins_exclusive_features"],
+        )
+
+        md = capstone.Cs(capstone.CS_ARCH_X86, capstone.CS_MODE_32)
+        main_helper_off = 0x8B710
+        main_helper_va = 0x48D710
+        insns = list(
+            md.disasm(rendered[main_helper_off : main_helper_off + 0x60], main_helper_va)
+        )
+        calls = [i for i in insns if i.mnemonic == "call"]
+        call_targets = [int(i.op_str, 16) for i in calls]
+
+        self.assertIn(0x4286B0, call_targets, "constructor call is missing")
+        self.assertIn(
+            0x427620,
+            call_targets,
+            "helper must tear down the sub_4286B0 object with its own "
+            "matching destructor (sub_427620), not an unrelated method",
+        )
+        self.assertNotIn(
+            0x42AB60,
+            call_targets,
+            "0x42AB60 is not a destructor for this object's vtable and "
+            "corrupts the heap when called on it",
+        )
+
+        # sub_427620 is a plain thiscall with no stack arguments (its own
+        # disassembly ends in a bare `ret`, not `ret N`) -- the call site
+        # must not push an argument for it first.
+        dtor_call = next(i for i in calls if int(i.op_str, 16) == 0x427620)
+        preceding = [i for i in insns if i.address < dtor_call.address]
+        self.assertNotEqual(
+            preceding[-1].mnemonic if preceding else None,
+            "push",
+            "sub_427620 takes no stack arguments; a stray push before "
+            "the call would unbalance the stack",
+        )
+
     def test_vv1_time_warp_double_speed_uses_a_reachable_game_speed_code(self) -> None:
         """Regression test: VV1's own stock executable only ever assigns
         3, 6, or 10 to the game-speed field Time Warp reads (verified with

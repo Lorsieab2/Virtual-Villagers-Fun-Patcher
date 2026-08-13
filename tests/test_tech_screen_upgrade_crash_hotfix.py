@@ -80,6 +80,19 @@ class TechScreenUpgradeCrashHotfixTests(unittest.TestCase):
         self.assertNotIn("or edi, 0x1800", source)
 
     def test_vv1_barrel_uses_stock_scalar_deleting_destructor(self) -> None:
+        """Regression test for a real reported crash (buying Barrel of
+        Babies, then a crash on the next startup). 0x42AB60 is not a
+        destructor for the sub_4286B0-constructed message object at all --
+        confirmed by decompiling the stock binary with IDA -- it is an
+        unrelated method on a different class/vtable that itself calls
+        sub_42A6A0 (the destructor for a *different* constructor variant,
+        sub_42D0E0) under a flag check. Calling it on a sub_4286B0 object
+        walks the wrong vtable and frees fields at the wrong offsets,
+        corrupting the heap; the corruption then surfaces later as an
+        access violation in unrelated code. The correct match for
+        sub_4286B0's own vtable (off_459AE4) is sub_427620, a plain
+        thiscall taking no stack arguments.
+        """
         source = (ROOT / "scripts" / "build_vv1_origins_feature.py").read_text(
             encoding="utf-8"
         )
@@ -87,9 +100,10 @@ class TechScreenUpgradeCrashHotfixTests(unittest.TestCase):
             "patch(\n        HEAL_CAVE_FILE_OFFSET", 1
         )[0]
         self.assertIn(
-            "push 1\n            mov ecx, ebx\n            call 0x42AB60",
+            "mov ecx, ebx\n            call 0x427620",
             helper,
         )
+        self.assertNotIn("call 0x42AB60", helper)
         self.assertNotIn("call 0x42A6A0", helper)
 
     def test_vv2_tech_helpers_resolve_the_certified_pool(self) -> None:

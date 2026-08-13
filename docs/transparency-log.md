@@ -146,7 +146,7 @@ Adds Origins-style Upgrades buttons to the Tech and Villager Details screens. Th
 - Doubler composition contract: {'stacking': ['positive earned tech deltas only', 'positive food-source deltas only'], 'exclusions': ['Golden Child tech-point gain', 'Island Event tech-point gain', 'Duplicate Collectibles tech-point gain'], 'food_mastery_status': 'confirmed absent for this fingerprint; no Food Mastery-like food transform', 'status': 'GO: exact-build positive writer wrappers double eligible positive deltas once; Island Event returns remain native; runtime/player confirmation pending'}
 - Doubler purchase status: {'new_purchase': 'available at 500,000 tech points for each doubler', 'existing_owned': 'removable at zero cost with zero refund', 'repurchase': 'available again at 500,000 tech points after removal'}
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending
-- Guarded executable edits: 12; every edit has an exact purpose and before/after guard in the manifest.
+- Guarded executable edits: 20; every edit has an exact purpose and before/after guard in the manifest.
 
 #### Magic Fruit of Life Alters Mortality (`vv1_magic_fruit_alters_mortality`)
 
@@ -312,9 +312,9 @@ Includes the Origins Tech screen and Villager Details-screen buttons and their u
 
 #### Enable Origins-Exclusive Features (`vv3_enable_origins_exclusive_features`)
 
-Adds Origins-style upgrade buttons to the Tech and Villager Details screens. The Tech menu offers Food and Tech Point Doublers for 500,000 tech points each; eligible positive gains are doubled, while Island Events and Duplicate Collectibles remain unchanged. The Village-Wide menu adds Running, Full Mastery, and Make Villagers Young Adults. Inspired by the Virtual Villagers 1 mobile port, where selected Origins-exclusive upgrades originated; this wording does not claim unsupported mobile parity.
+Adds Origins-style Upgrades buttons to the Tech and Villager Details screens. The Tech menu offers Food and Tech Point Doublers for 500,000 tech points each; eligible positive gains are doubled, while Island Events and Duplicate Collectibles remain unchanged. The Village-Wide menu adds Running, Full Mastery, and Make Villagers Young Adults. Inspired by the Virtual Villagers 1 mobile port, where selected Origins-exclusive upgrades originated; this wording does not claim unsupported mobile parity.
 
-- Behavior changes: Adds Origins-style upgrade buttons to the Tech and Villager Details screens. The Tech menu offers Food and Tech Point Doublers for 500,000 tech points each; eligible positive gains are doubled, while Island Events and Duplicate Collectibles remain unchanged. The Village-Wide menu adds Running, Full Mastery, and Make Villagers Young Adults.
+- Behavior changes: Adds Origins-style Upgrades buttons to the Tech and Villager Details screens. The Tech menu offers Food and Tech Point Doublers for 500,000 tech points each; eligible positive gains are doubled, while Island Events and Duplicate Collectibles remain unchanged. The Village-Wide menu adds Running, Full Mastery, and Make Villagers Young Adults.
 - Explicit non-changes/exclusions: none declared
 - Dependencies: none
 - Build-specific Running preference ID: 38; evidence source: exact stock executable embedded preference table at table offset 0x97488.
@@ -332,7 +332,7 @@ Dropping an active, living, non-nursing villager on the robe sends every other a
 - Explicit non-changes/exclusions: Dead, inactive, and nursing villagers are skipped. The unchanged stock callback remains responsible for success/failure, Chief clothing, Chief state, puzzle mutation, and candidate selection for every villager. The wrapper does not read or write candidate fields +0xE80/+0xE88 or change pregnancy/nursing state, health, age, skills, preferences, or saved record layout.
 - Dependencies: none
 - Evidence status: independently reviewed exact-build static implementation; install/uninstall and current-mode composition are automated, while player runtime confirmation remains pending
-- Guarded executable edits: 2; every edit has an exact purpose and before/after guard in the manifest.
+- Guarded executable edits: 3; every edit has an exact purpose and before/after guard in the manifest.
 - Mode-specific guarded edits: collection_progression=1, immediate_fixed=1; these rows are selected only for the named population mode.
 
 #### Nature Level 1 Actually Replenishes Food Sources Faster (`vv3_nature_honey_refill`)
@@ -416,7 +416,7 @@ Adds Origins-style Upgrades buttons to the Tech and Villager Details screens. Th
 - Doubler composition contract: {'stacking': ['positive earned tech deltas only', 'positive food-source deltas only'], 'exclusions': ['Island Event tech-point gain', 'Duplicate Collectibles tech-point gain'], 'food_mastery_status': 'confirmed in exact-build disassembly; native transform documented in doubler evidence', 'status': 'GO: positive writer wrappers double eligible positive deltas once after native adjustments; duplicate collectibles and audited Island Event paths remain native; runtime/player confirmation pending'}
 - Doubler purchase status: {'new_purchase': 'available at 500,000 tech points for each doubler', 'existing_owned': 'removable at zero cost with zero refund', 'repurchase': 'available again at 500,000 tech points after removal'}
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending
-- Guarded executable edits: 23; every edit has an exact purpose and before/after guard in the manifest.
+- Guarded executable edits: 25; every edit has an exact purpose and before/after guard in the manifest.
 
 #### Write Village Statistics to Text File (`vv4_write_village_statistics`)
 
