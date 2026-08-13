@@ -26,18 +26,18 @@ PAYLOAD_SHA256 = "0E9B56C94BAB762CD8690668CD2C96F36D5E7F4D9C3545C0EBD7A3C3726EE8
 ZERO_CAVE_SHA256 = "22B94C6893BFC091BE2A9F454A045184DF6C0398CFFA2B4E90C0065DD6EEB1B0"
 ISOLATED_RESULTS = {
     "stock": (
-        "C7BB4A105063575EC3034770092E8275C9EEC2042FE0D8CFD48615EBFE964154",
-        "2EA00D00",
+        "7C9C9198FFF3681316080CBAB3D54424E6887747DA97C8B26388E9F48C96FA2F",
+        "4FC00C00",
     ),
 }
 RENDERED_RESULTS = {
     "collection_progression": (
-        "7F8363124B740DB6F94B68198A4AAB3873B9DDC3CC51CE3E65055D94E9113521",
-        "A2420D00",
+        "C75EACEDBFDAD6D846AFD01D8F227291F5B6E2013B07E2C8A59AA111B2BBD8C0",
+        "C2620D00",
     ),
     "immediate_fixed": (
-        "FD382B172958FD6B2AA7EB721A85AB77A4FF53A3337AB84D54A4C7BDF5900418",
-        "A0840D00",
+        "D79888259910E818742F2EB5889BB15A3E75781E6A4F43BEB3906D86A02B58B1",
+        "C0A40D00",
     ),
 }
 BASE_RESULTS = {
@@ -56,12 +56,12 @@ EXPANDED_COMPOSITION_RESULTS = {
 }
 STOCK_CATALOG_COMPOSITION_RESULTS = {
     "collection_progression": (
-                    "216200E162954CE6ED06AFF80AEC392D649C9ED9385DBA7F50126030570419EF",
-                    "46900D00",
+                    "03F9CF804B881BB80EA5B9746D19B713F902CE3E30979A903C20B9440B09E405",
+                    "CD590D00",
     ),
     "immediate_fixed": (
-                    "58EDD3E808A7CECDE3EAE56C8112C68855582D0B38589BC74E6754EEFF16E613",
-                    "45D20C00",
+                    "BE73A3C44336130834E8180C49F32D32FF504332E419482A4E6467DF29EC0529",
+                    "CB9B0D00",
     ),
 }
 
@@ -106,9 +106,17 @@ class VV3EveryoneTriesOnRobeTests(unittest.TestCase):
         self.assertEqual(digest(zero_cave), ZERO_CAVE_SHA256)
 
         common = {row["offset"]: row for row in self.feature.patches}
-        self.assertEqual(set(common), {"0x280", "0xB4100"})
+        self.assertEqual(set(common), {"0x280", "0x29C", "0xB4100"})
         self.assertEqual(common["0x280"]["before"], "04000000")
         self.assertEqual(common["0x280"]["after"], "00100000")
+        # D166 fix: the VirtualSize patch above only extended the declared
+        # size of .shr; it never set the section's own executable
+        # permission bit, so the robe wrapper it maps was written into a
+        # page Windows would refuse to execute. This second patch adds the
+        # missing permission bit (0x20000000) while preserving every other
+        # bit already set on the section.
+        self.assertEqual(common["0x29C"]["before"], "400000D0")
+        self.assertEqual(common["0x29C"]["after"], "600000F0")
         for mode in MODES:
             rows = self.feature.raw["patch_mode_overrides"][mode]
             self.assertEqual(len(rows), 1)
@@ -213,7 +221,7 @@ class VV3EveryoneTriesOnRobeTests(unittest.TestCase):
                     row for row in applied
                     if row.get("owner") == f"feature:{FEATURE_ID}"
                 ]
-                self.assertEqual(len(owner), 3)
+                self.assertEqual(len(owner), 4)
                 intervals = sorted(
                     (int(row["offset"], 0), int(row["offset"], 0) + len(bytes.fromhex(row["after"])))
                     for row in owner
@@ -221,7 +229,9 @@ class VV3EveryoneTriesOnRobeTests(unittest.TestCase):
                 self.assertTrue(all(left[1] <= right[0] for left, right in zip(intervals, intervals[1:])))
                 self.assertEqual(rendered[0x280:0x284], bytes.fromhex("00100000"))
                 self.assertEqual(digest(rendered[0xB4100:0xB41EB]), PAYLOAD_SHA256)
-                self.assertEqual(rendered[0x29C:0x2A0], bytes.fromhex("400000D0"))
+                # D166 fix: .shr is now actually marked executable (bit
+                # 0x20000000 added), not just declared bigger.
+                self.assertEqual(rendered[0x29C:0x2A0], bytes.fromhex("600000F0"))
                 if mode.startswith("experimental_"):
                     self.assertEqual(rendered[0x284:0x288], bytes.fromhex("00103A00"))
                     self.assertEqual(rendered[0x22B2A:0x22B2E], bytes.fromhex("00117A00"))
@@ -249,7 +259,7 @@ class VV3EveryoneTriesOnRobeTests(unittest.TestCase):
                 self.assertEqual(digest(baseline), BASE_RESULTS[mode])
                 removed = bytearray(rendered)
                 rows = patcher._remove_feature_bytes(removed, self.feature, mode)
-                self.assertEqual(len(rows), 3)
+                self.assertEqual(len(rows), 4)
                 self.assertEqual(removed, baseline)
 
     @unittest.skip("Expanded-256 modes were removed from the public patcher")
@@ -377,6 +387,37 @@ class VV3EveryoneTriesOnRobeTests(unittest.TestCase):
                         path, self.build, "collection_progression", [FEATURE_ID]
                     )
                 self.assertEqual(path.read_bytes(), before)
+
+    def test_shr_section_is_actually_executable_in_the_real_render(self) -> None:
+        """Regression test for a crash-causing bug found by an independent
+        PE re-parse of the real rendered output: the 0x280 patch extends
+        .shr's declared VirtualSize, but a section's VirtualSize has no
+        effect on whether Windows will execute code from it -- that's
+        controlled by the section's own Characteristics bit 0x20000000,
+        which nothing patched. The 235-byte robe wrapper this feature
+        writes to 0xB4100 lived in a page Windows would refuse to execute.
+        This feature has no dependency on the Origins feature (which fixes
+        .shr's permissions for other VV3 patches), so any player selecting
+        only "Everyone Tries on Robe" would hit this. Verified against the
+        actual rendered PE section table, not the patch manifest's claims.
+        """
+        try:
+            import pefile
+        except ImportError:
+            self.skipTest("pefile not available")
+
+        for mode in MODES:
+            with self.subTest(mode=mode):
+                rendered, _ = patcher.render_patched_bytes(
+                    STOCK, self.build, mode, [FEATURE_ID]
+                )
+                pe = pefile.PE(data=bytes(rendered), fast_load=True)
+                shr = next(s for s in pe.sections if s.Name.rstrip(b"\0") == b".shr")
+                self.assertTrue(
+                    bool(shr.Characteristics & 0x20000000),
+                    ".shr is still not marked executable",
+                )
+                self.assertGreaterEqual(shr.Misc_VirtualSize, 0x1000)
 
 
 if __name__ == "__main__":

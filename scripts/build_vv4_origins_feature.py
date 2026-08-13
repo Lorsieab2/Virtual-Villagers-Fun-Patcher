@@ -29,9 +29,17 @@ STRINGS_VA = PAYLOAD_VA + STRINGS_OFFSET
 HEAL_CAVE_FILE_OFFSET = 0xCC004
 HEAL_CAVE_VA = 0x728004
 NATIVE_TECH_TAIL_FILE_OFFSET = 0xCC160
-NATIVE_TECH_TAIL_VA = IMAGE_BASE + NATIVE_TECH_TAIL_FILE_OFFSET
+# D166 fix: this cave lives in .shr, whose raw file offset does NOT map
+# 1:1 to its runtime VA (raw 0xCC000 maps to RVA 0x328000, i.e. VA
+# 0x728000 -- see HEAL_CAVE_VA/VILLAGE_PREFLIGHT_VA a few lines below,
+# which correctly hardcode their own .shr VAs the same way). This used to
+# read "IMAGE_BASE + NATIVE_TECH_TAIL_FILE_OFFSET" = 0x4CC160, which is a
+# real VA -- but inside .data, not .shr. Every "bypass the Tech/Food
+# Doubler for an Island Event tail-jump" patch below jumps here; with the
+# old value they jumped into unrelated .data bytes instead of this cave.
+NATIVE_TECH_TAIL_VA = 0x728160
 NATIVE_FOOD_TAIL_FILE_OFFSET = 0xCC170
-NATIVE_FOOD_TAIL_VA = IMAGE_BASE + NATIVE_FOOD_TAIL_FILE_OFFSET
+NATIVE_FOOD_TAIL_VA = 0x728170
 CURE_ENTRY_FILE_OFFSET = HEAL_CAVE_FILE_OFFSET
 CURE_ENTRY_VA = HEAL_CAVE_VA
 EXPANDED_HEAL_CAVE_VA = 0x85A004
@@ -1127,6 +1135,24 @@ def main() -> None:
 
     patch(0x244, bytes.fromhex("40000040"), bytes.fromhex("40000060"),
           "make the mapped .text cave executable for the Origins payload")
+    # D166 fix: every VV4 Origins helper placed in this file (Cure at
+    # 0xCC004, Island Event tech/food exclusions at 0xCC160/0xCC170, the
+    # village-wide preflight validator at 0xCC180, and the entire
+    # village-wide extension cave) is written into the .shr section. The
+    # PE section header for .shr was never patched to make it executable
+    # or to extend its declared VirtualSize past 4 bytes -- unlike every
+    # other one of the five games, which each extend and mark their own
+    # equivalent section executable. An independent PE re-parse of the
+    # rendered output confirmed: exec=False, VirtualSize=4 bytes, no patch
+    # anywhere in the repository touches the .shr section-header entry's
+    # VirtualSize (file offset 0x278) or Characteristics (file offset
+    # 0x294) fields. Every call/jmp into this cave would fail under
+    # standard Windows DEP enforcement for a section not marked
+    # executable. Fixed identically to VV1/VV2/VV3's own .shr patches.
+    patch(0x278, bytes.fromhex("04000000"), bytes.fromhex("00100000"),
+          "map the complete VV4 .shr helper page used by Origins runtime code")
+    patch(0x294, bytes.fromhex("400000D0"), bytes.fromhex("600000F0"),
+          "mark the mapped VV4 .shr helper page executable while retaining its stock data permissions")
     patch(0x14D50, bytes.fromhex("B968E55000"), rel32_jump(0x414D50, barrel_eligibility),
           "temporarily admit the explicitly purchased native Barrel of Babies event")
     patch(0x1D94F, bytes.fromhex("85F67E3456"), rel32_jump(0x41D94F, food_increment),

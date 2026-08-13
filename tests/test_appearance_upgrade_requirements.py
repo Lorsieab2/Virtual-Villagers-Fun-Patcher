@@ -297,7 +297,24 @@ class AppearanceUpgradeRequirementsTests(unittest.TestCase):
                     "0x943A8", "0x9A009", "0x9A300", "0x9A530",
                 },
                 "data/vv3_origins_feature.json": {"0x7B664", "0xA3180"},
-                "data/vv4_origins_feature.json": {"0x89373", "0xCC004", "0xCC180"},
+                "data/vv4_origins_feature.json": {
+                    "0x89373", "0xCC004", "0xCC180",
+                    # D166 fix: .shr was never marked executable (0x278 is
+                    # its VirtualSize field, 0x294 its Characteristics
+                    # field -- neither was patched before). The two tail
+                    # helpers at 0xCC160/0xCC170 and every one of the 9
+                    # tail-jump sites that target them (8 Tech Doubler +
+                    # 1 Food Doubler) were assembled against the wrong VA
+                    # (IMAGE_BASE + raw file offset instead of the correct
+                    # .shr RVA-remapped VA), so every one of their rel32
+                    # encodings changes with the fix even though none of
+                    # their *behavior* other than "actually reaching the
+                    # helper instead of crashing" does.
+                    "0x278", "0x294", "0xCC160", "0xCC170",
+                    "0x156F8", "0x15862", "0x1586F", "0x15A81",
+                    "0x15B46", "0x15D8C", "0x16722", "0x16735",
+                    "0x1520E",
+                },
                 "data/vv5_origins_feature.json": {"0x94B37", "0x94EA0", "0xDB000"},
             }.get(relative, set())
             if repaired_offsets:

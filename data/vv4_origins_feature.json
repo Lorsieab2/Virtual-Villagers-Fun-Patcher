@@ -256,67 +256,67 @@
     {
       "offset": "0xCC160",
       "before": "00000000000000000000",
-      "after": "568B742408E99B21F5FF",
+      "after": "568B742408E99B61CFFF",
       "purpose": "keep Island Event tech rewards on the native tech path"
     },
     {
       "offset": "0xCC170",
       "before": "00000000000000000000",
-      "after": "568B742408E9AB17F5FF",
+      "after": "568B742408E9AB57CFFF",
       "purpose": "keep Island Event food rewards on the native food path"
     },
     {
       "offset": "0x156F8",
       "before": "E9038C0000",
-      "after": "E9636A0B00",
+      "after": "E9632A3100",
       "purpose": "bypass the Tech Doubler for an Island Event tail-jump"
     },
     {
       "offset": "0x15862",
       "before": "E9998A0000",
-      "after": "E9F9680B00",
+      "after": "E9F9283100",
       "purpose": "bypass the Tech Doubler for an Island Event tail-jump"
     },
     {
       "offset": "0x1586F",
       "before": "E98C8A0000",
-      "after": "E9EC680B00",
+      "after": "E9EC283100",
       "purpose": "bypass the Tech Doubler for an Island Event tail-jump"
     },
     {
       "offset": "0x15A81",
       "before": "E97A880000",
-      "after": "E9DA660B00",
+      "after": "E9DA263100",
       "purpose": "bypass the Tech Doubler for an Island Event tail-jump"
     },
     {
       "offset": "0x15B46",
       "before": "E9B5870000",
-      "after": "E915660B00",
+      "after": "E915263100",
       "purpose": "bypass the Tech Doubler for an Island Event tail-jump"
     },
     {
       "offset": "0x15D8C",
       "before": "E96F850000",
-      "after": "E9CF630B00",
+      "after": "E9CF233100",
       "purpose": "bypass the Tech Doubler for an Island Event tail-jump"
     },
     {
       "offset": "0x16722",
       "before": "E9D97B0000",
-      "after": "E9395A0B00",
+      "after": "E9391A3100",
       "purpose": "bypass the Tech Doubler for an Island Event tail-jump"
     },
     {
       "offset": "0x16735",
       "before": "E9C67B0000",
-      "after": "E9265A0B00",
+      "after": "E9261A3100",
       "purpose": "bypass the Tech Doubler for an Island Event tail-jump"
     },
     {
       "offset": "0x1520E",
       "before": "E90D870000",
-      "after": "E95D6F0B00",
+      "after": "E95D2F3100",
       "purpose": "bypass the Food Doubler for an Island Event tail-jump"
     },
     {
@@ -330,6 +330,18 @@
       "before": "40000040",
       "after": "40000060",
       "purpose": "make the mapped .text cave executable for the Origins payload"
+    },
+    {
+      "offset": "0x278",
+      "before": "04000000",
+      "after": "00100000",
+      "purpose": "map the complete VV4 .shr helper page used by Origins runtime code"
+    },
+    {
+      "offset": "0x294",
+      "before": "400000D0",
+      "after": "600000F0",
+      "purpose": "mark the mapped VV4 .shr helper page executable while retaining its stock data permissions"
     },
     {
       "offset": "0x14D50",

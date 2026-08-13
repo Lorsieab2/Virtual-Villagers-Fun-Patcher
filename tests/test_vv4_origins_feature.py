@@ -142,6 +142,76 @@ class VV4OriginsFeatureTests(unittest.TestCase):
         self.assertNotIn("experimental_expanded_256", mode_ids)
         self.assertNotIn("experimental_expanded_256_progression", mode_ids)
 
+    def test_shr_section_is_executable_and_tail_jumps_target_it(self) -> None:
+        """Regression test for two crash-causing bugs found by an
+        independent PE re-parse of the real rendered output:
+
+        1. VV4's .shr section -- where the base Origins feature writes its
+           Cure helper, Island Event tech/food exclusions, and the
+           village-wide preflight validator -- was never patched to be
+           executable or to have its declared VirtualSize extended past 4
+           bytes. Every other one of the five games explicitly does both
+           for their own equivalent section. Confirmed unfixed anywhere in
+           the repository before this fix landed.
+
+        2. Two of the "bypass the Tech/Food Doubler for an Island Event
+           tail-jump" patches computed their jump target as
+           IMAGE_BASE + raw_file_offset instead of the correct .shr
+           RVA-remapped VA -- landing in .data instead of the actual
+           helper code.
+
+        Both are verified here against the real rendered output, not the
+        generator's own claims.
+        """
+        try:
+            import pefile
+            import capstone
+        except ImportError:
+            self.skipTest("pefile/capstone not available")
+
+        for mode in MODES:
+            with self.subTest(mode=mode):
+                rendered, applied = render_patched_bytes(
+                    STOCK, self.build, mode,
+                    [FEATURE_ID, "vv4_origins_village_wide_upgrades"],
+                )
+                pe = pefile.PE(data=bytes(rendered), fast_load=True)
+                shr = next(s for s in pe.sections if s.Name.rstrip(b"\0") == b".shr")
+                self.assertTrue(
+                    bool(shr.Characteristics & 0x20000000),
+                    ".shr is still not marked executable",
+                )
+                self.assertGreaterEqual(
+                    shr.Misc_VirtualSize, 0x1000,
+                    ".shr VirtualSize was never extended to cover the injected code",
+                )
+
+                image_base = pe.OPTIONAL_HEADER.ImageBase
+                shr_va_start = image_base + shr.VirtualAddress
+                shr_va_end = shr_va_start + shr.SizeOfRawData
+                md = capstone.Cs(capstone.CS_ARCH_X86, capstone.CS_MODE_32)
+                md.detail = True
+                checked_tail_jump = False
+                for item in applied:
+                    if item.get("purpose", "").startswith(
+                        "bypass the Tech Doubler for an Island Event tail-jump"
+                    ) or item.get("purpose", "").startswith(
+                        "bypass the Food Doubler for an Island Event tail-jump"
+                    ):
+                        offset = int(item["offset"], 0)
+                        after = bytes.fromhex(item["after"])
+                        va = image_base + offset  # these live in .text, 1:1 mapped
+                        insn = next(md.disasm(after, va))
+                        self.assertEqual(insn.mnemonic, "jmp")
+                        target = insn.operands[0].imm
+                        self.assertTrue(
+                            shr_va_start <= target < shr_va_end,
+                            f"tail-jump at {item['offset']} targets {hex(target)}, "
+                            f"outside .shr [{hex(shr_va_start)}, {hex(shr_va_end)})",
+                        )
+                        checked_tail_jump = True
+                self.assertTrue(checked_tail_jump, "no tail-jump patches were found to check")
+
 
 if __name__ == "__main__":
     unittest.main()
