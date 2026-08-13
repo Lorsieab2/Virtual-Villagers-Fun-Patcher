@@ -19,7 +19,7 @@ OUT_DIR = ROOT / "research" / "vv3-origins"
 OUT_EXE = OUT_DIR / "Virtual Villagers - The Secret City - Origins Research.exe"
 OUT_JSON = OUT_DIR / "vv3-origins-feature-patches.json"
 MANIFEST_JSON = ROOT / "data" / "vv3_origins_feature.json"
-COMPANION = ROOT / "assets" / "origins" / "VVFP Origins Icons.dll"
+COMPANION = ROOT / "data" / "candidates" / "VVFP VV3 Safe Upgrades.dll"
 
 sys.path.insert(0, str(ROOT / ".tools" / "keystone"))
 sys.path.insert(0, str(ROOT / ".tools" / "keystone-runtime"))
@@ -1181,7 +1181,7 @@ def main() -> None:
         "output_tag": "Origins Exclusive Features",
         "companion_files": [
             {
-                "source": "assets/origins/VVFP Origins Icons.dll",
+                "source": "data/candidates/VVFP VV3 Safe Upgrades.dll",
                 "destination": "VVFP Origins Icons.dll",
                 "sha256": companion_hash,
             }

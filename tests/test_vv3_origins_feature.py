@@ -29,7 +29,7 @@ STOCK = (
 )
 MANIFEST = ROOT / "data" / "vv3_origins_feature.json"
 BUILDER = ROOT / "scripts" / "build_vv3_origins_feature.py"
-COMPANION = ROOT / "assets" / "origins" / "VVFP Origins Icons.dll"
+COMPANION = ROOT / "data" / "candidates" / "VVFP VV3 Safe Upgrades.dll"
 MODES = (
     "collection_progression",
     "immediate_fixed",
@@ -55,6 +55,20 @@ class VV3OriginsFeatureTests(unittest.TestCase):
             hashlib.sha256(COMPANION.read_bytes()).hexdigest().upper(),
         )
         self.assertIn("origins-style upgrade", self.manifest["description"].casefold())
+
+    def test_active_companion_is_the_safe_upgrade_projection(self) -> None:
+        companion = self.manifest["companion_files"][0]
+        self.assertEqual(
+            companion["source"],
+            "data/candidates/VVFP VV3 Safe Upgrades.dll",
+        )
+        data = COMPANION.read_bytes()
+        for forbidden in (
+            "Cure all Villagers",
+            "All Villagers Like Running",
+            "All Villagers are 18",
+        ):
+            self.assertNotIn(forbidden.encode("utf-16le"), data)
 
     def test_description_is_concise_and_keeps_the_base_dependency_internal(self) -> None:
         description = self.manifest["description"]

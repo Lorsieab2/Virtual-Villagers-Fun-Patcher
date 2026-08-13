@@ -24,6 +24,7 @@ FILES = [
     "data/vv1_origins_feature.json",
     "data/vv2_origins_feature.json",
     "data/vv3_origins_feature.json",
+    "data/candidates/VVFP VV3 Safe Upgrades.dll",
     "data/vv4_origins_feature.json",
     "data/vv5_origins_feature.json",
     "data/candidates/vv5_post_prototype_overlay.json",

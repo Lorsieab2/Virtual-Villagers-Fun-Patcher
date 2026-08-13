@@ -106,6 +106,7 @@ class VV3RequiredFixTests(unittest.TestCase):
     def test_vv3_release_keeps_menu_artifacts_and_excludes_duplicates(self) -> None:
         release = (ROOT / "scripts" / "build_release.py").read_text(encoding="utf-8")
         self.assertIn('"data/vv3_origins_village_wide_upgrades.json"', release)
+        self.assertIn('"data/candidates/VVFP VV3 Safe Upgrades.dll"', release)
         self.assertIn('"assets/origins/VVFP Origins Icons.dll"', release)
         for old in (
             "data/candidates/vv3_full_mastery_all_candidate.json",

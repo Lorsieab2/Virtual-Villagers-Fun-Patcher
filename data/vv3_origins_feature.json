@@ -12,9 +12,9 @@
   "output_tag": "Origins Exclusive Features",
   "companion_files": [
     {
-      "source": "assets/origins/VVFP Origins Icons.dll",
+      "source": "data/candidates/VVFP VV3 Safe Upgrades.dll",
       "destination": "VVFP Origins Icons.dll",
-      "sha256": "2ED1100E7F2EA5B8E522C2DE11F6B00CA8A02B968319C251365E9EFD634BCAF9"
+      "sha256": "8DB27C9208C0060046513078DF53A4DC8D7347AF5A9FD27177803E9388648BEE"
     }
   ],
   "doubler_evidence": {

@@ -298,19 +298,19 @@ class AppearanceUpgradeRequirementsTests(unittest.TestCase):
                 )
             for key in executable_keys:
                 self.assertEqual(current_manifest.get(key), before_manifest.get(key), f"{relative}:{key}")
-            self.assertEqual(
-                current_manifest["companion_files"][0]["source"],
-                before_manifest["companion_files"][0]["source"],
-                f"{relative}:companion_files.source",
-            )
+            if relative != "data/vv3_origins_feature.json":
+                self.assertEqual(
+                    current_manifest["companion_files"][0]["source"],
+                    before_manifest["companion_files"][0]["source"],
+                    f"{relative}:companion_files.source",
+                )
             self.assertEqual(
                 current_manifest["companion_files"][0]["destination"],
                 before_manifest["companion_files"][0]["destination"],
                 f"{relative}:companion_files.destination",
             )
-            actual_companion = hashlib.sha256(
-                (ROOT / "assets/origins/VVFP Origins Icons.dll").read_bytes()
-            ).hexdigest().upper()
+            active_source = ROOT / current_manifest["companion_files"][0]["source"]
+            actual_companion = hashlib.sha256(active_source.read_bytes()).hexdigest().upper()
             self.assertEqual(current_manifest["companion_files"][0]["sha256"], actual_companion)
 
 
