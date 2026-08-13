@@ -873,6 +873,9 @@ class GuiSourceTests(unittest.TestCase):
         self.assertIn('self.bind_all("<MouseWheel>", self._scroll_content)', source)
         self.assertIn("def _scroll_content", source)
         self.assertIn("self.content_canvas.yview_scroll(direction, \"units\")", source)
+        self.assertIn("confirmation_canvas", source)
+        self.assertIn("confirmation_scrollbar", source)
+        self.assertIn('dialog.bind("<MouseWheel>", scroll_confirmation)', source)
 
     def test_interface_remembers_a_custom_modded_output_parent(self) -> None:
         source = (ROOT / "src" / "vv_fun_patcher_gui.py").read_text(encoding="utf-8")
@@ -889,6 +892,8 @@ class GuiSourceTests(unittest.TestCase):
         self.assertIn("Patch audit:", source)
         self.assertIn("Village Statistics - Save N.txt:", source)
         self.assertIn("Parentage Log.html", source)
+        self.assertIn("dialog.resizable(True, True)", source)
+        self.assertIn("dialog.minsize(760, 480)", source)
         self.assertNotIn('messagebox.showinfo("Modified EXE created"', source)
         self.assertNotIn('messagebox.showinfo("All five modified EXEs created"', source)
 

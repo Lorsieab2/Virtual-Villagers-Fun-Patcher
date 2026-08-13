@@ -829,10 +829,54 @@ class App(tk.Tk):
         dialog = tk.Toplevel(self)
         dialog.title(title)
         dialog.transient(self)
-        dialog.resizable(False, False)
+        dialog.resizable(True, True)
+        dialog.minsize(760, 480)
+        dialog_width = min(1040, max(760, dialog.winfo_screenwidth() - 80))
+        dialog_height = min(720, max(480, dialog.winfo_screenheight() - 120))
+        dialog.geometry(f"{dialog_width}x{dialog_height}")
 
-        frame = ttk.Frame(dialog, padding=16)
-        frame.grid(sticky="nsew")
+        viewport = ttk.Frame(dialog)
+        viewport.pack(fill="both", expand=True)
+        confirmation_canvas = tk.Canvas(
+            viewport,
+            borderwidth=0,
+            highlightthickness=0,
+        )
+        confirmation_scrollbar = ttk.Scrollbar(
+            viewport,
+            orient="vertical",
+            command=confirmation_canvas.yview,
+        )
+        confirmation_canvas.configure(yscrollcommand=confirmation_scrollbar.set)
+        confirmation_scrollbar.pack(side="right", fill="y")
+        confirmation_canvas.pack(side="left", fill="both", expand=True)
+
+        frame = ttk.Frame(confirmation_canvas, padding=16)
+        confirmation_window = confirmation_canvas.create_window(
+            (0, 0),
+            window=frame,
+            anchor="nw",
+        )
+        frame.bind(
+            "<Configure>",
+            lambda _event: confirmation_canvas.configure(
+                scrollregion=confirmation_canvas.bbox("all")
+            ),
+        )
+        confirmation_canvas.bind(
+            "<Configure>",
+            lambda event: confirmation_canvas.itemconfigure(
+                confirmation_window,
+                width=event.width,
+            ),
+        )
+
+        def scroll_confirmation(event: tk.Event) -> str:
+            direction = -1 if event.delta > 0 else 1
+            confirmation_canvas.yview_scroll(direction, "units")
+            return "break"
+
+        dialog.bind("<MouseWheel>", scroll_confirmation)
         ttk.Label(
             frame,
             text="Finished! Open either folder:",
