@@ -35,6 +35,11 @@ class _Assembler:
         self.emit(b"\xE9\x00\x00\x00\x00")
         self.fixups.append((start + 1, start + 5, target))
 
+    def call(self, target: int | str) -> None:
+        start = self.cursor
+        self.emit(b"\xE8\x00\x00\x00\x00")
+        self.fixups.append((start + 1, start + 5, target))
+
     def jcc(self, opcode: int, target: int | str) -> None:
         start = self.cursor
         self.emit(bytes((0x0F, opcode, 0, 0, 0, 0)))
@@ -107,6 +112,35 @@ def build_page() -> tuple[bytes, dict[str, object]]:
     asm.label("planner_reject")
     asm.jmp(0x447829)
 
+    # VV1's chooser is the one early-game implementation whose native tail
+    # predates the VV4 score floor and preference fallback.  Keep its native
+    # skill/category mapping, but route the final score decision through the
+    # owned page so it matches the VV4/VV2/VV3 chooser contract: score > 5,
+    # then the 25% non-preference fallback for the embracing category (2).
+    asm.seek(0x100)
+    asm.jcc(0x8E, "chooser_reject")  # signed <= after cmp esi, 5
+    asm.emit(bytes.fromhex("83C628"))  # add esi, 40
+    asm.emit(bytes.fromhex("6A64"))
+    asm.call(0x402F10)
+    asm.emit(bytes.fromhex("83C404"))
+    asm.emit(bytes.fromhex("3BC6"))  # cmp eax, esi
+    asm.jcc(0x8D, "chooser_reject")  # signed >= rejects the action
+    asm.emit(bytes.fromhex("83FD02"))  # cmp ebp, 2
+    asm.jcc(0x85, "chooser_return")  # non-embracing category returns
+    asm.emit(bytes.fromhex("817FD003000002"))  # pref != 2 is not guaranteed
+    asm.jcc(0x84, "chooser_return")  # checked embracing preference returns
+    asm.emit(bytes.fromhex("6A64"))
+    asm.call(0x402F10)
+    asm.emit(bytes.fromhex("83C404"))
+    asm.emit(bytes.fromhex("83F84B"))  # cmp eax, 75
+    asm.jcc(0x8D, "chooser_return")  # 25% fallback
+    asm.label("chooser_reject")
+    asm.emit(bytes.fromhex("B901000000"))  # ECX=1 -> original zero result
+    asm.jmp(0x439C9D)
+    asm.label("chooser_return")
+    asm.emit(bytes.fromhex("33C9"))  # ECX=0 -> original EBP result
+    asm.jmp(0x439C9D)
+
     page = asm.finish()
     details = {
         "page_sha256": hashlib.sha256(page).hexdigest().upper(),
@@ -116,6 +150,7 @@ def build_page() -> tuple[bytes, dict[str, object]]:
             "action_9_scan_1": {"raw": "0x46E96", "page_offset": "0x40", "length": 6},
             "action_9_scan_2": {"raw": "0x47084", "page_offset": "0x80", "length": 6},
             "planner": {"raw": "0x477FA", "page_offset": "0xC0", "length": 5},
+            "chooser_score_floor": {"raw": "0x39C83", "page_offset": "0x100", "length": 6},
         },
     }
     return page, details

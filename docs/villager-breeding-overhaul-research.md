@@ -1,6 +1,6 @@
 # Villager Breeding Overhaul: age, preference, and parenting-skill audit
 
-Status: research and patch-boundary definition. No executable patch is enabled by this note.
+Status: exact-build static implementation and patch-boundary definition. Runtime/player confirmation remains pending.
 
 This note records the exact behavior that the planned Birth Control / Villager
 Breeding Overhaul patches are allowed to change. The supplied Windows builds are
@@ -22,11 +22,15 @@ message, statistic, or state-write behavior. In VV2, every Gong of Wonder
 outcome has the same complete exclusion. These are control-flow/provenance
 exclusions, not amount- or result-based exceptions.
 
-Future VV1 and VV3 implementation GO reports must enumerate every applicable
+Any future GO report for VV1 and VV3 must enumerate every applicable
 ordinary route and prove that every Island Event or other special direct route
 bypasses the proposed patch. Partial field mappings, shared-writer xrefs, or
 candidate predicates are insufficient. VV4 and VV5 remain untouched native
 references.
+
+VV3 remains ON HOLD for runtime/player interpretation. Do not interpret a
+special outcome bypassing Birth Control as a defect; that bypass is part of
+the required native exclusion boundary.
 
 ## VV4: what the old-mother evidence does and does not prove
 
@@ -142,10 +146,12 @@ the category-2 carrier at internal age `>=1000`. The two action-9
 writer-reaching scans at `0x46E96` and `0x47084` add candidate-only upper
 bounds while preserving both stock `>=360` checks. The planner hook at
 `0x477FA` likewise adds only the candidate upper bound before the stock
-initiator check. This corresponds to the audited planner scan at VA `0x4477AF`
-and raw `0x477AF`. Catch-up reuses the chooser/action-9 route. Direct
-event-created births and pending delivery remain native. Static verification is
-complete; runtime/player confirmation remains pending.
+initiator check. The chooser tail at `0x39C80`/`0x39C83` now uses the same
+score floor and non-preference fallback as the VV4/VV2/VV3 chooser while
+preserving VV1's native category/skill mapping. Catch-up reuses the
+chooser/action-9 route. Direct event-created births and pending delivery
+remain native. Static verification is complete; runtime/player confirmation
+remains pending.
 
 The former rejection evidence remains relevant as a negative boundary: the
 historical `0x3DBBE` food gate, live instruction interiors, and uncertified
@@ -188,11 +194,14 @@ reserved.
 ## Implementation status
 
 VV1, VV2, and VV3 have independent exact-build Birth Control records. VV1's
-owned helper page and four guarded code hooks, plus VV3's five complete
+owned helper page and six guarded code hooks, plus VV3's five complete
 initiator-check removals, are statically verified against their recorded stock
-hashes. Runtime/player confirmation remains pending. VV1/VV2/VV3 records do
-not claim to alter special event births, pending delivery, or unrelated
-writers. VV4 and VV5 remain native no-patch references.
+hashes. VV2 and VV3 already contain the VV4 chooser score floor and
+preference fallback natively; VV1 now matches that chooser tail without
+changing its game-specific skill/category mapping. Runtime/player confirmation
+remains pending. VV1/VV2/VV3 records do not claim to alter special event
+births, pending delivery, or unrelated writers. VV4 and VV5 remain native
+no-patch references.
 
 ### VV2 exact-build implementation (`74778bd6a7d3a17dd990636cf6d4e769466800c6`)
 
