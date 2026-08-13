@@ -904,7 +904,7 @@ def main() -> None:
             jne cure_next
             cmp dword ptr [esi + 0x1C40], 0
             jle cure_next
-            cmp dword ptr [esi + 0x1C40], 80
+            cmp dword ptr [esi + 0x1C40], 100
             jge cure_health_done
             # Native VV4 health setter: ECX=record+0x1C34, push -1 and
             # target 100, callee ret 8.  Save the walker state because this
@@ -1095,7 +1095,7 @@ def main() -> None:
         HEAL_CAVE_FILE_OFFSET,
         b"\0" * len(cure_code),
         cure_code,
-        "restore health below 80 to 100 through the native setter, clear sickness, and update People Cured",
+        "restore every living villager below 100 health to 100 through the native setter, clear sickness, and update People Cured",
     )
     patch(
         NATIVE_TECH_TAIL_FILE_OFFSET,

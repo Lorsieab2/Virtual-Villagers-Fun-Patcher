@@ -115,7 +115,10 @@ class VV4OriginsFeatureTests(unittest.TestCase):
         self.assertNotIn(struct.pack("<I", 0x42B40000), payload)
 
     def test_vv4_cure_and_running_source_guards_are_present(self) -> None:
-        self.assertIn("cmp dword ptr [esi + 0x1C40], 80", self.builder)
+        # Full Heal / Cure All restores every living villager below full
+        # health to 100 -- not only villagers below an 80 partial-health
+        # threshold -- so the heal gate must compare against 100, never 80.
+        self.assertNotIn("cmp dword ptr [esi + 0x1C40], 80", self.builder)
         self.assertIn("lea eax, [esi + 0x1C34]", self.builder)
         self.assertIn("cmp dword ptr [esi + 0x1C40], 100", self.builder)
         self.assertIn("mov byte ptr [esi + 0x1C48], 0", self.builder)
