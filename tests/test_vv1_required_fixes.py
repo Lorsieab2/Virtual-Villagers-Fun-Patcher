@@ -44,6 +44,39 @@ class VV1RequiredFixTests(unittest.TestCase):
         self.assertIn("mov dword ptr [edx + 0x344], 100", cure)
         self.assertIn("mov byte ptr [edx + 0x354], 0", cure)
 
+    def test_vv1_origins_maps_shr_and_defers_barrel_event(self) -> None:
+        source = (ROOT / "scripts" / "build_vv1_origins_feature.py").read_text(
+            encoding="utf-8"
+        )
+        self.assertIn("SHR_FILE_OFFSET = 0x8B000", source)
+        self.assertIn("SHR_RVA = 0x8D000", source)
+        self.assertIn("CURE_ENTRY_VA = IMAGE_BASE + SHR_RVA", source)
+        self.assertIn(
+            "IMAGE_BASE + SHR_RVA + (HEAL_CAVE_FILE_OFFSET - SHR_FILE_OFFSET)",
+            source,
+        )
+        self.assertIn("BARREL_PENDING_FILE_OFFSET = 0x8B700", source)
+        self.assertIn("BARREL_MAIN_HELPER_FILE_OFFSET = 0x8B710", source)
+        barrel = source.split("do_barrel:", 1)[1].split(
+            "do_tech_doubler:", 1
+        )[0]
+        self.assertIn("mov byte ptr [0x{BARREL_PENDING_VA:X}], 1", barrel)
+        self.assertIn("jmp menu_done", barrel)
+        self.assertNotIn("call 0x42A6A0", barrel)
+
+        feature = get_fun_patch("vv1_enable_origins_exclusive_features")
+        offsets = {patch["offset"] for patch in feature.raw["patches"]}
+        for offset in ("0x220", "0x270", "0x28C", "0x2403F", "0x8B700", "0x8B710"):
+            self.assertIn(offset, offsets)
+        self.assertEqual(
+            next(p["after"] for p in feature.raw["patches"] if p["offset"] == "0x270"),
+            "00100000",
+        )
+        self.assertEqual(
+            next(p["after"] for p in feature.raw["patches"] if p["offset"] == "0x28C"),
+            "600000F0",
+        )
+
     def test_vv1_village_wide_payload_binds_four_slots_and_native_mastery(self) -> None:
         feature = get_fun_patch("vv1_origins_village_wide_upgrades")
         self.assertEqual(feature.raw["record_fields"]["like_slot_count"], 4)

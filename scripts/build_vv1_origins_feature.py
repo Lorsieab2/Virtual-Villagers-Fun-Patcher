@@ -29,14 +29,30 @@ CODE_FILE_OFFSET = 0x56900
 CODE_VA = IMAGE_BASE + CODE_FILE_OFFSET
 STRINGS_FILE_OFFSET = 0x85D30
 STRINGS_VA = IMAGE_BASE + STRINGS_FILE_OFFSET
+# The stock .shr section is stored at raw 0x8B000 but is mapped at RVA
+# 0x8D000.  Runtime helper addresses must use the mapped RVA, not the raw
+# file offset.  The section-header patches below also make the whole reserve
+# mapped and executable.
+SHR_FILE_OFFSET = 0x8B000
+SHR_RVA = 0x8D000
 HEAL_CAVE_FILE_OFFSET = 0x8B004
 CURE_ENTRY_FILE_OFFSET = 0x8B530
-CURE_ENTRY_VA = IMAGE_BASE + CURE_ENTRY_FILE_OFFSET
+CURE_ENTRY_VA = IMAGE_BASE + SHR_RVA + (CURE_ENTRY_FILE_OFFSET - SHR_FILE_OFFSET)
 HEAL_CAVE_VA = CURE_ENTRY_VA
-VILLAGE_WIDE_SIGNATURE_VA = IMAGE_BASE + 0x8B180
-VILLAGE_WIDE_ENTRY_VA = IMAGE_BASE + 0x8B1A0
+VILLAGE_WIDE_SIGNATURE_VA = IMAGE_BASE + SHR_RVA + (0x8B180 - SHR_FILE_OFFSET)
+VILLAGE_WIDE_ENTRY_VA = IMAGE_BASE + SHR_RVA + (0x8B1A0 - SHR_FILE_OFFSET)
 VILLAGE_PREFLIGHT_FILE_OFFSET = 0x8B009
-VILLAGE_PREFLIGHT_VA = IMAGE_BASE + VILLAGE_PREFLIGHT_FILE_OFFSET
+VILLAGE_PREFLIGHT_VA = IMAGE_BASE + SHR_RVA + (
+    VILLAGE_PREFLIGHT_FILE_OFFSET - SHR_FILE_OFFSET
+)
+BARREL_PENDING_FILE_OFFSET = 0x8B700
+BARREL_PENDING_VA = IMAGE_BASE + SHR_RVA + (
+    BARREL_PENDING_FILE_OFFSET - SHR_FILE_OFFSET
+)
+BARREL_MAIN_HELPER_FILE_OFFSET = 0x8B710
+BARREL_MAIN_HELPER_VA = IMAGE_BASE + SHR_RVA + (
+    BARREL_MAIN_HELPER_FILE_OFFSET - SHR_FILE_OFFSET
+)
 RUNNING_PREFERENCE_ID = 38  # exact-build preference-table evidence: 0x7B260
 VV1_NATIVE_SKILL_WRITER_VA = 0x437230
 VV1_SKILL_FIELDS = (
@@ -351,27 +367,14 @@ def main() -> None:
             jmp show_and_done
 
         do_barrel:
-            push 0x50F0
-            call 0x44AF03
-            add esp, 4
-            test eax, eax
-            je barrel_allocation_failed
-            mov ebx, eax
-            push 0x7F4B1A2C
-            push 1
-            mov ecx, ebx
-            call 0x4286B0
-            push 0
-            push esi
-            mov ecx, ebx
-            call 0x401AB0
-            mov ecx, ebx
-            call 0x42A6A0
+            mov byte ptr [0x{BARREL_PENDING_VA:X}], 1
             mov eax, 0x{s['purchase_complete']:X}
-            jmp show_and_done
-        barrel_allocation_failed:
-            mov eax, 0x{s['save_failed']:X}
-            jmp show_and_done
+            push 0
+            push 0x{s['title']:X}
+            push eax
+            call 0x452DB6
+            add esp, 0x0C
+            jmp menu_done
 
         do_tech_doubler:
             mov dword ptr [edi + 0xAD48], 1
@@ -883,10 +886,47 @@ def main() -> None:
         """,
         VILLAGE_PREFLIGHT_VA,
     )
+    barrel_main_helper_code = assemble(
+        f"""
+            # Preserve the stock update call that this hook replaces.
+            call 0x448600
+            cmp byte ptr [0x{BARREL_PENDING_VA:X}], 0
+            je barrel_main_done
+            pushad
+            # PUSHAD stores the caller's ESI at [ESP+4].  In this exact
+            # update function ESI is the stock main-village modal owner.
+            mov esi, dword ptr [esp + 4]
+            push 0x50F0
+            call 0x44AF03
+            add esp, 4
+            test eax, eax
+            je barrel_main_restore
+            mov ebx, eax
+            push 0x7F4B1A2C
+            push 1
+            mov ecx, ebx
+            call 0x4286B0
+            push 0
+            push esi
+            mov ecx, ebx
+            call 0x401AB0
+            mov ecx, ebx
+            call 0x42A6A0
+            mov byte ptr [0x{BARREL_PENDING_VA:X}], 0
+        barrel_main_restore:
+            popad
+        barrel_main_done:
+            jmp 0x424044
+        """,
+        BARREL_MAIN_HELPER_VA,
+    )
     patch(
         HEAL_CAVE_FILE_OFFSET,
         b"\0" * 5,
-        rel32_jump(IMAGE_BASE + HEAL_CAVE_FILE_OFFSET, CURE_ENTRY_VA),
+        rel32_jump(
+            IMAGE_BASE + SHR_RVA + (HEAL_CAVE_FILE_OFFSET - SHR_FILE_OFFSET),
+            CURE_ENTRY_VA,
+        ),
         "redirect the shared VV1 Cure/village-wide dispatch stub to its certified helper after the optional Origins reserve",
     )
     patch(
@@ -900,6 +940,37 @@ def main() -> None:
         b"\0" * len(preflight_code),
         preflight_code,
         "validate the complete optional Origins header and result-export dependency before any village-wide charge",
+    )
+    patch(
+        BARREL_PENDING_FILE_OFFSET,
+        b"\0",
+        b"\0",
+        "reserve the process-local one-shot VV1 Barrel event token",
+    )
+    patch(
+        BARREL_MAIN_HELPER_FILE_OFFSET,
+        b"\0" * len(barrel_main_helper_code),
+        barrel_main_helper_code,
+        "consume the deferred VV1 Barrel token from the stock main-village update owner",
+    )
+
+    patch(
+        0x220,
+        bytes.fromhex("30ED0200"),
+        bytes.fromhex("00F00200"),
+        "extend the mapped .rdata VirtualSize to cover the Origins strings tail",
+    )
+    patch(
+        0x270,
+        bytes.fromhex("04000000"),
+        bytes.fromhex("00100000"),
+        "extend the mapped .shr VirtualSize to cover the Origins helper reserve",
+    )
+    patch(
+        0x28C,
+        bytes.fromhex("400000D0"),
+        bytes.fromhex("600000F0"),
+        "make the mapped .shr Origins helpers executable code",
     )
 
     patch(
@@ -942,7 +1013,13 @@ def main() -> None:
         0x28470,
         bytes.fromhex("8B44240483F801"),
         rel32_jump(0x428470, event_dispatch_hook) + b"\x90\x90",
-        "route the marked Barrel of Babies request through the native event result path",
+        "route the marked deferred Barrel of Babies request through the native event result path",
+    )
+    patch(
+        0x2403F,
+        bytes.fromhex("E8BC450200"),
+        rel32_jump(0x42403F, BARREL_MAIN_HELPER_VA),
+        "consume a queued Barrel of Babies event only from the stock main-village update owner",
     )
     patch(
         CODE_FILE_OFFSET,
