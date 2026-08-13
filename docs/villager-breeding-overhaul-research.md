@@ -64,7 +64,7 @@ the routine returns without calling the conception writer. Therefore the
 ordinary player-drag/manual route does **not** provide the reported over-50
 mother behavior, even when the skill roll would otherwise succeed.
 
-### Autonomous choice and the preference requirement
+### Autonomous choice and the preference fallback
 
 The chooser `sub_461CC0` uses the five-skill block beginning at `+7260`;
 VV4's Breeding/Parenting skill is `+7264` (`+0x1C60`). The “Children” choice
@@ -76,10 +76,14 @@ the stock action roll. A checked Children preference forces category 1 when the
 preference override is taken; without that preference, category 1 is not
 guaranteed.
 
-This is the autonomous “Embracing” predicate that the overhaul must tighten:
-both the positive Breeding/Parenting score and the checked Children preference
-must be present. The patch must not alter Island Events, the Gong of Wonder, or
-any direct event-created nursing-baby writer.
+This is the literal VV4/VV5 autonomous “Embracing” predicate. A checked
+Children preference participates in the native override, but it is not an
+absolute prerequisite: when category 1 is selected without that preference,
+the native chooser retains a 25% fallback roll. VV1 reproduces this tail in its
+owned helper page; VV2 and VV3 already contain the same native floor/fallback.
+The Birth Control patches do not replace this random branch with a stricter
+preference-only rule. They also do not alter Island Events, the Gong of Wonder,
+or any direct event-created nursing-baby writer.
 
 ### Why a woman over 50 can still appear after catch-up
 
@@ -157,9 +161,11 @@ The former rejection evidence remains relevant as a negative boundary: the
 historical `0x3DBBE` food gate, live instruction interiors, and uncertified
 `0x56740` cave are not used by the implementation.
 
-VV2 retains its independent two-site implementation described below. VV3's
-ordinary action-13 selector is covered by the implementation in the next
-section; its native manual and special routes remain unchanged.
+VV2 retains its independent two-site implementation described below; its
+native chooser, conception formula, pregnancy writer, and delivery already
+match the VV4/VV5 reference contract. VV3's ordinary action-13 selector is
+covered by the implementation in the next section; its native chooser, manual,
+conception, pregnancy, delivery, and special routes remain unchanged.
 
 ### VV3 exact-build implementation and special-outcome boundary
 
@@ -196,12 +202,12 @@ reserved.
 VV1, VV2, and VV3 have independent exact-build Birth Control records. VV1's
 owned helper page and six guarded code hooks, plus VV3's five complete
 initiator-check removals, are statically verified against their recorded stock
-hashes. VV2 and VV3 already contain the VV4 chooser score floor and
-preference fallback natively; VV1 now matches that chooser tail without
-changing its game-specific skill/category mapping. Runtime/player confirmation
-remains pending. VV1/VV2/VV3 records do not claim to alter special event
-births, pending delivery, or unrelated writers. VV4 and VV5 remain native
-no-patch references.
+hashes. VV2 and VV3 already contain the literal VV4/VV5 chooser score floor and
+25% non-preference fallback natively; VV1 now matches that chooser tail without
+changing its game-specific skill/category mapping. All three retain native
+manual female/carrier gates, conception formulas, pregnancy writers, and
+pending-delivery behavior outside their named route edits. Runtime/player
+confirmation remains pending. VV4 and VV5 remain native no-patch references.
 
 ### VV2 exact-build implementation (`74778bd6a7d3a17dd990636cf6d4e769466800c6`)
 
@@ -220,10 +226,11 @@ ordinary autonomous/catch-up pairing and stew recipe 15. The patch does not
 claim broader breeding parity.
 
 The stock manual carrier/female-only age-less-than-1000 gate remains unchanged;
-there is no male upper-age gate. Chooser scoring, token 43 exact string `work`,
-willingness token 39 `learning`, planner logic, pregnancy writer, delivery,
-save format, RNG, food, fertility, capacity, messages, statistics, Love Note,
-Gong grant, Silver Mirror clone, and direct/event births remain native.
+there is no male upper-age gate. The native VV4/VV5-style chooser score floor
+and 25% non-preference fallback, token 43 exact string `work`, willingness token
+39 `learning`, planner logic, conception roll, pregnancy writer, delivery, save
+format, RNG, food, fertility, capacity, messages, statistics, Love Note, Gong
+grant, Silver Mirror clone, and direct/event births remain native.
 
 The static exclusion boundary is exact:
 

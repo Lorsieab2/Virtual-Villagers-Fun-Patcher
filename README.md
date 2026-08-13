@@ -220,10 +220,19 @@ finishes **Recovering at the hospital** gains exactly 1 health point, capped at
 change health. The award runs only from a new final completion callback, so an
 interrupted recovery gives no health.
 
+## VV1: Birth Control
+
+Enable **Birth Control (A New Home)** to match the literal VV4/VV5 boundary:
+manual pairing rejects only an older category-2 carrier, ordinary autonomous
+and catch-up routes reject only scanned candidates at internal age 1000 or
+greater, and older male/initiating villagers have no added upper-age ceiling.
+The chooser uses the VV4/VV5 score floor and native 25% non-preference fallback;
+native conception, pregnancy, and delivery remain unchanged.
+
 ## VV2: Birth Control
 
-Enable **Birth Control (The Lost Children)** to add an internal-age-1000 ceiling
-only to the two writer-reaching opcode-12 candidate scans used by ordinary
+Enable **Birth Control (The Lost Children)** to match the literal VV4/VV5
+boundary on the two writer-reaching opcode-12 candidate scans used by ordinary
 autonomous/catch-up pairing and stew recipe 15. Both exact 40-byte guarded
 blocks are applied together. Candidate sex remains preserved in `EDX`, and the
 already-loaded candidate age in `EAX` is compared directly with 1000.
@@ -233,8 +242,16 @@ upper-age gate is added. Chooser scoring, the exact `work` and `learning`
 tokens, planner, pregnancy and delivery, saves, RNG, food, fertility, capacity,
 messages, statistics, Love Note, Gong grant, Silver Mirror clone, and all
 direct/event births remain native. This exact-build implementation is based on
-disassembly commit `74778bd6a7d3a17dd990636cf6d4e769466800c6` and does not
-claim broader breeding parity.
+disassembly commit `74778bd6a7d3a17dd990636cf6d4e769466800c6`.
+
+## VV3: Birth Control
+
+Enable **Birth Control (The Secret City)** to match the literal VV4/VV5
+boundary on ordinary action-13 autonomous/catch-up pairing. The scanned
+candidate remains in the internal-age 360..999 range, while the initiating
+villager has no added upper-age ceiling. The native chooser score floor and 25%
+non-preference fallback, manual carrier gate, conception, pregnancy, and
+delivery remain unchanged.
 
 ## VV2: Gong of Wonder Coconuts Fix
 
@@ -299,22 +316,15 @@ CLI, or Select All. Its retained evidence is not publication authority.
 ## VV4 breeding reference
 
 VV4 remains the untouched vanilla Breeding and Embracing reference, including
-its older-mother behavior and no male upper-age gate. The historical Birth
-Control candidate is rejected/superseded and is not offered or applied.
+its older-mother behavior, native chooser fallback, and no male upper-age gate.
+The historical VV4 Birth Control candidate is rejected/superseded and is not
+offered or applied; VV1, VV2, and VV3 have separate exact-build Birth Control
+records matching that literal reference boundary.
 
 The exact-build VV4/VV5 audit confirms that both games already provide the
-requested VV4-style Birth Control/Breeding behavior natively. They are therefore
-no-patch references. VV1 and VV3 remain ON HOLD as separate per-game tasks.
-VV2's certified optional patch is limited to its two writer-reaching opcode-12
-candidate scans and does not claim broader breeding parity.
-
-VV1 remains ON HOLD under exact-build audit `c8d268d`. Its rejected historical
-proposal mistook the `0x3DBBE` food gate for an age predicate, treated live code
-at `0x458D0`/`0x45930` as caves, relied on uncertified `0x56740` placement, and
-applied the wrong both-sex ceiling. No VV1 Birth Control bytes are offered.
-Complete carrier-only/no-male-ceiling coverage still requires the planner and
-action-9 commit paths to be proved together; catch-up, direct event births, and
-pending delivery remain native.
+requested Birth Control/Breeding behavior natively. They are therefore no-patch
+references. VV1, VV2, and VV3 now expose separate exact-build records with
+static verification complete and runtime/player confirmation pending.
 
 ## VV3: Everyone Tries On the Robe
 

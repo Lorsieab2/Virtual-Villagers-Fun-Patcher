@@ -743,7 +743,7 @@
       "id": "vv2_birth_control",
       "game_id": "vv2",
       "name": "Birth Control",
-      "description": "Limits only the two writer-reaching opcode-12 candidate scans used by ordinary autonomous/catch-up pairing and stew recipe 15: a candidate whose already-loaded internal age in EAX is 1000 or greater is rejected while candidate sex remains preserved in EDX. The stock manual carrier/female-only age gate remains unchanged and no male upper-age gate is added.",
+      "description": "Matches the VV4/VV5 Birth Control boundary on the exact VV2 ordinary routes: the native chooser's score floor and 25% non-preference fallback remain in force, the two writer-reaching opcode-12 candidate scans reject candidates at internal age 1000 or greater, and the stock manual carrier/female-only gate rejects older carriers without adding a male upper-age gate. Native conception roll, pregnancy writer/state, and delivery remain unchanged.",
       "output_tag": "Birth Control",
       "behavior_changes": [
         "The writer-reaching opcode-12 candidate scans at file offsets 0x6488D and 0x64A8F reject candidates whose already-loaded internal age in EAX is at least 1000.",
@@ -751,7 +751,7 @@
       ],
       "explicit_non_changes": [
         "The stock manual carrier/female-only age<1000 gate is unchanged, and no male upper-age gate is added.",
-        "Chooser scoring, token 43 exact string work, willingness token 39 learning, planner logic, pregnancy writer, delivery, save format, RNG, food, fertility, capacity, messages, and statistics are unchanged.",
+        "The native VV4/VV5-style chooser score floor and 25% non-preference fallback, token 43 exact string work, willingness token 39 learning, planner logic, conception roll, pregnancy writer, delivery, save format, RNG, food, fertility, capacity, messages, and statistics are unchanged.",
         "Love Note event, Gong grant, Silver Mirror clone, direct/event births, and every path outside the two writer-reaching opcode-12 candidate scans remain native."
       ],
       "evidence_status": "implemented from exact-build disassembly commit 74778bd6a7d3a17dd990636cf6d4e769466800c6; static verification complete, runtime/player confirmation pending",
@@ -1328,7 +1328,7 @@
       "id": "vv3_birth_control",
       "game_id": "vv3",
       "name": "Birth Control",
-      "description": "Limits only the ordinary autonomous/catch-up mate selector used by action 13: the scanned candidate remains in the stock internal-age 360..999 range, while the initiating villager no longer receives an extra upper-age rejection. VV3's native manual category-1 age gate remains unchanged and no male upper-age gate is added.",
+      "description": "Matches the VV4/VV5 Birth Control boundary on the exact VV3 ordinary action-13 route: the native chooser's score floor and 25% non-preference fallback remain in force, the scanned candidate stays in the stock internal-age 360..999 range, and the initiating villager has no extra upper-age rejection. The native manual category-1 carrier gate rejects older carriers without adding a male upper-age gate; native conception, pregnancy, and delivery remain unchanged.",
       "output_tag": "Birth Control",
       "behavior_changes": [
         "The five repeated candidate-selector blocks at file offsets 0x5CE74, 0x5CF35, 0x5CFFC, 0x5D0C0, and 0x5D187 retain each candidate's stock age<1000 check while removing only the initiator's duplicate age<1000 check.",
@@ -1336,7 +1336,7 @@
       ],
       "explicit_non_changes": [
         "The native VV3 manual pairing handler at VA 0x4584B0 retains its category-1 carrier/female-only internal-age-1000 rejection for both participants.",
-        "Action selection, preference scoring, the conception writer, pending delivery, save format, RNG, health, fertility, capacity, messages, and statistics are unchanged.",
+        "The native VV4/VV5-style chooser score floor and 25% non-preference fallback, action selection, preference scoring, conception roll/writer, pending delivery, save format, RNG, health, fertility, capacity, messages, and statistics are unchanged.",
         "Direct event-created births, Island Events, clone paths, and every route outside the ordinary action-13 mate selector remain native."
       ],
       "evidence_status": "implemented from exact-build disassembly; static verification complete, runtime/player confirmation pending",
@@ -1389,7 +1389,7 @@
       "name": "Birth Control",
       "output_tag": "Birth Control",
       "status": "implemented exact-build ordinary-route patch; static verification complete, runtime/player confirmation pending",
-      "description": "Applies the requested VV4-style ordinary-route boundary and chooser behavior to the exact VV1 build. Manual pairing rejects only a category-2 carrier at internal age>=1000; the two action-9 writer-reaching scans and the planner reject only scanned candidates at internal age>=1000; the autonomous chooser uses the VV4 score floor and preference fallback; initiator males and older autonomous initiators retain no upper-age ceiling. Direct event births and pending delivery remain native.",
+      "description": "Matches the literal VV4/VV5 Birth Control boundary on the exact VV1 build. Manual pairing rejects only a category-2 carrier at internal age>=1000; the two action-9 writer-reaching scans and the planner reject only scanned candidates at internal age>=1000; the autonomous chooser uses the VV4/VV5 score floor and 25% non-preference fallback; initiator males and older autonomous initiators retain no upper-age ceiling. Native conception, pregnancy, delivery, direct event births, and pending delivery remain unchanged.",
       "behavior_changes": [
         "The manual pairing hook at file offset 0x3DD03 routes through an owned .vv1bc page and rejects only the category-2 carrier participant at internal age>=1000.",
         "The action-9 writer-reaching scans at 0x46E96 and 0x47084 retain their stock candidate and initiator lower bounds while adding only a candidate upper bound.",

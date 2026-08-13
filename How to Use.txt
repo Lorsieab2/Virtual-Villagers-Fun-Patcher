@@ -19,7 +19,7 @@ Expanded-256 population modes have been removed from the patcher.
      affect it, and The Secret City's magic tech no longer affects it.
 3. Optional for A New Home: check "School Lessons Grant Skill",
    "Continue Research at Max Technologies", and/or
-   "Reenable F6 Clothing Change Cheat", and/or
+   "Reenable F6 Clothing Change Cheat", "Birth Control", and/or
    "Magic Fruit of Life Alters Mortality" and/or "Builder Action Fixes".
    VV1 Origins is available through the combined "Enable Origins Tech, Details,
    and Village-Wide Upgrades" route. Its internal Origins prerequisite is
@@ -40,7 +40,7 @@ Expanded-256 population modes have been removed from the patcher.
    Grant Full Mastery to All Villagers is part of the current Origins menus; the historical standalone
    Full Mastery candidate is not selectable.
 5. Optional for The Secret City: check
-   "Everyone Tries On the Robe" and/or
+   "Everyone Tries On the Robe", "Birth Control", and/or
    "Nature Level 1 Actually Replenishes Food Sources Faster" and/or
    "Nature Level 3 Actually Alters Mortality" and/or
    "Pointing Out a Rare Collectible Always Works" and/or
@@ -52,9 +52,6 @@ Expanded-256 population modes have been removed from the patcher.
    Details, and Village-Wide Upgrades". VV4 remains the untouched vanilla Breeding and Embracing
    reference; the historical Birth Control candidate is rejected/superseded
    and is not offered or applied.
-   VV1 Birth Control also remains disabled and unselectable: exact-build audit
-   c8d268d rejected its former food-gate/live-code byte proposal, and no
-   replacement hook is certified.
 7. Optional for New Believers: check "Heathen Mommy Puzzle Restoration" and/or
    "Easier Devotee Training" and/or
    "Statue Drops: Normal Action or Honoring" and/or

@@ -279,6 +279,10 @@ class VV2BirthControlTests(unittest.TestCase):
             "no male upper-age gate",
         ):
             self.assertIn(marker, research)
+        self.assertIn("25% non-preference fallback", self.feature.description)
+        self.assertIn("conception roll", self.feature.description)
+        self.assertIn("pregnancy writer", self.feature.description)
+        self.assertIn("delivery", self.feature.description)
 
     def test_special_outcome_exclusion_is_a_mandatory_cross_game_contract(self) -> None:
         research = (
