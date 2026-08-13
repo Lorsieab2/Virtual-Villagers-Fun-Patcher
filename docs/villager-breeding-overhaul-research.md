@@ -128,8 +128,9 @@ selectable.
 
 VV1, VV2, and VV3 now have independent exact-build records. Their static
 coverage is separate rather than a shared copied predicate; runtime/player
-confirmation remains pending. VV5 is also a native no-patch reference: its
-exact-build audit matches VV4's requested Birth Control/Breeding behavior.
+confirmation remains pending. VV3 remains ON HOLD for runtime/player
+interpretation. VV5 is also a native no-patch reference: its exact-build audit
+matches VV4's requested Birth Control/Breeding behavior.
 
 ### VV1 exact-build implementation
 
