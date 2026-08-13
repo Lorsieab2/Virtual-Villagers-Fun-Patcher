@@ -301,7 +301,7 @@ class DoublerAuditDocumentationTests(unittest.TestCase):
             hashlib.sha256(
                 json.dumps(runtime, sort_keys=True, separators=(",", ":")).encode()
             ).hexdigest().upper(),
-            "B55C69913D750FAEFB8CC4D7839F5B56657B98A7C2774BECF4034477981B110C",
+            "E968DEC619279CEEBA633013C81673BAF493E97BE65A966793E02599F46818AD",
         )
         self.assertEqual(
             manifest["companion_files"][0]["sha256"],

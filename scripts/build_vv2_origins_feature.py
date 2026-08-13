@@ -972,11 +972,10 @@ def main() -> None:
             cmp ebx, 5
             je cure_all
             cmp ebx, 6
-            je running_village
+            jb unsupported_village
             cmp ebx, 8
             ja unsupported_village
-            or dword ptr [edi + 0x2EAE8], 2
-            ret
+            jmp running_village
         unsupported_village:
             mov eax, 0x{s['running_unavailable']:X}
             push eax
@@ -1054,7 +1053,7 @@ def main() -> None:
             cmp byte ptr [edx + 0x558], 0
             jne cure_next
             xor ebx, ebx
-            cmp dword ptr [edx + 0x52C], 80
+            cmp dword ptr [edx + 0x52C], 100
             jge cure_health_done
             mov dword ptr [edx + 0x52C], 100
             mov ebx, 1
@@ -1285,7 +1284,7 @@ def main() -> None:
             jle cure_preflight_next
             cmp byte ptr [edx + 0x558], 0
             jne cure_preflight_next
-            cmp dword ptr [edx + 0x52C], 80
+            cmp dword ptr [edx + 0x52C], 100
             jl cure_preflight_change
             cmp dword ptr [edx + 0x53C], 0
             jne cure_preflight_change
