@@ -71,7 +71,30 @@ class VV1VV3BirthControlTests(unittest.TestCase):
         self.assertEqual(page[0x0C0:0x0C7], bytes.fromhex("8178F468010000"))
         self.assertEqual(page[0x100:0x106], bytes.fromhex("0F8E3E000000"))
         self.assertIn(bytes.fromhex("817FD003000002"), page)
+        self.assertIn(bytes.fromhex("6A64"), page)
+        self.assertIn(bytes.fromhex("83C40483F84B"), page)
         self.assertNotIn(bytes.fromhex("E900000000"), page)
+
+    def test_all_early_birth_control_records_state_literal_vv4_vv5_contract(self) -> None:
+        features = {
+            item.id: item
+            for item in load_fun_patches()
+            if item.id in {"vv1_birth_control", "vv2_birth_control", "vv3_birth_control"}
+        }
+        self.assertEqual(set(features), {"vv1_birth_control", "vv2_birth_control", "vv3_birth_control"})
+        for feature in features.values():
+            with self.subTest(feature=feature.id):
+                text = " ".join(
+                    [
+                        feature.description,
+                        *feature.raw.get("behavior_changes", []),
+                        *feature.raw.get("explicit_non_changes", []),
+                    ]
+                )
+                self.assertIn("25% non-preference fallback", text)
+                self.assertIn("native", text.lower())
+                self.assertIn("conception", text.lower())
+                self.assertIn("delivery", text.lower())
 
     def test_vv3_removes_only_the_five_initiator_upper_checks(self) -> None:
         patches = _patches("vv3_birth_control")

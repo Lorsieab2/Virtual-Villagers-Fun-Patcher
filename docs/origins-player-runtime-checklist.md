@@ -248,6 +248,12 @@ grants, Silver Mirror cloning, already-pending delivery, and other direct
 event/Gong outcomes behave exactly as stock. Do not interpret a special
 outcome bypassing Birth Control as a defect; that bypass is required.
 
+For all three early-game Birth Control records, the literal VV4/VV5 chooser
+contract includes the native score floor and 25% non-preference fallback. A
+checked Children/Parenting preference participates in the native override but
+is not a static absolute prerequisite. Do not substitute a preference-only
+interpretation for the recorded native branch.
+
 For `vv1_birth_control`, test manual pairing with a category-2 carrier below
 and at/above displayed age 50, then test ordinary autonomous/catch-up pairing
 with scanned candidates below and at/above that boundary. Separately test an
