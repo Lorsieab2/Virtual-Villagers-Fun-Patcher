@@ -287,10 +287,30 @@ class AppearanceUpgradeRequirementsTests(unittest.TestCase):
                         f"{relative}:patches[0].{patch_key}",
                     )
                 continue
-            if relative == "data/vv5_origins_feature.json":
-                # VV5's stock Food Doubler wrapper/menu is the intentional
-                # runtime change in this slice.  Keep all other manifest
-                # identity/runtime fields frozen against the clean parent.
+            repaired_offsets = {
+                "data/vv1_origins_feature.json": {
+                    "0x270", "0x28C", "0x28470", "0x56900",
+                    "0x85D30", "0x8B009", "0x8B530", "0x8B710",
+                },
+                "data/vv2_origins_feature.json": {
+                    "0x943A8", "0x9A009", "0x9A300", "0x9A530",
+                },
+                "data/vv3_origins_feature.json": {"0x7B664", "0xA3180"},
+                "data/vv4_origins_feature.json": {"0x89373", "0xCC004", "0xCC180"},
+                "data/vv5_origins_feature.json": {"0x94B37", "0x94EA0", "0xDB000"},
+            }.get(relative, set())
+            if repaired_offsets:
+                self.assertEqual(
+                    [
+                        item for item in current_manifest["patches"]
+                        if item["offset"] not in repaired_offsets
+                    ],
+                    [
+                        item for item in before_manifest["patches"]
+                        if item["offset"] not in repaired_offsets
+                    ],
+                    f"{relative}:unrelated patches",
+                )
                 executable_keys = (
                     "output_tag",
                     "running_preference_id",

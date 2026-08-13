@@ -41,8 +41,8 @@ ATOMIC_SOURCE_TEXT_SHA256 = {
 }
 
 STOCK_SHA256 = "92946781980220E9D1A2E6C573925519934608F5215F4A0F8CE3B90088C5C65D"
-ACTIVE_SHA256 = "C9BEAB408C35ADA00A4D331B687F9F199C5B3BB528AFE960C76A1CA8B7D04EDB"
-ACTIVE_SOURCE_TEXT_SHA256 = "A3B456A33D29BC280A50ED95DBCC14A5DE2224DD0267F0274D2250BF3BA1992C"
+ACTIVE_SHA256 = "F218CEC63A60BCC863ECE2028D5267444948CE9F7CC0BA43F520E57D4B0219B3"
+ACTIVE_SOURCE_TEXT_SHA256 = "BEE09E5319A394213AF605CEB60F06ED2CAD1E54397C073176AA52E991013ADD"
 C342_COUNT = 66
 C342_ROWS_SHA256 = "7A95D8CCC6477777E9A3AA4C3EFEB30D8AF0D50434C910C1ADE9A645C7DBDDCA"
 TASK8_SOURCE_TEXT_SHA256 = "090ED9CA074F02F9321B2F8E0C470FD0AF18B235231DA94B6D38293360BC9510"
@@ -596,7 +596,10 @@ def build_menus(page: bytearray, page_va: int) -> dict[str, bytes]:
         test dword ptr [0x51D388], edi
         jnz retained
         {status_call(page_va, 'ebx', 11)}
-        jmp menu
+        jmp done
+        nop
+        nop
+        nop
     purchase:
         cmp dword ptr [0x41F1E6], 0x96
         jne unavailable
@@ -616,22 +619,40 @@ def build_menus(page: bytearray, page_va: int) -> dict[str, bytes]:
         cmp dword ptr [0x51D5F8], eax
         jne charge_unknown
         {status_call(page_va, 'ebx', 12)}
-        jmp menu
+        jmp done
+        nop
+        nop
+        nop
     heal:
         call 0x{page_va + OFF['heal']:X}
-        jmp menu
+        jmp done
+        nop
+        nop
+        nop
     unavailable:
         {status_call(page_va, 'ebx', 10)}
-        jmp menu
+        jmp done
+        nop
+        nop
+        nop
     insufficient:
         {status_call(page_va, 'ebx', 3)}
-        jmp menu
+        jmp done
+        nop
+        nop
+        nop
     retained:
         {status_call(page_va, 'ebx', 6)}
-        jmp menu
+        jmp done
+        nop
+        nop
+        nop
     charge_unknown:
         {status_call(page_va, 'ebx', 7)}
-        jmp menu
+        jmp done
+        nop
+        nop
+        nop
     done:
         pop edi
         pop esi

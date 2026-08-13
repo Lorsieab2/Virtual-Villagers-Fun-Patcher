@@ -884,14 +884,27 @@ class VV5FullMasteryCandidateTests(unittest.TestCase):
             self.assertEqual(trampoline[relative], 0xE9)
             displacement = struct.unpack_from("<i", trampoline, relative + 1)[0]
             self.assertEqual(0x400000 + offset + 5 + displacement, expected_target)
+        adapters = {
+            0x94465: 0x494740,
+            0x944AC: 0x494840,
+        }
+        for offset, expected_target in adapters.items():
+            relative = offset - 0x94460
+            self.assertEqual(
+                trampoline[relative : relative + 6],
+                bytes.fromhex("8B8E881B0000"),
+            )
+            self.assertEqual(trampoline[relative + 6], 0xE9)
+            displacement = struct.unpack_from("<i", trampoline, relative + 7)[0]
+            self.assertEqual(0x400000 + offset + 11 + displacement, expected_target)
 
         call_targets = {
             0x6BF60: 0x494460,
-            0x6CC39: 0x494460,
+            0x6CC39: 0x494465,
             0x796B3: 0x494460,
             0x79726: 0x494480,
             0x6C45D: 0x4944A7,
-            0x6CDED: 0x4944A7,
+            0x6CDED: 0x4944AC,
             0x6BF9A: 0x4944A7,
             0x796EB: 0x4944A7,
         }
@@ -903,8 +916,10 @@ class VV5FullMasteryCandidateTests(unittest.TestCase):
 
         for offset, expected in selectors.items():
             payload = bytes.fromhex(patches[offset]["after"])
-            self.assertEqual(payload[-2:], b"\x90\x90")
-            body = payload[:-2]
+            trailing_nops = 0 if offset == 0x947B0 else 2
+            if trailing_nops:
+                self.assertEqual(payload[-trailing_nops:], b"\x90" * trailing_nops)
+            body = payload[:-trailing_nops] if trailing_nops else payload
             base = 0x400000 + offset
             instructions = list(md.disasm(body, base))
             self.assertEqual(sum(item.size for item in instructions), len(body))

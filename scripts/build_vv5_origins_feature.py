@@ -592,10 +592,13 @@ def main() -> None:
 
         cure:
             call 0x{HEAL_CAVE_VA:X}
-            jmp menu
+            jmp done
+            nop
+            nop
+            nop
         do_village_wide:
             call 0x{HEAL_CAVE_VA:X}
-            jmp success
+            jmp done
         time_warp:
             mov ecx, dword ptr [edi + 0x17D7C]
             mov eax, 129600
@@ -629,7 +632,10 @@ def main() -> None:
             push eax
             push 0x{s['tech_title']:X}
             call 0x{entry['show_message']:X}
-            jmp menu
+            jmp done
+            nop
+            nop
+            nop
         done:
             pop ebp
             pop edi
@@ -972,7 +978,7 @@ def main() -> None:
             mov ebp, eax
             mov edi, edx
             mov esi, ecx
-            push 0x{s['show_result_export']:X}
+            mov eax, 0x{s['show_result_export']:X}
             push 0x{s['icons_dll']:X}
             call dword ptr [0x4951E0]
             test eax, eax
@@ -1091,7 +1097,7 @@ def main() -> None:
             jne preflight_invalid
             cmp dword ptr [0x{VILLAGE_WIDE_SIGNATURE_VA + 0x1C:X}], 0
             jne preflight_invalid
-            push 0x{s['show_result_export']:X}
+            mov eax, 0x{s['show_result_export']:X}
             push 0x{s['icons_dll']:X}
             call dword ptr [0x4951E0]
             test eax, eax

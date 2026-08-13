@@ -455,16 +455,16 @@ def load_task9_builder():
 
 def build_vv5_overlay() -> tuple[list[dict[str, object]], dict[str, object]]:
     task9 = load_task9_builder()
-    if task9.OFF.get("time_warp") != 0x1000 or task9.SIZES.get("time_warp") != 0x500:
+    if task9.OFF.get("time_warp") != 0x1040 or task9.SIZES.get("time_warp") != 0x500:
         raise RuntimeError("Task9 Time Warp reserve drift")
-    if task9.OFF.get("age") != 0xD00 or task9.SIZES.get("age") != 0x300:
+    if task9.OFF.get("age") != 0xD40 or task9.SIZES.get("age") != 0x300:
         raise RuntimeError("Task9 age reserve drift")
     page_va = 0x904000
     base_page, base_map = task9.build_page(page_va)
-    if sha(base_page) != "82FD9F2383D95E01B4165319347AC69A4FAE020A9D6E60BABCD5AAA28BA2E850":
+    if sha(base_page) != "03948795C056B67195B6528FE3CDA01BDF1DE16537C22C00947B7E68B490F0CB":
         raise RuntimeError("Task9 Expanded baseline page drift")
     stock_page, stock_map = task9.build_page(0x7C9000)
-    if sha(stock_page) != "AB9C95497042A4846093DBA7D1A875D3BAA8963EF3E5C036FD2E746EA3B5785D":
+    if sha(stock_page) != "ED942C43F5916D474A98D250D0493B3151968770BFB8919A758BA6924096FA9B":
         raise RuntimeError("Task9 stock page drift")
 
     strings_start = task9.OFF["strings"]
@@ -516,7 +516,7 @@ def build_vv5_overlay() -> tuple[list[dict[str, object]], dict[str, object]]:
     routine = asm(
         f"""
             test ebx, ebx
-            jne 0x904924
+            jne 0x904967
             push ebp
             mov ebp, esp
             push ebx
@@ -648,7 +648,7 @@ def build_vv5_overlay() -> tuple[list[dict[str, object]], dict[str, object]]:
             pop esi
             pop ebx
             pop ebp
-            jmp 0x904806
+            jmp 0x904846
         show_message:
             mov dword ptr [ebp-0x3C], eax
             mov dword ptr [ebp-0x40], edx
@@ -678,25 +678,25 @@ def build_vv5_overlay() -> tuple[list[dict[str, object]], dict[str, object]]:
     routine_block = routine.ljust(task9.SIZES["time_warp"], b"\0")
     if any(base_page[task9.OFF["time_warp"] : task9.OFF["time_warp"] + len(routine_block)]):
         raise RuntimeError("VV5 Time Warp routine preimage is not zero")
-    if base_page[0x806:0x810] != bytes.fromhex("B800070000F70588D351"):
+    if base_page[0x846:0x850] != bytes.fromhex("B800070000F70588D351"):
         raise RuntimeError("VV5 Task9 menu-state preimage drift")
-    if base_page[0x86B:0x874] != bytes.fromhex("83FB030F82B0000000"):
+    if base_page[0x8AB:0x8B4] != bytes.fromhex("83FB030F82B3000000"):
         raise RuntimeError("VV5 Task9 command-router operand preimage drift")
     patches = [
         {
-            "offset": "0xF4806",
+            "offset": "0xF4846",
             "before": "B800070000F70588D351",
             "after": "B8001E0000E93F000000",
             "purpose": "set fixed dialog state 0x1E00 and bypass dynamic row 3/4 state while preserving row 5 Full Heal",
         },
         {
-            "offset": "0xF486B",
-            "before": "83FB030F82B0000000",
+            "offset": "0xF48AB",
+            "before": "83FB030F82B3000000",
             "after": "83FB050F828C070000",
             "purpose": "route commands 0..4 through the dispatcher so only command 0 runs Time Warp and commands 1..4 are unavailable",
         },
         {
-            "offset": "0xF5000",
+            "offset": "0xF5040",
             "before_fill": "00",
             "length": len(routine_block),
             "after": routine_block.hex().upper(),
@@ -711,8 +711,8 @@ def build_vv5_overlay() -> tuple[list[dict[str, object]], dict[str, object]]:
         },
     ]
     rendered = bytearray(base_page)
-    rendered[0x806:0x810] = bytes.fromhex("B8001E0000E93F000000")
-    rendered[0x86B:0x874] = bytes.fromhex("83FB050F828C070000")
+    rendered[0x846:0x850] = bytes.fromhex("B8001E0000E93F000000")
+    rendered[0x8AB:0x8B4] = bytes.fromhex("83FB050F828C070000")
     rendered[task9.OFF["time_warp"] : task9.OFF["time_warp"] + len(routine_block)] = routine_block
     rendered[string_offset : string_offset + len(string_blob)] = string_blob
     return patches, {
@@ -725,9 +725,9 @@ def build_vv5_overlay() -> tuple[list[dict[str, object]], dict[str, object]]:
         "dispatcher_length": len(routine),
         "dispatcher_sha256": sha(routine),
         "dispatcher_block_sha256": sha(routine_block),
-        "dispatcher_va": "0x905000",
-        "unavailable_target": "0x904924",
-        "menu_target": "0x904806",
+        "dispatcher_va": "0x905040",
+        "unavailable_target": "0x904967",
+        "menu_target": "0x904846",
         "strings_offset": f"0x{string_offset:X}",
         "strings_file_offset": f"0x{0xF4000 + string_offset:X}",
         "strings_length": len(string_blob),
@@ -859,7 +859,7 @@ def main() -> None:
                 "delta": "129600 / exact positive speed",
                 "clock": "0x4C6250/0x4C6254 sub/sbb and exact readback",
                 "funds": "0x51D5F8; one -50000 call to 0x4237B0 and exact readback before clock mutation",
-                "dispatcher": "EBX!=0 -> 0x904924 unavailable; EBX==0 -> Time Warp -> 0x904806 menu",
+                "dispatcher": "EBX!=0 -> 0x904967 unavailable; EBX==0 -> Time Warp -> 0x904846 menu",
             },
         }
     )

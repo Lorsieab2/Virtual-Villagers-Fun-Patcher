@@ -29,18 +29,17 @@ CODE_FILE_OFFSET = 0x56900
 CODE_VA = IMAGE_BASE + CODE_FILE_OFFSET
 STRINGS_FILE_OFFSET = 0x85D30
 STRINGS_VA = IMAGE_BASE + STRINGS_FILE_OFFSET
-# The stock .shr section is stored at raw 0x8B000 but is mapped at RVA
-# 0x8D000.  Runtime helper addresses must use the mapped RVA, not the raw
-# file offset.  The section-header patches below also make the whole reserve
-# mapped and executable.
 SHR_FILE_OFFSET = 0x8B000
 SHR_RVA = 0x8D000
 HEAL_CAVE_FILE_OFFSET = 0x8B004
+HEAL_CAVE_STUB_VA = IMAGE_BASE + SHR_RVA + (
+    HEAL_CAVE_FILE_OFFSET - SHR_FILE_OFFSET
+)
 CURE_ENTRY_FILE_OFFSET = 0x8B530
 CURE_ENTRY_VA = IMAGE_BASE + SHR_RVA + (CURE_ENTRY_FILE_OFFSET - SHR_FILE_OFFSET)
 HEAL_CAVE_VA = CURE_ENTRY_VA
-VILLAGE_WIDE_SIGNATURE_VA = IMAGE_BASE + SHR_RVA + (0x8B180 - SHR_FILE_OFFSET)
-VILLAGE_WIDE_ENTRY_VA = IMAGE_BASE + SHR_RVA + (0x8B1A0 - SHR_FILE_OFFSET)
+VILLAGE_WIDE_SIGNATURE_VA = IMAGE_BASE + SHR_RVA + 0x180
+VILLAGE_WIDE_ENTRY_VA = IMAGE_BASE + SHR_RVA + 0x1A0
 VILLAGE_PREFLIGHT_FILE_OFFSET = 0x8B009
 VILLAGE_PREFLIGHT_VA = IMAGE_BASE + SHR_RVA + (
     VILLAGE_PREFLIGHT_FILE_OFFSET - SHR_FILE_OFFSET
@@ -128,10 +127,15 @@ def main() -> None:
         "The village population is already at maximum capacity.",
     )
     add_c_string(strings, s, "already_owned", "This doubler is already owned.")
-    add_c_string(strings, s, "save_failed", "Could not save the doubler.")
+    add_c_string(
+        strings,
+        s,
+        "show_icon_dialog_state",
+        "ShowOriginsUpgradeMenuState",
+    )
     add_c_string(strings, s, "running_unavailable", "Running cannot be added.")
     add_c_string(strings, s, "icons_dll", "VVFP VV1 Origins Icons.dll")
-    add_c_string(strings, s, "show_icon_dialog", "ShowOriginsUpgradeMenu")
+    add_c_string(strings, s, "show_icon_dialog_legacy", "ShowOriginsUpgradeMenu")
     add_c_string(strings, s, "show_result_export", "ShowOriginsVillageWideResult")
 
     tech_names = [
@@ -269,7 +273,6 @@ def main() -> None:
             je food_not_owned_for_menu
             or edi, 16
         food_not_owned_for_menu:
-            or edi, 0x1800
             push edi
             push 0
             call 0x{show_dialog:X}
@@ -381,10 +384,10 @@ def main() -> None:
             jmp success
         do_cure:
             call 0x{HEAL_CAVE_VA:X}
-            jmp menu_loop
+            jmp menu_done
         do_village_wide:
             call 0x{HEAL_CAVE_VA:X}
-            jmp success
+            jmp menu_done
         do_food_doubler:
             or dword ptr [edi + 0xAD4C], 1
             jmp success
@@ -414,7 +417,7 @@ def main() -> None:
             push eax
             call 0x452DB6
             add esp, 0x0C
-            jmp menu_loop
+            jmp menu_done
 
         menu_done:
             pop edi
@@ -433,15 +436,19 @@ def main() -> None:
             call dword ptr [0x457010]
             test eax, eax
             je icon_dialog_fallback
-            push 0x{s['show_icon_dialog']:X}
+            mov edx, 0x{s['show_icon_dialog_legacy']:X}
+            cmp dword ptr [esp + 0x0C], 0
+            jne icon_dialog_export_selected
+            mov edx, 0x{s['show_icon_dialog_state']:X}
+            cmp dword ptr [0x{VILLAGE_WIDE_SIGNATURE_VA:X}], 0x50465656
+            jne icon_dialog_export_selected
+            or dword ptr [esp + 0x10], 0x20000
+        icon_dialog_export_selected:
+            push edx
             push eax
             call dword ptr [0x4570D4]
             test eax, eax
             je icon_dialog_fallback
-            cmp dword ptr [0x{VILLAGE_WIDE_SIGNATURE_VA:X}], 0x50465656
-            jne no_village_wide
-            or dword ptr [esp + 0x10], 0x20000
-        no_village_wide:
             push dword ptr [esp + 0x10]
             push dword ptr [esp + 0x10]
             call eax
@@ -743,13 +750,15 @@ def main() -> None:
             push esi
             push edi
             mov eax, ebx
-            mov ecx, dword ptr [esi + 0x10]
+            mov ecx, dword ptr [edi + 0xADE8]
+            test ecx, ecx
+            je village_result_done
             mov edx, 256
             call 0x{VILLAGE_WIDE_ENTRY_VA:X}
             mov ebp, eax
             mov edi, edx
             mov esi, ecx
-            push 0x{s['show_result_export']:X}
+            mov eax, 0x{s['show_result_export']:X}
             push 0x{s['icons_dll']:X}
             call dword ptr [0x457010]
             test eax, eax
@@ -780,7 +789,9 @@ def main() -> None:
             push esi
             push edi
             xor eax, eax
-            mov edx, dword ptr [esi + 0x10]
+            mov edx, dword ptr [edi + 0xADE8]
+            test edx, edx
+            je cure_format
             mov ecx, 256
         cure_loop:
             cmp byte ptr [edx + 0x28], 0
@@ -800,6 +811,7 @@ def main() -> None:
             add edx, 0x3D8
             dec ecx
             jne cure_loop
+        cure_format:
             mov ebp, eax
             sub esp, 40
             mov dword ptr [esp], 0x65727543
@@ -837,10 +849,11 @@ def main() -> None:
             mov dword ptr [edi + 5], 0x72656761
             mov word ptr [edi + 9], 0x0073
             lea eax, [esp]
-            push eax
+            push 0
             push 0x{s['title']:X}
+            push eax
             call 0x452DB6
-            add esp, 8
+            add esp, 0x0C
             add esp, 40
             pop edi
             pop esi
@@ -868,7 +881,7 @@ def main() -> None:
             jne preflight_invalid
             cmp dword ptr [0x{VILLAGE_WIDE_SIGNATURE_VA + 0x1C:X}], 0
             jne preflight_invalid
-            push 0x{s['show_result_export']:X}
+            mov eax, 0x{s['show_result_export']:X}
             push 0x{s['icons_dll']:X}
             call dword ptr [0x457010]
             test eax, eax
@@ -888,13 +901,10 @@ def main() -> None:
     )
     barrel_main_helper_code = assemble(
         f"""
-            # Preserve the stock update call that this hook replaces.
             call 0x448600
             cmp byte ptr [0x{BARREL_PENDING_VA:X}], 0
             je barrel_main_done
             pushad
-            # PUSHAD stores the caller's ESI at [ESP+4].  In this exact
-            # update function ESI is the stock main-village modal owner.
             mov esi, dword ptr [esp + 4]
             push 0x50F0
             call 0x44AF03
@@ -910,8 +920,9 @@ def main() -> None:
             push esi
             mov ecx, ebx
             call 0x401AB0
+            push 1
             mov ecx, ebx
-            call 0x42A6A0
+            call 0x42AB60
             mov byte ptr [0x{BARREL_PENDING_VA:X}], 0
         barrel_main_restore:
             popad
@@ -923,10 +934,7 @@ def main() -> None:
     patch(
         HEAL_CAVE_FILE_OFFSET,
         b"\0" * 5,
-        rel32_jump(
-            IMAGE_BASE + SHR_RVA + (HEAL_CAVE_FILE_OFFSET - SHR_FILE_OFFSET),
-            CURE_ENTRY_VA,
-        ),
+        rel32_jump(HEAL_CAVE_STUB_VA, CURE_ENTRY_VA),
         "redirect the shared VV1 Cure/village-wide dispatch stub to its certified helper after the optional Origins reserve",
     )
     patch(
@@ -953,7 +961,6 @@ def main() -> None:
         barrel_main_helper_code,
         "consume the deferred VV1 Barrel token from the stock main-village update owner",
     )
-
     patch(
         0x220,
         bytes.fromhex("30ED0200"),
@@ -964,13 +971,13 @@ def main() -> None:
         0x270,
         bytes.fromhex("04000000"),
         bytes.fromhex("00100000"),
-        "extend the mapped .shr VirtualSize to cover the Origins helper reserve",
+        "map the complete VV1 .shr helper page used by Origins runtime code",
     )
     patch(
         0x28C,
         bytes.fromhex("400000D0"),
         bytes.fromhex("600000F0"),
-        "make the mapped .shr Origins helpers executable code",
+        "mark the mapped VV1 .shr helper page executable while retaining its stock data permissions",
     )
 
     patch(
@@ -1013,7 +1020,7 @@ def main() -> None:
         0x28470,
         bytes.fromhex("8B44240483F801"),
         rel32_jump(0x428470, event_dispatch_hook) + b"\x90\x90",
-        "route the marked deferred Barrel of Babies request through the native event result path",
+        "route the marked Barrel of Babies request through the native event result path",
     )
     patch(
         0x2403F,

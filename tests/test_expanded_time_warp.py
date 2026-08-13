@@ -161,10 +161,10 @@ class ExpandedTimeWarpArtifactTests(unittest.TestCase):
         task9 = builder.load_task9_builder()
         stock, stock_map = task9.build_page(0x7C9000)
         expanded, expanded_map = task9.build_page(0x904000)
-        self.assertEqual(digest(stock), "AB9C95497042A4846093DBA7D1A875D3BAA8963EF3E5C036FD2E746EA3B5785D")
-        self.assertEqual(digest(expanded), "82FD9F2383D95E01B4165319347AC69A4FAE020A9D6E60BABCD5AAA28BA2E850")
+        self.assertEqual(digest(stock), "ED942C43F5916D474A98D250D0493B3151968770BFB8919A758BA6924096FA9B")
+        self.assertEqual(digest(expanded), "03948795C056B67195B6528FE3CDA01BDF1DE16537C22C00947B7E68B490F0CB")
         self.assertEqual(task9.SIZES["age"], 0x300)
-        self.assertEqual(task9.OFF["time_warp"], 0x1000)
+        self.assertEqual(task9.OFF["time_warp"], 0x1040)
         self.assertEqual(task9.SIZES["time_warp"], 0x500)
         self.assertEqual(stock_map["routine_length"]["age"], 652)
         self.assertEqual(expanded_map["routine_length"]["age"], 652)
@@ -172,7 +172,7 @@ class ExpandedTimeWarpArtifactTests(unittest.TestCase):
             self.task9["pe_append_transaction"]["layouts"]["collection_progression"]["append_bytes"]
         )
         self.assertEqual(manifest_stock, stock)
-        self.assertFalse(any(stock[0x1000:0x1500]))
+        self.assertFalse(any(stock[0x1040:0x1540]))
 
     def test_vv5_exact_dispatch_targets_and_row5_preservation(self) -> None:
         task9 = builder.load_task9_builder()
@@ -180,7 +180,7 @@ class ExpandedTimeWarpArtifactTests(unittest.TestCase):
         patches, layout = builder.build_vv5_overlay()
         self.assertEqual(
             [row["offset"] for row in patches],
-            ["0xF4806", "0xF486B", "0xF5000", "0xFB09A"],
+            ["0xF4846", "0xF48AB", "0xF5040", "0xFB09A"],
         )
         rendered = bytearray(base)
         for row in patches:
@@ -189,21 +189,21 @@ class ExpandedTimeWarpArtifactTests(unittest.TestCase):
             after = patcher._patch_bytes(row, "after")
             self.assertEqual(bytes(rendered[offset : offset + len(before)]), before)
             rendered[offset : offset + len(after)] = after
-        self.assertEqual(bytes(rendered[0x806:0x810]), bytes.fromhex("B8001E0000E93F000000"))
-        self.assertEqual(jump_target(rendered, 0x904000, 0x80B), 0x90484F)
-        self.assertEqual(bytes(rendered[0x86B:0x874]), bytes.fromhex("83FB050F828C070000"))
-        self.assertEqual(jump_target(rendered, 0x904000, 0x86E), 0x905000)
-        dispatcher = bytes(rendered[0x1000:0x1500])
-        self.assertEqual(dispatcher[:8], bytes.fromhex("85DB0F851CF9FFFF"))
-        self.assertEqual(jump_target(dispatcher, 0x905000, 2), 0x904924)
+        self.assertEqual(bytes(rendered[0x846:0x850]), bytes.fromhex("B8001E0000E93F000000"))
+        self.assertEqual(jump_target(rendered, 0x904000, 0x84B), 0x90488F)
+        self.assertEqual(bytes(rendered[0x8AB:0x8B4]), bytes.fromhex("83FB050F828C070000"))
+        self.assertEqual(jump_target(rendered, 0x904000, 0x8AE), 0x905040)
+        dispatcher = bytes(rendered[0x1040:0x1540])
+        self.assertEqual(dispatcher[:8], bytes.fromhex("85DB0F851FF9FFFF"))
+        self.assertEqual(jump_target(dispatcher, 0x905040, 2), 0x904967)
         self.assertEqual(digest(bytes(rendered)), layout["expanded_time_warp_page_sha256"])
-        owned = set(range(0x806, 0x810)) | set(range(0x86B, 0x874))
-        owned |= set(range(0x1000, 0x1500))
+        owned = set(range(0x846, 0x850)) | set(range(0x8AB, 0x8B4))
+        owned |= set(range(0x1040, 0x1540))
         strings = int(layout["strings_offset"], 0)
         owned |= set(range(strings, strings + layout["strings_length"]))
         self.assertTrue(all(base[i] == rendered[i] for i in range(len(base)) if i not in owned))
         # The existing row-5 branch/call and Full Heal routine are not overlay-owned.
-        self.assertEqual(base[0x874:0xA00], rendered[0x874:0xA00])
+        self.assertEqual(base[0x8B4:0xA40], rendered[0x8B4:0xA40])
         self.assertEqual(base[0x3400:0x7000], rendered[0x3400:0x7000])
 
     def test_confirmation_cancel_pause_insufficient_and_recheck_precede_charge(self) -> None:
@@ -217,7 +217,7 @@ class ExpandedTimeWarpArtifactTests(unittest.TestCase):
         )
         for name, blob, va, writer, funds, clock in (
             ("vv4", vv4_tx, 0x4895D3, 0x41E300, 0x4D6F88, 0x4B8230),
-            ("vv5", vv5_tx, 0x905000, 0x4237B0, 0x51D5F8, 0x4C6250),
+            ("vv5", vv5_tx, 0x905040, 0x4237B0, 0x51D5F8, 0x4C6250),
         ):
             with self.subTest(game=name):
                 calls = rel32_calls(blob, va, writer)
@@ -249,8 +249,8 @@ class ExpandedTimeWarpArtifactTests(unittest.TestCase):
         )
         self.assertIn((3600).to_bytes(4, "little"), vv4_tx)
         self.assertIn((0x4B8230).to_bytes(4, "little"), vv4_tx)
-        self.assertEqual(rel32_calls(vv5_tx, 0x905000, 0x425950), [0x73, 0xDC])
-        self.assertEqual(rel32_calls(vv5_tx, 0x905000, 0x4237B0), [0x14D])
+        self.assertEqual(rel32_calls(vv5_tx, 0x905040, 0x425950), [0x73, 0xDC])
+        self.assertEqual(rel32_calls(vv5_tx, 0x905040, 0x4237B0), [0x14D])
         self.assertIn((0x17D7C).to_bytes(4, "little"), vv5_tx)
         self.assertIn((129600).to_bytes(4, "little"), vv5_tx)
         self.assertIn((0x4C6250).to_bytes(4, "little"), vv5_tx)
@@ -331,9 +331,9 @@ class ExpandedTimeWarpRendererTests(unittest.TestCase):
                         self.assertEqual(installed[0x89666:0x8966C], expanded_speed_read)
                         self.assertEqual(installed[0x896CF:0x896D5], expanded_speed_read)
                     else:
-                        allowed |= set(range(0xF4806, 0xF4810))
-                        allowed |= set(range(0xF486B, 0xF4874))
-                        allowed |= set(range(0xF5000, 0xF5500))
+                        allowed |= set(range(0xF4846, 0xF4850))
+                        allowed |= set(range(0xF48AB, 0xF48B4))
+                        allowed |= set(range(0xF5040, 0xF5540))
                         string_start = int(vv5_string_row["offset"], 0)
                         allowed |= set(range(string_start, string_start + vv5_string_row["length"]))
                     changed = {

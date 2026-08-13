@@ -92,6 +92,31 @@ class Task9ArtifactTests(unittest.TestCase):
             self.assertEqual(digest(page), self.map["layouts"][mode]["page_sha256"])
             self.assertEqual(len(page), 0x8000)
 
+    def test_tech_result_paths_exit_the_custom_menu_once(self) -> None:
+        sys.path.insert(0, str(ROOT / ".tools" / "capstone"))
+        from capstone import CS_ARCH_X86, CS_MODE_32, Cs
+
+        expected_offsets = [0xB6, 0x118, 0x122, 0x133, 0x144, 0x155, 0x166]
+        for mode, layout in builder.LAYOUTS.items():
+            page, page_map = builder.build_page(layout["page_va"])
+            start = builder.OFF["tech_menu"]
+            size = page_map["routine_length"]["tech_menu"]
+            instructions = list(
+                Cs(CS_ARCH_X86, CS_MODE_32).disasm(
+                    page[start : start + size], layout["page_va"] + start
+                )
+            )
+            jumps = {
+                item.address - (layout["page_va"] + start): int(item.op_str, 16)
+                for item in instructions
+                if item.mnemonic == "jmp"
+            }
+            with self.subTest(mode=mode):
+                self.assertEqual(
+                    [jumps[offset] for offset in expected_offsets],
+                    [layout["page_va"] + 0x9AB] * 7,
+                )
+
     def test_resource_geometry_and_constructor_manager_abi_are_exact(self) -> None:
         payload = bytes.fromhex(next(
             row["after"] for row in self.manifest["patches"]
@@ -481,8 +506,8 @@ class Task9RendererMatrixTests(unittest.TestCase):
     def test_atomic_core_is_an_exact_noop_in_all_six_stock_compositions(self) -> None:
         sources = {
             "vv3": ROOT / "research/stock-executables/Virtual Villagers - The Secret City.exe",
-            "vv4": ROOT / "inputs/vv4-stock-copy/Virtual Villagers - The Tree of Life.exe",
-            "vv5": ROOT / "inputs/vv5-stock-copy/Virtual Villagers - New Believers.exe",
+            "vv4": ROOT / "research/stock-executables/Virtual Villagers - The Tree of Life.exe",
+            "vv5": ROOT / "research/stock-executables/Virtual Villagers - New Believers.exe",
         }
         for game_id, source in sources.items():
             build = patcher.identify(source)
@@ -558,8 +583,8 @@ class Task9RendererMatrixTests(unittest.TestCase):
     def test_six_expanded_optional_statistics_compositions_keep_atomic_inner_writer(self) -> None:
         sources = {
             "vv3": ROOT / "research/stock-executables/Virtual Villagers - The Secret City.exe",
-            "vv4": ROOT / "inputs/vv4-stock-copy/Virtual Villagers - The Tree of Life.exe",
-            "vv5": ROOT / "inputs/vv5-stock-copy/Virtual Villagers - New Believers.exe",
+            "vv4": ROOT / "research/stock-executables/Virtual Villagers - The Tree of Life.exe",
+            "vv5": ROOT / "research/stock-executables/Virtual Villagers - New Believers.exe",
         }
         catalog = {item.id: item for item in patcher.load_fun_patches()}
         vv3_core = [

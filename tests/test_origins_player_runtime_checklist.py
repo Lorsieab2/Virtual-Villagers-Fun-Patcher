@@ -154,6 +154,7 @@ class OriginsPlayerRuntimeChecklistTests(unittest.TestCase):
                     # byte-identical to the prior record.
                     repaired_offsets = {
                         "0x9A009",
+                        "0x9A300",
                         "0x9A530",
                         "0x943A8",
                         "0x218",
@@ -167,12 +168,22 @@ class OriginsPlayerRuntimeChecklistTests(unittest.TestCase):
                         path.name,
                     )
                 elif path.name == "vv1_origins_feature.json":
-                    # The public menu build now emits the corrected owned-row
-                    # mask at 0x56900; the prior hidden manifest carried the
-                    # stale mask and is not an authoritative byte baseline.
+                    # The Tech crash hotfix changes only the corrected menu,
+                    # dialog strings, preflight/Cure helpers, deferred Barrel
+                    # helper, and the already-repaired section metadata rows.
+                    repaired_offsets = {
+                        "0x270",
+                        "0x28C",
+                        "0x28470",
+                        "0x56900",
+                        "0x85D30",
+                        "0x8B009",
+                        "0x8B530",
+                        "0x8B710",
+                    }
                     self.assertEqual(
-                        [item for item in current["patches"] if item["offset"] != "0x56900"],
-                        [item for item in previous["patches"] if item["offset"] != "0x56900"],
+                        [item for item in current["patches"] if item["offset"] not in repaired_offsets],
+                        [item for item in previous["patches"] if item["offset"] not in repaired_offsets],
                         path.name,
                     )
                 elif path.name == "vv3_origins_feature.json":

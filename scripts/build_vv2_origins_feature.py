@@ -600,11 +600,11 @@ def main() -> None:
 
         do_cure:
             call 0x{HEAL_CAVE_VA:X}
-            jmp menu_loop
+            jmp menu_done
 
         do_village_wide:
             call 0x{HEAL_CAVE_VA:X}
-            jmp menu_loop
+            jmp menu_done
 
         do_time_warp:
             mov eax, dword ptr [edi + 0x2EB08]
@@ -636,7 +636,7 @@ def main() -> None:
             push eax
             push 0x{s['tech_title']:X}
             call 0x{show_message:X}
-            jmp menu_loop
+            jmp menu_done
         menu_done:
             pop ebp
             pop edi
@@ -991,7 +991,11 @@ def main() -> None:
             push esi
             push edi
             mov eax, ebx
-            mov ecx, dword ptr [esi + 0x10]
+            call 0x44F4E0
+            test eax, eax
+            je village_wide_done
+            lea ecx, [eax + 0x52C]
+            mov eax, ebx
             mov edx, 256
             call 0x{VILLAGE_WIDE_ENTRY_VA:X}
             mov ebp, eax
@@ -999,7 +1003,7 @@ def main() -> None:
             mov esi, ecx
             cmp ebx, 6
             jne village_wide_status
-            push 0x{s['show_result_export']:X}
+            mov eax, 0x{s['show_result_export']:X}
             push 0x{s['icons_dll']:X}
             call dword ptr [0x474010]
             test eax, eax
@@ -1036,7 +1040,11 @@ def main() -> None:
             push esi
             push edi
             xor eax, eax
-            mov edx, dword ptr [esi + 0x10]
+            call 0x44F4E0
+            test eax, eax
+            je cure_format
+            lea edx, [eax + 0x52C]
+            xor eax, eax
             mov ecx, 256
         cure_loop:
             cmp byte ptr [edx + 0x30], 0
@@ -1064,6 +1072,7 @@ def main() -> None:
             add edx, 0xE48C
             dec ecx
             jne cure_loop
+        cure_format:
             mov ebp, eax
             sub esp, 40
             mov dword ptr [esp], 0x65727543
@@ -1132,7 +1141,7 @@ def main() -> None:
             jne preflight_invalid
             cmp dword ptr [0x{VILLAGE_WIDE_SIGNATURE_VA + 0x1C:X}], 0
             jne preflight_invalid
-            push 0x{s['show_result_export']:X}
+            mov eax, 0x{s['show_result_export']:X}
             push 0x{s['icons_dll']:X}
             call dword ptr [0x474010]
             test eax, eax
@@ -1142,16 +1151,19 @@ def main() -> None:
             call dword ptr [0x4740D4]
             test eax, eax
             je preflight_invalid
-            cmp ebx, 7
-            je preflight_mastery
-            cmp ebx, 8
-            je preflight_age
+            call 0x44F4E0
+            test eax, eax
+            je preflight_invalid
+            lea edx, [eax + 0x52C]
             push ebx
             push ebp
             push ecx
             push edx
             push edi
-            mov edx, dword ptr [esi + 0x10]
+            cmp ebx, 7
+            je preflight_mastery
+            cmp ebx, 8
+            je preflight_age
             mov ecx, 256
         preflight_record:
             cmp byte ptr [edx + 0x30], 0
@@ -1192,7 +1204,6 @@ def main() -> None:
             test ebp, 2
             jnz preflight_change
         preflight_mastery:
-            mov edx, dword ptr [esi + 0x10]
             mov ecx, 256
         preflight_mastery_record:
             cmp byte ptr [edx + 0x30], 0
@@ -1215,10 +1226,8 @@ def main() -> None:
             add edx, 0xE48C
             dec ecx
             jne preflight_mastery_record
-            mov eax, 2
-            ret
+            jmp preflight_no_change
         preflight_age:
-            mov edx, dword ptr [esi + 0x10]
             mov ecx, 256
         preflight_age_record:
             cmp byte ptr [edx + 0x30], 0
@@ -1233,12 +1242,12 @@ def main() -> None:
             add edx, 0xE48C
             dec ecx
             jne preflight_age_record
-            mov eax, 2
-            ret
+            jmp preflight_no_change
         preflight_next_record:
             add edx, 0xE48C
             dec ecx
             jne preflight_record
+        preflight_no_change:
             pop edi
             pop edx
             pop ecx
@@ -1264,7 +1273,10 @@ def main() -> None:
         """
             push ecx
             push edx
-            mov edx, dword ptr [esi + 0x10]
+            call 0x44F4E0
+            test eax, eax
+            je cure_preflight_no_change
+            lea edx, [eax + 0x52C]
             mov ecx, 256
         cure_preflight_record:
             cmp byte ptr [edx + 0x30], 0
@@ -1281,6 +1293,7 @@ def main() -> None:
             add edx, 0xE48C
             dec ecx
             jne cure_preflight_record
+        cure_preflight_no_change:
             pop edx
             pop ecx
             xor eax, eax
