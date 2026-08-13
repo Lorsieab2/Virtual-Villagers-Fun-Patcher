@@ -68,7 +68,7 @@ VV3 Running is catalog-hidden and VV3Run2 is hard-withdrawn from playtesting und
 
 ## Origins village-wide atomic-payload playtest boundary
 
-The five current `vvN_origins_village_wide_upgrades` records are the sole selectable Village-Wide menu routes. Commands 6, 7, and 8 share one guarded payload after each matching base Origins dependency. Each row is a 1,000,000-tech-point buy action; static generation never alters save ownership or issues refunds. Historical standalone Full Mastery and individual Full Mastery records are not selectable and are not released.
+The five current `vvN_origins_village_wide_upgrades` records are the sole selectable Origins Tech, Details, and Village-Wide upgrade routes. Each public route resolves its matching base Origins dependency first, so the Tech-screen and Villager Details-screen buttons and upgrades are installed together with the guarded commands 6, 7, and 8 payload. Each village-wide row is a 1,000,000-tech-point buy action; static generation never alters save ownership or issues refunds. Historical standalone Full Mastery and individual Full Mastery records are not selectable and are not released.
 
 ## VV3 Full Heal / Cure All candidate
 
@@ -123,11 +123,11 @@ Researchers keep choosing the stock research action and earning tech points afte
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending
 - Guarded executable edits: 1; every edit has an exact purpose and before/after guard in the manifest.
 
-#### Enable Origins Village-Wide Upgrades (`vv1_origins_village_wide_upgrades`)
+#### Enable Origins Tech, Details, and Village-Wide Upgrades (`vv1_origins_village_wide_upgrades`)
 
-Adds the Origins Upgrades button to the Tech screen. Food and Tech Point Doublers each cost 500,000 tech points, double eligible positive gains, and can be removed for no refund. The Village-Wide menu offers Running, Full Mastery, and Make Villagers Young Adults. Island Events, Duplicate Collectibles, and Golden Child tech gains are excluded.
+Includes the Origins Tech screen and Villager Details-screen buttons and their upgrades through the internal Origins prerequisite. The Village-Wide menu offers Running, Full Mastery, and Make Villagers Young Adults. Island Events, Duplicate Collectibles, and Golden Child tech gains are excluded.
 
-- Behavior changes: Adds rows 6-8 to the Origins Tech-screen Upgrades dialog only when this optional feature is installed. Charges exactly 1,000,000 tech points once per selected village-wide purchase in the current save. Running scans exactly 4 physical Like and Dislike slots, adds Running only to the first free Like slot, removes Running Dislikes only after that insertion, and leaves already-Running or full-like villagers unchanged. Grant Full Mastery to All Villagers writes native mastery values and runs the native award evaluator for each changed eligible villager. All Villagers are 18 writes only the verified displayed-age field to 360 age units.
+- Behavior changes: Includes the matching base Origins feature so the Tech-screen and Villager Details-screen buttons and upgrades are installed with this public route. Adds rows 6-8 to the Origins Tech-screen Upgrades dialog only when this optional feature is installed. Charges exactly 1,000,000 tech points once per selected village-wide purchase in the current save. Running scans exactly 4 physical Like and Dislike slots, adds Running only to the first free Like slot, removes Running Dislikes only after that insertion, and leaves already-Running or full-like villagers unchanged. Grant Full Mastery to All Villagers writes native mastery values and runs the native award evaluator for each changed eligible villager. All Villagers are 18 writes only the verified displayed-age field to 360 age units.
 - Explicit non-changes/exclusions: No unrelated Like is replaced or removed. No movement speed, movement initialization, nursing timer, pregnancy timer, or pregnancy state is written. The upgrades are save-scoped and do not set a global ownership bit.
 - Dependencies: vv1_enable_origins_exclusive_features
 - Build-specific Running preference ID: 38; evidence source: exact stock executable embedded preference table at table offset 0x7B260.
@@ -216,11 +216,11 @@ Healers and villagers who prefer Healing study plants when no sick villager need
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending
 - Guarded executable edits: 2; every edit has an exact purpose and before/after guard in the manifest.
 
-#### Enable Origins Village-Wide Upgrades (`vv2_origins_village_wide_upgrades`)
+#### Enable Origins Tech, Details, and Village-Wide Upgrades (`vv2_origins_village_wide_upgrades`)
 
-Adds the Origins Upgrades button to the Tech screen. Food and Tech Point Doublers each cost 500,000 tech points, double eligible positive gains, and can be removed for no refund. The Village-Wide menu offers Running, Full Mastery, and Make Villagers Young Adults. Island Events, Duplicate Collectibles, and Gong of Wonder tech gains are excluded.
+Includes the Origins Tech screen and Villager Details-screen buttons and their upgrades through the internal Origins prerequisite. The Village-Wide menu offers Running, Full Mastery, and Make Villagers Young Adults. Island Events, Duplicate Collectibles, and Gong of Wonder tech gains are excluded.
 
-- Behavior changes: Adds rows 6-8 to the Origins Tech-screen Upgrades dialog only when this optional feature is installed. Charges exactly 1,000,000 tech points once per selected village-wide purchase in the current save. Running scans exactly 62 physical Like and Dislike slots, adds Running only to the first free Like slot, removes Running Dislikes only after that insertion, and leaves already-Running or full-like villagers unchanged. Grant Full Mastery to All Villagers writes native mastery values and runs the native award evaluator for each changed eligible villager. All Villagers are 18 writes only the verified displayed-age field to 360 age units.
+- Behavior changes: Includes the matching base Origins feature so the Tech-screen and Villager Details-screen buttons and upgrades are installed with this public route. Adds rows 6-8 to the Origins Tech-screen Upgrades dialog only when this optional feature is installed. Charges exactly 1,000,000 tech points once per selected village-wide purchase in the current save. Running scans exactly 62 physical Like and Dislike slots, adds Running only to the first free Like slot, removes Running Dislikes only after that insertion, and leaves already-Running or full-like villagers unchanged. Grant Full Mastery to All Villagers writes native mastery values and runs the native award evaluator for each changed eligible villager. All Villagers are 18 writes only the verified displayed-age field to 360 age units.
 - Explicit non-changes/exclusions: No unrelated Like is replaced or removed. No movement speed, movement initialization, nursing timer, pregnancy timer, or pregnancy state is written. The upgrades are save-scoped and do not set a global ownership bit.
 - Dependencies: vv2_enable_origins_exclusive_features
 - Build-specific Running preference ID: 38; evidence source: exact stock executable embedded preference table at table offset 0x8B808.
@@ -299,11 +299,11 @@ Limits only the ordinary autonomous/catch-up mate selector used by action 13: th
 - Evidence status: implemented from exact-build disassembly; static verification complete, runtime/player confirmation pending
 - Guarded executable edits: 5; every edit has an exact purpose and before/after guard in the manifest.
 
-#### Enable Origins Village-Wide Upgrades (`vv3_origins_village_wide_upgrades`)
+#### Enable Origins Tech, Details, and Village-Wide Upgrades (`vv3_origins_village_wide_upgrades`)
 
-Adds the Origins Upgrades button to the Tech screen. Food and Tech Point Doublers each cost 500,000 tech points, double eligible positive gains, and can be removed for no refund. The Village-Wide menu offers Running, Full Mastery, and Make Villagers Young Adults. Island Events and Duplicate Collectibles are excluded.
+Includes the Origins Tech screen and Villager Details-screen buttons and their upgrades through the internal Origins prerequisite. The Village-Wide menu offers Running, Full Mastery, and Make Villagers Young Adults. Island Events and Duplicate Collectibles are excluded.
 
-- Behavior changes: Adds rows 6-8 to the Origins Tech-screen Upgrades dialog only when this optional feature is installed. Charges exactly 1,000,000 tech points once per selected village-wide purchase in the current save. Running scans exactly 3 physical Like and Dislike slots, adds Running only to the first free Like slot, removes Running Dislikes only after that insertion, and leaves already-Running or full-like villagers unchanged. Grant Full Mastery to All Villagers writes native mastery values and runs the native award evaluator for each changed eligible villager. All Villagers are 18 writes only the verified displayed-age field to 360 age units.
+- Behavior changes: Includes the matching base Origins feature so the Tech-screen and Villager Details-screen buttons and upgrades are installed with this public route. Adds rows 6-8 to the Origins Tech-screen Upgrades dialog only when this optional feature is installed. Charges exactly 1,000,000 tech points once per selected village-wide purchase in the current save. Running scans exactly 3 physical Like and Dislike slots, adds Running only to the first free Like slot, removes Running Dislikes only after that insertion, and leaves already-Running or full-like villagers unchanged. Grant Full Mastery to All Villagers writes native mastery values and runs the native award evaluator for each changed eligible villager. All Villagers are 18 writes only the verified displayed-age field to 360 age units.
 - Explicit non-changes/exclusions: No unrelated Like is replaced or removed. No movement speed, movement initialization, nursing timer, pregnancy timer, or pregnancy state is written. The upgrades are save-scoped and do not set a global ownership bit.
 - Dependencies: vv3_enable_origins_exclusive_features
 - Build-specific Running preference ID: 38; evidence source: exact stock executable embedded preference table at table offset 0x97488.
@@ -393,11 +393,11 @@ Golden Fish become eligible in the fishing nets only after all 12 Fish Scales ar
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending
 - Guarded executable edits: 1; every edit has an exact purpose and before/after guard in the manifest.
 
-#### Enable Origins Village-Wide Upgrades (`vv4_origins_village_wide_upgrades`)
+#### Enable Origins Tech, Details, and Village-Wide Upgrades (`vv4_origins_village_wide_upgrades`)
 
-Adds the Origins Upgrades button to the Tech screen. Food and Tech Point Doublers each cost 500,000 tech points, double eligible positive gains, and can be removed for no refund. The Village-Wide menu offers Running, Full Mastery, and Make Villagers Young Adults. Island Events and Duplicate Collectibles are excluded.
+Includes the Origins Tech screen and Villager Details-screen buttons and their upgrades through the internal Origins prerequisite. The Village-Wide menu offers Running, Full Mastery, and Make Villagers Young Adults. Island Events and Duplicate Collectibles are excluded.
 
-- Behavior changes: Adds rows 6-8 to the Origins Tech-screen Upgrades dialog only when this optional feature is installed. Charges exactly 1,000,000 tech points once per selected village-wide purchase in the current save. Running scans exactly 3 physical Like and Dislike slots, adds Running only to the first free Like slot, removes Running Dislikes only after that insertion, and leaves already-Running or full-like villagers unchanged. Grant Full Mastery to All Villagers uses the native Float32 skill writer for each changed skill and postverifies exact 100.0 values. All Villagers are 18 writes only the verified displayed-age field to 360 age units.
+- Behavior changes: Includes the matching base Origins feature so the Tech-screen and Villager Details-screen buttons and upgrades are installed with this public route. Adds rows 6-8 to the Origins Tech-screen Upgrades dialog only when this optional feature is installed. Charges exactly 1,000,000 tech points once per selected village-wide purchase in the current save. Running scans exactly 3 physical Like and Dislike slots, adds Running only to the first free Like slot, removes Running Dislikes only after that insertion, and leaves already-Running or full-like villagers unchanged. Grant Full Mastery to All Villagers uses the native Float32 skill writer for each changed skill and postverifies exact 100.0 values. All Villagers are 18 writes only the verified displayed-age field to 360 age units.
 - Explicit non-changes/exclusions: No unrelated Like is replaced or removed. No movement speed, movement initialization, nursing timer, pregnancy timer, or pregnancy state is written. The upgrades are save-scoped and do not set a global ownership bit.
 - Dependencies: vv4_enable_origins_exclusive_features
 - Build-specific Running preference ID: 38; evidence source: exact stock executable embedded preference table at table offset 0xA0CD8.
@@ -446,11 +446,11 @@ Villagers with positive Devotion skill can spontaneously use the stock Honoring 
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending
 - Guarded executable edits: 3; every edit has an exact purpose and before/after guard in the manifest.
 
-#### Enable Origins Village-Wide Upgrades (`vv5_origins_village_wide_upgrades`)
+#### Enable Origins Tech, Details, and Village-Wide Upgrades (`vv5_origins_village_wide_upgrades`)
 
-Adds the Origins Upgrades button to the Tech screen. Food and Tech Point Doublers each cost 500,000 tech points, double eligible positive gains, and can be removed for no refund. The Village-Wide menu offers Running, Full Mastery, and Make Villagers Young Adults. Island Events and Duplicate Collectibles are excluded; only Believers are processed and Heathens are skipped.
+Includes the Origins Tech screen and Villager Details-screen buttons and their upgrades through the internal Origins prerequisite. The Village-Wide menu offers Running, Full Mastery, and Make Villagers Young Adults. Island Events and Duplicate Collectibles are excluded; only Believers are processed and Heathens are skipped.
 
-- Behavior changes: Adds rows 6-8 to the Origins Tech-screen Upgrades dialog only when this optional feature is installed. Charges exactly 1,000,000 tech points once per selected village-wide purchase in the current save. Running scans exactly 3 physical Like and Dislike slots, adds Running only to the first free Like slot, removes Running Dislikes only after that insertion, and leaves already-Running or full-like villagers unchanged. Grant Full Mastery to All Villagers writes native mastery values and runs the native award evaluator for each changed eligible villager. All Villagers are 18 writes only the verified displayed-age field to 360 age units.
+- Behavior changes: Includes the matching base Origins feature so the Tech-screen and Villager Details-screen buttons and upgrades are installed with this public route. Adds rows 6-8 to the Origins Tech-screen Upgrades dialog only when this optional feature is installed. Charges exactly 1,000,000 tech points once per selected village-wide purchase in the current save. Running scans exactly 3 physical Like and Dislike slots, adds Running only to the first free Like slot, removes Running Dislikes only after that insertion, and leaves already-Running or full-like villagers unchanged. Grant Full Mastery to All Villagers writes native mastery values and runs the native award evaluator for each changed eligible villager. All Villagers are 18 writes only the verified displayed-age field to 360 age units.
 - Explicit non-changes/exclusions: No unrelated Like is replaced or removed. No movement speed, movement initialization, nursing timer, pregnancy timer, or pregnancy state is written. The upgrades are save-scoped and do not set a global ownership bit. VV5 Heathens are excluded from all three village-wide operations.
 - Dependencies: vv5_enable_origins_exclusive_features
 - Build-specific Running preference ID: 38; evidence source: exact stock executable embedded preference table at table offset 0xAEF60.

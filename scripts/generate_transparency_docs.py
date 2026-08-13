@@ -150,7 +150,7 @@ def build_document() -> str:
         "",
         "## Origins village-wide atomic-payload playtest boundary",
         "",
-        "The five current `vvN_origins_village_wide_upgrades` records are the sole selectable Village-Wide menu routes. Commands 6, 7, and 8 share one guarded payload after each matching base Origins dependency. Each row is a 1,000,000-tech-point buy action; static generation never alters save ownership or issues refunds. Historical standalone Full Mastery and individual Full Mastery records are not selectable and are not released.",
+        "The five current `vvN_origins_village_wide_upgrades` records are the sole selectable Origins Tech, Details, and Village-Wide upgrade routes. Each public route resolves its matching base Origins dependency first, so the Tech-screen and Villager Details-screen buttons and upgrades are installed together with the guarded commands 6, 7, and 8 payload. Each village-wide row is a 1,000,000-tech-point buy action; static generation never alters save ownership or issues refunds. Historical standalone Full Mastery and individual Full Mastery records are not selectable and are not released.",
         "",
         "## VV3 Full Heal / Cure All candidate",
         "",

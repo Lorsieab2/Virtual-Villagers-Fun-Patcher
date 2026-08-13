@@ -632,13 +632,13 @@ def main() -> None:
         out_exe = out_dir / f"{config['title']} - Origins Village Wide Research.exe"
         out_exe.write_bytes(rendered)
         feature_id = f"{game_id}_origins_village_wide_upgrades"
-        feature_name = "Enable Origins Village-Wide Upgrades"
+        feature_name = "Enable Origins Tech, Details, and Village-Wide Upgrades"
         enabled = True
         description = (
-            "Adds the Origins Upgrades button to the Tech screen. Food and Tech "
-            "Point Doublers each cost 500,000 tech points, double eligible "
-            "positive gains, and can be removed for no refund. The Village-Wide "
-            "menu offers Running, Full Mastery, and Make Villagers Young Adults."
+            "Includes the Origins Tech screen and Villager Details-screen buttons "
+            "and their upgrades through the internal Origins prerequisite. The "
+            "Village-Wide menu offers Running, Full Mastery, and Make Villagers "
+            "Young Adults."
         )
         if game_id == "vv1":
             description += " Island Events, Duplicate Collectibles, and Golden Child tech gains are excluded."
@@ -703,7 +703,7 @@ def main() -> None:
             },
             "name": feature_name,
             "description": description,
-            "output_tag": "Origins Village-Wide Upgrades",
+            "output_tag": "Origins Tech, Details, and Village-Wide Upgrades",
             "dependencies": [f"{game_id}_enable_origins_exclusive_features"],
             "extension_abi": {
                 "signature": "VVFPOWU",
@@ -719,6 +719,7 @@ def main() -> None:
             },
             "record_fields": record_fields,
             "behavior_changes": [
+                "Includes the matching base Origins feature so the Tech-screen and Villager Details-screen buttons and upgrades are installed with this public route.",
                 "Adds rows 6-8 to the Origins Tech-screen Upgrades dialog only when this optional feature is installed.",
                 "Charges exactly 1,000,000 tech points once per selected village-wide purchase in the current save.",
                 f"Running scans exactly {config['slot_count']} physical Like and Dislike slots, adds Running only to the first free Like slot, removes Running Dislikes only after that insertion, and leaves already-Running or full-like villagers unchanged.",
