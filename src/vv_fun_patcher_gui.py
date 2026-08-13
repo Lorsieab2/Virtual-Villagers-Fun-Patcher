@@ -900,7 +900,7 @@ class App(tk.Tk):
             ).grid(row=row_number + 1, column=1, sticky="w")
             build = next((item for item in self.builds if item.title == game_name), None)
             if build is not None:
-                output_name = get_patch_variant(build, self._mode()).output_name
+                output_name = get_patch_variant(build, self._mode())["output_name"]
                 output_exe = modded_folder / output_name
                 artifact_lines = [
                     f"Patch audit: {output_exe.with_suffix('.patch-log.json')} — exact build hash, selected patches, and applied edits."
