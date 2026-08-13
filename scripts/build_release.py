@@ -78,6 +78,7 @@ FILES = [
     "src/vv5_full_heal.py",
     "src/vv5_individual_transactions.py",
     "scripts/build_vv1_origins_feature.py",
+    "scripts/build_vv1_birth_control_page.py",
     "scripts/build_vv2_origins_feature.py",
     "scripts/build_village_wide_origins_features.py",
     "scripts/generate_transparency_docs.py",
