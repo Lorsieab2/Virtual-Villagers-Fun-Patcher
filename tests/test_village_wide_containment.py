@@ -64,7 +64,30 @@ class VillageWidePlaytestCatalogTests(unittest.TestCase):
                     self.assertIn(label, wide["description"])
                 self.assertIn("Make Villagers Young Adults", wide["description"])
                 self.assertIn("Tech screen", wide["description"])
+                self.assertIn("Villager Details-screen", wide["description"])
+                self.assertTrue(
+                    any(
+                        "matching base Origins feature" in item
+                        for item in wide["behavior_changes"]
+                    )
+                )
                 self.assertNotIn("Runtime/player confirmation pending", wide["description"])
+
+    def test_public_combined_route_resolves_details_prerequisite(self) -> None:
+        catalog = load_fun_patches()
+        by_id = {patch.id: patch for patch in catalog}
+        for game_id in GAME_IDS:
+            with self.subTest(game=game_id):
+                base_id = f"{game_id}_enable_origins_exclusive_features"
+                wide_id = f"{game_id}_origins_village_wide_upgrades"
+                selected = resolve_fun_patch_ids(
+                    [wide_id], game_id=game_id, patches=catalog
+                )
+                self.assertEqual(selected, [base_id, wide_id])
+                self.assertEqual(
+                    by_id[wide_id].name,
+                    "Enable Origins Tech, Details, and Village-Wide Upgrades",
+                )
 
     def test_catalog_gui_cli_and_dependency_resolution_exposes_current_menu_records(self) -> None:
         catalog = load_fun_patches()

@@ -21,16 +21,18 @@ Expanded-256 population modes have been removed from the patcher.
    "Continue Research at Max Technologies", and/or
    "Reenable F6 Clothing Change Cheat", and/or
    "Magic Fruit of Life Alters Mortality" and/or "Builder Action Fixes".
-   VV1 Origins is available as a requested static/playtest pair: select
-   "Enable Origins-Exclusive Features" and "Enable Origins Village-Wide
-   Upgrades" together. The current Origins menus own the Detail-screen and
-   Village-Wide upgrades. Runtime/player confirmation remains pending.
+   VV1 Origins is available through the combined "Enable Origins Tech, Details,
+   and Village-Wide Upgrades" route. Its internal Origins prerequisite is
+   resolved automatically, so the Tech-screen, Villager Details-screen, and
+   Village-Wide upgrades are installed together. Runtime/player confirmation
+   remains pending.
 4. Optional for The Lost Children: check "Easier Healing Mastery",
    "Teaching Children Grants Skill", "Birth Control",
    "Gong of Wonder Coconuts Fix", and/or "Hospital Recovery Heals".
-   VV2 Origins is available as a requested static/playtest pair: select
-   "Enable Origins-Exclusive Features" and "Enable Origins Village-Wide
-   Upgrades" together. Time Warp and Food Point Doubler were reported to crash
+   VV2 Origins is available through the combined "Enable Origins Tech, Details,
+   and Village-Wide Upgrades" route. Its internal Origins prerequisite is
+   resolved automatically, so the Tech-screen, Villager Details-screen, and
+   Village-Wide upgrades are installed together. Time Warp and Food Point Doubler were reported to crash
    after the purchased/success dialog; this does not infer whether the charge
    or action persisted. Legacy Cure, Running, doubler, and selected-villager
    actions remain runtime/player pending. Unrelated VV2 features remain
@@ -42,12 +44,12 @@ Expanded-256 population modes have been removed from the patcher.
    "Nature Level 1 Actually Replenishes Food Sources Faster" and/or
    "Nature Level 3 Actually Alters Mortality" and/or
    "Pointing Out a Rare Collectible Always Works" and/or
-   "Enable Origins-Exclusive Features". VV3 selected-villager Running and
+   "Enable Origins Tech, Details, and Village-Wide Upgrades". VV3 selected-villager Running and
    Full Heal / Cure All are disabled, catalog-hidden, and absent from GUI, CLI,
    and Select All. Their retained candidate records are evidence only.
 6. Optional for The Tree of Life: check
-   "Complete Fish Scales = Golden Fish in Nets" and/or "Enable Origins-Exclusive
-   Features". VV4 remains the untouched vanilla Breeding and Embracing
+   "Complete Fish Scales = Golden Fish in Nets" and/or "Enable Origins Tech,
+   Details, and Village-Wide Upgrades". VV4 remains the untouched vanilla Breeding and Embracing
    reference; the historical Birth Control candidate is rejected/superseded
    and is not offered or applied.
    VV1 Birth Control also remains disabled and unselectable: exact-build audit
@@ -57,7 +59,7 @@ Expanded-256 population modes have been removed from the patcher.
    "Easier Devotee Training" and/or
    "Statue Drops: Normal Action or Honoring" and/or
    "VV4 Nursery School Divisor Parity" and/or
-   "Enable Origins-Exclusive Features".
+   "Enable Origins Tech, Details, and Village-Wide Upgrades".
 8. Optional for any game: check that game's "Write Village Statistics to Text
    File" feature. It refreshes a separate "Village Statistics - Save N.txt"
    file after each successful save of slots 1 through 5.
