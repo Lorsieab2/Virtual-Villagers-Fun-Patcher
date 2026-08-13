@@ -369,9 +369,9 @@ def main() -> None:
             jne time_not_three
             mov eax, 10800
         time_not_three:
-            cmp ecx, 12
+            cmp ecx, 10
             jne time_apply
-            mov eax, 43200
+            mov eax, 36000
         time_apply:
             sub dword ptr [0x4860F0], eax
             jmp success

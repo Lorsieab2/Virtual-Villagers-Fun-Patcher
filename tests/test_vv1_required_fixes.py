@@ -206,6 +206,52 @@ class VV1RequiredFixTests(unittest.TestCase):
         cmp_insn = next(i for i in main_code if i.mnemonic == "cmp")
         self.assertEqual(cmp_insn.op_str, "byte ptr [0x48d700], 2")
 
+    def test_vv1_time_warp_double_speed_uses_a_reachable_game_speed_code(self) -> None:
+        """Regression test: VV1's own stock executable only ever assigns
+        3, 6, or 10 to the game-speed field Time Warp reads (verified with
+        IDA against the real stock binary -- 6 distinct assignment sites,
+        zero occurrences of 12 anywhere in the executable). The Origins
+        Time Warp patch used to check for 12, a value the game can never
+        actually produce, so double speed silently fell through to the
+        6-hour "normal speed" adjustment instead of its own value.
+        """
+        capstone = pytest.importorskip("capstone")
+        source = STOCK / "Virtual Villagers - A New Home.exe"
+        if not source.is_file():
+            self.skipTest(f"stock executable not available: {source}")
+        build = identify(source)
+        rendered, _ = render_patched_bytes(
+            source, build, "collection_progression",
+            ["vv1_enable_origins_exclusive_features"],
+        )
+        md = capstone.Cs(capstone.CS_ARCH_X86, capstone.CS_MODE_32)
+
+        code = rendered[0x56900 : 0x56900 + 0x700]
+        tail = next(
+            insn
+            for insn in md.disasm(code, 0x456900)
+            if insn.mnemonic == "sub" and "0x4860f0" in insn.op_str
+        )
+        window = rendered[tail.address - 0x400000 - 0x20 : tail.address - 0x400000]
+        block = list(md.disasm(window, tail.address - 0x20))
+
+        double_speed_cmp = next(
+            i for i in block if i.mnemonic == "cmp" and i.op_str.startswith("ecx, 0x")
+            and int(i.op_str.split(", ")[1], 16) in (10, 12)
+        )
+        self.assertEqual(
+            int(double_speed_cmp.op_str.split(", ")[1], 16),
+            10,
+            "double-speed check still uses a game-speed code VV1 never assigns",
+        )
+        double_speed_mov = block[block.index(double_speed_cmp) + 2]
+        self.assertEqual(double_speed_mov.mnemonic, "mov")
+        self.assertEqual(
+            int(double_speed_mov.op_str.split(", ")[1], 16),
+            36000,
+            "double-speed adjustment is not the expected 10 hours",
+        )
+
 
 if __name__ == "__main__":
     unittest.main()
