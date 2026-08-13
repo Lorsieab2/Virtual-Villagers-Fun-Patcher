@@ -3,12 +3,15 @@
 import hashlib
 import json
 import shutil
+import sys
 import zipfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 OUTPUTS = ROOT / "outputs"
-VERSION = "v1.34.7-rc33"
+sys.path.insert(0, str(ROOT / "src"))
+from transparency import PATCHER_VERSION as VERSION  # noqa: E402
+
 NAME = f"Virtual-Villagers-Fun-Patcher-{VERSION}.zip"
 FILES = [
     "README.md",
