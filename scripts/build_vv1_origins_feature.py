@@ -971,7 +971,7 @@ def main() -> None:
         CURE_ENTRY_FILE_OFFSET,
         b"\0" * len(cure_code),
         cure_code,
-        "cure active VV1 villagers without changing health and increment People Cured",
+        "restore active living VV1 villagers below 80 health to 100, clear sickness, and increment People Cured when sickness is removed",
     )
     patch(
         VILLAGE_PREFLIGHT_FILE_OFFSET,
