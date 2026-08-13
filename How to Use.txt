@@ -4,41 +4,47 @@ PHYSICAL POPULATION LIMITS
 
 A New Home and The Lost Children have 256 stock villager records.
 The Secret City, The Tree of Life, and New Believers have 150 stock records.
-The Experimental Expanded 256 modes expand VV3-VV5's physical records and
-save layout from 150 to 256. They remain experimental and await player startup,
-save-recognition, and complete 256-villager save/reload testing.
+Expanded-256 population modes have been removed from the patcher.
 
 1. Double-click "Launch Virtual Villagers Fun Patcher.bat".
-2. Choose one of the two patch styles:
+2. Choose one of the three population modes:
+   - No Population Increase:
+     Preserve the stock population cap, progression behavior, and population
+     allocation behavior. No population-cap or saturation bytes are changed.
    - Collection Progression Max Pop:
      Collections still raise the cap and are needed to reach the absolute
      maximum. The Secret City also retains its level-3 magic bonus.
    - Immediate Fixed Max Pop:
      The absolute maximum is available immediately. Collections no longer
      affect it, and The Secret City's magic tech no longer affects it.
-   - Experimental Expanded 256 Villagers:
-     VV3-VV5 expand their physical records and save layout to 256 immediately.
-   - Experimental Expanded 256 - Collection Progression:
-     VV3-VV5 expand to 256 while their original collection and Magic Tech
-     bonuses remain required to reach 256. Both expanded modes are experimental
-     and require the complete copied game folder.
 3. Optional for A New Home: check "School Lessons Grant Skill",
    "Continue Research at Max Technologies", and/or
    "Reenable F6 Clothing Change Cheat", and/or
-   "Magic Fruit of Life Alters Mortality", "Builder Action Fixes", and/or
-   "Enable Origins-Exclusive Features".
+   "Magic Fruit of Life Alters Mortality" and/or "Builder Action Fixes".
+   VV1 Origins is available as a requested static/playtest pair: select
+   "Enable Origins-Exclusive Features" and "Enable Origins Village-Wide
+   Upgrades" together. The current Origins menus own the Detail-screen and
+   Village-Wide upgrades. Runtime/player confirmation remains pending.
 4. Optional for The Lost Children: check "Easier Healing Mastery",
    "Teaching Children Grants Skill", "Birth Control",
    "Gong of Wonder Coconuts Fix", and/or "Hospital Recovery Heals".
-   VV2 Origins is temporarily unavailable: Time Warp and Food Point Doubler
-   were reported to crash after the purchased/success dialog; this does not
-   infer whether the charge or action persisted. Unrelated VV2 features remain
+   VV2 Origins is available as a requested static/playtest pair: select
+   "Enable Origins-Exclusive Features" and "Enable Origins Village-Wide
+   Upgrades" together. Time Warp and Food Point Doubler were reported to crash
+   after the purchased/success dialog; this does not infer whether the charge
+   or action persisted. Legacy Cure, Running, doubler, and selected-villager
+   actions remain runtime/player pending. Unrelated VV2 features remain
    available.
+   Grant Full Mastery to All Villagers is part of the current Origins menus; the historical standalone
+   Full Mastery candidate is not selectable.
 5. Optional for The Secret City: check
+   "Everyone Tries On the Robe" and/or
    "Nature Level 1 Actually Replenishes Food Sources Faster" and/or
    "Nature Level 3 Actually Alters Mortality" and/or
    "Pointing Out a Rare Collectible Always Works" and/or
-   "Enable Origins-Exclusive Features".
+   "Enable Origins-Exclusive Features". VV3 selected-villager Running and
+   Full Heal / Cure All are disabled, catalog-hidden, and absent from GUI, CLI,
+   and Select All. Their retained candidate records are evidence only.
 6. Optional for The Tree of Life: check
    "Complete Fish Scales = Golden Fish in Nets" and/or "Enable Origins-Exclusive
    Features". VV4 remains the untouched vanilla Breeding and Embracing
@@ -86,7 +92,7 @@ OPTIONAL PATCH SELECTION
 
 Use "Select All Patches" to turn on every optional fun patch at once. Use
 "Deselect All Patches" to turn them all off. These buttons do not change the
-selected population patch style. Optional patches are grouped under the five
+selected population mode. Optional patches are grouped under the five
 game-title headers, in order: Virtual Villagers - A New Home, The Lost
 Children, The Secret City, The Tree of Life, and New Believers. Shared/all-games
 patches appear afterward only when present. A dependent checkbox automatically
@@ -96,15 +102,10 @@ requests that omit a prerequisite are refused before output is written.
 
 OUTPUTS
 
-Ordinary modes and optional-patch combinations use:
+All three modes and optional-patch combinations use:
 
 (name of game) - Modded\
 (name of game) - Modded.exe
-
-Experimental 256 modes use their own separate short names:
-
-(name of game) - Modded 256\
-(name of game) - Modded 256.exe
 
 Mode and optional-patch details are recorded in the modified EXE's adjacent
 .patch-log.json file instead of being added to the EXE or save-folder name.
@@ -112,28 +113,19 @@ Mode and optional-patch details are recorded in the modified EXE's adjacent
 For each game, the patcher creates one complete copy named
 "(Game name) - Modded". The copied folder keeps every original file and
 subfolder, including the stock EXE, and adds "(Game name) - Modded.exe" and its
-verification log. Applying another style refreshes the same short Modded
+verification log. Applying another population mode refreshes the same short Modded
 folder in place after confirmation. If a Modded output location was selected,
 these folders are created beneath that chosen parent instead of beside the
 original. The patcher does not create temporary
 game copies or replacement-backup folders.
 Original folders and EXEs are never changed, renamed, replaced, or deleted. The
-patcher remembers the selected style, output parent, single-game EXE path, and
+patcher remembers the selected population mode, output parent, single-game EXE path, and
 all five folder paths. Vanilla and Modded links open their respective folders.
-
-EXPERIMENTAL 256 SAVES
-
-VV3, VV4, and VV5 need their slot-zero control file together with their
-numbered saves. When an Experimental 256 mode is applied, the patcher checks
-the exact vanilla save folder and copies slot 0 plus every numbered .ldw file
-as one set into the separate "(Game name) - Modded 256" save folder. If that
-folder already has saves, the patcher asks before replacing them. Choosing No
-keeps the existing Modded 256 saves. Vanilla saves are never edited.
 
 SAFE MULTIPLE BIRTHS
 
 All five games normally check the cap before deciding singleton/twins/triplets.
-Both styles prevent overflow at the selected mode's slot ceiling:
+The two population-increase modes prevent overflow at the selected mode's slot ceiling. The No Population Increase mode preserves the stock behavior:
 - 3+ spaces: multiples work normally.
 - 2 spaces: a rolled triplet becomes twins.
 - 1 space: a rolled twin or triplet becomes a singleton.
@@ -224,6 +216,29 @@ through 5. The export is per save and written beside that modified game's
 executable. It does not depend on a Statistics screen and never changes the
 save result if the text export itself fails.
 
+VV3 EVERYONE TRIES ON THE ROBE
+
+Drop one active, living, non-nursing villager on the robe. If the original
+callback puts that villager into either the stock failed-fit Trying on the robe
+action or the successful Tribal Chief action, every other active, living,
+non-nursing villager is sent to the robe area with the stock failed-fit Trying
+on the robe action.
+
+The dropped villager keeps the complete normal result and remains the only
+villager who can become Tribal Chief. Followers receive the native status,
+walk, gestures, and temporary try-on appearance, but never the successful fit,
+persistent Chief clothing, or Chief state. Dead, inactive, and nursing
+villagers are skipped. Fanout requires the original callback to report a
+handled drop and leave the initiator in robe action 120 or 121.
+
+This optional checkbox starts unchecked and supports the two
+population-increase modes. Static install, composition, and uninstall checks
+pass; player runtime confirmation is still pending. The broadcast feature
+itself never reads or writes candidate fields +0xE80 or +0xE88. If the fields
+are still zero
+before automatic assignment, or no eligible candidate exists, the game's
+native failed-fit action 121 is broadcast without granting Chief state.
+
 VV3 NATURE LEVEL 1 ACTUALLY REPLENISHES FOOD SOURCES FASTER
 
 At Nature level 1 or higher, fruit trees become refill-eligible after 2 hours
@@ -274,16 +289,23 @@ Polishing the Statue for eligible upgradeable and completed statues.
 It does not change autonomous work, skill gain amounts, statue upgrades, or
 Retired Chief activities.
 
+VV5 ORIGINS ACTIONS
+
+The latest VV5 Origins-style Tech and Villager Upgrades menus are enabled by
+the current Origins-Exclusive Features route. Full Mastery sets all six skills
+to 100. Grant Running adds Running to the first free Like slot exactly once
+when needed and clears Running Dislikes. Full Heal / Cure All raises only
+health below 80 to 100 and clears sickness. These actions process active living
+Believers only; masked Heathens, including the sick-Heathen puzzle record, are
+skipped before action-specific reads or writes. Native writers and statistics
+remain in the call path. Runtime/player confirmation is pending.
+
 ORIGINS VILLAGE-WIDE UPGRADES
 
-All five legacy village-wide Origins records remain unavailable. Commands
-6/7/8 share one atomic payload, so Running, Full Mastery, and Age 18 remain
-fail-closed together until each game receives a complete payload safety GO.
-The contained row labels include Grant Full Mastery to All Villagers.
-The disabled manifests remain as diagnostic evidence, but their bytes are not
-applied. Existing save fields are not cleared, changed, or refunded.
-
-VV3 All Villagers Like Running is enabled for replacement runtime playtesting
-after final static certification c62fba9214de7c6092365e99c72bd81a59d3888c.
-Its corrected repeatable-Buy implementation contains command 6 only and does
-not expose Full Mastery or Age 18. Gameplay validation remains pending.
+The patcher exposes one latest feature-complete Origins-style village-wide
+upgrades-menu route for each game. Select the matching row; its Origins menu
+prerequisite is resolved automatically. The route enables the Tech-screen
+button/menu and its functional village-wide upgrades. No individual Full
+Mastery record or duplicate Origins-exclusive record is exposed. Existing save
+fields are changed only when the selected in-game upgrade runs. Runtime/player
+confirmation remains pending.

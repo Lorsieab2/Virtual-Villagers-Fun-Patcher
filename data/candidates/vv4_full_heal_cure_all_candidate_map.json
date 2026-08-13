@@ -1,0 +1,71 @@
+{
+  "candidate_id": "vv4_full_heal_cure_all_candidate",
+  "candidate_enabled": false,
+  "catalog_hidden": true,
+  "catalog_enabled": false,
+  "dependencies": ["vv4_complete_scales_golden_fish", "vv4_enable_origins_exclusive_features", "vv4_full_mastery_all_stage_a_candidate", "vv4_write_village_statistics"],
+  "parent_composition": {"ids": ["vv4_complete_scales_golden_fish", "vv4_enable_origins_exclusive_features", "vv4_full_mastery_all_stage_a_candidate", "vv4_write_village_statistics"], "order": ["vv4_complete_scales_golden_fish", "vv4_enable_origins_exclusive_features", "vv4_full_mastery_all_stage_a_candidate", "vv4_write_village_statistics"], "collection_sha256": "D0F90C4666A1E2189044B6F093692E4B56C8F379BC6A4953BBB9B74D997A8092", "immediate_sha256": "F803918BE5B356F4A3C6D12A5098594E904CDE00C87E1D14901F9CCE5107AECD"},
+  "rendered_modes": {"collection_progression": {"parent_sha256": "D0F90C4666A1E2189044B6F093692E4B56C8F379BC6A4953BBB9B74D997A8092", "candidate_sha256": "26E82AF29118312978A94225B3D3094511B1765C44185F416F600272A7DB80B9", "size": 942080}, "immediate_fixed": {"parent_sha256": "F803918BE5B356F4A3C6D12A5098594E904CDE00C87E1D14901F9CCE5107AECD", "candidate_sha256": "6220D3B9572809A713C9D6274364844AB486834419FCE4AA9DDDABC3AAED1274", "size": 942080}},
+  "lineage_proof": {
+    "source": "D322 repository-only production resolver",
+    "old_parents": {"collection_progression": "CEBF0BC813059A13131CF75E4ECE11C8CCEE460CC98FB16BD87B03F5C20DB86B", "immediate_fixed": "6070D3244567815E8880168AEDCB9FF0E43F6720095AE67628089D492DA40133"},
+    "new_parents": {"collection_progression": "D0F90C4666A1E2189044B6F093692E4B56C8F379BC6A4953BBB9B74D997A8092", "immediate_fixed": "F803918BE5B356F4A3C6D12A5098594E904CDE00C87E1D14901F9CCE5107AECD"},
+    "checksums": {"collection_progression": {"old": "3B1B0F00", "new": "B2920E00"}, "immediate_fixed": {"old": "64B40E00", "new": "DA2B0F00"}}, "protected_range_end_inclusive": true, "protected_range_scope": "new_parent_vs_old_parent", "candidate_overlay_exception": "raw 0x8960F..0x89613 is the VV4 Full Heal hook and is excluded from candidate-vs-parent protected-range equality",
+    "allowed_diff_ranges": [{"raw_start": "0x158", "raw_end_exclusive": "0x15C", "purpose": "PE checksum"}, {"raw_start": "0x664DC", "raw_end_exclusive": "0x664E2", "before": "E9A22D020090", "after": "885EFD385EFD", "purpose": "burial detour withdrawal"}, {"raw_start": "0x89283", "raw_end_exclusive": "0x89288", "after": "0000000000", "purpose": "owned burial wrapper withdrawal"}, {"raw_start": "0x89289", "raw_end_exclusive": "0x89294", "after": "0000000000000000000000", "purpose": "owned burial wrapper withdrawal"}],
+    "unchanged_boundary": {"raw": "0x89288", "description": "byte at the owned wrapper boundary remains unchanged"},
+    "protected_full_mastery_ranges": [{"raw": "0x757..0x797", "sha256": "98CE42DEEF51D40269D542F5314BEF2C7468D401AD5D85168BFAB4C0108F75F7"}, {"raw": "0x48610..0x48616", "sha256": "462C9FE85273BC280BB82E0F04E3FCFF1117FF11E08814043E1EC17DFFA880A1"}, {"raw": "0x89373..0x89FFF", "sha256": "DB803A81280A38F156BF24EB51135935D71CBE0E6C2BE2BE81D0A08BD5190B7C33D"}, {"raw": "0x899D6..0x899DC", "sha256": "917252A96454DE46047F5BC1FF7DE85F1C89A109BD2BD92F0E3ABFE8AE686879"}, {"raw": "0xE3000..0xE4FFF", "sha256": "FD72C661B533117BF38D69E7EB855250A93927C831C265226930794C1EFDDB62"}]
+  },
+  "allowed_modes": ["collection_progression", "immediate_fixed"],
+  "rejected_modes": ["experimental_expanded_256", "experimental_expanded_256_progression"],
+  "source": {"sha256": "6D27A429FFCA5F1F71FDD7ECA761ED1BB67E85F976494BA178B3D7BE01F1B220", "size": 929792},
+  "parents": {
+    "vv4fm_page_sha256": "FD72C661B533117BF38D69E7EB855250A93927C831C265226930794C1EFDDB62",
+    "dll_sha256": "4E1A83683A875EFE6F67116CDD862927BE1ABCB17DB7AE18143E58E98EAD01E7",
+    "collection_sha256": "D0F90C4666A1E2189044B6F093692E4B56C8F379BC6A4953BBB9B74D997A8092",
+    "immediate_sha256": "F803918BE5B356F4A3C6D12A5098594E904CDE00C87E1D14901F9CCE5107AECD"
+  },
+  "transaction": {
+    "command": 5,
+    "price": 30000,
+    "action": "Buy",
+    "ownership": null,
+    "remove": false,
+    "bound": 150,
+    "resolver": "ECX=0x50E568; push physical index; call 0x466040; ret 4",
+    "health_setter": "ECX=record+0x1C34; push -1; push 100; call 0x46AF00; ret 8",
+    "sickness": "+0x1C48 -> 0; increment [0x4D6DF0] once after verified clear",
+    "deduction": "ECX=0x4D6F88; push -30000; call 0x41E300; ret 4; exactly once after count-match postverify",
+    "people_cured": "increment DWORD [0x4D6DF0] once per independently revalidated verified sickness clear; never for health-only records"
+  },
+  "eligibility": {"active": "+0x1CC4 != 0", "status": "+0x1CC7 == 0", "health": "+0x1C40 > 0", "partial": "1..99", "heathens": "not a separate field in this proved VV4 contract"},
+  "messages": {"label": "Full Heal / Cure All", "failure_suffix": "No tech points have been deducted."},
+  "hook": {
+    "status": "command gate assembled; native helper/page still pending independent recertification",
+    "raw_offset": "0x8960F",
+    "va": "0x48960F",
+    "before_parent": "E941FEFFFF",
+    "preserved_suffix": "724C",
+    "after": "E9EC792B00",
+    "section": {"name": ".vv4hc", "raw_offset": "0xE5000", "rva": "0x341000", "va": "0x741000", "length": 4096},
+    "shim": {"va": "0x741000", "bytes": "83F8050F84F7000000E94784D4FF", "sha256": "89A2E84C47D3130915A7830F48EC839C186A8BBABF7584681A83A4770582A370"},
+    "helper_length": 2053,
+    "helper_sha256": "F4271D44AB481D1441EA7D8D297AC346FCF0F2840EE9869B90EE1E875A4B403F",
+    "page_sha256": "EC7E987845C3081C435CED913CCEE951CC67B0E766FAAB363D313D0B5874A739",
+    "strings_sha256": "44CB71162F5F5298E8A6AB309D874EDD20D3B4C20B169DB3D2274F84DCC0717E",
+    "transaction_entry_va": "0x741100",
+    "ranges": ["0x8960F..0x89613", "0xE5000..0xE5FFF"],
+    "unknown_until_recertified": true
+  },
+  "companion": {"filename": "VVFP Origins Icons.dll", "size": 298496, "sha256": "165F327783DFECAB4C42DB28D6F926BCA46397F725F036BFC367BB659384C0AC", "parent_sha256": "4E1A83683A875EFE6F67116CDD862927BE1ABCB17DB7AE18143E58E98EAD01E7", "source": "generated:vv4_full_heal_companion", "candidate_source": "scripts/build_vv4_full_heal_candidate.py::build_resource_only_companion", "preimage_sha256": "4E1A83683A875EFE6F67116CDD862927BE1ABCB17DB7AE18143E58E98EAD01E7", "restore_source": "data/candidates/VVFP VV4 Full Mastery Candidate.dll", "restore_sha256": "4E1A83683A875EFE6F67116CDD862927BE1ABCB17DB7AE18143E58E98EAD01E7", "resource_contract": "RT_DIALOG 201/203 typeface-aware structural row from parent items 20..24 inserted before item 25; 201=46 and 203=36; caption Origins Upgrades; 202/non-resource bytes unchanged; RT_ICON 46..49 and RT_GROUP_ICON 110 use authenticated cure-all artwork; .rsrc raw/virtual 0x33800, .reloc RVA 0x4B000/raw 0x47E00, SizeOfImage 0x4C000, resource-directory size 0x33800", "artwork_resource_id": 110, "artwork_sha256": "83552374DFD7AC1AACC57D371C01C26BA1A438ADF34B904609A72165EB73C5A0", "icon_leaf_sha256": {"46": "68FED72757B4A8A28F69ABFB7A9ED4133647676EAE7665F44BA6D8931929DD23", "47": "7B599B3876B44BECA595FCE3ED7DFC984C99E014A057F6ED0BA25CA507F49B73", "48": "1D4C17E4E54C623485E9D7D8FE613D6D67F5511521256BBA8572B9EC76D70634", "49": "0122D77CF881F79BFD488BE98E917AB76BF2049AE5AF3CC44228AF3A35D70595"}},
+  "ownership": {
+    "exe_hook": {"raw": "0x8960F", "length": 5, "preimage": "E941FEFFFF", "candidate": "E9EC792B00", "preserved_suffix": "724C", "non_command5_continuation": "0x489455", "command5_continuation": "0x4895D9"},
+    "page": {"raw": "0xE5000", "length": 4096, "preimage_sha256": "zero-filled 0x1000", "candidate_sha256": "EC7E987845C3081C435CED913CCEE951CC67B0E766FAAB363D313D0B5874A739"},
+    "companion": {"destination": "VVFP Origins Icons.dll", "source": "generated:vv4_full_heal_companion", "preimage_sha256": "4E1A83683A875EFE6F67116CDD862927BE1ABCB17DB7AE18143E58E98EAD01E7", "candidate_sha256": "165F327783DFECAB4C42DB28D6F926BCA46397F725F036BFC367BB659384C0AC", "restore_source": "data/candidates/VVFP VV4 Full Mastery Candidate.dll", "restore_sha256": "4E1A83683A875EFE6F67116CDD862927BE1ABCB17DB7AE18143E58E98EAD01E7"},
+    "parent_collection_sha256": "D0F90C4666A1E2189044B6F093692E4B56C8F379BC6A4953BBB9B74D997A8092",
+    "parent_immediate_sha256": "F803918BE5B356F4A3C6D12A5098594E904CDE00C87E1D14901F9CCE5107AECD"
+  },
+  "companion_resource_directory_size": "0x33800",
+  "runtime_status": "pending independent static and player recertification",
+  "uninstall": "restore the exact Full Mastery parent EXE/DLL/page identities; zero only candidate-owned ranges",
+  "provenance": {"implementation_commit": null, "audit_commit": null, "acceptance_commit": null}
+}

@@ -42,8 +42,8 @@ integration proof.
 Stock base+Running render SHA-256 is
 `D8DD412185559F2B95E1B0544877928D88FC1B6BAF0F539E94DAB6DAB6606A2B` with PE checksum
 `0x000D641E`. Expanded base+Running render SHA-256 is
-`657D321B2F1E9E6D6C223DB1FF0BBA38C2D761A97A6E7F21B98CE1826531A848` with PE checksum
-`0x000D2A32`.
+`2F2D3929779038B09FD85ABF510320E68402E16BE3F968072A7E311EB7DA6070` with PE checksum
+`0x000CF6C3`.
 
 The machine-readable complete map, payload deltas, page hashes, per-mode
 checksums, ABI, and export map are in

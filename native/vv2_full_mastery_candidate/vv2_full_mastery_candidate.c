@@ -69,6 +69,18 @@ __declspec(dllexport) int __stdcall ShowVV2FullMasteryResult(
             "Not enough tech points.\r\n"
             "No tech points have been deducted."
         );
+    } else if (status == 3) {
+        lstrcpyA(
+            message,
+            "The selected village changed or failed final validation.\r\n"
+            "No tech points have been deducted."
+        );
+    } else if (status == 4) {
+        lstrcpyA(
+            message,
+            "Full Mastery was canceled.\r\n"
+            "No tech points have been deducted."
+        );
     } else {
         wsprintfA(
             message,

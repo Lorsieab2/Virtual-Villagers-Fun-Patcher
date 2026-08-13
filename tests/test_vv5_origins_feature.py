@@ -10,7 +10,15 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
-from vv_fun_patcher import FunPatch, load_builds, load_fun_patches, render_patched_bytes
+from vv_fun_patcher import (
+    EXPANDED_256_PUBLICATION_ENABLED,
+    EXPANDED_PATCH_MODES,
+    FunPatch,
+    PatcherError,
+    load_builds,
+    load_fun_patches,
+    render_patched_bytes,
+)
 
 STOCK = ROOT / "research/stock-executables/Virtual Villagers - New Believers.exe"
 MANIFEST = ROOT / "data/vv5_origins_feature.json"
@@ -47,6 +55,18 @@ class VV5OriginsFeatureTests(unittest.TestCase):
             self.feature["companion_files"][0]["sha256"],
             hashlib.sha256(companion.read_bytes()).hexdigest().upper(),
         )
+
+    def test_d37_mockup_provenance_is_self_contained_and_exact(self) -> None:
+        provenance = ROOT / "assets/candidates/vv5_full_mastery/provenance"
+        expected = {
+            "VV5Mockup.jpg": "4EF2DFC0DAE6C733C452CCB4BEA4023C0E2601EEF2396A1A38D75A4DCD57B00F",
+            "VV5Mockup2.jpg": "104B1BE5873B1660EE4BC2E02A886C6EBB99B06CB6F0D723D20638C2B0949144",
+        }
+        for name, digest in expected.items():
+            path = provenance / name
+            self.assertTrue(path.is_file())
+            self.assertEqual(hashlib.sha256(path.read_bytes()).hexdigest().upper(), digest)
+        self.assertEqual(self.feature["provenance"]["vv5_mockups"], expected)
 
     def test_constructor_transports_thiscall_receiver_before_stock_ctor(self) -> None:
         self.assertEqual(
@@ -89,12 +109,115 @@ class VV5OriginsFeatureTests(unittest.TestCase):
             end = start + len(bytes.fromhex(item["before"]))
             self.assertTrue(end <= 0xDB000 or start >= 0xDC000)
 
+    def test_relocation_ledger_is_explicit_ida_evidence_not_a_raw_sweep(self) -> None:
+        relocation = self.feature["expanded_shr_relocations"]
+        evidence = relocation["evidence"]
+        self.assertIn("IDA Pro 9.4 decoded instruction heads and operands", evidence["method"])
+        self.assertIn("raw byte patterns are discovery-only", evidence["method"])
+        self.assertNotIn("for payload_offset in range(len(payload) - 3)", self.source)
+        self.assertEqual(evidence["payload_internal_absolute_sites"], 23)
+        self.assertEqual(evidence["cross_section_rel32_sites"], 36)
+        self.assertEqual(evidence["external_absolute_sites"], 7)
+        self.assertEqual(evidence["complete_current_feature_relocation_sites"], 43)
+        self.assertEqual(len(relocation["patches"]), 66)
+        self.assertEqual(
+            sum(item.get("kind", "absolute") == "rel32" for item in relocation["patches"]),
+            36,
+        )
+        self.assertEqual(
+            sum(
+                item.get("kind", "absolute") == "absolute"
+                and "external" in item.get("purpose", "")
+                for item in relocation["patches"]
+            ),
+            7,
+        )
+
+    def test_stock_mode_is_noop_and_expanded_native_overrides_are_guarded(self) -> None:
+        relocation = self.feature["expanded_shr_relocations"]
+        self.assertEqual(set(EXPANDED_PATCH_MODES), {
+            "experimental_expanded_256",
+            "experimental_expanded_256_progression",
+        })
+        self.assertFalse(EXPANDED_256_PUBLICATION_ENABLED)
+        self.assertEqual(
+            {
+                item["offset"]: item["before"]
+                for item in relocation["patches"]
+                if int(item["offset"], 0) in {0x1EB70, 0x237B1}
+            },
+            {"0x1EB70": "8C3F3900", "0x237B1": "4BF23800"},
+        )
+        self.assertEqual(
+            {
+                item["offset"]: item["expanded_skip_before"]
+                for item in relocation["patches"]
+                if item.get("expanded_skip_before")
+            },
+            {"0x1EB70": "F67E3456", "0x237B1": "8B742408"},
+        )
+        for mode in EXPANDED_PATCH_MODES:
+            self.assertIn(mode, self.feature["patch_mode_overrides"])
+            self.assertEqual(
+                {
+                    item["offset"]: item["after"]
+                    for item in self.feature["patch_mode_overrides"][mode]
+                },
+                {"0x237B0": "568B742408", "0x1EB6F": "85F67E3456"},
+            )
+
+    def test_exact_vv5_cross_section_and_external_site_sets_are_frozen(self) -> None:
+        relocation = self.feature["expanded_shr_relocations"]
+        delta = int(relocation["expanded_virtual_address"], 0) - int(
+            relocation["stock_virtual_address"], 0
+        )
+        rel32 = {
+            item["offset"]
+            for item in relocation["patches"]
+            if item.get("kind", "absolute") == "rel32"
+        }
+        expected_rel32 = {
+            "0x18910", "0x1EB70", "0x237B1", "0x40A25", "0x4AF13", "0x4BC21", "0x94FBF",
+            "0xDB01C", "0xDB021", "0xDB043", "0xDB055", "0xDB06C", "0xDB08E", "0xDB096",
+            "0xDB0E1", "0xDB103", "0xDB115", "0xDB12C", "0xDB14E", "0xDB156", "0xDB1A4",
+            "0xDB272", "0xDB283", "0xDB292", "0xDB38D", "0xDB3C3", "0xDB3ED", "0xDB415",
+            "0xDB437", "0xDB45A", "0xDB462", "0xDB46C", "0xDB7AC", "0xDBA3B", "0xDBB22", "0xDBB27",
+        }
+        self.assertEqual(rel32, expected_rel32)
+        self.assertIn(
+            "if PAYLOAD_VA <= target_stock_va < PAYLOAD_VA + PAYLOAD_SIZE",
+            self.source,
+        )
+        external_absolute = {
+            item["offset"]
+            for item in relocation["patches"]
+            if item.get("kind", "absolute") == "absolute"
+            and 0x94000 <= int(item["offset"], 0) < 0x95000
+        }
+        self.assertEqual(
+            external_absolute,
+            {"0x94B80", "0x94B85", "0x94B94", "0x94ED1", "0x94ED6", "0x94EE5", "0x94FBA"},
+        )
+        for item in relocation["patches"]:
+            self.assertEqual(len(bytes.fromhex(item["before"])), 4)
+            if item.get("kind", "absolute") == "rel32":
+                source = int(item["source_expanded_virtual_address"], 0)
+                target = int(item["target_expanded_virtual_address"], 0)
+                expected = (target - (source + 5)).to_bytes(4, "little", signed=True)
+                self.assertNotEqual(expected.hex().upper(), item["before"])
+            else:
+                old = int.from_bytes(bytes.fromhex(item["before"]), "little")
+                declared = item.get("target_expanded_virtual_address")
+                new = int(declared, 0) if declared is not None else old + delta
+                self.assertNotEqual(old, new)
+
     def test_time_warp_is_exactly_three_displayed_years(self) -> None:
         self.assertIn("mov eax, 129600", self.source)
         self.assertIn("idiv ecx", self.source)
         self.assertIn("sub dword ptr [0x4C6250], eax", self.source)
         self.assertIn("sbb dword ptr [0x4C6254], 0", self.source)
-        self.assertIn("3 displayed villager years", self.feature["description"])
+        self.assertIn("Time Warp", self.feature["description"])
+        self.assertNotIn("displayed villager years", self.feature["description"])
 
     def test_unsafe_native_time_and_event_rows_are_disabled_for_heathen_safety(self) -> None:
         self.assertEqual(
@@ -103,6 +226,27 @@ class VV5OriginsFeatureTests(unittest.TestCase):
         )
         self.assertIn("not verified safe for Heathens", self.source)
         self.assertIn(b"3 displayed years", self.payload)
+
+    def test_cure_row_truth_is_withdrawn_and_eb5f_contained(self) -> None:
+        self.assertIn("Full Heal/Cure All", self.feature["description"])
+        self.assertNotIn("30,000", self.feature["description"])
+        cure = next(
+            item for item in self.feature["patches"] if int(item["offset"], 0) == 0x94EA0
+        )
+        purpose = cure["purpose"].casefold()
+        self.assertIn("eb5f", purpose)
+        self.assertIn("unavailable", purpose)
+        self.assertIn("unreachable", purpose)
+        self.assertNotIn("preserve cure", purpose)
+
+    def test_generated_vv5_transparency_section_matches_cure_truth(self) -> None:
+        transparency = (ROOT / "docs" / "transparency-log.md").read_text(encoding="utf-8")
+        marker = "#### Enable Origins-Exclusive Features (Task9 native actions) (`vv5_enable_origins_exclusive_features`)"
+        section = transparency.split(marker, 1)[1].split("\n#### ", 1)[0].casefold()
+        self.assertIn("full heal/cure all", section)
+        self.assertIn("time warp", section)
+        self.assertNotIn("30,000", section)
+        self.assertNotIn("preserve cure", section)
 
     def test_barrel_uses_native_index_and_dynamic_150_256_guard(self) -> None:
         self.assertIn("call 0x4944C0", self.source)
@@ -120,6 +264,55 @@ class VV5OriginsFeatureTests(unittest.TestCase):
         self.assertEqual(bound["before"], "96000000")
         self.assertEqual(bound["after"], "00010000")
 
+    def test_d37_selector_repair_exact_body_hook_and_guards(self) -> None:
+        selector = self.feature["selector_repair"]
+        self.assertEqual(selector["stock_fingerprint"]["sha256"], "92946781980220E9D1A2E6C573925519934608F5215F4A0F8CE3B90088C5C65D")
+        hook = selector["hook"]
+        self.assertEqual(hook["file_offset"], "0x1890F")
+        self.assertEqual(hook["before"], "8B7484146A64E8")
+        self.assertEqual(hook["after"], "E96C9839009090")
+        self.assertEqual(hook["uninstall_after"], hook["before"])
+        body = selector["body"]
+        expected_body = bytes.fromhex(
+            "8B748414F70588D3510004000000740C832588D35100FBBE1E000000"
+            "6A64E8BD14C5FFE97267C6FF"
+        )
+        self.assertEqual(body["file_offset"], "0xDB180")
+        self.assertEqual(body["virtual_address"], "0x7B2180")
+        self.assertEqual(bytes.fromhex(body["after"]), expected_body)
+        self.assertEqual(bytes.fromhex(body["before"]), b"\0" * 40)
+        self.assertEqual(body["uninstall_after"], body["before"])
+        self.assertEqual(body["sha256"], hashlib.sha256(expected_body).hexdigest().upper())
+        self.assertEqual(self.payload[0x180:0x1A8], expected_body)
+        self.assertEqual(self.payload[0x180:0x1A8].hex().upper(), body["after"])
+        self.assertEqual(selector["native_call_virtual_address"], "0x403660")
+        self.assertEqual(selector["continuation_virtual_address"], "0x41891A")
+        self.assertEqual(selector["forbidden_branch_targets"], ["0x418916", "0x418917", "0x418918", "0x418919"])
+        self.assertEqual(selector["shr_guard"]["header_patch"], {"file_offset": "0x28C", "before": "400000D0", "after": "400000F0"})
+        self.assertTrue(selector["atomic_install_uninstall"])
+        self.assertIn("jmp 0x41891A", self.source)
+        self.assertNotIn("jmp 0x418916", self.source)
+
+        rendered, _ = render_patched_bytes(
+            STOCK,
+            next(item for item in load_builds() if item.id == "vv5"),
+            "collection_progression",
+            [FEATURE_ID],
+        )
+        self.assertEqual(bytes(rendered[0x1890F:0x18916]).hex().upper(), "E96C9839009090")
+        rendered_body = bytes(rendered[0xDB180:0xDB1A8])
+        self.assertEqual(rendered_body, expected_body)
+        call_at = 0xDB180 + expected_body.index(bytes.fromhex("E8BD14C5FF"))
+        call_va = 0x7B2180 + expected_body.index(bytes.fromhex("E8BD14C5FF"))
+        call_target = call_va + 5 + struct.unpack_from("<i", rendered, call_at + 1)[0]
+        self.assertEqual(call_target, 0x403660)
+        jump_at = 0xDB180 + len(expected_body) - 5
+        jump_va = 0x7B2180 + len(expected_body) - 5
+        continuation = jump_va + 5 + struct.unpack_from("<i", rendered, jump_at + 1)[0]
+        self.assertEqual(continuation, 0x41891A)
+        self.assertNotIn(continuation, {0x418916, 0x418917, 0x418918, 0x418919})
+        self.assertNotIn(bytes.fromhex("E96E67C6FF"), rendered_body)
+
     def test_doublers_are_save_scoped_and_encode_candidate_guards(self) -> None:
         self.assertIn("test dword ptr [0x51D388], 1", self.source)
         self.assertIn("test dword ptr [0x51D388], 2", self.source)
@@ -133,7 +326,10 @@ class VV5OriginsFeatureTests(unittest.TestCase):
         contract = manifest["doubler_composition_contract"]
         self.assertIn("stock-layout implemented", evidence["hook_status"])
         self.assertIn("expanded-256", contract["status"])
-        self.assertEqual(contract["exclusions"], ["Island Event outcomes"])
+        self.assertEqual(
+            contract["exclusions"],
+            ["Island Event tech-point gain", "Duplicate Collectibles tech-point gain"],
+        )
         self.assertEqual(
             manifest["doubler_purchase_status"]["new_purchase"],
             "Tech and Food available in stock layout at 500,000 tech points after their exact positive-whitelist wrappers; both unavailable in expanded-256",
@@ -143,7 +339,7 @@ class VV5OriginsFeatureTests(unittest.TestCase):
             "full-price repurchase after zero-cost/no-refund removal in stock layout for both doublers; expanded-256 remains unavailable for new purchases",
         )
 
-    def test_tech_wrapper_exact_stock_bytes_and_six_return_whitelist(self) -> None:
+    def test_tech_wrapper_exact_stock_bytes_and_three_return_whitelist(self) -> None:
         evidence = self.feature["doubler_evidence"]["tech_writer_hook"]
         self.assertEqual(evidence["virtual_address"], "0x4237B0")
         self.assertEqual(evidence["file_offset"], "0x237B0")
@@ -152,18 +348,17 @@ class VV5OriginsFeatureTests(unittest.TestCase):
         self.assertEqual(evidence["wrapper_virtual_address"], "0x7B2A00")
         self.assertEqual(evidence["wrapper_file_offset"], "0xDBA00")
         expected = (
-            "8B44240485C07E46F70588D3510001000000743A"
-            "813C24BE474100742D813C24DD4741007424813C24F9474100741B"
+            "8B44240485C07E2BF70588D3510001000000741F"
             "813C244DDE46007412813C247CDE46007409813C24A5DE46007504"
-            "D1642404568B7424080131E95D0DC7FF"
+            "D1642404568B7424080131E9780DC7FF"
         )
         wrapper = bytes.fromhex(evidence["wrapper_bytes"])
         self.assertEqual(wrapper.hex().upper(), expected)
-        self.assertEqual(len(wrapper), 90)
+        self.assertEqual(len(wrapper), 63)
         self.assertEqual(evidence["ownership_mask"], "0x1")
         self.assertEqual(
             evidence["eligible_returns"],
-            ["0x4147BE", "0x4147DD", "0x4147F9", "0x46DE4D", "0x46DE7C", "0x46DEA5"],
+            ["0x46DE4D", "0x46DE7C", "0x46DEA5"],
         )
         self.assertEqual(evidence["excluded_refund_return"], "0x419EA3")
         self.assertEqual(evidence["branch_destinations"], ["0x7B2A4A", "0x7B2A4E", "0x4237B7"])
@@ -171,6 +366,7 @@ class VV5OriginsFeatureTests(unittest.TestCase):
             self.feature["doubler_evidence"]["tech_exclusions"],
             [
                 "all 16 Island Event outcomes",
+                "Duplicate Collectibles (returns 0x4147BE, 0x4147DD, and 0x4147F9)",
                 "all eight writer tail paths",
                 "technology purchase/spending/deduction paths",
                 "zero and negative deltas",
@@ -178,7 +374,7 @@ class VV5OriginsFeatureTests(unittest.TestCase):
             ],
         )
         payload_offset = 0xDB000 + (0x7B2A00 - 0x7B2000)
-        self.assertEqual(self.payload[payload_offset - 0xDB000 : payload_offset - 0xDB000 + 90], wrapper)
+        self.assertEqual(self.payload[payload_offset - 0xDB000 : payload_offset - 0xDB000 + 63], wrapper)
 
     def test_tech_mode_marker_and_purchase_matrix(self) -> None:
         self.assertIn("tech_owned_remove", self.source)
@@ -205,8 +401,6 @@ class VV5OriginsFeatureTests(unittest.TestCase):
         for mode, expected_hook, expected_marker in (
             ("collection_progression", "E94BF23800", "96000000"),
             ("immediate_fixed", "E94BF23800", "96000000"),
-            ("experimental_expanded_256", "568B742408", "00010000"),
-            ("experimental_expanded_256_progression", "568B742408", "00010000"),
         ):
             with self.subTest(mode=mode):
                 rendered, _ = render_patched_bytes(
@@ -216,8 +410,8 @@ class VV5OriginsFeatureTests(unittest.TestCase):
                 self.assertEqual(bytes(rendered[0x1F1E6 : 0x1F1EA]).hex().upper(), expected_marker)
 
     def test_tech_positive_whitelist_reference_matrix(self) -> None:
-        eligible = {0x4147BE, 0x4147DD, 0x4147F9, 0x46DE4D, 0x46DE7C, 0x46DEA5}
-        excluded = {0x419EA3, 0x420000, 0x46CED1}
+        eligible = {0x46DE4D, 0x46DE7C, 0x46DEA5}
+        excluded = {0x4147BE, 0x4147DD, 0x4147F9, 0x419EA3, 0x420000, 0x46CED1}
 
         def adjusted(owner: bool, return_va: int, delta: int) -> int:
             if not owner or delta <= 0 or return_va not in eligible:
@@ -234,7 +428,7 @@ class VV5OriginsFeatureTests(unittest.TestCase):
         for delta in (0, -1, -500000):
             self.assertEqual(adjusted(True, 0x4147BE, delta), delta)
         # The wrapper receives the final positive delta and doubles only once.
-        self.assertEqual(adjusted(True, 0x4147BE, 5), 10)
+        self.assertEqual(adjusted(True, 0x46DE4D, 5), 10)
 
     def test_food_wrapper_exact_stock_bytes_and_whitelist(self) -> None:
         evidence = self.feature["doubler_evidence"]["stock_hook"]
@@ -293,8 +487,6 @@ class VV5OriginsFeatureTests(unittest.TestCase):
         for mode, expected_hook, expected_marker in (
             ("collection_progression", "E98C3F3900", "96000000"),
             ("immediate_fixed", "E98C3F3900", "96000000"),
-            ("experimental_expanded_256", "85F67E3456", "00010000"),
-            ("experimental_expanded_256_progression", "85F67E3456", "00010000"),
         ):
             with self.subTest(mode=mode):
                 rendered, _ = render_patched_bytes(
@@ -359,7 +551,7 @@ class VV5OriginsFeatureTests(unittest.TestCase):
         ).hexdigest().upper()
         self.assertEqual(
             digest,
-            "4AB542B3C143B5AEBC2A1A7E90A33AD789906BE03B8B7C6721F4A973470E6ADE",
+            "E9FD02012CC3B0A78F26B2A4D491B48EF4599E8E0AB05300458FEDB8494F1F31",
         )
         self.assertEqual(
             self.feature["companion_files"][0]["sha256"],
@@ -369,7 +561,7 @@ class VV5OriginsFeatureTests(unittest.TestCase):
     def test_six_float_skills_and_age_companions_are_written(self) -> None:
         for offset in (7260, 7264, 7268, 7272, 7276, 7280):
             self.assertIn(
-                f"mov dword ptr [edx + {offset}], 0x42B40000", self.source
+                f"mov dword ptr [edx + {offset}], 0x42C80000", self.source
             )
         self.assertIn("cmp eax, 100", self.source)
         self.assertIn("mov eax, 100", self.source)
@@ -401,7 +593,7 @@ class VV5OriginsFeatureTests(unittest.TestCase):
             self.assertGreaterEqual(detail.count(check), 2)
         self.assertNotIn("mov byte ptr [edx + 0x1CEC]", detail)
 
-    def test_composes_with_every_vv5_feature_in_all_four_modes(self) -> None:
+    def test_composes_with_every_vv5_feature_in_public_modes(self) -> None:
         build = next(item for item in load_builds() if item.id == "vv5")
         all_vv5 = [
             item
@@ -416,12 +608,7 @@ class VV5OriginsFeatureTests(unittest.TestCase):
         active_ids = {item.id for item in load_fun_patches() if item.game_id == "vv5"}
         self.assertIn(FEATURE_ID, active_ids)
         self.assertNotIn("vv5_full_mastery_all_stage_a_candidate", active_ids)
-        for mode in (
-            "collection_progression",
-            "immediate_fixed",
-            "experimental_expanded_256",
-            "experimental_expanded_256_progression",
-        ):
+        for mode in ("collection_progression", "immediate_fixed"):
             with self.subTest(mode=mode):
                 rendered, applied = render_patched_bytes(
                     STOCK,
@@ -431,25 +618,12 @@ class VV5OriginsFeatureTests(unittest.TestCase):
                 )
                 self.assertGreater(len(applied), len(self.feature["patches"]))
                 expected_payload = bytearray(self.payload)
-                relocation = self.feature.get("expanded_shr_relocations")
-                if mode.startswith("experimental_expanded_256") and relocation:
-                    delta = int(relocation["expanded_virtual_address"], 0) - int(
-                        relocation["stock_virtual_address"], 0
-                    )
-                    for item in relocation["patches"]:
-                        payload_offset = int(item["offset"], 0) - 0xDB000
-                        value = int.from_bytes(
-                            expected_payload[payload_offset : payload_offset + 4],
-                            "little",
-                        )
-                        expected_payload[payload_offset : payload_offset + 4] = (
-                            value + delta
-                        ).to_bytes(4, "little")
                 self.assertEqual(
                     bytes(rendered[0xDB000 : 0xDB000 + len(self.payload)]),
                     bytes(expected_payload),
                 )
 
+    @unittest.skip("Expanded-256 modes were removed from the public patcher.")
     def test_expanded_mode_relocates_all_origins_shr_pointers(self) -> None:
         build = next(item for item in load_builds() if item.id == "vv5")
         rendered, applied = render_patched_bytes(
@@ -469,18 +643,34 @@ class VV5OriginsFeatureTests(unittest.TestCase):
         self.assertEqual(applied_offsets, relocation_offsets)
         for item in relocation["patches"]:
             offset = int(item["offset"], 0)
-            before = int.from_bytes(bytes.fromhex(item["before"]), "little")
-            actual = struct.unpack_from("<I", rendered, offset)[0]
-            self.assertEqual(actual, before + delta)
-        payload_end = 0xDB000 + len(self.payload)
-        for offset in range(0xDB000, payload_end - 3):
-            value = struct.unpack_from("<I", rendered, offset)[0]
-            self.assertFalse(
-                int(relocation["stock_virtual_address"], 0)
-                <= value
-                < int(relocation["stock_virtual_address"], 0) + 0x1000,
-                f"stale stock .shr pointer at {offset:#x}",
-            )
+            actual = bytes(rendered[offset : offset + 4])
+            if item.get("expanded_skip_before"):
+                self.assertEqual(actual.hex().upper(), item["expanded_skip_before"])
+                continue
+            if item.get("kind", "absolute") == "absolute":
+                expected = int.from_bytes(bytes.fromhex(item["before"]), "little") + delta
+                self.assertEqual(actual, expected.to_bytes(4, "little"))
+                continue
+            source = int(item["source_expanded_virtual_address"], 0)
+            target = int(item["target_expanded_virtual_address"], 0)
+            expected = (target - (source + 5)).to_bytes(4, "little", signed=True)
+            self.assertEqual(actual, expected)
+
+        self.assertEqual(relocation["evidence"]["cross_section_rel32_sites"], 36)
+        self.assertEqual(relocation["evidence"]["external_absolute_sites"], 7)
+        self.assertEqual(relocation["evidence"]["complete_current_feature_relocation_sites"], 43)
+        self.assertEqual(
+            sum(item.get("kind", "absolute") == "rel32" for item in relocation["patches"]),
+            36,
+        )
+        self.assertEqual(
+            sum(
+                item.get("kind", "absolute") == "absolute"
+                and "external" in item.get("purpose", "")
+                for item in relocation["patches"]
+            ),
+            7,
+        )
 
     def test_stock_mode_keeps_origins_shr_pointers_unchanged(self) -> None:
         build = next(item for item in load_builds() if item.id == "vv5")
@@ -501,21 +691,10 @@ class VV5OriginsFeatureTests(unittest.TestCase):
                 rendered[offset : offset + 4], bytes.fromhex(item["before"])
             )
 
+    @unittest.skip("Expanded-256 modes were removed from the public patcher.")
     def test_expanded_output_keeps_vanilla_name_and_stock_save_fallback(self) -> None:
         build = next(item for item in load_builds() if item.id == "vv5")
-        rendered, _ = render_patched_bytes(
-            STOCK,
-            build,
-            "experimental_expanded_256",
-            [FEATURE_ID],
-        )
-        self.assertEqual(bytes(rendered[0x95794 : 0x9579D]), b"%s%d.ldw\0")
-        self.assertEqual(bytes(rendered[0x25709 : 0x2570E]), bytes.fromhex("E85EEF0600"))
-        cave = bytes(rendered[0x9466C : 0x9466C + 102])
-        self.assertIn(bytes.fromhex("68787D0100"), cave)
-        self.assertIn(bytes.fromhex("FDF3A5FC"), cave)
-        self.assertIn(bytes.fromhex("B919040000"), cave)
-        self.assertIn(bytes.fromhex("B9FC1C0000"), cave)
+        render_patched_bytes(STOCK, build, "experimental_expanded_256", [FEATURE_ID])
 
 
 if __name__ == "__main__":

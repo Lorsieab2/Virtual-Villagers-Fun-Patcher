@@ -71,6 +71,28 @@ an invalid current-villager pointer at virtual address `0x0046558A`. A copied
 player save reproduced that defect as Windows exception `0xC0000005`. The
 corrected selector explicitly saves and restores `ECX` around the random call.
 
+The 2026-08-11 Isolation A startup recertification found a later byte-emission
+regression in all three selector bodies. Two stray `0x30` bytes changed the
+second skill comparison and the RNG-bound `push 2` into unrelated `xor`
+instructions. The following `add esp,4` then removed saved selector state and
+passed a stack address as the behavior index to the stock dispatcher at
+`0x00452BD4`. The corrected bodies restore the intended instructions, adjust
+their branch and relative-call displacements, and retain each fixed patch size
+with two unreachable terminal NOPs. Protected disassembly tests now require all
+three return paths to leave exactly one selected behavior DWORD on the caller's
+stack.
+
+The first repaired player test started successfully but reproduced the same
+`0xC0000005` dispatcher fault at `0x00452BD4` after loading a save. Its dump
+showed the dispatcher again receiving a caller stack-local address instead of
+a behavior ID. IDA confirmed that four Polishing/Honoring calls targeted
+`0x004944A7` and the Confused/Honoring call targeted `0x00494480`, while both
+addresses still contained NOP padding that fell through into the unrelated
+population-count helper at `0x004944C0`. The trampoline now has explicit jumps
+from `0x00494460`, `0x00494480`, and `0x004944A7` to the Building, Confused,
+and Polishing selectors respectively. Protected tests bind every patched call
+site to its intended trampoline entry and every entry to its selector body.
+
 ## Preserved behavior
 
 - Statue-state eligibility remains controlled by the original drop handlers.

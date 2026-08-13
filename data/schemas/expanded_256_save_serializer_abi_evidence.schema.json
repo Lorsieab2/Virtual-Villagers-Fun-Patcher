@@ -1,0 +1,65 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "vvfp.expanded_256_save_serializer_abi_evidence.v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "contract_id", "status", "integrity", "publication", "policy", "bindings", "required_requirements", "games"],
+  "properties": {
+    "schema_version": {"const": "vvfp.expanded_256_save_serializer_abi_evidence.v1"},
+    "contract_id": {"const": "x45-vv4-vv5-expanded-256-save-serializer-abi-evidence"},
+    "status": {"enum": ["evidence_empty_stop", "partial_stop", "observed_complete_stop"]},
+    "integrity": {"type": "object"},
+    "publication": {"type": "object"},
+    "policy": {"type": "object"},
+    "bindings": {"type": "object"},
+    "required_requirements": {
+      "type": "array",
+      "minItems": 14,
+      "maxItems": 14,
+      "uniqueItems": true,
+      "items": {"type": "string"}
+    },
+    "games": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["vv4", "vv5"],
+      "properties": {
+        "vv4": {"$ref": "#/$defs/game"},
+        "vv5": {"$ref": "#/$defs/game"}
+      }
+    }
+  },
+  "$defs": {
+    "game": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["stock_fingerprint", "expanded_fingerprints", "relocation_ledger", "complete_folder", "save_layout", "evidence_matrix"],
+      "properties": {
+        "stock_fingerprint": {"type": "object"},
+        "expanded_fingerprints": {"type": "object"},
+        "relocation_ledger": {"type": "object"},
+        "complete_folder": {"type": "object"},
+        "save_layout": {"type": "object"},
+        "evidence_matrix": {
+          "type": "array",
+          "items": {"$ref": "#/$defs/requirement"}
+        }
+      }
+    },
+    "requirement": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["requirement", "status", "expected_row_count", "row_ledger_sha256", "native_rows", "runtime_receipt_refs", "player_receipt_refs", "missing_evidence"],
+      "properties": {
+        "requirement": {"type": "string"},
+        "status": {"enum": ["unknown_stop", "partial_stop", "observed_complete"]},
+        "expected_row_count": {"type": ["integer", "null"], "minimum": 1},
+        "row_ledger_sha256": {"type": ["string", "null"], "pattern": "^[A-F0-9]{64}$"},
+        "native_rows": {"type": "array"},
+        "runtime_receipt_refs": {"type": "array", "items": {"type": "string"}},
+        "player_receipt_refs": {"type": "array", "items": {"type": "string"}},
+        "missing_evidence": {"type": "array", "items": {"type": "string"}}
+      }
+    }
+  }
+}

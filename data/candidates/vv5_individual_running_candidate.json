@@ -1,0 +1,174 @@
+{
+  "id": "vv5_individual_grant_running_candidate",
+  "game_id": "vv5",
+  "name": "DISABLED Candidate: Grant Running to Selected Villager",
+  "enabled": false,
+  "catalog_hidden": true,
+  "catalog_enabled": false,
+  "runtime_status": "pending",
+  "certification_status": "disabled candidate; independent emitted-byte and runtime recertification pending",
+  "allowed_modes": [
+    "collection_progression"
+  ],
+  "unsupported_patch_modes": [
+    "experimental_expanded_256",
+    "experimental_expanded_256_progression"
+  ],
+  "expanded_fail_closed": true,
+  "dependencies": [
+    "vv5_full_mastery_all_stage_a_candidate"
+  ],
+  "companion": {
+    "source": "data/candidates/VVFP VV5 Full Mastery Candidate.dll",
+    "destination": "VVFP Origins Icons.dll",
+    "sha256": "29927CECB448B64944E18E2BA11893DC84C91B39241FBB2549FC2A464E0BE2ED",
+    "preimage_sha256": "29927CECB448B64944E18E2BA11893DC84C91B39241FBB2549FC2A464E0BE2ED",
+    "restore_sha256": "29927CECB448B64944E18E2BA11893DC84C91B39241FBB2549FC2A464E0BE2ED",
+    "atomic_install_remove": true
+  },
+  "patches": [
+    {
+      "offset": "0xDB766",
+      "before": "E995750100",
+      "after": "E9B5880100",
+      "purpose": "guarded composed-parent dispatcher: EBX=1 remains 0x7C9D00, EBX=2 enters Running, all other commands continue 0x7B2790"
+    }
+  ],
+  "parent_hashes": {
+    "collection_progression": "857E22D7C361B802508BF789C3CC486E42E76021F5AA579BB1D16CC6E0D017A0"
+  },
+  "pe_append_transaction": {
+    "status": "disabled real production candidate; loader/install/remove recertification pending",
+    "section": ".vv5run",
+    "append_source": "generated:vv5_individual_running_page",
+    "append_offset": "0xF4000",
+    "rva": "0x3CB000",
+    "va": "0x7CB000",
+    "append_length": 8192,
+    "section_characteristics": "RX",
+    "dispatcher_offset": "0x20",
+    "dispatcher_va": "0x7CB020",
+    "hook_preimage": "E995750100",
+    "hook_after": "E9B5880100",
+    "hook_owner": "vv5_individual_grant_running_candidate",
+    "uninstall": "restore exact composed parent hook and truncate only candidate-owned .vv5run append",
+    "layouts": {
+      "collection_progression": {
+        "parent_sha256": "857E22D7C361B802508BF789C3CC486E42E76021F5AA579BB1D16CC6E0D017A0",
+        "original_file_size": "0xF4000",
+        "append_offset": "0xF4000",
+        "append_length": 8192,
+        "append_source": "generated:vv5_individual_running_page",
+        "rva": "0x3CB000",
+        "va": "0x7CB000",
+        "section_header_offset": "0x2E0",
+        "section_header_before": "00000000000000000000000000000000000000000000000000000000000000000000000000000000",
+        "section_header_after": "2E76763572756E000020000000B03C000020000000400F0000000000000000000000000020000060",
+        "header_patches": [
+          {
+            "offset": "0xFE",
+            "before": "0600",
+            "after": "0700",
+            "purpose": "add candidate-owned .vv5run section"
+          },
+          {
+            "offset": "0x148",
+            "before": "00B03C00",
+            "after": "00D03C00",
+            "purpose": "extend SizeOfImage for .vv5run"
+          },
+          {
+            "offset": "0x2E0",
+            "before": "00000000000000000000000000000000000000000000000000000000000000000000000000000000",
+            "after": "2E76763572756E000020000000B03C000020000000400F0000000000000000000000000020000060",
+            "purpose": "install guarded RX .vv5run section header"
+          }
+        ],
+        "hook_before": "E995750100",
+        "hook_after": "E9B5880100",
+        "purpose": "append the candidate-owned VV5 command-2 .vv5run RX page"
+      }
+    }
+  },
+  "transaction_contract": {
+    "command": 2,
+    "price": 40000,
+    "action": "Buy",
+    "repeatable": true,
+    "ownership": null,
+    "remove": false,
+    "selected_index": "sub_425950()+0x17E24 signed 0..149",
+    "eligibility": [
+      "byte record+0x1CD4 != 0 (active)",
+      "signed dword record+0x1C40 > 0 (living)",
+      "byte record+0x1CE1 == 0 (Heathen-active/status guard)",
+      "byte record+0x1CEC == 0 (current-Believer faction); no independent skeleton discriminator is claimed"
+    ],
+    "likes": [
+      "record+0x1F5C",
+      "record+0x1F60",
+      "record+0x1F64"
+    ],
+    "running_value": 38,
+    "empty_value": -1,
+    "dry_run": "scan all three Likes and all three Dislikes before confirmation; preserve Like duplicates; first physical -1 Like only; clear every Running Dislike",
+    "reacquire": "same selected index, record identity, eligibility, and exact six-slot snapshot before write",
+    "record_identity": "initial and confirmed resolver pointers must match exactly; no cached physical-base walking",
+    "funds_checks": [
+      "complete dry-run before confirmation",
+      "immediately before write"
+    ],
+    "rollback": "on failed write/readback, reacquire the same index and record identity before every direct store, require the supported active/living/status/faction predicate and exact candidate-written values, restore the inserted Like and every cleared Running Dislike independently and verify; if any restore is unsafe, report retained per-slot effects rather than claiming full rollback; no charge; no independent skeleton discriminator is claimed",
+    "deduction": "ECX=0x51D5F8; push -40000; call 0x4237B0 exactly once",
+    "dislike_slots": [
+      "record+0x1F68",
+      "record+0x1F6C",
+      "record+0x1F70"
+    ],
+    "allowed_writes": [
+      "first physical empty Like = 38",
+      "every Dislike = 38 -> -1"
+    ],
+    "forbidden_reads": [
+      "movement",
+      "speed"
+    ],
+    "accept_result": 1,
+    "cancel_results": [
+      0,
+      2
+    ],
+    "confirmation": "Grant Running to this villager for 40,000 tech points?\\r\\nPress OK to confirm, or Cancel.",
+    "no_deduction": "No tech points have been deducted.",
+    "result_messages": {
+      "already_running": "This villager already likes Running.\\r\\nNo tech points have been deducted.",
+      "no_empty_like": "This villager has no empty Like slot.\\r\\nNo tech points have been deducted.",
+      "invalid_selection": "No valid living villager is selected.\\r\\nNo tech points have been deducted.",
+      "canceled": "Grant Running was canceled.\\r\\nNo tech points have been deducted.",
+      "recheck": "The selected villager changed during confirmation.\\r\\nNo tech points have been deducted.",
+      "write_failure": "Running could not be verified.\\r\\nNo tech points have been deducted.",
+      "success": "Running was granted."
+    }
+  },
+  "emitted": {
+    "page_sha256": "9DA0E15FA9AB09FF986CC5F132DDB9C7662F77C445634504DDEA9DFAACF1C3F2",
+    "page_rva": "0x3CB000",
+    "page_va": "0x7CB000",
+    "append_offset": "0xF4000",
+    "dispatcher_va": "0x7CB020",
+    "dispatcher_sha256": "40069986457C21E8A6AF193A8480A17D161FDD772DE031E00E4E35BFE23C76FE",
+    "dispatcher_bytes": "83FB010F84D7ECFFFF83FB020F84EE150000E95977FEFF",
+    "helper_sha256": "9692B2C08FEB1F76AA70709C59539B9A76369FE46C5C2E5888A965DA2D562FCC",
+    "helper_length": 1884,
+    "rendered_exe_size": 1007616,
+    "rendered_exe_sha256": {
+      "collection_progression": "1E3FD6CE44E906BD8DDD7C937D68AB74671D8F197BC1D767A2B0622F1A0F7907"
+    }
+  },
+  "provenance": {
+    "implementation_parent": "f1256fca68f2711974e93057e599f2642c77a2a4",
+    "implementation_commit": null,
+    "audit_commit": null,
+    "acceptance_commit": null
+  }
+}

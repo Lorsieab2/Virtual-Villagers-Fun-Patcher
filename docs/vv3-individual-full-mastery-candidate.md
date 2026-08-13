@@ -1,0 +1,5 @@
+# VV3 Individual Full Mastery
+
+Public stock-only command-1 child of village Full Mastery. The command dispatcher replaces the phase-1 `E926010000` guard at raw `0xA38C3`, accepts only EBX command 1, calls the helper at `0x6E0100`, and returns to the dialog loop at `0x4A37D6`; every non-1 command exits at `0x4A39EE`. The RX `.vv3im` page is raw `0xCC000`, RVA/VA `0x2E0000`/`0x6E0000`, size `0x1000`, producing a `0xCD000` executable.
+
+The helper performs dependency preflight, living selected-villager eligibility, a five-skill/+0xEC0/identity snapshot, exact confirmation, identity/snapshot/funds reacquisition, changed-only native writes, exact-100 postverification, one native evaluator, final reacquisition, and one 100,000 deduction. Cancel, no-change, invalid/race, and insufficient-funds paths make no writes and charge nothing. Once native writes begin, a later native/postverify failure may leave partial skill effects, but never deducts tech points; rollback is not claimed. Expanded modes reject before variant, catalog, companion, manifest, or executable source access. Runtime/player confirmation remains pending.

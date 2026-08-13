@@ -1,11 +1,13 @@
-# VV2 Full Mastery withdrawn candidate
+# VV2 Full Mastery repaired candidate (static certification GO)
 
-This artifact is generated from disassembly acceptance contract `93d69a7826d3c7260ea18e1467597e7580ddbae9` and confirmation ABI `b5183ca0564de3dca84590254cf275f6ce4db255`. It remains **HARD WITHDRAWN and catalog-hidden** after live Buy crashed at walker+0x1E with invalid ESI before the warning.
+This enabled, catalog-visible stock-only candidate is generated from the C138 D133/D134 local-layout repair and is available only in Collection Progression and Immediate Fixed modes. Runtime/player confirmation remains pending; no player package is produced by this task.
 
-- Section SHA-256: `0D0DD6DBEA7236807D15ED7047F08E7B8CC8B9AB098051C29A49C1AFDC31C61A`
-- Companion SHA-256: `BDEAC1B39925834A7CD8DF7CD2C13BA7D7CBDF6E27760DAED6525092FF092699`
-- Entry SHA-256: `68EB76203CA0AC65F3A608AEA8466B881BEFF536E8E88C64BAD7C8148C2A3D99`
-- Walker SHA-256: `7B01459A15542151B07D8A716731646A165C190C064B7BCB6CEB67EB1E1FAC94`
-- Confirmation SHA-256: `07011CB557B6FCF7560AACB750D41851895C6856D851A567A4B952128E6B6258`
+- Section SHA-256: `D84DA1DF60C9AC160312C5AC0943663CA16DA909935A96FA3E1B9D723462B9A1`
+- Companion SHA-256: `1324EDFB83ABA755AFF6410D71DD668F4860127CD67A952722FDE5DD2FDC92C2`
+- Entry SHA-256: `505DCF6A0891E640FA73B41A0CBC6868B35FF1C9D5F2A598A6C067004F78A58F`
+- Walker SHA-256: `E67F5F34AEB66A953B5B2A77FD6A5EA00B907D26B61A25A0C132F62C713C98DD`
+- Confirmation SHA-256: `8868C87F2B66AD9D69F1DC7A08A469E5C5C478727955A5E1E4F6DA4EEB306B2C`
 
-The candidate appends `.vv2fm`; it never uses or changes `.shr`. It adds command 7 only, with commands 6/8, ownership, Remove, Gong, and Island Event interception absent. The raw manifest and complete map are under `data/candidates/`.
+Binary provenance is bound to implementation commit `895340333d55273e599f2dce5ab0db42cbc6d0ab` (source and implementation). Static acceptance is an independent GO recorded by `13f4341201fa7757d23f77c5c17602bbe7bbf21d`; runtime/player confirmation remains pending.
+
+The candidate appends `.vv2fm`; it never uses or changes `.shr`. It adds command 7 only, with commands 6/8, ownership, Remove, Gong, and Island Event interception absent. The five native skill IDs are Farming=3, Building=2, Research=1, Healing=5, and Parenting=4; the walker uses real stack locals, preserves EBX/ESI/EDI, and keeps the 256-record bound stable across every native call. A zeroed snapshot records 0 unchanged, 1 newly changed from unmarked, and 2 newly changed from marked. Both menu and result exports are preflighted before any confirmation or mutation. The result pointer is saved at `[ebp-0x10]` and changed-but-unmarked telemetry at `[ebp-0x14]`, both disjoint from the `[ebp-0x124..ebp-0x25]` snapshot and saved-register slots; every post-preflight result uses that pointer without another resolver. The transaction performs a complete 256-record dry run before funds/confirmation, reacquires manager/state at five pointer-sensitive boundaries, post-verifies exact 100, then native sub_44D4C0 runs exactly once globally after complete exact-100 postverification. It reacquires again, refreshes telemetry, performs a fresh unsigned funds check, then calls sub_426290 once for the single deduction. Cancel reports `Full Mastery was canceled.` followed by `No tech points have been deducted.` and every other failure is no-charge. Expanded-256 modes are rejected before output. The raw manifest and complete map are under `data/candidates/`. If a native writer succeeds and a later postverify fails, the candidate reports no-charge failure without an unproved rollback of already-applied native changes.

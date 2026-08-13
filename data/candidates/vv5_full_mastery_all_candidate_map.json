@@ -1,17 +1,124 @@
 {
-  "acceptance_commit": "48dd3266f8dd934be0434e07f6b24751d0e417c3",
+  "acceptance_commit": "48955b5f19da5d4279887a4c1b71250a63ac9ade",
+  "candidate_enabled": false,
+  "catalog_enabled": false,
+  "catalog_hidden": true,
+  "certification_status": "disabled candidate; base parent is disabled pending independent emitted-byte and native-transition recertification",
+  "allowed_modes": [
+    "collection_progression",
+    "immediate_fixed"
+  ],
+  "expanded_fail_closed": true,
   "source": {
     "size": 991232,
     "sha256": "92946781980220E9D1A2E6C573925519934608F5215F4A0F8CE3B90088C5C65D"
   },
-  "base_manifest_sha256": "7ECDC3066A778EF0FC5A4F08792E44372B2F38358AC960B7B6173B69AABDF388",
-  "feature_manifest_sha256": "F8C28D16C937EB41B2AB905800C624680A7E5DA2E3ED036770B3061A4FDAF86B",
-  "base_stock_payload_sha256": "1AC5E291C171D4490B6CDD85888AEA407C825ED9637FAF455205C9DEDD2F1AEB",
-  "base_expanded_payload_sha256": "8A93918775762F6977ECCF6528C8EEF8093FE3E890AEA5E92CFCE487A0AE4E54",
+  "active_base": {
+    "path": "data/vv5_origins_feature.json",
+    "size": 54626,
+    "sha256": "E2B851340581141443CD567C88FBCEBDC7A291974EBA2428EB0BF332BD08D91A"
+  },
+  "ui_geometry_contract": {
+    "asset": "Images\\btn_trophies.png",
+    "provenance": "assets/candidates/vv5_full_mastery/provenance/btn_trophies.png",
+    "asset_sha256": "F39E94CBDF24776631D803D1218EFCCDE555081C9C8C644DD073B75EC7DD2095",
+    "resource_id": "0x6A",
+    "native_dimensions": [
+      96,
+      39
+    ],
+    "tech": {
+      "local_x": 137,
+      "local_y": 2,
+      "event": 13,
+      "factory": "0x401BD0",
+      "ownership": "0x40C680"
+    },
+    "detail": {
+      "local_x": 137,
+      "local_y": 2,
+      "event": 13,
+      "factory": "0x401BD0",
+      "ownership": "0x40C680"
+    }
+  },
+  "base_manifest_sha256": "ABD51E6C89A740BF349897587722DB15954A63B2DED1EC5DA741CCB2E2FCCE6A",
+  "feature_manifest_sha256": "F7AA12A5D11C5AC735EB4E7A356C4A8E180A0332ED678FABDAA6EED4F9DAFF8D",
+  "base_stock_payload_sha256": "1EC8A5DA70EE1AC4D3D399B9C578731C97155ADB23AA0E2D4E90D3BB7B6FA2D0",
+  "fullscreen_dialog_contract": {
+    "status": "disabled candidate-only native engine state-synchronised bracket; pending independent emitted-byte recertification",
+    "tech_call": {
+      "offset": "0xDB00E",
+      "before": "E8AD020000",
+      "target": "0x7B22C0",
+      "wrapper": "0x7B2B40"
+    },
+    "detail_call": {
+      "offset": "0xDB0CE",
+      "before": "E82D050000",
+      "target": "0x7B2600",
+      "wrapper": "0x7B2B47"
+    },
+    "common_wrapper": "0x7B2B4C",
+    "sdl": {
+      "module": "SDL2.dll",
+      "get_module_handle_iat": "0x4951D8",
+      "get_proc_address_iat": "0x4951DC",
+      "get_window_flags_symbol": "SDL_GetWindowFlags",
+      "fullscreen_flags": "0x1001",
+      "calls": 3,
+      "abi": "push SDL_Window*; indirect call; add esp,4 for each invocation"
+    },
+    "native_transition_returns": "ignored; only freshly reacquired engine state and masked flags decide success",
+    "restore": "successful leave sets a local left flag; every modal exit attempts one fresh singleton/outer/engine/window restoration and post-verifies flags/state",
+    "failure": "missing dependency, singleton mismatch, unexpected flags, failed native leave, or failed native restore returns safely without entering/charging the modal menu",
+    "native_engine_getter_va": "0x4080C0",
+    "native_engine_leave_va": "0x40A270",
+    "native_engine_enter_va": "0x40A280",
+    "native_engine_transition_va": "0x404700",
+    "native_engine_state_chain": "getter -> outer [0x4DB0E8] -> engine [outer] -> window +0x38, state +0x1E",
+    "native_engine_transition_proof": "stock exact-build chain statically proven; candidate remains disabled/catalog-hidden pending emitted recertification"
+  },
+  "cure_containment": {
+    "command": 5,
+    "router_guard": {
+      "comparison": "EBX < 5",
+      "legacy_target": "0x7B2461",
+      "menu_loop": "0x7B22C0"
+    },
+    "resource_transform": "structurally remove the five-item legacy Cure row from RT_DIALOG 201 and 203; 202 byte-identical",
+    "parent_dll_sha256": "29927CECB448B64944E18E2BA11893DC84C91B39241FBB2549FC2A464E0BE2ED",
+    "candidate_companion_sha256": "A1C55063B548F195B9ECDA492E1799D35EBA5437862353D96BE780D9FCC2E1C8",
+    "restore_source": "data/candidates/VVFP VV5 Full Mastery Candidate.dll",
+    "restore_sha256": "29927CECB448B64944E18E2BA11893DC84C91B39241FBB2549FC2A464E0BE2ED",
+    "atomic_install_remove": true,
+    "asset_policy": {
+      "destination": "Images\\btn_trophies.png",
+      "sha256": "F39E94CBDF24776631D803D1218EFCCDE555081C9C8C644DD073B75EC7DD2095",
+      "operation": "preserve-and-verify-stock-asset",
+      "note": "The native cached PNG is never replaced or deleted; EXE/DLL atomic publication verifies it byte-for-byte."
+    },
+    "projection": {
+      "path": "data/candidates/VVFP VV5 Cure Containment Projection.dll",
+      "size": 298496,
+      "sha256": "A1C55063B548F195B9ECDA492E1799D35EBA5437862353D96BE780D9FCC2E1C8"
+    },
+    "status": "candidate-only; requires independent emitted DLL recertification before enablement"
+  },
+  "asset_policy": {
+    "destination": "Images\\btn_trophies.png",
+    "sha256": "F39E94CBDF24776631D803D1218EFCCDE555081C9C8C644DD073B75EC7DD2095",
+    "operation": "preserve-and-verify-stock-asset",
+    "note": "The native cached PNG is never replaced or deleted; EXE/DLL atomic publication verifies it byte-for-byte."
+  },
   "companion": {
-    "path": "data/candidates/VVFP VV5 Full Mastery Candidate.dll",
+    "path": "data/candidates/VVFP VV5 Cure Containment Projection.dll",
     "size": 298496,
-    "sha256": "29927CECB448B64944E18E2BA11893DC84C91B39241FBB2549FC2A464E0BE2ED",
+    "sha256": "A1C55063B548F195B9ECDA492E1799D35EBA5437862353D96BE780D9FCC2E1C8",
+    "parent_sha256": "29927CECB448B64944E18E2BA11893DC84C91B39241FBB2549FC2A464E0BE2ED",
+    "preimage_sha256": "29927CECB448B64944E18E2BA11893DC84C91B39241FBB2549FC2A464E0BE2ED",
+    "restore_source": "data/candidates/VVFP VV5 Full Mastery Candidate.dll",
+    "restore_sha256": "29927CECB448B64944E18E2BA11893DC84C91B39241FBB2549FC2A464E0BE2ED",
     "exports": {
       "ShowOriginsUpgradeMenu": {
         "ordinal": 1,
@@ -61,7 +168,16 @@
     "length": "0x1000",
     "entry_offset": "0x20",
     "walker_offset": "0x400",
-    "confirmation_offset": "0x800"
+    "confirmation_offset": "0x800",
+    "village_confirmation_offset": "0x850"
+  },
+  "confirmation_contract": {
+    "individual_routine_sha256": "234E2D9320A75D6B95DED0A682F13087294AE5E48F126DF30269C6F37653C18F",
+    "village_routine_sha256": "2C392F952854EB485091199AC96AAC0B1C5683B7061D9267650411868926D763",
+    "individual_string_sha256": "60C9A875AFC93174041B78B3A185B4E1BAE468404F20C3AFC1CF1F127802FD3C",
+    "village_string_sha256": "56BC07733ED0F93F211BA0D1887502F8A45E03A4187B8C17067F32FF87117D46",
+    "individual_price": 100000,
+    "village_price": 1000000
   },
   "layouts": {
     "collection_progression": {
@@ -71,10 +187,10 @@
       "old_size_of_image": 3969024,
       "new_size_of_image": 3977216,
       "noop_slot_sha256": "47864C7187C97F5DD46F37F365F1F6DDE3042A465D5904EA25204DB5C6EF2597",
-      "installed_slot_sha256": "38F8F66530BB52767D7053E5764E5033EA2AC2AD7D0BCDEA20754ED94E27DC82",
+      "installed_slot_sha256": "00CB45CEFDD687FDBDAE5A75BF90E677315A92D2BEAC1E1C5D06C650F10F9A92",
       "dispatcher_sha256": "9E8A93FCB4C7A0E1062BDA98394BE37995A094B42A7A080A405CCA5BFDDE4F19",
-      "base_page_sha256": "E1BF0240D6B4EB9266422104B3E076FB86739B41C09DA93E617978E5886772B3",
-      "installed_page_sha256": "DD473180CDCFE752706347739EF81008BA5072C2D5C802D41752D2964DF84FEE",
+      "base_page_sha256": "BB57A17F7EEA8EBCEAC1164E802494B66B7D4DFE8326AFE7A85E8DB79E942C8F",
+      "installed_page_sha256": "9B191EE433100638E2C45AD6BC14B65C73C05BFC02DF6553F892F570CD2FC586",
       "slot_map": {
         "noop": {
           "entry_offset": 32,
@@ -84,20 +200,39 @@
         "installed": {
           "entry_offset": 32,
           "entry_length": 227,
-          "entry_sha256": "5BCB2527C5C7350779F98C9ECAC7CA9C2B2E2247DDA7D553085DA6FFD5CC8DEA",
+          "entry_sha256": "3931DE449CDC334B9BD93D0FCF813CC8D44885E7DA430D79C22234F4B3DB1BBB",
           "walker_offset": 1024,
           "walker_length": 236,
           "walker_sha256": "7466674FBC225EE898E10086B355509BF6AAB2E2D9024C8E3FCE4D0833CADAB8",
           "confirmation_offset": 2048,
           "confirmation_length": 73,
-          "confirmation_sha256": "E4B72DE00646AF4779C533165ECE95F727725E36925F841797F1B0F21A3CCEE5",
+          "confirmation_sha256": "234E2D9320A75D6B95DED0A682F13087294AE5E48F126DF30269C6F37653C18F",
+          "village_confirmation_offset": 2128,
+          "village_confirmation_length": 73,
+          "village_confirmation_sha256": "2C392F952854EB485091199AC96AAC0B1C5683B7061D9267650411868926D763",
+          "confirmation_string_sha256": {
+            "individual_confirm": "60C9A875AFC93174041B78B3A185B4E1BAE468404F20C3AFC1CF1F127802FD3C",
+            "village_confirm": "56BC07733ED0F93F211BA0D1887502F8A45E03A4187B8C17067F32FF87117D46"
+          },
+          "individual_offset": 3072,
+          "individual_length": 689,
+          "individual_sha256": "00AEE03769489F44BF308385F869D1B26AA64BA25083E38FC7C734C56D97C19B",
           "strings": {
             "dll": "0x7CA200",
             "result": "0x7CA217",
             "user32": "0x7CA230",
             "message_box": "0x7CA23B",
             "warning": "0x7CA247",
-            "caption": "0x7CA2C3"
+            "caption": "0x7CA2C3",
+            "individual_no_change": "0x7CA2D4",
+            "individual_invalid": "0x7CA321",
+            "individual_insufficient": "0x7CA39D",
+            "individual_cancel": "0x7CA3E5",
+            "individual_recheck": "0x7CA424",
+            "individual_postverify": "0x7CA48C",
+            "individual_confirm": "0x7CA4D4",
+            "individual_success": "0x7CA532",
+            "village_confirm": "0x7CA56A"
           }
         }
       }
@@ -109,10 +244,10 @@
       "old_size_of_image": 3969024,
       "new_size_of_image": 3977216,
       "noop_slot_sha256": "47864C7187C97F5DD46F37F365F1F6DDE3042A465D5904EA25204DB5C6EF2597",
-      "installed_slot_sha256": "38F8F66530BB52767D7053E5764E5033EA2AC2AD7D0BCDEA20754ED94E27DC82",
+      "installed_slot_sha256": "00CB45CEFDD687FDBDAE5A75BF90E677315A92D2BEAC1E1C5D06C650F10F9A92",
       "dispatcher_sha256": "9E8A93FCB4C7A0E1062BDA98394BE37995A094B42A7A080A405CCA5BFDDE4F19",
-      "base_page_sha256": "E1BF0240D6B4EB9266422104B3E076FB86739B41C09DA93E617978E5886772B3",
-      "installed_page_sha256": "DD473180CDCFE752706347739EF81008BA5072C2D5C802D41752D2964DF84FEE",
+      "base_page_sha256": "BB57A17F7EEA8EBCEAC1164E802494B66B7D4DFE8326AFE7A85E8DB79E942C8F",
+      "installed_page_sha256": "9B191EE433100638E2C45AD6BC14B65C73C05BFC02DF6553F892F570CD2FC586",
       "slot_map": {
         "noop": {
           "entry_offset": 32,
@@ -122,96 +257,39 @@
         "installed": {
           "entry_offset": 32,
           "entry_length": 227,
-          "entry_sha256": "5BCB2527C5C7350779F98C9ECAC7CA9C2B2E2247DDA7D553085DA6FFD5CC8DEA",
+          "entry_sha256": "3931DE449CDC334B9BD93D0FCF813CC8D44885E7DA430D79C22234F4B3DB1BBB",
           "walker_offset": 1024,
           "walker_length": 236,
           "walker_sha256": "7466674FBC225EE898E10086B355509BF6AAB2E2D9024C8E3FCE4D0833CADAB8",
           "confirmation_offset": 2048,
           "confirmation_length": 73,
-          "confirmation_sha256": "E4B72DE00646AF4779C533165ECE95F727725E36925F841797F1B0F21A3CCEE5",
+          "confirmation_sha256": "234E2D9320A75D6B95DED0A682F13087294AE5E48F126DF30269C6F37653C18F",
+          "village_confirmation_offset": 2128,
+          "village_confirmation_length": 73,
+          "village_confirmation_sha256": "2C392F952854EB485091199AC96AAC0B1C5683B7061D9267650411868926D763",
+          "confirmation_string_sha256": {
+            "individual_confirm": "60C9A875AFC93174041B78B3A185B4E1BAE468404F20C3AFC1CF1F127802FD3C",
+            "village_confirm": "56BC07733ED0F93F211BA0D1887502F8A45E03A4187B8C17067F32FF87117D46"
+          },
+          "individual_offset": 3072,
+          "individual_length": 689,
+          "individual_sha256": "00AEE03769489F44BF308385F869D1B26AA64BA25083E38FC7C734C56D97C19B",
           "strings": {
             "dll": "0x7CA200",
             "result": "0x7CA217",
             "user32": "0x7CA230",
             "message_box": "0x7CA23B",
             "warning": "0x7CA247",
-            "caption": "0x7CA2C3"
-          }
-        }
-      }
-    },
-    "experimental_expanded_256": {
-      "page_rva": 5251072,
-      "page_va": 9445376,
-      "bound": 256,
-      "old_size_of_image": 5251072,
-      "new_size_of_image": 5259264,
-      "noop_slot_sha256": "47864C7187C97F5DD46F37F365F1F6DDE3042A465D5904EA25204DB5C6EF2597",
-      "installed_slot_sha256": "691EE21DA1CD914DB0FCE29AC3D90C6545601161673B448403B048BC705FE839",
-      "dispatcher_sha256": "094B483329CF8F65F48D9237A02D4C4D91B7A78FC22A9A063C7F35B57BA2DFB9",
-      "base_page_sha256": "E4D2E29D42EDEECC85DAB10C50D0AD8D66DACA992E24CC9F5311971C96093255",
-      "installed_page_sha256": "877BB11B9906B4D259557C2A313E46C3FCA80A2A667DD9CE1BBE49BA59D7BDD4",
-      "slot_map": {
-        "noop": {
-          "entry_offset": 32,
-          "entry_length": 8,
-          "entry_sha256": "FD1CC37CB283C019CE1610DCB6CB5ABDC93CA8B58D2031BEFAE34B51357AA812"
-        },
-        "installed": {
-          "entry_offset": 32,
-          "entry_length": 227,
-          "entry_sha256": "B7AAF750DC64DBED77D6D64BB83C50F631AAC5F109C9635F92FB88478D35FE5F",
-          "walker_offset": 1024,
-          "walker_length": 236,
-          "walker_sha256": "35DFE0E67EF7B356ED6D3CB7E558FBFAF6F3364000818F4FC2D84599B902419F",
-          "confirmation_offset": 2048,
-          "confirmation_length": 73,
-          "confirmation_sha256": "BFD577602BBF2E3AC581B92B8E1C99A221EB84504B2CB574A27ADA147ECB27BD",
-          "strings": {
-            "dll": "0x903200",
-            "result": "0x903217",
-            "user32": "0x903230",
-            "message_box": "0x90323B",
-            "warning": "0x903247",
-            "caption": "0x9032C3"
-          }
-        }
-      }
-    },
-    "experimental_expanded_256_progression": {
-      "page_rva": 5251072,
-      "page_va": 9445376,
-      "bound": 256,
-      "old_size_of_image": 5251072,
-      "new_size_of_image": 5259264,
-      "noop_slot_sha256": "47864C7187C97F5DD46F37F365F1F6DDE3042A465D5904EA25204DB5C6EF2597",
-      "installed_slot_sha256": "691EE21DA1CD914DB0FCE29AC3D90C6545601161673B448403B048BC705FE839",
-      "dispatcher_sha256": "094B483329CF8F65F48D9237A02D4C4D91B7A78FC22A9A063C7F35B57BA2DFB9",
-      "base_page_sha256": "E4D2E29D42EDEECC85DAB10C50D0AD8D66DACA992E24CC9F5311971C96093255",
-      "installed_page_sha256": "877BB11B9906B4D259557C2A313E46C3FCA80A2A667DD9CE1BBE49BA59D7BDD4",
-      "slot_map": {
-        "noop": {
-          "entry_offset": 32,
-          "entry_length": 8,
-          "entry_sha256": "FD1CC37CB283C019CE1610DCB6CB5ABDC93CA8B58D2031BEFAE34B51357AA812"
-        },
-        "installed": {
-          "entry_offset": 32,
-          "entry_length": 227,
-          "entry_sha256": "B7AAF750DC64DBED77D6D64BB83C50F631AAC5F109C9635F92FB88478D35FE5F",
-          "walker_offset": 1024,
-          "walker_length": 236,
-          "walker_sha256": "35DFE0E67EF7B356ED6D3CB7E558FBFAF6F3364000818F4FC2D84599B902419F",
-          "confirmation_offset": 2048,
-          "confirmation_length": 73,
-          "confirmation_sha256": "BFD577602BBF2E3AC581B92B8E1C99A221EB84504B2CB574A27ADA147ECB27BD",
-          "strings": {
-            "dll": "0x903200",
-            "result": "0x903217",
-            "user32": "0x903230",
-            "message_box": "0x90323B",
-            "warning": "0x903247",
-            "caption": "0x9032C3"
+            "caption": "0x7CA2C3",
+            "individual_no_change": "0x7CA2D4",
+            "individual_invalid": "0x7CA321",
+            "individual_insufficient": "0x7CA39D",
+            "individual_cancel": "0x7CA3E5",
+            "individual_recheck": "0x7CA424",
+            "individual_postverify": "0x7CA48C",
+            "individual_confirm": "0x7CA4D4",
+            "individual_success": "0x7CA532",
+            "village_confirm": "0x7CA56A"
           }
         }
       }
@@ -220,6 +298,7 @@
   "references": {
     "absolute": [
       "0x51D5F8 unsigned Technology Points",
+      "0x4951D8 GetModuleHandleA IAT",
       "0x4951E0 LoadLibraryA IAT",
       "0x4951DC GetProcAddress IAT",
       "0x475730 native six-skill Float32 writer",
@@ -229,7 +308,8 @@
     "rel32": [
       "base Tech menu -> mode-specific page dispatcher",
       "dispatcher -> mode-specific slot entry",
-      "entry -> walker/confirmation",
+      "entry -> walker/village confirmation",
+      "individual helper -> individual confirmation",
       "walker -> 0x475730"
     ],
     "base_relocations": []
@@ -239,16 +319,16 @@
     "vv2_origins_feature.json": "471135AA5E69DA49EF31F61FB0D8ADC31470F8BC9D08F47F990B03D37D69C717",
     "vv3_origins_feature.json": "198465EC2B41D62F3B10BBB6853C132105FD8A4F869D14DB5EC5B5FF1AA24AE6",
     "vv4_origins_feature.json": "96D39BCBD87D0A8D79829B3F69FD26BE191545943748ED4DD045F746E85B3D4F",
-    "vv5_origins_feature.json": "1C6B9F4B24A34A78FDA0193BBF690D08C5C263EA0DBF6E5EB2E050E441DAFE26"
+    "vv5_origins_feature.json": "0DD467627B8C8DCF69E0A800D1662B084FDFC7518D22353D3497F628037F6D67"
   },
   "rendered_candidates": {
     "collection_progression": {
       "baseline_sha256": "8AD527D1930CF9501841E68308168A0B5ECA9D0E30AFFC846B4D7E74BEB6171B",
-      "base_only_sha256": "61CF94F6739EB1DC1BBD65CDBE1291383CA132D0EB3E87FFCE059B3F2148D09D",
-      "base_plus_mastery_sha256": "8D1BE9CFE9B8DEF57A6D6215CA3C71651A92891BC3E3970A1F18F1CE551481EA",
-      "all_current_compatible_sha256": "8A33CB2A9AE997856E1EF3084C716D746AE9F7B2E0EBF8D4FCD8F1C8447AA3DB",
+      "base_only_sha256": "99DE3082A1FB60C0A1A59B2F86A36877E10CBD3DF833D962F10CFBF723D46463",
+      "base_plus_mastery_sha256": "857E22D7C361B802508BF789C3CC486E42E76021F5AA579BB1D16CC6E0D017A0",
+      "all_current_compatible_sha256": "B470D1A82192457B8FA5EACA46553EF3861AB14988D13B6C49083A07A2A5A513",
       "size": 999424,
-      "pe_checksum": "0x001001DE",
+      "pe_checksum": "0x0010220C",
       "owners": [
         "automatic:population",
         "automatic:safety",
@@ -269,11 +349,11 @@
     },
     "immediate_fixed": {
       "baseline_sha256": "CB55A3466A81A53E031297A668173E19BAEE68369F785E134E2736F8A5C1479D",
-      "base_only_sha256": "BB8F9F7E7FA522A06F824D0AB098C06709C155A27314E585F2067C125ED4265C",
-      "base_plus_mastery_sha256": "30868BC7ABE435F5F59C6E5474FBD3843896FA428386D4B3D443ABA973A5B875",
-      "all_current_compatible_sha256": "9322699D95C34E5DE4010CA6EB974D41A088EF974C477E11378E9D2076583486",
+      "base_only_sha256": "D4B05E1E4FA0D1C550AC39B3C7E8063D8FB08DE819692FA837A9B853B1DE49CF",
+      "base_plus_mastery_sha256": "E93822F752F730ECB751EBAA87021194C992984721B4370FF0015D5FC4BB2E9A",
+      "all_current_compatible_sha256": "5856EC2420678B030FD9413ED0080607825B45364EF1EA70D226EF31DB862251",
       "size": 999424,
-      "pe_checksum": "0x000FBDEE",
+      "pe_checksum": "0x000FDE1C",
       "owners": [
         "automatic:population",
         "automatic:safety",
@@ -293,54 +373,12 @@
       ]
     },
     "experimental_expanded_256": {
-      "baseline_sha256": "3F7FDA81D5AF20C946D7CF554229C94960123035BB8762B3B9BFF4115403B83D",
-      "base_only_sha256": "6933E634390F771C43CB04DA9E965364904BB489E3BE792220F3C3AF97F00CAE",
-      "base_plus_mastery_sha256": "50511C7DC006BE08387429046083F4949CFDAC1EFE549702510F7A9D3EFB3401",
-      "all_current_compatible_sha256": "BEE41E245E9E956512233A191DF8D043F03E5E7225DA955476C478E01EF5E587",
-      "size": 999424,
-      "pe_checksum": "0x000FDBB1",
-      "owners": [
-        "automatic:population",
-        "automatic:safety",
-        "feature:vv5_enable_origins_exclusive_features_full_mastery_candidate",
-        "feature:vv5_full_mastery_all_stage_a_candidate"
-      ],
-      "all_current_owners": [
-        "automatic:population",
-        "automatic:safety",
-        "feature:vv5_easier_devotee_training",
-        "feature:vv5_enable_origins_exclusive_features_full_mastery_candidate",
-        "feature:vv5_full_mastery_all_stage_a_candidate",
-        "feature:vv5_heathen_mommy_puzzle",
-        "feature:vv5_statue_polishing_or_honoring",
-        "feature:vv5_vv4_nursery_divisor_parity",
-        "feature:vv5_write_village_statistics"
-      ]
+      "rejected": true,
+      "reason": "Expanded-256 fail-closed"
     },
     "experimental_expanded_256_progression": {
-      "baseline_sha256": "7B618C6AE2D1C0024DC63940353B565FD18510344D3912B83D62A1005DA985EA",
-      "base_only_sha256": "B8F0989D0BE5E47F75D95440BC0B3E42151E8F57B8C7BA2A606E079A2A7E4759",
-      "base_plus_mastery_sha256": "9BAA643026ED1A11B148AEF47E59CE8B4EDA8BEFDA3F821D602968231902E4D3",
-      "all_current_compatible_sha256": "2ED9A75E16082107956F3CAFAB7C606FD72211299BF31AF18A6E50E0E3BFB346",
-      "size": 999424,
-      "pe_checksum": "0x000FB60B",
-      "owners": [
-        "automatic:population",
-        "automatic:safety",
-        "feature:vv5_enable_origins_exclusive_features_full_mastery_candidate",
-        "feature:vv5_full_mastery_all_stage_a_candidate"
-      ],
-      "all_current_owners": [
-        "automatic:population",
-        "automatic:safety",
-        "feature:vv5_easier_devotee_training",
-        "feature:vv5_enable_origins_exclusive_features_full_mastery_candidate",
-        "feature:vv5_full_mastery_all_stage_a_candidate",
-        "feature:vv5_heathen_mommy_puzzle",
-        "feature:vv5_statue_polishing_or_honoring",
-        "feature:vv5_vv4_nursery_divisor_parity",
-        "feature:vv5_write_village_statistics"
-      ]
+      "rejected": true,
+      "reason": "Expanded-256 fail-closed"
     }
   }
 }

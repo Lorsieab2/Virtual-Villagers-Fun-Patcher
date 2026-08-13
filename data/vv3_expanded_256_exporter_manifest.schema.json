@@ -1,0 +1,79 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "vvfp.vv3_expanded_256_exporter_manifest",
+  "title": "VV3 Expanded-256 canonical exporter manifest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "schema_version",
+    "producer",
+    "exporter_version",
+    "run_id",
+    "input_kind",
+    "status",
+    "synthetic",
+    "ambiguous",
+    "incomplete",
+    "reconciled",
+    "source_sha256",
+    "source_size",
+    "prototype_sha256",
+    "operand_expectations",
+    "manifest_sha256"
+  ],
+  "properties": {
+    "schema": {"const": "vvfp.vv3_expanded_256_exporter_manifest"},
+    "schema_version": {"const": 1},
+    "producer": {"const": "vv3-ida-exporter"},
+    "exporter_version": {"type": "string", "minLength": 1},
+    "run_id": {"type": "string", "minLength": 1},
+    "input_kind": {"const": "exact_stock_executable"},
+    "status": {"const": "complete"},
+    "synthetic": {"const": false},
+    "ambiguous": {"const": false},
+    "incomplete": {"const": false},
+    "reconciled": {"const": true},
+    "source_sha256": {"const": "8BC5DB382D02BC5C21AD5F607580D60FF44A6519CC7EB133F03113BAACAE6503"},
+    "source_size": {"const": 831488},
+    "prototype_sha256": {"const": "6EE3361A7AC35F441763647C1E2FC9EC49569DE5EF372BDB41D243D03002D601"},
+    "operand_expectations": {
+      "type": "array",
+      "minItems": 9,
+      "items": {"$ref": "#/$defs/operand_expectation"}
+    },
+    "manifest_sha256": {"type": "string", "pattern": "^[0-9A-F]{64}$"}
+  },
+  "$defs": {
+    "hex_integer": {
+      "oneOf": [
+        {"type": "integer", "minimum": 0},
+        {"type": "string", "pattern": "^(?:0x)?[0-9A-Fa-f]+$"}
+      ]
+    },
+    "xref": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["ea", "kind"],
+      "properties": {
+        "ea": {"$ref": "#/$defs/hex_integer"},
+        "kind": {"type": "string", "minLength": 1}
+      }
+    },
+    "operand_expectation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["file_offset", "ea", "raw_bytes", "xrefs"],
+      "properties": {
+        "file_offset": {"$ref": "#/$defs/hex_integer"},
+        "ea": {"$ref": "#/$defs/hex_integer"},
+        "raw_bytes": {"type": "string", "pattern": "^(?:[0-9A-F]{2})+$"},
+        "xrefs": {
+          "type": "array",
+          "minItems": 1,
+          "items": {"$ref": "#/$defs/xref"}
+        }
+      }
+    }
+  }
+}

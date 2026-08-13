@@ -1,26 +1,28 @@
 # Origins village-wide upgrades
 
-## Current atomic-payload safety containment
+## Current static/playtest package boundary
 
-All five legacy `vvN_origins_village_wide_upgrades` records are fail-closed and are
-not offered by the catalog, GUI, CLI, or Select All. Commands 6, 7, and 8 share
-one atomic payload, so the complete feature remains unavailable until each
-game receives a full-payload GO gate. VV3's independent command-6 source does
-not expose commands 7/8, but its VV3Run2 playtest is hard-withdrawn under
-crash audit `36f14702b938a6235230a3fd3e0c34328d3ac745`; it must not be
-packaged or treated as runtime-ready. The VV4 audit
+All five `vvN_origins_village_wide_upgrades` records are catalog-visible in
+the requested static/playtest package and are offered by the GUI, CLI, and
+Select All. Commands 6, 7, and 8 share one atomic payload, so this exposure is
+not a complete per-game runtime/player GO gate. VV3's independent command-6
+source does not replace the atomic record, and its VV3Run2 playtest remains
+hard-withdrawn under crash audit `36f14702b938a6235230a3fd3e0c34328d3ac745`.
+The VV4 audit
 `628e0d9217b92b9cd695655842b09d74689a0238` proves that command 7's direct
 `90.0` mastery stores bypass eight native mutations. The VV5 audit
 `02581c8f518e27ebd5fc7d2972db5597ab08ed35` records unresolved native-counter,
 eligibility, no-change, inheritance, and expanded-layout requirements. VV3 is
-ON HOLD under exact-build audit
-`089957227c0db6a4c3128045519ffa27b201a00e`; VV1 is not certified.
+now emitted from the feature-complete route described below; static verification
+is complete, while runtime/player confirmation remains pending. VV1 is not
+certified here.
 
-The legacy manifests below remain as disabled diagnostic evidence; their payload
-bytes are not applied. Containment does not clear or rewrite existing save
-fields, issue a refund, or copy a companion DLL. Base Origins remains
-independently selectable for VV1, VV3, VV4, and VV5; VV2's complete Origins
-pair remains separately contained after its reported crashes.
+The manifests below are selectable diagnostic/playtest payloads. Static patch
+generation does not clear or rewrite existing save fields, issue a refund, or
+copy a companion DLL. Each base Origins record owns the Tech-screen button and
+menu; its dependent village-wide record owns the three optional rows. VV1/VV2
+retain their reported crash warnings, and runtime/player confirmation remains
+pending for all five games.
 
 The five historical bundled features are separate, game-scoped manifests:
 
@@ -36,10 +38,11 @@ shared companion DLL. The optional manifest owns only its exact-build,
 zero-filled extension reserve and its signed ABI header/payload; it does not
 rewrite base Origins payload bytes or copy another companion DLL.
 
-The VV2 record is additionally covered by the complete VV2 Origins
-containment after player-reported crashes in Time Warp and Food Point Doubler.
-Its historical payload remains in the data file for diagnosis, but it is not
-applied or copied; unrelated VV2 features remain available.
+The VV2 record is additionally covered by the VV2 Origins playtest warning
+after player-reported crashes in Time Warp and Food Point Doubler. Its payload
+is exposed for targeted static/playtest work, but that exposure is not a crash
+fix or a player/runtime validation result; unrelated VV2 features remain
+available.
 
 The optional ABI exposes three commands to the dormant base-payload extension
 hook. The base passes `EAX=6/7/8`, `ECX=first physical record pointer`, and
@@ -58,13 +61,13 @@ and `ESP`.
 These selected upgrades are inspired by the exclusive upgrades in the Virtual
 Villagers 1 mobile port. They are current-save-only purchases. Running removes
 Running from Dislikes and writes Running only to a free normal Like slot. The
-historical helper/result wording is retained only as rejected diagnostic
+historical helper/result wording is retained as diagnostic contract
 evidence; the exact future atomic contract is specified below. The charge
 contract is one million tech points for the village-wide purchase, not per
 villager. VV3Run2 is withdrawn after an intermittent status-2 no-change
 crash; static ABI/pointer checks pass, no saved overwrite was found, and the
-fault instruction remains unknown. Every other village-wide command remains
-unavailable. The implementation is tailored to each
+fault instruction remains unknown. The three rows are exposed as a static
+payload, but none is claimed runtime-safe. The implementation is tailored to each
 supported executable: it independently reads the numeric Running ID certified
 in that game's exact stock preference table. All five current tables happen to
 resolve Running to ID 38, but that is not a blanket cross-game assumption. The
@@ -171,11 +174,14 @@ The transaction must dry-run, refuse and charge nothing when `granted == 0`,
 perform a final unsigned funds recheck immediately before commit, apply only
 the proved deterministic stores, and deduct exactly once.
 
-VV3 remains ON HOLD, but `+0xE94` is no longer an unresolved eligibility
-field. Commands 6/7/8 share one 944-byte atomic payload at file `0x7B820` and entry
-file/VA `0x7B840/0x47B840`. The existing path precharges at `0x582644`;
-header check `0x7B7A0` proves only signature/result-export presence. Its
-three-counter 128-byte result ABI cannot return `granted`. Base hooks
+The current VV3 route is emitted from the feature-complete menu payload at
+file `0x7B820` with entry `0x7B840`/VA `0x47B840`. Its village-wide rows are
+Buy rows, while Details Full Mastery uses native skill/evaluator calls and
+Running uses the exact three-slot contract. The legacy Cure transaction uses
+the native health setter at `0x462670` for health below 80 and clears sickness
+through the verified record field. Static verification is complete; runtime,
+save roundtrip, and native preference-notification confirmation remain pending.
+Base hooks
 `0x6547D`/`0x65640` and payload `0xA3180` mix unrelated Origins mechanics;
 there are no command-6-only UI guards. No complete appended-section
 relocation, uninstall, absolute-reference, or all-patch stock/expanded ledger
@@ -264,44 +270,56 @@ initialization, unrelated preferences, or other record fields.
 
 ### VV3 Full Mastery exact-build boundary
 
-Disassembly commit `089957227c0db6a4c3128045519ffa27b201a00e`
-confirms five signed DWORD skill fields at record offsets `+0xEAC`,
-`+0xEB0`, `+0xEB4`, `+0xEB8`, and `+0xEBC`. Native mastery begins at 88,
-the native maximum is 100, and stock code performs an all-five evaluation
-whose award identifier is 4. The contained command-7 candidate writes 90
-directly. That is neither full 100 mastery nor native-equivalent: its direct
-stores bypass the post-write all-five evaluation.
+The current route confirms five signed DWORD skill fields at record offsets
+`+0xEAC`, `+0xEB0`, `+0xEB4`, `+0xEB8`, and `+0xEBC`. Village-Wide and Details
+Full Mastery use the exact-build native skill writer at `0x455740` with skill
+ordinals `0..4`, post-verify every field at exactly `100`, and call the native
+award evaluator at `0x462500` once per changed villager. Already-complete
+villagers do not receive a second evaluator call.
 
-VV3 remains ON HOLD. A future implementation must resolve the exact target
-value and native evaluation/counter policy, define a zero-change/no-charge
-result, prove creation and inheritance behavior, and provide safe composable
-placement. None of those open items is inferred from the disabled payload.
+The VV3 Running route scans exactly three Like and three Dislike slots, inserts
+ID `38` into the first free Like slot, and clears Running Dislikes only after a
+successful insertion. Already-Running and full-Like villagers are no-ops.
+The native preference-write ABI is not independently proven, so these exact
+three-slot stores remain a static implementation boundary pending player proof.
+
+Full Heal/Cure All scans the 150 stock records, uses native health setter
+`0x462670` with `ECX = record + 0xE6C` and pushes `-1`/`100` when health is
+below `80`, then clears sickness at `+0xE89` and increments People Cured at
+`+0x4FC` for each verified sickness clear. Runtime/player confirmation remains
+pending; standalone VV3 Full Mastery, Running, and Full Heal candidates are not
+active catalog routes.
 
 ### VV2 Full Mastery exact-build boundary
 
-Disassembly commit `60f649bf90b55dea3a6856d949e123bd79808782`
-confirms five contiguous signed DWORD skills: Farming `+0x7E4`, Building
+Historical disassembly commit `60f649bf90b55dea3a6856d949e123bd79808782`
+established the five contiguous signed DWORD skills: Farming `+0x7E4`, Building
 `+0x7E8`, Research `+0x7EC`, Healing `+0x7F0`, and Parenting `+0x7F4`.
 The following DWORD `+0x7F8` is job preference, not a sixth skill. Native
-consumers use thresholds 20, 50, and 88; Detail displays Master at 88 or
-higher, while native award paths cap skills at 100. Save/load persists the
-five skills and preference across 256 physical records at stride `0xE48C`.
+consumers use thresholds 20 and 50, with Master threshold 88; native award
+paths cap skills at 100.
+Save/load persists the five skills and preference across 256 physical records
+at stride `0xE48C`. Its former 90-point raw-store/precharge candidate is
+withdrawn historical evidence and is not the current implementation.
 
-The disabled candidate iterates the supplied physical bound, including sparse
-records, and requires active byte `+0x30 != 0` and signed health DWORD
-`+0x52C > 0`. It writes 90 to all five fields, returns zero counts, and cannot
-distinguish changed records or already-mastered villagers. Its transaction
-checks `state+0x2EADC`, subtracts 1,000,000 once, then uses `Purchased.`; it has
-no zero-change/no-charge result, recheck, or rollback.
+The current isolated command-7 Full Mastery candidate is statically enabled and
+catalog-visible only for stock Collection Progression and Immediate Fixed under
+independent emitted-byte GO evidence
+`13f4341201fa7757d23f77c5c17602bbe7bbf21d`; runtime/player confirmation remains
+pending. It is a repeatable Buy-only 1,000,000-point action with no Remove state.
+Across five fresh manager/state acquisition boundaries, the transaction performs
+a complete dry run, confirmation, full reacquisition and recheck, changed-only
+native skill writes to exact 100. Native sub_44D4C0 runs exactly once globally
+after complete exact-100 postverification. A fresh manager/state
+acquisition derives fresh Elder/totem telemetry, including changed villagers
+left unmarked at the native 50-totem cap, rechecks unsigned funds, and performs
+the one 1,000,000-point deduction. If a native write succeeds but later
+postverification fails, partial skill changes may remain because rollback is
+not proved safe, but no Technology Points are deducted.
 
-VV2 remains ON HOLD. Candidate 90 is Master-ranked but is not full native 100;
-no complete native all-five side-effect route is proved. Creation starts from
-zero with an optional one-skill seed, copying/cloning copies all five, and
-pregnancy, event-child, inheritance, Silver Mirror, and Gong closure remains
-incomplete. The withdrawn VV2 Origins transport also retains its `.shr`
-raw-offset/virtual-address defect. Gong and every Island Event path—including
-their selection, RNG, messages, statistics, and skill writes—must remain
-entirely native and cannot be intercepted by this command.
+Commands 6 and 8, ownership, Remove, the withdrawn VV2 Origins `.shr`
+transport, Gong and every Island Event path are outside this candidate and
+remain native and unmodified. Expanded-256 modes reject before output.
 
 ### VV1 Full Mastery exact-build boundary
 
@@ -360,10 +378,11 @@ writer `0x4237B0`, dispatches command 8, and reports `Purchased.`. It performs
 no changed-record preflight, charges zero-change/already-18 cases, returns zero
 result counts, and has no tied recheck or rollback.
 
-VV5 age 18 remains ON HOLD. The shared expanded transport also retains 43
-uncertified relocated references: 36 cross-section `rel32` operands and seven
-external absolute `.shr` pointers. No helper availability or safety is claimed
-from this diagnostic loop.
+VV5 age 18 remains ON HOLD. The shared expanded transport has a complete static
+current-feature ledger of 66 rows: 23 payload-internal absolute, 36 cross-section
+`rel32`, and seven external absolute `.shr` pointers, including the 43
+previously omitted current-feature references. No helper availability, runtime,
+save, catch-up, or player safety is claimed from this diagnostic loop.
 
 ### VV4 All Villagers are 18 exact-build boundary
 

@@ -1,0 +1,11 @@
+#define VV_AGE_OFFSET 0x530
+#define VV_SKILL_FARMING_OFFSET 0x7E4
+#define VV_SKILL_BUILDING_OFFSET 0x7E8
+#define VV_SKILL_RESEARCH_OFFSET 0x7EC
+#define VV_SKILL_HEALING_OFFSET 0x7F0
+#define VV_SKILL_PARENTING_OFFSET 0x7F4
+#define VV_LIKES_OFFSET 0x5F0
+#define VV_DISLIKES_OFFSET 0x6E8
+#define VV_LIKE_SLOT_COUNT 62
+#define VV_ALREADY_LIKES_TEXT "Already 62 likes."
+#include "../vv1_origins_icons/vv1_origins_icons.c"

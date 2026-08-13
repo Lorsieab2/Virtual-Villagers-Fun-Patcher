@@ -1,0 +1,196 @@
+{
+  "schema_version": "vvfp.expanded_256_runtime_evidence.v1",
+  "contract_id": "x45-vv4-vv5-expanded-256-runtime-evidence",
+  "contract_status": "static_contract_only",
+  "integrity": {
+    "canonicalization": "UTF-8 JSON with sorted keys and compact separators; integrity.canonical_sha256 is excluded from its own digest",
+    "canonical_sha256": "54A0B95547ED52DBA6A7144E6610C5CB25097AADD5629697F2608FD5B447266A"
+  },
+  "publication": {
+    "enabled": false,
+    "runtime_go": false,
+    "player_go": false,
+    "eligible": false,
+    "reason": "No VV4/VV5 Expanded-256 runtime receipts, complete artifact inventories, save conversion/reload evidence, or explicit player validation are present. This contract never enables publication."
+  },
+  "evidence_policy": {
+    "required_observed_class": "player_runtime_receipt",
+    "forbidden_classes": [
+      "synthetic_fixture",
+      "inferred",
+      "static_render_candidate",
+      "developer_observation"
+    ],
+    "required_producer_fields": [
+      "receipt_id",
+      "producer_type",
+      "operator",
+      "captured_at",
+      "source_commit",
+      "capture_tool",
+      "provenance",
+      "synthetic"
+    ],
+    "stable_inventory": {
+      "schema_version": "vvfp.runtime_artifact_inventory.v1",
+      "follow_symlinks": false,
+      "no_follow": true,
+      "re_read_required": true,
+      "hash_algorithm": "SHA-256",
+      "path_policy": "relative paths only; no parent traversal; no symlink or junction components"
+    }
+  },
+  "source_provenance": {
+    "design_assignment": "X45-RUNTIME-EVIDENCE",
+    "implementation_base_commit": "dda163ad6f68b0a4bc4071b94fe218505974ab49",
+    "validator": "scripts/validate_expanded_runtime_evidence.py",
+    "source_files": [
+      {
+        "path": "data/expanded_256.json",
+        "sha256": "5738EABD414DA0171C8A03316B9CCCE9C39CF8F080D63D2F209D9A5C7A5DEAB3"
+      },
+      {
+        "path": "data/vv4_expanded_256_contract.json",
+        "sha256": "E510CA9352635C1E6C6747A82B91385B8C5A957CFC9A9F60D1E8DB73ED20DD95"
+      },
+      {
+        "path": "data/vv4_origins_feature.json",
+        "sha256": "A38F98973EB83F91D60FCA5C2A1BD28444622CEAC5434C295FB7E73D3A1BCB71"
+      },
+      {
+        "path": "data/vv5_origins_feature.json",
+        "sha256": "6AFF1A8E69234C61CB2D1878C46FA91B0AAA721FC5F29C5B42A678F61BAB8528"
+      }
+    ]
+  },
+  "games": {
+    "vv4": {
+      "stock_fingerprint": {
+        "filename": "Virtual Villagers - The Tree of Life.exe",
+        "size": 929792,
+        "sha256": "6D27A429FFCA5F1F71FDD7ECA761ED1BB67E85F976494BA178B3D7BE01F1B220",
+        "evidence_class": "exact_stock_source"
+      },
+      "expanded_fingerprints": {
+        "experimental_expanded_256": {
+          "size": 929792,
+          "sha256": "602824F514BFAB80883805B16C01D1E572752261A155262778CF8D535C41D887",
+          "evidence_class": "static_render_candidate",
+          "runtime_receipt_required": true
+        },
+        "experimental_expanded_256_progression": {
+          "size": 929792,
+          "sha256": "AC430442DE23406236903CAA6FC9A992D52DCF3269A95ED345A9EF6F18B9C30A",
+          "evidence_class": "static_render_candidate",
+          "runtime_receipt_required": true
+        }
+      },
+      "relocation_ledger": {
+        "path": "data/vv4_origins_feature.json",
+        "json_pointer": "/expanded_shr_relocations/patches",
+        "count": 13,
+        "ledger_sha256": "CEE01F4AEC59CB1CEE0F42E3DDDB3A24615261E628ED0629C1BFAABF421A897D"
+      },
+      "required_folder_inventory": {
+        "status": "absent",
+        "complete": false,
+        "required_roles": {
+          "stock_executable": 1,
+          "expanded_executable_immediate": 1,
+          "expanded_executable_progression": 1,
+          "companion_dll": 1,
+          "runtime_inventory": 1,
+          "checksum_list": 1,
+          "patch_log": 1,
+          "transparency_log": 1,
+          "player_readme": 1
+        },
+        "required_dlls": [{"name": "VVFP Origins Icons.dll", "sha256": "2ED1100E7F2EA5B8E522C2DE11F6B00CA8A02B968319C251365E9EFD634BCAF9"}],
+        "inventory": null
+      },
+      "runtime_evidence": {
+        "status": "absent",
+        "evidence_class": null,
+        "producer": null,
+        "artifact_inventory": null,
+        "player_receipts": [],
+        "gates": {
+          "stock_import_conversion": {"status": "absent", "receipt_refs": []},
+          "expanded_save_reload": {"status": "absent", "receipt_refs": []},
+          "offline_catchup": {"status": "absent", "receipt_refs": []},
+          "failed_load_nonmutation": {"status": "absent", "receipt_refs": []},
+          "save_rotation": {"status": "absent", "receipt_refs": []},
+          "late_record_boundaries": {"status": "absent", "indices": [149, 150, 254, 255], "receipt_refs": []},
+          "padding_unreachable_records": {"status": "not_applicable", "applicable": false, "reason": "VV4 has no VV3-style four-record padding reservation", "receipt_refs": []},
+          "current_origins_behavior": {"status": "absent", "feature_id": "vv4_enable_origins_exclusive_features", "receipt_refs": []},
+          "relocation_receipt": {"status": "absent", "count": 13, "ledger_sha256": "CEE01F4AEC59CB1CEE0F42E3DDDB3A24615261E628ED0629C1BFAABF421A897D", "receipt_refs": []},
+          "player_runtime_receipts": {"status": "absent", "receipt_refs": []}
+        }
+      }
+    },
+    "vv5": {
+      "stock_fingerprint": {
+        "filename": "Virtual Villagers - New Believers.exe",
+        "size": 991232,
+        "sha256": "92946781980220E9D1A2E6C573925519934608F5215F4A0F8CE3B90088C5C65D",
+        "evidence_class": "exact_stock_source"
+      },
+      "expanded_fingerprints": {
+        "experimental_expanded_256": {
+          "size": 991232,
+          "sha256": "44042572653782B20A200799785F437D4D76B46F20384D597B8093F27CC88C89",
+          "evidence_class": "static_render_candidate",
+          "runtime_receipt_required": true
+        },
+        "experimental_expanded_256_progression": {
+          "size": 991232,
+          "sha256": "6BF9E0EB9BC7D3C373E32C3A7377C9A7EA35C1FA889EEDBF9B2819A25BC43E86",
+          "evidence_class": "static_render_candidate",
+          "runtime_receipt_required": true
+        }
+      },
+      "relocation_ledger": {
+        "path": "data/vv5_origins_feature.json",
+        "json_pointer": "/expanded_shr_relocations/patches",
+        "count": 66,
+        "ledger_sha256": "14E460773ADC065E053FA30921ED01D33A5F36AD49DC754CCD69127EA02C01B7"
+      },
+      "required_folder_inventory": {
+        "status": "absent",
+        "complete": false,
+        "required_roles": {
+          "stock_executable": 1,
+          "expanded_executable_immediate": 1,
+          "expanded_executable_progression": 1,
+          "companion_dll": 1,
+          "runtime_inventory": 1,
+          "checksum_list": 1,
+          "patch_log": 1,
+          "transparency_log": 1,
+          "player_readme": 1
+        },
+        "required_dlls": [{"name": "VVFP Origins Icons.dll", "sha256": "2ED1100E7F2EA5B8E522C2DE11F6B00CA8A02B968319C251365E9EFD634BCAF9"}],
+        "inventory": null
+      },
+      "runtime_evidence": {
+        "status": "absent",
+        "evidence_class": null,
+        "producer": null,
+        "artifact_inventory": null,
+        "player_receipts": [],
+        "gates": {
+          "stock_import_conversion": {"status": "absent", "receipt_refs": []},
+          "expanded_save_reload": {"status": "absent", "receipt_refs": []},
+          "offline_catchup": {"status": "absent", "receipt_refs": []},
+          "failed_load_nonmutation": {"status": "absent", "receipt_refs": []},
+          "save_rotation": {"status": "absent", "receipt_refs": []},
+          "late_record_boundaries": {"status": "absent", "indices": [149, 150, 254, 255], "receipt_refs": []},
+          "padding_unreachable_records": {"status": "not_applicable", "applicable": false, "reason": "VV5 has no VV3-style four-record padding reservation", "receipt_refs": []},
+          "current_origins_behavior": {"status": "absent", "feature_id": "vv5_enable_origins_exclusive_features", "receipt_refs": []},
+          "relocation_receipt": {"status": "absent", "count": 66, "ledger_sha256": "14E460773ADC065E053FA30921ED01D33A5F36AD49DC754CCD69127EA02C01B7", "receipt_refs": []},
+          "player_runtime_receipts": {"status": "absent", "receipt_refs": []}
+        }
+      }
+    }
+  }
+}

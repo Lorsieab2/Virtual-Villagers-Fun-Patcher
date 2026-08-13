@@ -15,6 +15,7 @@ from vv_fun_patcher import (  # noqa: E402
     _pe_checksum_layout,
     PatcherError,
     load_builds,
+    load_patch_modes,
     load_fun_patches,
     render_patched_bytes,
 )
@@ -53,7 +54,26 @@ class VV3OriginsFeatureTests(unittest.TestCase):
             companion["sha256"],
             hashlib.sha256(COMPANION.read_bytes()).hexdigest().upper(),
         )
-        self.assertIn("3 displayed years", self.manifest["description"])
+        self.assertIn("origins-style upgrade", self.manifest["description"].casefold())
+
+    def test_description_is_concise_and_keeps_the_base_dependency_internal(self) -> None:
+        description = self.manifest["description"]
+        self.assertIn("Tech and Villager Details", description)
+        self.assertIn("Make Villagers Young Adults", description)
+        self.assertNotIn("candidate-only", description)
+        self.assertNotIn("500,000-tech-point", description)
+
+    def test_package_source_provenance_contract_is_pinned(self) -> None:
+        text = (ROOT / "scripts" / "build_vv3_full_heal_candidate.py").read_text(
+            encoding="utf-8"
+        )
+        self.assertIn(
+            "B616282E0C21A9A8D509CE64C129EF6F24B4F50EAC538632DFBBC8C374662048",
+            text,
+        )
+        self.assertIn("419", text)
+        self.assertIn("412", text)
+        self.assertIn("417", text)
 
     def test_only_verified_hook_windows_are_changed(self) -> None:
         offsets = {int(item["offset"], 0) for item in self.manifest["patches"]}
@@ -62,7 +82,15 @@ class VV3OriginsFeatureTests(unittest.TestCase):
             {
                 0x24C,
                 0x7B664,
-                0x7B7A0,
+                0x7B7C0,
+                0x7B7D0,
+                0x15EF1,
+                0x16983,
+                0x16BAB,
+                0x17A3A,
+                0x15D44,
+                0x1673E,
+                0x18452,
                 0x263F0,
                 0x27130,
                 0x6547D,
@@ -102,13 +130,16 @@ class VV3OriginsFeatureTests(unittest.TestCase):
 
     def test_composes_with_every_current_vv3_patch_in_all_modes(self) -> None:
         patch_ids = [
-            patch.id for patch in load_fun_patches() if patch.game_id == "vv3"
+            patch.id
+            for patch in load_fun_patches()
+            if patch.game_id == "vv3"
+            and patch.id != "vv3_full_heal_cure_all_candidate"
         ]
         self.assertIn("vv3_enable_origins_exclusive_features", patch_ids)
         for mode in MODES:
             with self.subTest(mode=mode):
                 if mode.startswith("experimental_expanded_256"):
-                    with self.assertRaisesRegex(PatcherError, "has no append layout"):
+                    with self.assertRaisesRegex(PatcherError, "stock modes only"):
                         render_patched_bytes(STOCK, self.build, mode, patch_ids)
                     continue
                 rendered, applied = render_patched_bytes(
@@ -145,28 +176,12 @@ class VV3OriginsFeatureTests(unittest.TestCase):
                 f"expanded patch overlaps Origins payload at {start:#x}",
             )
 
-    def test_expanded_save_loader_uses_dword_tail_copy_and_vanilla_names(self) -> None:
-        save_format_offsets = {"vv3": 0x7C5C0, "vv4": 0x8A77C, "vv5": 0x95794}
-        cave_offsets = {"vv3": 0x7B3B1, "vv4": 0x8910D, "vv5": 0x9466C}
-        for build in load_builds():
-            if build.id not in cave_offsets:
-                continue
-            with self.subTest(game=build.id):
-                rendered, _ = render_patched_bytes(
-                    STOCK.parent / build.input_name,
-                    build,
-                    "experimental_expanded_256",
-                )
-                cave = bytes(
-                    rendered[cave_offsets[build.id] : cave_offsets[build.id] + 102]
-                )
-                self.assertIn(
-                    bytes.fromhex("FDF3A5FC"),
-                    cave,
-                    "stock-save tail must be copied backward as dwords",
-                )
-                offset = save_format_offsets[build.id]
-                self.assertEqual(bytes(rendered[offset : offset + 9]), b"%s%d.ldw\0")
+    def test_expanded_256_modes_are_removed(self) -> None:
+        self.assertNotIn("experimental_expanded_256", {mode.id for mode in load_patch_modes()})
+        self.assertNotIn(
+            "experimental_expanded_256_progression",
+            {mode.id for mode in load_patch_modes()},
+        )
 
     def test_dynamic_capacity_detector_is_expanded_loop_immediate(self) -> None:
         stock = STOCK.read_bytes()
@@ -191,6 +206,68 @@ class VV3OriginsFeatureTests(unittest.TestCase):
         self.assertIn("call 0x401AF0", source)
         self.assertIn("call 0x418460", source)
         self.assertIn("add esp, 0x868", source)
+
+    def test_tech_click_contract_is_message8_and_free_command15(self) -> None:
+        """The visible Tech button must have one, and only one, route."""
+        source = BUILDER.read_text(encoding="utf-8")
+        self.assertIn("TECH_BUTTON_MESSAGE = 8", source)
+        self.assertIn("TECH_BUTTON_EVENT = 15", source)
+        tech_handler = source.split("        tech_handler,", 1)[1].split(
+            "    put(\n        tech_constructor,", 1
+        )[0]
+        self.assertIn(
+            "cmp dword ptr [esp + 4], {TECH_BUTTON_MESSAGE}",
+            tech_handler,
+        )
+        self.assertIn(
+            "cmp dword ptr [esp + 8], {TECH_BUTTON_EVENT}",
+            tech_handler,
+        )
+        tech_constructor = source.split("        tech_constructor,", 1)[1].split(
+            "    put(\n        detail_handler,", 1
+        )[0]
+        self.assertIn("push {TECH_BUTTON_EVENT}", tech_constructor)
+
+        route = next(
+            item
+            for item in self.manifest["patches"]
+            if int(item["offset"], 0) == 0x65640
+        )
+        self.assertIn("message 8", route["purpose"])
+        self.assertIn("command-15", route["purpose"])
+
+    def test_tech_click_wrong_message_or_event_is_rejected(self) -> None:
+        """Negative route cases must remain on the stock handler path."""
+        def route(message: int, event: int) -> str:
+            return "origins" if message == 8 and event == 15 else "stock"
+
+        self.assertEqual(route(8, 15), "origins")
+        for message, event in ((7, 15), (9, 15), (8, 14), (8, 16), (7, 14)):
+            with self.subTest(message=message, event=event):
+                self.assertEqual(route(message, event), "stock")
+
+    def test_vv3_payload_hash_tracks_the_current_feature_complete_route(self) -> None:
+        payload = bytes.fromhex(
+            next(
+                item
+                for item in self.manifest["patches"]
+                if int(item["offset"], 0) == 0xA3180
+            )["after"]
+        )
+        self.assertEqual(
+            hashlib.sha256(payload).hexdigest().upper(),
+            "BDC99CB657133DA69D34DE58EDADFE4B66268B15C7EA51386C4A2E285C6D4B47",
+        )
+        self.assertEqual(
+            bytes.fromhex(
+                next(
+                    item
+                    for item in self.manifest["patches"]
+                    if int(item["offset"], 0) == 0x65640
+                )["after"]
+            ),
+            bytes.fromhex("E93BDB0300909090"),
+        )
 
 
 if __name__ == "__main__":

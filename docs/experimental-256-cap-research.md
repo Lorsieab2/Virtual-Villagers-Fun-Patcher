@@ -1,9 +1,10 @@
 # Experimental 256-villager expansion for VV3-VV5
 
 > **ON HOLD — do not package or release:** current exact-build reanalysis found
-> unresolved save/runtime failures in VV3 and VV4, four stale all-feature
-> `.shr` pointers in VV4, and 36 stale cross-section branches plus seven stale
-> external `.shr` pointers in VV5. Passing renderer and PE-readback checks does
+> unresolved save/runtime failures in VV3 and VV4. The current-feature ledger is
+> statically complete at 66 rows (23 payload-internal absolute + 36 cross-section
+> `rel32` + 7 external absolute), including all 43 previously omitted VV5
+> references. Passing renderer and PE-readback checks does
 > not establish relocation completeness or runtime safety. See the exact
 > [VV3-VV5 implementation-gate report](vv3-vv5-expanded-256-implementation-gates.md).
 
@@ -60,19 +61,18 @@ the intended 256 logical records; the padding only keeps the stock grouped
 reads inside allocated memory and prevents indices 256-259 from becoming
 false candidates.
 
-The patched games keep the stock `%s%d.ldw` filename format. Their separately
-named modified EXEs create and use separate executable-named save folders, so
-changing the filenames inside those folders is unnecessary.
+The static candidate contract retains the stock `%s%d.ldw` filename format and
+describes separately named modified EXE save folders. These are source/manifest
+claims only; no runtime save-folder or filename behavior is proven here.
 
-VV3-VV5 now use a guarded two-format loader. It first requests the expanded
-payload size. If that exact size check fails, it retries with that game's exact
-stock payload size. A successful stock-layout load moves the saved-state tail
-upward and zeroes the inserted 106-entry compact villager gap before normal
-validation and live-record conversion continue. Payload offsets are eight
-bytes lower than their corresponding in-memory object offsets because the
-object stores the loaded payload at `this+8`; the compatibility mover accounts
-for that header. A subsequent ordinary save writes the expanded layout.
-Neither failed size check nor fallback loading rewrites the source file.
+The static VV3-VV5 candidate route describes a guarded two-format loader: it
+first requests the expanded payload size, then retries the exact stock payload
+size, moves the saved-state tail, and zeroes the inserted 106-entry compact
+villager gap before validation and conversion. Payload offsets are eight bytes
+lower than their corresponding in-memory object offsets because the object
+stores the loaded payload at `this+8`; the documented compatibility mover
+accounts for that header. Expanded-save writing, reload, catch-up, failed-load
+nonmutation, and player behavior remain unverified runtime gates.
 
 Every game's required slot-zero control/profile file remains in its stock
 format. In VV3-VV5, the experimental hooks affect only the full-village loader;
@@ -179,8 +179,12 @@ nursing-baby reservations.
   player-observed validation found VV3 spinning non-responsive during load and
   VV4 failing to accept a stock-sized village slot.
 - Exact current-feature relocation analysis found four stale absolute `.shr`
-  operands in VV4 and 43 moved references in VV5. These are implementation
-  blockers, not merely pending player validation.
+  operands in VV4 and a complete 66-row VV5 ledger (23 payload-internal
+  absolute + 36 cross-section `rel32` + 7 external absolute), including all 43
+  previously omitted current-feature references. The owner manifests declare
+  those sites with exact guards. Runtime/save behavior and independent
+  recertification remain implementation blockers, not merely pending player
+  validation.
 - Historical prototype hashes predate nine later guarded corrections per game
   and are not current certification artifacts.
 

@@ -1,0 +1,60 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "vvfp.authenticated-native-export.v1",
+  "type": "object",
+  "required": ["schema", "generated_by", "synthetic", "manual", "game", "inventory_sha256", "functions", "artifact_sha256"],
+  "$defs": {
+    "instruction": {
+      "type": "object",
+      "required": ["ea", "text"],
+      "properties": {
+        "ea": {"type": "string", "pattern": "^0x[0-9A-Fa-f]+$"},
+        "text": {"type": "string", "minLength": 1}
+      },
+      "additionalProperties": false
+    },
+    "function": {
+      "type": "object",
+      "required": [
+        "query_id", "status", "function_start_ea", "function_end_ea",
+        "file_offset", "raw_bytes", "instructions", "callers", "xrefs",
+        "registers", "stack_cleanup", "call_convention"
+      ],
+      "properties": {
+        "query_id": {"type": "string", "minLength": 1},
+        "status": {"const": "resolved"},
+        "function_start_ea": {"type": "string", "pattern": "^0x[0-9A-Fa-f]+$"},
+        "function_end_ea": {"type": "string", "pattern": "^0x[0-9A-Fa-f]+$"},
+        "file_offset": {"type": "string", "pattern": "^0x[0-9A-Fa-f]+$"},
+        "raw_bytes": {"type": "string", "pattern": "^[0-9A-Fa-f]+$"},
+        "instructions": {
+          "type": "array",
+          "minItems": 1,
+          "items": {"$ref": "#/$defs/instruction"}
+        },
+        "callers": {"type": "array", "items": {"type": "string"}},
+        "xrefs": {"type": "array", "items": {"type": "string"}},
+        "registers": {"type": "object", "minProperties": 1},
+        "stack_cleanup": {"type": "string", "minLength": 1},
+        "call_convention": {"type": "string", "minLength": 1}
+      },
+      "additionalProperties": false
+    }
+  },
+  "properties": {
+    "schema": {"const": "vvfp.authenticated-native-export.v1"},
+    "generated_by": {"enum": ["ida_python", "ghidra"]},
+    "synthetic": {"const": false},
+    "manual": {"const": false},
+    "game": {"enum": ["vv3", "vv4", "vv5"]},
+    "inventory_sha256": {"pattern": "^[0-9A-F]{64}$"},
+    "functions": {
+      "type": "array",
+      "minItems": 10,
+      "maxItems": 10,
+      "items": {"$ref": "#/$defs/function"}
+    },
+    "artifact_sha256": {"pattern": "^[0-9A-F]{64}$"}
+  },
+  "additionalProperties": false
+}

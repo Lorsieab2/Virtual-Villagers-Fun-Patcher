@@ -59,11 +59,6 @@ GAMES = {
         "load_library_iat": 0x47C124,
         "get_module_handle_iat": 0x47C074,
         "get_proc_address_iat": 0x47C128,
-        "burial_hook_va": 0x45F45B,
-        "burial_stat_va": 0x5824BC,
-        "burial_guard": "881EE9B8010000",
-        "burial_restore": "mov byte ptr [esi], bl",
-        "burial_return_va": 0x45F61A,
     },
     "vv4": {
         "title": "Virtual Villagers - The Tree of Life",
@@ -80,10 +75,6 @@ GAMES = {
         "get_proc_address_iat": 0x48A1DC,
         "food_hook_va": 0x41D987,
         "food_stat_va": 0x4D6DEC,
-        "burial_hook_va": 0x4664DC,
-        "burial_stat_va": 0x4D6DFC,
-        "burial_guard": "885EFD385EFD",
-        "burial_restore": "mov byte ptr [esi - 3], bl; cmp byte ptr [esi - 3], bl",
     },
     "vv5": {
         "title": "Virtual Villagers - New Believers",
@@ -100,10 +91,6 @@ GAMES = {
         "get_proc_address_iat": 0x4951DC,
         "food_hook_va": 0x41EBA7,
         "food_stat_va": 0x51D364,
-        "burial_hook_va": 0x46FF12,
-        "burial_stat_va": 0x51D374,
-        "burial_guard": "889ED41C0000",
-        "burial_restore": "mov byte ptr [esi + 0x1CD4], bl",
         "conversion_hook_va": 0x4668B0,
         "conversion_stat_va": 0x51D38C,
     },
@@ -223,51 +210,6 @@ def build_game(game_id: str, config: dict[str, object], companion_hash: str) -> 
             }
         )
 
-    burial_hook_va = config.get("burial_hook_va")
-    if burial_hook_va:
-        burial_guard = bytes.fromhex(str(config["burial_guard"]))
-        burial_return_va = int(
-            config.get(
-                "burial_return_va",
-                int(burial_hook_va) + len(burial_guard),
-            )
-        )
-        burial_wrapper_va = cave_va + 0x110
-        burial_wrapper = assemble(
-            f"""
-                inc dword ptr [0x{int(config['burial_stat_va']):X}]
-                {str(config['burial_restore'])}
-                jmp 0x{burial_return_va:X}
-            """,
-            burial_wrapper_va,
-        )
-        if 0x110 + len(burial_wrapper) > cave_size:
-            raise RuntimeError(f"{game_id} burial wrapper exceeds cave allowance")
-        payload[0x110 : 0x110 + len(burial_wrapper)] = burial_wrapper
-        burial_hook_file = int(burial_hook_va) - 0x400000
-        if (
-            source[burial_hook_file : burial_hook_file + len(burial_guard)]
-            != burial_guard
-        ):
-            raise RuntimeError(f"{game_id} burial hook guard does not match")
-        extra_patches.append(
-            {
-                "offset": f"0x{burial_hook_file:X}",
-                "before": burial_guard.hex().upper(),
-                "after": (
-                    b"\xE9"
-                    + int(burial_wrapper_va - int(burial_hook_va) - 5).to_bytes(
-                        4, "little", signed=True
-                    )
-                    + b"\x90" * (len(burial_guard) - 5)
-                ).hex().upper(),
-                "purpose": (
-                    "restore the inherited Villagers Buried counter at the "
-                    "one-time delayed corpse-record retirement, including catch-up"
-                ),
-            }
-        )
-
     conversion_hook_va = config.get("conversion_hook_va")
     if conversion_hook_va:
         conversion_wrapper_va = cave_va + 0x130
@@ -326,13 +268,19 @@ def build_game(game_id: str, config: dict[str, object], companion_hash: str) -> 
     if any(source[cave_file : cave_file + cave_size]):
         raise RuntimeError(f"{game_id} statistics cave is not stock zero padding")
 
+    puzzle_clause = (
+        "Puzzle totals are read from the current save state during export so existing saves are reported accurately. "
+        if game_id != "vv5"
+        else "Puzzle totals are read from the current save state during export, including an already-completed VV5 Puzzle 17 save. "
+    )
     description = (
         "After each successful save of slots 1 through 5, writes the save's "
         "local lifetime statistics to 'Village Statistics - Save N.txt' in the "
         "modified game folder. Later games retain the inherited per-save "
         "statistics block even where no Statistics screen is reachable; omitted "
-        "stock bookkeeping is restored by exact gameplay hooks. The original "
-        "save result is preserved, and text-export failure does not turn a "
+        "stock bookkeeping is restored by exact gameplay hooks. "
+        + puzzle_clause
+        + "The original save result is preserved, and text-export failure does not turn a "
         "successful game save into a failure."
     )
     return {

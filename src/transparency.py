@@ -259,6 +259,7 @@ def _feature_details(fun_patches: Iterable[Any]) -> list[dict[str, Any]]:
                 "explicit_non_changes": list(
                     raw.get("explicit_non_changes", raw.get("exclusions", []))
                 ),
+                "partial_failure_limit": raw.get("partial_failure_limit"),
                 "evidence_status": raw.get(
                     "evidence_status",
                     "static source/manifest verification performed; runtime/player confirmation pending",
@@ -415,6 +416,8 @@ def render_transparency_text(
                 f"  Explicit non-changes/exclusions: {' '.join(feature.get('explicit_non_changes', [])) or 'none stated'}",
             ]
         )
+        if feature.get("partial_failure_limit"):
+            lines.append(f"  Partial-write disclosure: {feature['partial_failure_limit']}")
         if (
             "Cure all Villagers" in feature.get("description", "")
             and "Cured X villagers" not in feature.get("description", "")
@@ -489,6 +492,26 @@ def render_transparency_text(
     lines.append(
         f"- Retained untouched stock EXE: {'yes' if data.get('retained_untouched_stock_executable') else 'no'} ({stock['filename']})"
     )
+    archive = data.get("source_archive")
+    if isinstance(archive, dict):
+        lines.extend(
+            [
+                "- Authenticated stock source archive:",
+                f"  {archive.get('filename', 'unknown')} | SHA-256 {archive.get('sha256', 'unknown')} | entries {archive.get('entries', 'unknown')}",
+                f"  Runtime members: {archive.get('runtime_members', archive.get('entries', 'unknown'))} | outer evidence files: {archive.get('outer_evidence_files', 'not recorded')} | retained stock files: {archive.get('retained_stock_files', 'unknown')} | current package files: {archive.get('current_file_count', 'unknown')} | payload records: {archive.get('payload_records', 'unknown')}",
+                "  Excluded obsolete source members: "
+                + ", ".join(archive.get("excluded_source_members", [])),
+            ]
+        )
+    prerequisite = data.get("full_mastery_prerequisite")
+    if isinstance(prerequisite, dict):
+        lines.extend(
+            [
+                "- Full Mastery prerequisite provenance:",
+                f"  Source record: {prerequisite.get('source_record', 'unknown')} | status: {prerequisite.get('source_record_status', 'unknown')}",
+                f"  Certified composition: {prerequisite.get('composition_status', 'unknown')}",
+            ]
+        )
     lines.append("- Companion additions:")
     for companion in data.get("companion_results", []):
         lines.append(

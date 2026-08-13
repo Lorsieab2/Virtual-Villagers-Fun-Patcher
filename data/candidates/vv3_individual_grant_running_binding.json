@@ -1,0 +1,121 @@
+{
+  "id": "vv3_individual_grant_running_binding",
+  "game_id": "vv3",
+  "status": "STOP",
+  "eligibility_gate_order": "before_preference_access",
+  "enabled": false,
+  "catalog_enabled": false,
+  "catalog_hidden": true,
+  "certification_status": "STOP: complete native preference-write ABI and safe composed dispatcher are unproved",
+  "exact_build": {
+    "filename": "Virtual Villagers - The Secret City.exe",
+    "size": 831488,
+    "sha256": "8BC5DB382D02BC5C21AD5F607580D60FF44A6519CC7EB133F03113BAACAE6503"
+  },
+  "record_identity": {
+    "manager_va": "0x59E110",
+    "first_record_va": "0x59E124",
+    "stride": "0x1F8C",
+    "physical_record_count": 150,
+    "selected_index": {
+      "offset": "0x12FC0",
+      "bound_exclusive": 150,
+      "valid_range": "0..149",
+      "validator": "sub_45EE60",
+      "resolver": "sub_45C840",
+      "resolver_ecx": "0x59E110"
+    }
+  },
+  "preference_slots": {
+    "sentinel": -1,
+    "like": {
+      "offsets": ["0xFB4", "0xFB8", "0xFBC"],
+      "count": 3,
+      "extra_persisted_slots_proven": false
+    },
+    "dislike": {
+      "offsets": ["0xFC0", "0xFC4", "0xFC8"],
+      "count": 3,
+      "extra_persisted_slots_proven": false
+    },
+    "scan": "Scan the complete configured physical Like and Dislike arrays; every slot is examined and -1 never terminates the scan."
+  },
+  "running": {
+    "id": 38,
+    "evidence": "exact stock preference table entry running at file offset 0x97488"
+  },
+  "eligibility": {
+    "gate": "active +0xF10 != 0 AND signed health +0xE78 > 0",
+    "active_offset": "0xF10",
+    "health_offset": "0xE78",
+    "reject_before_preference_access": true
+  },
+  "transaction_contract": {
+    "command": 2,
+    "price": 40000,
+    "action": "Buy",
+    "repeatable": true,
+    "ownership": null,
+    "remove": false,
+    "selection": "mandatory exact selected index 0..149, resolved pointer/record identity, and same tech-account identity callbacks at every mutation boundary; native callbacks remain unproved",
+    "semantics": {
+      "already_running": {
+        "condition": "any configured Like equals Running ID",
+        "action": "whole-record skip",
+        "preference_writes": 0,
+        "charge": 0,
+        "preserve": ["every Like including duplicate Running Likes", "every Dislike"]
+      },
+      "destination": {
+        "condition": "no Running Like and the first physical Like equal to -1 is proven",
+        "write": "write Running ID to the first physical -1 Like only",
+        "running_like_writes": 1,
+        "dislike_clear_allowed": true
+      },
+      "no_destination": {
+        "condition": "no physical Like slot equals -1",
+        "preference_writes": 0,
+        "charge": 0,
+        "dislike_clear": false,
+        "preserve": "all Dislikes unchanged"
+      },
+      "dislike_clear": {
+        "condition": "only after a destination and the Running Like write are proven",
+        "clear_every_running_dislike": true,
+        "unrelated_slots_preserved": true
+      }
+    },
+    "steps": [
+      "complete dry-run and result preflight",
+      "confirm with MB_OKCANCEL; only EAX == 1 permits mutation",
+      "reacquire exact selected index, resolved pointer/record identity, same account identity, eligibility, all six slots, and funds before first write",
+      "reacquire exact selection/pointer/account identity and postverify the complete six-slot result before deduction",
+      "make one charge attempt by deducting exactly once; verify charge only from exact before/after balance readback for the same account identity, otherwise report unknown"
+    ],
+    "transaction_text": "Dry-run first; confirm only exact IDOK; mandatory identity callbacks fail closed on exceptions or mismatch; reacquire before first write, full postverify, deduction, and each rollback restore; same-account balance readback alone may verify the exact deduction, otherwise charge is unknown.",
+    "message_box": {
+      "flags": "MB_OKCANCEL",
+      "accept_result": 1,
+      "cancel_result": 2,
+      "mutation_dominance": "cmp eax,1 equality must dominate every write"
+    }
+  },
+  "rollback_limit": "Before each restore reacquire exact selection/pointer/account identity and verify candidate-written state; callback failure or mismatch fails closed and retained effects or unknown charge are disclosed. Native rollback remains unproved.",
+  "native_abi": {
+    "status": "unproved",
+    "complete_preference_write_abi_proved": false,
+    "safe_composed_dispatcher_proved": false,
+    "fail_closed": true,
+    "reason": "STOP and remain disabled until the complete native preference-write ABI and safe composed dispatcher are independently proved; no output is trusted.",
+    "evidence": [
+      "docs/transparency-log.md: the old 944-byte commands 6/7/8 ABI precharges, exposes commands 7/8, lacks granted, and uses the wrong callback ABI",
+      "docs/transparency-log.md: the revised six-slot candidate has unproved native preference side effects",
+      "data/candidates/vv3_individual_grant_running_revised_candidate.json: emission is not emitted and native preference side effects remain unproved"
+    ]
+  },
+  "vv5_faction_gate": {
+    "applicable": false,
+    "status": "not_applicable_for_vv3",
+    "text": "VV5-only gate: reject current faction +0x1CEC != 0 before any preference read or count; +0x1CE1 is not an approved eligibility gate."
+  }
+}

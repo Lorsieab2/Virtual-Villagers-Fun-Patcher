@@ -41,12 +41,16 @@ CONFIG = {
         "health": 0x344,
         "age": 0x348,
         "skills": (0x3BC, 0x3C0, 0x3C4, 0x3C8, 0x3CC),
+        "native_skill_writer": 0x437230,
+        "skill_codes": (2, 4, 1, 5, 3),
+        "age_code_offset": 0x300,
         "likes": 0x398,
         "dislikes": 0x3A8,
+        "slot_count": 4,
         "running_preference_id": 38,
         "bound": "edx",
         "heathen": False,
-        "master_value": 90,
+        "master_value": 100,
     },
     "vv2": {
         "title": "Virtual Villagers - The Lost Children",
@@ -55,19 +59,29 @@ CONFIG = {
         "sha256": "46C1503C209255C9CDEFA941DB2F449C8CF8E2CDD5C7D13CD975326E377ED677",
         "cave_offset": 0x9A004,
         "cave_va": 0x49C004,
-        "payload_offset": 0x9A180,
+        # The VV2 base Origins UI uses 0x9A180-0x9A7CB for its preflight and
+        # event helpers. Keep this optional village-wide payload after that
+        # occupied range inside the same executable .shr reserve.
+        "payload_offset": 0x9A800,
         "stride": 0xE48C,
         "first": "ecx",
         "active": 0x30,
         "health": 0x52C,
         "age": 0x530,
         "skills": (0x7E4, 0x7E8, 0x7EC, 0x7F0, 0x7F4),
+        "native_skill_writer": 0x445430,
+        "skill_codes": (2, 5, 1, 3, 4),
+        "native_mastery_manager": 0x44F4E0,
+        "totem": 0x558,
+        "code_size": 0x500,
+        "age_code_offset": 0x360,
         "likes": 0x5F0,
         "dislikes": 0x6E8,
+        "slot_count": 62,
         "running_preference_id": 38,
         "bound": "edx",
         "heathen": False,
-        "master_value": 90,
+        "master_value": 100,
     },
     "vv3": {
         "title": "Virtual Villagers - The Secret City",
@@ -83,12 +97,24 @@ CONFIG = {
         "health": 0xE78,
         "age": 0xDC4,
         "skills": (0xEAC, 0xEB0, 0xEB4, 0xEB8, 0xEBC),
+        "code_size": 0x500,
+        "age_code_offset": 0x330,
+        # VV3's native mastery writer takes the skill ordinal (0..4), not
+        # the VV2-style physical-record index.  The native award evaluator is
+        # record-scoped and must run once after each changed villager has
+        # been post-verified at exactly 100.
+        "native_skill_writer": 0x455740,
+        "skill_codes": (0, 1, 2, 3, 4),
+        "native_mastery_evaluator": 0x462500,
+        "native_evaluator_per_record": True,
+        "native_skill_writer_uses_physical_index": False,
         "likes": 0xFB4,
         "dislikes": 0xFC0,
+        "slot_count": 3,
         "running_preference_id": 38,
         "bound": "edx",
         "heathen": False,
-        "master_value": 90,
+        "master_value": 100,
     },
     "vv4": {
         "title": "Virtual Villagers - The Tree of Life",
@@ -105,12 +131,22 @@ CONFIG = {
         "health": 0x1C40,
         "age": 0x1B8C,
         "skills": (0x1C5C, 0x1C60, 0x1C64, 0x1C68, 0x1C6C),
+        # VV4 stores skills as Float32 values.  sub_46AD80 is the native
+        # writer: push (100.0 - current), push skill ordinal, ECX = the
+        # record's first-skill field; the callee returns with ret 8.
+        "native_skill_writer": 0x46AD80,
+        "native_skill_writer_uses_physical_index": False,
+        "native_skill_writer_float": True,
+        "skill_codes": (0, 1, 2, 3, 4),
+        "code_size": 0x500,
+        "age_code_offset": 0x450,
         "likes": 0x1E60,
         "dislikes": 0x1E6C,
+        "slot_count": 3,
         "running_preference_id": 38,
         "bound": "edx",
         "heathen": False,
-        "master_value": 0x42B40000,
+        "master_value": 0x42C80000,
     },
     "vv5": {
         "title": "Virtual Villagers - New Believers",
@@ -133,10 +169,15 @@ CONFIG = {
         "skills": (7260, 7264, 7268, 7272, 7276, 7280),
         "likes": 8028,
         "dislikes": 8040,
+        "slot_count": 3,
         "running_preference_id": 38,
         "bound": "edx",
         "heathen": True,
-        "master_value": 0x42B40000,
+        "master_value": 0x42C80000,
+        "native_running": 0x464F90,
+        "native_running_insert": 0x464AD0,
+        "native_running_remove": 0x4649E0,
+        "native_mastery": 0x475730,
     },
 }
 
@@ -172,19 +213,29 @@ def _eligibility(config: dict, label: str) -> str:
                 f"jne {label}",
             ]
         )
-    result.extend(
-        [
-        f"cmp dword ptr [esi + {_hex_word(health)}], 0",
-        f"jle {label}",
-        ]
-    )
+    if config.get("totem") is not None:
+        result.extend(
+            [
+                f"cmp byte ptr [esi + {_hex_word(config['totem'])}], 0",
+                f"jne {label}",
+            ]
+        )
     if config["heathen"]:
         result.extend(
             [
                 f"cmp byte ptr [esi + {_hex_word(config['heathen_active_guard'])}], 0",
                 f"jne {label}",
+                f"cmp dword ptr [esi + {_hex_word(health)}], 0",
+                f"jle {label}",
                 f"cmp byte ptr [esi + {_hex_word(config['faction'])}], 0",
                 f"jne {label}",
+            ]
+        )
+    else:
+        result.extend(
+            [
+                f"cmp dword ptr [esi + {_hex_word(health)}], 0",
+                f"jle {label}",
             ]
         )
     return "\n".join(result)
@@ -193,18 +244,23 @@ def _eligibility(config: dict, label: str) -> str:
 def build_payload(config: dict) -> tuple[bytes, dict[str, int]]:
     cave_va = config["cave_va"]
     payload_va = config["cave_va"] + (config["payload_offset"] - config["cave_offset"])
+    # The first 0x20 bytes are the fixed VVFPOWU header.  Assemble the code
+    # relative to the byte immediately after that header; the previous
+    # generator assembled against payload_va and then prepended the header,
+    # shifting every entry and native call target by +0x20 at runtime.
+    code_va = payload_va + 0x20
     # Entry is deliberately at a stable offset from the signature.  The base
     # Origins payload can check the signature and call this entry without
     # knowing the optional implementation's internal layout.
-    entry_va = payload_va + 0x20
-    running_va = payload_va + 0x70
-    mastery_va = payload_va + config.get("mastery_code_offset", 0x190)
-    age_va = payload_va + config.get("age_code_offset", 0x250)
+    entry_va = code_va
+    running_va = code_va + 0x50
+    mastery_va = code_va + config.get("mastery_code_offset", 0x190) - 0x20
+    age_va = code_va + config.get("age_code_offset", 0x250) - 0x20
     code = bytearray(b"\0" * config.get("code_size", 0x390))
 
     def put(va: int, source: str) -> None:
         payload = assemble(source, va)
-        start = va - payload_va
+        start = va - code_va
         end = start + len(payload)
         if start < 0 or end > len(code):
             raise RuntimeError(f"optional payload exceeds reserve at {va:#x}")
@@ -228,9 +284,81 @@ def build_payload(config: dict) -> tuple[bytes, dict[str, int]]:
         """,
     )
 
-    put(
-        running_va,
-        f"""
+    if config.get("native_running"):
+        slot_count = config["slot_count"]
+        running_source = f"""
+            push ebp
+            push ebx
+            push esi
+            push edi
+            mov ebx, edx
+            {_record_setup(config)}
+            xor edi, edi
+            xor ebp, ebp
+            push 0
+        running_loop:
+            test ebx, ebx
+            jz running_done
+            {_eligibility(config, 'running_next')}
+            push {_hex_word(config['running_preference_id'])}
+            lea ecx, [esi + {_hex_word(config['likes'])}]
+            call {_hex_word(config['native_running'])}
+            test al, al
+            jnz running_existing
+            mov edx, -1
+            xor eax, eax
+        running_scan:
+            cmp dword ptr [esi+eax*4+{_hex_word(config['likes'])}], -1
+            jne running_like_next
+            cmp edx, -1
+            jne running_like_next
+            mov edx, eax
+        running_like_next:
+            inc eax
+            cmp eax, {slot_count}
+            jb running_scan
+            cmp edx, -1
+            jne running_insert
+            inc edi
+            jmp running_next
+            running_existing:
+                inc ebp
+                jmp running_next
+        running_insert:
+            push {_hex_word(config['running_preference_id'])}
+            lea ecx, [esi + {_hex_word(config['likes'])}]
+            call {_hex_word(config['native_running_insert'])}
+        running_remove_dislikes:
+            xor eax, eax
+        running_dislike_check:
+            cmp dword ptr [esi+eax*4+{_hex_word(config['dislikes'])}], {_hex_word(config['running_preference_id'])}
+            jne running_dislike_next
+            push {_hex_word(config['running_preference_id'])}
+            lea ecx, [esi + {_hex_word(config['dislikes'])}]
+            call {_hex_word(config['native_running_remove'])}
+            inc dword ptr [esp]
+        running_dislike_next:
+            inc eax
+            cmp eax, {slot_count}
+            jb running_dislike_check
+        running_next:
+            add esi, {_hex_word(config['stride'])}
+            dec ebx
+            jmp running_loop
+        running_done:
+            mov ecx, dword ptr [esp]
+            add esp, 4
+            mov eax, edi
+            mov edx, ebp
+            pop edi
+            pop esi
+            pop ebx
+            pop ebp
+            ret
+        """
+    else:
+        slot_count = config["slot_count"]
+        running_source = f"""
             push ebp
             push ebx
             push esi
@@ -244,43 +372,40 @@ def build_payload(config: dict) -> tuple[bytes, dict[str, int]]:
             test ebx, ebx
             jz running_done
             {_eligibility(config, 'running_next')}
-            lea edx, [esi + {_hex_word(config['likes'])}]
-            mov ecx, 3
+            xor edx, edx
+            mov ecx, {slot_count}
         running_scan:
-            cmp dword ptr [edx], {_hex_word(config['running_preference_id'])}
-            jne running_not_running
-            inc ebp
+            cmp dword ptr [esi+edx*4+{_hex_word(config['likes'])}], {_hex_word(config['running_preference_id'])}
+            je running_existing
+            cmp dword ptr [esi+edx*4+{_hex_word(config['likes'])}], -1
+            jne running_like_next
+            cmp ecx, {slot_count}
+            jne running_like_next
+            mov ecx, edx
+        running_like_next:
+            inc edx
+            cmp edx, {slot_count}
+            jb running_scan
+            cmp ecx, {slot_count}
+            je running_full_like
+            mov dword ptr [esi+ecx*4+{_hex_word(config['likes'])}], {_hex_word(config['running_preference_id'])}
             jmp running_remove_dislikes
-        running_not_running:
-            cmp dword ptr [edx], -1
-            je running_store_like
-            add edx, 4
-            dec ecx
-            jne running_scan
+        running_full_like:
             inc edi
-            jmp running_remove_dislikes
-        running_store_like:
-            mov dword ptr [edx], {_hex_word(config['running_preference_id'])}
-        running_remove_dislikes:
-            lea edx, [esi + {_hex_word(config['dislikes'])}]
-            mov ecx, 3
-        running_dislike_check:
-            cmp dword ptr [edx], {_hex_word(config['running_preference_id'])}
-            je running_has_dislike
-            add edx, 4
-            dec ecx
-            jne running_dislike_check
             jmp running_next
-        running_has_dislike:
-            inc eax
-            lea edx, [esi + {_hex_word(config['dislikes'])}]
-            mov ecx, 3
+        running_existing:
+            inc ebp
+            jmp running_next
+        running_remove_dislikes:
+            xor edx, edx
+            mov ecx, {slot_count}
         running_dislike_scan:
-            cmp dword ptr [edx], {_hex_word(config['running_preference_id'])}
+            cmp dword ptr [esi+edx*4+{_hex_word(config['dislikes'])}], {_hex_word(config['running_preference_id'])}
             jne running_dislike_next
-            mov dword ptr [edx], -1
+            mov dword ptr [esi+edx*4+{_hex_word(config['dislikes'])}], -1
+            inc eax
         running_dislike_next:
-            add edx, 4
+            inc edx
             dec ecx
             jne running_dislike_scan
         running_next:
@@ -296,13 +421,111 @@ def build_payload(config: dict) -> tuple[bytes, dict[str, int]]:
             pop ebx
             pop ebp
             ret
-        """,
-    )
+        """
+    put(running_va, running_source)
 
-    skill_writes = "\n".join(
-        f"mov dword ptr [esi + {_hex_word(offset)}], {_hex_word(config['master_value'])}"
-        for offset in config["skills"]
-    )
+    mastery_record_setup = _record_setup(config)
+    mastery_advance = ""
+    mastery_changed_setup = ""
+    mastery_changed_increment = ""
+    mastery_postverify = ""
+    mastery_completion = ""
+    mastery_per_record_completion = ""
+    if config.get("native_skill_writer"):
+        if config.get("native_mastery_manager"):
+            mastery_record_setup += f"\n            call {_hex_word(config['native_mastery_manager'])}\n            test eax, eax\n            jz mastery_failure\n            lea ebp, [eax + 0x52C]\n            xor edi, edi"
+        elif config.get("native_evaluator_per_record"):
+            # This ABI writes directly through the villager's skill array and
+            # does not need a manager-backed record pointer or a physical
+            # index.  EDI is a per-record changed flag below.
+            mastery_record_setup += "\n            xor edi, edi"
+        else:
+            mastery_record_setup += "\n            mov ebp, ecx\n            xor edi, edi"
+        mastery_advance = (
+            ""
+            if config.get("native_evaluator_per_record")
+            else "inc edi"
+        )
+        mastery_postverify = "\n".join(
+            f"cmp dword ptr [esi + {_hex_word(offset)}], {_hex_word(config.get('master_value', 100))}\n            jne mastery_failure"
+            for offset in config["skills"]
+        )
+        if config.get("native_mastery_evaluator") and not config.get(
+            "native_evaluator_per_record"
+        ):
+            mastery_record_setup += "\n            xor eax, eax"
+            mastery_changed_increment = "inc eax"
+            mastery_completion = f"""
+            test eax, eax
+            jz mastery_return
+            call {_hex_word(config['native_mastery_manager'])}
+            test eax, eax
+            jz mastery_return
+            mov ecx, eax
+            call {_hex_word(config['native_mastery_evaluator'])}
+        mastery_return:
+        """
+        if config.get("native_evaluator_per_record"):
+            mastery_changed_setup = "xor edi, edi"
+            mastery_changed_increment = "inc edi"
+            mastery_per_record_completion = f"""
+            test edi, edi
+            jz mastery_next
+            push esi
+            call {_hex_word(config['native_mastery_evaluator'])}
+            """
+        skill_writes = "\n".join(
+            f"""
+            cmp dword ptr [esi + {_hex_word(offset)}], {_hex_word(config.get('master_value', 100))}
+            je mastery_skill_next_{index}
+            {
+                f"push {_hex_word(config.get('master_value', 100))}\n            fld dword ptr [esp]\n            fsub dword ptr [esi + {_hex_word(offset)}]\n            fstp dword ptr [esp]"
+                if config.get('native_skill_writer_float')
+                else f"mov eax, 100\n            sub eax, dword ptr [esi + {_hex_word(offset)}]\n            push eax"
+            }
+            {
+                f"push {_hex_word(index)}"
+                if not config.get("native_skill_writer_uses_physical_index", True)
+                else f"push {_hex_word(code)}\n            push edi"
+            }
+            {
+                f"lea ecx, [esi + {_hex_word(config['skills'][0])}]"
+                if not config.get("native_skill_writer_uses_physical_index", True)
+                else "mov ecx, ebp"
+            }
+            call {_hex_word(config['native_skill_writer'])}
+            {mastery_changed_increment}
+        mastery_skill_next_{index}:
+            """
+            for index, (offset, code) in enumerate(
+                zip(config["skills"], config["skill_codes"])
+            )
+        )
+    elif config.get("native_mastery"):
+        skill_writes = f"""
+            xor edi, edi
+        mastery_skill_loop:
+            cmp edi, {len(config['skills'])}
+            jae mastery_skills_done
+            cmp dword ptr [esi+edi*4+{_hex_word(config['skills'][0])}], {_hex_word(config['master_value'])}
+            je mastery_skill_next
+            push {_hex_word(config['master_value'])}
+            fld dword ptr [esp]
+            fsub dword ptr [esi+edi*4+{_hex_word(config['skills'][0])}]
+            fstp dword ptr [esp]
+            push edi
+            lea ecx, [esi+edi*4+{_hex_word(config['skills'][0])}]
+            call {_hex_word(config['native_mastery'])}
+        mastery_skill_next:
+            inc edi
+            jmp mastery_skill_loop
+        mastery_skills_done:
+        """
+    else:
+        skill_writes = "\n".join(
+            f"mov dword ptr [esi + {_hex_word(offset)}], {_hex_word(config['master_value'])}"
+            for offset in config["skills"]
+        )
     put(
         mastery_va,
         f"""
@@ -311,17 +534,23 @@ def build_payload(config: dict) -> tuple[bytes, dict[str, int]]:
             push esi
             push edi
             mov ebx, edx
-            {_record_setup(config)}
+            {mastery_record_setup}
         mastery_loop:
             test ebx, ebx
             jz mastery_done
             {_eligibility(config, 'mastery_next')}
+            {mastery_changed_setup}
             {skill_writes}
+            {mastery_postverify}
+            {mastery_per_record_completion}
         mastery_next:
             add esi, {_hex_word(config['stride'])}
+            {mastery_advance}
             dec ebx
             jmp mastery_loop
         mastery_done:
+            {mastery_completion}
+        mastery_failure:
             xor eax, eax
             xor edx, edx
             xor ecx, ecx
@@ -404,20 +633,59 @@ def main() -> None:
         out_exe.write_bytes(rendered)
         feature_id = f"{game_id}_origins_village_wide_upgrades"
         feature_name = "Enable Origins Village-Wide Upgrades"
+        enabled = True
         description = (
-            "Adds three optional, current-save-only Origins upgrades to the Tech-screen "
-            "Upgrades window, inspired by the Virtual Villagers 1 mobile port's selected "
-            "exclusive upgrades: All Villagers Like Running, Grant Full Mastery to All "
-            "Villagers, and All Villagers are 18. Each costs exactly 1,000,000 "
-            "tech points. Running uses the build-specific preference ID proven from the "
-            "stock preference table, preserves unrelated Likes, removes Running Dislikes, "
-            "and reports `Skipped over X villagers. Reason: Already 3 likes.`, "
-            "`skipped over Y villagers. Reason: already likes running`, plus "
-            "`Removed running dislike from X villagers` only when applicable. Mastery writes only the native skill fields. Age changes "
-            "only the displayed age to 18 and does not change nursing or pregnancy timers."
+            "Adds the Origins Upgrades button to the Tech screen. Food and Tech "
+            "Point Doublers each cost 500,000 tech points, double eligible "
+            "positive gains, and can be removed for no refund. The Village-Wide "
+            "menu offers Running, Full Mastery, and Make Villagers Young Adults."
         )
-        if game_id == "vv5":
-            description += " Only eligible living believers are processed; Heathens are excluded and remain untouched."
+        if game_id == "vv1":
+            description += " Island Events, Duplicate Collectibles, and Golden Child tech gains are excluded."
+        elif game_id == "vv2":
+            description += " Island Events, Duplicate Collectibles, and Gong of Wonder tech gains are excluded."
+        elif game_id in {"vv3", "vv4"}:
+            description += " Island Events and Duplicate Collectibles are excluded."
+        else:
+            description += " Island Events and Duplicate Collectibles are excluded; only Believers are processed and Heathens are skipped."
+        record_fields = {
+            "stride": f"0x{config['stride']:X}",
+            "first_record_argument": "ECX",
+            "active_offset": f"0x{config['active']:X}",
+            "health_offset": f"0x{config['health']:X}",
+            "age_offset": f"0x{config['age']:X}",
+            "likes_offset": f"0x{config['likes']:X}",
+            "dislikes_offset": f"0x{config['dislikes']:X}",
+            "like_slot_count": config["slot_count"],
+            "dislike_slot_count": config["slot_count"],
+            "running_preference_id": config["running_preference_id"],
+            "skill_offsets": [f"0x{offset:X}" for offset in config["skills"]],
+            "native_skill_writer": (
+                f"0x{config['native_skill_writer']:X}"
+                if config.get("native_skill_writer")
+                else None
+            ),
+            "bound_source": "EDX physical record bound",
+        }
+        if config.get("totem") is not None:
+            record_fields["totem_offset"] = f"0x{config['totem']:X}"
+        if config.get("native_mastery_manager"):
+            record_fields["native_mastery_manager"] = f"0x{config['native_mastery_manager']:X}"
+        if config.get("native_mastery_evaluator"):
+            record_fields["native_mastery_evaluator"] = f"0x{config['native_mastery_evaluator']:X}"
+        if config.get("native_evaluator_per_record"):
+            record_fields["native_evaluator_scope"] = "once per changed villager after exact-100 postverification"
+        if config.get("native_skill_writer_uses_physical_index") is False:
+            record_fields["native_skill_writer_index"] = "skill ordinal 0..4"
+        if config.get("native_skill_writer_float"):
+            record_fields["mastery_target"] = "Float32 100.0"
+            record_fields["native_skill_writer_value"] = "Float32 delta: 100.0-current"
+        mastery_behavior = (
+            "Grant Full Mastery to All Villagers uses the native Float32 skill writer "
+            "for each changed skill and postverifies exact 100.0 values."
+            if config.get("native_skill_writer_float")
+            else "Grant Full Mastery to All Villagers writes native mastery values and runs the native award evaluator for each changed eligible villager."
+        )
         feature = {
             "id": feature_id,
             "game_id": game_id,
@@ -442,30 +710,19 @@ def main() -> None:
                 "signature_offset": f"0x{entries['signature_offset']:X}",
                 "entry_offset": f"0x{entries['entry_offset']:X}",
                 "entry_virtual_address": f"0x{config['cave_va'] + (entries['entry_offset'] - config['cave_offset']):X}",
-                "calling_convention": "near call with EAX=command 6/7/8, ECX=first physical record pointer, EDX=physical record bound; command 6 returns full-Like skips in EAX, already-Running (already-running) skips in EDX, and villagers with a removed Running dislike in ECX; commands 7/8 return zero counts; invalid commands return EAX=-1 and EDX/ECX=0; preserves EBX/ESI/EDI/EBP/ESP",
+                "calling_convention": "near call with EAX=command 6/7/8, ECX=first physical record pointer, EDX=physical record bound; command 6 returns full-Like skips in EAX, already-Running (already-running) skips in EDX, and villagers with a removed Running dislike in ECX; full Like records receive no preference writes; commands 7/8 return zero counts; invalid commands return EAX=-1 and EDX/ECX=0; preserves EBX/ESI/EDI/EBP/ESP",
                 "commands": {
                     "6": "All Villagers Like Running",
                     "7": "Grant Full Mastery to All Villagers",
                     "8": "All Villagers are 18",
                 },
             },
-            "record_fields": {
-                "stride": f"0x{config['stride']:X}",
-                "first_record_argument": "ECX",
-                "active_offset": f"0x{config['active']:X}",
-                "health_offset": f"0x{config['health']:X}",
-                "age_offset": f"0x{config['age']:X}",
-                "likes_offset": f"0x{config['likes']:X}",
-                "dislikes_offset": f"0x{config['dislikes']:X}",
-                "running_preference_id": config["running_preference_id"],
-                "skill_offsets": [f"0x{offset:X}" for offset in config["skills"]],
-                "bound_source": "EDX physical record bound",
-            },
+            "record_fields": record_fields,
             "behavior_changes": [
                 "Adds rows 6-8 to the Origins Tech-screen Upgrades dialog only when this optional feature is installed.",
                 "Charges exactly 1,000,000 tech points once per selected village-wide purchase in the current save.",
-                "Running scans exactly three normal Like and Dislike slots, reports full-Like and already-Running counts, and reports villagers whose Running dislike was removed; duplicate Running Dislikes are all cleared but count once per villager.",
-                "Grant Full Mastery to All Villagers writes the native five- or six-skill mastery fields for eligible living villagers.",
+                f"Running scans exactly {config['slot_count']} physical Like and Dislike slots, adds Running only to the first free Like slot, removes Running Dislikes only after that insertion, and leaves already-Running or full-like villagers unchanged.",
+                mastery_behavior,
                 "All Villagers are 18 writes only the verified displayed-age field to 360 age units.",
             ],
             "running_preference_id": config["running_preference_id"],
@@ -473,7 +730,6 @@ def main() -> None:
                 "No unrelated Like is replaced or removed.",
                 "No movement speed, movement initialization, nursing timer, pregnancy timer, or pregnancy state is written.",
                 "The upgrades are save-scoped and do not set a global ownership bit.",
-                "VV5 Heathens are excluded from all three village-wide operations.",
             ],
             "evidence_status": "static exact-build payload and field-map verification performed; runtime/player confirmation pending",
             "cave": {
@@ -493,10 +749,14 @@ def main() -> None:
                 }
             ],
         }
-        # Commands 6/7/8 are one atomic payload. Keep every game fail-closed
-        # until that game's complete village-wide payload receives a GO gate.
-        feature["enabled"] = False
+        # This user-requested package exposes the complete five-game set as
+        # static/runtime-playtest options. It does not claim player or runtime
+        # GO, and the package documentation preserves the reported crash gates.
+        feature["enabled"] = enabled
         if game_id == "vv5":
+            feature["explicit_non_changes"].append(
+                "VV5 Heathens are excluded from all three village-wide operations."
+            )
             feature["record_fields"].update(
                 {
                     "heathen_active_guard_offset": f"0x{config['heathen_active_guard']:X}",
@@ -504,22 +764,6 @@ def main() -> None:
                     "eligibility": "active != 0, heathen-active guard == 0, faction == believer (0), health > 0",
                 }
             )
-        if game_id == "vv4":
-            # The VV4 base payload lives in the stock .shr section.  Its
-            # optional-signature absolute pointer must follow that section in
-            # expanded mode; this relocation is intentionally owned by the
-            # optional feature because the base-only output has no such read.
-            feature["expanded_shr_relocations"] = {
-                "stock_virtual_address": "0x728000",
-                "expanded_virtual_address": "0x85A000",
-                "patches": [
-                    {
-                        "offset": "0x89546",
-                        "before": "20827200",
-                        "purpose": "relocate VV4 base Origins optional-signature pointer after the .shr section moves for expanded 256 mode",
-                    }
-                ],
-            }
         manifest_path = ROOT / "data" / f"{feature_id}.json"
         manifest_path.write_text(json.dumps(feature, indent=2) + "\n", encoding="utf-8")
         print(f"{game_id}: {len(payload):#x} bytes -> {manifest_path}")

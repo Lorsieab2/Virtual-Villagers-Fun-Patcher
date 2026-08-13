@@ -1,0 +1,50 @@
+{
+  "schema": "vvfp.expanded_256_static_repair_integration.v1",
+  "status": "active_in_expanded_render_runtime_stop",
+  "native_output": true,
+  "runtime_go": false,
+  "player_go": false,
+  "publication_ready": false,
+  "games": {
+    "vv3": {
+      "repair_id": "vv3_full256_serializer_reader_gate",
+      "stage": "post_feature_relocation",
+      "candidate_path": "data/candidates/vv3_full256_serializer_candidate.json",
+      "candidate_source_text_sha256": "4C2186DA89A5F1D561DF730A35FA884815F2DB588E82D05536011DD25000222A",
+      "stock_sha256": "8BC5DB382D02BC5C21AD5F607580D60FF44A6519CC7EB133F03113BAACAE6503",
+      "manifest_rows_sha256": "04B93127BC4D5C6787AB013DE9205813D44947DBC16A370DBC234C06588AC3FB",
+      "required_feature_ids": ["vv3_enable_origins_exclusive_features_running_candidate", "vv3_all_villagers_like_running_candidate"],
+      "modes": {
+        "experimental_expanded_256": {"parent_size": 835584, "parent_sha256": "657D321B2F1E9E6D6C223DB1FF0BBA38C2D761A97A6E7F21B98CE1826531A848", "parent_checksum": "322A0D00", "result_size": 839680, "result_sha256": "585EC60285F20A55658B5CB77E8A81D5B6A632B3A399058F01EB732B4777976B", "result_checksum": "27F40C00"},
+        "experimental_expanded_256_progression": {"parent_size": 835584, "parent_sha256": "3A35745C00102A0964DF6E81B77707539C5BDC03501011F43FF1D2809015B211", "parent_checksum": "3CA50D00", "result_size": 839680, "result_sha256": "3B93CFDD98112D54F4457AA4E84838F98E577DF0AF1B9C20903E1C4CC8F276A8", "result_checksum": "316F0D00"}
+      }
+    },
+    "vv4": {
+      "repair_id": "vv4_full256_serializer_reader_gate",
+      "stage": "post_manifest",
+      "candidate_path": "data/candidates/vv4_full256_serializer_static_candidate.json",
+      "candidate_source_text_sha256": "A2D0D85BED1F01AC7156F7004E08D95DBB561141781071E96C8CCA1662A707C0",
+      "stock_sha256": "6D27A429FFCA5F1F71FDD7ECA761ED1BB67E85F976494BA178B3D7BE01F1B220",
+      "manifest_rows_sha256": "99ABB42FF46A05B92DA96D7EB80F86A8BA5B165CC83795209C652044A683ED71",
+      "required_feature_ids": [],
+      "helper_lineage": {"id": "singleton", "raw_start": "0x1FE70", "raw_end": "0x1FEEA", "stock_sha256": "CFD2040568A260D38E125A6973C4B849FBBA0440553A2A301DDA79C0317BBE08", "current_parent_sha256": "C7F59E4CCE21060EC4A0D8C71B78F995ADF5DFB2B8C8F2EC4C64ED7E35C98E5F", "manifest_row_raw": "0x1FE9B", "manifest_before": "C8710100", "manifest_after": "70DD0100", "abi_control_flow_unchanged": true},
+      "modes": {
+        "experimental_expanded_256": {"parent_size": 929792, "parent_sha256": "77BBC37EC7EB5FE4F316F5358CA44D2575F7A4A6FB03B72498945F9494BAFAC2", "parent_checksum": "7F310E00", "result_size": 933888, "result_sha256": "C073529D081B75EAE6532264D9D6A57FF1B299DB62B39F2CB42C24EDB4745BCD", "result_checksum": "D8670E00", "final_no_fun_sha256": "ABD0E6E5B9334755040C0CB8F68405ED0F71E8D58558830FCC3BBC7D15BD352D", "final_no_fun_checksum": "1D4E0E00"},
+        "experimental_expanded_256_progression": {"parent_size": 929792, "parent_sha256": "77BBC37EC7EB5FE4F316F5358CA44D2575F7A4A6FB03B72498945F9494BAFAC2", "parent_checksum": "7F310E00", "result_size": 933888, "result_sha256": "C073529D081B75EAE6532264D9D6A57FF1B299DB62B39F2CB42C24EDB4745BCD", "result_checksum": "D8670E00", "final_no_fun_sha256": "6FB38D40C72EDA0A7E50A4ECC25ABF19379CF249E917181BCA6D7925A45F750D", "final_no_fun_checksum": "80EE0E00"}
+      }
+    },
+    "vv5": {
+      "repair_id": "vv5_post_prototype_operand_overlay",
+      "stage": "post_manifest",
+      "candidate_path": "data/candidates/vv5_post_prototype_overlay.json",
+      "candidate_source_text_sha256": "090ED9CA074F02F9321B2F8E0C470FD0AF18B235231DA94B6D38293360BC9510",
+      "stock_sha256": "92946781980220E9D1A2E6C573925519934608F5215F4A0F8CE3B90088C5C65D",
+      "manifest_rows_sha256": "D0E899B112C106AF136D6D2F91C68C97CF6B431DB6F5457CBD6211852BA01431",
+      "required_feature_ids": [],
+      "modes": {
+        "experimental_expanded_256": {"parent_size": 991232, "parent_sha256": "1AF3DDADC30876A0FF83484CF2AE926D9A577F0A1BD6213F8B56E6918256DBF3", "parent_checksum": "38D20F00", "result_size": 991232, "result_sha256": "7BFFC38D17879D616CE196E2551239D112AA8FBFCAE7441AEEC27DE93ED40DE5", "result_checksum": "0D1C1000", "final_no_fun_sha256": "22E86DCA66E9E25624FBE2A56AD7C489C5FA328001E09A845EBF3C59291EEA37", "final_no_fun_checksum": "E6F20F00"},
+        "experimental_expanded_256_progression": {"parent_size": 991232, "parent_sha256": "1AF3DDADC30876A0FF83484CF2AE926D9A577F0A1BD6213F8B56E6918256DBF3", "parent_checksum": "38D20F00", "result_size": 991232, "result_sha256": "7BFFC38D17879D616CE196E2551239D112AA8FBFCAE7441AEEC27DE93ED40DE5", "result_checksum": "0D1C1000", "final_no_fun_sha256": "DCD190A149A06579A2765AB182C9169BF41ED8ED3B8798E18A2FA2774728261B", "final_no_fun_checksum": "40CD0F00"}
+      }
+    }
+  }
+}

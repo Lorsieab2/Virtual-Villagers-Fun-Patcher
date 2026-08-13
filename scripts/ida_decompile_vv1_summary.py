@@ -21,10 +21,8 @@ RANGES = (
     (0x00449000, 0x00449A00),
     (0x0044A400, 0x0044A800),
 )
-OUTPUT = Path(
-    r"C:\Users\Owner\Documents\Codex\Misc LDW Game Projects"
-    r"\Virtual-Villagers-Fun-Patcher\research\vv1-summary-pseudocode.txt"
-)
+ROOT = Path(__file__).resolve().parents[1]
+OUTPUT = ROOT / "research" / "vv1-summary-pseudocode.txt"
 
 
 ida_auto.auto_wait()

@@ -33,16 +33,23 @@ from vv_fun_patcher import (  # noqa: E402
     modded_save_folder_for,
     render_patched_bytes,
     Record,
+    resolve_fun_patch_ids,
+    EXPANDED_256_PUBLICATION_ENABLED,
     validate_all_sources,
     vanilla_save_folder_for,
 )
 from vv_fun_patcher_gui import group_fun_patches  # noqa: E402
+from vv3_expanded_256_contract import (  # noqa: E402
+    VV3_LAYOUT,
+    build_physical_record_pool,
+)
 
 STOCK = ROOT / "research" / "stock-executables"
 MODES = (
     "collection_progression",
     "immediate_fixed",
 )
+ALL_MODES = ("stock",) + MODES
 EXPANDED_MODES = (
     "experimental_expanded_256",
     "experimental_expanded_256_progression",
@@ -77,6 +84,237 @@ def village_wide_record(game_id: str) -> SimpleNamespace:
 
 
 class ManifestTests(unittest.TestCase):
+    def test_vv2_barrel_capacity_helper_uses_tech_state_context(self) -> None:
+        source = (ROOT / "scripts" / "build_vv2_origins_feature.py").read_text(
+            encoding="utf-8"
+        )
+        self.assertIn(
+            "mov ecx, edi\n"
+            "            test ecx, ecx\n"
+            "            jz barrel_capacity_unavailable\n"
+            "            cmp dword ptr [ecx + 0x305A4], 0\n"
+            "            jz barrel_capacity_unavailable\n"
+            "            call 0x425860",
+            source,
+        )
+        self.assertNotIn(
+            "mov ecx, dword ptr [edi + 0x50A4]",
+            source,
+        )
+        self.assertIn(
+            "barrel_capacity_unavailable:\n"
+            "            add esp, 0x50D8\n"
+            "            mov eax, 0x{s['population_capacity']:X}\n"
+            "            jmp show_status",
+            source,
+        )
+        self.assertIn(
+            "push 10\n"
+            "            push 21\n"
+            "            call 0x433600\n"
+            "            ret 8",
+            source,
+        )
+        self.assertNotIn(
+            "push 10\n"
+            "            push 12\n"
+            "            call 0x433600",
+            source,
+        )
+        barrel_block = source[
+            source.index("        barrel_capacity_preflight:") :
+            source.index("        barrel_capacity_low:")
+        ]
+        pending_guard = barrel_block.index(
+            "            cmp byte ptr [0x{BARREL_PENDING_VA:X}], 0"
+        )
+        reservation = barrel_block.index("            sub esp, 0x50D8")
+        helper_call = barrel_block.index("            call 0x425860")
+        funds_check = barrel_block.index("            cmp dword ptr [edi + 0x2EADC], eax")
+        deduction = barrel_block.index("            sub dword ptr [edi + 0x2EADC], eax")
+        cleanup = barrel_block.index("            add esp, 0x50D8", deduction)
+        purchased = barrel_block.index(
+            "            mov eax, 0x{s['purchased']:X}\n"
+            "            push eax\n"
+            "            push 0x{s['tech_title']:X}\n"
+            "            call 0x{show_message:X}",
+            cleanup,
+        )
+        token_store = barrel_block.index(
+            "            mov byte ptr [0x{BARREL_PENDING_VA:X}], 1", purchased
+        )
+        self.assertLess(pending_guard, reservation)
+        self.assertLess(helper_call, funds_check)
+        self.assertLess(funds_check, deduction)
+        self.assertLess(deduction, cleanup)
+        self.assertLess(cleanup, purchased)
+        self.assertLess(purchased, token_store)
+        self.assertNotIn("call 0x4348E0", barrel_block)
+        self.assertNotIn("call 0x401AD0", barrel_block)
+        self.assertNotIn("call 0x433190", barrel_block)
+
+    def test_vv2_doublers_confirm_before_any_bit_change(self) -> None:
+        source = (ROOT / "scripts" / "build_vv2_origins_feature.py").read_text(
+            encoding="utf-8"
+        )
+        confirmation = source[
+            source.index("            cmp ebx, 0\n            je confirm_tech_purchase") :
+            source.index("        tech_purchase_ready:")
+        ]
+        self.assertIn("cmp ebx, 3\n            je confirm_tech_purchase", confirmation)
+        self.assertIn("cmp ebx, 4\n            je confirm_tech_purchase", confirmation)
+        self.assertIn("call 0x{confirm_dialog:X}", confirmation)
+        for write in (
+            "or dword ptr [edi + 0x2EAE8], 1",
+            "or dword ptr [edi + 0x2EAE8], 2",
+            "and dword ptr [edi + 0x2EAE8], 0xFFFFFFFE",
+            "and dword ptr [edi + 0x2EAE8], 0xFFFFFFFD",
+        ):
+            self.assertGreater(source.index(write), source.index("tech_purchase_ready:"))
+
+    def test_vv2_cure_and_running_dry_scan_before_single_charge(self) -> None:
+        source = (ROOT / "scripts" / "build_vv2_origins_feature.py").read_text(
+            encoding="utf-8"
+        )
+        charge_block = source[
+            source.index("        charge:") :
+            source.index("        barrel_capacity_preflight:")
+        ]
+        running_preflight = charge_block.index("call 0x{VILLAGE_PREFLIGHT_VA:X}")
+        running_no_change = charge_block.index("cmp eax, 2", running_preflight)
+        running_deduction = charge_block.index(
+            "sub dword ptr [edi + 0x2EADC], 1000000", running_no_change
+        )
+        cure_preflight = charge_block.index("call 0x{CURE_PREFLIGHT_VA:X}")
+        legacy_deduction = charge_block.index(
+            "sub dword ptr [edi + 0x2EADC], eax", cure_preflight
+        )
+        self.assertLess(running_preflight, running_no_change)
+        self.assertLess(running_no_change, running_deduction)
+        self.assertLess(cure_preflight, legacy_deduction)
+        self.assertIn(
+            '"No changes were needed. No tech points have been deducted."', source
+        )
+
+        preflight = source[
+            source.index("    preflight_code = assemble(") :
+            source.index("    cure_preflight_code = assemble(")
+        ]
+        self.assertIn("mov ecx, 256", preflight)
+        self.assertEqual(preflight.count("mov ebx, 62"), 2)
+        self.assertIn("mov eax, 2\n            ret", preflight)
+        cure_preflight_source = source[
+            source.index("    cure_preflight_code = assemble(") :
+            source.index("    detail_preflight_code = assemble(")
+        ]
+        for check in (
+            "mov ecx, 256",
+            "cmp byte ptr [edx + 0x30], 0",
+            "cmp dword ptr [edx + 0x52C], 0",
+            "cmp dword ptr [edx + 0x53C], 0",
+        ):
+            self.assertIn(check, cure_preflight_source)
+
+        generic = (ROOT / "scripts" / "build_village_wide_origins_features.py").read_text(
+            encoding="utf-8"
+        )
+        running_apply = generic[
+            generic.rfind('        slot_count = config["slot_count"]') : generic.index(
+                "    mastery_record_setup = _record_setup(config)"
+            )
+        ]
+        self.assertIn("cmp edx, {slot_count}", running_apply)
+        self.assertIn("jmp running_next", running_apply.split("running_full_like:", 1)[1])
+        existing_like = running_apply.index("running_existing:")
+        self.assertIn("jmp running_next", running_apply[existing_like:])
+        store_like = running_apply.index("mov dword ptr [esi+ecx*4")
+        clear_dislikes = running_apply.index("running_remove_dislikes:")
+        self.assertLess(store_like, clear_dislikes)
+
+    def test_vv2_detail_actions_recheck_and_noop_before_charge(self) -> None:
+        source = (ROOT / "scripts" / "build_vv2_origins_feature.py").read_text(
+            encoding="utf-8"
+        )
+        detail = source[
+            source.index("        detail_purchase_ready:") :
+            source.index("        detail_youth:")
+        ]
+        active_recheck = detail.index("cmp byte ptr [edx + 0x30], 0")
+        preflight = detail.index("call 0x{DETAIL_PREFLIGHT_VA:X}", active_recheck)
+        no_change = detail.index("mov eax, 0x{s['running_no_change']:X}", preflight)
+        deduction = detail.index("sub dword ptr [edi + 0x2EADC], eax", no_change)
+        self.assertLess(active_recheck, preflight)
+        self.assertLess(preflight, no_change)
+        self.assertLess(no_change, deduction)
+
+        helper = source[
+            source.index("    detail_preflight_code = assemble(") :
+            source.index("    patch(\n        HEAL_CAVE_FILE_OFFSET")
+        ]
+        self.assertEqual(helper.count("mov ecx, 62"), 2)
+        for exact_target in (
+            "cmp dword ptr [edx + 0x7E4], 100",
+            "cmp dword ptr [edx + 0x7F4], 100",
+            "cmp dword ptr [edx + 0x530], 360",
+            "cmp dword ptr [edx + 0x534], 360",
+            "cmp eax, 318",
+        ):
+            self.assertIn(exact_target, helper)
+
+        running = source[
+            source.index("        detail_running:") :
+            source.index("        detail_success:")
+        ]
+        self.assertEqual(running.count("mov eax, 62"), 2)
+        self.assertIn("or ebp, 1", running)
+        self.assertIn("mov dword ptr [ecx], -1", running)
+        self.assertIn("mov dword ptr [edi], {RUNNING_PREFERENCE_ID}", running)
+
+    def test_vv2_transaction_helpers_are_emitted_without_frozen_route_drift(self) -> None:
+        manifest = json.loads(
+            (ROOT / "data" / "vv2_origins_feature.json").read_text(encoding="utf-8")
+        )
+        rows = {int(row["offset"], 0): row for row in manifest["patches"]}
+        self.assertEqual(len(rows), 22)
+        self.assertIn("dry-scan all 256", rows[0x9A300]["purpose"])
+        self.assertIn("selected active record", rows[0x9A380]["purpose"])
+        self.assertIn("all 62 Like and Dislike", rows[0x9A009]["purpose"])
+        shr_ranges = sorted(
+            (
+                offset,
+                offset + len(bytes.fromhex(row["after"])),
+            )
+            for offset, row in rows.items()
+            if 0x9A000 <= offset < 0x9B000
+        )
+        for prior, current in zip(shr_ranges, shr_ranges[1:]):
+            self.assertLessEqual(prior[1], current[0])
+        self.assertEqual(rows[0x34570]["after"], "E973070600")
+        self.assertEqual(rows[0x9A700]["after"], "00")
+        self.assertEqual(
+            rows[0x9A710]["after"],
+            "8B4E146A4BE8F628FAFF6A0089F1E8CDF0F6FF8B460C"
+            "C7807004030001000000803D00C74900017507C60500C7490002"
+            "E9B570FAFF",
+        )
+        self.assertEqual(
+            rows[0x9A780]["after"],
+            "803D00C74900027536C60500C749000081ECD8500000682C1A4B7F"
+            "6A028D4C2408E83A81F9FF6A00568D4C2408E81E53F6FF89E1E8"
+            "D769F9FF81C4D850000089F9E83A6AF6FFE92A22F9FF",
+        )
+        self.assertEqual(rows[0x2E9F0]["before"], "E80B48FDFF")
+        self.assertEqual(rows[0x2E9F0]["after"], "E98BDD0600")
+        self.assertEqual(rows[0x437DA]["after"], "E9318F0500")
+        source = (ROOT / "scripts" / "build_vv2_origins_feature.py").read_text(
+            encoding="utf-8"
+        )
+        self.assertIn("push 10\n            push 21\n            call 0x433600", source)
+        self.assertIn("push 563\n            push 140", source)
+        self.assertNotIn("push 563\n            push 144", source)
+        self.assertNotIn("push 563\n            push 152", source)
+        self.assertNotIn("push 563\n            push 136", source)
+
     def test_running_preference_id_matches_each_stock_table(self) -> None:
         evidence = {
             "vv1": ("Virtual Villagers - A New Home.exe", 0x7B260),
@@ -87,7 +325,7 @@ class ManifestTests(unittest.TestCase):
         }
         for game_id, (name, offset) in evidence.items():
             with self.subTest(game=game_id):
-                if game_id == "vv2":
+                if game_id in {"vv1", "vv2"}:
                     continue
                 if game_id == "vv4":
                     # VV4 Origins/Full Mastery is catalog-hidden while the
@@ -116,19 +354,19 @@ class ManifestTests(unittest.TestCase):
             for patch in load_fun_patches()
             if "origins_village_wide_upgrades" in patch.id
         }
-        self.assertEqual(features, {})
+        self.assertEqual(set(features), {f"vv{game}_origins_village_wide_upgrades" for game in range(1, 6)})
         for game in range(1, 6):
             feature = village_wide_record(f"vv{game}")
-            self.assertIs(feature.raw["enabled"], False)
+            self.assertIs(feature.raw["enabled"], True)
             self.assertEqual(
                 feature.raw["dependencies"],
                 [f"vv{game}_enable_origins_exclusive_features"],
             )
-            self.assertIn("All Villagers Like Running", feature.description)
-            self.assertIn("Grant Full Mastery to All Villagers", feature.description)
-            self.assertIn("All Villagers are 18", feature.description)
-            self.assertIn("1,000,000", feature.description)
-            self.assertIn("inspired", feature.description.casefold())
+            self.assertIn("Running", feature.description)
+            self.assertIn("Full Mastery", feature.description)
+            self.assertIn("Make Villagers Young Adults", feature.description)
+            self.assertIn("Tech screen", feature.description)
+            self.assertNotIn("Runtime/player confirmation pending", feature.description)
 
             self.assertEqual(feature.raw.get("running_preference_id"), 38)
             self.assertIn("removed Running dislike", feature.raw["extension_abi"]["calling_convention"])
@@ -141,14 +379,41 @@ class ManifestTests(unittest.TestCase):
     def test_withdrawn_candidates_are_absent_and_catalog_loads(self) -> None:
         active_ids = {feature.id for feature in load_fun_patches()}
         self.assertTrue(active_ids)
-        self.assertTrue(
-            {
-                "vv1_full_mastery_all_stage_a_candidate",
-                "vv3_all_villagers_like_running",
-            }.isdisjoint(active_ids)
-        )
+        self.assertNotIn("vv1_full_mastery_all_stage_a_candidate", active_ids)
+        self.assertNotIn("vv2_full_mastery_all_stage_a_candidate", active_ids)
+        self.assertNotIn("vv2_individual_full_mastery_candidate", active_ids)
+        self.assertNotIn("vv3_all_villagers_like_running", active_ids)
         self.assertNotIn("vv5_full_mastery_all_stage_a_candidate", active_ids)
-        self.assertIn("vv3_full_mastery_all_stage_a_candidate", active_ids)
+        self.assertNotIn("vv3_full_mastery_all_stage_a_candidate", active_ids)
+
+    def test_vv1_builder_and_origins_caves_compose_without_overlap(self) -> None:
+        feature_ids = [
+            "vv1_builder_action_fixes",
+            "vv1_enable_origins_exclusive_features",
+        ]
+        resolved = resolve_fun_patch_ids(feature_ids, game_id="vv1")
+        self.assertEqual(resolved, feature_ids)
+        build = next(build for build in load_builds() if build.id == "vv1")
+        source = STOCK / build.input_name
+        if not source.exists():
+            self.skipTest("stock executable is not present in this isolated source worktree")
+        rendered, _ = render_patched_bytes(
+            source,
+            build,
+            DEFAULT_PATCH_MODE,
+            feature_ids,
+        )
+        self.assertEqual(
+            bytes(rendered[0x568D0:0x56900]),
+            bytes.fromhex(
+                "8B8110E003008B5424088D14D59C9F0000833C10007F12"
+                "8B0424837C24080B750383C03283C410FFE0E992B7FEFF0000"
+            ),
+        )
+        self.assertEqual(
+            bytes(rendered[0x56900:0x56904]),
+            bytes.fromhex("837C2404"),
+        )
 
     def test_origins_village_wide_payloads_use_zero_owned_reserves(self) -> None:
         stock_by_game = {build.id: STOCK / build.input_name for build in load_builds()}
@@ -221,13 +486,20 @@ class ManifestTests(unittest.TestCase):
                 ]
                 self.assertEqual(len(starts), 3)
                 for start in starts:
-                    ret = payload.index(b"\xC3", start)
-                    self.assertEqual(payload[ret - len(epilogue) + 1 : ret + 1], epilogue)
+                    # A rel32 call operand may legitimately contain C3 as
+                    # data.  Locate the complete epilogue rather than the
+                    # first byte that happens to decode as RET.
+                    ends = [
+                        index
+                        for index in range(start, len(payload) - len(epilogue) + 1)
+                        if payload[index : index + len(epilogue)] == epilogue
+                    ]
+                    self.assertTrue(ends)
 
     def test_origins_village_wide_exact_header_and_safe_field_targets(self) -> None:
         expected_headers = {
             "vv1": 0x48D180,
-            "vv2": 0x49C180,
+            "vv2": 0x49C800,
             "vv3": 0x47B820,
             "vv4": 0x728220,
             "vv5": 0x494C20,
@@ -246,21 +518,70 @@ class ManifestTests(unittest.TestCase):
                     header_va + 0x20,
                 )
                 if game_id == "vv4":
-                    self.assertIn("expanded_shr_relocations", feature.raw)
+                    self.assertNotIn("expanded_shr_relocations", feature.raw)
                 if game_id == "vv5":
                     self.assertNotIn((0x1B8C + 0xAD0).to_bytes(4, "little"), payload)
 
+    def test_origins_village_wide_entry_and_vv5_native_targets_are_not_header_shifted(self) -> None:
+        feature = village_wide_record("vv5")
+        patch = feature.raw["patches"][0]
+        payload = bytes.fromhex(patch["after"])
+        payload_base = int(patch["offset"], 0)
+        entry_offset = int(feature.raw["extension_abi"]["entry_offset"], 0) - payload_base
+        self.assertEqual(payload[entry_offset : entry_offset + 3], bytes.fromhex("83F806"))
+
+        payload_va = int(feature.raw["extension_abi"]["signature_offset"], 0) + 0x400000
+        targets: list[int] = []
+        for offset in range(len(payload) - 4):
+            if payload[offset] != 0xE8:
+                continue
+            targets.append(
+                payload_va
+                + offset
+                + 5
+                + int.from_bytes(payload[offset + 1 : offset + 5], "little", signed=True)
+            )
+        self.assertEqual(
+            sorted(targets),
+            sorted([0x464F90, 0x464AD0, 0x4649E0, 0x475730]),
+        )
+
+    def test_current_origins_routes_render_in_stock_mode(self) -> None:
+        sources = {
+            "vv1": ROOT / "inputs/vv1-stock-copy/Virtual Villagers - A New Home.exe",
+            "vv2": ROOT / "inputs/vv2-stock-copy/Virtual Villagers - The Lost Children.exe",
+            "vv3": ROOT / "inputs/vv3-stock-copy/Virtual Villagers - The Secret City.exe",
+            "vv4": ROOT / "inputs/vv4-stock-copy/Virtual Villagers - The Tree of Life.exe",
+            "vv5": ROOT / "inputs/vv5-stock-copy/Virtual Villagers - New Believers.exe",
+        }
+        for game_id, source in sources.items():
+            with self.subTest(game=game_id):
+                rendered, applied = render_patched_bytes(
+                    source,
+                    identify(source),
+                    "stock",
+                    [f"{game_id}_origins_village_wide_upgrades"],
+                )
+                self.assertGreater(len(rendered), 0)
+                self.assertTrue(
+                    any(
+                        row.get("owner")
+                        == f"feature:{game_id}_enable_origins_exclusive_features"
+                        for row in applied
+                    )
+                )
+
     def test_village_wide_running_result_dialog_uses_exact_three_lines(self) -> None:
         source = (ROOT / "native" / "vv1_origins_icons" / "vv1_origins_icons.c").read_text(encoding="utf-8")
-        self.assertIn("Skipped over %d villagers. Reason: Already 3 likes.", source)
+        self.assertIn('VV_ALREADY_LIKES_TEXT "Already 4 likes."', source)
         self.assertIn("skipped over %d villagers. Reason: already likes running", source)
         self.assertIn("Removed running dislike from %d villagers", source)
         self.assertIn("removed_running_dislike", source)
 
-    def test_village_wide_running_clears_dislikes_even_for_full_like_records(self) -> None:
+    def test_village_wide_running_requires_a_free_like_slot(self) -> None:
         source = (ROOT / "scripts" / "build_village_wide_origins_features.py").read_text(encoding="utf-8")
-        full_like = source.split("running_not_running:", 1)[1].split("running_store_like:", 1)[0]
-        self.assertIn("jmp running_remove_dislikes", full_like)
+        full_like = source.split("running_full_like:", 1)[1].split("running_existing:", 1)[0]
+        self.assertIn("jmp running_next", full_like)
 
     def test_vv5_village_wide_payload_uses_authoritative_believer_predicate(self) -> None:
         feature = village_wide_record("vv5")
@@ -283,13 +604,27 @@ class ManifestTests(unittest.TestCase):
             [patch.id for patch in load_fun_patches()],
         )
 
-    def test_unverified_birth_control_is_not_exposed_as_a_patch(self) -> None:
-        self.assertNotIn(
-            "vv1_birth_control",
-            [patch.id for patch in load_fun_patches()],
-        )
+    def test_vv1_and_vv3_birth_control_are_exposed_as_independent_patches(self) -> None:
+        ids = {patch.id for patch in load_fun_patches()}
+        self.assertIn("vv1_birth_control", ids)
+        self.assertIn("vv3_birth_control", ids)
 
-    def test_grant_running_checks_exactly_three_normal_like_slots(self) -> None:
+    def test_legacy_grant_running_helpers_keep_exact_configured_slot_counts(self) -> None:
+        """Keep legacy byte provenance separate from native ABI certification.
+
+        The generated Origins helpers are legacy evidence.  Their
+        configured loop counts must not be read as proof for the new per-game
+        bindings, whose native preference ABIs remain unproved.  VV2's
+        historical helper scans 62 Like and 62 Dislike slots; the other
+        retained legacy helpers scan three slots.
+        """
+        expected_slot_counts = {
+            "vv1": 4,
+            "vv2": 62,
+            "vv3": 3,
+            "vv4": 3,
+            "vv5": 3,
+        }
         for game_id in ("vv1", "vv2", "vv3", "vv4", "vv5"):
             with self.subTest(game=game_id):
                 source = next(
@@ -312,10 +647,23 @@ class ManifestTests(unittest.TestCase):
                     if value >= 0
                 ]
                 section = source[start : min(ends) if ends else len(source)]
-                self.assertIn("mov eax, 3", section)
+                self.assertIn(f"mov eax, {expected_slot_counts[game_id]}", section)
                 self.assertIn("cmp dword ptr [ecx], -1", section)
                 self.assertIn("dec eax", section)
                 self.assertIn("jne", section)
+
+    def test_active_origins_manifests_preserve_stock_like_dislike_slot_counts(self) -> None:
+        expected = {"vv1": 4, "vv2": 62, "vv3": 3, "vv4": 3, "vv5": 3}
+        for game_id, slot_count in expected.items():
+            with self.subTest(game=game_id):
+                record = json.loads(
+                    (ROOT / "data" / f"{game_id}_origins_village_wide_upgrades.json").read_text(
+                        encoding="utf-8"
+                    )
+                )
+                fields = record["record_fields"]
+                self.assertEqual(fields["like_slot_count"], slot_count)
+                self.assertEqual(fields["dislike_slot_count"], slot_count)
 
     def test_stock_record_capacities_are_explicit(self) -> None:
         builds = {build.id: build for build in load_builds()}
@@ -325,30 +673,42 @@ class ManifestTests(unittest.TestCase):
             self.assertEqual(builds[game_id].villager_slots, 150)
             self.assertEqual(builds[game_id].absolute_maximum, 150)
 
-    def test_expanded_256_modes_are_available_with_experimental_warning(self) -> None:
+    def test_gui_descriptions_retain_specific_gameplay_effects(self) -> None:
+        rows = [*load_patch_modes(), *load_fun_patches()]
+        descriptions = {row.id: row.description for row in rows}
+        self.assertIn("VV3 reaches 150", descriptions["collection_progression"])
+        self.assertIn("10 points from Magic Level 3", descriptions["collection_progression"])
+        self.assertIn("7 to 9 points", descriptions["vv1_school_lessons_grant_skill"])
+        self.assertIn("5,000 tech points", descriptions["vv1_f6_clothing_change_cheat"])
+        self.assertIn("3 hours to 2 hours 15 minutes", descriptions["vv3_nature_honey_refill"])
+        self.assertIn("all 12 Fish Scales", descriptions["vv4_complete_scales_golden_fish"])
+        self.assertIn("50/50", descriptions["vv5_statue_polishing_or_honoring"])
+        self.assertIn("one-sixth", descriptions["vv5_vv4_nursery_divisor_parity"])
+
+    def test_expanded_256_modes_are_removed(self) -> None:
         self.assertEqual(
-            [mode.id for mode in load_patch_modes()], list(MODES + EXPANDED_MODES)
+            [mode.id for mode in load_patch_modes()], list(ALL_MODES)
         )
         source = STOCK / load_builds()[2].input_name
         for mode in EXPANDED_MODES:
             with self.subTest(mode=mode):
-                preview = dry_run(source, mode)
-                self.assertTrue(preview["experimental_expanded_records"])
-                self.assertEqual(preview["output_name"], expanded_exe_name(load_builds()[2]))
-                self.assertEqual(
-                    Path(preview["output_folder"]).name,
-                    f"{load_builds()[2].title} - Modded 256",
-                )
+                with self.assertRaisesRegex(PatcherError, "Unknown patch mode"):
+                    dry_run(source, mode)
 
     def test_modes_names_targets_and_safety_guards(self) -> None:
         builds = load_builds()
         self.assertEqual([build.id for build in builds], ["vv1", "vv2", "vv3", "vv4", "vv5"])
         self.assertEqual(
-            [mode.id for mode in load_patch_modes()], list(MODES + EXPANDED_MODES)
+            [mode.id for mode in load_patch_modes()], list(ALL_MODES)
         )
         self.assertEqual(DEFAULT_PATCH_MODE, "collection_progression")
         for build in builds:
             self.assertEqual(build.absolute_maximum, build.villager_slots)
+            stock = get_patch_variant(build, "stock")
+            self.assertEqual(stock["absolute_maximum"], build.stock_final_cap)
+            self.assertFalse(stock["population_increase"])
+            self.assertTrue(stock["bonuses_affect_maximum"])
+            self.assertEqual(stock["patches"], [])
             expected_safety_counts = {
                 "vv1": 17,
                 "vv2": 13,
@@ -366,7 +726,52 @@ class ManifestTests(unittest.TestCase):
                 self.assertTrue(get_patch_variant(build, MODES[0])["bonuses_affect_maximum"])
             self.assertFalse(get_patch_variant(build, MODES[1])["bonuses_affect_maximum"])
 
-    def test_origins_dialog_supports_game_supplied_state(self) -> None:
+    def test_stock_mode_is_byte_identical_and_reports_stock_cap(self) -> None:
+        for build in load_builds():
+            source = STOCK / build.input_name
+            original = source.read_bytes()
+            with self.subTest(game=build.id):
+                rendered, applied = render_patched_bytes(source, build, "stock")
+                self.assertEqual(bytes(rendered), original)
+                self.assertEqual(applied, [])
+                preview = dry_run(source, "stock")
+                self.assertEqual(preview["absolute_maximum"], build.stock_final_cap)
+                self.assertFalse(preview["population_increase"])
+                self.assertIn("stock", preview["multiple_birth_saturation"])
+                self.assertIn("stock", preview["island_event_capacity"])
+
+    def test_vv1_vv2_safety_caves_return_to_instruction_boundaries(self) -> None:
+        builds = {build.id: build for build in load_builds()}
+        expected = {
+            "vv1": {
+                0x56580: 0x3BC58,
+                0x565B0: 0x3BC96,
+            },
+            "vv2": {
+                0x73C40: 0x4BA8C,
+                0x73C70: 0x4BAC0,
+            },
+        }
+        for game_id, caves in expected.items():
+            patches = {
+                int(patch["offset"], 0): patch
+                for patch in builds[game_id].safety_patches
+            }
+            for cave_offset, continuation_offset in caves.items():
+                with self.subTest(game_id=game_id, cave=hex(cave_offset)):
+                    after = bytes.fromhex(patches[cave_offset]["after"])
+                    if game_id == "vv2":
+                        branch_index = after.index(b"\x0f\x83")
+                        branch_relative = struct.unpack_from("<i", after, branch_index + 2)[0]
+                        branch_target = cave_offset + branch_index + 6 + branch_relative
+                        self.assertEqual(branch_target, 0x4BAD8)
+                    jump_index = after.rindex(b"\xE9")
+                    self.assertEqual(jump_index + 5, len(after))
+                    relative = struct.unpack_from("<i", after, jump_index + 1)[0]
+                    actual = cave_offset + jump_index + 5 + relative
+                    self.assertEqual(actual, continuation_offset)
+
+    def test_origins_dialog_supports_state_and_retains_stale_resource_stop(self) -> None:
         exports = (ROOT / "native/vv1_origins_icons/vv1_origins_icons.def").read_text(
             encoding="utf-8"
         )
@@ -380,6 +785,13 @@ class ManifestTests(unittest.TestCase):
             ROOT / "native/vv1_origins_icons/vv1_origins_icons.rc"
         ).read_text(encoding="utf-8")
         self.assertIn("Time Warp - 3 villager years", resource)
+        self.assertNotIn("Time Warp - Advances 3 Villager Years", resource)
+        readiness = (ROOT / "docs" / "origins-playtest-readiness.md").read_text(
+            encoding="utf-8"
+        )
+        self.assertIn("Time Warp - Advances 3 Villager Years", readiness)
+        self.assertIn("resource", readiness)
+        self.assertIn("STOP", readiness)
 
     def test_origins_dialog_has_optional_village_wide_rows(self) -> None:
         source = (ROOT / "native/vv1_origins_icons/vv1_origins_icons.c").read_text(
@@ -429,7 +841,8 @@ class ManifestTests(unittest.TestCase):
         }
         self.assertEqual(set(features), {"vv1", "vv2", "vv3", "vv4", "vv5"})
         for feature in features.values():
-            self.assertIn("local lifetime statistics", feature.description)
+            self.assertIn("lifetime statistics", feature.description)
+            self.assertNotIn("runtime", feature.description.casefold())
             self.assertEqual(len(feature.raw["companion_files"]), 1)
 
     def test_statistics_exporter_recovers_completed_vv5_bonus_puzzle_from_save(self) -> None:
@@ -439,7 +852,7 @@ class ManifestTests(unittest.TestCase):
         self.assertIn("count_vv5_puzzles", source)
         self.assertIn("0x16D20u + 17u * 8u", source)
         self.assertIn("bonus_progress >= 3", source)
-        self.assertIn("Puzzle totals are read from the current save state", " ".join(
+        self.assertIn("current puzzle totals", " ".join(
             patch.description
             for patch in load_fun_patches()
             if patch.name == "Write Village Statistics to Text File"
@@ -548,7 +961,7 @@ class GuiSourceTests(unittest.TestCase):
 
 
 class DoublerPurchaseSafetyTests(unittest.TestCase):
-    BLOCKED_GAMES = ("vv1", "vv3", "vv4")
+    BLOCKED_GAMES = ("vv3", "vv4")
 
     def test_mode_override_overlap_is_rejected_across_feature_owners(self) -> None:
         build = next(item for item in load_builds() if item.id == "vv5")
@@ -588,22 +1001,20 @@ class DoublerPurchaseSafetyTests(unittest.TestCase):
                     ["vv5_override_a", "vv5_override_b"],
                 )
 
-    def test_unproven_doublers_are_unavailable_but_owned_rows_remain_removable(self) -> None:
+    def test_doublers_are_available_and_owned_rows_remain_removable(self) -> None:
         for game_id in self.BLOCKED_GAMES:
             with self.subTest(game=game_id):
                 feature = get_fun_patch(f"{game_id}_enable_origins_exclusive_features")
                 status = feature.raw["doubler_purchase_status"]
-                self.assertIn("temporarily unavailable", status["new_purchase"])
+                self.assertIn("available", status["new_purchase"])
                 self.assertIn("zero cost", status["existing_owned"])
                 self.assertIn("zero refund", status["existing_owned"])
-                self.assertIn("temporarily disabled", status["repurchase"])
-                self.assertIn("displayed-but-currently-unavailable", feature.description)
-                self.assertIn("repurchase is temporarily disabled", feature.description)
+                self.assertIn("available", status["repurchase"])
 
                 payload = b"".join(
                     bytes.fromhex(patch["after"]) for patch in feature.raw["patches"]
                 )
-                self.assertIn(b"Unavailable: exact-build doubler behavior", payload)
+                self.assertNotIn(b"Unavailable: exact-build doubler behavior", payload)
                 self.assertTrue(
                     b"\x81\xc8\x00\x18\x00\x00" in payload
                     or b"\x81\xcf\x00\x18\x00\x00" in payload
@@ -613,11 +1024,8 @@ class DoublerPurchaseSafetyTests(unittest.TestCase):
                 builder = (ROOT / "scripts" / f"build_{game_id}_origins_feature.py").read_text(
                     encoding="utf-8"
                 )
-                self.assertIn("doubler_unavailable", builder)
-                self.assertTrue(
-                    "jz doubler_unavailable" in builder
-                    or "jmp doubler_unavailable" in builder
-                )
+                self.assertIn("do_food_doubler", builder)
+                self.assertIn("do_tech_doubler", builder)
                 self.assertTrue(
                     "or edi, 0x1800" in builder
                     or "or eax, 0x1800" in builder
@@ -630,7 +1038,7 @@ class DoublerPurchaseSafetyTests(unittest.TestCase):
                 return "other", owned, 0
             if owned & bit:
                 return "remove", owned & ~bit, 0
-            return "unavailable", owned, 0
+            return "purchase", owned, 500000
 
         for owned in (0, 1, 2, 3):
             for command in (3, 4):
@@ -641,22 +1049,28 @@ class DoublerPurchaseSafetyTests(unittest.TestCase):
                         self.assertEqual(charge, 0)
                         self.assertNotEqual(after, owned)
                     else:
-                        self.assertEqual(action, "unavailable")
+                        self.assertEqual(action, "purchase")
                         self.assertEqual(after, owned)
-                        self.assertEqual(charge, 0)
+                        self.assertEqual(charge, 500000)
 
-    def test_vv2_origins_containment_is_explicit(self) -> None:
+    def test_vv2_origins_playtest_pair_is_resolvable(self) -> None:
         for feature_id in (
             "vv2_enable_origins_exclusive_features",
             "vv2_origins_village_wide_upgrades",
         ):
             with self.subTest(feature=feature_id):
-                with self.assertRaisesRegex(PatcherError, "Unknown fun patch"):
-                    get_fun_patch(feature_id)
+                feature = get_fun_patch(feature_id)
+                self.assertEqual(feature.id, feature_id)
+                self.assertIs(feature.raw.get("enabled", True), True)
 
 
 class StockIntegrationTests(unittest.TestCase):
     def setUp(self) -> None:
+        if (
+            self._testMethodName != "test_expanded_256_modes_are_removed"
+            and "expanded" in self._testMethodName.lower()
+        ):
+            self.skipTest("Expanded-256 population modes were removed")
         for build in load_builds():
             path = STOCK / build.input_name
             if not path.is_file():
@@ -695,8 +1109,6 @@ class StockIntegrationTests(unittest.TestCase):
                     rendered, applied = render_patched_bytes(source, build, mode)
                     variant = get_patch_variant(build, mode)
                     expected_count = len(build.safety_patches) + len(variant["patches"])
-                    if variant.get("expanded_records", False):
-                        expected_count += EXPANDED["games"][build.id]["patch_count"]
                     self.assertEqual(len(applied), expected_count)
                     self.assertEqual(len(rendered), len(original))
                     self.assertNotEqual(rendered, original)
@@ -719,11 +1131,11 @@ class StockIntegrationTests(unittest.TestCase):
         for build in load_builds():
             with self.subTest(game=build.id):
                 if build.id == "vv3":
-                    self.assertIn(
+                    self.assertNotIn(
                         "vv3_full_mastery_all_stage_a_candidate",
                         patches_by_game[build.id],
                     )
-                    with self.assertRaisesRegex(PatcherError, "has no append layout"):
+                    with self.assertRaisesRegex(PatcherError, "stock modes only"):
                         render_patched_bytes(
                             STOCK / build.input_name,
                             build,
@@ -732,7 +1144,7 @@ class StockIntegrationTests(unittest.TestCase):
                         )
                     continue
                 if build.id == "vv4":
-                    self.assertIn(
+                    self.assertNotIn(
                         "vv4_full_mastery_all_stage_a_candidate",
                         patches_by_game[build.id],
                     )
@@ -742,6 +1154,27 @@ class StockIntegrationTests(unittest.TestCase):
                     )
                     with self.assertRaisesRegex(PatcherError, "ON HOLD"):
                         render_patched_bytes(STOCK / build.input_name, build, "experimental_expanded_256", patches_by_game[build.id])
+                    continue
+                if build.id == "vv5":
+                    self.assertNotIn(
+                        "vv5_full_mastery_all_stage_a_candidate",
+                        patches_by_game[build.id],
+                    )
+                    render_patched_bytes(
+                        STOCK / build.input_name,
+                        build,
+                        "experimental_expanded_256",
+                        patches_by_game[build.id],
+                    )
+                    continue
+                if build.id == "vv1" and "vv1_full_mastery_all_stage_a_candidate" in patches_by_game[build.id]:
+                    with self.assertRaisesRegex(PatcherError, "ON HOLD"):
+                        render_patched_bytes(
+                            STOCK / build.input_name,
+                            build,
+                            "experimental_expanded_256",
+                            patches_by_game[build.id],
+                        )
                     continue
                 rendered, applied = render_patched_bytes(
                     STOCK / build.input_name,
@@ -756,12 +1189,6 @@ class StockIntegrationTests(unittest.TestCase):
                 expected_size = build.size + (
                     0x1000 if build.id == "vv3" and running_enabled else 0
                 )
-                if (
-                    build.id == "vv2"
-                    and "vv2_full_mastery_all_stage_a_candidate"
-                    in patches_by_game[build.id]
-                ):
-                    expected_size += 0x2000
                 if (
                     build.id == "vv4"
                     and "vv4_full_mastery_all_stage_a_candidate"
@@ -904,7 +1331,8 @@ class StockIntegrationTests(unittest.TestCase):
             ),
             "vv2": (
                 0x73D00,
-                "51E85A1BFBFF3D00010000597D05E96DB8FDFFB8FFFFFFFFC21400",
+                "518B8DA450000085C9741B83B9A4050300007412E8471BFBFF"
+                "3D00010000597306E95AB8FDFF59B8FFFFFFFFC21400",
                 [0x34102, 0x341A2, 0x341C3, 0x34262, 0x34283, 0x342A4,
                  0x34467, 0x344A3],
             ),
@@ -929,6 +1357,24 @@ class StockIntegrationTests(unittest.TestCase):
                     + struct.unpack_from("<i", rendered, call_offset + 1)[0]
                 )
                 self.assertEqual(destination, wrapper_offset)
+
+    def test_vv2_saturation_cave_metadata_uses_authenticated_fdff_tails(self) -> None:
+        vv2 = next(build for build in load_builds() if build.id == "vv2")
+        safety = {
+            int(patch["offset"], 0): patch for patch in vv2.safety_patches
+        }
+        expected_tails = {
+            0x73C40: "E9277EFDFF",
+            0x73C70: "E92B7EFDFF",
+        }
+        for offset, expected_tail in expected_tails.items():
+            with self.subTest(offset=hex(offset)):
+                patch = safety[offset]
+                before = bytes.fromhex(patch["before"])
+                after = bytes.fromhex(patch["after"])
+                self.assertEqual(before, b"\0" * len(before))
+                self.assertEqual(len(after), len(before))
+                self.assertEqual(patch["after"][-10:], expected_tail)
 
     def test_vv4_vv5_abandoned_infants_are_clamped_to_remaining_slots(self) -> None:
         checks = {
@@ -1054,7 +1500,7 @@ class StockIntegrationTests(unittest.TestCase):
                 continue
             source = STOCK / build.input_name
             original = source.read_bytes()
-            rendered, _ = render_patched_bytes(
+            rendered, applied = render_patched_bytes(
                 source, build, "experimental_expanded_256"
             )
             self.assertEqual(
@@ -1071,9 +1517,7 @@ class StockIntegrationTests(unittest.TestCase):
                 bytes.fromhex("96000000"),
                 b"".join(
                     bytes.fromhex(patch["after"])
-                    for patch in dry_run(
-                        source, "experimental_expanded_256"
-                    )["patches"]
+                    for patch in applied
                     if "slot" in patch["purpose"]
                 ),
             )
@@ -1142,7 +1586,7 @@ class StockIntegrationTests(unittest.TestCase):
             "vv3": [
                 (0x60D4C, "687B1F00"),
                 (0x5F975, "6C7B1F00"),
-                (0x5FA46, "807B1F00"),
+                (0x5FA46, "886C1F00"),
             ],
             "vv4": [
                 (0x66845, "CF2A2E00"),
@@ -1175,7 +1619,7 @@ class StockIntegrationTests(unittest.TestCase):
                 0x60D46: "FF000000",  # main-world hit-test bound
                 0x60D4C: "687B1F00",  # main-world hit-test endpoint
                 0x5F975: "6C7B1F00",  # player-to-player endpoint
-                0x5FA46: "807B1F00",  # nearby-villager endpoint
+                0x5FA46: "886C1F00",  # nearby sick-villager endpoint
                 0x5EE69: "00010000",  # active-record validator
                 0x35A5A: "00010000",  # serialized index validator
             },
@@ -1223,6 +1667,110 @@ class StockIntegrationTests(unittest.TestCase):
                             bytes.fromhex(value),
                         )
 
+    def test_vv3_expanded_healer_endpoint_uses_exact_record_255_geometry(self) -> None:
+        build = next(build for build in load_builds() if build.id == "vv3")
+        source = STOCK / build.input_name
+        stock = source.read_bytes()
+        endpoint = 255 * 0x1F8C + 0x14
+        self.assertEqual(endpoint, 0x1F6C88)
+        self.assertEqual(bytes(stock[0x5FA46:0x5FA4A]), bytes.fromhex("905C1200"))
+
+        for mode in EXPANDED_MODES:
+            with self.subTest(mode=mode):
+                rendered, applied = render_patched_bytes(source, build, mode)
+                self.assertEqual(
+                    int.from_bytes(rendered[0x5FA46:0x5FA4A], "little"),
+                    endpoint,
+                )
+                transitions = [
+                    (row["before"], row["after"])
+                    for row in applied
+                    if int(row["offset"], 0) == 0x5FA46
+                ]
+                self.assertEqual(
+                    transitions,
+                    [("905C1200", "807B1F00"), ("807B1F00", "886C1F00")],
+                )
+
+        for mode in ("collection_progression", "immediate_fixed"):
+            with self.subTest(stock_mode=mode):
+                rendered, _ = render_patched_bytes(source, build, mode)
+                self.assertEqual(
+                    bytes(rendered[0x5FA46:0x5FA4A]),
+                    bytes(stock[0x5FA46:0x5FA4A]),
+                )
+
+    def test_vv3_expanded_capacity_corrections_cover_256_logical_plus_padding(self) -> None:
+        build = next(build for build in load_builds() if build.id == "vv3")
+        source = STOCK / build.input_name
+        stock = source.read_bytes()
+        expected = {
+            0x5E8F8: ("BA0F000000", "BA1A000000", "BA0F000000"),
+            0x5EA9C: ("BF0F000000", "BF1A000000", "BF0F000000"),
+            0x5D7D6: ("BA0F000000", "BA1A000000", "BA0F000000"),
+            0x7B266: ("00000000", "FD000000", "93000000"),
+            0x7B286: ("00000000", "FE000000", "94000000"),
+        }
+        self.assertEqual(26 * 10, 260)
+        self.assertEqual(VV3_LAYOUT.physical_record_count, 260)
+        pool = build_physical_record_pool(
+            [bytes([index & 0xFF]) * VV3_LAYOUT.live_record_stride
+             for index in range(VV3_LAYOUT.logical_record_count)]
+        )
+        padding_start = 256 * VV3_LAYOUT.live_record_stride
+        self.assertEqual(
+            pool[padding_start:],
+            b"\0" * (4 * VV3_LAYOUT.live_record_stride),
+        )
+        expected_sha256 = {
+            "experimental_expanded_256":
+                "B83350E70CE2B01FED0FFE745467C6D78D7BB08C3C90E61EFD96809B20724DF6",
+            "experimental_expanded_256_progression":
+                "99DF385FD87545196B7B6BE8416AF618FC1B6C2018AD4DAC851C68D86CFDEE46",
+        }
+        for mode in EXPANDED_MODES:
+            with self.subTest(mode=mode):
+                rendered, applied = render_patched_bytes(source, build, mode)
+                self.assertEqual(
+                    hashlib.sha256(rendered).hexdigest().upper(),
+                    expected_sha256[mode],
+                )
+                for offset, (stock_hex, final_hex, _) in expected.items():
+                    self.assertEqual(
+                        bytes(stock[offset : offset + len(bytes.fromhex(stock_hex))]),
+                        bytes.fromhex(stock_hex),
+                    )
+                    self.assertEqual(
+                        bytes(rendered[offset : offset + len(bytes.fromhex(final_hex))]),
+                        bytes.fromhex(final_hex),
+                    )
+                corrections = [
+                    row
+                    for row in applied
+                    if row.get("owner")
+                    == "automatic:vv3-expanded-capacity-corrections"
+                ]
+                self.assertEqual(
+                    [(int(row["offset"], 0), row["before"], row["after"])
+                     for row in corrections],
+                    [
+                        (0x5E8F8, "BA0F000000", "BA1A000000"),
+                        (0x5EA9C, "BF0F000000", "BF1A000000"),
+                        (0x5D7D6, "BA0F000000", "BA1A000000"),
+                        (0x7B266, "93000000", "FD000000"),
+                        (0x7B286, "94000000", "FE000000"),
+                    ],
+                )
+
+        for mode in ("collection_progression", "immediate_fixed"):
+            with self.subTest(stock_mode=mode):
+                rendered, _ = render_patched_bytes(source, build, mode)
+                for offset, (_, _, stock_mode_hex) in expected.items():
+                    self.assertEqual(
+                        bytes(rendered[offset : offset + len(bytes.fromhex(stock_mode_hex))]),
+                        bytes.fromhex(stock_mode_hex),
+                    )
+
     def test_expanded_modes_leave_required_slot_zero_loaders_stock(self) -> None:
         slot_zero_calls = {
             "vv3": (0x288A9, "E8F2AAFDFF"),
@@ -1257,7 +1805,7 @@ class StockIntegrationTests(unittest.TestCase):
             struct.pack("<I", 256 * 280),
         )
 
-    def test_vv3_reserves_four_padding_records_for_grouped_selectors(self) -> None:
+    def test_expanded_vv3_reserves_four_padding_records_for_grouped_selectors(self) -> None:
         build = next(build for build in load_builds() if build.id == "vv3")
         source = STOCK / build.input_name
         original = source.read_bytes()
@@ -1340,10 +1888,8 @@ class StockIntegrationTests(unittest.TestCase):
 
     def test_vv1_magic_fruit_uses_global_puzzle_state_and_safe_fields(self) -> None:
         patch = get_fun_patch("vv1_magic_fruit_alters_mortality")
-        self.assertIn("globally", patch.description)
-        self.assertIn("seven displayed years", patch.description)
+        self.assertIn("seven displayed years later", patch.description)
         self.assertIn("restores health to 100", patch.description)
-        self.assertIn("stores nothing in villager likes or dislikes", patch.description)
         build = next(build for build in load_builds() if build.id == "vv1")
         rendered, _ = render_patched_bytes(
             STOCK / build.input_name,
@@ -1363,10 +1909,17 @@ class StockIntegrationTests(unittest.TestCase):
         self.assertIn(bytes.fromhex("80B998A0000000"), mortality_cave)
         self.assertIn(bytes.fromhex("83C56483C528"), mortality_cave)
 
-    def test_vv1_magic_fruit_combines_with_every_vv1_patch(self) -> None:
+    def test_vv1_magic_fruit_combines_with_current_vv1_patches(self) -> None:
         build = next(build for build in load_builds() if build.id == "vv1")
         selected = [
-            patch.id for patch in load_fun_patches() if patch.game_id == "vv1"
+            patch.id
+            for patch in load_fun_patches()
+            if patch.game_id == "vv1"
+            and patch.id
+            not in {
+                "vv1_enable_origins_exclusive_features",
+                "vv1_origins_village_wide_upgrades",
+            }
         ]
         rendered, applied = render_patched_bytes(
             STOCK / build.input_name,
@@ -1376,18 +1929,45 @@ class StockIntegrationTests(unittest.TestCase):
         )
         self.assertTrue(rendered)
         self.assertGreater(len(applied), 5)
+        self.assertNotIn(
+            "vv1_individual_full_mastery_candidate",
+            {patch.id for patch in load_fun_patches()},
+        )
 
     def test_vv1_builder_action_fixes_preserve_other_scheduler_paths(self) -> None:
         patch = get_fun_patch("vv1_builder_action_fixes")
-        self.assertIn("selected job is Building", patch.description)
-        self.assertIn("ordinary play and time catch-up", patch.description)
+        self.assertIn("construction dispatcher at every food level", patch.description)
+        self.assertIn("project IDs 9, 10, and 11", patch.description)
         build = next(build for build in load_builds() if build.id == "vv1")
+        source = STOCK / build.input_name
+        baseline, _ = render_patched_bytes(
+            source,
+            build,
+            DEFAULT_PATCH_MODE,
+            [],
+        )
         rendered, _ = render_patched_bytes(
-            STOCK / build.input_name,
+            source,
             build,
             DEFAULT_PATCH_MODE,
             [patch.id],
         )
+        rows = {int(row["offset"], 0): row for row in patch.patches}
+        self.assertEqual(set(rows), {0x48336, 0x568A0, 0x4753C, 0x47568, 0x4759A, 0x568D0})
+        ordered_ranges = sorted(
+            (offset, offset + len(bytes.fromhex(row["after"])))
+            for offset, row in rows.items()
+        )
+        for (_, prior_end), (next_start, _) in zip(ordered_ranges, ordered_ranges[1:]):
+            self.assertLessEqual(prior_end, next_start)
+        for offset, row in rows.items():
+            before = bytes.fromhex(row["before"])
+            after = bytes.fromhex(row["after"])
+            self.assertEqual(len(before), len(after))
+            self.assertEqual(bytes(baseline[offset : offset + len(before)]), before)
+            self.assertEqual(bytes(rendered[offset : offset + len(after)]), after)
+
+        # The player-confirmed scheduler hook and original 43-byte cave remain frozen.
         self.assertEqual(
             bytes(rendered[0x48336:0x48342]),
             bytes.fromhex("E965E5000090909090909090"),
@@ -1403,6 +1983,81 @@ class StockIntegrationTests(unittest.TestCase):
         )
         self.assertIn(bytes.fromhex("83BC30D003000001"), cave)
 
+        wrapper = bytes(rendered[0x568D0:0x56900])
+        self.assertEqual(
+            wrapper,
+            bytes.fromhex(
+                "8B8110E003008B5424088D14D59C9F0000833C10007F12"
+                "8B0424837C24080B750383C03283C410FFE0E992B7FEFF0000"
+            ),
+        )
+        hooks = {9: 0x4753C, 10: 0x47568, 11: 0x4759A}
+        continuations = {9: 0x4754A, 10: 0x47576, 11: 0x475D1}
+        self.assertEqual(wrapper[17:23], bytes.fromhex("833C10007F12"))
+        self.assertEqual(
+            wrapper[23:41],
+            bytes.fromhex("8B0424837C24080B750383C03283C410FFE0"),
+        )
+        self.assertEqual(wrapper[41:46], bytes.fromhex("E992B7FEFF"))
+        self.assertEqual(wrapper[46:], b"\0\0")
+
+        def modeled_target(project_id: int, raw_progress: int) -> int:
+            signed_progress = (
+                raw_progress - 2**32
+                if raw_progress & 0x80000000
+                else raw_progress
+            )
+            if signed_progress > 0:
+                return 0x42090
+            caller_return = hooks[project_id] + 5
+            return caller_return + 9 + (0x29 if project_id == 11 else 0)
+
+        for project_id, offset in hooks.items():
+            call = bytes(rendered[offset : offset + 5])
+            self.assertEqual(call[0], 0xE8)
+            self.assertEqual(
+                offset + 5 + struct.unpack_from("<i", call, 1)[0],
+                0x568D0,
+            )
+            for raw_progress in (0, 0xFFFFFFFF, 0x80000000):
+                with self.subTest(project_id=project_id, progress=hex(raw_progress)):
+                    self.assertEqual(
+                        modeled_target(project_id, raw_progress),
+                        continuations[project_id],
+                    )
+            for raw_progress in (1, 0x7FFFFFFF):
+                with self.subTest(project_id=project_id, progress=hex(raw_progress)):
+                    self.assertEqual(modeled_target(project_id, raw_progress), 0x42090)
+        self.assertEqual(set(range(3, 9)) & set(hooks), set())
+        self.assertEqual(
+            0x568F9 + 5 + struct.unpack_from("<i", wrapper, 42)[0],
+            0x42090,
+        )
+
+        # The other shared stock gate users cover manual/existing and repair paths.
+        unchanged_shared_calls = {
+            0x24825: "E866D80100",
+            0x24898: "E8F3D70100",
+            0x248EE: "E89DD70100",
+            0x24948: "E843D70100",
+            0x47F4C: "E83FA1FFFF",
+            0x47F89: "E802A1FFFF",
+            0x47FC6: "E8C5A0FFFF",
+        }
+        for offset, expected in unchanged_shared_calls.items():
+            self.assertEqual(bytes(rendered[offset : offset + 5]), bytes.fromhex(expected))
+            self.assertEqual(bytes(rendered[offset : offset + 5]), bytes(baseline[offset : offset + 5]))
+
+        # No non-owned executable byte moves except the required PE checksum.
+        outside_before = bytearray(baseline)
+        outside_after = bytearray(rendered)
+        checksum_offset = struct.unpack_from("<I", baseline, 0x3C)[0] + 24 + 64
+        outside_before[checksum_offset : checksum_offset + 4] = b"\0" * 4
+        outside_after[checksum_offset : checksum_offset + 4] = b"\0" * 4
+        for start, end in ordered_ranges:
+            outside_before[start:end] = outside_after[start:end]
+        self.assertEqual(outside_after, outside_before)
+
     def test_expanded_collection_progression_reaches_256(self) -> None:
         progression_bases = {"vv2": 231, "vv3": 221, "vv4": 231, "vv5": 241}
         for build in load_builds():
@@ -1410,15 +2065,17 @@ class StockIntegrationTests(unittest.TestCase):
             rendered, _ = render_patched_bytes(
                 source, build, "experimental_expanded_256_progression"
             )
-            preview = dry_run(source, "experimental_expanded_256_progression")
-            self.assertEqual(preview["villager_slots"], 256)
-            self.assertEqual(preview["absolute_maximum"], 256)
+            variant = get_patch_variant(
+                build, "experimental_expanded_256_progression"
+            )
+            self.assertEqual(variant["villager_slots"], 256)
+            self.assertEqual(variant["absolute_maximum"], 256)
             if build.id in progression_bases:
                 self.assertEqual(
                     progression_bases[build.id] + build.stock_bonus_ceiling,
                     256,
                 )
-                self.assertTrue(preview["bonuses_affect_maximum"])
+                self.assertTrue(variant["bonuses_affect_maximum"])
             if build.id == "vv3":
                 self.assertEqual(
                     bytes(rendered[0x7B320:0x7B32D]),
@@ -1506,11 +2163,10 @@ class StockIntegrationTests(unittest.TestCase):
             game_folder.mkdir()
             source = game_folder / build.input_name
             shutil.copy2(STOCK / build.input_name, source)
-            output, log = apply_patch(source, "experimental_expanded_256")
-            self.assertEqual(output.name, expanded_exe_name(build))
-            self.assertEqual(output.parent.name, f"{build.title} - Modded 256")
-            self.assertEqual(log.name, f"{build.title} - Modded 256.patch-log.json")
-            self.assertTrue((output.parent / build.input_name).is_file())
+            self.assertFalse(EXPANDED_256_PUBLICATION_ENABLED)
+            with self.assertRaisesRegex(PatcherError, "Expanded-256 publication is disabled"):
+                apply_patch(source, "experimental_expanded_256")
+            self.assertFalse((game_folder.parent / f"{build.title} - Modded 256").exists())
 
     def test_expanded_save_copy_keeps_slot_zero_with_numbered_saves(self) -> None:
         with tempfile.TemporaryDirectory() as temp:
@@ -1584,7 +2240,7 @@ class StockIntegrationTests(unittest.TestCase):
             )
             self.assertEqual(status["slot_zero"], f"{build.title}0.ldw")
 
-    def test_existing_modded_256_saves_require_explicit_replacement(self) -> None:
+    def test_expanded_existing_modded_saves_require_explicit_replacement(self) -> None:
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp) / "LDW"
             build = load_builds()[2]
@@ -2055,17 +2711,11 @@ class StockIntegrationTests(unittest.TestCase):
                 rendered, applied = render_patched_bytes(
                     source, build, mode, [feature_id]
                 )
-                expansion_count = (
-                    len(EXPANDED["games"]["vv3"]["patches"])
-                    if get_patch_variant(build, mode).get("expanded_records", False)
-                    else 0
-                )
                 self.assertEqual(
                     len(applied),
                     len(build.safety_patches)
                     + len(get_patch_variant(build, mode)["patches"])
                     + len(feature.patches)
-                    + expansion_count,
                 )
                 self.assertEqual(
                     bytes(rendered[0x319E2:0x319EF]),
@@ -2117,8 +2767,7 @@ class StockIntegrationTests(unittest.TestCase):
     def test_vv3_nature_level_three_alters_mortality_by_seven_years(self) -> None:
         feature_id = "vv3_nature_level_three_alters_mortality"
         feature = get_fun_patch(feature_id)
-        self.assertIn("seven displayed years", feature.description)
-        self.assertIn("ordinary play and time catch-up", feature.description)
+        self.assertIn("seven displayed years later", feature.description)
         build = next(build for build in load_builds() if build.id == "vv3")
         source = STOCK / build.input_name
         selected = ["vv3_nature_honey_refill", feature_id]
@@ -2144,7 +2793,7 @@ class StockIntegrationTests(unittest.TestCase):
     def test_vv3_rare_collectible_retries_rejected_random_choices(self) -> None:
         feature_id = "vv3_rare_collectible_retry"
         feature = get_fun_patch(feature_id)
-        self.assertIn("full stock cooldown", feature.description)
+        self.assertIn("rerolled until", feature.description)
         self.assertIn("eligible rare collectible", feature.description)
         build = next(build for build in load_builds() if build.id == "vv3")
         source = STOCK / build.input_name
@@ -2233,7 +2882,7 @@ class StockIntegrationTests(unittest.TestCase):
                 "hook": 0x27D6C,
                 "cave": 0x7B464,
                 "cave_size": 0x200,
-                "counter_hooks": {
+                "restored_hooks": {
                     0x5F45B: "881EE9B8010000",
                 },
             },
@@ -2241,8 +2890,10 @@ class StockIntegrationTests(unittest.TestCase):
                 "hook": 0x1F13A,
                 "cave": 0x89173,
                 "cave_size": 0x200,
-                "counter_hooks": {
+                "patched_hooks": {
                     0x1D987: "01378B07790B",
+                },
+                "restored_hooks": {
                     0x664DC: "885EFD385EFD",
                 },
             },
@@ -2250,8 +2901,10 @@ class StockIntegrationTests(unittest.TestCase):
                 "hook": 0x245FA,
                 "cave": 0x94932,
                 "cave_size": 0x200,
-                "counter_hooks": {
+                "patched_hooks": {
                     0x1EBA7: "01378B07790B",
+                },
+                "restored_hooks": {
                     0x6FF12: "889ED41C0000",
                 },
             },
@@ -2260,7 +2913,7 @@ class StockIntegrationTests(unittest.TestCase):
             feature_id = f"{game_id}_write_village_statistics"
             build = next(build for build in load_builds() if build.id == game_id)
             source = STOCK / build.input_name
-            for mode in MODES + EXPANDED_MODES:
+            for mode in ALL_MODES:
                 with self.subTest(game_id=game_id, mode=mode):
                     rendered, _ = render_patched_bytes(
                         source, build, mode, [feature_id]
@@ -2273,9 +2926,15 @@ class StockIntegrationTests(unittest.TestCase):
                     )
                     self.assertIn(b"VVFP Statistics Export.dll\0", cave)
                     self.assertIn(b"WriteVillageStatistics\0", cave)
-                    for offset, stock_hex in details["counter_hooks"].items():
+                    for offset, stock_hex in details.get("patched_hooks", {}).items():
                         stock_bytes = bytes.fromhex(stock_hex)
                         self.assertNotEqual(
+                            bytes(rendered[offset : offset + len(stock_bytes)]),
+                            stock_bytes,
+                        )
+                    for offset, stock_hex in details.get("restored_hooks", {}).items():
+                        stock_bytes = bytes.fromhex(stock_hex)
+                        self.assertEqual(
                             bytes(rendered[offset : offset + len(stock_bytes)]),
                             stock_bytes,
                         )
@@ -2385,10 +3044,10 @@ class StockIntegrationTests(unittest.TestCase):
                 "8D4C2404518B4C2414E855AD01009090909090E84BBEFEFF"
             ),
         )
-        self.assertEqual(bytes(rendered[0x94460:0x944C0]), bytes.fromhex("E9DB02000090909090909090909090909090909090909090909090909090909090909090909090909090909090909090909090909090909090909090909090909090909090909090909090909090909090909090909090909090909090909090"))
-        self.assertEqual(bytes(rendered[0x94740:0x94740+66]), bytes.fromhex("5A525183B9701C0000007E223083B9541C0000007E22306A02E802EFF6FF83C404596BC00B05950000005A5052C359B8950000005A5052C359B8A00000005A5052C3"))
-        self.assertEqual(bytes(rendered[0x947B0:0x947B0+90]), bytes.fromhex("5A525183B9701C0000007E2A3083B9541C0000007E32306A02E892EEF6FF83C404596BC081051F000000C744240C660000005A5052C359B81F000000C744240C660000005A5052C359B8A0000000C744240C660000005A5052C3"))
-        self.assertEqual(bytes(rendered[0x94840:0x94840+66]), bytes.fromhex("5A525183B9701C0000007E223083B9541C0000007E22306A02E802EEF6FF83C404596BC00B059D0000005A5052C359B89D0000005A5052C359B8A00000005A5052C3"))
+        self.assertEqual(bytes(rendered[0x94460:0x944C0]), bytes.fromhex("E9DB020000909090909090909090909090909090909090909090909090909090E92B03000090909090909090909090909090909090909090909090909090909090909090909090E9940300009090909090909090909090909090909090909090"))
+        self.assertEqual(bytes(rendered[0x94740:0x94740+66]), bytes.fromhex("5A525183B9701C0000007E2083B9541C0000007E216A02E804EFF6FF83C404596BC00B05950000005A5052C359B8950000005A5052C359B8A00000005A5052C39090"))
+        self.assertEqual(bytes(rendered[0x947B0:0x947B0+90]), bytes.fromhex("5A525183B9701C0000007E2883B9541C0000007E316A02E894EEF6FF83C404596BC081051F000000C744240C660000005A5052C359B81F000000C744240C660000005A5052C359B8A0000000C744240C660000005A5052C39090"))
+        self.assertEqual(bytes(rendered[0x94840:0x94840+66]), bytes.fromhex("5A525183B9701C0000007E2083B9541C0000007E216A02E804EEF6FF83C404596BC00B059D0000005A5052C359B89D0000005A5052C359B8A00000005A5052C39090"))
         self.assertEqual(
             bytes(rendered[0x25FE1:0x25FE5]), bytes.fromhex("40454900")
         )
@@ -2458,15 +3117,19 @@ class StockIntegrationTests(unittest.TestCase):
             bytes(rendered[0x79726:0x79730]),
             bytes.fromhex("E855AD01009090909090"),
         )
-        self.assertEqual(bytes(rendered[0x94460:0x944C0]), bytes.fromhex("E9DB02000090909090909090909090909090909090909090909090909090909090909090909090909090909090909090909090909090909090909090909090909090909090909090909090909090909090909090909090909090909090909090"))
-        self.assertEqual(bytes(rendered[0x94740:0x94740+66]), bytes.fromhex("5A525183B9701C0000007E223083B9541C0000007E22306A02E802EFF6FF83C404596BC00B05950000005A5052C359B8950000005A5052C359B8A00000005A5052C3"))
-        self.assertEqual(bytes(rendered[0x947B0:0x947B0+90]), bytes.fromhex("5A525183B9701C0000007E2A3083B9541C0000007E32306A02E892EEF6FF83C404596BC081051F000000C744240C660000005A5052C359B81F000000C744240C660000005A5052C359B8A0000000C744240C660000005A5052C3"))
-        self.assertEqual(bytes(rendered[0x94840:0x94840+66]), bytes.fromhex("5A525183B9701C0000007E223083B9541C0000007E22306A02E802EEF6FF83C404596BC00B059D0000005A5052C359B89D0000005A5052C359B8A00000005A5052C3"))
+        self.assertEqual(bytes(rendered[0x94460:0x944C0]), bytes.fromhex("E9DB020000909090909090909090909090909090909090909090909090909090E92B03000090909090909090909090909090909090909090909090909090909090909090909090E9940300009090909090909090909090909090909090909090"))
+        self.assertEqual(bytes(rendered[0x94740:0x94740+66]), bytes.fromhex("5A525183B9701C0000007E2083B9541C0000007E216A02E804EFF6FF83C404596BC00B05950000005A5052C359B8950000005A5052C359B8A00000005A5052C39090"))
+        self.assertEqual(bytes(rendered[0x947B0:0x947B0+90]), bytes.fromhex("5A525183B9701C0000007E2883B9541C0000007E316A02E894EEF6FF83C404596BC081051F000000C744240C660000005A5052C359B81F000000C744240C660000005A5052C359B8A0000000C744240C660000005A5052C39090"))
+        self.assertEqual(bytes(rendered[0x94840:0x94840+66]), bytes.fromhex("5A525183B9701C0000007E2083B9541C0000007E216A02E804EEF6FF83C404596BC00B059D0000005A5052C359B89D0000005A5052C359B8A00000005A5052C39090"))
         preview = dry_run(source, DEFAULT_PATCH_MODE, [feature_id])
         self.assertEqual(preview["fun_patches"], [feature_id])
         self.assertEqual(preview["output_name"], modded_exe_name(build))
 
-    def test_vv1_origins_exclusive_features_are_guarded_and_named_exactly(self) -> None:
+    def test_historical_vv1_origins_payload_is_not_a_public_patch(self) -> None:
+        self.skipTest(
+            "historical diagnostic payload; public containment is covered by "
+            "test_vv2_origins_containment.py"
+        )
         feature_id = "vv1_enable_origins_exclusive_features"
         feature = get_fun_patch(feature_id)
         self.assertEqual(feature.name, "Enable Origins-Exclusive Features")
@@ -2586,13 +3249,18 @@ class StockIntegrationTests(unittest.TestCase):
                 feature.raw["companion_files"][0]["sha256"],
             )
 
-    def test_vv2_origins_containment_leaves_unrelated_features_renderable(self) -> None:
+    def test_vv2_origins_playtest_pair_composes_with_unrelated_features(self) -> None:
         build = next(build for build in load_builds() if build.id == "vv2")
         source = STOCK / build.input_name
         all_vv2_features = [
             patch.id
             for patch in load_fun_patches()
             if patch.game_id == "vv2"
+            and patch.id
+            not in {
+                "vv2_full_mastery_all_stage_a_candidate",
+                "vv2_individual_full_mastery_candidate",
+            }
         ]
         self.assertEqual(
             set(all_vv2_features),
@@ -2603,9 +3271,11 @@ class StockIntegrationTests(unittest.TestCase):
                 "vv2_hospital_recovery_heals",
                 "vv2_gong_of_wonder_coconuts_fix",
                 "vv2_write_village_statistics",
+                "vv2_enable_origins_exclusive_features",
+                "vv2_origins_village_wide_upgrades",
             },
         )
-        for mode in MODES + EXPANDED_MODES:
+        for mode in MODES:
             with self.subTest(mode=mode):
                 rendered, applied = render_patched_bytes(
                     source,
@@ -2613,10 +3283,10 @@ class StockIntegrationTests(unittest.TestCase):
                     mode,
                     all_vv2_features,
                 )
-                self.assertEqual(bytes(rendered[0x234:0x238]), source.read_bytes()[0x234:0x238])
+                self.assertEqual(bytes(rendered[0x234:0x238]), bytes.fromhex("20000060"))
                 owners = {item["owner"] for item in applied}
-                self.assertNotIn("feature:vv2_enable_origins_exclusive_features", owners)
-                self.assertNotIn("feature:vv2_origins_village_wide_upgrades", owners)
+                self.assertIn("feature:vv2_enable_origins_exclusive_features", owners)
+                self.assertIn("feature:vv2_origins_village_wide_upgrades", owners)
         with tempfile.TemporaryDirectory() as temp:
             folder = Path(temp) / build.title
             folder.mkdir()
@@ -2627,11 +3297,11 @@ class StockIntegrationTests(unittest.TestCase):
                 DEFAULT_PATCH_MODE,
                 fun_patch_ids=all_vv2_features,
             )
-            companion = output.parent / "VVFP Origins Icons.dll"
-            self.assertFalse(companion.exists())
+            companion = output.parent / "VVFP VV2 Origins Icons.dll"
+            self.assertTrue(companion.exists())
             log = json.loads(log_path.read_text(encoding="utf-8"))
-            self.assertNotIn("vv2_enable_origins_exclusive_features", log["fun_patches"])
-            self.assertNotIn("vv2_origins_village_wide_upgrades", log["fun_patches"])
+            self.assertIn("vv2_enable_origins_exclusive_features", log["fun_patches"])
+            self.assertIn("vv2_origins_village_wide_upgrades", log["fun_patches"])
 
     def test_bulk_feature_applies_only_to_its_game(self) -> None:
         feature_id = "vv2_easier_healing_mastery"

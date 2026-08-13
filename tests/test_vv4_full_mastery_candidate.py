@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
+import shutil
 import struct
 import subprocess
 import sys
@@ -30,6 +32,12 @@ from vv_fun_patcher import (  # noqa: E402
     VV4_FULL_MASTERY_LEGACY_ASSET_KEYS,
     VV4_FULL_MASTERY_LEGACY_STATIC_ASSET_KEYS,
 )
+from vv4_individual_mastery import (  # noqa: E402
+    NOOP_MESSAGE,
+    PRICE,
+    apply_plan,
+    plan_transaction,
+)
 
 
 STOCK = ROOT / "research" / "stock-executables" / "Virtual Villagers - The Tree of Life.exe"
@@ -38,6 +46,7 @@ BASE = ROOT / "data" / "candidates" / "vv4_origins_full_mastery_base_candidate.j
 FEATURE = ROOT / "data" / "candidates" / "vv4_full_mastery_all_candidate.json"
 MAP = ROOT / "data" / "candidates" / "vv4_full_mastery_all_candidate_map.json"
 DOC = ROOT / "docs" / "vv4-full-mastery-stage-a-candidate.md"
+PLAYTEST_INSTRUCTIONS = ROOT / "docs" / "vv4-full-mastery-playtest-instructions.txt"
 DLL = ROOT / "data" / "candidates" / "VVFP VV4 Full Mastery Candidate.dll"
 PROVENANCE = ROOT / "assets" / "candidates" / "vv4_full_mastery" / "provenance"
 MODES = (
@@ -123,13 +132,41 @@ class VV4FullMasteryCandidateTests(unittest.TestCase):
         cls.feature = FunPatch(cls.feature_raw)
         cls.build = next(item for item in load_builds() if item.id == "vv4")
 
-    def test_d21_stock_candidate_is_catalog_visible(self):
+    def test_vv4_cure_truth_is_withdrawn_in_manifest_and_transparency(self):
+        active_text = json.dumps(self.base_raw, ensure_ascii=False).casefold()
+        self.assertNotIn("plus cure all villagers for 30,000 tech points", active_text)
+        self.assertNotIn("cure all villagers clears sickness", active_text)
+        for phrase in ("withdrawn", "unavailable", "unreachable", "not part of this playtest"):
+            self.assertIn(phrase, active_text)
+
+        transparency = (ROOT / "docs" / "transparency-log.md").read_text(encoding="utf-8")
+        marker = "#### Enable Origins-Exclusive Features (`vv4_enable_origins_exclusive_features`)"
+        self.assertIn(marker, transparency)
+        vv4_section = transparency.split(marker, 1)[1].split("\n#### ", 1)[0]
+        self.assertNotIn("Plus Cure all Villagers for 30,000 tech points", vv4_section)
+        self.assertNotIn("Cure all Villagers clears sickness", vv4_section)
+        folded = vv4_section.casefold()
+        for phrase in ("withdrawn", "unavailable", "unreachable", "not part of this playtest"):
+            self.assertIn(phrase, folded)
+
+    def test_playtest_instructions_mark_png_as_provenance_only(self):
+        instructions = PLAYTEST_INSTRUCTIONS.read_text(encoding="utf-8")
+        folded = instructions.casefold()
+        self.assertIn(r"images\btn_upgrades_297x35.png", folded)
+        self.assertIn("provenance", folded)
+        self.assertIn("not a runtime dependency", folded)
+        self.assertIn("native cached ordinal `0x8c`", folded)
+        self.assertIn("btn_trophies.png", folded)
+        self.assertIn("withdrawn, unavailable, unreachable", folded)
+        self.assertNotIn("runtime dependency: images\\btn_upgrades_297x35.png", folded)
+
+    def test_d33_c28_stock_candidate_is_catalog_visible(self):
         self.assertTrue(self.base_raw["enabled"])
         self.assertTrue(self.feature_raw["enabled"])
         active = {item.id: item for item in load_fun_patches()}
         self.assertIn("vv4_enable_origins_exclusive_features", active)
         self.assertIn(self.feature_raw["id"], active)
-        self.assertIn("D21 metadata", self.feature_raw["certification_status"])
+        self.assertIn("D33/C28", self.feature_raw["certification_status"])
         self.assertEqual(self.feature_raw["dependencies"], [self.base_raw["id"]])
         contract = self.feature_raw["transaction_contract"]
         self.assertEqual((contract["command"], contract["price"]), (7, 1_000_000))
@@ -262,7 +299,17 @@ class VV4FullMasteryCandidateTests(unittest.TestCase):
         self.assertEqual(ui["events"], {"tech": 13, "detail": 2})
         self.assertEqual(ui["add_child"], "sub_40C190")
         self.assertEqual(ui["status"], "independent metadata recertification GO")
-        self.assertEqual(self.map["metadata_recertification"], {"review": "D21", "status": "independent metadata recertification GO", "commit": "3ba125b2107da4f86f9b70ab5b94206bef7803f5", "scope": "VV4 Full Mastery metadata/validator enablement for stock mode only; Expanded-256 ON HOLD/fail-closed"})
+        self.assertEqual(self.map["metadata_recertification"]["status"], "independent metadata recertification GO")
+        self.assertEqual(self.map["metadata_enablement_audit"]["status"], "GO")
+        self.assertEqual(self.map["playtest3_withdrawal"]["fault_va"], "0x489E0C")
+        self.assertEqual(self.map["candidate_ui_payload"]["result_call_repairs"], [{"call_va": "0x4897CA", "before_target": "0x489573", "after_target": "0x489ACA", "before": "E8A4FDFFFF", "after": "E8FB020000"}, {"call_va": "0x489ABB", "before_target": "0x489573", "after_target": "0x489ACA", "before": "E8B3FAFFFF", "after": "E80A000000"}])
+        helper = self.map["candidate_ui_payload"]["result_helper"]
+        self.assertEqual(helper["va"], "0x489ACA")
+        self.assertEqual(helper["file_offset"], "0x89ACA")
+        self.assertEqual(helper["length"], 54)
+        self.assertEqual(helper["guard_length"], 64)
+        self.assertEqual(helper["bytes"], "53568B5C240C8B74241068E39E4800FF15E0A1480085C0741868EE9E480050FF15DCA1480085C074086A0053566A00FFD05E5BC20800")
+        self.assertNotIn("0x489583", json.dumps(self.map))
         self.assertEqual(self.map["acceptance_commit"], "8182c235548bc92f304e5571ed61ada3c5abfa4b")
         self.assertEqual(self.map["independent_recertification"]["review"], "D19")
         self.assertEqual(self.map["independent_recertification"]["status"], "independent payload recertification GO")
@@ -408,12 +455,143 @@ class VV4FullMasteryCandidateTests(unittest.TestCase):
         ):
             self.assertIn(text, source)
         resources = (ROOT / "native" / "vv4_full_mastery_candidate" / "vv4_full_mastery_candidate.rc").read_text(encoding="utf-8")
+        tech_resource = resources.split("201 DIALOGEX", 1)[1].split("202 DIALOGEX", 1)[0]
         isolated = resources.split("203 DIALOGEX", 1)[1]
+        self.assertNotIn('1005,', tech_resource)
         self.assertIn('PUSHBUTTON  "Buy", 1007', isolated)
+        self.assertNotIn('1005,', isolated)
         self.assertNotIn('1006,', isolated)
         self.assertNotIn('1008,', isolated)
-        self.assertNotIn('1005,', resources)
-        self.assertIn('command == ID_BUY_FIRST + 5', source)
+        self.assertIn("ID_BUY_FIRST + 5", source)
+
+    def test_individual_mastery_is_enabled_only_for_certified_stock_mode(self):
+        contract = self.map["individual_full_mastery"]
+        self.assertTrue(contract["status"].startswith("GO"))
+        self.assertTrue(self.feature_raw["enabled"])
+        self.assertIn("stock-mode Detail route", contract["emitted"])
+        self.assertEqual(contract["implementation_source"], "src/vv4_individual_mastery.py")
+        self.assertEqual(contract["required_contract"]["command"], 1)
+        self.assertTrue(contract["required_contract"]["five_float_complete_dry_run"])
+        self.assertIn("same_physical_index_reacquisition", contract["required_contract"])
+        self.assertFalse(contract["required_contract"]["direct_skill_stores"])
+
+    def test_individual_native_transaction_model_is_two_pass_and_no_store(self):
+        record = {"active": True, "health": 1, "skills": [99.0, 90.0, 100.0, 88.0, 0.0]}
+        records = [record]
+        calls = []
+        deductions = []
+        plan = plan_transaction(records, 0, PRICE, True, lambda: (0, records, PRICE))
+        self.assertEqual(plan.status, "commit")
+        self.assertEqual([(c.skill_index, c.delta) for c in plan.calls], [(0, 1.0), (1, 10.0), (3, 12.0), (4, 100.0)])
+        self.assertEqual(plan.deduction, PRICE)
+        apply_plan(plan, lambda index, skill, delta: calls.append((index, skill, delta)), deductions.append)
+        self.assertEqual(calls, [(0, 0, 1.0), (0, 1, 10.0), (0, 3, 12.0), (0, 4, 100.0)])
+        self.assertEqual(deductions, [PRICE])
+        self.assertEqual(record["skills"], [99.0, 90.0, 100.0, 88.0, 0.0])
+
+        all_done = [{"active": True, "health": 1, "skills": [100.0] * 5}]
+        noop = plan_transaction(all_done, 0, 0, True, lambda: (0, all_done, 0))
+        self.assertEqual((noop.status, noop.message, noop.calls, noop.deduction), ("no_change", NOOP_MESSAGE, (), 0))
+        self.assertEqual(plan_transaction(records, 0, PRICE, False, lambda: (0, records, PRICE)).status, "cancel")
+        self.assertEqual(plan_transaction(records, 0, PRICE, True, lambda: (1, records, PRICE)).status, "race")
+        invalid = [{"active": True, "health": 1, "skills": [float("nan")] + [100.0] * 4}]
+        self.assertEqual(plan_transaction(invalid, 0, PRICE, True, lambda: (0, invalid, PRICE)).status, "invalid")
+
+    def test_individual_emitted_helper_is_guarded_and_native_only(self):
+        installed = self.map["layouts"]["collection_progression"]["slot_map"]["installed"]
+        helper = bytes.fromhex(installed["individual_bytes"])
+        base = int(installed["individual_va"], 16)
+        targets = rel32_targets(helper, base)
+        self.assertEqual(targets.count(0x41FE70), 2)
+        self.assertEqual(targets.count(0x466040), 2)
+        self.assertEqual(targets.count(0x46AD80), 5)
+        self.assertEqual(targets.count(0x41E300), 1)
+        self.assertEqual(targets.count(0x489ACA), 5)
+        self.assertEqual(targets.count(0x740C00), 1)  # dedicated confirmation; never command-7 generic helper
+        self.assertIn(b"\x89\x7D\xF0", helper)  # saved physical index at [ebp-0x10]
+        self.assertIn(b"\xC7\x45\xEC", helper)  # changed-mask local at [ebp-0x14]
+        self.assertNotIn(b"\x89\x7D\xFC", helper)  # never clobber saved EBX
+        self.assertNotIn(b"\x83\xC4\x04", helper)  # sub_466040 is callee-clean
+        self.assertTrue(helper.endswith(b"\x8D\x65\xF4\x5F\x5E\x5B\x5D\xC3"))
+        self.assertIn(b"\x68\x60\x79\xFE\xFF", helper)  # push -100000
+        for raw_store in (b"\xC7\x83\x5C\x1C", b"\xC7\x83\x60\x1C", b"\xC7\x83\x64\x1C", b"\xC7\x83\x68\x1C", b"\xC7\x83\x6C\x1C"):
+            self.assertNotIn(raw_store, helper)
+        self.assertEqual(installed["individual_status"], "emitted in installed page; stock-mode route catalog-visible after D33/C28 GO")
+        self.assertIn("stock-mode Detail route", self.map["individual_full_mastery"]["emitted"])
+        contract = installed["individual_contract"]
+        self.assertEqual(contract["confirmation"], "Grant Full Mastery to this villager for 100,000 tech points?\r\nPress OK to confirm, or Cancel.")
+        self.assertIn("exact Float32 100.0", contract["post_write_verification"])
+        self.assertIn("partial changes may remain", contract["partial_commit_policy"])
+        caption = int(installed["strings"]["caption"], 16).to_bytes(4, "little")
+        message_keys = ("individual_success", "individual_noop", "individual_insufficient", "individual_invalid", "individual_failure")
+        for key in message_keys:
+            message = int(installed["strings"][key], 16).to_bytes(4, "little")
+            self.assertEqual(helper.count(b"\x68" + message + b"\x68" + caption), 1)
+        confirmation = bytes.fromhex(installed["individual_confirmation_bytes"])
+        self.assertEqual(installed["individual_confirmation_offset"], "0x1C00")
+        self.assertEqual(len(confirmation), installed["individual_confirmation_length"])
+        self.assertEqual(sha(confirmation), installed["individual_confirmation_sha256"])
+        self.assertLess(len(confirmation), installed["individual_confirmation_guard_length"])
+        self.assertIn(b"\x6A\x01", confirmation)  # MB_OKCANCEL
+        self.assertEqual(self.map["individual_detail_route"]["collection_progression"]["message"], 8)
+        self.assertEqual(self.map["individual_detail_route"]["collection_progression"]["event"], 2)
+        self.assertEqual(self.map["individual_detail_route"]["collection_progression"]["command"], 1)
+
+    def test_individual_detail_route_has_exact_guard_and_preserves_other_commands(self):
+        route = self.map["individual_detail_route"]["collection_progression"]
+        self.assertEqual(route["hook_va"], "0x4899D6")
+        self.assertEqual(route["hook_file_offset"], "0x899D6")
+        self.assertEqual(route["hook_before"], "8B049D279F4800")
+        self.assertEqual(route["hook_after"], "E9560000009090")
+        self.assertEqual(route["cave_va"], "0x489A31")
+        self.assertEqual(route["cave_file_offset"], "0x89A31")
+        self.assertEqual(route["cave_length"], 0x32)
+        cave = bytes.fromhex(route["cave_after"])
+        self.assertEqual(len(cave), 0x32)
+        self.assertEqual(route["cave_after_sha256"], sha(cave))
+        self.assertEqual(route["cave_after_sha256"], "79600D55513838D55E9FAD6D9680A516A2CF6BBC5107B721B7B8E28D59B3168F")
+        self.assertEqual(route["section"], ".text")
+        self.assertEqual(route["continuation_va"], "0x4899DD")
+        self.assertEqual(route["epilogue_va"], "0x489AC5")
+        self.assertEqual(route["epilogue_bytes"], "5D5F5E5BC3")
+        self.assertIn(b"\x81\x3D\x00\xF0\x73\x00\x56\x46\x4D\x34", cave)
+        self.assertIn(b"\x83\x3D\x0C\xF1\x73\x00\x01", cave)
+        self.assertIn(0x73FB00, rel32_targets(cave, int(route["cave_va"], 16)))
+        self.assertEqual(cave[0x2B:0x30], bytes.fromhex("E97CFFFFFF"))
+        payload = next(item for item in self.base_raw["patches"] if int(item["offset"], 0) == 0x89373)
+        rendered_payload = bytes.fromhex(payload["after"])
+        self.assertEqual(rendered_payload[0x663:0x66A], bytes.fromhex("E9560000009090"))
+        self.assertEqual(rendered_payload[0x6BE:0x6BE + 0x32], cave)
+        self.assertEqual(rendered_payload[0x752:0x757], bytes.fromhex("5D5F5E5BC3"))
+        rendered, _ = render_patched_bytes(
+            STOCK, self.build, "collection_progression", _fun_patches_override=[self.base, self.feature]
+        )
+        self.assertEqual(rendered[0x899D6:0x899DD], bytes.fromhex("E9560000009090"))
+        self.assertEqual(rendered[0x89A31:0x89A31 + 0x32], cave)
+        self.assertEqual(rendered[0xE4C00:0xE4C00 + 73], bytes.fromhex(
+            self.map["layouts"]["collection_progression"]["slot_map"]["installed"]["individual_confirmation_bytes"]
+        ))
+        self.assertEqual(rendered[0xE4C00 + 73:0xE4C00 + 0x100], b"\0" * 183)
+        self.assertEqual(route["atomic_components"], [
+            "detail_hook", "detail_cave", "balanced_epilogue", "installed_slot",
+            "confirmation_cave", "page_header", "manifests",
+        ])
+
+    def test_whole_render_has_no_reachable_cure_target(self):
+        rendered, _ = render_patched_bytes(
+            STOCK,
+            self.build,
+            "collection_progression",
+            _fun_patches_override=[self.base],
+        )
+        refs = []
+        for i in range(len(rendered) - 4):
+            if rendered[i] not in (0xE8, 0xE9):
+                continue
+            target = 0x400000 + i + 5 + int.from_bytes(rendered[i + 1 : i + 5], "little", signed=True)
+            if target == 0x728004:
+                refs.append(i)
+        self.assertEqual(refs, [])
 
     def test_all_modes_render_checksum_composition_and_uninstall(self):
         compatible = [
@@ -498,23 +676,46 @@ class VV4FullMasteryCandidateTests(unittest.TestCase):
         slot_work[0xE3100] ^= 1
         with self.assertRaises(PatcherError):
             _remove_feature_bytes(slot_work, self.feature, "collection_progression")
-        for offset in (0x3E165, 0x2C0, len(rendered) - 1):
+        for offset in (0x3E165, 0x2C0, 0x899D6, 0x89A31, 0xE4C00, len(rendered) - 1):
             with self.subTest(offset=hex(offset)):
                 work = bytearray(rendered)
                 work[offset] ^= 1
+                if offset == 0xE4C00:
+                    with self.assertRaises(PatcherError):
+                        _remove_feature_bytes(work, self.feature, "collection_progression")
+                    continue
                 _remove_feature_bytes(work, self.feature, "collection_progression")
                 with self.assertRaises(PatcherError):
                     _remove_feature_bytes(work, self.base, "collection_progression")
-        before = {
-            path: sha(path.read_bytes())
-            for path in (BASE, FEATURE, MAP, DOC, DLL)
-        }
-        subprocess.run([sys.executable, str(GENERATOR)], cwd=ROOT, check=True)
-        after = {
-            path: sha(path.read_bytes())
-            for path in (BASE, FEATURE, MAP, DOC, DLL)
-        }
-        self.assertEqual(before, after)
+        repo_status = subprocess.check_output(
+            ["git", "status", "--porcelain", "--untracked-files=no"], cwd=ROOT
+        )
+        with tempfile.TemporaryDirectory() as raw_temp:
+            output_root = Path(raw_temp)
+            candidates = output_root / "data" / "candidates"
+            candidates.mkdir(parents=True)
+            (output_root / "docs").mkdir()
+            temp_dll = candidates / DLL.name
+            shutil.copy2(DLL, temp_dll)
+            env = dict(os.environ, VVFP_GENERATOR_OUTPUT_ROOT=str(output_root))
+            generated = (
+                candidates / BASE.name,
+                candidates / FEATURE.name,
+                candidates / MAP.name,
+                output_root / "docs" / DOC.name,
+                temp_dll,
+            )
+            subprocess.run([sys.executable, str(GENERATOR)], cwd=ROOT, env=env, check=True)
+            before = {path.name: sha(path.read_bytes()) for path in generated}
+            subprocess.run([sys.executable, str(GENERATOR)], cwd=ROOT, env=env, check=True)
+            after = {path.name: sha(path.read_bytes()) for path in generated}
+            self.assertEqual(before, after)
+        self.assertEqual(
+            subprocess.check_output(
+                ["git", "status", "--porcelain", "--untracked-files=no"], cwd=ROOT
+            ),
+            repo_status,
+        )
 
     def test_companion_preflight_and_exact_removal_guards(self):
         bad = deepcopy(self.base_raw)

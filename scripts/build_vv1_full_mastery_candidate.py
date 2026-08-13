@@ -1,4 +1,4 @@
-"""Generate the disabled VV1 command-7 Full Mastery Stage-A candidate."""
+"""Generate the enabled VV1 command-7 Full Mastery stock-mode candidate."""
 
 from __future__ import annotations
 
@@ -38,6 +38,8 @@ CONFIRM_OFFSET = 0x580
 SHOW_MENU_OFFSET = 0x640
 SHOW_RESULT_OFFSET = 0x6C0
 STRINGS_OFFSET = 0x900
+BUTTON_LABEL = b"Upgrades"
+BUTTON_STORAGE_SIZE = len(b"Origins Upgrades\0")
 PRICE = 1_000_000
 BOUND = 256
 STRIDE = 0x3D8
@@ -45,9 +47,25 @@ STRIDE = 0x3D8
 MODES = (
     "collection_progression",
     "immediate_fixed",
+)
+REJECTED_MODES = (
     "experimental_expanded_256",
     "experimental_expanded_256_progression",
 )
+RECERT_SOURCE_COMMIT = "2f22a8b435918bf01b95aa4b9a6e6f4287d0ac94"
+RECERT_BUNDLE = "outputs/vv1-full-mastery-c76-recert"
+RECERT_ISOLATED_SHA256 = "C2C6070B11E56BD6B8BD183C9694E88DC6D576758926D18ACEFCD093CCF364B0"
+RECERT_COMBINED_SHA256 = "9B5CA9671558DE0A8CACB6E62AD98BA6C692522D253374DA74E52984B53FF230"
+RECERT_ACTIVE_ORIGINS_SHA256 = "5434C71C342B830A5896AFFB610A76C670578760BD33C6145882FA280F6406A3"
+
+
+def require_supported_mode(mode: str) -> None:
+    if mode in REJECTED_MODES:
+        raise RuntimeError(
+            f"VV1 Full Mastery candidate rejects Expanded-256 mode before output: {mode}"
+        )
+    if mode not in MODES:
+        raise RuntimeError(f"unsupported VV1 Full Mastery candidate mode: {mode}")
 
 
 def asm(source: str, address: int) -> bytes:
@@ -149,7 +167,10 @@ def build_section() -> tuple[bytes, dict[str, object]]:
     cursor = STRINGS_OFFSET
     strings: dict[str, int] = {}
     for key, value in (
-        ("button", b"Origins Upgrades"),
+        (
+            "button",
+            BUTTON_LABEL + b"\0" * (BUTTON_STORAGE_SIZE - len(BUTTON_LABEL)),
+        ),
         ("candidate_dll", b"VVFP VV1 Full Mastery Candidate.dll"),
         ("menu_export", b"ShowVV1FullMasteryMenu"),
         ("result_export", b"ShowVV1FullMasteryResult"),
@@ -157,10 +178,15 @@ def build_section() -> tuple[bytes, dict[str, object]]:
         ("message_box", b"MessageBoxA"),
         (
             "warning",
-            b"This upgrade makes permanent changes to your village. Are you sure "
-            b"you want to purchase it? Press OK to confirm, or Cancel.",
+            b"Grant Full Mastery to all villagers for 1,000,000 tech points?\r\n"
+            b"Press OK to confirm, or Cancel.",
         ),
         ("caption", b"Origins Upgrades"),
+        (
+            "post_verify_failure",
+            b"Full Mastery could not be verified after native writes.\r\n"
+            b"No tech points have been deducted.",
+        ),
     ):
         strings[key], cursor = _add_string(section, cursor, value)
 
@@ -255,28 +281,44 @@ def build_section() -> tuple[bytes, dict[str, object]]:
             jz done
             mov dword ptr [ebp - 16], eax
             mov edi, dword ptr [esi + 0x0C]
-            lea edx, [edi + 0xA2FC]
-            cmp dword ptr [edx], {PRICE}
-            jb insufficient
+            test edi, edi
+            jz invalid
+            mov edx, dword ptr [edi + 0xADE8]
+            test edx, edx
+            jz invalid
             push 0
             push {BOUND}
-            push dword ptr [esi + 0x10]
+            push edx
             call 0x{walker_va:X}
             add esp, 12
             cmp edx, 1
             je invalid
             test eax, eax
             jz no_change
+            mov edi, dword ptr [esi + 0x0C]
+            test edi, edi
+            jz invalid
+            lea edx, [edi + 0xA2FC]
+            cmp dword ptr [edx], {PRICE}
+            jb insufficient
             call 0x{confirm_va:X}
             cmp eax, 1
             jne done
             mov edi, dword ptr [esi + 0x0C]
+            test edi, edi
+            jz invalid
+            mov edx, dword ptr [edi + 0xADE8]
+            test edx, edx
+            jz invalid
             lea edx, [edi + 0xA2FC]
             cmp dword ptr [edx], {PRICE}
             jb insufficient
+            mov edx, dword ptr [edi + 0xADE8]
+            test edx, edx
+            jz invalid
             push 0
             push {BOUND}
-            push dword ptr [esi + 0x10]
+            push edx
             call 0x{walker_va:X}
             add esp, 12
             cmp edx, 1
@@ -284,15 +326,30 @@ def build_section() -> tuple[bytes, dict[str, object]]:
             test eax, eax
             jz no_change
             mov edi, dword ptr [esi + 0x0C]
-            lea edx, [edi + 0xA2FC]
-            sub dword ptr [edx], {PRICE}
+            test edi, edi
+            jz invalid
+            mov edx, dword ptr [edi + 0xADE8]
+            test edx, edx
+            jz invalid
             push 1
             push {BOUND}
-            push dword ptr [esi + 0x10]
+            push edx
             call 0x{walker_va:X}
             add esp, 12
+            mov ebx, eax
+            cmp edx, 1
+            je invalid
+            cmp edx, 2
+            je post_verify_failure
+            mov edi, dword ptr [esi + 0x0C]
+            test edi, edi
+            jz post_verify_failure
+            lea edx, [edi + 0xA2FC]
+            cmp dword ptr [edx], {PRICE}
+            jb insufficient
+            sub dword ptr [edx], {PRICE}
             push dword ptr [ebp - 16]
-            push eax
+            push ebx
             push 1
             call 0x{show_result_va:X}
             jmp done
@@ -313,6 +370,12 @@ def build_section() -> tuple[bytes, dict[str, object]]:
             push 0
             push 3
             call 0x{show_result_va:X}
+            jmp done
+        post_verify_failure:
+            push dword ptr [ebp - 16]
+            push 0
+            push 4
+            call 0x{show_result_va:X}
         done:
             add esp, 4
             pop edi
@@ -326,8 +389,11 @@ def build_section() -> tuple[bytes, dict[str, object]]:
     )
     _put(section, ENTRY_OFFSET, entry, "transaction entry")
 
-    # cdecl walker(base, bound, mode); EAX=changed count, EDX=1 on invalid
-    # eligible data. mode 0 is read-only; mode 1 calls the native writer.
+    # cdecl walker(pool, bound, mode); EAX=changed count, EDX=1 on invalid
+    # eligible data, EDX=2 when mode-1's complete second read-only pass finds
+    # any eligible record that is not exactly 100 in all five skills. Mode 0
+    # is read-only; mode 1 writes during the first pass and then reacquires
+    # the pool for a complete second pass. There is no mode 2 entry path.
     walker = asm(
         f"""
             push ebp
@@ -344,11 +410,11 @@ def build_section() -> tuple[bytes, dict[str, object]]:
             cmp ebx, dword ptr [ebp + 12]
             jae walk_done
             cmp byte ptr [esi + 0x28], 0
-            je advance
+            je first_advance
             cmp dword ptr [esi + 0x344], 0
-            jle advance
+            jle first_advance
             cmp dword ptr [esi + 0x36C], 199
-            je advance
+            je first_advance
             mov edi, 5
             lea edx, [esi + 0x3BC]
         validate:
@@ -368,11 +434,11 @@ def build_section() -> tuple[bytes, dict[str, object]]:
             cmp dword ptr [esi + 0x3C8], 100
             jl changed
             cmp dword ptr [esi + 0x3CC], 100
-            jge advance
+            jge first_advance
         changed:
             inc dword ptr [esp]
             cmp dword ptr [esp + 4], 0
-            jz advance
+            jz first_advance
             cmp dword ptr [esi + 0x3BC], 100
             je s2
             mov edi, 100
@@ -414,7 +480,7 @@ def build_section() -> tuple[bytes, dict[str, object]]:
             call 0x437230
         s5:
             cmp dword ptr [esi + 0x3CC], 100
-            je advance
+            je first_advance
             mov edi, 100
             sub edi, dword ptr [esi + 0x3CC]
             push edi
@@ -422,7 +488,7 @@ def build_section() -> tuple[bytes, dict[str, object]]:
             push ebx
             mov ecx, dword ptr [ebp + 8]
             call 0x437230
-        advance:
+        first_advance:
             add esi, {STRIDE}
             inc ebx
             jmp next
@@ -431,7 +497,50 @@ def build_section() -> tuple[bytes, dict[str, object]]:
             xor eax, eax
             mov edx, 1
             jmp walker_exit
+        verify_failed:
+            add esp, 8
+            xor eax, eax
+            mov edx, 2
+            jmp walker_exit
         walk_done:
+            cmp dword ptr [esp + 4], 0
+            je walk_success
+            mov esi, dword ptr [ebp + 8]
+            xor ebx, ebx
+        verify_next:
+            cmp ebx, dword ptr [ebp + 12]
+            jae walk_success
+            cmp byte ptr [esi + 0x28], 0
+            je verify_advance
+            cmp dword ptr [esi + 0x344], 0
+            jle verify_advance
+            cmp dword ptr [esi + 0x36C], 199
+            je verify_advance
+            mov edi, 5
+            lea edx, [esi + 0x3BC]
+        verify_values:
+            cmp dword ptr [edx], 0
+            jl verify_failed
+            cmp dword ptr [edx], 100
+            jg verify_failed
+            add edx, 4
+            dec edi
+            jne verify_values
+            cmp dword ptr [esi + 0x3BC], 100
+            jne verify_failed
+            cmp dword ptr [esi + 0x3C0], 100
+            jne verify_failed
+            cmp dword ptr [esi + 0x3C4], 100
+            jne verify_failed
+            cmp dword ptr [esi + 0x3C8], 100
+            jne verify_failed
+            cmp dword ptr [esi + 0x3CC], 100
+            jne verify_failed
+        verify_advance:
+            add esi, {STRIDE}
+            inc ebx
+            jmp verify_next
+        walk_success:
             mov eax, dword ptr [esp]
             add esp, 8
             xor edx, edx
@@ -565,6 +674,45 @@ def build_section() -> tuple[bytes, dict[str, object]]:
             "walker -> native skill writer 0x437230",
         ],
         "iat_references": ["0x457010 LoadLibraryA", "0x4570D4 GetProcAddress"],
+        "pool_transport": {
+            "state": "[Tech+0x0C]",
+            "pool": "[state+0xADE8]",
+            "null_guard": "state and pool are rejected before every walk",
+            "bound": BOUND,
+            "stride": f"0x{STRIDE:X}",
+        },
+        "preference_contract": {
+            "field": "+0x3D0",
+            "behavior": "read-only; +0x3D0 is never written or normalized; no naming or preference code is changed; any checked preference remains authoritative",
+            "absent_preference": "stock sub_43B520 remains authoritative: it compares +0x3BC Parenting/code2, +0x3C0 Building/code4, +0x3C8 Healing/code5, +0x3C4 Farming/code1, then +0x3CC Research/code3 with strict-greater comparisons; all-equal skills retain code2 and native mapping renders Master Parent",
+        },
+        "post_verify_pass": {
+            "mode": 1,
+            "scope": "complete second read-only pass over all 256 records after the entire native-write pass",
+            "reacquire": "reload [EBP+8] and reset physical index to zero",
+            "eligibility": "same occupied/health/special guards as the first pass",
+            "value_validation": "same five-skill range checks, then every eligible skill must equal exact signed DWORD integer 100",
+            "failure": "EDX=2 on any invalid or non-100 eligible record; EDX=0 only after the full pass",
+        },
+        "rollback_limit": (
+            "Native skill writes are not rolled back if the process is interrupted "
+            "or post-write verification fails; no deduction is made on failure."
+        ),
+        "composition_audit": {
+            "base_identity": "active Origins/Cure feature vv1_enable_origins_exclusive_features",
+            "combined_identity": "active Origins/Cure bytes plus the candidate .vv1fm append and guarded Full Mastery hook bytes",
+            "uninstall_identity": "remove only the candidate .vv1fm append/header/hooks and restore the active Origins/Cure bytes",
+            "proof": "combined uninstall must equal the active Origins/Cure base byte-for-byte",
+            "shared_hook_policy": "ordinary catalog composition remains collision-fail-closed; the recertification bundle uses an explicit guarded audit composition only",
+            "bundle_output": RECERT_BUNDLE,
+            "identity_files": [
+                "active-origins-cure-base/Virtual Villagers - A New Home - Active Origins.exe",
+                "combined-origins-cure-full-mastery/Virtual Villagers - A New Home - Full Mastery.exe",
+                "uninstalled-full-mastery/Virtual Villagers - A New Home - Active Origins.exe",
+                "composition-proof.json",
+            ],
+            "candidate_enabled": False,
+        },
         "base_relocations": [],
     }
     return bytes(section), metadata
@@ -578,7 +726,7 @@ def build() -> tuple[dict[str, object], dict[str, object]]:
     if sha(original) != expected_sha:
         raise RuntimeError("VV1 stock SHA-256 mismatch")
     if not COMPANION.is_file():
-        raise RuntimeError("build the disabled candidate companion DLL first")
+        raise RuntimeError("build the enabled candidate companion DLL first")
 
     pe = _pe_layout(original)
     if pe["section_count"] != 5:
@@ -620,13 +768,30 @@ def build() -> tuple[dict[str, object], dict[str, object]]:
         "id": "vv1_full_mastery_all_stage_a_candidate",
         "game_id": "vv1",
         "name": "Grant Full Mastery to All Villagers",
-        "enabled": False,
-        "certification_status": "disabled Stage-A emitted candidate awaiting independent Sol byte certification",
+        "enabled": True,
+        "catalog_hidden": False,
+        "certification_status": "C76/D82/C83 independently recertified; stock-mode catalog enabled for collection_progression and immediate_fixed; Expanded-256 ON HOLD/fail-closed",
+        "evidence_status": f"C76/D82/C83 GO against exact source commit {RECERT_SOURCE_COMMIT}; rendered payload and exact uninstall identities are hash-bound below; runtime/player confirmation remains pending",
         "description": (
-            "Uncertified disabled command-7-only Stage-A candidate. Commands 6/8, "
-            "ownership, Remove, Golden Child, and Island Event paths are absent."
+            "enabled/catalog-visible stock-only command-7 Full Mastery candidate. Commands 6/8, ownership, "
+            "Remove, Golden Child, and Island Event paths are absent; Expanded-256 "
+            "is rejected before output."
         ),
         "dependencies": [],
+        "acceptance": {
+            "source_commit": RECERT_SOURCE_COMMIT,
+            "reviews": ["C76", "D82", "C83"],
+            "bundle": RECERT_BUNDLE,
+            "allowed_modes": list(MODES),
+            "expanded_rejected": True,
+            "source_sha256": expected_sha,
+            "companion_sha256": sha(COMPANION.read_bytes()),
+            "active_origins_base_sha256": RECERT_ACTIVE_ORIGINS_SHA256,
+            "isolated_candidate_sha256": RECERT_ISOLATED_SHA256,
+            "combined_origins_full_mastery_sha256": RECERT_COMBINED_SHA256,
+            "uninstalled_sha256": RECERT_ACTIVE_ORIGINS_SHA256,
+            "uninstall_equals_active_origins_base": True,
+        },
         "companion_files": [
             {
                 "source": "data/candidates/VVFP VV1 Full Mastery Candidate.dll",
@@ -639,7 +804,7 @@ def build() -> tuple[dict[str, object], dict[str, object]]:
                 "offset": "0x358DC",
                 "before": "8B4C24205F",
                 "after": constructor_after.hex().upper(),
-                "purpose": "append the isolated command-7 Origins Upgrades button",
+                "purpose": "append the isolated command-7 Upgrades button",
             },
             {
                 "offset": "0x35AB0",
@@ -663,6 +828,25 @@ def build() -> tuple[dict[str, object], dict[str, object]]:
             "skills": ["+0x3BC Parenting/code2", "+0x3C0 Building/code4", "+0x3C4 Farming/code1", "+0x3C8 Healing/code5", "+0x3CC Research/code3"],
             "target": 100,
             "native_writer": "sub_437230 once for each valid below-100 skill",
+            "pool_transport": "state=[Tech+0x0C], pool=[state+0xADE8]; null is fail-closed",
+            "preference": "read-only +0x3D0; never written or normalized; no naming or preference code is changed; checked preference remains authoritative. With no checked preference, stock sub_43B520 compares +0x3BC Parenting/code2, +0x3C0 Building/code4, +0x3C8 Healing/code5, +0x3C4 Farming/code1, then +0x3CC Research/code3 using strict-greater comparisons; all-equal skills therefore retain code2 and the native label mapping is Master Parent.",
+            "post_verify": "mode 1 reacquires [EBP+8] and performs a complete second read-only pass over all 256 records after native writes; identical eligibility/range validation and exact signed DWORD integer 100 for every eligible skill are required before deduction",
+            "rollback_limit": "partial native writes may remain after interruption or failed post-verification; no charge is made",
+        },
+        "composition_audit": {
+            "base_identity": "active Origins/Cure feature vv1_enable_origins_exclusive_features",
+            "combined_identity": "active Origins/Cure bytes plus the candidate .vv1fm append and guarded Full Mastery hook bytes",
+            "uninstall_identity": "remove only the candidate .vv1fm append/header/hooks and restore the active Origins/Cure bytes",
+            "proof": "combined uninstall must equal the active Origins/Cure base byte-for-byte",
+            "shared_hook_policy": "ordinary catalog composition remains collision-fail-closed; the recertification bundle uses an explicit guarded audit composition only",
+            "bundle_output": RECERT_BUNDLE,
+            "identity_files": [
+                "active-origins-cure-base/Virtual Villagers - A New Home - Active Origins.exe",
+                "combined-origins-cure-full-mastery/Virtual Villagers - A New Home - Full Mastery.exe",
+                "uninstalled-full-mastery/Virtual Villagers - A New Home - Active Origins.exe",
+                "composition-proof.json",
+            ],
+            "candidate_enabled": False,
         },
     }
     layouts = manifest["pe_append_transaction"]["layouts"]  # type: ignore[index]
@@ -673,13 +857,13 @@ def build() -> tuple[dict[str, object], dict[str, object]]:
             "append_length": SECTION_SIZE,
             "append_bytes": section.hex().upper(),
             "virtual_address": f"0x{SECTION_VA:X}",
-            "purpose": "append the disabled command-7-only .vv1fm RX section",
+            "purpose": "append the enabled/catalog-visible command-7-only .vv1fm RX section",
             "header_patches": [
                 {
                     "offset": f"0x{pe['section_count_offset']:X}",
                     "before": "0500",
                     "after": "0600",
-                    "purpose": "add the disabled candidate .vv1fm section",
+                    "purpose": "add the enabled candidate .vv1fm section",
                 },
                 {
                     "offset": f"0x{pe['size_of_image_offset']:X}",
@@ -698,7 +882,23 @@ def build() -> tuple[dict[str, object], dict[str, object]]:
 
     artifact.update(
         {
-            "acceptance_commit": "1b3e4565d4168457c00404a12ed30cfb777c86e9",
+            "acceptance_commit": RECERT_SOURCE_COMMIT,
+            "enabled": True,
+            "catalog_hidden": False,
+            "catalog_enabled": True,
+            "independent_recertification": {
+                "reviews": ["C76", "D82", "C83"],
+                "status": "GO",
+                "source_commit": RECERT_SOURCE_COMMIT,
+                "bundle": RECERT_BUNDLE,
+                "allowed_modes": list(MODES),
+                "expanded_rejected": True,
+                "active_origins_base_sha256": RECERT_ACTIVE_ORIGINS_SHA256,
+                "isolated_candidate_sha256": RECERT_ISOLATED_SHA256,
+                "combined_origins_full_mastery_sha256": RECERT_COMBINED_SHA256,
+                "uninstalled_sha256": RECERT_ACTIVE_ORIGINS_SHA256,
+                "uninstall_equals_active_origins_base": True,
+            },
             "semantic_commit": "b328c1b1c76f68ade762ec139ee6c2e08ce54a96",
             "correction_audit_commit": "284b8cad9e876e53eefdd5ec909d25dfd336b398",
             "source": {"size": len(original), "sha256": expected_sha},
@@ -741,16 +941,21 @@ def build() -> tuple[dict[str, object], dict[str, object]]:
             },
             "command_abi": {
                 "entry": "stock thiscall Tech-screen receiver arrives in ECX; entry saves old ESI, transports ECX to ESI, and restores old ESI on exit",
-                "walker": "cdecl(base,bound,mode); EAX changed, EDX invalid; preserves EBX/ESI/EDI/EBP",
+                "walker": "cdecl(pool,bound,mode); mode0 dry-run, mode1 native commit followed by a complete second 256-record read-only exact signed DWORD integer-100 pass; EAX changed, EDX 1=first-pass invalid/2=second-pass mismatch; no fourth entry walk; preserves EBX/ESI/EDI/EBP",
                 "result": "stdcall(status,changed,retained_export); ret 12; retained export itself is stdcall(status,changed), ret 8",
             },
             "modes": list(MODES),
+            "allowed_modes": list(MODES),
+            "rejected_modes": list(REJECTED_MODES),
         }
     )
     return manifest, artifact
 
 
 def main() -> None:
+    requested_modes = tuple(sys.argv[1:]) or MODES
+    for mode in requested_modes:
+        require_supported_mode(mode)
     manifest, artifact = build()
     from vv_fun_patcher import FunPatch, load_builds, load_fun_patches, render_patched_bytes
 
@@ -760,10 +965,18 @@ def main() -> None:
         item
         for item in load_fun_patches()
         if item.game_id == "vv1"
-        and item.id not in {manifest["id"], "vv1_enable_origins_exclusive_features"}
+        and item.id
+        not in {
+            manifest["id"],
+            "vv1_enable_origins_exclusive_features",
+            # This parent generator authenticates its own frozen composition.
+            # Selected-villager Full Mastery is a separately pinned child and
+            # must not rewrite the prerequisite's historical all-current row.
+            "vv1_individual_full_mastery_candidate",
+        }
     ]
     rendered: dict[str, object] = {}
-    for mode in MODES:
+    for mode in requested_modes:
         baseline, _ = render_patched_bytes(STOCK, build_record, mode)
         image, applied = render_patched_bytes(
             STOCK,
@@ -794,12 +1007,12 @@ def main() -> None:
     MANIFEST_OUT.write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
     MAP_OUT.write_text(json.dumps(artifact, indent=2) + "\n", encoding="utf-8")
     DOC_OUT.write_text(
-        "# VV1 Full Mastery disabled Stage-A candidate\n\n"
-        "This catalog-hidden artifact is generated from disassembly acceptance "
-        "contract `1b3e4565d4168457c00404a12ed30cfb777c86e9` and applies the "
-        "pre-resolved-result correction from certification report "
-        "`284b8cad9e876e53eefdd5ec909d25dfd336b398`. It remains "
-        "**disabled pending independent Sol emitted-byte certification**.\n\n"
+        "# VV1 Full Mastery stock-mode candidate\n\n"
+        "The exact enabled/catalog-visible stock-only candidate is catalog-enabled for "
+        "`collection_progression` and `immediate_fixed` after the C76/D82/C83 "
+        f"static recertification gate against source commit `{RECERT_SOURCE_COMMIT}`. "
+        "Runtime/player confirmation is still pending; no Expanded-256 output "
+        "is accepted.\n\n"
         f"- Section SHA-256: `{artifact['section_sha256']}`\n"
         f"- Companion SHA-256: `{artifact['companion']['sha256']}`\n"
         f"- Entry SHA-256: `{artifact['entry_sha256']}`\n"
@@ -808,10 +1021,33 @@ def main() -> None:
         "The candidate appends `.vv1fm`; it does not reuse the overlapping old "
         "Origins payload. It "
         "adds command 7 only, with commands 6/8, ownership, Remove, Gong, and "
-        "Island Event interception absent. The result export is resolved and "
+        "Island Event interception absent. Eligible records exclude Golden Child "
+        "special value 199; the five skill fields are signed DWORD integers and "
+        "must finish at exact integer 100. Preference +0x3D0 is read-only and "
+        "never written or normalized; no naming or preference code is changed: "
+        "a checked preference stays authoritative, "
+        "while no preference follows the D115-confirmed stock sub_43B520 order "
+        "(+0x3BC Parenting/code2, +0x3C0 Building/code4, +0x3C8 Healing/code5, "
+        "+0x3C4 Farming/code1, +0x3CC Research/code3) with strict-greater ties; "
+        "all-equal skills retain code2 and native mapping renders Master Parent. "
+        "The result export is resolved and "
         "validated before any charge or native writer call, then retained through "
-        "commit. The raw manifest and complete map "
-        "are under `data/candidates/`.\n",
+        "commit. The physical pool is reacquired from `state=[Tech+0x0C]` and "
+        "`pool=[state+0xADE8]` with null fail-closed guards, preserving 256 "
+        "records at stride `0x3D8`. A complete mode-0 dry run and no-change test "
+        "precede the unsigned funds check and explicit 1,000,000-point confirmation. "
+        "Mode 1 performs the complete native write pass, then reacquires the pool "
+        "and performs a second read-only pass over all 256 records with identical "
+        "eligibility/range checks and exact signed DWORD integer-100 requirements before the single "
+        "deduction; there is no mode-2 entry walk. A "
+        "process interruption or failed verification cannot safely roll back "
+        "partial native writes, so no charge is made. Collection Progression and "
+        "Immediate Fixed are the only allowed modes; Expanded-256 is rejected "
+        "before output creation. The C76 recertification bundle emits the "
+        "active Origins/Cure base, combined Origins/Cure plus Full Mastery audit "
+        "identity, Full Mastery uninstall identity, and a proof manifest whose "
+        "uninstall hash equals the active base hash. The raw manifest and "
+        "complete map are under `data/candidates/`.\n",
         encoding="utf-8",
     )
 

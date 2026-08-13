@@ -1,0 +1,17 @@
+{
+  "$schema":"https://json-schema.org/draft/2020-12/schema",
+  "$id":"vvfp.vv3_expanded_256_save_serializer_abi_gate",
+  "type":"object","additionalProperties":false,
+  "required":["schema","schema_version","contract_id","status","enabled","bindings","native_rows","gap_matrix","evidence_policy","runtime_evidence","decision","integrity"],
+  "properties":{
+    "schema":{"const":"vvfp.vv3_expanded_256_save_serializer_abi_gate"},"schema_version":{"const":1},
+    "contract_id":{"const":"x3-vv3-expanded-256-save-serializer-abi-evidence-gate"},"status":{"const":"STOP"},"enabled":{"const":false},
+    "bindings":{"type":"object"},
+    "native_rows":{"type":"array","minItems":7,"maxItems":7,"items":{"type":"object","additionalProperties":false,"required":["id","ea","file_offset","role","expected","evidence_refs"],"properties":{"id":{"type":"string"},"ea":{"type":"string"},"file_offset":{"type":["string","null"]},"role":{"type":"string"},"expected":{"type":"null"},"evidence_refs":{"const":[]}}}},
+    "gap_matrix":{"type":"array","minItems":9,"maxItems":9,"items":{"type":"object","additionalProperties":false,"required":["id","required","status"],"properties":{"id":{"type":"string"},"required":{"type":"array","minItems":3,"uniqueItems":true,"items":{"type":"string"}},"status":{"const":"evidence_absent"}}}},
+    "evidence_policy":{"type":"object"},
+    "runtime_evidence":{"const":{"candidate":null,"authenticated":false,"structural_valid":false,"gate_ready":false}},
+    "decision":{"const":{"publication_ready":false,"runtime_go":false,"player_go":false,"native_emission_permitted":false,"status":"STOP"}},
+    "integrity":{"type":"object","additionalProperties":false,"required":["canonical_sha256"],"properties":{"canonical_sha256":{"type":["string","null"]}}}
+  }
+}

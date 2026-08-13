@@ -1,0 +1,75 @@
+{
+  "schema_version": "vvfp.expanded_256_save_serializer_abi_evidence.v1",
+  "contract_id": "x45-vv4-vv5-expanded-256-save-serializer-abi-evidence",
+  "status": "evidence_empty_stop",
+  "integrity": {
+    "canonicalization": "UTF-8 JSON with sorted keys and compact separators; integrity.canonical_sha256 is excluded from its own digest",
+    "canonical_sha256": "2F84D77305C8D450280317F9080257E78242F2973FBC036089086746B1C52238"
+  },
+  "publication": {"enabled": false, "runtime_go": false, "player_go": false, "eligible": false},
+  "policy": {
+    "qualifying_evidence_class": "authenticated_native_and_player_runtime_receipt",
+    "forbidden_evidence_classes": ["synthetic", "manual_injection", "static_description", "inferred"],
+    "required_native_fields": ["row_id", "requirement", "function_name", "function_ea", "instruction_ea", "file_offset", "preimage", "calling_convention", "return_semantics", "failure_semantics", "xrefs", "artifact", "runtime_receipt_refs", "player_receipt_refs", "synthetic"],
+    "completion_rule": "Every requirement must be observed_complete with an exact expected row count, canonical row-ledger digest, exact native rows, an authenticated complete-folder receipt, authenticated runtime receipts, and explicit player receipts. Any absent, partial, unknown, synthetic, manually injected, static-only, stale, or unauthenticated evidence is STOP.",
+    "native_emission": false
+  },
+  "bindings": {
+    "implementation_base_commit": "9ffa0c21277df3b8dabee81fb0316e6953695ed3",
+    "schema": {"path": "data/schemas/expanded_256_save_serializer_abi_evidence.schema.json", "file_sha256": "5FD0DB0E6E12AB723F762EA2B31FD9F313ABCDE4239A3F85142BC6E21AEB9C69"},
+    "stored_index_contract": {"path": "data/expanded_256_stored_index_evidence.json", "file_sha256": "02C0957E2A6ED5F702955821F68CE7A8A751C4C807FE5C34665DCA6FF00E786A", "canonical_sha256": "EFE728FCBBD55E28B1D410E72D5BE701B4514951DCD261F0AE0474AC7B511274"},
+    "runtime_contract": {"path": "data/expanded_256_runtime_evidence.json", "file_sha256": "5A3BAEB25B958460243DD0E91DE94667CB304F22282EA721A2CE43B758C03F85", "canonical_sha256": "54A0B95547ED52DBA6A7144E6610C5CB25097AADD5629697F2608FD5B447266A"},
+    "runtime_harness": {"path": "scripts/capture_expanded_runtime_evidence.py", "file_sha256": "719DAD95AC6AB2D2E1CC9F64DECF1BB894CC4A98B5B7662A3A84402B2C5CA321", "schema_version": "vvfp.expanded_256_runtime_capture.v1"}
+  },
+  "required_requirements": [
+    "save_layout_sizes", "loader_abi", "stock_import_conversion", "writer_record_count_tail", "serializer_bounds", "deserializer_bounds", "padding_non_saveability", "integrity_transform", "slot_rotation_atomicity", "failed_load_nonmutation", "offline_catchup_ordering", "manager_pool_identity_reload", "current_origins_behavior", "complete_folder_runtime_player_receipts"
+  ],
+  "games": {
+    "vv4": {
+      "stock_fingerprint": {"filename": "Virtual Villagers - The Tree of Life.exe", "size": 929792, "sha256": "6D27A429FFCA5F1F71FDD7ECA761ED1BB67E85F976494BA178B3D7BE01F1B220"},
+      "expanded_fingerprints": {"experimental_expanded_256": {"size": 929792, "sha256": "602824F514BFAB80883805B16C01D1E572752261A155262778CF8D535C41D887"}, "experimental_expanded_256_progression": {"size": 929792, "sha256": "AC430442DE23406236903CAA6FC9A992D52DCF3269A95ED345A9EF6F18B9C30A"}},
+      "relocation_ledger": {"path": "data/vv4_origins_feature.json", "file_sha256": "A38F98973EB83F91D60FCA5C2A1BD28444622CEAC5434C295FB7E73D3A1BCB71", "count": 13, "ledger_sha256": "CEE01F4AEC59CB1CEE0F42E3DDDB3A24615261E628ED0629C1BFAABF421A897D"},
+      "complete_folder": {"status": "absent_stop", "inventory_sha256": null, "authenticated": false},
+      "save_layout": {"stock_size": null, "expanded_size": null, "stock_layout_sha256": null, "expanded_layout_sha256": null, "status": "unknown_stop"},
+      "evidence_matrix": [
+        {"requirement": "save_layout_sizes", "status": "unknown_stop", "expected_row_count": null, "row_ledger_sha256": null, "native_rows": [], "runtime_receipt_refs": [], "player_receipt_refs": [], "missing_evidence": ["exact authenticated native rows and exact artifact", "authenticated complete-folder/runtime/player receipts"]},
+        {"requirement": "loader_abi", "status": "unknown_stop", "expected_row_count": null, "row_ledger_sha256": null, "native_rows": [], "runtime_receipt_refs": [], "player_receipt_refs": [], "missing_evidence": ["exact authenticated native rows and exact artifact", "authenticated complete-folder/runtime/player receipts"]},
+        {"requirement": "stock_import_conversion", "status": "unknown_stop", "expected_row_count": null, "row_ledger_sha256": null, "native_rows": [], "runtime_receipt_refs": [], "player_receipt_refs": [], "missing_evidence": ["exact authenticated native rows and exact artifact", "authenticated complete-folder/runtime/player receipts"]},
+        {"requirement": "writer_record_count_tail", "status": "unknown_stop", "expected_row_count": null, "row_ledger_sha256": null, "native_rows": [], "runtime_receipt_refs": [], "player_receipt_refs": [], "missing_evidence": ["exact authenticated native rows and exact artifact", "authenticated complete-folder/runtime/player receipts"]},
+        {"requirement": "serializer_bounds", "status": "unknown_stop", "expected_row_count": null, "row_ledger_sha256": null, "native_rows": [], "runtime_receipt_refs": [], "player_receipt_refs": [], "missing_evidence": ["exact authenticated native rows and exact artifact", "authenticated complete-folder/runtime/player receipts"]},
+        {"requirement": "deserializer_bounds", "status": "unknown_stop", "expected_row_count": null, "row_ledger_sha256": null, "native_rows": [], "runtime_receipt_refs": [], "player_receipt_refs": [], "missing_evidence": ["exact authenticated native rows and exact artifact", "authenticated complete-folder/runtime/player receipts"]},
+        {"requirement": "padding_non_saveability", "status": "unknown_stop", "expected_row_count": null, "row_ledger_sha256": null, "native_rows": [], "runtime_receipt_refs": [], "player_receipt_refs": [], "missing_evidence": ["exact authenticated native rows and exact artifact", "authenticated complete-folder/runtime/player receipts"]},
+        {"requirement": "integrity_transform", "status": "unknown_stop", "expected_row_count": null, "row_ledger_sha256": null, "native_rows": [], "runtime_receipt_refs": [], "player_receipt_refs": [], "missing_evidence": ["exact authenticated native rows and exact artifact", "authenticated complete-folder/runtime/player receipts"]},
+        {"requirement": "slot_rotation_atomicity", "status": "unknown_stop", "expected_row_count": null, "row_ledger_sha256": null, "native_rows": [], "runtime_receipt_refs": [], "player_receipt_refs": [], "missing_evidence": ["exact authenticated native rows and exact artifact", "authenticated complete-folder/runtime/player receipts"]},
+        {"requirement": "failed_load_nonmutation", "status": "unknown_stop", "expected_row_count": null, "row_ledger_sha256": null, "native_rows": [], "runtime_receipt_refs": [], "player_receipt_refs": [], "missing_evidence": ["exact authenticated native rows and exact artifact", "authenticated complete-folder/runtime/player receipts"]},
+        {"requirement": "offline_catchup_ordering", "status": "unknown_stop", "expected_row_count": null, "row_ledger_sha256": null, "native_rows": [], "runtime_receipt_refs": [], "player_receipt_refs": [], "missing_evidence": ["exact authenticated native rows and exact artifact", "authenticated complete-folder/runtime/player receipts"]},
+        {"requirement": "manager_pool_identity_reload", "status": "unknown_stop", "expected_row_count": null, "row_ledger_sha256": null, "native_rows": [], "runtime_receipt_refs": [], "player_receipt_refs": [], "missing_evidence": ["exact authenticated native rows and exact artifact", "authenticated complete-folder/runtime/player receipts"]},
+        {"requirement": "current_origins_behavior", "status": "unknown_stop", "expected_row_count": null, "row_ledger_sha256": null, "native_rows": [], "runtime_receipt_refs": [], "player_receipt_refs": [], "missing_evidence": ["exact authenticated native rows and exact artifact", "authenticated complete-folder/runtime/player receipts"]},
+        {"requirement": "complete_folder_runtime_player_receipts", "status": "unknown_stop", "expected_row_count": null, "row_ledger_sha256": null, "native_rows": [], "runtime_receipt_refs": [], "player_receipt_refs": [], "missing_evidence": ["exact authenticated native rows and exact artifact", "authenticated complete-folder/runtime/player receipts"]}
+      ]
+    },
+    "vv5": {
+      "stock_fingerprint": {"filename": "Virtual Villagers - New Believers.exe", "size": 991232, "sha256": "92946781980220E9D1A2E6C573925519934608F5215F4A0F8CE3B90088C5C65D"},
+      "expanded_fingerprints": {"experimental_expanded_256": {"size": 991232, "sha256": "44042572653782B20A200799785F437D4D76B46F20384D597B8093F27CC88C89"}, "experimental_expanded_256_progression": {"size": 991232, "sha256": "6BF9E0EB9BC7D3C373E32C3A7377C9A7EA35C1FA889EEDBF9B2819A25BC43E86"}},
+      "relocation_ledger": {"path": "data/vv5_origins_feature.json", "file_sha256": "6AFF1A8E69234C61CB2D1878C46FA91B0AAA721FC5F29C5B42A678F61BAB8528", "count": 66, "ledger_sha256": "14E460773ADC065E053FA30921ED01D33A5F36AD49DC754CCD69127EA02C01B7"},
+      "complete_folder": {"status": "absent_stop", "inventory_sha256": null, "authenticated": false},
+      "save_layout": {"stock_size": null, "expanded_size": null, "stock_layout_sha256": null, "expanded_layout_sha256": null, "status": "unknown_stop"},
+      "evidence_matrix": [
+        {"requirement": "save_layout_sizes", "status": "unknown_stop", "expected_row_count": null, "row_ledger_sha256": null, "native_rows": [], "runtime_receipt_refs": [], "player_receipt_refs": [], "missing_evidence": ["exact authenticated native rows and exact artifact", "authenticated complete-folder/runtime/player receipts"]},
+        {"requirement": "loader_abi", "status": "unknown_stop", "expected_row_count": null, "row_ledger_sha256": null, "native_rows": [], "runtime_receipt_refs": [], "player_receipt_refs": [], "missing_evidence": ["exact authenticated native rows and exact artifact", "authenticated complete-folder/runtime/player receipts"]},
+        {"requirement": "stock_import_conversion", "status": "unknown_stop", "expected_row_count": null, "row_ledger_sha256": null, "native_rows": [], "runtime_receipt_refs": [], "player_receipt_refs": [], "missing_evidence": ["exact authenticated native rows and exact artifact", "authenticated complete-folder/runtime/player receipts"]},
+        {"requirement": "writer_record_count_tail", "status": "unknown_stop", "expected_row_count": null, "row_ledger_sha256": null, "native_rows": [], "runtime_receipt_refs": [], "player_receipt_refs": [], "missing_evidence": ["exact authenticated native rows and exact artifact", "authenticated complete-folder/runtime/player receipts"]},
+        {"requirement": "serializer_bounds", "status": "unknown_stop", "expected_row_count": null, "row_ledger_sha256": null, "native_rows": [], "runtime_receipt_refs": [], "player_receipt_refs": [], "missing_evidence": ["exact authenticated native rows and exact artifact", "authenticated complete-folder/runtime/player receipts"]},
+        {"requirement": "deserializer_bounds", "status": "unknown_stop", "expected_row_count": null, "row_ledger_sha256": null, "native_rows": [], "runtime_receipt_refs": [], "player_receipt_refs": [], "missing_evidence": ["exact authenticated native rows and exact artifact", "authenticated complete-folder/runtime/player receipts"]},
+        {"requirement": "padding_non_saveability", "status": "unknown_stop", "expected_row_count": null, "row_ledger_sha256": null, "native_rows": [], "runtime_receipt_refs": [], "player_receipt_refs": [], "missing_evidence": ["exact authenticated native rows and exact artifact", "authenticated complete-folder/runtime/player receipts"]},
+        {"requirement": "integrity_transform", "status": "unknown_stop", "expected_row_count": null, "row_ledger_sha256": null, "native_rows": [], "runtime_receipt_refs": [], "player_receipt_refs": [], "missing_evidence": ["exact authenticated native rows and exact artifact", "authenticated complete-folder/runtime/player receipts"]},
+        {"requirement": "slot_rotation_atomicity", "status": "unknown_stop", "expected_row_count": null, "row_ledger_sha256": null, "native_rows": [], "runtime_receipt_refs": [], "player_receipt_refs": [], "missing_evidence": ["exact authenticated native rows and exact artifact", "authenticated complete-folder/runtime/player receipts"]},
+        {"requirement": "failed_load_nonmutation", "status": "unknown_stop", "expected_row_count": null, "row_ledger_sha256": null, "native_rows": [], "runtime_receipt_refs": [], "player_receipt_refs": [], "missing_evidence": ["exact authenticated native rows and exact artifact", "authenticated complete-folder/runtime/player receipts"]},
+        {"requirement": "offline_catchup_ordering", "status": "unknown_stop", "expected_row_count": null, "row_ledger_sha256": null, "native_rows": [], "runtime_receipt_refs": [], "player_receipt_refs": [], "missing_evidence": ["exact authenticated native rows and exact artifact", "authenticated complete-folder/runtime/player receipts"]},
+        {"requirement": "manager_pool_identity_reload", "status": "unknown_stop", "expected_row_count": null, "row_ledger_sha256": null, "native_rows": [], "runtime_receipt_refs": [], "player_receipt_refs": [], "missing_evidence": ["exact authenticated native rows and exact artifact", "authenticated complete-folder/runtime/player receipts"]},
+        {"requirement": "current_origins_behavior", "status": "unknown_stop", "expected_row_count": null, "row_ledger_sha256": null, "native_rows": [], "runtime_receipt_refs": [], "player_receipt_refs": [], "missing_evidence": ["exact authenticated native rows and exact artifact", "authenticated complete-folder/runtime/player receipts"]},
+        {"requirement": "complete_folder_runtime_player_receipts", "status": "unknown_stop", "expected_row_count": null, "row_ledger_sha256": null, "native_rows": [], "runtime_receipt_refs": [], "player_receipt_refs": [], "missing_evidence": ["exact authenticated native rows and exact artifact", "authenticated complete-folder/runtime/player receipts"]}
+      ]
+    }
+  }
+}

@@ -1,8 +1,8 @@
 {
-  "section_sha256": "E9105A8A39BD8B21EE6723DBCECFA23FDD1111642326F748197801415C17B85B",
-  "entry_sha256": "130229B3BC45B1485DA58BB0552E539163B2251AB4CCB732E88F2C3294FC1CA3",
-  "walker_sha256": "4B119F481B3FBB924D4E18C2B2DCAA03F6F28FADE99BCCF31657A2A7076C3092",
-  "confirmation_sha256": "5537BC90184685A3D4125A7C37B87501D10DAA3E16EEB4D975D91FC524633273",
+  "section_sha256": "F0EFEDF743A375F9A62FC1199809A0F2A5CF05CC749CE5A5DA5EA24BC28EABE7",
+  "entry_sha256": "DB742B8C696A5D197D4985E49DE636C4E3E584BBC1B7E65132611E2FC4B42A31",
+  "walker_sha256": "948C1B9E968FB5A8F957E33F6C344A1FF0DC25805BB97DB2D959129A4E2B8C9E",
+  "confirmation_sha256": "39FBB3CA5B2C32C5566EA918C249D77718F2872AF871511EA23147C48AE6E779",
   "menu_resolver_sha256": "66A089D58C80B15DD4BB47DAC3B3ABC1DD5CF8969B9863D90BD084B462496C98",
   "result_resolver_sha256": "2945F92280B7A6E59E6F0B91F25A1FBD3C1D49789460D4C4CC094DCE873FA8E8",
   "offsets": {
@@ -23,7 +23,8 @@
     "user32": "0x490965",
     "message_box": "0x490970",
     "warning": "0x49097C",
-    "caption": "0x4909F8"
+    "caption": "0x4909DC",
+    "post_verify_failure": "0x4909ED"
   },
   "absolute_references": [
     "0x457010 LoadLibraryA IAT",
@@ -45,8 +46,67 @@
     "0x457010 LoadLibraryA",
     "0x4570D4 GetProcAddress"
   ],
+  "pool_transport": {
+    "state": "[Tech+0x0C]",
+    "pool": "[state+0xADE8]",
+    "null_guard": "state and pool are rejected before every walk",
+    "bound": 256,
+    "stride": "0x3D8"
+  },
+  "preference_contract": {
+    "field": "+0x3D0",
+    "behavior": "read-only; +0x3D0 is never written or normalized; no naming or preference code is changed; any checked preference remains authoritative",
+    "absent_preference": "stock sub_43B520 remains authoritative: it compares +0x3BC Parenting/code2, +0x3C0 Building/code4, +0x3C8 Healing/code5, +0x3C4 Farming/code1, then +0x3CC Research/code3 with strict-greater comparisons; all-equal skills retain code2 and native mapping renders Master Parent"
+  },
+  "post_verify_pass": {
+    "mode": 1,
+    "scope": "complete second read-only pass over all 256 records after the entire native-write pass",
+    "reacquire": "reload [EBP+8] and reset physical index to zero",
+    "eligibility": "same occupied/health/special guards as the first pass",
+    "value_validation": "same five-skill range checks, then every eligible skill must equal exact signed DWORD integer 100",
+    "failure": "EDX=2 on any invalid or non-100 eligible record; EDX=0 only after the full pass"
+  },
+  "rollback_limit": "Native skill writes are not rolled back if the process is interrupted or post-write verification fails; no deduction is made on failure.",
+  "composition_audit": {
+    "base_identity": "active Origins/Cure feature vv1_enable_origins_exclusive_features",
+    "combined_identity": "active Origins/Cure bytes plus the candidate .vv1fm append and guarded Full Mastery hook bytes",
+    "uninstall_identity": "remove only the candidate .vv1fm append/header/hooks and restore the active Origins/Cure bytes",
+    "proof": "combined uninstall must equal the active Origins/Cure base byte-for-byte",
+    "shared_hook_policy": "ordinary catalog composition remains collision-fail-closed; the recertification bundle uses an explicit guarded audit composition only",
+    "bundle_output": "outputs/vv1-full-mastery-c76-recert",
+    "identity_files": [
+      "active-origins-cure-base/Virtual Villagers - A New Home - Active Origins.exe",
+      "combined-origins-cure-full-mastery/Virtual Villagers - A New Home - Full Mastery.exe",
+      "uninstalled-full-mastery/Virtual Villagers - A New Home - Active Origins.exe",
+      "composition-proof.json"
+    ],
+    "candidate_enabled": false
+  },
   "base_relocations": [],
-  "acceptance_commit": "1b3e4565d4168457c00404a12ed30cfb777c86e9",
+  "acceptance_commit": "2f22a8b435918bf01b95aa4b9a6e6f4287d0ac94",
+  "enabled": true,
+  "catalog_hidden": false,
+  "catalog_enabled": true,
+  "independent_recertification": {
+    "reviews": [
+      "C76",
+      "D82",
+      "C83"
+    ],
+    "status": "GO",
+    "source_commit": "2f22a8b435918bf01b95aa4b9a6e6f4287d0ac94",
+    "bundle": "outputs/vv1-full-mastery-c76-recert",
+    "allowed_modes": [
+      "collection_progression",
+      "immediate_fixed"
+    ],
+    "expanded_rejected": true,
+    "active_origins_base_sha256": "5434C71C342B830A5896AFFB610A76C670578760BD33C6145882FA280F6406A3",
+    "isolated_candidate_sha256": "C2C6070B11E56BD6B8BD183C9694E88DC6D576758926D18ACEFCD093CCF364B0",
+    "combined_origins_full_mastery_sha256": "9B5CA9671558DE0A8CACB6E62AD98BA6C692522D253374DA74E52984B53FF230",
+    "uninstalled_sha256": "5434C71C342B830A5896AFFB610A76C670578760BD33C6145882FA280F6406A3",
+    "uninstall_equals_active_origins_base": true
+  },
   "semantic_commit": "b328c1b1c76f68ade762ec139ee6c2e08ce54a96",
   "correction_audit_commit": "284b8cad9e876e53eefdd5ec909d25dfd336b398",
   "source": {
@@ -55,8 +115,8 @@
   },
   "companion": {
     "path": "data/candidates/VVFP VV1 Full Mastery Candidate.dll",
-    "size": 108544,
-    "sha256": "A8071DD12E536F6535F9D713A992B538729430AF7625BD994360599977495B81",
+    "size": 109056,
+    "sha256": "4736E5EFB8F680E3B1F124D1920A9390D9F6427260E60743039FA80F8646CCB3",
     "exports": {
       "ShowVV1FullMasteryMenu": {
         "ordinal": 1,
@@ -114,27 +174,33 @@
   },
   "command_abi": {
     "entry": "stock thiscall Tech-screen receiver arrives in ECX; entry saves old ESI, transports ECX to ESI, and restores old ESI on exit",
-    "walker": "cdecl(base,bound,mode); EAX changed, EDX invalid; preserves EBX/ESI/EDI/EBP",
+    "walker": "cdecl(pool,bound,mode); mode0 dry-run, mode1 native commit followed by a complete second 256-record read-only exact signed DWORD integer-100 pass; EAX changed, EDX 1=first-pass invalid/2=second-pass mismatch; no fourth entry walk; preserves EBX/ESI/EDI/EBP",
     "result": "stdcall(status,changed,retained_export); ret 12; retained export itself is stdcall(status,changed), ret 8"
   },
   "modes": [
     "collection_progression",
-    "immediate_fixed",
+    "immediate_fixed"
+  ],
+  "allowed_modes": [
+    "collection_progression",
+    "immediate_fixed"
+  ],
+  "rejected_modes": [
     "experimental_expanded_256",
     "experimental_expanded_256_progression"
   ],
   "rendered_candidates": {
     "collection_progression": {
       "baseline_sha256": "0F54C22C531FCE276EFBF5F0B4418C48B66CE314AA21872A9B2C5D459232EC7A",
-      "candidate_sha256": "DF0CC6F474568EB224DA059458774F9D64802D43BF9D6842038FCA8A369E0C7E",
+      "candidate_sha256": "C2C6070B11E56BD6B8BD183C9694E88DC6D576758926D18ACEFCD093CCF364B0",
       "size": 589824,
-      "pe_checksum": "0x00092253",
+      "pe_checksum": "0x00096B68",
       "owners": [
         "automatic:population",
         "automatic:safety",
         "feature:vv1_full_mastery_all_stage_a_candidate"
       ],
-      "all_current_vv1_sha256": "E4CA45CADAC18A7BCDBC231E70B80572AA19ABF0663F124A356156B675B75C88",
+      "all_current_vv1_sha256": "21B82BA923443D0B02E5856D5D8B6C96740FCE2A204FEFE008A3B484BA201651",
       "all_current_vv1_owners": [
         "automatic:population",
         "automatic:safety",
@@ -143,6 +209,7 @@
         "feature:vv1_f6_clothing_change_cheat",
         "feature:vv1_full_mastery_all_stage_a_candidate",
         "feature:vv1_magic_fruit_alters_mortality",
+        "feature:vv1_origins_village_wide_upgrades",
         "feature:vv1_school_lessons_grant_skill",
         "feature:vv1_write_village_statistics"
       ],
@@ -151,15 +218,15 @@
     },
     "immediate_fixed": {
       "baseline_sha256": "0F54C22C531FCE276EFBF5F0B4418C48B66CE314AA21872A9B2C5D459232EC7A",
-      "candidate_sha256": "DF0CC6F474568EB224DA059458774F9D64802D43BF9D6842038FCA8A369E0C7E",
+      "candidate_sha256": "C2C6070B11E56BD6B8BD183C9694E88DC6D576758926D18ACEFCD093CCF364B0",
       "size": 589824,
-      "pe_checksum": "0x00092253",
+      "pe_checksum": "0x00096B68",
       "owners": [
         "automatic:population",
         "automatic:safety",
         "feature:vv1_full_mastery_all_stage_a_candidate"
       ],
-      "all_current_vv1_sha256": "E4CA45CADAC18A7BCDBC231E70B80572AA19ABF0663F124A356156B675B75C88",
+      "all_current_vv1_sha256": "21B82BA923443D0B02E5856D5D8B6C96740FCE2A204FEFE008A3B484BA201651",
       "all_current_vv1_owners": [
         "automatic:population",
         "automatic:safety",
@@ -168,56 +235,7 @@
         "feature:vv1_f6_clothing_change_cheat",
         "feature:vv1_full_mastery_all_stage_a_candidate",
         "feature:vv1_magic_fruit_alters_mortality",
-        "feature:vv1_school_lessons_grant_skill",
-        "feature:vv1_write_village_statistics"
-      ],
-      "collision_status": "PASS",
-      "uninstall_target_sha256": "0F54C22C531FCE276EFBF5F0B4418C48B66CE314AA21872A9B2C5D459232EC7A"
-    },
-    "experimental_expanded_256": {
-      "baseline_sha256": "0F54C22C531FCE276EFBF5F0B4418C48B66CE314AA21872A9B2C5D459232EC7A",
-      "candidate_sha256": "DF0CC6F474568EB224DA059458774F9D64802D43BF9D6842038FCA8A369E0C7E",
-      "size": 589824,
-      "pe_checksum": "0x00092253",
-      "owners": [
-        "automatic:population",
-        "automatic:safety",
-        "feature:vv1_full_mastery_all_stage_a_candidate"
-      ],
-      "all_current_vv1_sha256": "E4CA45CADAC18A7BCDBC231E70B80572AA19ABF0663F124A356156B675B75C88",
-      "all_current_vv1_owners": [
-        "automatic:population",
-        "automatic:safety",
-        "feature:vv1_builder_action_fixes",
-        "feature:vv1_continue_research_at_max_technologies",
-        "feature:vv1_f6_clothing_change_cheat",
-        "feature:vv1_full_mastery_all_stage_a_candidate",
-        "feature:vv1_magic_fruit_alters_mortality",
-        "feature:vv1_school_lessons_grant_skill",
-        "feature:vv1_write_village_statistics"
-      ],
-      "collision_status": "PASS",
-      "uninstall_target_sha256": "0F54C22C531FCE276EFBF5F0B4418C48B66CE314AA21872A9B2C5D459232EC7A"
-    },
-    "experimental_expanded_256_progression": {
-      "baseline_sha256": "0F54C22C531FCE276EFBF5F0B4418C48B66CE314AA21872A9B2C5D459232EC7A",
-      "candidate_sha256": "DF0CC6F474568EB224DA059458774F9D64802D43BF9D6842038FCA8A369E0C7E",
-      "size": 589824,
-      "pe_checksum": "0x00092253",
-      "owners": [
-        "automatic:population",
-        "automatic:safety",
-        "feature:vv1_full_mastery_all_stage_a_candidate"
-      ],
-      "all_current_vv1_sha256": "E4CA45CADAC18A7BCDBC231E70B80572AA19ABF0663F124A356156B675B75C88",
-      "all_current_vv1_owners": [
-        "automatic:population",
-        "automatic:safety",
-        "feature:vv1_builder_action_fixes",
-        "feature:vv1_continue_research_at_max_technologies",
-        "feature:vv1_f6_clothing_change_cheat",
-        "feature:vv1_full_mastery_all_stage_a_candidate",
-        "feature:vv1_magic_fruit_alters_mortality",
+        "feature:vv1_origins_village_wide_upgrades",
         "feature:vv1_school_lessons_grant_skill",
         "feature:vv1_write_village_statistics"
       ],

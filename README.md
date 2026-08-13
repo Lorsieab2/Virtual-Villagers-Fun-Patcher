@@ -19,33 +19,19 @@ prerequisite are rejected before any copied game folder or EXE is written.
 
 Its max-population modes use every verified built-in villager slot: 256 slots in A New Home and The Lost Children, and 150 slots in The Secret City, The Tree of Life, and New Believers.
 
-## Two patch styles
+## Three population modes
 
-Choose the style in the patcher; the choice and all paths are remembered.
+Choose the population mode in the patcher; the choice and all paths are remembered.
 
-| Style | Collection behavior | Output EXE |
+| Mode | Collection/progression behavior | Output EXE |
 |---|---|---|
+| No Population Increase | The stock population cap, collection behavior, and progression gates are preserved. No population-cap or saturation bytes are changed. | `(Game name) - Modded.exe` |
 | Collection Progression Max Pop | The original population bonuses remain active and are required to reach the slot maximum. The Secret City also retains its level-3 magic bonus. | `(Game name) - Modded.exe` |
 | Immediate Fixed Max Pop | The slot maximum is available immediately. Collections no longer change it; The Secret City's magic tech no longer changes it either. | `(Game name) - Modded.exe` |
-| Experimental Expanded 256 Villagers | VV3–VV5 expand their physical records and save layout to 256 immediately; collections no longer affect that expanded ceiling. | `(Game name) - Modded 256.exe` |
-| Experimental Expanded 256 - Collection Progression | VV3–VV5 expand to 256 while their original collection and Magic Tech bonuses remain required to reach 256. | `(Game name) - Modded 256.exe` |
 
-> **Expanded-256 release status:** both experimental 256 modes are ON HOLD for
-> VV3-VV5. Exact-build reanalysis found unresolved runtime/save failures and
-> incomplete optional-feature relocation coverage. Renderer success is not a
-> release certification. See
-> [the exact implementation gates](docs/vv3-vv5-expanded-256-implementation-gates.md).
-
-Ordinary modes and optional-patch combinations use the stable short `- Modded`
-name. Experimental 256 modes use the separate short `- Modded 256` name. The
-selected mode, optional patches, hashes, and applied edits remain identified in
-the adjacent `.patch-log.json`.
-
-The **Experimental Expanded 256 Villagers** and **Experimental Expanded 256 -
-Collection Progression** modes are available for VV3–VV5. They expand the
-logical record and save layout from 150 to 256 and include guarded loading of
-the original stock save layout. They remain experimental and are awaiting
-player startup, save-recognition, and complete playthrough validation.
+All three modes use the stable short `- Modded` name. The selected mode,
+optional patches, hashes, and applied edits remain identified in the adjacent
+`.patch-log.json`.
 
 ## VV2: Easier Healing Mastery
 
@@ -91,12 +77,14 @@ Building skill gains, and completion behavior. Villagers assigned to other
 jobs retain their stock high-food scheduling. The shared scheduler covers both
 ordinary play and elapsed-time catch-up.
 
-## VV1: Enable Origins-Exclusive Features
+## VV1 Origins playtest package
 
-Enable **Enable Origins-Exclusive Features (A New Home)** to add an
-**Upgrades** button to VV1's Tech screen. It ports the supplied
-Virtual Villagers: Origins APK's exclusive purchases to the supported desktop
-build:
+The requested playtest package exposes **Enable Origins-Exclusive Features (A
+New Home)** and its dependent **Enable Origins Village-Wide Upgrades** record
+in the GUI, CLI, dependency resolution, Select All, and generated
+transparency output. This is static/source-verified package exposure only;
+reported runtime crashes and complete player transaction validation remain
+pending. The rows documented below are the historical menu contract:
 
 - **Time Warp** — 50,000 tech points; advances the village by exactly 3
   displayed villager years. The elapsed-clock shift scales with game speed;
@@ -129,30 +117,31 @@ build:
   temporary safety gate. Existing ownership can be removed for zero cost with
   no refund; repurchase is temporarily disabled for this build.
 
-The Tech screen presents its five village upgrades together, and the Villager
-Detail screen presents its four villager upgrades together, each with icons
-and individual Buy buttons. The final doubler contract applies after native
-collectible adjustments; no Food Mastery-like food transform or collection tech
-multiplier was found in this fingerprint. Ordinary Science still modifies
-research amounts before any future eligible hook. Golden Child and Island Event
-outcomes remain native. The two doublers are stored in
-otherwise-unused fields of the current saved village, so removing one affects
-only that save slot. **Bump Max Population** is deliberately omitted because
-the patcher's population modes handle population limits separately.
+The legacy Cure, Running, Time Warp, doubler, and selected-villager Origins
+paths remain **STOP**. Re-enablement requires rebuilding the resource with the
+exact label **Time Warp - Advances 3 Villager Years**, removing or replacing
+stale Cure resources, and proving confirmation, selected/world identity and
+funds reacquisition, native mutation and postverification, one deduction only
+after success, and truthful no-change/no-charge and partial-failure reporting.
+This containment changes no Golden Child or Island Event outcome.
 
-## VV2: Enable Origins-Exclusive Features
+The separate `vv1_full_mastery_all_stage_a_candidate` remains an isolated,
+command-7-only, catalog-visible static candidate for stock Collection
+Progression and Immediate Fixed. It is not the disabled Origins record;
+runtime/player confirmation remains pending.
 
-**Containment notice:** VV2 Origins is currently disabled after a player
-reported that both Time Warp and Food Point Doubler crash immediately after
-their purchased/success dialog is displayed. This records the trigger only;
-it does not infer whether the charge or action persisted. Both
+## VV2 Origins playtest package
+
+**Playtest warning:** VV2 Origins is exposed in this requested package after a
+player reported that both Time Warp and Food Point Doubler crash immediately
+after their purchased/success dialog is displayed. This records the trigger
+only; it does not infer whether the charge or action persisted. Both
 `vv2_enable_origins_exclusive_features` and its dependent village-wide upgrade
-are contained pending root-cause repair. Unrelated VV2 patches remain
-available.
+are selectable for targeted static/playtest work, but remain runtime/player
+validation pending. Unrelated VV2 patches remain available.
 
-Enable **Enable Origins-Exclusive Features (The Lost Children)** to add the
-same icon-based village and selected-villager upgrade menus to VV2. The
-supported desktop build receives:
+The rows provided by **Enable Origins-Exclusive Features (The Lost Children)**
+remain the historical diagnostic menu contract:
 
 - **Time Warp**, **Island Event**, and the literal stock **Barrel of Babies**
   event;
@@ -161,25 +150,17 @@ supported desktop build receives:
 - **Grant Youth**, **Grant Full Mastery**, **Grant Running**, and **Set Age to
   18** for the selected villager.
 
-The prices and refusal rules match the A New Home port. Barrel of Babies calls
-VV2's native three-child event path and checks the game's comprehensive
-occupied-plus-reserved population count before charging. Grant Running uses
-only the three normal Like slots, removes Running from the selected villager's
-normal Dislike slots, and never edits movement speed.
+The package does not claim that these legacy Cure, Running, Time Warp, doubler,
+or selected-villager paths are runtime-safe. Re-enablement of runtime/player
+behavior requires the crash root cause, the exact Time Warp resource rebuild,
+legacy Cure replacement, and the complete
+confirmation/reacquisition/postverification/one-deduction transaction gates.
+This package changes no Gong of Wonder or Island Event outcome.
 
-Positive food and tech awards use VV2's central stock award routines. Native
-collectible adjustments are completed before the certified doubler calculation;
-Food Mastery is code-confirmed absent within the completely enumerated technology
-definitions, resource strings, direct writer calls, and food-source call chains.
-Farming gates and unlocks sources but does not multiply awards; Herb Mastery is
-unrelated. The exact-build static provenance audit excludes every positive Island Event and
-Gong of Wonder food/tech writer return (17 tech and 13 food direct calls;
-zero tail-jumps), while direct deductions, caps, resets, zero outcomes, and
-other bypass paths remain native. Thus the doublers do not affect deductions,
-Island Event awards, or Gong of Wonder awards. Runtime/player confirmation of
-this static proof remains pending. A paused village
-cannot purchase Time Warp because VV2's paused catch-up logic discards elapsed
-age. **Bump Max Population** remains omitted.
+The separate `vv2_full_mastery_all_stage_a_candidate` remains an isolated,
+command-7-only, catalog-visible static candidate for stock Collection
+Progression and Immediate Fixed. It excludes commands 6/8, Gong, Island Event,
+and withdrawn Origins; runtime/player confirmation remains pending.
 
 ## VV3: Enable Origins-Exclusive Features
 
@@ -266,33 +247,20 @@ The patch reproduces the natural build's exact mother arguments and nursing-baby
 
 ## VV5: Enable Origins-Exclusive Features
 
-Enable **Enable Origins-Exclusive Features (New Believers)** to add the
-icon-based Origins **Upgrades** menus to VV5. Cure all Villagers clears
-sickness only from eligible active, living believers and reports the exact
-number cured; current Heathens remain byte-identical. The stock-layout Tech
-and Food Point Doublers are save-scoped, purchasable for 500,000 tech points
-each, removable at zero cost with no refund, and repurchasable at full price.
-The Tech wrapper doubles only the six certified positive returns (`0x4147BE`,
-`0x4147DD`, `0x4147F9`, `0x46DE4D`, `0x46DE7C`, and `0x46DEA5`); the `0x419EA3`
-clothing-dialog refund and all other paths remain native. The Food wrapper
-remains the certified `0x414970` collection whitelist after Food Mastery.
-VV5 Food Mastery is technology ID 4: the upgrade from level 1 to 2
-costs 3,000 tech points and the upgrade from level 2 to 3 costs 40,000 tech
-points, and central food writer `0x41EB40` transforms positive `A`
-as `A`, `A+floor(A/2)`, or `2A` before storage/statistics. Ordinary collection
-return `0x414970` maps 6/35 to 6/35, 9/52, or 12/70; the Food Point Doubler
-follows mastery and doubles the final positive eligible delta once. Island
-Event, startup, consumption, and unknown callers remain native; an unknown
-caller cannot match return `0x414970`. The stock Tech hook uses the exact
-`0x4237B0` -> `0x7B2A00` six-return wrapper, and the Food hook uses the exact
-`0x41EB6F` -> `0x7B2B00` wrapper. Expanded-256 restores both native
-five-byte hooks and keeps both new doubler purchases unavailable by the exact
-`0x41F1E6` marker; owned Remove remains safe. The native
-Time Warp, Island Event, and Barrel of Babies rows are retained but disabled:
-they do not charge or call a native path until every direct and indirect path
-that could target a Heathen has been independently proven safe. Grant Running,
-Grant Youth, Full Mastery, and Set Age to 18 use the current believer predicate
-and never modify Heathen records or movement-speed logic.
+The independently certified **VV5 Origins Full Mastery Extension Base**
+(`vv5_origins_full_mastery_base_candidate`) and **Grant Full Mastery to All
+Villagers** (`vv5_full_mastery_all_stage_a_candidate`) are enabled only for
+the exact stock Collection Progression and Immediate Fixed builds. Their
+acceptance is bound to the C99 rendered hashes, the authoritative Origins DLL,
+the native `btn_trophies` resource, the certified confirmation routines and
+strings, and the recorded hook/map guards.
+
+The VV5 Upgrades UI and native village-wide Full Mastery route are preserved;
+the individual route targets the selected current living Believer and performs
+the certified exact-100 transaction. The withdrawn Cure row/command 5 is
+unavailable, bypassed, and unreachable in this candidate; no Cure purchase or
+30,000-point Cure behavior is present. Other Origins actions and unrelated
+VV5 features remain native and unchanged.
 
 ## VV4: Complete Fish Scales = Golden Fish in Nets
 
@@ -315,6 +283,18 @@ slot, removes Running from Dislikes, and never changes movement speed. The
 feature is exact-build guarded, but its native dialog and upgrade UI still need
 player runtime validation.
 
+## VV3: Grant Running to Selected Villager
+
+`vv3_individual_grant_running_candidate` is disabled, catalog-hidden, and absent
+from GUI, CLI, and Select All. The withdrawn village-wide command-6 Running row
+is also absent. Its retained evidence is not publication authority.
+
+## VV3: Full Heal / Cure All
+
+`vv3_full_heal_cure_all_candidate` is absent because its required selected-
+villager Running dependency is disabled and hidden. It must not appear in GUI,
+CLI, or Select All. Its retained evidence is not publication authority.
+
 ## VV4 breeding reference
 
 VV4 remains the untouched vanilla Breeding and Embracing reference, including
@@ -334,6 +314,26 @@ applied the wrong both-sex ceiling. No VV1 Birth Control bytes are offered.
 Complete carrier-only/no-male-ceiling coverage still requires the planner and
 action-9 commit paths to be proved together; catch-up, direct event births, and
 pending delivery remain native.
+
+## VV3: Everyone Tries On the Robe
+
+Enable **Everyone Tries On the Robe (The Secret City)** to make one handled
+robe drop call the unchanged stock robe callback for the whole eligible
+village. Every active, living, non-nursing villager receives the base game's
+complete native success or failed-fit result, and the base game decides who
+becomes Tribal Chief.
+
+Dead, inactive, and nursing villagers are skipped. The patch does not force
+either robe action, assign Chief clothing or state, or change the Chief puzzle,
+pregnancy or nursing state, health, age, skills, preferences, or save records.
+Fanout requires the original callback to report a handled drop.
+
+This checkbox is optional and starts unchecked. It supports the two
+population-increase modes. The implementation is exact-
+build guarded and statically verified; player runtime confirmation remains
+pending. The robe feature itself never reads or writes candidate fields
+`+0xE80` or `+0xE88`; the unchanged stock callback remains responsible for
+candidate selection and all robe outcomes.
 
 ## VV3: Nature Level 1 Actually Replenishes Food Sources Faster
 
@@ -386,13 +386,13 @@ Enable **VV4 Nursery School Divisor Parity (New Believers)** to change only the 
 
 For parity with Virtual Villagers 4, this optional patch gives each of VV5's six skills one-sixth of the spread lesson. It does not change focused strongest-skill lessons, teacher qualification, teacher selection, teacher skill totals, the under-14 eligibility rule, the approximately-50 skill ceiling, or offline catch-up. The arithmetic inconsistency is code-confirmed; whether it was intentional cannot be determined from the executable alone.
 
-| Game | Stock final maximum | Collection Progression maximum | Immediate Fixed maximum | Experimental immediate | Experimental progression |
-|---|---:|---:|---:|---:|---:|
-| A New Home | 90 | 256 | 256 | 256 | 256 |
-| The Lost Children | 115 | 231 to 256 | 256 | 256 | 231 to 256 |
-| The Secret City | 125 | 115 to 150 | 150 | 256 | 221 to 256 |
-| The Tree of Life | 115 | 125 to 150 | 150 | 256 | 231 to 256 |
-| New Believers | 105 | 135 to 150 | 150 | 256 | 241 to 256 |
+| Game | Stock final maximum | No Population Increase | Collection Progression maximum | Immediate Fixed maximum |
+|---|---:|---:|---:|---:|
+| A New Home | 90 | 90 | 256 | 256 |
+| The Lost Children | 115 | 115 | 231 to 256 | 256 |
+| The Secret City | 125 | 125 | 115 to 150 | 150 |
+| The Tree of Life | 115 | 115 | 125 to 150 | 150 |
+| New Believers | 105 | 105 | 135 to 150 | 150 |
 
 Housing gates remain in place.
 
@@ -406,7 +406,9 @@ This means births can temporarily stop below 150 displayed believers while Heath
 
 All five stock games test the population limit once before choosing a singleton, twins, or triplets. Without an additional guard, a multiple birth at maximum minus one can report maximum plus one or maximum plus two, even though no corresponding villager records remain.
 
-Both patch styles add a slot-saturation guard at the selected mode's physical boundary:
+The two population-increase modes add a slot-saturation guard at the selected
+mode's physical boundary. No Population Increase leaves the stock behavior
+untouched:
 
 - Three or more slots left: singleton, twin, and triplet rolls are unchanged.
 - Two slots left: a rolled triplet safely becomes twins.
@@ -423,7 +425,7 @@ All five games also contain Island Events that add villagers. The patcher guards
 
 1. Extract the latest release ZIP.
 2. Double-click `Launch Virtual Villagers Fun Patcher.bat`.
-3. Select a patch style.
+3. Select a population mode.
 4. Choose **One Game** or **All 5 Games**.
 5. For one game, select its original EXE. For all five, select one folder per game.
 6. Optionally choose a **Modded output location**. This is the parent folder that
@@ -438,35 +440,18 @@ The One Game tab includes clickable **Open Vanilla EXE Folder** and **Open Modif
 The **Additional fun patches** section is grouped in game order, with each
 game's patches sorted by patch name. It includes **Select All Patches** and
 **Deselect All Patches** buttons. They change every optional fun-patch checkbox
-at once without changing the selected population patch style, and the
+at once without changing the selected population mode, and the
 selection is remembered normally.
 
-For every selected game, ordinary modes create **`(Game name) - Modded`**
-containing **`(Game name) - Modded.exe`**. Experimental 256 modes instead create
-**`(Game name) - Modded 256`** containing
-**`(Game name) - Modded 256.exe`**. By default the selected folder is beside the
+For every selected game, all three modes create **`(Game name) - Modded`**
+containing **`(Game name) - Modded.exe`**. By default the selected folder is beside the
 supplied original; the GUI's **Modded output location** chooser can place all
 selected games under another parent folder. It copies every file and subfolder
 from the original game folder, verifies the copied files by SHA-256, keeps the
 stock EXE in the copy, and adds the modified EXE plus its `.patch-log.json`. The
 original folder and original EXE are never edited, renamed, replaced, or
-deleted. Applying another patch style refreshes that mode's same short folder
+deleted. Applying another population mode refreshes that mode's same short folder
 after confirmation.
-
-For an experimental 256 mode, the GUI also checks the matching vanilla save
-folder. The required slot-zero control file and every numbered `.ldw` save are
-copied together into the separate `(Game name) - Modded 256` save folder. If
-that destination already contains saves, the patcher asks before replacing
-them; declining preserves the existing Modded 256 saves. The vanilla saves are
-never edited. Command-line users can request the same behavior with
-`--copy-vanilla-saves`; replacing an existing Modded 256 save set additionally
-requires the explicit `--replace-modded-saves` flag.
-
-The expanded-mode confirmation now reports the actual state for VV3–VV5:
-whether a vanilla slot-zero save was found, whether an existing Modded 256
-slot-zero save is already ready, or whether no valid slot-zero save was found.
-If no valid save exists, launch the matching Modded 256 executable once and
-create a save before copying numbered files into the path shown by the prompt.
 
 ## Exact-build safety
 
@@ -483,14 +468,14 @@ Stock game executables, saves, and generated playtest outputs are never committe
 The disabled VV4 Full Mastery C6 candidate carries its exact mockup provenance
 and baked PNG source asset under `assets/candidates/vv4_full_mastery/`; its
 constructor bytes require fresh independent recertification, and all
-Expanded-256 variants remain ON HOLD/fail-closed.
+Expanded-256 population modes are removed from the active patcher.
 
 ## Command line
 
-Pass `--patch-mode collection_progression`, `--patch-mode immediate_fixed`, `--patch-mode experimental_expanded_256`, or `--patch-mode experimental_expanded_256_progression` to `dry-run`, `apply`, `dry-run-all`, or `apply-all`. Optional features use repeatable `--fun-patch` arguments. The available IDs are `vv1_school_lessons_grant_skill`, `vv1_continue_research_at_max_technologies`, `vv1_f6_clothing_change_cheat`, `vv1_magic_fruit_alters_mortality`, `vv1_builder_action_fixes`, `vv1_enable_origins_exclusive_features`, `vv2_easier_healing_mastery`, `vv2_teaching_children_grants_skill`, `vv2_hospital_recovery_heals`, `vv2_birth_control`, `vv2_gong_of_wonder_coconuts_fix`, `vv3_nature_honey_refill`, `vv3_nature_level_three_alters_mortality`, `vv3_rare_collectible_retry`, `vv3_enable_origins_exclusive_features`, `vv3_full_mastery_all_stage_a_candidate`, `vv4_complete_scales_golden_fish`, `vv4_enable_origins_exclusive_features`, `vv5_heathen_mommy_puzzle`, `vv5_easier_devotee_training`, `vv5_statue_polishing_or_honoring`, `vv5_vv4_nursery_divisor_parity`, and `vv5_enable_origins_exclusive_features`. The per-game Village Statistics IDs are `vv1_write_village_statistics`, `vv2_write_village_statistics`, `vv3_write_village_statistics`, `vv4_write_village_statistics`, and `vv5_write_village_statistics`. The VV2 Origins IDs and the VV4 Origins/Full Mastery records remain intentionally omitted while contained; the VV4 C6 candidate is not selectable until fresh recertification.
-
-The independently certified VV2 command-7-only Full Mastery feature remains
-contained after its withdrawn runtime test. The corrected VV4
+Pass `--patch-mode stock`, `--patch-mode collection_progression`, or `--patch-mode immediate_fixed` to `dry-run`, `apply`, `dry-run-all`, or `apply-all`. The available IDs are all current user-selectable per-game patches, including the five Origins-style Village-Wide menu routes and the ordinary VV1-VV5 patches. Each Origins Village-Wide route automatically adds its internal Origins base prerequisite; duplicate base entries, individual Full Mastery entries, and other withdrawn historical records remain hidden. Runtime/player confirmation remains pending. Use `collection_progression` or `immediate_fixed` for Origins-style routes because their certified append layouts do not include `stock` for VV3-VV5. The disabled VV3 Full Heal / Cure All candidate is not a CLI or catalog ID. The per-game Village Statistics IDs are `vv1_write_village_statistics`, `vv2_write_village_statistics`, `vv3_write_village_statistics`, `vv4_write_village_statistics`, and `vv5_write_village_statistics`.
+The five current Origins Village-Wide route IDs are `vv1_origins_village_wide_upgrades`, `vv2_origins_village_wide_upgrades`, `vv3_origins_village_wide_upgrades`, `vv4_origins_village_wide_upgrades`, and `vv5_origins_village_wide_upgrades`.
+Historical standalone Full Mastery and individual Full Mastery records are kept
+only as evidence and are not selectable or included in releases. The corrected VV4
 `vv4_full_mastery_all_stage_a_candidate` is catalog-hidden and disabled pending
 fresh independent recertification after the C6 startup-crash correction. Its
 candidate-only UI uses the canonical mockup crop baked into a deterministic
@@ -499,21 +484,19 @@ through `sub_401C20` at local 72,4 with Tech event 13 and Detail event 2;
 the unchanged helper/Cure/command-7/PNG/DLL bytes and the new constructor hashes
 are recorded in the candidate map. The withdrawn Cure row is rendered
 unavailable and command 5 is rejected before charge/0x728004 dispatch. Commands
-6 and 8 remain absent, the legacy atomic village-wide records remain contained,
-and Expanded-256 remains ON HOLD/fail-closed.
+6 and 8 remain absent, and the legacy atomic village-wide records remain contained.
 
 VV3's independent stock-only command-7 Full Mastery implementation is
 emitted-byte certified under disassembly commit
 `1e6ad7fd610d2fe9d80416fb218366ccd7d0656b` and available as
 `vv3_full_mastery_all_stage_a_candidate`. It reacquires the fixed current-save
 manager before both dry runs, uses the native skill writer and Award evaluator,
-and supports only `collection_progression` and `immediate_fixed`. Both
-expanded-256 modes reject the feature and remain ON HOLD. Commands 6 and 8,
+and supports only `collection_progression` and `immediate_fixed`. Commands 6 and 8,
 ownership/Remove, raw skill stores, and save-format changes remain absent.
 
 ```text
 python src/vv_fun_patcher.py dry-run "path\game.exe" --patch-mode immediate_fixed --output-root "path\chosen output parent"
-python src/vv_fun_patcher.py apply "path\game.exe" --patch-mode experimental_expanded_256_progression --copy-vanilla-saves --output-root "path\chosen output parent"
+python src/vv_fun_patcher.py dry-run "path\game.exe" --patch-mode stock --output-root "path\chosen output parent"
 python src/vv_fun_patcher.py apply-all --vv1 "path\vv1 folder" --vv2 "path\vv2 folder" --vv3 "path\vv3 folder" --vv4 "path\vv4 folder" --vv5 "path\vv5 folder" --patch-mode immediate_fixed --output-root "path\chosen output parent"
 ```
 
@@ -522,30 +505,14 @@ Technical evidence is in `docs/max-population-research.md`,
 `docs/experimental-256-cap-research.md`, and the game-specific reports under
 `docs/`.
 
-The five legacy Origins village-wide feature records are currently fail-closed and
-absent from the catalog because commands 6/7/8 share one atomic payload whose
-Full Mastery path has not received a complete GO gate as an atomic bundle. The disabled
-diagnostic IDs are `vv1_origins_village_wide_upgrades` through
-`vv5_origins_village_wide_upgrades`. Their payload bytes are retained for
-evidence but are not applied. Each historically depends on that game's
-`enable_origins_exclusive_features` prerequisite and adds the three
-1,000,000-tech-point rows: All Villagers Like Running, Grant Full Mastery to All
-Villagers, and All Villagers are 18. VV3's corrected command-6-only
-`vv3_all_villagers_like_running` feature is HARD WITHDRAWN and catalog-hidden
-after the intermittent Run2 status-2 crash; runtime fault capture remains
-required and commands 7/8 remain absent. VV4's
-independent command-7-only Full Mastery implementation is emitted-byte
-certified under `91a01eba0dc561b1244184301837b7199868c490` and enabled without
-exposing commands 6/8 or the legacy atomic village-wide record.
-VV5's former command-7-only Full Mastery package at commit `5e52be5` was
-withdrawn after an immediate startup auto-close. The corrected constructors
-were independently certified under `7970cd9`, and M2 passed startup and Full
-Mastery live testing. Its Tech-screen `Upgrades` text overran the narrow native
-Done graphic, so the feature is catalog-hidden while a geometry-only candidate
-using native wide resource 100 at nominal x=145, y=690 awaits independent byte
-recertification. The Villager Detail control is unchanged pending its own exact
-geometry gate.
-The feature is inspired by the
-selected exclusive upgrades in the Virtual Villagers 1 mobile port. VV5
-excludes Heathens; all games leave movement speed, nursing/pregnancy timers,
-and unrelated Like slots untouched.
+The public patcher exposes only the five current Origins-style village-wide
+upgrades-menu routes, one per game. Each route depends on that game's Origins
+menu prerequisite and includes the latest menu implementation rather than
+separate Full Mastery or duplicate Origins records. VV5's native Tech and
+Villager Upgrades menus provide Full Mastery, Running, Set Age to 18, and Full
+Heal / Cure All for active living Believers only. VV5 records with the Heathen
+mask/status set, including the sick-Heathen puzzle record, are skipped before
+action-specific reads or writes. Full Heal raises only health below 80 to 100
+and clears sickness; health from 80 through 100 is preserved. Native writers,
+statistics, and other stock handlers remain in the call path. Runtime/player
+confirmation is still pending.

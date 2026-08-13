@@ -1,0 +1,89 @@
+{
+  "id": "vv2_individual_grant_running_binding",
+  "eligibility_gate_order": "before_preference_access",
+  "game_id": "vv2",
+  "exact_build": {
+    "filename": "Virtual Villagers - The Lost Children.exe",
+    "size": 724992,
+    "sha256": "46C1503C209255C9CDEFA941DB2F449C8CF8E2CDD5C7D13CD975326E377ED677"
+  },
+  "record_identity": {
+    "selected_index": "[detail+0x0C]->+0x304F0",
+    "record_pool": "[detail+0x10]",
+    "physical_bound": 256,
+    "record_stride": "0xE48C",
+    "identity_guard": "mandatory exact selected-index, resolved-pointer/record-identity, and same-account callbacks at every mutation boundary; no native identity adapter is proved"
+  },
+  "preference_slots": {
+    "empty_id": -1,
+    "running_id": 38,
+    "like_slots": {
+      "base_offset": "0x5F0",
+      "slot_stride": "0x4",
+      "count": 62,
+      "last_offset": "0x6E4"
+    },
+    "dislike_slots": {
+      "base_offset": "0x6E8",
+      "slot_stride": "0x4",
+      "count": 62,
+      "last_offset": "0x7DC"
+    },
+    "scan_rule": "scan every configured physical slot; -1 is empty, never an early terminator"
+  },
+  "eligibility_gate": {
+    "selected_physical_index": "0 <= index < 256",
+    "record": "non-null",
+    "active": "signed/byte record+0x30 != 0",
+    "health": "signed DWORD record+0x52C > 0",
+    "preference_access_order": "check selection, record, active, and health before reading Like or Dislike slots"
+  },
+  "native_apis": {
+    "selected_villager_path": "existing VV2 Detail path: selected index [ESI+0x0C]->+0x304F0; record [ESI+0x10] + index*0xE48C",
+    "tech_account": {
+      "balance_field": "DWORD [state+0x2EADC]",
+      "existing_selected_path": "legacy path checks and directly subtracts the balance field; this raw precharge path is not reused",
+      "native_deduction": "sub_426290 thiscall ECX=state; push signed delta; callee ret 4",
+      "running_transaction_proof": "deduction ABI is evidenced by the VV2 Full Mastery candidate, but Running composition remains gated by the missing preference-write ABI"
+    },
+    "preference_write": {
+      "status": "UNPROVED",
+      "like_writer": null,
+      "dislike_writer": null,
+      "proof": "No complete exact-build native Like/Dislike write ABI is present; do not invent one or emit preference writes"
+    }
+  },
+  "transaction_contract": {
+    "command": 2,
+    "price": 40000,
+    "action": "Buy",
+    "repeatable": true,
+    "ownership": null,
+    "remove": false,
+    "dry_run": "dry-run: read the complete 62-slot Like and 62-slot Dislike arrays, preserve the snapshots, and find the first physical -1 Like before any confirmation or charge",
+    "already_running": "if any Like is Running, perform a whole-record no-change skip with zero preference writes and zero charge; preserve duplicate Running Likes and every Dislike",
+    "destination": "otherwise use only the first physical -1 Like; if none exists, perform zero writes and zero charge and leave every Dislike unchanged",
+    "confirm": "show confirmation after dry-run; accept IDOK only; Cancel, close, or any other result is no-charge",
+    "reacquire": "after confirmation reacquire exact selected index, resolved pointer/record identity, same account identity, all 62 Likes, all 62 Dislikes, eligibility, and tech balance before first write",
+    "write_order": "after destination proof, write Running once to the planned Like, then clear every Running Dislike; unrelated Like/Dislike slots and ordering remain unchanged",
+    "postverify": "reacquire exact selection/pointer/account identity, then read back all 62 Likes and all 62 Dislikes and require the exact planned result before charging",
+    "one_charge": "after successful postverify call deduction exactly once for 40000; charge is verified only by exact before/after balance readback bound to the same account identity, otherwise it is unknown",
+    "rollback_limit": "before each restore reacquire exact selection/pointer/account identity and verify candidate-written state; callback failure or mismatch fails closed and retained effects or unknown charge are disclosed; native rollback remains unproved",
+    "no_deduction_text": "No tech points have been deducted."
+  },
+  "native_abi_proof_status": "FAIL-CLOSED STOP: complete native preference-write ABI is unproved",
+  "vv5_faction_gate": {
+    "applies": false,
+    "status": "not applicable to VV2; do not substitute VV5 current faction +0x1CEC for VV2 eligibility"
+  },
+  "enabled": false,
+  "catalog_enabled": false,
+  "catalog_hidden": true,
+  "status": "STOP",
+  "evidence": [
+    "docs/origins-playtest-readiness.md",
+    "data/vv2_origins_village_wide_upgrades.json",
+    "scripts/build_vv2_origins_feature.py",
+    "data/candidates/vv2_full_mastery_all_candidate_map.json"
+  ]
+}

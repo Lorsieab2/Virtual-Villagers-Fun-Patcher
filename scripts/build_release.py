@@ -8,7 +8,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 OUTPUTS = ROOT / "outputs"
-VERSION = "v1.34.7-rc11"
+VERSION = "v1.34.7-rc25"
 NAME = f"Virtual-Villagers-Fun-Patcher-{VERSION}.zip"
 FILES = [
     "README.md",
@@ -16,6 +16,8 @@ FILES = [
     "Launch Virtual Villagers Fun Patcher.bat",
     "assets/Island.png",
     "assets/origins/VVFP Origins Icons.dll",
+    "assets/origins/VVFP VV1 Origins Icons.dll",
+    "assets/origins/VVFP VV2 Origins Icons.dll",
     "assets/statistics/VVFP Statistics Export.dll",
     "data/builds.json",
     "data/expanded_256.json",
@@ -24,15 +26,17 @@ FILES = [
     "data/vv3_origins_feature.json",
     "data/vv4_origins_feature.json",
     "data/vv5_origins_feature.json",
-    "data/candidates/vv3_origins_running_base_candidate.json",
-    "data/candidates/vv3_all_villagers_like_running_candidate.json",
-    "data/candidates/vv3_running_candidate_map.json",
+    "data/candidates/vv5_post_prototype_overlay.json",
+    "data/candidates/vv5_task9_native_actions_map.json",
+    "data/candidates/VVFP VV5 Task9 Origins Icons.dll",
     "data/vv1_origins_village_wide_upgrades.json",
     "data/vv2_origins_village_wide_upgrades.json",
     "data/vv3_origins_village_wide_upgrades.json",
     "data/vv4_origins_village_wide_upgrades.json",
     "data/vv5_origins_village_wide_upgrades.json",
     "data/statistics_features.json",
+    "data/expanded_atomic_writer_integration.json",
+    "data/vv5_task9_native_actions.json",
     "docs/max-population-research.md",
     "docs/island-event-population-research.md",
     "docs/experimental-256-cap-research.md",
@@ -46,7 +50,9 @@ FILES = [
     "docs/vv1-max-tech-research.md",
     "docs/vv1-f6-clothing-research.md",
     "docs/vv1-builder-action-fixes-research.md",
+    "docs/vv3-everyone-tries-on-robe.md",
     "docs/vv1-origins-exclusive-features-research.md",
+    "docs/vv1-full-mastery-origins-composition.md",
     "docs/villager-breeding-overhaul-research.md",
     "docs/village-statistics-export-research.md",
     "docs/vv3-origins-exclusive-features-research.md",
@@ -68,7 +74,18 @@ FILES = [
     "src/vv_fun_patcher.py",
     "src/vv_fun_patcher_gui.py",
     "src/transparency.py",
+    "src/expanded_atomic_writer.py",
+    "src/vv5_full_heal.py",
+    "src/vv5_individual_transactions.py",
+    "scripts/build_vv1_origins_feature.py",
+    "scripts/build_vv2_origins_feature.py",
+    "scripts/build_village_wide_origins_features.py",
     "scripts/generate_transparency_docs.py",
+    "scripts/build_vv5_task9_native_actions.py",
+    "scripts/build_vv5_task9_origins_dll.ps1",
+    "native/vv5_task9_origins/vv5_task9_origins.c",
+    "native/vv5_task9_origins/vv5_task9_origins.def",
+    "native/vv5_task9_origins/vv5_task9_origins.rc",
 ]
 
 def main() -> int:

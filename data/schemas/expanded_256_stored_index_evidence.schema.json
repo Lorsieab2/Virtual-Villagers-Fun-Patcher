@@ -1,0 +1,180 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "vvfp.expanded_256_stored_index_evidence.v1",
+  "title": "VV4/VV5 Expanded-256 stored-index evidence gate",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "contract_id",
+    "status",
+    "integrity",
+    "publication",
+    "evidence_policy",
+    "source_provenance",
+    "games"
+  ],
+  "properties": {
+    "schema_version": {"const": "vvfp.expanded_256_stored_index_evidence.v1"},
+    "contract_id": {"const": "x45-vv4-vv5-expanded-256-stored-index-evidence"},
+    "status": {"enum": ["static_partial_stop", "observed_complete"]},
+    "integrity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["canonicalization", "canonical_sha256"],
+      "properties": {
+        "canonicalization": {"type": "string", "minLength": 1},
+        "canonical_sha256": {"$ref": "#/$defs/sha256"}
+      }
+    },
+    "publication": {"$ref": "#/$defs/publication"},
+    "evidence_policy": {"type": "object"},
+    "source_provenance": {"type": "object"},
+    "games": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["vv4", "vv5"],
+      "properties": {
+        "vv4": {"$ref": "#/$defs/game"},
+        "vv5": {"$ref": "#/$defs/game"}
+      }
+    }
+  },
+  "$defs": {
+    "sha256": {"type": "string", "pattern": "^[0-9A-F]{64}$"},
+    "hex": {"type": "string", "pattern": "^0x[0-9A-F]+$"},
+    "publication": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["enabled", "runtime_go", "player_go", "eligible", "reason"],
+      "properties": {
+        "enabled": {"const": false},
+        "runtime_go": {"const": false},
+        "player_go": {"const": false},
+        "eligible": {"const": false},
+        "reason": {"type": "string", "minLength": 1}
+      }
+    },
+    "sentinel": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["width_bits", "encoding", "unsigned_value", "meaning"],
+      "properties": {
+        "width_bits": {"enum": [8, 16, 32]},
+        "encoding": {"enum": ["unsigned", "twos_complement", "none"]},
+        "unsigned_value": {"type": ["integer", "null"], "minimum": 0, "maximum": 4294967295},
+        "meaning": {"enum": ["no_record", "none"]}
+      }
+    },
+    "xref": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["from_function", "from_ea", "kind"],
+      "properties": {
+        "from_function": {"type": "string", "minLength": 1},
+        "from_ea": {"$ref": "#/$defs/hex"},
+        "kind": {"enum": ["call", "jump", "data", "callback", "serializer"]}
+      }
+    },
+    "evidence_row": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path_id",
+        "category",
+        "function_name",
+        "function_ea",
+        "instruction_ea",
+        "operand_file_offset",
+        "operand_width_bits",
+        "storage_width_bits",
+        "sentinel",
+        "xrefs",
+        "record_255",
+        "indices_256_259",
+        "runtime_receipt_refs",
+        "source",
+        "synthetic"
+      ],
+      "properties": {
+        "path_id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9._-]+$"},
+        "category": {"type": "string", "minLength": 1},
+        "function_name": {"type": "string", "minLength": 1},
+        "function_ea": {"$ref": "#/$defs/hex"},
+        "instruction_ea": {"$ref": "#/$defs/hex"},
+        "operand_file_offset": {"$ref": "#/$defs/hex"},
+        "operand_width_bits": {"enum": [8, 16, 32]},
+        "storage_width_bits": {"enum": [8, 16, 32]},
+        "sentinel": {"$ref": "#/$defs/sentinel"},
+        "xrefs": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/xref"}},
+        "record_255": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["accepted", "proof"],
+          "properties": {"accepted": {"const": true}, "proof": {"type": "string", "minLength": 1}}
+        },
+        "indices_256_259": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["unreachable", "non_saveable", "proof"],
+          "properties": {
+            "unreachable": {"const": true},
+            "non_saveable": {"const": true},
+            "proof": {"type": "string", "minLength": 1}
+          }
+        },
+        "runtime_receipt_refs": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}},
+        "source": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["artifact", "sha256", "row_sha256", "provenance"],
+          "properties": {
+            "artifact": {"type": "string", "minLength": 1},
+            "sha256": {"$ref": "#/$defs/sha256"},
+            "row_sha256": {"$ref": "#/$defs/sha256"},
+            "provenance": {"const": "exact_ida_plus_player_runtime_receipt"}
+          }
+        },
+        "synthetic": {"const": false}
+      }
+    },
+    "category": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["category", "status", "candidate_edit_refs", "expected_path_count", "path_ledger_sha256", "evidence_rows", "missing_evidence"],
+      "properties": {
+        "category": {"type": "string", "minLength": 1},
+        "status": {"enum": ["unknown_stop", "partial_static_stop", "observed_complete"]},
+        "candidate_edit_refs": {"type": "array", "items": {"type": "string", "minLength": 1}},
+        "expected_path_count": {"type": ["integer", "null"], "minimum": 1},
+        "path_ledger_sha256": {"anyOf": [{"$ref": "#/$defs/sha256"}, {"type": "null"}]},
+        "evidence_rows": {"type": "array", "items": {"$ref": "#/$defs/evidence_row"}},
+        "missing_evidence": {"type": "array", "items": {"type": "string", "minLength": 1}}
+      }
+    },
+    "game": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "stock_fingerprint",
+        "full_folder_fingerprint",
+        "runtime_capture_binding",
+        "relocation_ledger",
+        "layout_boundary",
+        "index_model",
+        "candidate_static_edits",
+        "path_categories"
+      ],
+      "properties": {
+        "stock_fingerprint": {"type": "object"},
+        "full_folder_fingerprint": {"type": "object"},
+        "runtime_capture_binding": {"type": "object"},
+        "relocation_ledger": {"type": "object"},
+        "layout_boundary": {"type": "object"},
+        "index_model": {"type": "object"},
+        "candidate_static_edits": {"type": "array", "items": {"type": "object"}},
+        "path_categories": {"type": "array", "items": {"$ref": "#/$defs/category"}}
+      }
+    }
+  }
+}

@@ -2,9 +2,12 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
+import shutil
 import struct
 import subprocess
 import sys
+import tempfile
 import unittest
 from copy import deepcopy
 from pathlib import Path
@@ -31,7 +34,7 @@ BASE = ROOT / "data" / "candidates" / "vv3_origins_full_mastery_base_candidate.j
 FEATURE = ROOT / "data" / "candidates" / "vv3_full_mastery_all_candidate.json"
 MAP = ROOT / "data" / "candidates" / "vv3_full_mastery_all_candidate_map.json"
 DOC = ROOT / "docs" / "vv3-full-mastery-stage-a-candidate.md"
-DLL = ROOT / "data" / "candidates" / "VVFP VV3 Full Mastery Candidate.dll"
+DLL = ROOT / "data" / "candidates" / "VVFP VV3 Safe Upgrade Foundation.dll"
 STOCK_MODES = (
     "collection_progression",
     "immediate_fixed",
@@ -119,10 +122,8 @@ class VV3FullMasteryCandidateTests(unittest.TestCase):
         self.assertEqual(
             runtime.raw["dependencies"], ["vv3_enable_origins_exclusive_features"]
         )
-        self.assertIn(
-            "1e6ad7fd610d2fe9d80416fb218366ccd7d0656b",
-            runtime.raw["certification_status"],
-        )
+        self.assertIn("prior certification", runtime.raw["certification_status"])
+        self.assertIn("awaits independent review", runtime.raw["certification_status"])
         self.assertEqual(self.feature_raw["dependencies"], [self.base_raw["id"]])
         contract = self.feature_raw["transaction_contract"]
         self.assertEqual((contract["command"], contract["price"]), (7, 1_000_000))
@@ -138,10 +139,10 @@ class VV3FullMasteryCandidateTests(unittest.TestCase):
             self.base_raw["unsupported_patch_modes"], list(EXPANDED_MODES)
         )
         frozen = {
-            BASE: "657D2D4F01550A121127053878E2777AB719CF00300A2AD69016296A4758B989",
+            BASE: "A84AF49B3981A62BB19E2D1A7406322E12B40EF30780651DF5342BD969A78FE5",
             FEATURE: "844A3CB7996793F51D741409C9EFAF675E07ED92122BCD2F91750766D7357783",
-            MAP: "A8075640C3FC7230965E9645285254C5AF0C6E14C7E0437CBDDA9DF6B1E1B818",
-            DLL: "35FB96199E745C7D8054FF6A12851B9E09225E3E41D0CE04012604E74968C0D5",
+            MAP: "F92E6E7A2C9F4D0800816BCA935C584916C862078DEDCFF55331E8091070FE13",
+            DLL: "A99584788F1726AF2DFDAE83BC9F42DE82DBD2DBA6E1ECD56222D2BDACB47681",
         }
         for path, expected in frozen.items():
             self.assertEqual(sha(path.read_bytes()), expected)
@@ -313,23 +314,24 @@ class VV3FullMasteryCandidateTests(unittest.TestCase):
         self.assertNotIn('1008,', isolated)
 
     def test_stock_modes_render_checksum_composition_and_uninstall(self):
-        compatible = [
-            item for item in load_fun_patches()
-            if item.game_id == "vv3"
-            and item.id
-            not in {
-                "vv3_enable_origins_exclusive_features",
-                "vv3_all_villagers_like_running",
-                "vv3_full_mastery_all_stage_a_candidate",
-            }
-        ]
+        statistics = next(
+            item for item in load_fun_patches() if item.id == "vv3_write_village_statistics"
+        )
         for mode in STOCK_MODES:
             with self.subTest(mode=mode):
                 baseline, _ = render_patched_bytes(STOCK, self.build, mode)
                 base_render, _ = render_patched_bytes(STOCK, self.build, mode, _fun_patches_override=[self.base])
-                rendered, applied = render_patched_bytes(STOCK, self.build, mode, _fun_patches_override=[self.base, self.feature, *compatible])
+                rendered, applied = render_patched_bytes(
+                    STOCK,
+                    self.build,
+                    mode,
+                    _fun_patches_override=[self.base, self.feature, statistics],
+                )
                 self.assertEqual(len(rendered), 0xCC000)
-                self.assertEqual(sha(rendered), self.map["rendered_candidates"][mode]["all_current_compatible_sha256"])
+                self.assertEqual(
+                    sha(rendered),
+                    self.map["rendered_candidates"][mode]["statistics_composition_sha256"],
+                )
                 checksum_offset, _ = _pe_checksum_layout(rendered)
                 stored = struct.unpack_from("<I", rendered, checksum_offset)[0]
                 copy = bytearray(rendered)
@@ -360,7 +362,7 @@ class VV3FullMasteryCandidateTests(unittest.TestCase):
         for mode in EXPANDED_MODES:
             with self.subTest(mode=mode):
                 self.assertIn(mode, self.map["rejected_patch_modes"])
-                with self.assertRaisesRegex(PatcherError, "has no append layout"):
+                with self.assertRaisesRegex(PatcherError, "stock modes only"):
                     render_patched_bytes(
                         STOCK,
                         self.build,
@@ -411,10 +413,35 @@ class VV3FullMasteryCandidateTests(unittest.TestCase):
                     _remove_feature_bytes(work, self.feature, mode)
                     with self.assertRaises(PatcherError):
                         _remove_feature_bytes(work, self.base, mode)
-        before = {path: sha(path.read_bytes()) for path in (BASE, FEATURE, MAP, DOC, DLL)}
-        subprocess.run([sys.executable, str(GENERATOR)], cwd=ROOT, check=True)
-        after = {path: sha(path.read_bytes()) for path in (BASE, FEATURE, MAP, DOC, DLL)}
-        self.assertEqual(before, after)
+        repo_status = subprocess.check_output(
+            ["git", "status", "--porcelain", "--untracked-files=no"], cwd=ROOT
+        )
+        with tempfile.TemporaryDirectory() as raw_temp:
+            output_root = Path(raw_temp)
+            candidates = output_root / "data" / "candidates"
+            candidates.mkdir(parents=True)
+            (output_root / "docs").mkdir()
+            temp_dll = candidates / DLL.name
+            shutil.copy2(DLL, temp_dll)
+            env = dict(os.environ, VVFP_GENERATOR_OUTPUT_ROOT=str(output_root))
+            generated = (
+                candidates / BASE.name,
+                candidates / FEATURE.name,
+                candidates / MAP.name,
+                output_root / "docs" / DOC.name,
+                temp_dll,
+            )
+            subprocess.run([sys.executable, str(GENERATOR)], cwd=ROOT, env=env, check=True)
+            before = {path.name: sha(path.read_bytes()) for path in generated}
+            subprocess.run([sys.executable, str(GENERATOR)], cwd=ROOT, env=env, check=True)
+            after = {path.name: sha(path.read_bytes()) for path in generated}
+            self.assertEqual(before, after)
+        self.assertEqual(
+            subprocess.check_output(
+                ["git", "status", "--porcelain", "--untracked-files=no"], cwd=ROOT
+            ),
+            repo_status,
+        )
 
 
 if __name__ == "__main__":

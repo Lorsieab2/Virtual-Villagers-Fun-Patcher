@@ -6,6 +6,19 @@ Villagers - The Secret City*. The feature is implemented by
 `scripts/build_vv3_origins_feature.py`; its generated, fingerprint-bound patch
 manifest is `data/vv3_origins_feature.json`.
 
+## Current implementation status
+
+The active public route is the complete `vv3_origins_village_wide_upgrades`
+menu patch; standalone Full Mastery, Running, and Full Heal candidates are
+historical evidence only. The current Village-Wide and Details Full Mastery
+routes set all five skills to exactly 100 through native writer `0x455740`
+and call native evaluator `0x462500` once per changed villager. Running uses
+the three stock Like/Dislike slots, inserts ID 38 into the first free Like,
+and removes Running Dislikes only after insertion. Full Heal/Cure All restores
+health below 80 through native setter `0x462670` (`ECX = record + 0xE6C`,
+push `-1`/`100`), clears sickness, and updates People Cured. Static
+verification passes; runtime/player confirmation remains pending.
+
 ## Supported executable
 
 - File: `Virtual Villagers - The Secret City.exe`
@@ -56,12 +69,12 @@ before Magic. Native calls occur in this order:
 `B + (Q ? floor(B/4) : 0) + M + T + G`
 
 Here `M` is the flat Magic `+1`; `G` is the independent `RNG(100) < 10`
-addition. Collection duplicates and Island Events are separate producers. A
-future Tech Doubler must double the complete eligible positive native research
-sum once after all additions, while excluding Island Events. Because case 26
-emits those components separately and the shared writer mixes other producers,
-the Tech Doubler remains unavailable pending a provenance-safe post-sum hook or
-source tag.
+addition. Collection duplicates and Island Events are explicit Tech Doubler
+exclusions. The Tech Doubler may double only an eligible positive earned-tech
+source delta; it must not replace the native component order with a post-sum
+operation. Because case 26 emits those components separately and the shared
+writer mixes other producers, the Tech Doubler remains unavailable pending a
+provenance-safe source boundary.
 
 ## Intended VV2-parity behavior
 
@@ -283,6 +296,15 @@ Paused values (`>= 999`) are refused without charging.
 
 An Origins button may use an otherwise-unused ID greater than 14 if the
 injected handler intercepts it before stock range handling.
+
+The current candidate uses the first free/custom event, command `15`: the
+constructor emits event `15`, and the detour accepts exactly `(message=8,
+event=15)`. Any other message or event falls through to the stock handler.
+This route and the 3,580-byte payload remain byte-identical to the prior
+static UI build; the Playtest 9 report that the visible control did not open
+the popup is therefore a runtime STOP that is not explained by a source or
+emitted-byte mismatch. No new package is authorized until that runtime
+discrepancy is independently reproduced and resolved.
 
 ### Villager Detail
 

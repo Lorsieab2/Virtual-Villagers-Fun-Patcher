@@ -27,10 +27,11 @@ executable.
 ## Current shipping gate
 
 The stock-layout Tech and Food Point Doubler corrections are implemented and
-statically validated. Tech doubles only the six positive returns
-`0x4147BE`, `0x4147DD`, `0x4147F9`, `0x46DE4D`, `0x46DE7C`, and `0x46DEA5`;
-the `0x419EA3` clothing-dialog refund, action-90 deduction, Island Events,
-tail paths, purchases, zero/negative values, and unknown callers remain native.
+statically validated. Tech doubles only the three certified positive research
+returns `0x46DE4D`, `0x46DE7C`, and `0x46DEA5`; the duplicate-collectible
+returns `0x4147BE`, `0x4147DD`, and `0x4147F9`, the `0x419EA3`
+clothing-dialog refund, action-90 deduction, Island Events, tail paths,
+purchases, zero/negative values, and unknown callers remain native.
 Food's exact positive whitelist runs after Food Mastery. Both purchases and
 full-price repurchases are available in stock layout; removal is zero cost with
 zero refund and clears only the selected ownership bit. Expanded-256 restores
@@ -56,12 +57,16 @@ five-byte hook and does not claim expanded Food Doubler runtime support.
 
 The central Tech writer is `0x4237B0` (file `0x237B0`). Its stock hook bytes
 `568B742408` are replaced only in stock layout by `E94BF23800`, targeting the
-90-byte wrapper at `.shr` `0x7B2A00` (file `0xDBA00`). The wrapper doubles the
+63-byte wrapper at `.shr` `0x7B2A00` (file `0xDBA00`). The wrapper doubles the
 positive stack delta exactly once only when ownership bit `0x1` is set and the
-immediate caller return is one of:
+immediate caller return is one of the three eligible action-19 research
+channels:
 
-- `0x4147BE`, `0x4147DD`, `0x4147F9` — ordinary collection awards;
-- `0x46DE4D`, `0x46DE7C`, `0x46DEA5` — the three action-19 research channels.
+- `0x46DE4D`, `0x46DE7C`, `0x46DEA5`.
+
+The duplicate-collectible returns `0x4147BE`, `0x4147DD`, and `0x4147F9`
+remain native, as do Island Events, deductions, zero/negative deltas, and
+unknown callers.
 
 Return `0x419EA3` is the +5,000 clothing-dialog refund paired with the
 action-90 deduction and is deliberately native. Expanded-256 restores the
@@ -142,8 +147,12 @@ The selected record used by the detail screen is:
   - record `+8044`
   - record `+8048`
 
-Full Mastery must write `90.0f` (`0x42B40000`) to all six skill fields. Writing
-the integer `90` would corrupt the VV5 float representation.
+The candidate Full Mastery transaction targets exact `100.0f` (`0x42C80000`) for
+all six skill fields. It validates finite Float32 values, reacquires the same
+selected current Believer, calls native writer `0x475730` with a `100-current`
+delta once per changed skill, post-verifies all six fields, and deducts only
+after that verification. The earlier raw-store/90 path is not used by the
+candidate route.
 
 Running is normal preference ID `38`. Grant Running must:
 
@@ -258,12 +267,22 @@ only ID 13 and delegates every other message to the original routine.
 ## Detail-screen route
 
 - Detail draw routine: `sub_44B250`
-- Detail mouse routine: `sub_44B560`
+- Detail input/hit-test routine: `sub_44B560` (forbidden for event 13)
 
-The Detail constructor appends the same stock graphic control with ID 13. The
-Detail message handler uses numeric control IDs (its stock constructor assigns
-IDs 1, 3, and 4), so the detour consumes ID 13 and delegates all other
-messages.
+The Detail constructor appends the stock graphic control with native event 13.
+The stock input/hit-test method at `0x44B560` accepts only messages 1 and 2 and
+must never be used for event 13. Authenticated historical C99/C260 evidence
+instead proves the offline event detour at VA/raw `0x44BC20`/`0x4BC20`: exact
+preimage and fallback `83EC18A1A8974D00`, detour
+`E99B643600909090` to `0x7B20C0`, continuation `0x44BC28`, and exact
+message/control guard `(8, 13)`. The `0x401BD0`/`0x40C680` ownership path,
+dispatcher `0x4019B8..0x4019CF`, vtable slot `0x49A5A0`, and teardown chain
+`0x44B9F0 -> 0x44AF30 -> 0x40C7F0 -> 0x40C830` are mechanically proven for
+offline install/uninstall. Hot uninstall, current Full Mastery/Running
+composition, runtime/player receipts, and publication remain STOP. The C260
+wrapper still pushes `0x7B2A64` while `SDL_GetWindowFlags` begins at
+`0x7B2A63`, so it exits before opening either menu. No native output is emitted
+by this candidate.
 
 ## Payload and composition
 
@@ -284,10 +303,26 @@ consumption, and unknown callers remain native because unknown callers cannot
 match that return. The stock-layout correction is implemented and statically
 validated. Expanded-256 restores the native writer hooks and keeps new
 purchases unavailable; it does not claim expanded doubler runtime support. The
-expanded relocation audit is placement PASS but composition ON HOLD: its
-75-row ledger covers 32 rows and leaves 43 references (36 cross-section rel32
-and 7 external absolute `.shr` pointers) outside the certified set. See
-disassembly commit `8dfccbd1b31e55f5168bb1c5ff23890bb98d9fdb`.
+The VV5 expanded relocation ledger is now explicit and exhaustive for this
+current feature. It owns 66 rows: 23 payload-internal absolute `.shr`
+operands already covered by the original payload contract, plus all 43
+current-feature omissions identified by the IDA review—36 cross-section
+`rel32` operands and seven external absolute `.shr` operands. Each row has an
+exact stock preimage, source/target virtual addresses where applicable, and a
+guarded expanded target. The two expanded doubler hook rows additionally
+require the exact native-hook override preimage and are preserved without a
+rewrite when that override is active. The evidence method is IDA Pro 9.4
+decoded instruction heads/operands; raw byte patterns are not relocation
+proof. See disassembly commit `8dfccbd1b31e55f5168bb1c5ff23890bb98d9fdb` and
+`data/vv5_origins_feature.json`.
+
+This repairs the static VV5 ownership ledger only. Expanded-256 publication
+remains disabled/fail-closed, and no package, launch, save access, or runtime
+claim is made. Stock import, expanded save/reload, catch-up, Heathen/corpse/
+nursing-reservation behavior, and player validation remain open gates.
+Stock-mode rendering does not apply any expanded relocation row. In expanded
+mode the two doubler hook rows accept only their exact native override
+preimages; an unknown preimage fails closed rather than being rewritten.
 
 Time Warp advances exactly three displayed villager years. With the confirmed
 VV5 relation of two real hours per displayed year at normal speed, its clock
@@ -313,6 +348,11 @@ Pause (`999`) refuses without charging.
 - age floor, age-18 value, and companion-field writes;
 - Grant Running's Likes/Dislikes-only behavior with no movement or speed
   writes;
+- the explicit IDA-owned 66-row relocation ledger: 23 payload-internal
+  absolute rows, 36 cross-section `rel32` rows, and seven external absolute
+  rows;
+- stock-mode relocation no-op, exact native doubler-hook override guards, and
+  fail-closed Expanded-256 publication;
 - composition with all VV5 features in all four modes;
 - the expanded loader's vanilla `%s%d.ldw` naming and exact stock-save
   compatibility fallback.

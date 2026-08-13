@@ -1,0 +1,31 @@
+{
+  "schema_version": "vvfp.vv4_full256_serializer_evidence.v1",
+  "status": "static_reference_stop",
+  "publication": {"enabled": false, "runtime_go": false, "player_go": false, "eligible": false},
+  "bindings": {
+    "stock_sha256": "6D27A429FFCA5F1F71FDD7ECA761ED1BB67E85F976494BA178B3D7BE01F1B220",
+    "vv4_relocation_ledger": {"path": "data/vv4_origins_feature.json", "count": 13, "digest": "CEE01F4AEC59CB1CEE0F42E3DDDB3A24615261E628ED0629C1BFAABF421A897D"},
+    "c342_vv5_relocation_ledger": {"path": "data/vv5_origins_feature.json", "count": 66, "digest": "14E460773ADC065E053FA30921ED01D33A5F36AD49DC754CCD69127EA02C01B7", "integration_only": true}
+  },
+  "geometry": {"stock_body": 94476, "table_start": 51296, "stock_tail_start": 90296, "record_stride": 260, "added_records": 106, "expanded_tail_start": 117856, "expanded_body": 122036, "expanded_file": 122060, "header": 24},
+  "stock_functions": {
+    "serializer": {
+      "ea": "0x4660A0", "raw_range": [417952, 418060], "abi": "thiscall ECX=manager; one ignored stack argument; AL boolean; ret 4", "caller": {"ea": "0x41F125", "bytes": "E8766F0400"}, "hook_guard": {"raw": 417952, "bytes": "5355565733"},
+      "rows": [
+        ["0x4660A0","53","push ebx"],["0x4660A1","55","push ebp"],["0x4660A2","56","push esi"],["0x4660A3","57","push edi"],["0x4660A4","33DB","xor ebx,ebx"],["0x4660A6","33FF","xor edi,edi"],["0x4660A8","8D7144","lea esi,[ecx+44]"],["0x4660AB","BD96000000","mov ebp,150"],["0x4660B0","80BEC41C000000","cmp byte [esi+1CC4],0"],["0x4660B7","742D","je 4660E6"],["0x4660B9","80BEC71C000000","cmp byte [esi+1CC7],0"],["0x4660C0","7524","jne 4660E6"],["0x4660C4","E8D789FFFF","call 45EAA0"],["0x4660C9","E8A29DFBFF","call 41FE70"],["0x4660CE","8D843868C80000","compact destination"],["0x4660D8","E8537AFFFF","call 45DB30"],["0x4660DD","83C301","inc ebx"],["0x4660E0","81C704010000","add edi,260"],["0x4660E6","81C63C2E0000","add esi,11836"],["0x4660EF","75BF","loop"],["0x4660F6","69DB04010000","imul ebx,260"],["0x4660FE","C6841868C8000000","unconditional terminator"],["0x466107","B001","mov al,1"],["0x46610A","C20400","ret 4"]
+      ]
+    },
+    "deserializer": {
+      "ea": "0x466110", "raw_range": [418064, 418172], "abi": "thiscall ECX=manager; one ignored stack argument; AL boolean; ret 4", "hook_guard": {"raw": 418064, "bytes": "5356578D79"},
+      "rows": [["0x466110","53","push ebx"],["0x466111","56","push esi"],["0x466112","57","push edi"],["0x466113","8D7944","lea edi,[ecx+44]"],["0x466118","BB96000000","clear 150"],["0x466120","E87977FFFF","call 45D8A0"],["0x466127","81C63C2E0000","live stride"],["0x466137","389868C80000","first zero"],["0x466140","33F6","offset zero"],["0x46614F","8BCF","mov ecx,edi"],["0x466156","83C301","increment"],["0x46615B","81C73C2E0000","live advance"],["0x466161","69F604010000","offset=index*260"],["0x466174","75CC","sentinel-only loop"],["0x466178","B001","mov al,1"],["0x46617B","C20400","ret 4"]],
+      "unresolved_exact_rows": ["0x466132 acquire compact base call", "0x466151 call 45DBE0", "0x46616C next-zero instruction"]
+    }
+  },
+  "current_candidate": {"status": "insufficient_stop", "immediate_edits": [{"raw": 417964, "change": "150 to 256", "limitation": "serializer still writes a terminator at count 256 into tail 0x1CC60"},{"raw": 418073, "change": "150 to 256", "limitation": "deserializer remains sentinel-only and unbounded"}], "owned_cave_raw": "0x8910D", "proof": "arithmetic_only"},
+  "required_semantics": {"writer_bound": 256, "terminator_predicate": "packed_count < 256", "full_256_terminator": false, "reader_hard_bound": 256, "full_unterminated_256_success": true, "tail_start": "0x1CC60", "tail_preserved": true},
+  "replacement": {"status": "static_serializer_reader_go_writer_stop", "parent_sha256": "3697317341C23B107F8C06F6D4164BC4602BF5CB90DFB56A6B68EB7EA3C43EE1", "new_section": ".vv4x", "section_raw": "0xE3000", "section_rva": "0x471000", "section_va": "0x871000", "section_sha256": "F33DEFF4EF943EB4371AFD3AC80F3F35BC1DB21865ADCC5F115BDF2E20A37D45", "serializer_hook_raw": "0x1F125", "serializer_hook_target": "0x871180", "deserializer_hook_raw": "0x1FD34", "deserializer_hook_target": "0x871100", "serializer_final_sha256": "66EDFABF000302C9AD13D1794D3A6C5738DB0A78162A6FDC23406339D6187FE4", "deserializer_final_sha256": "DDCEE8650898E484FE569C28C0473D4377FF93739C9CA45E3A3238D95975C596", "gate_final_sha256": "7C73BF244E95BD0C0AD7FDB2D8F6CD47854F2C64A5FA2E1A3FE660E6BADFA4A1", "candidate_sha256": "364E35167E4DA8D9407030E42D41306A78FB50B73C7532B2D5166729EA447C43", "atomic_writer_status": "STOP"},
+  "atomic_writer": {"status": "unknown_stop", "gates": ["sibling_temp", "checked_header_body_writes", "flush_and_checked_close", "reopen_verify_header_length_bounds_tail", "atomic_replace_preserve_prior", "directory_sync_where_supported"], "completed": []},
+  "runtime_fault_matrix": {"status": "absent_stop", "cases": ["count_0","count_1","count_149","count_150","count_151","count_254","count_255","count_256","zero_each_boundary","full_256_no_terminator","early_zero_stale_suffix","malformed_no_zero","converter_first_middle_last","tail_canaries","save_reload_repeat","stock_import","slot_rotation_interruption","offline_catchup","uninstall_parent_restore","writer_open_header_record_tail_short_diskfull_flush_close_delete_move_temp_verify_replace_interrupt","slots_0_through_5_and_backup"], "receipts": []},
+  "evidence": [],
+  "enabled": false
+}

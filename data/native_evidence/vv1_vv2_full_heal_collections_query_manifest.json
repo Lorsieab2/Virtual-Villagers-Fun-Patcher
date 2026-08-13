@@ -1,0 +1,58 @@
+{
+  "schema_version": 1,
+  "id": "vv1_vv2_full_heal_collections_native_readiness",
+  "status": "STOP",
+  "enabled": false,
+  "publication_allowed": false,
+  "native_output": false,
+  "games": ["vv1", "vv2"],
+  "stock_executables": {
+    "vv1": {"filename":"Virtual Villagers - A New Home.exe","size":581632,"sha256":"1EC790B927741081D5CE13A48FB76983A4FD4336EA08F89317872643760AF03D"},
+    "vv2": {"filename":"Virtual Villagers - The Lost Children.exe","size":724992,"sha256":"46C1503C209255C9CDEFA941DB2F449C8CF8E2CDD5C7D13CD975326E377ED677"}
+  },
+  "folder_requirements": {
+    "scope": "complete-game-folder",
+    "no_follow_inventory_required": true,
+    "inventory_sha256": null,
+    "dll_inventory_sha256": null,
+    "known_dlls": [],
+    "dll_identity_status": "missing; do not infer a DLL name or hash"
+  },
+  "required_topics": {
+    "full_heal": [
+      "health_getter", "health_to_100_setter", "health_setter_abi", "health_side_effects",
+      "sickness_getter", "sickness_clear_route", "people_cured_field", "people_cured_increment",
+      "eligibility_enumerator", "physical_record_order", "postverify"
+    ],
+    "complete_collections": [
+      "collection_table_base", "collection_table_layout", "collection_count_getter",
+      "collection_completion_predicate", "collection_completion_setter", "collection_setter_side_effects",
+      "collection_dispatch_route", "notification_route", "trophy_route", "statistics_route",
+      "save_loader_field", "save_serializer_field", "transaction_confirmation",
+      "selected_world_identity_reacquisition", "funds_getter", "native_deduction", "postverify"
+    ],
+    "shared": [
+      "world_singleton", "manager_pool_identity", "fresh_record_resolver", "record_count_and_stride",
+      "dialog_or_messagebox_abi", "idok_guard", "cancel_no_mutation", "fullscreen_owner_hwnd",
+      "fullscreen_leave_enter", "fullscreen_restore_cleanup"
+    ]
+  },
+  "required_function_fields": [
+    "query_id", "topic", "status", "function_name", "start_ea", "end_ea",
+    "start_file_offset", "end_file_offset", "raw_bytes_sha256", "raw_bytes_hex",
+    "instructions", "callers", "callees", "xrefs", "register_contract",
+    "stack_cleanup", "return_contract", "side_effects", "source_binding"
+  ],
+  "required_instruction_fields": ["ea", "file_offset", "raw_bytes", "mnemonic", "operands"],
+  "allowed_status": ["resolved", "absent-proved"],
+  "manual_exports_allowed": false,
+  "partial_exports_allowed": false,
+  "legacy_cure_policy": {
+    "label": "Cure all Villagers",
+    "status": "legacy-sickness-only",
+    "full_heal": false,
+    "catalog_enabled": false,
+    "native_output": false
+  },
+  "evidence_records": []
+}

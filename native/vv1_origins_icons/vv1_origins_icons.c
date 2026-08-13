@@ -1,6 +1,37 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 
+#ifndef VV_AGE_OFFSET
+#define VV_AGE_OFFSET 0x348
+#endif
+#ifndef VV_SKILL_FARMING_OFFSET
+#define VV_SKILL_FARMING_OFFSET 0x3BC
+#endif
+#ifndef VV_SKILL_BUILDING_OFFSET
+#define VV_SKILL_BUILDING_OFFSET 0x3C0
+#endif
+#ifndef VV_SKILL_RESEARCH_OFFSET
+#define VV_SKILL_RESEARCH_OFFSET 0x3C4
+#endif
+#ifndef VV_SKILL_HEALING_OFFSET
+#define VV_SKILL_HEALING_OFFSET 0x3C8
+#endif
+#ifndef VV_SKILL_PARENTING_OFFSET
+#define VV_SKILL_PARENTING_OFFSET 0x3CC
+#endif
+#ifndef VV_LIKES_OFFSET
+#define VV_LIKES_OFFSET 0x398
+#endif
+#ifndef VV_DISLIKES_OFFSET
+#define VV_DISLIKES_OFFSET 0x3A8
+#endif
+#ifndef VV_LIKE_SLOT_COUNT
+#define VV_LIKE_SLOT_COUNT 4
+#endif
+#ifndef VV_ALREADY_LIKES_TEXT
+#define VV_ALREADY_LIKES_TEXT "Already 4 likes."
+#endif
+
 static HINSTANCE module_instance;
 
 enum {
@@ -11,7 +42,8 @@ enum {
     ID_CHECK_FIRST = 1100,
     STATE_VILLAGER = 0x10000,
     STATE_VILLAGE_WIDE = 0x20000,
-    STATE_RUNNING_ONLY = 0x40000
+    STATE_RUNNING_ONLY = 0x40000,
+    STATE_VILLAGE_WIDE_BUY = 0x80000
 };
 
 BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved) {
@@ -30,6 +62,7 @@ static INT_PTR CALLBACK upgrade_dialog(
 ) {
     if (message == WM_INITDIALOG) {
         int villager_menu = (lparam & STATE_VILLAGER) != 0;
+        int village_wide_buy = (lparam & STATE_VILLAGE_WIDE_BUY) != 0;
         int row_count = villager_menu
             ? 4
             : ((lparam & STATE_RUNNING_ONLY) != 0
@@ -45,6 +78,9 @@ static INT_PTR CALLBACK upgrade_dialog(
                 if (villager_menu) {
                     SetDlgItemTextA(window, ID_BUY_FIRST + row, "Done");
                     EnableWindow(GetDlgItem(window, ID_BUY_FIRST + row), FALSE);
+                } else if (village_wide_buy && row >= 6) {
+                    SetDlgItemTextA(window, ID_BUY_FIRST + row, "Buy");
+                    EnableWindow(GetDlgItem(window, ID_BUY_FIRST + row), TRUE);
                 } else {
                     SetDlgItemTextA(window, ID_BUY_FIRST + row, "Remove");
                 }
@@ -104,33 +140,33 @@ __declspec(dllexport) int __stdcall ShowOriginsUpgradeMenu(
         int running_dislike = 0;
         int available_like = 0;
         if (villager != NULL) {
-            if (*(int *)(villager + 0x348) <= 100) {
+            if (*(int *)(villager + VV_AGE_OFFSET) <= 100) {
                 dialog_state |= 1 << 0;
             }
-            if (*(int *)(villager + 0x3BC) >= 90
-                && *(int *)(villager + 0x3C0) >= 90
-                && *(int *)(villager + 0x3C4) >= 90
-                && *(int *)(villager + 0x3C8) >= 90
-                && *(int *)(villager + 0x3CC) >= 90) {
+            if (*(int *)(villager + VV_SKILL_FARMING_OFFSET) == 100
+                && *(int *)(villager + VV_SKILL_BUILDING_OFFSET) == 100
+                && *(int *)(villager + VV_SKILL_RESEARCH_OFFSET) == 100
+                && *(int *)(villager + VV_SKILL_HEALING_OFFSET) == 100
+                && *(int *)(villager + VV_SKILL_PARENTING_OFFSET) == 100) {
                 dialog_state |= 1 << 1;
             }
-            for (row = 0; row < 3; ++row) {
-                int like = *(int *)(villager + 0x398 + row * 4);
+            for (row = 0; row < VV_LIKE_SLOT_COUNT; ++row) {
+                int like = *(int *)(villager + VV_LIKES_OFFSET + row * 4);
                 if (like == 38) {
                     running_like = 1;
                 } else if (like == -1) {
                     available_like = 1;
                 }
-                if (*(int *)(villager + 0x3A8 + row * 4) == 38) {
+                if (*(int *)(villager + VV_DISLIKES_OFFSET + row * 4) == 38) {
                     running_dislike = 1;
                 }
             }
-            if (running_like && !running_dislike) {
+            if (running_like) {
                 dialog_state |= 1 << 2;
-            } else if (!running_like && !available_like) {
+            } else if (!available_like) {
                 dialog_state |= 1 << (8 + 2);
             }
-            if (*(int *)(villager + 0x348) == 360) {
+            if (*(int *)(villager + VV_AGE_OFFSET) == 360) {
                 dialog_state |= 1 << 3;
             }
         }
@@ -155,7 +191,7 @@ __declspec(dllexport) int __stdcall ShowOriginsVillageWideResult(
     if (command == 6) {
         wsprintfA(
             message,
-            "Skipped over %d villagers. Reason: Already 3 likes.\r\nskipped over %d villagers. Reason: already likes running",
+            "Skipped over %d villagers. Reason: " VV_ALREADY_LIKES_TEXT "\r\nskipped over %d villagers. Reason: already likes running",
             full_like_skipped,
             already_running_skipped
         );

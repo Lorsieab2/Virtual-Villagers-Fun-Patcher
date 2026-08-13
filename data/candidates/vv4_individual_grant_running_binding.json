@@ -1,0 +1,112 @@
+{
+  "schema_version": 1,
+  "id": "vv4_individual_grant_running_binding",
+  "game_id": "vv4",
+  "status": "STOP",
+  "eligibility_gate_order": "before_preference_access",
+  "enabled": false,
+  "catalog_enabled": false,
+  "catalog_hidden": true,
+  "runtime_status": "not_started",
+  "fingerprint": {
+    "input_name": "Virtual Villagers - The Tree of Life.exe",
+    "size": 929792,
+    "sha256": "6D27A429FFCA5F1F71FDD7ECA761ED1BB67E85F976494BA178B3D7BE01F1B220"
+  },
+  "record_identity": {
+    "selected_index": "GameState+0x94640",
+    "validator": "sub_467980",
+    "resolver": "sub_466040",
+    "physical_index_range": "0..149",
+    "record_count": 150,
+    "stride": "0x2E3C",
+    "reacquire": "mandatory exact selected index, resolver pointer/record identity, and same account identity at every mutation boundary; no cached record walking"
+  },
+  "preferences": {
+    "running_id": 38,
+    "running_id_evidence": {
+      "source": "exact stock executable embedded preference table",
+      "table_file_offset": "0xA0CD8",
+      "entry_name": "running"
+    },
+    "like_slots": {
+      "count": 3,
+      "offsets": ["0x1E60", "0x1E64", "0x1E68"],
+      "slot_stride": "0x4",
+      "empty_value": -1
+    },
+    "dislike_slots": {
+      "count": 3,
+      "offsets": ["0x1E6C", "0x1E70", "0x1E74"],
+      "slot_stride": "0x4",
+      "empty_value": -1
+    },
+    "additional_persisted_slots": {
+      "proven": false,
+      "like": [],
+      "dislike": []
+    }
+  },
+  "eligibility_gate": [
+    "selected index passes sub_467980 and is signed 0..149",
+    "byte record+0x1CC4 != 0 (active)",
+    "byte record+0x1CC7 == 0 (status gate)",
+    "signed dword record+0x1C40 > 0 (living)"
+  ],
+  "vv5_faction_gate": {
+    "applicable": false,
+    "status": "not_applicable_to_vv4",
+    "text": "VV5 faction gate is not applicable; no VV5 faction predicate is claimed."
+  },
+  "selected_villager_path": {
+    "route": "existing VV4 Detail message-8/event-2 selected-villager path",
+    "proven_native_writer": "sub_46AD80 for VV4 Full Mastery Float32 skills only",
+    "proven_native_deduction": "0x41E300 for the existing VV4 Full Mastery path only"
+  },
+  "transaction_contract": {
+    "command": 2,
+    "action": "Buy",
+    "price": 40000,
+    "repeatable": true,
+    "ownership": null,
+    "remove": false,
+    "dry_run": "Complete physical dry-run of all configured Like and Dislike DWORD arrays before confirmation; any Running Like is a zero-write/no-charge whole-record skip preserving Like duplicates and all Dislikes; otherwise use only the first physical -1 Like.",
+    "policy": {
+      "scan_complete_physical_arrays": true,
+      "running_like": {
+        "zero_write_no_charge_whole_record_skip": true,
+        "preserve_like_duplicates": true,
+        "preserve_all_dislikes": true
+      },
+      "destination": {
+        "first_physical_empty_like_only": true,
+        "no_empty_like_zero_write_no_charge": true,
+        "no_empty_like_dislikes_unchanged": true
+      },
+      "dislike_clear": {
+        "destination_proof_required": true,
+        "clear_every_running_dislike": true,
+        "preserve_unrelated_dislikes": true
+      },
+      "preserve_unrelated_slots": true
+    },
+    "confirmation": "Grant Running to this villager for 40,000 tech points?\r\nPress OK to confirm, or Cancel.",
+    "reacquire": "After confirm, reacquire exact selected index, resolved pointer/record identity, same account identity, eligibility, funds, and exact six-slot snapshot before first write.",
+    "postverify": "Reacquire exact selection/pointer/account identity and postverify the complete six-slot result before deduction.",
+    "charge": "one charge attempt and one deduction only after postverify; verify charge only from exact before/after balance readback for the same account identity, otherwise report unknown; the VV4 Running deduction ABI is unproved",
+    "no_charge": "No tech points have been deducted.",
+    "rollback_limit": "Rollback limit: before each restore reacquire exact selection/pointer/account identity and verify candidate-written state; callback failure or mismatch fails closed and retained effects or unknown charge are disclosed. Native rollback remains unproved."
+  },
+  "native_abi_proof": {
+    "status": "UNPROVEN",
+    "fail_closed": "STOP",
+    "complete_preference_write_abi_proven": false,
+    "missing": [
+      "Like DWORD write function, calling convention, and return contract",
+      "Dislike DWORD write function, calling convention, and return contract",
+      "complete six-slot readback proof for this selected-villager route",
+      "safe VV4 Running charge ABI for this route"
+    ],
+    "reason": "The selected-index validator, record resolver, skill writer, and existing Full Mastery deduction evidence do not prove a complete native Like/Dislike preference-write ABI. Direct preference stores are therefore not enabled."
+  }
+}

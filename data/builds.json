@@ -13,6 +13,13 @@
       "stock_bonus_ceiling": 0,
       "absolute_maximum": 256,
       "variants": {
+        "stock": {
+          "output_name": "Virtual Villagers - A New Home - Modded.exe",
+          "absolute_maximum": 90,
+          "bonuses_affect_maximum": true,
+          "population_increase": false,
+          "patches": []
+        },
         "collection_progression": {
           "output_name": "Virtual Villagers - A New Home - Modded.exe",
           "bonuses_affect_maximum": false,
@@ -34,46 +41,6 @@
         "immediate_fixed": {
           "output_name": "Virtual Villagers - A New Home - Modded.exe",
           "bonuses_affect_maximum": false,
-          "patches": [
-            {
-              "offset": "0x3A1AE",
-              "before": "83F85A",
-              "after": "EB7690",
-              "purpose": "jump to 256-person comparison"
-            },
-            {
-              "offset": "0x3A226",
-              "before": "90909090909090909090",
-              "after": "3D00010000EB84909090",
-              "purpose": "compare population with 256, then return to original housing branch"
-            }
-          ]
-        },
-        "experimental_expanded_256": {
-          "output_name": "Virtual Villagers - A New Home - Modded.exe",
-          "bonuses_affect_maximum": false,
-          "villager_slots": 256,
-          "absolute_maximum": 256,
-          "patches": [
-            {
-              "offset": "0x3A1AE",
-              "before": "83F85A",
-              "after": "EB7690",
-              "purpose": "jump to 256-person comparison"
-            },
-            {
-              "offset": "0x3A226",
-              "before": "90909090909090909090",
-              "after": "3D00010000EB84909090",
-              "purpose": "compare population with 256, then return to original housing branch"
-            }
-          ]
-        },
-        "experimental_expanded_256_progression": {
-          "output_name": "Virtual Villagers - A New Home - Modded.exe",
-          "bonuses_affect_maximum": false,
-          "villager_slots": 256,
-          "absolute_maximum": 256,
           "patches": [
             {
               "offset": "0x3A1AE",
@@ -206,6 +173,13 @@
       "stock_bonus_ceiling": 25,
       "absolute_maximum": 256,
       "variants": {
+        "stock": {
+          "output_name": "Virtual Villagers - The Lost Children - Modded.exe",
+          "absolute_maximum": 115,
+          "bonuses_affect_maximum": true,
+          "population_increase": false,
+          "patches": []
+        },
         "collection_progression": {
           "output_name": "Virtual Villagers - The Lost Children - Modded.exe",
           "bonuses_affect_maximum": true,
@@ -235,40 +209,6 @@
               "purpose": "replace every collection-bonus result with fixed arithmetic for a 256 maximum"
             }
           ]
-        },
-        "experimental_expanded_256": {
-          "output_name": "Virtual Villagers - The Lost Children - Modded.exe",
-          "bonuses_affect_maximum": false,
-          "villager_slots": 256,
-          "absolute_maximum": 256,
-          "patches": [
-            {
-              "offset": "0x4B378",
-              "before": "83FF147505BF19000000",
-              "after": "BFA60000009090909090",
-              "purpose": "replace every collection-bonus result with fixed arithmetic for a 256 maximum"
-            }
-          ]
-        },
-        "experimental_expanded_256_progression": {
-          "output_name": "Virtual Villagers - The Lost Children - Modded.exe",
-          "bonuses_affect_maximum": true,
-          "villager_slots": 256,
-          "absolute_maximum": 256,
-          "patches": [
-            {
-              "offset": "0x4B3AD",
-              "before": "83C75A",
-              "after": "EB4390",
-              "purpose": "jump to expanded base-cap arithmetic"
-            },
-            {
-              "offset": "0x4B3F2",
-              "before": "9090909090909090909090909090",
-              "after": "81C7E70000003BEFEBB690909090",
-              "purpose": "use base 231 plus the original maximum 25 collection bonus"
-            }
-          ]
         }
       },
       "safety_patches": [
@@ -281,7 +221,7 @@
         {
           "offset": "0x73C40",
           "before": "00000000000000000000000000000000000000000000000000000000000000000000000000",
-          "after": "8B87D474E50091E8141CFBFF663D00010F83837EBDFFC7864405000002000000E9287EBDFF",
+          "after": "8B87D474E50091E8141CFBFF663D00010F83827EFDFFC7864405000002000000E9277EFDFF",
           "purpose": "allow a second baby only when another villager slot remains"
         },
         {
@@ -293,13 +233,13 @@
         {
           "offset": "0x73C70",
           "before": "00000000000000000000000000000000000000000000000000000000000000000000000000",
-          "after": "8B87D474E50091E8E41BFBFF663D00010F83537EBDFFC7864405000003000000E92C7EBDFF",
+          "after": "8B87D474E50091E8E41BFBFF663D00010F83527EFDFFC7864405000003000000E92B7EFDFF",
           "purpose": "allow a third baby only when another villager slot remains"
         },
         {
           "offset": "0x73D00",
-          "before": "000000000000000000000000000000000000000000000000000000",
-          "after": "51E85A1BFBFF3D00010000597D05E96DB8FDFFB8FFFFFFFFC21400",
+          "before": "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "after": "518B8DA450000085C9741B83B9A4050300007412E8471BFBFF3D00010000597306E95AB8FDFF59B8FFFFFFFFC21400",
           "purpose": "guard event-created villagers one allocation at a time against VV2's 256 physical slots"
         },
         {
@@ -363,6 +303,13 @@
       "stock_bonus_ceiling": 35,
       "absolute_maximum": 150,
       "variants": {
+        "stock": {
+          "output_name": "Virtual Villagers - The Secret City - Modded.exe",
+          "absolute_maximum": 125,
+          "bonuses_affect_maximum": true,
+          "population_increase": false,
+          "patches": []
+        },
         "collection_progression": {
           "output_name": "Virtual Villagers - The Secret City - Modded.exe",
           "bonuses_affect_maximum": true,
@@ -384,42 +331,6 @@
               "before": "83F8037C0383C60A",
               "after": "BE3C000000909090",
               "purpose": "replace collection and magic-tech bonus result with fixed arithmetic for a 150 maximum"
-            }
-          ]
-        },
-        "experimental_expanded_256": {
-          "output_name": "Virtual Villagers - The Secret City - Modded.exe",
-          "bonuses_affect_maximum": false,
-          "villager_slots": 256,
-          "absolute_maximum": 256,
-          "expanded_records": true,
-          "patches": [
-            {
-              "offset": "0x5FEA2",
-              "before": "83F8037C0383C60A",
-              "after": "BEA6000000909090",
-              "purpose": "replace collection and magic-tech bonus result with fixed arithmetic for a 256 maximum"
-            }
-          ]
-        },
-        "experimental_expanded_256_progression": {
-          "output_name": "Virtual Villagers - The Secret City - Modded.exe",
-          "bonuses_affect_maximum": true,
-          "villager_slots": 256,
-          "absolute_maximum": 256,
-          "expanded_records": true,
-          "patches": [
-            {
-              "offset": "0x5FEE1",
-              "before": "83C65A3BDE",
-              "after": "E93AB40100",
-              "purpose": "route the cap comparison through 221-base expanded progression arithmetic"
-            },
-            {
-              "offset": "0x7B320",
-              "before": "00000000000000000000000000",
-              "after": "81C6DD0000003BDEE9B94BFEFF",
-              "purpose": "add base 221 to the original 0-25 collection and 0-or-10 Magic Tech bonuses, then resume the stock housing gates"
             }
           ]
         }
@@ -486,6 +397,13 @@
       "stock_bonus_ceiling": 25,
       "absolute_maximum": 150,
       "variants": {
+        "stock": {
+          "output_name": "Virtual Villagers - The Tree of Life - Modded.exe",
+          "absolute_maximum": 115,
+          "bonuses_affect_maximum": true,
+          "population_increase": false,
+          "patches": []
+        },
         "collection_progression": {
           "output_name": "Virtual Villagers - The Tree of Life - Modded.exe",
           "bonuses_affect_maximum": true,
@@ -507,42 +425,6 @@
               "before": "83FE147505BE19000000",
               "after": "BE3C0000009090909090",
               "purpose": "replace every collection-bonus result with fixed arithmetic for a 150 maximum"
-            }
-          ]
-        },
-        "experimental_expanded_256": {
-          "output_name": "Virtual Villagers - The Tree of Life - Modded.exe",
-          "bonuses_affect_maximum": false,
-          "villager_slots": 256,
-          "absolute_maximum": 256,
-          "expanded_records": true,
-          "patches": [
-            {
-              "offset": "0x683AA",
-              "before": "83FE147505BE19000000",
-              "after": "BEA60000009090909090",
-              "purpose": "replace every collection-bonus result with fixed arithmetic for a 256 maximum"
-            }
-          ]
-        },
-        "experimental_expanded_256_progression": {
-          "output_name": "Virtual Villagers - The Tree of Life - Modded.exe",
-          "bonuses_affect_maximum": true,
-          "villager_slots": 256,
-          "absolute_maximum": 256,
-          "expanded_records": true,
-          "patches": [
-            {
-              "offset": "0x683EF",
-              "before": "83C65A3BDE",
-              "after": "E90C0D0200",
-              "purpose": "route the cap comparison through 231-base expanded progression arithmetic"
-            },
-            {
-              "offset": "0x89100",
-              "before": "00000000000000000000000000",
-              "after": "81C6E70000003BDEE9E7F2FDFF",
-              "purpose": "add base 231 to the original 0-25 collection bonus, then resume the stock housing gates"
             }
           ]
         }
@@ -621,6 +503,13 @@
       "stock_bonus_ceiling": 15,
       "absolute_maximum": 150,
       "variants": {
+        "stock": {
+          "output_name": "Virtual Villagers - New Believers - Modded.exe",
+          "absolute_maximum": 105,
+          "bonuses_affect_maximum": true,
+          "population_increase": false,
+          "patches": []
+        },
         "collection_progression": {
           "output_name": "Virtual Villagers - New Believers - Modded.exe",
           "bonuses_affect_maximum": true,
@@ -660,54 +549,6 @@
               "before": "000000000000000000000000000000000000000000000000",
               "after": "81C65A000000E8B5FFFFFF3BC60F8D3DE7FDFFE93EE7FDFF",
               "purpose": "complete the fixed 150 calculation, compare total slot demand, and resume the stock housing gates"
-            }
-          ]
-        },
-        "experimental_expanded_256": {
-          "output_name": "Virtual Villagers - New Believers - Modded.exe",
-          "bonuses_affect_maximum": false,
-          "villager_slots": 256,
-          "absolute_maximum": 256,
-          "expanded_records": true,
-          "patches": [
-            {
-              "offset": "0x72C04",
-              "before": "83FE0A7505BE0F000000",
-              "after": "BEA60000009090909090",
-              "purpose": "replace every collection-bonus result with fixed arithmetic for a 256 maximum"
-            },
-            {
-              "offset": "0x72C49",
-              "before": "83C65A3BDE7C06",
-              "after": "E9B21802009090",
-              "purpose": "route the fixed cap comparison through the total occupied-or-reserved slot counter"
-            },
-            {
-              "offset": "0x94500",
-              "before": "000000000000000000000000000000000000000000000000",
-              "after": "81C65A000000E8B5FFFFFF3BC60F8D3DE7FDFFE93EE7FDFF",
-              "purpose": "add the stock 90 housing component to fixed 166, compare 256 total occupied-or-reserved slots, and resume the stock housing gates"
-            }
-          ]
-        },
-        "experimental_expanded_256_progression": {
-          "output_name": "Virtual Villagers - New Believers - Modded.exe",
-          "bonuses_affect_maximum": true,
-          "villager_slots": 256,
-          "absolute_maximum": 256,
-          "expanded_records": true,
-          "patches": [
-            {
-              "offset": "0x72C49",
-              "before": "83C65A3BDE7C06",
-              "after": "E9B21802009090",
-              "purpose": "route the cap comparison through a true 241-base calculation that counts every occupied or reserved villager slot"
-            },
-            {
-              "offset": "0x94500",
-              "before": "000000000000000000000000000000000000000000000000",
-              "after": "81C6F1000000E8B5FFFFFF3BC60F8D3DE7FDFFE93EE7FDFF",
-              "purpose": "add base 241 with a 32-bit immediate, preserve the 0-15 collection bonus, compare total slot demand, and resume the stock housing gates"
             }
           ]
         }
@@ -796,24 +637,19 @@
   ],
   "patch_modes": [
     {
+      "id": "stock",
+      "name": "No Population Increase",
+      "description": "Preserve each game's stock population cap and progression behavior: VV1 90, VV2 115, VV3 125, VV4 115, and VV5 105. No population-cap or saturation bytes are changed."
+    },
+    {
       "id": "collection_progression",
       "name": "Collection Progression Max Pop",
-      "description": "Collections keep raising the cap; all population bonuses are needed to reach the absolute slot maximum."
+      "description": "Collections keep raising the cap: VV1 reaches 256; VV2 reaches 256 with base 231 plus 0-25 collection points; VV3 reaches 150 with base 115 plus 0-25 collection points and 10 points from Magic Level 3; VV4 reaches 150 with base 125 plus 0-25 collection points; VV5 reaches 150 with base 135 plus 0-15 collection points."
     },
     {
       "id": "immediate_fixed",
       "name": "Immediate Fixed Max Pop",
-      "description": "The absolute slot maximum is available immediately; collection bonuses no longer affect it."
-    },
-    {
-      "id": "experimental_expanded_256",
-      "name": "Experimental Expanded 256 Villagers",
-      "description": "VV3-VV5 expand their physical villager record and save capacity from 150 to 256; VV1-VV2 use their existing 256 slots. The 256 maximum is immediate and collections no longer alter it."
-    },
-    {
-      "id": "experimental_expanded_256_progression",
-      "name": "Experimental Expanded 256 - Collection Progression",
-      "description": "VV3-VV5 expand to 256 physical records while collections, and VV3 Magic Tech, retain their original bonuses and are required to reach 256. VV1-VV2 use their existing 256-record behavior."
+      "description": "The absolute slot maximum is available immediately: VV1 and VV2 reach 256, while VV3, VV4, and VV5 reach 150. Collection bonuses no longer affect the maximum."
     }
   ],
   "fun_patch_support": [
@@ -986,7 +822,7 @@
       "id": "vv1_f6_clothing_change_cheat",
       "game_id": "vv1",
       "name": "Reenable F6 Clothing Change Cheat",
-      "description": "Pressing F6 spends 5,000 tech points to cycle the selected active villager to the next stock outfit, wrapping from outfit 19 back to outfit 0. With fewer than 5,000 tech points, F6 does nothing and charges nothing.",
+      "description": "The clothing shortcut cycles the selected active villager through the stock outfits: pressing F6 spends 5,000 tech points to advance to the next outfit, wrapping from outfit 19 back to outfit 0. With fewer than 5,000 tech points, F6 does nothing and charges nothing.",
       "output_tag": "F6 Clothing Cheat",
       "patches": [
         {
@@ -1052,7 +888,7 @@
       "id": "vv1_builder_action_fixes",
       "game_id": "vv1",
       "name": "Builder Action Fixes",
-      "description": "Villagers whose selected job is Building try the stock construction dispatcher at every food level, making them autonomously build and repair more reliably during ordinary play and time catch-up.",
+      "description": "Villagers whose selected job is Building try the stock construction dispatcher at every food level, while autonomous construction project IDs 9, 10, and 11 are eligible only after their signed progress is greater than zero; the other project gates and manual, existing-work, and repair routes remain stock.",
       "output_tag": "Builder Action Fixes",
       "patches": [
         {
@@ -1065,7 +901,31 @@
           "offset": "0x568A0",
           "before": "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
           "after": "81BDECA20000900100000F8C921AFFFF89F869C0D803000083BC30D0030000010F847C1AFFFFE9A41AFFFF",
-          "purpose": "preserve the stock low-food path, let Building-job villagers try construction first at high food, and preserve every other job's high-food behavior"
+          "purpose": "preserve the stock low-food path, let Building-job villagers try construction first at high food subject to the positive-progress project guards, and preserve every other job's high-food behavior"
+        },
+        {
+          "offset": "0x4753C",
+          "before": "E84FABFFFF",
+          "after": "E88FF30000",
+          "purpose": "route autonomous construction project ID 9 through the shared signed-positive progress guard"
+        },
+        {
+          "offset": "0x47568",
+          "before": "E823ABFFFF",
+          "after": "E863F30000",
+          "purpose": "route autonomous construction project ID 10 through the shared signed-positive progress guard"
+        },
+        {
+          "offset": "0x4759A",
+          "before": "E8F1AAFFFF",
+          "after": "E831F30000",
+          "purpose": "route autonomous construction project ID 11 through the shared signed-positive progress guard"
+        },
+        {
+          "offset": "0x568D0",
+          "before": "000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "after": "8B8110E003008B5424088D14D59C9F0000833C10007F128B0424837C24080B750383C03283C410FFE0E992B7FEFF0000",
+          "purpose": "allow autonomous construction project IDs 9, 10, and 11 to enter the stock gate only when signed progress is greater than zero, otherwise resume their reviewed no-project continuations with the original stack contract"
         }
       ]
     },
@@ -1262,7 +1122,7 @@
       "id": "vv5_easier_devotee_training",
       "game_id": "vv5",
       "name": "Easier Devotee Training",
-        "description": "Villagers with positive Devotion skill can spontaneously use the stock Honoring action. Statue-drop Honoring remains available for training beginners, while villagers with no Devotion skill do not autonomously Honor.",
+      "description": "Villagers with positive Devotion skill can spontaneously use the stock Honoring action. Statue-drop Honoring remains available for training beginners, while villagers with no Devotion skill do not autonomously Honor.",
       "output_tag": "Easier Devotee",
       "patches": [
         {
@@ -1343,26 +1203,26 @@
         {
           "offset": "0x94460",
           "before": "000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
-          "after": "E9DB02000090909090909090909090909090909090909090909090909090909090909090909090909090909090909090909090909090909090909090909090909090909090909090909090909090909090909090909090909090909090909090",
+          "after": "E9DB020000909090909090909090909090909090909090909090909090909090E92B03000090909090909090909090909090909090909090909090909090909090909090909090E9940300009090909090909090909090909090909090909090",
           "purpose": "trampoline to skill-aware statue selectors in executable padding"
         },
 
         {
           "offset": "0x94740",
           "before": "000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
-          "after": "5A525183B9701C0000007E223083B9541C0000007E22306A02E802EFF6FF83C404596BC00B05950000005A5052C359B8950000005A5052C359B8A00000005A5052C3",
+          "after": "5A525183B9701C0000007E2083B9541C0000007E216A02E804EFF6FF83C404596BC00B05950000005A5052C359B8950000005A5052C359B8A00000005A5052C39090",
           "purpose": "select Building a statue or Honoring only when Devotion and Building skills permit both outcomes"
         },
         {
           "offset": "0x947B0",
           "before": "000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
-          "after": "5A525183B9701C0000007E2A3083B9541C0000007E32306A02E892EEF6FF83C404596BC081051F000000C744240C660000005A5052C359B81F000000C744240C660000005A5052C359B8A0000000C744240C660000005A5052C3",
+          "after": "5A525183B9701C0000007E2883B9541C0000007E316A02E894EEF6FF83C404596BC081051F000000C744240C660000005A5052C359B81F000000C744240C660000005A5052C359B8A0000000C744240C660000005A5052C39090",
           "purpose": "select Confused or Honoring only when Devotion is present, preserving the original stack write"
         },
         {
           "offset": "0x94840",
           "before": "000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
-          "after": "5A525183B9701C0000007E223083B9541C0000007E22306A02E802EEF6FF83C404596BC00B059D0000005A5052C359B89D0000005A5052C359B8A00000005A5052C3",
+          "after": "5A525183B9701C0000007E2083B9541C0000007E216A02E804EEF6FF83C404596BC00B059D0000005A5052C359B89D0000005A5052C359B8A00000005A5052C39090",
           "purpose": "select Polishing the Statue or Honoring only when Devotion and Building skills permit both outcomes"
         }
       ]
@@ -1410,6 +1270,110 @@
       ]
     },
     {
+      "id": "vv3_everyone_tries_on_robe",
+      "game_id": "vv3",
+      "name": "Everyone Tries On the Robe",
+      "description": "Dropping an active, living, non-nursing villager on the robe sends every other active, living, non-nursing villager through the unchanged stock robe callback too. Each villager receives the complete base-game success or failed-fit result, and the base game decides who becomes Tribal Chief.",
+      "output_tag": "Everyone Tries On the Robe",
+      "enabled": true,
+      "catalog_enabled": true,
+      "catalog_hidden": false,
+      "default_selected": false,
+      "supported_modes": [
+        "stock",
+        "collection_progression",
+        "immediate_fixed"
+      ],
+      "behavior_changes": [
+        "After the stock callback handles the dropped villager, every other active, living, non-nursing VV3 villager is sent through that same unchanged stock robe callback. The runtime loop accepts only the authenticated stock bound 150."
+      ],
+      "explicit_non_changes": [
+        "Dead, inactive, and nursing villagers are skipped. The unchanged stock callback remains responsible for success/failure, Chief clothing, Chief state, puzzle mutation, and candidate selection for every villager. The wrapper does not read or write candidate fields +0xE80/+0xE88 or change pregnancy/nursing state, health, age, skills, preferences, or saved record layout."
+      ],
+      "evidence_status": "independently reviewed exact-build static implementation; install/uninstall and current-mode composition are automated, while player runtime confirmation remains pending",
+      "patches": [
+        {
+          "offset": "0x280",
+          "before": "04000000",
+          "after": "00100000",
+          "purpose": "map the existing zero-filled .shr raw page so the guarded robe wrapper at section offset 0x100 is executable without changing raw size, file size, or SizeOfImage"
+        },
+        {
+          "offset": "0xB4100",
+          "before": "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+          "after": "5589E553565783EC048B750856B860194200FFD083C40488C384C0747B83BE100F000000747283BE780E0000007E6983BE8C0E00000075608B86240F000083F878740583F87975508B0D3A88420081F996000000740881F900010000753ABF24E1590039F7742883BF100F000000741F83BF780E0000007E1683BF8C0E000000750D5157B860194200FFD083C4045981C78C1F00004975CB88D88D65F45F5E5B5DC390909090909090909090909090909090909090909090909090909090909090909090909090909090909090909090909090909090909090909090909090909090909090909090909090",
+          "purpose": "install the reviewed 235-byte robe callback wrapper that calls the unchanged native robe handler once for the dropped villager and once for every other eligible active living non-nursing villager"
+        }
+      ],
+      "patch_mode_overrides": {
+        "collection_progression": [
+          {
+            "offset": "0x22B2A",
+            "before": "60194200",
+            "after": "00816C00",
+            "purpose": "replace the stock robe callback pointer with the wrapper at stock .shr VA 0x6C8100"
+          }
+        ],
+        "immediate_fixed": [
+          {
+            "offset": "0x22B2A",
+            "before": "60194200",
+            "after": "00816C00",
+            "purpose": "replace the stock robe callback pointer with the wrapper at stock .shr VA 0x6C8100"
+          }
+        ]
+      }
+    },
+    {
+      "id": "vv3_birth_control",
+      "game_id": "vv3",
+      "name": "Birth Control",
+      "description": "Limits only the ordinary autonomous/catch-up mate selector used by action 13: the scanned candidate remains in the stock internal-age 360..999 range, while the initiating villager no longer receives an extra upper-age rejection. VV3's native manual category-1 age gate remains unchanged and no male upper-age gate is added.",
+      "output_tag": "Birth Control",
+      "behavior_changes": [
+        "The five repeated candidate-selector blocks at file offsets 0x5CE74, 0x5CF35, 0x5CFFC, 0x5D0C0, and 0x5D187 retain each candidate's stock age<1000 check while removing only the initiator's duplicate age<1000 check.",
+        "The ordinary action-13 autonomous/catch-up route therefore follows the VV4 reference boundary: the scanned candidate is capped at internal age 999, but the initiating villager has no male or female upper-age ceiling in this selector."
+      ],
+      "explicit_non_changes": [
+        "The native VV3 manual pairing handler at VA 0x4584B0 retains its category-1 carrier/female-only internal-age-1000 rejection for both participants.",
+        "Action selection, preference scoring, the conception writer, pending delivery, save format, RNG, health, fertility, capacity, messages, and statistics are unchanged.",
+        "Direct event-created births, Island Events, clone paths, and every route outside the ordinary action-13 mate selector remain native."
+      ],
+      "evidence_status": "implemented from exact-build disassembly; static verification complete, runtime/player confirmation pending",
+      "patches": [
+        {
+          "offset": "0x5CE74",
+          "before": "81FAE80300007D5A",
+          "after": "9090909090909090",
+          "purpose": "remove only the first action-13 selector block's duplicate initiator age>=1000 rejection"
+        },
+        {
+          "offset": "0x5CF35",
+          "before": "81FAE80300007D60",
+          "after": "9090909090909090",
+          "purpose": "remove only the second action-13 selector block's duplicate initiator age>=1000 rejection"
+        },
+        {
+          "offset": "0x5CFFC",
+          "before": "81FAE80300007D5D",
+          "after": "9090909090909090",
+          "purpose": "remove only the third action-13 selector block's duplicate initiator age>=1000 rejection"
+        },
+        {
+          "offset": "0x5D0C0",
+          "before": "81FAE80300007D60",
+          "after": "9090909090909090",
+          "purpose": "remove only the fourth action-13 selector block's duplicate initiator age>=1000 rejection"
+        },
+        {
+          "offset": "0x5D187",
+          "before": "81FAE80300007D60",
+          "after": "9090909090909090",
+          "purpose": "remove only the fifth action-13 selector block's duplicate initiator age>=1000 rejection"
+        }
+      ]
+    },
+    {
       "id": "vv4_birth_control",
       "game_id": "vv4",
       "name": "Birth Control",
@@ -1423,11 +1387,107 @@
       "id": "vv1_birth_control",
       "game_id": "vv1",
       "name": "Birth Control",
-      "enabled": false,
-      "status": "research-only; rejected exact-build proposal; implementation ON HOLD (disassembly c8d268d)",
-      "description": "Historical research only. Exact-build audit c8d268d rejects the prior byte proposal: 0x3DBBE is the stock food>=400 gate, 0x458D0 and 0x45930 are live instruction interiors, and 0x56740 is not a certified cave. Stock VV1 manual pairing has no age ceiling, and the old proposal incorrectly rejected both sexes. The requested VV4 reference would be sex/category-2 carrier-only at internal age>=1000 with no male ceiling. Complete coverage still requires the planner scan at 0x4477AF plus action-9 writer-reaching commit scans at 0x446E70 and 0x447070. Catch-up reuses the chooser/action-9 path; direct event births and pending delivery remain native. No exact safe hook or placement is certified, so VV1 remains ON HOLD.",
       "output_tag": "Birth Control",
-      "patches": []
+      "status": "implemented exact-build ordinary-route patch; static verification complete, runtime/player confirmation pending",
+      "description": "Applies the requested VV4-style ordinary-route boundary to the exact VV1 build. Manual pairing rejects only a category-2 carrier at internal age>=1000; the two action-9 writer-reaching scans and the planner reject only scanned candidates at internal age>=1000; initiator males and older autonomous initiators retain no upper-age ceiling. Direct event births and pending delivery remain native.",
+      "behavior_changes": [
+        "The manual pairing hook at file offset 0x3DD03 routes through an owned .vv1bc page and rejects only the category-2 carrier participant at internal age>=1000.",
+        "The action-9 writer-reaching scans at 0x46E96 and 0x47084 retain their stock candidate and initiator lower bounds while adding only a candidate upper bound.",
+        "The planner scan at 0x477FA adds only a candidate upper bound before the stock initiator lower-bound check."
+      ],
+      "explicit_non_changes": [
+        "No male upper-age gate is added. The existing candidate sex/category checks, writer calls, chooser, planner action dispatch, pregnancy writer, delivery, save format, RNG, fertility, capacity, messages, and statistics remain native.",
+        "Direct event-created births, pending delivery, and every route outside the named ordinary manual/planner/action-9 boundaries remain native."
+      ],
+      "evidence_status": "implemented from exact-build disassembly; static verification complete, runtime/player confirmation pending",
+      "pe_append_transaction": {
+        "section": ".vv1bc",
+        "layouts": {
+          "stock": {
+            "original_file_size": "0x8E000",
+            "append_offset": "0x8E000",
+            "append_length": 4096,
+            "append_source": "generated:vv1_birth_control_page",
+            "page_virtual_address": "0x490000",
+            "page_sha256": "B6215BCA91392E66BB32DBF5766725413E317810A3773CF7E4987FA4C0197A09",
+            "purpose": "append the owned VV1 Birth Control executable helper page",
+            "header_patches": [
+              {
+                "offset": "0xFE",
+                "before": "0500",
+                "after": "0600",
+                "purpose": "add the owned .vv1bc executable section"
+              },
+              {
+                "offset": "0x148",
+                "before": "00000900",
+                "after": "00100900",
+                "purpose": "extend SizeOfImage for the owned .vv1bc section"
+              },
+              {
+                "offset": "0x2B8",
+                "before": "00000000000000000000000000000000000000000000000000000000000000000000000000000000",
+                "after": "2E7676316263000000100000000009000010000000E0080000000000000000000000000020000060",
+                "purpose": "write the owned .vv1bc PE section header"
+              }
+            ]
+          },
+          "collection_progression": {
+            "original_file_size": "0x8E000",
+            "append_offset": "0x8E000",
+            "append_length": 4096,
+            "append_source": "generated:vv1_birth_control_page",
+            "page_virtual_address": "0x490000",
+            "page_sha256": "B6215BCA91392E66BB32DBF5766725413E317810A3773CF7E4987FA4C0197A09",
+            "purpose": "append the owned VV1 Birth Control executable helper page",
+            "header_patches": [
+              {"offset": "0xFE", "before": "0500", "after": "0600", "purpose": "add the owned .vv1bc executable section"},
+              {"offset": "0x148", "before": "00000900", "after": "00100900", "purpose": "extend SizeOfImage for the owned .vv1bc section"},
+              {"offset": "0x2B8", "before": "00000000000000000000000000000000000000000000000000000000000000000000000000000000", "after": "2E7676316263000000100000000009000010000000E0080000000000000000000000000020000060", "purpose": "write the owned .vv1bc PE section header"}
+            ]
+          },
+          "immediate_fixed": {
+            "original_file_size": "0x8E000",
+            "append_offset": "0x8E000",
+            "append_length": 4096,
+            "append_source": "generated:vv1_birth_control_page",
+            "page_virtual_address": "0x490000",
+            "page_sha256": "B6215BCA91392E66BB32DBF5766725413E317810A3773CF7E4987FA4C0197A09",
+            "purpose": "append the owned VV1 Birth Control executable helper page",
+            "header_patches": [
+              {"offset": "0xFE", "before": "0500", "after": "0600", "purpose": "add the owned .vv1bc executable section"},
+              {"offset": "0x148", "before": "00000900", "after": "00100900", "purpose": "extend SizeOfImage for the owned .vv1bc section"},
+              {"offset": "0x2B8", "before": "00000000000000000000000000000000000000000000000000000000000000000000000000000000", "after": "2E7676316263000000100000000009000010000000E0080000000000000000000000000020000060", "purpose": "write the owned .vv1bc PE section header"}
+            ]
+          }
+        }
+      },
+      "patches": [
+        {
+          "offset": "0x3DD03",
+          "before": "83BD5003000002",
+          "after": "E9F82205009090",
+          "purpose": "route the stock manual category-2 carrier branch through the exact age-1000 helper"
+        },
+        {
+          "offset": "0x46E96",
+          "before": "813868010000",
+          "after": "E9A591040090",
+          "purpose": "add a candidate-only internal-age-1000 upper bound to the first action-9 writer-reaching scan"
+        },
+        {
+          "offset": "0x47084",
+          "before": "813968010000",
+          "after": "E9F78F040090",
+          "purpose": "add a candidate-only internal-age-1000 upper bound to the second action-9 writer-reaching scan"
+        },
+        {
+          "offset": "0x477FA",
+          "before": "3950F47C2A",
+          "after": "E9C1880400",
+          "purpose": "add a candidate-only internal-age-1000 upper bound to the planner scan while preserving the stock initiator check"
+        }
+      ]
     }
   ]
 }

@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "vvfp.vv2_vv5_collectibles_expanded256_disassembly_plan.v1",
+  "type": "object",
+  "required": ["schema_version", "status", "scope", "evidence_policy", "ordered_queries", "games", "blockers", "publication"],
+  "properties": {
+    "schema_version": {"const": "vvfp.vv2_vv5_collectibles_expanded256_disassembly_plan.v1"},
+    "status": {"const": "STOP"},
+    "scope": {"type": "object", "required": ["games", "features", "native_output", "catalog_enabled", "publication_ready", "runtime_go", "player_go"], "properties": {"games": {"const": ["vv2", "vv3", "vv4", "vv5"]}, "features": {"const": ["collectibles", "expanded_256"]}, "native_output": {"const": false}, "catalog_enabled": {"const": false}, "publication_ready": {"const": false}, "runtime_go": {"const": false}, "player_go": {"const": false}}},
+    "ordered_queries": {"type": "array", "minItems": 10, "maxItems": 10, "items": {"type": "object", "required": ["order", "id", "family", "required_outputs"], "properties": {"order": {"type": "integer", "minimum": 1, "maximum": 10}, "id": {"type": "string"}, "family": {"type": "string"}, "required_outputs": {"type": "array", "minItems": 1}}}},
+    "games": {"type": "object", "required": ["vv2", "vv3", "vv4", "vv5"], "additionalProperties": false},
+    "blockers": {"type": "array", "minItems": 1, "items": {"type": "string"}},
+    "publication": {"type": "object", "required": ["enabled", "catalog_enabled", "catalog_hidden", "native_output", "runtime_go", "player_go", "publication_ready"], "properties": {"enabled": {"const": false}, "catalog_enabled": {"const": false}, "catalog_hidden": {"const": true}, "native_output": {"const": false}, "runtime_go": {"const": false}, "player_go": {"const": false}, "publication_ready": {"const": false}}}
+  },
+  "additionalProperties": false
+}

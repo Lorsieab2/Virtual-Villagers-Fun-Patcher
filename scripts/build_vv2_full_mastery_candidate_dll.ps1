@@ -2,6 +2,7 @@ $ErrorActionPreference = "Stop"
 
 $projectRoot = Split-Path -Parent $PSScriptRoot
 $nativeRoot = Join-Path $projectRoot "native\vv2_full_mastery_candidate"
+$resourceSource = Join-Path $projectRoot "native\shared\origins-upgrades.rc"
 $outputRoot = Join-Path $projectRoot "data\candidates"
 $sdkRoot = "C:\Program Files (x86)\Windows Kits\10"
 $sdkVersion = "10.0.26100.0"
@@ -10,7 +11,7 @@ $resource = Join-Path $outputRoot "vv2_full_mastery_candidate.res"
 $output = Join-Path $outputRoot "VVFP VV2 Full Mastery Candidate.dll"
 
 & (Join-Path $sdkRoot "bin\$sdkVersion\x86\rc.exe") /nologo /fo $resource `
-    (Join-Path $nativeRoot "vv2_full_mastery_candidate.rc")
+    $resourceSource
 if ($LASTEXITCODE -ne 0) { throw "Resource compilation failed." }
 
 & (Join-Path $vsTools "bin\Hostx64\x86\cl.exe") /nologo /LD /O2 /MT `

@@ -38,6 +38,14 @@ VILLAGE_WIDE_ENTRY_VA = IMAGE_BASE + 0x8B1A0
 VILLAGE_PREFLIGHT_FILE_OFFSET = 0x8B009
 VILLAGE_PREFLIGHT_VA = IMAGE_BASE + VILLAGE_PREFLIGHT_FILE_OFFSET
 RUNNING_PREFERENCE_ID = 38  # exact-build preference-table evidence: 0x7B260
+VV1_NATIVE_SKILL_WRITER_VA = 0x437230
+VV1_SKILL_FIELDS = (
+    (0x3BC, 2),  # Parenting
+    (0x3C0, 4),  # Building
+    (0x3C4, 1),  # Farming
+    (0x3C8, 5),  # Healing
+    (0x3CC, 3),  # Research
+)
 
 
 def assemble(source: str, address: int) -> bytes:
@@ -106,7 +114,7 @@ def main() -> None:
     add_c_string(strings, s, "already_owned", "This doubler is already owned.")
     add_c_string(strings, s, "save_failed", "Could not save the doubler.")
     add_c_string(strings, s, "running_unavailable", "Running cannot be added.")
-    add_c_string(strings, s, "icons_dll", "VVFP Origins Icons.dll")
+    add_c_string(strings, s, "icons_dll", "VVFP VV1 Origins Icons.dll")
     add_c_string(strings, s, "show_icon_dialog", "ShowOriginsUpgradeMenu")
     add_c_string(strings, s, "show_result_export", "ShowOriginsVillageWideResult")
 
@@ -238,12 +246,12 @@ def main() -> None:
             mov eax, dword ptr [esi + 0x0C]
             cmp dword ptr [eax + 0xAD48], 0
             je tech_not_owned_for_menu
-            or edi, 1
+            or edi, 8
         tech_not_owned_for_menu:
             mov eax, dword ptr [esi + 0x0C]
             cmp dword ptr [eax + 0xAD4C], 0
             je food_not_owned_for_menu
-            or edi, 2
+            or edi, 16
         food_not_owned_for_menu:
             or edi, 0x1800
             push edi
@@ -284,14 +292,10 @@ def main() -> None:
             je check_food_owned
             cmp dword ptr [eax + 0xAD48], 0
             jne remove_doubler
-            jmp doubler_unavailable
+            jmp charge
         check_food_owned:
             cmp dword ptr [eax + 0xAD4C], 0
             jne remove_doubler
-        doubler_unavailable:
-            mov eax, 0x{s['doubler_unavailable']:X}
-            jmp show_and_done
-
         charge:
             cmp ebx, 6
             jb legacy_charge
@@ -379,7 +383,7 @@ def main() -> None:
             call 0x{HEAL_CAVE_VA:X}
             jmp success
         do_food_doubler:
-            call 0x{HEAL_CAVE_VA:X}
+            or dword ptr [edi + 0xAD4C], 1
             jmp success
 
         remove_doubler:
@@ -598,7 +602,7 @@ def main() -> None:
             cmp ebx, 2
             jne detail_charge
             lea eax, [edx + 0x398]
-            mov ecx, 3
+            mov ecx, 4
         running_preflight:
             cmp dword ptr [eax], {RUNNING_PREFERENCE_ID}
             je detail_charge
@@ -620,7 +624,7 @@ def main() -> None:
             cmp ebx, 2
             jne detail_age_18
             lea ecx, [edx + 0x398]
-            mov eax, 3
+            mov eax, 4
         running_find_like_slot:
             cmp dword ptr [ecx], {RUNNING_PREFERENCE_ID}
             je running_remove_dislikes
@@ -634,7 +638,7 @@ def main() -> None:
             mov dword ptr [ecx], {RUNNING_PREFERENCE_ID}
         running_remove_dislikes:
             lea ecx, [edx + 0x3A8]
-            mov eax, 3
+            mov eax, 4
         running_dislike_loop:
             cmp dword ptr [ecx], {RUNNING_PREFERENCE_ID}
             jne running_next_dislike
@@ -673,14 +677,11 @@ def main() -> None:
             jmp detail_success
 
         detail_mastery:
-            mov dword ptr [edx + 0x3BC], 90
-            mov dword ptr [edx + 0x3C0], 90
-            mov dword ptr [edx + 0x3C4], 90
-            mov dword ptr [edx + 0x3C8], 90
-            mov dword ptr [edx + 0x3CC], 90
-            cmp dword ptr [edx + 0x3D0], 0
-            jne detail_success
-            mov dword ptr [edx + 0x3D0], 1
+            mov dword ptr [edx + 0x3BC], 100
+            mov dword ptr [edx + 0x3C0], 100
+            mov dword ptr [edx + 0x3C4], 100
+            mov dword ptr [edx + 0x3C8], 100
+            mov dword ptr [edx + 0x3CC], 100
         detail_success:
             mov eax, 0x{s['purchase_complete']:X}
             jmp detail_show
@@ -783,6 +784,10 @@ def main() -> None:
             je cure_next
             cmp dword ptr [edx + 0x344], 0
             jle cure_next
+            cmp dword ptr [edx + 0x344], 80
+            jge cure_health_done
+            mov dword ptr [edx + 0x344], 100
+        cure_health_done:
             cmp byte ptr [edx + 0x354], 0
             je cure_next
             mov byte ptr [edx + 0x354], 0
@@ -925,13 +930,13 @@ def main() -> None:
         0x1D120,
         original[0x1D120 : 0x1D125],
         rel32_jump(0x41D120, tech_increment),
-        "double positive non-Island-Event tech-point awards after the current save owns the Tech Point Doubler",
+        "double eligible positive earned tech deltas",
     )
     patch(
         0x1D140,
         original[0x1D140 : 0x1D145],
         rel32_jump(0x41D140, food_increment),
-        "double positive non-Island-Event food awards after the current save owns the Food Point Doubler",
+        "double eligible positive food-source deltas",
     )
     patch(
         0x28470,
@@ -961,40 +966,21 @@ def main() -> None:
     rendered_json = json.dumps(patches, indent=2) + "\n"
     manifest = {
         "id": "vv1_enable_origins_exclusive_features",
+        "enabled": True,
+        "catalog_enabled": True,
+        "catalog_hidden": False,
         "game_id": "vv1",
         "running_preference_id": RUNNING_PREFERENCE_ID,
         "running_preference_evidence": {"source": "exact stock executable embedded preference table", "table_file_offset": "0x7B260", "entry_name": "running"},
         "name": "Enable Origins-Exclusive Features",
-        "description": (
-            "Inspired by the Virtual Villagers 1 mobile port where these exclusive "
-            "Origins upgrades originated, this selected-upgrades port adds an icon-based "
-            "Upgrades screen containing a Time Warp that advances "
-            "exactly three displayed villager years, Island Event, the "
-            "native Barrel of Babies event with a three-space capacity guard, "
-            "and the displayed-but-currently-unavailable 500,000-tech-point Tech Point "
-            "Doubler and Food Point Doubler. Existing owned doublers remain removable at "
-            "zero cost with no refund; repurchase is temporarily disabled pending exact-build "
-            "verification, plus Cure all Villagers for 30,000 tech points. Cure all Villagers clears "
-            "sickness from eligible active living records without changing health and "
-            "increments People Cured once per sickness cleared, then displays the exact "
-            "result `Cured X villagers`. "
-            "The doubler contract stacks after exact-build collectible adjustments; no Food Mastery-like food transform or collection tech multiplier was found in this fingerprint. Ordinary Science still modifies research amounts before any future eligible doubler hook. Golden Child and Island Event outcomes remain native; purchase is unavailable until safe hook and all-producer provenance are proven. The effect is stored in the current save rather than a global INI. Adds "
-            "an icon-based Villager Upgrades screen containing Grant Youth, Grant Full "
-            "Mastery, Grant Running, and Set Age to 18 for the displayed villager. Grant "
-            "Full Mastery preserves a checked job preference and chooses Farming when "
-            "none is checked so VV1 does not show the incomplete title Master. Grant Running adds running to an "
-            "available Likes slot on the displayed villager, removes running from that "
-            "villager's Dislikes slots, and refuses without charging when no Like slot is "
-            "available; it does not alter movement speed, movement initialization, or any "
-            "custom running flag."
-        ),
+        "description": "Adds Origins-style Upgrades buttons to the Tech and Villager Details screens. The Tech menu offers Food and Tech Point Doublers for 500,000 tech points each; eligible positive gains are doubled, while Island Events, Duplicate Collectibles, and Golden Child tech gains remain unchanged. The Village-Wide menu adds Running, Full Mastery, and Make Villagers Young Adults.",
         "output_tag": "Origins Exclusive Features",
         "companion_files": [
             {
-                "source": "assets/origins/VVFP Origins Icons.dll",
-                "destination": "VVFP Origins Icons.dll",
+                "source": "assets/origins/VVFP VV1 Origins Icons.dll",
+                "destination": "VVFP VV1 Origins Icons.dll",
                 "sha256": hashlib.sha256(
-                    (ROOT / "assets" / "origins" / "VVFP Origins Icons.dll").read_bytes()
+                    (ROOT / "assets" / "origins" / "VVFP VV1 Origins Icons.dll").read_bytes()
                 ).hexdigest().upper(),
             }
         ],
@@ -1003,20 +989,30 @@ def main() -> None:
             "positive_food_writer": "0x41D140",
             "collection_adjustment": "not independently recorded; no exact callsite claim",
             "island_event_producers": ["0x428194 tech", "0x4281DA food"],
-            "hook_status": "STOP: no safe executable cave/section and arbitrary computed or indirect producer provenance is not proven",
+            "tech_exclusions": [
+                "Golden Child tech-point gain (no tech award route in this exact build)",
+                "Duplicate Collectibles tech-point gain (no duplicate-collectible tech writer route in this exact build)",
+                "Island Event tech-point gain (return 0x428194)",
+            ],
+            "hook_status": "GO: exact-build positive writer wrappers double eligible positive deltas once; Island Event returns remain native; runtime/player confirmation pending",
         },
         "doubler_composition_contract": {
             "stacking": [
-                "every exact-build collectible/collection effect that increases tech-point gain",
+                "positive earned tech deltas only",
+                "positive food-source deltas only",
             ],
-            "exclusions": ["Golden Child behavior", "Island Event outcomes"],
+            "exclusions": [
+                "Golden Child tech-point gain",
+                "Island Event tech-point gain",
+                "Duplicate Collectibles tech-point gain",
+            ],
             "food_mastery_status": "confirmed absent for this fingerprint; no Food Mastery-like food transform",
-            "status": "STOP: no safe executable cave/section and arbitrary computed or indirect producer provenance is not proven",
+            "status": "GO: exact-build positive writer wrappers double eligible positive deltas once; Island Event returns remain native; runtime/player confirmation pending",
         },
         "doubler_purchase_status": {
-            "new_purchase": "temporarily unavailable pending exact-build provenance verification",
+            "new_purchase": "available at 500,000 tech points for each doubler",
             "existing_owned": "removable at zero cost with zero refund",
-            "repurchase": "temporarily disabled pending exact-build provenance verification",
+            "repurchase": "available again at 500,000 tech points after removal",
         },
         "patches": patches,
     }

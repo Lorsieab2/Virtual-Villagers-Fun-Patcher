@@ -10,11 +10,12 @@ substantial structural expansion, but none of the three exact builds has a
 complete implementation-grade gate:
 
 - VV3 became non-responsive while loading an expanded test build.
-- VV4 failed to import a stock-sized village save, and the current
-  all-feature expanded render leaves four decoded absolute Origins references
-  pointing at the old `.shr` address.
-- VV5's current all-feature expanded render leaves 36 cross-section relative
-  branches and seven decoded external absolute `.shr` references stale.
+- VV4 failed to import a stock-sized village save. The four decoded absolute
+  Origins references previously left stale are now owned by the exact VV4
+  current-Origins relocation contract.
+- VV5's current-feature relocation ledger now owns all 36 cross-section
+  relative branches and seven decoded external absolute `.shr` references
+  previously left outside the certified set.
 
 Passing patch-range, hash, and PE-readback checks only proves that the declared
 edits can be rendered without colliding. It does not prove that every required
@@ -85,11 +86,14 @@ with five-record unrolling can read the final logical group containing indices
 | VV4 | 260 | 106 | 27,560 |
 | VV5 | 280 | 106 | 29,680 |
 
-Each experimental loader first tries the expanded size, then the exact stock
-size. On an exact stock-size success, it moves the compact-state tail upward
-and zeroes only the inserted 106-record interval before normal validation and
-live conversion. The source save is read-only during this import. A later save
-uses the expanded layout.
+The static candidate contract describes each experimental loader first trying
+the expanded size, then the exact stock size. On an exact stock-size success, it
+would move the compact-state tail upward and zero only the inserted 106-record
+interval before normal validation and live conversion. The source save is
+specified as read-only during this candidate import, and a later save is
+specified to use the expanded layout. These are static route claims, not runtime
+proof; import, expanded save, reload, catch-up, failed-load nonmutation, and
+player gates remain ON HOLD.
 
 The current fallback hooks and movers are:
 
@@ -148,8 +152,8 @@ its exact semantics are proved or widened.
 
 ## Current-manifest decoded coverage
 
-The stock IDA reconciliation found no unmatched decoded absolute operand into
-the moving live-data tail:
+The cited stock IDA reconciliation reports no unmatched decoded absolute
+operand into the moving live-data tail:
 
 | Game | Decoded moving-tail operands matched | Stock `.shr` absolute operands matched |
 |---|---:|---:|
@@ -157,9 +161,10 @@ the moving live-data tail:
 | VV4 | 999 / 999 | 4 / 4 |
 | VV5 | 1,168 / 1,168 | 4 / 4 |
 
-These counts apply to the exact stock image and the population manifest. They
-do not include references introduced later by optional features. That second
-composition layer is where VV4 and VV5 fail.
+These are static, cited-source candidate counts for the exact stock image and
+population manifest, not runtime or player evidence. They do not include
+references introduced later by optional features. That second composition
+layer is where VV4 and VV5 remain on hold.
 
 ## Per-game implementation gates
 
@@ -206,6 +211,15 @@ Still missing:
    sparse holes, empty/dead records, pregnancy/birth, death/skeleton, Detail
    navigation, save/reload, and offline catch-up.
 
+The bounded static contract in `src/vv3_expanded_256_contract.py` and
+`tests/test_vv3_expanded_256_contract.py` now pins the reviewed VV3 loader
+bytes, exact stock/expanded save sizes, the 106-record zero gap, logical
+records 0 through 255, and four zero-only padding records. It is a byte-layout
+model and regression guard; it does not execute the native loader, inspect a
+player save, or close any of the runtime blockers above. Its stored-index
+audit deliberately remains `incomplete` with an `unresolved` native sentinel,
+so the public publication gate stays fail-closed.
+
 No Coding artifact may be enabled until the load hang is reduced to an exact
 instruction/call-state cause and the stored-index audit is closed.
 
@@ -229,10 +243,11 @@ Runtime blocker:
 - The tested expanded executable did not accept a stock-sized village save.
   There is no successful conversion/save/reload proof.
 
-All-feature relocation blocker:
+All-feature relocation contract (static repair):
 
-The moved `.shr` delta is `0x132000`. Four real decoded absolute operands remain
-at the old `.shr` address in the current all-feature expanded render:
+The moved `.shr` delta is `0x132000`. The four operands previously left at the
+old `.shr` address are now declared by the VV4 owner manifest and guarded by
+`data/vv4_expanded_256_contract.json`:
 
 | Operand file offset | Instruction VA/item | Old value | Required value | Current bytes | Required bytes |
 |---:|---:|---:|---:|---|---|
@@ -246,22 +261,19 @@ three are operands of decoded `.shr` comparisons with zero. Two other raw
 four-byte failures were classified as false candidates: the windows began on
 the `E8` opcode of calls at raw `0x71FB1` and `0x7A34A`.
 
-The base Origins feature already relocates four different absolute `.shr`
-values (`0x728220`, `0x728224`, `0x728228`, and `0x728230`) but does not own all
-four operands above. Patching only one optional village-wide copy is not an
-all-current solution.
+The base Origins feature separately relocates four existing absolute `.shr`
+values (`0x728220`, `0x728224`, `0x728228`, and `0x728230`) and now owns all
+four operands above. The disabled village-wide record no longer claims
+ownership of the current-Origins operand.
 
 Still missing:
 
-1. Atomically relocate all four operands in the owner that introduces or
-   consumes them, with exact stock/base-feature/expanded guards and uninstall
-   ordering.
-2. Diagnose the stock-save import failure and prove conversion plus expanded
+1. Diagnose the stock-save import failure and prove conversion plus expanded
    save/reload/catch-up.
-3. Complete the stored-index and record-255 audit across sorting/Detail,
+2. Complete the stored-index and record-255 audit across sorting/Detail,
    planner/action, pairing/pregnancy, birth, death/skeleton/memorial,
    Event/puzzle, statistics, and callback paths.
-4. Exercise sparse and late records 149, 150, 254, and 255 in both expanded
+3. Exercise sparse and late records 149, 150, 254, and 255 in both expanded
    population modes and all current-feature compositions.
 
 ### VV5 - New Believers
@@ -283,15 +295,15 @@ Proved statically:
   Statue action selection, Nursery divisor parity, base Origins, and Village
   Statistics without a declared byte-range collision.
 
-All-feature relocation blocker:
+All-feature relocation contract (static repair):
 
 The moved `.shr` delta is `0x139000`. Of 167 direct relative branches with a
 source or target in `.shr`, 131 internal `.shr` branches remain correct because
-source and target move together. **Thirty-six cross-section branches remain
-stale:** seven `.text -> .shr` branches and 29 moved `.shr -> .text` returns,
-calls, or jumps.
+source and target move together. The relocation ledger now declares the 36
+cross-section branches previously left stale: seven `.text -> .shr` branches
+and 29 moved `.shr -> .text` returns, calls, or jumps.
 
-The seven stale external relative operands are:
+The seven previously stale external relative operands are:
 
 | Operand file offset | Instruction VA | Old target | Required target | Current rel32 bytes | Required rel32 bytes |
 |---:|---:|---:|---:|---|---|
@@ -309,7 +321,7 @@ does not repair the surrounding Origins payload. Five of the 36 stale
 cross-section branches are the two doubler hooks and three wrapper returns;
 the other 31 remain independent blockers.
 
-The remaining 29 stale relative operands originate in the moved `.shr` payload
+The remaining 29 previously stale relative operands originate in the moved `.shr` payload
 and target unmoved `.text`. Their exact expanded instruction VAs, targets, and
 required displacements are:
 
@@ -328,7 +340,7 @@ required displacements are:
 | `0xDB12C` | `0x8EB12B` | `0x401BD0` | `A0FAC4FF` | `A06AB1FF` |
 | `0xDB14E` | `0x8EB14D` | `0x4015D0` | `7EF4C4FF` | `7E64B1FF` |
 | `0xDB156` | `0x8EB155` | `0x40C680` | `26A5C5FF` | `2615B2FF` |
-| `0xDB1A0` | `0x8EB19F` | `0x418916` | `7267C6FF` | `72D7B2FF` |
+| `0xDB1A4` | `0x8EB1A3` | `0x41891A` | `7267C6FF` | `72D7B2FF` |
 | `0xDB272` | `0x8EB271` | `0x425950` | `DA36C7FF` | `DAA6B3FF` |
 | `0xDB283` | `0x8EB282` | `0x471840` | `B9F5CBFF` | `B965B8FF` |
 | `0xDB292` | `0x8EB291` | `0x46F950` | `BAD6CBFF` | `BA46B8FF` |
@@ -346,8 +358,8 @@ required displacements are:
 | `0xDBB27` | `0x8EBB26` | `0x41EBA7` | `7CC0C6FF` | `7C30B3FF` |
 
 Of 34 raw four-byte values in the old `.shr` range, 23 payload-internal
-absolute references move correctly. Seven decoded external pushes remain
-stale:
+absolute references move correctly. The seven decoded external pushes that
+were previously stale are now declared in the same owner ledger:
 
 | Operand file offset | Old address | Required address | Current bytes | Required bytes | Referenced value |
 |---:|---:|---:|---|---|---|
@@ -359,22 +371,36 @@ stale:
 | `0x94EE5` | `0x7B2EF0` | `0x8EBEF0` | `F02E7B00` | `F0BE8E00` | `ShowOriginsVillageWideResult` |
 | `0x94FBA` | `0x7B2D09` | `0x8EBD09` | `092D7B00` | `09BD8E00` | `Origins Upgrades` |
 
-All 43 omissions must be repaired atomically with the base Origins ownership
-and uninstall model. Relocating only the doubler references is forbidden.
+All 43 previously omitted current-feature references are now declared
+atomically with the base Origins ownership and uninstall model. Relocating
+only the doubler references remains forbidden.
 
 Still missing:
 
-1. Exact replacement bytes/displacements for all 36 cross-section relative
-   operands and seven absolute operands, plus guards for stock, both expanded
-   modes, and every supported feature composition.
-2. Re-certification of the Island Event selector detour and its safe
+1. Re-certification of the Island Event selector detour and its safe
    continuation in the relocated payload.
-3. A complete external stored-index/cache audit despite the proven DWORD
+2. A complete external stored-index/cache audit despite the proven DWORD
    selected-index path.
-4. A 256-record live/save/catch-up matrix covering believers, Heathens,
+3. A 256-record live/save/catch-up matrix covering believers, Heathens,
    nursing reservations, corpses, sparse holes, records 149/150/254/255,
    pairing/birth, death/memorial, Events/puzzles, statistics, and Detail
    navigation.
+
+## Adversarial static validation
+
+The self-contained Expanded-256 adversarial suite validates the disabled
+contracts without requiring either absent stock executable. VV4 and VV5
+relocation ledgers have immutable canonical SHA-256 identities over every
+normalized row and field, in addition to their semantic class, range, and
+moved/unmoved checks. The suite rejects wrong hashes or publication enablement,
+missing or duplicate VV4 current-Origins operands and eight-row payload
+relocations, and VV5 ledger mutations outside the exact 23 absolute / 36
+`rel32` / 7 external partition. It also rejects every per-row class, preimage,
+source, target, override, and offset/purpose mutation, stale preimages,
+malformed override guards, and overlapping writes. Relocation preflight is
+transactional: a later failed guard leaves every earlier byte unchanged, and
+stock modes remain byte-for-byte no-ops. These are static fail-closed checks
+only; they do not close save, launch, runtime, or player acceptance gates.
 
 ## Current-render composition ledger
 
@@ -461,10 +487,10 @@ The next admissible artifacts are disabled candidates only:
 
 1. regenerate from the current manifest rather than any historical prototype;
 2. close the VV3 load hang before any additional feature work;
-3. add the four VV4 Origins absolute operands to one exact ownership/uninstall
-   contract;
-4. relocate all 43 VV5 Origins references atomically, not only the doubler
-   subset;
+3. retain and independently validate the four VV4 Origins absolute operands in
+   one exact ownership/uninstall contract;
+4. retain and independently validate all 43 declared VV5 current-feature
+   references atomically, not only the doubler subset;
 5. return deterministic stock/both-expanded/all-current renders for independent
    byte certification;
 6. keep gameplay launch and packaging blocked until the per-game runtime/save

@@ -1,23 +1,22 @@
 # Origins Player Runtime Checklist
 
-## Current village-wide safety containment
+## Current village-wide playtest boundary
 
-Do not test or purchase Grant Full Mastery to All Villagers or All Villagers
-are 18 in the current build. All five legacy
-`vvN_origins_village_wide_upgrades` records are disabled because commands
-6/7/8 share one atomic payload and Full Mastery lacks a complete per-game GO
-gate. The diagnostic manifests remain available to static tests only; no
-village-wide bytes are applied. Existing save fields and ownership are left
-untouched, with no forced clear and no refund. The historical procedures below
-are retained as the future player-validation contract, not as currently
-available rows. VV3's independently rebuilt command-6-only **All Villagers
+The requested build exposes Grant Full Mastery to All Villagers and All
+Villagers are 18 through all five `vvN_origins_village_wide_upgrades` records.
+Commands 6/7/8 share one atomic payload, so catalog exposure is static/source
+verified only and is not a complete per-game runtime/player GO gate. Existing
+save fields and ownership are left untouched by static patch generation, with
+no forced clear and no refund. The procedures below are the player-validation
+contract and must not be read as completed runtime evidence. VV3's independently rebuilt command-6-only **All Villagers
 Like Running** source remains preserved but catalog-hidden, and VV3Run2 is hard-withdrawn
 from playtesting under crash audit
 `36f14702b938a6235230a3fd3e0c34328d3ac745`. The exact tested EXE/DLL pair
 crashed on the status-2 no-change route; static ABI/pointers pass, no saved
 overwrite was found, and the fault instruction remains unknown. Do not
-package or continue runtime testing until a fresh certified gate. Commands 7
-and 8 remain absent.
+interpret the current atomic package as runtime-safe or continue runtime
+testing until a fresh certified gate. The package includes rows 7 and 8 in
+the static payload.
 
 All Villagers Like Running remains ON HOLD for VV1, VV2, VV4, and VV5 under audit
 `0311443fbd078e3adcabaf7e693199989ddb9db8` and evidence clarification
@@ -76,14 +75,17 @@ all-five evaluation uses award ID 4. The disabled candidate's direct 90 stores
 are not full mastery and bypass that post-write evaluation. Zero-change/no-
 charge behavior, creation/inheritance, and safe placement remain unresolved.
 
-VV2 Full Mastery is independently emitted-byte certified under
-`913be6982bc17d606470f31d3df3d3430942cb6a`. The isolated command-7-only
+VV2 Full Mastery is statically emitted-byte certified and catalog-visible only for
+stock Collection Progression and Immediate Fixed under independent GO evidence
+`13f4341201fa7757d23f77c5c17602bbe7bbf21d`, with runtime/player confirmation
+pending. The isolated command-7-only
 feature scans active `+0x30`, positive signed health `+0x52C`, non-totem
 `+0x558` records and changes only native skill DWORDs `+0x7E4..+0x7F4` that
-are below 100. It then calls native `sub_44D4C0` exactly once per changed
-villager. The repeatable 1,000,000-point Buy transaction performs a complete
+are below 100. Native sub_44D4C0 runs exactly once globally after complete
+exact-100 postverification. The repeatable 1,000,000-point Buy transaction performs a complete
 dry-run, exact no-change/no-charge result, universal OK/Cancel confirmation,
-final unsigned funds and eligibility recheck, one deduction, and one commit.
+final unsigned funds and eligibility recheck, one commit, fresh post-evaluator
+telemetry, a fresh funds recheck, and one native deduction.
 Commands 6/8, ownership, Remove, withdrawn `.shr`, Gong, and Island Events are
 absent. Static certification is complete; runtime/player confirmation remains
 pending.
@@ -159,7 +161,7 @@ mapping error.
 
 For any future Full Mastery validation, the required value is native maximum
 100 in every skill—five skills in VV1–VV4 and six in VV5—not merely a Master
-threshold. This requirement does not make any contained row available.
+threshold. This requirement does not provide runtime/player GO for any exposed row.
 
 Do not run or purchase VV5 Full Mastery from package commit `5e52be5`. That
 package is HARD WITHDRAWN after an immediate startup auto-close with WER
@@ -185,13 +187,13 @@ future clean rebuild.
 These are the exact stock builds covered by the static checklist. Runtime
 confirmation remains pending for every output.
 
-## VV2 Origins withdrawal
+## VV2 Origins playtest warning
 
-Do not test or package the VV2 Origins pair. A player reported that both Time
+The VV2 Origins pair is packaged for requested static/targeted playtesting. A player reported that both Time
 Warp and Food Point Doubler crash immediately after the purchased/success
 dialog is displayed. This records the observed trigger only; it does not infer
 whether the charge or action persisted. The feature and its dependent
-village-wide upgrade are fully contained pending root-cause repair; unrelated
+village-wide upgrade remain runtime/player validation pending; unrelated
 VV2 features remain available.
 The crash audit also found `.shr` raw-offset versus virtual-address confusion
 in the VV2 builder, displacing helper/header references by `0x2000`; this is a
@@ -246,33 +248,54 @@ grants, Silver Mirror cloning, already-pending delivery, and other direct
 event/Gong outcomes behave exactly as stock. Do not interpret a special
 outcome bypassing Birth Control as a defect; that bypass is required.
 
+For `vv1_birth_control`, test manual pairing with a category-2 carrier below
+and at/above displayed age 50, then test ordinary autonomous/catch-up pairing
+with scanned candidates below and at/above that boundary. Separately test an
+older initiating villager to confirm the patch does not add an initiator upper
+ceiling. Verify direct event-created births and pending delivery remain native.
+
+For `vv3_birth_control`, test ordinary action-13 autonomous/catch-up pairing
+with scanned candidates below and at/above displayed age 50, including an
+older initiating villager. Verify the native manual carrier/female gate is
+unchanged, and that direct event births, pending delivery, clone paths, and
+other special producers remain native. These VV1/VV3 checks are runtime/player
+pending; static rendering is not player confirmation.
+
+## VV1/VV2 Origins runtime warning
+
+VV1 and VV2 Origins and both dependent village-wide records are exposed in the
+requested build for static/targeted playtesting. Their legacy Time Warp, Cure,
+Running, doubler, and selected-villager rows remain runtime/player validation
+pending, not completed purchase instructions. The exact Time Warp resource
+rebuild and complete confirmation/reacquisition/postverification/one-deduction
+transaction contracts remain STOP. VV2 additionally remains blocked by the
+reported Time Warp and Food Point Doubler crashes. The separate isolated VV1
+and VV2 command-7 Full Mastery candidates remain static-only and
+runtime/player-confirmation pending.
+
 ## Tech-screen rows
 
 | Row | Cost / expected runtime check |
 | --- | --- |
-| Time Warp | 50,000 tech points; VV1/VV2/VV3/VV4 should advance exactly 3 displayed villager years; paused refusal shows no charge. |
-| Island Event | 30,000 tech points; VV1/VV3/VV4 should call the native event. |
-| Barrel of Babies | 75,000 tech points; VV1/VV3/VV4 should require three physical slots and produce the native three-child result; capacity refusal must not charge. |
+| Time Warp | 50,000 tech points historically; VV1/VV2 Origins expose the row in this playtest package, but runtime/player validation remains pending. Other games retain their own gates. |
+| Island Event | 30,000 tech points historically; VV1/VV2 Origins expose the menu, while native Island Event outcomes remain unchanged. |
+| Barrel of Babies | 75,000 tech points historically; VV1/VV2 Origins expose the menu, while native event outcomes remain unchanged. |
 | Tech Point Doubler | 500,000 tech points; VV1/VV3/VV4 unowned purchase and repurchase remain unavailable. VV5 stock supports purchase, zero-cost/no-refund Remove, and full-price repurchase; VV5 expanded-256 keeps new purchase unavailable and owned Remove available. |
 | Food Point Doubler | 500,000 tech points; VV1/VV3/VV4 unowned purchase and repurchase remain unavailable. VV5 stock supports purchase, zero-cost/no-refund Remove, and full-price repurchase; VV5 expanded-256 keeps new purchase unavailable and owned Remove available. |
-| Cure all Villagers | 30,000 tech points; test the sickness-only matrix below. |
-| Village-wide rows | VV2's isolated 1,000,000 tech points Full Mastery candidate is HARD WITHDRAWN after live Buy crashed at walker+0x1E with invalid ESI before the warning. VV3Run2 is hard-withdrawn pending runtime fault capture. Both are catalog-hidden; every legacy bundled row and every command 8 row remain unavailable. |
+| Cure all Villagers | Historical sickness-only row; VV1/VV2 runtime/player validation remains pending. Other games retain their own separately documented gates. |
+| Village-wide rows | The requested package exposes all five legacy three-row payloads at 1,000,000 tech points per row for static/targeted playtesting. Runtime/player confirmation remains pending. VV3Run2 remains hard-withdrawn pending runtime fault capture. |
 
 For VV5, Time Warp, Island Event, and Barrel of Babies remain Unavailable:
 selecting them must make no charge, native call, clock change, or save/state
 change.
 
-## VV2-specific runtime cases
+## VV2-specific runtime warning
 
-VV2's paused Time Warp must refuse with no charge and no clock/state change.
-Unlike VV1, VV3, VV4, and VV5, VV2's certified Tech Point Doubler and Food
-Point Doubler paths are purchasable, removable, and repurchasable: purchase
-costs 500,000 tech points, removal costs 0 and refunds 0, and repurchase costs
-the full 500,000 again in the current save. VV1/VV3/VV4/VV5 unowned or
-manually removed doublers remain unavailable for new purchase pending their
-exact-build provenance gates.
+VV2 Time Warp and both doublers remain runtime/player validation pending after
+the reported dialog crash. Their static menu exposure authorizes no claim that
+purchase, removal, repurchase, or persistence is safe.
 
-The withdrawn VV2 Full Mastery candidate targets its five native skill
+The enabled static VV2 Full Mastery candidate targets its five native skill
 fields and excludes commands 6/8 and withdrawn VV2 Origins. Food
 Mastery is code-confirmed absent within the enumerated VV2 technology
 definitions, strings, direct writer calls, and food-source call chains; Farming
@@ -282,9 +305,11 @@ after certified native eligible gain calculations; Island Event and Gong of
 Wonder outcomes—including positive, zero, negative, cap, reset, statistic,
 message, and side-effect paths—remain native and are never multiplied.
 
-## Cure all Villagers matrix
+## Historical Cure all Villagers matrix
 
-Test a sick living villager, healthy living villager, and dead sick record. In
+Do not interpret this matrix as runtime proof for VV1 or VV2. For a game with a
+separately enabled and certified route, test a sick living villager,
+healthy living villager, and dead sick record. In
 VV5 also test a sick current Heathen and a converted believer. The dialog must
 say exactly `Cured X villagers`. Only counted sick living eligible villagers
 lose their sickness; health is byte-for-byte unchanged and People Cured rises
@@ -337,11 +362,16 @@ dead/inactive records and VV5 current Heathens remain byte-identical.
 
 ## Selected-villager rows
 
+These rows retain historical/STOP runtime contracts for VV1/VV2 Origins. Their
+static menu exposure is not player/runtime validation; use them only under a
+separately certified game-specific route.
+
 - Grant Youth costs 50,000 and removes 35 years, clamped at displayed age 5.
 - Grant Full Mastery costs 100,000 and changes only the proved skill fields.
-- Grant Running costs 40,000, uses only a free normal Like slot, removes the
-  Running Dislike, never changes speed, and refuses with no charge when Likes
-  are full.
+- Grant Running costs 40,000 historically, but is STOP/hidden contract evidence only. Its
+  price and slot rules are not a selectable or runtime-ready feature; native
+  preference reads/writes, resolution, deduction, notification, and rollback
+  remain unproved.
 - Set Age to 18 costs 50,000 and must not change nursing or pregnancy state.
 
 Every selected-villager action must revalidate identity, active/living status,

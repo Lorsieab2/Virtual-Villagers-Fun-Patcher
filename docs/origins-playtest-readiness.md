@@ -9,30 +9,57 @@ insufficient. Retroactive memorial initialization and expanded-256 walker
 coverage remain ON HOLD.
 
 This document records the patcher's five-game composition matrix for the
-current Origins catalog. For each supported game, the test selects every
-enabled game-scoped optional patch, resolves prerequisites in dependency-first
-order, and renders all four population modes against the exact stock
-executable. It verifies every byte guard, feature owner, PE checksum, and
-shared Origins companion hash while proving that the stock executable remains
-byte-identical.
+current Origins catalog. For each supported game, the test selects the base
+Origins record and its dependent Village-Wide record, resolves prerequisites in
+dependency-first order, and renders the supported Origins compositions against
+the exact stock executable. It verifies every byte guard, feature owner, PE
+checksum, and shared Origins companion hash while proving that the stock
+executable remains byte-identical. VV3-VV5 Origins compositions use Collection
+Progression or Immediate Fixed; their certified append layouts do not include
+stock.
 
 This is static composition/readiness only. It does not prove player-visible
 runtime behavior, and runtime/player confirmation remains pending. The test
 never launches a game and does not authorize packaging by itself.
 
-## Village-wide Origins containment
+## VV1/VV2 Origins playtest boundary
 
-All five legacy `vvN_origins_village_wide_upgrades` records are disabled and absent
-from the catalog. Their commands 6/7/8 are bundled in one atomic payload, so
-Running, Full Mastery, and Age 18 remain unavailable together until each
-game's complete payload receives a GO gate. VV3's separately generated
+The requested package exposes the VV1 and VV2 Origins feature records and both
+dependent village-wide records in the catalog, GUI, CLI, dependency
+resolution, Select All, and generated per-feature transparency. Their legacy
+Time Warp, Cure, Running, doubler, and selected-villager actions remain
+historical/STOP evidence for runtime purposes; the package is static/source
+verified only and must not be interpreted as player validation. VV2 retains
+the reported Time Warp and Food Point Doubler crash warning.
+
+VV1 re-enablement requires rebuilding the companion resource with the exact
+label `Time Warp - Advances 3 Villager Years`, removing or replacing stale Cure
+resources, and proving confirmation, selected/world identity and funds
+reacquisition, native mutation and postverification, one deduction only after
+success, and truthful no-change/no-charge and partial-failure reporting. VV2
+has the same gates plus root-cause repair for the reported Time Warp and Food
+Point Doubler crashes after the purchased/success dialog. Golden Child, Gong
+of Wonder, and Island Event outcomes remain native.
+
+The isolated VV1 and VV2 command-7 Full Mastery candidates are separate from
+these contained Origins records. They remain catalog-visible static candidates
+for stock Collection Progression and Immediate Fixed, reject Expanded-256, and
+remain runtime/player-confirmation pending.
+
+## Village-wide Origins playtest boundary
+
+All five legacy `vvN_origins_village_wide_upgrades` records are exposed in the
+requested static/playtest catalog. Their commands 6/7/8 are bundled in one
+atomic payload, so catalog exposure is not a runtime/player GO gate. VV3's separately generated
 command-6-only All Villagers Like Running source remains preserved but catalog-hidden, and
 VV3Run2 is hard-withdrawn from playtesting under crash audit
 `36f14702b938a6235230a3fd3e0c34328d3ac745`. The exact tested EXE/DLL pair
 crashed on the status-2 no-change route. Static ABI and pointer checks pass,
 the save snapshot and rotations show no saved preference overwrite, and the
-fault instruction remains unknown. Do not package or test this feature until
-a fresh crash/no-change gate is certified. It does not expose commands 7/8.
+fault instruction remains unknown. Do not treat this historical Running
+candidate as runtime-safe until a fresh crash/no-change gate is certified. The
+separate atomic village-wide record is exposed for static composition and
+contains the documented rows 6/7/8.
 The exact withdrawn pair is EXE
 `D81FB967C9DDE2448C40744356AE08BBADFA78930ABA004CEE5BE4025C65FBD0`
 and DLL
@@ -81,7 +108,7 @@ preserving unrelated slots and ordering. VV5 must reject
 current faction `+0x1CEC != 0` before any preference access or count;
 `+0x1CE1` is not a proved substitute. Four-counter bounded results,
 no-op/no-charge recheck and rollback, ordinary/status eligibility, and
-stock-plus-expanded composition remain open.
+stock-plus-expanded composition remains ON HOLD.
 
 VV3 resolution commits `531b0aca8d5bf051f87773e67d48b61c0ba02833`
 and `1d9a39da078806aa940e4774a9068956e88347bc` close ID 38, its three
@@ -131,6 +158,17 @@ changed-record preflight, no-charge result, recheck, or rollback. Preference/
 title policy, distributed native side effects, creation/clone policy, strict
 Golden Child/Event bypass, and placement/composition remain unresolved.
 
+The isolated VV1 command-7-only Full Mastery candidate supersedes that historical
+Stage-A status for stock modes. C76/D82/C83 independently recertified the exact
+payload and four identity outputs against source commit
+`2f22a8b435918bf01b95aa4b9a6e6f4287d0ac94`; the candidate is catalog-enabled for
+`collection_progression` and `immediate_fixed` only. Its active Origins/Cure base
+SHA is `5434C71C342B830A5896AFFB610A76C670578760BD33C6145882FA280F6406A3`,
+the isolated candidate SHA is
+`3DB0D70ED5512D6A38765AA71B90DE4D9C3BD5BE30CD528C17A351413B28D06F`, and
+uninstall returns byte-for-byte to the active base. Expanded-256 remains
+fail-closed and runtime/player confirmation remains pending.
+
 VV5 All Villagers are 18 audit
 `aaddf71797c28f37b0cc1f5728e567c0601a05aa` confirms age DWORD `+0x1B8C`,
 20 units per year, and age 18 value 360. Native ordinary/offline aging uses
@@ -142,7 +180,9 @@ positive health, current believer `+0x1CEC == 0`, and an unproved extra
 `+0x1CE1 == 0` exclusion. Its generic transaction charges no-op/already-18
 cases and returns zero results. Nursing timer and nursing/pregnancy state must
 never change, but the raw helper is not proved to satisfy that semantic rule.
-Expanded composition remains blocked by 43 missing relocations.
+Expanded composition remains ON HOLD; the 43 previously omitted current-feature
+relocations are declared in the static ledger, while runtime and player gates
+remain open.
 
 VV4 All Villagers are 18 audit
 `ab404b0c5e80cab4d327de9a51069e6e3529df27` covers the exact 929,792-byte
@@ -198,55 +238,66 @@ was HARD WITHDRAWN after an immediate startup auto-close. WER recorded
 required thiscall `ECX` receiver before calling the stock routine. Certification
 `8193629` is revoked. The corrected bundle assigns the allocated object to
 `ECX` at both sites and was independently certified under `7970cd9`. M2 passed
-startup and Full Mastery live testing, but the Tech-screen `Upgrades` text
-overran its narrow native Done graphic. The feature is catalog-hidden while a
-geometry-only candidate switches that Tech control to native wide resource 100
-at nominal x=145, y=690 pending independent byte recertification. The Villager
-Detail control is unchanged pending its separate exact gate.
+startup and Full Mastery live testing. The disabled geometry candidate now uses
+cached `Images\\btn_trophies.png`, the proven native resource `0x6A` (96x39), at local
+`(137,2)` for both Tech and Detail, preserving event 13, `sub_401BD0`, and
+`0x40C680` ownership; independent emitted-byte recertification remains
+required.
 
-The disabled diagnostic payload bytes are retained in their manifests but are
-not rendered into stock or expanded outputs. This catalog containment does not
-touch existing save ownership or fields, force-clear anything, or issue a
-refund. Base Origins remains independently composable for VV1, VV3, VV4, and
-VV5; VV2 base Origins remains separately contained.
+The requested package exposes the five base Origins records and their five
+dependent village-wide payloads in static composition. This catalog exposure
+does not touch existing save ownership or fields, force-clear anything, or
+issue a refund. Base Origins remains independently composable when selected
+without its dependent rows; the matching pair is the supported static
+Village-Wide composition.
 
-## VV2 Origins containment
+## VV2 Origins playtest warning
 
-VV2 Origins is currently unavailable and must not be selected. A player
+VV2 Origins is available for requested static/targeted playtesting. A player
 reported that both Time Warp and Food Point Doubler crash immediately after
 their purchased/success dialog is displayed. This records the observed trigger
 only; it does not infer whether the charge or action persisted. Both
 `vv2_enable_origins_exclusive_features` and dependent
-`vv2_origins_village_wide_upgrades` are disabled pending root-cause repair.
+`vv2_origins_village_wide_upgrades` remain runtime/player validation pending.
 Unrelated VV2 optional features remain independently selectable.
 
 The crash audit also found that the VV2 Origins builder confused `.shr` raw
 offsets with virtual addresses, displacing several helper/header references by
-`0x2000`. This is a hard re-enable blocker, but it is not certified as the
-complete explanation for both crashes; no repair is attempted here.
+`0x2000`. The isolated VV2 stress-test builder now corrects those runtime VAs,
+extends the `.shr` virtual size/execute flags, and maps the payload's `.rdata`
+tail as executable code. Static render and protected regression checks pass;
+runtime/player confirmation remains required before any runtime-safe claim; this
+does not change the static playtest catalog exposure.
 
-VV2 Full Mastery audit `60f649bf90b55dea3a6856d949e123bd79808782`
-also keeps command 7 ON HOLD. It confirms five signed DWORD skills
-`+0x7E4..+0x7F4`, job preference at `+0x7F8`, Master threshold 88, native
-maximum 100, persistent 256-record save/load at stride `0xE48C`, and the
-candidate's active `+0x30`/health `+0x52C` iteration. The candidate writes 90
-and charges through a generic transaction without changed-record counting,
-zero-change/no-charge handling, result detail, or rollback. No complete native
-all-five side-effect route, creation/inheritance/Silver Mirror closure, or safe
-transport/placement is proved. Gong and every Island Event route remain
-entirely native.
+VV2 Full Mastery command 7 is statically enabled and catalog-visible only for
+stock Collection Progression and Immediate Fixed under independent emitted-byte
+GO evidence `13f4341201fa7757d23f77c5c17602bbe7bbf21d`; runtime/player confirmation
+remains pending. It is a repeatable Buy-only action with no Remove state. The
+transaction uses five fresh manager/state acquisition boundaries, completes a
+full dry run and confirmation before mutation, rechecks eligibility and funds,
+and applies changed-only native skill writes to raise signed-DWORD skills to
+exact 100. Native sub_44D4C0 runs exactly once globally after complete
+exact-100 postverification. A fresh manager/state acquisition then derives Elder and
+totem telemetry, including villagers left unmarked at the native 50-totem cap,
+performs a fresh unsigned funds recheck, and makes the one 1,000,000-point
+deduction. Commands 6 and 8, ownership, Remove, Gong, Island Events, and the
+withdrawn VV2 Origins transport are not part of this candidate; Expanded-256
+modes reject before output. If a native write succeeds but later
+postverification fails, partial skill changes may remain because rollback is
+not proved safe, but no Technology Points are deducted.
 
 VV1, VV3, and VV4 doubler new purchases and repurchases remain unavailable
 until their exact-build provenance gates are cleared. VV5 stock-layout Tech and
 Food Doublers support purchase, zero-cost/no-refund Remove, and full-price
 repurchase. In VV5 expanded-256 modes, both writer hooks are restored to native
 bytes and new doubler purchases remain unavailable; owned Remove remains
-available. Expanded composition is ON HOLD: the 75-row relocation ledger covers
-32 rows and leaves 43 references (36 cross-section rel32 and 7 external
-absolute `.shr` pointers) outside the certified set, per disassembly commit
-`8dfccbd1b31e55f5168bb1c5ff23890bb98d9fdb`. VV5 native Time Warp, Island Event,
-and Barrel rows remain unavailable because their Heathen-safe target paths are
-not yet proven.
+available. Expanded composition is ON HOLD. The cited static current-feature
+ledger is complete at 66 rows: 23 payload-internal absolute, 36 cross-section
+rel32, and 7 external absolute `.shr` rows, including all 43 previously omitted
+current-feature references, per disassembly commit
+`8dfccbd1b31e55f5168bb1c5ff23890bb98d9fdb`. This is not runtime, save, catch-up,
+or player evidence. VV5 native Time Warp, Island Event, and Barrel rows remain
+unavailable because their Heathen-safe target paths are not yet proven.
 
 VV3 Magic Level-1 audit `4c588ffd36765d750533fe9694f8fda5c8e82736`
 confirms that Magic level 1 or higher contributes a deterministic flat `+1`
@@ -254,24 +305,28 @@ tech point to each completed research callback. It changes no research speed,
 duration, base award, RNG probability/amount, or Research-skill gain. The
 native order is base, optional quarter-base, Magic `+1`, timed `+1`, then an
 independent RNG `+1`; ordinary and special/catch-up paths converge before
-Magic. Collection duplicates and Island Events are separate producers. A
-future Tech Doubler must double the complete eligible positive native sum once
-after those additions and exclude Island Events. VV3 Tech Doubler purchase
-remains unavailable because case 26 emits separate writer calls and no
-provenance-safe post-sum hook or source tag is certified.
+Magic. Collection duplicates and Island Events are explicit Tech Doubler
+exclusions. The Tech Doubler must change only an eligible positive earned-tech
+source delta, not a post-sum aggregate. VV3 Tech Doubler purchase remains
+unavailable because case 26 emits separate writer calls and no provenance-safe
+source boundary is certified.
+provenance-safe source boundary remains the governing requirement.
 
 The matrix is intentionally catalog-driven rather than a hard-coded feature
 list, so newly enabled game-scoped patches cannot silently escape the
 composition checks. It does not modify manifests, executable payloads, saves,
 prices, ownership behavior, or companion DLLs.
-The isolated VV2 command-7-only implementation is now emitted-byte certified
-under `913be6982bc17d606470f31d3df3d3430942cb6a`, but it is now HARD WITHDRAWN
-and catalog-hidden after live Buy crashed at walker+0x1E with invalid ESI
-before the warning. It sets only below-100 values in the five native
-skill fields to 100, calls native `sub_44D4C0` once per changed villager, and
-reports native Elder/totem outcomes including the 50-totem cap. Commands 6 and
-8 remain absent, both withdrawn VV2 Origins manifests remain disabled, and
-runtime/player confirmation is still pending.
+The isolated VV2 command-7-only Full Mastery implementation is statically
+enabled and catalog-visible only for stock Collection Progression and Immediate
+Fixed under independent emitted-byte GO evidence
+`13f4341201fa7757d23f77c5c17602bbe7bbf21d`, with implementation/source bound
+to `895340333d55273e599f2dce5ab0db42cbc6d0ab`. It sets only below-100 values
+in the five native skill fields to 100. Native sub_44D4C0 runs exactly once
+globally after complete exact-100 postverification. It then
+reacquires fresh manager/state, derives fresh telemetry, rechecks unsigned
+funds, and performs the single native deduction. Commands 6 and 8 remain
+absent, both withdrawn VV2 Origins manifests remain disabled, Expanded-256
+modes reject before output, and runtime/player confirmation remains pending.
 
 The isolated VV4 command-7-only implementation is emitted-byte certified under
 `91a01eba0dc561b1244184301837b7199868c490` and catalog-enabled. It validates

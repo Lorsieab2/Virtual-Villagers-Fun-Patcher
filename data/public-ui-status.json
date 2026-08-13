@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "policy": {
+    "permanent_action_caption": "Buy",
+    "remove_allowed_only_for": ["Food Doubler", "Tech Doubler"],
+    "time_warp_caption": "Time Warp - Advances 3 Villager Years"
+  },
+  "games": {
+    "vv3": {
+      "origins": "public",
+      "full_mastery": "public",
+      "running": "disabled_hidden",
+      "full_heal": "disabled_by_hidden_running_dependency",
+      "legacy_origins_village_wide": "disabled_hidden",
+      "collectibles": {
+        "reset_all_collections": "disabled_hidden",
+        "complete_all_collections": "disabled_hidden"
+      }
+    },
+    "vv4": {
+      "origins": "public",
+      "full_mastery": "menu_owned",
+      "running": "disabled_hidden",
+      "full_heal": "disabled_hidden",
+      "legacy_origins_village_wide": "disabled_hidden",
+      "collectibles": {
+        "reset_all_collections": "disabled_hidden",
+        "complete_all_collections": "disabled_hidden"
+      }
+    },
+    "vv5": {
+      "origins": "public",
+      "full_mastery": "disabled_hidden",
+      "running": "disabled_hidden",
+      "full_heal": "absent",
+      "legacy_origins_village_wide": "disabled_hidden",
+      "tech_detail_click_route": "stop_unproved",
+      "collectibles": {
+        "reset_all_collections": "disabled_hidden",
+        "complete_all_collections": "disabled_hidden"
+      }
+    },
+    "vv2": {
+      "collectibles": {
+        "reset_all_collections": "disabled_hidden",
+        "complete_all_collections": "disabled_hidden"
+      }
+    }
+  }
+}

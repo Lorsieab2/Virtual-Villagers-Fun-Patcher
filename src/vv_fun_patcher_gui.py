@@ -10,23 +10,20 @@ from tkinter import filedialog, messagebox, ttk
 
 from vv_fun_patcher import (
     DEFAULT_PATCH_MODE,
+    _validate_public_patch_mode,
     PatcherError,
     apply_all,
     apply_patch,
     dry_run,
     dry_run_all,
-    expanded_save_status,
     get_patch_mode,
     get_patch_variant,
     identify,
     load_builds,
-    load_fun_patches,
+    load_public_fun_patches,
     load_patch_modes,
-    modded_save_folder_for,
     resolve_fun_patch_ids,
-    suggested_modded_save_folder,
     validate_all_sources,
-    vanilla_save_folder_for,
 )
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -87,7 +84,7 @@ class App(tk.Tk):
         self.iconphoto(True, self.island_titlebar)
         self.builds = load_builds()
         self.patch_modes = load_patch_modes()
-        self.fun_patches = load_fun_patches()
+        self.fun_patches = load_public_fun_patches()
         self.fun_patch_vars = {
             patch.id: tk.BooleanVar(value=False) for patch in self.fun_patches
         }
@@ -96,7 +93,7 @@ class App(tk.Tk):
         self.patch_mode_var = tk.StringVar(value=DEFAULT_PATCH_MODE)
         self.output_root_var = tk.StringVar()
         self.all_folder_vars = {build.id: tk.StringVar() for build in self.builds}
-        self.status_var = tk.StringVar(value="Choose a patch style and one game or all five.")
+        self.status_var = tk.StringVar(value="Choose a population mode and one game or all five.")
         self.game_var = tk.StringVar(value="No game identified yet")
         self.last_output_dir: Path | None = None
         self.last_modified_paths: dict[str, Path] = {}
@@ -172,7 +169,7 @@ class App(tk.Tk):
             foreground="#8a4b08",
         ).pack(anchor="w", pady=(0, 10))
 
-        mode_box = ttk.LabelFrame(outer, text="Patch style", padding=10)
+        mode_box = ttk.LabelFrame(outer, text="Population mode", padding=10)
         mode_box.pack(fill="x", pady=(0, 10))
         for row, mode in enumerate(self.patch_modes):
             ttk.Radiobutton(
@@ -399,28 +396,7 @@ class App(tk.Tk):
         except PatcherError:
             self.patch_mode_var.set(DEFAULT_PATCH_MODE)
             mode = get_patch_mode(DEFAULT_PATCH_MODE)
-        if mode.id == "collection_progression":
-            detail = (
-                "Collections still raise the cap and are needed to reach the absolute maximum. "
-                "In The Secret City, level-3 magic also remains part of the bonus."
-            )
-        elif mode.id == "immediate_fixed":
-            detail = (
-                "The absolute maximum is available immediately. Collections no longer change it; "
-                "in The Secret City, magic tech no longer changes it either."
-            )
-        elif mode.id == "experimental_expanded_256":
-            detail = (
-                "Experimental: VV3-VV5 expand their physical records and save layout from 150 to 256. "
-                "Their short Modded 256 EXEs use separate executable-named save folders. "
-                "VV1-VV2 use their existing 256 slots. Collections no longer change the cap."
-            )
-        else:
-            detail = (
-                "Experimental progression: VV3-VV5 expand to 256 records. Collections, "
-                "and The Secret City's level-3 Magic bonus, retain their original effects "
-                "and are needed to reach 256. Short Modded EXEs use separate save folders."
-            )
+        detail = mode.description
         self.mode_detail_var.set(detail)
         self.status_var.set(f"Selected: {mode.name}. {detail}")
         if save:
@@ -433,7 +409,15 @@ class App(tk.Tk):
             if self.fun_patch_vars[patch.id].get()
             and (game_id is None or patch.game_id == game_id)
         ]
-        return resolve_fun_patch_ids(selected, game_id=game_id)
+        self._selection_error = None
+        try:
+            return resolve_fun_patch_ids(selected, game_id=game_id)
+        except PatcherError as exc:
+            # Keep settings and mode changes usable while an incompatible
+            # checkbox combination is selected; patch/dry-run still rejects it
+            # through the strict resolver with the actionable conflict text.
+            self._selection_error = str(exc)
+            return selected
 
     def _patch_dependency_map(self) -> dict[str, tuple[str, ...]]:
         dependencies: dict[str, tuple[str, ...]] = {}
@@ -483,14 +467,18 @@ class App(tk.Tk):
 
     def _fun_patch_changed(self) -> None:
         self._apply_gui_dependency_selection()
+        self._selected_fun_patch_ids()
         selected = [
             patch.name
             for patch in self.fun_patches
             if self.fun_patch_vars[patch.id].get()
         ]
-        self.status_var.set(
-            "Additional patches: " + (", ".join(selected) if selected else "none")
-        )
+        if self._selection_error:
+            self.status_var.set("Selection error: " + self._selection_error)
+        else:
+            self.status_var.set(
+                "Additional patches: " + (", ".join(selected) if selected else "none")
+            )
         self._save_settings()
 
     def _select_all_fun_patches(self) -> None:
@@ -646,20 +634,14 @@ class App(tk.Tk):
     def _selection_text(self, build=None) -> str:
         mode = get_patch_mode(self._mode())
         prefix = f"{build.title}: " if build else ""
-        if mode.id == "collection_progression":
+        if mode.id == "stock":
+            text = "the stock population cap and progression behavior are preserved."
+        elif mode.id == "collection_progression":
             text = "collection bonuses remain active and are needed for the absolute maximum."
         elif mode.id == "immediate_fixed":
             text = "the absolute maximum is immediate; collection bonuses do not affect it."
-        elif mode.id == "experimental_expanded_256":
-            text = (
-                "experimental 256 mode is immediate. VV3-VV5 use expanded records and "
-                "the modified EXEs use their own executable-named save folders."
-            )
         else:
-            text = (
-                "experimental 256 collection progression is active. Collections, and "
-                "VV3 Magic Tech, retain their original bonuses and are needed to reach 256."
-            )
+            text = "collection bonuses remain active and are needed for the absolute maximum."
         selected = self._selected_fun_patch_ids(build.id if build else None)
         if selected:
             names = [patch.name for patch in self.fun_patches if patch.id in selected]
@@ -747,6 +729,7 @@ class App(tk.Tk):
 
     def _apply(self) -> None:
         try:
+            _validate_public_patch_mode(self._mode())
             source = self._source()
             build = identify(source)
             preview = dry_run(
@@ -755,9 +738,6 @@ class App(tk.Tk):
                 self._selected_fun_patch_ids(build.id),
                 output_root=self._output_root(),
             )
-            if not self._confirm_experimental([build]):
-                return
-            copy_saves, replace_modded_saves = self._confirm_save_copy([build])
             output_folder = Path(preview["output_folder"])
             overwrite = False
             if output_folder.exists():
@@ -773,8 +753,6 @@ class App(tk.Tk):
                 overwrite=overwrite,
                 fun_patch_ids=self._selected_fun_patch_ids(build.id),
                 output_root=self._output_root(),
-                copy_saves=copy_saves,
-                replace_modded_saves=replace_modded_saves,
             )
             self.last_output_dir = output.parent
             self.last_modified_paths[build.id] = output
@@ -793,6 +771,7 @@ class App(tk.Tk):
 
     def _apply_all(self) -> None:
         try:
+            _validate_public_patch_mode(self._mode())
             sources = self._all_sources()
             validated = validate_all_sources(sources)
             previews = dry_run_all(
@@ -800,11 +779,6 @@ class App(tk.Tk):
                 self._mode(),
                 self._selected_fun_patch_ids(),
                 output_root=self._output_root(),
-            )
-            if not self._confirm_experimental([build for build, _source in validated]):
-                return
-            copy_saves, replace_modded_saves = self._confirm_save_copy(
-                [build for build, _source in validated]
             )
             existing = []
             for (build, source), preview in zip(validated, previews):
@@ -827,8 +801,6 @@ class App(tk.Tk):
                 overwrite=overwrite,
                 fun_patch_ids=self._selected_fun_patch_ids(),
                 output_root=self._output_root(),
-                copy_saves=copy_saves,
-                replace_modded_saves=replace_modded_saves,
             )
             self.last_output_dir = results[0][0].parent
             self.last_modified_paths = {
@@ -848,84 +820,6 @@ class App(tk.Tk):
         except (PatcherError, OSError) as exc:
             self.status_var.set(str(exc))
             messagebox.showerror("Batch patch failed", str(exc))
-
-    def _confirm_experimental(self, builds=None) -> bool:
-        if self._mode() not in {
-            "experimental_expanded_256",
-            "experimental_expanded_256_progression",
-        }:
-            return True
-        build_rows = list(builds or self.builds)
-        save_rows = []
-        for build in build_rows:
-            if build.id in {"vv3", "vv4", "vv5"}:
-                path = suggested_modded_save_folder(build, self._mode())
-                if path is not None:
-                    status = expanded_save_status(build, self._mode())
-                    if status["status"] == "vanilla_ready":
-                        detail = (
-                            f"vanilla slot-zero save detected at "
-                            f"{status['folder']}"
-                        )
-                    elif status["status"] == "modded_ready":
-                        detail = (
-                            f"existing Modded 256 slot-zero save detected at "
-                            f"{status['folder']}"
-                        )
-                    else:
-                        detail = (
-                            "no valid vanilla or Modded 256 slot-zero save "
-                            f"detected; expected folder: {path}"
-                        )
-                    save_rows.append(f"{build.title}: {detail}")
-        save_text = ""
-        if save_rows:
-            save_text = (
-                "\n\nPlease launch each modded game once to create its game save folder, "
-                "then copy your vanilla or modded saves into the matching folder:\n"
-                + "\n".join(save_rows)
-            )
-        save_text += (
-            "\n\nIf there is no valid vanilla or modded save to copy, the patcher will not "
-            "copy any save files; launch the modded game once and create a save first."
-        )
-        return messagebox.askyesno(
-            "Use experimental expanded saves?",
-            "Experimental mode gives VV3, VV4, and VV5 an expanded 256-record save "
-            "layout. Full 256-villager long-play testing is not complete."
-            + save_text
-            + "\n\nContinue?",
-        )
-
-    def _confirm_save_copy(self, builds) -> tuple[bool, bool]:
-        if self._mode() not in {
-            "experimental_expanded_256",
-            "experimental_expanded_256_progression",
-        }:
-            return False, False
-        available = [
-            build for build in builds if vanilla_save_folder_for(build) is not None
-        ]
-        if not available:
-            return False, False
-        existing = []
-        for build in available:
-            destination = modded_save_folder_for(build, self._mode())
-            if destination is not None and any(
-                destination.glob(f"{build.title}*.ldw")
-            ):
-                existing.append(destination)
-        if not existing:
-            return True, False
-        replace = messagebox.askyesno(
-            "Replace existing Modded 256 saves?",
-            "The required slot-zero file and numbered village files must come "
-            "from the same save folder.\n\nReplace the existing Modded 256 "
-            "save files below with verified copies of the vanilla files?\n\n"
-            + "\n".join(str(path) for path in existing)
-            + "\n\nThe vanilla save folders are not changed.",
-        )
-        return True, replace
 
     def _show_folder_confirmation(
         self,

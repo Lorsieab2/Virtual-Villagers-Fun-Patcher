@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "vvfp.vv5_post_prototype_overlay_evidence.v1",
+  "type": "object",
+  "required": ["schema", "status", "enabled", "catalog_visible", "native_output", "runtime_go", "player_go", "publication_ready", "candidate", "bindings", "overlay", "runtime_evidence", "player_evidence"],
+  "additionalProperties": false,
+  "properties": {
+    "schema": {"const": "vvfp.vv5_post_prototype_overlay_evidence.v1"},
+    "status": {"const": "static_overlay_go_runtime_stop"},
+    "enabled": {"const": false},
+    "catalog_visible": {"const": false},
+    "native_output": {"const": false},
+    "runtime_go": {"const": false},
+    "player_go": {"const": false},
+    "publication_ready": {"const": false},
+    "candidate": {"type": "object", "additionalProperties": false, "required": ["path", "canonical_sha256"], "properties": {"path": {"const": "data/candidates/vv5_post_prototype_overlay.json"}, "canonical_sha256": {"type": "string", "pattern": "^[0-9A-F]{64}$"}}},
+    "bindings": {"type": "object", "additionalProperties": false, "required": ["prototype_sha256", "expanded_manifest_rows_sha256", "c342_source_text_sha256", "c342_ledger_sha256", "central_index_gate_sha256", "save_geometry_sha256"], "properties": {
+      "prototype_sha256": {"type": "string", "pattern": "^[0-9A-F]{64}$"},
+      "expanded_manifest_rows_sha256": {"type": "string", "pattern": "^[0-9A-F]{64}$"},
+      "c342_source_text_sha256": {"type": "string", "pattern": "^[0-9A-F]{64}$"},
+      "c342_ledger_sha256": {"type": "string", "pattern": "^[0-9A-F]{64}$"},
+      "central_index_gate_sha256": {"type": "string", "pattern": "^[0-9A-F]{64}$"},
+      "save_geometry_sha256": {"type": "string", "pattern": "^[0-9A-F]{64}$"}
+    }},
+    "overlay": {"type": "object", "additionalProperties": false, "required": ["row_count", "rows_sha256", "dbxxx_overlap_count", "c342_ledger_overlap_count", "result_size", "result_checksum", "result_sha256"], "properties": {
+      "row_count": {"const": 16}, "rows_sha256": {"type": "string", "pattern": "^[0-9A-F]{64}$"}, "dbxxx_overlap_count": {"const": 0}, "c342_ledger_overlap_count": {"const": 0}, "result_size": {"const": 991232}, "result_checksum": {"const": "6E3B0F00"}, "result_sha256": {"const": "AF537A02F0E1983F22966923E736A4595B53EDC625D4C2F20414AB55FD54BBDC"}
+    }},
+    "runtime_evidence": {"$ref": "#/$defs/absentEvidence"},
+    "player_evidence": {"$ref": "#/$defs/absentEvidence"}
+  },
+  "$defs": {"absentEvidence": {"type": "object", "additionalProperties": false, "required": ["status", "receipts"], "properties": {"status": {"const": "absent_stop"}, "receipts": {"type": "array", "maxItems": 0}}}}
+}

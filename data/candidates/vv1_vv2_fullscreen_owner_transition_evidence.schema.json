@@ -1,0 +1,29 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "vv1_vv2_fullscreen_owner_transition_evidence.schema.json",
+  "title": "Disabled VV1/VV2 fullscreen owner-transition evidence record",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "game_id", "status", "enabled", "catalog_enabled", "catalog_hidden", "publication", "player_ready", "runtime_certified", "native_output", "evidence_origin", "stock", "folder_inventory", "oracle", "routes", "window_types", "owner", "placement", "sdl_flags", "transition", "identity", "return_preservation", "restore", "cleanup", "ownership", "receipts"],
+  "properties": {
+    "schema_version": {"const": 1},
+    "game_id": {"enum": ["vv1", "vv2"]},
+    "status": {"const": "STOP"},
+    "enabled": {"const": false},
+    "catalog_enabled": {"const": false},
+    "catalog_hidden": {"const": true},
+    "publication": {"const": false},
+    "player_ready": {"const": false},
+    "runtime_certified": {"const": false},
+    "native_output": {"const": false},
+    "evidence_origin": {"const": "repository-owned-native-and-runtime-evidence"},
+    "stock": {"type": "object"}, "folder_inventory": {"type": "object"},
+    "oracle": {"type": "object"}, "routes": {"type": "array"},
+    "window_types": {"type": "object"}, "owner": {"type": "object"},
+    "placement": {"type": "object"}, "sdl_flags": {"type": "object"},
+    "transition": {"type": "object"}, "identity": {"type": "object"},
+    "return_preservation": {"type": "object"}, "restore": {"type": "object"},
+    "cleanup": {"type": "object"}, "ownership": {"type": "object"},
+    "receipts": {"type": "array"}
+  }
+}

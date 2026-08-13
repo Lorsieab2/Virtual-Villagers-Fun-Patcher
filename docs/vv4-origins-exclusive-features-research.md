@@ -7,6 +7,26 @@ The exact-build assembler and manifest are now present. This report still
 marks the feature as runtime-validation pending; no claim is made that every
 native dialog and upgrade interaction has been player-tested.
 
+## Current Origins menu route
+
+The public VV4 route is the combined Origins-style Village-Wide Upgrades
+patch. It owns both the Tech-screen Village-Wide menu and the Villager Details
+upgrades menu; standalone Full Mastery and Full Heal records are historical
+evidence only and are not catalog or release entries.
+
+- Village-Wide and Details Full Mastery use the exact VV4 native skill writer
+  at `0x46AD80`, passing a Float32 delta to exact `100.0` and the skill ordinal
+  `0..4`, with postverification.
+- Grant Running follows the shared fixed-array rule: an existing Running Like
+  is a no-write/no-charge skip; otherwise the first physical empty Like is
+  required before inserting Running once and clearing matching Dislikes.
+- Full Heal/Cure All processes active living records, raises health below `80`
+  to exact `100` through `0x46AF00`, clears sickness, and increments the
+  VV4 People Cured statistic only after the sickness clear.
+- The native VV4 UI factory/destructor and relocated Details handler are used;
+  non-intercepted Tech and Details events fall through to `0x43E9F8` and
+  `0x448618`. Runtime/player confirmation remains pending.
+
 ## Current shipping gate
 
 The doubler audit is **STOP** for this exact build. New purchase and repurchase
@@ -71,11 +91,36 @@ static tests. Runtime/player validation remains pending.
 The `.text` zero run begins at file/VA `0x89173` / `0x489173`, immediately
 after the Experimental-256 stock-save loader. The shared statistics feature
 uses `0x89173..0x89372`; the Origins payload begins at file `0x89373` and
-fits within its validated `0xC8D`-byte cave without overlapping the expanded
-VV4 patches.
+uses the validated `0xA00`-byte cave without overlapping the current
+stock-mode payload boundaries.
 
 The manifest is emitted only after the exact supported stock guards and payload
 fit pass. The doubler remains STOP pending safe hook placement and complete
 Island Event provenance. UI, native Barrel presentation, Running behavior,
 age-state behavior, and all-mode runtime checks remain explicit
 player-validation items.
+
+## Expanded-256 VV4 save and current-Origins relocation contract
+
+The VV4 Expanded-256 static contract is
+`data/vv4_expanded_256_contract.json`. It is bound to the exact stock
+fingerprint above and remains publication-disabled/fail-closed. The guarded
+loader hook at raw `0x1FC19` retries the exact stock payload size when the
+expanded-size request is rejected. Its raw `0x8910D` conversion cave accepts
+that stock layout, moves the saved-state tail, and clears the 106 inserted
+compact villager records before native validation/conversion continues. The
+four current-Origins absolute `.shr` operands at raw `0x20902`, `0x20916`,
+`0x2092B`, and `0x2B036` are explicitly guarded from `0x728000` to
+`0x85A000`; they are not established by a raw byte sweep.
+
+The four absolute operands inside the existing current Origins payload are
+separately guarded at `0xCC182`, `0xCC18E`, `0xCC19A`, and `0xCC1A6`, targeting
+the expanded header addresses `0x85A220`, `0x85A224`, `0x85A228`, and
+`0x85A230`. The four previously stale all-feature operands are separately
+owned and guarded at `0x89546`, `0xCC1AF`, `0xCC1B8`, and `0xCC1C1`, targeting
+`0x85A220`, `0x85A234`, `0x85A238`, and `0x85A23C`. Static tests cover exact
+guards, explicit relocation application, stock-mode no-op behavior, malformed
+guards, and fail-closed publication metadata.
+Fresh player-authorized stock import, expanded save/reload, catch-up,
+conversion continuity, current-Origins behavior after relocation, packaging,
+and runtime/player confirmation remain unresolved gates.

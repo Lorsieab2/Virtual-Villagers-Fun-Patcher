@@ -1,0 +1,84 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "vvfp.vv5_post_prototype_overlay.v1",
+  "type": "object",
+  "required": ["schema", "status", "enabled", "catalog_visible", "native_output", "runtime_go", "player_go", "publication_ready", "bindings", "overlay", "evidence", "canonical_sha256"],
+  "additionalProperties": false,
+  "properties": {
+    "schema": {"const": "vvfp.vv5_post_prototype_overlay.v1"},
+    "status": {"const": "static_overlay_go_runtime_stop"},
+    "enabled": {"const": false},
+    "catalog_visible": {"const": false},
+    "native_output": {"const": false},
+    "runtime_go": {"const": false},
+    "player_go": {"const": false},
+    "publication_ready": {"const": false},
+    "bindings": {
+      "type": "object",
+      "required": ["stock_sha256", "prototype_sha256", "prototype_size", "prototype_checksum", "expanded_manifest", "c342_relocation_ledger", "central_index_gate", "save_geometry"],
+      "additionalProperties": false,
+      "properties": {
+        "stock_sha256": {"type": "string", "pattern": "^[0-9A-F]{64}$"},
+        "prototype_sha256": {"const": "1C825CB6AC3C7E1368D3EFD9C81E844A336AB31C7EBA0971674601F25E3E8F0B"},
+        "prototype_size": {"const": 991232},
+        "prototype_checksum": {"const": "98F10F00"},
+        "expanded_manifest": {"type": "object", "additionalProperties": false, "required": ["path", "game", "row_count", "rows_sha256", "immutable"], "properties": {"path": {"const": "data/expanded_256.json"}, "game": {"const": "vv5"}, "row_count": {"const": 1951}, "rows_sha256": {"type": "string", "pattern": "^[0-9A-F]{64}$"}, "immutable": {"const": true}}},
+        "c342_relocation_ledger": {"type": "object", "additionalProperties": false, "required": ["path", "source_text_algorithm", "source_text_sha256", "count", "rows_sha256", "immutable"], "properties": {"path": {"const": "data/vv5_origins_feature.json"}, "source_text_algorithm": {"const": "vvfp.source-text.v1"}, "source_text_sha256": {"type": "string", "pattern": "^[0-9A-F]{64}$"}, "count": {"const": 66}, "rows_sha256": {"type": "string", "pattern": "^[0-9A-F]{64}$"}, "immutable": {"const": true}}},
+        "central_index_gate": {"type": "object", "additionalProperties": false, "required": ["path", "source_text_sha256", "status", "candidate_edit_count", "overlap_count"], "properties": {"path": {"const": "data/expanded_256_stored_index_evidence.json"}, "source_text_sha256": {"type": "string", "pattern": "^[0-9A-F]{64}$"}, "status": {"const": "partial_static_stop"}, "candidate_edit_count": {"const": 15}, "overlap_count": {"const": 0}}},
+        "save_geometry": {"type": "object", "additionalProperties": false, "required": ["path", "source_text_sha256", "status", "overlap_count"], "properties": {"path": {"const": "data/expanded_256_save_serializer_abi_evidence.json"}, "source_text_sha256": {"type": "string", "pattern": "^[0-9A-F]{64}$"}, "status": {"const": "unknown_stop"}, "overlap_count": {"const": 0}}}
+      }
+    },
+    "overlay": {
+      "type": "object",
+      "required": ["kind", "row_count", "rows", "dbxxx_range", "relocation_ledger_overlap_count", "size_change", "checksum_raw", "checksum_before", "checksum_after", "result_size", "result_sha256"],
+      "additionalProperties": false,
+      "properties": {
+        "kind": {"const": "guarded_same_width_post_prototype"},
+        "row_count": {"const": 16},
+        "rows": {"type": "array", "minItems": 16, "maxItems": 16, "items": {"$ref": "#/$defs/row"}},
+        "dbxxx_range": {
+          "type": "object",
+          "required": ["start", "end_exclusive", "overlap_count"],
+          "additionalProperties": false,
+          "properties": {"start": {"const": "0xDB000"}, "end_exclusive": {"const": "0xDC000"}, "overlap_count": {"const": 0}}
+        },
+        "relocation_ledger_overlap_count": {"const": 0},
+        "size_change": {"const": 0},
+        "checksum_raw": {"const": "0x150"},
+        "checksum_before": {"const": "98F10F00"},
+        "checksum_after": {"const": "6E3B0F00"},
+        "result_size": {"const": 991232},
+        "result_sha256": {"const": "AF537A02F0E1983F22966923E736A4595B53EDC625D4C2F20414AB55FD54BBDC"}
+      }
+    },
+    "evidence": {
+      "type": "object",
+      "required": ["static_preimages_reviewed", "static_result_reviewed", "runtime_receipts", "player_receipts", "blockers"],
+      "additionalProperties": false,
+      "properties": {
+        "static_preimages_reviewed": {"const": true},
+        "static_result_reviewed": {"const": true},
+        "runtime_receipts": {"type": "array", "maxItems": 0},
+        "player_receipts": {"type": "array", "maxItems": 0},
+        "blockers": {"type": "array", "minItems": 3, "maxItems": 3, "items": {"type": "string"}}
+      }
+    },
+    "canonical_sha256": {"type": "string", "pattern": "^[0-9A-F]{64}$"}
+  },
+  "$defs": {
+    "row": {
+      "type": "object",
+      "required": ["id", "category", "reviewed_locator_raw", "write_raw", "before", "after", "width"],
+      "additionalProperties": false,
+      "properties": {
+        "id": {"type": "string"},
+        "category": {"enum": ["manager_tail", "manager_pool", "tail_offset", "candidate_array"]},
+        "reviewed_locator_raw": {"type": "string", "pattern": "^0x[0-9A-F]+$"},
+        "write_raw": {"type": "string", "pattern": "^0x[0-9A-F]+$"},
+        "before": {"type": "string", "pattern": "^[0-9A-F]+$"},
+        "after": {"type": "string", "pattern": "^[0-9A-F]+$"},
+        "width": {"type": "integer", "minimum": 4, "maximum": 7}
+      }
+    }
+  }
+}

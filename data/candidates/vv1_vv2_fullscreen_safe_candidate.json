@@ -1,0 +1,64 @@
+{
+  "id": "vv1_vv2_fullscreen_safe_candidate",
+  "status": "disabled evidence only",
+  "enabled": false,
+  "catalog_enabled": false,
+  "catalog_hidden": true,
+  "runtime_player_status": "pending",
+  "legacy_cure_containment": {
+    "status": "contained; command 5 is rejected before price/funds/legacy Cure, while commands 0-4 and command 7 remain bytewise on their certified paths",
+    "command5_preprice_rejection": {
+      "compare": {"va": "0x456A8D", "before": "83FB08", "after": "83FB05"},
+      "branch": {"va": "0x456A90", "before": "0F872FFFFFFF", "after": "0F842FFFFFFF"},
+      "target": "0x4569C5",
+      "legacy_deductions": ["0x456AD5", "0x456AB3"],
+      "legacy_cure": "0x456B9D"
+    },
+    "full_heal_status": "pending; no replacement is enabled or catalog-visible",
+    "resource_202_unchanged": true
+  },
+  "supported_modes": ["collection_progression", "immediate_fixed"],
+  "expanded_rejected": true,
+  "shared_append_owner": "Origins; Full Mastery removal is required before Origins truncation",
+  "owner_pid_centering": {
+    "required": true,
+    "status": "companion-side contract pending independent emitted/runtime recertification",
+    "rules": [
+      "Capture GetForegroundWindow before each outer menu creates a dialog",
+      "Validate non-null, IsWindow, and same-process owner",
+      "Use that owner for DialogBoxParamA and result MessageBoxA calls",
+      "Center/clamp in WM_INITDIALOG using the owner monitor work area",
+      "Never pass SDL_Window as HWND or reacquire foreground after dialog creation"
+    ]
+  },
+  "companion": {
+    "source": "assets/origins/VVFP Origins Icons.dll",
+    "parent_sha256": "2ED1100E7F2EA5B8E522C2DE11F6B00CA8A02B968319C251365E9EFD634BCAF9",
+    "candidate_sha256": "846BA4EDF29E52689883A6E20DBF5CB92244DBB52531D7573EDAFF6C9C91543D",
+    "size": 295936,
+    "resource_201_items": 41,
+    "resource_202_unchanged": true,
+    "install_remove": "candidate-owned atomic replacement with exact parent restoration"
+  },
+  "games": {
+    "vv1": {
+      "stock_sha256": "1EC790B927741081D5CE13A48FB76983A4FD4336EA08F89317872643760AF03D",
+      "origins_parent_sha256": "5434C71C342B830A5896AFFB610A76C670578760BD33C6145882FA280F6406A3",
+      "hooks": {"tech": "E8EBA60300", "detail": "E85BA40300", "full_mastery": "E8ED130000"},
+      "wrapper_vas": ["0x491000", "0x491200", "0x491400"],
+      "strings_va": "0x491F00",
+      "cure_guard": {"va": "0x456A88", "before": "83FB06", "after": "83FB05"}
+    },
+    "vv2": {
+      "stock_sha256": "46C1503C209255C9CDEFA941DB2F449C8CF8E2CDD5C7D13CD975326E377ED677",
+      "origins_parent_sha256": {
+        "collection_progression": "F58F9DAFBE0C6B9B08AA3C491D1731F474DBC80D0DA50A0BF9AA8BFFBE2331AA",
+        "immediate_fixed": "66B642366BBEA817896CFBED950445D9F9895B39C05AD93B8DC75695EFF3B7A8"
+      },
+      "hooks": {"tech": "E845000200", "detail": "E885010200", "full_mastery": "E8ED170000"},
+      "wrapper_vas": ["0x4B4400", "0x4B4600", "0x4B4800"],
+      "strings_va": "0x4B4F00",
+      "cure_guard": {"va": "0x4946A5", "before": "83FB06", "after": "83FB05"}
+    }
+  }
+}

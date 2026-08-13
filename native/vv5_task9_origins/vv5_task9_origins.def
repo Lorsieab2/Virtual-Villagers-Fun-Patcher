@@ -1,0 +1,8 @@
+LIBRARY "VVFP Origins Icons"
+EXPORTS
+    BeginOriginsOwner=_BeginOriginsOwner@0
+    GetOriginsOwner=_GetOriginsOwner@0
+    EndOriginsOwner=_EndOriginsOwner@0
+    ShowOriginsUpgradeMenuState=_ShowOriginsUpgradeMenuState@8
+    ConfirmVV5Task9Action=_ConfirmVV5Task9Action@12
+    ShowVV5Task9Result=_ShowVV5Task9Result@16

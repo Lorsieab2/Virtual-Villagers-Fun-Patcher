@@ -1,0 +1,78 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Expanded Atomic Writer Integration",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "status", "native_output", "runtime_go", "player_go", "publication_ready", "generator", "games"],
+  "properties": {
+    "schema": {"const": "vvfp.expanded_atomic_writer_integration.v1"},
+    "status": {"const": "active_in_expanded_render_runtime_stop"},
+    "native_output": {"const": true},
+    "runtime_go": {"const": false},
+    "player_go": {"const": false},
+    "publication_ready": {"const": false},
+    "generator": {"$ref": "#/$defs/generator"},
+    "games": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["vv3", "vv4", "vv5"],
+      "properties": {
+        "vv3": {"$ref": "#/$defs/game"},
+        "vv4": {"$ref": "#/$defs/game"},
+        "vv5": {"$ref": "#/$defs/game"}
+      }
+    }
+  },
+  "$defs": {
+    "sha256": {"type": "string", "pattern": "^[0-9A-F]{64}$"},
+    "generator": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "source_text_sha256", "failure_policy", "commit_protocol"],
+      "properties": {
+        "path": {"const": "src/expanded_atomic_writer.py"},
+        "source_text_sha256": {"$ref": "#/$defs/sha256"},
+        "failure_policy": {"const": "fatal_nonreturn_on_uncertain_failure"},
+        "commit_protocol": {"type": "string", "minLength": 1}
+      }
+    },
+    "mode": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["parent_size", "parent_sha256", "parent_checksum", "result_size", "result_sha256", "result_checksum"],
+      "properties": {
+        "parent_size": {"type": "integer", "minimum": 1},
+        "parent_sha256": {"$ref": "#/$defs/sha256"},
+        "parent_checksum": {"type": "string", "pattern": "^[0-9A-F]{8}$"},
+        "result_size": {"type": "integer", "minimum": 1},
+        "result_sha256": {"$ref": "#/$defs/sha256"},
+        "result_checksum": {"type": "string", "pattern": "^[0-9A-F]{8}$"}
+      }
+    },
+    "game": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["writer_va", "writer_raw", "writer_length", "writer_sha256", "header_va", "header_size", "header_size_offset", "backup_policy", "import_page_sha256", "modes"],
+      "properties": {
+        "writer_va": {"type": "string", "pattern": "^0x[0-9A-F]+$"},
+        "writer_raw": {"type": "string", "pattern": "^0x[0-9A-F]+$"},
+        "writer_length": {"type": "integer", "minimum": 1},
+        "writer_sha256": {"$ref": "#/$defs/sha256"},
+        "header_va": {"type": "string", "pattern": "^0x[0-9A-F]+$"},
+        "header_size": {"type": "integer", "minimum": 4},
+        "header_size_offset": {"type": "integer", "minimum": 0},
+        "backup_policy": {"const": "manager_slot_plus_0x14_for_positive_slot_else_null"},
+        "import_page_sha256": {"$ref": "#/$defs/sha256"},
+        "modes": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["experimental_expanded_256", "experimental_expanded_256_progression"],
+          "properties": {
+            "experimental_expanded_256": {"$ref": "#/$defs/mode"},
+            "experimental_expanded_256_progression": {"$ref": "#/$defs/mode"}
+          }
+        }
+      }
+    }
+  }
+}

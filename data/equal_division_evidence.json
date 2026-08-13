@@ -1,0 +1,113 @@
+{
+  "schema": "vvfp.equal_division_evidence",
+  "schema_version": 1,
+  "feature": "equal_division",
+  "enabled": false,
+  "publication": {
+    "status": "disabled",
+    "reason": "Native eligibility, sex encoding, job-setter effects, transaction behavior, and runtime receipts are incomplete."
+  },
+  "composition_features": ["full_mastery", "grant_running", "full_heal"],
+  "forbidden_routes": [
+    {"id": "vv5_nursery_divisor_parity", "game_id": "vv5", "kind": "code_address", "value": "0x425FDF"},
+    {"id": "vv5_unproved_heathen_active_byte", "game_id": "vv5", "kind": "field_offset", "value": "0x1CE1"}
+  ],
+  "games": {
+    "vv3": {
+      "stock": {
+        "exe_name": "Virtual Villagers - The Secret City.exe", "size": 831488, "imagebase": 4194304,
+        "sha256": "8BC5DB382D02BC5C21AD5F607580D60FF44A6519CC7EB133F03113BAACAE6503",
+        "full_folder": {"status": "missing", "sha256": null, "file_count": null, "manifest_sha256": null}
+      },
+      "policy": {
+        "assignment_target": "preference_selector",
+        "reviewed_preference_order": [
+          {"id": 0, "name": "Farming"}, {"id": 1, "name": "Building"},
+          {"id": 2, "name": "Research"}, {"id": 3, "name": "Healing"},
+          {"id": 4, "name": "Parenting"}
+        ],
+        "parenting_policy": "evidence_required",
+        "devotion_policy": "not_present_do_not_synthesize",
+        "nursery_divisor_related": false
+      },
+      "requirements": [
+        {"id": "stock_fingerprint", "status": "missing", "evidence_ids": []},
+        {"id": "villager_record_geometry", "status": "missing", "evidence_ids": []},
+        {"id": "sex_field_encoding", "status": "missing", "evidence_ids": []},
+        {"id": "eligibility_predicate", "status": "missing", "evidence_ids": []},
+        {"id": "job_table_policy", "status": "missing", "evidence_ids": []},
+        {"id": "deterministic_physical_cycle", "status": "missing", "evidence_ids": []},
+        {"id": "native_job_setter_effects", "status": "missing", "evidence_ids": []},
+        {"id": "repeat_transaction_rollback", "status": "missing", "evidence_ids": []},
+        {"id": "save_reload_catchup_idempotence", "status": "missing", "evidence_ids": []},
+        {"id": "hook_cave_composition", "status": "missing", "evidence_ids": []},
+        {"id": "runtime_player_evidence", "status": "missing", "evidence_ids": []}
+      ],
+      "receipts": []
+    },
+    "vv4": {
+      "stock": {
+        "exe_name": "Virtual Villagers - The Tree of Life.exe", "size": 929792, "imagebase": 4194304,
+        "sha256": "6D27A429FFCA5F1F71FDD7ECA761ED1BB67E85F976494BA178B3D7BE01F1B220",
+        "full_folder": {"status": "missing", "sha256": null, "file_count": null, "manifest_sha256": null}
+      },
+      "policy": {
+        "assignment_target": "preference_selector",
+        "reviewed_preference_order": [
+          {"id": 0, "name": "Farming"}, {"id": 1, "name": "Parenting"},
+          {"id": 2, "name": "Healing"}, {"id": 3, "name": "Research"},
+          {"id": 4, "name": "Building"}
+        ],
+        "parenting_policy": "evidence_required",
+        "devotion_policy": "not_present_do_not_synthesize",
+        "nursery_divisor_related": false
+      },
+      "requirements": [
+        {"id": "stock_fingerprint", "status": "missing", "evidence_ids": []},
+        {"id": "villager_record_geometry", "status": "missing", "evidence_ids": []},
+        {"id": "sex_field_encoding", "status": "missing", "evidence_ids": []},
+        {"id": "eligibility_predicate", "status": "missing", "evidence_ids": []},
+        {"id": "job_table_policy", "status": "missing", "evidence_ids": []},
+        {"id": "deterministic_physical_cycle", "status": "missing", "evidence_ids": []},
+        {"id": "native_job_setter_effects", "status": "missing", "evidence_ids": []},
+        {"id": "repeat_transaction_rollback", "status": "missing", "evidence_ids": []},
+        {"id": "save_reload_catchup_idempotence", "status": "missing", "evidence_ids": []},
+        {"id": "hook_cave_composition", "status": "missing", "evidence_ids": []},
+        {"id": "runtime_player_evidence", "status": "missing", "evidence_ids": []}
+      ],
+      "receipts": []
+    },
+    "vv5": {
+      "stock": {
+        "exe_name": "Virtual Villagers - New Believers.exe", "size": 991232, "imagebase": 4194304,
+        "sha256": "92946781980220E9D1A2E6C573925519934608F5215F4A0F8CE3B90088C5C65D",
+        "full_folder": {"status": "missing", "sha256": null, "file_count": null, "manifest_sha256": null}
+      },
+      "policy": {
+        "assignment_target": "preference_selector",
+        "reviewed_preference_order": [
+          {"id": 0, "name": "Healing"}, {"id": 1, "name": "Parenting"},
+          {"id": 2, "name": "Farming"}, {"id": 3, "name": "Research"},
+          {"id": 4, "name": "Building"}, {"id": 5, "name": "Devotion"}
+        ],
+        "parenting_policy": "evidence_required",
+        "devotion_policy": "evidence_required",
+        "nursery_divisor_related": false
+      },
+      "requirements": [
+        {"id": "stock_fingerprint", "status": "missing", "evidence_ids": []},
+        {"id": "villager_record_geometry", "status": "missing", "evidence_ids": []},
+        {"id": "sex_field_encoding", "status": "missing", "evidence_ids": []},
+        {"id": "eligibility_predicate", "status": "missing", "evidence_ids": []},
+        {"id": "job_table_policy", "status": "missing", "evidence_ids": []},
+        {"id": "deterministic_physical_cycle", "status": "missing", "evidence_ids": []},
+        {"id": "native_job_setter_effects", "status": "missing", "evidence_ids": []},
+        {"id": "repeat_transaction_rollback", "status": "missing", "evidence_ids": []},
+        {"id": "save_reload_catchup_idempotence", "status": "missing", "evidence_ids": []},
+        {"id": "hook_cave_composition", "status": "missing", "evidence_ids": []},
+        {"id": "runtime_player_evidence", "status": "missing", "evidence_ids": []}
+      ],
+      "receipts": []
+    }
+  }
+}

@@ -14,6 +14,11 @@ OUT_EXE = OUT_DIR / "Virtual Villagers - New Believers - Origins Research.exe"
 OUT_JSON = OUT_DIR / "vv5-origins-feature-patches.json"
 MANIFEST_JSON = ROOT / "data/vv5_origins_feature.json"
 COMPANION = ROOT / "assets/origins/VVFP Origins Icons.dll"
+VV5_PROVENANCE_DIR = ROOT / "assets/candidates/vv5_full_mastery/provenance"
+VV5_PROVENANCE = {
+    "VV5Mockup.jpg": "4EF2DFC0DAE6C733C452CCB4BEA4023C0E2601EEF2396A1A38D75A4DCD57B00F",
+    "VV5Mockup2.jpg": "104B1BE5873B1660EE4BC2E02A886C6EBB99B06CB6F0D723D20638C2B0949144",
+}
 
 sys.path.insert(0, str(ROOT / ".tools/keystone"))
 sys.path.insert(0, str(ROOT / ".tools/keystone-runtime"))
@@ -35,6 +40,108 @@ VILLAGE_WIDE_ENTRY_VA = IMAGE_BASE + 0x94C40
 VILLAGE_PREFLIGHT_FILE_OFFSET = 0x94B37
 VILLAGE_PREFLIGHT_VA = IMAGE_BASE + VILLAGE_PREFLIGHT_FILE_OFFSET
 RUNNING_PREFERENCE_ID = 38  # exact-build preference-table evidence: 0xAEF60
+TECH_BUTTON_EVENT = 13
+DETAIL_BUTTON_EVENT = 13  # native VV5 Detail constructor/handler event
+DETAIL_NATIVE_HANDLER_VA = 0x44B560
+
+# This is the reviewed VV5 all-current-feature relocation ledger exported from
+# IDA Pro 9.4.  The operand heads, source/target VAs, and stock preimages are
+# committed evidence; a raw payload byte sweep is deliberately not used to
+# discover or certify relocation sites.
+VV5_IDA_PAYLOAD_ABSOLUTE_RELOCATIONS = [
+    ("0xDB087", "002D7B00"),
+    ("0xDB147", "002D7B00"),
+    ("0xDB1C3", "BD2E7B00"),
+    ("0xDB1D2", "D42E7B00"),
+    ("0xDB21B", "0D2F7B00"),
+    ("0xDB22A", "182F7B00"),
+    ("0xDB354", "372D7B00"),
+    ("0xDB383", "372D7B00"),
+    ("0xDB399", "3F2E7B00"),
+    ("0xDB3B4", "9D2D7B00"),
+    ("0xDB3D5", "082E7B00"),
+    ("0xDB41E", "382F7B00"),
+    ("0xDB48E", "D02D7B00"),
+    ("0xDB4C4", "2C2D7B00"),
+    ("0xDB4CB", "402D7B00"),
+    ("0xDB4D2", "582D7B00"),
+    ("0xDB4D8", "092D7B00"),
+    ("0xDB787", "842E7B00"),
+    ("0xDB793", "502F7B00"),
+    ("0xDB865", "842E7B00"),
+    ("0xDB88E", "2C2D7B00"),
+    ("0xDB895", "402D7B00"),
+    ("0xDB89B", "1A2D7B00"),
+]
+
+VV5_IDA_CROSS_SECTION_REL32_RELOCATIONS = [
+    # Unmoved .text -> moved .shr branches.  The two doubler rows are
+    # preserved by the expanded-mode native-hook overrides when encountered.
+    ("0x18910", "6C983900", "0x41890F", "0x7B2180", None),
+    ("0x1EB70", "8C3F3900", "0x41EB6F", "0x7B2B00", "F67E3456"),
+    ("0x237B1", "4BF23800", "0x4237B0", "0x7B2A00", "8B742408"),
+    ("0x40A25", "17163700", "0x440A24", "0x7B2040", None),
+    ("0x4AF13", "E9713600", "0x44AF12", "0x7B2100", None),
+    ("0x4BC21", "9B643600", "0x44BC20", "0x7B20C0", None),
+    ("0x94FBF", "4DD23100", "0x494FBE", "0x7B2210", None),
+    # Moved .shr -> unmoved .text calls, returns, and jumps.  The source VA
+    # is the expanded instruction VA because the source instruction moves.
+    ("0xDB01C", "20EDC9FF", "0x8EB01B", "0x450D40", None),
+    ("0xDB021", "D3F5C8FF", "0x8EB020", "0x4415F8", None),
+    ("0xDB043", "959BCCFF", "0x8EB042", "0x47BBDC", None),
+    ("0xDB055", "C7D9C9FF", "0x8EB054", "0x44FA20", None),
+    ("0xDB06C", "60FBC4FF", "0x8EB06B", "0x401BD0", None),
+    ("0xDB08E", "3EF5C4FF", "0x8EB08D", "0x4015D0", None),
+    ("0xDB096", "E6A5C5FF", "0x8EB095", "0x40C680", None),
+    ("0xDB0E1", "439BC9FF", "0x8EB0E0", "0x44BC28", None),
+    ("0xDB103", "D59ACCFF", "0x8EB102", "0x47BBDC", None),
+    ("0xDB115", "07D9C9FF", "0x8EB114", "0x44FA20", None),
+    ("0xDB12C", "A0FAC4FF", "0x8EB12B", "0x401BD0", None),
+    ("0xDB14E", "7EF4C4FF", "0x8EB14D", "0x4015D0", None),
+    ("0xDB156", "26A5C5FF", "0x8EB155", "0x40C680", None),
+    ("0xDB1A4", "7267C6FF", "0x8EB1A3", "0x41891A", None),
+    ("0xDB272", "DA36C7FF", "0x8EB271", "0x425950", None),
+    ("0xDB283", "B9F5CBFF", "0x8EB282", "0x471840", None),
+    ("0xDB292", "BAD6CBFF", "0x8EB291", "0x46F950", None),
+    ("0xDB38D", "BF35C7FF", "0x8EB38C", "0x425950", None),
+    ("0xDB3C3", "F920CEFF", "0x8EB3C2", "0x4944C0", None),
+    ("0xDB3ED", "4627CEFF", "0x8EB3EC", "0x494B37", None),
+    ("0xDB415", "9713C7FF", "0x8EB414", "0x4237B0", None),
+    ("0xDB437", "7513C7FF", "0x8EB436", "0x4237B0", None),
+    ("0xDB45A", "422ACEFF", "0x8EB459", "0x494EA0", None),
+    ("0xDB462", "3A2ACEFF", "0x8EB461", "0x494EA0", None),
+    ("0xDB46C", "302ACEFF", "0x8EB46B", "0x494EA0", None),
+    ("0xDB7AC", "0010C7FF", "0x8EB7AB", "0x4237B0", None),
+    ("0xDBA3B", "780DC7FF", "0x8EBA3A", "0x4237B7", None),
+    ("0xDBB22", "4EC0C6FF", "0x8EBB21", "0x41EB74", None),
+    ("0xDBB27", "7CC0C6FF", "0x8EBB26", "0x41EBA7", None),
+]
+
+VV5_IDA_EXTERNAL_ABSOLUTE_RELOCATIONS = [
+    ("0x94B80", "F02E7B00", "ShowOriginsVillageWideResult"),
+    ("0x94B85", "BD2E7B00", "VVFP Origins Icons.dll"),
+    ("0x94B94", "F02E7B00", "ShowOriginsVillageWideResult"),
+    ("0x94ED1", "F02E7B00", "ShowOriginsVillageWideResult"),
+    ("0x94ED6", "BD2E7B00", "VVFP Origins Icons.dll"),
+    ("0x94EE5", "F02E7B00", "ShowOriginsVillageWideResult"),
+    ("0x94FBA", "092D7B00", "Origins Upgrades"),
+]
+
+# D37 VV5 selector repair.  The hook remains the existing seven-byte detour;
+# only the owned body is corrected so both marker branches call the native
+# selector and return after the complete stock call instruction.
+BARREL_SELECTOR_HOOK_FILE_OFFSET = 0x1890F
+BARREL_SELECTOR_HOOK_VA = IMAGE_BASE + BARREL_SELECTOR_HOOK_FILE_OFFSET
+BARREL_SELECTOR_BODY_FILE_OFFSET = PAYLOAD_FILE_OFFSET + 0x180
+BARREL_SELECTOR_BODY_VA = PAYLOAD_VA + 0x180
+BARREL_SELECTOR_HOOK_STOCK = bytes.fromhex("8B7484146A64E8")
+BARREL_SELECTOR_HOOK_REPAIRED = bytes.fromhex("E96C9839009090")
+BARREL_SELECTOR_BODY_STOCK = b"\0" * 0x28
+BARREL_SELECTOR_BODY_REPAIRED = bytes.fromhex(
+    "8B748414F70588D3510004000000740C832588D35100FBBE1E000000"
+    "6A64E8BD14C5FFE97267C6FF"
+)
+BARREL_SELECTOR_BODY_SHA256 = hashlib.sha256(BARREL_SELECTOR_BODY_REPAIRED).hexdigest().upper()
 
 
 def assemble(source: str, address: int) -> bytes:
@@ -64,6 +171,15 @@ def main() -> None:
         raise RuntimeError(f"stock SHA-256 mismatch: expected {expected}, got {actual}")
     if not COMPANION.is_file():
         raise RuntimeError(f"missing companion DLL: {COMPANION}")
+    for name, expected_hash in VV5_PROVENANCE.items():
+        provenance_path = VV5_PROVENANCE_DIR / name
+        if not provenance_path.is_file():
+            raise RuntimeError(f"missing VV5 provenance reference: {provenance_path}")
+        actual_hash = hashlib.sha256(provenance_path.read_bytes()).hexdigest().upper()
+        if actual_hash != expected_hash:
+            raise RuntimeError(
+                f"VV5 provenance hash mismatch for {name}: expected {expected_hash}, got {actual_hash}"
+            )
     if any(original[PAYLOAD_FILE_OFFSET : PAYLOAD_FILE_OFFSET + PAYLOAD_SIZE]):
         raise RuntimeError("VV5 Origins .shr payload region is not stock zero padding")
     OUT_DIR.mkdir(parents=True, exist_ok=True)
@@ -139,7 +255,7 @@ def main() -> None:
         f"""
             cmp dword ptr [esp + 4], 8
             jne original
-            cmp dword ptr [esp + 8], 13
+            cmp dword ptr [esp + 8], {TECH_BUTTON_EVENT}
             jne original
             call 0x{entry['tech_menu']:X}
             xor eax, eax
@@ -168,7 +284,7 @@ def main() -> None:
             push 722
             push 180
             push eax
-            push 13
+            push {TECH_BUTTON_EVENT}
             mov ecx, edi
             call 0x401BD0
             mov edi, eax
@@ -200,7 +316,7 @@ def main() -> None:
         f"""
             cmp dword ptr [esp + 4], 8
             jne original
-            cmp dword ptr [esp + 8], 13
+            cmp dword ptr [esp + 8], {DETAIL_BUTTON_EVENT}
             jne original
             call 0x{entry['detail_menu']:X}
             xor eax, eax
@@ -228,7 +344,7 @@ def main() -> None:
             push 700
             push 180
             push eax
-            push 13
+            push {DETAIL_BUTTON_EVENT}
             mov ecx, edi
             call 0x401BD0
             mov edi, eax
@@ -260,13 +376,15 @@ def main() -> None:
     put(
         "barrel_selector",
         """
-            mov esi, dword ptr [esp + eax*4 + 0x96C]
+            mov esi, dword ptr [esp + eax*4 + 0x14]
             test dword ptr [0x51D388], 4
             jz done
             and dword ptr [0x51D388], 0xFFFFFFFB
             mov esi, 30
         done:
-            jmp 0x418916
+            push 100
+            call 0x403660
+            jmp 0x41891A
         """,
     )
     put(
@@ -546,17 +664,17 @@ def main() -> None:
             ja youth_open
             or edi, 1
         youth_open:
-            cmp dword ptr [edx + 7260], 0x42B40000
+            cmp dword ptr [edx + 7260], 0x42C80000
             jb mastery_open
-            cmp dword ptr [edx + 7264], 0x42B40000
+            cmp dword ptr [edx + 7264], 0x42C80000
             jb mastery_open
-            cmp dword ptr [edx + 7268], 0x42B40000
+            cmp dword ptr [edx + 7268], 0x42C80000
             jb mastery_open
-            cmp dword ptr [edx + 7272], 0x42B40000
+            cmp dword ptr [edx + 7272], 0x42C80000
             jb mastery_open
-            cmp dword ptr [edx + 7276], 0x42B40000
+            cmp dword ptr [edx + 7276], 0x42C80000
             jb mastery_open
-            cmp dword ptr [edx + 7280], 0x42B40000
+            cmp dword ptr [edx + 7280], 0x42C80000
             jb mastery_open
             or edi, 2
         mastery_open:
@@ -664,12 +782,12 @@ def main() -> None:
             add dword ptr [edx + 7244], ecx
             jmp detail_success
         mastery:
-            mov dword ptr [edx + 7260], 0x42B40000
-            mov dword ptr [edx + 7264], 0x42B40000
-            mov dword ptr [edx + 7268], 0x42B40000
-            mov dword ptr [edx + 7272], 0x42B40000
-            mov dword ptr [edx + 7276], 0x42B40000
-            mov dword ptr [edx + 7280], 0x42B40000
+            mov dword ptr [edx + 7260], 0x42C80000
+            mov dword ptr [edx + 7264], 0x42C80000
+            mov dword ptr [edx + 7268], 0x42C80000
+            mov dword ptr [edx + 7272], 0x42C80000
+            mov dword ptr [edx + 7276], 0x42C80000
+            mov dword ptr [edx + 7280], 0x42C80000
             jmp detail_success
         running:
             lea ecx, [edx + 8028]
@@ -716,10 +834,9 @@ def main() -> None:
         """,
     )
     tech_wrapper_expected = bytes.fromhex(
-        "8B44240485C07E46F70588D3510001000000743A"
-        "813C24BE474100742D813C24DD4741007424813C24F9474100741B"
+        "8B44240485C07E2BF70588D3510001000000741F"
         "813C244DDE46007412813C247CDE46007409813C24A5DE46007504"
-        "D1642404568B7424080131E95D0DC7FF"
+        "D1642404568B7424080131E9780DC7FF"
     )
     put(
         "tech_increment",
@@ -729,12 +846,6 @@ def main() -> None:
             jle native
             test dword ptr [0x51D388], 1
             jz native
-            cmp dword ptr [esp], 0x4147BE
-            je matched
-            cmp dword ptr [esp], 0x4147DD
-            je matched
-            cmp dword ptr [esp], 0x4147F9
-            je matched
             cmp dword ptr [esp], 0x46DE4D
             je matched
             cmp dword ptr [esp], 0x46DE7C
@@ -777,16 +888,48 @@ def main() -> None:
 
     payload = code + strings
     expanded_shr_relocations: list[dict[str, str]] = []
-    for payload_offset in range(len(payload) - 3):
-        value = int.from_bytes(payload[payload_offset : payload_offset + 4], "little")
-        if PAYLOAD_VA <= value < PAYLOAD_VA + PAYLOAD_SIZE:
-            expanded_shr_relocations.append(
-                {
-                    "offset": f"0x{PAYLOAD_FILE_OFFSET + payload_offset:X}",
-                    "before": payload[payload_offset : payload_offset + 4].hex().upper(),
-                    "purpose": "relocate VV5 Origins .shr absolute pointer for expanded 256 mode",
-                }
-            )
+    for offset, before in VV5_IDA_PAYLOAD_ABSOLUTE_RELOCATIONS:
+        expanded_shr_relocations.append(
+            {
+                "offset": offset,
+                "before": before,
+                "kind": "absolute",
+                "purpose": "relocate IDA-decoded VV5 Origins payload-internal .shr absolute pointer for expanded 256 mode",
+            }
+        )
+    for offset, before, source_va, target_va, skip_before in VV5_IDA_CROSS_SECTION_REL32_RELOCATIONS:
+        target_stock_va = int(target_va, 0)
+        target_expanded_va = (
+            target_stock_va + (EXPANDED_PAYLOAD_VA - PAYLOAD_VA)
+            if PAYLOAD_VA <= target_stock_va < PAYLOAD_VA + PAYLOAD_SIZE
+            else target_stock_va
+        )
+        relocation_entry = {
+            "offset": offset,
+            "before": before,
+            "kind": "rel32",
+            "source_virtual_address": source_va,
+            "source_expanded_virtual_address": source_va,
+            "target_stock_virtual_address": target_va,
+            "target_expanded_virtual_address": f"0x{target_expanded_va:X}",
+            "purpose": "relocate IDA-decoded VV5 current-feature cross-section rel32 operand for expanded 256 mode",
+        }
+        if skip_before:
+            relocation_entry["expanded_skip_before"] = skip_before
+            relocation_entry["purpose"] += "; preserve the exact expanded native-hook override"
+        expanded_shr_relocations.append(relocation_entry)
+    for offset, before, referenced_value in VV5_IDA_EXTERNAL_ABSOLUTE_RELOCATIONS:
+        expanded_shr_relocations.append(
+            {
+                "offset": offset,
+                "before": before,
+                "kind": "absolute",
+                "source_virtual_address": f"0x{int.from_bytes(bytes.fromhex(before), 'little'):X}",
+                "target_stock_virtual_address": f"0x{int.from_bytes(bytes.fromhex(before), 'little'):X}",
+                "target_expanded_virtual_address": f"0x{int.from_bytes(bytes.fromhex(before), 'little') + (EXPANDED_PAYLOAD_VA - PAYLOAD_VA):X}",
+                "purpose": f"relocate IDA-decoded VV5 Origins external .shr absolute operand ({referenced_value}) for expanded 256 mode",
+            }
+        )
     patches: list[dict[str, str | int]] = []
 
     def patch(offset: int, before: bytes, after: bytes, purpose: str) -> None:
@@ -976,7 +1119,7 @@ def main() -> None:
         CURE_ENTRY_FILE_OFFSET,
         b"\0" * len(cure_code),
         cure_code,
-        "cure active VV5 villagers without changing health and increment People Cured",
+        "retain the byte-identical withdrawn Cure payload behind the EB5F containment gate; command 5 is unavailable and unreachable, and no Cure behavior is available",
     )
     patch(
         VILLAGE_PREFLIGHT_FILE_OFFSET,
@@ -987,8 +1130,8 @@ def main() -> None:
 
     patch(0x28C, bytes.fromhex("400000D0"), bytes.fromhex("400000F0"),
           "make the stock shared payload section executable")
-    patch(0x1890F, bytes.fromhex("8B7484146A64E8"),
-          rel32_jump(0x41890F, entry["barrel_selector"], 7),
+    patch(BARREL_SELECTOR_HOOK_FILE_OFFSET, BARREL_SELECTOR_HOOK_STOCK,
+          BARREL_SELECTOR_HOOK_REPAIRED,
           "consume the one-shot purchase marker and force native event index 30")
     stock_food_hook = bytes.fromhex("85F67E3456")
     detoured_food_hook = rel32_jump(0x41EB6F, entry["food_increment"])
@@ -996,10 +1139,10 @@ def main() -> None:
     detoured_tech_hook = rel32_jump(0x4237B0, entry["tech_increment"])
     patch(0x1EB6F, stock_food_hook,
           detoured_food_hook,
-          "double positive non-Island-Event food after stock mastery adjustments")
+          "double eligible positive food-source deltas")
     patch(0x237B0, stock_tech_hook,
           detoured_tech_hook,
-          "double six exact positive-whitelist tech awards for the current save")
+          "double three exact positive-whitelist tech awards for the current save")
     patch(0x40A24, bytes.fromhex("8BC68B4C244C"),
           rel32_jump(0x440A24, entry["tech_ctor"], 6),
           "append the stock-styled Upgrades control to the Tech screen")
@@ -1012,6 +1155,11 @@ def main() -> None:
     patch(0x4BC20, bytes.fromhex("83EC18A1A8974D00"),
           rel32_jump(0x44BC20, entry["detail_handler"], 8),
           "route the added Detail control through the villager-upgrade menu")
+    if bytes(payload[0x180:0x1A8]) != BARREL_SELECTOR_BODY_REPAIRED:
+        raise RuntimeError(
+            "D37 VV5 selector body assembly drifted from the exact repaired bytes: "
+            + bytes(payload[0x180:0x1A8]).hex().upper()
+        )
     patch(PAYLOAD_FILE_OFFSET, b"\0" * len(payload), bytes(payload),
           "install the VV5 Origins menus and mechanics in the unused .shr section")
 
@@ -1051,6 +1199,16 @@ def main() -> None:
         offset = int(str(item["offset"]), 16)
         replacement = bytes.fromhex(str(item["after"]))
         rendered[offset : offset + len(replacement)] = replacement
+    for relocation in expanded_shr_relocations:
+        offset = int(relocation["offset"], 0)
+        expected_before = bytes.fromhex(relocation["before"])
+        actual = bytes(rendered[offset : offset + len(expected_before)])
+        if actual != expected_before:
+            raise RuntimeError(
+                "IDA relocation ledger guard drift at "
+                f"{relocation['offset']}: expected {expected_before.hex().upper()}, "
+                f"got {actual.hex().upper()}"
+            )
     OUT_EXE.write_bytes(rendered)
     OUT_JSON.write_text(json.dumps(patches, indent=2) + "\n", encoding="utf-8")
     manifest = {
@@ -1059,27 +1217,7 @@ def main() -> None:
         "running_preference_id": RUNNING_PREFERENCE_ID,
         "running_preference_evidence": {"source": "exact stock executable embedded preference table", "table_file_offset": "0xAEF60", "entry_name": "running"},
         "name": "Enable Origins-Exclusive Features",
-        "description": (
-            "Inspired by the Virtual Villagers 1 mobile port where these exclusive "
-            "Origins upgrades originated, this selected-upgrades port adds icon-based "
-            "Origins Upgrades. The native Time Warp (the stock route advances exactly 3 "
-            "displayed villager years), Island Event, and Barrel of Babies "
-            "rows are retained but disabled until their Heathen-safe target paths are "
-            "proved; selecting one reports that it is unavailable. The stock-layout Tech "
-            "Point and Food Point Doublers are available for their configured 500,000-tech-point "
-            "purchases; each existing owned doubler remains removable at zero cost with zero "
-            "refund, and each removed doubler can be repurchased at the full configured price "
-            "in stock layout. Expanded-256 keeps both new purchases unavailable while preserving "
-            "owned Remove. Plus "
-            "Cure all Villagers for 30,000 tech points. Cure all Villagers clears sickness "
-            "from eligible active living believer records without changing health and increments People Cured "
-            "once per sickness cleared, then displays the exact result `Cured X villagers`; Heathens are excluded. "
-            "Villager Upgrades include Grant Youth (floor age 5), six-skill Full "
-            "Mastery, Set Age to 18, and Grant Running. Grant Running only adds "
-            "the build-specific Running preference ID (proven at table offset "
-            "0xAEF60) to a free normal Like slot and removes that same ID from "
-            "Dislikes; it never changes movement or speed logic. VV5 Food Mastery is technology ID 4: the upgrade from level 1 to 2 costs 3,000 tech points and the upgrade from level 2 to 3 costs 40,000 tech points; central food writer 0x41EB40 applies positive A as A, A+floor(A/2), or 2A before food storage, statistics, and other downstream channels; zero and negative inputs bypass mastery. Ordinary collection return 0x414970 is eligible: base 6/35 becomes 6/35, 9/52, or 12/70 by mastery level. The Food Point Doubler runs after mastery and doubles the final positive eligible delta once. Island Event, startup, consumption, and unknown callers remain native. The stock Tech wrapper at 0x4237B0 is the exact six-return positive whitelist to .shr 0x7B2A00; 0x419EA3 clothing refunds remain native. The stock Food wrapper is the exact positive whitelist at 0x41EB6F to .shr 0x7B2B00. Expanded-256 restores both native five-byte hooks and keeps new doubler purchases unavailable pending complete rel32 relocation proof."
-        ),
+        "description": "Adds Origins-style upgrade menus to Tech and Villager Details. The menus offer Full Mastery, Running, Make Villagers Young Adults, and Full Heal/Cure All for Believers; Heathens are skipped. Time Warp, Island Event, and Barrel of Babies remain unavailable.",
         "output_tag": "Origins Exclusive Features",
         "companion_files": [
             {
@@ -1095,10 +1233,11 @@ def main() -> None:
                 "sha256": "92946781980220E9D1A2E6C573925519934608F5215F4A0F8CE3B90088C5C65D",
             },
             "positive_tech_writer": "0x4237B0",
-            "tech_positive_returns": ["0x4147BE", "0x4147DD", "0x4147F9", "0x46DE4D", "0x46DE7C", "0x46DEA5"],
+            "tech_positive_returns": ["0x46DE4D", "0x46DE7C", "0x46DEA5"],
             "tech_excluded_refund_return": "0x419EA3",
             "tech_exclusions": [
                 "all 16 Island Event outcomes",
+                "Duplicate Collectibles (returns 0x4147BE, 0x4147DD, and 0x4147F9)",
                 "all eight writer tail paths",
                 "technology purchase/spending/deduction paths",
                 "zero and negative deltas",
@@ -1113,7 +1252,7 @@ def main() -> None:
                 "collection_return": "0x414970",
                 "collection_base_to_native": {"6": [6, 9, 12], "35": [35, 52, 70]},
             },
-            "collection_adjustment": "Ordinary collection return 0x414970 supplies base 6/35; native Food Mastery produces 6/35, 9/52, or 12/70 after the level 1 to 2 (3,000 tech points) and level 2 to 3 (40,000 tech points) upgrades. The Food Point Doubler must follow this transform and double the final positive eligible delta once.",
+            "collection_adjustment": "Food-source return 0x414970 supplies the base delta; native Food Mastery completes before the Food Point Doubler doubles the final positive source delta once.",
             "island_event_producers": ["Island Event, startup, consumption, and unknown callers remain native; unknown callers cannot match return 0x414970"],
             "tech_writer_hook": {
                 "virtual_address": "0x4237B0",
@@ -1122,10 +1261,10 @@ def main() -> None:
                 "after": "E94BF23800",
                 "wrapper_virtual_address": "0x7B2A00",
                 "wrapper_file_offset": "0xDBA00",
-                "wrapper_bytes": "8B44240485C07E46F70588D3510001000000743A813C24BE474100742D813C24DD4741007424813C24F9474100741B813C244DDE46007412813C247CDE46007409813C24A5DE46007504D1642404568B7424080131E95D0DC7FF",
+                "wrapper_bytes": "8B44240485C07E2BF70588D3510001000000741F813C244DDE46007412813C247CDE46007409813C24A5DE46007504D1642404568B7424080131E9780DC7FF",
                 "ownership_address": "0x51D388",
                 "ownership_mask": "0x1",
-                "eligible_returns": ["0x4147BE", "0x4147DD", "0x4147F9", "0x46DE4D", "0x46DE7C", "0x46DEA5"],
+                "eligible_returns": ["0x46DE4D", "0x46DE7C", "0x46DEA5"],
                 "excluded_refund_return": "0x419EA3",
                 "branch_destinations": ["0x7B2A4A", "0x7B2A4E", "0x4237B7"]
             },
@@ -1142,16 +1281,16 @@ def main() -> None:
                 "eligible_return": "0x414970",
                 "branch_destinations": ["0x41EB74", "0x41EBA7"]
             },
-            "hook_status": "stock-layout implemented: exact Tech six-return and Food positive-whitelist wrappers; expanded-256 restores both exact stock hooks and remains native for doubler runtime.",
+            "hook_status": "stock-layout implemented: exact Tech three-return and Food positive-whitelist wrappers; expanded-256 restores both exact stock hooks and remains native for doubler runtime.",
         },
         "doubler_composition_contract": {
             "stacking": [
-                "every exact-build collectible/collection effect that increases tech-point gain",
-                "native Food Mastery technology adjustment",
+                "positive earned tech deltas only",
+                "positive food-source deltas only",
             ],
-            "exclusions": ["Island Event outcomes"],
+            "exclusions": ["Island Event tech-point gain", "Duplicate Collectibles tech-point gain"],
             "food_mastery_status": "confirmed in exact-build disassembly; technology ID 4 and separate level 1 to 2 / level 2 to 3 native transforms documented",
-            "status": "stock-layout implemented: Tech and Food Doublers run after their native adjustments; expanded-256 keeps both native writers and disables only new doubler purchases.",
+            "status": "stock-layout implemented: only eligible earned/source deltas are doubled once; native writers continue storage/statistics updates for the doubled amount; expanded-256 keeps both native writers and disables only new doubler purchases.",
         },
         "doubler_purchase_status": {
             "status": "stock-layout Tech and Food Doubler purchase/remove/repurchase implemented; expanded-256 new purchases are marker-gated unavailable",
@@ -1164,11 +1303,74 @@ def main() -> None:
             "reason": "VV5 native time/event paths are not yet proven to avoid current Heathen record targeting.",
             "evidence_status": "STOP; no charge or native call is made for these rows",
         },
+        "provenance": {"vv5_mockups": VV5_PROVENANCE},
         "patches": patches,
+        "selector_repair": {
+            "status": "candidate-only; base and individual Full Mastery records remain disabled",
+            "stock_fingerprint": {
+                "filename": "Virtual Villagers - New Believers.exe",
+                "size": len(original),
+                "sha256": expected,
+            },
+            "hook": {
+                "file_offset": f"0x{BARREL_SELECTOR_HOOK_FILE_OFFSET:X}",
+                "virtual_address": f"0x{BARREL_SELECTOR_HOOK_VA:X}",
+                "before": BARREL_SELECTOR_HOOK_STOCK.hex().upper(),
+                "after": BARREL_SELECTOR_HOOK_REPAIRED.hex().upper(),
+                "uninstall_after": BARREL_SELECTOR_HOOK_STOCK.hex().upper(),
+                "length": len(BARREL_SELECTOR_HOOK_STOCK),
+            },
+            "body": {
+                "file_offset": f"0x{BARREL_SELECTOR_BODY_FILE_OFFSET:X}",
+                "virtual_address": f"0x{BARREL_SELECTOR_BODY_VA:X}",
+                "before": BARREL_SELECTOR_BODY_STOCK.hex().upper(),
+                "after": BARREL_SELECTOR_BODY_REPAIRED.hex().upper(),
+                "uninstall_after": BARREL_SELECTOR_BODY_STOCK.hex().upper(),
+                "length": len(BARREL_SELECTOR_BODY_REPAIRED),
+                "sha256": BARREL_SELECTOR_BODY_SHA256,
+            },
+            "native_call_virtual_address": "0x403660",
+            "continuation_virtual_address": "0x41891A",
+            "forbidden_branch_targets": ["0x418916", "0x418917", "0x418918", "0x418919"],
+            "shr_guard": {
+                "name": ".shr",
+                "raw_range": "0xDB000..0xDBFFF",
+                "virtual_address": "0x7B2000",
+                "stock_characteristics": "0xD0000040",
+                "candidate_characteristics": "0xF0000040",
+                "header_patch": {"file_offset": "0x28C", "before": "400000D0", "after": "400000F0"},
+                "payload_zero_preimage_required": True,
+            },
+            "atomic_install_uninstall": True,
+        },
         "patch_mode_overrides": patch_mode_overrides,
         "expanded_shr_relocations": {
             "stock_virtual_address": f"0x{PAYLOAD_VA:X}",
             "expanded_virtual_address": f"0x{EXPANDED_PAYLOAD_VA:X}",
+            "evidence": {
+                "method": "IDA Pro 9.4 decoded instruction heads and operands; raw byte patterns are discovery-only and are not relocation proof",
+                "exact_stock_sha256": expected,
+                "disassembly_commit": "8dfccbd1b31e55f5168bb1c5ff23890bb98d9fdb",
+                "current_feature_sites": len(expanded_shr_relocations),
+                "payload_internal_absolute_sites": len(VV5_IDA_PAYLOAD_ABSOLUTE_RELOCATIONS),
+                "cross_section_rel32_sites": len(VV5_IDA_CROSS_SECTION_REL32_RELOCATIONS),
+                "external_absolute_sites": len(VV5_IDA_EXTERNAL_ABSOLUTE_RELOCATIONS),
+                "expanded_mode_native_override_sites": sum(
+                    item[4] is not None for item in VV5_IDA_CROSS_SECTION_REL32_RELOCATIONS
+                ),
+                "complete_current_feature_relocation_sites": (
+                    len(VV5_IDA_CROSS_SECTION_REL32_RELOCATIONS)
+                    + len(VV5_IDA_EXTERNAL_ABSOLUTE_RELOCATIONS)
+                ),
+            },
+            "ledger_sha256": hashlib.sha256(
+                json.dumps(
+                    expanded_shr_relocations,
+                    ensure_ascii=True,
+                    sort_keys=True,
+                    separators=(",", ":"),
+                ).encode("utf-8")
+            ).hexdigest().upper(),
             "patches": expanded_shr_relocations,
         },
     }

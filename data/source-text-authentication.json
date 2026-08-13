@@ -1,0 +1,84 @@
+{
+  "algorithm": "vvfp.source-text.v1",
+  "canonicalization": [
+    "decode UTF-8 with optional BOM",
+    "remove BOM",
+    "normalize CRLF and CR to LF",
+    "encode UTF-8 without BOM",
+    "SHA-256 uppercase hex"
+  ],
+  "artifacts": [
+    {
+      "path": "data/candidates/vv3_origins_running_base_candidate.json",
+      "sha256": "65F1F5FA72F127986F71A69368E1CC7E013FD0D00B1E6640113B34032ACB9B21"
+    },
+    {
+      "path": "data/candidates/vv3_all_villagers_like_running_candidate.json",
+      "sha256": "D6AC66D196D4765AB7DC6D719B3180082C15BBF2F267EBF36D614A14B45556A5"
+    },
+    {
+      "path": "data/candidates/vv3_running_candidate_map.json",
+      "sha256": "63F3A1780A6A4A7300C8A2C1923203AEFA7E85A21B1A92D6E1CE47E9F924B2DC"
+    },
+    {
+      "path": "data/candidates/vv3_origins_full_mastery_base_candidate.json",
+      "sha256": "DC8B73F904A535063CCA161AFA52190E0C2A9056B0B70F6CDDDD152161342DBE"
+    },
+    {
+      "path": "data/candidates/vv3_full_mastery_all_candidate.json",
+      "sha256": "D0FA9145AFECF0EE14A50D04F113E154C497DAC88C7A8AA0660A0FD338DBDF28"
+    },
+    {
+      "path": "data/candidates/vv3_full_mastery_all_candidate_map.json",
+      "sha256": "4D0DDFBBC06AAABB3DBD66B0F5C5EE0256557FB332A4BB5170B45DBA8E3EA819"
+    },
+    {
+      "path": "data/candidates/vv3_individual_full_mastery_candidate.json",
+      "sha256": "A16D8118C8DECAD09F9F4646F8243C156B366EC3A0C7E8428308A6D2F1D46882"
+    },
+    {
+      "path": "data/candidates/vv3_individual_full_mastery_candidate_map.json",
+      "sha256": "8318276149AA619EC10CD6F5FAFE2BE4739E05BFA97997202226E2167B9030C8"
+    },
+    {
+      "path": "data/candidates/vv3_individual_grant_running_candidate.json",
+      "sha256": "A3C526AEEFD719B15F6C6CF1422EEF43D342F7B85D55F0C232675B3BE88483E4"
+    },
+    {
+      "path": "data/candidates/vv3_individual_grant_running_candidate_map.json",
+      "sha256": "00C7B9C1DB59E6B36C945551CC40A347C4D302917A6677EE1EDE14F26142F362"
+    },
+    {
+      "path": "data/candidates/vv2_full_mastery_all_candidate.json",
+      "sha256": "41CC8B5ADEAF702B1ACC38C832EADEEBF9B7FB23DA23A8A6E6328690F121A53C"
+    },
+    {
+      "path": "data/candidates/vv2_full_mastery_all_candidate_map.json",
+      "sha256": "F93FC7C11D2306A3AA5DCC44EAC26785BC26BD86D46FCFAE51252E6E13FEE8C8"
+    },
+    {
+      "path": "data/candidates/vv4_full_heal_cure_all_candidate.json",
+      "sha256": "02B4F62D2CDE2388E1D7CF159575A5868A754E11E77BFBBE96D49C4EC2E6663D"
+    },
+    {
+      "path": "data/candidates/vv4_full_heal_cure_all_candidate_map.json",
+      "sha256": "8F5C1D529792C3926A40DCF69167CF0F483DBF06C45C1AC0C1F91A32EE8253FC"
+    },
+    {
+      "path": "data/candidates/vv5_individual_running_candidate.json",
+      "sha256": "7869A3364F598B882E8C29F3A1957C5AF13A4654CF45EE0464DAA34545CB128B"
+    },
+    {
+      "path": "data/candidates/vv5_individual_running_candidate_map.json",
+      "sha256": "3FB4B979A98CC3C5FE76D7BD2D3851E5F918A8436141D4DF8A9C1969B6B11FAF"
+    },
+    {
+      "path": "data/candidates/vv3_full_heal_cure_all_candidate.json",
+      "sha256": "3600D697F595B57212B6316C55907C5261D103A0E6A4AD47578B524B5CECB1D0"
+    },
+    {
+      "path": "data/candidates/vv3_full_heal_cure_all_candidate_map.json",
+      "sha256": "BF39F257BB52A9C0EB55D60D8BB03055C5141271123D68264CD44001E85717BB"
+    }
+  ]
+}

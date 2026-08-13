@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import os
 import shutil
 import struct
 import sys
@@ -12,13 +13,14 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
+OUTPUT_ROOT = Path(os.environ.get("VVFP_GENERATOR_OUTPUT_ROOT", ROOT))
 STOCK = ROOT / "research" / "stock-executables" / "Virtual Villagers - The Tree of Life.exe"
 ACTIVE_BASE = ROOT / "data" / "vv4_origins_feature.json"
-OUT_DIR = ROOT / "data" / "candidates"
+OUT_DIR = OUTPUT_ROOT / "data" / "candidates"
 BASE_OUT = OUT_DIR / "vv4_origins_full_mastery_base_candidate.json"
 FEATURE_OUT = OUT_DIR / "vv4_full_mastery_all_candidate.json"
 MAP_OUT = OUT_DIR / "vv4_full_mastery_all_candidate_map.json"
-DOC_OUT = ROOT / "docs" / "vv4-full-mastery-stage-a-candidate.md"
+DOC_OUT = OUTPUT_ROOT / "docs" / "vv4-full-mastery-stage-a-candidate.md"
 COMPANION = OUT_DIR / "VVFP VV4 Full Mastery Candidate.dll"
 CANDIDATE_ROOT = ROOT / "assets" / "candidates" / "vv4_full_mastery"
 PROVENANCE_DIR = CANDIDATE_ROOT / "provenance"
@@ -34,6 +36,9 @@ R3_HELPER_SHA256 = "C7379FB1AFDDD44F06CF48FAEED14C1701D796F5FC2568E10745337DADE1
 R3_TECH_CONSTRUCTOR_SHA256 = "4BAD0B344BA63130A1A1144CDE740CEBB61E82826FCDBD0171B182A3D8B62FA4"
 R3_DETAIL_CONSTRUCTOR_SHA256 = "BEC747E7EFC08BBA8BB7B65181B85E0E24AA30E1BBC2C1879206376C4468584E"
 R3_COMMAND7_SLOT_SHA256 = "023CF384A52CB6A6A49511B8B069B952718DC70E771FEE15CAC8A0777FB5F6DE"
+R3_COMMAND7_ENTRY_SHA256 = "CFCDE13267A62C824756748A7B639937AD4F125E733F615C555861338C2702A5"
+R3_COMMAND7_WALKER_SHA256 = "F8268B904E73B79EE686BE6A4E8FCFA8A54C59E08E8D5CE329900D78DED05155"
+R3_COMMAND7_CONFIRM_SHA256 = "DCB30F80D0442F289F030CCD2E712A05605469819E4777E3739918A718B55B97"
 R3_CURE_SHA256 = "2BB7A32344293DCACB4D0359818C6839AC1FBBAEE8F9E3D00DB59C274238D726"
 R3_DLL_SHA256 = "4E1A83683A875EFE6F67116CDD862927BE1ABCB17DB7AE18143E58E98EAD01E7"
 D19_COMMIT = "8182c235548bc92f304e5571ed61ada3c5abfa4b"
@@ -41,12 +46,22 @@ D19_FACTORY_SHA256 = "58E21A9597EB6ABF6949A1E607C3B607FABAF1AE5D280D899A062F5D02
 D19_TECH_SHA256 = "1D710074D6F5717A420646B2DCEE2BCC351754B4DC0CCFB5A32F586E2E258BDC"
 D19_DETAIL_SHA256 = "AC2A88CBD0B7805941EA34261D765F4A727187B35B5443BFB7CDEA8DF43A7E8C"
 D21_COMMIT = "3ba125b2107da4f86f9b70ab5b94206bef7803f5"
+C28_C29_COMMIT = "1f5b84535cd8c3c6566b18e9e1ed3a767cedc956"
+CANDIDATE_METADATA_ENABLED = True
 C7_DLL_SHA256 = "4E1A83683A875EFE6F67116CDD862927BE1ABCB17DB7AE18143E58E98EAD01E7"
 C6_BASELINE_COMMIT = "577072f5b5205c3a0a857c0645d855bb98ec19d2"
+D25_RESULT_HELPER_VA = 0x489ACA
+D25_RESULT_HELPER_OFFSET = 0x757
+D25_RESULT_HELPER_BYTES = bytes.fromhex(
+    "53568B5C240C8B74241068E39E4800FF15E0A1480085C0741868EE9E480050"
+    "FF15DCA1480085C074086A0053566A00FFD05E5BC20800"
+)
+D25_RESULT_HELPER_SHA256 = "BC7E2FBD0DA5BDDDA870F1AF0107C116E688706CA7799D4933AF4AE2A522442A"
 
 sys.path.insert(0, str(ROOT / ".tools" / "keystone"))
 sys.path.insert(0, str(ROOT / ".tools" / "keystone-runtime"))
 from keystone import KS_ARCH_X86, KS_MODE_32, Ks  # noqa: E402
+from runtime_freeze import isolated_runtime_freeze  # noqa: E402
 
 
 IMAGE_BASE = 0x400000
@@ -67,6 +82,25 @@ WALKER_OFFSET = 0x400
 CONFIRM_OFFSET = 0x800
 STRINGS_OFFSET = 0x1200
 PRICE = 1_000_000
+INDIVIDUAL_PRICE = 100_000
+INDIVIDUAL_OFFSET = 0xA00
+INDIVIDUAL_CONFIRM_PAGE_OFFSET = 0x1C00
+INDIVIDUAL_CONFIRM_CAVE_SIZE = 0x100
+DETAIL_INDIVIDUAL_ROUTE_OFFSET = 0x663
+DETAIL_INDIVIDUAL_ROUTE_SIZE = 7
+DETAIL_INDIVIDUAL_ROUTE_BEFORE = bytes.fromhex("8B049D279F4800")
+DETAIL_INDIVIDUAL_CAVE_OFFSET = 0x6BE
+DETAIL_INDIVIDUAL_CAVE_SIZE = 0x32
+DETAIL_INDIVIDUAL_CAVE_BEFORE = bytes.fromhex(
+    "C7825C1C00000000B442C782601C00000000B442"
+    "C782641C00000000B442C782681C00000000B442"
+    "C7826C1C00000000B442"
+)
+DETAIL_INDIVIDUAL_EPILOGUE_OFFSET = 0x752
+DETAIL_INDIVIDUAL_EPILOGUE = bytes.fromhex("5D5F5E5BC3")
+DETAIL_INDIVIDUAL_CAVE_SHA256 = "79600D55513838D55E9FAD6D9680A516A2CF6BBC5107B721B7B8E28D59B3168F"
+INDIVIDUAL_SUCCESS_MESSAGE = b"Full Mastery has been granted to the selected villager.\0"
+INDIVIDUAL_SUCCESS_MESSAGE_SHA256 = "52B86920C62B96D61E05DC7E8038B8B64EAB15EC269FBD51F300C3E305223D3F"
 STRIDE = 0x2E3C
 
 # Candidate-only UI locations in the existing active payload.  These values are
@@ -128,6 +162,10 @@ def rel32_jump(source_va: int, target_va: int) -> bytes:
     return b"\xE9" + struct.pack("<i", displacement)
 
 
+def rel32_call(source_va: int, target_va: int) -> bytes:
+    return b"\xE8" + struct.pack("<i", target_va - (source_va + 5))
+
+
 def sha(data: bytes) -> str:
     return hashlib.sha256(data).hexdigest().upper()
 
@@ -164,7 +202,9 @@ def validate_native_asset_provenance() -> dict[str, object]:
     }
 
 
-def build_ui_payload(active_payload: bytes) -> tuple[bytes, dict[str, object]]:
+def build_ui_payload(
+    active_payload: bytes, *, repair_result_helper: bool = True
+) -> tuple[bytes, dict[str, object]]:
     """Replace only the candidate UI blocks; preserve all other active bytes."""
     payload = bytearray(active_payload.ljust(PAYLOAD_SIZE, b"\0"))
     if len(payload) != PAYLOAD_SIZE:
@@ -177,6 +217,23 @@ def build_ui_payload(active_payload: bytes) -> tuple[bytes, dict[str, object]]:
         raise RuntimeError("Detail constructor payload guard mismatch")
     if any(payload[DETAIL_HANDLER_RELOC_OFFSET : DETAIL_HANDLER_RELOC_OFFSET + 0x2B]):
         raise RuntimeError("Detail handler relocation cave is not zero")
+    result_call_repairs = []
+    if repair_result_helper:
+        if len(D25_RESULT_HELPER_BYTES) != 54:
+            raise RuntimeError("D25 result helper length mismatch")
+        if sha(D25_RESULT_HELPER_BYTES) != D25_RESULT_HELPER_SHA256:
+            raise RuntimeError("D25 result helper hash mismatch")
+        if any(payload[D25_RESULT_HELPER_OFFSET : D25_RESULT_HELPER_OFFSET + 64]):
+            raise RuntimeError("D25 result helper cave is not zero")
+        payload[D25_RESULT_HELPER_OFFSET : D25_RESULT_HELPER_OFFSET + len(D25_RESULT_HELPER_BYTES)] = D25_RESULT_HELPER_BYTES
+        for call_va in (0x4897CA, 0x489ABB):
+            offset = call_va - PAYLOAD_VA
+            before = rel32_call(call_va, 0x489573)
+            after = rel32_call(call_va, D25_RESULT_HELPER_VA)
+            if payload[offset : offset + 5] != before:
+                raise RuntimeError(f"result helper call guard mismatch at 0x{call_va:X}")
+            payload[offset : offset + 5] = after
+            result_call_repairs.append({"call_va": f"0x{call_va:X}", "before_target": "0x489573", "after_target": f"0x{D25_RESULT_HELPER_VA:X}", "before": before.hex().upper(), "after": after.hex().upper()})
     factory_va = PAYLOAD_VA + UI_FACTORY_OFFSET
     text_va = PAYLOAD_VA + UPGRADES_TEXT_OFFSET
     if any(payload[UI_FACTORY_OFFSET : PAYLOAD_SIZE]):
@@ -375,6 +432,8 @@ def build_ui_payload(active_payload: bytes) -> tuple[bytes, dict[str, object]]:
         "text_overlay": {"text": "Upgrades", "setter": "sub_401600", "style": "sub_401630", "tech_colors": ["0x4BEEE0", "0x4BEEE4", "0x4BEEE8"], "detail_colors": ["0x4BF538", "0x4BF53C", "0x4BF540"]},
         "events": {"tech": 13, "detail": 2},
         "local": [72, 4],
+        "result_call_repairs": result_call_repairs,
+        "result_helper": {"va": f"0x{D25_RESULT_HELPER_VA:X}", "file_offset": "0x89ACA", "length": len(D25_RESULT_HELPER_BYTES), "sha256": sha(D25_RESULT_HELPER_BYTES), "bytes": D25_RESULT_HELPER_BYTES.hex().upper(), "guard_length": 64},
     }
 
 
@@ -455,6 +514,11 @@ def build_slot(page_va: int, installed: bool) -> tuple[bytes, dict[str, object]]
             "entry_sha256": sha(body),
         }
 
+    if sha(INDIVIDUAL_SUCCESS_MESSAGE) != INDIVIDUAL_SUCCESS_MESSAGE_SHA256:
+        raise RuntimeError("individual success string hash mismatch")
+    if INDIVIDUAL_CONFIRM_PAGE_OFFSET <= SLOT_OFFSET + SLOT_SIZE:
+        raise RuntimeError("individual confirmation cave overlaps command slot")
+
     cursor = STRINGS_OFFSET
     strings: dict[str, int] = {}
     for key, value in (
@@ -468,6 +532,12 @@ def build_slot(page_va: int, installed: bool) -> tuple[bytes, dict[str, object]]
             b"you want to purchase it? Press OK to confirm, or Cancel.",
         ),
         ("caption", b"Origins Upgrades"),
+        ("individual_noop", b"Everyone is already fully mastered.\r\nNo tech points have been deducted."),
+        ("individual_invalid", b"Full Mastery cannot be applied because the selected villager has an out-of-range skill.\r\nNo tech points have been deducted."),
+        ("individual_insufficient", b"Not enough tech points.\r\nNo tech points have been deducted."),
+        ("individual_warning", b"Grant Full Mastery to this villager for 100,000 tech points?\r\nPress OK to confirm, or Cancel."),
+        ("individual_failure", b"Full Mastery could not be completed because a skill did not reach 100.\r\nNo tech points have been deducted."),
+        ("individual_success", INDIVIDUAL_SUCCESS_MESSAGE),
     ):
         if not value.endswith(b"\0"):
             value += b"\0"
@@ -687,9 +757,215 @@ def build_slot(page_va: int, installed: bool) -> tuple[bytes, dict[str, object]]
         """,
         confirm_va,
     )
+    individual_va = page_va + SLOT_OFFSET + INDIVIDUAL_OFFSET
+    first_scan: list[str] = []
+    second_scan: list[str] = []
+    native_calls: list[str] = []
+    post_verify: list[str] = []
+    for i in range(5):
+        off = 0x1C5C + i * 4
+        bit = 1 << i
+        first_scan.append(
+            f"""
+            mov eax, dword ptr [ebx + 0x{off:X}]
+            mov ecx, eax
+            and ecx, 0x7FFFFFFF
+            jz indiv_first_valid_{i}
+            test eax, 0x80000000
+            jne indiv_invalid
+            cmp ecx, 0x42C80000
+            ja indiv_invalid
+        indiv_first_valid_{i}:
+            cmp eax, 0x42C80000
+            jae indiv_first_next_{i}
+            or dword ptr [ebp - 0x14], {bit}
+        indiv_first_next_{i}:
+            """
+        )
+        second_scan.append(
+            f"""
+            mov eax, dword ptr [ebx + 0x{off:X}]
+            mov ecx, eax
+            and ecx, 0x7FFFFFFF
+            jz indiv_second_valid_{i}
+            test eax, 0x80000000
+            jne indiv_invalid
+            cmp ecx, 0x42C80000
+            ja indiv_invalid
+        indiv_second_valid_{i}:
+            cmp eax, 0x42C80000
+            jae indiv_second_next_{i}
+            or dword ptr [ebp - 0x14], {bit}
+        indiv_second_next_{i}:
+            """
+        )
+        native_calls.append(
+            f"""
+            test dword ptr [ebp - 0x14], {bit}
+            jz indiv_call_next_{i}
+            push 0x42C80000
+            fld dword ptr [esp]
+            fsub dword ptr [ebx + 0x{off:X}]
+            fstp dword ptr [esp]
+            push {i}
+            lea ecx, [ebx + 0x1C5C]
+            call 0x46AD80
+        indiv_call_next_{i}:
+            """
+        )
+        post_verify.append(
+            f"""
+            test dword ptr [ebp - 0x14], {bit}
+            jz indiv_verify_next_{i}
+            cmp dword ptr [ebx + 0x{off:X}], 0x42C80000
+            jne indiv_partial
+        indiv_verify_next_{i}:
+            """
+        )
+    individual_confirm_va = page_va + INDIVIDUAL_CONFIRM_PAGE_OFFSET
+    individual_confirm = asm(
+        f"""
+            push ebp
+            mov ebp, esp
+            push ebx
+            push esi
+            push edi
+            push 0x{strings['user32']:X}
+            call dword ptr [0x48A1E0]
+            test eax, eax
+            jz individual_confirm_cancel
+            push 0x{strings['message_box']:X}
+            push eax
+            call dword ptr [0x48A1DC]
+            test eax, eax
+            jz individual_confirm_cancel
+            push 1
+            push 0x{strings['caption']:X}
+            push 0x{strings['individual_warning']:X}
+            push 0
+            call eax
+            cmp eax, 1
+            sete al
+            movzx eax, al
+            jmp individual_confirm_done
+        individual_confirm_cancel:
+            xor eax, eax
+        individual_confirm_done:
+            pop edi
+            pop esi
+            pop ebx
+            mov esp, ebp
+            pop ebp
+            ret
+        """,
+        individual_confirm_va,
+    )
+    if len(individual_confirm) > INDIVIDUAL_CONFIRM_CAVE_SIZE:
+        raise RuntimeError("individual confirmation exceeds reserved .vv4fm cave")
+    individual = asm(
+        f"""
+            push ebp
+            mov ebp, esp
+            push ebx
+            push esi
+            push edi
+            sub esp, 0x10
+            call 0x41FE70
+            test eax, eax
+            jz indiv_invalid
+            mov edi, dword ptr [eax + 0x171B0]
+            mov dword ptr [ebp - 0x10], edi
+            cmp edi, 150
+            jae indiv_invalid
+            mov ecx, 0x50E568
+            push edi
+            call 0x466040
+            mov ebx, eax
+            test ebx, ebx
+            jz indiv_invalid
+            cmp byte ptr [ebx + 0x1CC4], 0
+            je indiv_invalid
+            cmp byte ptr [ebx + 0x1CC7], 0
+            jne indiv_invalid
+            cmp dword ptr [ebx + 0x1C40], 0
+            jle indiv_invalid
+            mov dword ptr [ebp - 0x14], 0
+            {''.join(first_scan)}
+            cmp dword ptr [ebp - 0x14], 0
+            je indiv_noop
+            call 0x{individual_confirm_va:X}
+            cmp eax, 1
+            jne indiv_done
+            call 0x41FE70
+            test eax, eax
+            jz indiv_invalid
+            mov edi, dword ptr [eax + 0x171B0]
+            cmp edi, dword ptr [ebp - 0x10]
+            jne indiv_invalid
+            cmp edi, 150
+            jae indiv_invalid
+            mov ecx, 0x50E568
+            push edi
+            call 0x466040
+            mov ebx, eax
+            test ebx, ebx
+            jz indiv_invalid
+            cmp byte ptr [ebx + 0x1CC4], 0
+            je indiv_invalid
+            cmp byte ptr [ebx + 0x1CC7], 0
+            jne indiv_invalid
+            cmp dword ptr [ebx + 0x1C40], 0
+            jle indiv_invalid
+            mov dword ptr [ebp - 0x14], 0
+            {''.join(second_scan)}
+            cmp dword ptr [ebp - 0x14], 0
+            je indiv_noop
+            cmp dword ptr [0x4D6F88], {INDIVIDUAL_PRICE}
+            jb indiv_insufficient
+            {''.join(native_calls)}
+            {''.join(post_verify)}
+            mov ecx, 0x4D6F88
+            push -{INDIVIDUAL_PRICE}
+            call 0x41E300
+            push 0x{strings['individual_success']:X}
+            push 0x{strings['caption']:X}
+            call 0x{D25_RESULT_HELPER_VA:X}
+            jmp indiv_done
+        indiv_partial:
+            push 0x{strings['individual_failure']:X}
+            push 0x{strings['caption']:X}
+            call 0x{D25_RESULT_HELPER_VA:X}
+            jmp indiv_done
+        indiv_noop:
+            push 0x{strings['individual_noop']:X}
+            push 0x{strings['caption']:X}
+            call 0x{D25_RESULT_HELPER_VA:X}
+            jmp indiv_done
+        indiv_insufficient:
+            push 0x{strings['individual_insufficient']:X}
+            push 0x{strings['caption']:X}
+            call 0x{D25_RESULT_HELPER_VA:X}
+            jmp indiv_done
+        indiv_invalid:
+            push 0x{strings['individual_invalid']:X}
+            push 0x{strings['caption']:X}
+            call 0x{D25_RESULT_HELPER_VA:X}
+        indiv_done:
+            lea esp, [ebp - 0x0C]
+            pop edi
+            pop esi
+            pop ebx
+            pop ebp
+            ret
+        """,
+        individual_va,
+    )
+    if len(individual) > 0x600:
+        raise RuntimeError(f"individual mastery helper exceeds reserved cave: {len(individual):#x}")
     _put(slot, SLOT_ENTRY_OFFSET, WALKER_OFFSET - SLOT_ENTRY_OFFSET, entry, "entry")
     _put(slot, WALKER_OFFSET, CONFIRM_OFFSET - WALKER_OFFSET, walker, "walker")
-    _put(slot, CONFIRM_OFFSET, SLOT_SIZE - CONFIRM_OFFSET, confirm, "confirmation")
+    _put(slot, CONFIRM_OFFSET, INDIVIDUAL_OFFSET - CONFIRM_OFFSET, confirm, "confirmation")
+    _put(slot, INDIVIDUAL_OFFSET, 0x600, individual, "individual mastery transaction")
     return bytes(slot), {
         "entry_offset": SLOT_ENTRY_OFFSET,
         "entry_length": len(entry),
@@ -700,6 +976,50 @@ def build_slot(page_va: int, installed: bool) -> tuple[bytes, dict[str, object]]
         "confirmation_offset": CONFIRM_OFFSET,
         "confirmation_length": len(confirm),
         "confirmation_sha256": sha(confirm),
+        "individual_offset": f"0x{INDIVIDUAL_OFFSET:X}",
+        "individual_length": len(individual),
+        "individual_sha256": sha(individual),
+        "individual_bytes": individual.hex().upper(),
+        "individual_va": f"0x{individual_va:X}",
+        "individual_confirmation_offset": f"0x{INDIVIDUAL_CONFIRM_PAGE_OFFSET:X}",
+        "individual_confirmation_file_offset": f"0x{APPEND_OFFSET + INDIVIDUAL_CONFIRM_PAGE_OFFSET:X}",
+        "individual_confirmation_va": f"0x{individual_confirm_va:X}",
+        "individual_confirmation_section": ".vv4fm",
+        "individual_confirmation_length": len(individual_confirm),
+        "individual_confirmation_sha256": sha(individual_confirm),
+        "individual_confirmation_bytes": individual_confirm.hex().upper(),
+        "individual_confirmation_guard_length": INDIVIDUAL_CONFIRM_CAVE_SIZE,
+        "individual_confirmation_reserve_length": INDIVIDUAL_CONFIRM_CAVE_SIZE,
+        "individual_confirmation_remaining_zero_length": INDIVIDUAL_CONFIRM_CAVE_SIZE - len(individual_confirm),
+        "individual_success_string": {
+            "va": f"0x{strings['individual_success']:X}",
+            "length": len(INDIVIDUAL_SUCCESS_MESSAGE),
+            "sha256": INDIVIDUAL_SUCCESS_MESSAGE_SHA256,
+            "bytes": INDIVIDUAL_SUCCESS_MESSAGE.hex().upper(),
+        },
+        "individual_status": (
+            "emitted in installed page; stock-mode route catalog-visible after D33/C28 GO"
+            if CANDIDATE_METADATA_ENABLED
+            else "emitted in installed page only; route disabled/catalog-hidden pending D27"
+        ),
+        "individual_contract": {
+            "command": 1,
+            "entry_abi": "ECX/EDX preserved as caller inputs; helper reacquires manager and captures [manager+0x171B0]",
+            "manager": "0x41FE70",
+            "displayed_index": "[manager+0x171B0]",
+            "bound": 150,
+            "resolver": "ECX=0x50E568; push index; call 0x466040",
+            "eligibility": ["byte +0x1CC4 != 0", "byte +0x1CC7 == 0", "signed dword +0x1C40 > 0"],
+            "skills": ["+0x1C5C", "+0x1C60", "+0x1C64", "+0x1C68", "+0x1C6C"],
+            "target": "Float32 100.0",
+            "confirmation": "Grant Full Mastery to this villager for 100,000 tech points?\r\nPress OK to confirm, or Cancel.",
+            "post_write_verification": "re-read every originally changed skill; require exact Float32 100.0 before deduction",
+            "partial_commit_policy": "failure reports No tech points have been deducted.; native partial changes may remain because rollback is unsafe/unproved",
+            "writer": "push delta; push index; ECX=record+0x1C5C; call 0x46AD80; callee ret8",
+            "deduction": "push -100000; ECX=0x4D6F88; call 0x41E300 once after final recheck",
+            "direct_skill_stores": False,
+            "precharge": False,
+        },
         "strings": {key: f"0x{value:X}" for key, value in strings.items()},
     }
 
@@ -739,7 +1059,12 @@ def build_dispatcher(page_va: int, bound: int) -> bytes:
     )
 
 
-def build_page(page_va: int, slot: bytes, dispatcher: bytes) -> bytes:
+def build_page(
+    page_va: int,
+    slot: bytes,
+    dispatcher: bytes,
+    individual_confirmation: bytes | None = None,
+) -> bytes:
     page = bytearray(PAGE_SIZE)
     page[0:8] = b"VFM4PG\0\0"
     page[8:12] = (1).to_bytes(4, "little")
@@ -752,6 +1077,15 @@ def build_page(page_va: int, slot: bytes, dispatcher: bytes) -> bytes:
         raise RuntimeError("base dispatcher overlaps command-7 slot")
     page[0x40 : 0x40 + len(dispatcher)] = dispatcher
     page[SLOT_OFFSET : SLOT_OFFSET + SLOT_SIZE] = slot
+    if individual_confirmation is not None:
+        if len(individual_confirmation) > INDIVIDUAL_CONFIRM_CAVE_SIZE:
+            raise RuntimeError("individual confirmation exceeds page cave")
+        if any(page[INDIVIDUAL_CONFIRM_PAGE_OFFSET : INDIVIDUAL_CONFIRM_PAGE_OFFSET + INDIVIDUAL_CONFIRM_CAVE_SIZE]):
+            raise RuntimeError("individual confirmation cave is not zero")
+        page[INDIVIDUAL_CONFIRM_PAGE_OFFSET : INDIVIDUAL_CONFIRM_PAGE_OFFSET + INDIVIDUAL_CONFIRM_CAVE_SIZE] = (
+            individual_confirmation
+            + b"\0" * (INDIVIDUAL_CONFIRM_CAVE_SIZE - len(individual_confirmation))
+        )
     cursor = STRINGS_OFFSET
     for value in (
         b"VVFP Origins Icons.dll\0",
@@ -761,6 +1095,12 @@ def build_page(page_va: int, slot: bytes, dispatcher: bytes) -> bytes:
         b"This upgrade makes permanent changes to your village. Are you sure "
         b"you want to purchase it? Press OK to confirm, or Cancel.\0",
         b"Origins Upgrades\0",
+        b"Everyone is already fully mastered.\r\nNo tech points have been deducted.\0",
+        b"Full Mastery cannot be applied because the selected villager has an out-of-range skill.\r\nNo tech points have been deducted.\0",
+        b"Not enough tech points.\r\nNo tech points have been deducted.\0",
+        b"Grant Full Mastery to this villager for 100,000 tech points?\r\nPress OK to confirm, or Cancel.\0",
+        b"Full Mastery could not be completed because a skill did not reach 100.\r\nNo tech points have been deducted.\0",
+        b"Full Mastery has been granted to the selected villager.\0",
     ):
         page[cursor : cursor + len(value)] = value
         cursor += len(value)
@@ -810,8 +1150,90 @@ def append_layout(layout: dict[str, int], page: bytes) -> dict[str, object]:
     }
 
 
-def build_base_payload(active_payload: bytes, page_va: int) -> bytes:
+def build_individual_detail_route(page_va: int) -> tuple[bytes, bytes, dict[str, object]]:
+    """Build D32's pre-price command-1 gate and its exact cave.
+
+    The seven-byte hook is at the stock price-load instruction.  The 50-byte
+    cave preserves the original lookup for every command except command 1,
+    and sends all guarded helper outcomes through the existing balanced
+    epilogue at 0x489AC5.
+    """
+    hook_va = PAYLOAD_VA + DETAIL_INDIVIDUAL_ROUTE_OFFSET
+    cave_va = PAYLOAD_VA + DETAIL_INDIVIDUAL_CAVE_OFFSET
+    continuation_va = hook_va + DETAIL_INDIVIDUAL_ROUTE_SIZE
+    epilogue_va = PAYLOAD_VA + DETAIL_INDIVIDUAL_EPILOGUE_OFFSET
+    helper_va = page_va + SLOT_OFFSET + INDIVIDUAL_OFFSET
+    hook_after = rel32_jump(hook_va, cave_va) + b"\x90\x90"
+    if hook_after != bytes.fromhex("E9560000009090"):
+        raise RuntimeError("D32 Detail hook did not assemble to the certified jump")
+    # Assemble each instruction at its final address, forcing the two
+    # unconditional transfers to their certified five-byte rel32 form.  A
+    # single Keystone block chooses short jumps and shrinks this cave to 44
+    # bytes, changing all subsequent branch displacements.
+    cave_parts = [
+        asm("cmp ebx, 1", cave_va),
+        asm(f"jne 0x{cave_va + 0x24:X}", cave_va + 3),
+        asm(f"cmp dword ptr [0x{page_va:X}], 0x344D4656", cave_va + 5),
+        asm(f"jne 0x{cave_va + 0x1F:X}", cave_va + 15),
+        asm(f"cmp dword ptr [0x{page_va + SLOT_OFFSET + 12:X}], 1", cave_va + 17),
+        asm(f"jne 0x{cave_va + 0x1F:X}", cave_va + 24),
+        asm(f"call 0x{helper_va:X}", cave_va + 26),
+        rel32_jump(cave_va + 31, epilogue_va),
+        asm("mov eax, dword ptr [ebx*4 + 0x489F27]", cave_va + 36),
+        rel32_jump(cave_va + 43, continuation_va),
+        b"\x90\x90",
+    ]
+    cave_after = b"".join(cave_parts)
+    if len(cave_after) != DETAIL_INDIVIDUAL_CAVE_SIZE:
+        raise RuntimeError(f"D32 Detail cave must be 50 bytes, got {len(cave_after)}")
+    if page_va == LAYOUTS["collection_progression"]["page_va"]:
+        if cave_after != bytes.fromhex(
+            "83FB01751F813D00F0730056464D34750E833D0CF17300017505"
+            "E8B0602B00E9700000008B049D279F4800E97CFFFFFF9090"
+        ):
+            raise RuntimeError("D32 stock Detail cave bytes mismatch")
+        if sha(cave_after) != DETAIL_INDIVIDUAL_CAVE_SHA256:
+            raise RuntimeError("D32 stock Detail cave hash mismatch")
+    return hook_after, cave_after, {
+        "hook_va": f"0x{hook_va:X}",
+        "hook_file_offset": f"0x{PAYLOAD_OFFSET + DETAIL_INDIVIDUAL_ROUTE_OFFSET:X}",
+        "hook_length": DETAIL_INDIVIDUAL_ROUTE_SIZE,
+        "hook_before": DETAIL_INDIVIDUAL_ROUTE_BEFORE.hex().upper(),
+        "hook_after": hook_after.hex().upper(),
+        "hook_after_sha256": sha(hook_after),
+        "cave_va": f"0x{cave_va:X}",
+        "cave_file_offset": f"0x{PAYLOAD_OFFSET + DETAIL_INDIVIDUAL_CAVE_OFFSET:X}",
+        "cave_length": DETAIL_INDIVIDUAL_CAVE_SIZE,
+        "cave_before": DETAIL_INDIVIDUAL_CAVE_BEFORE.hex().upper(),
+        "cave_after": cave_after.hex().upper(),
+        "cave_after_sha256": sha(cave_after),
+        "section": ".text",
+        "epilogue_va": f"0x{epilogue_va:X}",
+        "epilogue_bytes": DETAIL_INDIVIDUAL_EPILOGUE.hex().upper(),
+        "continuation_va": f"0x{continuation_va:X}",
+        "helper_va": f"0x{helper_va:X}",
+        "guard": "D31 exact hook/cave original bytes, page marker, and installed command-1 flag",
+        "uninstall_guard": "hook, cave, epilogue, .vv4fm page/slot/confirmation, and manifest hashes must match exactly before removal",
+        "atomic_components": ["detail_hook", "detail_cave", "balanced_epilogue", "installed_slot", "confirmation_cave", "page_header", "manifests"],
+        "event": 2,
+        "message": 8,
+        "command": 1,
+    }
+
+
+def build_base_payload(active_payload: bytes, page_va: int) -> tuple[bytes, dict[str, object]]:
     payload = bytearray(active_payload)
+    hook_offset = DETAIL_INDIVIDUAL_ROUTE_OFFSET
+    cave_offset = DETAIL_INDIVIDUAL_CAVE_OFFSET
+    if payload[hook_offset : hook_offset + DETAIL_INDIVIDUAL_ROUTE_SIZE] != DETAIL_INDIVIDUAL_ROUTE_BEFORE:
+        raise RuntimeError("D32 Detail hook original-byte guard mismatch")
+    if payload[cave_offset : cave_offset + DETAIL_INDIVIDUAL_CAVE_SIZE] != DETAIL_INDIVIDUAL_CAVE_BEFORE:
+        raise RuntimeError("D32 Detail cave original-byte guard mismatch")
+    if payload[DETAIL_INDIVIDUAL_EPILOGUE_OFFSET : DETAIL_INDIVIDUAL_EPILOGUE_OFFSET + len(DETAIL_INDIVIDUAL_EPILOGUE)] != DETAIL_INDIVIDUAL_EPILOGUE:
+        raise RuntimeError("D32 balanced Detail epilogue guard mismatch")
+    individual_hook, individual_cave, route_map = build_individual_detail_route(page_va)
+    payload[hook_offset : hook_offset + DETAIL_INDIVIDUAL_ROUTE_SIZE] = individual_hook
+    payload[cave_offset : cave_offset + DETAIL_INDIVIDUAL_CAVE_SIZE] = individual_cave
     dll_offset = payload.find(b"VVFP Origins Icons.dll\0")
     menu_offset = payload.find(b"ShowOriginsUpgradeMenuState\0")
     if dll_offset < 0 or menu_offset < 0:
@@ -933,7 +1355,7 @@ def build_base_payload(active_payload: bytes, page_va: int) -> bytes:
         show_dialog + b"\0" * (SHOW_DIALOG_SIZE - len(show_dialog))
     )
     payload[TECH_MENU_OFFSET : TECH_MENU_OFFSET + TECH_MENU_SIZE] = tech_menu
-    return bytes(payload)
+    return bytes(payload), route_map
 
 
 def main() -> None:
@@ -973,26 +1395,36 @@ def main() -> None:
         installed_slots[mode] = installed
         dispatchers[mode] = dispatcher
         pages[mode] = build_page(layout["page_va"], noop, dispatcher)
-        installed_pages[mode] = build_page(layout["page_va"], installed, dispatcher)
+        installed_pages[mode] = build_page(
+            layout["page_va"],
+            installed,
+            dispatcher,
+            bytes.fromhex(installed_map["individual_confirmation_bytes"]),
+        )
         slot_maps[mode] = {"noop": noop_map, "installed": installed_map}
 
-    stock_payload = build_base_payload(
+    stock_payload, stock_individual_route = build_base_payload(
         ui_payload, LAYOUTS["collection_progression"]["page_va"]
     )
-    expanded_payload = build_base_payload(
+    expanded_payload, expanded_individual_route = build_base_payload(
         ui_payload, LAYOUTS["experimental_expanded_256"]["page_va"]
     )
     base = deepcopy(active)
     base["id"] = "vv4_enable_origins_exclusive_features_full_mastery_candidate"
     base["name"] = "VV4 Origins Full Mastery Extension Base"
-    base["enabled"] = True
+    base["enabled"] = CANDIDATE_METADATA_ENABLED
     base["certification_status"] = (
-        "D19 payload and D21 metadata independently recertified; stock catalog enabled; "
+        "D33/C28 independently recertified; stock-mode catalog enabled; "
+        "Expanded-256 remains ON HOLD/fail-closed"
+        if CANDIDATE_METADATA_ENABLED
+        else "HARD WITHDRAWN after Playtest 3 Full Mastery crash; result-helper repair candidate disabled; "
         "Expanded-256 remains ON HOLD/fail-closed"
     )
     base["evidence_status"] = (
-        f"D19 native payload at {D19_COMMIT} and D21 metadata at {D21_COMMIT} independently recertified; "
-        "Playtest 2 withdrawal retained as historical evidence"
+        f"D33/C28 GO on exact repaired payload commit {C28_C29_COMMIT}; D19 payload and D21 metadata evidence retained; "
+        "Playtest 3 withdrawal remains historical evidence"
+        if CANDIDATE_METADATA_ENABLED
+        else "Playtest 3 fault 0xC0000005 at VA 0x489E0C; calls 0x4897CA/0x489ABB targeted epilogue 0x489573; D25 repairs both to helper 0x489ACA; no selectable candidate"
     )
     base["playtest_withdrawal"] = {
         "playtest": "VV4 Full Mastery UI Playtest 2",
@@ -1001,6 +1433,39 @@ def main() -> None:
         "malformed_sub_401C20_args": {
             "tech": {"event": 4, "asset": "0x48", "x": "0x489F37", "y": 3, "parent": 1, "flags": 13},
             "detail": {"event": 4, "asset": "0x48", "x": "0x489F37", "y": 3, "parent": 1, "flags": 2},
+        },
+    }
+    base["playtest3_withdrawal"] = {"playtest": "VV4 Full Mastery UI Playtest 3", "status": "HARD WITHDRAWN", "exception": "0xC0000005", "fault_rva": "0x89E0C", "fault_va": "0x489E0C", "bad_calls": ["0x4897CA", "0x489ABB"], "bad_target": "0x489573", "correct_result_helper": "0x489ACA", "correct_result_helper_file_offset": "0x89ACA", "correct_result_helper_sha256": D25_RESULT_HELPER_SHA256}
+    base["individual_full_mastery"] = {
+        "status": (
+            "GO; stock-mode command-1 route enabled after D33/C28 independent recertification"
+            if CANDIDATE_METADATA_ENABLED
+            else "STOP; disabled and catalog-hidden pending D27 executable recertification"
+        ),
+        "reason": (
+            "the exact-100 transaction helper and Detail message-8/event-2 route are emitted in the installed .vv4fm page and covered by D33/C28; Expanded-256 remains fail-closed"
+            if CANDIDATE_METADATA_ENABLED
+            else "the exact-100 transaction helper is emitted only in the installed .vv4fm page, but the stock executable's individual-menu entry ABI is not yet independently proven; no command-1 route is wired or selectable"
+        ),
+        "implementation_source": "src/vv4_individual_mastery.py",
+        "emitted": (
+            "installed-page helper and guarded stock-mode Detail route; Expanded-256 remains fail-closed"
+            if CANDIDATE_METADATA_ENABLED
+            else "installed-page helper only; unreachable while disabled"
+        ),
+        "required_contract": {
+            "command": 1,
+            "physical_index_capture": "displayed physical index before confirmation",
+            "current_living_selected_villager": True,
+            "five_float_complete_dry_run": True,
+            "no_op_no_charge_message": "Everyone is already fully mastered.\\r\\nNo tech points have been deducted.",
+            "explicit_confirmation": True,
+            "same_physical_index_reacquisition": "required; mismatch aborts before any native call",
+            "final_revalidation_and_funds_check": True,
+            "native_writer": "sub_46AD80 once per changed skill, delta=100-current Float32",
+            "deduction": "100000 once through 0x41E300 after final recheck",
+            "direct_skill_stores": False,
+            "precharge": False,
         },
     }
     base["cure_containment"] = {
@@ -1072,8 +1537,9 @@ def main() -> None:
     payload_item["before"] = (b"\0" * PAYLOAD_SIZE).hex().upper()
     payload_item["after"] = stock_payload.hex().upper()
     payload_item["purpose"] = (
-        "install the base Origins core plus candidate-only native-ordinal Tech/Detail UI hooks and guarded command-7 slot"
+        "install the base Origins core plus candidate-only native-ordinal Tech/Detail UI hooks, guarded Detail message-8/event-2 command-1 route, and guarded command-7 slot"
     )
+    base["individual_detail_route"] = stock_individual_route
     base["patch_mode_overrides"] = {
         mode: [
             {
@@ -1123,9 +1589,24 @@ def main() -> None:
 
     stock_noop = noop_slots["collection_progression"]
     stock_installed = installed_slots["collection_progression"]
-    if sha(stock_installed) != R3_COMMAND7_SLOT_SHA256:
-        raise RuntimeError("R3 command-7 slot hash mismatch")
-    feature_enabled = True
+    stock_confirmation = bytes.fromhex(
+        slot_maps["collection_progression"]["installed"]["individual_confirmation_bytes"]
+    )
+    confirmation_guard = b"\0" * INDIVIDUAL_CONFIRM_CAVE_SIZE
+    confirmation_after = stock_confirmation + b"\0" * (
+        INDIVIDUAL_CONFIRM_CAVE_SIZE - len(stock_confirmation)
+    )
+    if sha(stock_installed[SLOT_ENTRY_OFFSET : SLOT_ENTRY_OFFSET + 229]) != R3_COMMAND7_ENTRY_SHA256:
+        raise RuntimeError("R3 command-7 entry bytes changed")
+    if sha(stock_installed[WALKER_OFFSET : WALKER_OFFSET + 236]) != R3_COMMAND7_WALKER_SHA256:
+        raise RuntimeError("R3 command-7 walker bytes changed")
+    if sha(stock_installed[CONFIRM_OFFSET : CONFIRM_OFFSET + 73]) != R3_COMMAND7_CONFIRM_SHA256:
+        raise RuntimeError("R3 command-7 confirmation bytes changed")
+    legacy_command7_slot = bytearray(stock_installed)
+    legacy_command7_slot[INDIVIDUAL_OFFSET:] = b"\0" * (SLOT_SIZE - INDIVIDUAL_OFFSET)
+    if sha(legacy_command7_slot) != R3_COMMAND7_SLOT_SHA256:
+        raise RuntimeError("R3 command-7 slot bytes changed outside the newly certified individual page")
+    feature_enabled = CANDIDATE_METADATA_ENABLED
     feature = {
         "id": "vv4_full_mastery_all_stage_a_candidate",
         "game_id": "vv4",
@@ -1135,9 +1616,15 @@ def main() -> None:
             else "DISABLED Candidate: Grant Full Mastery to All Villagers"
         ),
         "enabled": feature_enabled,
-        "certification_status": "D19 payload and D21 metadata independently recertified; stock catalog enabled; Expanded-256 ON HOLD/fail-closed",
+        "certification_status": (
+            "D33/C28 independently recertified; stock-mode catalog enabled; command 7 and individual command 1 available; Expanded-256 ON HOLD/fail-closed"
+            if feature_enabled
+            else "HARD WITHDRAWN after Playtest 3 crash; command 7 withheld pending D25; Expanded-256 ON HOLD/fail-closed"
+        ),
         "evidence_status": (
-            f"D19 payload at {D19_COMMIT} and D21 metadata at {D21_COMMIT} independently recertified; prior crash evidence retained"
+            f"D33/C28 GO on exact repaired payload commit {C28_C29_COMMIT}; D19 payload and D21 metadata evidence retained; prior Playtest 3 crash evidence retained"
+            if feature_enabled
+            else "Playtest 3 individual Full Mastery crashed through bad result-helper call; command 7 withheld pending regression recertification"
         ),
         "explicit_non_changes": [
             "stock executable bytes outside the certified candidate payload",
@@ -1149,7 +1636,7 @@ def main() -> None:
         ],
         "dependencies": [base["id"]],
         "description": (
-            "Command-7-only repeatable Buy candidate using native Float32 skill "
+            "Stock-mode command-7 repeatable Buy plus command-1 individual candidate using native Float32 skill "
             "writer sub_46AD80; commands 6/8 are absent. The legacy Cure row and "
             "command 5 are withdrawn and unreachable in this candidate."
         ),
@@ -1160,7 +1647,13 @@ def main() -> None:
                 "before": stock_noop.hex().upper(),
                 "after": stock_installed.hex().upper(),
                 "purpose": "replace only the guarded base-owned no-op slot with command 7",
-            }
+            },
+            {
+                "offset": f"0x{APPEND_OFFSET + INDIVIDUAL_CONFIRM_PAGE_OFFSET:X}",
+                "before": confirmation_guard.hex().upper(),
+                "after": confirmation_after.hex().upper(),
+                "purpose": "install the exact 73-byte individual confirmation routine in the guarded .vv4fm cave",
+            },
         ],
         "patch_mode_overrides": {
             mode: [
@@ -1169,7 +1662,21 @@ def main() -> None:
                     "before": stock_installed.hex().upper(),
                     "after": installed_slots[mode].hex().upper(),
                     "purpose": "relocate only the dependent command-7 slot for expanded layout",
-                }
+                },
+                {
+                    "offset": f"0x{APPEND_OFFSET + INDIVIDUAL_CONFIRM_PAGE_OFFSET:X}",
+                    "before": confirmation_after.hex().upper(),
+                    "after": (
+                        bytes.fromhex(
+                            slot_maps[mode]["installed"]["individual_confirmation_bytes"]
+                        )
+                        + b"\0" * (
+                            INDIVIDUAL_CONFIRM_CAVE_SIZE
+                            - slot_maps[mode]["installed"]["individual_confirmation_length"]
+                        )
+                    ).hex().upper(),
+                    "purpose": "relocate the mode-specific individual confirmation routine into the guarded .vv4fm cave",
+                },
             ]
             for mode in (
                 "experimental_expanded_256",
@@ -1240,7 +1747,11 @@ def main() -> None:
 
     artifact = {
         "acceptance_commit": D19_COMMIT,
-        "candidate_status": "D21 metadata recertification GO; stock catalog enabled",
+        "candidate_status": (
+            f"D33/C28 GO on {C28_C29_COMMIT}; stock-mode catalog enabled; Expanded-256 ON HOLD/fail-closed"
+            if feature_enabled
+            else "HARD WITHDRAWN after Playtest 3 crash; catalog-hidden"
+        ),
         "independent_recertification": {
             "review": "D19",
             "status": "independent payload recertification GO",
@@ -1261,6 +1772,12 @@ def main() -> None:
             "status": "independent metadata recertification GO",
             "commit": D21_COMMIT,
             "scope": "VV4 Full Mastery metadata/validator enablement for stock mode only; Expanded-256 ON HOLD/fail-closed",
+        },
+        "metadata_enablement_audit": {
+            "reviews": ["D33", "C28"],
+            "status": "GO",
+            "commit": C28_C29_COMMIT,
+            "scope": "VV4 stock-mode Full Mastery UI and individual transaction metadata only; Expanded-256 ON HOLD/fail-closed",
         },
         "ui_asset_gate": {
             **asset_map,
@@ -1294,12 +1811,18 @@ def main() -> None:
             "scope": "stock-mode only; Expanded-256 remains ON HOLD/fail-closed",
         },
         "cure_containment": base["cure_containment"],
+        "individual_full_mastery": base["individual_full_mastery"],
         "playtest_withdrawal": base["playtest_withdrawal"],
+        "playtest3_withdrawal": base["playtest3_withdrawal"],
         "source": {"size": len(stock), "sha256": expected_sha},
         "base_manifest_sha256": sha(BASE_OUT.read_bytes()),
         "feature_manifest_sha256": sha(FEATURE_OUT.read_bytes()),
         "base_stock_payload_sha256": sha(stock_payload),
         "base_expanded_payload_sha256": sha(expanded_payload),
+        "individual_detail_route": {
+            "collection_progression": stock_individual_route,
+            "expanded": expanded_individual_route,
+        },
         "companion": {
             "path": "data/candidates/VVFP VV4 Full Mastery Candidate.dll",
             "size": COMPANION.stat().st_size,
@@ -1320,6 +1843,11 @@ def main() -> None:
                 **layout,
                 "noop_slot_sha256": sha(noop_slots[mode]),
                 "installed_slot_sha256": sha(installed_slots[mode]),
+                "legacy_command7_slot_sha256": (
+                    R3_COMMAND7_SLOT_SHA256
+                    if mode == "collection_progression"
+                    else sha(bytearray(installed_slots[mode][:INDIVIDUAL_OFFSET] + b"\0" * (SLOT_SIZE - INDIVIDUAL_OFFSET)))
+                ),
                 "dispatcher_sha256": sha(dispatchers[mode]),
                 "base_page_sha256": sha(pages[mode]),
                 "installed_page_sha256": sha(installed_pages[mode]),
@@ -1343,24 +1871,9 @@ def main() -> None:
             ],
             "base_relocations": [],
         },
-        "runtime_freeze": {
-            f"vv{game}_origins_feature.json": canonical_sha(
-                {
-                    key: json.loads(
-                        (ROOT / "data" / f"vv{game}_origins_feature.json").read_text(
-                            encoding="utf-8"
-                        )
-                    ).get(key)
-                    for key in (
-                        "patches",
-                        "patch_mode_overrides",
-                        "expanded_shr_relocations",
-                        "dependencies",
-                    )
-                }
-            )
-            for game in range(1, 6)
-        },
+        "runtime_freeze": isolated_runtime_freeze(
+            game_id="vv4", map_path=MAP_OUT, data_root=ROOT / "data"
+        ),
         "rendered_candidates": renders,
     }
     MAP_OUT.write_text(json.dumps(artifact, indent=2) + "\n", encoding="utf-8")
@@ -1377,10 +1890,13 @@ def main() -> None:
             f"The native payload received D19 recertification at `{D19_COMMIT}` and its "
             f"metadata/validator received D21 recertification at `{D21_COMMIT}`; command 7 is catalog-visible in stock mode.\n\n"
             if feature_enabled
-            else "The command-7 record is HARD WITHDRAWN and catalog-hidden after Playtest 2 "
-            "repeated the startup access violation at RVA 0x21570. Static review missed malformed "
-            "sub_401C20 arguments. C12 replaces that UI construction with the proved native ordinal, "
-            "text, and cleanup ABIs and received D19 independent payload recertification; it remains disabled pending D20 metadata audit. "
+            else "The base and command-7 records are HARD WITHDRAWN and catalog-hidden after Playtest 3 "
+            "crashed at RVA 0x89E0C / VA 0x489E0C. Individual-menu calls at 0x4897CA and 0x489ABB "
+            "targeted the show-menu epilogue at 0x489573 instead of the result helper at 0x489ACA. "
+            "This disabled candidate repairs only those guarded calls. The source-level individual transaction "
+            "model now performs the required command-1 two-pass native exact-100 plan, but its executable route "
+            "remains STOP until D27 independently proves physical-index capture/reacquisition and the native menu ABI; "
+            "no raw Float32 stores or precharge are emitted. Command 7 awaits D25 recertification. "
             "The legacy Cure row is rendered unavailable, command 5 is rejected before "
             "charge/dispatch, and the unchanged Cure payload remains withdrawn.\n\n"
         )
@@ -1392,29 +1908,43 @@ def main() -> None:
         "- `Upgrades` is copied through proven native `sub_401600` text overlay and `sub_401630` style ABIs; `sub_40D8A0` is absent. Tech uses `this+0x74` and paired cleanup; Detail uses list-owned `sub_40C300`.\n"
         "- Wrapper-null returns without attach. Loader-null raw-frees the unconstructed wrapper through cdecl `sub_470B7B`; it never virtual-destructs raw memory. Inner-null after `sub_401C20` uses the proven scalar destructor with flag 1.\n"
         "- The Tech helper emits exact `8B CB` (`mov ecx, ebx`) after clearing `this+0x74` and before `sub_40C340`; its continuation remains `0x43E23D`.\n"
+        + (
+            "- Individual command 1 is enabled only in stock mode through the guarded Detail message-8/event-2 route: it captures the displayed physical index, validates all five finite Float32 skills for a living villager, reports the exact no-charge message for zero changes, requires the per-villager 100,000-point confirmation and same-index reacquisition, then calls `sub_46AD80` once per delta, re-reads every originally changed skill for exact Float32 100.0, and deducts 100,000 once through `0x41E300`. A failed post-write verification reports `No tech points have been deducted.`; partial native changes may remain because rollback is unsafe/unproved. No direct skill stores or precharge are present.\n"
+            if feature_enabled
+            else "- Individual command 1 is source-modeled in `src/vv4_individual_mastery.py` but remains disabled/catalog-hidden: it captures the displayed physical index, validates all five finite Float32 skills for a living villager, reports the exact no-charge message for zero changes, requires the per-villager 100,000-point confirmation and same-index reacquisition, then calls `sub_46AD80` once per delta, re-reads every originally changed skill for exact Float32 100.0, and deducts 100,000 once through `0x41E300`. A failed post-write verification reports `No tech points have been deducted.`; partial native changes may remain because rollback is unsafe/unproved. No direct skill stores or precharge are present; D27 executable ABI proof is required before emission.\n"
+        )
+        + "- The only emitted Detail route is message 8/event 2 command 1: hook `0x4899D6` (`E9560000009090`) enters the exact 50-byte `.text` cave at `0x489A31` (SHA-256 `79600D55513838D55E9FAD6D9680A516A2CF6BBC5107B721B7B8E28D59B3168F`), reconstructs the original price lookup for other commands, and returns through `0x489AC5`; it requires the `.vv4fm` page marker and installed flag before calling the individual helper. Commands 0, 2-4, 7, cancel, and fallthrough retain their original route bytes. The dedicated 73-byte confirmation routine is atomically installed at raw `0xE4C00` / VA `0x740C00` with a 256-byte zero guard (183 trailing zeros), and success uses `Full Mastery has been granted to the selected villager.` rather than the command-7 result export.\n"
         + f"- Companion SHA-256: `{artifact['companion']['sha256']}`\n"
         f"- Stock installed slot SHA-256: `{artifact['layouts']['collection_progression']['installed_slot_sha256']}`\n"
         f"- Expanded installed slot SHA-256: `{artifact['layouts']['experimental_expanded_256']['installed_slot_sha256']}`\n"
         f"- Stock base+mastery render SHA-256: `{renders['collection_progression']['base_plus_mastery_sha256']}`\n"
         f"- Expanded base+mastery render SHA-256: `{renders['experimental_expanded_256']['base_plus_mastery_sha256']}`\n\n"
-        "The feature exposes command 7 only with its enabled, hash-guarded base dependency. "
-        "Commands 6/8, village-wide Running/Age bytes, direct "
+        + (
+            "The enabled stock-mode feature exposes command 7 plus the guarded individual command 1 with its hash-guarded base dependency; Expanded-256 remains rejected. "
+            if feature_enabled
+            else "The disabled feature would expose command 7 only with its hash-guarded base dependency; neither record is selectable. "
+        )
+        + "Commands 6/8, village-wide Running/Age bytes, direct "
         "skill stores, ownership, Remove, and save-format changes are absent. "
         "The candidate is fail-closed on missing or mismatched companion files, "
         "preserves stock executables, Cure bytes, certified VV3 stock-mode hashes, and "
-        "the expanded-256 hold. D19 independently recertified the native-ordinal payload and D21 independently recertified metadata enablement. "
+        "the expanded-256 hold. D19 payload, D21 metadata, and D33/C28 enablement evidence are retained; "
         "Expanded-256 remains ON HOLD/fail-closed.\n"
         f"- D19 factory SHA-256: `{D19_FACTORY_SHA256}`; helper: `{R3_HELPER_SHA256}`; Tech constructor: `{D19_TECH_SHA256}`; "
         f"Detail constructor: `{D19_DETAIL_SHA256}`; command-7 slot: `{R3_COMMAND7_SLOT_SHA256}`; "
         f"Cure: `{R3_CURE_SHA256}`.\n",
         encoding="utf-8",
     )
-    output_dir = ROOT / "outputs" / "vv4_full_mastery_candidate"
+    output_dir = OUTPUT_ROOT / "outputs" / "vv4_full_mastery_candidate"
     output_dir.mkdir(parents=True, exist_ok=True)
     for source_path in (BASE_OUT, FEATURE_OUT, MAP_OUT, DOC_OUT, COMPANION):
         shutil.copy2(source_path, output_dir / source_path.name)
     checksum_records: dict[str, object] = {
-        "status": "D21 metadata-certified stock-mode candidate; Expanded-256 ON HOLD/fail-closed",
+        "status": (
+            "D33/C28 metadata-enabled stock-mode candidate; Expanded-256 ON HOLD/fail-closed"
+            if feature_enabled
+            else "HARD WITHDRAWN after Playtest 3 crash; Expanded-256 ON HOLD/fail-closed"
+        ),
         "asset": asset_map,
         "source": {"path": str(STOCK.relative_to(ROOT)), "sha256": expected_sha},
         "artifacts": {},
@@ -1427,7 +1957,7 @@ def main() -> None:
         exe_path = output_dir / exe_name
         exe_path.write_bytes(feature_render)
         checksum_records["artifacts"][mode] = {
-            "exe": {"path": str(exe_path.relative_to(ROOT)), "sha256": sha(bytes(feature_render))},
+            "exe": {"path": str(exe_path.relative_to(OUTPUT_ROOT)), "sha256": sha(bytes(feature_render))},
         }
     (output_dir / "checksums.json").write_text(
         json.dumps(checksum_records, indent=2) + "\n", encoding="utf-8"
