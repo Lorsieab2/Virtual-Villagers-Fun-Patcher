@@ -594,8 +594,18 @@ def build_payload(config: dict) -> tuple[bytes, dict[str, int]]:
     )
 
     header = bytearray(b"VVFPOWU\0")
-    header.extend((1).to_bytes(4, "little"))
-    header.extend((entry_va - payload_va).to_bytes(4, "little"))
+    entry_offset = entry_va - payload_va
+    if entry_offset < 0 or entry_offset > 0xFFFF:
+        raise AssertionError(
+            f"entry_offset {entry_offset:#x} does not fit the packed 16-bit field"
+        )
+    # version (low 16 bits) and entry_offset (high 16 bits) packed into one
+    # dword at +0x8: every base Origins feature's preflight validator checks
+    # this exact packed value, not two separate dwords. +0xC is reserved/zero
+    # (unchecked) so the command count at +0x10 stays at the offset every
+    # validator already expects.
+    header.extend((1 | (entry_offset << 16)).to_bytes(4, "little"))
+    header.extend(b"\0" * 4)
     header.extend((3).to_bytes(4, "little"))
     if len(header) > 0x20:
         raise AssertionError("optional ABI header grew beyond the reserved header")

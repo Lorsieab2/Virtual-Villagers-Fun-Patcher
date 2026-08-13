@@ -511,7 +511,7 @@ class ManifestTests(unittest.TestCase):
                 payload = bytes.fromhex(patch["after"])
                 self.assertEqual(
                     payload[:0x20],
-                    bytes.fromhex("565646504F575500010000002000000003000000000000000000000000000000"),
+                    bytes.fromhex("565646504F575500010020000000000003000000000000000000000000000000"),
                 )
                 self.assertEqual(
                     int(feature.raw["extension_abi"]["entry_virtual_address"], 0),
@@ -521,6 +521,81 @@ class ManifestTests(unittest.TestCase):
                     self.assertNotIn("expanded_shr_relocations", feature.raw)
                 if game_id == "vv5":
                     self.assertNotIn((0x1B8C + 0xAD0).to_bytes(4, "little"), payload)
+
+    def test_origins_village_wide_preflight_header_check_matches_written_header(
+        self,
+    ) -> None:
+        """The base Origins feature's runtime preflight validates the
+        village-wide extension header before any Running/Full Mastery/Set
+        Age to 18 charge is allowed. If the header writer and the compiled
+        validator ever disagree on the header layout again, that check
+        fails closed on every real purchase attempt with no error shown to
+        the player -- exactly the bug this regression test catches.
+
+        Rather than pin a hardcoded expected byte string (which is exactly
+        what silently drifted out of sync with the compiled validator
+        before), this renders each real game and locates every
+        'cmp dword ptr [signature_va + N], imm32' instruction the compiled
+        validator actually contains, then checks that immediate against the
+        real header byte written at that same address in the same render.
+        """
+        game_exes = {
+            "vv1": "Virtual Villagers - A New Home.exe",
+            "vv2": "Virtual Villagers - The Lost Children.exe",
+            "vv3": "Virtual Villagers - The Secret City.exe",
+            "vv4": "Virtual Villagers - The Tree of Life.exe",
+            "vv5": "Virtual Villagers - New Believers.exe",
+        }
+        for game_id, exe_name in game_exes.items():
+            with self.subTest(game=game_id):
+                source = STOCK / exe_name
+                if not source.is_file():
+                    self.skipTest(f"stock executable not available: {source}")
+                build = identify(source)
+                rendered, _ = render_patched_bytes(
+                    source,
+                    build,
+                    "collection_progression",
+                    [
+                        f"{game_id}_enable_origins_exclusive_features",
+                        f"{game_id}_origins_village_wide_upgrades",
+                    ],
+                )
+                feature = village_wide_record(game_id)
+                signature_va = int(feature.raw["cave"]["virtual_address"], 0)
+                signature_file_offset = int(feature.raw["cave"]["file_offset"], 0)
+                header = bytes(rendered[signature_file_offset : signature_file_offset + 0x20])
+
+                checked_any = False
+                for field_offset in range(0, 0x20, 4):
+                    target_va = signature_va + field_offset
+                    long_form = b"\x81\x3d" + target_va.to_bytes(4, "little")
+                    cursor = 0
+                    while True:
+                        found = rendered.find(long_form, cursor)
+                        if found < 0:
+                            break
+                        checked_any = True
+                        checked_imm = int.from_bytes(
+                            rendered[found + 6 : found + 10], "little"
+                        )
+                        actual = int.from_bytes(
+                            header[field_offset : field_offset + 4], "little"
+                        )
+                        self.assertEqual(
+                            checked_imm,
+                            actual,
+                            f"{game_id} preflight checks {checked_imm:#x} at "
+                            f"header+{field_offset:#x} but the written header "
+                            f"holds {actual:#x} -- every real purchase of "
+                            "Running/Full Mastery/Set Age to 18 will silently "
+                            "no-op",
+                        )
+                        cursor = found + 1
+                self.assertTrue(
+                    checked_any,
+                    f"{game_id}: found no compiled preflight header check to verify",
+                )
 
     def test_origins_village_wide_entry_and_vv5_native_targets_are_not_header_shifted(self) -> None:
         feature = village_wide_record("vv5")
