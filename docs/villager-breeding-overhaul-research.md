@@ -22,7 +22,7 @@ message, statistic, or state-write behavior. In VV2, every Gong of Wonder
 outcome has the same complete exclusion. These are control-flow/provenance
 exclusions, not amount- or result-based exceptions.
 
-Future VV1 and VV3 implementation GO reports must enumerate every applicable
+Any future GO reports for VV1 and VV3 must enumerate every applicable
 ordinary route and prove that every Island Event or other special direct route
 bypasses the proposed patch. Partial field mappings, shared-writer xrefs, or
 candidate predicates are insufficient. VV4 and VV5 remain untouched native
@@ -120,8 +120,9 @@ selectable.
 
 VV1, VV2, and VV3 now have independent exact-build records. Their static
 coverage is separate rather than a shared copied predicate; runtime/player
-confirmation remains pending. VV5 is also a native no-patch reference: its
-exact-build audit matches VV4's requested Birth Control/Breeding behavior.
+confirmation remains pending. VV3 remains ON HOLD for runtime/player
+interpretation. VV5 is also a native no-patch reference: its exact-build audit
+matches VV4's requested Birth Control/Breeding behavior.
 
 ### VV1 exact-build implementation
 
