@@ -3330,6 +3330,21 @@ def resolve_fun_patch_ids(
     return ordered
 
 
+def _validate_patch_bounds(
+    data: bytes | bytearray,
+    offset: int,
+    length: int,
+    *,
+    label: str,
+) -> None:
+    """Reject malformed file offsets before Python slicing can wrap them."""
+    if offset < 0 or length < 0 or offset > len(data) or length > len(data) - offset:
+        raise PatcherError(
+            f"{label} is outside the input buffer: offset {offset}, "
+            f"length {length}, buffer {len(data)}."
+        )
+
+
 def _patch_bytes(patch: dict[str, Any], field: str) -> bytes:
     if field in patch:
         return bytes.fromhex(patch[field])
@@ -3941,6 +3956,7 @@ def _apply_pe_append_transactions(
             raise PatcherError(
                 f"{feature.name} append payload must occupy complete 0x1000-byte pages."
             )
+        validated_headers: list[tuple[dict[str, Any], int, bytes, bytes]] = []
         for item in header_patches:
             offset = int(item["offset"], 0)
             before = _patch_bytes(item, "before")
@@ -3949,12 +3965,20 @@ def _apply_pe_append_transactions(
                 raise PatcherError(
                     f"{feature.name} append header changes length at {item['offset']}."
                 )
+            _validate_patch_bounds(
+                work,
+                offset,
+                len(before),
+                label=f"{feature.name} append header at {item['offset']}",
+            )
             actual = bytes(work[offset : offset + len(before)])
             if actual != before:
                 raise PatcherError(
                     f"{feature.name} append header guard failed at {item['offset']}: "
                     f"expected {before.hex().upper()}, found {actual.hex().upper()}"
                 )
+            validated_headers.append((item, offset, before, after))
+        for item, offset, before, after in validated_headers:
             work[offset : offset + len(after)] = after
             applied.append(
                 {
@@ -7504,6 +7528,12 @@ def render_patched_bytes(
                 raise PatcherError(
                     f"Internal manifest error at {patch['offset']}: length changed"
                 )
+            _validate_patch_bounds(
+                data,
+                offset,
+                len(before),
+                label=f"Patch at {patch['offset']}",
+            )
             actual = bytes(data[offset : offset + len(before)])
             owner = patch.get("_owner", "automatic")
             if (

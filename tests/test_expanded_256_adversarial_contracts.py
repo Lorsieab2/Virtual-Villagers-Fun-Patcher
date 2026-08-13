@@ -16,6 +16,7 @@ import vv_fun_patcher  # noqa: E402
 from vv_fun_patcher import (  # noqa: E402
     FunPatch,
     PatcherError,
+    Record,
     _relocate_expanded_shr_fun_patches,
     _validate_vv4_expanded_contract,
     _validate_vv4_origins_relocation_contract,
@@ -23,6 +24,7 @@ from vv_fun_patcher import (  # noqa: E402
     _expanded_patches,
     _apply_pe_append_transactions,
     load_builds,
+    render_patched_bytes,
 )
 
 
@@ -43,6 +45,7 @@ EXPANDED_MANIFEST = json.loads(
 )
 VV4_BUILD = next(item for item in load_builds() if item.id == "vv4")
 VV5_BUILD = next(item for item in load_builds() if item.id == "vv5")
+VV3_BUILD = next(item for item in load_builds() if item.id == "vv3")
 
 
 class Expanded256AdversarialContractTests(unittest.TestCase):
@@ -507,6 +510,89 @@ class Expanded256AdversarialContractTests(unittest.TestCase):
                 VV5_BUILD, "experimental_expanded_256", [feature], data
             )
         self.assertEqual(bytes(data), snapshot)
+
+    def test_vv3_render_rejects_negative_manifest_offsets(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            source = Path(temp) / "synthetic-vv3-input.bin"
+            data = bytearray(0x200)
+            data[:2] = b"MZ"
+            data[0x3C:0x40] = (0x80).to_bytes(4, "little")
+            data[0x80:0x84] = b"PE\0\0"
+            data[0x94:0x96] = (0xE0).to_bytes(2, "little")
+            data[0x98:0x9A] = (0x10B).to_bytes(2, "little")
+            source.write_bytes(data)
+            last = data[-1]
+            build = Record(
+                {
+                    "id": "vv3",
+                    "title": "Synthetic VV3",
+                    "size": len(data),
+                    "input_name": source.name,
+                    "villager_slots": 150,
+                    "variants": {"collection_progression": {"patches": []}},
+                    "safety_patches": [],
+                }
+            )
+            feature = FunPatch(
+                {
+                    "id": "test_vv3_negative_offset",
+                    "name": "test VV3 negative offset",
+                    "game_id": "vv3",
+                    "patches": [
+                        {
+                            "offset": "-1",
+                            "before": f"{last:02X}",
+                            "after": f"{last ^ 1:02X}",
+                            "purpose": "adversarial negative offset",
+                        }
+                    ],
+                    "patch_mode_overrides": {},
+                }
+            )
+            with self.assertRaisesRegex(PatcherError, "outside the input buffer"):
+                render_patched_bytes(
+                    source,
+                    build,
+                    "collection_progression",
+                    _fun_patches_override=[feature],
+                )
+
+    def test_append_header_rejects_out_of_buffer_offset_before_mutation(self) -> None:
+        feature = FunPatch(
+            {
+                "id": "test_bad_append_header_offset",
+                "name": "test bad append header offset",
+                "game_id": "vv3",
+                "patches": [],
+                "pe_append_transaction": {
+                    "layouts": {
+                        "experimental_expanded_256": {
+                            "original_file_size": "0x8",
+                            "append_offset": "0x8",
+                            "append_bytes": "00" * 0x1000,
+                            "purpose": "adversarial append",
+                            "header_patches": [
+                                {
+                                    "offset": "-1",
+                                    "before": "00",
+                                    "after": "01",
+                                    "purpose": "adversarial negative header offset",
+                                }
+                            ],
+                        }
+                    }
+                },
+            }
+        )
+        data = bytearray(8)
+        before = bytes(data)
+        with self.assertRaisesRegex(PatcherError, "outside the input buffer"):
+            _apply_pe_append_transactions(
+                data,
+                [feature],
+                "experimental_expanded_256",
+            )
+        self.assertEqual(bytes(data), before)
 
 
 if __name__ == "__main__":
