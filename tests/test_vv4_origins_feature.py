@@ -123,6 +123,51 @@ class VV4OriginsFeatureTests(unittest.TestCase):
         self.assertIn("je running_already", self.builder)
         self.assertIn("mov dword ptr [ecx], {RUNNING_PREFERENCE_ID}", self.builder)
 
+    def test_time_warp_advances_three_years_regardless_of_game_speed(self) -> None:
+        """Regression test: VV4 Time Warp must advance exactly three displayed
+        villager years independent of the current game speed. The village ages
+        injected wall-time at a rate proportional to the running game speed, so
+        the elapsed-clock shift must be 129600 / speed (43,200s at half speed 3,
+        21,600s at normal 6, 12,960s at double 10) -- see the confirmed
+        two-real-hours-per-displayed-year relation. The builder used to compute
+        ``speed * 3600`` (proportional), which is only correct at normal speed
+        and silently under/over-advanced at every other speed.
+        """
+        try:
+            import capstone
+        except ImportError:
+            self.skipTest("capstone not available")
+
+        payload_patch = next(
+            item for item in self.manifest["patches"] if int(item["offset"], 0) == 0x89373
+        )
+        payload = bytes.fromhex(payload_patch["after"])
+        # Locate the 64-bit elapsed-clock write: sub dword ptr [0x4B8230], eax
+        marker = bytes.fromhex("290530824B00")
+        index = payload.find(marker)
+        self.assertNotEqual(index, -1, "Time Warp clock write not found in payload")
+
+        md = capstone.Cs(capstone.CS_ARCH_X86, capstone.CS_MODE_32)
+        window_start = index - 0x18
+        block = list(md.disasm(payload[window_start:index], 0x489373 + window_start))
+        mnemonics = [insn.mnemonic for insn in block]
+
+        self.assertIn("idiv", mnemonics, "Time Warp no longer divides by game speed")
+        self.assertNotIn(
+            "imul",
+            mnemonics,
+            "Time Warp still scales the clock shift proportionally to game speed",
+        )
+        dividend = next(
+            insn for insn in block
+            if insn.mnemonic == "mov" and insn.op_str.startswith("eax, 0x")
+        )
+        self.assertEqual(
+            int(dividend.op_str.split(", ")[1], 16),
+            129600,
+            "Time Warp dividend is not the certified three-year constant",
+        )
+
     def test_composes_with_current_vv4_features_in_all_modes(self) -> None:
         patch_ids = [patch.id for patch in load_fun_patches() if patch.game_id == "vv4"]
         self.assertIn(FEATURE_ID, patch_ids)

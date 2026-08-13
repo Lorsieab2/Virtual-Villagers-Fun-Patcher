@@ -432,14 +432,10 @@ def main() -> None:
             jmp menu_done
         do_time_warp:
             call 0x41FE70
-            mov eax, dword ptr [eax + 0x17110]
-            cmp eax, 3
-            je time_apply
-            cmp eax, 10
-            je time_apply
-            mov eax, 6
-        time_apply:
-            imul eax, eax, 3600
+            mov ecx, dword ptr [eax + 0x17110]
+            mov eax, 129600
+            cdq
+            idiv ecx
             sub dword ptr [0x4B8230], eax
             sbb dword ptr [0x4B8234], 0
             jmp success
