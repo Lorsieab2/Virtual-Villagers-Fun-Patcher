@@ -1,6 +1,67 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 
+/* Villager sex flag drives the male/female sprite atlas (render path
+   0x45F5CF: cmp [record+0x1B90],0 / setne). Displayed age >= 1100 (55
+   displayed years) uses the old-frame atlas page. */
+#ifndef VV_SEX_OFFSET
+#define VV_SEX_OFFSET 0x1B90
+#endif
+#ifndef VV_DISPLAY_AGE_OFFSET
+#define VV_DISPLAY_AGE_OFFSET 0x1B8C
+#endif
+#ifndef VV_OLD_AGE_THRESHOLD
+#define VV_OLD_AGE_THRESHOLD 1100
+#endif
+/* Atlas geometry: each sprite sheet is a grid of 40x65 cells. Heads have 8
+   columns (directional frames); bodies have 16 columns and 10 outfits per
+   page, split across pages 0..2 (male_bodies00/01/02 etc.). The picker shows
+   one fixed viewing frame per field (playtest-chosen). */
+#ifndef VV_CELL_W
+#define VV_CELL_W 40
+#endif
+#ifndef VV_CELL_H
+#define VV_CELL_H 65
+#endif
+#ifndef VV_HEAD_FRAME_COL
+#define VV_HEAD_FRAME_COL 5
+#endif
+#ifndef VV_BODY_FRAME_COL
+#define VV_BODY_FRAME_COL 8
+#endif
+#ifndef VV_BODY_ROWS_PER_PAGE
+#define VV_BODY_ROWS_PER_PAGE 10
+#endif
+
+/* Minimal GDI+ flat-API surface (declared here to stay in C). Linked against
+   gdiplus.lib; used only to load the PNG atlases and blit one cell. */
+typedef INT GpStatus;
+typedef void GpImage;
+typedef void GpBitmap;
+typedef void GpGraphics;
+struct GdiplusStartupInputC {
+    UINT32 GdiplusVersion;
+    void *DebugEventCallback;
+    BOOL SuppressBackgroundThread;
+    BOOL SuppressExternalCodecs;
+};
+__declspec(dllimport) GpStatus __stdcall GdiplusStartup(
+    ULONG_PTR *token, const struct GdiplusStartupInputC *input, void *output);
+__declspec(dllimport) void __stdcall GdiplusShutdown(ULONG_PTR token);
+__declspec(dllimport) GpStatus __stdcall GdipCreateBitmapFromFile(
+    const WCHAR *filename, GpBitmap **bitmap);
+__declspec(dllimport) GpStatus __stdcall GdipCreateFromHDC(
+    HDC hdc, GpGraphics **graphics);
+__declspec(dllimport) GpStatus __stdcall GdipDrawImageRectRectI(
+    GpGraphics *graphics, GpImage *image,
+    INT dstx, INT dsty, INT dstw, INT dsth,
+    INT srcx, INT srcy, INT srcw, INT srch,
+    INT srcUnit, void *imageAttributes, void *callback, void *callbackData);
+__declspec(dllimport) GpStatus __stdcall GdipDeleteGraphics(GpGraphics *graphics);
+__declspec(dllimport) GpStatus __stdcall GdipDisposeImage(GpImage *image);
+
+static ULONG_PTR gdiplus_token = 0;
+
 #ifndef VV_AGE_OFFSET
 #define VV_AGE_OFFSET 0x348
 #endif
@@ -60,9 +121,11 @@ enum {
     ID_HEAD_LABEL = 2000,
     ID_HEAD_PREV = 2001,
     ID_HEAD_NEXT = 2002,
+    ID_HEAD_PIC = 2003,
     ID_BODY_LABEL = 2010,
     ID_BODY_PREV = 2011,
     ID_BODY_NEXT = 2012,
+    ID_BODY_PIC = 2013,
     STATE_VILLAGER = 0x10000,
     STATE_VILLAGE_WIDE = 0x20000,
     STATE_RUNNING_ONLY = 0x40000,
@@ -90,14 +153,68 @@ static struct {
     int original_body;
     int head_count;
     int body_count;
+    int sex;      /* 0 / non-zero -> female / male sprite atlas */
+    int is_old;   /* displayed age >= VV_OLD_AGE_THRESHOLD */
 } appearance_state;
 
 BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved) {
     (void)reserved;
     if (reason == DLL_PROCESS_ATTACH) {
+        struct GdiplusStartupInputC input;
         module_instance = instance;
+        input.GdiplusVersion = 1;
+        input.DebugEventCallback = NULL;
+        input.SuppressBackgroundThread = FALSE;
+        input.SuppressExternalCodecs = FALSE;
+        GdiplusStartup(&gdiplus_token, &input, NULL);
+    } else if (reason == DLL_PROCESS_DETACH) {
+        if (gdiplus_token) {
+            GdiplusShutdown(gdiplus_token);
+            gdiplus_token = 0;
+        }
     }
     return TRUE;
+}
+
+/* Blit one 40x65 atlas cell for the given head/body value into an
+   owner-drawn control. head==1 selects the head sheet + column, otherwise
+   the body sheet + column (and its per-page split). The atlas PNGs live in
+   the game's Images folder; the villager re-renders live behind this dialog
+   regardless, so a failed load simply shows nothing here. */
+static void appearance_draw_cell(const DRAWITEMSTRUCT *dis, int is_head, int value) {
+    WCHAR path[MAX_PATH];
+    const WCHAR *sex = appearance_state.sex ? L"male" : L"female";
+    int age = appearance_state.is_old ? 1 : 0;
+    int col, row, page;
+    GpBitmap *bitmap = NULL;
+    RECT rc = dis->rcItem;
+    int dstw = rc.right - rc.left;
+    int dsth = rc.bottom - rc.top;
+
+    FillRect(dis->hDC, &rc, (HBRUSH)(COLOR_BTNFACE + 1));
+    if (is_head) {
+        col = VV_HEAD_FRAME_COL;
+        row = value;
+        wsprintfW(path, L"Images\\%ls_heads%d0.png", sex, age);
+    } else {
+        col = VV_BODY_FRAME_COL;
+        page = value / VV_BODY_ROWS_PER_PAGE;
+        row = value % VV_BODY_ROWS_PER_PAGE;
+        wsprintfW(path, L"Images\\%ls_bodies%d%d.png", sex, age, page);
+    }
+    if (GdipCreateBitmapFromFile(path, &bitmap) == 0 && bitmap != NULL) {
+        GpGraphics *graphics = NULL;
+        if (GdipCreateFromHDC(dis->hDC, &graphics) == 0 && graphics != NULL) {
+            /* UnitPixel == 2 */
+            GdipDrawImageRectRectI(
+                graphics, bitmap,
+                rc.left, rc.top, dstw, dsth,
+                col * VV_CELL_W, row * VV_CELL_H, VV_CELL_W, VV_CELL_H,
+                2, NULL, NULL, NULL);
+            GdipDeleteGraphics(graphics);
+        }
+        GdipDisposeImage(bitmap);
+    }
 }
 
 static INT_PTR CALLBACK upgrade_dialog(
@@ -194,13 +311,23 @@ static INT_PTR CALLBACK appearance_dialog(
     WPARAM wparam,
     LPARAM lparam
 ) {
-    (void)lparam;
     if (message == WM_INITDIALOG) {
         /* appearance_state was already populated by ShowOriginsAppearancePicker
            before this dialog was created; just reflect the starting values. */
         appearance_set_label(window, ID_HEAD_LABEL, "Head", appearance_state.original_head, appearance_state.head_count);
         appearance_set_label(window, ID_BODY_LABEL, "Body", appearance_state.original_body, appearance_state.body_count);
         return TRUE;
+    } else if (message == WM_DRAWITEM) {
+        const DRAWITEMSTRUCT *dis = (const DRAWITEMSTRUCT *)lparam;
+        if (dis->CtlID == ID_HEAD_PIC) {
+            appearance_draw_cell(dis, 1, *(int *)(appearance_state.villager + VV_HEAD_OFFSET));
+            return TRUE;
+        }
+        if (dis->CtlID == ID_BODY_PIC) {
+            appearance_draw_cell(dis, 0, *(int *)(appearance_state.villager + VV_CLOTHING_OFFSET));
+            return TRUE;
+        }
+        return FALSE;
     } else if (message == WM_COMMAND) {
         unsigned int command = LOWORD(wparam);
         int head_count = appearance_state.head_count;
@@ -210,21 +337,25 @@ static INT_PTR CALLBACK appearance_dialog(
         if (command == ID_HEAD_PREV) {
             *head = (*head + head_count - 1) % head_count;
             appearance_set_label(window, ID_HEAD_LABEL, "Head", *head, head_count);
+            InvalidateRect(GetDlgItem(window, ID_HEAD_PIC), NULL, TRUE);
             return TRUE;
         }
         if (command == ID_HEAD_NEXT) {
             *head = (*head + 1) % head_count;
             appearance_set_label(window, ID_HEAD_LABEL, "Head", *head, head_count);
+            InvalidateRect(GetDlgItem(window, ID_HEAD_PIC), NULL, TRUE);
             return TRUE;
         }
         if (command == ID_BODY_PREV) {
             *body = (*body + body_count - 1) % body_count;
             appearance_set_label(window, ID_BODY_LABEL, "Body", *body, body_count);
+            InvalidateRect(GetDlgItem(window, ID_BODY_PIC), NULL, TRUE);
             return TRUE;
         }
         if (command == ID_BODY_NEXT) {
             *body = (*body + 1) % body_count;
             appearance_set_label(window, ID_BODY_LABEL, "Body", *body, body_count);
+            InvalidateRect(GetDlgItem(window, ID_BODY_PIC), NULL, TRUE);
             return TRUE;
         }
         if (command == IDOK) {
@@ -256,6 +387,9 @@ __declspec(dllexport) int __stdcall ShowOriginsAppearancePicker(
     appearance_state.original_body = *(int *)(villager + VV_CLOTHING_OFFSET);
     appearance_state.head_count = VV_HEAD_COUNT;
     appearance_state.body_count = VV_BODY_COUNT;
+    appearance_state.sex = *(int *)(villager + VV_SEX_OFFSET);
+    appearance_state.is_old =
+        *(int *)(villager + VV_DISPLAY_AGE_OFFSET) >= VV_OLD_AGE_THRESHOLD;
     return (int)DialogBoxParamA(
         module_instance,
         MAKEINTRESOURCEA(IDD_ORIGINS_APPEARANCE),
