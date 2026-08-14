@@ -49,6 +49,11 @@ VILLAGE_WIDE_SIGNATURE_VA = 0x728220
 VILLAGE_WIDE_ENTRY_VA = 0x728240
 VILLAGE_PREFLIGHT_FILE_OFFSET = 0xCC180
 VILLAGE_PREFLIGHT_VA = 0x728180
+# Change Appearance picker-caller lives in the free tail of the .shr helper
+# page (the origins feature already maps/marks this whole page executable),
+# well past the village-wide payload which ends near 0xCC740 / 0x728740.
+APPEARANCE_HELPER_FILE_OFFSET = 0xCC760
+APPEARANCE_HELPER_VA = 0x728760
 EXPANDED_VILLAGE_WIDE_ENTRY_VA = 0x85A240
 EXPANDED_VILLAGE_PREFLIGHT_VA = 0x85A180
 RUNNING_PREFERENCE_ID = 38  # exact-build preference-table evidence: 0xA0CD8
@@ -119,6 +124,7 @@ def main() -> None:
         ("user32_dll", "USER32.dll"),
         ("message_box_export", "MessageBoxA"),
         ("cure_all", "Cure all Villagers"),
+        ("show_appearance_picker", "ShowOriginsAppearancePicker"),
     ):
         add_c_string(strings, s, name, value)
     while len(strings) % 4:
@@ -558,10 +564,8 @@ def main() -> None:
             or edi, 4
         age_state:
             cmp dword ptr [edx + 0x1B8C], 360
-            jne appearance_state
+            jne show
             or edi, 8
-        appearance_state:
-            or edi, 0x10
         show:
             push edi
             push 1
@@ -579,6 +583,8 @@ def main() -> None:
             test eax, eax
             je detail_done
             mov edx, eax
+            cmp ebx, 4
+            je detail_appearance
             cmp ebx, 2
             jne detail_charge
             lea eax, [edx + 0x1E60]
@@ -610,14 +616,14 @@ def main() -> None:
             je mastery
             cmp ebx, 2
             je running
-            cmp ebx, 3
-            je set_age_18
-            call 0x41FE70
-            mov ecx, dword ptr [eax + 0x171B0]
-            mov dword ptr [eax + 0x1719C], ecx
-            jmp detail_done
-        set_age_18:
             mov dword ptr [edx + 0x1B8C], 360
+            jmp detail_success
+        detail_appearance:
+            cmp dword ptr [0x4D6F88], 5000
+            jb detail_insufficient
+            call 0x{APPEARANCE_HELPER_VA:X}
+            test eax, eax
+            je detail_loop
             jmp detail_success
         youth:
             mov eax, dword ptr [edx + 0x1B8C]
@@ -1051,6 +1057,39 @@ def main() -> None:
         """,
         NATIVE_FOOD_TAIL_VA,
     )
+    # Change Appearance picker-caller: edx holds the resolved villager record
+    # pointer on entry.  Loads the companion DLL, calls the head+body picker
+    # (which previews live and returns 1 on OK / 0 on Cancel/close), and only
+    # then charges the 5,000 -- so Cancel/close costs nothing.  The caller does
+    # the funds precheck before this runs.
+    appearance_helper = assemble(
+        f"""
+            mov ebx, edx
+            push 0x{s['icons_dll']:X}
+            call dword ptr [0x48A1E0]
+            test eax, eax
+            je appearance_fail
+            push 0x{s['show_appearance_picker']:X}
+            push eax
+            call dword ptr [0x48A1DC]
+            test eax, eax
+            je appearance_fail
+            push ebx
+            call eax
+            test eax, eax
+            je appearance_fail
+            mov eax, -5000
+            push eax
+            mov ecx, 0x4D6F88
+            call 0x41E300
+            mov eax, 1
+            ret
+        appearance_fail:
+            xor eax, eax
+            ret
+        """,
+        APPEARANCE_HELPER_VA,
+    )
     # The Cure and preflight helpers themselves are in the stock .shr section,
     # outside the main Origins payload scanner.  Record their exact internal
     # .shr references so expanded mode can retarget them after the section move.
@@ -1145,6 +1184,12 @@ def main() -> None:
         b"\0" * len(preflight_code),
         preflight_code,
         "validate the complete optional Origins header and result-export dependency before any village-wide charge",
+    )
+    patch(
+        APPEARANCE_HELPER_FILE_OFFSET,
+        b"\0" * len(appearance_helper),
+        appearance_helper,
+        "Change Appearance: call the companion head+body picker for the selected villager and charge 5,000 only on OK",
     )
 
     patch(0x244, bytes.fromhex("40000040"), bytes.fromhex("40000060"),
