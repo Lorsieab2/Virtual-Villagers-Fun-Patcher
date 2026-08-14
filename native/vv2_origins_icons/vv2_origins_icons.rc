@@ -1,0 +1,140 @@
+/* VV2 Origins icons: VV2-only dialog resources. The shared icons (101-110)
+   come from the included base resource; every dialog VV2 actually uses is
+   defined here with VV2-specific IDs (211 tech, 212 villager, 213 Change
+   Appearance) so nothing collides with the shared/other-game resources. */
+#include "../vv1_origins_icons/vv1_origins_icons.rc"
+
+3001 BITMAP "appearance/head_m_young.bmp"
+3002 BITMAP "appearance/head_m_old.bmp"
+3003 BITMAP "appearance/head_f_young.bmp"
+3004 BITMAP "appearance/head_f_old.bmp"
+3011 BITMAP "appearance/body_m.bmp"
+3012 BITMAP "appearance/body_f.bmp"
+
+#define WS_CHILD      0x40000000L
+#define WS_VISIBLE    0x10000000L
+#define SS_CENTER     0x00000001L
+#define SS_OWNERDRAW  0x0000000DL
+
+/* VV2 Tech-screen upgrades (six working rows; the three broken whole-village
+   rows are intentionally absent). */
+211 DIALOGEX 0, 0, 310, 318
+STYLE DS_MODALFRAME | DS_SETFONT | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Origins Upgrades"
+FONT 9, "Segoe UI"
+BEGIN
+    ICON        101, -1, 8,   8,  24, 24
+    ICON        109, 1100, 22, 20, 12, 12
+    LTEXT       "Time Warp - 3 villager years", -1, 40, 10, 190, 10
+    LTEXT       "50,000 tech points", -1, 40, 22, 150, 9
+    PUSHBUTTON  "Buy", 1000, 240, 11, 55, 18
+
+    ICON        102, -1, 8,  40,  24, 24
+    ICON        109, 1101, 22, 52, 12, 12
+    LTEXT       "Island Event", -1, 40, 42, 150, 10
+    LTEXT       "30,000 tech points", -1, 40, 54, 150, 9
+    PUSHBUTTON  "Buy", 1001, 240, 43, 55, 18
+
+    ICON        103, -1, 8,  72,  24, 24
+    ICON        109, 1102, 22, 84, 12, 12
+    LTEXT       "Barrel of Babies", -1, 40, 74, 150, 10
+    LTEXT       "75,000 tech points", -1, 40, 86, 150, 9
+    PUSHBUTTON  "Buy", 1002, 240, 75, 55, 18
+
+    ICON        104, -1, 8, 104,  24, 24
+    ICON        109, 1103, 22, 116, 12, 12
+    LTEXT       "Tech Point Doubler", -1, 40, 106, 150, 10
+    LTEXT       "500,000 tech points", -1, 40, 118, 150, 9
+    PUSHBUTTON  "Buy", 1003, 240, 107, 55, 18
+
+    ICON        105, -1, 8, 136,  24, 24
+    ICON        109, 1104, 22, 148, 12, 12
+    LTEXT       "Food Point Doubler", -1, 40, 138, 150, 10
+    LTEXT       "500,000 tech points", -1, 40, 150, 150, 9
+    PUSHBUTTON  "Buy", 1004, 240, 139, 55, 18
+
+    ICON        110, -1, 8, 168,  24, 24
+    ICON        109, 1105, 22, 180, 12, 12
+    LTEXT       "Full Heal/Cure All Villagers", -1, 40, 170, 190, 10
+    LTEXT       "30,000 tech points", -1, 40, 182, 150, 9
+    PUSHBUTTON  "Buy", 1005, 240, 171, 55, 18
+
+    ICON        108, -1, 8, 200,  24, 24
+    ICON        109, 1106, 22, 212, 12, 12
+    LTEXT       "All Villagers Like Running", -1, 40, 202, 190, 10
+    LTEXT       "1,000,000 tech points", -1, 40, 214, 170, 9
+    PUSHBUTTON  "Buy", 1006, 240, 203, 55, 18
+
+    ICON        107, -1, 8, 232,  24, 24
+    ICON        109, 1107, 22, 244, 12, 12
+    LTEXT       "Grant Full Mastery to All Villagers", -1, 40, 234, 190, 10
+    LTEXT       "1,000,000 tech points", -1, 40, 246, 170, 9
+    PUSHBUTTON  "Buy", 1007, 240, 235, 55, 18
+
+    ICON        106, -1, 8, 264,  24, 24
+    ICON        109, 1108, 22, 276, 12, 12
+    LTEXT       "All Villagers are 18", -1, 40, 266, 190, 10
+    LTEXT       "1,000,000 tech points", -1, 40, 278, 170, 9
+    PUSHBUTTON  "Buy", 1008, 240, 267, 55, 18
+
+    DEFPUSHBUTTON "Cancel", 2, 120, 297, 70, 14
+END
+
+/* VV2 Villager Details upgrades (four per-villager rows + Change Appearance). */
+212 DIALOGEX 0, 0, 310, 190
+STYLE DS_MODALFRAME | DS_SETFONT | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Villager Upgrades"
+FONT 9, "Segoe UI"
+BEGIN
+    ICON        106, -1, 8,  8,  24, 24
+    ICON        109, 1100, 22, 20, 12, 12
+    LTEXT       "Grant Youth (-35 years, min age 5)", -1, 40, 10, 195, 10
+    LTEXT       "50,000 tech points", -1, 40, 22, 150, 9
+    PUSHBUTTON  "Buy", 1000, 240, 11, 55, 18
+
+    ICON        107, -1, 8, 40,  24, 24
+    ICON        109, 1101, 22, 52, 12, 12
+    LTEXT       "Grant Full Mastery", -1, 40, 42, 150, 10
+    LTEXT       "100,000 tech points", -1, 40, 54, 150, 9
+    PUSHBUTTON  "Buy", 1001, 240, 43, 55, 18
+
+    ICON        108, -1, 8, 72,  24, 24
+    ICON        109, 1102, 22, 84, 12, 12
+    LTEXT       "Grant Running", -1, 40, 74, 150, 10
+    LTEXT       "40,000 tech points", -1, 40, 86, 150, 9
+    PUSHBUTTON  "Buy", 1002, 240, 75, 55, 18
+
+    ICON        106, -1, 8, 104,  24, 24
+    ICON        109, 1103, 22, 116, 12, 12
+    LTEXT       "Set Age to 18", -1, 40, 106, 150, 10
+    LTEXT       "50,000 tech points", -1, 40, 118, 150, 9
+    PUSHBUTTON  "Buy", 1003, 240, 107, 55, 18
+
+    ICON        106, -1, 8, 136,  24, 24
+    LTEXT       "Change Appearance", -1, 40, 138, 190, 10
+    LTEXT       "5,000 tech points", -1, 40, 150, 150, 9
+    PUSHBUTTON  "Buy", 1004, 240, 139, 55, 18
+
+    DEFPUSHBUTTON "Cancel", 2, 120, 170, 70, 14
+END
+
+/* VV2 Change Appearance chooser: sprite previews cropped from the stock art. */
+213 DIALOGEX 0, 0, 250, 196
+STYLE DS_MODALFRAME | DS_SETFONT | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Change Appearance"
+FONT 9, "Segoe UI"
+BEGIN
+    CTEXT       "Body", -1, 30, 8, 70, 9
+    CONTROL     "", 3101, "STATIC", SS_OWNERDRAW | WS_CHILD | WS_VISIBLE, 30, 20, 70, 118
+    PUSHBUTTON  "<", 3103, 10, 72, 16, 16
+    PUSHBUTTON  ">", 3104, 104, 72, 16, 16
+
+    CTEXT       "Head", -1, 150, 8, 70, 9
+    CONTROL     "", 3102, "STATIC", SS_OWNERDRAW | WS_CHILD | WS_VISIBLE, 150, 20, 70, 118
+    PUSHBUTTON  "<", 3105, 130, 72, 16, 16
+    PUSHBUTTON  ">", 3106, 224, 72, 16, 16
+
+    CTEXT       "OK deducts 5,000 tech points. Cancel changes nothing.", -1, 14, 150, 222, 9
+    DEFPUSHBUTTON "OK", 1, 66, 168, 50, 16
+    PUSHBUTTON  "Cancel", 2, 134, 168, 50, 16
+END

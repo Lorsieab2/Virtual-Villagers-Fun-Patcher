@@ -299,6 +299,13 @@ class AppearanceUpgradeRequirementsTests(unittest.TestCase):
                 },
                 "data/vv2_origins_feature.json": {
                     "0x943A8", "0x9A009", "0x9A300", "0x9A530",
+                    # Change Appearance: the new chooser helper lives at
+                    # 0x9AD20 (just past the optional village-wide payload).
+                    # Wiring its row into detail_menu grew that block, so the
+                    # tech/food/event payload helpers were relocated by 0x20
+                    # inside 0x943A8; their three tail-jump sites re-encode to
+                    # the new targets with identical behavior.
+                    "0x9AD20", "0x26290", "0x262B0", "0x34570", "0x9AE40",
                 },
                 "data/vv3_origins_feature.json": {"0x7B664", "0xA3180"},
                 "data/vv4_origins_feature.json": {

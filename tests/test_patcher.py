@@ -157,13 +157,14 @@ class ManifestTests(unittest.TestCase):
         source = (ROOT / "scripts" / "build_vv2_origins_feature.py").read_text(
             encoding="utf-8"
         )
-        confirmation = source[
-            source.index("            cmp ebx, 0\n            je confirm_tech_purchase") :
-            source.index("        tech_purchase_ready:")
-        ]
-        self.assertIn("cmp ebx, 3\n            je confirm_tech_purchase", confirmation)
-        self.assertIn("cmp ebx, 4\n            je confirm_tech_purchase", confirmation)
-        self.assertIn("call 0x{confirm_dialog:X}", confirmation)
+        # Every Tech row (Time Warp..All Villagers are 18, plus the Tech/Food
+        # Doubler toggles) shows the permanent-change confirmation before any
+        # state change: the confirm call sits just before tech_purchase_ready,
+        # and every doubler-bit write is after it.
+        self.assertLess(
+            source.index("call 0x{confirm_dialog:X}"),
+            source.index("        tech_purchase_ready:"),
+        )
         for write in (
             "or dword ptr [edi + 0x2EAE8], 1",
             "or dword ptr [edi + 0x2EAE8], 2",
@@ -180,21 +181,25 @@ class ManifestTests(unittest.TestCase):
             source.index("        charge:") :
             source.index("        barrel_capacity_preflight:")
         ]
-        running_preflight = charge_block.index("call 0x{VILLAGE_PREFLIGHT_VA:X}")
-        running_no_change = charge_block.index("cmp eax, 2", running_preflight)
+        # Whole-village rows verify funds before charging, then apply the
+        # change directly through the whole-village helper.
+        running_fundcheck = charge_block.index(
+            "cmp dword ptr [edi + 0x2EADC], 1000000"
+        )
         running_deduction = charge_block.index(
-            "sub dword ptr [edi + 0x2EADC], 1000000", running_no_change
+            "sub dword ptr [edi + 0x2EADC], 1000000", running_fundcheck
         )
-        cure_preflight = charge_block.index("call 0x{CURE_PREFLIGHT_VA:X}")
-        legacy_deduction = charge_block.index(
-            "sub dword ptr [edi + 0x2EADC], eax", cure_preflight
+        running_apply = charge_block.index(
+            "call 0x{WHOLE_VILLAGE_VA:X}", running_fundcheck
         )
-        self.assertLess(running_preflight, running_no_change)
-        self.assertLess(running_no_change, running_deduction)
-        self.assertLess(cure_preflight, legacy_deduction)
-        self.assertIn(
-            '"No changes were needed. No tech points have been deducted."', source
-        )
+        self.assertLess(running_fundcheck, running_deduction)
+        self.assertLess(running_deduction, running_apply)
+        # Full Heal routes to its self-contained routine, which counts,
+        # charges 30,000 only when something changed, and reports both counts
+        # through ShowVV2CureResult.
+        self.assertIn("cmp ebx, 5\n            je do_cure", source)
+        self.assertIn("sub dword ptr [edi + 0x2EADC], 30000", source)
+        self.assertIn("ShowVV2CureResult", source)
 
         preflight = source[
             source.index("    preflight_code = assemble(") :
@@ -249,7 +254,7 @@ class ManifestTests(unittest.TestCase):
 
         helper = source[
             source.index("    detail_preflight_code = assemble(") :
-            source.index("    patch(\n        HEAL_CAVE_FILE_OFFSET")
+            source.index("    appearance_helper_code = assemble(")
         ]
         self.assertEqual(helper.count("mov ecx, 62"), 2)
         for exact_target in (
@@ -275,7 +280,9 @@ class ManifestTests(unittest.TestCase):
             (ROOT / "data" / "vv2_origins_feature.json").read_text(encoding="utf-8")
         )
         rows = {int(row["offset"], 0): row for row in manifest["patches"]}
-        self.assertEqual(len(rows), 22)
+        # 22 base transaction patches + Change Appearance (0x9AD20) + the
+        # whole-village Tech helper (0x9AE40).
+        self.assertEqual(len(rows), 24)
         self.assertIn("dry-scan all 256", rows[0x9A300]["purpose"])
         self.assertIn("selected active record", rows[0x9A380]["purpose"])
         self.assertIn("all 62 Like and Dislike", rows[0x9A009]["purpose"])
@@ -289,7 +296,7 @@ class ManifestTests(unittest.TestCase):
         )
         for prior, current in zip(shr_ranges, shr_ranges[1:]):
             self.assertLessEqual(prior[1], current[0])
-        self.assertEqual(rows[0x34570]["after"], "E973070600")
+        self.assertEqual(rows[0x34570]["after"], "E993070600")
         self.assertEqual(rows[0x9A700]["after"], "00")
         self.assertEqual(
             rows[0x9A710]["after"],

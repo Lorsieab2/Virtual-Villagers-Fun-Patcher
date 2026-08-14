@@ -52,6 +52,8 @@ DETAIL_PREFLIGHT_VA = IMAGE_BASE + SHR_RVA + (
 CURE_ENTRY_FILE_OFFSET = 0x9A530
 CURE_ENTRY_VA = IMAGE_BASE + SHR_RVA + (CURE_ENTRY_FILE_OFFSET - SHR_FILE_OFFSET)
 HEAL_CAVE_VA = CURE_ENTRY_VA
+# The Full Heal result-export name string trails the Cure code in its reserve.
+CURE_STRING_VA = CURE_ENTRY_VA + 0x1A0
 # The optional village-wide payload follows the base VV2 Origins helpers in
 # the .shr reserve at raw 0x9A800.  Its runtime address must use the mapped
 # .shr RVA, not IMAGE_BASE + raw file offset.
@@ -79,6 +81,26 @@ BARREL_MAIN_HELPER_CODE = bytes.fromhex(
     "6A028D4C2408E83A81F9FF6A00568D4C2408E81E53F6FF89E1E8"
     "D769F9FF81C4D850000089F9E83A6AF6FFE92A22F9FF"
 )
+# Change Appearance helper: placed after the optional village-wide payload in
+# the .shr reserve (village-wide occupies 0x9A800..0x9AD20). The first 0x100
+# bytes hold the helper code; the export name string follows at +0x100.
+APPEARANCE_FILE_OFFSET = 0x9AD20
+APPEARANCE_VA = IMAGE_BASE + SHR_RVA + (APPEARANCE_FILE_OFFSET - SHR_FILE_OFFSET)
+APPEARANCE_STRING_VA = APPEARANCE_VA + 0x100
+
+# Whole-village Tech-screen upgrades (Running / Full Mastery / Age 18 for all
+# villagers). Placed after the Change Appearance helper in the .shr reserve.
+WHOLE_VILLAGE_FILE_OFFSET = 0x9AE40
+WHOLE_VILLAGE_VA = IMAGE_BASE + SHR_RVA + (
+    WHOLE_VILLAGE_FILE_OFFSET - SHR_FILE_OFFSET
+)
+
+# VV2 villager record fields (exact-build appearance audit).
+VV2_HEAD_FIELD = 0x548
+VV2_BODY_FIELD = 0x54C
+VV2_SEX_FIELD = 0x538
+VV2_APPEARANCE_COST = 5000
+
 RUNNING_PREFERENCE_ID = 38  # exact-build preference-table evidence: 0x8B808
 
 # Exact caller-return addresses proven by the VV2 stock executable audit.  The
@@ -156,7 +178,7 @@ def main() -> None:
         ),
         (
             "permanent_warning",
-            "This upgrade makes permanent changes to your village. Are you sure you want to continue?",
+            "This upgrade makes permanent changes to your village. Do you still want to purchase this?",
         ),
         ("running_unavailable", "Running cannot be added."),
         ("running_granted", "All villagers like running."),
@@ -165,7 +187,7 @@ def main() -> None:
             "No changes were needed. No tech points have been deducted.",
         ),
         ("icons_dll", "VVFP VV2 Origins Icons.dll"),
-        ("show_dialog_export", "ShowOriginsUpgradeMenuState"),
+        ("show_dialog_export", "ShowVV2UpgradeMenuState"),
         ("show_result_export", "ShowOriginsVillageWideResult"),
         ("user32_dll", "USER32.dll"),
         ("message_box_export", "MessageBoxA"),
@@ -199,9 +221,9 @@ def main() -> None:
     # Keep a full gap after the confirmation helper (0x210..0x251).
     tech_menu = PAYLOAD_VA + 0x260
     detail_menu = PAYLOAD_VA + 0x500
-    tech_increment = PAYLOAD_VA + 0x800
-    food_increment = PAYLOAD_VA + 0x880
-    event_dispatch = PAYLOAD_VA + 0x940
+    tech_increment = PAYLOAD_VA + 0x820
+    food_increment = PAYLOAD_VA + 0x8A0
+    event_dispatch = PAYLOAD_VA + 0x960
 
     code = bytearray(b"\0" * STRINGS_OFFSET)
     occupied = bytearray(b"\0" * STRINGS_OFFSET)
@@ -347,10 +369,6 @@ def main() -> None:
             call dword ptr [0x4740D4]
             test eax, eax
             je unavailable
-            cmp dword ptr [0x{VILLAGE_WIDE_SIGNATURE_VA:X}], 0x50465656
-            jne no_village_wide
-            or dword ptr [esp + 0x10], 0xA01C0
-        no_village_wide:
             push dword ptr [esp + 0x10]
             push dword ptr [esp + 0x10]
             call eax
@@ -407,12 +425,12 @@ def main() -> None:
             call dword ptr [0x4740D4]
             test eax, eax
             je confirm_done
-            push 1
+            push 4
             push 0x{s['tech_title']:X}
             push 0x{s['permanent_warning']:X}
             push 0
             call eax
-            cmp eax, 1
+            cmp eax, 6
             sete al
             movzx eax, al
             jmp confirm_return
@@ -451,21 +469,6 @@ def main() -> None:
             je menu_done
             mov ebx, eax
 
-            cmp ebx, 0
-            je confirm_tech_purchase
-            cmp ebx, 1
-            je confirm_tech_purchase
-            cmp ebx, 2
-            je confirm_tech_purchase
-            cmp ebx, 3
-            je confirm_tech_purchase
-            cmp ebx, 4
-            je confirm_tech_purchase
-            cmp ebx, 5
-            je confirm_tech_purchase
-            cmp ebx, 6
-            jne tech_purchase_ready
-        confirm_tech_purchase:
             call 0x{confirm_dialog:X}
             test eax, eax
             jz menu_loop
@@ -511,29 +514,19 @@ def main() -> None:
             jb legacy_charge
             cmp ebx, 8
             ja unsupported_village_command
-            call 0x{VILLAGE_PREFLIGHT_VA:X}
-            cmp eax, 2
-            je village_no_change
-            cmp eax, 1
-            jne menu_loop
             cmp dword ptr [edi + 0x2EADC], 1000000
             jb insufficient
             sub dword ptr [edi + 0x2EADC], 1000000
-            jmp do_village_wide
-        village_no_change:
-            mov eax, 0x{s['running_no_change']:X}
+            call 0x{WHOLE_VILLAGE_VA:X}
+            mov edi, dword ptr [esi + 0x0C]
+            mov eax, 0x{s['purchased']:X}
             jmp show_status
         unsupported_village_command:
             mov eax, 0x{s['running_unavailable']:X}
             jmp show_status
         legacy_charge:
             cmp ebx, 5
-            jne legacy_charge_ready
-            call 0x{CURE_PREFLIGHT_VA:X}
-            test eax, eax
-            jnz legacy_charge_ready
-            mov eax, 0x{s['running_no_change']:X}
-            jmp show_status
+            je do_cure
         legacy_charge_ready:
             mov eax, dword ptr [0x{s['tech_costs']:X} + ebx*4]
             cmp ebx, 2
@@ -733,11 +726,14 @@ def main() -> None:
             je detail_done
             mov ebx, eax
 
-            cmp ebx, 3
-            ja detail_purchase_ready
             call 0x{confirm_dialog:X}
             test eax, eax
             jz detail_loop
+
+            cmp ebx, 4
+            jne detail_purchase_ready
+            call 0x{APPEARANCE_VA:X}
+            jmp detail_loop
         detail_purchase_ready:
 
             mov edi, dword ptr [esi + 0x0C]
@@ -793,46 +789,12 @@ def main() -> None:
             jmp detail_success
 
         detail_mastery:
-            mov ebx, edx
-            mov eax, dword ptr [esi + 0x10]
-            call 0x44F4E0
-            test eax, eax
-            jz detail_mastery_failed
-            mov ebp, eax
-            lea ecx, [ebp + 0x52C]
-            cmp ecx, dword ptr [esi + 0x10]
-            jne detail_mastery_failed
-            mov esi, ebx
-            xor ebx, ebx
-        detail_mastery_loop:
-            cmp dword ptr [esi + ebx*4 + 0x7E4], 100
-            je detail_mastery_next
-            mov eax, 100
-            sub eax, dword ptr [esi + ebx*4 + 0x7E4]
-            push eax
-            mov eax, dword ptr [0x{s['vv2_skill_codes']:X} + ebx*4]
-            push eax
-            push dword ptr [edi + 0x304F0]
-            lea ecx, [ebp + 0x52C]
-            call 0x445430
-        detail_mastery_next:
-            inc ebx
-            cmp ebx, 5
-            jb detail_mastery_loop
-            cmp dword ptr [esi + 0x7E4], 100
-            jne detail_mastery_failed
-            cmp dword ptr [esi + 0x7E8], 100
-            jne detail_mastery_failed
-            cmp dword ptr [esi + 0x7EC], 100
-            jne detail_mastery_failed
-            cmp dword ptr [esi + 0x7F0], 100
-            jne detail_mastery_failed
-            cmp dword ptr [esi + 0x7F4], 100
-            jne detail_mastery_failed
+            mov dword ptr [edx + 0x7E4], 100
+            mov dword ptr [edx + 0x7E8], 100
+            mov dword ptr [edx + 0x7EC], 100
+            mov dword ptr [edx + 0x7F0], 100
+            mov dword ptr [edx + 0x7F4], 100
             jmp detail_success
-        detail_mastery_failed:
-            mov eax, 0x{s['mastery_failed']:X}
-            jmp detail_status
 
         detail_running:
             xor ebp, ebp
@@ -972,11 +934,10 @@ def main() -> None:
             cmp ebx, 5
             je cure_all
             cmp ebx, 6
-            je running_village
+            jb unsupported_village
             cmp ebx, 8
             ja unsupported_village
-            or dword ptr [edi + 0x2EAE8], 2
-            ret
+            jmp running_village
         unsupported_village:
             mov eax, 0x{s['running_unavailable']:X}
             push eax
@@ -1039,12 +1000,12 @@ def main() -> None:
             push edx
             push esi
             push edi
-            xor eax, eax
+            xor ebx, ebx
+            xor ebp, ebp
             call 0x44F4E0
             test eax, eax
-            je cure_format
-            lea edx, [eax + 0x52C]
-            xor eax, eax
+            je cure_report
+            mov edx, eax
             mov ecx, 256
         cure_loop:
             cmp byte ptr [edx + 0x30], 0
@@ -1053,68 +1014,40 @@ def main() -> None:
             jle cure_next
             cmp byte ptr [edx + 0x558], 0
             jne cure_next
-            xor ebx, ebx
-            cmp dword ptr [edx + 0x52C], 80
+            cmp dword ptr [edx + 0x52C], 100
             jge cure_health_done
             mov dword ptr [edx + 0x52C], 100
-            mov ebx, 1
+            inc ebp
         cure_health_done:
             cmp dword ptr [edx + 0x53C], 0
-            je cure_changed_check
+            je cure_next
             mov dword ptr [edx + 0x53C], 0
             inc dword ptr [edi + 0x2E508]
-            mov ebx, 1
-        cure_changed_check:
-            test ebx, ebx
-            jz cure_next
-            inc eax
+            inc ebx
         cure_next:
             add edx, 0xE48C
             dec ecx
             jne cure_loop
-        cure_format:
-            mov ebp, eax
-            sub esp, 40
-            mov dword ptr [esp], 0x65727543
-            mov word ptr [esp + 4], 0x2064
-            lea edi, [esp + 6]
-            test ebp, ebp
-            jnz cure_digits
-            mov byte ptr [edi], 0x30
-            inc edi
-            jmp cure_suffix
-        cure_digits:
-            lea esi, [esp + 30]
-            mov eax, ebp
-            mov ebx, 10
-            xor ecx, ecx
-        cure_digit_loop:
-            xor edx, edx
-            div ebx
-            add dl, 0x30
-            dec esi
-            mov byte ptr [esi], dl
-            inc ecx
+            mov eax, ebx
+            or eax, ebp
+            jz cure_report
+            cmp dword ptr [edi + 0x2EADC], 30000
+            jb cure_report
+            sub dword ptr [edi + 0x2EADC], 30000
+        cure_report:
+            push 0x{s['icons_dll']:X}
+            call dword ptr [0x474010]
             test eax, eax
-            jne cure_digit_loop
-        cure_copy_loop:
-            mov dl, byte ptr [esi]
-            mov byte ptr [edi], dl
-            inc esi
-            inc edi
-            dec ecx
-            jne cure_copy_loop
-        cure_suffix:
-            mov byte ptr [edi], 0x20
-            mov dword ptr [edi + 1], 0x6C6C6976
-            mov dword ptr [edi + 5], 0x72656761
-            mov word ptr [edi + 9], 0x0073
-            lea eax, [esp]
+            je cure_ret
+            push 0x{CURE_STRING_VA:X}
             push eax
-            push 0x{s['tech_title']:X}
-            call 0x{show_message:X}
-            add esp, 8
-            add esp, 40
+            call dword ptr [0x4740D4]
+            test eax, eax
+            je cure_ret
+            push ebp
+            push ebx
+            call eax
+        cure_ret:
             pop edi
             pop esi
             pop edx
@@ -1124,6 +1057,15 @@ def main() -> None:
             ret
         """,
         HEAL_CAVE_VA,
+    )
+    if len(cure_code) > 0x1A0:
+        raise RuntimeError(
+            f"cure code is too large: {len(cure_code):#x}/0x1A0"
+        )
+    cure_block = (
+        cure_code
+        + b"\0" * (0x1A0 - len(cure_code))
+        + b"ShowVV2CureResult\0"
     )
     preflight_code = assemble(
         f"""
@@ -1276,7 +1218,7 @@ def main() -> None:
             call 0x44F4E0
             test eax, eax
             je cure_preflight_no_change
-            lea edx, [eax + 0x52C]
+            mov edx, eax
             mov ecx, 256
         cure_preflight_record:
             cmp byte ptr [edx + 0x30], 0
@@ -1285,7 +1227,7 @@ def main() -> None:
             jle cure_preflight_next
             cmp byte ptr [edx + 0x558], 0
             jne cure_preflight_next
-            cmp dword ptr [edx + 0x52C], 80
+            cmp dword ptr [edx + 0x52C], 100
             jl cure_preflight_change
             cmp dword ptr [edx + 0x53C], 0
             jne cure_preflight_change
@@ -1420,6 +1362,178 @@ def main() -> None:
         """,
         DETAIL_PREFLIGHT_VA,
     )
+    appearance_helper_code = assemble(
+        f"""
+            push ebp
+            mov ebp, esp
+            sub esp, 8
+            push ebx
+            push esi
+            push edi
+            mov edi, dword ptr [esi + 0x0C]
+            mov ecx, dword ptr [edi + 0x304F0]
+            cmp ecx, 0x100
+            jae appearance_done
+            imul ecx, ecx, 0xE48C
+            mov ebx, dword ptr [esi + 0x10]
+            add ebx, ecx
+            cmp byte ptr [ebx + 0x30], 0
+            je appearance_done
+            cmp dword ptr [ebx + 0x52C], 0
+            jle appearance_done
+            mov eax, dword ptr [ebx + 0x{VV2_HEAD_FIELD:X}]
+            mov dword ptr [ebp - 4], eax
+            mov eax, dword ptr [ebx + 0x{VV2_BODY_FIELD:X}]
+            mov dword ptr [ebp - 8], eax
+            push 0x{s['icons_dll']:X}
+            call dword ptr [0x474010]
+            test eax, eax
+            je appearance_done
+            push 0x{APPEARANCE_STRING_VA:X}
+            push eax
+            call dword ptr [0x4740D4]
+            test eax, eax
+            je appearance_done
+            lea ecx, [ebp - 8]
+            push ecx
+            lea ecx, [ebp - 4]
+            push ecx
+            push dword ptr [ebx + 0x530]
+            push dword ptr [ebx + 0x{VV2_SEX_FIELD:X}]
+            call eax
+            test eax, eax
+            je appearance_done
+            cmp byte ptr [ebx + 0x30], 0
+            je appearance_done
+            cmp dword ptr [ebx + 0x52C], 0
+            jle appearance_done
+            cmp dword ptr [edi + 0x2EADC], {VV2_APPEARANCE_COST}
+            jb appearance_insufficient
+            sub dword ptr [edi + 0x2EADC], {VV2_APPEARANCE_COST}
+            mov eax, dword ptr [ebp - 4]
+            mov dword ptr [ebx + 0x{VV2_HEAD_FIELD:X}], eax
+            mov eax, dword ptr [ebp - 8]
+            mov dword ptr [ebx + 0x{VV2_BODY_FIELD:X}], eax
+            jmp appearance_done
+        appearance_insufficient:
+            mov eax, 0x{s['not_enough']:X}
+            push eax
+            push 0x{s['detail_title']:X}
+            call 0x{show_message:X}
+        appearance_done:
+            pop edi
+            pop esi
+            pop ebx
+            mov esp, ebp
+            pop ebp
+            ret
+        """,
+        APPEARANCE_VA,
+    )
+    if len(appearance_helper_code) > 0x100:
+        raise RuntimeError(
+            f"appearance helper is too large: {len(appearance_helper_code):#x}/0x100"
+        )
+    appearance_block = (
+        appearance_helper_code
+        + b"\0" * (0x100 - len(appearance_helper_code))
+        + b"ShowVV2AppearanceChooser\0"
+    )
+    # Whole-village Tech upgrades applied directly (like Cure All): fetch the
+    # record array through the certified manager (0x44F4E0 -> base-0x52C) and
+    # write the proven fields for every active, living, non-special villager.
+    # ebx carries the command (6 = Running, 7 = Full Mastery, 8 = Age 18).
+    whole_village_code = assemble(
+        f"""
+            push ebp
+            push esi
+            push edi
+            push ebx
+            call 0x44F4E0
+            test eax, eax
+            je wv_done
+            mov edx, eax
+            mov ecx, 256
+            mov ebx, dword ptr [esp]
+        wv_loop:
+            cmp byte ptr [edx + 0x30], 0
+            je wv_next
+            cmp dword ptr [edx + 0x52C], 0
+            jle wv_next
+            cmp byte ptr [edx + 0x558], 0
+            jne wv_next
+            cmp ebx, 8
+            je wv_age
+            cmp ebx, 7
+            je wv_mastery
+            push ecx
+            xor ebp, ebp
+            mov esi, -1
+            lea edi, [edx + 0x5F0]
+            mov ecx, 62
+        wv_run_like:
+            cmp dword ptr [edi], {RUNNING_PREFERENCE_ID}
+            jne wv_run_notfound
+            mov ebp, 1
+        wv_run_notfound:
+            cmp dword ptr [edi], -1
+            jne wv_run_nextlike
+            cmp esi, -1
+            jne wv_run_nextlike
+            mov esi, edi
+        wv_run_nextlike:
+            add edi, 4
+            dec ecx
+            jne wv_run_like
+            test ebp, ebp
+            jnz wv_run_dislikes
+            cmp esi, -1
+            je wv_run_end
+            mov dword ptr [esi], {RUNNING_PREFERENCE_ID}
+        wv_run_dislikes:
+            lea edi, [edx + 0x6E8]
+            mov ecx, 62
+        wv_run_dis:
+            cmp dword ptr [edi], {RUNNING_PREFERENCE_ID}
+            jne wv_run_nextdis
+            mov dword ptr [edi], -1
+        wv_run_nextdis:
+            add edi, 4
+            dec ecx
+            jne wv_run_dis
+        wv_run_end:
+            pop ecx
+            jmp wv_next
+        wv_mastery:
+            mov dword ptr [edx + 0x7E4], 100
+            mov dword ptr [edx + 0x7E8], 100
+            mov dword ptr [edx + 0x7EC], 100
+            mov dword ptr [edx + 0x7F0], 100
+            mov dword ptr [edx + 0x7F4], 100
+            jmp wv_next
+        wv_age:
+            mov dword ptr [edx + 0x530], 360
+            mov dword ptr [edx + 0x534], 360
+            cmp dword ptr [edx + 0x540], 0
+            je wv_next
+            mov dword ptr [edx + 0x540], 318
+        wv_next:
+            add edx, 0xE48C
+            dec ecx
+            jne wv_loop
+        wv_done:
+            pop ebx
+            pop edi
+            pop esi
+            pop ebp
+            ret
+        """,
+        WHOLE_VILLAGE_VA,
+    )
+    if len(whole_village_code) > 0x1C0:
+        raise RuntimeError(
+            f"whole-village helper is too large: {len(whole_village_code):#x}/0x1C0"
+        )
     patch(
         HEAL_CAVE_FILE_OFFSET,
         b"\0" * 5,
@@ -1431,9 +1545,9 @@ def main() -> None:
     )
     patch(
         CURE_ENTRY_FILE_OFFSET,
-        b"\0" * len(cure_code),
-        cure_code,
-        "restore active living VV2 villagers below 80 health to 100, clear sickness, and increment People Cured when sickness is removed",
+        b"\0" * len(cure_block),
+        cure_block,
+        "restore active living VV2 villagers below 100 health to 100, clear sickness, charge 30,000 only when something changed, and report the two counts through ShowVV2CureResult",
     )
     patch(
         VILLAGE_PREFLIGHT_FILE_OFFSET,
@@ -1470,6 +1584,18 @@ def main() -> None:
         b"\0" * len(BARREL_MAIN_HELPER_CODE),
         BARREL_MAIN_HELPER_CODE,
         "consume the closed-screen Barrel token with the stock main-village modal owner",
+    )
+    patch(
+        APPEARANCE_FILE_OFFSET,
+        b"\0" * len(appearance_block),
+        appearance_block,
+        "open the Change Appearance chooser for the selected active living villager and, on OK, charge 5,000 tech and write only the proven head and body fields",
+    )
+    patch(
+        WHOLE_VILLAGE_FILE_OFFSET,
+        b"\0" * len(whole_village_code),
+        whole_village_code,
+        "apply Running, Full Mastery, or Age 18 to every active living villager via the certified record array",
     )
 
     patch(
@@ -1574,7 +1700,7 @@ def main() -> None:
         "running_preference_id": RUNNING_PREFERENCE_ID,
         "running_preference_evidence": {"source": "exact stock executable embedded preference table", "table_file_offset": "0x8B808", "entry_name": "running"},
         "name": "Enable Origins-Exclusive Features",
-        "description": "Adds Origins-style Upgrades buttons to the Tech and Villager Details screens. The Tech menu offers Food and Tech Point Doublers for 500,000 tech points each; eligible positive gains are doubled, while Island Events, Duplicate Collectibles, and Gong of Wonder tech gains remain unchanged. The Village-Wide menu adds Running, Full Mastery, and Make Villagers Young Adults.",
+        "description": "Adds Origins-style Upgrades buttons to the Tech and Villager Details screens. The Tech menu offers Time Warp, Island Event, Barrel of Babies, Tech and Food Point Doublers, and Cure All Villagers; eligible positive gains are doubled, while Island Events, Duplicate Collectibles, and Gong of Wonder tech gains remain unchanged. The Villager Details menu grants Youth, Full Mastery, Running, and Set Age to 18 to the selected villager.",
         "output_tag": "Origins Exclusive Features",
         "companion_files": [
             {
