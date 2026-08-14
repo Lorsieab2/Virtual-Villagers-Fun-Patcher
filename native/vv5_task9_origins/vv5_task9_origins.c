@@ -420,17 +420,17 @@ __declspec(dllexport) int __stdcall ShowVV5Task9Result(
         } else if (action == ACTION_GRANT_RUNNING_ALL) {
             wsprintfA(
                 message,
-                "%u villagers already like running; skipped over.\r\n"
-                "%u villagers already have 3 likes; skipped over.\r\n"
-                "Granted Running to %u villagers.\r\n"
+                "%u villagers already like running; skipped over.\r\n\r\n"
+                "%u villagers already have 3 likes; skipped over.\r\n\r\n"
+                "Granted Running to %u villagers.\r\n\r\n"
                 "Removed Running Dislike from %u villagers.",
                 amount_a >> 16, amount_a & 0xFFFF, amount_b >> 16, amount_b & 0xFFFF
             );
         } else if (action == ACTION_GRANT_MASTERY_ALL) {
             wsprintfA(
                 message,
-                "Granted Full Mastery to %u Villagers.\r\n"
-                "%u villagers are already Fully Mastered. Skipped over",
+                "Granted Full Mastery to %u Villagers.\r\n\r\n"
+                "%u villagers are already Fully Mastered. Skipped over.",
                 amount_a, amount_b
             );
         } else {
