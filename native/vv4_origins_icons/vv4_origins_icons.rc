@@ -19,7 +19,7 @@
 #define WS_CHILD 0x40000000L
 #define WS_VISIBLE 0x10000000L
 
-201 DIALOGEX 0, 0, 310, 318
+201 DIALOGEX 0, 0, 310, 334
 STYLE DS_MODALFRAME | DS_SETFONT | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Origins Upgrades"
 FONT 9, "Segoe UI"
@@ -78,10 +78,11 @@ BEGIN
     LTEXT       "1,000,000 tech points", -1, 40, 278, 170, 9
     PUSHBUTTON  "Buy", 1008, 240, 267, 55, 18
 
-    DEFPUSHBUTTON "Cancel", 2, 120, 297, 70, 14
+    LTEXT       "Press ESC to exit this menu.", -1, 20, 300, 270, 9, SS_CENTER
+    DEFPUSHBUTTON "Cancel", 2, 120, 314, 70, 14
 END
 
-202 DIALOGEX 0, 0, 310, 190
+202 DIALOGEX 0, 0, 310, 206
 STYLE DS_MODALFRAME | DS_SETFONT | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Villager Upgrades"
 FONT 9, "Segoe UI"
@@ -116,7 +117,8 @@ BEGIN
     LTEXT       "5,000 tech points", -1, 40, 150, 150, 9
     PUSHBUTTON  "Buy", 1004, 240, 139, 55, 18
 
-    DEFPUSHBUTTON "Cancel", 2, 120, 169, 70, 14
+    LTEXT       "Press ESC to exit this menu.", -1, 20, 172, 270, 9, SS_CENTER
+    DEFPUSHBUTTON "Cancel", 2, 120, 186, 70, 14
 END
 
 203 DIALOGEX 0, 0, 270, 200

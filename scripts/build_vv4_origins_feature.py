@@ -62,10 +62,6 @@ VV4_NATIVE_SKILL_WRITER_VA = 0x46AD80
 VV4_DETAIL_HANDLER_RELOC_OFFSET = 0x235
 VV4_RESULT_HELPER_OFFSET = 0x8F3
 VV4_RESULT_HELPER_VA = PAYLOAD_VA + VV4_RESULT_HELPER_OFFSET
-VV4_RESULT_HELPER_BYTES = bytes.fromhex(
-    "53568B5C240C8B74241068E39E4800FF15E0A1480085C0741868EE9E480050"
-    "FF15DCA1480085C074086A0053566A00FFD05E5BC20800"
-)
 
 # IDA Pro 9.4 decoded the four current-feature absolute operands that are not
 # owned by the generated payload/preflight helpers. They are explicit
@@ -293,9 +289,13 @@ def main() -> None:
             ret 8
         """,
     )
-    put(
-        show_message,
-        f"""
+    # Single source of truth for the status popup helper. It is placed at
+    # `show_message` AND copied verbatim into the pinned result-helper cave
+    # (see below). Every reference is absolute (string VAs, IAT slots) or an
+    # internal rel8 jump, so the bytes are position-independent -- deriving the
+    # cave copy from this same source keeps its baked string VAs in lockstep
+    # with the current string table instead of rotting when strings shift.
+    show_message_source = f"""
             push ebx
             push esi
             mov ebx, dword ptr [esp + 0x0C]
@@ -316,8 +316,8 @@ def main() -> None:
             pop esi
             pop ebx
             ret 8
-        """,
-    )
+        """
+    put(show_message, show_message_source)
     put(
         tech_menu,
         f"""
@@ -787,9 +787,15 @@ def main() -> None:
         bytes(payload), repair_result_helper=False
     )
     payload = bytearray(payload)
-    if any(payload[VV4_RESULT_HELPER_OFFSET : VV4_RESULT_HELPER_OFFSET + len(VV4_RESULT_HELPER_BYTES)]):
+    # Copy the status popup helper into the pinned cave. Derive it from the
+    # exact source used for `show_message` (position-independent) so its baked
+    # string VAs always match the current string table -- a frozen hex blob
+    # here silently rotted whenever a string was added/removed, pointing
+    # LoadLibrary at the wrong string so no popup ever appeared.
+    result_helper_bytes = assemble(show_message_source, VV4_RESULT_HELPER_VA)
+    if any(payload[VV4_RESULT_HELPER_OFFSET : VV4_RESULT_HELPER_OFFSET + len(result_helper_bytes)]):
         raise RuntimeError("VV4 result-helper cave is not zero")
-    payload[VV4_RESULT_HELPER_OFFSET : VV4_RESULT_HELPER_OFFSET + len(VV4_RESULT_HELPER_BYTES)] = VV4_RESULT_HELPER_BYTES
+    payload[VV4_RESULT_HELPER_OFFSET : VV4_RESULT_HELPER_OFFSET + len(result_helper_bytes)] = result_helper_bytes
     result_repairs = []
     for call_offset in range(len(payload) - 4):
         if payload[call_offset] != 0xE8:
@@ -810,7 +816,7 @@ def main() -> None:
     ui_metadata["result_helper"] = {
         "offset": f"0x{VV4_RESULT_HELPER_OFFSET:X}",
         "virtual_address": f"0x{PAYLOAD_VA + VV4_RESULT_HELPER_OFFSET:X}",
-        "sha256": hashlib.sha256(VV4_RESULT_HELPER_BYTES).hexdigest().upper(),
+        "sha256": hashlib.sha256(result_helper_bytes).hexdigest().upper(),
         "call_sites": result_repairs,
     }
     payload = bytes(payload)
