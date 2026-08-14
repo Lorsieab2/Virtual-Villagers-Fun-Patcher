@@ -55,7 +55,7 @@ RUNNING_PREFERENCE_ID = 38  # exact-build preference-table evidence: 0xA0CD8
 VV4_MASTER_VALUE = 0x42C80000  # Float32 100.0
 VV4_NATIVE_SKILL_WRITER_VA = 0x46AD80
 VV4_DETAIL_HANDLER_RELOC_OFFSET = 0x235
-VV4_RESULT_HELPER_OFFSET = 0x8B3
+VV4_RESULT_HELPER_OFFSET = 0x8F3
 VV4_RESULT_HELPER_VA = PAYLOAD_VA + VV4_RESULT_HELPER_OFFSET
 VV4_RESULT_HELPER_BYTES = bytes.fromhex(
     "53568B5C240C8B74241068E39E4800FF15E0A1480085C0741868EE9E480050"
@@ -127,7 +127,7 @@ def main() -> None:
     for value in (50000, 30000, 75000, 500000, 500000, 30000):
         strings.extend(value.to_bytes(4, "little"))
     s["detail_costs"] = STRINGS_VA + len(strings)
-    for value in (50000, 100000, 40000, 50000):
+    for value in (50000, 100000, 40000, 50000, 5000):
         strings.extend(value.to_bytes(4, "little"))
     if len(strings) > PAYLOAD_SIZE - STRINGS_OFFSET:
         raise RuntimeError("VV4 Origins strings exceed the validated cave")
@@ -141,8 +141,8 @@ def main() -> None:
     show_message = PAYLOAD_VA + 0x200
     tech_menu = PAYLOAD_VA + 0x260
     detail_menu = PAYLOAD_VA + 0x500
-    tech_increment = PAYLOAD_VA + 0x850
-    food_increment = PAYLOAD_VA + 0x900
+    tech_increment = PAYLOAD_VA + 0x890
+    food_increment = PAYLOAD_VA + 0x930
 
     code = bytearray(b"\0" * STRINGS_OFFSET)
     occupied = bytearray(b"\0" * STRINGS_OFFSET)
@@ -558,8 +558,10 @@ def main() -> None:
             or edi, 4
         age_state:
             cmp dword ptr [edx + 0x1B8C], 360
-            jne show
+            jne appearance_state
             or edi, 8
+        appearance_state:
+            or edi, 0x10
         show:
             push edi
             push 1
@@ -608,6 +610,13 @@ def main() -> None:
             je mastery
             cmp ebx, 2
             je running
+            cmp ebx, 3
+            je set_age_18
+            call 0x41FE70
+            mov ecx, dword ptr [eax + 0x171B0]
+            mov dword ptr [eax + 0x1719C], ecx
+            jmp detail_done
+        set_age_18:
             mov dword ptr [edx + 0x1B8C], 360
             jmp detail_success
         youth:
