@@ -62,6 +62,34 @@ Record stride `0x2E3C`; selected-index state world+`0x171B0`; resolver
   `0x419E8E`/`0x419E94`. This is the model for VV4 atomic OK/Cancel, which VV4's
   own clothing dialog lacks.
 
+## Native open + charge mechanism (traced, exact build)
+
+The stock Clothing Hut path is fully traced and is the basis for Stage 1:
+
+- The action handler at `0x46435E` charges the outfit: `push 0xFFFFEC78`
+  (**-5000**) → `mov ecx, 0x4D6F88` → `call 0x41E300` (signed add-to-pool),
+  then `0x464379: call 0x41FE70` (world) → `0x464380: mov [world+0x1719C], esi`
+  where **esi = the villager slot**. Setting `world+0x1719C` to a slot is the
+  request that opens the chooser.
+- The main loop consumes it at `0x43F8B0`: if `[world+0x1719C] != 0`, it
+  stack-allocates the chooser, `call 0x419710` (construct with the slot),
+  `call 0x401D40` (**modal show** — blocks until close), then clears
+  `world+0x1719C` and `call 0x4194E0` (destruct). The chooser is the only exit;
+  it live-writes `+0x1BBC` and renders the villager from the record.
+
+So a Detail-screen "Change Appearance" open is exactly: validate slot
+active/living + `[0x4D6F88] >= 5000`; on insufficient show "Not enough tech
+points" and neither charge nor open; otherwise charge -5000 via `0x41E300` and
+set `[world+0x1719C] = slot`. Stage 1 reuses the native open, render, body
+arrows, modal loop, and close — no new UI bytes.
+
+**Menu-row note:** the Villager-Details Upgrades dialog currently renders four
+rows (Grant Youth / Full Mastery / Grant Running / Set Age 18). Adding a fifth
+"Change Appearance" row needs the companion **VVFP Origins Icons.dll** to expose
+the extra row's icon + label (the dialog row set is companion-driven), plus the
+payload's Detail cost table / dispatch to gain one entry. That companion-row
+addition is the one non-payload task in Stage 1.
+
 ## Design — extend the native chooser (no fabricated renderer)
 
 1. **Detail row.** Add "Change Appearance" (cost 5,000) to the Origins
