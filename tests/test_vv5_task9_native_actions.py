@@ -321,16 +321,24 @@ class Task9ArtifactTests(unittest.TestCase):
             self.assertIn(name, exports)
             self.assertIn(name.encode("ascii") + b"\0", DLL.read_bytes())
 
-    def test_dialog_resources_expose_exact_six_plus_five_rows(self) -> None:
+    def test_dialog_resources_expose_exact_eight_plus_five_rows(self) -> None:
         resources = RC.read_text(encoding="utf-8")
         tech, detail = resources.split("202 DIALOGEX", 1)
-        self.assertEqual(tech.count('PUSHBUTTON "Buy"'), 6)
+        # Eight tech rows now: Time Warp, Island Event, Barrel of Babies, Tech
+        # Point Doubler, Food Point Doubler, Full Heal/Cure All, Complete all
+        # Collections, Reset all Collections.
+        self.assertEqual(tech.count('PUSHBUTTON "Buy"'), 8)
         # Five villager rows now: Youth, Mastery, Running, Age 18, Change
         # Appearance. The picker dialog 203 uses arrow/OK/Cancel, not "Buy".
         self.assertEqual(detail.count('PUSHBUTTON "Buy"'), 5)
         self.assertIn("Full Heal/Cure All Villagers", tech)
+        self.assertIn("Complete all Collections", tech)
+        self.assertIn("Reset all Collections", tech)
         self.assertIn("Grant Running", detail)
         self.assertIn("Change Appearance", detail)
+        # Both Upgrade menus advertise the ESC exit hint.
+        self.assertIn("Press ESC to exit this menu.", tech)
+        self.assertIn("Press ESC to exit this menu.", detail)
 
     def test_append_layouts_preserve_atomic_ranges_and_exact_pe_guards(self) -> None:
         layouts = self.manifest["pe_append_transaction"]["layouts"]

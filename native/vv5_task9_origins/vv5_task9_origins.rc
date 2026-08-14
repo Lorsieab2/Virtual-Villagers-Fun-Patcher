@@ -26,7 +26,7 @@
 #define SS_CENTER 0x00000001L
 #define SS_OWNERDRAW 0x0000000DL
 
-201 DIALOGEX 0, 0, 310, 222
+201 DIALOGEX 0, 0, 310, 304
 STYLE DS_MODALFRAME | DS_SETFONT | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Origins Upgrades"
 FONT 9, "Segoe UI"
@@ -67,10 +67,23 @@ BEGIN
     LTEXT "30,000 tech points", -1, 40, 182, 150, 9
     PUSHBUTTON "Buy", 1005, 240, 171, 55, 18
 
-    DEFPUSHBUTTON "Cancel", 2, 120, 201, 70, 14
+    ICON 109, -1, 8, 200, 24, 24
+    ICON 109, 1106, 22, 212, 12, 12
+    LTEXT "Complete all Collections", -1, 40, 202, 195, 10
+    LTEXT "1,000,000 tech points", -1, 40, 214, 150, 9
+    PUSHBUTTON "Buy", 1006, 240, 203, 55, 18
+
+    ICON 109, -1, 8, 232, 24, 24
+    ICON 109, 1107, 22, 244, 12, 12
+    LTEXT "Reset all Collections", -1, 40, 234, 195, 10
+    LTEXT "1,000,000 tech points", -1, 40, 246, 150, 9
+    PUSHBUTTON "Buy", 1007, 240, 235, 55, 18
+
+    CTEXT "Press ESC to exit this menu.", -1, 20, 266, 270, 9
+    DEFPUSHBUTTON "Cancel", 2, 120, 282, 70, 14
 END
 
-202 DIALOGEX 0, 0, 310, 190
+202 DIALOGEX 0, 0, 310, 208
 STYLE DS_MODALFRAME | DS_SETFONT | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Villager Upgrades"
 FONT 9, "Segoe UI"
@@ -105,7 +118,8 @@ BEGIN
     LTEXT "5,000 tech points", -1, 40, 150, 150, 9
     PUSHBUTTON "Buy", 1004, 240, 139, 55, 18
 
-    DEFPUSHBUTTON "Cancel", 2, 120, 169, 70, 14
+    CTEXT "Press ESC to exit this menu.", -1, 20, 170, 270, 9
+    DEFPUSHBUTTON "Cancel", 2, 120, 186, 70, 14
 END
 
 203 DIALOGEX 0, 0, 250, 196

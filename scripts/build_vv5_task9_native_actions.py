@@ -140,6 +140,8 @@ OFF = {
     "island": 0x3C00,
     "barrel": 0x3F00,
     "appearance": 0x4300,
+    "complete_collections": 0x4600,
+    "reset_collections": 0x4900,
     "strings": 0x7000,
 }
 
@@ -165,6 +167,8 @@ SIZES = {
     "island": 0x300,
     "barrel": 0x340,
     "appearance": 0x300,
+    "complete_collections": 0x300,
+    "reset_collections": 0x300,
 }
 
 
@@ -229,6 +233,7 @@ def build_strings(page: bytearray, page_va: int) -> dict[str, int]:
     # expanded-256 baseline string region stays byte-identical for its overlay.
     time_warp_values = (
         ("appearance_export", b"ShowAppearanceChooser\0"),
+        ("perm_warning", b"This upgrade makes permanent changes to your village. Do you still want to purchase this?\0"),
         ("tw_get", b"GetOriginsOwner\0"),
         ("tw_user32", b"USER32.dll\0"),
         ("tw_messagebox", b"MessageBoxA\0"),
@@ -591,11 +596,40 @@ def build_menus(page: bytearray, page_va: int) -> dict[str, bytes]:
     # (0x904000) is left byte-identical so the separate vv5_expanded_256_time_warp
     # overlay continues to own Time Warp there.
     native_stock = page_va == 0x7C9000
+    # The expanded-256 baseline page is kept byte-identical to its pre-Collections
+    # form so the separate vv5_expanded_256_time_warp overlay (which surgically
+    # patches fixed offsets in this tech_menu) keeps working. Every Collections /
+    # doubler-confirm addition below is therefore gated to the stock layout; in
+    # expanded the two Collections rows render but are bounded out as no-ops.
     menu_state = 0x000 if native_stock else 0x700
+    # Command upper bound: 0..7 in stock (adds the two Collections rows), 0..5 in
+    # expanded (original), so the expanded router bytes stay identical.
+    command_bound = 7 if native_stock else 5
+    collections_guard = (
+        "cmp ebx, 6\n        jae unavailable\n        " if native_stock else ""
+    )
+    doubler_confirm = (
+        "lea eax, [edi+17]\n"
+        "        push 0\n"
+        "        push 0\n"
+        "        push eax\n"
+        f"        call 0x{page_va + OFF['confirm']:X}\n"
+        "        cmp eax, 1\n"
+        "        jne done\n"
+        "        cmp dword ptr [0x41F1E6], 0x96\n"
+        "        jne unavailable\n"
+        "        mov esi, dword ptr [0x51D5F8]\n"
+        "        cmp esi, 500000\n"
+        "        jb insufficient\n        "
+        if native_stock
+        else ""
+    )
     tw_dispatch = (
         "test ebx, ebx\n        jz time_warp_row\n"
         "        cmp ebx, 1\n        je island_row\n"
-        "        cmp ebx, 2\n        je barrel_row\n        "
+        "        cmp ebx, 2\n        je barrel_row\n"
+        "        cmp ebx, 6\n        je complete_collections_row\n"
+        "        cmp ebx, 7\n        je reset_collections_row\n        "
         if native_stock
         else ""
     )
@@ -605,6 +639,10 @@ def build_menus(page: bytearray, page_va: int) -> dict[str, bytes]:
         f"    island_row:\n        call 0x{page_va + OFF['island']:X}\n"
         "        jmp done\n        nop\n        nop\n        nop\n"
         f"    barrel_row:\n        call 0x{page_va + OFF['barrel']:X}\n"
+        "        jmp done\n        nop\n        nop\n        nop\n"
+        f"    complete_collections_row:\n        call 0x{page_va + OFF['complete_collections']:X}\n"
+        "        jmp done\n        nop\n        nop\n        nop\n"
+        f"    reset_collections_row:\n        call 0x{page_va + OFF['reset_collections']:X}\n"
         "        jmp done\n        nop\n        nop\n        nop\n    "
         if native_stock
         else ""
@@ -652,13 +690,13 @@ def build_menus(page: bytearray, page_va: int) -> dict[str, bytes]:
         cmp eax, -1
         je done
         mov ebx, eax
-        cmp ebx, 5
+        cmp ebx, {command_bound}
         ja done
         {tw_dispatch}cmp ebx, 3
         jb unavailable
         cmp ebx, 5
         je heal
-        mov edi, 1
+        {collections_guard}mov edi, 1
         cmp ebx, 3
         je have_mask
         mov edi, 2
@@ -681,7 +719,7 @@ def build_menus(page: bytearray, page_va: int) -> dict[str, bytes]:
         mov esi, dword ptr [0x51D5F8]
         cmp esi, 500000
         jb insufficient
-        or dword ptr [0x51D388], edi
+        {doubler_confirm}or dword ptr [0x51D388], edi
         test dword ptr [0x51D388], edi
         jz retained
         cmp dword ptr [0x51D5F8], esi
@@ -1781,6 +1819,11 @@ def build_time_warp(page: bytearray, page_va: int, s: dict[str, int]) -> bytes:
         call show_message
         cmp eax, 1
         jne cancelled
+        mov eax, 0x{s['perm_warning']:X}
+        mov edx, 0x34
+        call show_message
+        cmp eax, 6
+        jne cancelled
         call 0x425950
         cmp eax, dword ptr [ebp-0x18]
         jne recheck
@@ -1931,6 +1974,11 @@ def build_island(page: bytearray, page_va: int, s: dict[str, int]) -> bytes:
         call show_message
         cmp eax, 1
         jne cancelled
+        mov eax, 0x{s['perm_warning']:X}
+        mov edx, 0x34
+        call show_message
+        cmp eax, 6
+        jne cancelled
         call 0x425950
         cmp eax, dword ptr [ebp-0x18]
         jne recheck
@@ -2058,6 +2106,11 @@ def build_barrel(page: bytearray, page_va: int, s: dict[str, int]) -> bytes:
         mov edx, 1
         call show_message
         cmp eax, 1
+        jne cancelled
+        mov eax, 0x{s['perm_warning']:X}
+        mov edx, 0x34
+        call show_message
+        cmp eax, 6
         jne cancelled
         call 0x425950
         cmp eax, dword ptr [ebp-0x18]
@@ -2243,6 +2296,204 @@ def build_appearance(page: bytearray, page_va: int, s: dict[str, int]) -> bytes:
     """)
 
 
+def build_complete_collections(page: bytearray, page_va: int) -> bytes:
+    """Complete all Collections (village-wide, 1,000,000 tech points). Drives the
+    game's own collectible goal machinery: for each collectible slot 0x50..0x82
+    that is not already found, mark the found-flag in the collectible manager
+    (0x4DBFC8 + item*4 + 0x630) and fire the exact native statistic the collect
+    handler fires for a new find via 0x413450 (ECX=0x4DB358): stat 0xF for slots
+    0x50..0x67, stat 0xE for 0x68..0x7F, and stats 8/9/0xA (+0xB/0xC/0xD for the
+    two higher masters) plus the master count 0x51D36C for 0x80..0x82. 0x413450
+    latches the collection goals through the native goal cascade. The
+    difficulty-scaled score accumulator (0x41EB40 -> shared stat 0) is
+    intentionally not driven so Reset stays cleanly reversible. Charges one
+    verified 1,000,000 deduction after the shared confirm (detailed prompt plus
+    the permanent-change warning)."""
+    return put(page, page_va, "complete_collections", f"""
+        push ebp
+        mov ebp, esp
+        push ebx
+        push esi
+        push edi
+        sub esp, 0x20
+        mov eax, dword ptr [0x51D5F8]
+        mov dword ptr [ebp-0x10], eax
+        cmp eax, 1000000
+        jb insufficient
+        push 0
+        push 0
+        push 16
+        call 0x{page_va + OFF['confirm']:X}
+        cmp eax, 1
+        jne cancelled
+        mov eax, dword ptr [0x51D5F8]
+        cmp eax, dword ptr [ebp-0x10]
+        jne recheck
+        cmp eax, 1000000
+        jb insufficient
+        push -1000000
+        mov ecx, 0x51D5F8
+        call 0x4237B0
+        mov eax, dword ptr [ebp-0x10]
+        sub eax, 1000000
+        cmp dword ptr [0x51D5F8], eax
+        jne charge_unknown
+        mov edi, 0x4DBFC8
+        mov esi, 0x50
+    grant_loop:
+        cmp dword ptr [edi+esi*4+0x630], 0
+        jne grant_next
+        mov dword ptr [edi+esi*4+0x630], 1
+        cmp esi, 0x80
+        jae grant_master
+        cmp esi, 0x68
+        jae grant_cat_e
+        push 1
+        push 0xF
+        mov ecx, 0x4DB358
+        call 0x413450
+        jmp grant_next
+    grant_cat_e:
+        push 1
+        push 0xE
+        mov ecx, 0x4DB358
+        call 0x413450
+        jmp grant_next
+    grant_master:
+        push 1
+        push 8
+        mov ecx, 0x4DB358
+        call 0x413450
+        push 1
+        push 9
+        mov ecx, 0x4DB358
+        call 0x413450
+        push 1
+        push 0xA
+        mov ecx, 0x4DB358
+        call 0x413450
+        cmp esi, 0x80
+        je grant_master_count
+        push 1
+        push 0xB
+        mov ecx, 0x4DB358
+        call 0x413450
+        push 1
+        push 0xC
+        mov ecx, 0x4DB358
+        call 0x413450
+        push 1
+        push 0xD
+        mov ecx, 0x4DB358
+        call 0x413450
+    grant_master_count:
+        add dword ptr [0x51D36C], 1
+    grant_next:
+        inc esi
+        cmp esi, 0x83
+        jl grant_loop
+        {status_call(page_va, '16', 0)}
+        jmp done
+    insufficient:
+        {status_call(page_va, '16', 3)}
+        jmp done
+    cancelled:
+        {status_call(page_va, '16', 4)}
+        jmp done
+    recheck:
+        {status_call(page_va, '16', 5)}
+        jmp done
+    charge_unknown:
+        {status_call(page_va, '16', 7)}
+    done:
+        add esp, 0x20
+        pop edi
+        pop esi
+        pop ebx
+        pop ebp
+        ret
+    """)
+
+
+def build_reset_collections(page: bytearray, page_va: int) -> bytes:
+    """Reset all Collections (village-wide, 1,000,000 tech points). Reverses only
+    the collection-exclusive state: clears every found-flag (0x4DBFC8 + item*4 +
+    0x630, slots 0x50..0x82), zeroes the collection goal records 0x8..0xF in the
+    statistic manager (0x4DB358 + id*12: complete-flag byte and accumulated
+    value), and resets the master count 0x51D36C. Statistic IDs 0x8..0xF are used
+    only by the collect handler, so clearing them cannot disturb unrelated
+    progress. The shared meta goal counters (0x10/0x40/0x41) bumped by the goal
+    cascade and any one-time completion rewards are not touched -- they are not
+    collection-exclusive and cannot be safely reversed. Charges one verified
+    1,000,000 deduction after the shared confirm."""
+    return put(page, page_va, "reset_collections", f"""
+        push ebp
+        mov ebp, esp
+        push ebx
+        push esi
+        push edi
+        sub esp, 0x20
+        mov eax, dword ptr [0x51D5F8]
+        mov dword ptr [ebp-0x10], eax
+        cmp eax, 1000000
+        jb insufficient
+        push 0
+        push 0
+        push 17
+        call 0x{page_va + OFF['confirm']:X}
+        cmp eax, 1
+        jne cancelled
+        mov eax, dword ptr [0x51D5F8]
+        cmp eax, dword ptr [ebp-0x10]
+        jne recheck
+        cmp eax, 1000000
+        jb insufficient
+        push -1000000
+        mov ecx, 0x51D5F8
+        call 0x4237B0
+        mov eax, dword ptr [ebp-0x10]
+        sub eax, 1000000
+        cmp dword ptr [0x51D5F8], eax
+        jne charge_unknown
+        mov edi, 0x4DBFC8
+        mov esi, 0x50
+    clear_loop:
+        mov dword ptr [edi+esi*4+0x630], 0
+        inc esi
+        cmp esi, 0x83
+        jl clear_loop
+        mov esi, 8
+    stat_loop:
+        lea eax, [esi+esi*2]
+        mov byte ptr [eax*4+0x4DB358], 0
+        mov dword ptr [eax*4+0x4DB35C], 0
+        inc esi
+        cmp esi, 0x10
+        jl stat_loop
+        mov dword ptr [0x51D36C], 0
+        {status_call(page_va, '17', 0)}
+        jmp done
+    insufficient:
+        {status_call(page_va, '17', 3)}
+        jmp done
+    cancelled:
+        {status_call(page_va, '17', 4)}
+        jmp done
+    recheck:
+        {status_call(page_va, '17', 5)}
+        jmp done
+    charge_unknown:
+        {status_call(page_va, '17', 7)}
+    done:
+        add esp, 0x20
+        pop edi
+        pop esi
+        pop ebx
+        pop ebp
+        ret
+    """)
+
+
 def build_page(page_va: int) -> tuple[bytes, dict[str, object]]:
     page = bytearray(PAGE_SIZE)
     page[0:8] = b"VVT9PG\0\0"
@@ -2267,6 +2518,8 @@ def build_page(page_va: int) -> tuple[bytes, dict[str, object]]:
         routines["island"] = build_island(page, page_va, strings)
         routines["barrel"] = build_barrel(page, page_va, strings)
         routines["appearance"] = build_appearance(page, page_va, strings)
+        routines["complete_collections"] = build_complete_collections(page, page_va)
+        routines["reset_collections"] = build_reset_collections(page, page_va)
     result = {
         "page_sha256": sha(bytes(page)),
         "routine_sha256": {name: sha(value) for name, value in routines.items()},

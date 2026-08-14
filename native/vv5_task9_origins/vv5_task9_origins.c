@@ -8,7 +8,7 @@ enum {
     IDD_ORIGINS_TECH = 201,
     IDD_ORIGINS_VILLAGER = 202,
     ID_BUY_FIRST = 1000,
-    ID_BUY_LAST = 1005,
+    ID_BUY_LAST = 1007,
     ID_CHECK_FIRST = 1100,
     STATE_VILLAGER = 0x10000
 };
@@ -20,7 +20,11 @@ enum {
     ACTION_AGE18 = 3,
     ACTION_HEAL = 4,
     ACTION_APPEARANCE = 5,
-    ACTION_TECH_BASE = 16
+    ACTION_TECH_BASE = 16,
+    ACTION_COMPLETE_COLLECTIONS = 16,
+    ACTION_RESET_COLLECTIONS = 17,
+    ACTION_TECH_DOUBLER = 18,
+    ACTION_FOOD_DOUBLER = 19
 };
 
 enum {
@@ -260,7 +264,7 @@ static INT_PTR CALLBACK upgrade_dialog(
 ) {
     if (message == WM_INITDIALOG) {
         int villager_menu = (lparam & STATE_VILLAGER) != 0;
-        int row_count = villager_menu ? 5 : 6;
+        int row_count = villager_menu ? 5 : 8;
         int row;
         for (row = 0; row < row_count; ++row) {
             ShowWindow(GetDlgItem(window, ID_CHECK_FIRST + row), SW_HIDE);
@@ -326,6 +330,10 @@ static const char *action_name(unsigned int action) {
     case ACTION_AGE18: return "Set Age to 18";
     case ACTION_HEAL: return "Full Heal/Cure All Villagers";
     case ACTION_APPEARANCE: return "Change Appearance";
+    case ACTION_COMPLETE_COLLECTIONS: return "Complete all Collections";
+    case ACTION_RESET_COLLECTIONS: return "Reset all Collections";
+    case ACTION_TECH_DOUBLER: return "Tech Point Doubler";
+    case ACTION_FOOD_DOUBLER: return "Food Point Doubler";
     default: return "Origins upgrade";
     }
 }
@@ -337,33 +345,50 @@ __declspec(dllexport) int __stdcall ConfirmVV5Task9Action(
 ) {
     HWND owner = GetOriginsOwner();
     char message[384];
+    const char *title = (action == ACTION_HEAL || action >= ACTION_TECH_BASE)
+        ? "Origins Upgrades"
+        : "Villager Upgrades";
     if (owner == NULL) {
         return 0;
     }
-    if (action == ACTION_HEAL) {
-        wsprintfA(
-            message,
-            "Full Heal/Cure All Villagers will clear sickness from %u Villagers and restore full health to %u Villagers for 30,000 tech points.\r\nPress OK to confirm, or Cancel.",
-            amount_a,
-            amount_b
-        );
-    } else {
-        unsigned int price = action == ACTION_MASTERY
-            ? 100000U
-            : (action == ACTION_RUNNING ? 40000U : 50000U);
-        wsprintfA(
-            message,
-            "%s for %u tech points?\r\nPress OK to confirm, or Cancel.",
-            action_name(action),
-            price
-        );
+    /* The two point doublers historically had no detailed confirmation; they go
+       straight to the shared permanent-change warning below. Every other action
+       shows its detailed prompt first, then the same warning as a second gate. */
+    if (action != ACTION_TECH_DOUBLER && action != ACTION_FOOD_DOUBLER) {
+        if (action == ACTION_HEAL) {
+            wsprintfA(
+                message,
+                "Full Heal/Cure All Villagers will clear sickness from %u Villagers and restore full health to %u Villagers for 30,000 tech points.\r\nPress OK to confirm, or Cancel.",
+                amount_a,
+                amount_b
+            );
+        } else {
+            unsigned int price;
+            switch (action) {
+            case ACTION_MASTERY: price = 100000U; break;
+            case ACTION_RUNNING: price = 40000U; break;
+            case ACTION_COMPLETE_COLLECTIONS:
+            case ACTION_RESET_COLLECTIONS: price = 1000000U; break;
+            default: price = 50000U; break;
+            }
+            wsprintfA(
+                message,
+                "%s for %u tech points?\r\nPress OK to confirm, or Cancel.",
+                action_name(action),
+                price
+            );
+        }
+        if (MessageBoxA(owner, message, title, MB_OKCANCEL | MB_ICONQUESTION) != IDOK) {
+            return 0;
+        }
     }
+    /* Shared final gate for every upgrade (tech-screen and details-screen). */
     return MessageBoxA(
         owner,
-        message,
-        action == ACTION_HEAL ? "Origins Upgrades" : "Villager Upgrades",
-        MB_OKCANCEL | MB_ICONQUESTION
-    ) == IDOK;
+        "This upgrade makes permanent changes to your village. Do you still want to purchase this?",
+        title,
+        MB_YESNO | MB_ICONWARNING
+    ) == IDYES;
 }
 
 __declspec(dllexport) int __stdcall ShowVV5Task9Result(
@@ -382,6 +407,10 @@ __declspec(dllexport) int __stdcall ShowVV5Task9Result(
     case RESULT_SUCCESS:
         if (action == ACTION_HEAL) {
             wsprintfA(message, "Cured sickness from %u villagers.\r\n\r\nRestored %u villagers to full health.", amount_a, amount_b);
+        } else if (action == ACTION_COMPLETE_COLLECTIONS) {
+            lstrcpyA(message, "All collections are complete. Every collectible was added and the collection goals updated accordingly.");
+        } else if (action == ACTION_RESET_COLLECTIONS) {
+            lstrcpyA(message, "All collections were reset. Every collectible was cleared and the collection goals were marked incomplete again.\r\n\r\nNote: game-wide totals and any one-time rewards from completing the collections are not reversed.");
         } else {
             wsprintfA(message, "%s completed.", name);
         }
