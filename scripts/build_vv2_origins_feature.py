@@ -1254,10 +1254,10 @@ def main() -> None:
         """
             push ecx
             push edx
-            call 0x44F4E0
+            call 0x441690
             test eax, eax
             je cure_preflight_no_change
-            lea edx, [eax + 0x52C]
+            mov edx, eax
             mov ecx, 256
         cure_preflight_record:
             cmp byte ptr [edx + 0x30], 0
