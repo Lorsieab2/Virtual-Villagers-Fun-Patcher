@@ -19,7 +19,7 @@ from typing import Any, Iterable
 
 
 TRANSPARENCY_FILENAME = "VVFP Transparency Log.txt"
-PATCHER_VERSION = "v1.34.7-rc34"
+PATCHER_VERSION = "v1.34.7-rc35"
 
 
 def validate_feature_transparency_metadata(features: Iterable[Any]) -> None:
