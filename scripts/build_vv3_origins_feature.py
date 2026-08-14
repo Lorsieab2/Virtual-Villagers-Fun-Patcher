@@ -1115,6 +1115,13 @@ def main() -> None:
         """,
         HEAL_CAVE_VA,
     )
+    # Availability check for the village-wide upgrades.  Only verify the
+    # village-wide component's signature (magic + version); the previous version
+    # also LoadLibrary/GetProcAddress-probed the result DLL here, which corrupted
+    # the return path and crashed every village-wide purchase (Running, Full
+    # Mastery, All Villagers are 18) with a ret-to-garbage.  The signature alone
+    # proves the component is installed, and village_wide re-resolves the result
+    # export with its own null guard, so the probe was redundant.
     preflight_source = f"""
             cmp dword ptr [0x{VILLAGE_WIDE_SIGNATURE_VA:X}], 0x50465656
             jne preflight_invalid
@@ -1124,22 +1131,6 @@ def main() -> None:
             jne preflight_invalid
             cmp dword ptr [0x{VILLAGE_WIDE_SIGNATURE_VA + 0x10:X}], 3
             jne preflight_invalid
-            cmp dword ptr [0x{VILLAGE_WIDE_SIGNATURE_VA + 0x14:X}], 0
-            jne preflight_invalid
-            cmp dword ptr [0x{VILLAGE_WIDE_SIGNATURE_VA + 0x18:X}], 0
-            jne preflight_invalid
-            cmp dword ptr [0x{VILLAGE_WIDE_SIGNATURE_VA + 0x1C:X}], 0
-            jne preflight_invalid
-            mov eax, 0x{s['show_result_export']:X}
-            push 0x{s['icons_dll']:X}
-            call dword ptr [0x47C124]
-            test eax, eax
-            je preflight_invalid
-            push 0x{s['show_result_export']:X}
-            push eax
-            call dword ptr [0x47C128]
-            test eax, eax
-            je preflight_invalid
             mov eax, 1
             ret
         preflight_invalid:
