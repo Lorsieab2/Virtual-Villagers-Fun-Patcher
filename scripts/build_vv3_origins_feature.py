@@ -60,6 +60,17 @@ COLLECTIONS_COMPLETE_FILE_OFFSET = 0x9EEA0
 COLLECTIONS_COMPLETE_VA = IMAGE_BASE + COLLECTIONS_COMPLETE_FILE_OFFSET
 COLLECTIONS_RESET_FILE_OFFSET = 0x9EF30
 COLLECTIONS_RESET_VA = IMAGE_BASE + COLLECTIONS_RESET_FILE_OFFSET
+
+# Deferred barrel-event hook.  Firing the "Another One of Those Barrels" event
+# synchronously from the (paused, modal) Tech menu flashes its popup and never
+# spawns, so do_barrel instead sets a pending flag (the unused game byte
+# 0x4B3C75) and this hook -- spliced into the island-event handler at 0x468727,
+# which runs every frame during normal gameplay -- fires the full event once the
+# menu has closed, so it reads and behaves like a real island event.
+BARREL_HOOK_FILE_OFFSET = 0x7B3B1
+BARREL_HOOK_VA = IMAGE_BASE + BARREL_HOOK_FILE_OFFSET
+BARREL_PENDING_FLAG_VA = 0x4B3C75
+BARREL_HANDLER_SPLICE_VA = 0x468727
 # Read-only strings for the cure and Change Appearance caves, placed in the
 # free .text padding after the Change Appearance cave (0x7BD40) and before the
 # .rdata boundary (0x7C000).
@@ -589,34 +600,13 @@ def main() -> None:
             jmp success
 
         do_barrel:
-            # Trigger the native "Another One of Those Barrels" island event.
-            # Queue its popup (event 0x7E on the notification manager 0x581A38),
-            # bump the island-event counter, then create the barrel (0x419AC0,
-            # the [0x4B3C38] singleton) and add three babies via the stock
-            # populate routine.  0x419B30 adds one eligible-villager baby per
-            # call and takes the island-scene singleton (0x6C5DA0) as its scene
-            # arg (ret 4); it preserves esi, so esi carries the 3-baby counter.
-            # Guard on the scene existing so the populate routine is never handed
-            # a null scene.  (The prior hand-rolled spawn clobbered the barrel
-            # getter's result with an unrelated global and crashed.)
-            push 0x7E
-            mov ecx, 0x581A38
-            call 0x424110
-            mov eax, dword ptr [0x5824C4]
-            inc eax
-            mov dword ptr [0x5824C4], eax
-            mov eax, dword ptr [0x6C5DA0]
-            test eax, eax
-            je success
-            mov esi, 3
-        do_barrel_loop:
-            call 0x419AC0
-            mov ecx, eax
-            push dword ptr [0x6C5DA0]
-            call 0x419B30
-            dec esi
-            jnz do_barrel_loop
-            jmp success
+            # Defer the "Another One of Those Barrels" island event.  Firing it
+            # from this paused, modal menu flashes the popup and never spawns, so
+            # just mark it pending; the island-event handler hook spliced at
+            # 0x{BARREL_HANDLER_SPLICE_VA:X} fires the full event next frame once
+            # the menu closes, so it reads and behaves like a real island event.
+            mov byte ptr [0x{BARREL_PENDING_FLAG_VA:X}], 1
+            jmp menu_done
 
         do_complete_collections:
             call 0x{COLLECTIONS_COMPLETE_VA:X}
@@ -1306,6 +1296,52 @@ def main() -> None:
         COLLECTIONS_RESET_VA,
     )
 
+    # Deferred barrel-event hook, spliced into the island-event handler at
+    # 0x468727 (runs every frame during village gameplay).  When do_barrel has
+    # set the pending flag, fire the full "Another One of Those Barrels" event
+    # once -- popup 0x7E, then create the barrel (0x419AC0) and populate it three
+    # times (0x419B30, scene = esi, which the handler holds and the callees
+    # preserve) -- then clear the flag and run the two spliced-out instructions
+    # before returning.  esi is the island scene throughout the handler, so it is
+    # both the populate arg and the [esi+0x10] manager the spliced code needs.
+    barrel_hook_code = assemble(
+        f"""
+            cmp byte ptr [0x{BARREL_PENDING_FLAG_VA:X}], 0
+            je bh_original
+            mov byte ptr [0x{BARREL_PENDING_FLAG_VA:X}], 0
+            push 0x7E
+            mov ecx, 0x581A38
+            call 0x424110
+            mov eax, dword ptr [0x5824C4]
+            inc eax
+            mov dword ptr [0x5824C4], eax
+            call 0x419AC0
+            mov ecx, eax
+            push esi
+            call 0x419B30
+            call 0x419AC0
+            mov ecx, eax
+            push esi
+            call 0x419B30
+            call 0x419AC0
+            mov ecx, eax
+            push esi
+            call 0x419B30
+        bh_original:
+            mov ecx, dword ptr [esi + 0x10]
+            call 0x403330
+            jmp 0x{BARREL_HANDLER_SPLICE_VA + 8:X}
+        """,
+        BARREL_HOOK_VA,
+    )
+    barrel_splice_before = assemble(
+        "mov ecx, dword ptr [esi + 0x10]\n call 0x403330",
+        BARREL_HANDLER_SPLICE_VA,
+    )
+    barrel_splice_after = assemble(
+        f"jmp 0x{BARREL_HOOK_VA:X}", BARREL_HANDLER_SPLICE_VA
+    ) + b"\x90\x90\x90"
+
     payload = code + strings
     if len(payload) > PAYLOAD_SIZE:
         raise RuntimeError(f"payload too large: {len(payload):#x}/{PAYLOAD_SIZE:#x}")
@@ -1345,6 +1381,18 @@ def main() -> None:
         b"\0" * len(collections_reset_code),
         collections_reset_code,
         "clear every collectible and refresh the Collections screen",
+    )
+    patch(
+        BARREL_HOOK_FILE_OFFSET,
+        b"\0" * len(barrel_hook_code),
+        barrel_hook_code,
+        "deferred barrel-event hook: fire the pending barrel event in-frame",
+    )
+    patch(
+        BARREL_HANDLER_SPLICE_VA - IMAGE_BASE,
+        barrel_splice_before,
+        barrel_splice_after,
+        "splice the deferred barrel-event firing into the island-event handler",
     )
     patch(
         EXTRA_STRINGS_FILE_OFFSET,

@@ -167,23 +167,29 @@ __declspec(dllexport) int __stdcall ShowOriginsVillageWideResult(
     int already_running_skipped,
     int removed_running_dislike
 ) {
-    char message[128];
+    /* message must hold four full lines; the former 128-byte buffer overflowed
+       (~155 chars) and smashed the stack whenever a running dislike was
+       removed, crashing the game. */
+    char message[256];
+    char line[96];
     if (command == 6) {
         wsprintfA(
             message,
-            "Skipped over %d villagers. Reason: Already 3 likes.\r\nskipped over %d villagers. Reason: already likes running",
-            full_like_skipped,
+            "%d villagers already like running; skipped over.",
             already_running_skipped
         );
-        if (removed_running_dislike > 0) {
-            char removal[64];
-            wsprintfA(
-                removal,
-                "\r\nRemoved running dislike from %d villagers",
-                removed_running_dislike
-            );
-            lstrcatA(message, removal);
-        }
+        wsprintfA(
+            line,
+            "\r\n%d villagers already have 3 likes; skipped over.",
+            full_like_skipped
+        );
+        lstrcatA(message, line);
+        wsprintfA(
+            line,
+            "\r\nRemoved Running Dislike from %d villagers.",
+            removed_running_dislike
+        );
+        lstrcatA(message, line);
         MessageBoxA(
             GetForegroundWindow(),
             message,

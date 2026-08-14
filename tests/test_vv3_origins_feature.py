@@ -104,6 +104,8 @@ class VV3OriginsFeatureTests(unittest.TestCase):
                 0x24C,
                 0x9EEA0,
                 0x9EF30,
+                0x7B3B1,
+                0x68727,
                 0x7B664,
                 0x7B7C0,
                 0x7B7D0,
@@ -227,19 +229,24 @@ class VV3OriginsFeatureTests(unittest.TestCase):
         self.assertIn("call 0x45E8F0", source)
         self.assertIn("mov ecx, 147", source)
         self.assertIn("mov ecx, 253", source)
-        # do_barrel now fires the native "Another One of Those Barrels" island
-        # event: queue popup 0x7E on the notification manager 0x581A38, then
-        # create the barrel (0x419AC0) and populate it three times (0x419B30),
-        # passing the island-scene singleton 0x6C5DA0 with a null-guard.
+        # do_barrel only marks the event pending; firing it from the paused,
+        # modal menu flashed the popup and never spawned, so the real event is
+        # deferred to the island-handler hook.
         barrel = source.split("        do_barrel:", 1)[1].split(
             "        do_complete_collections:", 1
         )[0]
-        self.assertIn("push 0x7E", barrel)
-        self.assertIn("mov ecx, 0x581A38", barrel)
-        self.assertIn("call 0x424110", barrel)
-        self.assertIn("0x6C5DA0", barrel)
-        self.assertIn("call 0x419AC0", barrel)
-        self.assertIn("call 0x419B30", barrel)
+        self.assertIn("BARREL_PENDING_FLAG_VA", barrel)
+        self.assertIn("jmp menu_done", barrel)
+        # The hook cave (spliced into the island-event handler) fires the full
+        # native event once in-frame: popup 0x7E, then create + populate 3x.
+        hook = source.split("barrel_hook_code = assemble(", 1)[1].split(
+            "BARREL_HOOK_VA,", 1
+        )[0]
+        self.assertIn("push 0x7E", hook)
+        self.assertIn("mov ecx, 0x581A38", hook)
+        self.assertIn("call 0x424110", hook)
+        self.assertEqual(hook.count("call 0x419AC0"), 3)
+        self.assertEqual(hook.count("call 0x419B30"), 3)
 
     def test_tech_click_contract_is_message8_and_free_command15(self) -> None:
         """The visible Tech button must have one, and only one, route."""
@@ -290,7 +297,7 @@ class VV3OriginsFeatureTests(unittest.TestCase):
         )
         self.assertEqual(
             hashlib.sha256(payload).hexdigest().upper(),
-            "37E6175DBE2AF390F5C2FD75ED1B709EA59B8F84F0FA3B69A62A34A28B68C093",
+            "E6473F2C5D8D3D2713AF30E99E582F191E339B643A1A529EB2D0413B08AD363B",
         )
         self.assertEqual(
             bytes.fromhex(
