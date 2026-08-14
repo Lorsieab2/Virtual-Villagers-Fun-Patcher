@@ -189,6 +189,11 @@ class OriginsPlayerRuntimeChecklistTests(unittest.TestCase):
                         # room -- both in .shr's otherwise-unused tail
                         # past the Barrel close helper.
                         "0x8BA00", "0x8BA80",
+                        # Shared "permanent change" Yes/No confirmation
+                        # helper, called by both menu and detail_menu right
+                        # after a row is picked -- also in .shr's
+                        # otherwise-unused tail.
+                        "0x8BB00",
                     }
                     self.assertEqual(
                         [item for item in current["patches"] if item["offset"] not in repaired_offsets],

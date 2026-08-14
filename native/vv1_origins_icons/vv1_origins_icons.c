@@ -388,6 +388,22 @@ __declspec(dllexport) int __stdcall ShowOriginsUpgradeMenu(
     return show_upgrade_menu(villager_menu, dialog_state);
 }
 
+/* Shared confirmation prompt: every purchasable row on both the Tech
+   screen (including its Village-Wide rows) and the Villager Details
+   screen routes through this before any charge or change happens, so
+   it takes no arguments and reports nothing beyond the player's choice
+   -- the caller already knows which row it is asking about. */
+__declspec(dllexport) int __stdcall ShowOriginsPermanentChangeConfirm(void) {
+    int result = MessageBoxA(
+        GetForegroundWindow(),
+        "This upgrade makes permanent changes to your village. "
+        "Do you still want to purchase this?",
+        "Origins Upgrades",
+        MB_YESNO | MB_ICONQUESTION
+    );
+    return result == IDYES ? 1 : 0;
+}
+
 /* Full Heal/Cure All Villagers: the .shr helper only calls this once it
    already knows at least one villager was sick or below full health (and
    has already charged for it), so this never needs its own "nothing

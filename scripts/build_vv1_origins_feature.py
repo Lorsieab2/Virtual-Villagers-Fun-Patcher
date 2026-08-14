@@ -95,6 +95,18 @@ APPEARANCE_HELPER_VA = IMAGE_BASE + SHR_RVA + (
 )
 DETAIL_MENU_VA = CODE_VA + 0x521
 DETAIL_LOOP_VA = DETAIL_MENU_VA + 5  # push ebx; push esi; push edi; mov esi, ecx
+# Shared "this makes a permanent change" Yes/No gate: every purchasable row
+# on both the Tech screen (menu, including its Village-Wide rows) and the
+# Villager Details screen (detail_menu) calls this immediately after the
+# row picker returns a selection, before any owned-check or charge logic
+# runs. Kept as a single .shr helper so each of menu/detail_menu's own
+# tight .text caves only ever pay for a "call/test/je" (the resolve-and-
+# prompt logic itself lives here, where there's room), the same shape as
+# appearance_helper_code and cure_all already use for their own DLL calls.
+CONFIRM_HELPER_FILE_OFFSET = 0x8BB00
+CONFIRM_HELPER_VA = IMAGE_BASE + SHR_RVA + (
+    CONFIRM_HELPER_FILE_OFFSET - SHR_FILE_OFFSET
+)
 RUNNING_PREFERENCE_ID = 38  # exact-build preference-table evidence: 0x7B260
 VV1_NATIVE_SKILL_WRITER_VA = 0x437230
 VV1_SKILL_FIELDS = (
@@ -157,6 +169,7 @@ def main() -> None:
     add_c_string(strings, s, "show_result_export", "ShowOriginsVillageWideResult")
     add_c_string(strings, s, "show_appearance_picker", "ShowOriginsAppearancePicker")
     add_c_string(strings, s, "show_cure_result", "ShowOriginsCureResult")
+    add_c_string(strings, s, "confirm_export", "ShowOriginsPermanentChangeConfirm")
     add_c_string(
         strings,
         s,
@@ -294,6 +307,10 @@ def main() -> None:
             cmp eax, -1
             je menu_done
             mov ebx, eax
+
+            call 0x{CONFIRM_HELPER_VA:X}
+            test eax, eax
+            je menu_done
 
             mov edi, dword ptr [esi + 0x0C]
             cmp ebx, 3
@@ -640,6 +657,10 @@ def main() -> None:
             cmp eax, -1
             je detail_done
             mov ebx, eax
+
+            call 0x{CONFIRM_HELPER_VA:X}
+            test eax, eax
+            je detail_loop
 
             mov edi, dword ptr [esi + 0x0C]
             mov ecx, dword ptr [edi + 0xAD34]
@@ -1033,11 +1054,36 @@ def main() -> None:
         """,
         APPEARANCE_HELPER_VA,
     )
+    confirm_helper_code = assemble(
+        f"""
+            push 0x{s['icons_dll']:X}
+            call dword ptr [0x457010]
+            test eax, eax
+            je confirm_fail
+            push 0x{s['confirm_export']:X}
+            push eax
+            call dword ptr [0x4570D4]
+            test eax, eax
+            je confirm_fail
+            call eax
+            ret
+        confirm_fail:
+            xor eax, eax
+            ret
+        """,
+        CONFIRM_HELPER_VA,
+    )
     patch(
         HEAL_CAVE_FILE_OFFSET,
         b"\0" * 5,
         rel32_jump(HEAL_CAVE_STUB_VA, CURE_ENTRY_VA),
         "redirect the shared VV1 Cure/village-wide dispatch stub to its certified helper after the optional Origins reserve",
+    )
+    patch(
+        CONFIRM_HELPER_FILE_OFFSET,
+        b"\0" * len(confirm_helper_code),
+        confirm_helper_code,
+        "resolve and invoke the icons DLL's shared permanent-change Yes/No confirmation, called by both menu and detail_menu immediately after a row is picked and before any owned-check or charge",
     )
     patch(
         CURE_ENTRY_FILE_OFFSET,

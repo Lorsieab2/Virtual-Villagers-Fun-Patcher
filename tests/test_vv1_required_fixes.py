@@ -376,9 +376,13 @@ class VV1RequiredFixTests(unittest.TestCase):
         # helper call before it ever reaches the generic table-driven
         # charge path used by rows 0-3 -- confirm the "cmp ebx, 4 / je"
         # appears, and resolve where it jumps to.
+        # detail_menu grew a shared "permanent change" confirmation call
+        # right after row selection (before this dispatch), so give the
+        # window enough room for that plus the villager-lookup preamble
+        # ahead of the row-4 check, not just the dispatch itself.
         detail_menu_off = 0x56E21
         dispatch = list(
-            md.disasm(rendered[detail_menu_off:detail_menu_off + 0x60], 0x456E21)
+            md.disasm(rendered[detail_menu_off:detail_menu_off + 0x80], 0x456E21)
         )
         cmp4 = next(
             (i for i in dispatch if i.mnemonic == "cmp" and i.op_str == "ebx, 4"),
@@ -521,6 +525,107 @@ class VV1RequiredFixTests(unittest.TestCase):
         self.assertIsNotNone(
             add19, "must compute 19 (male) or 20 (everyone else), not a fixed 20"
         )
+
+    def test_vv1_every_upgrade_row_confirms_before_any_owned_check_or_charge(self) -> None:
+        """New feature regression test: every purchasable row on both the
+        Tech screen (menu, including its Village-Wide rows) and the
+        Villager Details screen (detail_menu) must show the shared
+        "permanent change" Yes/No prompt immediately after the row is
+        picked and before anything else runs -- not just before the
+        charge, but before the owned-check/eligibility logic too, since
+        those can themselves have side effects (e.g. remove_doubler).
+        Disassembles the real rendered exe for both dispatch sites and
+        the shared .shr confirmation helper, and confirms the compiled
+        DLL exports the entry point it resolves by name.
+        """
+        capstone = pytest.importorskip("capstone")
+        source = STOCK / "Virtual Villagers - A New Home.exe"
+        if not source.is_file():
+            self.skipTest(f"stock executable not available: {source}")
+        build = identify(source)
+        rendered, _ = render_patched_bytes(
+            source, build, "collection_progression",
+            ["vv1_enable_origins_exclusive_features"],
+        )
+        md = capstone.Cs(capstone.CS_ARCH_X86, capstone.CS_MODE_32)
+        IMAGE_BASE = 0x400000
+        SHR_FILE_OFFSET = 0x8B000
+        SHR_RVA = 0x8D000
+
+        def confirm_gate(off: int, va: int, window: int) -> int:
+            insns = list(md.disasm(rendered[off:off + window], va))
+            pick = next(
+                i for i in insns
+                if i.mnemonic == "mov" and i.op_str == "ebx, eax"
+            )
+            after_pick = insns[insns.index(pick) + 1:]
+            # The confirmation call must be the immediate next thing after
+            # the row is picked -- nothing else (no owned-flag check, no
+            # balance check, no charge) may run first.
+            self.assertEqual(after_pick[0].mnemonic, "call")
+            self.assertEqual(after_pick[1].mnemonic, "test")
+            self.assertEqual(after_pick[2].mnemonic, "je")
+            return int(after_pick[0].op_str, 16)
+
+        # menu (Tech screen, including Village-Wide): row is picked into
+        # ebx right after show_dialog returns, and the confirm call must
+        # be the immediate next instruction.
+        menu_off = 0x569C0
+        menu_confirm_va = confirm_gate(menu_off, 0x4569C0, 0x50)
+
+        # detail_menu (Villager Details, including Change Appearance):
+        # same shape, different loop-back target on "No".
+        detail_off = 0x56E21
+        detail_confirm_va = confirm_gate(detail_off, 0x456E21, 0x50)
+
+        self.assertEqual(
+            menu_confirm_va, detail_confirm_va,
+            "both screens must share the same confirmation helper, not two copies",
+        )
+
+        # The shared .shr helper itself: resolve the DLL, resolve the
+        # export by name, call it, and return its result untouched --
+        # failing closed (returning 0/"No") if either resolve step fails.
+        confirm_off = menu_confirm_va - IMAGE_BASE - SHR_RVA + SHR_FILE_OFFSET
+        helper_insns = list(md.disasm(rendered[confirm_off:confirm_off + 0x30], menu_confirm_va))
+        mnemonics = [i.mnemonic for i in helper_insns]
+        self.assertEqual(mnemonics[0], "push")
+        self.assertEqual(mnemonics[1], "call")
+        self.assertEqual(mnemonics[2], "test")
+        self.assertEqual(mnemonics[3], "je")
+        register_calls = [i for i in helper_insns if i.mnemonic == "call" and i.op_str == "eax"]
+        self.assertEqual(len(register_calls), 1)
+        fail_paths = [i for i in helper_insns if i.mnemonic == "xor" and i.op_str == "eax, eax"]
+        self.assertTrue(fail_paths, "must fail closed (return 0) if the DLL/export can't be resolved")
+
+        # Confirm the compiled DLL actually exports the entry point this
+        # helper resolves by name, and that it really is a Yes/No prompt
+        # (not a fixed OK-only notice) whose Yes path returns nonzero.
+        pefile = pytest.importorskip("pefile")
+        dll_path = ROOT / "assets" / "origins" / "VVFP VV1 Origins Icons.dll"
+        if not dll_path.is_file():
+            self.skipTest(f"companion DLL not built: {dll_path}")
+        pe = pefile.PE(str(dll_path))
+        pe.parse_data_directories()
+        exported = {
+            symbol.name.decode(): symbol.address
+            for symbol in pe.DIRECTORY_ENTRY_EXPORT.symbols
+            if symbol.name
+        }
+        self.assertIn("ShowOriginsPermanentChangeConfirm", exported)
+        target_rva = exported["ShowOriginsPermanentChangeConfirm"]
+        image = pe.get_memory_mapped_image()
+        confirm_insns = list(
+            md.disasm(image[target_rva:target_rva + 0x40], pe.OPTIONAL_HEADER.ImageBase + target_rva)
+        )
+        pushes = [i.op_str for i in confirm_insns if i.mnemonic == "push"]
+        # MB_YESNO | MB_ICONQUESTION = 0x24, IDYES = 6.
+        self.assertIn("0x24", pushes, "must be a Yes/No + question-icon prompt, not a fixed OK notice")
+        cmp_idyes = next(
+            (i for i in confirm_insns if i.mnemonic == "cmp" and i.op_str.endswith(", 6")),
+            None,
+        )
+        self.assertIsNotNone(cmp_idyes, "must check the result against IDYES")
 
     def test_vv1_time_warp_double_speed_uses_a_reachable_game_speed_code(self) -> None:
         """Regression test: VV1's own stock executable only ever assigns

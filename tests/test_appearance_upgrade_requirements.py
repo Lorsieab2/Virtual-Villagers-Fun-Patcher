@@ -299,6 +299,10 @@ class AppearanceUpgradeRequirementsTests(unittest.TestCase):
                     # now relocated to 0x8BA80 to make room for the router,
                     # both in .shr's otherwise-unused tail.
                     "0x8BA00", "0x8BA80",
+                    # Shared "permanent change" Yes/No confirmation helper,
+                    # called by both menu and detail_menu right after a row
+                    # is picked -- also in .shr's otherwise-unused tail.
+                    "0x8BB00",
                 },
                 "data/vv2_origins_feature.json": {
                     "0x943A8", "0x9A009", "0x9A300", "0x9A530",
