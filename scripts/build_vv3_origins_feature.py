@@ -1113,23 +1113,23 @@ def main() -> None:
         NATIVE_TECH_TAIL_VA,
     )
 
-    # Change Appearance action cave.  The stock detail-screen update loop
-    # (sub_4684D0) opens the appearance chooser on its own whenever the
-    # manager's pending-chooser index (+0x12FB0) is not -1: it validates the
-    # index (sub_45EE60), constructs and shows the chooser for that villager
-    # in the correct render context, then clears the slot back to -1.  The
-    # update loop reaches the manager through [detail_screen_this + 0x10], and
-    # detail_menu holds that same `this` in ESI, so the cave copies the
-    # currently selected villager index (+0x12FC0) into the pending slot
-    # (+0x12FB0) through the *identical* manager pointer -- no reliance on the
-    # global manager getter or its 0x7598 slot offset.  do_change_appearance
-    # then closes the menu so the update loop regains control and opens the
-    # chooser.  The 5,000-tech charge is applied by detail_charge before this.
+    # Change Appearance action cave.  Replicates the stock Clothing-Hut arm
+    # (sub_4227F0 at 0x4228AE..0x4228B9) verbatim: it stores the selected
+    # villager's slot/ID field (+0xEDC) into the manager's pending-chooser slot
+    # (+0x12FB0), where the manager comes from the global getter 0x428B60 with
+    # NO slot offset.  On the next frame the detail-screen update loop
+    # (sub_4684D0) validates that slot (sub_45EE60), constructs and shows the
+    # appearance chooser for that villager in the correct render context, then
+    # clears it.  edx holds the validated selected villager record on entry;
+    # ebx preserves the +0xEDC value across the manager-getter call.  The
+    # 5,000-tech charge was already applied by detail_charge above.
     change_appearance_code = assemble(
         """
-            mov eax, dword ptr [esi + 0x10]
-            mov edx, dword ptr [eax + 0x12FC0]
-            mov dword ptr [eax + 0x12FB0], edx
+            push ebx
+            mov ebx, dword ptr [edx + 0xEDC]
+            call 0x428B60
+            mov dword ptr [eax + 0x12FB0], ebx
+            pop ebx
             ret
         """,
         CHANGE_APPEARANCE_VA,
