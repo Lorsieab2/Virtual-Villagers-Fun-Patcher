@@ -450,10 +450,32 @@ class VV1RequiredFixTests(unittest.TestCase):
         va = image_base + target_rva
         image = pe.get_memory_mapped_image()
         picker_insns = list(md.disasm(image[target_rva:target_rva + 0x60], va))
+        # The compiler is free to either compare the gender field directly
+        # from memory (cmp dword ptr [reg + 0x350], 1) or load it into a
+        # register first and compare the register (mov reg, dword ptr
+        # [reg + 0x350] ... cmp reg, 1) -- adding the "male" cache field to
+        # appearance_state made the /O2 build switch from the former to the
+        # latter, since the loaded value now also feeds the male flag store.
+        # Either shape is a legitimate compiled branch on the real gender
+        # field; only a fixed/absent comparison would be a bug.
+        gender_load = next(
+            (
+                i for i in picker_insns
+                if i.mnemonic == "mov" and i.op_str.endswith("+ 0x350]")
+                and i.op_str.startswith("e")
+            ),
+            None,
+        )
         gender_cmp = next(
             (
                 i for i in picker_insns
-                if i.mnemonic == "cmp" and i.op_str == "dword ptr [ecx + 0x350], 1"
+                if i.mnemonic == "cmp" and (
+                    i.op_str == "dword ptr [ecx + 0x350], 1"
+                    or (
+                        gender_load is not None
+                        and i.op_str == f"{gender_load.op_str.split(',')[0]}, 1"
+                    )
+                )
             ),
             None,
         )

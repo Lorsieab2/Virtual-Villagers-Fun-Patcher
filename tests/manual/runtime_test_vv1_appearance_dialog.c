@@ -3,11 +3,13 @@
    thread (it blocks on the real DialogBoxParamA message loop, exactly as
    it will when called from the game), finds the real live window from the
    main thread, and drives it with real BM_CLICK messages to the real
-   button controls. Reads results back both from the dialog's own label
-   text and directly from the synthetic villager buffer this program owns,
-   so a bug that updates the label but not the real field (or vice versa)
-   would be caught. Built and run as a native 32-bit exe against the real
-   32-bit DLL -- no architecture mismatch, no mocking. */
+   button controls. The head/body previews are owner-draw (real sprite art
+   cropped from the stock game, not text), so correctness is read directly
+   from the synthetic villager buffer this program owns rather than from
+   dialog text; each preview control's presence is still confirmed so a
+   dialog-template regression (missing/misnumbered control) would be
+   caught. Built and run as a native 32-bit exe against the real 32-bit
+   DLL -- no architecture mismatch, no mocking. */
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include <stdio.h>
@@ -59,8 +61,9 @@ static HWND find_dialog(void) {
     return NULL;
 }
 
-static void get_label(HWND dlg, int id, char *out, int cap) {
-    GetDlgItemTextA(dlg, id, out, cap);
+static void check_control_exists(HWND dlg, int id, const char *name) {
+    HWND child = GetDlgItem(dlg, id);
+    CHECK(child != NULL, "%s control (id %d) exists", name, id);
 }
 
 static void click(HWND dlg, int id) {
@@ -99,16 +102,8 @@ static void run_scenario(HMODULE dll, int gender, int start_head, int start_body
     CHECK(dlg != NULL, "dialog window appeared");
     if (!dlg) { WaitForSingleObject(thread, 3000); CloseHandle(thread); return; }
 
-    char text[64];
-    char expected[64];
-
-    get_label(dlg, ID_HEAD_LABEL, text, sizeof(text));
-    wsprintfA(expected, "Head %d of %d", start_head + 1, expected_count);
-    CHECK(strcmp(text, expected) == 0, "initial head label = \"%s\" (expected \"%s\")", text, expected);
-
-    get_label(dlg, ID_BODY_LABEL, text, sizeof(text));
-    wsprintfA(expected, "Body %d of %d", start_body + 1, expected_count);
-    CHECK(strcmp(text, expected) == 0, "initial body label = \"%s\" (expected \"%s\")", text, expected);
+    check_control_exists(dlg, ID_HEAD_LABEL, "head preview");
+    check_control_exists(dlg, ID_BODY_LABEL, "body preview");
 
     for (int i = 0; i < expected_count + 2; ++i) {
         click(dlg, ID_HEAD_NEXT);
@@ -116,9 +111,6 @@ static void run_scenario(HMODULE dll, int gender, int start_head, int start_body
     int field = read_i32(buf, VV_HEAD_OFFSET);
     int expected_value = (start_head + expected_count + 2) % expected_count;
     CHECK(field == expected_value, "head field after %d clicks wrapped correctly: %d (expected %d)", expected_count + 2, field, expected_value);
-    get_label(dlg, ID_HEAD_LABEL, text, sizeof(text));
-    wsprintfA(expected, "Head %d of %d", expected_value + 1, expected_count);
-    CHECK(strcmp(text, expected) == 0, "head label after wraparound = \"%s\" (expected \"%s\")", text, expected);
 
     click(dlg, ID_BODY_PREV);
     field = read_i32(buf, VV_CLOTHING_OFFSET);

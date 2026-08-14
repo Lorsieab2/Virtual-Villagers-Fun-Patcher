@@ -15,14 +15,16 @@ Loads the real, shipped `VVFP VV1 Origins Icons.dll`, calls the real
 exported `ShowOriginsAppearancePicker` on a background thread (it blocks
 on the dialog's own message loop, exactly as it does when called from the
 game), finds the live window from the main thread, and drives it with
-real `BM_CLICK` messages to the real button controls. It reads results
-back both from the dialog's own label text and directly from a synthetic
-villager buffer it owns, so a bug that updates the label but not the real
-memory field (or vice versa) would be caught. Covers: initial label text
-for both the male (19-option) and non-male (20-option) gender-dependent
-ranges, wraparound arithmetic at the count boundary for both head and
-body fields, Cancel reverting both fields to their original values, and
-OK keeping the tentative values and returning success.
+real `BM_CLICK` messages to the real button controls. The head/body
+previews are owner-draw real sprite art (cropped from the stock game, not
+text), so results are read directly from a synthetic villager buffer this
+program owns rather than from dialog text; each preview control's
+presence is still confirmed so a dialog-template regression would be
+caught. Covers: both preview controls existing for the male (19-option)
+and non-male (20-option) gender-dependent ranges, wraparound arithmetic
+at the count boundary for both head and body fields, Cancel reverting
+both fields to their original values, and OK keeping the tentative
+values and returning success.
 
 To run:
 
@@ -38,4 +40,5 @@ Run it from the repository root (it defaults to the checkout-relative
 the first argument if you built the `.exe` somewhere else:
 `.\runtime_test_vv1_appearance_dialog.exe "C:\path\to\VVFP VV1 Origins Icons.dll"`.
 
-Last run (this branch, HEAD `3975edc`, from the repo root): all checks passed.
+Last run (this branch, from the repo root, against the real-art picker):
+see the commit that updated this file for the result.

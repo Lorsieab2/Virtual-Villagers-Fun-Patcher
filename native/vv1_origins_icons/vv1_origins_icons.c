@@ -53,17 +53,33 @@ enum {
     ID_BUY_FIRST = 1000,
     ID_BUY_LAST = 1008,
     ID_CHECK_FIRST = 1100,
-    ID_HEAD_LABEL = 2000,
+    /* IDC_HEAD_PREVIEW/IDC_BODY_PREVIEW: owner-draw STATIC controls that
+       preview the real head/body sprite cropped from the stock game art
+       (see appearance_draw below) -- these reuse the same control IDs the
+       plain-text labels used before this dialog grew real art. */
+    IDC_HEAD_PREVIEW = 2000,
     ID_HEAD_PREV = 2001,
     ID_HEAD_NEXT = 2002,
-    ID_BODY_LABEL = 2010,
+    IDC_BODY_PREVIEW = 2010,
     ID_BODY_PREV = 2011,
     ID_BODY_NEXT = 2012,
+    IDB_HEAD_M = 3001,
+    IDB_HEAD_F = 3002,
+    IDB_BODY_M = 3011,
+    IDB_BODY_F = 3012,
     STATE_VILLAGER = 0x10000,
     STATE_VILLAGE_WIDE = 0x20000,
     STATE_RUNNING_ONLY = 0x40000,
     STATE_VILLAGE_WIDE_BUY = 0x80000
 };
+
+/* Every strip built by scripts/build_vv1_appearance_bitmaps.py is a single
+   40-wide column holding all 20 variant rows stacked vertically (one
+   villager-record index per row), 65 pixels tall each -- exactly the cell
+   geometry the stock exe's own sprite-sheet loader computes for these same
+   source images (see that script's docstring for the decompiled proof). */
+#define APPEARANCE_CELL_W 40
+#define APPEARANCE_CELL_H 65
 
 /* Only one appearance picker can be open at a time (it is a modal dialog),
    so a single file-scope slot for its working state is sufficient -- this
@@ -85,6 +101,7 @@ static struct {
     int original_head;
     int original_body;
     int valid_count;
+    int male;
 } appearance_state;
 
 BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved) {
@@ -162,10 +179,44 @@ static int show_upgrade_menu(int villager_menu, int dialog_state) {
     );
 }
 
-static void appearance_set_label(HWND window, int control_id, const char *field_name, int value) {
-    char text[32];
-    wsprintfA(text, "%s %d of %d", field_name, value + 1, appearance_state.valid_count);
-    SetDlgItemTextA(window, control_id, text);
+/* Crops row `index` (one villager-record value = one 40x65 row) out of
+   the strip for the current villager's sex and stretches it to fill the
+   owner-draw control's actual rect, the same StretchBlt/COLORONCOLOR
+   approach the stock renderer itself would use for an arbitrary preview
+   size. */
+static void appearance_draw(DRAWITEMSTRUCT *item, int bitmap_id, int index) {
+    RECT rc = item->rcItem;
+    int width = rc.right - rc.left;
+    int height = rc.bottom - rc.top;
+    HBRUSH background = CreateSolidBrush(RGB(236, 236, 236));
+    HBITMAP bitmap;
+    HDC source;
+    HBITMAP previous;
+
+    FillRect(item->hDC, &rc, background);
+    DeleteObject(background);
+
+    bitmap = LoadBitmapA(module_instance, MAKEINTRESOURCEA(bitmap_id));
+    if (bitmap == NULL) {
+        return;
+    }
+    source = CreateCompatibleDC(item->hDC);
+    previous = (HBITMAP)SelectObject(source, bitmap);
+
+    SetStretchBltMode(item->hDC, COLORONCOLOR);
+    StretchBlt(
+        item->hDC, rc.left, rc.top, width, height,
+        source, 0, index * APPEARANCE_CELL_H, APPEARANCE_CELL_W, APPEARANCE_CELL_H,
+        SRCCOPY
+    );
+
+    SelectObject(source, previous);
+    DeleteDC(source);
+    DeleteObject(bitmap);
+}
+
+static void appearance_repaint(HWND window, int control_id) {
+    InvalidateRect(GetDlgItem(window, control_id), NULL, TRUE);
 }
 
 static void appearance_revert(void) {
@@ -192,10 +243,28 @@ static INT_PTR CALLBACK appearance_dialog(
     (void)lparam;
     if (message == WM_INITDIALOG) {
         /* appearance_state was already populated by ShowOriginsAppearancePicker
-           before this dialog was created; just reflect the starting values. */
-        appearance_set_label(window, ID_HEAD_LABEL, "Head", appearance_state.original_head);
-        appearance_set_label(window, ID_BODY_LABEL, "Body", appearance_state.original_body);
+           before this dialog was created; WM_DRAWITEM below paints the
+           starting values on the dialog's own first paint, nothing to do
+           here. */
         return TRUE;
+    } else if (message == WM_DRAWITEM) {
+        DRAWITEMSTRUCT *item = (DRAWITEMSTRUCT *)lparam;
+        if (item->CtlID == IDC_HEAD_PREVIEW) {
+            appearance_draw(
+                item,
+                appearance_state.male ? IDB_HEAD_M : IDB_HEAD_F,
+                *(int *)(appearance_state.villager + VV_HEAD_OFFSET)
+            );
+            return TRUE;
+        }
+        if (item->CtlID == IDC_BODY_PREVIEW) {
+            appearance_draw(
+                item,
+                appearance_state.male ? IDB_BODY_M : IDB_BODY_F,
+                *(int *)(appearance_state.villager + VV_CLOTHING_OFFSET)
+            );
+            return TRUE;
+        }
     } else if (message == WM_COMMAND) {
         unsigned int command = LOWORD(wparam);
         int count = appearance_state.valid_count;
@@ -203,22 +272,22 @@ static INT_PTR CALLBACK appearance_dialog(
         int *body = (int *)(appearance_state.villager + VV_CLOTHING_OFFSET);
         if (command == ID_HEAD_PREV) {
             *head = (*head + count - 1) % count;
-            appearance_set_label(window, ID_HEAD_LABEL, "Head", *head);
+            appearance_repaint(window, IDC_HEAD_PREVIEW);
             return TRUE;
         }
         if (command == ID_HEAD_NEXT) {
             *head = (*head + 1) % count;
-            appearance_set_label(window, ID_HEAD_LABEL, "Head", *head);
+            appearance_repaint(window, IDC_HEAD_PREVIEW);
             return TRUE;
         }
         if (command == ID_BODY_PREV) {
             *body = (*body + count - 1) % count;
-            appearance_set_label(window, ID_BODY_LABEL, "Body", *body);
+            appearance_repaint(window, IDC_BODY_PREVIEW);
             return TRUE;
         }
         if (command == ID_BODY_NEXT) {
             *body = (*body + 1) % count;
-            appearance_set_label(window, ID_BODY_LABEL, "Body", *body);
+            appearance_repaint(window, IDC_BODY_PREVIEW);
             return TRUE;
         }
         if (command == IDOK) {
@@ -248,8 +317,8 @@ __declspec(dllexport) int __stdcall ShowOriginsAppearancePicker(
     appearance_state.villager = villager;
     appearance_state.original_head = *(int *)(villager + VV_HEAD_OFFSET);
     appearance_state.original_body = *(int *)(villager + VV_CLOTHING_OFFSET);
-    appearance_state.valid_count =
-        *(int *)(villager + VV_GENDER_OFFSET) == VV_GENDER_MALE ? 19 : 20;
+    appearance_state.male = *(int *)(villager + VV_GENDER_OFFSET) == VV_GENDER_MALE;
+    appearance_state.valid_count = appearance_state.male ? 19 : 20;
     return (int)DialogBoxParamA(
         module_instance,
         MAKEINTRESOURCEA(IDD_ORIGINS_APPEARANCE),
