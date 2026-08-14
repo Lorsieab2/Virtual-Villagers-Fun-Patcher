@@ -328,7 +328,7 @@ class Task9ArtifactTests(unittest.TestCase):
         # Five villager rows now: Youth, Mastery, Running, Age 18, Change
         # Appearance. The picker dialog 203 uses arrow/OK/Cancel, not "Buy".
         self.assertEqual(detail.count('PUSHBUTTON "Buy"'), 5)
-        self.assertIn("Full Heal / Cure All", tech)
+        self.assertIn("Full Heal/Cure All Villagers", tech)
         self.assertIn("Grant Running", detail)
         self.assertIn("Change Appearance", detail)
 

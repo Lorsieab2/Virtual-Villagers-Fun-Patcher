@@ -324,7 +324,7 @@ static const char *action_name(unsigned int action) {
     case ACTION_MASTERY: return "Full Mastery";
     case ACTION_RUNNING: return "Grant Running";
     case ACTION_AGE18: return "Set Age to 18";
-    case ACTION_HEAL: return "Full Heal / Cure All";
+    case ACTION_HEAL: return "Full Heal/Cure All Villagers";
     case ACTION_APPEARANCE: return "Change Appearance";
     default: return "Origins upgrade";
     }
@@ -343,7 +343,7 @@ __declspec(dllexport) int __stdcall ConfirmVV5Task9Action(
     if (action == ACTION_HEAL) {
         wsprintfA(
             message,
-            "Full Heal / Cure All will clear sickness from %u Villagers and restore full health to %u Villagers for 30,000 tech points.\r\nPress OK to confirm, or Cancel.",
+            "Full Heal/Cure All Villagers will clear sickness from %u Villagers and restore full health to %u Villagers for 30,000 tech points.\r\nPress OK to confirm, or Cancel.",
             amount_a,
             amount_b
         );
@@ -381,7 +381,7 @@ __declspec(dllexport) int __stdcall ShowVV5Task9Result(
     switch (status) {
     case RESULT_SUCCESS:
         if (action == ACTION_HEAL) {
-            wsprintfA(message, "Cleared sickness from %u Villagers and restored full health to %u Villagers.", amount_a, amount_b);
+            wsprintfA(message, "Cured sickness from %u villagers.\r\n\r\nRestored %u villagers to full health.", amount_a, amount_b);
         } else {
             wsprintfA(message, "%s completed.", name);
         }
@@ -389,6 +389,8 @@ __declspec(dllexport) int __stdcall ShowVV5Task9Result(
     case RESULT_NO_CHANGE:
         if (action == ACTION_RUNNING) {
             lstrcpyA(message, "This Villager already likes Running. All Dislikes were preserved.\r\nNo tech points have been deducted.");
+        } else if (action == ACTION_HEAL) {
+            lstrcpyA(message, "Everyone is at full health already. No villagers are sick. No tech points have been deducted.");
         } else {
             wsprintfA(message, "%s is already complete.\r\nNo tech points have been deducted.", name);
         }
