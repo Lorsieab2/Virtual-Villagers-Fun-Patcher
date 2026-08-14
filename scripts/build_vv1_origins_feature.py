@@ -40,6 +40,17 @@ CURE_ENTRY_VA = IMAGE_BASE + SHR_RVA + (CURE_ENTRY_FILE_OFFSET - SHR_FILE_OFFSET
 HEAL_CAVE_VA = CURE_ENTRY_VA
 VILLAGE_WIDE_SIGNATURE_VA = IMAGE_BASE + SHR_RVA + 0x180
 VILLAGE_WIDE_ENTRY_VA = IMAGE_BASE + SHR_RVA + 0x1A0
+# Fixed scratch dwords in the confirmed-unused gap between the optional
+# village-wide payload's entry dispatch and its running_va (see
+# scripts/build_village_wide_origins_features.py's report_running_granted/
+# report_mastery_counts, which write these -- this is the VV1-only opt-in
+# side of that shared, cross-game generator). There is no free register
+# left at either running_va's or mastery_va's return point to carry these
+# counts back through directly, so they are read from fixed memory here
+# instead, after the call returns.
+RUNNING_GRANTED_VA = VILLAGE_WIDE_ENTRY_VA + 0x30
+MASTERY_GRANTED_VA = VILLAGE_WIDE_ENTRY_VA + 0x38
+MASTERY_ALREADY_VA = VILLAGE_WIDE_ENTRY_VA + 0x3C
 VILLAGE_PREFLIGHT_FILE_OFFSET = 0x8B009
 VILLAGE_PREFLIGHT_VA = IMAGE_BASE + SHR_RVA + (
     VILLAGE_PREFLIGHT_FILE_OFFSET - SHR_FILE_OFFSET
@@ -167,6 +178,7 @@ def main() -> None:
     add_c_string(strings, s, "icons_dll", "VVFP VV1 Origins Icons.dll")
     add_c_string(strings, s, "show_icon_dialog_legacy", "ShowOriginsUpgradeMenu")
     add_c_string(strings, s, "show_result_export", "ShowOriginsVillageWideResult")
+    add_c_string(strings, s, "show_mastery_result_export", "ShowOriginsMasteryResult")
     add_c_string(strings, s, "show_appearance_picker", "ShowOriginsAppearancePicker")
     add_c_string(strings, s, "show_cure_result", "ShowOriginsCureResult")
     add_c_string(strings, s, "confirm_export", "ShowOriginsPermanentChangeConfirm")
@@ -820,6 +832,8 @@ def main() -> None:
             mov ebp, eax
             mov edi, edx
             mov esi, ecx
+            cmp ebx, 7
+            je village_mastery_result
             mov eax, 0x{s['show_result_export']:X}
             push 0x{s['icons_dll']:X}
             call dword ptr [0x457010]
@@ -833,7 +847,25 @@ def main() -> None:
             push esi
             push edi
             push ebp
+            mov ecx, dword ptr [0x{RUNNING_GRANTED_VA:X}]
+            push ecx
             push ebx
+            call eax
+            jmp village_result_done
+        village_mastery_result:
+            push 0x{s['icons_dll']:X}
+            call dword ptr [0x457010]
+            test eax, eax
+            je village_result_done
+            push 0x{s['show_mastery_result_export']:X}
+            push eax
+            call dword ptr [0x4570D4]
+            test eax, eax
+            je village_result_done
+            mov ecx, dword ptr [0x{MASTERY_ALREADY_VA:X}]
+            push ecx
+            mov ecx, dword ptr [0x{MASTERY_GRANTED_VA:X}]
+            push ecx
             call eax
         village_result_done:
             pop edi

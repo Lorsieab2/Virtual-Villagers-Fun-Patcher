@@ -429,36 +429,81 @@ __declspec(dllexport) int __stdcall ShowOriginsCureResult(
     return 0;
 }
 
+/* Grant Running to All Villagers: reports each outcome on its own line,
+   in the order requested -- both skip reasons first, then how many were
+   actually granted, then how many dislikes were cleared to make room.
+   granted comes from a fixed .shr scratch dword the native payload's
+   running_va writes right before returning (see RUNNING_GRANTED_VA in
+   scripts/build_vv1_origins_feature.py and report_running_granted in
+   scripts/build_village_wide_origins_features.py) -- there was no
+   register left to carry it back through directly. Called for both
+   command 6 (Running) and command 8 (Set Age to 18); the latter simply
+   does nothing here, matching its existing silent behavior, since only
+   Running's own fields are meaningful. */
 __declspec(dllexport) int __stdcall ShowOriginsVillageWideResult(
     int command,
+    int granted,
     int full_like_skipped,
     int already_running_skipped,
     int removed_running_dislike
 ) {
-    char message[128];
-    if (command == 6) {
-        wsprintfA(
-            message,
-            "Skipped over %d villagers. Reason: " VV_ALREADY_LIKES_TEXT "\r\nskipped over %d villagers. Reason: already likes running",
-            full_like_skipped,
-            already_running_skipped
-        );
-        if (removed_running_dislike > 0) {
-            char removal[64];
-            wsprintfA(
-                removal,
-                "\r\nRemoved running dislike from %d villagers",
-                removed_running_dislike
-            );
-            lstrcatA(message, removal);
-        }
-        MessageBoxA(
-            GetForegroundWindow(),
-            message,
-            "Origins Upgrades",
-            MB_OK | MB_ICONINFORMATION
-        );
+    char message[256];
+    char line[96];
+    if (command != 6) {
+        return 0;
     }
+    wsprintfA(
+        message,
+        "%d villagers already like running; skipped over.",
+        already_running_skipped
+    );
+    wsprintfA(
+        line,
+        "\r\n%d villagers already have %d likes; skipped over.",
+        full_like_skipped,
+        VV_LIKE_SLOT_COUNT
+    );
+    lstrcatA(message, line);
+    wsprintfA(line, "\r\nGranted Running to %d villagers.", granted);
+    lstrcatA(message, line);
+    wsprintfA(
+        line,
+        "\r\nRemoved Running Dislike from %d villagers.",
+        removed_running_dislike
+    );
+    lstrcatA(message, line);
+    MessageBoxA(
+        GetForegroundWindow(),
+        message,
+        "Origins Upgrades",
+        MB_OK | MB_ICONINFORMATION
+    );
+    return 0;
+}
+
+/* Grant Full Mastery to All Villagers: granted/already_mastered come from
+   two fixed .shr scratch dwords mastery_va zeroes at its own start and
+   increments as it goes (MASTERY_GRANTED_VA/MASTERY_ALREADY_VA) -- unlike
+   Running's single count, mastery_va also has an early-exit failure path
+   (mastery_failure) that a stack-based accumulator couldn't survive
+   cleanly, so scratch memory was the only safe option for either count. */
+__declspec(dllexport) int __stdcall ShowOriginsMasteryResult(
+    int granted,
+    int already_mastered
+) {
+    char message[128];
+    wsprintfA(
+        message,
+        "Granted Full Mastery to %d Villagers.\r\n%d villagers are already Fully Mastered. Skipped over",
+        granted,
+        already_mastered
+    );
+    MessageBoxA(
+        GetForegroundWindow(),
+        message,
+        "Origins Upgrades",
+        MB_OK | MB_ICONINFORMATION
+    );
     return 0;
 }
 

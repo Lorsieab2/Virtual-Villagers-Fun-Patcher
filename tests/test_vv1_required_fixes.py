@@ -128,6 +128,81 @@ class VV1RequiredFixTests(unittest.TestCase):
         )[0]
         self.assertIn("jmp running_next", full_like)
 
+    def test_vv1_village_wide_granted_counts_are_vv1_exclusive_and_wired(self) -> None:
+        """New feature regression test: Grant Running and Grant Full
+        Mastery both now report how many villagers were actually
+        granted (not just how many were skipped), sourced from new
+        scratch dwords the shared, cross-game
+        scripts/build_village_wide_origins_features.py writes only when
+        a game's own config opts in. Confirms that opt-in is VV1-only
+        (VV2-VV4 share the exact same code branches and must stay
+        byte-identical), then disassembles the real rendered exe to
+        confirm the wiring end to end: the village-wide caller reads
+        the right scratch address for the right command, and the
+        compiled DLL actually exports the entry points it resolves by
+        name.
+        """
+        source = (ROOT / "scripts" / "build_village_wide_origins_features.py").read_text(
+            encoding="utf-8"
+        )
+        # Only VV1's config *data* block may set either opt-in flag --
+        # scoped to just the CONFIG = {...} literal itself (bounded by
+        # "def assemble", the first function after it), not the whole
+        # rest of the file, which legitimately references these flag
+        # names many times in the shared generator logic that reads them.
+        config_literal = source.split("CONFIG = {", 1)[1].split("\ndef assemble", 1)[0]
+        vv1_config, _, other_configs = config_literal.partition('\n    "vv2": {')
+        self.assertIn('"report_running_granted": True', vv1_config)
+        self.assertIn('"report_mastery_counts": True', vv1_config)
+        self.assertNotIn("report_running_granted", other_configs)
+        self.assertNotIn("report_mastery_counts", other_configs)
+
+        capstone = pytest.importorskip("capstone")
+        source_exe = STOCK / "Virtual Villagers - A New Home.exe"
+        if not source_exe.is_file():
+            self.skipTest(f"stock executable not available: {source_exe}")
+        build = identify(source_exe)
+        rendered, _ = render_patched_bytes(
+            source_exe, build, "collection_progression",
+            ["vv1_enable_origins_exclusive_features", "vv1_origins_village_wide_upgrades"],
+        )
+        md = capstone.Cs(capstone.CS_ARCH_X86, capstone.CS_MODE_32)
+        IMAGE_BASE = 0x400000
+        SHR_FILE_OFFSET = 0x8B000
+        SHR_RVA = 0x8D000
+        village_wide_entry_va = IMAGE_BASE + SHR_RVA + 0x1A0
+        running_granted_va = village_wide_entry_va + 0x30
+        mastery_granted_va = village_wide_entry_va + 0x38
+        mastery_already_va = village_wide_entry_va + 0x3C
+
+        village_wide_off = 0x8B549  # HEAL_CAVE village_wide: label, just past cure_all's own patch region start
+        insns = list(md.disasm(rendered[village_wide_off:village_wide_off + 0x90], IMAGE_BASE + SHR_RVA + (village_wide_off - SHR_FILE_OFFSET)))
+        mnemonics_ops = [(i.mnemonic, i.op_str, i.address) for i in insns]
+
+        cmp7 = next((a for m, o, a in mnemonics_ops if m == "cmp" and o == "ebx, 7"), None)
+        self.assertIsNotNone(cmp7, "village_wide dispatch must branch on command 7 (Mastery)")
+
+        running_reads = [o for m, o, a in mnemonics_ops if m == "mov" and f"0x{running_granted_va:x}" in o]
+        self.assertTrue(running_reads, "Running path must read the granted count from its scratch dword")
+        mastery_granted_reads = [o for m, o, a in mnemonics_ops if m == "mov" and f"0x{mastery_granted_va:x}" in o]
+        mastery_already_reads = [o for m, o, a in mnemonics_ops if m == "mov" and f"0x{mastery_already_va:x}" in o]
+        self.assertTrue(mastery_granted_reads, "Mastery path must read its granted count from its own scratch dword")
+        self.assertTrue(mastery_already_reads, "Mastery path must read its already-mastered count from its own scratch dword")
+
+        pefile = pytest.importorskip("pefile")
+        dll_path = ROOT / "assets" / "origins" / "VVFP VV1 Origins Icons.dll"
+        if not dll_path.is_file():
+            self.skipTest(f"companion DLL not built: {dll_path}")
+        pe = pefile.PE(str(dll_path))
+        pe.parse_data_directories()
+        exported = {
+            symbol.name.decode(): symbol.address
+            for symbol in pe.DIRECTORY_ENTRY_EXPORT.symbols
+            if symbol.name
+        }
+        self.assertIn("ShowOriginsVillageWideResult", exported)
+        self.assertIn("ShowOriginsMasteryResult", exported)
+
     def test_vv1_uses_a_dedicated_four_slot_companion(self) -> None:
         feature = get_fun_patch("vv1_enable_origins_exclusive_features")
         companion = feature.raw["companion_files"][0]
