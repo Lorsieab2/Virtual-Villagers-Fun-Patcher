@@ -811,46 +811,12 @@ def main() -> None:
             jmp detail_success
 
         detail_mastery:
-            mov ebx, edx
-            mov eax, dword ptr [esi + 0x10]
-            call 0x44F4E0
-            test eax, eax
-            jz detail_mastery_failed
-            mov ebp, eax
-            lea ecx, [ebp + 0x52C]
-            cmp ecx, dword ptr [esi + 0x10]
-            jne detail_mastery_failed
-            mov esi, ebx
-            xor ebx, ebx
-        detail_mastery_loop:
-            cmp dword ptr [esi + ebx*4 + 0x7E4], 100
-            je detail_mastery_next
-            mov eax, 100
-            sub eax, dword ptr [esi + ebx*4 + 0x7E4]
-            push eax
-            mov eax, dword ptr [0x{s['vv2_skill_codes']:X} + ebx*4]
-            push eax
-            push dword ptr [edi + 0x304F0]
-            lea ecx, [ebp + 0x52C]
-            call 0x445430
-        detail_mastery_next:
-            inc ebx
-            cmp ebx, 5
-            jb detail_mastery_loop
-            cmp dword ptr [esi + 0x7E4], 100
-            jne detail_mastery_failed
-            cmp dword ptr [esi + 0x7E8], 100
-            jne detail_mastery_failed
-            cmp dword ptr [esi + 0x7EC], 100
-            jne detail_mastery_failed
-            cmp dword ptr [esi + 0x7F0], 100
-            jne detail_mastery_failed
-            cmp dword ptr [esi + 0x7F4], 100
-            jne detail_mastery_failed
+            mov dword ptr [edx + 0x7E4], 100
+            mov dword ptr [edx + 0x7E8], 100
+            mov dword ptr [edx + 0x7EC], 100
+            mov dword ptr [edx + 0x7F0], 100
+            mov dword ptr [edx + 0x7F4], 100
             jmp detail_success
-        detail_mastery_failed:
-            mov eax, 0x{s['mastery_failed']:X}
-            jmp detail_status
 
         detail_running:
             xor ebp, ebp
