@@ -26,8 +26,8 @@
     {
       "source": "data/candidates/VVFP VV5 Task9 Origins Icons.dll",
       "destination": "VVFP Origins Icons.dll",
-      "sha256": "B402ED8316CD6EB2C43B056848E622DC0924188C81C683F5E2813466AF8045D0",
-      "size": 297472
+      "sha256": "DDBF7F43BC5C0381AF9E7E37513D21A7C4400097B21DA3041495A49CD87DB89A",
+      "size": 1689088
     }
   ],
   "patches": [],

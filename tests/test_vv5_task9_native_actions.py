@@ -259,7 +259,9 @@ class Task9ArtifactTests(unittest.TestCase):
     def test_unsigned_detail_command_bound_is_before_any_action_resolution(self) -> None:
         page = bytes.fromhex(self.manifest["pe_append_transaction"]["layouts"]["collection_progression"]["append_bytes"])
         routine = page[builder.OFF["detail_menu"] : builder.OFF["detail_menu"] + builder.SIZES["detail_menu"]]
-        bound = routine.find(bytes.fromhex("83FB03"))
+        # Stock layout enables Change Appearance as command 4, so the unsigned
+        # command bound is `cmp ebx, 4` (83FB04) before any action resolution.
+        bound = routine.find(bytes.fromhex("83FB04"))
         unsigned_above = routine.find(bytes.fromhex("77"), bound + 3)
         self.assertGreaterEqual(bound, 0)
         self.assertEqual(unsigned_above, bound + 3)
@@ -292,7 +294,9 @@ class Task9ArtifactTests(unittest.TestCase):
         source = NATIVE.read_text(encoding="utf-8")
         generator = (ROOT / "scripts/build_vv5_task9_native_actions.py").read_text(encoding="utf-8")
         exports = DEF.read_text(encoding="utf-8")
-        self.assertEqual(source.count("GetForegroundWindow()"), 1)
+        # One in the owner capture (BeginOriginsOwner) and one as the modal
+        # parent of the Change Appearance picker; neither is an owner fallback.
+        self.assertEqual(source.count("GetForegroundWindow()"), 2)
         self.assertIn("validate_same_process_window(GetForegroundWindow())", source)
         self.assertIn("GetWindowThreadProcessId", source)
         self.assertIn("GetCurrentProcessId", source)
@@ -317,13 +321,16 @@ class Task9ArtifactTests(unittest.TestCase):
             self.assertIn(name, exports)
             self.assertIn(name.encode("ascii") + b"\0", DLL.read_bytes())
 
-    def test_dialog_resources_expose_exact_six_plus_four_rows(self) -> None:
+    def test_dialog_resources_expose_exact_six_plus_five_rows(self) -> None:
         resources = RC.read_text(encoding="utf-8")
         tech, detail = resources.split("202 DIALOGEX", 1)
         self.assertEqual(tech.count('PUSHBUTTON "Buy"'), 6)
-        self.assertEqual(detail.count('PUSHBUTTON "Buy"'), 4)
+        # Five villager rows now: Youth, Mastery, Running, Age 18, Change
+        # Appearance. The picker dialog 203 uses arrow/OK/Cancel, not "Buy".
+        self.assertEqual(detail.count('PUSHBUTTON "Buy"'), 5)
         self.assertIn("Full Heal / Cure All", tech)
         self.assertIn("Grant Running", detail)
+        self.assertIn("Change Appearance", detail)
 
     def test_append_layouts_preserve_atomic_ranges_and_exact_pe_guards(self) -> None:
         layouts = self.manifest["pe_append_transaction"]["layouts"]

@@ -117,7 +117,7 @@ class ExpandedTimeWarpArtifactTests(unittest.TestCase):
         )
 
     def test_exact_shared_companion_and_owner_exports(self) -> None:
-        self.assertEqual(COMPANION.stat().st_size, 297472)
+        self.assertEqual(COMPANION.stat().st_size, 1689088)
         self.assertEqual(digest(COMPANION.read_bytes()), builder.COMPANION_SHA256)
         self.assertEqual(self.vv4["companion_files"], [builder.companion()])
         self.assertEqual(self.vv5["companion_contract"], builder.companion())
@@ -161,7 +161,7 @@ class ExpandedTimeWarpArtifactTests(unittest.TestCase):
         task9 = builder.load_task9_builder()
         stock, stock_map = task9.build_page(0x7C9000)
         expanded, expanded_map = task9.build_page(0x904000)
-        self.assertEqual(digest(stock), "4F2C61EBAE243376CFCCE959A1EEDDD7A935FB38B26349498F33B2DDBC20AC88")
+        self.assertEqual(digest(stock), "64C709D7D0DDF822DF9BEC07D027D51B8F9F604647F6C2A55F5D914A13609AD1")
         self.assertEqual(digest(expanded), "ECC195DAB3B4B700A486902D6FE3CAA07F003A20B324903ADE5A81D265D154B9")
         self.assertEqual(task9.SIZES["age"], 0x300)
         self.assertEqual(task9.OFF["time_warp"], 0x1040)
@@ -278,8 +278,8 @@ class ExpandedTimeWarpRendererTests(unittest.TestCase):
                 "immediate_fixed": "EB0CDD4F7F5E41F7A03734D51F9417A126C3BE9D214B484A848DB688545CF5FB",
             },
             "vv5": {
-                "collection_progression": "974F87E0D2D3ECE4D3062BC527671BE4EADE89CB42D86877094C3DCCEB82E933",
-                "immediate_fixed": "8246F86784227C10A258997A68DEC08FBEB1599941AC0933DD682E3900A10115",
+                "collection_progression": "B6FE471E0D83469F9A575B33CC24ABCEC2C2BA625A669C3AE536C9099B266E3C",
+                "immediate_fixed": "FAD1AB2E634285B6D990035754B92B8A0B138BAC57021C0031B38554A53BD0DF",
             },
         }
         for game_id in ("vv4", "vv5"):

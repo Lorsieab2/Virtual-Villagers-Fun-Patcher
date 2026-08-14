@@ -9,11 +9,22 @@
 109 ICON "../../assets/origins/109-upgrade-checkmark.ico"
 110 ICON "../../assets/origins/110-cure-all.ico"
 
+3001 BITMAP "appearance/head_m_young.bmp"
+3002 BITMAP "appearance/head_m_old.bmp"
+3003 BITMAP "appearance/head_f_young.bmp"
+3004 BITMAP "appearance/head_f_old.bmp"
+3011 BITMAP "appearance/body_m.bmp"
+3012 BITMAP "appearance/body_f.bmp"
+
 #define DS_MODALFRAME 0x0080L
 #define DS_SETFONT 0x0040L
 #define WS_POPUP 0x80000000L
 #define WS_CAPTION 0x00C00000L
 #define WS_SYSMENU 0x00080000L
+#define WS_CHILD 0x40000000L
+#define WS_VISIBLE 0x10000000L
+#define SS_CENTER 0x00000001L
+#define SS_OWNERDRAW 0x0000000DL
 
 201 DIALOGEX 0, 0, 310, 222
 STYLE DS_MODALFRAME | DS_SETFONT | WS_POPUP | WS_CAPTION | WS_SYSMENU
@@ -59,7 +70,7 @@ BEGIN
     DEFPUSHBUTTON "Cancel", 2, 120, 201, 70, 14
 END
 
-202 DIALOGEX 0, 0, 310, 158
+202 DIALOGEX 0, 0, 310, 190
 STYLE DS_MODALFRAME | DS_SETFONT | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Villager Upgrades"
 FONT 9, "Segoe UI"
@@ -88,5 +99,31 @@ BEGIN
     LTEXT "50,000 tech points", -1, 40, 118, 150, 9
     PUSHBUTTON "Buy", 1003, 240, 107, 55, 18
 
-    DEFPUSHBUTTON "Cancel", 2, 120, 137, 70, 14
+    ICON 106, -1, 8, 136, 24, 24
+    ICON 109, 1104, 22, 148, 12, 12
+    LTEXT "Change Appearance", -1, 40, 138, 195, 10
+    LTEXT "5,000 tech points", -1, 40, 150, 150, 9
+    PUSHBUTTON "Buy", 1004, 240, 139, 55, 18
+
+    DEFPUSHBUTTON "Cancel", 2, 120, 169, 70, 14
+END
+
+203 DIALOGEX 0, 0, 250, 196
+STYLE DS_MODALFRAME | DS_SETFONT | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Change Appearance"
+FONT 9, "Segoe UI"
+BEGIN
+    CTEXT       "Body", -1, 30, 8, 70, 9
+    CONTROL     "", 3101, "STATIC", SS_OWNERDRAW | WS_CHILD | WS_VISIBLE, 30, 20, 70, 118
+    PUSHBUTTON  "<", 3103, 10, 72, 16, 16
+    PUSHBUTTON  ">", 3104, 104, 72, 16, 16
+
+    CTEXT       "Head", -1, 150, 8, 70, 9
+    CONTROL     "", 3102, "STATIC", SS_OWNERDRAW | WS_CHILD | WS_VISIBLE, 150, 20, 70, 118
+    PUSHBUTTON  "<", 3105, 130, 72, 16, 16
+    PUSHBUTTON  ">", 3106, 224, 72, 16, 16
+
+    CTEXT       "OK deducts 5,000 tech points. Cancel changes nothing.", -1, 14, 150, 222, 9
+    DEFPUSHBUTTON "OK", 1, 66, 168, 50, 16
+    PUSHBUTTON  "Cancel", 2, 134, 168, 50, 16
 END

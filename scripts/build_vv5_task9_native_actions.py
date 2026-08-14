@@ -139,6 +139,7 @@ OFF = {
     "heal": 0x3400,
     "island": 0x3C00,
     "barrel": 0x3F00,
+    "appearance": 0x4300,
     "strings": 0x7000,
 }
 
@@ -163,6 +164,7 @@ SIZES = {
     "heal": 0x800,
     "island": 0x300,
     "barrel": 0x340,
+    "appearance": 0x300,
 }
 
 
@@ -226,6 +228,7 @@ def build_strings(page: bytearray, page_va: int) -> dict[str, int]:
     # These self-contained event strings live in the stock layout only, so the
     # expanded-256 baseline string region stays byte-identical for its overlay.
     time_warp_values = (
+        ("appearance_export", b"ShowAppearanceChooser\0"),
         ("tw_get", b"GetOriginsOwner\0"),
         ("tw_user32", b"USER32.dll\0"),
         ("tw_messagebox", b"MessageBoxA\0"),
@@ -606,6 +609,17 @@ def build_menus(page: bytearray, page_va: int) -> dict[str, bytes]:
         if native_stock
         else ""
     )
+    # Change Appearance is a per-villager (detail) row. The companion DLL shows
+    # its row in every layout, but the router is gated to the stock layout so
+    # the expanded-256 baseline page stays byte-identical for its overlay; in
+    # expanded modes the row is a harmless no-op.
+    detail_max = 4 if native_stock else 3
+    appearance_dispatch = "cmp ebx, 4\n        je appearance_row\n        " if native_stock else ""
+    appearance_row = (
+        f"appearance_row:\n        call 0x{page_va + OFF['appearance']:X}\n        jmp menu\n    "
+        if native_stock
+        else ""
+    )
     tech = put(page, page_va, "tech_menu", f"""
         push ebp
         mov ebp, esp
@@ -734,9 +748,9 @@ def build_menus(page: bytearray, page_va: int) -> dict[str, bytes]:
         cmp eax, -1
         je done
         mov ebx, eax
-        cmp ebx, 3
+        cmp ebx, {detail_max}
         ja done
-        cmp ebx, 0
+        {appearance_dispatch}cmp ebx, 0
         je age
         cmp ebx, 1
         je mastery
@@ -752,7 +766,7 @@ def build_menus(page: bytearray, page_va: int) -> dict[str, bytes]:
     running:
         call 0x{page_va + OFF['running']:X}
         jmp menu
-    done:
+    {appearance_row}done:
         pop edi
         pop esi
         pop ebx
@@ -2126,6 +2140,109 @@ def build_barrel(page: bytearray, page_va: int, s: dict[str, int]) -> bytes:
     """)
 
 
+def build_appearance(page: bytearray, page_va: int, s: dict[str, int]) -> bytes:
+    """Change Appearance (per-villager). Resolve the selected villager, enforce
+    the believer/active/living gate (shared `eligible` helper), require 5,000
+    tech points, then open the companion DLL's ShowAppearanceChooser, passing
+    the villager's sex (record+0x1B90) and age (record+0x1B8C) and pointers to
+    local copies of the head (0..29) and body (0..28) indices. The chooser
+    shows the stock head/body sprites with arrows and, on OK (return 1), reports
+    the chosen indices back through the pointers -- it never touches the record.
+    On OK this router re-checks eligibility and funds, writes the chosen indices
+    into record+0x1BB8/+0x1BBC, and charges exactly 5,000 once; Cancel changes
+    nothing and charges nothing."""
+    return put(page, page_va, "appearance", f"""
+        push ebp
+        mov ebp, esp
+        push ebx
+        push esi
+        push edi
+        sub esp, 0x50
+        push 0x{s['dll']:X}
+        call dword ptr [0x4951E0]
+        test eax, eax
+        jz invalid
+        push 0x{s['appearance_export']:X}
+        push eax
+        call dword ptr [0x4951DC]
+        test eax, eax
+        jz invalid
+        mov dword ptr [ebp-0x10], eax
+        call 0x{page_va + OFF['resolve_current']:X}
+        test eax, eax
+        jz invalid
+        mov dword ptr [ebp-0x18], eax
+        push eax
+        call 0x{page_va + OFF['eligible']:X}
+        test eax, eax
+        jz invalid
+        mov esi, dword ptr [ebp-0x18]
+        mov eax, dword ptr [esi+0x1BB8]
+        mov dword ptr [ebp-0x1C], eax
+        mov eax, dword ptr [esi+0x1BBC]
+        mov dword ptr [ebp-0x20], eax
+        mov eax, dword ptr [0x51D5F8]
+        cmp eax, 5000
+        jb insufficient
+        lea eax, [ebp-0x20]
+        push eax
+        lea eax, [ebp-0x1C]
+        push eax
+        mov eax, dword ptr [esi+0x1B8C]
+        push eax
+        mov eax, dword ptr [esi+0x1B90]
+        push eax
+        call dword ptr [ebp-0x10]
+        cmp eax, 1
+        jne cancelled
+        mov esi, dword ptr [ebp-0x18]
+        push esi
+        call 0x{page_va + OFF['eligible']:X}
+        test eax, eax
+        jz recheck
+        mov eax, dword ptr [0x51D5F8]
+        cmp eax, 5000
+        jb insufficient
+        mov esi, dword ptr [ebp-0x18]
+        mov eax, dword ptr [ebp-0x1C]
+        mov dword ptr [esi+0x1BB8], eax
+        mov eax, dword ptr [ebp-0x20]
+        mov dword ptr [esi+0x1BBC], eax
+        mov eax, dword ptr [0x51D5F8]
+        mov dword ptr [ebp-0x28], eax
+        push -5000
+        mov ecx, 0x51D5F8
+        call 0x4237B0
+        mov eax, dword ptr [ebp-0x28]
+        sub eax, 5000
+        cmp dword ptr [0x51D5F8], eax
+        jne charge_unknown
+        {status_call(page_va, '5', 0)}
+        jmp done
+    insufficient:
+        {status_call(page_va, '5', 3)}
+        jmp done
+    invalid:
+        {status_call(page_va, '5', 2)}
+        jmp done
+    cancelled:
+        {status_call(page_va, '5', 4)}
+        jmp done
+    recheck:
+        {status_call(page_va, '5', 5)}
+        jmp done
+    charge_unknown:
+        {status_call(page_va, '5', 7)}
+    done:
+        add esp, 0x50
+        pop edi
+        pop esi
+        pop ebx
+        pop ebp
+        ret
+    """)
+
+
 def build_page(page_va: int) -> tuple[bytes, dict[str, object]]:
     page = bytearray(PAGE_SIZE)
     page[0:8] = b"VVT9PG\0\0"
@@ -2149,6 +2266,7 @@ def build_page(page_va: int) -> tuple[bytes, dict[str, object]]:
         routines["time_warp"] = build_time_warp(page, page_va, strings)
         routines["island"] = build_island(page, page_va, strings)
         routines["barrel"] = build_barrel(page, page_va, strings)
+        routines["appearance"] = build_appearance(page, page_va, strings)
     result = {
         "page_sha256": sha(bytes(page)),
         "routine_sha256": {name: sha(value) for name, value in routines.items()},

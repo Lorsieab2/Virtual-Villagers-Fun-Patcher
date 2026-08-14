@@ -19,6 +19,7 @@ enum {
     ACTION_RUNNING = 2,
     ACTION_AGE18 = 3,
     ACTION_HEAL = 4,
+    ACTION_APPEARANCE = 5,
     ACTION_TECH_BASE = 16
 };
 
@@ -46,6 +47,179 @@ BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved) {
         origins_owner = NULL;
     }
     return TRUE;
+}
+
+/* ---------- VV5 Change Appearance chooser (VV2-style) ----------
+   Owner-drawn modal picker showing the selected villager's head and body
+   sprites cropped from the stock game art (embedded BMP strips: male/female x
+   young/old heads, male/female bodies). It reports only the chosen head/body
+   indices back to the caller through the head/body pointers; the native task9
+   handler owns the believer gate, the 5,000-tech charge, and the record
+   writes, so this DLL never touches save data. Head catalog is 30 (0..29),
+   body/outfit catalog is 29 (0..28); young/old is a head-atlas swap. */
+#define IDD_APPEARANCE   203
+#define IDB_HEAD_M_YOUNG 3001
+#define IDB_HEAD_M_OLD   3002
+#define IDB_HEAD_F_YOUNG 3003
+#define IDB_HEAD_F_OLD   3004
+#define IDB_BODY_M       3011
+#define IDB_BODY_F       3012
+#define IDC_BODY_PREVIEW 3101
+#define IDC_HEAD_PREVIEW 3102
+#define IDC_BODY_PREV    3103
+#define IDC_BODY_NEXT    3104
+#define IDC_HEAD_PREV    3105
+#define IDC_HEAD_NEXT    3106
+#define APPEARANCE_HEAD_COUNT 30
+#define APPEARANCE_BODY_COUNT 29
+#define APPEARANCE_CELL_W 40
+#define APPEARANCE_CELL_H 65
+
+static int appearance_sex;   /* 0 = male, 1 = female */
+static int appearance_old;   /* 0 = young head atlas, 1 = old head atlas */
+static int appearance_head;
+static int appearance_body;
+
+static int appearance_head_bitmap(void) {
+    if (appearance_sex) {
+        return appearance_old ? IDB_HEAD_F_OLD : IDB_HEAD_F_YOUNG;
+    }
+    return appearance_old ? IDB_HEAD_M_OLD : IDB_HEAD_M_YOUNG;
+}
+
+static int appearance_body_bitmap(void) {
+    return appearance_sex ? IDB_BODY_F : IDB_BODY_M;
+}
+
+static void appearance_draw(DRAWITEMSTRUCT *item, int bitmap_id, int index) {
+    RECT rc = item->rcItem;
+    int width = rc.right - rc.left;
+    int height = rc.bottom - rc.top;
+    HBRUSH background = CreateSolidBrush(RGB(236, 236, 236));
+    HBITMAP bitmap;
+    HDC source;
+    HBITMAP previous;
+    double scale_x, scale_y, scale;
+    int draw_w, draw_h, draw_x, draw_y;
+
+    FillRect(item->hDC, &rc, background);
+    DeleteObject(background);
+
+    bitmap = LoadBitmapA(module_instance, MAKEINTRESOURCEA(bitmap_id));
+    if (bitmap == NULL) {
+        return;
+    }
+    source = CreateCompatibleDC(item->hDC);
+    previous = (HBITMAP)SelectObject(source, bitmap);
+
+    scale_x = (double)width / APPEARANCE_CELL_W;
+    scale_y = (double)height / APPEARANCE_CELL_H;
+    scale = scale_x < scale_y ? scale_x : scale_y;
+    draw_w = (int)(APPEARANCE_CELL_W * scale);
+    draw_h = (int)(APPEARANCE_CELL_H * scale);
+    draw_x = rc.left + (width - draw_w) / 2;
+    draw_y = rc.top + (height - draw_h) / 2;
+
+    SetStretchBltMode(item->hDC, COLORONCOLOR);
+    StretchBlt(
+        item->hDC, draw_x, draw_y, draw_w, draw_h,
+        source, index * APPEARANCE_CELL_W, 0, APPEARANCE_CELL_W, APPEARANCE_CELL_H,
+        SRCCOPY
+    );
+
+    SelectObject(source, previous);
+    DeleteDC(source);
+    DeleteObject(bitmap);
+}
+
+static void appearance_repaint(HWND window, int control) {
+    InvalidateRect(GetDlgItem(window, control), NULL, TRUE);
+}
+
+static INT_PTR CALLBACK appearance_dialog(
+    HWND window,
+    UINT message,
+    WPARAM wparam,
+    LPARAM lparam
+) {
+    if (message == WM_INITDIALOG) {
+        return TRUE;
+    } else if (message == WM_DRAWITEM) {
+        DRAWITEMSTRUCT *item = (DRAWITEMSTRUCT *)lparam;
+        if (item->CtlID == IDC_BODY_PREVIEW) {
+            appearance_draw(item, appearance_body_bitmap(), appearance_body);
+            return TRUE;
+        }
+        if (item->CtlID == IDC_HEAD_PREVIEW) {
+            appearance_draw(item, appearance_head_bitmap(), appearance_head);
+            return TRUE;
+        }
+    } else if (message == WM_COMMAND) {
+        unsigned int command = LOWORD(wparam);
+        if (command == IDC_BODY_PREV) {
+            appearance_body = (appearance_body + APPEARANCE_BODY_COUNT - 1) % APPEARANCE_BODY_COUNT;
+            appearance_repaint(window, IDC_BODY_PREVIEW);
+            return TRUE;
+        }
+        if (command == IDC_BODY_NEXT) {
+            appearance_body = (appearance_body + 1) % APPEARANCE_BODY_COUNT;
+            appearance_repaint(window, IDC_BODY_PREVIEW);
+            return TRUE;
+        }
+        if (command == IDC_HEAD_PREV) {
+            appearance_head = (appearance_head + APPEARANCE_HEAD_COUNT - 1) % APPEARANCE_HEAD_COUNT;
+            appearance_repaint(window, IDC_HEAD_PREVIEW);
+            return TRUE;
+        }
+        if (command == IDC_HEAD_NEXT) {
+            appearance_head = (appearance_head + 1) % APPEARANCE_HEAD_COUNT;
+            appearance_repaint(window, IDC_HEAD_PREVIEW);
+            return TRUE;
+        }
+        if (command == IDOK) {
+            EndDialog(window, 1);
+            return TRUE;
+        }
+        if (command == IDCANCEL) {
+            EndDialog(window, 0);
+            return TRUE;
+        }
+    } else if (message == WM_CLOSE) {
+        EndDialog(window, 0);
+        return TRUE;
+    }
+    return FALSE;
+}
+
+__declspec(dllexport) int __stdcall ShowAppearanceChooser(
+    int sex,
+    int age,
+    int *head,
+    int *body
+) {
+    INT_PTR result;
+    appearance_sex = sex ? 1 : 0;
+    appearance_old = age >= 1100 ? 1 : 0;
+    appearance_head = (head && *head >= 0 && *head < APPEARANCE_HEAD_COUNT) ? *head : 0;
+    appearance_body = (body && *body >= 0 && *body < APPEARANCE_BODY_COUNT) ? *body : 0;
+
+    result = DialogBoxParamA(
+        module_instance,
+        MAKEINTRESOURCEA(IDD_APPEARANCE),
+        GetForegroundWindow(),
+        appearance_dialog,
+        0
+    );
+    if (result == 1) {
+        if (head) {
+            *head = appearance_head;
+        }
+        if (body) {
+            *body = appearance_body;
+        }
+        return 1;
+    }
+    return 0;
 }
 
 static HWND validate_same_process_window(HWND window) {
@@ -86,7 +260,7 @@ static INT_PTR CALLBACK upgrade_dialog(
 ) {
     if (message == WM_INITDIALOG) {
         int villager_menu = (lparam & STATE_VILLAGER) != 0;
-        int row_count = villager_menu ? 4 : 6;
+        int row_count = villager_menu ? 5 : 6;
         int row;
         for (row = 0; row < row_count; ++row) {
             ShowWindow(GetDlgItem(window, ID_CHECK_FIRST + row), SW_HIDE);
@@ -151,6 +325,7 @@ static const char *action_name(unsigned int action) {
     case ACTION_RUNNING: return "Grant Running";
     case ACTION_AGE18: return "Set Age to 18";
     case ACTION_HEAL: return "Full Heal / Cure All";
+    case ACTION_APPEARANCE: return "Change Appearance";
     default: return "Origins upgrade";
     }
 }
