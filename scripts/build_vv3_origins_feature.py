@@ -1298,12 +1298,16 @@ def main() -> None:
 
     # Deferred barrel-event hook, spliced into the island-event handler at
     # 0x468727 (runs every frame during village gameplay).  When do_barrel has
-    # set the pending flag, fire the full "Another One of Those Barrels" event
-    # once -- popup 0x7E, then create the barrel (0x419AC0) and populate it three
-    # times (0x419B30, scene = esi, which the handler holds and the callees
-    # preserve) -- then clear the flag and run the two spliced-out instructions
-    # before returning.  esi is the island scene throughout the handler, so it is
-    # both the populate arg and the [esi+0x10] manager the spliced code needs.
+    # set the pending flag, fire the native "Another One of Those Barrels" event
+    # exactly as the stock scheduler does at 0x468856 -- show its popup (event
+    # 0x7E on the notification manager 0x581A38), bump the island-event counter,
+    # create the barrel (0x419AC0), and trigger it once (0x419B30, scene = esi,
+    # which the handler holds and the callees preserve).  0x419B30 is the whole
+    # barrel event (a villager fetches the barrel, which yields its children);
+    # it is called once, not per child.  Then clear the flag and run the two
+    # spliced-out instructions before returning.  esi is the island scene
+    # throughout the handler, so it is both the 0x419B30 arg and the [esi+0x10]
+    # manager the spliced code needs.
     barrel_hook_code = assemble(
         f"""
             cmp byte ptr [0x{BARREL_PENDING_FLAG_VA:X}], 0
@@ -1315,14 +1319,6 @@ def main() -> None:
             mov eax, dword ptr [0x5824C4]
             inc eax
             mov dword ptr [0x5824C4], eax
-            call 0x419AC0
-            mov ecx, eax
-            push esi
-            call 0x419B30
-            call 0x419AC0
-            mov ecx, eax
-            push esi
-            call 0x419B30
             call 0x419AC0
             mov ecx, eax
             push esi
