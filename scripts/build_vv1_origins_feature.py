@@ -179,12 +179,6 @@ def main() -> None:
         "event_queued",
         "Island Event queued.",
     )
-    add_c_string(
-        strings,
-        s,
-        "barrel_queued",
-        "Barrel of Babies queued.",
-    )
     add_c_string(strings, s, "barrel_villagers", "Gained 3 children.")
     add_c_string(
         strings,
@@ -456,7 +450,7 @@ def main() -> None:
         do_barrel:
             mov byte ptr [0x{BARREL_PENDING_VA:X}], 1
             mov dword ptr [0x{BARREL_DELAY_COUNTER_VA:X}], 0
-            mov eax, 0x{s['barrel_queued']:X}
+            mov eax, 0x{s['purchase_complete']:X}
             push 0
             push 0x{s['title']:X}
             push eax

@@ -416,7 +416,7 @@ __declspec(dllexport) int __stdcall ShowOriginsCureResult(
     char message[128];
     wsprintfA(
         message,
-        "Cured sickness from %d villagers.\r\nRestored %d villagers to full health.",
+        "Cured sickness from %d villagers.\r\n\r\nRestored %d villagers to full health.",
         sick_cured,
         healed_restored
     );
@@ -459,16 +459,16 @@ __declspec(dllexport) int __stdcall ShowOriginsVillageWideResult(
     );
     wsprintfA(
         line,
-        "\r\n%d villagers already have %d likes; skipped over.",
+        "\r\n\r\n%d villagers already have %d likes; skipped over.",
         full_like_skipped,
         VV_LIKE_SLOT_COUNT
     );
     lstrcatA(message, line);
-    wsprintfA(line, "\r\nGranted Running to %d villagers.", granted);
+    wsprintfA(line, "\r\n\r\nGranted Running to %d villagers.", granted);
     lstrcatA(message, line);
     wsprintfA(
         line,
-        "\r\nRemoved Running Dislike from %d villagers.",
+        "\r\n\r\nRemoved Running Dislike from %d villagers.",
         removed_running_dislike
     );
     lstrcatA(message, line);
@@ -494,7 +494,7 @@ __declspec(dllexport) int __stdcall ShowOriginsMasteryResult(
     char message[128];
     wsprintfA(
         message,
-        "Granted Full Mastery to %d Villagers.\r\n%d villagers are already Fully Mastered. Skipped over",
+        "Granted Full Mastery to %d Villagers.\r\n\r\n%d villagers are already Fully Mastered. Skipped over.",
         granted,
         already_mastered
     );
