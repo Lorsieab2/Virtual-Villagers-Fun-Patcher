@@ -2144,7 +2144,10 @@ def build_barrel(page: bytearray, page_va: int, s: dict[str, int]) -> bytes:
         cmp dword ptr [0x51D5F8], eax
         jne charge_unknown
         or dword ptr [0x51D388], 4
-        mov dword ptr [edi+0x17D3C], 0
+        call 0x4036E0
+        mov edi, dword ptr [ebp-0x18]
+        add eax, 0x384
+        mov dword ptr [edi+0x17D3C], eax
         test dword ptr [0x51D388], 4
         jz queue_unknown
         mov eax, 0x{s['bb_success']:X}
