@@ -1047,7 +1047,6 @@ def main() -> None:
             push eax
             push 0x{s['tech_title']:X}
             call 0x{show_message:X}
-            add esp, 8
             add esp, 40
             pop edi
             pop esi
