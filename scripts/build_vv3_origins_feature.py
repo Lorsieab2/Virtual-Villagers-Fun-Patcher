@@ -1115,23 +1115,21 @@ def main() -> None:
 
     # Change Appearance action cave.  The stock detail-screen update loop
     # (sub_4684D0) opens the appearance chooser on its own whenever the
-    # manager's pending-chooser index (+0x12FB0) is not -1: it constructs and
-    # shows the chooser for that villager in the correct render context, then
-    # clears the slot back to -1.  So the action simply queues the currently
-    # selected villager index (+0x12FC0) into that slot, exactly as the native
-    # Clothing-Hut path does, and returns; do_change_appearance then closes the
-    # menu so the update loop can run and open the chooser.  The 5,000-tech
-    # charge is applied by detail_charge before this runs.
+    # manager's pending-chooser index (+0x12FB0) is not -1: it validates the
+    # index (sub_45EE60), constructs and shows the chooser for that villager
+    # in the correct render context, then clears the slot back to -1.  The
+    # update loop reaches the manager through [detail_screen_this + 0x10], and
+    # detail_menu holds that same `this` in ESI, so the cave copies the
+    # currently selected villager index (+0x12FC0) into the pending slot
+    # (+0x12FB0) through the *identical* manager pointer -- no reliance on the
+    # global manager getter or its 0x7598 slot offset.  do_change_appearance
+    # then closes the menu so the update loop regains control and opens the
+    # chooser.  The 5,000-tech charge is applied by detail_charge before this.
     change_appearance_code = assemble(
         """
-            call 0x428B60
-            xor ecx, ecx
-            cmp dword ptr [0x42883A], 0x100
-            jne ca_slot_ready
-            mov ecx, 0x7598
-        ca_slot_ready:
-            mov edx, dword ptr [eax + ecx + 0x12FC0]
-            mov dword ptr [eax + ecx + 0x12FB0], edx
+            mov eax, dword ptr [esi + 0x10]
+            mov edx, dword ptr [eax + 0x12FC0]
+            mov dword ptr [eax + 0x12FB0], edx
             ret
         """,
         CHANGE_APPEARANCE_VA,

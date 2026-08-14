@@ -119,8 +119,8 @@
     },
     {
       "offset": "0x7BD40",
-      "before": "000000000000000000000000000000000000000000000000000000000000000000000000000000",
-      "after": "E81BCEFAFF31C9813D3A884200000100007505B9987500008B9408C02F0100899408B02F0100C3",
+      "before": "00000000000000000000000000000000",
+      "after": "8B46108B90C02F01008990B02F0100C3",
       "purpose": "open the native in-engine appearance chooser for the selected villager"
     },
     {
