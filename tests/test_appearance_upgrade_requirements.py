@@ -292,10 +292,13 @@ class AppearanceUpgradeRequirementsTests(unittest.TestCase):
                     "0x270", "0x28C", "0x28470", "0x56900",
                     "0x85D30", "0x8B009", "0x8B530", "0x8B710",
                     "0x35ACA", "0x8B900",
-                    # Villager Details "Change Appearance" row: a new
-                    # picker helper at 0x8BA00 (well past the Barrel
-                    # close helper, in .shr's otherwise-unused tail).
-                    "0x8BA00",
+                    # Villager Details "Change Appearance" row: a dedicated
+                    # dispatch router at 0x8BA00 (isolated from detail_menu's
+                    # own shared, byte-constrained cave -- it only ever does
+                    # cmp ebx,4 / je 0x8BA00) that calls the picker helper,
+                    # now relocated to 0x8BA80 to make room for the router,
+                    # both in .shr's otherwise-unused tail.
+                    "0x8BA00", "0x8BA80",
                 },
                 "data/vv2_origins_feature.json": {
                     "0x943A8", "0x9A009", "0x9A300", "0x9A530",

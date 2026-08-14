@@ -359,14 +359,27 @@ class VV1RequiredFixTests(unittest.TestCase):
         self.assertIsNotNone(cmp4, "row 4 dispatch check is missing")
         jump = dispatch[dispatch.index(cmp4) + 1]
         self.assertEqual(jump.mnemonic, "je")
-        helper_va = int(jump.op_str, 16)
+        router_va = int(jump.op_str, 16)
 
-        # The dispatch target itself must call the helper and only take
-        # the success path (jmp detail_success, which charges nothing
-        # itself) when the helper's own return value is nonzero.
-        helper_call_off = helper_va - 0x400000
+        # detail_menu's own dispatch must stay a bare two-instruction
+        # "cmp ebx, 4 / je <router>" -- all of the call/test/branch logic
+        # lives in a dedicated router in .shr, isolated from the shared,
+        # byte-constrained detail_menu cave the other rows dispatch through.
+        # .shr's raw file offset (0x8B000) differs from its mapped RVA
+        # (0x8D000), so converting a VA there back to a file offset must
+        # account for that remap rather than just subtracting IMAGE_BASE --
+        # the router itself lives in .shr, not .text, so this correction
+        # is needed even to reach the router's own bytes.
+        IMAGE_BASE = 0x400000
+        SHR_FILE_OFFSET = 0x8B000
+        SHR_RVA = 0x8D000
+        router_off = router_va - IMAGE_BASE - SHR_RVA + SHR_FILE_OFFSET
+
+        # The router itself must call the helper and only take the
+        # success-message path when the helper's own return value is
+        # nonzero, then rejoin the stable detail_loop in either case.
         call_block = list(
-            md.disasm(rendered[helper_call_off:helper_call_off + 0x10], helper_va)
+            md.disasm(rendered[router_off:router_off + 0x10], router_va)
         )
         self.assertEqual(call_block[0].mnemonic, "call")
         appearance_helper_va = int(call_block[0].op_str, 16)
@@ -377,12 +390,6 @@ class VV1RequiredFixTests(unittest.TestCase):
         # before ever resolving/calling the DLL, and must only deduct
         # after the resolved picker call's own return value is nonzero --
         # not unconditionally after merely showing the dialog.
-        # .shr's raw file offset (0x8B000) differs from its mapped RVA
-        # (0x8D000), so converting a VA there back to a file offset must
-        # account for that remap rather than just subtracting IMAGE_BASE.
-        IMAGE_BASE = 0x400000
-        SHR_FILE_OFFSET = 0x8B000
-        SHR_RVA = 0x8D000
         helper_off = appearance_helper_va - IMAGE_BASE - SHR_RVA + SHR_FILE_OFFSET
         helper_insns = list(
             md.disasm(rendered[helper_off:helper_off + 0x70], appearance_helper_va)

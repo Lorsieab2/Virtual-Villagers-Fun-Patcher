@@ -182,10 +182,13 @@ class OriginsPlayerRuntimeChecklistTests(unittest.TestCase):
                         "0x8B710",
                         "0x35ACA",
                         "0x8B900",
-                        # Villager Details "Change Appearance" row: a new
-                        # picker helper at 0x8BA00, in .shr's otherwise-
-                        # unused tail past the Barrel close helper.
-                        "0x8BA00",
+                        # Villager Details "Change Appearance" row: a
+                        # dedicated dispatch router at 0x8BA00, isolated
+                        # from detail_menu's own shared cave, calling the
+                        # picker helper now relocated to 0x8BA80 to make
+                        # room -- both in .shr's otherwise-unused tail
+                        # past the Barrel close helper.
+                        "0x8BA00", "0x8BA80",
                     }
                     self.assertEqual(
                         [item for item in current["patches"] if item["offset"] not in repaired_offsets],

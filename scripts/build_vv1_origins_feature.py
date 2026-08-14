@@ -64,17 +64,37 @@ BARREL_CLOSE_HELPER_FILE_OFFSET = 0x8B900
 BARREL_CLOSE_HELPER_VA = IMAGE_BASE + SHR_RVA + (
     BARREL_CLOSE_HELPER_FILE_OFFSET - SHR_FILE_OFFSET
 )
-# Villager Details "Change Appearance" -- resolves and calls the icons DLL's
-# picker export. Placed here (well past the Barrel close helper, which ends
-# well under 0x8B980) rather than inline in detail_menu's own code cave:
-# that cave's remaining slack (recomputed after this session's doubler-fix
-# additions) is far too small for a full LoadLibrary/GetProcAddress call
-# with real failure handling, while .shr has ~1.7KB genuinely unused past
-# the last Barrel helper.
-APPEARANCE_HELPER_FILE_OFFSET = 0x8BA00
+# Villager Details "Change Appearance" -- a dedicated router/helper pair in
+# .shr, entirely separate from detail_menu's own shared, tightly-budgeted
+# code cave (which the other four rows' charge/apply logic already nearly
+# fills). detail_menu's own inline footprint for this row is just the one
+# "cmp ebx, 4 / je APPEARANCE_ROUTER_VA" dispatch -- everything else,
+# including the row's own success messaging and loop-back, lives here:
+#   APPEARANCE_ROUTER_VA: what detail_menu jumps to directly. Calls the
+#     helper below, then either shows the same "Purchased." message every
+#     other successful row shows and jumps back into detail_menu's loop,
+#     or (on cancel/failure) jumps back silently -- without ever returning
+#     control to detail_menu's own code, so its cave carries none of this
+#     row's logic. Depends on exactly one fact about detail_menu's
+#     internal layout: detail_loop is always its first label, 5 bytes in
+#     (three pushes + "mov esi, ecx"), regardless of what else in the
+#     function grows or shrinks -- computed below, not hardcoded blind.
+#   APPEARANCE_HELPER_VA: resolves and calls the icons DLL's picker
+#     export; unchanged from before, just renumbered now that the router
+#     sits ahead of it.
+# Placed here (well past the Barrel close helper, which ends well under
+# 0x8B980) since .shr has ~1.7KB genuinely unused past the last Barrel
+# helper.
+APPEARANCE_ROUTER_FILE_OFFSET = 0x8BA00
+APPEARANCE_ROUTER_VA = IMAGE_BASE + SHR_RVA + (
+    APPEARANCE_ROUTER_FILE_OFFSET - SHR_FILE_OFFSET
+)
+APPEARANCE_HELPER_FILE_OFFSET = 0x8BA80
 APPEARANCE_HELPER_VA = IMAGE_BASE + SHR_RVA + (
     APPEARANCE_HELPER_FILE_OFFSET - SHR_FILE_OFFSET
 )
+DETAIL_MENU_VA = CODE_VA + 0x521
+DETAIL_LOOP_VA = DETAIL_MENU_VA + 5  # push ebx; push esi; push edi; mov esi, ecx
 RUNNING_PREFERENCE_ID = 38  # exact-build preference-table evidence: 0x7B260
 VV1_NATIVE_SKILL_WRITER_VA = 0x437230
 VV1_SKILL_FIELDS = (
@@ -199,7 +219,7 @@ def main() -> None:
     event_dispatch_hook = CODE_VA + 0x450
     detail_handler_hook = CODE_VA + 0x490
     detail_constructor_hook = CODE_VA + 0x4C0
-    detail_menu = CODE_VA + 0x521
+    detail_menu = DETAIL_MENU_VA
 
     code = bytearray(b"\x00" * 0x700)
 
@@ -638,7 +658,7 @@ def main() -> None:
             mov edx, dword ptr [esi + 0x10]
             add edx, ecx
             cmp ebx, 4
-            je detail_appearance
+            je 0x{APPEARANCE_ROUTER_VA:X}
             cmp ebx, 2
             jne detail_charge
             lea eax, [edx + 0x398]
@@ -722,12 +742,6 @@ def main() -> None:
             mov dword ptr [edx + 0x3C4], 100
             mov dword ptr [edx + 0x3C8], 100
             mov dword ptr [edx + 0x3CC], 100
-            jmp detail_success
-
-        detail_appearance:
-            call 0x{APPEARANCE_HELPER_VA:X}
-            test eax, eax
-            je detail_loop
             jmp detail_success
 
         detail_success:
@@ -986,6 +1000,21 @@ def main() -> None:
         """,
         BARREL_CLOSE_HELPER_VA,
     )
+    appearance_router_code = assemble(
+        f"""
+            call 0x{APPEARANCE_HELPER_VA:X}
+            test eax, eax
+            je 0x{DETAIL_LOOP_VA:X}
+            mov eax, 0x{s['purchase_complete']:X}
+            push 0
+            push 0x{s['detail_title']:X}
+            push eax
+            call 0x452DB6
+            add esp, 0x0C
+            jmp 0x{DETAIL_LOOP_VA:X}
+        """,
+        APPEARANCE_ROUTER_VA,
+    )
     appearance_helper_code = assemble(
         f"""
             cmp dword ptr [edi + 0xA2FC], 5000
@@ -1055,6 +1084,12 @@ def main() -> None:
         b"\0" * len(barrel_close_helper_code),
         barrel_close_helper_code,
         "advance the purchased Barrel token only after the stock Technologies screen closes",
+    )
+    patch(
+        APPEARANCE_ROUTER_FILE_OFFSET,
+        b"\0" * len(appearance_router_code),
+        appearance_router_code,
+        "dedicated Change Appearance dispatch, isolated from detail_menu's own shared, byte-constrained cave: calls the picker helper, then either shows the row's success message and returns to the Upgrades loop, or returns there silently on cancel/failure",
     )
     patch(
         APPEARANCE_HELPER_FILE_OFFSET,
