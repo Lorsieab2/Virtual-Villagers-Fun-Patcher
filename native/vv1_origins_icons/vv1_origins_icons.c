@@ -31,20 +31,61 @@
 #ifndef VV_ALREADY_LIKES_TEXT
 #define VV_ALREADY_LIKES_TEXT "Already 4 likes."
 #endif
+#ifndef VV_HEAD_OFFSET
+#define VV_HEAD_OFFSET 0x360
+#endif
+#ifndef VV_CLOTHING_OFFSET
+#define VV_CLOTHING_OFFSET 0x364
+#endif
+#ifndef VV_GENDER_OFFSET
+#define VV_GENDER_OFFSET 0x350
+#endif
+#ifndef VV_GENDER_MALE
+#define VV_GENDER_MALE 1
+#endif
 
 static HINSTANCE module_instance;
 
 enum {
     IDD_ORIGINS_TECH = 201,
     IDD_ORIGINS_VILLAGER = 202,
+    IDD_ORIGINS_APPEARANCE = 203,
     ID_BUY_FIRST = 1000,
     ID_BUY_LAST = 1008,
     ID_CHECK_FIRST = 1100,
+    ID_HEAD_LABEL = 2000,
+    ID_HEAD_PREV = 2001,
+    ID_HEAD_NEXT = 2002,
+    ID_BODY_LABEL = 2010,
+    ID_BODY_PREV = 2011,
+    ID_BODY_NEXT = 2012,
     STATE_VILLAGER = 0x10000,
     STATE_VILLAGE_WIDE = 0x20000,
     STATE_RUNNING_ONLY = 0x40000,
     STATE_VILLAGE_WIDE_BUY = 0x80000
 };
+
+/* Only one appearance picker can be open at a time (it is a modal dialog),
+   so a single file-scope slot for its working state is sufficient -- this
+   mirrors module_instance above, which is the same kind of single-instance
+   global already used in this file. The tech-point balance check and
+   charge live in the caller (the same reused code path every other
+   Villager Upgrades row already charges through), not here: this dialog
+   only ever previews and either keeps or reverts the head/body fields.
+
+   valid_count is not a fixed 20 for both fields: the villager-creation
+   code assigns head and body their random starting value from RNG(19)
+   for male villagers and RNG(20) for everyone else (confirmed by
+   decompiling the exact-build initializer), so male villagers only have
+   19 valid values (0-18) for both fields, not 20 -- cycling through 19
+   for a male villager would write a value the stock renderer was never
+   given a sprite for. */
+static struct {
+    unsigned char *villager;
+    int original_head;
+    int original_body;
+    int valid_count;
+} appearance_state;
 
 BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved) {
     (void)reserved;
@@ -64,7 +105,7 @@ static INT_PTR CALLBACK upgrade_dialog(
         int villager_menu = (lparam & STATE_VILLAGER) != 0;
         int village_wide_buy = (lparam & STATE_VILLAGE_WIDE_BUY) != 0;
         int row_count = villager_menu
-            ? 4
+            ? 5
             : ((lparam & STATE_RUNNING_ONLY) != 0
                 ? 7
                 : ((lparam & STATE_VILLAGE_WIDE) != 0 ? 9 : 6));
@@ -118,6 +159,103 @@ static int show_upgrade_menu(int villager_menu, int dialog_state) {
         GetForegroundWindow(),
         upgrade_dialog,
         dialog_state
+    );
+}
+
+static void appearance_set_label(HWND window, int control_id, const char *field_name, int value) {
+    char text[32];
+    wsprintfA(text, "%s %d of %d", field_name, value + 1, appearance_state.valid_count);
+    SetDlgItemTextA(window, control_id, text);
+}
+
+static void appearance_revert(void) {
+    *(int *)(appearance_state.villager + VV_HEAD_OFFSET) = appearance_state.original_head;
+    *(int *)(appearance_state.villager + VV_CLOTHING_OFFSET) = appearance_state.original_body;
+}
+
+/* Writes each tentative value straight into the live villager record so
+   the stock renderer (which already reads these exact fields every
+   frame, the same field the F6 clothing-cycle cheat uses for body) shows
+   the change immediately behind this dialog -- no separate preview
+   rendering is built or needed here. Reverted on Cancel/close; kept on
+   OK. The tech-point balance check and charge are the caller's job (the
+   exact same charge code every other Villager Upgrades row already
+   uses) -- this dialog never touches tech points, only the head/body
+   fields, and returns 1 only when the player actually confirmed with
+   OK. */
+static INT_PTR CALLBACK appearance_dialog(
+    HWND window,
+    UINT message,
+    WPARAM wparam,
+    LPARAM lparam
+) {
+    (void)lparam;
+    if (message == WM_INITDIALOG) {
+        /* appearance_state was already populated by ShowOriginsAppearancePicker
+           before this dialog was created; just reflect the starting values. */
+        appearance_set_label(window, ID_HEAD_LABEL, "Head", appearance_state.original_head);
+        appearance_set_label(window, ID_BODY_LABEL, "Body", appearance_state.original_body);
+        return TRUE;
+    } else if (message == WM_COMMAND) {
+        unsigned int command = LOWORD(wparam);
+        int count = appearance_state.valid_count;
+        int *head = (int *)(appearance_state.villager + VV_HEAD_OFFSET);
+        int *body = (int *)(appearance_state.villager + VV_CLOTHING_OFFSET);
+        if (command == ID_HEAD_PREV) {
+            *head = (*head + count - 1) % count;
+            appearance_set_label(window, ID_HEAD_LABEL, "Head", *head);
+            return TRUE;
+        }
+        if (command == ID_HEAD_NEXT) {
+            *head = (*head + 1) % count;
+            appearance_set_label(window, ID_HEAD_LABEL, "Head", *head);
+            return TRUE;
+        }
+        if (command == ID_BODY_PREV) {
+            *body = (*body + count - 1) % count;
+            appearance_set_label(window, ID_BODY_LABEL, "Body", *body);
+            return TRUE;
+        }
+        if (command == ID_BODY_NEXT) {
+            *body = (*body + 1) % count;
+            appearance_set_label(window, ID_BODY_LABEL, "Body", *body);
+            return TRUE;
+        }
+        if (command == IDOK) {
+            EndDialog(window, 1);
+            return TRUE;
+        }
+        if (command == IDCANCEL) {
+            appearance_revert();
+            EndDialog(window, 0);
+            return TRUE;
+        }
+    } else if (message == WM_CLOSE) {
+        appearance_revert();
+        EndDialog(window, 0);
+        return TRUE;
+    }
+    return FALSE;
+}
+
+__declspec(dllexport) int __stdcall ShowOriginsAppearancePicker(
+    int villager_ptr
+) {
+    unsigned char *villager = (unsigned char *)(UINT_PTR)(unsigned int)villager_ptr;
+    if (villager == NULL) {
+        return 0;
+    }
+    appearance_state.villager = villager;
+    appearance_state.original_head = *(int *)(villager + VV_HEAD_OFFSET);
+    appearance_state.original_body = *(int *)(villager + VV_CLOTHING_OFFSET);
+    appearance_state.valid_count =
+        *(int *)(villager + VV_GENDER_OFFSET) == VV_GENDER_MALE ? 19 : 20;
+    return (int)DialogBoxParamA(
+        module_instance,
+        MAKEINTRESOURCEA(IDD_ORIGINS_APPEARANCE),
+        GetForegroundWindow(),
+        appearance_dialog,
+        (LPARAM)(UINT_PTR)villager
     );
 }
 

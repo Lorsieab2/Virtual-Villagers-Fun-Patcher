@@ -322,6 +322,149 @@ class VV1RequiredFixTests(unittest.TestCase):
             "award (0x42B86A)",
         )
 
+    def test_vv1_change_appearance_gates_charge_on_confirmed_result(self) -> None:
+        """New feature regression test: the Villager Details "Change
+        Appearance" row must never deduct tech points unless the icons
+        DLL's picker actually returns success (the player clicked OK, not
+        Cancel/closed the window, and the DLL/export resolved). Disassembles
+        the real rendered exe -- both the detail_menu dispatch and the
+        .shr helper it calls -- rather than trusting source text, and
+        confirms the compiled DLL actually exports the entry point by
+        name (not just that the source file says it should).
+        """
+        capstone = pytest.importorskip("capstone")
+        source = STOCK / "Virtual Villagers - A New Home.exe"
+        if not source.is_file():
+            self.skipTest(f"stock executable not available: {source}")
+        build = identify(source)
+        rendered, _ = render_patched_bytes(
+            source, build, "collection_progression",
+            ["vv1_enable_origins_exclusive_features"],
+        )
+
+        md = capstone.Cs(capstone.CS_ARCH_X86, capstone.CS_MODE_32)
+
+        # detail_menu's dispatch must route row 4 (Change Appearance) to a
+        # helper call before it ever reaches the generic table-driven
+        # charge path used by rows 0-3 -- confirm the "cmp ebx, 4 / je"
+        # appears, and resolve where it jumps to.
+        detail_menu_off = 0x56E21
+        dispatch = list(
+            md.disasm(rendered[detail_menu_off:detail_menu_off + 0x60], 0x456E21)
+        )
+        cmp4 = next(
+            (i for i in dispatch if i.mnemonic == "cmp" and i.op_str == "ebx, 4"),
+            None,
+        )
+        self.assertIsNotNone(cmp4, "row 4 dispatch check is missing")
+        jump = dispatch[dispatch.index(cmp4) + 1]
+        self.assertEqual(jump.mnemonic, "je")
+        helper_va = int(jump.op_str, 16)
+
+        # The dispatch target itself must call the helper and only take
+        # the success path (jmp detail_success, which charges nothing
+        # itself) when the helper's own return value is nonzero.
+        helper_call_off = helper_va - 0x400000
+        call_block = list(
+            md.disasm(rendered[helper_call_off:helper_call_off + 0x10], helper_va)
+        )
+        self.assertEqual(call_block[0].mnemonic, "call")
+        appearance_helper_va = int(call_block[0].op_str, 16)
+        self.assertEqual(call_block[1].mnemonic, "test")
+        self.assertEqual(call_block[2].mnemonic, "je")
+
+        # The .shr helper itself must check the tech-point balance (5000)
+        # before ever resolving/calling the DLL, and must only deduct
+        # after the resolved picker call's own return value is nonzero --
+        # not unconditionally after merely showing the dialog.
+        # .shr's raw file offset (0x8B000) differs from its mapped RVA
+        # (0x8D000), so converting a VA there back to a file offset must
+        # account for that remap rather than just subtracting IMAGE_BASE.
+        IMAGE_BASE = 0x400000
+        SHR_FILE_OFFSET = 0x8B000
+        SHR_RVA = 0x8D000
+        helper_off = appearance_helper_va - IMAGE_BASE - SHR_RVA + SHR_FILE_OFFSET
+        helper_insns = list(
+            md.disasm(rendered[helper_off:helper_off + 0x70], appearance_helper_va)
+        )
+        mnemonics = [(i.mnemonic, i.op_str) for i in helper_insns]
+        self.assertEqual(mnemonics[0], ("cmp", "dword ptr [edi + 0xa2fc], 0x1388"))
+        self.assertEqual(mnemonics[1][0], "jb")
+
+        # LoadLibrary, GetProcAddress, the resolved picker call (through a
+        # register -- its target isn't known until GetProcAddress
+        # resolves it), and the native messagebox call on the
+        # insufficient-funds path.
+        calls = [i for i in helper_insns if i.mnemonic == "call"]
+        register_calls = [i for i in calls if i.op_str == "eax"]
+        self.assertEqual(
+            len(register_calls), 1,
+            "expected exactly one indirect call through a resolved export (the picker)",
+        )
+        picker_call = register_calls[0]
+
+        after_picker = [i for i in helper_insns if i.address > picker_call.address]
+        test_after_call = after_picker[0]
+        self.assertEqual((test_after_call.mnemonic, test_after_call.op_str), ("test", "eax, eax"))
+        je_after_test = after_picker[1]
+        self.assertEqual(je_after_test.mnemonic, "je")
+        sub_insn = next(i for i in after_picker if i.mnemonic == "sub")
+        self.assertEqual(sub_insn.op_str, "dword ptr [edi + 0xa2fc], 0x1388")
+        # The deduction must come after the failure branch could have
+        # already jumped away -- i.e. after the test+je pair, not before.
+        self.assertGreater(sub_insn.address, je_after_test.address)
+
+        # Finally, confirm the compiled companion DLL actually exports the
+        # entry point this helper resolves by name -- not just that the C
+        # source declares it.
+        pefile = pytest.importorskip("pefile")
+        dll_path = ROOT / "assets" / "origins" / "VVFP VV1 Origins Icons.dll"
+        if not dll_path.is_file():
+            self.skipTest(f"companion DLL not built: {dll_path}")
+        pe = pefile.PE(str(dll_path))
+        pe.parse_data_directories()
+        exported = {
+            symbol.name.decode(): symbol.address
+            for symbol in pe.DIRECTORY_ENTRY_EXPORT.symbols
+            if symbol.name
+        }
+        self.assertIn("ShowOriginsAppearancePicker", exported)
+
+        # Male villagers only have 19 valid head/body values (0-18), not 20:
+        # the villager-creation code assigns RNG(19) for male, RNG(20) for
+        # everyone else (confirmed by decompiling the exact-build
+        # initializer). Disassemble the *compiled* export -- not the C
+        # source -- to confirm the count really is gender-dependent, since
+        # this is exactly the class of bug (an assumed-uniform value that
+        # is actually conditional) that caused the Barrel of Babies crash
+        # this session.
+        target_rva = exported["ShowOriginsAppearancePicker"]
+        image_base = pe.OPTIONAL_HEADER.ImageBase
+        va = image_base + target_rva
+        image = pe.get_memory_mapped_image()
+        picker_insns = list(md.disasm(image[target_rva:target_rva + 0x60], va))
+        gender_cmp = next(
+            (
+                i for i in picker_insns
+                if i.mnemonic == "cmp" and i.op_str == "dword ptr [ecx + 0x350], 1"
+            ),
+            None,
+        )
+        self.assertIsNotNone(
+            gender_cmp, "compiled picker must branch on the gender field (+0x350)"
+        )
+        after_cmp = picker_insns[picker_insns.index(gender_cmp) + 1:]
+        setne = next((i for i in after_cmp if i.mnemonic == "setne"), None)
+        self.assertIsNotNone(setne, "must distinguish male (gender == 1) from everyone else")
+        self.assertEqual(setne.op_str, "al")
+        add19 = next(
+            (i for i in after_cmp if i.mnemonic == "add" and i.op_str == "eax, 0x13"),
+            None,
+        )
+        self.assertIsNotNone(
+            add19, "must compute 19 (male) or 20 (everyone else), not a fixed 20"
+        )
+
     def test_vv1_time_warp_double_speed_uses_a_reachable_game_speed_code(self) -> None:
         """Regression test: VV1's own stock executable only ever assigns
         3, 6, or 10 to the game-speed field Time Warp reads (verified with

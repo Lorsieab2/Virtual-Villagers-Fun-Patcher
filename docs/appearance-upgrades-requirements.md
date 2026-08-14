@@ -4,6 +4,20 @@ This document records the requirements and evidence boundary for the proposed
 appearance upgrades. It is a requirements contract only: no currently shipped
 patch advertises or implements these options.
 
+**Update:** VV1 Change Appearance (both the head field `+0x360` and the body/
+clothing field `+0x364`, gated by the villager's gender field `+0x350` --
+male villagers have 19 valid values (0-18) for each, everyone else has 20 --
+confirmed by decompiling the exact-build villager initializer) is now
+implemented as a row in the Villager Details "Upgrades" dialog, superseding
+the VV1 "ON HOLD" status recorded below. It costs exactly 5,000 tech points,
+charged once and only on a confirmed OK; Cancel or closing the picker
+reverts both fields to what they were before it opened; the compiled
+picker's gender-dependent range is verified directly against the DLL's own
+machine code (`native/vv1_origins_icons/vv1_origins_icons.c`,
+`ShowOriginsAppearancePicker`) in `tests/test_vv1_required_fixes.py`. The
+STOP boundary below remains current for VV2-VV5, which have not been
+implemented.
+
 ## Exact supported executable builds
 
 | Game | Executable size | SHA-256 |
