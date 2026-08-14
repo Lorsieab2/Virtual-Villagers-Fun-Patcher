@@ -311,12 +311,6 @@ static int show_upgrade_menu(int villager_menu, int dialog_state) {
     );
 }
 
-static void appearance_set_label(HWND window, int control_id, const char *field_name, int value, int count) {
-    char text[32];
-    wsprintfA(text, "%s %d of %d", field_name, value + 1, count);
-    SetDlgItemTextA(window, control_id, text);
-}
-
 static void appearance_revert(void) {
     *(int *)(appearance_state.villager + VV_HEAD_OFFSET) = appearance_state.original_head;
     *(int *)(appearance_state.villager + VV_CLOTHING_OFFSET) = appearance_state.original_body;
@@ -340,9 +334,8 @@ static INT_PTR CALLBACK appearance_dialog(
 ) {
     if (message == WM_INITDIALOG) {
         /* appearance_state was already populated by ShowOriginsAppearancePicker
-           before this dialog was created; just reflect the starting values. */
-        appearance_set_label(window, ID_HEAD_LABEL, "Head", appearance_state.original_head, appearance_state.head_count);
-        appearance_set_label(window, ID_BODY_LABEL, "Body", appearance_state.original_body, appearance_state.body_count);
+           before this dialog was created; the owner-drawn previews read the
+           live head/body fields directly, so nothing else is needed here. */
         return TRUE;
     } else if (message == WM_DRAWITEM) {
         const DRAWITEMSTRUCT *dis = (const DRAWITEMSTRUCT *)lparam;
@@ -363,25 +356,21 @@ static INT_PTR CALLBACK appearance_dialog(
         int *body = (int *)(appearance_state.villager + VV_CLOTHING_OFFSET);
         if (command == ID_HEAD_PREV) {
             *head = (*head + head_count - 1) % head_count;
-            appearance_set_label(window, ID_HEAD_LABEL, "Head", *head, head_count);
             InvalidateRect(GetDlgItem(window, ID_HEAD_PIC), NULL, TRUE);
             return TRUE;
         }
         if (command == ID_HEAD_NEXT) {
             *head = (*head + 1) % head_count;
-            appearance_set_label(window, ID_HEAD_LABEL, "Head", *head, head_count);
             InvalidateRect(GetDlgItem(window, ID_HEAD_PIC), NULL, TRUE);
             return TRUE;
         }
         if (command == ID_BODY_PREV) {
             *body = (*body + body_count - 1) % body_count;
-            appearance_set_label(window, ID_BODY_LABEL, "Body", *body, body_count);
             InvalidateRect(GetDlgItem(window, ID_BODY_PIC), NULL, TRUE);
             return TRUE;
         }
         if (command == ID_BODY_NEXT) {
             *body = (*body + 1) % body_count;
-            appearance_set_label(window, ID_BODY_LABEL, "Body", *body, body_count);
             InvalidateRect(GetDlgItem(window, ID_BODY_PIC), NULL, TRUE);
             return TRUE;
         }

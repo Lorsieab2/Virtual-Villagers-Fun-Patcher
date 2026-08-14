@@ -128,15 +128,13 @@ BEGIN
     PUSHBUTTON  "<",       2011, 10,  70, 16, 24
     CONTROL     "", 2013, "STATIC", SS_OWNERDRAW | WS_CHILD | WS_VISIBLE, 30, 20, 80, 124
     PUSHBUTTON  ">",       2012, 114, 70, 16, 24
-    LTEXT       "Body 1 of 29", 2010, 10, 148, 120, 10, SS_CENTER
 
     LTEXT       "Head", -1, 140, 8, 120, 10, SS_CENTER
     PUSHBUTTON  "<",       2001, 140, 70, 16, 24
     CONTROL     "", 2003, "STATIC", SS_OWNERDRAW | WS_CHILD | WS_VISIBLE, 160, 20, 80, 124
     PUSHBUTTON  ">",       2002, 244, 70, 16, 24
-    LTEXT       "Head 1 of 30", 2000, 140, 148, 120, 10, SS_CENTER
 
-    LTEXT       "5,000 tech points", -1, 10, 168, 250, 10, SS_CENTER
-    DEFPUSHBUTTON "OK",     1, 90, 182, 50, 14
-    PUSHBUTTON    "Cancel", 2, 150, 182, 50, 14
+    LTEXT       "OK deducts 5,000 tech points. Cancel changes nothing.", -1, 10, 156, 250, 10, SS_CENTER
+    DEFPUSHBUTTON "OK",     1, 90, 176, 50, 14
+    PUSHBUTTON    "Cancel", 2, 150, 176, 50, 14
 END
