@@ -1095,11 +1095,16 @@ class DoublerPurchaseSafetyTests(unittest.TestCase):
                     bytes.fromhex(patch["after"]) for patch in feature.raw["patches"]
                 )
                 self.assertNotIn(b"Unavailable: exact-build doubler behavior", payload)
-                self.assertTrue(
-                    b"\x81\xc8\x00\x18\x00\x00" in payload
-                    or b"\x81\xcf\x00\x18\x00\x00" in payload
-                    or b"\x0d\x00\x18\x00\x00" in payload
-                )
+                # NOTE: this test previously asserted the payload *contained*
+                # `or eax, 0x1800` and treated its presence as "doublers are
+                # available".  Disassembly of the shipped companion dialog
+                # proves the opposite: bits 11/12 are the row-3/row-4
+                # "Unavailable" flags, so that instruction forced both doublers
+                # to render greyed "Unavailable" whenever they were unowned.
+                # VV3 drops it so unowned doubler rows show "Buy" while owned
+                # rows still resolve to "Remove" via the bit-3/bit-4 done
+                # flags.  The documented purchase contract above remains the
+                # behavioral assertion.
 
                 builder = (ROOT / "scripts" / f"build_{game_id}_origins_feature.py").read_text(
                     encoding="utf-8"
