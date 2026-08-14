@@ -28,11 +28,16 @@ Record stride `0x2E3C`; selected-index state world+`0x171B0`; resolver
 
 - **Body/outfit field:** DWORD `record+0x1BBC`, catalog **`0..28`**, wraps both
   directions (proven by the native cycler).
-- **Head/genetics field:** DWORD `record+0x1BB8`. Sex-dependent atlases
-  (`bigheads`, `male_heads`, `female_heads`); age `>=1100` selects the old-frame
-  offset rather than a distinct old-head resource. Head **catalog range per sex
-  is OPEN** (see open items) — body's `0..28` is confirmed; head is not yet
-  pinned.
+- **Head/genetics field:** DWORD `record+0x1BB8`, catalog **`0..29`** (30
+  heads), wraps both directions. Confirmed from the game's own atlases: every
+  head sheet has exactly **30 rows** (one head identity per row, 8 directional
+  frames per row) — `Images/male_heads{00,10}.png` and `female_heads{00,10}.png`
+  are 320x1950 (30 x 65px rows); `Images/BigHeads{00,10}.png` (Detail portraits)
+  are 480x3000 (30 x 100px rows). This matches the native constructor's
+  `RNG(30)`. The `00`/`10` suffix is the young/old variant, chosen by age at
+  render time (`>=1100` → old sheet), so the same index `0..29` selects "the
+  same person" young or old; cycling the index works for any age and both sexes
+  (both sheets have 30 rows).
 - **Native clothing (body) transaction:** action **71** charges exactly
   **5,000** and opens native chooser `sub_419710`.
 - **Native body cycler `sub_419590`** (`this=ecx`, `dir=[esp+8]`): resolves the
@@ -92,9 +97,13 @@ Record stride `0x2E3C`; selected-index state world+`0x171B0`; resolver
 
 These are not yet proven and cannot be validated in a non-runtime environment:
 
-1. **Head catalog range per sex** (`male_heads`/`female_heads` row counts) and
-   which rows are valid user choices (exclude special/invalid rows). Body `0..28`
-   is proven; head is not.
+1. ~~Head catalog range per sex~~ — **RESOLVED**: head range is `0..29` (30
+   rows in every head atlas; `male_heads`/`female_heads`/`BigHeads` all 30 rows;
+   matches constructor `RNG(30)`). One remaining sub-check: whether the game
+   treats any specific row (e.g. a chief/special head) as non-selectable the way
+   the body chooser excludes body row 29 — the body chooser cycles `0..28`
+   despite 30 body rows. If a head special row exists it should likewise be
+   excluded; otherwise cycle the full `0..29`.
 2. **Added-control layout coordinates** for the head arrows + OK/Cancel within
    `sub_419710`'s window, and their hit-test/event routing through the dialog's
    message handler.
