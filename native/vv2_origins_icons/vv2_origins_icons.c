@@ -232,9 +232,9 @@ __declspec(dllexport) int __stdcall ShowVV2AppearanceChooser(
     int *body
 ) {
     INT_PTR result;
-    /* VV2 encodes male as the non-zero sex value, so a non-zero field selects
-       the male atlas (0 here) and zero selects the female atlas (1 here). */
-    vv2_appearance_sex = sex ? 0 : 1;
+    /* VV2 stores sex as 1 (male) or 2 (female); the stock renderer branches on
+       `sex == 1` (0x4456A3). Match it: sex 1 -> male atlas (0), else female (1). */
+    vv2_appearance_sex = (sex == 1) ? 0 : 1;
     vv2_appearance_old = age >= 1100 ? 1 : 0;
     vv2_appearance_head = (head && *head >= 0 && *head < VV2_APPEARANCE_COUNT) ? *head : 0;
     vv2_appearance_body = (body && *body >= 0 && *body < VV2_APPEARANCE_COUNT) ? *body : 0;
