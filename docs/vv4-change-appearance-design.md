@@ -37,7 +37,12 @@ Record stride `0x2E3C`; selected-index state world+`0x171B0`; resolver
   `RNG(30)`. The `00`/`10` suffix is the young/old variant, chosen by age at
   render time (`>=1100` → old sheet), so the same index `0..29` selects "the
   same person" young or old; cycling the index works for any age and both sexes
-  (both sheets have 30 rows).
+  (both sheets have 30 rows). The stored value **is the 0-based atlas row index
+  directly** — row 0 = index 0, row 1 = index 1, ... row 29 = index 29 — with no
+  offset or remapping (the native constructor writes `RNG(30)` straight into the
+  field and the renderer reads it as the row, exactly as the body field maps to
+  body rows). So the head cycler is simply: increment/decrement the index over
+  `0..29` with wraparound and write it to `+0x1BB8`.
 - **Native clothing (body) transaction:** action **71** charges exactly
   **5,000** and opens native chooser `sub_419710`.
 - **Native body cycler `sub_419590`** (`this=ecx`, `dir=[esp+8]`): resolves the
