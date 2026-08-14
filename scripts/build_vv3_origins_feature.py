@@ -306,9 +306,16 @@ def main() -> None:
             je unavailable
             cmp dword ptr [0x{VILLAGE_WIDE_SIGNATURE_VA:X}], 0x50465656
             jne no_village_wide
-            # Rows 6-8 are optional village-wide Buy rows.  The companion
-            # dialog otherwise renders enabled rows as Remove controls.
-            or dword ptr [esp + 0x10], 0xA01C0
+            # When the optional village-wide payload is installed, mark the
+            # dialog VILLAGE_WIDE (0x20000).  The companion resolves that to
+            # the nine-row Tech dialog (201) with row_count 9, so Cure (5),
+            # All Villagers Like Running (6), Grant Full Mastery to All (7),
+            # and All Villagers are 18 (8) all render as live Buy controls.
+            # The former 0xA01C0 selected the eight-row Full-Mastery-only
+            # dialog (203) -- which has no Running or Age-18 rows -- and set
+            # the rows 6-8 "done" bits, so those upgrades were hidden or shown
+            # greyed/disabled rather than purchasable.
+            or dword ptr [esp + 0x10], 0x20000
         no_village_wide:
             push dword ptr [esp + 0x10]
             push dword ptr [esp + 0x10]

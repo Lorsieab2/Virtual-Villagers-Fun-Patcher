@@ -28,7 +28,7 @@ FOUNDATION_OUTPUT = (
 SOURCE_SHA256 = "35FB96199E745C7D8054FF6A12851B9E09225E3E41D0CE04012604E74968C0D5"
 SOURCE_SIZE = 298_496
 TARGET_COUNTS = {201: 26, 202: 2, 203: 31}
-PUBLIC_TARGET_COUNTS = {201: 26, 202: 21, 203: 31}
+PUBLIC_TARGET_COUNTS = {201: 46, 202: 21, 203: 31}
 
 
 def sha(data: bytes) -> str:
@@ -165,9 +165,17 @@ def _filter_dialog(
         expected_count=source_counts[resource_id],
     )
     if resource_id == 201:
-        # Origins-only: background, commands 0..4, and Cancel.  Commands 5,
-        # 6, 7, and 8 are all dependent/withdrawn and therefore absent.
-        keep = set(range(25)) | {45}
+        if include_individual_full_mastery:
+            # Public projection: keep every Tech row.  The payload's row_count
+            # gates which are shown -- 6 without the village-wide payload
+            # (Time Warp..Cure) and 9 with it -- so the base menu still stops
+            # at Cure while the village-wide menu exposes All Villagers Like
+            # Running (6), Grant Full Mastery to All (7), and All Villagers
+            # are 18 (8).
+            keep = set(range(46))
+        else:
+            # Foundation projection stays base-only (commands 0..4 + Cancel).
+            keep = set(range(25)) | {45}
     elif resource_id == 203:
         # Items 25..29 are command 5: icon, icon control, label, price, button.
         keep = set(range(source_counts[resource_id])) - set(range(25, 30))

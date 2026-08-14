@@ -63,12 +63,16 @@ class VV3OriginsFeatureTests(unittest.TestCase):
             "data/candidates/VVFP VV3 Safe Upgrades.dll",
         )
         data = COMPANION.read_bytes()
-        for forbidden in (
+        # The public projection now exposes every Tech upgrade row so the
+        # village-wide menu shows Cure, All Villagers Like Running, Grant Full
+        # Mastery to All, and All Villagers are 18 as live Buy controls
+        # (previously stripped down to Full Mastery only).
+        for required in (
             "Cure all Villagers",
             "All Villagers Like Running",
             "All Villagers are 18",
         ):
-            self.assertNotIn(forbidden.encode("utf-16le"), data)
+            self.assertIn(required.encode("utf-16le"), data)
 
     def test_description_is_concise_and_keeps_the_base_dependency_internal(self) -> None:
         description = self.manifest["description"]
@@ -270,7 +274,7 @@ class VV3OriginsFeatureTests(unittest.TestCase):
         )
         self.assertEqual(
             hashlib.sha256(payload).hexdigest().upper(),
-            "332509629B6C009DECF5A92DB359245591E9ECB6E5B5A85C8051F25E63325867",
+            "D0B7C3AE7B1032EEE642A24E3F856317FB6202312E2ED9721E50AA888F3934C1",
         )
         self.assertEqual(
             bytes.fromhex(

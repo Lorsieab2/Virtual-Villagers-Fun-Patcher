@@ -34,11 +34,11 @@
     },
     {
       "path": "data/candidates/vv3_individual_full_mastery_candidate.json",
-      "sha256": "162C8D706BC54DB6DAC30E47497E608CFD1550CFF146DDCEF8BA27D3329D3381"
+      "sha256": "6F2E3981738F7FC4BE0B33F1140DFBDB9673DD53F5B5D0EAC5646A9E33370213"
     },
     {
       "path": "data/candidates/vv3_individual_full_mastery_candidate_map.json",
-      "sha256": "9F98873DE04E70A50866A6ABF73E56126B47619313C629001449B324446CD083"
+      "sha256": "6A63A15B97C6331C44676BB8D59F6368F9651A3052F924E52F235AAF0703518B"
     },
     {
       "path": "data/candidates/vv3_individual_grant_running_candidate.json",
