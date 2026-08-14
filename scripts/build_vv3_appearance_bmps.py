@@ -22,12 +22,20 @@ ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / "native" / "vv3_full_mastery_candidate" / "appearance"
 BACKGROUND = (236, 236, 236)
 CELL_W, CELL_H = 40, 65
+# Each atlas row holds several directional animation frames of CELL_W each.
+# Preview the requested facing: heads front-straight (frame 4 of 8), bodies
+# front 3/4-right (frame 8 of 16).
+HEAD_FRAME = 4
+BODY_FRAME = 8
 
 
-def _strip(cells: list[tuple[Image.Image, int]], name: str) -> None:
+def _strip(cells: list[tuple[Image.Image, int]], name: str, frame: int, flip: bool = False) -> None:
     image = Image.new("RGB", (CELL_W * len(cells), CELL_H), BACKGROUND)
     for index, (atlas, row) in enumerate(cells):
-        cell = atlas.crop((0, row * CELL_H, CELL_W, row * CELL_H + CELL_H)).convert("RGBA")
+        x = frame * CELL_W
+        cell = atlas.crop((x, row * CELL_H, x + CELL_W, row * CELL_H + CELL_H)).convert("RGBA")
+        if flip:
+            cell = cell.transpose(Image.FLIP_LEFT_RIGHT)
         base = Image.new("RGBA", (CELL_W, CELL_H), BACKGROUND + (255,))
         base.alpha_composite(cell)
         image.paste(base.convert("RGB"), (index * CELL_W, 0))
@@ -49,12 +57,12 @@ def main() -> int:
         ("head_f_old", "female_heads_old.png"),
     ):
         image = Image.open(src / atlas)
-        _strip([(image, row) for row in range(30)], name)
+        _strip([(image, row) for row in range(30)], name, HEAD_FRAME)
     # Bodies: outfits 0..29 span three 640x650 sheets (10 outfits each);
     # cell V is sheet V // 10, row V % 10, frame 0.
     for name, prefix in (("body_m", "male_bodies"), ("body_f", "female_bodies")):
         sheets = [Image.open(src / f"{prefix}0{i}.png") for i in (0, 1, 2)]
-        _strip([(sheets[v // 10], v % 10) for v in range(30)], name)
+        _strip([(sheets[v // 10], v % 10) for v in range(30)], name, BODY_FRAME)
     return 0
 
 
