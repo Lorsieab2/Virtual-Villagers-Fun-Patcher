@@ -525,27 +525,22 @@ __declspec(dllexport) int __stdcall ShowOriginsUpgradeMenu(
 
 __declspec(dllexport) int __stdcall ShowOriginsVillageWideResult(
     int command,
-    int full_like_skipped,
+    int granted,
     int already_running_skipped,
     int removed_running_dislike
 ) {
-    char message[128];
+    char message[192];
     if (command == 6) {
+        /* VV2 chat's canonical Running wording. */
         wsprintfA(
             message,
-            "Skipped over %d villagers. Reason: " VV_ALREADY_LIKES_TEXT "\r\nskipped over %d villagers. Reason: already likes running",
-            full_like_skipped,
-            already_running_skipped
+            "Granted Running to %d villagers"
+            "\r\nSkipped over %d villagers. Reason: already likes running"
+            "\r\nRemoved running dislike from %d villagers",
+            granted,
+            already_running_skipped,
+            removed_running_dislike
         );
-        if (removed_running_dislike > 0) {
-            char removal[64];
-            wsprintfA(
-                removal,
-                "\r\nRemoved running dislike from %d villagers",
-                removed_running_dislike
-            );
-            lstrcatA(message, removal);
-        }
         MessageBoxA(
             GetForegroundWindow(),
             message,

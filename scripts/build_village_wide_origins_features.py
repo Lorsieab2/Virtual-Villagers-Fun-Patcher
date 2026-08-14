@@ -294,9 +294,11 @@ def build_payload(config: dict) -> tuple[bytes, dict[str, int]]:
         # Grant "like running" through the game's own managed array helpers
         # (add-to-likes, remove-from-dislikes) instead of writing the like
         # array directly, which corrupts like state and crashes the game.
-        # Returns eax=full-like-skipped, edx=already-running-skipped,
+        # Returns eax=granted, edx=already-running-skipped,
         # ecx=running-dislikes-removed (the removed counter lives on the stack
-        # so it survives the thiscall clobbers of eax/ecx/edx).
+        # so it survives the thiscall clobbers of eax/ecx/edx). Villagers with
+        # no free like slot are skipped silently (VV2's "all slots occupied"
+        # line is future-only, so it is not counted or reported).
         slot_count = config["slot_count"]
         likes = _hex_word(config["likes"])
         dislikes = _hex_word(config["dislikes"])
@@ -326,16 +328,14 @@ def build_payload(config: dict) -> tuple[bytes, dict[str, int]]:
             lea ecx, [esi + {likes}]
             call {_hex_word(config['native_like_add'])}
             test al, al
-            jz running_full
+            jz running_next
+            inc edi
             push {pref}
             lea ecx, [esi + {dislikes}]
             call {_hex_word(config['native_like_remove'])}
             test al, al
             jz running_next
             inc dword ptr [esp]
-            jmp running_next
-        running_full:
-            inc edi
             jmp running_next
         running_existing:
             inc ebp
