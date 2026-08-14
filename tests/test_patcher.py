@@ -191,16 +191,14 @@ class ManifestTests(unittest.TestCase):
         running_apply = charge_block.index(
             "call 0x{WHOLE_VILLAGE_VA:X}", running_fundcheck
         )
-        cure_preflight = charge_block.index("call 0x{CURE_PREFLIGHT_VA:X}")
-        legacy_deduction = charge_block.index(
-            "sub dword ptr [edi + 0x2EADC], eax", cure_preflight
-        )
         self.assertLess(running_fundcheck, running_deduction)
         self.assertLess(running_deduction, running_apply)
-        self.assertLess(cure_preflight, legacy_deduction)
-        self.assertIn(
-            '"No changes were needed. No tech points have been deducted."', source
-        )
+        # Full Heal routes to its self-contained routine, which counts,
+        # charges 30,000 only when something changed, and reports both counts
+        # through ShowVV2CureResult.
+        self.assertIn("cmp ebx, 5\n            je do_cure", source)
+        self.assertIn("sub dword ptr [edi + 0x2EADC], 30000", source)
+        self.assertIn("ShowVV2CureResult", source)
 
         preflight = source[
             source.index("    preflight_code = assemble(") :

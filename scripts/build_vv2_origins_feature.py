@@ -52,6 +52,8 @@ DETAIL_PREFLIGHT_VA = IMAGE_BASE + SHR_RVA + (
 CURE_ENTRY_FILE_OFFSET = 0x9A530
 CURE_ENTRY_VA = IMAGE_BASE + SHR_RVA + (CURE_ENTRY_FILE_OFFSET - SHR_FILE_OFFSET)
 HEAL_CAVE_VA = CURE_ENTRY_VA
+# The Full Heal result-export name string trails the Cure code in its reserve.
+CURE_STRING_VA = CURE_ENTRY_VA + 0x1A0
 # The optional village-wide payload follows the base VV2 Origins helpers in
 # the .shr reserve at raw 0x9A800.  Its runtime address must use the mapped
 # .shr RVA, not IMAGE_BASE + raw file offset.
@@ -539,12 +541,7 @@ def main() -> None:
             jmp show_status
         legacy_charge:
             cmp ebx, 5
-            jne legacy_charge_ready
-            call 0x{CURE_PREFLIGHT_VA:X}
-            test eax, eax
-            jnz legacy_charge_ready
-            mov eax, 0x{s['running_no_change']:X}
-            jmp show_status
+            je do_cure
         legacy_charge_ready:
             mov eax, dword ptr [0x{s['tech_costs']:X} + ebx*4]
             cmp ebx, 2
@@ -1020,12 +1017,12 @@ def main() -> None:
             push edx
             push esi
             push edi
-            xor eax, eax
+            xor ebx, ebx
+            xor ebp, ebp
             call 0x44F4E0
             test eax, eax
-            je cure_format
+            je cure_report
             mov edx, eax
-            xor eax, eax
             mov ecx, 256
         cure_loop:
             cmp byte ptr [edx + 0x30], 0
@@ -1034,68 +1031,40 @@ def main() -> None:
             jle cure_next
             cmp byte ptr [edx + 0x558], 0
             jne cure_next
-            xor ebx, ebx
             cmp dword ptr [edx + 0x52C], 100
             jge cure_health_done
             mov dword ptr [edx + 0x52C], 100
-            mov ebx, 1
+            inc ebp
         cure_health_done:
             cmp dword ptr [edx + 0x53C], 0
-            je cure_changed_check
+            je cure_next
             mov dword ptr [edx + 0x53C], 0
             inc dword ptr [edi + 0x2E508]
-            mov ebx, 1
-        cure_changed_check:
-            test ebx, ebx
-            jz cure_next
-            inc eax
+            inc ebx
         cure_next:
             add edx, 0xE48C
             dec ecx
             jne cure_loop
-        cure_format:
-            mov ebp, eax
-            sub esp, 40
-            mov dword ptr [esp], 0x65727543
-            mov word ptr [esp + 4], 0x2064
-            lea edi, [esp + 6]
-            test ebp, ebp
-            jnz cure_digits
-            mov byte ptr [edi], 0x30
-            inc edi
-            jmp cure_suffix
-        cure_digits:
-            lea esi, [esp + 30]
-            mov eax, ebp
-            mov ebx, 10
-            xor ecx, ecx
-        cure_digit_loop:
-            xor edx, edx
-            div ebx
-            add dl, 0x30
-            dec esi
-            mov byte ptr [esi], dl
-            inc ecx
+            mov eax, ebx
+            or eax, ebp
+            jz cure_report
+            cmp dword ptr [edi + 0x2EADC], 30000
+            jb cure_report
+            sub dword ptr [edi + 0x2EADC], 30000
+        cure_report:
+            push 0x{s['icons_dll']:X}
+            call dword ptr [0x474010]
             test eax, eax
-            jne cure_digit_loop
-        cure_copy_loop:
-            mov dl, byte ptr [esi]
-            mov byte ptr [edi], dl
-            inc esi
-            inc edi
-            dec ecx
-            jne cure_copy_loop
-        cure_suffix:
-            mov byte ptr [edi], 0x20
-            mov dword ptr [edi + 1], 0x6C6C6976
-            mov dword ptr [edi + 5], 0x72656761
-            mov word ptr [edi + 9], 0x0073
-            lea eax, [esp]
+            je cure_ret
+            push 0x{CURE_STRING_VA:X}
             push eax
-            push 0x{s['tech_title']:X}
-            call 0x{show_message:X}
-            add esp, 8
-            add esp, 40
+            call dword ptr [0x4740D4]
+            test eax, eax
+            je cure_ret
+            push ebp
+            push ebx
+            call eax
+        cure_ret:
             pop edi
             pop esi
             pop edx
@@ -1105,6 +1074,15 @@ def main() -> None:
             ret
         """,
         HEAL_CAVE_VA,
+    )
+    if len(cure_code) > 0x1A0:
+        raise RuntimeError(
+            f"cure code is too large: {len(cure_code):#x}/0x1A0"
+        )
+    cure_block = (
+        cure_code
+        + b"\0" * (0x1A0 - len(cure_code))
+        + b"ShowVV2CureResult\0"
     )
     preflight_code = assemble(
         f"""
@@ -1584,9 +1562,9 @@ def main() -> None:
     )
     patch(
         CURE_ENTRY_FILE_OFFSET,
-        b"\0" * len(cure_code),
-        cure_code,
-        "restore active living VV2 villagers below 80 health to 100, clear sickness, and increment People Cured when sickness is removed",
+        b"\0" * len(cure_block),
+        cure_block,
+        "restore active living VV2 villagers below 100 health to 100, clear sickness, charge 30,000 only when something changed, and report the two counts through ShowVV2CureResult",
     )
     patch(
         VILLAGE_PREFLIGHT_FILE_OFFSET,

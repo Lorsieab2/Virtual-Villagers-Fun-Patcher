@@ -87,6 +87,33 @@ __declspec(dllexport) int __stdcall ShowVV2UpgradeMenuState(
     );
 }
 
+/* Full Heal / Cure All result message. sick = villagers whose sickness was
+   cleared; health = villagers restored to full health. When both are zero the
+   caller charged nothing. */
+__declspec(dllexport) void __stdcall ShowVV2CureResult(int sick, int health) {
+    char message[256];
+    if (sick == 0 && health == 0) {
+        MessageBoxA(
+            GetForegroundWindow(),
+            "Everyone is at full health already. No villagers are sick. "
+            "No tech points have been deducted.",
+            "Origins Upgrades",
+            MB_OK | MB_ICONINFORMATION
+        );
+        return;
+    }
+    wsprintfA(
+        message,
+        "Cured sickness from %d villagers.\r\n\r\n"
+        "Restored %d villagers to full health.",
+        sick, health
+    );
+    MessageBoxA(
+        GetForegroundWindow(), message, "Origins Upgrades",
+        MB_OK | MB_ICONINFORMATION
+    );
+}
+
 /* ---- Change Appearance chooser (213) ---- */
 
 #define IDB_HEAD_M_YOUNG 3001
