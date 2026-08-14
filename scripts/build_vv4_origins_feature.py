@@ -332,7 +332,12 @@ def main() -> None:
             jz food_not_owned
             or eax, 16
         food_not_owned:
-            or eax, 0x1800
+            # Tech/Food Doublers must be purchasable when unowned: show the
+            # default "Buy" control (owned rows still resolve to "Remove" via
+            # the eax bit-3/bit-4 owned flags set above).  The former
+            # `or eax, 0x1800` set the row 3/4 "Unavailable" flags
+            # unconditionally, which blocked both doublers from ever being
+            # bought no matter how many tech points the player had.
             push eax
             push 0
             call 0x{show_dialog:X}
