@@ -18,7 +18,7 @@
   "source_bindings": {
     "task9_builder": {
       "path": "scripts/build_vv5_task9_native_actions.py",
-      "source_text_sha256": "6B077819E9888FEB4A2AB5D1D6EFD292F7B402B8010DCFCF5DBE2E6C52BAFFAC"
+      "source_text_sha256": "E7EB6AE3017EE45C6856F203CB011F555BE3E6B0F6167142741917D86C63B56A"
     },
     "companion_c": {
       "path": "native/vv5_task9_origins/vv5_task9_origins.c",
@@ -107,7 +107,7 @@
   },
   "layouts": {
     "collection_progression": {
-      "page_sha256": "B5B8E6CBB5013F6BAAB1F82FEB014206EA426135A6F25B36BCEE0D1CC073E6AD",
+      "page_sha256": "2455BD2CFB096E8243B18C4480783B4CECC2D0C48B28B738C1D0457772FF17C6",
       "routine_sha256": {
         "tech_entry": "74964745ECD556D47571535AAFAF9278CCDE1B71B97E080952CAF71D7C9F0CBE",
         "detail_entry": "8A56EFA1E4CF97E33B870318A1B8613E8EED41A0CF041A6E4DE8158199D32AAA",
@@ -120,13 +120,14 @@
         "show_menu": "05C5A931DEAB5D32E9E65DC32F29EBC33C10DA8371AFFD89F9D56E7427A84234",
         "confirm": "AEDFF7576F01DAED759C1AD40662FBAEAF7605EC0C178A11FDCBC724836CA4BB",
         "status": "81422FD51D1AFCC19DBCBAEBBA428A2F68980573E3EE342203255BAC74358CB9",
-        "tech_menu": "D2DC713A02556BED5B80E4573E2CD030BD7BC4640228379681F22676E645807E",
+        "tech_menu": "796C3E5AD660F70C621A2C4A6F32BA1C2D18DD5F7F226B93C4390DA8A822D8D8",
         "detail_menu": "7DFFA974CFB2EFE32729A680C14E016AD8415D560069E6B356C2B401C5718298",
         "age": "0BF24696E77297502FF39BE62B4D7C8A7E8A6B6D24CE0F0962BC90F1093E8E8F",
         "mastery": "84F4318805111D21A516C4C8347441E17B847411AB12D87B54C9D2434FE0BF47",
         "running": "384EF5F6DC19C232E94FD4D0DA6F661CEF4556B587BE6FFEA7759F70BD56EC36",
         "heal": "4D0C90F5B90D13336DA0A3C80953E14BAD69787F31E9BE1F810EBE87F3ACB5DC",
-        "time_warp": "57F3872168438C810F3A2D8F7828515196A15EED30A5456C2353D4B725484ED5"
+        "time_warp": "57F3872168438C810F3A2D8F7828515196A15EED30A5456C2353D4B725484ED5",
+        "island": "DCC6816AB7442EB5E4D6FA402A04966C6B08B288FC39D91E1357E6DD3D9390DC"
       },
       "routine_length": {
         "tech_entry": 7,
@@ -140,13 +141,14 @@
         "show_menu": 55,
         "confirm": 58,
         "status": 61,
-        "tech_menu": 386,
+        "tech_menu": 405,
         "detail_menu": 73,
         "age": 652,
         "mastery": 682,
         "running": 900,
         "heal": 1284,
-        "time_warp": 534
+        "time_warp": 534,
+        "island": 358
       },
       "entry_virtual_addresses": {
         "tech_entry": "0x7C9100",
@@ -177,13 +179,20 @@
         "tw_unavailable": "0x7D028B",
         "tw_success": "0x7D02C9",
         "tw_charge_unknown": "0x7D0309",
-        "tw_clock_unknown": "0x7D0398"
+        "tw_clock_unknown": "0x7D0398",
+        "iv_warning": "0x7D03F5",
+        "iv_cancelled": "0x7D045E",
+        "iv_recheck": "0x7D049D",
+        "iv_unavailable": "0x7D0500",
+        "iv_success": "0x7D0541",
+        "iv_charge_unknown": "0x7D0580",
+        "iv_queue_unknown": "0x7D0601"
       },
       "append_offset": "0xF2000",
       "page_virtual_address": "0x7C9000"
     },
     "immediate_fixed": {
-      "page_sha256": "B5B8E6CBB5013F6BAAB1F82FEB014206EA426135A6F25B36BCEE0D1CC073E6AD",
+      "page_sha256": "2455BD2CFB096E8243B18C4480783B4CECC2D0C48B28B738C1D0457772FF17C6",
       "routine_sha256": {
         "tech_entry": "74964745ECD556D47571535AAFAF9278CCDE1B71B97E080952CAF71D7C9F0CBE",
         "detail_entry": "8A56EFA1E4CF97E33B870318A1B8613E8EED41A0CF041A6E4DE8158199D32AAA",
@@ -196,13 +205,14 @@
         "show_menu": "05C5A931DEAB5D32E9E65DC32F29EBC33C10DA8371AFFD89F9D56E7427A84234",
         "confirm": "AEDFF7576F01DAED759C1AD40662FBAEAF7605EC0C178A11FDCBC724836CA4BB",
         "status": "81422FD51D1AFCC19DBCBAEBBA428A2F68980573E3EE342203255BAC74358CB9",
-        "tech_menu": "D2DC713A02556BED5B80E4573E2CD030BD7BC4640228379681F22676E645807E",
+        "tech_menu": "796C3E5AD660F70C621A2C4A6F32BA1C2D18DD5F7F226B93C4390DA8A822D8D8",
         "detail_menu": "7DFFA974CFB2EFE32729A680C14E016AD8415D560069E6B356C2B401C5718298",
         "age": "0BF24696E77297502FF39BE62B4D7C8A7E8A6B6D24CE0F0962BC90F1093E8E8F",
         "mastery": "84F4318805111D21A516C4C8347441E17B847411AB12D87B54C9D2434FE0BF47",
         "running": "384EF5F6DC19C232E94FD4D0DA6F661CEF4556B587BE6FFEA7759F70BD56EC36",
         "heal": "4D0C90F5B90D13336DA0A3C80953E14BAD69787F31E9BE1F810EBE87F3ACB5DC",
-        "time_warp": "57F3872168438C810F3A2D8F7828515196A15EED30A5456C2353D4B725484ED5"
+        "time_warp": "57F3872168438C810F3A2D8F7828515196A15EED30A5456C2353D4B725484ED5",
+        "island": "DCC6816AB7442EB5E4D6FA402A04966C6B08B288FC39D91E1357E6DD3D9390DC"
       },
       "routine_length": {
         "tech_entry": 7,
@@ -216,13 +226,14 @@
         "show_menu": 55,
         "confirm": 58,
         "status": 61,
-        "tech_menu": 386,
+        "tech_menu": 405,
         "detail_menu": 73,
         "age": 652,
         "mastery": 682,
         "running": 900,
         "heal": 1284,
-        "time_warp": 534
+        "time_warp": 534,
+        "island": 358
       },
       "entry_virtual_addresses": {
         "tech_entry": "0x7C9100",
@@ -253,7 +264,14 @@
         "tw_unavailable": "0x7D028B",
         "tw_success": "0x7D02C9",
         "tw_charge_unknown": "0x7D0309",
-        "tw_clock_unknown": "0x7D0398"
+        "tw_clock_unknown": "0x7D0398",
+        "iv_warning": "0x7D03F5",
+        "iv_cancelled": "0x7D045E",
+        "iv_recheck": "0x7D049D",
+        "iv_unavailable": "0x7D0500",
+        "iv_success": "0x7D0541",
+        "iv_charge_unknown": "0x7D0580",
+        "iv_queue_unknown": "0x7D0601"
       },
       "append_offset": "0xF2000",
       "page_virtual_address": "0x7C9000"
