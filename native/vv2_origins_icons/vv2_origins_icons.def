@@ -4,3 +4,4 @@ EXPORTS
     ShowOriginsUpgradeMenuState=_ShowOriginsUpgradeMenuState@8
     ShowOriginsVillageWideResult=_ShowOriginsVillageWideResult@16
     ShowOriginsVillageWideResult@20=_ShowOriginsVillageWideResult20@20
+    ShowAppearanceChooser=_ShowAppearanceChooser@16

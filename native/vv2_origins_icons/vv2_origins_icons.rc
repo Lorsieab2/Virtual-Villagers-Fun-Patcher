@@ -1,0 +1,36 @@
+/* VV2 Origins icons: reuse the shared upgrade dialogs and add the VV2-only
+   Change Appearance chooser (head/body sprite sheets cropped from the stock
+   game art at build time). */
+#include "../vv1_origins_icons/vv1_origins_icons.rc"
+
+3001 BITMAP "appearance/head_m_young.bmp"
+3002 BITMAP "appearance/head_m_old.bmp"
+3003 BITMAP "appearance/head_f_young.bmp"
+3004 BITMAP "appearance/head_f_old.bmp"
+3011 BITMAP "appearance/body_m.bmp"
+3012 BITMAP "appearance/body_f.bmp"
+
+#define WS_CHILD      0x40000000L
+#define WS_VISIBLE    0x10000000L
+#define SS_CENTER     0x00000001L
+#define SS_OWNERDRAW  0x0000000DL
+
+203 DIALOGEX 0, 0, 250, 196
+STYLE DS_MODALFRAME | DS_SETFONT | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Change Appearance"
+FONT 9, "Segoe UI"
+BEGIN
+    CTEXT       "Body", -1, 30, 8, 70, 9
+    CONTROL     "", 3101, "STATIC", SS_OWNERDRAW | WS_CHILD | WS_VISIBLE, 30, 20, 70, 118
+    PUSHBUTTON  "<", 3103, 10, 72, 16, 16
+    PUSHBUTTON  ">", 3104, 104, 72, 16, 16
+
+    CTEXT       "Head", -1, 150, 8, 70, 9
+    CONTROL     "", 3102, "STATIC", SS_OWNERDRAW | WS_CHILD | WS_VISIBLE, 150, 20, 70, 118
+    PUSHBUTTON  "<", 3105, 130, 72, 16, 16
+    PUSHBUTTON  ">", 3106, 224, 72, 16, 16
+
+    CTEXT       "OK deducts 5,000 tech points. Cancel changes nothing.", -1, 14, 150, 222, 9
+    DEFPUSHBUTTON "OK", 1, 66, 168, 50, 16
+    PUSHBUTTON  "Cancel", 2, 134, 168, 50, 16
+END
