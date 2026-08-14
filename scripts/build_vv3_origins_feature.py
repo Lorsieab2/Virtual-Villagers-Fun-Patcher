@@ -45,6 +45,10 @@ VILLAGE_WIDE_ENTRY_VA = IMAGE_BASE + 0x7B840
 # health-setter transaction, so the old 0x7B7A0 zero cave is no longer safe.
 VILLAGE_PREFLIGHT_FILE_OFFSET = PAYLOAD_FILE_OFFSET + 0xB80
 VILLAGE_PREFLIGHT_VA = IMAGE_BASE + VILLAGE_PREFLIGHT_FILE_OFFSET
+# Change Appearance action cave: 704 bytes of zero .text padding that begin
+# immediately after the optional village-wide payload (0x7B820..0x7BD40).
+CHANGE_APPEARANCE_FILE_OFFSET = 0x7BD40
+CHANGE_APPEARANCE_VA = IMAGE_BASE + CHANGE_APPEARANCE_FILE_OFFSET
 RUNNING_PREFERENCE_ID = 38  # exact-build preference-table evidence: 0x97488
 DETAIL_BUTTON_PTR = PAYLOAD_VA + 0xBF0
 DETAIL_BUTTON_ID = 6
@@ -124,7 +128,9 @@ def main() -> None:
     for value in (50000, 30000, 75000, 500000, 500000, 30000):
         strings.extend(value.to_bytes(4, "little"))
     s["detail_costs"] = STRINGS_VA + len(strings)
-    for value in (50000, 100000, 40000, 50000):
+    # Indices 0..4: Grant Youth, Grant Full Mastery, Grant Running, Set Age to
+    # 18, Change Appearance.
+    for value in (50000, 100000, 40000, 50000, 5000):
         strings.extend(value.to_bytes(4, "little"))
     if len(strings) > PAYLOAD_SIZE - STRINGS_OFFSET:
         raise RuntimeError(
@@ -695,8 +701,17 @@ def main() -> None:
             je detail_mastery
             cmp ebx, 2
             je detail_running
+            cmp ebx, 4
+            je do_change_appearance
             mov eax, 360
             jmp detail_set_age
+
+        do_change_appearance:
+            # edx = validated selected villager record.  The 5,000-tech charge
+            # was already applied by detail_charge above; open the game's own
+            # in-engine appearance chooser for this villager.
+            call 0x{CHANGE_APPEARANCE_VA:X}
+            jmp detail_success
 
         detail_youth:
             mov eax, dword ptr [edx + 0xDC4]
@@ -1097,6 +1112,51 @@ def main() -> None:
         NATIVE_TECH_TAIL_VA,
     )
 
+    # Change Appearance action cave.  Reproduces the stock Clothing-Hut open
+    # path (sub_468560): stage the selected villager into the manager's chooser
+    # slot (+0x12FAC), construct the ~0x5140-byte chooser object (sub_41C2F0),
+    # Show it for that villager (sub_41C010, which renders the villager and
+    # cycles the outfit field +0xDF4 in-engine), then destruct (sub_41BDD0).
+    # The 5,000-tech charge is applied by detail_charge before this runs.
+    change_appearance_code = assemble(
+        """
+            push ebx
+            push esi
+            push edi
+            push ebp
+            mov ebx, edx
+            call 0x428B60
+            xor ecx, ecx
+            cmp dword ptr [0x42883A], 0x100
+            jne ca_mgr_ready
+            mov ecx, 0x7598
+        ca_mgr_ready:
+            lea esi, [eax + ecx]
+            mov dword ptr [esi + 0x12FB0], 0
+            mov dword ptr [esi + 0x12FAC], ebx
+            sub esp, 0x5200
+            lea ecx, [esp]
+            call 0x41C2F0
+            mov edx, dword ptr [esi + 0x12FAC]
+            test edx, edx
+            je ca_skip
+            push edx
+            lea ecx, [esp + 4]
+            call 0x41C010
+        ca_skip:
+            lea ecx, [esp]
+            call 0x41BDD0
+            add esp, 0x5200
+            mov dword ptr [esi + 0x12FAC], 0
+            pop ebp
+            pop edi
+            pop esi
+            pop ebx
+            ret
+        """,
+        CHANGE_APPEARANCE_VA,
+    )
+
     payload = code + strings
     if len(payload) > PAYLOAD_SIZE:
         raise RuntimeError(f"payload too large: {len(payload):#x}/{PAYLOAD_SIZE:#x}")
@@ -1118,6 +1178,12 @@ def main() -> None:
         b"\0" * len(native_tech_tail),
         native_tech_tail,
         "keep Island Event tech rewards on the native tech path",
+    )
+    patch(
+        CHANGE_APPEARANCE_FILE_OFFSET,
+        b"\0" * len(change_appearance_code),
+        change_appearance_code,
+        "open the native in-engine appearance chooser for the selected villager",
     )
     for offset in (0x415EF1, 0x416983, 0x416BAB, 0x417A3A):
         patch(

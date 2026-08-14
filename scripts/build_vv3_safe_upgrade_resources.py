@@ -28,7 +28,7 @@ FOUNDATION_OUTPUT = (
 SOURCE_SHA256 = "35FB96199E745C7D8054FF6A12851B9E09225E3E41D0CE04012604E74968C0D5"
 SOURCE_SIZE = 298_496
 TARGET_COUNTS = {201: 26, 202: 2, 203: 31}
-PUBLIC_TARGET_COUNTS = {201: 46, 202: 21, 203: 31}
+PUBLIC_TARGET_COUNTS = {201: 46, 202: 26, 203: 31}
 
 
 def sha(data: bytes) -> str:
@@ -156,6 +156,71 @@ def dialog_item_spans(
     return tuple(spans)
 
 
+# Villager row_count is a hardcoded `mov ebx, 4` immediate in the companion's
+# WM_INITDIALOG handler (VA 0x10001412 / file offset 0x812).  The public
+# projection carries a fifth Villager Upgrades row (Change Appearance), so its
+# output patches this one byte 0x04 -> 0x05 while the shared base DLL and the
+# foundation projection keep four rows.  This is the only non-resource byte the
+# public transform touches.
+VILLAGER_ROW_COUNT_OFFSET = 0x812
+
+
+def _insert_change_appearance_row(blob: bytes) -> bytes:
+    """Insert the Change Appearance row (button 1004) into the 21-item public
+    Villager Upgrades dialog (202) by cloning the Set Age to 18 row (items
+    15..19), then move Cancel down and grow the dialog height.  The shared base
+    DLL is never modified -- only this resource-swap output carries the row."""
+    spans = dialog_item_spans(blob, expected_count=21)
+    template = [blob[a:b] for a, b in spans[15:20]]
+    ordinal = lambda n: b"\xff\xff" + struct.pack("<H", n)
+    specs = [
+        (ordinal(130), ordinal(106), 0xFFFF, 136),  # primary icon (reuse 106)
+        (ordinal(130), ordinal(109), 1104, 148),     # per-row checkmark slot
+        (ordinal(130), "Change Appearance".encode("utf-16le") + b"\0\0", 0xFFFF, 138),
+        (ordinal(130), "5,000 tech points".encode("utf-16le") + b"\0\0", 0xFFFF, 150),
+        (ordinal(128), "Buy".encode("utf-16le") + b"\0\0", 1004, 139),
+    ]
+
+    def _creation_tail(row: bytes) -> bytes:
+        pos = 24
+
+        def skip(pos: int) -> int:
+            first = struct.unpack_from("<H", row, pos)[0]
+            if first == 0:
+                return pos + 2
+            if first == 0xFFFF:
+                return pos + 4
+            pos += 2
+            while struct.unpack_from("<H", row, pos)[0] != 0:
+                pos += 2
+            return pos + 2
+
+        pos = skip(pos)  # class
+        pos = skip(pos)  # title
+        words = struct.unpack_from("<H", row, pos)[0]
+        return row[pos : pos + 2 + words * 2]
+
+    insert_at = spans[20][0]  # immediately before Cancel
+    out = bytearray(blob[:insert_at])
+    for row, (class_token, title_token, control_id, y) in zip(template, specs):
+        rebuilt = bytearray(row[:24])
+        struct.pack_into("<h", rebuilt, 14, y)
+        struct.pack_into("<H", rebuilt, 20, control_id)
+        rebuilt.extend(class_token)
+        rebuilt.extend(title_token)
+        rebuilt.extend(_creation_tail(row))
+        out.extend(b"\0" * ((4 - (len(out) & 3)) & 3))
+        out.extend(rebuilt)
+    out.extend(b"\0" * ((4 - (len(out) & 3)) & 3))
+    out.extend(blob[insert_at:])
+    struct.pack_into("<H", out, 16, 26)
+    # Cancel is now item 25; move it below the new row and grow the dialog.
+    new_spans = dialog_item_spans(bytes(out), expected_count=26)
+    struct.pack_into("<h", out, new_spans[25][0] + 14, 169)
+    struct.pack_into("<H", out, 24, 190)
+    return bytes(out)
+
+
 def _filter_dialog(
     blob: bytes, resource_id: int, *, include_individual_full_mastery: bool
 ) -> bytes:
@@ -197,6 +262,11 @@ def _filter_dialog(
         start, stop = spans[index]
         changed.extend(blob[start:stop])
     changed.extend(blob[end:])
+    if resource_id == 202 and include_individual_full_mastery:
+        # The public projection keeps all four base rows (21 items) and then
+        # inserts the fifth Change Appearance row (-> 26 items).
+        struct.pack_into("<H", changed, 16, 21)
+        changed = bytearray(_insert_change_appearance_row(bytes(changed)))
     target_counts = (
         PUBLIC_TARGET_COUNTS if include_individual_full_mastery else TARGET_COUNTS
     )
@@ -256,6 +326,25 @@ def build_resource_only_companion(
         struct.pack_into("<II", output, entry, section_rva + new_raw - raw_offset, size)
     result = bytearray(base)
     result[raw_offset : raw_offset + raw_size] = output
+    if include_individual_full_mastery:
+        # Public projection carries a fifth Villager Upgrades row, so bump the
+        # villager row_count immediate (mov ebx, 4 -> 5) in the companion code.
+        if base[VILLAGER_ROW_COUNT_OFFSET] != 0x04:
+            raise RuntimeError(
+                "VV3 safe-upgrade villager row_count immediate is not 0x04"
+            )
+        result[VILLAGER_ROW_COUNT_OFFSET] = 0x05
+        expected_prefix = bytearray(base[:raw_offset])
+        expected_prefix[VILLAGER_ROW_COUNT_OFFSET] = 0x05
+        transformed = bytes(result)
+        if (
+            transformed[:raw_offset] != bytes(expected_prefix)
+            or transformed[raw_offset + raw_size :] != base[raw_offset + raw_size :]
+        ):
+            raise RuntimeError(
+                "VV3 safe-upgrade public transform changed unexpected non-resource bytes"
+            )
+        return transformed
     transformed = bytes(result)
     if transformed[:raw_offset] != base[:raw_offset] or transformed[raw_offset + raw_size :] != base[raw_offset + raw_size :]:
         raise RuntimeError("VV3 safe-upgrade transform changed non-resource bytes")
