@@ -281,8 +281,11 @@ class ManifestTests(unittest.TestCase):
         )
         rows = {int(row["offset"], 0): row for row in manifest["patches"]}
         # 22 base transaction patches + Change Appearance (0x9AD20) + the
-        # whole-village Tech helper (0x9AE40).
-        self.assertEqual(len(rows), 24)
+        # whole-village Tech helper (0x9AE40) + the shared DLL-dispatch stub
+        # (0x9AF58) for Grant Running / Grant Full Mastery / Complete / Reset
+        # Collections.
+        self.assertEqual(len(rows), 25)
+        self.assertIn("companion-DLL exports", rows[0x9AF58]["purpose"])
         self.assertIn("dry-scan all 256", rows[0x9A300]["purpose"])
         self.assertIn("selected active record", rows[0x9A380]["purpose"])
         self.assertIn("all 62 Like and Dislike", rows[0x9A009]["purpose"])
@@ -306,9 +309,10 @@ class ManifestTests(unittest.TestCase):
         )
         self.assertEqual(
             rows[0x9A780]["after"],
-            "803D00C74900027536C60500C749000081ECD8500000682C1A4B7F"
-            "6A028D4C2408E83A81F9FF6A00568D4C2408E81E53F6FF89E1E8"
-            "D769F9FF81C4D850000089F9E83A6AF6FFE92A22F9FF",
+            "803D00C7490003741C803D00C74900027551C60500C7490003C70508"
+            "C749005A000000EB3EFF0D08C749007536C60500C749000081ECD850"
+            "0000682C1A4B7F6A028D4C2408E81681F9FF6A00568D4C2408E8FA52"
+            "F6FF89E1E8B369F9FF81C4D850000089F9E8166AF6FFE90622F9FF",
         )
         self.assertEqual(rows[0x2E9F0]["before"], "E80B48FDFF")
         self.assertEqual(rows[0x2E9F0]["after"], "E98BDD0600")

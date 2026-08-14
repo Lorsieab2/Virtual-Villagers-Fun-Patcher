@@ -20,6 +20,13 @@
 #define IDD_VV2_VILLAGER   212
 #define IDD_VV2_APPEARANCE 213
 
+/* VV2 tech screen now carries 11 rows: the 9 shared Origins upgrades plus
+   Complete all Collections (1009) and Reset all Collections (1010).  The shared
+   ID_BUY_LAST (1008) only bounds the VV1 dialogs, so the VV2 proc uses its own
+   upper bound instead of editing the shared enum. */
+#define VV2_TECH_ROW_COUNT 11
+#define ID_VV2_BUY_LAST    1010
+
 /* VV2 upgrade dialog: every row stays visible and buyable. The game re-checks
    the selected villager / village state at click time and no-ops with a
    message (no charge) when there is nothing to do, so no row is hidden or
@@ -34,7 +41,7 @@ static INT_PTR CALLBACK vv2_upgrade_dialog(
     if (message == WM_INITDIALOG) {
         int villager_menu = (lparam & STATE_VILLAGER) != 0;
         int village_wide_buy = (lparam & STATE_VILLAGE_WIDE_BUY) != 0;
-        int row_count = villager_menu ? 5 : 9;
+        int row_count = villager_menu ? 5 : VV2_TECH_ROW_COUNT;
         int row;
         for (row = 0; row < 9; ++row) {
             ShowWindow(GetDlgItem(window, ID_CHECK_FIRST + row), SW_HIDE);
@@ -55,7 +62,7 @@ static INT_PTR CALLBACK vv2_upgrade_dialog(
         return TRUE;
     } else if (message == WM_COMMAND) {
         unsigned int command = LOWORD(wparam);
-        if (command >= ID_BUY_FIRST && command <= ID_BUY_LAST) {
+        if (command >= ID_BUY_FIRST && command <= ID_VV2_BUY_LAST) {
             EndDialog(window, (INT_PTR)(command - ID_BUY_FIRST));
             return TRUE;
         }
@@ -112,6 +119,190 @@ __declspec(dllexport) void __stdcall ShowVV2CureResult(int sick, int health) {
         GetForegroundWindow(), message, "Origins Upgrades",
         MB_OK | MB_ICONINFORMATION
     );
+}
+
+/* ---- Village-wide Grant Running / Grant Full Mastery, with counted reports.
+   `base` is the certified record array (sub_44F4E0 result): 256 records, stride
+   0xE48C, record 0 at base+0.  Field offsets match the whole-village helper:
+   +0x30 active byte, +0x52C health, +0x558 special flag, +0x5F0 likes[62],
+   +0x6E8 dislikes[62], +0x7E4 the five skills.  A slot holds -1 when empty and
+   a positive preference id otherwise; running is id 38. ---- */
+#define VV2_RECORD_STRIDE   0xE48C
+#define VV2_RECORD_COUNT    256
+#define VV2_ACTIVE_OFFSET   0x30
+#define VV2_HEALTH_OFFSET   0x52C
+#define VV2_SPECIAL_OFFSET  0x558
+#define VV2_LIKES_OFFSET    0x5F0
+#define VV2_DISLIKES_OFFSET 0x6E8
+#define VV2_PREF_SLOTS      62
+#define VV2_RUNNING_PREF    38
+#define VV2_LIKE_CAP        3
+#define VV2_SKILL0_OFFSET   0x7E4
+
+static int vv2_record_eligible(const unsigned char *record) {
+    if (record[VV2_ACTIVE_OFFSET] == 0) {
+        return 0;
+    }
+    if (*(const int *)(record + VV2_HEALTH_OFFSET) <= 0) {
+        return 0;
+    }
+    if (record[VV2_SPECIAL_OFFSET] != 0) {
+        return 0;
+    }
+    return 1;
+}
+
+__declspec(dllexport) void __stdcall ApplyVV2RunningToAll(unsigned char *base) {
+    int already_like = 0, full_likes = 0, granted = 0, removed_dislike = 0;
+    int i, j;
+    unsigned char *record = base;
+    if (base == 0) {
+        return;
+    }
+    for (i = 0; i < VV2_RECORD_COUNT; ++i, record += VV2_RECORD_STRIDE) {
+        int *likes, *dislikes;
+        int has_running = 0, occupied = 0, free_slot = -1;
+        if (!vv2_record_eligible(record)) {
+            continue;
+        }
+        dislikes = (int *)(record + VV2_DISLIKES_OFFSET);
+        {
+            int removed_here = 0;
+            for (j = 0; j < VV2_PREF_SLOTS; ++j) {
+                if (dislikes[j] == VV2_RUNNING_PREF) {
+                    dislikes[j] = -1;
+                    removed_here = 1;
+                }
+            }
+            if (removed_here) {
+                ++removed_dislike;
+            }
+        }
+        likes = (int *)(record + VV2_LIKES_OFFSET);
+        for (j = 0; j < VV2_PREF_SLOTS; ++j) {
+            int value = likes[j];
+            if (value == VV2_RUNNING_PREF) {
+                has_running = 1;
+            } else if (value == -1) {
+                if (free_slot < 0) {
+                    free_slot = j;
+                }
+            } else if (value > 0) {
+                ++occupied;
+            }
+        }
+        if (has_running) {
+            ++already_like;
+        } else if (occupied >= VV2_LIKE_CAP || free_slot < 0) {
+            ++full_likes;
+        } else {
+            likes[free_slot] = VV2_RUNNING_PREF;
+            ++granted;
+        }
+    }
+    {
+        char message[512];
+        wsprintfA(
+            message,
+            "%d villagers already like running; skipped over.\r\n\r\n"
+            "%d villagers already have 3 likes; skipped over.\r\n\r\n"
+            "Granted Running to %d villagers.\r\n\r\n"
+            "Removed Running Dislike from %d villagers.",
+            already_like, full_likes, granted, removed_dislike
+        );
+        MessageBoxA(
+            GetForegroundWindow(), message, "Origins Upgrades",
+            MB_OK | MB_ICONINFORMATION
+        );
+    }
+}
+
+__declspec(dllexport) void __stdcall ApplyVV2MasteryToAll(unsigned char *base) {
+    int granted = 0, already_mastered = 0;
+    int i;
+    unsigned char *record = base;
+    if (base == 0) {
+        return;
+    }
+    for (i = 0; i < VV2_RECORD_COUNT; ++i, record += VV2_RECORD_STRIDE) {
+        int *skills;
+        if (!vv2_record_eligible(record)) {
+            continue;
+        }
+        skills = (int *)(record + VV2_SKILL0_OFFSET);
+        if (skills[0] == 100 && skills[1] == 100 && skills[2] == 100 &&
+            skills[3] == 100 && skills[4] == 100) {
+            ++already_mastered;
+        } else {
+            skills[0] = 100;
+            skills[1] = 100;
+            skills[2] = 100;
+            skills[3] = 100;
+            skills[4] = 100;
+            ++granted;
+        }
+    }
+    {
+        char message[512];
+        wsprintfA(
+            message,
+            "Granted Full Mastery to %d Villagers.\r\n\r\n"
+            "%d villagers are already Fully Mastered. Skipped over.",
+            granted, already_mastered
+        );
+        MessageBoxA(
+            GetForegroundWindow(), message, "Origins Upgrades",
+            MB_OK | MB_ICONINFORMATION
+        );
+    }
+}
+
+/* ---- Complete (mode 9) / Reset (mode 10) all Collections.  `player` is the
+   Tech menu's game object: 48 collectible found-flags at +0x2E720, and the
+   per-group goal "pending" bytes at +0x20F..+0x213.  Complete fills the flags
+   and enqueues the four group goals plus the master goal through the stock goal
+   queue (sub_4257A0, __thiscall on the player object) exactly the way the stock
+   deposit handler does; Reset clears the flags and re-arms those pending bytes
+   so a later real completion can fire them again. ---- */
+/* sub_4257A0 is __thiscall (player in ECX, message id + flag on the stack,
+   callee-cleaned).  Call it from C via __fastcall with an ignored EDX slot: the
+   player lands in ECX, the ignored value in EDX, and message id + flag spill to
+   the stack exactly where the thiscall expects them. */
+typedef int(__fastcall *vv2_fire_goal_t)(
+    void *player, int edx_ignored, int message_id, int flag
+);
+
+__declspec(dllexport) void __stdcall ApplyVV2Collections(
+    unsigned char *player,
+    int mode
+) {
+    static const int goal_pending[5] = {0x20F, 0x210, 0x211, 0x212, 0x213};
+    static const int goal_message[5] = {0x1DE, 0x1DF, 0x1E0, 0x1E1, 0x1E2};
+    int i;
+    if (player == 0) {
+        return;
+    }
+    if (mode == 9) {
+        for (i = 0; i < 48; ++i) {
+            player[0x2E720 + i] = 1;
+        }
+        {
+            vv2_fire_goal_t fire = (vv2_fire_goal_t)(UINT_PTR)0x004257A0;
+            for (i = 0; i < 5; ++i) {
+                if (player[goal_pending[i]] != 0) {
+                    player[goal_pending[i]] = 0;
+                    fire(player, 0, goal_message[i], 1);
+                }
+            }
+        }
+    } else {
+        for (i = 0; i < 48; ++i) {
+            player[0x2E720 + i] = 0;
+        }
+        for (i = 0; i < 5; ++i) {
+            player[goal_pending[i]] = 1;
+        }
+    }
 }
 
 /* ---- Change Appearance chooser (213) ---- */

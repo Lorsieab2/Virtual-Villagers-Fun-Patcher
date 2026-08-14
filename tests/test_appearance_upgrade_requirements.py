@@ -306,6 +306,15 @@ class AppearanceUpgradeRequirementsTests(unittest.TestCase):
                     # inside 0x943A8; their three tail-jump sites re-encode to
                     # the new targets with identical behavior.
                     "0x9AD20", "0x26290", "0x262B0", "0x34570", "0x9AE40",
+                    # Collections + counted Running/Mastery reports and the
+                    # cued Barrel: the Barrel main-village helper (0x9A780)
+                    # gained a cue-delay countdown, and a single DLL-dispatch
+                    # stub (0x9AF58, in the .shr tail after the whole-village
+                    # helper) now routes Grant Running / Grant Full Mastery /
+                    # Complete / Reset Collections to their companion-DLL
+                    # exports.  Tech-menu routing for those rows lives inside
+                    # 0x943A8.
+                    "0x9A780", "0x9AF58",
                 },
                 "data/vv3_origins_feature.json": {"0x7B664", "0xA3180"},
                 "data/vv4_origins_feature.json": {

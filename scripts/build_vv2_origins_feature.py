@@ -76,11 +76,18 @@ BARREL_MAIN_HELPER_FILE_OFFSET = 0x9A780
 BARREL_MAIN_HELPER_VA = IMAGE_BASE + SHR_RVA + (
     BARREL_MAIN_HELPER_FILE_OFFSET - SHR_FILE_OFFSET
 )
-BARREL_MAIN_HELPER_CODE = bytes.fromhex(
-    "803D00C74900027536C60500C749000081ECD8500000682C1A4B7F"
-    "6A028D4C2408E83A81F9FF6A00568D4C2408E81E53F6FF89E1E8"
-    "D769F9FF81C4D850000089F9E83A6AF6FFE92A22F9FF"
+# The Barrel of Babies event is a normal queued village event (enqueued through
+# the stock 0x401AD0 pipeline, exactly like the Island Event).  It used to be
+# marked "ready" the instant the Tech screen closed, so it played during the
+# menu-close transition and flashed by unreadably.  Instead the main-village
+# helper now counts down BARREL_CUE_FRAMES ticks of the per-frame village update
+# after the screen closes before enqueuing, so it plays cued during normal
+# gameplay.  The countdown lives in the reserved Barrel token region.
+BARREL_CUE_COUNTER_FILE_OFFSET = 0x9A708
+BARREL_CUE_COUNTER_VA = IMAGE_BASE + SHR_RVA + (
+    BARREL_CUE_COUNTER_FILE_OFFSET - SHR_FILE_OFFSET
 )
+BARREL_CUE_FRAMES = 90
 # Change Appearance helper: placed after the optional village-wide payload in
 # the .shr reserve (village-wide occupies 0x9A800..0x9AD20). The first 0x100
 # bytes hold the helper code; the export name string follows at +0x100.
@@ -94,6 +101,16 @@ WHOLE_VILLAGE_FILE_OFFSET = 0x9AE40
 WHOLE_VILLAGE_VA = IMAGE_BASE + SHR_RVA + (
     WHOLE_VILLAGE_FILE_OFFSET - SHR_FILE_OFFSET
 )
+COLLECTION_TECH_COST = 1000000
+# Single DLL-dispatch stub for the four village-wide upgrades that delegate to
+# the companion DLL: Grant Running (6) and Grant Full Mastery (7) hand the
+# certified record array (sub_44F4E0) to their counting/reporting exports, while
+# Complete (9) / Reset (10) all Collections hand the Tech-menu player object to
+# ApplyVV2Collections.  Placed in the free .shr tail after the whole-village
+# helper so it stays clear of the separate signed village-wide API block
+# (0x9A800..0x9AD20).  The 1,000,000 charge is done by the Tech menu.
+DISPATCH_FILE_OFFSET = 0x9AF58
+DISPATCH_VA = IMAGE_BASE + SHR_RVA + (DISPATCH_FILE_OFFSET - SHR_FILE_OFFSET)
 
 # VV2 villager record fields (exact-build appearance audit).
 VV2_HEAD_FIELD = 0x548
@@ -513,16 +530,23 @@ def main() -> None:
             cmp ebx, 6
             jb legacy_charge
             cmp ebx, 8
-            ja unsupported_village_command
+            je do_age_village
+            # ebx = 6 (Running), 7 (Full Mastery), 9 (Complete Collections), or
+            # 10 (Reset Collections): charge 1,000,000 then hand off to the DLL
+            # dispatch stub, which shows its own result and applies the change.
+            cmp dword ptr [edi + 0x2EADC], 1000000
+            jb insufficient
+            sub dword ptr [edi + 0x2EADC], 1000000
+            call 0x{DISPATCH_VA:X}
+            mov edi, dword ptr [esi + 0x0C]
+            jmp menu_done
+        do_age_village:
             cmp dword ptr [edi + 0x2EADC], 1000000
             jb insufficient
             sub dword ptr [edi + 0x2EADC], 1000000
             call 0x{WHOLE_VILLAGE_VA:X}
             mov edi, dword ptr [esi + 0x0C]
             mov eax, 0x{s['purchased']:X}
-            jmp show_status
-        unsupported_village_command:
-            mov eax, 0x{s['running_unavailable']:X}
             jmp show_status
         legacy_charge:
             cmp ebx, 5
@@ -1534,6 +1558,129 @@ def main() -> None:
         raise RuntimeError(
             f"whole-village helper is too large: {len(whole_village_code):#x}/0x1C0"
         )
+    # One DLL-dispatch stub shared by the four village-wide upgrades that
+    # delegate to the companion DLL.  Entered with EBX = command (6 Grant
+    # Running, 7 Grant Full Mastery, 9 Complete Collections, 10 Reset
+    # Collections) and EDI = the Tech-menu player object.  Running/Mastery pass
+    # the certified record array (sub_44F4E0) to their reporting exports;
+    # Collections pass the player object and the command as the mode.  The 1M
+    # charge is done by the Tech menu before this is called.  Export-name strings
+    # are packed tightly right after the code so the whole stub fits the .shr
+    # tail; because every `push imm32` is a fixed five bytes, assembling once
+    # with placeholder string VAs yields the final code length, which then fixes
+    # the real string addresses for a second, identical-length assembly.
+    def _dispatch_src(running_va: int, mastery_va: int, collections_va: int) -> str:
+        return f"""
+            push ebp
+            push esi
+            push edi
+            mov ebp, ebx
+            push 0x{s['icons_dll']:X}
+            call dword ptr [0x474010]
+            test eax, eax
+            je disp_done
+            mov esi, eax
+            cmp ebp, 9
+            jae disp_collections
+            mov eax, 0x{running_va:X}
+            cmp ebp, 6
+            je disp_name_ready
+            mov eax, 0x{mastery_va:X}
+        disp_name_ready:
+            push eax
+            push esi
+            call dword ptr [0x4740D4]
+            test eax, eax
+            je disp_done
+            mov edi, eax
+            call 0x44F4E0
+            push eax
+            call edi
+            jmp disp_done
+        disp_collections:
+            mov eax, 0x{collections_va:X}
+            push eax
+            push esi
+            call dword ptr [0x4740D4]
+            test eax, eax
+            je disp_done
+            push ebp
+            push edi
+            call eax
+        disp_done:
+            pop edi
+            pop esi
+            pop ebp
+            ret
+        """
+
+    _placeholder = DISPATCH_VA + 0x100
+    dispatch_len = len(
+        assemble(_dispatch_src(_placeholder, _placeholder, _placeholder), DISPATCH_VA)
+    )
+    running_export_bytes = b"ApplyVV2RunningToAll\0"
+    mastery_export_bytes = b"ApplyVV2MasteryToAll\0"
+    collections_export_bytes = b"ApplyVV2Collections\0"
+    running_export_va = DISPATCH_VA + dispatch_len
+    mastery_export_va = running_export_va + len(running_export_bytes)
+    collections_export_va = mastery_export_va + len(mastery_export_bytes)
+    dispatch_code = assemble(
+        _dispatch_src(running_export_va, mastery_export_va, collections_export_va),
+        DISPATCH_VA,
+    )
+    assert len(dispatch_code) == dispatch_len
+    dispatch_block = (
+        dispatch_code
+        + running_export_bytes
+        + mastery_export_bytes
+        + collections_export_bytes
+    )
+    if DISPATCH_FILE_OFFSET + len(dispatch_block) > 0x9B000:
+        raise RuntimeError(
+            f"dispatch stub overruns the .shr reserve: "
+            f"0x{DISPATCH_FILE_OFFSET + len(dispatch_block):X} > 0x9B000"
+        )
+    # Barrel main-village helper: defer the queued Barrel event by counting down
+    # BARREL_CUE_FRAMES ticks of the per-frame update after the Tech screen
+    # closes, so it plays cued during gameplay instead of flashing by during the
+    # menu-close transition.  Token 0x49C700: 1 = purchased, 2 = screen closed,
+    # 3 = counting down, 0 = idle.
+    barrel_main_code = assemble(
+        f"""
+            cmp byte ptr [0x{BARREL_PENDING_VA:X}], 3
+            je barrel_ticking
+            cmp byte ptr [0x{BARREL_PENDING_VA:X}], 2
+            jne barrel_resume
+            mov byte ptr [0x{BARREL_PENDING_VA:X}], 3
+            mov dword ptr [0x{BARREL_CUE_COUNTER_VA:X}], {BARREL_CUE_FRAMES}
+            jmp barrel_resume
+        barrel_ticking:
+            dec dword ptr [0x{BARREL_CUE_COUNTER_VA:X}]
+            jnz barrel_resume
+            mov byte ptr [0x{BARREL_PENDING_VA:X}], 0
+            sub esp, 0x50D8
+            push 0x7F4B1A2C
+            push 2
+            lea ecx, [esp + 8]
+            call 0x4348E0
+            push 0
+            push esi
+            lea ecx, [esp + 8]
+            call 0x401AD0
+            mov ecx, esp
+            call 0x433190
+            add esp, 0x50D8
+        barrel_resume:
+            mov ecx, edi
+            call 0x403200
+            jmp 0x42E9F5
+        """,
+        BARREL_MAIN_HELPER_VA,
+    )
+    if len(barrel_main_code) > 0x80:
+        raise RuntimeError(
+            f"barrel main helper is too large: {len(barrel_main_code):#x}/0x80"
+        )
     patch(
         HEAL_CAVE_FILE_OFFSET,
         b"\0" * 5,
@@ -1581,9 +1728,9 @@ def main() -> None:
     )
     patch(
         BARREL_MAIN_HELPER_FILE_OFFSET,
-        b"\0" * len(BARREL_MAIN_HELPER_CODE),
-        BARREL_MAIN_HELPER_CODE,
-        "consume the closed-screen Barrel token with the stock main-village modal owner",
+        b"\0" * len(barrel_main_code),
+        barrel_main_code,
+        "count down the cue delay after the Tech screen closes, then enqueue the Barrel event through the stock village event pipeline so it plays cued during gameplay",
     )
     patch(
         APPEARANCE_FILE_OFFSET,
@@ -1596,6 +1743,12 @@ def main() -> None:
         b"\0" * len(whole_village_code),
         whole_village_code,
         "apply Running, Full Mastery, or Age 18 to every active living villager via the certified record array",
+    )
+    patch(
+        DISPATCH_FILE_OFFSET,
+        b"\0" * len(dispatch_block),
+        dispatch_block,
+        "route Grant Running, Grant Full Mastery, and Complete/Reset Collections to their companion-DLL exports (the DLL counts, applies, and reports; Collections also fires or re-arms the group goals)",
     )
 
     patch(
