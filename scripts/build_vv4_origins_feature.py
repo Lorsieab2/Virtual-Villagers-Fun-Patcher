@@ -118,7 +118,7 @@ def main() -> None:
         ("paused", "Time Warp is unavailable while the game is paused."),
         ("capacity", "The village population is already at maximum capacity."),
         ("running_unavailable", "Running cannot be added."),
-        ("icons_dll", "VVFP Origins Icons.dll"),
+        ("icons_dll", "VVFP VV4 Origins Icons.dll"),
         ("show_dialog_export", "ShowOriginsUpgradeMenuState"),
         ("show_result_export", "ShowOriginsVillageWideResult"),
         ("user32_dll", "USER32.dll"),
@@ -1263,10 +1263,10 @@ def main() -> None:
         },
         "companion_files": [
             {
-                "source": "assets/origins/VVFP Origins Icons.dll",
-                "destination": "VVFP Origins Icons.dll",
+                "source": "assets/origins/VVFP VV4 Origins Icons.dll",
+                "destination": "VVFP VV4 Origins Icons.dll",
                 "sha256": hashlib.sha256(
-                    (ROOT / "assets/origins/VVFP Origins Icons.dll").read_bytes()
+                    (ROOT / "assets/origins/VVFP VV4 Origins Icons.dll").read_bytes()
                 ).hexdigest().upper(),
             }
         ],

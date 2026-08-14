@@ -23,7 +23,7 @@ from vv_fun_patcher import (  # noqa: E402
 STOCK = ROOT / "research" / "stock-executables" / "Virtual Villagers - The Tree of Life.exe"
 MANIFEST = ROOT / "data" / "vv4_origins_feature.json"
 BUILDER = ROOT / "scripts" / "build_vv4_origins_feature.py"
-COMPANION = ROOT / "assets" / "origins" / "VVFP Origins Icons.dll"
+COMPANION = ROOT / "assets" / "origins" / "VVFP VV4 Origins Icons.dll"
 EXPANDED = ROOT / "data" / "expanded_256.json"
 FEATURE_ID = "vv4_enable_origins_exclusive_features"
 RUNNING_PREFERENCE_ID = 38
