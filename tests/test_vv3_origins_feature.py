@@ -270,7 +270,7 @@ class VV3OriginsFeatureTests(unittest.TestCase):
         )
         self.assertEqual(
             hashlib.sha256(payload).hexdigest().upper(),
-            "4E5252632A47210B5811517CBC450C5840517FCBF5B1260CDB86FC3F76F43E8F",
+            "332509629B6C009DECF5A92DB359245591E9ECB6E5B5A85C8051F25E63325867",
         )
         self.assertEqual(
             bytes.fromhex(
@@ -281,6 +281,53 @@ class VV3OriginsFeatureTests(unittest.TestCase):
                 )["after"]
             ),
             bytes.fromhex("E93BDB0300909090"),
+        )
+
+    def test_time_warp_advances_three_years_regardless_of_game_speed(self) -> None:
+        """Regression: VV3 Time Warp must advance exactly three displayed
+        villager years independent of the current game speed. The village ages
+        the injected clock shift at a rate proportional to the running speed,
+        so the elapsed-clock shift must be 129600 / speed (43,200s at half
+        speed 3, 21,600s at normal 6, 12,960s at double 10) -- the confirmed
+        two-real-hours-per-displayed-year relation. The builder used to compute
+        ``speed * 3600`` (proportional imul), correct only at normal speed and
+        silently under/over-advancing at every other speed.
+        """
+        try:
+            import capstone
+        except ImportError:
+            self.skipTest("capstone not available")
+
+        payload = bytes.fromhex(
+            next(
+                item
+                for item in self.manifest["patches"]
+                if int(item["offset"], 0) == 0xA3180
+            )["after"]
+        )
+        # Locate the 32-bit elapsed-clock write: sub dword ptr [0x4A4210], eax
+        marker = bytes.fromhex("290510424A00")
+        index = payload.find(marker)
+        self.assertNotEqual(index, -1, "Time Warp clock write not found in payload")
+
+        md = capstone.Cs(capstone.CS_ARCH_X86, capstone.CS_MODE_32)
+        window_start = index - 0x14
+        block = list(
+            md.disasm(payload[window_start:index], 0x4A3180 + window_start)
+        )
+        mnemonics = [insn.mnemonic for insn in block]
+
+        self.assertIn("idiv", mnemonics, "Time Warp no longer divides by game speed")
+        self.assertNotIn(
+            "imul",
+            mnemonics,
+            "Time Warp still scales the advance proportionally to game speed",
+        )
+        # The constant dividend is 129600 seconds (0x1FA40): mov eax, 0x1FA40.
+        self.assertIn(
+            bytes.fromhex("B840FA0100"),
+            payload[window_start:index],
+            "Time Warp dividend is not the constant 129600 seconds",
         )
 
 

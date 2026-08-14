@@ -500,14 +500,22 @@ def main() -> None:
             jmp menu_done
 
         do_time_warp:
-            mov eax, dword ptr [edi + ebp + 0x12F20]
-            cmp eax, 3
-            je time_apply
-            cmp eax, 10
-            je time_apply
-            mov eax, 6
-        time_apply:
-            imul eax, eax, 3600
+            # Advance a constant three displayed villager years regardless of
+            # the running game speed.  The village applies the injected clock
+            # shift at a rate proportional to the current speed, so a constant
+            # villager-time advance needs an elapsed-clock shift of
+            # 129600 / speed seconds (two real hours per displayed year at
+            # normal speed; 43,200s at half speed 3, 21,600s at normal 6,
+            # 12,960s at double 10).  The former `imul speed, 3600` was
+            # proportional -- correct only at normal speed, under-advancing at
+            # half speed and over-advancing at double speed.  The pause guard
+            # above already refused speed 999 before charging, and VV3 only
+            # ever assigns speed codes 3/6/10, so the idiv cannot divide by
+            # zero or overflow.
+            mov ecx, dword ptr [edi + ebp + 0x12F20]
+            mov eax, 129600
+            cdq
+            idiv ecx
             sub dword ptr [0x4A4210], eax
             mov eax, 0x{s['time_warp_done']:X}
             jmp show_status
