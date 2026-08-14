@@ -589,25 +589,33 @@ def main() -> None:
             jmp success
 
         do_barrel:
-            call 0x419AC0
-            mov eax, dword ptr [0x4B3D5C]
+            # Trigger the native "Another One of Those Barrels" island event.
+            # Queue its popup (event 0x7E on the notification manager 0x581A38),
+            # bump the island-event counter, then create the barrel (0x419AC0,
+            # the [0x4B3C38] singleton) and add three babies via the stock
+            # populate routine.  0x419B30 adds one eligible-villager baby per
+            # call and takes the island-scene singleton (0x6C5DA0) as its scene
+            # arg (ret 4); it preserves esi, so esi carries the 3-baby counter.
+            # Guard on the scene existing so the populate routine is never handed
+            # a null scene.  (The prior hand-rolled spawn clobbered the barrel
+            # getter's result with an unrelated global and crashed.)
+            push 0x7E
+            mov ecx, 0x581A38
+            call 0x424110
+            mov eax, dword ptr [0x5824C4]
+            inc eax
+            mov dword ptr [0x5824C4], eax
+            mov eax, dword ptr [0x6C5DA0]
             test eax, eax
             je success
-            sub esp, 0x868
-            lea ebp, [esp + 0xF0]
-            push eax
-            lea ecx, [ebp + 4]
-            call 0x4192F0
-            cmp byte ptr [ebp + 0x4C], 0
-            je barrel_cleanup
-            push 0
-            push esi
-            call 0x401AF0
-            mov byte ptr [0x4B3C75], 1
-        barrel_cleanup:
-            mov ecx, ebp
-            call 0x418460
-            add esp, 0x868
+            mov esi, 3
+        do_barrel_loop:
+            call 0x419AC0
+            mov ecx, eax
+            push dword ptr [0x6C5DA0]
+            call 0x419B30
+            dec esi
+            jnz do_barrel_loop
             jmp success
 
         do_complete_collections:

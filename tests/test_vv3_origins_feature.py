@@ -221,16 +221,25 @@ class VV3OriginsFeatureTests(unittest.TestCase):
         self.assertEqual(marker["before"], "96000000")
         self.assertEqual(marker["after"], "00010000")
 
-    def test_native_barrel_dialog_and_reserved_population_preflight(self) -> None:
+    def test_native_barrel_event_and_reserved_population_preflight(self) -> None:
         source = BUILDER.read_text(encoding="utf-8")
+        # Reserved-population preflight (unchanged).
         self.assertIn("call 0x45E8F0", source)
         self.assertIn("mov ecx, 147", source)
         self.assertIn("mov ecx, 253", source)
-        self.assertIn("sub esp, 0x868", source)
-        self.assertIn("call 0x4192F0", source)
-        self.assertIn("call 0x401AF0", source)
-        self.assertIn("call 0x418460", source)
-        self.assertIn("add esp, 0x868", source)
+        # do_barrel now fires the native "Another One of Those Barrels" island
+        # event: queue popup 0x7E on the notification manager 0x581A38, then
+        # create the barrel (0x419AC0) and populate it three times (0x419B30),
+        # passing the island-scene singleton 0x6C5DA0 with a null-guard.
+        barrel = source.split("        do_barrel:", 1)[1].split(
+            "        do_complete_collections:", 1
+        )[0]
+        self.assertIn("push 0x7E", barrel)
+        self.assertIn("mov ecx, 0x581A38", barrel)
+        self.assertIn("call 0x424110", barrel)
+        self.assertIn("0x6C5DA0", barrel)
+        self.assertIn("call 0x419AC0", barrel)
+        self.assertIn("call 0x419B30", barrel)
 
     def test_tech_click_contract_is_message8_and_free_command15(self) -> None:
         """The visible Tech button must have one, and only one, route."""
@@ -281,7 +290,7 @@ class VV3OriginsFeatureTests(unittest.TestCase):
         )
         self.assertEqual(
             hashlib.sha256(payload).hexdigest().upper(),
-            "A583277854DE56B34C83D1603BA10D018D8400793AB4D692A1CA5FF7DB0A510C",
+            "37E6175DBE2AF390F5C2FD75ED1B709EA59B8F84F0FA3B69A62A34A28B68C093",
         )
         self.assertEqual(
             bytes.fromhex(
