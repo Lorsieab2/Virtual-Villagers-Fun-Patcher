@@ -5,3 +5,4 @@ EXPORTS
     ShowOriginsVillageWideResult=_ShowOriginsVillageWideResult@16
     ShowOriginsVillageWideResult@20=_ShowOriginsVillageWideResult20@20
     ShowOriginsAppearancePicker=_ShowOriginsAppearancePicker@4
+    ShowOriginsCureResult=_ShowOriginsCureResult@8

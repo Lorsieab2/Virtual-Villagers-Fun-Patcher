@@ -265,6 +265,37 @@ __declspec(dllexport) int __stdcall ShowOriginsAppearancePicker(
     );
 }
 
+/* Full Heal / Cure All result. The caller (the exact-build .shr cure cave)
+   passes how many villagers had their sickness cleared and how many were
+   restored to full health. Shows the exact two-line result, or -- when both
+   are zero -- the all-healthy notice, and returns 1 when anything was done /
+   0 when nothing was so the caller can refund the charge. */
+__declspec(dllexport) int __stdcall ShowOriginsCureResult(
+    int sickness_cleared,
+    int health_restored
+) {
+    char text[256];
+    if (sickness_cleared == 0 && health_restored == 0) {
+        MessageBoxA(
+            GetForegroundWindow(),
+            "Everyone is at full health already. No villagers are sick. "
+            "No tech points have been deducted.",
+            "Origins Upgrades",
+            MB_OK
+        );
+        return 0;
+    }
+    wsprintfA(
+        text,
+        "Cured sickness from %d villagers.\r\n\r\n"
+        "Restored %d villagers to full health.",
+        sickness_cleared,
+        health_restored
+    );
+    MessageBoxA(GetForegroundWindow(), text, "Origins Upgrades", MB_OK);
+    return 1;
+}
+
 __declspec(dllexport) int __stdcall ShowOriginsUpgradeMenuState(
     int villager_menu,
     int dialog_state

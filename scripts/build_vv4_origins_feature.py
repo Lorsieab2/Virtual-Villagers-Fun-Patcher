@@ -123,8 +123,9 @@ def main() -> None:
         ("show_result_export", "ShowOriginsVillageWideResult"),
         ("user32_dll", "USER32.dll"),
         ("message_box_export", "MessageBoxA"),
-        ("cure_all", "Cure all Villagers"),
+        ("cure_all", "Full Heal/Cure All Villagers"),
         ("show_appearance_picker", "ShowOriginsAppearancePicker"),
+        ("show_cure_result", "ShowOriginsCureResult"),
     ):
         add_c_string(strings, s, name, value)
     while len(strings) % 4:
@@ -918,6 +919,7 @@ def main() -> None:
             push esi
             push edi
             xor ebp, ebp
+            xor edi, edi
             mov edx, 0x50E5AC
             mov ecx, dword ptr [0x42001C]
         cure_loop:
@@ -931,72 +933,57 @@ def main() -> None:
             cmp dword ptr [esi + 0x1C40], 100
             jge cure_health_done
             # Native VV4 health setter: ECX=record+0x1C34, push -1 and
-            # target 100, callee ret 8.  Save the walker state because this
+            # target 100, callee ret 8.  Save the walker state (ecx loop
+            # counter, ebp restored count, edi sickness count) because this
             # is a native call, not an inline field assignment.
             push ecx
             push ebp
+            push edi
             lea eax, [esi + 0x1C34]
             mov ecx, eax
             push -1
             push 100
             call 0x46AF00
+            pop edi
             pop ebp
             pop ecx
             cmp dword ptr [esi + 0x1C40], 100
-            jne cure_next
+            jne cure_health_done
             inc ebp
         cure_health_done:
             cmp byte ptr [esi + 0x1C48], 0
             je cure_next
             mov byte ptr [esi + 0x1C48], 0
             inc dword ptr [0x4D6DF0]
-            inc ebp
+            inc edi
         cure_next:
             mov edx, esi
             add edx, 0x2E3C
             dec ecx
             jne cure_loop
-            sub esp, 40
-            mov dword ptr [esp], 0x65727543
-            mov word ptr [esp + 4], 0x2064
-            lea edi, [esp + 6]
-            test ebp, ebp
-            jnz cure_digits
-            mov byte ptr [edi], 0x30
-            inc edi
-            jmp cure_suffix
-        cure_digits:
-            lea esi, [esp + 30]
-            mov eax, ebp
-            mov ebx, 10
-            xor ecx, ecx
-        cure_digit_loop:
-            xor edx, edx
-            div ebx
-            add dl, 0x30
-            dec esi
-            mov byte ptr [esi], dl
-            inc ecx
+            # ebp = villagers restored to full health, edi = villagers whose
+            # sickness was cleared.  Let the companion DLL format+show the
+            # exact two-line result (or the all-healthy notice); it returns 1
+            # when anything was done, 0 when nothing was (both counts zero).
+            push 0x{s['icons_dll']:X}
+            call dword ptr [0x48A1E0]
             test eax, eax
-            jne cure_digit_loop
-        cure_copy_loop:
-            mov dl, byte ptr [esi]
-            mov byte ptr [edi], dl
-            inc esi
-            inc edi
-            dec ecx
-            jne cure_copy_loop
-        cure_suffix:
-            mov byte ptr [edi], 0x20
-            mov dword ptr [edi + 1], 0x6C6C6976
-            mov dword ptr [edi + 5], 0x72656761
-            mov word ptr [edi + 9], 0x0073
-            lea eax, [esp]
+            je cure_ret
+            push 0x{s['show_cure_result']:X}
             push eax
-            push 0x{s['tech_title']:X}
-            call 0x{show_message:X}
-            add esp, 8
-            add esp, 40
+            call dword ptr [0x48A1DC]
+            test eax, eax
+            je cure_ret
+            push ebp
+            push edi
+            call eax
+            test eax, eax
+            jnz cure_ret
+            # Nothing to heal: refund the 30,000 the tech menu already charged.
+            # Add directly (not through the doubler-hooked 0x41E300, which would
+            # double a positive delta when the Tech Doubler is active).
+            add dword ptr [0x4D6F88], 30000
+        cure_ret:
             pop edi
             pop esi
             pop edx
