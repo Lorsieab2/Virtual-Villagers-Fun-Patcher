@@ -134,15 +134,23 @@ class VV4OriginsFeatureTests(unittest.TestCase):
         self.assertIn("je running_already", self.builder)
         self.assertIn("mov dword ptr [ecx], {RUNNING_PREFERENCE_ID}", self.builder)
 
-    def test_time_warp_advances_three_years_regardless_of_game_speed(self) -> None:
-        """Regression test: VV4 Time Warp must advance exactly three displayed
-        villager years independent of the current game speed. The village ages
-        injected wall-time at a rate proportional to the running game speed, so
-        the elapsed-clock shift must be 129600 / speed (43,200s at half speed 3,
-        21,600s at normal 6, 12,960s at double 10) -- see the confirmed
-        two-real-hours-per-displayed-year relation. The builder used to compute
-        ``speed * 3600`` (proportional), which is only correct at normal speed
-        and silently under/over-advanced at every other speed.
+    def test_time_warp_uses_the_vv1_to_vv4_proportional_clock_shift(self) -> None:
+        """Regression test guarding against re-applying VV5's inverse-speed
+        Time Warp formula to VV4.
+
+        VV1 through VV4 share an offline catch-up that applies the injected
+        elapsed-clock shift *divided* by the game-speed code, so a constant
+        three-displayed-year advance requires a clock shift that scales
+        directly *with* speed: ``speed * 3600`` seconds (10,800 / 21,600 /
+        36,000 at speed 3 / 6 / 10). VV1's Origins research documents this as
+        "its elapsed-clock adjustment scales with game speed", and VV2/VV3
+        emit the same ``imul eax, eax, 3600``.
+
+        VV5 alone multiplies elapsed time by speed and therefore needs the
+        inverse ``129600 / speed`` (idiv). Copying VV5's idiv onto VV4 looks
+        correct only at normal speed -- both give 21,600 -- but makes the paid
+        warp advance ~12 years at half speed and ~1 year at double speed. This
+        test pins VV4 to the proportional imul form.
         """
         try:
             import capstone
@@ -163,20 +171,21 @@ class VV4OriginsFeatureTests(unittest.TestCase):
         block = list(md.disasm(payload[window_start:index], 0x489373 + window_start))
         mnemonics = [insn.mnemonic for insn in block]
 
-        self.assertIn("idiv", mnemonics, "Time Warp no longer divides by game speed")
-        self.assertNotIn(
+        self.assertIn(
             "imul",
             mnemonics,
-            "Time Warp still scales the clock shift proportionally to game speed",
+            "VV4 Time Warp must scale the clock shift proportionally to speed",
         )
-        dividend = next(
-            insn for insn in block
-            if insn.mnemonic == "mov" and insn.op_str.startswith("eax, 0x")
+        self.assertNotIn(
+            "idiv",
+            mnemonics,
+            "VV4 Time Warp must not use VV5's inverse 129600/speed clock shift",
         )
+        imul = next(insn for insn in block if insn.mnemonic == "imul")
         self.assertEqual(
-            int(dividend.op_str.split(", ")[1], 16),
-            129600,
-            "Time Warp dividend is not the certified three-year constant",
+            int(imul.op_str.split(",")[-1].strip(), 0),
+            3600,
+            f"Time Warp scale factor is not 3600 seconds/speed-unit: {imul.op_str}",
         )
 
     def test_composes_with_current_vv4_features_in_all_modes(self) -> None:
