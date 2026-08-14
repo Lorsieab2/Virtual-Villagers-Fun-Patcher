@@ -142,6 +142,8 @@ OFF = {
     "appearance": 0x4300,
     "complete_collections": 0x4600,
     "reset_collections": 0x4900,
+    "running_all": 0x4C00,
+    "mastery_all": 0x5200,
     "strings": 0x7000,
 }
 
@@ -169,6 +171,8 @@ SIZES = {
     "appearance": 0x300,
     "complete_collections": 0x300,
     "reset_collections": 0x300,
+    "running_all": 0x600,
+    "mastery_all": 0x600,
 }
 
 
@@ -604,7 +608,7 @@ def build_menus(page: bytearray, page_va: int) -> dict[str, bytes]:
     menu_state = 0x000 if native_stock else 0x700
     # Command upper bound: 0..7 in stock (adds the two Collections rows), 0..5 in
     # expanded (original), so the expanded router bytes stay identical.
-    command_bound = 7 if native_stock else 5
+    command_bound = 9 if native_stock else 5
     collections_guard = (
         "cmp ebx, 6\n        jae unavailable\n        " if native_stock else ""
     )
@@ -629,7 +633,9 @@ def build_menus(page: bytearray, page_va: int) -> dict[str, bytes]:
         "        cmp ebx, 1\n        je island_row\n"
         "        cmp ebx, 2\n        je barrel_row\n"
         "        cmp ebx, 6\n        je complete_collections_row\n"
-        "        cmp ebx, 7\n        je reset_collections_row\n        "
+        "        cmp ebx, 7\n        je reset_collections_row\n"
+        "        cmp ebx, 8\n        je running_all_row\n"
+        "        cmp ebx, 9\n        je mastery_all_row\n        "
         if native_stock
         else ""
     )
@@ -643,6 +649,10 @@ def build_menus(page: bytearray, page_va: int) -> dict[str, bytes]:
         f"    complete_collections_row:\n        call 0x{page_va + OFF['complete_collections']:X}\n"
         "        jmp done\n        nop\n        nop\n        nop\n"
         f"    reset_collections_row:\n        call 0x{page_va + OFF['reset_collections']:X}\n"
+        "        jmp done\n        nop\n        nop\n        nop\n"
+        f"    running_all_row:\n        call 0x{page_va + OFF['running_all']:X}\n"
+        "        jmp done\n        nop\n        nop\n        nop\n"
+        f"    mastery_all_row:\n        call 0x{page_va + OFF['mastery_all']:X}\n"
         "        jmp done\n        nop\n        nop\n        nop\n    "
         if native_stock
         else ""
@@ -2494,6 +2504,238 @@ def build_reset_collections(page: bytearray, page_va: int) -> bytes:
     """)
 
 
+def build_running_all(page: bytearray, page_va: int) -> bytes:
+    """Grant Running to All Villagers (village-wide, 150,000 tech points). Walks
+    all 150 villager records (0x554190 + i*STRIDE), acts only on eligible living
+    Believers (active +0x1CD4, Heathen mask +0x1CE1 == 0, faction +0x1CEC == 0,
+    signed health +0x1C40 > 0 -- never masked Heathens), and applies the native
+    Running preference (id 38): membership 0x464F90, insert into the likes array
+    0x464AD0, remove from the dislikes array 0x4649E0. Counts four outcomes and
+    reports them via two 16-bit-packed amounts. Charges one verified 150,000
+    deduction after the shared confirm."""
+    return put(page, page_va, "running_all", f"""
+        push ebp
+        mov ebp, esp
+        push ebx
+        push esi
+        push edi
+        sub esp, 0x40
+        mov dword ptr [ebp-0x10], 0
+        mov dword ptr [ebp-0x14], 0
+        mov dword ptr [ebp-0x18], 0
+        mov dword ptr [ebp-0x1C], 0
+        mov eax, dword ptr [0x51D5F8]
+        mov dword ptr [ebp-0x20], eax
+        cmp eax, 150000
+        jb insufficient
+        push 0
+        push 0
+        push 20
+        call 0x{page_va + OFF['confirm']:X}
+        cmp eax, 1
+        jne cancelled
+        mov eax, dword ptr [0x51D5F8]
+        cmp eax, dword ptr [ebp-0x20]
+        jne recheck
+        cmp eax, 150000
+        jb insufficient
+        mov esi, 0x554190
+        mov ebx, {BOUND}
+    run_loop:
+        cmp byte ptr [esi+0x1CD4], 0
+        je run_next
+        cmp byte ptr [esi+0x1CE1], 0
+        jne run_next
+        cmp byte ptr [esi+0x1CEC], 0
+        jne run_next
+        cmp dword ptr [esi+0x1C40], 0
+        jle run_next
+        push 38
+        lea ecx, [esi+0x1F5C]
+        call 0x464F90
+        test al, al
+        jnz run_already
+        cmp dword ptr [esi+0x1F5C], -1
+        je run_grant
+        cmp dword ptr [esi+0x1F60], -1
+        je run_grant
+        cmp dword ptr [esi+0x1F64], -1
+        je run_grant
+        inc dword ptr [ebp-0x14]
+        jmp run_next
+    run_grant:
+        push 38
+        lea ecx, [esi+0x1F5C]
+        call 0x464AD0
+        inc dword ptr [ebp-0x18]
+        cmp dword ptr [esi+0x1F68], 38
+        je run_remove
+        cmp dword ptr [esi+0x1F6C], 38
+        je run_remove
+        cmp dword ptr [esi+0x1F70], 38
+        je run_remove
+        jmp run_next
+    run_remove:
+        push 38
+        lea ecx, [esi+0x1F68]
+        call 0x4649E0
+        inc dword ptr [ebp-0x1C]
+        jmp run_next
+    run_already:
+        inc dword ptr [ebp-0x10]
+    run_next:
+        add esi, {STRIDE}
+        dec ebx
+        jnz run_loop
+        mov eax, dword ptr [0x51D5F8]
+        cmp eax, dword ptr [ebp-0x20]
+        jne charge_unknown
+        push -150000
+        mov ecx, 0x51D5F8
+        call 0x4237B0
+        mov eax, dword ptr [ebp-0x20]
+        sub eax, 150000
+        cmp dword ptr [0x51D5F8], eax
+        jne charge_unknown
+        mov eax, dword ptr [ebp-0x10]
+        shl eax, 16
+        or eax, dword ptr [ebp-0x14]
+        mov dword ptr [ebp-0x24], eax
+        mov eax, dword ptr [ebp-0x18]
+        shl eax, 16
+        or eax, dword ptr [ebp-0x1C]
+        mov dword ptr [ebp-0x28], eax
+        {status_call(page_va, '20', 0, 'dword ptr [ebp-0x24]', 'dword ptr [ebp-0x28]')}
+        jmp done
+    insufficient:
+        {status_call(page_va, '20', 3)}
+        jmp done
+    cancelled:
+        {status_call(page_va, '20', 4)}
+        jmp done
+    recheck:
+        {status_call(page_va, '20', 5)}
+        jmp done
+    charge_unknown:
+        {status_call(page_va, '20', 7)}
+    done:
+        add esp, 0x40
+        pop edi
+        pop esi
+        pop ebx
+        pop ebp
+        ret
+    """)
+
+
+def build_mastery_all(page: bytearray, page_va: int) -> bytes:
+    """Grant Full Mastery to All Villagers (village-wide, 300,000 tech points).
+    Walks all 150 villager records, acts only on eligible living Believers (never
+    masked Heathens), and for each of the six skills (+0x1C5C..+0x1C70) that is a
+    finite value in [0, 100) raises it to exactly 100.0 (0x42C80000) through the
+    native skill writer 0x475730 (push 100.0 - current, push index). Skills that
+    are already >= 100, negative, infinite, or NaN are left untouched. A villager
+    with at least one raised skill counts as granted; one with none counts as
+    already fully mastered. Charges one verified 300,000 deduction after the
+    shared confirm."""
+    return put(page, page_va, "mastery_all", f"""
+        push ebp
+        mov ebp, esp
+        push ebx
+        push esi
+        push edi
+        sub esp, 0x30
+        mov dword ptr [ebp-0x10], 0
+        mov dword ptr [ebp-0x14], 0
+        mov eax, dword ptr [0x51D5F8]
+        mov dword ptr [ebp-0x18], eax
+        cmp eax, 300000
+        jb insufficient
+        push 0
+        push 0
+        push 21
+        call 0x{page_va + OFF['confirm']:X}
+        cmp eax, 1
+        jne cancelled
+        mov eax, dword ptr [0x51D5F8]
+        cmp eax, dword ptr [ebp-0x18]
+        jne recheck
+        cmp eax, 300000
+        jb insufficient
+        mov esi, 0x554190
+        mov ebx, {BOUND}
+    mas_loop:
+        cmp byte ptr [esi+0x1CD4], 0
+        je mas_next
+        cmp byte ptr [esi+0x1CE1], 0
+        jne mas_next
+        cmp byte ptr [esi+0x1CEC], 0
+        jne mas_next
+        cmp dword ptr [esi+0x1C40], 0
+        jle mas_next
+        mov dword ptr [ebp-0x1C], 0
+        xor edi, edi
+    mas_skill:
+        mov eax, dword ptr [esi+edi*4+0x1C5C]
+        test eax, eax
+        js mas_skill_next
+        cmp eax, 0x42C80000
+        jae mas_skill_next
+        mov dword ptr [ebp-0x1C], 1
+        push 0x42C80000
+        fld dword ptr [esp]
+        fsub dword ptr [esi+edi*4+0x1C5C]
+        fstp dword ptr [esp]
+        push edi
+        lea ecx, [esi+0x1C5C]
+        call 0x475730
+    mas_skill_next:
+        inc edi
+        cmp edi, 6
+        jb mas_skill
+        cmp dword ptr [ebp-0x1C], 0
+        je mas_already
+        inc dword ptr [ebp-0x10]
+        jmp mas_next
+    mas_already:
+        inc dword ptr [ebp-0x14]
+    mas_next:
+        add esi, {STRIDE}
+        dec ebx
+        jnz mas_loop
+        mov eax, dword ptr [0x51D5F8]
+        cmp eax, dword ptr [ebp-0x18]
+        jne charge_unknown
+        push -300000
+        mov ecx, 0x51D5F8
+        call 0x4237B0
+        mov eax, dword ptr [ebp-0x18]
+        sub eax, 300000
+        cmp dword ptr [0x51D5F8], eax
+        jne charge_unknown
+        {status_call(page_va, '21', 0, 'dword ptr [ebp-0x10]', 'dword ptr [ebp-0x14]')}
+        jmp done
+    insufficient:
+        {status_call(page_va, '21', 3)}
+        jmp done
+    cancelled:
+        {status_call(page_va, '21', 4)}
+        jmp done
+    recheck:
+        {status_call(page_va, '21', 5)}
+        jmp done
+    charge_unknown:
+        {status_call(page_va, '21', 7)}
+    done:
+        add esp, 0x30
+        pop edi
+        pop esi
+        pop ebx
+        pop ebp
+        ret
+    """)
+
+
 def build_page(page_va: int) -> tuple[bytes, dict[str, object]]:
     page = bytearray(PAGE_SIZE)
     page[0:8] = b"VVT9PG\0\0"
@@ -2520,6 +2762,8 @@ def build_page(page_va: int) -> tuple[bytes, dict[str, object]]:
         routines["appearance"] = build_appearance(page, page_va, strings)
         routines["complete_collections"] = build_complete_collections(page, page_va)
         routines["reset_collections"] = build_reset_collections(page, page_va)
+        routines["running_all"] = build_running_all(page, page_va)
+        routines["mastery_all"] = build_mastery_all(page, page_va)
     result = {
         "page_sha256": sha(bytes(page)),
         "routine_sha256": {name: sha(value) for name, value in routines.items()},

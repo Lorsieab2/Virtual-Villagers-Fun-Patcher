@@ -8,7 +8,7 @@ enum {
     IDD_ORIGINS_TECH = 201,
     IDD_ORIGINS_VILLAGER = 202,
     ID_BUY_FIRST = 1000,
-    ID_BUY_LAST = 1007,
+    ID_BUY_LAST = 1009,
     ID_CHECK_FIRST = 1100,
     STATE_VILLAGER = 0x10000
 };
@@ -24,7 +24,9 @@ enum {
     ACTION_COMPLETE_COLLECTIONS = 16,
     ACTION_RESET_COLLECTIONS = 17,
     ACTION_TECH_DOUBLER = 18,
-    ACTION_FOOD_DOUBLER = 19
+    ACTION_FOOD_DOUBLER = 19,
+    ACTION_GRANT_RUNNING_ALL = 20,
+    ACTION_GRANT_MASTERY_ALL = 21
 };
 
 enum {
@@ -264,7 +266,7 @@ static INT_PTR CALLBACK upgrade_dialog(
 ) {
     if (message == WM_INITDIALOG) {
         int villager_menu = (lparam & STATE_VILLAGER) != 0;
-        int row_count = villager_menu ? 5 : 8;
+        int row_count = villager_menu ? 5 : 10;
         int row;
         for (row = 0; row < row_count; ++row) {
             ShowWindow(GetDlgItem(window, ID_CHECK_FIRST + row), SW_HIDE);
@@ -334,6 +336,8 @@ static const char *action_name(unsigned int action) {
     case ACTION_RESET_COLLECTIONS: return "Reset all Collections";
     case ACTION_TECH_DOUBLER: return "Tech Point Doubler";
     case ACTION_FOOD_DOUBLER: return "Food Point Doubler";
+    case ACTION_GRANT_RUNNING_ALL: return "Grant Running to All Villagers";
+    case ACTION_GRANT_MASTERY_ALL: return "Grant Full Mastery to All Villagers";
     default: return "Origins upgrade";
     }
 }
@@ -369,6 +373,8 @@ __declspec(dllexport) int __stdcall ConfirmVV5Task9Action(
             case ACTION_RUNNING: price = 40000U; break;
             case ACTION_COMPLETE_COLLECTIONS:
             case ACTION_RESET_COLLECTIONS: price = 1000000U; break;
+            case ACTION_GRANT_RUNNING_ALL: price = 150000U; break;
+            case ACTION_GRANT_MASTERY_ALL: price = 300000U; break;
             default: price = 50000U; break;
             }
             wsprintfA(
@@ -411,6 +417,22 @@ __declspec(dllexport) int __stdcall ShowVV5Task9Result(
             lstrcpyA(message, "All collections are complete. Every collectible was added and the collection goals updated accordingly.");
         } else if (action == ACTION_RESET_COLLECTIONS) {
             lstrcpyA(message, "All collections were reset. Every collectible was cleared and the collection goals were marked incomplete again.\r\n\r\nNote: game-wide totals and any one-time rewards from completing the collections are not reversed.");
+        } else if (action == ACTION_GRANT_RUNNING_ALL) {
+            wsprintfA(
+                message,
+                "%u villagers already like running; skipped over.\r\n"
+                "%u villagers already have 3 likes; skipped over.\r\n"
+                "Granted Running to %u villagers.\r\n"
+                "Removed Running Dislike from %u villagers.",
+                amount_a >> 16, amount_a & 0xFFFF, amount_b >> 16, amount_b & 0xFFFF
+            );
+        } else if (action == ACTION_GRANT_MASTERY_ALL) {
+            wsprintfA(
+                message,
+                "Granted Full Mastery to %u Villagers.\r\n"
+                "%u villagers are already Fully Mastered. Skipped over",
+                amount_a, amount_b
+            );
         } else {
             wsprintfA(message, "%s completed.", name);
         }
