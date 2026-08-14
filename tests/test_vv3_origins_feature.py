@@ -237,18 +237,14 @@ class VV3OriginsFeatureTests(unittest.TestCase):
         )[0]
         self.assertIn("BARREL_PENDING_FLAG_VA", barrel)
         self.assertIn("jmp menu_done", barrel)
-        # The hook cave (spliced into the island-event handler) fires the native
-        # event once in-frame exactly as the stock scheduler does: popup 0x7E,
-        # then create the barrel and trigger it once (0x419B30 is the whole
-        # event, not a per-child call).
+        # The hook cave (spliced into the island-event handler) runs the real
+        # barrel-event outcome (0x415320, the native event object's spawn method)
+        # once in-frame, which spawns up to three babies.
         hook = source.split("barrel_hook_code = assemble(", 1)[1].split(
             "BARREL_HOOK_VA,", 1
         )[0]
-        self.assertIn("push 0x7E", hook)
-        self.assertIn("mov ecx, 0x581A38", hook)
-        self.assertIn("call 0x424110", hook)
-        self.assertEqual(hook.count("call 0x419AC0"), 1)
-        self.assertEqual(hook.count("call 0x419B30"), 1)
+        self.assertIn("call 0x415320", hook)
+        self.assertEqual(hook.count("call 0x415320"), 1)
 
     def test_tech_click_contract_is_message8_and_free_command15(self) -> None:
         """The visible Tech button must have one, and only one, route."""
