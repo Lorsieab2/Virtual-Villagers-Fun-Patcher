@@ -268,6 +268,60 @@ class VV1RequiredFixTests(unittest.TestCase):
             "the call would unbalance the stack",
         )
 
+    def test_vv1_doublers_exclude_story_puzzle_and_milestone_rewards(self) -> None:
+        """Regression test: the Tech/Food Point Doubler hooks intercept the
+        game's single shared "add tech/food points" entry points, which
+        every source of points -- scientist/farmer production, but also
+        the Whale/berries/mushroom/device story puzzles and a one-time
+        2-choice milestone dialog -- calls through. Only the native random
+        Island Event caller was excluded from doubling; the puzzle and
+        milestone callers were not, so completing the Whale puzzle (etc.)
+        while a doubler was owned would double a one-time story reward,
+        not production. Confirmed each caller's identity by resolving the
+        actual VV1 string-table text at each site (e.g. "Your village has
+        received a 1000-point food bonus!" for the Whale harvest outcome)
+        before excluding it, rather than guessing from an address alone.
+        This disassembles the real rendered exe and checks the actual
+        comparison targets, not the manifest's purpose strings.
+        """
+        source = STOCK / "Virtual Villagers - A New Home.exe"
+        if not source.is_file():
+            self.skipTest(f"stock executable not available: {source}")
+        build = identify(source)
+        rendered, _ = render_patched_bytes(
+            source, build, "collection_progression",
+            ["vv1_enable_origins_exclusive_features"],
+        )
+
+        # "cmp dword ptr [esp + 4], imm32" == 81 7C 24 04 <imm32 LE>. Every
+        # doubler-exclusion check compiles to exactly this byte sequence, so
+        # scan for it directly rather than guessing the caves' offsets.
+        pattern = b"\x81\x7C\x24\x04"
+        excluded = set()
+        start = 0
+        while True:
+            index = rendered.find(pattern, start)
+            if index == -1:
+                break
+            excluded.add(
+                int.from_bytes(rendered[index + 4:index + 8], "little")
+            )
+            start = index + 1
+
+        self.assertTrue(
+            {0x428194, 0x41A378, 0x42BB18} <= excluded,
+            "tech doubler must exclude the native Island Event return "
+            "(0x428194), the story-puzzle dispatcher's tech award "
+            "(0x41A378), and the milestone dialog's tech award (0x42BB18)",
+        )
+        self.assertTrue(
+            {0x4281DA, 0x419459, 0x419F14, 0x42B86A} <= excluded,
+            "food doubler must exclude the native Island Event return "
+            "(0x4281DA), both story-puzzle dispatcher food awards "
+            "(0x419459, 0x419F14), and the milestone dialog's food "
+            "award (0x42B86A)",
+        )
+
     def test_vv1_time_warp_double_speed_uses_a_reachable_game_speed_code(self) -> None:
         """Regression test: VV1's own stock executable only ever assigns
         3, 6, or 10 to the game-speed field Time Warp reads (verified with

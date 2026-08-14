@@ -123,6 +123,8 @@ class DoublerAuditDocumentationTests(unittest.TestCase):
                         "Golden Child tech-point gain",
                         "Island Event tech-point gain",
                         "Duplicate Collectibles tech-point gain",
+                        "Story/puzzle discovery tech-point and food-point gain (Whale, berries, mushroom, device-discovery choices)",
+                        "One-time milestone dialog tech-point and food-point gain",
                     ),
                     "2": (
                         "Island Event tech-point gain",

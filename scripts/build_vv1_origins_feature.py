@@ -485,6 +485,10 @@ def main() -> None:
             jle tech_apply
             cmp dword ptr [esp + 4], 0x428194
             je tech_apply
+            cmp dword ptr [esp + 4], 0x41A378
+            je tech_apply
+            cmp dword ptr [esp + 4], 0x42BB18
+            je tech_apply
             cmp dword ptr [ebx + 0xAD48], 0
             jz tech_apply
             shl dword ptr [esp + 8], 1
@@ -506,6 +510,12 @@ def main() -> None:
             test eax, eax
             jle food_apply
             cmp dword ptr [esp + 4], 0x4281DA
+            je food_apply
+            cmp dword ptr [esp + 4], 0x419459
+            je food_apply
+            cmp dword ptr [esp + 4], 0x419F14
+            je food_apply
+            cmp dword ptr [esp + 4], 0x42B86A
             je food_apply
             cmp dword ptr [ebx + 0xAD4C], 0
             jz food_apply
@@ -1098,7 +1108,7 @@ def main() -> None:
         "running_preference_id": RUNNING_PREFERENCE_ID,
         "running_preference_evidence": {"source": "exact stock executable embedded preference table", "table_file_offset": "0x7B260", "entry_name": "running"},
         "name": "Enable Origins-Exclusive Features",
-        "description": "Adds Origins-style Upgrades buttons to the Tech and Villager Details screens. The Tech menu offers Food and Tech Point Doublers for 500,000 tech points each; eligible positive gains are doubled, while Island Events, Duplicate Collectibles, and Golden Child tech gains remain unchanged. The Village-Wide menu adds Running, Full Mastery, and Make Villagers Young Adults.",
+        "description": "Adds Origins-style Upgrades buttons to the Tech and Villager Details screens. The Tech menu offers Food and Tech Point Doublers for 500,000 tech points each; only scientist tech production and farmer food production are doubled, while Island Events, story/puzzle discoveries (Whale, berries, mushroom, device), one-time milestone-dialog rewards, Duplicate Collectibles, and Golden Child gains remain unchanged. The Village-Wide menu adds Running, Full Mastery, and Make Villagers Young Adults.",
         "output_tag": "Origins Exclusive Features",
         "companion_files": [
             {
@@ -1114,12 +1124,20 @@ def main() -> None:
             "positive_food_writer": "0x41D140",
             "collection_adjustment": "not independently recorded; no exact callsite claim",
             "island_event_producers": ["0x428194 tech", "0x4281DA food"],
+            "story_puzzle_producers": [
+                "0x41A378 tech (berries/mushroom/device discovery choice dispatcher)",
+                "0x419459 food (Whale puzzle: harvest outcome)",
+                "0x419F14 food (berries/mushroom/device discovery choice dispatcher)",
+            ],
+            "milestone_dialog_producers": ["0x42BB18 tech", "0x42B86A food (fixed one-time 2-choice reward dialog)"],
             "tech_exclusions": [
                 "Golden Child tech-point gain (no tech award route in this exact build)",
                 "Duplicate Collectibles tech-point gain (no duplicate-collectible tech writer route in this exact build)",
                 "Island Event tech-point gain (return 0x428194)",
+                "Story/puzzle discovery tech-point gain (return 0x41A378)",
+                "One-time milestone dialog tech-point gain (return 0x42BB18)",
             ],
-            "hook_status": "GO: exact-build positive writer wrappers double eligible positive deltas once; Island Event returns remain native; runtime/player confirmation pending",
+            "hook_status": "GO: exact-build positive writer wrappers double eligible positive deltas once; Island Event, story-puzzle, and one-time-milestone returns remain native; runtime/player confirmation pending",
         },
         "doubler_composition_contract": {
             "stacking": [
@@ -1130,6 +1148,8 @@ def main() -> None:
                 "Golden Child tech-point gain",
                 "Island Event tech-point gain",
                 "Duplicate Collectibles tech-point gain",
+                "Story/puzzle discovery tech-point and food-point gain (Whale, berries, mushroom, device-discovery choices)",
+                "One-time milestone dialog tech-point and food-point gain",
             ],
             "food_mastery_status": "confirmed absent for this fingerprint; no Food Mastery-like food transform",
             "status": "GO: exact-build positive writer wrappers double eligible positive deltas once; Island Event returns remain native; runtime/player confirmation pending",
