@@ -707,11 +707,12 @@ def main() -> None:
             jmp detail_set_age
 
         do_change_appearance:
-            # edx = validated selected villager record.  The 5,000-tech charge
-            # was already applied by detail_charge above; open the game's own
-            # in-engine appearance chooser for this villager.
+            # The 5,000-tech charge was already applied by detail_charge above.
+            # Queue the appearance chooser for the selected villager, then close
+            # the Villager Upgrades menu (detail_done) so the detail-screen
+            # update loop regains control and opens the native chooser.
             call 0x{CHANGE_APPEARANCE_VA:X}
-            jmp detail_success
+            jmp detail_done
 
         detail_youth:
             mov eax, dword ptr [edx + 0xDC4]
@@ -1112,46 +1113,25 @@ def main() -> None:
         NATIVE_TECH_TAIL_VA,
     )
 
-    # Change Appearance action cave.  Reproduces the stock Clothing-Hut open
-    # path (sub_468560): stage the selected villager into the manager's chooser
-    # slot (+0x12FAC), construct the ~0x5140-byte chooser object (sub_41C2F0),
-    # Show it for that villager (sub_41C010, which renders the villager and
-    # cycles the outfit field +0xDF4 in-engine), then destruct (sub_41BDD0).
-    # The 5,000-tech charge is applied by detail_charge before this runs.
+    # Change Appearance action cave.  The stock detail-screen update loop
+    # (sub_4684D0) opens the appearance chooser on its own whenever the
+    # manager's pending-chooser index (+0x12FB0) is not -1: it constructs and
+    # shows the chooser for that villager in the correct render context, then
+    # clears the slot back to -1.  So the action simply queues the currently
+    # selected villager index (+0x12FC0) into that slot, exactly as the native
+    # Clothing-Hut path does, and returns; do_change_appearance then closes the
+    # menu so the update loop can run and open the chooser.  The 5,000-tech
+    # charge is applied by detail_charge before this runs.
     change_appearance_code = assemble(
         """
-            push ebx
-            push esi
-            push edi
-            push ebp
-            mov ebx, edx
             call 0x428B60
             xor ecx, ecx
             cmp dword ptr [0x42883A], 0x100
-            jne ca_mgr_ready
+            jne ca_slot_ready
             mov ecx, 0x7598
-        ca_mgr_ready:
-            lea esi, [eax + ecx]
-            mov dword ptr [esi + 0x12FB0], 0
-            mov dword ptr [esi + 0x12FAC], ebx
-            sub esp, 0x5200
-            lea ecx, [esp]
-            call 0x41C2F0
-            mov edx, dword ptr [esi + 0x12FAC]
-            test edx, edx
-            je ca_skip
-            push edx
-            lea ecx, [esp + 4]
-            call 0x41C010
-        ca_skip:
-            lea ecx, [esp]
-            call 0x41BDD0
-            add esp, 0x5200
-            mov dword ptr [esi + 0x12FAC], 0
-            pop ebp
-            pop edi
-            pop esi
-            pop ebx
+        ca_slot_ready:
+            mov edx, dword ptr [eax + ecx + 0x12FC0]
+            mov dword ptr [eax + ecx + 0x12FB0], edx
             ret
         """,
         CHANGE_APPEARANCE_VA,
