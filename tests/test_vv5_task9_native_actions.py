@@ -96,12 +96,12 @@ class Task9ArtifactTests(unittest.TestCase):
         sys.path.insert(0, str(ROOT / ".tools" / "capstone"))
         from capstone import CS_ARCH_X86, CS_MODE_32, Cs
 
-        # The stock layout (0x7C9000) enables Time Warp (command 0) and Island
-        # Event (command 1), adding two result paths (time_warp_row, island_row)
-        # and shifting the offsets/`done` target; the expanded-256 baseline keeps
-        # the original seven paths.
-        stock_offsets = [0xC7, 0x129, 0x133, 0x13D, 0x147, 0x158, 0x169, 0x17A, 0x18B]
-        stock_done = 0x9D0
+        # The stock layout (0x7C9000) enables Time Warp (command 0), Island Event
+        # (command 1), and Barrel of Babies (command 2), adding three result
+        # paths and shifting the offsets/`done` target; the expanded-256 baseline
+        # keeps the original seven paths.
+        stock_offsets = [0xD0, 0x13E, 0x148, 0x152, 0x15C, 0x166, 0x177, 0x188, 0x199, 0x1AA]
+        stock_done = 0x9EF
         expanded_offsets = [0xB6, 0x118, 0x122, 0x133, 0x144, 0x155, 0x166]
         expanded_done = 0x9AB
         for mode, layout in builder.LAYOUTS.items():

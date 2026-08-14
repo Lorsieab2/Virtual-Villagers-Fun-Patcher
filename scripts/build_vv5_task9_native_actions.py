@@ -138,6 +138,7 @@ OFF = {
     "running": 0x2240,
     "heal": 0x3400,
     "island": 0x3C00,
+    "barrel": 0x3F00,
     "strings": 0x7000,
 }
 
@@ -161,6 +162,7 @@ SIZES = {
     "running": 0x11C0,
     "heal": 0x800,
     "island": 0x300,
+    "barrel": 0x340,
 }
 
 
@@ -244,6 +246,14 @@ def build_strings(page: bytearray, page_va: int) -> dict[str, int]:
         ("iv_success", b"Island Event queued. A random island event will occur shortly.\0"),
         ("iv_charge_unknown", b"The final tech-point balance did not match the exact 30,000-point deduction. The charge outcome is unknown; no event was queued.\0"),
         ("iv_queue_unknown", b"The 30,000-point deduction was verified, but the event could not be queued.\0"),
+        ("bb_warning", b"Barrel of Babies will wash a barrel with three children ashore for 75,000 tech points.\r\nPress OK to confirm, or Cancel.\0"),
+        ("bb_full", b"The village does not have room for three more villagers.\r\nNo tech points have been deducted.\0"),
+        ("bb_cancelled", b"Barrel of Babies was canceled.\r\nNo tech points have been deducted.\0"),
+        ("bb_recheck", b"The village population or tech-point balance changed during confirmation.\r\nNo tech points have been deducted.\0"),
+        ("bb_unavailable", b"Barrel of Babies is unavailable.\r\nNo tech points have been deducted.\0"),
+        ("bb_success", b"Barrel of Babies queued. A barrel with three children will arrive shortly.\0"),
+        ("bb_charge_unknown", b"The final tech-point balance did not match the exact 75,000-point deduction. The charge outcome is unknown; no barrel was queued.\0"),
+        ("bb_queue_unknown", b"The 75,000-point deduction was verified, but the barrel could not be queued.\0"),
     )
     if page_va == 0x7C9000:
         values = values + time_warp_values
@@ -573,16 +583,16 @@ def status_call(page_va: int, action: str, status: int, a: str = "0", b: str = "
 
 
 def build_menus(page: bytearray, page_va: int) -> dict[str, bytes]:
-    # Time Warp (row 0) and Island Event (row 1) are enabled only in the stock
-    # page layout (0x7C9000). The expanded-256 baseline (0x904000) is left
-    # byte-identical so the separate vv5_expanded_256_time_warp overlay continues
-    # to own Time Warp there. Barrel of Babies (row 2, unavailable bit 0x400)
-    # stays unavailable until its native selector detour ships.
+    # Time Warp (row 0), Island Event (row 1), and Barrel of Babies (row 2) are
+    # enabled only in the stock page layout (0x7C9000). The expanded-256 baseline
+    # (0x904000) is left byte-identical so the separate vv5_expanded_256_time_warp
+    # overlay continues to own Time Warp there.
     native_stock = page_va == 0x7C9000
-    menu_state = 0x400 if native_stock else 0x700
+    menu_state = 0x000 if native_stock else 0x700
     tw_dispatch = (
         "test ebx, ebx\n        jz time_warp_row\n"
-        "        cmp ebx, 1\n        je island_row\n        "
+        "        cmp ebx, 1\n        je island_row\n"
+        "        cmp ebx, 2\n        je barrel_row\n        "
         if native_stock
         else ""
     )
@@ -590,6 +600,8 @@ def build_menus(page: bytearray, page_va: int) -> dict[str, bytes]:
         f"time_warp_row:\n        call 0x{page_va + OFF['time_warp']:X}\n"
         "        jmp done\n        nop\n        nop\n        nop\n"
         f"    island_row:\n        call 0x{page_va + OFF['island']:X}\n"
+        "        jmp done\n        nop\n        nop\n        nop\n"
+        f"    barrel_row:\n        call 0x{page_va + OFF['barrel']:X}\n"
         "        jmp done\n        nop\n        nop\n        nop\n    "
         if native_stock
         else ""
@@ -1977,6 +1989,143 @@ def build_island(page: bytearray, page_va: int, s: dict[str, int]) -> bytes:
     """)
 
 
+def build_barrel(page: bytearray, page_va: int, s: dict[str, int]) -> bytes:
+    """Barrel of Babies: for one verified 75,000 tech-point charge, set the
+    one-shot forced-Barrel marker (bit 2 = value 4 at 0x51D388) and make the
+    next-event timer due, so the origins-base selector detour at 0x41890F
+    (preserved in this payload) replaces the next chosen event index with 30
+    (Barrel) and clears the marker. Demand vs the mode-adjusted bound (0x4944C0
+    / [0x41F1E6]-3) guards room for three children. Self-contained MessageBoxA;
+    matches the origins-base barrel logic (build_vv5_origins_feature.py)."""
+    return put(page, page_va, "barrel", f"""
+        push ebp
+        mov ebp, esp
+        push ebx
+        push esi
+        push edi
+        sub esp, 0x50
+        mov dword ptr [ebp-0x10], 0
+        mov dword ptr [ebp-0x14], 0
+        push 0x{s['dll']:X}
+        call dword ptr [0x4951E0]
+        test eax, eax
+        jz unavailable
+        push 0x{s['tw_get']:X}
+        push eax
+        call dword ptr [0x4951DC]
+        test eax, eax
+        jz unavailable
+        mov dword ptr [ebp-0x10], eax
+        push 0x{s['tw_user32']:X}
+        call dword ptr [0x4951E0]
+        test eax, eax
+        jz unavailable
+        push 0x{s['tw_messagebox']:X}
+        push eax
+        call dword ptr [0x4951DC]
+        test eax, eax
+        jz unavailable
+        mov dword ptr [ebp-0x14], eax
+        call 0x425950
+        test eax, eax
+        jz unavailable
+        mov edi, eax
+        mov dword ptr [ebp-0x18], edi
+        call 0x4944C0
+        mov ecx, dword ptr [0x41F1E6]
+        sub ecx, 3
+        cmp eax, ecx
+        ja full
+        mov eax, dword ptr [0x51D5F8]
+        mov dword ptr [ebp-0x20], eax
+        cmp eax, 75000
+        jb insufficient
+        mov eax, 0x{s['bb_warning']:X}
+        mov edx, 1
+        call show_message
+        cmp eax, 1
+        jne cancelled
+        call 0x425950
+        cmp eax, dword ptr [ebp-0x18]
+        jne recheck
+        mov edi, eax
+        call 0x4944C0
+        mov ecx, dword ptr [0x41F1E6]
+        sub ecx, 3
+        cmp eax, ecx
+        ja full
+        mov eax, dword ptr [0x51D5F8]
+        cmp eax, dword ptr [ebp-0x20]
+        jne recheck
+        cmp eax, 75000
+        jb insufficient
+        push -75000
+        mov ecx, 0x51D5F8
+        call 0x4237B0
+        mov eax, dword ptr [ebp-0x20]
+        sub eax, 75000
+        cmp dword ptr [0x51D5F8], eax
+        jne charge_unknown
+        or dword ptr [0x51D388], 4
+        mov dword ptr [edi+0x17D3C], 0
+        test dword ptr [0x51D388], 4
+        jz queue_unknown
+        mov eax, 0x{s['bb_success']:X}
+        mov edx, 0x40
+        call show_message
+        jmp done
+    full:
+        mov eax, 0x{s['bb_full']:X}
+        jmp warning_status
+    insufficient:
+        mov eax, 0x{s['tw_insufficient']:X}
+        jmp warning_status
+    cancelled:
+        mov eax, 0x{s['bb_cancelled']:X}
+        jmp warning_status
+    recheck:
+        mov eax, 0x{s['bb_recheck']:X}
+        jmp warning_status
+    unavailable:
+        mov eax, 0x{s['bb_unavailable']:X}
+        jmp warning_status
+    charge_unknown:
+        mov eax, 0x{s['bb_charge_unknown']:X}
+        jmp warning_status
+    queue_unknown:
+        mov eax, 0x{s['bb_queue_unknown']:X}
+    warning_status:
+        mov edx, 0x30
+        call show_message
+    done:
+        add esp, 0x50
+        pop edi
+        pop esi
+        pop ebx
+        pop ebp
+        ret
+    show_message:
+        mov dword ptr [ebp-0x3C], eax
+        mov dword ptr [ebp-0x40], edx
+        cmp dword ptr [ebp-0x10], 0
+        je message_unavailable
+        cmp dword ptr [ebp-0x14], 0
+        je message_unavailable
+        call dword ptr [ebp-0x10]
+        test eax, eax
+        jz message_unavailable
+        push dword ptr [ebp-0x40]
+        push 0x{s['tw_title']:X}
+        push dword ptr [ebp-0x3C]
+        push eax
+        call dword ptr [ebp-0x14]
+        ret
+    message_unavailable:
+        xor eax, eax
+        ret
+    """)
+
+
 def build_page(page_va: int) -> tuple[bytes, dict[str, object]]:
     page = bytearray(PAGE_SIZE)
     page[0:8] = b"VVT9PG\0\0"
@@ -1999,6 +2148,7 @@ def build_page(page_va: int) -> tuple[bytes, dict[str, object]]:
         # the separate vv5_expanded_256_time_warp overlay.
         routines["time_warp"] = build_time_warp(page, page_va, strings)
         routines["island"] = build_island(page, page_va, strings)
+        routines["barrel"] = build_barrel(page, page_va, strings)
     result = {
         "page_sha256": sha(bytes(page)),
         "routine_sha256": {name: sha(value) for name, value in routines.items()},
@@ -2151,7 +2301,7 @@ def main() -> None:
         "schema": "vvfp.vv5_task9_native_actions.v1",
         "id": "vv5_enable_origins_exclusive_features",
         "name": "Enable Origins-Exclusive Features (Task9 native actions)",
-        "description": "Adds Origins-style upgrade menus to Tech and Villager Details. The menus offer Full Mastery, Running, Make Villagers Young Adults, and Full Heal/Cure All for Believers; Heathens are skipped. Time Warp advances the village by three displayed villager years (speed-independent) for a single 50,000 tech-point charge. Island Event queues a random native island event by making the next-event timer due; its exact cost is shown in the confirmation. Barrel of Babies remains unavailable.",
+        "description": "Adds Origins-style upgrade menus to Tech and Villager Details. The menus offer Full Mastery, Running, Make Villagers Young Adults, and Full Heal/Cure All for Believers; Heathens are skipped. Time Warp advances the village by three displayed villager years (speed-independent) for a single 50,000 tech-point charge. Island Event queues a random native island event by making the next-event timer due. Barrel of Babies queues the native Barrel event (a barrel with three children) after confirming the village has room. Exact costs are shown in each confirmation.",
         "enabled": True,
         "catalog_hidden": False,
         "catalog_enabled": True,
@@ -2178,6 +2328,7 @@ def main() -> None:
                 "age18": {"price": 50000, "target": 360, "writer": "0x46F7F0 ECX=record+0x1B8C signed delta", "companions": ["+0x1C3C same delta", "+0x1C4C same delta only when nonzero"]},
                 "full_mastery": {"price": 100000, "fields": ["0x1C5C", "0x1C60", "0x1C64", "0x1C68", "0x1C6C", "0x1C70"], "writer": "0x475730 ECX=record+0x1C5C push Float32 delta then push index", "target_bits": "0x42C80000"},
                 "running": {"price": 40000, "preference_id": 38, "likes": ["0x1F5C", "0x1F60", "0x1F64"], "dislikes": ["0x1F68", "0x1F6C", "0x1F70"], "native": {"membership": "0x464F90", "insertion": "0x464AD0", "first_removal": "0x4649E0"}},
+                "barrel_of_babies": {"price": 75000, "scope": "village event scheduler (queues the native Barrel event, index 30)", "room_check": "call 0x4944C0 demand vs [0x41F1E6]-3 (mode-adjusted 150/256 bound) guards space for three children", "mechanism": "charge -75000 via 0x4237B0, set one-shot forced-Barrel marker (or [0x51D388],4), set next-event timer [manager+0x17D3C]=0; the origins-base selector detour at 0x41890F (preserved in this payload) forces the next chosen index to 30 and clears the marker", "children": 3, "dialog": "self-contained MessageBoxA (no companion DLL change)"},
                 "island_event": {"price": 30000, "scope": "village next-event scheduler (not a per-record write)", "mechanism": "resolve manager 0x425950, verify snapshot, charge -30000 via 0x4237B0, set next-event timer [manager+0x17D3C]=0 so the native scheduler (0x442850 -> sub_418870) runs a random eligible island event", "dialog": "self-contained MessageBoxA (no companion DLL change)"},
                 "time_warp": {"price": 50000, "scope": "village clock (not a per-record write; faction-blind like normal time passing)", "speed": "[manager+0x17D7C] signed positive and not 999 (paused)", "delta": "129600 / speed subtracted from the 64-bit village clock 0x4C6250/0x4C6254", "effect": "advances exactly three displayed villager years regardless of listed game speed", "writer": "inline: verify snapshot, charge -50000 via 0x4237B0, div 129600 by speed, sub/sbb into clock, postverify", "dialog": "self-contained MessageBoxA (no companion DLL change)"},
                 "full_heal": {"price": 30000, "health_rule": "every eligible Believer with health < 100 is raised to exactly 100; health already at 100 is unchanged and uncounted", "health_writer": "0x4758B0 ECX=record+0x1C34 push -1 then push 100", "sickness": "+0x1C48 byte", "masked_heathen_policy": "skip before sickness/type reads; includes the sick Heathen puzzle record", "unsupported_type": "+0x1CFC == 12 when sick on an otherwise eligible Believer", "people_cured": "0x51D368", "statistic_writer": "0x413450 ECX=0x4DB358 IDs 52/53/54 amount 1"},

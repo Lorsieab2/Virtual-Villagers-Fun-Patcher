@@ -161,7 +161,7 @@ class ExpandedTimeWarpArtifactTests(unittest.TestCase):
         task9 = builder.load_task9_builder()
         stock, stock_map = task9.build_page(0x7C9000)
         expanded, expanded_map = task9.build_page(0x904000)
-        self.assertEqual(digest(stock), "2455BD2CFB096E8243B18C4480783B4CECC2D0C48B28B738C1D0457772FF17C6")
+        self.assertEqual(digest(stock), "4F2C61EBAE243376CFCCE959A1EEDDD7A935FB38B26349498F33B2DDBC20AC88")
         self.assertEqual(digest(expanded), "ECC195DAB3B4B700A486902D6FE3CAA07F003A20B324903ADE5A81D265D154B9")
         self.assertEqual(task9.SIZES["age"], 0x300)
         self.assertEqual(task9.OFF["time_warp"], 0x1040)
@@ -278,8 +278,8 @@ class ExpandedTimeWarpRendererTests(unittest.TestCase):
                 "immediate_fixed": "EB0CDD4F7F5E41F7A03734D51F9417A126C3BE9D214B484A848DB688545CF5FB",
             },
             "vv5": {
-                "collection_progression": "259B87295A3051BD4D86FC1F33111D15DC8D832759E9252FE565165A3260CB20",
-                "immediate_fixed": "BB94BDB3DB232DC658845A93708C1C5934DF951EEE915B7EB7974C1B1C5DD882",
+                "collection_progression": "974F87E0D2D3ECE4D3062BC527671BE4EADE89CB42D86877094C3DCCEB82E933",
+                "immediate_fixed": "8246F86784227C10A258997A68DEC08FBEB1599941AC0933DD682E3900A10115",
             },
         }
         for game_id in ("vv4", "vv5"):
