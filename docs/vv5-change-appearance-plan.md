@@ -61,19 +61,39 @@ route** (private preview, atomic commit, re-checked eligibility) that the
 appearance contract lists as **unproved** — it is more than "wire the native
 action". This is the real cost of a robustly-safe believer-only Change Outfit.
 
-## What is NOT safe yet: Change Head
+## Change Head catalog — now PROVEN (static + art)
 
-- The head field is DWORD `record+0x1BB8`; it is constructed, inherited,
-  cloned, saved/loaded, and rendered (age `>=1100` selects the native `+8` old
-  row). But there is **no native head-specific 5,000 transaction and no native
-  head chooser** — the only native 5,000 purchase is the clothing/outfit action.
-- The complete **young/old/special/invalid head catalog is unproved**. The
-  constructor's `RNG` bounds are creation bounds, not a proven list of
-  user-selectable, persistently-safe heads. Writing an unvalidated index into
-  `+0x1BB8` risks selecting special/invalid heads with unknown effects.
-- Per the appearance contract, Change Head therefore **remains STOP** for VV5
-  until the exact selectable head catalog and its persistence are independently
-  proved, and it must warn "This will change the villager's head genetics."
+The head catalog that was previously unproved is now established for the exact
+991,232-byte build:
+
+- **Valid head indices are `0..29` (30 heads).** The constructor at `0x468560`
+  sets the head from either parent inheritance (average of the two parents'
+  heads ± `RNG(3)-1`, at `0x46856D`) or a flat `RNG(30)` (`0x468591`), and every
+  path **clamps to `0..29`** (`0x46859B`: `< 0 -> 0`, `>= 0x1E -> 0x1D`). The
+  sex-specific tables in the constructor drive the body/outfit sub-ranges and
+  bias which heads spawn naturally; they do **not** gate head validity.
+- **Complete art exists for all 30 indices, both sexes and both ages.** The
+  world atlases `male_heads00/10.png` and `female_heads00/10.png` are each
+  320x1950 = **30 rows @ 65px** (8 directional frames per row); the Detail
+  portraits `BigHeads00/10.png` are 480x3000 = **30 rows @ 100px**. `00` = young,
+  `10` = old is an atlas swap on the **same** index, so changing a head is
+  age-safe. Visual inspection confirms all 30 rows are distinct, populated heads
+  with no blank/placeholder rows.
+- The head field `record+0x1BB8` is constructed, inherited, cloned, saved/loaded
+  and rendered (world + Detail); persistence matches the proven outfit field.
+- Masks (`vv5_heathenheads.png`) are a separate faction overlay, not part of the
+  head index.
+
+So a Change Head that offers indices `0..29` writes only renderable, in-range,
+persistent values for the villager's own sex. There is still **no native head
+chooser or head-specific 5,000 transaction** (the only native 5,000 purchase is
+the outfit action), so a head picker must be custom; and per the contract the
+picker should warn "This will change the villager's head genetics."
+
+Residual gate: a short in-game pass to confirm the 30 indices render (world +
+Detail) and survive save/reload, and that no index is reserved for a special
+villager (e.g. the Golden Child). High confidence given complete art, but this
+is the only step that needs the running game.
 
 ## Recommended path
 
