@@ -42,3 +42,23 @@ the first argument if you built the `.exe` somewhere else:
 
 Last run (this branch, from the repo root, against the real-art picker):
 see the commit that updated this file for the result.
+
+## `runtime_test_vv1_esc_closes_upgrade_menus.c`
+
+Loads the real, shipped DLL, opens the real Tech-screen ("Origins
+Upgrades") and Villager Details ("Villager Upgrades") dialogs on a
+background thread, and posts a real `WM_KEYDOWN`/`WM_KEYUP` for
+`VK_ESCAPE` to the live window -- `PostMessage`, not `SendMessage`, since
+only a queued message actually passes through the modal loop's own
+`IsDialogMessage` translation the way a real keypress would. Confirms
+both dialogs close and return the same result Cancel does (-1).
+
+Both dialogs already give their Cancel button control ID 2 (`IDCANCEL`),
+which is what makes the standard Windows dialog ESC-to-cancel behavior
+apply automatically -- this test exists to prove that translation still
+reaches the real compiled dialog (not just that the .rc template says
+it should), so a future change can't silently break it (e.g. by
+changing the Cancel button's ID, or by adding a custom `WM_KEYDOWN`
+handler that swallows the key first).
+
+To run: same toolchain invocation as above, substituting this file's name.
