@@ -122,6 +122,65 @@ originally described — depends on the unproved head catalog and a proven atomi
 two-field OK/Cancel commit, so it stays behind step 2. Splitting the deliverable
 this way keeps every shipped write on a proven, reversible, save-safe path.
 
+## Build specification — inline Change Outfit + Change Head (ready to build)
+
+Design is complete and the task9 page has room (`heal` uses `0x504` of its
+`0x3C00` reserve). The one gate is the **companion DLL rebuild**: this machine's
+toolchain does not reproduce the certified `VVFP VV5 Task9 Origins Icons.dll`
+byte-for-byte (compiler drift; rebuilt `0F4444E4…` vs certified `B402ED83…`),
+and that hash is load-bearing (`VV5_TASK9_DLL_SHA256`,
+`VV5_FULL_MASTERY_CERTIFIED_SHA256["dll"]`, the expanded-time-warp companion).
+So the DLL must be rebuilt on its **certifying toolchain**, then every validator
+re-pinned to the new hash. Until then, do not overwrite the certified DLL.
+
+### 1. Companion DLL (`native/vv5_task9_origins/`)
+
+`.rc` dialog `202` (Villager Upgrades): add two rows mirroring the existing
+four — icon controls `1104`, `1105` and `PUSHBUTTON "Buy"` `1004`, `1005` at the
+next two 32px row offsets — and grow the dialog height + move the Cancel button
+down. `.c`: `row_count` for the villager menu `4 -> 6`; extend `action_name`
+with `ACTION_OUTFIT (5) -> "Change Outfit"`, `ACTION_HEAD (6) -> "Change Head"`;
+in `ConfirmVV5Task9Action` price both at `5000` and give Change Head the warning
+"This will change the villager's head genetics."; add matching
+`ShowVV5Task9Result` success/decline strings. `ID_BUY_LAST` is already `1005`.
+
+### 2. Task9 page (`scripts/build_vv5_task9_native_actions.py`)
+
+- Reclaim reserve without moving any pinned offset: `SIZES["heal"]`
+  `0x3C00 -> 0x800`; add `OFF["outfit"]=0x3C00, SIZES["outfit"]=0x300` and
+  `OFF["head"]=0x3F00, SIZES["head"]=0x300` (both inside heal's freed tail; all
+  offsets `<= heal` are unchanged, so the expanded overlay's pinned preimages at
+  `0x846`/`0x8AB`/`0x1040` are untouched).
+- `build_outfit(page, page_va)` and `build_head(page, page_va)`, modeled on
+  `build_age`: `resolve_current` the selected villager; enforce the believer
+  gate (`+0x1CD4` active ≠ 0, `+0x1CE1` mask == 0, `+0x1CEC` faction == 0,
+  `+0x1C40` signed health > 0) before any read/charge; `ConfirmVV5Task9Action`
+  (OUTFIT/HEAD, 5000); on OK re-resolve and re-validate identity + faction +
+  the 5,000 balance (the task9 dry-run→confirm→recheck→charge→postverify
+  sequence); charge `-5000` via `0x4237B0`; then advance the field —
+  outfit `[rec+0x1BBC] = (v+1); if v+1 >= 29 -> 0` (wrap `0..28`), head
+  `[rec+0x1BB8] = (v+1); if v+1 >= 30 -> 0` (wrap `0..29`); postverify and
+  `ShowVV5Task9Result`. Register both in `build_page`.
+- `detail_menu`: `cmp ebx,3; ja done` -> `cmp ebx,5; ja done`; add
+  `cmp ebx,4; je outfit` / `cmp ebx,5; je head` and `outfit:`/`head:` labels
+  calling `OFF['outfit']`/`OFF['head']` then `jmp menu`. `show_menu` is already
+  called with dialog_state `0`, so with `row_count 6` all six rows render as
+  enabled "Buy".
+
+### 3. Cascade (after the certified DLL rebuild)
+
+Re-pin the DLL hash everywhere it is validated; regenerate
+`vv5_task9_native_actions.json` (+ map); update `VV5_TASK9` manifest/map/page
+pins and the expanded-time-warp base-page/artifact pins; regenerate the
+transparency doc; refresh the task9 + expanded-time-warp test goldens. Same
+deterministic procedure as the Full Heal and Time Warp changes.
+
+### 4. Playtest gate
+
+Confirm head indices `0..29` render (world + Detail) and persist across
+save/reload for both sexes, and that no index is reserved for a special
+villager (e.g. the Golden Child). Outfit `0..28` is already the native range.
+
 ## Cross-cutting
 
 - Believer-only, selected-active-living, validate-before-charge: same guard as
