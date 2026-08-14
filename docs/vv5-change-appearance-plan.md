@@ -36,6 +36,31 @@ signed health > 0), evaluated **before** the outfit chooser opens or charges;
 a current Heathen is refused with no charge and no write. This reuses the game's
 own atomic, save-safe outfit writer rather than a new custom persistence path.
 
+### Exact-build invocation facts (disassembly of the 991,232-byte build)
+
+- The action-90 precharge at `0x46CEC7` is `push 0xFFFFEC78` (−5,000);
+  `mov ecx, 0x51D5F8`; `call 0x4237B0` — the same tech-point charge routine
+  Time Warp uses. It then does `mov ecx,[edi+0x1B88]`; `mov esi,[ecx+0x1C94]`
+  (the villager slot index); `call 0x425950`; `mov [manager+0x17E08], esi` —
+  i.e. it **precharges, then stashes the pending slot index** into
+  `manager+0x17E08` for the chooser to read later.
+- The chooser `sub_419EC0` is an **async C++ object constructor** (thiscall,
+  `this` in ECX, one pushed arg, full SEH frame, installs vtable
+  `0x49859C`). It builds a UI object that the **game loop** drives; it is not
+  a blocking modal that can be called synchronously and returns a result.
+
+### Why this is not a clean, robustly-safe reuse
+
+Because precharge (`0x46CEC7`) and chooser-open (`sub_419EC0`) are separated by
+the game loop, the pending slot at `manager+0x17E08` can go stale before the
+chooser opens, and the open path does not re-verify occupancy, health, status,
+identity, or **faction**. So faithfully reusing the native flow inherits that
+revalidation gap: a believer-only guarantee cannot be enforced purely by a
+pre-open gate. Enforcing it robustly requires the **custom OK-time revalidation
+route** (private preview, atomic commit, re-checked eligibility) that the
+appearance contract lists as **unproved** — it is more than "wire the native
+action". This is the real cost of a robustly-safe believer-only Change Outfit.
+
 ## What is NOT safe yet: Change Head
 
 - The head field is DWORD `record+0x1BB8`; it is constructed, inherited,
@@ -52,10 +77,21 @@ own atomic, save-safe outfit writer rather than a new custom persistence path.
 
 ## Recommended path
 
-1. **Ship believer-only Change Outfit first** (body), wired as a Villager
-   Upgrades row that runs the native outfit transaction behind the task9
-   believer/active/living gate. This is fully spec-compliant for the body and
-   uses only proven, save-safe native writes.
+1. **Ship believer-only Change Outfit first** (body). The outfit *field* write
+   and cost are proven and save-safe, but the native chooser is async with a
+   revalidation gap (above), so a robust believer guarantee needs a custom
+   OK-time revalidation route. Two build options:
+   a. **Custom believer-safe chooser** (recommended for correctness): a task9
+      row that, for the selected active/living Believer, opens a preview,
+      cycles the proven `0..28` outfit field, and on OK re-validates identity +
+      faction `+0x1CEC` and charges 5,000 once. Larger; this is the contract's
+      previously-unproved custom route, now scoped by the invocation facts above.
+   b. **Gated native invocation** (smaller, weaker): precharge + open the native
+      `sub_419EC0` behind a pre-open believer gate, accepting the native
+      staleness/no-revalidation flaw. Not robustly believer-guaranteed.
+   Either option also needs a new Villager Upgrades dialog row (companion DLL
+   `row_count` 4→5 + a fifth Buy control, rebuilt with the installed MSVC/SDK
+   toolchain), which cascades the load-bearing companion-DLL hash.
 2. **Defer Change Head** until the selectable head catalog is proved. When the
    catalog is proved, add head cycling with its own 5,000 charge (or a combined
    single-charge OK if a safe atomic two-field commit is proved) plus the
