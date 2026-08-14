@@ -1021,10 +1021,10 @@ def main() -> None:
             push esi
             push edi
             xor eax, eax
-            call 0x44F4E0
+            call 0x441690
             test eax, eax
             je cure_format
-            lea edx, [eax + 0x52C]
+            mov edx, eax
             xor eax, eax
             mov ecx, 256
         cure_loop:
@@ -1488,10 +1488,10 @@ def main() -> None:
             push esi
             push edi
             push ebx
-            call 0x44F4E0
+            call 0x441690
             test eax, eax
             je wv_done
-            lea edx, [eax + 0x52C]
+            mov edx, eax
             mov ecx, 256
             mov ebx, dword ptr [esp]
         wv_loop:
