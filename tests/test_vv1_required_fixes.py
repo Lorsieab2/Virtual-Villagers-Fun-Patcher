@@ -275,7 +275,10 @@ class VV1RequiredFixTests(unittest.TestCase):
         # the two CALLs below encode a position-relative rel32, which
         # necessarily differs now that the call site itself moved into the
         # .shr cave even though the absolute call targets are unchanged.
-        helper_insns = list(md.disasm(rendered[helper_offset : helper_offset + 60], helper_va))
+        # +70 rather than +60: the helper now also zeroes the Barrel delay
+        # counter right before its final jmp, one more instruction than
+        # before.
+        helper_insns = list(md.disasm(rendered[helper_offset : helper_offset + 70], helper_va))
         actual = [(i.mnemonic, i.op_str) for i in helper_insns]
         expected_prefix = [
             ("mov", "ecx, dword ptr [esi + 0x14]"),
@@ -308,6 +311,83 @@ class VV1RequiredFixTests(unittest.TestCase):
         )
         cmp_insn = next(i for i in main_code if i.mnemonic == "cmp")
         self.assertEqual(cmp_insn.op_str, "byte ptr [0x48d700], 2")
+
+    def test_vv1_barrel_event_waits_after_tech_screen_closes_before_firing(self) -> None:
+        """New feature regression test: reported that the Barrel of
+        Babies event popped up within a fraction of a second of closing
+        the Tech screen, too fast to read the purchase confirmation
+        first. Decompiling the main-village-update owner this helper is
+        hooked into confirms it is a genuine per-frame tick (it rolls
+        per-frame chances for ambient particle spawns), and Barrel of
+        Babies is a hand-built event screen, not a natively-scheduled
+        one like Island Event -- so the fix is a real elapsed-tick delay
+        counter, not a scheduling-field write. Disassembles the real
+        rendered exe to confirm the counter is incremented and compared
+        against the real threshold before the event's own construct/
+        run/teardown call sequence is ever reached, and that both the
+        purchase-time and Tech-screen-close-time resets are wired.
+        """
+        capstone = pytest.importorskip("capstone")
+        source = STOCK / "Virtual Villagers - A New Home.exe"
+        if not source.is_file():
+            self.skipTest(f"stock executable not available: {source}")
+        build = identify(source)
+        rendered, _ = render_patched_bytes(
+            source, build, "collection_progression",
+            ["vv1_enable_origins_exclusive_features"],
+        )
+        md = capstone.Cs(capstone.CS_ARCH_X86, capstone.CS_MODE_32)
+        IMAGE_BASE = 0x400000
+        SHR_FILE_OFFSET = 0x8B000
+        SHR_RVA = 0x8D000
+
+        def to_va(file_offset: int) -> int:
+            return IMAGE_BASE + SHR_RVA + (file_offset - SHR_FILE_OFFSET)
+
+        counter_va = to_va(0x8B704)
+
+        # main-village-update helper: the counter must be incremented and
+        # compared before the pushad/event-construction sequence, and the
+        # comparison must be a real, nonzero threshold -- not accidentally
+        # 0 or 1 (which would barely differ from firing immediately).
+        main_helper_off = 0x8B710
+        main_helper_va = to_va(main_helper_off)
+        main_insns = list(
+            md.disasm(rendered[main_helper_off:main_helper_off + 0x40], main_helper_va)
+        )
+        inc_insn = next(
+            (i for i in main_insns if i.mnemonic == "inc" and f"0x{counter_va:x}" in i.op_str),
+            None,
+        )
+        self.assertIsNotNone(inc_insn, "counter must be incremented on every tick the Tech screen is closed")
+        cmp_insn = next(
+            (i for i in main_insns if i.mnemonic == "cmp" and f"0x{counter_va:x}" in i.op_str),
+            None,
+        )
+        self.assertIsNotNone(cmp_insn, "counter must be compared against a threshold")
+        threshold = int(cmp_insn.op_str.rsplit(",", 1)[1].strip(), 0)
+        self.assertGreater(threshold, 10, "threshold must be a real delay, not effectively immediate")
+        jb_insn = main_insns[main_insns.index(cmp_insn) + 1]
+        self.assertEqual(jb_insn.mnemonic, "jb", "must skip firing until the threshold is reached")
+        pushad_index = next(i for i, insn in enumerate(main_insns) if insn.mnemonic == "pushal")
+        self.assertLess(
+            main_insns.index(inc_insn), pushad_index,
+            "the counter check must happen before the event is constructed, not after",
+        )
+
+        # Purchase time (do_barrel) and Tech-screen-close time
+        # (barrel_close_helper) must both reset the counter to 0, so a
+        # second purchase after the first event fired doesn't inherit a
+        # stale count and skip most of its own delay.
+        source_text = (ROOT / "scripts" / "build_vv1_origins_feature.py").read_text(
+            encoding="utf-8"
+        )
+        do_barrel = source_text.split("do_barrel:", 1)[1].split("do_tech_doubler:", 1)[0]
+        self.assertIn("mov dword ptr [0x{BARREL_DELAY_COUNTER_VA:X}], 0", do_barrel)
+        close_helper = source_text.split("barrel_close_helper_code = assemble", 1)[1].split(
+            "BARREL_CLOSE_HELPER_VA,", 1
+        )[0]
+        self.assertIn("mov dword ptr [0x{BARREL_DELAY_COUNTER_VA:X}], 0", close_helper)
 
     def test_vv1_barrel_event_object_is_torn_down_with_its_matching_destructor(
         self,

@@ -303,6 +303,11 @@ class AppearanceUpgradeRequirementsTests(unittest.TestCase):
                     # called by both menu and detail_menu right after a row
                     # is picked -- also in .shr's otherwise-unused tail.
                     "0x8BB00",
+                    # Barrel of Babies delay-tick counter: the event used to
+                    # fire on the very next per-frame main-update tick after
+                    # the Tech screen closed; it now waits BARREL_DELAY_TICKS
+                    # ticks first so the purchase confirmation can be read.
+                    "0x8B704",
                 },
                 "data/vv2_origins_feature.json": {
                     "0x943A8", "0x9A009", "0x9A300", "0x9A530",

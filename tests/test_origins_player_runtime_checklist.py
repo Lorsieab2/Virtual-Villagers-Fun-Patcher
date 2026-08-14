@@ -194,6 +194,11 @@ class OriginsPlayerRuntimeChecklistTests(unittest.TestCase):
                         # after a row is picked -- also in .shr's
                         # otherwise-unused tail.
                         "0x8BB00",
+                        # Barrel of Babies delay-tick counter: the event
+                        # used to fire on the very next per-frame main-
+                        # update tick after the Tech screen closed; it now
+                        # waits BARREL_DELAY_TICKS ticks first.
+                        "0x8B704",
                     }
                     self.assertEqual(
                         [item for item in current["patches"] if item["offset"] not in repaired_offsets],

@@ -59,6 +59,25 @@ BARREL_PENDING_FILE_OFFSET = 0x8B700
 BARREL_PENDING_VA = IMAGE_BASE + SHR_RVA + (
     BARREL_PENDING_FILE_OFFSET - SHR_FILE_OFFSET
 )
+# Reported: the native Barrel of Babies event used to fire within a
+# fraction of a second of the Tech screen closing (barrel_main_helper_code
+# is hooked into the stock main-village update, confirmed via decompiling
+# it to be a genuine per-frame tick -- it rolls per-frame chances for
+# ambient butterfly/particle spawns, not something that only runs once a
+# game-day like Island Event's own native scheduling field does), leaving
+# no time to read the purchase confirmation before the full-screen event
+# took over. Unlike Island Event, Barrel of Babies is not a native random
+# encounter with its own slow scheduler to hook into instead -- decompiling
+# its constructor/run/teardown trio confirms it is a hand-built event
+# screen, not a scheduled one -- so the fix is a real elapsed-tick delay of
+# its own: this dword counts ticks while BARREL_PENDING_VA is in its
+# "Tech screen has closed" state, and the event is only actually shown
+# once it crosses BARREL_DELAY_TICKS.
+BARREL_DELAY_COUNTER_FILE_OFFSET = 0x8B704
+BARREL_DELAY_COUNTER_VA = IMAGE_BASE + SHR_RVA + (
+    BARREL_DELAY_COUNTER_FILE_OFFSET - SHR_FILE_OFFSET
+)
+BARREL_DELAY_TICKS = 180
 BARREL_MAIN_HELPER_FILE_OFFSET = 0x8B710
 BARREL_MAIN_HELPER_VA = IMAGE_BASE + SHR_RVA + (
     BARREL_MAIN_HELPER_FILE_OFFSET - SHR_FILE_OFFSET
@@ -159,6 +178,12 @@ def main() -> None:
         s,
         "event_queued",
         "Island Event queued.",
+    )
+    add_c_string(
+        strings,
+        s,
+        "barrel_queued",
+        "Barrel of Babies queued.",
     )
     add_c_string(strings, s, "barrel_villagers", "Gained 3 children.")
     add_c_string(
@@ -430,7 +455,8 @@ def main() -> None:
 
         do_barrel:
             mov byte ptr [0x{BARREL_PENDING_VA:X}], 1
-            mov eax, 0x{s['purchase_complete']:X}
+            mov dword ptr [0x{BARREL_DELAY_COUNTER_VA:X}], 0
+            mov eax, 0x{s['barrel_queued']:X}
             push 0
             push 0x{s['title']:X}
             push eax
@@ -993,6 +1019,9 @@ def main() -> None:
             call 0x448600
             cmp byte ptr [0x{BARREL_PENDING_VA:X}], 2
             jne barrel_main_done
+            inc dword ptr [0x{BARREL_DELAY_COUNTER_VA:X}]
+            cmp dword ptr [0x{BARREL_DELAY_COUNTER_VA:X}], {BARREL_DELAY_TICKS}
+            jb barrel_main_done
             pushad
             mov esi, dword ptr [esp + 4]
             push 0x50F0
@@ -1012,6 +1041,7 @@ def main() -> None:
             mov ecx, ebx
             call 0x427620
             mov byte ptr [0x{BARREL_PENDING_VA:X}], 0
+            mov dword ptr [0x{BARREL_DELAY_COUNTER_VA:X}], 0
         barrel_main_restore:
             popad
         barrel_main_done:
@@ -1032,6 +1062,7 @@ def main() -> None:
             cmp byte ptr [0x{BARREL_PENDING_VA:X}], 1
             jne barrel_close_done
             mov byte ptr [0x{BARREL_PENDING_VA:X}], 2
+            mov dword ptr [0x{BARREL_DELAY_COUNTER_VA:X}], 0
         barrel_close_done:
             jmp 0x435DCD
         """,
@@ -1136,10 +1167,16 @@ def main() -> None:
         "reserve the process-local one-shot VV1 Barrel event token",
     )
     patch(
+        BARREL_DELAY_COUNTER_FILE_OFFSET,
+        b"\0" * 4,
+        b"\0" * 4,
+        f"reserve the process-local VV1 Barrel event delay counter: the main-village update owner is a genuine per-frame tick, so the queued event now waits {BARREL_DELAY_TICKS} ticks after the Tech screen closes instead of firing on the very next one, giving the purchase confirmation time to be read first",
+    )
+    patch(
         BARREL_MAIN_HELPER_FILE_OFFSET,
         b"\0" * len(barrel_main_helper_code),
         barrel_main_helper_code,
-        "consume the deferred VV1 Barrel token from the stock main-village update owner",
+        f"consume the deferred VV1 Barrel token from the stock main-village update owner, waiting {BARREL_DELAY_TICKS} of its own per-frame ticks after the Tech screen closes before actually showing the event",
     )
     patch(
         BARREL_CLOSE_HELPER_FILE_OFFSET,
