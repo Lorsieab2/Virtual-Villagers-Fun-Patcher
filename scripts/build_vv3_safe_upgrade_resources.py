@@ -28,7 +28,7 @@ FOUNDATION_OUTPUT = (
 SOURCE_SHA256 = "35FB96199E745C7D8054FF6A12851B9E09225E3E41D0CE04012604E74968C0D5"
 SOURCE_SIZE = 298_496
 TARGET_COUNTS = {201: 26, 202: 2, 203: 31}
-PUBLIC_TARGET_COUNTS = {201: 26, 202: 7, 203: 31}
+PUBLIC_TARGET_COUNTS = {201: 26, 202: 21, 203: 31}
 
 
 def sha(data: bytes) -> str:
@@ -172,12 +172,16 @@ def _filter_dialog(
         # Items 25..29 are command 5: icon, icon control, label, price, button.
         keep = set(range(source_counts[resource_id])) - set(range(25, 30))
     else:
-        # Source items 5..9 are the complete command-1 row.  The foundation
-        # keeps only background+Cancel; the dependent projection adds exactly
-        # command 1 without reintroducing commands 0, 2, or 3.
+        # The foundation keeps only background + Cancel.  The public
+        # selected-villager projection restores every individual Villager
+        # Upgrades row -- Grant Youth (0), Grant Full Mastery (1), Grant
+        # Running (2), and Set Age to 18 (3) -- so all four are visible.  The
+        # payload's per-row eligibility bits still gate each Buy/disabled
+        # state, and the button ordinals already match the detail dispatch
+        # (1000->Youth, 1001->Mastery, 1002->Running, 1003->Age 18).
         keep = {0, 20}
         if include_individual_full_mastery:
-            keep.update(range(5, 10))
+            keep.update(range(1, 20))
     first = spans[0][0]
     end = spans[-1][1]
     changed = bytearray(blob[:first])
