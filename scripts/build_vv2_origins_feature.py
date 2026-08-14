@@ -1021,7 +1021,7 @@ def main() -> None:
             push esi
             push edi
             xor eax, eax
-            call 0x441690
+            call 0x44F4E0
             test eax, eax
             je cure_format
             mov edx, eax
@@ -1254,7 +1254,7 @@ def main() -> None:
         """
             push ecx
             push edx
-            call 0x441690
+            call 0x44F4E0
             test eax, eax
             je cure_preflight_no_change
             mov edx, eax
@@ -1488,7 +1488,7 @@ def main() -> None:
             push esi
             push edi
             push ebx
-            call 0x441690
+            call 0x44F4E0
             test eax, eax
             je wv_done
             mov edx, eax
