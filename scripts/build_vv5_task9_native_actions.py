@@ -1373,7 +1373,7 @@ def build_heal(page: bytearray, page_va: int) -> bytes:
         je unsupported
         inc dword ptr [ebp-0x18]
     dry_health:
-        cmp dword ptr [edi+4], 80
+        cmp dword ptr [edi+4], 100
         jae dry_next
         inc dword ptr [ebp-0x1C]
     dry_next:
@@ -1442,7 +1442,7 @@ def build_heal(page: bytearray, page_va: int) -> bytes:
         jne write_next
         cmp dword ptr [edi+4], 0
         jle write_next
-        cmp dword ptr [edi+4], 80
+        cmp dword ptr [edi+4], 100
         jae sickness_write
         call heal_record_guard
         test eax, eax
@@ -1514,7 +1514,7 @@ def build_heal(page: bytearray, page_va: int) -> bytes:
         jle post_ineligible
         cmp dword ptr [edi+8], 0
         jne post_ineligible
-        cmp dword ptr [edi+4], 80
+        cmp dword ptr [edi+4], 100
         jae post_health_unchanged
         cmp dword ptr [esi+0x1C40], 100
         jne retained
@@ -1580,7 +1580,7 @@ def build_heal(page: bytearray, page_va: int) -> bytes:
         cmp eax, dword ptr [edi+8]
         jne heal_guard_fail
         mov eax, dword ptr [edi+4]
-        cmp eax, 80
+        cmp eax, 100
         jae heal_guard_health_original
         mov eax, 100
     heal_guard_health_original:
@@ -1842,7 +1842,7 @@ def main() -> None:
                 "age18": {"price": 50000, "target": 360, "writer": "0x46F7F0 ECX=record+0x1B8C signed delta", "companions": ["+0x1C3C same delta", "+0x1C4C same delta only when nonzero"]},
                 "full_mastery": {"price": 100000, "fields": ["0x1C5C", "0x1C60", "0x1C64", "0x1C68", "0x1C6C", "0x1C70"], "writer": "0x475730 ECX=record+0x1C5C push Float32 delta then push index", "target_bits": "0x42C80000"},
                 "running": {"price": 40000, "preference_id": 38, "likes": ["0x1F5C", "0x1F60", "0x1F64"], "dislikes": ["0x1F68", "0x1F6C", "0x1F70"], "native": {"membership": "0x464F90", "insertion": "0x464AD0", "first_removal": "0x4649E0"}},
-                "full_heal": {"price": 30000, "health_rule": "only health < 80 is raised to exactly 100; health 80-100 is preserved", "health_writer": "0x4758B0 ECX=record+0x1C34 push -1 then push 100", "sickness": "+0x1C48 byte", "masked_heathen_policy": "skip before sickness/type reads; includes the sick Heathen puzzle record", "unsupported_type": "+0x1CFC == 12 when sick on an otherwise eligible Believer", "people_cured": "0x51D368", "statistic_writer": "0x413450 ECX=0x4DB358 IDs 52/53/54 amount 1"},
+                "full_heal": {"price": 30000, "health_rule": "every eligible Believer with health < 100 is raised to exactly 100; health already at 100 is unchanged and uncounted", "health_writer": "0x4758B0 ECX=record+0x1C34 push -1 then push 100", "sickness": "+0x1C48 byte", "masked_heathen_policy": "skip before sickness/type reads; includes the sick Heathen puzzle record", "unsupported_type": "+0x1CFC == 12 when sick on an otherwise eligible Believer", "people_cured": "0x51D368", "statistic_writer": "0x413450 ECX=0x4DB358 IDs 52/53/54 amount 1"},
             },
         },
         "companion_files": [{
