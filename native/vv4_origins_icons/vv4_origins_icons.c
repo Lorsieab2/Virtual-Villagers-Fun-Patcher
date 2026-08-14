@@ -269,6 +269,20 @@ static INT_PTR CALLBACK upgrade_dialog(
     } else if (message == WM_COMMAND) {
         unsigned int command = LOWORD(wparam);
         if (command >= ID_BUY_FIRST && command <= ID_BUY_LAST) {
+            /* Confirm every purchase. The doubler "Remove" toggle is reversible
+               and is not a purchase, so only gate the "Buy" action. */
+            char label[16];
+            label[0] = '\0';
+            GetDlgItemTextA(window, command, label, (int)sizeof(label));
+            if (lstrcmpA(label, "Buy") == 0
+                && MessageBoxA(
+                       window,
+                       "This upgrade makes permanent changes to your village. "
+                       "Do you still want to purchase this?",
+                       "Confirm Purchase",
+                       MB_YESNO | MB_ICONWARNING) != IDYES) {
+                return TRUE; /* No: do nothing, stay in the menu. */
+            }
             EndDialog(window, (INT_PTR)(command - ID_BUY_FIRST));
             return TRUE;
         }
