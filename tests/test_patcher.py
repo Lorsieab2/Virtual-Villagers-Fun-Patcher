@@ -157,13 +157,14 @@ class ManifestTests(unittest.TestCase):
         source = (ROOT / "scripts" / "build_vv2_origins_feature.py").read_text(
             encoding="utf-8"
         )
-        confirmation = source[
-            source.index("            cmp ebx, 0\n            je confirm_tech_purchase") :
-            source.index("        tech_purchase_ready:")
-        ]
-        self.assertIn("cmp ebx, 3\n            je confirm_tech_purchase", confirmation)
-        self.assertIn("cmp ebx, 4\n            je confirm_tech_purchase", confirmation)
-        self.assertIn("call 0x{confirm_dialog:X}", confirmation)
+        # Every Tech row (Time Warp..All Villagers are 18, plus the Tech/Food
+        # Doubler toggles) shows the permanent-change confirmation before any
+        # state change: the confirm call sits just before tech_purchase_ready,
+        # and every doubler-bit write is after it.
+        self.assertLess(
+            source.index("call 0x{confirm_dialog:X}"),
+            source.index("        tech_purchase_ready:"),
+        )
         for write in (
             "or dword ptr [edi + 0x2EAE8], 1",
             "or dword ptr [edi + 0x2EAE8], 2",

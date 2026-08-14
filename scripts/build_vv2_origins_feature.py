@@ -178,7 +178,7 @@ def main() -> None:
         ),
         (
             "permanent_warning",
-            "This upgrade makes permanent changes to your village. Are you sure you want to continue?",
+            "This upgrade makes permanent changes to your village. Do you still want to purchase this?",
         ),
         ("running_unavailable", "Running cannot be added."),
         ("running_granted", "All villagers like running."),
@@ -425,12 +425,12 @@ def main() -> None:
             call dword ptr [0x4740D4]
             test eax, eax
             je confirm_done
-            push 1
+            push 4
             push 0x{s['tech_title']:X}
             push 0x{s['permanent_warning']:X}
             push 0
             call eax
-            cmp eax, 1
+            cmp eax, 6
             sete al
             movzx eax, al
             jmp confirm_return
@@ -469,21 +469,6 @@ def main() -> None:
             je menu_done
             mov ebx, eax
 
-            cmp ebx, 0
-            je confirm_tech_purchase
-            cmp ebx, 1
-            je confirm_tech_purchase
-            cmp ebx, 2
-            je confirm_tech_purchase
-            cmp ebx, 3
-            je confirm_tech_purchase
-            cmp ebx, 4
-            je confirm_tech_purchase
-            cmp ebx, 5
-            je confirm_tech_purchase
-            cmp ebx, 6
-            jne tech_purchase_ready
-        confirm_tech_purchase:
             call 0x{confirm_dialog:X}
             test eax, eax
             jz menu_loop
@@ -741,16 +726,14 @@ def main() -> None:
             je detail_done
             mov ebx, eax
 
-            cmp ebx, 4
-            jne detail_not_appearance
-            call 0x{APPEARANCE_VA:X}
-            jmp detail_loop
-        detail_not_appearance:
-            cmp ebx, 3
-            ja detail_purchase_ready
             call 0x{confirm_dialog:X}
             test eax, eax
             jz detail_loop
+
+            cmp ebx, 4
+            jne detail_purchase_ready
+            call 0x{APPEARANCE_VA:X}
+            jmp detail_loop
         detail_purchase_ready:
 
             mov edi, dword ptr [esi + 0x0C]
