@@ -8,7 +8,7 @@ enum {
     IDD_ORIGINS_VILLAGER = 202,
     IDD_ORIGINS_FULL_MASTERY = 203,
     ID_BUY_FIRST = 1000,
-    ID_BUY_LAST = 1008,
+    ID_BUY_LAST = 1010,
     ID_CHECK_FIRST = 1100,
     STATE_VILLAGER = 0x10000,
     STATE_VILLAGE_WIDE = 0x20000,
@@ -62,7 +62,14 @@ static INT_PTR CALLBACK upgrade_dialog(
     } else if (message == WM_COMMAND) {
         unsigned int command = LOWORD(wparam);
         if (command >= ID_BUY_FIRST && command <= ID_BUY_LAST) {
-            EndDialog(window, (INT_PTR)(command - ID_BUY_FIRST));
+            if (MessageBoxA(
+                    window,
+                    "This upgrade makes permanent changes to your village. "
+                    "Do you still want to purchase this?",
+                    "Confirm Purchase",
+                    MB_YESNO | MB_ICONWARNING) == IDYES) {
+                EndDialog(window, (INT_PTR)(command - ID_BUY_FIRST));
+            }
             return TRUE;
         }
         if (command == IDCANCEL) {

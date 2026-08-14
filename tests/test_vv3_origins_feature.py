@@ -64,13 +64,16 @@ class VV3OriginsFeatureTests(unittest.TestCase):
         )
         data = COMPANION.read_bytes()
         # The public projection now exposes every Tech upgrade row so the
-        # village-wide menu shows Cure, All Villagers Like Running, Grant Full
-        # Mastery to All, and All Villagers are 18 as live Buy controls
-        # (previously stripped down to Full Mastery only).
+        # village-wide menu shows Full Heal/Cure, All Villagers Like Running,
+        # Grant Full Mastery to All, All Villagers are 18, and the Complete/Reset
+        # all Collections rows as live Buy controls (previously stripped down to
+        # Full Mastery only).
         for required in (
-            "Cure all Villagers",
+            "Full Heal/Cure All Villagers",
             "All Villagers Like Running",
             "All Villagers are 18",
+            "Complete all Collections",
+            "Reset all Collections",
         ):
             self.assertIn(required.encode("utf-16le"), data)
 
@@ -99,6 +102,8 @@ class VV3OriginsFeatureTests(unittest.TestCase):
             offsets,
             {
                 0x24C,
+                0x9EEA0,
+                0x9EF30,
                 0x7B664,
                 0x7B7C0,
                 0x7B7D0,
@@ -276,7 +281,7 @@ class VV3OriginsFeatureTests(unittest.TestCase):
         )
         self.assertEqual(
             hashlib.sha256(payload).hexdigest().upper(),
-            "090B907886672D2F1F3B88CCD7636F55226DAC6E8D5B4C62BF84D63A6F19D34A",
+            "A583277854DE56B34C83D1603BA10D018D8400793AB4D692A1CA5FF7DB0A510C",
         )
         self.assertEqual(
             bytes.fromhex(

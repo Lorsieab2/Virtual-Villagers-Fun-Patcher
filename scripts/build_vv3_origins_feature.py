@@ -49,6 +49,17 @@ VILLAGE_PREFLIGHT_VA = IMAGE_BASE + VILLAGE_PREFLIGHT_FILE_OFFSET
 # immediately after the optional village-wide payload (0x7B820..0x7BD40).
 CHANGE_APPEARANCE_FILE_OFFSET = 0x7BD40
 CHANGE_APPEARANCE_VA = IMAGE_BASE + CHANGE_APPEARANCE_FILE_OFFSET
+
+# Complete/Reset all Collections action caves live in a free executable-.rdata
+# padding run at 0x9EE99..0x9EFA2 (the 0x24C section patch marks all of .rdata
+# executable).  The crowded .text tail (0x7B254..0x7B664) is fully consumed by
+# the other composed VV3 fun-patches' caves, so this .rdata run -- verified free
+# in both patch modes -- is used instead.  Each cave fills or clears the native
+# collectible count array at 0x58F428+0x10 and broadcasts the goal events.
+COLLECTIONS_COMPLETE_FILE_OFFSET = 0x9EEA0
+COLLECTIONS_COMPLETE_VA = IMAGE_BASE + COLLECTIONS_COMPLETE_FILE_OFFSET
+COLLECTIONS_RESET_FILE_OFFSET = 0x9EF30
+COLLECTIONS_RESET_VA = IMAGE_BASE + COLLECTIONS_RESET_FILE_OFFSET
 # Read-only strings for the cure and Change Appearance caves, placed in the
 # free .text padding after the Change Appearance cave (0x7BD40) and before the
 # .rdata boundary (0x7C000).
@@ -158,6 +169,14 @@ def main() -> None:
             "cure_nothing",
             "Everyone is at full health already. No villagers are sick. "
             "No tech points have been deducted.",
+        ),
+        (
+            "collections_completed",
+            "All four collections are now complete.",
+        ),
+        (
+            "collections_reset",
+            "All collections have been reset to empty.",
         ),
     ):
         s[name] = EXTRA_STRINGS_VA + len(extra_strings)
@@ -451,6 +470,11 @@ def main() -> None:
             je menu_done
             mov ebx, eax
 
+            cmp ebx, 9
+            je do_complete_collections
+            cmp ebx, 10
+            je do_reset_collections
+
             cmp ebx, 3
             jb preflight
             cmp ebx, 5
@@ -585,6 +609,14 @@ def main() -> None:
             call 0x418460
             add esp, 0x868
             jmp success
+
+        do_complete_collections:
+            call 0x{COLLECTIONS_COMPLETE_VA:X}
+            jmp menu_done
+
+        do_reset_collections:
+            call 0x{COLLECTIONS_RESET_VA:X}
+            jmp menu_done
 
         do_tech_doubler:
             or dword ptr [0x5824D0], 1
@@ -1188,6 +1220,84 @@ def main() -> None:
         CHANGE_APPEARANCE_VA,
     )
 
+    # Complete all Collections: mark collectible ids 52..99 found in the native
+    # count array [0x58F428 + 0x10 + id*4], then broadcast the collectible
+    # refresh (0x293) and the four collection-complete goal events plus the
+    # all-complete master event (0x2D0..0x2D4) on the event manager 0x594C40 via
+    # the stock notifier 0x436E60 (which self-gates against re-firing).
+    collections_complete_code = assemble(
+        f"""
+            cmp dword ptr [0x582644], 1000000
+            jb cc_insufficient
+            sub dword ptr [0x582644], 1000000
+            mov esi, 52
+        cc_loop:
+            cmp dword ptr [esi*4 + 0x58F438], 0
+            jne cc_next
+            mov dword ptr [esi*4 + 0x58F438], 1
+        cc_next:
+            inc esi
+            cmp esi, 100
+            jl cc_loop
+            push 0
+            push 0
+            push 0x293
+            mov ecx, 0x594C40
+            call 0x436E60
+            mov esi, 0x2D0
+        cc_goal:
+            push 0
+            push 0
+            push esi
+            mov ecx, 0x594C40
+            call 0x436E60
+            inc esi
+            cmp esi, 0x2D5
+            jl cc_goal
+            push 0x{s['collections_completed']:X}
+            push 0x{s['tech_title']:X}
+            call 0x{show_message:X}
+            ret
+        cc_insufficient:
+            push 0x{s['not_enough']:X}
+            push 0x{s['tech_title']:X}
+            call 0x{show_message:X}
+            ret
+        """,
+        COLLECTIONS_COMPLETE_VA,
+    )
+
+    # Reset all Collections: zero collectible ids 52..99 in the native count
+    # array and broadcast a refresh (0x293) so the Collections screen redraws.
+    collections_reset_code = assemble(
+        f"""
+            cmp dword ptr [0x582644], 1000000
+            jb rc_insufficient
+            sub dword ptr [0x582644], 1000000
+            mov esi, 52
+        rc_loop:
+            mov dword ptr [esi*4 + 0x58F438], 0
+            inc esi
+            cmp esi, 100
+            jl rc_loop
+            push 0
+            push 0
+            push 0x293
+            mov ecx, 0x594C40
+            call 0x436E60
+            push 0x{s['collections_reset']:X}
+            push 0x{s['tech_title']:X}
+            call 0x{show_message:X}
+            ret
+        rc_insufficient:
+            push 0x{s['not_enough']:X}
+            push 0x{s['tech_title']:X}
+            call 0x{show_message:X}
+            ret
+        """,
+        COLLECTIONS_RESET_VA,
+    )
+
     payload = code + strings
     if len(payload) > PAYLOAD_SIZE:
         raise RuntimeError(f"payload too large: {len(payload):#x}/{PAYLOAD_SIZE:#x}")
@@ -1215,6 +1325,18 @@ def main() -> None:
         b"\0" * len(change_appearance_code),
         change_appearance_code,
         "open the custom head/body appearance chooser for the selected villager",
+    )
+    patch(
+        COLLECTIONS_COMPLETE_FILE_OFFSET,
+        b"\0" * len(collections_complete_code),
+        collections_complete_code,
+        "fill every collectible and fire the collection-complete goal events",
+    )
+    patch(
+        COLLECTIONS_RESET_FILE_OFFSET,
+        b"\0" * len(collections_reset_code),
+        collections_reset_code,
+        "clear every collectible and refresh the Collections screen",
     )
     patch(
         EXTRA_STRINGS_FILE_OFFSET,
