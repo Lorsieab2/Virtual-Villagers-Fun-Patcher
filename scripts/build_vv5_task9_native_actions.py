@@ -219,6 +219,25 @@ def build_strings(page: bytearray, page_va: int) -> dict[str, int]:
         ("sdl", b"SDL2.dll\0"),
         ("flags", b"SDL_GetWindowFlags\0"),
     )
+    # Time Warp strings live in the stock layout only, so the expanded-256
+    # baseline string region stays byte-identical for its separate overlay.
+    time_warp_values = (
+        ("tw_get", b"GetOriginsOwner\0"),
+        ("tw_user32", b"USER32.dll\0"),
+        ("tw_messagebox", b"MessageBoxA\0"),
+        ("tw_title", b"Origins Upgrades\0"),
+        ("tw_warning", b"Time Warp will advance the village by three villager years for 50,000 tech points.\r\nPress OK to confirm, or Cancel.\0"),
+        ("tw_paused", b"Time Warp is unavailable while the game is paused.\r\nNo tech points have been deducted.\0"),
+        ("tw_insufficient", b"Not enough tech points.\r\nNo tech points have been deducted.\0"),
+        ("tw_cancelled", b"Time Warp was canceled.\r\nNo tech points have been deducted.\0"),
+        ("tw_recheck", b"The game speed, village clock, or tech-point balance changed during confirmation.\r\nNo tech points have been deducted.\0"),
+        ("tw_unavailable", b"Time Warp is unavailable.\r\nNo tech points have been deducted.\0"),
+        ("tw_success", b"Time Warp completed. The village advanced three villager years.\0"),
+        ("tw_charge_unknown", b"The final tech-point balance did not match the exact 50,000-point deduction. The charge outcome is unknown; the village clock was not changed.\0"),
+        ("tw_clock_unknown", b"The 50,000-point deduction was verified, but the village clock update could not be verified.\0"),
+    )
+    if page_va == 0x7C9000:
+        values = values + time_warp_values
     cursor = OFF["strings"]
     result: dict[str, int] = {}
     for name, value in values:
@@ -545,6 +564,18 @@ def status_call(page_va: int, action: str, status: int, a: str = "0", b: str = "
 
 
 def build_menus(page: bytearray, page_va: int) -> dict[str, bytes]:
+    # Time Warp is enabled only in the stock page layout (0x7C9000). The
+    # expanded-256 baseline (0x904000) is left byte-identical so the separate
+    # vv5_expanded_256_time_warp overlay continues to own Time Warp there.
+    native_tw = page_va == 0x7C9000
+    menu_state = 0x600 if native_tw else 0x700
+    tw_dispatch = "test ebx, ebx\n        jz time_warp_row\n        " if native_tw else ""
+    tw_row = (
+        f"time_warp_row:\n        call 0x{page_va + OFF['time_warp']:X}\n"
+        "        jmp done\n        nop\n        nop\n        nop\n    "
+        if native_tw
+        else ""
+    )
     tech = put(page, page_va, "tech_menu", f"""
         push ebp
         mov ebp, esp
@@ -552,7 +583,7 @@ def build_menus(page: bytearray, page_va: int) -> dict[str, bytes]:
         push esi
         push edi
     menu:
-        mov eax, 0x700
+        mov eax, 0x{menu_state:X}
         test dword ptr [0x51D388], 1
         jz tech_not_owned
         or eax, 8
@@ -579,7 +610,7 @@ def build_menus(page: bytearray, page_va: int) -> dict[str, bytes]:
         mov ebx, eax
         cmp ebx, 5
         ja done
-        cmp ebx, 3
+        {tw_dispatch}cmp ebx, 3
         jb unavailable
         cmp ebx, 5
         je heal
@@ -629,7 +660,7 @@ def build_menus(page: bytearray, page_va: int) -> dict[str, bytes]:
         nop
         nop
         nop
-    unavailable:
+    {tw_row}unavailable:
         {status_call(page_va, 'ebx', 10)}
         jmp done
         nop
@@ -1646,6 +1677,168 @@ def build_heal(page: bytearray, page_va: int) -> bytes:
     """)
 
 
+def build_time_warp(page: bytearray, page_va: int, s: dict[str, int]) -> bytes:
+    """Village-clock Time Warp: advance exactly three displayed villager years
+    at any speed for one verified 50,000 tech-point charge. Self-contained
+    (inline MessageBoxA via the page's existing import thunks); no companion
+    DLL change. Ported from the statically-reviewed dispatcher in
+    build_expanded_time_warp.py as a ret-terminated subroutine so tech_menu can
+    call it for command 0."""
+    return put(page, page_va, "time_warp", f"""
+        push ebp
+        mov ebp, esp
+        push ebx
+        push esi
+        push edi
+        sub esp, 0x50
+        mov dword ptr [ebp-0x10], 0
+        mov dword ptr [ebp-0x14], 0
+        push 0x{s['dll']:X}
+        call dword ptr [0x4951E0]
+        test eax, eax
+        jz unavailable
+        push 0x{s['tw_get']:X}
+        push eax
+        call dword ptr [0x4951DC]
+        test eax, eax
+        jz unavailable
+        mov dword ptr [ebp-0x10], eax
+        push 0x{s['tw_user32']:X}
+        call dword ptr [0x4951E0]
+        test eax, eax
+        jz unavailable
+        push 0x{s['tw_messagebox']:X}
+        push eax
+        call dword ptr [0x4951DC]
+        test eax, eax
+        jz unavailable
+        mov dword ptr [ebp-0x14], eax
+        call 0x425950
+        test eax, eax
+        jz unavailable
+        mov edi, eax
+        mov eax, dword ptr [edi+0x17D7C]
+        test eax, eax
+        jle unavailable
+        cmp eax, 999
+        je paused
+        mov dword ptr [ebp-0x1C], eax
+        mov dword ptr [ebp-0x18], edi
+        mov eax, dword ptr [0x51D5F8]
+        mov dword ptr [ebp-0x20], eax
+        cmp eax, 50000
+        jb insufficient
+        mov eax, dword ptr [0x4C6250]
+        mov dword ptr [ebp-0x24], eax
+        mov eax, dword ptr [0x4C6254]
+        mov dword ptr [ebp-0x28], eax
+        mov eax, 0x{s['tw_warning']:X}
+        mov edx, 1
+        call show_message
+        cmp eax, 1
+        jne cancelled
+        call 0x425950
+        cmp eax, dword ptr [ebp-0x18]
+        jne recheck
+        mov edi, eax
+        mov eax, dword ptr [edi+0x17D7C]
+        test eax, eax
+        jle recheck
+        cmp eax, 999
+        je recheck
+        cmp eax, dword ptr [ebp-0x1C]
+        jne recheck
+        mov eax, dword ptr [0x51D5F8]
+        cmp eax, dword ptr [ebp-0x20]
+        jne recheck
+        cmp eax, 50000
+        jb insufficient
+        mov eax, dword ptr [0x4C6250]
+        cmp eax, dword ptr [ebp-0x24]
+        jne recheck
+        mov eax, dword ptr [0x4C6254]
+        cmp eax, dword ptr [ebp-0x28]
+        jne recheck
+        push -50000
+        mov ecx, 0x51D5F8
+        call 0x4237B0
+        mov eax, dword ptr [ebp-0x20]
+        sub eax, 50000
+        mov dword ptr [ebp-0x2C], eax
+        cmp dword ptr [0x51D5F8], eax
+        jne charge_unknown
+        mov eax, 129600
+        xor edx, edx
+        div dword ptr [ebp-0x1C]
+        mov dword ptr [ebp-0x30], eax
+        mov ecx, dword ptr [ebp-0x24]
+        mov edx, dword ptr [ebp-0x28]
+        sub ecx, eax
+        sbb edx, 0
+        mov dword ptr [ebp-0x34], ecx
+        mov dword ptr [ebp-0x38], edx
+        sub dword ptr [0x4C6250], eax
+        sbb dword ptr [0x4C6254], 0
+        cmp dword ptr [0x4C6250], ecx
+        jne clock_unknown
+        cmp dword ptr [0x4C6254], edx
+        jne clock_unknown
+        mov eax, 0x{s['tw_success']:X}
+        mov edx, 0x40
+        call show_message
+        jmp done
+    paused:
+        mov eax, 0x{s['tw_paused']:X}
+        jmp warning_status
+    insufficient:
+        mov eax, 0x{s['tw_insufficient']:X}
+        jmp warning_status
+    cancelled:
+        mov eax, 0x{s['tw_cancelled']:X}
+        jmp warning_status
+    recheck:
+        mov eax, 0x{s['tw_recheck']:X}
+        jmp warning_status
+    unavailable:
+        mov eax, 0x{s['tw_unavailable']:X}
+        jmp warning_status
+    charge_unknown:
+        mov eax, 0x{s['tw_charge_unknown']:X}
+        jmp warning_status
+    clock_unknown:
+        mov eax, 0x{s['tw_clock_unknown']:X}
+    warning_status:
+        mov edx, 0x30
+        call show_message
+    done:
+        add esp, 0x50
+        pop edi
+        pop esi
+        pop ebx
+        pop ebp
+        ret
+    show_message:
+        mov dword ptr [ebp-0x3C], eax
+        mov dword ptr [ebp-0x40], edx
+        cmp dword ptr [ebp-0x10], 0
+        je message_unavailable
+        cmp dword ptr [ebp-0x14], 0
+        je message_unavailable
+        call dword ptr [ebp-0x10]
+        test eax, eax
+        jz message_unavailable
+        push dword ptr [ebp-0x40]
+        push 0x{s['tw_title']:X}
+        push dword ptr [ebp-0x3C]
+        push eax
+        call dword ptr [ebp-0x14]
+        ret
+    message_unavailable:
+        xor eax, eax
+        ret
+    """)
+
+
 def build_page(page_va: int) -> tuple[bytes, dict[str, object]]:
     page = bytearray(PAGE_SIZE)
     page[0:8] = b"VVT9PG\0\0"
@@ -1663,6 +1856,10 @@ def build_page(page_va: int) -> tuple[bytes, dict[str, object]]:
     routines["mastery"] = build_mastery(page, page_va)
     routines["running"] = build_running(page, page_va)
     routines["heal"] = build_heal(page, page_va)
+    if page_va == 0x7C9000:
+        # Stock layout only; the expanded baseline keeps its empty reserve for
+        # the separate vv5_expanded_256_time_warp overlay.
+        routines["time_warp"] = build_time_warp(page, page_va, strings)
     result = {
         "page_sha256": sha(bytes(page)),
         "routine_sha256": {name: sha(value) for name, value in routines.items()},
@@ -1815,7 +2012,7 @@ def main() -> None:
         "schema": "vvfp.vv5_task9_native_actions.v1",
         "id": "vv5_enable_origins_exclusive_features",
         "name": "Enable Origins-Exclusive Features (Task9 native actions)",
-        "description": "Adds Origins-style upgrade menus to Tech and Villager Details. The menus offer Full Mastery, Running, Make Villagers Young Adults, and Full Heal/Cure All for Believers; Heathens are skipped. Time Warp, Island Event, and Barrel of Babies remain unavailable.",
+        "description": "Adds Origins-style upgrade menus to Tech and Villager Details. The menus offer Full Mastery, Running, Make Villagers Young Adults, and Full Heal/Cure All for Believers; Heathens are skipped. Time Warp advances the village by three displayed villager years (speed-independent) for a single 50,000 tech-point charge. Island Event and Barrel of Babies remain unavailable.",
         "enabled": True,
         "catalog_hidden": False,
         "catalog_enabled": True,
@@ -1842,6 +2039,7 @@ def main() -> None:
                 "age18": {"price": 50000, "target": 360, "writer": "0x46F7F0 ECX=record+0x1B8C signed delta", "companions": ["+0x1C3C same delta", "+0x1C4C same delta only when nonzero"]},
                 "full_mastery": {"price": 100000, "fields": ["0x1C5C", "0x1C60", "0x1C64", "0x1C68", "0x1C6C", "0x1C70"], "writer": "0x475730 ECX=record+0x1C5C push Float32 delta then push index", "target_bits": "0x42C80000"},
                 "running": {"price": 40000, "preference_id": 38, "likes": ["0x1F5C", "0x1F60", "0x1F64"], "dislikes": ["0x1F68", "0x1F6C", "0x1F70"], "native": {"membership": "0x464F90", "insertion": "0x464AD0", "first_removal": "0x4649E0"}},
+                "time_warp": {"price": 50000, "scope": "village clock (not a per-record write; faction-blind like normal time passing)", "speed": "[manager+0x17D7C] signed positive and not 999 (paused)", "delta": "129600 / speed subtracted from the 64-bit village clock 0x4C6250/0x4C6254", "effect": "advances exactly three displayed villager years regardless of listed game speed", "writer": "inline: verify snapshot, charge -50000 via 0x4237B0, div 129600 by speed, sub/sbb into clock, postverify", "dialog": "self-contained MessageBoxA (no companion DLL change)"},
                 "full_heal": {"price": 30000, "health_rule": "every eligible Believer with health < 100 is raised to exactly 100; health already at 100 is unchanged and uncounted", "health_writer": "0x4758B0 ECX=record+0x1C34 push -1 then push 100", "sickness": "+0x1C48 byte", "masked_heathen_policy": "skip before sickness/type reads; includes the sick Heathen puzzle record", "unsupported_type": "+0x1CFC == 12 when sick on an otherwise eligible Believer", "people_cured": "0x51D368", "statistic_writer": "0x413450 ECX=0x4DB358 IDs 52/53/54 amount 1"},
             },
         },

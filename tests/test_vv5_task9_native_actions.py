@@ -96,7 +96,13 @@ class Task9ArtifactTests(unittest.TestCase):
         sys.path.insert(0, str(ROOT / ".tools" / "capstone"))
         from capstone import CS_ARCH_X86, CS_MODE_32, Cs
 
-        expected_offsets = [0xB6, 0x118, 0x122, 0x133, 0x144, 0x155, 0x166]
+        # The stock layout (0x7C9000) enables Time Warp as command 0, adding an
+        # eighth result path (time_warp_row) and shifting the offsets/`done`
+        # target; the expanded-256 baseline keeps the original seven paths.
+        stock_offsets = [0xBE, 0x120, 0x12A, 0x134, 0x145, 0x156, 0x167, 0x178]
+        stock_done = 0x9BD
+        expanded_offsets = [0xB6, 0x118, 0x122, 0x133, 0x144, 0x155, 0x166]
+        expanded_done = 0x9AB
         for mode, layout in builder.LAYOUTS.items():
             page, page_map = builder.build_page(layout["page_va"])
             start = builder.OFF["tech_menu"]
@@ -111,10 +117,13 @@ class Task9ArtifactTests(unittest.TestCase):
                 for item in instructions
                 if item.mnemonic == "jmp"
             }
+            native_time_warp = layout["page_va"] == 0x7C9000
+            expected_offsets = stock_offsets if native_time_warp else expanded_offsets
+            done_target = stock_done if native_time_warp else expanded_done
             with self.subTest(mode=mode):
                 self.assertEqual(
                     [jumps[offset] for offset in expected_offsets],
-                    [layout["page_va"] + 0x9AB] * 7,
+                    [layout["page_va"] + done_target] * len(expected_offsets),
                 )
 
     def test_resource_geometry_and_constructor_manager_abi_are_exact(self) -> None:

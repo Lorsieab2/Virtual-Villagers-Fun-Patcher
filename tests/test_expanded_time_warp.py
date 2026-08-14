@@ -161,7 +161,7 @@ class ExpandedTimeWarpArtifactTests(unittest.TestCase):
         task9 = builder.load_task9_builder()
         stock, stock_map = task9.build_page(0x7C9000)
         expanded, expanded_map = task9.build_page(0x904000)
-        self.assertEqual(digest(stock), "D22947171E35BC7F9E119296B9243A429DC5F7DF1A3D03CD8453D8CAF3AA5AAD")
+        self.assertEqual(digest(stock), "B5B8E6CBB5013F6BAAB1F82FEB014206EA426135A6F25B36BCEE0D1CC073E6AD")
         self.assertEqual(digest(expanded), "ECC195DAB3B4B700A486902D6FE3CAA07F003A20B324903ADE5A81D265D154B9")
         self.assertEqual(task9.SIZES["age"], 0x300)
         self.assertEqual(task9.OFF["time_warp"], 0x1040)
@@ -172,7 +172,10 @@ class ExpandedTimeWarpArtifactTests(unittest.TestCase):
             self.task9["pe_append_transaction"]["layouts"]["collection_progression"]["append_bytes"]
         )
         self.assertEqual(manifest_stock, stock)
-        self.assertFalse(any(stock[0x1040:0x1540]))
+        # Stock now installs native Time Warp in its reserve; the expanded-256
+        # baseline keeps an empty reserve for the separate overlay.
+        self.assertTrue(any(stock[0x1040:0x1540]))
+        self.assertFalse(any(expanded[0x1040:0x1540]))
 
     def test_vv5_exact_dispatch_targets_and_row5_preservation(self) -> None:
         task9 = builder.load_task9_builder()
@@ -275,8 +278,8 @@ class ExpandedTimeWarpRendererTests(unittest.TestCase):
                 "immediate_fixed": "EB0CDD4F7F5E41F7A03734D51F9417A126C3BE9D214B484A848DB688545CF5FB",
             },
             "vv5": {
-                "collection_progression": "DF7760B0E52A2D8A73084A997B1CAFA5D38966E10C535E358D2AC4C7880381BC",
-                "immediate_fixed": "6A8D8333A3E7ADF6F16584CB6B43D5B87FB875BECDD6358CE044A173F5270014",
+                "collection_progression": "B406680FFC57380349AEC9D05D521E90E3B8AEA9B98E48151D0BA3D821CE629F",
+                "immediate_fixed": "4E8B3E389C4DD37E505004FC465E21C93E123B123DE5549A257708EF3A87CFDC",
             },
         }
         for game_id in ("vv4", "vv5"):
