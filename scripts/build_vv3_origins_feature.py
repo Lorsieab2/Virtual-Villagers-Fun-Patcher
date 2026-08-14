@@ -115,6 +115,7 @@ def main() -> None:
         ("running_unavailable", "Running cannot be added."),
         ("icons_dll", "VVFP Origins Icons.dll"),
         ("show_dialog_export", "ShowOriginsUpgradeMenuState"),
+        ("appearance_export", "ShowVV3AppearanceChooser"),
         ("show_result_export", "ShowOriginsVillageWideResult"),
         ("user32_dll", "USER32.dll"),
         ("message_box_export", "MessageBoxA"),
@@ -1112,22 +1113,49 @@ def main() -> None:
         NATIVE_TECH_TAIL_VA,
     )
 
-    # Change Appearance action cave.  Replicates the stock Clothing-Hut arm
-    # (sub_4227F0 at 0x4228AE..0x4228B9) verbatim: it stores the selected
-    # villager's slot/ID field (+0xEDC) into the manager's pending-chooser slot
-    # (+0x12FB0), where the manager comes from the global getter 0x428B60 with
-    # NO slot offset.  On the next frame the detail-screen update loop
-    # (sub_4684D0) validates that slot (sub_45EE60), constructs and shows the
-    # appearance chooser for that villager in the correct render context, then
-    # clears it.  edx holds the validated selected villager record on entry;
-    # ebx preserves the +0xEDC value across the manager-getter call.  The
-    # 5,000-tech charge was already applied by detail_charge above.
+    # Change Appearance action cave.  Opens the companion DLL's custom
+    # head+body chooser (ShowVV3AppearanceChooser) for the selected villager
+    # and, on OK, writes the chosen head (+0xDF0) and body (+0xDF4).  The DLL
+    # only previews the extracted atlas strips and returns the chosen indices;
+    # this cave owns the record writes.  edx = the validated selected record on
+    # entry; head/body are staged in two stack locals passed by pointer.  The
+    # 5,000-tech charge was applied by detail_charge above; Cancel/close leaves
+    # the record unchanged.
     change_appearance_code = assemble(
-        """
+        f"""
             push ebx
-            mov ebx, dword ptr [edx + 0xEDC]
-            call 0x428B60
-            mov dword ptr [eax + 0x12FB0], ebx
+            push esi
+            mov esi, edx
+            sub esp, 8
+            mov eax, dword ptr [esi + 0xDF0]
+            mov dword ptr [esp], eax
+            mov eax, dword ptr [esi + 0xDF4]
+            mov dword ptr [esp + 4], eax
+            push 0x{s['icons_dll']:X}
+            call dword ptr [0x47C124]
+            test eax, eax
+            je ca_done
+            push 0x{s['appearance_export']:X}
+            push eax
+            call dword ptr [0x47C128]
+            test eax, eax
+            je ca_done
+            lea ecx, [esp + 4]
+            lea edx, [esp]
+            push ecx
+            push edx
+            push dword ptr [esi + 0xDC4]
+            push dword ptr [esi + 0xDC8]
+            call eax
+            test eax, eax
+            je ca_done
+            mov eax, dword ptr [esp]
+            mov dword ptr [esi + 0xDF0], eax
+            mov eax, dword ptr [esp + 4]
+            mov dword ptr [esi + 0xDF4], eax
+        ca_done:
+            add esp, 8
+            pop esi
             pop ebx
             ret
         """,
