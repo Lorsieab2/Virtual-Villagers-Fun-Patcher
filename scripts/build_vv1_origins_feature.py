@@ -128,25 +128,6 @@ def main() -> None:
     add_c_string(strings, s, "detail_button_label", "Upgrades")
     add_c_string(strings, s, "title", "Origins Upgrades")
     add_c_string(strings, s, "detail_title", "Villager Upgrades")
-    add_c_string(
-        strings,
-        s,
-        "menu_format",
-        "%s\n%i tech\n\nYes: Buy  No: Next  Cancel: Close",
-    )
-    for name, text in (
-        ("name_time_warp", "Time Warp"),
-        ("name_island_event", "Island Event"),
-        ("name_barrel", "Barrel of Babies"),
-        ("name_youth", "Grant Youth"),
-        ("name_mastery", "Grant Full Mastery"),
-        ("name_running", "Grant Running"),
-        ("name_age_18", "Set Age to 18"),
-        ("name_tech_doubler", "Tech Point Doubler"),
-        ("name_food_doubler", "Food Point Doubler"),
-        ("name_cure_all", "Cure all Villagers"),
-    ):
-        add_c_string(strings, s, name, text)
     add_c_string(strings, s, "purchase_complete", "Purchased.")
     add_c_string(strings, s, "removed", "Removed.")
     add_c_string(strings, s, "not_enough", "Not enough tech points.")
@@ -175,33 +156,29 @@ def main() -> None:
     add_c_string(strings, s, "show_icon_dialog_legacy", "ShowOriginsUpgradeMenu")
     add_c_string(strings, s, "show_result_export", "ShowOriginsVillageWideResult")
     add_c_string(strings, s, "show_appearance_picker", "ShowOriginsAppearancePicker")
+    add_c_string(strings, s, "show_cure_result", "ShowOriginsCureResult")
+    add_c_string(
+        strings,
+        s,
+        "cure_no_change",
+        "Everyone is at full health already. No villagers are sick. "
+        "No tech points have been deducted.",
+    )
 
-    tech_names = [
-        s["name_time_warp"],
-        s["name_island_event"],
-        s["name_barrel"],
-        s["name_tech_doubler"],
-        s["name_food_doubler"],
-        s["name_cure_all"],
-    ]
+    # tech_cost_table/detail_cost_table are the only tables the charge
+    # logic actually reads (legacy_charge indexes tech_cost_table by row;
+    # cure_gated below indexes it directly for row 5's cost). A prior
+    # per-row name table/format string pair was built here too, but
+    # nothing ever read it -- every row's player-visible label always
+    # came from the .rc dialog's own hardcoded LTEXT, never from these
+    # strings -- so it was dead weight taking up this block's tight
+    # budget; removed rather than kept "just in case".
     tech_costs = [50000, 30000, 75000, 500000, 500000, 30000]
-    detail_names = [
-        s["name_youth"],
-        s["name_mastery"],
-        s["name_running"],
-        s["name_age_18"],
-    ]
     detail_costs = [50000, 100000, 40000, 50000]
     while len(strings) % 4:
         strings.append(0)
-    s["tech_name_table"] = STRINGS_VA + len(strings)
-    for value in tech_names:
-        strings.extend(value.to_bytes(4, "little"))
     s["tech_cost_table"] = STRINGS_VA + len(strings)
     for value in tech_costs:
-        strings.extend(value.to_bytes(4, "little"))
-    s["detail_name_table"] = STRINGS_VA + len(strings)
-    for value in detail_names:
         strings.extend(value.to_bytes(4, "little"))
     s["detail_cost_table"] = STRINGS_VA + len(strings)
     for value in detail_costs:
@@ -354,6 +331,8 @@ def main() -> None:
             cmp dword ptr [eax + 0xAD4C], 0
             jne remove_doubler
         charge:
+            cmp ebx, 5
+            je cure_gated
             cmp ebx, 6
             jb legacy_charge
             cmp ebx, 8
@@ -365,6 +344,21 @@ def main() -> None:
             jb insufficient
             sub dword ptr [edi + 0xA2FC], 1000000
             jmp do_village_wide
+        cure_gated:
+            # Unlike every other row, Cure's own tech-point deduction is
+            # not unconditional here: whether anything was actually sick
+            # or below full health is only known after the helper below
+            # scans the village, so the helper itself owns the charge
+            # (only once it knows there is something to charge for) and
+            # its own two-outcome messaging instead of this generic
+            # charge-then-act path. Only the ordinary "can't even afford
+            # it" gate stays here, matching every other row's own
+            # insufficient-funds check before it ever runs anything.
+            mov eax, dword ptr [0x{s['tech_cost_table']:X} + 5*4]
+            cmp dword ptr [edi + 0xA2FC], eax
+            jb insufficient
+            call 0x{HEAL_CAVE_VA:X}
+            jmp menu_done
         legacy_charge:
             mov eax, dword ptr [0x{s['tech_cost_table']:X} + ebx*4]
             cmp dword ptr [edi + 0xA2FC], eax
@@ -381,8 +375,6 @@ def main() -> None:
             je do_tech_doubler
             cmp ebx, 4
             je do_food_doubler
-            cmp ebx, 5
-            je do_cure
             cmp ebx, 8
             ja menu_loop
             jmp do_village_wide
@@ -420,9 +412,6 @@ def main() -> None:
         do_tech_doubler:
             mov dword ptr [edi + 0xAD48], 1
             jmp success
-        do_cure:
-            call 0x{HEAL_CAVE_VA:X}
-            jmp menu_done
         do_village_wide:
             call 0x{HEAL_CAVE_VA:X}
             jmp menu_done
@@ -834,6 +823,15 @@ def main() -> None:
             pop ebx
             ret
         cure_all:
+            # Full Heal/Cure All Villagers: unlike the old Cure, health is
+            # now restored to full (100) for anyone below it, not just
+            # anyone below 80 -- and unlike every other row, this helper
+            # (not the generic dispatch that called it) owns the charge,
+            # since whether there is anything to charge for is only known
+            # after this scan. eax tracks how many villagers had sickness
+            # cleared, ebp tracks how many had health restored; the two
+            # are reported and charged for separately, and if both are
+            # zero nothing is charged at all.
             push ebx
             push ebp
             push ecx
@@ -841,18 +839,20 @@ def main() -> None:
             push esi
             push edi
             xor eax, eax
+            xor ebp, ebp
             mov edx, dword ptr [edi + 0xADE8]
             test edx, edx
-            je cure_format
+            je cure_check_result
             mov ecx, 256
         cure_loop:
             cmp byte ptr [edx + 0x28], 0
             je cure_next
             cmp dword ptr [edx + 0x344], 0
             jle cure_next
-            cmp dword ptr [edx + 0x344], 80
+            cmp dword ptr [edx + 0x344], 100
             jge cure_health_done
             mov dword ptr [edx + 0x344], 100
+            inc ebp
         cure_health_done:
             cmp byte ptr [edx + 0x354], 0
             je cure_next
@@ -863,50 +863,34 @@ def main() -> None:
             add edx, 0x3D8
             dec ecx
             jne cure_loop
-        cure_format:
-            mov ebp, eax
-            sub esp, 40
-            mov dword ptr [esp], 0x65727543
-            mov word ptr [esp + 4], 0x2064
-            lea edi, [esp + 6]
-            test ebp, ebp
-            jnz cure_digits
-            mov byte ptr [edi], 0x30
-            inc edi
-            jmp cure_suffix
-        cure_digits:
-            lea esi, [esp + 30]
-            mov eax, ebp
-            mov ebx, 10
-            xor ecx, ecx
-        cure_digit_loop:
-            xor edx, edx
-            div ebx
-            add dl, 0x30
-            dec esi
-            mov byte ptr [esi], dl
-            inc ecx
-            test eax, eax
-            jne cure_digit_loop
-        cure_copy_loop:
-            mov dl, byte ptr [esi]
-            mov byte ptr [edi], dl
-            inc esi
-            inc edi
-            dec ecx
-            jne cure_copy_loop
-        cure_suffix:
-            mov byte ptr [edi], 0x20
-            mov dword ptr [edi + 1], 0x6C6C6976
-            mov dword ptr [edi + 5], 0x72656761
-            mov word ptr [edi + 9], 0x0073
-            lea eax, [esp]
+        cure_check_result:
+            mov ecx, eax
+            or ecx, ebp
+            jne cure_resolve
+            mov eax, 0x{s['cure_no_change']:X}
             push 0
             push 0x{s['title']:X}
             push eax
             call 0x452DB6
             add esp, 0x0C
-            add esp, 40
+            jmp cure_done
+        cure_resolve:
+            mov ebx, eax
+            mov esi, ebp
+            push 0x{s['icons_dll']:X}
+            call dword ptr [0x457010]
+            test eax, eax
+            je cure_done
+            push 0x{s['show_cure_result']:X}
+            push eax
+            call dword ptr [0x4570D4]
+            test eax, eax
+            je cure_done
+            sub dword ptr [edi + 0xA2FC], 30000
+            push esi
+            push ebx
+            call eax
+        cure_done:
             pop edi
             pop esi
             pop edx
@@ -1059,7 +1043,7 @@ def main() -> None:
         CURE_ENTRY_FILE_OFFSET,
         b"\0" * len(cure_code),
         cure_code,
-        "restore active living VV1 villagers below 80 health to 100, clear sickness, and increment People Cured when sickness is removed",
+        "Full Heal/Cure All Villagers: restore every active living VV1 villager below 100 health to 100 and clear sickness, reporting each count separately and charging 30,000 tech points only if at least one villager actually needed either; charges and deducts nothing when nobody did",
     )
     patch(
         VILLAGE_PREFLIGHT_FILE_OFFSET,

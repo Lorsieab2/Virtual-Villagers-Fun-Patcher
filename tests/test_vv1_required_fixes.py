@@ -42,14 +42,42 @@ class VV1RequiredFixTests(unittest.TestCase):
             self.assertIn(f"mov dword ptr [edx + {offset}], 100", mastery)
         self.assertNotIn("90", mastery)
 
-    def test_vv1_cure_all_restores_partial_health_and_clears_sickness(self) -> None:
+    def test_vv1_cure_all_restores_full_health_and_clears_sickness(self) -> None:
+        """Full Heal/Cure All Villagers: health is restored to 100 for
+        anyone below 100 (not the old below-80 threshold), sickness is
+        cleared, and the two counts are tracked in separate registers
+        (eax = sick cured, ebp = healed) rather than one combined count,
+        since the row must report and gate its charge on them
+        separately.
+        """
         source = (ROOT / "scripts" / "build_vv1_origins_feature.py").read_text(
             encoding="utf-8"
         )
         cure = source.split("cure_all:", 1)[1].split("cure_done:", 1)[0]
-        self.assertIn("cmp dword ptr [edx + 0x344], 80", cure)
+        self.assertNotIn("cmp dword ptr [edx + 0x344], 80", cure)
+        self.assertIn("cmp dword ptr [edx + 0x344], 100", cure)
         self.assertIn("mov dword ptr [edx + 0x344], 100", cure)
+        self.assertIn("inc ebp", cure)
         self.assertIn("mov byte ptr [edx + 0x354], 0", cure)
+        self.assertIn("inc eax", cure)
+
+        # The charge only happens once we already know something changed
+        # (the "or ecx, ebp" / "jne cure_resolve" gate), and only after
+        # the result DLL export actually resolves -- not unconditionally
+        # like every other Tech-screen row.
+        gate = cure.split("cure_check_result:", 1)[1]
+        self.assertIn("or ecx, ebp", gate)
+        self.assertIn("jne cure_resolve", gate)
+        no_change = gate.split("cure_resolve:", 1)[0]
+        self.assertIn("cure_no_change", no_change)
+        self.assertNotIn("0xA2FC", no_change)
+        resolve = gate.split("cure_resolve:", 1)[1]
+        self.assertLess(
+            resolve.index("sub dword ptr [edi + 0xA2FC], 30000"),
+            resolve.index("call eax"),
+            "charge must land before the result message is shown, only "
+            "after the DLL export resolved",
+        )
 
     def test_vv1_origins_maps_shr_and_defers_barrel_event(self) -> None:
         source = (ROOT / "scripts" / "build_vv1_origins_feature.py").read_text(

@@ -388,6 +388,31 @@ __declspec(dllexport) int __stdcall ShowOriginsUpgradeMenu(
     return show_upgrade_menu(villager_menu, dialog_state);
 }
 
+/* Full Heal/Cure All Villagers: the .shr helper only calls this once it
+   already knows at least one villager was sick or below full health (and
+   has already charged for it), so this never needs its own "nothing
+   happened" branch -- that message is a plain string shown directly by
+   the helper without ever resolving this export. */
+__declspec(dllexport) int __stdcall ShowOriginsCureResult(
+    int sick_cured,
+    int healed_restored
+) {
+    char message[128];
+    wsprintfA(
+        message,
+        "Cured sickness from %d villagers.\r\nRestored %d villagers to full health.",
+        sick_cured,
+        healed_restored
+    );
+    MessageBoxA(
+        GetForegroundWindow(),
+        message,
+        "Origins Upgrades",
+        MB_OK | MB_ICONINFORMATION
+    );
+    return 0;
+}
+
 __declspec(dllexport) int __stdcall ShowOriginsVillageWideResult(
     int command,
     int full_like_skipped,
