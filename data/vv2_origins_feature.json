@@ -11,13 +11,13 @@
     "entry_name": "running"
   },
   "name": "Enable Origins-Exclusive Features",
-  "description": "Adds Origins-style Upgrades buttons to the Tech and Villager Details screens. The Tech menu offers Food and Tech Point Doublers for 500,000 tech points each; eligible positive gains are doubled, while Island Events, Duplicate Collectibles, and Gong of Wonder tech gains remain unchanged. The Village-Wide menu adds Running, Full Mastery, and Make Villagers Young Adults.",
+  "description": "Adds Origins-style Upgrades buttons to the Tech and Villager Details screens. The Tech menu offers Time Warp, Island Event, Barrel of Babies, Tech and Food Point Doublers, and Cure All Villagers; eligible positive gains are doubled, while Island Events, Duplicate Collectibles, and Gong of Wonder tech gains remain unchanged. The Villager Details menu grants Youth, Full Mastery, Running, and Set Age to 18 to the selected villager.",
   "output_tag": "Origins Exclusive Features",
   "companion_files": [
     {
       "source": "assets/origins/VVFP VV2 Origins Icons.dll",
       "destination": "VVFP VV2 Origins Icons.dll",
-      "sha256": "B12BF47070E5DC2086E28E607C275A8B16DB89278F37E07655C120DAB926D9B8"
+      "sha256": "03552828BB9CF8A596264D6C5B0769C354D294320614931B9BAC8FCFAECF5E9A"
     }
   ],
   "doubler_evidence": {
