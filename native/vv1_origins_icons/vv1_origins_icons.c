@@ -73,21 +73,23 @@ static INT_PTR CALLBACK upgrade_dialog(
             ShowWindow(GetDlgItem(window, ID_CHECK_FIRST + row), SW_HIDE);
         }
         for (row = 0; row < row_count; ++row) {
-            if ((lparam & (1 << row)) != 0) {
+            /* Every upgrade stays visible and buyable.  The game re-checks the
+               selected villager / village state at run time when a row is
+               clicked and no-ops with a message (and no charge) when there is
+               nothing to do, so no row is ever hidden or disabled here.  The
+               checkmark glyph is purely informational: it marks a row whose
+               target state is already satisfied. */
+            int satisfied = (lparam & (1 << row)) != 0;
+            if (satisfied) {
                 ShowWindow(GetDlgItem(window, ID_CHECK_FIRST + row), SW_SHOW);
-                if (villager_menu) {
-                    SetDlgItemTextA(window, ID_BUY_FIRST + row, "Done");
-                    EnableWindow(GetDlgItem(window, ID_BUY_FIRST + row), FALSE);
-                } else if (village_wide_buy && row >= 6) {
-                    SetDlgItemTextA(window, ID_BUY_FIRST + row, "Buy");
-                    EnableWindow(GetDlgItem(window, ID_BUY_FIRST + row), TRUE);
-                } else {
-                    SetDlgItemTextA(window, ID_BUY_FIRST + row, "Remove");
-                }
-            } else if ((lparam & (1 << (8 + row))) != 0) {
-                SetDlgItemTextA(window, ID_BUY_FIRST + row, "Unavailable");
-                EnableWindow(GetDlgItem(window, ID_BUY_FIRST + row), FALSE);
             }
+            if (!villager_menu && satisfied && !(village_wide_buy && row >= 6)) {
+                /* Owned Tech/Food Doubler: offer the removal toggle. */
+                SetDlgItemTextA(window, ID_BUY_FIRST + row, "Remove");
+            } else {
+                SetDlgItemTextA(window, ID_BUY_FIRST + row, "Buy");
+            }
+            EnableWindow(GetDlgItem(window, ID_BUY_FIRST + row), TRUE);
         }
         return TRUE;
     } else if (message == WM_COMMAND) {
