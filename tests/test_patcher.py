@@ -275,6 +275,7 @@ class ManifestTests(unittest.TestCase):
             (ROOT / "data" / "vv2_origins_feature.json").read_text(encoding="utf-8")
         )
         rows = {int(row["offset"], 0): row for row in manifest["patches"]}
+        # 22 base transaction patches + the Change Appearance helper at 0x9AD20.
         self.assertEqual(len(rows), 23)
         self.assertIn("dry-scan all 256", rows[0x9A300]["purpose"])
         self.assertIn("selected active record", rows[0x9A380]["purpose"])
@@ -868,32 +869,32 @@ class ManifestTests(unittest.TestCase):
         self.assertIn("resource", readiness)
         self.assertIn("STOP", readiness)
 
-    def test_origins_tech_dialog_omits_broken_whole_village_rows(self) -> None:
-        # The three whole-village Tech-screen rows (Like Running, Grant Full
-        # Mastery to All Villagers, All Villagers are 18) read the villager
-        # array from the Detail-screen slot [esi+0x10], which is not the
-        # villager array in the Tech-screen context, so they scanned nothing
-        # and reported "No changes were needed."  They were removed from the
-        # Origins Upgrades dialog; the per-villager Details upgrades remain.
+    def test_origins_dialog_has_optional_village_wide_rows(self) -> None:
+        source = (ROOT / "native/vv1_origins_icons/vv1_origins_icons.c").read_text(
+            encoding="utf-8"
+        )
         resource = (ROOT / "native/vv1_origins_icons/vv1_origins_icons.rc").read_text(
             encoding="utf-8"
         )
+        self.assertIn("STATE_VILLAGE_WIDE = 0x20000", source)
+        self.assertIn("((lparam & STATE_VILLAGE_WIDE) != 0 ? 9 : 6)", source)
+        self.assertIn("ID_BUY_LAST = 1008", source)
         for label in (
             "All Villagers Like Running",
             "Grant Full Mastery to All Villagers",
             "All Villagers are 18",
         ):
-            self.assertNotIn(label, resource)
-        self.assertEqual(resource.count("1,000,000 tech points"), 0)
-        self.assertNotIn('PUSHBUTTON  "Buy", 1006', resource)
-        self.assertNotIn('PUSHBUTTON  "Buy", 1007', resource)
-        self.assertNotIn('PUSHBUTTON  "Buy", 1008', resource)
+            self.assertIn(label, resource)
+        self.assertEqual(resource.count("1,000,000 tech points"), 3)
+        self.assertIn('PUSHBUTTON  "Buy", 1006', resource)
+        self.assertIn('PUSHBUTTON  "Buy", 1007', resource)
+        self.assertIn('PUSHBUTTON  "Buy", 1008', resource)
 
     def test_village_wide_mastery_label_is_consistent_and_legacy_label_is_absent(self) -> None:
-        # The Origins Upgrades dialog resource no longer carries the whole-
-        # village rows (removed as failing), so it is not checked here; the
-        # village-wide composable data and docs keep the consistent label.
         user_facing = [
+            ROOT / "native/vv1_origins_icons/vv1_origins_icons.rc",
+            ROOT / "README.md",
+            ROOT / "How to Use.txt",
             ROOT / "docs/origins-village-wide-upgrades.md",
             ROOT / "docs/origins-player-runtime-checklist.md",
             ROOT / "docs/transparency-log.md",

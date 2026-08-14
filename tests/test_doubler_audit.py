@@ -303,11 +303,11 @@ class DoublerAuditDocumentationTests(unittest.TestCase):
             hashlib.sha256(
                 json.dumps(runtime, sort_keys=True, separators=(",", ":")).encode()
             ).hexdigest().upper(),
-            "8D104A57349666EB73BCA69739E068377483ABA740036CA31C5673176944DC5D",
+            "D61A59C032898D0AEE9AAA47236C6CA49DFEDA78CD09673B9EC38C146FE27B6A",
         )
         self.assertEqual(
             manifest["companion_files"][0]["sha256"],
-            "FCE6E7D3EDEE4CACF628D302669BA23E09278D42666543A915938F0F8DEA3719",
+            "917C8DB2718A9E45BDC93EE203411B694BCD1FDFC833189A55186DC0010D090A",
         )
         self.assertEqual(inventory["e9_tail_jumps_to_writers"], 0)
 

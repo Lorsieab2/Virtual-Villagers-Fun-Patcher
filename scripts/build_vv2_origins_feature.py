@@ -178,7 +178,7 @@ def main() -> None:
             "No changes were needed. No tech points have been deducted.",
         ),
         ("icons_dll", "VVFP VV2 Origins Icons.dll"),
-        ("show_dialog_export", "ShowOriginsUpgradeMenuState"),
+        ("show_dialog_export", "ShowVV2UpgradeMenuState"),
         ("show_result_export", "ShowOriginsVillageWideResult"),
         ("user32_dll", "USER32.dll"),
         ("message_box_export", "MessageBoxA"),
@@ -1512,7 +1512,7 @@ def main() -> None:
     appearance_block = (
         appearance_helper_code
         + b"\0" * (0x100 - len(appearance_helper_code))
-        + b"ShowAppearanceChooser\0"
+        + b"ShowVV2AppearanceChooser\0"
     )
     patch(
         HEAL_CAVE_FILE_OFFSET,

@@ -15,7 +15,7 @@
 #define WS_CAPTION 0x00C00000L
 #define WS_SYSMENU 0x00080000L
 
-201 DIALOGEX 0, 0, 310, 222
+201 DIALOGEX 0, 0, 310, 318
 STYLE DS_MODALFRAME | DS_SETFONT | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Origins Upgrades"
 FONT 9, "Segoe UI"
@@ -56,10 +56,28 @@ BEGIN
     LTEXT       "30,000 tech points", -1, 40, 182, 150, 9
     PUSHBUTTON  "Buy", 1005, 240, 171, 55, 18
 
-    DEFPUSHBUTTON "Cancel", 2, 120, 201, 70, 14
+    ICON        108, -1, 8, 200,  24, 24
+    ICON        109, 1106, 22, 212, 12, 12
+    LTEXT       "All Villagers Like Running", -1, 40, 202, 190, 10
+    LTEXT       "1,000,000 tech points", -1, 40, 214, 170, 9
+    PUSHBUTTON  "Buy", 1006, 240, 203, 55, 18
+
+    ICON        107, -1, 8, 232,  24, 24
+    ICON        109, 1107, 22, 244, 12, 12
+    LTEXT       "Grant Full Mastery to All Villagers", -1, 40, 234, 190, 10
+    LTEXT       "1,000,000 tech points", -1, 40, 246, 170, 9
+    PUSHBUTTON  "Buy", 1007, 240, 235, 55, 18
+
+    ICON        106, -1, 8, 264,  24, 24
+    ICON        109, 1108, 22, 276, 12, 12
+    LTEXT       "All Villagers are 18", -1, 40, 266, 190, 10
+    LTEXT       "1,000,000 tech points", -1, 40, 278, 170, 9
+    PUSHBUTTON  "Buy", 1008, 240, 267, 55, 18
+
+    DEFPUSHBUTTON "Cancel", 2, 120, 297, 70, 14
 END
 
-202 DIALOGEX 0, 0, 310, 190
+202 DIALOGEX 0, 0, 310, 158
 STYLE DS_MODALFRAME | DS_SETFONT | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Villager Upgrades"
 FONT 9, "Segoe UI"
@@ -88,10 +106,5 @@ BEGIN
     LTEXT       "50,000 tech points", -1, 40, 118, 150, 9
     PUSHBUTTON  "Buy", 1003, 240, 107, 55, 18
 
-    ICON        106, -1, 8, 136,  24, 24
-    LTEXT       "Change Appearance", -1, 40, 138, 190, 10
-    LTEXT       "5,000 tech points", -1, 40, 150, 150, 9
-    PUSHBUTTON  "Buy", 1004, 240, 139, 55, 18
-
-    DEFPUSHBUTTON "Cancel", 2, 120, 170, 70, 14
+    DEFPUSHBUTTON "Cancel", 2, 120, 137, 70, 14
 END
