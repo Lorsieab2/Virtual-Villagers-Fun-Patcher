@@ -303,11 +303,11 @@ class DoublerAuditDocumentationTests(unittest.TestCase):
             hashlib.sha256(
                 json.dumps(runtime, sort_keys=True, separators=(",", ":")).encode()
             ).hexdigest().upper(),
-            "E968DEC619279CEEBA633013C81673BAF493E97BE65A966793E02599F46818AD",
+            "8D104A57349666EB73BCA69739E068377483ABA740036CA31C5673176944DC5D",
         )
         self.assertEqual(
             manifest["companion_files"][0]["sha256"],
-            "26A7BE26DB4EE318BFE05CE756B1096D1DA69BDD56724499188363373383DCE0",
+            "FCE6E7D3EDEE4CACF628D302669BA23E09278D42666543A915938F0F8DEA3719",
         )
         self.assertEqual(inventory["e9_tail_jumps_to_writers"], 0)
 
@@ -332,8 +332,8 @@ class DoublerAuditDocumentationTests(unittest.TestCase):
         payload = bytes.fromhex(
             next(item["after"] for item in manifest["patches"] if item["offset"] == "0x943A8")
         )
-        tech = payload[0x800:0x880]
-        food = payload[0x880:0x940]
+        tech = payload[0x820:0x8A0]
+        food = payload[0x8A0:0x960]
         for target, wrapper, label in (
             (manifest["doubler_evidence"]["tech_blacklist_returns"], tech, "tech"),
             (manifest["doubler_evidence"]["food_blacklist_returns"], food, "food"),

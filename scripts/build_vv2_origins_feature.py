@@ -79,6 +79,19 @@ BARREL_MAIN_HELPER_CODE = bytes.fromhex(
     "6A028D4C2408E83A81F9FF6A00568D4C2408E81E53F6FF89E1E8"
     "D769F9FF81C4D850000089F9E83A6AF6FFE92A22F9FF"
 )
+# Change Appearance helper: placed after the optional village-wide payload in
+# the .shr reserve (village-wide occupies 0x9A800..0x9AD20). The first 0x100
+# bytes hold the helper code; the export name string follows at +0x100.
+APPEARANCE_FILE_OFFSET = 0x9AD20
+APPEARANCE_VA = IMAGE_BASE + SHR_RVA + (APPEARANCE_FILE_OFFSET - SHR_FILE_OFFSET)
+APPEARANCE_STRING_VA = APPEARANCE_VA + 0x100
+
+# VV2 villager record fields (exact-build appearance audit).
+VV2_HEAD_FIELD = 0x548
+VV2_BODY_FIELD = 0x54C
+VV2_SEX_FIELD = 0x538
+VV2_APPEARANCE_COST = 5000
+
 RUNNING_PREFERENCE_ID = 38  # exact-build preference-table evidence: 0x8B808
 
 # Exact caller-return addresses proven by the VV2 stock executable audit.  The
@@ -199,9 +212,9 @@ def main() -> None:
     # Keep a full gap after the confirmation helper (0x210..0x251).
     tech_menu = PAYLOAD_VA + 0x260
     detail_menu = PAYLOAD_VA + 0x500
-    tech_increment = PAYLOAD_VA + 0x800
-    food_increment = PAYLOAD_VA + 0x880
-    event_dispatch = PAYLOAD_VA + 0x940
+    tech_increment = PAYLOAD_VA + 0x820
+    food_increment = PAYLOAD_VA + 0x8A0
+    event_dispatch = PAYLOAD_VA + 0x960
 
     code = bytearray(b"\0" * STRINGS_OFFSET)
     occupied = bytearray(b"\0" * STRINGS_OFFSET)
@@ -733,6 +746,11 @@ def main() -> None:
             je detail_done
             mov ebx, eax
 
+            cmp ebx, 4
+            jne detail_not_appearance
+            call 0x{APPEARANCE_VA:X}
+            jmp detail_loop
+        detail_not_appearance:
             cmp ebx, 3
             ja detail_purchase_ready
             call 0x{confirm_dialog:X}
@@ -1419,6 +1437,83 @@ def main() -> None:
         """,
         DETAIL_PREFLIGHT_VA,
     )
+    appearance_helper_code = assemble(
+        f"""
+            push ebp
+            mov ebp, esp
+            sub esp, 8
+            push ebx
+            push esi
+            push edi
+            mov edi, dword ptr [esi + 0x0C]
+            mov ecx, dword ptr [edi + 0x304F0]
+            cmp ecx, 0x100
+            jae appearance_done
+            imul ecx, ecx, 0xE48C
+            mov ebx, dword ptr [esi + 0x10]
+            add ebx, ecx
+            cmp byte ptr [ebx + 0x30], 0
+            je appearance_done
+            cmp dword ptr [ebx + 0x52C], 0
+            jle appearance_done
+            mov eax, dword ptr [ebx + 0x{VV2_HEAD_FIELD:X}]
+            mov dword ptr [ebp - 4], eax
+            mov eax, dword ptr [ebx + 0x{VV2_BODY_FIELD:X}]
+            mov dword ptr [ebp - 8], eax
+            push 0x{s['icons_dll']:X}
+            call dword ptr [0x474010]
+            test eax, eax
+            je appearance_done
+            push 0x{APPEARANCE_STRING_VA:X}
+            push eax
+            call dword ptr [0x4740D4]
+            test eax, eax
+            je appearance_done
+            lea ecx, [ebp - 8]
+            push ecx
+            lea ecx, [ebp - 4]
+            push ecx
+            push dword ptr [ebx + 0x530]
+            push dword ptr [ebx + 0x{VV2_SEX_FIELD:X}]
+            call eax
+            test eax, eax
+            je appearance_done
+            cmp byte ptr [ebx + 0x30], 0
+            je appearance_done
+            cmp dword ptr [ebx + 0x52C], 0
+            jle appearance_done
+            cmp dword ptr [edi + 0x2EADC], {VV2_APPEARANCE_COST}
+            jb appearance_insufficient
+            sub dword ptr [edi + 0x2EADC], {VV2_APPEARANCE_COST}
+            mov eax, dword ptr [ebp - 4]
+            mov dword ptr [ebx + 0x{VV2_HEAD_FIELD:X}], eax
+            mov eax, dword ptr [ebp - 8]
+            mov dword ptr [ebx + 0x{VV2_BODY_FIELD:X}], eax
+            jmp appearance_done
+        appearance_insufficient:
+            mov eax, 0x{s['not_enough']:X}
+            push eax
+            push 0x{s['detail_title']:X}
+            call 0x{show_message:X}
+        appearance_done:
+            pop edi
+            pop esi
+            pop ebx
+            mov esp, ebp
+            pop ebp
+            ret
+        """,
+        APPEARANCE_VA,
+    )
+    if len(appearance_helper_code) > 0x100:
+        raise RuntimeError(
+            f"appearance helper is too large: {len(appearance_helper_code):#x}/0x100"
+        )
+    appearance_block = (
+        appearance_helper_code
+        + b"\0" * (0x100 - len(appearance_helper_code))
+        + b"ShowAppearanceChooser\0"
+    )
     patch(
         HEAL_CAVE_FILE_OFFSET,
         b"\0" * 5,
@@ -1469,6 +1564,12 @@ def main() -> None:
         b"\0" * len(BARREL_MAIN_HELPER_CODE),
         BARREL_MAIN_HELPER_CODE,
         "consume the closed-screen Barrel token with the stock main-village modal owner",
+    )
+    patch(
+        APPEARANCE_FILE_OFFSET,
+        b"\0" * len(appearance_block),
+        appearance_block,
+        "open the Change Appearance chooser for the selected active living villager and, on OK, charge 5,000 tech and write only the proven head and body fields",
     )
 
     patch(

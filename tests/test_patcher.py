@@ -275,7 +275,7 @@ class ManifestTests(unittest.TestCase):
             (ROOT / "data" / "vv2_origins_feature.json").read_text(encoding="utf-8")
         )
         rows = {int(row["offset"], 0): row for row in manifest["patches"]}
-        self.assertEqual(len(rows), 22)
+        self.assertEqual(len(rows), 23)
         self.assertIn("dry-scan all 256", rows[0x9A300]["purpose"])
         self.assertIn("selected active record", rows[0x9A380]["purpose"])
         self.assertIn("all 62 Like and Dislike", rows[0x9A009]["purpose"])
@@ -289,7 +289,7 @@ class ManifestTests(unittest.TestCase):
         )
         for prior, current in zip(shr_ranges, shr_ranges[1:]):
             self.assertLessEqual(prior[1], current[0])
-        self.assertEqual(rows[0x34570]["after"], "E973070600")
+        self.assertEqual(rows[0x34570]["after"], "E993070600")
         self.assertEqual(rows[0x9A700]["after"], "00")
         self.assertEqual(
             rows[0x9A710]["after"],

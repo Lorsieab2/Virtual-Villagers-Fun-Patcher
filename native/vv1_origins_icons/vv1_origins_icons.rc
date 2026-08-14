@@ -59,7 +59,7 @@ BEGIN
     DEFPUSHBUTTON "Cancel", 2, 120, 201, 70, 14
 END
 
-202 DIALOGEX 0, 0, 310, 158
+202 DIALOGEX 0, 0, 310, 190
 STYLE DS_MODALFRAME | DS_SETFONT | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Villager Upgrades"
 FONT 9, "Segoe UI"
@@ -88,5 +88,10 @@ BEGIN
     LTEXT       "50,000 tech points", -1, 40, 118, 150, 9
     PUSHBUTTON  "Buy", 1003, 240, 107, 55, 18
 
-    DEFPUSHBUTTON "Cancel", 2, 120, 137, 70, 14
+    ICON        106, -1, 8, 136,  24, 24
+    LTEXT       "Change Appearance", -1, 40, 138, 190, 10
+    LTEXT       "5,000 tech points", -1, 40, 150, 150, 9
+    PUSHBUTTON  "Buy", 1004, 240, 139, 55, 18
+
+    DEFPUSHBUTTON "Cancel", 2, 120, 170, 70, 14
 END
