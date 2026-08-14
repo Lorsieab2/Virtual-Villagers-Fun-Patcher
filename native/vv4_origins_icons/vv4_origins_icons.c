@@ -415,6 +415,23 @@ __declspec(dllexport) int __stdcall ShowOriginsAppearancePicker(
     );
 }
 
+/* Simple status popup for the payload's upgrade menus ("Purchased.",
+   "Not enough tech points.", etc.). Owned by the game's foreground window so
+   it reliably appears on top -- a NULL owner could render behind the game
+   window right after the menu dialog closed and never be seen. */
+__declspec(dllexport) int __stdcall ShowOriginsUpgradeMessage(
+    const char *title,
+    const char *text
+) {
+    MessageBoxA(
+        GetForegroundWindow(),
+        text != NULL ? text : "",
+        title != NULL ? title : "Origins Upgrades",
+        MB_OK
+    );
+    return 0;
+}
+
 /* Full Heal / Cure All result. The caller (the exact-build .shr cure cave)
    passes how many villagers had their sickness cleared and how many were
    restored to full health. Shows the exact two-line result, or -- when both

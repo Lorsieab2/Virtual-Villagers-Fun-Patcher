@@ -121,8 +121,7 @@ def main() -> None:
         ("icons_dll", "VVFP VV4 Origins Icons.dll"),
         ("show_dialog_export", "ShowOriginsUpgradeMenuState"),
         ("show_result_export", "ShowOriginsVillageWideResult"),
-        ("user32_dll", "USER32.dll"),
-        ("message_box_export", "MessageBoxA"),
+        ("message_export", "ShowOriginsUpgradeMessage"),
         ("cure_all", "Full Heal/Cure All Villagers"),
         ("show_appearance_picker", "ShowOriginsAppearancePicker"),
         ("show_cure_result", "ShowOriginsCureResult"),
@@ -301,19 +300,17 @@ def main() -> None:
             push esi
             mov ebx, dword ptr [esp + 0x0C]
             mov esi, dword ptr [esp + 0x10]
-            push 0x{s['user32_dll']:X}
+            push 0x{s['icons_dll']:X}
             call dword ptr [0x48A1E0]
             test eax, eax
             je done
-            push 0x{s['message_box_export']:X}
+            push 0x{s['message_export']:X}
             push eax
             call dword ptr [0x48A1DC]
             test eax, eax
             je done
-            push 0
-            push ebx
             push esi
-            push 0
+            push ebx
             call eax
         done:
             pop esi
