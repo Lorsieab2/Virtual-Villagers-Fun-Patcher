@@ -34,7 +34,7 @@ static INT_PTR CALLBACK vv2_upgrade_dialog(
     if (message == WM_INITDIALOG) {
         int villager_menu = (lparam & STATE_VILLAGER) != 0;
         int village_wide_buy = (lparam & STATE_VILLAGE_WIDE_BUY) != 0;
-        int row_count = villager_menu ? 5 : 6;
+        int row_count = villager_menu ? 5 : 9;
         int row;
         for (row = 0; row < 9; ++row) {
             ShowWindow(GetDlgItem(window, ID_CHECK_FIRST + row), SW_HIDE);

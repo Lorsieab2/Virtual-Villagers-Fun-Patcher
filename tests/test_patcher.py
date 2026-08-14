@@ -180,17 +180,23 @@ class ManifestTests(unittest.TestCase):
             source.index("        charge:") :
             source.index("        barrel_capacity_preflight:")
         ]
-        running_preflight = charge_block.index("call 0x{VILLAGE_PREFLIGHT_VA:X}")
-        running_no_change = charge_block.index("cmp eax, 2", running_preflight)
+        # Whole-village rows verify funds before charging, then apply the
+        # change directly through the whole-village helper.
+        running_fundcheck = charge_block.index(
+            "cmp dword ptr [edi + 0x2EADC], 1000000"
+        )
         running_deduction = charge_block.index(
-            "sub dword ptr [edi + 0x2EADC], 1000000", running_no_change
+            "sub dword ptr [edi + 0x2EADC], 1000000", running_fundcheck
+        )
+        running_apply = charge_block.index(
+            "call 0x{WHOLE_VILLAGE_VA:X}", running_fundcheck
         )
         cure_preflight = charge_block.index("call 0x{CURE_PREFLIGHT_VA:X}")
         legacy_deduction = charge_block.index(
             "sub dword ptr [edi + 0x2EADC], eax", cure_preflight
         )
-        self.assertLess(running_preflight, running_no_change)
-        self.assertLess(running_no_change, running_deduction)
+        self.assertLess(running_fundcheck, running_deduction)
+        self.assertLess(running_deduction, running_apply)
         self.assertLess(cure_preflight, legacy_deduction)
         self.assertIn(
             '"No changes were needed. No tech points have been deducted."', source
@@ -249,7 +255,7 @@ class ManifestTests(unittest.TestCase):
 
         helper = source[
             source.index("    detail_preflight_code = assemble(") :
-            source.index("    patch(\n        HEAL_CAVE_FILE_OFFSET")
+            source.index("    appearance_helper_code = assemble(")
         ]
         self.assertEqual(helper.count("mov ecx, 62"), 2)
         for exact_target in (
@@ -275,8 +281,9 @@ class ManifestTests(unittest.TestCase):
             (ROOT / "data" / "vv2_origins_feature.json").read_text(encoding="utf-8")
         )
         rows = {int(row["offset"], 0): row for row in manifest["patches"]}
-        # 22 base transaction patches + the Change Appearance helper at 0x9AD20.
-        self.assertEqual(len(rows), 23)
+        # 22 base transaction patches + Change Appearance (0x9AD20) + the
+        # whole-village Tech helper (0x9AE40).
+        self.assertEqual(len(rows), 24)
         self.assertIn("dry-scan all 256", rows[0x9A300]["purpose"])
         self.assertIn("selected active record", rows[0x9A380]["purpose"])
         self.assertIn("all 62 Like and Dislike", rows[0x9A009]["purpose"])

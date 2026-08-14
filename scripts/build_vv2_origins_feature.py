@@ -86,6 +86,13 @@ APPEARANCE_FILE_OFFSET = 0x9AD20
 APPEARANCE_VA = IMAGE_BASE + SHR_RVA + (APPEARANCE_FILE_OFFSET - SHR_FILE_OFFSET)
 APPEARANCE_STRING_VA = APPEARANCE_VA + 0x100
 
+# Whole-village Tech-screen upgrades (Running / Full Mastery / Age 18 for all
+# villagers). Placed after the Change Appearance helper in the .shr reserve.
+WHOLE_VILLAGE_FILE_OFFSET = 0x9AE40
+WHOLE_VILLAGE_VA = IMAGE_BASE + SHR_RVA + (
+    WHOLE_VILLAGE_FILE_OFFSET - SHR_FILE_OFFSET
+)
+
 # VV2 villager record fields (exact-build appearance audit).
 VV2_HEAD_FIELD = 0x548
 VV2_BODY_FIELD = 0x54C
@@ -360,10 +367,6 @@ def main() -> None:
             call dword ptr [0x4740D4]
             test eax, eax
             je unavailable
-            cmp dword ptr [0x{VILLAGE_WIDE_SIGNATURE_VA:X}], 0x50465656
-            jne no_village_wide
-            or dword ptr [esp + 0x10], 0xA01C0
-        no_village_wide:
             push dword ptr [esp + 0x10]
             push dword ptr [esp + 0x10]
             call eax
@@ -524,17 +527,12 @@ def main() -> None:
             jb legacy_charge
             cmp ebx, 8
             ja unsupported_village_command
-            call 0x{VILLAGE_PREFLIGHT_VA:X}
-            cmp eax, 2
-            je village_no_change
-            cmp eax, 1
-            jne menu_loop
             cmp dword ptr [edi + 0x2EADC], 1000000
             jb insufficient
             sub dword ptr [edi + 0x2EADC], 1000000
-            jmp do_village_wide
-        village_no_change:
-            mov eax, 0x{s['running_no_change']:X}
+            call 0x{WHOLE_VILLAGE_VA:X}
+            mov edi, dword ptr [esi + 0x0C]
+            mov eax, 0x{s['purchased']:X}
             jmp show_status
         unsupported_village_command:
             mov eax, 0x{s['running_unavailable']:X}
@@ -1480,6 +1478,101 @@ def main() -> None:
         + b"\0" * (0x100 - len(appearance_helper_code))
         + b"ShowVV2AppearanceChooser\0"
     )
+    # Whole-village Tech upgrades applied directly (like Cure All): fetch the
+    # record array through the certified manager (0x44F4E0 -> base-0x52C) and
+    # write the proven fields for every active, living, non-special villager.
+    # ebx carries the command (6 = Running, 7 = Full Mastery, 8 = Age 18).
+    whole_village_code = assemble(
+        f"""
+            push ebp
+            push esi
+            push edi
+            push ebx
+            call 0x44F4E0
+            test eax, eax
+            je wv_done
+            lea edx, [eax + 0x52C]
+            mov ecx, 256
+            mov ebx, dword ptr [esp]
+        wv_loop:
+            cmp byte ptr [edx + 0x30], 0
+            je wv_next
+            cmp dword ptr [edx + 0x52C], 0
+            jle wv_next
+            cmp byte ptr [edx + 0x558], 0
+            jne wv_next
+            cmp ebx, 8
+            je wv_age
+            cmp ebx, 7
+            je wv_mastery
+            push ecx
+            xor ebp, ebp
+            mov esi, -1
+            lea edi, [edx + 0x5F0]
+            mov ecx, 62
+        wv_run_like:
+            cmp dword ptr [edi], {RUNNING_PREFERENCE_ID}
+            jne wv_run_notfound
+            mov ebp, 1
+        wv_run_notfound:
+            cmp dword ptr [edi], -1
+            jne wv_run_nextlike
+            cmp esi, -1
+            jne wv_run_nextlike
+            mov esi, edi
+        wv_run_nextlike:
+            add edi, 4
+            dec ecx
+            jne wv_run_like
+            test ebp, ebp
+            jnz wv_run_dislikes
+            cmp esi, -1
+            je wv_run_end
+            mov dword ptr [esi], {RUNNING_PREFERENCE_ID}
+        wv_run_dislikes:
+            lea edi, [edx + 0x6E8]
+            mov ecx, 62
+        wv_run_dis:
+            cmp dword ptr [edi], {RUNNING_PREFERENCE_ID}
+            jne wv_run_nextdis
+            mov dword ptr [edi], -1
+        wv_run_nextdis:
+            add edi, 4
+            dec ecx
+            jne wv_run_dis
+        wv_run_end:
+            pop ecx
+            jmp wv_next
+        wv_mastery:
+            mov dword ptr [edx + 0x7E4], 100
+            mov dword ptr [edx + 0x7E8], 100
+            mov dword ptr [edx + 0x7EC], 100
+            mov dword ptr [edx + 0x7F0], 100
+            mov dword ptr [edx + 0x7F4], 100
+            jmp wv_next
+        wv_age:
+            mov dword ptr [edx + 0x530], 360
+            mov dword ptr [edx + 0x534], 360
+            cmp dword ptr [edx + 0x540], 0
+            je wv_next
+            mov dword ptr [edx + 0x540], 318
+        wv_next:
+            add edx, 0xE48C
+            dec ecx
+            jne wv_loop
+        wv_done:
+            pop ebx
+            pop edi
+            pop esi
+            pop ebp
+            ret
+        """,
+        WHOLE_VILLAGE_VA,
+    )
+    if len(whole_village_code) > 0x1C0:
+        raise RuntimeError(
+            f"whole-village helper is too large: {len(whole_village_code):#x}/0x1C0"
+        )
     patch(
         HEAL_CAVE_FILE_OFFSET,
         b"\0" * 5,
@@ -1536,6 +1629,12 @@ def main() -> None:
         b"\0" * len(appearance_block),
         appearance_block,
         "open the Change Appearance chooser for the selected active living villager and, on OK, charge 5,000 tech and write only the proven head and body fields",
+    )
+    patch(
+        WHOLE_VILLAGE_FILE_OFFSET,
+        b"\0" * len(whole_village_code),
+        whole_village_code,
+        "apply Running, Full Mastery, or Age 18 to every active living villager via the certified record array",
     )
 
     patch(
