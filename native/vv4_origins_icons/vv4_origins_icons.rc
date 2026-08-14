@@ -119,24 +119,24 @@ BEGIN
     DEFPUSHBUTTON "Cancel", 2, 120, 169, 70, 14
 END
 
-203 DIALOGEX 0, 0, 200, 210
+203 DIALOGEX 0, 0, 270, 200
 STYLE DS_MODALFRAME | DS_SETFONT | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Change Appearance"
 FONT 9, "Segoe UI"
 BEGIN
-    LTEXT       "Head", -1, 20, 8, 160, 10, SS_CENTER
-    PUSHBUTTON  "<",       2001, 22,  30, 20, 30
-    CONTROL     "", 2003, "STATIC", SS_OWNERDRAW | WS_CHILD | WS_VISIBLE, 60, 20, 80, 50
-    PUSHBUTTON  ">",       2002, 158, 30, 20, 30
-    LTEXT       "Head 1 of 30", 2000, 20, 74, 160, 10, SS_CENTER
+    LTEXT       "Body", -1, 10, 8, 120, 10, SS_CENTER
+    PUSHBUTTON  "<",       2011, 10,  70, 16, 24
+    CONTROL     "", 2013, "STATIC", SS_OWNERDRAW | WS_CHILD | WS_VISIBLE, 30, 20, 80, 124
+    PUSHBUTTON  ">",       2012, 114, 70, 16, 24
+    LTEXT       "Body 1 of 29", 2010, 10, 148, 120, 10, SS_CENTER
 
-    LTEXT       "Body", -1, 20, 92, 160, 10, SS_CENTER
-    PUSHBUTTON  "<",       2011, 22, 118, 20, 30
-    CONTROL     "", 2013, "STATIC", SS_OWNERDRAW | WS_CHILD | WS_VISIBLE, 60, 108, 80, 50
-    PUSHBUTTON  ">",       2012, 158, 118, 20, 30
-    LTEXT       "Body 1 of 29", 2010, 20, 162, 160, 10, SS_CENTER
+    LTEXT       "Head", -1, 140, 8, 120, 10, SS_CENTER
+    PUSHBUTTON  "<",       2001, 140, 70, 16, 24
+    CONTROL     "", 2003, "STATIC", SS_OWNERDRAW | WS_CHILD | WS_VISIBLE, 160, 20, 80, 124
+    PUSHBUTTON  ">",       2002, 244, 70, 16, 24
+    LTEXT       "Head 1 of 30", 2000, 140, 148, 120, 10, SS_CENTER
 
-    LTEXT       "5,000 tech points", -1, 20, 180, 160, 10, SS_CENTER
-    DEFPUSHBUTTON "OK",     1, 45, 192, 50, 14
-    PUSHBUTTON    "Cancel", 2, 105, 192, 50, 14
+    LTEXT       "5,000 tech points", -1, 10, 168, 250, 10, SS_CENTER
+    DEFPUSHBUTTON "OK",     1, 90, 182, 50, 14
+    PUSHBUTTON    "Cancel", 2, 150, 182, 50, 14
 END

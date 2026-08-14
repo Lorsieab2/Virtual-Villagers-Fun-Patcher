@@ -183,7 +183,9 @@ BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved) {
    regardless, so a failed load simply shows nothing here. */
 static void appearance_draw_cell(const DRAWITEMSTRUCT *dis, int is_head, int value) {
     WCHAR path[MAX_PATH];
-    const WCHAR *sex = appearance_state.sex ? L"male" : L"female";
+    /* LDW engine convention (matches the VV2 companion): a non-zero sex field
+       is female, zero is male. */
+    const WCHAR *sex = appearance_state.sex ? L"female" : L"male";
     int age = appearance_state.is_old ? 1 : 0;
     int col, row, page;
     GpBitmap *bitmap = NULL;
@@ -205,10 +207,20 @@ static void appearance_draw_cell(const DRAWITEMSTRUCT *dis, int is_head, int val
     if (GdipCreateBitmapFromFile(path, &bitmap) == 0 && bitmap != NULL) {
         GpGraphics *graphics = NULL;
         if (GdipCreateFromHDC(dis->hDC, &graphics) == 0 && graphics != NULL) {
+            /* Preserve the 40x65 cell aspect ratio: scale by the smaller of the
+               two axis ratios and centre the result, so the sprite is never
+               squashed to fill a differently-proportioned control. */
+            double scale_x = (double)dstw / VV_CELL_W;
+            double scale_y = (double)dsth / VV_CELL_H;
+            double scale = scale_x < scale_y ? scale_x : scale_y;
+            int draw_w = (int)(VV_CELL_W * scale);
+            int draw_h = (int)(VV_CELL_H * scale);
+            int draw_x = rc.left + (dstw - draw_w) / 2;
+            int draw_y = rc.top + (dsth - draw_h) / 2;
             /* UnitPixel == 2 */
             GdipDrawImageRectRectI(
                 graphics, bitmap,
-                rc.left, rc.top, dstw, dsth,
+                draw_x, draw_y, draw_w, draw_h,
                 col * VV_CELL_W, row * VV_CELL_H, VV_CELL_W, VV_CELL_H,
                 2, NULL, NULL, NULL);
             GdipDeleteGraphics(graphics);
@@ -247,7 +259,8 @@ static INT_PTR CALLBACK upgrade_dialog(
                 } else {
                     SetDlgItemTextA(window, ID_BUY_FIRST + row, "Remove");
                 }
-            } else if ((lparam & (1 << (8 + row))) != 0) {
+            } else if ((8 + row) >= row_count
+                       && (lparam & (1 << (8 + row))) != 0) {
                 SetDlgItemTextA(window, ID_BUY_FIRST + row, "Unavailable");
                 EnableWindow(GetDlgItem(window, ID_BUY_FIRST + row), FALSE);
             }

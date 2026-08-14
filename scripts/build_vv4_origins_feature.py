@@ -279,7 +279,7 @@ def main() -> None:
             je unavailable
             cmp dword ptr [0x{VILLAGE_WIDE_SIGNATURE_VA:X}], 0x50465656
             jne no_village_wide
-            or dword ptr [esp + 0x10], 0xA01C0
+            or dword ptr [esp + 0x10], 0xA0000
         no_village_wide:
             push dword ptr [esp + 0x10]
             push dword ptr [esp + 0x10]

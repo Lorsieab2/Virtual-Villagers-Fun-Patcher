@@ -84,7 +84,13 @@ class VV4OriginsFeatureTests(unittest.TestCase):
         self.assertIn("0x46AD80", self.builder)
         self.assertIn("VV4_MASTER_VALUE = 0x42C80000", self.builder)
         self.assertIn("call 0x46AF00", self.builder)
-        self.assertIn("0xA01C0", self.builder)
+        # Village-wide rows are enabled via STATE_VILLAGE_WIDE/BUY only (0xA0000).
+        # The old 0xA01C0 also set row-availability bits 6/7/8; bit 8 collided
+        # with Time Warp's (row 0) "unavailable" bit (1 << (8 + row)) in the
+        # companion DLL, making Time Warp show "Unavailable" whenever the
+        # village-wide feature was installed. Pin the collision-free mask.
+        self.assertIn("0xA0000", self.builder)
+        self.assertNotIn("0xA01C0", self.builder)
 
     def test_vv4_native_upgrade_contract_is_emitted(self) -> None:
         record = json.loads(
