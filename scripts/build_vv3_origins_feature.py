@@ -49,6 +49,11 @@ VILLAGE_PREFLIGHT_VA = IMAGE_BASE + VILLAGE_PREFLIGHT_FILE_OFFSET
 # immediately after the optional village-wide payload (0x7B820..0x7BD40).
 CHANGE_APPEARANCE_FILE_OFFSET = 0x7BD40
 CHANGE_APPEARANCE_VA = IMAGE_BASE + CHANGE_APPEARANCE_FILE_OFFSET
+# Read-only strings for the cure and Change Appearance caves, placed in the
+# free .text padding after the Change Appearance cave (0x7BD40) and before the
+# .rdata boundary (0x7C000).
+EXTRA_STRINGS_FILE_OFFSET = 0x7BDC0
+EXTRA_STRINGS_VA = IMAGE_BASE + EXTRA_STRINGS_FILE_OFFSET
 RUNNING_PREFERENCE_ID = 38  # exact-build preference-table evidence: 0x97488
 DETAIL_BUTTON_PTR = PAYLOAD_VA + 0xBF0
 DETAIL_BUTTON_ID = 6
@@ -115,11 +120,10 @@ def main() -> None:
         ("running_unavailable", "Running cannot be added."),
         ("icons_dll", "VVFP Origins Icons.dll"),
         ("show_dialog_export", "ShowOriginsUpgradeMenuState"),
-        ("appearance_export", "ShowVV3AppearanceChooser"),
         ("show_result_export", "ShowOriginsVillageWideResult"),
         ("user32_dll", "USER32.dll"),
         ("message_box_export", "MessageBoxA"),
-        ("cure_all", "Cure all Villagers"),
+        ("wsprintf_export", "wsprintfA"),
     ):
         add_c_string(strings, s, name, value)
 
@@ -138,6 +142,28 @@ def main() -> None:
             f"string/data block is too large: {len(strings):#x}/"
             f"{PAYLOAD_SIZE - STRINGS_OFFSET:#x}"
         )
+
+    # Strings referenced only by the separate 0x7B664 cure cave and 0x7BD40
+    # Change Appearance cave live in the free .text padding after the Change
+    # Appearance cave, so the 0xA3180 payload string block stays within budget.
+    extra_strings = bytearray()
+    for name, value in (
+        ("appearance_export", "ShowVV3AppearanceChooser"),
+        (
+            "cure_message",
+            "Cured sickness from %u villagers.\n"
+            "Restored %u villagers to full health.",
+        ),
+        (
+            "cure_nothing",
+            "Everyone is at full health already. No villagers are sick. "
+            "No tech points have been deducted.",
+        ),
+    ):
+        s[name] = EXTRA_STRINGS_VA + len(extra_strings)
+        extra_strings.extend(value.encode("ascii") + b"\0")
+    if len(extra_strings) > 0x7C000 - EXTRA_STRINGS_FILE_OFFSET:
+        raise RuntimeError("extra .text string block overflows the free padding")
 
     tech_handler = PAYLOAD_VA + 0x000
     tech_constructor = PAYLOAD_VA + 0x040
@@ -970,10 +996,11 @@ def main() -> None:
             push esi
             push edi
             xor ebp, ebp
+            xor ebx, ebx
             mov ecx, 0x59E110
             call 0x428B60
             test eax, eax
-            je cure_format
+            je cure_after_loop
             mov edi, eax
             mov edx, 0x59E124
             mov ecx, dword ptr [0x42883A]
@@ -996,6 +1023,7 @@ def main() -> None:
             pop ecx
             cmp dword ptr [esi + 0xE78], 100
             jne cure_next
+            inc ebx
         cure_health_done:
             cmp byte ptr [esi + 0xE89], 0
             je cure_next
@@ -1007,48 +1035,46 @@ def main() -> None:
             add edx, 0x1F8C
             dec ecx
             jne cure_loop
-        cure_format:
+        cure_after_loop:
+            # ebp = villagers whose sickness was cleared, ebx = villagers
+            # restored to full health.  If neither happened, refund the cure
+            # cost and report that nothing was needed.
             mov eax, ebp
-            sub esp, 40
-            mov dword ptr [esp], 0x65727543
-            mov word ptr [esp + 4], 0x2064
-            lea edi, [esp + 6]
-            test ebp, ebp
-            jnz cure_digits
-            mov byte ptr [edi], 0x30
-            inc edi
-            jmp cure_suffix
-        cure_digits:
-            lea esi, [esp + 30]
-            mov eax, ebp
-            mov ebx, 10
-            xor ecx, ecx
-        cure_digit_loop:
-            xor edx, edx
-            div ebx
-            add dl, 0x30
-            dec esi
-            mov byte ptr [esi], dl
-            inc ecx
+            or eax, ebx
+            jnz cure_success
+            add dword ptr [0x582644], 30000
+            push 0x{s['cure_nothing']:X}
+            push 0x{s['tech_title']:X}
+            call 0x{show_message:X}
+            jmp cure_ret
+        cure_success:
+            # wsprintfA(buffer, "Cured sickness from %u villagers.\\nRestored
+            # %u villagers to full health.", ebp, ebx) then show it.
+            sub esp, 0x80
+            push 0x{s['user32_dll']:X}
+            call dword ptr [0x47C124]
             test eax, eax
-            jne cure_digit_loop
-        cure_copy_loop:
-            mov dl, byte ptr [esi]
-            mov byte ptr [edi], dl
-            inc esi
-            inc edi
-            dec ecx
-            jne cure_copy_loop
-        cure_suffix:
-            mov byte ptr [edi], 0x20
-            mov dword ptr [edi + 1], 0x6C6C6976
-            mov dword ptr [edi + 5], 0x72656761
-            mov word ptr [edi + 9], 0x0073
+            je cure_free
+            push 0x{s['wsprintf_export']:X}
+            push eax
+            call dword ptr [0x47C128]
+            test eax, eax
+            je cure_free
+            mov edx, eax
+            push ebx
+            push ebp
+            push 0x{s['cure_message']:X}
+            lea eax, [esp + 0xC]
+            push eax
+            call edx
+            add esp, 0x10
             lea eax, [esp]
             push eax
             push 0x{s['tech_title']:X}
             call 0x{show_message:X}
-            add esp, 40
+        cure_free:
+            add esp, 0x80
+        cure_ret:
             pop edi
             pop esi
             pop edx
@@ -1188,7 +1214,13 @@ def main() -> None:
         CHANGE_APPEARANCE_FILE_OFFSET,
         b"\0" * len(change_appearance_code),
         change_appearance_code,
-        "open the native in-engine appearance chooser for the selected villager",
+        "open the custom head/body appearance chooser for the selected villager",
+    )
+    patch(
+        EXTRA_STRINGS_FILE_OFFSET,
+        b"\0" * len(extra_strings),
+        bytes(extra_strings),
+        "cure and Change Appearance cave strings",
     )
     for offset in (0x415EF1, 0x416983, 0x416BAB, 0x417A3A):
         patch(
