@@ -675,10 +675,14 @@ __declspec(dllexport) int __stdcall ApplyVV4CompleteCollections(void) {
     for (i = 0; i < 5; ++i) {
         vv4_enqueue_goal(VV4_COLLECTION_GOALS[i]);
     }
-    MessageBoxA(GetForegroundWindow(),
-        "All collections are complete. Every collectible was added and the "
-        "collection goals updated accordingly.",
-        "Origins Upgrades", MB_OK | MB_ICONINFORMATION | VV_MB_FRONT);
+    {
+        char msg[160];
+        wsprintfA(msg,
+            "Marked all %d collectibles as found and triggered %d collection goals.",
+            VV4_COLL_FLAG_COUNT, 5);
+        MessageBoxA(GetForegroundWindow(), msg, "Origins Upgrades",
+                    MB_OK | MB_ICONINFORMATION | VV_MB_FRONT);
+    }
     return newly;
 }
 
@@ -712,10 +716,12 @@ __declspec(dllexport) int __stdcall ApplyVV4ResetCollections(void) {
         int j;
         for (j = 0; j < 12; ++j) { master[j] = 0; }
     }
-    MessageBoxA(GetForegroundWindow(),
-        "All collections were reset. Every collectible was cleared and the "
-        "collection goals were marked incomplete again.",
-        "Origins Upgrades", MB_OK | MB_ICONINFORMATION | VV_MB_FRONT);
+    {
+        char msg[96];
+        wsprintfA(msg, "Cleared all %d collectibles.", VV4_COLL_FLAG_COUNT);
+        MessageBoxA(GetForegroundWindow(), msg, "Origins Upgrades",
+                    MB_OK | MB_ICONINFORMATION | VV_MB_FRONT);
+    }
     return cleared;
 }
 
