@@ -10,6 +10,28 @@
 #define VV_ALREADY_LIKES_TEXT "Already 62 likes."
 #include "../vv1_origins_icons/vv1_origins_icons.c"
 
+/* Task9-style prompt action / result codes and forward declarations, hoisted so
+   the ApplyVV2* reporters below can route through the shared result renderer
+   defined later in this file. */
+enum {
+    VV2_ACT_TIME_WARP = 0, VV2_ACT_ISLAND = 1, VV2_ACT_BARREL = 2,
+    VV2_ACT_TECH_DOUBLER = 3, VV2_ACT_FOOD_DOUBLER = 4, VV2_ACT_CURE = 5,
+    VV2_ACT_RUNNING_ALL = 6, VV2_ACT_MASTERY_ALL = 7, VV2_ACT_AGE_ALL = 8,
+    VV2_ACT_COLLECT_COMPLETE = 9, VV2_ACT_COLLECT_RESET = 10,
+    VV2_ACT_DETAIL_YOUTH = 100, VV2_ACT_DETAIL_MASTERY = 101,
+    VV2_ACT_DETAIL_RUNNING = 102, VV2_ACT_DETAIL_AGE18 = 103,
+    VV2_ACT_DETAIL_APPEARANCE = 104
+};
+enum {
+    VV2_RES_SUCCESS = 0, VV2_RES_NO_CHANGE = 1, VV2_RES_INSUFFICIENT = 2,
+    VV2_RES_INVALID = 3, VV2_RES_NO_SLOT = 4, VV2_RES_REMOVED = 5,
+    VV2_RES_PURCHASED = 6
+};
+__declspec(dllexport) void __stdcall ShowVV2UpgradeResult(
+    int action, int status, unsigned int amount_a, unsigned int amount_b,
+    unsigned int amount_c, unsigned int amount_d
+);
+
 /* ---------- VV2 self-contained upgrade menus + Change Appearance ----------
    VV2 uses its own dialog resources (211 tech, 212 villager, 213 Change
    Appearance) and its own dialog procs/exports so nothing here touches the
@@ -26,6 +48,19 @@
    upper bound instead of editing the shared enum. */
 #define VV2_TECH_ROW_COUNT 11
 #define ID_VV2_BUY_LAST    1010
+
+/* The game can run fullscreen as a topmost SDL window at a resolution smaller
+   than the desktop.  Our modal dialogs use DS_CENTER so Windows centers them on
+   the display; this additionally lifts them above the fullscreen surface and to
+   the foreground so they are visible and clickable in fullscreen.  Called from
+   each dialog's WM_INITDIALOG. */
+static void vv2_surface_dialog(HWND window) {
+    SetWindowPos(
+        window, HWND_TOPMOST, 0, 0, 0, 0,
+        SWP_NOMOVE | SWP_NOSIZE | SWP_SHOWWINDOW
+    );
+    SetForegroundWindow(window);
+}
 
 /* VV2 upgrade dialog: every row stays visible and buyable. The game re-checks
    the selected villager / village state at click time and no-ops with a
@@ -59,6 +94,7 @@ static INT_PTR CALLBACK vv2_upgrade_dialog(
             }
             EnableWindow(GetDlgItem(window, ID_BUY_FIRST + row), TRUE);
         }
+        vv2_surface_dialog(window);
         return TRUE;
     } else if (message == WM_COMMAND) {
         unsigned int command = LOWORD(wparam);
@@ -105,7 +141,7 @@ __declspec(dllexport) void __stdcall ShowVV2CureResult(int sick, int health) {
             "Everyone is at full health already. No villagers are sick. "
             "No tech points have been deducted.",
             "Origins Upgrades",
-            MB_OK | MB_ICONINFORMATION
+            MB_OK | MB_ICONINFORMATION | MB_TOPMOST | MB_SETFOREGROUND
         );
         return;
     }
@@ -117,7 +153,7 @@ __declspec(dllexport) void __stdcall ShowVV2CureResult(int sick, int health) {
     );
     MessageBoxA(
         GetForegroundWindow(), message, "Origins Upgrades",
-        MB_OK | MB_ICONINFORMATION
+        MB_OK | MB_ICONINFORMATION | MB_TOPMOST | MB_SETFOREGROUND
     );
 }
 
@@ -152,12 +188,12 @@ static int vv2_record_eligible(const unsigned char *record) {
     return 1;
 }
 
-__declspec(dllexport) void __stdcall ApplyVV2RunningToAll(unsigned char *base) {
+__declspec(dllexport) int __stdcall ApplyVV2RunningToAll(unsigned char *base) {
     int already_like = 0, full_likes = 0, granted = 0, removed_dislike = 0;
     int i, j;
     unsigned char *record = base;
     if (base == 0) {
-        return;
+        return 0;
     }
     for (i = 0; i < VV2_RECORD_COUNT; ++i, record += VV2_RECORD_STRIDE) {
         int *likes, *dislikes;
@@ -200,29 +236,24 @@ __declspec(dllexport) void __stdcall ApplyVV2RunningToAll(unsigned char *base) {
             ++granted;
         }
     }
-    {
-        char message[512];
-        wsprintfA(
-            message,
-            "%d villagers already like running; skipped over.\r\n\r\n"
-            "%d villagers already have 3 likes; skipped over.\r\n\r\n"
-            "Granted Running to %d villagers.\r\n\r\n"
-            "Removed Running Dislike from %d villagers.",
-            already_like, full_likes, granted, removed_dislike
-        );
-        MessageBoxA(
-            GetForegroundWindow(), message, "Origins Upgrades",
-            MB_OK | MB_ICONINFORMATION
-        );
+    if (granted == 0 && removed_dislike == 0) {
+        ShowVV2UpgradeResult(VV2_ACT_RUNNING_ALL, VV2_RES_NO_CHANGE, 0, 0, 0, 0);
+        return 0;
     }
+    ShowVV2UpgradeResult(
+        VV2_ACT_RUNNING_ALL, VV2_RES_SUCCESS,
+        (unsigned int)granted, (unsigned int)removed_dislike,
+        (unsigned int)already_like, (unsigned int)full_likes
+    );
+    return 1;
 }
 
-__declspec(dllexport) void __stdcall ApplyVV2MasteryToAll(unsigned char *base) {
+__declspec(dllexport) int __stdcall ApplyVV2MasteryToAll(unsigned char *base) {
     int granted = 0, already_mastered = 0;
     int i;
     unsigned char *record = base;
     if (base == 0) {
-        return;
+        return 0;
     }
     for (i = 0; i < VV2_RECORD_COUNT; ++i, record += VV2_RECORD_STRIDE) {
         int *skills;
@@ -242,19 +273,45 @@ __declspec(dllexport) void __stdcall ApplyVV2MasteryToAll(unsigned char *base) {
             ++granted;
         }
     }
-    {
-        char message[512];
-        wsprintfA(
-            message,
-            "Granted Full Mastery to %d Villagers.\r\n\r\n"
-            "%d villagers are already Fully Mastered. Skipped over.",
-            granted, already_mastered
-        );
-        MessageBoxA(
-            GetForegroundWindow(), message, "Origins Upgrades",
-            MB_OK | MB_ICONINFORMATION
-        );
+    if (granted == 0) {
+        ShowVV2UpgradeResult(VV2_ACT_MASTERY_ALL, VV2_RES_NO_CHANGE, 0, 0, 0, 0);
+        return 0;
     }
+    ShowVV2UpgradeResult(
+        VV2_ACT_MASTERY_ALL, VV2_RES_SUCCESS,
+        (unsigned int)granted, (unsigned int)already_mastered, 0, 0
+    );
+    return 1;
+}
+
+/* Set every eligible villager's raw age field (+0x530) to exactly 360 (18
+   years) regardless of current age.  Per the spec this touches ONLY the raw age
+   field -- never the paired age field or pregnancy timer.  Returns 1 if any
+   villager changed (so the Tech menu charges), 0 if all were already 18. */
+__declspec(dllexport) int __stdcall ApplyVV2AgeToAll(unsigned char *base) {
+    int changed = 0;
+    int i;
+    unsigned char *record = base;
+    if (base == 0) {
+        return 0;
+    }
+    for (i = 0; i < VV2_RECORD_COUNT; ++i, record += VV2_RECORD_STRIDE) {
+        int *age;
+        if (!vv2_record_eligible(record)) {
+            continue;
+        }
+        age = (int *)(record + 0x530);
+        if (*age != 360) {
+            *age = 360;
+            ++changed;
+        }
+    }
+    if (changed == 0) {
+        ShowVV2UpgradeResult(VV2_ACT_AGE_ALL, VV2_RES_NO_CHANGE, 0, 0, 0, 0);
+        return 0;
+    }
+    ShowVV2UpgradeResult(VV2_ACT_AGE_ALL, VV2_RES_SUCCESS, 0, 0, 0, 0);
+    return 1;
 }
 
 /* ---- Complete (mode 9) / Reset (mode 10) all Collections.  `player` is the
@@ -272,37 +329,242 @@ typedef int(__fastcall *vv2_fire_goal_t)(
     void *player, int edx_ignored, int message_id, int flag
 );
 
-__declspec(dllexport) void __stdcall ApplyVV2Collections(
+__declspec(dllexport) int __stdcall ApplyVV2Collections(
     unsigned char *player,
     int mode
 ) {
     static const int goal_pending[5] = {0x20F, 0x210, 0x211, 0x212, 0x213};
     static const int goal_message[5] = {0x1DE, 0x1DF, 0x1E0, 0x1E1, 0x1E2};
+    unsigned char want = (mode == 9) ? 1 : 0;
+    int action = (mode == 9) ? VV2_ACT_COLLECT_COMPLETE : VV2_ACT_COLLECT_RESET;
+    unsigned int goals = 0;
     int i;
     if (player == 0) {
-        return;
+        return 0;
+    }
+    for (i = 0; i < 48; ++i) {
+        player[0x2E720 + i] = want;
     }
     if (mode == 9) {
-        for (i = 0; i < 48; ++i) {
-            player[0x2E720 + i] = 1;
-        }
-        {
-            vv2_fire_goal_t fire = (vv2_fire_goal_t)(UINT_PTR)0x004257A0;
-            for (i = 0; i < 5; ++i) {
-                if (player[goal_pending[i]] != 0) {
-                    player[goal_pending[i]] = 0;
-                    fire(player, 0, goal_message[i], 1);
-                }
+        vv2_fire_goal_t fire = (vv2_fire_goal_t)(UINT_PTR)0x004257A0;
+        for (i = 0; i < 5; ++i) {
+            if (player[goal_pending[i]] != 0) {
+                player[goal_pending[i]] = 0;
+                fire(player, 0, goal_message[i], 1);
+                ++goals;
             }
         }
     } else {
-        for (i = 0; i < 48; ++i) {
-            player[0x2E720 + i] = 0;
-        }
         for (i = 0; i < 5; ++i) {
             player[goal_pending[i]] = 1;
         }
     }
+    ShowVV2UpgradeResult(action, VV2_RES_SUCCESS, goals, 0, 0, 0);
+    return 1;
+}
+
+/* ---- VV5 Task9-style purchase prompts for every VV2 upgrade -----------------
+   Confirm: an OK/Cancel box stating the action and its cost (with counts for
+   Full Heal / Cure All), ending "Press OK to confirm, or Cancel." Result:
+   status-based, counted where meaningful, else "<Action> completed." Every
+   no-change / guard outcome ends "No tech points have been deducted." "Villager"
+   and the named upgrades are capitalized, and counts use correct singular /
+   plural. All wording lives here (the exe payload string cave is full).
+
+   action codes: tech rows 0..10, detail rows 100..104. ---- */
+static const char *vv2_action_name(int action) {
+    switch (action) {
+    case VV2_ACT_TIME_WARP: return "Time Warp";
+    case VV2_ACT_ISLAND: return "Island Event";
+    case VV2_ACT_BARREL: return "Barrel of Babies";
+    case VV2_ACT_TECH_DOUBLER: return "Tech Point Doubler";
+    case VV2_ACT_FOOD_DOUBLER: return "Food Point Doubler";
+    case VV2_ACT_CURE: return "Full Heal / Cure All";
+    case VV2_ACT_RUNNING_ALL: return "Grant Running to All Villagers";
+    case VV2_ACT_MASTERY_ALL: return "Grant Full Mastery to All Villagers";
+    case VV2_ACT_AGE_ALL: return "Set All Villagers to 18";
+    case VV2_ACT_COLLECT_COMPLETE: return "Complete All Collections";
+    case VV2_ACT_COLLECT_RESET: return "Reset All Collections";
+    case VV2_ACT_DETAIL_YOUTH: return "Grant Youth";
+    case VV2_ACT_DETAIL_MASTERY: return "Grant Full Mastery";
+    case VV2_ACT_DETAIL_RUNNING: return "Grant Running";
+    case VV2_ACT_DETAIL_AGE18: return "Set Age to 18";
+    case VV2_ACT_DETAIL_APPEARANCE: return "Change Appearance";
+    default: return "Origins upgrade";
+    }
+}
+
+static const char *vv2_villager_word(unsigned int count) {
+    return count == 1 ? "Villager" : "Villagers";
+}
+
+static const char *vv2_result_title(int action) {
+    return action >= 100 ? "Villager Upgrades" : "Origins Upgrades";
+}
+
+static unsigned int vv2_action_price(int action) {
+    switch (action) {
+    case VV2_ACT_TIME_WARP: return 50000;
+    case VV2_ACT_ISLAND: return 30000;
+    case VV2_ACT_BARREL: return 75000;
+    case VV2_ACT_TECH_DOUBLER: return 500000;
+    case VV2_ACT_FOOD_DOUBLER: return 500000;
+    case VV2_ACT_CURE: return 30000;
+    case VV2_ACT_RUNNING_ALL: return 1000000;
+    case VV2_ACT_MASTERY_ALL: return 1000000;
+    case VV2_ACT_AGE_ALL: return 1000000;
+    case VV2_ACT_COLLECT_COMPLETE: return 1000000;
+    case VV2_ACT_COLLECT_RESET: return 1000000;
+    case VV2_ACT_DETAIL_YOUTH: return 50000;
+    case VV2_ACT_DETAIL_MASTERY: return 100000;
+    case VV2_ACT_DETAIL_RUNNING: return 40000;
+    case VV2_ACT_DETAIL_AGE18: return 50000;
+    case VV2_ACT_DETAIL_APPEARANCE: return 5000;
+    default: return 0;
+    }
+}
+
+/* Task9-style purchase confirmation: an OK/Cancel box naming the action and its
+   cost.  Returns 1 on OK, 0 on Cancel.  The payload passes only the action id;
+   the price table above mirrors the payload's tech_costs / detail_costs. */
+__declspec(dllexport) int __stdcall ConfirmVV2Upgrade(int action) {
+    char message[256];
+    wsprintfA(
+        message,
+        "Do you want to buy %s for %u tech points?\r\nPress OK to confirm, "
+        "or Cancel.",
+        vv2_action_name(action), vv2_action_price(action)
+    );
+    return MessageBoxA(
+        GetForegroundWindow(), message, vv2_result_title(action),
+        MB_OKCANCEL | MB_ICONQUESTION | MB_TOPMOST | MB_SETFOREGROUND
+    ) == IDOK;
+}
+
+__declspec(dllexport) void __stdcall ShowVV2UpgradeResult(
+    int action,
+    int status,
+    unsigned int amount_a,
+    unsigned int amount_b,
+    unsigned int amount_c,
+    unsigned int amount_d
+) {
+    char message[512];
+    char line[160];
+    const char *name = vv2_action_name(action);
+
+    if (status == VV2_RES_SUCCESS) {
+        switch (action) {
+        case VV2_ACT_CURE:
+            wsprintfA(
+                message,
+                "Cleared sickness from %u %s and restored full health to %u %s.",
+                amount_a, vv2_villager_word(amount_a),
+                amount_b, vv2_villager_word(amount_b)
+            );
+            break;
+        case VV2_ACT_RUNNING_ALL:
+            /* a=granted, b=removed dislike, c=already like, d=at 3-like cap */
+            wsprintfA(message, "Granted Running to %u %s.",
+                      amount_a, vv2_villager_word(amount_a));
+            wsprintfA(line, "\r\n\r\nRemoved a Running dislike from %u %s.",
+                      amount_b, vv2_villager_word(amount_b));
+            lstrcatA(message, line);
+            wsprintfA(line, "\r\n\r\nSkipped %u %s: already like Running.",
+                      amount_c, vv2_villager_word(amount_c));
+            lstrcatA(message, line);
+            wsprintfA(line, "\r\n\r\nSkipped %u %s: already have 3 likes.",
+                      amount_d, vv2_villager_word(amount_d));
+            lstrcatA(message, line);
+            break;
+        case VV2_ACT_MASTERY_ALL:
+            /* a=granted, b=already mastered */
+            wsprintfA(message, "Granted Full Mastery to %u %s.",
+                      amount_a, vv2_villager_word(amount_a));
+            wsprintfA(line, "\r\n\r\nSkipped %u %s: already fully mastered.",
+                      amount_b, vv2_villager_word(amount_b));
+            lstrcatA(message, line);
+            break;
+        case VV2_ACT_COLLECT_COMPLETE:
+            wsprintfA(
+                message,
+                "Marked all 48 collectibles as found and triggered %u "
+                "collection goal%s.",
+                amount_a, amount_a == 1 ? "" : "s"
+            );
+            break;
+        case VV2_ACT_COLLECT_RESET:
+            lstrcpyA(message, "Cleared all 48 collectibles.");
+            break;
+        default:
+            wsprintfA(message, "%s completed.", name);
+            break;
+        }
+    } else if (status == VV2_RES_NO_CHANGE) {
+        switch (action) {
+        case VV2_ACT_RUNNING_ALL:
+            lstrcpyA(message,
+                     "Everyone already likes running, or has full Likes slots. "
+                     "No tech points have been deducted.");
+            break;
+        case VV2_ACT_MASTERY_ALL:
+            lstrcpyA(message,
+                     "Everyone has already mastered their skills. No tech "
+                     "points have been deducted.");
+            break;
+        case VV2_ACT_AGE_ALL:
+            lstrcpyA(message,
+                     "Everyone is already 18. No tech points have been "
+                     "deducted.");
+            break;
+        case VV2_ACT_DETAIL_YOUTH:
+            lstrcpyA(message,
+                     "This villager is already full of youth. No tech points "
+                     "have been deducted.");
+            break;
+        case VV2_ACT_DETAIL_MASTERY:
+            lstrcpyA(message,
+                     "This villager is already fully mastered. No tech points "
+                     "have been deducted.");
+            break;
+        case VV2_ACT_DETAIL_RUNNING:
+            lstrcpyA(message,
+                     "This villager already likes Running. No tech points have "
+                     "been deducted.");
+            break;
+        case VV2_ACT_DETAIL_AGE18:
+            lstrcpyA(message,
+                     "No changes were needed. No tech points have been "
+                     "deducted.");
+            break;
+        default:
+            wsprintfA(message,
+                      "%s is already complete. No tech points have been "
+                      "deducted.", name);
+            break;
+        }
+    } else if (status == VV2_RES_INSUFFICIENT) {
+        lstrcpyA(message, "Not enough tech points.");
+    } else if (status == VV2_RES_INVALID) {
+        lstrcpyA(message,
+                 "No valid living villager is selected. No tech points have "
+                 "been deducted.");
+    } else if (status == VV2_RES_NO_SLOT) {
+        lstrcpyA(message,
+                 "This villager already has full Likes slots. Running can not "
+                 "be added.");
+    } else if (status == VV2_RES_REMOVED) {
+        wsprintfA(message, "%s was removed. No refund was issued.", name);
+    } else if (status == VV2_RES_PURCHASED) {
+        wsprintfA(message, "%s was purchased.", name);
+    } else {
+        lstrcpyA(message, "The action stopped without a verified charge.");
+    }
+
+    MessageBoxA(
+        GetForegroundWindow(), message, vv2_result_title(action),
+        MB_OK | MB_ICONINFORMATION | MB_TOPMOST | MB_SETFOREGROUND
+    );
 }
 
 /* ---- Change Appearance chooser (213) ---- */
@@ -392,6 +654,7 @@ static INT_PTR CALLBACK vv2_appearance_dialog(
 ) {
     (void)lparam;
     if (message == WM_INITDIALOG) {
+        vv2_surface_dialog(window);
         return TRUE;
     } else if (message == WM_DRAWITEM) {
         DRAWITEMSTRUCT *item = (DRAWITEMSTRUCT *)lparam;

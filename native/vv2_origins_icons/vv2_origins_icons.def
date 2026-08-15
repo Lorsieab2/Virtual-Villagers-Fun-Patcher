@@ -7,3 +7,6 @@ EXPORTS
     ApplyVV2RunningToAll=_ApplyVV2RunningToAll@4
     ApplyVV2MasteryToAll=_ApplyVV2MasteryToAll@4
     ApplyVV2Collections=_ApplyVV2Collections@8
+    ApplyVV2AgeToAll=_ApplyVV2AgeToAll@4
+    ConfirmVV2Upgrade=_ConfirmVV2Upgrade@4
+    ShowVV2UpgradeResult=_ShowVV2UpgradeResult@24

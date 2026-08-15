@@ -133,22 +133,20 @@ class ManifestTests(unittest.TestCase):
         funds_check = barrel_block.index("            cmp dword ptr [edi + 0x2EADC], eax")
         deduction = barrel_block.index("            sub dword ptr [edi + 0x2EADC], eax")
         cleanup = barrel_block.index("            add esp, 0x50D8", deduction)
-        purchased = barrel_block.index(
-            "            mov eax, 0x{s['purchased']:X}\n"
-            "            push eax\n"
-            "            push 0x{s['tech_title']:X}\n"
-            "            call 0x{show_message:X}",
-            cleanup,
-        )
         token_store = barrel_block.index(
-            "            mov byte ptr [0x{BARREL_PENDING_VA:X}], 1", purchased
+            "            mov byte ptr [0x{BARREL_PENDING_VA:X}], 1", cleanup
+        )
+        # Barrel success renders "Barrel of Babies completed." via the Task9
+        # result trampoline (action 2 = Barrel).
+        result_call = barrel_block.index(
+            "            call 0x{RESULT_HELPER_VA:X}", token_store
         )
         self.assertLess(pending_guard, reservation)
         self.assertLess(helper_call, funds_check)
         self.assertLess(funds_check, deduction)
         self.assertLess(deduction, cleanup)
-        self.assertLess(cleanup, purchased)
-        self.assertLess(purchased, token_store)
+        self.assertLess(cleanup, token_store)
+        self.assertLess(token_store, result_call)
         self.assertNotIn("call 0x4348E0", barrel_block)
         self.assertNotIn("call 0x401AD0", barrel_block)
         self.assertNotIn("call 0x433190", barrel_block)
@@ -181,19 +179,22 @@ class ManifestTests(unittest.TestCase):
             source.index("        charge:") :
             source.index("        barrel_capacity_preflight:")
         ]
-        # Whole-village rows verify funds before charging, then apply the
-        # change directly through the whole-village helper.
+        # Village-wide rows verify funds, apply via the DLL dispatch stub, then
+        # charge only when the stub reports a real change in EAX (no-change rows
+        # leave the balance untouched).
         running_fundcheck = charge_block.index(
             "cmp dword ptr [edi + 0x2EADC], 1000000"
         )
-        running_deduction = charge_block.index(
-            "sub dword ptr [edi + 0x2EADC], 1000000", running_fundcheck
-        )
         running_apply = charge_block.index(
-            "call 0x{WHOLE_VILLAGE_VA:X}", running_fundcheck
+            "call 0x{DISPATCH_VA:X}", running_fundcheck
         )
-        self.assertLess(running_fundcheck, running_deduction)
-        self.assertLess(running_deduction, running_apply)
+        running_guard = charge_block.index("test eax, eax", running_apply)
+        running_deduction = charge_block.index(
+            "sub dword ptr [edi + 0x2EADC], 1000000", running_guard
+        )
+        self.assertLess(running_fundcheck, running_apply)
+        self.assertLess(running_apply, running_guard)
+        self.assertLess(running_guard, running_deduction)
         # Full Heal routes to its self-contained routine, which counts,
         # charges 30,000 only when something changed, and reports both counts
         # through ShowVV2CureResult.
@@ -242,27 +243,29 @@ class ManifestTests(unittest.TestCase):
         )
         detail = source[
             source.index("        detail_purchase_ready:") :
-            source.index("        detail_youth:")
+            source.index("        detail_charge:")
         ]
         active_recheck = detail.index("cmp byte ptr [edx + 0x30], 0")
-        preflight = detail.index("call 0x{DETAIL_PREFLIGHT_VA:X}", active_recheck)
-        no_change = detail.index("mov eax, 0x{s['running_no_change']:X}", preflight)
-        deduction = detail.index("sub dword ptr [edi + 0x2EADC], eax", no_change)
-        self.assertLess(active_recheck, preflight)
-        self.assertLess(preflight, no_change)
-        self.assertLess(no_change, deduction)
+        no_change = detail.index("call 0x{DETAIL_NOCHANGE_VA:X}", active_recheck)
+        self.assertLess(active_recheck, no_change)
+        # The row-specific no-change helper returns 1 (charge nothing) or 0
+        # (proceed), and the charge deduction follows it.
+        charge = source[
+            source.index("        detail_charge:") :
+            source.index("        detail_youth:")
+        ]
+        self.assertIn("sub dword ptr [edi + 0x2EADC], eax", charge)
 
         helper = source[
-            source.index("    detail_preflight_code = assemble(") :
-            source.index("    appearance_helper_code = assemble(")
+            source.index("    detail_nochange_code = assemble(") :
+            source.index("        DETAIL_NOCHANGE_VA,")
         ]
-        self.assertEqual(helper.count("mov ecx, 62"), 2)
         for exact_target in (
             "cmp dword ptr [edx + 0x7E4], 100",
             "cmp dword ptr [edx + 0x7F4], 100",
             "cmp dword ptr [edx + 0x530], 360",
-            "cmp dword ptr [edx + 0x534], 360",
-            "cmp eax, 318",
+            "cmp dword ptr [edx + 0x530], 100",
+            f"cmp dword ptr [ecx], {{RUNNING_PREFERENCE_ID}}",
         ):
             self.assertIn(exact_target, helper)
 
@@ -284,10 +287,11 @@ class ManifestTests(unittest.TestCase):
         # whole-village Tech helper (0x9AE40) + the shared DLL-dispatch stub
         # (0x9AF58) for Grant Running / Grant Full Mastery / Complete / Reset
         # Collections.
-        self.assertEqual(len(rows), 25)
-        self.assertIn("companion-DLL exports", rows[0x9AF58]["purpose"])
+        self.assertEqual(len(rows), 27)
+        self.assertIn("companion-DLL exports", rows[0x9AE40]["purpose"])
         self.assertIn("dry-scan all 256", rows[0x9A300]["purpose"])
-        self.assertIn("selected active record", rows[0x9A380]["purpose"])
+        self.assertIn("Detail-row purchase would change", rows[0x9A380]["purpose"])
+        self.assertIn("Task9-style OK/Cancel", rows[0x9A204]["purpose"])
         self.assertIn("all 62 Like and Dislike", rows[0x9A009]["purpose"])
         shr_ranges = sorted(
             (

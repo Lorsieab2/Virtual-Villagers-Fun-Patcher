@@ -315,6 +315,15 @@ class AppearanceUpgradeRequirementsTests(unittest.TestCase):
                     # exports.  Tech-menu routing for those rows lives inside
                     # 0x943A8.
                     "0x9A780", "0x9AF58",
+                    # VV5 Task9-style prompts + no-charge-on-no-change + the
+                    # fullscreen-safe dialogs.  New .shr helpers: confirm/result
+                    # export strings (0x9A204/0x9A218) + result trampoline
+                    # (0x9A240) + Detail no-change helper (0x9A380, reusing the
+                    # dead Detail-preflight slot).  The DLL dispatch moved into
+                    # the dead whole-village slot (0x9AE40); its old 0x9AF58 slot
+                    # is now empty.  All confirm/result/no-change routing lives
+                    # inside the payload block (0x943A8).
+                    "0x9A204", "0x9A218", "0x9A240", "0x9A380",
                 },
                 "data/vv3_origins_feature.json": {"0x7B664", "0xA3180"},
                 "data/vv4_origins_feature.json": {

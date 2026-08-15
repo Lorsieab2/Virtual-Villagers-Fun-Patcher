@@ -15,11 +15,12 @@
 #define WS_VISIBLE    0x10000000L
 #define SS_CENTER     0x00000001L
 #define SS_OWNERDRAW  0x0000000DL
+#define DS_CENTER     0x00000800L
 
 /* VV2 Tech-screen upgrades (six working rows; the three broken whole-village
    rows are intentionally absent). */
 211 DIALOGEX 0, 0, 310, 340
-STYLE DS_MODALFRAME | DS_SETFONT | WS_POPUP | WS_CAPTION | WS_SYSMENU
+STYLE DS_MODALFRAME | DS_SETFONT | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Origins Upgrades"
 FONT 9, "Segoe UI"
 BEGIN
@@ -93,7 +94,7 @@ END
 
 /* VV2 Villager Details upgrades (four per-villager rows + Change Appearance). */
 212 DIALOGEX 0, 0, 310, 204
-STYLE DS_MODALFRAME | DS_SETFONT | WS_POPUP | WS_CAPTION | WS_SYSMENU
+STYLE DS_MODALFRAME | DS_SETFONT | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Villager Upgrades"
 FONT 9, "Segoe UI"
 BEGIN
@@ -132,7 +133,7 @@ END
 
 /* VV2 Change Appearance chooser: sprite previews cropped from the stock art. */
 213 DIALOGEX 0, 0, 250, 196
-STYLE DS_MODALFRAME | DS_SETFONT | WS_POPUP | WS_CAPTION | WS_SYSMENU
+STYLE DS_MODALFRAME | DS_SETFONT | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Change Appearance"
 FONT 9, "Segoe UI"
 BEGIN

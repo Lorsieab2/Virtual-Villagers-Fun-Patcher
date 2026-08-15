@@ -109,8 +109,40 @@ COLLECTION_TECH_COST = 1000000
 # ApplyVV2Collections.  Placed in the free .shr tail after the whole-village
 # helper so it stays clear of the separate signed village-wide API block
 # (0x9A800..0x9AD20).  The 1,000,000 charge is done by the Tech menu.
-DISPATCH_FILE_OFFSET = 0x9AF58
+# Placed in the (now-dead) whole-village helper slot: Running/Mastery/Age/
+# Collections all run in the DLL now, so the old .shr whole-village writer is
+# unused and its 0x1C0-byte slot hosts the dispatch stub + its export strings.
+DISPATCH_FILE_OFFSET = 0x9AE40
 DISPATCH_VA = IMAGE_BASE + SHR_RVA + (DISPATCH_FILE_OFFSET - SHR_FILE_OFFSET)
+# The Task9-style OK/Cancel purchase confirm lives in the DLL (ConfirmVV2Upgrade).
+# Its export-name string can't fit the full payload string cave, so it sits in
+# the free .shr gap between the village-wide preflight and the Cure preflight.
+CONFIRM_EXPORT_FILE_OFFSET = 0x9A204
+CONFIRM_EXPORT_VA = IMAGE_BASE + SHR_RVA + (
+    CONFIRM_EXPORT_FILE_OFFSET - SHR_FILE_OFFSET
+)
+CONFIRM_EXPORT_BYTES = b"ConfirmVV2Upgrade\0"
+# Result-string export + a tiny .shr trampoline so the payload's simple success
+# and doubler paths can render Task9 result text ("<Action> completed.", etc.)
+# from the DLL instead of the old flat "Purchased." string.
+RESULT_EXPORT_FILE_OFFSET = 0x9A218
+RESULT_EXPORT_VA = IMAGE_BASE + SHR_RVA + (
+    RESULT_EXPORT_FILE_OFFSET - SHR_FILE_OFFSET
+)
+RESULT_EXPORT_BYTES = b"ShowVV2UpgradeResult\0"
+RESULT_HELPER_FILE_OFFSET = 0x9A240
+RESULT_HELPER_VA = IMAGE_BASE + SHR_RVA + (
+    RESULT_HELPER_FILE_OFFSET - SHR_FILE_OFFSET
+)
+# Per-row Detail no-change check.  Given (record, row) it decides whether the
+# purchase would change anything; if not it shows the row-specific no-change
+# message (via the result trampoline) and tells the payload to charge nothing.
+# Placed in the (now-dead) Detail preflight slot: the payload no longer calls
+# that generic preflight, so its 0x9A380..0x9A530 region hosts this helper.
+DETAIL_NOCHANGE_FILE_OFFSET = 0x9A380
+DETAIL_NOCHANGE_VA = IMAGE_BASE + SHR_RVA + (
+    DETAIL_NOCHANGE_FILE_OFFSET - SHR_FILE_OFFSET
+)
 
 # VV2 villager record fields (exact-build appearance audit).
 VV2_HEAD_FIELD = 0x548
@@ -428,35 +460,34 @@ def main() -> None:
         """,
     )
 
+    # Task9-style OK/Cancel purchase confirm.  Takes the action id (tech rows
+    # 0..10, detail rows 100..104) as its one stack argument and hands it to the
+    # DLL's ConfirmVV2Upgrade, which builds the "<Action> for N tech points?"
+    # box.  Returns 1 on OK, 0 on Cancel.
     put(
         confirm_dialog,
         f"""
             push ebx
             push esi
-            push 0x{s['user32_dll']:X}
+            push 0x{s['icons_dll']:X}
             call dword ptr [0x474010]
             test eax, eax
             je confirm_done
-            push 0x{s['message_box_export']:X}
+            push 0x{CONFIRM_EXPORT_VA:X}
             push eax
             call dword ptr [0x4740D4]
             test eax, eax
             je confirm_done
-            push 4
-            push 0x{s['tech_title']:X}
-            push 0x{s['permanent_warning']:X}
-            push 0
+            push dword ptr [esp + 0x0C]
             call eax
-            cmp eax, 6
-            sete al
-            movzx eax, al
-            jmp confirm_return
-        confirm_done:
-            xor eax, eax
-        confirm_return:
             pop esi
             pop ebx
-            ret
+            ret 4
+        confirm_done:
+            xor eax, eax
+            pop esi
+            pop ebx
+            ret 4
         """,
     )
 
@@ -486,6 +517,7 @@ def main() -> None:
             je menu_done
             mov ebx, eax
 
+            push ebx
             call 0x{confirm_dialog:X}
             test eax, eax
             jz menu_loop
@@ -505,14 +537,18 @@ def main() -> None:
             test dword ptr [edi + 0x2EAE8], 1
             jz preflight
             and dword ptr [edi + 0x2EAE8], 0xFFFFFFFE
-            mov eax, 0x{s['removed']:X}
-            jmp show_status
+            push 5
+            push ebx
+            call 0x{RESULT_HELPER_VA:X}
+            jmp menu_done
         maybe_remove_food:
             test dword ptr [edi + 0x2EAE8], 2
             jz preflight
             and dword ptr [edi + 0x2EAE8], 0xFFFFFFFD
-            mov eax, 0x{s['removed']:X}
-            jmp show_status
+            push 5
+            push ebx
+            call 0x{RESULT_HELPER_VA:X}
+            jmp menu_done
 
         preflight:
             cmp ebx, 0
@@ -529,25 +565,19 @@ def main() -> None:
         charge:
             cmp ebx, 6
             jb legacy_charge
-            cmp ebx, 8
-            je do_age_village
-            # ebx = 6 (Running), 7 (Full Mastery), 9 (Complete Collections), or
-            # 10 (Reset Collections): charge 1,000,000 then hand off to the DLL
-            # dispatch stub, which shows its own result and applies the change.
+            # ebx = 6 (Running), 7 (Full Mastery), 8 (Set All 18),
+            # 9 (Complete Collections), 10 (Reset Collections): require the
+            # 1,000,000, hand off to the DLL dispatch stub (it applies and shows
+            # its own result), then charge ONLY if it reports a real change in
+            # EAX.  No-change rows leave the balance untouched.
             cmp dword ptr [edi + 0x2EADC], 1000000
             jb insufficient
-            sub dword ptr [edi + 0x2EADC], 1000000
             call 0x{DISPATCH_VA:X}
             mov edi, dword ptr [esi + 0x0C]
-            jmp menu_done
-        do_age_village:
-            cmp dword ptr [edi + 0x2EADC], 1000000
-            jb insufficient
+            test eax, eax
+            jz menu_done
             sub dword ptr [edi + 0x2EADC], 1000000
-            call 0x{WHOLE_VILLAGE_VA:X}
-            mov edi, dword ptr [esi + 0x0C]
-            mov eax, 0x{s['purchased']:X}
-            jmp show_status
+            jmp menu_done
         legacy_charge:
             cmp ebx, 5
             je do_cure
@@ -596,11 +626,10 @@ def main() -> None:
             jb barrel_insufficient
             sub dword ptr [edi + 0x2EADC], eax
             add esp, 0x50D8
-            mov eax, 0x{s['purchased']:X}
-            push eax
-            push 0x{s['tech_title']:X}
-            call 0x{show_message:X}
             mov byte ptr [0x{BARREL_PENDING_VA:X}], 1
+            push 0
+            push ebx
+            call 0x{RESULT_HELPER_VA:X}
             jmp menu_done
         barrel_capacity_low:
             add esp, 0x50D8
@@ -645,8 +674,10 @@ def main() -> None:
         do_food_doubler:
             or dword ptr [edi + 0x2EAE8], 2
         success:
-            mov eax, 0x{s['purchased']:X}
-            jmp show_status
+            push 0
+            push ebx
+            call 0x{RESULT_HELPER_VA:X}
+            jmp menu_done
         insufficient:
             mov eax, 0x{s['not_enough']:X}
         show_status:
@@ -750,6 +781,8 @@ def main() -> None:
             je detail_done
             mov ebx, eax
 
+            lea eax, [ebx + 100]
+            push eax
             call 0x{confirm_dialog:X}
             test eax, eax
             jz detail_loop
@@ -769,11 +802,15 @@ def main() -> None:
             add edx, ecx
             cmp byte ptr [edx + 0x30], 0
             je detail_done
-            call 0x{DETAIL_PREFLIGHT_VA:X}
+            # Per-row no-change check (in .shr).  Returns 1 and shows the
+            # row-specific message when the purchase would change nothing (so we
+            # charge nothing); returns 0 to proceed to the charge.  EDX (the
+            # record) is preserved on the charge path.
+            push ebx
+            push edx
+            call 0x{DETAIL_NOCHANGE_VA:X}
             test eax, eax
-            jnz detail_charge
-            mov eax, 0x{s['running_no_change']:X}
-            jmp detail_status
+            jnz detail_loop
 
         detail_charge:
             mov eax, dword ptr [0x{s['detail_costs']:X} + ebx*4]
@@ -856,8 +893,11 @@ def main() -> None:
             dec eax
             jne running_dislike_loop
         detail_success:
-            mov eax, 0x{s['purchased']:X}
-            jmp detail_status
+            lea eax, [ebx + 100]
+            push 0
+            push eax
+            call 0x{RESULT_HELPER_VA:X}
+            jmp detail_loop
         detail_insufficient:
             mov eax, 0x{s['not_enough']:X}
         detail_status:
@@ -1569,7 +1609,8 @@ def main() -> None:
     # tail; because every `push imm32` is a fixed five bytes, assembling once
     # with placeholder string VAs yields the final code length, which then fixes
     # the real string addresses for a second, identical-length assembly.
-    def _dispatch_src(running_va: int, mastery_va: int, collections_va: int) -> str:
+    def _dispatch_src(running_va: int, mastery_va: int, age_va: int,
+                      collections_va: int) -> str:
         return f"""
             push ebp
             push esi
@@ -1586,6 +1627,9 @@ def main() -> None:
             cmp ebp, 6
             je disp_name_ready
             mov eax, 0x{mastery_va:X}
+            cmp ebp, 7
+            je disp_name_ready
+            mov eax, 0x{age_va:X}
         disp_name_ready:
             push eax
             push esi
@@ -1616,16 +1660,23 @@ def main() -> None:
 
     _placeholder = DISPATCH_VA + 0x100
     dispatch_len = len(
-        assemble(_dispatch_src(_placeholder, _placeholder, _placeholder), DISPATCH_VA)
+        assemble(
+            _dispatch_src(_placeholder, _placeholder, _placeholder, _placeholder),
+            DISPATCH_VA,
+        )
     )
     running_export_bytes = b"ApplyVV2RunningToAll\0"
     mastery_export_bytes = b"ApplyVV2MasteryToAll\0"
+    age_export_bytes = b"ApplyVV2AgeToAll\0"
     collections_export_bytes = b"ApplyVV2Collections\0"
     running_export_va = DISPATCH_VA + dispatch_len
     mastery_export_va = running_export_va + len(running_export_bytes)
-    collections_export_va = mastery_export_va + len(mastery_export_bytes)
+    age_export_va = mastery_export_va + len(mastery_export_bytes)
+    collections_export_va = age_export_va + len(age_export_bytes)
     dispatch_code = assemble(
-        _dispatch_src(running_export_va, mastery_export_va, collections_export_va),
+        _dispatch_src(
+            running_export_va, mastery_export_va, age_export_va, collections_export_va
+        ),
         DISPATCH_VA,
     )
     assert len(dispatch_code) == dispatch_len
@@ -1633,12 +1684,137 @@ def main() -> None:
         dispatch_code
         + running_export_bytes
         + mastery_export_bytes
+        + age_export_bytes
         + collections_export_bytes
     )
     if DISPATCH_FILE_OFFSET + len(dispatch_block) > 0x9B000:
         raise RuntimeError(
             f"dispatch stub overruns the .shr reserve: "
             f"0x{DISPATCH_FILE_OFFSET + len(dispatch_block):X} > 0x9B000"
+        )
+    # Result trampoline: payload success/doubler paths call this with
+    # (action, status); it forwards to the DLL's ShowVV2UpgradeResult so the
+    # simple rows render "<Action> completed." / doubler text instead of the old
+    # flat "Purchased."  Counts are zero here (the counted rows report from the
+    # DLL directly).
+    result_helper_code = assemble(
+        f"""
+            push ebx
+            push esi
+            mov ebx, dword ptr [esp + 0x0C]
+            mov esi, dword ptr [esp + 0x10]
+            push 0x{s['icons_dll']:X}
+            call dword ptr [0x474010]
+            test eax, eax
+            je rh_done
+            push 0x{RESULT_EXPORT_VA:X}
+            push eax
+            call dword ptr [0x4740D4]
+            test eax, eax
+            je rh_done
+            push 0
+            push 0
+            push 0
+            push 0
+            push esi
+            push ebx
+            call eax
+        rh_done:
+            pop esi
+            pop ebx
+            ret 8
+        """,
+        RESULT_HELPER_VA,
+    )
+    if RESULT_HELPER_FILE_OFFSET + len(result_helper_code) > 0x9A280:
+        raise RuntimeError(
+            f"result helper overruns its .shr gap: "
+            f"0x{RESULT_HELPER_FILE_OFFSET + len(result_helper_code):X} > 0x9A280"
+        )
+    # Detail per-row no-change check.  Args (record, row).  Returns 1 (charge
+    # nothing; message already shown) when the row is already satisfied, else 0.
+    # EDX is only read, so on the return-0 path the caller's record pointer
+    # survives for the charge/apply code.
+    detail_nochange_code = assemble(
+        f"""
+            push ebx
+            push esi
+            push edi
+            mov edx, dword ptr [esp + 0x10]
+            mov ebx, dword ptr [esp + 0x14]
+            cmp ebx, 0
+            je dnc_youth
+            cmp ebx, 1
+            je dnc_mastery
+            cmp ebx, 2
+            je dnc_running
+            cmp dword ptr [edx + 0x530], 360
+            jne dnc_charge
+            mov esi, 1
+            jmp dnc_show
+        dnc_youth:
+            cmp dword ptr [edx + 0x530], 100
+            jg dnc_charge
+            mov esi, 1
+            jmp dnc_show
+        dnc_mastery:
+            cmp dword ptr [edx + 0x7E4], 100
+            jne dnc_charge
+            cmp dword ptr [edx + 0x7E8], 100
+            jne dnc_charge
+            cmp dword ptr [edx + 0x7EC], 100
+            jne dnc_charge
+            cmp dword ptr [edx + 0x7F0], 100
+            jne dnc_charge
+            cmp dword ptr [edx + 0x7F4], 100
+            jne dnc_charge
+            mov esi, 1
+            jmp dnc_show
+        dnc_running:
+            xor edi, edi
+            lea ecx, [edx + 0x5F0]
+            mov eax, 62
+        dnc_run_scan:
+            cmp dword ptr [ecx], {RUNNING_PREFERENCE_ID}
+            jne dnc_run_notrun
+            or edi, 1
+        dnc_run_notrun:
+            cmp dword ptr [ecx], -1
+            jne dnc_run_next
+            or edi, 2
+        dnc_run_next:
+            add ecx, 4
+            dec eax
+            jne dnc_run_scan
+            test edi, 1
+            jz dnc_run_notliked
+            mov esi, 1
+            jmp dnc_show
+        dnc_run_notliked:
+            test edi, 2
+            jnz dnc_charge
+            mov esi, 4
+        dnc_show:
+            push esi
+            lea eax, [ebx + 100]
+            push eax
+            call 0x{RESULT_HELPER_VA:X}
+            mov eax, 1
+            jmp dnc_ret
+        dnc_charge:
+            xor eax, eax
+        dnc_ret:
+            pop edi
+            pop esi
+            pop ebx
+            ret 8
+        """,
+        DETAIL_NOCHANGE_VA,
+    )
+    if DETAIL_NOCHANGE_FILE_OFFSET + len(detail_nochange_code) > 0x9A530:
+        raise RuntimeError(
+            f"detail no-change helper overruns its .shr gap: "
+            f"0x{DETAIL_NOCHANGE_FILE_OFFSET + len(detail_nochange_code):X} > 0x9A530"
         )
     # Barrel main-village helper: defer the queued Barrel event by counting down
     # BARREL_CUE_FRAMES ticks of the per-frame update after the Tech screen
@@ -1709,12 +1885,6 @@ def main() -> None:
         "dry-scan all 256 active living records for low health or sickness before any Cure charge",
     )
     patch(
-        DETAIL_PREFLIGHT_FILE_OFFSET,
-        b"\0" * len(detail_preflight_code),
-        detail_preflight_code,
-        "recheck the selected active record and exact target state before any Villager Detail charge",
-    )
-    patch(
         BARREL_PENDING_FILE_OFFSET,
         b"\0",
         b"\0",
@@ -1739,10 +1909,28 @@ def main() -> None:
         "open the Change Appearance chooser for the selected active living villager and, on OK, charge 5,000 tech and write only the proven head and body fields",
     )
     patch(
-        WHOLE_VILLAGE_FILE_OFFSET,
-        b"\0" * len(whole_village_code),
-        whole_village_code,
-        "apply Running, Full Mastery, or Age 18 to every active living villager via the certified record array",
+        CONFIRM_EXPORT_FILE_OFFSET,
+        b"\0" * len(CONFIRM_EXPORT_BYTES),
+        CONFIRM_EXPORT_BYTES,
+        "store the DLL export name for the Task9-style OK/Cancel purchase confirm",
+    )
+    patch(
+        RESULT_EXPORT_FILE_OFFSET,
+        b"\0" * len(RESULT_EXPORT_BYTES),
+        RESULT_EXPORT_BYTES,
+        "store the DLL export name for the Task9-style upgrade result renderer",
+    )
+    patch(
+        RESULT_HELPER_FILE_OFFSET,
+        b"\0" * len(result_helper_code),
+        result_helper_code,
+        "forward the payload's simple success and doubler results to the DLL result renderer",
+    )
+    patch(
+        DETAIL_NOCHANGE_FILE_OFFSET,
+        b"\0" * len(detail_nochange_code),
+        detail_nochange_code,
+        "check whether a Detail-row purchase would change anything and, if not, show the row-specific no-change message and charge nothing",
     )
     patch(
         DISPATCH_FILE_OFFSET,
