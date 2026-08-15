@@ -612,6 +612,16 @@ __declspec(dllexport) int __stdcall ShowOriginsCureResult(
 
 static const int VV4_COLLECTION_GOALS[5] = { 0x302, 0x303, 0x304, 0x305, 0x306 };
 
+/* The Trophies-screen "N of 12" progress is a native statistic, not the
+   found-flags: the collect handler increments a per-collection stat for each
+   new find via 0x412F90 (ECX = stat manager 0x4CBB98). Records are 12 bytes at
+   [0x4CBB98 + id*12] = { byte0 complete-flag, +4 value }, and the writer latches
+   the trophy when the value reaches its threshold. Fish Scales 0xE, Lab 0x11,
+   Mausoleum 0xF, Wind Flutes 0x10 (indexed by collection = flag_index / 12). */
+#define VV4_STAT_MANAGER     0x4CBB98u
+#define VV4_STAT_RECORD(id)  (VV4_STAT_MANAGER + (unsigned)(id) * 12u)
+static const int VV4_COLLECTION_STATS[4] = { 0xE, 0x11, 0xF, 0x10 };
+
 /* Enqueue one goal through the native writer 0x44B890 (thiscall: this in ECX,
    three stack args, callee-cleaned via ret 0xC). Inline asm keeps the exact
    calling convention without a __thiscall typedef the C compiler rejects. */
@@ -628,13 +638,36 @@ static void vv4_enqueue_goal(int id) {
     }
 }
 
+/* Add `amount` to statistic `id` via the native writer 0x412F90 (thiscall:
+   this in ECX = stat manager, two stack args id/amount, ret 8). Reaching the
+   stat's threshold latches its trophy, exactly as a real new find does. */
+static void vv4_stat_add(int id, int amount) {
+    void *mgr = (void *)(UINT_PTR)VV4_STAT_MANAGER;
+    __asm {
+        mov  eax, amount
+        push eax
+        mov  eax, id
+        push eax
+        mov  ecx, mgr
+        mov  eax, 0x412F90
+        call eax
+    }
+}
+
 /* Returns the number of collectibles newly marked found (0 => everything was
    already complete, so the caller can report no-change and refund the charge). */
 __declspec(dllexport) int __stdcall ApplyVV4CompleteCollections(void) {
     unsigned int *flags = (unsigned int *)(UINT_PTR)VV4_COLL_FLAG_BASE;
     int i, newly = 0;
     for (i = 0; i < VV4_COLL_FLAG_COUNT; ++i) {
-        if (flags[i] == 0) { flags[i] = 1; ++newly; }
+        if (flags[i] == 0) {
+            flags[i] = 1;
+            /* Drive the same progress stat a real new find fires, so the
+               Trophies screen reaches N-of-12 and latches (found-flags alone
+               update the Collections screen but never the trophy). */
+            vv4_stat_add(VV4_COLLECTION_STATS[i / 12], 1);
+            ++newly;
+        }
     }
     /* Fire every collection trophy plus the master; the writer is idempotent
        (it skips a goal whose record is already latched), so it is safe even for
@@ -662,6 +695,14 @@ __declspec(dllexport) int __stdcall ApplyVV4ResetCollections(void) {
             (unsigned char *)(UINT_PTR)VV4_GOAL_RECORD(VV4_COLLECTION_GOALS[i]);
         int j;
         for (j = 0; j < 0x20; ++j) { rec[j] = 0; }
+    }
+    /* Reset the four "N of 12" progress stats (value + latched flag) so the
+       Trophies screen shows the collections incomplete again. */
+    for (i = 0; i < 4; ++i) {
+        unsigned char *rec =
+            (unsigned char *)(UINT_PTR)VV4_STAT_RECORD(VV4_COLLECTION_STATS[i]);
+        int j;
+        for (j = 0; j < 12; ++j) { rec[j] = 0; }
     }
     MessageBoxA(GetForegroundWindow(),
         "All collections were reset. Every collectible was cleared and the "
