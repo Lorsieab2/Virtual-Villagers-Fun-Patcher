@@ -1319,7 +1319,12 @@ def main() -> None:
     )
 
     # Reset all Collections: zero collectible ids 52..99 in the native count
-    # array and broadcast a refresh (0x293) so the Collections screen redraws.
+    # array, re-arm the collection-complete goals, and broadcast a refresh
+    # (0x293) so the Collections screen redraws.  Each goal event 0x2D0..0x2D4
+    # self-gates on the byte at 0x594C40 + (event-0x279)*0x20 (the notifier skips
+    # an already-delivered event), so clearing those five gate bytes lets a later
+    # Complete fire the goals again.  0x2D0's gate is at 0x594C40 + 0x57*0x20 =
+    # 0x595720; 0x2D1..0x2D4 follow at +0x20.
     collections_reset_code = assemble(
         f"""
             cmp dword ptr [0x582644], 1000000
@@ -1331,6 +1336,13 @@ def main() -> None:
             inc esi
             cmp esi, 100
             jl rc_loop
+            mov esi, 0x595720
+            mov edx, 5
+        rc_rearm:
+            mov byte ptr [esi], 0
+            add esi, 0x20
+            dec edx
+            jnz rc_rearm
             push 0
             push 0
             push 0x293
