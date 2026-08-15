@@ -18,23 +18,23 @@
   "source_bindings": {
     "task9_builder": {
       "path": "scripts/build_vv5_task9_native_actions.py",
-      "source_text_sha256": "9298C6A98A56769C0EE50B9CEDA72860A5D3DC606802F4A60F627FD32F099507"
+      "source_text_sha256": "C4F338A253A2FD759D843674F9A613AD07D87A85DDDF95BB716ABAF12F44FED1"
     },
     "companion_c": {
       "path": "native/vv5_task9_origins/vv5_task9_origins.c",
-      "source_text_sha256": "7CE6ABD30BDCDAED2599AD98346F3594E16D8C9E2AD894BD09EA8113FBE1316A"
+      "source_text_sha256": "503055C5C65B07B22FF3070717020B37DF3012EFD49DBBB1CD9C0369801E4F69"
     },
     "companion_def": {
       "path": "native/vv5_task9_origins/vv5_task9_origins.def",
-      "source_text_sha256": "0D5C23F01ADEA1881489EDCCAE973F18794BD0E02D36B7BE16D502BCDA515705"
+      "source_text_sha256": "040A5A877EDE8158F2C1FB9EE9A433C0B47391CB8DAE666CBCFFB0B594FBDC6D"
     },
     "companion_rc": {
       "path": "native/vv5_task9_origins/vv5_task9_origins.rc",
-      "source_text_sha256": "1132A37D0EB693ED08933B26AA0F70A37455E251C5733A64871588CF0B229B8A"
+      "source_text_sha256": "B85B703226551128AF80473C856A39BE1C87064DBCBF61DC7970D6D9FED2D56B"
     },
     "companion_builder": {
       "path": "scripts/build_vv5_task9_origins_dll.ps1",
-      "source_text_sha256": "781EDE0441819309C1C59DB36F0585FAF0DFC34C0089D80677FF7DB30C4FC9CE"
+      "source_text_sha256": "6ABF456B518089BB1D132987961FD5EDAA5E63F2ACE1F319433EA6B41E95F7BE"
     },
     "individual_reference": {
       "path": "src/vv5_individual_transactions.py",
@@ -67,8 +67,8 @@
     "unchanged": true
   },
   "companion": {
-    "size": 297472,
-    "sha256": "B402ED8316CD6EB2C43B056848E622DC0924188C81C683F5E2813466AF8045D0"
+    "size": 1692160,
+    "sha256": "C29E21F0CC16BCD1A0B61242C8DEA54DAD11F23469D03AB77807A0681E8553C5"
   },
   "payload": {
     "sha256": "03E0411F6468AA0385F342209E77F13F44EB235DB9D4136D0F57F23BA197E70C",
@@ -107,11 +107,11 @@
   },
   "layouts": {
     "collection_progression": {
-      "page_sha256": "ED942C43F5916D474A98D250D0493B3151968770BFB8919A758BA6924096FA9B",
+      "page_sha256": "05CF63E2511A97096148D9B45918045A5229F01C531BEEF32F3A98BDB51ADA9B",
       "routine_sha256": {
         "tech_entry": "74964745ECD556D47571535AAFAF9278CCDE1B71B97E080952CAF71D7C9F0CBE",
         "detail_entry": "8A56EFA1E4CF97E33B870318A1B8613E8EED41A0CF041A6E4DE8158199D32AAA",
-        "modal_common": "60AC1BCD73C6C40735D1963B742174847C2B5EDD0FE9A1BDD7D2BFE0FDE185D4",
+        "modal_common": "F123A6C27CA83469105499480F933B6350258322178FE00B8A77EDEE0792BFC8",
         "constructor_resource": "71AE6A82ADFA6D070748B3D214F5FF619D7826AB51D96F1910BAE8B95F18C94A",
         "resolve_current": "28A4CF2E80D5295C00531CAB1DDAA982F68C14BCF3849E0F371C7DF3112C2085",
         "resolve_index": "1B6CDF7038F253801A5A267FF5354580C6B02AEF4B03F051DAE3E02A110DD74E",
@@ -120,17 +120,26 @@
         "show_menu": "05C5A931DEAB5D32E9E65DC32F29EBC33C10DA8371AFFD89F9D56E7427A84234",
         "confirm": "AEDFF7576F01DAED759C1AD40662FBAEAF7605EC0C178A11FDCBC724836CA4BB",
         "status": "81422FD51D1AFCC19DBCBAEBBA428A2F68980573E3EE342203255BAC74358CB9",
-        "tech_menu": "45067B449654A21F72340DFCED305CD7AC4BF50EEEA425E31FEA389F1B3F9619",
-        "detail_menu": "7DFFA974CFB2EFE32729A680C14E016AD8415D560069E6B356C2B401C5718298",
+        "tech_menu": "13690622DF3858659BF74FB4EDB7BE202057F591DD0923D8B5A8C2B225999334",
+        "detail_menu": "ECB0D43A9D8A4732907D29BF52894988F1C0BB8AFC70BA005F69DFDED467519D",
         "age": "0BF24696E77297502FF39BE62B4D7C8A7E8A6B6D24CE0F0962BC90F1093E8E8F",
         "mastery": "84F4318805111D21A516C4C8347441E17B847411AB12D87B54C9D2434FE0BF47",
         "running": "384EF5F6DC19C232E94FD4D0DA6F661CEF4556B587BE6FFEA7759F70BD56EC36",
-        "heal": "C24D9829CCF0DAD815F44DDFAE648E1A7950C79F70A9E0ADB03BC325902090BF"
+        "heal": "4D0C90F5B90D13336DA0A3C80953E14BAD69787F31E9BE1F810EBE87F3ACB5DC",
+        "time_warp": "20FA9A16C054A22F7A25EF10D1066FBADBD8F92AFCAE059C0ADDAD82EE17D7C5",
+        "island": "3651F6A9C3253BE722E2AC588F6D208CDA9A9449932623B6E3C2E5D3F06B4927",
+        "barrel": "C846B3405151B27A738C344ADC4907DA9C6DFE06A68C75D287E1740AE7F0A5A7",
+        "appearance": "34A60DABD47DDC50CEA27173C216888EC3B3A2371970C9A4E2C40BEA363BF4BF",
+        "complete_collections": "B6E89174B0716602DEDF74EB565ACDE5362732E2543013539DEC6A48FA077C35",
+        "reset_collections": "A032358ACFFA43A6B43A53DD3689B76ED78C0F4D0430CB4C2E5A0C2A86601C4E",
+        "running_all": "5F9DBA675FA1D9D1035B4FC29B99588E1B008182649544E9B566FCA4C0428EFF",
+        "mastery_all": "6B928A5A4715BA28AD9CE5A2577744F8D6A841DC207513391F6C72C752DC601E",
+        "age18_all": "AB9CE960F3AF8821831CE2E3842ECDA286D0ED7EE28B2138C2B93039B39803CD"
       },
       "routine_length": {
         "tech_entry": 7,
         "detail_entry": 7,
-        "modal_common": 460,
+        "modal_common": 441,
         "constructor_resource": 12,
         "resolve_current": 40,
         "resolve_index": 82,
@@ -139,12 +148,21 @@
         "show_menu": 55,
         "confirm": 58,
         "status": 61,
-        "tech_menu": 368,
-        "detail_menu": 73,
+        "tech_menu": 622,
+        "detail_menu": 85,
         "age": 652,
         "mastery": 682,
         "running": 900,
-        "heal": 1284
+        "heal": 1284,
+        "time_warp": 534,
+        "island": 358,
+        "barrel": 436,
+        "appearance": 354,
+        "complete_collections": 419,
+        "reset_collections": 310,
+        "running_all": 458,
+        "mastery_all": 375,
+        "age18_all": 307
       },
       "entry_virtual_addresses": {
         "tech_entry": "0x7C9100",
@@ -162,17 +180,47 @@
         "confirm_export": "0x7D0055",
         "status_export": "0x7D006B",
         "sdl": "0x7D007E",
-        "flags": "0x7D0087"
+        "flags": "0x7D0087",
+        "appearance_export": "0x7D009A",
+        "perm_warning": "0x7D00B0",
+        "tw_get": "0x7D010A",
+        "tw_user32": "0x7D011A",
+        "tw_messagebox": "0x7D0125",
+        "tw_title": "0x7D0131",
+        "tw_warning": "0x7D0142",
+        "tw_paused": "0x7D0198",
+        "tw_insufficient": "0x7D01EF",
+        "tw_cancelled": "0x7D0207",
+        "tw_recheck": "0x7D0243",
+        "tw_unavailable": "0x7D02B9",
+        "tw_success": "0x7D02F7",
+        "tw_charge_unknown": "0x7D030C",
+        "tw_clock_unknown": "0x7D039B",
+        "iv_warning": "0x7D03F8",
+        "iv_cancelled": "0x7D0451",
+        "iv_recheck": "0x7D0490",
+        "iv_unavailable": "0x7D04F3",
+        "iv_success": "0x7D0534",
+        "iv_charge_unknown": "0x7D054C",
+        "iv_queue_unknown": "0x7D05CD",
+        "bb_warning": "0x7D0619",
+        "bb_full": "0x7D0676",
+        "bb_cancelled": "0x7D06CD",
+        "bb_recheck": "0x7D0710",
+        "bb_unavailable": "0x7D077E",
+        "bb_success": "0x7D07C3",
+        "bb_charge_unknown": "0x7D07DF",
+        "bb_queue_unknown": "0x7D0861"
       },
       "append_offset": "0xF2000",
       "page_virtual_address": "0x7C9000"
     },
     "immediate_fixed": {
-      "page_sha256": "ED942C43F5916D474A98D250D0493B3151968770BFB8919A758BA6924096FA9B",
+      "page_sha256": "05CF63E2511A97096148D9B45918045A5229F01C531BEEF32F3A98BDB51ADA9B",
       "routine_sha256": {
         "tech_entry": "74964745ECD556D47571535AAFAF9278CCDE1B71B97E080952CAF71D7C9F0CBE",
         "detail_entry": "8A56EFA1E4CF97E33B870318A1B8613E8EED41A0CF041A6E4DE8158199D32AAA",
-        "modal_common": "60AC1BCD73C6C40735D1963B742174847C2B5EDD0FE9A1BDD7D2BFE0FDE185D4",
+        "modal_common": "F123A6C27CA83469105499480F933B6350258322178FE00B8A77EDEE0792BFC8",
         "constructor_resource": "71AE6A82ADFA6D070748B3D214F5FF619D7826AB51D96F1910BAE8B95F18C94A",
         "resolve_current": "28A4CF2E80D5295C00531CAB1DDAA982F68C14BCF3849E0F371C7DF3112C2085",
         "resolve_index": "1B6CDF7038F253801A5A267FF5354580C6B02AEF4B03F051DAE3E02A110DD74E",
@@ -181,17 +229,26 @@
         "show_menu": "05C5A931DEAB5D32E9E65DC32F29EBC33C10DA8371AFFD89F9D56E7427A84234",
         "confirm": "AEDFF7576F01DAED759C1AD40662FBAEAF7605EC0C178A11FDCBC724836CA4BB",
         "status": "81422FD51D1AFCC19DBCBAEBBA428A2F68980573E3EE342203255BAC74358CB9",
-        "tech_menu": "45067B449654A21F72340DFCED305CD7AC4BF50EEEA425E31FEA389F1B3F9619",
-        "detail_menu": "7DFFA974CFB2EFE32729A680C14E016AD8415D560069E6B356C2B401C5718298",
+        "tech_menu": "13690622DF3858659BF74FB4EDB7BE202057F591DD0923D8B5A8C2B225999334",
+        "detail_menu": "ECB0D43A9D8A4732907D29BF52894988F1C0BB8AFC70BA005F69DFDED467519D",
         "age": "0BF24696E77297502FF39BE62B4D7C8A7E8A6B6D24CE0F0962BC90F1093E8E8F",
         "mastery": "84F4318805111D21A516C4C8347441E17B847411AB12D87B54C9D2434FE0BF47",
         "running": "384EF5F6DC19C232E94FD4D0DA6F661CEF4556B587BE6FFEA7759F70BD56EC36",
-        "heal": "C24D9829CCF0DAD815F44DDFAE648E1A7950C79F70A9E0ADB03BC325902090BF"
+        "heal": "4D0C90F5B90D13336DA0A3C80953E14BAD69787F31E9BE1F810EBE87F3ACB5DC",
+        "time_warp": "20FA9A16C054A22F7A25EF10D1066FBADBD8F92AFCAE059C0ADDAD82EE17D7C5",
+        "island": "3651F6A9C3253BE722E2AC588F6D208CDA9A9449932623B6E3C2E5D3F06B4927",
+        "barrel": "C846B3405151B27A738C344ADC4907DA9C6DFE06A68C75D287E1740AE7F0A5A7",
+        "appearance": "34A60DABD47DDC50CEA27173C216888EC3B3A2371970C9A4E2C40BEA363BF4BF",
+        "complete_collections": "B6E89174B0716602DEDF74EB565ACDE5362732E2543013539DEC6A48FA077C35",
+        "reset_collections": "A032358ACFFA43A6B43A53DD3689B76ED78C0F4D0430CB4C2E5A0C2A86601C4E",
+        "running_all": "5F9DBA675FA1D9D1035B4FC29B99588E1B008182649544E9B566FCA4C0428EFF",
+        "mastery_all": "6B928A5A4715BA28AD9CE5A2577744F8D6A841DC207513391F6C72C752DC601E",
+        "age18_all": "AB9CE960F3AF8821831CE2E3842ECDA286D0ED7EE28B2138C2B93039B39803CD"
       },
       "routine_length": {
         "tech_entry": 7,
         "detail_entry": 7,
-        "modal_common": 460,
+        "modal_common": 441,
         "constructor_resource": 12,
         "resolve_current": 40,
         "resolve_index": 82,
@@ -200,12 +257,21 @@
         "show_menu": 55,
         "confirm": 58,
         "status": 61,
-        "tech_menu": 368,
-        "detail_menu": 73,
+        "tech_menu": 622,
+        "detail_menu": 85,
         "age": 652,
         "mastery": 682,
         "running": 900,
-        "heal": 1284
+        "heal": 1284,
+        "time_warp": 534,
+        "island": 358,
+        "barrel": 436,
+        "appearance": 354,
+        "complete_collections": 419,
+        "reset_collections": 310,
+        "running_all": 458,
+        "mastery_all": 375,
+        "age18_all": 307
       },
       "entry_virtual_addresses": {
         "tech_entry": "0x7C9100",
@@ -223,17 +289,47 @@
         "confirm_export": "0x7D0055",
         "status_export": "0x7D006B",
         "sdl": "0x7D007E",
-        "flags": "0x7D0087"
+        "flags": "0x7D0087",
+        "appearance_export": "0x7D009A",
+        "perm_warning": "0x7D00B0",
+        "tw_get": "0x7D010A",
+        "tw_user32": "0x7D011A",
+        "tw_messagebox": "0x7D0125",
+        "tw_title": "0x7D0131",
+        "tw_warning": "0x7D0142",
+        "tw_paused": "0x7D0198",
+        "tw_insufficient": "0x7D01EF",
+        "tw_cancelled": "0x7D0207",
+        "tw_recheck": "0x7D0243",
+        "tw_unavailable": "0x7D02B9",
+        "tw_success": "0x7D02F7",
+        "tw_charge_unknown": "0x7D030C",
+        "tw_clock_unknown": "0x7D039B",
+        "iv_warning": "0x7D03F8",
+        "iv_cancelled": "0x7D0451",
+        "iv_recheck": "0x7D0490",
+        "iv_unavailable": "0x7D04F3",
+        "iv_success": "0x7D0534",
+        "iv_charge_unknown": "0x7D054C",
+        "iv_queue_unknown": "0x7D05CD",
+        "bb_warning": "0x7D0619",
+        "bb_full": "0x7D0676",
+        "bb_cancelled": "0x7D06CD",
+        "bb_recheck": "0x7D0710",
+        "bb_unavailable": "0x7D077E",
+        "bb_success": "0x7D07C3",
+        "bb_charge_unknown": "0x7D07DF",
+        "bb_queue_unknown": "0x7D0861"
       },
       "append_offset": "0xF2000",
       "page_virtual_address": "0x7C9000"
     },
     "experimental_expanded_256": {
-      "page_sha256": "03948795C056B67195B6528FE3CDA01BDF1DE16537C22C00947B7E68B490F0CB",
+      "page_sha256": "AEFBB28086F83442271C7BE78E297ED04B9DE9C68665CC49CE9A7296496EE86C",
       "routine_sha256": {
         "tech_entry": "81BB7E65EDFFA2A55B9AC574FD7D8983F3A909182B0F0417BEAAC5B9B8F10043",
         "detail_entry": "1E7105629F2D9D242D7177BB5624DD28E6B2D342E5134C4CEA78A9E6DE8242BF",
-        "modal_common": "B6817EA43BE9117EE5FE43A0C646A6F9A9A05A25F3EAF5215D701F5BA27675A4",
+        "modal_common": "46204D4D06ABBDFD123D19C505495D26EBC48A0EFAB3B301E92AD144EF33B88D",
         "constructor_resource": "37610853256B38A22C1CD3816E4590FC9491B1FBE3F1578975957F980EAD27A0",
         "resolve_current": "73E125CA83CE45D3CE6B60ECB16930524197629E8CF990845D4A8DC8BBF21CC7",
         "resolve_index": "FDD8BB52AEC247E4442964122E653505D792F69AB324A4A5BA4B1287F63D1211",
@@ -247,12 +343,12 @@
         "age": "24DFF28FE8ED815BA8C98A3551E75312FC33F885B1E232D97823166412188A62",
         "mastery": "5D64467263363444447600CE32953D45C1ACDEBA0A6150A89F4D84FC35DA0BC4",
         "running": "7D31F95C038EC0ED0C31F9C326F10CA52CC4CBB4C0DC55A37E4A7DD1A798568B",
-        "heal": "17ECB56BE563EC8FA7724E79EFADBC7AA7192C7A446ACEF987A4A9FF7B0DBE48"
+        "heal": "E60E6873FC8474410817F1806655026B5B04019F05F93D03CA3B1F1216029956"
       },
       "routine_length": {
         "tech_entry": 7,
         "detail_entry": 7,
-        "modal_common": 460,
+        "modal_common": 441,
         "constructor_resource": 12,
         "resolve_current": 40,
         "resolve_index": 82,
@@ -290,11 +386,11 @@
       "page_virtual_address": "0x904000"
     },
     "experimental_expanded_256_progression": {
-      "page_sha256": "03948795C056B67195B6528FE3CDA01BDF1DE16537C22C00947B7E68B490F0CB",
+      "page_sha256": "AEFBB28086F83442271C7BE78E297ED04B9DE9C68665CC49CE9A7296496EE86C",
       "routine_sha256": {
         "tech_entry": "81BB7E65EDFFA2A55B9AC574FD7D8983F3A909182B0F0417BEAAC5B9B8F10043",
         "detail_entry": "1E7105629F2D9D242D7177BB5624DD28E6B2D342E5134C4CEA78A9E6DE8242BF",
-        "modal_common": "B6817EA43BE9117EE5FE43A0C646A6F9A9A05A25F3EAF5215D701F5BA27675A4",
+        "modal_common": "46204D4D06ABBDFD123D19C505495D26EBC48A0EFAB3B301E92AD144EF33B88D",
         "constructor_resource": "37610853256B38A22C1CD3816E4590FC9491B1FBE3F1578975957F980EAD27A0",
         "resolve_current": "73E125CA83CE45D3CE6B60ECB16930524197629E8CF990845D4A8DC8BBF21CC7",
         "resolve_index": "FDD8BB52AEC247E4442964122E653505D792F69AB324A4A5BA4B1287F63D1211",
@@ -308,12 +404,12 @@
         "age": "24DFF28FE8ED815BA8C98A3551E75312FC33F885B1E232D97823166412188A62",
         "mastery": "5D64467263363444447600CE32953D45C1ACDEBA0A6150A89F4D84FC35DA0BC4",
         "running": "7D31F95C038EC0ED0C31F9C326F10CA52CC4CBB4C0DC55A37E4A7DD1A798568B",
-        "heal": "17ECB56BE563EC8FA7724E79EFADBC7AA7192C7A446ACEF987A4A9FF7B0DBE48"
+        "heal": "E60E6873FC8474410817F1806655026B5B04019F05F93D03CA3B1F1216029956"
       },
       "routine_length": {
         "tech_entry": 7,
         "detail_entry": 7,
-        "modal_common": 460,
+        "modal_common": 441,
         "constructor_resource": 12,
         "resolve_current": 40,
         "resolve_index": 82,

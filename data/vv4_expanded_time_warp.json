@@ -36,8 +36,8 @@
     {
       "source": "data/candidates/VVFP VV5 Task9 Origins Icons.dll",
       "destination": "VVFP Origins Icons.dll",
-      "sha256": "B402ED8316CD6EB2C43B056848E622DC0924188C81C683F5E2813466AF8045D0",
-      "size": 297472
+      "sha256": "C29E21F0CC16BCD1A0B61242C8DEA54DAD11F23469D03AB77807A0681E8553C5",
+      "size": 1692160
     }
   ],
   "patch_mode_overrides": {
@@ -87,23 +87,23 @@
   "source_bindings": {
     "builder": {
       "path": "scripts/build_expanded_time_warp.py",
-      "source_text_sha256": "AE645BAEE009D4BFFD7CBECD241B7AF52D39C852C3708D86646879ABF3AF973A"
+      "source_text_sha256": "7EED7ECB1ACECED9DD4BA1CE19DD33AF5CF4FE3D3263B34B692C0C44F2DB7882"
     },
     "task9_builder": {
       "path": "scripts/build_vv5_task9_native_actions.py",
-      "source_text_sha256": "9298C6A98A56769C0EE50B9CEDA72860A5D3DC606802F4A60F627FD32F099507"
+      "source_text_sha256": "C4F338A253A2FD759D843674F9A613AD07D87A85DDDF95BB716ABAF12F44FED1"
     },
     "task9_companion_c": {
       "path": "native/vv5_task9_origins/vv5_task9_origins.c",
-      "source_text_sha256": "7CE6ABD30BDCDAED2599AD98346F3594E16D8C9E2AD894BD09EA8113FBE1316A"
+      "source_text_sha256": "503055C5C65B07B22FF3070717020B37DF3012EFD49DBBB1CD9C0369801E4F69"
     },
     "task9_companion_def": {
       "path": "native/vv5_task9_origins/vv5_task9_origins.def",
-      "source_text_sha256": "0D5C23F01ADEA1881489EDCCAE973F18794BD0E02D36B7BE16D502BCDA515705"
+      "source_text_sha256": "040A5A877EDE8158F2C1FB9EE9A433C0B47391CB8DAE666CBCFFB0B594FBDC6D"
     },
     "task9_companion_rc": {
       "path": "native/vv5_task9_origins/vv5_task9_origins.rc",
-      "source_text_sha256": "1132A37D0EB693ED08933B26AA0F70A37455E251C5733A64871588CF0B229B8A"
+      "source_text_sha256": "B85B703226551128AF80473C856A39BE1C87064DBCBF61DC7970D6D9FED2D56B"
     }
   },
   "native_contract": {

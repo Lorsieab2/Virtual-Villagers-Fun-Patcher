@@ -117,7 +117,7 @@ class ExpandedTimeWarpArtifactTests(unittest.TestCase):
         )
 
     def test_exact_shared_companion_and_owner_exports(self) -> None:
-        self.assertEqual(COMPANION.stat().st_size, 297472)
+        self.assertEqual(COMPANION.stat().st_size, 1692160)
         self.assertEqual(digest(COMPANION.read_bytes()), builder.COMPANION_SHA256)
         self.assertEqual(self.vv4["companion_files"], [builder.companion()])
         self.assertEqual(self.vv5["companion_contract"], builder.companion())
@@ -161,8 +161,8 @@ class ExpandedTimeWarpArtifactTests(unittest.TestCase):
         task9 = builder.load_task9_builder()
         stock, stock_map = task9.build_page(0x7C9000)
         expanded, expanded_map = task9.build_page(0x904000)
-        self.assertEqual(digest(stock), "ED942C43F5916D474A98D250D0493B3151968770BFB8919A758BA6924096FA9B")
-        self.assertEqual(digest(expanded), "03948795C056B67195B6528FE3CDA01BDF1DE16537C22C00947B7E68B490F0CB")
+        self.assertEqual(digest(stock), "05CF63E2511A97096148D9B45918045A5229F01C531BEEF32F3A98BDB51ADA9B")
+        self.assertEqual(digest(expanded), "AEFBB28086F83442271C7BE78E297ED04B9DE9C68665CC49CE9A7296496EE86C")
         self.assertEqual(task9.SIZES["age"], 0x300)
         self.assertEqual(task9.OFF["time_warp"], 0x1040)
         self.assertEqual(task9.SIZES["time_warp"], 0x500)
@@ -172,7 +172,10 @@ class ExpandedTimeWarpArtifactTests(unittest.TestCase):
             self.task9["pe_append_transaction"]["layouts"]["collection_progression"]["append_bytes"]
         )
         self.assertEqual(manifest_stock, stock)
-        self.assertFalse(any(stock[0x1040:0x1540]))
+        # Stock now installs native Time Warp in its reserve; the expanded-256
+        # baseline keeps an empty reserve for the separate overlay.
+        self.assertTrue(any(stock[0x1040:0x1540]))
+        self.assertFalse(any(expanded[0x1040:0x1540]))
 
     def test_vv5_exact_dispatch_targets_and_row5_preservation(self) -> None:
         task9 = builder.load_task9_builder()
@@ -275,8 +278,8 @@ class ExpandedTimeWarpRendererTests(unittest.TestCase):
                 "immediate_fixed": "EB0CDD4F7F5E41F7A03734D51F9417A126C3BE9D214B484A848DB688545CF5FB",
             },
             "vv5": {
-                "collection_progression": "3540FA10994826A37205C6BF4F0CDC244B9E2AC5D99A5BFE54AF72B4B948D29A",
-                "immediate_fixed": "08B81AFB590A0F7171CECECD66DD0A149115A4A383E8C5AA157343A7A242B7FF",
+                "collection_progression": "B6FE471E0D83469F9A575B33CC24ABCEC2C2BA625A669C3AE536C9099B266E3C",
+                "immediate_fixed": "FAD1AB2E634285B6D990035754B92B8A0B138BAC57021C0031B38554A53BD0DF",
             },
         }
         for game_id in ("vv4", "vv5"):

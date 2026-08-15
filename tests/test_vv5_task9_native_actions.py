@@ -96,7 +96,17 @@ class Task9ArtifactTests(unittest.TestCase):
         sys.path.insert(0, str(ROOT / ".tools" / "capstone"))
         from capstone import CS_ARCH_X86, CS_MODE_32, Cs
 
-        expected_offsets = [0xB6, 0x118, 0x122, 0x133, 0x144, 0x155, 0x166]
+        # The stock layout (0x7C9000) enables Time Warp (command 0), Island Event
+        # (command 1), and Barrel of Babies (command 2), adding three result
+        # paths and shifting the offsets/`done` target; the expanded-256 baseline
+        # keeps the original seven paths.
+        stock_offsets = [
+            0x109, 0x1BA, 0x1C7, 0x1D4, 0x1E1, 0x1EE, 0x1F8, 0x202,
+            0x20C, 0x216, 0x220, 0x231, 0x242, 0x253, 0x264,
+        ]
+        stock_done = 0xAA9
+        expanded_offsets = [0xB6, 0x118, 0x122, 0x133, 0x144, 0x155, 0x166]
+        expanded_done = 0x9AB
         for mode, layout in builder.LAYOUTS.items():
             page, page_map = builder.build_page(layout["page_va"])
             start = builder.OFF["tech_menu"]
@@ -111,10 +121,13 @@ class Task9ArtifactTests(unittest.TestCase):
                 for item in instructions
                 if item.mnemonic == "jmp"
             }
+            native_time_warp = layout["page_va"] == 0x7C9000
+            expected_offsets = stock_offsets if native_time_warp else expanded_offsets
+            done_target = stock_done if native_time_warp else expanded_done
             with self.subTest(mode=mode):
                 self.assertEqual(
                     [jumps[offset] for offset in expected_offsets],
-                    [layout["page_va"] + 0x9AB] * 7,
+                    [layout["page_va"] + done_target] * len(expected_offsets),
                 )
 
     def test_resource_geometry_and_constructor_manager_abi_are_exact(self) -> None:
@@ -249,7 +262,9 @@ class Task9ArtifactTests(unittest.TestCase):
     def test_unsigned_detail_command_bound_is_before_any_action_resolution(self) -> None:
         page = bytes.fromhex(self.manifest["pe_append_transaction"]["layouts"]["collection_progression"]["append_bytes"])
         routine = page[builder.OFF["detail_menu"] : builder.OFF["detail_menu"] + builder.SIZES["detail_menu"]]
-        bound = routine.find(bytes.fromhex("83FB03"))
+        # Stock layout enables Change Appearance as command 4, so the unsigned
+        # command bound is `cmp ebx, 4` (83FB04) before any action resolution.
+        bound = routine.find(bytes.fromhex("83FB04"))
         unsigned_above = routine.find(bytes.fromhex("77"), bound + 3)
         self.assertGreaterEqual(bound, 0)
         self.assertEqual(unsigned_above, bound + 3)
@@ -282,7 +297,9 @@ class Task9ArtifactTests(unittest.TestCase):
         source = NATIVE.read_text(encoding="utf-8")
         generator = (ROOT / "scripts/build_vv5_task9_native_actions.py").read_text(encoding="utf-8")
         exports = DEF.read_text(encoding="utf-8")
-        self.assertEqual(source.count("GetForegroundWindow()"), 1)
+        # One in the owner capture (BeginOriginsOwner) and one as the modal
+        # parent of the Change Appearance picker; neither is an owner fallback.
+        self.assertEqual(source.count("GetForegroundWindow()"), 2)
         self.assertIn("validate_same_process_window(GetForegroundWindow())", source)
         self.assertIn("GetWindowThreadProcessId", source)
         self.assertIn("GetCurrentProcessId", source)
@@ -307,13 +324,28 @@ class Task9ArtifactTests(unittest.TestCase):
             self.assertIn(name, exports)
             self.assertIn(name.encode("ascii") + b"\0", DLL.read_bytes())
 
-    def test_dialog_resources_expose_exact_six_plus_four_rows(self) -> None:
+    def test_dialog_resources_expose_exact_eleven_plus_five_rows(self) -> None:
         resources = RC.read_text(encoding="utf-8")
         tech, detail = resources.split("202 DIALOGEX", 1)
-        self.assertEqual(tech.count('PUSHBUTTON "Buy"'), 6)
-        self.assertEqual(detail.count('PUSHBUTTON "Buy"'), 4)
+        # Eleven tech rows now: Time Warp, Island Event, Barrel of Babies, Tech
+        # Point Doubler, Food Point Doubler, Full Heal/Cure All, Complete all
+        # Collections, Reset all Collections, Grant Running to All Villagers,
+        # Grant Full Mastery to All Villagers, Set all Villagers to 18.
+        self.assertEqual(tech.count('PUSHBUTTON "Buy"'), 11)
+        # Five villager rows: Youth, Mastery, Running, Age 18, Change Appearance.
+        # The picker dialog 203 uses arrow/OK/Cancel, not "Buy".
+        self.assertEqual(detail.count('PUSHBUTTON "Buy"'), 5)
         self.assertIn("Full Heal / Cure All", tech)
+        self.assertIn("Complete All Collections", tech)
+        self.assertIn("Reset All Collections", tech)
+        self.assertIn("Grant Running to All Villagers", tech)
+        self.assertIn("Grant Full Mastery to All Villagers", tech)
+        self.assertIn("Set All Villagers to 18", tech)
         self.assertIn("Grant Running", detail)
+        self.assertIn("Change Appearance", detail)
+        # Both Upgrade menus advertise the ESC exit hint.
+        self.assertIn("Press ESC to exit this menu.", tech)
+        self.assertIn("Press ESC to exit this menu.", detail)
 
     def test_append_layouts_preserve_atomic_ranges_and_exact_pe_guards(self) -> None:
         layouts = self.manifest["pe_append_transaction"]["layouts"]
