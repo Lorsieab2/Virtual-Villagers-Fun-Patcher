@@ -8,3 +8,5 @@ EXPORTS
     ShowOriginsAppearancePicker=_ShowOriginsAppearancePicker@4
     ShowOriginsCureResult=_ShowOriginsCureResult@8
     ShowOriginsUpgradeMessage=_ShowOriginsUpgradeMessage@8
+    ApplyVV4CompleteCollections=_ApplyVV4CompleteCollections@0 @101
+    ApplyVV4ResetCollections=_ApplyVV4ResetCollections@0 @102

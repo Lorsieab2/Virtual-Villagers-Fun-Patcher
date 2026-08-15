@@ -584,6 +584,76 @@ __declspec(dllexport) int __stdcall ShowOriginsCureResult(
     return 1;
 }
 
+/* ---- Complete / Reset All Collections (VV4 collectible + goal system) ----
+   Reverse-engineered from the native collect handler at 0x4144xx (verified
+   live with Cheat Engine): the 48 collectible found-flags are the contiguous
+   dwords 0x4CC918..0x4CC9D4 (Fish Scales, Lab Pieces, Mausoleum, Wind Flutes;
+   found == non-zero). Each collection's TROPHY only latches through the game's
+   own goal machinery, so we drive it exactly as a natural final collect does:
+   enqueue each collection goal id through the native goal writer 0x44B890
+   (thiscall on the goal manager 0x4DACE0), which the game drains on the next
+   tick and shows the trophy. Goal ids: Fish 0x302, Lab 0x303, Mausoleum 0x304,
+   Wind Flute 0x305, master "All Collections Complete!" 0x306. Reset clears the
+   flags and zeroes those five 0x20-byte goal records; the shared difficulty-
+   scaled score stats and one-time rewards are left untouched (not collection-
+   exclusive / not reversible), so Reset undoes exactly what Complete did. */
+#define VV4_COLL_FLAG_BASE   0x4CC918u   /* found-flag for item index 0x46 */
+#define VV4_COLL_FLAG_COUNT  48
+#define VV4_GOAL_MANAGER     0x4DACE0u
+#define VV4_GOAL_RECORD(id)  (VV4_GOAL_MANAGER + (unsigned)((id) - 0x2AA) * 0x20u)
+
+static const int VV4_COLLECTION_GOALS[5] = { 0x302, 0x303, 0x304, 0x305, 0x306 };
+
+/* Enqueue one goal through the native writer 0x44B890 (thiscall: this in ECX,
+   three stack args, callee-cleaned via ret 0xC). Inline asm keeps the exact
+   calling convention without a __thiscall typedef the C compiler rejects. */
+static void vv4_enqueue_goal(int id) {
+    void *mgr = (void *)(UINT_PTR)VV4_GOAL_MANAGER;
+    __asm {
+        push 0
+        push 0
+        mov  eax, id
+        push eax
+        mov  ecx, mgr
+        mov  eax, 0x44B890
+        call eax
+    }
+}
+
+/* Returns the number of collectibles newly marked found (0 => everything was
+   already complete, so the caller can report no-change and refund the charge). */
+__declspec(dllexport) int __stdcall ApplyVV4CompleteCollections(void) {
+    unsigned int *flags = (unsigned int *)(UINT_PTR)VV4_COLL_FLAG_BASE;
+    int i, newly = 0;
+    for (i = 0; i < VV4_COLL_FLAG_COUNT; ++i) {
+        if (flags[i] == 0) { flags[i] = 1; ++newly; }
+    }
+    /* Fire every collection trophy plus the master; the writer is idempotent
+       (it skips a goal whose record is already latched), so it is safe even for
+       collections that were already complete. */
+    for (i = 0; i < 5; ++i) {
+        vv4_enqueue_goal(VV4_COLLECTION_GOALS[i]);
+    }
+    return newly;
+}
+
+/* Returns the number of collectibles cleared (0 => nothing was collected). */
+__declspec(dllexport) int __stdcall ApplyVV4ResetCollections(void) {
+    unsigned int *flags = (unsigned int *)(UINT_PTR)VV4_COLL_FLAG_BASE;
+    int i, cleared = 0;
+    for (i = 0; i < VV4_COLL_FLAG_COUNT; ++i) {
+        if (flags[i] != 0) { flags[i] = 0; ++cleared; }
+    }
+    /* Mark each collection goal/trophy incomplete again by zeroing its record. */
+    for (i = 0; i < 5; ++i) {
+        unsigned char *rec =
+            (unsigned char *)(UINT_PTR)VV4_GOAL_RECORD(VV4_COLLECTION_GOALS[i]);
+        int j;
+        for (j = 0; j < 0x20; ++j) { rec[j] = 0; }
+    }
+    return cleared;
+}
+
 __declspec(dllexport) int __stdcall ShowOriginsUpgradeMenuState(
     int villager_menu,
     int dialog_state
