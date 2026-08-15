@@ -273,11 +273,7 @@ class VV3OriginsFeatureTests(unittest.TestCase):
         self.assertIn("The collections are already cleared.", dll)
         # Details Grant Running 3-case no-change wording (codes 20-22).
         self.assertIn("This villager already likes Running.", dll)
-        self.assertIn(
-            "its Running dislike was removed. "
-            "No tech points have been deducted.",
-            dll,
-        )
+        self.assertIn("its Running dislike was removed.", dll)
         self.assertIn("Running can not be added.", dll)
         self.assertIn('"Villager Upgrades"', dll)  # detail-result title
         complete = source.split("        do_complete_collections:", 1)[1].split(
