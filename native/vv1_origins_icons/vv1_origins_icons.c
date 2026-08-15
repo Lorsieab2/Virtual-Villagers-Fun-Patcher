@@ -53,15 +53,10 @@ static HINSTANCE module_instance;
    real display's extreme top-left corner. That is easy to miss by
    accident in a small windowed game, but VV1 is an old game rendered at
    a small logical resolution that SDL scales up to fill the real
-   display (SDL_RenderSetLogicalSize is imported and used for this; by
-   contrast SDL_SetWindowFullscreen is imported but never actually
-   called anywhere in the exact-build executable, confirming there is no
-   in-game fullscreen toggle to hook around here -- the window stays a
-   normal top-level window the whole session, just resized/repositioned
-   to the display at startup per ldw.ini's FullScreen setting). Once the
-   real display is much larger than the game's own logical resolution,
-   as it always is in fullscreen, a dialog pinned at (0,0) is effectively
-   unreachable rather than merely off-center.
+   display (SDL_RenderSetLogicalSize is imported and used for this).
+   Once the real display is much larger than the game's own logical
+   resolution, as it always is in fullscreen, a dialog pinned at (0,0)
+   is effectively unreachable rather than merely off-center.
 
    Centers on the owner window's own current rect -- which SDL keeps
    accurate to the real on-screen window, fullscreen or windowed, unlike
