@@ -697,12 +697,20 @@ __declspec(dllexport) int __stdcall ApplyVV4ResetCollections(void) {
         for (j = 0; j < 0x20; ++j) { rec[j] = 0; }
     }
     /* Reset the four "N of 12" progress stats (value + latched flag) so the
-       Trophies screen shows the collections incomplete again. */
+       Trophies screen shows the collections incomplete again, plus the master
+       "collections completed" counter (stat 0x12) that the native latch
+       (0x412F10) bumps once per completed collection -- otherwise the "Master
+       Collector - 4 of 4" trophy stays complete after a reset. */
     for (i = 0; i < 4; ++i) {
         unsigned char *rec =
             (unsigned char *)(UINT_PTR)VV4_STAT_RECORD(VV4_COLLECTION_STATS[i]);
         int j;
         for (j = 0; j < 12; ++j) { rec[j] = 0; }
+    }
+    {
+        unsigned char *master = (unsigned char *)(UINT_PTR)VV4_STAT_RECORD(0x12);
+        int j;
+        for (j = 0; j < 12; ++j) { master[j] = 0; }
     }
     MessageBoxA(GetForegroundWindow(),
         "All collections were reset. Every collectible was cleared and the "
