@@ -2274,18 +2274,24 @@ def build_barrel_close_arm(page: bytearray, page_va: int) -> bytes:
 
 
 def build_complete_collections(page: bytearray, page_va: int) -> bytes:
-    """Complete all Collections (village-wide, 1,000,000 tech points). Drives the
-    game's own collectible goal machinery: for each collectible slot 0x50..0x82
-    that is not already found, mark the found-flag in the collectible manager
-    (0x4DBFC8 + item*4 + 0x630) and fire the exact native statistic the collect
-    handler fires for a new find via 0x413450 (ECX=0x4DB358): stat 0xF for slots
-    0x50..0x67, stat 0xE for 0x68..0x7F, and stats 8/9/0xA (+0xB/0xC/0xD for the
-    two higher masters) plus the master count 0x51D36C for 0x80..0x82. 0x413450
-    latches the collection goals through the native goal cascade. The
-    difficulty-scaled score accumulator (0x41EB40 -> shared stat 0) is
-    intentionally not driven so Reset stays cleanly reversible. Charges one
-    verified 1,000,000 deduction after the shared confirm (detailed prompt plus
-    the permanent-change warning)."""
+    """Complete all Collections (village-wide, 1,000,000 tech points). Covers the
+    two collectible sets -- Relics (slots 0x68..0x7F, stat 0xE) and Science Items
+    (slots 0x50..0x67, stat 0xF), 48 items total. For every slot not yet found it
+    marks the found-flag in the collectible manager (0x4DBFC8 + item*4 + 0x630),
+    then deterministically *earns* each set's trophy by driving its native
+    statistic across the completion threshold: the statistic record lives at
+    0x4DB358 + id*12 (byte0 = earned/locked flag, +4 = value, +8 = handle) and the
+    completion threshold is 24 (table 0x4C6544). When a set is not already earned
+    we force its value to 23 and call the game's own stat writer 0x413450
+    (ECX=0x4DB358, id, +1) so the value crosses 24; that fires the native earn
+    cascade 0x4133f0 -- it sets byte0, queues the on-screen "Trophy earned" popup
+    (pending list at 0x4DB670) and bumps the Master Collector counter (stat 0x10,
+    threshold 2), which auto-earns once both sets are done. We then raise the
+    native "collection completed" toasts 0x2FF (relics) / 0x300 (science) / 0x301
+    (all) through the message manager 0x520220 -> 0x44E730 (self-deduping). Driving
+    the real stat writer (rather than poking byte0) is what makes the star fill,
+    the popup show, and Master Collector count -- filling the bar value alone does
+    not earn. Charges one verified 1,000,000 deduction after the shared confirm."""
     return put(page, page_va, "complete_collections", f"""
         push ebp
         mov ebp, esp
@@ -2309,6 +2315,7 @@ def build_complete_collections(page: bytearray, page_va: int) -> bytes:
         cmp eax, 1000000
         jb insufficient
         mov dword ptr [ebp-0x14], 0
+        mov dword ptr [ebp-0x18], 0
         mov edi, 0x4DBFC8
         mov esi, 0x50
     grant_loop:
@@ -2316,56 +2323,46 @@ def build_complete_collections(page: bytearray, page_va: int) -> bytes:
         jne grant_next
         mov dword ptr [edi+esi*4+0x630], 1
         inc dword ptr [ebp-0x14]
+        mov dword ptr [ebp-0x18], 1
+    grant_next:
+        inc esi
         cmp esi, 0x80
-        jae grant_master
-        cmp esi, 0x68
-        jae grant_cat_e
-        push 1
-        push 0xF
-        mov ecx, 0x4DB358
-        call 0x413450
-        jmp grant_next
-    grant_cat_e:
+        jl grant_loop
+        cmp byte ptr [0x4DB400], 0
+        jne earn_science
+        mov dword ptr [ebp-0x18], 1
+        mov dword ptr [0x4DB404], 23
         push 1
         push 0xE
         mov ecx, 0x4DB358
         call 0x413450
-        jmp grant_next
-    grant_master:
+    earn_science:
+        cmp byte ptr [0x4DB40C], 0
+        jne after_earn
+        mov dword ptr [ebp-0x18], 1
+        mov dword ptr [0x4DB410], 23
         push 1
-        push 8
+        push 0xF
         mov ecx, 0x4DB358
         call 0x413450
-        push 1
-        push 9
-        mov ecx, 0x4DB358
-        call 0x413450
-        push 1
-        push 0xA
-        mov ecx, 0x4DB358
-        call 0x413450
-        cmp esi, 0x80
-        je grant_master_count
-        push 1
-        push 0xB
-        mov ecx, 0x4DB358
-        call 0x413450
-        push 1
-        push 0xC
-        mov ecx, 0x4DB358
-        call 0x413450
-        push 1
-        push 0xD
-        mov ecx, 0x4DB358
-        call 0x413450
-    grant_master_count:
-        add dword ptr [0x51D36C], 1
-    grant_next:
-        inc esi
-        cmp esi, 0x83
-        jl grant_loop
-        cmp dword ptr [ebp-0x14], 0
+    after_earn:
+        cmp dword ptr [ebp-0x18], 0
         je no_change
+        push 0
+        push 0
+        push 0x2FF
+        mov ecx, 0x520220
+        call 0x44E730
+        push 0
+        push 0
+        push 0x300
+        mov ecx, 0x520220
+        call 0x44E730
+        push 0
+        push 0
+        push 0x301
+        mov ecx, 0x520220
+        call 0x44E730
         mov eax, dword ptr [0x51D5F8]
         cmp eax, dword ptr [ebp-0x10]
         jne charge_unknown
@@ -2404,14 +2401,18 @@ def build_complete_collections(page: bytearray, page_va: int) -> bytes:
 
 def build_reset_collections(page: bytearray, page_va: int) -> bytes:
     """Reset all Collections (village-wide, 1,000,000 tech points). Reverses only
-    the collection-exclusive state: clears every found-flag (0x4DBFC8 + item*4 +
-    0x630, slots 0x50..0x82), zeroes the collection goal records 0x8..0xF in the
-    statistic manager (0x4DB358 + id*12: complete-flag byte and accumulated
-    value), and resets the master count 0x51D36C. Statistic IDs 0x8..0xF are used
-    only by the collect handler, so clearing them cannot disturb unrelated
-    progress. The shared meta goal counters (0x10/0x40/0x41) bumped by the goal
-    cascade and any one-time completion rewards are not touched -- they are not
-    collection-exclusive and cannot be safely reversed. Charges one verified
+    the collection-exclusive state for the two sets (slots 0x50..0x7F, 48 items):
+    clears every found-flag (0x4DBFC8 + item*4 + 0x630) and un-earns the three
+    collection trophies by zeroing their statistic records at 0x4DB358 + id*12 --
+    Relics (0xE, record 0x4DB400), Science Items (0xF, record 0x4DB40C) and Master
+    Collector (0x10, record 0x4DB418) -- writing byte0 (earned flag), +4 (value)
+    and +8 (handle) all to zero so the star empties and the counter drops. It then
+    re-arms the completion toasts by clearing their message "already-shown" latch
+    (byte0 of 0x520220 + (id-0x29c)*32: 0x2FF->0x520E80, 0x300->0x520EA0,
+    0x301->0x520EC0) so a later Complete re-shows them. These statistic ids and
+    found-flags are collection-exclusive, so clearing them cannot disturb other
+    progress; the shared meta counters (0x40/0x41) bumped by the earn cascade are
+    left alone since they aggregate unrelated trophies too. Charges one verified
     1,000,000 deduction after the shared confirm."""
     return put(page, page_va, "reset_collections", f"""
         push ebp
@@ -2436,6 +2437,7 @@ def build_reset_collections(page: bytearray, page_va: int) -> bytes:
         cmp eax, 1000000
         jb insufficient
         mov dword ptr [ebp-0x14], 0
+        mov dword ptr [ebp-0x18], 0
         mov edi, 0x4DBFC8
         mov esi, 0x50
     clear_loop:
@@ -2443,21 +2445,35 @@ def build_reset_collections(page: bytearray, page_va: int) -> bytes:
         je clear_next
         mov dword ptr [edi+esi*4+0x630], 0
         inc dword ptr [ebp-0x14]
+        mov dword ptr [ebp-0x18], 1
     clear_next:
         inc esi
-        cmp esi, 0x83
+        cmp esi, 0x80
         jl clear_loop
-        cmp dword ptr [ebp-0x14], 0
+        cmp byte ptr [0x4DB400], 0
+        jne mark_change
+        cmp byte ptr [0x4DB40C], 0
+        jne mark_change
+        cmp byte ptr [0x4DB418], 0
+        jne mark_change
+        jmp after_change
+    mark_change:
+        mov dword ptr [ebp-0x18], 1
+    after_change:
+        cmp dword ptr [ebp-0x18], 0
         je no_change
-        mov esi, 8
-    stat_loop:
-        lea eax, [esi+esi*2]
-        mov byte ptr [eax*4+0x4DB358], 0
-        mov dword ptr [eax*4+0x4DB35C], 0
-        inc esi
-        cmp esi, 0x10
-        jl stat_loop
-        mov dword ptr [0x51D36C], 0
+        mov byte ptr [0x4DB400], 0
+        mov dword ptr [0x4DB404], 0
+        mov dword ptr [0x4DB408], 0
+        mov byte ptr [0x4DB40C], 0
+        mov dword ptr [0x4DB410], 0
+        mov dword ptr [0x4DB414], 0
+        mov byte ptr [0x4DB418], 0
+        mov dword ptr [0x4DB41C], 0
+        mov dword ptr [0x4DB420], 0
+        mov byte ptr [0x520E80], 0
+        mov byte ptr [0x520EA0], 0
+        mov byte ptr [0x520EC0], 0
         mov eax, dword ptr [0x51D5F8]
         cmp eax, dword ptr [ebp-0x10]
         jne charge_unknown
