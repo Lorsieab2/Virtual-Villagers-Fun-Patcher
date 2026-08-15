@@ -120,6 +120,34 @@ static void center_dialog_on_owner(HWND dialog) {
     SetWindowPos(dialog, NULL, x, y, 0, 0, SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE);
 }
 
+/* Reported: the game's own view goes black behind the dialog while it's
+   open, and (more importantly) stays black even after it closes.
+   DialogBoxParamA runs its own nested message loop on this same thread,
+   so the game's own per-frame loop (poll input, render, present) simply
+   does not run at all for as long as the dialog is up -- expected for
+   any same-thread modal, and not something this DLL can change without
+   reaching into the game's own render/window internals (tried that:
+   the specific singleton needed for the game's own safe fullscreen
+   leave/enter pair turned out to live inside a byte range this repo's
+   own Origins village-wide payload already claims as scratch cave
+   space, so on a patched build that address no longer holds what it
+   holds in the stock exe -- not a safe address to touch here). The
+   "still black after close" half is fixable without touching any of
+   that: Windows' compositor does not automatically know to re-fetch
+   the owner window's already-rendered content once a modal releases
+   it, so this just asks Windows to repaint the owner -- standard,
+   documented Win32 behavior, nothing SDL- or game-specific. */
+static void force_owner_repaint(HWND owner) {
+    if (owner != NULL && IsWindow(owner)) {
+        RedrawWindow(
+            owner,
+            NULL,
+            NULL,
+            RDW_INVALIDATE | RDW_ERASE | RDW_UPDATENOW | RDW_ALLCHILDREN | RDW_FRAME
+        );
+    }
+}
+
 enum {
     IDD_ORIGINS_TECH = 201,
     IDD_ORIGINS_VILLAGER = 202,
@@ -242,16 +270,20 @@ static INT_PTR CALLBACK upgrade_dialog(
 
 static int show_upgrade_menu(int villager_menu, int dialog_state) {
     int resource = villager_menu ? IDD_ORIGINS_VILLAGER : IDD_ORIGINS_TECH;
+    HWND owner = GetForegroundWindow();
+    int result;
     if (villager_menu) {
         dialog_state |= STATE_VILLAGER;
     }
-    return (int)DialogBoxParamA(
+    result = (int)DialogBoxParamA(
         module_instance,
         MAKEINTRESOURCEA(resource),
-        GetForegroundWindow(),
+        owner,
         upgrade_dialog,
         dialog_state
     );
+    force_owner_repaint(owner);
+    return result;
 }
 
 /* Crops row `index` (one villager-record value = one 40x65 row) out of
@@ -387,6 +419,8 @@ __declspec(dllexport) int __stdcall ShowOriginsAppearancePicker(
     int villager_ptr
 ) {
     unsigned char *villager = (unsigned char *)(UINT_PTR)(unsigned int)villager_ptr;
+    HWND owner;
+    int result;
     if (villager == NULL) {
         return 0;
     }
@@ -395,13 +429,16 @@ __declspec(dllexport) int __stdcall ShowOriginsAppearancePicker(
     appearance_state.original_body = *(int *)(villager + VV_CLOTHING_OFFSET);
     appearance_state.male = *(int *)(villager + VV_GENDER_OFFSET) == VV_GENDER_MALE;
     appearance_state.valid_count = appearance_state.male ? 19 : 20;
-    return (int)DialogBoxParamA(
+    owner = GetForegroundWindow();
+    result = (int)DialogBoxParamA(
         module_instance,
         MAKEINTRESOURCEA(IDD_ORIGINS_APPEARANCE),
-        GetForegroundWindow(),
+        owner,
         appearance_dialog,
         (LPARAM)(UINT_PTR)villager
     );
+    force_owner_repaint(owner);
+    return result;
 }
 
 __declspec(dllexport) int __stdcall ShowOriginsUpgradeMenuState(
