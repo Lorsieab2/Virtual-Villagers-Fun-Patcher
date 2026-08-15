@@ -65,7 +65,7 @@ static INT_PTR CALLBACK upgrade_dialog(
             if (MessageBoxA(
                     window,
                     "This upgrade makes permanent changes to your village. "
-                    "Do you still want to purchase this?",
+                    "Are you sure you want to continue?",
                     "Confirm Purchase",
                     MB_YESNO | MB_ICONWARNING) == IDYES) {
                 EndDialog(window, (INT_PTR)(command - ID_BUY_FIRST));
@@ -161,82 +161,94 @@ __declspec(dllexport) int __stdcall ShowOriginsUpgradeMenu(
     return show_upgrade_menu(villager_menu, dialog_state);
 }
 
-__declspec(dllexport) int __stdcall ShowOriginsVillageWideResult(
-    int command,
-    int full_like_skipped,
-    int already_running_skipped,
-    int removed_running_dislike
-) {
-    /* message must hold four full lines; the former 128-byte buffer overflowed
-       (~155 chars) and smashed the stack whenever a running dislike was
-       removed, crashing the game. */
-    char message[256];
-    char line[96];
-    if (command == 6) {
-        wsprintfA(
-            message,
-            "%d villagers already like running; skipped over.",
-            already_running_skipped
-        );
-        wsprintfA(
-            line,
-            "\r\n%d villagers already have 3 likes; skipped over.",
-            full_like_skipped
-        );
-        lstrcatA(message, line);
-        wsprintfA(
-            line,
-            "\r\nRemoved Running Dislike from %d villagers.",
-            removed_running_dislike
-        );
-        lstrcatA(message, line);
-        MessageBoxA(
-            GetForegroundWindow(),
-            message,
-            "Origins Upgrades",
-            MB_OK | MB_ICONINFORMATION
-        );
+/* ---- VV3 village-wide count + VV5-Task9-style result ----
+   The payload's village-wide applies don't report counts, so the DLL counts
+   affected villagers directly (read-only) using VV3's record layout, before the
+   payload applies the change.  Prepare stores the counts and returns whether the
+   purchase would change anything (so the payload can refund/skip on a no-op);
+   the result reader formats the message from the stored counts. */
+#define VV3_REC_BASE   0x0059E124u
+#define VV3_SLOTS_PTR  0x0042883Au
+#define VV3_STRIDE     0x1F8Cu
+#define VV3_ACTIVE     0xF10   /* byte: 0 = empty slot                */
+#define VV3_HEALTH     0xE78   /* int:  <= 0 = not a living villager  */
+#define VV3_AGE        0xDC4   /* int:  360 = 18 years                */
+#define VV3_SKILL0     0xEAC   /* 5 ints, +4 each; 100 = mastered     */
+#define VV3_LIKES      0xFB4   /* 3 ints; 38 = running; -1 = empty    */
+#define VV3_DISLIKES   0xFC0   /* 3 ints; 38 = running                */
+#define VV3_RUN_PREF   38
+
+#define VW_RUNNING 6
+#define VW_MASTERY 7
+#define VW_AGE     8
+
+static unsigned int vw_granted, vw_already, vw_noslot, vw_removed;
+
+static void vv3_count_village_wide(int command) {
+    unsigned char *rec = (unsigned char *)(UINT_PTR)VV3_REC_BASE;
+    int slots = *(int *)(UINT_PTR)VV3_SLOTS_PTR;
+    int i, s;
+    vw_granted = vw_already = vw_noslot = vw_removed = 0;
+    for (i = 0; i < slots; ++i, rec += VV3_STRIDE) {
+        if (rec[VV3_ACTIVE] == 0) continue;
+        if (*(int *)(rec + VV3_HEALTH) <= 0) continue;
+        if (command == VW_MASTERY) {
+            int mastered = 1;
+            for (s = 0; s < 5; ++s)
+                if (*(int *)(rec + VV3_SKILL0 + s * 4) != 100) { mastered = 0; break; }
+            if (mastered) vw_already++; else vw_granted++;
+        } else if (command == VW_AGE) {
+            if (*(int *)(rec + VV3_AGE) >= 360) vw_already++; else vw_granted++;
+        } else if (command == VW_RUNNING) {
+            int has_like = 0, has_free = 0, has_dislike = 0, v;
+            for (s = 0; s < 3; ++s) {
+                v = *(int *)(rec + VV3_LIKES + s * 4);
+                if (v == VV3_RUN_PREF) has_like = 1;
+                else if (v == -1) has_free = 1;
+            }
+            for (s = 0; s < 3; ++s)
+                if (*(int *)(rec + VV3_DISLIKES + s * 4) == VV3_RUN_PREF) has_dislike = 1;
+            if (has_like) vw_already++;
+            else if (has_free) vw_granted++;
+            else vw_noslot++;
+            if (has_dislike) vw_removed++;
+        }
     }
-    return 0;
 }
 
-__declspec(dllexport) int __stdcall ShowOriginsVillageWideResult20(
-    int command,
-    unsigned int granted,
-    unsigned int already_like,
-    unsigned int full_like,
-    unsigned int removed_dislike
-) {
-    char message[256];
-    char line[96];
-    if (command != 6) {
+/* Count affected villagers and store the result.  Returns nonzero if the
+   purchase would change anything, so the payload can refund and skip on a
+   no-op. */
+__declspec(dllexport) int __stdcall PrepareOriginsVillageWide(int command) {
+    vv3_count_village_wide(command);
+    if (command == VW_RUNNING)
+        return (int)(vw_granted + vw_removed);
+    return (int)vw_granted;
+}
+
+__declspec(dllexport) int __stdcall ShowOriginsVillageWideResult(int command) {
+    char message[512];
+    char line[160];
+    if (command == VW_RUNNING) {
+        wsprintfA(message, "Granted Running to %u villagers.", vw_granted);
+        wsprintfA(line, "\r\n%u villagers already like Running.", vw_already);
+        lstrcatA(message, line);
+        wsprintfA(line, "\r\n%u villagers have no empty Like slot.", vw_noslot);
+        lstrcatA(message, line);
+        wsprintfA(line, "\r\nRemoved a Running dislike from %u villagers.", vw_removed);
+        lstrcatA(message, line);
+    } else if (command == VW_MASTERY) {
+        wsprintfA(message, "Fully mastered %u villagers.", vw_granted);
+        wsprintfA(line, "\r\n%u villagers were already fully mastered.", vw_already);
+        lstrcatA(message, line);
+    } else if (command == VW_AGE) {
+        wsprintfA(message, "Set %u villagers to 18 years old.", vw_granted);
+        wsprintfA(line, "\r\n%u villagers were already 18 or older.", vw_already);
+        lstrcatA(message, line);
+    } else {
         return 0;
     }
-    wsprintfA(message, "Granted Running to %u villagers", granted);
-    wsprintfA(
-        line,
-        "\r\nSkipped over %u villagers. Reason: already likes running",
-        already_like
-    );
-    lstrcatA(message, line);
-    wsprintfA(
-        line,
-        "\r\nSkipped over %u villagers. Reason: all like slots are occupied",
-        full_like
-    );
-    lstrcatA(message, line);
-    wsprintfA(
-        line,
-        "\r\nRemoved running dislike from %u villagers",
-        removed_dislike
-    );
-    lstrcatA(message, line);
-    MessageBoxA(
-        GetForegroundWindow(),
-        message,
-        "Origins Upgrades",
-        MB_OK | MB_ICONINFORMATION
-    );
+    MessageBoxA(GetForegroundWindow(), message, "Origins Upgrades", MB_OK | MB_ICONINFORMATION);
     return 0;
 }
 

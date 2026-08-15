@@ -34,9 +34,13 @@ STRINGS_OFFSET = 0xC00
 STRINGS_VA = PAYLOAD_VA + STRINGS_OFFSET
 HEAL_CAVE_FILE_OFFSET = 0x7B664
 HEAL_CAVE_VA = IMAGE_BASE + HEAL_CAVE_FILE_OFFSET
-NATIVE_FOOD_TAIL_FILE_OFFSET = 0x7B7C0
+# Moved down from 0x7B7C0/0x7B7D0 to make room for the enlarged Cure/village-wide
+# cave (HEAL_CAVE now runs to ~0x7B7EA); still in the free .text padding before
+# the village-wide signature at 0x7B820.  The Island Event food/tech reward hooks
+# jump here by NATIVE_*_TAIL_VA, so the move is self-consistent.
+NATIVE_FOOD_TAIL_FILE_OFFSET = 0x7B7F0
 NATIVE_FOOD_TAIL_VA = IMAGE_BASE + NATIVE_FOOD_TAIL_FILE_OFFSET
-NATIVE_TECH_TAIL_FILE_OFFSET = 0x7B7D0
+NATIVE_TECH_TAIL_FILE_OFFSET = 0x7B800
 NATIVE_TECH_TAIL_VA = IMAGE_BASE + NATIVE_TECH_TAIL_FILE_OFFSET
 VILLAGE_WIDE_SIGNATURE_VA = IMAGE_BASE + 0x7B820
 VILLAGE_WIDE_ENTRY_VA = IMAGE_BASE + 0x7B840
@@ -143,6 +147,11 @@ def main() -> None:
         ("icons_dll", "VVFP Origins Icons.dll"),
         ("show_dialog_export", "ShowOriginsUpgradeMenuState"),
         ("show_result_export", "ShowOriginsVillageWideResult"),
+        ("prepare_export", "PrepareOriginsVillageWide"),
+        (
+            "village_no_change",
+            "No changes were needed. No tech points have been deducted.",
+        ),
         ("user32_dll", "USER32.dll"),
         ("message_box_export", "MessageBoxA"),
         ("wsprintf_export", "wsprintfA"),
@@ -982,35 +991,52 @@ def main() -> None:
             or dword ptr [0x5824D0], 2
             ret
         village_wide:
+            # ebx = command (6 running / 7 mastery / 8 age).  Count the affected
+            # villagers in the DLL first (PrepareOriginsVillageWide): if nothing
+            # would change, refund the 1,000,000 charge and say so; otherwise
+            # apply the native change and show the counted result.  ebp holds the
+            # DLL module (0 if it could not load) across the single apply block,
+            # which VILLAGE_WIDE_ENTRY leaves untouched.
             push ebx
             push ebp
             push ecx
             push edx
             push esi
             push edi
+            push 0x{s['icons_dll']:X}
+            call dword ptr [0x47C124]
+            mov ebp, eax
+            test eax, eax
+            je village_apply
+            push 0x{s['prepare_export']:X}
+            push ebp
+            call dword ptr [0x47C128]
+            test eax, eax
+            je village_apply
+            push ebx
+            call eax
+            test eax, eax
+            jnz village_apply
+            add dword ptr [0x582644], 1000000
+            push 0x{s['village_no_change']:X}
+            push 0x{s['tech_title']:X}
+            call 0x{show_message:X}
+            jmp village_wide_done
+        village_apply:
             mov eax, ebx
             mov ecx, 0x59E124
             mov edx, dword ptr [0x42883A]
             call 0x{VILLAGE_WIDE_ENTRY_VA:X}
-            mov ebp, eax
-            mov edi, edx
-            mov esi, ecx
-            mov eax, 0x{s['show_result_export']:X}
-            push 0x{s['icons_dll']:X}
-            call dword ptr [0x47C124]
-            test eax, eax
-            je village_result_done
+            test ebp, ebp
+            je village_wide_done
             push 0x{s['show_result_export']:X}
-            push eax
+            push ebp
             call dword ptr [0x47C128]
             test eax, eax
-            je village_result_done
-            push esi
-            push edi
-            push ebp
+            je village_wide_done
             push ebx
             call eax
-        village_result_done:
+        village_wide_done:
             pop edi
             pop esi
             pop edx
