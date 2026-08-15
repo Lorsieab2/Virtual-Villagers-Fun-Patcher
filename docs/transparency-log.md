@@ -416,7 +416,17 @@ Adds Origins-style Upgrades buttons to the Tech and Villager Details screens. Th
 - Doubler composition contract: {'stacking': ['positive earned tech deltas only', 'positive food-source deltas only'], 'exclusions': ['Island Event tech-point gain', 'Duplicate Collectibles tech-point gain'], 'food_mastery_status': 'confirmed in exact-build disassembly; native transform documented in doubler evidence', 'status': 'GO: positive writer wrappers double eligible positive deltas once after native adjustments; duplicate collectibles and audited Island Event paths remain native; runtime/player confirmation pending'}
 - Doubler purchase status: {'new_purchase': 'available at 500,000 tech points for each doubler', 'existing_owned': 'removable at zero cost with zero refund', 'repurchase': 'available again at 500,000 tech points after removal'}
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending
-- Guarded executable edits: 25; every edit has an exact purpose and before/after guard in the manifest.
+- Guarded executable edits: 31; every edit has an exact purpose and before/after guard in the manifest.
+
+#### Optional Text changes (`vv4_optional_text_changes`)
+
+Replaces some in-game text with wording consistent with the other Virtual Villagers games (for example, the "Scholar" title becomes "Esteemed Elder", and a few labels and event lines are capitalized and punctuated to match). When active, the game's Assets/sm.xml is swapped for the edited version; when the patch is not selected, the base-game text is left untouched. No executable bytes are changed.
+
+- Behavior changes: Swaps Assets/sm.xml for an edited copy that renames the "Scholar" villager title to "Esteemed Elder" and applies small wording/capitalization/punctuation fixes for cross-game consistency. No executable code is modified; only the Assets/sm.xml text file is replaced, and it is restored to the base-game file when the patch is removed.
+- Explicit non-changes/exclusions: No executable bytes are patched. No gameplay, stats, collectibles, or save data are affected.
+- Dependencies: none
+- Evidence status: static source/manifest verification performed; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
 
 #### Write Village Statistics to Text File (`vv4_write_village_statistics`)
 

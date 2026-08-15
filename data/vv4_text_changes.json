@@ -1,0 +1,25 @@
+{
+  "id": "vv4_optional_text_changes",
+  "game_id": "vv4",
+  "name": "Optional Text changes",
+  "description": "Replaces some in-game text with wording consistent with the other Virtual Villagers games (for example, the \"Scholar\" title becomes \"Esteemed Elder\", and a few labels and event lines are capitalized and punctuated to match). When active, the game's Assets/sm.xml is swapped for the edited version; when the patch is not selected, the base-game text is left untouched. No executable bytes are changed.",
+  "output_tag": "Optional Text Changes",
+  "behavior_changes": [
+    "Swaps Assets/sm.xml for an edited copy that renames the \"Scholar\" villager title to \"Esteemed Elder\" and applies small wording/capitalization/punctuation fixes for cross-game consistency.",
+    "No executable code is modified; only the Assets/sm.xml text file is replaced, and it is restored to the base-game file when the patch is removed."
+  ],
+  "explicit_non_changes": [
+    "No executable bytes are patched.",
+    "No gameplay, stats, collectibles, or save data are affected."
+  ],
+  "patches": [],
+  "companion_files": [
+    {
+      "source": "assets/text-changes/vv4-sm.xml",
+      "destination": "Assets/sm.xml",
+      "sha256": "3B22CB56C5B8B522BCFF72064AA8BEA9210D2099BFCDBAB86B180D8C85FC21E1",
+      "preimage_sha256": "C66A08D6AD1139BC599B773DDF298B7693D69953988121E663EE425A17E378A8",
+      "restore_sha256": "C66A08D6AD1139BC599B773DDF298B7693D69953988121E663EE425A17E378A8"
+    }
+  ]
+}
