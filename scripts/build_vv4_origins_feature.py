@@ -448,6 +448,11 @@ def main() -> None:
             mov eax, {COLLECTIONS_RESET_ORDINAL}
         do_collections_go:
             call 0x{COLLECTIONS_APPLY_VA:X}
+            test eax, eax
+            jnz menu_done
+            # DLL reported no change (already fully found / already cleared):
+            # refund the 1,000,000 directly (not via the doubler-hooked adder).
+            add dword ptr [0x4D6F88], 1000000
             jmp menu_done
         legacy_charge:
             mov eax, dword ptr [0x{s['tech_costs']:X} + ebx*4]

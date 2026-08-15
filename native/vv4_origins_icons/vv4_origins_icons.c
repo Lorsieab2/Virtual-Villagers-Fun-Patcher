@@ -528,8 +528,8 @@ __declspec(dllexport) int __stdcall ShowOriginsUpgradeMessage(
     if (text != NULL
         && lstrcmpA(text,
                "The village population is already at maximum capacity.") == 0) {
-        out = "The village population is already close to its max. "
-              "No tech points have been deducted.";
+        out = "Village population is close to its maximum. The Barrel of Babies "
+              "needs room for 3 children. No tech points have been deducted.";
     } else if (text != NULL && g_last_row >= 0) {
         /* Translate the payload's generic result strings into the OFFICIAL
            per-upgrade wording, using the row the player just clicked. (Cure and
@@ -669,6 +669,15 @@ __declspec(dllexport) int __stdcall ApplyVV4CompleteCollections(void) {
             ++newly;
         }
     }
+    if (newly == 0) {
+        /* Everything was already found: no-change, no charge (payload refunds
+           on a 0 return). */
+        MessageBoxA(GetForegroundWindow(),
+            "All collectibles are already found. No tech points have been "
+            "deducted.",
+            "Origins Upgrades", MB_OK | MB_ICONINFORMATION | VV_MB_FRONT);
+        return 0;
+    }
     /* Fire every collection trophy plus the master; the writer is idempotent
        (it skips a goal whose record is already latched), so it is safe even for
        collections that were already complete. */
@@ -692,6 +701,14 @@ __declspec(dllexport) int __stdcall ApplyVV4ResetCollections(void) {
     int i, cleared = 0;
     for (i = 0; i < VV4_COLL_FLAG_COUNT; ++i) {
         if (flags[i] != 0) { flags[i] = 0; ++cleared; }
+    }
+    if (cleared == 0) {
+        /* Nothing was collected: no-change, no charge (payload refunds on 0). */
+        MessageBoxA(GetForegroundWindow(),
+            "The collections are already cleared. No tech points have been "
+            "deducted.",
+            "Origins Upgrades", MB_OK | MB_ICONINFORMATION | VV_MB_FRONT);
+        return 0;
     }
     /* Mark each collection goal/trophy incomplete again by zeroing its record. */
     for (i = 0; i < 5; ++i) {
