@@ -1851,6 +1851,27 @@ def main() -> None:
         dnc_run_notliked:
             test edi, 2
             jnz dnc_charge
+            # Likes are full: Running can't be added.  Match Grant Running to
+            # All -- still clear any Running dislike (for free, since the Like
+            # couldn't be added) and report it.  If there is no Running dislike
+            # either, it's a true no-op ("full Likes slots").
+            lea ecx, [edx + 0x6E8]
+            mov eax, 62
+            xor edi, edi
+        dnc_dislike_scan:
+            cmp dword ptr [ecx], {RUNNING_PREFERENCE_ID}
+            jne dnc_dislike_next
+            mov dword ptr [ecx], -1
+            mov edi, 1
+        dnc_dislike_next:
+            add ecx, 4
+            dec eax
+            jne dnc_dislike_scan
+            test edi, edi
+            jz dnc_run_full
+            mov esi, 8
+            jmp dnc_show
+        dnc_run_full:
             mov esi, 4
         dnc_show:
             push esi
