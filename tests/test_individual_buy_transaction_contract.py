@@ -55,10 +55,13 @@ class IndividualBuyTransactionContractTests(unittest.TestCase):
         self.assertIn("before 0x4237B0 deduction", tx["postverify"])
 
     def test_other_games_do_not_claim_an_unproven_individual_route(self) -> None:
-        vv1 = load("vv1_full_mastery_all_candidate.json")
+        # VV1's own former candidate (vv1_full_mastery_all_candidate.json) was
+        # withdrawn -- never wired into the live catalog, never packaged, and
+        # never called by any production code path -- and removed along with
+        # its dedicated (already-failing) certification tests; VV2/VV4 keep
+        # their own checks here since their candidates are still present.
         vv2 = load("vv2_full_mastery_all_candidate.json")
         vv4 = load("vv4_full_heal_cure_all_candidate.json")
-        self.assertNotIn("individual_transaction", vv1["transaction_contract"])
         self.assertNotIn("individual_transaction", vv2["transaction_contract"])
         self.assertNotIn("individual_transaction", vv4["transaction"])
 

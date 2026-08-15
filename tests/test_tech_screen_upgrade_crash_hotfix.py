@@ -15,9 +15,19 @@ class TechScreenUpgradeCrashHotfixTests(unittest.TestCase):
                 encoding="utf-8"
             )
             with self.subTest(game=game):
+                # VV1's village_wide dispatch now resolves the icons DLL
+                # handle once for all of its Running/Mastery/Age18 result
+                # branches (see village_wide's own comment in
+                # build_vv1_origins_feature.py) instead of once per
+                # branch, so it has one fewer of these vestigial
+                # "mov eax, export"-before-LoadLibrary sites than the
+                # other four games' still-per-branch pattern. VV1's own
+                # separate, untouched VILLAGE_PREFLIGHT_VA signature
+                # check still has its own, unrelated one, so it isn't 0.
+                expected = 1 if game == 1 else 2
                 self.assertEqual(
                     source.count("mov eax, 0x{s['show_result_export']:X}"),
-                    2,
+                    expected,
                 )
                 self.assertNotIn(
                     "push 0x{s['show_result_export']:X}\n"
@@ -49,12 +59,24 @@ class TechScreenUpgradeCrashHotfixTests(unittest.TestCase):
         source = (ROOT / "scripts" / "build_vv1_origins_feature.py").read_text(
             encoding="utf-8"
         )
-        cure_result = source.split("cure_suffix:", 1)[1].split("add esp, 40", 1)[0]
+        # Full Heal/Cure All Villagers has two distinct result paths now
+        # instead of one hand-formatted "Cured %d villagers" message: a
+        # plain fixed-text MessageBox when nothing needed curing (no
+        # charge), and a resolved DLL export call with both counts when
+        # something did (charge only just before that call).
+        cure_all = source.split("cure_all:", 1)[1].split("cure_done:", 1)[0]
+        no_change = cure_all.split("cure_check_result:", 1)[1].split(
+            "cure_resolve:", 1
+        )[0]
         self.assertIn(
             "push 0\n            push 0x{s['title']:X}\n            push eax\n"
             "            call 0x452DB6\n            add esp, 0x0C",
-            cure_result,
+            no_change,
         )
+        self.assertIn("s['cure_no_change']", no_change)
+        resolve = cure_all.split("cure_resolve:", 1)[1]
+        self.assertIn("s['show_cure_result']", resolve)
+        self.assertIn("sub dword ptr [edi + 0xA2FC], 30000", resolve)
 
     def test_vv1_uses_state_for_tech_and_legacy_for_villager_details(self) -> None:
         source = (ROOT / "scripts" / "build_vv1_origins_feature.py").read_text(

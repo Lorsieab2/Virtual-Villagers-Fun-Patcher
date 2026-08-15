@@ -605,59 +605,6 @@ VV2_INDIVIDUAL_FULL_MASTERY_OUTPUT_SHA256 = {
     "collection_progression": "D8BEBC6BE0A31863FE88C4394DBB756B713B09B82695F41A928CAE381F63BA18",
     "immediate_fixed": "C6CD6F3E1F068708D9ACFB4FC51B94B5AE2F6C448C1183B34E70B5B97D4B8BE7",
 }
-VV1_FULL_MASTERY_CANDIDATE_PATHS = {
-    "manifest": ROOT / "data" / "candidates" / "vv1_full_mastery_all_candidate.json",
-    "map": ROOT / "data" / "candidates" / "vv1_full_mastery_all_candidate_map.json",
-    "dll": ROOT / "data" / "candidates" / "VVFP VV1 Full Mastery Candidate.dll",
-}
-VV1_FULL_MASTERY_CERTIFIED_SHA256 = {
-    "section": "F0EFEDF743A375F9A62FC1199809A0F2A5CF05CC749CE5A5DA5EA24BC28EABE7",
-    "entry": "DB742B8C696A5D197D4985E49DE636C4E3E584BBC1B7E65132611E2FC4B42A31",
-    "walker": "948C1B9E968FB5A8F957E33F6C344A1FF0DC25805BB97DB2D959129A4E2B8C9E",
-    "confirmation": "39FBB3CA5B2C32C5566EA918C249D77718F2872AF871511EA23147C48AE6E779",
-    "menu_resolver": "66A089D58C80B15DD4BB47DAC3B3ABC1DD5CF8969B9863D90BD084B462496C98",
-    "result_resolver": "2945F92280B7A6E59E6F0B91F25A1FBD3C1D49789460D4C4CC094DCE873FA8E8",
-    "dll": "4736E5EFB8F680E3B1F124D1920A9390D9F6427260E60743039FA80F8646CCB3",
-    "source": "1EC790B927741081D5CE13A48FB76983A4FD4336EA08F89317872643760AF03D",
-    "candidate": "C2C6070B11E56BD6B8BD183C9694E88DC6D576758926D18ACEFCD093CCF364B0",
-    "active_origins": "5434C71C342B830A5896AFFB610A76C670578760BD33C6145882FA280F6406A3",
-    "combined": "9B5CA9671558DE0A8CACB6E62AD98BA6C692522D253374DA74E52984B53FF230",
-}
-VV1_INDIVIDUAL_FULL_MASTERY_CANDIDATE_ID = "vv1_individual_full_mastery_candidate"
-VV1_INDIVIDUAL_FULL_MASTERY_CANDIDATE_PATHS = {
-    "manifest": ROOT / "data" / "candidates" / "vv1_individual_full_mastery_candidate.json",
-    "map": ROOT / "data" / "candidates" / "vv1_individual_full_mastery_candidate_map.json",
-}
-VV1_INDIVIDUAL_FULL_MASTERY_MANIFEST_SHA256 = "A84C060B1C582C9CECD1402663341B676D2BABBAB8886D8A82451F55C94F421C"
-VV1_INDIVIDUAL_FULL_MASTERY_MAP_SHA256 = "1E8F9519FEA915055D48434F54B3CA9DF7ECE9CC7990DD60831058F702E15B50"
-VV1_INDIVIDUAL_FULL_MASTERY_PARENT_ARTIFACT_SHA256 = {
-    "manifest": "D36E885F5137DBA453FD419D08D5A59EE7D1AA0402C4A3C28CACA7F1F3C6D76F",
-    "map": "87A9BEA67932E153F7113EAA321FD757EAC3C184190297ADF1D0F578C191DCC0",
-    "dll": "4736E5EFB8F680E3B1F124D1920A9390D9F6427260E60743039FA80F8646CCB3",
-}
-VV1_INDIVIDUAL_FULL_MASTERY_EMITTED_SHA256 = {
-    "detail_handler": "2D003D26E9E7C6E40FF0AA417C2B4F6D1F5AA4FCC85EB9913AD23DF3520371A5",
-    "detail_constructor": "52308A10D29BE194F4909ADDAA448401267689486C7CBDA4E19A577087464027",
-    "helper": "B63199E47BAC8AAF725E22C517691D6D49D26DEDD3C039181655B6C05ECA9B94",
-    "strings": "2352CCCAACE006D330F300616320BAA3B5A91FF287371E73E72E6B1ED9CC8449",
-}
-VV1_INDIVIDUAL_FULL_MASTERY_PARENT_SHA256 = {
-    "collection_progression": "C2C6070B11E56BD6B8BD183C9694E88DC6D576758926D18ACEFCD093CCF364B0",
-    "immediate_fixed": "C2C6070B11E56BD6B8BD183C9694E88DC6D576758926D18ACEFCD093CCF364B0",
-}
-VV1_INDIVIDUAL_FULL_MASTERY_BASELINE_SHA256 = {
-    "collection_progression": "0F54C22C531FCE276EFBF5F0B4418C48B66CE314AA21872A9B2C5D459232EC7A",
-    "immediate_fixed": "0F54C22C531FCE276EFBF5F0B4418C48B66CE314AA21872A9B2C5D459232EC7A",
-}
-VV1_INDIVIDUAL_FULL_MASTERY_OUTPUT_SHA256 = {
-    "collection_progression": "B8E08A705680AA098E5989AA045E6F943D19CBFC0C61422E984F2F8FF940DC7A",
-    "immediate_fixed": "B8E08A705680AA098E5989AA045E6F943D19CBFC0C61422E984F2F8FF940DC7A",
-}
-VV1_INDIVIDUAL_FULL_MASTERY_CONFLICTS = {
-    "vv1_enable_origins_exclusive_features",
-    "vv1_origins_village_wide_upgrades",
-    "vv1_full_mastery_origins_composition",
-}
 VV4_FULL_MASTERY_CANDIDATE_PATHS = {
     "base": ROOT / "data" / "candidates" / "vv4_origins_full_mastery_base_candidate.json",
     "feature": ROOT / "data" / "candidates" / "vv4_full_mastery_all_candidate.json",
@@ -1018,9 +965,6 @@ VV3_EXPANDED_FINAL_TIME_WARP_RESULTS = {
 # Kept for compatibility with archival validators; there are no active
 # Expanded-256 modes for this flag to enable.
 EXPANDED_256_PUBLICATION_ENABLED = False
-VV1_ORIGINS_COMPOSITION_ID = "vv1_full_mastery_origins_composition"
-VV1_ORIGINS_COMPOSITION_BASE_SHA256 = "5434C71C342B830A5896AFFB610A76C670578760BD33C6145882FA280F6406A3"
-VV1_ORIGINS_COMPOSITION_DLL_SHA256 = "2ED1100E7F2EA5B8E522C2DE11F6B00CA8A02B968319C251365E9EFD634BCAF9"
 
 
 class PatcherError(RuntimeError):
@@ -1635,232 +1579,6 @@ def _certified_vv2_individual_full_mastery_record() -> dict[str, Any] | None:
         or artifact_map.get("rendered_modes") != rendered_modes
     ):
         raise PatcherError("VV2 selected Full Mastery map is not bound to the manifest.")
-    return manifest
-
-
-def _certified_vv1_full_mastery_record() -> dict[str, Any] | None:
-    manifest = json.loads(
-        VV1_FULL_MASTERY_CANDIDATE_PATHS["manifest"].read_text(encoding="utf-8")
-    )
-    if not manifest.get("enabled", True):
-        return None
-    if (
-        manifest.get("id") != "vv1_full_mastery_all_stage_a_candidate"
-        or manifest.get("catalog_hidden") is not False
-    ):
-        raise PatcherError(
-            "VV1 Full Mastery catalog metadata is not explicitly enabled; refusing enablement."
-        )
-    acceptance = manifest.get("acceptance")
-    if not isinstance(acceptance, dict):
-        raise PatcherError("VV1 Full Mastery acceptance metadata is missing; refusing enablement.")
-    if acceptance.get("source_commit") != "2f22a8b435918bf01b95aa4b9a6e6f4287d0ac94":
-        raise PatcherError("VV1 Full Mastery acceptance source commit is not the recertified commit.")
-    if acceptance.get("allowed_modes") != ["collection_progression", "immediate_fixed"]:
-        raise PatcherError("VV1 Full Mastery acceptance permits a non-stock mode.")
-    if acceptance.get("expanded_rejected") is not True:
-        raise PatcherError("VV1 Full Mastery Expanded-256 rejection is not certified.")
-    if acceptance.get("reviews") != ["C76", "D82", "C83"]:
-        raise PatcherError("VV1 Full Mastery independent review set is not certified.")
-    if acceptance.get("bundle") != "outputs/vv1-full-mastery-c76-recert":
-        raise PatcherError("VV1 Full Mastery recertification bundle is not certified.")
-    for key, expected in (
-        ("source_sha256", VV1_FULL_MASTERY_CERTIFIED_SHA256["source"]),
-        ("companion_sha256", VV1_FULL_MASTERY_CERTIFIED_SHA256["dll"]),
-        ("active_origins_base_sha256", VV1_FULL_MASTERY_CERTIFIED_SHA256["active_origins"]),
-        ("isolated_candidate_sha256", VV1_FULL_MASTERY_CERTIFIED_SHA256["candidate"]),
-        ("combined_origins_full_mastery_sha256", VV1_FULL_MASTERY_CERTIFIED_SHA256["combined"]),
-        ("uninstalled_sha256", VV1_FULL_MASTERY_CERTIFIED_SHA256["active_origins"]),
-    ):
-        if acceptance.get(key) != expected:
-            raise PatcherError(f"VV1 Full Mastery acceptance hash {key} is not certified.")
-    if acceptance.get("uninstall_equals_active_origins_base") is not True:
-        raise PatcherError("VV1 Full Mastery uninstall equality is not certified.")
-    artifact_map = json.loads(
-        VV1_FULL_MASTERY_CANDIDATE_PATHS["map"].read_text(encoding="utf-8")
-    )
-    if artifact_map.get("acceptance_commit") != acceptance["source_commit"]:
-        raise PatcherError("VV1 Full Mastery map acceptance commit is not certified.")
-    if artifact_map.get("catalog_enabled") is not True:
-        raise PatcherError("VV1 Full Mastery map catalog gate is not enabled.")
-    independent = artifact_map.get("independent_recertification")
-    if not isinstance(independent, dict) or independent.get("status") != "GO":
-        raise PatcherError("VV1 Full Mastery map independent recertification is not GO.")
-    if independent.get("reviews") != acceptance["reviews"] or independent.get("source_commit") != acceptance["source_commit"]:
-        raise PatcherError("VV1 Full Mastery map review binding is not certified.")
-    if independent.get("bundle") != acceptance["bundle"] or independent.get("expanded_rejected") is not True:
-        raise PatcherError("VV1 Full Mastery map mode/bundle gate is not certified.")
-    for label in ("section", "entry", "walker", "confirmation", "menu_resolver", "result_resolver"):
-        actual = artifact_map.get(f"{label}_sha256")
-        expected = VV1_FULL_MASTERY_CERTIFIED_SHA256[label]
-        if actual != expected:
-            raise PatcherError(
-                f"Certified VV1 Full Mastery {label} artifact hash mismatch: "
-                f"expected {expected}, got {actual}."
-            )
-    source = artifact_map.get("source", {})
-    if source.get("sha256") != VV1_FULL_MASTERY_CERTIFIED_SHA256["source"]:
-        raise PatcherError("VV1 Full Mastery source fingerprint metadata is not certified.")
-    if artifact_map.get("allowed_modes") != ["collection_progression", "immediate_fixed"]:
-        raise PatcherError("VV1 Full Mastery map permits a non-stock mode.")
-    if artifact_map.get("rejected_modes") != [
-        "experimental_expanded_256",
-        "experimental_expanded_256_progression",
-    ]:
-        raise PatcherError("VV1 Full Mastery map does not reject both Expanded-256 modes.")
-    rendered = artifact_map.get("rendered_candidates", {})
-    for mode in ("collection_progression", "immediate_fixed"):
-        record = rendered.get(mode, {})
-        if record.get("candidate_sha256") != VV1_FULL_MASTERY_CERTIFIED_SHA256["candidate"]:
-            raise PatcherError("VV1 Full Mastery rendered candidate hash is not certified.")
-        if record.get("uninstall_target_sha256") != record.get("baseline_sha256"):
-            raise PatcherError("VV1 Full Mastery uninstall target does not equal its baseline.")
-    dll_digest = hashlib.sha256(
-        VV1_FULL_MASTERY_CANDIDATE_PATHS["dll"].read_bytes()
-    ).hexdigest().upper()
-    if dll_digest != VV1_FULL_MASTERY_CERTIFIED_SHA256["dll"]:
-        raise PatcherError(
-            "Certified VV1 Full Mastery DLL hash mismatch: "
-            f"expected {VV1_FULL_MASTERY_CERTIFIED_SHA256['dll']}, got {dll_digest}."
-        )
-    return manifest
-
-
-def _certified_vv1_individual_full_mastery_record() -> dict[str, Any] | None:
-    """Validate the public stock-only VV1 selected-villager overlay fail closed."""
-    manifest_bytes = VV1_INDIVIDUAL_FULL_MASTERY_CANDIDATE_PATHS["manifest"].read_bytes()
-    map_bytes = VV1_INDIVIDUAL_FULL_MASTERY_CANDIDATE_PATHS["map"].read_bytes()
-    if source_text_sha256(manifest_bytes) != VV1_INDIVIDUAL_FULL_MASTERY_MANIFEST_SHA256:
-        raise PatcherError("VV1 selected Full Mastery manifest bytes are not certified.")
-    if source_text_sha256(map_bytes) != VV1_INDIVIDUAL_FULL_MASTERY_MAP_SHA256:
-        raise PatcherError("VV1 selected Full Mastery map bytes are not certified.")
-    if (
-        source_text_sha256(VV1_FULL_MASTERY_CANDIDATE_PATHS["manifest"].read_bytes())
-        != VV1_INDIVIDUAL_FULL_MASTERY_PARENT_ARTIFACT_SHA256["manifest"]
-        or source_text_sha256(VV1_FULL_MASTERY_CANDIDATE_PATHS["map"].read_bytes())
-        != VV1_INDIVIDUAL_FULL_MASTERY_PARENT_ARTIFACT_SHA256["map"]
-        or hashlib.sha256(VV1_FULL_MASTERY_CANDIDATE_PATHS["dll"].read_bytes()).hexdigest().upper()
-        != VV1_INDIVIDUAL_FULL_MASTERY_PARENT_ARTIFACT_SHA256["dll"]
-    ):
-        raise PatcherError("VV1 selected Full Mastery parent artifacts are not certified.")
-    manifest = json.loads(manifest_bytes.decode("utf-8"))
-    artifact_map = json.loads(map_bytes.decode("utf-8"))
-    if not manifest.get("enabled", False):
-        return None
-    if (
-        manifest.get("id") != VV1_INDIVIDUAL_FULL_MASTERY_CANDIDATE_ID
-        or manifest.get("game_id") != "vv1"
-        or manifest.get("catalog_hidden") is not False
-        or manifest.get("catalog_enabled") is not True
-        or manifest.get("runtime_player_status") != "pending"
-        or manifest.get("dependencies") != ["vv1_full_mastery_all_stage_a_candidate"]
-        or set(manifest.get("conflicts", ())) != VV1_INDIVIDUAL_FULL_MASTERY_CONFLICTS
-        or manifest.get("companion_files") != []
-        or manifest.get("supported_modes") != ["collection_progression", "immediate_fixed"]
-        or set(manifest.get("rejected_modes", ())) != EXPANDED_PATCH_MODES
-    ):
-        raise PatcherError("VV1 selected Full Mastery catalog/mode metadata is invalid.")
-    contract = manifest.get("transaction_contract", {})
-    if (
-        contract.get("detail_event") != 8
-        or contract.get("button_id") != 6
-        or contract.get("price") != 100_000
-        or contract.get("target") != 100
-        or contract.get("ownership") is not None
-        or contract.get("eligibility_before_skills")
-        != ["byte +0x28 != 0", "signed dword +0x344 > 0", "dword +0x36C != 199"]
-        or "sub_437230" not in str(contract.get("native_skill_writer"))
-        or "state+0xA2FC" not in str(contract.get("tech_deduction"))
-        or "sub_41D120" not in str(contract.get("tech_deduction"))
-        or "state+0x9E20" not in str(contract.get("tech_deduction"))
-    ):
-        raise PatcherError("VV1 selected Full Mastery transaction contract is invalid.")
-    parent_chain = manifest.get("parent_chain", {})
-    if (
-        parent_chain.get("stock_sha256") != VV1_FULL_MASTERY_CERTIFIED_SHA256["source"]
-        or parent_chain.get("parent_manifest_source_text_sha256")
-        != VV1_INDIVIDUAL_FULL_MASTERY_PARENT_ARTIFACT_SHA256["manifest"]
-        or parent_chain.get("parent_map_source_text_sha256")
-        != VV1_INDIVIDUAL_FULL_MASTERY_PARENT_ARTIFACT_SHA256["map"]
-        or parent_chain.get("parent_dll_sha256")
-        != VV1_INDIVIDUAL_FULL_MASTERY_PARENT_ARTIFACT_SHA256["dll"]
-        or parent_chain.get("parent_rendered_sha256")
-        != VV1_INDIVIDUAL_FULL_MASTERY_PARENT_SHA256
-        or parent_chain.get("current_baseline_sha256")
-        != VV1_INDIVIDUAL_FULL_MASTERY_BASELINE_SHA256
-    ):
-        raise PatcherError("VV1 selected Full Mastery parent chain is invalid.")
-    patches = manifest.get("patches")
-    expected_patches = (
-        (0x4A5FA, "8B4C241C5F", "E9C1640400", 5),
-        (0x4A700, "8B44240453", "E97B630400", 5),
-        (0x8EA80, None, None, 34),
-        (0x8EAC0, None, None, 97),
-        (0x8EB80, None, None, 1228),
-        (0x8F600, None, None, 760),
-    )
-    if not isinstance(patches, list) or len(patches) != len(expected_patches):
-        raise PatcherError("VV1 selected Full Mastery patch count is invalid.")
-    emitted = manifest.get("emitted", {})
-    labels = ("detail_handler", "detail_constructor", "helper", "strings")
-    for index, (offset, exact_before, exact_after, length) in enumerate(expected_patches):
-        patch = patches[index]
-        try:
-            before = bytes.fromhex(patch["before"])
-            after = bytes.fromhex(patch["after"])
-        except (KeyError, TypeError, ValueError) as exc:
-            raise PatcherError("VV1 selected Full Mastery patch bytes are malformed.") from exc
-        if (
-            int(patch.get("offset", "-1"), 0) != offset
-            or len(before) != length
-            or len(after) != length
-            or (exact_before is not None and patch.get("before") != exact_before)
-            or (exact_after is not None and patch.get("after") != exact_after)
-            or (index >= 2 and any(before))
-        ):
-            raise PatcherError(f"VV1 selected Full Mastery patch 0x{offset:X} is invalid.")
-        if index >= 2:
-            label = labels[index - 2]
-            item = emitted.get(label, {})
-            if (
-                item.get("raw") != f"0x{offset:X}"
-                or item.get("length") != length
-                or item.get("sha256") != VV1_INDIVIDUAL_FULL_MASTERY_EMITTED_SHA256[label]
-                or hashlib.sha256(after).hexdigest().upper()
-                != VV1_INDIVIDUAL_FULL_MASTERY_EMITTED_SHA256[label]
-            ):
-                raise PatcherError(f"VV1 selected Full Mastery {label} bytes are invalid.")
-    rendered_modes = manifest.get("rendered_modes", {})
-    for mode in ("collection_progression", "immediate_fixed"):
-        rendered = rendered_modes.get(mode, {})
-        if (
-            rendered.get("current_baseline_sha256")
-            != VV1_INDIVIDUAL_FULL_MASTERY_BASELINE_SHA256[mode]
-            or rendered.get("parent_sha256")
-            != VV1_INDIVIDUAL_FULL_MASTERY_PARENT_SHA256[mode]
-            or rendered.get("candidate_sha256")
-            != VV1_INDIVIDUAL_FULL_MASTERY_OUTPUT_SHA256[mode]
-            or rendered.get("uninstall_target_sha256")
-            != VV1_INDIVIDUAL_FULL_MASTERY_PARENT_SHA256[mode]
-            or rendered.get("parent_uninstall_target_sha256")
-            != VV1_INDIVIDUAL_FULL_MASTERY_BASELINE_SHA256[mode]
-            or rendered.get("size") != 589_824
-        ):
-            raise PatcherError(f"VV1 selected Full Mastery {mode} identity is invalid.")
-    if (
-        artifact_map.get("candidate_id") != VV1_INDIVIDUAL_FULL_MASTERY_CANDIDATE_ID
-        or artifact_map.get("enabled") is not True
-        or artifact_map.get("catalog_hidden") is not False
-        or artifact_map.get("catalog_enabled") is not True
-        or artifact_map.get("dependencies") != ["vv1_full_mastery_all_stage_a_candidate"]
-        or set(artifact_map.get("conflicts", ())) != VV1_INDIVIDUAL_FULL_MASTERY_CONFLICTS
-        or artifact_map.get("parent_chain") != parent_chain
-        or artifact_map.get("static_evidence") != manifest.get("static_evidence")
-        or artifact_map.get("emitted") != emitted
-        or artifact_map.get("transaction_contract") != contract
-        or artifact_map.get("rendered_modes") != rendered_modes
-    ):
-        raise PatcherError("VV1 selected Full Mastery map is not bound to the manifest.")
     return manifest
 
 
@@ -7138,26 +6856,6 @@ def render_patched_bytes(
             "VV3 Origins upgrade surfaces support stock modes only; "
             "Expanded-256 remains fail-closed."
         )
-    # The VV1 selected-villager transaction is source-bound to the stock
-    # Detail/state pool layout. Reject Expanded before variant, catalog,
-    # manifest, or source access in this renderer.
-    vv1_individual_mastery_selected = (
-        VV1_INDIVIDUAL_FULL_MASTERY_CANDIDATE_ID in set(fun_patch_ids)
-    )
-    if _fun_patches_override is not None:
-        vv1_individual_mastery_selected = vv1_individual_mastery_selected or any(
-            patch.id == VV1_INDIVIDUAL_FULL_MASTERY_CANDIDATE_ID
-            for patch in _fun_patches_override
-        )
-    if (
-        build.id == "vv1"
-        and vv1_individual_mastery_selected
-        and patch_mode in EXPANDED_PATCH_MODES
-    ):
-        raise PatcherError(
-            "VV1 selected Full Mastery supports stock modes only; "
-            "Expanded-256 remains ON HOLD/fail-closed."
-        )
     # The VV2 selected-villager transaction is source-bound to the stock
     # 256-record Detail/manager layout.  Reject Expanded before variant,
     # catalog, manifest, or source access in this renderer.
@@ -7215,22 +6913,6 @@ def render_patched_bytes(
         )
     selected_fun_ids = {patch.id for patch in fun_patches}
     for feature in fun_patches:
-        if feature.id == VV1_INDIVIDUAL_FULL_MASTERY_CANDIDATE_ID:
-            if build.id != "vv1" or patch_mode not in {
-                "collection_progression",
-                "immediate_fixed",
-            }:
-                raise PatcherError("VV1 selected Full Mastery is stock-mode only.")
-            if "vv1_full_mastery_all_stage_a_candidate" not in selected_fun_ids:
-                raise PatcherError(
-                    "VV1 selected Full Mastery requires the village-wide Full Mastery prerequisite."
-                )
-            selected_conflicts = VV1_INDIVIDUAL_FULL_MASTERY_CONFLICTS & selected_fun_ids
-            if selected_conflicts:
-                raise PatcherError(
-                    "VV1 selected Full Mastery conflicts with legacy Origins owner(s): "
-                    + ", ".join(sorted(selected_conflicts))
-                )
         if feature.id in EXPANDED_TIME_WARP_IDS.values():
             _validate_expanded_time_warp_selection(
                 build,
@@ -7289,66 +6971,6 @@ def render_patched_bytes(
         raise PatcherError(
             "VV5 Full Mastery candidates are stock-mode only; Expanded-256 is fail-closed."
         )
-    if (
-        build.id == "vv1"
-        and patch_mode in EXPANDED_PATCH_MODES
-        and any(
-            patch.id == "vv1_full_mastery_all_stage_a_candidate"
-            for patch in fun_patches
-        )
-    ):
-        raise PatcherError(
-            "VV1 Full Mastery is certified for stock modes only; "
-            "Expanded-256 remains ON HOLD/fail-closed."
-        )
-    composition = next(
-        (patch for patch in fun_patches if patch.id == VV1_ORIGINS_COMPOSITION_ID),
-        None,
-    )
-    if composition is not None:
-        if build.id != "vv1" or patch_mode in EXPANDED_PATCH_MODES:
-            raise PatcherError(
-                "VV1 Origins + Full Mastery composition is stock-only; "
-                "Expanded-256 remains ON HOLD/fail-closed."
-            )
-        origins = next(
-            (patch for patch in fun_patches if patch.id == "vv1_enable_origins_exclusive_features"),
-            None,
-        )
-        if origins is None:
-            raise PatcherError(
-                "VV1 Origins + Full Mastery composition requires the active Origins prerequisite."
-            )
-        if any(
-            patch.id == "vv1_full_mastery_all_stage_a_candidate"
-            for patch in fun_patches
-        ):
-            raise PatcherError(
-                "VV1 isolated Full Mastery and Origins composition cannot be selected together."
-            )
-        required_base = str(
-            composition.raw.get("required_base_sha256", "")
-        ).upper()
-        required_dll = str(
-            composition.raw.get("required_origins_dll_sha256", "")
-        ).upper()
-        if required_base != VV1_ORIGINS_COMPOSITION_BASE_SHA256:
-            raise PatcherError("VV1 composition base identity metadata is not the certified value.")
-        if required_dll != VV1_ORIGINS_COMPOSITION_DLL_SHA256:
-            raise PatcherError("VV1 composition Origins DLL identity metadata is not the certified value.")
-        origins_dll = ROOT / "assets" / "origins" / "VVFP Origins Icons.dll"
-        if not origins_dll.is_file() or sha256(origins_dll) != VV1_ORIGINS_COMPOSITION_DLL_SHA256:
-            raise PatcherError("VV1 composition Origins DLL is missing or hash-mismatched.")
-        if sha256(source) != build.sha256:
-            raise PatcherError("VV1 composition requires the exact certified stock executable fingerprint.")
-        base, _ = render_patched_bytes(
-            source,
-            build,
-            patch_mode,
-            _fun_patches_override=[origins],
-        )
-        if hashlib.sha256(base).hexdigest().upper() != VV1_ORIGINS_COMPOSITION_BASE_SHA256:
-            raise PatcherError("VV1 composition active Origins base fingerprint mismatch.")
     _validate_companion_sources(fun_patches)
     data = bytearray(source.read_bytes())
     original_data = bytes(data)
@@ -7568,17 +7190,6 @@ def render_patched_bytes(
             end = offset + len(before)
             for prior_start, prior_end, prior_owner in applied_ranges:
                 if offset < prior_end and prior_start < end and prior_owner != owner:
-                    # The VV1 Origins composition intentionally overlays one
-                    # exact post-Origins branch inside the guarded Origins
-                    # payload.  It never replaces the shared constructor or
-                    # handler hooks; all other cross-owner overlap remains a
-                    # hard failure.
-                    allowed_vv1_composition_overlay = (
-                        owner == f"feature:{VV1_ORIGINS_COMPOSITION_ID}"
-                        and prior_owner == "feature:vv1_enable_origins_exclusive_features"
-                        and offset == 0x56A88
-                        and before == bytes.fromhex("83FB067235")
-                    )
                     allowed_vv5_individual_overlay = (
                         owner == "feature:vv5_full_mastery_all_stage_a_candidate"
                         and prior_owner in {
@@ -7660,8 +7271,7 @@ def render_patched_bytes(
                         and prior_end == end
                     )
                     if (
-                        allowed_vv1_composition_overlay
-                        or allowed_vv5_individual_overlay
+                        allowed_vv5_individual_overlay
                         or allowed_vv5_running_overlay
                         or allowed_vv3_individual_running_overlay
                         or allowed_vv3_individual_full_mastery_overlay

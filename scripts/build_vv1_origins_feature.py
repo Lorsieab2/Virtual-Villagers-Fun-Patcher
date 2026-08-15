@@ -40,6 +40,22 @@ CURE_ENTRY_VA = IMAGE_BASE + SHR_RVA + (CURE_ENTRY_FILE_OFFSET - SHR_FILE_OFFSET
 HEAL_CAVE_VA = CURE_ENTRY_VA
 VILLAGE_WIDE_SIGNATURE_VA = IMAGE_BASE + SHR_RVA + 0x180
 VILLAGE_WIDE_ENTRY_VA = IMAGE_BASE + SHR_RVA + 0x1A0
+# Fixed scratch dwords in the confirmed-unused gap between the optional
+# village-wide payload's entry dispatch and its running_va (see
+# scripts/build_village_wide_origins_features.py's report_running_granted/
+# report_mastery_counts/report_age_granted, which write these -- this is
+# the VV1-only opt-in side of that shared, cross-game generator). There is
+# no free register left at running_va's, mastery_va's, or age_va's return
+# point to carry these counts back through directly, so they are read from
+# fixed memory here instead, after the call returns. Also doubles as the
+# "did anything actually change" signal each of the three village-wide
+# rows now needs: the 1,000,000-point charge is only taken once the
+# relevant granted count is confirmed nonzero, matching every other row's
+# own no-charge-if-no-change guard.
+RUNNING_GRANTED_VA = VILLAGE_WIDE_ENTRY_VA + 0x30
+MASTERY_GRANTED_VA = VILLAGE_WIDE_ENTRY_VA + 0x38
+MASTERY_ALREADY_VA = VILLAGE_WIDE_ENTRY_VA + 0x3C
+AGE_GRANTED_VA = VILLAGE_WIDE_ENTRY_VA + 0x40
 VILLAGE_PREFLIGHT_FILE_OFFSET = 0x8B009
 VILLAGE_PREFLIGHT_VA = IMAGE_BASE + SHR_RVA + (
     VILLAGE_PREFLIGHT_FILE_OFFSET - SHR_FILE_OFFSET
@@ -48,6 +64,25 @@ BARREL_PENDING_FILE_OFFSET = 0x8B700
 BARREL_PENDING_VA = IMAGE_BASE + SHR_RVA + (
     BARREL_PENDING_FILE_OFFSET - SHR_FILE_OFFSET
 )
+# Reported: the native Barrel of Babies event used to fire within a
+# fraction of a second of the Tech screen closing (barrel_main_helper_code
+# is hooked into the stock main-village update, confirmed via decompiling
+# it to be a genuine per-frame tick -- it rolls per-frame chances for
+# ambient butterfly/particle spawns, not something that only runs once a
+# game-day like Island Event's own native scheduling field does), leaving
+# no time to read the purchase confirmation before the full-screen event
+# took over. Unlike Island Event, Barrel of Babies is not a native random
+# encounter with its own slow scheduler to hook into instead -- decompiling
+# its constructor/run/teardown trio confirms it is a hand-built event
+# screen, not a scheduled one -- so the fix is a real elapsed-tick delay of
+# its own: this dword counts ticks while BARREL_PENDING_VA is in its
+# "Tech screen has closed" state, and the event is only actually shown
+# once it crosses BARREL_DELAY_TICKS.
+BARREL_DELAY_COUNTER_FILE_OFFSET = 0x8B704
+BARREL_DELAY_COUNTER_VA = IMAGE_BASE + SHR_RVA + (
+    BARREL_DELAY_COUNTER_FILE_OFFSET - SHR_FILE_OFFSET
+)
+BARREL_DELAY_TICKS = 180
 BARREL_MAIN_HELPER_FILE_OFFSET = 0x8B710
 BARREL_MAIN_HELPER_VA = IMAGE_BASE + SHR_RVA + (
     BARREL_MAIN_HELPER_FILE_OFFSET - SHR_FILE_OFFSET
@@ -64,18 +99,110 @@ BARREL_CLOSE_HELPER_FILE_OFFSET = 0x8B900
 BARREL_CLOSE_HELPER_VA = IMAGE_BASE + SHR_RVA + (
     BARREL_CLOSE_HELPER_FILE_OFFSET - SHR_FILE_OFFSET
 )
-# Villager Details "Change Appearance" -- resolves and calls the icons DLL's
-# picker export. Placed here (well past the Barrel close helper, which ends
-# well under 0x8B980) rather than inline in detail_menu's own code cave:
-# that cave's remaining slack (recomputed after this session's doubler-fix
-# additions) is far too small for a full LoadLibrary/GetProcAddress call
-# with real failure handling, while .shr has ~1.7KB genuinely unused past
-# the last Barrel helper.
-APPEARANCE_HELPER_FILE_OFFSET = 0x8BA00
+# Villager Details "Change Appearance" -- a dedicated router/helper pair in
+# .shr, entirely separate from detail_menu's own shared, tightly-budgeted
+# code cave (which the other four rows' charge/apply logic already nearly
+# fills). detail_menu's own inline footprint for this row is just the one
+# "cmp ebx, 4 / je APPEARANCE_ROUTER_VA" dispatch -- everything else,
+# including the row's own success messaging and loop-back, lives here:
+#   APPEARANCE_ROUTER_VA: what detail_menu jumps to directly. Calls the
+#     helper below, then either shows the same "Purchased." message every
+#     other successful row shows and jumps back into detail_menu's loop,
+#     or (on cancel/failure) jumps back silently -- without ever returning
+#     control to detail_menu's own code, so its cave carries none of this
+#     row's logic. Depends on exactly one fact about detail_menu's
+#     internal layout: detail_loop is always its first label, 5 bytes in
+#     (three pushes + "mov esi, ecx"), regardless of what else in the
+#     function grows or shrinks -- computed below, not hardcoded blind.
+#   APPEARANCE_HELPER_VA: resolves and calls the icons DLL's picker
+#     export; unchanged from before, just renumbered now that the router
+#     sits ahead of it.
+# Placed here (well past the Barrel close helper, which ends well under
+# 0x8B980) since .shr has ~1.7KB genuinely unused past the last Barrel
+# helper.
+APPEARANCE_ROUTER_FILE_OFFSET = 0x8BA00
+APPEARANCE_ROUTER_VA = IMAGE_BASE + SHR_RVA + (
+    APPEARANCE_ROUTER_FILE_OFFSET - SHR_FILE_OFFSET
+)
+APPEARANCE_HELPER_FILE_OFFSET = 0x8BA80
 APPEARANCE_HELPER_VA = IMAGE_BASE + SHR_RVA + (
     APPEARANCE_HELPER_FILE_OFFSET - SHR_FILE_OFFSET
 )
+DETAIL_MENU_VA = CODE_VA + 0x521
+DETAIL_LOOP_VA = DETAIL_MENU_VA + 5  # push ebx; push esi; push edi; mov esi, ecx
+# Shared "this makes a permanent change" Yes/No gate: every purchasable row
+# on both the Tech screen (menu, including its Village-Wide rows) and the
+# Villager Details screen (detail_menu) calls this immediately after the
+# row picker returns a selection, before any owned-check or charge logic
+# runs. Kept as a single .shr helper so each of menu/detail_menu's own
+# tight .text caves only ever pay for a "call/test/je" (the resolve-and-
+# prompt logic itself lives here, where there's room), the same shape as
+# appearance_helper_code and cure_all already use for their own DLL calls.
+CONFIRM_HELPER_FILE_OFFSET = 0x8BB00
+CONFIRM_HELPER_VA = IMAGE_BASE + SHR_RVA + (
+    CONFIRM_HELPER_FILE_OFFSET - SHR_FILE_OFFSET
+)
+# Unified "would this row actually change anything" check for all four
+# non-Change-Appearance Villager Details rows, replacing the old inline
+# Running-only slot scan in detail_menu (which is why this fits here
+# despite detail_menu's own cave being just as tight as menu's -- the
+# logic moved out, it didn't just grow). Takes ebx=row (0-3), edx=villager
+# record ptr, both already live at detail_menu's own call site. Returns
+# 0 (blocked/unavailable -- Running with no free Like slot and not
+# already liking it), 1 (would change, proceed to charge), or 2 (already
+# at the target state, no charge needed).
+DETAIL_PREFLIGHT_FILE_OFFSET = 0x8BC00
+DETAIL_PREFLIGHT_VA = IMAGE_BASE + SHR_RVA + (
+    DETAIL_PREFLIGHT_FILE_OFFSET - SHR_FILE_OFFSET
+)
 RUNNING_PREFERENCE_ID = 38  # exact-build preference-table evidence: 0x7B260
+# The stock game's own "can one more villager fit" check (decompiled in
+# full at 0x43A1A0): population < 15 always fits; 15/25/50 each need their
+# housing-tier flag (+0x9FE8/+0x9FF0/+0x9FF8); above that, "cmp eax, 0x5A"
+# (90, the real stock cap) at this exact address -- the one byte-patched by
+# the patcher's own "collection_progression"/"immediate_fixed" patch_modes
+# (data/builds.json's vv1.variants) to raise it to 256. Barrel of Babies'
+# own population-capacity guard mirrors this function's first three tiers
+# directly (same flags, same 15/25/50 breakpoints -- those never change
+# across patch_modes) and reads this exact byte at runtime for the final
+# tier instead of assuming which patch_mode is active.
+VILLAGE_POPULATION_CAP_CHECK_VA = 0x43A1AE
+# menu's own cave has no room left to inline the mode-aware final-tier
+# comparison (needs a 32-bit immediate for the 256-cap modes, which alone
+# doesn't fit), so it lives here instead -- menu just calls it with
+# eax = current population (already computed there via 0x41CF90) and
+# gets back eax = 1 (room for one more tier's worth) or 0 (blocked).
+POPULATION_FINAL_TIER_FILE_OFFSET = 0x8BD00
+POPULATION_FINAL_TIER_VA = IMAGE_BASE + SHR_RVA + (
+    POPULATION_FINAL_TIER_FILE_OFFSET - SHR_FILE_OFFSET
+)
+# Generic "<row> completed."/no-change/removed/blocked result box, replacing
+# what used to be five separate fixed ASM strings (purchase_complete/
+# removed/no_change/event_queued/running_unavailable) plus the ASM call
+# site that used to invoke the now-removed ShowOriginsAgeResult export --
+# every one of those call sites now forwards (is_detail, row, status) here
+# instead, and the icons DLL's ShowOriginsRowMessage picks the OFFICIAL-
+# spreadsheet-exact wording per row. .shr's raw section is 0x1000 bytes
+# (0x8B000-0x8BFFF); the last other helper (POPULATION_FINAL_TIER) is well
+# under 0x100 bytes long, so 0x100 of spacing after it is generous.
+ROW_MESSAGE_HELPER_FILE_OFFSET = 0x8BE00
+ROW_MESSAGE_HELPER_VA = IMAGE_BASE + SHR_RVA + (
+    ROW_MESSAGE_HELPER_FILE_OFFSET - SHR_FILE_OFFSET
+)
+# Details "Grant Running" tail: when a villager's 4 Like slots are all full
+# and Running isn't one of them, DETAIL_PREFLIGHT_VA's own scan has no room
+# left to also check Dislikes without exceeding its own cave -- so it tail-
+# jumps here instead (this is the last thing DETAIL_PREFLIGHT_VA does, so a
+# plain jmp -- not call -- correctly hands its own eventual `ret` straight
+# back to detail_menu, matching a normal tail call). Per the OFFICIAL
+# spreadsheet's own documented edge case, a Running Dislike is still
+# cleared for free even though the Like can't be added; returns eax=2
+# (blocked, no dislike to report) or eax=5 (blocked, dislike cleared) --
+# both are ShowOriginsRowMessage status values, forwarded to it unchanged.
+RUNNING_DISLIKE_CLEAR_FILE_OFFSET = 0x8BE80
+RUNNING_DISLIKE_CLEAR_VA = IMAGE_BASE + SHR_RVA + (
+    RUNNING_DISLIKE_CLEAR_FILE_OFFSET - SHR_FILE_OFFSET
+)
 VV1_NATIVE_SKILL_WRITER_VA = 0x437230
 VV1_SKILL_FIELDS = (
     (0x3BC, 2),  # Parenting
@@ -108,80 +235,60 @@ def main() -> None:
     add_c_string(strings, s, "detail_button_label", "Upgrades")
     add_c_string(strings, s, "title", "Origins Upgrades")
     add_c_string(strings, s, "detail_title", "Villager Upgrades")
-    add_c_string(
-        strings,
-        s,
-        "menu_format",
-        "%s\n%i tech\n\nYes: Buy  No: Next  Cancel: Close",
-    )
-    for name, text in (
-        ("name_time_warp", "Time Warp"),
-        ("name_island_event", "Island Event"),
-        ("name_barrel", "Barrel of Babies"),
-        ("name_youth", "Grant Youth"),
-        ("name_mastery", "Grant Full Mastery"),
-        ("name_running", "Grant Running"),
-        ("name_age_18", "Set Age to 18"),
-        ("name_tech_doubler", "Tech Point Doubler"),
-        ("name_food_doubler", "Food Point Doubler"),
-        ("name_cure_all", "Cure all Villagers"),
-    ):
-        add_c_string(strings, s, name, text)
-    add_c_string(strings, s, "purchase_complete", "Purchased.")
-    add_c_string(strings, s, "removed", "Removed.")
     add_c_string(strings, s, "not_enough", "Not enough tech points.")
     add_c_string(
         strings,
         s,
-        "event_queued",
-        "Island Event queued.",
+        "paused",
+        "Time Warp is unavailable while the game is paused.",
     )
-    add_c_string(strings, s, "barrel_villagers", "Gained 3 children.")
-    add_c_string(
-        strings,
-        s,
-        "population_capacity",
-        "The village population is already at maximum capacity.",
-    )
-    add_c_string(strings, s, "already_owned", "This doubler is already owned.")
     add_c_string(
         strings,
         s,
         "show_icon_dialog_state",
         "ShowOriginsUpgradeMenuState",
     )
-    add_c_string(strings, s, "running_unavailable", "Running cannot be added.")
     add_c_string(strings, s, "icons_dll", "VVFP VV1 Origins Icons.dll")
     add_c_string(strings, s, "show_icon_dialog_legacy", "ShowOriginsUpgradeMenu")
     add_c_string(strings, s, "show_result_export", "ShowOriginsVillageWideResult")
+    add_c_string(strings, s, "show_mastery_result_export", "ShowOriginsMasteryResult")
+    add_c_string(strings, s, "show_row_message_export", "ShowOriginsRowMessage")
     add_c_string(strings, s, "show_appearance_picker", "ShowOriginsAppearancePicker")
+    add_c_string(strings, s, "show_cure_result", "ShowOriginsCureResult")
+    add_c_string(strings, s, "confirm_export", "ShowOriginsPermanentChangeConfirm")
+    add_c_string(
+        strings,
+        s,
+        "cure_no_change",
+        "Everyone is at full health already. No villagers are sick. "
+        "No tech points have been deducted.",
+    )
 
-    tech_names = [
-        s["name_time_warp"],
-        s["name_island_event"],
-        s["name_barrel"],
-        s["name_tech_doubler"],
-        s["name_food_doubler"],
-        s["name_cure_all"],
-    ]
+    # tech_cost_table/detail_cost_table are the only tables the charge
+    # logic actually reads (legacy_charge indexes tech_cost_table by row;
+    # cure_gated below indexes it directly for row 5's cost). A prior
+    # per-row name table/format string pair was built here too, but
+    # nothing ever read it -- every row's player-visible label always
+    # came from the .rc dialog's own hardcoded LTEXT, never from these
+    # strings -- so it was dead weight taking up this block's tight
+    # budget; removed rather than kept "just in case".
+    #
+    # detail_costs needs all 5 detail_menu rows, not just the first 4:
+    # confirm_helper_code (see below) indexes this table by row for every
+    # detail_menu row unconditionally, including row 4 (Change
+    # Appearance), before detail_menu's own dispatch ever reaches
+    # APPEARANCE_ROUTER_VA -- a 4-entry table left row 4's confirm dialog
+    # reading one dword past the table's end (0, since that lands exactly
+    # on the first unpatched byte past the strings cave, confirmed by
+    # rendering the patch and reading the raw bytes there), showing
+    # "Change Appearance for 0 tech points?" instead of the real cost.
+    # 5000 matches appearance_helper_code's own hardcoded charge exactly.
     tech_costs = [50000, 30000, 75000, 500000, 500000, 30000]
-    detail_names = [
-        s["name_youth"],
-        s["name_mastery"],
-        s["name_running"],
-        s["name_age_18"],
-    ]
-    detail_costs = [50000, 100000, 40000, 50000]
+    detail_costs = [50000, 100000, 40000, 50000, 5000]
     while len(strings) % 4:
         strings.append(0)
-    s["tech_name_table"] = STRINGS_VA + len(strings)
-    for value in tech_names:
-        strings.extend(value.to_bytes(4, "little"))
     s["tech_cost_table"] = STRINGS_VA + len(strings)
     for value in tech_costs:
-        strings.extend(value.to_bytes(4, "little"))
-    s["detail_name_table"] = STRINGS_VA + len(strings)
-    for value in detail_names:
         strings.extend(value.to_bytes(4, "little"))
     s["detail_cost_table"] = STRINGS_VA + len(strings)
     for value in detail_costs:
@@ -199,7 +306,7 @@ def main() -> None:
     event_dispatch_hook = CODE_VA + 0x450
     detail_handler_hook = CODE_VA + 0x490
     detail_constructor_hook = CODE_VA + 0x4C0
-    detail_menu = CODE_VA + 0x521
+    detail_menu = DETAIL_MENU_VA
 
     code = bytearray(b"\x00" * 0x700)
 
@@ -297,6 +404,10 @@ def main() -> None:
             cmp eax, -1
             je menu_done
             mov ebx, eax
+            # Confirmation is deferred to charge: now (only reached on a
+            # real Buy, never on Remove -- see charge:'s own comment) so
+            # it can show the row's real cost, which isn't known here for
+            # rows 6-8 (Village-Wide, 1,000,000 flat, not in tech_cost_table).
 
             mov edi, dword ptr [esi + 0x0C]
             cmp ebx, 3
@@ -317,8 +428,17 @@ def main() -> None:
             jbe charge
             cmp byte ptr [edi + 0x9FF8], 1
             jne population_capacity
-            cmp eax, 253
-            ja population_capacity
+            # The final tier's own ceiling isn't fixed at 256 the way the
+            # first three tiers (15/25/50) are -- it's whichever patch_mode
+            # the player picked at apply time, applied as a *separate* set
+            # of patches this feature's own build has no visibility into.
+            # No room to inline that check here (needs a 32-bit immediate
+            # for the 256-cap modes alone), so it lives in its own .shr
+            # helper instead; eax is already the population count from the
+            # 0x41CF90 call above, exactly what that helper wants.
+            call 0x{POPULATION_FINAL_TIER_VA:X}
+            test eax, eax
+            jz population_capacity
             jmp charge
 
         check_owned:
@@ -334,6 +454,29 @@ def main() -> None:
             cmp dword ptr [eax + 0xAD4C], 0
             jne remove_doubler
         charge:
+            # Time Warp has one real no-op case: the game is paused. The
+            # stock game-speed field at +0xA318 (the same field Time Warp's
+            # own do_time_warp branch already reads) is set to the literal
+            # sentinel 999 while paused -- confirmed by disassembling every
+            # site in the stock exe that reads or writes this field, not
+            # assumed from another game's own offset for the same concept.
+            cmp ebx, 0
+            jne skip_pause_check
+            cmp dword ptr [edi + 0xA318], 999
+            jne skip_pause_check
+            mov eax, 0x{s['paused']:X}
+            jmp show_string_and_done
+        skip_pause_check:
+            # Confirm here, not at the row pick: this is the Buy path only
+            # (Remove never reaches charge: at all -- see remove_doubler).
+            # confirm_helper_code looks the row's real cost up itself.
+            push ebx
+            push 0
+            call 0x{CONFIRM_HELPER_VA:X}
+            test eax, eax
+            je menu_loop
+            cmp ebx, 5
+            je cure_gated
             cmp ebx, 6
             jb legacy_charge
             cmp ebx, 8
@@ -341,10 +484,28 @@ def main() -> None:
             call 0x{VILLAGE_PREFLIGHT_VA:X}
             test eax, eax
             jz menu_loop
+            # Afford-it-at-all check only, same as every other row -- the
+            # real charge is conditional now, owned by village_wide itself
+            # once it knows whether this specific row actually changed
+            # anything (see village_wide's own comment).
             cmp dword ptr [edi + 0xA2FC], 1000000
             jb insufficient
-            sub dword ptr [edi + 0xA2FC], 1000000
             jmp do_village_wide
+        cure_gated:
+            # Unlike every other row, Cure's own tech-point deduction is
+            # not unconditional here: whether anything was actually sick
+            # or below full health is only known after the helper below
+            # scans the village, so the helper itself owns the charge
+            # (only once it knows there is something to charge for) and
+            # its own two-outcome messaging instead of this generic
+            # charge-then-act path. Only the ordinary "can't even afford
+            # it" gate stays here, matching every other row's own
+            # insufficient-funds check before it ever runs anything.
+            mov eax, dword ptr [0x{s['tech_cost_table']:X} + 5*4]
+            cmp dword ptr [edi + 0xA2FC], eax
+            jb insufficient
+            call 0x{HEAL_CAVE_VA:X}
+            jmp menu_done
         legacy_charge:
             mov eax, dword ptr [0x{s['tech_cost_table']:X} + ebx*4]
             cmp dword ptr [edi + 0xA2FC], eax
@@ -361,8 +522,6 @@ def main() -> None:
             je do_tech_doubler
             cmp ebx, 4
             je do_food_doubler
-            cmp ebx, 5
-            je do_cure
             cmp ebx, 8
             ja menu_loop
             jmp do_village_wide
@@ -384,25 +543,16 @@ def main() -> None:
 
         do_island_event:
             mov dword ptr [edi + 0xA300], 0
-            mov eax, 0x{s['event_queued']:X}
-            jmp show_and_done
+            jmp success
 
         do_barrel:
             mov byte ptr [0x{BARREL_PENDING_VA:X}], 1
-            mov eax, 0x{s['purchase_complete']:X}
-            push 0
-            push 0x{s['title']:X}
-            push eax
-            call 0x452DB6
-            add esp, 0x0C
-            jmp menu_done
+            mov dword ptr [0x{BARREL_DELAY_COUNTER_VA:X}], 0
+            jmp success
 
         do_tech_doubler:
             mov dword ptr [edi + 0xAD48], 1
             jmp success
-        do_cure:
-            call 0x{HEAL_CAVE_VA:X}
-            jmp menu_done
         do_village_wide:
             call 0x{HEAL_CAVE_VA:X}
             jmp menu_done
@@ -418,23 +568,32 @@ def main() -> None:
         remove_food_doubler:
             mov dword ptr [edi + 0xAD4C], 0
         removed_success:
-            mov eax, 0x{s['removed']:X}
-            jmp show_and_done
+            push 3
+            push ebx
+            push 0
+            call 0x{ROW_MESSAGE_HELPER_VA:X}
+            jmp menu_done
 
         success:
-            mov eax, 0x{s['purchase_complete']:X}
-            jmp show_and_done
+            push 0
+            push ebx
+            push 0
+            call 0x{ROW_MESSAGE_HELPER_VA:X}
+            jmp menu_done
         insufficient:
             mov eax, 0x{s['not_enough']:X}
-            jmp show_and_done
-        population_capacity:
-            mov eax, 0x{s['population_capacity']:X}
-        show_and_done:
+        show_string_and_done:
             push 0
             push 0x{s['title']:X}
             push eax
             call 0x452DB6
             add esp, 0x0C
+            jmp menu_done
+        population_capacity:
+            push 4
+            push 2
+            push 0
+            call 0x{ROW_MESSAGE_HELPER_VA:X}
             jmp menu_done
 
         menu_done:
@@ -632,26 +791,26 @@ def main() -> None:
             je detail_done
             mov ebx, eax
 
+            push ebx
+            push 1
+            call 0x{CONFIRM_HELPER_VA:X}
+            test eax, eax
+            je detail_loop
+
             mov edi, dword ptr [esi + 0x0C]
             mov ecx, dword ptr [edi + 0xAD34]
             imul ecx, ecx, 0x3D8
             mov edx, dword ptr [esi + 0x10]
             add edx, ecx
             cmp ebx, 4
-            je detail_appearance
-            cmp ebx, 2
-            jne detail_charge
-            lea eax, [edx + 0x398]
-            mov ecx, 4
-        running_preflight:
-            cmp dword ptr [eax], {RUNNING_PREFERENCE_ID}
+            je 0x{APPEARANCE_ROUTER_VA:X}
+            call 0x{DETAIL_PREFLIGHT_VA:X}
+            cmp eax, 100
             je detail_charge
-            cmp dword ptr [eax], -1
-            je detail_charge
-            add eax, 4
-            dec ecx
-            jne running_preflight
-            jmp detail_running_unavailable
+            # Anything else is already the exact ShowOriginsRowMessage
+            # status to display (1=no-change, 2=blocked, 5=blocked-but-
+            # dislike-removed) -- no charge, no translation needed.
+            jmp detail_row_message
         detail_charge:
             mov eax, dword ptr [0x{s['detail_cost_table']:X} + ebx*4]
             cmp dword ptr [edi + 0xA2FC], eax
@@ -673,7 +832,12 @@ def main() -> None:
             add ecx, 4
             dec eax
             jne running_find_like_slot
-            jmp detail_running_unavailable
+            # Unreachable in practice -- DETAIL_PREFLIGHT_VA (or its own
+            # RUNNING_DISLIKE_CLEAR_VA tail) already confirmed a free Like
+            # slot exists before returning 100/"proceed to charge", so this
+            # loop always finds one. Kept as a defensive fallback only.
+            mov eax, 2
+            jmp detail_row_message
         running_store_like:
             mov dword ptr [ecx], {RUNNING_PREFERENCE_ID}
         running_remove_dislikes:
@@ -724,26 +888,22 @@ def main() -> None:
             mov dword ptr [edx + 0x3CC], 100
             jmp detail_success
 
-        detail_appearance:
-            call 0x{APPEARANCE_HELPER_VA:X}
-            test eax, eax
-            je detail_loop
-            jmp detail_success
-
         detail_success:
-            mov eax, 0x{s['purchase_complete']:X}
-            jmp detail_show
+            xor eax, eax
+            jmp detail_row_message
         detail_insufficient:
             mov eax, 0x{s['not_enough']:X}
-            jmp detail_show
-        detail_running_unavailable:
-            mov eax, 0x{s['running_unavailable']:X}
-        detail_show:
             push 0
             push 0x{s['detail_title']:X}
             push eax
             call 0x452DB6
             add esp, 0x0C
+            jmp detail_loop
+        detail_row_message:
+            push eax
+            push ebx
+            push 1
+            call 0x{ROW_MESSAGE_HELPER_VA:X}
             jmp detail_loop
         detail_done:
             pop edi
@@ -781,6 +941,13 @@ def main() -> None:
             mov dword ptr [edi + 0xAD4C], 1
             ret
         village_wide:
+            # None of the three rows charge upfront any more (the generic
+            # dispatch that calls this only ever checked affordability, see
+            # charge:/skip_pause_check) -- each branch below now owns its
+            # own charge, taken only once its own granted count (already
+            # computed by the native scan just below) confirms something
+            # actually changed, exactly the same shape cure_all uses for
+            # Full Heal/Cure.
             push ebx
             push ebp
             push ecx
@@ -793,24 +960,117 @@ def main() -> None:
             je village_result_done
             mov edx, 256
             call 0x{VILLAGE_WIDE_ENTRY_VA:X}
+            # VILLAGE_WIDE_ENTRY_VA returns three counts in eax/ecx/edx that
+            # every branch below needs to survive the icons-dll resolution
+            # call (which clobbers eax/ecx/edx as scratch) and, for Running,
+            # the result-callback argument pushes further down -- so they're
+            # parked in ebp/esi/edi respectively. edi is *also* still the
+            # only copy of the village state pointer the charge below needs
+            # ([edi + 0xA2FC] is the tech-point balance): overwriting it here
+            # destroyed that pointer, so every successful village-wide
+            # charge wrote the deduction through a small counter value
+            # instead and crashed. The original edi is never actually lost
+            # though -- it's the last thing pushed at this block's own
+            # entry above, and nothing between here and any of the three
+            # charge sites below unbalances the stack (every push before a
+            # call here is matched by that call's own self-cleaning ret n,
+            # same as ebp/esi already rely on to survive that stretch), so
+            # [esp] is a reliable second copy of it for as long as this
+            # register gets reused for the edx return value.
             mov ebp, eax
             mov edi, edx
             mov esi, ecx
-            mov eax, 0x{s['show_result_export']:X}
+            # Resolve the icons DLL handle once here rather than once per
+            # row below -- by the time we get here, ShowOriginsPermanent-
+            # ChangeConfirm has already loaded it successfully, so this is
+            # only ever a formality, not a real failure path.
             push 0x{s['icons_dll']:X}
             call dword ptr [0x457010]
-            test eax, eax
+            mov edx, eax
+            test edx, edx
             je village_result_done
-            push 0x{s['show_result_export']:X}
+            cmp ebx, 7
+            je village_mastery_result
+            cmp ebx, 8
+            je village_age_result
+
+            mov eax, dword ptr [0x{RUNNING_GRANTED_VA:X}]
+            test eax, eax
+            jz village_no_change
+            # eax is dead here (only needed for the jz test just above) --
+            # see the comment above the call that fills edi with the
+            # already_running_skipped count instead of the state pointer:
+            # [esp] is still that original pointer. pop/push instead of a
+            # plain mov reload is a non-destructive peek at the top of the
+            # stack that costs one byte less (this cave has none to spare):
+            # pop reads it into eax and leaves esp exactly where push then
+            # puts it right back, so nothing above [esp] shifts.
+            pop eax
             push eax
+            sub dword ptr [eax + 0xA2FC], 1000000
+            push 0x{s['show_result_export']:X}
+            push edx
             call dword ptr [0x4570D4]
             test eax, eax
             je village_result_done
             push esi
             push edi
             push ebp
+            mov ecx, dword ptr [0x{RUNNING_GRANTED_VA:X}]
+            push ecx
             push ebx
             call eax
+            jmp village_result_done
+
+        village_mastery_result:
+            mov eax, dword ptr [0x{MASTERY_GRANTED_VA:X}]
+            test eax, eax
+            jz village_no_change
+            # Same state-pointer reload as the Running branch above --
+            # MASTERY_GRANTED_VA is re-read from memory below rather than
+            # reused from eax, so clobbering it here is safe.
+            pop eax
+            push eax
+            sub dword ptr [eax + 0xA2FC], 1000000
+            push 0x{s['show_mastery_result_export']:X}
+            push edx
+            call dword ptr [0x4570D4]
+            test eax, eax
+            je village_result_done
+            mov ecx, dword ptr [0x{MASTERY_ALREADY_VA:X}]
+            push ecx
+            mov ecx, dword ptr [0x{MASTERY_GRANTED_VA:X}]
+            push ecx
+            call eax
+            jmp village_result_done
+
+        village_age_result:
+            mov eax, dword ptr [0x{AGE_GRANTED_VA:X}]
+            test eax, eax
+            jz village_no_change
+            # Same state-pointer reload as the Running branch above --
+            # the OFFICIAL spreadsheet gives this row a plain "completed."
+            # line with no count, so unlike Running/Mastery its success
+            # path no longer needs to resolve or call a dedicated export
+            # (the old ShowOriginsAgeResult) -- it goes through the same
+            # generic ROW_MESSAGE_HELPER_VA every other plain-completion
+            # row already uses. ebx is still 8 here (Set All Villagers to
+            # 18's own row number), matching that row's dispatch above.
+            pop eax
+            push eax
+            sub dword ptr [eax + 0xA2FC], 1000000
+            push 0
+            push ebx
+            push 0
+            call 0x{ROW_MESSAGE_HELPER_VA:X}
+            jmp village_result_done
+
+        village_no_change:
+            push 1
+            push ebx
+            push 0
+            call 0x{ROW_MESSAGE_HELPER_VA:X}
+
         village_result_done:
             pop edi
             pop esi
@@ -820,6 +1080,15 @@ def main() -> None:
             pop ebx
             ret
         cure_all:
+            # Full Heal/Cure All Villagers: unlike the old Cure, health is
+            # now restored to full (100) for anyone below it, not just
+            # anyone below 80 -- and unlike every other row, this helper
+            # (not the generic dispatch that called it) owns the charge,
+            # since whether there is anything to charge for is only known
+            # after this scan. eax tracks how many villagers had sickness
+            # cleared, ebp tracks how many had health restored; the two
+            # are reported and charged for separately, and if both are
+            # zero nothing is charged at all.
             push ebx
             push ebp
             push ecx
@@ -827,18 +1096,20 @@ def main() -> None:
             push esi
             push edi
             xor eax, eax
+            xor ebp, ebp
             mov edx, dword ptr [edi + 0xADE8]
             test edx, edx
-            je cure_format
+            je cure_check_result
             mov ecx, 256
         cure_loop:
             cmp byte ptr [edx + 0x28], 0
             je cure_next
             cmp dword ptr [edx + 0x344], 0
             jle cure_next
-            cmp dword ptr [edx + 0x344], 80
+            cmp dword ptr [edx + 0x344], 100
             jge cure_health_done
             mov dword ptr [edx + 0x344], 100
+            inc ebp
         cure_health_done:
             cmp byte ptr [edx + 0x354], 0
             je cure_next
@@ -849,50 +1120,34 @@ def main() -> None:
             add edx, 0x3D8
             dec ecx
             jne cure_loop
-        cure_format:
-            mov ebp, eax
-            sub esp, 40
-            mov dword ptr [esp], 0x65727543
-            mov word ptr [esp + 4], 0x2064
-            lea edi, [esp + 6]
-            test ebp, ebp
-            jnz cure_digits
-            mov byte ptr [edi], 0x30
-            inc edi
-            jmp cure_suffix
-        cure_digits:
-            lea esi, [esp + 30]
-            mov eax, ebp
-            mov ebx, 10
-            xor ecx, ecx
-        cure_digit_loop:
-            xor edx, edx
-            div ebx
-            add dl, 0x30
-            dec esi
-            mov byte ptr [esi], dl
-            inc ecx
-            test eax, eax
-            jne cure_digit_loop
-        cure_copy_loop:
-            mov dl, byte ptr [esi]
-            mov byte ptr [edi], dl
-            inc esi
-            inc edi
-            dec ecx
-            jne cure_copy_loop
-        cure_suffix:
-            mov byte ptr [edi], 0x20
-            mov dword ptr [edi + 1], 0x6C6C6976
-            mov dword ptr [edi + 5], 0x72656761
-            mov word ptr [edi + 9], 0x0073
-            lea eax, [esp]
+        cure_check_result:
+            mov ecx, eax
+            or ecx, ebp
+            jne cure_resolve
+            mov eax, 0x{s['cure_no_change']:X}
             push 0
             push 0x{s['title']:X}
             push eax
             call 0x452DB6
             add esp, 0x0C
-            add esp, 40
+            jmp cure_done
+        cure_resolve:
+            mov ebx, eax
+            mov esi, ebp
+            push 0x{s['icons_dll']:X}
+            call dword ptr [0x457010]
+            test eax, eax
+            je cure_done
+            push 0x{s['show_cure_result']:X}
+            push eax
+            call dword ptr [0x4570D4]
+            test eax, eax
+            je cure_done
+            sub dword ptr [edi + 0xA2FC], 30000
+            push esi
+            push ebx
+            call eax
+        cure_done:
             pop edi
             pop esi
             pop edx
@@ -942,6 +1197,9 @@ def main() -> None:
             call 0x448600
             cmp byte ptr [0x{BARREL_PENDING_VA:X}], 2
             jne barrel_main_done
+            inc dword ptr [0x{BARREL_DELAY_COUNTER_VA:X}]
+            cmp dword ptr [0x{BARREL_DELAY_COUNTER_VA:X}], {BARREL_DELAY_TICKS}
+            jb barrel_main_done
             pushad
             mov esi, dword ptr [esp + 4]
             push 0x50F0
@@ -961,6 +1219,7 @@ def main() -> None:
             mov ecx, ebx
             call 0x427620
             mov byte ptr [0x{BARREL_PENDING_VA:X}], 0
+            mov dword ptr [0x{BARREL_DELAY_COUNTER_VA:X}], 0
         barrel_main_restore:
             popad
         barrel_main_done:
@@ -981,10 +1240,34 @@ def main() -> None:
             cmp byte ptr [0x{BARREL_PENDING_VA:X}], 1
             jne barrel_close_done
             mov byte ptr [0x{BARREL_PENDING_VA:X}], 2
+            mov dword ptr [0x{BARREL_DELAY_COUNTER_VA:X}], 0
         barrel_close_done:
             jmp 0x435DCD
         """,
         BARREL_CLOSE_HELPER_VA,
+    )
+    appearance_router_code = assemble(
+        f"""
+            call 0x{APPEARANCE_HELPER_VA:X}
+            cmp eax, 1
+            je appearance_router_changed
+            cmp eax, 2
+            je appearance_router_no_change
+            jmp 0x{DETAIL_LOOP_VA:X}
+        appearance_router_changed:
+            push 0
+            push 4
+            push 1
+            call 0x{ROW_MESSAGE_HELPER_VA:X}
+            jmp 0x{DETAIL_LOOP_VA:X}
+        appearance_router_no_change:
+            push 1
+            push 4
+            push 1
+            call 0x{ROW_MESSAGE_HELPER_VA:X}
+            jmp 0x{DETAIL_LOOP_VA:X}
+        """,
+        APPEARANCE_ROUTER_VA,
     )
     appearance_helper_code = assemble(
         f"""
@@ -1002,10 +1285,14 @@ def main() -> None:
             je appearance_fail
             push ebx
             call eax
-            test eax, eax
-            je appearance_fail
+            # eax is 0 (cancelled), 1 (changed), or 2 (OK but nothing
+            # changed) -- only the changed case charges; the other two
+            # pass straight through to the router unmodified (0 is silent,
+            # matching a plain Cancel; 2 still gets its own no-change
+            # message from the router, just no charge).
+            cmp eax, 1
+            jne appearance_fail
             sub dword ptr [edi + 0xA2FC], 5000
-            mov eax, 1
             ret
         appearance_insufficient:
             mov eax, 0x{s['not_enough']:X}
@@ -1014,11 +1301,220 @@ def main() -> None:
             push eax
             call 0x452DB6
             add esp, 0x0C
-        appearance_fail:
             xor eax, eax
+        appearance_fail:
             ret
         """,
         APPEARANCE_HELPER_VA,
+    )
+    confirm_helper_code = assemble(
+        f"""
+            # Takes only (is_detail, row) from the caller -- [esp+4]/[esp+8]
+            # at entry -- and looks the row's real cost up itself (tech vs
+            # detail cost table), rather than making menu/detail_menu do
+            # that lookup themselves: both of their own caves were too
+            # tight to afford it, and .shr has room to spare.
+            mov ecx, dword ptr [esp + 8]
+            cmp dword ptr [esp + 4], 0
+            jne confirm_detail_cost
+            cmp ecx, 6
+            jb confirm_tech_cost
+            mov edx, 1000000
+            jmp confirm_cost_done
+        confirm_tech_cost:
+            mov edx, dword ptr [0x{s['tech_cost_table']:X} + ecx*4]
+            jmp confirm_cost_done
+        confirm_detail_cost:
+            mov edx, dword ptr [0x{s['detail_cost_table']:X} + ecx*4]
+        confirm_cost_done:
+            push edx
+            push 0x{s['icons_dll']:X}
+            call dword ptr [0x457010]
+            test eax, eax
+            je confirm_fail_cleanup
+            push 0x{s['confirm_export']:X}
+            push eax
+            call dword ptr [0x4570D4]
+            test eax, eax
+            je confirm_fail_cleanup
+            push dword ptr [esp + 0]
+            push dword ptr [esp + 16]
+            push dword ptr [esp + 16]
+            call eax
+            add esp, 4
+            ret 8
+        confirm_fail_cleanup:
+            add esp, 4
+            xor eax, eax
+            ret 8
+        """,
+        CONFIRM_HELPER_VA,
+    )
+    detail_preflight_code = assemble(
+        f"""
+            cmp ebx, 0
+            je preflight_youth
+            cmp ebx, 1
+            je preflight_mastery
+            cmp ebx, 2
+            je preflight_running
+            cmp dword ptr [edx + 0x348], 360
+            jne preflight_change
+            cmp dword ptr [edx + 0x34C], 360
+            jne preflight_change
+            mov eax, dword ptr [edx + 0x358]
+            test eax, eax
+            je preflight_no_change
+            cmp eax, 318
+            jne preflight_change
+            jmp preflight_no_change
+
+        preflight_youth:
+            mov ecx, dword ptr [edx + 0x348]
+            mov eax, ecx
+            sub eax, 700
+            cmp eax, 100
+            jge preflight_youth_target
+            mov eax, 100
+        preflight_youth_target:
+            cmp ecx, eax
+            jne preflight_change
+            cmp dword ptr [edx + 0x358], 0
+            jne preflight_youth_pregnant
+            cmp dword ptr [edx + 0x34C], eax
+            jne preflight_change
+            jmp preflight_no_change
+        preflight_youth_pregnant:
+            lea ecx, [eax - 1]
+            cmp dword ptr [edx + 0x34C], ecx
+            jne preflight_change
+            sub eax, 42
+            cmp dword ptr [edx + 0x358], eax
+            jne preflight_change
+            jmp preflight_no_change
+
+        preflight_mastery:
+            cmp dword ptr [edx + 0x3BC], 100
+            jne preflight_change
+            cmp dword ptr [edx + 0x3C0], 100
+            jne preflight_change
+            cmp dword ptr [edx + 0x3C4], 100
+            jne preflight_change
+            cmp dword ptr [edx + 0x3C8], 100
+            jne preflight_change
+            cmp dword ptr [edx + 0x3CC], 100
+            jne preflight_change
+            jmp preflight_no_change
+
+        preflight_running:
+            lea eax, [edx + 0x398]
+            mov ecx, 4
+        preflight_running_scan:
+            cmp dword ptr [eax], {RUNNING_PREFERENCE_ID}
+            je preflight_no_change
+            cmp dword ptr [eax], -1
+            je preflight_change
+            add eax, 4
+            dec ecx
+            jne preflight_running_scan
+            jmp 0x{RUNNING_DISLIKE_CLEAR_VA:X}
+
+        preflight_no_change:
+            mov eax, 1
+            ret
+        preflight_change:
+            mov eax, 100
+            ret
+        """,
+        DETAIL_PREFLIGHT_VA,
+    )
+    running_dislike_clear_code = assemble(
+        f"""
+            lea eax, [edx + 0x3A8]
+            mov ecx, 4
+        dislike_scan:
+            cmp dword ptr [eax], {RUNNING_PREFERENCE_ID}
+            je dislike_found
+            add eax, 4
+            dec ecx
+            jne dislike_scan
+            mov eax, 2
+            ret
+        dislike_found:
+            mov dword ptr [eax], -1
+            mov eax, 5
+            ret
+        """,
+        RUNNING_DISLIKE_CLEAR_VA,
+    )
+    # menu's own no-room-to-inline final population tier (see its own call
+    # site's comment). Takes eax = current population, returns eax = 1
+    # (room for one more Barrel of Babies -- 3 children) or 0 (blocked).
+    # 0x{VILLAGE_POPULATION_CAP_CHECK_VA:X}'s opcode byte distinguishes
+    # "stock" patch_mode (still the native 83 F8 5A = cmp eax,0x5A=90,
+    # unpatched) from "collection_progression"/"immediate_fixed" (both
+    # replace it with EB 76 90 = a jmp, raising the real cap to 256) --
+    # rendered and diffed all three patch_modes to confirm both forms
+    # exactly. This is a plain data read at a fixed address, not a call
+    # into any native object.
+    population_final_tier_code = assemble(
+        f"""
+            cmp byte ptr [0x{VILLAGE_POPULATION_CAP_CHECK_VA:X}], 0x83
+            jne population_final_tier_expanded
+            cmp eax, 87
+            ja population_final_tier_blocked
+            mov eax, 1
+            ret
+        population_final_tier_expanded:
+            cmp eax, 253
+            ja population_final_tier_blocked
+            mov eax, 1
+            ret
+        population_final_tier_blocked:
+            xor eax, eax
+            ret
+        """,
+        POPULATION_FINAL_TIER_VA,
+    )
+    patch(
+        POPULATION_FINAL_TIER_FILE_OFFSET,
+        b"\0" * len(population_final_tier_code),
+        population_final_tier_code,
+        "check whether Barrel of Babies' final population tier (above the 15/25/50 housing-flag tiers) has room for 3 more children under whichever patch_mode is actually installed, not just the collection_progression/immediate_fixed 256 cap",
+    )
+    # Forwards (is_detail, row, status) -- pushed by every plain-completion/
+    # no-change/removed/blocked call site in menu, detail_menu, the
+    # village-wide dispatch, and the appearance router -- to the icons
+    # DLL's ShowOriginsRowMessage export, which knows each row's exact
+    # OFFICIAL-spreadsheet wording. Same resolve-then-call shape as
+    # confirm_helper_code below, just simpler: no cost-table lookup, the
+    # three incoming args are forwarded to the export unchanged.
+    row_message_helper_code = assemble(
+        f"""
+            push 0x{s['icons_dll']:X}
+            call dword ptr [0x457010]
+            test eax, eax
+            je row_message_fail
+            push 0x{s['show_row_message_export']:X}
+            push eax
+            call dword ptr [0x4570D4]
+            test eax, eax
+            je row_message_fail
+            push dword ptr [esp + 0x0C]
+            push dword ptr [esp + 0x0C]
+            push dword ptr [esp + 0x0C]
+            call eax
+            ret 0x0C
+        row_message_fail:
+            ret 0x0C
+        """,
+        ROW_MESSAGE_HELPER_VA,
+    )
+    patch(
+        ROW_MESSAGE_HELPER_FILE_OFFSET,
+        b"\0" * len(row_message_helper_code),
+        row_message_helper_code,
+        "resolve and invoke the icons DLL's shared ShowOriginsRowMessage export, forwarding (is_detail, row, status) unchanged -- the generic completion/no-change/removed/blocked result box every plain-wording row now routes through",
     )
     patch(
         HEAL_CAVE_FILE_OFFSET,
@@ -1027,10 +1523,28 @@ def main() -> None:
         "redirect the shared VV1 Cure/village-wide dispatch stub to its certified helper after the optional Origins reserve",
     )
     patch(
+        CONFIRM_HELPER_FILE_OFFSET,
+        b"\0" * len(confirm_helper_code),
+        confirm_helper_code,
+        "resolve and invoke the icons DLL's shared permanent-change Yes/No confirmation, called by both menu and detail_menu immediately after a row is picked and before any owned-check or charge",
+    )
+    patch(
+        DETAIL_PREFLIGHT_FILE_OFFSET,
+        b"\0" * len(detail_preflight_code),
+        detail_preflight_code,
+        "check whether a detail_menu row (Grant Youth, Grant Full Mastery, Grant Running, Set Age 18) would actually change the selected villager before detail_menu charges for it, returning 100=would change/proceed to charge, or a ShowOriginsRowMessage status to display directly with no charge (1=no-change, 2=blocked/Running Dislike-free case tail-jumps to RUNNING_DISLIKE_CLEAR_VA which also returns 5=blocked-but-dislike-removed)",
+    )
+    patch(
+        RUNNING_DISLIKE_CLEAR_FILE_OFFSET,
+        b"\0" * len(running_dislike_clear_code),
+        running_dislike_clear_code,
+        "Details Grant Running: when all 4 Like slots are full, clear any Running Dislike for free (OFFICIAL spreadsheet edge case) and report whether one was actually cleared; tail-jumped into from DETAIL_PREFLIGHT_VA's own exhausted Like-slot scan",
+    )
+    patch(
         CURE_ENTRY_FILE_OFFSET,
         b"\0" * len(cure_code),
         cure_code,
-        "restore active living VV1 villagers below 80 health to 100, clear sickness, and increment People Cured when sickness is removed",
+        "Full Heal/Cure All Villagers: restore every active living VV1 villager below 100 health to 100 and clear sickness, reporting each count separately and charging 30,000 tech points only if at least one villager actually needed either; charges and deducts nothing when nobody did",
     )
     patch(
         VILLAGE_PREFLIGHT_FILE_OFFSET,
@@ -1045,16 +1559,28 @@ def main() -> None:
         "reserve the process-local one-shot VV1 Barrel event token",
     )
     patch(
+        BARREL_DELAY_COUNTER_FILE_OFFSET,
+        b"\0" * 4,
+        b"\0" * 4,
+        f"reserve the process-local VV1 Barrel event delay counter: the main-village update owner is a genuine per-frame tick, so the queued event now waits {BARREL_DELAY_TICKS} ticks after the Tech screen closes instead of firing on the very next one, giving the purchase confirmation time to be read first",
+    )
+    patch(
         BARREL_MAIN_HELPER_FILE_OFFSET,
         b"\0" * len(barrel_main_helper_code),
         barrel_main_helper_code,
-        "consume the deferred VV1 Barrel token from the stock main-village update owner",
+        f"consume the deferred VV1 Barrel token from the stock main-village update owner, waiting {BARREL_DELAY_TICKS} of its own per-frame ticks after the Tech screen closes before actually showing the event",
     )
     patch(
         BARREL_CLOSE_HELPER_FILE_OFFSET,
         b"\0" * len(barrel_close_helper_code),
         barrel_close_helper_code,
         "advance the purchased Barrel token only after the stock Technologies screen closes",
+    )
+    patch(
+        APPEARANCE_ROUTER_FILE_OFFSET,
+        b"\0" * len(appearance_router_code),
+        appearance_router_code,
+        "dedicated Change Appearance dispatch, isolated from detail_menu's own shared, byte-constrained cave: calls the picker helper, then either shows the row's success message and returns to the Upgrades loop, or returns there silently on cancel/failure",
     )
     patch(
         APPEARANCE_HELPER_FILE_OFFSET,

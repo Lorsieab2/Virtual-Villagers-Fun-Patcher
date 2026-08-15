@@ -2,6 +2,9 @@ LIBRARY "VVFP VV1 Origins Icons"
 EXPORTS
     ShowOriginsUpgradeMenu=_ShowOriginsUpgradeMenu@8
     ShowOriginsUpgradeMenuState=_ShowOriginsUpgradeMenuState@8
-    ShowOriginsVillageWideResult=_ShowOriginsVillageWideResult@16
-    ShowOriginsVillageWideResult@20=_ShowOriginsVillageWideResult20@20
+    ShowOriginsVillageWideResult=_ShowOriginsVillageWideResult@20
     ShowOriginsAppearancePicker=_ShowOriginsAppearancePicker@4
+    ShowOriginsCureResult=_ShowOriginsCureResult@8
+    ShowOriginsPermanentChangeConfirm=_ShowOriginsPermanentChangeConfirm@12
+    ShowOriginsMasteryResult=_ShowOriginsMasteryResult@8
+    ShowOriginsRowMessage=_ShowOriginsRowMessage@12
