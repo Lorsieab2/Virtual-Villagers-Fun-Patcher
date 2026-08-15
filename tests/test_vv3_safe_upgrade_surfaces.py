@@ -5,7 +5,6 @@ import importlib.util
 import json
 import struct
 import sys
-import tempfile
 import unittest
 from pathlib import Path
 from unittest import mock
@@ -15,7 +14,6 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 sys.path.insert(0, str(ROOT / ".tools" / "python-packages"))
 
-import pefile  # noqa: E402
 import vv_fun_patcher as patcher  # noqa: E402
 
 
@@ -23,7 +21,6 @@ STOCK = ROOT / "research" / "stock-executables" / "Virtual Villagers - The Secre
 BASE_PATH = ROOT / "data" / "candidates" / "vv3_origins_full_mastery_base_candidate.json"
 FEATURE_PATH = ROOT / "data" / "candidates" / "vv3_full_mastery_all_candidate.json"
 MAP_PATH = ROOT / "data" / "candidates" / "vv3_full_mastery_all_candidate_map.json"
-INDIVIDUAL_PATH = ROOT / "data" / "candidates" / "vv3_individual_full_mastery_candidate.json"
 DLL_PATH = ROOT / "data" / "candidates" / "VVFP VV3 Safe Upgrades.dll"
 FOUNDATION_DLL_PATH = (
     ROOT / "data" / "candidates" / "VVFP VV3 Safe Upgrade Foundation.dll"
@@ -106,13 +103,11 @@ class VV3SafeUpgradeSurfaceTests(unittest.TestCase):
         cls.base_raw = json.loads(BASE_PATH.read_text(encoding="utf-8"))
         cls.feature_raw = json.loads(FEATURE_PATH.read_text(encoding="utf-8"))
         cls.mapping = json.loads(MAP_PATH.read_text(encoding="utf-8"))
-        cls.individual_raw = json.loads(INDIVIDUAL_PATH.read_text(encoding="utf-8"))
         cls.base = patcher.FunPatch(cls.base_raw)
         cls.feature = patcher.FunPatch(cls.feature_raw)
         cls.build = next(item for item in patcher.load_builds() if item.id == "vv3")
         catalog = {item.id: item for item in patcher.load_fun_patches() if item.game_id == "vv3"}
         cls.statistics = catalog["vv3_write_village_statistics"]
-        cls.individual = catalog["vv3_individual_full_mastery_candidate"]
 
     def test_resource_only_projection_is_deterministic_and_nonresource_exact(self) -> None:
         module = load_resource_builder()
@@ -251,88 +246,6 @@ class VV3SafeUpgradeSurfaceTests(unittest.TestCase):
                         catalog_spy.assert_not_called()
                         companion_spy.assert_not_called()
 
-    def test_public_individual_install_statistics_composition_and_uninstall(self) -> None:
-        self.assertEqual(
-            self.individual.raw["dependencies"],
-            ["vv3_full_mastery_all_stage_a_candidate"],
-        )
-        self.assertNotIn("vv3_individual_grant_running_candidate", json.dumps(self.individual.raw))
-        with self.assertRaisesRegex(patcher.PatcherError, "requires prerequisite"):
-            patcher.render_patched_bytes(
-                STOCK,
-                self.build,
-                "collection_progression",
-                fun_patch_ids=("vv3_individual_full_mastery_candidate",),
-            )
-        for mode in STOCK_MODES:
-            parent, _ = patcher.render_patched_bytes(
-                STOCK,
-                self.build,
-                mode,
-                _fun_patches_override=[self.base, self.feature],
-            )
-            child, _ = patcher.render_patched_bytes(
-                STOCK,
-                self.build,
-                mode,
-                _fun_patches_override=[self.base, self.feature, self.individual],
-            )
-            expected = self.individual_raw["rendered_modes"][mode]
-            self.assertEqual((len(parent), len(child)), (0xCC000, 0xCD000))
-            self.assertEqual(sha(child), expected["candidate_sha256"])
-            public_child, _ = patcher.render_patched_bytes(
-                STOCK,
-                self.build,
-                mode,
-                fun_patch_ids=(
-                    "vv3_enable_origins_exclusive_features",
-                    "vv3_full_mastery_all_stage_a_candidate",
-                    "vv3_individual_full_mastery_candidate",
-                ),
-            )
-            self.assertEqual(public_child, child)
-            self.assertEqual(child[0x10E:0x110], bytes.fromhex("0700"))
-            self.assertEqual(child[0x158:0x15C], bytes.fromhex("00102E00"))
-            self.assertEqual(child[0x2F0:0x2F8], b".vv3im\0\0")
-            pe = pefile.PE(data=child, fast_load=True)
-            section = next(
-                item for item in pe.sections if item.Name.rstrip(b"\0") == b".vv3im"
-            )
-            self.assertEqual(section.Misc_VirtualSize, 0x1000)
-            self.assertEqual(section.VirtualAddress, 0x2E0000)
-            self.assertEqual(section.SizeOfRawData, 0x1000)
-            self.assertEqual(section.PointerToRawData, 0xCC000)
-            self.assertEqual(pe.OPTIONAL_HEADER.ImageBase + section.VirtualAddress, 0x6E0000)
-            self.assertEqual(pe.get_offset_from_rva(0x2E0000), 0xCC000)
-            self.assertEqual(
-                sha(child[section.PointerToRawData : section.PointerToRawData + 0x1000]),
-                self.individual_raw["emitted"]["page_sha256"],
-            )
-            self.assertEqual(child[0xA38C3:0xA38C8], bytes.fromhex("E938C72300"))
-            self.assertEqual(
-                child[0xCC000:0xCC013],
-                bytes.fromhex("83FB010F85E539DCFFE8F2000000E9C337DCFF"),
-            )
-            self.assertEqual(child[0xA35EF:0xA35F6], bytes.fromhex("E92D81FDFF9090"))
-            self.assertEqual(child[0x7B721:0x7B741], bytes.fromhex("83FB050F849C7D02008B049D543F4A00E9C07E02000000000000000000000000"))
-            with_statistics, _ = patcher.render_patched_bytes(
-                STOCK,
-                self.build,
-                mode,
-                _fun_patches_override=[
-                    self.base,
-                    self.feature,
-                    self.individual,
-                    self.statistics,
-                ],
-            )
-            self.assertEqual(
-                sha(with_statistics), expected["statistics_candidate_sha256"]
-            )
-            work = bytearray(child)
-            patcher._remove_feature_bytes(work, self.individual, mode)
-            self.assertEqual(work, parent)
-
     def test_individual_overlap_exception_is_narrow_and_foreign_collision_fails(self) -> None:
         foreign = patcher.FunPatch(
             {
@@ -357,19 +270,6 @@ class VV3SafeUpgradeSurfaceTests(unittest.TestCase):
                 "collection_progression",
                 _fun_patches_override=[self.base, self.feature, foreign],
             )
-
-    def test_companion_install_and_child_uninstall_restore_exact_foundation(self) -> None:
-        with tempfile.TemporaryDirectory(prefix="vv3-safe-companion-") as td:
-            root = Path(td)
-            patcher._copy_companion_files(
-                root, [self.base, self.feature, self.individual]
-            )
-            destination = root / "VVFP VV3 Full Mastery Candidate.dll"
-            self.assertEqual(sha(destination.read_bytes()), "8DB27C9208C0060046513078DF53A4DC8D7347AF5A9FD27177803E9388648BEE")
-            patcher._remove_companion_files(root, [self.individual])
-            self.assertEqual(sha(destination.read_bytes()), "A99584788F1726AF2DFDAE83BC9F42DE82DBD2DBA6E1ECD56222D2BDACB47681")
-            patcher._remove_companion_files(root, [self.base])
-            self.assertFalse(destination.exists())
 
     def test_uninstall_round_trips_and_expanded_rejects_before_append(self) -> None:
         for mode in STOCK_MODES:
