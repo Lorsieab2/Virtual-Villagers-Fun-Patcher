@@ -947,6 +947,23 @@ def main() -> None:
             je village_result_done
             mov edx, 256
             call 0x{VILLAGE_WIDE_ENTRY_VA:X}
+            # VILLAGE_WIDE_ENTRY_VA returns three counts in eax/ecx/edx that
+            # every branch below needs to survive the icons-dll resolution
+            # call (which clobbers eax/ecx/edx as scratch) and, for Running,
+            # the result-callback argument pushes further down -- so they're
+            # parked in ebp/esi/edi respectively. edi is *also* still the
+            # only copy of the village state pointer the charge below needs
+            # ([edi + 0xA2FC] is the tech-point balance): overwriting it here
+            # destroyed that pointer, so every successful village-wide
+            # charge wrote the deduction through a small counter value
+            # instead and crashed. The original edi is never actually lost
+            # though -- it's the last thing pushed at this block's own
+            # entry above, and nothing between here and any of the three
+            # charge sites below unbalances the stack (every push before a
+            # call here is matched by that call's own self-cleaning ret n,
+            # same as ebp/esi already rely on to survive that stretch), so
+            # [esp] is a reliable second copy of it for as long as this
+            # register gets reused for the edx return value.
             mov ebp, eax
             mov edi, edx
             mov esi, ecx
@@ -967,7 +984,17 @@ def main() -> None:
             mov eax, dword ptr [0x{RUNNING_GRANTED_VA:X}]
             test eax, eax
             jz village_no_change
-            sub dword ptr [edi + 0xA2FC], 1000000
+            # eax is dead here (only needed for the jz test just above) --
+            # see the comment above the call that fills edi with the
+            # already_running_skipped count instead of the state pointer:
+            # [esp] is still that original pointer. pop/push instead of a
+            # plain mov reload is a non-destructive peek at the top of the
+            # stack that costs one byte less (this cave has none to spare):
+            # pop reads it into eax and leaves esp exactly where push then
+            # puts it right back, so nothing above [esp] shifts.
+            pop eax
+            push eax
+            sub dword ptr [eax + 0xA2FC], 1000000
             push 0x{s['show_result_export']:X}
             push edx
             call dword ptr [0x4570D4]
@@ -986,7 +1013,12 @@ def main() -> None:
             mov eax, dword ptr [0x{MASTERY_GRANTED_VA:X}]
             test eax, eax
             jz village_no_change
-            sub dword ptr [edi + 0xA2FC], 1000000
+            # Same state-pointer reload as the Running branch above --
+            # MASTERY_GRANTED_VA is re-read from memory below rather than
+            # reused from eax, so clobbering it here is safe.
+            pop eax
+            push eax
+            sub dword ptr [eax + 0xA2FC], 1000000
             push 0x{s['show_mastery_result_export']:X}
             push edx
             call dword ptr [0x4570D4]
@@ -1003,7 +1035,12 @@ def main() -> None:
             mov eax, dword ptr [0x{AGE_GRANTED_VA:X}]
             test eax, eax
             jz village_no_change
-            sub dword ptr [edi + 0xA2FC], 1000000
+            # Same state-pointer reload as the Running branch above --
+            # AGE_GRANTED_VA is re-read from memory below rather than
+            # reused from eax, so clobbering it here is safe.
+            pop eax
+            push eax
+            sub dword ptr [eax + 0xA2FC], 1000000
             push 0x{s['show_age_result_export']:X}
             push edx
             call dword ptr [0x4570D4]
