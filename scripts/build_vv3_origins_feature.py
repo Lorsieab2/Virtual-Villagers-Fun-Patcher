@@ -137,7 +137,7 @@ def main() -> None:
         ("paused", "Time Warp is unavailable while the game is paused."),
         (
             "time_warp_done",
-            "Time Warp advanced every villager by 3 displayed years.",
+            "Time Warp completed.",
         ),
         (
             "population_capacity",
@@ -192,16 +192,16 @@ def main() -> None:
         ),
         (
             "collections_completed",
-            "All four collections are now complete.",
+            "Marked all 48 collectibles as found and triggered 5 collection goals.",
         ),
         (
             "collections_reset",
-            "All collections have been reset to empty.",
+            "Cleared all 48 collectibles.",
         ),
-        ("detail_youth_done", "Reduced this villager's age by 35 years."),
-        ("detail_mastery_done", "Fully mastered this villager."),
-        ("detail_running_done", "Granted Running to this villager."),
-        ("detail_age_done", "Set this villager to exactly 18 years old."),
+        ("detail_youth_done", "Grant Youth completed."),
+        ("detail_mastery_done", "Grant Full Mastery completed."),
+        ("detail_running_done", "Grant Running completed."),
+        ("detail_age_done", "Set Age to 18 completed."),
         (
             "detail_mastery_already",
             "This villager is already fully mastered. "
@@ -209,7 +209,7 @@ def main() -> None:
         ),
         (
             "detail_age_already",
-            "This villager is already exactly 18. "
+            "No changes were needed. "
             "No tech points have been deducted.",
         ),
     ):
@@ -1054,15 +1054,13 @@ def main() -> None:
             test eax, eax
             jnz village_apply
             add dword ptr [0x582644], 1000000
-            push 0x{s['village_no_change']:X}
-            push 0x{s['tech_title']:X}
-            call 0x{show_message:X}
-            jmp village_wide_done
+            jmp village_result
         village_apply:
             mov eax, ebx
             mov ecx, 0x59E124
             mov edx, dword ptr [0x42883A]
             call 0x{VILLAGE_WIDE_ENTRY_VA:X}
+        village_result:
             test ebp, ebp
             je village_wide_done
             push 0x{s['show_result_export']:X}

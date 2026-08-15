@@ -16,6 +16,32 @@ enum {
     STATE_FULL_MASTERY_ONLY = 0x80000
 };
 
+/* Upgrade names and formatted costs, indexed by the Buy-button row (command -
+   ID_BUY_FIRST).  Used to build the per-upgrade preview confirm and the
+   "<Upgrade> completed." results, matching OFFICIAL Origins Upgrade Prompts. */
+static const char *const tech_names[] = {
+    "Time Warp", "Island Event", "Barrel of Babies", "Tech Point Doubler",
+    "Food Point Doubler", "Full Heal / Cure All",
+    "Grant Running to All Villagers", "Grant Full Mastery to All Villagers",
+    "Set All Villagers to 18", "Complete All Collections",
+    "Reset All Collections"
+};
+static const char *const tech_costs[] = {
+    "50,000", "30,000", "75,000", "500,000", "500,000", "30,000",
+    "1,000,000", "1,000,000", "1,000,000", "1,000,000", "1,000,000"
+};
+static const char *const detail_names[] = {
+    "Grant Youth", "Grant Full Mastery", "Grant Running", "Set Age to 18",
+    "Change Appearance"
+};
+static const char *const detail_costs[] = {
+    "50,000", "100,000", "40,000", "50,000", "5,000"
+};
+
+/* Set at WM_INITDIALOG so WM_COMMAND knows whether this is the Tech (0) or
+   Villager Details (1) menu.  The menus are modal and shown one at a time. */
+static int s_villager_menu;
+
 BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved) {
     (void)reserved;
     if (reason == DLL_PROCESS_ATTACH) {
@@ -32,6 +58,7 @@ static INT_PTR CALLBACK upgrade_dialog(
 ) {
     if (message == WM_INITDIALOG) {
         int villager_menu = (lparam & STATE_VILLAGER) != 0;
+        s_villager_menu = villager_menu;
         int row_count = villager_menu
             ? 5
             : ((lparam & STATE_RUNNING_ONLY) != 0
@@ -62,13 +89,21 @@ static INT_PTR CALLBACK upgrade_dialog(
     } else if (message == WM_COMMAND) {
         unsigned int command = LOWORD(wparam);
         if (command >= ID_BUY_FIRST && command <= ID_BUY_LAST) {
+            int row = (int)(command - ID_BUY_FIRST);
+            const char *name = s_villager_menu ? detail_names[row] : tech_names[row];
+            const char *cost = s_villager_menu ? detail_costs[row] : tech_costs[row];
+            char prompt[256];
+            wsprintfA(
+                prompt,
+                "Do you want to buy %s for %s tech points?\r\n"
+                "Press OK to confirm, or Cancel.",
+                name, cost);
             if (MessageBoxA(
                     window,
-                    "This upgrade makes permanent changes to your village. "
-                    "Are you sure you want to continue?",
-                    "Confirm Purchase",
-                    MB_YESNO | MB_ICONWARNING) == IDYES) {
-                EndDialog(window, (INT_PTR)(command - ID_BUY_FIRST));
+                    prompt,
+                    s_villager_menu ? "Villager Upgrades" : "Origins Upgrades",
+                    MB_OKCANCEL | MB_ICONQUESTION) == IDOK) {
+                EndDialog(window, (INT_PTR)row);
             }
             return TRUE;
         }
@@ -233,21 +268,33 @@ __declspec(dllexport) int __stdcall ShowOriginsVillageWideResult(int command) {
     char message[512];
     char line[160];
     if (command == VW_RUNNING) {
-        wsprintfA(message, "Granted Running to %u villagers.", vw_granted);
-        wsprintfA(line, "\r\n%u villagers already like Running.", vw_already);
-        lstrcatA(message, line);
-        wsprintfA(line, "\r\n%u villagers have no empty Like slot.", vw_noslot);
-        lstrcatA(message, line);
-        wsprintfA(line, "\r\nRemoved a Running dislike from %u villagers.", vw_removed);
-        lstrcatA(message, line);
+        if (vw_granted == 0 && vw_removed == 0) {
+            lstrcpyA(message, "Everyone already likes running, or has full Likes slots. "
+                              "No tech points have been deducted.");
+        } else {
+            wsprintfA(message, "Granted Running to %u Villagers.", vw_granted);
+            wsprintfA(line, "\r\n\r\nRemoved a Running dislike from %u Villagers.", vw_removed);
+            lstrcatA(message, line);
+            wsprintfA(line, "\r\n\r\nSkipped %u Villagers: already like Running.", vw_already);
+            lstrcatA(message, line);
+            wsprintfA(line, "\r\n\r\nSkipped %u Villagers: already have 3 likes.", vw_noslot);
+            lstrcatA(message, line);
+        }
     } else if (command == VW_MASTERY) {
-        wsprintfA(message, "Fully mastered %u villagers.", vw_granted);
-        wsprintfA(line, "\r\n%u villagers were already fully mastered.", vw_already);
-        lstrcatA(message, line);
+        if (vw_granted == 0) {
+            lstrcpyA(message, "Everyone has already mastered their skills. "
+                              "No tech points have been deducted.");
+        } else {
+            wsprintfA(message, "Granted Full Mastery to %u Villagers.", vw_granted);
+            wsprintfA(line, "\r\n\r\nSkipped %u Villagers: already fully mastered.", vw_already);
+            lstrcatA(message, line);
+        }
     } else if (command == VW_AGE) {
-        wsprintfA(message, "Set %u villagers to exactly 18 years old.", vw_granted);
-        wsprintfA(line, "\r\n%u villagers were already exactly 18.", vw_already);
-        lstrcatA(message, line);
+        if (vw_granted == 0) {
+            lstrcpyA(message, "Everyone is already 18. No tech points have been deducted.");
+        } else {
+            lstrcpyA(message, "Set All Villagers to 18 completed.");
+        }
     } else {
         return 0;
     }
