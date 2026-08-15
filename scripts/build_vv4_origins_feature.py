@@ -85,6 +85,11 @@ COLLECTIONS_APPLY_FILE_OFFSET = 0xCCD00
 COLLECTIONS_APPLY_VA = 0x728D00
 COLLECTIONS_COMPLETE_ORDINAL = 101
 COLLECTIONS_RESET_ORDINAL = 102
+# Scratch .shr slot holding the selected villager's record pointer while the
+# Villager (details) menu is open, so the companion DLL can act on that record
+# for the "Likes full but a Running dislike was removed" no-change case.
+VV4_DETAIL_RECORD_FILE_OFFSET = 0xCCD40
+VV4_DETAIL_RECORD_VA = 0x728D40
 EXPANDED_VILLAGE_WIDE_ENTRY_VA = 0x85A240
 EXPANDED_VILLAGE_PREFLIGHT_VA = 0x85A180
 RUNNING_PREFERENCE_ID = 38  # exact-build preference-table evidence: 0xA0CD8
@@ -604,8 +609,14 @@ def main() -> None:
             or edi, 4
         age_state:
             cmp dword ptr [edx + 0x1B8C], 360
-            jne show
+            jne age_done
             or edi, 8
+        age_done:
+            test ebp, 4
+            jz record_store
+            or edi, 0x2000
+        record_store:
+            mov dword ptr [0x{VV4_DETAIL_RECORD_VA:X}], edx
         show:
             push edi
             push 1
@@ -1357,6 +1368,8 @@ def main() -> None:
           "mode-aware Barrel capacity gate: game population (0x467610) + 3 vs the mode-patched cap (per-tech bonus + base at 0x4683F1)")
     patch(COLLECTIONS_APPLY_FILE_OFFSET, b"\0" * len(collections_apply), collections_apply,
           "Complete/Reset Collections: load the companion DLL and call the collections export by ordinal (EAX=101 complete / 102 reset)")
+    patch(VV4_DETAIL_RECORD_FILE_OFFSET, b"\0" * 4, b"\0" * 4,
+          "scratch slot for the open detail-menu villager record pointer (DLL running-dislike no-change case)")
     patch(0x4098C, bytes.fromhex("E81F79FDFF"), rel32_call(0x44098C, BARREL_COUNTDOWN_VA),
           "route the per-tick event loop through the Barrel countdown so a purchased barrel fires in the natural world context")
     patch(0x1D94F, bytes.fromhex("85F67E3456"), rel32_jump(0x41D94F, food_increment),

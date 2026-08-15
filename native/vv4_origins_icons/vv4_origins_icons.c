@@ -266,6 +266,24 @@ static int g_villager_mask;
 static int g_last_row = -1;
 static int g_last_villager;
 
+/* Remove a Running dislike from the villager whose record the payload stored in
+   the detail-menu scratch slot (.shr 0x728D40), via the game's managed
+   remove-from-array helper 0x45D1C0 (thiscall: ECX = the dislikes array, one
+   stack arg = the preference id, callee-cleaned ret 4). Used by the "Likes are
+   full but a Running dislike was cleared" no-change case. */
+static void vv4_remove_detail_running_dislike(void) {
+    unsigned char *rec = *(unsigned char **)(UINT_PTR)0x728D40u;
+    void *dislikes;
+    if (rec == NULL) { return; }
+    dislikes = rec + 0x1E6C;   /* dislikes array */
+    __asm {
+        push 38                /* RUNNING preference id */
+        mov  ecx, dislikes
+        mov  eax, 0x45D1C0
+        call eax
+    }
+}
+
 static INT_PTR CALLBACK upgrade_dialog(
     HWND window,
     UINT message,
@@ -345,8 +363,18 @@ static INT_PTR CALLBACK upgrade_dialog(
                     nochange = "This villager already likes Running. "
                                "No tech points have been deducted.";
                 } else if (row == 2 && (g_villager_mask & (1 << (8 + 2))) != 0) {
-                    nochange = "This villager already has full Likes slots. "
-                               "Running can not be added.";
+                    if ((g_villager_mask & 0x2000) != 0) {
+                        /* Likes are full but there is a Running dislike: clear
+                           it (free) and report, matching Grant Running to All. */
+                        vv4_remove_detail_running_dislike();
+                        nochange = "This villager's Likes are full, so Running "
+                                   "could not be added, but its Running dislike "
+                                   "was removed. No tech points have been "
+                                   "deducted.";
+                    } else {
+                        nochange = "This villager already has full Likes slots. "
+                                   "Running can not be added.";
+                    }
                 } else if (row == 3 && (g_villager_mask & (1 << 3)) != 0) {
                     nochange = "No changes were needed. "
                                "No tech points have been deducted.";
