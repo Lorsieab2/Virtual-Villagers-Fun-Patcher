@@ -79,6 +79,49 @@ static void center_topmost_on_owner(HWND window) {
     SetForegroundWindow(window);
 }
 
+/* Remembers whether the game window we demoted was topmost, so we restore it
+   exactly.  The upgrade menus are modal and shown one at a time. */
+static int s_owner_was_topmost;
+
+/* VV3 has no runtime fullscreen toggle (it reads FullScreen from ldw.ini once at
+   startup and never calls SDL_SetWindowFullscreen), so we cannot leave/re-enter
+   fullscreen the way VV2 does.  Instead, for the lifetime of the modal upgrade
+   menu, drop the game's own top-level window out of the WS_EX_TOPMOST band.  A
+   fullscreen SDL window is topmost and otherwise sits above our (also topmost)
+   dialog in the same z-band; demoting it guarantees the dialog is reachable.
+   The game's message loop is blocked while the dialog is modal, so it cannot
+   re-assert topmost until we restore it.  Pure Win32 on the game's HWND -- fully
+   reversible, touches no SDL or engine state.  Returns the demoted window (or
+   NULL) for end_modal_over_game to restore. */
+static HWND begin_modal_over_game(void) {
+    HWND owner = GetForegroundWindow();
+    DWORD pid = 0;
+
+    s_owner_was_topmost = 0;
+    if (owner != NULL) {
+        GetWindowThreadProcessId(owner, &pid);
+        if (pid != GetCurrentProcessId()) {
+            owner = NULL;
+        }
+    }
+    if (owner != NULL) {
+        s_owner_was_topmost =
+            (GetWindowLongA(owner, GWL_EXSTYLE) & WS_EX_TOPMOST) != 0;
+        if (s_owner_was_topmost) {
+            SetWindowPos(owner, HWND_NOTOPMOST, 0, 0, 0, 0,
+                         SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
+        }
+    }
+    return owner;
+}
+
+static void end_modal_over_game(HWND owner) {
+    if (owner != NULL && s_owner_was_topmost) {
+        SetWindowPos(owner, HWND_TOPMOST, 0, 0, 0, 0,
+                     SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
+    }
+}
+
 static INT_PTR CALLBACK upgrade_dialog(
     HWND window,
     UINT message,
@@ -154,16 +197,21 @@ static int show_upgrade_menu(int villager_menu, int dialog_state) {
         : (((dialog_state & STATE_FULL_MASTERY_ONLY) != 0)
             ? IDD_ORIGINS_FULL_MASTERY
             : IDD_ORIGINS_TECH);
+    HWND owner;
+    int result;
     if (villager_menu) {
         dialog_state |= STATE_VILLAGER;
     }
-    return (int)DialogBoxParamA(
+    owner = begin_modal_over_game();
+    result = (int)DialogBoxParamA(
         module_instance,
         MAKEINTRESOURCEA(resource),
-        GetForegroundWindow(),
+        owner,
         upgrade_dialog,
         dialog_state
     );
+    end_modal_over_game(owner);
+    return result;
 }
 
 __declspec(dllexport) int __stdcall ShowOriginsUpgradeMenuState(
@@ -515,18 +563,21 @@ __declspec(dllexport) int __stdcall ShowVV3AppearanceChooser(
     int *body
 ) {
     INT_PTR result;
+    HWND owner;
     vv3_appearance_sex = sex ? 1 : 0;
     vv3_appearance_old = age >= 1100 ? 1 : 0;
     vv3_appearance_head = (head && *head >= 0 && *head < VV3_HEAD_COUNT) ? *head : 0;
     vv3_appearance_body = (body && *body >= 0 && *body < VV3_BODY_COUNT) ? *body : 0;
 
+    owner = begin_modal_over_game();
     result = DialogBoxParamA(
         module_instance,
         MAKEINTRESOURCEA(IDD_VV3_APPEARANCE),
-        GetForegroundWindow(),
+        owner,
         vv3_appearance_dialog,
         0
     );
+    end_modal_over_game(owner);
     if (result == 1) {
         if (head) {
             *head = vv3_appearance_head;
