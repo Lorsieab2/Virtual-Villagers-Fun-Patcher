@@ -706,9 +706,7 @@ __declspec(dllexport) int __stdcall ApplyVV4ResetCollections(void) {
     }
     MessageBoxA(GetForegroundWindow(),
         "All collections were reset. Every collectible was cleared and the "
-        "collection goals were marked incomplete again.\r\n\r\nNote: game-wide "
-        "totals and any one-time rewards from completing the collections are "
-        "not reversed.",
+        "collection goals were marked incomplete again.",
         "Origins Upgrades", MB_OK | MB_ICONINFORMATION | VV_MB_FRONT);
     return cleared;
 }
