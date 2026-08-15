@@ -159,6 +159,53 @@ class ManifestTests(unittest.TestCase):
         self.assertNotIn("call 0x401AD0", barrel_block)
         self.assertNotIn("call 0x433190", barrel_block)
 
+    def test_vv2_barrel_gate_matches_population_modes(self) -> None:
+        # The Barrel capacity gate reads the game's real, mode-dependent cap by
+        # inspecting the live population-mode edits at 0x44B378 / 0x44B3AD.  Those
+        # sites and their patched opcodes must match the population variants in
+        # data/builds.json, and the DLL must key its cap off exactly those bytes,
+        # so a change to either side is caught here.
+        builds = json.loads(
+            (ROOT / "data" / "builds.json").read_text(encoding="utf-8")
+        )
+        variants = next(g for g in builds["games"] if g["id"] == "vv2")["variants"]
+
+        def patch_at(variant: str, offset: int):
+            for row in variants[variant]["patches"]:
+                if int(row["offset"], 0) == offset:
+                    return row
+            return None
+
+        FIXED_SITE = 0x4B378  # file offset of VA 0x44B378 (collection-bonus compare)
+        BASE_SITE = 0x4B3AD   # file offset of VA 0x44B3AD (base add edi, 90)
+
+        # Immediate Fixed flips the collection-bonus compare opcode 0x83 -> 0xBF.
+        fixed = patch_at("immediate_fixed", FIXED_SITE)
+        self.assertIsNotNone(fixed)
+        self.assertTrue(fixed["before"].upper().startswith("83"))
+        self.assertTrue(fixed["after"].upper().startswith("BF"))
+        # Collection Progression flips the base-add opcode 0x83 -> 0xEB.
+        prog = patch_at("collection_progression", BASE_SITE)
+        self.assertIsNotNone(prog)
+        self.assertTrue(prog["before"].upper().startswith("83"))
+        self.assertTrue(prog["after"].upper().startswith("EB"))
+        # Stock / No Population Increase edits neither site (both keep 0x83).
+        self.assertEqual(variants["stock"]["patches"], [])
+        self.assertIsNone(patch_at("immediate_fixed", BASE_SITE))
+        self.assertIsNone(patch_at("collection_progression", FIXED_SITE))
+
+        # The companion DLL keys its cap off exactly those two VAs / opcodes and
+        # produces the three documented caps (256 fixed, base 231 or 90 + bonus).
+        dll = (
+            ROOT / "native" / "vv2_origins_icons" / "vv2_origins_icons.c"
+        ).read_text(encoding="utf-8")
+        self.assertIn("0x0044B378", dll)
+        self.assertIn("0x0044B3AD", dll)
+        self.assertIn("fixed_site[0] == 0xBF", dll)
+        self.assertIn("base_site[0] == 0xEB", dll)
+        self.assertIn("return 256;", dll)
+        self.assertIn("231 : 90", dll)
+
     def test_vv2_doublers_confirm_before_any_bit_change(self) -> None:
         source = (ROOT / "scripts" / "build_vv2_origins_feature.py").read_text(
             encoding="utf-8"

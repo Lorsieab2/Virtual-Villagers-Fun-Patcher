@@ -146,12 +146,15 @@ DETAIL_NOCHANGE_VA = IMAGE_BASE + SHR_RVA + (
 # Barrel of Babies capacity gate.  Before the Barrel is cued (and before any
 # charge), the Tech menu hands the player object to the companion DLL's
 # GateVV2Barrel, which reads the current population demand (sub_425860) and the
-# collection-dependent cap the game itself enforces (base 90 plus the same
-# 0-25 collection bonus the population predicate at 0x44B310 computes) and, when
-# fewer than 3 slots remain for the Barrel's 3 children, shows the "close to
-# maximum" notice and reports no room so the payload charges nothing.  A tiny
-# .shr stub does the LoadLibrary / GetProcAddress handshake; it lives in the
-# free tail of the dispatch slot (the dispatch stub's old 0x9AF58 home).
+# real, mode-dependent cap the game's own predicate at 0x44B310 enforces.  That
+# cap is dynamic: the DLL reads the population-mode edits live (Stock base 90 +
+# 0-25 collections, Collection Progression base 231 + collections, Immediate
+# Fixed a flat 256), so it stays correct under whichever population mode the
+# player installed.  When fewer than 3 slots remain for the Barrel's 3 children
+# it shows the "close to maximum" notice and reports no room so the payload
+# charges nothing.  A tiny .shr stub does the LoadLibrary / GetProcAddress
+# handshake; it lives in the free tail of the dispatch slot (the dispatch
+# stub's old 0x9AF58 home).
 BARREL_GATE_FILE_OFFSET = 0x9AF58
 BARREL_GATE_VA = IMAGE_BASE + SHR_RVA + (
     BARREL_GATE_FILE_OFFSET - SHR_FILE_OFFSET

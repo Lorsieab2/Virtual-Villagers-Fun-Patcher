@@ -595,29 +595,44 @@ __declspec(dllexport) void __stdcall ShowVV2UpgradeResult(
    tech points are deducted) confirm the village can actually hold 3 more.  We
    ask the game the same question its own birth code asks: sub_425860 returns
    the current population demand (living villagers plus pending / nursing
-   babies), and the cap the population predicate at 0x44B310 enforces is 90
-   plus a collection bonus -- each of the four 12-item collections adds 5, and
-   all four complete counts as 25 rather than 20.  If fewer than 3 slots
-   remain, show the "close to maximum" notice and return 0 so the payload skips
-   the charge and the cue; otherwise return 1.  `pool` is the Tech-menu game
-   object (EDI): it carries both the +0x305A4 record-pool chain sub_425860
-   walks and the +0x2E720 collectible flags sub_426120 reads. */
+   babies), and the cap is whatever the population predicate at 0x44B310
+   enforces for the build the player is running.
+
+   That cap is dynamic: the Fun Patcher offers three population modes, and each
+   edits 0x44B310 itself, so we read those edits live rather than assume the
+   stock formula:
+     - Stock / No Population Increase: base 90 plus a 0-25 collection bonus
+       (each of the four 12-item collections adds 5; all four counts as 25).
+       Both mode sites keep their stock 0x83 opcode.
+     - Collection Progression detours the base add at 0x44B3AD (stock opcode
+       0x83 -> 0xEB), raising the base from 90 to 231 while keeping the bonus.
+     - Immediate Fixed rewrites the collection-bonus compare at 0x44B378 (stock
+       opcode 0x83 -> 0xBF) so the bonus is discarded and the maximum is a flat
+       256 at every collection state.
+   The mode sites and their patched opcodes come straight from the population
+   variants in data/builds.json; test_vv2_barrel_gate_matches_population_modes
+   keeps this in sync.  If fewer than 3 slots remain, show the "close to
+   maximum" notice and return 0 so the payload skips the charge and the cue;
+   otherwise return 1.  `pool` is the Tech-menu game object (EDI): it carries
+   both the +0x305A4 record-pool chain sub_425860 walks and the +0x2E720
+   collectible flags sub_426120 reads. */
 typedef int(__fastcall *vv2_pop_demand_t)(void *pool, int edx_ignored);
 typedef char(__fastcall *vv2_collection_done_t)(
     void *pool, int edx_ignored, int start
 );
 
-__declspec(dllexport) int __stdcall GateVV2Barrel(void *pool) {
-    vv2_pop_demand_t population_demand =
-        (vv2_pop_demand_t)(UINT_PTR)0x00425860;
-    vv2_collection_done_t collection_done =
-        (vv2_collection_done_t)(UINT_PTR)0x00426120;
-    int demand;
-    int bonus = 0;
-    if (pool == 0) {
-        return 0;
+static int vv2_population_cap(vv2_collection_done_t collection_done,
+                              void *pool) {
+    const unsigned char *fixed_site = (const unsigned char *)(UINT_PTR)0x0044B378;
+    const unsigned char *base_site = (const unsigned char *)(UINT_PTR)0x0044B3AD;
+    int bonus;
+    if (fixed_site[0] == 0xBF) {
+        /* Immediate Fixed: collection bonus overwritten with a constant, so the
+           maximum is a flat 256 regardless of collections. */
+        return 256;
     }
-    demand = population_demand(pool, 0);
+    /* Stock and Collection Progression both keep the 0-25 collection bonus. */
+    bonus = 0;
     if (collection_done(pool, 0, 0x00)) {
         bonus += 5;
     }
@@ -633,7 +648,24 @@ __declspec(dllexport) int __stdcall GateVV2Barrel(void *pool) {
     if (bonus == 20) {
         bonus = 25;
     }
-    if (demand + 3 > 90 + bonus) {
+    /* Stock base is 90 (add edi,0x5a); Collection Progression's detour raises
+       it to 231. */
+    return (base_site[0] == 0xEB ? 231 : 90) + bonus;
+}
+
+__declspec(dllexport) int __stdcall GateVV2Barrel(void *pool) {
+    vv2_pop_demand_t population_demand =
+        (vv2_pop_demand_t)(UINT_PTR)0x00425860;
+    vv2_collection_done_t collection_done =
+        (vv2_collection_done_t)(UINT_PTR)0x00426120;
+    int demand;
+    int cap;
+    if (pool == 0) {
+        return 0;
+    }
+    demand = population_demand(pool, 0);
+    cap = vv2_population_cap(collection_done, pool);
+    if (demand + 3 > cap) {
         ShowVV2UpgradeResult(VV2_ACT_BARREL, VV2_RES_POP_FULL, 0, 0, 0, 0);
         return 0;
     }
