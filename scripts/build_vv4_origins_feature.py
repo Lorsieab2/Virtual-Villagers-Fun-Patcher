@@ -54,6 +54,17 @@ VILLAGE_PREFLIGHT_VA = 0x728180
 # well past the village-wide payload which ends near 0xCC740 / 0x728740.
 APPEARANCE_HELPER_FILE_OFFSET = 0xCC760
 APPEARANCE_HELPER_VA = 0x728760
+# Deferred Barrel of Babies. A purchased barrel is no longer fired synchronously
+# during menu-close: that ran the native event with the wrong context object, so
+# its multi-tick lifecycle never delivered the 3 children. Instead do_barrel arms
+# a countdown token in the free .shr tail; the game's own per-tick event loop
+# (0x44098C -> 0x4182B0) then presents the barrel in the correct world context,
+# exactly like a stock random barrel, so its native 3-child lifecycle completes.
+BARREL_TOKEN_VA = 0x728B00            # dword countdown (ticks left before firing)
+BARREL_ARMED_VA = 0x728B04            # byte: barrel is eligible for this loop pass
+BARREL_COUNTDOWN_FILE_OFFSET = 0xCCB10
+BARREL_COUNTDOWN_VA = 0x728B10
+BARREL_WAIT_TICKS = 90                # ~90 gameplay ticks after the Purchased prompt
 EXPANDED_VILLAGE_WIDE_ENTRY_VA = 0x85A240
 EXPANDED_VILLAGE_PREFLIGHT_VA = 0x85A180
 RUNNING_PREFERENCE_ID = 38  # exact-build preference-table evidence: 0xA0CD8
@@ -81,6 +92,12 @@ def assemble(source: str, address: int) -> bytes:
 
 def rel32_jump(source_va: int, target_va: int) -> bytes:
     return b"\xE9" + int(target_va - source_va - 5).to_bytes(
+        4, "little", signed=True
+    )
+
+
+def rel32_call(source_va: int, target_va: int) -> bytes:
+    return b"\xE8" + int(target_va - source_va - 5).to_bytes(
         4, "little", signed=True
     )
 
@@ -248,8 +265,8 @@ def main() -> None:
     )
     put(
         barrel_eligibility,
-        """
-            test dword ptr [0x4D6E10], 0x80000000
+        f"""
+            cmp byte ptr [0x{BARREL_ARMED_VA:X}], 0
             jz original
             mov al, 1
             ret
@@ -457,11 +474,7 @@ def main() -> None:
             mov dword ptr [eax + 0x170E0], 0
             jmp success
         do_barrel:
-            or dword ptr [0x4D6E10], 0x80000000
-            push 25
-            push esi
-            call 0x418190
-            and dword ptr [0x4D6E10], 0x7FFFFFFF
+            mov dword ptr [0x{BARREL_TOKEN_VA:X}], {BARREL_WAIT_TICKS}
             jmp success
         do_tech_doubler:
             or dword ptr [0x4D6E10], 1
@@ -1070,6 +1083,29 @@ def main() -> None:
         """,
         APPEARANCE_HELPER_VA,
     )
+    # Deferred-Barrel countdown, spliced into the per-tick event loop in front of
+    # the natural presenter (0x4182B0). ECX (event manager) and the stack arg it
+    # was called with are untouched, so the tail jmp reaches 0x4182B0 with the
+    # exact frame it expects (0x4182B0 ends `ret 4`, returning to 0x440991). Each
+    # tick it drains the purchase token; on the tick it reaches 0 it arms the
+    # barrel for that single loop pass, so the loop presents exactly one barrel in
+    # the real world context. Otherwise the barrel stays disarmed.
+    barrel_countdown = assemble(
+        f"""
+            mov eax, dword ptr [0x{BARREL_TOKEN_VA:X}]
+            test eax, eax
+            jz barrel_disarm
+            dec eax
+            mov dword ptr [0x{BARREL_TOKEN_VA:X}], eax
+            jnz barrel_disarm
+            mov byte ptr [0x{BARREL_ARMED_VA:X}], 1
+            jmp 0x4182B0
+        barrel_disarm:
+            mov byte ptr [0x{BARREL_ARMED_VA:X}], 0
+            jmp 0x4182B0
+        """,
+        BARREL_COUNTDOWN_VA,
+    )
     # The Cure and preflight helpers themselves are in the stock .shr section,
     # outside the main Origins payload scanner.  Record their exact internal
     # .shr references so expanded mode can retarget them after the section move.
@@ -1193,7 +1229,11 @@ def main() -> None:
     patch(0x294, bytes.fromhex("400000D0"), bytes.fromhex("600000F0"),
           "mark the mapped VV4 .shr helper page executable while retaining its stock data permissions")
     patch(0x14D50, bytes.fromhex("B968E55000"), rel32_jump(0x414D50, barrel_eligibility),
-          "temporarily admit the explicitly purchased native Barrel of Babies event")
+          "admit the Barrel of Babies event while the purchased-barrel countdown is armed")
+    patch(BARREL_COUNTDOWN_FILE_OFFSET, b"\0" * len(barrel_countdown), barrel_countdown,
+          "deferred Barrel countdown: drain the purchase token each tick and arm the barrel for one natural event-loop pass")
+    patch(0x4098C, bytes.fromhex("E81F79FDFF"), rel32_call(0x44098C, BARREL_COUNTDOWN_VA),
+          "route the per-tick event loop through the Barrel countdown so a purchased barrel fires in the natural world context")
     patch(0x1D94F, bytes.fromhex("85F67E3456"), rel32_jump(0x41D94F, food_increment),
           "double eligible positive food-source deltas")
     patch(0x1E300, bytes.fromhex("568B742408"), rel32_jump(0x41E300, tech_increment),
