@@ -270,6 +270,10 @@ static const char *const g_villager_costs[5] = {
     "50,000", "100,000", "40,000", "50,000", "5,000"
 };
 static int g_villager_menu;  /* set at WM_INITDIALOG; menus are modal/one-at-a-time */
+/* The row/menu the player last acted on, captured at click time so the result
+   popup (shown after the menu closes) can name the upgrade. */
+static int g_last_row = -1;
+static int g_last_villager;
 
 static INT_PTR CALLBACK upgrade_dialog(
     HWND window,
@@ -337,6 +341,8 @@ static INT_PTR CALLBACK upgrade_dialog(
                     return TRUE; /* Cancel: stay in the menu. */
                 }
             }
+            g_last_row = row;
+            g_last_villager = g_villager_menu;
             EndDialog(window, (INT_PTR)row);
             return TRUE;
         }
@@ -478,9 +484,33 @@ __declspec(dllexport) int __stdcall ShowOriginsUpgradeMessage(
     const char *title,
     const char *text
 ) {
+    char msg[192];
+    const char *out = (text != NULL) ? text : "";
+    /* Translate the payload's generic result strings into the OFFICIAL
+       per-upgrade wording, using the row the player just clicked. (Cure and
+       the village-wide grants have their own result exports and never reach
+       here.) */
+    if (text != NULL && g_last_row >= 0) {
+        const char *const *names = g_last_villager ? g_villager_names
+                                                   : g_tech_names;
+        int nmax = g_last_villager ? 5 : 9;
+        if (g_last_row < nmax) {
+            if (lstrcmpA(text, "Purchased.") == 0) {
+                if (g_last_villager && g_last_row == 4) {
+                    return 0;  /* Change Appearance shows no result box */
+                }
+                wsprintfA(msg, "%s completed.", names[g_last_row]);
+                out = msg;
+            } else if (lstrcmpA(text, "Removed.") == 0) {
+                wsprintfA(msg, "%s was removed. No refund was issued.",
+                          names[g_last_row]);
+                out = msg;
+            }
+        }
+    }
     MessageBoxA(
         GetForegroundWindow(),
-        text != NULL ? text : "",
+        out,
         title != NULL ? title : "Origins Upgrades",
         MB_OK | VV_MB_FRONT
     );
