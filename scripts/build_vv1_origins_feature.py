@@ -1050,27 +1050,38 @@ def main() -> None:
             mov eax, dword ptr [0x{AGE_GRANTED_VA:X}]
             test eax, eax
             jz village_no_change
-            # Same state-pointer reload as the Running branch above --
-            # AGE_GRANTED_VA is re-read from memory below rather than
-            # reused from eax, so clobbering it here is safe. Same
-            # granted/already-satisfied shape as Mastery just above,
-            # restored per the OFFICIAL spreadsheet (an earlier pass had
-            # simplified this to a plain "completed." line to match what
-            # the spreadsheet said at the time; it has since been updated
-            # back to a counted result).
-            pop eax
-            push eax
-            sub dword ptr [eax + 0xA2FC], 1000000
+            # Reviewer finding (P2): the previous ordering here charged
+            # 1,000,000 tech points before resolving ShowOriginsAgeResult
+            # by name -- if this exe payload were ever paired with a
+            # stale companion DLL that predates this export (e.g. the one
+            # from just before it was restored), GetProcAddress fails,
+            # this falls straight to village_result_done, and the player
+            # is charged with no result dialog at all, no way to tell
+            # whether anything happened. The patcher's own apply() always
+            # deploys the exe and its pinned-hash companion DLL from the
+            # same manifest together, so this exact skew shouldn't occur
+            # in normal use, but resolving before charging is strictly
+            # safer and costs nothing extra to do. ebp is free in this
+            # branch specifically (unlike Running's own result call just
+            # above, which needs it as one of its own arguments), so it
+            # holds the resolved export across the charge below.
             push 0x{s['show_age_result_export']:X}
             push edx
             call dword ptr [0x4570D4]
             test eax, eax
             je village_result_done
+            mov ebp, eax
+            # Same state-pointer reload as the Running branch above --
+            # AGE_GRANTED_VA is re-read from memory below rather than
+            # reused from eax, so clobbering it here is safe.
+            pop eax
+            push eax
+            sub dword ptr [eax + 0xA2FC], 1000000
             mov ecx, dword ptr [0x{AGE_ALREADY_VA:X}]
             push ecx
             mov ecx, dword ptr [0x{AGE_GRANTED_VA:X}]
             push ecx
-            call eax
+            call ebp
             jmp village_result_done
 
         village_no_change:
