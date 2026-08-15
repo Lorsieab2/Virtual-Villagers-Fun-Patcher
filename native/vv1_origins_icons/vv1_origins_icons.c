@@ -229,6 +229,10 @@ static struct {
     int original_body;
     int valid_count;
     int male;
+    /* Set once the player accepts the head-genetics warning below, so it
+       only ever shows once per picker session (the OFFICIAL spreadsheet's
+       "changing it first shows..." wording), not on every arrow click. */
+    int head_warned;
 } appearance_state;
 
 BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved) {
@@ -357,16 +361,43 @@ static void appearance_revert(void) {
     *(int *)(appearance_state.villager + VV_CLOTHING_OFFSET) = appearance_state.original_body;
 }
 
+/* The head field is hereditary (it's the one the villager's children
+   inherit from), so the OFFICIAL Origins Upgrade Prompts spreadsheet
+   requires a one-time OK/Cancel warning the first time the player
+   actually tries to change it in this picker session -- Cancel leaves
+   that specific arrow click without effect, no field write at all.
+   Returns 1 to proceed (already warned, or just accepted), 0 to abort
+   the click that triggered it. */
+static int vv1_confirm_head_genetics_warning(HWND window) {
+    if (appearance_state.head_warned) {
+        return 1;
+    }
+    if (MessageBoxA(
+            window,
+            "Warning: This will change the villager's head genetics.",
+            "Villager Upgrades",
+            MB_OKCANCEL | MB_ICONWARNING | MB_TOPMOST | MB_SETFOREGROUND
+        ) != IDOK) {
+        return 0;
+    }
+    appearance_state.head_warned = 1;
+    return 1;
+}
+
 /* Writes each tentative value straight into the live villager record so
    the stock renderer (which already reads these exact fields every
    frame, the same field the F6 clothing-cycle cheat uses for body) shows
    the change immediately behind this dialog -- no separate preview
-   rendering is built or needed here. Reverted on Cancel/close; kept on
-   OK. The tech-point balance check and charge are the caller's job (the
-   exact same charge code every other Villager Upgrades row already
-   uses) -- this dialog never touches tech points, only the head/body
-   fields, and returns 1 only when the player actually confirmed with
-   OK. */
+   rendering is built or needed here. Reverted on Cancel/close. On OK,
+   returns 1 if the head or body actually differs from what it was when
+   the picker opened (the caller charges and keeps the change), or 2 if
+   OK was pressed but nothing was actually changed (the caller charges
+   nothing and reports that explicitly, per the OFFICIAL spreadsheet --
+   fields already match their originals in that case, so there is
+   nothing to revert either). The tech-point balance check and charge
+   are the caller's job (the exact same charge code every other Villager
+   Upgrades row already uses) -- this dialog never touches tech points,
+   only the head/body fields. */
 static INT_PTR CALLBACK appearance_dialog(
     HWND window,
     UINT message,
@@ -406,11 +437,17 @@ static INT_PTR CALLBACK appearance_dialog(
         int *head = (int *)(appearance_state.villager + VV_HEAD_OFFSET);
         int *body = (int *)(appearance_state.villager + VV_CLOTHING_OFFSET);
         if (command == ID_HEAD_PREV) {
+            if (!vv1_confirm_head_genetics_warning(window)) {
+                return TRUE;
+            }
             *head = (*head + count - 1) % count;
             appearance_repaint(window, IDC_HEAD_PREVIEW);
             return TRUE;
         }
         if (command == ID_HEAD_NEXT) {
+            if (!vv1_confirm_head_genetics_warning(window)) {
+                return TRUE;
+            }
             *head = (*head + 1) % count;
             appearance_repaint(window, IDC_HEAD_PREVIEW);
             return TRUE;
@@ -426,7 +463,9 @@ static INT_PTR CALLBACK appearance_dialog(
             return TRUE;
         }
         if (command == IDOK) {
-            EndDialog(window, 1);
+            int changed = (*head != appearance_state.original_head)
+                || (*body != appearance_state.original_body);
+            EndDialog(window, changed ? 1 : 2);
             return TRUE;
         }
         if (command == IDCANCEL) {
@@ -456,6 +495,7 @@ __declspec(dllexport) int __stdcall ShowOriginsAppearancePicker(
     appearance_state.original_body = *(int *)(villager + VV_CLOTHING_OFFSET);
     appearance_state.male = *(int *)(villager + VV_GENDER_OFFSET) == VV_GENDER_MALE;
     appearance_state.valid_count = appearance_state.male ? 19 : 20;
+    appearance_state.head_warned = 0;
     vv1_prep_fullscreen();
     owner = GetForegroundWindow();
     result = (int)DialogBoxParamA(
@@ -750,12 +790,13 @@ static const char *vv1_tech_no_change_text(int row) {
 
 /* No-change wording for the Villager Details screen's rows. Set Age to 18
    (row 3) happens to already use the shared fallback text verbatim per the
-   spreadsheet, so only rows 0/1/2 need their own case. */
+   spreadsheet, so only rows 0/1/2/4 need their own case. */
 static const char *vv1_detail_no_change_text(int row) {
     switch (row) {
     case 0: return "This villager is already full of youth. No tech points have been deducted.";
     case 1: return "This villager is already fully mastered. No tech points have been deducted.";
     case 2: return "This villager already likes Running. No tech points have been deducted.";
+    case 4: return "The appearance is unchanged. No tech points have been deducted.";
     default: return "No changes were needed. No tech points have been deducted.";
     }
 }

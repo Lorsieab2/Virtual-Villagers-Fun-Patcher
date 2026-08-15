@@ -1249,9 +1249,19 @@ def main() -> None:
     appearance_router_code = assemble(
         f"""
             call 0x{APPEARANCE_HELPER_VA:X}
-            test eax, eax
-            je 0x{DETAIL_LOOP_VA:X}
+            cmp eax, 1
+            je appearance_router_changed
+            cmp eax, 2
+            je appearance_router_no_change
+            jmp 0x{DETAIL_LOOP_VA:X}
+        appearance_router_changed:
             push 0
+            push 4
+            push 1
+            call 0x{ROW_MESSAGE_HELPER_VA:X}
+            jmp 0x{DETAIL_LOOP_VA:X}
+        appearance_router_no_change:
+            push 1
             push 4
             push 1
             call 0x{ROW_MESSAGE_HELPER_VA:X}
@@ -1275,10 +1285,14 @@ def main() -> None:
             je appearance_fail
             push ebx
             call eax
-            test eax, eax
-            je appearance_fail
+            # eax is 0 (cancelled), 1 (changed), or 2 (OK but nothing
+            # changed) -- only the changed case charges; the other two
+            # pass straight through to the router unmodified (0 is silent,
+            # matching a plain Cancel; 2 still gets its own no-change
+            # message from the router, just no charge).
+            cmp eax, 1
+            jne appearance_fail
             sub dword ptr [edi + 0xA2FC], 5000
-            mov eax, 1
             ret
         appearance_insufficient:
             mov eax, 0x{s['not_enough']:X}
@@ -1287,8 +1301,8 @@ def main() -> None:
             push eax
             call 0x452DB6
             add esp, 0x0C
-        appearance_fail:
             xor eax, eax
+        appearance_fail:
             ret
         """,
         APPEARANCE_HELPER_VA,

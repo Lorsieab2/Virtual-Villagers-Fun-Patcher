@@ -616,16 +616,19 @@ class VV1RequiredFixTests(unittest.TestCase):
         SHR_RVA = 0x8D000
         router_off = router_va - IMAGE_BASE - SHR_RVA + SHR_FILE_OFFSET
 
-        # The router itself must call the helper and only take the
-        # success-message path when the helper's own return value is
-        # nonzero, then rejoin the stable detail_loop in either case.
+        # The router itself must call the helper and dispatch on its
+        # three-way return value (1=changed, 2=OK-but-unchanged, anything
+        # else=cancelled/insufficient funds, silent), rejoining the stable
+        # detail_loop in every case.
         call_block = list(
-            md.disasm(rendered[router_off:router_off + 0x10], router_va)
+            md.disasm(rendered[router_off:router_off + 0x18], router_va)
         )
         self.assertEqual(call_block[0].mnemonic, "call")
         appearance_helper_va = int(call_block[0].op_str, 16)
-        self.assertEqual(call_block[1].mnemonic, "test")
+        self.assertEqual((call_block[1].mnemonic, call_block[1].op_str), ("cmp", "eax, 1"))
         self.assertEqual(call_block[2].mnemonic, "je")
+        self.assertEqual((call_block[3].mnemonic, call_block[3].op_str), ("cmp", "eax, 2"))
+        self.assertEqual(call_block[4].mnemonic, "je")
 
         # The .shr helper itself must check the tech-point balance (5000)
         # before ever resolving/calling the DLL, and must only deduct
@@ -651,16 +654,18 @@ class VV1RequiredFixTests(unittest.TestCase):
         )
         picker_call = register_calls[0]
 
+        # The picker returns 0 (cancelled), 1 (changed), or 2 (OK but
+        # nothing changed) -- only 1 may reach the deduction below.
         after_picker = [i for i in helper_insns if i.address > picker_call.address]
-        test_after_call = after_picker[0]
-        self.assertEqual((test_after_call.mnemonic, test_after_call.op_str), ("test", "eax, eax"))
-        je_after_test = after_picker[1]
-        self.assertEqual(je_after_test.mnemonic, "je")
+        cmp_after_call = after_picker[0]
+        self.assertEqual((cmp_after_call.mnemonic, cmp_after_call.op_str), ("cmp", "eax, 1"))
+        jne_after_cmp = after_picker[1]
+        self.assertEqual(jne_after_cmp.mnemonic, "jne")
         sub_insn = next(i for i in after_picker if i.mnemonic == "sub")
         self.assertEqual(sub_insn.op_str, "dword ptr [edi + 0xa2fc], 0x1388")
         # The deduction must come after the failure branch could have
-        # already jumped away -- i.e. after the test+je pair, not before.
-        self.assertGreater(sub_insn.address, je_after_test.address)
+        # already jumped away -- i.e. after the cmp+jne pair, not before.
+        self.assertGreater(sub_insn.address, jne_after_cmp.address)
 
         # Finally, confirm the compiled companion DLL actually exports the
         # entry point this helper resolves by name -- not just that the C
