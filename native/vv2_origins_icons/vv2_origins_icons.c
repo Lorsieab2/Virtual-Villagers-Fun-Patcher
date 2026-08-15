@@ -25,7 +25,7 @@ enum {
 enum {
     VV2_RES_SUCCESS = 0, VV2_RES_NO_CHANGE = 1, VV2_RES_INSUFFICIENT = 2,
     VV2_RES_INVALID = 3, VV2_RES_NO_SLOT = 4, VV2_RES_REMOVED = 5,
-    VV2_RES_PURCHASED = 6, VV2_RES_POP_FULL = 7
+    VV2_RES_PURCHASED = 6, VV2_RES_POP_FULL = 7, VV2_RES_DISLIKE_ONLY = 8
 };
 __declspec(dllexport) void __stdcall ShowVV2UpgradeResult(
     int action, int status, unsigned int amount_a, unsigned int amount_b,
@@ -206,6 +206,22 @@ static int vv2_record_eligible(const unsigned char *record) {
     return 1;
 }
 
+/* Clear Running from a villager's Dislike slots; returns 1 if any were cleared.
+   Called for every eligible villager: even one whose Likes are full (so Running
+   can't be added) has their Running dislike removed, and is then reported under
+   BOTH "removed a Running dislike" and "skipped: already have 3 likes" so the
+   player sees exactly what happened. */
+static int vv2_remove_running_dislikes(int *dislikes) {
+    int j, removed = 0;
+    for (j = 0; j < VV2_PREF_SLOTS; ++j) {
+        if (dislikes[j] == VV2_RUNNING_PREF) {
+            dislikes[j] = -1;
+            removed = 1;
+        }
+    }
+    return removed;
+}
+
 __declspec(dllexport) int __stdcall ApplyVV2RunningToAll(unsigned char *base) {
     int already_like = 0, full_likes = 0, granted = 0, removed_dislike = 0;
     int i, j;
@@ -220,18 +236,6 @@ __declspec(dllexport) int __stdcall ApplyVV2RunningToAll(unsigned char *base) {
             continue;
         }
         dislikes = (int *)(record + VV2_DISLIKES_OFFSET);
-        {
-            int removed_here = 0;
-            for (j = 0; j < VV2_PREF_SLOTS; ++j) {
-                if (dislikes[j] == VV2_RUNNING_PREF) {
-                    dislikes[j] = -1;
-                    removed_here = 1;
-                }
-            }
-            if (removed_here) {
-                ++removed_dislike;
-            }
-        }
         likes = (int *)(record + VV2_LIKES_OFFSET);
         for (j = 0; j < VV2_PREF_SLOTS; ++j) {
             int value = likes[j];
@@ -244,6 +248,12 @@ __declspec(dllexport) int __stdcall ApplyVV2RunningToAll(unsigned char *base) {
             } else if (value > 0) {
                 ++occupied;
             }
+        }
+        /* Always clear a Running dislike, even when the Like can't be added, and
+           count it -- a full-Likes villager with a Running dislike is reported
+           under both "removed a dislike" and "skipped: already have 3 likes". */
+        if (vv2_remove_running_dislikes(dislikes)) {
+            ++removed_dislike;
         }
         if (has_running) {
             ++already_like;
@@ -356,12 +366,16 @@ __declspec(dllexport) int __stdcall ApplyVV2Collections(
     unsigned char want = (mode == 9) ? 1 : 0;
     int action = (mode == 9) ? VV2_ACT_COLLECT_COMPLETE : VV2_ACT_COLLECT_RESET;
     unsigned int goals = 0;
+    int changed = 0;
     int i;
     if (player == 0) {
         return 0;
     }
     for (i = 0; i < 48; ++i) {
-        player[0x2E720 + i] = want;
+        if (player[0x2E720 + i] != want) {
+            player[0x2E720 + i] = want;
+            changed = 1;
+        }
     }
     if (mode == 9) {
         vv2_fire_goal_t fire = (vv2_fire_goal_t)(UINT_PTR)0x004257A0;
@@ -370,12 +384,22 @@ __declspec(dllexport) int __stdcall ApplyVV2Collections(
                 player[goal_pending[i]] = 0;
                 fire(player, 0, goal_message[i], 1);
                 ++goals;
+                changed = 1;
             }
         }
     } else {
         for (i = 0; i < 5; ++i) {
-            player[goal_pending[i]] = 1;
+            if (player[goal_pending[i]] != 1) {
+                player[goal_pending[i]] = 1;
+                changed = 1;
+            }
         }
+    }
+    /* Nothing to do (already fully found, or already fully cleared): report it
+       and charge nothing, matching the other village-wide rows. */
+    if (!changed) {
+        ShowVV2UpgradeResult(action, VV2_RES_NO_CHANGE, 0, 0, 0, 0);
+        return 0;
     }
     ShowVV2UpgradeResult(action, VV2_RES_SUCCESS, goals, 0, 0, 0);
     return 1;
@@ -555,6 +579,21 @@ __declspec(dllexport) void __stdcall ShowVV2UpgradeResult(
                      "No changes were needed. No tech points have been "
                      "deducted.");
             break;
+        case VV2_ACT_DETAIL_APPEARANCE:
+            lstrcpyA(message,
+                     "The appearance is unchanged. No tech points have been "
+                     "deducted.");
+            break;
+        case VV2_ACT_COLLECT_COMPLETE:
+            lstrcpyA(message,
+                     "All collectibles are already found. No tech points have "
+                     "been deducted.");
+            break;
+        case VV2_ACT_COLLECT_RESET:
+            lstrcpyA(message,
+                     "The collections are already cleared. No tech points have "
+                     "been deducted.");
+            break;
         default:
             wsprintfA(message,
                       "%s is already complete. No tech points have been "
@@ -580,6 +619,11 @@ __declspec(dllexport) void __stdcall ShowVV2UpgradeResult(
                  "Village population is close to its maximum. The Barrel of "
                  "Babies needs room for 3 children. No tech points have been "
                  "deducted.");
+    } else if (status == VV2_RES_DISLIKE_ONLY) {
+        lstrcpyA(message,
+                 "This villager's Likes are full, so Running could not be "
+                 "added, but its Running dislike was removed. No tech points "
+                 "have been deducted.");
     } else {
         lstrcpyA(message, "The action stopped without a verified charge.");
     }
@@ -818,12 +862,15 @@ __declspec(dllexport) int __stdcall ShowVV2AppearanceChooser(
     int *body
 ) {
     INT_PTR result;
+    int orig_head, orig_body;
     /* VV2 stores sex as 1 (male) or 2 (female); the stock renderer branches on
        `sex == 1` (0x4456A3). Match it: sex 1 -> male atlas (0), else female (1). */
     vv2_appearance_sex = (sex == 1) ? 0 : 1;
     vv2_appearance_old = age >= 1100 ? 1 : 0;
     vv2_appearance_head = (head && *head >= 0 && *head < VV2_APPEARANCE_COUNT) ? *head : 0;
     vv2_appearance_body = (body && *body >= 0 && *body < VV2_APPEARANCE_COUNT) ? *body : 0;
+    orig_head = vv2_appearance_head;
+    orig_body = vv2_appearance_body;
 
     result = DialogBoxParamA(
         module_instance,
@@ -833,6 +880,27 @@ __declspec(dllexport) int __stdcall ShowVV2AppearanceChooser(
         0
     );
     if (result == 1) {
+        /* OK with nothing actually changed (opened and confirmed, or cycled the
+           selectors back to where they started): write nothing, charge nothing. */
+        if (vv2_appearance_head == orig_head && vv2_appearance_body == orig_body) {
+            ShowVV2UpgradeResult(
+                VV2_ACT_DETAIL_APPEARANCE, VV2_RES_NO_CHANGE, 0, 0, 0, 0
+            );
+            return 0;
+        }
+        /* The head field is hereditary (record +0x548), so changing it affects
+           this villager's descendants.  Warn explicitly before committing, and
+           let the player back out with no write and no charge. */
+        if (vv2_appearance_head != orig_head) {
+            if (MessageBoxA(
+                    GetForegroundWindow(),
+                    "Warning: This will change the villager's head genetics.",
+                    "Change Appearance",
+                    MB_OKCANCEL | MB_ICONWARNING | MB_TOPMOST | MB_SETFOREGROUND
+                ) != IDOK) {
+                return 0;
+            }
+        }
         if (head) {
             *head = vv2_appearance_head;
         }

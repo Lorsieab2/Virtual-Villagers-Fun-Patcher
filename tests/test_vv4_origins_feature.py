@@ -23,7 +23,7 @@ from vv_fun_patcher import (  # noqa: E402
 STOCK = ROOT / "research" / "stock-executables" / "Virtual Villagers - The Tree of Life.exe"
 MANIFEST = ROOT / "data" / "vv4_origins_feature.json"
 BUILDER = ROOT / "scripts" / "build_vv4_origins_feature.py"
-COMPANION = ROOT / "assets" / "origins" / "VVFP Origins Icons.dll"
+COMPANION = ROOT / "assets" / "origins" / "VVFP VV4 Origins Icons.dll"
 EXPANDED = ROOT / "data" / "expanded_256.json"
 FEATURE_ID = "vv4_enable_origins_exclusive_features"
 RUNNING_PREFERENCE_ID = 38
@@ -84,7 +84,13 @@ class VV4OriginsFeatureTests(unittest.TestCase):
         self.assertIn("0x46AD80", self.builder)
         self.assertIn("VV4_MASTER_VALUE = 0x42C80000", self.builder)
         self.assertIn("call 0x46AF00", self.builder)
-        self.assertIn("0xA01C0", self.builder)
+        # Village-wide rows are enabled via STATE_VILLAGE_WIDE/BUY only (0xA0000).
+        # The old 0xA01C0 also set row-availability bits 6/7/8; bit 8 collided
+        # with Time Warp's (row 0) "unavailable" bit (1 << (8 + row)) in the
+        # companion DLL, making Time Warp show "Unavailable" whenever the
+        # village-wide feature was installed. Pin the collision-free mask.
+        self.assertIn("0xA0000", self.builder)
+        self.assertNotIn("0xA01C0", self.builder)
 
     def test_vv4_native_upgrade_contract_is_emitted(self) -> None:
         record = json.loads(
@@ -99,7 +105,15 @@ class VV4OriginsFeatureTests(unittest.TestCase):
         self.assertEqual(
             fields["native_skill_writer_value"], "Float32 delta: 100.0-current"
         )
-        self.assertIn("native Float32 skill writer", record["behavior_changes"][3])
+        changes = record["behavior_changes"]
+        self.assertTrue(
+            any("native Float32 skill writer" in change for change in changes),
+            "village-wide Full Mastery behavior change is missing",
+        )
+        self.assertTrue(
+            any("first free Like slot" in change for change in changes),
+            "village-wide Running behavior change is missing",
+        )
 
         ui = self.manifest["ui_contract"]
         self.assertEqual(ui["forbidden_helpers"], ["sub_40D8A0"])
@@ -115,13 +129,75 @@ class VV4OriginsFeatureTests(unittest.TestCase):
         self.assertNotIn(struct.pack("<I", 0x42B40000), payload)
 
     def test_vv4_cure_and_running_source_guards_are_present(self) -> None:
-        self.assertIn("cmp dword ptr [esi + 0x1C40], 80", self.builder)
+        # Full Heal / Cure All restores every living villager below full
+        # health to 100 -- not only villagers below an 80 partial-health
+        # threshold -- so the heal gate must compare against 100, never 80.
+        self.assertNotIn("cmp dword ptr [esi + 0x1C40], 80", self.builder)
         self.assertIn("lea eax, [esi + 0x1C34]", self.builder)
         self.assertIn("cmp dword ptr [esi + 0x1C40], 100", self.builder)
         self.assertIn("mov byte ptr [esi + 0x1C48], 0", self.builder)
         self.assertIn("inc dword ptr [0x4D6DF0]", self.builder)
         self.assertIn("je running_already", self.builder)
-        self.assertIn("mov dword ptr [ecx], {RUNNING_PREFERENCE_ID}", self.builder)
+        # Grant Running (detail) grants through the game's managed like helpers
+        # (add 0x45D2D0 / remove-dislike 0x45D1C0), not a raw array write, which
+        # corrupts like state and crashes the game.
+        self.assertNotIn("mov dword ptr [ecx], {RUNNING_PREFERENCE_ID}", self.builder)
+        self.assertIn("call 0x45D2D0", self.builder)
+        self.assertIn("call 0x45D1C0", self.builder)
+
+    def test_time_warp_uses_the_vv1_to_vv4_proportional_clock_shift(self) -> None:
+        """Regression test guarding against re-applying VV5's inverse-speed
+        Time Warp formula to VV4.
+
+        VV1 through VV4 share an offline catch-up that applies the injected
+        elapsed-clock shift *divided* by the game-speed code, so a constant
+        three-displayed-year advance requires a clock shift that scales
+        directly *with* speed: ``speed * 3600`` seconds (10,800 / 21,600 /
+        36,000 at speed 3 / 6 / 10). VV1's Origins research documents this as
+        "its elapsed-clock adjustment scales with game speed", and VV2/VV3
+        emit the same ``imul eax, eax, 3600``.
+
+        VV5 alone multiplies elapsed time by speed and therefore needs the
+        inverse ``129600 / speed`` (idiv). Copying VV5's idiv onto VV4 looks
+        correct only at normal speed -- both give 21,600 -- but makes the paid
+        warp advance ~12 years at half speed and ~1 year at double speed. This
+        test pins VV4 to the proportional imul form.
+        """
+        try:
+            import capstone
+        except ImportError:
+            self.skipTest("capstone not available")
+
+        payload_patch = next(
+            item for item in self.manifest["patches"] if int(item["offset"], 0) == 0x89373
+        )
+        payload = bytes.fromhex(payload_patch["after"])
+        # Locate the 64-bit elapsed-clock write: sub dword ptr [0x4B8230], eax
+        marker = bytes.fromhex("290530824B00")
+        index = payload.find(marker)
+        self.assertNotEqual(index, -1, "Time Warp clock write not found in payload")
+
+        md = capstone.Cs(capstone.CS_ARCH_X86, capstone.CS_MODE_32)
+        window_start = index - 0x18
+        block = list(md.disasm(payload[window_start:index], 0x489373 + window_start))
+        mnemonics = [insn.mnemonic for insn in block]
+
+        self.assertIn(
+            "imul",
+            mnemonics,
+            "VV4 Time Warp must scale the clock shift proportionally to speed",
+        )
+        self.assertNotIn(
+            "idiv",
+            mnemonics,
+            "VV4 Time Warp must not use VV5's inverse 129600/speed clock shift",
+        )
+        imul = next(insn for insn in block if insn.mnemonic == "imul")
+        self.assertEqual(
+            int(imul.op_str.split(",")[-1].strip(), 0),
+            3600,
+            f"Time Warp scale factor is not 3600 seconds/speed-unit: {imul.op_str}",
+        )
 
     def test_composes_with_current_vv4_features_in_all_modes(self) -> None:
         patch_ids = [patch.id for patch in load_fun_patches() if patch.game_id == "vv4"]

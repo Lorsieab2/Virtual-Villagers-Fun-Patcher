@@ -144,6 +144,12 @@ CONFIG = {
         "dislikes": 0x1E6C,
         "slot_count": 3,
         "running_preference_id": 38,
+        # VV4's managed like/dislike array helpers (thiscall, ret 4). The game
+        # itself grants "like running" via add-to-likes + remove-from-dislikes
+        # (see sub_415500). Writing the array directly instead corrupts the
+        # like state and crashes the game, so route through these.
+        "native_like_add": 0x45D2D0,     # add element to array[ecx] (dedup)
+        "native_like_remove": 0x45D1C0,  # remove element from array[ecx]
         "bound": "edx",
         "heathen": False,
         "master_value": 0x42C80000,
@@ -284,7 +290,72 @@ def build_payload(config: dict) -> tuple[bytes, dict[str, int]]:
         """,
     )
 
-    if config.get("native_running"):
+    if config.get("native_like_add"):
+        # Grant "like running" through the game's own managed array helpers
+        # (add-to-likes, remove-from-dislikes) instead of writing the like
+        # array directly, which corrupts like state and crashes the game.
+        # Returns eax=granted, edx=already-running-skipped,
+        # ecx=running-dislikes-removed (the removed counter lives on the stack
+        # so it survives the thiscall clobbers of eax/ecx/edx). Villagers with
+        # no free like slot are skipped silently (VV2's "all slots occupied"
+        # line is future-only, so it is not counted or reported).
+        slot_count = config["slot_count"]
+        likes = _hex_word(config["likes"])
+        dislikes = _hex_word(config["dislikes"])
+        pref = _hex_word(config["running_preference_id"])
+        running_source = f"""
+            push ebp
+            push ebx
+            push esi
+            push edi
+            mov ebx, edx
+            {_record_setup(config)}
+            xor edi, edi
+            xor ebp, ebp
+            push 0
+        running_loop:
+            test ebx, ebx
+            jz running_done
+            {_eligibility(config, 'running_next')}
+            xor eax, eax
+        running_scan:
+            cmp dword ptr [esi + eax*4 + {likes}], {pref}
+            je running_existing
+            inc eax
+            cmp eax, {slot_count}
+            jb running_scan
+            push {pref}
+            lea ecx, [esi + {likes}]
+            call {_hex_word(config['native_like_add'])}
+            test al, al
+            jz running_next
+            inc edi
+            push {pref}
+            lea ecx, [esi + {dislikes}]
+            call {_hex_word(config['native_like_remove'])}
+            test al, al
+            jz running_next
+            inc dword ptr [esp]
+            jmp running_next
+        running_existing:
+            inc ebp
+            jmp running_next
+        running_next:
+            add esi, {_hex_word(config['stride'])}
+            dec ebx
+            jmp running_loop
+        running_done:
+            mov ecx, dword ptr [esp]
+            add esp, 4
+            mov eax, edi
+            mov edx, ebp
+            pop edi
+            pop esi
+            pop ebx
+            pop ebp
+            ret
+        """
+    elif config.get("native_running"):
         slot_count = config["slot_count"]
         running_source = f"""
             push ebp
