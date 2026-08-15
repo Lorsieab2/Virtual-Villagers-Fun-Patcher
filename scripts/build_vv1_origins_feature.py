@@ -246,8 +246,19 @@ def main() -> None:
     # came from the .rc dialog's own hardcoded LTEXT, never from these
     # strings -- so it was dead weight taking up this block's tight
     # budget; removed rather than kept "just in case".
+    #
+    # detail_costs needs all 5 detail_menu rows, not just the first 4:
+    # confirm_helper_code (see below) indexes this table by row for every
+    # detail_menu row unconditionally, including row 4 (Change
+    # Appearance), before detail_menu's own dispatch ever reaches
+    # APPEARANCE_ROUTER_VA -- a 4-entry table left row 4's confirm dialog
+    # reading one dword past the table's end (0, since that lands exactly
+    # on the first unpatched byte past the strings cave, confirmed by
+    # rendering the patch and reading the raw bytes there), showing
+    # "Change Appearance for 0 tech points?" instead of the real cost.
+    # 5000 matches appearance_helper_code's own hardcoded charge exactly.
     tech_costs = [50000, 30000, 75000, 500000, 500000, 30000]
-    detail_costs = [50000, 100000, 40000, 50000]
+    detail_costs = [50000, 100000, 40000, 50000, 5000]
     while len(strings) % 4:
         strings.append(0)
     s["tech_cost_table"] = STRINGS_VA + len(strings)
