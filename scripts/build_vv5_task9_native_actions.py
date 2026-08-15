@@ -312,7 +312,6 @@ def build_modal(page: bytearray, page_va: int, s: dict[str, int]) -> dict[str, b
             mov dword ptr [ebp-0x10], eax
             mov dword ptr [ebp-0x14], ecx
             mov dword ptr [ebp-0x2C], -1
-            mov dword ptr [ebp-0x30], 0
             mov dword ptr [ebp-0x34], 0
             mov dword ptr [ebp-0x38], 0
             test ecx, ecx
@@ -336,98 +335,17 @@ def build_modal(page: bytearray, page_va: int, s: dict[str, int]) -> dict[str, b
             mov dword ptr [ebp-0x38], 1
             call eax
             test eax, eax
-            jz cleanup
-            call reacquire
-            test eax, eax
-            jz cleanup
-            mov dword ptr [ebp-0x18], esi
-            mov dword ptr [ebp-0x1C], edi
-            mov dword ptr [ebp-0x20], eax
-            movzx ebx, byte ptr [edi+0x1E]
-            mov dword ptr [ebp-0x24], ebx
-            push 0x{s['sdl']:X}
-            call dword ptr [0x4951D8]
-            test eax, eax
-            jz cleanup
-            push 0x{s['flags']:X}
-            push eax
-            call dword ptr [0x4951DC]
-            test eax, eax
-            jz cleanup
-            mov dword ptr [ebp-0x28], eax
-            push dword ptr [ebp-0x20]
-            call eax
-            add esp, 4
-            and eax, 1
-            cmp eax, 0
-            je windowed
-            cmp dword ptr [ebp-0x24], 0
-            jne cleanup
-            mov ecx, esi
-            call 0x40A270
-            mov dword ptr [ebp-0x30], 1
-            call reacquire
-            cmp esi, dword ptr [ebp-0x18]
-            jne invoke_failed
-            cmp edi, dword ptr [ebp-0x1C]
-            jne invoke_failed
-            cmp eax, dword ptr [ebp-0x20]
-            jne invoke_failed
-            cmp byte ptr [edi+0x1E], 1
-            jne invoke_failed
-            push dword ptr [ebp-0x20]
-            call dword ptr [ebp-0x28]
-            add esp, 4
-            and eax, 1
-            test eax, eax
-            jne invoke_failed
-            jmp invoke
-        windowed:
-            cmp dword ptr [ebp-0x24], 1
-            jne cleanup
-        invoke:
+            jz end_owner
             mov ecx, dword ptr [ebp-0x14]
             call dword ptr [ebp-0x10]
             mov dword ptr [ebp-0x2C], eax
-            jmp cleanup
-        invoke_failed:
-            mov dword ptr [ebp-0x2C], -1
-        cleanup:
-            cmp dword ptr [ebp-0x30], 0
-            je end_owner
-            call reacquire
-            cmp esi, dword ptr [ebp-0x18]
-            jne restore_failed
-            cmp edi, dword ptr [ebp-0x1C]
-            jne restore_failed
-            cmp eax, dword ptr [ebp-0x20]
-            jne restore_failed
-            mov ecx, esi
-            call 0x40A280
-            call 0x4080C0
-            test eax, eax
-            jz restore_failed
-            call reacquire
-            cmp esi, dword ptr [ebp-0x18]
-            jne restore_failed
-            cmp edi, dword ptr [ebp-0x1C]
-            jne restore_failed
-            cmp eax, dword ptr [ebp-0x20]
-            jne restore_failed
-            push dword ptr [ebp-0x20]
-            call dword ptr [ebp-0x28]
-            add esp, 4
-            and eax, 1
-            cmp byte ptr [edi+0x1E], 0
-            jne restore_failed
-            cmp eax, 1
-            je end_owner
-        restore_failed:
-            mov dword ptr [ebp-0x2C], -1
         end_owner:
             cmp dword ptr [ebp-0x38], 0
             je done
-            call dword ptr [ebp-0x34]
+            mov eax, dword ptr [ebp-0x34]
+            test eax, eax
+            jz done
+            call eax
         done:
             mov eax, dword ptr [ebp-0x2C]
             add esp, 0x40
@@ -435,20 +353,6 @@ def build_modal(page: bytearray, page_va: int, s: dict[str, int]) -> dict[str, b
             pop esi
             pop ebx
             pop ebp
-            ret
-        reacquire:
-            mov esi, dword ptr [0x4DB0E8]
-            test esi, esi
-            jz reacquire_fail
-            mov edi, dword ptr [esi]
-            test edi, edi
-            jz reacquire_fail
-            mov eax, dword ptr [edi+0x38]
-            test eax, eax
-            jz reacquire_fail
-            ret
-        reacquire_fail:
-            xor eax, eax
             ret
         """,
     )

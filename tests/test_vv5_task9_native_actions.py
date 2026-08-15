@@ -306,17 +306,22 @@ class Task9ArtifactTests(unittest.TestCase):
         self.assertIn("IsWindow", source)
         self.assertIn("HWND owner = GetOriginsOwner();", source)
         self.assertNotIn("GetForegroundWindow(),\n            message", source)
+        # VV5-specific safest fullscreen fix (VV2 general approach): modal_common
+        # captures the same-process owner (BeginOriginsOwner), invokes the menu
+        # owner-parented, and releases it (EndOriginsOwner) -- with NO SDL
+        # fullscreen leave/restore. The game stays in its borderless (desktop)
+        # fullscreen behind the owned modal instead of being dropped to a window.
+        self.assertNotIn("call 0x40A270", generator)  # no fullscreen-leave
+        self.assertNotIn("call 0x40A280", generator)  # no fullscreen-restore
         owner_started = generator.index("mov dword ptr [ebp-0x38], 1")
         begin_call = generator.index("call eax", owner_started)
-        fullscreen_leave = generator.index("call 0x40A270", begin_call)
-        centralized_cleanup = generator.index("cleanup:", fullscreen_leave)
-        restore = generator.index("call 0x40A280", centralized_cleanup)
-        end_owner = generator.index("end_owner:", restore)
-        owner_end = generator.index("call dword ptr [ebp-0x34]", end_owner)
+        invoke = generator.index("call dword ptr [ebp-0x10]", begin_call)
+        end_owner = generator.index("end_owner:", invoke)
+        owner_end = generator.index("call eax", end_owner)  # EndOriginsOwner
         self.assertLess(owner_started, begin_call)
-        self.assertLess(begin_call, fullscreen_leave)
-        self.assertLess(centralized_cleanup, restore)
-        self.assertLess(restore, owner_end)
+        self.assertLess(begin_call, invoke)
+        self.assertLess(invoke, end_owner)
+        self.assertLess(end_owner, owner_end)
         for name in (
             "BeginOriginsOwner", "GetOriginsOwner", "EndOriginsOwner",
             "ShowOriginsUpgradeMenuState", "ConfirmVV5Task9Action", "ShowVV5Task9Result",

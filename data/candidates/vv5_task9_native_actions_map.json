@@ -18,7 +18,7 @@
   "source_bindings": {
     "task9_builder": {
       "path": "scripts/build_vv5_task9_native_actions.py",
-      "source_text_sha256": "B0B869E1827F90E4041E282FADED80C153B8E28B3AD0FDF662BFD3E419A3F045"
+      "source_text_sha256": "EB2AE9743769B0A38D2AE65634F5C5F9FEC0858029A97E1A735AA354981DB7F9"
     },
     "companion_c": {
       "path": "native/vv5_task9_origins/vv5_task9_origins.c",
@@ -107,11 +107,11 @@
   },
   "layouts": {
     "collection_progression": {
-      "page_sha256": "489E9AA9F4444B55171B5715FF1C5E4BB2B3FD2D96642964C3AE74437F21F175",
+      "page_sha256": "C0B3459A16D99C2A4F27621893CD01F70CFA1CB38C6F7ADADC59CFB2C00CFC1E",
       "routine_sha256": {
         "tech_entry": "74964745ECD556D47571535AAFAF9278CCDE1B71B97E080952CAF71D7C9F0CBE",
         "detail_entry": "8A56EFA1E4CF97E33B870318A1B8613E8EED41A0CF041A6E4DE8158199D32AAA",
-        "modal_common": "F123A6C27CA83469105499480F933B6350258322178FE00B8A77EDEE0792BFC8",
+        "modal_common": "FEBA22A9AE6521434A82980651B7BC8BC931E744A5A7261E41C3FE494EAB8520",
         "constructor_resource": "71AE6A82ADFA6D070748B3D214F5FF619D7826AB51D96F1910BAE8B95F18C94A",
         "resolve_current": "28A4CF2E80D5295C00531CAB1DDAA982F68C14BCF3849E0F371C7DF3112C2085",
         "resolve_index": "1B6CDF7038F253801A5A267FF5354580C6B02AEF4B03F051DAE3E02A110DD74E",
@@ -140,7 +140,7 @@
       "routine_length": {
         "tech_entry": 7,
         "detail_entry": 7,
-        "modal_common": 441,
+        "modal_common": 143,
         "constructor_resource": 12,
         "resolve_current": 40,
         "resolve_index": 82,
@@ -218,11 +218,11 @@
       "page_virtual_address": "0x7C9000"
     },
     "immediate_fixed": {
-      "page_sha256": "489E9AA9F4444B55171B5715FF1C5E4BB2B3FD2D96642964C3AE74437F21F175",
+      "page_sha256": "C0B3459A16D99C2A4F27621893CD01F70CFA1CB38C6F7ADADC59CFB2C00CFC1E",
       "routine_sha256": {
         "tech_entry": "74964745ECD556D47571535AAFAF9278CCDE1B71B97E080952CAF71D7C9F0CBE",
         "detail_entry": "8A56EFA1E4CF97E33B870318A1B8613E8EED41A0CF041A6E4DE8158199D32AAA",
-        "modal_common": "F123A6C27CA83469105499480F933B6350258322178FE00B8A77EDEE0792BFC8",
+        "modal_common": "FEBA22A9AE6521434A82980651B7BC8BC931E744A5A7261E41C3FE494EAB8520",
         "constructor_resource": "71AE6A82ADFA6D070748B3D214F5FF619D7826AB51D96F1910BAE8B95F18C94A",
         "resolve_current": "28A4CF2E80D5295C00531CAB1DDAA982F68C14BCF3849E0F371C7DF3112C2085",
         "resolve_index": "1B6CDF7038F253801A5A267FF5354580C6B02AEF4B03F051DAE3E02A110DD74E",
@@ -251,7 +251,7 @@
       "routine_length": {
         "tech_entry": 7,
         "detail_entry": 7,
-        "modal_common": 441,
+        "modal_common": 143,
         "constructor_resource": 12,
         "resolve_current": 40,
         "resolve_index": 82,
@@ -329,11 +329,11 @@
       "page_virtual_address": "0x7C9000"
     },
     "experimental_expanded_256": {
-      "page_sha256": "AEFBB28086F83442271C7BE78E297ED04B9DE9C68665CC49CE9A7296496EE86C",
+      "page_sha256": "24D7B0BC8B80A2221515A0DB96398230351E94450E75DE09DB4F1E68277FC664",
       "routine_sha256": {
         "tech_entry": "81BB7E65EDFFA2A55B9AC574FD7D8983F3A909182B0F0417BEAAC5B9B8F10043",
         "detail_entry": "1E7105629F2D9D242D7177BB5624DD28E6B2D342E5134C4CEA78A9E6DE8242BF",
-        "modal_common": "46204D4D06ABBDFD123D19C505495D26EBC48A0EFAB3B301E92AD144EF33B88D",
+        "modal_common": "D9296AE81B0C74601167E438817DBEE3B96F9DCCC78A0C35D10A6E98D8E00BFF",
         "constructor_resource": "37610853256B38A22C1CD3816E4590FC9491B1FBE3F1578975957F980EAD27A0",
         "resolve_current": "73E125CA83CE45D3CE6B60ECB16930524197629E8CF990845D4A8DC8BBF21CC7",
         "resolve_index": "FDD8BB52AEC247E4442964122E653505D792F69AB324A4A5BA4B1287F63D1211",
@@ -352,7 +352,7 @@
       "routine_length": {
         "tech_entry": 7,
         "detail_entry": 7,
-        "modal_common": 441,
+        "modal_common": 143,
         "constructor_resource": 12,
         "resolve_current": 40,
         "resolve_index": 82,
@@ -390,11 +390,11 @@
       "page_virtual_address": "0x904000"
     },
     "experimental_expanded_256_progression": {
-      "page_sha256": "AEFBB28086F83442271C7BE78E297ED04B9DE9C68665CC49CE9A7296496EE86C",
+      "page_sha256": "24D7B0BC8B80A2221515A0DB96398230351E94450E75DE09DB4F1E68277FC664",
       "routine_sha256": {
         "tech_entry": "81BB7E65EDFFA2A55B9AC574FD7D8983F3A909182B0F0417BEAAC5B9B8F10043",
         "detail_entry": "1E7105629F2D9D242D7177BB5624DD28E6B2D342E5134C4CEA78A9E6DE8242BF",
-        "modal_common": "46204D4D06ABBDFD123D19C505495D26EBC48A0EFAB3B301E92AD144EF33B88D",
+        "modal_common": "D9296AE81B0C74601167E438817DBEE3B96F9DCCC78A0C35D10A6E98D8E00BFF",
         "constructor_resource": "37610853256B38A22C1CD3816E4590FC9491B1FBE3F1578975957F980EAD27A0",
         "resolve_current": "73E125CA83CE45D3CE6B60ECB16930524197629E8CF990845D4A8DC8BBF21CC7",
         "resolve_index": "FDD8BB52AEC247E4442964122E653505D792F69AB324A4A5BA4B1287F63D1211",
@@ -413,7 +413,7 @@
       "routine_length": {
         "tech_entry": 7,
         "detail_entry": 7,
-        "modal_common": 441,
+        "modal_common": 143,
         "constructor_resource": 12,
         "resolve_current": 40,
         "resolve_index": 82,
