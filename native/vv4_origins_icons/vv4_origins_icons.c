@@ -537,6 +537,7 @@ __declspec(dllexport) int __stdcall ShowOriginsUpgradeMenu(
 #define VV_DEAD_OFFSET       0x1CC7
 #define VV_HEALTH_OFFSET     0x1C40
 #define VVW_LIKES_OFFSET     0x1E60
+#define VVW_DISLIKES_OFFSET  0x1E6C
 #define VV_SKILL0_OFFSET     0x1C5C
 #define VV_DISPLAY_AGE_OFF   0x1B8C
 #define VV_RUNNING_PREF      38
@@ -554,112 +555,136 @@ static int vv_eligible(const unsigned char *r) {
         && *(const int *)(r + VV_HEALTH_OFFSET) > 0;
 }
 
-/* How many eligible villagers would newly gain a Running like (not already
-   liking it, and with a free Like slot). */
-static int vv_count_running_grant(void) {
-    int total = vv_record_total(), i, n = 0;
+/* Dry-run counts for the current village-wide action, computed in the confirm
+   and reused in the result. Valid only within one confirm->apply->result
+   sequence, which is modal so village state cannot change between them. */
+static int vw_granted, vw_already, vw_full, vw_removed;
+
+static const char *vv_villagers(int n) { return n == 1 ? "Villager" : "Villagers"; }
+
+/* Running: classify every eligible villager into granted / already-liking /
+   full-slots, and count how many of the granted ones also had a Running
+   dislike that will be removed. */
+static void vv_scan_running(void) {
+    int total = vv_record_total(), i;
+    vw_granted = vw_already = vw_full = vw_removed = 0;
     for (i = 0; i < total; ++i) {
         const unsigned char *r = vv_record(i);
         const int *likes;
-        int s, already = 0, free_slot = 0;
+        int s, has_run = 0, free_slot = 0;
         if (!vv_eligible(r)) continue;
         likes = (const int *)(r + VVW_LIKES_OFFSET);
         for (s = 0; s < VV_LIKE_SLOTS; ++s) {
-            if (likes[s] == VV_RUNNING_PREF) { already = 1; break; }
-            if (likes[s] == -1) free_slot = 1;
+            if (likes[s] == VV_RUNNING_PREF) has_run = 1;
+            else if (likes[s] == -1) free_slot = 1;
         }
-        if (!already && free_slot) ++n;
+        if (has_run) { ++vw_already; continue; }
+        if (!free_slot) { ++vw_full; continue; }
+        ++vw_granted;
+        {
+            const int *dis = (const int *)(r + VVW_DISLIKES_OFFSET);
+            for (s = 0; s < VV_LIKE_SLOTS; ++s) {
+                if (dis[s] == VV_RUNNING_PREF) { ++vw_removed; break; }
+            }
+        }
     }
-    return n;
 }
 
-/* How many eligible villagers are not yet fully mastered (any of the five
-   skills below 100.0). */
-static int vv_count_mastery(void) {
-    int total = vv_record_total(), i, n = 0;
+/* Mastery: eligible villagers with any skill below 100 are mastered; the rest
+   are already fully mastered. */
+static void vv_scan_mastery(void) {
+    int total = vv_record_total(), i;
+    vw_granted = vw_already = 0;
     for (i = 0; i < total; ++i) {
         const unsigned char *r = vv_record(i);
-        const int *skills;
+        const int *sk;
         int s, full = 1;
         if (!vv_eligible(r)) continue;
-        skills = (const int *)(r + VV_SKILL0_OFFSET);
+        sk = (const int *)(r + VV_SKILL0_OFFSET);
         for (s = 0; s < VV_SKILL_COUNT; ++s) {
-            if (skills[s] != (int)VV_MASTER_VALUE) { full = 0; break; }
+            if (sk[s] != (int)VV_MASTER_VALUE) { full = 0; break; }
         }
-        if (!full) ++n;
+        if (full) ++vw_already; else ++vw_granted;
     }
-    return n;
 }
 
-/* How many eligible villagers are not already exactly 18 (360 displayed
-   units). */
-static int vv_count_age18(void) {
-    int total = vv_record_total(), i, n = 0;
-    for (i = 0; i < total; ++i) {
-        const unsigned char *r = vv_record(i);
-        if (!vv_eligible(r)) continue;
-        if (*(const int *)(r + VV_DISPLAY_AGE_OFF) != VV_AGE_18) ++n;
-    }
-    return n;
-}
-
-/* Confirmation shown before charging a village-wide upgrade. Dry-runs the
-   effect: if nothing would change, it reports that with no charge and returns
-   0; otherwise it shows the count and cost and returns 1 only when the player
-   presses OK. Commands not yet converted to this flow return 1 (proceed). */
-/* Task9-style village-wide confirm: if nothing would change, report it with
-   no charge and return 0; otherwise show the confirm and return 1 only on OK. */
-static int vw_confirm(int changed, const char *already, const char *confirm) {
-    if (changed == 0) {
-        MessageBoxA(GetForegroundWindow(), already, "Origins Upgrades",
-                    MB_OK | MB_ICONWARNING);
-        return 0;
-    }
-    return MessageBoxA(GetForegroundWindow(), confirm, "Origins Upgrades",
-                       MB_OKCANCEL | MB_ICONQUESTION) == IDOK;
-}
-
+/* Confirmation shown before charging a village-wide upgrade (OFFICIAL wording).
+   Dry-runs first: if nothing would change, report it with no charge and return
+   0; otherwise show "Do you want to buy ... ?" and return 1 only on OK.
+   Commands not yet converted return 1 (proceed with the old flow). */
 __declspec(dllexport) int __stdcall ConfirmOriginsVillageWide(int command) {
     if (command == 6) {
-        return vw_confirm(vv_count_running_grant(),
-            "Grant Running to All Villagers is already complete.\r\n"
-            "No tech points have been deducted.",
-            "Grant Running to All Villagers for 1,000,000 tech points?\r\n"
-            "Press OK to confirm, or Cancel.");
+        vv_scan_running();
+        if (vw_granted == 0) {
+            MessageBoxA(GetForegroundWindow(),
+                "Everyone already likes running, or has full Likes slots. "
+                "No tech points have been deducted.",
+                "Origins Upgrades", MB_OK | MB_ICONWARNING);
+            return 0;
+        }
+        return MessageBoxA(GetForegroundWindow(),
+            "Do you want to buy Grant Running to All Villagers for 1,000,000 "
+            "tech points?\r\nPress OK to confirm, or Cancel.",
+            "Origins Upgrades", MB_OKCANCEL | MB_ICONQUESTION) == IDOK;
     }
     if (command == 7) {
-        return vw_confirm(vv_count_mastery(),
-            "Grant Full Mastery to All Villagers is already complete.\r\n"
-            "No tech points have been deducted.",
-            "Grant Full Mastery to All Villagers for 1,000,000 tech points?\r\n"
-            "Press OK to confirm, or Cancel.");
+        vv_scan_mastery();
+        if (vw_granted == 0) {
+            MessageBoxA(GetForegroundWindow(),
+                "Everyone has already mastered their skills. "
+                "No tech points have been deducted.",
+                "Origins Upgrades", MB_OK | MB_ICONWARNING);
+            return 0;
+        }
+        return MessageBoxA(GetForegroundWindow(),
+            "Do you want to buy Grant Full Mastery to All Villagers for "
+            "1,000,000 tech points?\r\nPress OK to confirm, or Cancel.",
+            "Origins Upgrades", MB_OKCANCEL | MB_ICONQUESTION) == IDOK;
     }
     return 1;
 }
 
+/* Counted result (OFFICIAL wording), using the stored dry-run counts. */
 __declspec(dllexport) int __stdcall ShowOriginsVillageWideResult(
     int command,
     int granted,
     int already_running_skipped,
     int removed_running_dislike
 ) {
+    char msg[512], line[128];
     (void)granted;
     (void)already_running_skipped;
     (void)removed_running_dislike;
     if (command == 6) {
-        MessageBoxA(
-            GetForegroundWindow(),
-            "Grant Running to All Villagers completed.",
-            "Origins Upgrades",
-            MB_OK | MB_ICONINFORMATION
-        );
+        wsprintfA(msg, "Granted Running to %d %s.",
+                  vw_granted, vv_villagers(vw_granted));
+        if (vw_removed) {
+            wsprintfA(line, "\r\n\r\nRemoved a Running dislike from %d %s.",
+                      vw_removed, vv_villagers(vw_removed));
+            lstrcatA(msg, line);
+        }
+        if (vw_already) {
+            wsprintfA(line, "\r\n\r\nSkipped %d %s: already like Running.",
+                      vw_already, vv_villagers(vw_already));
+            lstrcatA(msg, line);
+        }
+        if (vw_full) {
+            wsprintfA(line, "\r\n\r\nSkipped %d %s: already have 3 likes.",
+                      vw_full, vv_villagers(vw_full));
+            lstrcatA(msg, line);
+        }
+        MessageBoxA(GetForegroundWindow(), msg, "Origins Upgrades",
+                    MB_OK | MB_ICONINFORMATION);
     } else if (command == 7) {
-        MessageBoxA(
-            GetForegroundWindow(),
-            "Grant Full Mastery to All Villagers completed.",
-            "Origins Upgrades",
-            MB_OK | MB_ICONINFORMATION
-        );
+        wsprintfA(msg, "Granted Full Mastery to %d %s.",
+                  vw_granted, vv_villagers(vw_granted));
+        if (vw_already) {
+            wsprintfA(line, "\r\n\r\nSkipped %d %s: already fully mastered.",
+                      vw_already, vv_villagers(vw_already));
+            lstrcatA(msg, line);
+        }
+        MessageBoxA(GetForegroundWindow(), msg, "Origins Upgrades",
+                    MB_OK | MB_ICONINFORMATION);
     }
     return 0;
 }
