@@ -472,6 +472,31 @@ static INT_PTR CALLBACK appearance_dialog(
             return TRUE;
         }
         if (command == IDOK) {
+            int head_changed = (*head != appearance_state.original_head);
+            int body_changed = (*body != appearance_state.original_body);
+            if (!head_changed && !body_changed) {
+                /* OK with nothing changed: no write, no charge (return 0). */
+                MessageBoxA(window,
+                    "The appearance is unchanged. No tech points have been "
+                    "deducted.",
+                    "Villager Upgrades",
+                    MB_OK | MB_ICONINFORMATION | VV_MB_FRONT);
+                EndDialog(window, 0);
+                return TRUE;
+            }
+            if (head_changed) {
+                /* The head field is hereditary; warn before committing it.
+                   Cancel backs out with no write and no charge. */
+                if (MessageBoxA(window,
+                        "Warning: This will change the villager's head genetics.",
+                        "Villager Upgrades",
+                        MB_OKCANCEL | MB_ICONWARNING | VV_MB_FRONT) != IDOK) {
+                    appearance_revert();
+                    EndDialog(window, 0);
+                    return TRUE;
+                }
+            }
+            /* Something changed and was confirmed: keep it; caller charges 5,000. */
             EndDialog(window, 1);
             return TRUE;
         }
