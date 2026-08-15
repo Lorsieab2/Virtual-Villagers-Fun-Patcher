@@ -75,6 +75,24 @@ BARREL_HOOK_FILE_OFFSET = 0x7B3B1
 BARREL_HOOK_VA = IMAGE_BASE + BARREL_HOOK_FILE_OFFSET
 BARREL_PENDING_FLAG_VA = 0x4B3C75
 BARREL_HANDLER_SPLICE_VA = 0x468727
+# Barrel present routine (in the free .text padding just past the hook).  Drives
+# the game's own island-event presenter, forced to the barrel, so the full
+# "Another One of Those Barrels" popup shows and the native 3-child spawn runs on
+# confirm -- exactly like the random event.  The event objects live in an array
+# at 0x4B3C78 (indices 1..0x39, barrel at slot 0x39 = 0x4B3D5C); the presenter
+# 0x419B30 (this = the manager from 0x419AC0, arg = the island scene) picks a
+# random *eligible* slot and shows it via 0x4192F0.  We save the array, point
+# every slot at the barrel object so any selection path resolves to it, invoke
+# the native pair, then restore the array (the popup keeps a direct pointer to
+# the barrel singleton, which we never move).
+BARREL_PRESENT_FILE_OFFSET = 0x7B3E0
+BARREL_PRESENT_VA = IMAGE_BASE + BARREL_PRESENT_FILE_OFFSET
+BARREL_EVENT_ARRAY_VA = 0x4B3C78          # &event_objects[0]
+BARREL_EVENT_SLOT1_VA = BARREL_EVENT_ARRAY_VA + 4   # &event_objects[1]
+BARREL_EVENT_OBJECT_VA = 0x4B3D5C          # event_objects[0x39] = barrel singleton
+BARREL_EVENT_SLOT_COUNT = 0x39             # slots 1..0x39 inclusive (57)
+BARREL_SELECT_MANAGER_VA = 0x419AC0        # lazy manager getter (returns eax)
+BARREL_PRESENT_EVENT_VA = 0x419B30         # present(this=mgr, scene); ret 4
 # Read-only strings for the cure and Change Appearance caves, placed in the
 # free .text padding after the Change Appearance cave (0x7BD40) and before the
 # .rdata boundary (0x7C000).
@@ -1361,26 +1379,62 @@ def main() -> None:
 
     # Deferred barrel-event hook, spliced into the island-event handler at
     # 0x468727 (runs every frame during village gameplay).  When do_barrel has
-    # set the pending flag, run the real "Another One of Those Barrels" event
-    # outcome (0x415320 -- the outcome method of the native barrel-event object
-    # [0x4B3D5C], vtable 0x47EA00), which spawns up to three babies via 0x45FF50
-    # with room checks.  It is self-contained (uses the villager manager
-    # 0x59E110 internally, takes no args, preserves esi), so we call it directly.
-    # Then clear the flag and run the two spliced-out instructions before
-    # returning.  esi is the island scene throughout the handler, so [esi+0x10]
-    # is the manager the spliced code needs.
+    # set the pending flag, present the real "Another One of Those Barrels"
+    # island event -- popup and all -- via barrel_present_code below, then clear
+    # the flag and run the two spliced-out instructions before returning.  esi is
+    # the island scene throughout the handler, so [esi+0x10] is the manager the
+    # spliced code needs, and esi itself is the scene the presenter wants.
     barrel_hook_code = assemble(
         f"""
             cmp byte ptr [0x{BARREL_PENDING_FLAG_VA:X}], 0
             je bh_original
             mov byte ptr [0x{BARREL_PENDING_FLAG_VA:X}], 0
-            call 0x415320
+            call 0x{BARREL_PRESENT_VA:X}
         bh_original:
             mov ecx, dword ptr [esi + 0x10]
             call 0x403330
             jmp 0x{BARREL_HANDLER_SPLICE_VA + 8:X}
         """,
         BARREL_HOOK_VA,
+    )
+    # Present the barrel event through the game's own island-event presenter,
+    # forced to the barrel.  Called from the hook with esi = the island scene.
+    # Save the event-object array, point every slot 1..0x39 at the barrel object
+    # (so the presenter's random pick and its population-based fallbacks all
+    # resolve to the barrel), run the native select + present pair, then restore
+    # the array.  The presented popup keeps a direct pointer to the barrel
+    # singleton (0x4B3D5C, which we never move), so restoring the slots is safe,
+    # and the 3-child spawn runs from the game's own outcome when the player
+    # dismisses the popup.  The 57 saved pointers are held on the stack, so no
+    # data cave is needed.
+    barrel_present_code = assemble(
+        f"""
+            pushad
+            mov ebp, esi
+            mov esi, 0x{BARREL_EVENT_OBJECT_VA:X}
+            mov ecx, 0x{BARREL_EVENT_SLOT_COUNT:X}
+        bp_save:
+            push dword ptr [esi]
+            sub esi, 4
+            loop bp_save
+            mov eax, dword ptr [0x{BARREL_EVENT_OBJECT_VA:X}]
+            mov edi, 0x{BARREL_EVENT_SLOT1_VA:X}
+            mov ecx, 0x{BARREL_EVENT_SLOT_COUNT:X}
+            rep stosd
+            push ebp
+            call 0x{BARREL_SELECT_MANAGER_VA:X}
+            mov ecx, eax
+            call 0x{BARREL_PRESENT_EVENT_VA:X}
+            mov edi, 0x{BARREL_EVENT_SLOT1_VA:X}
+            mov ecx, 0x{BARREL_EVENT_SLOT_COUNT:X}
+        bp_restore:
+            pop eax
+            stosd
+            loop bp_restore
+            popad
+            ret
+        """,
+        BARREL_PRESENT_VA,
     )
     barrel_splice_before = assemble(
         "mov ecx, dword ptr [esi + 0x10]\n call 0x403330",
@@ -1435,6 +1489,12 @@ def main() -> None:
         b"\0" * len(barrel_hook_code),
         barrel_hook_code,
         "deferred barrel-event hook: fire the pending barrel event in-frame",
+    )
+    patch(
+        BARREL_PRESENT_FILE_OFFSET,
+        b"\0" * len(barrel_present_code),
+        barrel_present_code,
+        "present the barrel as a native island event (popup + 3-child spawn)",
     )
     patch(
         BARREL_HANDLER_SPLICE_VA - IMAGE_BASE,

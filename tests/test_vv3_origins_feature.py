@@ -105,6 +105,7 @@ class VV3OriginsFeatureTests(unittest.TestCase):
                 0x9EEA0,
                 0x9EF30,
                 0x7B3B1,
+                0x7B3E0,
                 0x68727,
                 0x7B664,
                 0x7B7F0,
@@ -237,14 +238,26 @@ class VV3OriginsFeatureTests(unittest.TestCase):
         )[0]
         self.assertIn("BARREL_PENDING_FLAG_VA", barrel)
         self.assertIn("jmp menu_done", barrel)
-        # The hook cave (spliced into the island-event handler) runs the real
-        # barrel-event outcome (0x415320, the native event object's spawn method)
-        # once in-frame, which spawns up to three babies.
+        # The hook cave (spliced into the island-event handler) calls the present
+        # routine once in-frame instead of the raw outcome, so the named popup
+        # shows.
         hook = source.split("barrel_hook_code = assemble(", 1)[1].split(
             "BARREL_HOOK_VA,", 1
         )[0]
-        self.assertIn("call 0x415320", hook)
-        self.assertEqual(hook.count("call 0x415320"), 1)
+        self.assertIn("call 0x{BARREL_PRESENT_VA:X}", hook)
+        self.assertNotIn("call 0x415320", hook)
+        # The present routine drives the game's own island-event presenter,
+        # forced to the barrel: it points every event-array slot at the barrel
+        # object (rep stosd) so any selection path resolves to it, then runs the
+        # native select + present pair (0x419AC0 manager, 0x419B30 present).  The
+        # 3-child spawn runs from the game's own outcome when the popup is
+        # dismissed.
+        present = source.split("barrel_present_code = assemble(", 1)[1].split(
+            "BARREL_PRESENT_VA,", 1
+        )[0]
+        self.assertIn("rep stosd", present)
+        self.assertIn("call 0x{BARREL_SELECT_MANAGER_VA:X}", present)
+        self.assertIn("call 0x{BARREL_PRESENT_EVENT_VA:X}", present)
 
     def test_tech_click_contract_is_message8_and_free_command15(self) -> None:
         """The visible Tech button must have one, and only one, route."""
