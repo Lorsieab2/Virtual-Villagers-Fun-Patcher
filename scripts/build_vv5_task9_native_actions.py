@@ -2245,8 +2245,10 @@ def build_appearance(page: bytearray, page_va: int, s: dict[str, int]) -> bytes:
         mov esi, dword ptr [ebp-0x18]
         mov eax, dword ptr [esi+0x1BB8]
         mov dword ptr [ebp-0x1C], eax
+        mov dword ptr [ebp-0x2C], eax
         mov eax, dword ptr [esi+0x1BBC]
         mov dword ptr [ebp-0x20], eax
+        mov dword ptr [ebp-0x30], eax
         mov eax, dword ptr [0x51D5F8]
         cmp eax, 5000
         jb insufficient
@@ -2261,6 +2263,13 @@ def build_appearance(page: bytearray, page_va: int, s: dict[str, int]) -> bytes:
         call dword ptr [ebp-0x10]
         cmp eax, 1
         jne cancelled
+        mov eax, dword ptr [ebp-0x1C]
+        cmp eax, dword ptr [ebp-0x2C]
+        jne appearance_changed
+        mov eax, dword ptr [ebp-0x20]
+        cmp eax, dword ptr [ebp-0x30]
+        je no_change
+    appearance_changed:
         mov esi, dword ptr [ebp-0x18]
         push esi
         call 0x{page_va + OFF['eligible']:X}
@@ -2284,6 +2293,9 @@ def build_appearance(page: bytearray, page_va: int, s: dict[str, int]) -> bytes:
         cmp dword ptr [0x51D5F8], eax
         jne charge_unknown
         {status_call(page_va, '5', 0)}
+        jmp done
+    no_change:
+        {status_call(page_va, '5', 1)}
         jmp done
     insufficient:
         {status_call(page_va, '5', 3)}
@@ -2344,19 +2356,14 @@ def build_complete_collections(page: bytearray, page_va: int) -> bytes:
         jne recheck
         cmp eax, 1000000
         jb insufficient
-        push -1000000
-        mov ecx, 0x51D5F8
-        call 0x4237B0
-        mov eax, dword ptr [ebp-0x10]
-        sub eax, 1000000
-        cmp dword ptr [0x51D5F8], eax
-        jne charge_unknown
+        mov dword ptr [ebp-0x14], 0
         mov edi, 0x4DBFC8
         mov esi, 0x50
     grant_loop:
         cmp dword ptr [edi+esi*4+0x630], 0
         jne grant_next
         mov dword ptr [edi+esi*4+0x630], 1
+        inc dword ptr [ebp-0x14]
         cmp esi, 0x80
         jae grant_master
         cmp esi, 0x68
@@ -2405,7 +2412,22 @@ def build_complete_collections(page: bytearray, page_va: int) -> bytes:
         inc esi
         cmp esi, 0x83
         jl grant_loop
+        cmp dword ptr [ebp-0x14], 0
+        je no_change
+        mov eax, dword ptr [0x51D5F8]
+        cmp eax, dword ptr [ebp-0x10]
+        jne charge_unknown
+        push -1000000
+        mov ecx, 0x51D5F8
+        call 0x4237B0
+        mov eax, dword ptr [ebp-0x10]
+        sub eax, 1000000
+        cmp dword ptr [0x51D5F8], eax
+        jne charge_unknown
         {status_call(page_va, '16', 0)}
+        jmp done
+    no_change:
+        {status_call(page_va, '16', 1)}
         jmp done
     insufficient:
         {status_call(page_va, '16', 3)}
@@ -2461,20 +2483,20 @@ def build_reset_collections(page: bytearray, page_va: int) -> bytes:
         jne recheck
         cmp eax, 1000000
         jb insufficient
-        push -1000000
-        mov ecx, 0x51D5F8
-        call 0x4237B0
-        mov eax, dword ptr [ebp-0x10]
-        sub eax, 1000000
-        cmp dword ptr [0x51D5F8], eax
-        jne charge_unknown
+        mov dword ptr [ebp-0x14], 0
         mov edi, 0x4DBFC8
         mov esi, 0x50
     clear_loop:
+        cmp dword ptr [edi+esi*4+0x630], 0
+        je clear_next
         mov dword ptr [edi+esi*4+0x630], 0
+        inc dword ptr [ebp-0x14]
+    clear_next:
         inc esi
         cmp esi, 0x83
         jl clear_loop
+        cmp dword ptr [ebp-0x14], 0
+        je no_change
         mov esi, 8
     stat_loop:
         lea eax, [esi+esi*2]
@@ -2484,7 +2506,20 @@ def build_reset_collections(page: bytearray, page_va: int) -> bytes:
         cmp esi, 0x10
         jl stat_loop
         mov dword ptr [0x51D36C], 0
+        mov eax, dword ptr [0x51D5F8]
+        cmp eax, dword ptr [ebp-0x10]
+        jne charge_unknown
+        push -1000000
+        mov ecx, 0x51D5F8
+        call 0x4237B0
+        mov eax, dword ptr [ebp-0x10]
+        sub eax, 1000000
+        cmp dword ptr [0x51D5F8], eax
+        jne charge_unknown
         {status_call(page_va, '17', 0)}
+        jmp done
+    no_change:
+        {status_call(page_va, '17', 1)}
         jmp done
     insufficient:
         {status_call(page_va, '17', 3)}
@@ -2590,6 +2625,9 @@ def build_running_all(page: bytearray, page_va: int) -> bytes:
         add esi, {STRIDE}
         dec ebx
         jnz run_loop
+        mov eax, dword ptr [ebp-0x18]
+        or eax, dword ptr [ebp-0x1C]
+        jz no_change
         mov eax, dword ptr [0x51D5F8]
         cmp eax, dword ptr [ebp-0x20]
         jne charge_unknown
@@ -2609,6 +2647,9 @@ def build_running_all(page: bytearray, page_va: int) -> bytes:
         or eax, dword ptr [ebp-0x1C]
         mov dword ptr [ebp-0x28], eax
         {status_call(page_va, '20', 0, 'dword ptr [ebp-0x24]', 'dword ptr [ebp-0x28]')}
+        jmp done
+    no_change:
+        {status_call(page_va, '20', 1)}
         jmp done
     insufficient:
         {status_call(page_va, '20', 3)}
@@ -2706,6 +2747,8 @@ def build_mastery_all(page: bytearray, page_va: int) -> bytes:
         add esi, {STRIDE}
         dec ebx
         jnz mas_loop
+        cmp dword ptr [ebp-0x10], 0
+        je no_change
         mov eax, dword ptr [0x51D5F8]
         cmp eax, dword ptr [ebp-0x18]
         jne charge_unknown
@@ -2717,6 +2760,9 @@ def build_mastery_all(page: bytearray, page_va: int) -> bytes:
         cmp dword ptr [0x51D5F8], eax
         jne charge_unknown
         {status_call(page_va, '21', 0, 'dword ptr [ebp-0x10]', 'dword ptr [ebp-0x14]')}
+        jmp done
+    no_change:
+        {status_call(page_va, '21', 1)}
         jmp done
     insufficient:
         {status_call(page_va, '21', 3)}

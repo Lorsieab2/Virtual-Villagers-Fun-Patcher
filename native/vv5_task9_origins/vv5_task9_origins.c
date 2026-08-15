@@ -355,38 +355,37 @@ __declspec(dllexport) int __stdcall ConfirmVV5Task9Action(
     if (owner == NULL) {
         return 0;
     }
-    /* The two point doublers historically had no detailed confirmation; they go
-       straight to the shared permanent-change warning below. Every other action
-       shows its detailed prompt first, then the same warning as a second gate. */
-    if (action != ACTION_TECH_DOUBLER && action != ACTION_FOOD_DOUBLER) {
-        if (action == ACTION_HEAL) {
-            wsprintfA(
-                message,
-                "Full Heal/Cure All Villagers will clear sickness from %u Villagers and restore full health to %u Villagers for 30,000 tech points.\r\nPress OK to confirm, or Cancel.",
-                amount_a,
-                amount_b
-            );
-        } else {
-            unsigned int price;
-            switch (action) {
-            case ACTION_MASTERY: price = 100000U; break;
-            case ACTION_RUNNING: price = 40000U; break;
-            case ACTION_COMPLETE_COLLECTIONS:
-            case ACTION_RESET_COLLECTIONS: price = 1000000U; break;
-            case ACTION_GRANT_RUNNING_ALL: price = 150000U; break;
-            case ACTION_GRANT_MASTERY_ALL: price = 300000U; break;
-            default: price = 50000U; break;
-            }
-            wsprintfA(
-                message,
-                "%s for %u tech points?\r\nPress OK to confirm, or Cancel.",
-                action_name(action),
-                price
-            );
+    /* Every upgrade shows a detailed purchase prompt (naming it and its exact
+       price), then the shared permanent-change warning below as a second gate. */
+    if (action == ACTION_HEAL) {
+        wsprintfA(
+            message,
+            "Full Heal/Cure All Villagers will clear sickness from %u Villagers and restore full health to %u Villagers for 30,000 tech points.\r\nPress OK to confirm, or Cancel.",
+            amount_a,
+            amount_b
+        );
+    } else {
+        unsigned int price;
+        switch (action) {
+        case ACTION_MASTERY: price = 100000U; break;
+        case ACTION_RUNNING: price = 40000U; break;
+        case ACTION_COMPLETE_COLLECTIONS:
+        case ACTION_RESET_COLLECTIONS: price = 1000000U; break;
+        case ACTION_GRANT_RUNNING_ALL: price = 150000U; break;
+        case ACTION_GRANT_MASTERY_ALL: price = 300000U; break;
+        case ACTION_TECH_DOUBLER:
+        case ACTION_FOOD_DOUBLER: price = 500000U; break;
+        default: price = 50000U; break;
         }
-        if (MessageBoxA(owner, message, title, MB_OKCANCEL | MB_ICONQUESTION) != IDOK) {
-            return 0;
-        }
+        wsprintfA(
+            message,
+            "%s for %u tech points?\r\nPress OK to confirm, or Cancel.",
+            action_name(action),
+            price
+        );
+    }
+    if (MessageBoxA(owner, message, title, MB_OKCANCEL | MB_ICONQUESTION) != IDOK) {
+        return 0;
     }
     /* Shared final gate for every upgrade (tech-screen and details-screen). */
     return MessageBoxA(
@@ -442,6 +441,16 @@ __declspec(dllexport) int __stdcall ShowVV5Task9Result(
             lstrcpyA(message, "This Villager already likes Running. All Dislikes were preserved.\r\nNo tech points have been deducted.");
         } else if (action == ACTION_HEAL) {
             lstrcpyA(message, "Everyone is at full health already. No villagers are sick. No tech points have been deducted.");
+        } else if (action == ACTION_GRANT_RUNNING_ALL) {
+            lstrcpyA(message, "No changes were needed. Every eligible villager already likes running or has no free Like slot.\r\n\r\nNo tech points have been deducted.");
+        } else if (action == ACTION_GRANT_MASTERY_ALL) {
+            lstrcpyA(message, "No changes were needed. Every eligible villager is already Fully Mastered.\r\n\r\nNo tech points have been deducted.");
+        } else if (action == ACTION_COMPLETE_COLLECTIONS) {
+            lstrcpyA(message, "All collections were already complete.\r\n\r\nNo tech points have been deducted.");
+        } else if (action == ACTION_RESET_COLLECTIONS) {
+            lstrcpyA(message, "There are no collections to reset.\r\n\r\nNo tech points have been deducted.");
+        } else if (action == ACTION_APPEARANCE) {
+            lstrcpyA(message, "The appearance was left unchanged.\r\n\r\nNo tech points have been deducted.");
         } else {
             wsprintfA(message, "%s is already complete.\r\nNo tech points have been deducted.", name);
         }
