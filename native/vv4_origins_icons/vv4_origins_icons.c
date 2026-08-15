@@ -234,13 +234,39 @@ static void appearance_draw_cell(const DRAWITEMSTRUCT *dis, int is_head, int val
     }
 }
 
-/* Full-screen approach mirrors VV1/VV2, which display correctly in the game's
-   scaled full-screen mode: a plain modal owned by the game's foreground window,
-   with no HWND_TOPMOST / SetForegroundWindow manipulation. Forcing the dialog
-   topmost and stealing the foreground fights the game's borderless full-screen
-   window and can leave the menu hidden or unresponsive, so VV_MB_FRONT is a
-   no-op and dialogs are shown exactly as VV1/VV2 do. */
-#define VV_MB_FRONT 0
+/* Full-screen support ports VV2's player-confirmed approach (its PR #13). Three
+   pieces work together; the plain-dialog attempt without them left the menus
+   hidden in full-screen. */
+
+/* 1) The game is SDL2-based; in full-screen SDL minimizes its window the instant
+      it loses focus to our modal dialog, dropping the player to the desktop and
+      hiding the menu. Turn off SDL's minimize-on-focus-loss so the game stays
+      full-screen behind the dialog. SDL2.dll is already loaded by the game and
+      re-reads the hint on focus loss, so setting it before we create any dialog
+      or message box is enough. (Left set for the session, as VV2 does, so it
+      also covers the result pop-ups shown after the menu closes.) */
+static void vv4_prep_fullscreen(void) {
+    HMODULE sdl = GetModuleHandleA("SDL2.dll");
+    if (sdl != NULL) {
+        typedef int(__cdecl * set_hint_t)(const char *, const char *);
+        set_hint_t set_hint = (set_hint_t)GetProcAddress(sdl, "SDL_SetHint");
+        if (set_hint != NULL) {
+            set_hint("SDL_VIDEO_MINIMIZE_ON_FOCUS_LOSS", "0");
+        }
+    }
+}
+
+/* 2) The dialogs use DS_CENTER so Windows centers them on the display; this also
+      lifts them above the full-screen surface and to the foreground so they are
+      visible and clickable. Called from each dialog's WM_INITDIALOG. */
+static void vv4_surface_dialog(HWND window) {
+    SetWindowPos(window, HWND_TOPMOST, 0, 0, 0, 0,
+                 SWP_NOMOVE | SWP_NOSIZE | SWP_SHOWWINDOW);
+    SetForegroundWindow(window);
+}
+
+/* 3) Message boxes must also come topmost/foreground over the full-screen game. */
+#define VV_MB_FRONT (MB_SETFOREGROUND | MB_TOPMOST)
 
 /* OFFICIAL per-row purchase-confirm names + costs. Tech rows 6-8 (village-wide)
    use the payload's own OFFICIAL confirm and are skipped here. */
@@ -344,6 +370,7 @@ static INT_PTR CALLBACK upgrade_dialog(
                 EnableWindow(GetDlgItem(window, ID_BUY_FIRST + row), FALSE);
             }
         }
+        vv4_surface_dialog(window);
         return TRUE;
     } else if (message == WM_COMMAND) {
         unsigned int command = LOWORD(wparam);
@@ -432,6 +459,7 @@ static int show_upgrade_menu(int villager_menu, int dialog_state) {
     if (villager_menu) {
         dialog_state |= STATE_VILLAGER;
     }
+    vv4_prep_fullscreen();
     return (int)DialogBoxParamA(
         module_instance,
         MAKEINTRESOURCEA(resource),
@@ -466,6 +494,7 @@ static INT_PTR CALLBACK appearance_dialog(
         /* appearance_state was already populated by ShowOriginsAppearancePicker
            before this dialog was created; the owner-drawn previews read the
            live head/body fields directly, so nothing else is needed here. */
+        vv4_surface_dialog(window);
         return TRUE;
     } else if (message == WM_DRAWITEM) {
         const DRAWITEMSTRUCT *dis = (const DRAWITEMSTRUCT *)lparam;
@@ -554,6 +583,7 @@ __declspec(dllexport) int __stdcall ShowOriginsAppearancePicker(
         return 0;
     }
     vv4_ensure_gdiplus();
+    vv4_prep_fullscreen();
     appearance_state.villager = villager;
     appearance_state.original_head = *(int *)(villager + VV_HEAD_OFFSET);
     appearance_state.original_body = *(int *)(villager + VV_CLOTHING_OFFSET);
