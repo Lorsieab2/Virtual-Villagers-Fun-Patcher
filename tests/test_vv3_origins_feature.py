@@ -252,14 +252,16 @@ class VV3OriginsFeatureTests(unittest.TestCase):
                / "vv3_full_mastery_candidate.c").read_text(encoding="utf-8")
         self.assertIn("PrepareBarrelBabies", dll)
         self.assertIn("0x45FEE3", dll)
-        # do_barrel only marks the event pending; firing it from the paused,
-        # modal menu flashed the popup and never spawned, so the real event is
-        # deferred to the island-handler hook.
+        # do_barrel marks the event pending (the real event is deferred to the
+        # island-handler hook) and confirms the purchase with the
+        # "Barrel of Babies completed." result box.
         barrel = source.split("        do_barrel:", 1)[1].split(
             "        do_complete_collections:", 1
         )[0]
         self.assertIn("BARREL_PENDING_FLAG_VA", barrel)
-        self.assertIn("jmp menu_done", barrel)
+        self.assertIn("s['barrel_completed']", barrel)
+        self.assertIn("jmp show_status", barrel)
+        self.assertIn('"Barrel of Babies completed."', source)
         # The hook cave (spliced into the island-event handler) calls the present
         # routine once in-frame instead of the raw outcome, so the named popup
         # shows.
@@ -330,7 +332,7 @@ class VV3OriginsFeatureTests(unittest.TestCase):
         )
         self.assertEqual(
             hashlib.sha256(payload).hexdigest().upper(),
-            "EDEB8A99D6EA41FBB5F38189230B7FDCBE892E58331E5AEF92667D2F67841764",
+            "8788325C7ABD11CD84E10B44C03E7D594490DDF55AA81FBD8AA6191602611AFC",
         )
         self.assertEqual(
             bytes.fromhex(

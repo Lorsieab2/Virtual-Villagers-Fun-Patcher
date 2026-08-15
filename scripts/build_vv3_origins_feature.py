@@ -169,7 +169,7 @@ def main() -> None:
         ),
         (
             "population_capacity",
-            "The village population is close to its maximum. "
+            "The village population is already close to its max. "
             "No tech points have been deducted.",
         ),
         ("running_unavailable", "Running could not be added. No tech points have been deducted."),
@@ -242,6 +242,7 @@ def main() -> None:
             "No changes were needed. "
             "No tech points have been deducted.",
         ),
+        ("barrel_completed", "Barrel of Babies completed."),
     ):
         s[name] = EXTRA_STRINGS_VA + len(extra_strings)
         extra_strings.extend(value.encode("ascii") + b"\0")
@@ -658,8 +659,11 @@ def main() -> None:
             # just mark it pending; the island-event handler hook spliced at
             # 0x{BARREL_HANDLER_SPLICE_VA:X} fires the full event next frame once
             # the menu closes, so it reads and behaves like a real island event.
+            # Confirm the purchase now with the "Barrel of Babies completed."
+            # result box (the cued event itself follows a moment into gameplay).
             mov byte ptr [0x{BARREL_PENDING_FLAG_VA:X}], 1
-            jmp menu_done
+            mov eax, 0x{s['barrel_completed']:X}
+            jmp show_status
 
         do_complete_collections:
             call 0x{COLLECTIONS_COMPLETE_VA:X}
