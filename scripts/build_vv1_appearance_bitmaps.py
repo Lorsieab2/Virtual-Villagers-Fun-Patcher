@@ -28,8 +28,17 @@ inputs/vv1-stock-copy/Virtual Villagers - A New Home.exe shows:
   0-9 come from *bodies00's own rows 0-9, rows 10-19 from *bodies01's own
   rows 0-9 (its local row = global row - 10).
 
-Cropping column 0 out of each source therefore needs no per-cell loop --
+Cropping one column out of each source therefore needs no per-cell loop --
 it is one rect crop per source file, described below.
+
+Frame choice: column 0 is not a resting pose for either sheet -- each row
+is a walk-cycle animation (confirmed by inspecting every column of a row
+side by side), and column 0 happens to be a mid-stride frame for the body
+sheet (torso leaning, one leg forward) that reads as visibly wrong when
+frozen as a single still preview image, rather than a clean standing
+portrait. HEAD_FRAME=5 and BODY_FRAME=8 were picked by inspecting every
+column of row 0 side by side and choosing the ones that read as a
+neutral/standing pose instead of a mid-motion one.
 """
 
 from __future__ import annotations
@@ -47,6 +56,8 @@ CELL_H = 65
 ROWS_PER_BODY_FILE = 10
 TOTAL_ROWS = 20
 BACKGROUND = (236, 236, 236)
+HEAD_FRAME = 5
+BODY_FRAME = 8
 
 
 def _flatten(image: Image.Image) -> Image.Image:
@@ -62,18 +73,22 @@ def _head_strip(gender: str) -> Image.Image:
     source = Image.open(SOURCE / f"{gender}_heads.png")
     if source.size != (CELL_W * 7, CELL_H * TOTAL_ROWS):
         raise ValueError(f"unexpected {gender}_heads.png size: {source.size}")
-    return _flatten(source.crop((0, 0, CELL_W, CELL_H * TOTAL_ROWS)))
+    left = CELL_W * HEAD_FRAME
+    return _flatten(source.crop((left, 0, left + CELL_W, CELL_H * TOTAL_ROWS)))
 
 
 def _body_strip(gender: str) -> Image.Image:
     strip = Image.new("RGB", (CELL_W, CELL_H * TOTAL_ROWS), BACKGROUND)
+    left = CELL_W * BODY_FRAME
     for row_block, y_offset in ((0, 0), (1, CELL_H * ROWS_PER_BODY_FILE)):
         source = Image.open(SOURCE / f"{gender}_bodies0{row_block}.png")
         if source.size != (CELL_W * 16, CELL_H * ROWS_PER_BODY_FILE):
             raise ValueError(
                 f"unexpected {gender}_bodies0{row_block}.png size: {source.size}"
             )
-        block = _flatten(source.crop((0, 0, CELL_W, CELL_H * ROWS_PER_BODY_FILE)))
+        block = _flatten(
+            source.crop((left, 0, left + CELL_W, CELL_H * ROWS_PER_BODY_FILE))
+        )
         strip.paste(block, (0, y_offset))
     return strip
 
