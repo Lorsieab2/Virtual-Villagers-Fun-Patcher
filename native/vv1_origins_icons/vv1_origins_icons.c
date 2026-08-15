@@ -46,6 +46,85 @@
 
 static HINSTANCE module_instance;
 
+/* None of this DLL's three dialog templates (IDD_ORIGINS_TECH,
+   IDD_ORIGINS_VILLAGER, IDD_ORIGINS_APPEARANCE -- see the .rc file's
+   "DIALOGEX 0, 0, ..." lines) specify DS_CENTER, so without this,
+   DialogBoxParamA places each one at literal screen pixel (0,0) -- the
+   real display's extreme top-left corner. That is easy to miss by
+   accident in a small windowed game, but VV1 is an old game rendered at
+   a small logical resolution that SDL scales up to fill the real
+   display (SDL_RenderSetLogicalSize is imported and used for this; by
+   contrast SDL_SetWindowFullscreen is imported but never actually
+   called anywhere in the exact-build executable, confirming there is no
+   in-game fullscreen toggle to hook around here -- the window stays a
+   normal top-level window the whole session, just resized/repositioned
+   to the display at startup per ldw.ini's FullScreen setting). Once the
+   real display is much larger than the game's own logical resolution,
+   as it always is in fullscreen, a dialog pinned at (0,0) is effectively
+   unreachable rather than merely off-center.
+
+   Centers on the owner window's own current rect -- which SDL keeps
+   accurate to the real on-screen window, fullscreen or windowed, unlike
+   the game's internal logical resolution -- then clamps to that owner's
+   monitor work area so the title bar and buttons stay fully reachable
+   even if the owner window is smaller than the dialog or sits near a
+   monitor edge. */
+static void center_dialog_on_owner(HWND dialog) {
+    HWND owner = GetWindow(dialog, GW_OWNER);
+    RECT dlg_rect;
+    RECT owner_rect;
+    MONITORINFO monitor_info;
+    int width;
+    int height;
+    int x;
+    int y;
+
+    if (owner == NULL || !IsWindow(owner)) {
+        owner = GetForegroundWindow();
+        if (owner != NULL && !IsWindow(owner)) {
+            owner = NULL;
+        }
+    }
+    if (!GetWindowRect(dialog, &dlg_rect)) {
+        return;
+    }
+    width = dlg_rect.right - dlg_rect.left;
+    height = dlg_rect.bottom - dlg_rect.top;
+
+    if (owner != NULL && GetWindowRect(owner, &owner_rect)) {
+        x = owner_rect.left + ((owner_rect.right - owner_rect.left) - width) / 2;
+        y = owner_rect.top + ((owner_rect.bottom - owner_rect.top) - height) / 2;
+    } else {
+        x = (GetSystemMetrics(SM_CXSCREEN) - width) / 2;
+        y = (GetSystemMetrics(SM_CYSCREEN) - height) / 2;
+    }
+
+    monitor_info.cbSize = sizeof(monitor_info);
+    if (GetMonitorInfo(
+            MonitorFromWindow(
+                owner != NULL ? owner : dialog,
+                MONITOR_DEFAULTTONEAREST
+            ),
+            &monitor_info
+        )) {
+        const RECT *work_rect = &monitor_info.rcWork;
+        if (x + width > work_rect->right) {
+            x = work_rect->right - width;
+        }
+        if (y + height > work_rect->bottom) {
+            y = work_rect->bottom - height;
+        }
+        if (x < work_rect->left) {
+            x = work_rect->left;
+        }
+        if (y < work_rect->top) {
+            y = work_rect->top;
+        }
+    }
+
+    SetWindowPos(dialog, NULL, x, y, 0, 0, SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE);
+}
+
 enum {
     IDD_ORIGINS_TECH = 201,
     IDD_ORIGINS_VILLAGER = 202,
@@ -127,6 +206,7 @@ static INT_PTR CALLBACK upgrade_dialog(
                 ? 7
                 : ((lparam & STATE_VILLAGE_WIDE) != 0 ? 9 : 6));
         int row;
+        center_dialog_on_owner(window);
         for (row = 0; row < 9; ++row) {
             ShowWindow(GetDlgItem(window, ID_CHECK_FIRST + row), SW_HIDE);
         }
@@ -244,8 +324,9 @@ static INT_PTR CALLBACK appearance_dialog(
     if (message == WM_INITDIALOG) {
         /* appearance_state was already populated by ShowOriginsAppearancePicker
            before this dialog was created; WM_DRAWITEM below paints the
-           starting values on the dialog's own first paint, nothing to do
-           here. */
+           starting values on the dialog's own first paint, nothing else to
+           do here besides positioning (see center_dialog_on_owner). */
+        center_dialog_on_owner(window);
         return TRUE;
     } else if (message == WM_DRAWITEM) {
         DRAWITEMSTRUCT *item = (DRAWITEMSTRUCT *)lparam;
