@@ -342,6 +342,72 @@ __declspec(dllexport) int __stdcall PrepareOriginsVillageWide(int command) {
     return (int)vw_granted;
 }
 
+/* ---- Barrel-of-Babies capacity check (mode-aware) ----
+   The village maximum population is base + population-tech bonuses + a
+   nature-level bonus.  The base is the byte the patcher rewrites per population
+   mode at 0x0045FEE3 (90 for the stock max, 115 for Collection Progression, and
+   so on), so we read it live instead of hardcoding the base-game 90 -- that is
+   what keeps this check dynamic across the patcher's population modes.  The
+   bonus math mirrors the game's own barrel eligibility 0x0045FE30 by calling its
+   routines: +5 per owned population tech (0x0042DE40 on manager 0x0058F428,
+   flags 0x34/0x40/0x4C/0x58, all four rounding up to 25), and +10 once the
+   nature level (0x00426FC0 on 0x00582618) reaches 3.  Returns 1 when the village
+   can hold three more villagers (current + 3 <= max), else 0, so the payload's
+   Barrel preflight can refuse before charging.  These absolute addresses are
+   fixed: the game exe is non-ASLR (image base 0x00400000) and loaded in this
+   process. */
+__declspec(dllexport) int __stdcall PrepareBarrelBabies(void) {
+    unsigned int current = 0;
+    unsigned int maxpop = 0;
+
+    /* The game's routines are __thiscall (this in ecx, stack args callee-cleaned
+       via ret 4), so drive them with inline asm; esi accumulates the bonus
+       exactly as 0x0045FE30 does.  ebx/esi/edi are preserved for the caller. */
+    __asm {
+        push ebx
+        push esi
+        push edi
+        mov ecx, 0x59E110       /* population manager */
+        mov eax, 0x45E8F0
+        call eax                /* current living population */
+        mov current, eax
+        xor esi, esi            /* bonus */
+        mov edi, 0x34           /* population-tech flag id */
+    pbb_tech:
+        push edi
+        mov ecx, 0x58F428
+        mov eax, 0x42DE40
+        call eax                /* tech owned? (ret 4) */
+        test al, al
+        je pbb_tech_next
+        add esi, 5
+    pbb_tech_next:
+        add edi, 0x0C
+        cmp edi, 0x64
+        jl pbb_tech
+        cmp esi, 0x14
+        jne pbb_level
+        mov esi, 0x19           /* all four techs -> 25, not 20 */
+    pbb_level:
+        push 6
+        mov ecx, 0x582618
+        mov eax, 0x426FC0
+        call eax                /* nature level (ret 4) */
+        cmp eax, 3
+        jl pbb_base
+        add esi, 0x0A
+    pbb_base:
+        mov eax, 0x45FEE3       /* live per-mode base-population byte */
+        movzx eax, byte ptr [eax]
+        add eax, esi
+        mov maxpop, eax
+        pop edi
+        pop esi
+        pop ebx
+    }
+    return (current + 3u <= maxpop) ? 1 : 0;
+}
+
 __declspec(dllexport) int __stdcall ShowOriginsVillageWideResult(int command) {
     char message[512];
     char line[160];

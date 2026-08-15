@@ -93,22 +93,16 @@ BARREL_EVENT_OBJECT_VA = 0x4B3D5C          # event_objects[0x39] = barrel single
 BARREL_EVENT_SLOT_COUNT = 0x39             # slots 1..0x39 inclusive (57)
 BARREL_SELECT_MANAGER_VA = 0x419AC0        # lazy manager getter (returns eax)
 BARREL_PRESENT_EVENT_VA = 0x419B30         # present(this=mgr, scene); ret 4
-# Max-population getter, placed in the payload block's free code tail (the whole
+# Barrel capacity preflight, in the payload block's free code tail (the whole
 # .text padding is contended by other fun-patches, but this .rdata payload page
-# is executable via the 0x24C section-flags patch).  Replicates the max half of
-# the barrel's own eligibility check 0x45FE30 (base 90 + 5 per owned population
-# tech, +10 at nature level 3) and returns it in eax, so the barrel preflight can
-# require room for all three children (current + 3 <= max) instead of a hardcoded
-# physical cap.  It runs only on the barrel branch, which does not read esi/edi
-# afterward (the menu handler restores them at menu_done), so it need not save
-# them.
-BARREL_MAXPOP_VA = PAYLOAD_VA + 0xBB6
-BARREL_POP_COUNT_VA = 0x45E8F0             # current population (ecx = 0x59E110)
-BARREL_POP_MANAGER_VA = 0x59E110
-BARREL_TECH_FLAG_VA = 0x42DE40             # owned(flag); this = 0x58F428; ret 4
-BARREL_TECH_MANAGER_VA = 0x58F428
-BARREL_NATURE_LEVEL_VA = 0x426FC0          # nature level; this = 0x582618; ret 4
-BARREL_NATURE_MANAGER_VA = 0x582618
+# is executable via the 0x24C section-flags patch).  It just LoadLibrary/
+# GetProcAddress-probes the companion DLL and calls PrepareBarrelBabies, which
+# does the mode-aware "can the village hold three more?" computation (reading the
+# live per-mode base-population byte the patcher sets at 0x45FEE3).  Keeping the
+# logic in the DLL avoids growing the nearly-full payload and stays correct
+# across the patcher's population modes.  Returns eax != 0 when the barrel may
+# fire; fails open (eax = 1) if the DLL cannot be probed.
+BARREL_PREFLIGHT_DLL_VA = PAYLOAD_VA + 0xBB6
 # Read-only strings for the cure and Change Appearance caves, placed in the
 # free .text padding after the Change Appearance cave (0x7BD40) and before the
 # .rdata boundary (0x7C000).
@@ -183,6 +177,7 @@ def main() -> None:
         ("show_dialog_export", "ShowOriginsUpgradeMenuState"),
         ("show_result_export", "ShowOriginsVillageWideResult"),
         ("prepare_export", "PrepareOriginsVillageWide"),
+        ("prepare_barrel_export", "PrepareBarrelBabies"),
         (
             "village_no_change",
             "No changes were needed. No tech points have been deducted.",
@@ -579,20 +574,15 @@ def main() -> None:
         maybe_barrel:
             cmp ebx, 2
             jne charge
-            # The barrel spawns three children, so refuse (and refund nothing --
-            # nothing has been charged yet) unless the village can hold all three
-            # under its real maximum: current population + 3 <= max, where max is
-            # the game's own barrel-eligibility capacity (base 90 plus population
-            # techs), read via BARREL_MAXPOP.  This replaces the old fixed 150/256
-            # physical cap, which ignored the lower, growing population maximum.
-            mov ecx, 0x59E110
-            call 0x45E8F0
-            add eax, 3
-            push eax
-            call 0x{BARREL_MAXPOP_VA:X}
-            pop ecx
-            cmp ecx, eax
-            jle charge
+            # The barrel spawns three children, so refuse (nothing has been
+            # charged yet) unless the village can hold all three under its real,
+            # mode-aware maximum.  The DLL export PrepareBarrelBabies does the
+            # computation (current + 3 <= max, reading the live per-mode base
+            # population the patcher sets at 0x45FEE3); the cave just probes and
+            # calls it, returning nonzero when the barrel may fire.
+            call 0x{BARREL_PREFLIGHT_DLL_VA:X}
+            test eax, eax
+            jnz charge
             mov eax, 0x{s['population_capacity']:X}
             jmp show_status
 
@@ -1038,40 +1028,28 @@ def main() -> None:
         """,
     )
 
-    # Village maximum population, in eax -- the max half of the barrel's own
-    # eligibility check 0x45FE30: base 90, +5 per owned population tech
-    # (0x42DE40 flags 0x34/0x40/0x4C/0x58 on 0x58F428, all four rounding up to
-    # 25), and +10 once nature level (0x426FC0 on 0x582618) reaches 3.  Both
-    # callees clean their own argument (ret 4).  Reached only from the barrel
-    # preflight, which does not depend on esi/edi afterward.
+    # Barrel capacity preflight: probe the companion DLL and call
+    # PrepareBarrelBabies, which returns 1 when the village can hold three more
+    # villagers under its live, mode-aware maximum and 0 otherwise.  LoadLibraryA
+    # is [0x47C124], GetProcAddress is [0x47C128] (same imports the village-wide
+    # path uses).  If the DLL/export cannot be resolved, fail open so the barrel
+    # still works (the native 150-slot safety guard on 0x415320 remains).
     put(
-        BARREL_MAXPOP_VA,
+        BARREL_PREFLIGHT_DLL_VA,
         f"""
-            xor esi, esi
-            mov edi, 0x34
-        bm_tech:
-            push edi
-            mov ecx, 0x{BARREL_TECH_MANAGER_VA:X}
-            call 0x{BARREL_TECH_FLAG_VA:X}
-            test al, al
-            je bm_tech_next
-            add esi, 5
-        bm_tech_next:
-            add edi, 0xC
-            cmp edi, 0x64
-            jl bm_tech
-            cmp esi, 0x14
-            jne bm_level
-            mov esi, 0x19
-        bm_level:
-            push 6
-            mov ecx, 0x{BARREL_NATURE_MANAGER_VA:X}
-            call 0x{BARREL_NATURE_LEVEL_VA:X}
-            cmp eax, 3
-            jl bm_base
-            add esi, 0xA
-        bm_base:
-            lea eax, [esi + 0x5A]
+            push 0x{s['icons_dll']:X}
+            call dword ptr [0x47C124]
+            test eax, eax
+            je bp_allow
+            push 0x{s['prepare_barrel_export']:X}
+            push eax
+            call dword ptr [0x47C128]
+            test eax, eax
+            je bp_allow
+            call eax
+            ret
+        bp_allow:
+            mov eax, 1
             ret
         """,
     )
