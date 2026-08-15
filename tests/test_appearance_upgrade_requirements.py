@@ -314,6 +314,15 @@ class AppearanceUpgradeRequirementsTests(unittest.TestCase):
                     # the Tech screen closed; it now waits BARREL_DELAY_TICKS
                     # ticks first so the purchase confirmation can be read.
                     "0x8B704",
+                    # Barrel of Babies' final population tier no longer
+                    # hardcodes the collection_progression/immediate_fixed
+                    # 256-cap threshold -- it reads the live opcode byte at
+                    # the stock CanAddVillager check (0x43A1AE) to tell
+                    # "stock" patch_mode (true cap 90) apart from the
+                    # expanded modes (cap 256) and picks the right ceiling
+                    # at runtime. Lives in its own .shr tail helper past the
+                    # detail preflight helper above.
+                    "0x8BD00",
                 },
                 "data/vv2_origins_feature.json": {
                     "0x943A8", "0x9A009", "0x9A300", "0x9A530",

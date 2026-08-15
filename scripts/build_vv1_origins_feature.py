@@ -156,6 +156,26 @@ DETAIL_PREFLIGHT_VA = IMAGE_BASE + SHR_RVA + (
     DETAIL_PREFLIGHT_FILE_OFFSET - SHR_FILE_OFFSET
 )
 RUNNING_PREFERENCE_ID = 38  # exact-build preference-table evidence: 0x7B260
+# The stock game's own "can one more villager fit" check (decompiled in
+# full at 0x43A1A0): population < 15 always fits; 15/25/50 each need their
+# housing-tier flag (+0x9FE8/+0x9FF0/+0x9FF8); above that, "cmp eax, 0x5A"
+# (90, the real stock cap) at this exact address -- the one byte-patched by
+# the patcher's own "collection_progression"/"immediate_fixed" patch_modes
+# (data/builds.json's vv1.variants) to raise it to 256. Barrel of Babies'
+# own population-capacity guard mirrors this function's first three tiers
+# directly (same flags, same 15/25/50 breakpoints -- those never change
+# across patch_modes) and reads this exact byte at runtime for the final
+# tier instead of assuming which patch_mode is active.
+VILLAGE_POPULATION_CAP_CHECK_VA = 0x43A1AE
+# menu's own cave has no room left to inline the mode-aware final-tier
+# comparison (needs a 32-bit immediate for the 256-cap modes, which alone
+# doesn't fit), so it lives here instead -- menu just calls it with
+# eax = current population (already computed there via 0x41CF90) and
+# gets back eax = 1 (room for one more tier's worth) or 0 (blocked).
+POPULATION_FINAL_TIER_FILE_OFFSET = 0x8BD00
+POPULATION_FINAL_TIER_VA = IMAGE_BASE + SHR_RVA + (
+    POPULATION_FINAL_TIER_FILE_OFFSET - SHR_FILE_OFFSET
+)
 VV1_NATIVE_SKILL_WRITER_VA = 0x437230
 VV1_SKILL_FIELDS = (
     (0x3BC, 2),  # Parenting
@@ -402,8 +422,17 @@ def main() -> None:
             jbe charge
             cmp byte ptr [edi + 0x9FF8], 1
             jne population_capacity
-            cmp eax, 253
-            ja population_capacity
+            # The final tier's own ceiling isn't fixed at 256 the way the
+            # first three tiers (15/25/50) are -- it's whichever patch_mode
+            # the player picked at apply time, applied as a *separate* set
+            # of patches this feature's own build has no visibility into.
+            # No room to inline that check here (needs a 32-bit immediate
+            # for the 256-cap modes alone), so it lives in its own .shr
+            # helper instead; eax is already the population count from the
+            # 0x41CF90 call above, exactly what that helper wants.
+            call 0x{POPULATION_FINAL_TIER_VA:X}
+            test eax, eax
+            jz population_capacity
             jmp charge
 
         check_owned:
@@ -1338,6 +1367,41 @@ def main() -> None:
             ret
         """,
         DETAIL_PREFLIGHT_VA,
+    )
+    # menu's own no-room-to-inline final population tier (see its own call
+    # site's comment). Takes eax = current population, returns eax = 1
+    # (room for one more Barrel of Babies -- 3 children) or 0 (blocked).
+    # 0x{VILLAGE_POPULATION_CAP_CHECK_VA:X}'s opcode byte distinguishes
+    # "stock" patch_mode (still the native 83 F8 5A = cmp eax,0x5A=90,
+    # unpatched) from "collection_progression"/"immediate_fixed" (both
+    # replace it with EB 76 90 = a jmp, raising the real cap to 256) --
+    # rendered and diffed all three patch_modes to confirm both forms
+    # exactly. This is a plain data read at a fixed address, not a call
+    # into any native object.
+    population_final_tier_code = assemble(
+        f"""
+            cmp byte ptr [0x{VILLAGE_POPULATION_CAP_CHECK_VA:X}], 0x83
+            jne population_final_tier_expanded
+            cmp eax, 87
+            ja population_final_tier_blocked
+            mov eax, 1
+            ret
+        population_final_tier_expanded:
+            cmp eax, 253
+            ja population_final_tier_blocked
+            mov eax, 1
+            ret
+        population_final_tier_blocked:
+            xor eax, eax
+            ret
+        """,
+        POPULATION_FINAL_TIER_VA,
+    )
+    patch(
+        POPULATION_FINAL_TIER_FILE_OFFSET,
+        b"\0" * len(population_final_tier_code),
+        population_final_tier_code,
+        "check whether Barrel of Babies' final population tier (above the 15/25/50 housing-flag tiers) has room for 3 more children under whichever patch_mode is actually installed, not just the collection_progression/immediate_fixed 256 cap",
     )
     patch(
         HEAL_CAVE_FILE_OFFSET,

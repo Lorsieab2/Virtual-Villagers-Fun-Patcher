@@ -205,6 +205,13 @@ class OriginsPlayerRuntimeChecklistTests(unittest.TestCase):
                         # update tick after the Tech screen closed; it now
                         # waits BARREL_DELAY_TICKS ticks first.
                         "0x8B704",
+                        # Barrel of Babies' final population tier now reads
+                        # the live opcode byte at the stock CanAddVillager
+                        # check (0x43A1AE) to distinguish "stock" patch_mode
+                        # (true cap 90) from the expanded modes (cap 256)
+                        # instead of assuming the 256 cap, via a new .shr
+                        # tail helper past the detail preflight helper.
+                        "0x8BD00",
                     }
                     self.assertEqual(
                         [item for item in current["patches"] if item["offset"] not in repaired_offsets],
