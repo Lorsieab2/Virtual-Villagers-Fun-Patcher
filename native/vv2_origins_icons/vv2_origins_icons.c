@@ -25,7 +25,7 @@ enum {
 enum {
     VV2_RES_SUCCESS = 0, VV2_RES_NO_CHANGE = 1, VV2_RES_INSUFFICIENT = 2,
     VV2_RES_INVALID = 3, VV2_RES_NO_SLOT = 4, VV2_RES_REMOVED = 5,
-    VV2_RES_PURCHASED = 6, VV2_RES_POP_FULL = 7
+    VV2_RES_PURCHASED = 6, VV2_RES_POP_FULL = 7, VV2_RES_DISLIKE_ONLY = 8
 };
 __declspec(dllexport) void __stdcall ShowVV2UpgradeResult(
     int action, int status, unsigned int amount_a, unsigned int amount_b,
@@ -619,6 +619,11 @@ __declspec(dllexport) void __stdcall ShowVV2UpgradeResult(
                  "Village population is close to its maximum. The Barrel of "
                  "Babies needs room for 3 children. No tech points have been "
                  "deducted.");
+    } else if (status == VV2_RES_DISLIKE_ONLY) {
+        lstrcpyA(message,
+                 "This villager's Likes are full, so Running could not be "
+                 "added, but its Running dislike was removed. No tech points "
+                 "have been deducted.");
     } else {
         lstrcpyA(message, "The action stopped without a verified charge.");
     }
