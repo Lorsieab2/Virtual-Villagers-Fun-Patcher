@@ -118,6 +118,9 @@ ORIGINS_VILLAGE_WIDE_FEATURE_PATHS = tuple(
     ROOT / "data" / f"vv{game_number}_origins_village_wide_upgrades.json"
     for game_number in range(1, 6)
 )
+# Asset-swap fun-patches: no executable bytes, only a companion file that
+# replaces a base-game asset (verified via preimage/restore hashes).
+TEXT_CHANGES_FEATURE_PATHS = (ROOT / "data" / "vv4_text_changes.json",)
 VV2_PLAYTEST_DISABLED_FEATURE_ID = "vv2_enable_origins_exclusive_features"
 VV2_PLAYTEST_DISABLED_FEATURE_PATH = ROOT / "data" / "vv2_origins_feature.json"
 VV3_RUNNING_CANDIDATE_PATHS = {
@@ -2972,6 +2975,11 @@ def _load_fun_patch_records(
     # menu.  The former standalone VV1 Full Mastery candidate is retained as
     # historical evidence only and must not reappear as a selectable patch.
     for feature_path in ORIGINS_VILLAGE_WIDE_FEATURE_PATHS:
+        if feature_path.is_file():
+            record = json.loads(feature_path.read_text(encoding="utf-8"))
+            if record.get("enabled", True):
+                items.append(record)
+    for feature_path in TEXT_CHANGES_FEATURE_PATHS:
         if feature_path.is_file():
             record = json.loads(feature_path.read_text(encoding="utf-8"))
             if record.get("enabled", True):
