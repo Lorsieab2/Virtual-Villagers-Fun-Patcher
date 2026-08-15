@@ -307,7 +307,7 @@ class DoublerAuditDocumentationTests(unittest.TestCase):
         )
         self.assertEqual(
             manifest["companion_files"][0]["sha256"],
-            "583E0CFCAB3B09F487B985A1D6E8EC0AB2A2CE02C8ACE9C7A22ED4EE6AB9E4FD",
+            "FA988A5D3A193E77AB5F0F2AE78538B16A72FF9C4D42C6DEF7D6003DE97EA4B1",
         )
         self.assertEqual(inventory["e9_tail_jumps_to_writers"], 0)
 

@@ -207,8 +207,10 @@ static int vv2_record_eligible(const unsigned char *record) {
 }
 
 /* Clear Running from a villager's Dislike slots; returns 1 if any were cleared.
-   Only called once Running is (or has become) a Like, so a villager we can't
-   help is never mutated. */
+   Called for every eligible villager: even one whose Likes are full (so Running
+   can't be added) has their Running dislike removed, and is then reported under
+   BOTH "removed a Running dislike" and "skipped: already have 3 likes" so the
+   player sees exactly what happened. */
 static int vv2_remove_running_dislikes(int *dislikes) {
     int j, removed = 0;
     for (j = 0; j < VV2_PREF_SLOTS; ++j) {
@@ -247,22 +249,19 @@ __declspec(dllexport) int __stdcall ApplyVV2RunningToAll(unsigned char *base) {
                 ++occupied;
             }
         }
+        /* Always clear a Running dislike, even when the Like can't be added, and
+           count it -- a full-Likes villager with a Running dislike is reported
+           under both "removed a dislike" and "skipped: already have 3 likes". */
+        if (vv2_remove_running_dislikes(dislikes)) {
+            ++removed_dislike;
+        }
         if (has_running) {
             ++already_like;
         } else if (occupied >= VV2_LIKE_CAP || free_slot < 0) {
-            /* No room for the Like: leave the villager -- including any Running
-               dislike -- untouched, so we never mutate someone we then report
-               as skipped. */
             ++full_likes;
-            continue;
         } else {
             likes[free_slot] = VV2_RUNNING_PREF;
             ++granted;
-        }
-        /* Reached only when Running is now, or was already, a Like: clear any
-           contradictory Running dislike. */
-        if (vv2_remove_running_dislikes(dislikes)) {
-            ++removed_dislike;
         }
     }
     if (granted == 0 && removed_dislike == 0) {
