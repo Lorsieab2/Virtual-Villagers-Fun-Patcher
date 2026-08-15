@@ -34,13 +34,13 @@ STRINGS_OFFSET = 0xC00
 STRINGS_VA = PAYLOAD_VA + STRINGS_OFFSET
 HEAL_CAVE_FILE_OFFSET = 0x7B664
 HEAL_CAVE_VA = IMAGE_BASE + HEAL_CAVE_FILE_OFFSET
-# Moved down from 0x7B7C0/0x7B7D0 to make room for the enlarged Cure/village-wide
-# cave (HEAL_CAVE now runs to ~0x7B7EA); still in the free .text padding before
-# the village-wide signature at 0x7B820.  The Island Event food/tech reward hooks
+# Placed after the Cure/village-wide cave (HEAL_CAVE now runs to ~0x7B7F7 after
+# the singular/plural Cure result), still in the free .text padding before the
+# village-wide signature at 0x7B820.  The Island Event food/tech reward hooks
 # jump here by NATIVE_*_TAIL_VA, so the move is self-consistent.
-NATIVE_FOOD_TAIL_FILE_OFFSET = 0x7B7F0
+NATIVE_FOOD_TAIL_FILE_OFFSET = 0x7B800
 NATIVE_FOOD_TAIL_VA = IMAGE_BASE + NATIVE_FOOD_TAIL_FILE_OFFSET
-NATIVE_TECH_TAIL_FILE_OFFSET = 0x7B800
+NATIVE_TECH_TAIL_FILE_OFFSET = 0x7B810
 NATIVE_TECH_TAIL_VA = IMAGE_BASE + NATIVE_TECH_TAIL_FILE_OFFSET
 VILLAGE_WIDE_SIGNATURE_VA = IMAGE_BASE + 0x7B820
 VILLAGE_WIDE_ENTRY_VA = IMAGE_BASE + 0x7B840
@@ -165,6 +165,13 @@ def main() -> None:
             "time_warp_done",
             "Time Warp completed.",
         ),
+        (
+            "youth_already",
+            "This villager is already full of youth. "
+            "No tech points have been deducted.",
+        ),
+        ("villager_one", "villager"),
+        ("villager_many", "villagers"),
         ("icons_dll", "VVFP Origins Icons.dll"),
         ("show_dialog_export", "ShowOriginsUpgradeMenuState"),
         ("show_result_export", "ShowOriginsVillageWideResult"),
@@ -205,8 +212,8 @@ def main() -> None:
         ("appearance_export", "ShowVV3AppearanceChooser"),
         (
             "cure_message",
-            "Cured sickness from %u villagers.\n\n"
-            "Restored %u villagers to full health.",
+            "Cured sickness from %u %s.\n\n"
+            "Restored %u %s to full health.",
         ),
         (
             "cure_nothing",
@@ -894,6 +901,16 @@ def main() -> None:
             jmp detail_done
 
         detail_youth:
+            # No-change guard: a villager already at the minimum age (100 units
+            # = 5 years) is "full of youth" -- Grant Youth would change nothing,
+            # so refund the charge and report it.
+            cmp dword ptr [edx + 0xDC4], 100
+            jg detail_youth_apply
+            mov ecx, dword ptr [0x{s['detail_costs']:X} + ebx*4]
+            add dword ptr [0x582644], ecx
+            mov eax, 0x{s['youth_already']:X}
+            jmp detail_status
+        detail_youth_apply:
             mov eax, dword ptr [edx + 0xDC4]
             sub eax, 700
             cmp eax, 100
@@ -1273,8 +1290,9 @@ def main() -> None:
             call 0x{show_message:X}
             jmp cure_ret
         cure_success:
-            # wsprintfA(buffer, "Cured sickness from %u villagers.\\nRestored
-            # %u villagers to full health.", ebp, ebx) then show it.
+            # wsprintfA(buffer, "Cured sickness from %u %s.\\n\\nRestored %u %s
+            # to full health.", ebp, word(ebp), ebx, word(ebx)) then show it,
+            # with correct singular/plural for each count.
             sub esp, 0x80
             push 0x{s['user32_dll']:X}
             call dword ptr [0x47C124]
@@ -1286,13 +1304,25 @@ def main() -> None:
             test eax, eax
             je cure_free
             mov edx, eax
+            mov esi, 0x{s['villager_many']:X}
+            cmp ebp, 1
+            jne cure_word1_done
+            mov esi, 0x{s['villager_one']:X}
+        cure_word1_done:
+            mov edi, 0x{s['villager_many']:X}
+            cmp ebx, 1
+            jne cure_word2_done
+            mov edi, 0x{s['villager_one']:X}
+        cure_word2_done:
+            push edi
             push ebx
+            push esi
             push ebp
             push 0x{s['cure_message']:X}
-            lea eax, [esp + 0xC]
+            lea eax, [esp + 0x14]
             push eax
             call edx
-            add esp, 0x10
+            add esp, 0x18
             lea eax, [esp]
             push eax
             push 0x{s['tech_title']:X}

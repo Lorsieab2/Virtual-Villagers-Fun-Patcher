@@ -523,6 +523,12 @@ __declspec(dllexport) int __stdcall ShowOriginsUpgradeResult(int code) {
     return 0;
 }
 
+/* "Villager" for a count of 1, "Villagers" otherwise -- the sheet requires
+   correct singular/plural in the counted results. */
+static const char *villagers_word(unsigned int n) {
+    return n == 1 ? "Villager" : "Villagers";
+}
+
 __declspec(dllexport) int __stdcall ShowOriginsVillageWideResult(int command) {
     char message[512];
     char line[160];
@@ -531,12 +537,16 @@ __declspec(dllexport) int __stdcall ShowOriginsVillageWideResult(int command) {
             lstrcpyA(message, "Everyone already likes running, or has full Likes slots. "
                               "No tech points have been deducted.");
         } else {
-            wsprintfA(message, "Granted Running to %u Villagers.", vw_granted);
-            wsprintfA(line, "\r\n\r\nRemoved a Running dislike from %u Villagers.", vw_removed);
+            wsprintfA(message, "Granted Running to %u %s.",
+                      vw_granted, villagers_word(vw_granted));
+            wsprintfA(line, "\r\n\r\nRemoved a Running dislike from %u %s.",
+                      vw_removed, villagers_word(vw_removed));
             lstrcatA(message, line);
-            wsprintfA(line, "\r\n\r\nSkipped %u Villagers: already like Running.", vw_already);
+            wsprintfA(line, "\r\n\r\nSkipped %u %s: already like Running.",
+                      vw_already, villagers_word(vw_already));
             lstrcatA(message, line);
-            wsprintfA(line, "\r\n\r\nSkipped %u Villagers: already have 3 likes.", vw_noslot);
+            wsprintfA(line, "\r\n\r\nSkipped %u %s: already have 3 likes.",
+                      vw_noslot, villagers_word(vw_noslot));
             lstrcatA(message, line);
         }
     } else if (command == VW_MASTERY) {
@@ -544,15 +554,21 @@ __declspec(dllexport) int __stdcall ShowOriginsVillageWideResult(int command) {
             lstrcpyA(message, "Everyone has already mastered their skills. "
                               "No tech points have been deducted.");
         } else {
-            wsprintfA(message, "Granted Full Mastery to %u Villagers.", vw_granted);
-            wsprintfA(line, "\r\n\r\nSkipped %u Villagers: already fully mastered.", vw_already);
+            wsprintfA(message, "Granted Full Mastery to %u %s.",
+                      vw_granted, villagers_word(vw_granted));
+            wsprintfA(line, "\r\n\r\nSkipped %u %s: already fully mastered.",
+                      vw_already, villagers_word(vw_already));
             lstrcatA(message, line);
         }
     } else if (command == VW_AGE) {
         if (vw_granted == 0) {
             lstrcpyA(message, "Everyone is already 18. No tech points have been deducted.");
         } else {
-            lstrcpyA(message, "Set All Villagers to 18 completed.");
+            wsprintfA(message, "Set %u %s to Age 18.",
+                      vw_granted, villagers_word(vw_granted));
+            wsprintfA(line, "\r\n\r\nSkipped %u %s: already 18.",
+                      vw_already, villagers_word(vw_already));
+            lstrcatA(message, line);
         }
     } else {
         return 0;
