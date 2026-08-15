@@ -356,12 +356,16 @@ __declspec(dllexport) int __stdcall ApplyVV2Collections(
     unsigned char want = (mode == 9) ? 1 : 0;
     int action = (mode == 9) ? VV2_ACT_COLLECT_COMPLETE : VV2_ACT_COLLECT_RESET;
     unsigned int goals = 0;
+    int changed = 0;
     int i;
     if (player == 0) {
         return 0;
     }
     for (i = 0; i < 48; ++i) {
-        player[0x2E720 + i] = want;
+        if (player[0x2E720 + i] != want) {
+            player[0x2E720 + i] = want;
+            changed = 1;
+        }
     }
     if (mode == 9) {
         vv2_fire_goal_t fire = (vv2_fire_goal_t)(UINT_PTR)0x004257A0;
@@ -370,12 +374,22 @@ __declspec(dllexport) int __stdcall ApplyVV2Collections(
                 player[goal_pending[i]] = 0;
                 fire(player, 0, goal_message[i], 1);
                 ++goals;
+                changed = 1;
             }
         }
     } else {
         for (i = 0; i < 5; ++i) {
-            player[goal_pending[i]] = 1;
+            if (player[goal_pending[i]] != 1) {
+                player[goal_pending[i]] = 1;
+                changed = 1;
+            }
         }
+    }
+    /* Nothing to do (already fully found, or already fully cleared): report it
+       and charge nothing, matching the other village-wide rows. */
+    if (!changed) {
+        ShowVV2UpgradeResult(action, VV2_RES_NO_CHANGE, 0, 0, 0, 0);
+        return 0;
     }
     ShowVV2UpgradeResult(action, VV2_RES_SUCCESS, goals, 0, 0, 0);
     return 1;
@@ -554,6 +568,21 @@ __declspec(dllexport) void __stdcall ShowVV2UpgradeResult(
             lstrcpyA(message,
                      "No changes were needed. No tech points have been "
                      "deducted.");
+            break;
+        case VV2_ACT_DETAIL_APPEARANCE:
+            lstrcpyA(message,
+                     "The appearance is unchanged. No tech points have been "
+                     "deducted.");
+            break;
+        case VV2_ACT_COLLECT_COMPLETE:
+            lstrcpyA(message,
+                     "All collectibles are already found. No tech points have "
+                     "been deducted.");
+            break;
+        case VV2_ACT_COLLECT_RESET:
+            lstrcpyA(message,
+                     "The collections are already cleared. No tech points have "
+                     "been deducted.");
             break;
         default:
             wsprintfA(message,
@@ -818,12 +847,15 @@ __declspec(dllexport) int __stdcall ShowVV2AppearanceChooser(
     int *body
 ) {
     INT_PTR result;
+    int orig_head, orig_body;
     /* VV2 stores sex as 1 (male) or 2 (female); the stock renderer branches on
        `sex == 1` (0x4456A3). Match it: sex 1 -> male atlas (0), else female (1). */
     vv2_appearance_sex = (sex == 1) ? 0 : 1;
     vv2_appearance_old = age >= 1100 ? 1 : 0;
     vv2_appearance_head = (head && *head >= 0 && *head < VV2_APPEARANCE_COUNT) ? *head : 0;
     vv2_appearance_body = (body && *body >= 0 && *body < VV2_APPEARANCE_COUNT) ? *body : 0;
+    orig_head = vv2_appearance_head;
+    orig_body = vv2_appearance_body;
 
     result = DialogBoxParamA(
         module_instance,
@@ -833,6 +865,27 @@ __declspec(dllexport) int __stdcall ShowVV2AppearanceChooser(
         0
     );
     if (result == 1) {
+        /* OK with nothing actually changed (opened and confirmed, or cycled the
+           selectors back to where they started): write nothing, charge nothing. */
+        if (vv2_appearance_head == orig_head && vv2_appearance_body == orig_body) {
+            ShowVV2UpgradeResult(
+                VV2_ACT_DETAIL_APPEARANCE, VV2_RES_NO_CHANGE, 0, 0, 0, 0
+            );
+            return 0;
+        }
+        /* The head field is hereditary (record +0x548), so changing it affects
+           this villager's descendants.  Warn explicitly before committing, and
+           let the player back out with no write and no charge. */
+        if (vv2_appearance_head != orig_head) {
+            if (MessageBoxA(
+                    GetForegroundWindow(),
+                    "Warning: This will change the villager's head genetics.",
+                    "Change Appearance",
+                    MB_OKCANCEL | MB_ICONWARNING | MB_TOPMOST | MB_SETFOREGROUND
+                ) != IDOK) {
+                return 0;
+            }
+        }
         if (head) {
             *head = vv2_appearance_head;
         }
