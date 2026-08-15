@@ -300,9 +300,10 @@ def build_payload(config: dict) -> tuple[bytes, dict[str, int]]:
         # array directly, which corrupts like state and crashes the game.
         # Returns eax=granted, edx=already-running-skipped,
         # ecx=running-dislikes-removed (the removed counter lives on the stack
-        # so it survives the thiscall clobbers of eax/ecx/edx). Villagers with
-        # no free like slot are skipped silently (VV2's "all slots occupied"
-        # line is future-only, so it is not counted or reported).
+        # so it survives the thiscall clobbers of eax/ecx/edx). A villager with
+        # no free Like slot still has any Running Dislike cleared for free (the
+        # remove-from-dislikes helper runs even when the Like can't be added),
+        # matching the OFFICIAL "counted in both" edge case.
         slot_count = config["slot_count"]
         likes = _hex_word(config["likes"])
         dislikes = _hex_word(config["dislikes"])
@@ -332,8 +333,9 @@ def build_payload(config: dict) -> tuple[bytes, dict[str, int]]:
             lea ecx, [esi + {likes}]
             call {_hex_word(config['native_like_add'])}
             test al, al
-            jz running_next
+            jz running_clear_dislike
             inc edi
+        running_clear_dislike:
             push {pref}
             lea ecx, [esi + {dislikes}]
             call {_hex_word(config['native_like_remove'])}
@@ -945,7 +947,7 @@ def main() -> None:
                 "signature_offset": f"0x{entries['signature_offset']:X}",
                 "entry_offset": f"0x{entries['entry_offset']:X}",
                 "entry_virtual_address": f"0x{config['cave_va'] + (entries['entry_offset'] - config['cave_offset']):X}",
-                "calling_convention": "near call with EAX=command 6/7/8, ECX=first physical record pointer, EDX=physical record bound; command 6 returns full-Like skips in EAX, already-Running (already-running) skips in EDX, and villagers with a removed Running dislike in ECX; full Like records receive no preference writes; commands 7/8 return zero counts; invalid commands return EAX=-1 and EDX/ECX=0; preserves EBX/ESI/EDI/EBP/ESP",
+                "calling_convention": "near call with EAX=command 6/7/8, ECX=first physical record pointer, EDX=physical record bound; command 6 returns full-Like skips in EAX, already-Running (already-running) skips in EDX, and villagers with a removed Running dislike in ECX; full-Like villagers still have any Running Dislike removed (no Like is added); commands 7/8 return zero counts; invalid commands return EAX=-1 and EDX/ECX=0; preserves EBX/ESI/EDI/EBP/ESP",
                 "commands": {
                     "6": "All Villagers Like Running",
                     "7": "Grant Full Mastery to All Villagers",
@@ -957,7 +959,7 @@ def main() -> None:
                 "Includes the matching base Origins feature so the Tech-screen and Villager Details-screen buttons and upgrades are installed with this public route.",
                 "Adds rows 6-8 to the Origins Tech-screen Upgrades dialog only when this optional feature is installed.",
                 "Charges exactly 1,000,000 tech points once per selected village-wide purchase in the current save.",
-                f"Running scans exactly {config['slot_count']} physical Like and Dislike slots, adds Running only to the first free Like slot, removes Running Dislikes only after that insertion, and leaves already-Running or full-like villagers unchanged.",
+                f"Running scans exactly {config['slot_count']} physical Like and Dislike slots, adds Running only to the first free Like slot, removes any Running Dislike whether or not a Like was added (so full-Like villagers still have a Running Dislike cleared for free), and leaves already-Running villagers unchanged.",
                 mastery_behavior,
                 "All Villagers are 18 writes only the verified displayed-age field to 360 age units.",
             ],

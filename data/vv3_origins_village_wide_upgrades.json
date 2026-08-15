@@ -18,7 +18,7 @@
     "signature_offset": "0x7B820",
     "entry_offset": "0x7B840",
     "entry_virtual_address": "0x47B840",
-    "calling_convention": "near call with EAX=command 6/7/8, ECX=first physical record pointer, EDX=physical record bound; command 6 returns full-Like skips in EAX, already-Running (already-running) skips in EDX, and villagers with a removed Running dislike in ECX; full Like records receive no preference writes; commands 7/8 return zero counts; invalid commands return EAX=-1 and EDX/ECX=0; preserves EBX/ESI/EDI/EBP/ESP",
+    "calling_convention": "near call with EAX=command 6/7/8, ECX=first physical record pointer, EDX=physical record bound; command 6 returns full-Like skips in EAX, already-Running (already-running) skips in EDX, and villagers with a removed Running dislike in ECX; full-Like villagers still have any Running Dislike removed (no Like is added); commands 7/8 return zero counts; invalid commands return EAX=-1 and EDX/ECX=0; preserves EBX/ESI/EDI/EBP/ESP",
     "commands": {
       "6": "All Villagers Like Running",
       "7": "Grant Full Mastery to All Villagers",
@@ -53,7 +53,7 @@
     "Includes the matching base Origins feature so the Tech-screen and Villager Details-screen buttons and upgrades are installed with this public route.",
     "Adds rows 6-8 to the Origins Tech-screen Upgrades dialog only when this optional feature is installed.",
     "Charges exactly 1,000,000 tech points once per selected village-wide purchase in the current save.",
-    "Running scans exactly 3 physical Like and Dislike slots, adds Running only to the first free Like slot, removes Running Dislikes only after that insertion, and leaves already-Running or full-like villagers unchanged.",
+    "Running scans exactly 3 physical Like and Dislike slots, adds Running only to the first free Like slot, removes any Running Dislike whether or not a Like was added (so full-Like villagers still have a Running Dislike cleared for free), and leaves already-Running villagers unchanged.",
     "Grant Full Mastery to All Villagers writes native mastery values and runs the native award evaluator for each changed eligible villager.",
     "All Villagers are 18 writes only the verified displayed-age field to 360 age units."
   ],
