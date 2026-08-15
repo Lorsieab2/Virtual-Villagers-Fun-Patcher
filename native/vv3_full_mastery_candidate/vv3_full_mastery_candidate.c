@@ -408,6 +408,45 @@ __declspec(dllexport) int __stdcall PrepareBarrelBabies(void) {
     return (current + 3u <= maxpop) ? 1 : 0;
 }
 
+/* ---- Tech-screen one-shot / guard result boxes ----
+   The payload's Tech one-shots and the Barrel guard have no room left for their
+   result strings, so the DLL owns the exact OFFICIAL-sheet wording and the
+   payload just calls this by code.  Titled "Origins Upgrades" like the other
+   Tech results, topmost so it surfaces over the game. */
+__declspec(dllexport) int __stdcall ShowOriginsUpgradeResult(int code) {
+    const char *message;
+    switch (code) {
+    case 1:
+        message = "Island Event completed.";
+        break;
+    case 2:
+        message = "Tech Point Doubler completed.";
+        break;
+    case 3:
+        message = "Food Point Doubler completed.";
+        break;
+    case 4:
+        message = "Tech Point Doubler was removed. No refund was issued.";
+        break;
+    case 5:
+        message = "Food Point Doubler was removed. No refund was issued.";
+        break;
+    case 6:
+        message = "Village population is close to its maximum. "
+                  "The Barrel of Babies needs room for 3 children. "
+                  "No tech points have been deducted.";
+        break;
+    case 7:
+        message = "Barrel of Babies completed.";
+        break;
+    default:
+        return 0;
+    }
+    MessageBoxA(GetForegroundWindow(), message, "Origins Upgrades",
+                MB_OK | MB_ICONINFORMATION | MB_TOPMOST | MB_SETFOREGROUND);
+    return 0;
+}
+
 __declspec(dllexport) int __stdcall ShowOriginsVillageWideResult(int command) {
     char message[512];
     char line[160];

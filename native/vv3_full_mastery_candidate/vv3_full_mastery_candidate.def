@@ -5,5 +5,6 @@ EXPORTS
     ShowOriginsVillageWideResult=_ShowOriginsVillageWideResult@4
     PrepareOriginsVillageWide=_PrepareOriginsVillageWide@4
     PrepareBarrelBabies=_PrepareBarrelBabies@0
+    ShowOriginsUpgradeResult=_ShowOriginsUpgradeResult@4
     ShowOriginsFullMasteryResult=_ShowOriginsFullMasteryResult@8
     ShowVV3AppearanceChooser=_ShowVV3AppearanceChooser@16

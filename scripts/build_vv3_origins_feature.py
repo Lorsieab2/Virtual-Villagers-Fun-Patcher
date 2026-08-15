@@ -158,19 +158,12 @@ def main() -> None:
         ("button_label", "Upgrades"),
         ("tech_title", "Origins Upgrades"),
         ("detail_title", "Villager Upgrades"),
-        ("purchased", "Purchased."),
         ("mastery_failed", "Full Mastery could not be completed."),
-        ("removed", "Removed."),
         ("not_enough", "Not enough tech points."),
         ("paused", "Time Warp is unavailable while the game is paused."),
         (
             "time_warp_done",
             "Time Warp completed.",
-        ),
-        (
-            "population_capacity",
-            "The village population is already close to its max. "
-            "No tech points have been deducted.",
         ),
         ("running_unavailable", "Running could not be added. No tech points have been deducted."),
         ("icons_dll", "VVFP Origins Icons.dll"),
@@ -178,6 +171,7 @@ def main() -> None:
         ("show_result_export", "ShowOriginsVillageWideResult"),
         ("prepare_export", "PrepareOriginsVillageWide"),
         ("prepare_barrel_export", "PrepareBarrelBabies"),
+        ("result_export", "ShowOriginsUpgradeResult"),
         (
             "village_no_change",
             "No changes were needed. No tech points have been deducted.",
@@ -242,7 +236,6 @@ def main() -> None:
             "No changes were needed. "
             "No tech points have been deducted.",
         ),
-        ("barrel_completed", "Barrel of Babies completed."),
     ):
         s[name] = EXTRA_STRINGS_VA + len(extra_strings)
         extra_strings.extend(value.encode("ascii") + b"\0")
@@ -549,14 +542,14 @@ def main() -> None:
             test dword ptr [0x5824D0], 1
             jz preflight
             and dword ptr [0x5824D0], 0xFFFFFFFE
-            mov eax, 0x{s['removed']:X}
-            jmp show_status
+            mov eax, 4
+            jmp show_result
         maybe_remove_food:
             test dword ptr [0x5824D0], 2
             jz preflight
             and dword ptr [0x5824D0], 0xFFFFFFFD
-            mov eax, 0x{s['removed']:X}
-            jmp show_status
+            mov eax, 5
+            jmp show_result
 
         preflight:
             call 0x428B60
@@ -584,8 +577,8 @@ def main() -> None:
             call 0x{BARREL_PREFLIGHT_DLL_VA:X}
             test eax, eax
             jnz charge
-            mov eax, 0x{s['population_capacity']:X}
-            jmp show_status
+            mov eax, 6
+            jmp show_result
 
         charge:
             cmp ebx, 6
@@ -618,7 +611,7 @@ def main() -> None:
             je do_cure
             call 0x{HEAL_CAVE_VA:X}
             nop
-            jmp success
+            jmp menu_done
 
         do_cure:
             call 0x{HEAL_CAVE_VA:X}
@@ -651,7 +644,8 @@ def main() -> None:
 
         do_island_event:
             mov dword ptr [edi + ebp + 0x12EF4], 0
-            jmp success
+            mov eax, 1
+            jmp show_result
 
         do_barrel:
             # Defer the "Another One of Those Barrels" island event.  Firing it
@@ -662,8 +656,8 @@ def main() -> None:
             # Confirm the purchase now with the "Barrel of Babies completed."
             # result box (the cued event itself follows a moment into gameplay).
             mov byte ptr [0x{BARREL_PENDING_FLAG_VA:X}], 1
-            mov eax, 0x{s['barrel_completed']:X}
-            jmp show_status
+            mov eax, 7
+            jmp show_result
 
         do_complete_collections:
             call 0x{COLLECTIONS_COMPLETE_VA:X}
@@ -675,12 +669,12 @@ def main() -> None:
 
         do_tech_doubler:
             or dword ptr [0x5824D0], 1
-            jmp success
+            mov eax, 2
+            jmp show_result
         do_food_doubler:
             or dword ptr [0x5824D0], 2
-        success:
-            mov eax, 0x{s['purchased']:X}
-            jmp show_status
+            mov eax, 3
+            jmp show_result
         insufficient:
             mov eax, 0x{s['not_enough']:X}
             jmp show_status
@@ -688,6 +682,26 @@ def main() -> None:
             push eax
             push 0x{s['tech_title']:X}
             call 0x{show_message:X}
+            jmp menu_done
+        show_result:
+            # eax = result code; hand it to the DLL export ShowOriginsUpgradeResult,
+            # which owns the exact OFFICIAL-sheet wording for the Tech one-shots and
+            # the Barrel guard.  Fails silently (still closes the menu) if the DLL
+            # or export cannot be resolved.
+            push eax
+            push 0x{s['icons_dll']:X}
+            call dword ptr [0x47C124]
+            test eax, eax
+            je show_result_done
+            push 0x{s['result_export']:X}
+            push eax
+            call dword ptr [0x47C128]
+            test eax, eax
+            je show_result_done
+            push dword ptr [esp]
+            call eax
+        show_result_done:
+            pop eax
             jmp menu_done
         menu_done:
             pop ebp
@@ -968,9 +982,6 @@ def main() -> None:
             dec eax
             jne running_dislike_loop
             mov eax, 0x{s['detail_running_done']:X}
-            jmp detail_status
-        detail_success:
-            mov eax, 0x{s['purchased']:X}
             jmp detail_status
         detail_insufficient:
             mov eax, 0x{s['not_enough']:X}

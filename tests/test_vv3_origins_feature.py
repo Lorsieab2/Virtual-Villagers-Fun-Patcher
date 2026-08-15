@@ -138,7 +138,7 @@ class VV3OriginsFeatureTests(unittest.TestCase):
     def test_running_code_only_edits_normal_trait_arrays(self) -> None:
         source = BUILDER.read_text(encoding="utf-8")
         running = source.split("        detail_running:", 1)[1].split(
-            "        detail_success:", 1
+            "        detail_insufficient:", 1
         )[0]
         self.assertIn("[edx + 0xFB4]", running)
         self.assertIn("[edx + 0xFC0]", running)
@@ -259,9 +259,15 @@ class VV3OriginsFeatureTests(unittest.TestCase):
             "        do_complete_collections:", 1
         )[0]
         self.assertIn("BARREL_PENDING_FLAG_VA", barrel)
-        self.assertIn("s['barrel_completed']", barrel)
-        self.assertIn("jmp show_status", barrel)
-        self.assertIn('"Barrel of Babies completed."', source)
+        self.assertIn("mov eax, 7", barrel)  # -> "Barrel of Babies completed."
+        self.assertIn("jmp show_result", barrel)
+        # Tech one-shot / guard result wording lives in the DLL result export.
+        self.assertIn('"Barrel of Babies completed."', dll)
+        self.assertIn('"Island Event completed."', dll)
+        self.assertIn(
+            '"Tech Point Doubler was removed. No refund was issued."', dll
+        )
+        self.assertIn("ShowOriginsUpgradeResult", dll)
         # The hook cave (spliced into the island-event handler) calls the present
         # routine once in-frame instead of the raw outcome, so the named popup
         # shows.
@@ -332,7 +338,7 @@ class VV3OriginsFeatureTests(unittest.TestCase):
         )
         self.assertEqual(
             hashlib.sha256(payload).hexdigest().upper(),
-            "8788325C7ABD11CD84E10B44C03E7D594490DDF55AA81FBD8AA6191602611AFC",
+            "13E32DBD6575C40D5617080234966B6D3B7F60C611F0B7B319DE548EF30839A7",
         )
         self.assertEqual(
             bytes.fromhex(
