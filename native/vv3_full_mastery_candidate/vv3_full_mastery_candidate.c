@@ -39,8 +39,11 @@ static const char *const detail_costs[] = {
 };
 
 /* Set at WM_INITDIALOG so WM_COMMAND knows whether this is the Tech (0) or
-   Villager Details (1) menu.  The menus are modal and shown one at a time. */
+   Villager Details (1) menu, and the row state (owned bits) so an owned
+   Doubler's "Remove" click is confirmed as a removal, not a purchase.  The
+   menus are modal and shown one at a time. */
 static int s_villager_menu;
+static int s_dialog_state;
 
 BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved) {
     (void)reserved;
@@ -181,6 +184,7 @@ static INT_PTR CALLBACK upgrade_dialog(
     if (message == WM_INITDIALOG) {
         int villager_menu = (lparam & STATE_VILLAGER) != 0;
         s_villager_menu = villager_menu;
+        s_dialog_state = (int)lparam;
         int row_count = villager_menu
             ? 5
             : ((lparam & STATE_RUNNING_ONLY) != 0
@@ -215,12 +219,26 @@ static INT_PTR CALLBACK upgrade_dialog(
             int row = (int)(command - ID_BUY_FIRST);
             const char *name = s_villager_menu ? detail_names[row] : tech_names[row];
             const char *cost = s_villager_menu ? detail_costs[row] : tech_costs[row];
+            /* Owned Tech/Food Doublers (rows 3/4) show a "Remove" button; a
+               removal costs and refunds nothing, so confirm it as a removal
+               rather than a 500,000-tech purchase. */
+            int is_remove = !s_villager_menu && (row == 3 || row == 4)
+                && (s_dialog_state & (1 << row)) != 0;
             char prompt[256];
-            wsprintfA(
-                prompt,
-                "Do you want to buy %s for %s tech points?\r\n"
-                "Press OK to confirm, or Cancel.",
-                name, cost);
+            if (is_remove) {
+                wsprintfA(
+                    prompt,
+                    "Do you want to remove %s?\r\n"
+                    "It will be removed with no refund.\r\n"
+                    "Press OK to confirm, or Cancel.",
+                    name);
+            } else {
+                wsprintfA(
+                    prompt,
+                    "Do you want to buy %s for %s tech points?\r\n"
+                    "Press OK to confirm, or Cancel.",
+                    name, cost);
+            }
             if (MessageBoxA(
                     window,
                     prompt,

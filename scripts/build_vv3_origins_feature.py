@@ -93,6 +93,18 @@ BARREL_EVENT_OBJECT_VA = 0x4B3D5C          # event_objects[0x39] = barrel single
 BARREL_EVENT_SLOT_COUNT = 0x39             # slots 1..0x39 inclusive (57)
 BARREL_SELECT_MANAGER_VA = 0x419AC0        # lazy manager getter (returns eax)
 BARREL_PRESENT_EVENT_VA = 0x419B30         # present(this=mgr, scene); ret 4
+# 0x419B30 records the presented event's index in the parallel "seen" byte array
+# at 0x4B3C3C + index (0x4B3C3C..0x4B3C77 for indices 0..0x39).  Because we point
+# every object slot at the barrel, its random pick marks some *other* index as
+# seen, which would consume an unrelated one-shot island event.  So we save and
+# restore that seen array around the present too -- one contiguous dword block
+# from 0x4B3C3C up through the object slots -- undoing the spurious mark (and the
+# barrel's own pending flag at 0x4B3C75, already cleared by the hook, rides along
+# unchanged).  Restore starts at BARREL_SAVE_LOW_VA; save descends from the
+# barrel singleton; BARREL_SAVE_COUNT dwords cover the seen array plus slots
+# 1..0x39.
+BARREL_SAVE_LOW_VA = 0x4B3C3C
+BARREL_SAVE_COUNT = (BARREL_EVENT_OBJECT_VA - BARREL_SAVE_LOW_VA) // 4 + 1  # 0x49
 # Barrel capacity preflight, in the payload block's free code tail (the whole
 # .text padding is contended by other fun-patches, but this .rdata payload page
 # is executable via the 0x24C section-flags patch).  It just LoadLibrary/
@@ -463,7 +475,7 @@ def main() -> None:
             call dword ptr [0x47C128]
             test eax, eax
             je message_done
-            push 0
+            push 0x50000
             push ebx
             push esi
             push 0
@@ -1561,7 +1573,7 @@ def main() -> None:
             pushad
             mov ebp, esi
             mov esi, 0x{BARREL_EVENT_OBJECT_VA:X}
-            mov ecx, 0x{BARREL_EVENT_SLOT_COUNT:X}
+            mov ecx, 0x{BARREL_SAVE_COUNT:X}
         bp_save:
             push dword ptr [esi]
             sub esi, 4
@@ -1574,8 +1586,8 @@ def main() -> None:
             call 0x{BARREL_SELECT_MANAGER_VA:X}
             mov ecx, eax
             call 0x{BARREL_PRESENT_EVENT_VA:X}
-            mov edi, 0x{BARREL_EVENT_SLOT1_VA:X}
-            mov ecx, 0x{BARREL_EVENT_SLOT_COUNT:X}
+            mov edi, 0x{BARREL_SAVE_LOW_VA:X}
+            mov ecx, 0x{BARREL_SAVE_COUNT:X}
         bp_restore:
             pop eax
             stosd
