@@ -62,6 +62,23 @@ static void vv2_surface_dialog(HWND window) {
     SetForegroundWindow(window);
 }
 
+/* The game is SDL2-based; in exclusive fullscreen SDL minimizes the window when
+   it loses focus to our modal dialog, dropping the player to the desktop.  Turn
+   off SDL's minimize-on-focus-loss so the game stays fullscreen behind the
+   dialog.  SDL2.dll is already loaded by the game and re-reads the hint on
+   focus loss, so setting it before we show a dialog is enough.  Call this
+   BEFORE creating any dialog / message box. */
+static void vv2_prep_fullscreen(void) {
+    HMODULE sdl = GetModuleHandleA("SDL2.dll");
+    if (sdl != NULL) {
+        typedef int(__cdecl * set_hint_t)(const char *, const char *);
+        set_hint_t set_hint = (set_hint_t)GetProcAddress(sdl, "SDL_SetHint");
+        if (set_hint != NULL) {
+            set_hint("SDL_VIDEO_MINIMIZE_ON_FOCUS_LOSS", "0");
+        }
+    }
+}
+
 /* VV2 upgrade dialog: every row stays visible and buyable. The game re-checks
    the selected villager / village state at click time and no-ops with a
    message (no charge) when there is nothing to do, so no row is hidden or
@@ -118,6 +135,7 @@ __declspec(dllexport) int __stdcall ShowVV2UpgradeMenuState(
     int dialog_state
 ) {
     int resource = villager_menu ? IDD_VV2_VILLAGER : IDD_VV2_TECH;
+    vv2_prep_fullscreen();
     if (villager_menu) {
         dialog_state |= STATE_VILLAGER;
     }
