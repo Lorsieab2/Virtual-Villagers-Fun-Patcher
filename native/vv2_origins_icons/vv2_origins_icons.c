@@ -25,7 +25,7 @@ enum {
 enum {
     VV2_RES_SUCCESS = 0, VV2_RES_NO_CHANGE = 1, VV2_RES_INSUFFICIENT = 2,
     VV2_RES_INVALID = 3, VV2_RES_NO_SLOT = 4, VV2_RES_REMOVED = 5,
-    VV2_RES_PURCHASED = 6
+    VV2_RES_PURCHASED = 6, VV2_RES_POP_FULL = 7
 };
 __declspec(dllexport) void __stdcall ShowVV2UpgradeResult(
     int action, int status, unsigned int amount_a, unsigned int amount_b,
@@ -575,6 +575,11 @@ __declspec(dllexport) void __stdcall ShowVV2UpgradeResult(
         wsprintfA(message, "%s was removed. No refund was issued.", name);
     } else if (status == VV2_RES_PURCHASED) {
         wsprintfA(message, "%s was purchased.", name);
+    } else if (status == VV2_RES_POP_FULL) {
+        lstrcpyA(message,
+                 "Village population is close to its maximum. The Barrel of "
+                 "Babies needs room for 3 children. No tech points have been "
+                 "deducted.");
     } else {
         lstrcpyA(message, "The action stopped without a verified charge.");
     }
@@ -583,6 +588,56 @@ __declspec(dllexport) void __stdcall ShowVV2UpgradeResult(
         GetForegroundWindow(), message, vv2_result_title(action),
         MB_OK | MB_ICONINFORMATION | MB_TOPMOST | MB_SETFOREGROUND
     );
+}
+
+/* ---- Barrel of Babies capacity gate ----------------------------------------
+   The Barrel event drops in 3 children, so before we cue it (and before any
+   tech points are deducted) confirm the village can actually hold 3 more.  We
+   ask the game the same question its own birth code asks: sub_425860 returns
+   the current population demand (living villagers plus pending / nursing
+   babies), and the cap the population predicate at 0x44B310 enforces is 90
+   plus a collection bonus -- each of the four 12-item collections adds 5, and
+   all four complete counts as 25 rather than 20.  If fewer than 3 slots
+   remain, show the "close to maximum" notice and return 0 so the payload skips
+   the charge and the cue; otherwise return 1.  `pool` is the Tech-menu game
+   object (EDI): it carries both the +0x305A4 record-pool chain sub_425860
+   walks and the +0x2E720 collectible flags sub_426120 reads. */
+typedef int(__fastcall *vv2_pop_demand_t)(void *pool, int edx_ignored);
+typedef char(__fastcall *vv2_collection_done_t)(
+    void *pool, int edx_ignored, int start
+);
+
+__declspec(dllexport) int __stdcall GateVV2Barrel(void *pool) {
+    vv2_pop_demand_t population_demand =
+        (vv2_pop_demand_t)(UINT_PTR)0x00425860;
+    vv2_collection_done_t collection_done =
+        (vv2_collection_done_t)(UINT_PTR)0x00426120;
+    int demand;
+    int bonus = 0;
+    if (pool == 0) {
+        return 0;
+    }
+    demand = population_demand(pool, 0);
+    if (collection_done(pool, 0, 0x00)) {
+        bonus += 5;
+    }
+    if (collection_done(pool, 0, 0x0C)) {
+        bonus += 5;
+    }
+    if (collection_done(pool, 0, 0x18)) {
+        bonus += 5;
+    }
+    if (collection_done(pool, 0, 0x24)) {
+        bonus += 5;
+    }
+    if (bonus == 20) {
+        bonus = 25;
+    }
+    if (demand + 3 > 90 + bonus) {
+        ShowVV2UpgradeResult(VV2_ACT_BARREL, VV2_RES_POP_FULL, 0, 0, 0, 0);
+        return 0;
+    }
+    return 1;
 }
 
 /* ---- Change Appearance chooser (213) ---- */

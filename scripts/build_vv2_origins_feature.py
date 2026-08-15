@@ -143,6 +143,20 @@ DETAIL_NOCHANGE_FILE_OFFSET = 0x9A380
 DETAIL_NOCHANGE_VA = IMAGE_BASE + SHR_RVA + (
     DETAIL_NOCHANGE_FILE_OFFSET - SHR_FILE_OFFSET
 )
+# Barrel of Babies capacity gate.  Before the Barrel is cued (and before any
+# charge), the Tech menu hands the player object to the companion DLL's
+# GateVV2Barrel, which reads the current population demand (sub_425860) and the
+# collection-dependent cap the game itself enforces (base 90 plus the same
+# 0-25 collection bonus the population predicate at 0x44B310 computes) and, when
+# fewer than 3 slots remain for the Barrel's 3 children, shows the "close to
+# maximum" notice and reports no room so the payload charges nothing.  A tiny
+# .shr stub does the LoadLibrary / GetProcAddress handshake; it lives in the
+# free tail of the dispatch slot (the dispatch stub's old 0x9AF58 home).
+BARREL_GATE_FILE_OFFSET = 0x9AF58
+BARREL_GATE_VA = IMAGE_BASE + SHR_RVA + (
+    BARREL_GATE_FILE_OFFSET - SHR_FILE_OFFSET
+)
+BARREL_GATE_EXPORT_BYTES = b"GateVV2Barrel\0"
 
 # VV2 villager record fields (exact-build appearance audit).
 VV2_HEAD_FIELD = 0x548
@@ -607,40 +621,35 @@ def main() -> None:
         barrel_capacity_preflight:
             cmp byte ptr [0x{BARREL_PENDING_VA:X}], 0
             jne menu_done
-            sub esp, 0x50D8
-            mov ebp, esp
-            # The Tech menu's EDI is already the VV2 state object loaded from
-            # [ESI+0x0C], matching stock state-local callers of sub_425860.
-            # Its first dereference is [ECX+0x305A4], so reject an
-            # uninitialized record-pool chain before calling the helper.
+            # The Tech menu's EDI is the VV2 player object loaded from [ESI+0x0C].
+            # Its first dereference is [ECX+0x305A4], so reject an uninitialized
+            # record-pool chain before the DLL reads population.
             mov ecx, edi
             test ecx, ecx
             jz barrel_capacity_unavailable
             cmp dword ptr [ecx + 0x305A4], 0
             jz barrel_capacity_unavailable
-            call 0x425860
-            cmp eax, 254
-            jae barrel_capacity_low
+            # Ask the companion DLL whether the village can hold 3 more villagers
+            # (it reads current demand and the real, collection-dependent cap).
+            # EAX = 0 means full: it already showed the "close to maximum" notice,
+            # so charge nothing.  EAX = 1 means there is room for all 3 children.
+            push edi
+            call 0x{BARREL_GATE_VA:X}
+            test eax, eax
+            jz menu_done
             mov eax, dword ptr [0x{s['tech_costs']:X} + ebx*4]
             cmp dword ptr [edi + 0x2EADC], eax
             jb barrel_insufficient
             sub dword ptr [edi + 0x2EADC], eax
-            add esp, 0x50D8
             mov byte ptr [0x{BARREL_PENDING_VA:X}], 1
             push 0
             push ebx
             call 0x{RESULT_HELPER_VA:X}
             jmp menu_done
-        barrel_capacity_low:
-            add esp, 0x50D8
-            mov eax, 0x{s['population_capacity']:X}
-            jmp show_status
         barrel_insufficient:
-            add esp, 0x50D8
             mov eax, 0x{s['not_enough']:X}
             jmp show_status
         barrel_capacity_unavailable:
-            add esp, 0x50D8
             mov eax, 0x{s['population_capacity']:X}
             jmp show_status
 
@@ -1687,10 +1696,56 @@ def main() -> None:
         + age_export_bytes
         + collections_export_bytes
     )
-    if DISPATCH_FILE_OFFSET + len(dispatch_block) > 0x9B000:
+    if DISPATCH_FILE_OFFSET + len(dispatch_block) > BARREL_GATE_FILE_OFFSET:
         raise RuntimeError(
-            f"dispatch stub overruns the .shr reserve: "
-            f"0x{DISPATCH_FILE_OFFSET + len(dispatch_block):X} > 0x9B000"
+            f"dispatch stub overruns the Barrel-gate slot: "
+            f"0x{DISPATCH_FILE_OFFSET + len(dispatch_block):X} > "
+            f"0x{BARREL_GATE_FILE_OFFSET:X}"
+        )
+    # Barrel capacity-gate stub: entered as (pool) -> EAX 1 = room for the
+    # Barrel's 3 children, 0 = full (the DLL already showed the "close to
+    # maximum" notice) or the companion DLL is missing.  Mirrors the dispatch /
+    # result stubs' LoadLibrary + GetProcAddress handshake, then calls the
+    # GateVV2Barrel export (which does the population read and cap math).  The
+    # export-name string is packed right after the code; assembling once with a
+    # placeholder VA fixes the code length, then the real string VA.
+    def _barrel_gate_src(export_va: int) -> str:
+        return f"""
+            push esi
+            mov esi, dword ptr [esp + 8]
+            push 0x{s['icons_dll']:X}
+            call dword ptr [0x474010]
+            test eax, eax
+            je bg_block
+            push 0x{export_va:X}
+            push eax
+            call dword ptr [0x4740D4]
+            test eax, eax
+            je bg_block
+            push esi
+            call eax
+            pop esi
+            ret 4
+        bg_block:
+            xor eax, eax
+            pop esi
+            ret 4
+        """
+
+    _bg_placeholder = BARREL_GATE_VA + 0x100
+    barrel_gate_len = len(
+        assemble(_barrel_gate_src(_bg_placeholder), BARREL_GATE_VA)
+    )
+    barrel_gate_export_va = BARREL_GATE_VA + barrel_gate_len
+    barrel_gate_code = assemble(
+        _barrel_gate_src(barrel_gate_export_va), BARREL_GATE_VA
+    )
+    assert len(barrel_gate_code) == barrel_gate_len
+    barrel_gate_block = barrel_gate_code + BARREL_GATE_EXPORT_BYTES
+    if BARREL_GATE_FILE_OFFSET + len(barrel_gate_block) > 0x9B000:
+        raise RuntimeError(
+            f"Barrel-gate stub overruns the .shr reserve: "
+            f"0x{BARREL_GATE_FILE_OFFSET + len(barrel_gate_block):X} > 0x9B000"
         )
     # Result trampoline: payload success/doubler paths call this with
     # (action, status); it forwards to the DLL's ShowVV2UpgradeResult so the
@@ -1937,6 +1992,12 @@ def main() -> None:
         b"\0" * len(dispatch_block),
         dispatch_block,
         "route Grant Running, Grant Full Mastery, and Complete/Reset Collections to their companion-DLL exports (the DLL counts, applies, and reports; Collections also fires or re-arms the group goals)",
+    )
+    patch(
+        BARREL_GATE_FILE_OFFSET,
+        b"\0" * len(barrel_gate_block),
+        barrel_gate_block,
+        "gate the Barrel of Babies on real village capacity by handing the player object to the companion DLL's GateVV2Barrel, which refuses (message, no charge) when fewer than 3 population slots remain",
     )
 
     patch(
