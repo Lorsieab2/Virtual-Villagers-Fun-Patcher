@@ -157,21 +157,26 @@ static struct {
     int is_old;   /* displayed age >= VV_OLD_AGE_THRESHOLD */
 } appearance_state;
 
-BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved) {
-    (void)reserved;
-    if (reason == DLL_PROCESS_ATTACH) {
+/* GDI+ must NOT be started from DllMain: GdiplusStartup is unsupported under the
+   loader lock and can deadlock while loading its dependencies. Initialize it
+   lazily the first time the appearance picker (the only GDI+ user) runs. The
+   process-exit teardown is likewise left to the OS rather than GdiplusShutdown
+   from DllMain. */
+static void vv4_ensure_gdiplus(void) {
+    if (gdiplus_token == 0) {
         struct GdiplusStartupInputC input;
-        module_instance = instance;
         input.GdiplusVersion = 1;
         input.DebugEventCallback = NULL;
         input.SuppressBackgroundThread = FALSE;
         input.SuppressExternalCodecs = FALSE;
         GdiplusStartup(&gdiplus_token, &input, NULL);
-    } else if (reason == DLL_PROCESS_DETACH) {
-        if (gdiplus_token) {
-            GdiplusShutdown(gdiplus_token);
-            gdiplus_token = 0;
-        }
+    }
+}
+
+BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved) {
+    (void)reserved;
+    if (reason == DLL_PROCESS_ATTACH) {
+        module_instance = instance;
     }
     return TRUE;
 }
@@ -548,6 +553,7 @@ __declspec(dllexport) int __stdcall ShowOriginsAppearancePicker(
     if (villager == NULL) {
         return 0;
     }
+    vv4_ensure_gdiplus();
     appearance_state.villager = villager;
     appearance_state.original_head = *(int *)(villager + VV_HEAD_OFFSET);
     appearance_state.original_body = *(int *)(villager + VV_CLOTHING_OFFSET);
