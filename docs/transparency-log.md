@@ -332,7 +332,7 @@ Dropping an active, living, non-nursing villager on the robe sends every other a
 - Explicit non-changes/exclusions: Dead, inactive, and nursing villagers are skipped. The unchanged stock callback remains responsible for success/failure, Chief clothing, Chief state, puzzle mutation, and candidate selection for every villager. The wrapper does not read or write candidate fields +0xE80/+0xE88 or change pregnancy/nursing state, health, age, skills, preferences, or saved record layout.
 - Dependencies: none
 - Evidence status: independently reviewed exact-build static implementation; install/uninstall and current-mode composition are automated, while player runtime confirmation remains pending
-- Guarded executable edits: 2; every edit has an exact purpose and before/after guard in the manifest.
+- Guarded executable edits: 3; every edit has an exact purpose and before/after guard in the manifest.
 - Mode-specific guarded edits: collection_progression=1, immediate_fixed=1; these rows are selected only for the named population mode.
 
 #### Nature Level 1 Actually Replenishes Food Sources Faster (`vv3_nature_honey_refill`)
@@ -416,7 +416,7 @@ Adds Origins-style Upgrades buttons to the Tech and Villager Details screens. Th
 - Doubler composition contract: {'stacking': ['positive earned tech deltas only', 'positive food-source deltas only'], 'exclusions': ['Island Event tech-point gain', 'Duplicate Collectibles tech-point gain'], 'food_mastery_status': 'confirmed in exact-build disassembly; native transform documented in doubler evidence', 'status': 'GO: positive writer wrappers double eligible positive deltas once after native adjustments; duplicate collectibles and audited Island Event paths remain native; runtime/player confirmation pending'}
 - Doubler purchase status: {'new_purchase': 'available at 500,000 tech points for each doubler', 'existing_owned': 'removable at zero cost with zero refund', 'repurchase': 'available again at 500,000 tech points after removal'}
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending
-- Guarded executable edits: 23; every edit has an exact purpose and before/after guard in the manifest.
+- Guarded executable edits: 25; every edit has an exact purpose and before/after guard in the manifest.
 
 #### Write Village Statistics to Text File (`vv4_write_village_statistics`)
 
