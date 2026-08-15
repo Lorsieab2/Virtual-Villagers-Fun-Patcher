@@ -12,11 +12,26 @@
 /* Change Appearance preview strips: each is a single 40x1300 column, one
    40x65 cell per villager-record head/body index (0..19), built from the
    stock game's own art by scripts/build_vv1_appearance_bitmaps.py -- see
-   that script for the decompiled proof of the cell geometry. */
+   that script for the decompiled proof of the cell geometry.
+
+   VV2-only guard: vv2_origins_icons.rc #includes this file for the
+   shared icons (101-110) but defines its own complete set of Change
+   Appearance bitmaps and its own dialog (213) at these exact same
+   resource IDs (3001/3002/3011/3012, matching VV1's own numbering,
+   copied from VV1's convention rather than picking a disjoint range).
+   Without this guard, a VV2 build fails outright with CVT1100
+   "duplicate resource, type:BITMAP, name:3001" -- and simply
+   renumbering VV1's IDs to dodge the collision would still leave every
+   VV2-built DLL carrying four unused VV1 bitmaps for no reason, since
+   VV2 never uses VV1's own Change Appearance resources at all (see the
+   matching guard around dialog 203 below). VVFP_VV2_BUILD is defined
+   by vv2_origins_icons.rc itself, before its #include of this file. */
+#ifndef VVFP_VV2_BUILD
 3001 BITMAP "appearance/head_m.bmp"
 3002 BITMAP "appearance/head_f.bmp"
 3011 BITMAP "appearance/body_m.bmp"
 3012 BITMAP "appearance/body_f.bmp"
+#endif
 
 #define DS_MODALFRAME 0x0080L
 #define DS_SETFONT 0x0040L
@@ -130,6 +145,14 @@ BEGIN
     DEFPUSHBUTTON "Cancel", 2, 120, 183, 70, 14
 END
 
+/* VV1-only: VV2 defines its own Change Appearance chooser (dialog 213 in
+   vv2_origins_icons.rc) and never calls ShowOriginsAppearancePicker (the
+   VV1 export that shows this dialog) -- it isn't even in VV2's own .def
+   export list, so a VV2-built DLL can never actually reach it at
+   runtime. Guarded alongside the bitmaps above purely to keep a VV2
+   build from carrying this unused dialog and its (already-guarded)
+   art. */
+#ifndef VVFP_VV2_BUILD
 203 DIALOGEX 0, 0, 250, 196
 STYLE DS_MODALFRAME | DS_SETFONT | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Change Appearance"
@@ -149,3 +172,4 @@ BEGIN
     DEFPUSHBUTTON "OK",     1, 66, 168, 50, 16
     PUSHBUTTON    "Cancel", 2, 134, 168, 50, 16
 END
+#endif
