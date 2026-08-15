@@ -131,22 +131,22 @@ static void center_dialog_on_owner(HWND dialog) {
    leave/enter pair turned out to live inside a byte range this repo's
    own Origins village-wide payload already claims as scratch cave
    space, so on a patched build that address no longer holds what it
-   holds in the stock exe -- not a safe address to touch here). The
-   "still black after close" half is fixable without touching any of
-   that: Windows' compositor does not automatically know to re-fetch
-   the owner window's already-rendered content once a modal releases
-   it, so this just asks Windows to repaint the owner -- standard,
-   documented Win32 behavior, nothing SDL- or game-specific. */
-static void force_owner_repaint(HWND owner) {
-    if (owner != NULL && IsWindow(owner)) {
-        RedrawWindow(
-            owner,
-            NULL,
-            NULL,
-            RDW_INVALIDATE | RDW_ERASE | RDW_UPDATENOW | RDW_ALLCHILDREN | RDW_FRAME
-        );
-    }
-}
+   holds in the stock exe -- not a safe address to touch here).
+
+   A follow-up attempt at the "still black after close" half -- forcing
+   a synchronous RedrawWindow(..., RDW_UPDATENOW | RDW_FRAME) on the
+   owner right after DialogBoxParamA returns -- was tried and reverted:
+   playtesting showed it hangs the whole game (confirmed via process
+   inspection: no crash dialog, just an unresponsive process that had
+   to be force-closed), almost certainly because forcing a synchronous
+   repaint of a fullscreen SDL window from inside this DLL's own call
+   stack, before the game's own loop/render context has had a chance to
+   resume on its own, reenters something in SDL's or the driver's
+   fullscreen present path that isn't safe to call from here. Left
+   unfixed rather than guessing again at a softer flag combination with
+   no way to test it without another live hang -- same reasoning as the
+   suspend/resume revert above: only touch this again with an actual
+   debugger attached. */
 
 enum {
     IDD_ORIGINS_TECH = 201,
@@ -282,7 +282,6 @@ static int show_upgrade_menu(int villager_menu, int dialog_state) {
         upgrade_dialog,
         dialog_state
     );
-    force_owner_repaint(owner);
     return result;
 }
 
@@ -437,7 +436,6 @@ __declspec(dllexport) int __stdcall ShowOriginsAppearancePicker(
         appearance_dialog,
         (LPARAM)(UINT_PTR)villager
     );
-    force_owner_repaint(owner);
     return result;
 }
 
