@@ -274,7 +274,12 @@ static INT_PTR CALLBACK upgrade_dialog(
             char label[16];
             label[0] = '\0';
             GetDlgItemTextA(window, command, label, (int)sizeof(label));
+            /* The village-wide Running row (tech row 6) uses its own
+               VV5-task9-style confirmation with counts and cost, shown from
+               the payload after a dry run -- so skip the generic warning for
+               it to avoid a double prompt. */
             if (lstrcmpA(label, "Buy") == 0
+                && command != (unsigned int)(ID_BUY_FIRST + 6)
                 && MessageBoxA(
                        window,
                        "This upgrade makes permanent changes to your village. "
@@ -523,6 +528,84 @@ __declspec(dllexport) int __stdcall ShowOriginsUpgradeMenu(
     return show_upgrade_menu(villager_menu, dialog_state);
 }
 
+/* ---- Village-wide dry-run counting (for VV5-task9-style confirms) ---- */
+#define VV_RECORD_BASE       0x50E5AC
+#define VV_RECORD_STRIDE     0x2E3C
+#define VV_RECORD_COUNT_ADDR 0x42001C   /* record-array capacity (150) */
+#define VV_ACTIVE_OFFSET     0x1CC4
+#define VV_DEAD_OFFSET       0x1CC7
+#define VV_HEALTH_OFFSET     0x1C40
+#define VVW_LIKES_OFFSET     0x1E60
+#define VV_SKILL0_OFFSET     0x1C5C
+#define VV_DISPLAY_AGE_OFF   0x1B8C
+#define VV_RUNNING_PREF      38
+#define VV_LIKE_SLOTS        3
+#define VV_SKILL_COUNT       5
+#define VV_MASTER_VALUE      0x42C80000  /* float 100.0 */
+#define VV_AGE_18            360         /* 20 displayed units per year */
+
+static int vv_record_total(void) { return *(int *)VV_RECORD_COUNT_ADDR; }
+static unsigned char *vv_record(int i) {
+    return (unsigned char *)(VV_RECORD_BASE + (unsigned)i * VV_RECORD_STRIDE);
+}
+static int vv_eligible(const unsigned char *r) {
+    return r[VV_ACTIVE_OFFSET] != 0 && r[VV_DEAD_OFFSET] == 0
+        && *(const int *)(r + VV_HEALTH_OFFSET) > 0;
+}
+
+/* How many eligible villagers would newly gain a Running like (not already
+   liking it, and with a free Like slot). */
+static int vv_count_running_grant(void) {
+    int total = vv_record_total(), i, n = 0;
+    for (i = 0; i < total; ++i) {
+        const unsigned char *r = vv_record(i);
+        const int *likes;
+        int s, already = 0, free_slot = 0;
+        if (!vv_eligible(r)) continue;
+        likes = (const int *)(r + VVW_LIKES_OFFSET);
+        for (s = 0; s < VV_LIKE_SLOTS; ++s) {
+            if (likes[s] == VV_RUNNING_PREF) { already = 1; break; }
+            if (likes[s] == -1) free_slot = 1;
+        }
+        if (!already && free_slot) ++n;
+    }
+    return n;
+}
+
+/* Confirmation shown before charging a village-wide upgrade. Dry-runs the
+   effect: if nothing would change, it reports that with no charge and returns
+   0; otherwise it shows the count and cost and returns 1 only when the player
+   presses OK. Commands not yet converted to this flow return 1 (proceed). */
+__declspec(dllexport) int __stdcall ConfirmOriginsVillageWide(int command) {
+    char message[256];
+    if (command == 6) {
+        int granted = vv_count_running_grant();
+        if (granted == 0) {
+            MessageBoxA(
+                GetForegroundWindow(),
+                "Every villager already likes Running. "
+                "No tech points have been deducted.",
+                "Origins Upgrades",
+                MB_OK | MB_ICONINFORMATION
+            );
+            return 0;
+        }
+        wsprintfA(
+            message,
+            "Grant Running will teach %d villagers to like Running for "
+            "1,000,000 tech points. Press OK to confirm, or Cancel.",
+            granted
+        );
+        return MessageBoxA(
+            GetForegroundWindow(),
+            message,
+            "Origins Upgrades",
+            MB_OKCANCEL | MB_ICONQUESTION
+        ) == IDOK;
+    }
+    return 1;
+}
+
 __declspec(dllexport) int __stdcall ShowOriginsVillageWideResult(
     int command,
     int granted,
@@ -530,15 +613,13 @@ __declspec(dllexport) int __stdcall ShowOriginsVillageWideResult(
     int removed_running_dislike
 ) {
     char message[192];
+    (void)already_running_skipped;
     if (command == 6) {
-        /* VV2 chat's canonical Running wording. */
         wsprintfA(
             message,
-            "Granted Running to %d villagers"
-            "\r\nSkipped over %d villagers. Reason: already likes running"
-            "\r\nRemoved running dislike from %d villagers",
+            "Taught %d villagers to like Running. "
+            "Removed the Running dislike from %d villagers.",
             granted,
-            already_running_skipped,
             removed_running_dislike
         );
         MessageBoxA(

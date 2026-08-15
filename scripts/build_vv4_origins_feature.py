@@ -1013,17 +1013,17 @@ def main() -> None:
             jne preflight_invalid
             cmp dword ptr [0x{VILLAGE_WIDE_SIGNATURE_VA + 0x1C:X}], 0
             jne preflight_invalid
-            mov eax, 0x{s['show_result_export']:X}
             push 0x{s['icons_dll']:X}
             call dword ptr [0x48A1E0]
             test eax, eax
             je preflight_invalid
-            push 0x{s['show_result_export']:X}
+            push 100
             push eax
             call dword ptr [0x48A1DC]
             test eax, eax
             je preflight_invalid
-            mov eax, 1
+            push ebx
+            call eax
             ret
         preflight_invalid:
             xor eax, eax
