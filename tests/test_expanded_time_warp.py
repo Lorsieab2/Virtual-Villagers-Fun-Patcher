@@ -161,8 +161,8 @@ class ExpandedTimeWarpArtifactTests(unittest.TestCase):
         task9 = builder.load_task9_builder()
         stock, stock_map = task9.build_page(0x7C9000)
         expanded, expanded_map = task9.build_page(0x904000)
-        self.assertEqual(digest(stock), "2DB52B3729516C10D1F35B97C0313FF94DE599A251F8CDAE1495739832494A78")
-        self.assertEqual(digest(expanded), "24D7B0BC8B80A2221515A0DB96398230351E94450E75DE09DB4F1E68277FC664")
+        self.assertEqual(digest(stock), "E4C7685512A4B25ACDF827E641A01056B9588AA429AA89F7AEC7C99C4BDE2EF0")
+        self.assertEqual(digest(expanded), "06FE23F6975D0AC9E12D54F91831A202DC1ABAE82823233DD2F5F851BE2F8589")
         self.assertEqual(task9.SIZES["age"], 0x300)
         self.assertEqual(task9.OFF["time_warp"], 0x1040)
         self.assertEqual(task9.SIZES["time_warp"], 0x500)
@@ -183,7 +183,7 @@ class ExpandedTimeWarpArtifactTests(unittest.TestCase):
         patches, layout = builder.build_vv5_overlay()
         self.assertEqual(
             [row["offset"] for row in patches],
-            ["0xF4846", "0xF48AB", "0xF5040", "0xFB09A"],
+            ["0xF4846", "0xF48AB", "0xF5040", "0xFB0C9"],
         )
         rendered = bytearray(base)
         for row in patches:

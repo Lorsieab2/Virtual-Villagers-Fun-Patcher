@@ -238,6 +238,9 @@ def build_strings(page: bytearray, page_va: int) -> dict[str, int]:
         ("status_export", b"ShowVV5Task9Result\0"),
         ("sdl", b"SDL2.dll\0"),
         ("flags", b"SDL_GetWindowFlags\0"),
+        ("sethint", b"SDL_SetHint\0"),
+        ("min_hint", b"SDL_VIDEO_MINIMIZE_ON_FOCUS_LOSS\0"),
+        ("hint_zero", b"0\0"),
     )
     # These self-contained event strings live in the stock layout only, so the
     # expanded-256 baseline string region stays byte-identical for its overlay.
@@ -338,6 +341,20 @@ def build_modal(page: bytearray, page_va: int, s: dict[str, int]) -> dict[str, b
             call eax
             test eax, eax
             jz end_owner
+            push 0x{s['sdl']:X}
+            call dword ptr [0x4951D8]
+            test eax, eax
+            jz invoke
+            push 0x{s['sethint']:X}
+            push eax
+            call dword ptr [0x4951DC]
+            test eax, eax
+            jz invoke
+            push 0x{s['hint_zero']:X}
+            push 0x{s['min_hint']:X}
+            call eax
+            add esp, 8
+        invoke:
             mov ecx, dword ptr [ebp-0x14]
             call dword ptr [ebp-0x10]
             mov dword ptr [ebp-0x2C], eax
