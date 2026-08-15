@@ -64,6 +64,17 @@ BARREL_CLOSE_HELPER_FILE_OFFSET = 0x8B900
 BARREL_CLOSE_HELPER_VA = IMAGE_BASE + SHR_RVA + (
     BARREL_CLOSE_HELPER_FILE_OFFSET - SHR_FILE_OFFSET
 )
+# Villager Details "Change Appearance" -- resolves and calls the icons DLL's
+# picker export. Placed here (well past the Barrel close helper, which ends
+# well under 0x8B980) rather than inline in detail_menu's own code cave:
+# that cave's remaining slack (recomputed after this session's doubler-fix
+# additions) is far too small for a full LoadLibrary/GetProcAddress call
+# with real failure handling, while .shr has ~1.7KB genuinely unused past
+# the last Barrel helper.
+APPEARANCE_HELPER_FILE_OFFSET = 0x8BA00
+APPEARANCE_HELPER_VA = IMAGE_BASE + SHR_RVA + (
+    APPEARANCE_HELPER_FILE_OFFSET - SHR_FILE_OFFSET
+)
 RUNNING_PREFERENCE_ID = 38  # exact-build preference-table evidence: 0x7B260
 VV1_NATIVE_SKILL_WRITER_VA = 0x437230
 VV1_SKILL_FIELDS = (
@@ -122,12 +133,6 @@ def main() -> None:
     add_c_string(
         strings,
         s,
-        "doubler_unavailable",
-        "Unavailable: exact-build doubler behavior is not yet fully verified.",
-    )
-    add_c_string(
-        strings,
-        s,
         "event_queued",
         "Island Event queued.",
     )
@@ -149,6 +154,7 @@ def main() -> None:
     add_c_string(strings, s, "icons_dll", "VVFP VV1 Origins Icons.dll")
     add_c_string(strings, s, "show_icon_dialog_legacy", "ShowOriginsUpgradeMenu")
     add_c_string(strings, s, "show_result_export", "ShowOriginsVillageWideResult")
+    add_c_string(strings, s, "show_appearance_picker", "ShowOriginsAppearancePicker")
 
     tech_names = [
         s["name_time_warp"],
@@ -631,6 +637,8 @@ def main() -> None:
             imul ecx, ecx, 0x3D8
             mov edx, dword ptr [esi + 0x10]
             add edx, ecx
+            cmp ebx, 4
+            je detail_appearance
             cmp ebx, 2
             jne detail_charge
             lea eax, [edx + 0x398]
@@ -714,6 +722,14 @@ def main() -> None:
             mov dword ptr [edx + 0x3C4], 100
             mov dword ptr [edx + 0x3C8], 100
             mov dword ptr [edx + 0x3CC], 100
+            jmp detail_success
+
+        detail_appearance:
+            call 0x{APPEARANCE_HELPER_VA:X}
+            test eax, eax
+            je detail_loop
+            jmp detail_success
+
         detail_success:
             mov eax, 0x{s['purchase_complete']:X}
             jmp detail_show
@@ -970,6 +986,40 @@ def main() -> None:
         """,
         BARREL_CLOSE_HELPER_VA,
     )
+    appearance_helper_code = assemble(
+        f"""
+            cmp dword ptr [edi + 0xA2FC], 5000
+            jb appearance_insufficient
+            mov ebx, edx
+            push 0x{s['icons_dll']:X}
+            call dword ptr [0x457010]
+            test eax, eax
+            je appearance_fail
+            push 0x{s['show_appearance_picker']:X}
+            push eax
+            call dword ptr [0x4570D4]
+            test eax, eax
+            je appearance_fail
+            push ebx
+            call eax
+            test eax, eax
+            je appearance_fail
+            sub dword ptr [edi + 0xA2FC], 5000
+            mov eax, 1
+            ret
+        appearance_insufficient:
+            mov eax, 0x{s['not_enough']:X}
+            push 0
+            push 0x{s['detail_title']:X}
+            push eax
+            call 0x452DB6
+            add esp, 0x0C
+        appearance_fail:
+            xor eax, eax
+            ret
+        """,
+        APPEARANCE_HELPER_VA,
+    )
     patch(
         HEAL_CAVE_FILE_OFFSET,
         b"\0" * 5,
@@ -1005,6 +1055,12 @@ def main() -> None:
         b"\0" * len(barrel_close_helper_code),
         barrel_close_helper_code,
         "advance the purchased Barrel token only after the stock Technologies screen closes",
+    )
+    patch(
+        APPEARANCE_HELPER_FILE_OFFSET,
+        b"\0" * len(appearance_helper_code),
+        appearance_helper_code,
+        "resolve and invoke the icons DLL's Change Appearance picker export for the given villager",
     )
     patch(
         0x35ACA,

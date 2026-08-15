@@ -154,6 +154,12 @@ class App(tk.Tk):
             text="Created with Codex AI. Made with love by Lorsieab2 :)",
         ).pack(side="left")
         ttk.Label(credit_row, image=self.island_inline).pack(side="left", padx=(4, 0))
+        proofread_row = ttk.Frame(outer)
+        proofread_row.pack(anchor="w", pady=(0, 4))
+        ttk.Label(
+            proofread_row,
+            text="Proofread by Claude AI",
+        ).pack(side="left")
         ttk.Label(
             outer,
             text="Creates a verified complete copy of each game folder and adds the modified EXE there. Originals are never replaced.",

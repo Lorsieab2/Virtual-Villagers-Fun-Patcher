@@ -4,6 +4,38 @@ This document records the requirements and evidence boundary for the proposed
 appearance upgrades. It is a requirements contract only: no currently shipped
 patch advertises or implements these options.
 
+**Update:** VV1 Change Appearance (both the head field `+0x360` and the body/
+clothing field `+0x364`, gated by the villager's gender field `+0x350` --
+male villagers have 19 valid values (0-18) for each, everyone else has 20 --
+confirmed by decompiling the exact-build villager initializer) is now
+implemented as a row in the Villager Details "Upgrades" dialog, superseding
+the VV1 "ON HOLD" status recorded below. It costs exactly 5,000 tech points,
+charged once and only on a confirmed OK; Cancel or closing the picker
+reverts both fields to what they were before it opened; the compiled
+picker's gender-dependent range is verified directly against the DLL's own
+machine code (`native/vv1_origins_icons/vv1_origins_icons.c`,
+`ShowOriginsAppearancePicker`) in `tests/test_vv1_required_fixes.py`. The
+STOP boundary below remains current for VV3-VV5, which have not been
+implemented.
+
+**Update:** VV2 Change Appearance is likewise implemented, as a row in the
+Villager Details "Upgrades" dialog, by the Origins companion-DLL chooser
+(dialog 213; `native/vv2_origins_icons/vv2_origins_icons.c`,
+`ShowVV2AppearanceChooser`). It cycles the head field `+0x548` and the body/
+clothing field `+0x54C` (record stride `0xE48C`), each over `0..29`, using the
+sex- and age-appropriate atlas (VV2 stores sex as `1` male / `2` female, and
+age `>= 1100` selects the old-head atlas). It costs exactly 5,000 tech points,
+charged once and only on a confirmed OK that actually changes the head or
+body; opening the picker, pressing OK with nothing changed, or Cancel/close
+writes nothing and charges nothing, and changing the head first shows the
+required "Warning: This will change the villager's head genetics."
+confirmation. This is a deliberately shipped, player-verified feature that
+supersedes the VV2 "ON HOLD" status recorded below. The VV2 exact-build
+**native** transaction audit below (the native chooser `sub_4229D0`, native
+action 69) remains an accurate, unchanged record of that separate native
+track, which is *not* the implementation that shipped; it is retained as-is
+and makes no claim that the shipped DLL feature is absent.
+
 ## Exact supported executable builds
 
 | Game | Executable size | SHA-256 |

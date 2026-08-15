@@ -292,9 +292,38 @@ class AppearanceUpgradeRequirementsTests(unittest.TestCase):
                     "0x270", "0x28C", "0x28470", "0x56900",
                     "0x85D30", "0x8B009", "0x8B530", "0x8B710",
                     "0x35ACA", "0x8B900",
+                    # Villager Details "Change Appearance" row: a new
+                    # picker helper at 0x8BA00 (well past the Barrel
+                    # close helper, in .shr's otherwise-unused tail).
+                    "0x8BA00",
                 },
                 "data/vv2_origins_feature.json": {
                     "0x943A8", "0x9A009", "0x9A300", "0x9A530",
+                    # Change Appearance: the new chooser helper lives at
+                    # 0x9AD20 (just past the optional village-wide payload).
+                    # Wiring its row into detail_menu grew that block, so the
+                    # tech/food/event payload helpers were relocated by 0x20
+                    # inside 0x943A8; their three tail-jump sites re-encode to
+                    # the new targets with identical behavior.
+                    "0x9AD20", "0x26290", "0x262B0", "0x34570", "0x9AE40",
+                    # Collections + counted Running/Mastery reports and the
+                    # cued Barrel: the Barrel main-village helper (0x9A780)
+                    # gained a cue-delay countdown, and a single DLL-dispatch
+                    # stub (0x9AF58, in the .shr tail after the whole-village
+                    # helper) now routes Grant Running / Grant Full Mastery /
+                    # Complete / Reset Collections to their companion-DLL
+                    # exports.  Tech-menu routing for those rows lives inside
+                    # 0x943A8.
+                    "0x9A780", "0x9AF58",
+                    # VV5 Task9-style prompts + no-charge-on-no-change + the
+                    # fullscreen-safe dialogs.  New .shr helpers: confirm/result
+                    # export strings (0x9A204/0x9A218) + result trampoline
+                    # (0x9A240) + Detail no-change helper (0x9A380, reusing the
+                    # dead Detail-preflight slot).  The DLL dispatch moved into
+                    # the dead whole-village slot (0x9AE40); its old 0x9AF58 slot
+                    # is now empty.  All confirm/result/no-change routing lives
+                    # inside the payload block (0x943A8).
+                    "0x9A204", "0x9A218", "0x9A240", "0x9A380",
                 },
                 "data/vv3_origins_feature.json": {"0x7B664", "0xA3180"},
                 "data/vv4_origins_feature.json": {

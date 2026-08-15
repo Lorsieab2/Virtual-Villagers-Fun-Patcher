@@ -52,6 +52,8 @@ DETAIL_PREFLIGHT_VA = IMAGE_BASE + SHR_RVA + (
 CURE_ENTRY_FILE_OFFSET = 0x9A530
 CURE_ENTRY_VA = IMAGE_BASE + SHR_RVA + (CURE_ENTRY_FILE_OFFSET - SHR_FILE_OFFSET)
 HEAL_CAVE_VA = CURE_ENTRY_VA
+# The Full Heal result-export name string trails the Cure code in its reserve.
+CURE_STRING_VA = CURE_ENTRY_VA + 0x1A0
 # The optional village-wide payload follows the base VV2 Origins helpers in
 # the .shr reserve at raw 0x9A800.  Its runtime address must use the mapped
 # .shr RVA, not IMAGE_BASE + raw file offset.
@@ -74,11 +76,97 @@ BARREL_MAIN_HELPER_FILE_OFFSET = 0x9A780
 BARREL_MAIN_HELPER_VA = IMAGE_BASE + SHR_RVA + (
     BARREL_MAIN_HELPER_FILE_OFFSET - SHR_FILE_OFFSET
 )
-BARREL_MAIN_HELPER_CODE = bytes.fromhex(
-    "803D00C74900027536C60500C749000081ECD8500000682C1A4B7F"
-    "6A028D4C2408E83A81F9FF6A00568D4C2408E81E53F6FF89E1E8"
-    "D769F9FF81C4D850000089F9E83A6AF6FFE92A22F9FF"
+# The Barrel of Babies event is a normal queued village event (enqueued through
+# the stock 0x401AD0 pipeline, exactly like the Island Event).  It used to be
+# marked "ready" the instant the Tech screen closed, so it played during the
+# menu-close transition and flashed by unreadably.  Instead the main-village
+# helper now counts down BARREL_CUE_FRAMES ticks of the per-frame village update
+# after the screen closes before enqueuing, so it plays cued during normal
+# gameplay.  The countdown lives in the reserved Barrel token region.
+BARREL_CUE_COUNTER_FILE_OFFSET = 0x9A708
+BARREL_CUE_COUNTER_VA = IMAGE_BASE + SHR_RVA + (
+    BARREL_CUE_COUNTER_FILE_OFFSET - SHR_FILE_OFFSET
 )
+BARREL_CUE_FRAMES = 90
+# Change Appearance helper: placed after the optional village-wide payload in
+# the .shr reserve (village-wide occupies 0x9A800..0x9AD20). The first 0x100
+# bytes hold the helper code; the export name string follows at +0x100.
+APPEARANCE_FILE_OFFSET = 0x9AD20
+APPEARANCE_VA = IMAGE_BASE + SHR_RVA + (APPEARANCE_FILE_OFFSET - SHR_FILE_OFFSET)
+APPEARANCE_STRING_VA = APPEARANCE_VA + 0x100
+
+# Whole-village Tech-screen upgrades (Running / Full Mastery / Age 18 for all
+# villagers). Placed after the Change Appearance helper in the .shr reserve.
+WHOLE_VILLAGE_FILE_OFFSET = 0x9AE40
+WHOLE_VILLAGE_VA = IMAGE_BASE + SHR_RVA + (
+    WHOLE_VILLAGE_FILE_OFFSET - SHR_FILE_OFFSET
+)
+COLLECTION_TECH_COST = 1000000
+# Single DLL-dispatch stub for the four village-wide upgrades that delegate to
+# the companion DLL: Grant Running (6) and Grant Full Mastery (7) hand the
+# certified record array (sub_44F4E0) to their counting/reporting exports, while
+# Complete (9) / Reset (10) all Collections hand the Tech-menu player object to
+# ApplyVV2Collections.  Placed in the free .shr tail after the whole-village
+# helper so it stays clear of the separate signed village-wide API block
+# (0x9A800..0x9AD20).  The 1,000,000 charge is done by the Tech menu.
+# Placed in the (now-dead) whole-village helper slot: Running/Mastery/Age/
+# Collections all run in the DLL now, so the old .shr whole-village writer is
+# unused and its 0x1C0-byte slot hosts the dispatch stub + its export strings.
+DISPATCH_FILE_OFFSET = 0x9AE40
+DISPATCH_VA = IMAGE_BASE + SHR_RVA + (DISPATCH_FILE_OFFSET - SHR_FILE_OFFSET)
+# The Task9-style OK/Cancel purchase confirm lives in the DLL (ConfirmVV2Upgrade).
+# Its export-name string can't fit the full payload string cave, so it sits in
+# the free .shr gap between the village-wide preflight and the Cure preflight.
+CONFIRM_EXPORT_FILE_OFFSET = 0x9A204
+CONFIRM_EXPORT_VA = IMAGE_BASE + SHR_RVA + (
+    CONFIRM_EXPORT_FILE_OFFSET - SHR_FILE_OFFSET
+)
+CONFIRM_EXPORT_BYTES = b"ConfirmVV2Upgrade\0"
+# Result-string export + a tiny .shr trampoline so the payload's simple success
+# and doubler paths can render Task9 result text ("<Action> completed.", etc.)
+# from the DLL instead of the old flat "Purchased." string.
+RESULT_EXPORT_FILE_OFFSET = 0x9A218
+RESULT_EXPORT_VA = IMAGE_BASE + SHR_RVA + (
+    RESULT_EXPORT_FILE_OFFSET - SHR_FILE_OFFSET
+)
+RESULT_EXPORT_BYTES = b"ShowVV2UpgradeResult\0"
+RESULT_HELPER_FILE_OFFSET = 0x9A240
+RESULT_HELPER_VA = IMAGE_BASE + SHR_RVA + (
+    RESULT_HELPER_FILE_OFFSET - SHR_FILE_OFFSET
+)
+# Per-row Detail no-change check.  Given (record, row) it decides whether the
+# purchase would change anything; if not it shows the row-specific no-change
+# message (via the result trampoline) and tells the payload to charge nothing.
+# Placed in the (now-dead) Detail preflight slot: the payload no longer calls
+# that generic preflight, so its 0x9A380..0x9A530 region hosts this helper.
+DETAIL_NOCHANGE_FILE_OFFSET = 0x9A380
+DETAIL_NOCHANGE_VA = IMAGE_BASE + SHR_RVA + (
+    DETAIL_NOCHANGE_FILE_OFFSET - SHR_FILE_OFFSET
+)
+# Barrel of Babies capacity gate.  Before the Barrel is cued (and before any
+# charge), the Tech menu hands the player object to the companion DLL's
+# GateVV2Barrel, which reads the current population demand (sub_425860) and the
+# real, mode-dependent cap the game's own predicate at 0x44B310 enforces.  That
+# cap is dynamic: the DLL reads the population-mode edits live (Stock base 90 +
+# 0-25 collections, Collection Progression base 231 + collections, Immediate
+# Fixed a flat 256), so it stays correct under whichever population mode the
+# player installed.  When fewer than 3 slots remain for the Barrel's 3 children
+# it shows the "close to maximum" notice and reports no room so the payload
+# charges nothing.  A tiny .shr stub does the LoadLibrary / GetProcAddress
+# handshake; it lives in the free tail of the dispatch slot (the dispatch
+# stub's old 0x9AF58 home).
+BARREL_GATE_FILE_OFFSET = 0x9AF58
+BARREL_GATE_VA = IMAGE_BASE + SHR_RVA + (
+    BARREL_GATE_FILE_OFFSET - SHR_FILE_OFFSET
+)
+BARREL_GATE_EXPORT_BYTES = b"GateVV2Barrel\0"
+
+# VV2 villager record fields (exact-build appearance audit).
+VV2_HEAD_FIELD = 0x548
+VV2_BODY_FIELD = 0x54C
+VV2_SEX_FIELD = 0x538
+VV2_APPEARANCE_COST = 5000
+
 RUNNING_PREFERENCE_ID = 38  # exact-build preference-table evidence: 0x8B808
 
 # Exact caller-return addresses proven by the VV2 stock executable audit.  The
@@ -156,7 +244,7 @@ def main() -> None:
         ),
         (
             "permanent_warning",
-            "This upgrade makes permanent changes to your village. Are you sure you want to continue?",
+            "This upgrade makes permanent changes to your village. Do you still want to purchase this?",
         ),
         ("running_unavailable", "Running cannot be added."),
         ("running_granted", "All villagers like running."),
@@ -165,7 +253,7 @@ def main() -> None:
             "No changes were needed. No tech points have been deducted.",
         ),
         ("icons_dll", "VVFP VV2 Origins Icons.dll"),
-        ("show_dialog_export", "ShowOriginsUpgradeMenuState"),
+        ("show_dialog_export", "ShowVV2UpgradeMenuState"),
         ("show_result_export", "ShowOriginsVillageWideResult"),
         ("user32_dll", "USER32.dll"),
         ("message_box_export", "MessageBoxA"),
@@ -199,9 +287,9 @@ def main() -> None:
     # Keep a full gap after the confirmation helper (0x210..0x251).
     tech_menu = PAYLOAD_VA + 0x260
     detail_menu = PAYLOAD_VA + 0x500
-    tech_increment = PAYLOAD_VA + 0x800
-    food_increment = PAYLOAD_VA + 0x880
-    event_dispatch = PAYLOAD_VA + 0x940
+    tech_increment = PAYLOAD_VA + 0x820
+    food_increment = PAYLOAD_VA + 0x8A0
+    event_dispatch = PAYLOAD_VA + 0x960
 
     code = bytearray(b"\0" * STRINGS_OFFSET)
     occupied = bytearray(b"\0" * STRINGS_OFFSET)
@@ -347,10 +435,6 @@ def main() -> None:
             call dword ptr [0x4740D4]
             test eax, eax
             je unavailable
-            cmp dword ptr [0x{VILLAGE_WIDE_SIGNATURE_VA:X}], 0x50465656
-            jne no_village_wide
-            or dword ptr [esp + 0x10], 0xA01C0
-        no_village_wide:
             push dword ptr [esp + 0x10]
             push dword ptr [esp + 0x10]
             call eax
@@ -393,35 +477,34 @@ def main() -> None:
         """,
     )
 
+    # Task9-style OK/Cancel purchase confirm.  Takes the action id (tech rows
+    # 0..10, detail rows 100..104) as its one stack argument and hands it to the
+    # DLL's ConfirmVV2Upgrade, which builds the "<Action> for N tech points?"
+    # box.  Returns 1 on OK, 0 on Cancel.
     put(
         confirm_dialog,
         f"""
             push ebx
             push esi
-            push 0x{s['user32_dll']:X}
+            push 0x{s['icons_dll']:X}
             call dword ptr [0x474010]
             test eax, eax
             je confirm_done
-            push 0x{s['message_box_export']:X}
+            push 0x{CONFIRM_EXPORT_VA:X}
             push eax
             call dword ptr [0x4740D4]
             test eax, eax
             je confirm_done
-            push 1
-            push 0x{s['tech_title']:X}
-            push 0x{s['permanent_warning']:X}
-            push 0
+            push dword ptr [esp + 0x0C]
             call eax
-            cmp eax, 1
-            sete al
-            movzx eax, al
-            jmp confirm_return
-        confirm_done:
-            xor eax, eax
-        confirm_return:
             pop esi
             pop ebx
-            ret
+            ret 4
+        confirm_done:
+            xor eax, eax
+            pop esi
+            pop ebx
+            ret 4
         """,
     )
 
@@ -451,21 +534,7 @@ def main() -> None:
             je menu_done
             mov ebx, eax
 
-            cmp ebx, 0
-            je confirm_tech_purchase
-            cmp ebx, 1
-            je confirm_tech_purchase
-            cmp ebx, 2
-            je confirm_tech_purchase
-            cmp ebx, 3
-            je confirm_tech_purchase
-            cmp ebx, 4
-            je confirm_tech_purchase
-            cmp ebx, 5
-            je confirm_tech_purchase
-            cmp ebx, 6
-            jne tech_purchase_ready
-        confirm_tech_purchase:
+            push ebx
             call 0x{confirm_dialog:X}
             test eax, eax
             jz menu_loop
@@ -485,14 +554,18 @@ def main() -> None:
             test dword ptr [edi + 0x2EAE8], 1
             jz preflight
             and dword ptr [edi + 0x2EAE8], 0xFFFFFFFE
-            mov eax, 0x{s['removed']:X}
-            jmp show_status
+            push 5
+            push ebx
+            call 0x{RESULT_HELPER_VA:X}
+            jmp menu_done
         maybe_remove_food:
             test dword ptr [edi + 0x2EAE8], 2
             jz preflight
             and dword ptr [edi + 0x2EAE8], 0xFFFFFFFD
-            mov eax, 0x{s['removed']:X}
-            jmp show_status
+            push 5
+            push ebx
+            call 0x{RESULT_HELPER_VA:X}
+            jmp menu_done
 
         preflight:
             cmp ebx, 0
@@ -509,31 +582,22 @@ def main() -> None:
         charge:
             cmp ebx, 6
             jb legacy_charge
-            cmp ebx, 8
-            ja unsupported_village_command
-            call 0x{VILLAGE_PREFLIGHT_VA:X}
-            cmp eax, 2
-            je village_no_change
-            cmp eax, 1
-            jne menu_loop
+            # ebx = 6 (Running), 7 (Full Mastery), 8 (Set All 18),
+            # 9 (Complete Collections), 10 (Reset Collections): require the
+            # 1,000,000, hand off to the DLL dispatch stub (it applies and shows
+            # its own result), then charge ONLY if it reports a real change in
+            # EAX.  No-change rows leave the balance untouched.
             cmp dword ptr [edi + 0x2EADC], 1000000
             jb insufficient
+            call 0x{DISPATCH_VA:X}
+            mov edi, dword ptr [esi + 0x0C]
+            test eax, eax
+            jz menu_done
             sub dword ptr [edi + 0x2EADC], 1000000
-            jmp do_village_wide
-        village_no_change:
-            mov eax, 0x{s['running_no_change']:X}
-            jmp show_status
-        unsupported_village_command:
-            mov eax, 0x{s['running_unavailable']:X}
-            jmp show_status
+            jmp menu_done
         legacy_charge:
             cmp ebx, 5
-            jne legacy_charge_ready
-            call 0x{CURE_PREFLIGHT_VA:X}
-            test eax, eax
-            jnz legacy_charge_ready
-            mov eax, 0x{s['running_no_change']:X}
-            jmp show_status
+            je do_cure
         legacy_charge_ready:
             mov eax, dword ptr [0x{s['tech_costs']:X} + ebx*4]
             cmp ebx, 2
@@ -560,41 +624,35 @@ def main() -> None:
         barrel_capacity_preflight:
             cmp byte ptr [0x{BARREL_PENDING_VA:X}], 0
             jne menu_done
-            sub esp, 0x50D8
-            mov ebp, esp
-            # The Tech menu's EDI is already the VV2 state object loaded from
-            # [ESI+0x0C], matching stock state-local callers of sub_425860.
-            # Its first dereference is [ECX+0x305A4], so reject an
-            # uninitialized record-pool chain before calling the helper.
+            # The Tech menu's EDI is the VV2 player object loaded from [ESI+0x0C].
+            # Its first dereference is [ECX+0x305A4], so reject an uninitialized
+            # record-pool chain before the DLL reads population.
             mov ecx, edi
             test ecx, ecx
             jz barrel_capacity_unavailable
             cmp dword ptr [ecx + 0x305A4], 0
             jz barrel_capacity_unavailable
-            call 0x425860
-            cmp eax, 254
-            jae barrel_capacity_low
+            # Ask the companion DLL whether the village can hold 3 more villagers
+            # (it reads current demand and the real, collection-dependent cap).
+            # EAX = 0 means full: it already showed the "close to maximum" notice,
+            # so charge nothing.  EAX = 1 means there is room for all 3 children.
+            push edi
+            call 0x{BARREL_GATE_VA:X}
+            test eax, eax
+            jz menu_done
             mov eax, dword ptr [0x{s['tech_costs']:X} + ebx*4]
             cmp dword ptr [edi + 0x2EADC], eax
             jb barrel_insufficient
             sub dword ptr [edi + 0x2EADC], eax
-            add esp, 0x50D8
-            mov eax, 0x{s['purchased']:X}
-            push eax
-            push 0x{s['tech_title']:X}
-            call 0x{show_message:X}
             mov byte ptr [0x{BARREL_PENDING_VA:X}], 1
+            push 0
+            push ebx
+            call 0x{RESULT_HELPER_VA:X}
             jmp menu_done
-        barrel_capacity_low:
-            add esp, 0x50D8
-            mov eax, 0x{s['population_capacity']:X}
-            jmp show_status
         barrel_insufficient:
-            add esp, 0x50D8
             mov eax, 0x{s['not_enough']:X}
             jmp show_status
         barrel_capacity_unavailable:
-            add esp, 0x50D8
             mov eax, 0x{s['population_capacity']:X}
             jmp show_status
 
@@ -628,8 +686,10 @@ def main() -> None:
         do_food_doubler:
             or dword ptr [edi + 0x2EAE8], 2
         success:
-            mov eax, 0x{s['purchased']:X}
-            jmp show_status
+            push 0
+            push ebx
+            call 0x{RESULT_HELPER_VA:X}
+            jmp menu_done
         insufficient:
             mov eax, 0x{s['not_enough']:X}
         show_status:
@@ -733,11 +793,16 @@ def main() -> None:
             je detail_done
             mov ebx, eax
 
-            cmp ebx, 3
-            ja detail_purchase_ready
+            lea eax, [ebx + 100]
+            push eax
             call 0x{confirm_dialog:X}
             test eax, eax
             jz detail_loop
+
+            cmp ebx, 4
+            jne detail_purchase_ready
+            call 0x{APPEARANCE_VA:X}
+            jmp detail_loop
         detail_purchase_ready:
 
             mov edi, dword ptr [esi + 0x0C]
@@ -749,11 +814,15 @@ def main() -> None:
             add edx, ecx
             cmp byte ptr [edx + 0x30], 0
             je detail_done
-            call 0x{DETAIL_PREFLIGHT_VA:X}
+            # Per-row no-change check (in .shr).  Returns 1 and shows the
+            # row-specific message when the purchase would change nothing (so we
+            # charge nothing); returns 0 to proceed to the charge.  EDX (the
+            # record) is preserved on the charge path.
+            push ebx
+            push edx
+            call 0x{DETAIL_NOCHANGE_VA:X}
             test eax, eax
-            jnz detail_charge
-            mov eax, 0x{s['running_no_change']:X}
-            jmp detail_status
+            jnz detail_loop
 
         detail_charge:
             mov eax, dword ptr [0x{s['detail_costs']:X} + ebx*4]
@@ -793,46 +862,12 @@ def main() -> None:
             jmp detail_success
 
         detail_mastery:
-            mov ebx, edx
-            mov eax, dword ptr [esi + 0x10]
-            call 0x44F4E0
-            test eax, eax
-            jz detail_mastery_failed
-            mov ebp, eax
-            lea ecx, [ebp + 0x52C]
-            cmp ecx, dword ptr [esi + 0x10]
-            jne detail_mastery_failed
-            mov esi, ebx
-            xor ebx, ebx
-        detail_mastery_loop:
-            cmp dword ptr [esi + ebx*4 + 0x7E4], 100
-            je detail_mastery_next
-            mov eax, 100
-            sub eax, dword ptr [esi + ebx*4 + 0x7E4]
-            push eax
-            mov eax, dword ptr [0x{s['vv2_skill_codes']:X} + ebx*4]
-            push eax
-            push dword ptr [edi + 0x304F0]
-            lea ecx, [ebp + 0x52C]
-            call 0x445430
-        detail_mastery_next:
-            inc ebx
-            cmp ebx, 5
-            jb detail_mastery_loop
-            cmp dword ptr [esi + 0x7E4], 100
-            jne detail_mastery_failed
-            cmp dword ptr [esi + 0x7E8], 100
-            jne detail_mastery_failed
-            cmp dword ptr [esi + 0x7EC], 100
-            jne detail_mastery_failed
-            cmp dword ptr [esi + 0x7F0], 100
-            jne detail_mastery_failed
-            cmp dword ptr [esi + 0x7F4], 100
-            jne detail_mastery_failed
+            mov dword ptr [edx + 0x7E4], 100
+            mov dword ptr [edx + 0x7E8], 100
+            mov dword ptr [edx + 0x7EC], 100
+            mov dword ptr [edx + 0x7F0], 100
+            mov dword ptr [edx + 0x7F4], 100
             jmp detail_success
-        detail_mastery_failed:
-            mov eax, 0x{s['mastery_failed']:X}
-            jmp detail_status
 
         detail_running:
             xor ebp, ebp
@@ -870,8 +905,11 @@ def main() -> None:
             dec eax
             jne running_dislike_loop
         detail_success:
-            mov eax, 0x{s['purchased']:X}
-            jmp detail_status
+            lea eax, [ebx + 100]
+            push 0
+            push eax
+            call 0x{RESULT_HELPER_VA:X}
+            jmp detail_loop
         detail_insufficient:
             mov eax, 0x{s['not_enough']:X}
         detail_status:
@@ -972,11 +1010,10 @@ def main() -> None:
             cmp ebx, 5
             je cure_all
             cmp ebx, 6
-            je running_village
+            jb unsupported_village
             cmp ebx, 8
             ja unsupported_village
-            or dword ptr [edi + 0x2EAE8], 2
-            ret
+            jmp running_village
         unsupported_village:
             mov eax, 0x{s['running_unavailable']:X}
             push eax
@@ -1039,12 +1076,12 @@ def main() -> None:
             push edx
             push esi
             push edi
-            xor eax, eax
+            xor ebx, ebx
+            xor ebp, ebp
             call 0x44F4E0
             test eax, eax
-            je cure_format
-            lea edx, [eax + 0x52C]
-            xor eax, eax
+            je cure_report
+            mov edx, eax
             mov ecx, 256
         cure_loop:
             cmp byte ptr [edx + 0x30], 0
@@ -1053,68 +1090,40 @@ def main() -> None:
             jle cure_next
             cmp byte ptr [edx + 0x558], 0
             jne cure_next
-            xor ebx, ebx
-            cmp dword ptr [edx + 0x52C], 80
+            cmp dword ptr [edx + 0x52C], 100
             jge cure_health_done
             mov dword ptr [edx + 0x52C], 100
-            mov ebx, 1
+            inc ebp
         cure_health_done:
             cmp dword ptr [edx + 0x53C], 0
-            je cure_changed_check
+            je cure_next
             mov dword ptr [edx + 0x53C], 0
             inc dword ptr [edi + 0x2E508]
-            mov ebx, 1
-        cure_changed_check:
-            test ebx, ebx
-            jz cure_next
-            inc eax
+            inc ebx
         cure_next:
             add edx, 0xE48C
             dec ecx
             jne cure_loop
-        cure_format:
-            mov ebp, eax
-            sub esp, 40
-            mov dword ptr [esp], 0x65727543
-            mov word ptr [esp + 4], 0x2064
-            lea edi, [esp + 6]
-            test ebp, ebp
-            jnz cure_digits
-            mov byte ptr [edi], 0x30
-            inc edi
-            jmp cure_suffix
-        cure_digits:
-            lea esi, [esp + 30]
-            mov eax, ebp
-            mov ebx, 10
-            xor ecx, ecx
-        cure_digit_loop:
-            xor edx, edx
-            div ebx
-            add dl, 0x30
-            dec esi
-            mov byte ptr [esi], dl
-            inc ecx
+            mov eax, ebx
+            or eax, ebp
+            jz cure_report
+            cmp dword ptr [edi + 0x2EADC], 30000
+            jb cure_report
+            sub dword ptr [edi + 0x2EADC], 30000
+        cure_report:
+            push 0x{s['icons_dll']:X}
+            call dword ptr [0x474010]
             test eax, eax
-            jne cure_digit_loop
-        cure_copy_loop:
-            mov dl, byte ptr [esi]
-            mov byte ptr [edi], dl
-            inc esi
-            inc edi
-            dec ecx
-            jne cure_copy_loop
-        cure_suffix:
-            mov byte ptr [edi], 0x20
-            mov dword ptr [edi + 1], 0x6C6C6976
-            mov dword ptr [edi + 5], 0x72656761
-            mov word ptr [edi + 9], 0x0073
-            lea eax, [esp]
+            je cure_ret
+            push 0x{CURE_STRING_VA:X}
             push eax
-            push 0x{s['tech_title']:X}
-            call 0x{show_message:X}
-            add esp, 8
-            add esp, 40
+            call dword ptr [0x4740D4]
+            test eax, eax
+            je cure_ret
+            push ebp
+            push ebx
+            call eax
+        cure_ret:
             pop edi
             pop esi
             pop edx
@@ -1124,6 +1133,15 @@ def main() -> None:
             ret
         """,
         HEAL_CAVE_VA,
+    )
+    if len(cure_code) > 0x1A0:
+        raise RuntimeError(
+            f"cure code is too large: {len(cure_code):#x}/0x1A0"
+        )
+    cure_block = (
+        cure_code
+        + b"\0" * (0x1A0 - len(cure_code))
+        + b"ShowVV2CureResult\0"
     )
     preflight_code = assemble(
         f"""
@@ -1276,7 +1294,7 @@ def main() -> None:
             call 0x44F4E0
             test eax, eax
             je cure_preflight_no_change
-            lea edx, [eax + 0x52C]
+            mov edx, eax
             mov ecx, 256
         cure_preflight_record:
             cmp byte ptr [edx + 0x30], 0
@@ -1285,7 +1303,7 @@ def main() -> None:
             jle cure_preflight_next
             cmp byte ptr [edx + 0x558], 0
             jne cure_preflight_next
-            cmp dword ptr [edx + 0x52C], 80
+            cmp dword ptr [edx + 0x52C], 100
             jl cure_preflight_change
             cmp dword ptr [edx + 0x53C], 0
             jne cure_preflight_change
@@ -1420,6 +1438,504 @@ def main() -> None:
         """,
         DETAIL_PREFLIGHT_VA,
     )
+    appearance_helper_code = assemble(
+        f"""
+            push ebp
+            mov ebp, esp
+            sub esp, 8
+            push ebx
+            push esi
+            push edi
+            mov edi, dword ptr [esi + 0x0C]
+            mov ecx, dword ptr [edi + 0x304F0]
+            cmp ecx, 0x100
+            jae appearance_done
+            imul ecx, ecx, 0xE48C
+            mov ebx, dword ptr [esi + 0x10]
+            add ebx, ecx
+            cmp byte ptr [ebx + 0x30], 0
+            je appearance_done
+            cmp dword ptr [ebx + 0x52C], 0
+            jle appearance_done
+            mov eax, dword ptr [ebx + 0x{VV2_HEAD_FIELD:X}]
+            mov dword ptr [ebp - 4], eax
+            mov eax, dword ptr [ebx + 0x{VV2_BODY_FIELD:X}]
+            mov dword ptr [ebp - 8], eax
+            push 0x{s['icons_dll']:X}
+            call dword ptr [0x474010]
+            test eax, eax
+            je appearance_done
+            push 0x{APPEARANCE_STRING_VA:X}
+            push eax
+            call dword ptr [0x4740D4]
+            test eax, eax
+            je appearance_done
+            lea ecx, [ebp - 8]
+            push ecx
+            lea ecx, [ebp - 4]
+            push ecx
+            push dword ptr [ebx + 0x530]
+            push dword ptr [ebx + 0x{VV2_SEX_FIELD:X}]
+            call eax
+            test eax, eax
+            je appearance_done
+            cmp byte ptr [ebx + 0x30], 0
+            je appearance_done
+            cmp dword ptr [ebx + 0x52C], 0
+            jle appearance_done
+            cmp dword ptr [edi + 0x2EADC], {VV2_APPEARANCE_COST}
+            jb appearance_insufficient
+            sub dword ptr [edi + 0x2EADC], {VV2_APPEARANCE_COST}
+            mov eax, dword ptr [ebp - 4]
+            mov dword ptr [ebx + 0x{VV2_HEAD_FIELD:X}], eax
+            mov eax, dword ptr [ebp - 8]
+            mov dword ptr [ebx + 0x{VV2_BODY_FIELD:X}], eax
+            jmp appearance_done
+        appearance_insufficient:
+            mov eax, 0x{s['not_enough']:X}
+            push eax
+            push 0x{s['detail_title']:X}
+            call 0x{show_message:X}
+        appearance_done:
+            pop edi
+            pop esi
+            pop ebx
+            mov esp, ebp
+            pop ebp
+            ret
+        """,
+        APPEARANCE_VA,
+    )
+    if len(appearance_helper_code) > 0x100:
+        raise RuntimeError(
+            f"appearance helper is too large: {len(appearance_helper_code):#x}/0x100"
+        )
+    appearance_block = (
+        appearance_helper_code
+        + b"\0" * (0x100 - len(appearance_helper_code))
+        + b"ShowVV2AppearanceChooser\0"
+    )
+    # Whole-village Tech upgrades applied directly (like Cure All): fetch the
+    # record array through the certified manager (0x44F4E0 -> base-0x52C) and
+    # write the proven fields for every active, living, non-special villager.
+    # ebx carries the command (6 = Running, 7 = Full Mastery, 8 = Age 18).
+    whole_village_code = assemble(
+        f"""
+            push ebp
+            push esi
+            push edi
+            push ebx
+            call 0x44F4E0
+            test eax, eax
+            je wv_done
+            mov edx, eax
+            mov ecx, 256
+            mov ebx, dword ptr [esp]
+        wv_loop:
+            cmp byte ptr [edx + 0x30], 0
+            je wv_next
+            cmp dword ptr [edx + 0x52C], 0
+            jle wv_next
+            cmp byte ptr [edx + 0x558], 0
+            jne wv_next
+            cmp ebx, 8
+            je wv_age
+            cmp ebx, 7
+            je wv_mastery
+            push ecx
+            xor ebp, ebp
+            mov esi, -1
+            lea edi, [edx + 0x5F0]
+            mov ecx, 62
+        wv_run_like:
+            cmp dword ptr [edi], {RUNNING_PREFERENCE_ID}
+            jne wv_run_notfound
+            mov ebp, 1
+        wv_run_notfound:
+            cmp dword ptr [edi], -1
+            jne wv_run_nextlike
+            cmp esi, -1
+            jne wv_run_nextlike
+            mov esi, edi
+        wv_run_nextlike:
+            add edi, 4
+            dec ecx
+            jne wv_run_like
+            test ebp, ebp
+            jnz wv_run_dislikes
+            cmp esi, -1
+            je wv_run_end
+            mov dword ptr [esi], {RUNNING_PREFERENCE_ID}
+        wv_run_dislikes:
+            lea edi, [edx + 0x6E8]
+            mov ecx, 62
+        wv_run_dis:
+            cmp dword ptr [edi], {RUNNING_PREFERENCE_ID}
+            jne wv_run_nextdis
+            mov dword ptr [edi], -1
+        wv_run_nextdis:
+            add edi, 4
+            dec ecx
+            jne wv_run_dis
+        wv_run_end:
+            pop ecx
+            jmp wv_next
+        wv_mastery:
+            mov dword ptr [edx + 0x7E4], 100
+            mov dword ptr [edx + 0x7E8], 100
+            mov dword ptr [edx + 0x7EC], 100
+            mov dword ptr [edx + 0x7F0], 100
+            mov dword ptr [edx + 0x7F4], 100
+            jmp wv_next
+        wv_age:
+            mov dword ptr [edx + 0x530], 360
+            mov dword ptr [edx + 0x534], 360
+            cmp dword ptr [edx + 0x540], 0
+            je wv_next
+            mov dword ptr [edx + 0x540], 318
+        wv_next:
+            add edx, 0xE48C
+            dec ecx
+            jne wv_loop
+        wv_done:
+            pop ebx
+            pop edi
+            pop esi
+            pop ebp
+            ret
+        """,
+        WHOLE_VILLAGE_VA,
+    )
+    if len(whole_village_code) > 0x1C0:
+        raise RuntimeError(
+            f"whole-village helper is too large: {len(whole_village_code):#x}/0x1C0"
+        )
+    # One DLL-dispatch stub shared by the four village-wide upgrades that
+    # delegate to the companion DLL.  Entered with EBX = command (6 Grant
+    # Running, 7 Grant Full Mastery, 9 Complete Collections, 10 Reset
+    # Collections) and EDI = the Tech-menu player object.  Running/Mastery pass
+    # the certified record array (sub_44F4E0) to their reporting exports;
+    # Collections pass the player object and the command as the mode.  The 1M
+    # charge is done by the Tech menu before this is called.  Export-name strings
+    # are packed tightly right after the code so the whole stub fits the .shr
+    # tail; because every `push imm32` is a fixed five bytes, assembling once
+    # with placeholder string VAs yields the final code length, which then fixes
+    # the real string addresses for a second, identical-length assembly.
+    def _dispatch_src(running_va: int, mastery_va: int, age_va: int,
+                      collections_va: int) -> str:
+        return f"""
+            push ebp
+            push esi
+            push edi
+            mov ebp, ebx
+            push 0x{s['icons_dll']:X}
+            call dword ptr [0x474010]
+            test eax, eax
+            je disp_done
+            mov esi, eax
+            cmp ebp, 9
+            jae disp_collections
+            mov eax, 0x{running_va:X}
+            cmp ebp, 6
+            je disp_name_ready
+            mov eax, 0x{mastery_va:X}
+            cmp ebp, 7
+            je disp_name_ready
+            mov eax, 0x{age_va:X}
+        disp_name_ready:
+            push eax
+            push esi
+            call dword ptr [0x4740D4]
+            test eax, eax
+            je disp_done
+            mov edi, eax
+            call 0x44F4E0
+            push eax
+            call edi
+            jmp disp_done
+        disp_collections:
+            mov eax, 0x{collections_va:X}
+            push eax
+            push esi
+            call dword ptr [0x4740D4]
+            test eax, eax
+            je disp_done
+            push ebp
+            push edi
+            call eax
+        disp_done:
+            pop edi
+            pop esi
+            pop ebp
+            ret
+        """
+
+    _placeholder = DISPATCH_VA + 0x100
+    dispatch_len = len(
+        assemble(
+            _dispatch_src(_placeholder, _placeholder, _placeholder, _placeholder),
+            DISPATCH_VA,
+        )
+    )
+    running_export_bytes = b"ApplyVV2RunningToAll\0"
+    mastery_export_bytes = b"ApplyVV2MasteryToAll\0"
+    age_export_bytes = b"ApplyVV2AgeToAll\0"
+    collections_export_bytes = b"ApplyVV2Collections\0"
+    running_export_va = DISPATCH_VA + dispatch_len
+    mastery_export_va = running_export_va + len(running_export_bytes)
+    age_export_va = mastery_export_va + len(mastery_export_bytes)
+    collections_export_va = age_export_va + len(age_export_bytes)
+    dispatch_code = assemble(
+        _dispatch_src(
+            running_export_va, mastery_export_va, age_export_va, collections_export_va
+        ),
+        DISPATCH_VA,
+    )
+    assert len(dispatch_code) == dispatch_len
+    dispatch_block = (
+        dispatch_code
+        + running_export_bytes
+        + mastery_export_bytes
+        + age_export_bytes
+        + collections_export_bytes
+    )
+    if DISPATCH_FILE_OFFSET + len(dispatch_block) > BARREL_GATE_FILE_OFFSET:
+        raise RuntimeError(
+            f"dispatch stub overruns the Barrel-gate slot: "
+            f"0x{DISPATCH_FILE_OFFSET + len(dispatch_block):X} > "
+            f"0x{BARREL_GATE_FILE_OFFSET:X}"
+        )
+    # Barrel capacity-gate stub: entered as (pool) -> EAX 1 = room for the
+    # Barrel's 3 children, 0 = full (the DLL already showed the "close to
+    # maximum" notice) or the companion DLL is missing.  Mirrors the dispatch /
+    # result stubs' LoadLibrary + GetProcAddress handshake, then calls the
+    # GateVV2Barrel export (which does the population read and cap math).  The
+    # export-name string is packed right after the code; assembling once with a
+    # placeholder VA fixes the code length, then the real string VA.
+    def _barrel_gate_src(export_va: int) -> str:
+        return f"""
+            push esi
+            mov esi, dword ptr [esp + 8]
+            push 0x{s['icons_dll']:X}
+            call dword ptr [0x474010]
+            test eax, eax
+            je bg_block
+            push 0x{export_va:X}
+            push eax
+            call dword ptr [0x4740D4]
+            test eax, eax
+            je bg_block
+            push esi
+            call eax
+            pop esi
+            ret 4
+        bg_block:
+            xor eax, eax
+            pop esi
+            ret 4
+        """
+
+    _bg_placeholder = BARREL_GATE_VA + 0x100
+    barrel_gate_len = len(
+        assemble(_barrel_gate_src(_bg_placeholder), BARREL_GATE_VA)
+    )
+    barrel_gate_export_va = BARREL_GATE_VA + barrel_gate_len
+    barrel_gate_code = assemble(
+        _barrel_gate_src(barrel_gate_export_va), BARREL_GATE_VA
+    )
+    assert len(barrel_gate_code) == barrel_gate_len
+    barrel_gate_block = barrel_gate_code + BARREL_GATE_EXPORT_BYTES
+    if BARREL_GATE_FILE_OFFSET + len(barrel_gate_block) > 0x9B000:
+        raise RuntimeError(
+            f"Barrel-gate stub overruns the .shr reserve: "
+            f"0x{BARREL_GATE_FILE_OFFSET + len(barrel_gate_block):X} > 0x9B000"
+        )
+    # Result trampoline: payload success/doubler paths call this with
+    # (action, status); it forwards to the DLL's ShowVV2UpgradeResult so the
+    # simple rows render "<Action> completed." / doubler text instead of the old
+    # flat "Purchased."  Counts are zero here (the counted rows report from the
+    # DLL directly).
+    result_helper_code = assemble(
+        f"""
+            push ebx
+            push esi
+            mov ebx, dword ptr [esp + 0x0C]
+            mov esi, dword ptr [esp + 0x10]
+            push 0x{s['icons_dll']:X}
+            call dword ptr [0x474010]
+            test eax, eax
+            je rh_done
+            push 0x{RESULT_EXPORT_VA:X}
+            push eax
+            call dword ptr [0x4740D4]
+            test eax, eax
+            je rh_done
+            push 0
+            push 0
+            push 0
+            push 0
+            push esi
+            push ebx
+            call eax
+        rh_done:
+            pop esi
+            pop ebx
+            ret 8
+        """,
+        RESULT_HELPER_VA,
+    )
+    if RESULT_HELPER_FILE_OFFSET + len(result_helper_code) > 0x9A280:
+        raise RuntimeError(
+            f"result helper overruns its .shr gap: "
+            f"0x{RESULT_HELPER_FILE_OFFSET + len(result_helper_code):X} > 0x9A280"
+        )
+    # Detail per-row no-change check.  Args (record, row).  Returns 1 (charge
+    # nothing; message already shown) when the row is already satisfied, else 0.
+    # EDX is only read, so on the return-0 path the caller's record pointer
+    # survives for the charge/apply code.
+    detail_nochange_code = assemble(
+        f"""
+            push ebx
+            push esi
+            push edi
+            mov edx, dword ptr [esp + 0x10]
+            mov ebx, dword ptr [esp + 0x14]
+            cmp ebx, 0
+            je dnc_youth
+            cmp ebx, 1
+            je dnc_mastery
+            cmp ebx, 2
+            je dnc_running
+            cmp dword ptr [edx + 0x530], 360
+            jne dnc_charge
+            mov esi, 1
+            jmp dnc_show
+        dnc_youth:
+            cmp dword ptr [edx + 0x530], 100
+            jg dnc_charge
+            mov esi, 1
+            jmp dnc_show
+        dnc_mastery:
+            cmp dword ptr [edx + 0x7E4], 100
+            jne dnc_charge
+            cmp dword ptr [edx + 0x7E8], 100
+            jne dnc_charge
+            cmp dword ptr [edx + 0x7EC], 100
+            jne dnc_charge
+            cmp dword ptr [edx + 0x7F0], 100
+            jne dnc_charge
+            cmp dword ptr [edx + 0x7F4], 100
+            jne dnc_charge
+            mov esi, 1
+            jmp dnc_show
+        dnc_running:
+            xor edi, edi
+            lea ecx, [edx + 0x5F0]
+            mov eax, 62
+        dnc_run_scan:
+            cmp dword ptr [ecx], {RUNNING_PREFERENCE_ID}
+            jne dnc_run_notrun
+            or edi, 1
+        dnc_run_notrun:
+            cmp dword ptr [ecx], -1
+            jne dnc_run_next
+            or edi, 2
+        dnc_run_next:
+            add ecx, 4
+            dec eax
+            jne dnc_run_scan
+            test edi, 1
+            jz dnc_run_notliked
+            mov esi, 1
+            jmp dnc_show
+        dnc_run_notliked:
+            test edi, 2
+            jnz dnc_charge
+            # Likes are full: Running can't be added.  Match Grant Running to
+            # All -- still clear any Running dislike (for free, since the Like
+            # couldn't be added) and report it.  If there is no Running dislike
+            # either, it's a true no-op ("full Likes slots").
+            lea ecx, [edx + 0x6E8]
+            mov eax, 62
+            xor edi, edi
+        dnc_dislike_scan:
+            cmp dword ptr [ecx], {RUNNING_PREFERENCE_ID}
+            jne dnc_dislike_next
+            mov dword ptr [ecx], -1
+            mov edi, 1
+        dnc_dislike_next:
+            add ecx, 4
+            dec eax
+            jne dnc_dislike_scan
+            test edi, edi
+            jz dnc_run_full
+            mov esi, 8
+            jmp dnc_show
+        dnc_run_full:
+            mov esi, 4
+        dnc_show:
+            push esi
+            lea eax, [ebx + 100]
+            push eax
+            call 0x{RESULT_HELPER_VA:X}
+            mov eax, 1
+            jmp dnc_ret
+        dnc_charge:
+            xor eax, eax
+        dnc_ret:
+            pop edi
+            pop esi
+            pop ebx
+            ret 8
+        """,
+        DETAIL_NOCHANGE_VA,
+    )
+    if DETAIL_NOCHANGE_FILE_OFFSET + len(detail_nochange_code) > 0x9A530:
+        raise RuntimeError(
+            f"detail no-change helper overruns its .shr gap: "
+            f"0x{DETAIL_NOCHANGE_FILE_OFFSET + len(detail_nochange_code):X} > 0x9A530"
+        )
+    # Barrel main-village helper: defer the queued Barrel event by counting down
+    # BARREL_CUE_FRAMES ticks of the per-frame update after the Tech screen
+    # closes, so it plays cued during gameplay instead of flashing by during the
+    # menu-close transition.  Token 0x49C700: 1 = purchased, 2 = screen closed,
+    # 3 = counting down, 0 = idle.
+    barrel_main_code = assemble(
+        f"""
+            cmp byte ptr [0x{BARREL_PENDING_VA:X}], 3
+            je barrel_ticking
+            cmp byte ptr [0x{BARREL_PENDING_VA:X}], 2
+            jne barrel_resume
+            mov byte ptr [0x{BARREL_PENDING_VA:X}], 3
+            mov dword ptr [0x{BARREL_CUE_COUNTER_VA:X}], {BARREL_CUE_FRAMES}
+            jmp barrel_resume
+        barrel_ticking:
+            dec dword ptr [0x{BARREL_CUE_COUNTER_VA:X}]
+            jnz barrel_resume
+            mov byte ptr [0x{BARREL_PENDING_VA:X}], 0
+            sub esp, 0x50D8
+            push 0x7F4B1A2C
+            push 2
+            lea ecx, [esp + 8]
+            call 0x4348E0
+            push 0
+            push esi
+            lea ecx, [esp + 8]
+            call 0x401AD0
+            mov ecx, esp
+            call 0x433190
+            add esp, 0x50D8
+        barrel_resume:
+            mov ecx, edi
+            call 0x403200
+            jmp 0x42E9F5
+        """,
+        BARREL_MAIN_HELPER_VA,
+    )
+    if len(barrel_main_code) > 0x80:
+        raise RuntimeError(
+            f"barrel main helper is too large: {len(barrel_main_code):#x}/0x80"
+        )
     patch(
         HEAL_CAVE_FILE_OFFSET,
         b"\0" * 5,
@@ -1431,9 +1947,9 @@ def main() -> None:
     )
     patch(
         CURE_ENTRY_FILE_OFFSET,
-        b"\0" * len(cure_code),
-        cure_code,
-        "restore active living VV2 villagers below 80 health to 100, clear sickness, and increment People Cured when sickness is removed",
+        b"\0" * len(cure_block),
+        cure_block,
+        "restore active living VV2 villagers below 100 health to 100, clear sickness, charge 30,000 only when something changed, and report the two counts through ShowVV2CureResult",
     )
     patch(
         VILLAGE_PREFLIGHT_FILE_OFFSET,
@@ -1446,12 +1962,6 @@ def main() -> None:
         b"\0" * len(cure_preflight_code),
         cure_preflight_code,
         "dry-scan all 256 active living records for low health or sickness before any Cure charge",
-    )
-    patch(
-        DETAIL_PREFLIGHT_FILE_OFFSET,
-        b"\0" * len(detail_preflight_code),
-        detail_preflight_code,
-        "recheck the selected active record and exact target state before any Villager Detail charge",
     )
     patch(
         BARREL_PENDING_FILE_OFFSET,
@@ -1467,9 +1977,51 @@ def main() -> None:
     )
     patch(
         BARREL_MAIN_HELPER_FILE_OFFSET,
-        b"\0" * len(BARREL_MAIN_HELPER_CODE),
-        BARREL_MAIN_HELPER_CODE,
-        "consume the closed-screen Barrel token with the stock main-village modal owner",
+        b"\0" * len(barrel_main_code),
+        barrel_main_code,
+        "count down the cue delay after the Tech screen closes, then enqueue the Barrel event through the stock village event pipeline so it plays cued during gameplay",
+    )
+    patch(
+        APPEARANCE_FILE_OFFSET,
+        b"\0" * len(appearance_block),
+        appearance_block,
+        "open the Change Appearance chooser for the selected active living villager and, on OK, charge 5,000 tech and write only the proven head and body fields",
+    )
+    patch(
+        CONFIRM_EXPORT_FILE_OFFSET,
+        b"\0" * len(CONFIRM_EXPORT_BYTES),
+        CONFIRM_EXPORT_BYTES,
+        "store the DLL export name for the Task9-style OK/Cancel purchase confirm",
+    )
+    patch(
+        RESULT_EXPORT_FILE_OFFSET,
+        b"\0" * len(RESULT_EXPORT_BYTES),
+        RESULT_EXPORT_BYTES,
+        "store the DLL export name for the Task9-style upgrade result renderer",
+    )
+    patch(
+        RESULT_HELPER_FILE_OFFSET,
+        b"\0" * len(result_helper_code),
+        result_helper_code,
+        "forward the payload's simple success and doubler results to the DLL result renderer",
+    )
+    patch(
+        DETAIL_NOCHANGE_FILE_OFFSET,
+        b"\0" * len(detail_nochange_code),
+        detail_nochange_code,
+        "check whether a Detail-row purchase would change anything and, if not, show the row-specific no-change message and charge nothing",
+    )
+    patch(
+        DISPATCH_FILE_OFFSET,
+        b"\0" * len(dispatch_block),
+        dispatch_block,
+        "route Grant Running, Grant Full Mastery, and Complete/Reset Collections to their companion-DLL exports (the DLL counts, applies, and reports; Collections also fires or re-arms the group goals)",
+    )
+    patch(
+        BARREL_GATE_FILE_OFFSET,
+        b"\0" * len(barrel_gate_block),
+        barrel_gate_block,
+        "gate the Barrel of Babies on real village capacity by handing the player object to the companion DLL's GateVV2Barrel, which refuses (message, no charge) when fewer than 3 population slots remain",
     )
 
     patch(
@@ -1574,7 +2126,7 @@ def main() -> None:
         "running_preference_id": RUNNING_PREFERENCE_ID,
         "running_preference_evidence": {"source": "exact stock executable embedded preference table", "table_file_offset": "0x8B808", "entry_name": "running"},
         "name": "Enable Origins-Exclusive Features",
-        "description": "Adds Origins-style Upgrades buttons to the Tech and Villager Details screens. The Tech menu offers Food and Tech Point Doublers for 500,000 tech points each; eligible positive gains are doubled, while Island Events, Duplicate Collectibles, and Gong of Wonder tech gains remain unchanged. The Village-Wide menu adds Running, Full Mastery, and Make Villagers Young Adults.",
+        "description": "Adds Origins-style Upgrades buttons to the Tech and Villager Details screens. The Tech menu offers Time Warp, Island Event, Barrel of Babies, Tech and Food Point Doublers, and Cure All Villagers; eligible positive gains are doubled, while Island Events, Duplicate Collectibles, and Gong of Wonder tech gains remain unchanged. The Villager Details menu grants Youth, Full Mastery, Running, and Set Age to 18 to the selected villager.",
         "output_tag": "Origins Exclusive Features",
         "companion_files": [
             {

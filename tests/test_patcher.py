@@ -88,13 +88,16 @@ class ManifestTests(unittest.TestCase):
         source = (ROOT / "scripts" / "build_vv2_origins_feature.py").read_text(
             encoding="utf-8"
         )
+        # The Barrel preflight validates the Tech-menu player object (EDI, whose
+        # record-pool chain hangs off +0x305A4) and then delegates the capacity
+        # decision to the companion DLL's gate instead of reading population
+        # inline.
         self.assertIn(
             "mov ecx, edi\n"
             "            test ecx, ecx\n"
             "            jz barrel_capacity_unavailable\n"
             "            cmp dword ptr [ecx + 0x305A4], 0\n"
-            "            jz barrel_capacity_unavailable\n"
-            "            call 0x425860",
+            "            jz barrel_capacity_unavailable\n",
             source,
         )
         self.assertNotIn(
@@ -103,7 +106,6 @@ class ManifestTests(unittest.TestCase):
         )
         self.assertIn(
             "barrel_capacity_unavailable:\n"
-            "            add esp, 0x50D8\n"
             "            mov eax, 0x{s['population_capacity']:X}\n"
             "            jmp show_status",
             source,
@@ -123,47 +125,99 @@ class ManifestTests(unittest.TestCase):
         )
         barrel_block = source[
             source.index("        barrel_capacity_preflight:") :
-            source.index("        barrel_capacity_low:")
+            source.index("        barrel_insufficient:")
         ]
+        # Population is read inside the DLL gate now, never inline in the payload,
+        # so the old stack reservation and sub_425860 call are gone.
+        self.assertNotIn("call 0x425860", barrel_block)
+        self.assertNotIn("sub esp, 0x50D8", barrel_block)
         pending_guard = barrel_block.index(
             "            cmp byte ptr [0x{BARREL_PENDING_VA:X}], 0"
         )
-        reservation = barrel_block.index("            sub esp, 0x50D8")
-        helper_call = barrel_block.index("            call 0x425860")
+        gate_call = barrel_block.index("            call 0x{BARREL_GATE_VA:X}")
+        gate_guard = barrel_block.index("            test eax, eax", gate_call)
         funds_check = barrel_block.index("            cmp dword ptr [edi + 0x2EADC], eax")
         deduction = barrel_block.index("            sub dword ptr [edi + 0x2EADC], eax")
-        cleanup = barrel_block.index("            add esp, 0x50D8", deduction)
-        purchased = barrel_block.index(
-            "            mov eax, 0x{s['purchased']:X}\n"
-            "            push eax\n"
-            "            push 0x{s['tech_title']:X}\n"
-            "            call 0x{show_message:X}",
-            cleanup,
-        )
         token_store = barrel_block.index(
-            "            mov byte ptr [0x{BARREL_PENDING_VA:X}], 1", purchased
+            "            mov byte ptr [0x{BARREL_PENDING_VA:X}], 1", deduction
         )
-        self.assertLess(pending_guard, reservation)
-        self.assertLess(helper_call, funds_check)
+        # Barrel success renders "Barrel of Babies completed." via the Task9
+        # result trampoline (action 2 = Barrel).
+        result_call = barrel_block.index(
+            "            call 0x{RESULT_HELPER_VA:X}", token_store
+        )
+        # Order: dedupe guard -> DLL capacity gate -> gate result check -> funds
+        # check -> charge -> set the one-shot token -> report.
+        self.assertLess(pending_guard, gate_call)
+        self.assertLess(gate_call, gate_guard)
+        self.assertLess(gate_guard, funds_check)
         self.assertLess(funds_check, deduction)
-        self.assertLess(deduction, cleanup)
-        self.assertLess(cleanup, purchased)
-        self.assertLess(purchased, token_store)
+        self.assertLess(deduction, token_store)
+        self.assertLess(token_store, result_call)
+        # The Barrel is cued through its main-village helper, never fired inline.
         self.assertNotIn("call 0x4348E0", barrel_block)
         self.assertNotIn("call 0x401AD0", barrel_block)
         self.assertNotIn("call 0x433190", barrel_block)
+
+    def test_vv2_barrel_gate_matches_population_modes(self) -> None:
+        # The Barrel capacity gate reads the game's real, mode-dependent cap by
+        # inspecting the live population-mode edits at 0x44B378 / 0x44B3AD.  Those
+        # sites and their patched opcodes must match the population variants in
+        # data/builds.json, and the DLL must key its cap off exactly those bytes,
+        # so a change to either side is caught here.
+        builds = json.loads(
+            (ROOT / "data" / "builds.json").read_text(encoding="utf-8")
+        )
+        variants = next(g for g in builds["games"] if g["id"] == "vv2")["variants"]
+
+        def patch_at(variant: str, offset: int):
+            for row in variants[variant]["patches"]:
+                if int(row["offset"], 0) == offset:
+                    return row
+            return None
+
+        FIXED_SITE = 0x4B378  # file offset of VA 0x44B378 (collection-bonus compare)
+        BASE_SITE = 0x4B3AD   # file offset of VA 0x44B3AD (base add edi, 90)
+
+        # Immediate Fixed flips the collection-bonus compare opcode 0x83 -> 0xBF.
+        fixed = patch_at("immediate_fixed", FIXED_SITE)
+        self.assertIsNotNone(fixed)
+        self.assertTrue(fixed["before"].upper().startswith("83"))
+        self.assertTrue(fixed["after"].upper().startswith("BF"))
+        # Collection Progression flips the base-add opcode 0x83 -> 0xEB.
+        prog = patch_at("collection_progression", BASE_SITE)
+        self.assertIsNotNone(prog)
+        self.assertTrue(prog["before"].upper().startswith("83"))
+        self.assertTrue(prog["after"].upper().startswith("EB"))
+        # Stock / No Population Increase edits neither site (both keep 0x83).
+        self.assertEqual(variants["stock"]["patches"], [])
+        self.assertIsNone(patch_at("immediate_fixed", BASE_SITE))
+        self.assertIsNone(patch_at("collection_progression", FIXED_SITE))
+
+        # The companion DLL keys its cap off exactly those two VAs / opcodes and
+        # produces the three documented caps (256 fixed, base 231 or 90 + bonus).
+        dll = (
+            ROOT / "native" / "vv2_origins_icons" / "vv2_origins_icons.c"
+        ).read_text(encoding="utf-8")
+        self.assertIn("0x0044B378", dll)
+        self.assertIn("0x0044B3AD", dll)
+        self.assertIn("fixed_site[0] == 0xBF", dll)
+        self.assertIn("base_site[0] == 0xEB", dll)
+        self.assertIn("return 256;", dll)
+        self.assertIn("231 : 90", dll)
 
     def test_vv2_doublers_confirm_before_any_bit_change(self) -> None:
         source = (ROOT / "scripts" / "build_vv2_origins_feature.py").read_text(
             encoding="utf-8"
         )
-        confirmation = source[
-            source.index("            cmp ebx, 0\n            je confirm_tech_purchase") :
-            source.index("        tech_purchase_ready:")
-        ]
-        self.assertIn("cmp ebx, 3\n            je confirm_tech_purchase", confirmation)
-        self.assertIn("cmp ebx, 4\n            je confirm_tech_purchase", confirmation)
-        self.assertIn("call 0x{confirm_dialog:X}", confirmation)
+        # Every Tech row (Time Warp..All Villagers are 18, plus the Tech/Food
+        # Doubler toggles) shows the permanent-change confirmation before any
+        # state change: the confirm call sits just before tech_purchase_ready,
+        # and every doubler-bit write is after it.
+        self.assertLess(
+            source.index("call 0x{confirm_dialog:X}"),
+            source.index("        tech_purchase_ready:"),
+        )
         for write in (
             "or dword ptr [edi + 0x2EAE8], 1",
             "or dword ptr [edi + 0x2EAE8], 2",
@@ -180,21 +234,28 @@ class ManifestTests(unittest.TestCase):
             source.index("        charge:") :
             source.index("        barrel_capacity_preflight:")
         ]
-        running_preflight = charge_block.index("call 0x{VILLAGE_PREFLIGHT_VA:X}")
-        running_no_change = charge_block.index("cmp eax, 2", running_preflight)
+        # Village-wide rows verify funds, apply via the DLL dispatch stub, then
+        # charge only when the stub reports a real change in EAX (no-change rows
+        # leave the balance untouched).
+        running_fundcheck = charge_block.index(
+            "cmp dword ptr [edi + 0x2EADC], 1000000"
+        )
+        running_apply = charge_block.index(
+            "call 0x{DISPATCH_VA:X}", running_fundcheck
+        )
+        running_guard = charge_block.index("test eax, eax", running_apply)
         running_deduction = charge_block.index(
-            "sub dword ptr [edi + 0x2EADC], 1000000", running_no_change
+            "sub dword ptr [edi + 0x2EADC], 1000000", running_guard
         )
-        cure_preflight = charge_block.index("call 0x{CURE_PREFLIGHT_VA:X}")
-        legacy_deduction = charge_block.index(
-            "sub dword ptr [edi + 0x2EADC], eax", cure_preflight
-        )
-        self.assertLess(running_preflight, running_no_change)
-        self.assertLess(running_no_change, running_deduction)
-        self.assertLess(cure_preflight, legacy_deduction)
-        self.assertIn(
-            '"No changes were needed. No tech points have been deducted."', source
-        )
+        self.assertLess(running_fundcheck, running_apply)
+        self.assertLess(running_apply, running_guard)
+        self.assertLess(running_guard, running_deduction)
+        # Full Heal routes to its self-contained routine, which counts,
+        # charges 30,000 only when something changed, and reports both counts
+        # through ShowVV2CureResult.
+        self.assertIn("cmp ebx, 5\n            je do_cure", source)
+        self.assertIn("sub dword ptr [edi + 0x2EADC], 30000", source)
+        self.assertIn("ShowVV2CureResult", source)
 
         preflight = source[
             source.index("    preflight_code = assemble(") :
@@ -237,27 +298,29 @@ class ManifestTests(unittest.TestCase):
         )
         detail = source[
             source.index("        detail_purchase_ready:") :
-            source.index("        detail_youth:")
+            source.index("        detail_charge:")
         ]
         active_recheck = detail.index("cmp byte ptr [edx + 0x30], 0")
-        preflight = detail.index("call 0x{DETAIL_PREFLIGHT_VA:X}", active_recheck)
-        no_change = detail.index("mov eax, 0x{s['running_no_change']:X}", preflight)
-        deduction = detail.index("sub dword ptr [edi + 0x2EADC], eax", no_change)
-        self.assertLess(active_recheck, preflight)
-        self.assertLess(preflight, no_change)
-        self.assertLess(no_change, deduction)
+        no_change = detail.index("call 0x{DETAIL_NOCHANGE_VA:X}", active_recheck)
+        self.assertLess(active_recheck, no_change)
+        # The row-specific no-change helper returns 1 (charge nothing) or 0
+        # (proceed), and the charge deduction follows it.
+        charge = source[
+            source.index("        detail_charge:") :
+            source.index("        detail_youth:")
+        ]
+        self.assertIn("sub dword ptr [edi + 0x2EADC], eax", charge)
 
         helper = source[
-            source.index("    detail_preflight_code = assemble(") :
-            source.index("    patch(\n        HEAL_CAVE_FILE_OFFSET")
+            source.index("    detail_nochange_code = assemble(") :
+            source.index("        DETAIL_NOCHANGE_VA,")
         ]
-        self.assertEqual(helper.count("mov ecx, 62"), 2)
         for exact_target in (
             "cmp dword ptr [edx + 0x7E4], 100",
             "cmp dword ptr [edx + 0x7F4], 100",
             "cmp dword ptr [edx + 0x530], 360",
-            "cmp dword ptr [edx + 0x534], 360",
-            "cmp eax, 318",
+            "cmp dword ptr [edx + 0x530], 100",
+            f"cmp dword ptr [ecx], {{RUNNING_PREFERENCE_ID}}",
         ):
             self.assertIn(exact_target, helper)
 
@@ -275,9 +338,16 @@ class ManifestTests(unittest.TestCase):
             (ROOT / "data" / "vv2_origins_feature.json").read_text(encoding="utf-8")
         )
         rows = {int(row["offset"], 0): row for row in manifest["patches"]}
-        self.assertEqual(len(rows), 22)
+        # Base transaction patches + Change Appearance (0x9AD20) + the shared
+        # DLL-dispatch stub in the old whole-village slot (0x9AE40, routing Grant
+        # Running / Grant Full Mastery / Complete / Reset Collections) + the
+        # Barrel of Babies capacity gate (0x9AF58).
+        self.assertEqual(len(rows), 28)
+        self.assertIn("companion-DLL exports", rows[0x9AE40]["purpose"])
+        self.assertIn("GateVV2Barrel", rows[0x9AF58]["purpose"])
         self.assertIn("dry-scan all 256", rows[0x9A300]["purpose"])
-        self.assertIn("selected active record", rows[0x9A380]["purpose"])
+        self.assertIn("Detail-row purchase would change", rows[0x9A380]["purpose"])
+        self.assertIn("Task9-style OK/Cancel", rows[0x9A204]["purpose"])
         self.assertIn("all 62 Like and Dislike", rows[0x9A009]["purpose"])
         shr_ranges = sorted(
             (
@@ -289,7 +359,7 @@ class ManifestTests(unittest.TestCase):
         )
         for prior, current in zip(shr_ranges, shr_ranges[1:]):
             self.assertLessEqual(prior[1], current[0])
-        self.assertEqual(rows[0x34570]["after"], "E973070600")
+        self.assertEqual(rows[0x34570]["after"], "E993070600")
         self.assertEqual(rows[0x9A700]["after"], "00")
         self.assertEqual(
             rows[0x9A710]["after"],
@@ -299,9 +369,10 @@ class ManifestTests(unittest.TestCase):
         )
         self.assertEqual(
             rows[0x9A780]["after"],
-            "803D00C74900027536C60500C749000081ECD8500000682C1A4B7F"
-            "6A028D4C2408E83A81F9FF6A00568D4C2408E81E53F6FF89E1E8"
-            "D769F9FF81C4D850000089F9E83A6AF6FFE92A22F9FF",
+            "803D00C7490003741C803D00C74900027551C60500C7490003C70508"
+            "C749005A000000EB3EFF0D08C749007536C60500C749000081ECD850"
+            "0000682C1A4B7F6A028D4C2408E81681F9FF6A00568D4C2408E8FA52"
+            "F6FF89E1E8B369F9FF81C4D850000089F9E8166AF6FFE90622F9FF",
         )
         self.assertEqual(rows[0x2E9F0]["before"], "E80B48FDFF")
         self.assertEqual(rows[0x2E9F0]["after"], "E98BDD0600")

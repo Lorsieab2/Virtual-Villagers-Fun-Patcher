@@ -12,7 +12,7 @@ $resource = Join-Path $outputRoot "vv2_origins_icons.res"
 & (Join-Path $sdkRoot "bin\$sdkVersion\x86\rc.exe") `
     /nologo `
     /fo $resource `
-    (Join-Path $resourceRoot "vv1_origins_icons.rc")
+    (Join-Path $nativeRoot "vv2_origins_icons.rc")
 if ($LASTEXITCODE -ne 0) { throw "Resource compilation failed." }
 
 & (Join-Path $vsTools "bin\Hostx64\x86\cl.exe") `
@@ -28,7 +28,7 @@ if ($LASTEXITCODE -ne 0) { throw "Resource compilation failed." }
     ("/LIBPATH:" + (Join-Path $sdkRoot "Lib\$sdkVersion\um\x86")) `
     ("/LIBPATH:" + (Join-Path $sdkRoot "Lib\$sdkVersion\ucrt\x86")) `
     ("/OUT:" + (Join-Path $outputRoot "VVFP VV2 Origins Icons.dll")) `
-    user32.lib
+    user32.lib gdi32.lib
 if ($LASTEXITCODE -ne 0) { throw "Native DLL compilation failed." }
 
 @(
