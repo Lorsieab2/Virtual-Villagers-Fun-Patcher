@@ -226,10 +226,28 @@ class VV3OriginsFeatureTests(unittest.TestCase):
 
     def test_native_barrel_event_and_reserved_population_preflight(self) -> None:
         source = BUILDER.read_text(encoding="utf-8")
-        # Reserved-population preflight (unchanged).
-        self.assertIn("call 0x45E8F0", source)
-        self.assertIn("mov ecx, 147", source)
-        self.assertIn("mov ecx, 253", source)
+        # Barrel preflight refuses (before charging) unless the village can hold
+        # all three children under its real max population: current + 3 <= max,
+        # where max comes from BARREL_MAXPOP (a faithful copy of the max half of
+        # the game's own barrel eligibility 0x45FE30).  The old fixed 150/256
+        # physical cap is gone.
+        preflight = source.split("        maybe_barrel:", 1)[1].split(
+            "        charge:", 1
+        )[0]
+        self.assertIn("call 0x45E8F0", preflight)
+        self.assertIn("add eax, 3", preflight)
+        self.assertIn("call 0x{BARREL_MAXPOP_VA:X}", preflight)
+        self.assertIn("jle charge", preflight)
+        self.assertNotIn("147", preflight)
+        self.assertNotIn("253", preflight)
+        # BARREL_MAXPOP lives in the payload block's free code tail and
+        # reproduces base 90 + population techs + nature-level bonus.
+        self.assertIn("BARREL_MAXPOP_VA = PAYLOAD_VA +", source)
+        maxpop = source.split("put(\n        BARREL_MAXPOP_VA,", 1)[1].split(
+            '"""', 2
+        )[1]
+        self.assertIn("0x{BARREL_TECH_FLAG_VA:X}", maxpop)
+        self.assertIn("lea eax, [esi + 0x5A]", maxpop)
         # do_barrel only marks the event pending; firing it from the paused,
         # modal menu flashed the popup and never spawned, so the real event is
         # deferred to the island-handler hook.
@@ -308,7 +326,7 @@ class VV3OriginsFeatureTests(unittest.TestCase):
         )
         self.assertEqual(
             hashlib.sha256(payload).hexdigest().upper(),
-            "1D3DCE106461344A1E1C0A53289A66085FFCE0286CA036901445CE27519D75AB",
+            "D2CD6D4A320B058471EB94F80EC2C4B63D30106E046F86921D0F69C0FCB06229",
         )
         self.assertEqual(
             bytes.fromhex(
