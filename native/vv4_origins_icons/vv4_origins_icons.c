@@ -275,12 +275,13 @@ static INT_PTR CALLBACK upgrade_dialog(
             label[0] = '\0';
             GetDlgItemTextA(window, command, label, (int)sizeof(label));
             /* The converted village-wide rows (Running = tech row 6, Full
-               Mastery = row 7) use their own VV5-task9-style confirmation
-               shown from the payload after a dry run -- so skip the generic
-               warning for them to avoid a double prompt. */
+               Mastery = 7, Set-All-to-18 = 8) use their own OFFICIAL-worded
+               confirmation shown from the payload after a dry run -- so skip
+               the generic warning for them to avoid a double prompt. */
             if (lstrcmpA(label, "Buy") == 0
                 && command != (unsigned int)(ID_BUY_FIRST + 6)
                 && command != (unsigned int)(ID_BUY_FIRST + 7)
+                && command != (unsigned int)(ID_BUY_FIRST + 8)
                 && MessageBoxA(
                        window,
                        "This upgrade makes permanent changes to your village. "
@@ -608,6 +609,17 @@ static void vv_scan_mastery(void) {
     }
 }
 
+/* Age: how many eligible villagers are not already exactly 18 (360 units). */
+static int vv_count_age18(void) {
+    int total = vv_record_total(), i, n = 0;
+    for (i = 0; i < total; ++i) {
+        const unsigned char *r = vv_record(i);
+        if (!vv_eligible(r)) continue;
+        if (*(const int *)(r + VV_DISPLAY_AGE_OFF) != VV_AGE_18) ++n;
+    }
+    return n;
+}
+
 /* Confirmation shown before charging a village-wide upgrade (OFFICIAL wording).
    Dry-runs first: if nothing would change, report it with no charge and return
    0; otherwise show "Do you want to buy ... ?" and return 1 only on OK.
@@ -639,6 +651,18 @@ __declspec(dllexport) int __stdcall ConfirmOriginsVillageWide(int command) {
         return MessageBoxA(GetForegroundWindow(),
             "Do you want to buy Grant Full Mastery to All Villagers for "
             "1,000,000 tech points?\r\nPress OK to confirm, or Cancel.",
+            "Origins Upgrades", MB_OKCANCEL | MB_ICONQUESTION) == IDOK;
+    }
+    if (command == 8) {
+        if (vv_count_age18() == 0) {
+            MessageBoxA(GetForegroundWindow(),
+                "Everyone is already 18. No tech points have been deducted.",
+                "Origins Upgrades", MB_OK | MB_ICONWARNING);
+            return 0;
+        }
+        return MessageBoxA(GetForegroundWindow(),
+            "Do you want to buy Set All Villagers to 18 for 1,000,000 tech "
+            "points?\r\nPress OK to confirm, or Cancel.",
             "Origins Upgrades", MB_OKCANCEL | MB_ICONQUESTION) == IDOK;
     }
     return 1;
@@ -685,6 +709,10 @@ __declspec(dllexport) int __stdcall ShowOriginsVillageWideResult(
         }
         MessageBoxA(GetForegroundWindow(), msg, "Origins Upgrades",
                     MB_OK | MB_ICONINFORMATION);
+    } else if (command == 8) {
+        MessageBoxA(GetForegroundWindow(),
+            "Set All Villagers to 18 completed.",
+            "Origins Upgrades", MB_OK | MB_ICONINFORMATION);
     }
     return 0;
 }
