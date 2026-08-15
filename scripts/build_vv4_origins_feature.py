@@ -399,6 +399,8 @@ def main() -> None:
         count_records:
             cmp byte ptr [edx + 0x1CC4], 0
             je record_free
+            cmp byte ptr [edx + 0x1CC7], 0
+            jne record_free
             inc edi
         record_free:
             add edx, 0x2E3C
