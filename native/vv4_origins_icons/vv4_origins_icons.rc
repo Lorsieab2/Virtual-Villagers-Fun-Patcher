@@ -38,7 +38,7 @@ BEGIN
 
     ICON        103, -1, 8,  72,  24, 24
     ICON        109, 1102, 22, 84, 12, 12
-    LTEXT       "Daredevil Barrel of Babies", -1, 40, 74, 195, 10
+    LTEXT       "Barrel of Babies", -1, 40, 74, 150, 10
     LTEXT       "75,000 tech points", -1, 40, 86, 150, 9
     PUSHBUTTON  "Buy", 1002, 240, 75, 55, 18
 

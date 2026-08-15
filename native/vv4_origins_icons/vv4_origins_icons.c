@@ -274,12 +274,13 @@ static INT_PTR CALLBACK upgrade_dialog(
             char label[16];
             label[0] = '\0';
             GetDlgItemTextA(window, command, label, (int)sizeof(label));
-            /* The village-wide Running row (tech row 6) uses its own
-               VV5-task9-style confirmation with counts and cost, shown from
-               the payload after a dry run -- so skip the generic warning for
-               it to avoid a double prompt. */
+            /* The converted village-wide rows (Running = tech row 6, Full
+               Mastery = row 7) use their own VV5-task9-style confirmation
+               shown from the payload after a dry run -- so skip the generic
+               warning for them to avoid a double prompt. */
             if (lstrcmpA(label, "Buy") == 0
                 && command != (unsigned int)(ID_BUY_FIRST + 6)
+                && command != (unsigned int)(ID_BUY_FIRST + 7)
                 && MessageBoxA(
                        window,
                        "This upgrade makes permanent changes to your village. "
@@ -572,29 +573,66 @@ static int vv_count_running_grant(void) {
     return n;
 }
 
+/* How many eligible villagers are not yet fully mastered (any of the five
+   skills below 100.0). */
+static int vv_count_mastery(void) {
+    int total = vv_record_total(), i, n = 0;
+    for (i = 0; i < total; ++i) {
+        const unsigned char *r = vv_record(i);
+        const int *skills;
+        int s, full = 1;
+        if (!vv_eligible(r)) continue;
+        skills = (const int *)(r + VV_SKILL0_OFFSET);
+        for (s = 0; s < VV_SKILL_COUNT; ++s) {
+            if (skills[s] != (int)VV_MASTER_VALUE) { full = 0; break; }
+        }
+        if (!full) ++n;
+    }
+    return n;
+}
+
+/* How many eligible villagers are not already exactly 18 (360 displayed
+   units). */
+static int vv_count_age18(void) {
+    int total = vv_record_total(), i, n = 0;
+    for (i = 0; i < total; ++i) {
+        const unsigned char *r = vv_record(i);
+        if (!vv_eligible(r)) continue;
+        if (*(const int *)(r + VV_DISPLAY_AGE_OFF) != VV_AGE_18) ++n;
+    }
+    return n;
+}
+
 /* Confirmation shown before charging a village-wide upgrade. Dry-runs the
    effect: if nothing would change, it reports that with no charge and returns
    0; otherwise it shows the count and cost and returns 1 only when the player
    presses OK. Commands not yet converted to this flow return 1 (proceed). */
+/* Task9-style village-wide confirm: if nothing would change, report it with
+   no charge and return 0; otherwise show the confirm and return 1 only on OK. */
+static int vw_confirm(int changed, const char *already, const char *confirm) {
+    if (changed == 0) {
+        MessageBoxA(GetForegroundWindow(), already, "Origins Upgrades",
+                    MB_OK | MB_ICONWARNING);
+        return 0;
+    }
+    return MessageBoxA(GetForegroundWindow(), confirm, "Origins Upgrades",
+                       MB_OKCANCEL | MB_ICONQUESTION) == IDOK;
+}
+
 __declspec(dllexport) int __stdcall ConfirmOriginsVillageWide(int command) {
     if (command == 6) {
-        if (vv_count_running_grant() == 0) {
-            MessageBoxA(
-                GetForegroundWindow(),
-                "Grant Running to All Villagers is already complete.\r\n"
-                "No tech points have been deducted.",
-                "Origins Upgrades",
-                MB_OK | MB_ICONWARNING
-            );
-            return 0;
-        }
-        return MessageBoxA(
-            GetForegroundWindow(),
+        return vw_confirm(vv_count_running_grant(),
+            "Grant Running to All Villagers is already complete.\r\n"
+            "No tech points have been deducted.",
             "Grant Running to All Villagers for 1,000,000 tech points?\r\n"
-            "Press OK to confirm, or Cancel.",
-            "Origins Upgrades",
-            MB_OKCANCEL | MB_ICONQUESTION
-        ) == IDOK;
+            "Press OK to confirm, or Cancel.");
+    }
+    if (command == 7) {
+        return vw_confirm(vv_count_mastery(),
+            "Grant Full Mastery to All Villagers is already complete.\r\n"
+            "No tech points have been deducted.",
+            "Grant Full Mastery to All Villagers for 1,000,000 tech points?\r\n"
+            "Press OK to confirm, or Cancel.");
     }
     return 1;
 }
@@ -612,6 +650,13 @@ __declspec(dllexport) int __stdcall ShowOriginsVillageWideResult(
         MessageBoxA(
             GetForegroundWindow(),
             "Grant Running to All Villagers completed.",
+            "Origins Upgrades",
+            MB_OK | MB_ICONINFORMATION
+        );
+    } else if (command == 7) {
+        MessageBoxA(
+            GetForegroundWindow(),
+            "Grant Full Mastery to All Villagers completed.",
             "Origins Upgrades",
             MB_OK | MB_ICONINFORMATION
         );
