@@ -244,28 +244,28 @@ def build_strings(page: bytearray, page_va: int) -> dict[str, int]:
         ("tw_user32", b"USER32.dll\0"),
         ("tw_messagebox", b"MessageBoxA\0"),
         ("tw_title", b"Origins Upgrades\0"),
-        ("tw_warning", b"Time Warp will advance the village by three villager years for 50,000 tech points.\r\nPress OK to confirm, or Cancel.\0"),
+        ("tw_warning", b"Do you want to buy Time Warp for 50,000 tech points?\r\nPress OK to confirm, or Cancel.\0"),
         ("tw_paused", b"Time Warp is unavailable while the game is paused.\r\nNo tech points have been deducted.\0"),
-        ("tw_insufficient", b"Not enough tech points.\r\nNo tech points have been deducted.\0"),
+        ("tw_insufficient", b"Not enough tech points.\0"),
         ("tw_cancelled", b"Time Warp was canceled.\r\nNo tech points have been deducted.\0"),
         ("tw_recheck", b"The game speed, village clock, or tech-point balance changed during confirmation.\r\nNo tech points have been deducted.\0"),
         ("tw_unavailable", b"Time Warp is unavailable.\r\nNo tech points have been deducted.\0"),
-        ("tw_success", b"Time Warp completed. The village advanced three villager years.\0"),
+        ("tw_success", b"Time Warp completed.\0"),
         ("tw_charge_unknown", b"The final tech-point balance did not match the exact 50,000-point deduction. The charge outcome is unknown; the village clock was not changed.\0"),
         ("tw_clock_unknown", b"The 50,000-point deduction was verified, but the village clock update could not be verified.\0"),
-        ("iv_warning", b"Island Event will trigger a random island event for 30,000 tech points.\r\nPress OK to confirm, or Cancel.\0"),
+        ("iv_warning", b"Do you want to buy Island Event for 30,000 tech points?\r\nPress OK to confirm, or Cancel.\0"),
         ("iv_cancelled", b"Island Event was canceled.\r\nNo tech points have been deducted.\0"),
         ("iv_recheck", b"The village or tech-point balance changed during confirmation.\r\nNo tech points have been deducted.\0"),
         ("iv_unavailable", b"Island Event is unavailable.\r\nNo tech points have been deducted.\0"),
-        ("iv_success", b"Island Event queued. A random island event will occur shortly.\0"),
+        ("iv_success", b"Island Event completed.\0"),
         ("iv_charge_unknown", b"The final tech-point balance did not match the exact 30,000-point deduction. The charge outcome is unknown; no event was queued.\0"),
         ("iv_queue_unknown", b"The 30,000-point deduction was verified, but the event could not be queued.\0"),
-        ("bb_warning", b"Barrel of Babies will wash a barrel with three children ashore for 75,000 tech points.\r\nPress OK to confirm, or Cancel.\0"),
-        ("bb_full", b"The village does not have room for three more villagers.\r\nNo tech points have been deducted.\0"),
+        ("bb_warning", b"Do you want to buy Barrel of Babies for 75,000 tech points?\r\nPress OK to confirm, or Cancel.\0"),
+        ("bb_full", b"The village population is already close to its max. No tech points have been deducted.\0"),
         ("bb_cancelled", b"Barrel of Babies was canceled.\r\nNo tech points have been deducted.\0"),
         ("bb_recheck", b"The village population or tech-point balance changed during confirmation.\r\nNo tech points have been deducted.\0"),
         ("bb_unavailable", b"Barrel of Babies is unavailable.\r\nNo tech points have been deducted.\0"),
-        ("bb_success", b"Barrel of Babies queued. A barrel with three children will arrive shortly.\0"),
+        ("bb_success", b"Barrel of Babies completed.\0"),
         ("bb_charge_unknown", b"The final tech-point balance did not match the exact 75,000-point deduction. The charge outcome is unknown; no barrel was queued.\0"),
         ("bb_queue_unknown", b"The 75,000-point deduction was verified, but the barrel could not be queued.\0"),
     )
@@ -356,11 +356,9 @@ def build_modal(page: bytearray, page_va: int, s: dict[str, int]) -> dict[str, b
             push dword ptr [ebp-0x20]
             call eax
             add esp, 4
-            and eax, 0x1001
+            and eax, 1
             cmp eax, 0
             je windowed
-            cmp eax, 0x1001
-            jne cleanup
             cmp dword ptr [ebp-0x24], 0
             jne cleanup
             mov ecx, esi
@@ -378,7 +376,7 @@ def build_modal(page: bytearray, page_va: int, s: dict[str, int]) -> dict[str, b
             push dword ptr [ebp-0x20]
             call dword ptr [ebp-0x28]
             add esp, 4
-            and eax, 0x1001
+            and eax, 1
             test eax, eax
             jne invoke_failed
             jmp invoke
@@ -417,10 +415,10 @@ def build_modal(page: bytearray, page_va: int, s: dict[str, int]) -> dict[str, b
             push dword ptr [ebp-0x20]
             call dword ptr [ebp-0x28]
             add esp, 4
-            and eax, 0x1001
+            and eax, 1
             cmp byte ptr [edi+0x1E], 0
             jne restore_failed
-            cmp eax, 0x1001
+            cmp eax, 1
             je end_owner
         restore_failed:
             mov dword ptr [ebp-0x2C], -1
@@ -614,6 +612,11 @@ def build_menus(page: bytearray, page_va: int) -> dict[str, bytes]:
     collections_guard = (
         "cmp ebx, 6\n        jae unavailable\n        " if native_stock else ""
     )
+    # Name the point doublers correctly in their result (action 18/19) in stock;
+    # the expanded baseline keeps the original ebx form so its page stays
+    # byte-identical for the vv5_expanded_256_time_warp overlay.
+    doubler_action = "lea eax, [edi+17]\n        " if native_stock else ""
+    doubler_reg = "eax" if native_stock else "ebx"
     doubler_confirm = (
         "lea eax, [edi+17]\n"
         "        push 0\n"
@@ -634,11 +637,11 @@ def build_menus(page: bytearray, page_va: int) -> dict[str, bytes]:
         "test ebx, ebx\n        jz time_warp_row\n"
         "        cmp ebx, 1\n        je island_row\n"
         "        cmp ebx, 2\n        je barrel_row\n"
-        "        cmp ebx, 6\n        je complete_collections_row\n"
-        "        cmp ebx, 7\n        je reset_collections_row\n"
-        "        cmp ebx, 8\n        je running_all_row\n"
-        "        cmp ebx, 9\n        je mastery_all_row\n"
-        "        cmp ebx, 10\n        je age18_all_row\n        "
+        "        cmp ebx, 6\n        je running_all_row\n"
+        "        cmp ebx, 7\n        je mastery_all_row\n"
+        "        cmp ebx, 8\n        je age18_all_row\n"
+        "        cmp ebx, 9\n        je complete_collections_row\n"
+        "        cmp ebx, 10\n        je reset_collections_row\n        "
         if native_stock
         else ""
     )
@@ -723,7 +726,7 @@ def build_menus(page: bytearray, page_va: int) -> dict[str, bytes]:
         and dword ptr [0x51D388], eax
         test dword ptr [0x51D388], edi
         jnz retained
-        {status_call(page_va, 'ebx', 11)}
+        {doubler_action}{status_call(page_va, doubler_reg, 11)}
         jmp done
         nop
         nop
@@ -746,7 +749,7 @@ def build_menus(page: bytearray, page_va: int) -> dict[str, bytes]:
         sub eax, 500000
         cmp dword ptr [0x51D5F8], eax
         jne charge_unknown
-        {status_call(page_va, 'ebx', 12)}
+        {doubler_action}{status_call(page_va, doubler_reg, 12)}
         jmp done
         nop
         nop
@@ -1834,11 +1837,6 @@ def build_time_warp(page: bytearray, page_va: int, s: dict[str, int]) -> bytes:
         call show_message
         cmp eax, 1
         jne cancelled
-        mov eax, 0x{s['perm_warning']:X}
-        mov edx, 0x34
-        call show_message
-        cmp eax, 6
-        jne cancelled
         call 0x425950
         cmp eax, dword ptr [ebp-0x18]
         jne recheck
@@ -1989,11 +1987,6 @@ def build_island(page: bytearray, page_va: int, s: dict[str, int]) -> bytes:
         call show_message
         cmp eax, 1
         jne cancelled
-        mov eax, 0x{s['perm_warning']:X}
-        mov edx, 0x34
-        call show_message
-        cmp eax, 6
-        jne cancelled
         call 0x425950
         cmp eax, dword ptr [ebp-0x18]
         jne recheck
@@ -2121,11 +2114,6 @@ def build_barrel(page: bytearray, page_va: int, s: dict[str, int]) -> bytes:
         mov edx, 1
         call show_message
         cmp eax, 1
-        jne cancelled
-        mov eax, 0x{s['perm_warning']:X}
-        mov edx, 0x34
-        call show_message
-        cmp eax, 6
         jne cancelled
         call 0x425950
         cmp eax, dword ptr [ebp-0x18]
@@ -2257,6 +2245,13 @@ def build_appearance(page: bytearray, page_va: int, s: dict[str, int]) -> bytes:
         mov eax, dword ptr [0x51D5F8]
         cmp eax, 5000
         jb insufficient
+        push 0
+        push 0
+        push 5
+        call 0x{page_va + OFF['confirm']:X}
+        cmp eax, 1
+        jne cancelled
+        mov esi, dword ptr [ebp-0x18]
         lea eax, [ebp-0x20]
         push eax
         lea eax, [ebp-0x1C]
@@ -2297,10 +2292,8 @@ def build_appearance(page: bytearray, page_va: int, s: dict[str, int]) -> bytes:
         sub eax, 5000
         cmp dword ptr [0x51D5F8], eax
         jne charge_unknown
-        {status_call(page_va, '5', 0)}
         jmp done
     no_change:
-        {status_call(page_va, '5', 1)}
         jmp done
     insufficient:
         {status_call(page_va, '5', 3)}
@@ -2309,7 +2302,6 @@ def build_appearance(page: bytearray, page_va: int, s: dict[str, int]) -> bytes:
         {status_call(page_va, '5', 2)}
         jmp done
     cancelled:
-        {status_call(page_va, '5', 4)}
         jmp done
     recheck:
         {status_call(page_va, '5', 5)}
@@ -2429,7 +2421,7 @@ def build_complete_collections(page: bytearray, page_va: int) -> bytes:
         sub eax, 1000000
         cmp dword ptr [0x51D5F8], eax
         jne charge_unknown
-        {status_call(page_va, '16', 0)}
+        {status_call(page_va, '16', 0, 'dword ptr [ebp-0x14]')}
         jmp done
     no_change:
         {status_call(page_va, '16', 1)}
@@ -2521,7 +2513,7 @@ def build_reset_collections(page: bytearray, page_va: int) -> bytes:
         sub eax, 1000000
         cmp dword ptr [0x51D5F8], eax
         jne charge_unknown
-        {status_call(page_va, '17', 0)}
+        {status_call(page_va, '17', 0, 'dword ptr [ebp-0x14]')}
         jmp done
     no_change:
         {status_call(page_va, '17', 1)}
@@ -2569,7 +2561,7 @@ def build_running_all(page: bytearray, page_va: int) -> bytes:
         mov dword ptr [ebp-0x1C], 0
         mov eax, dword ptr [0x51D5F8]
         mov dword ptr [ebp-0x20], eax
-        cmp eax, 150000
+        cmp eax, 1000000
         jb insufficient
         push 0
         push 0
@@ -2580,7 +2572,7 @@ def build_running_all(page: bytearray, page_va: int) -> bytes:
         mov eax, dword ptr [0x51D5F8]
         cmp eax, dword ptr [ebp-0x20]
         jne recheck
-        cmp eax, 150000
+        cmp eax, 1000000
         jb insufficient
         mov esi, 0x554190
         mov ebx, {BOUND}
@@ -2636,11 +2628,11 @@ def build_running_all(page: bytearray, page_va: int) -> bytes:
         mov eax, dword ptr [0x51D5F8]
         cmp eax, dword ptr [ebp-0x20]
         jne charge_unknown
-        push -150000
+        push -1000000
         mov ecx, 0x51D5F8
         call 0x4237B0
         mov eax, dword ptr [ebp-0x20]
-        sub eax, 150000
+        sub eax, 1000000
         cmp dword ptr [0x51D5F8], eax
         jne charge_unknown
         mov eax, dword ptr [ebp-0x10]
@@ -2698,7 +2690,7 @@ def build_mastery_all(page: bytearray, page_va: int) -> bytes:
         mov dword ptr [ebp-0x14], 0
         mov eax, dword ptr [0x51D5F8]
         mov dword ptr [ebp-0x18], eax
-        cmp eax, 300000
+        cmp eax, 1000000
         jb insufficient
         push 0
         push 0
@@ -2709,7 +2701,7 @@ def build_mastery_all(page: bytearray, page_va: int) -> bytes:
         mov eax, dword ptr [0x51D5F8]
         cmp eax, dword ptr [ebp-0x18]
         jne recheck
-        cmp eax, 300000
+        cmp eax, 1000000
         jb insufficient
         mov esi, 0x554190
         mov ebx, {BOUND}
@@ -2757,11 +2749,11 @@ def build_mastery_all(page: bytearray, page_va: int) -> bytes:
         mov eax, dword ptr [0x51D5F8]
         cmp eax, dword ptr [ebp-0x18]
         jne charge_unknown
-        push -300000
+        push -1000000
         mov ecx, 0x51D5F8
         call 0x4237B0
         mov eax, dword ptr [ebp-0x18]
-        sub eax, 300000
+        sub eax, 1000000
         cmp dword ptr [0x51D5F8], eax
         jne charge_unknown
         {status_call(page_va, '21', 0, 'dword ptr [ebp-0x10]', 'dword ptr [ebp-0x14]')}
@@ -2811,7 +2803,7 @@ def build_age18_all(page: bytearray, page_va: int) -> bytes:
         mov dword ptr [ebp-0x10], 0
         mov eax, dword ptr [0x51D5F8]
         mov dword ptr [ebp-0x18], eax
-        cmp eax, 200000
+        cmp eax, 1000000
         jb insufficient
         push 0
         push 0
@@ -2822,7 +2814,7 @@ def build_age18_all(page: bytearray, page_va: int) -> bytes:
         mov eax, dword ptr [0x51D5F8]
         cmp eax, dword ptr [ebp-0x18]
         jne recheck
-        cmp eax, 200000
+        cmp eax, 1000000
         jb insufficient
         mov esi, 0x554190
         mov ebx, {BOUND}
@@ -2838,16 +2830,9 @@ def build_age18_all(page: bytearray, page_va: int) -> bytes:
         mov eax, 360
         sub eax, dword ptr [esi+0x1B8C]
         jz age_next
-        mov dword ptr [ebp-0x1C], eax
         push eax
         lea ecx, [esi+0x1B8C]
         call 0x46F7F0
-        mov edi, dword ptr [ebp-0x1C]
-        add dword ptr [esi+0x1C3C], edi
-        cmp dword ptr [esi+0x1C4C], 0
-        je age_counted
-        add dword ptr [esi+0x1C4C], edi
-    age_counted:
         inc dword ptr [ebp-0x10]
     age_next:
         add esi, {STRIDE}
@@ -2858,11 +2843,11 @@ def build_age18_all(page: bytearray, page_va: int) -> bytes:
         mov eax, dword ptr [0x51D5F8]
         cmp eax, dword ptr [ebp-0x18]
         jne charge_unknown
-        push -200000
+        push -1000000
         mov ecx, 0x51D5F8
         call 0x4237B0
         mov eax, dword ptr [ebp-0x18]
-        sub eax, 200000
+        sub eax, 1000000
         cmp dword ptr [0x51D5F8], eax
         jne charge_unknown
         {status_call(page_va, '22', 0, 'dword ptr [ebp-0x10]')}

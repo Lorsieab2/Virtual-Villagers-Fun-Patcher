@@ -100,8 +100,11 @@ class Task9ArtifactTests(unittest.TestCase):
         # (command 1), and Barrel of Babies (command 2), adding three result
         # paths and shifting the offsets/`done` target; the expanded-256 baseline
         # keeps the original seven paths.
-        stock_offsets = [0xD0, 0x13E, 0x148, 0x152, 0x15C, 0x166, 0x177, 0x188, 0x199, 0x1AA]
-        stock_done = 0x9EF
+        stock_offsets = [
+            0x109, 0x1BA, 0x1C7, 0x1D4, 0x1E1, 0x1EE, 0x1F8, 0x202,
+            0x20C, 0x216, 0x220, 0x231, 0x242, 0x253, 0x264,
+        ]
+        stock_done = 0xAA9
         expanded_offsets = [0xB6, 0x118, 0x122, 0x133, 0x144, 0x155, 0x166]
         expanded_done = 0x9AB
         for mode, layout in builder.LAYOUTS.items():
@@ -332,12 +335,12 @@ class Task9ArtifactTests(unittest.TestCase):
         # Five villager rows: Youth, Mastery, Running, Age 18, Change Appearance.
         # The picker dialog 203 uses arrow/OK/Cancel, not "Buy".
         self.assertEqual(detail.count('PUSHBUTTON "Buy"'), 5)
-        self.assertIn("Full Heal/Cure All Villagers", tech)
-        self.assertIn("Complete all Collections", tech)
-        self.assertIn("Reset all Collections", tech)
+        self.assertIn("Full Heal / Cure All", tech)
+        self.assertIn("Complete All Collections", tech)
+        self.assertIn("Reset All Collections", tech)
         self.assertIn("Grant Running to All Villagers", tech)
         self.assertIn("Grant Full Mastery to All Villagers", tech)
-        self.assertIn("Set all Villagers to 18", tech)
+        self.assertIn("Set All Villagers to 18", tech)
         self.assertIn("Grant Running", detail)
         self.assertIn("Change Appearance", detail)
         # Both Upgrade menus advertise the ESC exit hint.

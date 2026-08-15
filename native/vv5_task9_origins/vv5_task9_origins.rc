@@ -63,38 +63,38 @@ BEGIN
 
     ICON 110, -1, 8, 136, 24, 24
     ICON 109, 1105, 22, 144, 12, 12
-    LTEXT "Full Heal/Cure All Villagers", -1, 40, 137, 195, 10
+    LTEXT "Full Heal / Cure All", -1, 40, 137, 195, 10
     LTEXT "30,000 tech points", -1, 40, 149, 150, 9
     PUSHBUTTON "Buy", 1005, 240, 138, 55, 16
 
-    ICON 109, -1, 8, 162, 24, 24
+    ICON 108, -1, 8, 162, 24, 24
     ICON 109, 1106, 22, 170, 12, 12
-    LTEXT "Complete all Collections", -1, 40, 163, 195, 10
+    LTEXT "Grant Running to All Villagers", -1, 40, 163, 195, 10
     LTEXT "1,000,000 tech points", -1, 40, 175, 150, 9
     PUSHBUTTON "Buy", 1006, 240, 164, 55, 16
 
-    ICON 109, -1, 8, 188, 24, 24
+    ICON 107, -1, 8, 188, 24, 24
     ICON 109, 1107, 22, 196, 12, 12
-    LTEXT "Reset all Collections", -1, 40, 189, 195, 10
+    LTEXT "Grant Full Mastery to All Villagers", -1, 40, 189, 195, 10
     LTEXT "1,000,000 tech points", -1, 40, 201, 150, 9
     PUSHBUTTON "Buy", 1007, 240, 190, 55, 16
 
-    ICON 108, -1, 8, 214, 24, 24
+    ICON 106, -1, 8, 214, 24, 24
     ICON 109, 1108, 22, 222, 12, 12
-    LTEXT "Grant Running to All Villagers", -1, 40, 215, 195, 10
-    LTEXT "150,000 tech points", -1, 40, 227, 150, 9
+    LTEXT "Set All Villagers to 18", -1, 40, 215, 195, 10
+    LTEXT "1,000,000 tech points", -1, 40, 227, 150, 9
     PUSHBUTTON "Buy", 1008, 240, 216, 55, 16
 
-    ICON 107, -1, 8, 240, 24, 24
+    ICON 109, -1, 8, 240, 24, 24
     ICON 109, 1109, 22, 248, 12, 12
-    LTEXT "Grant Full Mastery to All Villagers", -1, 40, 241, 195, 10
-    LTEXT "300,000 tech points", -1, 40, 253, 150, 9
+    LTEXT "Complete All Collections", -1, 40, 241, 195, 10
+    LTEXT "1,000,000 tech points", -1, 40, 253, 150, 9
     PUSHBUTTON "Buy", 1009, 240, 242, 55, 16
 
-    ICON 106, -1, 8, 266, 24, 24
+    ICON 109, -1, 8, 266, 24, 24
     ICON 109, 1110, 22, 274, 12, 12
-    LTEXT "Set all Villagers to 18", -1, 40, 267, 195, 10
-    LTEXT "200,000 tech points", -1, 40, 279, 150, 9
+    LTEXT "Reset All Collections", -1, 40, 267, 195, 10
+    LTEXT "1,000,000 tech points", -1, 40, 279, 150, 9
     PUSHBUTTON "Buy", 1010, 240, 268, 55, 16
 
     CTEXT "Press ESC to exit this menu.", -1, 20, 294, 270, 9

@@ -328,21 +328,39 @@ __declspec(dllexport) int __stdcall ShowOriginsUpgradeMenuState(
 static const char *action_name(unsigned int action) {
     switch (action) {
     case ACTION_YOUTH: return "Grant Youth";
-    case ACTION_MASTERY: return "Full Mastery";
+    case ACTION_MASTERY: return "Grant Full Mastery";
     case ACTION_RUNNING: return "Grant Running";
     case ACTION_AGE18: return "Set Age to 18";
-    case ACTION_HEAL: return "Full Heal/Cure All Villagers";
+    case ACTION_HEAL: return "Full Heal / Cure All";
     case ACTION_APPEARANCE: return "Change Appearance";
-    case ACTION_COMPLETE_COLLECTIONS: return "Complete all Collections";
-    case ACTION_RESET_COLLECTIONS: return "Reset all Collections";
+    case ACTION_COMPLETE_COLLECTIONS: return "Complete All Collections";
+    case ACTION_RESET_COLLECTIONS: return "Reset All Collections";
     case ACTION_TECH_DOUBLER: return "Tech Point Doubler";
     case ACTION_FOOD_DOUBLER: return "Food Point Doubler";
     case ACTION_GRANT_RUNNING_ALL: return "Grant Running to All Villagers";
     case ACTION_GRANT_MASTERY_ALL: return "Grant Full Mastery to All Villagers";
-    case ACTION_SET_AGE_18_ALL: return "Set all Villagers to 18";
+    case ACTION_SET_AGE_18_ALL: return "Set All Villagers to 18";
     default: return "Origins upgrade";
     }
 }
+
+static const char *action_cost(unsigned int action) {
+    switch (action) {
+    case ACTION_YOUTH: return "50,000";
+    case ACTION_MASTERY: return "100,000";
+    case ACTION_RUNNING: return "40,000";
+    case ACTION_AGE18: return "50,000";
+    case ACTION_HEAL: return "30,000";
+    case ACTION_APPEARANCE: return "5,000";
+    case ACTION_TECH_DOUBLER:
+    case ACTION_FOOD_DOUBLER: return "500,000";
+    default: return "1,000,000";
+    }
+}
+
+/* Correct singular/plural for a villager count. */
+static const char *vpl(unsigned int n) { return n == 1 ? "Villager" : "Villagers"; }
+static const char *vpl_lc(unsigned int n) { return n == 1 ? "villager" : "villagers"; }
 
 __declspec(dllexport) int __stdcall ConfirmVV5Task9Action(
     unsigned int action,
@@ -350,53 +368,23 @@ __declspec(dllexport) int __stdcall ConfirmVV5Task9Action(
     unsigned int amount_b
 ) {
     HWND owner = GetOriginsOwner();
-    char message[384];
+    char message[256];
     const char *title = (action == ACTION_HEAL || action >= ACTION_TECH_BASE)
         ? "Origins Upgrades"
         : "Villager Upgrades";
+    (void)amount_a;
+    (void)amount_b;
     if (owner == NULL) {
         return 0;
     }
-    /* Every upgrade shows a detailed purchase prompt (naming it and its exact
-       price), then the shared permanent-change warning below as a second gate. */
-    if (action == ACTION_HEAL) {
-        wsprintfA(
-            message,
-            "Full Heal/Cure All Villagers will clear sickness from %u Villagers and restore full health to %u Villagers for 30,000 tech points.\r\nPress OK to confirm, or Cancel.",
-            amount_a,
-            amount_b
-        );
-    } else {
-        unsigned int price;
-        switch (action) {
-        case ACTION_MASTERY: price = 100000U; break;
-        case ACTION_RUNNING: price = 40000U; break;
-        case ACTION_COMPLETE_COLLECTIONS:
-        case ACTION_RESET_COLLECTIONS: price = 1000000U; break;
-        case ACTION_GRANT_RUNNING_ALL: price = 150000U; break;
-        case ACTION_GRANT_MASTERY_ALL: price = 300000U; break;
-        case ACTION_SET_AGE_18_ALL: price = 200000U; break;
-        case ACTION_TECH_DOUBLER:
-        case ACTION_FOOD_DOUBLER: price = 500000U; break;
-        default: price = 50000U; break;
-        }
-        wsprintfA(
-            message,
-            "%s for %u tech points?\r\nPress OK to confirm, or Cancel.",
-            action_name(action),
-            price
-        );
-    }
-    if (MessageBoxA(owner, message, title, MB_OKCANCEL | MB_ICONQUESTION) != IDOK) {
-        return 0;
-    }
-    /* Shared final gate for every upgrade (tech-screen and details-screen). */
-    return MessageBoxA(
-        owner,
-        "This upgrade makes permanent changes to your village. Do you still want to purchase this?",
-        title,
-        MB_YESNO | MB_ICONWARNING
-    ) == IDYES;
+    /* One OK/Cancel purchase box naming the upgrade and its cost. */
+    wsprintfA(
+        message,
+        "Do you want to buy %s for %s tech points?\r\nPress OK to confirm, or Cancel.",
+        action_name(action),
+        action_cost(action)
+    );
+    return MessageBoxA(owner, message, title, MB_OKCANCEL | MB_ICONQUESTION) == IDOK;
 }
 
 __declspec(dllexport) int __stdcall ShowVV5Task9Result(
@@ -414,59 +402,65 @@ __declspec(dllexport) int __stdcall ShowVV5Task9Result(
     switch (status) {
     case RESULT_SUCCESS:
         if (action == ACTION_HEAL) {
-            wsprintfA(message, "Cured sickness from %u villagers.\r\n\r\nRestored %u villagers to full health.", amount_a, amount_b);
+            wsprintfA(message, "Cured sickness from %u %s.\r\n\r\nRestored %u %s to full health.",
+                      amount_a, vpl_lc(amount_a), amount_b, vpl_lc(amount_b));
         } else if (action == ACTION_COMPLETE_COLLECTIONS) {
-            lstrcpyA(message, "All collections are complete. Every collectible was added and the collection goals updated accordingly.");
+            wsprintfA(message, "Marked %u collectibles as found and triggered the collection goals.", amount_a);
         } else if (action == ACTION_RESET_COLLECTIONS) {
-            lstrcpyA(message, "All collections were reset. Every collectible was cleared and the collection goals were marked incomplete again.\r\n\r\nNote: game-wide totals and any one-time rewards from completing the collections are not reversed.");
+            wsprintfA(message, "Cleared %u collectibles.", amount_a);
         } else if (action == ACTION_GRANT_RUNNING_ALL) {
+            unsigned int granted = amount_b >> 16, removed = amount_b & 0xFFFF;
+            unsigned int liked = amount_a >> 16, full = amount_a & 0xFFFF;
             wsprintfA(
                 message,
-                "%u villagers already like running; skipped over.\r\n\r\n"
-                "%u villagers already have 3 likes; skipped over.\r\n\r\n"
-                "Granted Running to %u villagers.\r\n\r\n"
-                "Removed Running Dislike from %u villagers.",
-                amount_a >> 16, amount_a & 0xFFFF, amount_b >> 16, amount_b & 0xFFFF
+                "Granted Running to %u %s.\r\n\r\n"
+                "Removed a Running dislike from %u %s.\r\n\r\n"
+                "Skipped %u %s: already like Running.\r\n\r\n"
+                "Skipped %u %s: already have 3 likes.",
+                granted, vpl(granted), removed, vpl(removed),
+                liked, vpl(liked), full, vpl(full)
             );
         } else if (action == ACTION_GRANT_MASTERY_ALL) {
             wsprintfA(
                 message,
-                "Granted Full Mastery to %u Villagers.\r\n\r\n"
-                "%u villagers are already Fully Mastered. Skipped over.",
-                amount_a, amount_b
+                "Granted Full Mastery to %u %s.\r\n\r\n"
+                "Skipped %u %s: already fully mastered.",
+                amount_a, vpl(amount_a), amount_b, vpl(amount_b)
             );
-        } else if (action == ACTION_SET_AGE_18_ALL) {
-            wsprintfA(message, "Set %u villagers to 18 years old.", amount_a);
         } else {
             wsprintfA(message, "%s completed.", name);
         }
         break;
     case RESULT_NO_CHANGE:
-        if (action == ACTION_RUNNING) {
-            lstrcpyA(message, "This Villager already likes Running. All Dislikes were preserved.\r\nNo tech points have been deducted.");
+        if (action == ACTION_YOUTH) {
+            lstrcpyA(message, "This villager is already full of youth. No tech points have been deducted.");
+        } else if (action == ACTION_MASTERY) {
+            lstrcpyA(message, "This villager is already fully mastered. No tech points have been deducted.");
+        } else if (action == ACTION_RUNNING) {
+            lstrcpyA(message, "This villager already likes Running. No tech points have been deducted.");
+        } else if (action == ACTION_AGE18) {
+            lstrcpyA(message, "No changes were needed. No tech points have been deducted.");
         } else if (action == ACTION_HEAL) {
             lstrcpyA(message, "Everyone is at full health already. No villagers are sick. No tech points have been deducted.");
         } else if (action == ACTION_GRANT_RUNNING_ALL) {
-            lstrcpyA(message, "No changes were needed. Every eligible villager already likes running or has no free Like slot.\r\n\r\nNo tech points have been deducted.");
+            lstrcpyA(message, "Everyone already likes running, or has full Likes slots. No tech points have been deducted.");
         } else if (action == ACTION_GRANT_MASTERY_ALL) {
-            lstrcpyA(message, "No changes were needed. Every eligible villager is already Fully Mastered.\r\n\r\nNo tech points have been deducted.");
-        } else if (action == ACTION_COMPLETE_COLLECTIONS) {
-            lstrcpyA(message, "All collections were already complete.\r\n\r\nNo tech points have been deducted.");
-        } else if (action == ACTION_RESET_COLLECTIONS) {
-            lstrcpyA(message, "There are no collections to reset.\r\n\r\nNo tech points have been deducted.");
+            lstrcpyA(message, "Everyone has already mastered their skills. No tech points have been deducted.");
         } else if (action == ACTION_SET_AGE_18_ALL) {
-            lstrcpyA(message, "Every eligible villager is already 18 years old.\r\n\r\nNo tech points have been deducted.");
-        } else if (action == ACTION_APPEARANCE) {
-            lstrcpyA(message, "The appearance was left unchanged.\r\n\r\nNo tech points have been deducted.");
+            lstrcpyA(message, "Everyone is already 18. No tech points have been deducted.");
+        } else if (action == ACTION_COMPLETE_COLLECTIONS) {
+            lstrcpyA(message, "All collectibles were already found. No tech points have been deducted.");
+        } else if (action == ACTION_RESET_COLLECTIONS) {
+            lstrcpyA(message, "There were no collectibles to clear. No tech points have been deducted.");
         } else {
-            wsprintfA(message, "%s is already complete.\r\nNo tech points have been deducted.", name);
+            lstrcpyA(message, "No changes were needed. No tech points have been deducted.");
         }
         break;
     case RESULT_INVALID:
         lstrcpyA(message, "No valid living Believer is selected.\r\nNo tech points have been deducted.");
         break;
     case RESULT_INSUFFICIENT:
-        lstrcpyA(message, "Not enough tech points.\r\nNo tech points have been deducted.");
+        lstrcpyA(message, "Not enough tech points.");
         break;
     case RESULT_CANCELLED:
         wsprintfA(message, "%s was canceled.\r\nNo tech points have been deducted.", name);
@@ -481,7 +475,7 @@ __declspec(dllexport) int __stdcall ShowVV5Task9Result(
         lstrcpyA(message, "The action effects were verified, but the final tech-point balance did not match the exact expected deduction. The charge outcome is unknown.");
         break;
     case RESULT_NO_SLOT:
-        lstrcpyA(message, "This Villager has no empty Like slot. All Dislikes were preserved.\r\nNo tech points have been deducted.");
+        lstrcpyA(message, "This villager already has full Likes slots. Running can not be added.");
         break;
     case RESULT_INVALID_SKILL:
         lstrcpyA(message, "Full Mastery cannot be applied because a skill is NaN, infinite, negative, or outside 0..100.\r\nNo tech points have been deducted.");
@@ -490,10 +484,10 @@ __declspec(dllexport) int __stdcall ShowVV5Task9Result(
         lstrcpyA(message, "This VV5 native action remains unavailable.\r\nNo tech points have been deducted.");
         break;
     case RESULT_REMOVED:
-        lstrcpyA(message, "The point doubler was removed. No refund was issued.");
+        wsprintfA(message, "%s was removed. No refund was issued.", name);
         break;
     case RESULT_PURCHASED:
-        lstrcpyA(message, "The point doubler was purchased.");
+        wsprintfA(message, "%s completed.", name);
         break;
     case RESULT_UNSUPPORTED_SICKNESS:
         lstrcpyA(message, "Full Heal / Cure All is unavailable because an eligible Villager has sickness type 12, whose additional native effects are not yet implemented.\r\nNo tech points have been deducted.");
