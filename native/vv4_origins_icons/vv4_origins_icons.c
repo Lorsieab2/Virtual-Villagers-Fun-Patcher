@@ -229,6 +229,25 @@ static void appearance_draw_cell(const DRAWITEMSTRUCT *dis, int is_head, int val
     }
 }
 
+/* OFFICIAL per-row purchase-confirm names + costs. Tech rows 6-8 (village-wide)
+   use the payload's own OFFICIAL confirm and are skipped here. */
+static const char *const g_tech_names[9] = {
+    "Time Warp", "Island Event", "Barrel of Babies",
+    "Tech Point Doubler", "Food Point Doubler", "Full Heal / Cure All",
+    "", "", ""
+};
+static const char *const g_tech_costs[9] = {
+    "50,000", "30,000", "75,000", "500,000", "500,000", "30,000", "", "", ""
+};
+static const char *const g_villager_names[5] = {
+    "Grant Youth", "Grant Full Mastery", "Grant Running",
+    "Set Age to 18", "Change Appearance"
+};
+static const char *const g_villager_costs[5] = {
+    "50,000", "100,000", "40,000", "50,000", "5,000"
+};
+static int g_villager_menu;  /* set at WM_INITDIALOG; menus are modal/one-at-a-time */
+
 static INT_PTR CALLBACK upgrade_dialog(
     HWND window,
     UINT message,
@@ -237,6 +256,7 @@ static INT_PTR CALLBACK upgrade_dialog(
 ) {
     if (message == WM_INITDIALOG) {
         int villager_menu = (lparam & STATE_VILLAGER) != 0;
+        g_villager_menu = villager_menu;
         int village_wide_buy = (lparam & STATE_VILLAGE_WIDE_BUY) != 0;
         int row_count = villager_menu
             ? 5
@@ -269,28 +289,31 @@ static INT_PTR CALLBACK upgrade_dialog(
     } else if (message == WM_COMMAND) {
         unsigned int command = LOWORD(wparam);
         if (command >= ID_BUY_FIRST && command <= ID_BUY_LAST) {
-            /* Confirm every purchase. The doubler "Remove" toggle is reversible
-               and is not a purchase, so only gate the "Buy" action. */
+            int row = (int)(command - ID_BUY_FIRST);
             char label[16];
             label[0] = '\0';
             GetDlgItemTextA(window, command, label, (int)sizeof(label));
-            /* The converted village-wide rows (Running = tech row 6, Full
-               Mastery = 7, Set-All-to-18 = 8) use their own OFFICIAL-worded
-               confirmation shown from the payload after a dry run -- so skip
-               the generic warning for them to avoid a double prompt. */
+            /* Only the "Buy" action is confirmed here; the doubler "Remove"
+               toggle is reversible and not a purchase. The village-wide rows
+               (tech 6/7/8) run their own OFFICIAL confirm from the payload
+               after a dry run, so pass straight through for them. */
             if (lstrcmpA(label, "Buy") == 0
-                && command != (unsigned int)(ID_BUY_FIRST + 6)
-                && command != (unsigned int)(ID_BUY_FIRST + 7)
-                && command != (unsigned int)(ID_BUY_FIRST + 8)
-                && MessageBoxA(
-                       window,
-                       "This upgrade makes permanent changes to your village. "
-                       "Do you still want to purchase this?",
-                       "Confirm Purchase",
-                       MB_YESNO | MB_ICONWARNING) != IDYES) {
-                return TRUE; /* No: do nothing, stay in the menu. */
+                && !(!g_villager_menu && row >= 6)) {
+                const char *name = g_villager_menu ? g_villager_names[row]
+                                                   : g_tech_names[row];
+                const char *cost = g_villager_menu ? g_villager_costs[row]
+                                                   : g_tech_costs[row];
+                char msg[256];
+                wsprintfA(msg,
+                    "Do you want to buy %s for %s tech points?\r\n"
+                    "Press OK to confirm, or Cancel.", name, cost);
+                if (MessageBoxA(window, msg,
+                        g_villager_menu ? "Villager Upgrades" : "Origins Upgrades",
+                        MB_OKCANCEL | MB_ICONQUESTION) != IDOK) {
+                    return TRUE; /* Cancel: stay in the menu. */
+                }
             }
-            EndDialog(window, (INT_PTR)(command - ID_BUY_FIRST));
+            EndDialog(window, (INT_PTR)row);
             return TRUE;
         }
         if (command == IDCANCEL) {
