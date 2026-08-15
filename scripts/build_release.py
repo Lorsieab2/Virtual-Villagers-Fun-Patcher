@@ -21,6 +21,7 @@ FILES = [
     "assets/origins/VVFP Origins Icons.dll",
     "assets/origins/VVFP VV1 Origins Icons.dll",
     "assets/origins/VVFP VV2 Origins Icons.dll",
+    "assets/origins/VVFP VV4 Origins Icons.dll",
     "assets/statistics/VVFP Statistics Export.dll",
     "data/builds.json",
     "data/expanded_256.json",

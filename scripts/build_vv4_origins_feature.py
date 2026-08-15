@@ -49,18 +49,55 @@ VILLAGE_WIDE_SIGNATURE_VA = 0x728220
 VILLAGE_WIDE_ENTRY_VA = 0x728240
 VILLAGE_PREFLIGHT_FILE_OFFSET = 0xCC180
 VILLAGE_PREFLIGHT_VA = 0x728180
+# Change Appearance picker-caller lives in the free tail of the .shr helper
+# page (the origins feature already maps/marks this whole page executable),
+# well past the village-wide payload which ends near 0xCC740 / 0x728740.
+APPEARANCE_HELPER_FILE_OFFSET = 0xCC760
+APPEARANCE_HELPER_VA = 0x728760
+# Deferred Barrel of Babies. A purchased barrel is no longer fired synchronously
+# during menu-close: that ran the native event with the wrong context object, so
+# its multi-tick lifecycle never delivered the 3 children. Instead do_barrel arms
+# a countdown token in the free .shr tail; the game's own per-tick event loop
+# (0x44098C -> 0x4182B0) then presents the barrel in the correct world context,
+# exactly like a stock random barrel, so its native 3-child lifecycle completes.
+BARREL_TOKEN_VA = 0x728B00            # dword countdown (ticks left before firing)
+BARREL_ARMED_VA = 0x728B04            # byte: barrel is eligible for this loop pass
+BARREL_COUNTDOWN_FILE_OFFSET = 0xCCB10
+BARREL_COUNTDOWN_VA = 0x728B10
+BARREL_WAIT_TICKS = 90                # ~90 gameplay ticks after the Purchased prompt
+# Dynamic, mode-aware Barrel capacity check. Rather than hardcode 150, mirror the
+# game's own population-room logic (native barrel gate at 0x468350): current
+# population from 0x467610 (living + pending pregnancy babies, matching the shown
+# number) vs the effective cap = per-population-tech bonus + the base operand at
+# 0x4683F1. That base is what the patcher rewrites per population mode (stock 90,
+# Collection-Progression 125 -> cap 115 vs 150), so reading it keeps the barrel
+# aligned with whatever limit the current build actually enforces.
+BARREL_CAP_BASE_OPERAND_VA = 0x4683F1   # imm8 of `add esi, <base>` (mode-patched)
+BARREL_CAPACITY_FILE_OFFSET = 0xCCC00
+BARREL_CAPACITY_VA = 0x728C00
+BARREL_CHILDREN = 3                     # the barrel delivers 3 children
+# Complete / Reset All Collections tech rows (9/10). The collectible + goal
+# work lives in the companion DLL (ApplyVV4CompleteCollections @101 /
+# ApplyVV4ResetCollections @102, which also show the OFFICIAL result box); this
+# .shr stub loads the DLL and calls the requested export by ORDINAL (EAX), so no
+# new payload strings are needed.
+COLLECTIONS_APPLY_FILE_OFFSET = 0xCCD00
+COLLECTIONS_APPLY_VA = 0x728D00
+COLLECTIONS_COMPLETE_ORDINAL = 101
+COLLECTIONS_RESET_ORDINAL = 102
+# Scratch .shr slot holding the selected villager's record pointer while the
+# Villager (details) menu is open, so the companion DLL can act on that record
+# for the "Likes full but a Running dislike was removed" no-change case.
+VV4_DETAIL_RECORD_FILE_OFFSET = 0xCCD40
+VV4_DETAIL_RECORD_VA = 0x728D40
 EXPANDED_VILLAGE_WIDE_ENTRY_VA = 0x85A240
 EXPANDED_VILLAGE_PREFLIGHT_VA = 0x85A180
 RUNNING_PREFERENCE_ID = 38  # exact-build preference-table evidence: 0xA0CD8
 VV4_MASTER_VALUE = 0x42C80000  # Float32 100.0
 VV4_NATIVE_SKILL_WRITER_VA = 0x46AD80
 VV4_DETAIL_HANDLER_RELOC_OFFSET = 0x235
-VV4_RESULT_HELPER_OFFSET = 0x8B3
+VV4_RESULT_HELPER_OFFSET = 0x8F3
 VV4_RESULT_HELPER_VA = PAYLOAD_VA + VV4_RESULT_HELPER_OFFSET
-VV4_RESULT_HELPER_BYTES = bytes.fromhex(
-    "53568B5C240C8B74241068E39E4800FF15E0A1480085C0741868EE9E480050"
-    "FF15DCA1480085C074086A0053566A00FFD05E5BC20800"
-)
 
 # IDA Pro 9.4 decoded the four current-feature absolute operands that are not
 # owned by the generated payload/preflight helpers. They are explicit
@@ -80,6 +117,12 @@ def assemble(source: str, address: int) -> bytes:
 
 def rel32_jump(source_va: int, target_va: int) -> bytes:
     return b"\xE9" + int(target_va - source_va - 5).to_bytes(
+        4, "little", signed=True
+    )
+
+
+def rel32_call(source_va: int, target_va: int) -> bytes:
+    return b"\xE8" + int(target_va - source_va - 5).to_bytes(
         4, "little", signed=True
     )
 
@@ -113,12 +156,13 @@ def main() -> None:
         ("paused", "Time Warp is unavailable while the game is paused."),
         ("capacity", "The village population is already at maximum capacity."),
         ("running_unavailable", "Running cannot be added."),
-        ("icons_dll", "VVFP Origins Icons.dll"),
+        ("icons_dll", "VVFP VV4 Origins Icons.dll"),
         ("show_dialog_export", "ShowOriginsUpgradeMenuState"),
         ("show_result_export", "ShowOriginsVillageWideResult"),
-        ("user32_dll", "USER32.dll"),
-        ("message_box_export", "MessageBoxA"),
-        ("cure_all", "Cure all Villagers"),
+        ("message_export", "ShowOriginsUpgradeMessage"),
+        ("cure_all", "Full Heal/Cure All Villagers"),
+        ("show_appearance_picker", "ShowOriginsAppearancePicker"),
+        ("show_cure_result", "ShowOriginsCureResult"),
     ):
         add_c_string(strings, s, name, value)
     while len(strings) % 4:
@@ -127,7 +171,7 @@ def main() -> None:
     for value in (50000, 30000, 75000, 500000, 500000, 30000):
         strings.extend(value.to_bytes(4, "little"))
     s["detail_costs"] = STRINGS_VA + len(strings)
-    for value in (50000, 100000, 40000, 50000):
+    for value in (50000, 100000, 40000, 50000, 5000):
         strings.extend(value.to_bytes(4, "little"))
     if len(strings) > PAYLOAD_SIZE - STRINGS_OFFSET:
         raise RuntimeError("VV4 Origins strings exceed the validated cave")
@@ -141,8 +185,8 @@ def main() -> None:
     show_message = PAYLOAD_VA + 0x200
     tech_menu = PAYLOAD_VA + 0x260
     detail_menu = PAYLOAD_VA + 0x500
-    tech_increment = PAYLOAD_VA + 0x850
-    food_increment = PAYLOAD_VA + 0x900
+    tech_increment = PAYLOAD_VA + 0x890
+    food_increment = PAYLOAD_VA + 0x930
 
     code = bytearray(b"\0" * STRINGS_OFFSET)
     occupied = bytearray(b"\0" * STRINGS_OFFSET)
@@ -246,8 +290,8 @@ def main() -> None:
     )
     put(
         barrel_eligibility,
-        """
-            test dword ptr [0x4D6E10], 0x80000000
+        f"""
+            cmp byte ptr [0x{BARREL_ARMED_VA:X}], 0
             jz original
             mov al, 1
             ret
@@ -272,7 +316,7 @@ def main() -> None:
             je unavailable
             cmp dword ptr [0x{VILLAGE_WIDE_SIGNATURE_VA:X}], 0x50465656
             jne no_village_wide
-            or dword ptr [esp + 0x10], 0xA01C0
+            or dword ptr [esp + 0x10], 0xA0000
         no_village_wide:
             push dword ptr [esp + 0x10]
             push dword ptr [esp + 0x10]
@@ -287,33 +331,35 @@ def main() -> None:
             ret 8
         """,
     )
-    put(
-        show_message,
-        f"""
+    # Single source of truth for the status popup helper. It is placed at
+    # `show_message` AND copied verbatim into the pinned result-helper cave
+    # (see below). Every reference is absolute (string VAs, IAT slots) or an
+    # internal rel8 jump, so the bytes are position-independent -- deriving the
+    # cave copy from this same source keeps its baked string VAs in lockstep
+    # with the current string table instead of rotting when strings shift.
+    show_message_source = f"""
             push ebx
             push esi
             mov ebx, dword ptr [esp + 0x0C]
             mov esi, dword ptr [esp + 0x10]
-            push 0x{s['user32_dll']:X}
+            push 0x{s['icons_dll']:X}
             call dword ptr [0x48A1E0]
             test eax, eax
             je done
-            push 0x{s['message_box_export']:X}
+            push 0x{s['message_export']:X}
             push eax
             call dword ptr [0x48A1DC]
             test eax, eax
             je done
-            push 0
-            push ebx
             push esi
-            push 0
+            push ebx
             call eax
         done:
             pop esi
             pop ebx
             ret 8
-        """,
-    )
+        """
+    put(show_message, show_message_source)
     put(
         tech_menu,
         f"""
@@ -332,7 +378,12 @@ def main() -> None:
             jz food_not_owned
             or eax, 16
         food_not_owned:
-            or eax, 0x1800
+            # Tech/Food Doublers must be purchasable when unowned: show the
+            # default "Buy" control (owned rows still resolve to "Remove" via
+            # the eax bit-3/bit-4 owned flags set above).  The former
+            # `or eax, 0x1800` set the row 3/4 "Unavailable" flags
+            # unconditionally, which blocked both doublers from ever being
+            # bought no matter how many tech points the player had.
             push eax
             push 0
             call 0x{show_dialog:X}
@@ -367,24 +418,14 @@ def main() -> None:
         maybe_barrel:
             cmp ebx, 2
             jne charge
-            mov ebp, dword ptr [0x467499]
-            xor edi, edi
-            mov edx, 0x50E5AC
-        count_records:
-            cmp byte ptr [edx + 0x1CC4], 0
-            je record_free
-            inc edi
-        record_free:
-            add edx, 0x2E3C
-            dec ebp
-            jne count_records
-            mov eax, dword ptr [0x467499]
-            sub eax, 3
-            cmp edi, eax
-            jbe charge
+            call 0x{BARREL_CAPACITY_VA:X}
+            test eax, eax
+            jnz charge
             mov eax, 0x{s['capacity']:X}
             jmp status
         charge:
+            cmp ebx, 9
+            jae do_collections
             cmp ebx, 6
             jb legacy_charge
             cmp ebx, 8
@@ -399,6 +440,25 @@ def main() -> None:
             mov ecx, 0x4D6F88
             call 0x41E300
             jmp do_village_wide
+        do_collections:
+            cmp dword ptr [0x4D6F88], 1000000
+            jb insufficient
+            mov eax, -1000000
+            push eax
+            mov ecx, 0x4D6F88
+            call 0x41E300
+            mov eax, {COLLECTIONS_COMPLETE_ORDINAL}
+            cmp ebx, 9
+            je do_collections_go
+            mov eax, {COLLECTIONS_RESET_ORDINAL}
+        do_collections_go:
+            call 0x{COLLECTIONS_APPLY_VA:X}
+            test eax, eax
+            jnz menu_done
+            # DLL reported no change (already fully found / already cleared):
+            # refund the 1,000,000 directly (not via the doubler-hooked adder).
+            add dword ptr [0x4D6F88], 1000000
+            jmp menu_done
         legacy_charge:
             mov eax, dword ptr [0x{s['tech_costs']:X} + ebx*4]
             cmp dword ptr [0x4D6F88], eax
@@ -448,11 +508,7 @@ def main() -> None:
             mov dword ptr [eax + 0x170E0], 0
             jmp success
         do_barrel:
-            or dword ptr [0x4D6E10], 0x80000000
-            push 25
-            push esi
-            call 0x418190
-            and dword ptr [0x4D6E10], 0x7FFFFFFF
+            mov dword ptr [0x{BARREL_TOKEN_VA:X}], {BARREL_WAIT_TICKS}
             jmp success
         do_tech_doubler:
             or dword ptr [0x4D6E10], 1
@@ -553,8 +609,14 @@ def main() -> None:
             or edi, 4
         age_state:
             cmp dword ptr [edx + 0x1B8C], 360
-            jne show
+            jne age_done
             or edi, 8
+        age_done:
+            test ebp, 4
+            jz record_store
+            or edi, 0x2000
+        record_store:
+            mov dword ptr [0x{VV4_DETAIL_RECORD_VA:X}], edx
         show:
             push edi
             push 1
@@ -572,6 +634,8 @@ def main() -> None:
             test eax, eax
             je detail_done
             mov edx, eax
+            cmp ebx, 4
+            je detail_appearance
             cmp ebx, 2
             jne detail_charge
             lea eax, [edx + 0x1E60]
@@ -604,6 +668,13 @@ def main() -> None:
             cmp ebx, 2
             je running
             mov dword ptr [edx + 0x1B8C], 360
+            jmp detail_success
+        detail_appearance:
+            cmp dword ptr [0x4D6F88], 5000
+            jb detail_insufficient
+            call 0x{APPEARANCE_HELPER_VA:X}
+            test eax, eax
+            je detail_loop
             jmp detail_success
         youth:
             mov eax, dword ptr [edx + 0x1B8C]
@@ -651,31 +722,21 @@ def main() -> None:
             mov eax, 0x{s['not_enough']:X}
             jmp detail_status
         running:
+            # A free Like slot was proven in the pre-charge running_preflight.
+            # Grant Running through the game's managed like helpers (add-to-
+            # likes 0x45D2D0, remove-from-dislikes 0x45D1C0) rather than raw
+            # array writes, which corrupt the like state and crash the game.
+            # Both are thiscall/ret 4 and clobber EAX/ECX/EDX, so preserve the
+            # record pointer (EDX) across them on the stack.
+            push edx
+            push {RUNNING_PREFERENCE_ID}
             lea ecx, [edx + 0x1E60]
-            mov eax, 3
-        find_like:
-            cmp dword ptr [ecx], {RUNNING_PREFERENCE_ID}
-            je remove_dislikes
-            cmp dword ptr [ecx], -1
-            je store_like
-            add ecx, 4
-            dec eax
-            jne find_like
-            mov eax, 0x{s['running_unavailable']:X}
-            jmp detail_status
-        store_like:
-            mov dword ptr [ecx], {RUNNING_PREFERENCE_ID}
-        remove_dislikes:
+            call 0x45D2D0
+            mov edx, dword ptr [esp]
+            push {RUNNING_PREFERENCE_ID}
             lea ecx, [edx + 0x1E6C]
-            mov eax, 3
-        remove_loop:
-            cmp dword ptr [ecx], {RUNNING_PREFERENCE_ID}
-            jne remove_next
-            mov dword ptr [ecx], -1
-        remove_next:
-            add ecx, 4
-            dec eax
-            jne remove_loop
+            call 0x45D1C0
+            add esp, 4
         detail_success:
             mov eax, 0x{s['purchased']:X}
             jmp detail_status
@@ -769,9 +830,15 @@ def main() -> None:
         bytes(payload), repair_result_helper=False
     )
     payload = bytearray(payload)
-    if any(payload[VV4_RESULT_HELPER_OFFSET : VV4_RESULT_HELPER_OFFSET + len(VV4_RESULT_HELPER_BYTES)]):
+    # Copy the status popup helper into the pinned cave. Derive it from the
+    # exact source used for `show_message` (position-independent) so its baked
+    # string VAs always match the current string table -- a frozen hex blob
+    # here silently rotted whenever a string was added/removed, pointing
+    # LoadLibrary at the wrong string so no popup ever appeared.
+    result_helper_bytes = assemble(show_message_source, VV4_RESULT_HELPER_VA)
+    if any(payload[VV4_RESULT_HELPER_OFFSET : VV4_RESULT_HELPER_OFFSET + len(result_helper_bytes)]):
         raise RuntimeError("VV4 result-helper cave is not zero")
-    payload[VV4_RESULT_HELPER_OFFSET : VV4_RESULT_HELPER_OFFSET + len(VV4_RESULT_HELPER_BYTES)] = VV4_RESULT_HELPER_BYTES
+    payload[VV4_RESULT_HELPER_OFFSET : VV4_RESULT_HELPER_OFFSET + len(result_helper_bytes)] = result_helper_bytes
     result_repairs = []
     for call_offset in range(len(payload) - 4):
         if payload[call_offset] != 0xE8:
@@ -792,7 +859,7 @@ def main() -> None:
     ui_metadata["result_helper"] = {
         "offset": f"0x{VV4_RESULT_HELPER_OFFSET:X}",
         "virtual_address": f"0x{PAYLOAD_VA + VV4_RESULT_HELPER_OFFSET:X}",
-        "sha256": hashlib.sha256(VV4_RESULT_HELPER_BYTES).hexdigest().upper(),
+        "sha256": hashlib.sha256(result_helper_bytes).hexdigest().upper(),
         "call_sites": result_repairs,
     }
     payload = bytes(payload)
@@ -898,6 +965,7 @@ def main() -> None:
             push esi
             push edi
             xor ebp, ebp
+            xor edi, edi
             mov edx, 0x50E5AC
             mov ecx, dword ptr [0x42001C]
         cure_loop:
@@ -908,75 +976,60 @@ def main() -> None:
             jne cure_next
             cmp dword ptr [esi + 0x1C40], 0
             jle cure_next
-            cmp dword ptr [esi + 0x1C40], 80
+            cmp dword ptr [esi + 0x1C40], 100
             jge cure_health_done
             # Native VV4 health setter: ECX=record+0x1C34, push -1 and
-            # target 100, callee ret 8.  Save the walker state because this
+            # target 100, callee ret 8.  Save the walker state (ecx loop
+            # counter, ebp restored count, edi sickness count) because this
             # is a native call, not an inline field assignment.
             push ecx
             push ebp
+            push edi
             lea eax, [esi + 0x1C34]
             mov ecx, eax
             push -1
             push 100
             call 0x46AF00
+            pop edi
             pop ebp
             pop ecx
             cmp dword ptr [esi + 0x1C40], 100
-            jne cure_next
+            jne cure_health_done
             inc ebp
         cure_health_done:
             cmp byte ptr [esi + 0x1C48], 0
             je cure_next
             mov byte ptr [esi + 0x1C48], 0
             inc dword ptr [0x4D6DF0]
-            inc ebp
+            inc edi
         cure_next:
             mov edx, esi
             add edx, 0x2E3C
             dec ecx
             jne cure_loop
-            sub esp, 40
-            mov dword ptr [esp], 0x65727543
-            mov word ptr [esp + 4], 0x2064
-            lea edi, [esp + 6]
-            test ebp, ebp
-            jnz cure_digits
-            mov byte ptr [edi], 0x30
-            inc edi
-            jmp cure_suffix
-        cure_digits:
-            lea esi, [esp + 30]
-            mov eax, ebp
-            mov ebx, 10
-            xor ecx, ecx
-        cure_digit_loop:
-            xor edx, edx
-            div ebx
-            add dl, 0x30
-            dec esi
-            mov byte ptr [esi], dl
-            inc ecx
+            # ebp = villagers restored to full health, edi = villagers whose
+            # sickness was cleared.  Let the companion DLL format+show the
+            # exact two-line result (or the all-healthy notice); it returns 1
+            # when anything was done, 0 when nothing was (both counts zero).
+            push 0x{s['icons_dll']:X}
+            call dword ptr [0x48A1E0]
             test eax, eax
-            jne cure_digit_loop
-        cure_copy_loop:
-            mov dl, byte ptr [esi]
-            mov byte ptr [edi], dl
-            inc esi
-            inc edi
-            dec ecx
-            jne cure_copy_loop
-        cure_suffix:
-            mov byte ptr [edi], 0x20
-            mov dword ptr [edi + 1], 0x6C6C6976
-            mov dword ptr [edi + 5], 0x72656761
-            mov word ptr [edi + 9], 0x0073
-            lea eax, [esp]
+            je cure_ret
+            push 0x{s['show_cure_result']:X}
             push eax
-            push 0x{s['tech_title']:X}
-            call 0x{show_message:X}
-            add esp, 8
-            add esp, 40
+            call dword ptr [0x48A1DC]
+            test eax, eax
+            je cure_ret
+            push ebp
+            push edi
+            call eax
+            test eax, eax
+            jnz cure_ret
+            # Nothing to heal: refund the 30,000 the tech menu already charged.
+            # Add directly (not through the doubler-hooked 0x41E300, which would
+            # double a positive delta when the Tech Doubler is active).
+            add dword ptr [0x4D6F88], 30000
+        cure_ret:
             pop edi
             pop esi
             pop edx
@@ -1003,17 +1056,17 @@ def main() -> None:
             jne preflight_invalid
             cmp dword ptr [0x{VILLAGE_WIDE_SIGNATURE_VA + 0x1C:X}], 0
             jne preflight_invalid
-            mov eax, 0x{s['show_result_export']:X}
             push 0x{s['icons_dll']:X}
             call dword ptr [0x48A1E0]
             test eax, eax
             je preflight_invalid
-            push 0x{s['show_result_export']:X}
+            push 100
             push eax
             call dword ptr [0x48A1DC]
             test eax, eax
             je preflight_invalid
-            mov eax, 1
+            push ebx
+            call eax
             ret
         preflight_invalid:
             xor eax, eax
@@ -1036,6 +1089,154 @@ def main() -> None:
             jmp 0x41D925
         """,
         NATIVE_FOOD_TAIL_VA,
+    )
+    # Change Appearance picker-caller: edx holds the resolved villager record
+    # pointer on entry.  Loads the companion DLL, calls the head+body picker
+    # (which previews live and returns 1 on OK / 0 on Cancel/close), and only
+    # then charges the 5,000 -- so Cancel/close costs nothing.  The caller does
+    # the funds precheck before this runs.
+    appearance_helper = assemble(
+        f"""
+            mov ebx, edx
+            push 0x{s['icons_dll']:X}
+            call dword ptr [0x48A1E0]
+            test eax, eax
+            je appearance_fail
+            push 0x{s['show_appearance_picker']:X}
+            push eax
+            call dword ptr [0x48A1DC]
+            test eax, eax
+            je appearance_fail
+            push ebx
+            call eax
+            test eax, eax
+            je appearance_fail
+            mov eax, -5000
+            push eax
+            mov ecx, 0x4D6F88
+            call 0x41E300
+            mov eax, 1
+            ret
+        appearance_fail:
+            xor eax, eax
+            ret
+        """,
+        APPEARANCE_HELPER_VA,
+    )
+    # Deferred-Barrel countdown, spliced into the per-tick event loop in front of
+    # the natural presenter (0x4182B0). ECX (event manager) and the stack arg it
+    # was called with are untouched, so the tail jmp reaches 0x4182B0 with the
+    # exact frame it expects (0x4182B0 ends `ret 4`, returning to 0x440991). Each
+    # tick it drains the purchase token; on the tick it reaches 0 it arms the
+    # barrel for that single loop pass, so the loop presents exactly one barrel in
+    # the real world context. Otherwise the barrel stays disarmed.
+    barrel_countdown = assemble(
+        f"""
+            mov eax, dword ptr [0x{BARREL_TOKEN_VA:X}]
+            test eax, eax
+            jz barrel_disarm
+            dec eax
+            mov dword ptr [0x{BARREL_TOKEN_VA:X}], eax
+            jnz barrel_disarm
+            # Countdown reached zero. Only arm the barrel if the village can STILL
+            # accommodate 3 more right now -- births during the wait may have
+            # filled it. The stock barrel never fires when full, so its native
+            # add-children path assumes room; firing it forced into a full record
+            # array would write past the 150-slot array and corrupt the save.
+            # ECX (event manager) must survive for the tail jmp to 0x4182B0.
+            push ecx
+            call 0x{BARREL_CAPACITY_VA:X}
+            pop ecx
+            test eax, eax
+            jz barrel_disarm
+            mov byte ptr [0x{BARREL_ARMED_VA:X}], 1
+            jmp 0x4182B0
+        barrel_disarm:
+            mov byte ptr [0x{BARREL_ARMED_VA:X}], 0
+            jmp 0x4182B0
+        """,
+        BARREL_COUNTDOWN_VA,
+    )
+    # Mode-aware Barrel capacity gate, called from the purchase preflight. Returns
+    # eax=1 when the village can accommodate 3 more, eax=0 otherwise. The cap and
+    # population are both taken the way the native barrel gate (0x468350) does, so
+    # the answer tracks the build's actual population mode and in-game bonuses.
+    # ESI preserved for the payload caller; 0x4143F0 / 0x467610 preserve ESI.
+    barrel_capacity = assemble(
+        f"""
+            push esi
+            xor esi, esi
+            push 0x46
+            mov ecx, 0x4CC838
+            call 0x4143F0
+            test al, al
+            je cap_t1
+            add esi, 5
+        cap_t1:
+            push 0x52
+            mov ecx, 0x4CC838
+            call 0x4143F0
+            test al, al
+            je cap_t2
+            add esi, 5
+        cap_t2:
+            push 0x5E
+            mov ecx, 0x4CC838
+            call 0x4143F0
+            test al, al
+            je cap_t3
+            add esi, 5
+        cap_t3:
+            push 0x6A
+            mov ecx, 0x4CC838
+            call 0x4143F0
+            test al, al
+            je cap_t4
+            add esi, 5
+        cap_t4:
+            cmp esi, 0x14
+            jne cap_base
+            mov esi, 0x19
+        cap_base:
+            movzx eax, byte ptr [0x{BARREL_CAP_BASE_OPERAND_VA:X}]
+            add esi, eax
+            mov ecx, 0x50E568
+            call 0x467610
+            add eax, {BARREL_CHILDREN}
+            cmp eax, esi
+            jle cap_ok
+            xor eax, eax
+            pop esi
+            ret
+        cap_ok:
+            mov eax, 1
+            pop esi
+            ret
+        """,
+        BARREL_CAPACITY_VA,
+    )
+    # Load the companion DLL and call the collections export whose ordinal is in
+    # EAX (101 = Complete, 102 = Reset). The export applies the change and shows
+    # its own OFFICIAL result box, so the caller only charges and closes.
+    collections_apply = assemble(
+        f"""
+            push ebx
+            mov ebx, eax
+            push 0x{s['icons_dll']:X}
+            call dword ptr [0x48A1E0]
+            test eax, eax
+            jz coll_done
+            push ebx
+            push eax
+            call dword ptr [0x48A1DC]
+            test eax, eax
+            jz coll_done
+            call eax
+        coll_done:
+            pop ebx
+            ret
+        """,
+        COLLECTIONS_APPLY_VA,
     )
     # The Cure and preflight helpers themselves are in the stock .shr section,
     # outside the main Origins payload scanner.  Record their exact internal
@@ -1099,7 +1300,7 @@ def main() -> None:
         HEAL_CAVE_FILE_OFFSET,
         b"\0" * len(cure_code),
         cure_code,
-        "restore health below 80 to 100 through the native setter, clear sickness, and update People Cured",
+        "restore every living villager below 100 health to 100 through the native setter, clear sickness, and update People Cured",
     )
     patch(
         NATIVE_TECH_TAIL_FILE_OFFSET,
@@ -1132,6 +1333,12 @@ def main() -> None:
         preflight_code,
         "validate the complete optional Origins header and result-export dependency before any village-wide charge",
     )
+    patch(
+        APPEARANCE_HELPER_FILE_OFFSET,
+        b"\0" * len(appearance_helper),
+        appearance_helper,
+        "Change Appearance: call the companion head+body picker for the selected villager and charge 5,000 only on OK",
+    )
 
     patch(0x244, bytes.fromhex("40000040"), bytes.fromhex("40000060"),
           "make the mapped .text cave executable for the Origins payload")
@@ -1154,7 +1361,17 @@ def main() -> None:
     patch(0x294, bytes.fromhex("400000D0"), bytes.fromhex("600000F0"),
           "mark the mapped VV4 .shr helper page executable while retaining its stock data permissions")
     patch(0x14D50, bytes.fromhex("B968E55000"), rel32_jump(0x414D50, barrel_eligibility),
-          "temporarily admit the explicitly purchased native Barrel of Babies event")
+          "admit the Barrel of Babies event while the purchased-barrel countdown is armed")
+    patch(BARREL_COUNTDOWN_FILE_OFFSET, b"\0" * len(barrel_countdown), barrel_countdown,
+          "deferred Barrel countdown: drain the purchase token each tick and arm the barrel for one natural event-loop pass")
+    patch(BARREL_CAPACITY_FILE_OFFSET, b"\0" * len(barrel_capacity), barrel_capacity,
+          "mode-aware Barrel capacity gate: game population (0x467610) + 3 vs the mode-patched cap (per-tech bonus + base at 0x4683F1)")
+    patch(COLLECTIONS_APPLY_FILE_OFFSET, b"\0" * len(collections_apply), collections_apply,
+          "Complete/Reset Collections: load the companion DLL and call the collections export by ordinal (EAX=101 complete / 102 reset)")
+    patch(VV4_DETAIL_RECORD_FILE_OFFSET, b"\0" * 4, b"\0" * 4,
+          "scratch slot for the open detail-menu villager record pointer (DLL running-dislike no-change case)")
+    patch(0x4098C, bytes.fromhex("E81F79FDFF"), rel32_call(0x44098C, BARREL_COUNTDOWN_VA),
+          "route the per-tick event loop through the Barrel countdown so a purchased barrel fires in the natural world context")
     patch(0x1D94F, bytes.fromhex("85F67E3456"), rel32_jump(0x41D94F, food_increment),
           "double eligible positive food-source deltas")
     patch(0x1E300, bytes.fromhex("568B742408"), rel32_jump(0x41E300, tech_increment),
@@ -1204,10 +1421,10 @@ def main() -> None:
         },
         "companion_files": [
             {
-                "source": "assets/origins/VVFP Origins Icons.dll",
-                "destination": "VVFP Origins Icons.dll",
+                "source": "assets/origins/VVFP VV4 Origins Icons.dll",
+                "destination": "VVFP VV4 Origins Icons.dll",
                 "sha256": hashlib.sha256(
-                    (ROOT / "assets/origins/VVFP Origins Icons.dll").read_bytes()
+                    (ROOT / "assets/origins/VVFP VV4 Origins Icons.dll").read_bytes()
                 ).hexdigest().upper(),
             }
         ],
