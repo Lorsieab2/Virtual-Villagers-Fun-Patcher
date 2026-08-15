@@ -3,6 +3,17 @@
 This is a disabled, reference-only evidence gate. It emits no bytes, owns no
 hooks or resources, and is not loaded by the public catalog.
 
+**Shipping disposition:** The public VV2 Origins patch ships Complete All
+Collections and Reset All Collections as village-wide Tech rows implemented in
+the companion DLL (`native/vv2_origins_icons/vv2_origins_icons.c`,
+`ApplyVV2Collections`), each costing 1,000,000 tech points and charging only
+when the collection state actually changes (no charge when everything is
+already found, or already cleared). That is a deliberately shipped,
+player-verified feature on a **different track** from the native exact-build
+transaction this contract models. This gate is intentionally retained as a
+reference-only STOP record of that native track; it is not a claim that the
+shipped DLL rows are absent, and it still emits no bytes.
+
 The inventory covers the shared Tech rows, four selected-villager rows, three
 village-wide rows, Reset Collectibles, Complete All Collectibles, Equal Division, VV1's omitted
 mobile Bump Max Population action, and VV5 Food Mastery levels 2 and 3.
