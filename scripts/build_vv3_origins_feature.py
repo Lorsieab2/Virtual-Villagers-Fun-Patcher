@@ -143,7 +143,7 @@ def main() -> None:
             "population_capacity",
             "The village population is already at maximum capacity.",
         ),
-        ("running_unavailable", "Running cannot be added."),
+        ("running_unavailable", "Running could not be added. No tech points have been deducted."),
         ("icons_dll", "VVFP Origins Icons.dll"),
         ("show_dialog_export", "ShowOriginsUpgradeMenuState"),
         ("show_result_export", "ShowOriginsVillageWideResult"),
@@ -197,6 +197,20 @@ def main() -> None:
         (
             "collections_reset",
             "All collections have been reset to empty.",
+        ),
+        ("detail_youth_done", "Reduced this villager's age by 35 years."),
+        ("detail_mastery_done", "Fully mastered this villager."),
+        ("detail_running_done", "Granted Running to this villager."),
+        ("detail_age_done", "Set this villager to exactly 18 years old."),
+        (
+            "detail_mastery_already",
+            "This villager is already fully mastered. "
+            "No tech points have been deducted.",
+        ),
+        (
+            "detail_age_already",
+            "This villager is already exactly 18. "
+            "No tech points have been deducted.",
         ),
     ):
         s[name] = EXTRA_STRINGS_VA + len(extra_strings)
@@ -769,8 +783,15 @@ def main() -> None:
             je detail_running
             cmp ebx, 4
             je do_change_appearance
+            cmp dword ptr [edx + 0xDC4], 360
+            je detail_age_nochange
             mov eax, 360
             jmp detail_set_age
+        detail_age_nochange:
+            mov ecx, dword ptr [0x{s['detail_costs']:X} + ebx*4]
+            add dword ptr [0x582644], ecx
+            mov eax, 0x{s['detail_age_already']:X}
+            jmp detail_status
 
         do_change_appearance:
             # The 5,000-tech charge was already applied by detail_charge above.
@@ -792,9 +813,16 @@ def main() -> None:
             mov dword ptr [edx + 0xDC4], eax
             add dword ptr [edx + 0xE74], ecx
             cmp dword ptr [edx + 0xE8C], 0
-            je detail_success
+            je detail_age_result
             add dword ptr [edx + 0xE8C], ecx
-            jmp detail_success
+        detail_age_result:
+            cmp ebx, 3
+            je detail_age_show
+            mov eax, 0x{s['detail_youth_done']:X}
+            jmp detail_status
+        detail_age_show:
+            mov eax, 0x{s['detail_age_done']:X}
+            jmp detail_status
 
         detail_mastery:
             mov esi, edx
@@ -865,10 +893,16 @@ def main() -> None:
             cmp dword ptr [esi + 0xEBC], 100
             jne detail_mastery_failed
             test edi, edi
-            jz detail_success
+            jz detail_mastery_nochange
             push esi
             call 0x462500
-            jmp detail_success
+            mov eax, 0x{s['detail_mastery_done']:X}
+            jmp detail_status
+        detail_mastery_nochange:
+            mov ecx, dword ptr [0x{s['detail_costs']:X} + ebx*4]
+            add dword ptr [0x582644], ecx
+            mov eax, 0x{s['detail_mastery_already']:X}
+            jmp detail_status
         detail_mastery_failed:
             mov eax, 0x{s['mastery_failed']:X}
             jmp detail_status
@@ -899,6 +933,8 @@ def main() -> None:
             add ecx, 4
             dec eax
             jne running_dislike_loop
+            mov eax, 0x{s['detail_running_done']:X}
+            jmp detail_status
         detail_success:
             mov eax, 0x{s['purchased']:X}
             jmp detail_status
