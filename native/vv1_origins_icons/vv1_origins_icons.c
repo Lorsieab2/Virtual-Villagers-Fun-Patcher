@@ -122,31 +122,56 @@ static void center_dialog_on_owner(HWND dialog) {
 
 /* Reported: the game's own view goes black behind the dialog while it's
    open, and (more importantly) stays black even after it closes.
-   DialogBoxParamA runs its own nested message loop on this same thread,
-   so the game's own per-frame loop (poll input, render, present) simply
-   does not run at all for as long as the dialog is up -- expected for
-   any same-thread modal, and not something this DLL can change without
-   reaching into the game's own render/window internals (tried that:
-   the specific singleton needed for the game's own safe fullscreen
-   leave/enter pair turned out to live inside a byte range this repo's
-   own Origins village-wide payload already claims as scratch cave
-   space, so on a patched build that address no longer holds what it
-   holds in the stock exe -- not a safe address to touch here).
+   Two earlier attempts at fixing this from inside this DLL both failed
+   badly enough to need a live revert:
 
-   A follow-up attempt at the "still black after close" half -- forcing
-   a synchronous RedrawWindow(..., RDW_UPDATENOW | RDW_FRAME) on the
-   owner right after DialogBoxParamA returns -- was tried and reverted:
-   playtesting showed it hangs the whole game (confirmed via process
-   inspection: no crash dialog, just an unresponsive process that had
-   to be force-closed), almost certainly because forcing a synchronous
-   repaint of a fullscreen SDL window from inside this DLL's own call
-   stack, before the game's own loop/render context has had a chance to
-   resume on its own, reenters something in SDL's or the driver's
-   fullscreen present path that isn't safe to call from here. Left
-   unfixed rather than guessing again at a softer flag combination with
-   no way to test it without another live hang -- same reasoning as the
-   suspend/resume revert above: only touch this again with an actual
-   debugger attached. */
+   1. Calling the game's own native fullscreen leave/enter pair directly
+      (raw hardcoded VAs through an engine singleton pointer) -- crashed
+      the game immediately: the singleton's address turned out to fall
+      inside a byte range this repo's own Origins village-wide payload
+      already claims as scratch cave space, so on a patched build that
+      address no longer holds what it holds in the stock exe.
+   2. Forcing a synchronous RedrawWindow(..., RDW_UPDATENOW | RDW_FRAME)
+      on the owner right after DialogBoxParamA returned -- hung the whole
+      game instead (confirmed via process inspection: no crash dialog,
+      just an unresponsive process that had to be force-closed), almost
+      certainly by reentering something in SDL's or the driver's
+      fullscreen present path from inside this DLL's own call stack
+      before the game's own loop had a chance to resume on its own.
+
+   The actual root cause (found by checking VV2's already-merged,
+   playtest-confirmed fix for the identical symptom -- VV2 shares this
+   exact file) is neither of those: in exclusive SDL fullscreen, the
+   game's own SDL runtime minimizes the window the instant it loses
+   focus to our modal dialog, dropping the player to the bare desktop
+   behind it -- which is what reads as "black" and, apparently, is also
+   what the freeze-on-close was: restoring from a real Win32-minimized
+   state while SDL still believes it owns exclusive fullscreen is a
+   known-hazardous transition. vv1_prep_fullscreen below heads this off
+   before it happens, and vv1_surface_dialog (called from each dialog's
+   own WM_INITDIALOG) makes sure the dialog itself is actually visible
+   above the game's topmost fullscreen surface once it doesn't minimize
+   out from under it. Neither call touches game internals: both are
+   standard, documented Win32/SDL APIs against the game's own
+   already-loaded SDL2.dll and our own dialog window. */
+static void vv1_surface_dialog(HWND window) {
+    SetWindowPos(
+        window, HWND_TOPMOST, 0, 0, 0, 0,
+        SWP_NOMOVE | SWP_NOSIZE | SWP_SHOWWINDOW
+    );
+    SetForegroundWindow(window);
+}
+
+static void vv1_prep_fullscreen(void) {
+    HMODULE sdl = GetModuleHandleA("SDL2.dll");
+    if (sdl != NULL) {
+        typedef int(__cdecl * set_hint_t)(const char *, const char *);
+        set_hint_t set_hint = (set_hint_t)GetProcAddress(sdl, "SDL_SetHint");
+        if (set_hint != NULL) {
+            set_hint("SDL_VIDEO_MINIMIZE_ON_FOCUS_LOSS", "0");
+        }
+    }
+}
 
 enum {
     IDD_ORIGINS_TECH = 201,
@@ -230,6 +255,7 @@ static INT_PTR CALLBACK upgrade_dialog(
                 : ((lparam & STATE_VILLAGE_WIDE) != 0 ? 9 : 6));
         int row;
         center_dialog_on_owner(window);
+        vv1_surface_dialog(window);
         for (row = 0; row < 9; ++row) {
             ShowWindow(GetDlgItem(window, ID_CHECK_FIRST + row), SW_HIDE);
         }
@@ -272,6 +298,7 @@ static int show_upgrade_menu(int villager_menu, int dialog_state) {
     int resource = villager_menu ? IDD_ORIGINS_VILLAGER : IDD_ORIGINS_TECH;
     HWND owner = GetForegroundWindow();
     int result;
+    vv1_prep_fullscreen();
     if (villager_menu) {
         dialog_state |= STATE_VILLAGER;
     }
@@ -353,6 +380,7 @@ static INT_PTR CALLBACK appearance_dialog(
            starting values on the dialog's own first paint, nothing else to
            do here besides positioning (see center_dialog_on_owner). */
         center_dialog_on_owner(window);
+        vv1_surface_dialog(window);
         return TRUE;
     } else if (message == WM_DRAWITEM) {
         DRAWITEMSTRUCT *item = (DRAWITEMSTRUCT *)lparam;
@@ -428,6 +456,7 @@ __declspec(dllexport) int __stdcall ShowOriginsAppearancePicker(
     appearance_state.original_body = *(int *)(villager + VV_CLOTHING_OFFSET);
     appearance_state.male = *(int *)(villager + VV_GENDER_OFFSET) == VV_GENDER_MALE;
     appearance_state.valid_count = appearance_state.male ? 19 : 20;
+    vv1_prep_fullscreen();
     owner = GetForegroundWindow();
     result = (int)DialogBoxParamA(
         module_instance,
@@ -556,7 +585,7 @@ __declspec(dllexport) int __stdcall ShowOriginsPermanentChangeConfirm(
         GetForegroundWindow(),
         message,
         is_detail ? "Villager Upgrades" : "Origins Upgrades",
-        MB_OKCANCEL | MB_ICONQUESTION
+        MB_OKCANCEL | MB_ICONQUESTION | MB_TOPMOST | MB_SETFOREGROUND
     ) == IDOK;
 }
 
@@ -580,7 +609,7 @@ __declspec(dllexport) int __stdcall ShowOriginsCureResult(
         GetForegroundWindow(),
         message,
         "Origins Upgrades",
-        MB_OK | MB_ICONINFORMATION
+        MB_OK | MB_ICONINFORMATION | MB_TOPMOST | MB_SETFOREGROUND
     );
     return 0;
 }
@@ -632,7 +661,7 @@ __declspec(dllexport) int __stdcall ShowOriginsVillageWideResult(
         GetForegroundWindow(),
         message,
         "Origins Upgrades",
-        MB_OK | MB_ICONINFORMATION
+        MB_OK | MB_ICONINFORMATION | MB_TOPMOST | MB_SETFOREGROUND
     );
     return 0;
 }
@@ -658,7 +687,7 @@ __declspec(dllexport) int __stdcall ShowOriginsMasteryResult(
         GetForegroundWindow(),
         message,
         "Origins Upgrades",
-        MB_OK | MB_ICONINFORMATION
+        MB_OK | MB_ICONINFORMATION | MB_TOPMOST | MB_SETFOREGROUND
     );
     return 0;
 }
@@ -675,7 +704,7 @@ __declspec(dllexport) int __stdcall ShowOriginsAgeResult(int granted) {
         GetForegroundWindow(),
         message,
         "Origins Upgrades",
-        MB_OK | MB_ICONINFORMATION
+        MB_OK | MB_ICONINFORMATION | MB_TOPMOST | MB_SETFOREGROUND
     );
     return 0;
 }

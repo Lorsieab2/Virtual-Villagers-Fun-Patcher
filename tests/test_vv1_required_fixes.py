@@ -836,10 +836,16 @@ class VV1RequiredFixTests(unittest.TestCase):
             md.disasm(image[target_rva:target_rva + 0x100], pe.OPTIONAL_HEADER.ImageBase + target_rva)
         )
         pushes = [i.op_str for i in confirm_insns if i.mnemonic == "push"]
-        # MB_OKCANCEL | MB_ICONQUESTION = 0x21, IDOK = 1. (The compiler turns
+        # MB_OKCANCEL | MB_ICONQUESTION | MB_TOPMOST | MB_SETFOREGROUND
+        # = 0x21 | 0x40000 | 0x10000 = 0x50021, IDOK = 1. (The compiler turns
         # "== IDOK" into a dec/neg/sbb/inc boolean idiom rather than a literal
         # cmp, so only the style flags are checked disassembly-side here.)
-        self.assertIn("0x21", pushes, "must be an OK/Cancel + question-icon prompt, not Yes/No")
+        # MB_TOPMOST/MB_SETFOREGROUND were added alongside the ported VV2
+        # fullscreen fix (see vv1_surface_dialog/vv1_prep_fullscreen in
+        # native/vv1_origins_icons/vv1_origins_icons.c) so this and every
+        # other Origins message box stays above/foregrounded on the
+        # fullscreen game window instead of painting behind it.
+        self.assertIn("0x50021", pushes, "must be an OK/Cancel + question-icon, topmost+foreground prompt, not Yes/No")
 
     def test_vv1_time_warp_double_speed_uses_a_reachable_game_speed_code(self) -> None:
         """Regression test: VV1's own stock executable only ever assigns
