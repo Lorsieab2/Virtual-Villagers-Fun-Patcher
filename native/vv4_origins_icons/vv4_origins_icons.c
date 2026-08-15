@@ -116,7 +116,7 @@ enum {
     IDD_ORIGINS_VILLAGER = 202,
     IDD_ORIGINS_APPEARANCE = 203,
     ID_BUY_FIRST = 1000,
-    ID_BUY_LAST = 1008,
+    ID_BUY_LAST = 1010,
     ID_CHECK_FIRST = 1100,
     ID_HEAD_LABEL = 2000,
     ID_HEAD_PREV = 2001,
@@ -239,13 +239,14 @@ static void appearance_draw_cell(const DRAWITEMSTRUCT *dis, int is_head, int val
 
 /* OFFICIAL per-row purchase-confirm names + costs. Tech rows 6-8 (village-wide)
    use the payload's own OFFICIAL confirm and are skipped here. */
-static const char *const g_tech_names[9] = {
+static const char *const g_tech_names[11] = {
     "Time Warp", "Island Event", "Barrel of Babies",
     "Tech Point Doubler", "Food Point Doubler", "Full Heal / Cure All",
-    "", "", ""
+    "", "", "", "Complete all Collections", "Reset all Collections"
 };
-static const char *const g_tech_costs[9] = {
-    "50,000", "30,000", "75,000", "500,000", "500,000", "30,000", "", "", ""
+static const char *const g_tech_costs[11] = {
+    "50,000", "30,000", "75,000", "500,000", "500,000", "30,000", "", "", "",
+    "1,000,000", "1,000,000"
 };
 static const char *const g_villager_names[5] = {
     "Grant Youth", "Grant Full Mastery", "Grant Running",
@@ -276,13 +277,16 @@ static INT_PTR CALLBACK upgrade_dialog(
         g_villager_menu = villager_menu;
         g_villager_mask = (int)lparam;
         int village_wide_buy = (lparam & STATE_VILLAGE_WIDE_BUY) != 0;
+        /* Village-wide tech menu carries 11 rows: the 6 base upgrades, the 3
+           village-wide grants (rows 6-8), and Complete/Reset All Collections
+           (rows 9-10). */
         int row_count = villager_menu
             ? 5
             : ((lparam & STATE_RUNNING_ONLY) != 0
                 ? 7
-                : ((lparam & STATE_VILLAGE_WIDE) != 0 ? 9 : 6));
+                : ((lparam & STATE_VILLAGE_WIDE) != 0 ? 11 : 6));
         int row;
-        for (row = 0; row < 9; ++row) {
+        for (row = 0; row < 11; ++row) {
             ShowWindow(GetDlgItem(window, ID_CHECK_FIRST + row), SW_HIDE);
         }
         for (row = 0; row < row_count; ++row) {
@@ -308,8 +312,11 @@ static INT_PTR CALLBACK upgrade_dialog(
                 } else {
                     SetDlgItemTextA(window, ID_BUY_FIRST + row, "Remove");
                 }
-            } else if ((8 + row) >= row_count
+            } else if ((8 + row) >= row_count && (8 + row) < 16
                        && (lparam & (1 << (8 + row))) != 0) {
+                /* The (8+row) unavailable bit must stay below the STATE_* flags
+                   at bits 16-19, or rows 8-10 would read a state flag (e.g.
+                   STATE_VILLAGE_WIDE at bit 17) as an "Unavailable" marker. */
                 SetDlgItemTextA(window, ID_BUY_FIRST + row, "Unavailable");
                 EnableWindow(GetDlgItem(window, ID_BUY_FIRST + row), FALSE);
             }
@@ -353,9 +360,10 @@ static INT_PTR CALLBACK upgrade_dialog(
             /* Only the "Buy" action is confirmed here; the doubler "Remove"
                toggle is reversible and not a purchase. The village-wide rows
                (tech 6/7/8) run their own OFFICIAL confirm from the payload
-               after a dry run, so pass straight through for them. */
+               after a dry run, so pass straight through for them -- but the
+               Collections rows (9/10) take the standard confirm here. */
             if (lstrcmpA(label, "Buy") == 0
-                && !(!g_villager_menu && row >= 6)) {
+                && !(!g_villager_menu && row >= 6 && row <= 8)) {
                 const char *name = g_villager_menu ? g_villager_names[row]
                                                    : g_tech_names[row];
                 const char *cost = g_villager_menu ? g_villager_costs[row]
@@ -634,6 +642,10 @@ __declspec(dllexport) int __stdcall ApplyVV4CompleteCollections(void) {
     for (i = 0; i < 5; ++i) {
         vv4_enqueue_goal(VV4_COLLECTION_GOALS[i]);
     }
+    MessageBoxA(GetForegroundWindow(),
+        "All collections are complete. Every collectible was added and the "
+        "collection goals updated accordingly.",
+        "Origins Upgrades", MB_OK | MB_ICONINFORMATION | VV_MB_FRONT);
     return newly;
 }
 
@@ -651,6 +663,12 @@ __declspec(dllexport) int __stdcall ApplyVV4ResetCollections(void) {
         int j;
         for (j = 0; j < 0x20; ++j) { rec[j] = 0; }
     }
+    MessageBoxA(GetForegroundWindow(),
+        "All collections were reset. Every collectible was cleared and the "
+        "collection goals were marked incomplete again.\r\n\r\nNote: game-wide "
+        "totals and any one-time rewards from completing the collections are "
+        "not reversed.",
+        "Origins Upgrades", MB_OK | MB_ICONINFORMATION | VV_MB_FRONT);
     return cleared;
 }
 

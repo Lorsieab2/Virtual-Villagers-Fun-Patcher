@@ -76,6 +76,15 @@ BARREL_CAP_BASE_OPERAND_VA = 0x4683F1   # imm8 of `add esi, <base>` (mode-patche
 BARREL_CAPACITY_FILE_OFFSET = 0xCCC00
 BARREL_CAPACITY_VA = 0x728C00
 BARREL_CHILDREN = 3                     # the barrel delivers 3 children
+# Complete / Reset All Collections tech rows (9/10). The collectible + goal
+# work lives in the companion DLL (ApplyVV4CompleteCollections @101 /
+# ApplyVV4ResetCollections @102, which also show the OFFICIAL result box); this
+# .shr stub loads the DLL and calls the requested export by ORDINAL (EAX), so no
+# new payload strings are needed.
+COLLECTIONS_APPLY_FILE_OFFSET = 0xCCD00
+COLLECTIONS_APPLY_VA = 0x728D00
+COLLECTIONS_COMPLETE_ORDINAL = 101
+COLLECTIONS_RESET_ORDINAL = 102
 EXPANDED_VILLAGE_WIDE_ENTRY_VA = 0x85A240
 EXPANDED_VILLAGE_PREFLIGHT_VA = 0x85A180
 RUNNING_PREFERENCE_ID = 38  # exact-build preference-table evidence: 0xA0CD8
@@ -410,6 +419,8 @@ def main() -> None:
             mov eax, 0x{s['capacity']:X}
             jmp status
         charge:
+            cmp ebx, 9
+            jae do_collections
             cmp ebx, 6
             jb legacy_charge
             cmp ebx, 8
@@ -424,6 +435,20 @@ def main() -> None:
             mov ecx, 0x4D6F88
             call 0x41E300
             jmp do_village_wide
+        do_collections:
+            cmp dword ptr [0x4D6F88], 1000000
+            jb insufficient
+            mov eax, -1000000
+            push eax
+            mov ecx, 0x4D6F88
+            call 0x41E300
+            mov eax, {COLLECTIONS_COMPLETE_ORDINAL}
+            cmp ebx, 9
+            je do_collections_go
+            mov eax, {COLLECTIONS_RESET_ORDINAL}
+        do_collections_go:
+            call 0x{COLLECTIONS_APPLY_VA:X}
+            jmp menu_done
         legacy_charge:
             mov eax, dword ptr [0x{s['tech_costs']:X} + ebx*4]
             cmp dword ptr [0x4D6F88], eax
@@ -1174,6 +1199,29 @@ def main() -> None:
         """,
         BARREL_CAPACITY_VA,
     )
+    # Load the companion DLL and call the collections export whose ordinal is in
+    # EAX (101 = Complete, 102 = Reset). The export applies the change and shows
+    # its own OFFICIAL result box, so the caller only charges and closes.
+    collections_apply = assemble(
+        f"""
+            push ebx
+            mov ebx, eax
+            push 0x{s['icons_dll']:X}
+            call dword ptr [0x48A1E0]
+            test eax, eax
+            jz coll_done
+            push ebx
+            push eax
+            call dword ptr [0x48A1DC]
+            test eax, eax
+            jz coll_done
+            call eax
+        coll_done:
+            pop ebx
+            ret
+        """,
+        COLLECTIONS_APPLY_VA,
+    )
     # The Cure and preflight helpers themselves are in the stock .shr section,
     # outside the main Origins payload scanner.  Record their exact internal
     # .shr references so expanded mode can retarget them after the section move.
@@ -1302,6 +1350,8 @@ def main() -> None:
           "deferred Barrel countdown: drain the purchase token each tick and arm the barrel for one natural event-loop pass")
     patch(BARREL_CAPACITY_FILE_OFFSET, b"\0" * len(barrel_capacity), barrel_capacity,
           "mode-aware Barrel capacity gate: game population (0x467610) + 3 vs the mode-patched cap (per-tech bonus + base at 0x4683F1)")
+    patch(COLLECTIONS_APPLY_FILE_OFFSET, b"\0" * len(collections_apply), collections_apply,
+          "Complete/Reset Collections: load the companion DLL and call the collections export by ordinal (EAX=101 complete / 102 reset)")
     patch(0x4098C, bytes.fromhex("E81F79FDFF"), rel32_call(0x44098C, BARREL_COUNTDOWN_VA),
           "route the per-tick event loop through the Barrel countdown so a purchased barrel fires in the natural world context")
     patch(0x1D94F, bytes.fromhex("85F67E3456"), rel32_jump(0x41D94F, food_increment),

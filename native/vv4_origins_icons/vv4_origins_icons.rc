@@ -19,7 +19,7 @@
 #define WS_CHILD 0x40000000L
 #define WS_VISIBLE 0x10000000L
 
-201 DIALOGEX 0, 0, 310, 334
+201 DIALOGEX 0, 0, 310, 398
 STYLE DS_MODALFRAME | DS_SETFONT | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Origins Upgrades"
 FONT 9, "Segoe UI"
@@ -78,8 +78,20 @@ BEGIN
     LTEXT       "1,000,000 tech points", -1, 40, 278, 170, 9
     PUSHBUTTON  "Buy", 1008, 240, 267, 55, 18
 
-    LTEXT       "Press ESC to exit this menu.", -1, 20, 300, 270, 9, SS_CENTER
-    DEFPUSHBUTTON "Cancel", 2, 120, 314, 70, 14
+    ICON        110, -1, 8, 296,  24, 24
+    ICON        109, 1109, 22, 308, 12, 12
+    LTEXT       "Complete all Collections", -1, 40, 298, 190, 10
+    LTEXT       "1,000,000 tech points", -1, 40, 310, 170, 9
+    PUSHBUTTON  "Buy", 1009, 240, 299, 55, 18
+
+    ICON        108, -1, 8, 328,  24, 24
+    ICON        109, 1110, 22, 340, 12, 12
+    LTEXT       "Reset all Collections", -1, 40, 330, 190, 10
+    LTEXT       "1,000,000 tech points", -1, 40, 342, 170, 9
+    PUSHBUTTON  "Buy", 1010, 240, 331, 55, 18
+
+    LTEXT       "Press ESC to exit this menu.", -1, 20, 364, 270, 9, SS_CENTER
+    DEFPUSHBUTTON "Cancel", 2, 120, 378, 70, 14
 END
 
 202 DIALOGEX 0, 0, 310, 206
