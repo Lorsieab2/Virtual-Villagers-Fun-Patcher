@@ -2202,13 +2202,11 @@ def build_barrel(page: bytearray, page_va: int, s: dict[str, int]) -> bytes:
 def build_appearance(page: bytearray, page_va: int, s: dict[str, int]) -> bytes:
     """Change Appearance (per-villager). Resolve the selected villager, enforce
     the believer/active/living gate (shared `eligible` helper), require 5,000
-    tech points, then open the companion DLL's ShowAppearanceChooser, passing
-    the villager's sex (record+0x1B90) and age (record+0x1B8C) and pointers to
-    local copies of the head (0..29) and body (0..28) indices. The chooser
-    shows the stock head/body sprites with arrows and, on OK (return 1), reports
-    the chosen indices back through the pointers -- it never touches the record.
-    On OK this router re-checks eligibility and funds, writes the chosen indices
-    into record+0x1BB8/+0x1BBC, and charges exactly 5,000 once; Cancel changes
+    tech points, then apply the fixed safe appearance: head frame 5 into
+    record+0x1BB8 and body frame 8 into record+0x1BBC. If the villager already
+    has that exact head/body, nothing is written and no tech points are
+    deducted. On a real change this router re-checks eligibility and funds,
+    writes the two indices, and charges exactly 5,000 once; Cancel changes
     nothing and charges nothing."""
     return put(page, page_va, "appearance", f"""
         push ebp
@@ -2217,16 +2215,6 @@ def build_appearance(page: bytearray, page_va: int, s: dict[str, int]) -> bytes:
         push esi
         push edi
         sub esp, 0x50
-        push 0x{s['dll']:X}
-        call dword ptr [0x4951E0]
-        test eax, eax
-        jz invalid
-        push 0x{s['appearance_export']:X}
-        push eax
-        call dword ptr [0x4951DC]
-        test eax, eax
-        jz invalid
-        mov dword ptr [ebp-0x10], eax
         call 0x{page_va + OFF['resolve_current']:X}
         test eax, eax
         jz invalid
@@ -2235,13 +2223,6 @@ def build_appearance(page: bytearray, page_va: int, s: dict[str, int]) -> bytes:
         call 0x{page_va + OFF['eligible']:X}
         test eax, eax
         jz invalid
-        mov esi, dword ptr [ebp-0x18]
-        mov eax, dword ptr [esi+0x1BB8]
-        mov dword ptr [ebp-0x1C], eax
-        mov dword ptr [ebp-0x2C], eax
-        mov eax, dword ptr [esi+0x1BBC]
-        mov dword ptr [ebp-0x20], eax
-        mov dword ptr [ebp-0x30], eax
         mov eax, dword ptr [0x51D5F8]
         cmp eax, 5000
         jb insufficient
@@ -2252,22 +2233,9 @@ def build_appearance(page: bytearray, page_va: int, s: dict[str, int]) -> bytes:
         cmp eax, 1
         jne cancelled
         mov esi, dword ptr [ebp-0x18]
-        lea eax, [ebp-0x20]
-        push eax
-        lea eax, [ebp-0x1C]
-        push eax
-        mov eax, dword ptr [esi+0x1B8C]
-        push eax
-        mov eax, dword ptr [esi+0x1B90]
-        push eax
-        call dword ptr [ebp-0x10]
-        cmp eax, 1
-        jne cancelled
-        mov eax, dword ptr [ebp-0x1C]
-        cmp eax, dword ptr [ebp-0x2C]
+        cmp dword ptr [esi+0x1BB8], 5
         jne appearance_changed
-        mov eax, dword ptr [ebp-0x20]
-        cmp eax, dword ptr [ebp-0x30]
+        cmp dword ptr [esi+0x1BBC], 8
         je no_change
     appearance_changed:
         mov esi, dword ptr [ebp-0x18]
@@ -2279,10 +2247,8 @@ def build_appearance(page: bytearray, page_va: int, s: dict[str, int]) -> bytes:
         cmp eax, 5000
         jb insufficient
         mov esi, dword ptr [ebp-0x18]
-        mov eax, dword ptr [ebp-0x1C]
-        mov dword ptr [esi+0x1BB8], eax
-        mov eax, dword ptr [ebp-0x20]
-        mov dword ptr [esi+0x1BBC], eax
+        mov dword ptr [esi+0x1BB8], 5
+        mov dword ptr [esi+0x1BBC], 8
         mov eax, dword ptr [0x51D5F8]
         mov dword ptr [ebp-0x28], eax
         push -5000
