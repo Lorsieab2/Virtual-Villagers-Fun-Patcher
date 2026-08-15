@@ -879,9 +879,15 @@ class ManifestTests(unittest.TestCase):
         self.assertIn("((lparam & STATE_VILLAGE_WIDE) != 0 ? 9 : 6)", source)
         self.assertIn("ID_BUY_LAST = 1008", source)
         for label in (
-            "All Villagers Like Running",
+            # Row labels match the OFFICIAL Origins Upgrade Prompts
+            # spreadsheet's own naming for these two rows, not the shared
+            # cross-game command-6/command-8 ABI names used elsewhere in
+            # this repo's docs/manifests (those are a separate, internal
+            # naming convention this dialog's own display text is free to
+            # differ from -- see vv1_tech_row_name in the .c file).
+            "Grant Running to All Villagers",
             "Grant Full Mastery to All Villagers",
-            "All Villagers are 18",
+            "Set All Villagers to 18",
         ):
             self.assertIn(label, resource)
         self.assertEqual(resource.count("1,000,000 tech points"), 3)

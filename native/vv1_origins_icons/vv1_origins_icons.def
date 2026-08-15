@@ -7,4 +7,4 @@ EXPORTS
     ShowOriginsCureResult=_ShowOriginsCureResult@8
     ShowOriginsPermanentChangeConfirm=_ShowOriginsPermanentChangeConfirm@12
     ShowOriginsMasteryResult=_ShowOriginsMasteryResult@8
-    ShowOriginsAgeResult=_ShowOriginsAgeResult@4
+    ShowOriginsRowMessage=_ShowOriginsRowMessage@12

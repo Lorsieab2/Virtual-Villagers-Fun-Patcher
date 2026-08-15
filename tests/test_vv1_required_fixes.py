@@ -105,7 +105,11 @@ class VV1RequiredFixTests(unittest.TestCase):
             "do_tech_doubler:", 1
         )[0]
         self.assertIn("mov byte ptr [0x{BARREL_PENDING_VA:X}], 1", barrel)
-        self.assertIn("jmp menu_done", barrel)
+        # do_barrel shares the generic success path (which itself reaches
+        # menu_done via the OFFICIAL-wording ROW_MESSAGE_HELPER call) rather
+        # than displaying its own inline "Purchased." message and jumping
+        # to menu_done directly.
+        self.assertIn("jmp success", barrel)
         self.assertNotIn("call 0x42A6A0", barrel)
 
         feature = get_fun_patch("vv1_enable_origins_exclusive_features")

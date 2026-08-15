@@ -323,6 +323,14 @@ class AppearanceUpgradeRequirementsTests(unittest.TestCase):
                     # at runtime. Lives in its own .shr tail helper past the
                     # detail preflight helper above.
                     "0x8BD00",
+                    # Generic "<row> completed."/no-change/removed/blocked
+                    # result box (ShowOriginsRowMessage) resolver, bringing
+                    # every plain-wording Tech/Details row's confirm and
+                    # result text in line with the OFFICIAL Origins Upgrade
+                    # Prompts spreadsheet -- replaces five removed ASM
+                    # strings and the removed ShowOriginsAgeResult call
+                    # site. Lives in .shr's tail past the population helper.
+                    "0x8BE00",
                 },
                 "data/vv2_origins_feature.json": {
                     "0x943A8", "0x9A009", "0x9A300", "0x9A530",

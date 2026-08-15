@@ -539,12 +539,43 @@ static const char *vv1_tech_row_name(int row) {
     case 2: return "Barrel of Babies";
     case 3: return "Tech Point Doubler";
     case 4: return "Food Point Doubler";
-    case 5: return "Full Heal/Cure All Villagers";
-    case 6: return "All Villagers Like Running";
+    case 5: return "Full Heal / Cure All";
+    case 6: return "Grant Running to All Villagers";
     case 7: return "Grant Full Mastery to All Villagers";
-    case 8: return "All Villagers are 18";
+    case 8: return "Set All Villagers to 18";
     default: return "Origins upgrade";
     }
+}
+
+/* Correct singular/plural for a villager count, matching the OFFICIAL
+   Origins Upgrade Prompts spreadsheet's own note: "counts use correct
+   singular/plural ('1 Villager' vs '3 Villagers')". */
+static const char *vv1_vpl(unsigned int n) { return n == 1 ? "Villager" : "Villagers"; }
+
+/* Renders value with thousands separators ("1000000" -> "1,000,000") for
+   the confirmation prompt below -- wsprintfA's %d has no such thing, and
+   the OFFICIAL spreadsheet's confirm wording always shows costs comma-
+   formatted. out must be at least 16 bytes; every VV1 upgrade cost is at
+   most 7 digits (1,000,000), so that is always enough room. */
+static void vv1_format_cost(int value, char *out) {
+    char digits[16];
+    int count = 0;
+    int position;
+    int written = 0;
+    if (value < 0) {
+        value = 0;
+    }
+    do {
+        digits[count++] = (char)('0' + (value % 10));
+        value /= 10;
+    } while (value > 0 && count < (int)sizeof(digits));
+    for (position = count - 1; position >= 0; --position) {
+        out[written++] = digits[position];
+        if (position > 0 && (position % 3) == 0) {
+            out[written++] = ',';
+        }
+    }
+    out[written] = '\0';
 }
 
 static const char *vv1_detail_row_name(int row) {
@@ -574,12 +605,14 @@ __declspec(dllexport) int __stdcall ShowOriginsPermanentChangeConfirm(
     int cost
 ) {
     char message[192];
+    char cost_text[16];
     const char *name = is_detail ? vv1_detail_row_name(row) : vv1_tech_row_name(row);
+    vv1_format_cost(cost, cost_text);
     wsprintfA(
         message,
-        "%s for %d tech points?\r\nPress OK to confirm, or Cancel.",
+        "Do you want to buy %s for %s tech points?\r\nPress OK to confirm, or Cancel.",
         name,
-        cost
+        cost_text
     );
     return MessageBoxA(
         GetForegroundWindow(),
@@ -614,17 +647,18 @@ __declspec(dllexport) int __stdcall ShowOriginsCureResult(
     return 0;
 }
 
-/* Grant Running to All Villagers: reports each outcome on its own line,
-   in the order requested -- both skip reasons first, then how many were
-   actually granted, then how many dislikes were cleared to make room.
-   granted comes from a fixed .shr scratch dword the native payload's
-   running_va writes right before returning (see RUNNING_GRANTED_VA in
+/* Grant Running to All Villagers: reports each outcome on its own line, in
+   the exact order and wording the OFFICIAL Origins Upgrade Prompts
+   spreadsheet specifies -- granted, then dislikes removed, then each skip
+   reason, with correct singular/plural throughout. granted comes from a
+   fixed .shr scratch dword the native payload's running_va writes right
+   before returning (see RUNNING_GRANTED_VA in
    scripts/build_vv1_origins_feature.py and report_running_granted in
-   scripts/build_village_wide_origins_features.py) -- there was no
-   register left to carry it back through directly. Called for both
-   command 6 (Running) and command 8 (Set Age to 18); the latter simply
-   does nothing here, matching its existing silent behavior, since only
-   Running's own fields are meaningful. */
+   scripts/build_village_wide_origins_features.py) -- there was no register
+   left to carry it back through directly. Called only for command 6
+   (Running); command 8 (Set All Villagers to 18) now routes its own
+   result through the generic ShowOriginsRowMessage below instead, since
+   the spreadsheet gives it a plain "completed." line with no counts. */
 __declspec(dllexport) int __stdcall ShowOriginsVillageWideResult(
     int command,
     int granted,
@@ -632,29 +666,32 @@ __declspec(dllexport) int __stdcall ShowOriginsVillageWideResult(
     int already_running_skipped,
     int removed_running_dislike
 ) {
-    char message[256];
-    char line[96];
+    char message[384];
+    char line[128];
     if (command != 6) {
         return 0;
     }
     wsprintfA(
         message,
-        "%d villagers already like running; skipped over.",
-        already_running_skipped
+        "Granted Running to %d %s.",
+        granted, vv1_vpl(granted)
     );
     wsprintfA(
         line,
-        "\r\n\r\n%d villagers already have %d likes; skipped over.",
-        full_like_skipped,
-        VV_LIKE_SLOT_COUNT
+        "\r\n\r\nRemoved a Running dislike from %d %s.",
+        removed_running_dislike, vv1_vpl(removed_running_dislike)
     );
-    lstrcatA(message, line);
-    wsprintfA(line, "\r\n\r\nGranted Running to %d villagers.", granted);
     lstrcatA(message, line);
     wsprintfA(
         line,
-        "\r\n\r\nRemoved Running Dislike from %d villagers.",
-        removed_running_dislike
+        "\r\n\r\nSkipped %d %s: already like Running.",
+        already_running_skipped, vv1_vpl(already_running_skipped)
+    );
+    lstrcatA(message, line);
+    wsprintfA(
+        line,
+        "\r\n\r\nSkipped %d %s: already have %d likes.",
+        full_like_skipped, vv1_vpl(full_like_skipped), VV_LIKE_SLOT_COUNT
     );
     lstrcatA(message, line);
     MessageBoxA(
@@ -676,13 +713,19 @@ __declspec(dllexport) int __stdcall ShowOriginsMasteryResult(
     int granted,
     int already_mastered
 ) {
-    char message[128];
+    char message[192];
+    char line[128];
     wsprintfA(
         message,
-        "Granted Full Mastery to %d Villagers.\r\n\r\n%d villagers are already Fully Mastered. Skipped over.",
-        granted,
-        already_mastered
+        "Granted Full Mastery to %d %s.",
+        granted, vv1_vpl(granted)
     );
+    wsprintfA(
+        line,
+        "\r\n\r\nSkipped %d %s: already fully mastered.",
+        already_mastered, vv1_vpl(already_mastered)
+    );
+    lstrcatA(message, line);
     MessageBoxA(
         GetForegroundWindow(),
         message,
@@ -692,18 +735,80 @@ __declspec(dllexport) int __stdcall ShowOriginsMasteryResult(
     return 0;
 }
 
-/* All Villagers are 18: age_va (in the shared village-wide script,
-   report_age_granted opt-in) only counts villagers whose age wasn't
-   already 360 (18 years) before writing it -- the caller (village_wide's
-   village_age_charge/village_age_result) only reaches this export, and
-   only charges, once that count is confirmed nonzero. */
-__declspec(dllexport) int __stdcall ShowOriginsAgeResult(int granted) {
-    char message[64];
-    wsprintfA(message, "Set %d villagers to Age 18.", granted);
+/* No-change wording for the Tech screen's three village-wide rows (Grant
+   Running to All Villagers, Grant Full Mastery to All Villagers, Set All
+   Villagers to 18) -- the only three Tech rows the OFFICIAL spreadsheet
+   gives distinct no-change text to instead of the shared fallback. */
+static const char *vv1_tech_no_change_text(int row) {
+    switch (row) {
+    case 6: return "Everyone already likes running, or has full Likes slots. No tech points have been deducted.";
+    case 7: return "Everyone has already mastered their skills. No tech points have been deducted.";
+    case 8: return "Everyone is already 18. No tech points have been deducted.";
+    default: return "No changes were needed. No tech points have been deducted.";
+    }
+}
+
+/* No-change wording for the Villager Details screen's rows. Set Age to 18
+   (row 3) happens to already use the shared fallback text verbatim per the
+   spreadsheet, so only rows 0/1/2 need their own case. */
+static const char *vv1_detail_no_change_text(int row) {
+    switch (row) {
+    case 0: return "This villager is already full of youth. No tech points have been deducted.";
+    case 1: return "This villager is already fully mastered. No tech points have been deducted.";
+    case 2: return "This villager already likes Running. No tech points have been deducted.";
+    default: return "No changes were needed. No tech points have been deducted.";
+    }
+}
+
+enum {
+    VV1_ROWMSG_SUCCESS = 0,
+    VV1_ROWMSG_NO_CHANGE = 1,
+    VV1_ROWMSG_NO_SLOT = 2,
+    VV1_ROWMSG_REMOVED = 3,
+    VV1_ROWMSG_POPULATION_FULL = 4
+};
+
+/* Generic result box for every Tech/Details row whose wording is either a
+   plain "<Upgrade> completed." success line or one of a small set of
+   fixed no-change/removed/blocked lines -- everything in the OFFICIAL
+   Origins Upgrade Prompts spreadsheet that isn't a counted multi-line
+   result (those keep their own dedicated export above: Cure, Grant
+   Running to All, Grant Full Mastery to All). Replaces what used to be
+   five separate ASM string-table entries (purchase_complete/removed/
+   no_change/event_queued/running_unavailable) plus the now-removed
+   ShowOriginsAgeResult export -- moving the text here costs the tight
+   .shr string cave nothing and only a few bytes of code per call site. */
+__declspec(dllexport) int __stdcall ShowOriginsRowMessage(
+    int is_detail,
+    int row,
+    int status
+) {
+    char message[192];
+    const char *name = is_detail ? vv1_detail_row_name(row) : vv1_tech_row_name(row);
+    switch (status) {
+    case VV1_ROWMSG_NO_CHANGE:
+        lstrcpyA(
+            message,
+            is_detail ? vv1_detail_no_change_text(row) : vv1_tech_no_change_text(row)
+        );
+        break;
+    case VV1_ROWMSG_NO_SLOT:
+        lstrcpyA(message, "This villager already has full Likes slots. Running can not be added.");
+        break;
+    case VV1_ROWMSG_REMOVED:
+        wsprintfA(message, "%s was removed. No refund was issued.", name);
+        break;
+    case VV1_ROWMSG_POPULATION_FULL:
+        lstrcpyA(message, "The village population is already close to its max. No tech points have been deducted.");
+        break;
+    default:
+        wsprintfA(message, "%s completed.", name);
+        break;
+    }
     MessageBoxA(
         GetForegroundWindow(),
         message,
-        "Origins Upgrades",
+        is_detail ? "Villager Upgrades" : "Origins Upgrades",
         MB_OK | MB_ICONINFORMATION | MB_TOPMOST | MB_SETFOREGROUND
     );
     return 0;

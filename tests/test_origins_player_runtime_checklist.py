@@ -212,6 +212,12 @@ class OriginsPlayerRuntimeChecklistTests(unittest.TestCase):
                         # instead of assuming the 256 cap, via a new .shr
                         # tail helper past the detail preflight helper.
                         "0x8BD00",
+                        # Generic "<row> completed."/no-change/removed/
+                        # blocked result box (ShowOriginsRowMessage)
+                        # resolver bringing every plain-wording row's
+                        # confirm/result text in line with the OFFICIAL
+                        # Origins Upgrade Prompts spreadsheet.
+                        "0x8BE00",
                     }
                     self.assertEqual(
                         [item for item in current["patches"] if item["offset"] not in repaired_offsets],

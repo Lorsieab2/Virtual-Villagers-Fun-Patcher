@@ -176,6 +176,19 @@ POPULATION_FINAL_TIER_FILE_OFFSET = 0x8BD00
 POPULATION_FINAL_TIER_VA = IMAGE_BASE + SHR_RVA + (
     POPULATION_FINAL_TIER_FILE_OFFSET - SHR_FILE_OFFSET
 )
+# Generic "<row> completed."/no-change/removed/blocked result box, replacing
+# what used to be five separate fixed ASM strings (purchase_complete/
+# removed/no_change/event_queued/running_unavailable) plus the ASM call
+# site that used to invoke the now-removed ShowOriginsAgeResult export --
+# every one of those call sites now forwards (is_detail, row, status) here
+# instead, and the icons DLL's ShowOriginsRowMessage picks the OFFICIAL-
+# spreadsheet-exact wording per row. .shr's raw section is 0x1000 bytes
+# (0x8B000-0x8BFFF); the last other helper (POPULATION_FINAL_TIER) is well
+# under 0x100 bytes long, so 0x100 of spacing after it is generous.
+ROW_MESSAGE_HELPER_FILE_OFFSET = 0x8BE00
+ROW_MESSAGE_HELPER_VA = IMAGE_BASE + SHR_RVA + (
+    ROW_MESSAGE_HELPER_FILE_OFFSET - SHR_FILE_OFFSET
+)
 VV1_NATIVE_SKILL_WRITER_VA = 0x437230
 VV1_SKILL_FIELDS = (
     (0x3BC, 2),  # Parenting
@@ -208,8 +221,6 @@ def main() -> None:
     add_c_string(strings, s, "detail_button_label", "Upgrades")
     add_c_string(strings, s, "title", "Origins Upgrades")
     add_c_string(strings, s, "detail_title", "Villager Upgrades")
-    add_c_string(strings, s, "purchase_complete", "Purchased.")
-    add_c_string(strings, s, "removed", "Removed.")
     add_c_string(strings, s, "not_enough", "Not enough tech points.")
     add_c_string(
         strings,
@@ -220,33 +231,14 @@ def main() -> None:
     add_c_string(
         strings,
         s,
-        "no_change",
-        "No changes were needed. No tech points have been deducted.",
-    )
-    add_c_string(
-        strings,
-        s,
-        "event_queued",
-        "Island Event queued.",
-    )
-    add_c_string(
-        strings,
-        s,
-        "population_capacity",
-        "The village population is already close to its max. No tech points have been deducted.",
-    )
-    add_c_string(
-        strings,
-        s,
         "show_icon_dialog_state",
         "ShowOriginsUpgradeMenuState",
     )
-    add_c_string(strings, s, "running_unavailable", "Running cannot be added.")
     add_c_string(strings, s, "icons_dll", "VVFP VV1 Origins Icons.dll")
     add_c_string(strings, s, "show_icon_dialog_legacy", "ShowOriginsUpgradeMenu")
     add_c_string(strings, s, "show_result_export", "ShowOriginsVillageWideResult")
     add_c_string(strings, s, "show_mastery_result_export", "ShowOriginsMasteryResult")
-    add_c_string(strings, s, "show_age_result_export", "ShowOriginsAgeResult")
+    add_c_string(strings, s, "show_row_message_export", "ShowOriginsRowMessage")
     add_c_string(strings, s, "show_appearance_picker", "ShowOriginsAppearancePicker")
     add_c_string(strings, s, "show_cure_result", "ShowOriginsCureResult")
     add_c_string(strings, s, "confirm_export", "ShowOriginsPermanentChangeConfirm")
@@ -459,7 +451,7 @@ def main() -> None:
             cmp dword ptr [edi + 0xA318], 999
             jne skip_pause_check
             mov eax, 0x{s['paused']:X}
-            jmp show_and_done
+            jmp show_string_and_done
         skip_pause_check:
             # Confirm here, not at the row pick: this is the Buy path only
             # (Remove never reaches charge: at all -- see remove_doubler).
@@ -537,19 +529,12 @@ def main() -> None:
 
         do_island_event:
             mov dword ptr [edi + 0xA300], 0
-            mov eax, 0x{s['event_queued']:X}
-            jmp show_and_done
+            jmp success
 
         do_barrel:
             mov byte ptr [0x{BARREL_PENDING_VA:X}], 1
             mov dword ptr [0x{BARREL_DELAY_COUNTER_VA:X}], 0
-            mov eax, 0x{s['purchase_complete']:X}
-            push 0
-            push 0x{s['title']:X}
-            push eax
-            call 0x452DB6
-            add esp, 0x0C
-            jmp menu_done
+            jmp success
 
         do_tech_doubler:
             mov dword ptr [edi + 0xAD48], 1
@@ -569,23 +554,32 @@ def main() -> None:
         remove_food_doubler:
             mov dword ptr [edi + 0xAD4C], 0
         removed_success:
-            mov eax, 0x{s['removed']:X}
-            jmp show_and_done
+            push 3
+            push ebx
+            push 0
+            call 0x{ROW_MESSAGE_HELPER_VA:X}
+            jmp menu_done
 
         success:
-            mov eax, 0x{s['purchase_complete']:X}
-            jmp show_and_done
+            push 0
+            push ebx
+            push 0
+            call 0x{ROW_MESSAGE_HELPER_VA:X}
+            jmp menu_done
         insufficient:
             mov eax, 0x{s['not_enough']:X}
-            jmp show_and_done
-        population_capacity:
-            mov eax, 0x{s['population_capacity']:X}
-        show_and_done:
+        show_string_and_done:
             push 0
             push 0x{s['title']:X}
             push eax
             call 0x452DB6
             add esp, 0x0C
+            jmp menu_done
+        population_capacity:
+            push 4
+            push 2
+            push 0
+            call 0x{ROW_MESSAGE_HELPER_VA:X}
             jmp menu_done
 
         menu_done:
@@ -875,22 +869,26 @@ def main() -> None:
             jmp detail_success
 
         detail_success:
-            mov eax, 0x{s['purchase_complete']:X}
-            jmp detail_show
+            xor eax, eax
+            jmp detail_row_message
         detail_insufficient:
             mov eax, 0x{s['not_enough']:X}
-            jmp detail_show
-        detail_no_change:
-            mov eax, 0x{s['no_change']:X}
-            jmp detail_show
-        detail_running_unavailable:
-            mov eax, 0x{s['running_unavailable']:X}
-        detail_show:
             push 0
             push 0x{s['detail_title']:X}
             push eax
             call 0x452DB6
             add esp, 0x0C
+            jmp detail_loop
+        detail_no_change:
+            mov eax, 1
+            jmp detail_row_message
+        detail_running_unavailable:
+            mov eax, 2
+        detail_row_message:
+            push eax
+            push ebx
+            push 1
+            call 0x{ROW_MESSAGE_HELPER_VA:X}
             jmp detail_loop
         detail_done:
             pop edi
@@ -1036,28 +1034,27 @@ def main() -> None:
             test eax, eax
             jz village_no_change
             # Same state-pointer reload as the Running branch above --
-            # AGE_GRANTED_VA is re-read from memory below rather than
-            # reused from eax, so clobbering it here is safe.
+            # the OFFICIAL spreadsheet gives this row a plain "completed."
+            # line with no count, so unlike Running/Mastery its success
+            # path no longer needs to resolve or call a dedicated export
+            # (the old ShowOriginsAgeResult) -- it goes through the same
+            # generic ROW_MESSAGE_HELPER_VA every other plain-completion
+            # row already uses. ebx is still 8 here (Set All Villagers to
+            # 18's own row number), matching that row's dispatch above.
             pop eax
             push eax
             sub dword ptr [eax + 0xA2FC], 1000000
-            push 0x{s['show_age_result_export']:X}
-            push edx
-            call dword ptr [0x4570D4]
-            test eax, eax
-            je village_result_done
-            mov ecx, dword ptr [0x{AGE_GRANTED_VA:X}]
-            push ecx
-            call eax
+            push 0
+            push ebx
+            push 0
+            call 0x{ROW_MESSAGE_HELPER_VA:X}
             jmp village_result_done
 
         village_no_change:
-            mov eax, 0x{s['no_change']:X}
+            push 1
+            push ebx
             push 0
-            push 0x{s['title']:X}
-            push eax
-            call 0x452DB6
-            add esp, 0x0C
+            call 0x{ROW_MESSAGE_HELPER_VA:X}
 
         village_result_done:
             pop edi
@@ -1239,12 +1236,10 @@ def main() -> None:
             call 0x{APPEARANCE_HELPER_VA:X}
             test eax, eax
             je 0x{DETAIL_LOOP_VA:X}
-            mov eax, 0x{s['purchase_complete']:X}
             push 0
-            push 0x{s['detail_title']:X}
-            push eax
-            call 0x452DB6
-            add esp, 0x0C
+            push 4
+            push 1
+            call 0x{ROW_MESSAGE_HELPER_VA:X}
             jmp 0x{DETAIL_LOOP_VA:X}
         """,
         APPEARANCE_ROUTER_VA,
@@ -1439,6 +1434,40 @@ def main() -> None:
         b"\0" * len(population_final_tier_code),
         population_final_tier_code,
         "check whether Barrel of Babies' final population tier (above the 15/25/50 housing-flag tiers) has room for 3 more children under whichever patch_mode is actually installed, not just the collection_progression/immediate_fixed 256 cap",
+    )
+    # Forwards (is_detail, row, status) -- pushed by every plain-completion/
+    # no-change/removed/blocked call site in menu, detail_menu, the
+    # village-wide dispatch, and the appearance router -- to the icons
+    # DLL's ShowOriginsRowMessage export, which knows each row's exact
+    # OFFICIAL-spreadsheet wording. Same resolve-then-call shape as
+    # confirm_helper_code below, just simpler: no cost-table lookup, the
+    # three incoming args are forwarded to the export unchanged.
+    row_message_helper_code = assemble(
+        f"""
+            push 0x{s['icons_dll']:X}
+            call dword ptr [0x457010]
+            test eax, eax
+            je row_message_fail
+            push 0x{s['show_row_message_export']:X}
+            push eax
+            call dword ptr [0x4570D4]
+            test eax, eax
+            je row_message_fail
+            push dword ptr [esp + 0x0C]
+            push dword ptr [esp + 0x0C]
+            push dword ptr [esp + 0x0C]
+            call eax
+            ret 0x0C
+        row_message_fail:
+            ret 0x0C
+        """,
+        ROW_MESSAGE_HELPER_VA,
+    )
+    patch(
+        ROW_MESSAGE_HELPER_FILE_OFFSET,
+        b"\0" * len(row_message_helper_code),
+        row_message_helper_code,
+        "resolve and invoke the icons DLL's shared ShowOriginsRowMessage export, forwarding (is_detail, row, status) unchanged -- the generic completion/no-change/removed/blocked result box every plain-wording row now routes through",
     )
     patch(
         HEAL_CAVE_FILE_OFFSET,
