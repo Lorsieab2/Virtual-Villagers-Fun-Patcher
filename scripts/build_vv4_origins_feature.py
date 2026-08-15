@@ -669,31 +669,21 @@ def main() -> None:
             mov eax, 0x{s['not_enough']:X}
             jmp detail_status
         running:
+            # A free Like slot was proven in the pre-charge running_preflight.
+            # Grant Running through the game's managed like helpers (add-to-
+            # likes 0x45D2D0, remove-from-dislikes 0x45D1C0) rather than raw
+            # array writes, which corrupt the like state and crash the game.
+            # Both are thiscall/ret 4 and clobber EAX/ECX/EDX, so preserve the
+            # record pointer (EDX) across them on the stack.
+            push edx
+            push {RUNNING_PREFERENCE_ID}
             lea ecx, [edx + 0x1E60]
-            mov eax, 3
-        find_like:
-            cmp dword ptr [ecx], {RUNNING_PREFERENCE_ID}
-            je remove_dislikes
-            cmp dword ptr [ecx], -1
-            je store_like
-            add ecx, 4
-            dec eax
-            jne find_like
-            mov eax, 0x{s['running_unavailable']:X}
-            jmp detail_status
-        store_like:
-            mov dword ptr [ecx], {RUNNING_PREFERENCE_ID}
-        remove_dislikes:
+            call 0x45D2D0
+            mov edx, dword ptr [esp]
+            push {RUNNING_PREFERENCE_ID}
             lea ecx, [edx + 0x1E6C]
-            mov eax, 3
-        remove_loop:
-            cmp dword ptr [ecx], {RUNNING_PREFERENCE_ID}
-            jne remove_next
-            mov dword ptr [ecx], -1
-        remove_next:
-            add ecx, 4
-            dec eax
-            jne remove_loop
+            call 0x45D1C0
+            add esp, 4
         detail_success:
             mov eax, 0x{s['purchased']:X}
             jmp detail_status

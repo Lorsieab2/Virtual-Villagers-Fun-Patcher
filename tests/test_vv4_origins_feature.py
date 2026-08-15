@@ -138,7 +138,12 @@ class VV4OriginsFeatureTests(unittest.TestCase):
         self.assertIn("mov byte ptr [esi + 0x1C48], 0", self.builder)
         self.assertIn("inc dword ptr [0x4D6DF0]", self.builder)
         self.assertIn("je running_already", self.builder)
-        self.assertIn("mov dword ptr [ecx], {RUNNING_PREFERENCE_ID}", self.builder)
+        # Grant Running (detail) grants through the game's managed like helpers
+        # (add 0x45D2D0 / remove-dislike 0x45D1C0), not a raw array write, which
+        # corrupts like state and crashes the game.
+        self.assertNotIn("mov dword ptr [ecx], {RUNNING_PREFERENCE_ID}", self.builder)
+        self.assertIn("call 0x45D2D0", self.builder)
+        self.assertIn("call 0x45D1C0", self.builder)
 
     def test_time_warp_uses_the_vv1_to_vv4_proportional_clock_shift(self) -> None:
         """Regression test guarding against re-applying VV5's inverse-speed
