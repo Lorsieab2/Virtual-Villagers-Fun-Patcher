@@ -271,6 +271,15 @@ class VV3OriginsFeatureTests(unittest.TestCase):
         # Collections no-change guards route to result codes 8/9.
         self.assertIn("All collectibles are already found.", dll)
         self.assertIn("The collections are already cleared.", dll)
+        # Details Grant Running 3-case no-change wording (codes 20-22).
+        self.assertIn("This villager already likes Running.", dll)
+        self.assertIn(
+            "its Running dislike was removed. "
+            "No tech points have been deducted.",
+            dll,
+        )
+        self.assertIn("Running can not be added.", dll)
+        self.assertIn('"Villager Upgrades"', dll)  # detail-result title
         complete = source.split("        do_complete_collections:", 1)[1].split(
             "        do_reset_collections:", 1
         )[0]
@@ -346,7 +355,7 @@ class VV3OriginsFeatureTests(unittest.TestCase):
         )
         self.assertEqual(
             hashlib.sha256(payload).hexdigest().upper(),
-            "A00734AE4E99D36D0B5B4CD8DA1A2D52B4A028E1F27686D99AE6D54029346B0D",
+            "693E329B6C29C29019C26BADDE01A92AE69FE352858FAAFDCB511767BF1172F8",
         )
         self.assertEqual(
             bytes.fromhex(

@@ -165,7 +165,6 @@ def main() -> None:
             "time_warp_done",
             "Time Warp completed.",
         ),
-        ("running_unavailable", "Running could not be added. No tech points have been deducted."),
         ("icons_dll", "VVFP Origins Icons.dll"),
         ("show_dialog_export", "ShowOriginsUpgradeMenuState"),
         ("show_result_export", "ShowOriginsVillageWideResult"),
@@ -837,12 +836,27 @@ def main() -> None:
             add eax, 4
             dec ecx
             jne running_preflight
-            mov eax, 0x{s['running_unavailable']:X}
-            jmp detail_status
+            # Likes are full and none is Running.  If the villager has a Running
+            # dislike, clear it (free, no charge) and report case 2; otherwise it
+            # is a true no-op (case 3).  Nothing has been charged yet.
+            lea eax, [edx + 0xFC0]
+            mov ecx, 3
+        running_full_dislike:
+            cmp dword ptr [eax], {RUNNING_PREFERENCE_ID}
+            je running_full_removed
+            add eax, 4
+            dec ecx
+            jne running_full_dislike
+            mov eax, 22
+            jmp show_detail_result
+        running_full_removed:
+            mov dword ptr [eax], -1
+            mov eax, 21
+            jmp show_detail_result
 
         running_already:
-            mov eax, 0x{s['running_unavailable']:X}
-            jmp detail_status
+            mov eax, 20
+            jmp show_detail_result
 
         detail_charge:
             mov eax, dword ptr [0x{s['detail_costs']:X} + ebx*4]
@@ -992,8 +1006,9 @@ def main() -> None:
             add ecx, 4
             dec eax
             jne running_find_like
-            mov eax, 0x{s['running_unavailable']:X}
-            jmp detail_status
+            # Unreachable: running_preflight only charges (and reaches here) when
+            # a free Like slot exists.  Close the menu defensively.
+            jmp detail_done
         running_store_like:
             mov dword ptr [ecx], {RUNNING_PREFERENCE_ID}
         running_remove_dislikes:
@@ -1015,6 +1030,25 @@ def main() -> None:
             push eax
             push 0x{s['detail_title']:X}
             call 0x{show_message:X}
+            jmp detail_loop
+        show_detail_result:
+            # eax = result code (20..22); the DLL export ShowOriginsUpgradeResult
+            # owns the exact "Villager Upgrades" no-change wording for Grant
+            # Running.  Fails silently (returns to the menu loop) if unresolved.
+            push eax
+            push 0x{s['icons_dll']:X}
+            call dword ptr [0x47C124]
+            test eax, eax
+            je show_detail_result_done
+            push 0x{s['result_export']:X}
+            push eax
+            call dword ptr [0x47C128]
+            test eax, eax
+            je show_detail_result_done
+            push dword ptr [esp]
+            call eax
+        show_detail_result_done:
+            pop eax
             jmp detail_loop
         detail_done:
             pop ebp

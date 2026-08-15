@@ -415,6 +415,7 @@ __declspec(dllexport) int __stdcall PrepareBarrelBabies(void) {
    Tech results, topmost so it surfaces over the game. */
 __declspec(dllexport) int __stdcall ShowOriginsUpgradeResult(int code) {
     const char *message;
+    const char *title = "Origins Upgrades";
     switch (code) {
     case 1:
         message = "Island Event completed.";
@@ -447,10 +448,27 @@ __declspec(dllexport) int __stdcall ShowOriginsUpgradeResult(int code) {
         message = "The collections are already cleared. "
                   "No tech points have been deducted.";
         break;
+    /* Details-screen (Villager Upgrades) Grant Running no-change cases. */
+    case 20:
+        title = "Villager Upgrades";
+        message = "This villager already likes Running. "
+                  "No tech points have been deducted.";
+        break;
+    case 21:
+        title = "Villager Upgrades";
+        message = "This villager's Likes are full, so Running could not be "
+                  "added, but its Running dislike was removed. "
+                  "No tech points have been deducted.";
+        break;
+    case 22:
+        title = "Villager Upgrades";
+        message = "This villager already has full Likes slots. "
+                  "Running can not be added.";
+        break;
     default:
         return 0;
     }
-    MessageBoxA(GetForegroundWindow(), message, "Origins Upgrades",
+    MessageBoxA(GetForegroundWindow(), message, title,
                 MB_OK | MB_ICONINFORMATION | MB_TOPMOST | MB_SETFOREGROUND);
     return 0;
 }
