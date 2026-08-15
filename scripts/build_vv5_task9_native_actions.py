@@ -2831,6 +2831,7 @@ def build_age18_all(page: bytearray, page_va: int) -> bytes:
         push edi
         sub esp, 0x30
         mov dword ptr [ebp-0x10], 0
+        mov dword ptr [ebp-0x14], 0
         mov eax, dword ptr [0x51D5F8]
         mov dword ptr [ebp-0x18], eax
         cmp eax, 1000000
@@ -2859,11 +2860,14 @@ def build_age18_all(page: bytearray, page_va: int) -> bytes:
         jle age_next
         mov eax, 360
         sub eax, dword ptr [esi+0x1B8C]
-        jz age_next
+        jz age_already
         push eax
         lea ecx, [esi+0x1B8C]
         call 0x46F7F0
         inc dword ptr [ebp-0x10]
+        jmp age_next
+    age_already:
+        inc dword ptr [ebp-0x14]
     age_next:
         add esi, {STRIDE}
         dec ebx
@@ -2880,7 +2884,7 @@ def build_age18_all(page: bytearray, page_va: int) -> bytes:
         sub eax, 1000000
         cmp dword ptr [0x51D5F8], eax
         jne charge_unknown
-        {status_call(page_va, '22', 0, 'dword ptr [ebp-0x10]')}
+        {status_call(page_va, '22', 0, 'dword ptr [ebp-0x10]', 'dword ptr [ebp-0x14]')}
         jmp done
     no_change:
         {status_call(page_va, '22', 1)}

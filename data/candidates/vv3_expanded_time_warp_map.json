@@ -30,7 +30,7 @@
   "companion": {
     "source": "data/candidates/VVFP VV5 Task9 Origins Icons.dll",
     "destination": "VVFP Origins Icons.dll",
-    "sha256": "FFAC09C7BAAC4F510733577602DC4A7CEC420D7F3949B173D37FA05D0911F97C",
+    "sha256": "DA624FAB76A1100A9EFDCB655C6341404AF60F87FF613DBDA861161317E97006",
     "size": 1692672
   },
   "section_header_raw": "0x2C8",

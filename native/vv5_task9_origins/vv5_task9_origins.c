@@ -442,6 +442,13 @@ __declspec(dllexport) int __stdcall ShowVV5Task9Result(
                 "Skipped %u %s: already fully mastered.",
                 amount_a, vpl(amount_a), amount_b, vpl(amount_b)
             );
+        } else if (action == ACTION_SET_AGE_18_ALL) {
+            wsprintfA(
+                message,
+                "Set %u %s to Age 18.\r\n\r\n"
+                "Skipped %u %s: already 18.",
+                amount_a, vpl(amount_a), amount_b, vpl(amount_b)
+            );
         } else {
             wsprintfA(message, "%s completed.", name);
         }
