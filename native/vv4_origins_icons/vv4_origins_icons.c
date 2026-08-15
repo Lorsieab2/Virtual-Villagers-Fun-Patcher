@@ -229,28 +229,13 @@ static void appearance_draw_cell(const DRAWITEMSTRUCT *dis, int is_head, int val
     }
 }
 
-/* MessageBox flags for anything shown while the game may be full-screen: force
-   it topmost and to the foreground so it is not hidden behind the low-res
-   game surface scaled across a larger display. */
-#define VV_MB_FRONT (MB_SETFOREGROUND | MB_TOPMOST)
-
-/* Bring a modal dialog to the front and centre it on the display so it is
-   visible and clickable even when the game is full-screen (the game renders at
-   a low resolution scaled to the display; a plain owned dialog can otherwise
-   sit behind the full-screen surface or off the visible area). */
-static void dialog_bring_to_front(HWND window) {
-    RECT rc;
-    int w, h, sw, sh;
-    GetWindowRect(window, &rc);
-    w = rc.right - rc.left;
-    h = rc.bottom - rc.top;
-    sw = GetSystemMetrics(SM_CXSCREEN);
-    sh = GetSystemMetrics(SM_CYSCREEN);
-    SetWindowPos(window, HWND_TOPMOST, (sw - w) / 2, (sh - h) / 2, 0, 0,
-                 SWP_NOSIZE | SWP_SHOWWINDOW);
-    SetForegroundWindow(window);
-    SetActiveWindow(window);
-}
+/* Full-screen approach mirrors VV1/VV2, which display correctly in the game's
+   scaled full-screen mode: a plain modal owned by the game's foreground window,
+   with no HWND_TOPMOST / SetForegroundWindow manipulation. Forcing the dialog
+   topmost and stealing the foreground fights the game's borderless full-screen
+   window and can leave the menu hidden or unresponsive, so VV_MB_FRONT is a
+   no-op and dialogs are shown exactly as VV1/VV2 do. */
+#define VV_MB_FRONT 0
 
 /* OFFICIAL per-row purchase-confirm names + costs. Tech rows 6-8 (village-wide)
    use the payload's own OFFICIAL confirm and are skipped here. */
@@ -329,7 +314,6 @@ static INT_PTR CALLBACK upgrade_dialog(
                 EnableWindow(GetDlgItem(window, ID_BUY_FIRST + row), FALSE);
             }
         }
-        dialog_bring_to_front(window);
         return TRUE;
     } else if (message == WM_COMMAND) {
         unsigned int command = LOWORD(wparam);
@@ -441,7 +425,6 @@ static INT_PTR CALLBACK appearance_dialog(
         /* appearance_state was already populated by ShowOriginsAppearancePicker
            before this dialog was created; the owner-drawn previews read the
            live head/body fields directly, so nothing else is needed here. */
-        dialog_bring_to_front(window);
         return TRUE;
     } else if (message == WM_DRAWITEM) {
         const DRAWITEMSTRUCT *dis = (const DRAWITEMSTRUCT *)lparam;
