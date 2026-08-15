@@ -514,11 +514,19 @@ __declspec(dllexport) int __stdcall ShowOriginsUpgradeMessage(
 ) {
     char msg[192];
     const char *out = (text != NULL) ? text : "";
-    /* Translate the payload's generic result strings into the OFFICIAL
-       per-upgrade wording, using the row the player just clicked. (Cure and
-       the village-wide grants have their own result exports and never reach
-       here.) */
-    if (text != NULL && g_last_row >= 0) {
+    /* The payload's Barrel capacity guard uses a short string to fit the full
+       payload string table; render the OFFICIAL near-max wording here where DLL
+       string space is free. Row-independent, so it always translates. */
+    if (text != NULL
+        && lstrcmpA(text,
+               "The village population is already at maximum capacity.") == 0) {
+        out = "The village population is already close to its max. "
+              "No tech points have been deducted.";
+    } else if (text != NULL && g_last_row >= 0) {
+        /* Translate the payload's generic result strings into the OFFICIAL
+           per-upgrade wording, using the row the player just clicked. (Cure and
+           the village-wide grants have their own result exports and never reach
+           here.) */
         const char *const *names = g_last_villager ? g_villager_names
                                                    : g_tech_names;
         int nmax = g_last_villager ? 5 : 9;
