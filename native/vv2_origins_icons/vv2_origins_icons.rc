@@ -1,7 +1,13 @@
 /* VV2 Origins icons: VV2-only dialog resources. The shared icons (101-110)
    come from the included base resource; every dialog VV2 actually uses is
    defined here with VV2-specific IDs (211 tech, 212 villager, 213 Change
-   Appearance) so nothing collides with the shared/other-game resources. */
+   Appearance) so nothing collides with the shared/other-game resources.
+
+   VVFP_VV2_BUILD skips VV1's own Change Appearance bitmaps (3001/3002/
+   3011/3012 -- the same IDs VV2's own set below reuses) and VV1's own
+   dialog 203, neither of which VV2 uses (see the matching guards in
+   vv1_origins_icons.rc for why). Must be defined before the #include. */
+#define VVFP_VV2_BUILD
 #include "../vv1_origins_icons/vv1_origins_icons.rc"
 
 3001 BITMAP "appearance/head_m_young.bmp"
