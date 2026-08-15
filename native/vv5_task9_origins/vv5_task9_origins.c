@@ -44,7 +44,9 @@ enum {
     RESULT_UNAVAILABLE = 10,
     RESULT_REMOVED = 11,
     RESULT_PURCHASED = 12,
-    RESULT_UNSUPPORTED_SICKNESS = 13
+    RESULT_UNSUPPORTED_SICKNESS = 13,
+    RESULT_RUNNING_DISLIKE_CLEARED = 14,
+    RESULT_APPEARANCE_UNCHANGED = 15
 };
 
 BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved) {
@@ -387,6 +389,19 @@ __declspec(dllexport) int __stdcall ConfirmVV5Task9Action(
     return MessageBoxA(owner, message, title, MB_OKCANCEL | MB_ICONQUESTION) == IDOK;
 }
 
+__declspec(dllexport) int __stdcall ShowVV5Task9GeneticsWarning(void) {
+    HWND owner = GetOriginsOwner();
+    if (owner == NULL) {
+        return 0;
+    }
+    return MessageBoxA(
+        owner,
+        "Warning: This will change the villager's head genetics.",
+        "Villager Upgrades",
+        MB_OKCANCEL | MB_ICONWARNING
+    ) == IDOK;
+}
+
 __declspec(dllexport) int __stdcall ShowVV5Task9Result(
     unsigned int action,
     unsigned int status,
@@ -405,9 +420,9 @@ __declspec(dllexport) int __stdcall ShowVV5Task9Result(
             wsprintfA(message, "Cured sickness from %u %s.\r\n\r\nRestored %u %s to full health.",
                       amount_a, vpl_lc(amount_a), amount_b, vpl_lc(amount_b));
         } else if (action == ACTION_COMPLETE_COLLECTIONS) {
-            wsprintfA(message, "Marked %u collectibles as found and triggered the collection goals.", amount_a);
+            wsprintfA(message, "Marked all %u collectibles as found and triggered %u collection goals.", amount_a, amount_b);
         } else if (action == ACTION_RESET_COLLECTIONS) {
-            wsprintfA(message, "Cleared %u collectibles.", amount_a);
+            wsprintfA(message, "Cleared all %u collectibles.", amount_a);
         } else if (action == ACTION_GRANT_RUNNING_ALL) {
             unsigned int granted = amount_b >> 16, removed = amount_b & 0xFFFF;
             unsigned int liked = amount_a >> 16, full = amount_a & 0xFFFF;
@@ -449,9 +464,9 @@ __declspec(dllexport) int __stdcall ShowVV5Task9Result(
         } else if (action == ACTION_SET_AGE_18_ALL) {
             lstrcpyA(message, "Everyone is already 18. No tech points have been deducted.");
         } else if (action == ACTION_COMPLETE_COLLECTIONS) {
-            lstrcpyA(message, "All collectibles were already found. No tech points have been deducted.");
+            lstrcpyA(message, "All collectibles are already found. No tech points have been deducted.");
         } else if (action == ACTION_RESET_COLLECTIONS) {
-            lstrcpyA(message, "There were no collectibles to clear. No tech points have been deducted.");
+            lstrcpyA(message, "The collections are already cleared. No tech points have been deducted.");
         } else {
             lstrcpyA(message, "No changes were needed. No tech points have been deducted.");
         }
@@ -491,6 +506,12 @@ __declspec(dllexport) int __stdcall ShowVV5Task9Result(
         break;
     case RESULT_UNSUPPORTED_SICKNESS:
         lstrcpyA(message, "Full Heal / Cure All is unavailable because an eligible Villager has sickness type 12, whose additional native effects are not yet implemented.\r\nNo tech points have been deducted.");
+        break;
+    case RESULT_RUNNING_DISLIKE_CLEARED:
+        lstrcpyA(message, "This villager's Likes are full, so Running could not be added, but its Running dislike was removed. No tech points have been deducted.");
+        break;
+    case RESULT_APPEARANCE_UNCHANGED:
+        lstrcpyA(message, "The appearance is unchanged. No tech points have been deducted.");
         break;
     default:
         lstrcpyA(message, "The action stopped without a verified charge.");

@@ -276,7 +276,7 @@ class Task9ArtifactTests(unittest.TestCase):
         contracts = {
             "age": {0x46F7F0: 1, 0x4237B0: 1},
             "mastery": {0x475730: 1, 0x4237B0: 1},
-            "running": {0x464F90: 1, 0x464AD0: 1, 0x4649E0: 1, 0x4237B0: 1},
+            "running": {0x464F90: 1, 0x464AD0: 1, 0x4649E0: 2, 0x4237B0: 1},
             "heal": {0x4758B0: 1, 0x413450: 3, 0x4237B0: 1},
         }
         for name, targets in contracts.items():

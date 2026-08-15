@@ -244,6 +244,7 @@ def build_strings(page: bytearray, page_va: int) -> dict[str, int]:
     # expanded-256 baseline string region stays byte-identical for its overlay.
     time_warp_values = (
         ("appearance_export", b"ShowAppearanceChooser\0"),
+        ("genetics_export", b"ShowVV5Task9GeneticsWarning\0"),
         ("perm_warning", b"This upgrade makes permanent changes to your village. Do you still want to purchase this?\0"),
         ("tw_get", b"GetOriginsOwner\0"),
         ("tw_user32", b"USER32.dll\0"),
@@ -266,7 +267,7 @@ def build_strings(page: bytearray, page_va: int) -> dict[str, int]:
         ("iv_charge_unknown", b"The final tech-point balance did not match the exact 30,000-point deduction. The charge outcome is unknown; no event was queued.\0"),
         ("iv_queue_unknown", b"The 30,000-point deduction was verified, but the event could not be queued.\0"),
         ("bb_warning", b"Do you want to buy Barrel of Babies for 75,000 tech points?\r\nPress OK to confirm, or Cancel.\0"),
-        ("bb_full", b"The village population is already close to its max. No tech points have been deducted.\0"),
+        ("bb_full", b"Village population is close to its maximum. The Barrel of Babies needs room for 3 children. No tech points have been deducted.\0"),
         ("bb_cancelled", b"Barrel of Babies was canceled.\r\nNo tech points have been deducted.\0"),
         ("bb_recheck", b"The village population or tech-point balance changed during confirmation.\r\nNo tech points have been deducted.\0"),
         ("bb_unavailable", b"Barrel of Babies is unavailable.\r\nNo tech points have been deducted.\0"),
@@ -1108,6 +1109,13 @@ def build_mastery(page: bytearray, page_va: int) -> bytes:
 
 
 def build_running(page: bytearray, page_va: int) -> bytes:
+    """Grant Running to the selected Believer (40,000 tech points). Inserts
+    preference 38 into the first empty Like slot (0x464AD0) and clears any
+    Running dislike (0x4649E0), charging only when the Like is actually added.
+    If all three Like slots are full: when the villager also has a Running
+    dislike, that dislike is removed for free (no charge) and reported as
+    RESULT 14; with no Running dislike it is a true no-op (RESULT 8). This
+    mirrors the Grant-Running-to-All edge behavior."""
     return put(page, page_va, "running", f"""
         push ebp
         mov ebp, esp
@@ -1355,7 +1363,30 @@ def build_running(page: bytearray, page_va: int) -> bytes:
         {status_call(page_va, '2', 1)}
         jmp done
     no_slot:
+        xor edi, edi
+    no_slot_find_dislike:
+        cmp dword ptr [ebp+edi*4-0x40], 38
+        je no_slot_remove_dislike
+        inc edi
+        cmp edi, 3
+        jb no_slot_find_dislike
         {status_call(page_va, '2', 8)}
+        jmp done
+    no_slot_remove_dislike:
+        call running_reacquire_exact
+        test eax, eax
+        jz recheck
+        push 38
+        lea ecx, [esi+0x1F68]
+        call 0x4649E0
+        xor edi, edi
+    no_slot_verify_gone:
+        cmp dword ptr [esi+edi*4+0x1F68], 38
+        je retained
+        inc edi
+        cmp edi, 3
+        jb no_slot_verify_gone
+        {status_call(page_va, '2', 14)}
         jmp done
     insufficient:
         {status_call(page_va, '2', 3)}
@@ -2132,8 +2163,12 @@ def build_appearance(page: bytearray, page_va: int, s: dict[str, int]) -> bytes:
     the stock head/body sprites with arrows and, on OK (return 1), reports the
     chosen indices back through the pointers -- it never touches the record. On
     OK this router re-checks eligibility and funds, writes the chosen indices
-    into record+0x1BB8/+0x1BBC, and charges exactly 5,000 once; Cancel or an
-    unchanged selection changes nothing and charges nothing."""
+    into record+0x1BB8/+0x1BBC, and charges exactly 5,000 once. If the chosen
+    head differs from the original, it first shows the companion DLL's
+    ShowVV5Task9GeneticsWarning (OK/Cancel); Cancel backs out with no write and
+    no charge. Cancel changes nothing silently; an OK with an unchanged
+    selection changes nothing, charges nothing, and reports RESULT 15 (the
+    "appearance is unchanged" line)."""
     return put(page, page_va, "appearance", f"""
         push ebp
         mov ebp, esp
@@ -2145,12 +2180,17 @@ def build_appearance(page: bytearray, page_va: int, s: dict[str, int]) -> bytes:
         call dword ptr [0x4951E0]
         test eax, eax
         jz invalid
+        mov ebx, eax
         push 0x{s['appearance_export']:X}
-        push eax
+        push ebx
         call dword ptr [0x4951DC]
         test eax, eax
         jz invalid
         mov dword ptr [ebp-0x10], eax
+        push 0x{s['genetics_export']:X}
+        push ebx
+        call dword ptr [0x4951DC]
+        mov dword ptr [ebp-0x34], eax
         call 0x{page_va + OFF['resolve_current']:X}
         test eax, eax
         jz invalid
@@ -2189,10 +2229,18 @@ def build_appearance(page: bytearray, page_va: int, s: dict[str, int]) -> bytes:
         jne cancelled
         mov eax, dword ptr [ebp-0x1C]
         cmp eax, dword ptr [ebp-0x2C]
-        jne appearance_changed
+        jne head_changed
         mov eax, dword ptr [ebp-0x20]
         cmp eax, dword ptr [ebp-0x30]
         je no_change
+        jmp appearance_changed
+    head_changed:
+        mov eax, dword ptr [ebp-0x34]
+        test eax, eax
+        jz appearance_changed
+        call eax
+        cmp eax, 1
+        jne cancelled
     appearance_changed:
         mov esi, dword ptr [ebp-0x18]
         push esi
@@ -2218,6 +2266,7 @@ def build_appearance(page: bytearray, page_va: int, s: dict[str, int]) -> bytes:
         jne charge_unknown
         jmp done
     no_change:
+        {status_call(page_va, '5', 15)}
         jmp done
     insufficient:
         {status_call(page_va, '5', 3)}
@@ -2316,6 +2365,9 @@ def build_complete_collections(page: bytearray, page_va: int) -> bytes:
         jb insufficient
         mov dword ptr [ebp-0x14], 0
         mov dword ptr [ebp-0x18], 0
+        mov dword ptr [ebp-0x1C], 0
+        movzx eax, byte ptr [0x4DB418]
+        mov dword ptr [ebp-0x20], eax
         mov edi, 0x4DBFC8
         mov esi, 0x50
     grant_loop:
@@ -2336,15 +2388,22 @@ def build_complete_collections(page: bytearray, page_va: int) -> bytes:
         push 0xE
         mov ecx, 0x4DB358
         call 0x413450
+        inc dword ptr [ebp-0x1C]
     earn_science:
         cmp byte ptr [0x4DB40C], 0
-        jne after_earn
+        jne earn_master_count
         mov dword ptr [ebp-0x18], 1
         mov dword ptr [0x4DB410], 23
         push 1
         push 0xF
         mov ecx, 0x4DB358
         call 0x413450
+        inc dword ptr [ebp-0x1C]
+    earn_master_count:
+        movzx eax, byte ptr [0x4DB418]
+        cmp eax, dword ptr [ebp-0x20]
+        je after_earn
+        inc dword ptr [ebp-0x1C]
     after_earn:
         cmp dword ptr [ebp-0x18], 0
         je no_change
@@ -2373,7 +2432,7 @@ def build_complete_collections(page: bytearray, page_va: int) -> bytes:
         sub eax, 1000000
         cmp dword ptr [0x51D5F8], eax
         jne charge_unknown
-        {status_call(page_va, '16', 0, 'dword ptr [ebp-0x14]')}
+        {status_call(page_va, '16', 0, 'dword ptr [ebp-0x14]', 'dword ptr [ebp-0x1C]')}
         jmp done
     no_change:
         {status_call(page_va, '16', 1)}
