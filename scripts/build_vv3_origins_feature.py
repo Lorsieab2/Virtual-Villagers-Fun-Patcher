@@ -205,7 +205,7 @@ def main() -> None:
         ("appearance_export", "ShowVV3AppearanceChooser"),
         (
             "cure_message",
-            "Cured sickness from %u villagers.\n"
+            "Cured sickness from %u villagers.\n\n"
             "Restored %u villagers to full health.",
         ),
         (
@@ -862,6 +862,11 @@ def main() -> None:
             mov eax, dword ptr [0x{s['detail_costs']:X} + ebx*4]
             cmp dword ptr [0x582644], eax
             jb detail_insufficient
+            # Change Appearance charges only when the chooser actually changes
+            # the head or body, so verify funds here but defer the deduction to
+            # the appearance cave; every other detail upgrade deducts now.
+            cmp ebx, 4
+            je do_change_appearance
             sub dword ptr [0x582644], eax
             cmp ebx, 0
             je detail_youth
@@ -869,8 +874,6 @@ def main() -> None:
             je detail_mastery
             cmp ebx, 2
             je detail_running
-            cmp ebx, 4
-            je do_change_appearance
             cmp dword ptr [edx + 0xDC4], 360
             je detail_age_nochange
             mov eax, 360
@@ -882,10 +885,11 @@ def main() -> None:
             jmp detail_status
 
         do_change_appearance:
-            # The 5,000-tech charge was already applied by detail_charge above.
-            # Queue the appearance chooser for the selected villager, then close
-            # the Villager Upgrades menu (detail_done) so the detail-screen
-            # update loop regains control and opens the native chooser.
+            # detail_charge verified funds but did NOT deduct; the appearance
+            # cave opens the chooser and charges 5,000 only if the head or body
+            # actually changed (the DLL handles the genetics warning and the
+            # "unchanged" message).  Then close the Villager Upgrades menu so the
+            # detail-screen update loop regains control.
             call 0x{CHANGE_APPEARANCE_VA:X}
             jmp detail_done
 
@@ -1352,13 +1356,14 @@ def main() -> None:
     )
 
     # Change Appearance action cave.  Opens the companion DLL's custom
-    # head+body chooser (ShowVV3AppearanceChooser) for the selected villager
-    # and, on OK, writes the chosen head (+0xDF0) and body (+0xDF4).  The DLL
-    # only previews the extracted atlas strips and returns the chosen indices;
-    # this cave owns the record writes.  edx = the validated selected record on
-    # entry; head/body are staged in two stack locals passed by pointer.  The
-    # 5,000-tech charge was applied by detail_charge above; Cancel/close leaves
-    # the record unchanged.
+    # head+body chooser (ShowVV3AppearanceChooser) for the selected villager.
+    # The DLL returns 1 only when the head or body actually changed and (for a
+    # head change) the genetics warning was confirmed; it shows the "unchanged"
+    # and warning boxes itself.  On that 1, this cave deducts the 5,000-tech
+    # charge (detail_charge only verified funds) and writes the chosen head
+    # (+0xDF0) and body (+0xDF4).  Cancel / unchanged / declined-warning return 0
+    # here: no charge, no write.  edx = the validated selected record on entry;
+    # head/body are staged in two stack locals passed by pointer.
     change_appearance_code = assemble(
         f"""
             push ebx
@@ -1387,6 +1392,7 @@ def main() -> None:
             call eax
             test eax, eax
             je ca_done
+            sub dword ptr [0x582644], 5000
             mov eax, dword ptr [esp]
             mov dword ptr [esi + 0xDF0], eax
             mov eax, dword ptr [esp + 4]

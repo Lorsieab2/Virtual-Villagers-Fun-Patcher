@@ -695,10 +695,14 @@ __declspec(dllexport) int __stdcall ShowVV3AppearanceChooser(
 ) {
     INT_PTR result;
     HWND owner;
+    int orig_head;
+    int orig_body;
     vv3_appearance_sex = sex ? 1 : 0;
     vv3_appearance_old = age >= 1100 ? 1 : 0;
     vv3_appearance_head = (head && *head >= 0 && *head < VV3_HEAD_COUNT) ? *head : 0;
     vv3_appearance_body = (body && *body >= 0 && *body < VV3_BODY_COUNT) ? *body : 0;
+    orig_head = vv3_appearance_head;
+    orig_body = vv3_appearance_body;
 
     owner = begin_modal_over_game();
     result = DialogBoxParamA(
@@ -709,14 +713,35 @@ __declspec(dllexport) int __stdcall ShowVV3AppearanceChooser(
         0
     );
     end_modal_over_game(owner);
-    if (result == 1) {
-        if (head) {
-            *head = vv3_appearance_head;
-        }
-        if (body) {
-            *body = vv3_appearance_body;
-        }
-        return 1;
+
+    /* Cancel / close: no change, no charge, no message. */
+    if (result != 1) {
+        return 0;
     }
-    return 0;
+    /* OK with nothing changed: report it and do not charge. */
+    if (vv3_appearance_head == orig_head && vv3_appearance_body == orig_body) {
+        MessageBoxA(GetForegroundWindow(),
+            "The appearance is unchanged. No tech points have been deducted.",
+            "Villager Upgrades",
+            MB_OK | MB_ICONINFORMATION | MB_TOPMOST | MB_SETFOREGROUND);
+        return 0;
+    }
+    /* The head field is hereditary, so changing it warns first; Cancel backs
+       out with no write and no charge. */
+    if (vv3_appearance_head != orig_head) {
+        if (MessageBoxA(GetForegroundWindow(),
+                "Warning: This will change the villager's head genetics.",
+                "Villager Upgrades",
+                MB_OKCANCEL | MB_ICONWARNING | MB_TOPMOST | MB_SETFOREGROUND)
+            != IDOK) {
+            return 0;
+        }
+    }
+    if (head) {
+        *head = vv3_appearance_head;
+    }
+    if (body) {
+        *body = vv3_appearance_body;
+    }
+    return 1;
 }
