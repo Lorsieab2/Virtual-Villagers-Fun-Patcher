@@ -23,9 +23,8 @@ OUT = ROOT / "native" / "vv3_full_mastery_candidate" / "appearance"
 BACKGROUND = (236, 236, 236)
 CELL_W, CELL_H = 40, 65
 # Each atlas row holds several directional animation frames of CELL_W each.
-# Preview the requested facing: heads front-straight (frame 4 of 8), bodies
-# front 3/4-right (frame 8 of 16).
-HEAD_FRAME = 4
+# Preview the requested facing: heads frame 5, bodies frame 8.
+HEAD_FRAME = 5
 BODY_FRAME = 8
 
 
