@@ -1,9 +1,0 @@
-# VV1 Individual Full Mastery Candidate
-
-This public stock-only overlay adds one `Upgrades` button to Villager Detail at X=120/Y=563. Detail event 8/button 6 routes only to selected-villager Full Mastery for 100,000 tech points. It depends directly on `vv1_full_mastery_all_stage_a_candidate` and conflicts with every legacy VV1 Origins owner. Runtime/player confirmation remains pending.
-
-The child owns only the stock Detail hooks at raw `0x4A5FA` and `0x4A700`, plus the assigned zero-preimage ranges beginning at raw `0x8EA80` in the parent `.vv1fm` section. The prerequisite Tech hooks, village-wide command-7 implementation through raw `0x8EA7F`, and companion DLL remain byte-identical. Both stock modes are rendered and hash-pinned; Expanded-256 rejects before variant, catalog, manifest, or source access.
-
-The selected index is `[state+0xAD34]` with unsigned bound 256. `[detail+0x10]` must equal `[state+0xADE8]`; the Detail owner, state, selected index, pool, derived record pointer, eligibility, five skills, preference `+0x3D0`, and funds are snapshotted and fully rechecked before writes. Eligibility is active `+0x28 != 0`, signed health `+0x344 > 0`, and non-Golden Child `+0x36C != 199`, checked before skill or preference reads.
-
-Changed skills target exactly 100 through native `sub_437230` with ECX equal to the matching record pool and the proved index/skill/delta ABI. Complete exact-100 and unchanged-preference postverification precede a fresh unsigned funds check and one direct subtraction of 100,000 from fresh `state+0xA2FC`. Positive award writer `sub_41D120` is never called, and lifetime field `state+0x9E20` is never touched. Pre-write failures are no-change/no-charge. Native writes are not rolled back after a post-write failure; those paths explicitly report that native changes may remain and make no charge.

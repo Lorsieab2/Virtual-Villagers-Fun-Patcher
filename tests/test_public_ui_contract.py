@@ -155,7 +155,6 @@ class PublicUiContractTests(unittest.TestCase):
                 patch.object(patcher, "ORIGINS_VILLAGE_WIDE_FEATURE_PATHS", []),
                 patch.object(patcher, "STATISTICS_FEATURES_PATH", root / "missing-statistics.json"),
                 patch.object(patcher, "_validate_vv3_individual_full_mastery_candidate", return_value=None),
-                patch.object(patcher, "_certified_vv1_full_mastery_record", return_value=None),
                 patch.object(patcher, "_certified_vv2_full_mastery_record", return_value=None),
             ):
                 records = patcher._load_fun_patch_records()
