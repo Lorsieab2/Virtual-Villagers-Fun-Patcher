@@ -198,7 +198,10 @@ static void vv3_count_village_wide(int command) {
                 if (*(int *)(rec + VV3_SKILL0 + s * 4) != 100) { mastered = 0; break; }
             if (mastered) vw_already++; else vw_granted++;
         } else if (command == VW_AGE) {
-            if (*(int *)(rec + VV3_AGE) >= 360) vw_already++; else vw_granted++;
+            /* Set-to-18 forces age to exactly 360 for everyone (older villagers
+               are set back down), so only an already-exactly-18 villager is a
+               no-change. */
+            if (*(int *)(rec + VV3_AGE) == 360) vw_already++; else vw_granted++;
         } else if (command == VW_RUNNING) {
             int has_like = 0, has_free = 0, has_dislike = 0, v;
             for (s = 0; s < 3; ++s) {
@@ -242,8 +245,8 @@ __declspec(dllexport) int __stdcall ShowOriginsVillageWideResult(int command) {
         wsprintfA(line, "\r\n%u villagers were already fully mastered.", vw_already);
         lstrcatA(message, line);
     } else if (command == VW_AGE) {
-        wsprintfA(message, "Set %u villagers to 18 years old.", vw_granted);
-        wsprintfA(line, "\r\n%u villagers were already 18 or older.", vw_already);
+        wsprintfA(message, "Set %u villagers to exactly 18 years old.", vw_granted);
+        wsprintfA(line, "\r\n%u villagers were already exactly 18.", vw_already);
         lstrcatA(message, line);
     } else {
         return 0;
