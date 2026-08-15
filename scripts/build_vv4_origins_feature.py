@@ -65,6 +65,17 @@ BARREL_ARMED_VA = 0x728B04            # byte: barrel is eligible for this loop p
 BARREL_COUNTDOWN_FILE_OFFSET = 0xCCB10
 BARREL_COUNTDOWN_VA = 0x728B10
 BARREL_WAIT_TICKS = 90                # ~90 gameplay ticks after the Purchased prompt
+# Dynamic, mode-aware Barrel capacity check. Rather than hardcode 150, mirror the
+# game's own population-room logic (native barrel gate at 0x468350): current
+# population from 0x467610 (living + pending pregnancy babies, matching the shown
+# number) vs the effective cap = per-population-tech bonus + the base operand at
+# 0x4683F1. That base is what the patcher rewrites per population mode (stock 90,
+# Collection-Progression 125 -> cap 115 vs 150), so reading it keeps the barrel
+# aligned with whatever limit the current build actually enforces.
+BARREL_CAP_BASE_OPERAND_VA = 0x4683F1   # imm8 of `add esi, <base>` (mode-patched)
+BARREL_CAPACITY_FILE_OFFSET = 0xCCC00
+BARREL_CAPACITY_VA = 0x728C00
+BARREL_CHILDREN = 3                     # the barrel delivers 3 children
 EXPANDED_VILLAGE_WIDE_ENTRY_VA = 0x85A240
 EXPANDED_VILLAGE_PREFLIGHT_VA = 0x85A180
 RUNNING_PREFERENCE_ID = 38  # exact-build preference-table evidence: 0xA0CD8
@@ -393,23 +404,9 @@ def main() -> None:
         maybe_barrel:
             cmp ebx, 2
             jne charge
-            mov ebp, dword ptr [0x467499]
-            xor edi, edi
-            mov edx, 0x50E5AC
-        count_records:
-            cmp byte ptr [edx + 0x1CC4], 0
-            je record_free
-            cmp byte ptr [edx + 0x1CC7], 0
-            jne record_free
-            inc edi
-        record_free:
-            add edx, 0x2E3C
-            dec ebp
-            jne count_records
-            mov eax, dword ptr [0x467499]
-            sub eax, 3
-            cmp edi, eax
-            jbe charge
+            call 0x{BARREL_CAPACITY_VA:X}
+            test eax, eax
+            jnz charge
             mov eax, 0x{s['capacity']:X}
             jmp status
         charge:
@@ -1108,6 +1105,64 @@ def main() -> None:
         """,
         BARREL_COUNTDOWN_VA,
     )
+    # Mode-aware Barrel capacity gate, called from the purchase preflight. Returns
+    # eax=1 when the village can accommodate 3 more, eax=0 otherwise. The cap and
+    # population are both taken the way the native barrel gate (0x468350) does, so
+    # the answer tracks the build's actual population mode and in-game bonuses.
+    # ESI preserved for the payload caller; 0x4143F0 / 0x467610 preserve ESI.
+    barrel_capacity = assemble(
+        f"""
+            push esi
+            xor esi, esi
+            push 0x46
+            mov ecx, 0x4CC838
+            call 0x4143F0
+            test al, al
+            je cap_t1
+            add esi, 5
+        cap_t1:
+            push 0x52
+            mov ecx, 0x4CC838
+            call 0x4143F0
+            test al, al
+            je cap_t2
+            add esi, 5
+        cap_t2:
+            push 0x5E
+            mov ecx, 0x4CC838
+            call 0x4143F0
+            test al, al
+            je cap_t3
+            add esi, 5
+        cap_t3:
+            push 0x6A
+            mov ecx, 0x4CC838
+            call 0x4143F0
+            test al, al
+            je cap_t4
+            add esi, 5
+        cap_t4:
+            cmp esi, 0x14
+            jne cap_base
+            mov esi, 0x19
+        cap_base:
+            movzx eax, byte ptr [0x{BARREL_CAP_BASE_OPERAND_VA:X}]
+            add esi, eax
+            mov ecx, 0x50E568
+            call 0x467610
+            add eax, {BARREL_CHILDREN}
+            cmp eax, esi
+            jle cap_ok
+            xor eax, eax
+            pop esi
+            ret
+        cap_ok:
+            mov eax, 1
+            pop esi
+            ret
+        """,
+        BARREL_CAPACITY_VA,
+    )
     # The Cure and preflight helpers themselves are in the stock .shr section,
     # outside the main Origins payload scanner.  Record their exact internal
     # .shr references so expanded mode can retarget them after the section move.
@@ -1234,6 +1289,8 @@ def main() -> None:
           "admit the Barrel of Babies event while the purchased-barrel countdown is armed")
     patch(BARREL_COUNTDOWN_FILE_OFFSET, b"\0" * len(barrel_countdown), barrel_countdown,
           "deferred Barrel countdown: drain the purchase token each tick and arm the barrel for one natural event-loop pass")
+    patch(BARREL_CAPACITY_FILE_OFFSET, b"\0" * len(barrel_capacity), barrel_capacity,
+          "mode-aware Barrel capacity gate: game population (0x467610) + 3 vs the mode-patched cap (per-tech bonus + base at 0x4683F1)")
     patch(0x4098C, bytes.fromhex("E81F79FDFF"), rel32_call(0x44098C, BARREL_COUNTDOWN_VA),
           "route the per-tick event loop through the Barrel countdown so a purchased barrel fires in the natural world context")
     patch(0x1D94F, bytes.fromhex("85F67E3456"), rel32_jump(0x41D94F, food_increment),
