@@ -229,6 +229,29 @@ static void appearance_draw_cell(const DRAWITEMSTRUCT *dis, int is_head, int val
     }
 }
 
+/* MessageBox flags for anything shown while the game may be full-screen: force
+   it topmost and to the foreground so it is not hidden behind the low-res
+   game surface scaled across a larger display. */
+#define VV_MB_FRONT (MB_SETFOREGROUND | MB_TOPMOST)
+
+/* Bring a modal dialog to the front and centre it on the display so it is
+   visible and clickable even when the game is full-screen (the game renders at
+   a low resolution scaled to the display; a plain owned dialog can otherwise
+   sit behind the full-screen surface or off the visible area). */
+static void dialog_bring_to_front(HWND window) {
+    RECT rc;
+    int w, h, sw, sh;
+    GetWindowRect(window, &rc);
+    w = rc.right - rc.left;
+    h = rc.bottom - rc.top;
+    sw = GetSystemMetrics(SM_CXSCREEN);
+    sh = GetSystemMetrics(SM_CYSCREEN);
+    SetWindowPos(window, HWND_TOPMOST, (sw - w) / 2, (sh - h) / 2, 0, 0,
+                 SWP_NOSIZE | SWP_SHOWWINDOW);
+    SetForegroundWindow(window);
+    SetActiveWindow(window);
+}
+
 /* OFFICIAL per-row purchase-confirm names + costs. Tech rows 6-8 (village-wide)
    use the payload's own OFFICIAL confirm and are skipped here. */
 static const char *const g_tech_names[9] = {
@@ -285,6 +308,7 @@ static INT_PTR CALLBACK upgrade_dialog(
                 EnableWindow(GetDlgItem(window, ID_BUY_FIRST + row), FALSE);
             }
         }
+        dialog_bring_to_front(window);
         return TRUE;
     } else if (message == WM_COMMAND) {
         unsigned int command = LOWORD(wparam);
@@ -309,7 +333,7 @@ static INT_PTR CALLBACK upgrade_dialog(
                     "Press OK to confirm, or Cancel.", name, cost);
                 if (MessageBoxA(window, msg,
                         g_villager_menu ? "Villager Upgrades" : "Origins Upgrades",
-                        MB_OKCANCEL | MB_ICONQUESTION) != IDOK) {
+                        MB_OKCANCEL | MB_ICONQUESTION | VV_MB_FRONT) != IDOK) {
                     return TRUE; /* Cancel: stay in the menu. */
                 }
             }
@@ -366,6 +390,7 @@ static INT_PTR CALLBACK appearance_dialog(
         /* appearance_state was already populated by ShowOriginsAppearancePicker
            before this dialog was created; the owner-drawn previews read the
            live head/body fields directly, so nothing else is needed here. */
+        dialog_bring_to_front(window);
         return TRUE;
     } else if (message == WM_DRAWITEM) {
         const DRAWITEMSTRUCT *dis = (const DRAWITEMSTRUCT *)lparam;
@@ -457,7 +482,7 @@ __declspec(dllexport) int __stdcall ShowOriginsUpgradeMessage(
         GetForegroundWindow(),
         text != NULL ? text : "",
         title != NULL ? title : "Origins Upgrades",
-        MB_OK
+        MB_OK | VV_MB_FRONT
     );
     return 0;
 }
@@ -478,7 +503,7 @@ __declspec(dllexport) int __stdcall ShowOriginsCureResult(
             "Everyone is at full health already. No villagers are sick. "
             "No tech points have been deducted.",
             "Origins Upgrades",
-            MB_OK
+            MB_OK | VV_MB_FRONT
         );
         return 0;
     }
@@ -654,13 +679,13 @@ __declspec(dllexport) int __stdcall ConfirmOriginsVillageWide(int command) {
             MessageBoxA(GetForegroundWindow(),
                 "Everyone already likes running, or has full Likes slots. "
                 "No tech points have been deducted.",
-                "Origins Upgrades", MB_OK | MB_ICONWARNING);
+                "Origins Upgrades", MB_OK | MB_ICONWARNING | VV_MB_FRONT);
             return 0;
         }
         return MessageBoxA(GetForegroundWindow(),
             "Do you want to buy Grant Running to All Villagers for 1,000,000 "
             "tech points?\r\nPress OK to confirm, or Cancel.",
-            "Origins Upgrades", MB_OKCANCEL | MB_ICONQUESTION) == IDOK;
+            "Origins Upgrades", MB_OKCANCEL | MB_ICONQUESTION | VV_MB_FRONT) == IDOK;
     }
     if (command == 7) {
         vv_scan_mastery();
@@ -668,25 +693,25 @@ __declspec(dllexport) int __stdcall ConfirmOriginsVillageWide(int command) {
             MessageBoxA(GetForegroundWindow(),
                 "Everyone has already mastered their skills. "
                 "No tech points have been deducted.",
-                "Origins Upgrades", MB_OK | MB_ICONWARNING);
+                "Origins Upgrades", MB_OK | MB_ICONWARNING | VV_MB_FRONT);
             return 0;
         }
         return MessageBoxA(GetForegroundWindow(),
             "Do you want to buy Grant Full Mastery to All Villagers for "
             "1,000,000 tech points?\r\nPress OK to confirm, or Cancel.",
-            "Origins Upgrades", MB_OKCANCEL | MB_ICONQUESTION) == IDOK;
+            "Origins Upgrades", MB_OKCANCEL | MB_ICONQUESTION | VV_MB_FRONT) == IDOK;
     }
     if (command == 8) {
         if (vv_count_age18() == 0) {
             MessageBoxA(GetForegroundWindow(),
                 "Everyone is already 18. No tech points have been deducted.",
-                "Origins Upgrades", MB_OK | MB_ICONWARNING);
+                "Origins Upgrades", MB_OK | MB_ICONWARNING | VV_MB_FRONT);
             return 0;
         }
         return MessageBoxA(GetForegroundWindow(),
             "Do you want to buy Set All Villagers to 18 for 1,000,000 tech "
             "points?\r\nPress OK to confirm, or Cancel.",
-            "Origins Upgrades", MB_OKCANCEL | MB_ICONQUESTION) == IDOK;
+            "Origins Upgrades", MB_OKCANCEL | MB_ICONQUESTION | VV_MB_FRONT) == IDOK;
     }
     return 1;
 }
@@ -721,7 +746,7 @@ __declspec(dllexport) int __stdcall ShowOriginsVillageWideResult(
             lstrcatA(msg, line);
         }
         MessageBoxA(GetForegroundWindow(), msg, "Origins Upgrades",
-                    MB_OK | MB_ICONINFORMATION);
+                    MB_OK | MB_ICONINFORMATION | VV_MB_FRONT);
     } else if (command == 7) {
         wsprintfA(msg, "Granted Full Mastery to %d %s.",
                   vw_granted, vv_villagers(vw_granted));
@@ -731,11 +756,11 @@ __declspec(dllexport) int __stdcall ShowOriginsVillageWideResult(
             lstrcatA(msg, line);
         }
         MessageBoxA(GetForegroundWindow(), msg, "Origins Upgrades",
-                    MB_OK | MB_ICONINFORMATION);
+                    MB_OK | MB_ICONINFORMATION | VV_MB_FRONT);
     } else if (command == 8) {
         MessageBoxA(GetForegroundWindow(),
             "Set All Villagers to 18 completed.",
-            "Origins Upgrades", MB_OK | MB_ICONINFORMATION);
+            "Origins Upgrades", MB_OK | MB_ICONINFORMATION | VV_MB_FRONT);
     }
     return 0;
 }
@@ -775,7 +800,7 @@ __declspec(dllexport) int __stdcall ShowOriginsVillageWideResult20(
         GetForegroundWindow(),
         message,
         "Origins Upgrades",
-        MB_OK | MB_ICONINFORMATION
+        MB_OK | MB_ICONINFORMATION | VV_MB_FRONT
     );
     return 0;
 }
