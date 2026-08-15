@@ -79,47 +79,97 @@ static void center_topmost_on_owner(HWND window) {
     SetForegroundWindow(window);
 }
 
-/* Remembers whether the game window we demoted was topmost, so we restore it
-   exactly.  The upgrade menus are modal and shown one at a time. */
-static int s_owner_was_topmost;
+/* State saved between begin/end so we restore the game window's exact
+   borderless-fullscreen style and bounds.  The upgrade menus are modal and
+   shown one at a time. */
+static HWND s_fs_owner;
+static LONG s_fs_style;
+static LONG s_fs_exstyle;
+static RECT s_fs_rect;
+static int s_fs_windowized;
 
-/* VV3 has no runtime fullscreen toggle (it reads FullScreen from ldw.ini once at
-   startup and never calls SDL_SetWindowFullscreen), so we cannot leave/re-enter
-   fullscreen the way VV2 does.  Instead, for the lifetime of the modal upgrade
-   menu, drop the game's own top-level window out of the WS_EX_TOPMOST band.  A
-   fullscreen SDL window is topmost and otherwise sits above our (also topmost)
-   dialog in the same z-band; demoting it guarantees the dialog is reachable.
-   The game's message loop is blocked while the dialog is modal, so it cannot
-   re-assert topmost until we restore it.  Pure Win32 on the game's HWND -- fully
-   reversible, touches no SDL or engine state.  Returns the demoted window (or
-   NULL) for end_modal_over_game to restore. */
+/* Make the upgrade menus usable in fullscreen, the way the player-confirmed VV
+   fullscreen fixes do -- leave fullscreen while the menu is up, restore it
+   after -- but derived for VV3's own architecture.  VV3's "fullscreen" is a
+   plain Win32 borderless window covering the monitor: it never calls
+   SDL_SetWindowFullscreen (a dead import) and never changes the display mode
+   (ChangeDisplaySettings is not imported), and its in-game Fullscreen setting
+   toggles exactly this window state.  So we reproduce that toggle in Win32: for
+   the lifetime of the modal dialog, convert the game window to a normal titled,
+   non-topmost window centered on the monitor (a mode the game already supports,
+   ldw.ini FullScreen=0), then restore its saved style and full-monitor bounds.
+   The game's own WndProc runs inside the modal's message loop, so it re-renders
+   windowed and the dialog is fully visible; we touch only the Win32 window,
+   never any engine or SDL state.  Only acts when the window actually covers the
+   monitor, so a windowed game is left alone.  Returns the game window (or NULL)
+   for end_modal_over_game to restore. */
 static HWND begin_modal_over_game(void) {
     HWND owner = GetForegroundWindow();
     DWORD pid = 0;
+    HMONITOR monitor;
+    MONITORINFO mi;
+    RECT rc;
+    int work_w, work_h, win_w, win_h, win_x, win_y;
 
-    s_owner_was_topmost = 0;
-    if (owner != NULL) {
-        GetWindowThreadProcessId(owner, &pid);
-        if (pid != GetCurrentProcessId()) {
-            owner = NULL;
-        }
+    s_fs_windowized = 0;
+    s_fs_owner = NULL;
+    if (owner == NULL) {
+        return NULL;
     }
-    if (owner != NULL) {
-        s_owner_was_topmost =
-            (GetWindowLongA(owner, GWL_EXSTYLE) & WS_EX_TOPMOST) != 0;
-        if (s_owner_was_topmost) {
-            SetWindowPos(owner, HWND_NOTOPMOST, 0, 0, 0, 0,
-                         SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
-        }
+    GetWindowThreadProcessId(owner, &pid);
+    if (pid != GetCurrentProcessId()) {
+        return NULL;
     }
+    monitor = MonitorFromWindow(owner, MONITOR_DEFAULTTONEAREST);
+    mi.cbSize = sizeof(mi);
+    if (!GetMonitorInfoA(monitor, &mi)) {
+        return owner;
+    }
+    GetWindowRect(owner, &rc);
+    /* Only intervene when the game window covers (or exceeds) the whole monitor,
+       i.e. it is in borderless-fullscreen.  A windowed game needs nothing. */
+    if (rc.left > mi.rcMonitor.left || rc.top > mi.rcMonitor.top
+        || rc.right < mi.rcMonitor.right || rc.bottom < mi.rcMonitor.bottom) {
+        return owner;
+    }
+
+    s_fs_owner = owner;
+    s_fs_style = GetWindowLongA(owner, GWL_STYLE);
+    s_fs_exstyle = GetWindowLongA(owner, GWL_EXSTYLE);
+    s_fs_rect = rc;
+    s_fs_windowized = 1;
+
+    /* Windowed size: 70% of the monitor work area, centered. */
+    work_w = mi.rcWork.right - mi.rcWork.left;
+    work_h = mi.rcWork.bottom - mi.rcWork.top;
+    win_w = work_w * 7 / 10;
+    win_h = work_h * 7 / 10;
+    win_x = mi.rcWork.left + (work_w - win_w) / 2;
+    win_y = mi.rcWork.top + (work_h - win_h) / 2;
+
+    SetWindowLongA(owner, GWL_STYLE,
+        (s_fs_style & ~(LONG)WS_POPUP) | WS_OVERLAPPEDWINDOW | WS_VISIBLE);
+    SetWindowLongA(owner, GWL_EXSTYLE, s_fs_exstyle & ~(LONG)WS_EX_TOPMOST);
+    SetWindowPos(owner, HWND_NOTOPMOST, win_x, win_y, win_w, win_h,
+                 SWP_FRAMECHANGED | SWP_NOACTIVATE);
     return owner;
 }
 
 static void end_modal_over_game(HWND owner) {
-    if (owner != NULL && s_owner_was_topmost) {
-        SetWindowPos(owner, HWND_TOPMOST, 0, 0, 0, 0,
-                     SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
+    HWND z_order;
+    if (!s_fs_windowized || owner == NULL || owner != s_fs_owner) {
+        return;
     }
+    z_order = (s_fs_exstyle & WS_EX_TOPMOST) ? HWND_TOPMOST : HWND_NOTOPMOST;
+    SetWindowLongA(owner, GWL_STYLE, s_fs_style);
+    SetWindowLongA(owner, GWL_EXSTYLE, s_fs_exstyle);
+    SetWindowPos(owner, z_order,
+                 s_fs_rect.left, s_fs_rect.top,
+                 s_fs_rect.right - s_fs_rect.left,
+                 s_fs_rect.bottom - s_fs_rect.top,
+                 SWP_FRAMECHANGED | SWP_NOACTIVATE);
+    s_fs_windowized = 0;
+    s_fs_owner = NULL;
 }
 
 static INT_PTR CALLBACK upgrade_dialog(
