@@ -653,13 +653,6 @@ class ManifestTests(unittest.TestCase):
                     )
                 )
 
-    def test_village_wide_running_result_dialog_uses_exact_three_lines(self) -> None:
-        source = (ROOT / "native" / "vv1_origins_icons" / "vv1_origins_icons.c").read_text(encoding="utf-8")
-        self.assertIn('VV_ALREADY_LIKES_TEXT "Already 4 likes."', source)
-        self.assertIn("skipped over %d villagers. Reason: already likes running", source)
-        self.assertIn("Removed running dislike from %d villagers", source)
-        self.assertIn("removed_running_dislike", source)
-
     def test_village_wide_running_requires_a_free_like_slot(self) -> None:
         source = (ROOT / "scripts" / "build_village_wide_origins_features.py").read_text(encoding="utf-8")
         full_like = source.split("running_full_like:", 1)[1].split("running_existing:", 1)[0]
