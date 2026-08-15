@@ -50,6 +50,35 @@ BOOL WINAPI DllMain(HINSTANCE instance, DWORD reason, LPVOID reserved) {
     return TRUE;
 }
 
+/* These old SDL2 games run "fullscreen" as a WS_EX_TOPMOST borderless window,
+   so a normal owned dialog is painted *behind* the game and can't be reached.
+   Lift the dialog above the game and center it on the game's monitor.  Called
+   at WM_INITDIALOG for every dialog the patch shows.  A no-op in windowed mode
+   beyond re-centering, which is harmless. */
+static void center_topmost_on_owner(HWND window) {
+    HWND owner = GetWindow(window, GW_OWNER);
+    HMONITOR monitor = MonitorFromWindow(owner ? owner : window,
+                                         MONITOR_DEFAULTTONEAREST);
+    MONITORINFO mi;
+    RECT rc;
+    int win_w, win_h, x, y;
+
+    mi.cbSize = sizeof(mi);
+    if (!GetMonitorInfoA(monitor, &mi)) {
+        SetWindowPos(window, HWND_TOPMOST, 0, 0, 0, 0,
+                     SWP_NOMOVE | SWP_NOSIZE | SWP_SHOWWINDOW);
+        SetForegroundWindow(window);
+        return;
+    }
+    GetWindowRect(window, &rc);
+    win_w = rc.right - rc.left;
+    win_h = rc.bottom - rc.top;
+    x = mi.rcMonitor.left + (mi.rcMonitor.right - mi.rcMonitor.left - win_w) / 2;
+    y = mi.rcMonitor.top + (mi.rcMonitor.bottom - mi.rcMonitor.top - win_h) / 2;
+    SetWindowPos(window, HWND_TOPMOST, x, y, 0, 0, SWP_NOSIZE | SWP_SHOWWINDOW);
+    SetForegroundWindow(window);
+}
+
 static INT_PTR CALLBACK upgrade_dialog(
     HWND window,
     UINT message,
@@ -85,6 +114,7 @@ static INT_PTR CALLBACK upgrade_dialog(
                 EnableWindow(GetDlgItem(window, ID_BUY_FIRST + row), FALSE);
             }
         }
+        center_topmost_on_owner(window);
         return TRUE;
     } else if (message == WM_COMMAND) {
         unsigned int command = LOWORD(wparam);
@@ -102,7 +132,7 @@ static INT_PTR CALLBACK upgrade_dialog(
                     window,
                     prompt,
                     s_villager_menu ? "Villager Upgrades" : "Origins Upgrades",
-                    MB_OKCANCEL | MB_ICONQUESTION) == IDOK) {
+                    MB_OKCANCEL | MB_ICONQUESTION | MB_TOPMOST) == IDOK) {
                 EndDialog(window, (INT_PTR)row);
             }
             return TRUE;
@@ -298,7 +328,8 @@ __declspec(dllexport) int __stdcall ShowOriginsVillageWideResult(int command) {
     } else {
         return 0;
     }
-    MessageBoxA(GetForegroundWindow(), message, "Origins Upgrades", MB_OK | MB_ICONINFORMATION);
+    MessageBoxA(GetForegroundWindow(), message, "Origins Upgrades",
+                MB_OK | MB_ICONINFORMATION | MB_TOPMOST | MB_SETFOREGROUND);
     return 0;
 }
 
@@ -333,7 +364,7 @@ __declspec(dllexport) int __stdcall ShowOriginsFullMasteryResult(
         GetForegroundWindow(),
         message,
         "Origins Upgrades",
-        MB_OK | MB_ICONINFORMATION
+        MB_OK | MB_ICONINFORMATION | MB_TOPMOST | MB_SETFOREGROUND
     );
     return 0;
 }
@@ -428,6 +459,7 @@ static INT_PTR CALLBACK vv3_appearance_dialog(
 ) {
     (void)lparam;
     if (message == WM_INITDIALOG) {
+        center_topmost_on_owner(window);
         return TRUE;
     } else if (message == WM_DRAWITEM) {
         DRAWITEMSTRUCT *item = (DRAWITEMSTRUCT *)lparam;
