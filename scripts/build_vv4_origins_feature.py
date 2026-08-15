@@ -1097,6 +1097,17 @@ def main() -> None:
             dec eax
             mov dword ptr [0x{BARREL_TOKEN_VA:X}], eax
             jnz barrel_disarm
+            # Countdown reached zero. Only arm the barrel if the village can STILL
+            # accommodate 3 more right now -- births during the wait may have
+            # filled it. The stock barrel never fires when full, so its native
+            # add-children path assumes room; firing it forced into a full record
+            # array would write past the 150-slot array and corrupt the save.
+            # ECX (event manager) must survive for the tail jmp to 0x4182B0.
+            push ecx
+            call 0x{BARREL_CAPACITY_VA:X}
+            pop ecx
+            test eax, eax
+            jz barrel_disarm
             mov byte ptr [0x{BARREL_ARMED_VA:X}], 1
             jmp 0x4182B0
         barrel_disarm:
