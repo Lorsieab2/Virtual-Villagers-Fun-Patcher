@@ -963,6 +963,40 @@ static void vv_scan_age18(void) {
     }
 }
 
+/* Free removal path for Grant Running to All when NO Like can be added anywhere
+   (every eligible villager has full Like slots) but some have Running in a
+   Dislike slot: clear those Dislikes, no charge. Mirrors the detail Grant
+   Running edge case and the OFFICIAL note. */
+static void vv4_clear_full_slot_running_dislikes(void) {
+    int total = vv_record_total(), i, s;
+    for (i = 0; i < total; ++i) {
+        unsigned char *r = vv_record(i);
+        const int *likes, *dis;
+        int has_run = 0, free_slot = 0, has_dis = 0;
+        if (!vv_eligible(r)) continue;
+        likes = (const int *)(r + VVW_LIKES_OFFSET);
+        for (s = 0; s < VV_LIKE_SLOTS; ++s) {
+            if (likes[s] == VV_RUNNING_PREF) has_run = 1;
+            else if (likes[s] == -1) free_slot = 1;
+        }
+        if (has_run || free_slot) continue;   /* has/can-add a Running Like */
+        dis = (const int *)(r + VVW_DISLIKES_OFFSET);
+        for (s = 0; s < VV_LIKE_SLOTS; ++s) {
+            if (dis[s] == VV_RUNNING_PREF) { has_dis = 1; break; }
+        }
+        if (!has_dis) continue;
+        {
+            void *dislikes = r + VVW_DISLIKES_OFFSET;
+            __asm {
+                push 38
+                mov  ecx, dislikes
+                mov  eax, 0x45D1C0
+                call eax
+            }
+        }
+    }
+}
+
 /* Confirmation shown before charging a village-wide upgrade (OFFICIAL wording).
    Dry-runs first: if nothing would change, report it with no charge and return
    0; otherwise show "Do you want to buy ... ?" and return 1 only on OK.
@@ -971,6 +1005,25 @@ __declspec(dllexport) int __stdcall ConfirmOriginsVillageWide(int command) {
     if (command == 6) {
         vv_scan_running();
         if (vw_granted == 0) {
+            if (vw_removed > 0) {
+                /* No Like can be added anywhere, but some full-slot villagers
+                   have a Running Dislike -- clear those free (no charge) and
+                   report, matching the detail path and the OFFICIAL edge case. */
+                char msg[256], line[128];
+                vv4_clear_full_slot_running_dislikes();
+                wsprintfA(msg, "Removed a Running dislike from %d %s.",
+                          vw_removed, vv_villagers(vw_removed));
+                if (vw_full) {
+                    wsprintfA(line,
+                              "\r\n\r\nSkipped %d %s: already have 3 likes.",
+                              vw_full, vv_villagers(vw_full));
+                    lstrcatA(msg, line);
+                }
+                lstrcatA(msg, "\r\n\r\nNo tech points have been deducted.");
+                MessageBoxA(GetForegroundWindow(), msg, "Origins Upgrades",
+                            MB_OK | MB_ICONINFORMATION | VV_MB_FRONT);
+                return 0;
+            }
             MessageBoxA(GetForegroundWindow(),
                 "Everyone already likes running, or has full Likes slots. "
                 "No tech points have been deducted.",
