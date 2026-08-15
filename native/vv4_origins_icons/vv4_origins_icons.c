@@ -577,28 +577,21 @@ static int vv_count_running_grant(void) {
    0; otherwise it shows the count and cost and returns 1 only when the player
    presses OK. Commands not yet converted to this flow return 1 (proceed). */
 __declspec(dllexport) int __stdcall ConfirmOriginsVillageWide(int command) {
-    char message[256];
     if (command == 6) {
-        int granted = vv_count_running_grant();
-        if (granted == 0) {
+        if (vv_count_running_grant() == 0) {
             MessageBoxA(
                 GetForegroundWindow(),
-                "Every villager already likes Running. "
+                "Grant Running to All Villagers is already complete.\r\n"
                 "No tech points have been deducted.",
                 "Origins Upgrades",
-                MB_OK | MB_ICONINFORMATION
+                MB_OK | MB_ICONWARNING
             );
             return 0;
         }
-        wsprintfA(
-            message,
-            "Grant Running will teach %d villagers to like Running for "
-            "1,000,000 tech points. Press OK to confirm, or Cancel.",
-            granted
-        );
         return MessageBoxA(
             GetForegroundWindow(),
-            message,
+            "Grant Running to All Villagers for 1,000,000 tech points?\r\n"
+            "Press OK to confirm, or Cancel.",
             "Origins Upgrades",
             MB_OKCANCEL | MB_ICONQUESTION
         ) == IDOK;
@@ -612,19 +605,13 @@ __declspec(dllexport) int __stdcall ShowOriginsVillageWideResult(
     int already_running_skipped,
     int removed_running_dislike
 ) {
-    char message[192];
+    (void)granted;
     (void)already_running_skipped;
+    (void)removed_running_dislike;
     if (command == 6) {
-        wsprintfA(
-            message,
-            "Taught %d villagers to like Running. "
-            "Removed the Running dislike from %d villagers.",
-            granted,
-            removed_running_dislike
-        );
         MessageBoxA(
             GetForegroundWindow(),
-            message,
+            "Grant Running to All Villagers completed.",
             "Origins Upgrades",
             MB_OK | MB_ICONINFORMATION
         );
