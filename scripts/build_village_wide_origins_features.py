@@ -332,8 +332,9 @@ def build_payload(config: dict) -> tuple[bytes, dict[str, int]]:
             lea ecx, [esi + {likes}]
             call {_hex_word(config['native_like_add'])}
             test al, al
-            jz running_next
+            jz running_clear_dislike
             inc edi
+        running_clear_dislike:
             push {pref}
             lea ecx, [esi + {dislikes}]
             call {_hex_word(config['native_like_remove'])}

@@ -911,7 +911,17 @@ static void vv_scan_running(void) {
             else if (likes[s] == -1) free_slot = 1;
         }
         if (has_run) { ++vw_already; continue; }
-        if (!free_slot) { ++vw_full; continue; }
+        if (!free_slot) {
+            /* Full Likes: the Like can't be added, but a Running Dislike is
+               still cleared (free) -- OFFICIAL edge case counts this villager in
+               BOTH "Skipped: already have 3 likes" AND "Removed a dislike". */
+            const int *dis = (const int *)(r + VVW_DISLIKES_OFFSET);
+            ++vw_full;
+            for (s = 0; s < VV_LIKE_SLOTS; ++s) {
+                if (dis[s] == VV_RUNNING_PREF) { ++vw_removed; break; }
+            }
+            continue;
+        }
         ++vw_granted;
         {
             const int *dis = (const int *)(r + VVW_DISLIKES_OFFSET);
@@ -940,15 +950,17 @@ static void vv_scan_mastery(void) {
     }
 }
 
-/* Age: how many eligible villagers are not already exactly 18 (360 units). */
-static int vv_count_age18(void) {
-    int total = vv_record_total(), i, n = 0;
+/* Age dry-run: vw_granted = eligible villagers that will be set to 18 (not
+   already exactly 18), vw_already = eligible villagers already at 18. */
+static void vv_scan_age18(void) {
+    int total = vv_record_total(), i;
+    vw_granted = vw_already = 0;
     for (i = 0; i < total; ++i) {
         const unsigned char *r = vv_record(i);
         if (!vv_eligible(r)) continue;
-        if (*(const int *)(r + VV_DISPLAY_AGE_OFF) != VV_AGE_18) ++n;
+        if (*(const int *)(r + VV_DISPLAY_AGE_OFF) == VV_AGE_18) ++vw_already;
+        else ++vw_granted;
     }
-    return n;
 }
 
 /* Confirmation shown before charging a village-wide upgrade (OFFICIAL wording).
@@ -985,7 +997,8 @@ __declspec(dllexport) int __stdcall ConfirmOriginsVillageWide(int command) {
             "Origins Upgrades", MB_OKCANCEL | MB_ICONQUESTION | VV_MB_FRONT) == IDOK;
     }
     if (command == 8) {
-        if (vv_count_age18() == 0) {
+        vv_scan_age18();
+        if (vw_granted == 0) {
             MessageBoxA(GetForegroundWindow(),
                 "Everyone is already 18. No tech points have been deducted.",
                 "Origins Upgrades", MB_OK | MB_ICONWARNING | VV_MB_FRONT);
@@ -1041,9 +1054,15 @@ __declspec(dllexport) int __stdcall ShowOriginsVillageWideResult(
         MessageBoxA(GetForegroundWindow(), msg, "Origins Upgrades",
                     MB_OK | MB_ICONINFORMATION | VV_MB_FRONT);
     } else if (command == 8) {
-        MessageBoxA(GetForegroundWindow(),
-            "Set All Villagers to 18 completed.",
-            "Origins Upgrades", MB_OK | MB_ICONINFORMATION | VV_MB_FRONT);
+        wsprintfA(msg, "Set %d %s to Age 18.",
+                  vw_granted, vv_villagers(vw_granted));
+        if (vw_already) {
+            wsprintfA(line, "\r\n\r\nSkipped %d %s: already 18.",
+                      vw_already, vv_villagers(vw_already));
+            lstrcatA(msg, line);
+        }
+        MessageBoxA(GetForegroundWindow(), msg, "Origins Upgrades",
+                    MB_OK | MB_ICONINFORMATION | VV_MB_FRONT);
     }
     return 0;
 }
