@@ -189,6 +189,20 @@ ROW_MESSAGE_HELPER_FILE_OFFSET = 0x8BE00
 ROW_MESSAGE_HELPER_VA = IMAGE_BASE + SHR_RVA + (
     ROW_MESSAGE_HELPER_FILE_OFFSET - SHR_FILE_OFFSET
 )
+# Details "Grant Running" tail: when a villager's 4 Like slots are all full
+# and Running isn't one of them, DETAIL_PREFLIGHT_VA's own scan has no room
+# left to also check Dislikes without exceeding its own cave -- so it tail-
+# jumps here instead (this is the last thing DETAIL_PREFLIGHT_VA does, so a
+# plain jmp -- not call -- correctly hands its own eventual `ret` straight
+# back to detail_menu, matching a normal tail call). Per the OFFICIAL
+# spreadsheet's own documented edge case, a Running Dislike is still
+# cleared for free even though the Like can't be added; returns eax=2
+# (blocked, no dislike to report) or eax=5 (blocked, dislike cleared) --
+# both are ShowOriginsRowMessage status values, forwarded to it unchanged.
+RUNNING_DISLIKE_CLEAR_FILE_OFFSET = 0x8BE80
+RUNNING_DISLIKE_CLEAR_VA = IMAGE_BASE + SHR_RVA + (
+    RUNNING_DISLIKE_CLEAR_FILE_OFFSET - SHR_FILE_OFFSET
+)
 VV1_NATIVE_SKILL_WRITER_VA = 0x437230
 VV1_SKILL_FIELDS = (
     (0x3BC, 2),  # Parenting
@@ -791,11 +805,12 @@ def main() -> None:
             cmp ebx, 4
             je 0x{APPEARANCE_ROUTER_VA:X}
             call 0x{DETAIL_PREFLIGHT_VA:X}
-            cmp eax, 1
+            cmp eax, 100
             je detail_charge
-            cmp eax, 2
-            je detail_no_change
-            jmp detail_running_unavailable
+            # Anything else is already the exact ShowOriginsRowMessage
+            # status to display (1=no-change, 2=blocked, 5=blocked-but-
+            # dislike-removed) -- no charge, no translation needed.
+            jmp detail_row_message
         detail_charge:
             mov eax, dword ptr [0x{s['detail_cost_table']:X} + ebx*4]
             cmp dword ptr [edi + 0xA2FC], eax
@@ -817,7 +832,12 @@ def main() -> None:
             add ecx, 4
             dec eax
             jne running_find_like_slot
-            jmp detail_running_unavailable
+            # Unreachable in practice -- DETAIL_PREFLIGHT_VA (or its own
+            # RUNNING_DISLIKE_CLEAR_VA tail) already confirmed a free Like
+            # slot exists before returning 100/"proceed to charge", so this
+            # loop always finds one. Kept as a defensive fallback only.
+            mov eax, 2
+            jmp detail_row_message
         running_store_like:
             mov dword ptr [ecx], {RUNNING_PREFERENCE_ID}
         running_remove_dislikes:
@@ -879,11 +899,6 @@ def main() -> None:
             call 0x452DB6
             add esp, 0x0C
             jmp detail_loop
-        detail_no_change:
-            mov eax, 1
-            jmp detail_row_message
-        detail_running_unavailable:
-            mov eax, 2
         detail_row_message:
             push eax
             push ebx
@@ -1388,17 +1403,35 @@ def main() -> None:
             add eax, 4
             dec ecx
             jne preflight_running_scan
-            xor eax, eax
-            ret
+            jmp 0x{RUNNING_DISLIKE_CLEAR_VA:X}
 
         preflight_no_change:
-            mov eax, 2
+            mov eax, 1
             ret
         preflight_change:
-            mov eax, 1
+            mov eax, 100
             ret
         """,
         DETAIL_PREFLIGHT_VA,
+    )
+    running_dislike_clear_code = assemble(
+        f"""
+            lea eax, [edx + 0x3A8]
+            mov ecx, 4
+        dislike_scan:
+            cmp dword ptr [eax], {RUNNING_PREFERENCE_ID}
+            je dislike_found
+            add eax, 4
+            dec ecx
+            jne dislike_scan
+            mov eax, 2
+            ret
+        dislike_found:
+            mov dword ptr [eax], -1
+            mov eax, 5
+            ret
+        """,
+        RUNNING_DISLIKE_CLEAR_VA,
     )
     # menu's own no-room-to-inline final population tier (see its own call
     # site's comment). Takes eax = current population, returns eax = 1
@@ -1485,7 +1518,13 @@ def main() -> None:
         DETAIL_PREFLIGHT_FILE_OFFSET,
         b"\0" * len(detail_preflight_code),
         detail_preflight_code,
-        "check whether a detail_menu row (Grant Youth, Grant Full Mastery, Grant Running, Set Age 18) would actually change the selected villager before detail_menu charges for it, returning 0=blocked/unavailable, 1=would change, 2=already at target state",
+        "check whether a detail_menu row (Grant Youth, Grant Full Mastery, Grant Running, Set Age 18) would actually change the selected villager before detail_menu charges for it, returning 100=would change/proceed to charge, or a ShowOriginsRowMessage status to display directly with no charge (1=no-change, 2=blocked/Running Dislike-free case tail-jumps to RUNNING_DISLIKE_CLEAR_VA which also returns 5=blocked-but-dislike-removed)",
+    )
+    patch(
+        RUNNING_DISLIKE_CLEAR_FILE_OFFSET,
+        b"\0" * len(running_dislike_clear_code),
+        running_dislike_clear_code,
+        "Details Grant Running: when all 4 Like slots are full, clear any Running Dislike for free (OFFICIAL spreadsheet edge case) and report whether one was actually cleared; tail-jumped into from DETAIL_PREFLIGHT_VA's own exhausted Like-slot scan",
     )
     patch(
         CURE_ENTRY_FILE_OFFSET,

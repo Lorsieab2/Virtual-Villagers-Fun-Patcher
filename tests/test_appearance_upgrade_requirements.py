@@ -331,6 +331,11 @@ class AppearanceUpgradeRequirementsTests(unittest.TestCase):
                     # strings and the removed ShowOriginsAgeResult call
                     # site. Lives in .shr's tail past the population helper.
                     "0x8BE00",
+                    # Details Grant Running's free-dislike-removal tail
+                    # (RUNNING_DISLIKE_CLEAR_VA), tail-jumped into from
+                    # DETAIL_PREFLIGHT_VA when a villager's Like slots are
+                    # full -- OFFICIAL spreadsheet edge case.
+                    "0x8BE80",
                 },
                 "data/vv2_origins_feature.json": {
                     "0x943A8", "0x9A009", "0x9A300", "0x9A530",

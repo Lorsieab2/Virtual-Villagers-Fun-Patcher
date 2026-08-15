@@ -218,6 +218,9 @@ class OriginsPlayerRuntimeChecklistTests(unittest.TestCase):
                         # confirm/result text in line with the OFFICIAL
                         # Origins Upgrade Prompts spreadsheet.
                         "0x8BE00",
+                        # Details Grant Running's free-dislike-removal
+                        # tail, tail-jumped into from DETAIL_PREFLIGHT_VA.
+                        "0x8BE80",
                     }
                     self.assertEqual(
                         [item for item in current["patches"] if item["offset"] not in repaired_offsets],

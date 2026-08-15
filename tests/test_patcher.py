@@ -656,7 +656,16 @@ class ManifestTests(unittest.TestCase):
     def test_village_wide_running_requires_a_free_like_slot(self) -> None:
         source = (ROOT / "scripts" / "build_village_wide_origins_features.py").read_text(encoding="utf-8")
         full_like = source.split("running_full_like:", 1)[1].split("running_existing:", 1)[0]
-        self.assertIn("jmp running_next", full_like)
+        self.assertIn("jmp {full_like_target}", full_like)
+        # full_like_target is opt-in per game (always_clear_running_dislike,
+        # VV1 only as of this writing) -- default games still skip straight
+        # to running_next (no dislike clearing) when Likes are full; only
+        # an opted-in game falls through to running_remove_dislikes instead.
+        self.assertIn(
+            'full_like_target = (\n            "running_remove_dislikes" if always_clear_dislike else "running_next"',
+            source,
+        )
+        self.assertIn('"always_clear_running_dislike": True', source.split('"vv1": {', 1)[1].split('"vv2": {', 1)[0])
 
     def test_vv5_village_wide_payload_uses_authoritative_believer_predicate(self) -> None:
         feature = village_wide_record("vv5")

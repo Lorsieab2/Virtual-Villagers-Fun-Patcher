@@ -54,6 +54,7 @@ CONFIG = {
         "report_running_granted": True,
         "report_mastery_counts": True,
         "report_age_granted": True,
+        "always_clear_running_dislike": True,
     },
     "vv2": {
         "title": "Virtual Villagers - The Lost Children",
@@ -382,6 +383,24 @@ def build_payload(config: dict) -> tuple[bytes, dict[str, int]]:
             )
         else:
             granted_store = ""
+        # always_clear_running_dislike is opt-in (VV1 only as of this
+        # writing, same as report_running_granted above) so this shared
+        # branch stays byte-identical for every other game that also
+        # reaches it. A villager whose Like slots are all full still can't
+        # gain the Running Like, but per the OFFICIAL Origins Upgrade
+        # Prompts spreadsheet's own documented edge case, any Running
+        # Dislike they have is still cleared for free -- counted in BOTH
+        # the granted-dislike-removal total AND the full-likes-skipped
+        # total, which is exactly what falling through into the existing
+        # running_remove_dislikes scan (instead of skipping straight to
+        # running_next) naturally produces: edi (full_like_skipped) was
+        # already incremented, and running_remove_dislikes's own eax
+        # accumulator increments independently whenever it actually finds
+        # and clears a dislike, with no double-count risk between them.
+        always_clear_dislike = bool(config.get("always_clear_running_dislike"))
+        full_like_target = (
+            "running_remove_dislikes" if always_clear_dislike else "running_next"
+        )
         running_source = f"""
             push ebp
             push ebx
@@ -418,7 +437,7 @@ def build_payload(config: dict) -> tuple[bytes, dict[str, int]]:
             jmp running_remove_dislikes
         running_full_like:
             inc edi
-            jmp running_next
+            jmp {full_like_target}
         running_existing:
             inc ebp
             jmp running_next

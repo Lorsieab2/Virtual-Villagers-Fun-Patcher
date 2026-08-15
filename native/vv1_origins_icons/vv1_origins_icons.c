@@ -765,7 +765,8 @@ enum {
     VV1_ROWMSG_NO_CHANGE = 1,
     VV1_ROWMSG_NO_SLOT = 2,
     VV1_ROWMSG_REMOVED = 3,
-    VV1_ROWMSG_POPULATION_FULL = 4
+    VV1_ROWMSG_POPULATION_FULL = 4,
+    VV1_ROWMSG_NO_SLOT_DISLIKE_REMOVED = 5
 };
 
 /* Generic result box for every Tech/Details row whose wording is either a
@@ -795,11 +796,18 @@ __declspec(dllexport) int __stdcall ShowOriginsRowMessage(
     case VV1_ROWMSG_NO_SLOT:
         lstrcpyA(message, "This villager already has full Likes slots. Running can not be added.");
         break;
+    case VV1_ROWMSG_NO_SLOT_DISLIKE_REMOVED:
+        lstrcpyA(
+            message,
+            "This villager's Likes are full, so Running could not be added, "
+            "but its Running dislike was removed. No tech points have been deducted."
+        );
+        break;
     case VV1_ROWMSG_REMOVED:
         wsprintfA(message, "%s was removed. No refund was issued.", name);
         break;
     case VV1_ROWMSG_POPULATION_FULL:
-        lstrcpyA(message, "The village population is already close to its max. No tech points have been deducted.");
+        lstrcpyA(message, "Village population is close to its maximum. The Barrel of Babies needs room for 3 children. No tech points have been deducted.");
         break;
     default:
         wsprintfA(message, "%s completed.", name);

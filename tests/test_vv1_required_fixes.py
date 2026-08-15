@@ -138,7 +138,49 @@ class VV1RequiredFixTests(unittest.TestCase):
         full_like = running.split("running_full_like:", 1)[1].split(
             "running_existing:", 1
         )[0]
-        self.assertIn("jmp running_next", full_like)
+        self.assertIn("jmp {full_like_target}", full_like)
+        self.assertIn(
+            '"always_clear_running_dislike": True',
+            running.split('"vv1": {', 1)[1].split('"vv2": {', 1)[0],
+        )
+
+        # Confirm the rendered payload actually falls through into the
+        # dislike-clearing scan (running_remove_dislikes, a few bytes
+        # ahead) rather than skipping straight to running_next (tens of
+        # bytes ahead) when a villager's Like slots are all full --
+        # exactly the OFFICIAL spreadsheet's documented edge case: the
+        # Running Dislike is still cleared for free even though the Like
+        # itself can't be added.
+        capstone = pytest.importorskip("capstone")
+        source_exe = STOCK / "Virtual Villagers - A New Home.exe"
+        if not source_exe.is_file():
+            self.skipTest(f"stock executable not available: {source_exe}")
+        build = identify(source_exe)
+        rendered, _ = render_patched_bytes(
+            source_exe, build, "collection_progression",
+            ["vv1_enable_origins_exclusive_features", "vv1_origins_village_wide_upgrades"],
+        )
+        md = capstone.Cs(capstone.CS_ARCH_X86, capstone.CS_MODE_32)
+        IMAGE_BASE = 0x400000
+        SHR_FILE_OFFSET = 0x8B000
+        SHR_RVA = 0x8D000
+        running_va = IMAGE_BASE + SHR_RVA + 0x1F0  # code_va (0x1A0) + 0x50
+        running_off = SHR_FILE_OFFSET + 0x1F0
+        insns = list(md.disasm(rendered[running_off:running_off + 0xA0], running_va))
+        mnemonics = [(i.mnemonic, i.op_str, i.address, i.size) for i in insns]
+        full_like_index = next(
+            idx for idx, (m, o, a, sz) in enumerate(mnemonics)
+            if m == "inc" and o == "edi"
+        )
+        jump_mnemonic, jump_op, jump_addr, jump_size = mnemonics[full_like_index + 1]
+        self.assertEqual(jump_mnemonic, "jmp")
+        jump_target = int(jump_op, 16)
+        self.assertLess(
+            jump_target - (jump_addr + jump_size),
+            0x10,
+            "running_full_like must fall through into the nearby dislike scan, "
+            "not skip past it to the far-away running_next",
+        )
 
     def test_vv1_village_wide_granted_counts_are_vv1_exclusive_and_wired(self) -> None:
         """New feature regression test: Grant Running and Grant Full
