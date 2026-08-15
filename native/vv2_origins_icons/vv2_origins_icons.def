@@ -10,3 +10,4 @@ EXPORTS
     ApplyVV2AgeToAll=_ApplyVV2AgeToAll@4
     ConfirmVV2Upgrade=_ConfirmVV2Upgrade@4
     ShowVV2UpgradeResult=_ShowVV2UpgradeResult@24
+    GateVV2Barrel=_GateVV2Barrel@4

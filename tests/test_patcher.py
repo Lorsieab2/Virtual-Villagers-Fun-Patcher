@@ -88,13 +88,16 @@ class ManifestTests(unittest.TestCase):
         source = (ROOT / "scripts" / "build_vv2_origins_feature.py").read_text(
             encoding="utf-8"
         )
+        # The Barrel preflight validates the Tech-menu player object (EDI, whose
+        # record-pool chain hangs off +0x305A4) and then delegates the capacity
+        # decision to the companion DLL's gate instead of reading population
+        # inline.
         self.assertIn(
             "mov ecx, edi\n"
             "            test ecx, ecx\n"
             "            jz barrel_capacity_unavailable\n"
             "            cmp dword ptr [ecx + 0x305A4], 0\n"
-            "            jz barrel_capacity_unavailable\n"
-            "            call 0x425860",
+            "            jz barrel_capacity_unavailable\n",
             source,
         )
         self.assertNotIn(
@@ -103,7 +106,6 @@ class ManifestTests(unittest.TestCase):
         )
         self.assertIn(
             "barrel_capacity_unavailable:\n"
-            "            add esp, 0x50D8\n"
             "            mov eax, 0x{s['population_capacity']:X}\n"
             "            jmp show_status",
             source,
@@ -123,33 +125,86 @@ class ManifestTests(unittest.TestCase):
         )
         barrel_block = source[
             source.index("        barrel_capacity_preflight:") :
-            source.index("        barrel_capacity_low:")
+            source.index("        barrel_insufficient:")
         ]
+        # Population is read inside the DLL gate now, never inline in the payload,
+        # so the old stack reservation and sub_425860 call are gone.
+        self.assertNotIn("call 0x425860", barrel_block)
+        self.assertNotIn("sub esp, 0x50D8", barrel_block)
         pending_guard = barrel_block.index(
             "            cmp byte ptr [0x{BARREL_PENDING_VA:X}], 0"
         )
-        reservation = barrel_block.index("            sub esp, 0x50D8")
-        helper_call = barrel_block.index("            call 0x425860")
+        gate_call = barrel_block.index("            call 0x{BARREL_GATE_VA:X}")
+        gate_guard = barrel_block.index("            test eax, eax", gate_call)
         funds_check = barrel_block.index("            cmp dword ptr [edi + 0x2EADC], eax")
         deduction = barrel_block.index("            sub dword ptr [edi + 0x2EADC], eax")
-        cleanup = barrel_block.index("            add esp, 0x50D8", deduction)
         token_store = barrel_block.index(
-            "            mov byte ptr [0x{BARREL_PENDING_VA:X}], 1", cleanup
+            "            mov byte ptr [0x{BARREL_PENDING_VA:X}], 1", deduction
         )
         # Barrel success renders "Barrel of Babies completed." via the Task9
         # result trampoline (action 2 = Barrel).
         result_call = barrel_block.index(
             "            call 0x{RESULT_HELPER_VA:X}", token_store
         )
-        self.assertLess(pending_guard, reservation)
-        self.assertLess(helper_call, funds_check)
+        # Order: dedupe guard -> DLL capacity gate -> gate result check -> funds
+        # check -> charge -> set the one-shot token -> report.
+        self.assertLess(pending_guard, gate_call)
+        self.assertLess(gate_call, gate_guard)
+        self.assertLess(gate_guard, funds_check)
         self.assertLess(funds_check, deduction)
-        self.assertLess(deduction, cleanup)
-        self.assertLess(cleanup, token_store)
+        self.assertLess(deduction, token_store)
         self.assertLess(token_store, result_call)
+        # The Barrel is cued through its main-village helper, never fired inline.
         self.assertNotIn("call 0x4348E0", barrel_block)
         self.assertNotIn("call 0x401AD0", barrel_block)
         self.assertNotIn("call 0x433190", barrel_block)
+
+    def test_vv2_barrel_gate_matches_population_modes(self) -> None:
+        # The Barrel capacity gate reads the game's real, mode-dependent cap by
+        # inspecting the live population-mode edits at 0x44B378 / 0x44B3AD.  Those
+        # sites and their patched opcodes must match the population variants in
+        # data/builds.json, and the DLL must key its cap off exactly those bytes,
+        # so a change to either side is caught here.
+        builds = json.loads(
+            (ROOT / "data" / "builds.json").read_text(encoding="utf-8")
+        )
+        variants = next(g for g in builds["games"] if g["id"] == "vv2")["variants"]
+
+        def patch_at(variant: str, offset: int):
+            for row in variants[variant]["patches"]:
+                if int(row["offset"], 0) == offset:
+                    return row
+            return None
+
+        FIXED_SITE = 0x4B378  # file offset of VA 0x44B378 (collection-bonus compare)
+        BASE_SITE = 0x4B3AD   # file offset of VA 0x44B3AD (base add edi, 90)
+
+        # Immediate Fixed flips the collection-bonus compare opcode 0x83 -> 0xBF.
+        fixed = patch_at("immediate_fixed", FIXED_SITE)
+        self.assertIsNotNone(fixed)
+        self.assertTrue(fixed["before"].upper().startswith("83"))
+        self.assertTrue(fixed["after"].upper().startswith("BF"))
+        # Collection Progression flips the base-add opcode 0x83 -> 0xEB.
+        prog = patch_at("collection_progression", BASE_SITE)
+        self.assertIsNotNone(prog)
+        self.assertTrue(prog["before"].upper().startswith("83"))
+        self.assertTrue(prog["after"].upper().startswith("EB"))
+        # Stock / No Population Increase edits neither site (both keep 0x83).
+        self.assertEqual(variants["stock"]["patches"], [])
+        self.assertIsNone(patch_at("immediate_fixed", BASE_SITE))
+        self.assertIsNone(patch_at("collection_progression", FIXED_SITE))
+
+        # The companion DLL keys its cap off exactly those two VAs / opcodes and
+        # produces the three documented caps (256 fixed, base 231 or 90 + bonus).
+        dll = (
+            ROOT / "native" / "vv2_origins_icons" / "vv2_origins_icons.c"
+        ).read_text(encoding="utf-8")
+        self.assertIn("0x0044B378", dll)
+        self.assertIn("0x0044B3AD", dll)
+        self.assertIn("fixed_site[0] == 0xBF", dll)
+        self.assertIn("base_site[0] == 0xEB", dll)
+        self.assertIn("return 256;", dll)
+        self.assertIn("231 : 90", dll)
 
     def test_vv2_doublers_confirm_before_any_bit_change(self) -> None:
         source = (ROOT / "scripts" / "build_vv2_origins_feature.py").read_text(
@@ -283,12 +338,13 @@ class ManifestTests(unittest.TestCase):
             (ROOT / "data" / "vv2_origins_feature.json").read_text(encoding="utf-8")
         )
         rows = {int(row["offset"], 0): row for row in manifest["patches"]}
-        # 22 base transaction patches + Change Appearance (0x9AD20) + the
-        # whole-village Tech helper (0x9AE40) + the shared DLL-dispatch stub
-        # (0x9AF58) for Grant Running / Grant Full Mastery / Complete / Reset
-        # Collections.
-        self.assertEqual(len(rows), 27)
+        # Base transaction patches + Change Appearance (0x9AD20) + the shared
+        # DLL-dispatch stub in the old whole-village slot (0x9AE40, routing Grant
+        # Running / Grant Full Mastery / Complete / Reset Collections) + the
+        # Barrel of Babies capacity gate (0x9AF58).
+        self.assertEqual(len(rows), 28)
         self.assertIn("companion-DLL exports", rows[0x9AE40]["purpose"])
+        self.assertIn("GateVV2Barrel", rows[0x9AF58]["purpose"])
         self.assertIn("dry-scan all 256", rows[0x9A300]["purpose"])
         self.assertIn("Detail-row purchase would change", rows[0x9A380]["purpose"])
         self.assertIn("Task9-style OK/Cancel", rows[0x9A204]["purpose"])
