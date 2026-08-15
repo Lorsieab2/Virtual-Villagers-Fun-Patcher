@@ -56,6 +56,7 @@ RUNNING_GRANTED_VA = VILLAGE_WIDE_ENTRY_VA + 0x30
 MASTERY_GRANTED_VA = VILLAGE_WIDE_ENTRY_VA + 0x38
 MASTERY_ALREADY_VA = VILLAGE_WIDE_ENTRY_VA + 0x3C
 AGE_GRANTED_VA = VILLAGE_WIDE_ENTRY_VA + 0x40
+AGE_ALREADY_VA = VILLAGE_WIDE_ENTRY_VA + 0x44
 VILLAGE_PREFLIGHT_FILE_OFFSET = 0x8B009
 VILLAGE_PREFLIGHT_VA = IMAGE_BASE + SHR_RVA + (
     VILLAGE_PREFLIGHT_FILE_OFFSET - SHR_FILE_OFFSET
@@ -253,6 +254,7 @@ def main() -> None:
     add_c_string(strings, s, "show_result_export", "ShowOriginsVillageWideResult")
     add_c_string(strings, s, "show_mastery_result_export", "ShowOriginsMasteryResult")
     add_c_string(strings, s, "show_row_message_export", "ShowOriginsRowMessage")
+    add_c_string(strings, s, "show_age_result_export", "ShowOriginsAgeResult")
     add_c_string(strings, s, "show_appearance_picker", "ShowOriginsAppearancePicker")
     add_c_string(strings, s, "show_cure_result", "ShowOriginsCureResult")
     add_c_string(strings, s, "confirm_export", "ShowOriginsPermanentChangeConfirm")
@@ -1048,21 +1050,38 @@ def main() -> None:
             mov eax, dword ptr [0x{AGE_GRANTED_VA:X}]
             test eax, eax
             jz village_no_change
+            # Reviewer finding (P2): the previous ordering here charged
+            # 1,000,000 tech points before resolving ShowOriginsAgeResult
+            # by name -- if this exe payload were ever paired with a
+            # stale companion DLL that predates this export (e.g. the one
+            # from just before it was restored), GetProcAddress fails,
+            # this falls straight to village_result_done, and the player
+            # is charged with no result dialog at all, no way to tell
+            # whether anything happened. The patcher's own apply() always
+            # deploys the exe and its pinned-hash companion DLL from the
+            # same manifest together, so this exact skew shouldn't occur
+            # in normal use, but resolving before charging is strictly
+            # safer and costs nothing extra to do. ebp is free in this
+            # branch specifically (unlike Running's own result call just
+            # above, which needs it as one of its own arguments), so it
+            # holds the resolved export across the charge below.
+            push 0x{s['show_age_result_export']:X}
+            push edx
+            call dword ptr [0x4570D4]
+            test eax, eax
+            je village_result_done
+            mov ebp, eax
             # Same state-pointer reload as the Running branch above --
-            # the OFFICIAL spreadsheet gives this row a plain "completed."
-            # line with no count, so unlike Running/Mastery its success
-            # path no longer needs to resolve or call a dedicated export
-            # (the old ShowOriginsAgeResult) -- it goes through the same
-            # generic ROW_MESSAGE_HELPER_VA every other plain-completion
-            # row already uses. ebx is still 8 here (Set All Villagers to
-            # 18's own row number), matching that row's dispatch above.
+            # AGE_GRANTED_VA is re-read from memory below rather than
+            # reused from eax, so clobbering it here is safe.
             pop eax
             push eax
             sub dword ptr [eax + 0xA2FC], 1000000
-            push 0
-            push ebx
-            push 0
-            call 0x{ROW_MESSAGE_HELPER_VA:X}
+            mov ecx, dword ptr [0x{AGE_ALREADY_VA:X}]
+            push ecx
+            mov ecx, dword ptr [0x{AGE_GRANTED_VA:X}]
+            push ecx
+            call ebp
             jmp village_result_done
 
         village_no_change:
