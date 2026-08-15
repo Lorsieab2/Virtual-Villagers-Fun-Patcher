@@ -43,14 +43,19 @@ VILLAGE_WIDE_ENTRY_VA = IMAGE_BASE + SHR_RVA + 0x1A0
 # Fixed scratch dwords in the confirmed-unused gap between the optional
 # village-wide payload's entry dispatch and its running_va (see
 # scripts/build_village_wide_origins_features.py's report_running_granted/
-# report_mastery_counts, which write these -- this is the VV1-only opt-in
-# side of that shared, cross-game generator). There is no free register
-# left at either running_va's or mastery_va's return point to carry these
-# counts back through directly, so they are read from fixed memory here
-# instead, after the call returns.
+# report_mastery_counts/report_age_granted, which write these -- this is
+# the VV1-only opt-in side of that shared, cross-game generator). There is
+# no free register left at running_va's, mastery_va's, or age_va's return
+# point to carry these counts back through directly, so they are read from
+# fixed memory here instead, after the call returns. Also doubles as the
+# "did anything actually change" signal each of the three village-wide
+# rows now needs: the 1,000,000-point charge is only taken once the
+# relevant granted count is confirmed nonzero, matching every other row's
+# own no-charge-if-no-change guard.
 RUNNING_GRANTED_VA = VILLAGE_WIDE_ENTRY_VA + 0x30
 MASTERY_GRANTED_VA = VILLAGE_WIDE_ENTRY_VA + 0x38
 MASTERY_ALREADY_VA = VILLAGE_WIDE_ENTRY_VA + 0x3C
+AGE_GRANTED_VA = VILLAGE_WIDE_ENTRY_VA + 0x40
 VILLAGE_PREFLIGHT_FILE_OFFSET = 0x8B009
 VILLAGE_PREFLIGHT_VA = IMAGE_BASE + SHR_RVA + (
     VILLAGE_PREFLIGHT_FILE_OFFSET - SHR_FILE_OFFSET
@@ -137,6 +142,19 @@ CONFIRM_HELPER_FILE_OFFSET = 0x8BB00
 CONFIRM_HELPER_VA = IMAGE_BASE + SHR_RVA + (
     CONFIRM_HELPER_FILE_OFFSET - SHR_FILE_OFFSET
 )
+# Unified "would this row actually change anything" check for all four
+# non-Change-Appearance Villager Details rows, replacing the old inline
+# Running-only slot scan in detail_menu (which is why this fits here
+# despite detail_menu's own cave being just as tight as menu's -- the
+# logic moved out, it didn't just grow). Takes ebx=row (0-3), edx=villager
+# record ptr, both already live at detail_menu's own call site. Returns
+# 0 (blocked/unavailable -- Running with no free Like slot and not
+# already liking it), 1 (would change, proceed to charge), or 2 (already
+# at the target state, no charge needed).
+DETAIL_PREFLIGHT_FILE_OFFSET = 0x8BC00
+DETAIL_PREFLIGHT_VA = IMAGE_BASE + SHR_RVA + (
+    DETAIL_PREFLIGHT_FILE_OFFSET - SHR_FILE_OFFSET
+)
 RUNNING_PREFERENCE_ID = 38  # exact-build preference-table evidence: 0x7B260
 VV1_NATIVE_SKILL_WRITER_VA = 0x437230
 VV1_SKILL_FIELDS = (
@@ -176,17 +194,27 @@ def main() -> None:
     add_c_string(
         strings,
         s,
+        "paused",
+        "Time Warp is unavailable while the game is paused.",
+    )
+    add_c_string(
+        strings,
+        s,
+        "no_change",
+        "No changes were needed. No tech points have been deducted.",
+    )
+    add_c_string(
+        strings,
+        s,
         "event_queued",
         "Island Event queued.",
     )
-    add_c_string(strings, s, "barrel_villagers", "Gained 3 children.")
     add_c_string(
         strings,
         s,
         "population_capacity",
-        "The village population is already at maximum capacity.",
+        "The village population is already close to its max. No tech points have been deducted.",
     )
-    add_c_string(strings, s, "already_owned", "This doubler is already owned.")
     add_c_string(
         strings,
         s,
@@ -198,6 +226,7 @@ def main() -> None:
     add_c_string(strings, s, "show_icon_dialog_legacy", "ShowOriginsUpgradeMenu")
     add_c_string(strings, s, "show_result_export", "ShowOriginsVillageWideResult")
     add_c_string(strings, s, "show_mastery_result_export", "ShowOriginsMasteryResult")
+    add_c_string(strings, s, "show_age_result_export", "ShowOriginsAgeResult")
     add_c_string(strings, s, "show_appearance_picker", "ShowOriginsAppearancePicker")
     add_c_string(strings, s, "show_cure_result", "ShowOriginsCureResult")
     add_c_string(strings, s, "confirm_export", "ShowOriginsPermanentChangeConfirm")
@@ -338,10 +367,10 @@ def main() -> None:
             cmp eax, -1
             je menu_done
             mov ebx, eax
-
-            call 0x{CONFIRM_HELPER_VA:X}
-            test eax, eax
-            je menu_done
+            # Confirmation is deferred to charge: now (only reached on a
+            # real Buy, never on Remove -- see charge:'s own comment) so
+            # it can show the row's real cost, which isn't known here for
+            # rows 6-8 (Village-Wide, 1,000,000 flat, not in tech_cost_table).
 
             mov edi, dword ptr [esi + 0x0C]
             cmp ebx, 3
@@ -379,6 +408,27 @@ def main() -> None:
             cmp dword ptr [eax + 0xAD4C], 0
             jne remove_doubler
         charge:
+            # Time Warp has one real no-op case: the game is paused. The
+            # stock game-speed field at +0xA318 (the same field Time Warp's
+            # own do_time_warp branch already reads) is set to the literal
+            # sentinel 999 while paused -- confirmed by disassembling every
+            # site in the stock exe that reads or writes this field, not
+            # assumed from another game's own offset for the same concept.
+            cmp ebx, 0
+            jne skip_pause_check
+            cmp dword ptr [edi + 0xA318], 999
+            jne skip_pause_check
+            mov eax, 0x{s['paused']:X}
+            jmp show_and_done
+        skip_pause_check:
+            # Confirm here, not at the row pick: this is the Buy path only
+            # (Remove never reaches charge: at all -- see remove_doubler).
+            # confirm_helper_code looks the row's real cost up itself.
+            push ebx
+            push 0
+            call 0x{CONFIRM_HELPER_VA:X}
+            test eax, eax
+            je menu_loop
             cmp ebx, 5
             je cure_gated
             cmp ebx, 6
@@ -388,9 +438,12 @@ def main() -> None:
             call 0x{VILLAGE_PREFLIGHT_VA:X}
             test eax, eax
             jz menu_loop
+            # Afford-it-at-all check only, same as every other row -- the
+            # real charge is conditional now, owned by village_wide itself
+            # once it knows whether this specific row actually changed
+            # anything (see village_wide's own comment).
             cmp dword ptr [edi + 0xA2FC], 1000000
             jb insufficient
-            sub dword ptr [edi + 0xA2FC], 1000000
             jmp do_village_wide
         cure_gated:
             # Unlike every other row, Cure's own tech-point deduction is
@@ -690,6 +743,8 @@ def main() -> None:
             je detail_done
             mov ebx, eax
 
+            push ebx
+            push 1
             call 0x{CONFIRM_HELPER_VA:X}
             test eax, eax
             je detail_loop
@@ -701,18 +756,11 @@ def main() -> None:
             add edx, ecx
             cmp ebx, 4
             je 0x{APPEARANCE_ROUTER_VA:X}
-            cmp ebx, 2
-            jne detail_charge
-            lea eax, [edx + 0x398]
-            mov ecx, 4
-        running_preflight:
-            cmp dword ptr [eax], {RUNNING_PREFERENCE_ID}
+            call 0x{DETAIL_PREFLIGHT_VA:X}
+            cmp eax, 1
             je detail_charge
-            cmp dword ptr [eax], -1
-            je detail_charge
-            add eax, 4
-            dec ecx
-            jne running_preflight
+            cmp eax, 2
+            je detail_no_change
             jmp detail_running_unavailable
         detail_charge:
             mov eax, dword ptr [0x{s['detail_cost_table']:X} + ebx*4]
@@ -792,6 +840,9 @@ def main() -> None:
         detail_insufficient:
             mov eax, 0x{s['not_enough']:X}
             jmp detail_show
+        detail_no_change:
+            mov eax, 0x{s['no_change']:X}
+            jmp detail_show
         detail_running_unavailable:
             mov eax, 0x{s['running_unavailable']:X}
         detail_show:
@@ -837,6 +888,13 @@ def main() -> None:
             mov dword ptr [edi + 0xAD4C], 1
             ret
         village_wide:
+            # None of the three rows charge upfront any more (the generic
+            # dispatch that calls this only ever checked affordability, see
+            # charge:/skip_pause_check) -- each branch below now owns its
+            # own charge, taken only once its own granted count (already
+            # computed by the native scan just below) confirms something
+            # actually changed, exactly the same shape cure_all uses for
+            # Full Heal/Cure.
             push ebx
             push ebp
             push ecx
@@ -852,15 +910,26 @@ def main() -> None:
             mov ebp, eax
             mov edi, edx
             mov esi, ecx
-            cmp ebx, 7
-            je village_mastery_result
-            mov eax, 0x{s['show_result_export']:X}
+            # Resolve the icons DLL handle once here rather than once per
+            # row below -- by the time we get here, ShowOriginsPermanent-
+            # ChangeConfirm has already loaded it successfully, so this is
+            # only ever a formality, not a real failure path.
             push 0x{s['icons_dll']:X}
             call dword ptr [0x457010]
-            test eax, eax
+            mov edx, eax
+            test edx, edx
             je village_result_done
+            cmp ebx, 7
+            je village_mastery_result
+            cmp ebx, 8
+            je village_age_result
+
+            mov eax, dword ptr [0x{RUNNING_GRANTED_VA:X}]
+            test eax, eax
+            jz village_no_change
+            sub dword ptr [edi + 0xA2FC], 1000000
             push 0x{s['show_result_export']:X}
-            push eax
+            push edx
             call dword ptr [0x4570D4]
             test eax, eax
             je village_result_done
@@ -872,13 +941,14 @@ def main() -> None:
             push ebx
             call eax
             jmp village_result_done
+
         village_mastery_result:
-            push 0x{s['icons_dll']:X}
-            call dword ptr [0x457010]
+            mov eax, dword ptr [0x{MASTERY_GRANTED_VA:X}]
             test eax, eax
-            je village_result_done
+            jz village_no_change
+            sub dword ptr [edi + 0xA2FC], 1000000
             push 0x{s['show_mastery_result_export']:X}
-            push eax
+            push edx
             call dword ptr [0x4570D4]
             test eax, eax
             je village_result_done
@@ -887,6 +957,31 @@ def main() -> None:
             mov ecx, dword ptr [0x{MASTERY_GRANTED_VA:X}]
             push ecx
             call eax
+            jmp village_result_done
+
+        village_age_result:
+            mov eax, dword ptr [0x{AGE_GRANTED_VA:X}]
+            test eax, eax
+            jz village_no_change
+            sub dword ptr [edi + 0xA2FC], 1000000
+            push 0x{s['show_age_result_export']:X}
+            push edx
+            call dword ptr [0x4570D4]
+            test eax, eax
+            je village_result_done
+            mov ecx, dword ptr [0x{AGE_GRANTED_VA:X}]
+            push ecx
+            call eax
+            jmp village_result_done
+
+        village_no_change:
+            mov eax, 0x{s['no_change']:X}
+            push 0
+            push 0x{s['title']:X}
+            push eax
+            call 0x452DB6
+            add esp, 0x0C
+
         village_result_done:
             pop edi
             pop esi
@@ -1113,22 +1208,125 @@ def main() -> None:
     )
     confirm_helper_code = assemble(
         f"""
+            # Takes only (is_detail, row) from the caller -- [esp+4]/[esp+8]
+            # at entry -- and looks the row's real cost up itself (tech vs
+            # detail cost table), rather than making menu/detail_menu do
+            # that lookup themselves: both of their own caves were too
+            # tight to afford it, and .shr has room to spare.
+            mov ecx, dword ptr [esp + 8]
+            cmp dword ptr [esp + 4], 0
+            jne confirm_detail_cost
+            cmp ecx, 6
+            jb confirm_tech_cost
+            mov edx, 1000000
+            jmp confirm_cost_done
+        confirm_tech_cost:
+            mov edx, dword ptr [0x{s['tech_cost_table']:X} + ecx*4]
+            jmp confirm_cost_done
+        confirm_detail_cost:
+            mov edx, dword ptr [0x{s['detail_cost_table']:X} + ecx*4]
+        confirm_cost_done:
+            push edx
             push 0x{s['icons_dll']:X}
             call dword ptr [0x457010]
             test eax, eax
-            je confirm_fail
+            je confirm_fail_cleanup
             push 0x{s['confirm_export']:X}
             push eax
             call dword ptr [0x4570D4]
             test eax, eax
-            je confirm_fail
+            je confirm_fail_cleanup
+            push dword ptr [esp + 0]
+            push dword ptr [esp + 16]
+            push dword ptr [esp + 16]
             call eax
-            ret
-        confirm_fail:
+            add esp, 4
+            ret 8
+        confirm_fail_cleanup:
+            add esp, 4
             xor eax, eax
-            ret
+            ret 8
         """,
         CONFIRM_HELPER_VA,
+    )
+    detail_preflight_code = assemble(
+        f"""
+            cmp ebx, 0
+            je preflight_youth
+            cmp ebx, 1
+            je preflight_mastery
+            cmp ebx, 2
+            je preflight_running
+            cmp dword ptr [edx + 0x348], 360
+            jne preflight_change
+            cmp dword ptr [edx + 0x34C], 360
+            jne preflight_change
+            mov eax, dword ptr [edx + 0x358]
+            test eax, eax
+            je preflight_no_change
+            cmp eax, 318
+            jne preflight_change
+            jmp preflight_no_change
+
+        preflight_youth:
+            mov ecx, dword ptr [edx + 0x348]
+            mov eax, ecx
+            sub eax, 700
+            cmp eax, 100
+            jge preflight_youth_target
+            mov eax, 100
+        preflight_youth_target:
+            cmp ecx, eax
+            jne preflight_change
+            cmp dword ptr [edx + 0x358], 0
+            jne preflight_youth_pregnant
+            cmp dword ptr [edx + 0x34C], eax
+            jne preflight_change
+            jmp preflight_no_change
+        preflight_youth_pregnant:
+            lea ecx, [eax - 1]
+            cmp dword ptr [edx + 0x34C], ecx
+            jne preflight_change
+            sub eax, 42
+            cmp dword ptr [edx + 0x358], eax
+            jne preflight_change
+            jmp preflight_no_change
+
+        preflight_mastery:
+            cmp dword ptr [edx + 0x3BC], 100
+            jne preflight_change
+            cmp dword ptr [edx + 0x3C0], 100
+            jne preflight_change
+            cmp dword ptr [edx + 0x3C4], 100
+            jne preflight_change
+            cmp dword ptr [edx + 0x3C8], 100
+            jne preflight_change
+            cmp dword ptr [edx + 0x3CC], 100
+            jne preflight_change
+            jmp preflight_no_change
+
+        preflight_running:
+            lea eax, [edx + 0x398]
+            mov ecx, 4
+        preflight_running_scan:
+            cmp dword ptr [eax], {RUNNING_PREFERENCE_ID}
+            je preflight_no_change
+            cmp dword ptr [eax], -1
+            je preflight_change
+            add eax, 4
+            dec ecx
+            jne preflight_running_scan
+            xor eax, eax
+            ret
+
+        preflight_no_change:
+            mov eax, 2
+            ret
+        preflight_change:
+            mov eax, 1
+            ret
+        """,
+        DETAIL_PREFLIGHT_VA,
     )
     patch(
         HEAL_CAVE_FILE_OFFSET,
@@ -1141,6 +1339,12 @@ def main() -> None:
         b"\0" * len(confirm_helper_code),
         confirm_helper_code,
         "resolve and invoke the icons DLL's shared permanent-change Yes/No confirmation, called by both menu and detail_menu immediately after a row is picked and before any owned-check or charge",
+    )
+    patch(
+        DETAIL_PREFLIGHT_FILE_OFFSET,
+        b"\0" * len(detail_preflight_code),
+        detail_preflight_code,
+        "check whether a detail_menu row (Grant Youth, Grant Full Mastery, Grant Running, Set Age 18) would actually change the selected villager before detail_menu charges for it, returning 0=blocked/unavailable, 1=would change, 2=already at target state",
     )
     patch(
         CURE_ENTRY_FILE_OFFSET,

@@ -53,6 +53,7 @@ CONFIG = {
         "master_value": 100,
         "report_running_granted": True,
         "report_mastery_counts": True,
+        "report_age_granted": True,
     },
     "vv2": {
         "title": "Virtual Villagers - The Lost Children",
@@ -633,6 +634,50 @@ def build_payload(config: dict) -> tuple[bytes, dict[str, int]]:
         """,
     )
 
+    # report_age_granted mirrors report_running_granted/report_mastery_counts:
+    # VV1-only opt-in, same fixed-scratch-dword approach (no register left at
+    # age_done's return point either -- every existing caller already relies
+    # on eax/edx/ecx being zeroed there).
+    report_age = bool(config.get("report_age_granted"))
+    age_granted_va = entry_va + 0x40
+    age_scratch_init = (
+        f"mov dword ptr [0x{age_granted_va:X}], 0" if report_age else ""
+    )
+    age_skip_check = (
+        f"""
+            cmp dword ptr [esi + {_hex_word(config['age'])}], 360
+            je age_next
+        """
+        if report_age
+        else ""
+    )
+    age_increment = (
+        f"inc dword ptr [0x{age_granted_va:X}]" if report_age else ""
+    )
+    # Writing only the raw age field (config['age']) is not enough to make
+    # a villager -- especially an elder, whose age can be well past 360 --
+    # actually settle at 18: the stock engine's own age-mutation routine
+    # (decompiled at 0x419543-0x4195be in the exact VV1 build) always
+    # keeps age+4 (a "last-synced age" bookkeeping field the engine reads
+    # back on the next per-frame update) equal to the current age right
+    # after changing it, and shifts age+0x10 (the pregnancy timer) to
+    # match, or the engine's own logic can recompute/override the age
+    # right back to something derived from the stale bookkeeping. This
+    # mirrors detail_age_18's own single-villager version exactly (down
+    # to the same 318 = 360 - 42 gestation-offset constant), which
+    # already gets this right and is the reason it doesn't have the same
+    # bug this village-wide row does.
+    age_sync = (
+        f"""
+            mov dword ptr [esi + {_hex_word(config['age'] + 4)}], 360
+            cmp dword ptr [esi + {_hex_word(config['age'] + 0x10)}], 0
+            je age_pregnancy_synced
+            mov dword ptr [esi + {_hex_word(config['age'] + 0x10)}], 318
+        age_pregnancy_synced:
+        """
+        if report_age
+        else ""
+    )
     put(
         age_va,
         f"""
@@ -643,11 +688,15 @@ def build_payload(config: dict) -> tuple[bytes, dict[str, int]]:
             mov ebp, ecx
             mov ebx, edx
             {_record_setup(config)}
+            {age_scratch_init}
         age_loop:
             test ebx, ebx
             jz age_done
             {_eligibility(config, 'age_next')}
+            {age_skip_check}
             mov dword ptr [esi + {_hex_word(config['age'])}], 360
+            {age_sync}
+            {age_increment}
         age_next:
             add esi, {_hex_word(config['stride'])}
             dec ebx

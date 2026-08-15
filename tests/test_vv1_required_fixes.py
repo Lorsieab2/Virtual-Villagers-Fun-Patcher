@@ -31,9 +31,17 @@ class VV1RequiredFixTests(unittest.TestCase):
             encoding="utf-8"
         )
         running = source.split("detail_menu,", 1)[1].split("detail_age_18:", 1)[0]
-        self.assertIn("mov ecx, 4", running)
         self.assertIn("mov eax, 4", running)
         self.assertIn("lea ecx, [edx + 0x3A8]", running)
+
+        # The Running eligibility/no-change scan itself lives in the
+        # shared detail_preflight_code helper now (called by detail_menu
+        # before it ever reaches its own charge path) -- also a 4-slot
+        # scan, just with its own register usage.
+        preflight = source.split("detail_preflight_code = assemble", 1)[1].split(
+            "preflight_no_change:", 1
+        )[0]
+        self.assertIn("mov ecx, 4", preflight)
 
         mastery = source.split("detail_mastery:", 1)[1].split(
             "detail_success:", 1
@@ -176,7 +184,7 @@ class VV1RequiredFixTests(unittest.TestCase):
         mastery_already_va = village_wide_entry_va + 0x3C
 
         village_wide_off = 0x8B549  # HEAL_CAVE village_wide: label, just past cure_all's own patch region start
-        insns = list(md.disasm(rendered[village_wide_off:village_wide_off + 0x90], IMAGE_BASE + SHR_RVA + (village_wide_off - SHR_FILE_OFFSET)))
+        insns = list(md.disasm(rendered[village_wide_off:village_wide_off + 0xC0], IMAGE_BASE + SHR_RVA + (village_wide_off - SHR_FILE_OFFSET)))
         mnemonics_ops = [(i.mnemonic, i.op_str, i.address) for i in insns]
 
         cmp7 = next((a for m, o, a in mnemonics_ops if m == "cmp" and o == "ebx, 7"), None)
@@ -685,13 +693,22 @@ class VV1RequiredFixTests(unittest.TestCase):
         """New feature regression test: every purchasable row on both the
         Tech screen (menu, including its Village-Wide rows) and the
         Villager Details screen (detail_menu) must show the shared
-        "permanent change" Yes/No prompt immediately after the row is
-        picked and before anything else runs -- not just before the
-        charge, but before the owned-check/eligibility logic too, since
-        those can themselves have side effects (e.g. remove_doubler).
-        Disassembles the real rendered exe for both dispatch sites and
-        the shared .shr confirmation helper, and confirms the compiled
-        DLL exports the entry point it resolves by name.
+        "permanent change" prompt before any tech points are spent.
+
+        detail_menu confirms immediately after the row is picked, before
+        its own eligibility logic (e.g. the Running preflight) runs.
+
+        menu confirms at the top of its Buy path (charge:, gated only by
+        the Time Warp pause no-op check) rather than immediately after
+        the row is picked -- unlike detail_menu, a subset of menu's rows
+        (the doublers) can be picked to *remove* something already owned,
+        which is not a purchase and intentionally never reaches charge:
+        or the confirmation at all (see remove_doubler in the source).
+        What must hold for menu is: nothing that spends tech points (no
+        write to the balance field, +0xA2FC) runs before the confirm
+        call. Disassembles the real rendered exe for both dispatch sites
+        and the shared .shr confirmation helper, and confirms the
+        compiled DLL exports the entry point it resolves by name.
         """
         capstone = pytest.importorskip("capstone")
         source = STOCK / "Virtual Villagers - A New Home.exe"
@@ -707,55 +724,100 @@ class VV1RequiredFixTests(unittest.TestCase):
         SHR_FILE_OFFSET = 0x8B000
         SHR_RVA = 0x8D000
 
-        def confirm_gate(off: int, va: int, window: int) -> int:
-            insns = list(md.disasm(rendered[off:off + window], va))
-            pick = next(
-                i for i in insns
-                if i.mnemonic == "mov" and i.op_str == "ebx, eax"
-            )
-            after_pick = insns[insns.index(pick) + 1:]
-            # The confirmation call must be the immediate next thing after
-            # the row is picked -- nothing else (no owned-flag check, no
-            # balance check, no charge) may run first.
-            self.assertEqual(after_pick[0].mnemonic, "call")
-            self.assertEqual(after_pick[1].mnemonic, "test")
-            self.assertEqual(after_pick[2].mnemonic, "je")
-            return int(after_pick[0].op_str, 16)
-
-        # menu (Tech screen, including Village-Wide): row is picked into
-        # ebx right after show_dialog returns, and the confirm call must
-        # be the immediate next instruction.
-        menu_off = 0x569C0
-        menu_confirm_va = confirm_gate(menu_off, 0x4569C0, 0x50)
-
         # detail_menu (Villager Details, including Change Appearance):
-        # same shape, different loop-back target on "No".
+        # the confirm call must be the immediate next instruction after
+        # the row is picked into ebx -- nothing else (no eligibility
+        # check, no balance check, no charge) may run first.
         detail_off = 0x56E21
-        detail_confirm_va = confirm_gate(detail_off, 0x456E21, 0x50)
-
-        self.assertEqual(
-            menu_confirm_va, detail_confirm_va,
-            "both screens must share the same confirmation helper, not two copies",
+        detail_insns = list(md.disasm(rendered[detail_off:detail_off + 0x50], 0x456E21))
+        detail_pick = next(
+            i for i in detail_insns
+            if i.mnemonic == "mov" and i.op_str == "ebx, eax"
         )
+        detail_after_pick = detail_insns[detail_insns.index(detail_pick) + 1:]
+        # The row (ebx) and the is_detail flag are pushed as args to the
+        # shared confirm helper -- see confirm_helper_code -- immediately
+        # followed by the call itself.
+        self.assertEqual(detail_after_pick[0].mnemonic, "push")
+        self.assertEqual(detail_after_pick[1].mnemonic, "push")
+        self.assertEqual(detail_after_pick[2].mnemonic, "call")
+        self.assertEqual(detail_after_pick[3].mnemonic, "test")
+        self.assertEqual(detail_after_pick[4].mnemonic, "je")
+        detail_confirm_va = int(detail_after_pick[2].op_str, 16)
 
-        # The shared .shr helper itself: resolve the DLL, resolve the
-        # export by name, call it, and return its result untouched --
-        # failing closed (returning 0/"No") if either resolve step fails.
+        # menu (Tech screen, including Village-Wide): the row is picked
+        # into ebx right after show_dialog returns, then the Buy path
+        # (as opposed to remove_doubler) runs some read-only eligibility
+        # checks (owned flags, population capacity) before reaching
+        # charge:, where the confirm call sits right after the Time Warp
+        # pause no-op check. Verify no balance-spending write happens
+        # anywhere before that confirm call.
+        menu_off = 0x569C0
+        menu_va = 0x4569C0
+        menu_insns = list(md.disasm(rendered[menu_off:menu_off + 0x120], menu_va))
+        menu_pick = next(
+            i for i in menu_insns
+            if i.mnemonic == "mov" and i.op_str == "ebx, eax"
+        )
+        menu_confirm_call = next(
+            i for i in menu_insns
+            if menu_insns.index(i) > menu_insns.index(menu_pick)
+            and i.mnemonic == "call"
+            and int(i.op_str, 16) == detail_confirm_va
+        )
+        between = menu_insns[
+            menu_insns.index(menu_pick) + 1 : menu_insns.index(menu_confirm_call)
+        ]
+        balance_writes = [
+            i for i in between
+            if i.mnemonic in ("sub", "add") and "0xa2fc" in i.op_str.lower()
+        ]
+        self.assertFalse(
+            balance_writes,
+            "menu must not spend any tech points before the confirm call",
+        )
+        menu_confirm_va = detail_confirm_va
+
+        # The shared .shr helper itself: look the row's real cost up
+        # (tech vs detail cost table, indexed by row), resolve the DLL,
+        # resolve the export by name, call it with (row, cost), and
+        # return its result untouched -- failing closed (returning 0/
+        # Cancel) if either resolve step fails.
         confirm_off = menu_confirm_va - IMAGE_BASE - SHR_RVA + SHR_FILE_OFFSET
-        helper_insns = list(md.disasm(rendered[confirm_off:confirm_off + 0x30], menu_confirm_va))
+        helper_insns = list(md.disasm(rendered[confirm_off:confirm_off + 0x60], menu_confirm_va))
         mnemonics = [i.mnemonic for i in helper_insns]
-        self.assertEqual(mnemonics[0], "push")
-        self.assertEqual(mnemonics[1], "call")
-        self.assertEqual(mnemonics[2], "test")
-        self.assertEqual(mnemonics[3], "je")
+        self.assertEqual(mnemonics[0], "mov", "must start by reading the row off the stack")
+        cost_lookups = [
+            i for i in helper_insns
+            if i.mnemonic == "mov" and "ecx*4" in i.op_str
+        ]
+        self.assertGreaterEqual(
+            len(cost_lookups), 2,
+            "must look the row's cost up from both the tech and detail cost tables",
+        )
+        resolve_module = [
+            i for i in helper_insns
+            if i.mnemonic == "call" and "[0x457010]" in i.op_str
+        ]
+        resolve_export = [
+            i for i in helper_insns
+            if i.mnemonic == "call" and "[0x4570d4]" in i.op_str.lower()
+        ]
+        self.assertTrue(resolve_module, "must resolve the icons DLL module handle")
+        self.assertTrue(resolve_export, "must resolve the confirm export by name")
         register_calls = [i for i in helper_insns if i.mnemonic == "call" and i.op_str == "eax"]
         self.assertEqual(len(register_calls), 1)
         fail_paths = [i for i in helper_insns if i.mnemonic == "xor" and i.op_str == "eax, eax"]
         self.assertTrue(fail_paths, "must fail closed (return 0) if the DLL/export can't be resolved")
+        stack_cleanups = [i for i in helper_insns if i.mnemonic == "ret" and i.op_str == "8"]
+        self.assertTrue(
+            stack_cleanups, "must clean up both stack args (is_detail, row) with ret 8"
+        )
 
         # Confirm the compiled DLL actually exports the entry point this
-        # helper resolves by name, and that it really is a Yes/No prompt
-        # (not a fixed OK-only notice) whose Yes path returns nonzero.
+        # helper resolves by name, and that it really is an OK/Cancel +
+        # question-icon prompt (VV5-task9 style: names the row and its
+        # cost, not a fixed Yes/No notice) whose OK path returns nonzero.
         pefile = pytest.importorskip("pefile")
         dll_path = ROOT / "assets" / "origins" / "VVFP VV1 Origins Icons.dll"
         if not dll_path.is_file():
@@ -771,16 +833,13 @@ class VV1RequiredFixTests(unittest.TestCase):
         target_rva = exported["ShowOriginsPermanentChangeConfirm"]
         image = pe.get_memory_mapped_image()
         confirm_insns = list(
-            md.disasm(image[target_rva:target_rva + 0x40], pe.OPTIONAL_HEADER.ImageBase + target_rva)
+            md.disasm(image[target_rva:target_rva + 0x100], pe.OPTIONAL_HEADER.ImageBase + target_rva)
         )
         pushes = [i.op_str for i in confirm_insns if i.mnemonic == "push"]
-        # MB_YESNO | MB_ICONQUESTION = 0x24, IDYES = 6.
-        self.assertIn("0x24", pushes, "must be a Yes/No + question-icon prompt, not a fixed OK notice")
-        cmp_idyes = next(
-            (i for i in confirm_insns if i.mnemonic == "cmp" and i.op_str.endswith(", 6")),
-            None,
-        )
-        self.assertIsNotNone(cmp_idyes, "must check the result against IDYES")
+        # MB_OKCANCEL | MB_ICONQUESTION = 0x21, IDOK = 1. (The compiler turns
+        # "== IDOK" into a dec/neg/sbb/inc boolean idiom rather than a literal
+        # cmp, so only the style flags are checked disassembly-side here.)
+        self.assertIn("0x21", pushes, "must be an OK/Cancel + question-icon prompt, not Yes/No")
 
     def test_vv1_time_warp_double_speed_uses_a_reachable_game_speed_code(self) -> None:
         """Regression test: VV1's own stock executable only ever assigns

@@ -388,20 +388,65 @@ __declspec(dllexport) int __stdcall ShowOriginsUpgradeMenu(
     return show_upgrade_menu(villager_menu, dialog_state);
 }
 
+/* Row names for the confirmation prompt below. Kept here rather than as
+   ASM string-table entries: the .shr string budget is already tight, and
+   this is the only place these particular names are ever shown, so
+   there's no reason to spend .shr bytes on them at all. */
+static const char *vv1_tech_row_name(int row) {
+    switch (row) {
+    case 0: return "Time Warp";
+    case 1: return "Island Event";
+    case 2: return "Barrel of Babies";
+    case 3: return "Tech Point Doubler";
+    case 4: return "Food Point Doubler";
+    case 5: return "Full Heal/Cure All Villagers";
+    case 6: return "All Villagers Like Running";
+    case 7: return "Grant Full Mastery to All Villagers";
+    case 8: return "All Villagers are 18";
+    default: return "Origins upgrade";
+    }
+}
+
+static const char *vv1_detail_row_name(int row) {
+    switch (row) {
+    case 0: return "Grant Youth";
+    case 1: return "Grant Full Mastery";
+    case 2: return "Grant Running";
+    case 3: return "Set Age to 18";
+    case 4: return "Change Appearance";
+    default: return "Origins upgrade";
+    }
+}
+
 /* Shared confirmation prompt: every purchasable row on both the Tech
    screen (including its Village-Wide rows) and the Villager Details
-   screen routes through this before any charge or change happens, so
-   it takes no arguments and reports nothing beyond the player's choice
-   -- the caller already knows which row it is asking about. */
-__declspec(dllexport) int __stdcall ShowOriginsPermanentChangeConfirm(void) {
-    int result = MessageBoxA(
-        GetForegroundWindow(),
-        "This upgrade makes permanent changes to your village. "
-        "Do you still want to purchase this?",
-        "Origins Upgrades",
-        MB_YESNO | MB_ICONQUESTION
+   screen routes through this before any charge or change happens.
+   Names the row and its exact cost rather than a generic warning, and
+   uses OK/Cancel (not Yes/No) -- matching the wording style already
+   proposed for VV5's own Task9 Origins upgrades
+   (native/vv5_task9_origins/vv5_task9_origins.c's ConfirmVV5Task9Action)
+   for parity across games. Only ever called for a real purchase, not
+   for removing an owned doubler -- the caller (menu) only reaches this
+   on the Buy path, after it already knows the row isn't being removed. */
+__declspec(dllexport) int __stdcall ShowOriginsPermanentChangeConfirm(
+    int is_detail,
+    int row,
+    int cost
+) {
+    char message[192];
+    const char *name = is_detail ? vv1_detail_row_name(row) : vv1_tech_row_name(row);
+    wsprintfA(
+        message,
+        "%s for %d tech points?\r\nPress OK to confirm, or Cancel.",
+        name,
+        cost
     );
-    return result == IDYES ? 1 : 0;
+    return MessageBoxA(
+        GetForegroundWindow(),
+        message,
+        is_detail ? "Villager Upgrades" : "Origins Upgrades",
+        MB_OKCANCEL | MB_ICONQUESTION
+    ) == IDOK;
 }
 
 /* Full Heal/Cure All Villagers: the .shr helper only calls this once it
@@ -498,6 +543,23 @@ __declspec(dllexport) int __stdcall ShowOriginsMasteryResult(
         granted,
         already_mastered
     );
+    MessageBoxA(
+        GetForegroundWindow(),
+        message,
+        "Origins Upgrades",
+        MB_OK | MB_ICONINFORMATION
+    );
+    return 0;
+}
+
+/* All Villagers are 18: age_va (in the shared village-wide script,
+   report_age_granted opt-in) only counts villagers whose age wasn't
+   already 360 (18 years) before writing it -- the caller (village_wide's
+   village_age_charge/village_age_result) only reaches this export, and
+   only charges, once that count is confirmed nonzero. */
+__declspec(dllexport) int __stdcall ShowOriginsAgeResult(int granted) {
+    char message[64];
+    wsprintfA(message, "Set %d villagers to Age 18.", granted);
     MessageBoxA(
         GetForegroundWindow(),
         message,

@@ -189,11 +189,17 @@ class OriginsPlayerRuntimeChecklistTests(unittest.TestCase):
                         # room -- both in .shr's otherwise-unused tail
                         # past the Barrel close helper.
                         "0x8BA00", "0x8BA80",
-                        # Shared "permanent change" Yes/No confirmation
-                        # helper, called by both menu and detail_menu right
-                        # after a row is picked -- also in .shr's
+                        # Shared "permanent change" confirmation helper,
+                        # called by both menu (Buy path) and detail_menu
+                        # right after a row is picked -- also in .shr's
                         # otherwise-unused tail.
                         "0x8BB00",
+                        # detail_menu's no-charge preflight helper (Grant
+                        # Youth/Mastery/Running/Set Age 18): decides whether
+                        # a row would actually change anything before
+                        # detail_menu charges for it -- same tail, just
+                        # past the confirm helper above.
+                        "0x8BC00",
                         # Barrel of Babies delay-tick counter: the event
                         # used to fire on the very next per-frame main-
                         # update tick after the Tech screen closed; it now

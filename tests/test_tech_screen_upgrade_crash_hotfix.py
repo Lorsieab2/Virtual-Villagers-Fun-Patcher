@@ -15,9 +15,19 @@ class TechScreenUpgradeCrashHotfixTests(unittest.TestCase):
                 encoding="utf-8"
             )
             with self.subTest(game=game):
+                # VV1's village_wide dispatch now resolves the icons DLL
+                # handle once for all of its Running/Mastery/Age18 result
+                # branches (see village_wide's own comment in
+                # build_vv1_origins_feature.py) instead of once per
+                # branch, so it has one fewer of these vestigial
+                # "mov eax, export"-before-LoadLibrary sites than the
+                # other four games' still-per-branch pattern. VV1's own
+                # separate, untouched VILLAGE_PREFLIGHT_VA signature
+                # check still has its own, unrelated one, so it isn't 0.
+                expected = 1 if game == 1 else 2
                 self.assertEqual(
                     source.count("mov eax, 0x{s['show_result_export']:X}"),
-                    2,
+                    expected,
                 )
                 self.assertNotIn(
                     "push 0x{s['show_result_export']:X}\n"

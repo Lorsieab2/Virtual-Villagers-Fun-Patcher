@@ -6,5 +6,6 @@ EXPORTS
     ShowOriginsVillageWideResult@20=_ShowOriginsVillageWideResult20@20
     ShowOriginsAppearancePicker=_ShowOriginsAppearancePicker@4
     ShowOriginsCureResult=_ShowOriginsCureResult@8
-    ShowOriginsPermanentChangeConfirm=_ShowOriginsPermanentChangeConfirm@0
+    ShowOriginsPermanentChangeConfirm=_ShowOriginsPermanentChangeConfirm@12
     ShowOriginsMasteryResult=_ShowOriginsMasteryResult@8
+    ShowOriginsAgeResult=_ShowOriginsAgeResult@4
