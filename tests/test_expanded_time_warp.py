@@ -161,7 +161,7 @@ class ExpandedTimeWarpArtifactTests(unittest.TestCase):
         task9 = builder.load_task9_builder()
         stock, stock_map = task9.build_page(0x7C9000)
         expanded, expanded_map = task9.build_page(0x904000)
-        self.assertEqual(digest(stock), "E4C7685512A4B25ACDF827E641A01056B9588AA429AA89F7AEC7C99C4BDE2EF0")
+        self.assertEqual(digest(stock), "CF99913541228B845549E21202FD03E28719B9A63E150E8FA1C81285A1747C33")
         self.assertEqual(digest(expanded), "06FE23F6975D0AC9E12D54F91831A202DC1ABAE82823233DD2F5F851BE2F8589")
         self.assertEqual(task9.SIZES["age"], 0x300)
         self.assertEqual(task9.OFF["time_warp"], 0x1040)

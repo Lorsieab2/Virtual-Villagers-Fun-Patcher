@@ -146,7 +146,6 @@ OFF = {
     "mastery_all": 0x5200,
     "age18_all": 0x5800,
     "barrel_close_arm": 0x5E00,
-    "barrel_room": 0x6000,
     "strings": 0x7000,
 }
 
@@ -178,7 +177,6 @@ SIZES = {
     "mastery_all": 0x600,
     "age18_all": 0x600,
     "barrel_close_arm": 0x80,
-    "barrel_room": 0x100,
 }
 
 
@@ -1995,10 +1993,12 @@ def build_barrel(page: bytearray, page_va: int, s: dict[str, int]) -> bytes:
     presented by the main-village owner only after the screen closes -- never
     under the menu. The origins-base selector detour at 0x41890F (preserved in
     this payload) forces the chosen index to 25 and clears the marker. Before any
-    charge, barrel_room mirrors the game's own per-villager capacity gate 0x472bd0
-    (base 90 + collectible bonuses, tiered by owned housing upgrades) evaluated at
-    population+2, so the purchase is refused with no deduction unless all three
-    children fit. Self-contained MessageBoxA; the Island Event upgrade is untouched."""
+    charge, both capacity checks call the game's own per-villager cap gate 0x472bd0
+    -- which each population mode patches to its live cap (stock 105, collection
+    150, immediate-fixed 150, expanded-256 256) via the 0x72C49/0x94500 helper --
+    so the room test is fully mode-dynamic and the purchase is refused with no
+    deduction when the village is at its cap. Self-contained MessageBoxA; the
+    Island Event upgrade is untouched."""
     return put(page, page_va, "barrel", f"""
         push ebp
         mov ebp, esp
@@ -2033,7 +2033,7 @@ def build_barrel(page: bytearray, page_va: int, s: dict[str, int]) -> bytes:
         jz unavailable
         mov edi, eax
         mov dword ptr [ebp-0x18], edi
-        call 0x{page_va + OFF['barrel_room']:X}
+        call 0x472BD0
         test al, al
         jz full
         mov eax, dword ptr [0x51D5F8]
@@ -2049,7 +2049,7 @@ def build_barrel(page: bytearray, page_va: int, s: dict[str, int]) -> bytes:
         cmp eax, dword ptr [ebp-0x18]
         jne recheck
         mov edi, eax
-        call 0x{page_va + OFF['barrel_room']:X}
+        call 0x472BD0
         test al, al
         jz full
         mov eax, dword ptr [0x51D5F8]
@@ -2270,99 +2270,6 @@ def build_barrel_close_arm(page: bytearray, page_va: int) -> bytes:
         popad
         mov ecx, 0x51F440
         jmp 0x44161C
-    """)
-
-
-def build_barrel_room(page: bytearray, page_va: int) -> bytes:
-    """Barrel of Babies room-for-three check. The native per-villager capacity
-    gate 0x472bd0 computes the real dynamic cap -- base 90 (0x5A) plus the
-    collectible bonuses (+5 for slot 0x68, +5 for slot 0x50, or +15 for both)
-    checked via 0x414690 on the collectible manager 0x4DBFC8, then tiered by the
-    number of owned housing upgrades (0x13/0x14/0x15 via 0x43AE80 on 0x51E008):
-    population >= 10 needs 1, >= 17 needs 2, >= 35 needs 3, and the hard cap is
-    90 + collectible bonus. This mirrors that logic but evaluates it at the
-    current population (0x4713F0) + 2 -- the insertion slot of the third child --
-    so it returns true (AL=1) only when all three barrel children fit. Registers
-    are callee-saved; the barrel router calls it in place of the old
-    array-size ([0x41F1E6]-3) heuristic."""
-    return put(page, page_va, "barrel_room", """
-        push ebx
-        push esi
-        push edi
-        call 0x4713F0
-        add eax, 2
-        mov ebx, eax
-        xor edi, edi
-        xor esi, esi
-        push 0x68
-        mov ecx, 0x4DBFC8
-        call 0x414690
-        test al, al
-        je room_c50
-        lea esi, [edi + 5]
-    room_c50:
-        push 0x50
-        mov ecx, 0x4DBFC8
-        call 0x414690
-        test al, al
-        je room_both
-        add esi, 5
-    room_both:
-        cmp esi, 0xA
-        jne room_u13
-        mov esi, 0xF
-    room_u13:
-        push 0x13
-        mov ecx, 0x51E008
-        call 0x43AE80
-        test al, al
-        je room_u14
-        mov edi, 1
-    room_u14:
-        push 0x14
-        mov ecx, 0x51E008
-        call 0x43AE80
-        test al, al
-        je room_u15
-        add edi, 1
-    room_u15:
-        push 0x15
-        mov ecx, 0x51E008
-        call 0x43AE80
-        test al, al
-        je room_cap
-        add edi, 1
-    room_cap:
-        add esi, 0x5A
-        cmp ebx, esi
-        jl room_tier
-        xor al, al
-        jmp room_ret
-    room_tier:
-        cmp ebx, 0x23
-        jl room_t17
-        cmp edi, 3
-        setge al
-        jmp room_ret
-    room_t17:
-        cmp ebx, 0x11
-        jl room_t10
-        cmp edi, 2
-        setge al
-        jmp room_ret
-    room_t10:
-        cmp ebx, 0xA
-        jl room_yes
-        cmp edi, 1
-        setge al
-        jmp room_ret
-    room_yes:
-        mov al, 1
-    room_ret:
-        pop edi
-        pop esi
-        pop ebx
-        ret
     """)
 
 
@@ -2954,7 +2861,6 @@ def build_page(page_va: int) -> tuple[bytes, dict[str, object]]:
         routines["mastery_all"] = build_mastery_all(page, page_va)
         routines["age18_all"] = build_age18_all(page, page_va)
         routines["barrel_close_arm"] = build_barrel_close_arm(page, page_va)
-        routines["barrel_room"] = build_barrel_room(page, page_va)
     result = {
         "page_sha256": sha(bytes(page)),
         "routine_sha256": {name: sha(value) for name, value in routines.items()},
@@ -3134,7 +3040,7 @@ def main() -> None:
                 "age18": {"price": 50000, "target": 360, "writer": "0x46F7F0 ECX=record+0x1B8C signed delta", "companions": ["+0x1C3C same delta", "+0x1C4C same delta only when nonzero"]},
                 "full_mastery": {"price": 100000, "fields": ["0x1C5C", "0x1C60", "0x1C64", "0x1C68", "0x1C6C", "0x1C70"], "writer": "0x475730 ECX=record+0x1C5C push Float32 delta then push index", "target_bits": "0x42C80000"},
                 "running": {"price": 40000, "preference_id": 38, "likes": ["0x1F5C", "0x1F60", "0x1F64"], "dislikes": ["0x1F68", "0x1F6C", "0x1F70"], "native": {"membership": "0x464F90", "insertion": "0x464AD0", "first_removal": "0x4649E0"}},
-                "barrel_of_babies": {"price": 75000, "scope": "village event scheduler (presents the native Barrel event, index 25, after the Tech screen closes)", "room_check": "barrel_room mirrors the game's per-villager capacity gate 0x472bd0 (base 90 + collectible bonuses 0x68/0x50 via 0x414690, tiered by housing upgrades 0x13/0x14/0x15 via 0x43AE80) evaluated at population(0x4713F0)+2, refusing with no deduction unless all three children fit", "mechanism": "VV2 general approach: charge -75000 via 0x4237B0, set one-shot pending token (or [0x51D388],8) only; the origins-base Tech handler routes stock command 0 (screen close) to barrel_close_arm, which consumes the token, sets the forced-Barrel marker (or [0x51D388],4), and makes the next event due ([manager+0x17D3C]=0); the selector detour at 0x41890F forces the next chosen index to 25 and clears the marker so the native three-child Barrel presents with the main-village owner after the menu closes", "children": 3, "dialog": "self-contained MessageBoxA (no companion DLL change)"},
+                "barrel_of_babies": {"price": 75000, "scope": "village event scheduler (presents the native Barrel event, index 25, after the Tech screen closes)", "room_check": "both capacity checks call the game's own per-villager cap gate 0x472bd0, which every population mode patches (0x72C49 -> 0x94500 helper) to its live cap (stock 105, collection_progression 150, immediate_fixed 150, expanded-256 256); the barrel is refused with no deduction when the village is at its current mode's cap", "mechanism": "VV2 general approach: charge -75000 via 0x4237B0, set one-shot pending token (or [0x51D388],8) only; the origins-base Tech handler routes stock command 0 (screen close) to barrel_close_arm, which consumes the token, sets the forced-Barrel marker (or [0x51D388],4), and makes the next event due ([manager+0x17D3C]=0); the selector detour at 0x41890F forces the next chosen index to 25 and clears the marker so the native three-child Barrel presents with the main-village owner after the menu closes", "children": 3, "dialog": "self-contained MessageBoxA (no companion DLL change)"},
                 "island_event": {"price": 30000, "scope": "village next-event scheduler (not a per-record write)", "mechanism": "resolve manager 0x425950, verify snapshot, charge -30000 via 0x4237B0, set next-event timer [manager+0x17D3C]=0 so the native scheduler (0x442850 -> sub_418870) runs a random eligible island event", "dialog": "self-contained MessageBoxA (no companion DLL change)"},
                 "time_warp": {"price": 50000, "scope": "village clock (not a per-record write; faction-blind like normal time passing)", "speed": "[manager+0x17D7C] signed positive and not 999 (paused)", "delta": "129600 / speed subtracted from the 64-bit village clock 0x4C6250/0x4C6254", "effect": "advances exactly three displayed villager years regardless of listed game speed", "writer": "inline: verify snapshot, charge -50000 via 0x4237B0, div 129600 by speed, sub/sbb into clock, postverify", "dialog": "self-contained MessageBoxA (no companion DLL change)"},
                 "full_heal": {"price": 30000, "health_rule": "every eligible Believer with health < 100 is raised to exactly 100; health already at 100 is unchanged and uncounted", "health_writer": "0x4758B0 ECX=record+0x1C34 push -1 then push 100", "sickness": "+0x1C48 byte", "masked_heathen_policy": "skip before sickness/type reads; includes the sick Heathen puzzle record", "unsupported_type": "+0x1CFC == 12 when sick on an otherwise eligible Believer", "people_cured": "0x51D368", "statistic_writer": "0x413450 ECX=0x4DB358 IDs 52/53/54 amount 1"},
