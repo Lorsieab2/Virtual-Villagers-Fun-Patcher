@@ -793,6 +793,15 @@ class ManifestTests(unittest.TestCase):
                     if value >= 0
                 ]
                 section = source[start : min(ends) if ends else len(source)]
+                if game_id == "vv4":
+                    # VV4 grants Running through the game's own managed Like
+                    # helpers (add-to-Likes 0x45D2D0, remove-from-Dislikes
+                    # 0x45D1C0) instead of a raw 3-slot array scan, because raw
+                    # writes corrupt the Like state and crash the game. The old
+                    # slot-count/scan pattern intentionally no longer applies.
+                    self.assertIn("call 0x45D2D0", section)
+                    self.assertIn("call 0x45D1C0", section)
+                    continue
                 self.assertIn(f"mov eax, {expected_slot_counts[game_id]}", section)
                 self.assertIn("cmp dword ptr [ecx], -1", section)
                 self.assertIn("dec eax", section)
@@ -1166,21 +1175,33 @@ class DoublerPurchaseSafetyTests(unittest.TestCase):
                     bytes.fromhex(patch["after"]) for patch in feature.raw["patches"]
                 )
                 self.assertNotIn(b"Unavailable: exact-build doubler behavior", payload)
-                self.assertTrue(
-                    b"\x81\xc8\x00\x18\x00\x00" in payload
-                    or b"\x81\xcf\x00\x18\x00\x00" in payload
-                    or b"\x0d\x00\x18\x00\x00" in payload
-                )
+                if game_id == "vv4":
+                    # VV4 marks owned Tech/Food Doublers with bits 3/4
+                    # (or eax,8 / or eax,16) so their rows resolve to "Remove";
+                    # the earlier or-reg-0x1800 that also force-disabled both
+                    # doublers ("Unavailable") was intentionally removed.
+                    self.assertIn(b"\x83\xc8\x08", payload)   # or eax, 8
+                    self.assertIn(b"\x83\xc8\x10", payload)   # or eax, 16
+                else:
+                    self.assertTrue(
+                        b"\x81\xc8\x00\x18\x00\x00" in payload
+                        or b"\x81\xcf\x00\x18\x00\x00" in payload
+                        or b"\x0d\x00\x18\x00\x00" in payload
+                    )
 
                 builder = (ROOT / "scripts" / f"build_{game_id}_origins_feature.py").read_text(
                     encoding="utf-8"
                 )
                 self.assertIn("do_food_doubler", builder)
                 self.assertIn("do_tech_doubler", builder)
-                self.assertTrue(
-                    "or edi, 0x1800" in builder
-                    or "or eax, 0x1800" in builder
-                )
+                if game_id == "vv4":
+                    self.assertIn("or eax, 8", builder)
+                    self.assertIn("or eax, 16", builder)
+                else:
+                    self.assertTrue(
+                        "or edi, 0x1800" in builder
+                        or "or eax, 0x1800" in builder
+                    )
 
     def test_doubler_command_state_model_preserves_zero_cost_no_refund_removal(self) -> None:
         def choose(owned: int, command: int) -> tuple[str, int, int]:
