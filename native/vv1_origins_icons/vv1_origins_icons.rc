@@ -9,14 +9,26 @@
 109 ICON "../../assets/origins/109-upgrade-checkmark.ico"
 110 ICON "../../assets/origins/110-cure-all.ico"
 
+/* Change Appearance preview strips: each is a single 40x1300 column, one
+   40x65 cell per villager-record head/body index (0..19), built from the
+   stock game's own art by scripts/build_vv1_appearance_bitmaps.py -- see
+   that script for the decompiled proof of the cell geometry. */
+3001 BITMAP "appearance/head_m.bmp"
+3002 BITMAP "appearance/head_f.bmp"
+3011 BITMAP "appearance/body_m.bmp"
+3012 BITMAP "appearance/body_f.bmp"
+
 #define DS_MODALFRAME 0x0080L
 #define DS_SETFONT 0x0040L
 #define WS_POPUP 0x80000000L
 #define WS_CAPTION 0x00C00000L
 #define WS_SYSMENU 0x00080000L
+#define WS_CHILD 0x40000000L
+#define WS_VISIBLE 0x10000000L
 #define SS_CENTER 0x00000001L
+#define SS_OWNERDRAW 0x0000000DL
 
-201 DIALOGEX 0, 0, 310, 318
+201 DIALOGEX 0, 0, 310, 332
 STYLE DS_MODALFRAME | DS_SETFONT | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Origins Upgrades"
 FONT 9, "Segoe UI"
@@ -53,13 +65,13 @@ BEGIN
 
     ICON        110, -1, 8, 168,  24, 24
     ICON        109, 1105, 22, 180, 12, 12
-    LTEXT       "Cure all Villagers", -1, 40, 170, 170, 10
+    LTEXT       "Full Heal / Cure All", -1, 40, 170, 190, 10
     LTEXT       "30,000 tech points", -1, 40, 182, 150, 9
     PUSHBUTTON  "Buy", 1005, 240, 171, 55, 18
 
     ICON        108, -1, 8, 200,  24, 24
     ICON        109, 1106, 22, 212, 12, 12
-    LTEXT       "All Villagers Like Running", -1, 40, 202, 190, 10
+    LTEXT       "Grant Running to All Villagers", -1, 40, 202, 190, 10
     LTEXT       "1,000,000 tech points", -1, 40, 214, 170, 9
     PUSHBUTTON  "Buy", 1006, 240, 203, 55, 18
 
@@ -71,14 +83,15 @@ BEGIN
 
     ICON        106, -1, 8, 264,  24, 24
     ICON        109, 1108, 22, 276, 12, 12
-    LTEXT       "All Villagers are 18", -1, 40, 266, 190, 10
+    LTEXT       "Set All Villagers to 18", -1, 40, 266, 190, 10
     LTEXT       "1,000,000 tech points", -1, 40, 278, 170, 9
     PUSHBUTTON  "Buy", 1008, 240, 267, 55, 18
 
-    DEFPUSHBUTTON "Cancel", 2, 120, 297, 70, 14
+    CTEXT       "Press ESC to exit this menu.", -1, 20, 298, 270, 9
+    DEFPUSHBUTTON "Cancel", 2, 120, 311, 70, 14
 END
 
-202 DIALOGEX 0, 0, 310, 190
+202 DIALOGEX 0, 0, 310, 204
 STYLE DS_MODALFRAME | DS_SETFONT | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Villager Upgrades"
 FONT 9, "Segoe UI"
@@ -113,25 +126,26 @@ BEGIN
     LTEXT       "5,000 tech points", -1, 40, 150, 150, 9
     PUSHBUTTON  "Buy", 1004, 240, 139, 55, 18
 
-    DEFPUSHBUTTON "Cancel", 2, 120, 169, 70, 14
+    CTEXT       "Press ESC to exit this menu.", -1, 20, 170, 270, 9
+    DEFPUSHBUTTON "Cancel", 2, 120, 183, 70, 14
 END
 
-203 DIALOGEX 0, 0, 200, 130
+203 DIALOGEX 0, 0, 250, 196
 STYLE DS_MODALFRAME | DS_SETFONT | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Change Appearance"
 FONT 9, "Segoe UI"
 BEGIN
-    LTEXT       "Head", -1, 20, 10, 160, 10, SS_CENTER
-    PUSHBUTTON  "<",       2001, 20,  22, 24, 24
-    LTEXT       "Head 1 of 20", 2000, 54, 30, 92, 10, SS_CENTER
-    PUSHBUTTON  ">",       2002, 156, 22, 24, 24
+    CTEXT       "Body", -1, 30, 8, 70, 9
+    CONTROL     "", 2010, "STATIC", SS_OWNERDRAW | WS_CHILD | WS_VISIBLE, 30, 20, 70, 118
+    PUSHBUTTON  "<", 2011, 10, 72, 16, 16
+    PUSHBUTTON  ">", 2012, 104, 72, 16, 16
 
-    LTEXT       "Body", -1, 20, 55, 160, 10, SS_CENTER
-    PUSHBUTTON  "<",       2011, 20,  67, 24, 24
-    LTEXT       "Body 1 of 20", 2010, 54, 75, 92, 10, SS_CENTER
-    PUSHBUTTON  ">",       2012, 156, 67, 24, 24
+    CTEXT       "Head", -1, 150, 8, 70, 9
+    CONTROL     "", 2000, "STATIC", SS_OWNERDRAW | WS_CHILD | WS_VISIBLE, 150, 20, 70, 118
+    PUSHBUTTON  "<", 2001, 130, 72, 16, 16
+    PUSHBUTTON  ">", 2002, 224, 72, 16, 16
 
-    LTEXT       "5,000 tech points", -1, 20, 96, 160, 10, SS_CENTER
-    DEFPUSHBUTTON "OK",     1, 45, 108, 50, 14
-    PUSHBUTTON    "Cancel", 2, 105, 108, 50, 14
+    CTEXT       "OK deducts 5,000 tech points. Cancel changes nothing.", -1, 14, 150, 222, 9
+    DEFPUSHBUTTON "OK",     1, 66, 168, 50, 16
+    PUSHBUTTON    "Cancel", 2, 134, 168, 50, 16
 END

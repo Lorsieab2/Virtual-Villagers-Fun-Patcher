@@ -57,7 +57,6 @@ FILES = [
     "docs/vv1-builder-action-fixes-research.md",
     "docs/vv3-everyone-tries-on-robe.md",
     "docs/vv1-origins-exclusive-features-research.md",
-    "docs/vv1-full-mastery-origins-composition.md",
     "docs/villager-breeding-overhaul-research.md",
     "docs/village-statistics-export-research.md",
     "docs/vv3-origins-exclusive-features-research.md",

@@ -182,10 +182,45 @@ class OriginsPlayerRuntimeChecklistTests(unittest.TestCase):
                         "0x8B710",
                         "0x35ACA",
                         "0x8B900",
-                        # Villager Details "Change Appearance" row: a new
-                        # picker helper at 0x8BA00, in .shr's otherwise-
-                        # unused tail past the Barrel close helper.
-                        "0x8BA00",
+                        # Villager Details "Change Appearance" row: a
+                        # dedicated dispatch router at 0x8BA00, isolated
+                        # from detail_menu's own shared cave, calling the
+                        # picker helper now relocated to 0x8BA80 to make
+                        # room -- both in .shr's otherwise-unused tail
+                        # past the Barrel close helper.
+                        "0x8BA00", "0x8BA80",
+                        # Shared "permanent change" confirmation helper,
+                        # called by both menu (Buy path) and detail_menu
+                        # right after a row is picked -- also in .shr's
+                        # otherwise-unused tail.
+                        "0x8BB00",
+                        # detail_menu's no-charge preflight helper (Grant
+                        # Youth/Mastery/Running/Set Age 18): decides whether
+                        # a row would actually change anything before
+                        # detail_menu charges for it -- same tail, just
+                        # past the confirm helper above.
+                        "0x8BC00",
+                        # Barrel of Babies delay-tick counter: the event
+                        # used to fire on the very next per-frame main-
+                        # update tick after the Tech screen closed; it now
+                        # waits BARREL_DELAY_TICKS ticks first.
+                        "0x8B704",
+                        # Barrel of Babies' final population tier now reads
+                        # the live opcode byte at the stock CanAddVillager
+                        # check (0x43A1AE) to distinguish "stock" patch_mode
+                        # (true cap 90) from the expanded modes (cap 256)
+                        # instead of assuming the 256 cap, via a new .shr
+                        # tail helper past the detail preflight helper.
+                        "0x8BD00",
+                        # Generic "<row> completed."/no-change/removed/
+                        # blocked result box (ShowOriginsRowMessage)
+                        # resolver bringing every plain-wording row's
+                        # confirm/result text in line with the OFFICIAL
+                        # Origins Upgrade Prompts spreadsheet.
+                        "0x8BE00",
+                        # Details Grant Running's free-dislike-removal
+                        # tail, tail-jumped into from DETAIL_PREFLIGHT_VA.
+                        "0x8BE80",
                     }
                     self.assertEqual(
                         [item for item in current["patches"] if item["offset"] not in repaired_offsets],

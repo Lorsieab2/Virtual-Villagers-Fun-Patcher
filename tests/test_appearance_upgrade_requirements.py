@@ -292,10 +292,50 @@ class AppearanceUpgradeRequirementsTests(unittest.TestCase):
                     "0x270", "0x28C", "0x28470", "0x56900",
                     "0x85D30", "0x8B009", "0x8B530", "0x8B710",
                     "0x35ACA", "0x8B900",
-                    # Villager Details "Change Appearance" row: a new
-                    # picker helper at 0x8BA00 (well past the Barrel
-                    # close helper, in .shr's otherwise-unused tail).
-                    "0x8BA00",
+                    # Villager Details "Change Appearance" row: a dedicated
+                    # dispatch router at 0x8BA00 (isolated from detail_menu's
+                    # own shared, byte-constrained cave -- it only ever does
+                    # cmp ebx,4 / je 0x8BA00) that calls the picker helper,
+                    # now relocated to 0x8BA80 to make room for the router,
+                    # both in .shr's otherwise-unused tail.
+                    "0x8BA00", "0x8BA80",
+                    # Shared "permanent change" confirmation helper, called
+                    # by both menu (Buy path) and detail_menu right after a
+                    # row is picked -- also in .shr's otherwise-unused tail.
+                    "0x8BB00",
+                    # detail_menu's no-charge preflight helper (Grant Youth/
+                    # Mastery/Running/Set Age 18): decides whether a row
+                    # would actually change anything before detail_menu
+                    # charges for it -- same tail, just past the confirm
+                    # helper above.
+                    "0x8BC00",
+                    # Barrel of Babies delay-tick counter: the event used to
+                    # fire on the very next per-frame main-update tick after
+                    # the Tech screen closed; it now waits BARREL_DELAY_TICKS
+                    # ticks first so the purchase confirmation can be read.
+                    "0x8B704",
+                    # Barrel of Babies' final population tier no longer
+                    # hardcodes the collection_progression/immediate_fixed
+                    # 256-cap threshold -- it reads the live opcode byte at
+                    # the stock CanAddVillager check (0x43A1AE) to tell
+                    # "stock" patch_mode (true cap 90) apart from the
+                    # expanded modes (cap 256) and picks the right ceiling
+                    # at runtime. Lives in its own .shr tail helper past the
+                    # detail preflight helper above.
+                    "0x8BD00",
+                    # Generic "<row> completed."/no-change/removed/blocked
+                    # result box (ShowOriginsRowMessage) resolver, bringing
+                    # every plain-wording Tech/Details row's confirm and
+                    # result text in line with the OFFICIAL Origins Upgrade
+                    # Prompts spreadsheet -- replaces five removed ASM
+                    # strings and the removed ShowOriginsAgeResult call
+                    # site. Lives in .shr's tail past the population helper.
+                    "0x8BE00",
+                    # Details Grant Running's free-dislike-removal tail
+                    # (RUNNING_DISLIKE_CLEAR_VA), tail-jumped into from
+                    # DETAIL_PREFLIGHT_VA when a villager's Like slots are
+                    # full -- OFFICIAL spreadsheet edge case.
+                    "0x8BE80",
                 },
                 "data/vv2_origins_feature.json": {
                     "0x943A8", "0x9A009", "0x9A300", "0x9A530",

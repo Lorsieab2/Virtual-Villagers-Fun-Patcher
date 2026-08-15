@@ -51,6 +51,10 @@ CONFIG = {
         "bound": "edx",
         "heathen": False,
         "master_value": 100,
+        "report_running_granted": True,
+        "report_mastery_counts": True,
+        "report_age_granted": True,
+        "always_clear_running_dislike": True,
     },
     "vv2": {
         "title": "Virtual Villagers - The Lost Children",
@@ -429,6 +433,45 @@ def build_payload(config: dict) -> tuple[bytes, dict[str, int]]:
         """
     else:
         slot_count = config["slot_count"]
+        # report_running_granted is opt-in (VV1 only as of this writing) so
+        # this shared branch stays byte-identical for every other game that
+        # also reaches it (VV2-VV4 all lack native_running too). The granted
+        # count itself has nowhere to go through the existing 3-register
+        # return (eax/ecx/edx are already full, and every callee-saved
+        # register -- ebx/esi/edi/ebp -- already carries something the
+        # caller needs back), so it's written to a fixed scratch dword in
+        # the confirmed-unused gap between entry_va's dispatch and
+        # running_va instead, and the caller reads it back from there
+        # after the call rather than trying to carry it through a register
+        # across the LoadLibrary/GetProcAddress calls in between (which
+        # aren't guaranteed to preserve ecx/edx).
+        report_granted = bool(config.get("report_running_granted"))
+        granted_push = "push 0" if report_granted else ""
+        granted_increment = "inc dword ptr [esp]" if report_granted else ""
+        if report_granted:
+            granted_store = (
+                f"pop eax\n            mov dword ptr [0x{entry_va + 0x30:X}], eax"
+            )
+        else:
+            granted_store = ""
+        # always_clear_running_dislike is opt-in (VV1 only as of this
+        # writing, same as report_running_granted above) so this shared
+        # branch stays byte-identical for every other game that also
+        # reaches it. A villager whose Like slots are all full still can't
+        # gain the Running Like, but per the OFFICIAL Origins Upgrade
+        # Prompts spreadsheet's own documented edge case, any Running
+        # Dislike they have is still cleared for free -- counted in BOTH
+        # the granted-dislike-removal total AND the full-likes-skipped
+        # total, which is exactly what falling through into the existing
+        # running_remove_dislikes scan (instead of skipping straight to
+        # running_next) naturally produces: edi (full_like_skipped) was
+        # already incremented, and running_remove_dislikes's own eax
+        # accumulator increments independently whenever it actually finds
+        # and clears a dislike, with no double-count risk between them.
+        always_clear_dislike = bool(config.get("always_clear_running_dislike"))
+        full_like_target = (
+            "running_remove_dislikes" if always_clear_dislike else "running_next"
+        )
         running_source = f"""
             push ebp
             push ebx
@@ -439,6 +482,7 @@ def build_payload(config: dict) -> tuple[bytes, dict[str, int]]:
             xor edi, edi
             xor ebp, ebp
             xor eax, eax
+            {granted_push}
         running_loop:
             test ebx, ebx
             jz running_done
@@ -460,10 +504,11 @@ def build_payload(config: dict) -> tuple[bytes, dict[str, int]]:
             cmp ecx, {slot_count}
             je running_full_like
             mov dword ptr [esi+ecx*4+{_hex_word(config['likes'])}], {_hex_word(config['running_preference_id'])}
+            {granted_increment}
             jmp running_remove_dislikes
         running_full_like:
             inc edi
-            jmp running_next
+            jmp {full_like_target}
         running_existing:
             inc ebp
             jmp running_next
@@ -485,6 +530,7 @@ def build_payload(config: dict) -> tuple[bytes, dict[str, int]]:
             jmp running_loop
         running_done:
             mov ecx, eax
+            {granted_store}
             mov eax, edi
             mov edx, ebp
             pop edi
@@ -495,6 +541,20 @@ def build_payload(config: dict) -> tuple[bytes, dict[str, int]]:
         """
     put(running_va, running_source)
 
+    # report_mastery_counts is opt-in (VV1 only as of this writing). VV4
+    # reaches the exact same native_skill_writer/no-manager/no-per-record
+    # branch below with this flag unset, so it stays byte-identical.
+    # Like report_running_granted, there is no free register left at
+    # mastery_done/mastery_failure to carry two new counts back through
+    # (eax/ecx/edx are already zeroed there for every existing caller, and
+    # every callee-saved register is committed elsewhere), and unlike
+    # Running there is also an early-exit path (mastery_failure) that
+    # cannot be trusted to unwind extra stack pushes cleanly -- so these
+    # go straight to fixed scratch dwords instead of the stack, and the
+    # caller reads them back directly rather than through a register.
+    report_mastery = bool(config.get("report_mastery_counts"))
+    mastery_granted_va = entry_va + 0x38
+    mastery_already_va = entry_va + 0x3C
     mastery_record_setup = _record_setup(config)
     mastery_advance = ""
     mastery_changed_setup = ""
@@ -597,6 +657,37 @@ def build_payload(config: dict) -> tuple[bytes, dict[str, int]]:
             f"mov dword ptr [esi + {_hex_word(offset)}], {_hex_word(config['master_value'])}"
             for offset in config["skills"]
         )
+    if report_mastery:
+        # A villager already at master_value on every skill needs neither
+        # a write nor a postverify -- count it as already-mastered and
+        # skip straight to mastery_next, without disturbing edi's physical-
+        # index bookkeeping (mastery_advance still runs there as normal).
+        already_mastered_check = "\n".join(
+            f"cmp dword ptr [esi + {_hex_word(offset)}], {_hex_word(config.get('master_value', 100))}\n            jne mastery_needs_write"
+            for offset in config["skills"]
+        )
+        mastery_body = f"""
+            {already_mastered_check}
+            inc dword ptr [0x{mastery_already_va:X}]
+            jmp mastery_next
+        mastery_needs_write:
+            {skill_writes}
+            {mastery_postverify}
+            inc dword ptr [0x{mastery_granted_va:X}]
+        """
+    else:
+        mastery_body = f"""
+            {skill_writes}
+            {mastery_postverify}
+        """
+    mastery_scratch_init = (
+        f"""
+            mov dword ptr [0x{mastery_granted_va:X}], 0
+            mov dword ptr [0x{mastery_already_va:X}], 0
+        """
+        if report_mastery
+        else ""
+    )
     put(
         mastery_va,
         f"""
@@ -606,13 +697,13 @@ def build_payload(config: dict) -> tuple[bytes, dict[str, int]]:
             push edi
             mov ebx, edx
             {mastery_record_setup}
+            {mastery_scratch_init}
         mastery_loop:
             test ebx, ebx
             jz mastery_done
             {_eligibility(config, 'mastery_next')}
             {mastery_changed_setup}
-            {skill_writes}
-            {mastery_postverify}
+            {mastery_body}
             {mastery_per_record_completion}
         mastery_next:
             add esi, {_hex_word(config['stride'])}
@@ -633,6 +724,50 @@ def build_payload(config: dict) -> tuple[bytes, dict[str, int]]:
         """,
     )
 
+    # report_age_granted mirrors report_running_granted/report_mastery_counts:
+    # VV1-only opt-in, same fixed-scratch-dword approach (no register left at
+    # age_done's return point either -- every existing caller already relies
+    # on eax/edx/ecx being zeroed there).
+    report_age = bool(config.get("report_age_granted"))
+    age_granted_va = entry_va + 0x40
+    age_scratch_init = (
+        f"mov dword ptr [0x{age_granted_va:X}], 0" if report_age else ""
+    )
+    age_skip_check = (
+        f"""
+            cmp dword ptr [esi + {_hex_word(config['age'])}], 360
+            je age_next
+        """
+        if report_age
+        else ""
+    )
+    age_increment = (
+        f"inc dword ptr [0x{age_granted_va:X}]" if report_age else ""
+    )
+    # Writing only the raw age field (config['age']) is not enough to make
+    # a villager -- especially an elder, whose age can be well past 360 --
+    # actually settle at 18: the stock engine's own age-mutation routine
+    # (decompiled at 0x419543-0x4195be in the exact VV1 build) always
+    # keeps age+4 (a "last-synced age" bookkeeping field the engine reads
+    # back on the next per-frame update) equal to the current age right
+    # after changing it, and shifts age+0x10 (the pregnancy timer) to
+    # match, or the engine's own logic can recompute/override the age
+    # right back to something derived from the stale bookkeeping. This
+    # mirrors detail_age_18's own single-villager version exactly (down
+    # to the same 318 = 360 - 42 gestation-offset constant), which
+    # already gets this right and is the reason it doesn't have the same
+    # bug this village-wide row does.
+    age_sync = (
+        f"""
+            mov dword ptr [esi + {_hex_word(config['age'] + 4)}], 360
+            cmp dword ptr [esi + {_hex_word(config['age'] + 0x10)}], 0
+            je age_pregnancy_synced
+            mov dword ptr [esi + {_hex_word(config['age'] + 0x10)}], 318
+        age_pregnancy_synced:
+        """
+        if report_age
+        else ""
+    )
     put(
         age_va,
         f"""
@@ -643,11 +778,15 @@ def build_payload(config: dict) -> tuple[bytes, dict[str, int]]:
             mov ebp, ecx
             mov ebx, edx
             {_record_setup(config)}
+            {age_scratch_init}
         age_loop:
             test ebx, ebx
             jz age_done
             {_eligibility(config, 'age_next')}
+            {age_skip_check}
             mov dword ptr [esi + {_hex_word(config['age'])}], 360
+            {age_sync}
+            {age_increment}
         age_next:
             add esi, {_hex_word(config['stride'])}
             dec ebx
