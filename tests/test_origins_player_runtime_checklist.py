@@ -245,6 +245,11 @@ class OriginsPlayerRuntimeChecklistTests(unittest.TestCase):
                         "0x15B46", "0x15D8C", "0x16722", "0x16735",
                         "0x1520E", "0x89373", "0xCC180",
                         "0x278", "0x294",
+                        # Barrel of Babies now fires by calling the native
+                        # 3-child spawn (0x414D90) directly from the countdown
+                        # (0xCCB10); the 0x14D50 eligibility hook is retained but
+                        # inert (its purpose string was updated to say so).
+                        "0xCCB10", "0x14D50",
                     }
                     self.assertEqual(
                         [item for item in current["patches"] if item["offset"] not in corrected_offsets],

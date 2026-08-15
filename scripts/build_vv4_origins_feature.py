@@ -54,14 +54,26 @@ VILLAGE_PREFLIGHT_VA = 0x728180
 # well past the village-wide payload which ends near 0xCC740 / 0x728740.
 APPEARANCE_HELPER_FILE_OFFSET = 0xCC760
 APPEARANCE_HELPER_VA = 0x728760
-# Deferred Barrel of Babies. A purchased barrel is no longer fired synchronously
-# during menu-close: that ran the native event with the wrong context object, so
-# its multi-tick lifecycle never delivered the 3 children. Instead do_barrel arms
-# a countdown token in the free .shr tail; the game's own per-tick event loop
-# (0x44098C -> 0x4182B0) then presents the barrel in the correct world context,
-# exactly like a stock random barrel, so its native 3-child lifecycle completes.
+# Deferred Barrel of Babies. A purchased barrel is not fired synchronously during
+# menu-close (that ran the native event with the wrong context object, so its
+# multi-tick lifecycle never delivered the 3 children). Instead do_barrel sets a
+# countdown token in the free .shr tail; the game's own per-tick event loop
+# (0x44098C -> 0x4182B0) drains it, and when it reaches zero the countdown helper
+# ALWAYS calls the game's own barrel 3-child spawn (0x414D90) directly, in the
+# correct world context. That routine adds the children through the native
+# add-child path (0x467D10) and raises the native barrel notice, so a purchased
+# barrel reliably delivers its 3 children instead of depending on the random event
+# scheduler happening to pick the barrel up.
+#
+# BARREL_ARMED_VA and the 0x414D50 eligibility hook below predate the direct-spawn
+# path: they used to admit one natural barrel into the event loop. The direct call
+# to 0x414D90 supersedes that, so the countdown no longer sets BARREL_ARMED (it
+# stays 0 and the hook is an inert passthrough to the stock eligibility check). The
+# hook is retained rather than deleted so the certified Origins payload byte layout
+# -- and the hash-locked expanded-256 relocation ledger derived from it -- stay
+# stable; it contributes no behavior.
 BARREL_TOKEN_VA = 0x728B00            # dword countdown (ticks left before firing)
-BARREL_ARMED_VA = 0x728B04            # byte: barrel is eligible for this loop pass
+BARREL_ARMED_VA = 0x728B04            # byte: retained inert (see note above); always 0
 BARREL_COUNTDOWN_FILE_OFFSET = 0xCCB10
 BARREL_COUNTDOWN_VA = 0x728B10
 BARREL_WAIT_TICKS = 90                # ~90 gameplay ticks after the Purchased prompt
@@ -1134,25 +1146,29 @@ def main() -> None:
         f"""
             mov eax, dword ptr [0x{BARREL_TOKEN_VA:X}]
             test eax, eax
-            jz barrel_disarm
+            jz barrel_pass
             dec eax
             mov dword ptr [0x{BARREL_TOKEN_VA:X}], eax
-            jnz barrel_disarm
-            # Countdown reached zero. Only arm the barrel if the village can STILL
-            # accommodate 3 more right now -- births during the wait may have
-            # filled it. The stock barrel never fires when full, so its native
-            # add-children path assumes room; firing it forced into a full record
-            # array would write past the 150-slot array and corrupt the save.
+            jnz barrel_pass
+            # Countdown reached zero: fire the barrel now by calling the game's own
+            # barrel spawn (0x414D90) directly, so a purchased barrel ALWAYS runs
+            # the native 3-child spawn instead of hoping the random event loop
+            # picks it up. 0x414D90 adds the 3 children through the native add-child
+            # path (0x467D10, ecx = villager manager 0x50E568), re-checking room
+            # (0x468350) before each one exactly like a stock barrel, and raises the
+            # native barrel notice -- so it can never overflow the record array.
+            # Re-check capacity first (births during the ~90-tick wait may have
+            # filled the village); the stock spawn assumes it is only run with room.
             # ECX (event manager) must survive for the tail jmp to 0x4182B0.
             push ecx
             call 0x{BARREL_CAPACITY_VA:X}
-            pop ecx
             test eax, eax
-            jz barrel_disarm
-            mov byte ptr [0x{BARREL_ARMED_VA:X}], 1
-            jmp 0x4182B0
-        barrel_disarm:
-            mov byte ptr [0x{BARREL_ARMED_VA:X}], 0
+            jz barrel_fired
+            mov ecx, 0x50E568
+            call 0x414D90
+        barrel_fired:
+            pop ecx
+        barrel_pass:
             jmp 0x4182B0
         """,
         BARREL_COUNTDOWN_VA,
@@ -1361,9 +1377,9 @@ def main() -> None:
     patch(0x294, bytes.fromhex("400000D0"), bytes.fromhex("600000F0"),
           "mark the mapped VV4 .shr helper page executable while retaining its stock data permissions")
     patch(0x14D50, bytes.fromhex("B968E55000"), rel32_jump(0x414D50, barrel_eligibility),
-          "admit the Barrel of Babies event while the purchased-barrel countdown is armed")
+          "retained inert Barrel eligibility passthrough (BARREL_ARMED stays 0; the direct 0x414D90 spawn supersedes it)")
     patch(BARREL_COUNTDOWN_FILE_OFFSET, b"\0" * len(barrel_countdown), barrel_countdown,
-          "deferred Barrel countdown: drain the purchase token each tick and arm the barrel for one natural event-loop pass")
+          "deferred Barrel countdown: drain the purchase token each tick and, when it reaches zero, call the native barrel 3-child spawn (0x414D90) directly")
     patch(BARREL_CAPACITY_FILE_OFFSET, b"\0" * len(barrel_capacity), barrel_capacity,
           "mode-aware Barrel capacity gate: game population (0x467610) + 3 vs the mode-patched cap (per-tech bonus + base at 0x4683F1)")
     patch(COLLECTIONS_APPLY_FILE_OFFSET, b"\0" * len(collections_apply), collections_apply,

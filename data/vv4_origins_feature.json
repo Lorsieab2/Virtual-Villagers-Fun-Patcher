@@ -353,13 +353,13 @@
       "offset": "0x14D50",
       "before": "B968E55000",
       "after": "E99E470700",
-      "purpose": "admit the Barrel of Babies event while the purchased-barrel countdown is armed"
+      "purpose": "retained inert Barrel eligibility passthrough (BARREL_ARMED stays 0; the direct 0x414D90 spawn supersedes it)"
     },
     {
       "offset": "0xCCB10",
-      "before": "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
-      "after": "A1008B720085C0741F48A3008B7200751751E8D90000005985C0740CC605048B720001E978F7CEFFC605048B720000E96CF7CEFF",
-      "purpose": "deferred Barrel countdown: drain the purchase token each tick and arm the barrel for one natural event-loop pass"
+      "before": "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "after": "A1008B720085C0741D48A3008B7200751551E8D900000085C0740AB968E55000E85BC2CEFF59E975F7CEFF",
+      "purpose": "deferred Barrel countdown: drain the purchase token each tick and, when it reaches zero, call the native barrel 3-child spawn (0x414D90) directly"
     },
     {
       "offset": "0xCCC00",
