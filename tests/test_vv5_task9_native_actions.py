@@ -321,14 +321,14 @@ class Task9ArtifactTests(unittest.TestCase):
             self.assertIn(name, exports)
             self.assertIn(name.encode("ascii") + b"\0", DLL.read_bytes())
 
-    def test_dialog_resources_expose_exact_ten_plus_five_rows(self) -> None:
+    def test_dialog_resources_expose_exact_eleven_plus_five_rows(self) -> None:
         resources = RC.read_text(encoding="utf-8")
         tech, detail = resources.split("202 DIALOGEX", 1)
-        # Ten tech rows now: Time Warp, Island Event, Barrel of Babies, Tech
+        # Eleven tech rows now: Time Warp, Island Event, Barrel of Babies, Tech
         # Point Doubler, Food Point Doubler, Full Heal/Cure All, Complete all
         # Collections, Reset all Collections, Grant Running to All Villagers,
-        # Grant Full Mastery to All Villagers.
-        self.assertEqual(tech.count('PUSHBUTTON "Buy"'), 10)
+        # Grant Full Mastery to All Villagers, Set all Villagers to 18.
+        self.assertEqual(tech.count('PUSHBUTTON "Buy"'), 11)
         # Five villager rows: Youth, Mastery, Running, Age 18, Change Appearance.
         # The picker dialog 203 uses arrow/OK/Cancel, not "Buy".
         self.assertEqual(detail.count('PUSHBUTTON "Buy"'), 5)
@@ -337,6 +337,7 @@ class Task9ArtifactTests(unittest.TestCase):
         self.assertIn("Reset all Collections", tech)
         self.assertIn("Grant Running to All Villagers", tech)
         self.assertIn("Grant Full Mastery to All Villagers", tech)
+        self.assertIn("Set all Villagers to 18", tech)
         self.assertIn("Grant Running", detail)
         self.assertIn("Change Appearance", detail)
         # Both Upgrade menus advertise the ESC exit hint.

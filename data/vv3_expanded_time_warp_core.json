@@ -20,7 +20,7 @@
     },
     "task9_companion_c": {
       "path": "native/vv5_task9_origins/vv5_task9_origins.c",
-      "source_text_sha256": "547A57DF819FF3D01517BDBB2325C4A555C3CEDCAFC286CABDD2354203F59742"
+      "source_text_sha256": "D6D4EF83DF98C1D09599F6C2949640712F3CC14F7C49DE18BD529835601D929C"
     },
     "task9_companion_def": {
       "path": "native/vv5_task9_origins/vv5_task9_origins.def",

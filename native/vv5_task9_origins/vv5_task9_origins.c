@@ -8,7 +8,7 @@ enum {
     IDD_ORIGINS_TECH = 201,
     IDD_ORIGINS_VILLAGER = 202,
     ID_BUY_FIRST = 1000,
-    ID_BUY_LAST = 1009,
+    ID_BUY_LAST = 1010,
     ID_CHECK_FIRST = 1100,
     STATE_VILLAGER = 0x10000
 };
@@ -26,7 +26,8 @@ enum {
     ACTION_TECH_DOUBLER = 18,
     ACTION_FOOD_DOUBLER = 19,
     ACTION_GRANT_RUNNING_ALL = 20,
-    ACTION_GRANT_MASTERY_ALL = 21
+    ACTION_GRANT_MASTERY_ALL = 21,
+    ACTION_SET_AGE_18_ALL = 22
 };
 
 enum {
@@ -266,7 +267,7 @@ static INT_PTR CALLBACK upgrade_dialog(
 ) {
     if (message == WM_INITDIALOG) {
         int villager_menu = (lparam & STATE_VILLAGER) != 0;
-        int row_count = villager_menu ? 5 : 10;
+        int row_count = villager_menu ? 5 : 11;
         int row;
         for (row = 0; row < row_count; ++row) {
             ShowWindow(GetDlgItem(window, ID_CHECK_FIRST + row), SW_HIDE);
@@ -338,6 +339,7 @@ static const char *action_name(unsigned int action) {
     case ACTION_FOOD_DOUBLER: return "Food Point Doubler";
     case ACTION_GRANT_RUNNING_ALL: return "Grant Running to All Villagers";
     case ACTION_GRANT_MASTERY_ALL: return "Grant Full Mastery to All Villagers";
+    case ACTION_SET_AGE_18_ALL: return "Set all Villagers to 18";
     default: return "Origins upgrade";
     }
 }
@@ -373,6 +375,7 @@ __declspec(dllexport) int __stdcall ConfirmVV5Task9Action(
         case ACTION_RESET_COLLECTIONS: price = 1000000U; break;
         case ACTION_GRANT_RUNNING_ALL: price = 150000U; break;
         case ACTION_GRANT_MASTERY_ALL: price = 300000U; break;
+        case ACTION_SET_AGE_18_ALL: price = 200000U; break;
         case ACTION_TECH_DOUBLER:
         case ACTION_FOOD_DOUBLER: price = 500000U; break;
         default: price = 50000U; break;
@@ -432,6 +435,8 @@ __declspec(dllexport) int __stdcall ShowVV5Task9Result(
                 "%u villagers are already Fully Mastered. Skipped over.",
                 amount_a, amount_b
             );
+        } else if (action == ACTION_SET_AGE_18_ALL) {
+            wsprintfA(message, "Set %u villagers to 18 years old.", amount_a);
         } else {
             wsprintfA(message, "%s completed.", name);
         }
@@ -449,6 +454,8 @@ __declspec(dllexport) int __stdcall ShowVV5Task9Result(
             lstrcpyA(message, "All collections were already complete.\r\n\r\nNo tech points have been deducted.");
         } else if (action == ACTION_RESET_COLLECTIONS) {
             lstrcpyA(message, "There are no collections to reset.\r\n\r\nNo tech points have been deducted.");
+        } else if (action == ACTION_SET_AGE_18_ALL) {
+            lstrcpyA(message, "Every eligible villager is already 18 years old.\r\n\r\nNo tech points have been deducted.");
         } else if (action == ACTION_APPEARANCE) {
             lstrcpyA(message, "The appearance was left unchanged.\r\n\r\nNo tech points have been deducted.");
         } else {

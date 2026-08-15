@@ -144,6 +144,7 @@ OFF = {
     "reset_collections": 0x4900,
     "running_all": 0x4C00,
     "mastery_all": 0x5200,
+    "age18_all": 0x5800,
     "strings": 0x7000,
 }
 
@@ -173,6 +174,7 @@ SIZES = {
     "reset_collections": 0x300,
     "running_all": 0x600,
     "mastery_all": 0x600,
+    "age18_all": 0x600,
 }
 
 
@@ -608,7 +610,7 @@ def build_menus(page: bytearray, page_va: int) -> dict[str, bytes]:
     menu_state = 0x000 if native_stock else 0x700
     # Command upper bound: 0..7 in stock (adds the two Collections rows), 0..5 in
     # expanded (original), so the expanded router bytes stay identical.
-    command_bound = 9 if native_stock else 5
+    command_bound = 10 if native_stock else 5
     collections_guard = (
         "cmp ebx, 6\n        jae unavailable\n        " if native_stock else ""
     )
@@ -635,7 +637,8 @@ def build_menus(page: bytearray, page_va: int) -> dict[str, bytes]:
         "        cmp ebx, 6\n        je complete_collections_row\n"
         "        cmp ebx, 7\n        je reset_collections_row\n"
         "        cmp ebx, 8\n        je running_all_row\n"
-        "        cmp ebx, 9\n        je mastery_all_row\n        "
+        "        cmp ebx, 9\n        je mastery_all_row\n"
+        "        cmp ebx, 10\n        je age18_all_row\n        "
         if native_stock
         else ""
     )
@@ -653,6 +656,8 @@ def build_menus(page: bytearray, page_va: int) -> dict[str, bytes]:
         f"    running_all_row:\n        call 0x{page_va + OFF['running_all']:X}\n"
         "        jmp done\n        nop\n        nop\n        nop\n"
         f"    mastery_all_row:\n        call 0x{page_va + OFF['mastery_all']:X}\n"
+        "        jmp done\n        nop\n        nop\n        nop\n"
+        f"    age18_all_row:\n        call 0x{page_va + OFF['age18_all']:X}\n"
         "        jmp done\n        nop\n        nop\n        nop\n    "
         if native_stock
         else ""
@@ -2785,6 +2790,107 @@ def build_mastery_all(page: bytearray, page_va: int) -> bytes:
     """)
 
 
+def build_age18_all(page: bytearray, page_va: int) -> bytes:
+    """Set all Villagers to 18 (village-wide, 200,000 tech points). Walks all 150
+    villager records, acts only on eligible living Believers (never masked
+    Heathens), and sets each villager's age to exactly 360 units (18 years)
+    regardless of the current value: it applies the signed delta (360 - age)
+    through the native age writer 0x46F7F0, mirroring the per-villager Set Age to
+    18 -- the age at +0x1B8C is moved by the delta, the +0x1C3C companion field
+    is shifted by the same delta, and +0x1C4C is shifted only when it is nonzero.
+    Villagers already at exactly 360 are left untouched. Charges one verified
+    200,000 deduction after the shared confirm; if no villager needed changing it
+    deducts nothing."""
+    return put(page, page_va, "age18_all", f"""
+        push ebp
+        mov ebp, esp
+        push ebx
+        push esi
+        push edi
+        sub esp, 0x30
+        mov dword ptr [ebp-0x10], 0
+        mov eax, dword ptr [0x51D5F8]
+        mov dword ptr [ebp-0x18], eax
+        cmp eax, 200000
+        jb insufficient
+        push 0
+        push 0
+        push 22
+        call 0x{page_va + OFF['confirm']:X}
+        cmp eax, 1
+        jne cancelled
+        mov eax, dword ptr [0x51D5F8]
+        cmp eax, dword ptr [ebp-0x18]
+        jne recheck
+        cmp eax, 200000
+        jb insufficient
+        mov esi, 0x554190
+        mov ebx, {BOUND}
+    age_loop:
+        cmp byte ptr [esi+0x1CD4], 0
+        je age_next
+        cmp byte ptr [esi+0x1CE1], 0
+        jne age_next
+        cmp byte ptr [esi+0x1CEC], 0
+        jne age_next
+        cmp dword ptr [esi+0x1C40], 0
+        jle age_next
+        mov eax, 360
+        sub eax, dword ptr [esi+0x1B8C]
+        jz age_next
+        mov dword ptr [ebp-0x1C], eax
+        push eax
+        lea ecx, [esi+0x1B8C]
+        call 0x46F7F0
+        mov edi, dword ptr [ebp-0x1C]
+        add dword ptr [esi+0x1C3C], edi
+        cmp dword ptr [esi+0x1C4C], 0
+        je age_counted
+        add dword ptr [esi+0x1C4C], edi
+    age_counted:
+        inc dword ptr [ebp-0x10]
+    age_next:
+        add esi, {STRIDE}
+        dec ebx
+        jnz age_loop
+        cmp dword ptr [ebp-0x10], 0
+        je no_change
+        mov eax, dword ptr [0x51D5F8]
+        cmp eax, dword ptr [ebp-0x18]
+        jne charge_unknown
+        push -200000
+        mov ecx, 0x51D5F8
+        call 0x4237B0
+        mov eax, dword ptr [ebp-0x18]
+        sub eax, 200000
+        cmp dword ptr [0x51D5F8], eax
+        jne charge_unknown
+        {status_call(page_va, '22', 0, 'dword ptr [ebp-0x10]')}
+        jmp done
+    no_change:
+        {status_call(page_va, '22', 1)}
+        jmp done
+    insufficient:
+        {status_call(page_va, '22', 3)}
+        jmp done
+    cancelled:
+        {status_call(page_va, '22', 4)}
+        jmp done
+    recheck:
+        {status_call(page_va, '22', 5)}
+        jmp done
+    charge_unknown:
+        {status_call(page_va, '22', 7)}
+    done:
+        add esp, 0x30
+        pop edi
+        pop esi
+        pop ebx
+        pop ebp
+        ret
+    """)
+
+
 def build_page(page_va: int) -> tuple[bytes, dict[str, object]]:
     page = bytearray(PAGE_SIZE)
     page[0:8] = b"VVT9PG\0\0"
@@ -2813,6 +2919,7 @@ def build_page(page_va: int) -> tuple[bytes, dict[str, object]]:
         routines["reset_collections"] = build_reset_collections(page, page_va)
         routines["running_all"] = build_running_all(page, page_va)
         routines["mastery_all"] = build_mastery_all(page, page_va)
+        routines["age18_all"] = build_age18_all(page, page_va)
     result = {
         "page_sha256": sha(bytes(page)),
         "routine_sha256": {name: sha(value) for name, value in routines.items()},
