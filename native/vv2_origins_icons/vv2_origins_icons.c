@@ -206,6 +206,20 @@ static int vv2_record_eligible(const unsigned char *record) {
     return 1;
 }
 
+/* Clear Running from a villager's Dislike slots; returns 1 if any were cleared.
+   Only called once Running is (or has become) a Like, so a villager we can't
+   help is never mutated. */
+static int vv2_remove_running_dislikes(int *dislikes) {
+    int j, removed = 0;
+    for (j = 0; j < VV2_PREF_SLOTS; ++j) {
+        if (dislikes[j] == VV2_RUNNING_PREF) {
+            dislikes[j] = -1;
+            removed = 1;
+        }
+    }
+    return removed;
+}
+
 __declspec(dllexport) int __stdcall ApplyVV2RunningToAll(unsigned char *base) {
     int already_like = 0, full_likes = 0, granted = 0, removed_dislike = 0;
     int i, j;
@@ -220,18 +234,6 @@ __declspec(dllexport) int __stdcall ApplyVV2RunningToAll(unsigned char *base) {
             continue;
         }
         dislikes = (int *)(record + VV2_DISLIKES_OFFSET);
-        {
-            int removed_here = 0;
-            for (j = 0; j < VV2_PREF_SLOTS; ++j) {
-                if (dislikes[j] == VV2_RUNNING_PREF) {
-                    dislikes[j] = -1;
-                    removed_here = 1;
-                }
-            }
-            if (removed_here) {
-                ++removed_dislike;
-            }
-        }
         likes = (int *)(record + VV2_LIKES_OFFSET);
         for (j = 0; j < VV2_PREF_SLOTS; ++j) {
             int value = likes[j];
@@ -248,10 +250,19 @@ __declspec(dllexport) int __stdcall ApplyVV2RunningToAll(unsigned char *base) {
         if (has_running) {
             ++already_like;
         } else if (occupied >= VV2_LIKE_CAP || free_slot < 0) {
+            /* No room for the Like: leave the villager -- including any Running
+               dislike -- untouched, so we never mutate someone we then report
+               as skipped. */
             ++full_likes;
+            continue;
         } else {
             likes[free_slot] = VV2_RUNNING_PREF;
             ++granted;
+        }
+        /* Reached only when Running is now, or was already, a Like: clear any
+           contradictory Running dislike. */
+        if (vv2_remove_running_dislikes(dislikes)) {
+            ++removed_dislike;
         }
     }
     if (granted == 0 && removed_dislike == 0) {
