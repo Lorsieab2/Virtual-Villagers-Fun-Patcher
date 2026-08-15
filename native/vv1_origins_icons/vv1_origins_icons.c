@@ -743,6 +743,41 @@ __declspec(dllexport) int __stdcall ShowOriginsVillageWideResult(
     return 0;
 }
 
+/* All Villagers are 18: granted/already come from two fixed .shr scratch
+   dwords age_va (in the shared village-wide script, report_age_granted
+   opt-in) zeroes at its own start and increments as it goes
+   (AGE_GRANTED_VA/AGE_ALREADY_VA) -- same shape as
+   ShowOriginsMasteryResult's own granted/already-satisfied pairing.
+   Restored per the OFFICIAL Origins Upgrade Prompts spreadsheet, which
+   asks for a counted result here after all (an earlier pass had briefly
+   simplified this row to a plain "completed." line to match what the
+   spreadsheet said at the time). */
+__declspec(dllexport) int __stdcall ShowOriginsAgeResult(
+    int granted,
+    int already
+) {
+    char message[192];
+    char line[128];
+    wsprintfA(
+        message,
+        "Set %d %s to Age 18.",
+        granted, vv1_vpl(granted)
+    );
+    wsprintfA(
+        line,
+        "\r\n\r\nSkipped %d %s: already 18.",
+        already, vv1_vpl(already)
+    );
+    lstrcatA(message, line);
+    MessageBoxA(
+        GetForegroundWindow(),
+        message,
+        "Origins Upgrades",
+        MB_OK | MB_ICONINFORMATION | MB_TOPMOST | MB_SETFOREGROUND
+    );
+    return 0;
+}
+
 /* Grant Full Mastery to All Villagers: granted/already_mastered come from
    two fixed .shr scratch dwords mastery_va zeroes at its own start and
    increments as it goes (MASTERY_GRANTED_VA/MASTERY_ALREADY_VA) -- unlike

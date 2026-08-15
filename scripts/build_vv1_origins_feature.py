@@ -56,6 +56,7 @@ RUNNING_GRANTED_VA = VILLAGE_WIDE_ENTRY_VA + 0x30
 MASTERY_GRANTED_VA = VILLAGE_WIDE_ENTRY_VA + 0x38
 MASTERY_ALREADY_VA = VILLAGE_WIDE_ENTRY_VA + 0x3C
 AGE_GRANTED_VA = VILLAGE_WIDE_ENTRY_VA + 0x40
+AGE_ALREADY_VA = VILLAGE_WIDE_ENTRY_VA + 0x44
 VILLAGE_PREFLIGHT_FILE_OFFSET = 0x8B009
 VILLAGE_PREFLIGHT_VA = IMAGE_BASE + SHR_RVA + (
     VILLAGE_PREFLIGHT_FILE_OFFSET - SHR_FILE_OFFSET
@@ -253,6 +254,7 @@ def main() -> None:
     add_c_string(strings, s, "show_result_export", "ShowOriginsVillageWideResult")
     add_c_string(strings, s, "show_mastery_result_export", "ShowOriginsMasteryResult")
     add_c_string(strings, s, "show_row_message_export", "ShowOriginsRowMessage")
+    add_c_string(strings, s, "show_age_result_export", "ShowOriginsAgeResult")
     add_c_string(strings, s, "show_appearance_picker", "ShowOriginsAppearancePicker")
     add_c_string(strings, s, "show_cure_result", "ShowOriginsCureResult")
     add_c_string(strings, s, "confirm_export", "ShowOriginsPermanentChangeConfirm")
@@ -1049,20 +1051,26 @@ def main() -> None:
             test eax, eax
             jz village_no_change
             # Same state-pointer reload as the Running branch above --
-            # the OFFICIAL spreadsheet gives this row a plain "completed."
-            # line with no count, so unlike Running/Mastery its success
-            # path no longer needs to resolve or call a dedicated export
-            # (the old ShowOriginsAgeResult) -- it goes through the same
-            # generic ROW_MESSAGE_HELPER_VA every other plain-completion
-            # row already uses. ebx is still 8 here (Set All Villagers to
-            # 18's own row number), matching that row's dispatch above.
+            # AGE_GRANTED_VA is re-read from memory below rather than
+            # reused from eax, so clobbering it here is safe. Same
+            # granted/already-satisfied shape as Mastery just above,
+            # restored per the OFFICIAL spreadsheet (an earlier pass had
+            # simplified this to a plain "completed." line to match what
+            # the spreadsheet said at the time; it has since been updated
+            # back to a counted result).
             pop eax
             push eax
             sub dword ptr [eax + 0xA2FC], 1000000
-            push 0
-            push ebx
-            push 0
-            call 0x{ROW_MESSAGE_HELPER_VA:X}
+            push 0x{s['show_age_result_export']:X}
+            push edx
+            call dword ptr [0x4570D4]
+            test eax, eax
+            je village_result_done
+            mov ecx, dword ptr [0x{AGE_ALREADY_VA:X}]
+            push ecx
+            mov ecx, dword ptr [0x{AGE_GRANTED_VA:X}]
+            push ecx
+            call eax
             jmp village_result_done
 
         village_no_change:

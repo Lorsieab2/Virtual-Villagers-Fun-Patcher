@@ -730,13 +730,28 @@ def build_payload(config: dict) -> tuple[bytes, dict[str, int]]:
     # on eax/edx/ecx being zeroed there).
     report_age = bool(config.get("report_age_granted"))
     age_granted_va = entry_va + 0x40
+    # age_already_va sits in the same confirmed-unused gap as age_granted_va
+    # (running_va begins at entry_va+0x50, and only +0x40 was previously
+    # claimed) -- mirrors mastery_granted_va/mastery_already_va's own
+    # granted/already-satisfied pairing, restored so the Tech screen's Set
+    # All Villagers to 18 result can report a skipped count again, per the
+    # OFFICIAL Origins Upgrade Prompts spreadsheet.
+    age_already_va = entry_va + 0x44
     age_scratch_init = (
-        f"mov dword ptr [0x{age_granted_va:X}], 0" if report_age else ""
+        f"""
+            mov dword ptr [0x{age_granted_va:X}], 0
+            mov dword ptr [0x{age_already_va:X}], 0
+        """
+        if report_age
+        else ""
     )
     age_skip_check = (
         f"""
             cmp dword ptr [esi + {_hex_word(config['age'])}], 360
-            je age_next
+            jne age_needs_write
+            inc dword ptr [0x{age_already_va:X}]
+            jmp age_next
+        age_needs_write:
         """
         if report_age
         else ""
