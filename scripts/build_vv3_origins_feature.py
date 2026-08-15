@@ -660,10 +660,36 @@ def main() -> None:
             jmp show_result
 
         do_complete_collections:
+            # No-change guard: if every collectible id 52..99 is already found
+            # (non-zero in the native count array at 0x58F438 + id*4), refuse
+            # without charging and show result code 8.  Otherwise complete.
+            mov ecx, 52
+        cc_already_loop:
+            cmp dword ptr [ecx*4 + 0x58F438], 0
+            je do_complete_collections_go
+            inc ecx
+            cmp ecx, 100
+            jl cc_already_loop
+            mov eax, 8
+            jmp show_result
+        do_complete_collections_go:
             call 0x{COLLECTIONS_COMPLETE_VA:X}
             jmp menu_done
 
         do_reset_collections:
+            # No-change guard: if every collectible id 52..99 is already cleared
+            # (zero), refuse without charging and show result code 9.  Otherwise
+            # reset.
+            mov ecx, 52
+        rc_already_loop:
+            cmp dword ptr [ecx*4 + 0x58F438], 0
+            jne do_reset_collections_go
+            inc ecx
+            cmp ecx, 100
+            jl rc_already_loop
+            mov eax, 9
+            jmp show_result
+        do_reset_collections_go:
             call 0x{COLLECTIONS_RESET_VA:X}
             jmp menu_done
 

@@ -268,6 +268,14 @@ class VV3OriginsFeatureTests(unittest.TestCase):
             '"Tech Point Doubler was removed. No refund was issued."', dll
         )
         self.assertIn("ShowOriginsUpgradeResult", dll)
+        # Collections no-change guards route to result codes 8/9.
+        self.assertIn("All collectibles are already found.", dll)
+        self.assertIn("The collections are already cleared.", dll)
+        complete = source.split("        do_complete_collections:", 1)[1].split(
+            "        do_reset_collections:", 1
+        )[0]
+        self.assertIn("0x58F438", complete)  # scans the collectible array
+        self.assertIn("mov eax, 8", complete)  # all found -> no-change
         # The hook cave (spliced into the island-event handler) calls the present
         # routine once in-frame instead of the raw outcome, so the named popup
         # shows.
@@ -338,7 +346,7 @@ class VV3OriginsFeatureTests(unittest.TestCase):
         )
         self.assertEqual(
             hashlib.sha256(payload).hexdigest().upper(),
-            "13E32DBD6575C40D5617080234966B6D3B7F60C611F0B7B319DE548EF30839A7",
+            "A00734AE4E99D36D0B5B4CD8DA1A2D52B4A028E1F27686D99AE6D54029346B0D",
         )
         self.assertEqual(
             bytes.fromhex(

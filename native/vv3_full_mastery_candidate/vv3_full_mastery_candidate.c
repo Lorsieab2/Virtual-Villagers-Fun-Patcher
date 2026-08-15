@@ -439,6 +439,14 @@ __declspec(dllexport) int __stdcall ShowOriginsUpgradeResult(int code) {
     case 7:
         message = "Barrel of Babies completed.";
         break;
+    case 8:
+        message = "All collectibles are already found. "
+                  "No tech points have been deducted.";
+        break;
+    case 9:
+        message = "The collections are already cleared. "
+                  "No tech points have been deducted.";
+        break;
     default:
         return 0;
     }
