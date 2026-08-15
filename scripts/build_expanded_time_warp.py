@@ -464,7 +464,7 @@ def build_vv5_overlay() -> tuple[list[dict[str, object]], dict[str, object]]:
     if sha(base_page) != "AEFBB28086F83442271C7BE78E297ED04B9DE9C68665CC49CE9A7296496EE86C":
         raise RuntimeError("Task9 Expanded baseline page drift")
     stock_page, stock_map = task9.build_page(0x7C9000)
-    if sha(stock_page) != "FE07EE19A3FC94D14E0C3A57C49873629E1C7F79671FE289EE979D6E3E9774EB":
+    if sha(stock_page) != "489E9AA9F4444B55171B5715FF1C5E4BB2B3FD2D96642964C3AE74437F21F175":
         raise RuntimeError("Task9 stock page drift")
 
     strings_start = task9.OFF["strings"]
