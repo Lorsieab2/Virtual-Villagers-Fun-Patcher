@@ -242,7 +242,7 @@ static void appearance_draw_cell(const DRAWITEMSTRUCT *dis, int is_head, int val
 static const char *const g_tech_names[11] = {
     "Time Warp", "Island Event", "Barrel of Babies",
     "Tech Point Doubler", "Food Point Doubler", "Full Heal / Cure All",
-    "", "", "", "Complete all Collections", "Reset all Collections"
+    "", "", "", "Complete All Collections", "Reset All Collections"
 };
 static const char *const g_tech_costs[11] = {
     "50,000", "30,000", "75,000", "500,000", "500,000", "30,000", "", "", "",
