@@ -8,7 +8,7 @@
   "source_bindings": {
     "builder": {
       "path": "scripts/build_vv3_expanded_time_warp.py",
-      "source_text_sha256": "847A1978E5BC4AA5722AB6EDAD9757C5EABAAA06F412149AD113FEA04AF82AFB"
+      "source_text_sha256": "746B3A0262B1E1E6494937AFF3543261DF01124723549A0F43650A62D5F67F5F"
     },
     "static_candidate": {
       "path": "data/candidates/vv3_full256_serializer_candidate.json",
@@ -28,7 +28,7 @@
     },
     "task9_companion_rc": {
       "path": "native/vv5_task9_origins/vv5_task9_origins.rc",
-      "source_text_sha256": "B85B703226551128AF80473C856A39BE1C87064DBCBF61DC7970D6D9FED2D56B"
+      "source_text_sha256": "C7A9D4F725861E734F47E8E2568B953575CA1EF591B0CDECD1CE6BA8B3B0AEA8"
     }
   },
   "page": {

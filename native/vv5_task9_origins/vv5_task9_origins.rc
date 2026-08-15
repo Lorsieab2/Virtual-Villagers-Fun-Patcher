@@ -85,13 +85,13 @@ BEGIN
     LTEXT "1,000,000 tech points", -1, 40, 227, 150, 9
     PUSHBUTTON "Buy", 1008, 240, 216, 55, 16
 
-    ICON 109, -1, 8, 240, 24, 24
+    ICON 104, -1, 8, 240, 24, 24
     ICON 109, 1109, 22, 248, 12, 12
     LTEXT "Complete All Collections", -1, 40, 241, 195, 10
     LTEXT "1,000,000 tech points", -1, 40, 253, 150, 9
     PUSHBUTTON "Buy", 1009, 240, 242, 55, 16
 
-    ICON 109, -1, 8, 266, 24, 24
+    ICON 105, -1, 8, 266, 24, 24
     ICON 109, 1110, 22, 274, 12, 12
     LTEXT "Reset All Collections", -1, 40, 267, 195, 10
     LTEXT "1,000,000 tech points", -1, 40, 279, 150, 9

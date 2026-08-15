@@ -41,8 +41,8 @@ ATOMIC_SOURCE_TEXT_SHA256 = {
 }
 
 STOCK_SHA256 = "92946781980220E9D1A2E6C573925519934608F5215F4A0F8CE3B90088C5C65D"
-ACTIVE_SHA256 = "F218CEC63A60BCC863ECE2028D5267444948CE9F7CC0BA43F520E57D4B0219B3"
-ACTIVE_SOURCE_TEXT_SHA256 = "BEE09E5319A394213AF605CEB60F06ED2CAD1E54397C073176AA52E991013ADD"
+ACTIVE_SHA256 = "98DF5E199449F8818C06ACA56131215E509C0236895AC63DF21C9194CC814A57"
+ACTIVE_SOURCE_TEXT_SHA256 = "E08F9284B21B4855CCF94663C7C7054898DBFE73BB14DC06311B498A3B6779B3"
 C342_COUNT = 66
 C342_ROWS_SHA256 = "7A95D8CCC6477777E9A3AA4C3EFEB30D8AF0D50434C910C1ADE9A645C7DBDDCA"
 TASK8_SOURCE_TEXT_SHA256 = "090ED9CA074F02F9321B2F8E0C470FD0AF18B235231DA94B6D38293360BC9510"
@@ -145,6 +145,7 @@ OFF = {
     "running_all": 0x4C00,
     "mastery_all": 0x5200,
     "age18_all": 0x5800,
+    "barrel_close_arm": 0x5E00,
     "strings": 0x7000,
 }
 
@@ -175,6 +176,7 @@ SIZES = {
     "running_all": 0x600,
     "mastery_all": 0x600,
     "age18_all": 0x600,
+    "barrel_close_arm": 0x80,
 }
 
 
@@ -2060,13 +2062,18 @@ def build_island(page: bytearray, page_va: int, s: dict[str, int]) -> bytes:
 
 
 def build_barrel(page: bytearray, page_va: int, s: dict[str, int]) -> bytes:
-    """Barrel of Babies: for one verified 75,000 tech-point charge, set the
-    one-shot forced-Barrel marker (bit 2 = value 4 at 0x51D388) and make the
-    next-event timer due, so the origins-base selector detour at 0x41890F
-    (preserved in this payload) replaces the next chosen event index with 30
-    (Barrel) and clears the marker. Demand vs the mode-adjusted bound (0x4944C0
-    / [0x41F1E6]-3) guards room for three children. Self-contained MessageBoxA;
-    matches the origins-base barrel logic (build_vv5_origins_feature.py)."""
+    """Barrel of Babies (VV2 general approach): for one verified 75,000
+    tech-point charge, set only the one-shot pending token (bit 3 = value 8 at
+    0x51D388). The event scheduler is deliberately not armed while the Upgrades
+    menu is open. The origins-base Tech-screen handler routes stock command 0
+    (Technologies screen close) to barrel_close_arm, which consumes the token,
+    sets the forced-Barrel marker (bit 2 = value 4), and makes the next village
+    event due, so the native index-25 Barrel event (its three-child spawn) is
+    presented by the main-village owner only after the screen closes -- never
+    under the menu. The origins-base selector detour at 0x41890F (preserved in
+    this payload) forces the chosen index to 25 and clears the marker. Demand vs
+    the mode-adjusted bound (0x4944C0 / [0x41F1E6]-3) guards room for three
+    children. Self-contained MessageBoxA; the Island Event upgrade is untouched."""
     return put(page, page_va, "barrel", f"""
         push ebp
         mov ebp, esp
@@ -2136,12 +2143,8 @@ def build_barrel(page: bytearray, page_va: int, s: dict[str, int]) -> bytes:
         sub eax, 75000
         cmp dword ptr [0x51D5F8], eax
         jne charge_unknown
-        or dword ptr [0x51D388], 4
-        call 0x4036E0
-        mov edi, dword ptr [ebp-0x18]
-        add eax, 0x384
-        mov dword ptr [edi+0x17D3C], eax
-        test dword ptr [0x51D388], 4
+        or dword ptr [0x51D388], 8
+        test dword ptr [0x51D388], 8
         jz queue_unknown
         mov eax, 0x{s['bb_success']:X}
         mov edx, 0x40
@@ -2281,6 +2284,37 @@ def build_appearance(page: bytearray, page_va: int, s: dict[str, int]) -> bytes:
         pop ebx
         pop ebp
         ret
+    """)
+
+
+def build_barrel_close_arm(page: bytearray, page_va: int) -> bytes:
+    """Barrel of Babies deferral (VV2 general approach). Installed only in stock
+    layouts as a five-byte detour over the tech-screen close handler's
+    `mov ecx, 0x51F440` at 0x441617 (stock command 0 = Technologies screen
+    close). When the Barrel purchase token (bit 3 = value 8 at 0x51D388) is set,
+    this consumes it, arms the forced-Barrel selector marker (bit 2 = value 4),
+    and makes the next village event due ([manager+0x17D3C]=0 via 0x425950), so
+    the native index-25 Barrel event (its three-child spawn) is presented by the
+    main-village owner only after the screen closes -- never under the Upgrades
+    menu. All registers are preserved (pushad/popad); the routine then replays
+    the exact overwritten instruction and returns to 0x44161C. With no token
+    pending it is a register-clean passthrough, so ordinary tech-screen closes
+    are byte-for-byte native. The origins-base selector detour at 0x41890F then
+    forces the chosen event index to 25 and clears the marker."""
+    return put(page, page_va, "barrel_close_arm", """
+        pushad
+        test dword ptr [0x51D388], 8
+        jz arm_done
+        and dword ptr [0x51D388], 0xFFFFFFF7
+        or dword ptr [0x51D388], 4
+        call 0x425950
+        test eax, eax
+        jz arm_done
+        mov dword ptr [eax+0x17D3C], 0
+    arm_done:
+        popad
+        mov ecx, 0x51F440
+        jmp 0x44161C
     """)
 
 
@@ -2871,6 +2905,7 @@ def build_page(page_va: int) -> tuple[bytes, dict[str, object]]:
         routines["running_all"] = build_running_all(page, page_va)
         routines["mastery_all"] = build_mastery_all(page, page_va)
         routines["age18_all"] = build_age18_all(page, page_va)
+        routines["barrel_close_arm"] = build_barrel_close_arm(page, page_va)
     result = {
         "page_sha256": sha(bytes(page)),
         "routine_sha256": {name: sha(value) for name, value in routines.items()},
@@ -3050,7 +3085,7 @@ def main() -> None:
                 "age18": {"price": 50000, "target": 360, "writer": "0x46F7F0 ECX=record+0x1B8C signed delta", "companions": ["+0x1C3C same delta", "+0x1C4C same delta only when nonzero"]},
                 "full_mastery": {"price": 100000, "fields": ["0x1C5C", "0x1C60", "0x1C64", "0x1C68", "0x1C6C", "0x1C70"], "writer": "0x475730 ECX=record+0x1C5C push Float32 delta then push index", "target_bits": "0x42C80000"},
                 "running": {"price": 40000, "preference_id": 38, "likes": ["0x1F5C", "0x1F60", "0x1F64"], "dislikes": ["0x1F68", "0x1F6C", "0x1F70"], "native": {"membership": "0x464F90", "insertion": "0x464AD0", "first_removal": "0x4649E0"}},
-                "barrel_of_babies": {"price": 75000, "scope": "village event scheduler (queues the native Barrel event, index 30)", "room_check": "call 0x4944C0 demand vs [0x41F1E6]-3 (mode-adjusted 150/256 bound) guards space for three children", "mechanism": "charge -75000 via 0x4237B0, set one-shot forced-Barrel marker (or [0x51D388],4), set next-event timer [manager+0x17D3C]=0; the origins-base selector detour at 0x41890F (preserved in this payload) forces the next chosen index to 30 and clears the marker", "children": 3, "dialog": "self-contained MessageBoxA (no companion DLL change)"},
+                "barrel_of_babies": {"price": 75000, "scope": "village event scheduler (presents the native Barrel event, index 25, after the Tech screen closes)", "room_check": "call 0x4944C0 demand vs [0x41F1E6]-3 (mode-adjusted 150/256 bound) guards space for three children", "mechanism": "VV2 general approach: charge -75000 via 0x4237B0, set one-shot pending token (or [0x51D388],8) only; the origins-base Tech handler routes stock command 0 (screen close) to barrel_close_arm, which consumes the token, sets the forced-Barrel marker (or [0x51D388],4), and makes the next event due ([manager+0x17D3C]=0); the selector detour at 0x41890F forces the next chosen index to 25 and clears the marker so the native three-child Barrel presents with the main-village owner after the menu closes", "children": 3, "dialog": "self-contained MessageBoxA (no companion DLL change)"},
                 "island_event": {"price": 30000, "scope": "village next-event scheduler (not a per-record write)", "mechanism": "resolve manager 0x425950, verify snapshot, charge -30000 via 0x4237B0, set next-event timer [manager+0x17D3C]=0 so the native scheduler (0x442850 -> sub_418870) runs a random eligible island event", "dialog": "self-contained MessageBoxA (no companion DLL change)"},
                 "time_warp": {"price": 50000, "scope": "village clock (not a per-record write; faction-blind like normal time passing)", "speed": "[manager+0x17D7C] signed positive and not 999 (paused)", "delta": "129600 / speed subtracted from the 64-bit village clock 0x4C6250/0x4C6254", "effect": "advances exactly three displayed villager years regardless of listed game speed", "writer": "inline: verify snapshot, charge -50000 via 0x4237B0, div 129600 by speed, sub/sbb into clock, postverify", "dialog": "self-contained MessageBoxA (no companion DLL change)"},
                 "full_heal": {"price": 30000, "health_rule": "every eligible Believer with health < 100 is raised to exactly 100; health already at 100 is unchanged and uncounted", "health_writer": "0x4758B0 ECX=record+0x1C34 push -1 then push 100", "sickness": "+0x1C48 byte", "masked_heathen_policy": "skip before sickness/type reads; includes the sick Heathen puzzle record", "unsupported_type": "+0x1CFC == 12 when sick on an otherwise eligible Believer", "people_cured": "0x51D368", "statistic_writer": "0x413450 ECX=0x4DB358 IDs 52/53/54 amount 1"},
@@ -3117,6 +3152,25 @@ def main() -> None:
         })
     for mode in ("experimental_expanded_256", "experimental_expanded_256_progression"):
         result["patch_mode_overrides"].setdefault(mode, []).extend(deepcopy(expanded_overrides))
+    # Barrel of Babies deferral (VV2 general approach): a stock-only five-byte
+    # detour over the Technologies screen close handler (command 0) at 0x441617,
+    # routing to the stock Task9 page's barrel_close_arm routine. The Barrel row,
+    # its purchase token, and this routine all live only in the stock layouts, so
+    # the hook is added only to the stock modes; the Expanded-256 baseline page
+    # stays byte-identical for the separate vv5_expanded_256_time_warp overlay.
+    barrel_close_site = 0x441617
+    barrel_close_preimage = "B940F45100"
+    if stock[barrel_close_site - 0x400000 : barrel_close_site - 0x400000 + 5].hex().upper() != barrel_close_preimage:
+        raise RuntimeError("Barrel close-handler preimage drift at 0x441617")
+    for mode in ("collection_progression", "immediate_fixed"):
+        page_va = LAYOUTS[mode]["page_va"]
+        rel = (page_va + OFF["barrel_close_arm"]) - (barrel_close_site + 5)
+        result["patch_mode_overrides"].setdefault(mode, []).append({
+            "offset": f"0x{barrel_close_site - 0x400000:X}",
+            "before": barrel_close_preimage,
+            "after": "E9" + rel.to_bytes(4, "little", signed=True).hex().upper(),
+            "purpose": "Barrel of Babies (VV2 approach): on Technologies screen close (command 0) arm the deferred native three-child Barrel so it presents with the main-village owner after the menu closes",
+        })
     if any(bytes.fromhex("E11C0000") in bytes.fromhex(str(item["after"])) for item in result["patches"]):
         raise RuntimeError("Task9 emitted patch set retains a withdrawn eligibility read")
     map_record = {
