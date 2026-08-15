@@ -270,6 +270,11 @@ static const char *const g_villager_costs[5] = {
     "50,000", "100,000", "40,000", "50,000", "5,000"
 };
 static int g_villager_menu;  /* set at WM_INITDIALOG; menus are modal/one-at-a-time */
+/* The full state bitmask handed to the villager menu at open time (low bits:
+   0=youth already youngest, 1=already fully mastered, 2=already likes Running,
+   3=already 18, 10=no free Like slot). Used by WM_COMMAND to report the
+   OFFICIAL no-change line when a would-do-nothing row is clicked. */
+static int g_villager_mask;
 /* The row/menu the player last acted on, captured at click time so the result
    popup (shown after the menu closes) can name the upgrade. */
 static int g_last_row = -1;
@@ -284,6 +289,7 @@ static INT_PTR CALLBACK upgrade_dialog(
     if (message == WM_INITDIALOG) {
         int villager_menu = (lparam & STATE_VILLAGER) != 0;
         g_villager_menu = villager_menu;
+        g_villager_mask = (int)lparam;
         int village_wide_buy = (lparam & STATE_VILLAGE_WIDE_BUY) != 0;
         int row_count = villager_menu
             ? 5
@@ -295,12 +301,23 @@ static INT_PTR CALLBACK upgrade_dialog(
             ShowWindow(GetDlgItem(window, ID_CHECK_FIRST + row), SW_HIDE);
         }
         for (row = 0; row < row_count; ++row) {
+            if (villager_menu) {
+                /* Every villager row stays a clickable "Buy". A row that would
+                   change nothing is not greyed out; it opens and reports the
+                   OFFICIAL no-change line (see WM_COMMAND) so the specified
+                   wording actually reaches the player, and nothing is charged.
+                   The check-mark still flags an already-satisfied row. */
+                if ((lparam & (1 << row)) != 0
+                    || (lparam & (1 << (8 + row))) != 0) {
+                    ShowWindow(GetDlgItem(window, ID_CHECK_FIRST + row), SW_SHOW);
+                }
+                SetDlgItemTextA(window, ID_BUY_FIRST + row, "Buy");
+                EnableWindow(GetDlgItem(window, ID_BUY_FIRST + row), TRUE);
+                continue;
+            }
             if ((lparam & (1 << row)) != 0) {
                 ShowWindow(GetDlgItem(window, ID_CHECK_FIRST + row), SW_SHOW);
-                if (villager_menu) {
-                    SetDlgItemTextA(window, ID_BUY_FIRST + row, "Done");
-                    EnableWindow(GetDlgItem(window, ID_BUY_FIRST + row), FALSE);
-                } else if (village_wide_buy && row >= 6) {
+                if (village_wide_buy && row >= 6) {
                     SetDlgItemTextA(window, ID_BUY_FIRST + row, "Buy");
                     EnableWindow(GetDlgItem(window, ID_BUY_FIRST + row), TRUE);
                 } else {
@@ -321,6 +338,34 @@ static INT_PTR CALLBACK upgrade_dialog(
             char label[16];
             label[0] = '\0';
             GetDlgItemTextA(window, command, label, (int)sizeof(label));
+            /* A villager row that would change nothing reports the OFFICIAL
+               no-change line and charges nothing, using the state bits the
+               payload computed for this villager at open time. Running has two
+               distinct cases: already-likes (checked first) vs. no free slot. */
+            if (g_villager_menu) {
+                const char *nochange = NULL;
+                if (row == 0 && (g_villager_mask & (1 << 0)) != 0) {
+                    nochange = "This villager is already full of youth. "
+                               "No tech points have been deducted.";
+                } else if (row == 1 && (g_villager_mask & (1 << 1)) != 0) {
+                    nochange = "This villager is already fully mastered. "
+                               "No tech points have been deducted.";
+                } else if (row == 2 && (g_villager_mask & (1 << 2)) != 0) {
+                    nochange = "This villager already likes Running. "
+                               "No tech points have been deducted.";
+                } else if (row == 2 && (g_villager_mask & (1 << (8 + 2))) != 0) {
+                    nochange = "This villager already has full Likes slots. "
+                               "Running can not be added.";
+                } else if (row == 3 && (g_villager_mask & (1 << 3)) != 0) {
+                    nochange = "No changes were needed. "
+                               "No tech points have been deducted.";
+                }
+                if (nochange != NULL) {
+                    MessageBoxA(window, nochange, "Villager Upgrades",
+                                MB_OK | MB_ICONINFORMATION | VV_MB_FRONT);
+                    return TRUE; /* Stay in the menu; nothing was purchased. */
+                }
+            }
             /* Only the "Buy" action is confirmed here; the doubler "Remove"
                toggle is reversible and not a purchase. The village-wide rows
                (tech 6/7/8) run their own OFFICIAL confirm from the payload
