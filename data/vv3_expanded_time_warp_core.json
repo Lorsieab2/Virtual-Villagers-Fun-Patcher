@@ -8,7 +8,7 @@
   "source_bindings": {
     "builder": {
       "path": "scripts/build_vv3_expanded_time_warp.py",
-      "source_text_sha256": "746B3A0262B1E1E6494937AFF3543261DF01124723549A0F43650A62D5F67F5F"
+      "source_text_sha256": "9A193B390E0DF9302F89285463310862A2CEA260D89E869267BE9D1FEB6DDE60"
     },
     "static_candidate": {
       "path": "data/candidates/vv3_full256_serializer_candidate.json",
@@ -20,11 +20,11 @@
     },
     "task9_companion_c": {
       "path": "native/vv5_task9_origins/vv5_task9_origins.c",
-      "source_text_sha256": "503055C5C65B07B22FF3070717020B37DF3012EFD49DBBB1CD9C0369801E4F69"
+      "source_text_sha256": "D5D9FB40870BE062C7C44C6DF2F5C3133F06CC900E5214DEE0CEE5870F6F807D"
     },
     "task9_companion_def": {
       "path": "native/vv5_task9_origins/vv5_task9_origins.def",
-      "source_text_sha256": "040A5A877EDE8158F2C1FB9EE9A433C0B47391CB8DAE666CBCFFB0B594FBDC6D"
+      "source_text_sha256": "0B9BC9E384156003F5E5F56200A9C3E138EEAC5F15CDDCAB7C11684E76156AFD"
     },
     "task9_companion_rc": {
       "path": "native/vv5_task9_origins/vv5_task9_origins.rc",
