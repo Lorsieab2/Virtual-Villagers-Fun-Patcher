@@ -1157,7 +1157,7 @@ __declspec(dllexport) int __stdcall ConfirmOriginsVillageWide(int command) {
             return 0;
         }
         return MessageBoxA(GetForegroundWindow(),
-            "Do you want to buy Set All Villagers to 18 for 1,000,000 tech "
+            "Do you want to buy All Villagers are Exactly 18 for 1,000,000 tech "
             "points?\r\nPress OK to confirm, or Cancel.",
             "Origins Upgrades", MB_OKCANCEL | MB_ICONQUESTION | VV_MB_FRONT) == IDOK;
     }

@@ -75,7 +75,7 @@ BEGIN
 
     ICON        106, -1, 8, 264,  24, 24
     ICON        109, 1108, 22, 276, 12, 12
-    LTEXT       "Set All Villagers to 18", -1, 40, 266, 245, 10
+    LTEXT       "All Villagers are Exactly 18", -1, 40, 266, 245, 10
     LTEXT       "1,000,000 tech points", -1, 40, 278, 170, 9
     PUSHBUTTON  "Buy", 1008, 290, 267, 55, 18
 
