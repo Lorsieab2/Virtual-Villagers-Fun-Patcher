@@ -414,9 +414,12 @@ __declspec(dllexport) int __stdcall ApplyVV2Collections(
    Set every eligible villager's job-preference checkmark round-robin so the
    population is split evenly across the professions.  Record fields: sex at
    +0x538 (1 = male, otherwise female), job preference at +0x7F8 (0 none,
-   1 Farming, 2 Building, 3 Research, 4 Healing, 5 Parenting/Breeding).  A
-   separate seat counter per sex keeps each profession's male/female split
-   balanced as well as the total count.  `parenting` picks 5 professions
+   1 Farming, 2 Building, 3 Research, 4 Healing, 5 Parenting/Breeding).  Each sex
+   is round-robined so the male/female split stays balanced, and the female cycle
+   continues from where the male cycle ends (female seats start at the male
+   total) so that when both counts leave a remainder they don't stack onto the
+   same professions -- the overall per-profession total then differs by at most
+   one.  `parenting` picks 5 professions
    (Farmer..Breeding) or 4 (no Breeding).  The preference is overwritten
    unconditionally -- there is no "already correct" state -- so the count is
    simply how many villagers were eligible.  VV2 has no Golden Child, so nothing
@@ -436,7 +439,7 @@ __declspec(dllexport) int __stdcall ApplyVV2EqualDivision(
         "Farming", "Building", "Research", "Healing", "Breeding"
     };
     int professions = parenting ? 5 : 4;
-    int male_seat = 0, female_seat = 0;
+    int male_seat = 0, female_seat, male_total = 0;
     int male_count[5] = {0, 0, 0, 0, 0};
     int female_count[5] = {0, 0, 0, 0, 0};
     int total = 0;
@@ -447,6 +450,21 @@ __declspec(dllexport) int __stdcall ApplyVV2EqualDivision(
     if (base == 0) {
         return 0;
     }
+    /* First pass: count eligible males so the female cycle can continue from the
+       male total, keeping the overall split even (see the header comment). */
+    for (i = 0; i < VV2_RECORD_COUNT; ++i, record += VV2_RECORD_STRIDE) {
+        if (record[VV2_ACTIVE_OFFSET] == 0) {
+            continue;
+        }
+        if (*(int *)(record + VV2_HEALTH_OFFSET) <= 0) {
+            continue;
+        }
+        if (*(int *)(record + VV2_SEX_OFFSET) == 1) {
+            ++male_total;
+        }
+    }
+    female_seat = male_total;
+    record = base;
     for (i = 0; i < VV2_RECORD_COUNT; ++i, record += VV2_RECORD_STRIDE) {
         int seat;
         if (record[VV2_ACTIVE_OFFSET] == 0) {
