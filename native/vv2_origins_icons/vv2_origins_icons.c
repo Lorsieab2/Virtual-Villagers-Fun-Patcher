@@ -528,7 +528,7 @@ static const char *vv2_action_name(int action) {
     case VV2_ACT_CURE: return "Full Heal / Cure All";
     case VV2_ACT_RUNNING_ALL: return "Grant Running to All Villagers";
     case VV2_ACT_MASTERY_ALL: return "Grant Full Mastery to All Villagers";
-    case VV2_ACT_AGE_ALL: return "Set All Villagers to 18";
+    case VV2_ACT_AGE_ALL: return "All Villagers are Exactly 18";
     case VV2_ACT_COLLECT_COMPLETE: return "Complete All Collections";
     case VV2_ACT_COLLECT_RESET: return "Reset All Collections";
     case VV2_ACT_DIVIDE_PARENTING:
