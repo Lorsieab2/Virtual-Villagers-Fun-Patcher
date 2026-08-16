@@ -453,22 +453,26 @@ class Task9ArtifactTests(unittest.TestCase):
             self.manifest["pe_append_transaction"]["layouts"]["collection_progression"]["append_bytes"]
         )
         heal = page[builder.OFF["heal"] : builder.OFF["heal"] + builder.SIZES["heal"]]
-        self.assertEqual(heal.count(bytes.fromhex("837F100C")), 1)
-        self.assertIn(bytes.fromhex("0FB686E11C0000"), heal)
-        self.assertIn(bytes.fromhex("C686481C00000080BE481C000000"), heal)
-        source = (ROOT / "scripts/build_vv5_task9_native_actions.py").read_text(
-            encoding="utf-8"
-        )
-        fresh = source[source.index("fresh_loop:") : source.index("fresh_next:")]
-        write = source[source.index("write_loop:") : source.index("write_next:")]
-        self.assertLess(
-            fresh.index("cmp dword ptr [edi+20], 0"),
-            fresh.index("movzx eax, byte ptr [esi+0x1CEC]"),
-        )
-        self.assertLess(
-            write.index("cmp dword ptr [edi+20], 0"),
-            write.index("cmp dword ptr [edi+4], 0"),
-        )
+        # Clean single-pass heal (VV2/VV4-style): a count pass and a heal pass, each
+        # re-reading the live record (no stale before/after snapshot). Both passes
+        # apply the believer gate and refuse the unsupported sickness type 12.
+        self.assertEqual(heal.count(bytes.fromhex("83BEFC1C00000C")), 2)  # cmp [esi+0x1CFC],12 x2
+        self.assertEqual(heal.count(bytes.fromhex("80BEE11C000000")), 2)  # masked Heathen +0x1CE1 gate
+        self.assertEqual(heal.count(bytes.fromhex("80BEEC1C000000")), 2)  # off-faction +0x1CEC gate
+        self.assertEqual(heal.count(bytes.fromhex("C686481C000000")), 1)  # clear sickness +0x1C48
+        self.assertIn(bytes.fromhex("FF0568D35100"), heal)               # bump People Cured stat 0x51D368
+        # Native health writer 0x4758B0 (no raw health store), one per heal; three
+        # cured-statistic writes 0x413450.
+        sys.path.insert(0, str(ROOT / ".tools" / "capstone"))
+        from capstone import CS_ARCH_X86, CS_MODE_32, Cs
+
+        calls = [
+            int(i.op_str, 16)
+            for i in Cs(CS_ARCH_X86, CS_MODE_32).disasm(heal, 0x7C9000 + builder.OFF["heal"])
+            if i.mnemonic == "call"
+        ]
+        self.assertEqual(calls.count(0x4758B0), 1)
+        self.assertEqual(calls.count(0x413450), 3)
 
     def test_running_rollback_requires_an_exact_evolving_reacquire(self) -> None:
         source = (ROOT / "scripts/build_vv5_task9_native_actions.py").read_text(encoding="utf-8")

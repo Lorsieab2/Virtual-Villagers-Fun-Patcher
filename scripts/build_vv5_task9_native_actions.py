@@ -1434,7 +1434,20 @@ def build_running(page: bytearray, page_va: int) -> bytes:
 
 
 def build_heal(page: bytearray, page_va: int) -> bytes:
-    return put(page, page_va, "heal", f"""
+    """Full Heal / Cure All (village-wide, 30,000 tech points). Clean single-pass
+    design (mirrors the VV2 cure): a count pass tallies eligible sick + partial-
+    health Believers for the confirm dialog and refuses if any eligible Believer
+    carries the unsupported sickness type 12; then, after the shared confirm and a
+    verified 30,000 charge, a single heal pass restores each eligible living
+    Believer's health to 100 via the native writer 0x4758B0 and clears sickness
+    (+0x1C48), crediting the people-cured statistic. Believer gate only (never
+    masked Heathens or off-faction). No per-villager before/after snapshot: each
+    pass re-reads the live record, so there is no stale-snapshot comparison."""
+    # The expanded-256 baseline page must stay byte-identical for the separate
+    # vv5_expanded_256_time_warp overlay, so the clean rewrite is applied only to
+    # the stock layout; expanded keeps the original (unused, experimental) heal.
+    if page_va != 0x7C9000:
+        return put(page, page_va, "heal", f"""
         push ebp
         mov ebp, esp
         push ebx
@@ -1750,7 +1763,135 @@ def build_heal(page: bytearray, page_va: int) -> bytes:
         pop ebp
         ret
     """)
-
+    return put(page, page_va, "heal", f"""
+        push ebp
+        mov ebp, esp
+        push ebx
+        push esi
+        push edi
+        sub esp, 0x20
+        mov dword ptr [ebp-0x18], 0
+        mov dword ptr [ebp-0x1C], 0
+        mov esi, 0x554190
+        mov ebx, {BOUND}
+    count_loop:
+        cmp byte ptr [esi+0x1CD4], 0
+        je count_next
+        cmp byte ptr [esi+0x1CE1], 0
+        jne count_next
+        cmp byte ptr [esi+0x1CEC], 0
+        jne count_next
+        cmp dword ptr [esi+0x1C40], 0
+        jle count_next
+        cmp byte ptr [esi+0x1C48], 0
+        je count_health
+        cmp dword ptr [esi+0x1CFC], 12
+        je unsupported
+        inc dword ptr [ebp-0x18]
+    count_health:
+        cmp dword ptr [esi+0x1C40], 100
+        jae count_next
+        inc dword ptr [ebp-0x1C]
+    count_next:
+        add esi, {STRIDE}
+        dec ebx
+        jne count_loop
+        mov eax, dword ptr [ebp-0x18]
+        or eax, dword ptr [ebp-0x1C]
+        jz no_change
+        mov eax, dword ptr [0x51D5F8]
+        mov dword ptr [ebp-0x10], eax
+        cmp eax, 30000
+        jb insufficient
+        push dword ptr [ebp-0x1C]
+        push dword ptr [ebp-0x18]
+        push 4
+        call 0x{page_va + OFF['confirm']:X}
+        cmp eax, 1
+        jne cancelled
+        mov eax, dword ptr [0x51D5F8]
+        cmp eax, dword ptr [ebp-0x10]
+        jne recheck
+        cmp eax, 30000
+        jb insufficient
+        push -30000
+        mov ecx, 0x51D5F8
+        call 0x4237B0
+        mov eax, dword ptr [ebp-0x10]
+        sub eax, 30000
+        cmp dword ptr [0x51D5F8], eax
+        jne charge_unknown
+        mov dword ptr [ebp-0x20], 0
+        mov dword ptr [ebp-0x24], 0
+        mov esi, 0x554190
+        mov ebx, {BOUND}
+    heal_loop:
+        cmp byte ptr [esi+0x1CD4], 0
+        je heal_next
+        cmp byte ptr [esi+0x1CE1], 0
+        jne heal_next
+        cmp byte ptr [esi+0x1CEC], 0
+        jne heal_next
+        cmp dword ptr [esi+0x1C40], 0
+        jle heal_next
+        cmp dword ptr [esi+0x1C40], 100
+        jae heal_sick
+        push -1
+        push 100
+        lea ecx, [esi+0x1C34]
+        call 0x4758B0
+        inc dword ptr [ebp-0x24]
+    heal_sick:
+        cmp byte ptr [esi+0x1C48], 0
+        je heal_next
+        cmp dword ptr [esi+0x1CFC], 12
+        je heal_next
+        mov byte ptr [esi+0x1C48], 0
+        inc dword ptr [0x51D368]
+        inc dword ptr [ebp-0x20]
+        push 1
+        push 52
+        mov ecx, 0x4DB358
+        call 0x413450
+        push 1
+        push 53
+        mov ecx, 0x4DB358
+        call 0x413450
+        push 1
+        push 54
+        mov ecx, 0x4DB358
+        call 0x413450
+    heal_next:
+        add esi, {STRIDE}
+        dec ebx
+        jne heal_loop
+        {status_call(page_va, '4', 0, 'dword ptr [ebp-0x20]', 'dword ptr [ebp-0x24]')}
+        jmp done
+    no_change:
+        {status_call(page_va, '4', 1)}
+        jmp done
+    insufficient:
+        {status_call(page_va, '4', 3)}
+        jmp done
+    cancelled:
+        {status_call(page_va, '4', 4)}
+        jmp done
+    recheck:
+        {status_call(page_va, '4', 5)}
+        jmp done
+    unsupported:
+        {status_call(page_va, '4', 13)}
+        jmp done
+    charge_unknown:
+        {status_call(page_va, '4', 7)}
+    done:
+        add esp, 0x20
+        pop edi
+        pop esi
+        pop ebx
+        pop ebp
+        ret
+    """)
 
 def build_time_warp(page: bytearray, page_va: int, s: dict[str, int]) -> bytes:
     """Village-clock Time Warp: advance exactly three displayed villager years
