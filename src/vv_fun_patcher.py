@@ -51,7 +51,7 @@ VV3_EXPANDED_TIME_WARP_CORE_PATH = (
     ROOT / "data" / "vv3_expanded_time_warp_core.json"
 )
 EXPANDED_STATIC_REPAIR_INTEGRATION_SHA256 = (
-    "93AE2305D23F5FCBE1BB1726BC563E5CAF20E85E926AD26D3AB84D9BB3985195"
+    "90E50499192D9B5A303EAF2E85124D303E42A1B9CC1D9CF902D20A178504B035"
 )
 EXPANDED_ATOMIC_WRITER_INTEGRATION_SHA256 = (
     "1B7068D0679CA896706AA201D27726AF612FD167C0406C5D509774E40728F6A6"
@@ -712,17 +712,12 @@ VV5_TASK9_ATOMIC_SOURCE_TEXT_SHA256 = {
 }
 EXPANDED_TIME_WARP_IDS = {
     "vv3": "vv3_expanded_256_time_warp",
-    "vv4": "vv4_expanded_256_time_warp",
     "vv5": "vv5_expanded_256_time_warp",
 }
 EXPANDED_TIME_WARP_PATHS = {
     "vv3": {
         "manifest": ROOT / "data" / "vv3_expanded_time_warp.json",
         "map": ROOT / "data" / "candidates" / "vv3_expanded_time_warp_map.json",
-    },
-    "vv4": {
-        "manifest": ROOT / "data" / "vv4_expanded_time_warp.json",
-        "map": ROOT / "data" / "candidates" / "vv4_expanded_time_warp_map.json",
     },
     "vv5": {
         "manifest": ROOT / "data" / "vv5_expanded_time_warp.json",
@@ -739,10 +734,6 @@ EXPANDED_TIME_WARP_ARTIFACT_SHA256 = {
         "manifest": "F5094E6275F6A019B001B89E265B71ACD365499C00E57E45AB5AFB6C44C9A8C8",
         "map": "FB308848ED65695E62F65A6074861F8740009962FC99EFFBD8AEFD2A859F0031",
         "core": "5AA28CEAAFBC6F4278FF01C41F67E0394227C272123EAC9433BD6D011A4087CE",
-    },
-    "vv4": {
-        "manifest": "6185C5E2E87E8E708F54179DC346A203CC76377883647382EA145BB3D0E0AC57",
-        "map": "8EBC7BABA10FC13220B34ACAAE8F375C7DAD6B844FAE8B489E886F5FC6CF961B",
     },
     "vv5": {
         "manifest": "D9C0AA8E25C9547D7CC8675E19E5B3B041260788D176DD3C696716E913A8FAE0",
@@ -2459,7 +2450,7 @@ def _certified_vv5_full_mastery_records(
 
 
 def _certified_expanded_time_warp_records() -> list[dict[str, Any]]:
-    """Load the three exact Expanded-only Time Warp records fail closed."""
+    """Load the two exact Expanded-only Time Warp records fail closed."""
 
     records: list[dict[str, Any]] = []
     expected_modes = [
@@ -2487,7 +2478,7 @@ def _certified_expanded_time_warp_records() -> list[dict[str, Any]]:
         "task9_companion_def": "native/vv5_task9_origins/vv5_task9_origins.def",
         "task9_companion_rc": "native/vv5_task9_origins/vv5_task9_origins.rc",
     }
-    for game_id in ("vv3", "vv4", "vv5"):
+    for game_id in ("vv3", "vv5"):
         paths = EXPANDED_TIME_WARP_PATHS[game_id]
         try:
             manifest_bytes = paths["manifest"].read_bytes()
@@ -5762,21 +5753,18 @@ def _expanded_static_repair_integration() -> dict[str, Any]:
     ):
         raise PatcherError("Expanded static-repair integration gates are not exact.")
     games = payload.get("games")
-    if not isinstance(games, dict) or set(games) != {"vv3", "vv4", "vv5"}:
+    if not isinstance(games, dict) or set(games) != {"vv3", "vv5"}:
         raise PatcherError("Expanded static-repair integration game set is not exact.")
     expected_paths = {
         "vv3": "data/candidates/vv3_full256_serializer_candidate.json",
-        "vv4": "data/candidates/vv4_full256_serializer_static_candidate.json",
         "vv5": "data/candidates/vv5_post_prototype_overlay.json",
     }
     expected_stages = {
         "vv3": "post_feature_relocation",
-        "vv4": "post_manifest",
         "vv5": "post_manifest",
     }
     expected_repair_ids = {
         "vv3": "vv3_full256_serializer_reader_gate",
-        "vv4": "vv4_full256_serializer_reader_gate",
         "vv5": "vv5_post_prototype_operand_overlay",
     }
     expected_features = {
@@ -5784,7 +5772,6 @@ def _expanded_static_repair_integration() -> dict[str, Any]:
             "vv3_enable_origins_exclusive_features_running_candidate",
             "vv3_all_villagers_like_running_candidate",
         ],
-        "vv4": [],
         "vv5": [],
     }
     for game_id, game in games.items():
@@ -5792,8 +5779,6 @@ def _expanded_static_repair_integration() -> dict[str, Any]:
             "repair_id", "stage", "candidate_path", "candidate_source_text_sha256",
             "stock_sha256", "manifest_rows_sha256", "required_feature_ids", "modes",
         }
-        if game_id == "vv4":
-            exact_fields.add("helper_lineage")
         if not isinstance(game, dict) or set(game) != exact_fields:
             raise PatcherError(f"{game_id} static-repair integration record is not closed.")
         if game.get("candidate_path") != expected_paths[game_id]:
@@ -5822,30 +5807,12 @@ def _expanded_static_repair_integration() -> dict[str, Any]:
             raise PatcherError(f"{game_id} static-repair candidate is unavailable.") from exc
         if source_text_sha256(candidate_bytes) != game.get("candidate_source_text_sha256"):
             raise PatcherError(f"{game_id} static-repair candidate source hash mismatch.")
-        if game_id == "vv4":
-            helper = game.get("helper_lineage")
-            if not isinstance(helper, dict) or set(helper) != {
-                "id", "raw_start", "raw_end", "stock_sha256",
-                "current_parent_sha256", "manifest_row_raw", "manifest_before",
-                "manifest_after", "abi_control_flow_unchanged",
-            }:
-                raise PatcherError("VV4 static-repair helper lineage is not closed.")
-            if (
-                helper.get("id") != "singleton"
-                or helper.get("raw_start") != "0x1FE70"
-                or helper.get("raw_end") != "0x1FEEA"
-                or helper.get("manifest_row_raw") != "0x1FE9B"
-                or helper.get("manifest_before") != "C8710100"
-                or helper.get("manifest_after") != "70DD0100"
-                or helper.get("abi_control_flow_unchanged") is not True
-            ):
-                raise PatcherError("VV4 static-repair helper lineage is not exact.")
         for mode_id, mode in modes.items():
             allowed = {
                 "parent_size", "parent_sha256", "parent_checksum",
                 "result_size", "result_sha256", "result_checksum",
             }
-            if game_id in {"vv4", "vv5"}:
+            if game_id == "vv5":
                 allowed.update({"final_no_fun_sha256", "final_no_fun_checksum"})
             if not isinstance(mode, dict) or set(mode) != allowed:
                 raise PatcherError(
@@ -5927,7 +5894,7 @@ def _apply_reviewed_expanded_static_repair(
     selected_fun_ids: set[str],
 ) -> tuple[list[dict[str, str]], list[tuple[int, int, str]]]:
     """Apply one reviewed repair transaction only at its exact guarded stage."""
-    if patch_mode not in EXPANDED_PATCH_MODES or build.id not in {"vv3", "vv4", "vv5"}:
+    if patch_mode not in EXPANDED_PATCH_MODES or build.id not in {"vv3", "vv5"}:
         return [], []
     integration = _expanded_static_repair_integration()
     game = integration["games"][build.id]
@@ -5973,11 +5940,6 @@ def _apply_reviewed_expanded_static_repair(
             != "6AFF1A8E69234C61CB2D1878C46FA91B0AAA721FC5F29C5B42A678F61BAB8528"
         ):
             raise PatcherError("VV5 static-repair C342 binding mismatch.")
-    if build.id == "vv4":
-        helper = game["helper_lineage"]
-        candidate_helper = candidate.get("d353_helpers", {}).get("singleton", {})
-        if candidate_helper.get("sha256") != helper["stock_sha256"]:
-            raise PatcherError("VV4 stock singleton helper evidence binding mismatch.")
     mode = game["modes"][patch_mode]
     work = bytearray(data)
     checksum_offset, checksum_before, checksum_parent = _canonicalize_pe_checksum(work)
@@ -5990,16 +5952,6 @@ def _apply_reviewed_expanded_static_repair(
         )
     if checksum_parent.hex().upper() != mode["parent_checksum"]:
         raise PatcherError(f"{build.id} static-repair parent checksum mismatch.")
-    if build.id == "vv4":
-        helper = game["helper_lineage"]
-        helper_start = int(helper["raw_start"], 0)
-        helper_end = int(helper["raw_end"], 0)
-        helper_sha256 = hashlib.sha256(work[helper_start:helper_end]).hexdigest().upper()
-        if helper_sha256 != helper["current_parent_sha256"]:
-            raise PatcherError("VV4 current-parent singleton helper hash mismatch.")
-        row_offset = int(helper["manifest_row_raw"], 0)
-        if bytes(work[row_offset : row_offset + 4]).hex().upper() != helper["manifest_after"]:
-            raise PatcherError("VV4 current-parent singleton manifest row mismatch.")
     writes: list[tuple[int, bytes, bytes, str]] = []
     append: bytes | None = None
     if build.id == "vv3":
@@ -6014,19 +5966,6 @@ def _apply_reviewed_expanded_static_repair(
         )
         for hook in candidate["hooks"]:
             writes.append((int(hook["raw"], 0), bytes.fromhex(hook["preimage"]), bytes.fromhex(hook["after"]), f"route VV3 {hook['id']} through reviewed static repair"))
-        append = _static_repair_page(candidate, build.id)
-    elif build.id == "vv4":
-        pe = candidate["pe_guards"]
-        section = candidate["section"]
-        writes.extend(
-            [
-                (int(pe["section_count_offset"]), int(pe["section_count_before"]).to_bytes(2, "little"), int(pe["section_count_after"]).to_bytes(2, "little"), "add reviewed .vv4x section count"),
-                (int(pe["size_of_image_offset"]), int(section["old_size_of_image"]).to_bytes(4, "little"), int(section["new_size_of_image"]).to_bytes(4, "little"), "extend reviewed VV4 SizeOfImage"),
-                (int(section["header_raw"]), bytes.fromhex(section["header_guard"]), bytes.fromhex(section["final_header_bytes"]), "add reviewed .vv4x section header"),
-            ]
-        )
-        for hook in candidate["hooks"]:
-            writes.append((int(hook["raw"]), bytes.fromhex(hook["before"]), bytes.fromhex(hook["after"]), f"route VV4 {hook['name']} through reviewed static repair"))
         append = _static_repair_page(candidate, build.id)
     else:
         overlay = candidate.get("overlay", {})
