@@ -942,8 +942,9 @@ def main() -> None:
         elif game_id == "vv4":
             description += (
                 " The Tech screen also offers Time Warp, Island Event, Barrel of "
-                "Babies, Food and Tech Point Doublers, Full Heal/Cure All, Complete "
-                "and Reset All Collections, and Equal Division of Labor with and "
+                "Babies, Food and Tech Point Doublers, Full Heal/Cure All, All "
+                "Villagers are Exactly 18, Complete and Reset All Collections, and "
+                "Equal Division of Labor with and "
                 "without Parenting, and the Villager Details screen grants Youth, "
                 "Full Mastery, Running, Set Age to 18, and Change Appearance. Island "
                 "Events and Duplicate Collectibles are excluded."
