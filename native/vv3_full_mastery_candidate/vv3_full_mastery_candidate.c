@@ -23,7 +23,7 @@ static const char *const tech_names[] = {
     "Time Warp", "Island Event", "Barrel of Babies", "Tech Point Doubler",
     "Food Point Doubler", "Full Heal / Cure All",
     "Grant Running to All Villagers", "Grant Full Mastery to All Villagers",
-    "Set All Villagers to 18", "Complete All Collections",
+    "All Villagers are Exactly 18", "Complete All Collections",
     "Reset All Collections",
     "Equal Division of Labor (Includes Parenting)",
     "Equal Division of Labor (No Parenting)"

@@ -71,7 +71,7 @@ class VV3OriginsFeatureTests(unittest.TestCase):
         for required in (
             "Full Heal/Cure All Villagers",
             "All Villagers Like Running",
-            "All Villagers are 18",
+            "All Villagers are Exactly 18",
             "Complete all Collections",
             "Reset all Collections",
         ):
