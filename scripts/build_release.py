@@ -44,7 +44,6 @@ FILES = [
     "data/vv5_task9_native_actions.json",
     "docs/max-population-research.md",
     "docs/island-event-population-research.md",
-    "docs/experimental-256-cap-research.md",
     "docs/vv2-easier-healing-research.md",
     "docs/vv2-teaching-children-research.md",
     "docs/vv2-hospital-recovery-research.md",
