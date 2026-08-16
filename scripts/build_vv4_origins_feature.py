@@ -1461,7 +1461,7 @@ def main() -> None:
         "running_preference_id": RUNNING_PREFERENCE_ID,
         "running_preference_evidence": {"source": "exact stock executable embedded preference table", "table_file_offset": "0xA0CD8", "entry_name": "running"},
         "name": "Enable Origins-Exclusive Features",
-        "description": "Adds Origins-style Upgrades buttons to the Tech and Villager Details screens. The Tech menu offers Food and Tech Point Doublers for 500,000 tech points each; eligible positive gains are doubled after native Food Mastery, while Island Events and Duplicate Collectibles remain unchanged. The Village-Wide menu adds Running, Full Mastery, and Make Villagers Young Adults.",
+        "description": "Adds Origins-style Upgrades buttons to the Tech and Villager Details screens. The Tech menu offers Time Warp, Island Event, Barrel of Babies, Food and Tech Point Doublers for 500,000 tech points each (eligible positive gains are doubled after native Food Mastery, while Island Events and Duplicate Collectibles remain unchanged), Full Heal/Cure All, Complete and Reset All Collections, and Equal Division of Labor with and without Parenting. The Village-Wide menu adds Running, Full Mastery, and Make Villagers Young Adults. The Villager Details menu grants Youth, Full Mastery, Running, Set Age to 18, and Change Appearance.",
         "output_tag": "Origins Exclusive Features",
         "ui_contract": ui_metadata,
         "native_handlers": {

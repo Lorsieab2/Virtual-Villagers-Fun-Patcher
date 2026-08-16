@@ -932,8 +932,16 @@ def main() -> None:
             description += " Island Events, Duplicate Collectibles, and Golden Child tech gains are excluded."
         elif game_id == "vv2":
             description += " Island Events, Duplicate Collectibles, and Gong of Wonder tech gains are excluded."
-        elif game_id in {"vv3", "vv4"}:
+        elif game_id == "vv3":
             description += " Island Events and Duplicate Collectibles are excluded."
+        elif game_id == "vv4":
+            description += (
+                " The Tech screen also offers Time Warp, Island Event, Barrel of "
+                "Babies, Full Heal/Cure All, Complete and Reset All Collections, and "
+                "Equal Division of Labor with and without Parenting, and the Villager "
+                "Details screen adds Change Appearance. Island Events and Duplicate "
+                "Collectibles are excluded."
+            )
         else:
             description += " Island Events and Duplicate Collectibles are excluded; only Believers are processed and Heathens are skipped."
         record_fields = {
