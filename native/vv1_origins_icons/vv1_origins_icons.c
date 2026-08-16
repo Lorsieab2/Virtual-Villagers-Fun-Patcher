@@ -178,7 +178,7 @@ enum {
     IDD_ORIGINS_VILLAGER = 202,
     IDD_ORIGINS_APPEARANCE = 203,
     ID_BUY_FIRST = 1000,
-    ID_BUY_LAST = 1008,
+    ID_BUY_LAST = 1010,
     ID_CHECK_FIRST = 1100,
     /* IDC_HEAD_PREVIEW/IDC_BODY_PREVIEW: owner-draw STATIC controls that
        preview the real head/body sprite cropped from the stock game art
@@ -260,7 +260,17 @@ static INT_PTR CALLBACK upgrade_dialog(
         int row;
         center_dialog_on_owner(window);
         vv1_surface_dialog(window);
-        for (row = 0; row < 9; ++row) {
+        /* Rows 9/10 (Equal Division of Labor) are outside row_count's own
+           tiered range below -- unlike rows 6-8, they aren't gated behind
+           the optional village-wide extension payload (STATE_VILLAGE_WIDE),
+           they're always present, and they never have an "owned" state to
+           report (no checkmark, no Remove/Unavailable text) -- so they
+           only need their checkmark hidden here and are otherwise left at
+           the .rc template's own default (Buy, enabled). Hidden up to 11,
+           not just row_count's own max of 9, so their checkmarks (IDs
+           1109/1110) don't default to visible like every other ICON
+           control in this dialog does when nothing hides it first. */
+        for (row = 0; row < 11; ++row) {
             ShowWindow(GetDlgItem(window, ID_CHECK_FIRST + row), SW_HIDE);
         }
         for (row = 0; row < row_count; ++row) {
@@ -583,6 +593,8 @@ static const char *vv1_tech_row_name(int row) {
     case 6: return "Grant Running to All Villagers";
     case 7: return "Grant Full Mastery to All Villagers";
     case 8: return "Set All Villagers to 18";
+    case 9: return "Equal Division of Labor (Includes Parenting)";
+    case 10: return "Equal Division of Labor (No Parenting)";
     default: return "Origins upgrade";
     }
 }
