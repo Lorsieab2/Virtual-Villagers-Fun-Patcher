@@ -641,7 +641,7 @@ __declspec(dllexport) void __stdcall ShowVV2UpgradeResult(
             /* a=set to 18, b=already 18 */
             wsprintfA(message, "Set %u %s to Age 18.",
                       amount_a, vv2_villager_word(amount_a));
-            wsprintfA(line, "\r\n\r\nSkipped %u %s: already 18.",
+            wsprintfA(line, "\r\n\r\nSkipped %u %s: already exactly 18.",
                       amount_b, vv2_villager_word(amount_b));
             lstrcatA(message, line);
             break;
@@ -674,7 +674,7 @@ __declspec(dllexport) void __stdcall ShowVV2UpgradeResult(
             break;
         case VV2_ACT_AGE_ALL:
             lstrcpyA(message,
-                     "Everyone is already 18. No tech points have been "
+                     "Everyone is already exactly 18. No tech points have been "
                      "deducted.");
             break;
         case VV2_ACT_DETAIL_YOUTH:
