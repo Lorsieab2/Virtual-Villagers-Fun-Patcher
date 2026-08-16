@@ -592,7 +592,7 @@ static const char *vv1_tech_row_name(int row) {
     case 5: return "Full Heal / Cure All";
     case 6: return "Grant Running to All Villagers";
     case 7: return "Grant Full Mastery to All Villagers";
-    case 8: return "Set All Villagers to 18";
+    case 8: return "All Villagers are Exactly 18";
     case 9: return "Equal Division of Labor (Includes Parenting)";
     case 10: return "Equal Division of Labor (No Parenting)";
     default: return "Origins upgrade";
@@ -787,7 +787,7 @@ __declspec(dllexport) int __stdcall ShowOriginsAgeResult(
     );
     wsprintfA(
         line,
-        "\r\n\r\nSkipped %d %s: already 18.",
+        "\r\n\r\nSkipped %d %s: already exactly 18.",
         already, vv1_vpl(already)
     );
     lstrcatA(message, line);
@@ -914,7 +914,7 @@ static const char *vv1_tech_no_change_text(int row) {
     switch (row) {
     case 6: return "Everyone already likes running, or has full Likes slots. No tech points have been deducted.";
     case 7: return "Everyone has already mastered their skills. No tech points have been deducted.";
-    case 8: return "Everyone is already 18. No tech points have been deducted.";
+    case 8: return "Everyone is already exactly 18. No tech points have been deducted.";
     case 9:
     case 10: return "No villagers were eligible. No tech points have been deducted.";
     default: return "No changes were needed. No tech points have been deducted.";
