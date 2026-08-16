@@ -85,97 +85,39 @@ static void center_topmost_on_owner(HWND window) {
     SetForegroundWindow(window);
 }
 
-/* State saved between begin/end so we restore the game window's exact
-   borderless-fullscreen style and bounds.  The upgrade menus are modal and
-   shown one at a time. */
-static HWND s_fs_owner;
-static LONG s_fs_style;
-static LONG s_fs_exstyle;
-static RECT s_fs_rect;
-static int s_fs_windowized;
+/* Make the upgrade menus usable in fullscreen, exactly the way the other VV
+   games' shipped patches do.  VV3 runs "fullscreen" as a topmost SDL2 window
+   covering the monitor.  When our modal dialog takes the foreground, SDL's
+   default behavior MINIMIZES that window (the SDL_VIDEO_MINIMIZE_ON_FOCUS_LOSS
+   hint) -- and minimizing/restoring the SDL surface while a modal blocks the
+   render loop is the hazardous transition that left the game black and hung
+   behind the menu.  The fix (see native/vv2_origins_icons, vv4_origins_icons):
+   turn that hint OFF so the game stays fullscreen and visible behind the
+   dialog; the dialog is then lifted above the fullscreen surface and to the
+   foreground at WM_INITDIALOG (center_topmost_on_owner).  SDL2.dll is already
+   loaded by the game and re-reads the hint on focus loss, so setting it before
+   we show any dialog / message box is enough.  We touch no window, engine, or
+   render state -- so nothing can corrupt the surface or hang the loop. */
+static void vv3_prep_fullscreen(void) {
+    HMODULE sdl = GetModuleHandleA("SDL2.dll");
+    if (sdl != NULL) {
+        typedef int(__cdecl * set_hint_t)(const char *, const char *);
+        set_hint_t set_hint = (set_hint_t)GetProcAddress(sdl, "SDL_SetHint");
+        if (set_hint != NULL) {
+            set_hint("SDL_VIDEO_MINIMIZE_ON_FOCUS_LOSS", "0");
+        }
+    }
+}
 
-/* Make the upgrade menus usable in fullscreen, the way the player-confirmed VV
-   fullscreen fixes do -- leave fullscreen while the menu is up, restore it
-   after -- but derived for VV3's own architecture.  VV3's "fullscreen" is a
-   plain Win32 borderless window covering the monitor: it never calls
-   SDL_SetWindowFullscreen (a dead import) and never changes the display mode
-   (ChangeDisplaySettings is not imported), and its in-game Fullscreen setting
-   toggles exactly this window state.  So we reproduce that toggle in Win32: for
-   the lifetime of the modal dialog, convert the game window to a normal titled,
-   non-topmost window centered on the monitor (a mode the game already supports,
-   ldw.ini FullScreen=0), then restore its saved style and full-monitor bounds.
-   The game's own WndProc runs inside the modal's message loop, so it re-renders
-   windowed and the dialog is fully visible; we touch only the Win32 window,
-   never any engine or SDL state.  Only acts when the window actually covers the
-   monitor, so a windowed game is left alone.  Returns the game window (or NULL)
-   for end_modal_over_game to restore. */
+/* Kept for call-site compatibility: prep fullscreen before a modal; there is
+   nothing to restore afterward, so end_modal_over_game is a no-op. */
 static HWND begin_modal_over_game(void) {
-    HWND owner = GetForegroundWindow();
-    DWORD pid = 0;
-    HMONITOR monitor;
-    MONITORINFO mi;
-    RECT rc;
-    int work_w, work_h, win_w, win_h, win_x, win_y;
-
-    s_fs_windowized = 0;
-    s_fs_owner = NULL;
-    if (owner == NULL) {
-        return NULL;
-    }
-    GetWindowThreadProcessId(owner, &pid);
-    if (pid != GetCurrentProcessId()) {
-        return NULL;
-    }
-    monitor = MonitorFromWindow(owner, MONITOR_DEFAULTTONEAREST);
-    mi.cbSize = sizeof(mi);
-    if (!GetMonitorInfoA(monitor, &mi)) {
-        return owner;
-    }
-    GetWindowRect(owner, &rc);
-    /* Only intervene when the game window covers (or exceeds) the whole monitor,
-       i.e. it is in borderless-fullscreen.  A windowed game needs nothing. */
-    if (rc.left > mi.rcMonitor.left || rc.top > mi.rcMonitor.top
-        || rc.right < mi.rcMonitor.right || rc.bottom < mi.rcMonitor.bottom) {
-        return owner;
-    }
-
-    s_fs_owner = owner;
-    s_fs_style = GetWindowLongA(owner, GWL_STYLE);
-    s_fs_exstyle = GetWindowLongA(owner, GWL_EXSTYLE);
-    s_fs_rect = rc;
-    s_fs_windowized = 1;
-
-    /* Windowed size: 70% of the monitor work area, centered. */
-    work_w = mi.rcWork.right - mi.rcWork.left;
-    work_h = mi.rcWork.bottom - mi.rcWork.top;
-    win_w = work_w * 7 / 10;
-    win_h = work_h * 7 / 10;
-    win_x = mi.rcWork.left + (work_w - win_w) / 2;
-    win_y = mi.rcWork.top + (work_h - win_h) / 2;
-
-    SetWindowLongA(owner, GWL_STYLE,
-        (s_fs_style & ~(LONG)WS_POPUP) | WS_OVERLAPPEDWINDOW | WS_VISIBLE);
-    SetWindowLongA(owner, GWL_EXSTYLE, s_fs_exstyle & ~(LONG)WS_EX_TOPMOST);
-    SetWindowPos(owner, HWND_NOTOPMOST, win_x, win_y, win_w, win_h,
-                 SWP_FRAMECHANGED | SWP_NOACTIVATE);
-    return owner;
+    vv3_prep_fullscreen();
+    return NULL;
 }
 
 static void end_modal_over_game(HWND owner) {
-    HWND z_order;
-    if (!s_fs_windowized || owner == NULL || owner != s_fs_owner) {
-        return;
-    }
-    z_order = (s_fs_exstyle & WS_EX_TOPMOST) ? HWND_TOPMOST : HWND_NOTOPMOST;
-    SetWindowLongA(owner, GWL_STYLE, s_fs_style);
-    SetWindowLongA(owner, GWL_EXSTYLE, s_fs_exstyle);
-    SetWindowPos(owner, z_order,
-                 s_fs_rect.left, s_fs_rect.top,
-                 s_fs_rect.right - s_fs_rect.left,
-                 s_fs_rect.bottom - s_fs_rect.top,
-                 SWP_FRAMECHANGED | SWP_NOACTIVATE);
-    s_fs_windowized = 0;
-    s_fs_owner = NULL;
+    (void)owner;
 }
 
 static INT_PTR CALLBACK upgrade_dialog(
@@ -268,20 +210,21 @@ static int show_upgrade_menu(int villager_menu, int dialog_state) {
         : (((dialog_state & STATE_FULL_MASTERY_ONLY) != 0)
             ? IDD_ORIGINS_FULL_MASTERY
             : IDD_ORIGINS_TECH);
-    HWND owner;
     int result;
     if (villager_menu) {
         dialog_state |= STATE_VILLAGER;
     }
-    owner = begin_modal_over_game();
+    /* Stop SDL minimizing the game when the dialog takes focus, then show the
+       dialog owned by the game window and lift it above the fullscreen surface
+       (center_topmost_on_owner at WM_INITDIALOG). */
+    begin_modal_over_game();
     result = (int)DialogBoxParamA(
         module_instance,
         MAKEINTRESOURCEA(resource),
-        owner,
+        GetForegroundWindow(),
         upgrade_dialog,
         dialog_state
     );
-    end_modal_over_game(owner);
     return result;
 }
 
@@ -888,7 +831,7 @@ __declspec(dllexport) int __stdcall ShowVV3AppearanceChooser(
     result = DialogBoxParamA(
         module_instance,
         MAKEINTRESOURCEA(IDD_VV3_APPEARANCE),
-        owner,
+        GetForegroundWindow(),
         vv3_appearance_dialog,
         0
     );
