@@ -13,9 +13,9 @@
     "publication_ready": {"const": false},
     "games": {
       "type": "object",
-      "required": ["vv3", "vv4", "vv5"],
+      "required": ["vv3", "vv5"],
       "additionalProperties": false,
-      "properties": {"vv3": {"$ref": "#/$defs/game"}, "vv4": {"$ref": "#/$defs/game"}, "vv5": {"$ref": "#/$defs/game"}}
+      "properties": {"vv3": {"$ref": "#/$defs/game"}, "vv5": {"$ref": "#/$defs/game"}}
     }
   },
   "$defs": {

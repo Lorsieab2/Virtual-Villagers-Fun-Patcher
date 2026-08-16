@@ -712,17 +712,12 @@ VV5_TASK9_ATOMIC_SOURCE_TEXT_SHA256 = {
 }
 EXPANDED_TIME_WARP_IDS = {
     "vv3": "vv3_expanded_256_time_warp",
-    "vv4": "vv4_expanded_256_time_warp",
     "vv5": "vv5_expanded_256_time_warp",
 }
 EXPANDED_TIME_WARP_PATHS = {
     "vv3": {
         "manifest": ROOT / "data" / "vv3_expanded_time_warp.json",
         "map": ROOT / "data" / "candidates" / "vv3_expanded_time_warp_map.json",
-    },
-    "vv4": {
-        "manifest": ROOT / "data" / "vv4_expanded_time_warp.json",
-        "map": ROOT / "data" / "candidates" / "vv4_expanded_time_warp_map.json",
     },
     "vv5": {
         "manifest": ROOT / "data" / "vv5_expanded_time_warp.json",
@@ -739,10 +734,6 @@ EXPANDED_TIME_WARP_ARTIFACT_SHA256 = {
         "manifest": "F5094E6275F6A019B001B89E265B71ACD365499C00E57E45AB5AFB6C44C9A8C8",
         "map": "FB308848ED65695E62F65A6074861F8740009962FC99EFFBD8AEFD2A859F0031",
         "core": "5AA28CEAAFBC6F4278FF01C41F67E0394227C272123EAC9433BD6D011A4087CE",
-    },
-    "vv4": {
-        "manifest": "6185C5E2E87E8E708F54179DC346A203CC76377883647382EA145BB3D0E0AC57",
-        "map": "8EBC7BABA10FC13220B34ACAAE8F375C7DAD6B844FAE8B489E886F5FC6CF961B",
     },
     "vv5": {
         "manifest": "D9C0AA8E25C9547D7CC8675E19E5B3B041260788D176DD3C696716E913A8FAE0",
@@ -2459,7 +2450,7 @@ def _certified_vv5_full_mastery_records(
 
 
 def _certified_expanded_time_warp_records() -> list[dict[str, Any]]:
-    """Load the three exact Expanded-only Time Warp records fail closed."""
+    """Load the two exact Expanded-only Time Warp records fail closed."""
 
     records: list[dict[str, Any]] = []
     expected_modes = [
@@ -2487,7 +2478,7 @@ def _certified_expanded_time_warp_records() -> list[dict[str, Any]]:
         "task9_companion_def": "native/vv5_task9_origins/vv5_task9_origins.def",
         "task9_companion_rc": "native/vv5_task9_origins/vv5_task9_origins.rc",
     }
-    for game_id in ("vv3", "vv4", "vv5"):
+    for game_id in ("vv3", "vv5"):
         paths = EXPANDED_TIME_WARP_PATHS[game_id]
         try:
             manifest_bytes = paths["manifest"].read_bytes()
@@ -5762,21 +5753,18 @@ def _expanded_static_repair_integration() -> dict[str, Any]:
     ):
         raise PatcherError("Expanded static-repair integration gates are not exact.")
     games = payload.get("games")
-    if not isinstance(games, dict) or set(games) != {"vv3", "vv4", "vv5"}:
+    if not isinstance(games, dict) or set(games) != {"vv3", "vv5"}:
         raise PatcherError("Expanded static-repair integration game set is not exact.")
     expected_paths = {
         "vv3": "data/candidates/vv3_full256_serializer_candidate.json",
-        "vv4": "data/candidates/vv4_full256_serializer_static_candidate.json",
         "vv5": "data/candidates/vv5_post_prototype_overlay.json",
     }
     expected_stages = {
         "vv3": "post_feature_relocation",
-        "vv4": "post_manifest",
         "vv5": "post_manifest",
     }
     expected_repair_ids = {
         "vv3": "vv3_full256_serializer_reader_gate",
-        "vv4": "vv4_full256_serializer_reader_gate",
         "vv5": "vv5_post_prototype_operand_overlay",
     }
     expected_features = {
@@ -5784,7 +5772,6 @@ def _expanded_static_repair_integration() -> dict[str, Any]:
             "vv3_enable_origins_exclusive_features_running_candidate",
             "vv3_all_villagers_like_running_candidate",
         ],
-        "vv4": [],
         "vv5": [],
     }
     for game_id, game in games.items():
@@ -5792,8 +5779,6 @@ def _expanded_static_repair_integration() -> dict[str, Any]:
             "repair_id", "stage", "candidate_path", "candidate_source_text_sha256",
             "stock_sha256", "manifest_rows_sha256", "required_feature_ids", "modes",
         }
-        if game_id == "vv4":
-            exact_fields.add("helper_lineage")
         if not isinstance(game, dict) or set(game) != exact_fields:
             raise PatcherError(f"{game_id} static-repair integration record is not closed.")
         if game.get("candidate_path") != expected_paths[game_id]:
