@@ -104,8 +104,8 @@ BEGIN
     LTEXT       "1,000,000 tech points", -1, 40, 344, 170, 9
     PUSHBUTTON  "Buy", 1012, 240, 331, 55, 18
 
-    DEFPUSHBUTTON "Cancel", 2, 120, 359, 70, 14
-    CTEXT       "Press ESC to exit this menu.", -1, 10, 326, 290, 9
+    CTEXT       "Press ESC to exit this menu.", -1, 10, 357, 290, 9
+    DEFPUSHBUTTON "Cancel", 2, 120, 371, 70, 14
 END
 
 /* VV2 Villager Details upgrades (four per-villager rows + Change Appearance). */
