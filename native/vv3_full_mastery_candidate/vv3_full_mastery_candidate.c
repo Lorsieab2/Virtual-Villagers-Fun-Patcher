@@ -140,40 +140,27 @@ static HWND begin_modal_over_game(void) {
     }
 
     s_fs_owner = owner;
-    s_fs_style = GetWindowLongA(owner, GWL_STYLE);
-    s_fs_exstyle = GetWindowLongA(owner, GWL_EXSTYLE);
-    s_fs_rect = rc;
     s_fs_windowized = 1;
+    (void)work_w; (void)work_h; (void)win_w; (void)win_h; (void)win_x; (void)win_y;
 
-    /* Windowed size: 70% of the monitor work area, centered. */
-    work_w = mi.rcWork.right - mi.rcWork.left;
-    work_h = mi.rcWork.bottom - mi.rcWork.top;
-    win_w = work_w * 7 / 10;
-    win_h = work_h * 7 / 10;
-    win_x = mi.rcWork.left + (work_w - win_w) / 2;
-    win_y = mi.rcWork.top + (work_h - win_h) / 2;
-
-    SetWindowLongA(owner, GWL_STYLE,
-        (s_fs_style & ~(LONG)WS_POPUP) | WS_OVERLAPPEDWINDOW | WS_VISIBLE);
-    SetWindowLongA(owner, GWL_EXSTYLE, s_fs_exstyle & ~(LONG)WS_EX_TOPMOST);
-    SetWindowPos(owner, HWND_NOTOPMOST, win_x, win_y, win_w, win_h,
-                 SWP_FRAMECHANGED | SWP_NOACTIVATE);
+    /* MINIMIZE rather than restyle/resize the window.  The Upgrades menu is a
+       modal DialogBoxParamA on the game's own thread, so while it is up VV3's
+       SDL/GL render loop is blocked and cannot repaint.  Resizing the live
+       borderless-fullscreen surface (the old approach) therefore left it black
+       and unrecoverable.  Minimizing moves the fullscreen window off-screen
+       without touching its style, size, or the SDL surface, so the topmost
+       modal shows cleanly on the desktop and SW_RESTORE brings the game back
+       exactly as it was. */
+    ShowWindow(owner, SW_MINIMIZE);
     return owner;
 }
 
 static void end_modal_over_game(HWND owner) {
-    HWND z_order;
     if (!s_fs_windowized || owner == NULL || owner != s_fs_owner) {
         return;
     }
-    z_order = (s_fs_exstyle & WS_EX_TOPMOST) ? HWND_TOPMOST : HWND_NOTOPMOST;
-    SetWindowLongA(owner, GWL_STYLE, s_fs_style);
-    SetWindowLongA(owner, GWL_EXSTYLE, s_fs_exstyle);
-    SetWindowPos(owner, z_order,
-                 s_fs_rect.left, s_fs_rect.top,
-                 s_fs_rect.right - s_fs_rect.left,
-                 s_fs_rect.bottom - s_fs_rect.top,
-                 SWP_FRAMECHANGED | SWP_NOACTIVATE);
+    ShowWindow(owner, SW_RESTORE);
+    SetForegroundWindow(owner);
     s_fs_windowized = 0;
     s_fs_owner = NULL;
 }
@@ -274,10 +261,14 @@ static int show_upgrade_menu(int villager_menu, int dialog_state) {
         dialog_state |= STATE_VILLAGER;
     }
     owner = begin_modal_over_game();
+    /* Desktop-owned (NULL parent): when begin_modal_over_game minimized the
+       fullscreen game, a dialog owned by that minimized window would be hidden
+       or would force the game to restore; a desktop-owned, topmost dialog shows
+       cleanly regardless.  It is still thread-modal (DialogBoxParamA blocks). */
     result = (int)DialogBoxParamA(
         module_instance,
         MAKEINTRESOURCEA(resource),
-        owner,
+        NULL,
         upgrade_dialog,
         dialog_state
     );
@@ -888,7 +879,7 @@ __declspec(dllexport) int __stdcall ShowVV3AppearanceChooser(
     result = DialogBoxParamA(
         module_instance,
         MAKEINTRESOURCEA(IDD_VV3_APPEARANCE),
-        owner,
+        NULL,
         vv3_appearance_dialog,
         0
     );
