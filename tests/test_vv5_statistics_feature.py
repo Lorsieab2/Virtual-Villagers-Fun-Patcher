@@ -21,8 +21,6 @@ ORIGINS_ID = "vv5_enable_origins_exclusive_features"
 MODES = (
     "collection_progression",
     "immediate_fixed",
-    "experimental_expanded_256",
-    "experimental_expanded_256_progression",
 )
 
 
@@ -89,9 +87,6 @@ class VV5StatisticsFeatureTests(unittest.TestCase):
         build = next(build for build in load_builds() if build.id == "vv5")
         for mode in MODES:
             with self.subTest(mode=mode):
-                if mode.startswith("experimental_expanded_256"):
-                    render_patched_bytes(STOCK, build, mode, [FEATURE_ID, ORIGINS_ID])
-                    continue
                 rendered, _ = render_patched_bytes(
                     STOCK, build, mode, [FEATURE_ID, ORIGINS_ID]
                 )

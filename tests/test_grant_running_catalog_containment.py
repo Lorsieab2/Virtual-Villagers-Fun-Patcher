@@ -16,9 +16,11 @@ from vv_fun_patcher import (  # noqa: E402
 
 
 class GrantRunningCatalogContainmentTests(unittest.TestCase):
+    # VV1's individual Grant Running binding was retired (5058c03); the
+    # shipping bindings are VV2-VV5.
     BINDINGS = tuple(
         ROOT / "data" / "candidates" / f"vv{game}_individual_grant_running_binding.json"
-        for game in range(1, 6)
+        for game in range(2, 6)
     )
     WITHDRAWN_CANDIDATES = (
         ROOT / "data" / "candidates" / "vv3_all_villagers_like_running_candidate.json",

@@ -48,10 +48,14 @@ class TechScreenUpgradeCrashHotfixTests(unittest.TestCase):
                 # build_vv1_origins_feature.py) instead of once per
                 # branch, so it has one fewer of these vestigial
                 # "mov eax, export"-before-LoadLibrary sites than the
-                # other four games' still-per-branch pattern. VV1's own
+                # other games' still-per-branch pattern. VV1's own
                 # separate, untouched VILLAGE_PREFLIGHT_VA signature
                 # check still has its own, unrelated one, so it isn't 0.
-                expected = 1 if game == 1 else 2
+                # VV4 likewise consolidated its Grant Running result branch
+                # into the village-wide confirm (e627475), leaving one site.
+                # The crash-safety invariant (every export resolved via
+                # GetProcAddress before the call) is asserted separately below.
+                expected = 1 if game in (1, 4) else 2
                 self.assertEqual(
                     source.count("mov eax, 0x{s['show_result_export']:X}"),
                     expected,

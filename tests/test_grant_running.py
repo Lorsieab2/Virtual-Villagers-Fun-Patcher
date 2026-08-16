@@ -364,7 +364,9 @@ class GrantRunningTests(unittest.TestCase):
                 self.assertIn("No tech points have been deducted.", result.message)
 
     def test_exhaustive_first_empty_slot_permutation_for_every_configured_count(self):
-        expected_slots = {"vv1": 4, "vv2": 62, "vv3": 3, "vv4": 3, "vv5": 3}
+        # VV1's individual Grant Running binding was retired (5058c03); the
+        # shipping bindings are VV2-VV5.
+        expected_slots = {"vv2": 62, "vv3": 3, "vv4": 3, "vv5": 3}
         checked = 0
         for game, slot_count in expected_slots.items():
             path = ROOT / "data" / "candidates" / f"{game}_individual_grant_running_binding.json"
@@ -424,8 +426,10 @@ class GrantRunningTests(unittest.TestCase):
         self.assertEqual(calls, [])
 
     def test_current_game_binding_manifests_normalize_into_the_shared_model(self):
-        expected_slots = {"vv1": 4, "vv2": 62, "vv3": 3, "vv4": 3, "vv5": 3}
-        expected_records = {"vv1": 256, "vv2": 256, "vv3": 150, "vv4": 150, "vv5": 150}
+        # VV1's individual Grant Running binding was retired (5058c03); the
+        # shipping bindings are VV2-VV5.
+        expected_slots = {"vv2": 62, "vv3": 3, "vv4": 3, "vv5": 3}
+        expected_records = {"vv2": 256, "vv3": 150, "vv4": 150, "vv5": 150}
         for game, slot_count in expected_slots.items():
             with self.subTest(game=game):
                 path = ROOT / "data" / "candidates" / f"{game}_individual_grant_running_binding.json"
@@ -442,7 +446,7 @@ class GrantRunningTests(unittest.TestCase):
                 self.assertTrue(raw["catalog_hidden"])
 
     def test_running_binding_manifests_are_clean_archive_line_ending_independent(self):
-        for game in ("vv1", "vv2", "vv3", "vv4", "vv5"):
+        for game in ("vv2", "vv3", "vv4", "vv5"):
             with self.subTest(game=game):
                 path = ROOT / "data" / "candidates" / f"{game}_individual_grant_running_binding.json"
                 source = path.read_bytes().replace(b"\r\n", b"\n")
