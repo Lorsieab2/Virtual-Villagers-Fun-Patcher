@@ -55,6 +55,15 @@ CONFIG = {
         "report_mastery_counts": True,
         "report_age_granted": True,
         "always_clear_running_dislike": True,
+        # golden_child_ptr: dword ptr [0x48B614] is this exact VV1 build's
+        # own module-static singleton pointer to the current Golden Child's
+        # villager record (lazy-getter/destructor pair at 0x43da37 /
+        # 0x43da9d-0x43dac6; confirmed via live memory scan + pefile
+        # section layout to sit safely in .data's BSS tail, disjoint from
+        # our own .shr cave). Set Age to 18 must never age this villager
+        # up -- VV1-only, mirrors always_clear_running_dislike's own
+        # per-game opt-in shape.
+        "golden_child_ptr": 0x48B614,
     },
     "vv2": {
         "title": "Virtual Villagers - The Lost Children",
@@ -86,6 +95,15 @@ CONFIG = {
         "bound": "edx",
         "heathen": False,
         "master_value": 100,
+        # VV2's own ShowOriginsVillageWideResult call site (shared with VV1
+        # via #include, scripts/build_vv2_origins_feature.py) always displays
+        # a "Granted Running to %d villagers." headline -- that arg has had
+        # nowhere to come from since VV1's own report_running_granted opt-in
+        # was VV1-only, which left VV2's call site permanently unable to
+        # supply a real value once the shared C function grew this 5th
+        # parameter. Opting VV2 in here is what actually fixes that,
+        # not just re-aligning the two sides' arg counts.
+        "report_running_granted": True,
     },
     "vv3": {
         "title": "Virtual Villagers - The Secret City",
@@ -739,20 +757,53 @@ def build_payload(config: dict) -> tuple[bytes, dict[str, int]]:
     # All Villagers to 18 result can report a skipped count again, per the
     # OFFICIAL Origins Upgrade Prompts spreadsheet.
     age_already_va = entry_va + 0x44
+    # golden_child_ptr is a VV1-only opt-in carrying the exact-build live
+    # address of the stock game's own "current Golden Child" singleton
+    # pointer (dword ptr [golden_child_ptr], confirmed via disassembly of
+    # its matching lazy-getter/destructor pair -- not a per-villager
+    # record flag; none was found on the record itself despite looking).
+    # The Golden Child is hardcoded to stay a child and must never be aged
+    # up by this row, however many the village happens to have (normally
+    # exactly one, but this compares every candidate against the live
+    # pointer rather than assuming a count), so age_golden_child_va tracks
+    # how many were actually skipped for that specific reason, separate
+    # from the ordinary already-18 count.
+    golden_child_ptr = config.get("golden_child_ptr")
+    age_golden_child_va = entry_va + 0x48
     age_scratch_init = (
         f"""
             mov dword ptr [0x{age_granted_va:X}], 0
             mov dword ptr [0x{age_already_va:X}], 0
+            {f"mov dword ptr [0x{age_golden_child_va:X}], 0" if golden_child_ptr else ""}
         """
         if report_age
+        else ""
+    )
+    # age_golden_child_check's own "not a match" exit must land on a label
+    # distinct from age_skip_check's own transition point below -- reusing
+    # age_needs_write for both would make this a self-referential jump back
+    # into the golden-child check itself instead of falling through to the
+    # real age-write code, so age_skip_check hands off to
+    # age_check_golden_child, and age_needs_write is placed after this
+    # block's body as the single, final fallthrough target.
+    age_golden_child_check = (
+        f"""
+            cmp esi, dword ptr [0x{golden_child_ptr:X}]
+            jne age_needs_write
+            inc dword ptr [0x{age_golden_child_va:X}]
+            jmp age_next
+        """
+        if (report_age and golden_child_ptr)
         else ""
     )
     age_skip_check = (
         f"""
             cmp dword ptr [esi + {_hex_word(config['age'])}], 360
-            jne age_needs_write
+            jne age_check_golden_child
             inc dword ptr [0x{age_already_va:X}]
             jmp age_next
+        age_check_golden_child:
+            {age_golden_child_check}
         age_needs_write:
         """
         if report_age

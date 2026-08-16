@@ -182,32 +182,42 @@ class VV1RequiredFixTests(unittest.TestCase):
             "not skip past it to the far-away running_next",
         )
 
-    def test_vv1_village_wide_granted_counts_are_vv1_exclusive_and_wired(self) -> None:
+    def test_vv1_village_wide_granted_counts_are_scoped_and_wired(self) -> None:
         """New feature regression test: Grant Running and Grant Full
         Mastery both now report how many villagers were actually
         granted (not just how many were skipped), sourced from new
         scratch dwords the shared, cross-game
         scripts/build_village_wide_origins_features.py writes only when
-        a game's own config opts in. Confirms that opt-in is VV1-only
-        (VV2-VV4 share the exact same code branches and must stay
-        byte-identical), then disassembles the real rendered exe to
-        confirm the wiring end to end: the village-wide caller reads
-        the right scratch address for the right command, and the
-        compiled DLL actually exports the entry points it resolves by
-        name.
+        a game's own config opts in. report_mastery_counts stays
+        VV1-only. report_running_granted is also VV1-only (VV3-VV5
+        share the exact same code branches and must stay
+        byte-identical) *except* for VV2, which opts in too --
+        VV2's own ShowOriginsVillageWideResult call site
+        (native/vv1_origins_icons/vv1_origins_icons.c, #included by
+        VV2's own .c) shares VV1's exact 5-arg signature and always
+        displays a "Granted Running to %d villagers." headline, so it
+        needs a real value here, not a placeholder. Then disassembles
+        the real rendered VV1 exe to confirm the wiring end to end: the
+        village-wide caller reads the right scratch address for the
+        right command, and the compiled DLL actually exports the entry
+        points it resolves by name.
         """
         source = (ROOT / "scripts" / "build_village_wide_origins_features.py").read_text(
             encoding="utf-8"
         )
-        # Only VV1's config *data* block may set either opt-in flag --
-        # scoped to just the CONFIG = {...} literal itself (bounded by
-        # "def assemble", the first function after it), not the whole
-        # rest of the file, which legitimately references these flag
-        # names many times in the shared generator logic that reads them.
+        # Only VV1's (and, for report_running_granted, VV2's) config
+        # *data* block may set either opt-in flag -- scoped to just the
+        # CONFIG = {...} literal itself (bounded by "def assemble", the
+        # first function after it), not the whole rest of the file,
+        # which legitimately references these flag names many times in
+        # the shared generator logic that reads them.
         config_literal = source.split("CONFIG = {", 1)[1].split("\ndef assemble", 1)[0]
-        vv1_config, _, other_configs = config_literal.partition('\n    "vv2": {')
+        vv1_config, _, rest = config_literal.partition('\n    "vv2": {')
+        vv2_config, _, other_configs = rest.partition('\n    "vv3": {')
         self.assertIn('"report_running_granted": True', vv1_config)
         self.assertIn('"report_mastery_counts": True', vv1_config)
+        self.assertIn('"report_running_granted": True', vv2_config)
+        self.assertNotIn("report_mastery_counts", vv2_config)
         self.assertNotIn("report_running_granted", other_configs)
         self.assertNotIn("report_mastery_counts", other_configs)
 

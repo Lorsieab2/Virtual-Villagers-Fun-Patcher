@@ -3,7 +3,7 @@ EXPORTS
     ShowVV2UpgradeMenuState=_ShowVV2UpgradeMenuState@8
     ShowVV2AppearanceChooser=_ShowVV2AppearanceChooser@16
     ShowVV2CureResult=_ShowVV2CureResult@8
-    ShowOriginsVillageWideResult=_ShowOriginsVillageWideResult@16
+    ShowOriginsVillageWideResult=_ShowOriginsVillageWideResult@20
     ApplyVV2RunningToAll=_ApplyVV2RunningToAll@4
     ApplyVV2MasteryToAll=_ApplyVV2MasteryToAll@4
     ApplyVV2Collections=_ApplyVV2Collections@8

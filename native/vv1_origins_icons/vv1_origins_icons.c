@@ -743,20 +743,30 @@ __declspec(dllexport) int __stdcall ShowOriginsVillageWideResult(
     return 0;
 }
 
-/* All Villagers are 18: granted/already come from two fixed .shr scratch
-   dwords age_va (in the shared village-wide script, report_age_granted
-   opt-in) zeroes at its own start and increments as it goes
-   (AGE_GRANTED_VA/AGE_ALREADY_VA) -- same shape as
-   ShowOriginsMasteryResult's own granted/already-satisfied pairing.
-   Restored per the OFFICIAL Origins Upgrade Prompts spreadsheet, which
-   asks for a counted result here after all (an earlier pass had briefly
-   simplified this row to a plain "completed." line to match what the
-   spreadsheet said at the time). */
+/* All Villagers are 18: granted/already/golden_child come from three fixed
+   .shr scratch dwords age_va (in the shared village-wide script,
+   report_age_granted opt-in) zeroes at its own start and increments as it
+   goes (AGE_GRANTED_VA/AGE_ALREADY_VA/AGE_GOLDEN_CHILD_VA) -- same shape
+   as ShowOriginsMasteryResult's own granted/already-satisfied pairing,
+   extended with one more count. Restored per the OFFICIAL Origins Upgrade
+   Prompts spreadsheet, which asks for a counted result here after all (an
+   earlier pass had briefly simplified this row to a plain "completed."
+   line to match what the spreadsheet said at the time).
+
+   The Golden Child is always excluded (hardcoded to stay a child, per the
+   user) regardless of how many the village happens to have -- age_va's
+   own per-villager loop compares each candidate against the live
+   dword ptr [0x48B614] singleton (the stock game's own lazily-created
+   "current Golden Child" pointer, confirmed via disassembly of its
+   matching getter/destructor pair) rather than assuming there is exactly
+   one, so this reports however many were actually skipped for that
+   reason, same as every other count here. */
 __declspec(dllexport) int __stdcall ShowOriginsAgeResult(
     int granted,
-    int already
+    int already,
+    int golden_child
 ) {
-    char message[192];
+    char message[256];
     char line[128];
     wsprintfA(
         message,
@@ -767,6 +777,12 @@ __declspec(dllexport) int __stdcall ShowOriginsAgeResult(
         line,
         "\r\n\r\nSkipped %d %s: already 18.",
         already, vv1_vpl(already)
+    );
+    lstrcatA(message, line);
+    wsprintfA(
+        line,
+        "\r\n\r\nSkipped %d %s: is Golden Child.",
+        golden_child, vv1_vpl(golden_child)
     );
     lstrcatA(message, line);
     MessageBoxA(
@@ -885,7 +901,8 @@ enum {
     VV1_ROWMSG_NO_SLOT = 2,
     VV1_ROWMSG_REMOVED = 3,
     VV1_ROWMSG_POPULATION_FULL = 4,
-    VV1_ROWMSG_NO_SLOT_DISLIKE_REMOVED = 5
+    VV1_ROWMSG_NO_SLOT_DISLIKE_REMOVED = 5,
+    VV1_ROWMSG_IS_GOLDEN_CHILD = 6
 };
 
 /* Generic result box for every Tech/Details row whose wording is either a
@@ -927,6 +944,9 @@ __declspec(dllexport) int __stdcall ShowOriginsRowMessage(
         break;
     case VV1_ROWMSG_POPULATION_FULL:
         lstrcpyA(message, "Village population is close to its maximum. The Barrel of Babies needs room for 3 children. No tech points have been deducted.");
+        break;
+    case VV1_ROWMSG_IS_GOLDEN_CHILD:
+        lstrcpyA(message, "This villager is the Golden Child. No tech points have been deducted.");
         break;
     default:
         wsprintfA(message, "%s completed.", name);
