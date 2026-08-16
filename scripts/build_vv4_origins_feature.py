@@ -473,16 +473,15 @@ def main() -> None:
             push eax
             mov ecx, 0x4D6F88
             call 0x41E300
-            mov eax, {COLLECTIONS_COMPLETE_ORDINAL}
-            cmp ebx, 9
-            je do_collections_go
-            mov eax, {COLLECTIONS_RESET_ORDINAL}
-        do_collections_go:
+            # Rows 9-12 map to DLL ordinals 101-104 (9=Complete, 10=Reset
+            # Collections, 11=Equal Division +Parenting, 12=Equal Division
+            # -Parenting): ordinal = ebx + 92.
+            lea eax, [ebx + 92]
             call 0x{COLLECTIONS_APPLY_VA:X}
             test eax, eax
             jnz menu_done
-            # DLL reported no change (already fully found / already cleared):
-            # refund the 1,000,000 directly (not via the doubler-hooked adder).
+            # DLL reported no change (already fully found / already cleared /
+            # no eligible villagers): refund the 1,000,000 directly.
             add dword ptr [0x4D6F88], 1000000
             jmp menu_done
         legacy_charge:
