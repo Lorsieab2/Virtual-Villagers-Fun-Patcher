@@ -933,14 +933,20 @@ def main() -> None:
         elif game_id == "vv2":
             description += " Island Events, Duplicate Collectibles, and Gong of Wonder tech gains are excluded."
         elif game_id == "vv3":
-            description += " Island Events and Duplicate Collectibles are excluded."
+            description += (
+                " The Tech screen also offers Complete all Collections, Reset all "
+                "Collections, and Equal Division of Labor with and without Parenting, "
+                "all supplied by the base Origins feature rather than this optional "
+                "payload. Island Events and Duplicate Collectibles are excluded."
+            )
         elif game_id == "vv4":
             description += (
                 " The Tech screen also offers Time Warp, Island Event, Barrel of "
-                "Babies, Full Heal/Cure All, Complete and Reset All Collections, and "
-                "Equal Division of Labor with and without Parenting, and the Villager "
-                "Details screen adds Change Appearance. Island Events and Duplicate "
-                "Collectibles are excluded."
+                "Babies, Food and Tech Point Doublers, Full Heal/Cure All, Complete "
+                "and Reset All Collections, and Equal Division of Labor with and "
+                "without Parenting, and the Villager Details screen grants Youth, "
+                "Full Mastery, Running, Set Age to 18, and Change Appearance. Island "
+                "Events and Duplicate Collectibles are excluded."
             )
         else:
             description += " Island Events and Duplicate Collectibles are excluded; only Believers are processed and Heathens are skipped."
