@@ -48,10 +48,16 @@ class TechScreenUpgradeCrashHotfixTests(unittest.TestCase):
                 # build_vv1_origins_feature.py) instead of once per
                 # branch, so it has one fewer of these vestigial
                 # "mov eax, export"-before-LoadLibrary sites than the
-                # other four games' still-per-branch pattern. VV1's own
-                # separate, untouched VILLAGE_PREFLIGHT_VA signature
-                # check still has its own, unrelated one, so it isn't 0.
-                expected = 1 if game == 1 else 2
+                # other three games' (VV2/VV4/VV5) still-per-branch
+                # pattern. VV1's own separate, untouched
+                # VILLAGE_PREFLIGHT_VA signature check still has its own,
+                # unrelated one, so it isn't 0. VV4's own village_wide
+                # dispatch was independently consolidated the same way
+                # (a single trampoline resolves the DLL handle once for
+                # Running/Mastery/Age18 together, at build_vv4_origins_
+                # feature.py's own "village_wide:" label), so it gets the
+                # same single-site count.
+                expected = 1 if game in (1, 4) else 2
                 self.assertEqual(
                     source.count("mov eax, 0x{s['show_result_export']:X}"),
                     expected,
