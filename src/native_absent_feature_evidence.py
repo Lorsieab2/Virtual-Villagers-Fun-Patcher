@@ -149,9 +149,9 @@ EXPECTED_JOB_ORDER: dict[str, tuple[tuple[int, str], ...]] = {
         (4, "Building"),
     ),
     "vv5": (
-        (0, "Healing"),
+        (0, "Farming"),
         (1, "Parenting"),
-        (2, "Farming"),
+        (2, "Healing"),
         (3, "Research"),
         (4, "Building"),
         (5, "Devotion"),

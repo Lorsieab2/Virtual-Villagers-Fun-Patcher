@@ -86,8 +86,8 @@
       "policy": {
         "assignment_target": "preference_selector",
         "reviewed_preference_order": [
-          {"id": 0, "name": "Healing"}, {"id": 1, "name": "Parenting"},
-          {"id": 2, "name": "Farming"}, {"id": 3, "name": "Research"},
+          {"id": 0, "name": "Farming"}, {"id": 1, "name": "Parenting"},
+          {"id": 2, "name": "Healing"}, {"id": 3, "name": "Research"},
           {"id": 4, "name": "Building"}, {"id": 5, "name": "Devotion"}
         ],
         "parenting_policy": "evidence_required",
