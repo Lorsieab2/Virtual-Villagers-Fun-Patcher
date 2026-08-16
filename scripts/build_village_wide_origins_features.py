@@ -86,6 +86,15 @@ CONFIG = {
         "bound": "edx",
         "heathen": False,
         "master_value": 100,
+        # VV2's own ShowOriginsVillageWideResult call site (shared with VV1
+        # via #include, scripts/build_vv2_origins_feature.py) always displays
+        # a "Granted Running to %d villagers." headline -- that arg has had
+        # nowhere to come from since VV1's own report_running_granted opt-in
+        # was VV1-only, which left VV2's call site permanently unable to
+        # supply a real value once the shared C function grew this 5th
+        # parameter. Opting VV2 in here is what actually fixes that,
+        # not just re-aligning the two sides' arg counts.
+        "report_running_granted": True,
     },
     "vv3": {
         "title": "Virtual Villagers - The Secret City",

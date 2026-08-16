@@ -59,6 +59,15 @@ CURE_STRING_VA = CURE_ENTRY_VA + 0x1A0
 # .shr RVA, not IMAGE_BASE + raw file offset.
 VILLAGE_WIDE_SIGNATURE_VA = IMAGE_BASE + SHR_RVA + 0x800
 VILLAGE_WIDE_ENTRY_VA = IMAGE_BASE + SHR_RVA + 0x820
+# Fixed scratch dword in the confirmed-unused gap between the optional
+# village-wide payload's entry dispatch and its own running_va (see
+# scripts/build_village_wide_origins_features.py's report_running_granted,
+# which now writes this for VV2 too -- mirrors VV1's own
+# RUNNING_GRANTED_VA). ShowOriginsVillageWideResult's shared C body
+# (native/vv1_origins_icons/vv1_origins_icons.c, #included by VV2's own
+# .c) always displays a "Granted Running to %d villagers." headline, so
+# this can no longer be left unset now that the function takes it.
+RUNNING_GRANTED_VA = VILLAGE_WIDE_ENTRY_VA + 0x30
 VILLAGE_PREFLIGHT_FILE_OFFSET = 0x9A009
 VILLAGE_PREFLIGHT_VA = IMAGE_BASE + SHR_RVA + (VILLAGE_PREFLIGHT_FILE_OFFSET - SHR_FILE_OFFSET)
 BARREL_PENDING_FILE_OFFSET = 0x9A700
@@ -1053,6 +1062,7 @@ def main() -> None:
             push esi
             push edi
             push ebp
+            push dword ptr [0x{RUNNING_GRANTED_VA:X}]
             push ebx
             call eax
             jmp village_wide_done
