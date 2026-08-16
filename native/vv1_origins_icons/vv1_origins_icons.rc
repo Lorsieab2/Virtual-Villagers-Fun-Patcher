@@ -50,7 +50,7 @@ FONT 9, "Segoe UI"
 BEGIN
     ICON        101, -1, 8,   8,  24, 24
     ICON        109, 1100, 22, 20, 12, 12
-    LTEXT       "Time Warp - 3 villager years", -1, 40, 10, 190, 10
+    LTEXT       "Time Warp - Advances 3 Villager Years", -1, 40, 10, 195, 10
     LTEXT       "50,000 tech points", -1, 40, 22, 150, 9
     PUSHBUTTON  "Buy", 1000, 240, 11, 55, 18
 

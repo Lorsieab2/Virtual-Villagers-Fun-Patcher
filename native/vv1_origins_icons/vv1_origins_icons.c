@@ -787,7 +787,7 @@ __declspec(dllexport) int __stdcall ShowOriginsAgeResult(
     );
     wsprintfA(
         line,
-        "\r\n\r\nSkipped %d %s: already 18.",
+        "\r\n\r\nSkipped %d %s: already exactly 18.",
         already, vv1_vpl(already)
     );
     lstrcatA(message, line);
@@ -914,7 +914,7 @@ static const char *vv1_tech_no_change_text(int row) {
     switch (row) {
     case 6: return "Everyone already likes running, or has full Likes slots. No tech points have been deducted.";
     case 7: return "Everyone has already mastered their skills. No tech points have been deducted.";
-    case 8: return "Everyone is already 18. No tech points have been deducted.";
+    case 8: return "Everyone is already exactly 18. No tech points have been deducted.";
     case 9:
     case 10: return "No villagers were eligible. No tech points have been deducted.";
     default: return "No changes were needed. No tech points have been deducted.";

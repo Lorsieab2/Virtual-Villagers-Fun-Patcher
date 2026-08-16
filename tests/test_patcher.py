@@ -941,8 +941,15 @@ class ManifestTests(unittest.TestCase):
         resource = (
             ROOT / "native/vv1_origins_icons/vv1_origins_icons.rc"
         ).read_text(encoding="utf-8")
-        self.assertIn("Time Warp - 3 villager years", resource)
-        self.assertNotIn("Time Warp - Advances 3 Villager Years", resource)
+        # This test used to pin the .rc's OLD "Time Warp - 3 villager years"
+        # label as still-stale against the historical readiness doc's own
+        # aspirational wording below -- the two have since coincidentally
+        # converged (the live, already-shipped Origins feature's own Tech
+        # row was independently renamed to match), which only resolves this
+        # one wording sub-requirement, not the readiness doc's broader
+        # historical/STOP status (unrelated native-mutation/postverification
+        # gates from that older candidate era remain unverified here).
+        self.assertIn("Time Warp - Advances 3 Villager Years", resource)
         readiness = (ROOT / "docs" / "origins-playtest-readiness.md").read_text(
             encoding="utf-8"
         )
