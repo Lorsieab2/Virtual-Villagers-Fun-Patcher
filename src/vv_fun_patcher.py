@@ -51,7 +51,7 @@ VV3_EXPANDED_TIME_WARP_CORE_PATH = (
     ROOT / "data" / "vv3_expanded_time_warp_core.json"
 )
 EXPANDED_STATIC_REPAIR_INTEGRATION_SHA256 = (
-    "93AE2305D23F5FCBE1BB1726BC563E5CAF20E85E926AD26D3AB84D9BB3985195"
+    "90E50499192D9B5A303EAF2E85124D303E42A1B9CC1D9CF902D20A178504B035"
 )
 EXPANDED_ATOMIC_WRITER_INTEGRATION_SHA256 = (
     "1B7068D0679CA896706AA201D27726AF612FD167C0406C5D509774E40728F6A6"
@@ -5807,30 +5807,12 @@ def _expanded_static_repair_integration() -> dict[str, Any]:
             raise PatcherError(f"{game_id} static-repair candidate is unavailable.") from exc
         if source_text_sha256(candidate_bytes) != game.get("candidate_source_text_sha256"):
             raise PatcherError(f"{game_id} static-repair candidate source hash mismatch.")
-        if game_id == "vv4":
-            helper = game.get("helper_lineage")
-            if not isinstance(helper, dict) or set(helper) != {
-                "id", "raw_start", "raw_end", "stock_sha256",
-                "current_parent_sha256", "manifest_row_raw", "manifest_before",
-                "manifest_after", "abi_control_flow_unchanged",
-            }:
-                raise PatcherError("VV4 static-repair helper lineage is not closed.")
-            if (
-                helper.get("id") != "singleton"
-                or helper.get("raw_start") != "0x1FE70"
-                or helper.get("raw_end") != "0x1FEEA"
-                or helper.get("manifest_row_raw") != "0x1FE9B"
-                or helper.get("manifest_before") != "C8710100"
-                or helper.get("manifest_after") != "70DD0100"
-                or helper.get("abi_control_flow_unchanged") is not True
-            ):
-                raise PatcherError("VV4 static-repair helper lineage is not exact.")
         for mode_id, mode in modes.items():
             allowed = {
                 "parent_size", "parent_sha256", "parent_checksum",
                 "result_size", "result_sha256", "result_checksum",
             }
-            if game_id in {"vv4", "vv5"}:
+            if game_id == "vv5":
                 allowed.update({"final_no_fun_sha256", "final_no_fun_checksum"})
             if not isinstance(mode, dict) or set(mode) != allowed:
                 raise PatcherError(
@@ -5912,7 +5894,7 @@ def _apply_reviewed_expanded_static_repair(
     selected_fun_ids: set[str],
 ) -> tuple[list[dict[str, str]], list[tuple[int, int, str]]]:
     """Apply one reviewed repair transaction only at its exact guarded stage."""
-    if patch_mode not in EXPANDED_PATCH_MODES or build.id not in {"vv3", "vv4", "vv5"}:
+    if patch_mode not in EXPANDED_PATCH_MODES or build.id not in {"vv3", "vv5"}:
         return [], []
     integration = _expanded_static_repair_integration()
     game = integration["games"][build.id]
@@ -5958,11 +5940,6 @@ def _apply_reviewed_expanded_static_repair(
             != "6AFF1A8E69234C61CB2D1878C46FA91B0AAA721FC5F29C5B42A678F61BAB8528"
         ):
             raise PatcherError("VV5 static-repair C342 binding mismatch.")
-    if build.id == "vv4":
-        helper = game["helper_lineage"]
-        candidate_helper = candidate.get("d353_helpers", {}).get("singleton", {})
-        if candidate_helper.get("sha256") != helper["stock_sha256"]:
-            raise PatcherError("VV4 stock singleton helper evidence binding mismatch.")
     mode = game["modes"][patch_mode]
     work = bytearray(data)
     checksum_offset, checksum_before, checksum_parent = _canonicalize_pe_checksum(work)
@@ -5975,16 +5952,6 @@ def _apply_reviewed_expanded_static_repair(
         )
     if checksum_parent.hex().upper() != mode["parent_checksum"]:
         raise PatcherError(f"{build.id} static-repair parent checksum mismatch.")
-    if build.id == "vv4":
-        helper = game["helper_lineage"]
-        helper_start = int(helper["raw_start"], 0)
-        helper_end = int(helper["raw_end"], 0)
-        helper_sha256 = hashlib.sha256(work[helper_start:helper_end]).hexdigest().upper()
-        if helper_sha256 != helper["current_parent_sha256"]:
-            raise PatcherError("VV4 current-parent singleton helper hash mismatch.")
-        row_offset = int(helper["manifest_row_raw"], 0)
-        if bytes(work[row_offset : row_offset + 4]).hex().upper() != helper["manifest_after"]:
-            raise PatcherError("VV4 current-parent singleton manifest row mismatch.")
     writes: list[tuple[int, bytes, bytes, str]] = []
     append: bytes | None = None
     if build.id == "vv3":
@@ -5999,19 +5966,6 @@ def _apply_reviewed_expanded_static_repair(
         )
         for hook in candidate["hooks"]:
             writes.append((int(hook["raw"], 0), bytes.fromhex(hook["preimage"]), bytes.fromhex(hook["after"]), f"route VV3 {hook['id']} through reviewed static repair"))
-        append = _static_repair_page(candidate, build.id)
-    elif build.id == "vv4":
-        pe = candidate["pe_guards"]
-        section = candidate["section"]
-        writes.extend(
-            [
-                (int(pe["section_count_offset"]), int(pe["section_count_before"]).to_bytes(2, "little"), int(pe["section_count_after"]).to_bytes(2, "little"), "add reviewed .vv4x section count"),
-                (int(pe["size_of_image_offset"]), int(section["old_size_of_image"]).to_bytes(4, "little"), int(section["new_size_of_image"]).to_bytes(4, "little"), "extend reviewed VV4 SizeOfImage"),
-                (int(section["header_raw"]), bytes.fromhex(section["header_guard"]), bytes.fromhex(section["final_header_bytes"]), "add reviewed .vv4x section header"),
-            ]
-        )
-        for hook in candidate["hooks"]:
-            writes.append((int(hook["raw"]), bytes.fromhex(hook["before"]), bytes.fromhex(hook["after"]), f"route VV4 {hook['name']} through reviewed static repair"))
         append = _static_repair_page(candidate, build.id)
     else:
         overlay = candidate.get("overlay", {})
