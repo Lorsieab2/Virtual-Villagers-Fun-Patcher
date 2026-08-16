@@ -84,25 +84,25 @@ BEGIN
     LTEXT       "1,000,000 tech points", -1, 40, 278, 170, 9
     PUSHBUTTON  "Buy", 1008, 240, 267, 55, 18
 
-    ICON        108, -1, 8, 296,  24, 24
-    LTEXT       "Equal Division of Labor (Incl. Parenting)", -1, 40, 298, 195, 10
+    ICON        104, -1, 8, 296,  24, 24
+    LTEXT       "Complete all Collections", -1, 40, 298, 190, 10
     LTEXT       "1,000,000 tech points", -1, 40, 310, 170, 9
-    PUSHBUTTON  "Buy", 1011, 240, 299, 55, 18
+    PUSHBUTTON  "Buy", 1009, 240, 299, 55, 18
 
-    ICON        107, -1, 8, 328,  24, 24
-    LTEXT       "Equal Division of Labor (No Parenting)", -1, 40, 330, 195, 10
+    ICON        105, -1, 8, 328,  24, 24
+    LTEXT       "Reset all Collections", -1, 40, 330, 190, 10
     LTEXT       "1,000,000 tech points", -1, 40, 342, 170, 9
-    PUSHBUTTON  "Buy", 1012, 240, 331, 55, 18
+    PUSHBUTTON  "Buy", 1010, 240, 331, 55, 18
 
-    ICON        104, -1, 8, 360,  24, 24
-    LTEXT       "Complete all Collections", -1, 40, 362, 190, 10
+    ICON        108, -1, 8, 360,  24, 24
+    LTEXT       "Equal Division of Labor (Incl. Parenting)", -1, 40, 362, 195, 10
     LTEXT       "1,000,000 tech points", -1, 40, 374, 170, 9
-    PUSHBUTTON  "Buy", 1009, 240, 363, 55, 18
+    PUSHBUTTON  "Buy", 1011, 240, 363, 55, 18
 
-    ICON        105, -1, 8, 392,  24, 24
-    LTEXT       "Reset all Collections", -1, 40, 394, 190, 10
+    ICON        107, -1, 8, 392,  24, 24
+    LTEXT       "Equal Division of Labor (No Parenting)", -1, 40, 394, 195, 10
     LTEXT       "1,000,000 tech points", -1, 40, 406, 170, 9
-    PUSHBUTTON  "Buy", 1010, 240, 395, 55, 18
+    PUSHBUTTON  "Buy", 1012, 240, 395, 55, 18
 
     CTEXT       "Press ESC to exit this menu.", -1, 20, 428, 270, 9
     DEFPUSHBUTTON "Cancel", 2, 120, 441, 70, 14
