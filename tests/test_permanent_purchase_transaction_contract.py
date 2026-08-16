@@ -2,13 +2,14 @@ from __future__ import annotations
 
 import copy
 import json
+import sys
 from pathlib import Path
 import unittest
 
-import permanent_purchase_transaction_contract as contract
-
-
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / "src"))
+
+import permanent_purchase_transaction_contract as contract
 
 
 class PermanentPurchaseContractTests(unittest.TestCase):
