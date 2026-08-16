@@ -32,7 +32,7 @@ FONT 9, "Segoe UI"
 BEGIN
     ICON        101, -1, 8,   6,  24, 24
     ICON        109, 1100, 22, 18, 12, 12
-    LTEXT       "Time Warp - 3 villager years", -1, 40, 8, 190, 10
+    LTEXT       "Time Warp", -1, 40, 8, 190, 10
     LTEXT       "50,000 tech points", -1, 40, 20, 150, 9
     PUSHBUTTON  "Buy", 1000, 240, 9, 55, 18
 
@@ -62,13 +62,13 @@ BEGIN
 
     ICON        110, -1, 8, 141,  24, 24
     ICON        109, 1105, 22, 153, 12, 12
-    LTEXT       "Full Heal/Cure All Villagers", -1, 40, 143, 190, 10
+    LTEXT       "Full Heal / Cure All", -1, 40, 143, 190, 10
     LTEXT       "30,000 tech points", -1, 40, 155, 150, 9
     PUSHBUTTON  "Buy", 1005, 240, 144, 55, 18
 
     ICON        108, -1, 8, 168,  24, 24
     ICON        109, 1106, 22, 180, 12, 12
-    LTEXT       "All Villagers Like Running", -1, 40, 170, 190, 10
+    LTEXT       "Grant Running to All Villagers", -1, 40, 170, 190, 10
     LTEXT       "1,000,000 tech points", -1, 40, 182, 170, 9
     PUSHBUTTON  "Buy", 1006, 240, 171, 55, 18
 
@@ -80,17 +80,17 @@ BEGIN
 
     ICON        106, -1, 8, 222,  24, 24
     ICON        109, 1108, 22, 234, 12, 12
-    LTEXT       "All Villagers are 18", -1, 40, 224, 190, 10
+    LTEXT       "Set All Villagers to 18", -1, 40, 224, 190, 10
     LTEXT       "1,000,000 tech points", -1, 40, 236, 170, 9
     PUSHBUTTON  "Buy", 1008, 240, 225, 55, 18
 
     ICON        104, -1, 8, 249,  24, 24
-    LTEXT       "Complete all Collections", -1, 40, 251, 190, 10
+    LTEXT       "Complete All Collections", -1, 40, 251, 190, 10
     LTEXT       "1,000,000 tech points", -1, 40, 263, 170, 9
     PUSHBUTTON  "Buy", 1009, 240, 252, 55, 18
 
     ICON        105, -1, 8, 276,  24, 24
-    LTEXT       "Reset all Collections", -1, 40, 278, 190, 10
+    LTEXT       "Reset All Collections", -1, 40, 278, 190, 10
     LTEXT       "1,000,000 tech points", -1, 40, 290, 170, 9
     PUSHBUTTON  "Buy", 1010, 240, 277, 55, 18
 
