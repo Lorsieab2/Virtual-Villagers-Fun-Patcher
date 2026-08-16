@@ -815,18 +815,45 @@ __declspec(dllexport) int __stdcall ShowOriginsAgeResult(
    Mastery/Age, there is no "already correct" state to skip past: every
    eligible villager's job preference is reassigned unconditionally, so
    granted is simply how many villagers were actually eligible (active,
-   alive, not the Golden Child). */
+   alive, not the Golden Child).
+
+   male_counts/female_counts each point at 5 more scratch dwords indexed
+   by the same table position equal_division_core's own cyclic index
+   (esi) uses -- 0=Farming, 1=Building, 2=Research, 3=Healing,
+   4=Breeding, matching EQUAL_DIVISION_TABLE_BYTES's own on-screen Skills
+   order, not the raw 1-5 job-preference codes written to the record.
+   include_parenting selects how many of the 5 entries to report (4 for
+   the No-Parenting row, which never reaches the trailing Breeding
+   entry). */
 __declspec(dllexport) int __stdcall ShowOriginsEqualDivisionResult(
     int granted,
-    int golden_child_skipped
+    int golden_child_skipped,
+    int include_parenting,
+    const int *male_counts,
+    const int *female_counts
 ) {
-    char message[192];
-    char line[128];
+    static const char *job_names[5] = {
+        "Farming", "Building", "Research", "Healing", "Breeding"
+    };
+    char message[768];
+    char line[192];
+    int job_count = include_parenting ? 5 : 4;
+    int i;
     wsprintfA(
         message,
         "Set %d %s' Job Preferences.",
         granted, vv1_vpl(granted)
     );
+    for (i = 0; i < job_count; ++i) {
+        int total = male_counts[i] + female_counts[i];
+        wsprintfA(
+            line,
+            "\r\n\r\n%s: %d %s (%d Male, %d Female).",
+            job_names[i], total, vv1_vpl(total),
+            male_counts[i], female_counts[i]
+        );
+        lstrcatA(message, line);
+    }
     wsprintfA(
         line,
         "\r\n\r\nSkipped %d %s: is Golden Child.",

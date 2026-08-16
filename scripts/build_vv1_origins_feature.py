@@ -143,6 +143,20 @@ EQUAL_DIVISION_GOLDEN_SKIPPED_FILE_OFFSET = 0x8B8B0
 EQUAL_DIVISION_GOLDEN_SKIPPED_VA = IMAGE_BASE + SHR_RVA + (
     EQUAL_DIVISION_GOLDEN_SKIPPED_FILE_OFFSET - SHR_FILE_OFFSET
 )
+# Per-job, per-gender counters: 5 dwords each, indexed by table position
+# (0=Farming, 1=Building, 2=Research, 3=Healing, 4=Breeding -- the same
+# index EQUAL_DIVISION_TABLE_BYTES/esi already use, so no separate
+# code-to-position lookup is needed). ShowOriginsEqualDivisionResult
+# reads both arrays directly to report exactly how many of each gender
+# were set to each job.
+EQUAL_DIVISION_MALE_COUNTS_FILE_OFFSET = 0x8B8B4
+EQUAL_DIVISION_MALE_COUNTS_VA = IMAGE_BASE + SHR_RVA + (
+    EQUAL_DIVISION_MALE_COUNTS_FILE_OFFSET - SHR_FILE_OFFSET
+)
+EQUAL_DIVISION_FEMALE_COUNTS_FILE_OFFSET = 0x8B8C8
+EQUAL_DIVISION_FEMALE_COUNTS_VA = IMAGE_BASE + SHR_RVA + (
+    EQUAL_DIVISION_FEMALE_COUNTS_FILE_OFFSET - SHR_FILE_OFFSET
+)
 # D166 fix: VV1 previously fired the native Barrel of Babies event the
 # instant the token was set, with no check that the Tech-screen Upgrades
 # dialog (whose own "Buy" click just set that token) had actually closed.
@@ -1637,6 +1651,17 @@ def main() -> None:
             mov dword ptr [0x{EQUAL_DIVISION_N_VA:X}], ecx
             mov dword ptr [0x{EQUAL_DIVISION_GRANTED_VA:X}], 0
             mov dword ptr [0x{EQUAL_DIVISION_GOLDEN_SKIPPED_VA:X}], 0
+            # EQUAL_DIVISION_MALE_COUNTS_VA and _FEMALE_COUNTS_VA are laid
+            # out contiguously (5 dwords each, back to back), so all 10 can
+            # be zeroed in one small indexed loop instead of 10 unrolled
+            # movs.
+            xor eax, eax
+            mov ecx, 10
+        equal_division_zero_counts:
+            mov dword ptr [eax*4 + 0x{EQUAL_DIVISION_MALE_COUNTS_VA:X}], 0
+            inc eax
+            dec ecx
+            jne equal_division_zero_counts
             xor esi, esi
             mov ebx, dword ptr [edi + 0xADE8]
             test ebx, ebx
@@ -1657,6 +1682,7 @@ def main() -> None:
             movzx eax, byte ptr [esi + 0x{EQUAL_DIVISION_TABLE_VA:X}]
             mov dword ptr [ebx + 0x3D0], eax
             inc dword ptr [0x{EQUAL_DIVISION_GRANTED_VA:X}]
+            inc dword ptr [esi*4 + 0x{EQUAL_DIVISION_MALE_COUNTS_VA:X}]
             inc esi
             cmp esi, dword ptr [0x{EQUAL_DIVISION_N_VA:X}]
             jne equal_division_next1
@@ -1683,6 +1709,7 @@ def main() -> None:
             movzx eax, byte ptr [esi + 0x{EQUAL_DIVISION_TABLE_VA:X}]
             mov dword ptr [ebx + 0x3D0], eax
             inc dword ptr [0x{EQUAL_DIVISION_GRANTED_VA:X}]
+            inc dword ptr [esi*4 + 0x{EQUAL_DIVISION_FEMALE_COUNTS_VA:X}]
             inc esi
             cmp esi, dword ptr [0x{EQUAL_DIVISION_N_VA:X}]
             jne equal_division_next2
@@ -1723,6 +1750,7 @@ def main() -> None:
         f"""
             push ebx
             push esi
+            push ebp
             cmp dword ptr [edi + 0xA2FC], 1000000
             jae equal_division_funds_ok
             mov eax, 0x{s['not_enough']:X}
@@ -1734,9 +1762,11 @@ def main() -> None:
             jmp equal_division_dispatch_done
         equal_division_funds_ok:
             mov ecx, 5
+            mov ebp, 1
             cmp ebx, 10
             jne equal_division_call_core
             mov ecx, 4
+            xor ebp, ebp
         equal_division_call_core:
             call 0x{EQUAL_DIVISION_CORE_VA:X}
             test eax, eax
@@ -1759,10 +1789,14 @@ def main() -> None:
             call dword ptr [0x4570D4]
             test eax, eax
             je equal_division_dispatch_done
+            push 0x{EQUAL_DIVISION_FEMALE_COUNTS_VA:X}
+            push 0x{EQUAL_DIVISION_MALE_COUNTS_VA:X}
+            push ebp
             push esi
             push ebx
             call eax
         equal_division_dispatch_done:
+            pop ebp
             pop esi
             pop ebx
             ret
