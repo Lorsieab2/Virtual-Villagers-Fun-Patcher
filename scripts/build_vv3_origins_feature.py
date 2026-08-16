@@ -190,6 +190,7 @@ def main() -> None:
         ("prepare_export", "PrepareOriginsVillageWide"),
         ("prepare_barrel_export", "PrepareBarrelBabies"),
         ("result_export", "ShowOriginsUpgradeResult"),
+        ("edl_export", "EqualDivisionOfLabor"),
         (
             "village_no_change",
             "No changes were needed. No tech points have been deducted.",
@@ -550,6 +551,10 @@ def main() -> None:
             je do_complete_collections
             cmp ebx, 10
             je do_reset_collections
+            cmp ebx, 11
+            je do_equal_division_incl
+            cmp ebx, 12
+            je do_equal_division_no
 
             cmp ebx, 3
             jb preflight
@@ -746,6 +751,33 @@ def main() -> None:
             call eax
         show_result_done:
             pop eax
+            jmp menu_done
+        do_equal_division_incl:
+            push 1
+            jmp do_equal_division
+        do_equal_division_no:
+            push 0
+        do_equal_division:
+            # ebx 11/12: the DLL export EqualDivisionOfLabor owns the whole
+            # transaction (funds check, the 1,000,000 deduct from the tech pool
+            # 0x582644, the round-robin +0xEC0 job-preference assignment, and the
+            # OFFICIAL-sheet result box), so the near-full payload only routes the
+            # already-confirmed button to it.  includeParenting = 1 (row 11) or 0
+            # (row 12); fail-open (just close the menu) if the DLL/export is
+            # unresolved, leaving the pushed argument to be discarded.
+            push 0x{s['icons_dll']:X}
+            call dword ptr [0x47C124]
+            test eax, eax
+            je do_equal_division_pop
+            push 0x{s['edl_export']:X}
+            push eax
+            call dword ptr [0x47C128]
+            test eax, eax
+            je do_equal_division_pop
+            call eax
+            jmp menu_done
+        do_equal_division_pop:
+            add esp, 4
             jmp menu_done
         menu_done:
             pop ebp

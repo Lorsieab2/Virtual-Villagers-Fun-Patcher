@@ -8,7 +8,7 @@ enum {
     IDD_ORIGINS_VILLAGER = 202,
     IDD_ORIGINS_FULL_MASTERY = 203,
     ID_BUY_FIRST = 1000,
-    ID_BUY_LAST = 1010,
+    ID_BUY_LAST = 1012,
     ID_CHECK_FIRST = 1100,
     STATE_VILLAGER = 0x10000,
     STATE_VILLAGE_WIDE = 0x20000,
@@ -24,11 +24,14 @@ static const char *const tech_names[] = {
     "Food Point Doubler", "Full Heal / Cure All",
     "Grant Running to All Villagers", "Grant Full Mastery to All Villagers",
     "Set All Villagers to 18", "Complete All Collections",
-    "Reset All Collections"
+    "Reset All Collections",
+    "Equal Division of Labor (Includes Parenting)",
+    "Equal Division of Labor (No Parenting)"
 };
 static const char *const tech_costs[] = {
     "50,000", "30,000", "75,000", "500,000", "500,000", "30,000",
-    "1,000,000", "1,000,000", "1,000,000", "1,000,000", "1,000,000"
+    "1,000,000", "1,000,000", "1,000,000", "1,000,000", "1,000,000",
+    "1,000,000", "1,000,000"
 };
 static const char *const detail_names[] = {
     "Grant Youth", "Grant Full Mastery", "Grant Running", "Set Age to 18",
@@ -358,6 +361,11 @@ __declspec(dllexport) int __stdcall ShowOriginsUpgradeMenu(
 #define VV3_LIKES      0xFB4   /* 3 ints; 38 = running; -1 = empty    */
 #define VV3_DISLIKES   0xFC0   /* 3 ints; 38 = running                */
 #define VV3_RUN_PREF   38
+#define VV3_GENDER     0xDC8   /* byte: 0 = male, 1 = female          */
+#define VV3_CHIEF      0xE80   /* byte: != 0 = Tribal Chief (no pref) */
+#define VV3_PREF       0xEC0   /* int:  -1 none, 0..4 preferred skill */
+#define VV3_TECH_POINTS 0x00582644u  /* int: the tech-point pool the Buy charges */
+#define EDL_COST       1000000
 
 #define VW_RUNNING 6
 #define VW_MASTERY 7
@@ -594,6 +602,94 @@ __declspec(dllexport) int __stdcall ShowOriginsVillageWideResult(int command) {
     MessageBoxA(GetForegroundWindow(), message, "Origins Upgrades",
                 MB_OK | MB_ICONINFORMATION | MB_TOPMOST | MB_SETFOREGROUND);
     return 0;
+}
+
+/* ---- Equal Division of Labor (Tech-screen buttons 1011/1012) ----
+   Scans the whole population and cyclically assigns each eligible villager's
+   job-preference checkmark (record +0xEC0, an index: 0=Farming, 1=Parenting,
+   2=Healing, 3=Research, 4=Building) in the order Farmer, Builder, Researcher,
+   Healer[, Parenting] -- indices [0,4,3,2(,1)] -- repeating.  Males and females
+   cycle on independent counters so each profession gets a balanced M/F split as
+   well as a balanced count.  Eligible = every active villager EXCEPT the Tribal
+   Chief (+0xE80 != 0), who cannot hold a preference; children of any age and
+   nursing mothers are included.  Each eligible villager's existing preference is
+   overwritten unconditionally (no "already correct" state), so N is simply how
+   many were eligible.  The DLL owns the whole transaction (the exe payload is
+   nearly full): it verifies funds and deducts the 1,000,000 cost from the tech
+   pool 0x00582644 itself, then shows the OFFICIAL-sheet result.  Returns N. */
+__declspec(dllexport) int __stdcall EqualDivisionOfLabor(int includeParenting) {
+    /* Farmer, Builder, Researcher, Healer, Parenting -> +0xEC0 index values. */
+    static const int cycle[5] = {0, 4, 3, 2, 1};
+    const char *names[5] = {"Farming", "Building", "Research", "Healing", "Breeding"};
+    unsigned char *rec = (unsigned char *)(UINT_PTR)VV3_REC_BASE;
+    int slots = *(int *)(UINT_PTR)VV3_SLOTS_PTR;
+    int cyclen = includeParenting ? 5 : 4;
+    int *tech = (int *)(UINT_PTR)VV3_TECH_POINTS;
+    unsigned int per_m[5] = {0, 0, 0, 0, 0};
+    unsigned int per_f[5] = {0, 0, 0, 0, 0};
+    unsigned int total = 0, skipped = 0, eligible = 0;
+    int male_ctr = 0, female_ctr = 0;
+    char message[512];
+    char line[160];
+    int i, k;
+    unsigned char *r;
+
+    /* First pass: how many villagers could be assigned (everyone active but the
+       Chief).  Refuse before charging if there is nobody. */
+    for (i = 0, r = rec; i < slots; ++i, r += VV3_STRIDE) {
+        if (r[VV3_ACTIVE] == 0) continue;
+        if (r[VV3_CHIEF] != 0) continue;
+        eligible++;
+    }
+    if (eligible == 0) {
+        MessageBoxA(GetForegroundWindow(),
+                    "No villagers were eligible. No tech points have been deducted.",
+                    "Origins Upgrades",
+                    MB_OK | MB_ICONINFORMATION | MB_TOPMOST | MB_SETFOREGROUND);
+        return 0;
+    }
+    if ((unsigned int)*tech < (unsigned int)EDL_COST) {
+        MessageBoxA(GetForegroundWindow(), "Not enough tech points.",
+                    "Origins Upgrades",
+                    MB_OK | MB_ICONINFORMATION | MB_TOPMOST | MB_SETFOREGROUND);
+        return 0;
+    }
+    *tech -= EDL_COST;
+
+    /* Second pass: assign round-robin, males and females on separate counters. */
+    for (i = 0; i < slots; ++i, rec += VV3_STRIDE) {
+        int skill, female;
+        if (rec[VV3_ACTIVE] == 0) continue;
+        if (rec[VV3_CHIEF] != 0) { skipped++; continue; }
+        female = rec[VV3_GENDER] != 0;
+        if (female) { skill = cycle[female_ctr % cyclen]; female_ctr++; }
+        else        { skill = cycle[male_ctr % cyclen];   male_ctr++;  }
+        *(int *)(rec + VV3_PREF) = skill;
+        if (female) per_f[skill]++; else per_m[skill]++;
+        total++;
+    }
+
+    /* Build the OFFICIAL-sheet success message.  Professions print in the sheet's
+       order Farming, Building, Research, Healing[, Breeding]; their +0xEC0 indices
+       are 0, 4, 3, 2, 1. */
+    {
+        static const int order[5] = {0, 4, 3, 2, 1};
+        wsprintfA(message, "Set %u %s' Job Preferences.",
+                  total, villagers_word(total));
+        for (k = 0; k < cyclen; ++k) {
+            int idx = order[k];
+            unsigned int m = per_m[idx], f = per_f[idx];
+            wsprintfA(line, "\r\n\r\n%s: %u %s (%u Male, %u Female).",
+                      names[k], m + f, villagers_word(m + f), m, f);
+            lstrcatA(message, line);
+        }
+        wsprintfA(line, "\r\n\r\nSkipped %u %s: is Tribal Chief.",
+                  skipped, villagers_word(skipped));
+        lstrcatA(message, line);
+    }
+    MessageBoxA(GetForegroundWindow(), message, "Origins Upgrades",
+                MB_OK | MB_ICONINFORMATION | MB_TOPMOST | MB_SETFOREGROUND);
+    return (int)total;
 }
 
 __declspec(dllexport) int __stdcall ShowOriginsFullMasteryResult(
