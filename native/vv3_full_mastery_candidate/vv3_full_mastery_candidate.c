@@ -588,11 +588,11 @@ __declspec(dllexport) int __stdcall ShowOriginsVillageWideResult(int command) {
         }
     } else if (command == VW_AGE) {
         if (vw_granted == 0) {
-            lstrcpyA(message, "Everyone is already 18. No tech points have been deducted.");
+            lstrcpyA(message, "Everyone is already exactly 18. No tech points have been deducted.");
         } else {
             wsprintfA(message, "Set %u %s to Age 18.",
                       vw_granted, villagers_word(vw_granted));
-            wsprintfA(line, "\r\n\r\nSkipped %u %s: already 18.",
+            wsprintfA(line, "\r\n\r\nSkipped %u %s: already exactly 18.",
                       vw_already, villagers_word(vw_already));
             lstrcatA(message, line);
         }
