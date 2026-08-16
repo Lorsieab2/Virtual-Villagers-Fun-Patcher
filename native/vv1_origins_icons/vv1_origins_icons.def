@@ -8,4 +8,4 @@ EXPORTS
     ShowOriginsPermanentChangeConfirm=_ShowOriginsPermanentChangeConfirm@12
     ShowOriginsMasteryResult=_ShowOriginsMasteryResult@8
     ShowOriginsRowMessage=_ShowOriginsRowMessage@12
-    ShowOriginsAgeResult=_ShowOriginsAgeResult@8
+    ShowOriginsAgeResult=_ShowOriginsAgeResult@12

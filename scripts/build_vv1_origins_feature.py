@@ -57,6 +57,19 @@ MASTERY_GRANTED_VA = VILLAGE_WIDE_ENTRY_VA + 0x38
 MASTERY_ALREADY_VA = VILLAGE_WIDE_ENTRY_VA + 0x3C
 AGE_GRANTED_VA = VILLAGE_WIDE_ENTRY_VA + 0x40
 AGE_ALREADY_VA = VILLAGE_WIDE_ENTRY_VA + 0x44
+# Must exactly match build_village_wide_origins_features.py's own
+# age_golden_child_va = entry_va + 0x48 (entry_va there and
+# VILLAGE_WIDE_ENTRY_VA here are the same address for VV1).
+AGE_GOLDEN_CHILD_VA = VILLAGE_WIDE_ENTRY_VA + 0x48
+# This exact VV1 build's own module-static singleton pointer to the current
+# Golden Child's villager record -- dword ptr [GOLDEN_CHILD_SINGLETON_VA]
+# holds that record's address (0 if none exists yet). Confirmed via a live
+# memory scan (found the address, then found this stable pointer to it) and
+# via static disassembly of its lazy-getter/destructor pair at 0x43da37 /
+# 0x43da9d-0x43dac6. This is the stock game's own global, not anything we
+# allocate -- unlike RUNNING_GRANTED_VA and friends above, it is never
+# written by our own code, only read and compared against.
+GOLDEN_CHILD_SINGLETON_VA = 0x48B614
 VILLAGE_PREFLIGHT_FILE_OFFSET = 0x8B009
 VILLAGE_PREFLIGHT_VA = IMAGE_BASE + SHR_RVA + (
     VILLAGE_PREFLIGHT_FILE_OFFSET - SHR_FILE_OFFSET
@@ -1077,10 +1090,16 @@ def main() -> None:
             pop eax
             push eax
             sub dword ptr [eax + 0xA2FC], 1000000
-            mov ecx, dword ptr [0x{AGE_ALREADY_VA:X}]
-            push ecx
-            mov ecx, dword ptr [0x{AGE_GRANTED_VA:X}]
-            push ecx
+            # stdcall pushes right-to-left: ShowOriginsAgeResult(granted,
+            # already, golden_child), so golden_child goes on the stack
+            # first (deepest), then already, then granted. push m32
+            # directly (6 bytes) instead of mov ecx,[addr]/push ecx (7
+            # bytes) -- this cave (CURE_ENTRY_VA up to BARREL_PENDING_VA)
+            # has no spare room for the extra byte per argument now that
+            # there are three instead of two.
+            push dword ptr [0x{AGE_GOLDEN_CHILD_VA:X}]
+            push dword ptr [0x{AGE_ALREADY_VA:X}]
+            push dword ptr [0x{AGE_GRANTED_VA:X}]
             call ebp
             jmp village_result_done
 
@@ -1377,6 +1396,25 @@ def main() -> None:
             je preflight_mastery
             cmp ebx, 2
             je preflight_running
+            # Set Age to 18 (ebx==3, the only row left here): the Golden
+            # Child is hardcoded to stay a child and must never be aged up,
+            # so this is checked first and independently of the current-age
+            # comparisons below -- it's a categorical exclusion, not an
+            # already-18 case, and returns status 6
+            # (VV1_ROWMSG_IS_GOLDEN_CHILD) directly with no charge, the
+            # same "not 100, so already the exact status to display"
+            # convention this function's own caller documents above.
+            # push imm8/pop eax (3 bytes) instead of mov eax,imm32 (5
+            # bytes) here and in preflight_no_change/preflight_change below
+            # -- this function's .shr cave has a fixed 256-byte budget
+            # (POPULATION_FINAL_TIER_VA sits immediately after it) with no
+            # slack for the naive encoding once this branch is added.
+            cmp edx, dword ptr [0x{GOLDEN_CHILD_SINGLETON_VA:X}]
+            jne preflight_age_check
+            push 6
+            pop eax
+            ret
+        preflight_age_check:
             cmp dword ptr [edx + 0x348], 360
             jne preflight_change
             cmp dword ptr [edx + 0x34C], 360
@@ -1439,10 +1477,12 @@ def main() -> None:
             jmp 0x{RUNNING_DISLIKE_CLEAR_VA:X}
 
         preflight_no_change:
-            mov eax, 1
+            push 1
+            pop eax
             ret
         preflight_change:
-            mov eax, 100
+            push 100
+            pop eax
             ret
         """,
         DETAIL_PREFLIGHT_VA,
