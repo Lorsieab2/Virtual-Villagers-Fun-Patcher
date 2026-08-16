@@ -253,7 +253,7 @@ class VV5OriginsFeatureTests(unittest.TestCase):
         self.assertIn("mov ecx, dword ptr [0x41F1E6]", self.source)
         self.assertIn("sub ecx, 3", self.source)
         self.assertIn("or dword ptr [0x51D388], 4", self.source)
-        self.assertIn("mov esi, 30", self.source)
+        self.assertIn("mov esi, 25", self.source)
         self.assertIn("and dword ptr [0x51D388], 0xFFFFFFFB", self.source)
         expanded = json.loads(EXPANDED.read_text(encoding="utf-8"))
         bound = next(
@@ -274,7 +274,7 @@ class VV5OriginsFeatureTests(unittest.TestCase):
         self.assertEqual(hook["uninstall_after"], hook["before"])
         body = selector["body"]
         expected_body = bytes.fromhex(
-            "8B748414F70588D3510004000000740C832588D35100FBBE1E000000"
+            "8B748414F70588D3510004000000740C832588D35100FBBE19000000"
             "6A64E8BD14C5FFE97267C6FF"
         )
         self.assertEqual(body["file_offset"], "0xDB180")
@@ -551,7 +551,7 @@ class VV5OriginsFeatureTests(unittest.TestCase):
         ).hexdigest().upper()
         self.assertEqual(
             digest,
-            "70D32F83C8E8DD75C5F392C643EF56F7A5CB5D3F6040E2294D99EE3AF663E93E",
+            "B805995D1BA904EBDA6CCFFCDD2FCA4487FB13E7288AFB6DA42F3B84553C846C",
         )
         self.assertEqual(
             self.feature["companion_files"][0]["sha256"],

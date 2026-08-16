@@ -41,8 +41,8 @@ ATOMIC_SOURCE_TEXT_SHA256 = {
 }
 
 STOCK_SHA256 = "92946781980220E9D1A2E6C573925519934608F5215F4A0F8CE3B90088C5C65D"
-ACTIVE_SHA256 = "F218CEC63A60BCC863ECE2028D5267444948CE9F7CC0BA43F520E57D4B0219B3"
-ACTIVE_SOURCE_TEXT_SHA256 = "BEE09E5319A394213AF605CEB60F06ED2CAD1E54397C073176AA52E991013ADD"
+ACTIVE_SHA256 = "98DF5E199449F8818C06ACA56131215E509C0236895AC63DF21C9194CC814A57"
+ACTIVE_SOURCE_TEXT_SHA256 = "E08F9284B21B4855CCF94663C7C7054898DBFE73BB14DC06311B498A3B6779B3"
 C342_COUNT = 66
 C342_ROWS_SHA256 = "7A95D8CCC6477777E9A3AA4C3EFEB30D8AF0D50434C910C1ADE9A645C7DBDDCA"
 TASK8_SOURCE_TEXT_SHA256 = "090ED9CA074F02F9321B2F8E0C470FD0AF18B235231DA94B6D38293360BC9510"
@@ -145,6 +145,10 @@ OFF = {
     "running_all": 0x4C00,
     "mastery_all": 0x5200,
     "age18_all": 0x5800,
+    "barrel_close_arm": 0x5E00,
+    "division_parenting": 0x6000,
+    "division_no_parenting": 0x6200,
+    "apply_division": 0x6400,
     "strings": 0x7000,
 }
 
@@ -175,6 +179,10 @@ SIZES = {
     "running_all": 0x600,
     "mastery_all": 0x600,
     "age18_all": 0x600,
+    "barrel_close_arm": 0x80,
+    "division_parenting": 0x200,
+    "division_no_parenting": 0x200,
+    "apply_division": 0x80,
 }
 
 
@@ -234,11 +242,16 @@ def build_strings(page: bytearray, page_va: int) -> dict[str, int]:
         ("status_export", b"ShowVV5Task9Result\0"),
         ("sdl", b"SDL2.dll\0"),
         ("flags", b"SDL_GetWindowFlags\0"),
+        ("sethint", b"SDL_SetHint\0"),
+        ("min_hint", b"SDL_VIDEO_MINIMIZE_ON_FOCUS_LOSS\0"),
+        ("hint_zero", b"0\0"),
     )
     # These self-contained event strings live in the stock layout only, so the
     # expanded-256 baseline string region stays byte-identical for its overlay.
     time_warp_values = (
         ("appearance_export", b"ShowAppearanceChooser\0"),
+        ("genetics_export", b"ShowVV5Task9GeneticsWarning\0"),
+        ("division_export", b"ApplyVV5EqualDivision\0"),
         ("perm_warning", b"This upgrade makes permanent changes to your village. Do you still want to purchase this?\0"),
         ("tw_get", b"GetOriginsOwner\0"),
         ("tw_user32", b"USER32.dll\0"),
@@ -261,7 +274,7 @@ def build_strings(page: bytearray, page_va: int) -> dict[str, int]:
         ("iv_charge_unknown", b"The final tech-point balance did not match the exact 30,000-point deduction. The charge outcome is unknown; no event was queued.\0"),
         ("iv_queue_unknown", b"The 30,000-point deduction was verified, but the event could not be queued.\0"),
         ("bb_warning", b"Do you want to buy Barrel of Babies for 75,000 tech points?\r\nPress OK to confirm, or Cancel.\0"),
-        ("bb_full", b"The village population is already close to its max. No tech points have been deducted.\0"),
+        ("bb_full", b"Village population is close to its maximum. The Barrel of Babies needs room for 3 children. No tech points have been deducted.\0"),
         ("bb_cancelled", b"Barrel of Babies was canceled.\r\nNo tech points have been deducted.\0"),
         ("bb_recheck", b"The village population or tech-point balance changed during confirmation.\r\nNo tech points have been deducted.\0"),
         ("bb_unavailable", b"Barrel of Babies is unavailable.\r\nNo tech points have been deducted.\0"),
@@ -310,7 +323,6 @@ def build_modal(page: bytearray, page_va: int, s: dict[str, int]) -> dict[str, b
             mov dword ptr [ebp-0x10], eax
             mov dword ptr [ebp-0x14], ecx
             mov dword ptr [ebp-0x2C], -1
-            mov dword ptr [ebp-0x30], 0
             mov dword ptr [ebp-0x34], 0
             mov dword ptr [ebp-0x38], 0
             test ecx, ecx
@@ -334,98 +346,31 @@ def build_modal(page: bytearray, page_va: int, s: dict[str, int]) -> dict[str, b
             mov dword ptr [ebp-0x38], 1
             call eax
             test eax, eax
-            jz cleanup
-            call reacquire
-            test eax, eax
-            jz cleanup
-            mov dword ptr [ebp-0x18], esi
-            mov dword ptr [ebp-0x1C], edi
-            mov dword ptr [ebp-0x20], eax
-            movzx ebx, byte ptr [edi+0x1E]
-            mov dword ptr [ebp-0x24], ebx
+            jz end_owner
             push 0x{s['sdl']:X}
             call dword ptr [0x4951D8]
             test eax, eax
-            jz cleanup
-            push 0x{s['flags']:X}
+            jz invoke
+            push 0x{s['sethint']:X}
             push eax
             call dword ptr [0x4951DC]
             test eax, eax
-            jz cleanup
-            mov dword ptr [ebp-0x28], eax
-            push dword ptr [ebp-0x20]
+            jz invoke
+            push 0x{s['hint_zero']:X}
+            push 0x{s['min_hint']:X}
             call eax
-            add esp, 4
-            and eax, 1
-            cmp eax, 0
-            je windowed
-            cmp dword ptr [ebp-0x24], 0
-            jne cleanup
-            mov ecx, esi
-            call 0x40A270
-            mov dword ptr [ebp-0x30], 1
-            call reacquire
-            cmp esi, dword ptr [ebp-0x18]
-            jne invoke_failed
-            cmp edi, dword ptr [ebp-0x1C]
-            jne invoke_failed
-            cmp eax, dword ptr [ebp-0x20]
-            jne invoke_failed
-            cmp byte ptr [edi+0x1E], 1
-            jne invoke_failed
-            push dword ptr [ebp-0x20]
-            call dword ptr [ebp-0x28]
-            add esp, 4
-            and eax, 1
-            test eax, eax
-            jne invoke_failed
-            jmp invoke
-        windowed:
-            cmp dword ptr [ebp-0x24], 1
-            jne cleanup
+            add esp, 8
         invoke:
             mov ecx, dword ptr [ebp-0x14]
             call dword ptr [ebp-0x10]
             mov dword ptr [ebp-0x2C], eax
-            jmp cleanup
-        invoke_failed:
-            mov dword ptr [ebp-0x2C], -1
-        cleanup:
-            cmp dword ptr [ebp-0x30], 0
-            je end_owner
-            call reacquire
-            cmp esi, dword ptr [ebp-0x18]
-            jne restore_failed
-            cmp edi, dword ptr [ebp-0x1C]
-            jne restore_failed
-            cmp eax, dword ptr [ebp-0x20]
-            jne restore_failed
-            mov ecx, esi
-            call 0x40A280
-            call 0x4080C0
-            test eax, eax
-            jz restore_failed
-            call reacquire
-            cmp esi, dword ptr [ebp-0x18]
-            jne restore_failed
-            cmp edi, dword ptr [ebp-0x1C]
-            jne restore_failed
-            cmp eax, dword ptr [ebp-0x20]
-            jne restore_failed
-            push dword ptr [ebp-0x20]
-            call dword ptr [ebp-0x28]
-            add esp, 4
-            and eax, 1
-            cmp byte ptr [edi+0x1E], 0
-            jne restore_failed
-            cmp eax, 1
-            je end_owner
-        restore_failed:
-            mov dword ptr [ebp-0x2C], -1
         end_owner:
             cmp dword ptr [ebp-0x38], 0
             je done
-            call dword ptr [ebp-0x34]
+            mov eax, dword ptr [ebp-0x34]
+            test eax, eax
+            jz done
+            call eax
         done:
             mov eax, dword ptr [ebp-0x2C]
             add esp, 0x40
@@ -433,20 +378,6 @@ def build_modal(page: bytearray, page_va: int, s: dict[str, int]) -> dict[str, b
             pop esi
             pop ebx
             pop ebp
-            ret
-        reacquire:
-            mov esi, dword ptr [0x4DB0E8]
-            test esi, esi
-            jz reacquire_fail
-            mov edi, dword ptr [esi]
-            test edi, edi
-            jz reacquire_fail
-            mov eax, dword ptr [edi+0x38]
-            test eax, eax
-            jz reacquire_fail
-            ret
-        reacquire_fail:
-            xor eax, eax
             ret
         """,
     )
@@ -555,11 +486,18 @@ def build_helpers(page: bytearray, page_va: int, s: dict[str, int]) -> dict[str,
     done:
         ret 4
     """)
-    for name, export, argc in (
+    helper_specs = [
         ("show_menu", "menu", 2),
         ("confirm", "confirm_export", 3),
         ("status", "status_export", 4),
-    ):
+    ]
+    # apply_division forwards to the companion DLL's ApplyVV5EqualDivision(base,
+    # parenting); its export string lives only in the stock string table, so the
+    # helper is emitted only there (the expanded-256 baseline page stays byte-
+    # identical for its overlay).
+    if page_va == 0x7C9000:
+        helper_specs.append(("apply_division", "division_export", 2))
+    for name, export, argc in helper_specs:
         pushes = "\n".join(
             f"push dword ptr [ebp+{8 + index * 4:#x}]"
             for index in range(argc - 1, -1, -1)
@@ -606,9 +544,10 @@ def build_menus(page: bytearray, page_va: int) -> dict[str, bytes]:
     # doubler-confirm addition below is therefore gated to the stock layout; in
     # expanded the two Collections rows render but are bounded out as no-ops.
     menu_state = 0x000 if native_stock else 0x700
-    # Command upper bound: 0..7 in stock (adds the two Collections rows), 0..5 in
-    # expanded (original), so the expanded router bytes stay identical.
-    command_bound = 10 if native_stock else 5
+    # Command upper bound: 0..12 in stock (Collections rows 9/10 plus the two
+    # Equal Division of Labor rows 11/12), 0..5 in expanded (original), so the
+    # expanded router bytes stay identical.
+    command_bound = 12 if native_stock else 5
     collections_guard = (
         "cmp ebx, 6\n        jae unavailable\n        " if native_stock else ""
     )
@@ -641,7 +580,9 @@ def build_menus(page: bytearray, page_va: int) -> dict[str, bytes]:
         "        cmp ebx, 7\n        je mastery_all_row\n"
         "        cmp ebx, 8\n        je age18_all_row\n"
         "        cmp ebx, 9\n        je complete_collections_row\n"
-        "        cmp ebx, 10\n        je reset_collections_row\n        "
+        "        cmp ebx, 10\n        je reset_collections_row\n"
+        "        cmp ebx, 11\n        je division_parenting_row\n"
+        "        cmp ebx, 12\n        je division_no_parenting_row\n        "
         if native_stock
         else ""
     )
@@ -661,6 +602,10 @@ def build_menus(page: bytearray, page_va: int) -> dict[str, bytes]:
         f"    mastery_all_row:\n        call 0x{page_va + OFF['mastery_all']:X}\n"
         "        jmp done\n        nop\n        nop\n        nop\n"
         f"    age18_all_row:\n        call 0x{page_va + OFF['age18_all']:X}\n"
+        "        jmp done\n        nop\n        nop\n        nop\n"
+        f"    division_parenting_row:\n        call 0x{page_va + OFF['division_parenting']:X}\n"
+        "        jmp done\n        nop\n        nop\n        nop\n"
+        f"    division_no_parenting_row:\n        call 0x{page_va + OFF['division_no_parenting']:X}\n"
         "        jmp done\n        nop\n        nop\n        nop\n    "
         if native_stock
         else ""
@@ -1185,6 +1130,13 @@ def build_mastery(page: bytearray, page_va: int) -> bytes:
 
 
 def build_running(page: bytearray, page_va: int) -> bytes:
+    """Grant Running to the selected Believer (40,000 tech points). Inserts
+    preference 38 into the first empty Like slot (0x464AD0) and clears any
+    Running dislike (0x4649E0), charging only when the Like is actually added.
+    If all three Like slots are full: when the villager also has a Running
+    dislike, that dislike is removed for free (no charge) and reported as
+    RESULT 14; with no Running dislike it is a true no-op (RESULT 8). This
+    mirrors the Grant-Running-to-All edge behavior."""
     return put(page, page_va, "running", f"""
         push ebp
         mov ebp, esp
@@ -1432,7 +1384,30 @@ def build_running(page: bytearray, page_va: int) -> bytes:
         {status_call(page_va, '2', 1)}
         jmp done
     no_slot:
+        xor edi, edi
+    no_slot_find_dislike:
+        cmp dword ptr [ebp+edi*4-0x40], 38
+        je no_slot_remove_dislike
+        inc edi
+        cmp edi, 3
+        jb no_slot_find_dislike
         {status_call(page_va, '2', 8)}
+        jmp done
+    no_slot_remove_dislike:
+        call running_reacquire_exact
+        test eax, eax
+        jz recheck
+        push 38
+        lea ecx, [esi+0x1F68]
+        call 0x4649E0
+        xor edi, edi
+    no_slot_verify_gone:
+        cmp dword ptr [esi+edi*4+0x1F68], 38
+        je retained
+        inc edi
+        cmp edi, 3
+        jb no_slot_verify_gone
+        {status_call(page_va, '2', 14)}
         jmp done
     insufficient:
         {status_call(page_va, '2', 3)}
@@ -1459,7 +1434,20 @@ def build_running(page: bytearray, page_va: int) -> bytes:
 
 
 def build_heal(page: bytearray, page_va: int) -> bytes:
-    return put(page, page_va, "heal", f"""
+    """Full Heal / Cure All (village-wide, 30,000 tech points). Clean single-pass
+    design (mirrors the VV2 cure): a count pass tallies eligible sick + partial-
+    health Believers for the confirm dialog and refuses if any eligible Believer
+    carries the unsupported sickness type 12; then, after the shared confirm and a
+    verified 30,000 charge, a single heal pass restores each eligible living
+    Believer's health to 100 via the native writer 0x4758B0 and clears sickness
+    (+0x1C48), crediting the people-cured statistic. Believer gate only (never
+    masked Heathens or off-faction). No per-villager before/after snapshot: each
+    pass re-reads the live record, so there is no stale-snapshot comparison."""
+    # The expanded-256 baseline page must stay byte-identical for the separate
+    # vv5_expanded_256_time_warp overlay, so the clean rewrite is applied only to
+    # the stock layout; expanded keeps the original (unused, experimental) heal.
+    if page_va != 0x7C9000:
+        return put(page, page_va, "heal", f"""
         push ebp
         mov ebp, esp
         push ebx
@@ -1775,7 +1763,135 @@ def build_heal(page: bytearray, page_va: int) -> bytes:
         pop ebp
         ret
     """)
-
+    return put(page, page_va, "heal", f"""
+        push ebp
+        mov ebp, esp
+        push ebx
+        push esi
+        push edi
+        sub esp, 0x20
+        mov dword ptr [ebp-0x18], 0
+        mov dword ptr [ebp-0x1C], 0
+        mov esi, 0x554190
+        mov ebx, {BOUND}
+    count_loop:
+        cmp byte ptr [esi+0x1CD4], 0
+        je count_next
+        cmp byte ptr [esi+0x1CE1], 0
+        jne count_next
+        cmp byte ptr [esi+0x1CEC], 0
+        jne count_next
+        cmp dword ptr [esi+0x1C40], 0
+        jle count_next
+        cmp byte ptr [esi+0x1C48], 0
+        je count_health
+        cmp dword ptr [esi+0x1CFC], 12
+        je unsupported
+        inc dword ptr [ebp-0x18]
+    count_health:
+        cmp dword ptr [esi+0x1C40], 100
+        jae count_next
+        inc dword ptr [ebp-0x1C]
+    count_next:
+        add esi, {STRIDE}
+        dec ebx
+        jne count_loop
+        mov eax, dword ptr [ebp-0x18]
+        or eax, dword ptr [ebp-0x1C]
+        jz no_change
+        mov eax, dword ptr [0x51D5F8]
+        mov dword ptr [ebp-0x10], eax
+        cmp eax, 30000
+        jb insufficient
+        push dword ptr [ebp-0x1C]
+        push dword ptr [ebp-0x18]
+        push 4
+        call 0x{page_va + OFF['confirm']:X}
+        cmp eax, 1
+        jne cancelled
+        mov eax, dword ptr [0x51D5F8]
+        cmp eax, dword ptr [ebp-0x10]
+        jne recheck
+        cmp eax, 30000
+        jb insufficient
+        push -30000
+        mov ecx, 0x51D5F8
+        call 0x4237B0
+        mov eax, dword ptr [ebp-0x10]
+        sub eax, 30000
+        cmp dword ptr [0x51D5F8], eax
+        jne charge_unknown
+        mov dword ptr [ebp-0x20], 0
+        mov dword ptr [ebp-0x24], 0
+        mov esi, 0x554190
+        mov ebx, {BOUND}
+    heal_loop:
+        cmp byte ptr [esi+0x1CD4], 0
+        je heal_next
+        cmp byte ptr [esi+0x1CE1], 0
+        jne heal_next
+        cmp byte ptr [esi+0x1CEC], 0
+        jne heal_next
+        cmp dword ptr [esi+0x1C40], 0
+        jle heal_next
+        cmp dword ptr [esi+0x1C40], 100
+        jae heal_sick
+        push -1
+        push 100
+        lea ecx, [esi+0x1C34]
+        call 0x4758B0
+        inc dword ptr [ebp-0x24]
+    heal_sick:
+        cmp byte ptr [esi+0x1C48], 0
+        je heal_next
+        cmp dword ptr [esi+0x1CFC], 12
+        je heal_next
+        mov byte ptr [esi+0x1C48], 0
+        inc dword ptr [0x51D368]
+        inc dword ptr [ebp-0x20]
+        push 1
+        push 52
+        mov ecx, 0x4DB358
+        call 0x413450
+        push 1
+        push 53
+        mov ecx, 0x4DB358
+        call 0x413450
+        push 1
+        push 54
+        mov ecx, 0x4DB358
+        call 0x413450
+    heal_next:
+        add esi, {STRIDE}
+        dec ebx
+        jne heal_loop
+        {status_call(page_va, '4', 0, 'dword ptr [ebp-0x20]', 'dword ptr [ebp-0x24]')}
+        jmp done
+    no_change:
+        {status_call(page_va, '4', 1)}
+        jmp done
+    insufficient:
+        {status_call(page_va, '4', 3)}
+        jmp done
+    cancelled:
+        {status_call(page_va, '4', 4)}
+        jmp done
+    recheck:
+        {status_call(page_va, '4', 5)}
+        jmp done
+    unsupported:
+        {status_call(page_va, '4', 13)}
+        jmp done
+    charge_unknown:
+        {status_call(page_va, '4', 7)}
+    done:
+        add esp, 0x20
+        pop edi
+        pop esi
+        pop ebx
+        pop ebp
+        ret
+    """)
 
 def build_time_warp(page: bytearray, page_va: int, s: dict[str, int]) -> bytes:
     """Village-clock Time Warp: advance exactly three displayed villager years
@@ -2060,13 +2176,22 @@ def build_island(page: bytearray, page_va: int, s: dict[str, int]) -> bytes:
 
 
 def build_barrel(page: bytearray, page_va: int, s: dict[str, int]) -> bytes:
-    """Barrel of Babies: for one verified 75,000 tech-point charge, set the
-    one-shot forced-Barrel marker (bit 2 = value 4 at 0x51D388) and make the
-    next-event timer due, so the origins-base selector detour at 0x41890F
-    (preserved in this payload) replaces the next chosen event index with 30
-    (Barrel) and clears the marker. Demand vs the mode-adjusted bound (0x4944C0
-    / [0x41F1E6]-3) guards room for three children. Self-contained MessageBoxA;
-    matches the origins-base barrel logic (build_vv5_origins_feature.py)."""
+    """Barrel of Babies (VV2 general approach): for one verified 75,000
+    tech-point charge, set only the one-shot pending token (bit 3 = value 8 at
+    0x51D388). The event scheduler is deliberately not armed while the Upgrades
+    menu is open. The origins-base Tech-screen handler routes stock command 0
+    (Technologies screen close) to barrel_close_arm, which consumes the token,
+    sets the forced-Barrel marker (bit 2 = value 4), and makes the next village
+    event due, so the native index-25 Barrel event (its three-child spawn) is
+    presented by the main-village owner only after the screen closes -- never
+    under the menu. The origins-base selector detour at 0x41890F (preserved in
+    this payload) forces the chosen index to 25 and clears the marker. Before any
+    charge, both capacity checks call the game's own per-villager cap gate 0x472bd0
+    -- which each population mode patches to its live cap (stock 105, collection
+    150, immediate-fixed 150, expanded-256 256) via the 0x72C49/0x94500 helper --
+    so the room test is fully mode-dynamic and the purchase is refused with no
+    deduction when the village is at its cap. Self-contained MessageBoxA; the
+    Island Event upgrade is untouched."""
     return put(page, page_va, "barrel", f"""
         push ebp
         mov ebp, esp
@@ -2101,11 +2226,9 @@ def build_barrel(page: bytearray, page_va: int, s: dict[str, int]) -> bytes:
         jz unavailable
         mov edi, eax
         mov dword ptr [ebp-0x18], edi
-        call 0x4944C0
-        mov ecx, dword ptr [0x41F1E6]
-        sub ecx, 3
-        cmp eax, ecx
-        ja full
+        call 0x472BD0
+        test al, al
+        jz full
         mov eax, dword ptr [0x51D5F8]
         mov dword ptr [ebp-0x20], eax
         cmp eax, 75000
@@ -2119,11 +2242,9 @@ def build_barrel(page: bytearray, page_va: int, s: dict[str, int]) -> bytes:
         cmp eax, dword ptr [ebp-0x18]
         jne recheck
         mov edi, eax
-        call 0x4944C0
-        mov ecx, dword ptr [0x41F1E6]
-        sub ecx, 3
-        cmp eax, ecx
-        ja full
+        call 0x472BD0
+        test al, al
+        jz full
         mov eax, dword ptr [0x51D5F8]
         cmp eax, dword ptr [ebp-0x20]
         jne recheck
@@ -2136,12 +2257,8 @@ def build_barrel(page: bytearray, page_va: int, s: dict[str, int]) -> bytes:
         sub eax, 75000
         cmp dword ptr [0x51D5F8], eax
         jne charge_unknown
-        or dword ptr [0x51D388], 4
-        call 0x4036E0
-        mov edi, dword ptr [ebp-0x18]
-        add eax, 0x384
-        mov dword ptr [edi+0x17D3C], eax
-        test dword ptr [0x51D388], 4
+        or dword ptr [0x51D388], 8
+        test dword ptr [0x51D388], 8
         jz queue_unknown
         mov eax, 0x{s['bb_success']:X}
         mov edx, 0x40
@@ -2204,12 +2321,16 @@ def build_appearance(page: bytearray, page_va: int, s: dict[str, int]) -> bytes:
     the believer/active/living gate (shared `eligible` helper), require 5,000
     tech points, then open the companion DLL's ShowAppearanceChooser, passing
     the villager's sex (record+0x1B90) and age (record+0x1B8C) and pointers to
-    local copies of the head (0..29) and body (0..28) indices. The chooser
-    shows the stock head/body sprites with arrows and, on OK (return 1), reports
-    the chosen indices back through the pointers -- it never touches the record.
-    On OK this router re-checks eligibility and funds, writes the chosen indices
-    into record+0x1BB8/+0x1BBC, and charges exactly 5,000 once; Cancel changes
-    nothing and charges nothing."""
+    local copies of the head (0..29) and body (0..28) indices. The chooser shows
+    the stock head/body sprites with arrows and, on OK (return 1), reports the
+    chosen indices back through the pointers -- it never touches the record. On
+    OK this router re-checks eligibility and funds, writes the chosen indices
+    into record+0x1BB8/+0x1BBC, and charges exactly 5,000 once. If the chosen
+    head differs from the original, it first shows the companion DLL's
+    ShowVV5Task9GeneticsWarning (OK/Cancel); Cancel backs out with no write and
+    no charge. Cancel changes nothing silently; an OK with an unchanged
+    selection changes nothing, charges nothing, and reports RESULT 15 (the
+    "appearance is unchanged" line)."""
     return put(page, page_va, "appearance", f"""
         push ebp
         mov ebp, esp
@@ -2221,12 +2342,17 @@ def build_appearance(page: bytearray, page_va: int, s: dict[str, int]) -> bytes:
         call dword ptr [0x4951E0]
         test eax, eax
         jz invalid
+        mov ebx, eax
         push 0x{s['appearance_export']:X}
-        push eax
+        push ebx
         call dword ptr [0x4951DC]
         test eax, eax
         jz invalid
         mov dword ptr [ebp-0x10], eax
+        push 0x{s['genetics_export']:X}
+        push ebx
+        call dword ptr [0x4951DC]
+        mov dword ptr [ebp-0x34], eax
         call 0x{page_va + OFF['resolve_current']:X}
         test eax, eax
         jz invalid
@@ -2265,10 +2391,18 @@ def build_appearance(page: bytearray, page_va: int, s: dict[str, int]) -> bytes:
         jne cancelled
         mov eax, dword ptr [ebp-0x1C]
         cmp eax, dword ptr [ebp-0x2C]
-        jne appearance_changed
+        jne head_changed
         mov eax, dword ptr [ebp-0x20]
         cmp eax, dword ptr [ebp-0x30]
         je no_change
+        jmp appearance_changed
+    head_changed:
+        mov eax, dword ptr [ebp-0x34]
+        test eax, eax
+        jz appearance_changed
+        call eax
+        cmp eax, 1
+        jne cancelled
     appearance_changed:
         mov esi, dword ptr [ebp-0x18]
         push esi
@@ -2294,6 +2428,7 @@ def build_appearance(page: bytearray, page_va: int, s: dict[str, int]) -> bytes:
         jne charge_unknown
         jmp done
     no_change:
+        {status_call(page_va, '5', 15)}
         jmp done
     insufficient:
         {status_call(page_va, '5', 3)}
@@ -2318,19 +2453,56 @@ def build_appearance(page: bytearray, page_va: int, s: dict[str, int]) -> bytes:
     """)
 
 
+def build_barrel_close_arm(page: bytearray, page_va: int) -> bytes:
+    """Barrel of Babies deferral (VV2 general approach). Installed only in stock
+    layouts as a five-byte detour over the tech-screen close handler's
+    `mov ecx, 0x51F440` at 0x441617 (stock command 0 = Technologies screen
+    close). When the Barrel purchase token (bit 3 = value 8 at 0x51D388) is set,
+    this consumes it, arms the forced-Barrel selector marker (bit 2 = value 4),
+    and makes the next village event due ([manager+0x17D3C]=0 via 0x425950), so
+    the native index-25 Barrel event (its three-child spawn) is presented by the
+    main-village owner only after the screen closes -- never under the Upgrades
+    menu. All registers are preserved (pushad/popad); the routine then replays
+    the exact overwritten instruction and returns to 0x44161C. With no token
+    pending it is a register-clean passthrough, so ordinary tech-screen closes
+    are byte-for-byte native. The origins-base selector detour at 0x41890F then
+    forces the chosen event index to 25 and clears the marker."""
+    return put(page, page_va, "barrel_close_arm", """
+        pushad
+        test dword ptr [0x51D388], 8
+        jz arm_done
+        and dword ptr [0x51D388], 0xFFFFFFF7
+        or dword ptr [0x51D388], 4
+        call 0x425950
+        test eax, eax
+        jz arm_done
+        mov dword ptr [eax+0x17D3C], 0
+    arm_done:
+        popad
+        mov ecx, 0x51F440
+        jmp 0x44161C
+    """)
+
+
 def build_complete_collections(page: bytearray, page_va: int) -> bytes:
-    """Complete all Collections (village-wide, 1,000,000 tech points). Drives the
-    game's own collectible goal machinery: for each collectible slot 0x50..0x82
-    that is not already found, mark the found-flag in the collectible manager
-    (0x4DBFC8 + item*4 + 0x630) and fire the exact native statistic the collect
-    handler fires for a new find via 0x413450 (ECX=0x4DB358): stat 0xF for slots
-    0x50..0x67, stat 0xE for 0x68..0x7F, and stats 8/9/0xA (+0xB/0xC/0xD for the
-    two higher masters) plus the master count 0x51D36C for 0x80..0x82. 0x413450
-    latches the collection goals through the native goal cascade. The
-    difficulty-scaled score accumulator (0x41EB40 -> shared stat 0) is
-    intentionally not driven so Reset stays cleanly reversible. Charges one
-    verified 1,000,000 deduction after the shared confirm (detailed prompt plus
-    the permanent-change warning)."""
+    """Complete all Collections (village-wide, 1,000,000 tech points). Covers the
+    two collectible sets -- Relics (slots 0x68..0x7F, stat 0xE) and Science Items
+    (slots 0x50..0x67, stat 0xF), 48 items total. For every slot not yet found it
+    marks the found-flag in the collectible manager (0x4DBFC8 + item*4 + 0x630),
+    then deterministically *earns* each set's trophy by driving its native
+    statistic across the completion threshold: the statistic record lives at
+    0x4DB358 + id*12 (byte0 = earned/locked flag, +4 = value, +8 = handle) and the
+    completion threshold is 24 (table 0x4C6544). When a set is not already earned
+    we force its value to 23 and call the game's own stat writer 0x413450
+    (ECX=0x4DB358, id, +1) so the value crosses 24; that fires the native earn
+    cascade 0x4133f0 -- it sets byte0, queues the on-screen "Trophy earned" popup
+    (pending list at 0x4DB670) and bumps the Master Collector counter (stat 0x10,
+    threshold 2), which auto-earns once both sets are done. We then raise the
+    native "collection completed" toasts 0x2FF (relics) / 0x300 (science) / 0x301
+    (all) through the message manager 0x520220 -> 0x44E730 (self-deduping). Driving
+    the real stat writer (rather than poking byte0) is what makes the star fill,
+    the popup show, and Master Collector count -- filling the bar value alone does
+    not earn. Charges one verified 1,000,000 deduction after the shared confirm."""
     return put(page, page_va, "complete_collections", f"""
         push ebp
         mov ebp, esp
@@ -2354,6 +2526,10 @@ def build_complete_collections(page: bytearray, page_va: int) -> bytes:
         cmp eax, 1000000
         jb insufficient
         mov dword ptr [ebp-0x14], 0
+        mov dword ptr [ebp-0x18], 0
+        mov dword ptr [ebp-0x1C], 0
+        movzx eax, byte ptr [0x4DB418]
+        mov dword ptr [ebp-0x20], eax
         mov edi, 0x4DBFC8
         mov esi, 0x50
     grant_loop:
@@ -2361,56 +2537,53 @@ def build_complete_collections(page: bytearray, page_va: int) -> bytes:
         jne grant_next
         mov dword ptr [edi+esi*4+0x630], 1
         inc dword ptr [ebp-0x14]
+        mov dword ptr [ebp-0x18], 1
+    grant_next:
+        inc esi
         cmp esi, 0x80
-        jae grant_master
-        cmp esi, 0x68
-        jae grant_cat_e
-        push 1
-        push 0xF
-        mov ecx, 0x4DB358
-        call 0x413450
-        jmp grant_next
-    grant_cat_e:
+        jl grant_loop
+        cmp byte ptr [0x4DB400], 0
+        jne earn_science
+        mov dword ptr [ebp-0x18], 1
+        mov dword ptr [0x4DB404], 23
         push 1
         push 0xE
         mov ecx, 0x4DB358
         call 0x413450
-        jmp grant_next
-    grant_master:
+        inc dword ptr [ebp-0x1C]
+    earn_science:
+        cmp byte ptr [0x4DB40C], 0
+        jne earn_master_count
+        mov dword ptr [ebp-0x18], 1
+        mov dword ptr [0x4DB410], 23
         push 1
-        push 8
+        push 0xF
         mov ecx, 0x4DB358
         call 0x413450
-        push 1
-        push 9
-        mov ecx, 0x4DB358
-        call 0x413450
-        push 1
-        push 0xA
-        mov ecx, 0x4DB358
-        call 0x413450
-        cmp esi, 0x80
-        je grant_master_count
-        push 1
-        push 0xB
-        mov ecx, 0x4DB358
-        call 0x413450
-        push 1
-        push 0xC
-        mov ecx, 0x4DB358
-        call 0x413450
-        push 1
-        push 0xD
-        mov ecx, 0x4DB358
-        call 0x413450
-    grant_master_count:
-        add dword ptr [0x51D36C], 1
-    grant_next:
-        inc esi
-        cmp esi, 0x83
-        jl grant_loop
-        cmp dword ptr [ebp-0x14], 0
+        inc dword ptr [ebp-0x1C]
+    earn_master_count:
+        movzx eax, byte ptr [0x4DB418]
+        cmp eax, dword ptr [ebp-0x20]
+        je after_earn
+        inc dword ptr [ebp-0x1C]
+    after_earn:
+        cmp dword ptr [ebp-0x18], 0
         je no_change
+        push 0
+        push 0
+        push 0x2FF
+        mov ecx, 0x520220
+        call 0x44E730
+        push 0
+        push 0
+        push 0x300
+        mov ecx, 0x520220
+        call 0x44E730
+        push 0
+        push 0
+        push 0x301
+        mov ecx, 0x520220
+        call 0x44E730
         mov eax, dword ptr [0x51D5F8]
         cmp eax, dword ptr [ebp-0x10]
         jne charge_unknown
@@ -2421,7 +2594,7 @@ def build_complete_collections(page: bytearray, page_va: int) -> bytes:
         sub eax, 1000000
         cmp dword ptr [0x51D5F8], eax
         jne charge_unknown
-        {status_call(page_va, '16', 0, 'dword ptr [ebp-0x14]')}
+        {status_call(page_va, '16', 0, 'dword ptr [ebp-0x14]', 'dword ptr [ebp-0x1C]')}
         jmp done
     no_change:
         {status_call(page_va, '16', 1)}
@@ -2449,14 +2622,18 @@ def build_complete_collections(page: bytearray, page_va: int) -> bytes:
 
 def build_reset_collections(page: bytearray, page_va: int) -> bytes:
     """Reset all Collections (village-wide, 1,000,000 tech points). Reverses only
-    the collection-exclusive state: clears every found-flag (0x4DBFC8 + item*4 +
-    0x630, slots 0x50..0x82), zeroes the collection goal records 0x8..0xF in the
-    statistic manager (0x4DB358 + id*12: complete-flag byte and accumulated
-    value), and resets the master count 0x51D36C. Statistic IDs 0x8..0xF are used
-    only by the collect handler, so clearing them cannot disturb unrelated
-    progress. The shared meta goal counters (0x10/0x40/0x41) bumped by the goal
-    cascade and any one-time completion rewards are not touched -- they are not
-    collection-exclusive and cannot be safely reversed. Charges one verified
+    the collection-exclusive state for the two sets (slots 0x50..0x7F, 48 items):
+    clears every found-flag (0x4DBFC8 + item*4 + 0x630) and un-earns the three
+    collection trophies by zeroing their statistic records at 0x4DB358 + id*12 --
+    Relics (0xE, record 0x4DB400), Science Items (0xF, record 0x4DB40C) and Master
+    Collector (0x10, record 0x4DB418) -- writing byte0 (earned flag), +4 (value)
+    and +8 (handle) all to zero so the star empties and the counter drops. It then
+    re-arms the completion toasts by clearing their message "already-shown" latch
+    (byte0 of 0x520220 + (id-0x29c)*32: 0x2FF->0x520E80, 0x300->0x520EA0,
+    0x301->0x520EC0) so a later Complete re-shows them. These statistic ids and
+    found-flags are collection-exclusive, so clearing them cannot disturb other
+    progress; the shared meta counters (0x40/0x41) bumped by the earn cascade are
+    left alone since they aggregate unrelated trophies too. Charges one verified
     1,000,000 deduction after the shared confirm."""
     return put(page, page_va, "reset_collections", f"""
         push ebp
@@ -2481,6 +2658,7 @@ def build_reset_collections(page: bytearray, page_va: int) -> bytes:
         cmp eax, 1000000
         jb insufficient
         mov dword ptr [ebp-0x14], 0
+        mov dword ptr [ebp-0x18], 0
         mov edi, 0x4DBFC8
         mov esi, 0x50
     clear_loop:
@@ -2488,21 +2666,35 @@ def build_reset_collections(page: bytearray, page_va: int) -> bytes:
         je clear_next
         mov dword ptr [edi+esi*4+0x630], 0
         inc dword ptr [ebp-0x14]
+        mov dword ptr [ebp-0x18], 1
     clear_next:
         inc esi
-        cmp esi, 0x83
+        cmp esi, 0x80
         jl clear_loop
-        cmp dword ptr [ebp-0x14], 0
+        cmp byte ptr [0x4DB400], 0
+        jne mark_change
+        cmp byte ptr [0x4DB40C], 0
+        jne mark_change
+        cmp byte ptr [0x4DB418], 0
+        jne mark_change
+        jmp after_change
+    mark_change:
+        mov dword ptr [ebp-0x18], 1
+    after_change:
+        cmp dword ptr [ebp-0x18], 0
         je no_change
-        mov esi, 8
-    stat_loop:
-        lea eax, [esi+esi*2]
-        mov byte ptr [eax*4+0x4DB358], 0
-        mov dword ptr [eax*4+0x4DB35C], 0
-        inc esi
-        cmp esi, 0x10
-        jl stat_loop
-        mov dword ptr [0x51D36C], 0
+        mov byte ptr [0x4DB400], 0
+        mov dword ptr [0x4DB404], 0
+        mov dword ptr [0x4DB408], 0
+        mov byte ptr [0x4DB40C], 0
+        mov dword ptr [0x4DB410], 0
+        mov dword ptr [0x4DB414], 0
+        mov byte ptr [0x4DB418], 0
+        mov dword ptr [0x4DB41C], 0
+        mov dword ptr [0x4DB420], 0
+        mov byte ptr [0x520E80], 0
+        mov byte ptr [0x520EA0], 0
+        mov byte ptr [0x520EC0], 0
         mov eax, dword ptr [0x51D5F8]
         cmp eax, dword ptr [ebp-0x10]
         jne charge_unknown
@@ -2801,6 +2993,7 @@ def build_age18_all(page: bytearray, page_va: int) -> bytes:
         push edi
         sub esp, 0x30
         mov dword ptr [ebp-0x10], 0
+        mov dword ptr [ebp-0x14], 0
         mov eax, dword ptr [0x51D5F8]
         mov dword ptr [ebp-0x18], eax
         cmp eax, 1000000
@@ -2829,11 +3022,14 @@ def build_age18_all(page: bytearray, page_va: int) -> bytes:
         jle age_next
         mov eax, 360
         sub eax, dword ptr [esi+0x1B8C]
-        jz age_next
+        jz age_already
         push eax
         lea ecx, [esi+0x1B8C]
         call 0x46F7F0
         inc dword ptr [ebp-0x10]
+        jmp age_next
+    age_already:
+        inc dword ptr [ebp-0x14]
     age_next:
         add esi, {STRIDE}
         dec ebx
@@ -2850,7 +3046,7 @@ def build_age18_all(page: bytearray, page_va: int) -> bytes:
         sub eax, 1000000
         cmp dword ptr [0x51D5F8], eax
         jne charge_unknown
-        {status_call(page_va, '22', 0, 'dword ptr [ebp-0x10]')}
+        {status_call(page_va, '22', 0, 'dword ptr [ebp-0x10]', 'dword ptr [ebp-0x14]')}
         jmp done
     no_change:
         {status_call(page_va, '22', 1)}
@@ -2866,6 +3062,79 @@ def build_age18_all(page: bytearray, page_va: int) -> bytes:
         jmp done
     charge_unknown:
         {status_call(page_va, '22', 7)}
+    done:
+        add esp, 0x30
+        pop edi
+        pop esi
+        pop ebx
+        pop ebp
+        ret
+    """)
+
+
+def build_division(
+    page: bytearray, page_va: int, name: str, parenting: int, action: int
+) -> bytes:
+    """Equal Division of Labor (village-wide, 1,000,000 tech points). The whole
+    round-robin assignment lives in the companion DLL export
+    ApplyVV5EqualDivision(base, parenting): it walks all 150 villager records,
+    acts only on eligible living Believers (never masked Heathens or off-faction
+    villagers), assigns each one's job-preference index at +0x1C74 cyclically so
+    the professions are split evenly (males and females cycle independently for a
+    balanced split), and shows its own per-profession, per-sex result box because
+    that breakdown does not fit ShowVV5Task9Result's two counts. `parenting`
+    selects the 6-way cycle (Farming, Building, Research, Healing, Parenting,
+    Devotion) or the 5-way cycle without Parenting. Preferences are overwritten
+    unconditionally, so N is simply the eligible count. This native routine owns
+    only the purchase gate: it confirms, re-checks the tech balance, calls the
+    DLL, and charges one 1,000,000 deduction ONLY when the DLL reports a real
+    change (return value 1); a 0 return (no eligible villagers, the DLL showed
+    its own no-charge notice) or a -1 (companion unavailable) deducts nothing."""
+    return put(page, page_va, name, f"""
+        push ebp
+        mov ebp, esp
+        push ebx
+        push esi
+        push edi
+        sub esp, 0x30
+        mov eax, dword ptr [0x51D5F8]
+        mov dword ptr [ebp-0x18], eax
+        cmp eax, 1000000
+        jb insufficient
+        push 0
+        push 0
+        push {action}
+        call 0x{page_va + OFF['confirm']:X}
+        cmp eax, 1
+        jne cancelled
+        mov eax, dword ptr [0x51D5F8]
+        cmp eax, dword ptr [ebp-0x18]
+        jne recheck
+        cmp eax, 1000000
+        jb insufficient
+        push {parenting}
+        push 0x554190
+        call 0x{page_va + OFF['apply_division']:X}
+        cmp eax, 1
+        jne done
+        mov eax, dword ptr [0x51D5F8]
+        cmp eax, dword ptr [ebp-0x18]
+        jne done
+        push -1000000
+        mov ecx, 0x51D5F8
+        call 0x4237B0
+        jmp done
+        nop
+        nop
+        nop
+    insufficient:
+        {status_call(page_va, str(action), 3)}
+        jmp done
+    cancelled:
+        {status_call(page_va, str(action), 4)}
+        jmp done
+    recheck:
+        {status_call(page_va, str(action), 5)}
     done:
         add esp, 0x30
         pop edi
@@ -2905,6 +3174,13 @@ def build_page(page_va: int) -> tuple[bytes, dict[str, object]]:
         routines["running_all"] = build_running_all(page, page_va)
         routines["mastery_all"] = build_mastery_all(page, page_va)
         routines["age18_all"] = build_age18_all(page, page_va)
+        routines["barrel_close_arm"] = build_barrel_close_arm(page, page_va)
+        routines["division_parenting"] = build_division(
+            page, page_va, "division_parenting", parenting=1, action=23
+        )
+        routines["division_no_parenting"] = build_division(
+            page, page_va, "division_no_parenting", parenting=0, action=24
+        )
     result = {
         "page_sha256": sha(bytes(page)),
         "routine_sha256": {name: sha(value) for name, value in routines.items()},
@@ -3084,7 +3360,7 @@ def main() -> None:
                 "age18": {"price": 50000, "target": 360, "writer": "0x46F7F0 ECX=record+0x1B8C signed delta", "companions": ["+0x1C3C same delta", "+0x1C4C same delta only when nonzero"]},
                 "full_mastery": {"price": 100000, "fields": ["0x1C5C", "0x1C60", "0x1C64", "0x1C68", "0x1C6C", "0x1C70"], "writer": "0x475730 ECX=record+0x1C5C push Float32 delta then push index", "target_bits": "0x42C80000"},
                 "running": {"price": 40000, "preference_id": 38, "likes": ["0x1F5C", "0x1F60", "0x1F64"], "dislikes": ["0x1F68", "0x1F6C", "0x1F70"], "native": {"membership": "0x464F90", "insertion": "0x464AD0", "first_removal": "0x4649E0"}},
-                "barrel_of_babies": {"price": 75000, "scope": "village event scheduler (queues the native Barrel event, index 30)", "room_check": "call 0x4944C0 demand vs [0x41F1E6]-3 (mode-adjusted 150/256 bound) guards space for three children", "mechanism": "charge -75000 via 0x4237B0, set one-shot forced-Barrel marker (or [0x51D388],4), set next-event timer [manager+0x17D3C]=0; the origins-base selector detour at 0x41890F (preserved in this payload) forces the next chosen index to 30 and clears the marker", "children": 3, "dialog": "self-contained MessageBoxA (no companion DLL change)"},
+                "barrel_of_babies": {"price": 75000, "scope": "village event scheduler (presents the native Barrel event, index 25, after the Tech screen closes)", "room_check": "both capacity checks call the game's own per-villager cap gate 0x472bd0, which every population mode patches (0x72C49 -> 0x94500 helper) to its live cap (stock 105, collection_progression 150, immediate_fixed 150, expanded-256 256); the barrel is refused with no deduction when the village is at its current mode's cap", "mechanism": "VV2 general approach: charge -75000 via 0x4237B0, set one-shot pending token (or [0x51D388],8) only; the origins-base Tech handler routes stock command 0 (screen close) to barrel_close_arm, which consumes the token, sets the forced-Barrel marker (or [0x51D388],4), and makes the next event due ([manager+0x17D3C]=0); the selector detour at 0x41890F forces the next chosen index to 25 and clears the marker so the native three-child Barrel presents with the main-village owner after the menu closes", "children": 3, "dialog": "self-contained MessageBoxA (no companion DLL change)"},
                 "island_event": {"price": 30000, "scope": "village next-event scheduler (not a per-record write)", "mechanism": "resolve manager 0x425950, verify snapshot, charge -30000 via 0x4237B0, set next-event timer [manager+0x17D3C]=0 so the native scheduler (0x442850 -> sub_418870) runs a random eligible island event", "dialog": "self-contained MessageBoxA (no companion DLL change)"},
                 "time_warp": {"price": 50000, "scope": "village clock (not a per-record write; faction-blind like normal time passing)", "speed": "[manager+0x17D7C] signed positive and not 999 (paused)", "delta": "129600 / speed subtracted from the 64-bit village clock 0x4C6250/0x4C6254", "effect": "advances exactly three displayed villager years regardless of listed game speed", "writer": "inline: verify snapshot, charge -50000 via 0x4237B0, div 129600 by speed, sub/sbb into clock, postverify", "dialog": "self-contained MessageBoxA (no companion DLL change)"},
                 "full_heal": {"price": 30000, "health_rule": "every eligible Believer with health < 100 is raised to exactly 100; health already at 100 is unchanged and uncounted", "health_writer": "0x4758B0 ECX=record+0x1C34 push -1 then push 100", "sickness": "+0x1C48 byte", "masked_heathen_policy": "skip before sickness/type reads; includes the sick Heathen puzzle record", "unsupported_type": "+0x1CFC == 12 when sick on an otherwise eligible Believer", "people_cured": "0x51D368", "statistic_writer": "0x413450 ECX=0x4DB358 IDs 52/53/54 amount 1"},
@@ -3151,6 +3427,25 @@ def main() -> None:
         })
     for mode in ("experimental_expanded_256", "experimental_expanded_256_progression"):
         result["patch_mode_overrides"].setdefault(mode, []).extend(deepcopy(expanded_overrides))
+    # Barrel of Babies deferral (VV2 general approach): a stock-only five-byte
+    # detour over the Technologies screen close handler (command 0) at 0x441617,
+    # routing to the stock Task9 page's barrel_close_arm routine. The Barrel row,
+    # its purchase token, and this routine all live only in the stock layouts, so
+    # the hook is added only to the stock modes; the Expanded-256 baseline page
+    # stays byte-identical for the separate vv5_expanded_256_time_warp overlay.
+    barrel_close_site = 0x441617
+    barrel_close_preimage = "B940F45100"
+    if stock[barrel_close_site - 0x400000 : barrel_close_site - 0x400000 + 5].hex().upper() != barrel_close_preimage:
+        raise RuntimeError("Barrel close-handler preimage drift at 0x441617")
+    for mode in ("collection_progression", "immediate_fixed"):
+        page_va = LAYOUTS[mode]["page_va"]
+        rel = (page_va + OFF["barrel_close_arm"]) - (barrel_close_site + 5)
+        result["patch_mode_overrides"].setdefault(mode, []).append({
+            "offset": f"0x{barrel_close_site - 0x400000:X}",
+            "before": barrel_close_preimage,
+            "after": "E9" + rel.to_bytes(4, "little", signed=True).hex().upper(),
+            "purpose": "Barrel of Babies (VV2 approach): on Technologies screen close (command 0) arm the deferred native three-child Barrel so it presents with the main-village owner after the menu closes",
+        })
     if any(bytes.fromhex("E11C0000") in bytes.fromhex(str(item["after"])) for item in result["patches"]):
         raise RuntimeError("Task9 emitted patch set retains a withdrawn eligibility read")
     map_record = {

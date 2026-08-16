@@ -1134,7 +1134,7 @@
         {
           "offset": "0x94400",
           "before": "000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
-            "after": "83B9FC1C00000D7417EB079090909090909083B9701C0000007E0AE9E0040000E9C1ADFDFFE910AEFDFF",
+          "after": "83B9FC1C00000D7417EB079090909090909083B9701C0000007E0AE9E0040000E9C1ADFDFFE910AEFDFF",
           "purpose": "leave Retired Chiefs on the original stock branch while requiring both positive Devotion skill and Devotion as the selected preferred job before routing an ordinary villager to the added Honoring branch"
         },
         {
@@ -1206,7 +1206,6 @@
           "after": "E9DB0200008B8E881B0000E9D002000090909090909090909090909090909090E92B03000090909090909090909090909090909090909090909090909090909090909090909090E9940300008B8E881B0000E989030000909090909090909090",
           "purpose": "trampoline to skill-aware statue selectors in executable padding, with dedicated second-dispatch adapters that load the villager pointer"
         },
-
         {
           "offset": "0x94740",
           "before": "000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
@@ -1448,9 +1447,24 @@
             "page_sha256": "E57E3FE69130016983BAC737A894C0BB62D62288A15023B01D52C2F946958AE8",
             "purpose": "append the owned VV1 Birth Control executable helper page",
             "header_patches": [
-              {"offset": "0xFE", "before": "0500", "after": "0600", "purpose": "add the owned .vv1bc executable section"},
-              {"offset": "0x148", "before": "00000900", "after": "00100900", "purpose": "extend SizeOfImage for the owned .vv1bc section"},
-              {"offset": "0x2B8", "before": "00000000000000000000000000000000000000000000000000000000000000000000000000000000", "after": "2E7676316263000000100000000009000010000000E0080000000000000000000000000020000060", "purpose": "write the owned .vv1bc PE section header"}
+              {
+                "offset": "0xFE",
+                "before": "0500",
+                "after": "0600",
+                "purpose": "add the owned .vv1bc executable section"
+              },
+              {
+                "offset": "0x148",
+                "before": "00000900",
+                "after": "00100900",
+                "purpose": "extend SizeOfImage for the owned .vv1bc section"
+              },
+              {
+                "offset": "0x2B8",
+                "before": "00000000000000000000000000000000000000000000000000000000000000000000000000000000",
+                "after": "2E7676316263000000100000000009000010000000E0080000000000000000000000000020000060",
+                "purpose": "write the owned .vv1bc PE section header"
+              }
             ]
           },
           "immediate_fixed": {
@@ -1462,9 +1476,24 @@
             "page_sha256": "E57E3FE69130016983BAC737A894C0BB62D62288A15023B01D52C2F946958AE8",
             "purpose": "append the owned VV1 Birth Control executable helper page",
             "header_patches": [
-              {"offset": "0xFE", "before": "0500", "after": "0600", "purpose": "add the owned .vv1bc executable section"},
-              {"offset": "0x148", "before": "00000900", "after": "00100900", "purpose": "extend SizeOfImage for the owned .vv1bc section"},
-              {"offset": "0x2B8", "before": "00000000000000000000000000000000000000000000000000000000000000000000000000000000", "after": "2E7676316263000000100000000009000010000000E0080000000000000000000000000020000060", "purpose": "write the owned .vv1bc PE section header"}
+              {
+                "offset": "0xFE",
+                "before": "0500",
+                "after": "0600",
+                "purpose": "add the owned .vv1bc executable section"
+              },
+              {
+                "offset": "0x148",
+                "before": "00000900",
+                "after": "00100900",
+                "purpose": "extend SizeOfImage for the owned .vv1bc section"
+              },
+              {
+                "offset": "0x2B8",
+                "before": "00000000000000000000000000000000000000000000000000000000000000000000000000000000",
+                "after": "2E7676316263000000100000000009000010000000E0080000000000000000000000000020000060",
+                "purpose": "write the owned .vv1bc PE section header"
+              }
             ]
           }
         }
@@ -1505,6 +1534,133 @@
           "before": "0F8E99FEFFFF",
           "after": "E97864050090",
           "purpose": "route the VV1 embracing chooser tail through the owned page for the native score roll and preference fallback"
+        }
+      ]
+    },
+    {
+      "id": "vv5_guardians_of_isola_rewrite",
+      "game_id": "vv5",
+      "name": "Guardians of Isola Rewrite",
+      "description": "Overhauls the New Believers story presentation: replaces the in-game text (Assets/sm.xml) and twelve story/UI images -- the five totem strips, idol states, the blinking-eyes and mask strips, and the main menu -- with the Guardians of Isola rewrite. Purely presentational; no gameplay, executable, or save bytes change. Disabling restores the exact base-game files.",
+      "output_tag": "Guardians of Isola",
+      "patches": [],
+      "companion_files": [
+        {
+          "source": "data/guardians_of_isola/new/Assets/sm.xml",
+          "destination": "Assets/sm.xml",
+          "size": 149538,
+          "sha256": "30BC2E797749457A62535C234B581B8EB2E262C1EEF5358E762556A9E61B0723",
+          "preimage_sha256": "D17229C44BBBE561BD0FFE3F94942B5321BC8642A38B99459DF162625A48F071",
+          "restore_source": "data/guardians_of_isola/base/Assets/sm.xml",
+          "restore_sha256": "D17229C44BBBE561BD0FFE3F94942B5321BC8642A38B99459DF162625A48F071"
+        },
+        {
+          "source": "data/guardians_of_isola/new/Images/BlinkyEyes.png",
+          "destination": "Images/BlinkyEyes.png",
+          "size": 4198,
+          "sha256": "638BEFB2E91788DA2DBCB1529A6FFA09C13FF9F5674C0F9B1D5B8F767C79C740",
+          "preimage_sha256": "C89A745BA072B6F39217C40DA1AFABDD85C2834E7BA1F70A453D5D1B76738BF0",
+          "restore_source": "data/guardians_of_isola/base/Images/BlinkyEyes.png",
+          "restore_sha256": "C89A745BA072B6F39217C40DA1AFABDD85C2834E7BA1F70A453D5D1B76738BF0"
+        },
+        {
+          "source": "data/guardians_of_isola/new/Images/BlinkyEyesSm.png",
+          "destination": "Images/BlinkyEyesSm.png",
+          "size": 4194,
+          "sha256": "F298AFDAA4F226279D1DDA84515915ABEA3F5031F24F4C97C8095D59203FA656",
+          "preimage_sha256": "4F48A661A4D7D156A532C690BB2B4AF7D9BC8694DF6E6839DE692C3B033F9A29",
+          "restore_source": "data/guardians_of_isola/base/Images/BlinkyEyesSm.png",
+          "restore_sha256": "4F48A661A4D7D156A532C690BB2B4AF7D9BC8694DF6E6839DE692C3B033F9A29"
+        },
+        {
+          "source": "data/guardians_of_isola/new/Images/BuildingTotemStrip.png",
+          "destination": "Images/BuildingTotemStrip.png",
+          "size": 63448,
+          "sha256": "E30801019BEE954FEBC9ABC4FE3417A30BD53A56E42286D1D3D0AD1BD2727BB8",
+          "preimage_sha256": "E0D3D51029ABCA0B9962E50C57452BD3991B10CD94500B1F5FA367132E7D46D1",
+          "restore_source": "data/guardians_of_isola/base/Images/BuildingTotemStrip.png",
+          "restore_sha256": "E0D3D51029ABCA0B9962E50C57452BD3991B10CD94500B1F5FA367132E7D46D1"
+        },
+        {
+          "source": "data/guardians_of_isola/new/Images/ChildrensTotemStrip.png",
+          "destination": "Images/ChildrensTotemStrip.png",
+          "size": 52336,
+          "sha256": "F6FE2F8E7433D5BDAD2F439120442C00C166E3F92D768F699A74C8913EEAB74F",
+          "preimage_sha256": "3EBF9D8BCCEDE560110165D4B90BE9EF3DF4E4DFC51ACF93B5B223D46D72DAF0",
+          "restore_source": "data/guardians_of_isola/base/Images/ChildrensTotemStrip.png",
+          "restore_sha256": "3EBF9D8BCCEDE560110165D4B90BE9EF3DF4E4DFC51ACF93B5B223D46D72DAF0"
+        },
+        {
+          "source": "data/guardians_of_isola/new/Images/FoodTotemStrip.png",
+          "destination": "Images/FoodTotemStrip.png",
+          "size": 69254,
+          "sha256": "0C91A1086FD772B14FEE5AB2C4EB5708987FF7C8058A32DB3E7504CAFAB25A90",
+          "preimage_sha256": "C493C93881A710F63E46875DC0EBF6CFF6E4A77ECD4C65F24319DABFAAF2BF17",
+          "restore_source": "data/guardians_of_isola/base/Images/FoodTotemStrip.png",
+          "restore_sha256": "C493C93881A710F63E46875DC0EBF6CFF6E4A77ECD4C65F24319DABFAAF2BF17"
+        },
+        {
+          "source": "data/guardians_of_isola/new/Images/MedicineTotemStrip.png",
+          "destination": "Images/MedicineTotemStrip.png",
+          "size": 53215,
+          "sha256": "91313FF3CF810CCAEBB6D55DA15415504BC7CD07524D3B960D575D14E055BF4A",
+          "preimage_sha256": "5CD40C0D6FB1E99429B34894192259C7FB81C8E88FC97F0E5D570645DF518814",
+          "restore_source": "data/guardians_of_isola/base/Images/MedicineTotemStrip.png",
+          "restore_sha256": "5CD40C0D6FB1E99429B34894192259C7FB81C8E88FC97F0E5D570645DF518814"
+        },
+        {
+          "source": "data/guardians_of_isola/new/Images/RainbowTotemStrip.png",
+          "destination": "Images/RainbowTotemStrip.png",
+          "size": 51225,
+          "sha256": "9B20514560DAF9C82AB21F9620E9874C766386062176F03D9F787A22B3A032FC",
+          "preimage_sha256": "4784CE1A05A3D68ACDEB78A449F51BA506F5DE05966854AB0C759124AE8FE27A",
+          "restore_source": "data/guardians_of_isola/base/Images/RainbowTotemStrip.png",
+          "restore_sha256": "4784CE1A05A3D68ACDEB78A449F51BA506F5DE05966854AB0C759124AE8FE27A"
+        },
+        {
+          "source": "data/guardians_of_isola/new/Images/ResearchTotemStrip.png",
+          "destination": "Images/ResearchTotemStrip.png",
+          "size": 47060,
+          "sha256": "598A426B55CC27FA1B73F2F1A072E4EED9F38EDD0D3A42F2D296DAF5EFF84E0C",
+          "preimage_sha256": "E2EACF143A2513C04C7EFA67050DFF6CEA53D47FF6F8BBD431DDF466AD1ECC40",
+          "restore_source": "data/guardians_of_isola/base/Images/ResearchTotemStrip.png",
+          "restore_sha256": "E2EACF143A2513C04C7EFA67050DFF6CEA53D47FF6F8BBD431DDF466AD1ECC40"
+        },
+        {
+          "source": "data/guardians_of_isola/new/Images/blinkEyesMaskStrip.png",
+          "destination": "Images/blinkEyesMaskStrip.png",
+          "size": 4217,
+          "sha256": "E4D0CE04D0F90DB11594A74AA09821CB029BDB1517D04DB9FB4C37965D25703E",
+          "preimage_sha256": "A2F73BB507506FBEAAC86DBDADE963ED31FA8B1AA3844FDA603E277B4903F247",
+          "restore_source": "data/guardians_of_isola/base/Images/blinkEyesMaskStrip.png",
+          "restore_sha256": "A2F73BB507506FBEAAC86DBDADE963ED31FA8B1AA3844FDA603E277B4903F247"
+        },
+        {
+          "source": "data/guardians_of_isola/new/Images/blinkEyesMaskStripSm.png",
+          "destination": "Images/blinkEyesMaskStripSm.png",
+          "size": 4207,
+          "sha256": "2DADAF3DA7CF2DBBD96042A41BF4FA5FCFA74C8F073D846878F12544BA16D7FE",
+          "preimage_sha256": "0DDB3B4B0192708B3510F0593CFFE309B454ADB7C154E92A5098ACA6570F25F8",
+          "restore_source": "data/guardians_of_isola/base/Images/blinkEyesMaskStripSm.png",
+          "restore_sha256": "0DDB3B4B0192708B3510F0593CFFE309B454ADB7C154E92A5098ACA6570F25F8"
+        },
+        {
+          "source": "data/guardians_of_isola/new/Images/idol_states.png",
+          "destination": "Images/idol_states.png",
+          "size": 787733,
+          "sha256": "41032251C7826ED68A162E9203B21032ED1B15DEE935F12705CDC7C26234F453",
+          "preimage_sha256": "211983B8C23AAEB1E7FA12A36E2E0A4ECB1CBEC9BD3262E253877EA8E5DF2C7E",
+          "restore_source": "data/guardians_of_isola/base/Images/idol_states.png",
+          "restore_sha256": "211983B8C23AAEB1E7FA12A36E2E0A4ECB1CBEC9BD3262E253877EA8E5DF2C7E"
+        },
+        {
+          "source": "data/guardians_of_isola/new/Images/mainmenu.jpg",
+          "destination": "Images/mainmenu.jpg",
+          "size": 183361,
+          "sha256": "6B6E35952D5C98F9E886A86CB1925A9092F41BC3A69781E8F71BC0D1DEC4E825",
+          "preimage_sha256": "3E69F187E1523A9801616D7D7736102B64C9DCF62ABDB913B9F81BDEA0B5907A",
+          "restore_source": "data/guardians_of_isola/base/Images/mainmenu.jpg",
+          "restore_sha256": "3E69F187E1523A9801616D7D7736102B64C9DCF62ABDB913B9F81BDEA0B5907A"
         }
       ]
     }

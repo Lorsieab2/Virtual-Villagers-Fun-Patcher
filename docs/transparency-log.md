@@ -481,7 +481,17 @@ Adds Origins-style upgrade menus to Tech and Villager Details. The menus offer F
 - Native event safety: {'disabled_rows': ['Time Warp', 'Island Event', 'Barrel of Babies'], 'reason': 'VV5 native time/event paths are not yet proven to avoid current Heathen record targeting.', 'evidence_status': 'STOP; no charge or native call is made for these rows'}
 - Evidence status: static source/manifest verification performed; runtime/player confirmation pending
 - Guarded executable edits: 12; every edit has an exact purpose and before/after guard in the manifest.
-- Mode-specific guarded edits: experimental_expanded_256=7, experimental_expanded_256_progression=7; these rows are selected only for the named population mode.
+- Mode-specific guarded edits: experimental_expanded_256=7, experimental_expanded_256_progression=7, collection_progression=1, immediate_fixed=1; these rows are selected only for the named population mode.
+
+#### Guardians of Isola Rewrite (`vv5_guardians_of_isola_rewrite`)
+
+Overhauls the New Believers story presentation: replaces the in-game text (Assets/sm.xml) and twelve story/UI images -- the five totem strips, idol states, the blinking-eyes and mask strips, and the main menu -- with the Guardians of Isola rewrite. Purely presentational; no gameplay, executable, or save bytes change. Disabling restores the exact base-game files.
+
+- Behavior changes: Overhauls the New Believers story presentation: replaces the in-game text (Assets/sm.xml) and twelve story/UI images -- the five totem strips, idol states, the blinking-eyes and mask strips, and the main menu -- with the Guardians of Isola rewrite. Purely presentational; no gameplay, executable, or save bytes change. Disabling restores the exact base-game files.
+- Explicit non-changes/exclusions: none declared
+- Dependencies: none
+- Evidence status: static source/manifest verification performed; runtime/player confirmation pending
+- Guarded executable edits: 0; every edit has an exact purpose and before/after guard in the manifest.
 
 #### Heathen Mommy Puzzle Restoration (`vv5_heathen_mommy_puzzle`)
 

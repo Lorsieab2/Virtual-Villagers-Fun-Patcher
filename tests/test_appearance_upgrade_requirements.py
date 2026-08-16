@@ -390,7 +390,12 @@ class AppearanceUpgradeRequirementsTests(unittest.TestCase):
                     "0x15B46", "0x15D8C", "0x16722", "0x16735",
                     "0x1520E",
                 },
-                "data/vv5_origins_feature.json": {"0x94B37", "0x94EA0", "0xDB000"},
+                # 0x1890F: the D37 barrel selector hook — its forced native
+                # event index is corrected from 30 (Chutes Without Ladders) to
+                # 25 (Barrel O' Babies, "happily adopted"); only the selector
+                # body immediate at 0xDB000+0x180 and this hook's purpose text
+                # change, no other guard.
+                "data/vv5_origins_feature.json": {"0x94B37", "0x94EA0", "0xDB000", "0x1890F"},
             }.get(relative, set())
             if repaired_offsets:
                 self.assertEqual(
