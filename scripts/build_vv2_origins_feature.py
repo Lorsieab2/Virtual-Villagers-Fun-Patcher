@@ -1632,7 +1632,7 @@ def main() -> None:
     # with placeholder string VAs yields the final code length, which then fixes
     # the real string addresses for a second, identical-length assembly.
     def _dispatch_src(running_va: int, mastery_va: int, age_va: int,
-                      collections_va: int) -> str:
+                      collections_va: int, division_va: int) -> str:
         return f"""
             push ebp
             push esi
@@ -1643,6 +1643,8 @@ def main() -> None:
             test eax, eax
             je disp_done
             mov esi, eax
+            cmp ebp, 11
+            jae disp_division
             cmp ebp, 9
             jae disp_collections
             mov eax, 0x{running_va:X}
@@ -1673,6 +1675,26 @@ def main() -> None:
             push ebp
             push edi
             call eax
+            jmp disp_done
+        disp_division:
+            # Equal Division of Labor: 11 = includes Parenting, 12 = no Parenting.
+            # ApplyVV2EqualDivision(base = sub_44F4E0, parenting).
+            mov eax, 0x{division_va:X}
+            push eax
+            push esi
+            call dword ptr [0x4740D4]
+            test eax, eax
+            je disp_done
+            mov edi, eax
+            call 0x44F4E0
+            xor ecx, ecx
+            cmp ebp, 11
+            jne disp_division_charge
+            inc ecx
+        disp_division_charge:
+            push ecx
+            push eax
+            call edi
         disp_done:
             pop edi
             pop esi
@@ -1683,7 +1705,9 @@ def main() -> None:
     _placeholder = DISPATCH_VA + 0x100
     dispatch_len = len(
         assemble(
-            _dispatch_src(_placeholder, _placeholder, _placeholder, _placeholder),
+            _dispatch_src(
+                _placeholder, _placeholder, _placeholder, _placeholder, _placeholder
+            ),
             DISPATCH_VA,
         )
     )
@@ -1691,13 +1715,16 @@ def main() -> None:
     mastery_export_bytes = b"ApplyVV2MasteryToAll\0"
     age_export_bytes = b"ApplyVV2AgeToAll\0"
     collections_export_bytes = b"ApplyVV2Collections\0"
+    division_export_bytes = b"ApplyVV2EqualDivision\0"
     running_export_va = DISPATCH_VA + dispatch_len
     mastery_export_va = running_export_va + len(running_export_bytes)
     age_export_va = mastery_export_va + len(mastery_export_bytes)
     collections_export_va = age_export_va + len(age_export_bytes)
+    division_export_va = collections_export_va + len(collections_export_bytes)
     dispatch_code = assemble(
         _dispatch_src(
-            running_export_va, mastery_export_va, age_export_va, collections_export_va
+            running_export_va, mastery_export_va, age_export_va,
+            collections_export_va, division_export_va
         ),
         DISPATCH_VA,
     )
@@ -1708,6 +1735,7 @@ def main() -> None:
         + mastery_export_bytes
         + age_export_bytes
         + collections_export_bytes
+        + division_export_bytes
     )
     if DISPATCH_FILE_OFFSET + len(dispatch_block) > BARREL_GATE_FILE_OFFSET:
         raise RuntimeError(
@@ -2025,7 +2053,7 @@ def main() -> None:
         DISPATCH_FILE_OFFSET,
         b"\0" * len(dispatch_block),
         dispatch_block,
-        "route Grant Running, Grant Full Mastery, and Complete/Reset Collections to their companion-DLL exports (the DLL counts, applies, and reports; Collections also fires or re-arms the group goals)",
+        "route Grant Running, Grant Full Mastery, Complete/Reset Collections, and the two Equal Division of Labor rows to their companion-DLL exports (the DLL counts, applies, and reports; Collections also fires or re-arms the group goals; Equal Division cyclically assigns balanced job preferences)",
     )
     patch(
         BARREL_GATE_FILE_OFFSET,

@@ -25,7 +25,7 @@
 
 /* VV2 Tech-screen upgrades (six working rows; the three broken whole-village
    rows are intentionally absent). */
-211 DIALOGEX 0, 0, 310, 340
+211 DIALOGEX 0, 0, 310, 394
 STYLE DS_MODALFRAME | DS_SETFONT | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Origins Upgrades"
 FONT 9, "Segoe UI"
@@ -94,8 +94,18 @@ BEGIN
     LTEXT       "1,000,000 tech points", -1, 40, 290, 170, 9
     PUSHBUTTON  "Buy", 1010, 240, 277, 55, 18
 
-    DEFPUSHBUTTON "Cancel", 2, 120, 305, 70, 14
-    CTEXT       "Press ESC to exit this menu.", -1, 10, 326, 290, 9
+    ICON        107, -1, 8, 303,  24, 24
+    LTEXT       "Equal Division of Labor (Includes Parenting)", -1, 40, 305, 195, 10
+    LTEXT       "1,000,000 tech points", -1, 40, 317, 170, 9
+    PUSHBUTTON  "Buy", 1011, 240, 304, 55, 18
+
+    ICON        108, -1, 8, 330,  24, 24
+    LTEXT       "Equal Division of Labor (No Parenting)", -1, 40, 332, 195, 10
+    LTEXT       "1,000,000 tech points", -1, 40, 344, 170, 9
+    PUSHBUTTON  "Buy", 1012, 240, 331, 55, 18
+
+    CTEXT       "Press ESC to exit this menu.", -1, 10, 357, 290, 9
+    DEFPUSHBUTTON "Cancel", 2, 120, 371, 70, 14
 END
 
 /* VV2 Villager Details upgrades (four per-villager rows + Change Appearance). */

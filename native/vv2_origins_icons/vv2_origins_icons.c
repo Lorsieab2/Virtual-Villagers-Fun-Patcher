@@ -18,6 +18,7 @@ enum {
     VV2_ACT_TECH_DOUBLER = 3, VV2_ACT_FOOD_DOUBLER = 4, VV2_ACT_CURE = 5,
     VV2_ACT_RUNNING_ALL = 6, VV2_ACT_MASTERY_ALL = 7, VV2_ACT_AGE_ALL = 8,
     VV2_ACT_COLLECT_COMPLETE = 9, VV2_ACT_COLLECT_RESET = 10,
+    VV2_ACT_DIVIDE_PARENTING = 11, VV2_ACT_DIVIDE_NO_PARENTING = 12,
     VV2_ACT_DETAIL_YOUTH = 100, VV2_ACT_DETAIL_MASTERY = 101,
     VV2_ACT_DETAIL_RUNNING = 102, VV2_ACT_DETAIL_AGE18 = 103,
     VV2_ACT_DETAIL_APPEARANCE = 104
@@ -42,12 +43,13 @@ __declspec(dllexport) void __stdcall ShowVV2UpgradeResult(
 #define IDD_VV2_VILLAGER   212
 #define IDD_VV2_APPEARANCE 213
 
-/* VV2 tech screen now carries 11 rows: the 9 shared Origins upgrades plus
-   Complete all Collections (1009) and Reset all Collections (1010).  The shared
-   ID_BUY_LAST (1008) only bounds the VV1 dialogs, so the VV2 proc uses its own
-   upper bound instead of editing the shared enum. */
-#define VV2_TECH_ROW_COUNT 11
-#define ID_VV2_BUY_LAST    1010
+/* VV2 tech screen now carries 13 rows: the 9 shared Origins upgrades, Complete
+   all Collections (1009), Reset all Collections (1010), and the two Equal
+   Division of Labor rows (1011 Includes Parenting, 1012 No Parenting).  The
+   shared ID_BUY_LAST (1008) only bounds the VV1 dialogs, so the VV2 proc uses
+   its own upper bound instead of editing the shared enum. */
+#define VV2_TECH_ROW_COUNT 13
+#define ID_VV2_BUY_LAST    1012
 
 /* The game can run fullscreen as a topmost SDL window at a resolution smaller
    than the desktop.  Our modal dialogs use DS_CENTER so Windows centers them on
@@ -408,6 +410,105 @@ __declspec(dllexport) int __stdcall ApplyVV2Collections(
     return 1;
 }
 
+/* ---- Equal Division of Labor -------------------------------------------------
+   Set every eligible villager's job-preference checkmark round-robin so the
+   population is split evenly across the professions.  Record fields: sex at
+   +0x538 (1 = male, otherwise female), job preference at +0x7F8 (0 none,
+   1 Farming, 2 Building, 3 Research, 4 Healing, 5 Parenting/Breeding).  Each sex
+   is round-robined so the male/female split stays balanced, and the female cycle
+   continues from where the male cycle ends (female seats start at the male
+   total) so that when both counts leave a remainder they don't stack onto the
+   same professions -- the overall per-profession total then differs by at most
+   one.  `parenting` picks 5 professions
+   (Farmer..Breeding) or 4 (no Breeding).  The preference is overwritten
+   unconditionally -- there is no "already correct" state -- so the count is
+   simply how many villagers were eligible.  VV2 has no Golden Child, so nothing
+   is excluded.  Eligibility here is deliberately EVERYONE alive -- children of
+   any age, nursing mothers, and adults -- so it uses only the active + positive-
+   health checks, not the special-state filter the other village-wide rows apply.
+   The per-profession, per-sex breakdown does not fit ShowVV2UpgradeResult's four
+   counts, so this composes and shows its own result. ---- */
+#define VV2_SEX_OFFSET        0x538
+#define VV2_PREFERENCE_OFFSET 0x7F8
+
+__declspec(dllexport) int __stdcall ApplyVV2EqualDivision(
+    unsigned char *base,
+    int parenting
+) {
+    static const char *const profession_name[5] = {
+        "Farming", "Building", "Research", "Healing", "Breeding"
+    };
+    int professions = parenting ? 5 : 4;
+    int male_seat = 0, female_seat, male_total = 0;
+    int male_count[5] = {0, 0, 0, 0, 0};
+    int female_count[5] = {0, 0, 0, 0, 0};
+    int total = 0;
+    int i, p;
+    char message[512];
+    char line[128];
+    unsigned char *record = base;
+    if (base == 0) {
+        return 0;
+    }
+    /* First pass: count eligible males so the female cycle can continue from the
+       male total, keeping the overall split even (see the header comment). */
+    for (i = 0; i < VV2_RECORD_COUNT; ++i, record += VV2_RECORD_STRIDE) {
+        if (record[VV2_ACTIVE_OFFSET] == 0) {
+            continue;
+        }
+        if (*(int *)(record + VV2_HEALTH_OFFSET) <= 0) {
+            continue;
+        }
+        if (*(int *)(record + VV2_SEX_OFFSET) == 1) {
+            ++male_total;
+        }
+    }
+    female_seat = male_total;
+    record = base;
+    for (i = 0; i < VV2_RECORD_COUNT; ++i, record += VV2_RECORD_STRIDE) {
+        int seat;
+        if (record[VV2_ACTIVE_OFFSET] == 0) {
+            continue;
+        }
+        if (*(int *)(record + VV2_HEALTH_OFFSET) <= 0) {
+            continue;
+        }
+        if (*(int *)(record + VV2_SEX_OFFSET) == 1) {   /* male */
+            seat = male_seat % professions;
+            ++male_seat;
+            ++male_count[seat];
+        } else {                                         /* female */
+            seat = female_seat % professions;
+            ++female_seat;
+            ++female_count[seat];
+        }
+        *(int *)(record + VV2_PREFERENCE_OFFSET) = seat + 1;   /* 1..5 */
+        ++total;
+    }
+    if (total == 0) {
+        MessageBoxA(
+            GetForegroundWindow(),
+            "No villagers were eligible. No tech points have been deducted.",
+            "Origins Upgrades",
+            MB_OK | MB_ICONINFORMATION | MB_TOPMOST | MB_SETFOREGROUND
+        );
+        return 0;
+    }
+    wsprintfA(message, "Set %u Villagers' Job Preferences.", (unsigned int)total);
+    for (p = 0; p < professions; ++p) {
+        wsprintfA(line, "\r\n\r\n%s: %u Villagers (%u Male, %u Female).",
+                  profession_name[p],
+                  (unsigned int)(male_count[p] + female_count[p]),
+                  (unsigned int)male_count[p], (unsigned int)female_count[p]);
+        lstrcatA(message, line);
+    }
+    MessageBoxA(
+        GetForegroundWindow(), message, "Origins Upgrades",
+        MB_OK | MB_ICONINFORMATION | MB_TOPMOST | MB_SETFOREGROUND
+    );
+    return 1;
+}
+
 /* ---- VV5 Task9-style purchase prompts for every VV2 upgrade -----------------
    Confirm: an OK/Cancel box stating the action and its cost (with counts for
    Full Heal / Cure All), ending "Press OK to confirm, or Cancel." Result:
@@ -430,6 +531,10 @@ static const char *vv2_action_name(int action) {
     case VV2_ACT_AGE_ALL: return "Set All Villagers to 18";
     case VV2_ACT_COLLECT_COMPLETE: return "Complete All Collections";
     case VV2_ACT_COLLECT_RESET: return "Reset All Collections";
+    case VV2_ACT_DIVIDE_PARENTING:
+        return "Equal Division of Labor (Includes Parenting)";
+    case VV2_ACT_DIVIDE_NO_PARENTING:
+        return "Equal Division of Labor (No Parenting)";
     case VV2_ACT_DETAIL_YOUTH: return "Grant Youth";
     case VV2_ACT_DETAIL_MASTERY: return "Grant Full Mastery";
     case VV2_ACT_DETAIL_RUNNING: return "Grant Running";
@@ -460,6 +565,8 @@ static unsigned int vv2_action_price(int action) {
     case VV2_ACT_AGE_ALL: return 1000000;
     case VV2_ACT_COLLECT_COMPLETE: return 1000000;
     case VV2_ACT_COLLECT_RESET: return 1000000;
+    case VV2_ACT_DIVIDE_PARENTING: return 1000000;
+    case VV2_ACT_DIVIDE_NO_PARENTING: return 1000000;
     case VV2_ACT_DETAIL_YOUTH: return 50000;
     case VV2_ACT_DETAIL_MASTERY: return 100000;
     case VV2_ACT_DETAIL_RUNNING: return 40000;
