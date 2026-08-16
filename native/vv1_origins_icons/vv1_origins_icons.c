@@ -592,7 +592,7 @@ static const char *vv1_tech_row_name(int row) {
     case 5: return "Full Heal / Cure All";
     case 6: return "Grant Running to All Villagers";
     case 7: return "Grant Full Mastery to All Villagers";
-    case 8: return "Set All Villagers to 18";
+    case 8: return "All Villagers are Exactly 18";
     case 9: return "Equal Division of Labor (Includes Parenting)";
     case 10: return "Equal Division of Labor (No Parenting)";
     default: return "Origins upgrade";

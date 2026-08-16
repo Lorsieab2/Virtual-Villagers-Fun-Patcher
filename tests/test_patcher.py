@@ -980,7 +980,7 @@ class ManifestTests(unittest.TestCase):
             # differ from -- see vv1_tech_row_name in the .c file).
             "Grant Running to All Villagers",
             "Grant Full Mastery to All Villagers",
-            "Set All Villagers to 18",
+            "All Villagers are Exactly 18",
         ):
             self.assertIn(label, resource)
         # 3 original village-wide rows (Running/Mastery/Age) plus the 2
