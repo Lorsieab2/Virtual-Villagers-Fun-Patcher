@@ -317,7 +317,7 @@ __declspec(dllexport) int __stdcall ApplyVV2MasteryToAll(unsigned char *base) {
    field -- never the paired age field or pregnancy timer.  Returns 1 if any
    villager changed (so the Tech menu charges), 0 if all were already 18. */
 __declspec(dllexport) int __stdcall ApplyVV2AgeToAll(unsigned char *base) {
-    int changed = 0;
+    int changed = 0, already = 0;
     int i;
     unsigned char *record = base;
     if (base == 0) {
@@ -332,13 +332,16 @@ __declspec(dllexport) int __stdcall ApplyVV2AgeToAll(unsigned char *base) {
         if (*age != 360) {
             *age = 360;
             ++changed;
+        } else {
+            ++already;
         }
     }
     if (changed == 0) {
         ShowVV2UpgradeResult(VV2_ACT_AGE_ALL, VV2_RES_NO_CHANGE, 0, 0, 0, 0);
         return 0;
     }
-    ShowVV2UpgradeResult(VV2_ACT_AGE_ALL, VV2_RES_SUCCESS, 0, 0, 0, 0);
+    ShowVV2UpgradeResult(VV2_ACT_AGE_ALL, VV2_RES_SUCCESS,
+                         (unsigned int)changed, (unsigned int)already, 0, 0);
     return 1;
 }
 
@@ -524,6 +527,14 @@ __declspec(dllexport) void __stdcall ShowVV2UpgradeResult(
             wsprintfA(message, "Granted Full Mastery to %u %s.",
                       amount_a, vv2_villager_word(amount_a));
             wsprintfA(line, "\r\n\r\nSkipped %u %s: already fully mastered.",
+                      amount_b, vv2_villager_word(amount_b));
+            lstrcatA(message, line);
+            break;
+        case VV2_ACT_AGE_ALL:
+            /* a=set to 18, b=already 18 */
+            wsprintfA(message, "Set %u %s to Age 18.",
+                      amount_a, vv2_villager_word(amount_a));
+            wsprintfA(line, "\r\n\r\nSkipped %u %s: already 18.",
                       amount_b, vv2_villager_word(amount_b));
             lstrcatA(message, line);
             break;
