@@ -117,7 +117,7 @@ class ExpandedTimeWarpArtifactTests(unittest.TestCase):
         )
 
     def test_exact_shared_companion_and_owner_exports(self) -> None:
-        self.assertEqual(COMPANION.stat().st_size, 1692672)
+        self.assertEqual(COMPANION.stat().st_size, 1694208)
         self.assertEqual(digest(COMPANION.read_bytes()), builder.COMPANION_SHA256)
         self.assertEqual(self.vv4["companion_files"], [builder.companion()])
         self.assertEqual(self.vv5["companion_contract"], builder.companion())
@@ -161,7 +161,7 @@ class ExpandedTimeWarpArtifactTests(unittest.TestCase):
         task9 = builder.load_task9_builder()
         stock, stock_map = task9.build_page(0x7C9000)
         expanded, expanded_map = task9.build_page(0x904000)
-        self.assertEqual(digest(stock), "4032F3AF1197B4C222978C34D89DB7B15BC51D08376AEAB519EA5A1AED68478B")
+        self.assertEqual(digest(stock), "F0891E7C29E98DBB3E36A6878121E27458E9356420DB6AAB24809436C3CD61D0")
         self.assertEqual(digest(expanded), "1DA673F628F98044196506FC0E386ADE07AA1BB2EB1FC0CC15F69518E80FA874")
         self.assertEqual(task9.SIZES["age"], 0x300)
         self.assertEqual(task9.OFF["time_warp"], 0x1040)

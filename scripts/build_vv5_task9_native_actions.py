@@ -146,6 +146,9 @@ OFF = {
     "mastery_all": 0x5200,
     "age18_all": 0x5800,
     "barrel_close_arm": 0x5E00,
+    "division_parenting": 0x6000,
+    "division_no_parenting": 0x6200,
+    "apply_division": 0x6400,
     "strings": 0x7000,
 }
 
@@ -177,6 +180,9 @@ SIZES = {
     "mastery_all": 0x600,
     "age18_all": 0x600,
     "barrel_close_arm": 0x80,
+    "division_parenting": 0x200,
+    "division_no_parenting": 0x200,
+    "apply_division": 0x80,
 }
 
 
@@ -245,6 +251,7 @@ def build_strings(page: bytearray, page_va: int) -> dict[str, int]:
     time_warp_values = (
         ("appearance_export", b"ShowAppearanceChooser\0"),
         ("genetics_export", b"ShowVV5Task9GeneticsWarning\0"),
+        ("division_export", b"ApplyVV5EqualDivision\0"),
         ("perm_warning", b"This upgrade makes permanent changes to your village. Do you still want to purchase this?\0"),
         ("tw_get", b"GetOriginsOwner\0"),
         ("tw_user32", b"USER32.dll\0"),
@@ -479,11 +486,18 @@ def build_helpers(page: bytearray, page_va: int, s: dict[str, int]) -> dict[str,
     done:
         ret 4
     """)
-    for name, export, argc in (
+    helper_specs = [
         ("show_menu", "menu", 2),
         ("confirm", "confirm_export", 3),
         ("status", "status_export", 4),
-    ):
+    ]
+    # apply_division forwards to the companion DLL's ApplyVV5EqualDivision(base,
+    # parenting); its export string lives only in the stock string table, so the
+    # helper is emitted only there (the expanded-256 baseline page stays byte-
+    # identical for its overlay).
+    if page_va == 0x7C9000:
+        helper_specs.append(("apply_division", "division_export", 2))
+    for name, export, argc in helper_specs:
         pushes = "\n".join(
             f"push dword ptr [ebp+{8 + index * 4:#x}]"
             for index in range(argc - 1, -1, -1)
@@ -530,9 +544,10 @@ def build_menus(page: bytearray, page_va: int) -> dict[str, bytes]:
     # doubler-confirm addition below is therefore gated to the stock layout; in
     # expanded the two Collections rows render but are bounded out as no-ops.
     menu_state = 0x000 if native_stock else 0x700
-    # Command upper bound: 0..7 in stock (adds the two Collections rows), 0..5 in
-    # expanded (original), so the expanded router bytes stay identical.
-    command_bound = 10 if native_stock else 5
+    # Command upper bound: 0..12 in stock (Collections rows 9/10 plus the two
+    # Equal Division of Labor rows 11/12), 0..5 in expanded (original), so the
+    # expanded router bytes stay identical.
+    command_bound = 12 if native_stock else 5
     collections_guard = (
         "cmp ebx, 6\n        jae unavailable\n        " if native_stock else ""
     )
@@ -565,7 +580,9 @@ def build_menus(page: bytearray, page_va: int) -> dict[str, bytes]:
         "        cmp ebx, 7\n        je mastery_all_row\n"
         "        cmp ebx, 8\n        je age18_all_row\n"
         "        cmp ebx, 9\n        je complete_collections_row\n"
-        "        cmp ebx, 10\n        je reset_collections_row\n        "
+        "        cmp ebx, 10\n        je reset_collections_row\n"
+        "        cmp ebx, 11\n        je division_parenting_row\n"
+        "        cmp ebx, 12\n        je division_no_parenting_row\n        "
         if native_stock
         else ""
     )
@@ -585,6 +602,10 @@ def build_menus(page: bytearray, page_va: int) -> dict[str, bytes]:
         f"    mastery_all_row:\n        call 0x{page_va + OFF['mastery_all']:X}\n"
         "        jmp done\n        nop\n        nop\n        nop\n"
         f"    age18_all_row:\n        call 0x{page_va + OFF['age18_all']:X}\n"
+        "        jmp done\n        nop\n        nop\n        nop\n"
+        f"    division_parenting_row:\n        call 0x{page_va + OFF['division_parenting']:X}\n"
+        "        jmp done\n        nop\n        nop\n        nop\n"
+        f"    division_no_parenting_row:\n        call 0x{page_va + OFF['division_no_parenting']:X}\n"
         "        jmp done\n        nop\n        nop\n        nop\n    "
         if native_stock
         else ""
@@ -2910,6 +2931,79 @@ def build_age18_all(page: bytearray, page_va: int) -> bytes:
     """)
 
 
+def build_division(
+    page: bytearray, page_va: int, name: str, parenting: int, action: int
+) -> bytes:
+    """Equal Division of Labor (village-wide, 1,000,000 tech points). The whole
+    round-robin assignment lives in the companion DLL export
+    ApplyVV5EqualDivision(base, parenting): it walks all 150 villager records,
+    acts only on eligible living Believers (never masked Heathens or off-faction
+    villagers), assigns each one's job-preference index at +0x1C74 cyclically so
+    the professions are split evenly (males and females cycle independently for a
+    balanced split), and shows its own per-profession, per-sex result box because
+    that breakdown does not fit ShowVV5Task9Result's two counts. `parenting`
+    selects the 6-way cycle (Farming, Building, Research, Healing, Parenting,
+    Devotion) or the 5-way cycle without Parenting. Preferences are overwritten
+    unconditionally, so N is simply the eligible count. This native routine owns
+    only the purchase gate: it confirms, re-checks the tech balance, calls the
+    DLL, and charges one 1,000,000 deduction ONLY when the DLL reports a real
+    change (return value 1); a 0 return (no eligible villagers, the DLL showed
+    its own no-charge notice) or a -1 (companion unavailable) deducts nothing."""
+    return put(page, page_va, name, f"""
+        push ebp
+        mov ebp, esp
+        push ebx
+        push esi
+        push edi
+        sub esp, 0x30
+        mov eax, dword ptr [0x51D5F8]
+        mov dword ptr [ebp-0x18], eax
+        cmp eax, 1000000
+        jb insufficient
+        push 0
+        push 0
+        push {action}
+        call 0x{page_va + OFF['confirm']:X}
+        cmp eax, 1
+        jne cancelled
+        mov eax, dword ptr [0x51D5F8]
+        cmp eax, dword ptr [ebp-0x18]
+        jne recheck
+        cmp eax, 1000000
+        jb insufficient
+        push {parenting}
+        push 0x554190
+        call 0x{page_va + OFF['apply_division']:X}
+        cmp eax, 1
+        jne done
+        mov eax, dword ptr [0x51D5F8]
+        cmp eax, dword ptr [ebp-0x18]
+        jne done
+        push -1000000
+        mov ecx, 0x51D5F8
+        call 0x4237B0
+        jmp done
+        nop
+        nop
+        nop
+    insufficient:
+        {status_call(page_va, str(action), 3)}
+        jmp done
+    cancelled:
+        {status_call(page_va, str(action), 4)}
+        jmp done
+    recheck:
+        {status_call(page_va, str(action), 5)}
+    done:
+        add esp, 0x30
+        pop edi
+        pop esi
+        pop ebx
+        pop ebp
+        ret
+    """)
+
+
 def build_page(page_va: int) -> tuple[bytes, dict[str, object]]:
     page = bytearray(PAGE_SIZE)
     page[0:8] = b"VVT9PG\0\0"
@@ -2940,6 +3034,12 @@ def build_page(page_va: int) -> tuple[bytes, dict[str, object]]:
         routines["mastery_all"] = build_mastery_all(page, page_va)
         routines["age18_all"] = build_age18_all(page, page_va)
         routines["barrel_close_arm"] = build_barrel_close_arm(page, page_va)
+        routines["division_parenting"] = build_division(
+            page, page_va, "division_parenting", parenting=1, action=23
+        )
+        routines["division_no_parenting"] = build_division(
+            page, page_va, "division_no_parenting", parenting=0, action=24
+        )
     result = {
         "page_sha256": sha(bytes(page)),
         "routine_sha256": {name: sha(value) for name, value in routines.items()},

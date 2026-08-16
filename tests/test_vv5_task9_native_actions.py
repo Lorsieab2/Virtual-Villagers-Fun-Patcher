@@ -101,10 +101,10 @@ class Task9ArtifactTests(unittest.TestCase):
         # paths and shifting the offsets/`done` target; the expanded-256 baseline
         # keeps the original seven paths.
         stock_offsets = [
-            0x109, 0x1BA, 0x1C7, 0x1D4, 0x1E1, 0x1EE, 0x1F8, 0x202,
-            0x20C, 0x216, 0x220, 0x231, 0x242, 0x253, 0x264,
+            0x11B, 0x1CC, 0x1D9, 0x1E6, 0x1F3, 0x200, 0x20D, 0x21A,
+            0x224, 0x22E, 0x238, 0x242, 0x24C, 0x25D, 0x26E, 0x27F, 0x290,
         ]
-        stock_done = 0xAA9
+        stock_done = 0xAD5
         expanded_offsets = [0xB6, 0x118, 0x122, 0x133, 0x144, 0x155, 0x166]
         expanded_done = 0x9AB
         for mode, layout in builder.LAYOUTS.items():
@@ -329,14 +329,45 @@ class Task9ArtifactTests(unittest.TestCase):
             self.assertIn(name, exports)
             self.assertIn(name.encode("ascii") + b"\0", DLL.read_bytes())
 
-    def test_dialog_resources_expose_exact_eleven_plus_five_rows(self) -> None:
+    def test_equal_division_of_labor_rows_wired_and_believer_gated(self) -> None:
+        native = NATIVE.read_text(encoding="utf-8")
+        exports = DEF.read_text(encoding="utf-8")
+        dll = DLL.read_bytes()
+        # The two Tech rows (commands 11/12) drive the companion DLL export
+        # ApplyVV5EqualDivision(base, parenting).
+        self.assertIn("ApplyVV5EqualDivision=_ApplyVV5EqualDivision@8", exports)
+        self.assertIn(b"ApplyVV5EqualDivision\0", dll)
+        self.assertIn("Equal Division of Labor (Includes Parenting)", native)
+        self.assertIn("Equal Division of Labor (No Parenting)", native)
+        # Seat -> preferred-skill-index cycles: Includes = Farming, Building,
+        # Research, Healing, Parenting, Devotion; No-Parenting drops Parenting.
+        self.assertIn("index_parenting[6] = { 0, 4, 3, 2, 1, 5 }", native)
+        self.assertIn("index_no_parenting[5] = { 0, 4, 3, 2, 5 }", native)
+        # Believer-only gate + the preferred-skill index field it overwrites.
+        for offset in ("0x1CD4", "0x1CE1", "0x1CEC", "0x1C40", "0x1B90", "0x1C74"):
+            self.assertIn(offset, native)
+        # The result box is parented to the captured origins owner, never a
+        # GetForegroundWindow() fullscreen-drop fallback.
+        self.assertIn("HWND owner = GetOriginsOwner();", native)
+        self.assertNotIn("GetForegroundWindow(), message", native)
+        self.assertIn("Set %u Villagers' Job Preferences.", native)
+        # The two native routines and the DLL-call helper exist only in the stock
+        # layout; the expanded-256 baseline page stays byte-identical.
+        _, stock_map = builder.build_page(0x7C9000)
+        _, expanded_map = builder.build_page(0x904000)
+        for name in ("division_parenting", "division_no_parenting", "apply_division"):
+            self.assertIn(name, stock_map["routine_length"])
+            self.assertNotIn(name, expanded_map["routine_length"])
+
+    def test_dialog_resources_expose_exact_thirteen_plus_five_rows(self) -> None:
         resources = RC.read_text(encoding="utf-8")
         tech, detail = resources.split("202 DIALOGEX", 1)
-        # Eleven tech rows now: Time Warp, Island Event, Barrel of Babies, Tech
-        # Point Doubler, Food Point Doubler, Full Heal/Cure All, Complete all
-        # Collections, Reset all Collections, Grant Running to All Villagers,
-        # Grant Full Mastery to All Villagers, Set all Villagers to 18.
-        self.assertEqual(tech.count('PUSHBUTTON "Buy"'), 11)
+        # Thirteen tech rows now: Time Warp, Island Event, Barrel of Babies, Tech
+        # Point Doubler, Food Point Doubler, Full Heal/Cure All, Grant Running to
+        # All Villagers, Grant Full Mastery to All Villagers, Set all Villagers to
+        # 18, Complete all Collections, Reset all Collections, and the two Equal
+        # Division of Labor rows (Includes Parenting / No Parenting).
+        self.assertEqual(tech.count('PUSHBUTTON "Buy"'), 13)
         # Five villager rows: Youth, Mastery, Running, Age 18, Change Appearance.
         # The picker dialog 203 uses arrow/OK/Cancel, not "Buy".
         self.assertEqual(detail.count('PUSHBUTTON "Buy"'), 5)
@@ -345,7 +376,9 @@ class Task9ArtifactTests(unittest.TestCase):
         self.assertIn("Reset All Collections", tech)
         self.assertIn("Grant Running to All Villagers", tech)
         self.assertIn("Grant Full Mastery to All Villagers", tech)
-        self.assertIn("Set All Villagers to 18", tech)
+        self.assertIn("All Villagers are Exactly 18", tech)
+        self.assertIn("Equal Division of Labor (Includes Parenting)", tech)
+        self.assertIn("Equal Division of Labor (No Parenting)", tech)
         self.assertIn("Grant Running", detail)
         self.assertIn("Change Appearance", detail)
         # Both Upgrade menus advertise the ESC exit hint.

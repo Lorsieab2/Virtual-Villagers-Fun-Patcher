@@ -8,3 +8,4 @@ EXPORTS
     ShowVV5Task9Result=_ShowVV5Task9Result@16
     ShowVV5Task9GeneticsWarning=_ShowVV5Task9GeneticsWarning@0
     ShowAppearanceChooser=_ShowAppearanceChooser@16
+    ApplyVV5EqualDivision=_ApplyVV5EqualDivision@8

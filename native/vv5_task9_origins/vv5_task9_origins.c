@@ -8,7 +8,7 @@ enum {
     IDD_ORIGINS_TECH = 201,
     IDD_ORIGINS_VILLAGER = 202,
     ID_BUY_FIRST = 1000,
-    ID_BUY_LAST = 1010,
+    ID_BUY_LAST = 1012,
     ID_CHECK_FIRST = 1100,
     STATE_VILLAGER = 0x10000
 };
@@ -27,7 +27,9 @@ enum {
     ACTION_FOOD_DOUBLER = 19,
     ACTION_GRANT_RUNNING_ALL = 20,
     ACTION_GRANT_MASTERY_ALL = 21,
-    ACTION_SET_AGE_18_ALL = 22
+    ACTION_SET_AGE_18_ALL = 22,
+    ACTION_EQUAL_DIVISION_PARENTING = 23,
+    ACTION_EQUAL_DIVISION_NO_PARENTING = 24
 };
 
 enum {
@@ -269,7 +271,7 @@ static INT_PTR CALLBACK upgrade_dialog(
 ) {
     if (message == WM_INITDIALOG) {
         int villager_menu = (lparam & STATE_VILLAGER) != 0;
-        int row_count = villager_menu ? 5 : 11;
+        int row_count = villager_menu ? 5 : 13;
         int row;
         for (row = 0; row < row_count; ++row) {
             ShowWindow(GetDlgItem(window, ID_CHECK_FIRST + row), SW_HIDE);
@@ -341,7 +343,9 @@ static const char *action_name(unsigned int action) {
     case ACTION_FOOD_DOUBLER: return "Food Point Doubler";
     case ACTION_GRANT_RUNNING_ALL: return "Grant Running to All Villagers";
     case ACTION_GRANT_MASTERY_ALL: return "Grant Full Mastery to All Villagers";
-    case ACTION_SET_AGE_18_ALL: return "Set All Villagers to 18";
+    case ACTION_SET_AGE_18_ALL: return "All Villagers are Exactly 18";
+    case ACTION_EQUAL_DIVISION_PARENTING: return "Equal Division of Labor (Includes Parenting)";
+    case ACTION_EQUAL_DIVISION_NO_PARENTING: return "Equal Division of Labor (No Parenting)";
     default: return "Origins upgrade";
     }
 }
@@ -363,6 +367,109 @@ static const char *action_cost(unsigned int action) {
 /* Correct singular/plural for a villager count. */
 static const char *vpl(unsigned int n) { return n == 1 ? "Villager" : "Villagers"; }
 static const char *vpl_lc(unsigned int n) { return n == 1 ? "villager" : "villagers"; }
+
+/* ---- Equal Division of Labor (VV5) -------------------------------------------
+   Split every eligible Believer's job-preference checkmark round-robin so the
+   population is spread evenly across the professions. Record fields (base +
+   i*STRIDE): active +0x1CD4, Heathen mask +0x1CE1 (== 0), faction +0x1CEC
+   (== 0), signed health +0x1C40 (> 0), sex dword +0x1B90 (0 male / 1 female),
+   preferred-skill index +0x1C74 (0 Farming, 1 Parenting, 2 Healing, 3 Research,
+   4 Building, 5 Devotion). A separate seat counter per sex keeps each
+   profession's male/female split balanced as well as the total count.
+   Assignment order is Farming, Building, Research, Healing, [Parenting,]
+   Devotion -- `parenting` picks 6 professions, otherwise 5 (Parenting dropped).
+   Preferences are overwritten unconditionally, so the count is simply the
+   number eligible. Believer-only: masked Heathens and off-faction villagers are
+   never touched, and VV5 has no Golden Child so nothing else is skipped.
+   Eligibility is otherwise EVERYONE alive -- children of any age, nursing
+   mothers, and adults. The per-profession, per-sex breakdown does not fit
+   ShowVV5Task9Result's two counts, so this composes and shows its own result. */
+#define VV5_ED_STRIDE     0x2F44
+#define VV5_ED_COUNT      150
+#define VV5_ED_ACTIVE     0x1CD4
+#define VV5_ED_MASK       0x1CE1
+#define VV5_ED_FACTION    0x1CEC
+#define VV5_ED_HEALTH     0x1C40
+#define VV5_ED_SEX        0x1B90
+#define VV5_ED_PREFERENCE 0x1C74
+
+__declspec(dllexport) int __stdcall ApplyVV5EqualDivision(
+    unsigned char *base,
+    int parenting
+) {
+    /* Seat order names plus the skill index written to +0x1C74 for each seat. */
+    static const char *const name_parenting[6] = {
+        "Farming", "Building", "Research", "Healing", "Breeding", "Devotion"
+    };
+    static const int index_parenting[6] = { 0, 4, 3, 2, 1, 5 };
+    static const char *const name_no_parenting[5] = {
+        "Farming", "Building", "Research", "Healing", "Devotion"
+    };
+    static const int index_no_parenting[5] = { 0, 4, 3, 2, 5 };
+    const char *const *pro_name = parenting ? name_parenting : name_no_parenting;
+    const int *pro_index = parenting ? index_parenting : index_no_parenting;
+    int professions = parenting ? 6 : 5;
+    int male_seat = 0, female_seat = 0;
+    int male_count[6] = { 0, 0, 0, 0, 0, 0 };
+    int female_count[6] = { 0, 0, 0, 0, 0, 0 };
+    int total = 0;
+    int i, p;
+    char message[512];
+    char line[128];
+    unsigned char *record = base;
+    HWND owner = GetOriginsOwner();
+    if (base == 0) {
+        return 0;
+    }
+    for (i = 0; i < VV5_ED_COUNT; ++i, record += VV5_ED_STRIDE) {
+        int seat;
+        if (record[VV5_ED_ACTIVE] == 0) {
+            continue;
+        }
+        if (record[VV5_ED_MASK] != 0) {       /* masked Heathen -- never touch */
+            continue;
+        }
+        if (record[VV5_ED_FACTION] != 0) {    /* off-faction -- never touch */
+            continue;
+        }
+        if (*(int *)(record + VV5_ED_HEALTH) <= 0) {
+            continue;
+        }
+        if (*(int *)(record + VV5_ED_SEX) == 0) {   /* male */
+            seat = male_seat % professions;
+            ++male_seat;
+            ++male_count[seat];
+        } else {                                     /* female */
+            seat = female_seat % professions;
+            ++female_seat;
+            ++female_count[seat];
+        }
+        *(int *)(record + VV5_ED_PREFERENCE) = pro_index[seat];
+        ++total;
+    }
+    if (total == 0) {
+        MessageBoxA(
+            owner,
+            "No villagers were eligible. No tech points have been deducted.",
+            "Origins Upgrades",
+            MB_OK | MB_ICONINFORMATION
+        );
+        return 0;
+    }
+    wsprintfA(message, "Set %u Villagers' Job Preferences.", (unsigned int)total);
+    for (p = 0; p < professions; ++p) {
+        wsprintfA(line, "\r\n\r\n%s: %u Villagers (%u Male, %u Female).",
+                  pro_name[p],
+                  (unsigned int)(male_count[p] + female_count[p]),
+                  (unsigned int)male_count[p], (unsigned int)female_count[p]);
+        lstrcatA(message, line);
+    }
+    MessageBoxA(
+        owner, message, "Origins Upgrades",
+        MB_OK | MB_ICONINFORMATION
+    );
+    return 1;
+}
 
 __declspec(dllexport) int __stdcall ConfirmVV5Task9Action(
     unsigned int action,
@@ -446,7 +553,7 @@ __declspec(dllexport) int __stdcall ShowVV5Task9Result(
             wsprintfA(
                 message,
                 "Set %u %s to Age 18.\r\n\r\n"
-                "Skipped %u %s: already 18.",
+                "Skipped %u %s: already exactly 18.",
                 amount_a, vpl(amount_a), amount_b, vpl(amount_b)
             );
         } else {
@@ -469,7 +576,7 @@ __declspec(dllexport) int __stdcall ShowVV5Task9Result(
         } else if (action == ACTION_GRANT_MASTERY_ALL) {
             lstrcpyA(message, "Everyone has already mastered their skills. No tech points have been deducted.");
         } else if (action == ACTION_SET_AGE_18_ALL) {
-            lstrcpyA(message, "Everyone is already 18. No tech points have been deducted.");
+            lstrcpyA(message, "Everyone is already exactly 18. No tech points have been deducted.");
         } else if (action == ACTION_COMPLETE_COLLECTIONS) {
             lstrcpyA(message, "All collectibles are already found. No tech points have been deducted.");
         } else if (action == ACTION_RESET_COLLECTIONS) {
