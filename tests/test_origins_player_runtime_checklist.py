@@ -221,6 +221,14 @@ class OriginsPlayerRuntimeChecklistTests(unittest.TestCase):
                         # Details Grant Running's free-dislike-removal
                         # tail, tail-jumped into from DETAIL_PREFLIGHT_VA.
                         "0x8BE80",
+                        # Equal Division of Labor (Tech screen rows 9/10):
+                        # equal_division_core (the actual scan/assign
+                        # loop, in the confirmed-unused gap after
+                        # BARREL_MAIN_HELPER), its own job-preference code
+                        # table, and equal_division_dispatch (afford
+                        # check/charge/result, in the confirmed-unused gap
+                        # after POPULATION_FINAL_TIER).
+                        "0x8B790", "0x8B8A0", "0x8BD30",
                     }
                     self.assertEqual(
                         [item for item in current["patches"] if item["offset"] not in repaired_offsets],

@@ -9,3 +9,4 @@ EXPORTS
     ShowOriginsMasteryResult=_ShowOriginsMasteryResult@8
     ShowOriginsRowMessage=_ShowOriginsRowMessage@12
     ShowOriginsAgeResult=_ShowOriginsAgeResult@8
+    ShowOriginsEqualDivisionResult=_ShowOriginsEqualDivisionResult@8

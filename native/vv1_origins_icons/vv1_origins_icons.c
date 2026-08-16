@@ -778,6 +778,42 @@ __declspec(dllexport) int __stdcall ShowOriginsAgeResult(
     return 0;
 }
 
+/* Equal Division of Labor (both the Includes-Parenting and No-Parenting
+   Tech screen rows share this one export): granted/golden_child_skipped
+   come from two fixed .shr scratch dwords equal_division_core zeroes at
+   its own start and increments as it goes (VV1-only, not part of the
+   shared cross-game village-wide extension -- see equal_division_core's
+   own comment in build_vv1_origins_feature.py). Unlike Grant Running/
+   Mastery/Age, there is no "already correct" state to skip past: every
+   eligible villager's job preference is reassigned unconditionally, so
+   granted is simply how many villagers were actually eligible (active,
+   alive, not the Golden Child). */
+__declspec(dllexport) int __stdcall ShowOriginsEqualDivisionResult(
+    int granted,
+    int golden_child_skipped
+) {
+    char message[192];
+    char line[128];
+    wsprintfA(
+        message,
+        "Set %d %s' Job Preferences.",
+        granted, vv1_vpl(granted)
+    );
+    wsprintfA(
+        line,
+        "\r\n\r\nSkipped %d %s: is Golden Child.",
+        golden_child_skipped, vv1_vpl(golden_child_skipped)
+    );
+    lstrcatA(message, line);
+    MessageBoxA(
+        GetForegroundWindow(),
+        message,
+        "Origins Upgrades",
+        MB_OK | MB_ICONINFORMATION | MB_TOPMOST | MB_SETFOREGROUND
+    );
+    return 0;
+}
+
 /* Grant Full Mastery to All Villagers: granted/already_mastered come from
    two fixed .shr scratch dwords mastery_va zeroes at its own start and
    increments as it goes (MASTERY_GRANTED_VA/MASTERY_ALREADY_VA) -- unlike
@@ -813,12 +849,19 @@ __declspec(dllexport) int __stdcall ShowOriginsMasteryResult(
 /* No-change wording for the Tech screen's three village-wide rows (Grant
    Running to All Villagers, Grant Full Mastery to All Villagers, Set All
    Villagers to 18) -- the only three Tech rows the OFFICIAL spreadsheet
-   gives distinct no-change text to instead of the shared fallback. */
+   gives distinct no-change text to instead of the shared fallback. Rows 9
+   and 10 (Equal Division of Labor) share one no-change case: unlike the
+   three rows above, this row never checks a villager's existing state
+   before reassigning, so "no change" only means no eligible villager was
+   found at all (an empty or all-Golden-Child village), not "already
+   correct". */
 static const char *vv1_tech_no_change_text(int row) {
     switch (row) {
     case 6: return "Everyone already likes running, or has full Likes slots. No tech points have been deducted.";
     case 7: return "Everyone has already mastered their skills. No tech points have been deducted.";
     case 8: return "Everyone is already 18. No tech points have been deducted.";
+    case 9:
+    case 10: return "No villagers were eligible. No tech points have been deducted.";
     default: return "No changes were needed. No tech points have been deducted.";
     }
 }
