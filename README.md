@@ -512,8 +512,7 @@ python src/vv_fun_patcher.py apply-all --vv1 "path\vv1 folder" --vv2 "path\vv2 f
 ```
 
 Technical evidence is in `docs/max-population-research.md`,
-`docs/island-event-population-research.md`,
-`docs/experimental-256-cap-research.md`, and the game-specific reports under
+`docs/island-event-population-research.md`, and the game-specific reports under
 `docs/`.
 
 The public patcher exposes only the five current combined Origins Tech, Details,

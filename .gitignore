@@ -5,3 +5,6 @@ __pycache__/
 *.pyc
 patcher_local_settings.json
 *.patch-log.json
+
+# Local playtest stock-exe inputs (never commit game binaries)
+inputs/

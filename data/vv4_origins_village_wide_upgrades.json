@@ -8,7 +8,7 @@
     "entry_name": "running"
   },
   "name": "Enable Origins Tech, Details, and Village-Wide Upgrades",
-  "description": "Includes the Origins Tech screen and Villager Details-screen buttons and their upgrades through the internal Origins prerequisite. The Village-Wide menu offers Running, Full Mastery, and Make Villagers Young Adults. The Tech screen also offers Time Warp, Island Event, Barrel of Babies, Full Heal/Cure All, Complete and Reset All Collections, and Equal Division of Labor with and without Parenting, and the Villager Details screen adds Change Appearance. Island Events and Duplicate Collectibles are excluded.",
+  "description": "Includes the Origins Tech screen and Villager Details-screen buttons and their upgrades through the internal Origins prerequisite. The Village-Wide menu offers Running, Full Mastery, and Make Villagers Young Adults. The Tech screen also offers Time Warp, Island Event, Barrel of Babies, Food and Tech Point Doublers, Full Heal/Cure All, Complete and Reset All Collections, and Equal Division of Labor with and without Parenting, and the Villager Details screen grants Youth, Full Mastery, Running, Set Age to 18, and Change Appearance. Island Events and Duplicate Collectibles are excluded.",
   "output_tag": "Origins Tech, Details, and Village-Wide Upgrades",
   "dependencies": [
     "vv4_enable_origins_exclusive_features"
