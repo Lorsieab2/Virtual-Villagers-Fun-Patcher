@@ -15,6 +15,33 @@ class TechScreenUpgradeCrashHotfixTests(unittest.TestCase):
                 encoding="utf-8"
             )
             with self.subTest(game=game):
+                if game == 3:
+                    # VV3 centralizes result display in the show_result /
+                    # village-wide trampolines instead of two literal
+                    # `mov eax, show_result_export` sites.  The crash-safety
+                    # invariant still holds: every result export is resolved
+                    # via GetProcAddress (call [0x47C128]) and only then
+                    # called, so LoadLibrary/lookup stays balanced.
+                    self.assertIn("jmp show_result", source)
+                    self.assertIn(
+                        "push 0x{s['result_export']:X}\n"
+                        "            push eax\n"
+                        "            call dword ptr [0x47C128]",
+                        source,
+                    )
+                    self.assertIn(
+                        "push 0x{s['show_result_export']:X}\n"
+                        "            push ebp\n"
+                        "            call dword ptr [0x47C128]",
+                        source,
+                    )
+                    self.assertNotIn(
+                        "push 0x{s['show_result_export']:X}\n"
+                        "            push 0x{s['icons_dll']:X}\n"
+                        "            call",
+                        source,
+                    )
+                    continue
                 # VV1's village_wide dispatch now resolves the icons DLL
                 # handle once for all of its Running/Mastery/Age18 result
                 # branches (see village_wide's own comment in

@@ -18,11 +18,11 @@
     },
     {
       "path": "data/candidates/vv3_running_candidate_map.json",
-      "sha256": "63F3A1780A6A4A7300C8A2C1923203AEFA7E85A21B1A92D6E1CE47E9F924B2DC"
+      "sha256": "9EF68688077708C3FCFD5336088D33EE1DB997A0917117DB559916D725620F32"
     },
     {
       "path": "data/candidates/vv3_origins_full_mastery_base_candidate.json",
-      "sha256": "DC8B73F904A535063CCA161AFA52190E0C2A9056B0B70F6CDDDD152161342DBE"
+      "sha256": "71AEE1460B9B39974D42465EE17A81F04B74916623F636ADC83D5F5DE8B5DE3D"
     },
     {
       "path": "data/candidates/vv3_full_mastery_all_candidate.json",
@@ -30,15 +30,15 @@
     },
     {
       "path": "data/candidates/vv3_full_mastery_all_candidate_map.json",
-      "sha256": "4D0DDFBBC06AAABB3DBD66B0F5C5EE0256557FB332A4BB5170B45DBA8E3EA819"
+      "sha256": "1CAADD292CE24941EE2EA39B44E758C4BF764A1E2E761C2259C37DD8A1EF0AC8"
     },
     {
       "path": "data/candidates/vv3_individual_full_mastery_candidate.json",
-      "sha256": "A16D8118C8DECAD09F9F4646F8243C156B366EC3A0C7E8428308A6D2F1D46882"
+      "sha256": "7776B96591750C8171A61F01C533D8C584A0E0436EF39B2293CA8C06D7155ABA"
     },
     {
       "path": "data/candidates/vv3_individual_full_mastery_candidate_map.json",
-      "sha256": "8318276149AA619EC10CD6F5FAFE2BE4739E05BFA97997202226E2167B9030C8"
+      "sha256": "610D8050C539575DCCC2BC71AB2C4C5E33DAE8FAFEFA5F312E2AAE79A4FED484"
     },
     {
       "path": "data/candidates/vv3_individual_grant_running_candidate.json",
