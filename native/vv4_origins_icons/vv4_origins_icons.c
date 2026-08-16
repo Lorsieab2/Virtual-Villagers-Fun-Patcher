@@ -116,7 +116,7 @@ enum {
     IDD_ORIGINS_VILLAGER = 202,
     IDD_ORIGINS_APPEARANCE = 203,
     ID_BUY_FIRST = 1000,
-    ID_BUY_LAST = 1010,
+    ID_BUY_LAST = 1012,
     ID_CHECK_FIRST = 1100,
     ID_HEAD_LABEL = 2000,
     ID_HEAD_PREV = 2001,
@@ -270,14 +270,16 @@ static void vv4_surface_dialog(HWND window) {
 
 /* OFFICIAL per-row purchase-confirm names + costs. Tech rows 6-8 (village-wide)
    use the payload's own OFFICIAL confirm and are skipped here. */
-static const char *const g_tech_names[11] = {
+static const char *const g_tech_names[13] = {
     "Time Warp", "Island Event", "Barrel of Babies",
     "Tech Point Doubler", "Food Point Doubler", "Full Heal / Cure All",
-    "", "", "", "Complete All Collections", "Reset All Collections"
+    "", "", "", "Complete All Collections", "Reset All Collections",
+    "Equal Division of Labor (Includes Parenting)",
+    "Equal Division of Labor (No Parenting)"
 };
-static const char *const g_tech_costs[11] = {
+static const char *const g_tech_costs[13] = {
     "50,000", "30,000", "75,000", "500,000", "500,000", "30,000", "", "", "",
-    "1,000,000", "1,000,000"
+    "1,000,000", "1,000,000", "1,000,000", "1,000,000"
 };
 static const char *const g_villager_names[5] = {
     "Grant Youth", "Grant Full Mastery", "Grant Running",
@@ -326,16 +328,16 @@ static INT_PTR CALLBACK upgrade_dialog(
         g_villager_menu = villager_menu;
         g_villager_mask = (int)lparam;
         int village_wide_buy = (lparam & STATE_VILLAGE_WIDE_BUY) != 0;
-        /* Village-wide tech menu carries 11 rows: the 6 base upgrades, the 3
-           village-wide grants (rows 6-8), and Complete/Reset All Collections
-           (rows 9-10). */
+        /* Village-wide tech menu carries 13 rows: the 6 base upgrades, the 3
+           village-wide grants (rows 6-8), Complete/Reset All Collections
+           (rows 9-10), and the two Equal Division of Labor rows (11-12). */
         int row_count = villager_menu
             ? 5
             : ((lparam & STATE_RUNNING_ONLY) != 0
                 ? 7
-                : ((lparam & STATE_VILLAGE_WIDE) != 0 ? 11 : 6));
+                : ((lparam & STATE_VILLAGE_WIDE) != 0 ? 13 : 6));
         int row;
-        for (row = 0; row < 11; ++row) {
+        for (row = 0; row < 13; ++row) {
             ShowWindow(GetDlgItem(window, ID_CHECK_FIRST + row), SW_HIDE);
         }
         for (row = 0; row < row_count; ++row) {
@@ -901,6 +903,7 @@ __declspec(dllexport) int __stdcall ShowOriginsUpgradeMenu(
 #define VVW_LIKES_OFFSET     0x1E60
 #define VVW_DISLIKES_OFFSET  0x1E6C
 #define VV_SKILL0_OFFSET     0x1C5C
+#define VV_PREF_OFFSET       0x1C70   /* preferred-skill: -1 none, 0 Farm,1 Parent,2 Heal,3 Research,4 Build */
 #define VV_DISPLAY_AGE_OFF   0x1B8C
 #define VV_RUNNING_PREF      38
 #define VV_LIKE_SLOTS        3
@@ -923,6 +926,72 @@ static int vv_eligible(const unsigned char *r) {
 static int vw_granted, vw_already, vw_full, vw_removed;
 
 static const char *vv_villagers(int n) { return n == 1 ? "Villager" : "Villagers"; }
+
+/* ---- Equal Division of Labor ----
+   Round-robin every living villager's preferred-skill field (+0x1C70) across the
+   professions in the requested order -- Farmer, Builder, Researcher, Healer[,
+   Parenting] -- cycling males and females INDEPENDENTLY so each profession ends
+   with a balanced count and a balanced male/female split. Everyone living is
+   eligible (children of any age, nursing moms, adults); it overwrites each
+   villager's current preference unconditionally, so N is simply how many were
+   eligible. Preferred-skill values: 0=Farming 1=Parenting 2=Healing 3=Research
+   4=Building. vw_prof_m/f are indexed by that value. */
+static int vw_prof_m[5], vw_prof_f[5];
+static int vv4_apply_equal_division(int include_parenting) {
+    static const int order_p[5]  = { 0, 4, 3, 2, 1 }; /* Farmer,Builder,Researcher,Healer,Parenting */
+    static const int order_np[4] = { 0, 4, 3, 2 };    /* Farmer,Builder,Researcher,Healer */
+    const int *order = include_parenting ? order_p : order_np;
+    const int n = include_parenting ? 5 : 4;
+    int total = vv_record_total(), i, assigned = 0, male_idx = 0, female_idx = 0, p;
+    for (p = 0; p < 5; ++p) { vw_prof_m[p] = 0; vw_prof_f[p] = 0; }
+    for (i = 0; i < total; ++i) {
+        unsigned char *r = vv_record(i);
+        int val;
+        if (!vv_eligible(r)) continue;
+        if (r[VV_SEX_OFFSET] != 0) { val = order[female_idx % n]; ++female_idx; ++vw_prof_f[val]; }
+        else                       { val = order[male_idx   % n]; ++male_idx;   ++vw_prof_m[val]; }
+        *(int *)(r + VV_PREF_OFFSET) = val;
+        ++assigned;
+    }
+    return assigned;
+}
+
+/* Append one "Skill: N Villagers (N Male, N Female)." line for profession value v. */
+static char *vv4_ed_line(char *p, const char *name, int v) {
+    int m = vw_prof_m[v], f = vw_prof_f[v];
+    return p + wsprintfA(p, "\n\n%s: %d %s (%d Male, %d Female).",
+                         name, m + f, vv_villagers(m + f), m, f);
+}
+
+/* Apply Equal Division and show the OFFICIAL result box. Returns the number of
+   villagers assigned (0 => none eligible, no charge -- the payload refunds). */
+static int vv4_equal_division(int include_parenting) {
+    int assigned = vv4_apply_equal_division(include_parenting);
+    char msg[512], *p = msg;
+    if (assigned == 0) {
+        MessageBoxA(GetForegroundWindow(),
+            "No villagers were eligible. No tech points have been deducted.",
+            "Origins Upgrades", MB_OK | MB_ICONINFORMATION | VV_MB_FRONT);
+        return 0;
+    }
+    p += wsprintfA(p, "Set %d %s' Job Preferences.",
+                   assigned, assigned == 1 ? "Villager" : "Villagers");
+    p = vv4_ed_line(p, "Farming", 0);
+    p = vv4_ed_line(p, "Building", 4);
+    p = vv4_ed_line(p, "Research", 3);
+    p = vv4_ed_line(p, "Healing", 2);
+    if (include_parenting) vv4_ed_line(p, "Breeding", 1);
+    MessageBoxA(GetForegroundWindow(), msg, "Origins Upgrades",
+                MB_OK | MB_ICONINFORMATION | VV_MB_FRONT);
+    return assigned;
+}
+
+__declspec(dllexport) int __stdcall ApplyVV4EqualDivisionParenting(void) {
+    return vv4_equal_division(1);
+}
+__declspec(dllexport) int __stdcall ApplyVV4EqualDivisionNoParenting(void) {
+    return vv4_equal_division(0);
+}
 
 /* Running: classify every eligible villager into granted / already-liking /
    full-slots, and count how many of the granted ones also had a Running
@@ -1083,12 +1152,12 @@ __declspec(dllexport) int __stdcall ConfirmOriginsVillageWide(int command) {
         vv_scan_age18();
         if (vw_granted == 0) {
             MessageBoxA(GetForegroundWindow(),
-                "Everyone is already 18. No tech points have been deducted.",
+                "Everyone is already exactly 18. No tech points have been deducted.",
                 "Origins Upgrades", MB_OK | MB_ICONWARNING | VV_MB_FRONT);
             return 0;
         }
         return MessageBoxA(GetForegroundWindow(),
-            "Do you want to buy Set All Villagers to 18 for 1,000,000 tech "
+            "Do you want to buy All Villagers are Exactly 18 for 1,000,000 tech "
             "points?\r\nPress OK to confirm, or Cancel.",
             "Origins Upgrades", MB_OKCANCEL | MB_ICONQUESTION | VV_MB_FRONT) == IDOK;
     }
@@ -1140,7 +1209,7 @@ __declspec(dllexport) int __stdcall ShowOriginsVillageWideResult(
         wsprintfA(msg, "Set %d %s to Age 18.",
                   vw_granted, vv_villagers(vw_granted));
         if (vw_already) {
-            wsprintfA(line, "\r\n\r\nSkipped %d %s: already 18.",
+            wsprintfA(line, "\r\n\r\nSkipped %d %s: already exactly 18.",
                       vw_already, vv_villagers(vw_already));
             lstrcatA(msg, line);
         }

@@ -253,6 +253,17 @@ class OriginsPlayerRuntimeChecklistTests(unittest.TestCase):
                         "0x15B46", "0x15D8C", "0x16722", "0x16735",
                         "0x1520E", "0x89373", "0xCC180",
                         "0x278", "0x294",
+                        # Barrel of Babies: purchase cues the native "Daredevil
+                        # Barrel of Babies" event (barrel_cue at 0xCCB10 spliced on
+                        # the real event scheduler at 0x3FBE5; the old dead-path
+                        # splice at 0x4098C is reverted to stock; 0x14D50 admits the
+                        # armed barrel). The purchased barrel always delivers 3 by
+                        # gating the stock spawn's two internal room-checks
+                        # (0x14DCA/0x14E0D -> checks at 0xCCB40/0xCCB60) past the
+                        # tiered cap, bounded by the 150-slot array; 0xCCC00 is the
+                        # matching purchase gate.
+                        "0xCCB10", "0x14D50", "0x3FBE5", "0x4098C",
+                        "0x14DCA", "0x14E0D", "0xCCB40", "0xCCB60", "0xCCC00",
                     }
                     self.assertEqual(
                         [item for item in current["patches"] if item["offset"] not in corrected_offsets],

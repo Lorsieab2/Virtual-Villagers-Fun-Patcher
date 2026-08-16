@@ -10,3 +10,5 @@ EXPORTS
     ShowOriginsUpgradeMessage=_ShowOriginsUpgradeMessage@8
     ApplyVV4CompleteCollections=_ApplyVV4CompleteCollections@0 @101
     ApplyVV4ResetCollections=_ApplyVV4ResetCollections@0 @102
+    ApplyVV4EqualDivisionParenting=_ApplyVV4EqualDivisionParenting@0 @103
+    ApplyVV4EqualDivisionNoParenting=_ApplyVV4EqualDivisionNoParenting@0 @104
