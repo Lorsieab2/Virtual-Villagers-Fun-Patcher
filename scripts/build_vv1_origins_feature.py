@@ -101,6 +101,62 @@ BARREL_MAIN_HELPER_FILE_OFFSET = 0x8B710
 BARREL_MAIN_HELPER_VA = IMAGE_BASE + SHR_RVA + (
     BARREL_MAIN_HELPER_FILE_OFFSET - SHR_FILE_OFFSET
 )
+# Equal Division of Labor (Tech screen rows 9/10): BARREL_MAIN_HELPER_VA's
+# own code ends well under 0x8B77E, leaving a genuinely free 386-byte gap
+# up to BARREL_CLOSE_HELPER_FILE_OFFSET (0x8B900) -- placed here rather
+# than in the confirmed-unused 0x8B07E-0x8B530 gap, which belongs to the
+# separate, optional village-wide extension payload
+# (scripts/build_village_wide_origins_features.py's own payload_offset)
+# and must stay free for it. equal_division_core does the actual work
+# (226 bytes, measured via keystone); its own fixed table/scratch data
+# sits safely after it with room to spare before BARREL_CLOSE_HELPER_VA.
+EQUAL_DIVISION_CORE_FILE_OFFSET = 0x8B790
+EQUAL_DIVISION_CORE_VA = IMAGE_BASE + SHR_RVA + (
+    EQUAL_DIVISION_CORE_FILE_OFFSET - SHR_FILE_OFFSET
+)
+# The single job-preference code (1-5) each of the 5 real skills uses at
+# villager-record offset +0x3D0 -- decompiled in full via the stock
+# game's own lazy dispatch jump table at 0x41fb60 (five branches, one per
+# code, each reading the matching skill DWORD at +0x3BC/+0x3C0/+0x3C4/
+# +0x3C8/+0x3CC) and cross-checked live: a running game's own Villager
+# Detail screen showed "Building" checked for a specific villager, and
+# reading that exact villager's record over ReadProcessMemory (read-only)
+# confirmed +0x3D0 held 4 at the same moment -- matching this table's own
+# code for Building. In on-screen order (Farming, Building, Research,
+# Healing, Breeding), the codes are 1, 4, 3, 5, 2; the "No Parenting" row
+# just treats this as a 4-entry table, cycling Farming/Building/Research/
+# Healing without ever reaching the trailing Breeding entry.
+EQUAL_DIVISION_TABLE_FILE_OFFSET = 0x8B8A0
+EQUAL_DIVISION_TABLE_VA = IMAGE_BASE + SHR_RVA + (
+    EQUAL_DIVISION_TABLE_FILE_OFFSET - SHR_FILE_OFFSET
+)
+EQUAL_DIVISION_TABLE_BYTES = bytes([1, 4, 3, 5, 2])
+EQUAL_DIVISION_N_FILE_OFFSET = 0x8B8A8
+EQUAL_DIVISION_N_VA = IMAGE_BASE + SHR_RVA + (
+    EQUAL_DIVISION_N_FILE_OFFSET - SHR_FILE_OFFSET
+)
+EQUAL_DIVISION_GRANTED_FILE_OFFSET = 0x8B8AC
+EQUAL_DIVISION_GRANTED_VA = IMAGE_BASE + SHR_RVA + (
+    EQUAL_DIVISION_GRANTED_FILE_OFFSET - SHR_FILE_OFFSET
+)
+EQUAL_DIVISION_GOLDEN_SKIPPED_FILE_OFFSET = 0x8B8B0
+EQUAL_DIVISION_GOLDEN_SKIPPED_VA = IMAGE_BASE + SHR_RVA + (
+    EQUAL_DIVISION_GOLDEN_SKIPPED_FILE_OFFSET - SHR_FILE_OFFSET
+)
+# Per-job, per-gender counters: 5 dwords each, indexed by table position
+# (0=Farming, 1=Building, 2=Research, 3=Healing, 4=Breeding -- the same
+# index EQUAL_DIVISION_TABLE_BYTES/esi already use, so no separate
+# code-to-position lookup is needed). ShowOriginsEqualDivisionResult
+# reads both arrays directly to report exactly how many of each gender
+# were set to each job.
+EQUAL_DIVISION_MALE_COUNTS_FILE_OFFSET = 0x8B8B4
+EQUAL_DIVISION_MALE_COUNTS_VA = IMAGE_BASE + SHR_RVA + (
+    EQUAL_DIVISION_MALE_COUNTS_FILE_OFFSET - SHR_FILE_OFFSET
+)
+EQUAL_DIVISION_FEMALE_COUNTS_FILE_OFFSET = 0x8B8C8
+EQUAL_DIVISION_FEMALE_COUNTS_VA = IMAGE_BASE + SHR_RVA + (
+    EQUAL_DIVISION_FEMALE_COUNTS_FILE_OFFSET - SHR_FILE_OFFSET
+)
 # D166 fix: VV1 previously fired the native Barrel of Babies event the
 # instant the token was set, with no check that the Tech-screen Upgrades
 # dialog (whose own "Buy" click just set that token) had actually closed.
@@ -190,6 +246,20 @@ POPULATION_FINAL_TIER_FILE_OFFSET = 0x8BD00
 POPULATION_FINAL_TIER_VA = IMAGE_BASE + SHR_RVA + (
     POPULATION_FINAL_TIER_FILE_OFFSET - SHR_FILE_OFFSET
 )
+# menu's own cave has no room to inline Equal Division's own afford-check
+# and charge/dispatch/result logic (unlike rows 6-8, this isn't part of
+# the shared village-wide extension ABI, so it can't reuse
+# VILLAGE_PREFLIGHT_VA/do_village_wide either) -- menu just does
+# "cmp ebx, 9 / jb menu_dispatch_normal / call this / jmp menu_loop"
+# and this owns everything else, including its own flat 1,000,000-point
+# afford check (matching rows 6-8's own inline check exactly) and its own
+# no-charge-if-nobody-eligible guard (measured 125 bytes via keystone;
+# placed in the confirmed-unused 220-byte gap after POPULATION_FINAL_TIER,
+# well ahead of ROW_MESSAGE_HELPER_FILE_OFFSET below).
+EQUAL_DIVISION_DISPATCH_FILE_OFFSET = 0x8BD30
+EQUAL_DIVISION_DISPATCH_VA = IMAGE_BASE + SHR_RVA + (
+    EQUAL_DIVISION_DISPATCH_FILE_OFFSET - SHR_FILE_OFFSET
+)
 # Generic "<row> completed."/no-change/removed/blocked result box, replacing
 # what used to be five separate fixed ASM strings (purchase_complete/
 # removed/no_change/event_queued/running_unavailable) plus the ASM call
@@ -268,6 +338,12 @@ def main() -> None:
     add_c_string(strings, s, "show_mastery_result_export", "ShowOriginsMasteryResult")
     add_c_string(strings, s, "show_row_message_export", "ShowOriginsRowMessage")
     add_c_string(strings, s, "show_age_result_export", "ShowOriginsAgeResult")
+    add_c_string(
+        strings,
+        s,
+        "show_equal_division_result_export",
+        "ShowOriginsEqualDivisionResult",
+    )
     add_c_string(strings, s, "show_appearance_picker", "ShowOriginsAppearancePicker")
     add_c_string(strings, s, "show_cure_result", "ShowOriginsCureResult")
     add_c_string(strings, s, "confirm_export", "ShowOriginsPermanentChangeConfirm")
@@ -492,6 +568,16 @@ def main() -> None:
             je menu_loop
             cmp ebx, 5
             je cure_gated
+            # Equal Division of Labor (rows 9/10) isn't part of the shared
+            # village-wide extension ABI the way rows 6-8 are, so it can't
+            # reuse VILLAGE_PREFLIGHT_VA/do_village_wide below -- checked
+            # and dispatched entirely by its own .shr helper instead,
+            # which owns its own afford check, charge, and result.
+            cmp ebx, 9
+            jb menu_dispatch_normal
+            call 0x{EQUAL_DIVISION_DISPATCH_VA:X}
+            jmp menu_loop
+        menu_dispatch_normal:
             cmp ebx, 6
             jb legacy_charge
             cmp ebx, 8
@@ -1540,6 +1626,188 @@ def main() -> None:
         b"\0" * len(population_final_tier_code),
         population_final_tier_code,
         "check whether Barrel of Babies' final population tier (above the 15/25/50 housing-flag tiers) has room for 3 more children under whichever patch_mode is actually installed, not just the collection_progression/immediate_fixed 256 cap",
+    )
+    # Equal Division of Labor: two passes (male, then non-male) over active,
+    # living, non-Golden-Child villagers, cyclically assigning the job-
+    # preference code table[esi] to each and wrapping esi back to 0 every
+    # N entries -- running each gender through its own independent cycle
+    # is what actually gives "an equal number of males/females per
+    # profession" (a single population-wide cycle can't guarantee that on
+    # its own, since gender isn't evenly interleaved in record order).
+    # 0x48B614 is this exact VV1 build's own module-static singleton
+    # pointer to the current Golden Child's villager record (confirmed via
+    # live memory scan + disassembly of its lazy-getter/destructor pair at
+    # 0x43da37/0x43da9d-0x43dac6 -- see the Golden Child age-exclusion
+    # feature's own record of this, which reached main independently of
+    # this one). Only pass 1 counts a Golden Child match into
+    # EQUAL_DIVISION_GOLDEN_SKIPPED_VA -- the same record is visited once
+    # per pass (both passes scan the full record array), so counting in
+    # both would double the reported skip count for what is always exactly
+    # one villager.
+    equal_division_core_code = assemble(
+        f"""
+            push ebx
+            push esi
+            mov dword ptr [0x{EQUAL_DIVISION_N_VA:X}], ecx
+            mov dword ptr [0x{EQUAL_DIVISION_GRANTED_VA:X}], 0
+            mov dword ptr [0x{EQUAL_DIVISION_GOLDEN_SKIPPED_VA:X}], 0
+            # EQUAL_DIVISION_MALE_COUNTS_VA and _FEMALE_COUNTS_VA are laid
+            # out contiguously (5 dwords each, back to back), so all 10 can
+            # be zeroed in one small indexed loop instead of 10 unrolled
+            # movs.
+            xor eax, eax
+            mov ecx, 10
+        equal_division_zero_counts:
+            mov dword ptr [eax*4 + 0x{EQUAL_DIVISION_MALE_COUNTS_VA:X}], 0
+            inc eax
+            dec ecx
+            jne equal_division_zero_counts
+            xor esi, esi
+            mov ebx, dword ptr [edi + 0xADE8]
+            test ebx, ebx
+            je equal_division_pass2
+            mov ecx, 256
+        equal_division_loop1:
+            cmp byte ptr [ebx + 0x28], 0
+            je equal_division_next1
+            cmp dword ptr [ebx + 0x344], 0
+            jle equal_division_next1
+            cmp ebx, dword ptr [0x48B614]
+            jne equal_division_check_gender1
+            inc dword ptr [0x{EQUAL_DIVISION_GOLDEN_SKIPPED_VA:X}]
+            jmp equal_division_next1
+        equal_division_check_gender1:
+            cmp dword ptr [ebx + 0x350], 1
+            jne equal_division_next1
+            movzx eax, byte ptr [esi + 0x{EQUAL_DIVISION_TABLE_VA:X}]
+            mov dword ptr [ebx + 0x3D0], eax
+            inc dword ptr [0x{EQUAL_DIVISION_GRANTED_VA:X}]
+            inc dword ptr [esi*4 + 0x{EQUAL_DIVISION_MALE_COUNTS_VA:X}]
+            inc esi
+            cmp esi, dword ptr [0x{EQUAL_DIVISION_N_VA:X}]
+            jne equal_division_next1
+            xor esi, esi
+        equal_division_next1:
+            add ebx, 0x3D8
+            dec ecx
+            jne equal_division_loop1
+        equal_division_pass2:
+            xor esi, esi
+            mov ebx, dword ptr [edi + 0xADE8]
+            test ebx, ebx
+            je equal_division_done
+            mov ecx, 256
+        equal_division_loop2:
+            cmp byte ptr [ebx + 0x28], 0
+            je equal_division_next2
+            cmp dword ptr [ebx + 0x344], 0
+            jle equal_division_next2
+            cmp ebx, dword ptr [0x48B614]
+            je equal_division_next2
+            cmp dword ptr [ebx + 0x350], 1
+            je equal_division_next2
+            movzx eax, byte ptr [esi + 0x{EQUAL_DIVISION_TABLE_VA:X}]
+            mov dword ptr [ebx + 0x3D0], eax
+            inc dword ptr [0x{EQUAL_DIVISION_GRANTED_VA:X}]
+            inc dword ptr [esi*4 + 0x{EQUAL_DIVISION_FEMALE_COUNTS_VA:X}]
+            inc esi
+            cmp esi, dword ptr [0x{EQUAL_DIVISION_N_VA:X}]
+            jne equal_division_next2
+            xor esi, esi
+        equal_division_next2:
+            add ebx, 0x3D8
+            dec ecx
+            jne equal_division_loop2
+        equal_division_done:
+            mov eax, dword ptr [0x{EQUAL_DIVISION_GRANTED_VA:X}]
+            mov edx, dword ptr [0x{EQUAL_DIVISION_GOLDEN_SKIPPED_VA:X}]
+            pop esi
+            pop ebx
+            ret
+        """,
+        EQUAL_DIVISION_CORE_VA,
+    )
+    patch(
+        EQUAL_DIVISION_CORE_FILE_OFFSET,
+        b"\0" * len(equal_division_core_code),
+        equal_division_core_code,
+        "Equal Division of Labor: cyclically assign the job-preference code table[esi] to each eligible (active, alive, non-Golden-Child) villager, running males and non-males through independent cycles for gender balance per profession",
+    )
+    patch(
+        EQUAL_DIVISION_TABLE_FILE_OFFSET,
+        b"\0" * len(EQUAL_DIVISION_TABLE_BYTES),
+        EQUAL_DIVISION_TABLE_BYTES,
+        "Equal Division of Labor's own job-preference code table, in on-screen Skills order (Farming, Building, Research, Healing, Breeding) -- codes 1, 4, 3, 5, 2",
+    )
+    # menu's own "cmp ebx, 9 / jb menu_dispatch_normal / call this / jmp
+    # menu_loop" insert (see menu's own dispatch below) hands off entirely
+    # to this helper for rows 9 and 10 -- unlike rows 6-8, Equal Division
+    # isn't part of the shared village-wide extension ABI, so it owns its
+    # own flat 1,000,000-point afford check (mirrors rows 6-8's own inline
+    # check exactly) and its own no-charge-if-nobody-eligible guard,
+    # instead of routing through VILLAGE_PREFLIGHT_VA/do_village_wide.
+    equal_division_dispatch_code = assemble(
+        f"""
+            push ebx
+            push esi
+            push ebp
+            cmp dword ptr [edi + 0xA2FC], 1000000
+            jae equal_division_funds_ok
+            mov eax, 0x{s['not_enough']:X}
+            push 0
+            push 0x{s['title']:X}
+            push eax
+            call 0x452DB6
+            add esp, 0x0C
+            jmp equal_division_dispatch_done
+        equal_division_funds_ok:
+            mov ecx, 5
+            mov ebp, 1
+            cmp ebx, 10
+            jne equal_division_call_core
+            mov ecx, 4
+            xor ebp, ebp
+        equal_division_call_core:
+            call 0x{EQUAL_DIVISION_CORE_VA:X}
+            test eax, eax
+            jnz equal_division_has_granted
+            push 1
+            push ebx
+            push 0
+            call 0x{ROW_MESSAGE_HELPER_VA:X}
+            jmp equal_division_dispatch_done
+        equal_division_has_granted:
+            mov ebx, eax
+            mov esi, edx
+            sub dword ptr [edi + 0xA2FC], 1000000
+            push 0x{s['icons_dll']:X}
+            call dword ptr [0x457010]
+            test eax, eax
+            je equal_division_dispatch_done
+            push 0x{s['show_equal_division_result_export']:X}
+            push eax
+            call dword ptr [0x4570D4]
+            test eax, eax
+            je equal_division_dispatch_done
+            push 0x{EQUAL_DIVISION_FEMALE_COUNTS_VA:X}
+            push 0x{EQUAL_DIVISION_MALE_COUNTS_VA:X}
+            push ebp
+            push esi
+            push ebx
+            call eax
+        equal_division_dispatch_done:
+            pop ebp
+            pop esi
+            pop ebx
+            ret
+        """,
+        EQUAL_DIVISION_DISPATCH_VA,
+    )
+    patch(
+        EQUAL_DIVISION_DISPATCH_FILE_OFFSET,
+        b"\0" * len(equal_division_dispatch_code),
+        equal_division_dispatch_code,
+        "Equal Division of Labor's own afford-check/charge/dispatch-by-row/result helper for Tech screen rows 9 (Includes Parenting, N=5) and 10 (No Parenting, N=4)",
     )
     # Forwards (is_detail, row, status) -- pushed by every plain-completion/
     # no-change/removed/blocked call site in menu, detail_menu, the

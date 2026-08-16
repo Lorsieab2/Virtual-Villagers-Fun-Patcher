@@ -43,7 +43,7 @@
 #define SS_CENTER 0x00000001L
 #define SS_OWNERDRAW 0x0000000DL
 
-201 DIALOGEX 0, 0, 310, 332
+201 DIALOGEX 0, 0, 310, 396
 STYLE DS_MODALFRAME | DS_SETFONT | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Origins Upgrades"
 FONT 9, "Segoe UI"
@@ -102,8 +102,20 @@ BEGIN
     LTEXT       "1,000,000 tech points", -1, 40, 278, 170, 9
     PUSHBUTTON  "Buy", 1008, 240, 267, 55, 18
 
-    CTEXT       "Press ESC to exit this menu.", -1, 20, 298, 270, 9
-    DEFPUSHBUTTON "Cancel", 2, 120, 311, 70, 14
+    ICON        108, -1, 8, 296,  24, 24
+    ICON        109, 1109, 22, 308, 12, 12
+    LTEXT       "Equal Division of Labor (Includes Parenting)", -1, 40, 298, 195, 10
+    LTEXT       "1,000,000 tech points", -1, 40, 310, 150, 9
+    PUSHBUTTON  "Buy", 1009, 240, 299, 55, 18
+
+    ICON        106, -1, 8, 328,  24, 24
+    ICON        109, 1110, 22, 340, 12, 12
+    LTEXT       "Equal Division of Labor (No Parenting)", -1, 40, 330, 195, 10
+    LTEXT       "1,000,000 tech points", -1, 40, 342, 150, 9
+    PUSHBUTTON  "Buy", 1010, 240, 331, 55, 18
+
+    CTEXT       "Press ESC to exit this menu.", -1, 20, 362, 270, 9
+    DEFPUSHBUTTON "Cancel", 2, 120, 375, 70, 14
 END
 
 202 DIALOGEX 0, 0, 310, 204

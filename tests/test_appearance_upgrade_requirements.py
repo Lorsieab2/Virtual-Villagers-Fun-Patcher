@@ -336,6 +336,12 @@ class AppearanceUpgradeRequirementsTests(unittest.TestCase):
                     # DETAIL_PREFLIGHT_VA when a villager's Like slots are
                     # full -- OFFICIAL spreadsheet edge case.
                     "0x8BE80",
+                    # Equal Division of Labor (Tech screen rows 9/10):
+                    # equal_division_core (in the confirmed-unused gap
+                    # after BARREL_MAIN_HELPER), its job-preference code
+                    # table, and equal_division_dispatch (in the
+                    # confirmed-unused gap after POPULATION_FINAL_TIER).
+                    "0x8B790", "0x8B8A0", "0x8BD30",
                 },
                 "data/vv2_origins_feature.json": {
                     "0x943A8", "0x9A009", "0x9A300", "0x9A530",

@@ -178,7 +178,7 @@ enum {
     IDD_ORIGINS_VILLAGER = 202,
     IDD_ORIGINS_APPEARANCE = 203,
     ID_BUY_FIRST = 1000,
-    ID_BUY_LAST = 1008,
+    ID_BUY_LAST = 1010,
     ID_CHECK_FIRST = 1100,
     /* IDC_HEAD_PREVIEW/IDC_BODY_PREVIEW: owner-draw STATIC controls that
        preview the real head/body sprite cropped from the stock game art
@@ -260,7 +260,17 @@ static INT_PTR CALLBACK upgrade_dialog(
         int row;
         center_dialog_on_owner(window);
         vv1_surface_dialog(window);
-        for (row = 0; row < 9; ++row) {
+        /* Rows 9/10 (Equal Division of Labor) are outside row_count's own
+           tiered range below -- unlike rows 6-8, they aren't gated behind
+           the optional village-wide extension payload (STATE_VILLAGE_WIDE),
+           they're always present, and they never have an "owned" state to
+           report (no checkmark, no Remove/Unavailable text) -- so they
+           only need their checkmark hidden here and are otherwise left at
+           the .rc template's own default (Buy, enabled). Hidden up to 11,
+           not just row_count's own max of 9, so their checkmarks (IDs
+           1109/1110) don't default to visible like every other ICON
+           control in this dialog does when nothing hides it first. */
+        for (row = 0; row < 11; ++row) {
             ShowWindow(GetDlgItem(window, ID_CHECK_FIRST + row), SW_HIDE);
         }
         for (row = 0; row < row_count; ++row) {
@@ -583,6 +593,8 @@ static const char *vv1_tech_row_name(int row) {
     case 6: return "Grant Running to All Villagers";
     case 7: return "Grant Full Mastery to All Villagers";
     case 8: return "Set All Villagers to 18";
+    case 9: return "Equal Division of Labor (Includes Parenting)";
+    case 10: return "Equal Division of Labor (No Parenting)";
     default: return "Origins upgrade";
     }
 }
@@ -794,6 +806,69 @@ __declspec(dllexport) int __stdcall ShowOriginsAgeResult(
     return 0;
 }
 
+/* Equal Division of Labor (both the Includes-Parenting and No-Parenting
+   Tech screen rows share this one export): granted/golden_child_skipped
+   come from two fixed .shr scratch dwords equal_division_core zeroes at
+   its own start and increments as it goes (VV1-only, not part of the
+   shared cross-game village-wide extension -- see equal_division_core's
+   own comment in build_vv1_origins_feature.py). Unlike Grant Running/
+   Mastery/Age, there is no "already correct" state to skip past: every
+   eligible villager's job preference is reassigned unconditionally, so
+   granted is simply how many villagers were actually eligible (active,
+   alive, not the Golden Child).
+
+   male_counts/female_counts each point at 5 more scratch dwords indexed
+   by the same table position equal_division_core's own cyclic index
+   (esi) uses -- 0=Farming, 1=Building, 2=Research, 3=Healing,
+   4=Breeding, matching EQUAL_DIVISION_TABLE_BYTES's own on-screen Skills
+   order, not the raw 1-5 job-preference codes written to the record.
+   include_parenting selects how many of the 5 entries to report (4 for
+   the No-Parenting row, which never reaches the trailing Breeding
+   entry). */
+__declspec(dllexport) int __stdcall ShowOriginsEqualDivisionResult(
+    int granted,
+    int golden_child_skipped,
+    int include_parenting,
+    const int *male_counts,
+    const int *female_counts
+) {
+    static const char *job_names[5] = {
+        "Farming", "Building", "Research", "Healing", "Breeding"
+    };
+    char message[768];
+    char line[192];
+    int job_count = include_parenting ? 5 : 4;
+    int i;
+    wsprintfA(
+        message,
+        "Set %d %s' Job Preferences.",
+        granted, vv1_vpl(granted)
+    );
+    for (i = 0; i < job_count; ++i) {
+        int total = male_counts[i] + female_counts[i];
+        wsprintfA(
+            line,
+            "\r\n\r\n%s: %d %s (%d Male, %d Female).",
+            job_names[i], total, vv1_vpl(total),
+            male_counts[i], female_counts[i]
+        );
+        lstrcatA(message, line);
+    }
+    wsprintfA(
+        line,
+        "\r\n\r\nSkipped %d %s: is Golden Child.",
+        golden_child_skipped, vv1_vpl(golden_child_skipped)
+    );
+    lstrcatA(message, line);
+    MessageBoxA(
+        GetForegroundWindow(),
+        message,
+        "Origins Upgrades",
+        MB_OK | MB_ICONINFORMATION | MB_TOPMOST | MB_SETFOREGROUND
+    );
+    return 0;
+}
+
 /* Grant Full Mastery to All Villagers: granted/already_mastered come from
    two fixed .shr scratch dwords mastery_va zeroes at its own start and
    increments as it goes (MASTERY_GRANTED_VA/MASTERY_ALREADY_VA) -- unlike
@@ -829,12 +904,19 @@ __declspec(dllexport) int __stdcall ShowOriginsMasteryResult(
 /* No-change wording for the Tech screen's three village-wide rows (Grant
    Running to All Villagers, Grant Full Mastery to All Villagers, Set All
    Villagers to 18) -- the only three Tech rows the OFFICIAL spreadsheet
-   gives distinct no-change text to instead of the shared fallback. */
+   gives distinct no-change text to instead of the shared fallback. Rows 9
+   and 10 (Equal Division of Labor) share one no-change case: unlike the
+   three rows above, this row never checks a villager's existing state
+   before reassigning, so "no change" only means no eligible villager was
+   found at all (an empty or all-Golden-Child village), not "already
+   correct". */
 static const char *vv1_tech_no_change_text(int row) {
     switch (row) {
     case 6: return "Everyone already likes running, or has full Likes slots. No tech points have been deducted.";
     case 7: return "Everyone has already mastered their skills. No tech points have been deducted.";
     case 8: return "Everyone is already 18. No tech points have been deducted.";
+    case 9:
+    case 10: return "No villagers were eligible. No tech points have been deducted.";
     default: return "No changes were needed. No tech points have been deducted.";
     }
 }

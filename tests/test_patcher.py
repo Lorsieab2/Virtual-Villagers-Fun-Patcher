@@ -959,7 +959,11 @@ class ManifestTests(unittest.TestCase):
         )
         self.assertIn("STATE_VILLAGE_WIDE = 0x20000", source)
         self.assertIn("((lparam & STATE_VILLAGE_WIDE) != 0 ? 9 : 6)", source)
-        self.assertIn("ID_BUY_LAST = 1008", source)
+        # ID_BUY_LAST covers Equal Division of Labor's rows 9/10 too, not
+        # just the original village-wide rows 6-8 -- otherwise WM_COMMAND
+        # never sees their Buy clicks as in ID_BUY_FIRST..ID_BUY_LAST and
+        # EndDialog is never called for them.
+        self.assertIn("ID_BUY_LAST = 1010", source)
         for label in (
             # Row labels match the OFFICIAL Origins Upgrade Prompts
             # spreadsheet's own naming for these two rows, not the shared
@@ -972,7 +976,9 @@ class ManifestTests(unittest.TestCase):
             "Set All Villagers to 18",
         ):
             self.assertIn(label, resource)
-        self.assertEqual(resource.count("1,000,000 tech points"), 3)
+        # 3 original village-wide rows (Running/Mastery/Age) plus the 2
+        # Equal Division of Labor rows, all flat 1,000,000-point rows.
+        self.assertEqual(resource.count("1,000,000 tech points"), 5)
         self.assertIn('PUSHBUTTON  "Buy", 1006', resource)
         self.assertIn('PUSHBUTTON  "Buy", 1007', resource)
         self.assertIn('PUSHBUTTON  "Buy", 1008', resource)
