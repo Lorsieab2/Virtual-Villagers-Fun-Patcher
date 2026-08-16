@@ -528,7 +528,7 @@ static const char *vv2_action_name(int action) {
     case VV2_ACT_CURE: return "Full Heal / Cure All";
     case VV2_ACT_RUNNING_ALL: return "Grant Running to All Villagers";
     case VV2_ACT_MASTERY_ALL: return "Grant Full Mastery to All Villagers";
-    case VV2_ACT_AGE_ALL: return "Set All Villagers to 18";
+    case VV2_ACT_AGE_ALL: return "All Villagers are Exactly 18";
     case VV2_ACT_COLLECT_COMPLETE: return "Complete All Collections";
     case VV2_ACT_COLLECT_RESET: return "Reset All Collections";
     case VV2_ACT_DIVIDE_PARENTING:
@@ -641,7 +641,7 @@ __declspec(dllexport) void __stdcall ShowVV2UpgradeResult(
             /* a=set to 18, b=already 18 */
             wsprintfA(message, "Set %u %s to Age 18.",
                       amount_a, vv2_villager_word(amount_a));
-            wsprintfA(line, "\r\n\r\nSkipped %u %s: already 18.",
+            wsprintfA(line, "\r\n\r\nSkipped %u %s: already exactly 18.",
                       amount_b, vv2_villager_word(amount_b));
             lstrcatA(message, line);
             break;
@@ -674,7 +674,7 @@ __declspec(dllexport) void __stdcall ShowVV2UpgradeResult(
             break;
         case VV2_ACT_AGE_ALL:
             lstrcpyA(message,
-                     "Everyone is already 18. No tech points have been "
+                     "Everyone is already exactly 18. No tech points have been "
                      "deducted.");
             break;
         case VV2_ACT_DETAIL_YOUTH:
