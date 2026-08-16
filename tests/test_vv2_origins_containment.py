@@ -54,7 +54,11 @@ class VV1VV2OriginsPlaytestTests(unittest.TestCase):
                 if "origins_feature" in filename:
                     self.assertIs(record["catalog_enabled"], True)
                     self.assertIs(record["catalog_hidden"], False)
-                    self.assertIn("confirmation pending", record["description"])
+                    # These are shipped (no longer confirmation-pending): the
+                    # description is the real user-facing Origins Upgrades blurb.
+                    self.assertIn(
+                        "Adds Origins-style Upgrades buttons", record["description"]
+                    )
 
         source_vv1 = (ROOT / "scripts" / "build_vv1_origins_feature.py").read_text(encoding="utf-8")
         source_vv2 = (ROOT / "scripts" / "build_vv2_origins_feature.py").read_text(encoding="utf-8")

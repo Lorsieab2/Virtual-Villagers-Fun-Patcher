@@ -61,28 +61,39 @@ class VV2RequiredFixTests(unittest.TestCase):
         village = (ROOT / "scripts" / "build_village_wide_origins_features.py").read_text(
             encoding="utf-8"
         )
-        self.assertIn("leaves already-Running or full-like villagers unchanged", village)
+        # PR #30 contract: Running is added to the first free Like slot, and
+        # any Running Dislike is removed whether or not a Like was added (so a
+        # full-Like villager still gets the dislike cleared for free); only
+        # already-Running villagers are truly left unchanged.
+        self.assertIn("removes any Running Dislike whether or not a Like was added", village)
+        self.assertIn("leaves already-Running villagers unchanged", village)
         self.assertIn("running_existing:\n                inc ebp\n                jmp running_next", village)
 
     def test_vv2_cure_all_restores_partial_health_and_clears_sickness(self) -> None:
         source = (ROOT / "scripts" / "build_vv2_origins_feature.py").read_text(
             encoding="utf-8"
         )
-        cure = source.split("cure_all:", 1)[1].split("cure_done:", 1)[0]
-        self.assertIn("cmp dword ptr [edx + 0x52C], 80", cure)
+        cure = source.split("cure_all:", 1)[1].split("cure_report:", 1)[0]
+        # Cure All is a full heal: any living villager below full health
+        # (100) is restored to 100, and sickness (+0x53C) is cleared.
+        self.assertIn("cmp dword ptr [edx + 0x52C], 100", cure)
         self.assertIn("mov dword ptr [edx + 0x52C], 100", cure)
         self.assertIn("mov dword ptr [edx + 0x53C], 0", cure)
 
     def test_vv2_tech_dialog_marks_rows_six_to_eight_as_buyable(self) -> None:
-        source = (ROOT / "scripts" / "build_vv2_origins_feature.py").read_text(
-            encoding="utf-8"
-        )
-        self.assertIn("or dword ptr [esp + 0x10], 0xA01C0", source)
+        # The whole-village rows (6-8) are kept buyable by the dialog proc,
+        # not by a payload dialog-state mask: when the village-wide-buy state
+        # is set the proc forces those rows to "Buy" + enabled instead of the
+        # "Remove"/"Unavailable"/"Done" states the other rows use.
         native = (ROOT / "native" / "vv1_origins_icons" / "vv1_origins_icons.c").read_text(
             encoding="utf-8"
         )
         self.assertIn("STATE_VILLAGE_WIDE_BUY = 0x80000", native)
+        self.assertIn("village_wide_buy && row >= 6", native)
         self.assertIn('SetDlgItemTextA(window, ID_BUY_FIRST + row, "Buy")', native)
+        self.assertIn(
+            "EnableWindow(GetDlgItem(window, ID_BUY_FIRST + row), TRUE)", native
+        )
 
     def test_vv2_uses_a_dedicated_companion_and_release_excludes_duplicates(self) -> None:
         feature = get_fun_patch("vv2_enable_origins_exclusive_features")
