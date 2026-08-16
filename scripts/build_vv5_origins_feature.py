@@ -138,7 +138,7 @@ BARREL_SELECTOR_HOOK_STOCK = bytes.fromhex("8B7484146A64E8")
 BARREL_SELECTOR_HOOK_REPAIRED = bytes.fromhex("E96C9839009090")
 BARREL_SELECTOR_BODY_STOCK = b"\0" * 0x28
 BARREL_SELECTOR_BODY_REPAIRED = bytes.fromhex(
-    "8B748414F70588D3510004000000740C832588D35100FBBE1E000000"
+    "8B748414F70588D3510004000000740C832588D35100FBBE19000000"
     "6A64E8BD14C5FFE97267C6FF"
 )
 BARREL_SELECTOR_BODY_SHA256 = hashlib.sha256(BARREL_SELECTOR_BODY_REPAIRED).hexdigest().upper()
@@ -380,7 +380,7 @@ def main() -> None:
             test dword ptr [0x51D388], 4
             jz done
             and dword ptr [0x51D388], 0xFFFFFFFB
-            mov esi, 30
+            mov esi, 25
         done:
             push 100
             call 0x403660
@@ -1138,7 +1138,7 @@ def main() -> None:
           "make the stock shared payload section executable")
     patch(BARREL_SELECTOR_HOOK_FILE_OFFSET, BARREL_SELECTOR_HOOK_STOCK,
           BARREL_SELECTOR_HOOK_REPAIRED,
-          "consume the one-shot purchase marker and force native event index 30")
+          "consume the one-shot purchase marker and force native event index 25")
     stock_food_hook = bytes.fromhex("85F67E3456")
     detoured_food_hook = rel32_jump(0x41EB6F, entry["food_increment"])
     stock_tech_hook = bytes.fromhex("568B742408")
