@@ -16,9 +16,14 @@ from vv_fun_patcher import (  # noqa: E402
 
 
 class GrantRunningCatalogContainmentTests(unittest.TestCase):
+    # VV1's own individual Grant Running binding was retired (5058c03):
+    # explicitly marked STOP/UNPROVED/not catalog-enabled in its own
+    # content, never referenced by any live code path, deleted along with
+    # its own dedicated test. The other four games' bindings are
+    # unaffected and still covered here.
     BINDINGS = tuple(
         ROOT / "data" / "candidates" / f"vv{game}_individual_grant_running_binding.json"
-        for game in range(1, 6)
+        for game in range(2, 6)
     )
     WITHDRAWN_CANDIDATES = (
         ROOT / "data" / "candidates" / "vv3_all_villagers_like_running_candidate.json",
