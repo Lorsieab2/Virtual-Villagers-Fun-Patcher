@@ -1196,8 +1196,8 @@ class DoublerPurchaseSafetyTests(unittest.TestCase):
                     bytes.fromhex(patch["after"]) for patch in feature.raw["patches"]
                 )
                 self.assertNotIn(b"Unavailable: exact-build doubler behavior", payload)
-                if game_id == "vv4":
-                    # VV4 marks owned Tech/Food Doublers with bits 3/4
+                if game_id in ("vv4", "vv3"):
+                    # VV4 and VV3 mark owned Tech/Food Doublers with bits 3/4
                     # (or eax,8 / or eax,16) so their rows resolve to "Remove";
                     # the earlier or-reg-0x1800 that also force-disabled both
                     # doublers ("Unavailable") was intentionally removed.
@@ -1215,7 +1215,7 @@ class DoublerPurchaseSafetyTests(unittest.TestCase):
                 )
                 self.assertIn("do_food_doubler", builder)
                 self.assertIn("do_tech_doubler", builder)
-                if game_id == "vv4":
+                if game_id in ("vv4", "vv3"):
                     self.assertIn("or eax, 8", builder)
                     self.assertIn("or eax, 16", builder)
                 else:

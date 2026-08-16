@@ -99,7 +99,11 @@ class VV3RequiredFixTests(unittest.TestCase):
         source = (ROOT / "scripts" / "build_vv3_origins_feature.py").read_text(
             encoding="utf-8"
         )
-        self.assertIn("or dword ptr [esp + 0x10], 0xA01C0", source)
+        # Village-wide payload marks the dialog VILLAGE_WIDE (0x20000), which the
+        # companion resolves to the nine-row Tech dialog (201) so Cure, Running,
+        # Full Mastery, and Age-18 render as live Buy controls.  (The former
+        # 0xA01C0 selected the eight-row dialog 203 that hid/greyed those rows.)
+        self.assertIn("or dword ptr [esp + 0x10], 0x20000", source)
         self.assertIn("push -1\n            mov eax, dword ptr fs:[0]", source)
         self.assertIn("mov eax, dword ptr [esp + 4]\n            sub esp, 0x14", source)
 

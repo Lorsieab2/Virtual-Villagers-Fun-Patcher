@@ -63,12 +63,19 @@ class VV3OriginsFeatureTests(unittest.TestCase):
             "data/candidates/VVFP VV3 Safe Upgrades.dll",
         )
         data = COMPANION.read_bytes()
-        for forbidden in (
-            "Cure all Villagers",
+        # The public projection now exposes every Tech upgrade row so the
+        # village-wide menu shows Full Heal/Cure, All Villagers Like Running,
+        # Grant Full Mastery to All, All Villagers are 18, and the Complete/Reset
+        # all Collections rows as live Buy controls (previously stripped down to
+        # Full Mastery only).
+        for required in (
+            "Full Heal/Cure All Villagers",
             "All Villagers Like Running",
-            "All Villagers are 18",
+            "All Villagers are Exactly 18",
+            "Complete all Collections",
+            "Reset all Collections",
         ):
-            self.assertNotIn(forbidden.encode("utf-16le"), data)
+            self.assertIn(required.encode("utf-16le"), data)
 
     def test_description_is_concise_and_keeps_the_base_dependency_internal(self) -> None:
         description = self.manifest["description"]
@@ -95,9 +102,14 @@ class VV3OriginsFeatureTests(unittest.TestCase):
             offsets,
             {
                 0x24C,
+                0x9EEA0,
+                0x9EF30,
+                0x7B3B1,
+                0x7B3E0,
+                0x68727,
                 0x7B664,
-                0x7B7C0,
-                0x7B7D0,
+                0x7B800,
+                0x7B810,
                 0x15EF1,
                 0x16983,
                 0x16BAB,
@@ -111,6 +123,8 @@ class VV3OriginsFeatureTests(unittest.TestCase):
                 0x65640,
                 0x6DA2C,
                 0x6E530,
+                0x7BD40,
+                0x7BDC0,
                 0xA3180,
             },
         )
@@ -124,7 +138,7 @@ class VV3OriginsFeatureTests(unittest.TestCase):
     def test_running_code_only_edits_normal_trait_arrays(self) -> None:
         source = BUILDER.read_text(encoding="utf-8")
         running = source.split("        detail_running:", 1)[1].split(
-            "        detail_success:", 1
+            "        detail_insufficient:", 1
         )[0]
         self.assertIn("[edx + 0xFB4]", running)
         self.assertIn("[edx + 0xFC0]", running)
@@ -210,16 +224,83 @@ class VV3OriginsFeatureTests(unittest.TestCase):
         self.assertEqual(marker["before"], "96000000")
         self.assertEqual(marker["after"], "00010000")
 
-    def test_native_barrel_dialog_and_reserved_population_preflight(self) -> None:
+    def test_native_barrel_event_and_reserved_population_preflight(self) -> None:
         source = BUILDER.read_text(encoding="utf-8")
-        self.assertIn("call 0x45E8F0", source)
-        self.assertIn("mov ecx, 147", source)
-        self.assertIn("mov ecx, 253", source)
-        self.assertIn("sub esp, 0x868", source)
-        self.assertIn("call 0x4192F0", source)
-        self.assertIn("call 0x401AF0", source)
-        self.assertIn("call 0x418460", source)
-        self.assertIn("add esp, 0x868", source)
+        # Barrel preflight refuses (before charging) unless the village can hold
+        # all three children.  The capacity computation is mode-aware and lives
+        # in the companion DLL (PrepareBarrelBabies); the payload preflight just
+        # calls the probe cave and refuses on a zero return.  The old fixed
+        # 150/256 physical cap is gone.
+        preflight = source.split("        maybe_barrel:", 1)[1].split(
+            "        charge:", 1
+        )[0]
+        self.assertIn("call 0x{BARREL_PREFLIGHT_DLL_VA:X}", preflight)
+        self.assertIn("jnz charge", preflight)
+        self.assertNotIn("147", preflight)
+        self.assertNotIn("253", preflight)
+        # The probe cave lives in the payload tail and LoadLibrary/
+        # GetProcAddress-calls PrepareBarrelBabies, failing open if unavailable.
+        self.assertIn("BARREL_PREFLIGHT_DLL_VA = PAYLOAD_VA +", source)
+        cave = source.split("put(\n        BARREL_PREFLIGHT_DLL_VA,", 1)[1].split(
+            '"""', 2
+        )[1]
+        self.assertIn("s['prepare_barrel_export']", cave)
+        self.assertIn("mov eax, 1", cave)  # fail-open
+        # The DLL computes the max mode-awarely by reading the live per-mode base
+        # population byte the patcher rewrites at 0x45FEE3 (not a hardcoded 90).
+        dll = (ROOT / "native" / "vv3_full_mastery_candidate"
+               / "vv3_full_mastery_candidate.c").read_text(encoding="utf-8")
+        self.assertIn("PrepareBarrelBabies", dll)
+        self.assertIn("0x45FEE3", dll)
+        # do_barrel marks the event pending (the real event is deferred to the
+        # island-handler hook) and confirms the purchase with the
+        # "Barrel of Babies completed." result box.
+        barrel = source.split("        do_barrel:", 1)[1].split(
+            "        do_complete_collections:", 1
+        )[0]
+        self.assertIn("BARREL_PENDING_FLAG_VA", barrel)
+        self.assertIn("mov eax, 7", barrel)  # -> "Barrel of Babies completed."
+        self.assertIn("jmp show_result", barrel)
+        # Tech one-shot / guard result wording lives in the DLL result export.
+        self.assertIn('"Barrel of Babies completed."', dll)
+        self.assertIn('"Island Event completed."', dll)
+        self.assertIn(
+            '"Tech Point Doubler was removed. No refund was issued."', dll
+        )
+        self.assertIn("ShowOriginsUpgradeResult", dll)
+        # Collections no-change guards route to result codes 8/9.
+        self.assertIn("All collectibles are already found.", dll)
+        self.assertIn("The collections are already cleared.", dll)
+        # Details Grant Running 3-case no-change wording (codes 20-22).
+        self.assertIn("This villager already likes Running.", dll)
+        self.assertIn("its Running dislike was removed.", dll)
+        self.assertIn("Running can not be added.", dll)
+        self.assertIn('"Villager Upgrades"', dll)  # detail-result title
+        complete = source.split("        do_complete_collections:", 1)[1].split(
+            "        do_reset_collections:", 1
+        )[0]
+        self.assertIn("0x58F438", complete)  # scans the collectible array
+        self.assertIn("mov eax, 8", complete)  # all found -> no-change
+        # The hook cave (spliced into the island-event handler) calls the present
+        # routine once in-frame instead of the raw outcome, so the named popup
+        # shows.
+        hook = source.split("barrel_hook_code = assemble(", 1)[1].split(
+            "BARREL_HOOK_VA,", 1
+        )[0]
+        self.assertIn("call 0x{BARREL_PRESENT_VA:X}", hook)
+        self.assertNotIn("call 0x415320", hook)
+        # The present routine drives the game's own island-event presenter,
+        # forced to the barrel: it points every event-array slot at the barrel
+        # object (rep stosd) so any selection path resolves to it, then runs the
+        # native select + present pair (0x419AC0 manager, 0x419B30 present).  The
+        # 3-child spawn runs from the game's own outcome when the popup is
+        # dismissed.
+        present = source.split("barrel_present_code = assemble(", 1)[1].split(
+            "BARREL_PRESENT_VA,", 1
+        )[0]
+        self.assertIn("rep stosd", present)
+        self.assertIn("call 0x{BARREL_SELECT_MANAGER_VA:X}", present)
+        self.assertIn("call 0x{BARREL_PRESENT_EVENT_VA:X}", present)
 
     def test_tech_click_contract_is_message8_and_free_command15(self) -> None:
         """The visible Tech button must have one, and only one, route."""
@@ -270,7 +351,7 @@ class VV3OriginsFeatureTests(unittest.TestCase):
         )
         self.assertEqual(
             hashlib.sha256(payload).hexdigest().upper(),
-            "4C5F0D3E12761A6300459282C276E62697BA3BC38FF4C5FB4E50C72CD04A6A9B",
+            "212D56694DF24D199F9B8EB2967E2C50887265C32EF1115C98820B36F12BADFF",
         )
         self.assertEqual(
             bytes.fromhex(
@@ -281,6 +362,53 @@ class VV3OriginsFeatureTests(unittest.TestCase):
                 )["after"]
             ),
             bytes.fromhex("E93BDB0300909090"),
+        )
+
+    def test_time_warp_advances_three_years_regardless_of_game_speed(self) -> None:
+        """Regression: VV3 Time Warp must advance exactly three displayed
+        villager years independent of the current game speed. The village ages
+        the injected clock shift at a rate proportional to the running speed,
+        so the elapsed-clock shift must be 129600 / speed (43,200s at half
+        speed 3, 21,600s at normal 6, 12,960s at double 10) -- the confirmed
+        two-real-hours-per-displayed-year relation. The builder used to compute
+        ``speed * 3600`` (proportional imul), correct only at normal speed and
+        silently under/over-advancing at every other speed.
+        """
+        try:
+            import capstone
+        except ImportError:
+            self.skipTest("capstone not available")
+
+        payload = bytes.fromhex(
+            next(
+                item
+                for item in self.manifest["patches"]
+                if int(item["offset"], 0) == 0xA3180
+            )["after"]
+        )
+        # Locate the 32-bit elapsed-clock write: sub dword ptr [0x4A4210], eax
+        marker = bytes.fromhex("290510424A00")
+        index = payload.find(marker)
+        self.assertNotEqual(index, -1, "Time Warp clock write not found in payload")
+
+        md = capstone.Cs(capstone.CS_ARCH_X86, capstone.CS_MODE_32)
+        window_start = index - 0x14
+        block = list(
+            md.disasm(payload[window_start:index], 0x4A3180 + window_start)
+        )
+        mnemonics = [insn.mnemonic for insn in block]
+
+        self.assertIn("idiv", mnemonics, "Time Warp no longer divides by game speed")
+        self.assertNotIn(
+            "imul",
+            mnemonics,
+            "Time Warp still scales the advance proportionally to game speed",
+        )
+        # The constant dividend is 129600 seconds (0x1FA40): mov eax, 0x1FA40.
+        self.assertIn(
+            bytes.fromhex("B840FA0100"),
+            payload[window_start:index],
+            "Time Warp dividend is not the constant 129600 seconds",
         )
 
 

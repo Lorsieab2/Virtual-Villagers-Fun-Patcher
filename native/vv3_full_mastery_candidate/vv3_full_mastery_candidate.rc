@@ -9,13 +9,23 @@
 109 ICON "../../assets/origins/109-upgrade-checkmark.ico"
 110 ICON "../../assets/origins/110-cure-all.ico"
 
+3001 BITMAP "appearance/head_m_young.bmp"
+3002 BITMAP "appearance/head_m_old.bmp"
+3003 BITMAP "appearance/head_f_young.bmp"
+3004 BITMAP "appearance/head_f_old.bmp"
+3011 BITMAP "appearance/body_m.bmp"
+3012 BITMAP "appearance/body_f.bmp"
+
 #define DS_MODALFRAME 0x0080L
 #define DS_SETFONT 0x0040L
 #define WS_POPUP 0x80000000L
 #define WS_CAPTION 0x00C00000L
 #define WS_SYSMENU 0x00080000L
+#define WS_CHILD 0x40000000L
+#define WS_VISIBLE 0x10000000L
+#define SS_OWNERDRAW 0x0000000DL
 
-201 DIALOGEX 0, 0, 310, 318
+201 DIALOGEX 0, 0, 310, 462
 STYLE DS_MODALFRAME | DS_SETFONT | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Origins Upgrades"
 FONT 9, "Segoe UI"
@@ -52,7 +62,7 @@ BEGIN
 
     ICON        110, -1, 8, 168,  24, 24
     ICON        109, 1105, 22, 180, 12, 12
-    LTEXT       "Cure all Villagers", -1, 40, 170, 170, 10
+    LTEXT       "Full Heal/Cure All Villagers", -1, 40, 170, 190, 10
     LTEXT       "30,000 tech points", -1, 40, 182, 150, 9
     PUSHBUTTON  "Buy", 1005, 240, 171, 55, 18
 
@@ -70,14 +80,35 @@ BEGIN
 
     ICON        106, -1, 8, 264,  24, 24
     ICON        109, 1108, 22, 276, 12, 12
-    LTEXT       "All Villagers are 18", -1, 40, 266, 190, 10
+    LTEXT       "All Villagers are Exactly 18", -1, 40, 266, 190, 10
     LTEXT       "1,000,000 tech points", -1, 40, 278, 170, 9
     PUSHBUTTON  "Buy", 1008, 240, 267, 55, 18
 
-    DEFPUSHBUTTON "Cancel", 2, 120, 297, 70, 14
+    ICON        104, -1, 8, 296,  24, 24
+    LTEXT       "Complete all Collections", -1, 40, 298, 190, 10
+    LTEXT       "1,000,000 tech points", -1, 40, 310, 170, 9
+    PUSHBUTTON  "Buy", 1009, 240, 299, 55, 18
+
+    ICON        105, -1, 8, 328,  24, 24
+    LTEXT       "Reset all Collections", -1, 40, 330, 190, 10
+    LTEXT       "1,000,000 tech points", -1, 40, 342, 170, 9
+    PUSHBUTTON  "Buy", 1010, 240, 331, 55, 18
+
+    ICON        108, -1, 8, 360,  24, 24
+    LTEXT       "Equal Division of Labor (Incl. Parenting)", -1, 40, 362, 195, 10
+    LTEXT       "1,000,000 tech points", -1, 40, 374, 170, 9
+    PUSHBUTTON  "Buy", 1011, 240, 363, 55, 18
+
+    ICON        107, -1, 8, 392,  24, 24
+    LTEXT       "Equal Division of Labor (No Parenting)", -1, 40, 394, 195, 10
+    LTEXT       "1,000,000 tech points", -1, 40, 406, 170, 9
+    PUSHBUTTON  "Buy", 1012, 240, 395, 55, 18
+
+    CTEXT       "Press ESC to exit this menu.", -1, 20, 428, 270, 9
+    DEFPUSHBUTTON "Cancel", 2, 120, 441, 70, 14
 END
 
-202 DIALOGEX 0, 0, 310, 158
+202 DIALOGEX 0, 0, 310, 206
 STYLE DS_MODALFRAME | DS_SETFONT | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Villager Upgrades"
 FONT 9, "Segoe UI"
@@ -106,10 +137,17 @@ BEGIN
     LTEXT       "50,000 tech points", -1, 40, 118, 150, 9
     PUSHBUTTON  "Buy", 1003, 240, 107, 55, 18
 
-    DEFPUSHBUTTON "Cancel", 2, 120, 137, 70, 14
+    ICON        106, -1, 8, 136,  24, 24
+    ICON        109, 1104, 22, 148, 12, 12
+    LTEXT       "Change Appearance", -1, 40, 138, 150, 10
+    LTEXT       "5,000 tech points", -1, 40, 150, 150, 9
+    PUSHBUTTON  "Buy", 1004, 240, 139, 55, 18
+
+    CTEXT       "Press ESC to exit this menu.", -1, 20, 172, 270, 9
+    DEFPUSHBUTTON "Cancel", 2, 120, 185, 70, 14
 END
 
-203 DIALOGEX 0, 0, 310, 254
+203 DIALOGEX 0, 0, 310, 334
 STYLE DS_MODALFRAME | DS_SETFONT | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Origins Upgrades"
 FONT 9, "Segoe UI"
@@ -146,7 +184,7 @@ BEGIN
 
     ICON        110, -1, 8, 168,  24, 24
     ICON        109, 1105, 22, 180, 12, 12
-    LTEXT       "Cure all Villagers", -1, 40, 170, 170, 10
+    LTEXT       "Full Heal/Cure All Villagers", -1, 40, 170, 190, 10
     LTEXT       "30,000 tech points", -1, 40, 182, 150, 9
     PUSHBUTTON  "Buy", 1005, 240, 171, 55, 18
 
@@ -156,5 +194,36 @@ BEGIN
     LTEXT       "1,000,000 tech points", -1, 40, 214, 170, 9
     PUSHBUTTON  "Buy", 1007, 240, 203, 55, 18
 
-    DEFPUSHBUTTON "Cancel", 2, 120, 233, 70, 14
+    ICON        104, -1, 8, 232,  24, 24
+    LTEXT       "Complete all Collections", -1, 40, 234, 190, 10
+    LTEXT       "1,000,000 tech points", -1, 40, 246, 170, 9
+    PUSHBUTTON  "Buy", 1009, 240, 235, 55, 18
+
+    ICON        105, -1, 8, 264,  24, 24
+    LTEXT       "Reset all Collections", -1, 40, 266, 190, 10
+    LTEXT       "1,000,000 tech points", -1, 40, 278, 170, 9
+    PUSHBUTTON  "Buy", 1010, 240, 267, 55, 18
+
+    CTEXT       "Press ESC to exit this menu.", -1, 20, 300, 270, 9
+    DEFPUSHBUTTON "Cancel", 2, 120, 313, 70, 14
+END
+
+213 DIALOGEX 0, 0, 250, 196
+STYLE DS_MODALFRAME | DS_SETFONT | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Change Appearance"
+FONT 9, "Segoe UI"
+BEGIN
+    CTEXT       "Body", -1, 30, 8, 70, 9
+    CONTROL     "", 3101, "STATIC", SS_OWNERDRAW | WS_CHILD | WS_VISIBLE, 30, 20, 70, 118
+    PUSHBUTTON  "<", 3103, 10, 72, 16, 16
+    PUSHBUTTON  ">", 3104, 104, 72, 16, 16
+
+    CTEXT       "Head", -1, 150, 8, 70, 9
+    CONTROL     "", 3102, "STATIC", SS_OWNERDRAW | WS_CHILD | WS_VISIBLE, 150, 20, 70, 118
+    PUSHBUTTON  "<", 3105, 130, 72, 16, 16
+    PUSHBUTTON  ">", 3106, 224, 72, 16, 16
+
+    CTEXT       "OK deducts 5,000 tech points. Cancel changes nothing.", -1, 14, 150, 222, 9
+    DEFPUSHBUTTON "OK", 1, 66, 168, 50, 16
+    PUSHBUTTON  "Cancel", 2, 134, 168, 50, 16
 END
