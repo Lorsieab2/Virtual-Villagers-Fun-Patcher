@@ -90,6 +90,36 @@ FILES = [
     "native/vv5_task9_origins/vv5_task9_origins.c",
     "native/vv5_task9_origins/vv5_task9_origins.def",
     "native/vv5_task9_origins/vv5_task9_origins.rc",
+    # Fun-patch companion assets (asset-swap patches). Without these the
+    # patcher cannot apply the "Optional Text Changes" (VV4) or "Guardians
+    # of Isola" (VV5) fun patches, nor restore them on removal.
+    "assets/text-changes/vv4-sm.xml",
+    "data/guardians_of_isola/new/Assets/sm.xml",
+    "data/guardians_of_isola/base/Assets/sm.xml",
+    "data/guardians_of_isola/new/Images/BlinkyEyes.png",
+    "data/guardians_of_isola/base/Images/BlinkyEyes.png",
+    "data/guardians_of_isola/new/Images/BlinkyEyesSm.png",
+    "data/guardians_of_isola/base/Images/BlinkyEyesSm.png",
+    "data/guardians_of_isola/new/Images/BuildingTotemStrip.png",
+    "data/guardians_of_isola/base/Images/BuildingTotemStrip.png",
+    "data/guardians_of_isola/new/Images/ChildrensTotemStrip.png",
+    "data/guardians_of_isola/base/Images/ChildrensTotemStrip.png",
+    "data/guardians_of_isola/new/Images/FoodTotemStrip.png",
+    "data/guardians_of_isola/base/Images/FoodTotemStrip.png",
+    "data/guardians_of_isola/new/Images/MedicineTotemStrip.png",
+    "data/guardians_of_isola/base/Images/MedicineTotemStrip.png",
+    "data/guardians_of_isola/new/Images/RainbowTotemStrip.png",
+    "data/guardians_of_isola/base/Images/RainbowTotemStrip.png",
+    "data/guardians_of_isola/new/Images/ResearchTotemStrip.png",
+    "data/guardians_of_isola/base/Images/ResearchTotemStrip.png",
+    "data/guardians_of_isola/new/Images/blinkEyesMaskStrip.png",
+    "data/guardians_of_isola/base/Images/blinkEyesMaskStrip.png",
+    "data/guardians_of_isola/new/Images/blinkEyesMaskStripSm.png",
+    "data/guardians_of_isola/base/Images/blinkEyesMaskStripSm.png",
+    "data/guardians_of_isola/new/Images/idol_states.png",
+    "data/guardians_of_isola/base/Images/idol_states.png",
+    "data/guardians_of_isola/new/Images/mainmenu.jpg",
+    "data/guardians_of_isola/base/Images/mainmenu.jpg",
 ]
 
 def main() -> int:
