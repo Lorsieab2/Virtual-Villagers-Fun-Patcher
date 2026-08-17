@@ -2019,59 +2019,21 @@ def main() -> None:
     mask_backedge_hook_va = MASK_HOOK_VA + len(mask_hook_code)
     mask_backedge_hook_code = assemble(
         f"""
-            cmp dword ptr [{MASK_PENDING_RECORD_VA:#x}], 0
-            je mask2_done
             pushad
-            mov ebp, dword ptr [{MASK_PENDING_RECORD_VA:#x}]
-            mov edx, dword ptr [{MASK_PENDING_CHOICE_VA:#x}]
-            dec edx
-            mov ebx, edx
-            mov ecx, dword ptr [{MASK_SURFACES_VA:#x} + ebx * 4]
-            test ecx, ecx
-            jnz mask2_have_surface
-            mov eax, ebx
-            shl eax, 4
-            add eax, {MASK_PATHS_VA:#x}
-            push eax
-            call {IMG_LOAD_THUNK_VA:#x}
-            add esp, 4
-            mov dword ptr [{MASK_SURFACES_VA:#x} + ebx * 4], eax
-            mov ecx, eax
-        mask2_have_surface:
-            test ecx, ecx
-            jz mask2_draw_done
+            mov dword ptr [{MASK_PENDING_RECORD_VA:#x}], 0
             mov ebx, dword ptr [esi + 0x3e00c]
             mov ebx, dword ptr [ebx]
             mov ebx, dword ptr [ebx + 0x30]
-            mov edx, dword ptr [esi + 0x3e010]
-            mov eax, dword ptr [ebp + 4]
-            sub eax, dword ptr [edx + 0xc]
-            sub eax, 13
-            mov edi, dword ptr [ebp + 8]
-            sub edi, dword ptr [edx + 8]
-            add edi, 19
-            push 65
-            push 40
-            push edi
-            push eax
+            push 200
+            push 200
+            push 10
+            push 10
             mov edx, esp
             push 0xffffffff
             push edx
             push ebx
             call {SDL_FILLRECT_THUNK_VA:#x}
             add esp, 12 + 16
-            push 0
-            push 0
-            push edi
-            push eax
-            push esp
-            push ebx
-            push 0
-            push ecx
-            call {SDL_UPPERBLIT_THUNK_VA:#x}
-            add esp, 32
-        mask2_draw_done:
-            mov dword ptr [{MASK_PENDING_RECORD_VA:#x}], 0
             popad
         mask2_done:
             inc edi
