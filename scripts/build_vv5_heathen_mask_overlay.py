@@ -1,41 +1,45 @@
 """VV5 Heathen-mask cosmetic overlay — SHIPPING render hook (per-villager).
 
-Applies the transient faction-flip render technique as a standalone overlay that
-can be layered on top of any already-patched VV5 exe (stock, or the Origins /
-Task9 build). It wraps the per-villager render function ``0x4720E0`` and, for the
-duration of one believer's render only, flips faction ``+0x1CEC`` to heathen and
-sets the mask-colour fields so the game draws its own heathen head + mask (correct
-position / blink / layering, via ``0x451DA0`` on atlas ``0x5258B8``). Every field
-is restored via a return-address trampoline BEFORE the render function returns, so
-the update loop never observes the flip — the villager stays a full believer in
-every game system (population, faith, no deactivation). A re-entrancy guard keeps
-a nested render from ever leaving the flip stuck.
+Draws the chosen Heathen mask on a Believer with zero persistent state change and,
+critically, without turning the believer's white selection ring red. The mask is
+painted by the villager's own heathen render path; we only borrow it transiently.
 
-Unlike the Step-1 prototype (which masked every believer), this reads the
-persistent per-villager choice byte ``+0x1BC0`` written by the Change-Appearance
-picker:
+The per-villager render fn ``0x4720E0`` draws, in order: the faction aura
+(``0x472169``), the **selection ring** (``0x47244B`` — believer ``0x44f320`` vs
+heathen ``0x44f3f0``, gated by the "is selected" test ``0x4653d0`` at
+``0x472442``), then the head (gate ``0x472729``: believer head ``0x44f5e0`` /
+heathen head ``0x44f4e0``), then the **mask overlay** (``0x472880``–``0x472903``,
+which reads the colour fields ``+0x1CFC`` / ``+0x1CED`` / ``+0x1CEE``). It exits
+through two identical epilogues (``0x472B0F`` and ``0x472B57``:
+``add esp,0xA8 ; ret 8``).
 
+So we bracket a transient faction flip to the window **after the ring, through the
+end of the function**:
+
+  * flip cave (hook at ``0x472481``, just past the ring block): for a Believer
+    whose persistent choice byte ``+0x1BC0`` is 1..5, save the colour fields + the
+    villager pointer, set the chosen colour, set faction ``+0x1CEC`` = 1, mark a
+    guard. The aura and ring already drew with the real Believer faction, so the
+    ring stays white; the head + mask now draw heathen.
+  * restore cave (hook at both epilogues): if the guard is set, revert faction +
+    colours, then run the displaced ``add esp,0xA8 ; ret 8``. NOTE ``esi`` is
+    popped before the epilogue, so the villager pointer is taken from the saved
+    slot, not ``esi``.
+
+Choice byte written by the Change-Appearance mask picker:
     0 = none, 1 = Blue, 2 = Orange, 3 = Red, 4 = Purple, 5 = Tribal Chief
+Colour fields (raw record offsets; ``esi`` = villager pointer in the render fn):
+    blue -> all 0 ; orange -> +0x1CED=1 ; red -> +0x1CEE=1 ;
+    purple -> +0x1CFC=12 ; chief -> +0x1CFC=13
 
-Colour mapping (all transient, restored same-frame — proven live 2026-08-16):
-    blue   -> orange=0, red=0, colorfield=0   (default heathen colour)
-    orange -> +0x1CED (orange flag) = 1
-    red    -> +0x1CEE (red flag)    = 1
-    purple -> +0x1CFC (colorfield)  = 12
-    chief  -> +0x1CFC (colorfield)  = 13
+Standalone overlay (not the Origins payload, which owns all of .shr and relocates
+it via a committed IDA ledger): caves live in the .text slice
+``0x4949B0..0x494B37`` (clear of the Clickable Tips + Origins caves); guard/save
+slots live in free .data BSS ``0x7B1D00`` (verified stock-zero), never touching
+.shr. build()'s free-check re-verifies the cave span is zero on the parent exe.
 
-Why a standalone overlay and NOT the Origins payload: the Origins feature owns the
-entire ``.shr`` section (PAYLOAD_VA 0x7B2000, size 0x1000) and relocates it in
-expanded mode via a committed IDA relocation ledger that can't be extended with
-fabricated entries. So this hook lives in a ``.text`` cave (0x494900, clear of the
-Origins caves) and keeps its scratch in free ``.data`` BSS (0x7B1D00, verified
-stock-zero and unused), never touching ``.shr``.
-
-Registers at ``0x4720E0`` entry: ``ecx`` = manager base (must be preserved — the
-render fn needs it), villager index at ``[esp+4]``. Only ``eax``/``edx`` are free
-(``ebx``/``esi``/``edi``/``ebp`` are callee-saved and the render fn saves the
-caller's values in its own prologue, so clobbering them here would corrupt the
-caller). Record base ``= index*0x2F44 + ecx``; field ``F`` at ``[base + 0x48 + F]``.
+Note: this covers the in-village render. The Details-screen portrait draws the
+villager through a different path and is handled separately.
 
 Usage::
 
@@ -50,102 +54,106 @@ from pathlib import Path
 import pefile
 from keystone import KS_ARCH_X86, KS_MODE_32, Ks
 
-HOOK = 0x4720E0
-HOOK_PREIMAGE = bytes.fromhex("81ECA8000000")  # sub esp, 0xA8
-# The single large .text cave (0x494339..0x495000) is shared: Clickable Tips owns
-# 0x494610..0x4949B0 and the Origins feature owns 0x4944C0 / 0x494B37 / 0x494EA0 /
-# 0x494FBE. The free slice clear of BOTH is 0x4949B0..0x494B37 (391 bytes). The
-# build() free-check re-verifies the whole span is zero on whatever parent exe is
-# supplied, so any future collision fails loudly instead of corrupting a neighbour.
-CAVE = 0x4949B0
-RESTORE = 0x494AA0
+# flip site: just after the selection-ring block (esi = villager pointer here)
+FLIP_SITE = 0x472481
+FLIP_PREIMAGE = bytes.fromhex("8b8c24bc000000")   # mov ecx, [esp+0xbc] (7 bytes)
+FLIP_RETURN = 0x472488
+
+# the two identical epilogues (esi already popped): add esp,0xA8 ; ret 8
+EPILOGUES = (0x472B0F, 0x472B57)
+EPILOGUE_PREIMAGE = bytes.fromhex("81c4a8000000")  # add esp, 0xA8 (6 bytes)
+
+# caves in the free .text slice 0x4949B0..0x494B37
+CAVE_FLIP = 0x4949B0
+CAVE_RESTORE = 0x494A70
 
 # free .data BSS scratch (NOT .shr — that belongs to Origins). Verified stock-zero.
-SLOT_ACTIVE = 0x7B1D00  # re-entrancy guard
-SLOT_REC = 0x7B1D04     # saved record base (eax)
-SLOT_RET = 0x7B1D08     # saved real return address
-SLOT_SCED = 0x7B1D0C    # saved +0x1CED (orange flag)
-SLOT_SCEE = 0x7B1D10    # saved +0x1CEE (red flag)
-SLOT_SCFC = 0x7B1D14    # saved +0x1CFC (colorfield)
+SLOT_ACTIVE = 0x7B1D00       # guard
+SLOT_SCED = 0x7B1D04         # saved +0x1CED (orange)
+SLOT_SCEE = 0x7B1D08         # saved +0x1CEE (red)
+SLOT_SCFC = 0x7B1D0C         # saved +0x1CFC (colorfield)
+SLOT_REC = 0x7B1D10          # saved villager pointer (esi at flip time)
 
-# field displacements from the record base eax (= index*0x2F44 + ecx); +0x48 esi bias
-CHOICE_DISP = 0x48 + 0x1BC0   # 0x1C08 persistent mask choice
-FACTION_DISP = 0x48 + 0x1CEC  # 0x1D34 "is heathen" faction byte
-ORANGE_DISP = 0x48 + 0x1CED   # 0x1D35
-RED_DISP = 0x48 + 0x1CEE      # 0x1D36
-COLORFIELD_DISP = 0x48 + 0x1CFC  # 0x1D44 mask-variant / colour field
+# raw record field offsets from the villager pointer
+CHOICE = 0x1BC0
+FACTION = 0x1CEC
+ORANGE = 0x1CED
+RED = 0x1CEE
+COLORFIELD = 0x1CFC
 
 
-def _wrap_asm() -> str:
+def _flip_asm() -> str:
     return f"""
-        cmp byte ptr [{SLOT_ACTIVE}], 0
-        jne wrap_orig
-        mov eax, [esp+4]
-        imul eax, eax, 0x2F44
-        add eax, ecx
-        cmp byte ptr [eax+{FACTION_DISP}], 0
-        jne wrap_orig
-        movzx edx, byte ptr [eax+{CHOICE_DISP}]
-        test edx, edx
-        je wrap_orig
-        cmp edx, 5
-        ja wrap_orig
+        push eax
+        push edx
+        movzx eax, byte ptr [esi+{CHOICE}]
+        test eax, eax
+        je flip_done
+        cmp eax, 5
+        ja flip_done
+        cmp byte ptr [esi+{FACTION}], 0
+        jne flip_done
         mov byte ptr [{SLOT_ACTIVE}], 1
-        mov [{SLOT_REC}], eax
-        movzx edx, byte ptr [eax+{ORANGE_DISP}]
+        mov [{SLOT_REC}], esi
+        movzx edx, byte ptr [esi+{ORANGE}]
         mov [{SLOT_SCED}], edx
-        movzx edx, byte ptr [eax+{RED_DISP}]
+        movzx edx, byte ptr [esi+{RED}]
         mov [{SLOT_SCEE}], edx
-        movzx edx, byte ptr [eax+{COLORFIELD_DISP}]
+        movzx edx, byte ptr [esi+{COLORFIELD}]
         mov [{SLOT_SCFC}], edx
-        mov byte ptr [eax+{FACTION_DISP}], 1
-        mov byte ptr [eax+{ORANGE_DISP}], 0
-        mov byte ptr [eax+{RED_DISP}], 0
-        mov byte ptr [eax+{COLORFIELD_DISP}], 0
-        movzx edx, byte ptr [eax+{CHOICE_DISP}]
-        cmp edx, 2
-        je set_orange
-        cmp edx, 3
-        je set_red
-        cmp edx, 4
-        je set_purple
-        cmp edx, 5
-        je set_chief
-        jmp colour_done
-    set_orange:
-        mov byte ptr [eax+{ORANGE_DISP}], 1
-        jmp colour_done
-    set_red:
-        mov byte ptr [eax+{RED_DISP}], 1
-        jmp colour_done
-    set_purple:
-        mov byte ptr [eax+{COLORFIELD_DISP}], 12
-        jmp colour_done
-    set_chief:
-        mov byte ptr [eax+{COLORFIELD_DISP}], 13
-    colour_done:
-        mov eax, [esp]
-        mov [{SLOT_RET}], eax
-        mov dword ptr [esp], {RESTORE}
-    wrap_orig:
-        sub esp, 0xA8
-        jmp {HOOK + 6}
+        mov byte ptr [esi+{ORANGE}], 0
+        mov byte ptr [esi+{RED}], 0
+        mov byte ptr [esi+{COLORFIELD}], 0
+        cmp eax, 2
+        je flip_orange
+        cmp eax, 3
+        je flip_red
+        cmp eax, 4
+        je flip_purple
+        cmp eax, 5
+        je flip_chief
+        jmp flip_setf
+    flip_orange:
+        mov byte ptr [esi+{ORANGE}], 1
+        jmp flip_setf
+    flip_red:
+        mov byte ptr [esi+{RED}], 1
+        jmp flip_setf
+    flip_purple:
+        mov byte ptr [esi+{COLORFIELD}], 12
+        jmp flip_setf
+    flip_chief:
+        mov byte ptr [esi+{COLORFIELD}], 13
+    flip_setf:
+        mov byte ptr [esi+{FACTION}], 1
+    flip_done:
+        pop edx
+        pop eax
+        mov ecx, [esp+0xbc]
+        jmp {FLIP_RETURN}
     """
 
 
 def _restore_asm() -> str:
     return f"""
+        cmp byte ptr [{SLOT_ACTIVE}], 0
+        je restore_done
+        push eax
+        push edx
         mov eax, [{SLOT_REC}]
-        mov byte ptr [eax+{FACTION_DISP}], 0
+        mov byte ptr [eax+{FACTION}], 0
         mov edx, [{SLOT_SCED}]
-        mov byte ptr [eax+{ORANGE_DISP}], dl
+        mov byte ptr [eax+{ORANGE}], dl
         mov edx, [{SLOT_SCEE}]
-        mov byte ptr [eax+{RED_DISP}], dl
+        mov byte ptr [eax+{RED}], dl
         mov edx, [{SLOT_SCFC}]
-        mov byte ptr [eax+{COLORFIELD_DISP}], dl
+        mov byte ptr [eax+{COLORFIELD}], dl
         mov byte ptr [{SLOT_ACTIVE}], 0
-        mov eax, [{SLOT_RET}]
-        jmp eax
+        pop edx
+        pop eax
+    restore_done:
+        add esp, 0xA8
+        ret 8
     """
 
 
@@ -162,22 +170,34 @@ def build(patched: bytes) -> bytes:
     def v2f(va: int) -> int:
         return text.PointerToRawData + (va - (ib + text.VirtualAddress))
 
-    if raw[v2f(HOOK):v2f(HOOK) + 6] != HOOK_PREIMAGE:
-        raise ValueError("hook preimage mismatch at 0x4720E0 — not a stock-derived VV5 render fn")
+    if raw[v2f(FLIP_SITE):v2f(FLIP_SITE) + len(FLIP_PREIMAGE)] != FLIP_PREIMAGE:
+        raise ValueError("flip-site preimage mismatch at 0x472481 — not a stock-derived VV5 render fn")
+    for ep in EPILOGUES:
+        if raw[v2f(ep):v2f(ep) + len(EPILOGUE_PREIMAGE)] != EPILOGUE_PREIMAGE:
+            raise ValueError(f"epilogue preimage mismatch at 0x{ep:X}")
 
     ks = Ks(KS_ARCH_X86, KS_MODE_32)
-    wrap = bytes(ks.asm(_wrap_asm(), CAVE)[0])
-    restore = bytes(ks.asm(_restore_asm(), RESTORE)[0])
-    if CAVE + len(wrap) > RESTORE:
-        raise ValueError(f"wrap ({len(wrap)}B) overflows into restore stub at 0x{RESTORE:X}")
-    cave_span = (RESTORE - CAVE) + len(restore)
-    if any(raw[v2f(CAVE) + i] for i in range(cave_span)):
-        raise ValueError(f"cave 0x{CAVE:X}..0x{CAVE + cave_span:X} is not free padding")
+    flip = bytes(ks.asm(_flip_asm(), CAVE_FLIP)[0])
+    restore = bytes(ks.asm(_restore_asm(), CAVE_RESTORE)[0])
+    if CAVE_FLIP + len(flip) > CAVE_RESTORE:
+        raise ValueError(f"flip cave ({len(flip)}B) overflows into restore cave at 0x{CAVE_RESTORE:X}")
+    cave_end = CAVE_RESTORE + len(restore)
+    if cave_end > 0x494B37:
+        raise ValueError(f"restore cave ends 0x{cave_end:X}, past the free slice end 0x494B37")
+    if any(raw[v2f(CAVE_FLIP) + i] for i in range(cave_end - CAVE_FLIP)):
+        raise ValueError(f"cave 0x{CAVE_FLIP:X}..0x{cave_end:X} is not free padding")
 
-    raw[v2f(CAVE):v2f(CAVE) + len(wrap)] = wrap
-    raw[v2f(RESTORE):v2f(RESTORE) + len(restore)] = restore
-    raw[v2f(HOOK):v2f(HOOK) + 5] = b"\xE9" + struct.pack("<i", CAVE - (HOOK + 5))
-    raw[v2f(HOOK) + 5] = 0x90  # nop the displaced 6th byte
+    raw[v2f(CAVE_FLIP):v2f(CAVE_FLIP) + len(flip)] = flip
+    raw[v2f(CAVE_RESTORE):v2f(CAVE_RESTORE) + len(restore)] = restore
+
+    # flip hook: 5-byte jmp over the first 5 bytes of the 7-byte mov, nop the 2 leftovers
+    raw[v2f(FLIP_SITE):v2f(FLIP_SITE) + 5] = b"\xE9" + struct.pack("<i", CAVE_FLIP - (FLIP_SITE + 5))
+    raw[v2f(FLIP_SITE) + 5] = 0x90
+    raw[v2f(FLIP_SITE) + 6] = 0x90
+    # epilogue hooks: 5-byte jmp over the first 5 bytes of the 6-byte add, nop the leftover
+    for ep in EPILOGUES:
+        raw[v2f(ep):v2f(ep) + 5] = b"\xE9" + struct.pack("<i", CAVE_RESTORE - (ep + 5))
+        raw[v2f(ep) + 5] = 0x90
 
     out = pefile.PE(data=bytes(raw))
     out.OPTIONAL_HEADER.CheckSum = out.generate_checksum()
