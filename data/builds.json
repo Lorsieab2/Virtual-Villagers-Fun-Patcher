@@ -1500,7 +1500,7 @@
             "append_length": 4096,
             "append_source": "generated:vv1_birth_control_page",
             "page_virtual_address": "0x490000",
-            "page_sha256": "E57E3FE69130016983BAC737A894C0BB62D62288A15023B01D52C2F946958AE8",
+            "page_sha256": "0DC027BCEE9B5D551FE8A167D61DFFA1D44A1A5D56537D48913E218B10A79D85",
             "purpose": "append the owned VV1 Birth Control executable helper page",
             "header_patches": [
               {
@@ -1529,7 +1529,7 @@
             "append_length": 4096,
             "append_source": "generated:vv1_birth_control_page",
             "page_virtual_address": "0x490000",
-            "page_sha256": "E57E3FE69130016983BAC737A894C0BB62D62288A15023B01D52C2F946958AE8",
+            "page_sha256": "0DC027BCEE9B5D551FE8A167D61DFFA1D44A1A5D56537D48913E218B10A79D85",
             "purpose": "append the owned VV1 Birth Control executable helper page",
             "header_patches": [
               {
@@ -1558,7 +1558,7 @@
             "append_length": 4096,
             "append_source": "generated:vv1_birth_control_page",
             "page_virtual_address": "0x490000",
-            "page_sha256": "E57E3FE69130016983BAC737A894C0BB62D62288A15023B01D52C2F946958AE8",
+            "page_sha256": "0DC027BCEE9B5D551FE8A167D61DFFA1D44A1A5D56537D48913E218B10A79D85",
             "purpose": "append the owned VV1 Birth Control executable helper page",
             "header_patches": [
               {
@@ -1593,19 +1593,19 @@
         {
           "offset": "0x46E96",
           "before": "813868010000",
-          "after": "E9A591040090",
+          "after": "E9E591040090",
           "purpose": "add a candidate-only internal-age-1000 upper bound to the first action-9 writer-reaching scan"
         },
         {
           "offset": "0x47084",
           "before": "813968010000",
-          "after": "E9F78F040090",
+          "after": "E93790040090",
           "purpose": "add a candidate-only internal-age-1000 upper bound to the second action-9 writer-reaching scan"
         },
         {
           "offset": "0x477FA",
           "before": "3950F47C2A",
-          "after": "E9C1880400",
+          "after": "E901890400",
           "purpose": "add a candidate-only internal-age-1000 upper bound to the planner scan while preserving the stock initiator check"
         },
         {
@@ -1617,7 +1617,7 @@
         {
           "offset": "0x39C83",
           "before": "0F8E99FEFFFF",
-          "after": "E97864050090",
+          "after": "E9B864050090",
           "purpose": "route the VV1 embracing chooser tail through the owned page for the native score roll and preference fallback"
         }
       ]
