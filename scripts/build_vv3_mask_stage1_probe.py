@@ -57,29 +57,32 @@ def build(out_path: Path) -> None:
     data = bytearray(STOCK.read_bytes())
     ks = keystone.Ks(keystone.KS_ARCH_X86, keystone.KS_MODE_32)
 
+    # MASK PROOF: draw the head (from a copy of the 7 args), then draw the SAME
+    # head atlas at ROW 30 (Blue mask) on top at the same position/facing.  Forced
+    # on every villager for the proof; row 30..34 = the 5 mask sprites appended to
+    # the head atlases by build_vv3_mask_atlas.py.
+    MASK_ROW = 30
     cave_asm = f"""
-        /* floating second head: copy the 7 on-stack draw args down, lift Y */
-        sub  esp, 0x1C
-        mov  eax, [esp+0x1C]      /* atlas   */
-        mov  [esp+0x00], eax
-        mov  eax, [esp+0x20]      /* x=0x78  */
-        mov  [esp+0x04], eax
-        mov  eax, [esp+0x24]      /* layer 0xF2 */
-        mov  [esp+0x08], eax
-        mov  eax, [esp+0x28]      /* head row */
-        mov  [esp+0x0C], eax
-        mov  eax, [esp+0x2C]      /* facing  */
-        mov  [esp+0x10], eax
-        mov  eax, [esp+0x30]      /* headY   */
-        sub  eax, {Y_LIFT}
-        mov  [esp+0x14], eax
-        mov  eax, [esp+0x34]      /* trailing 1 */
-        mov  [esp+0x18], eax
+        sub  esp, 0x1C                    /* scratch copy of the 7 args for HEAD */
+        mov  eax, [esp+0x1C]
+        mov  [esp+0x00], eax              /* atlas */
+        mov  eax, [esp+0x20]
+        mov  [esp+0x04], eax              /* x=0x78 */
+        mov  eax, [esp+0x24]
+        mov  [esp+0x08], eax              /* layer 0xF2 */
+        mov  eax, [esp+0x28]
+        mov  [esp+0x0C], eax              /* original head row */
+        mov  eax, [esp+0x2C]
+        mov  [esp+0x10], eax              /* facing */
+        mov  eax, [esp+0x30]
+        mov  [esp+0x14], eax              /* headY */
+        mov  eax, [esp+0x34]
+        mov  [esp+0x18], eax              /* 1 */
         mov  ecx, [esi+0x{SPRITE_OBJ_OFF:X}]
-        call 0x{DRAW_FN:X}        /* draws lifted head (ret 0x1C restores esp) */
-        /* original head draw: args still intact at [esp..+0x18] */
+        call 0x{DRAW_FN:X}                /* HEAD draw (restores esp to original) */
+        mov  dword ptr [esp+0x0C], {MASK_ROW}  /* force mask row on the original args */
         mov  ecx, [esi+0x{SPRITE_OBJ_OFF:X}]
-        call 0x{DRAW_FN:X}
+        call 0x{DRAW_FN:X}                /* MASK draw on top */
         jmp  0x{RETURN_VA:X}
     """
     cave_bytes, _ = ks.asm(cave_asm, addr=CAVE_VA)
@@ -97,6 +100,12 @@ def build(out_path: Path) -> None:
 
     data[foff(CAVE_VA):foff(CAVE_VA) + len(cave_bytes)] = cave_bytes
     data[foff(HOOK_VA):foff(HOOK_VA) + HOOK_LEN] = hook_bytes
+
+    # Bump the head-atlas ROW COUNT 0x1E(30) -> 0x23(35) so the engine knows rows
+    # 30..34 (the appended mask sprites) exist.  Sprite-table records (file offsets):
+    for rows_field in (0xAAE6C, 0xAAE9C, 0xAAF2C, 0xAAF5C):
+        assert struct.unpack_from("<I", data, rows_field)[0] == 0x1E, "row-count field moved"
+        struct.pack_into("<I", data, rows_field, 0x23)
 
     csum, csum_off = _pe_checksum(data)
     struct.pack_into("<I", data, csum_off, csum)
