@@ -1928,6 +1928,8 @@ def main() -> None:
             movzx edx, byte ptr [eax + 0x374]
             test edx, edx
             jz mask_resume
+            cmp edx, 5
+            ja mask_resume
             pushad
             mov ebp, eax
             dec edx
