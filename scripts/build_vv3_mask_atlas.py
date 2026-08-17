@@ -65,12 +65,17 @@ def _face_center_per_frame(src: Image.Image) -> list[tuple[float, float]]:
 
 
 def _place(mask: Image.Image, face_cx: float, face_cy: float) -> Image.Image:
-    """Native mask centered on the face; padded compositing crops any overhang."""
+    """Native mask centered on the face, kept FULLY inside the cell so nothing is
+    cropped (the whole tall mask, feathers included, stays visible)."""
     nw, nh = mask.size
     PAD = 64
     canvas = Image.new("RGBA", (CELL_W + 2 * PAD, CELL_H + 2 * PAD), (0, 0, 0, 0))
-    x = PAD + int(round(face_cx - nw / 2))
-    y = PAD + int(round(face_cy + MASK_LIFT - nh * FACE_Y_FRAC))
+    # horizontal: center on face, but clamp so the mask never overflows the cell
+    ix = max(0, min(int(round(face_cx - nw / 2)), CELL_W - nw)) if nw <= CELL_W else int(round(face_cx - nw / 2))
+    # vertical: face-align, then clamp into [0, CELL_H-nh] so the top/bottom never crop
+    iy = int(round(face_cy + MASK_LIFT - nh * FACE_Y_FRAC))
+    iy = max(0, min(iy, CELL_H - nh)) if nh <= CELL_H else 0
+    x, y = PAD + ix, PAD + iy
     canvas.alpha_composite(mask, (x, y))
     return canvas.crop((PAD, PAD, PAD + CELL_W, PAD + CELL_H))
 
