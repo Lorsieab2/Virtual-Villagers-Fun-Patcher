@@ -229,6 +229,14 @@ class OriginsPlayerRuntimeChecklistTests(unittest.TestCase):
                         # check/charge/result, in the confirmed-unused gap
                         # after POPULATION_FINAL_TIER).
                         "0x8B790", "0x8B8A0", "0x8BD30",
+                        # Cosmetic head-mask overlay (Change Appearance's
+                        # Mask row): 5 cached SDL_Surface* + companion-PNG
+                        # filenames plus the additive per-frame draw hook,
+                        # in .shr's confirmed-unused tail right after the
+                        # Running Dislike-clear helper; and the detour
+                        # splicing that hook into sub_437790's per-villager
+                        # render loop right after its own occupied check.
+                        "0x8BEA8", "0x377B8",
                     }
                     self.assertEqual(
                         [item for item in current["patches"] if item["offset"] not in repaired_offsets],

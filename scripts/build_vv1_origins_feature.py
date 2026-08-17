@@ -296,6 +296,43 @@ VV1_SKILL_FIELDS = (
     (0x3CC, 3),  # Research
 )
 
+# Cosmetic head-mask overlay (Change Appearance's Mask row, see
+# vv1_origins_icons.c's VV_MASK_OFFSET). Placed after RUNNING_DISLIKE_CLEAR,
+# the last currently-used .shr sub-cave -- 0x8BE80 + len(running_dislike_
+# clear_code) = 0x8BEA8, confirmed all-zero for 190+ bytes up to .shr's own
+# raw-section end (0x8BFFF) by a full-file zero-run scan against every
+# patch offset already claimed by this manifest.
+MASK_OVERLAY_FILE_OFFSET = 0x8BEA8
+MASK_OVERLAY_VA = IMAGE_BASE + SHR_RVA + (
+    MASK_OVERLAY_FILE_OFFSET - SHR_FILE_OFFSET
+)
+MASK_SURFACES_VA = MASK_OVERLAY_VA  # 5 x SDL_Surface* cache, NULL until first draw
+MASK_PATHS_VA = MASK_OVERLAY_VA + 0x14  # 5 x 8-byte "mN.png\0\0" companion filenames
+MASK_HOOK_VA = MASK_OVERLAY_VA + 0x3C  # additive draw hook itself
+
+# Splice point: sub_437790's per-villager render loop, immediately after
+# its own occupied-flag check (JNZ 0x4388CE if byte [eax+0x28] != 1). EAX
+# already holds the record base pointer and ESI the manager base at this
+# exact instruction -- both are read-only inputs for the mask hook and
+# both must come back unchanged for the native loop to resume correctly
+# (confirmed via Ghidra + capstone cross-check of sub_437790's real
+# function boundary; an earlier same-session guess at this boundary via
+# raw linear disassembly landed on the wrong function entirely).
+MASK_DETOUR_FILE_OFFSET = 0x377B8
+MASK_DETOUR_VA = IMAGE_BASE + MASK_DETOUR_FILE_OFFSET
+MASK_DETOUR_ORIGINAL_BYTES = bytes.fromhex("0F8510110000")  # JNZ 0x4388CE
+MASK_NATIVE_SKIP_TARGET_VA = 0x4388CE  # original JNZ target (continue loop)
+MASK_RESUME_VA = 0x4377BE  # instruction right after the displaced JNZ
+
+# Callable import thunks (jmp dword ptr [IAT slot]) for SDL2/SDL2_image --
+# found via Ghidra decompiling FUN_00403d00 (SDL_UpperBlit(src, srcrect,
+# dst, dstrect), the primitive under every native sprite blit in this
+# build) back to its real caller; grepping the raw .text bytes for a
+# direct reference to either IAT slot finds nothing because application
+# code calls these fixed jump-table thunks, never the IAT slot itself.
+SDL_UPPERBLIT_THUNK_VA = 0x44A9AC
+IMG_LOAD_THUNK_VA = 0x44AA78
+
 
 def assemble(source: str, address: int) -> bytes:
     encoding, _ = Ks(KS_ARCH_X86, KS_MODE_32).asm(source, address)
@@ -1867,6 +1904,97 @@ def main() -> None:
         running_dislike_clear_code,
         "Details Grant Running: when all 4 Like slots are full, clear any Running Dislike for free (OFFICIAL spreadsheet edge case) and report whether one was actually cleared; tail-jumped into from DETAIL_PREFLIGHT_VA's own exhausted Like-slot scan",
     )
+
+    # --- Cosmetic head-mask overlay (Change Appearance's Mask row) ---
+    #
+    # +0x374 (VV_MASK_OFFSET in vv1_origins_icons.c) is the player's chosen
+    # mask (0=none, 1..5=variant), written by the Change Appearance dialog.
+    # This hook is purely additive: it never reads or writes any field the
+    # native engine itself uses for anything else (deliberately NOT the
+    # real nursing-baby-icon flag at +0x29 -- see vv1_origins_icons.c's own
+    # comment on VV_MASK_OFFSET for why that would have been wrong). It
+    # draws by calling SDL_UpperBlit directly with a real SDL_Surface* from
+    # IMG_Load, rather than replicating the game's own multi-level sprite-
+    # wrapper class -- confirmed via Ghidra that IMG_Load/SDL_UpperBlit are
+    # both directly callable at fixed addresses in this exact build (no
+    # GetProcAddress needed).
+    mask_surfaces_data = b"\0" * 20
+    mask_paths_data = b"".join(
+        f"m{n}.png".encode("ascii").ljust(8, b"\0") for n in range(1, 6)
+    )
+    mask_hook_code = assemble(
+        f"""
+            jnz mask_native_skip
+            movzx edx, byte ptr [eax + 0x374]
+            test edx, edx
+            jz mask_resume
+            pushad
+            mov ebp, eax
+            dec edx
+            mov ebx, edx
+            mov ecx, dword ptr [{MASK_SURFACES_VA:#x} + ebx * 4]
+            test ecx, ecx
+            jnz mask_have_surface
+            mov eax, ebx
+            shl eax, 3
+            add eax, {MASK_PATHS_VA:#x}
+            push eax
+            call {IMG_LOAD_THUNK_VA:#x}
+            add esp, 4
+            mov dword ptr [{MASK_SURFACES_VA:#x} + ebx * 4], eax
+            mov ecx, eax
+        mask_have_surface:
+            test ecx, ecx
+            jz mask_draw_done
+            mov ebx, dword ptr [esi + 0x3e00c]
+            mov ebx, dword ptr [ebx + 0x30]
+            mov edx, dword ptr [esi + 0x3e010]
+            mov eax, dword ptr [ebp + 4]
+            sub eax, dword ptr [edx + 0xc]
+            sub eax, 13
+            mov edi, dword ptr [ebp + 8]
+            sub edi, dword ptr [edx + 8]
+            add edi, 19
+            push 0
+            push 0
+            push edi
+            push eax
+            push esp
+            push ebx
+            push 0
+            push ecx
+            call {SDL_UPPERBLIT_THUNK_VA:#x}
+            add esp, 32
+        mask_draw_done:
+            popad
+        mask_resume:
+            jmp {MASK_RESUME_VA:#x}
+        mask_native_skip:
+            jmp {MASK_NATIVE_SKIP_TARGET_VA:#x}
+        """,
+        MASK_HOOK_VA,
+    )
+    mask_overlay_blob = mask_surfaces_data + mask_paths_data + mask_hook_code
+    patch(
+        MASK_OVERLAY_FILE_OFFSET,
+        b"\0" * len(mask_overlay_blob),
+        mask_overlay_blob,
+        "cosmetic head-mask overlay: 5 cached SDL_Surface* + 5 short companion-PNG filenames, then the additive per-frame draw hook -- lazy-IMG_Load's a mask PNG once per colour (cached forever after), blits it with SDL_UpperBlit onto the same destination surface the native per-frame render already targets; never touches +0x29/+0x2A/+0x344 (the real nursing-baby-icon state) or any other engine field",
+    )
+    mask_detour_code = assemble(
+        f"""
+            jmp {MASK_HOOK_VA:#x}
+            nop
+        """,
+        MASK_DETOUR_VA,
+    )
+    patch(
+        MASK_DETOUR_FILE_OFFSET,
+        MASK_DETOUR_ORIGINAL_BYTES,
+        mask_detour_code,
+        "splice the mask-overlay hook into sub_437790's per-villager render loop right after its own occupied-flag check -- the hook's own first instruction reproduces the displaced JNZ exactly (same flags, same target), so occupied/unoccupied behavior is bit-for-bit unchanged; EAX (record pointer) and ESI (manager base) are the only registers the native loop needs intact on return, both fully restored by POPAD before the hook resumes it",
+    )
+
     patch(
         CURE_ENTRY_FILE_OFFSET,
         b"\0" * len(cure_code),
@@ -2027,6 +2155,15 @@ def main() -> None:
                     (ROOT / "assets" / "origins" / "VVFP VV1 Origins Icons.dll").read_bytes()
                 ).hexdigest().upper(),
             }
+        ] + [
+            {
+                "source": f"assets/origins/m{n}.png",
+                "destination": f"m{n}.png",
+                "sha256": hashlib.sha256(
+                    (ROOT / "assets" / "origins" / f"m{n}.png").read_bytes()
+                ).hexdigest().upper(),
+            }
+            for n in range(1, 6)
         ],
         "doubler_evidence": {
             "positive_tech_writer": "0x41D120",
