@@ -362,19 +362,34 @@ MASK_DETOUR_ORIGINAL_BYTES = bytes.fromhex("0F8510110000")  # JNZ 0x4388CE
 MASK_NATIVE_SKIP_TARGET_VA = 0x4388CE  # original JNZ target (continue loop)
 MASK_RESUME_VA = 0x4377BE  # instruction right after the displaced JNZ
 
-# Splice point 2: the loop's own back-edge -- "inc edi / cmp edi, 0x100"
-# (7 bytes combined) at 0x4388CE, confirmed via a full-.text xref scan to
-# be the SINGLE point every one of the loop's 19 distinct draw/skip
-# branches converges on before testing the loop condition again, and
-# confirmed nothing jumps into the middle of the 7-byte pair (only ever
-# targeted at its exact start). ESI (manager base) is guaranteed intact
-# here by construction -- the very next iteration's own first instruction
-# (0x437798) reuses it as the manager base, so the native code itself
-# would already be broken if it weren't.
-MASK_BACKEDGE_DETOUR_FILE_OFFSET = 0x388CE
+# Splice point 2: NOT inside sub_437790 (see below for why). Right after
+# FUN_00423390's own "call 0x437790" returns, at 0x424103. Playtested:
+# the original splice-point-2 design (inside sub_437790's own loop back-
+# edge) fired correctly and wrote real pixels (confirmed via direct
+# ReadProcessMemory inspection of the surface's pixel buffer -- the fill
+# color landed exactly as written) but never appeared on screen, because
+# sub_437790's own "esi" is a DIFFERENT, nested sub-object
+# (*(app_object+0x20)) from the actual app_object the game's own present
+# path (FUN_00409060 -> FUN_00403830 -> SDL_UpdateTexture/RenderCopy/
+# RenderPresent, all confirmed via Ghidra) uses -- the real displayed
+# surface is *(app_object+0x30), and there's no way to recover app_object
+# from sub_437790's esi (it's a pointer VALUE stored inside app_object,
+# not an address offset from it).
+#
+# FUN_00423390 IS called with app_object directly (its own "esi" register
+# is just its fastcall param_1), and sub_437790 is confirmed callee-saved
+# on ESI (push esi at entry / pop esi at exit) -- so immediately after
+# FUN_00423390's own "call 0x437790" returns, its "esi" is still
+# app_object, unclobbered by the callee. That gives a single, trivial
+# dereference (*(esi+0x30)) for the correct surface instead of the wrong
+# 3-level chain the original design used -- and 0x42410d, a few
+# instructions later in this same function, independently reads the same
+# esi+0x30 field for an unrelated purpose, confirming it's a real,
+# actively-used field at this exact point.
+MASK_BACKEDGE_DETOUR_FILE_OFFSET = 0x24103
 MASK_BACKEDGE_DETOUR_VA = IMAGE_BASE + MASK_BACKEDGE_DETOUR_FILE_OFFSET
-MASK_BACKEDGE_DETOUR_ORIGINAL_BYTES = bytes.fromhex("4781FF00010000")  # inc edi ; cmp edi, 0x100
-MASK_BACKEDGE_RESUME_VA = 0x4388D5  # native "jl 0x437798" right after the displaced pair
+MASK_BACKEDGE_DETOUR_ORIGINAL_BYTES = bytes.fromhex("8B4E086A00")  # mov ecx,[esi+8] ; push 0
+MASK_BACKEDGE_RESUME_VA = 0x424108  # native "call 0x41ab20" right after the displaced pair
 
 # Callable import thunks (jmp dword ptr [IAT slot]) for SDL2/SDL2_image --
 # found via Ghidra decompiling FUN_00403d00 (SDL_UpperBlit(src, srcrect,
@@ -2030,12 +2045,13 @@ def main() -> None:
     mask_backedge_hook_va = MASK_HOOK_VA + len(mask_hook_code)
     mask_backedge_hook_code = assemble(
         f"""
-            pushad
+            mov ecx, dword ptr [esi + 8]
+            push 0
             inc dword ptr [{DEBUG_HOOK2_COUNTER_VA:#x}]
-            mov dword ptr [{MASK_PENDING_RECORD_VA:#x}], 0
-            mov ebx, dword ptr [esi + 0x3e00c]
-            mov ebx, dword ptr [ebx]
-            mov ebx, dword ptr [ebx + 0x30]
+            cmp dword ptr [{MASK_PENDING_RECORD_VA:#x}], 0
+            je mask2_done
+            pushad
+            mov ebx, dword ptr [esi + 0x30]
             mov dword ptr [{DEBUG_LAST_SURFACE_VA:#x}], ebx
             push 200
             push 200
@@ -2047,10 +2063,9 @@ def main() -> None:
             push ebx
             call {SDL_FILLRECT_THUNK_VA:#x}
             add esp, 12 + 16
+            mov dword ptr [{MASK_PENDING_RECORD_VA:#x}], 0
             popad
         mask2_done:
-            inc edi
-            cmp edi, 0x100
             jmp {MASK_BACKEDGE_RESUME_VA:#x}
         """,
         mask_backedge_hook_va,
@@ -2084,8 +2099,6 @@ def main() -> None:
     mask_backedge_detour_code = assemble(
         f"""
             jmp {mask_backedge_hook_va:#x}
-            nop
-            nop
         """,
         MASK_BACKEDGE_DETOUR_VA,
     )
@@ -2093,7 +2106,7 @@ def main() -> None:
         MASK_BACKEDGE_DETOUR_FILE_OFFSET,
         MASK_BACKEDGE_DETOUR_ORIGINAL_BYTES,
         mask_backedge_detour_code,
-        "splice the mask-overlay draw hook into sub_437790's loop back-edge (the single point every one of its 19 distinct per-villager draw/skip branches converges on) -- the hook reproduces the displaced 'inc edi / cmp edi, 0x100' pair exactly before resuming the native 'jl' that follows, so loop iteration is bit-for-bit unchanged",
+        "splice the mask-overlay draw hook into FUN_00423390 right after its own 'call sub_437790' returns -- ESI there is FUN_00423390's own fastcall param_1 (the real app object), confirmed callee-saved by sub_437790 (push esi/pop esi at its entry/exit), so esi+0x30 is a single, correct dereference for the actual displayed surface, unlike sub_437790's own esi (a different, nested sub-object). Reproduces the displaced 'mov ecx,[esi+8] / push 0' pair exactly before resuming the native call that follows",
     )
 
     patch(
