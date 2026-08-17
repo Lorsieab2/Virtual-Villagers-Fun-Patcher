@@ -461,7 +461,7 @@ Supported stock identity is the exact `Virtual Villagers - New Believers.exe` bu
 Clicking the curled vine beneath the on-screen Puzzles button shows a random in-game tip in the gray message bar (with the engine's own auto-hide timer) and plays the hou.ogg chime.
 
 - Behavior changes: Adds a click target on the curled vine beneath the on-screen Puzzles button; clicking it shows a random eRandomTip in the gray message bar and plays the hou.ogg chime. Picks the tip at random each click (rdtsc-seeded); no persistent state.
-- Explicit non-changes/exclusions: No gameplay, villager, economy, or save-data changes. Uses only unused .text code padding and one writable scratch dword; no existing engine code or data is altered besides the single hooked click-dispatch site.
+- Explicit non-changes/exclusions: No gameplay, villager, economy, or save-data changes. Uses only unused .text code padding; no existing engine code or data is altered besides the single hooked click-dispatch site, and no persistent or scratch memory is written.
 - Dependencies: none
 - Evidence status: static + in-game verified (tip text and hou.ogg chime confirmed in playtest)
 - Guarded executable edits: 2; every edit has an exact purpose and before/after guard in the manifest.
