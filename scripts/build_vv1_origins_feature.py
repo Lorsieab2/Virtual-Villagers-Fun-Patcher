@@ -2039,8 +2039,8 @@ def main() -> None:
             mov dword ptr [{DEBUG_LAST_SURFACE_VA:#x}], ebx
             push 200
             push 200
-            push 10
-            push 10
+            push 300
+            push 400
             mov edx, esp
             push 0xffffffff
             push edx
