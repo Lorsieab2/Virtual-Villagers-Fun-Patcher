@@ -349,7 +349,7 @@ class AppearanceUpgradeRequirementsTests(unittest.TestCase):
                     # Dislike-clear helper (0x8BE80); and the detour that
                     # splices the hook into sub_437790's per-villager
                     # render loop right after its own occupied-flag check.
-                    "0x8BEA8", "0x377B8", "0x24103",
+                    "0x8BEA8", "0x377B8", "0x24103", "0x913C",
                 },
                 "data/vv2_origins_feature.json": {
                     "0x943A8", "0x9A009", "0x9A300", "0x9A530",
