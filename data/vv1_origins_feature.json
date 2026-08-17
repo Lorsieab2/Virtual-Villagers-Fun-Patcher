@@ -148,15 +148,21 @@
     },
     {
       "offset": "0x8BEA8",
-      "before": "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
-      "after": "00000000000000000000000000000000000000006D312E706E6700006D322E706E6700006D332E706E6700006D342E706E6700006D352E706E670000757B0FB6907403000085D2746B83FA0577666089C54A89D38B0C9DA8DE480085C9751C89D8C1E00305BCDE480050E861CBFBFF83C40489049DA8DE480089C185C974348B9E0CE003008B5B308B9610E003008B45042B420C83E80D8B7D082B7A0883C7136A006A00575054536A0051E854CAFBFF83C42061E95D98FAFFE968A9FAFF",
-      "purpose": "cosmetic head-mask overlay: 5 cached SDL_Surface* + 5 short companion-PNG filenames, then the additive per-frame draw hook -- lazy-IMG_Load's a mask PNG once per colour (cached forever after), blits it with SDL_UpperBlit onto the same destination surface the native per-frame render already targets; never touches +0x29/+0x2A/+0x344 (the real nursing-baby-icon state) or any other engine field"
+      "before": "0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "after": "00000000000000000000000000000000000000006D312E706E6700006D322E706E6700006D332E706E6700006D342E706E6700006D352E706E6700000000000000000000752C0FB6907403000085D2741283FA05770DA3E4DE48008915E8DE4800EB0AC705E4DE480000000000E9A498FAFFC705E4DE480000000000E9A5A9FAFF833DE4DE480000747A608B2DE4DE48008B15E8DE48004A89D38B0C9DA8DE480085C9751C89D8C1E00305BCDE480050E81BCBFBFF83C40489049DA8DE480089C185C974348B9E0CE003008B5B308B9610E003008B45042B420C83E80D8B7D082B7A0883C7136A006A00575054536A0051E80ECAFBFF83C420C705E4DE480000000000614781FF00010000E91DA9FAFF",
+      "purpose": "cosmetic head-mask overlay: 5 cached SDL_Surface* + 5 short companion-PNG filenames + a 2-dword pending-draw slot, then the stash-only occupied-check hook and the draw hook that runs at the loop's back-edge -- lazy-IMG_Load's a mask PNG once per colour (cached forever after), blits it with SDL_UpperBlit onto the same destination surface the native per-frame render already targets, strictly after that iteration's native head/body/clothing draw so it isn't painted over; never touches +0x29/+0x2A/+0x344 (the real nursing-baby-icon state) or any other engine field"
     },
     {
       "offset": "0x377B8",
       "before": "0F8510110000",
-      "after": "E92767050090",
-      "purpose": "splice the mask-overlay hook into sub_437790's per-villager render loop right after its own occupied-flag check -- the hook's own first instruction reproduces the displaced JNZ exactly (same flags, same target), so occupied/unoccupied behavior is bit-for-bit unchanged; EAX (record pointer) and ESI (manager base) are the only registers the native loop needs intact on return, both fully restored by POPAD before the hook resumes it"
+      "after": "E92F67050090",
+      "purpose": "splice the mask-overlay stash hook into sub_437790's per-villager render loop right after its own occupied-flag check -- the hook's own first instruction reproduces the displaced JNZ exactly (same flags, same target), so occupied/unoccupied behavior is bit-for-bit unchanged; EAX (record pointer) and ESI (manager base) are the only registers the native loop needs intact on return, neither is modified by this hook"
+    },
+    {
+      "offset": "0x388CE",
+      "before": "4781FF00010000",
+      "after": "E9565605009090",
+      "purpose": "splice the mask-overlay draw hook into sub_437790's loop back-edge (the single point every one of its 19 distinct per-villager draw/skip branches converges on) -- the hook reproduces the displaced 'inc edi / cmp edi, 0x100' pair exactly before resuming the native 'jl' that follows, so loop iteration is bit-for-bit unchanged"
     },
     {
       "offset": "0x8B530",
